@@ -1,0 +1,111 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
+  "root": true,
+  "files": {
+    "includes": [
+      "**",
+      "!**/*.css",
+      "!**/.tsup/**",
+      "!**/dist/**",
+      "!**/.turbo",
+      "!**/public/**",
+      "!**/build/**",
+      "!**/.next/**",
+      "!.tsbuildinfo",
+      "!**/__snapshots__/**",
+      "!./package.json"
+    ]
+  },
+  "formatter": {
+    "lineWidth": 80,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "formatWithErrors": true
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always",
+      "jsxQuoteStyle": "double",
+      "bracketSpacing": true,
+      "bracketSameLine": false
+    }
+  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
+      },
+      "a11y": {
+        "useFocusableInteractive": "off",
+        "useAriaPropsForRole": "off",
+        "useSemanticElements": "off",
+        "useKeyWithClickEvents": "off",
+        "noStaticElementInteractions": "off"
+      },
+      "complexity": {
+        "noBannedTypes": "off",
+        "noUselessConstructor": "off",
+        "noUselessFragments": "off",
+        "noThisInStatic": "off",
+        "useLiteralKeys": "off",
+        "noForEach": "off",
+        "noStaticOnlyClass": "off",
+        "noArguments": "off",
+        "noCommaOperator": "off"
+      },
+      "recommended": true,
+      "correctness": {
+        "useYield": "off",
+        "noChildrenProp": "off",
+        "noSwitchDeclarations": "off",
+        "noUndeclaredVariables": "off",
+        "useExhaustiveDependencies": "off",
+        "noUnusedVariables": "off",
+        "noUnusedImports": "off",
+        "noUnusedFunctionParameters": "off",
+        "useHookAtTopLevel": "off"
+      },
+      "performance": {
+        "noDelete": "off",
+        "noAccumulatingSpread": "off"
+      },
+      "suspicious": {
+        "useAdjacentOverloadSignatures": "off",
+        "noDoubleEquals": "off",
+        "noPrototypeBuiltins": "off",
+        "noDebugger": "off",
+        "noRedeclare": "off",
+        "noConfusingVoidType": "off",
+        "noShadowRestrictedNames": "off",
+        "noAssignInExpressions": "off",
+        "noArrayIndexKey": "off",
+        "noExplicitAny": "off",
+        "noThenProperty": "off",
+        "noDuplicateObjectKeys": "off",
+        "noCommentText": "off"
+      },
+      "style": {
+        "noNonNullAssertion": "off",
+        "useImportType": "off",
+        "noUnusedTemplateLiteral": "off",
+        "noParameterAssign": "off",
+        "useAsConstAssertion": "error",
+        "useDefaultParameterLast": "error",
+        "useEnumInitializers": "error",
+        "useSelfClosingElements": "error",
+        "useSingleVarDeclarator": "error",
+        "useNumberNamespace": "error",
+        "noInferrableTypes": "error",
+        "noUselessElse": "error"
+      }
+    }
+  },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "private": true,
+  "type": "module",
+  "name": "beep",
+  "packageManager": "pnpm@10.14.0",
+  "engines": {
+    "pnpm": "10.14.0"
+  },
+  "workspaces": [
+    "packages/*",
+    "packages/integrations/*",
+    "packages/infra/*",
+    "apps/*",
+    "tooling/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BeepinBois/beep-effect.git"
+  },
+  "scripts": {
+    "clean": "git clean -xdf node_modules .turbo",
+    "clean:workspaces": "turbo run clean",
+    "build": "pnpm dotenvx turbo run build",
+    "execute": "pnpm dotenvxturbo run execute",
+    "check": "turbo run check",
+    "update-deps": "turbo run update-deps",
+    "check:all": "turbo run lint check test",
+    "db:generate": "turbo run db:generate",
+    "db:migrate": "pnpm dotenvx turbo run db:migrate",
+    "db:push": "pnpm dotenvx turbo run db:push",
+    "db:nuke": "docker compose down && docker system prune -a -f && docker volume prune -a -f",
+    "db:exec": "pnpm dotenvx docker compose exec -it postgres '/bin/bash'",
+    "db:studio": "pnpm dotenvx turbo run  db:studio",
+    "db:up": "pnpm dotenvx docker compose up -d",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "test": "turbo run test",
+    "coverage": "vitest --coverage",
+    "prepare": "husky",
+    "dev": "pnpm dotenvx turbo run dev --concurrency=14",
+    "dotenvx": "dotenvx run -f .env --"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.28.0",
+    "@babel/core": "^7.28.0",
+    "@babel/plugin-transform-export-namespace-from": "^7.27.1",
+    "@babel/plugin-transform-modules-commonjs": "^7.27.1",
+    "@biomejs/biome": "^2.1.4",
+    "@dotenvx/dotenvx": "^1.48.4",
+    "@effect-rx/rx-react": "0.42.2",
+    "@effect/ai": "^0.25.0",
+    "@effect/ai-anthropic": "^0.15.0",
+    "@effect/ai-openai": "^0.28.1",
+    "@effect/cli": "^0.69.0",
+    "@effect/cluster": "^0.46.2",
+    "@effect/experimental": "^0.54.3",
+    "@effect/language-service": "^0.35.0",
+    "@effect/opentelemetry": "^0.56.1",
+    "@effect/platform": "^0.90.0",
+    "@effect/platform-browser": "^0.70.0",
+    "@effect/platform-node": "^0.94.1",
+    "@effect/rpc": "^0.68.3",
+    "@effect/sql": "^0.44.0",
+    "@effect/sql-pg": "^0.45.0",
+    "@effect/vitest": "^0.25.0",
+    "@types/node": "^24.2.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "babel-plugin-annotate-pure-calls": "^0.5.0",
+    "effect": "^3.17.6",
+    "glob": "^11.0.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.4",
+    "prettier": "^3.6.2",
+    "read-package-up": "^11.0.0",
+    "tsx": "^4.20.3",
+    "turbo": "^2.5.5",
+    "typescript": "^5.9.2",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.4"
+  },
+  "lint-staged": {
+    "*": [
+      "biome check"
+    ],
+    "**/*.{ts,tsx,js,jsx,cjs,mjs}": [
+      "biome check"
+    ]
+  },
+  "trustedDependencies": [
+    "@rocicorp/zero-sqlite3"
+  ]
+}

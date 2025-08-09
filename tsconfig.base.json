@@ -1,0 +1,77 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "exactOptionalPropertyTypes": false,
+    "moduleDetection": "force",
+    "composite": true,
+    "downlevelIteration": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "declaration": true,
+    "skipLibCheck": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "bundler",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": [],
+    "isolatedModules": true,
+    "sourceMap": true,
+    "declarationMap": true,
+    "noImplicitReturns": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "noEmitOnError": false,
+    "noErrorTruncation": false,
+    "allowJs": false,
+    "checkJs": false,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noUncheckedIndexedAccess": true,
+    "strictNullChecks": true,
+    "baseUrl": ".",
+    "target": "ES2022",
+    "module": "esnext",
+    "incremental": true,
+    "removeComments": false,
+    "plugins": [
+      {
+        "name": "@effect/language-service"
+      }
+    ],
+    "paths": {
+      "@beep/shared": [
+        "./packages/shared/src/index"
+      ],
+      "@beep/shared/*": [
+        "./packages/shared/src/*"
+      ],
+      "@beep/shared/test/*": [
+        "./packages/shared/test/*"
+      ],
+      "@beep/kernel": [
+        "./packages/kernel/src/index"
+      ],
+      "@beep/kernel/*": [
+        "./packages/kernel/src/*"
+      ],
+      "@beep/kernel/test/*": [
+        "./packages/kernel/test/*"
+      ],
+      "@beep/testkit": [
+        "./packages/testkit/src/index"
+      ],
+      "@beep/testkit/*": [
+        "./packages/testkit/src/*"
+      ],
+      "@beep/ui/*": [
+        "./packages/ui/src/*"
+      ]
+    }
+  }
+}

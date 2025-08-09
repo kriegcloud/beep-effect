@@ -1,0 +1,26 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["test", "src/**/*.test.ts"],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../shared"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node"],
+    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+    "rootDir": "test",
+    "noEmit": true,
+    "paths": {
+      "@beep/kernel": ["./src/index"],
+      "@beep/kernel/*": ["./src/*"],
+      "@beep/shared": ["../shared/src/index"],
+      "@beep/shared/*": ["../shared/src/*"],
+      "@beep/testkit": ["../../tooling/testkit/src/index"],
+      "@beep/testkit/*": ["../../tooling/testkit/src/*"]
+    }
+  }
+}

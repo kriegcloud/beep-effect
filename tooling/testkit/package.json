@@ -1,0 +1,54 @@
+{
+  "name": "@beep/testkit",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "The testing utilities package",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BeepinBois/beep-effect.git",
+    "directory": "tooling/testkit"
+  },
+  "publishConfig": {
+    "access": "restricted",
+    "directory": "build"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "clean": "rm -rf build && rm -rf .tsbuildinfo",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "update-deps": "pnpm tsx src/update-deps.ts",
+    "execute": "pnpm tsx src/execute.ts"
+  },
+  "dependencies": {
+    "@beep/shared": "workspace:*",
+    "@effect/platform": "^0.90.0",
+    "@effect/platform-node": "^0.94.1",
+    "chalk": "^5.5.0",
+    "effect": "^3.17.6",
+    "handlebars": "^4.7.8"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  },
+  "devDependencies": {
+    "tsx": "^4.20.3"
+  }
+}

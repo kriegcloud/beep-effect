@@ -1,0 +1,287 @@
+{
+  "name": "@beep/ui",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "copy-css": "copyfiles -f src/styles/globals.css build/src && copyfiles -f src/styles/globals.css build/esm && copyfiles -f src/styles/globals.css build/cjs",
+    "codegen": "build-utils prepare-v2",
+    "dotenvx": "dotenvx run -f ../../.env --",
+    "dev": "pnpm dotenvx tsc -b tsconfig.build.json --watch",
+    "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate && pnpm copy-css",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps ",
+    "build-annotate": "babel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "clean": "git clean -xdf .cache .turbo dist node_modules .next build .tsbuildinfo tsconfig.tsbuildinfo"
+  },
+  "exports": {
+    "./globals.css": "./src/styles/globals.css",
+    "./postcss.config": "./postcss.config.mjs",
+    "./animate/*": {
+      "import": "./build/esm/animate/*",
+      "types": "./build/dts/animate/*",
+      "require": "./build/cjs/animate/*",
+      "default": "./build/src/animate/*"
+    },
+    "./assets/*": {
+      "import": "./build/esm/assets/*",
+      "types": "./build/dts/assets/*",
+      "require": "./build/cjs/assets/*",
+      "default": "./build/src/assets/*"
+    },
+    "./atoms/*": {
+      "import": "./build/esm/atoms/*",
+      "types": "./build/dts/atoms/*",
+      "require": "./build/cjs/atoms/*",
+      "default": "./build/src/atoms/*"
+    },
+    "./branding/*": {
+      "import": "./build/esm/branding/*",
+      "types": "./build/dts/branding/*",
+      "require": "./build/cjs/branding/*",
+      "default": "./build/src/branding/*"
+    },
+    "./components/*": {
+      "import": "./build/esm/components/*",
+      "types": "./build/dts/components/*",
+      "require": "./build/cjs/components/*",
+      "default": "./build/src/components/*"
+    },
+    "./form/*": {
+      "import": "./build/esm/form/*",
+      "types": "./build/dts/form/*",
+      "require": "./build/cjs/form/*",
+      "default": "./build/src/form/*"
+    },
+    "./hooks/*": {
+      "import": "./build/esm/hooks/*",
+      "types": "./build/dts/hooks/*",
+      "require": "./build/cjs/hooks/*",
+      "default": "./build/src/hooks/*"
+    },
+    "./icons/*": {
+      "import": "./build/esm/icons/*",
+      "types": "./build/dts/icons/*",
+      "require": "./build/cjs/icons/*",
+      "default": "./build/src/icons/*"
+    },
+    "./inputs/*": {
+      "import": "./build/esm/inputs/*",
+      "types": "./build/dts/inputs/*",
+      "require": "./build/cjs/inputs/*",
+      "default": "./build/src/inputs/*"
+    },
+    "./layouts/*": {
+      "import": "./build/esm/layouts/*",
+      "types": "./build/dts/layouts/*",
+      "require": "./build/cjs/layouts/*",
+      "default": "./build/src/layouts/*"
+    },
+    "./lib/*": {
+      "import": "./build/esm/lib/*",
+      "types": "./build/dts/lib/*",
+      "require": "./build/cjs/lib/*",
+      "default": "./build/src/lib/*"
+    },
+    "./messages/*": {
+      "import": "./build/esm/messages/*",
+      "types": "./build/dts/messages/*",
+      "require": "./build/cjs/messages/*",
+      "default": "./build/src/messages/*"
+    },
+    "./i18n/*": {
+      "import": "./build/esm/i18n/*",
+      "types": "./build/dts/i18n/*",
+      "require": "./build/cjs/i18n/*",
+      "default": "./build/src/i18n/*"
+    },
+    "./molecules/*": {
+      "import": "./build/esm/molecules/*",
+      "types": "./build/dts/molecules/*",
+      "require": "./build/cjs/molecules/*",
+      "default": "./build/src/molecules/*"
+    },
+    "./organisms/*": {
+      "import": "./build/esm/organisms/*",
+      "types": "./build/dts/organisms/*",
+      "require": "./build/cjs/organisms/*",
+      "default": "./build/src/organisms/*"
+    },
+    "./progress/*": {
+      "import": "./build/esm/progress/*",
+      "types": "./build/dts/progress/*",
+      "require": "./build/cjs/progress/*",
+      "default": "./build/src/progress/*"
+    },
+    "./routing/*": {
+      "import": "./build/esm/routing/*",
+      "types": "./build/dts/routing/*",
+      "require": "./build/cjs/routing/*",
+      "default": "./build/src/routing/*"
+    },
+    "./sections/*": {
+      "import": "./build/esm/sections/*",
+      "types": "./build/dts/sections/*",
+      "require": "./build/cjs/sections/*",
+      "default": "./build/src/sections/*"
+    },
+    "./settings/*": {
+      "import": "./build/esm/settings/*",
+      "types": "./build/dts/settings/*",
+      "require": "./build/cjs/settings/*",
+      "default": "./build/src/settings/*"
+    },
+    "./theme/*": {
+      "import": "./build/esm/theme/*",
+      "types": "./build/dts/theme/*",
+      "require": "./build/cjs/theme/*",
+      "default": "./build/src/theme/*"
+    },
+    "./utils/*": {
+      "import": "./build/esm/utils/*",
+      "types": "./build/dts/utils/*",
+      "require": "./build/cjs/utils/*",
+      "default": "./build/src/utils/*"
+    }
+  },
+  "peerDependencies": {
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/server": "^11.11.0",
+    "@emotion/styled": "^11.14.1",
+    "@iconify/react": "^6.0.0",
+    "@mui/icons-material": ">= 5.x <8",
+    "@mui/lab": "^7.0.0-beta.12",
+    "@mui/material": ">= 5.x <8",
+    "@mui/system": "^7.1.0",
+    "react": ">=17 <20"
+  },
+  "peerDependenciesMeta": {
+    "@mui/icons-material": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@babel/preset-react": "^7.27.1",
+    "@beep/shared": "workspace:*",
+    "@blocknote/shadcn": "^0.35.0",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/modifiers": "^9.0.0",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@effect/platform": "^0.90.0",
+    "@fontsource-variable/dm-sans": "^5.2.6",
+    "@fontsource-variable/inter": "^5.2.6",
+    "@fontsource-variable/nunito-sans": "^5.2.6",
+    "@fontsource-variable/public-sans": "^5.2.6",
+    "@fontsource/barlow": "^5.2.6",
+    "@mui/material-nextjs": "^7.3.0",
+    "@mui/stylis-plugin-rtl": "^7.3.1",
+    "@mui/x-data-grid": "^8.9.2",
+    "@mui/x-date-pickers": "^8.9.2",
+    "@mui/x-tree-view": "^8.9.2",
+    "@radix-ui/react-accordion": "^1.2.11",
+    "@radix-ui/react-alert-dialog": "^1.1.14",
+    "@radix-ui/react-aspect-ratio": "^1.1.7",
+    "@radix-ui/react-avatar": "^1.1.10",
+    "@radix-ui/react-checkbox": "^1.3.2",
+    "@radix-ui/react-collapsible": "^1.1.11",
+    "@radix-ui/react-context-menu": "^2.2.15",
+    "@radix-ui/react-dialog": "^1.1.14",
+    "@radix-ui/react-dropdown-menu": "^2.1.15",
+    "@radix-ui/react-hover-card": "^1.1.14",
+    "@radix-ui/react-label": "^2.1.7",
+    "@radix-ui/react-menubar": "^1.1.15",
+    "@radix-ui/react-navigation-menu": "^1.2.13",
+    "@radix-ui/react-popover": "^1.1.14",
+    "@radix-ui/react-progress": "^1.1.7",
+    "@radix-ui/react-radio-group": "^1.3.7",
+    "@radix-ui/react-scroll-area": "^1.2.9",
+    "@radix-ui/react-select": "^2.2.5",
+    "@radix-ui/react-separator": "^1.1.7",
+    "@radix-ui/react-slider": "^1.3.5",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-switch": "^1.2.5",
+    "@radix-ui/react-tabs": "^1.1.12",
+    "@radix-ui/react-toggle": "^1.1.9",
+    "@radix-ui/react-toggle-group": "^1.1.10",
+    "@radix-ui/react-tooltip": "^1.2.7",
+    "@tanstack/react-form": "^1.19.0",
+    "@tiptap/core": "^2.22.0",
+    "@tiptap/extension-code-block": "^2.22.0",
+    "@tiptap/extension-code-block-lowlight": "^2.22.0",
+    "@tiptap/extension-heading": "^3.0.9",
+    "@tiptap/extension-image": "^2.22.0",
+    "@tiptap/extension-link": "^2.22.0",
+    "@tiptap/extension-placeholder": "^2.22.0",
+    "@tiptap/extension-text-align": "^2.22.0",
+    "@tiptap/extension-underline": "^2.22.0",
+    "@tiptap/pm": "^2.22.0",
+    "@tiptap/react": "^2.22.0",
+    "@tiptap/starter-kit": "^2.22.0",
+    "accept-language": "^3.0.20",
+    "apexcharts": "^5.3.2",
+    "autosuggest-highlight": "^3.3.4",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
+    "date-fns": "^4.1.0",
+    "dayjs": "^1.11.13",
+    "embla-carousel": "^8.6.0",
+    "embla-carousel-auto-height": "^8.6.0",
+    "embla-carousel-auto-scroll": "^8.6.0",
+    "embla-carousel-autoplay": "^8.6.0",
+    "embla-carousel-fade": "^8.6.0",
+    "embla-carousel-react": "^8.5.2",
+    "es-toolkit": "^1.39.8",
+    "framer-motion": "^12.23.12",
+    "i18next": "^25.3.2",
+    "i18next-browser-languagedetector": "^8.2.0",
+    "i18next-resources-to-backend": "^1.2.1",
+    "input-otp": "^1.4.2",
+    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
+    "lowlight": "^3.3.0",
+    "lucide-react": "^0.537.0",
+    "motion-dom": "^12.23.12",
+    "mui-one-time-password-input": "^5.0.0",
+    "next": "^15.4.6",
+    "next-themes": "^0.4.6",
+    "nprogress": "^0.2.0",
+    "react": "^19.1.1",
+    "react-apexcharts": "^1.7.0",
+    "react-day-picker": "8.10.1",
+    "react-dom": "^19.1.1",
+    "react-dropzone": "^14.3.8",
+    "react-i18next": "^15.6.1",
+    "react-phone-number-input": "^3.4.12",
+    "react-resizable-panels": "^3.0.4",
+    "recharts": "^3.1.2",
+    "sonner": "^2.0.7",
+    "stylis": "^4.3.6",
+    "stylis-plugin-rtl": "^2.1.1",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss-animate": "^1.0.7",
+    "tw-animate-css": "^1.3.6",
+    "vaul": "^1.1.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
+    "@turbo/gen": "^2.5.5",
+    "@types/autosuggest-highlight": "^3.2.3",
+    "@types/lodash": "^4.17.20",
+    "@types/lodash-es": "^4.17.12",
+    "@types/node": "^24.2.0",
+    "@types/nprogress": "^0.2.3",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
+    "babel-plugin-transform-next-use-client": "^1.1.1",
+    "copyfiles": "^2.4.1",
+    "react-docgen-typescript-loader": "^3.7.2",
+    "tailwindcss": "^4.1.11",
+    "typescript": "^5.9.2"
+  }
+}

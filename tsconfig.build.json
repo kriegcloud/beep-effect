@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.base.json",
+  "include": [],
+  "references": [
+    {
+      "path": "packages/kernel/tsconfig.build.json"
+    },
+    {
+      "path": "packages/shared/tsconfig.build.json"
+    },
+    {
+      "path": "packages/ui/tsconfig.build.json"
+    },
+    {
+      "path": "tooling/scripts/tsconfig.build.json"
+    },
+    {
+      "path": "tooling/testkit/tsconfig.build.json"
+    },
+
+  ]
+}

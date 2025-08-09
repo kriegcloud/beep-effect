@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [],
+  "exclude": ["src/**/*.test.ts"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@beep/ui/*": ["./src/*"],
+      "@beep/shared": ["../shared/src/index"],
+      "@beep/shared/*": ["../shared/src/*"]
+    }
+  },
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    }
+  ]
+}

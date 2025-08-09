@@ -1,0 +1,46 @@
+import * as S from "effect/Schema";
+import * as M from "@effect/sql/Model";
+import * as Duration from "effect/Duration";
+import { modelKit } from "@beep/shared/factories";
+import { Common, EntityIds, sid } from "@beep/domain/shared-kernel";
+
+
+/**
+ * @description {{entityName}} model representing:
+ * {{entityDescription}}
+ *
+ * Maps to the `{{tableName}}` table in the database.
+ */
+export class Model extends M.Class<Model>(sid.entity(`{{entityName}}.Model`))({
+  /** Primary key identifier for the membership */
+  id: EntityIds.{{entityName}}Id.Generated,
+
+  /** User who is a member */
+  userId: EntityIds.UserId.Schema.annotations({
+    description: "ID of the user who is a member",
+  }),
+
+  /** Role within the organization */
+  role: S.Literal("admin", "member", "viewer", "owner").annotations({
+    description: "The member's role within the organization",
+  }),
+
+  // Default columns include organizationId and full audit trail
+  ...Common.defaultColumns,
+}) {}
+
+export const {
+  columnKeys,
+  ColumnKeyEnum,
+  ColumnKey,
+  Equivalence,
+  Mock,
+  JSONSchema,
+  is,
+} = modelKit(Model);
+
+export const tableDef = () => ({
+  tableName: "{{tableName}}",
+  spanPrefix: Model.identifier,
+  window: Duration.millis(100),
+});
