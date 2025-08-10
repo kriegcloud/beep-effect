@@ -5,15 +5,15 @@ import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import { NoSuchFileError } from "./errors";
-import { getRepoRoot } from "./getRepoRoot";
-import { repoWorkspaceMap } from "./repoWorkspaceMap";
+import { RepoPackageMap } from "./RepoPackageMap";
+import { RepoRootPath } from "./RepoRootPath";
 
-export const TsconfigMap = Effect.gen(function* () {
+export const RepoTsConfigMap = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
-  const repoRoot = yield* getRepoRoot;
-  const workspaceMap = yield* repoWorkspaceMap;
+  const repoRoot = yield* RepoRootPath;
+  const workspaceMap = yield* RepoPackageMap;
 
   const rootTsConfigPath = path.join(repoRoot, "tsconfig.json");
   const rootBuildTsConfigPath = path.join(repoRoot, "tsconfig.build.json");

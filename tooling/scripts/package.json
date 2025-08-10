@@ -31,10 +31,10 @@
     "generate-env-secrets": "pnpm tsx src/generate-env-secrets.ts"
   },
   "dependencies": {
-    "@effect/platform": "^0.90.0",
-    "@effect/platform-node": "^0.94.1",
+    "@effect/platform": "^0.90.1",
+    "@effect/platform-node": "^0.95.0",
     "chalk": "^5.5.0",
-    "effect": "^3.17.6",
+    "effect": "^3.17.7",
     "handlebars": "^4.7.8"
   },
   "effect": {

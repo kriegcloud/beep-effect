@@ -1,42 +1,38 @@
-import { FileSystem, Path } from "@effect/platform";
+import {FileSystem, Path} from "@effect/platform";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { glob } from "glob";
-import { getRepoRoot } from "./getRepoRoot";
+import {glob} from "glob";
+import {PackageJsonNotFound} from "./errors";
 import {
-  PkgJsonFromString,
-  RootPkgJsonFromString,
-} from "./package-json-schema";
+  PackageJson,
+  RootPackageJson,
+} from "./PackageJson";
+import {RepoRootPath} from "./RepoRootPath";
 
-export class PackageJsonNotFound extends S.TaggedError<PackageJsonNotFound>(
-  "PackageJsonNotFound",
-)("PackageJsonNotFound", {
-  message: S.String,
-  cause: S.Any,
-}) {}
-
-export const repoWorkspaceMap = Effect.gen(function* () {
+export const RepoPackageMap = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const repoRoot = yield* getRepoRoot;
+  const rootPath = yield* RepoRootPath;
 
   // Read and parse the root package.json
-  const repoPkgJsonStr = yield* fs.readFileString(`${repoRoot}/package.json`);
-  const pkgJson = yield* S.decode(RootPkgJsonFromString)(repoPkgJsonStr);
+  const repoPkgJsonStr = yield* fs.readFileString(`${rootPath}/package.json`);
+  const pkgJson = yield* S.decode(S.parseJson(RootPackageJson.Schema))(repoPkgJsonStr);
   const workspaces = pkgJson.workspaces;
 
   // Expand all workspace globs to actual package.json paths
   let allPkgJsonPaths: string[] = [];
   for (const pattern of workspaces) {
     // Make the pattern absolute
-    const absPattern = path.join(repoRoot, pattern, "package.json");
+    const absPattern = path.join(rootPath, pattern, "package.json");
     // Use glob to expand the pattern (glob returns Promise<string[]>)
     const matches = yield* Effect.tryPromise({
-      try: () => glob(absPattern),
+      try: () => glob(absPattern, {
+        ignore: ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.turbo/**", "**/.tsbuildinfo/**"], // ignore any node_modules anywhere
+      }),
       catch: (e) =>
         new PackageJsonNotFound({
           message: `Failed to find package.json for pattern ${pattern}`,
@@ -51,7 +47,7 @@ export const repoWorkspaceMap = Effect.gen(function* () {
   let map = HashMap.empty<string, string>();
   for (const pkgJsonPath of allPkgJsonPaths) {
     const content = yield* fs.readFileString(pkgJsonPath);
-    const pkg = yield* S.decode(PkgJsonFromString)(content);
+    const pkg = yield* S.decode(S.parseJson(PackageJson.Schema))(content);
     map = HashMap.set(map, pkg.name, path.dirname(pkgJsonPath));
   }
 
@@ -61,7 +57,7 @@ export const repoWorkspaceMap = Effect.gen(function* () {
 export const getRepoWorkspace = Effect.fn("getRepoWorkspace")(function* (
   workspace: string,
 ) {
-  const map = yield* repoWorkspaceMap;
+  const map = yield* RepoPackageMap;
   return yield* F.pipe(
     HashMap.get(map, workspace),
     O.match({

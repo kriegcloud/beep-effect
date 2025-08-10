@@ -3,12 +3,10 @@ import * as Path from "@effect/platform/Path";
 import * as Effect from "effect/Effect";
 import { NoSuchFileError } from "./errors";
 
-export const getRepoRoot = Effect.gen(function* () {
+export const RepoRootPath = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-
   const currentDir = yield* path.fromFileUrl(new URL(import.meta.url));
-
   let current = path.dirname(currentDir);
 
   while (true) {

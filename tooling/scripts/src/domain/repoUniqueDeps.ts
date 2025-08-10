@@ -2,7 +2,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
-import { createRepoDepMap } from "./create-repo-dep-map";
+import { createRepoDepMap } from "./RepoDependencyMap";
 export const getUniqueDeps = Effect.gen(function* () {
   const repoDepMap = yield* createRepoDepMap;
   const depMapValues = HashMap.values(repoDepMap);

@@ -7,7 +7,8 @@ import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
-import { getUniqueDeps } from "./util";
+import {getUniqueDeps} from "./domain/repoUniqueDeps";
+
 
 const BREAKING_DEPS = [
   "react-day-picker",

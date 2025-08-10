@@ -7,10 +7,17 @@ export class NoSuchFileError extends S.TaggedError<NoSuchFileError>(
   message: S.optional(S.String),
 }) {}
 
-export class ProgramError extends S.TaggedError<ProgramError>("ProgramError")(
-  "ProgramError",
+export class DomainError extends S.TaggedError<DomainError>("DomainError")(
+  "DomainError",
   {
     message: S.String,
     cause: S.optional(S.Unknown),
   },
 ) {}
+
+export class PackageJsonNotFound extends S.TaggedError<PackageJsonNotFound>(
+  "PackageJsonNotFound",
+)("PackageJsonNotFound", {
+  message: S.String,
+  cause: S.Any,
+}) {}
