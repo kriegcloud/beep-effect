@@ -1,4 +1,4 @@
-import {UnsafeTypes} from "@beep/shared/types";
+import { UnsafeTypes } from "@beep/shared/types";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Arr from "effect/Array";
 import * as Equivalence from "effect/Equivalence";
@@ -15,10 +15,17 @@ import * as AST from "effect/SchemaAST";
  * ------------------------------------------------------------------------------------------------- */
 
 /**
- * @category annotations
- * A documentation block guaranteed to carry a `title` and `description`.
+ * Annotation helpers for consistent schema metadata.
+ *
+ * ### Why:
+ * - Stable identities (`identifier`) improve error messages and AST caching.
+ * - `title` / `description` power DX, docs, form labels, and validation messages.
+ * - Optional `arbitrary` / `pretty` / `equivalence` supply ecosystem features.
  */
 export declare namespace Annotations {
+  /**
+   * Minimal doc block for human-facing docs.
+   */
   export interface Doc<A> extends AST.Annotations {
     readonly title: AST.TitleAnnotation;
     readonly description: AST.DescriptionAnnotation;
@@ -28,12 +35,8 @@ export declare namespace Annotations {
   }
 
   /**
-   * @category annotations
-   * A schema annotation bundle that **requires**:
-   * - `identifier` (for Effect Schema’s identity),
-   * - `title`, `description` for dev/UX & docs.
-   *
-   * You can optionally enrich with `arbitrary`, `pretty`, `equivalence`, JSON Schema metadata, etc.
+   * Full schema annotation contract used throughout this package.
+   * Includes identity + optional ecosystem annotations.
    */
   export interface Schema<A, TP extends UnsafeTypes.UnsafeReadonlyArray = readonly []> extends Doc<A> {
     readonly identifier: AST.IdentifierAnnotation;
@@ -51,7 +54,7 @@ export declare namespace Annotations {
   }
 
   /**
-   * Runtime-parameterized version for `arbitrary`/`pretty`/`equivalence`.
+   * Runtime-parameterized variant (functions that close over runtime data).
    */
   export interface GenericSchema<A> extends Schema<A> {
     readonly arbitrary?: (..._: UnsafeTypes.UnsafeAny) => Arbitrary.LazyArbitrary<A>;
@@ -60,13 +63,22 @@ export declare namespace Annotations {
   }
 
   /** Filter annotations (Effect-internal shape, included for completeness). */
-  export interface Filter<A, P = A> extends Schema<A, readonly [P]> {
-  }
+  export interface Filter<A, P = A> extends Schema<A, readonly [P]> {}
 }
 
 /**
- * Merge annotations into a schema (curried or uncurried).
- * Returns `S.Annotable.Self<S>` as per Effect.
+ * Merge annotations into a schema, preserving its identity and combinators.
+ *
+ * Curried:
+ * ```ts
+ * const withDocs = annotate<{...}>({ title, description, identifier });
+ * const Next = withDocs(Base);
+ * ```
+ *
+ * Uncurried:
+ * ```ts
+ * const Next = annotate(Base, { title, description, identifier });
+ * ```
  */
 export const annotate: {
   <Sx extends S.Annotable.All>(annotations: Annotations.GenericSchema<S.Schema.Type<Sx>>): (self: Sx) => S.Annotable.Self<Sx>;
@@ -74,7 +86,7 @@ export const annotate: {
 } = F.dual(
   2,
   <A, I, R>(self: S.Schema<A, I, R>, annotations: Annotations.GenericSchema<A>): S.Schema<A, I, R> =>
-    self.annotations(annotations)
+    self.annotations(annotations),
 );
 
 /* -------------------------------------------------------------------------------------------------
@@ -87,15 +99,11 @@ const __DEV__: boolean =
   process.env.NODE_ENV !== "production";
 
 /**
- * Assert that a schema carries the required annotations.
- * No-op in production; throws a readable error in dev.
- */
-
-/**
- * Assert that an AST node (schema or derived) carries the required annotations.
- * No-op in production; throws a readable error in dev.
+ * Assert that an AST node has `identifier`, `title`, and `description`.
+ * - No-op in production builds.
+ * - Throws a readable error in development.
  *
- * Accepts `AST.Annotated` because annotations live on the AST node.
+ * **Tip:** Prefer calling this in tests against your public schemas.
  */
 export const assertRequiredAnnotations = (annotated: AST.Annotated): void => {
   if (!__DEV__) return;
@@ -104,14 +112,14 @@ export const assertRequiredAnnotations = (annotated: AST.Annotated): void => {
   const titleOpt = AST.getAnnotation(annotated, AST.TitleAnnotationId);
   const descriptionOpt = AST.getAnnotation(annotated, AST.DescriptionAnnotationId);
 
-  // Build a *pure* list of missing keys (no mutation).
+  // Build a pure list of missing keys.
   const missing = Arr.filterMap(
     [
       ["identifier", idOpt] as const,
       ["title", titleOpt] as const,
       ["description", descriptionOpt] as const,
     ] as const,
-    ([label, opt]) => (O.isNone(opt) ? O.some(label) : O.none())
+    ([label, opt]) => (O.isNone(opt) ? O.some(label) : O.none()),
   );
 
   if (missing.length === 0) return;
@@ -119,21 +127,15 @@ export const assertRequiredAnnotations = (annotated: AST.Annotated): void => {
   // Choose a human-friendly schema name for the error message.
   const name =
     O.getOrElse(
-      O.orElse(
-        idOpt,
-        () => AST.getAnnotation(annotated, AST.SchemaIdAnnotationId)
-      ),
-      () => "(anonymous)"
+      O.orElse(idOpt, () => AST.getAnnotation(annotated, AST.SchemaIdAnnotationId)),
+      () => "(anonymous)",
     ) as string;
 
-  throw new Error(
-    `Schema ${name} is missing required annotations: ${missing.join(", ")}`
-  );
+  throw new Error(`Schema ${name} is missing required annotations: ${missing.join(", ")}`);
 };
 
-
 /* -------------------------------------------------------------------------------------------------
- * Mock utilities (FastCheck + Effect Arbitrary) with precise return types
+ * Mock utilities (FastCheck + Effect Arbitrary)
  * ------------------------------------------------------------------------------------------------- */
 
 type ArbParamsBase = {
@@ -145,80 +147,69 @@ type ArbParamsBase = {
   seed?: number;
 };
 
-type BoundMock<A, I, R> = ArbParamsBase & {
-  _tag: "bound";
-  schema: S.Schema<A, I, R>;
-};
-type TypeMock<A, I, R> = ArbParamsBase & {
-  _tag: "type";
-  schema: S.Schema<A, I, R>;
-};
-type EncodedMock<A, I, R> = ArbParamsBase & {
-  _tag: "encoded";
-  schema: S.Schema<A, I, R>;
-};
+type BoundMock<A, I, R> = ArbParamsBase & { _tag: "bound"; schema: S.Schema<A, I, R> };
+type TypeMock<A, I, R> = ArbParamsBase & { _tag: "type"; schema: S.Schema<A, I, R> };
+type EncodedMock<A, I, R> = ArbParamsBase & { _tag: "encoded"; schema: S.Schema<A, I, R> };
 type Mock<A, I, R> = BoundMock<A, I, R> | TypeMock<A, I, R> | EncodedMock<A, I, R>;
 
 /** FC.sample wrapper that supports an optional seed. */
-const sample = <T>(arb: FC.Arbitrary<T>, qty: number, seed?: number): readonly T[] => {
-  return seed != null ? FC.sample(arb, {numRuns: qty, seed}) : FC.sample(arb, {numRuns: qty});
-};
+const sample = <T>(arb: FC.Arbitrary<T>, qty: number, seed?: number): readonly T[] =>
+  seed != null ? FC.sample(arb, { numRuns: qty, seed }) : FC.sample(arb, { numRuns: qty });
 
 /**
  * If `qty === 1` and `flat === true`, unwrap the single element; otherwise return the array.
- * (Avoided generic name collision with Arr import.)
  */
 export const makeFlat = <T extends UnsafeTypes.UnsafeReadonlyArray>(
   xs: T,
   qty: number,
-  flat: boolean
+  flat: boolean,
 ) => (qty === 1 && flat ? Arr.flatten(xs) : xs);
 
-/** Overloads for precise return shapes (single vs array). */
-/** Overloads for precise return shapes (single vs array). */
-export function makeMocked<A, I, R>(params: Mock<A, I, R> & {
-  qty?: 1;
-  flat?: true
-}): A | S.Schema.Encoded<S.Schema<A, I, R>> | S.Schema.Context<S.Schema<A, I, R>>;
+/**
+ * Generate mock values for a schema using either:
+ * - `"type"`: values of the schema's *Type*
+ * - `"encoded"`: values of the schema's *Encoded* representation
+ * - `"bound"`: values of the schema's *Context-bound* representation
+ *
+ * Overloads ensure precise return shapes when `qty=1` and `flat=true`.
+ */
+export function makeMocked<A, I, R>(params: Mock<A, I, R> & { qty?: 1; flat?: true }): A | S.Schema.Encoded<S.Schema<A, I, R>> | S.Schema.Context<S.Schema<A, I, R>>;
 export function makeMocked<A, I, R>(params: Mock<A, I, R>): readonly (A | S.Schema.Encoded<S.Schema<A, I, R>> | S.Schema.Context<S.Schema<A, I, R>>)[];
 
-/** Implementation: use a broad return type compatible with both overloads. */
 export function makeMocked<A, I, R>(params: Mock<A, I, R>): unknown {
-  const {schema, flat = false, qty = 1, seed} = params;
+  const { schema, flat = false, qty = 1, seed } = params;
   return Match.value(params).pipe(
     Match.tags({
-      bound: () => makeFlat(
-        sample(Arbitrary.make(S.encodedBoundSchema(schema)), qty, seed),
-        qty, flat
-      ),
-      type: () => makeFlat(
-        sample(Arbitrary.make(S.typeSchema(schema)), qty, seed),
-        qty, flat
-      ),
-      encoded: () => makeFlat(
-        sample(Arbitrary.make(S.encodedSchema(schema)), qty, seed),
-        qty, flat
-      ),
-    })
+      bound: () => makeFlat(sample(Arbitrary.make(S.encodedBoundSchema(schema)), qty, seed), qty, flat),
+      type: () => makeFlat(sample(Arbitrary.make(S.typeSchema(schema)), qty, seed), qty, flat),
+      encoded: () => makeFlat(sample(Arbitrary.make(S.encodedSchema(schema)), qty, seed), qty, flat),
+    }),
   );
 }
 
-/** Overloads for the curried factory. */
+/**
+ * Curried mock factory suitable for one-liners:
+ * ```ts
+ * const Mock = makeMocker(MySchema);
+ * const one = Mock("type", 1, true);      // -> A
+ * const many = Mock("type", 5);           // -> readonly A[]
+ * const encoded = Mock("encoded", 3);     // -> readonly Encoded[]
+ * ```
+ */
 export function makeMocker<A, I, R>(
-  schema: S.Schema<A, I, R>
+  schema: S.Schema<A, I, R>,
 ): (kind: "bound" | "type" | "encoded", qty?: 1, flat?: true, seed?: number) =>
   A | S.Schema.Encoded<S.Schema<A, I, R>> | S.Schema.Context<S.Schema<A, I, R>>;
 export function makeMocker<A, I, R>(
-  schema: S.Schema<A, I, R>
+  schema: S.Schema<A, I, R>,
 ): (kind: "bound" | "type" | "encoded", qty?: number, flat?: boolean, seed?: number) =>
   readonly (A | S.Schema.Encoded<S.Schema<A, I, R>> | S.Schema.Context<S.Schema<A, I, R>>)[];
 
-/** Implementation: broad return type (`unknown`) that satisfies both overloads. */
 export function makeMocker<A, I, R>(schema: S.Schema<A, I, R>) {
   return (kind: "bound" | "type" | "encoded", qty?: number, flat?: boolean, seed?: number): unknown =>
     Match.value(kind).pipe(
-      Match.when("bound", () => makeMocked({schema, _tag: "bound", qty, flat, seed})),
-      Match.when("type", () => makeMocked({schema, _tag: "type", qty, flat, seed})),
-      Match.when("encoded", () => makeMocked({schema, _tag: "encoded", qty, flat, seed}))
+      Match.when("bound", () => makeMocked({ schema, _tag: "bound", qty, flat, seed })),
+      Match.when("type", () => makeMocked({ schema, _tag: "type", qty, flat, seed })),
+      Match.when("encoded", () => makeMocked({ schema, _tag: "encoded", qty, flat, seed })),
     );
 }

@@ -6,7 +6,7 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
-import { getRepoWorkspace, ProgramError } from "./util";
+import { DomainError, getRepoWorkspace } from "./utils";
 
 export const makeFileNames = <TName extends Capitalize<string>>(
   name: TName,
@@ -57,7 +57,7 @@ const createDomainEntity = Effect.fn("createDomainEntity")(function* <
   for (const [_, path] of R.toEntries(entityFilePaths)) {
     if (yield* fs.exists(path)) {
       return yield* Effect.fail(
-        new ProgramError({
+        new DomainError({
           message: `File already exists: ${path}`,
         }),
       );

@@ -41,6 +41,9 @@
     "dev": "pnpm dotenvx turbo run dev --concurrency=14",
     "dotenvx": "dotenvx run -f .env --"
   },
+  "dependencies": {
+    "tsx": "^4.20.3"
+  },
   "devDependencies": {
     "@babel/cli": "^7.28.0",
     "@babel/core": "^7.28.0",
@@ -79,7 +82,6 @@
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4"
   },
-  "dependencies": {},
   "lint-staged": {
     "*": [
       "biome check"

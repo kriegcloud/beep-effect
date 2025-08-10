@@ -3,8 +3,7 @@ import * as Path from "@effect/platform/Path";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import { NoSuchFileError } from "./errors";
-import {RepoPackageMap} from "./RepoPackageMap";
-
+import { RepoPackageMap } from "./RepoPackageMap";
 
 export const RepoPackageJsonMap = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;

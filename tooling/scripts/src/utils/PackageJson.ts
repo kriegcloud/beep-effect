@@ -40,7 +40,7 @@ export namespace Scripts {
 export namespace Bin {
   export const Schema = S.Union(
     S.String,
-    S.Record({key: S.String, value: S.String})
+    S.Record({ key: S.String, value: S.String }),
   );
   export type Type = typeof Schema.Type;
 }
@@ -76,7 +76,7 @@ namespace FundingUrl {
 export namespace FundingWay {
   export const Schema = S.Struct({
     url: FundingUrl.Schema,
-    type: S.optional(S.String)
+    type: S.optional(S.String),
   });
   export type Type = typeof Schema.Type;
 }
@@ -85,7 +85,7 @@ export namespace Funding {
   export const Schema = S.Union(
     FundingUrl.Schema,
     FundingWay.Schema,
-    S.Array(S.Union(FundingUrl.Schema, FundingWay.Schema))
+    S.Array(S.Union(FundingUrl.Schema, FundingWay.Schema)),
   );
 
   export type Type = typeof Schema.Type;
@@ -97,7 +97,7 @@ export namespace Workspaces {
     S.Struct({
       packages: S.Array(S.String),
       nohoist: S.optional(S.Array(S.String)),
-    })
+    }),
   );
 
   export type Type = typeof Schema.Type;
@@ -110,7 +110,7 @@ export namespace Person {
       name: S.NonEmptyTrimmedString,
       url: S.optional(S.String),
       email: S.optional(S.String),
-    })
+    }),
   );
 }
 
@@ -163,22 +163,22 @@ export namespace PackageJsonBase {
     repository: S.optional(Repository.Schema),
     funding: S.optional(Funding.Schema),
     scripts: S.optional(Scripts.Schema),
-    config: S.optional(S.Record({key: S.String, value: S.Any})),
+    config: S.optional(S.Record({ key: S.String, value: S.Any })),
     dependencies: S.optional(DependencyMap.Schema),
     devDependencies: S.optional(DependencyMap.Schema),
     optionalDependencies: S.optional(DependencyMap.Schema),
     peerDependencies: S.optional(DependencyMap.Schema),
     bundleDependencies: S.optional(S.Union(S.Array(S.String), S.Boolean)),
     bundledDependencies: S.optional(S.Union(S.Array(S.String), S.Boolean)),
-    resolutions: S.optional(S.Record({key: S.String, value: S.Any})),
-    overrides: S.optional(S.Record({key: S.String, value: S.Any})),
+    resolutions: S.optional(S.Record({ key: S.String, value: S.Any })),
+    overrides: S.optional(S.Record({ key: S.String, value: S.Any })),
     packageManager: S.optional(S.String),
-    engines: S.optional(S.Record({key: S.String, value: S.String})),
+    engines: S.optional(S.Record({ key: S.String, value: S.String })),
     os: S.optional(S.Array(S.String)),
     cpu: S.optional(S.Array(S.String)),
     preferGlobal: S.optional(S.Boolean),
     private: S.optional(S.Union(S.Boolean, S.Literal("true", "false"))),
-    publishConfig: S.optional(S.Record({key: S.String, value: S.Any})),
+    publishConfig: S.optional(S.Record({ key: S.String, value: S.Any })),
     readme: S.optional(S.String),
     module: S.optional(S.String),
     workspaces: S.optional(Workspaces.Schema),
@@ -190,7 +190,7 @@ export namespace PackageJsonBase {
 export namespace PackageJson {
   export const Schema = S.Struct(
     PackageJsonBase.Schema.fields,
-    S.Record({key: S.String, value: S.Any})
+    S.Record({ key: S.String, value: S.Any }),
   );
   export type Type = typeof Schema.Type;
 }

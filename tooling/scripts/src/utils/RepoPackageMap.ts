@@ -1,17 +1,14 @@
-import {FileSystem, Path} from "@effect/platform";
+import { FileSystem, Path } from "@effect/platform";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import {glob} from "glob";
-import {PackageJsonNotFound} from "./errors";
-import {
-  PackageJson,
-  RootPackageJson,
-} from "./PackageJson";
-import {RepoRootPath} from "./RepoRootPath";
+import { glob } from "glob";
+import { PackageJsonNotFound } from "./errors";
+import { PackageJson, RootPackageJson } from "./PackageJson";
+import { RepoRootPath } from "./RepoRootPath";
 
 export const RepoPackageMap = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
@@ -20,7 +17,9 @@ export const RepoPackageMap = Effect.gen(function* () {
 
   // Read and parse the root package.json
   const repoPkgJsonStr = yield* fs.readFileString(`${rootPath}/package.json`);
-  const pkgJson = yield* S.decode(S.parseJson(RootPackageJson.Schema))(repoPkgJsonStr);
+  const pkgJson = yield* S.decode(S.parseJson(RootPackageJson.Schema))(
+    repoPkgJsonStr,
+  );
   const workspaces = pkgJson.workspaces;
 
   // Expand all workspace globs to actual package.json paths
@@ -30,9 +29,16 @@ export const RepoPackageMap = Effect.gen(function* () {
     const absPattern = path.join(rootPath, pattern, "package.json");
     // Use glob to expand the pattern (glob returns Promise<string[]>)
     const matches = yield* Effect.tryPromise({
-      try: () => glob(absPattern, {
-        ignore: ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.turbo/**", "**/.tsbuildinfo/**"], // ignore any node_modules anywhere
-      }),
+      try: () =>
+        glob(absPattern, {
+          ignore: [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/build/**",
+            "**/.turbo/**",
+            "**/.tsbuildinfo/**",
+          ], // ignore any node_modules anywhere
+        }),
       catch: (e) =>
         new PackageJsonNotFound({
           message: `Failed to find package.json for pattern ${pattern}`,

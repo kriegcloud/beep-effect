@@ -8,8 +8,8 @@ import * as HashSet from "effect/HashSet";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
-import {DomainError, NoSuchFileError,} from "./errors";
-import {PackageJson} from "./PackageJson";
+import { DomainError, NoSuchFileError } from "./errors";
+import { PackageJson } from "./PackageJson";
 import { RepoPackageJsonMap } from "./RepoPackageJsonMap";
 import { RepoRootPath } from "./RepoRootPath";
 import {
@@ -37,7 +37,9 @@ export const RepoDependencyMap = Effect.fn("extractPkgJsonDeps")(function* (
 
   const content = yield* fs.readFileString(pkgJsonPath);
 
-  const decodedPackageJson = yield* S.decode(S.parseJson(PackageJson.Schema))(content);
+  const decodedPackageJson = yield* S.decode(S.parseJson(PackageJson.Schema))(
+    content,
+  );
 
   if (P.isNullable(decodedPackageJson.devDependencies)) {
     // every pkg should have devDependencies
