@@ -3,10 +3,10 @@
   "include": [],
   "references": [
     {
-      "path": "packages/kernel/tsconfig.build.json"
+      "path": "packages/shared-kernel/tsconfig.build.json"
     },
     {
-      "path": "packages/shared/tsconfig.build.json"
+      "path": "packages/common/tsconfig.build.json"
     },
     {
       "path": "packages/ui/tsconfig.build.json"
@@ -16,7 +16,6 @@
     },
     {
       "path": "tooling/testkit/tsconfig.build.json"
-    },
-
+    }
   ]
 }

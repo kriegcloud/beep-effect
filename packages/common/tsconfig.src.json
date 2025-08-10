@@ -14,8 +14,8 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-      "@beep/shared": ["./src/index"],
-      "@beep/shared/*": ["./src/*"]
+      "@beep/common": ["./src/index"],
+      "@beep/common/*": ["./src/*"]
     }
   }
 }

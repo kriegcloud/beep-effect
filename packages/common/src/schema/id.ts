@@ -1,11 +1,11 @@
-import { Identifier } from "@beep/shared/identity";
+import { Identifier } from "@beep/common/identity";
 
 /**
  * Shared identifier builder for schema identities.
  *
  * Use as:
  * ```ts
- * const id = sid.shared.schema("Json");
+ * const id = sid.common.schema("Json");
  * // -> stable identity string like "@beep/Json"
  * ```
  *
@@ -17,7 +17,7 @@ import { Identifier } from "@beep/shared/identity";
  * @since 0.1.0
  */
 export const sid = Identifier.makeBuilder("@beep/", {
-  shared: {
+  common: {
     schema: Identifier.IdSymbol,
   },
 } as const);

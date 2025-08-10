@@ -1,5 +1,5 @@
-import { sid } from "@beep/shared/schema/id";
-import { annotate, makeMocker } from "@beep/shared/schema/utils";
+import { sid } from "@beep/common/schema/id";
+import { annotate, makeMocker } from "@beep/common/schema/utils";
 import * as S from "effect/Schema";
 
 /**
@@ -59,7 +59,7 @@ export namespace Json {
       ),
     ),
     {
-      identifier: sid.shared.schema("Json"),
+      identifier: sid.common.schema("Json"),
       title: "Json",
       description: "A Valid JSON",
     },

@@ -4,7 +4,7 @@
   "exclude": ["vitest.config.ts", "src/**/*.test.ts"],
   "references": [
     {
-      "path": "../shared"
+      "path": "../common"
     }
   ],
   "compilerOptions": {
@@ -14,10 +14,10 @@
     "rootDir": "src",
     "baseUrl": ".",
     "paths": {
-      "@beep/kernel": ["./src/index"],
-      "@beep/kernel/*": ["./src/*"],
-      "@beep/shared": ["../shared/src/index"],
-      "@beep/shared/*": ["../shared/src/*"]
+      "@beep/shared-kernel": ["./src/index"],
+      "@beep/shared-kernel/*": ["./src/*"],
+      "@beep/common": ["../common/src/index"],
+      "@beep/common/*": ["../common/src/*"]
     }
   }
 }

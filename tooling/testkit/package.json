@@ -28,7 +28,7 @@
     "execute": "pnpm tsx src/execute.ts"
   },
   "dependencies": {
-    "@beep/shared": "workspace:*",
+    "@beep/common": "workspace:*",
     "@effect/platform": "^0.90.1",
     "@effect/platform-node": "^0.95.0",
     "chalk": "^5.5.0",

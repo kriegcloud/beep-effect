@@ -69,8 +69,8 @@ export namespace Identifier {
    * Create a typed identifier/route builder from a `proto` and a `config`.
    *
    * @example
-   * const sid = Identifier.makeBuilder("@beep/", { shared: { schema: Identifier.IdSymbol } } as const);
-   * sid.shared.schema("Person.Schema"); // "@beep/shared/schema/Person.Schema"
+   * const sid = Identifier.makeBuilder("@beep/", { common: { schema: Identifier.IdSymbol } } as const);
+   * sid.common.schema("Person.Schema"); // "@beep/common/schema/Person.Schema"
    */
   export function makeBuilder<
     const TProto extends Proto,

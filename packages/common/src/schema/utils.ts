@@ -1,4 +1,4 @@
-import { UnsafeTypes } from "@beep/shared/types";
+import { UnsafeTypes } from "@beep/common/types";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Arr from "effect/Array";
 import * as Equivalence from "effect/Equivalence";

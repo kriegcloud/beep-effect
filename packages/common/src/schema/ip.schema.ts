@@ -1,4 +1,4 @@
-import { sid } from "@beep/shared/schema/id";
+import { sid } from "@beep/common/schema/id";
 import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
 import { annotate, makeMocker } from "./utils";
@@ -39,7 +39,7 @@ export namespace IP {
    * Full IP schema with docs, identity, and generator.
    */
   export const Schema = annotate(Base, {
-    identifier: sid.shared.schema("IP.Schema"),
+    identifier: sid.common.schema("IP.Schema"),
     title: "IP",
     description: "A valid IP address (IPv4 or IPv6)",
     arbitrary: () => (fc) => fc.constant(null).map(() => Base.make(faker.internet.ip())),

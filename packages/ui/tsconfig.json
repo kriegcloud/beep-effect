@@ -6,8 +6,8 @@
     "baseUrl": ".",
     "paths": {
       "@beep/ui/*": ["./src/*"],
-      "@beep/shared": ["../shared/src/index"],
-      "@beep/shared/*": ["../shared/src/*"]
+      "@beep/common": ["../common/src/index"],
+      "@beep/common/*": ["../common/src/*"]
     }
   },
   "references": [

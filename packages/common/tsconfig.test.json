@@ -18,10 +18,10 @@
     "noEmit": true
   },
   "paths": {
-    "@beep/shared": [
+    "@beep/common": [
       "./src/index"
     ],
-    "@beep/shared/*": [
+    "@beep/common/*": [
       "./src/*"
     ]
   }

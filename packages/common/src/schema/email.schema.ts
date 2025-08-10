@@ -1,4 +1,4 @@
-import { annotate, makeMocker } from "@beep/shared/schema";
+import { annotate, makeMocker } from "@beep/common/schema";
 import { faker } from "@faker-js/faker";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
@@ -73,7 +73,7 @@ export namespace Email {
     title: "Email",
     message: () => "Email must be a valid email address!",
     description: "A valid email address",
-    identifier: sid.shared.schema("Email.Schema"),
+    identifier: sid.common.schema("Email.Schema"),
   });
 
   /** Email value type (redacted, branded). */

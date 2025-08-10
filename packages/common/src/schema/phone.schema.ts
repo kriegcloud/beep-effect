@@ -37,7 +37,7 @@ export namespace Phone {
   );
 
   export const Schema = annotate(S.Redacted(Base), {
-    identifier: sid.shared.schema("Phone.Schema"),
+    identifier: sid.common.schema("Phone.Schema"),
     title: "Phone",
     description: "A valid phone number",
     arbitrary: () => (fc) =>

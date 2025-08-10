@@ -39,7 +39,7 @@ export namespace Slug {
    */
   export const Schema = annotate(Base, {
     title: "Slug",
-    identifier: sid.shared.schema("Slug.Schema"),
+    identifier: sid.common.schema("Slug.Schema"),
     description: "A URL-friendly string identifier",
     examples: A.map(
       A.make("hello-world", "hello-world-2", "hello-world-3"),

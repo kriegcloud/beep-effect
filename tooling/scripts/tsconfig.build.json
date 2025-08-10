@@ -2,7 +2,7 @@
   "extends": "./tsconfig.src.json",
   "references": [
     {
-      "path": "../../packages/shared/tsconfig.build.json"
+      "path": "../../packages/common/tsconfig.build.json"
     }
   ],
   "compilerOptions": {

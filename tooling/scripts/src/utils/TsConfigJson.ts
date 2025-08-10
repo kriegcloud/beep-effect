@@ -1,4 +1,4 @@
-import { Json } from "@beep/shared/schema";
+import { Json } from "@beep/common/schema";
 import * as S from "effect/Schema";
 
 export const TsConfigSchema = S.Struct(

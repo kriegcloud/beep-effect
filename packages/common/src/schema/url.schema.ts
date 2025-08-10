@@ -29,7 +29,7 @@ export namespace URLString {
       S.brand("URLString"),
     ),
     {
-      identifier: sid.shared.schema("URLString.Schema"),
+      identifier: sid.common.schema("URLString.Schema"),
       description: "A URL string",
       title: "URL String",
       jsonSchema: { type: "string", format: "url" },

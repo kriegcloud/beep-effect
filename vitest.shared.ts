@@ -33,7 +33,7 @@ const config: ViteUserConfig = {
     include: ["test/**/*.test.ts", "src/**/*.test.ts"],
     alias: {
       ...alias("cli"),
-      ...alias("kernel"),
+      ...alias("shared-kernel"),
       ...alias("server"),
     },
   },

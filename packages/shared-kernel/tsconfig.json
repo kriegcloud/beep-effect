@@ -5,10 +5,10 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@beep/kernel": ["./src/index"],
-      "@beep/kernel/*": ["./src/*"],
-      "@beep/shared": ["../shared/src/index"],
-      "@beep/shared/*": ["../shared/src/*"]
+      "@beep/shared-kernel": ["./src/index"],
+      "@beep/shared-kernel/*": ["./src/*"],
+      "@beep/common": ["../common/src/index"],
+      "@beep/common/*": ["../common/src/*"]
     }
   },
   "references": [

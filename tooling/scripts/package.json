@@ -31,6 +31,7 @@
     "generate-env-secrets": "pnpm tsx src/generate-env-secrets.ts"
   },
   "dependencies": {
+    "@beep/common": "workspace:*",
     "@effect/platform": "^0.90.1",
     "@effect/platform-node": "^0.95.0",
     "chalk": "^5.5.0",

@@ -1,13 +1,13 @@
 {
-  "name": "@beep/kernel",
+  "name": "@beep/shared-kernel",
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "The kernel package. A cross cutting concern for domain layers",
+  "description": "The shared-kernel package. A cross cutting concern for domain layers",
   "repository": {
     "type": "git",
     "url": "https://github.com/BeepinBois/beep-effect.git",
-    "directory": "packages/kernel"
+    "directory": "packages/shared-kernel"
   },
   "publishConfig": {
     "access": "restricted",
@@ -30,7 +30,7 @@
     "lint:fix": "biome check . --write"
   },
   "dependencies": {
-    "@beep/shared": "workspace:*",
+    "@beep/common": "workspace:*",
     "@effect/experimental": "^0.54.4",
     "@effect/platform": "^0.90.1",
     "@effect/sql": "^0.44.1",

@@ -5,8 +5,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@beep/shared": ["../../packages/shared/src/index"],
-      "@beep/shared/*": ["../../packages/shared/src/*"]
+      "@beep/common": ["../../packages/common/src/index"],
+      "@beep/common/*": ["../../packages/common/src/*"]
     }
   },
   "references": [

@@ -1,4 +1,4 @@
-import {invariant} from "@beep/shared/invariant";
+import {invariant} from "@beep/common/invariant";
 import {faker} from "@faker-js/faker";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -48,7 +48,7 @@ export namespace Hex {
   /** Trusted constructor (no validation). Prefer decoding for user input. */
   export const make = (i: string) => {
     invariant(S.is(Base)(i), `Invalid Hex: ${i}`, {
-      file: "packages/shared/src/schema/hex.schema.ts",
+      file: "packages/common/src/schema/hex.schema.ts",
       line: 42,
       args: [i],
     });
@@ -61,7 +61,7 @@ export namespace Hex {
    */
 
   export const Schema = annotate(Base, {
-    identifier: sid.shared.schema("Hex.Schema"),
+    identifier: sid.common.schema("Hex.Schema"),
     title: "Hex",
     description: "A valid hex color",
     jsonSchema: {

@@ -31,7 +31,7 @@ const CONTEXTS = [
 const createDomainEntity = Effect.fn("createDomainEntity")(function* <
   TName extends Capitalize<string>,
 >(opts: { context: (typeof CONTEXTS)[number]; name: TName }) {
-  const domainPath = yield* getRepoWorkspace("@beep/kernel");
+  const domainPath = yield* getRepoWorkspace("@beep/shared-kernel");
 
   const path = yield* Path.Path;
   const fs = yield* FileSystem.FileSystem;

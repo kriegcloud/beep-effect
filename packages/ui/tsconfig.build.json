@@ -17,7 +17,7 @@
   },
   "references": [
     {
-      "path": "../shared/tsconfig.build.json"
+      "path": "../common/tsconfig.build.json"
     }
   ],
   "include": ["src"]
