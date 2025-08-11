@@ -16,6 +16,15 @@
       "!./package.json"
     ]
   },
+  "json": {
+    "formatter": {
+      "indentStyle": "space",
+      "indentWidth": 2
+    },
+    "parser": {
+      "allowComments": true
+    }
+  },
   "formatter": {
     "lineWidth": 80,
     "indentStyle": "space",

@@ -7,16 +7,19 @@
       "path": "packages/common"
     },
     {
-      "path": "packages/shared-kernel"
-    },
-    {
       "path": "packages/ui"
     },
     {
-      "path": "tooling/scripts"
+      "path": "tooling/repo-scripts"
     },
     {
       "path": "tooling/testkit"
+    },
+    {
+      "path": "tooling/repo-config"
+    },
+    {
+      "path": "tooling/utils"
     }
   ]
 }

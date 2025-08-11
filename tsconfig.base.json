@@ -54,23 +54,47 @@
       "@beep/common/test/*": [
         "./packages/common/test/*"
       ],
-      "@beep/shared-kernel": [
-        "./packages/shared-kernel/src/index"
+      "@beep/repo-config": [
+        "./tooling/repo-config/src/index"
       ],
-      "@beep/shared-kernel/*": [
-        "./packages/shared-kernel/src/*"
+      "@beep/repo-config/*": [
+        "./tooling/repo-config/src/*"
       ],
-      "@beep/shared-kernel/test/*": [
-        "./packages/shared-kernel/test/*"
+      "@beep/repo-config/test/*": [
+        "./tooling/repo-config/test/*"
+      ],
+      "@beep/repo-scripts": [
+        "./tooling/repo-scripts/src/index"
+      ],
+      "@beep/repo-scripts/*": [
+        "./tooling/repo-scripts/src/*"
+      ],
+      "@beep/repo-scripts/test/*": [
+        "./tooling/repo-scripts/test/*"
       ],
       "@beep/testkit": [
-        "./packages/testkit/src/index"
+        "./tooling/testkit/src/index"
       ],
       "@beep/testkit/*": [
-        "./packages/testkit/src/*"
+        "./tooling/testkit/src/*"
+      ],
+      "@beep/testkit/test/*": [
+        "./tooling/testkit/test/*"
+      ],
+      "@beep/tooling-utils": [
+        "./tooling/utils/src/index"
+      ],
+      "@beep/tooling-utils/*": [
+        "./tooling/utils/src/*"
+      ],
+      "@beep/tooling-utils/test/*": [
+        "./tooling/utils/test/*"
       ],
       "@beep/ui/*": [
         "./packages/ui/src/*"
+      ],
+      "@beep/ui/test/*": [
+        "./packages/ui/src/test/*"
       ]
     }
   }

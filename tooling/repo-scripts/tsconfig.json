@@ -1,9 +1,13 @@
 {
   "extends": "../../tsconfig.base.json",
   "include": [],
+  "exclude": [],
   "compilerOptions": {
+    "baseUrl": ".",
     "paths": {
-      "@beep/common/*": ["./src/*"]
+      "@beep/repo-scripts/*": ["./src/*"],
+      "@beep/common": ["../../packages/common/src/index"],
+      "@beep/common/*": ["../../packages/common/src/*"]
     }
   },
   "references": [

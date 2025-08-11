@@ -1,0 +1,56 @@
+{
+  "name": "@beep/repo-scripts",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "The repo scripts package. contains useful scripts and generators for the repo",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BeepinBois/beep-effect.git",
+    "directory": "tooling/repo-scripts"
+  },
+  "publishConfig": {
+    "access": "restricted",
+    "directory": "build"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "clean": "rm -rf build && rm -rf .tsbuildinfo",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "update-deps": "pnpm tsx src/update-deps.ts",
+    "execute": "pnpm tsx src/execute.ts",
+    "test": "vitest run",
+    "coverage": "vitest --coverage"
+  },
+  "dependencies": {
+    "@beep/common": "workspace:*",
+    "@effect/platform": "^0.90.1",
+    "@effect/platform-node": "^0.95.0",
+    "chalk": "^5.5.0",
+    "effect": "^3.17.7",
+    "handlebars": "^4.7.8"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  },
+  "devDependencies": {
+    "tsx": "^4.20.3"
+  }
+}

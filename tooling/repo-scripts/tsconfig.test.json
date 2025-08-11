@@ -1,0 +1,24 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["test"],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../packages/common"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node"],
+    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+    "rootDir": "test",
+    "noEmit": true,
+    "paths": {
+      "@beep/repo-scripts/*": ["./src/*"],
+      "@beep/repo-scripts": ["./src/index"],
+      "@beep/common": ["../../packages/common/src/index"],
+      "@beep/common/*": ["../../packages/common/src/*"]
+    }
+  }
+}

@@ -3,19 +3,22 @@
   "include": [],
   "references": [
     {
-      "path": "packages/shared-kernel/tsconfig.build.json"
-    },
-    {
       "path": "packages/common/tsconfig.build.json"
     },
     {
       "path": "packages/ui/tsconfig.build.json"
     },
     {
-      "path": "tooling/scripts/tsconfig.build.json"
+      "path": "tooling/repo-scripts/tsconfig.build.json"
+    },
+        {
+      "path": "tooling/repo-config/tsconfig.build.json"
     },
     {
       "path": "tooling/testkit/tsconfig.build.json"
+    },
+    {
+      "path": "tooling/utils/tsconfig.build.json"
     }
   ]
 }
