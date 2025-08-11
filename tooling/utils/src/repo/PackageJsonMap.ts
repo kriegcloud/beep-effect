@@ -5,6 +5,12 @@ import * as HashMap from "effect/HashMap";
 import { NoSuchFileError } from "./Errors";
 import { resolveWorkspaceDirs } from "./Workspaces";
 
+/**
+ * Build a map of workspace package name -> absolute package.json path.
+ *
+ * Validates that each workspace has a package.json and fails fast with
+ * {@link NoSuchFileError} if any is missing.
+ */
 export const mapWorkspaceToPackageJsonPath = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path_ = yield* Path.Path;

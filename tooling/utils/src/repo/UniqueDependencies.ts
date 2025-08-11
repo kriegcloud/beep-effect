@@ -4,6 +4,14 @@ import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import { buildRepoDependencyIndex } from "./DependencyIndex";
 
+/**
+ * Collect unique npm dependencies across the entire repo.
+ *
+ * Builds the repo dependency index and unions all npm dependency sets from
+ * both `dependencies` and `devDependencies` for every workspace.
+ *
+ * @returns Object with `dependencies` and `devDependencies` arrays of unique npm package names
+ */
 export const collectUniqueNpmDependencies = Effect.gen(function* () {
   const repoDepMap = yield* buildRepoDependencyIndex;
   const depMapValues = HashMap.values(repoDepMap);
@@ -24,4 +32,7 @@ export const collectUniqueNpmDependencies = Effect.gen(function* () {
   } as const;
 });
 
+/**
+ * Backwards-compatible alias used by existing scripts.
+ */
 export const getUniqueDeps = collectUniqueNpmDependencies;

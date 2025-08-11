@@ -339,6 +339,12 @@ export const TsNodeDefinition = S.Struct(TsNodeDefinitionFields).annotations({
 // ---------------------
 // Top-level TsConfig schema
 // ---------------------
+/**
+ * Effect Schema representation of tsconfig.json encompassing compiler options,
+ * file includes/excludes, references, and build/watch settings.
+ *
+ * At least one known top-level property must be present.
+ */
 export const TsConfigJson = S.Struct({
   ...CompilerOptionsDefinitionFields,
   ...CompileOnSaveDefinitionFields,

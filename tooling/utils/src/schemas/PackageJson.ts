@@ -85,6 +85,14 @@ const DependencyMap = S.Record({
   value: S.String,
 });
 
+/**
+ * Effect Schema representation of a package.json used by repo utilities.
+ *
+ * This schema focuses on fields commonly needed by tooling, including
+ * script maps, dependency maps, repository metadata, and optional
+ * workspaces. Additional unknown properties are allowed and captured via
+ * the index signature.
+ */
 export const PackageJson = S.Struct(
   {
     // Required

@@ -7,10 +7,27 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Glob from "glob";
 
+/**
+ * Internal constructor for the FsUtils service.
+ *
+ * Exposes convenient, Effect-based filesystem and glob helpers with
+ * observability spans and sensible error messages. All functions are
+ * pure wrappers that defer side-effects to the provided FileSystem and Path
+ * services.
+ */
 const make = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path_ = yield* Path.Path;
 
+  /**
+   * Match files and directories against a glob pattern.
+   *
+   * Wraps `glob.glob` in Effect with an attached span.
+   *
+   * @param pattern A glob pattern or patterns
+   * @param options Glob options
+   * @returns Effect that resolves to all matches
+   */
   const glob = (
     pattern: string | ReadonlyArray<string>,
     options?: Glob.GlobOptions,
@@ -20,11 +37,23 @@ const make = Effect.gen(function* () {
       catch: (e) => new Error(`glob failed: ${e}`),
     }).pipe(Effect.withSpan("FsUtils.glob"));
 
+  /**
+   * Like {@link glob} but ensures only files (no directories) are returned.
+   */
   const globFiles = (
     pattern: string | ReadonlyArray<string>,
     options: Glob.GlobOptions = {},
   ) => glob(pattern, { ...options, nodir: true });
 
+  /**
+   * Modify a single file in-place.
+   *
+   * Reads the file as string, applies the provided transform, and writes
+   * back only if the content changed.
+   *
+   * @param path File path
+   * @param f Transform function receiving original content and path
+   */
   const modifyFile = (path: string, f: (s: string, path: string) => string) =>
     fs.readFileString(path).pipe(
       Effect.bindTo("original"),
@@ -37,6 +66,13 @@ const make = Effect.gen(function* () {
       Effect.withSpan("FsUtils.modifyFile", { attributes: { path } }),
     );
 
+  /**
+   * Apply a textual transform to all files matching the glob pattern.
+   *
+   * @param pattern Glob pattern(s)
+   * @param f Transform function
+   * @param options Optional glob options
+   */
   const modifyGlob = (
     pattern: string | ReadonlyArray<string>,
     f: (s: string, path: string) => string,
@@ -52,6 +88,12 @@ const make = Effect.gen(function* () {
       Effect.withSpan("FsUtils.modifyGlob", { attributes: { pattern } }),
     );
 
+  /**
+   * Remove a target path (if it exists) and copy a directory or file tree.
+   *
+   * @param from Source path
+   * @param to Destination path
+   */
   const rmAndCopy = (from: string, to: string) =>
     fs
       .remove(to, { recursive: true })
@@ -61,6 +103,12 @@ const make = Effect.gen(function* () {
         Effect.withSpan("FsUtils.rmAndCopy", { attributes: { from, to } }),
       );
 
+  /**
+   * Copy path if it exists, otherwise no-op.
+   *
+   * @param from Source path
+   * @param to Destination path
+   */
   const copyIfExists = (from: string, to: string) =>
     fs.access(from).pipe(
       Effect.zipRight(Effect.ignore(fs.remove(to, { recursive: true }))),
@@ -71,14 +119,27 @@ const make = Effect.gen(function* () {
       Effect.withSpan("FsUtils.copyIfExists", { attributes: { from, to } }),
     );
 
+  /**
+   * Create a directory path recursively, caching the effect so repeated calls
+   * for the same path become no-ops.
+   */
   const mkdirCached_ = yield* Effect.cachedFunction((path: string) =>
     fs
       .makeDirectory(path, { recursive: true })
       .pipe(Effect.withSpan("FsUtils.mkdirCached", { attributes: { path } })),
   );
 
+  /**
+   * Create a directory path recursively. Accepts relative paths and resolves
+   * them to absolute using the current platform Path service.
+   */
   const mkdirCached = (path: string) => mkdirCached_(path_.resolve(path));
 
+  /**
+   * Copy all files matching a glob pattern under baseDir into a destination
+   * directory, preserving relative structure. Ensures parent directories are
+   * created using {@link mkdirCached}.
+   */
   const copyGlobCached = (baseDir: string, pattern: string, to: string) =>
     globFiles(path_.join(baseDir, pattern)).pipe(
       Effect.flatMap(
@@ -98,6 +159,11 @@ const make = Effect.gen(function* () {
       }),
     );
 
+  /**
+   * Remove a path and then re-create it as an empty directory.
+   *
+   * @param path Directory to recreate
+   */
   const rmAndMkdir = (path: string) =>
     fs
       .remove(path, { recursive: true })
@@ -107,12 +173,23 @@ const make = Effect.gen(function* () {
         Effect.withSpan("FsUtils.rmAndMkdir", { attributes: { path } }),
       );
 
+  /**
+   * Read a JSON file and parse it, mapping parsing errors into a friendly Error.
+   *
+   * @param path JSON file path
+   */
   const readJson = (path: string) =>
     Effect.tryMap(fs.readFileString(path), {
       try: (_) => JSON.parse(_),
       catch: (e) => new Error(`readJson failed (${path}): ${e}`),
     });
 
+  /**
+   * Write a JSON value with stable formatting and trailing newline.
+   *
+   * @param path Output file path
+   * @param json JSON-serializable value
+   */
   const writeJson = (path: string, json: unknown) =>
     fs.writeFileString(
       path,
@@ -135,11 +212,37 @@ const make = Effect.gen(function* () {
   } as const;
 });
 
+/**
+ * Public interface of the FsUtils service. Prefer to depend on this tag in
+ * your Effects and provide {@link FsUtilsLive} at the edges.
+ */
 export interface FsUtils extends Effect.Effect.Success<typeof make> {}
 
+/**
+ * Service tag for dependency injection via Effect Context.
+ *
+ * Usage:
+ * ```ts
+ * import { FsUtils } from "@beep/tooling-utils";
+ * const utils = yield* FsUtils; // inside Effect.gen
+ * ```
+ */
 export const FsUtils = Context.GenericTag<FsUtils>(
   "@beep/tooling-utils/FsUtils",
 );
+
+/**
+ * Live Layer implementation backed by Node's FileSystem/Path.
+ * Compose into your runtime or test layers as needed.
+ * @example
+ * ```ts
+ * import { FsUtilsLive } from "@beep/tooling-utils";
+ * import * as Effect from "effect/Effect";
+ * const stuff = Effect.gen(function* () {
+ *  const utils = yield* FsUtilsLive;
+ * }).pipe(Effect.provide(FsUtilsLive));
+ * ```
+ */
 export const FsUtilsLive = Layer.effect(FsUtils, make).pipe(
   Layer.provide(NodeFileSystem.layer),
   Layer.provide(NodePath.layerPosix),

@@ -9,6 +9,16 @@ import { extractWorkspaceDependencies } from "./Dependencies";
 import { mapWorkspaceToPackageJsonPath } from "./PackageJsonMap";
 import { findRepoRoot } from "./Root";
 
+/**
+ * Build a repository-wide dependency index for all workspaces plus `@beep/root`.
+ *
+ * Reads each workspace's package.json and extracts typed dependency sets using
+ * {@link extractWorkspaceDependencies}. Also includes the root package.json under
+ * the synthetic workspace key `@beep/root`.
+ *
+ * @returns HashMap of {@link WorkspacePkgKey} -> {@link RepoDepMapValue}
+ * @throws Error if the root package.json does not exist
+ */
 export const buildRepoDependencyIndex = Effect.gen(function* () {
   const path_ = yield* Path.Path;
   const fs = yield* FileSystem.FileSystem;

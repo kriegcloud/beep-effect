@@ -8,6 +8,17 @@ import { NoSuchFileError } from "./Errors";
 import { findRepoRoot } from "./Root";
 import { resolveWorkspaceDirs } from "./Workspaces";
 
+/**
+ * Collect tsconfig.json related paths for root and each workspace.
+ *
+ * Validates existence of required tsconfig files at the repo root and under
+ * every workspace. Optionally includes known variant configs when present
+ * (e.g. tsconfig.build.json, tsconfig.test.json, tsconfig.src.json, etc.).
+ *
+ * @returns HashMap of package name (including "@beep/root") -> non-empty array
+ *          of tsconfig paths ordered: base first, then optional variants.
+ * @throws NoSuchFileError if any required tsconfig is missing
+ */
 export const collectTsConfigPaths = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path_ = yield* Path.Path;

@@ -13,8 +13,15 @@ import {
 } from "../schemas";
 
 /**
- * Reads a package.json and returns typed sets of workspace and npm dependencies for
- * both dev and production. Missing devDependencies/dependencies are treated as empty.
+ * Extract typed sets of workspace and npm dependencies from a package.json.
+ *
+ * - Safely handles missing `dependencies`/`devDependencies` by treating them as empty
+ * - Validates the JSON against the PackageJson schema
+ * - Splits entries into workspace vs npm dependency sets
+ *
+ * @param pkgJsonPath Absolute path to a package.json file
+ * @returns RepoDepMapValue with `dependencies` and `devDependencies` each containing
+ *          a HashSet of workspace names and npm package names
  */
 export const extractWorkspaceDependencies = Effect.fn(
   "extractWorkspaceDependencies",

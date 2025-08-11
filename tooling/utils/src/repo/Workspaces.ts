@@ -17,6 +17,16 @@ const IGNORE = [
   "**/.tsbuildinfo/**",
 ] as const;
 
+/**
+ * Discover workspace directories from the repo root using the root
+ * package.json "workspaces" field.
+ *
+ * Implementation notes:
+ * - Reads and decodes the root package.json via FsUtils and RootPackageJson
+ * - Expands workspace globs to absolute package.json paths, ignoring common
+ *   build/artifact directories
+ * - Returns a HashMap of package name -> absolute directory
+ */
 export const resolveWorkspaceDirs = Effect.gen(function* () {
   const path_ = yield* Path.Path;
   const utils = yield* FsUtils;
@@ -52,6 +62,12 @@ export const resolveWorkspaceDirs = Effect.gen(function* () {
   return map;
 });
 
+/**
+ * Resolve a workspace's absolute directory by its package name.
+ *
+ * @param workspace Full workspace package name (e.g. "@beep/foo")
+ * @throws DomainError when the workspace cannot be found
+ */
 export const getWorkspaceDir = Effect.fn("getWorkspaceDir")(function* (
   workspace: string,
 ) {
