@@ -1,7 +1,10 @@
 import * as S from "effect/Schema";
 
 export const WorkspacePkgKeyPrefix = S.Literal("@beep/");
-export const WorkspacePkgKey = S.TemplateLiteral(WorkspacePkgKeyPrefix, S.String);
+export const WorkspacePkgKey = S.TemplateLiteral(
+  WorkspacePkgKeyPrefix,
+  S.String,
+);
 export const WorkspacePkgValue = S.Literal("workspace:*", "workspace:^");
 export const WorkspaceDepTuple = S.Tuple(WorkspacePkgKey, WorkspacePkgValue);
 

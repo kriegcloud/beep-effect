@@ -23,7 +23,11 @@ export const mapWorkspaceToPackageJsonPath = Effect.gen(function* () {
         }),
       );
     }
-    packageJsonMap = HashMap.set(packageJsonMap, workspace, basePackageJsonPath);
+    packageJsonMap = HashMap.set(
+      packageJsonMap,
+      workspace,
+      basePackageJsonPath,
+    );
   }
 
   return packageJsonMap;

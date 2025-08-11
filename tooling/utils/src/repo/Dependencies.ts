@@ -3,7 +3,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashSet from "effect/HashSet";
 import * as S from "effect/Schema";
-import {FsUtils} from "../FsUtils";
+import { FsUtils } from "../FsUtils";
 import {
   Dependencies as DepsSchema,
   NpmDepTuple,
@@ -39,19 +39,15 @@ export const extractWorkspaceDependencies = Effect.fn(
       workspace: HashSet.fromIterable(
         A.map(A.filter(entries, isWorkspaceDep), ([k]) => k),
       ),
-      npm: HashSet.fromIterable(
-        A.map(A.filter(entries, isNpmDep), ([k]) => k),
-      ),
+      npm: HashSet.fromIterable(A.map(A.filter(entries, isNpmDep), ([k]) => k)),
     });
 
-  const devEntries = Object.entries(devMap) as ReadonlyArray<readonly [
-    string,
-    string,
-  ]>;
-  const prodEntries = Object.entries(prodMap) as ReadonlyArray<readonly [
-    string,
-    string,
-  ]>;
+  const devEntries = Object.entries(devMap) as ReadonlyArray<
+    readonly [string, string]
+  >;
+  const prodEntries = Object.entries(prodMap) as ReadonlyArray<
+    readonly [string, string]
+  >;
 
   return yield* S.decode(RepoDepMapValue)({
     devDependencies: toDeps(devEntries),

@@ -1,8 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": [
-    "src"
-  ],
+  "include": ["src"],
   "references": [
     {
       "path": "../../packages/common"
@@ -11,33 +9,19 @@
       "path": "../utils"
     }
   ],
-  "exclude": [
-    "vitest.config.ts"
-  ],
+  "exclude": ["vitest.config.ts"],
   "compilerOptions": {
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
     "baseUrl": ".",
     "paths": {
-      "@beep/repo-scripts/*": [
-        "./src/*"
-      ],
-      "@beep/common": [
-        "../../packages/common/src/index"
-      ],
-      "@beep/common/*": [
-        "../../packages/common/src/*"
-      ],
-      "@beep/tooling-utils": [
-        "../utils/src/index"
-      ],
-      "@beep/tooling-utils/*": [
-        "../utils/src/*"
-      ]
+      "@beep/repo-scripts/*": ["./src/*"],
+      "@beep/common": ["../../packages/common/src/index"],
+      "@beep/common/*": ["../../packages/common/src/*"],
+      "@beep/tooling-utils": ["../utils/src/index"],
+      "@beep/tooling-utils/*": ["../utils/src/*"]
     }
   }
 }

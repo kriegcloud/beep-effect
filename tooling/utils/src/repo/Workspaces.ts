@@ -23,7 +23,9 @@ export const resolveWorkspaceDirs = Effect.gen(function* () {
   const rootPath = yield* findRepoRoot;
 
   // Read and decode root package.json (only needs workspaces)
-  const rootPkgJson = yield* utils.readJson(path_.join(rootPath, "package.json"));
+  const rootPkgJson = yield* utils.readJson(
+    path_.join(rootPath, "package.json"),
+  );
   const rootDecoded = yield* S.decode(RootPackageJson)(rootPkgJson);
   const workspaces = rootDecoded.workspaces;
 
