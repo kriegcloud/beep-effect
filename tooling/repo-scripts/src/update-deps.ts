@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { getUniqueDeps } from "@beep/tooling-utils";
+import { Repo } from "@beep/tooling-utils";
 import { FsUtilsLive } from "@beep/tooling-utils/FsUtils";
 import * as Command from "@effect/platform/Command";
 import * as NodeContext from "@effect/platform-node/NodeContext";
@@ -138,7 +138,7 @@ const program = Effect.gen(function* () {
   yield* Console.log(
     "This will update packages across all workspaces in the monorepo\n",
   );
-  const { dependencies, devDependencies } = yield* getUniqueDeps;
+  const { dependencies, devDependencies } = yield* Repo.getUniqueDeps;
   const CORE_DEPS = A.filter(
     dependencies,
     (dep) => !BREAKING_DEPS.includes(dep),
