@@ -548,6 +548,9 @@ importers:
       '@beep/common':
         specifier: workspace:*
         version: link:../../packages/common/build
+      '@beep/tooling-utils':
+        specifier: workspace:*
+        version: link:../utils/build
       '@effect/platform':
         specifier: ^0.90.1
         version: 0.90.1(effect@3.17.7)
