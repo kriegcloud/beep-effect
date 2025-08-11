@@ -5,6 +5,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "@beep/tooling-utils": ["./src/index"],
       "@beep/tooling-utils/*": ["./src/*"]
     }
   },
