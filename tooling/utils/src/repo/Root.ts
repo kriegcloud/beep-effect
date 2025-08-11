@@ -1,11 +1,12 @@
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as Effect from "effect/Effect";
-import { NoSuchFileError } from "./errors";
+import { NoSuchFileError } from "./Errors";
 
-export const RepoRootPath = Effect.gen(function* () {
+export const findRepoRoot = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
+
   const currentDir = yield* path.fromFileUrl(new URL(import.meta.url));
   let current = path.dirname(currentDir);
 
@@ -18,16 +19,14 @@ export const RepoRootPath = Effect.gen(function* () {
     }
 
     const parent = path.dirname(current);
-
     if (parent === current) break;
-
     current = parent;
   }
 
   return yield* Effect.fail(
     new NoSuchFileError({
       path: currentDir,
-      message: "[getRepoRoot] Could not find repo root",
+      message: "[findRepoRoot] Could not find repo root",
     }),
   );
 });

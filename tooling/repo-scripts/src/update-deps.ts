@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { getUniqueDeps } from "@beep/tooling-utils";
+import { FsUtilsLive } from "@beep/tooling-utils/FsUtils";
 import * as Command from "@effect/platform/Command";
 import * as NodeContext from "@effect/platform-node/NodeContext";
 import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
@@ -7,7 +9,6 @@ import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
-import { getUniqueDeps } from "./utils/repoUniqueDeps";
 
 const BREAKING_DEPS = [
   "react-day-picker",
@@ -188,7 +189,7 @@ const program = Effect.gen(function* () {
 
 // Run the program with better error handling
 const mainProgram = program.pipe(
-  Effect.provide(NodeContext.layer),
+  Effect.provide([NodeContext.layer, FsUtilsLive]),
   Effect.catchAll((error) =>
     Effect.gen(function* () {
       yield* Effect.log(`Program failed with error: ${String(error)}`);

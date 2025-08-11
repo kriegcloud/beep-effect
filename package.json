@@ -60,7 +60,7 @@
     "@effect/experimental": "^0.54.5",
     "@effect/language-service": "^0.35.2",
     "@effect/opentelemetry": "^0.56.1",
-    "@effect/platform": "^0.90.1",
+    "@effect/platform": "^0.90.2",
     "@effect/platform-browser": "^0.70.0",
     "@effect/platform-node": "^0.95.0",
     "@effect/rpc": "^0.68.3",
