@@ -53,6 +53,12 @@ describe("TsConfigJson", () => {
     throws(() => decode({ compilerOptions: { jsx: "react-jx" }, include: [] }));
   });
 
+  it("accepts case-insensitive target enum (e.g. ESNEXT)", () => {
+    const decode = S.decodeUnknownSync(TsConfigJson);
+    const got = decode({ compilerOptions: { target: "ESNEXT" }, include: [] });
+    deepStrictEqual(got.compilerOptions?.target?.toLowerCase?.(), "esnext");
+  });
+
   it("decodes the repo's root tsconfig.json", () => {
     const raw = fs.readFileSync(
       path.resolve(process.cwd(), "../../tsconfig.json"),
