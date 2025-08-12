@@ -223,6 +223,20 @@ importers:
         version: 4.20.4
     publishDirectory: build
 
+  packages/shared-kernel:
+    dependencies:
+      '@standard-schema/spec':
+        specifier: ^1.0.0
+        version: 1.0.0
+      effect:
+        specifier: ^3.17.7
+        version: 3.17.7
+    devDependencies:
+      tsx:
+        specifier: ^4.20.4
+        version: 4.20.4
+    publishDirectory: build
+
   packages/ui:
     dependencies:
       '@babel/preset-react':

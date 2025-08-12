@@ -141,6 +141,15 @@
       "@beep/ui/*": [
         "./packages/ui/src/*"
       ],
+      "@beep/shared-kernel": [
+        "./packages/shared-kernel/src/index"
+      ],
+      "@beep/shared-kernel/*": [
+        "./packages/shared-kernel/src/*"
+      ],
+      "@beep/shared-kernel/test/*": [
+        "./packages/shared-kernel/test/*"
+      ],
       "@beep/ui/test/*": [
         "./packages/ui/src/test/*"
       ]

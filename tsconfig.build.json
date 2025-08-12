@@ -5,7 +5,7 @@
     {
       "path": "packages/common/schema/tsconfig.build.json"
     },
-        {
+    {
       "path": "packages/common/types/tsconfig.build.json"
     },
     {
@@ -21,12 +21,15 @@
       "path": "packages/persistence/db-admin/tsconfig.build.json"
     },
     {
+      "path": "packages/shared-kernel/tsconfig.build.json"
+    },
+    {
       "path": "packages/ui/tsconfig.build.json"
     },
     {
       "path": "tooling/repo-scripts/tsconfig.build.json"
     },
-        {
+    {
       "path": "tooling/repo-config/tsconfig.build.json"
     },
     {

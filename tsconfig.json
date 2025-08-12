@@ -22,16 +22,19 @@
       "path": "packages/persistence/db-scope"
     },
     {
+      "path": "packages/shared-kernel"
+    },
+    {
       "path": "packages/ui"
     },
     {
       "path": "tooling/repo-scripts"
     },
     {
-      "path": "tooling/testkit"
+      "path": "tooling/repo-config"
     },
     {
-      "path": "tooling/repo-config"
+      "path": "tooling/testkit"
     },
     {
       "path": "tooling/utils"
