@@ -15,6 +15,12 @@
       "path": "packages/common/utils/tsconfig.build.json"
     },
     {
+      "path": "packages/persistence/db-scope/tsconfig.build.json"
+    },
+    {
+      "path": "packages/persistence/db-admin/tsconfig.build.json"
+    },
+    {
       "path": "packages/ui/tsconfig.build.json"
     },
     {

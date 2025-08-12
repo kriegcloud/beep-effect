@@ -1,8 +1,8 @@
-import { annotate, makeMocker } from "@beep/schema";
 import { faker } from "@faker-js/faker";
 import * as Redacted from "effect/Redacted";
-import { sid } from "./id";
 import * as S from "effect/Schema";
+import { sid } from "./id";
+import { annotate, makeMocker } from "./utils";
 
 /**
  * Email address schema and helpers.

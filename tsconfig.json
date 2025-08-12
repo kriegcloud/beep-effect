@@ -16,6 +16,12 @@
       "path": "packages/common/utils"
     },
     {
+      "path": "packages/persistence/db-admin"
+    },
+    {
+      "path": "packages/persistence/db-scope"
+    },
+    {
       "path": "packages/ui"
     },
     {

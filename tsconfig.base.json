@@ -78,6 +78,27 @@
       "@beep/utils/*": [
         "./packages/common/utils/src/*"
       ],
+      "@beep/db-admin": [
+        "./packages/persistence/db-admin/src/index"
+      ],
+      "@beep/db-admin/*": [
+        "./packages/persistence/db-admin/src/*"
+      ],
+      "@beep/db-admin/test/*": [
+        "./packages/persistence/db-admin/test/*"
+      ],
+      "@beep/db-scope": [
+        "./packages/persistence/db-scope/src/index"
+      ],
+      "@beep/db-scope/*": [
+        "./packages/persistence/db-scope/src/*"
+      ],
+      "@beep/db-scope/test/*": [
+        "./packages/persistence/db-scope/test/*"
+      ],
+      "@beep/utils/test": [
+        "./packages/common/utils/test/index"
+      ],
       "@beep/utils/test/*": [
         "./packages/common/utils/test/*"
       ],
