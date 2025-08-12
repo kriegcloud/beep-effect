@@ -42,7 +42,7 @@
     "dotenvx": "dotenvx run -f .env --"
   },
   "dependencies": {
-    "tsx": "^4.20.3"
+    "tsx": "^4.20.4"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.0",
@@ -63,7 +63,7 @@
     "@effect/platform": "^0.90.2",
     "@effect/platform-browser": "^0.70.0",
     "@effect/platform-node": "^0.95.0",
-    "@effect/rpc": "^0.68.3",
+    "@effect/rpc": "^0.68.4",
     "@effect/sql": "^0.44.1",
     "@effect/sql-pg": "^0.45.0",
     "@effect/vitest": "^0.25.0",
