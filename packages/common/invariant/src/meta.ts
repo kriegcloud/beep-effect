@@ -6,7 +6,7 @@ import * as S from "effect/Schema";
  */
 export namespace CallMetadata {
   export class Schema extends S.Class<Schema>(
-    "@beep/common/invariant/meta/CallMetadata.Schema"
+    "@beep/invariant/meta/CallMetadata.Schema"
   )({
     /** File where the invariant is defined/called. */
     file: S.NonEmptyString,

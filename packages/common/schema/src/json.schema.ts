@@ -1,5 +1,5 @@
-import { sid } from "@beep/common/schema/id";
-import { annotate, makeMocker } from "@beep/common/schema/utils";
+import { sid } from "@beep/schema/id";
+import { annotate, makeMocker } from "@beep/schema/utils";
 import * as S from "effect/Schema";
 
 /**

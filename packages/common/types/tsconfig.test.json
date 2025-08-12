@@ -1,8 +1,7 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../../tsconfig.base.json",
   "include": [
-    "test",
-    "src/**/*.test.ts"
+    "test"
   ],
   "references": [
     {
@@ -18,10 +17,10 @@
     "noEmit": true
   },
   "paths": {
-    "@beep/common": [
+    "@beep/types": [
       "./src/index"
     ],
-    "@beep/common/*": [
+    "@beep/types/*": [
       "./src/*"
     ]
   }

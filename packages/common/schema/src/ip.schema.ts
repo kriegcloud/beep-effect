@@ -1,4 +1,4 @@
-import { sid } from "@beep/common/schema/id";
+import { sid } from "./id";
 import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
 import { annotate, makeMocker } from "./utils";

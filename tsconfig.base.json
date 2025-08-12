@@ -45,14 +45,41 @@
       }
     ],
     "paths": {
-      "@beep/common": [
-        "./packages/common/src/index"
+      "@beep/schema": [
+        "./packages/common/schema/src/index"
       ],
-      "@beep/common/*": [
-        "./packages/common/src/*"
+      "@beep/schema/*": [
+        "./packages/common/schema/src/*"
       ],
-      "@beep/common/test/*": [
-        "./packages/common/test/*"
+      "@beep/schema/test/*": [
+        "./packages/common/schema/test/*"
+      ],
+      "@beep/types": [
+        "./packages/common/types/src/index"
+      ],
+      "@beep/types/*": [
+        "./packages/common/types/src/*"
+      ],
+      "@beep/types/test/*": [
+        "./packages/common/types/test/*"
+      ],
+      "@beep/invariant": [
+        "./packages/common/invariant/src/index"
+      ],
+      "@beep/invariant/*": [
+        "./packages/common/invariant/src/*"
+      ],
+      "@beep/invariant/test/*": [
+        "./packages/common/invariant/test/*"
+      ],
+      "@beep/utils": [
+        "./packages/common/utils/src/index"
+      ],
+      "@beep/utils/*": [
+        "./packages/common/utils/src/*"
+      ],
+      "@beep/utils/test/*": [
+        "./packages/common/utils/test/*"
       ],
       "@beep/repo-config": [
         "./tooling/repo-config/src/index"

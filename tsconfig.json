@@ -4,7 +4,16 @@
   "exclude": [],
   "references": [
     {
-      "path": "packages/common"
+      "path": "packages/common/schema"
+    },
+    {
+      "path": "packages/common/invariant"
+    },
+    {
+      "path": "packages/common/types"
+    },
+    {
+      "path": "packages/common/utils"
     },
     {
       "path": "packages/ui"

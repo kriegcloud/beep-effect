@@ -1,24 +1,20 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../../tsconfig.base.json",
   "include": ["src"],
-  "exclude": ["vitest.config.ts", "src/**/*.test.ts"],
-  "references": [],
+  "references": [
+  ],
   "compilerOptions": {
     "types": ["node"],
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
     "baseUrl": ".",
-    "jsx": "react-jsx",
-    "module": "ESNext",
-    "target": "ES2022",
-    "lib": ["ES2024", "DOM", "DOM.Iterable"],
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-      "@beep/ui/*": ["./src/*"]
+      "@beep/invariant/*": ["./src/*"]
     }
   }
 }

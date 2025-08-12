@@ -7,7 +7,7 @@ import * as S from "effect/Schema";
  * pattern match in Effects.
  */
 export class InvariantViolation extends S.TaggedError<InvariantViolation>(
-  "@beep/common/invariant/InvariantViolation"
+  "@beep/invariant/InvariantViolation"
 )(
   "InvariantViolation",
   {

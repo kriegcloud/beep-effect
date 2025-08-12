@@ -1,4 +1,4 @@
-import {invariant} from "@beep/common/invariant";
+import {invariant} from "@beep/invariant";
 import {faker} from "@faker-js/faker";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";

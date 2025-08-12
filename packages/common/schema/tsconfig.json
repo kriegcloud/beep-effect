@@ -1,0 +1,31 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": [],
+  "compilerOptions": {
+    "paths": {
+      "@beep/schema/*": [
+        "./src/*"
+      ],
+      "@beep/invariant": [
+        "../invariant/src/index"
+      ],
+      "@beep/invariant/*": [
+        "../invariant/src/*"
+      ],
+      "@beep/types": [
+        "../types/src/index"
+      ],
+      "@beep/types/*": [
+        "../types/src/*"
+      ]
+    }
+  },
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "tsconfig.test.json"
+    }
+  ]
+}

@@ -3,9 +3,6 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../../packages/common"
-    },
-    {
       "path": "../utils"
     }
   ],
@@ -18,8 +15,6 @@
     "baseUrl": ".",
     "paths": {
       "@beep/repo-scripts/*": ["./src/*"],
-      "@beep/common": ["../../packages/common/src/index"],
-      "@beep/common/*": ["../../packages/common/src/*"],
       "@beep/tooling-utils": ["../utils/src/index"],
       "@beep/tooling-utils/*": ["../utils/src/*"]
     }

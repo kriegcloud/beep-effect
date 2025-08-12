@@ -1,4 +1,4 @@
-import { Identifier } from "@beep/common/identity";
+import { Identifier } from "@beep/schema/identity";
 
 /**
  * Shared identifier builder for schema identities.

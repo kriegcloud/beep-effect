@@ -1,9 +1,9 @@
 {
-  "name": "@beep/common",
+  "name": "@beep/utils",
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "A library of common stuff",
+  "description": "A library for common utility functions",
   "publishConfig": {
     "access": "restricted",
     "directory": "build"
@@ -16,7 +16,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/BeepinBois/beep-effect.git",
-    "directory": "packages/common"
+    "directory": "packages/common/utils"
   },
   "scripts": {
     "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",

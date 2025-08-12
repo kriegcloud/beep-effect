@@ -1,4 +1,4 @@
-import { annotate, makeMocker } from "@beep/common/schema";
+import { annotate, makeMocker } from "@beep/schema";
 import { faker } from "@faker-js/faker";
 import * as Redacted from "effect/Redacted";
 import { sid } from "./id";

@@ -15,10 +15,6 @@
     "esModuleInterop": true,
     "stripInternal": true
   },
-  "references": [
-    {
-      "path": "../common/tsconfig.build.json"
-    }
-  ],
+  "references": [],
   "include": ["src"]
 }

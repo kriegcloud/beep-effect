@@ -1,14 +1,7 @@
 import * as path from "node:path";
 import type { ViteUserConfig } from "vitest/config";
 import tsconfigPaths from "vite-tsconfig-paths";
-const alias = (name: string) => {
-  const target = process.env.TEST_DIST !== undefined ? "dist/dist/esm" : "src";
-  const scopedName = `@beep/${name}`;
-  return {
-    [`${scopedName}/test`]: path.join(__dirname, "packages", name, "test"),
-    [`${scopedName}`]: path.join(__dirname, "packages", name, target),
-  };
-};
+
 
 // This is a workaround, see https://github.com/vitest-dev/vitest/issues/4744
 const config: ViteUserConfig = {
@@ -30,12 +23,7 @@ const config: ViteUserConfig = {
     sequence: {
       concurrent: true,
     },
-    include: ["test/**/*.test.ts", "src/**/*.test.ts"],
-    alias: {
-      ...alias("cli"),
-      ...alias("shared-kernel"),
-      ...alias("server"),
-    },
+    include: ["test/**/*.test.ts", "src/**/*.test.ts"]
   },
 };
 
