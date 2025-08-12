@@ -25,9 +25,8 @@
     "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
     "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
     "check": "tsc -b tsconfig.json",
-    "execute": "pnpm tsx ./src/execute.ts",
     "test": "vitest run",
-    "clean": "rm -rf node_modules .next out dist build .turbo .tsbuildinfo",
+    "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "coverage": "vitest --coverage"
   },
   "dependencies": {
