@@ -1,3 +1,13 @@
 packages:
   - packages/**
   - tooling/*
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - '@tailwindcss/oxide'
+  - core-js-pure
+  - es5-ext
+  - esbuild
+  - fsevents
+  - msgpackr-extract
+  - sharp

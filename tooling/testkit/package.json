@@ -30,10 +30,7 @@
   "dependencies": {
     "@beep/common": "workspace:*",
     "@effect/platform": "^0.90.2",
-    "@effect/platform-node": "^0.95.0",
-    "chalk": "^5.5.0",
-    "effect": "^3.17.7",
-    "handlebars": "^4.7.8"
+    "effect": "^3.17.7"
   },
   "effect": {
     "generateExports": {

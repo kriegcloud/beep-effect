@@ -22,10 +22,7 @@ import * as Effect from "effect/Effect";
 const hasFileNamed = (files: ReadonlyArray<string>, name: string): boolean =>
   A.some(files, (p) => p.endsWith(`/${name}`) || p.endsWith(`\\${name}`));
 
-const runStep = (
-  label: string,
-  args: ReadonlyArray<string>,
-) =>
+const runStep = (label: string, args: ReadonlyArray<string>) =>
   Effect.gen(function* () {
     const cmd = Command.make(
       "pnpm",
@@ -40,7 +37,7 @@ const runStep = (
       `   $ pnpm -w exec update-ts-references ${args.join(" ")}`,
     );
 
-    const out = yield*Command.string(cmd).pipe(
+    const out = yield* Command.string(cmd).pipe(
       Effect.tapError((err) =>
         Console.log(`❌ ${label} failed: ${String(err)}`),
       ),
