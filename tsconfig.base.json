@@ -141,17 +141,80 @@
       "@beep/ui/*": [
         "./packages/ui/src/*"
       ],
-      "@beep/shared-kernel": [
-        "./packages/shared-kernel/src/index"
+      "@beep/shared-domain": [
+        "./packages/shared/domain/src/index"
       ],
-      "@beep/shared-kernel/*": [
-        "./packages/shared-kernel/src/*"
+      "@beep/shared-domain/*": [
+        "./packages/shared/domain/src/*"
       ],
-      "@beep/shared-kernel/test/*": [
-        "./packages/shared-kernel/test/*"
+      "@beep/shared-domain/test/*": [
+        "./packages/shared/domain/test/*"
+      ],
+      "@beep/shared-tables": [
+        "./packages/shared/tables/src/index"
+      ],
+      "@beep/shared-tables/*": [
+        "./packages/shared/tables/src/*"
+      ],
+      "@beep/shared-tables/test/*": [
+        "./packages/shared/tables/test/*"
       ],
       "@beep/ui/test/*": [
         "./packages/ui/src/test/*"
+      ],
+      "@beep/iam-api": [
+        "./packages/iam/api/src/index"
+      ],
+      "@beep/iam-api/*": [
+        "./packages/iam/api/src/*"
+        ],
+      "@beep/iam-api/test/*": [
+        "./packages/iam/api/test/*"
+      ],
+      "@beep/iam-application": [
+        "./packages/iam/application/src/index"
+      ],
+      "@beep/iam-application/*": [
+        "./packages/iam/application/src/*"
+      ],
+      "@beep/iam-application/test/*": [
+        "./packages/iam/application/test/*"
+      ],
+      "@beep/iam-db": [
+        "./packages/iam/db/src/index"
+      ],
+      "@beep/iam-db/*": [
+        "./packages/iam/db/src/*"
+      ],
+      "@beep/iam-db/test/*": [
+        "./packages/iam/db/test/*"
+      ],
+      "@beep/iam-domain": [
+        "./packages/iam/domain/src/index"
+      ],
+      "@beep/iam-domain/*": [
+        "./packages/iam/domain/src/*"
+      ],
+      "@beep/iam-domain/test/*": [
+        "./packages/iam/domain/test/*"
+      ],
+      "@beep/iam-presentation": [
+        "./packages/iam/presentation/src/index"
+      ],
+      "@beep/iam-presentation/*": [
+        "./packages/iam/presentation/src/*"
+      ],
+      "@beep/iam-presentation/test/*": [
+        "./packages/iam/presentation/test/*"
+      ],
+      "@beep/iam-tables": [
+        "./packages/iam/tables/src/index"
+      ],
+      "@beep/iam-tables/*": [
+        "./packages/iam/tables/src/*"
+      ],
+      "@beep/iam-tables/test/*": [
+        "./packages/iam/tables/test/*"
       ]
     }
   }

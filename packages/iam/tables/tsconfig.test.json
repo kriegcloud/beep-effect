@@ -1,0 +1,32 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": [
+    "test"
+  ],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../shared/tables"
+    }
+  ],
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+    "rootDir": "test",
+    "noEmit": true
+  },
+    "paths": {
+      "@beep/iam-tables": ["./src/index"],
+      "@beep/iam-tables/*": ["./src/*"],
+      "@beep/shared-tables": [
+        "../../shared/tables/src/index"
+      ],
+      "@beep/shared-tables/*": [
+        "../../shared/tables/src/*"
+      ]
+    }
+}

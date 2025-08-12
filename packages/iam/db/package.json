@@ -1,9 +1,9 @@
 {
-  "name": "@beep/shared-kernel",
+  "name": "@beep/iam-db",
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "A library for cross cutting/contextual concerns, organization, team etc.",
+  "description": "The package which contains the scoped db client for the iam context",
   "publishConfig": {
     "access": "restricted",
     "directory": "build"
@@ -16,7 +16,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/BeepinBois/beep-effect.git",
-    "directory": "packages/persistence/shared-kernel"
+    "directory": "packages/iam/db"
   },
   "scripts": {
     "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",
@@ -30,6 +30,8 @@
     "coverage": "vitest --coverage"
   },
   "dependencies": {
+    "@beep/iam-tables": "workspace:*",
+    "@faker-js/faker": "^9.9.0",
     "@standard-schema/spec": "^1.0.0",
     "effect": "^3.17.7"
   },

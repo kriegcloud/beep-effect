@@ -1,0 +1,37 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": [
+    "test"
+  ],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../shared/domain"
+    }
+
+  ],
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+    "rootDir": "test",
+    "noEmit": true
+  },
+  "paths": {
+    "@beep/iam-domain": [
+      "./src/index"
+    ],
+    "@beep/iam-domain/*": [
+      "./src/*"
+    ],
+    "@beep/shared-domain": [
+      "../../shared/domain/src/index"
+    ],
+    "@beep/shared-domain/*": [
+      "../../shared/domain/src/*"
+    ]
+  }
+}

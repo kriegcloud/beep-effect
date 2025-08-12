@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../../tsconfig.base.json",
   "include": ["src"],
   "references": [
   ],
@@ -14,7 +14,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-      "@beep/shared-kernel/*": ["./src/*"]
+      "@beep/iam-api/*": ["./src/*"]
     }
   }
 }

@@ -22,7 +22,28 @@
       "path": "packages/persistence/db-scope"
     },
     {
-      "path": "packages/shared-kernel"
+      "path": "packages/shared/domain"
+    },
+    {
+      "path": "packages/shared/tables"
+    },
+    {
+      "path": "packages/iam/api"
+    },
+    {
+      "path": "packages/iam/application"
+    },
+    {
+      "path": "packages/iam/db"
+    },
+    {
+      "path": "packages/iam/domain"
+    },
+    {
+      "path": "packages/iam/presentation"
+    },
+    {
+      "path": "packages/iam/tables"
     },
     {
       "path": "packages/ui"

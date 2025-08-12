@@ -1,0 +1,29 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../tables"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node"],
+    "outDir": "build/src",
+    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+    "rootDir": "src",
+    "baseUrl": ".",
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@beep/iam-db/*": ["./src/*"],
+      "@beep/iam-tables": [
+        "../tables/src/index"
+      ],
+      "@beep/iam-tables/*": [
+        "../tables/src/*"
+      ]
+    }
+  }
+}

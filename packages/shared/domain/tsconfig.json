@@ -1,9 +1,9 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../../tsconfig.base.json",
   "include": [],
   "compilerOptions": {
     "paths": {
-      "@beep/shared-kernel/*": ["./src/*"]
+      "@beep/shared-domain/*": ["./src/*"]
     }
   },
   "references": [

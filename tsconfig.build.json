@@ -21,7 +21,28 @@
       "path": "packages/persistence/db-admin/tsconfig.build.json"
     },
     {
-      "path": "packages/shared-kernel/tsconfig.build.json"
+      "path": "packages/shared/domain/tsconfig.build.json"
+    },
+    {
+      "path": "packages/shared/tables/tsconfig.build.json"
+    },
+    {
+      "path": "packages/iam/api/tsconfig.build.json"
+    },
+    {
+      "path": "packages/iam/application/tsconfig.build.json"
+    },
+    {
+      "path": "packages/iam/db/tsconfig.build.json"
+    },
+    {
+      "path": "packages/iam/domain/tsconfig.build.json"
+    },
+    {
+      "path": "packages/iam/presentation/tsconfig.build.json"
+    },
+    {
+      "path": "packages/iam/tables/tsconfig.build.json"
     },
     {
       "path": "packages/ui/tsconfig.build.json"
