@@ -1,15 +1,3 @@
-/** **************************************
-* TAILWIND
-*************************************** */
-@layer theme, base, mui, components, utilities;
-@import 'tailwindcss';
-/** **************************************
-* shadcn
-*************************************** */
-@source "../../../apps/**/*.{ts,tsx}";
-@source "../../../components/**/*.{ts,tsx}";
-@source "../**/*.{ts,tsx}";
-
 @import "tw-animate-css";
 /** **************************************
 * Fonts: app
@@ -28,6 +16,18 @@
 @import '@fontsource-variable/dm-sans';
 @import '@fontsource-variable/inter';
 @import '@fontsource-variable/nunito-sans';
+@import 'tailwindcss';
+/** **************************************
+* TAILWIND
+*************************************** */
+@layer theme, base, mui, components, utilities;
+
+/** **************************************
+* shadcn
+*************************************** */
+@source "../../../apps/**/*.{ts,tsx}";
+@source "../../../components/**/*.{ts,tsx}";
+@source "../**/*.{ts,tsx}";
 
 
 

@@ -1,7 +1,7 @@
+import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import * as DateTime from "effect/DateTime";
 import * as F from "effect/Function";
-import * as d from "drizzle-orm";
 import { organization } from "./organization.table";
 export const utcNow = F.constant(DateTime.toDateUtc(DateTime.unsafeNow()));
 
