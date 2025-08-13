@@ -215,6 +215,42 @@
       ],
       "@beep/iam-tables/test/*": [
         "./packages/iam/tables/test/*"
+      ],
+      "@beep/form-dsl": [
+        "./packages/form/dsl/src/index"
+      ],
+      "@beep/form-dsl/*": [
+        "./packages/form/dsl/src/*"
+      ],
+      "@beep/form-dsl/test/*": [
+        "./packages/form/dsl/test/*"
+        ],
+      "@beep/form-model": [
+        "./packages/form/model/src/index"
+      ],
+      "@beep/form-model/*": [
+        "./packages/form/model/src/*"
+      ],
+      "@beep/form-model/test/*": [
+        "./packages/form/model/test/*"
+      ],
+      "@beep/form-renderer": [
+        "./packages/form/renderer/src/index"
+      ],
+      "@beep/form-renderer/*": [
+        "./packages/form/renderer/src/*"
+      ],
+      "@beep/form-renderer/test/*": [
+        "./packages/form/renderer/test/*"
+      ],
+      "@beep/form-runtime": [
+        "./packages/form/runtime/src/index"
+      ],
+      "@beep/form-runtime/*": [
+        "./packages/form/runtime/src/*"
+      ],
+      "@beep/form-runtime/test/*": [
+        "./packages/form/runtime/test/*"
       ]
     }
   }

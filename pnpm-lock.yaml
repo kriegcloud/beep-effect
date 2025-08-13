@@ -448,6 +448,101 @@ importers:
         version: link:../types/build
     publishDirectory: build
 
+  packages/form/dsl:
+    dependencies:
+      '@beep/invariant':
+        specifier: workspace:*
+        version: link:../../common/invariant/build
+      '@beep/schema':
+        specifier: workspace:*
+        version: link:../../common/schema/build
+      '@beep/utils':
+        specifier: workspace:*
+        version: link:../../common/utils/build
+      effect:
+        specifier: ^3.17.7
+        version: 3.17.7
+    devDependencies:
+      '@beep/types':
+        specifier: workspace:*
+        version: link:../../common/types/build
+    publishDirectory: build
+
+  packages/form/model:
+    dependencies:
+      '@beep/invariant':
+        specifier: workspace:*
+        version: link:../../common/invariant/build
+      '@beep/schema':
+        specifier: workspace:*
+        version: link:../../common/schema/build
+      '@beep/utils':
+        specifier: workspace:*
+        version: link:../../common/utils/build
+      effect:
+        specifier: ^3.17.7
+        version: 3.17.7
+    devDependencies:
+      '@beep/types':
+        specifier: workspace:*
+        version: link:../../common/types/build
+    publishDirectory: build
+
+  packages/form/renderer:
+    dependencies:
+      '@beep/invariant':
+        specifier: workspace:*
+        version: link:../../common/invariant/build
+      '@beep/schema':
+        specifier: workspace:*
+        version: link:../../common/schema/build
+      '@beep/utils':
+        specifier: workspace:*
+        version: link:../../common/utils/build
+      '@mui/material':
+        specifier: ^7.3.1
+        version: 7.3.1(@emotion/react@11.14.0(@types/react@19.1.10)(react@19.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.10)(react@19.1.1))(@types/react@19.1.10)(react@19.1.1))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      effect:
+        specifier: ^3.17.7
+        version: 3.17.7
+      react:
+        specifier: ^19.1.1
+        version: 19.1.1
+      react-dom:
+        specifier: ^19.1.1
+        version: 19.1.1(react@19.1.1)
+    devDependencies:
+      '@beep/types':
+        specifier: workspace:*
+        version: link:../../common/types/build
+      '@types/react':
+        specifier: ^19.1.10
+        version: 19.1.10
+      '@types/react-dom':
+        specifier: ^19.1.7
+        version: 19.1.7(@types/react@19.1.10)
+    publishDirectory: build
+
+  packages/form/runtime:
+    dependencies:
+      '@beep/invariant':
+        specifier: workspace:*
+        version: link:../../common/invariant/build
+      '@beep/schema':
+        specifier: workspace:*
+        version: link:../../common/schema/build
+      '@beep/utils':
+        specifier: workspace:*
+        version: link:../../common/utils/build
+      effect:
+        specifier: ^3.17.7
+        version: 3.17.7
+    devDependencies:
+      '@beep/types':
+        specifier: workspace:*
+        version: link:../../common/types/build
+    publishDirectory: build
+
   packages/iam/api:
     dependencies:
       '@faker-js/faker':
@@ -14195,7 +14290,7 @@ snapshots:
     dependencies:
       cipher-base: 1.0.6
       inherits: 2.0.4
-      ripemd160: 2.0.1
+      ripemd160: 2.0.2
       sha.js: 2.4.12
 
   create-hash@1.2.0:

@@ -58,6 +58,18 @@
     },
     {
       "path": "tooling/utils/tsconfig.build.json"
+    },
+    {
+      "path": "packages/form/dsl/tsconfig.build.json"
+    },
+    {
+      "path": "packages/form/model/tsconfig.build.json"
+    },
+    {
+      "path": "packages/form/renderer/tsconfig.build.json"
+    },
+    {
+      "path": "packages/form/runtime/tsconfig.build.json"
     }
   ]
 }

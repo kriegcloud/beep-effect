@@ -62,6 +62,18 @@
     },
     {
       "path": "apps/web"
+    },
+    {
+      "path": "packages/form/dsl"
+    },
+    {
+      "path": "packages/form/model"
+    },
+    {
+      "path": "packages/form/renderer"
+    },
+    {
+      "path": "packages/form/runtime"
     }
   ]
 }
