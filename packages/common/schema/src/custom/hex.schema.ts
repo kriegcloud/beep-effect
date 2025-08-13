@@ -2,8 +2,8 @@ import {invariant} from "@beep/invariant";
 import {faker} from "@faker-js/faker";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import {sid} from "./id";
-import {annotate, makeMocker} from "./utils";
+import {sid} from "@beep/schema/id";
+import {annotate, makeMocker} from "@beep/schema/utils";
 /**
  * Hex color string schema.
  *

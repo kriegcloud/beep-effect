@@ -1,8 +1,8 @@
 import { faker } from "@faker-js/faker";
 import * as Either from "effect/Either";
 import * as S from "effect/Schema";
-import { sid } from "./id";
-import { annotate, makeMocker } from "./utils";
+import { sid } from "@beep/schema/id";
+import { annotate, makeMocker } from "@beep/schema/utils";
 
 /**
  * URL string schema (http/https).

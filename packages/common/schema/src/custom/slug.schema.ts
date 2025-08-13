@@ -2,8 +2,8 @@ import { faker } from "@faker-js/faker";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
-import { sid } from "./id";
-import { annotate, makeMocker } from "./utils";
+import { sid } from "@beep/schema/id";
+import { annotate, makeMocker } from "@beep/schema/utils";
 
 /**
  * URL-friendly slug:

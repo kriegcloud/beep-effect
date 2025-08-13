@@ -1,7 +1,7 @@
-import { sid } from "./id";
+import { sid } from "@beep/schema/id";
 import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
-import { annotate, makeMocker } from "./utils";
+import { annotate, makeMocker } from "@beep/schema/utils";
 
 /**
  * IP address schema (IPv4 or IPv6) and helpers.

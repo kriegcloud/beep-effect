@@ -1,9 +1,9 @@
 {
-  "name": "@beep/workflow-runtime",
+  "name": "@beep/logic",
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "A library for the form system runtime",
+  "description": "A library for schema driven serializable logic",
   "publishConfig": {
     "access": "restricted",
     "directory": "build"
@@ -16,7 +16,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/BeepinBois/beep-effect.git",
-    "directory": "packages/workflow/runtime"
+    "directory": "packages/common/logic"
   },
   "scripts": {
     "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",
@@ -30,14 +30,12 @@
     "coverage": "vitest --coverage"
   },
   "dependencies": {
-    "effect": "^3.17.7",
-    "@beep/schema": "workspace:*",
-    "@beep/utils": "workspace:*",
-    "@beep/invariant": "workspace:*",
-    "xstate": "^5.20.2"
+    "@faker-js/faker": "^9.9.0",
+    "@standard-schema/spec": "^1.0.0",
+    "effect": "^3.17.7"
   },
   "devDependencies": {
-    "@beep/types": "workspace:*"
+    "tsx": "^4.20.4"
   },
   "effect": {
     "generateExports": {

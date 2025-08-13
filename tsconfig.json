@@ -74,6 +74,9 @@
     },
     {
       "path": "packages/workflow/runtime"
+    },
+    {
+      "path": "packages/common/logic"
     }
   ]
 }
