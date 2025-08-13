@@ -448,101 +448,6 @@ importers:
         version: link:../types/build
     publishDirectory: build
 
-  packages/form/dsl:
-    dependencies:
-      '@beep/invariant':
-        specifier: workspace:*
-        version: link:../../common/invariant/build
-      '@beep/schema':
-        specifier: workspace:*
-        version: link:../../common/schema/build
-      '@beep/utils':
-        specifier: workspace:*
-        version: link:../../common/utils/build
-      effect:
-        specifier: ^3.17.7
-        version: 3.17.7
-    devDependencies:
-      '@beep/types':
-        specifier: workspace:*
-        version: link:../../common/types/build
-    publishDirectory: build
-
-  packages/form/model:
-    dependencies:
-      '@beep/invariant':
-        specifier: workspace:*
-        version: link:../../common/invariant/build
-      '@beep/schema':
-        specifier: workspace:*
-        version: link:../../common/schema/build
-      '@beep/utils':
-        specifier: workspace:*
-        version: link:../../common/utils/build
-      effect:
-        specifier: ^3.17.7
-        version: 3.17.7
-    devDependencies:
-      '@beep/types':
-        specifier: workspace:*
-        version: link:../../common/types/build
-    publishDirectory: build
-
-  packages/form/renderer:
-    dependencies:
-      '@beep/invariant':
-        specifier: workspace:*
-        version: link:../../common/invariant/build
-      '@beep/schema':
-        specifier: workspace:*
-        version: link:../../common/schema/build
-      '@beep/utils':
-        specifier: workspace:*
-        version: link:../../common/utils/build
-      '@mui/material':
-        specifier: ^7.3.1
-        version: 7.3.1(@emotion/react@11.14.0(@types/react@19.1.10)(react@19.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.10)(react@19.1.1))(@types/react@19.1.10)(react@19.1.1))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      effect:
-        specifier: ^3.17.7
-        version: 3.17.7
-      react:
-        specifier: ^19.1.1
-        version: 19.1.1
-      react-dom:
-        specifier: ^19.1.1
-        version: 19.1.1(react@19.1.1)
-    devDependencies:
-      '@beep/types':
-        specifier: workspace:*
-        version: link:../../common/types/build
-      '@types/react':
-        specifier: ^19.1.10
-        version: 19.1.10
-      '@types/react-dom':
-        specifier: ^19.1.7
-        version: 19.1.7(@types/react@19.1.10)
-    publishDirectory: build
-
-  packages/form/runtime:
-    dependencies:
-      '@beep/invariant':
-        specifier: workspace:*
-        version: link:../../common/invariant/build
-      '@beep/schema':
-        specifier: workspace:*
-        version: link:../../common/schema/build
-      '@beep/utils':
-        specifier: workspace:*
-        version: link:../../common/utils/build
-      effect:
-        specifier: ^3.17.7
-        version: 3.17.7
-    devDependencies:
-      '@beep/types':
-        specifier: workspace:*
-        version: link:../../common/types/build
-    publishDirectory: build
-
   packages/iam/api:
     dependencies:
       '@faker-js/faker':
@@ -1154,6 +1059,101 @@ importers:
       typescript:
         specifier: ^5.9.2
         version: 5.9.2
+
+  packages/workflow/dsl:
+    dependencies:
+      '@beep/invariant':
+        specifier: workspace:*
+        version: link:../../common/invariant/build
+      '@beep/schema':
+        specifier: workspace:*
+        version: link:../../common/schema/build
+      '@beep/utils':
+        specifier: workspace:*
+        version: link:../../common/utils/build
+      effect:
+        specifier: ^3.17.7
+        version: 3.17.7
+    devDependencies:
+      '@beep/types':
+        specifier: workspace:*
+        version: link:../../common/types/build
+    publishDirectory: build
+
+  packages/workflow/model:
+    dependencies:
+      '@beep/invariant':
+        specifier: workspace:*
+        version: link:../../common/invariant/build
+      '@beep/schema':
+        specifier: workspace:*
+        version: link:../../common/schema/build
+      '@beep/utils':
+        specifier: workspace:*
+        version: link:../../common/utils/build
+      effect:
+        specifier: ^3.17.7
+        version: 3.17.7
+    devDependencies:
+      '@beep/types':
+        specifier: workspace:*
+        version: link:../../common/types/build
+    publishDirectory: build
+
+  packages/workflow/renderer:
+    dependencies:
+      '@beep/invariant':
+        specifier: workspace:*
+        version: link:../../common/invariant/build
+      '@beep/schema':
+        specifier: workspace:*
+        version: link:../../common/schema/build
+      '@beep/utils':
+        specifier: workspace:*
+        version: link:../../common/utils/build
+      '@mui/material':
+        specifier: ^7.3.1
+        version: 7.3.1(@emotion/react@11.14.0(@types/react@19.1.10)(react@19.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.10)(react@19.1.1))(@types/react@19.1.10)(react@19.1.1))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      effect:
+        specifier: ^3.17.7
+        version: 3.17.7
+      react:
+        specifier: ^19.1.1
+        version: 19.1.1
+      react-dom:
+        specifier: ^19.1.1
+        version: 19.1.1(react@19.1.1)
+    devDependencies:
+      '@beep/types':
+        specifier: workspace:*
+        version: link:../../common/types/build
+      '@types/react':
+        specifier: ^19.1.10
+        version: 19.1.10
+      '@types/react-dom':
+        specifier: ^19.1.7
+        version: 19.1.7(@types/react@19.1.10)
+    publishDirectory: build
+
+  packages/workflow/runtime:
+    dependencies:
+      '@beep/invariant':
+        specifier: workspace:*
+        version: link:../../common/invariant/build
+      '@beep/schema':
+        specifier: workspace:*
+        version: link:../../common/schema/build
+      '@beep/utils':
+        specifier: workspace:*
+        version: link:../../common/utils/build
+      effect:
+        specifier: ^3.17.7
+        version: 3.17.7
+    devDependencies:
+      '@beep/types':
+        specifier: workspace:*
+        version: link:../../common/types/build
+    publishDirectory: build
 
   tooling/repo-config:
     dependencies:
@@ -2722,11 +2722,14 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@inquirer/external-editor@1.0.0':
-    resolution: {integrity: sha512-5v3YXc5ZMfL6OJqXPrX9csb4l7NlQA2doO1yynUjpUChT9hg4JcuBVP0RbsEJ/3SL/sxWEyFjT2W69ZhtoBWqg==}
+  '@inquirer/external-editor@1.0.1':
+    resolution: {integrity: sha512-Oau4yL24d2B5IL4ma4UpbQigkVhzPDXLoqy1ggK4gnHg/stmkffJE4oOXHXF3uz0UEpywG68KcyXsyYpA1Re/Q==}
     engines: {node: '>=18'}
     peerDependencies:
       '@types/node': '>=18'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
 
   '@isaacs/balanced-match@4.0.1':
     resolution: {integrity: sha512-yzMTt9lEb8Gv7zRioUilSglI0c0smZ9k5D65677DLWLtWJaXIS3CqcGyUFByYKlnUj6TkjLVs54fBl6+TiGQDQ==}
@@ -11346,11 +11349,12 @@ snapshots:
   '@img/sharp-win32-x64@0.34.3':
     optional: true
 
-  '@inquirer/external-editor@1.0.0(@types/node@24.2.1)':
+  '@inquirer/external-editor@1.0.1(@types/node@24.2.1)':
     dependencies:
-      '@types/node': 24.2.1
       chardet: 2.1.0
       iconv-lite: 0.6.3
+    optionalDependencies:
+      '@types/node': 24.2.1
 
   '@isaacs/balanced-match@4.0.1': {}
 
@@ -14290,7 +14294,7 @@ snapshots:
     dependencies:
       cipher-base: 1.0.6
       inherits: 2.0.4
-      ripemd160: 2.0.2
+      ripemd160: 2.0.1
       sha.js: 2.4.12
 
   create-hash@1.2.0:
@@ -15630,7 +15634,7 @@ snapshots:
 
   inquirer@8.2.7(@types/node@24.2.1):
     dependencies:
-      '@inquirer/external-editor': 1.0.0(@types/node@24.2.1)
+      '@inquirer/external-editor': 1.0.1(@types/node@24.2.1)
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       cli-cursor: 3.1.0

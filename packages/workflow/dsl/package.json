@@ -1,9 +1,9 @@
 {
-  "name": "@beep/form-runtime",
+  "name": "@beep/workflow-dsl",
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "A library for the form system runtime",
+  "description": "A library for the form system DSL",
   "publishConfig": {
     "access": "restricted",
     "directory": "build"
@@ -16,7 +16,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/BeepinBois/beep-effect.git",
-    "directory": "packages/form/runtime"
+    "directory": "packages/workflow/dsl"
   },
   "scripts": {
     "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",

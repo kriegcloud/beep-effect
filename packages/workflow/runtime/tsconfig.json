@@ -3,7 +3,7 @@
   "include": [],
   "compilerOptions": {
     "paths": {
-      "@beep/form-dsl/*": ["./src/*"],
+      "@beep/workflow-runtime/*": ["./src/*"],
       "@beep/types": ["../../common/types/src/index"],
       "@beep/types/*": ["../../common/types/src/*"],
       "@beep/invariant": ["../../common/invariant/src/index"],

@@ -216,41 +216,41 @@
       "@beep/iam-tables/test/*": [
         "./packages/iam/tables/test/*"
       ],
-      "@beep/form-dsl": [
-        "./packages/form/dsl/src/index"
+      "@beep/workflow-dsl": [
+        "./packages/workflow/dsl/src/index"
       ],
-      "@beep/form-dsl/*": [
-        "./packages/form/dsl/src/*"
+      "@beep/workflow-dsl/*": [
+        "./packages/workflow/dsl/src/*"
       ],
-      "@beep/form-dsl/test/*": [
-        "./packages/form/dsl/test/*"
+      "@beep/workflow-dsl/test/*": [
+        "./packages/workflow/dsl/test/*"
         ],
-      "@beep/form-model": [
-        "./packages/form/model/src/index"
+      "@beep/workflow-model": [
+        "./packages/workflow/model/src/index"
       ],
-      "@beep/form-model/*": [
-        "./packages/form/model/src/*"
+      "@beep/workflow-model/*": [
+        "./packages/workflow/model/src/*"
       ],
-      "@beep/form-model/test/*": [
-        "./packages/form/model/test/*"
+      "@beep/workflow-model/test/*": [
+        "./packages/workflow/model/test/*"
       ],
-      "@beep/form-renderer": [
-        "./packages/form/renderer/src/index"
+      "@beep/workflow-renderer": [
+        "./packages/workflow/renderer/src/index"
       ],
-      "@beep/form-renderer/*": [
-        "./packages/form/renderer/src/*"
+      "@beep/workflow-renderer/*": [
+        "./packages/workflow/renderer/src/*"
       ],
-      "@beep/form-renderer/test/*": [
-        "./packages/form/renderer/test/*"
+      "@beep/workflow-renderer/test/*": [
+        "./packages/workflow/renderer/test/*"
       ],
-      "@beep/form-runtime": [
-        "./packages/form/runtime/src/index"
+      "@beep/workflow-runtime": [
+        "./packages/workflow/runtime/src/index"
       ],
-      "@beep/form-runtime/*": [
-        "./packages/form/runtime/src/*"
+      "@beep/workflow-runtime/*": [
+        "./packages/workflow/runtime/src/*"
       ],
-      "@beep/form-runtime/test/*": [
-        "./packages/form/runtime/test/*"
+      "@beep/workflow-runtime/test/*": [
+        "./packages/workflow/runtime/test/*"
       ]
     }
   }

@@ -30,7 +30,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-      "@beep/form-model/*": [
+      "@beep/workflow-dsl/*": [
         "./src/*"
       ],
       "@beep/types": [

@@ -38,7 +38,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-      "@beep/form-runtime/*": [
+      "@beep/workflow-runtime/*": [
         "./src/*"
       ],
       "@beep/types": [

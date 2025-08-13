@@ -1,9 +1,9 @@
 {
-  "name": "@beep/form-renderer",
+  "name": "@beep/workflow-runtime",
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "A library for the form system renderer",
+  "description": "A library for the form system runtime",
   "publishConfig": {
     "access": "restricted",
     "directory": "build"
@@ -16,31 +16,26 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/BeepinBois/beep-effect.git",
-    "directory": "packages/form/renderer"
+    "directory": "packages/workflow/runtime"
   },
   "scripts": {
-    "dev": "tsc -b tsconfig.build.json --watch",
     "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",
+    "dev": "tsc -b tsconfig.build.json --watch",
     "build-esm": "tsc -b tsconfig.build.json",
-    "build-cjs": "babel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps ",
-    "build-annotate": "babel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
     "check": "tsc -b tsconfig.json",
     "test": "vitest run",
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "coverage": "vitest --coverage"
   },
   "dependencies": {
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "@mui/material": "^7.3.1",
     "effect": "^3.17.7",
     "@beep/schema": "workspace:*",
     "@beep/utils": "workspace:*",
     "@beep/invariant": "workspace:*"
   },
   "devDependencies": {
-    "@types/react": "^19.1.10",
-    "@types/react-dom": "^19.1.7",
     "@beep/types": "workspace:*"
   },
   "effect": {

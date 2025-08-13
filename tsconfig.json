@@ -64,16 +64,16 @@
       "path": "apps/web"
     },
     {
-      "path": "packages/form/dsl"
+      "path": "packages/workflow/dsl"
     },
     {
-      "path": "packages/form/model"
+      "path": "packages/workflow/model"
     },
     {
-      "path": "packages/form/renderer"
+      "path": "packages/workflow/renderer"
     },
     {
-      "path": "packages/form/runtime"
+      "path": "packages/workflow/runtime"
     }
   ]
 }

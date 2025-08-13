@@ -29,10 +29,10 @@
     "noEmit": true
   },
   "paths": {
-    "@beep/form-dsl": [
+    "@beep/workflow-dsl": [
       "./src/index"
     ],
-    "@beep/form-dsl/*": [
+    "@beep/workflow-dsl/*": [
       "./src/*"
     ],
     "@beep/types": [

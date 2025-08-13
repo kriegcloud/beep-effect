@@ -29,10 +29,10 @@
     "noEmit": true
   },
   "paths": {
-    "@beep/form-runtime": [
+    "@beep/workflow-model": [
       "./src/index"
     ],
-    "@beep/form-runtime/*": [
+    "@beep/workflow-model/*": [
       "./src/*"
     ],
     "@beep/types": [
