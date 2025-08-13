@@ -1,0 +1,7 @@
+{
+  "languageSwitch": {
+    "success": "Ngôn ngữ đã được thay đổi!",
+    "error": "Lỗi khi thay đổi ngôn ngữ!",
+    "loading": "Đang tải..."
+  }
+}

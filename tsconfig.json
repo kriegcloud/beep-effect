@@ -59,6 +59,9 @@
     },
     {
       "path": "tooling/utils"
+    },
+    {
+      "path": "apps/web"
     }
   ]
 }

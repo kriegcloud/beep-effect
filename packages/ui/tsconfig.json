@@ -5,12 +5,27 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@beep/ui/*": ["./src/*"]
+      "@beep/ui/*": ["./src/*"],
+      "@beep/types": ["../common/types/src/index"],
+      "@beep/types/*": ["../common/types/src/*"],
+      "@beep/invariant": ["../common/invariant/src/index"],
+      "@beep/invariant/*": ["../common/invariant/src/*"],
+      "@beep/utils": ["../common/utils/src/index"],
+      "@beep/utils/*": ["../common/utils/src/*"]
     }
   },
   "references": [
     {
       "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../common/types"
+    },
+    {
+      "path": "../common/invariant"
+    },
+    {
+      "path": "../common/utils"
     }
   ]
 }

@@ -1,6 +1,7 @@
 packages:
   - packages/**
   - tooling/*
+  - apps/*
 
 onlyBuiltDependencies:
   - '@parcel/watcher'
@@ -10,4 +11,5 @@ onlyBuiltDependencies:
   - esbuild
   - fsevents
   - msgpackr-extract
+  - protobufjs
   - sharp

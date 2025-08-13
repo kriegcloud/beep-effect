@@ -268,6 +268,9 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
+    "@beep/types": "workspace:*",
+    "@beep/invariant": "workspace:*",
+    "@beep/utils": "workspace:*",
     "@tailwindcss/postcss": "^4.1.11",
     "@turbo/gen": "^2.5.5",
     "@types/autosuggest-highlight": "^3.2.3",

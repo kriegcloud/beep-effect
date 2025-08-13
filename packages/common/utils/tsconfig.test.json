@@ -6,6 +6,12 @@
   "references": [
     {
       "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../types"
+    },
+    {
+      "path": "../invariant"
     }
   ],
   "compilerOptions": {
@@ -22,6 +28,18 @@
     ],
     "@beep/utils/*": [
       "./src/*"
+    ],
+    "@beep/types": [
+      "../types/src/index"
+    ],
+    "@beep/types/*": [
+      "../types/src/*"
+    ],
+    "@beep/invariant": [
+      "../invariant/src/index"
+    ],
+    "@beep/invariant/*": [
+      "../invariant/src/*"
     ]
   }
 }

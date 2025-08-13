@@ -1,0 +1,83 @@
+{
+  "compilerOptions": {
+    "exactOptionalPropertyTypes": false,
+    "moduleDetection": "force",
+    "downlevelIteration": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowImportingTsExtensions": false,
+    "isolatedModules": true,
+    "noImplicitReturns": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "noEmitOnError": false,
+    "noErrorTruncation": false,
+    "noEmit": true,
+    "allowJs": false,
+    "checkJs": false,
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "removeComments": false,
+    "types": ["node"],
+    "outDir": "build/src",
+    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+    "baseUrl": ".",
+    "jsx": "preserve",
+    "module": "ESNext",
+    "target": "ES2022",
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@beep/ui": ["../../packages/ui/src/index"],
+      "@beep/ui/*": ["../../packages/ui/src/*"],
+      "@beep/utils": ["../../packages/common/utils/src/index"],
+      "@beep/utils/*": ["../../packages/common/utils/src/*"],
+      "@beep/types": ["../../packages/common/types/src/index"],
+      "@beep/types/*": ["../../packages/common/types/src/*"],
+      "@beep/invariant": ["../../packages/common/invariant/src/index"],
+      "@beep/invariant/*": ["../../packages/common/invariant/src/*"]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      },
+      {
+        "name": "@effect/language-service"
+      }
+    ]
+  },
+  "references": [
+    {
+      "path": "../../packages/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/utils/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/types/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/invariant/tsconfig.build.json"
+    }
+  ],
+  "include": [
+    "./scripts/*.ts",
+    "execute.ts",
+    "next-env.d.ts",
+    "next.config.ts",
+    "src",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": []
+}

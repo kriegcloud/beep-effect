@@ -1,0 +1,34 @@
+"use client";
+import Box from "@mui/material/Box";
+import { useFieldContext } from "../form";
+import { HelperText } from "./components";
+import type { FilesUploadType, UploadFieldProps } from "./upload";
+import { FileUploadType, UploadAvatar } from "./upload";
+
+function UploadAvatarField({ name, slotProps, ...other }: UploadFieldProps) {
+  const field = useFieldContext<FileUploadType | FilesUploadType | undefined>();
+
+  const onDrop = (acceptedFiles: File[]) => {
+    const value = acceptedFiles[0];
+
+    field.handleChange(value);
+  };
+
+  return (
+    <Box {...slotProps?.wrapper}>
+      <UploadAvatar
+        value={field.state.value}
+        error={!!field.form.state.errorMap.onSubmit?.[field.name]}
+        onDrop={onDrop}
+        {...other}
+      />
+
+      <HelperText
+        errorMessage={field.form.state.errorMap.onSubmit?.[field.name]}
+        sx={{ textAlign: "center" }}
+      />
+    </Box>
+  );
+}
+
+export default UploadAvatarField;
