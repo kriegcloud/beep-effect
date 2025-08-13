@@ -6,6 +6,6 @@
   "compilerOptions": {
     "types": ["node"],
     "rootDir": ".",
-    "outDir": "build",
+    "outDir": "build"
   }
 }
