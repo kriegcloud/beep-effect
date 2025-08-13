@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "The presentation layer for the iam context",
+  "description": "The ui layer for the iam context",
   "publishConfig": {
     "access": "restricted",
     "directory": "build"
@@ -16,7 +16,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/BeepinBois/beep-effect.git",
-    "directory": "packages/iam/presentation"
+    "directory": "packages/iam/ui"
   },
   "scripts": {
     "dev": "pnpm dotenvx tsc -b tsconfig.build.json --watch",
