@@ -40,7 +40,7 @@
       "path": "packages/iam/domain"
     },
     {
-      "path": "packages/iam/presentation"
+      "path": "packages/iam/ui"
     },
     {
       "path": "packages/iam/tables"

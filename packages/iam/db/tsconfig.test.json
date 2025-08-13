@@ -9,6 +9,9 @@
     },
     {
       "path": "../tables"
+    },
+    {
+      "path": "../../persistence/db-scope"
     }
   ],
   "compilerOptions": {
@@ -31,6 +34,12 @@
     ],
     "@beep/iam-tables/*": [
       "../tables/src/*"
+    ],
+    "@beep/db-scope": [
+      "../../persistence/db-scope/src/index"
+    ],
+    "@beep/db-scope/*": [
+      "../../persistence/db-scope/src/*"
     ]
   }
 }

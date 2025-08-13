@@ -39,7 +39,7 @@
       "path": "packages/iam/domain/tsconfig.build.json"
     },
     {
-      "path": "packages/iam/presentation/tsconfig.build.json"
+      "path": "packages/iam/ui/tsconfig.build.json"
     },
     {
       "path": "packages/iam/tables/tsconfig.build.json"

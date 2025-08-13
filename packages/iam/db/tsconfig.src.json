@@ -1,13 +1,20 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "include": ["src"],
+  "include": [
+    "src"
+  ],
   "references": [
     {
       "path": "../tables"
+    },
+    {
+      "path": "../../persistence/db-scope"
     }
   ],
   "compilerOptions": {
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
@@ -17,12 +24,20 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-      "@beep/iam-db/*": ["./src/*"],
+      "@beep/iam-db/*": [
+        "./src/*"
+      ],
       "@beep/iam-tables": [
         "../tables/src/index"
       ],
       "@beep/iam-tables/*": [
         "../tables/src/*"
+      ],
+      "@beep/db-scope": [
+        "../../persistence/db-scope/src/index"
+      ],
+      "@beep/db-scope/*": [
+        "../../persistence/db-scope/src/*"
       ]
     }
   }

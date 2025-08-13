@@ -6,6 +6,15 @@
   "references": [
     {
       "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../shared/tables"
+    },
+    {
+      "path": "../../iam/tables"
+    },
+    {
+      "path": "../db-scope"
     }
   ],
   "compilerOptions": {
@@ -22,6 +31,24 @@
     ],
     "@beep/db-admin/*": [
       "./src/*"
+    ],
+    "@beep/iam-tables": [
+      "../../iam/tables/src/index"
+    ],
+    "@beep/iam-tables/*": [
+      "../../iam/tables/src/*"
+    ],
+    "@beep/shared-tables": [
+      "../../shared/tables/src/index"
+    ],
+    "@beep/shared-tables/*": [
+      "../../shared/tables/src/*"
+    ],
+    "@beep/db-scope": [
+      "../db-scope/src/index"
+    ],
+    "@beep/db-scope/*": [
+      "../db-scope/src/*"
     ]
   }
 }

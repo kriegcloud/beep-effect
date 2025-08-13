@@ -22,7 +22,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-      "@beep/iam-presentation/*": ["./src/*"],
+      "@beep/iam-ui/*": ["./src/*"],
       "@beep/ui/*": ["../../ui/src/*"]
     }
   }

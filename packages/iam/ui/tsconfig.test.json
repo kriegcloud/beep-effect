@@ -20,10 +20,10 @@
     "noEmit": true
   },
   "paths": {
-    "@beep/iam-presentation": [
+    "@beep/iam-ui": [
       "./src/index"
     ],
-    "@beep/iam-presentation/*": [
+    "@beep/iam-ui/*": [
       "./src/*"
     ],
     "@beep/ui/*": [

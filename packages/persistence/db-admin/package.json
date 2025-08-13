@@ -4,14 +4,10 @@
   "type": "module",
   "license": "MIT",
   "description": "A library for migrations, seeds & db admin",
+  "private": true,
   "publishConfig": {
     "access": "restricted",
     "directory": "build"
-  },
-  "exports": {
-    ".": "./src/index.ts",
-    "./package.json": "./package.json",
-    "./*": "./src/*.ts"
   },
   "repository": {
     "type": "git",
@@ -27,15 +23,30 @@
     "check": "tsc -b tsconfig.json",
     "test": "vitest run",
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
-    "coverage": "vitest --coverage"
+    "coverage": "vitest --coverage",
+    "db:generate": "TSX_TSCONFIG_PATH=./tsconfig.tsx.json NODE_OPTIONS='--import tsx' pnpm dotenvx drizzle-kit generate",
+    "db:migrate": "TSX_TSCONFIG_PATH=./tsconfig.tsx.json NODE_OPTIONS='--import tsx' pnpm dotenvx drizzle-kit migrate",
+    "db:push": "TSX_TSCONFIG_PATH=./tsconfig.tsx.json NODE_OPTIONS='--import tsx' pnpm dotenvx drizzle-kit push",
+    "db:studio": "TSX_TSCONFIG_PATH=./tsconfig.tsx.json NODE_OPTIONS='--import tsx' pnpm dotenvx drizzle-kit studio",
+    "db:reset": "bun src/scripts/ResetDatabase.ts",
+    "dotenvx": "dotenvx run -f ../../.env --"
   },
   "dependencies": {
-    "@faker-js/faker": "^9.9.0",
-    "@standard-schema/spec": "^1.0.0",
     "effect": "^3.17.7"
   },
   "devDependencies": {
-    "tsx": "^4.20.4"
+    "@faker-js/faker": "^9.9.0",
+    "@beep/iam-tables": "workspace:*",
+    "@beep/shared-tables": "workspace:*",
+    "@beep/db-scope": "workspace:*",
+    "@standard-schema/spec": "^1.0.0",
+    "drizzle-kit": "^0.31.4",
+    "pg": "^8.16.3",
+    "@types/pg": "^8.15.5",
+    "@effect/sql": "^0.44.0",
+    "@effect/sql-drizzle": "^0.43.0",
+    "@effect/sql-pg": "^0.45.0",
+    "drizzle-orm": "^0.44.4"
   },
   "effect": {
     "generateExports": {

@@ -198,14 +198,14 @@
       "@beep/iam-domain/test/*": [
         "./packages/iam/domain/test/*"
       ],
-      "@beep/iam-presentation": [
-        "./packages/iam/presentation/src/index"
+      "@beep/iam-ui": [
+        "./packages/iam/ui/src/index"
       ],
-      "@beep/iam-presentation/*": [
-        "./packages/iam/presentation/src/*"
+      "@beep/iam-ui/*": [
+        "./packages/iam/ui/src/*"
       ],
-      "@beep/iam-presentation/test/*": [
-        "./packages/iam/presentation/test/*"
+      "@beep/iam-ui/test/*": [
+        "./packages/iam/ui/test/*"
       ],
       "@beep/iam-tables": [
         "./packages/iam/tables/src/index"

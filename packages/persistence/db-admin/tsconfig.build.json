@@ -11,6 +11,14 @@
     "sourceMap": true
   },
   "references": [
-
+    {
+      "path": "../../iam/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../shared/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../db-scope/tsconfig.build.json"
+    }
   ]
 }

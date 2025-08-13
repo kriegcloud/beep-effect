@@ -5,7 +5,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@beep/iam-presentation/*": ["./src/*"],
+      "@beep/iam-ui/*": ["./src/*"],
       "@beep/ui/*": ["../../ui/src/*"]
     }
   },

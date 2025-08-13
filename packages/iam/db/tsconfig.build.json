@@ -13,6 +13,9 @@
   "references": [
     {
       "path": "../tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../persistence/db-scope/tsconfig.build.json"
     }
   ]
 }
