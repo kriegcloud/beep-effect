@@ -1,8 +1,8 @@
 import { sid } from "@beep/schema/id";
-import { annotate, makeMocker } from "@beep/schema/utils";
 import { faker } from "@faker-js/faker";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+
 /**
  * Phone number schema and helpers.
  *
@@ -36,7 +36,7 @@ export namespace Phone {
     S.brand("Phone"),
   );
 
-  export const Schema = annotate(S.Redacted(Base), {
+  export const Schema = S.Redacted(Base).annotations({
     identifier: sid.common.schema("Phone.Schema"),
     title: "Phone",
     description: "A valid phone number",
@@ -47,7 +47,5 @@ export namespace Phone {
   });
 
   export type Type = typeof Schema.Type;
-
-  export const Mock = makeMocker(Schema);
   export const make = (input: string) => Redacted.make(Base.make(input));
 }

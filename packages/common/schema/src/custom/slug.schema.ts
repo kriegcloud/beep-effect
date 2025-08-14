@@ -1,5 +1,4 @@
 import { sid } from "@beep/schema/id";
-import { annotate, makeMocker } from "@beep/schema/utils";
 import { faker } from "@faker-js/faker";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
@@ -37,7 +36,7 @@ export namespace Slug {
   /**
    * Full slug schema with docs, examples, identity and generator.
    */
-  export const Schema = annotate(Base, {
+  export const Schema = Base.annotations({
     title: "Slug",
     identifier: sid.common.schema("Slug.Schema"),
     description: "A URL-friendly string identifier",
@@ -51,7 +50,4 @@ export namespace Slug {
 
   /** Slug value type. */
   export type Type = typeof Schema.Type;
-
-  /** Curried mock factory. */
-  export const Mock = makeMocker(Schema);
 }

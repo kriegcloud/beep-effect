@@ -1,9 +1,7 @@
 import { sid } from "@beep/schema/id";
-import { annotate, makeMocker } from "@beep/schema/utils";
-import { faker } from "@faker-js/faker";
+import * as B from "effect/Brand";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-
 /**
  * Email address schema and helpers.
  *
@@ -47,7 +45,7 @@ export namespace Email {
    *
    * Prefer `Email.Schema` for redacted + annotations.
    */
-  export const Base = S.Lowercase.pipe(
+  export const Schema = S.Lowercase.pipe(
     S.compose(S.Trim),
     S.compose(S.NonEmptyTrimmedString),
     S.annotations({
@@ -55,21 +53,16 @@ export namespace Email {
     }),
     S.pattern(REGEX),
     S.brand("Email"),
-  );
-
-  /**
-   * Full email schema:
-   * - `Base` wrapped in `Redacted` for safe logs
-   * - JSON Schema metadata
-   * - FastCheck arbitrary
-   * - Identifier + docs
-   */
-  export const Schema = annotate(S.Redacted(Base), {
+    S.Redacted,
+  ).annotations({
     jsonSchema: { format: "email", type: "string" },
     arbitrary: () => (fc) =>
       fc
-        .constant(null)
-        .map(() => Redacted.make(Base.make(faker.internet.email()))),
+        .emailAddress()
+        .map(
+          (_) =>
+            Redacted.make(_) as Redacted.Redacted<B.Branded<string, "Email">>,
+        ),
     title: "Email",
     message: () => "Email must be a valid email address!",
     description: "A valid email address",
@@ -84,7 +77,4 @@ export namespace Email {
    * **Note:** This does not validate—prefer decoding for user inputs.
    */
   export const make = (email: string) => Redacted.make(email);
-
-  /** Curried mock factory (FastCheck + Effect Arbitrary). */
-  export const Mock = makeMocker(Schema);
 }

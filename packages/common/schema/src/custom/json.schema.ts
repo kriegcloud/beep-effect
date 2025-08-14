@@ -1,5 +1,4 @@
 import { sid } from "@beep/schema/id";
-import { annotate, makeMocker } from "@beep/schema/utils";
 import * as S from "effect/Schema";
 
 /**
@@ -12,7 +11,6 @@ export namespace JsonLiteral {
   /** `string | number | boolean | null` */
   export const Schema = S.Union(S.String, S.Number, S.Boolean, S.Null);
   export type Type = typeof Schema.Type;
-  export const Mock = makeMocker(Schema);
 }
 
 /**
@@ -50,21 +48,16 @@ export namespace Json {
     | ReadonlyArray<Type>
     | null;
 
-  export const Schema = annotate(
-    S.suspend(
-      (): S.Schema<Type> =>
-        S.Union(
-          JsonLiteral.Schema,
-          S.Array(Schema),
-          S.Record({ key: S.String, value: Schema }),
-        ),
-    ),
-    {
-      identifier: sid.common.schema("Json"),
-      title: "Json",
-      description: "A Valid JSON",
-    },
-  );
-
-  export const Mock = makeMocker(Schema);
+  export const Schema = S.suspend(
+    (): S.Schema<Type> =>
+      S.Union(
+        JsonLiteral.Schema,
+        S.Array(Schema),
+        S.Record({ key: S.String, value: Schema }),
+      ),
+  ).annotations({
+    identifier: sid.common.schema("Json"),
+    title: "Json",
+    description: "A Valid JSON",
+  });
 }

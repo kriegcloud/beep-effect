@@ -1,5 +1,4 @@
 import { sid } from "@beep/schema/id";
-import { annotate, makeMocker } from "@beep/schema/utils";
 import { faker } from "@faker-js/faker";
 import * as Either from "effect/Either";
 import * as S from "effect/Schema";
@@ -19,27 +18,21 @@ import * as S from "effect/Schema";
  * @category Networking
  */
 export namespace URLString {
-  export const Schema = annotate(
-    S.NonEmptyTrimmedString.pipe(
-      S.pattern(/^https?:\/\/.+/),
-      S.filter((a) => Either.try(() => new URL(a)).pipe(Either.isRight)),
-      S.annotations({
-        arbitrary: () => (fc) =>
-          fc.constant(null).map(() => faker.internet.url()),
-      }),
-      S.brand("URLString"),
-    ),
-    {
-      identifier: sid.common.schema("URLString.Schema"),
-      description: "A URL string",
-      title: "URL String",
-      jsonSchema: { type: "string", format: "url" },
-    },
-  );
+  export const Schema = S.NonEmptyTrimmedString.pipe(
+    S.pattern(/^https?:\/\/.+/),
+    S.filter((a) => Either.try(() => new URL(a)).pipe(Either.isRight)),
+    S.annotations({
+      arbitrary: () => (fc) =>
+        fc.constant(null).map(() => faker.internet.url()),
+    }),
+    S.brand("URLString"),
+  ).annotations({
+    identifier: sid.common.schema("URLString.Schema"),
+    description: "A URL string",
+    title: "URL String",
+    jsonSchema: { type: "string", format: "url" },
+  });
 
   /** URL string type (branded). */
   export type Type = typeof Schema.Type;
-
-  /** Curried mock factory. */
-  export const Mock = makeMocker(Schema);
 }

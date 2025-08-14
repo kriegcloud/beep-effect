@@ -1,5 +1,4 @@
 import { sid } from "@beep/schema/id";
-import { annotate, makeMocker } from "@beep/schema/utils";
 import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
 
@@ -35,7 +34,7 @@ export namespace IP {
   /**
    * Full IP schema with docs, identity, and generator.
    */
-  export const Schema = annotate(Base, {
+  export const Schema = Base.annotations({
     identifier: sid.common.schema("IP.Schema"),
     title: "IP",
     description: "A valid IP address (IPv4 or IPv6)",
@@ -45,9 +44,6 @@ export namespace IP {
 
   /** IP value type. */
   export type Type = typeof Schema.Type;
-
-  /** Curried mock factory. */
-  export const Mock = makeMocker(Schema);
 
   /** Trusted constructor (no validation). Prefer decoding for user inputs. */
   export const make = Schema.make;

@@ -1,6 +1,5 @@
 import { invariant } from "@beep/invariant";
 import { sid } from "@beep/schema/id";
-import { annotate, makeMocker } from "@beep/schema/utils";
 import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -61,7 +60,7 @@ export namespace Hex {
    * samples valid lengths uniformly and guarantees exactly one leading `#`.
    */
 
-  export const Schema = annotate(Base, {
+  export const Schema = Base.annotations({
     identifier: sid.common.schema("Hex.Schema"),
     title: "Hex",
     description: "A valid hex color",
@@ -86,7 +85,4 @@ export namespace Hex {
 
   /** Hex color string type (branded). */
   export type Type = typeof Schema.Type;
-
-  /** Curried mock factory (FastCheck + Effect Arbitrary). */
-  export const Mock = makeMocker(Schema);
 }
