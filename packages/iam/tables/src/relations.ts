@@ -193,10 +193,5 @@ export const organizationRelations = d.relations(
     members: many(member),
     teams: many(team),
     subscriptions: many(subscription),
-
-    // Sessions (active organization context)
-    sessions: many(session, {
-      relationName: "activeOrganizationSessions",
-    }),
   }),
 );

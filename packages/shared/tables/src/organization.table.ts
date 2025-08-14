@@ -1,6 +1,7 @@
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-import { utcNow } from "./common";
+import * as DateTime from "effect/DateTime";
+import * as F from "effect/Function";
 
 export const organization = pg.pgTable(
   "organization",
@@ -24,11 +25,11 @@ export const organization = pg.pgTable(
     createdAt: pg
       .timestamp("createdAt", { withTimezone: true })
       .notNull()
-      .$defaultFn(utcNow),
+      .$defaultFn(F.constant(DateTime.toDateUtc(DateTime.unsafeNow()))),
     updatedAt: pg
       .timestamp("updatedAt", { withTimezone: true })
       .notNull()
-      .$onUpdateFn(utcNow),
+      .$onUpdateFn(F.constant(DateTime.toDateUtc(DateTime.unsafeNow()))),
     deletedAt: pg.timestamp("deletedAt", { withTimezone: true }),
     createdBy: pg.text("createdBy"),
     updatedBy: pg.text("updatedBy"),
