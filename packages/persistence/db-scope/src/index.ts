@@ -1,2 +1,2 @@
-export * from "./drizzle-client.factory";
+export * from "./db.factory";
 export * from "./errors";

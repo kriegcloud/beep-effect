@@ -76,6 +76,9 @@
     },
     {
       "path": "packages/env/tsconfig.build.json"
+    },
+    {
+      "path": "packages/adapters/better-auth/tsconfig.build.json"
     }
   ]
 }

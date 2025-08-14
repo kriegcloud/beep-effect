@@ -269,6 +269,15 @@
       ],
       "@beep/env/test/*": [
         "./packages/env/test/*"
+      ],
+      "@beep/better-auth": [
+        "./packages/adapters/better-auth/src/index"
+      ],
+      "@beep/better-auth/*": [
+        "./packages/adapters/better-auth/src/*"
+      ],
+      "@beep/better-auth/test/*": [
+        "./packages/adapters/better-auth/test/*"
       ]
     }
   }

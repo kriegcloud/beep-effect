@@ -1,11 +1,9 @@
-import type { UnsafeTypes } from "@beep/types";
 import { formOptions } from "@tanstack/react-form";
 import * as A from "effect/Array";
 import * as Either from "effect/Either";
 import { pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import { ArrayFormatter } from "effect/ParseResult";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 type BuildTuple<
@@ -23,7 +21,8 @@ type PathsLimited<
   Data,
   Path extends string = "",
   Depth extends number = 3,
-> = Depth extends 0 // Base case: Depth limit reached
+> = // Base case: Depth limit reached
+Depth extends 0
   ? `${Path}${Path extends "" ? "" : "."}${string}` | Path // Allow the current path or any string suffix.
   : Data extends ReadonlyArray<infer Element>
     ? // For arrays: Generate paths for numeric indices and recurse on the element type.
@@ -52,16 +51,14 @@ type PathsLimited<
 export type Paths<Data> = PathsLimited<Data>;
 
 type RootErrorKey = "";
-type SchemaValidatorResult<
-  SchemaInput extends Record<PropertyKey, UnsafeTypes.UnsafeAny>,
-> = Partial<Record<Paths<SchemaInput> | RootErrorKey, string>> | null;
+type SchemaValidatorResult<SchemaInput extends Record<PropertyKey, any>> =
+  Partial<Record<Paths<SchemaInput> | RootErrorKey, string>> | null;
 
-type SchemaValidatorFn<
-  SchemaInput extends Record<PropertyKey, UnsafeTypes.UnsafeAny>,
-> = (submission: { value: SchemaInput }) => SchemaValidatorResult<SchemaInput>;
+export type SchemaValidatorFn<SchemaInput extends Record<PropertyKey, any>> =
+  (submission: { value: SchemaInput }) => SchemaValidatorResult<SchemaInput>;
 
 export const validateWithSchema =
-  <A, I extends Record<PropertyKey, UnsafeTypes.UnsafeAny>>(
+  <A, I extends Record<PropertyKey, any>>(
     schema: S.Schema<A, I>,
   ): SchemaValidatorFn<I> =>
   (submission: { value: I }): SchemaValidatorResult<I> =>
@@ -82,7 +79,7 @@ export const validateWithSchema =
             return acc;
           }),
           (acc): SchemaValidatorResult<I> =>
-            R.keys(acc).length > 0 ? acc : null,
+            Object.keys(acc).length > 0 ? acc : null,
         ),
       ),
       Either.flip,
@@ -93,7 +90,7 @@ type HandledValidatorKey = "onSubmit" | "onChange" | "onBlur";
 
 export const makeFormOptions = <
   SchemaA,
-  SchemaI extends Record<PropertyKey, UnsafeTypes.UnsafeAny>,
+  SchemaI extends Record<PropertyKey, any>,
   ValidatorKey extends HandledValidatorKey,
 >(opts: {
   schema: S.Schema<SchemaA, SchemaI>;

@@ -80,6 +80,10 @@
     },
     {
       "path": "packages/env"
+    },
+    {
+      "path": "packages/adapters/better-auth"
     }
+
   ]
 }
