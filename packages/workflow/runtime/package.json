@@ -33,13 +33,13 @@
   },
   "dependencies": {
     "effect": "^3.17.7",
-    "@beep/schema": "workspace:*",
-    "@beep/utils": "workspace:*",
-    "@beep/invariant": "workspace:*",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/invariant": "workspace:^",
     "xstate": "^5.20.2"
   },
   "devDependencies": {
-    "@beep/types": "workspace:*"
+    "@beep/types": "workspace:^"
   },
   "effect": {
     "generateExports": {

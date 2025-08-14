@@ -33,21 +33,14 @@
     "lint:fix": "biome check . --write",
     "dotenvx": "dotenvx run -f ../../.env --"
   },
-  "dependencies": {
-    "effect": "^3.17.7"
-  },
   "devDependencies": {
-    "@beep/db-scope": "workspace:*",
-    "@beep/iam-tables": "workspace:*",
-    "@beep/shared-tables": "workspace:*",
-    "@effect/sql": "^0.44.1",
-    "@effect/sql-drizzle": "^0.43.0",
-    "@effect/sql-pg": "^0.45.0",
-    "@faker-js/faker": "^9.9.0",
-    "@standard-schema/spec": "^1.0.0",
+    "@beep/db-scope": "workspace:^",
+    "@beep/iam-tables": "workspace:^",
+    "@beep/shared-tables": "workspace:^",
     "@types/pg": "^8.15.5",
     "drizzle-kit": "^0.31.4",
     "drizzle-orm": "^0.44.4",
+    "effect": "^3.17.7",
     "pg": "^8.16.3"
   },
   "effect": {

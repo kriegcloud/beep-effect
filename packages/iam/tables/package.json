@@ -33,10 +33,7 @@
   },
   "dependencies": {
     "drizzle-orm": "^0.44.4",
-    "@beep/shared-tables": "workspace:*"
-  },
-  "devDependencies": {
-    "tsx": "^4.20.4"
+    "@beep/shared-tables": "workspace:^"
   },
   "effect": {
     "generateExports": {

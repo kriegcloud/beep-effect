@@ -32,12 +32,8 @@
     "lint:fix": "biome check . --write"
   },
   "dependencies": {
-    "@beep/ui": "workspace:*",
-    "@standard-schema/spec": "^1.0.0",
+    "@beep/ui": "workspace:^",
     "effect": "^3.17.7"
-  },
-  "devDependencies": {
-    "tsx": "^4.20.4"
   },
   "effect": {
     "generateExports": {

@@ -37,10 +37,10 @@
     "effect": "^3.17.7",
     "drizzle-orm": "^0.44.4",
     "mutative": "^1.2.0",
-    "@beep/invariant": "workspace:*"
+    "@beep/invariant": "workspace:^"
   },
   "devDependencies": {
-    "@beep/types": "workspace:*"
+    "@beep/types": "workspace:^"
   },
   "effect": {
     "generateExports": {

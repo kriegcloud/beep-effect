@@ -30,7 +30,8 @@
     "coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@beep/tooling-utils": "workspace:*",
+    "@effect/platform-node": "^0.95.0",
+    "@beep/tooling-utils": "workspace:^",
     "@effect/platform": "^0.90.2",
     "effect": "^3.17.7"
   },
@@ -45,8 +46,5 @@
         "**/*.ts"
       ]
     }
-  },
-  "devDependencies": {
-    "tsx": "^4.20.4"
   }
 }

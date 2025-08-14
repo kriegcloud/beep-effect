@@ -1,9 +1,9 @@
 {
-  "name": "@beep/schema",
+  "name": "@beep/env",
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "A library for `effect/Schema` stuff",
+  "description": "A library for schema driven serializable logic",
   "publishConfig": {
     "access": "restricted",
     "directory": "build"
@@ -16,7 +16,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/BeepinBois/beep-effect.git",
-    "directory": "packages/common/schema"
+    "directory": "packages/env"
   },
   "scripts": {
     "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",
@@ -32,8 +32,6 @@
     "lint:fix": "biome check . --write"
   },
   "dependencies": {
-    "@beep/types": "workspace:^",
-    "@beep/invariant": "workspace:^",
     "@faker-js/faker": "^9.9.0",
     "@standard-schema/spec": "^1.0.0",
     "effect": "^3.17.7"

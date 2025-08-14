@@ -41,7 +41,7 @@ describe("Repo/Dependencies.extractWorkspaceDependencies", () => {
       const pkg = {
         name: "@beep/tmp",
         devDependencies: {
-          "@beep/foo": "workspace:*",
+          "@beep/foo": "workspace:^",
           depA: "^1.2.3",
         },
         dependencies: {

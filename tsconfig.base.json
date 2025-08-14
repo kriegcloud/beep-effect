@@ -260,6 +260,15 @@
       ],
       "@beep/logic/test/*": [
         "./packages/common/logic/test/*"
+      ],
+      "@beep/env": [
+        "./packages/env/src/index"
+      ],
+      "@beep/env/*": [
+        "./packages/env/src/*"
+      ],
+      "@beep/env/test/*": [
+        "./packages/env/test/*"
       ]
     }
   }

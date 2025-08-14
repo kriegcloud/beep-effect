@@ -21,9 +21,9 @@ export const WorkspacePkgKey = S.TemplateLiteral(
 );
 
 /**
- * Version specifiers for workspace dependencies (e.g. "workspace:*", "workspace:^").
+ * Version specifiers for workspace dependencies (e.g. "workspace:^", "workspace:^").
  */
-export const WorkspacePkgValue = S.Literal("workspace:*", "workspace:^");
+export const WorkspacePkgValue = S.Literal("workspace:^", "workspace:^");
 
 /**
  * Tuple containing a workspace package name and its version specifier.
