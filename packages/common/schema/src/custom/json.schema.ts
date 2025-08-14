@@ -51,12 +51,13 @@ export namespace Json {
     | null;
 
   export const Schema = annotate(
-    S.suspend((): S.Schema<Type> =>
-      S.Union(
-        JsonLiteral.Schema,
-        S.Array(Schema),
-        S.Record({ key: S.String, value: Schema }),
-      ),
+    S.suspend(
+      (): S.Schema<Type> =>
+        S.Union(
+          JsonLiteral.Schema,
+          S.Array(Schema),
+          S.Record({ key: S.String, value: Schema }),
+        ),
     ),
     {
       identifier: sid.common.schema("Json"),

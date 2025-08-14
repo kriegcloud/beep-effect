@@ -57,7 +57,7 @@
     "@effect/ai-openai": "^0.28.2",
     "@effect/cli": "^0.69.0",
     "@effect/cluster": "^0.47.0",
-    "@effect/experimental": "^0.54.5",
+    "@effect/experimental": "^0.54.6",
     "@effect/language-service": "^0.35.2",
     "@effect/opentelemetry": "^0.56.2",
     "@effect/platform": "^0.90.2",

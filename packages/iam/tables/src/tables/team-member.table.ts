@@ -1,6 +1,6 @@
-import {Common, team} from "@beep/shared-tables";
+import { Common, team } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
-import {user} from "./user.table";
+import { user } from "./user.table";
 
 export const teamMember = pg.pgTable(
   "team_member",
@@ -9,11 +9,11 @@ export const teamMember = pg.pgTable(
     teamId: pg
       .text("team_id")
       .notNull()
-      .references(() => team.id, {onDelete: "cascade", onUpdate: "cascade"}),
+      .references(() => team.id, { onDelete: "cascade", onUpdate: "cascade" }),
     userId: pg
       .text("user_id")
       .notNull()
-      .references(() => user.id, {onDelete: "cascade", onUpdate: "cascade"}),
+      .references(() => user.id, { onDelete: "cascade", onUpdate: "cascade" }),
     ...Common.defaultColumns,
   },
   (t) => [

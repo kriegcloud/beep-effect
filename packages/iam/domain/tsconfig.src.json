@@ -17,7 +17,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-       "@beep/iam-domain/*": ["./src/*"],
+      "@beep/iam-domain/*": ["./src/*"],
       "@beep/shared-domain": ["../../shared/domain/src/index"],
       "@beep/shared-domain/*": ["../../shared/domain/src/*"]
     }

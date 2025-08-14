@@ -1,7 +1,7 @@
-import {Common, team} from "@beep/shared-tables";
+import { Common, team } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-import {user} from "./user.table";
+import { user } from "./user.table";
 
 export const invitation = pg.pgTable(
   "invitation",
@@ -11,13 +11,13 @@ export const invitation = pg.pgTable(
     role: pg.text("role"),
     teamId: pg
       .text("team_id")
-      .references(() => team.id, {onDelete: "cascade", onUpdate: "cascade"}),
+      .references(() => team.id, { onDelete: "cascade", onUpdate: "cascade" }),
     status: pg.text("status").default("pending").notNull(),
     expiresAt: pg.timestamp("expires_at").notNull(),
     inviterId: pg
       .text("inviter_id")
       .notNull()
-      .references(() => user.id, {onDelete: "cascade", onUpdate: "cascade"}),
+      .references(() => user.id, { onDelete: "cascade", onUpdate: "cascade" }),
     ...Common.defaultColumns,
   },
   (t) => [

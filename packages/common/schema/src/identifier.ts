@@ -5,14 +5,14 @@
  *  - "https://foo/"    (URL-style)
  *  - "/"               (root-relative / route-ish)
  */
-type Proto =
-  | `@${string}/`
-  | `https://${string}/`
-  | `/${string}`        // allow "/" or "/foo/..." (we'll normalize trailing slash)
+type Proto = `@${string}/` | `https://${string}/` | `/${string}`; // allow "/" or "/foo/..." (we'll normalize trailing slash)
 
 /** A single path segment: disallow embedded "/" at the type-level. */
-type Segment<S extends string = string> =
-  string extends S ? string : S extends `${string}/${string}` ? never : S;
+type Segment<S extends string = string> = string extends S
+  ? string
+  : S extends `${string}/${string}`
+    ? never
+    : S;
 
 /** Internal marker to denote “leaf” positions in the config. */
 export namespace Identifier {
@@ -36,26 +36,26 @@ export namespace Identifier {
   export type Builder<
     TProto extends Proto,
     C extends Config,
-    P extends string = ""
+    P extends string = "",
   > = {
-    readonly [K in keyof C]:
-    C[K] extends Config
+    readonly [K in keyof C]: C[K] extends Config
       ? Builder<TProto, Extract<C[K], Config>, Join<P, K & string>>
       : C[K] extends IdSymbol
-        ? <T extends string>(identity: T) =>
-          `${NormalizeProto<TProto>}${Join<P, K & string>}/${T}`
-        : never
+        ? <T extends string>(
+            identity: T,
+          ) => `${NormalizeProto<TProto>}${Join<P, K & string>}/${T}`
+        : never;
   };
 
   /** Normalize proto to guarantee exactly one trailing slash. */
-  type NormalizeProto<T extends string> =
-    T extends `${infer H}/` ? `${H}/` : `${T}/`;
+  type NormalizeProto<T extends string> = T extends `${infer H}/`
+    ? `${H}/`
+    : `${T}/`;
 
   /** Join path parts with "/" while avoiding leading "//" when P is empty. */
-  type Join<
-    P extends string,
-    K extends string
-  > = P extends "" ? K : `${P}/${K}`;
+  type Join<P extends string, K extends string> = P extends ""
+    ? K
+    : `${P}/${K}`;
 
   /** Runtime helpers ------------------------------------------------------- */
 
@@ -74,7 +74,7 @@ export namespace Identifier {
    */
   export function makeBuilder<
     const TProto extends Proto,
-    const C extends Config
+    const C extends Config,
   >(proto: TProto, config: C, currentPath: string[] = []): Builder<TProto, C> {
     const out: Record<string, unknown> = {};
     const np = normalizeProto(proto);
@@ -84,14 +84,19 @@ export namespace Identifier {
 
       // sanity check: refuse keys with "/"
       if (key.includes("/")) {
-        throw new Error(`Identifier config key must be a single segment (no "/"): "${key}"`);
+        throw new Error(
+          `Identifier config key must be a single segment (no "/"): "${key}"`,
+        );
       }
 
       if (value === IdSymbol) {
-        out[key] = (<T extends string>(identity: T) =>
-          `${np}${join([...currentPath, key])}/${identity}` as const);
+        out[key] = <T extends string>(identity: T) =>
+          `${np}${join([...currentPath, key])}/${identity}` as const;
       } else if (typeof value === "object" && value !== null) {
-        out[key] = makeBuilder(np as TProto, value as Config, [...currentPath, key]);
+        out[key] = makeBuilder(np as TProto, value as Config, [
+          ...currentPath,
+          key,
+        ]);
       }
     }
     return out as Builder<TProto, C>;

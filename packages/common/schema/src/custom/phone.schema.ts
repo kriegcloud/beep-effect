@@ -1,8 +1,8 @@
+import { sid } from "@beep/schema/id";
+import { annotate, makeMocker } from "@beep/schema/utils";
 import { faker } from "@faker-js/faker";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-import { sid } from "@beep/schema/id";
-import { annotate, makeMocker } from "@beep/schema/utils";
 /**
  * Phone number schema and helpers.
  *
@@ -41,9 +41,9 @@ export namespace Phone {
     title: "Phone",
     description: "A valid phone number",
     arbitrary: () => (fc) =>
-      fc.constant(null).map(() =>
-        Redacted.make(Base.make(faker.phone.number())),
-      ),
+      fc
+        .constant(null)
+        .map(() => Redacted.make(Base.make(faker.phone.number()))),
   });
 
   export type Type = typeof Schema.Type;

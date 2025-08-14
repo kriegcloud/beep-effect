@@ -50,12 +50,13 @@ export type ReadonlyStringMap<V = unknown> = Readonly<Record<string, V>>;
  * type B = NonEmptyReadonlyStringKeyRecord<{}>     // never
  * type C = NonEmptyReadonlyStringKeyRecord<Record<string, number>> // T (cannot prove emptiness)
  */
-export type NonEmptyReadonlyStringKeyRecord<T extends Readonly<Record<string, unknown>>> =
-  IsNever<StringKeys<T>> extends true       // no string keys at all
+export type NonEmptyReadonlyStringKeyRecord<
+  T extends Readonly<Record<string, unknown>>,
+> = IsNever<StringKeys<T>> extends true // no string keys at all
+  ? never
+  : HasEmptyKey<T> extends true // contains the empty string key
     ? never
-    : HasEmptyKey<T> extends true           // contains the empty string key
-      ? never
-      : T;
+    : T;
 
 /**
  * A readonly `string -> string` map (alias, documents intent).

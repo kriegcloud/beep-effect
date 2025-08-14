@@ -1,8 +1,6 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "include": [
-    "src"
-  ],
+  "include": ["src"],
   "references": [
     {
       "path": "../../common/types"
@@ -18,9 +16,7 @@
     }
   ],
   "compilerOptions": {
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
@@ -28,43 +24,21 @@
     "jsx": "react-jsx",
     "module": "ESNext",
     "target": "ES2022",
-    "lib": [
-      "ES2024",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-      "@beep/workflow-renderer/*": [
-        "./src/*"
-      ],
-      "@beep/types": [
-        "../../common/types/src/index"
-      ],
-      "@beep/types/*": [
-        "../../common/types/src/*"
-      ],
-      "@beep/invariant": [
-        "../../common/invariant/src/index"
-      ],
-      "@beep/invariant/*": [
-        "../../common/invariant/src/*"
-      ],
-      "@beep/schema": [
-        "../../common/schema/src/index"
-      ],
-      "@beep/schema/*": [
-        "../../common/schema/src/*"
-      ],
-      "@beep/utils": [
-        "../../common/utils/src/index"
-      ],
-      "@beep/utils/*": [
-        "../../common/utils/src/*"
-      ]
+      "@beep/workflow-renderer/*": ["./src/*"],
+      "@beep/types": ["../../common/types/src/index"],
+      "@beep/types/*": ["../../common/types/src/*"],
+      "@beep/invariant": ["../../common/invariant/src/index"],
+      "@beep/invariant/*": ["../../common/invariant/src/*"],
+      "@beep/schema": ["../../common/schema/src/index"],
+      "@beep/schema/*": ["../../common/schema/src/*"],
+      "@beep/utils": ["../../common/utils/src/index"],
+      "@beep/utils/*": ["../../common/utils/src/*"]
     }
   }
 }

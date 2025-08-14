@@ -27,7 +27,9 @@
     "check": "tsc -b tsconfig.json",
     "test": "vitest run",
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
-    "coverage": "vitest --coverage"
+    "coverage": "vitest --coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write"
   },
   "dependencies": {
     "@beep/types": "workspace:*",

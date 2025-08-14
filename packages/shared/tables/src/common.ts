@@ -7,14 +7,14 @@ export const utcNow = F.constant(DateTime.toDateUtc(DateTime.unsafeNow()));
 
 export const auditColumns = {
   createdAt: pg
-    .timestamp("createdAt", {withTimezone: true})
+    .timestamp("createdAt", { withTimezone: true })
     .notNull()
     .$defaultFn(utcNow),
   updatedAt: pg
-    .timestamp("updatedAt", {withTimezone: true})
+    .timestamp("updatedAt", { withTimezone: true })
     .notNull()
     .$onUpdateFn(utcNow),
-  deletedAt: pg.timestamp("deletedAt", {withTimezone: true}),
+  deletedAt: pg.timestamp("deletedAt", { withTimezone: true }),
 } as const;
 
 export const userTrackingColumns = {

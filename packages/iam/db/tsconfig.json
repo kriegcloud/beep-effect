@@ -4,18 +4,10 @@
   "compilerOptions": {
     "paths": {
       "@beep/iam-db/*": ["./src/*"],
-      "@beep/iam-tables": [
-        "../tables/src/index"
-      ],
-      "@beep/iam-tables/*": [
-        "../tables/src/*"
-      ],
-      "@beep/db-scope": [
-        "../../persistence/db-scope/src/index"
-      ],
-      "@beep/db-scope/*": [
-        "../../persistence/db-scope/src/*"
-      ]
+      "@beep/iam-tables": ["../tables/src/index"],
+      "@beep/iam-tables/*": ["../tables/src/*"],
+      "@beep/db-scope": ["../../persistence/db-scope/src/index"],
+      "@beep/db-scope/*": ["../../persistence/db-scope/src/*"]
     }
   },
   "references": [

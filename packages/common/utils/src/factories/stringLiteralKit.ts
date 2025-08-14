@@ -1,3 +1,7 @@
+import { invariant } from "@beep/invariant";
+import type { SnakeTag } from "@beep/types/tag.types";
+// import type { SimpleAnnotations } from "@beep/shared/types";
+import { pgEnum } from "drizzle-orm/pg-core";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Equivalence from "effect/Equivalence";
@@ -5,12 +9,8 @@ import * as FC from "effect/FastCheck";
 import * as JSONSchema from "effect/JSONSchema";
 import * as Pretty from "effect/Pretty";
 import * as S from "effect/Schema";
-import { invariant } from "@beep/invariant";
-import { enumFromStringArray } from "../transformations/enumFromStringArray";
-import type { SnakeTag } from "@beep/types/tag.types";
-// import type { SimpleAnnotations } from "@beep/shared/types";
-import {pgEnum} from "drizzle-orm/pg-core";
 import * as AST from "effect/SchemaAST";
+import { enumFromStringArray } from "../transformations/enumFromStringArray";
 // import type {SnakeTag} from "@beep/shared/schema";
 // Type to validate that all literals have a mapping and all mapped values are unique
 
@@ -136,7 +136,9 @@ export function stringLiteralKit<
     Enum: CreateEnumType<Keys, undefined>;
     Mock: (qty: number) => [...Literals][number][];
   };
-  toPgEnum: <Name extends string>(name: `${SnakeTag<Name>}`) => ReturnType<typeof pgEnum<Literals[number], Literals>>;
+  toPgEnum: <Name extends string>(
+    name: `${SnakeTag<Name>}`,
+  ) => ReturnType<typeof pgEnum<Literals[number], Literals>>;
 };
 
 export function stringLiteralKit<
@@ -169,7 +171,9 @@ export function stringLiteralKit<
     Enum: CreateEnumType<Keys, undefined>;
     Mock: (qty: number) => [...Literals][number][];
   };
-  toPgEnum: <Name extends string>(name: `${SnakeTag<Name>}_enum`) => ReturnType<typeof pgEnum<Literals[number], Literals>>;
+  toPgEnum: <Name extends string>(
+    name: `${SnakeTag<Name>}_enum`,
+  ) => ReturnType<typeof pgEnum<Literals[number], Literals>>;
 };
 
 export function stringLiteralKit<
@@ -199,7 +203,9 @@ export function stringLiteralKit<
     Enum: CreateEnumType<Keys, undefined>;
     Mock: (qty: number) => [...Literals][number][];
   };
-  toPgEnum: <Name extends string>(name: `${SnakeTag<Name>}_enum`) => ReturnType<typeof pgEnum<Literals[number], Literals>>;
+  toPgEnum: <Name extends string>(
+    name: `${SnakeTag<Name>}_enum`,
+  ) => ReturnType<typeof pgEnum<Literals[number], Literals>>;
 } {
   // Determine if last argument is options
   const hasOptions =
@@ -215,7 +221,6 @@ export function stringLiteralKit<
 
   // Create the schema
 
-
   // Create the enum object
   let Enum: any;
 
@@ -223,11 +228,15 @@ export function stringLiteralKit<
     // Validate at runtime
     const mappingMap = new Map(options.enumMapping);
     const setValues = A.map(options.enumMapping, ([_, v]) => v);
-    invariant(A.isNonEmptyReadonlyArray(setValues), "enumMapping must have unique values", {
-      file: "packages/common/utils/src/factories/stringLiteralKit.ts",
-      line: 226,
-      args: [setValues]
-    });
+    invariant(
+      A.isNonEmptyReadonlyArray(setValues),
+      "enumMapping must have unique values",
+      {
+        file: "packages/common/utils/src/factories/stringLiteralKit.ts",
+        line: 226,
+        args: [setValues],
+      },
+    );
     const mappedValues = new Set(setValues);
 
     // Check all literals are mapped
@@ -306,7 +315,10 @@ export function stringLiteralKit<
             arbitrary: () => (fc) => fc.constantFrom(...literals),
           });
           return {
-            Schema: S.Literal(...keys).annotations({...annotations, arbitrary: () => (fc) => fc.constantFrom(...literals)}),
+            Schema: S.Literal(...keys).annotations({
+              ...annotations,
+              arbitrary: () => (fc) => fc.constantFrom(...literals),
+            }),
             Options: keys,
             Enum: enumFromStringArray(...keys),
             Mock: (qty: number) => FC.sample(Arbitrary.make(Schema), qty),

@@ -1,10 +1,7 @@
+import { organization, team } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import {
-  team,
-  organization
-} from "@beep/shared-tables";
-import {
- account,
+  account,
   apiKey,
   invitation,
   member,

@@ -1,4 +1,4 @@
-import type {RecordTypes, UnsafeTypes} from "@beep/types";
+import type { RecordTypes, UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as HashSet from "effect/HashSet";
 import * as R from "effect/Record";
@@ -11,6 +11,14 @@ export const recordKeys = <T extends UnsafeTypes.UnsafeReadonlyRecord>(
   return HashSet.values(set) as unknown as A.NonEmptyReadonlyArray<keyof T>;
 };
 
-export const recordStringValues = <R extends RecordTypes.RecordStringKeyValueString>(r: RecordTypes.NonEmptyRecordStringKeyValues<R>) => {
-  return R.values(r) as unknown as RecordTypes.ReadonlyRecordValuesNonEmptyArray<RecordTypes.NonEmptyRecordStringKeyValues<R>>;
+export const recordStringValues = <
+  R extends RecordTypes.RecordStringKeyValueString,
+>(
+  r: RecordTypes.NonEmptyRecordStringKeyValues<R>,
+) => {
+  return R.values(
+    r,
+  ) as unknown as RecordTypes.ReadonlyRecordValuesNonEmptyArray<
+    RecordTypes.NonEmptyRecordStringKeyValues<R>
+  >;
 };

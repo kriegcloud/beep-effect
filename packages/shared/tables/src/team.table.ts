@@ -1,5 +1,5 @@
 import * as pg from "drizzle-orm/pg-core";
-import { defaultColumns } from "./common"
+import { defaultColumns } from "./common";
 
 export const team = pg.pgTable(
   "team",

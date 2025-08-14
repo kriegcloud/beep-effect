@@ -1,9 +1,9 @@
-import {invariant} from "@beep/invariant";
-import {faker} from "@faker-js/faker";
+import { invariant } from "@beep/invariant";
+import { sid } from "@beep/schema/id";
+import { annotate, makeMocker } from "@beep/schema/utils";
+import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import {sid} from "@beep/schema/id";
-import {annotate, makeMocker} from "@beep/schema/utils";
 /**
  * Hex color string schema.
  *
@@ -34,7 +34,8 @@ import {annotate, makeMocker} from "@beep/schema/utils";
  * @category Color
  */
 export namespace Hex {
-  export const REGEX = /^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6}|[a-fA-F0-9]{4}|[a-fA-F0-9]{8})$/
+  export const REGEX =
+    /^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6}|[a-fA-F0-9]{4}|[a-fA-F0-9]{8})$/;
   /**
    * Non-empty, branded `"Hex"` string:
    * - starts with `#` (via `TemplateLiteral`)
@@ -54,7 +55,7 @@ export namespace Hex {
     });
 
     return Base.make(i);
-  }
+  };
   /**
    * Full schema with identity, docs, JSON Schema, and an arbitrary that
    * samples valid lengths uniformly and guarantees exactly one leading `#`.
@@ -69,20 +70,17 @@ export namespace Hex {
       format: "hex",
       pattern: String(REGEX),
     },
-    examples: [
-      make("#fff"),
-      make("#ff00cc"),
-      make("#abcd"),
-      make("#a1b2c3"),
-    ],
+    examples: [make("#fff"), make("#ff00cc"), make("#abcd"), make("#a1b2c3")],
     arbitrary: () => (fc) =>
       fc
         .constant(null)
         .map(() =>
-          Base.make(Str.concat(
-            "#",
-            Str.replace(/^#/, "#")(faker.color.rgb({format: "hex"})),
-          ))
+          Base.make(
+            Str.concat(
+              "#",
+              Str.replace(/^#/, "#")(faker.color.rgb({ format: "hex" })),
+            ),
+          ),
         ),
   });
 
@@ -92,4 +90,3 @@ export namespace Hex {
   /** Curried mock factory (FastCheck + Effect Arbitrary). */
   export const Mock = makeMocker(Schema);
 }
-

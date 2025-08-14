@@ -1,5 +1,5 @@
 import { organization, team } from "@beep/shared-tables";
-export { organization, team }
+export { organization, team };
 export * from "./account.table";
 export * from "./api-key.table";
 export * from "./invitation.table";

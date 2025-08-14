@@ -1,7 +1,7 @@
 import { sid } from "@beep/schema/id";
+import { annotate, makeMocker } from "@beep/schema/utils";
 import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
-import { annotate, makeMocker } from "@beep/schema/utils";
 
 /**
  * IP address schema (IPv4 or IPv6) and helpers.
@@ -30,10 +30,7 @@ export namespace IP {
   /**
    * Non-empty, trimmed, branded `"IP"` string that matches IPv4/IPv6.
    */
-  const Base = S.NonEmptyTrimmedString.pipe(
-    S.pattern(REGEX),
-    S.brand("IP"),
-  );
+  const Base = S.NonEmptyTrimmedString.pipe(S.pattern(REGEX), S.brand("IP"));
 
   /**
    * Full IP schema with docs, identity, and generator.
@@ -42,7 +39,8 @@ export namespace IP {
     identifier: sid.common.schema("IP.Schema"),
     title: "IP",
     description: "A valid IP address (IPv4 or IPv6)",
-    arbitrary: () => (fc) => fc.constant(null).map(() => Base.make(faker.internet.ip())),
+    arbitrary: () => (fc) =>
+      fc.constant(null).map(() => Base.make(faker.internet.ip())),
   });
 
   /** IP value type. */

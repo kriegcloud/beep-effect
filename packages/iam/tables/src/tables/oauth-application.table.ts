@@ -1,6 +1,6 @@
-import {Common} from "@beep/shared-tables";
+import { Common } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
-import {user} from "./user.table";
+import { user } from "./user.table";
 
 export const oauthApplication = pg.pgTable("oauth_application", {
   id: pg.text("id").primaryKey(),
@@ -12,6 +12,6 @@ export const oauthApplication = pg.pgTable("oauth_application", {
   redirectURLs: pg.text("redirect_u_r_ls"),
   type: pg.text("type"),
   disabled: pg.boolean("disabled"),
-  userId: pg.text("user_id").references(() => user.id, {onDelete: "cascade"}),
+  userId: pg.text("user_id").references(() => user.id, { onDelete: "cascade" }),
   ...Common.defaultColumns,
 });

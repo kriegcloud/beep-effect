@@ -34,8 +34,8 @@ const safeFormatArg = (x: unknown): string => {
 const formatArgs = (args: readonly unknown[] | undefined): string =>
   F.pipe(
     O.fromNullable(args),
-    O.map(a => a.map(safeFormatArg).join(", ")),
-    O.getOrElse(() => "")
+    O.map((a) => a.map(safeFormatArg).join(", ")),
+    O.getOrElse(() => ""),
   );
 
 type InvariantMessage = string | (() => string);
@@ -43,7 +43,7 @@ type InvariantMessage = string | (() => string);
 type InvariantFn = (
   condition: unknown,
   message: InvariantMessage,
-  meta: CallMetadata.Type
+  meta: CallMetadata.Type,
 ) => asserts condition;
 
 /** Augmented function API so we can hang helpers off the callable. */
@@ -54,7 +54,7 @@ type InvariantApi = InvariantFn & {
   unreachable: <T>(
     _x: never,
     message: InvariantMessage,
-    meta: CallMetadata.Type
+    meta: CallMetadata.Type,
   ) => never;
 
   /**
@@ -63,7 +63,7 @@ type InvariantApi = InvariantFn & {
   nonNull: <T>(
     value: T,
     message: InvariantMessage,
-    meta: CallMetadata.Type
+    meta: CallMetadata.Type,
   ) => asserts value is NonNullable<T>;
 };
 
@@ -81,7 +81,7 @@ type InvariantApi = InvariantFn & {
 export const invariant: InvariantApi = ((
   condition: unknown,
   message: InvariantMessage,
-  meta: CallMetadata.Type
+  meta: CallMetadata.Type,
 ): asserts condition => {
   if (condition) return;
 
@@ -117,7 +117,7 @@ export const invariant: InvariantApi = ((
 invariant.unreachable = <T>(
   _x: never,
   message: InvariantMessage,
-  meta: CallMetadata.Type
+  meta: CallMetadata.Type,
 ): never => {
   invariant(false, message, meta);
   // Satisfy `never` for control flow analyzers (unreachable)
@@ -127,7 +127,7 @@ invariant.unreachable = <T>(
 invariant.nonNull = <T>(
   value: T,
   message: InvariantMessage,
-  meta: CallMetadata.Type
+  meta: CallMetadata.Type,
 ): asserts value is NonNullable<T> => {
   invariant(value != null, message, meta);
 };

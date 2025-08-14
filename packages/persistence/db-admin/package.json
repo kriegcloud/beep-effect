@@ -29,6 +29,8 @@
     "db:push": "TSX_TSCONFIG_PATH=./tsconfig.tsx.json NODE_OPTIONS='--import tsx' pnpm dotenvx drizzle-kit push",
     "db:studio": "TSX_TSCONFIG_PATH=./tsconfig.tsx.json NODE_OPTIONS='--import tsx' pnpm dotenvx drizzle-kit studio",
     "db:reset": "bun src/scripts/ResetDatabase.ts",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
     "dotenvx": "dotenvx run -f ../../.env --"
   },
   "dependencies": {

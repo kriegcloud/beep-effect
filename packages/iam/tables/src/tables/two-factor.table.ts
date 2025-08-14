@@ -1,6 +1,6 @@
-import {Common} from "@beep/shared-tables";
+import { Common } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
-import {user} from "./user.table";
+import { user } from "./user.table";
 
 export const twoFactor = pg.pgTable("two_factor", {
   id: pg.text("id").primaryKey(),
@@ -9,6 +9,6 @@ export const twoFactor = pg.pgTable("two_factor", {
   userId: pg
     .text("user_id")
     .notNull()
-    .references(() => user.id, {onDelete: "cascade"}),
+    .references(() => user.id, { onDelete: "cascade" }),
   ...Common.defaultColumns,
 });

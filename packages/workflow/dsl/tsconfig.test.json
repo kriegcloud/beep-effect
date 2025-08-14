@@ -1,8 +1,6 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "include": [
-    "test"
-  ],
+  "include": ["test"],
   "references": [
     {
       "path": "tsconfig.src.json"
@@ -21,43 +19,21 @@
     }
   ],
   "compilerOptions": {
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true
   },
   "paths": {
-    "@beep/workflow-dsl": [
-      "./src/index"
-    ],
-    "@beep/workflow-dsl/*": [
-      "./src/*"
-    ],
-    "@beep/types": [
-      "../../common/types/src/index"
-    ],
-    "@beep/types/*": [
-      "../../common/types/src/*"
-    ],
-    "@beep/invariant": [
-      "../../common/invariant/src/index"
-    ],
-    "@beep/invariant/*": [
-      "../../common/invariant/src/*"
-    ],
-    "@beep/schema": [
-      "../../common/schema/src/index"
-    ],
-    "@beep/schema/*": [
-      "../../common/schema/src/*"
-    ],
-    "@beep/utils": [
-      "../../common/utils/src/index"
-    ],
-    "@beep/utils/*": [
-      "../../common/utils/src/*"
-    ]
+    "@beep/workflow-dsl": ["./src/index"],
+    "@beep/workflow-dsl/*": ["./src/*"],
+    "@beep/types": ["../../common/types/src/index"],
+    "@beep/types/*": ["../../common/types/src/*"],
+    "@beep/invariant": ["../../common/invariant/src/index"],
+    "@beep/invariant/*": ["../../common/invariant/src/*"],
+    "@beep/schema": ["../../common/schema/src/index"],
+    "@beep/schema/*": ["../../common/schema/src/*"],
+    "@beep/utils": ["../../common/utils/src/index"],
+    "@beep/utils/*": ["../../common/utils/src/*"]
   }
 }

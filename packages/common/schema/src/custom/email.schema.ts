@@ -1,8 +1,8 @@
+import { sid } from "@beep/schema/id";
+import { annotate, makeMocker } from "@beep/schema/utils";
 import { faker } from "@faker-js/faker";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-import { sid } from "@beep/schema/id";
-import { annotate, makeMocker } from "@beep/schema/utils";
 
 /**
  * Email address schema and helpers.
@@ -67,9 +67,9 @@ export namespace Email {
   export const Schema = annotate(S.Redacted(Base), {
     jsonSchema: { format: "email", type: "string" },
     arbitrary: () => (fc) =>
-      fc.constant(null).map(() =>
-        Redacted.make(Base.make(faker.internet.email())),
-      ),
+      fc
+        .constant(null)
+        .map(() => Redacted.make(Base.make(faker.internet.email()))),
     title: "Email",
     message: () => "Email must be a valid email address!",
     description: "A valid email address",

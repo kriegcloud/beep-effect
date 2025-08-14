@@ -1,33 +1,23 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "include": [
-    "test"
-  ],
+  "include": ["test"],
   "references": [
     {
       "path": "tsconfig.src.json"
     },
-        {
+    {
       "path": "../../ui"
     }
   ],
   "compilerOptions": {
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true
   },
   "paths": {
-    "@beep/iam-ui": [
-      "./src/index"
-    ],
-    "@beep/iam-ui/*": [
-      "./src/*"
-    ],
-    "@beep/ui/*": [
-      "../../ui/src/*"
-    ]
+    "@beep/iam-ui": ["./src/index"],
+    "@beep/iam-ui/*": ["./src/*"],
+    "@beep/ui/*": ["../../ui/src/*"]
   }
 }

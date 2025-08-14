@@ -1,6 +1,6 @@
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-import { utcNow } from "./common"
+import { utcNow } from "./common";
 
 export const organization = pg.pgTable(
   "organization",

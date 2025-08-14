@@ -38,7 +38,10 @@ export declare namespace Annotations {
    * Full schema annotation contract used throughout this package.
    * Includes identity + optional ecosystem annotations.
    */
-  export interface Schema<A, TP extends UnsafeTypes.UnsafeReadonlyArray = readonly []> extends Doc<A> {
+  export interface Schema<
+    A,
+    TP extends UnsafeTypes.UnsafeReadonlyArray = readonly [],
+  > extends Doc<A> {
     readonly identifier: AST.IdentifierAnnotation;
     readonly message?: AST.MessageAnnotation;
     readonly schemaId?: AST.SchemaIdAnnotation;
@@ -57,9 +60,13 @@ export declare namespace Annotations {
    * Runtime-parameterized variant (functions that close over runtime data).
    */
   export interface GenericSchema<A> extends Schema<A> {
-    readonly arbitrary?: (..._: UnsafeTypes.UnsafeAny) => Arbitrary.LazyArbitrary<A>;
+    readonly arbitrary?: (
+      ..._: UnsafeTypes.UnsafeAny
+    ) => Arbitrary.LazyArbitrary<A>;
     readonly pretty?: (..._: UnsafeTypes.UnsafeAny) => Pretty.Pretty<A>;
-    readonly equivalence?: (..._: UnsafeTypes.UnsafeAny) => Equivalence.Equivalence<A>;
+    readonly equivalence?: (
+      ..._: UnsafeTypes.UnsafeAny
+    ) => Equivalence.Equivalence<A>;
   }
 
   /** Filter annotations (Effect-internal shape, included for completeness). */
@@ -81,12 +88,19 @@ export declare namespace Annotations {
  * ```
  */
 export const annotate: {
-  <Sx extends S.Annotable.All>(annotations: Annotations.GenericSchema<S.Schema.Type<Sx>>): (self: Sx) => S.Annotable.Self<Sx>;
-  <Sx extends S.Annotable.All>(self: Sx, annotations: Annotations.GenericSchema<S.Schema.Type<Sx>>): S.Annotable.Self<Sx>;
+  <Sx extends S.Annotable.All>(
+    annotations: Annotations.GenericSchema<S.Schema.Type<Sx>>,
+  ): (self: Sx) => S.Annotable.Self<Sx>;
+  <Sx extends S.Annotable.All>(
+    self: Sx,
+    annotations: Annotations.GenericSchema<S.Schema.Type<Sx>>,
+  ): S.Annotable.Self<Sx>;
 } = F.dual(
   2,
-  <A, I, R>(self: S.Schema<A, I, R>, annotations: Annotations.GenericSchema<A>): S.Schema<A, I, R> =>
-    self.annotations(annotations),
+  <A, I, R>(
+    self: S.Schema<A, I, R>,
+    annotations: Annotations.GenericSchema<A>,
+  ): S.Schema<A, I, R> => self.annotations(annotations),
 );
 
 /* -------------------------------------------------------------------------------------------------
@@ -110,7 +124,10 @@ export const assertRequiredAnnotations = (annotated: AST.Annotated): void => {
 
   const idOpt = AST.getAnnotation(annotated, AST.IdentifierAnnotationId);
   const titleOpt = AST.getAnnotation(annotated, AST.TitleAnnotationId);
-  const descriptionOpt = AST.getAnnotation(annotated, AST.DescriptionAnnotationId);
+  const descriptionOpt = AST.getAnnotation(
+    annotated,
+    AST.DescriptionAnnotationId,
+  );
 
   // Build a pure list of missing keys.
   const missing = Arr.filterMap(
@@ -125,13 +142,16 @@ export const assertRequiredAnnotations = (annotated: AST.Annotated): void => {
   if (missing.length === 0) return;
 
   // Choose a human-friendly schema name for the error message.
-  const name =
-    O.getOrElse(
-      O.orElse(idOpt, () => AST.getAnnotation(annotated, AST.SchemaIdAnnotationId)),
-      () => "(anonymous)",
-    ) as string;
+  const name = O.getOrElse(
+    O.orElse(idOpt, () =>
+      AST.getAnnotation(annotated, AST.SchemaIdAnnotationId),
+    ),
+    () => "(anonymous)",
+  ) as string;
 
-  throw new Error(`Schema ${name} is missing required annotations: ${missing.join(", ")}`);
+  throw new Error(
+    `Schema ${name} is missing required annotations: ${missing.join(", ")}`,
+  );
 };
 
 /* -------------------------------------------------------------------------------------------------
@@ -147,14 +167,32 @@ type ArbParamsBase = {
   seed?: number;
 };
 
-type BoundMock<A, I, R> = ArbParamsBase & { _tag: "bound"; schema: S.Schema<A, I, R> };
-type TypeMock<A, I, R> = ArbParamsBase & { _tag: "type"; schema: S.Schema<A, I, R> };
-type EncodedMock<A, I, R> = ArbParamsBase & { _tag: "encoded"; schema: S.Schema<A, I, R> };
-type Mock<A, I, R> = BoundMock<A, I, R> | TypeMock<A, I, R> | EncodedMock<A, I, R>;
+type BoundMock<A, I, R> = ArbParamsBase & {
+  _tag: "bound";
+  schema: S.Schema<A, I, R>;
+};
+type TypeMock<A, I, R> = ArbParamsBase & {
+  _tag: "type";
+  schema: S.Schema<A, I, R>;
+};
+type EncodedMock<A, I, R> = ArbParamsBase & {
+  _tag: "encoded";
+  schema: S.Schema<A, I, R>;
+};
+type Mock<A, I, R> =
+  | BoundMock<A, I, R>
+  | TypeMock<A, I, R>
+  | EncodedMock<A, I, R>;
 
 /** FC.sample wrapper that supports an optional seed. */
-const sample = <T>(arb: FC.Arbitrary<T>, qty: number, seed?: number): readonly T[] =>
-  seed != null ? FC.sample(arb, { numRuns: qty, seed }) : FC.sample(arb, { numRuns: qty });
+const sample = <T>(
+  arb: FC.Arbitrary<T>,
+  qty: number,
+  seed?: number,
+): readonly T[] =>
+  seed != null
+    ? FC.sample(arb, { numRuns: qty, seed })
+    : FC.sample(arb, { numRuns: qty });
 
 /**
  * If `qty === 1` and `flat === true`, unwrap the single element; otherwise return the array.
@@ -173,16 +211,42 @@ export const makeFlat = <T extends UnsafeTypes.UnsafeReadonlyArray>(
  *
  * Overloads ensure precise return shapes when `qty=1` and `flat=true`.
  */
-export function makeMocked<A, I, R>(params: Mock<A, I, R> & { qty?: 1; flat?: true }): A | S.Schema.Encoded<S.Schema<A, I, R>> | S.Schema.Context<S.Schema<A, I, R>>;
-export function makeMocked<A, I, R>(params: Mock<A, I, R>): readonly (A | S.Schema.Encoded<S.Schema<A, I, R>> | S.Schema.Context<S.Schema<A, I, R>>)[];
+export function makeMocked<A, I, R>(
+  params: Mock<A, I, R> & { qty?: 1; flat?: true },
+):
+  | A
+  | S.Schema.Encoded<S.Schema<A, I, R>>
+  | S.Schema.Context<S.Schema<A, I, R>>;
+export function makeMocked<A, I, R>(
+  params: Mock<A, I, R>,
+): readonly (
+  | A
+  | S.Schema.Encoded<S.Schema<A, I, R>>
+  | S.Schema.Context<S.Schema<A, I, R>>
+)[];
 
 export function makeMocked<A, I, R>(params: Mock<A, I, R>): unknown {
   const { schema, flat = false, qty = 1, seed } = params;
   return Match.value(params).pipe(
     Match.tags({
-      bound: () => makeFlat(sample(Arbitrary.make(S.encodedBoundSchema(schema)), qty, seed), qty, flat),
-      type: () => makeFlat(sample(Arbitrary.make(S.typeSchema(schema)), qty, seed), qty, flat),
-      encoded: () => makeFlat(sample(Arbitrary.make(S.encodedSchema(schema)), qty, seed), qty, flat),
+      bound: () =>
+        makeFlat(
+          sample(Arbitrary.make(S.encodedBoundSchema(schema)), qty, seed),
+          qty,
+          flat,
+        ),
+      type: () =>
+        makeFlat(
+          sample(Arbitrary.make(S.typeSchema(schema)), qty, seed),
+          qty,
+          flat,
+        ),
+      encoded: () =>
+        makeFlat(
+          sample(Arbitrary.make(S.encodedSchema(schema)), qty, seed),
+          qty,
+          flat,
+        ),
     }),
   );
 }
@@ -198,18 +262,44 @@ export function makeMocked<A, I, R>(params: Mock<A, I, R>): unknown {
  */
 export function makeMocker<A, I, R>(
   schema: S.Schema<A, I, R>,
-): (kind: "bound" | "type" | "encoded", qty?: 1, flat?: true, seed?: number) =>
-  A | S.Schema.Encoded<S.Schema<A, I, R>> | S.Schema.Context<S.Schema<A, I, R>>;
+): (
+  kind: "bound" | "type" | "encoded",
+  qty?: 1,
+  flat?: true,
+  seed?: number,
+) =>
+  | A
+  | S.Schema.Encoded<S.Schema<A, I, R>>
+  | S.Schema.Context<S.Schema<A, I, R>>;
 export function makeMocker<A, I, R>(
   schema: S.Schema<A, I, R>,
-): (kind: "bound" | "type" | "encoded", qty?: number, flat?: boolean, seed?: number) =>
-  readonly (A | S.Schema.Encoded<S.Schema<A, I, R>> | S.Schema.Context<S.Schema<A, I, R>>)[];
+): (
+  kind: "bound" | "type" | "encoded",
+  qty?: number,
+  flat?: boolean,
+  seed?: number,
+) => readonly (
+  | A
+  | S.Schema.Encoded<S.Schema<A, I, R>>
+  | S.Schema.Context<S.Schema<A, I, R>>
+)[];
 
 export function makeMocker<A, I, R>(schema: S.Schema<A, I, R>) {
-  return (kind: "bound" | "type" | "encoded", qty?: number, flat?: boolean, seed?: number): unknown =>
+  return (
+    kind: "bound" | "type" | "encoded",
+    qty?: number,
+    flat?: boolean,
+    seed?: number,
+  ): unknown =>
     Match.value(kind).pipe(
-      Match.when("bound", () => makeMocked({ schema, _tag: "bound", qty, flat, seed })),
-      Match.when("type", () => makeMocked({ schema, _tag: "type", qty, flat, seed })),
-      Match.when("encoded", () => makeMocked({ schema, _tag: "encoded", qty, flat, seed })),
+      Match.when("bound", () =>
+        makeMocked({ schema, _tag: "bound", qty, flat, seed }),
+      ),
+      Match.when("type", () =>
+        makeMocked({ schema, _tag: "type", qty, flat, seed }),
+      ),
+      Match.when("encoded", () =>
+        makeMocked({ schema, _tag: "encoded", qty, flat, seed }),
+      ),
     );
 }

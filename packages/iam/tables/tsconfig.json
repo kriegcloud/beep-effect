@@ -4,12 +4,8 @@
   "compilerOptions": {
     "paths": {
       "@beep/iam-tables/*": ["./src/*"],
-      "@beep/shared-tables": [
-        "../../shared/tables/src/index"
-      ],
-      "@beep/shared-tables/*": [
-        "../../shared/tables/src/*"
-      ]
+      "@beep/shared-tables": ["../../shared/tables/src/index"],
+      "@beep/shared-tables/*": ["../../shared/tables/src/*"]
     }
   },
   "references": [

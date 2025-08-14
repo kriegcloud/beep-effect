@@ -2,7 +2,6 @@ import { Common } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 
-
 export const user = pg.pgTable(
   "user",
   {
@@ -54,4 +53,3 @@ export const user = pg.pgTable(
       .where(d.sql`${t.twoFactorEnabled} = true`),
   ],
 );
-
