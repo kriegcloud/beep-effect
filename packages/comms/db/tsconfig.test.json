@@ -1,0 +1,29 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": ["test"],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../tables"
+    },
+    {
+      "path": "../../persistence/db-scope"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node"],
+    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+    "rootDir": "test",
+    "noEmit": true
+  },
+  "paths": {
+    "@beep/comms-db": ["./src/index"],
+    "@beep/comms-db/*": ["./src/*"],
+    "@beep/comms-tables": ["../tables/src/index"],
+    "@beep/comms-tables/*": ["../tables/src/*"],
+    "@beep/db-scope": ["../../persistence/db-scope/src/index"],
+    "@beep/db-scope/*": ["../../persistence/db-scope/src/*"]
+  }
+}

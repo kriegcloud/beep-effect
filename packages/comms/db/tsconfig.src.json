@@ -1,0 +1,30 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../tables"
+    },
+    {
+      "path": "../../persistence/db-scope"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node"],
+    "outDir": "build/src",
+    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+    "rootDir": "src",
+    "baseUrl": ".",
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@beep/comms-db/*": ["./src/*"],
+      "@beep/comms-tables": ["../tables/src/index"],
+      "@beep/comms-tables/*": ["../tables/src/*"],
+      "@beep/db-scope": ["../../persistence/db-scope/src/index"],
+      "@beep/db-scope/*": ["../../persistence/db-scope/src/*"]
+    }
+  }
+}

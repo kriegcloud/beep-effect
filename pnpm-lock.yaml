@@ -254,6 +254,67 @@ importers:
         version: link:../types/build
     publishDirectory: build
 
+  packages/comms/api:
+    dependencies:
+      effect:
+        specifier: ^3.17.7
+        version: 3.17.7
+    devDependencies:
+      tsx:
+        specifier: ^4.20.4
+        version: 4.20.4
+    publishDirectory: build
+
+  packages/comms/application:
+    dependencies:
+      effect:
+        specifier: ^3.17.7
+        version: 3.17.7
+    publishDirectory: build
+
+  packages/comms/db:
+    dependencies:
+      '@beep/comms-tables':
+        specifier: workspace:^
+        version: link:../tables/build
+      '@beep/db-scope':
+        specifier: workspace:^
+        version: link:../../persistence/db-scope/build
+      drizzle-orm:
+        specifier: ^0.44.4
+        version: 0.44.4(@types/pg@8.15.5)(kysely@0.28.5)(pg@8.16.3)
+      effect:
+        specifier: ^3.17.7
+        version: 3.17.7
+      pg:
+        specifier: ^8.16.3
+        version: 8.16.3
+    devDependencies:
+      '@types/pg':
+        specifier: ^8.15.5
+        version: 8.15.5
+    publishDirectory: build
+
+  packages/comms/domain:
+    dependencies:
+      '@beep/shared-domain':
+        specifier: workspace:^
+        version: link:../../shared/domain/build
+      effect:
+        specifier: ^3.17.7
+        version: 3.17.7
+    publishDirectory: build
+
+  packages/comms/tables:
+    dependencies:
+      '@beep/shared-tables':
+        specifier: workspace:^
+        version: link:../../shared/tables/build
+      drizzle-orm:
+        specifier: ^0.44.4
+        version: 0.44.4(@types/pg@8.15.5)(kysely@0.28.5)(pg@8.16.3)
+    publishDirectory: build
+
   packages/env:
     dependencies:
       '@faker-js/faker':

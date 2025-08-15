@@ -83,7 +83,21 @@
     },
     {
       "path": "packages/adapters/better-auth"
+    },
+    {
+      "path": "packages/comms/api"
+    },
+    {
+      "path": "packages/comms/application"
+    },
+    {
+      "path": "packages/comms/db"
+    },
+    {
+      "path": "packages/comms/domain"
+    },
+    {
+      "path": "packages/comms/tables"
     }
-
   ]
 }

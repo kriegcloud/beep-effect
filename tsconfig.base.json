@@ -278,6 +278,51 @@
       ],
       "@beep/better-auth/test/*": [
         "./packages/adapters/better-auth/test/*"
+      ],
+      "@beep/comms-api": [
+        "./packages/comms/api/src/index"
+      ],
+      "@beep/comms-api/*": [
+        "./packages/comms/api/src/*"
+        ],
+      "@beep/comms-api/test/*": [
+        "./packages/comms/api/test/*"
+      ],
+      "@beep/comms-application": [
+        "./packages/comms/application/src/index"
+      ],
+      "@beep/comms-application/*": [
+        "./packages/comms/application/src/*"
+      ],
+      "@beep/comms-application/test/*": [
+        "./packages/comms/application/test/*"
+      ],
+      "@beep/comms-db": [
+        "./packages/comms/db/src/index"
+      ],
+      "@beep/comms-db/*": [
+        "./packages/comms/db/src/*"
+      ],
+      "@beep/comms-db/test/*": [
+        "./packages/comms/db/test/*"
+      ],
+      "@beep/comms-domain": [
+        "./packages/comms/domain/src/index"
+      ],
+      "@beep/comms-domain/*": [
+        "./packages/comms/domain/src/*"
+      ],
+      "@beep/comms-domain/test/*": [
+        "./packages/comms/domain/test/*"
+      ],
+      "@beep/comms-tables": [
+        "./packages/comms/tables/src/index"
+      ],
+      "@beep/comms-tables/*": [
+        "./packages/comms/tables/src/*"
+      ],
+      "@beep/comms-tables/test/*": [
+        "./packages/comms/tables/test/*"
       ]
     }
   }

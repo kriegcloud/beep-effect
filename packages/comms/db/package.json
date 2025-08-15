@@ -1,0 +1,56 @@
+{
+  "name": "@beep/comms-db",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "The package which contains the scoped db client for the comms context",
+  "publishConfig": {
+    "access": "restricted",
+    "directory": "build"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BeepinBois/beep-effect.git",
+    "directory": "packages/comms/db"
+  },
+  "scripts": {
+    "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",
+    "dev": "tsc -b tsconfig.build.json --watch",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "vitest run",
+    "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
+    "coverage": "vitest --coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write"
+  },
+  "dependencies": {
+    "@beep/comms-tables": "workspace:^",
+    "@beep/db-scope": "workspace:^",
+    "drizzle-orm": "^0.44.4",
+    "pg": "^8.16.3",
+    "effect": "^3.17.7"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.15.5"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}
