@@ -36,6 +36,9 @@
     "@standard-schema/spec": "^1.0.0",
     "effect": "^3.17.7"
   },
+  "peerDependencies": {
+    "@beep/types": "workspace:^"
+  },
   "devDependencies": {
     "tsx": "^4.20.4"
   },

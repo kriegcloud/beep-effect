@@ -159,7 +159,8 @@
     "@mui/system": "^7.1.0",
     "react": ">=17 <20",
     "@beep/invariant": "workspace:^",
-    "@beep/utils": "workspace:^"
+    "@beep/utils": "workspace:^",
+    "@beep/schema": "workspace:^"
   },
   "peerDependenciesMeta": {
     "@mui/icons-material": {

@@ -1,4 +1,4 @@
-import { stringLiteralKit } from "@beep/utils/factories";
+import { stringLiteralKit } from "@beep/schema/kits";
 import type { Components, Theme } from "@mui/material/styles";
 // MUI Data Grid Locales
 import {

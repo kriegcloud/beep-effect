@@ -1,4 +1,3 @@
-import { sid } from "@beep/schema/id";
 import * as S from "effect/Schema";
 
 /**
@@ -7,10 +6,27 @@ import * as S from "effect/Schema";
  * @since 0.1.0
  * @category JSON
  */
+export const JsonLiteral = S.Union(
+  S.String,
+  S.Number,
+  S.Boolean,
+  S.Null,
+).annotations({
+  identifier: "JsonLiteral",
+  title: "JSON literal",
+  description: "JSON literal values (primitives accepted by JSON)",
+  arbitrary: () => (fc) =>
+    fc.oneof(
+      fc.string(),
+      fc.float(),
+      fc.integer(),
+      fc.boolean(),
+      fc.constant(null),
+    ),
+});
 export namespace JsonLiteral {
-  /** `string | number | boolean | null` */
-  export const Schema = S.Union(S.String, S.Number, S.Boolean, S.Null);
-  export type Type = typeof Schema.Type;
+  export type Type = typeof JsonLiteral.Type;
+  export type Encoded = typeof JsonLiteral.Encoded;
 }
 
 /**
@@ -38,26 +54,24 @@ export namespace JsonLiteral {
  * @since 0.1.0
  * @category JSON
  */
+export const Json = S.suspend(
+  (): S.Schema<Json.Type> =>
+    S.Union(
+      JsonLiteral,
+      S.Array(Json),
+      S.Record({ key: S.String, value: Json }),
+    ),
+).annotations({
+  identifier: "Json",
+  title: "Json",
+  description: "A Valid JSON",
+});
 export namespace Json {
   export type Type =
-    | string
-    | number
-    | boolean
+    | JsonLiteral.Type
     | { [key: string]: Type }
     | Type[]
-    | ReadonlyArray<Type>
-    | null;
+    | ReadonlyArray<Type>;
 
-  export const Schema = S.suspend(
-    (): S.Schema<Type> =>
-      S.Union(
-        JsonLiteral.Schema,
-        S.Array(Schema),
-        S.Record({ key: S.String, value: Schema }),
-      ),
-  ).annotations({
-    identifier: sid.common.schema("Json"),
-    title: "Json",
-    description: "A Valid JSON",
-  });
+  export type Encoded = typeof Json.Encoded;
 }

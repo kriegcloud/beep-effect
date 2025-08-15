@@ -15,7 +15,7 @@ type Segment<S extends string = string> = string extends S
     : S;
 
 /** Internal marker to denote “leaf” positions in the config. */
-export namespace Identifier {
+export namespace URN {
   export const IdSymbol: unique symbol = Symbol.for("Identifier");
   export type IdSymbol = typeof IdSymbol;
 

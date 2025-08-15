@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.1.4/schema.json",
   "root": true,
   "files": {
     "includes": [
@@ -67,6 +67,7 @@
       },
       "recommended": true,
       "correctness": {
+        "useUniqueElementIds": "off",
         "useYield": "off",
         "noChildrenProp": "off",
         "noSwitchDeclarations": "off",
@@ -92,6 +93,7 @@
         "noAssignInExpressions": "off",
         "noArrayIndexKey": "off",
         "noExplicitAny": "off",
+        "useIterableCallbackReturn": "off",
         "noThenProperty": "off",
         "noDuplicateObjectKeys": "off",
         "noCommentText": "off"

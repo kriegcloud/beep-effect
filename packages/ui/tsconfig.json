@@ -11,21 +11,14 @@
       "@beep/invariant": ["../common/invariant/src/index"],
       "@beep/invariant/*": ["../common/invariant/src/*"],
       "@beep/utils": ["../common/utils/src/index"],
-      "@beep/utils/*": ["../common/utils/src/*"]
+      "@beep/utils/*": ["../common/utils/src/*"],
+      "@beep/schema": ["../common/schema/src/index"],
+      "@beep/schema/*": ["../common/schema/src/*"]
     }
   },
   "references": [
     {
       "path": "tsconfig.src.json"
-    },
-    {
-      "path": "../common/types"
-    },
-    {
-      "path": "../common/invariant"
-    },
-    {
-      "path": "../common/utils"
     }
   ]
 }

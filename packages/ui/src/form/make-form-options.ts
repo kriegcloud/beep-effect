@@ -21,8 +21,7 @@ type PathsLimited<
   Data,
   Path extends string = "",
   Depth extends number = 3,
-> = // Base case: Depth limit reached
-Depth extends 0
+> = Depth extends 0 // Base case: Depth limit reached
   ? `${Path}${Path extends "" ? "" : "."}${string}` | Path // Allow the current path or any string suffix.
   : Data extends ReadonlyArray<infer Element>
     ? // For arrays: Generate paths for numeric indices and recurse on the element type.

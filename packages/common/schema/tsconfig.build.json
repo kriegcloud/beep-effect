@@ -16,6 +16,9 @@
     },
     {
       "path": "../invariant/tsconfig.build.json"
+    },
+    {
+      "path": "../utils/tsconfig.build.json"
     }
   ]
 }

@@ -1,5 +1,14 @@
-import type * as A from "effect/Array";
+import { RecordTypes, UnsafeTypes } from "@beep/types";
+import * as A from "effect/Array";
+import * as Duration from "effect/Duration";
+import * as Effect from "effect/Effect";
+import * as Either from "effect/Either";
+import * as Eq from "effect/Equal";
 import * as F from "effect/Function";
+import * as Hash from "effect/Hash";
+import * as HashSet from "effect/HashSet";
+import * as ParseResult from "effect/ParseResult";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
 import * as _Struct from "effect/Struct";
@@ -26,7 +35,7 @@ export function Struct<
   Fields extends S.Struct.Fields,
   const Records extends S.IndexSignature.Records,
 >(fields: Fields, ...records: Records): S.TypeLiteral<Fields, Records> {
-  return S.Struct(fields, ...(records as any)).pipe(
+  return S.Struct(fields, ...(records as UnsafeTypes.UnsafeAny)).pipe(
     S.annotations({ batching: true }),
   );
 }
@@ -49,7 +58,9 @@ export function Tuple<
 export function Tuple<Elements extends S.TupleType.Elements>(
   ...elements: Elements
 ): S.Tuple<Elements>;
-export function Tuple(...args: ReadonlyArray<any>): any {
+export function Tuple(
+  ...args: ReadonlyArray<UnsafeTypes.UnsafeAny>
+): UnsafeTypes.UnsafeAny {
   return S.Tuple(...args).pipe(S.annotations({ batching: true }));
 }
 
@@ -128,7 +139,9 @@ export const defaultMap = <A, A2, I, R>(
 export const defaultSet = <A, I, R>(s: S.Schema<ReadonlySet<A>, I, R>) =>
   s.pipe(withDefaultConstructor(() => new Set<A>()));
 
-export const withDefaultMake = <Self extends S.Schema<any, any, never>>(
+export const withDefaultMake = <
+  Self extends S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, never>,
+>(
   s: Self,
 ) => {
   const a = Object.assign(S.decodeSync(s) as WithDefaults<Self>, s);
@@ -138,7 +151,9 @@ export const withDefaultMake = <Self extends S.Schema<any, any, never>>(
   // return s as Self & WithDefaults<Self>
 };
 
-export type WithDefaults<Self extends S.Schema<any, any, never>> = (
+export type WithDefaults<
+  Self extends S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, never>,
+> = (
   i: S.Schema.Encoded<Self>,
   options?: AST.ParseOptions,
 ) => S.Schema.Type<Self>;
@@ -182,9 +197,9 @@ const makeOpt = (self: S.PropertySignature.Any, exact?: boolean) => {
 };
 
 export function makeOptional<
-  NER extends S.Struct.Fields | S.PropertySignature.Any,
+  NER extends RecordTypes.StructFieldsOrPropertySignatures,
 >(
-  t: NER, // TODO: enforce non empty
+  t: RecordTypes.NonEmptyStructFieldsOrPropertySignatures<NER>,
 ): {
   [K in keyof NER]: S.PropertySignature<
     "?:",
@@ -192,7 +207,15 @@ export function makeOptional<
     never,
     "?:",
     S.Schema.Encoded<NER[K]> | undefined,
-    NER[K] extends S.PropertySignature<any, any, any, any, any, infer Z, any>
+    NER[K] extends S.PropertySignature<
+      UnsafeTypes.UnsafeAny,
+      UnsafeTypes.UnsafeAny,
+      UnsafeTypes.UnsafeAny,
+      UnsafeTypes.UnsafeAny,
+      UnsafeTypes.UnsafeAny,
+      infer Z,
+      UnsafeTypes.UnsafeAny
+    >
       ? Z
       : false,
     S.Schema.Context<NER[K]>
@@ -200,16 +223,18 @@ export function makeOptional<
 } {
   return _Struct.keys(t).reduce((prev, cur) => {
     if (S.isSchema(t[cur])) {
-      prev[cur] = S.optional(t[cur] as any);
+      prev[cur] = S.optional(t[cur] as UnsafeTypes.UnsafeAny);
     } else {
-      prev[cur] = makeOpt(t[cur] as any);
+      prev[cur] = makeOpt(t[cur] as UnsafeTypes.UnsafeAny);
     }
     return prev;
-  }, {} as any);
+  }, {} as UnsafeTypes.UnsafeAny);
 }
 
-export function makeExactOptional<NER extends S.Struct.Fields>(
-  t: NER, // TODO: enforce non empty
+export function makeExactOptional<
+  NER extends RecordTypes.StructFieldsWithStringKeys,
+>(
+  t: RecordTypes.NonEmptyStructFields<NER>,
 ): {
   [K in keyof NER]: S.PropertySignature<
     "?:",
@@ -217,7 +242,15 @@ export function makeExactOptional<NER extends S.Struct.Fields>(
     never,
     "?:",
     S.Schema.Encoded<NER[K]>,
-    NER[K] extends S.PropertySignature<any, any, any, any, any, infer Z, any>
+    NER[K] extends S.PropertySignature<
+      UnsafeTypes.UnsafeAny,
+      UnsafeTypes.UnsafeAny,
+      UnsafeTypes.UnsafeAny,
+      UnsafeTypes.UnsafeAny,
+      UnsafeTypes.UnsafeAny,
+      infer Z,
+      UnsafeTypes.UnsafeAny
+    >
       ? Z
       : false,
     S.Schema.Context<NER[K]>
@@ -225,10 +258,401 @@ export function makeExactOptional<NER extends S.Struct.Fields>(
 } {
   return _Struct.keys(t).reduce((prev, cur) => {
     if (S.isSchema(t[cur])) {
-      prev[cur] = S.optionalWith(t[cur] as any, { exact: true });
+      prev[cur] = S.optionalWith(t[cur] as UnsafeTypes.UnsafeAny, {
+        exact: true,
+      });
     } else {
-      prev[cur] = makeOpt(t[cur] as any);
+      prev[cur] = makeOpt(t[cur] as UnsafeTypes.UnsafeAny);
     }
     return prev;
-  }, {} as any);
+  }, {} as UnsafeTypes.UnsafeAny);
 }
+
+export class DurationFromSeconds extends S.transform(
+  S.NonNegative.annotations({
+    description:
+      "a non-negative number of seconds to be decoded into a Duration",
+  }),
+  S.DurationFromSelf,
+  {
+    strict: true,
+    decode: (i) => Duration.seconds(i),
+    encode: (a) => Duration.toSeconds(a),
+  },
+) {}
+
+export class DurationFromDeltaSecondsString extends S.compose(
+  S.NumberFromString,
+  DurationFromSeconds,
+).annotations({
+  title: "DurationFromDeltaSecondsString",
+  description: "parses a string of non-negative delta-seconds into a Duration",
+}) {}
+
+/**
+ * A schema for destructive transformations when you need to infer the type from the result of the transformation callback, without specifying the encoded type.
+ *
+ * @category schema
+ */
+export function destructiveTransform<A, B>(
+  transform: (input: A) => B,
+): <I, R>(self: S.Schema<A, I, R>) => S.Schema<Readonly<B>, I, R> {
+  return <I, R>(self: S.Schema<A, I, R>): S.Schema<Readonly<B>, I, R> => {
+    return S.transformOrFail(self, S.Any as S.Schema<Readonly<B>>, {
+      decode: (input) =>
+        ParseResult.try({
+          try: () => transform(input) as Readonly<B>,
+          catch: () =>
+            new ParseResult.Type(
+              self.ast,
+              input,
+              "Error applying transformation",
+            ),
+        }),
+      encode: () =>
+        ParseResult.fail(
+          new ParseResult.Forbidden(
+            self.ast,
+            "Encoding is not supported for destructive transformations",
+          ),
+        ),
+    });
+  };
+}
+
+/**
+ * A schema for trimming and validating non-empty strings.
+ *
+ * @category schema
+ */
+export const TrimNonEmpty = (opts?: {
+  message?: string;
+}): S.refine<string, S.filter<typeof S.Trim>> =>
+  S.Trim.pipe(
+    S.minLength(1),
+    S.maxLength(5000),
+    S.annotations({
+      message: () => opts?.message ?? "Expected a non-empty trimmed string",
+      override: true,
+    }),
+  );
+
+/**
+ * Creates a schema that allows null values and falls back to null on decoding errors.
+ *
+ * @category schema
+ */
+export const NullOrFromFallible = <A, I, R>(
+  schema: S.Schema<A, I, R>,
+): S.NullOr<S.Schema<A, I, R>> =>
+  S.NullOr(schema).pipe(
+    S.annotations({
+      decodingFallback: () => Either.right(null),
+    }),
+  );
+
+/**
+ * Transforms optional null/undefined values to required null values
+ *
+ * @category schema
+ */
+export const NullOrFromOptional = <A, I, R>(
+  schema: S.Schema<A, I, R>,
+): S.PropertySignature<
+  ":",
+  Exclude<A, undefined> | null,
+  never,
+  "?:",
+  I | null | undefined,
+  true,
+  R
+> =>
+  S.NullishOr(schema).pipe(
+    S.optional,
+    S.withDefaults({
+      constructor: () => null,
+      decoding: () => null,
+    }),
+  );
+
+/**
+ * A schema for transforming a partitioned array of invalid values into a non-nullable array.
+ *
+ * @category schema
+ */
+export const ArrayFromFallible = <A, I, R>(
+  schema: S.Schema<A, I, R>,
+): S.transform<
+  S.Array$<S.NullOr<S.Schema<A, I, R>>>,
+  S.SchemaClass<ReadonlyArray<A>, ReadonlyArray<A>, never>
+> =>
+  S.Array(
+    S.NullOr(schema).annotations({
+      decodingFallback: (issue) =>
+        Effect.zipRight(
+          Effect.logWarning(
+            `[ArrayFromFallible] ${ParseResult.TreeFormatter.formatIssueSync(issue)}`,
+          ),
+          Effect.succeed(null),
+        ),
+    }),
+  ).pipe(
+    S.transform(S.typeSchema(S.Array(schema)), {
+      decode: (array) => array.filter(P.isNotNull),
+      encode: F.identity,
+      strict: true,
+    }),
+  );
+
+/**
+ * A schema for transforming a partitioned array of invalid values into a non-nullable HashSet.
+ *
+ * @category schema
+ */
+export const HashSetFromFallibleArray = <A, I, R>(
+  schema: S.Schema<A, I, R>,
+): S.transform<
+  S.transform<
+    S.Array$<S.NullOr<S.Schema<A, I, R>>>,
+    S.SchemaClass<ReadonlyArray<A>, ReadonlyArray<A>, never>
+  >,
+  S.SchemaClass<HashSet.HashSet<A>, HashSet.HashSet<A>, never>
+> =>
+  ArrayFromFallible(schema).pipe(
+    S.transform(S.typeSchema(S.HashSet(schema)), {
+      decode: (array) => HashSet.fromIterable(array),
+      encode: (hashSet) => A.fromIterable(hashSet),
+      strict: true,
+    }),
+  );
+
+/**
+ * A schema for transforming a partitioned array of invalid values into a non-nullable Set.
+ *
+ * @category schema
+ */
+export const SetFromFallibleArray = <A, I, R>(
+  schema: S.Schema<A, I, R>,
+): S.transform<
+  S.transform<
+    S.Array$<S.NullOr<S.Schema<A, I, R>>>,
+    S.SchemaClass<ReadonlyArray<A>, ReadonlyArray<A>, never>
+  >,
+  S.SchemaClass<Set<A>, Set<A>, never>
+> =>
+  ArrayFromFallible(schema).pipe(
+    S.transform(S.typeSchema(S.Set(schema)), {
+      decode: (array) => new Set(array),
+      encode: (set) => A.fromIterable(set),
+      strict: true,
+    }),
+  );
+
+/**
+ * Creates a schema that transforms an array into a HashSet during decoding and back to an array during encoding.
+ *
+ * @category schema
+ * @param schema The schema for the elements in the array/HashSet
+ * @returns A schema that transforms between Array<A> and HashSet<A>
+ * @example
+ * ```ts
+ * const numberHashSet = HashSetFromIterable(S.Number)
+ * // Decoding: number[] -> HashSet<number>
+ * // Encoding: HashSet<number> -> number[]
+ * ```
+ */
+export const HashSetFromIterable = <A, I, R>(
+  schema: S.Schema<A, I, R>,
+): S.transform<
+  S.Array$<S.Schema<A, I, R>>,
+  S.SchemaClass<HashSet.HashSet<A>, HashSet.HashSet<A>, never>
+> =>
+  S.transform(S.Array(schema), S.typeSchema(S.HashSet(schema)), {
+    strict: true,
+    decode: (array) => HashSet.fromIterable(array),
+    encode: (hashSet) => A.fromIterable(hashSet),
+  });
+
+// ---------------
+// Formatting
+// ---------------
+
+/**
+ * Formats parse issues into a readable string, including the path for each issue.
+ *
+ * @category formatting
+ * @param issue The ParseIssue to be formatted
+ * @param opts Optional configuration:
+ *   - newLines: number of newlines between messages
+ *   - numbered: whether to prefix messages with numbers (1., 2., etc)
+ * @returns An Effect that resolves to a formatted string of parse issues
+ */
+export const formatParseIssueMessages = (
+  issue: ParseResult.ParseIssue,
+  opts?: {
+    newLines?: number;
+    numbered?: boolean;
+  },
+): Effect.Effect<string, never, never> =>
+  ParseResult.ArrayFormatter.formatIssue(issue).pipe(
+    Effect.map((issues) =>
+      issues
+        .map(
+          ({ message, path }, index) =>
+            `${opts?.numbered === true ? `${index + 1}. ` : ""}[${path.length > 0 ? path.join(".") : "ROOT"}] ${message}`,
+        )
+        .join("\n".repeat(opts?.newLines ?? 1)),
+    ),
+  );
+
+// ---------------
+// Equality/Hash Utilities
+// ---------------
+
+export const noHashKey = Symbol("noHashKey");
+/**
+ * A schema for adding equality and hash functions to a resulting record.
+ *
+ * @category schema
+ */
+export const WithEquality =
+  <A extends Record<string, unknown>, I, R>({
+    equalityFn,
+    hashKey,
+  }:
+    | {
+        hashKey: keyof A;
+        equalityFn?: (a: A, b: A) => boolean;
+      }
+    | {
+        hashKey: typeof noHashKey;
+        equalityFn: (a: A, b: A) => boolean;
+      }) =>
+  (schema: S.Schema<A, I, R>): S.Schema<A, I, R> =>
+    S.transform(schema, S.Any, {
+      decode: (value: A) => {
+        const extensions: Partial<Record<symbol, unknown>> = {
+          [Hash.symbol](this: A): number {
+            if (hashKey === noHashKey) {
+              return 0;
+            }
+            return Hash.cached(this, Hash.hash(this[hashKey]));
+          },
+          [Eq.symbol](that: unknown): boolean {
+            if (!S.is(schema)(that)) {
+              return false;
+            }
+
+            if (equalityFn !== undefined) {
+              return equalityFn(this as unknown as A, that);
+            }
+
+            return Hash.hash(this) === Hash.hash(that);
+          },
+        };
+
+        if (equalityFn !== undefined) {
+          extensions[Eq.symbol] = function (that: unknown): boolean {
+            return (
+              Eq.isEqual(that) &&
+              S.is(schema)(that) &&
+              equalityFn(this as unknown as A, that)
+            );
+          };
+        }
+
+        return Object.assign(value, extensions);
+      },
+      encode: F.identity,
+      strict: true,
+    });
+
+// ---------------
+// Transformations
+// ---------------
+
+/**
+ * Creates a schema that derives and attaches a property to the original schema.
+ *
+ * @category transformation
+ */
+export const deriveAndAttachProperty =
+  <
+    const Key extends string,
+    FromA extends Record<string, unknown>,
+    FromI,
+    FromR,
+    ToA,
+    ToI,
+    ToR,
+    DecodeR = never,
+  >(args: {
+    key: Key;
+    typeSchema: S.Schema<ToA, ToI, ToR>;
+    decode: (input: FromA) => Effect.Effect<ToA, never, DecodeR>;
+  }) =>
+  (
+    self: S.Schema<FromA, FromI, FromR>,
+  ): S.Schema<
+    FromA & { readonly [K in Key]: ToA },
+    FromI,
+    FromR | ToR | DecodeR
+  > => {
+    const derivedSchema = S.typeSchema(
+      S.Struct({
+        [args.key]: args.typeSchema,
+      } as const),
+    );
+
+    const extendedSchema = S.extend(S.typeSchema(self), derivedSchema);
+
+    return S.transformOrFail(self, S.typeSchema(extendedSchema), {
+      decode: (input) =>
+        Effect.gen(function* () {
+          const result = args.decode(input);
+
+          if (Effect.isEffect(result)) {
+            return yield* result.pipe(
+              Effect.map((value) => ({
+                ...input,
+                [args.key]: value,
+              })),
+            );
+          }
+
+          return {
+            ...input,
+            [args.key]: result,
+          };
+        }),
+      encode: (struct) => ParseResult.succeed(_Struct.omit(args.key)(struct)),
+      strict: false,
+    });
+  };
+
+/**
+ * Lifts a `Schema` to a `PropertySignature` and enhances it by specifying a different key for it in the Encoded type.
+ *
+ * @category schema
+ */
+export const fromKey: <const K extends string>(
+  key: K,
+) => <A, I, R>(
+  self: S.Schema<A, I, R>,
+) => S.PropertySignature<":", A, K, ":", I, false, R> =
+  <const K extends string>(key: K) =>
+  <A, I, R>(self: S.Schema<A, I, R>) =>
+    self.pipe(S.propertySignature, S.fromKey(key));
+
+/**
+ * Reverses a schema, i.e., swaps the encoded and decoded types.
+ *
+ * @category schema
+ */
+export const reverseSchema = <A, I, R>(
+  schema: S.Schema<A, I, R>,
+): S.Schema<I, A, R> =>
+  S.transformOrFail(S.typeSchema(schema), S.encodedSchema(schema), {
+    decode: ParseResult.encode(schema),
+    encode: ParseResult.decode(schema),
+  });

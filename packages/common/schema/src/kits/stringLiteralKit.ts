@@ -1,6 +1,7 @@
 import { invariant } from "@beep/invariant";
+import type { DefaultAnnotations } from "@beep/schema/annotations";
 import type { SnakeTag } from "@beep/types/tag.types";
-// import type { SimpleAnnotations } from "@beep/shared/types";
+import { enumFromStringArray } from "@beep/utils/transformations";
 import { pgEnum } from "drizzle-orm/pg-core";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
@@ -9,20 +10,6 @@ import * as FC from "effect/FastCheck";
 import * as JSONSchema from "effect/JSONSchema";
 import * as Pretty from "effect/Pretty";
 import * as S from "effect/Schema";
-import * as AST from "effect/SchemaAST";
-import { enumFromStringArray } from "../transformations/enumFromStringArray";
-// import type {SnakeTag} from "@beep/shared/schema";
-// Type to validate that all literals have a mapping and all mapped values are unique
-
-export type SimpleAnnotations = {
-  readonly identifier: string;
-  readonly title: string;
-  readonly description: string;
-  readonly documentation?: AST.DocumentationAnnotation;
-  readonly examples?: AST.ExamplesAnnotation<any>;
-  readonly jsonSchema?: AST.JSONSchemaAnnotation;
-  readonly default?: any;
-};
 
 type ValidateEnumMapping<
   Literals extends readonly string[],
@@ -114,7 +101,7 @@ export function stringLiteralKit<
   const Literals extends A.NonEmptyReadonlyArray<string>,
 >(
   ...literals: Literals
-): (annotations: SimpleAnnotations) => {
+): (annotations: DefaultAnnotations<Literals[number]>) => {
   Schema: S.Literal<[...Literals]>;
   Options: Literals;
   Enum: CreateEnumType<Literals, undefined>;
@@ -130,7 +117,7 @@ export function stringLiteralKit<
   ) => A.NonEmptyReadonlyArray<Exclude<Literals[number], Keys[number]>>;
   derive: <Keys extends A.NonEmptyReadonlyArray<Literals[number]>>(
     ...keys: Keys
-  ) => (annotations: SimpleAnnotations) => {
+  ) => (annotations: DefaultAnnotations<Keys[number]>) => {
     Schema: S.Literal<[...Keys]>;
     Options: Keys;
     Enum: CreateEnumType<Keys, undefined>;
@@ -149,7 +136,7 @@ export function stringLiteralKit<
     ...literals: Literals,
     options: { enumMapping: ValidMapping<Literals, Mapping> },
   ]
-): (annotations: SimpleAnnotations) => {
+): (annotations: DefaultAnnotations<Literals[number]>) => {
   Schema: S.Literal<[...Literals]>;
   Options: Literals;
   Enum: CreateEnumType<Literals, Mapping>;
@@ -165,7 +152,7 @@ export function stringLiteralKit<
   ) => A.NonEmptyReadonlyArray<Exclude<Literals[number], Keys[number]>>;
   derive: <Keys extends A.NonEmptyReadonlyArray<Literals[number]>>(
     ...keys: Keys
-  ) => (annotations: SimpleAnnotations) => {
+  ) => (annotations: DefaultAnnotations<Keys[number]>) => {
     Schema: S.Literal<[...Keys]>;
     Options: Keys;
     Enum: CreateEnumType<Keys, undefined>;
@@ -181,7 +168,7 @@ export function stringLiteralKit<
   const Mapping extends readonly [Literals[number], string][],
 >(
   ...args: Literals | [...Literals, { enumMapping?: Mapping }]
-): (annotations: SimpleAnnotations) => {
+): (annotations: DefaultAnnotations<Literals[number]>) => {
   Schema: S.Literal<[...Literals]>;
   Options: Literals;
   Enum: CreateEnumType<Literals, Mapping | undefined>;
@@ -197,7 +184,7 @@ export function stringLiteralKit<
   ) => A.NonEmptyReadonlyArray<Exclude<Literals[number], Keys[number]>>;
   derive: <Keys extends A.NonEmptyReadonlyArray<Literals[number]>>(
     ...keys: Keys
-  ) => (annotations: SimpleAnnotations) => {
+  ) => (annotations: DefaultAnnotations<Keys[number]>) => {
     Schema: S.Literal<[...Keys]>;
     Options: Keys;
     Enum: CreateEnumType<Keys, undefined>;

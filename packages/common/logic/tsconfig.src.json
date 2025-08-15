@@ -1,7 +1,11 @@
 {
   "extends": "../../../tsconfig.base.json",
   "include": ["src"],
-  "references": [],
+  "references": [
+    {
+      "path": "../types"
+    }
+  ],
   "compilerOptions": {
     "types": ["node"],
     "outDir": "build/src",
@@ -13,7 +17,9 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-      "@beep/logic/*": ["./src/*"]
+      "@beep/logic/*": ["./src/*"],
+      "@beep/types": ["../types/src/index"],
+      "@beep/types/*": ["../types/src/*"]
     }
   }
 }

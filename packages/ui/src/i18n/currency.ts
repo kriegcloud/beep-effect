@@ -1,4 +1,4 @@
-import { stringLiteralKit } from "@beep/utils/factories";
+import { stringLiteralKit } from "@beep/schema/kits";
 import { recordKeys } from "@beep/utils/transformations";
 
 /**

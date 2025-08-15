@@ -71,3 +71,19 @@ export type ReadonlyNonEmptyRecordKeys<
 > = T extends NonEmptyRecordWithStringKeys<T>
   ? A.NonEmptyReadonlyArray<keyof T>
   : never;
+
+export type StructFieldsOrPropertySignatures =
+  | StructFieldsWithStringKeys
+  | S.PropertySignature.Any;
+
+export type NonEmptyStructFieldsOrPropertySignatures<
+  T extends StructFieldsOrPropertySignatures,
+> = keyof T extends string
+  ? keyof T extends NonEmptyString<keyof T>
+    ? T extends NonNullable<unknown>
+      ? NonNullable<unknown> extends T
+        ? never
+        : T
+      : T
+    : never
+  : never;

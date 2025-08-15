@@ -5,7 +5,7 @@ import { listClasses } from "@mui/material/List";
 
 import Menu from "@mui/material/Menu";
 import type { Level } from "@tiptap/extension-heading";
-import { useState } from "react";
+import React, { useState } from "react";
 import type { EditorToolbarProps } from "../types";
 import { ToolbarItem } from "./toolbar-item";
 
@@ -73,7 +73,7 @@ export function HeadingBlock({ editor }: Pick<EditorToolbarProps, "editor">) {
       </ButtonBase>
 
       <Menu
-        id="heading-menu"
+        id={React.useId()}
         anchorEl={anchorEl}
         open={!!anchorEl}
         onClose={handleClose}

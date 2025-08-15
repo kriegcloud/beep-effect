@@ -4,6 +4,9 @@
   "references": [
     {
       "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../types"
     }
   ],
   "compilerOptions": {
@@ -14,6 +17,8 @@
   },
   "paths": {
     "@beep/logic": ["./src/index"],
-    "@beep/logic/*": ["./src/*"]
+    "@beep/logic/*": ["./src/*"],
+    "@beep/types": ["../types/src/index"],
+    "@beep/types/*": ["../types/src/*"]
   }
 }

@@ -2,6 +2,9 @@ packages:
   - packages/**
   - tooling/*
   - apps/*
+  - '!**/build/**'
+  - '!**/dist/**'
+  - '!**/out/**'
 
 onlyBuiltDependencies:
   - '@parcel/watcher'

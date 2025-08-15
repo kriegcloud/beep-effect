@@ -35,8 +35,12 @@
     "effect": "^3.17.7",
     "@beep/types": "workspace:^",
     "@beep/invariant": "workspace:^",
+    "@beep/utils": "workspace:^",
     "@faker-js/faker": "^9.9.0",
-    "@standard-schema/spec": "^1.0.0"
+    "@standard-schema/spec": "^1.0.0",
+    "@effect/sql": "^0.44.1",
+    "drizzle-orm": "^0.44.4",
+    "@effect/experimental": "^0.54.6"
   },
   "effect": {
     "generateExports": {

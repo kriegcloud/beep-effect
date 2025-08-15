@@ -46,7 +46,9 @@
       "@beep/types": ["../../packages/common/types/src/index"],
       "@beep/types/*": ["../../packages/common/types/src/*"],
       "@beep/invariant": ["../../packages/common/invariant/src/index"],
-      "@beep/invariant/*": ["../../packages/common/invariant/src/*"]
+      "@beep/invariant/*": ["../../packages/common/invariant/src/*"],
+      "@beep/schema": ["../../packages/common/schema/src/index"],
+      "@beep/schema/*": ["../../packages/common/schema/src/*"]
     },
     "plugins": [
       {
@@ -69,6 +71,9 @@
     },
     {
       "path": "../../packages/common/invariant/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/schema/tsconfig.build.json"
     }
   ],
   "include": [

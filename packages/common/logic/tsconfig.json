@@ -3,7 +3,9 @@
   "include": [],
   "compilerOptions": {
     "paths": {
-      "@beep/logic/*": ["./src/*"]
+      "@beep/logic/*": ["./src/*"],
+      "@beep/types": ["../types/src/index"],
+      "@beep/types/*": ["../types/src/*"]
     }
   },
   "references": [

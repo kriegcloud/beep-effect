@@ -1,7 +1,21 @@
-import { sid } from "@beep/schema/id";
 import { faker } from "@faker-js/faker";
+import * as B from "effect/Brand";
+import * as F from "effect/Function";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+
+export const UnsafePhone = S.NonEmptyTrimmedString.pipe(
+  S.pattern(/^\+\d-\d{3}-\d{3}-\d{4}$/),
+  S.brand("Phone"),
+).annotations({
+  identifier: "Phone",
+  title: "Phone",
+  description: "A valid phone number",
+  arbitrary: () => (fc) =>
+    fc
+      .constant(null)
+      .map(() => faker.phone.number() as B.Branded<string, "Phone">),
+});
 
 /**
  * Phone number schema and helpers.
@@ -30,22 +44,14 @@ import * as S from "effect/Schema";
  * @since 0.1.0
  * @category Phone
  */
-export namespace Phone {
-  export const Base = S.NonEmptyTrimmedString.pipe(
-    S.pattern(/^\+\d-\d{3}-\d{3}-\d{4}$/),
-    S.brand("Phone"),
+export class Phone extends S.Redacted(UnsafePhone) {
+  static readonly make = F.flow(
+    (i: string) => UnsafePhone.make(i),
+    Redacted.make,
   );
+}
 
-  export const Schema = S.Redacted(Base).annotations({
-    identifier: sid.common.schema("Phone.Schema"),
-    title: "Phone",
-    description: "A valid phone number",
-    arbitrary: () => (fc) =>
-      fc
-        .constant(null)
-        .map(() => Redacted.make(Base.make(faker.phone.number()))),
-  });
-
-  export type Type = typeof Schema.Type;
-  export const make = (input: string) => Redacted.make(Base.make(input));
+export namespace Phone {
+  export type Type = typeof Phone.Type;
+  export type Encoded = typeof Phone.Encoded;
 }
