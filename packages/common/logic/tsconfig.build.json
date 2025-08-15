@@ -13,6 +13,15 @@
   "references": [
     {
       "path": "../types/tsconfig.build.json"
+    },
+    {
+      "path": "../schema/tsconfig.build.json"
+    },
+    {
+      "path": "../utils/tsconfig.build.json"
+    },
+    {
+      "path": "../invariant/tsconfig.build.json"
     }
   ]
 }

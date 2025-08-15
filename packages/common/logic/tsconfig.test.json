@@ -1,24 +1,63 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "include": ["test"],
+  "include": [
+    "test"
+  ],
   "references": [
     {
       "path": "tsconfig.src.json"
     },
     {
       "path": "../types"
+    },
+    {
+      "path": "../invariant"
+    },
+    {
+      "path": "../utils"
+    },
+    {
+      "path": "../schema"
     }
   ],
   "compilerOptions": {
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true
   },
   "paths": {
-    "@beep/logic": ["./src/index"],
-    "@beep/logic/*": ["./src/*"],
-    "@beep/types": ["../types/src/index"],
-    "@beep/types/*": ["../types/src/*"]
+    "@beep/logic": [
+      "./src/index"
+    ],
+    "@beep/logic/*": [
+      "./src/*"
+    ],
+    "@beep/types": [
+      "../types/src/index"
+    ],
+    "@beep/types/*": [
+      "../types/src/*"
+    ],
+    "@beep/invariant": [
+      "../invariant/src/index"
+    ],
+    "@beep/invariant/*": [
+      "../invariant/src/*"
+    ],
+    "@beep/utils": [
+      "../utils/src/index"
+    ],
+    "@beep/utils/*": [
+      "../utils/src/*"
+    ],
+    "@beep/schema": [
+      "../schema/src/index"
+    ],
+    "@beep/schema/*": [
+      "../schema/src/*"
+    ]
   }
 }

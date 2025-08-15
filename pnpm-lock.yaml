@@ -171,19 +171,22 @@ importers:
 
   packages/common/logic:
     dependencies:
-      '@beep/types':
+      '@beep/invariant':
         specifier: workspace:^
-        version: link:../types/build
-      '@faker-js/faker':
-        specifier: ^9.9.0
-        version: 9.9.0
-      '@standard-schema/spec':
-        specifier: ^1.0.0
-        version: 1.0.0
+        version: link:../invariant/build
+      '@beep/schema':
+        specifier: workspace:^
+        version: link:../schema/build
+      '@beep/utils':
+        specifier: workspace:^
+        version: link:../utils/build
       effect:
         specifier: ^3.17.7
         version: 3.17.7
     devDependencies:
+      '@beep/types':
+        specifier: workspace:^
+        version: link:../types/build
       tsx:
         specifier: ^4.20.4
         version: 4.20.4
