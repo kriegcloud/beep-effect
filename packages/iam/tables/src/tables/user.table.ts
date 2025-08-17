@@ -1,6 +1,7 @@
 import { Common } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
+import { boolean, text } from "drizzle-orm/pg-core";
 
 export const user = pg.pgTable(
   "user",
@@ -13,6 +14,10 @@ export const user = pg.pgTable(
       .$defaultFn(() => false)
       .notNull(),
     image: pg.text("image"),
+    phoneNumber: text("phone_number").unique(),
+    phoneNumberVerified: boolean("phone_number_verified"),
+    username: text("username").unique(),
+    displayUsername: text("display_username"),
     twoFactorEnabled: pg.boolean("two_factor_enabled"),
     isAnonymous: pg.boolean("is_anonymous"),
     role: pg.text("role"),

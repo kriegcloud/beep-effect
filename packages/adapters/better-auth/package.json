@@ -19,7 +19,7 @@
     "directory": "packages/adapters/better-auth"
   },
   "scripts": {
-    "auth:generate": "pnpm dotenvx pnpx @better-auth/cli@latest generate --config 'src/server.ts' --output './src/generated.schema.ts' --y && pnpm lint:fix",
+    "auth:generate": "pnpm dotenvx pnpx @better-auth/cli@latest generate --config 'src/server.ts' --output './src/internal/_generated.schema.ts' --y && pnpm lint:fix",
     "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",
     "dev": "tsc -b tsconfig.build.json --watch",
     "build-esm": "tsc -b tsconfig.build.json",
@@ -34,6 +34,10 @@
     "dotenvx": "dotenvx run -f ../../../.env --"
   },
   "peerDependencies": {
+    "@beep/iam-domain": "workspace:^",
+    "@beep/iam-tables": "workspace:^",
+    "@beep/iam-db": "workspace:^",
+    "@beep/env": "workspace:^",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "dub": "^0.65.1",

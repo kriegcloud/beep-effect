@@ -15,6 +15,7 @@ import {
   teamMember,
   twoFactor,
   user,
+  walletAddress,
 } from "./tables";
 
 export const memberRelations = d.relations(member, ({ one }) => ({
@@ -169,7 +170,7 @@ export const userRelations = d.relations(user, ({ many }) => ({
   invitationsSent: many(member, {
     relationName: "invitedByUser",
   }),
-
+  wallets: many(walletAddress),
   // Authentication-related relationships
   accounts: many(account),
   sessions: many(session),
@@ -195,3 +196,10 @@ export const organizationRelations = d.relations(
     subscriptions: many(subscription),
   }),
 );
+
+export const walletAddressRelations = d.relations(walletAddress, ({ one }) => ({
+  user: one(user, {
+    fields: [walletAddress.userId],
+    references: [user.id],
+  }),
+}));

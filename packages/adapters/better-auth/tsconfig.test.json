@@ -4,6 +4,18 @@
   "references": [
     {
       "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../iam/domain"
+    },
+    {
+      "path": "../../iam/tables"
+    },
+    {
+      "path": "../../iam/db"
+    },
+    {
+      "path": "../../env"
     }
   ],
   "compilerOptions": {
@@ -14,6 +26,14 @@
   },
   "paths": {
     "@beep/better-auth": ["./src/index"],
-    "@beep/better-auth/*": ["./src/*"]
+    "@beep/better-auth/*": ["./src/*"],
+    "@beep/iam-domain": ["../../iam/domain/src/index"],
+    "@beep/iam-domain/*": ["../../iam/domain/src/*"],
+    "@beep/iam-tables": ["../../iam/tables/src/index"],
+    "@beep/iam-tables/*": ["../../iam/tables/src/*"],
+    "@beep/iam-db": ["../../iam/db/src/index"],
+    "@beep/iam-db/*": ["../../iam/db/src/*"],
+    "@beep/env/client": ["../../env/src/client"],
+    "@beep/env/server": ["../../env/src/server"]
   }
 }
