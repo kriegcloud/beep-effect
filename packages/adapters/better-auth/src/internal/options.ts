@@ -1,7 +1,225 @@
+import { stripe } from "@better-auth/stripe";
 import type { BetterAuthOptions } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { nextCookies } from "better-auth/next-js";
+import {
+  admin,
+  anonymous,
+  apiKey,
+  bearer,
+  captcha,
+  customSession,
+  emailOTP,
+  genericOAuth,
+  haveIBeenPwned,
+  jwt,
+  magicLink,
+  mcp,
+  multiSession,
+  oAuthProxy,
+  oidcProvider,
+  oneTap,
+  oneTimeToken,
+  openAPI,
+  organization,
+  phoneNumber,
+  siwe,
+  twoFactor,
+  username,
+} from "better-auth/plugins";
+import { passkey } from "better-auth/plugins/passkey";
+import { sso } from "better-auth/plugins/sso";
+import { NodePgDatabase } from "drizzle-orm/node-postgres";
+import { Stripe } from "stripe";
 
-export const makeOptions = (opts: Omit<BetterAuthOptions, "plugins">) =>
+export const makeOptions = (opts: BetterAuthOptions) =>
   ({
+    /**
+     * Database configuration
+     */
+    database: drizzleAdapter(NodePgDatabase, {
+      provider: "pg",
+      schema: {},
+    }),
+    plugins: [
+      emailOTP({
+        sendVerificationOTP: async (params) => {},
+      }),
+      magicLink({
+        sendMagicLink: async (params) => {},
+      }),
+      phoneNumber({
+        sendOTP: async (params) => {},
+      }),
+      username(),
+      siwe({
+        domain: "http://localhost:3000",
+        getNonce: async () => "Replace Me",
+        verifyMessage: async () => true,
+      }),
+      captcha({
+        provider: "google-recaptcha",
+        secretKey: "REPLACE_ME",
+      }),
+      organization({
+        teams: {
+          enabled: true,
+          maximumTeams: 10,
+          allowRemovingAllTeams: false,
+        },
+        sendInvitationEmail: async (params) => {},
+        // F.pipe(
+        //   S.decodeUnknown(Contract.SendInvitationPayload, {exact: false})(
+        //     params,
+        //   ),
+        //   Effect.flatMap(emailService.sendInvitationEmail),
+        //   Effect.runPromise,
+        // ),
+        // Multi-tenant schema enhancements
+        schema: {
+          organization: {
+            additionalFields: {
+              type: {
+                type: "string",
+                required: true,
+              },
+              ownerUserId: {
+                type: "string",
+                required: false,
+              },
+              isPersonal: {
+                type: "boolean",
+                required: true,
+              },
+              maxMembers: {
+                type: "number",
+                required: false,
+              },
+              features: {
+                type: "string", // JSON string
+                required: false,
+              },
+              settings: {
+                type: "string", // JSON string
+                required: false,
+              },
+              subscriptionTier: {
+                type: "string",
+                required: false,
+              },
+              subscriptionStatus: {
+                type: "string",
+                required: false,
+              },
+            },
+          },
+          member: {
+            additionalFields: {
+              status: {
+                type: "string",
+                required: true,
+              },
+              invitedBy: {
+                type: "string",
+                required: false,
+              },
+              invitedAt: {
+                type: "date",
+                required: false,
+              },
+              joinedAt: {
+                type: "date",
+                required: false,
+              },
+              lastActiveAt: {
+                type: "date",
+                required: false,
+              },
+              permissions: {
+                type: "string", // JSON string
+                required: false,
+              },
+            },
+          },
+        },
+        // Organization creation hooks
+        organizationCreation: {
+          beforeCreate: async ({ organization, user }) => {
+            return {
+              data: {
+                ...organization,
+                type: "team", // User-created orgs are team type
+                ownerUserId: user.id,
+                isPersonal: false, // User-created orgs are not personal
+                subscriptionTier: "free", // Default subscription
+                subscriptionStatus: "active",
+                source: "user_created",
+              },
+            };
+          },
+          afterCreate: async ({ organization, member, user }) => {
+            // Set proper member tracking fields for the organization creator
+            // await db
+            //   .update(DbTypes.schema.member)
+            //   .set({
+            //     status: "active",
+            //     joinedAt: new Date(),
+            //     lastActiveAt: new Date(),
+            //   })
+            //   .where(d.eq(DbTypes.schema.member.id, member.id));
+            //
+            // console.log(
+            //   `Team organization ${organization.name} created for user ${user.id}`,
+            // );
+          },
+        },
+      }),
+      twoFactor(),
+      passkey(),
+      openAPI(),
+      mcp({
+        loginPage: "/sign-in", // path to your login page
+      }),
+      apiKey(),
+      bearer(),
+      haveIBeenPwned(),
+      oneTimeToken(),
+      sso(),
+      nextCookies(),
+      jwt(),
+      anonymous(),
+      genericOAuth({
+        config: [],
+      }),
+      admin({
+        adminUserIds: [],
+      }),
+      multiSession(),
+      oneTap(),
+      oAuthProxy(),
+      oidcProvider({
+        loginPage: "/sign-in",
+      }),
+      customSession(async (session) => {
+        console.log(`custom session`, JSON.stringify(session, null, 2));
+        return {
+          ...session,
+          user: {
+            ...session.user,
+            dd: "test",
+          },
+        };
+      }),
+      stripe({
+        stripeClient: new Stripe("replace-me"),
+        stripeWebhookSecret: "replace-me",
+        subscription: {
+          enabled: false,
+          allowReTrialsForDifferentPlans: true,
+          plans: [],
+        },
+      }),
+    ],
     /**
      * The name of the application
      *
@@ -53,10 +271,7 @@ export const makeOptions = (opts: Omit<BetterAuthOptions, "plugins">) =>
      * ```
      */
     secret: opts.secret,
-    /**
-     * Database configuration
-     */
-    database: opts.database,
+
     /**
      * Secondary storage configuration
      *
@@ -317,7 +532,7 @@ export const makeOptions = (opts: Omit<BetterAuthOptions, "plugins">) =>
         /**
          * Enable cross subdomain cookies
          */
-        enabled: opts.advanced?.crossSubDomainCookies?.enabled ?? true,
+        enabled: opts.advanced?.crossSubDomainCookies?.enabled ?? false,
         /**
          * Additional cookies to be shared across subdomains
          */
@@ -437,3 +652,5 @@ export const makeOptions = (opts: Omit<BetterAuthOptions, "plugins">) =>
       disableNotice: opts.telemetry?.disableNotice,
     },
   }) satisfies BetterAuthOptions;
+
+export type AuthOptions = ReturnType<typeof makeOptions>;
