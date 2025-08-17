@@ -1,7 +1,13 @@
-import type {BetterAuthPlugin} from "better-auth";
-import {multiSession} from "better-auth/plugins";
+import type { BetterAuthPlugin } from "better-auth";
+import { multiSession } from "better-auth/plugins";
 
-type Opts = NonNullable<Parameters<typeof multiSession>[0]>
+export type MultiSessionOptions = NonNullable<
+  Parameters<typeof multiSession>[0]
+>;
 
-export const makeMultiSessionPlugin = (opts: Opts) =>
-  multiSession(opts satisfies Opts) satisfies BetterAuthPlugin;
+/**
+ * TODO factor out
+ * @param opts
+ */
+export const makeMultiSessionPlugin = (opts: MultiSessionOptions) =>
+  multiSession(opts satisfies MultiSessionOptions) satisfies BetterAuthPlugin;

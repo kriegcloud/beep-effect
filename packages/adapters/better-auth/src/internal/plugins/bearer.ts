@@ -1,15 +1,20 @@
-import type {BetterAuthPlugin} from "better-auth";
-import {bearer} from "better-auth/plugins";
+import type { BetterAuthPlugin } from "better-auth";
+import { bearer } from "better-auth/plugins";
 
-type Opts = NonNullable<Parameters<typeof bearer>[0]>
+export type BearerOptions = NonNullable<Parameters<typeof bearer>[0]>;
 
-export const makeBearerPlugin = (opts: Opts) => bearer({
-  	/**
-	 * If true, only signed tokens
-	 * will be converted to session
-	 * cookies
-	 *
-	 * @default false
-	 */
-	requireSignature: opts.requireSignature ?? true
-} satisfies Opts) satisfies BetterAuthPlugin;
+/**
+ * TODO factor out
+ * @param opts
+ */
+export const makeBearerPlugin = (opts: BearerOptions) =>
+  bearer({
+    /**
+     * If true, only signed tokens
+     * will be converted to session
+     * cookies
+     *
+     * @default false
+     */
+    requireSignature: opts.requireSignature ?? true,
+  } satisfies BearerOptions) satisfies BetterAuthPlugin;

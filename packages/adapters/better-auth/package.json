@@ -19,6 +19,7 @@
     "directory": "packages/adapters/better-auth"
   },
   "scripts": {
+    "auth:generate": "pnpm dotenvx pnpx @better-auth/cli@latest generate --config 'src/server.ts' --output './src/generated.schema.ts' --y && pnpm lint:fix",
     "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",
     "dev": "tsc -b tsconfig.build.json --watch",
     "build-esm": "tsc -b tsconfig.build.json",
@@ -29,16 +30,25 @@
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "coverage": "vitest --coverage",
     "lint": "biome check .",
-    "lint:fix": "biome check . --write"
+    "lint:fix": "biome check . --write",
+    "dotenvx": "dotenvx run -f ../../../.env --"
   },
   "peerDependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
     "dub": "^0.65.1",
     "@dub/better-auth": "^0.0.3",
     "better-auth": "^1.3.6",
     "effect": "^3.17.7",
     "drizzle-orm": "^0.44.4",
     "@simplewebauthn/server": "^13.1.2",
-    "@better-auth/stripe": "^1.3.6"
+    "@better-auth/stripe": "^1.3.6",
+    "zod": "^4.0.17",
+    "stripe": "^18.4.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.5"
   },
   "effect": {
     "generateExports": {

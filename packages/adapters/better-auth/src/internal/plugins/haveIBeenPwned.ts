@@ -1,7 +1,15 @@
-import type {BetterAuthPlugin} from "better-auth";
-import {haveIBeenPwned} from "better-auth/plugins";
+import type { BetterAuthPlugin } from "better-auth";
+import { haveIBeenPwned } from "better-auth/plugins";
 
-type Opts = NonNullable<Parameters<typeof haveIBeenPwned>[0]>
+export type HaveIBeenPwnedOptions = NonNullable<
+  Parameters<typeof haveIBeenPwned>[0]
+>;
 
-export const makeHaveIBeenPwnedPlugin = (opts: Opts) =>
-  haveIBeenPwned(opts satisfies Opts) satisfies BetterAuthPlugin;
+/**
+ * TODO factor out
+ * @param opts
+ */
+export const makeHaveIBeenPwnedPlugin = (opts: HaveIBeenPwnedOptions) =>
+  haveIBeenPwned(
+    opts satisfies HaveIBeenPwnedOptions,
+  ) satisfies BetterAuthPlugin;

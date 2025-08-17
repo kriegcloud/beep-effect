@@ -1,7 +1,11 @@
-import type {BetterAuthPlugin} from "better-auth";
-import {twoFactor} from "better-auth/plugins";
+import type { BetterAuthPlugin } from "better-auth";
+import { twoFactor } from "better-auth/plugins";
 
-type Opts = NonNullable<Parameters<typeof twoFactor>[0]>
+export type TwoFactorOptions = NonNullable<Parameters<typeof twoFactor>[0]>;
 
-export const makeTwoFactorPlugin = (opts: Opts) =>
-  twoFactor(opts satisfies Opts) satisfies BetterAuthPlugin;
+/**
+ * TODO factor out
+ * @param opts
+ */
+export const makeTwoFactorPlugin = (opts: TwoFactorOptions) =>
+  twoFactor(opts satisfies TwoFactorOptions) satisfies BetterAuthPlugin;

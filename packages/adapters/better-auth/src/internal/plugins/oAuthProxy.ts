@@ -1,7 +1,11 @@
-import type {BetterAuthPlugin} from "better-auth";
-import {oAuthProxy} from "better-auth/plugins";
+import type { BetterAuthPlugin } from "better-auth";
+import { oAuthProxy } from "better-auth/plugins";
 
-type Opts = NonNullable<Parameters<typeof oAuthProxy>[0]>
+export type OAuthProxyOptions = NonNullable<Parameters<typeof oAuthProxy>[0]>;
 
-export const makeOAuthProxyPlugin = (opts: Opts) =>
-  oAuthProxy(opts satisfies Opts) satisfies BetterAuthPlugin;
+/**
+ * TODO factor out
+ * @param opts
+ */
+export const makeOAuthProxyPlugin = (opts: OAuthProxyOptions) =>
+  oAuthProxy(opts satisfies OAuthProxyOptions) satisfies BetterAuthPlugin;

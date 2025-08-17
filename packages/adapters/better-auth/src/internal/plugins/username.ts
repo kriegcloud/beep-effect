@@ -1,7 +1,11 @@
-import type {BetterAuthPlugin} from "better-auth";
+import type { BetterAuthPlugin } from "better-auth";
 import { username } from "better-auth/plugins";
 
-type Opts = NonNullable<Parameters<typeof username>[0]>
+export type UsernameOptions = NonNullable<Parameters<typeof username>[0]>;
 
-export const makeUsernamePlugin = (opts: Opts) =>
-  username(opts satisfies Opts) satisfies BetterAuthPlugin;
+/**
+ * TODO factor out
+ * @param opts
+ */
+export const makeUsernamePlugin = (opts: UsernameOptions) =>
+  username(opts satisfies UsernameOptions) satisfies BetterAuthPlugin;

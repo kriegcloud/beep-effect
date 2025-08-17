@@ -1,7 +1,11 @@
-import type {BetterAuthPlugin} from "better-auth";
-import {openAPI} from "better-auth/plugins";
+import type { BetterAuthPlugin } from "better-auth";
+import { openAPI } from "better-auth/plugins";
 
-type Opts = NonNullable<Parameters<typeof openAPI>[0]>
+export type OpenApiOptions = NonNullable<Parameters<typeof openAPI>[0]>;
 
-export const makeOpenApiPlugin = (opts: Opts) =>
-  openAPI(opts satisfies Opts) satisfies BetterAuthPlugin;
+/**
+ * TODO factor out
+ * @param opts
+ */
+export const makeOpenApiPlugin = (opts: OpenApiOptions) =>
+  openAPI(opts satisfies OpenApiOptions) satisfies BetterAuthPlugin;

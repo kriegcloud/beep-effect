@@ -1,5 +1,5 @@
-import type {BetterAuthPlugin} from "better-auth";
+import type { BetterAuthPlugin } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 
-export const makeMultiSessionPlugin = () =>
+export const makeNextCookiesPlugin = () =>
   nextCookies() satisfies BetterAuthPlugin;

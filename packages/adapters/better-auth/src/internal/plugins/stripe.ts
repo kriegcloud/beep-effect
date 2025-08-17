@@ -1,8 +1,11 @@
 import { stripe } from "@better-auth/stripe";
-import type {BetterAuthPlugin} from "better-auth";
+import type { BetterAuthPlugin } from "better-auth";
 
-type Opts = NonNullable<Parameters<typeof stripe>[0]>
+export type StripeOptions = NonNullable<Parameters<typeof stripe>[0]>;
 
-export const makeStripePlugin = (opts: Opts) => stripe(
-  opts satisfies Opts
-) satisfies BetterAuthPlugin;
+/**
+ * TODO factor out
+ * @param opts
+ */
+export const makeStripePlugin = (opts: StripeOptions) =>
+  stripe(opts satisfies StripeOptions) satisfies BetterAuthPlugin;

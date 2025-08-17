@@ -1,7 +1,11 @@
-import type {BetterAuthPlugin} from "better-auth";
+import type { BetterAuthPlugin } from "better-auth";
 import { emailOTP } from "better-auth/plugins";
 
-type Opts = NonNullable<Parameters<typeof emailOTP>[0]>
+export type EmailOtpOptions = NonNullable<Parameters<typeof emailOTP>[0]>;
 
-export const makeEmailOtpPlugin = (opts: Opts) =>
-  emailOTP(opts satisfies Opts) satisfies BetterAuthPlugin;
+/**
+ * TODO factor out
+ * @param opts
+ */
+export const makeEmailOtpPlugin = (opts: EmailOtpOptions) =>
+  emailOTP(opts satisfies EmailOtpOptions) satisfies BetterAuthPlugin;

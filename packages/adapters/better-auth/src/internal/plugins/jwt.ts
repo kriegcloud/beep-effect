@@ -1,7 +1,11 @@
-import type {BetterAuthPlugin} from "better-auth";
-import {jwt} from "better-auth/plugins";
+import type { BetterAuthPlugin } from "better-auth";
+import { jwt } from "better-auth/plugins";
 
-type Opts = NonNullable<Parameters<typeof jwt>[0]>
+export type JwtOptions = NonNullable<Parameters<typeof jwt>[0]>;
 
-export const makeJwtPlugin = (opts: Opts) =>
-  jwt(opts satisfies Opts) satisfies BetterAuthPlugin;
+/**
+ * TODO factor out
+ * @param opts
+ */
+export const makeJwtPlugin = (opts: JwtOptions) =>
+  jwt(opts satisfies JwtOptions) satisfies BetterAuthPlugin;

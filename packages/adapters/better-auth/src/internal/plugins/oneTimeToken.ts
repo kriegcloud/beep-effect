@@ -1,7 +1,13 @@
-import type {BetterAuthPlugin} from "better-auth";
-import {oneTimeToken} from "better-auth/plugins";
+import type { BetterAuthPlugin } from "better-auth";
+import { oneTimeToken } from "better-auth/plugins";
 
-type Opts = NonNullable<Parameters<typeof oneTimeToken>[0]>
+export type OneTimeTokenOptions = NonNullable<
+  Parameters<typeof oneTimeToken>[0]
+>;
 
-export const makeOneTimeTokenPlugin = (opts: Opts) =>
-  oneTimeToken(opts satisfies Opts) satisfies BetterAuthPlugin;
+/**
+ * TODO factor out
+ * @param opts
+ */
+export const makeOneTimeTokenPlugin = (opts: OneTimeTokenOptions) =>
+  oneTimeToken(opts satisfies OneTimeTokenOptions) satisfies BetterAuthPlugin;

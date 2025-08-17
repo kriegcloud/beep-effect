@@ -1,7 +1,13 @@
-import type {BetterAuthPlugin} from "better-auth";
-import {oidcProvider} from "better-auth/plugins";
+import type { BetterAuthPlugin } from "better-auth";
+import { oidcProvider } from "better-auth/plugins";
 
-type Opts = NonNullable<Parameters<typeof oidcProvider>[0]>
+export type OidcProviderOptions = NonNullable<
+  Parameters<typeof oidcProvider>[0]
+>;
 
-export const makeOidcProviderPlugin = (opts: Opts) =>
-  oidcProvider(opts satisfies Opts) satisfies BetterAuthPlugin;
+/**
+ * TODO factor out
+ * @param opts
+ */
+export const makeOidcProviderPlugin = (opts: OidcProviderOptions) =>
+  oidcProvider(opts satisfies OidcProviderOptions) satisfies BetterAuthPlugin;
