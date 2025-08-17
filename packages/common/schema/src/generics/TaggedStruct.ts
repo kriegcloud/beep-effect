@@ -3,7 +3,10 @@ import * as AST from "effect/SchemaAST";
 import { DefaultAnnotations } from "../annotations";
 
 namespace TaggedStruct {
-  export type Return<Tag extends AST.LiteralValue, Fields extends S.Struct.Fields> =  S.Struct<
+  export type Return<
+    Tag extends AST.LiteralValue,
+    Fields extends S.Struct.Fields,
+  > = S.Struct<
     {
       _tag: S.PropertySignature<
         ":",
@@ -17,7 +20,10 @@ namespace TaggedStruct {
     } & Fields
   >;
 
-  export type A<Tag extends AST.LiteralValue, Fields extends S.Struct.Fields> = S.Schema.Type<Return<Tag, Fields>>
+  export type A<
+    Tag extends AST.LiteralValue,
+    Fields extends S.Struct.Fields,
+  > = S.Schema.Type<Return<Tag, Fields>>;
 }
 
 /**
@@ -35,7 +41,9 @@ export const TaggedStruct =
     tag: Tag,
     fields: Fields,
   ) =>
-  (annotations: DefaultAnnotations<TaggedStruct.A<Tag, Fields>>): TaggedStruct.Return<Tag, Fields> =>
+  (
+    annotations: DefaultAnnotations<TaggedStruct.A<Tag, Fields>>,
+  ): TaggedStruct.Return<Tag, Fields> =>
     S.Struct({
       _tag: S.Literal(tag).pipe(
         S.optional,

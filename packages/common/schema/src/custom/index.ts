@@ -9,4 +9,5 @@ export * from "./IP.schema";
 export * from "./Json.schema";
 export * from "./Phone.schema";
 export * from "./Slug.schema";
+export * from "./URLPath.schema";
 export * from "./Url.schema";

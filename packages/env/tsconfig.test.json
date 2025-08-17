@@ -4,6 +4,9 @@
   "references": [
     {
       "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../common/schema"
     }
   ],
   "compilerOptions": {
@@ -14,6 +17,8 @@
   },
   "paths": {
     "@beep/env": ["./src/index"],
-    "@beep/env/*": ["./src/*"]
+    "@beep/env/*": ["./src/*"],
+    "@beep/schema": ["../common/schema/src/index"],
+    "@beep/schema/*": ["../common/schema/src/*"]
   }
 }

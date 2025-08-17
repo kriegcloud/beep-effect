@@ -9,7 +9,8 @@
     "directory": "build"
   },
   "exports": {
-    ".": "./src/index.ts",
+    "./server": "./src/server.ts",
+    "./client": "./src/client.ts",
     "./package.json": "./package.json",
     "./*": "./src/*.ts"
   },
@@ -31,13 +32,9 @@
     "lint": "biome check .",
     "lint:fix": "biome check . --write"
   },
-  "dependencies": {
-    "@faker-js/faker": "^9.9.0",
-    "@standard-schema/spec": "^1.0.0",
-    "effect": "^3.17.7"
-  },
-  "devDependencies": {
-    "tsx": "^4.20.4"
+  "peerDependencies": {
+    "effect": "^3.17.7",
+    "@beep/schema": "workspace:^"
   },
   "effect": {
     "generateExports": {
