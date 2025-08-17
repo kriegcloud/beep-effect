@@ -154,12 +154,24 @@ importers:
 
   packages/adapters/better-auth:
     dependencies:
+      '@better-auth/stripe':
+        specifier: ^1.3.6
+        version: 1.3.6(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@4.0.17)
+      '@dub/better-auth':
+        specifier: ^0.0.3
+        version: 0.0.3
+      '@simplewebauthn/server':
+        specifier: ^13.1.2
+        version: 13.1.2
       better-auth:
         specifier: ^1.3.6
         version: 1.3.6(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@4.0.17)
       drizzle-orm:
         specifier: ^0.44.4
         version: 0.44.4(@types/pg@8.15.5)(kysely@0.28.5)(pg@8.16.3)
+      dub:
+        specifier: ^0.65.1
+        version: 0.65.1
       effect:
         specifier: ^3.17.7
         version: 3.17.7
@@ -1423,6 +1435,11 @@ packages:
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
 
+  '@better-auth/stripe@1.3.6':
+    resolution: {integrity: sha512-f4tsO5DLEOS1FhzpEE5QxtYjgxaAluy9ut9QsBp5uXx3dh38iFUOfrUuJTwxo2EdoqsEiRyIcFxH9ikMuzPrpQ==}
+    peerDependencies:
+      zod: ^3.25.0 || ^4.0.0
+
   '@better-auth/utils@0.2.6':
     resolution: {integrity: sha512-3y/vaL5Ox33dBwgJ6ub3OPkVqr6B5xL2kgxNHG8eHZuryLyG/4JSPGqjbdRSgjuy9kALUZYDFl+ORIAxlWMSuA==}
 
@@ -1492,6 +1509,9 @@ packages:
 
   '@drizzle-team/brocli@0.10.2':
     resolution: {integrity: sha512-z33Il7l5dKjUgGULTqBsQBQwckHh5AbIuxhdsIxDDiZAzBOrZO6q9ogcWC65kU382AfynTfgNumVcNIjuIua6w==}
+
+  '@dub/better-auth@0.0.3':
+    resolution: {integrity: sha512-5haJGPt8Xab1L4De6naqEwC8k2KJrxI2iAfs5t9u6iNob3DNBTsbSZGb2godIigg9ZsS2J+joKKG5hDK6jT0UQ==}
 
   '@ecies/ciphers@0.2.4':
     resolution: {integrity: sha512-t+iX+Wf5nRKyNzk8dviW3Ikb/280+aEJAnw9YXvCp2tYGPSkMki+NRY+8aNLmVFv3eNtMdvViPNOPxS8SZNP+w==}
@@ -4204,6 +4224,9 @@ packages:
         optional: true
       sqlite3:
         optional: true
+
+  dub@0.65.1:
+    resolution: {integrity: sha512-ePXPCZh+EbKUwnXi2vjZ8U78jUU9SlGNiXiLDWJZnyKo/2vwFwjFej4HHKDrw2kn2IpW4JOQ1Qp0b6Uy1/Bmmw==}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -6984,6 +7007,9 @@ packages:
     resolution: {integrity: sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==}
     engines: {node: '>=6'}
 
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+
   zod@4.0.17:
     resolution: {integrity: sha512-1PHjlYRevNxxdy2JZ8JcNAw7rX8V9P1AKkP+x/xZfxB0K5FYfuV+Ug6P/6NVSR2jHQ+FzDDoDHS04nYUsOIyLQ==}
 
@@ -7748,6 +7774,14 @@ snapshots:
 
   '@bcoe/v8-coverage@1.0.2': {}
 
+  '@better-auth/stripe@1.3.6(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@4.0.17)':
+    dependencies:
+      better-auth: 1.3.6(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@4.0.17)
+      zod: 4.0.17
+    transitivePeerDependencies:
+      - react
+      - react-dom
+
   '@better-auth/utils@0.2.6':
     dependencies:
       uncrypto: 0.1.3
@@ -7806,6 +7840,10 @@ snapshots:
       which: 4.0.0
 
   '@drizzle-team/brocli@0.10.2': {}
+
+  '@dub/better-auth@0.0.3':
+    dependencies:
+      zod: 3.25.76
 
   '@ecies/ciphers@0.2.4(@noble/ciphers@1.3.0)':
     dependencies:
@@ -10399,6 +10437,10 @@ snapshots:
       '@types/pg': 8.15.5
       kysely: 0.28.5
       pg: 8.16.3
+
+  dub@0.65.1:
+    dependencies:
+      zod: 3.25.76
 
   dunder-proto@1.0.1:
     dependencies:
@@ -13484,5 +13526,7 @@ snapshots:
       yargs-parser: 20.2.9
 
   yn@3.1.1: {}
+
+  zod@3.25.76: {}
 
   zod@4.0.17: {}
