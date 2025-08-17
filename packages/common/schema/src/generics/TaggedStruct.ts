@@ -3,7 +3,7 @@ import * as AST from "effect/SchemaAST";
 import { DefaultAnnotations } from "../annotations";
 
 namespace TaggedStruct {
-  export type Return<
+  export type Schema<
     Tag extends AST.LiteralValue,
     Fields extends S.Struct.Fields,
   > = S.Struct<
@@ -20,10 +20,10 @@ namespace TaggedStruct {
     } & Fields
   >;
 
-  export type A<
+  export type Type<
     Tag extends AST.LiteralValue,
     Fields extends S.Struct.Fields,
-  > = S.Schema.Type<Return<Tag, Fields>>;
+  > = S.Schema.Type<Schema<Tag, Fields>>;
 }
 
 /**
@@ -42,8 +42,8 @@ export const TaggedStruct =
     fields: Fields,
   ) =>
   (
-    annotations: DefaultAnnotations<TaggedStruct.A<Tag, Fields>>,
-  ): TaggedStruct.Return<Tag, Fields> =>
+    annotations: DefaultAnnotations<TaggedStruct.Type<Tag, Fields>>,
+  ): TaggedStruct.Schema<Tag, Fields> =>
     S.Struct({
       _tag: S.Literal(tag).pipe(
         S.optional,

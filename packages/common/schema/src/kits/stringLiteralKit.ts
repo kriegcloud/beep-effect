@@ -122,7 +122,9 @@ export function stringLiteralKit<
     Options: Keys;
     Enum: CreateEnumType<Keys, undefined>;
     Mock: (qty: number) => [...Literals][number][];
+    is: (a: unknown) => a is Keys[number];
   };
+  is: (a: unknown) => a is Literals[number];
   toPgEnum: <Name extends string>(
     name: `${SnakeTag<Name>}`,
   ) => ReturnType<typeof pgEnum<Literals[number], Literals>>;
@@ -157,7 +159,9 @@ export function stringLiteralKit<
     Options: Keys;
     Enum: CreateEnumType<Keys, undefined>;
     Mock: (qty: number) => [...Literals][number][];
+    is: (a: unknown) => a is Keys[number];
   };
+  is: (a: unknown) => a is Literals[number];
   toPgEnum: <Name extends string>(
     name: `${SnakeTag<Name>}_enum`,
   ) => ReturnType<typeof pgEnum<Literals[number], Literals>>;
@@ -189,7 +193,9 @@ export function stringLiteralKit<
     Options: Keys;
     Enum: CreateEnumType<Keys, undefined>;
     Mock: (qty: number) => [...Literals][number][];
+    is: (a: unknown) => a is Keys[number];
   };
+  is: (a: unknown) => a is Literals[number];
   toPgEnum: <Name extends string>(
     name: `${SnakeTag<Name>}_enum`,
   ) => ReturnType<typeof pgEnum<Literals[number], Literals>>;
@@ -292,6 +298,7 @@ export function stringLiteralKit<
       JSONSchema: JSONSchema.make(Schema),
       Pretty: Pretty.make(Schema),
       Equivalence: S.equivalence(Schema),
+      is: S.is(Schema),
       pick,
       omit,
       toPgEnum: (name) => pgEnum(name, literals),
@@ -309,6 +316,7 @@ export function stringLiteralKit<
             Options: keys,
             Enum: enumFromStringArray(...keys),
             Mock: (qty: number) => FC.sample(Arbitrary.make(Schema), qty),
+            is: S.is(Schema),
           };
         },
     } as const;
