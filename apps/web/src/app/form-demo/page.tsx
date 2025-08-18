@@ -12,7 +12,9 @@ import {
   validateStepData,
   type WorkflowDefinition,
 } from "@/features/form-system";
-import WORKFLOW from "@/features/form-system/examples/inventory-adjustment.workflow.json";
+import {
+  inventoryAdjustmentTyped,
+} from "@/features/form-system/examples/inventory-adjustment.typed";
 
 const inspector = createBrowserInspector();
 // JSONForms / MUI generates dynamic DOM ids that can differ between SSR and client in dev.
@@ -26,7 +28,7 @@ const StepFormNoSSR = dynamic(
 );
 
 export default function FormDemoPage() {
-  const workflow = WORKFLOW as unknown as WorkflowDefinition;
+  const workflow: WorkflowDefinition = inventoryAdjustmentTyped;
   const actors = useMemo<ActorRegistry>(() => {
     return {
       // Mocked API: returns product details with random lot control flag after a short delay
