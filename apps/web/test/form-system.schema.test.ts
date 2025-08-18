@@ -6,7 +6,7 @@ import {
   validateWorkflowJson,
   type WorkflowDefinition,
 } from "@/features/form-system";
-import example from "@/features/form-system/examples/inventory-adjustment.workflow.json";
+import example from "./example-workflow";
 
 describe("Form System - Schema Validation (Ajv)", () => {
   it("validates example WorkflowDefinition JSON", () => {

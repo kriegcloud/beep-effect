@@ -12,9 +12,7 @@ import {
   validateStepData,
   type WorkflowDefinition,
 } from "@/features/form-system";
-import {
-  inventoryAdjustmentTyped,
-} from "@/features/form-system/examples/inventory-adjustment.typed";
+import { inventoryAdjustmentTyped } from "@/features/form-system/examples/inventory-adjustment.typed";
 
 const inspector = createBrowserInspector();
 // JSONForms / MUI generates dynamic DOM ids that can differ between SSR and client in dev.

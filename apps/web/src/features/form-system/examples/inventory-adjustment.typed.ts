@@ -4,8 +4,8 @@
  */
 
 import { Schema } from "effect";
-import { createTypedWorkflow } from "@/features/form-system/dsl/typed";
 import type { WorkflowDefinition } from "@/features/form-system";
+import { createTypedWorkflow } from "@/features/form-system/dsl/typed";
 
 // Step schemas using Effect Schema
 const Product = Schema.Struct({
@@ -51,19 +51,16 @@ export function buildInventoryAdjustmentTyped(): WorkflowDefinition {
       description: "Simple 4-step flow: product -> adjust -> confirm -> done",
     },
   })
-    .step("product", Product, {title: "Select Product"})
-    .step("lot", Lot, {title: "Enter Lot Number"})
-    .step("adjust", Adjust, {title: "Adjust Quantity"})
-    .step("confirm", Confirm, {title: "Confirm"})
-    .step("done", Done, {title: "Done"})
+    .step("product", Product, { title: "Select Product" })
+    .step("lot", Lot, { title: "Enter Lot Number" })
+    .step("adjust", Adjust, { title: "Adjust Quantity" })
+    .step("confirm", Confirm, { title: "Confirm" })
+    .step("done", Done, { title: "Done" })
     .when(
       "product",
       "lot",
       {
-        "==": [
-          {var: "external.productDetails.lotControlled"},
-          true,
-        ],
+        "==": [{ var: "external.productDetails.lotControlled" }, true],
       },
       1,
     )
@@ -71,10 +68,7 @@ export function buildInventoryAdjustmentTyped(): WorkflowDefinition {
       "product",
       "adjust",
       {
-        "==": [
-          {var: "external.productDetails.lotControlled"},
-          false,
-        ],
+        "==": [{ var: "external.productDetails.lotControlled" }, false],
       },
       2,
     )

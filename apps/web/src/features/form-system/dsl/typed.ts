@@ -23,7 +23,7 @@ export type Path<T> = T extends object
   ? {
       [K in keyof T & string]: T[K] extends object
         ? `${K}` | `${K}.${Path<T[K]>}`
-        : `${K}`
+        : `${K}`;
     }[keyof T & string]
   : never;
 
@@ -82,7 +82,9 @@ export function createTypedWorkflow(
     transitions: [] as TransitionDefinition[],
   };
 
-  function makeBuilder<T extends Record<string, AnySchema>>(): TypedWorkflowBuilder<T> {
+  function makeBuilder<
+    T extends Record<string, AnySchema>,
+  >(): TypedWorkflowBuilder<T> {
     return {
       step<Id extends string, TSchema extends AnySchema>(
         id: Id,
@@ -132,31 +134,33 @@ export function createTypedWorkflow(
         stepId: K,
         path: P,
       ) {
-        return { var: `answers.${String(stepId)}.${String(path)}` } as unknown as JsonObject;
+        return {
+          var: `answers.${String(stepId)}.${String(path)}`,
+        };
       },
 
       varCurrent(path: string) {
-        return { var: `current.${String(path)}` } as unknown as JsonObject;
+        return { var: `current.${String(path)}` };
       },
 
       varExternal(path: string) {
-        return { var: `external.${String(path)}` } as unknown as JsonObject;
+        return { var: `external.${String(path)}` };
       },
 
       eq(a: JsonValue | JsonObject, b: JsonValue | JsonObject) {
-        return { "==": [a as any, b as any] } as unknown as JsonObject;
+        return { "==": [a, b] };
       },
 
       and(...rules: ReadonlyArray<JsonLogicRule>) {
-        return { and: rules as any } as unknown as JsonObject;
+        return { and: rules };
       },
 
       or(...rules: ReadonlyArray<JsonLogicRule>) {
-        return { or: rules as any } as unknown as JsonObject;
+        return { or: rules };
       },
 
       not(rule: JsonLogicRule) {
-        return { "!": [rule as any] } as unknown as JsonObject;
+        return { "!": [rule] };
       },
 
       build(): WorkflowDefinition {
@@ -177,7 +181,7 @@ export function createTypedWorkflow(
           metadata: state.metadata,
         } satisfies WorkflowDefinition;
       },
-    } as TypedWorkflowBuilder<T>;
+    };
   }
 
   return makeBuilder<{}>();

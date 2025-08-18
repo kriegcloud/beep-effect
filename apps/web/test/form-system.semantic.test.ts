@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@effect/vitest";
 import type { WorkflowDefinition } from "@/features/form-system";
 import { validateWorkflow } from "@/features/form-system";
-import example from "@/features/form-system/examples/inventory-adjustment.workflow.json";
+import example from "./example-workflow";
 
 const EXAMPLE = example as unknown as WorkflowDefinition;
 

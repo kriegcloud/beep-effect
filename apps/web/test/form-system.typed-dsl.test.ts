@@ -6,7 +6,7 @@ import {
   type WorkflowDefinition,
 } from "@/features/form-system";
 import { buildInventoryAdjustmentTyped } from "@/features/form-system/examples/inventory-adjustment.typed";
-import example from "@/features/form-system/examples/inventory-adjustment.workflow.json";
+import example from "./example-workflow";
 
 /**
  * Typed DSL should produce a valid WorkflowDefinition and align with the canonical example.
@@ -50,7 +50,8 @@ describe("Form System - Typed DSL (Effect Schema)", () => {
     const confirm = wf.steps.find((s) => s.id === "confirm")!;
     const confirmProp = (confirm.schema as any).properties?.confirm ?? {};
     const hasConstTrue = confirmProp.const === true;
-    const hasEnumTrue = Array.isArray(confirmProp.enum) && confirmProp.enum[0] === true;
+    const hasEnumTrue =
+      Array.isArray(confirmProp.enum) && confirmProp.enum[0] === true;
     expect(hasConstTrue || hasEnumTrue).toBe(true);
   });
 });
