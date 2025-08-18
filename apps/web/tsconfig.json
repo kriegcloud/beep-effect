@@ -1,4 +1,5 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "exactOptionalPropertyTypes": false,
     "moduleDetection": "force",
@@ -81,8 +82,10 @@
     "execute.ts",
     "next-env.d.ts",
     "next.config.ts",
-    "src",
+    "*.json",
+    "src/**/*.json",
+    ".",
     ".next/types/**/*.ts"
   ],
-  "exclude": []
+  "exclude": ["vitest.config.ts"]
 }

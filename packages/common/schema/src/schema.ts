@@ -24,6 +24,7 @@ export {
   Struct,
   Tuple,
 } from "./extended-schemas";
+export * from "./form";
 export { TaggedStruct } from "./generics";
 export * from "./kits";
 export * from "./sql";

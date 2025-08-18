@@ -231,6 +231,20 @@ export const ServerConfig = Config.all({
       trustedOrigins: ConfigArrayURL("TRUSTED_ORIGINS"),
     }),
   ),
+  ai: Config.nested("AI")(
+    Config.all({
+      openai: Config.nested("OPENAI")(
+        Config.all({
+          apiKey: Config.redacted(Config.nonEmptyString("API_KEY")),
+        }),
+      ),
+      anthropic: Config.nested("ANTHROPIC")(
+        Config.all({
+          apiKey: Config.redacted(Config.nonEmptyString("API_KEY")),
+        }),
+      ),
+    }),
+  ),
 });
 
 const provider = ConfigProvider.fromEnv().pipe(ConfigProvider.constantCase);

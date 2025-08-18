@@ -1,0 +1,64 @@
+{
+  "id": "inventory-adjustment",
+  "version": "1.0.0",
+  "schemaVersion": "workflow.v1",
+  "initial": "product",
+  "steps": [
+    {
+      "id": "product",
+      "title": "Select Product",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "sku": { "type": "string", "title": "SKU" },
+          "location": { "type": "string", "title": "Location" }
+        },
+        "required": ["sku", "location"]
+      }
+    },
+    {
+      "id": "adjust",
+      "title": "Adjust Quantity",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "delta": { "type": "integer", "title": "Adjustment (+/-)" },
+          "reason": { "type": "string", "title": "Reason" }
+        },
+        "required": ["delta"]
+      }
+    },
+    {
+      "id": "confirm",
+      "title": "Confirm",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "confirm": { "type": "boolean", "const": true, "title": "Confirm" }
+        },
+        "required": ["confirm"]
+      }
+    },
+    {
+      "id": "done",
+      "title": "Done",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {}
+      }
+    }
+  ],
+  "transitions": [
+    { "from": "product", "to": "adjust" },
+    { "from": "adjust", "to": "confirm" },
+    { "from": "confirm", "to": "done" }
+  ],
+  "metadata": {
+    "title": "Inventory Adjustment",
+    "description": "Simple 4-step flow: product -> adjust -> confirm -> done"
+  }
+}

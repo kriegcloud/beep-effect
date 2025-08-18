@@ -94,6 +94,12 @@
     },
     {
       "path": "packages/comms/tables/tsconfig.build.json"
+    },
+    {
+      "path": "packages/ai/navi/tsconfig.build.json"
+    },
+    {
+      "path": "packages/ai/core/tsconfig.build.json"
     }
   ]
 }

@@ -98,6 +98,12 @@
     },
     {
       "path": "packages/comms/tables"
+    },
+    {
+      "path": "packages/ai/navi"
+    },
+    {
+      "path": "packages/ai/core"
     }
   ]
 }

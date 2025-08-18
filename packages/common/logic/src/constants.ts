@@ -15,7 +15,6 @@ export namespace CombinatorValue {
   export const {
     Enum,
     Options,
-    is,
     Equivalence,
     Mock,
     JSONSchema,
@@ -57,7 +56,6 @@ export namespace OperatorValue {
   export const {
     Enum,
     Options,
-    is,
     Equivalence,
     Mock,
     JSONSchema,
@@ -120,7 +118,6 @@ export namespace MatchModeValue {
   export const {
     Enum,
     Options,
-    is,
     Equivalence,
     Mock,
     JSONSchema,

@@ -1,5 +1,5 @@
 import acceptLanguage from "accept-language";
-import { createInstance } from "i18next";
+import { createInstance, i18n } from "i18next";
 import { cookies, headers } from "next/headers";
 import { cache } from "react";
 import { initReactI18next } from "react-i18next/initReactI18next";
@@ -59,7 +59,7 @@ export async function detectLanguage() {
 export async function initServerI18next(
   lang: SupportedLangValue.Type,
   namespace: string,
-) {
+): Promise<i18n> {
   const i18nInstance = createInstance();
   const initOptions = i18nOptions(lang, namespace);
 

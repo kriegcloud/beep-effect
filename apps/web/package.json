@@ -2,6 +2,7 @@
   "name": "@beep/web",
   "author": "TODOX",
   "version": "0.1.0",
+  "type": "module",
   "description": "TODOX Website",
   "private": true,
   "scripts": {
@@ -11,12 +12,24 @@
     "build": "pnpm dotenvx next build --turbopack",
     "clean": "rm -rf node_modules .next out dist build .turbo .tsbuildinfo",
     "lint": "biome check .",
+    "test": "vitest run",
     "lint:fix": "biome check . --write",
     "check": "tsc --noEmit",
     "execute": "pnpm dotenvx tsx ./execute.ts",
     "dotenvx": "dotenvx run -f ../../.env --"
   },
   "dependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "@statelyai/inspect": "^0.4.0",
+    "xstate": "^5.20.2",
+    "@xstate/react": "^6.0.0",
+    "@jsonforms/react": "^3.6.0",
+    "@jsonforms/core": "^3.6.0",
+    "@jsonforms/material-renderers": "^3.6.0",
+    "json-logic-js": "^2.0.5",
     "@beep/invariant": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/types": "workspace:^",
@@ -43,6 +56,7 @@
     "@svgr/webpack": "^8.1.0",
     "@types/node": "^24.3.0",
     "@types/react": "^19.1.10",
-    "@types/react-dom": "^19.1.7"
+    "@types/react-dom": "^19.1.7",
+    "@types/json-logic-js": "^2.0.8"
   }
 }

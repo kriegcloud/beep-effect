@@ -167,7 +167,7 @@
       ],
       "@beep/iam-api/*": [
         "./packages/iam/api/src/*"
-        ],
+      ],
       "@beep/iam-api/test/*": [
         "./packages/iam/api/test/*"
       ],
@@ -224,7 +224,7 @@
       ],
       "@beep/workflow-dsl/test/*": [
         "./packages/workflow/dsl/test/*"
-        ],
+      ],
       "@beep/workflow-model": [
         "./packages/workflow/model/src/index"
       ],
@@ -287,7 +287,7 @@
       ],
       "@beep/comms-api/*": [
         "./packages/comms/api/src/*"
-        ],
+      ],
       "@beep/comms-api/test/*": [
         "./packages/comms/api/test/*"
       ],
@@ -326,6 +326,27 @@
       ],
       "@beep/comms-tables/test/*": [
         "./packages/comms/tables/test/*"
+      ],
+      "@beep/navi": [
+        "./packages/ai/navi/src/index"
+      ],
+      "@beep/navi/*": [
+        "./packages/ai/navi/src/*"
+      ],
+      "@beep/navi/test/*": [
+        "./packages/ai/navi/test/*"
+      ],
+      "@beep/ai-core": [
+        "./packages/ai/core/src/index"
+      ],
+      "@beep/ai-core/*": [
+        "./packages/ai/core/src/*"
+      ],
+      "@beep/ai-core/test/*": [
+        "./packages/ai/core/test/*"
+      ],
+      "@/*": [
+        "./apps/web/src/*"
       ]
     }
   }
