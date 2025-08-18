@@ -12,9 +12,22 @@
         "type": "object",
         "properties": {
           "sku": { "type": "string", "title": "SKU" },
-          "location": { "type": "string", "title": "Location" }
+          "location": { "type": "string", "title": "Location" },
+          "lotControlled": { "type": "boolean", "title": "Lot controlled?" }
         },
         "required": ["sku", "location"]
+      }
+    },
+    {
+      "id": "lot",
+      "title": "Enter Lot Number",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "lotNumber": { "type": "string", "title": "Lot Number" }
+        },
+        "required": ["lotNumber"]
       }
     },
     {
@@ -53,7 +66,23 @@
     }
   ],
   "transitions": [
-    { "from": "product", "to": "adjust" },
+    {
+      "from": "product",
+      "to": "lot",
+      "when": {
+        "==": [{ "var": "external.productDetails.lotControlled" }, true]
+      },
+      "priority": 1
+    },
+    {
+      "from": "product",
+      "to": "adjust",
+      "when": {
+        "==": [{ "var": "external.productDetails.lotControlled" }, false]
+      },
+      "priority": 2
+    },
+    { "from": "lot", "to": "adjust" },
     { "from": "adjust", "to": "confirm" },
     { "from": "confirm", "to": "done" }
   ],

@@ -345,6 +345,15 @@
       "@beep/ai-core/test/*": [
         "./packages/ai/core/test/*"
       ],
+      "@beep/xstate": [
+        "./packages/adapters/xstate/src/index"
+      ],
+      "@beep/xstate/*": [
+        "./packages/adapters/xstate/src/*"
+      ],
+      "@beep/xstate/test/*": [
+        "./packages/adapters/xstate/test/*"
+      ],
       "@/*": [
         "./apps/web/src/*"
       ]

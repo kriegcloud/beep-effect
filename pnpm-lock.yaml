@@ -138,9 +138,6 @@ importers:
       '@statelyai/inspect':
         specifier: ^0.4.0
         version: 0.4.0(ws@8.18.3)(xstate@5.20.2)
-      '@xstate/inspect':
-        specifier: ^0.8.0
-        version: 0.8.0(ws@8.18.3)(xstate@5.20.2)
       '@xstate/react':
         specifier: ^6.0.0
         version: 6.0.0(@types/react@19.1.10)(react@19.1.1)(xstate@5.20.2)
@@ -245,6 +242,26 @@ importers:
       '@types/react-dom':
         specifier: ^19.1.7
         version: 19.1.7(@types/react@19.1.10)
+    publishDirectory: build
+
+  packages/adapters/xstate:
+    dependencies:
+      '@beep/invariant':
+        specifier: workspace:^
+        version: link:../../common/invariant/build
+      '@beep/schema':
+        specifier: workspace:^
+        version: link:../../common/schema/build
+      '@beep/utils':
+        specifier: workspace:^
+        version: link:../../common/utils/build
+      effect:
+        specifier: ^3.17.7
+        version: 3.17.7
+    devDependencies:
+      '@beep/types':
+        specifier: workspace:^
+        version: link:../../common/types/build
     publishDirectory: build
 
   packages/ai/core:
@@ -3553,16 +3570,6 @@ packages:
     engines: {node: '>= 6.9.0 || >= 8.9.0'}
     peerDependencies:
       webpack: ^3.0.0 || ^4.0.0
-
-  '@xstate/inspect@0.8.0':
-    resolution: {integrity: sha512-wSkFeOnp+7dhn+zTThO0M4D2FEqZN9lGIWowJu5JLa2ojjtlzRwK8SkjcHZ4rLX8VnMev7kGjgQLrGs8kxy+hw==}
-    peerDependencies:
-      '@types/ws': ^8.0.0
-      ws: ^8.0.0
-      xstate: ^4.37.0
-    peerDependenciesMeta:
-      '@types/ws':
-        optional: true
 
   '@xstate/react@6.0.0':
     resolution: {integrity: sha512-xXlLpFJxqLhhmecAXclBECgk+B4zYSrDTl8hTfPZBogkn82OHKbm9zJxox3Z/YXoOhAQhKFTRLMYGdlbhc6T9A==}
@@ -9930,12 +9937,6 @@ snapshots:
       text-table: 0.2.0
       webpack: 4.47.0
       webpack-log: 1.2.0
-
-  '@xstate/inspect@0.8.0(ws@8.18.3)(xstate@5.20.2)':
-    dependencies:
-      fast-safe-stringify: 2.1.1
-      ws: 8.18.3
-      xstate: 5.20.2
 
   '@xstate/react@6.0.0(@types/react@19.1.10)(react@19.1.1)(xstate@5.20.2)':
     dependencies:
