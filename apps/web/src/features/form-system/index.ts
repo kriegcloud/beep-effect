@@ -1,4 +1,3 @@
-export * from "./dsl/builder";
 export * from "./dsl/typed";
 export * from "./model/types";
 export * from "./renderer/jsonformsAdapter";

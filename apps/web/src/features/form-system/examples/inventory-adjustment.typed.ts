@@ -31,6 +31,12 @@ const Adjust = Schema.Struct({
   reason: Schema.propertySignature(Schema.String).annotations({
     title: "Reason",
   }),
+  beep: Schema.String.annotations({
+    title: "hole",
+  }),
+  hole: Schema.String.annotations({
+    title: "beep",
+  }),
 });
 
 const Confirm = Schema.Struct({

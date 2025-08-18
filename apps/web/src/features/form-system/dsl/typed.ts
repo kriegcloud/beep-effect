@@ -12,7 +12,6 @@ import type {
   TransitionDefinition,
   WorkflowDefinition,
 } from "../model/types";
-import type { CreateWorkflowArgs } from "./builder";
 
 // Utility types for typed field paths
 type AnySchema = Schema.Schema<any, any, any>;
@@ -26,7 +25,12 @@ export type Path<T> = T extends object
         : `${K}`;
     }[keyof T & string]
   : never;
-
+export interface CreateWorkflowArgs {
+  id: string;
+  version: string;
+  initial: string;
+  metadata?: JsonObject;
+}
 export interface StepOptions {
   title?: string;
   description?: string;
