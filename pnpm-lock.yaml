@@ -597,6 +597,9 @@ importers:
       '@beep/shared-tables':
         specifier: workspace:^
         version: link:../../shared/tables/build
+      '@beep/wms-tables':
+        specifier: workspace:^
+        version: link:../../wms/tables/build
       '@types/pg':
         specifier: ^8.15.5
         version: 8.15.5

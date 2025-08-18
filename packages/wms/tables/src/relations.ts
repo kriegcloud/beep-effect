@@ -1,24 +1,12 @@
+import { organization } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import {
   inventoryTable,
   itemTable,
   locationTable,
-  organization,
   uomTable,
   warehouseTable,
 } from "./tables";
-
-export const organizationRelations = d.relations(
-  organization,
-  ({ many, one }) => ({
-    warehouses: many(warehouseTable),
-    inventories: many(inventoryTable),
-    items: many(itemTable),
-    uoms: many(uomTable),
-    locations: many(locationTable),
-  }),
-);
-
 export const warehouseRelations = d.relations(
   warehouseTable,
   ({ many, one }) => ({

@@ -12,6 +12,9 @@
       "path": "../../iam/tables"
     },
     {
+      "path": "../../wms/tables"
+    },
+    {
       "path": "../db-scope"
     }
   ],
@@ -29,6 +32,8 @@
     "@beep/shared-tables": ["../../shared/tables/src/index"],
     "@beep/shared-tables/*": ["../../shared/tables/src/*"],
     "@beep/db-scope": ["../db-scope/src/index"],
-    "@beep/db-scope/*": ["../db-scope/src/*"]
+    "@beep/db-scope/*": ["../db-scope/src/*"],
+    "@beep/wms-tables": ["../../wms/tables/src/index"],
+    "@beep/wms-tables/*": ["../../wms/tables/src/*"]
   }
 }
