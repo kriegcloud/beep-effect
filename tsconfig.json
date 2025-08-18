@@ -107,6 +107,24 @@
     },
     {
       "path": "packages/adapters/xstate"
+    },
+    {
+      "path": "packages/wms/api"
+    },
+    {
+      "path": "packages/wms/application"
+    },
+    {
+      "path": "packages/wms/db"
+    },
+    {
+      "path": "packages/wms/domain"
+    },
+    {
+      "path": "packages/wms/ui"
+    },
+    {
+      "path": "packages/wms/tables"
     }
   ]
 }

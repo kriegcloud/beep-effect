@@ -1,0 +1,17 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": [],
+  "compilerOptions": {
+    "paths": {
+      "@beep/wms-application/*": ["./src/*"]
+    }
+  },
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "tsconfig.test.json"
+    }
+  ]
+}

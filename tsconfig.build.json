@@ -103,6 +103,24 @@
     },
     {
       "path": "packages/adapters/xstate/tsconfig.build.json"
+    },
+        {
+      "path": "packages/wms/api/tsconfig.build.json"
+    },
+    {
+      "path": "packages/wms/application/tsconfig.build.json"
+    },
+    {
+      "path": "packages/wms/db/tsconfig.build.json"
+    },
+    {
+      "path": "packages/wms/domain/tsconfig.build.json"
+    },
+    {
+      "path": "packages/wms/ui/tsconfig.build.json"
+    },
+    {
+      "path": "packages/wms/tables/tsconfig.build.json"
     }
   ]
 }

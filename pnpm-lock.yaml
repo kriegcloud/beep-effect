@@ -877,6 +877,77 @@ importers:
         specifier: ^4.1.12
         version: 4.1.12
 
+  packages/wms/api:
+    dependencies:
+      effect:
+        specifier: ^3.17.7
+        version: 3.17.7
+    devDependencies:
+      tsx:
+        specifier: ^4.20.4
+        version: 4.20.4
+    publishDirectory: build
+
+  packages/wms/application:
+    dependencies:
+      effect:
+        specifier: ^3.17.7
+        version: 3.17.7
+    publishDirectory: build
+
+  packages/wms/db:
+    dependencies:
+      '@beep/db-scope':
+        specifier: workspace:^
+        version: link:../../persistence/db-scope/build
+      '@beep/wms-tables':
+        specifier: workspace:^
+        version: link:../tables/build
+      drizzle-orm:
+        specifier: ^0.44.4
+        version: 0.44.4(@types/pg@8.15.5)(kysely@0.28.5)(pg@8.16.3)
+      effect:
+        specifier: ^3.17.7
+        version: 3.17.7
+      pg:
+        specifier: ^8.16.3
+        version: 8.16.3
+    devDependencies:
+      '@types/pg':
+        specifier: ^8.15.5
+        version: 8.15.5
+    publishDirectory: build
+
+  packages/wms/domain:
+    dependencies:
+      '@beep/shared-domain':
+        specifier: workspace:^
+        version: link:../../shared/domain/build
+      effect:
+        specifier: ^3.17.7
+        version: 3.17.7
+    publishDirectory: build
+
+  packages/wms/tables:
+    dependencies:
+      '@beep/shared-tables':
+        specifier: workspace:^
+        version: link:../../shared/tables/build
+      drizzle-orm:
+        specifier: ^0.44.4
+        version: 0.44.4(@types/pg@8.15.5)(kysely@0.28.5)(pg@8.16.3)
+    publishDirectory: build
+
+  packages/wms/ui:
+    dependencies:
+      '@beep/ui':
+        specifier: workspace:^
+        version: link:../../ui
+      effect:
+        specifier: ^3.17.7
+        version: 3.17.7
+    publishDirectory: build
+
   packages/workflow/dsl:
     dependencies:
       '@beep/invariant':

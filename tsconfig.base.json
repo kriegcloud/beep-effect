@@ -356,6 +356,60 @@
       ],
       "@/*": [
         "./apps/web/src/*"
+      ],
+      "@beep/wms-api": [
+        "./packages/wms/api/src/index"
+      ],
+      "@beep/wms-api/*": [
+        "./packages/wms/api/src/*"
+      ],
+      "@beep/wms-api/test/*": [
+        "./packages/wms/api/test/*"
+      ],
+      "@beep/wms-application": [
+        "./packages/wms/application/src/index"
+      ],
+      "@beep/wms-application/*": [
+        "./packages/wms/application/src/*"
+      ],
+      "@beep/wms-application/test/*": [
+        "./packages/wms/application/test/*"
+      ],
+      "@beep/wms-db": [
+        "./packages/wms/db/src/index"
+      ],
+      "@beep/wms-db/*": [
+        "./packages/wms/db/src/*"
+      ],
+      "@beep/wms-db/test/*": [
+        "./packages/wms/db/test/*"
+      ],
+      "@beep/wms-domain": [
+        "./packages/wms/domain/src/index"
+      ],
+      "@beep/wms-domain/*": [
+        "./packages/wms/domain/src/*"
+      ],
+      "@beep/wms-domain/test/*": [
+        "./packages/wms/domain/test/*"
+      ],
+      "@beep/wms-ui": [
+        "./packages/wms/ui/src/index"
+      ],
+      "@beep/wms-ui/*": [
+        "./packages/wms/ui/src/*"
+      ],
+      "@beep/wms-ui/test/*": [
+        "./packages/wms/ui/test/*"
+      ],
+      "@beep/wms-tables": [
+        "./packages/wms/tables/src/index"
+      ],
+      "@beep/wms-tables/*": [
+        "./packages/wms/tables/src/*"
+      ],
+      "@beep/wms-tables/test/*": [
+        "./packages/wms/tables/test/*"
       ]
     }
   }
