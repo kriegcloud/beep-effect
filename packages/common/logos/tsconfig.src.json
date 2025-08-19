@@ -26,7 +26,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-      "@beep/logic/*": ["./src/*"],
+      "@beep/logos/*": ["./src/*"],
       "@beep/types": ["../types/src/index"],
       "@beep/types/*": ["../types/src/*"],
       "@beep/invariant": ["../invariant/src/index"],

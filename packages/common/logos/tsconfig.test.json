@@ -25,8 +25,8 @@
     "noEmit": true
   },
   "paths": {
-    "@beep/logic": ["./src/index"],
-    "@beep/logic/*": ["./src/*"],
+    "@beep/logos": ["./src/index"],
+    "@beep/logos/*": ["./src/*"],
     "@beep/types": ["../types/src/index"],
     "@beep/types/*": ["../types/src/*"],
     "@beep/invariant": ["../invariant/src/index"],

@@ -10,6 +10,7 @@ export type DefaultAnnotations<
   readonly identifier: AST.IdentifierAnnotation;
   readonly title: AST.TitleAnnotation;
   readonly description: AST.DescriptionAnnotation;
+  readonly documentation?: AST.DocumentationAnnotation;
   readonly examples?: AST.ExamplesAnnotation<A>;
   readonly default?: AST.DefaultAnnotation<A>;
   readonly jsonSchema?: AST.JSONSchemaAnnotation;

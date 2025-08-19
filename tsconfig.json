@@ -76,7 +76,7 @@
       "path": "packages/workflow/runtime"
     },
     {
-      "path": "packages/common/logic"
+      "path": "packages/common/logos"
     },
     {
       "path": "packages/env"

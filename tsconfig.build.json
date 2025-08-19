@@ -72,7 +72,7 @@
       "path": "packages/workflow/runtime/tsconfig.build.json"
     },
     {
-      "path": "packages/common/logic/tsconfig.build.json"
+      "path": "packages/common/logos/tsconfig.build.json"
     },
     {
       "path": "packages/env/tsconfig.build.json"

@@ -1,5 +1,5 @@
 {
-  "name": "@beep/logic",
+  "name": "@beep/logos",
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
@@ -16,7 +16,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/BeepinBois/beep-effect.git",
-    "directory": "packages/common/logic"
+    "directory": "packages/common/logos"
   },
   "scripts": {
     "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",
@@ -35,11 +35,17 @@
     "effect": "^3.17.7",
     "@beep/schema": "workspace:^",
     "@beep/invariant": "workspace:^",
-    "@beep/utils": "workspace:^"
+    "@beep/utils": "workspace:^",
+    "mutative": "^1.2.0",
+    "uuid": "^11.1.0",
+    "lodash.get": "^4.4.2",
+    "lodash.isplainobject": "^4.0.6"
   },
   "devDependencies": {
     "tsx": "^4.20.4",
-    "@beep/types": "workspace:^"
+    "@beep/types": "workspace:^",
+    "@types/lodash.get": "^4.4.7",
+    "@types/lodash.isplainobject": "^4.0.7"
   },
   "effect": {
     "generateExports": {

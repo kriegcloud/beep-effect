@@ -42,7 +42,7 @@ export const TaggedStruct =
     fields: Fields,
   ) =>
   (
-    annotations: DefaultAnnotations<TaggedStruct.Type<Tag, Fields>>,
+    annotations?: DefaultAnnotations<TaggedStruct.Type<Tag, Fields>>,
   ): TaggedStruct.Schema<Tag, Fields> =>
     S.Struct({
       _tag: S.Literal(tag).pipe(
@@ -53,4 +53,4 @@ export const TaggedStruct =
         }),
       ),
       ...fields,
-    }).annotations(annotations);
+    }).annotations(annotations ?? {});

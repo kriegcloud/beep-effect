@@ -252,14 +252,14 @@
       "@beep/workflow-runtime/test/*": [
         "./packages/workflow/runtime/test/*"
       ],
-      "@beep/logic": [
-        "./packages/common/logic/src/index"
+      "@beep/logos": [
+        "./packages/common/logos/src/index"
       ],
-      "@beep/logic/*": [
-        "./packages/common/logic/src/*"
+      "@beep/logos/*": [
+        "./packages/common/logos/src/*"
       ],
-      "@beep/logic/test/*": [
-        "./packages/common/logic/test/*"
+      "@beep/logos/test/*": [
+        "./packages/common/logos/test/*"
       ],
       "@beep/env/client": [
         "./packages/env/src/client"
