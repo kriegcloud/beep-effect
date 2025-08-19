@@ -1,4 +1,4 @@
-import { RecordTypes, UnsafeTypes } from "@beep/types";
+import { StructTypes, UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -197,9 +197,9 @@ const makeOpt = (self: S.PropertySignature.Any, exact?: boolean) => {
 };
 
 export function makeOptional<
-  NER extends RecordTypes.StructFieldsOrPropertySignatures,
+  NER extends StructTypes.StructFieldsOrPropertySignatures,
 >(
-  t: RecordTypes.NonEmptyStructFieldsOrPropertySignatures<NER>,
+  t: StructTypes.NonEmptyStructFieldsOrPropertySignatures<NER>,
 ): {
   [K in keyof NER]: S.PropertySignature<
     "?:",
@@ -232,9 +232,9 @@ export function makeOptional<
 }
 
 export function makeExactOptional<
-  NER extends RecordTypes.StructFieldsWithStringKeys,
+  NER extends StructTypes.StructFieldsWithStringKeys,
 >(
-  t: RecordTypes.NonEmptyStructFields<NER>,
+  t: StructTypes.NonEmptyStructFields<NER>,
 ): {
   [K in keyof NER]: S.PropertySignature<
     "?:",

@@ -17,6 +17,7 @@ export * from "./EntityId";
 // export * from "./extended-schemas";
 export {
   Array,
+  deriveAndAttachProperty,
   NonEmptyArray,
   NullOr,
   ReadonlyMap,

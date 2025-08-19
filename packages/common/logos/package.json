@@ -26,13 +26,13 @@
     "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
     "check": "tsc -b tsconfig.json",
     "test": "vitest run",
+    "execute": "tsx ./src/execute.ts",
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "coverage": "vitest --coverage",
     "lint": "biome check .",
     "lint:fix": "biome check . --write"
   },
   "peerDependencies": {
-    "effect": "^3.17.7",
     "@beep/schema": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@beep/utils": "workspace:^",
@@ -41,7 +41,11 @@
     "lodash.get": "^4.4.2",
     "lodash.isplainobject": "^4.0.6"
   },
+  "dependencies": {
+    "effect": "^3.17.7"
+  },
   "devDependencies": {
+    "@effect/platform-node": "^0.96.0",
     "tsx": "^4.20.4",
     "@beep/types": "workspace:^",
     "@types/lodash.get": "^4.4.7",
