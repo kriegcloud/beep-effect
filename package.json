@@ -50,7 +50,7 @@
     "@babel/plugin-transform-export-namespace-from": "^7.27.1",
     "@babel/plugin-transform-modules-commonjs": "^7.27.1",
     "@biomejs/biome": "^2.2.0",
-    "@dotenvx/dotenvx": "^1.48.4",
+    "@dotenvx/dotenvx": "^1.49.0",
     "@effect-rx/rx-react": "0.42.2",
     "@effect/language-service": "^0.35.2",
     "@effect/vitest": "^0.25.1",

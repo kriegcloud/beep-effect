@@ -19,17 +19,6 @@
     "dotenvx": "dotenvx run -f ../../.env --"
   },
   "dependencies": {
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "ajv": "^8.17.1",
-    "ajv-formats": "^3.0.1",
-    "@statelyai/inspect": "^0.4.0",
-    "xstate": "^5.20.2",
-    "@xstate/react": "^6.0.0",
-    "@jsonforms/react": "^3.6.0",
-    "@jsonforms/core": "^3.6.0",
-    "@jsonforms/material-renderers": "^3.6.0",
-    "json-logic-js": "^2.0.5",
     "@beep/invariant": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/types": "workspace:^",
@@ -43,20 +32,31 @@
     "@fontsource-variable/nunito-sans": "^5.2.6",
     "@fontsource-variable/public-sans": "^5.2.6",
     "@fontsource/barlow": "^5.2.6",
+    "@jsonforms/core": "^3.6.0",
+    "@jsonforms/material-renderers": "^3.6.0",
+    "@jsonforms/react": "^3.6.0",
     "@mui/lab": "7.0.0-beta.15",
     "@mui/material": "^7.3.1",
     "@mui/material-nextjs": "^7.3.0",
     "@mui/x-date-pickers": "^8.10.0",
+    "@statelyai/inspect": "^0.4.0",
+    "@xstate/react": "^6.0.0",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
     "dayjs": "^1.11.13",
     "effect": "^3.17.7",
-    "next": "^15.4.6"
+    "json-logic-js": "^2.0.5",
+    "next": "^15.4.7",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "xstate": "^5.20.2"
   },
   "devDependencies": {
     "@effect/language-service": "^0.35.2",
     "@svgr/webpack": "^8.1.0",
+    "@types/json-logic-js": "^2.0.8",
     "@types/node": "^24.3.0",
     "@types/react": "^19.1.10",
-    "@types/react-dom": "^19.1.7",
-    "@types/json-logic-js": "^2.0.8"
+    "@types/react-dom": "^19.1.7"
   }
 }
