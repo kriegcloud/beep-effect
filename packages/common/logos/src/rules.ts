@@ -165,7 +165,7 @@ export namespace DateRule {
     operator: S.Union(
       Operators.IsBefore.Schema,
       Operators.IsAfter.Schema,
-      Operators.IsBetween.Schema
+      Operators.IsBetween.Schema,
     ),
     value: S.String,
   });
@@ -185,7 +185,7 @@ export const Rule = S.Union(
   ObjectKeyValueRule.Rule,
   GenericComparisonRule.Rule,
   GenericTypeRule.Rule,
-  DateRule.Rule
+  DateRule.Rule,
 );
 export type Rule = typeof Rule.Type;
 
@@ -200,6 +200,6 @@ export const RuleInput = S.Union(
   ObjectKeyValueRule.Input,
   GenericComparisonRule.Input,
   GenericTypeRule.Input,
-  DateRule.Input
+  DateRule.Input,
 );
 export type RuleInput = typeof RuleInput.Type;

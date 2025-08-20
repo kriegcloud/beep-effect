@@ -1,7 +1,7 @@
 import type { StringTypes, StructTypes } from "@beep/types";
 import * as S from "effect/Schema";
 
-export const EntityId = S.UUID
+export const EntityId = S.UUID;
 
 export namespace EntityId {
   export type Type = S.Schema.Type<typeof EntityId>;

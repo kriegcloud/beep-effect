@@ -2,26 +2,19 @@ import type { StringTypes, UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
 
 export namespace Op {
-  type Base<
-    Tag extends StringTypes.NonEmptyString<string>,
-    Exec,
-  > = {
+  type Base<Tag extends StringTypes.NonEmptyString<string>, Exec> = {
     readonly Schema: S.Struct<{ _tag: S.Literal<[Tag]> }>;
     readonly op: Tag;
     readonly label: string;
     readonly execute: Exec;
   };
 
-  export function make<
-    const Tag extends StringTypes.NonEmptyString<string>,
-  >(
+  export function make<const Tag extends StringTypes.NonEmptyString<string>>(
     tag: Tag,
     label: string,
   ): {
     // boolean-returning predicates
-    <A, B>(
-      fn: (a: A, b: B) => boolean,
-    ): Base<Tag, (a: A, b: B) => boolean>;
+    <A, B>(fn: (a: A, b: B) => boolean): Base<Tag, (a: A, b: B) => boolean>;
 
     // type-guard predicates (on the 2nd param)
     <A, B, C extends B>(

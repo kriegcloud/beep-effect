@@ -300,7 +300,10 @@ export namespace IsString {
     return Str.isString(b);
   }
 
-  export const { op, Schema } = Op.make("isString", "is string")(Op.lift1(exec));
+  export const { op, Schema } = Op.make(
+    "isString",
+    "is string",
+  )(Op.lift1(exec));
 
   export type Type = Op.Type<"isString">;
 }
@@ -320,7 +323,10 @@ export namespace IsNumber {
     return Num.isNumber(b);
   }
 
-  export const { op, Schema } = Op.make("isNumber", "is number")(Op.lift1(exec));
+  export const { op, Schema } = Op.make(
+    "isNumber",
+    "is number",
+  )(Op.lift1(exec));
 
   export type Type = Op.Type<"isNumber">;
 }
@@ -342,7 +348,10 @@ export namespace IsTruthy {
     return !!b;
   }
 
-  export const { op, Schema } = Op.make("isTruthy", "is truthy")(Op.lift1(exec));
+  export const { op, Schema } = Op.make(
+    "isTruthy",
+    "is truthy",
+  )(Op.lift1(exec));
   export type Type = Op.Type<"isTruthy">;
 }
 
@@ -527,7 +536,7 @@ export const { Enum: OperatorEnum, Schema: Operator } = stringLiteralKit(
   description: "The supported rule operators",
 });
 
-export const LogicalOp = S.Literal("and", "or")
+export const LogicalOp = S.Literal("and", "or");
 
 export namespace LogicalOp {
   export type Type = "and" | "or";

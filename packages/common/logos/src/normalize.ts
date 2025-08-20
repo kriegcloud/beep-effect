@@ -19,7 +19,7 @@ export function normalize<T extends Union.Type | RootUnion.Type>(
   const remove_empty_unions = options?.remove_empty_unions ?? true;
   const remove_failed_validations = options?.remove_failed_validations ?? true;
   const update_parent_ids = options?.update_parent_ids ?? true;
-  let rules = [...union.rules]
+  let rules = [...union.rules];
   rules = A.reduce(
     union.rules,
     [] as (Rule | Union.Type)[],
@@ -69,6 +69,6 @@ export function normalize<T extends Union.Type | RootUnion.Type>(
   );
   return {
     ...union,
-    rules
+    rules,
   };
 }
