@@ -38,7 +38,7 @@
     "@mui/lab": "7.0.0-beta.15",
     "@mui/material": "^7.3.1",
     "@mui/material-nextjs": "^7.3.0",
-    "@mui/x-date-pickers": "^8.10.0",
+    "@mui/x-date-pickers": "^8.10.2",
     "@statelyai/inspect": "^0.4.0",
     "@xstate/react": "^6.0.0",
     "ajv": "^8.17.1",
@@ -46,7 +46,7 @@
     "dayjs": "^1.11.13",
     "effect": "^3.17.8",
     "json-logic-js": "^2.0.5",
-    "next": "^15.4.7",
+    "next": "^15.5.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "xstate": "^5.20.2"
