@@ -57,7 +57,7 @@
     "@types/node": "^24.3.0",
     "@vitest/coverage-v8": "^3.2.4",
     "babel-plugin-annotate-pure-calls": "^0.5.0",
-    "effect": "^3.17.7",
+    "effect": "^3.17.8",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.5",
     "prettier": "^3.6.2",

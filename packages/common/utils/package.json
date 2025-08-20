@@ -33,7 +33,7 @@
   },
   "peerDependencies": {
     "@beep/invariant": "workspace:^",
-    "effect": "^3.17.7",
+    "effect": "^3.17.8",
     "mutative": "^1.2.0"
   },
   "devDependencies": {

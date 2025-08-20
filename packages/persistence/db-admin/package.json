@@ -41,7 +41,7 @@
     "@types/pg": "^8.15.5",
     "drizzle-kit": "^0.31.4",
     "drizzle-orm": "^0.44.4",
-    "effect": "^3.17.7",
+    "effect": "^3.17.8",
     "pg": "^8.16.3"
   },
   "effect": {

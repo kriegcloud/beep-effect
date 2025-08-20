@@ -27,8 +27,8 @@
     "lint:fix": "biome check . --write"
   },
   "dependencies": {
-    "@effect/platform": "^0.90.4",
-    "effect": "^3.17.7"
+    "@effect/platform": "^0.90.5",
+    "effect": "^3.17.8"
   },
   "effect": {
     "generateExports": {

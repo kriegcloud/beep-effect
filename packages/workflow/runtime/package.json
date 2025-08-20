@@ -32,10 +32,10 @@
     "lint:fix": "biome check . --write"
   },
   "dependencies": {
-    "effect": "^3.17.7",
+    "@beep/invariant": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
-    "@beep/invariant": "workspace:^",
+    "effect": "^3.17.8",
     "xstate": "^5.20.2"
   },
   "devDependencies": {

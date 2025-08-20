@@ -36,11 +36,11 @@
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/env": "workspace:^",
-    "effect": "^3.17.7",
+    "effect": "^3.17.8",
     "@effect/ai": "^0.26.0",
     "@effect/ai-openai": "^0.29.0",
     "@effect/ai-anthropic": "^0.16.0",
-    "@effect/platform": "^0.90.3",
+    "@effect/platform": "^0.90.5",
     "@effect/platform-node": "^0.96.0",
     "mutative": "^1.2.0"
   },

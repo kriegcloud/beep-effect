@@ -30,7 +30,7 @@ export type MakePluginsParams = {
     "haveIBeenPwned",
     PluginAdapters.HaveIBeenPwnedOptions
   >;
-  jwt?: PluginOptions<"jwt", PluginAdapters.JwtOptions>;
+  // jwt?: PluginOptions<"jwt", PluginAdapters.JwtOptions>;
   magicLink?: PluginOptions<"magicLink", PluginAdapters.MagicLinkOptions>;
   mcp?: PluginOptions<"mcp", PluginAdapters.McpOptions>;
   multiSession?: PluginOptions<
@@ -93,7 +93,7 @@ export const makePlugins = F.flow(
       opts.haveIBeenPwned
         ? PluginAdapters.makeHaveIBeenPwnedPlugin(opts.haveIBeenPwned.options)
         : undefined,
-      opts.jwt ? PluginAdapters.makeJwtPlugin(opts.jwt.options) : undefined,
+      // opts.jwt ? PluginAdapters.makeJwtPlugin(opts.jwt.options) : undefined,
       opts.magicLink
         ? PluginAdapters.makeMagicLinkPlugin(opts.magicLink.options)
         : undefined,

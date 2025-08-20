@@ -32,11 +32,11 @@
     "lint:fix": "biome check . --write"
   },
   "dependencies": {
-    "@beep/wms-tables": "workspace:^",
     "@beep/db-scope": "workspace:^",
+    "@beep/wms-tables": "workspace:^",
     "drizzle-orm": "^0.44.4",
-    "pg": "^8.16.3",
-    "effect": "^3.17.7"
+    "effect": "^3.17.8",
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "@types/pg": "^8.15.5"

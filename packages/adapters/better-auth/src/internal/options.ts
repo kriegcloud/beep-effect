@@ -12,7 +12,7 @@ import {
   emailOTP,
   genericOAuth,
   haveIBeenPwned,
-  jwt,
+  // jwt,
   magicLink,
   mcp,
   multiSession,
@@ -186,7 +186,7 @@ export const makeOptions = (opts: BetterAuthOptions) =>
       oneTimeToken(),
       sso(),
       nextCookies(),
-      jwt(),
+      // jwt(),
       anonymous(),
       genericOAuth({
         config: [],
