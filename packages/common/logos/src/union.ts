@@ -7,9 +7,9 @@ export namespace Union {
   export type Type = Entity.Type<
     "union",
     {
-      parentId: string;
+      parentId: EntityId.Type;
       logicalOp: Operators.LogicalOp.Type;
-      rules: ReadonlyArray<Rule | Type>;
+      rules: Array<Rule | Type>;
     }
   >;
   export const Schema = Entity.make("union", {
@@ -20,14 +20,14 @@ export namespace Union {
         Rule,
         S.suspend((): S.Schema<Type> => Schema),
       ),
-    ),
+    ).pipe(S.mutable),
   });
 }
 
 export namespace RootUnion {
   export const Schema = Entity.make("rootUnion", {
     logicalOp: Operators.LogicalOp,
-    rules: S.Array(S.Union(Rule, Union.Schema)),
+    rules: S.Array(S.Union(Rule, Union.Schema)).pipe(S.mutable),
   });
   export type Type = typeof Schema.Type;
 }

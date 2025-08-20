@@ -1,10 +1,7 @@
 import type { StringTypes, StructTypes } from "@beep/types";
 import * as S from "effect/Schema";
 
-export class EntityId extends S.UUID {
-  static readonly is = S.is(EntityId);
-  static readonly decode = S.decode(EntityId);
-}
+export const EntityId = S.UUID
 
 export namespace EntityId {
   export type Type = S.Schema.Type<typeof EntityId>;
@@ -29,7 +26,7 @@ export namespace Entity {
     Name extends StringTypes.NonEmptyString<string>,
     Fields extends Record<string, unknown>,
   > = Fields & {
-    readonly id: EntityId.Type;
-    readonly entity: Name;
+    id: EntityId.Type;
+    entity: Name;
   };
 }

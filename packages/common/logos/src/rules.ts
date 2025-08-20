@@ -16,7 +16,7 @@ export namespace StringRule {
       Operators.NotEndsWith.Schema,
       Operators.Matches.Schema,
     ),
-    value: S.Union(S.String, S.instanceOf(RegExp)),
+    value: S.String,
     ignoreCase: S.Boolean,
   });
   export type Rule = typeof Rule.Type;
@@ -159,6 +159,21 @@ export namespace GenericTypeRule {
   export type Input = typeof Input.Type;
 }
 
+export namespace DateRule {
+  export const { Rule, Input } = makeRule("date", {
+    field: S.String,
+    operator: S.Union(
+      Operators.IsBefore.Schema,
+      Operators.IsAfter.Schema,
+      Operators.IsBetween.Schema
+    ),
+    value: S.String,
+  });
+
+  export type Rule = typeof Rule.Type;
+  export type Input = typeof Input.Type;
+}
+
 export const Rule = S.Union(
   StringRule.Rule,
   NumberRule.Rule,
@@ -170,6 +185,7 @@ export const Rule = S.Union(
   ObjectKeyValueRule.Rule,
   GenericComparisonRule.Rule,
   GenericTypeRule.Rule,
+  DateRule.Rule
 );
 export type Rule = typeof Rule.Type;
 
@@ -184,5 +200,6 @@ export const RuleInput = S.Union(
   ObjectKeyValueRule.Input,
   GenericComparisonRule.Input,
   GenericTypeRule.Input,
+  DateRule.Input
 );
 export type RuleInput = typeof RuleInput.Type;
