@@ -1,5 +1,5 @@
 import { isGenericTypeRuleValid } from "@beep/logos/rules-engine/functions/is-generic-type-rule-valid";
-import { BaseGenericTypeRule } from "@beep/logos/rules-engine/schema";
+import type { BaseGenericTypeRule } from "@beep/logos/rules-engine/schema";
 import { expect, test } from "vitest";
 
 test("value is truth", () => {

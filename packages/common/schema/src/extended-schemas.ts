@@ -1,4 +1,4 @@
-import { StructTypes, UnsafeTypes } from "@beep/types";
+import type { StructTypes, UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

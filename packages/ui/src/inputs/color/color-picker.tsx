@@ -3,8 +3,9 @@ import { mergeClasses, rgbaFromChannel } from "@beep/ui/utils";
 import ButtonBase from "@mui/material/ButtonBase";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { alpha as hexAlpha, styled } from "@mui/material/styles";
-import * as A from "effect/Array";
-import React, { useCallback } from "react";
+import type * as A from "effect/Array";
+import type React from "react";
+import { useCallback } from "react";
 import { colorPickerClasses } from "./classes";
 
 // ----------------------------------------------------------------------

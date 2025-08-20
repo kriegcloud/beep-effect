@@ -582,9 +582,15 @@ importers:
 
   packages/iam/domain:
     dependencies:
+      '@beep/schema':
+        specifier: workspace:^
+        version: link:../../common/schema/build
       '@beep/shared-domain':
         specifier: workspace:^
         version: link:../../shared/domain/build
+      '@effect/sql':
+        specifier: ^0.44.2
+        version: 0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.5(effect@3.17.8))(effect@3.17.8))(@effect/platform@0.90.5(effect@3.17.8))(effect@3.17.8)
       effect:
         specifier: ^3.17.8
         version: 3.17.8
@@ -660,6 +666,15 @@ importers:
 
   packages/shared/domain:
     dependencies:
+      '@beep/schema':
+        specifier: workspace:^
+        version: link:../../common/schema/build
+      '@effect/experimental':
+        specifier: ^0.54.6
+        version: 0.54.6(@effect/platform@0.90.5(effect@3.17.8))(effect@3.17.8)
+      '@effect/sql':
+        specifier: ^0.44.2
+        version: 0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.5(effect@3.17.8))(effect@3.17.8))(@effect/platform@0.90.5(effect@3.17.8))(effect@3.17.8)
       effect:
         specifier: ^3.17.8
         version: 3.17.8
@@ -10742,7 +10757,7 @@ snapshots:
     dependencies:
       cipher-base: 1.0.6
       inherits: 2.0.4
-      ripemd160: 2.0.1
+      ripemd160: 2.0.2
       sha.js: 2.4.12
 
   create-hash@1.2.0:

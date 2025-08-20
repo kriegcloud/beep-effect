@@ -1,13 +1,20 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "include": ["src"],
+  "include": [
+    "src"
+  ],
   "references": [
     {
       "path": "../../shared/domain"
+    },
+    {
+      "path": "../../common/schema"
     }
   ],
   "compilerOptions": {
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
@@ -17,9 +24,21 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-      "@beep/iam-domain/*": ["./src/*"],
-      "@beep/shared-domain": ["../../shared/domain/src/index"],
-      "@beep/shared-domain/*": ["../../shared/domain/src/*"]
+      "@beep/iam-domain/*": [
+        "./src/*"
+      ],
+      "@beep/shared-domain": [
+        "../../shared/domain/src/index"
+      ],
+      "@beep/shared-domain/*": [
+        "../../shared/domain/src/*"
+      ],
+      "@beep/schema": [
+        "../../common/schema/src/index"
+      ],
+      "@beep/schema/*": [
+        "../../common/schema/src/*"
+      ]
     }
   }
 }

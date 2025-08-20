@@ -1,6 +1,6 @@
 "use client";
 import { styled } from "@mui/material/styles";
-import * as React from "react";
+import type * as React from "react";
 import { mergeClasses } from "../../utils";
 import { SimpleBar } from "../SimpleBar";
 import { scrollbarClasses } from "./classes";

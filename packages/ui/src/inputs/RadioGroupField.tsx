@@ -1,4 +1,4 @@
-import { DefaultOmit } from "@beep/ui/inputs/Field";
+import type { DefaultOmit } from "@beep/ui/inputs/Field";
 import type { FormControlProps } from "@mui/material/FormControl";
 import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -10,7 +10,7 @@ import Radio from "@mui/material/Radio";
 import type { RadioGroupProps } from "@mui/material/RadioGroup";
 import RadioGroup from "@mui/material/RadioGroup";
 import { useStore } from "@tanstack/react-form";
-import React from "react";
+import type React from "react";
 import { useFieldContext } from "../form";
 import { HelperText } from "./components";
 

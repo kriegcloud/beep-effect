@@ -1,6 +1,6 @@
 import * as S from "effect/Schema";
-import * as AST from "effect/SchemaAST";
-import { DefaultAnnotations } from "../annotations";
+import type * as AST from "effect/SchemaAST";
+import type { DefaultAnnotations } from "../annotations";
 
 namespace TaggedStruct {
   export type Schema<

@@ -1,4 +1,4 @@
-import { Countries } from "@beep/ui/assets/data";
+import type { Countries } from "@beep/ui/assets/data";
 import type { SxProps, Theme } from "@mui/material/styles";
 import type { TextFieldProps } from "@mui/material/TextField";
 import type { Country, Value } from "react-phone-number-input/input";

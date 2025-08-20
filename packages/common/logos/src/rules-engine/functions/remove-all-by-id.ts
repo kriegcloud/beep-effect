@@ -1,5 +1,5 @@
 import * as A from "effect/Array";
-import { RootUnion, Rule, Union } from "../schema";
+import type { RootUnion, Rule, Union } from "../schema";
 
 /**
  * Removes all rules or unions from a union and nested unions by id.

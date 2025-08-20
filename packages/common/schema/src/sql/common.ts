@@ -1,7 +1,7 @@
-import * as VariantSchema from "@effect/experimental/VariantSchema";
+import type * as VariantSchema from "@effect/experimental/VariantSchema";
 import * as M from "@effect/sql/Model";
-import * as DateTime from "effect/DateTime";
-import * as S from "effect/Schema";
+import type * as DateTime from "effect/DateTime";
+import type * as S from "effect/Schema";
 
 /**
  * Optimal DateTime schemas for PostgresSQL with timezone support

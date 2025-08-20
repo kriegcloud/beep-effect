@@ -1,5 +1,5 @@
 import * as Eq from "effect/Equal";
-import { BaseBooleanRule } from "../schema";
+import type { BaseBooleanRule } from "../schema";
 /**
  * Check if a boolean rule is valid.
  * @export

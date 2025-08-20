@@ -1,6 +1,6 @@
 import { addRuleToUnion } from "@beep/logos/rules-engine/functions/add-rule-to-union";
 import { createRoot } from "@beep/logos/rules-engine/functions/create-root";
-import { NewRule } from "@beep/logos/rules-engine/schema";
+import type { NewRule } from "@beep/logos/rules-engine/schema";
 import { expect, test } from "vitest";
 
 test("rule is added to a union", () => {

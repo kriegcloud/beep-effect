@@ -1,5 +1,5 @@
 import type { UnsafeTypes } from "@beep/types";
-import { DefaultOmit } from "@beep/ui/inputs/Field";
+import type { DefaultOmit } from "@beep/ui/inputs/Field";
 import Box from "@mui/material/Box";
 import type { CheckboxProps } from "@mui/material/Checkbox";
 import Checkbox from "@mui/material/Checkbox";
@@ -16,7 +16,7 @@ import Select from "@mui/material/Select";
 import { useStore } from "@tanstack/react-form";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
-import React from "react";
+import type React from "react";
 import { useFieldContext } from "../form";
 import { HelperText } from "./components";
 

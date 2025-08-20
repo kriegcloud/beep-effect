@@ -8,7 +8,8 @@ import type { SxProps, Theme } from "@mui/material/styles";
 import { styled, useTheme } from "@mui/material/styles";
 import type { MotionProps, MotionValue } from "framer-motion";
 import { m, useSpring, useTransform } from "framer-motion";
-import React, { Fragment } from "react";
+import type React from "react";
+import { Fragment } from "react";
 
 // ----------------------------------------------------------------------
 

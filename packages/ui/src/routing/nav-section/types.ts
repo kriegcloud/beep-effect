@@ -1,6 +1,6 @@
 import type { ButtonBaseProps } from "@mui/material/ButtonBase";
 import type { CSSObject, SxProps, Theme } from "@mui/material/styles";
-import React from "react";
+import type React from "react";
 
 /**
  * Item

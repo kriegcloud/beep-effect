@@ -5,7 +5,7 @@ import { enumFromStringArray } from "@beep/utils/transformations";
 import { pgEnum } from "drizzle-orm/pg-core";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
-import * as Equivalence from "effect/Equivalence";
+import type * as Equivalence from "effect/Equivalence";
 import * as FC from "effect/FastCheck";
 import * as JSONSchema from "effect/JSONSchema";
 import * as Pretty from "effect/Pretty";

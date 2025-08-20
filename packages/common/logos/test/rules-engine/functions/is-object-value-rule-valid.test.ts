@@ -1,5 +1,5 @@
 import { isObjectValueRuleValid } from "@beep/logos/rules-engine/functions/is-object-value-rule-valid";
-import { BaseObjectValueRule } from "@beep/logos/rules-engine/schema";
+import type { BaseObjectValueRule } from "@beep/logos/rules-engine/schema";
 import { expect, test } from "vitest";
 
 const bob = { name: "bob" };

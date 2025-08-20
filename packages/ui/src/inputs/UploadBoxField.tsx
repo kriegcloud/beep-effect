@@ -1,6 +1,6 @@
 import { useFieldContext } from "../form";
 import type { FilesUploadType, UploadFieldProps } from "./upload";
-import { FileUploadType, UploadBox } from "./upload";
+import { type FileUploadType, UploadBox } from "./upload";
 
 function UploadBoxField({ name, ...other }: UploadFieldProps) {
   const field = useFieldContext<FileUploadType | FilesUploadType | undefined>();

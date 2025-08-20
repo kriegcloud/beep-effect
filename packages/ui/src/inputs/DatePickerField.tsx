@@ -1,4 +1,4 @@
-import { DefaultOmit } from "@beep/ui/inputs/Field";
+import type { DefaultOmit } from "@beep/ui/inputs/Field";
 import { formatPatterns } from "@beep/ui/utils";
 import type { TextFieldProps } from "@mui/material/TextField";
 import type { DatePickerProps } from "@mui/x-date-pickers/DatePicker";

@@ -10,7 +10,7 @@ import {
   materialRenderers,
 } from "@jsonforms/material-renderers";
 import { JsonForms } from "@jsonforms/react";
-import React from "react";
+import type React from "react";
 import type { StepDefinition } from "../model/types";
 import { getAjv } from "../validation/schema";
 

@@ -1,4 +1,4 @@
-import { NewRule, RootUnion, Rule } from "../schema";
+import type { NewRule, RootUnion, Rule } from "../schema";
 import { findRuleById } from "./find-rule-by-id";
 import { findUnionById } from "./find-union-by-id";
 

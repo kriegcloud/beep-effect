@@ -1,6 +1,6 @@
 import { useFieldContext } from "@beep/ui/form";
 import { HelperText } from "@beep/ui/inputs/components";
-import { DefaultOmit } from "@beep/ui/inputs/Field";
+import type { DefaultOmit } from "@beep/ui/inputs/Field";
 import type { BoxProps } from "@mui/material/Box";
 import Box from "@mui/material/Box";
 import type { CheckboxProps as MuiCheckboxProps } from "@mui/material/Checkbox";
@@ -9,7 +9,7 @@ import type { FormControlLabelProps } from "@mui/material/FormControlLabel";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import type { FormHelperTextProps } from "@mui/material/FormHelperText";
 import { useStore } from "@tanstack/react-form";
-import React from "react";
+import type React from "react";
 
 type CheckboxProps = Omit<FormControlLabelProps, "control"> & {
   helperText?: React.ReactNode;

@@ -1,7 +1,7 @@
 import type { FileThumbnailProps } from "@beep/ui/atoms/file-thumbnail";
 import type { BoxProps } from "@mui/material/Box";
 import type { SxProps, Theme } from "@mui/material/styles";
-import React from "react";
+import type React from "react";
 import type { DropzoneOptions } from "react-dropzone";
 
 export type FileUploadType = File | string | null;

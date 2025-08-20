@@ -1,5 +1,5 @@
 import type { SxProps, Theme } from "@mui/material/styles";
-import React from "react";
+import type React from "react";
 
 export type SvgColorProps = React.ComponentProps<"span"> & {
   src: string;

@@ -1,5 +1,5 @@
 import { isNumberRuleValid } from "@beep/logos/rules-engine/functions/is-number-rule-valid";
-import { BaseNumberRule } from "@beep/logos/rules-engine/schema";
+import type { BaseNumberRule } from "@beep/logos/rules-engine/schema";
 import { expect, test } from "vitest";
 
 test("number is equal to", () => {

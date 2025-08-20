@@ -1,7 +1,7 @@
 import type { BreadcrumbsProps } from "@mui/material/Breadcrumbs";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import type { SxProps, Theme } from "@mui/material/styles";
-import React from "react";
+import type React from "react";
 import { BackLink } from "./back-link";
 import type { BreadcrumbsLinkProps } from "./breadcrumb-link";
 import { BreadcrumbsLink } from "./breadcrumb-link";

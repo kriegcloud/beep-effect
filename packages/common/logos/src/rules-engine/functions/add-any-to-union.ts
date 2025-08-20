@@ -1,5 +1,11 @@
 import * as S from "effect/Schema";
-import { NewRule, NewUnion, RootUnion, Rule, Union } from "../schema";
+import {
+  NewRule,
+  NewUnion,
+  type RootUnion,
+  type Rule,
+  type Union,
+} from "../schema";
 import { addRuleToUnion } from "./add-rule-to-union";
 import { addUnionToUnion } from "./add-union-to-union";
 

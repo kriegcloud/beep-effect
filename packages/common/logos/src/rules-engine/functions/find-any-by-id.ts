@@ -1,5 +1,5 @@
 import * as A from "effect/Array";
-import { RootUnion, Rule, Union } from "../schema";
+import type { RootUnion, Rule, Union } from "../schema";
 
 /**
  * Find a rule or a union by id.

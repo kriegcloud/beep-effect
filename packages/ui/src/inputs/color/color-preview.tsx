@@ -1,7 +1,7 @@
 import { mergeClasses, rgbaFromChannel } from "@beep/ui/utils";
 import { styled } from "@mui/material/styles";
 
-import React from "react";
+import type React from "react";
 import { colorPreviewClasses } from "./classes";
 // ----------------------------------------------------------------------
 

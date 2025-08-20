@@ -1,7 +1,7 @@
 import type { FormHelperTextProps } from "@mui/material/FormHelperText";
 
 import FormHelperText from "@mui/material/FormHelperText";
-import React from "react";
+import type React from "react";
 
 export type HelperTextProps = FormHelperTextProps & {
   errorMessage?: string;

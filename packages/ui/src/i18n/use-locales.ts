@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import type { Namespace } from "i18next";
 import { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { fallbackLang, SupportedLangValue } from "./constants";
+import { fallbackLang, type SupportedLangValue } from "./constants";
 import { getCurrentLang } from "./locales-config";
 // ----------------------------------------------------------------------
 

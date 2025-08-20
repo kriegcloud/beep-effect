@@ -1,4 +1,4 @@
-import * as B from "effect/Brand";
+import type * as B from "effect/Brand";
 import * as F from "effect/Function";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";

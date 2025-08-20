@@ -2,7 +2,7 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Rule } from "./rules";
-import { RootUnion, Union } from "./union";
+import { type RootUnion, Union } from "./union";
 
 type Options = {
   remove_failed_validations?: boolean;

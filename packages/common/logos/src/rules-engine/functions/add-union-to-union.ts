@@ -1,6 +1,6 @@
 import * as S from "effect/Schema";
 import { v4 as uuid } from "uuid";
-import { NewUnion, RootUnion, Union } from "../schema";
+import { type NewUnion, type RootUnion, Union } from "../schema";
 
 /**
  * Add a new union to a union.

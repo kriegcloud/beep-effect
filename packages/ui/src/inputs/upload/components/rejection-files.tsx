@@ -2,7 +2,7 @@ import { fileData } from "@beep/ui/atoms";
 import { fData, mergeClasses, rgbaFromChannel } from "@beep/ui/utils";
 import { styled } from "@mui/material/styles";
 
-import React from "react";
+import type React from "react";
 import type { FileRejection } from "react-dropzone";
 import { uploadClasses } from "../classes";
 

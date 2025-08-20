@@ -1,4 +1,4 @@
-import { BaseNumberRule } from "../schema";
+import type { BaseNumberRule } from "../schema";
 
 /**
  * Check if a number rule is valid.

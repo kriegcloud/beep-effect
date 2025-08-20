@@ -1,6 +1,6 @@
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { Auth, makeAuth } from "./internal/auth";
+import { type Auth, makeAuth } from "./internal/auth";
 
 export const auth: Auth = makeAuth({
   database: drizzleAdapter(NodePgDatabase, {

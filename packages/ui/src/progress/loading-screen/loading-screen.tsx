@@ -4,7 +4,8 @@ import LinearProgress from "@mui/material/LinearProgress";
 import Portal from "@mui/material/Portal";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
-import React, { Fragment } from "react";
+import type React from "react";
+import { Fragment } from "react";
 
 export type LoadingScreenProps = React.ComponentProps<"div"> & {
   portal?: boolean | undefined;

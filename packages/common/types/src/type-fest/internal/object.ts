@@ -5,7 +5,7 @@ import type { KeysOfUnion } from "../keys-of-union";
 import type { Merge } from "../merge";
 import type { OptionalKeysOf } from "../optional-keys-of";
 import type { RequiredKeysOf } from "../required-keys-of";
-import { Simplify } from "../simplify";
+import type { Simplify } from "../simplify";
 import type { UnknownArray } from "../unknown-array";
 import type { FilterDefinedKeys, FilterOptionalKeys } from "./keys";
 import type { ToString } from "./string";

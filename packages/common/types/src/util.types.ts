@@ -1,5 +1,5 @@
-import * as A from "effect/Array";
-import * as S from "effect/Schema";
+import type * as A from "effect/Array";
+import type * as S from "effect/Schema";
 
 /* -------------------------------------------------------------------------------------------------
  * Small helpers (readability > cleverness)

@@ -1,6 +1,6 @@
 import { CircularProgress } from "@mui/material";
 import Button from "@mui/material/Button";
-import React from "react";
+import type React from "react";
 import { useFormContext } from "./useAppForm";
 
 export type SubmitButtonProps = React.ComponentProps<typeof Button> & {

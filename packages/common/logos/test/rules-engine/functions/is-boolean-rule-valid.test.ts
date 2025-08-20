@@ -1,5 +1,5 @@
 import { isBooleanRuleValid } from "@beep/logos/rules-engine/functions/is-boolean-rule-valid";
-import { BaseBooleanRule } from "@beep/logos/rules-engine/schema";
+import type { BaseBooleanRule } from "@beep/logos/rules-engine/schema";
 import { expect, test } from "vitest";
 
 const isValid = true;

@@ -2,7 +2,7 @@ import Link from "@mui/material/Link";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
 
-import React from "react";
+import type React from "react";
 import { RouterLink } from "../RouterLink";
 
 export type BreadcrumbsLinkProps = React.ComponentProps<"div"> & {

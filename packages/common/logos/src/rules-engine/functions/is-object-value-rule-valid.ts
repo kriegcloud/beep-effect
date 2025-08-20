@@ -1,4 +1,4 @@
-import { BaseObjectValueRule } from "../schema";
+import type { BaseObjectValueRule } from "../schema";
 
 /**
  * Check if an object value rule is valid.

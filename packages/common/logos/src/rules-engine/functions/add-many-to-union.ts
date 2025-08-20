@@ -1,4 +1,4 @@
-import { NewRule, NewUnion, RootUnion, Rule, Union } from "../schema";
+import type { NewRule, NewUnion, RootUnion, Rule, Union } from "../schema";
 
 import { addAnyToUnion } from "./add-any-to-union";
 

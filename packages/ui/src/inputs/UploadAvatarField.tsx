@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import { useFieldContext } from "../form";
 import { HelperText } from "./components";
 import type { FilesUploadType, UploadFieldProps } from "./upload";
-import { FileUploadType, UploadAvatar } from "./upload";
+import { type FileUploadType, UploadAvatar } from "./upload";
 
 function UploadAvatarField({ name, slotProps, ...other }: UploadFieldProps) {
   const field = useFieldContext<FileUploadType | FilesUploadType | undefined>();

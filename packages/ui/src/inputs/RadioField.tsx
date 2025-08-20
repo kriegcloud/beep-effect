@@ -9,8 +9,8 @@ import MuiRadioField, {
   type RadioProps as MuiRadioProps,
 } from "@mui/material/Radio";
 import { useStore } from "@tanstack/react-form";
-import React from "react";
-import { DefaultOmit } from "./Field";
+import type React from "react";
+import type { DefaultOmit } from "./Field";
 
 export type RadioProps = Omit<FormControlLabelProps, "control"> & {
   helperText?: React.ReactNode;

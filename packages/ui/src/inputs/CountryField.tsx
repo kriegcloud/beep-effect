@@ -18,7 +18,8 @@ import { useStore } from "@tanstack/react-form";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
-import React, { useCallback, useMemo } from "react";
+import type React from "react";
+import { useCallback, useMemo } from "react";
 import { useFieldContext } from "../form";
 
 type Value = string;

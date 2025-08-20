@@ -4,7 +4,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as S from "effect/Schema";
-import { RepoDepMapValue, WorkspacePkgKey } from "../schemas";
+import { type RepoDepMapValue, WorkspacePkgKey } from "../schemas";
 import { extractWorkspaceDependencies } from "./Dependencies";
 import { mapWorkspaceToPackageJsonPath } from "./PackageJsonMap";
 import { findRepoRoot } from "./Root";

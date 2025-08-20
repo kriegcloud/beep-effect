@@ -1,5 +1,5 @@
 import * as S from "effect/Schema";
-import { StringTypes } from "../../../types/src";
+import type { StringTypes } from "../../../types/src";
 
 export const LogosEntityId = S.UUID.annotations({
   identifier: "LogosEntityId",

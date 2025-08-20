@@ -7,7 +7,7 @@ import {
   allLanguages,
   defaultNS,
   fallbackLang,
-  LangOption,
+  type LangOption,
   SupportedLangValue,
 } from "./constants";
 export const i18nResourceLoader = resourcesToBackend(

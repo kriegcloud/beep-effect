@@ -1,4 +1,4 @@
-import { BaseArrayValueRule } from "../schema";
+import type { BaseArrayValueRule } from "../schema";
 
 /**
  * Check if an array value rule is valid.

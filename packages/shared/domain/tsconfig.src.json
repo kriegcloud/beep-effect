@@ -1,7 +1,11 @@
 {
   "extends": "../../../tsconfig.base.json",
   "include": ["src"],
-  "references": [],
+  "references": [
+    {
+      "path": "../../common/schema"
+    }
+  ],
   "compilerOptions": {
     "types": ["node"],
     "outDir": "build/src",
@@ -13,7 +17,9 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-      "@beep/shared-domain/*": ["./src/*"]
+      "@beep/shared-domain/*": ["./src/*"],
+      "@beep/schema": ["../../common/schema/src/index"],
+      "@beep/schema/*": ["../../common/schema/src/*"]
     }
   }
 }

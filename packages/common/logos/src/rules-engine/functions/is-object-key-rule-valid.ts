@@ -1,4 +1,4 @@
-import { BaseObjectKeyRule } from "../schema";
+import type { BaseObjectKeyRule } from "../schema";
 
 /**
  * Check if an object key rule is valid.

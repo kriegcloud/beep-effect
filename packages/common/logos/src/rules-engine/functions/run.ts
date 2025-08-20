@@ -1,6 +1,6 @@
 import * as S from "effect/Schema";
 import get from "lodash.get";
-import { RootUnion, Rule, Union } from "../schema";
+import { RootUnion, type Rule, Union } from "../schema";
 import { isObject } from "../utils/is-object";
 import { isArrayLengthRuleValid } from "./is-array-length-rule-valid";
 import { isArrayValueRuleValid } from "./is-array-value-rule-valid";

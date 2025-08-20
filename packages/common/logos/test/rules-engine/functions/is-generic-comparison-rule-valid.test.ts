@@ -1,5 +1,5 @@
 import { isGenericComparisonRuleValid } from "@beep/logos/rules-engine/functions/is-generic-comparison-rule-valid";
-import { BaseGenericComparisonRule } from "@beep/logos/rules-engine/schema";
+import type { BaseGenericComparisonRule } from "@beep/logos/rules-engine/schema";
 import { expect, test } from "vitest";
 
 test("value is equal to", () => {

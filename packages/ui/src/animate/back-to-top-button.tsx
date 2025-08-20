@@ -2,7 +2,8 @@ import { Iconify } from "@beep/ui/atoms/iconify";
 import { useBackToTop } from "@beep/ui/hooks";
 import type { FabProps } from "@mui/material/Fab";
 import Fab from "@mui/material/Fab";
-import React, { cloneElement } from "react";
+import type React from "react";
+import { cloneElement } from "react";
 
 // ----------------------------------------------------------------------
 

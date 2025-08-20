@@ -1,6 +1,6 @@
 import * as F from "effect/Function";
 import * as O from "effect/Option";
-import * as S from "effect/Schema";
+import type * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
 
 /**
@@ -12,7 +12,6 @@ import * as AST from "effect/SchemaAST";
 export * from "effect/Schema";
 export * from "./annotations";
 export * from "./custom";
-export * from "./EntityId";
 export * from "./EntityId";
 // export * from "./extended-schemas";
 export {

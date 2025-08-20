@@ -1,6 +1,6 @@
 import { useFieldContext } from "@beep/ui/form";
 import { HelperText } from "@beep/ui/inputs/components";
-import { DefaultOmit } from "@beep/ui/inputs/Field";
+import type { DefaultOmit } from "@beep/ui/inputs/Field";
 import type { BoxProps } from "@mui/material/Box";
 import Box from "@mui/material/Box";
 import type { FormControlLabelProps } from "@mui/material/FormControlLabel";
@@ -9,7 +9,7 @@ import type { FormHelperTextProps } from "@mui/material/FormHelperText";
 import type { SwitchProps as MuiSwitchProps } from "@mui/material/Switch";
 import MuiSwitch from "@mui/material/Switch";
 import { useStore } from "@tanstack/react-form";
-import React from "react";
+import type React from "react";
 
 export type SwitchProps = Omit<FormControlLabelProps, "control"> & {
   helperText?: React.ReactNode;

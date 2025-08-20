@@ -1,8 +1,8 @@
-import * as A from "effect/Array";
+import type * as A from "effect/Array";
 import type * as S from "effect/Schema";
 import type { NonEmptyRecordWithStringKeys } from "./record.types";
 import type { NonEmptyString } from "./string.types";
-import * as UnsafeTypes from "./unsafe.types";
+import type * as UnsafeTypes from "./unsafe.types";
 
 export type StructFieldsWithStringKeys = {
   readonly [x: string]: S.Struct.Field;

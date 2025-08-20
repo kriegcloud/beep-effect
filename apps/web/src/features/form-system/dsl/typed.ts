@@ -3,7 +3,7 @@
  * Location: apps/web/src/features/form-system/dsl/typed.ts
  */
 
-import { JSONSchema as EffectJSONSchema, Schema } from "effect";
+import { JSONSchema as EffectJSONSchema, type Schema } from "effect";
 import type {
   JsonLogicRule,
   JsonObject,

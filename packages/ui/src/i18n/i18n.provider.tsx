@@ -1,9 +1,10 @@
 "use client";
 import i18next from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
-import React, { useMemo } from "react";
+import type React from "react";
+import { useMemo } from "react";
 import { initReactI18next, I18nextProvider as Provider } from "react-i18next";
-import { SupportedLangValue } from "./constants";
+import type { SupportedLangValue } from "./constants";
 import { i18nOptions, i18nResourceLoader } from "./locales-config";
 
 void i18next

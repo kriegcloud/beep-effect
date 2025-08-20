@@ -1,9 +1,9 @@
 import { invariant } from "@beep/invariant";
-import { StringTypes } from "@beep/types";
+import type { StringTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as P from "effect/Predicate";
-import * as R from "effect/Record";
+import type * as R from "effect/Record";
 import { create } from "mutative";
 import { valuesFromEnum } from "./valuesFromEnum";
 

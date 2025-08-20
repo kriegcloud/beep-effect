@@ -1,5 +1,5 @@
 import { isStringRuleValid } from "@beep/logos/rules-engine/functions/is-string-rule-valid";
-import { BaseStringRule } from "@beep/logos/rules-engine/schema";
+import type { BaseStringRule } from "@beep/logos/rules-engine/schema";
 import { expect, test } from "vitest";
 
 test("string equals to", () => {

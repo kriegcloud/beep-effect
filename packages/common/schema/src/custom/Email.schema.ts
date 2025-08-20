@@ -1,4 +1,4 @@
-import * as B from "effect/Brand";
+import type * as B from "effect/Brand";
 import * as F from "effect/Function";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
@@ -9,7 +9,7 @@ import * as S from "effect/Schema";
  */
 export const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-const EmailBase = S.Lowercase.pipe(
+export const EmailBase = S.Lowercase.pipe(
   S.compose(S.Trim),
   S.compose(S.NonEmptyTrimmedString),
   S.annotations({
@@ -18,7 +18,7 @@ const EmailBase = S.Lowercase.pipe(
   S.pattern(EMAIL_REGEX),
   S.brand("Email"),
 ).annotations({
-  jsonSchema: { format: "email", type: "string" },
+  jsonSchema: {format: "email", type: "string"},
   arbitrary: () => (fc) =>
     fc.emailAddress().map((_) => _ as B.Branded<string, "Email">),
   title: "Email",

@@ -1,4 +1,4 @@
-import { DefaultOmit } from "@beep/ui/inputs/Field";
+import type { DefaultOmit } from "@beep/ui/inputs/Field";
 import type { CheckboxProps } from "@mui/material/Checkbox";
 import Checkbox from "@mui/material/Checkbox";
 import type { FormControlProps } from "@mui/material/FormControl";
@@ -11,7 +11,7 @@ import type { FormLabelProps } from "@mui/material/FormLabel";
 import FormLabel from "@mui/material/FormLabel";
 import { useStore } from "@tanstack/react-form";
 import * as A from "effect/Array";
-import React from "react";
+import type React from "react";
 import { useFieldContext } from "../form";
 import { HelperText } from "./components";
 

@@ -5,7 +5,9 @@
     "paths": {
       "@beep/iam-domain/*": ["./src/*"],
       "@beep/shared-domain": ["../../shared/domain/src/index"],
-      "@beep/shared-domain/*": ["../../shared/domain/src/*"]
+      "@beep/shared-domain/*": ["../../shared/domain/src/*"],
+      "@beep/schema": ["../../common/schema/src/index"],
+      "@beep/schema/*": ["../../common/schema/src/*"]
     }
   },
   "references": [

@@ -1,4 +1,4 @@
-import * as R from "effect/Record";
+import type * as R from "effect/Record";
 
 /* -------------------------------------------------------------------------------------------------
  * ⚠️  Unsafe / escape-hatch aliases (use sparingly)

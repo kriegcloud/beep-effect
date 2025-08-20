@@ -1,7 +1,7 @@
 import Box, { type BoxProps } from "@mui/material/Box";
 
 import Typography from "@mui/material/Typography";
-import * as React from "react";
+import type * as React from "react";
 
 type FormHeadProps = BoxProps & {
   icon?: React.ReactNode | undefined;

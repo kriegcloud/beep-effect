@@ -1,5 +1,5 @@
+import type { DbError } from "@beep/db-scope/errors";
 import * as DbErrors from "@beep/db-scope/errors";
-import { DbError } from "@beep/db-scope/errors";
 import type { ExtractTablesWithRelations } from "drizzle-orm";
 import type {
   NodePgDatabase,

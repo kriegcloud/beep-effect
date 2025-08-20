@@ -1,9 +1,9 @@
-import { DefaultOmit } from "@beep/ui/inputs/Field";
+import type { DefaultOmit } from "@beep/ui/inputs/Field";
 import type { TextFieldProps } from "@mui/material/TextField";
 import TextField from "@mui/material/TextField";
 import { useStore } from "@tanstack/react-form";
 import { merge } from "es-toolkit";
-import React from "react";
+import type React from "react";
 import { useFieldContext } from "../form";
 
 type SelectFieldProps = DefaultOmit<TextFieldProps> & {

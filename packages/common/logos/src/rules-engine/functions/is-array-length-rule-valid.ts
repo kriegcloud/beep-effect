@@ -1,4 +1,4 @@
-import { BaseArrayLengthRule } from "../schema";
+import type { BaseArrayLengthRule } from "../schema";
 /**
  * Check if an array length rule is valid.
  * @export

@@ -1,5 +1,5 @@
 import isPlainObject from "lodash.isplainobject";
-import { BaseGenericTypeRule } from "../schema";
+import type { BaseGenericTypeRule } from "../schema";
 
 /**
  * Check if a generic type rule is valid.

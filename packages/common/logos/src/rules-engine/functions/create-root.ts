@@ -1,5 +1,5 @@
 import { v4 as uuid } from "uuid";
-import { NewUnion, RootUnion } from "../schema";
+import type { NewUnion, RootUnion } from "../schema";
 
 /**
  * Creates a new root union.

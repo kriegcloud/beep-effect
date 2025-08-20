@@ -7,6 +7,7 @@
 export * from "./Email.schema";
 export * from "./IP.schema";
 export * from "./Json.schema";
+export * from "./Password.schema";
 export * from "./Phone.schema";
 export * from "./Slug.schema";
 export * from "./URLPath.schema";

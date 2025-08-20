@@ -1,4 +1,4 @@
-import { BaseStringRule } from "../schema";
+import type { BaseStringRule } from "../schema";
 
 /**
  * Check if a string rule is valid.

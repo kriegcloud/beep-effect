@@ -3,9 +3,9 @@ import MuiTextField, { type TextFieldProps } from "@mui/material/TextField";
 import { useStore } from "@tanstack/react-form";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
-import React from "react";
+import type React from "react";
 import { transformValue, transformValueOnChange } from "../utils";
-import { DefaultOmit } from "./Field";
+import type { DefaultOmit } from "./Field";
 
 const TextField: React.FC<DefaultOmit<TextFieldProps>> = ({
   helperText,

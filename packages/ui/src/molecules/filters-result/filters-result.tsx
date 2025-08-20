@@ -4,7 +4,7 @@ import Button from "@mui/material/Button";
 import type { ChipProps } from "@mui/material/Chip";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
-import React from "react";
+import type React from "react";
 
 // ----------------------------------------------------------------------
 

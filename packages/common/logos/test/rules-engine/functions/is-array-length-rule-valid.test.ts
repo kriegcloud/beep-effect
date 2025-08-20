@@ -1,5 +1,5 @@
 import { isArrayLengthRuleValid } from "@beep/logos/rules-engine/functions/is-array-length-rule-valid";
-import { BaseArrayLengthRule } from "@beep/logos/rules-engine/schema";
+import type { BaseArrayLengthRule } from "@beep/logos/rules-engine/schema";
 import { expect, test } from "vitest";
 
 const names = ["bob", "alice"];

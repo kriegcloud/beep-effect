@@ -1,4 +1,4 @@
-import { NewUnion, RootUnion, Union } from "../schema";
+import type { NewUnion, RootUnion, Union } from "../schema";
 
 import { findUnionById } from "./find-union-by-id";
 

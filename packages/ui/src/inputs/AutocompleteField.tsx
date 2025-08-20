@@ -1,13 +1,13 @@
 import type { UnsafeTypes } from "@beep/types";
 import { useFieldContext } from "@beep/ui/form";
-import { DefaultOmit } from "@beep/ui/inputs/Field";
+import type { DefaultOmit } from "@beep/ui/inputs/Field";
 import type { AutocompleteProps as MuiAutocompleteProps } from "@mui/material/Autocomplete";
 import Autocomplete from "@mui/material/Autocomplete";
 import type { TextFieldProps } from "@mui/material/TextField";
 import TextField from "@mui/material/TextField";
 import { useStore } from "@tanstack/react-form";
 import * as F from "effect/Function";
-import React from "react";
+import type React from "react";
 
 export type AutocompleteBaseProps = Omit<
   MuiAutocompleteProps<UnsafeTypes.UnsafeAny, boolean, boolean, boolean>,

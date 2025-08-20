@@ -1,7 +1,7 @@
 "use client";
 
 import { styled } from "@mui/material/styles";
-import React from "react";
+import type React from "react";
 import { mergeClasses } from "../../utils";
 import { flagIconClasses } from "./classes";
 

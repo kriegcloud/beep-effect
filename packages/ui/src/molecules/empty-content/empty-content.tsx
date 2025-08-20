@@ -6,7 +6,7 @@ import type { SxProps, Theme } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
 import type { TypographyProps } from "@mui/material/Typography";
 import Typography from "@mui/material/Typography";
-import React from "react";
+import type React from "react";
 
 // ----------------------------------------------------------------------
 

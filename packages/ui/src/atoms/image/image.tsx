@@ -4,7 +4,8 @@ import { mergeClasses, mergeRefs } from "@beep/ui/utils";
 import type { Breakpoint } from "@mui/material/styles";
 import type { UseInViewOptions } from "framer-motion";
 import { useInView } from "framer-motion";
-import React, { startTransition, useCallback, useRef, useState } from "react";
+import type React from "react";
+import { startTransition, useCallback, useRef, useState } from "react";
 
 import { imageClasses } from "./classes";
 import type { EffectsType } from "./styles";

@@ -1,5 +1,5 @@
 import acceptLanguage from "accept-language";
-import { createInstance, i18n } from "i18next";
+import { createInstance, type i18n } from "i18next";
 import { cookies, headers } from "next/headers";
 import { cache } from "react";
 import { initReactI18next } from "react-i18next/initReactI18next";

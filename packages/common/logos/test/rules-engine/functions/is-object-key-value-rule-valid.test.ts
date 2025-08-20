@@ -1,5 +1,5 @@
 import { isObjectKeyValueRuleValid } from "@beep/logos/rules-engine/functions/is-object-key-value-rule-valid";
-import { BaseObjectKeyValuePairRule } from "@beep/logos/rules-engine/schema";
+import type { BaseObjectKeyValuePairRule } from "@beep/logos/rules-engine/schema";
 import { expect, test } from "vitest";
 
 const bob = { name: "bob", age: 30 };

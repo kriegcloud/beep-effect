@@ -3,7 +3,7 @@ import { mergeClasses } from "@beep/ui/utils";
 import Box from "@mui/material/Box";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
-import React from "react";
+import type React from "react";
 
 export type UploadPlaceholderProps = React.ComponentProps<"div"> & {
   sx?: SxProps<Theme>;

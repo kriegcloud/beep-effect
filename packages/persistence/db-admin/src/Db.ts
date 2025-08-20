@@ -1,4 +1,4 @@
-import { Config, makeScopedDb } from "@beep/db-scope";
+import { type Config, makeScopedDb } from "@beep/db-scope";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as DbSchema from "./schema";

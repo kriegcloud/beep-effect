@@ -3,7 +3,8 @@
  * Location: apps/web/src/features/form-system/validation/schema.ts
  */
 
-import Ajv, { type ErrorObject } from "ajv";
+import type Ajv from "ajv";
+import type { ErrorObject } from "ajv";
 import Ajv2020 from "ajv/dist/2020";
 import addFormats from "ajv-formats";
 import type { JSONSchema, WorkflowDefinition } from "../model/types";

@@ -1,4 +1,4 @@
-import { BaseGenericComparisonRule } from "../schema";
+import type { BaseGenericComparisonRule } from "../schema";
 
 /**
  * Check if a generic comparison rule is valid.

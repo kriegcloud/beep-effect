@@ -1,18 +1,18 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.4/schema.json",
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "root": true,
   "files": {
     "includes": [
       "**",
       "!**/*.css",
-      "!**/.tsup/**",
-      "!**/dist/**",
+      "!**/.tsup",
+      "!**/dist",
       "!**/.turbo",
-      "!**/public/**",
-      "!**/build/**",
-      "!**/.next/**",
+      "!**/public",
+      "!**/build",
+      "!**/.next",
       "!.tsbuildinfo",
-      "!**/__snapshots__/**",
+      "!**/__snapshots__",
       "!./package.json"
     ]
   },
@@ -40,7 +40,13 @@
       "bracketSameLine": false
     }
   },
-  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
   "linter": {
     "enabled": true,
     "rules": {
@@ -84,7 +90,7 @@
       },
       "suspicious": {
         "useAdjacentOverloadSignatures": "off",
-        "noDoubleEquals": "off",
+        "noDoubleEquals": "error",
         "noPrototypeBuiltins": "off",
         "noDebugger": "off",
         "noRedeclare": "off",
@@ -100,7 +106,7 @@
       },
       "style": {
         "noNonNullAssertion": "off",
-        "useImportType": "off",
+        "useImportType": "error",
         "noUnusedTemplateLiteral": "off",
         "noParameterAssign": "off",
         "useAsConstAssertion": "error",

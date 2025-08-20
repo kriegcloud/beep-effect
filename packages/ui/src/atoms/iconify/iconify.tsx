@@ -4,7 +4,8 @@ import type { IconProps } from "@iconify/react";
 
 import { Icon } from "@iconify/react";
 import { styled } from "@mui/material/styles";
-import React, { useId } from "react";
+import type React from "react";
+import { useId } from "react";
 import { mergeClasses } from "../../utils";
 
 import { iconifyClasses } from "./classes";

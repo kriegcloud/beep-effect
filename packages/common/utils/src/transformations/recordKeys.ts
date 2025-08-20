@@ -1,5 +1,5 @@
 import type { RecordTypes, UnsafeTypes } from "@beep/types";
-import * as A from "effect/Array";
+import type * as A from "effect/Array";
 import * as HashSet from "effect/HashSet";
 import * as R from "effect/Record";
 import * as Struct from "effect/Struct";

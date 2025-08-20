@@ -31,9 +31,11 @@
     "lint": "biome check .",
     "lint:fix": "biome check . --write"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@beep/shared-domain": "workspace:^",
-    "effect": "^3.17.8"
+    "@beep/schema": "workspace:^",
+    "effect": "^3.17.8",
+    "@effect/sql": "^0.44.2"
   },
   "effect": {
     "generateExports": {

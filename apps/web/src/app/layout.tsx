@@ -12,7 +12,7 @@ import { primary, themeConfig } from "@beep/ui/theme";
 import { ThemeProvider } from "@beep/ui/theme/theme-provider";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import type { Metadata, Viewport } from "next";
-import React from "react";
+import type React from "react";
 // import { GlobalProviders } from "@/global-providers";
 import "dayjs/locale/en";
 import "dayjs/locale/vi";

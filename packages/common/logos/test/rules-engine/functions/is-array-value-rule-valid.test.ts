@@ -1,5 +1,5 @@
 import { isArrayValueRuleValid } from "@beep/logos/rules-engine/functions/is-array-value-rule-valid";
-import { BaseArrayValueRule } from "@beep/logos/rules-engine/schema";
+import type { BaseArrayValueRule } from "@beep/logos/rules-engine/schema";
 import { expect, test } from "vitest";
 
 const bob = { name: "bob" };
