@@ -2,7 +2,7 @@ import type * as VariantSchema from "@effect/experimental/VariantSchema";
 import * as M from "@effect/sql/Model";
 import type * as DateTime from "effect/DateTime";
 import * as S from "effect/Schema";
-import {SharedEntityIds} from "./EntityIds";
+import { SharedEntityIds } from "./EntityIds";
 
 /**
  * Optimal DateTime schemas for PostgresSQL with timezone support

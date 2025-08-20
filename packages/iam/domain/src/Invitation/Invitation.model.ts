@@ -1,7 +1,7 @@
-import {Common, IamEntityIds, SharedEntityIds} from "@beep/shared-domain";
+import { BS } from "@beep/schema";
+import { Common, IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-import {BS} from "@beep/schema";
 
 /**
  * Invitation model representing organization and team invitations.
@@ -53,5 +53,4 @@ export class Model extends M.Class<Model>(`Invitation.Model`)({
 
   // Default columns include organizationId
   ...Common.defaultColumns,
-}) {
-}
+}) {}

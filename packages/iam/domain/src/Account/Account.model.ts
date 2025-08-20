@@ -1,5 +1,5 @@
-import {BS} from "@beep/schema";
-import {Common, IamEntityIds} from "@beep/shared-domain";
+import { BS } from "@beep/schema";
+import { Common, IamEntityIds } from "@beep/shared-domain";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -86,5 +86,4 @@ export class Model extends M.Class<Model>(`Account.Model`)({
 
   // Audit and tracking columns
   ...Common.globalColumns,
-}) {
-}
+}) {}

@@ -1,6 +1,6 @@
-import {BS} from "@beep/schema";
+import { BS } from "@beep/schema";
 import * as Common from "@beep/shared-domain/common";
-import {SharedEntityIds} from "@beep/shared-domain/EntityIds";
+import { SharedEntityIds } from "@beep/shared-domain/EntityIds";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -40,5 +40,4 @@ export class Model extends M.Class<Model>(`TeamModel`)({
 
   // Default columns include organizationId
   ...Common.defaultColumns,
-}) {
-}
+}) {}

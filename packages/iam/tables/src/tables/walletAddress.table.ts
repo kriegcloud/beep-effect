@@ -3,7 +3,7 @@ import * as pg from "drizzle-orm/pg-core";
 import { user } from "./user.table";
 
 export const walletAddress = pg.pgTable(
-  "verification",
+  "wallet_address",
   {
     id: pg.text("id").primaryKey(),
     userId: pg
@@ -15,5 +15,9 @@ export const walletAddress = pg.pgTable(
     isPrimary: pg.boolean("is_primary"),
     ...Common.globalColumns,
   },
-  (t) => [],
+  (t) => [
+    pg
+      .uniqueIndex("wallet_address_user_chain_id_unique_idx")
+      .on(t.userId, t.address, t.chainId),
+  ],
 );

@@ -1,5 +1,5 @@
-import {BS} from "@beep/schema";
-import {Common, IamEntityIds} from "@beep/shared-domain";
+import { BS } from "@beep/schema";
+import { Common, IamEntityIds } from "@beep/shared-domain";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -17,9 +17,11 @@ export class Model extends M.Class<Model>(`User.Model`)({
   }),
 
   /** User's email address (unique) */
-  email: M.Sensitive(BS.Email.annotations({
-    description: "The user's email address",
-  })),
+  email: M.Sensitive(
+    BS.Email.annotations({
+      description: "The user's email address",
+    }),
+  ),
 
   /** Whether the user's email has been verified */
   emailVerified: S.Boolean.annotations({
@@ -85,6 +87,4 @@ export class Model extends M.Class<Model>(`User.Model`)({
 
   // Audit and tracking columns
   ...Common.globalColumns,
-}) {
-
-}
+}) {}

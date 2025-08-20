@@ -1,4 +1,4 @@
-import {Common, IamEntityIds} from "@beep/shared-domain";
+import { Common, IamEntityIds } from "@beep/shared-domain";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -66,6 +66,4 @@ export class Model extends M.Class<Model>(`Passkey.Model`)({
 
   // Use defaultColumns to match table schema (includes organizationId)
   ...Common.defaultColumns,
-}) {
-
-}
+}) {}

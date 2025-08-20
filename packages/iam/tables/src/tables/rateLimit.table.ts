@@ -1,3 +1,4 @@
+import { Common } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 
 export const rateLimit = pg.pgTable("rate_limit", {
@@ -5,4 +6,5 @@ export const rateLimit = pg.pgTable("rate_limit", {
   key: pg.text("key"),
   count: pg.integer("count"),
   lastRequest: pg.bigint("last_request", { mode: "number" }),
+  ...Common.globalColumns,
 });

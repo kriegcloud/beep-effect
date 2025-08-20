@@ -18,7 +18,7 @@ export const EmailBase = S.Lowercase.pipe(
   S.pattern(EMAIL_REGEX),
   S.brand("Email"),
 ).annotations({
-  jsonSchema: {format: "email", type: "string"},
+  jsonSchema: { format: "email", type: "string" },
   arbitrary: () => (fc) =>
     fc.emailAddress().map((_) => _ as B.Branded<string, "Email">),
   title: "Email",

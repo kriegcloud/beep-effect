@@ -1,4 +1,4 @@
-import {Common, IamEntityIds} from "@beep/shared-domain";
+import { Common, IamEntityIds } from "@beep/shared-domain";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -6,7 +6,7 @@ import * as S from "effect/Schema";
  * @description Member model representing user membership in organizations.
  * Maps to the `member` table in the database.
  */
-export class Model extends M.Class<Model>(`MemberModel`)(
+export class Model extends M.Class<Model>(`Member.Model`)(
   {
     /** Primary key identifier for the membership */
     id: M.Generated(IamEntityIds.MemberId),
@@ -27,5 +27,4 @@ export class Model extends M.Class<Model>(`MemberModel`)(
       `Maps to the \`member\` table in the database.`,
     documentation: ``,
   },
-) {
-}
+) {}

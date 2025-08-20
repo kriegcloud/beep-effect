@@ -1,6 +1,6 @@
-import {BS} from "@beep/schema";
+import { BS } from "@beep/schema";
 import * as Common from "@beep/shared-domain/common";
-import {IamEntityIds, SharedEntityIds} from "@beep/shared-domain/EntityIds";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain/EntityIds";
 import * as M from "@effect/sql/Model";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
@@ -9,9 +9,7 @@ import * as S from "effect/Schema";
  * Organization model representing organizations.
  * Maps to the `organization` table in the database.
  */
-export class Model extends M.Class<Model>(
-  `OrganizationModel`,
-)({
+export class Model extends M.Class<Model>(`OrganizationModel`)({
   /** Primary key identifier for the organization */
   id: M.Generated(SharedEntityIds.OrganizationId),
 
@@ -65,10 +63,10 @@ export class Model extends M.Class<Model>(
     }),
   ),
   features: M.FieldOption(
-    M.JsonFromString(S.Record({key: S.String, value: S.Any})),
+    M.JsonFromString(S.Record({ key: S.String, value: S.Any })),
   ),
   settings: M.FieldOption(
-    M.JsonFromString(S.Record({key: S.String, value: S.Any})),
+    M.JsonFromString(S.Record({ key: S.String, value: S.Any })),
   ),
   subscriptionTier: S.Literal("free", "plus", "pro")
     .pipe(
@@ -93,5 +91,4 @@ export class Model extends M.Class<Model>(
       description: "The subscription status of the organization",
     }),
   ...Common.globalColumns,
-}) {
-}
+}) {}

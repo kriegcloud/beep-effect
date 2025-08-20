@@ -1,8 +1,6 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "include": [
-    "test"
-  ],
+  "include": ["test"],
   "references": [
     {
       "path": "tsconfig.src.json"
@@ -15,31 +13,17 @@
     }
   ],
   "compilerOptions": {
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true
   },
   "paths": {
-    "@beep/iam-domain": [
-      "./src/index"
-    ],
-    "@beep/iam-domain/*": [
-      "./src/*"
-    ],
-    "@beep/shared-domain": [
-      "../../shared/domain/src/index"
-    ],
-    "@beep/shared-domain/*": [
-      "../../shared/domain/src/*"
-    ],
-    "@beep/schema": [
-      "../../common/schema/src/index"
-    ],
-    "@beep/schema/*": [
-      "../../common/schema/src/*"
-    ]
+    "@beep/iam-domain": ["./src/index"],
+    "@beep/iam-domain/*": ["./src/*"],
+    "@beep/shared-domain": ["../../shared/domain/src/index"],
+    "@beep/shared-domain/*": ["../../shared/domain/src/*"],
+    "@beep/schema": ["../../common/schema/src/index"],
+    "@beep/schema/*": ["../../common/schema/src/*"]
   }
 }
