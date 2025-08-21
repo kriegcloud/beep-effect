@@ -2,7 +2,7 @@ import * as Either from "effect/Either";
 import * as O from "effect/Option";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
-import { RootUnion } from "../schema";
+import { RootUnion } from "./union";
 
 /**
  * Validates a root union before running it.
@@ -11,9 +11,9 @@ import { RootUnion } from "../schema";
  * @return {*}  {({ isValid: true } | { isValid: false; reason: string })}
  */
 export function validate(
-  root: RootUnion,
+  root: RootUnion.Type,
 ): { isValid: true } | { isValid: false; reason: string } {
-  const validated = S.decodeEither(RootUnion)(root);
+  const validated = S.encodeEither(RootUnion)(root);
 
   if (Either.isLeft(validated)) {
     return {

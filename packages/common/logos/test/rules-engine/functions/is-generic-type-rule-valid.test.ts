@@ -1,174 +1,204 @@
-import { isGenericTypeRuleValid } from "@beep/logos/rules-engine/functions/is-generic-type-rule-valid";
-import type { BaseGenericTypeRule } from "@beep/logos/rules-engine/schema";
+import { GenericTypeRule } from "@beep/logos";
+
 import { expect, test } from "vitest";
 
 test("value is truth", () => {
-  const rule: BaseGenericTypeRule = {
+  const rule: GenericTypeRule.Input = {
     field: "name",
-    operator: "is_truthy",
-    _tag: "generic_type",
+    op: { _tag: "isTruthy" },
+    _tag: "genericType",
   };
-  const result = isGenericTypeRuleValid(rule, "bob");
+  const result = GenericTypeRule.validate(rule, "bob");
   expect(result).toBeTruthy();
 });
 
 test("value is falsey", () => {
-  const rule: BaseGenericTypeRule = {
+  const rule: GenericTypeRule.Input = {
     field: "name",
-    operator: "is_falsy",
-    _tag: "generic_type",
+    op: {
+      _tag: "isFalsy",
+    },
+    _tag: "genericType",
   };
-  const result = isGenericTypeRuleValid(rule, undefined);
+  const result = GenericTypeRule.validate(rule, undefined);
   expect(result).toBeTruthy();
 });
 
 test("value is null", () => {
-  const rule: BaseGenericTypeRule = {
+  const rule: GenericTypeRule.Input = {
     field: "name",
-    operator: "is_null",
-    _tag: "generic_type",
+    op: {
+      _tag: "isNull",
+    },
+    _tag: "genericType",
   };
-  const result = isGenericTypeRuleValid(rule, null);
+  const result = GenericTypeRule.validate(rule, null);
   expect(result).toBeTruthy();
 });
 
 test("value is not null", () => {
-  const rule: BaseGenericTypeRule = {
+  const rule: GenericTypeRule.Input = {
     field: "name",
-    operator: "is_not_null",
-    _tag: "generic_type",
+    op: {
+      _tag: "isNotNull",
+    },
+    _tag: "genericType",
   };
-  const result = isGenericTypeRuleValid(rule, {});
+  const result = GenericTypeRule.validate(rule, {});
   expect(result).toBeTruthy();
 });
 
 test("value is undefined", () => {
-  const rule: BaseGenericTypeRule = {
+  const rule: GenericTypeRule.Input = {
     field: "name",
-    operator: "is_undefined",
-    _tag: "generic_type",
+    op: {
+      _tag: "isUndefined",
+    },
+    _tag: "genericType",
   };
-  const result = isGenericTypeRuleValid(rule, undefined);
+  const result = GenericTypeRule.validate(rule, undefined);
   expect(result).toBeTruthy();
 });
 
 test("value is not undefined", () => {
-  const rule: BaseGenericTypeRule = {
+  const rule: GenericTypeRule.Input = {
     field: "name",
-    operator: "is_not_undefined",
-    _tag: "generic_type",
+    op: {
+      _tag: "isDefined",
+    },
+    _tag: "genericType",
   };
-  const result = isGenericTypeRuleValid(rule, false);
+  const result = GenericTypeRule.validate(rule, false);
   expect(result).toBeTruthy();
 });
 
 test("value is string", () => {
-  const rule: BaseGenericTypeRule = {
+  const rule: GenericTypeRule.Input = {
     field: "name",
-    operator: "is_string",
-    _tag: "generic_type",
+    op: {
+      _tag: "isString",
+    },
+    _tag: "genericType",
   };
-  const result = isGenericTypeRuleValid(rule, "alice");
+  const result = GenericTypeRule.validate(rule, "alice");
   expect(result).toBeTruthy();
 });
 
 test("value is not string", () => {
-  const rule: BaseGenericTypeRule = {
+  const rule: GenericTypeRule.Input = {
     field: "name",
-    operator: "is_not_string",
-    _tag: "generic_type",
+    op: {
+      _tag: "isNotString",
+    },
+    _tag: "genericType",
   };
-  const result = isGenericTypeRuleValid(rule, 12345);
+  const result = GenericTypeRule.validate(rule, 12345);
   expect(result).toBeTruthy();
 });
 
 test("value is number", () => {
-  const rule: BaseGenericTypeRule = {
+  const rule: GenericTypeRule.Input = {
     field: "name",
-    operator: "is_number",
-    _tag: "generic_type",
+    op: {
+      _tag: "isNumber",
+    },
+    _tag: "genericType",
   };
-  const result = isGenericTypeRuleValid(rule, 123.4);
+  const result = GenericTypeRule.validate(rule, 123.4);
   expect(result).toBeTruthy();
 });
 
 test("value is not number", () => {
-  const rule: BaseGenericTypeRule = {
+  const rule: GenericTypeRule.Input = {
     field: "name",
-    operator: "is_not_number",
-    _tag: "generic_type",
+    op: {
+      _tag: "isNotNumber",
+    },
+    _tag: "genericType",
   };
-  const result = isGenericTypeRuleValid(rule, "12345");
+  const result = GenericTypeRule.validate(rule, "12345");
   expect(result).toBeTruthy();
 });
 
 test("value is boolean", () => {
-  const rule: BaseGenericTypeRule = {
+  const rule: GenericTypeRule.Input = {
     field: "name",
-    operator: "is_boolean",
-    _tag: "generic_type",
+    op: {
+      _tag: "isBoolean",
+    },
+    _tag: "genericType",
   };
-  const result = isGenericTypeRuleValid(rule, false);
+  const result = GenericTypeRule.validate(rule, false);
   expect(result).toBeTruthy();
 });
 
 test("value is not boolean", () => {
-  const rule: BaseGenericTypeRule = {
+  const rule: GenericTypeRule.Input = {
     field: "name",
-    operator: "is_not_boolean",
-    _tag: "generic_type",
+    op: {
+      _tag: "isNotBoolean",
+    },
+    _tag: "genericType",
   };
-  const result = isGenericTypeRuleValid(rule, "false");
+  const result = GenericTypeRule.validate(rule, "false");
   expect(result).toBeTruthy();
 });
 
 test("value is array", () => {
-  const rule: BaseGenericTypeRule = {
+  const rule: GenericTypeRule.Input = {
     field: "name",
-    operator: "is_array",
-    _tag: "generic_type",
+    op: {
+      _tag: "isArray",
+    },
+    _tag: "genericType",
   };
-  const result = isGenericTypeRuleValid(rule, []);
+  const result = GenericTypeRule.validate(rule, []);
   expect(result).toBeTruthy();
 });
 
 test("value is not array", () => {
-  const rule: BaseGenericTypeRule = {
+  const rule: GenericTypeRule.Input = {
     field: "name",
-    operator: "is_not_array",
-    _tag: "generic_type",
+    op: {
+      _tag: "isNotArray",
+    },
+    _tag: "genericType",
   };
-  const result = isGenericTypeRuleValid(rule, "[]");
+  const result = GenericTypeRule.validate(rule, "[]");
   expect(result).toBeTruthy();
 });
 
 test("value is object", () => {
-  const rule: BaseGenericTypeRule = {
+  const rule: GenericTypeRule.Input = {
     field: "name",
-    operator: "is_object",
-    _tag: "generic_type",
+    op: {
+      _tag: "isObject",
+    },
+    _tag: "genericType",
   };
-  const result = isGenericTypeRuleValid(rule, { name: "bob" });
+  const result = GenericTypeRule.validate(rule, { name: "bob" });
   expect(result).toBeTruthy();
 });
 
 test("value is not array", () => {
-  const rule: BaseGenericTypeRule = {
+  const rule: GenericTypeRule.Input = {
     field: "name",
-    operator: "is_not_object",
-    _tag: "generic_type",
+    op: {
+      _tag: "isNotObject",
+    },
+    _tag: "genericType",
   };
-  const result = isGenericTypeRuleValid(rule, "{}");
+  const result = GenericTypeRule.validate(rule, "{}");
   expect(result).toBeTruthy();
 });
 
 test("invalid operator is handled", () => {
-  const rule: BaseGenericTypeRule = {
+  const rule: GenericTypeRule.Input = {
     field: "name",
     // @ts-expect-error
-    operator: "is_more_awesome_than",
-    _tag: "generic_type",
+    op: "is_more_awesome_than",
+    _tag: "genericType",
   };
-  const result = isGenericTypeRuleValid(rule, undefined);
+  const result = GenericTypeRule.validate(rule, undefined);
   expect(result).toBeFalsy();
 });

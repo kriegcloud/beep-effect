@@ -1,5 +1,5 @@
-import { isArrayValueRuleValid } from "@beep/logos/rules-engine/functions/is-array-value-rule-valid";
-import type { BaseArrayValueRule } from "@beep/logos/rules-engine/schema";
+import { ArrayValueRule } from "@beep/logos";
+
 import { expect, test } from "vitest";
 
 const bob = { name: "bob" };
@@ -9,46 +9,46 @@ const people = [bob, alice];
 const all_bob = [bob, bob, bob, bob];
 
 test("array contains element", () => {
-  const rule: BaseArrayValueRule = {
+  const rule: ArrayValueRule.Input = {
     field: "people",
-    operator: "contains",
-    _tag: "array_value",
+    op: { _tag: "in" },
+    _tag: "arrayValue",
     value: bob,
   };
-  const result = isArrayValueRuleValid(rule, people);
+  const result = ArrayValueRule.validate(rule, people);
   expect(result).toBeTruthy();
 });
 
 test("array does not contain element", () => {
-  const rule: BaseArrayValueRule = {
+  const rule: ArrayValueRule.Input = {
     field: "people",
-    operator: "does_not_contain",
-    _tag: "array_value",
+    op: { _tag: "notIn" },
+    _tag: "arrayValue",
     value: carol,
   };
-  const result = isArrayValueRuleValid(rule, people);
+  const result = ArrayValueRule.validate(rule, people);
   expect(result).toBeTruthy();
 });
 
 test("array contains all of an element", () => {
-  const rule: BaseArrayValueRule = {
+  const rule: ArrayValueRule.Input = {
     field: "people",
-    operator: "contains_all",
-    _tag: "array_value",
+    op: { _tag: "allIn" },
+    _tag: "arrayValue",
     value: bob,
   };
-  const result = isArrayValueRuleValid(rule, all_bob);
+  const result = ArrayValueRule.validate(rule, all_bob);
   expect(result).toBeTruthy();
 });
 
 test("invalid operator is handled", () => {
-  const rule: BaseArrayValueRule = {
+  const rule: ArrayValueRule.Input = {
     field: "people",
     // @ts-expect-error
-    operator: "is_more_awesome_than",
-    _tag: "array_value",
+    op: "is_more_awesome_than",
+    _tag: "arrayValue",
     value: bob,
   };
-  const result = isArrayValueRuleValid(rule, people);
+  const result = ArrayValueRule.validate(rule, people);
   expect(result).toBeFalsy();
 });

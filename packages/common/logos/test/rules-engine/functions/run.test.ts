@@ -1,87 +1,88 @@
-import { addRuleToUnion } from "@beep/logos/rules-engine/functions/add-rule-to-union";
-import { addUnionToUnion } from "@beep/logos/rules-engine/functions/add-union-to-union";
-import { createRoot } from "@beep/logos/rules-engine/functions/create-root";
-import { run } from "@beep/logos/rules-engine/functions/run";
+import { createRoot } from "@beep/logos/createRoot";
+import { addRuleToUnion, addUnionToUnion } from "@beep/logos/crud";
+import { run } from "@beep/logos/run";
 import { expect, test } from "vitest";
 
-const root = createRoot({ combinator: "and" });
+const root = createRoot({ logicalOp: "and" });
 
-const union = addUnionToUnion(root, { combinator: "and" });
+const union = addUnionToUnion(root, { logicalOp: "and" });
 const firstRule = addRuleToUnion(union, {
   field: "number",
-  operator: "is_greater_than",
+  op: { _tag: "gt" },
   _tag: "number",
   value: 18,
 });
 addRuleToUnion(union, {
   field: "number",
-  operator: "is_less_than",
+  op: { _tag: "lt" },
   _tag: "number",
   value: 30,
 });
 addRuleToUnion(root, {
   field: "string",
-  operator: "contains",
+  op: { _tag: "in" },
   _tag: "string",
   value: "bob",
   ignoreCase: false,
 });
 addRuleToUnion(root, {
   field: "boolean",
-  operator: "is_true",
+  op: {
+    _tag: "isTrue",
+  },
   _tag: "boolean",
 });
 addRuleToUnion(root, {
   field: "array",
-  operator: "contains",
-  _tag: "array_value",
+  op: { _tag: "in" },
+  _tag: "arrayValue",
   value: "alice",
 });
 addRuleToUnion(root, {
   field: "array",
-  operator: "is_equal_to",
-  _tag: "array_length",
+  op: { _tag: "eq" },
+  _tag: "arrayLength",
   value: 1,
 });
 addRuleToUnion(root, {
   field: "object",
-  operator: "contains",
-  _tag: "object_key",
+  op: { _tag: "in" },
+  _tag: "objectKey",
   value: "name",
 });
 addRuleToUnion(root, {
   field: "object",
-  operator: "contains",
-  _tag: "object_value",
+  op: { _tag: "in" },
+  _tag: "objectValue",
   value: "bob",
 });
 addRuleToUnion(root, {
   field: "object",
-  operator: "contains",
-  _tag: "object_key_value_pair",
+  op: { _tag: "in" },
+  _tag: "objectKeyValue",
   value: { key: "name", value: "bob" },
 });
 addRuleToUnion(root, {
   field: "generic",
-  operator: "is_equal_to",
-  _tag: "generic_comparison",
+  op: { _tag: "eq" },
+  _tag: "genericComparison",
   value: "bob",
 });
 addRuleToUnion(root, {
   field: "generic",
-  operator: "is_truthy",
-  _tag: "generic_type",
+  op: { _tag: "isTruthy" },
+  _tag: "genericType",
 });
-const orUnion = addUnionToUnion(root, { combinator: "or" });
+const orUnion = addUnionToUnion(root, { logicalOp: "or" });
 addRuleToUnion(orUnion, {
   field: "number",
-  operator: "is_less_than",
+  op: { _tag: "lt" },
   _tag: "number",
   value: 30,
 });
 addRuleToUnion(orUnion, {
   field: "string",
-  operator: "contains",
+  op: { _tag: "in" },
   _tag: "string",
   value: "bob",
   ignoreCase: false,
@@ -100,7 +101,7 @@ test("rules engine passes", () => {
 });
 
 test("rules engine fails", () => {
-  root.combinator = "and";
+  (root as any).logicalOp = "and";
   const result = run(root, {
     string: "bob",
     boolean: true,
@@ -123,7 +124,7 @@ test("test invalid rule", () => {
 });
 
 test("test no rules available", () => {
-  const noRuleRoot = createRoot({ combinator: "and" });
+  const noRuleRoot = createRoot({ logicalOp: "and" });
   const result = run(noRuleRoot, {});
   expect(result).toBeTruthy();
 });

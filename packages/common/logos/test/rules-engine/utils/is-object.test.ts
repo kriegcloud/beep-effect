@@ -1,4 +1,4 @@
-import { isObject } from "@beep/logos/rules-engine/utils/is-object";
+import { isObject } from "@beep/logos/utils/is-object";
 import { expect, test } from "vitest";
 
 test("is an object", () => {

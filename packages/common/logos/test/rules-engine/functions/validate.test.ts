@@ -1,16 +1,15 @@
-import { addRuleToUnion } from "@beep/logos/rules-engine/functions/add-rule-to-union";
-import { addUnionToUnion } from "@beep/logos/rules-engine/functions/add-union-to-union";
-import { createRoot } from "@beep/logos/rules-engine/functions/create-root";
-import { validate } from "@beep/logos/rules-engine/functions/validate";
-import { v4 as uuidv4 } from "uuid";
+import { createRoot } from "@beep/logos/createRoot";
+import { addRuleToUnion, addUnionToUnion } from "@beep/logos/crud";
+import { validate } from "@beep/logos/validate";
+import { v4 as uuid } from "uuid";
 import { expect, test } from "vitest";
 
 test("rules engine passes validation", () => {
-  const root = createRoot({ combinator: "and" });
-  addUnionToUnion(root, { combinator: "and" });
+  const root = createRoot({ logicalOp: "and" });
+  addUnionToUnion(root, { logicalOp: "and" });
   addRuleToUnion(root, {
     field: "number",
-    operator: "is_greater_than",
+    op: { _tag: "gt" },
     _tag: "number",
     value: 18,
   });
@@ -20,13 +19,13 @@ test("rules engine passes validation", () => {
 });
 
 test("rules engine validation fails validation with invalid union", () => {
-  const root = createRoot({ combinator: "and" });
+  const root = createRoot({ logicalOp: "and" });
 
   root.rules.push({
     entity: "union",
-    id: uuidv4(),
+    id: uuid(),
     // @ts-expect-error
-    combinator: "neither",
+    logicalOp: "neither",
     parentId: root.id,
     rules: [],
   });
@@ -37,13 +36,13 @@ test("rules engine validation fails validation with invalid union", () => {
 });
 
 test("rules engine validation fails validation with invalid rule", () => {
-  const root = createRoot({ combinator: "and" });
+  const root = createRoot({ logicalOp: "and" });
 
   root.rules.push({
     entity: "rule",
-    id: uuidv4(),
+    id: uuid(),
     field: "number",
-    operator: "is_greater_than",
+    op: { _tag: "gt" },
     // @ts-expect-error
     _tag: "integer",
     value: 18,

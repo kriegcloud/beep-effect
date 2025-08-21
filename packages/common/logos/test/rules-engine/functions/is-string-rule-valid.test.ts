@@ -1,99 +1,102 @@
-import { isStringRuleValid } from "@beep/logos/rules-engine/functions/is-string-rule-valid";
-import type { BaseStringRule } from "@beep/logos/rules-engine/schema";
+import { StringRule } from "@beep/logos";
 import { expect, test } from "vitest";
 
 test("string equals to", () => {
-  const rule: BaseStringRule = {
+  const rule: StringRule.Input = {
     field: "people",
-    operator: "is_equal_to",
+    op: { _tag: "eq" },
     _tag: "string",
     value: "bob",
     ignoreCase: false,
   };
-  const result = isStringRuleValid(rule, "bob");
+  const result = StringRule.validate(rule, "bob");
   expect(result).toBeTruthy();
 });
 
 test("string equals to (case insensitve)", () => {
-  const rule: BaseStringRule = {
+  const rule: StringRule.Input = {
     field: "people",
-    operator: "is_equal_to",
+    op: { _tag: "eq" },
     _tag: "string",
     value: "BOB",
     ignoreCase: true,
   };
-  const result = isStringRuleValid(rule, "BoB");
+  const result = StringRule.validate(rule, "BoB");
   expect(result).toBeTruthy();
 });
 
 test("string not equals to", () => {
-  const rule: BaseStringRule = {
+  const rule: StringRule.Input = {
     field: "people",
-    operator: "is_not_equal_to",
+    op: { _tag: "ne" },
     _tag: "string",
     value: "bob",
     ignoreCase: false,
   };
-  const result = isStringRuleValid(rule, "alice");
+  const result = StringRule.validate(rule, "alice");
   expect(result).toBeTruthy();
 });
 
 test("string contains", () => {
-  const rule: BaseStringRule = {
+  const rule: StringRule.Input = {
     field: "people",
-    operator: "contains",
+    op: { _tag: "in" },
     _tag: "string",
     value: "bob",
     ignoreCase: false,
   };
-  const result = isStringRuleValid(rule, "bobby");
+  const result = StringRule.validate(rule, "bobby");
   expect(result).toBeTruthy();
 });
 
 test("string does not contain", () => {
-  const rule: BaseStringRule = {
+  const rule: StringRule.Input = {
     field: "people",
-    operator: "does_not_contain",
+    op: { _tag: "notIn" },
     _tag: "string",
     value: "alice",
     ignoreCase: false,
   };
-  const result = isStringRuleValid(rule, "bobby");
+  const result = StringRule.validate(rule, "bobby");
   expect(result).toBeTruthy();
 });
 
 test("string starts with", () => {
-  const rule: BaseStringRule = {
+  const rule: StringRule.Input = {
     field: "people",
-    operator: "starts_with",
+    op: {
+      _tag: "startsWith",
+    },
     _tag: "string",
     value: "bob",
     ignoreCase: false,
   };
-  const result = isStringRuleValid(rule, "bobby");
+  const result = StringRule.validate(rule, "bobby");
   expect(result).toBeTruthy();
 });
 
 test("string ends with", () => {
-  const rule: BaseStringRule = {
+  const rule: StringRule.Input = {
     field: "people",
-    operator: "ends_with",
+    op: {
+      _tag: "endsWith",
+    },
     _tag: "string",
     value: "bby",
     ignoreCase: false,
   };
-  const result = isStringRuleValid(rule, "bobby");
+  const result = StringRule.validate(rule, "bobby");
   expect(result).toBeTruthy();
 });
 
 test("invalid operator is handled", () => {
-  const rule: BaseStringRule = {
+  const rule: StringRule.Input = {
     field: "people",
     // @ts-expect-error
-    operator: "is_more_awesome_than",
+    op: "is_more_awesome_than",
     _tag: "string",
     value: "carol",
   };
-  const result = isStringRuleValid(rule, "carolS");
+  const result = StringRule.validate(rule, "carolS");
   expect(result).toBeFalsy();
 });

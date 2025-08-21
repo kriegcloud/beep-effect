@@ -1,20 +1,24 @@
-import { addRulesToUnion } from "@beep/logos/rules-engine/functions/add-rules-to-union";
-import { createRoot } from "@beep/logos/rules-engine/functions/create-root";
-import type { NewRule } from "@beep/logos/rules-engine/schema";
+import type { RuleInput } from "@beep/logos";
+import { createRoot } from "@beep/logos/createRoot";
+import { addRulesToUnion } from "@beep/logos/crud";
 import { expect, test } from "vitest";
 
 test("rules are added to a union", () => {
-  const root = createRoot({ combinator: "and" });
-  const newRuleA: NewRule = {
+  const root = createRoot({ logicalOp: "and" });
+  const newRuleA: RuleInput.Type = {
     field: "name",
-    operator: "contains",
+    op: {
+      _tag: "in",
+    },
     _tag: "string",
     value: "bob",
     ignoreCase: false,
   };
-  const newRuleB: NewRule = {
+  const newRuleB: RuleInput.Type = {
     field: "name",
-    operator: "contains",
+    op: {
+      _tag: "in",
+    },
     _tag: "string",
     value: "alice",
     ignoreCase: false,

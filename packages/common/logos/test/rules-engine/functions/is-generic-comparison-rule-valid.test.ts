@@ -1,81 +1,80 @@
-import { isGenericComparisonRuleValid } from "@beep/logos/rules-engine/functions/is-generic-comparison-rule-valid";
-import type { BaseGenericComparisonRule } from "@beep/logos/rules-engine/schema";
+import { GenericComparisonRule } from "@beep/logos";
 import { expect, test } from "vitest";
 
 test("value is equal to", () => {
-  const rule: BaseGenericComparisonRule = {
+  const rule: GenericComparisonRule.Input = {
     field: "names",
-    operator: "is_equal_to",
-    _tag: "generic_comparison",
+    op: { _tag: "eq" },
+    _tag: "genericComparison",
     value: 2,
   };
-  const result = isGenericComparisonRuleValid(rule, 2);
+  const result = GenericComparisonRule.validate(rule, 2);
   expect(result).toBeTruthy();
 });
 
 test("value does not equal to", () => {
-  const rule: BaseGenericComparisonRule = {
+  const rule: GenericComparisonRule.Input = {
     field: "names",
-    operator: "is_not_equal_to",
-    _tag: "generic_comparison",
+    op: { _tag: "ne" },
+    _tag: "genericComparison",
     value: 1,
   };
-  const result = isGenericComparisonRuleValid(rule, 2);
+  const result = GenericComparisonRule.validate(rule, 2);
   expect(result).toBeTruthy();
 });
 
 test("value is greater than", () => {
-  const rule: BaseGenericComparisonRule = {
+  const rule: GenericComparisonRule.Input = {
     field: "names",
-    operator: "is_greater_than",
-    _tag: "generic_comparison",
+    op: { _tag: "gt" },
+    _tag: "genericComparison",
     value: "alice",
   };
-  const result = isGenericComparisonRuleValid(rule, "bob");
+  const result = GenericComparisonRule.validate(rule, "bob");
   expect(result).toBeTruthy();
 });
 
 test("value is greater than or equal to", () => {
-  const rule: BaseGenericComparisonRule = {
+  const rule: GenericComparisonRule.Input = {
     field: "names",
-    operator: "is_greater_than_or_equal_to",
-    _tag: "generic_comparison",
+    op: { _tag: "gte" },
+    _tag: "genericComparison",
     value: "alice",
   };
-  const result = isGenericComparisonRuleValid(rule, "bob");
+  const result = GenericComparisonRule.validate(rule, "bob");
   expect(result).toBeTruthy();
 });
 
 test("value is less than", () => {
-  const rule: BaseGenericComparisonRule = {
+  const rule: GenericComparisonRule.Input = {
     field: "names",
-    operator: "is_less_than",
-    _tag: "generic_comparison",
+    op: { _tag: "lt" },
+    _tag: "genericComparison",
     value: "bob",
   };
-  const result = isGenericComparisonRuleValid(rule, "alice");
+  const result = GenericComparisonRule.validate(rule, "alice");
   expect(result).toBeTruthy();
 });
 
 test("value is less than or equal to", () => {
-  const rule: BaseGenericComparisonRule = {
+  const rule: GenericComparisonRule.Input = {
     field: "names",
-    operator: "is_less_than_or_equal_to",
-    _tag: "generic_comparison",
+    op: { _tag: "lte" },
+    _tag: "genericComparison",
     value: "bob",
   };
-  const result = isGenericComparisonRuleValid(rule, "alice");
+  const result = GenericComparisonRule.validate(rule, "alice");
   expect(result).toBeTruthy();
 });
 
 test("invalid operator is handled", () => {
-  const rule: BaseGenericComparisonRule = {
+  const rule: GenericComparisonRule.Input = {
     field: "names",
     // @ts-expect-error
-    operator: "is_more_awesome_than",
-    _tag: "generic_comparison",
+    op: "is_more_awesome_than",
+    _tag: "genericComparison",
     value: 1,
   };
-  const result = isGenericComparisonRuleValid(rule, 1);
+  const result = GenericComparisonRule.validate(rule, 1);
   expect(result).toBeFalsy();
 });

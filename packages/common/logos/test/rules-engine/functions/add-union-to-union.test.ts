@@ -1,12 +1,12 @@
-import { addUnionToUnion } from "@beep/logos/rules-engine/functions/add-union-to-union";
-import { createRoot } from "@beep/logos/rules-engine/functions/create-root";
-import type { NewUnion } from "@beep/logos/rules-engine/schema";
+import type { UnionInput } from "@beep/logos";
+import { createRoot } from "@beep/logos/createRoot";
+import { addUnionToUnion } from "@beep/logos/crud";
 import { expect, test } from "vitest";
 
 test("union is added to a union", () => {
-  const root = createRoot({ combinator: "and" });
-  const newUnion: NewUnion = {
-    combinator: "and",
+  const root = createRoot({ logicalOp: "and" });
+  const newUnion: UnionInput.Type = {
+    logicalOp: "and",
   };
   const union = addUnionToUnion(root, newUnion);
   expect(root.rules.length).toBe(1);

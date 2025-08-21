@@ -1,41 +1,44 @@
-import { addRuleToUnion } from "@beep/logos/rules-engine/functions/add-rule-to-union";
-import { addUnionToUnion } from "@beep/logos/rules-engine/functions/add-union-to-union";
-import { createRoot } from "@beep/logos/rules-engine/functions/create-root";
-import { findRuleById } from "@beep/logos/rules-engine/functions/find-rule-by-id";
-import { v4 as uuidv4 } from "uuid";
+import { createRoot } from "@beep/logos/createRoot";
+import {
+  addRuleToUnion,
+  addUnionToUnion,
+  findRuleById,
+} from "@beep/logos/crud";
+
+import { v4 as uuid } from "uuid";
 import { expect, test } from "vitest";
 
-const root = createRoot({ combinator: "or" });
+const root = createRoot({ logicalOp: "or" });
 
 addRuleToUnion(root, {
   field: "name",
-  operator: "contains",
+  op: { _tag: "in" },
   _tag: "string",
   value: "bob",
   ignoreCase: false,
 });
 addRuleToUnion(root, {
   field: "name",
-  operator: "contains",
+  op: { _tag: "in" },
   _tag: "string",
   value: "alice",
   ignoreCase: false,
 });
-const union = addUnionToUnion(root, { combinator: "and" });
+const union = addUnionToUnion(root, { logicalOp: "and" });
 
 addRuleToUnion(union, {
   field: "age",
-  operator: "is_greater_than",
+  op: { _tag: "gt" },
   _tag: "number",
   value: 18,
 });
 const rule = addRuleToUnion(union, {
   field: "age",
-  operator: "is_less_than",
+  op: { _tag: "lt" },
   _tag: "number",
   value: 30,
 });
-const union2 = addUnionToUnion(union, { combinator: "and" });
+const union2 = addUnionToUnion(union, { logicalOp: "and" });
 
 test("find root union", () => {
   const result = findRuleById(root, root.id);
@@ -53,6 +56,6 @@ test("find deeply nested union", () => {
 });
 
 test("find non existent rule", () => {
-  const result = findRuleById(root, uuidv4());
+  const result = findRuleById(root, uuid());
   expect(result).toBeUndefined();
 });

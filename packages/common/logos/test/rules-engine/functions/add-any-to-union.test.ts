@@ -1,12 +1,12 @@
-import { addAnyToUnion } from "@beep/logos/rules-engine/functions/add-any-to-union";
-import { createRoot } from "@beep/logos/rules-engine/functions/create-root";
-import type { NewRule, NewUnion } from "@beep/logos/rules-engine/schema";
+import type { RuleInput, UnionInput } from "@beep/logos";
+import { createRoot } from "@beep/logos/createRoot";
+import { addAnyToUnion } from "@beep/logos/crud";
 import { expect, test } from "vitest";
 
 test("union is added to a union", () => {
-  const root = createRoot({ combinator: "and" });
-  const newUnion: NewUnion = {
-    combinator: "and",
+  const root = createRoot({ logicalOp: "and" });
+  const newUnion: UnionInput.Type = {
+    logicalOp: "and",
   };
   const union = addAnyToUnion(root, newUnion);
   expect(root.rules.length).toBe(1);
@@ -15,10 +15,12 @@ test("union is added to a union", () => {
 });
 
 test("rule is added to a union", () => {
-  const root = createRoot({ combinator: "and" });
-  const newRule: NewRule = {
+  const root = createRoot({ logicalOp: "and" });
+  const newRule: RuleInput.Type = {
     field: "name",
-    operator: "contains",
+    op: {
+      _tag: "in",
+    },
     _tag: "string",
     value: "bob",
     ignoreCase: false,

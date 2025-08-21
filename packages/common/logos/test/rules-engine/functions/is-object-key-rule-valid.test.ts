@@ -1,39 +1,38 @@
-import { isObjectKeyRuleValid } from "@beep/logos/rules-engine/functions/is-object-key-rule-valid";
-import type { BaseObjectKeyRule } from "@beep/logos/rules-engine/schema";
+import { ObjectKeyRule } from "@beep/logos";
 import { expect, test } from "vitest";
 
 const bob = { name: "bob" };
 
 test("object key contains element", () => {
-  const rule: BaseObjectKeyRule = {
+  const rule: ObjectKeyRule.Input = {
     field: "people",
-    operator: "contains",
-    _tag: "object_key",
+    op: { _tag: "in" },
+    _tag: "objectKey",
     value: "name",
   };
-  const result = isObjectKeyRuleValid(rule, bob);
+  const result = ObjectKeyRule.validate(rule, bob);
   expect(result).toBeTruthy();
 });
 
 test("object key does not contain element", () => {
-  const rule: BaseObjectKeyRule = {
+  const rule: ObjectKeyRule.Input = {
     field: "people",
-    operator: "does_not_contain",
-    _tag: "object_key",
+    op: { _tag: "notIn" },
+    _tag: "objectKey",
     value: "age",
   };
-  const result = isObjectKeyRuleValid(rule, bob);
+  const result = ObjectKeyRule.validate(rule, bob);
   expect(result).toBeTruthy();
 });
 
 test("invalid operator is handled", () => {
-  const rule: BaseObjectKeyRule = {
+  const rule: ObjectKeyRule.Input = {
     field: "people",
     // @ts-expect-error
-    operator: "is_more_awesome_than",
-    _tag: "object_key",
+    op: "is_more_awesome_than",
+    _tag: "objectKey",
     value: "height",
   };
-  const result = isObjectKeyRuleValid(rule, bob);
+  const result = ObjectKeyRule.validate(rule, bob);
   expect(result).toBeFalsy();
 });

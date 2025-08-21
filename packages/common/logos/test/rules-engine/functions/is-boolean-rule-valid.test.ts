@@ -1,37 +1,40 @@
-import { isBooleanRuleValid } from "@beep/logos/rules-engine/functions/is-boolean-rule-valid";
-import type { BaseBooleanRule } from "@beep/logos/rules-engine/schema";
+import { BooleanRule } from "@beep/logos";
 import { expect, test } from "vitest";
 
 const isValid = true;
 const isInvalid = false;
 
 test("boolean is true", () => {
-  const rule: BaseBooleanRule = {
+  const rule: BooleanRule.Input = {
     field: "status",
-    operator: "is_true",
+    op: {
+      _tag: "isTrue",
+    },
     _tag: "boolean",
   };
-  const result = isBooleanRuleValid(rule, isValid);
+  const result = BooleanRule.validate(rule, isValid);
   expect(result).toBeTruthy();
 });
 
 test("boolean is false", () => {
-  const rule: BaseBooleanRule = {
+  const rule: BooleanRule.Input = {
     field: "status",
-    operator: "is_false",
+    op: {
+      _tag: "isFalse",
+    },
     _tag: "boolean",
   };
-  const result = isBooleanRuleValid(rule, isInvalid);
+  const result = BooleanRule.validate(rule, isInvalid);
   expect(result).toBeTruthy();
 });
 
 test("invalid operator is handled", () => {
-  const rule: BaseBooleanRule = {
+  const rule: BooleanRule.Input = {
     field: "status",
     // @ts-expect-error
-    operator: "is_more_awesome_than",
+    op: "is_more_awesome_than",
     _tag: "boolean",
   };
-  const result = isBooleanRuleValid(rule, isValid);
+  const result = BooleanRule.validate(rule, isValid);
   expect(result).toBeFalsy();
 });

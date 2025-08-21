@@ -1,36 +1,38 @@
-import { addRuleToUnion } from "@beep/logos/rules-engine/functions/add-rule-to-union";
-import { addUnionToUnion } from "@beep/logos/rules-engine/functions/add-union-to-union";
-import { createRoot } from "@beep/logos/rules-engine/functions/create-root";
-import { findRuleById } from "@beep/logos/rules-engine/functions/find-rule-by-id";
-import { updateRuleById } from "@beep/logos/rules-engine/functions/update-rule-by-id";
-import { v4 as uuidv4 } from "uuid";
+import { createRoot } from "@beep/logos/createRoot";
+import {
+  addRuleToUnion,
+  addUnionToUnion,
+  findRuleById,
+  updateRuleById,
+} from "@beep/logos/crud";
+import { v4 as uuid } from "uuid";
 import { expect, test } from "vitest";
 
-const root = createRoot({ combinator: "or" });
+const root = createRoot({ logicalOp: "or" });
 addRuleToUnion(root, {
   field: "name",
-  operator: "contains",
+  op: { _tag: "in" },
   _tag: "string",
   value: "bob",
   ignoreCase: false,
 });
 addRuleToUnion(root, {
   field: "name",
-  operator: "contains",
+  op: { _tag: "in" },
   _tag: "string",
   value: "alice",
   ignoreCase: false,
 });
-const union = addUnionToUnion(root, { combinator: "and" });
+const union = addUnionToUnion(root, { logicalOp: "and" });
 addRuleToUnion(union, {
   field: "age",
-  operator: "is_greater_than",
+  op: { _tag: "gt" },
   _tag: "number",
   value: 18,
 });
 const rule = addRuleToUnion(union, {
   field: "age",
-  operator: "is_less_than",
+  op: { _tag: "lt" },
   _tag: "number",
   value: 30,
 });
@@ -46,7 +48,7 @@ test("update a rule that exists", () => {
   expect(foundRule.value).toBe(30);
   updateRuleById(root, foundRule.id, {
     field: "age",
-    operator: "is_less_than",
+    op: { _tag: "lt" },
     _tag: "number",
     value: 40,
   });
@@ -61,9 +63,9 @@ test("update a rule that exists", () => {
 });
 
 test("update a rule that does not exist", () => {
-  const updatedRule = updateRuleById(root, uuidv4(), {
+  const updatedRule = updateRuleById(root, uuid(), {
     field: "age",
-    operator: "is_less_than",
+    op: { _tag: "lt" },
     _tag: "number",
     value: 40,
   });
@@ -75,10 +77,10 @@ test("update a rule that does not have a valid parent", () => {
   if (!foundRule) {
     throw new Error("Rule not found");
   }
-  foundRule.parentId = uuidv4();
+  (foundRule as any).parentId = uuid();
   const updatedRule = updateRuleById(root, rule.id, {
     field: "age",
-    operator: "is_less_than",
+    op: { _tag: "lt" },
     _tag: "number",
     value: 40,
   });

@@ -125,7 +125,7 @@ export namespace ArrayValueRule {
       Operators.NotIn.Schema,
       Operators.AllIn.Schema,
     ),
-    value: S.String,
+    value: S.Any,
   });
   export type Rule = typeof Rule.Type;
   export type Input = typeof Input.Type;
