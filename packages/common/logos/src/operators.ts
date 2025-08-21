@@ -1,12 +1,12 @@
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
-import { Op } from "./internal";
+import { Operator } from "./internal";
 
 /**
  * Operators used by rules to compare or check values.
  *
  * Notes
- * - Each namespace exposes two items from `Op.make(id, label, configSchema)`:
+ * - Each namespace exposes two items from `Operator.make(id, label, configSchema)`:
  *   - `op`: the operator id (string literal). Use it to build rule payloads:
  *     `{ op: { _tag: Operators.Gt.op } }`.
  *   - `Schema`: Effect Schema for the full operator struct `{ _tag, ...config }`.
@@ -22,36 +22,36 @@ import { Op } from "./internal";
  * - Every (array: every element equals the provided value)
  */
 export namespace Eq {
-  export const { op, Schema } = Op.make("eq", "equals", {});
+  export const { op, Schema } = Operator.make("eq", "equals", {});
 
-  export type Type = Op.Type<"eq">;
+  export type Type = Operator.Type<"eq">;
 }
 
 export namespace Ne {
-  export const { op, Schema } = Op.make("ne", "does not equal", {});
+  export const { op, Schema } = Operator.make("ne", "does not equal", {});
 
-  export type Type = Op.Type<"ne">;
+  export type Type = Operator.Type<"ne">;
 }
 
 export namespace In {
-  export const { op, Schema } = Op.make("in", "contains", {});
+  export const { op, Schema } = Operator.make("in", "contains", {});
 
-  export type Type = Op.Type<"in">;
+  export type Type = Operator.Type<"in">;
 }
 
 export namespace NotIn {
-  export const { op, Schema } = Op.make("notIn", "does not contain", {});
+  export const { op, Schema } = Operator.make("notIn", "does not contain", {});
 
-  export type Type = Op.Type<"notIn">;
+  export type Type = Operator.Type<"notIn">;
 }
 
 /**
  * Array-specific: every element equals the given `value`.
  */
 export namespace Every {
-  export const { op, Schema } = Op.make("every", "contains all", {});
+  export const { op, Schema } = Operator.make("every", "contains all", {});
 
-  export type Type = Op.Type<"every">;
+  export type Type = Operator.Type<"every">;
 }
 
 /**
@@ -63,31 +63,35 @@ export namespace Every {
  * Example: `{ _tag: "string", op: { _tag: "startsWith" }, value: "Acme" }`.
  */
 export namespace StartsWith {
-  export const { op, Schema } = Op.make("startsWith", "starts with", {});
+  export const { op, Schema } = Operator.make("startsWith", "starts with", {});
 
-  export type Type = Op.Type<"startsWith">;
+  export type Type = Operator.Type<"startsWith">;
 }
 
 export namespace NotStartsWith {
-  export const { op, Schema } = Op.make(
+  export const { op, Schema } = Operator.make(
     "notStartsWith",
     "does not start with",
     {},
   );
 
-  export type Type = Op.Type<"notStartsWith">;
+  export type Type = Operator.Type<"notStartsWith">;
 }
 
 export namespace EndsWith {
-  export const { op, Schema } = Op.make("endsWith", "ends with", {});
+  export const { op, Schema } = Operator.make("endsWith", "ends with", {});
 
-  export type Type = Op.Type<"endsWith">;
+  export type Type = Operator.Type<"endsWith">;
 }
 
 export namespace NotEndsWith {
-  export const { op, Schema } = Op.make("notEndsWith", "does not end with", {});
+  export const { op, Schema } = Operator.make(
+    "notEndsWith",
+    "does not end with",
+    {},
+  );
 
-  export type Type = Op.Type<"notEndsWith">;
+  export type Type = Operator.Type<"notEndsWith">;
 }
 
 /**
@@ -97,11 +101,11 @@ export namespace NotEndsWith {
  * - Example: `{ _tag: "string", op: { _tag: "matches", regex: "^foo.*$" } }`
  */
 export namespace Matches {
-  export const { op, Schema } = Op.make("matches", "matches regex", {
+  export const { op, Schema } = Operator.make("matches", "matches regex", {
     regex: BS.RegexFromString,
   });
 
-  export type Type = Op.Type<"matches">;
+  export type Type = Operator.Type<"matches">;
 }
 
 /**
@@ -111,21 +115,21 @@ export namespace Matches {
  * Compares values interpreted by the Date rule (e.g., Date or ISO string).
  */
 export namespace IsBefore {
-  export const { op, Schema } = Op.make("isBefore", "is before", {});
+  export const { op, Schema } = Operator.make("isBefore", "is before", {});
 
-  export type Type = Op.Type<"isBefore">;
+  export type Type = Operator.Type<"isBefore">;
 }
 
 export namespace IsAfter {
-  export const { op, Schema } = Op.make("isAfter", "is after", {});
+  export const { op, Schema } = Operator.make("isAfter", "is after", {});
 
-  export type Type = Op.Type<"isAfter">;
+  export type Type = Operator.Type<"isAfter">;
 }
 
 export namespace IsBetween {
-  export const { op, Schema } = Op.make("isBetween", "is between", {});
+  export const { op, Schema } = Operator.make("isBetween", "is between", {});
 
-  export type Type = Op.Type<"isBetween">;
+  export type Type = Operator.Type<"isBetween">;
 }
 
 /**
@@ -135,24 +139,32 @@ export namespace IsBetween {
  * Compares numbers using standard arithmetic ordering.
  */
 export namespace Gt {
-  export const { op, Schema } = Op.make("gt", "greater than", {});
+  export const { op, Schema } = Operator.make("gt", "greater than", {});
 
-  export type Type = Op.Type<"gt">;
+  export type Type = Operator.Type<"gt">;
 }
 
 export namespace Gte {
-  export const { op, Schema } = Op.make("gte", "greater than or equal to", {});
-  export type Type = Op.Type<"gte">;
+  export const { op, Schema } = Operator.make(
+    "gte",
+    "greater than or equal to",
+    {},
+  );
+  export type Type = Operator.Type<"gte">;
 }
 
 export namespace Lt {
-  export const { op, Schema } = Op.make("lt", "less than", {});
-  export type Type = Op.Type<"lt">;
+  export const { op, Schema } = Operator.make("lt", "less than", {});
+  export type Type = Operator.Type<"lt">;
 }
 
 export namespace Lte {
-  export const { op, Schema } = Op.make("lte", "less than or equal to", {});
-  export type Type = Op.Type<"lte">;
+  export const { op, Schema } = Operator.make(
+    "lte",
+    "less than or equal to",
+    {},
+  );
+  export type Type = Operator.Type<"lte">;
 }
 
 /**
@@ -161,15 +173,15 @@ export namespace Lte {
  * - IsTruthy / IsFalsy: JS truthiness checks
  */
 export namespace IsTrue {
-  export const { op, Schema } = Op.make("isTrue", "is true", {});
+  export const { op, Schema } = Operator.make("isTrue", "is true", {});
 
-  export type Type = Op.Type<"isTrue">;
+  export type Type = Operator.Type<"isTrue">;
 }
 
 export namespace IsFalse {
-  export const { op, Schema } = Op.make("isFalse", "is false", {});
+  export const { op, Schema } = Operator.make("isFalse", "is false", {});
 
-  export type Type = Op.Type<"isFalse">;
+  export type Type = Operator.Type<"isFalse">;
 }
 
 /**
@@ -181,66 +193,61 @@ export namespace IsFalse {
  * - IsObject / IsNotObject
  */
 export namespace IsString {
-  export const { op, Schema } = Op.make("isString", "is string", {});
+  export const { op, Schema } = Operator.make("isString", "is string", {});
 
-  export type Type = Op.Type<"isString">;
+  export type Type = Operator.Type<"isString">;
 }
 
 export namespace IsNotString {
-  export const { op, Schema } = Op.make("isNotString", "is not string", {});
+  export const { op, Schema } = Operator.make(
+    "isNotString",
+    "is not string",
+    {},
+  );
 
-  export type Type = Op.Type<"isNotString">;
+  export type Type = Operator.Type<"isNotString">;
 }
 
 export namespace IsNumber {
-  export const { op, Schema } = Op.make("isNumber", "is number", {});
+  export const { op, Schema } = Operator.make("isNumber", "is number", {});
 
-  export type Type = Op.Type<"isNumber">;
+  export type Type = Operator.Type<"isNumber">;
 }
 
 export namespace IsNotNumber {
-  export const { op, Schema } = Op.make("isNotNumber", "is not number", {});
+  export const { op, Schema } = Operator.make(
+    "isNotNumber",
+    "is not number",
+    {},
+  );
 
-  export type Type = Op.Type<"isNotNumber">;
+  export type Type = Operator.Type<"isNotNumber">;
 }
 
 export namespace IsTruthy {
-  export const { op, Schema } = Op.make("isTruthy", "is truthy", {});
-  export type Type = Op.Type<"isTruthy">;
+  export const { op, Schema } = Operator.make("isTruthy", "is truthy", {});
+  export type Type = Operator.Type<"isTruthy">;
 }
 
 export namespace IsFalsy {
-  export const { op, Schema } = Op.make("isFalsy", "is falsy", {});
-  export type Type = Op.Type<"isFalsy">;
+  export const { op, Schema } = Operator.make("isFalsy", "is falsy", {});
+  export type Type = Operator.Type<"isFalsy">;
 }
 
 /**
- * Group: Presence & emptiness
+ * Group: Presence
  * - IsNull / IsNotNull
- * - IsEmpty / IsNotEmpty
- *
- * `IsEmpty` typically checks length/size === 0 for strings/arrays.
  */
 export namespace IsNull {
-  export const { op, Schema } = Op.make("isNull", "is null", {});
+  export const { op, Schema } = Operator.make("isNull", "is null", {});
 
-  export type Type = Op.Type<"isNull">;
+  export type Type = Operator.Type<"isNull">;
 }
 
 export namespace IsNotNull {
-  export const { op, Schema } = Op.make("isNotNull", "is not null", {});
+  export const { op, Schema } = Operator.make("isNotNull", "is not null", {});
 
-  export type Type = Op.Type<"isNotNull">;
-}
-
-export namespace IsEmpty {
-  export const { op, Schema } = Op.make("isEmpty", "is empty", {});
-  export type Type = Op.Type<"isEmpty">;
-}
-
-export namespace IsNotEmpty {
-  export const { op, Schema } = Op.make("isNotEmpty", "is not empty", {});
-  export type Type = Op.Type<"isNotEmpty">;
+  export type Type = Operator.Type<"isNotNull">;
 }
 
 /**
@@ -248,13 +255,17 @@ export namespace IsNotEmpty {
  * - IsUndefined / IsDefined
  */
 export namespace IsUndefined {
-  export const { op, Schema } = Op.make("isUndefined", "is undefined", {});
-  export type Type = Op.Type<"isUndefined">;
+  export const { op, Schema } = Operator.make(
+    "isUndefined",
+    "is undefined",
+    {},
+  );
+  export type Type = Operator.Type<"isUndefined">;
 }
 
 export namespace IsDefined {
-  export const { op, Schema } = Op.make("isDefined", "is defined", {});
-  export type Type = Op.Type<"isDefined">;
+  export const { op, Schema } = Operator.make("isDefined", "is defined", {});
+  export type Type = Operator.Type<"isDefined">;
 }
 
 /**
@@ -262,13 +273,17 @@ export namespace IsDefined {
  * - IsBoolean / IsNotBoolean
  */
 export namespace IsBoolean {
-  export const { op, Schema } = Op.make("isBoolean", "is boolean", {});
-  export type Type = Op.Type<"isBoolean">;
+  export const { op, Schema } = Operator.make("isBoolean", "is boolean", {});
+  export type Type = Operator.Type<"isBoolean">;
 }
 
 export namespace IsNotBoolean {
-  export const { op, Schema } = Op.make("isNotBoolean", "is not boolean", {});
-  export type Type = Op.Type<"isNotBoolean">;
+  export const { op, Schema } = Operator.make(
+    "isNotBoolean",
+    "is not boolean",
+    {},
+  );
+  export type Type = Operator.Type<"isNotBoolean">;
 }
 
 /**
@@ -276,13 +291,13 @@ export namespace IsNotBoolean {
  * - IsArray / IsNotArray
  */
 export namespace IsArray {
-  export const { op, Schema } = Op.make("isArray", "is array", {});
-  export type Type = Op.Type<"isArray">;
+  export const { op, Schema } = Operator.make("isArray", "is array", {});
+  export type Type = Operator.Type<"isArray">;
 }
 
 export namespace IsNotArray {
-  export const { op, Schema } = Op.make("isNotArray", "is not array", {});
-  export type Type = Op.Type<"isNotArray">;
+  export const { op, Schema } = Operator.make("isNotArray", "is not array", {});
+  export type Type = Operator.Type<"isNotArray">;
 }
 
 /**
@@ -290,13 +305,17 @@ export namespace IsNotArray {
  * - IsObject / IsNotObject
  */
 export namespace IsObject {
-  export const { op, Schema } = Op.make("isObject", "is object", {});
-  export type Type = Op.Type<"isObject">;
+  export const { op, Schema } = Operator.make("isObject", "is object", {});
+  export type Type = Operator.Type<"isObject">;
 }
 
 export namespace IsNotObject {
-  export const { op, Schema } = Op.make("isNotObject", "is not object", {});
-  export type Type = Op.Type<"isNotObject">;
+  export const { op, Schema } = Operator.make(
+    "isNotObject",
+    "is not object",
+    {},
+  );
+  export type Type = Operator.Type<"isNotObject">;
 }
 
 /**

@@ -6,12 +6,14 @@ import { Rule } from "./rules";
 export const Union = Entity.make("union", {
   parentId: EntityId,
   logicalOp: Operators.LogicalOp,
-  rules: S.mutable(S.Array(
-    S.Union(
-      Rule,
-      S.suspend((): S.Schema<Union.Type, Union.Encoded> => Union),
+  rules: S.mutable(
+    S.Array(
+      S.Union(
+        Rule,
+        S.suspend((): S.Schema<Union.Type, Union.Encoded> => Union),
+      ),
     ),
-  )),
+  ),
 });
 export namespace Union {
   export type Type = Entity.Type<

@@ -48,7 +48,7 @@
       "inputs": ["$TURBO_DEFAULT$"]
     },
     "check": {
-      "dependsOn": ["^check"],
+      "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$"]
     },
     "dev": {

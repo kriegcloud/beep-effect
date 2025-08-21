@@ -1,7 +1,7 @@
 import type { StringTypes } from "@beep/types";
 import * as S from "effect/Schema";
 
-export namespace Op {
+export namespace Operator {
   export function make<
     const Tag extends StringTypes.NonEmptyString<string>,
     const Fields extends S.Struct.Fields,
