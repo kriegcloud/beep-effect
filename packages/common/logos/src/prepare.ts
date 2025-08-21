@@ -5,30 +5,24 @@ import * as Rules from "./rules";
 import type { RootUnion, Union } from "./union";
 import { isObject } from "./utils/is-object";
 import { validate } from "./validate";
-
 export type Runner = (value: unknown) => boolean;
 
 type CacheEntry = { runner: Runner; fp: string };
 const cache = new WeakMap<RootUnion.Type, CacheEntry>();
-
-function opTagOf(rule: any): string {
-  return rule?.op?._tag ?? rule?.operator?._tag ?? "";
-}
 
 function fingerprint(u: Union.Type | RootUnion.Type): string {
   const parts: string[] = [];
   const walk = (node: Union.Type | RootUnion.Type): void => {
     parts.push(`U:${node.id}:${node.logicalOp}`);
     for (let i = 0; i < node.rules.length; i++) {
-      const child = node.rules[i]!;
+      const child = O.fromNullable(node.rules[i]).pipe(O.getOrThrow);
       if (child.entity === "union") {
         walk(child);
       } else {
         const tag = child._tag ?? "";
-        const id = (child as any).id ?? "";
-        const field = (child as any).field ?? "";
-        const opTag = opTagOf(child);
-        parts.push(`R:${tag}:${id}:${field}:${opTag}`);
+        const id = child.id ?? "";
+        const field = child.field ?? "";
+        parts.push(`R:${tag}:${id}:${field}:${child._tag}`);
       }
     }
   };
@@ -152,7 +146,7 @@ function compileUnion(u: Union.Type | RootUnion.Type): Runner {
   if (u.logicalOp === "and") {
     return (v: any) => {
       for (let i = 0; i < children.length; i++) {
-        if (!children[i]!(v)) return false;
+        if (!children[i]?.(v)) return false;
       }
       return true;
     };
@@ -161,7 +155,7 @@ function compileUnion(u: Union.Type | RootUnion.Type): Runner {
   // logicalOp === "or"
   return (v: any) => {
     for (let i = 0; i < children.length; i++) {
-      if (children[i]!(v)) return true;
+      if (children[i]?.(v)) return true;
     }
     return false;
   };
@@ -192,8 +186,6 @@ export function runPrepared(root: RootUnion.Type, value: unknown): boolean {
 
 // Internal export for in-package use (e.g., run.ts) to compile unions without
 // validation or caching. Not re-exported from index.ts to keep public API clean.
-// TS2323: Cannot redeclare exported variable createRunner
-// TS2393: Duplicate function implementation.
 export function createRunner(u: Union.Type | RootUnion.Type): Runner {
   return compileUnion(u);
 }

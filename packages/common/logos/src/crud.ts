@@ -1,5 +1,6 @@
 import * as A from "effect/Array";
 import * as F from "effect/Function";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { v4 as uuid } from "uuid";
 import type { EntityId } from "./internal";
@@ -117,7 +118,7 @@ export function removeAllById<T extends AnyUnion>(
   id: EntityId.Type,
 ): T {
   for (let i = union.rules.length - 1; i >= 0; i--) {
-    const child = union.rules[i]!;
+    const child = O.fromNullable(union.rules[i]).pipe(O.getOrThrow);
     if (child.id === id) {
       union.rules.splice(i, 1);
       continue;
@@ -159,7 +160,7 @@ export const updateRuleById = (
   if (idx < 0) {
     return;
   }
-  const next = { ...(parent.rules[idx] as Rule.Type), ...values } as Rule.Type;
+  const next = { ...(parent.rules[idx] as Rule.Type), ...values };
   parent.rules[idx] = next;
   return next;
 };
@@ -201,7 +202,7 @@ export const updateUnionById = (
   if (idx < 0) {
     return;
   }
-  const next = { ...(parent.rules[idx] as Union.Type), ...values } as Union.Type;
+  const next = { ...(parent.rules[idx] as Union.Type), ...values };
   parent.rules[idx] = next;
   return next;
 };
