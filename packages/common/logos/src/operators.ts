@@ -218,8 +218,9 @@ export namespace IsNotObject {
   export type Type = Op.Type<"isNotObject">;
 }
 
-export const LogicalOp = S.Literal("and", "or");
+export const LogicalOp = S.Literal("and", "or").pipe(S.mutable);
 
 export namespace LogicalOp {
-  export type Type = "and" | "or";
+  export type Type = typeof LogicalOp.Type;
+  export type Encoded = typeof LogicalOp.Encoded;
 }

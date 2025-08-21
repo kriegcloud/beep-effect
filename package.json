@@ -35,7 +35,7 @@
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "test": "turbo run test",
-    "coverage": "vitest --coverage",
+    "coverage": "turbo run coverage",
     "prepare": "husky",
     "dev": "pnpm dotenvx turbo run dev --concurrency=14",
     "dotenvx": "dotenvx run -f .env --",

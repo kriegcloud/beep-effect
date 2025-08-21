@@ -1,7 +1,9 @@
+import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import get from "lodash.get";
 import * as Rules from "./rules";
 import type { AnyUnion, RuleOrUnion } from "./types";
 import { RootUnion, Union } from "./union";
@@ -14,7 +16,7 @@ import { isObject } from "./utils/is-object";
  * @param {*} value
  * @return {*}  {boolean}
  */
-export function run(union: AnyUnion, value: any): boolean {
+export function run(union: AnyUnion, value: UnsafeTypes.UnsafeAny): boolean {
   try {
     const validated = F.pipe(
       union,
@@ -30,7 +32,7 @@ export function run(union: AnyUnion, value: any): boolean {
       if (ruleOrUnion.entity === "union") {
         return run(ruleOrUnion, value);
       }
-      const resolved = get(value, ruleOrUnion.field);
+      const resolved = R.get(ruleOrUnion.field)(value).pipe(O.getOrThrow);
 
       if (ruleOrUnion._tag === "string" && typeof resolved === "string") {
         return Rules.StringRule.validate(ruleOrUnion, resolved);

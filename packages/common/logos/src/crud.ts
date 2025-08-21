@@ -1,37 +1,38 @@
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
-import type * as Types from "effect/Types";
-import { create } from "mutative";
 import { v4 as uuid } from "uuid";
 import type { EntityId } from "./internal";
 import { Rule, RuleInput } from "./rules";
 import type {
-  AnyEntity,
+  AnyEntityOrUndefined,
   AnyUnion,
+  AnyUnionOrUndefined,
+  RuleOrUndefined,
   RuleOrUnion,
   RuleOrUnionInput,
 } from "./types";
 import { type RootUnion, Union, UnionInput } from "./union";
+
 /**
  * Find a rule or a union by id.
  * @export
  * @param {(AnyUnion)} union
  * @param {string} id
- * @return {*}  {(AnyEntity | undefined)}
+ * @return {*}  {(AnyEntityOrUndefined)}
  */
 
 export const findAnyById = (
   union: AnyUnion,
   id: EntityId.Type,
-): AnyEntity | undefined => {
+): AnyEntityOrUndefined => {
   if (union.id === id) {
     return union;
   }
 
   return A.reduce(
     union.rules,
-    undefined as AnyEntity | undefined,
+    undefined as AnyEntityOrUndefined,
     (foundUnion, ruleOrUnion) => {
       if (foundUnion) {
         return foundUnion;
@@ -52,15 +53,15 @@ export const findAnyById = (
  * @export
  * @param {AnyUnion} union
  * @param {EntityId.Type} id
- * @return {*}  {(Rule.Type | undefined)}
+ * @return {*}  {(RuleOrUndefined)}
  */
 export const findRuleById = (
   union: AnyUnion,
   id: EntityId.Type,
-): Rule.Type | undefined =>
+): RuleOrUndefined =>
   A.reduce(
     union.rules,
-    undefined as Rule.Type | undefined,
+    undefined as RuleOrUndefined,
     (foundRule, ruleOrUnion) => {
       if (foundRule) {
         return foundRule;
@@ -83,13 +84,13 @@ export const findRuleById = (
 export function findUnionById(
   union: AnyUnion,
   id: string,
-): AnyUnion | undefined {
+): AnyUnionOrUndefined {
   if (union.id === id) {
     return union;
   }
   return A.reduce(
     union.rules,
-    undefined as AnyUnion | undefined,
+    undefined as AnyUnionOrUndefined,
     (foundUnion, ruleOrUnion) => {
       if (foundUnion || ruleOrUnion.entity === "rule") {
         return foundUnion;
@@ -115,30 +116,16 @@ export function removeAllById<T extends AnyUnion>(
   union: T,
   id: EntityId.Type,
 ): T {
-  const updated = create(union, (draft: Types.Mutable<AnyUnion>) => {
-    // IMPORTANT: build from the ORIGINAL children to recurse on original refs
-    const nextRules = A.reduce(
-      union.rules,
-      [] as Array<RuleOrUnion>,
-      (list, child) => {
-        if (child.id !== id) {
-          if (child.entity === "union") {
-            // recurse on ORIGINAL child to update it in-place
-            const updatedChild = removeAllById(child, id);
-            list.push(updatedChild);
-          } else {
-            list.push(child);
-          }
-        }
-        return list;
-      },
-    );
-    // TS2540: Cannot assign to rules because it is a read-only property.
-    draft.rules = nextRules;
-  }) as T;
-
-  // Reflect changes on the original object to preserve current API expectations
-  Object.assign(union, updated);
+  for (let i = union.rules.length - 1; i >= 0; i--) {
+    const child = union.rules[i]!;
+    if (child.id === id) {
+      union.rules.splice(i, 1);
+      continue;
+    }
+    if (child.entity === "union") {
+      removeAllById(child, id);
+    }
+  }
   return union;
 }
 
@@ -150,13 +137,13 @@ export function removeAllById<T extends AnyUnion>(
  * @param {RootUnion.Type} root
  * @param {EntityId.Type} id
  * @param {RuleInput.Type} values
- * @return {*}  {(Rule.Type | undefined)}
+ * @return {*}  {(RuleOrUndefined)}
  */
 export const updateRuleById = (
   root: RootUnion.Type,
   id: EntityId.Type,
   values: RuleInput.Type,
-): Rule.Type | undefined => {
+): RuleOrUndefined => {
   const foundRule = findRuleById(root, id);
   if (!foundRule) {
     return;
@@ -166,25 +153,15 @@ export const updateRuleById = (
   if (!parent) {
     return;
   }
-
-  let changed = false;
-  const updatedParent = create(parent, (draft: Types.Mutable<AnyUnion>) => {
-    // TS2540: Cannot assign to rules because it is a read-only property.
-    draft.rules = A.map(draft.rules, (ruleOrUnion) => {
-      if (ruleOrUnion.entity === "rule" && ruleOrUnion.id === foundRule.id) {
-        changed = true;
-        return { ...ruleOrUnion, ...values } as Rule.Type;
-      }
-      return ruleOrUnion;
-    });
-  }) as AnyUnion;
-
-  if (!changed) {
+  const idx = parent.rules.findIndex(
+    (n) => n.entity === "rule" && n.id === foundRule.id,
+  );
+  if (idx < 0) {
     return;
   }
-
-  Object.assign(parent, updatedParent);
-  return findRuleById(root, id);
+  const next = { ...(parent.rules[idx] as Rule.Type), ...values } as Rule.Type;
+  parent.rules[idx] = next;
+  return next;
 };
 
 /**
@@ -201,7 +178,7 @@ export const updateUnionById = (
   root: RootUnion.Type,
   id: EntityId.Type,
   values: UnionInput.Type,
-): AnyUnion | undefined => {
+): AnyUnionOrUndefined => {
   const foundUnion = findUnionById(root, id);
   if (!foundUnion) {
     return;
@@ -209,36 +186,24 @@ export const updateUnionById = (
 
   // If updating the root union, mutate it directly
   if (foundUnion.entity === "rootUnion") {
-    const updatedRoot = create(foundUnion, (draft: AnyUnion) => {
-      (draft as any).logicalOp = values.logicalOp;
-    }) as AnyUnion;
-    Object.assign(foundUnion, updatedRoot);
+    foundUnion.logicalOp = values.logicalOp;
     return foundUnion;
   }
 
   // Otherwise, update the child within its parent in place
-  const parent = findUnionById(root, (foundUnion as any).parentId);
+  const parent = findUnionById(root, foundUnion.parentId);
   if (!parent) {
     return;
   }
-
-  let changed = false;
-  const updatedParent = create(parent, (draft: Types.Mutable<AnyUnion>) => {
-    draft.rules = A.map(draft.rules, (ruleOrUnion) => {
-      if (ruleOrUnion.entity === "union" && ruleOrUnion.id === id) {
-        changed = true;
-        return { ...ruleOrUnion, ...values } as Union.Type;
-      }
-      return ruleOrUnion;
-    });
-  }) as AnyUnion;
-
-  if (!changed) {
+  const idx = parent.rules.findIndex(
+    (n) => n.entity === "union" && n.id === id,
+  );
+  if (idx < 0) {
     return;
   }
-
-  Object.assign(parent, updatedParent);
-  return findUnionById(root, id);
+  const next = { ...(parent.rules[idx] as Union.Type), ...values } as Union.Type;
+  parent.rules[idx] = next;
+  return next;
 };
 
 /**
@@ -263,11 +228,7 @@ export function addRuleToUnion(
     S.encodeSync(Rule),
     S.decodeSync(Rule),
   );
-
-  const updatedParent = create(parent, (draft: AnyUnion) => {
-    draft.rules.push(rule);
-  }) as AnyUnion;
-  Object.assign(parent, updatedParent);
+  parent.rules.push(rule);
   return rule;
 }
 
@@ -290,10 +251,7 @@ export function addUnionToUnion(
     entity: "union",
     rules: [],
   });
-  const updatedParent = create(parent, (draft: AnyUnion) => {
-    draft.rules.push(union);
-  }) as AnyUnion;
-  Object.assign(parent, updatedParent);
+  parent.rules.push(union);
   return union;
 }
 

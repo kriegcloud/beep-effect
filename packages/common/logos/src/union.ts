@@ -34,7 +34,7 @@ export namespace Union {
 export const RootUnion = Entity.make("rootUnion", {
   logicalOp: Operators.LogicalOp,
   rules: S.Array(S.Union(Rule, Union)).pipe(S.mutable),
-});
+}).pipe(S.mutable);
 export namespace RootUnion {
   export type Type = typeof RootUnion.Type;
   export type Encoded = typeof RootUnion.Encoded;
