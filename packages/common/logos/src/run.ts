@@ -1,13 +1,9 @@
 import type { UnsafeTypes } from "@beep/types";
-import * as A from "effect/Array";
-import * as F from "effect/Function";
-import * as O from "effect/Option";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Rules from "./rules";
-import type { AnyUnion, RuleOrUnion } from "./types";
-import { RootUnion, Union } from "./union";
-import { isObject } from "./utils/is-object";
+import { createRunner } from "./prepare";
+import type { AnyUnion } from "./types";
+import { Union } from "./union";
+import { validate } from "./validate";
 
 /**
  * Run the rules engine against a value.
@@ -17,76 +13,19 @@ import { isObject } from "./utils/is-object";
  * @return {*}  {boolean}
  */
 export function run(union: AnyUnion, value: UnsafeTypes.UnsafeAny): boolean {
-  try {
-    const validated = F.pipe(
-      union,
-      S.encodeSync(S.Union(RootUnion, Union)),
-      S.decodeSync(S.Union(RootUnion, Union)),
-    );
-
-    if (A.isEmptyArray(validated.rules)) {
-      return true;
+  // Root unions: preserve previous behavior by validating on every call.
+  if (union.entity === "rootUnion") {
+    const v = validate(union);
+    if (!v.isValid) {
+      throw new Error(v.reason);
     }
-
-    const callback = (ruleOrUnion: RuleOrUnion) => {
-      if (ruleOrUnion.entity === "union") {
-        return run(ruleOrUnion, value);
-      }
-      const resolved = R.get(ruleOrUnion.field)(value).pipe(O.getOrThrow);
-
-      if (ruleOrUnion._tag === "string" && typeof resolved === "string") {
-        return Rules.StringRule.validate(ruleOrUnion, resolved);
-      }
-
-      if (ruleOrUnion._tag === "number" && typeof resolved === "number") {
-        return Rules.NumberRule.validate(ruleOrUnion, resolved);
-      }
-
-      if (ruleOrUnion._tag === "boolean" && typeof resolved === "boolean") {
-        return Rules.BooleanRule.validate(ruleOrUnion, resolved);
-      }
-
-      if (Array.isArray(resolved)) {
-        if (ruleOrUnion._tag === "arrayValue") {
-          return Rules.ArrayValueRule.validate(ruleOrUnion, resolved);
-        }
-
-        if (ruleOrUnion._tag === "arrayLength") {
-          return Rules.ArrayLengthRule.validate(ruleOrUnion, resolved);
-        }
-      }
-
-      if (isObject(resolved)) {
-        if (ruleOrUnion._tag === "objectKey") {
-          return Rules.ObjectKeyRule.validate(ruleOrUnion, resolved);
-        }
-
-        if (ruleOrUnion._tag === "objectValue") {
-          return Rules.ObjectValueRule.validate(ruleOrUnion, resolved);
-        }
-
-        if (ruleOrUnion._tag === "objectKeyValue") {
-          return Rules.ObjectKeyValueRule.validate(ruleOrUnion, resolved);
-        }
-      }
-
-      if (ruleOrUnion._tag === "genericComparison") {
-        return Rules.GenericComparisonRule.validate(ruleOrUnion, resolved);
-      }
-
-      if (ruleOrUnion._tag === "genericType") {
-        return Rules.GenericTypeRule.validate(ruleOrUnion, resolved);
-      }
-    };
-
-    // If the joiner is an AND, then all rules must be true
-    if (validated.logicalOp === "and") {
-      return union.rules.every(callback);
-    }
-
-    // If the joiner is an OR, then at least one rule must be true
-    return validated.rules.some(callback);
-  } catch (error) {
-    throw error;
+    if (union.rules.length === 0) return true;
+    const runner = createRunner(union);
+    return runner(value);
   }
+
+  // Nested unions: validate once per call, then compile and run.
+  const validated = S.decodeSync(Union)(S.encodeSync(Union)(union));
+  const runner = createRunner(validated);
+  return runner(value);
 }
