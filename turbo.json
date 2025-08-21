@@ -1,26 +1,14 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "ui": "tui",
-  "globalDependencies": [
-    "**/.env",
-    "**/.env.*"
-  ],
-  "globalPassThroughEnv": [
-    "NODE_TLS_REJECT_UNAUTHORIZED",
-    "AWS_*",
-    "SST_*"
-  ],
+  "globalDependencies": ["**/.env", "**/.env.*"],
+  "globalPassThroughEnv": ["NODE_TLS_REJECT_UNAUTHORIZED", "AWS_*", "SST_*"],
   "tasks": {
     "build": {
       "persistent": false,
       "cache": true,
-      "dependsOn": [
-        "^build"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env*"
-      ],
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [
         "dist/**",
         "build/**",
@@ -34,62 +22,34 @@
       ]
     },
     "db:generate": {
-      "dependsOn": [
-        "^db:generate"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$"
-      ]
+      "dependsOn": ["^db:generate"],
+      "inputs": ["$TURBO_DEFAULT$"]
     },
     "db:push": {
-      "dependsOn": [
-        "^db:push"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$"
-      ]
+      "dependsOn": ["^db:push"],
+      "inputs": ["$TURBO_DEFAULT$"]
     },
     "db:migrate": {
-      "dependsOn": [
-        "^db:migrate"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$"
-      ]
+      "dependsOn": ["^db:migrate"],
+      "inputs": ["$TURBO_DEFAULT$"]
     },
     "db:studio": {
-      "dependsOn": [
-        "^db:studio"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$"
-      ]
+      "dependsOn": ["^db:studio"],
+      "inputs": ["$TURBO_DEFAULT$"]
     },
     "lint": {
       "cache": true,
-      "dependsOn": [
-        "^lint"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$"
-      ]
+      "dependsOn": ["^lint"],
+      "inputs": ["$TURBO_DEFAULT$"]
     },
     "lint:fix": {
       "cache": true,
-      "dependsOn": [
-        "^lint:fix"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$"
-      ]
+      "dependsOn": ["^lint:fix"],
+      "inputs": ["$TURBO_DEFAULT$"]
     },
     "check": {
-      "dependsOn": [
-        "^check"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$"
-      ]
+      "dependsOn": ["^check"],
+      "inputs": ["$TURBO_DEFAULT$"]
     },
     "dev": {
       "cache": false,
@@ -100,12 +60,11 @@
       "persistent": true
     },
     "test": {
-      "dependsOn": [
-        "^build"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$"
-      ]
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$"]
+    },
+    "coverage": {
+      "dependsOn": ["^build"]
     },
     "clean": {
       "cache": false

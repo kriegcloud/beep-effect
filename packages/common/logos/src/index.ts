@@ -3,6 +3,7 @@ export * from "./crud";
 export { EntityId } from "./internal/Entity";
 export * from "./normalize";
 export * from "./operators";
+export { prepare, runPrepared } from "./prepare";
 export * from "./rules";
 export * from "./types";
 export * from "./union";

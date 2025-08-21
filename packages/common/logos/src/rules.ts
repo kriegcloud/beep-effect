@@ -341,7 +341,7 @@ export namespace GenericTypeRule {
 export namespace DateRule {
   export const { Rule, Input } = makeRule("date", {
     field: S.String,
-    operator: S.Union(
+    op: S.Union(
       Operators.IsBefore.Schema,
       Operators.IsAfter.Schema,
       Operators.IsBetween.Schema,
@@ -369,7 +369,7 @@ export namespace DateRule {
       O.match({
         onNone: () => false,
         onSome: (utc) =>
-          Match.value(rule.operator).pipe(
+          Match.value(rule.op).pipe(
             Match.withReturnType<boolean>(),
             Match.tags({
               isBefore: () =>
@@ -437,13 +437,6 @@ export namespace DateRule {
           ),
       }),
     );
-
-  // export const validate = (rule: Input, value: string) => Match.value(rule.op).pipe(
-  //   Match.withReturnType<boolean>(),
-  //   Match.tags({
-  //     isBefore: () =>
-  //   })
-  // )
 }
 
 export const Rule = S.Union(

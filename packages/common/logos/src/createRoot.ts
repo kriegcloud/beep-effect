@@ -4,7 +4,7 @@ import type { RootUnion, UnionInput } from "./union";
 /**
  * Creates a new root union.
  * @export
- * @param {NewUnion} newUnion
+ * @param {UnionInput} newUnion
  * @return {*}  {RootUnion}
  */
 export function createRoot(newUnion: UnionInput.Type): RootUnion.Type {

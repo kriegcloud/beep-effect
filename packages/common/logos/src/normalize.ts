@@ -1,8 +1,6 @@
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import type * as Types from "effect/Types";
-import { create } from "mutative";
 import { Rule } from "./rules";
 import type { AnyUnion, RuleOrUnion } from "./types";
 import { Union } from "./union";
@@ -18,56 +16,57 @@ export function normalize<T extends AnyUnion>(union: T, options?: Options): T {
   const removeEmptyUnions = options?.removeEmptyUnions ?? true;
   const removeFailedValidations = options?.removeFailedValidations ?? true;
   const updateParentIds = options?.updateParentIds ?? true;
-  const updated = create(union, (draft: Types.Mutable<AnyUnion>) => {
-    draft.rules = A.reduce(
-      union.rules,
-      [] as Array<RuleOrUnion>,
-      (acc, item) => {
-        if (item.entity === "union") {
-          // Validate union shape
-          if (removeFailedValidations) {
-            const validated = S.encodeOption(Union)(item);
-            if (!O.isSome(validated)) {
-              return acc;
-            }
-          }
-          // Normalize nested union recursively (in-place)
-          const normalizedChild = normalize(item, options);
-          // Remove empty unions
-          if (A.isEmptyArray(normalizedChild.rules) && removeEmptyUnions) {
-            return acc;
-          }
-          // Promote single-rule union
-          if (
-            A.isNonEmptyArray(normalizedChild.rules) &&
-            normalizedChild.rules.length === 1 &&
-            promoteSingleRuleUnions
-          ) {
-            const only = normalizedChild.rules[0]!;
-            acc.push({ ...only, parentId: draft.id });
-            return acc;
-          }
-          // Ensure parentId of union
-          acc.push(
-            updateParentIds
-              ? { ...normalizedChild, parentId: draft.id }
-              : normalizedChild,
-          );
-          return acc;
-        }
-        // item is a rule
-        if (removeFailedValidations) {
-          const validated = S.encodeOption(Rule)(item);
-          if (!O.isSome(validated)) {
-            return acc;
-          }
-        }
-        acc.push(updateParentIds ? { ...item, parentId: draft.id } : item);
-        return acc;
-      },
-    );
-  }) as T;
+  const out: Array<RuleOrUnion> = [];
 
-  Object.assign(union, updated);
+  for (const item of union.rules) {
+    if (item.entity === "union") {
+      // Validate union shape
+      if (removeFailedValidations) {
+        const validated = S.encodeOption(Union)(item);
+        if (!O.isSome(validated)) {
+          continue;
+        }
+      }
+
+      // Normalize nested union recursively (in-place)
+      const normalizedChild = normalize(item, options);
+
+      // Remove empty unions
+      if (A.isEmptyArray(normalizedChild.rules) && removeEmptyUnions) {
+        continue;
+      }
+
+      // Promote single-rule union
+      if (
+        A.isNonEmptyArray(normalizedChild.rules) &&
+        normalizedChild.rules.length === 1 &&
+        promoteSingleRuleUnions
+      ) {
+        const only = normalizedChild.rules[0];
+        out.push(updateParentIds ? { ...only, parentId: union.id } : only);
+        continue;
+      }
+
+      // Ensure parentId of union
+      out.push(
+        updateParentIds
+          ? { ...normalizedChild, parentId: union.id }
+          : normalizedChild,
+      );
+      continue;
+    }
+    // item is a rule
+    if (removeFailedValidations) {
+      const validated = S.encodeOption(Rule)(item);
+      if (!O.isSome(validated)) {
+        continue;
+      }
+    }
+    out.push(updateParentIds ? { ...item, parentId: union.id } : item);
+  }
+
+  // mutate underlying array in place to avoid reassigning the readonly property
+  union.rules.length = 0;
+  union.rules.push(...out);
   return union;
 }
