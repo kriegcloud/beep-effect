@@ -1,5 +1,4 @@
 import { BS } from "@beep/schema";
-import { stringLiteralKit } from "@beep/schema/kits";
 import * as S from "effect/Schema";
 import { Op } from "./internal";
 export namespace Eq {
@@ -218,50 +217,6 @@ export namespace IsNotObject {
   export const { op, Schema } = Op.make("isNotObject", "is not object", {});
   export type Type = Op.Type<"isNotObject">;
 }
-
-export const { Enum: OperatorEnum, Schema: Operator } = stringLiteralKit(
-  Eq.op,
-  Ne.op,
-  In.op,
-  NotIn.op,
-  Every.op,
-  StartsWith.op,
-  NotStartsWith.op,
-  EndsWith.op,
-  NotEndsWith.op,
-  Matches.op,
-  IsBefore.op,
-  IsAfter.op,
-  IsBetween.op,
-  Gt.op,
-  Gte.op,
-  Lt.op,
-  Lte.op,
-  IsTrue.op,
-  IsFalse.op,
-  IsString.op,
-  IsNotString.op,
-  IsNumber.op,
-  IsNotNumber.op,
-  IsTruthy.op,
-  IsFalsy.op,
-  IsNull.op,
-  IsNotNull.op,
-  IsEmpty.op,
-  IsNotEmpty.op,
-  IsUndefined.op,
-  IsDefined.op,
-  IsBoolean.op,
-  IsNotBoolean.op,
-  IsArray.op,
-  IsNotArray.op,
-  IsObject.op,
-  IsNotObject.op,
-)({
-  identifier: "Operator",
-  title: "Operator",
-  description: "The supported rule operators",
-});
 
 export const LogicalOp = S.Literal("and", "or");
 

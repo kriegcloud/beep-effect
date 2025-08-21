@@ -1,6 +1,5 @@
 export * from "./createRoot";
 export * from "./crud";
-export * from "./engine";
 export { EntityId } from "./internal/Entity";
 export * from "./normalize";
 export * from "./operators";
