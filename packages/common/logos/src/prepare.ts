@@ -6,6 +6,7 @@ import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
+import { fingerprint } from "./internal/fingerprint";
 import { normalize } from "./normalize";
 import * as Rules from "./rules";
 import type { RootUnion, Union } from "./union";
@@ -15,26 +16,6 @@ export type Runner = (value: unknown) => boolean;
 
 type CacheEntry = { runner: Runner; fp: string };
 const cache = new WeakMap<RootUnion.Type, CacheEntry>();
-
-function fingerprint(u: Union.Type | RootUnion.Type): string {
-  const parts: string[] = [];
-  const walk = (node: Union.Type | RootUnion.Type): void => {
-    parts.push(`U:${node.id}:${node.logicalOp}`);
-    for (let i = 0; i < node.rules.length; i++) {
-      const child = O.fromNullable(node.rules[i]).pipe(O.getOrThrow);
-      if (child.entity === "union") {
-        walk(child);
-      } else {
-        const tag = child._tag ?? "";
-        const id = child.id ?? "";
-        const field = child.field ?? "";
-        parts.push(`R:${tag}:${id}:${field}:${child._tag}`);
-      }
-    }
-  };
-  walk(u);
-  return parts.join("|");
-}
 
 function compileRule(rule: Rules.Rule.Type): Runner {
   // Pre-resolve a fast field accessor (direct key access)

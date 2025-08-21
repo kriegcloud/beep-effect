@@ -6,12 +6,12 @@ import { Rule } from "./rules";
 export const Union = Entity.make("union", {
   parentId: EntityId,
   logicalOp: Operators.LogicalOp,
-  rules: S.Array(
+  rules: S.mutable(S.Array(
     S.Union(
       Rule,
       S.suspend((): S.Schema<Union.Type, Union.Encoded> => Union),
     ),
-  ).pipe(S.mutable),
+  )),
 });
 export namespace Union {
   export type Type = Entity.Type<
@@ -33,7 +33,7 @@ export namespace Union {
 }
 export const RootUnion = Entity.make("rootUnion", {
   logicalOp: Operators.LogicalOp,
-  rules: S.Array(S.Union(Rule, Union)).pipe(S.mutable),
+  rules: S.mutable(S.Array(S.Union(Rule, Union))),
 }).pipe(S.mutable);
 export namespace RootUnion {
   export type Type = typeof RootUnion.Type;

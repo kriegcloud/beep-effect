@@ -1,9 +1,17 @@
 import * as A from "effect/Array";
 import * as F from "effect/Function";
+import * as HM from "effect/HashMap";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { v4 as uuid } from "uuid";
 import type { EntityId } from "./internal";
+import {
+  findAnyByIdFast,
+  findRuleByIdFast,
+  findUnionByIdFast,
+  getIdIndex,
+  invalidateIdIndex,
+} from "./internal/idIndex";
 import { Rule, RuleInput } from "./rules";
 import type {
   AnyEntityOrUndefined,
@@ -29,6 +37,12 @@ export const findAnyById = (
 ): AnyEntityOrUndefined => {
   if (union.id === id) {
     return union;
+  }
+
+  // Fast path via HashMap index when called with a root union
+  if (union.entity === "rootUnion") {
+    const fast = findAnyByIdFast(union, id);
+    if (fast !== undefined) return fast;
   }
 
   return A.reduce(
@@ -60,20 +74,39 @@ export const findRuleById = (
   union: AnyUnion,
   id: EntityId.Type,
 ): RuleOrUndefined =>
-  A.reduce(
-    union.rules,
-    undefined as RuleOrUndefined,
-    (foundRule, ruleOrUnion) => {
-      if (foundRule) {
-        return foundRule;
-      }
+  union.entity === "rootUnion"
+    ? (() => {
+        const fast = findRuleByIdFast(union, id);
+        if (fast !== undefined) return fast;
+        return A.reduce(
+          union.rules,
+          undefined as RuleOrUndefined,
+          (foundRule, ruleOrUnion) => {
+            if (foundRule) {
+              return foundRule;
+            }
 
-      if (ruleOrUnion.entity === "rule") {
-        return ruleOrUnion.id === id ? ruleOrUnion : undefined;
-      }
-      return findRuleById(ruleOrUnion, id);
-    },
-  );
+            if (ruleOrUnion.entity === "rule") {
+              return ruleOrUnion.id === id ? ruleOrUnion : undefined;
+            }
+            return findRuleById(ruleOrUnion, id);
+          },
+        );
+      })()
+    : A.reduce(
+        union.rules,
+        undefined as RuleOrUndefined,
+        (foundRule, ruleOrUnion) => {
+          if (foundRule) {
+            return foundRule;
+          }
+
+          if (ruleOrUnion.entity === "rule") {
+            return ruleOrUnion.id === id ? ruleOrUnion : undefined;
+          }
+          return findRuleById(ruleOrUnion, id);
+        },
+      );
 
 /**
  * Find a union by id.
@@ -88,6 +121,10 @@ export function findUnionById(
 ): AnyUnionOrUndefined {
   if (union.id === id) {
     return union;
+  }
+  if (union.entity === "rootUnion") {
+    const fast = findUnionByIdFast(union, id);
+    if (fast !== undefined) return fast;
   }
   return A.reduce(
     union.rules,
@@ -150,18 +187,28 @@ export const updateRuleById = (
     return;
   }
 
+  // Respect parentId semantics: if parentId is invalid, bail out
   const parent = findUnionById(root, foundRule.parentId);
   if (!parent) {
     return;
   }
-  const idx = parent.rules.findIndex(
-    (n) => n.entity === "rule" && n.id === foundRule.id,
-  );
-  if (idx < 0) {
+
+  // Use the ID index to get O(1) parent slot
+  const { parentOf, indexInParent } = getIdIndex(root);
+  const actualParent = O.getOrUndefined(HM.get(parentOf, id));
+  if (actualParent && actualParent.id !== parent.id) {
+    // parentId does not match structural parent; treat as invalid
+    return;
+  }
+  const idx = O.getOrUndefined(HM.get(indexInParent, id));
+  if (idx === undefined) {
     return;
   }
   const next = { ...(parent.rules[idx] as Rule.Type), ...values };
   parent.rules[idx] = next;
+  // Invalidate ID index cache for this root, because we replaced the object reference
+  // and value changes are not part of the structural fingerprint.
+  invalidateIdIndex(root);
   return next;
 };
 
@@ -188,6 +235,8 @@ export const updateUnionById = (
   // If updating the root union, mutate it directly
   if (foundUnion.entity === "rootUnion") {
     foundUnion.logicalOp = values.logicalOp;
+    // Conservative: invalidate to reflect updated reference/props
+    invalidateIdIndex(root);
     return foundUnion;
   }
 
@@ -196,14 +245,18 @@ export const updateUnionById = (
   if (!parent) {
     return;
   }
-  const idx = parent.rules.findIndex(
-    (n) => n.entity === "union" && n.id === id,
-  );
-  if (idx < 0) {
+  const { parentOf, indexInParent } = getIdIndex(root);
+  const actualParent = O.getOrUndefined(HM.get(parentOf, id));
+  if (actualParent && actualParent.id !== parent.id) {
+    return;
+  }
+  const idx = O.getOrUndefined(HM.get(indexInParent, id));
+  if (idx === undefined) {
     return;
   }
   const next = { ...(parent.rules[idx] as Union.Type), ...values };
   parent.rules[idx] = next;
+  invalidateIdIndex(root);
   return next;
 };
 
