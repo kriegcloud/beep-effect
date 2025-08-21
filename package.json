@@ -24,7 +24,6 @@
     "build": "pnpm dotenvx turbo run build",
     "execute": "pnpm dotenvxturbo run execute",
     "check": "turbo run check",
-    "update-deps": "turbo run update-deps",
     "check:all": "turbo run lint check test",
     "db:generate": "turbo run db:generate",
     "db:migrate": "pnpm dotenvx turbo run db:migrate",
@@ -39,7 +38,10 @@
     "coverage": "vitest --coverage",
     "prepare": "husky",
     "dev": "pnpm dotenvx turbo run dev --concurrency=14",
-    "dotenvx": "dotenvx run -f .env --"
+    "dotenvx": "dotenvx run -f .env --",
+    "lint:deps": "pnpm syncpack lint --dependency-types=dev,prod,peer",
+    "lint:deps:fix": "pnpm syncpack fix --dependency-types=dev,prod,peer",
+    "deps:update": "pnpm syncpack update --target=latest --dependency-types=dev,prod,peer"
   },
   "dependencies": {
     "tsx": "^4.20.4"
@@ -51,7 +53,6 @@
     "@babel/plugin-transform-modules-commonjs": "^7.27.1",
     "@biomejs/biome": "^2.2.0",
     "@dotenvx/dotenvx": "^1.49.0",
-    "@effect-rx/rx-react": "0.42.2",
     "@effect/language-service": "^0.35.2",
     "@effect/vitest": "^0.25.1",
     "@types/node": "^24.3.0",
@@ -61,7 +62,8 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.1.5",
     "prettier": "^3.6.2",
-    "tsx": "^4.20.3",
+    "syncpack": "14.0.0-alpha.19",
+    "tsx": "^4.20.4",
     "turbo": "^2.5.6",
     "typescript": "^5.9.2",
     "vite-tsconfig-paths": "^5.1.4",

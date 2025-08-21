@@ -2,6 +2,7 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
+
 export type CookieOptions = {
   secure?: boolean;
   daysUntilExpiration?: number;
@@ -9,6 +10,28 @@ export type CookieOptions = {
   domain?: string;
   path?: string;
 };
+
+// Internal: feature-detect CookieStore API safely across environments (e.g. SSR)
+function hasCookieStore(): boolean {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return typeof (globalThis as any).cookieStore !== "undefined";
+}
+
+// Map our title-cased SameSite option to CookieStore's lowercase values
+function toCookieStoreSameSite(
+  sameSite: CookieOptions["sameSite"],
+): "strict" | "lax" | "none" | undefined {
+  switch (sameSite) {
+    case "Strict":
+      return "strict";
+    case "Lax":
+      return "lax";
+    case "None":
+      return "none";
+    default:
+      return undefined;
+  }
+}
 
 /**
  * Retrieves a cookie value by key.
@@ -61,11 +84,11 @@ export function getCookie<T>(key: string): T | null {
  * @example
  * setCookie('user', { name: 'John', age: 30 }, { daysUntilExpiration: 7, sameSite: 'Lax', secure: true });
  */
-export function setCookie<T>(
+export async function setCookie<T>(
   key: string,
   value: T,
   options?: CookieOptions,
-): void {
+): Promise<void> {
   if (!key || P.not(Str.isString)(key)) {
     console.error("Invalid cookie key provided");
     return;
@@ -80,27 +103,36 @@ export function setCookie<T>(
   } = options ?? {};
 
   try {
-    const serializedValue = encodeURIComponent(
-      typeof value === "string" ? value : JSON.stringify(value),
-    );
+    const rawValue = typeof value === "string" ? value : JSON.stringify(value);
 
-    const cookieParts = [
-      `${key}=${serializedValue}`,
-      `path=${path}`,
-      sameSite && `SameSite=${sameSite}`,
-      secure && "Secure",
-      domain && `domain=${domain}`,
-    ];
+    if (hasCookieStore()) {
+      const sameSiteLower = toCookieStoreSameSite(sameSite);
 
-    if (daysUntilExpiration > 0) {
-      const expirationDate = new Date(
-        Date.now() + daysUntilExpiration * 24 * 60 * 60 * 1000,
-      );
-      cookieParts.push(`expires=${expirationDate.toUTCString()}`);
+      if (sameSiteLower === "none" && !secure) {
+        console.warn(
+          "SameSite=None typically requires 'secure: true'; cookie may be rejected by browsers.",
+        );
+      }
+
+      const init: CookieInit = {
+        name: key,
+        value: rawValue,
+        path,
+      };
+      if (domain) init.domain = domain;
+      if (typeof sameSiteLower !== "undefined") init.sameSite = sameSiteLower;
+      if (daysUntilExpiration > 0) {
+        init.expires = Date.now() + daysUntilExpiration * 24 * 60 * 60 * 1000;
+      }
+
+      await cookieStore.set(init);
+      return;
     }
 
-    // biome-ignore lint/suspicious/noDocumentCookie: <explanation>
-    document.cookie = cookieParts.filter(Boolean).join("; ");
+    // No direct document.cookie assignment allowed; fail gracefully
+    console.error(
+      "CookieStore API is not available in this environment; cannot set cookie.",
+    );
   } catch (error) {
     console.error("Error setting cookie:", error);
   }
@@ -127,15 +159,22 @@ export function removeCookie(
   const { path = "/", domain } = options ?? {};
 
   try {
-    const cookieParts = [
-      `${key}=`,
-      "expires=Thu, 01 Jan 1970 00:00:00 GMT",
-      `path=${path}`,
-      domain && `domain=${domain}`,
-      "Secure",
-    ];
+    if (hasCookieStore()) {
+      // Fire-and-forget; keep API sync to avoid breaking callers
+      const del: CookieStoreDeleteOptions = { name: key, path };
+      if (domain) del.domain = domain;
+      cookieStore
+        .delete(del)
+        .catch((error: unknown) =>
+          console.error("Error removing cookie via CookieStore:", error),
+        );
+      return;
+    }
 
-    document.cookie = cookieParts.filter(Boolean).join("; ");
+    // No direct document.cookie assignment allowed; fail gracefully
+    console.error(
+      "CookieStore API is not available in this environment; cannot remove cookie.",
+    );
   } catch (error) {
     console.error("Error removing cookie:", error);
   }

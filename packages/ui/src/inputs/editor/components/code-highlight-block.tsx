@@ -45,7 +45,7 @@ export function CodeHighlightBlock({
       </select>
 
       <pre>
-        <NodeViewContent as="code" />
+        <NodeViewContent />
       </pre>
     </NodeViewWrapper>
   );

@@ -52,7 +52,7 @@ export function remToPx(value: string): number {
  */
 
 export function pxToRem(value: number): string {
-  if (typeof value !== "number" || isNaN(value)) {
+  if (typeof value !== "number" || Number.isNaN(value)) {
     throw new Error(`Invalid pixel value: ${value}`);
   }
 

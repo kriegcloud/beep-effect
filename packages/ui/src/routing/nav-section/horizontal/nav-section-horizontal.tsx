@@ -1,4 +1,5 @@
 import { useTheme } from "@mui/material/styles";
+import * as A from "effect/Array";
 import { Scrollbar } from "../../../molecules";
 import { mergeClasses } from "../../../utils";
 import { Nav, NavLi, NavUl } from "../components";
@@ -44,18 +45,19 @@ export function NavSectionHorizontal({
         {...other}
       >
         <NavUl sx={{ flexDirection: "row", gap: "var(--nav-item-gap)" }}>
-          {data.map((group) => (
-            <Group
-              // biome-ignore lint/style/noNonNullAssertion: <explanation>
-              key={group.subheader ?? group.items[0]!.title}
-              render={render}
-              cssVars={cssVars}
-              items={group.items}
-              slotProps={slotProps}
-              checkPermissions={checkPermissions}
-              enabledRootRedirect={enabledRootRedirect}
-            />
-          ))}
+          {data.map((group) =>
+            group.subheader || A.isNonEmptyArray(group.items) ? (
+              <Group
+                key={group.subheader ?? group.items[0]?.title}
+                render={render}
+                cssVars={cssVars}
+                items={group.items}
+                slotProps={slotProps}
+                checkPermissions={checkPermissions}
+                enabledRootRedirect={enabledRootRedirect}
+              />
+            ) : null,
+          )}
         </NavUl>
       </Nav>
     </Scrollbar>

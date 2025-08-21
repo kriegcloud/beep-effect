@@ -29,7 +29,8 @@
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "coverage": "vitest --coverage",
     "lint": "biome check .",
-    "lint:fix": "biome check . --write"
+    "lint:fix": "biome check . --write",
+    "execute": "pnpm tsx ./src/execute.ts"
   },
   "peerDependencies": {
     "effect": "^3.17.8",
@@ -40,7 +41,8 @@
     "@standard-schema/spec": "^1.0.0",
     "@effect/sql": "^0.44.2",
     "drizzle-orm": "^0.44.4",
-    "@effect/experimental": "^0.54.6"
+    "@effect/experimental": "^0.54.6",
+    "randexp-ts": "^1.0.5"
   },
   "effect": {
     "generateExports": {

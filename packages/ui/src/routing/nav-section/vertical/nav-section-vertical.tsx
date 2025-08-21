@@ -1,13 +1,12 @@
 import Collapse from "@mui/material/Collapse";
 import { useTheme } from "@mui/material/styles";
+import * as A from "effect/Array";
 import { useBoolean } from "../../../hooks";
 import { mergeClasses } from "../../../utils";
-
 import { Nav, NavLi, NavSubheader, NavUl } from "../components";
 import { navSectionClasses, navSectionCssVars } from "../styles";
 import type { NavGroupProps, NavSectionProps } from "../types";
 import { NavList } from "./nav-list";
-
 export function NavSectionVertical({
   sx,
   data,
@@ -20,7 +19,6 @@ export function NavSectionVertical({
   ...other
 }: NavSectionProps) {
   const theme = useTheme();
-
   const cssVars = { ...navSectionCssVars.vertical(theme), ...overridesVars };
 
   return (
@@ -30,18 +28,19 @@ export function NavSectionVertical({
       {...other}
     >
       <NavUl sx={{ flex: "1 1 auto", gap: "var(--nav-item-gap)" }}>
-        {data.map((group) => (
-          <Group
-            // biome-ignore lint/style/noNonNullAssertion: <explanation>
-            key={group.subheader ?? group.items[0]!.title}
-            {...(group.subheader ? { subheader: group.subheader } : {})}
-            items={group.items}
-            render={render}
-            slotProps={slotProps}
-            checkPermissions={checkPermissions}
-            enabledRootRedirect={enabledRootRedirect}
-          />
-        ))}
+        {data.map((group) =>
+          group.subheader || A.isNonEmptyArray(group.items) ? (
+            <Group
+              key={group.subheader ?? group.items[0]?.title}
+              {...(group.subheader ? { subheader: group.subheader } : {})}
+              items={group.items}
+              render={render}
+              slotProps={slotProps}
+              checkPermissions={checkPermissions}
+              enabledRootRedirect={enabledRootRedirect}
+            />
+          ) : null,
+        )}
       </NavUl>
     </Nav>
   );

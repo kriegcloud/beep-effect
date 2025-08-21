@@ -33,14 +33,6 @@
         "!.next/cache/**"
       ]
     },
-    "update-deps": {
-      "dependsOn": [
-        "^update-deps"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$"
-      ]
-    },
     "db:generate": {
       "dependsOn": [
         "^db:generate"

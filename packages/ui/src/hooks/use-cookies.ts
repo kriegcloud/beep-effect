@@ -60,7 +60,8 @@ export function useCookies<T>(
         setState(storedValue);
       }
     } else if (initialState && initializeWithValue) {
-      setCookie<T>(key, initialState as T, cookieOptions);
+      // setCookie is async; intentionally fire-and-forget with error handling inside
+      void setCookie<T>(key, initialState as T, cookieOptions);
     }
   }, []);
 
@@ -69,11 +70,13 @@ export function useCookies<T>(
       if (isObjectState) {
         setState((prevValue) => {
           const updatedState = { ...prevValue, ...newState } as T;
-          setCookie<T>(key, updatedState, cookieOptions);
+          // setCookie is async; we deliberately do not await in state setter
+          void setCookie<T>(key, updatedState, cookieOptions);
           return updatedState;
         });
       } else {
-        setCookie<T>(key, newState as T, cookieOptions);
+        // setCookie is async; fire-and-forget with internal error handling
+        void setCookie<T>(key, newState as T, cookieOptions);
         setState(newState as T);
       }
     },
@@ -97,7 +100,7 @@ export function useCookies<T>(
     [initialState, key],
   );
 
-  const memoizedValue = useMemo(
+  return useMemo(
     () => ({
       state: state as T,
       setState: updateState,
@@ -106,6 +109,4 @@ export function useCookies<T>(
     }),
     [resetState, updateField, updateState, state],
   );
-
-  return memoizedValue;
 }

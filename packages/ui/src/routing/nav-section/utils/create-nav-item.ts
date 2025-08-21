@@ -1,7 +1,7 @@
+import * as A from "effect/Array";
+import * as Tuple from "effect/Tuple";
 import { cloneElement } from "react";
-
 import { RouterLink } from "../../../routing";
-
 import type { NavItemDataProps, NavItemOptionsProps } from "../types";
 
 type CreateNavItemReturn = {
@@ -54,12 +54,15 @@ export function createNavItem({
    */
   let renderInfo = null;
 
-  if (info && render?.navInfo && Array.isArray(info)) {
-    // const [key, value] = info;
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
-    const key = info[0]!;
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
-    const value = info[1]!;
+  if (
+    info &&
+    A.isArray(info) &&
+    Tuple.isTupleOfAtLeast(2)(info) &&
+    render?.navInfo
+  ) {
+    const key = info[0];
+
+    const value = info[1];
     const element = render.navInfo(value)[key];
 
     renderInfo = element ? cloneElement(element) : null;
