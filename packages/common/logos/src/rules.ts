@@ -123,7 +123,7 @@ export namespace ArrayValueRule {
       Operators.Ne.Schema,
       Operators.In.Schema,
       Operators.NotIn.Schema,
-      Operators.AllIn.Schema,
+      Operators.Every.Schema,
     ),
     value: S.Any,
   });
@@ -136,7 +136,7 @@ export namespace ArrayValueRule {
       Match.tags({
         in: () => value.includes(rule.value),
         notIn: () => !value.includes(rule.value),
-        allIn: () => A.every(value, (v) => v === rule.value),
+        every: () => A.every(value, (v) => v === rule.value),
       }),
       Match.orElse(F.constFalse),
     );

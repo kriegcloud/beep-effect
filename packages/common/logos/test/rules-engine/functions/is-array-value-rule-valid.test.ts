@@ -33,7 +33,7 @@ test("array does not contain element", () => {
 test("array contains all of an element", () => {
   const rule: ArrayValueRule.Input = {
     field: "people",
-    op: { _tag: "allIn" },
+    op: { _tag: "every" },
     _tag: "arrayValue",
     value: bob,
   };

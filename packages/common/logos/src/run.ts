@@ -10,7 +10,7 @@ import { isObject } from "./utils/is-object";
 /**
  * Run the rules engine against a value.
  * @export
- * @param {(RootUnion | Union)} union
+ * @param {AnyUnion} union
  * @param {*} value
  * @return {*}  {boolean}
  */

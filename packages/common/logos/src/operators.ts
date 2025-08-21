@@ -26,11 +26,11 @@ export namespace NotIn {
   export type Type = Op.Type<"notIn">;
 }
 
-export namespace AllIn {
+export namespace Every {
   // After the Op.make change above, this line type-checks
-  export const { op, Schema } = Op.make("allIn", "contains all", {});
+  export const { op, Schema } = Op.make("every", "contains all", {});
 
-  export type Type = Op.Type<"allIn">;
+  export type Type = Op.Type<"every">;
 }
 
 export namespace StartsWith {
@@ -46,7 +46,7 @@ export namespace NotStartsWith {
     {},
   );
 
-  export type Type = Op.Type<"doesNotStartWith">;
+  export type Type = Op.Type<"notStartsWith">;
 }
 
 export namespace EndsWith {
@@ -58,7 +58,7 @@ export namespace EndsWith {
 export namespace NotEndsWith {
   export const { op, Schema } = Op.make("notEndsWith", "does not end with", {});
 
-  export type Type = Op.Type<"doesNotEndWith">;
+  export type Type = Op.Type<"notEndsWith">;
 }
 
 export namespace Matches {
@@ -224,7 +224,7 @@ export const { Enum: OperatorEnum, Schema: Operator } = stringLiteralKit(
   Ne.op,
   In.op,
   NotIn.op,
-  AllIn.op,
+  Every.op,
   StartsWith.op,
   NotStartsWith.op,
   EndsWith.op,
