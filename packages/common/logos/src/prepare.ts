@@ -1,5 +1,11 @@
+import * as A from "effect/Array";
+import * as Bool from "effect/Boolean";
+import * as F from "effect/Function";
+import * as Match from "effect/Match";
+import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
+import * as Str from "effect/String";
 import { normalize } from "./normalize";
 import * as Rules from "./rules";
 import type { RootUnion, Union } from "./union";
@@ -35,101 +41,70 @@ function compileRule(rule: Rules.Rule.Type): Runner {
   const get = (obj: Record<string, any>) =>
     R.get(rule.field)(obj).pipe(O.getOrThrow);
 
-  switch (rule._tag) {
-    case "string": {
-      return (v: any) => {
-        const resolved = get(v);
-        if (typeof resolved === "string") {
-          return Rules.StringRule.validate(rule, resolved);
-        }
-        return false;
-      };
-    }
-    case "number": {
-      return (v: any) => {
-        const resolved = get(v);
-        if (typeof resolved === "number") {
-          return Rules.NumberRule.validate(rule, resolved);
-        }
-        return false;
-      };
-    }
-    case "boolean": {
-      return (v: any) => {
-        const resolved = get(v);
-        if (typeof resolved === "boolean") {
-          return Rules.BooleanRule.validate(rule, resolved);
-        }
-        return false;
-      };
-    }
-    case "arrayValue": {
-      return (v: any) => {
-        const resolved = get(v);
-        if (Array.isArray(resolved)) {
-          return Rules.ArrayValueRule.validate(rule, resolved);
-        }
-        return false;
-      };
-    }
-    case "arrayLength": {
-      return (v: any) => {
-        const resolved = get(v);
-        if (Array.isArray(resolved)) {
-          return Rules.ArrayLengthRule.validate(rule, resolved);
-        }
-        return false;
-      };
-    }
-    case "objectKey": {
-      return (v: any) => {
-        const resolved = get(v);
-        if (isObject(resolved)) {
-          return Rules.ObjectKeyRule.validate(rule, resolved);
-        }
-        return false;
-      };
-    }
-    case "objectValue": {
-      return (v: any) => {
-        const resolved = get(v);
-        if (isObject(resolved)) {
-          return Rules.ObjectValueRule.validate(rule, resolved);
-        }
-        return false;
-      };
-    }
-    case "objectKeyValue": {
-      return (v: any) => {
-        const resolved = get(v);
-        if (isObject(resolved)) {
-          return Rules.ObjectKeyValueRule.validate(rule, resolved);
-        }
-        return false;
-      };
-    }
-    case "genericComparison": {
-      return (v: any) => {
-        const resolved = get(v);
-        return Rules.GenericComparisonRule.validate(rule, resolved);
-      };
-    }
-    case "genericType": {
-      return (v: any) => {
-        const resolved = get(v);
-        return Rules.GenericTypeRule.validate(rule, resolved);
-      };
-    }
-    case "date": {
-      return (v: any) => {
-        const resolved = get(v);
-        return Rules.DateRule.validate(rule, resolved);
-      };
-    }
-    default: {
-      return () => false;
-    }
-  }
+  return Match.value(rule).pipe(
+    Match.withReturnType<((v: any) => boolean) | boolean>(),
+    Match.tags({
+      string: (r) => (v: any) =>
+        F.pipe(get(v), (resolved) =>
+          Str.isString(resolved)
+            ? Rules.StringRule.validate(r, resolved)
+            : false,
+        ),
+      number: (r) => (v: any) =>
+        F.pipe(get(v), (resolved) =>
+          Num.isNumber(resolved)
+            ? Rules.NumberRule.validate(r, resolved)
+            : false,
+        ),
+      boolean: (r) => (v: any) =>
+        F.pipe(get(v), (resolved) =>
+          Bool.isBoolean(resolved)
+            ? Rules.BooleanRule.validate(r, resolved)
+            : false,
+        ),
+      arrayValue: (r) => (v: any) =>
+        F.pipe(get(v), (resolved) =>
+          A.isArray(resolved)
+            ? Rules.ArrayValueRule.validate(r, resolved)
+            : false,
+        ),
+      arrayLength: (r) => (v: any) =>
+        F.pipe(get(v), (resolved) =>
+          A.isArray(resolved)
+            ? Rules.ArrayLengthRule.validate(r, resolved)
+            : false,
+        ),
+      objectKey: (r) => (v: any) =>
+        F.pipe(get(v), (resolved) =>
+          isObject(resolved)
+            ? Rules.ObjectKeyRule.validate(r, resolved)
+            : false,
+        ),
+      objectValue: (r) => (v: any) =>
+        F.pipe(get(v), (resolved) =>
+          isObject(resolved)
+            ? Rules.ObjectValueRule.validate(r, resolved)
+            : false,
+        ),
+      objectKeyValue: (r) => (v: any) =>
+        F.pipe(get(v), (resolved) =>
+          isObject(resolved)
+            ? Rules.ObjectKeyValueRule.validate(r, resolved)
+            : false,
+        ),
+      genericComparison: (r) => (v: any) =>
+        F.pipe(get(v), (resolved) =>
+          Rules.GenericComparisonRule.validate(r, resolved),
+        ),
+      genericType: (r) => (v: any) =>
+        F.pipe(get(v), (resolved) =>
+          Rules.GenericTypeRule.validate(r, resolved),
+        ),
+      date: (r) => (v: any) =>
+        F.pipe(get(v), (resolved) => Rules.DateRule.validate(r, resolved)),
+    }),
+    Match.orElse(() => F.constFalse),
+  );
 }
 
 function compileUnion(u: Union.Type | RootUnion.Type): Runner {
