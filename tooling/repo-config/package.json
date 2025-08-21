@@ -29,7 +29,7 @@
     "coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@effect/platform": "^0.90.5",
+    "@effect/platform": "^0.90.6",
     "effect": "^3.17.8"
   },
   "effect": {
