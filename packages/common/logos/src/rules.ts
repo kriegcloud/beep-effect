@@ -176,8 +176,8 @@ export namespace ArrayLengthRule {
     );
 }
 
-export namespace ObjectKeyRule {
-  export const { Rule, Input } = makeRule("objectKey", {
+export namespace HasKeyRule {
+  export const { Rule, Input } = makeRule("hasKey", {
     field: S.String,
     op: S.Union(Operators.In.Schema, Operators.NotIn.Schema),
     value: S.String,
@@ -199,8 +199,8 @@ export namespace ObjectKeyRule {
   );
 }
 
-export namespace ObjectValueRule {
-  export const { Rule, Input } = makeRule("objectValue", {
+export namespace HasValueRule {
+  export const { Rule, Input } = makeRule("hasValue", {
     field: S.String,
     op: S.Union(Operators.In.Schema, Operators.NotIn.Schema),
     value: S.String,
@@ -221,8 +221,8 @@ export namespace ObjectValueRule {
     );
 }
 
-export namespace ObjectKeyValueRule {
-  export const { Rule, Input } = makeRule("objectKeyValue", {
+export namespace HasEntryRule {
+  export const { Rule, Input } = makeRule("hasEntry", {
     field: S.String,
     op: S.Union(Operators.In.Schema, Operators.NotIn.Schema),
     value: S.Struct({
@@ -445,9 +445,9 @@ export const Rule = S.Union(
   BooleanRule.Rule,
   ArrayValueRule.Rule,
   ArrayLengthRule.Rule,
-  ObjectKeyRule.Rule,
-  ObjectValueRule.Rule,
-  ObjectKeyValueRule.Rule,
+  HasKeyRule.Rule,
+  HasValueRule.Rule,
+  HasEntryRule.Rule,
   GenericComparisonRule.Rule,
   GenericTypeRule.Rule,
   DateRule.Rule,
@@ -463,9 +463,9 @@ export const RuleInput = S.Union(
   BooleanRule.Input,
   ArrayValueRule.Input,
   ArrayLengthRule.Input,
-  ObjectKeyRule.Input,
-  ObjectValueRule.Input,
-  ObjectKeyValueRule.Input,
+  HasKeyRule.Input,
+  HasValueRule.Input,
+  HasEntryRule.Input,
   GenericComparisonRule.Input,
   GenericTypeRule.Input,
   DateRule.Input,

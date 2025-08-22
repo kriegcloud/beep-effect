@@ -47,19 +47,19 @@ addRuleToGroup(root, {
 addRuleToGroup(root, {
   field: "object",
   op: { _tag: "in" },
-  _tag: "objectKey",
+  _tag: "hasKey",
   value: "name",
 });
 addRuleToGroup(root, {
   field: "object",
   op: { _tag: "in" },
-  _tag: "objectValue",
+  _tag: "hasValue",
   value: "bob",
 });
 addRuleToGroup(root, {
   field: "object",
   op: { _tag: "in" },
-  _tag: "objectKeyValue",
+  _tag: "hasEntry",
   value: { key: "name", value: "bob" },
 });
 addRuleToGroup(root, {

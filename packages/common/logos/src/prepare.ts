@@ -55,22 +55,22 @@ function compileRule(rule: Rules.Rule.Type): Runner {
             ? Rules.ArrayLengthRule.validate(r, resolved)
             : false,
         ),
-      objectKey: (r) => (v: any) =>
+      hasKey: (r) => (v: any) =>
         F.pipe(get(v), (resolved) =>
           isPlainObject(resolved)
-            ? Rules.ObjectKeyRule.validate(r, resolved)
+            ? Rules.HasKeyRule.validate(r, resolved)
             : false,
         ),
-      objectValue: (r) => (v: any) =>
+      hasValue: (r) => (v: any) =>
         F.pipe(get(v), (resolved) =>
           isPlainObject(resolved)
-            ? Rules.ObjectValueRule.validate(r, resolved)
+            ? Rules.HasValueRule.validate(r, resolved)
             : false,
         ),
-      objectKeyValue: (r) => (v: any) =>
+      hasEntry: (r) => (v: any) =>
         F.pipe(get(v), (resolved) =>
           isPlainObject(resolved)
-            ? Rules.ObjectKeyValueRule.validate(r, resolved)
+            ? Rules.HasEntryRule.validate(r, resolved)
             : false,
         ),
       genericComparison: (r) => (v: any) =>
