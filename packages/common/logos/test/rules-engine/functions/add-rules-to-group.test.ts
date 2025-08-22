@@ -10,7 +10,7 @@ test("rules are added to a group", () => {
     op: {
       _tag: "in",
     },
-    _tag: "string",
+    type: "string",
     value: "bob",
     ignoreCase: false,
   };
@@ -19,7 +19,7 @@ test("rules are added to a group", () => {
     op: {
       _tag: "in",
     },
-    _tag: "string",
+    type: "string",
     value: "alice",
     ignoreCase: false,
   };

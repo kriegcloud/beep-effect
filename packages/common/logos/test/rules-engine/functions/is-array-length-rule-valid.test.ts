@@ -7,7 +7,7 @@ test("array length is equal to", () => {
   const rule: ArrayLengthRule.Input = {
     field: "names",
     op: { _tag: "eq" },
-    _tag: "arrayLength",
+    type: "arrayLength",
     value: 2,
   };
   const result = ArrayLengthRule.validate(rule, names);
@@ -18,7 +18,7 @@ test("array length does not equal to", () => {
   const rule: ArrayLengthRule.Input = {
     field: "names",
     op: { _tag: "ne" },
-    _tag: "arrayLength",
+    type: "arrayLength",
     value: 1,
   };
   const result = ArrayLengthRule.validate(rule, names);
@@ -29,7 +29,7 @@ test("array length is greater than", () => {
   const rule: ArrayLengthRule.Input = {
     field: "names",
     op: { _tag: "gt" },
-    _tag: "arrayLength",
+    type: "arrayLength",
     value: 1,
   };
   const result = ArrayLengthRule.validate(rule, names);
@@ -40,7 +40,7 @@ test("array length is greater than or equal to", () => {
   const rule: ArrayLengthRule.Input = {
     field: "names",
     op: { _tag: "gte" },
-    _tag: "arrayLength",
+    type: "arrayLength",
     value: 2,
   };
   const result = ArrayLengthRule.validate(rule, names);
@@ -51,7 +51,7 @@ test("array length is less than", () => {
   const rule: ArrayLengthRule.Input = {
     field: "names",
     op: { _tag: "lt" },
-    _tag: "arrayLength",
+    type: "arrayLength",
     value: 3,
   };
   const result = ArrayLengthRule.validate(rule, names);
@@ -62,7 +62,7 @@ test("array length is less than or equal to", () => {
   const rule: ArrayLengthRule.Input = {
     field: "names",
     op: { _tag: "lte" },
-    _tag: "arrayLength",
+    type: "arrayLength",
     value: 2,
   };
   const result = ArrayLengthRule.validate(rule, names);
@@ -76,7 +76,7 @@ test("invalid operator is handled", () => {
       // @ts-expect-error
       _tag: "is_more_awesome_than",
     },
-    _tag: "arrayLength",
+    type: "arrayLength",
     value: 2,
   };
   const result = ArrayLengthRule.validate(rule, names);

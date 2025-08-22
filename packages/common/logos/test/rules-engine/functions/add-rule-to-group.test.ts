@@ -10,7 +10,7 @@ test("rule is added to a group", () => {
     op: {
       _tag: "in",
     },
-    _tag: "string",
+    type: "string",
     value: "bob",
     ignoreCase: false,
   };

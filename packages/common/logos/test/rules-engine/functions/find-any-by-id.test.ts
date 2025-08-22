@@ -7,14 +7,14 @@ const root = createRootGroup({ logicalOp: "or" });
 addRuleToGroup(root, {
   field: "name",
   op: { _tag: "in" },
-  _tag: "string",
+  type: "string",
   value: "bob",
   ignoreCase: false,
 });
 addRuleToGroup(root, {
   field: "name",
   op: { _tag: "in" },
-  _tag: "string",
+  type: "string",
   value: "alice",
   ignoreCase: false,
 });
@@ -24,13 +24,13 @@ addRuleToGroup(group, {
   op: {
     _tag: "gt",
   },
-  _tag: "number",
+  type: "number",
   value: 18,
 });
 const rule = addRuleToGroup(group, {
   field: "age",
   op: { _tag: "lt" },
-  _tag: "number",
+  type: "number",
   value: 30,
 });
 const group2 = addGroupToRoot(group, { logicalOp: "and" });

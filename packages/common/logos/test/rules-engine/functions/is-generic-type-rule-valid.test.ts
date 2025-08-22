@@ -6,7 +6,7 @@ test("value is truth", () => {
   const rule: GenericTypeRule.Input = {
     field: "name",
     op: { _tag: "isTruthy" },
-    _tag: "genericType",
+    type: "genericType",
   };
   const result = GenericTypeRule.validate(rule, "bob");
   expect(result).toBeTruthy();
@@ -18,7 +18,7 @@ test("value is falsy", () => {
     op: {
       _tag: "isFalsy",
     },
-    _tag: "genericType",
+    type: "genericType",
   };
   const result = GenericTypeRule.validate(rule, undefined);
   expect(result).toBeTruthy();
@@ -30,7 +30,7 @@ test("value is null", () => {
     op: {
       _tag: "isNull",
     },
-    _tag: "genericType",
+    type: "genericType",
   };
   const result = GenericTypeRule.validate(rule, null);
   expect(result).toBeTruthy();
@@ -42,7 +42,7 @@ test("value is not null", () => {
     op: {
       _tag: "isNotNull",
     },
-    _tag: "genericType",
+    type: "genericType",
   };
   const result = GenericTypeRule.validate(rule, {});
   expect(result).toBeTruthy();
@@ -54,7 +54,7 @@ test("value is undefined", () => {
     op: {
       _tag: "isUndefined",
     },
-    _tag: "genericType",
+    type: "genericType",
   };
   const result = GenericTypeRule.validate(rule, undefined);
   expect(result).toBeTruthy();
@@ -66,7 +66,7 @@ test("value is not undefined", () => {
     op: {
       _tag: "isDefined",
     },
-    _tag: "genericType",
+    type: "genericType",
   };
   const result = GenericTypeRule.validate(rule, false);
   expect(result).toBeTruthy();
@@ -78,7 +78,7 @@ test("value is string", () => {
     op: {
       _tag: "isString",
     },
-    _tag: "genericType",
+    type: "genericType",
   };
   const result = GenericTypeRule.validate(rule, "alice");
   expect(result).toBeTruthy();
@@ -90,7 +90,7 @@ test("value is not string", () => {
     op: {
       _tag: "isNotString",
     },
-    _tag: "genericType",
+    type: "genericType",
   };
   const result = GenericTypeRule.validate(rule, 12345);
   expect(result).toBeTruthy();
@@ -102,7 +102,7 @@ test("value is number", () => {
     op: {
       _tag: "isNumber",
     },
-    _tag: "genericType",
+    type: "genericType",
   };
   const result = GenericTypeRule.validate(rule, 123.4);
   expect(result).toBeTruthy();
@@ -114,7 +114,7 @@ test("value is not number", () => {
     op: {
       _tag: "isNotNumber",
     },
-    _tag: "genericType",
+    type: "genericType",
   };
   const result = GenericTypeRule.validate(rule, "12345");
   expect(result).toBeTruthy();
@@ -126,7 +126,7 @@ test("value is boolean", () => {
     op: {
       _tag: "isBoolean",
     },
-    _tag: "genericType",
+    type: "genericType",
   };
   const result = GenericTypeRule.validate(rule, false);
   expect(result).toBeTruthy();
@@ -138,7 +138,7 @@ test("value is not boolean", () => {
     op: {
       _tag: "isNotBoolean",
     },
-    _tag: "genericType",
+    type: "genericType",
   };
   const result = GenericTypeRule.validate(rule, "false");
   expect(result).toBeTruthy();
@@ -150,7 +150,7 @@ test("value is array", () => {
     op: {
       _tag: "isArray",
     },
-    _tag: "genericType",
+    type: "genericType",
   };
   const result = GenericTypeRule.validate(rule, []);
   expect(result).toBeTruthy();
@@ -162,7 +162,7 @@ test("value is not array", () => {
     op: {
       _tag: "isNotArray",
     },
-    _tag: "genericType",
+    type: "genericType",
   };
   const result = GenericTypeRule.validate(rule, "[]");
   expect(result).toBeTruthy();
@@ -174,7 +174,7 @@ test("value is object", () => {
     op: {
       _tag: "isObject",
     },
-    _tag: "genericType",
+    type: "genericType",
   };
   const result = GenericTypeRule.validate(rule, { name: "bob" });
   expect(result).toBeTruthy();
@@ -186,7 +186,7 @@ test("value is not array", () => {
     op: {
       _tag: "isNotObject",
     },
-    _tag: "genericType",
+    type: "genericType",
   };
   const result = GenericTypeRule.validate(rule, "{}");
   expect(result).toBeTruthy();
@@ -195,9 +195,11 @@ test("value is not array", () => {
 test("invalid operator is handled", () => {
   const rule: GenericTypeRule.Input = {
     field: "name",
-    // @ts-expect-error
-    op: "is_more_awesome_than",
-    _tag: "genericType",
+    op: {
+      // @ts-expect-error
+      _tag: "is_more_awesome_than",
+    },
+    type: "genericType",
   };
   const result = GenericTypeRule.validate(rule, undefined);
   expect(result).toBeFalsy();

@@ -10,11 +10,11 @@ test("normalization removes an invalid rule", () => {
   const rule: any = addRuleToGroup(root, {
     field: "name",
     op: { _tag: "in" },
-    _tag: "string",
+    type: "string",
     value: "bob",
     ignoreCase: false,
   });
-  rule._tag = "number";
+  rule.type = "number";
 
   expect(root.rules).toHaveLength(1);
   normalize(root);
@@ -27,7 +27,7 @@ test("normalization fixes the parent id of a rule", () => {
   const rule: any = addRuleToGroup(root, {
     field: "name",
     op: { _tag: "in" },
-    _tag: "string",
+    type: "string",
     value: "bob",
     ignoreCase: false,
   });
@@ -50,7 +50,7 @@ test("normalization removes an invalid group", () => {
   addRuleToGroup(group, {
     field: "name",
     op: { _tag: "in" },
-    _tag: "string",
+    type: "string",
     value: "bob",
     ignoreCase: false,
   });
@@ -76,7 +76,7 @@ test("normalization promotes group with 1 rule to parent level", () => {
   addRuleToGroup(root, {
     field: "name",
     op: { _tag: "in" },
-    _tag: "string",
+    type: "string",
     value: "bob",
     ignoreCase: false,
   });
@@ -85,7 +85,7 @@ test("normalization promotes group with 1 rule to parent level", () => {
   const rule = addRuleToGroup(group, {
     field: "name",
     op: { _tag: "in" },
-    _tag: "string",
+    type: "string",
     value: "alice",
     ignoreCase: false,
   });
@@ -104,7 +104,7 @@ test("normalization finds nothing wrong", () => {
   addRuleToGroup(root, {
     field: "name",
     op: { _tag: "in" },
-    _tag: "string",
+    type: "string",
     value: "bob",
     ignoreCase: false,
   });
@@ -113,14 +113,14 @@ test("normalization finds nothing wrong", () => {
   addRuleToGroup(group, {
     field: "name",
     op: { _tag: "in" },
-    _tag: "string",
+    type: "string",
     value: "alice",
     ignoreCase: false,
   });
   addRuleToGroup(group, {
     field: "age",
     op: { _tag: "gt" },
-    _tag: "number",
+    type: "number",
     value: 18,
   });
 
@@ -142,7 +142,7 @@ test("normalization has all options turn off", () => {
   addRuleToGroup(root, {
     field: "name",
     op: { _tag: "in" },
-    _tag: "string",
+    type: "string",
     value: "bob",
     ignoreCase: false,
   });
@@ -151,14 +151,14 @@ test("normalization has all options turn off", () => {
   const rule: any = addRuleToGroup(group, {
     field: "name",
     op: { _tag: "in" },
-    _tag: "string",
+    type: "string",
     value: "alice",
     ignoreCase: false,
   });
   addRuleToGroup(group, {
     field: "age",
     op: { _tag: "gt" },
-    _tag: "number",
+    type: "number",
     value: 18,
   });
 

@@ -15,7 +15,7 @@ test("remove many deeply nested group", () => {
   addRuleToGroup(deepGroup, {
     field: "name",
     op: { _tag: "in" },
-    _tag: "string",
+    type: "string",
     value: "bob",
     ignoreCase: false,
   });

@@ -10,7 +10,7 @@ test("boolean is true", () => {
     op: {
       _tag: "isTrue",
     },
-    _tag: "boolean",
+    type: "boolean",
   };
   const result = BooleanRule.validate(rule, isValid);
   expect(result).toBeTruthy();
@@ -22,7 +22,7 @@ test("boolean is false", () => {
     op: {
       _tag: "isFalse",
     },
-    _tag: "boolean",
+    type: "boolean",
   };
   const result = BooleanRule.validate(rule, isInvalid);
   expect(result).toBeTruthy();
@@ -33,7 +33,7 @@ test("invalid operator is handled", () => {
     field: "status",
     // @ts-expect-error
     op: "is_more_awesome_than",
-    _tag: "boolean",
+    type: "boolean",
   };
   const result = BooleanRule.validate(rule, isValid);
   expect(result).toBeFalsy();

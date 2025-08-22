@@ -4,7 +4,7 @@ import * as Struct from "effect/Struct";
 import { Entity, EntityId } from "./Entity";
 
 export type RuleType<
-  Tag extends StringTypes.NonEmptyString<string>,
+  Type extends StringTypes.NonEmptyString<string>,
   Fields extends StructTypes.StructFieldsWithStringKeys,
 > = {
   Rule: S.Struct<
@@ -12,7 +12,7 @@ export type RuleType<
       entity: S.Literal<["rule"]>;
       id: typeof EntityId;
     } & {
-      readonly _tag: S.Literal<[Tag]>;
+      readonly type: S.Literal<[Type]>;
       readonly parentId: typeof EntityId;
     } & Fields
   >;
@@ -22,38 +22,38 @@ export type RuleType<
         entity: S.Literal<["rule"]>;
         id: typeof EntityId;
       } & {
-        readonly _tag: S.Literal<[Tag]>;
+        readonly type: S.Literal<[Type]>;
         readonly parentId: typeof EntityId;
       } & Fields,
-      "_tag" | (keyof Fields & string)
+      "type" | (keyof Fields & string)
     >]: Pick<
       {
         entity: S.Literal<["rule"]>;
         id: typeof EntityId;
       } & {
-        readonly _tag: S.Literal<[Tag]>;
+        readonly type: S.Literal<[Type]>;
         readonly parentId: typeof EntityId;
       } & Fields,
-      "_tag" | (keyof Fields & string)
+      "type" | (keyof Fields & string)
     >[K];
   }>;
 };
 
 export const makeRule = <
-  const Tag extends StringTypes.NonEmptyString<string>,
+  const Type extends StringTypes.NonEmptyString<string>,
   const Fields extends StructTypes.StructFieldsWithStringKeys,
 >(
-  tag: Tag,
+  type: Type,
   fields: Fields,
-): RuleType<Tag, Fields> => {
+): RuleType<Type, Fields> => {
   const Rule = Entity.make("rule", {
-    _tag: S.Literal(tag),
+    type: S.Literal(type),
     parentId: EntityId,
     ...fields,
   });
 
   return {
     Rule,
-    Input: Rule.pick("_tag", ...Struct.keys(fields)),
+    Input: Rule.pick("type", ...Struct.keys(fields)),
   };
 };

@@ -12,7 +12,7 @@ test("array contains element", () => {
   const rule: ArrayValueRule.Input = {
     field: "people",
     op: { _tag: "in" },
-    _tag: "arrayValue",
+    type: "arrayValue",
     value: bob,
   };
   const result = ArrayValueRule.validate(rule, people);
@@ -23,7 +23,7 @@ test("array does not contain element", () => {
   const rule: ArrayValueRule.Input = {
     field: "people",
     op: { _tag: "notIn" },
-    _tag: "arrayValue",
+    type: "arrayValue",
     value: carol,
   };
   const result = ArrayValueRule.validate(rule, people);
@@ -34,7 +34,7 @@ test("array contains all of an element", () => {
   const rule: ArrayValueRule.Input = {
     field: "people",
     op: { _tag: "every" },
-    _tag: "arrayValue",
+    type: "arrayValue",
     value: bob,
   };
   const result = ArrayValueRule.validate(rule, all_bob);
@@ -46,7 +46,7 @@ test("invalid operator is handled", () => {
     field: "people",
     // @ts-expect-error
     op: "is_more_awesome_than",
-    _tag: "arrayValue",
+    type: "arrayValue",
     value: bob,
   };
   const result = ArrayValueRule.validate(rule, people);

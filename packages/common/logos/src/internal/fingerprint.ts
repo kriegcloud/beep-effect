@@ -16,7 +16,7 @@ export function fingerprint(u: RuleGroup.Type | RootGroup.Type): string {
         walk(child);
       } else {
         const r = child as Rule.Type;
-        parts.push(`R:${r._tag}:${r.id}:${r.field}:${r.op._tag}`);
+        parts.push(`R:${r.type}:${r.id}:${r.field}:${r.op._tag}`);
       }
     }
   };

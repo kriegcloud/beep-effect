@@ -10,7 +10,7 @@ test("rules engine passes validation", () => {
   addRuleToGroup(root, {
     field: "number",
     op: { _tag: "gt" },
-    _tag: "number",
+    type: "number",
     value: 18,
   });
 

@@ -1,8 +1,8 @@
+import * as F from "effect/Function";
 import * as S from "effect/Schema";
 import { Entity, EntityId } from "./internal";
 import * as Operators from "./operators";
 import { Rule } from "./rules";
-
 export const RuleGroup = Entity.make("group", {
   parentId: EntityId,
   logicalOp: Operators.LogicalOp,
@@ -35,7 +35,10 @@ export namespace RuleGroup {
 }
 export const RootGroup = Entity.make("root", {
   logicalOp: Operators.LogicalOp,
-  rules: S.mutable(S.Array(S.Union(Rule, RuleGroup))),
+  rules: S.mutable(S.Array(S.Union(Rule, RuleGroup))).pipe(
+    S.propertySignature,
+    S.withConstructorDefault(F.constant([])),
+  ),
 }).pipe(S.mutable);
 
 export namespace RootGroup {

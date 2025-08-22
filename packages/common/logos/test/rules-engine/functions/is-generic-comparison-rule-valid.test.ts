@@ -5,7 +5,7 @@ test("value is equal to", () => {
   const rule: GenericComparisonRule.Input = {
     field: "names",
     op: { _tag: "eq" },
-    _tag: "genericComparison",
+    type: "genericComparison",
     value: 2,
   };
   const result = GenericComparisonRule.validate(rule, 2);
@@ -16,7 +16,7 @@ test("value does not equal to", () => {
   const rule: GenericComparisonRule.Input = {
     field: "names",
     op: { _tag: "ne" },
-    _tag: "genericComparison",
+    type: "genericComparison",
     value: 1,
   };
   const result = GenericComparisonRule.validate(rule, 2);
@@ -27,7 +27,7 @@ test("value is greater than", () => {
   const rule: GenericComparisonRule.Input = {
     field: "names",
     op: { _tag: "gt" },
-    _tag: "genericComparison",
+    type: "genericComparison",
     value: "alice",
   };
   const result = GenericComparisonRule.validate(rule, "bob");
@@ -38,7 +38,7 @@ test("value is greater than or equal to", () => {
   const rule: GenericComparisonRule.Input = {
     field: "names",
     op: { _tag: "gte" },
-    _tag: "genericComparison",
+    type: "genericComparison",
     value: "alice",
   };
   const result = GenericComparisonRule.validate(rule, "bob");
@@ -49,7 +49,7 @@ test("value is less than", () => {
   const rule: GenericComparisonRule.Input = {
     field: "names",
     op: { _tag: "lt" },
-    _tag: "genericComparison",
+    type: "genericComparison",
     value: "bob",
   };
   const result = GenericComparisonRule.validate(rule, "alice");
@@ -60,7 +60,7 @@ test("value is less than or equal to", () => {
   const rule: GenericComparisonRule.Input = {
     field: "names",
     op: { _tag: "lte" },
-    _tag: "genericComparison",
+    type: "genericComparison",
     value: "bob",
   };
   const result = GenericComparisonRule.validate(rule, "alice");
@@ -72,7 +72,7 @@ test("invalid operator is handled", () => {
     field: "names",
     // @ts-expect-error
     op: "is_more_awesome_than",
-    _tag: "genericComparison",
+    type: "genericComparison",
     value: 1,
   };
   const result = GenericComparisonRule.validate(rule, 1);

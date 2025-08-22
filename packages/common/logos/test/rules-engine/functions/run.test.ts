@@ -9,19 +9,19 @@ const group = addGroupToRoot(root, { logicalOp: "and" });
 const firstRule = addRuleToGroup(group, {
   field: "number",
   op: { _tag: "gt" },
-  _tag: "number",
+  type: "number",
   value: 18,
 });
 addRuleToGroup(group, {
   field: "number",
   op: { _tag: "lt" },
-  _tag: "number",
+  type: "number",
   value: 30,
 });
 addRuleToGroup(root, {
   field: "string",
   op: { _tag: "in" },
-  _tag: "string",
+  type: "string",
   value: "bob",
   ignoreCase: false,
 });
@@ -30,60 +30,60 @@ addRuleToGroup(root, {
   op: {
     _tag: "isTrue",
   },
-  _tag: "boolean",
+  type: "boolean",
 });
 addRuleToGroup(root, {
   field: "array",
   op: { _tag: "in" },
-  _tag: "arrayValue",
+  type: "arrayValue",
   value: "alice",
 });
 addRuleToGroup(root, {
   field: "array",
   op: { _tag: "eq" },
-  _tag: "arrayLength",
+  type: "arrayLength",
   value: 1,
 });
 addRuleToGroup(root, {
   field: "object",
   op: { _tag: "in" },
-  _tag: "hasKey",
+  type: "hasKey",
   value: "name",
 });
 addRuleToGroup(root, {
   field: "object",
   op: { _tag: "in" },
-  _tag: "hasValue",
+  type: "hasValue",
   value: "bob",
 });
 addRuleToGroup(root, {
   field: "object",
   op: { _tag: "in" },
-  _tag: "hasEntry",
+  type: "hasEntry",
   value: { key: "name", value: "bob" },
 });
 addRuleToGroup(root, {
   field: "generic",
   op: { _tag: "eq" },
-  _tag: "genericComparison",
+  type: "genericComparison",
   value: "bob",
 });
 addRuleToGroup(root, {
   field: "generic",
   op: { _tag: "isTruthy" },
-  _tag: "genericType",
+  type: "genericType",
 });
 const orGroup = addGroupToRoot(root, { logicalOp: "or" });
 addRuleToGroup(orGroup, {
   field: "number",
   op: { _tag: "lt" },
-  _tag: "number",
+  type: "number",
   value: 30,
 });
 addRuleToGroup(orGroup, {
   field: "string",
   op: { _tag: "in" },
-  _tag: "string",
+  type: "string",
   value: "bob",
   ignoreCase: false,
 });

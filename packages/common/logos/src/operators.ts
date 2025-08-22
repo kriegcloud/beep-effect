@@ -12,7 +12,7 @@ import { Operator } from "./internal";
  *   - `Schema`: Effect Schema for the full operator struct `{ _tag, ...config }`.
  * - Most operators have empty config `{}`; `Matches` adds `{ regex }`.
  * - Example rule usage (string contains):
- *   `{ field: "name", _tag: "string", op: { _tag: "in" }, value: "bob" }`
+ *   `{ field: "name", type: "string", op: { _tag: "in" }, value: "bob" }`
  *
  * Group: Equality & containment
  * - Eq (equals)
@@ -60,7 +60,7 @@ export namespace Every {
  * - EndsWith / NotEndsWith
  *
  * Checks whether a string value starts/ends with a substring.
- * Example: `{ _tag: "string", op: { _tag: "startsWith" }, value: "Acme" }`.
+ * Example: `{ type: "string", op: { _tag: "startsWith" }, value: "Acme" }`.
  */
 export namespace StartsWith {
   export const { op, Schema } = Operator.make("startsWith", "starts with", {});
@@ -98,7 +98,7 @@ export namespace NotEndsWith {
  * Regex match.
  * - Op id: `matches`
  * - Config: `{ regex: RegexFromString }`
- * - Example: `{ _tag: "string", op: { _tag: "matches", regex: "^foo.*$" } }`
+ * - Example: `{ type: "string", op: { _tag: "matches", regex: "^foo.*$" } }`
  */
 export namespace Matches {
   export const { op, Schema } = Operator.make("matches", "matches regex", {

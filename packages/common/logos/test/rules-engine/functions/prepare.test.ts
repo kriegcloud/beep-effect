@@ -63,12 +63,12 @@ describe("prepare / runPrepared", () => {
     addRuleToGroup(root, {
       field: "present",
       op: { _tag: "isTruthy" },
-      _tag: "genericType",
+      type: "genericType",
     });
     addRuleToGroup(root, {
       field: "missing",
       op: { _tag: "in" },
-      _tag: "string",
+      type: "string",
       value: "x",
       ignoreCase: false,
     });

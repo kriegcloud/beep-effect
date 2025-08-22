@@ -5,7 +5,7 @@ test("number is equal to", () => {
   const rule: NumberRule.Input = {
     field: "names",
     op: { _tag: "eq" },
-    _tag: "number",
+    type: "number",
     value: 2,
   };
   const result = NumberRule.validate(rule, 2);
@@ -16,7 +16,7 @@ test("number does not equal to", () => {
   const rule: NumberRule.Input = {
     field: "names",
     op: { _tag: "ne" },
-    _tag: "number",
+    type: "number",
     value: 1,
   };
   const result = NumberRule.validate(rule, 2);
@@ -27,7 +27,7 @@ test("number is greater than", () => {
   const rule: NumberRule.Input = {
     field: "names",
     op: { _tag: "gt" },
-    _tag: "number",
+    type: "number",
     value: 1,
   };
   const result = NumberRule.validate(rule, 2);
@@ -38,7 +38,7 @@ test("number is greater than or equal to", () => {
   const rule: NumberRule.Input = {
     field: "names",
     op: { _tag: "gte" },
-    _tag: "number",
+    type: "number",
     value: 2,
   };
   const result = NumberRule.validate(rule, 2);
@@ -49,7 +49,7 @@ test("number is less than", () => {
   const rule: NumberRule.Input = {
     field: "names",
     op: { _tag: "lt" },
-    _tag: "number",
+    type: "number",
     value: 3,
   };
   const result = NumberRule.validate(rule, 2);
@@ -60,7 +60,7 @@ test("number is less than or equal to", () => {
   const rule: NumberRule.Input = {
     field: "names",
     op: { _tag: "lte" },
-    _tag: "number",
+    type: "number",
     value: 2,
   };
   const result = NumberRule.validate(rule, 2);
@@ -72,7 +72,7 @@ test("invalid operator is handled", () => {
     field: "names",
     // @ts-expect-error
     op: "is_more_awesome_than",
-    _tag: "number",
+    type: "number",
     value: 2,
   };
   const result = NumberRule.validate(rule, 2);

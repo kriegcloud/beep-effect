@@ -24,7 +24,7 @@ function compileRule(rule: Rules.Rule.Type): Runner {
 
   return Match.value(rule).pipe(
     Match.withReturnType<((v: any) => boolean) | boolean>(),
-    Match.tags({
+    Match.discriminators("type")({
       string: (r) => (v: any) =>
         F.pipe(get(v), (resolved) =>
           Str.isString(resolved)
@@ -84,7 +84,7 @@ function compileRule(rule: Rules.Rule.Type): Runner {
       date: (r) => (v: any) =>
         F.pipe(get(v), (resolved) => Rules.DateRule.validate(r, resolved)),
     }),
-    Match.orElse(() => F.constFalse),
+    Match.orElse(() => F.constant(false)),
   );
 }
 

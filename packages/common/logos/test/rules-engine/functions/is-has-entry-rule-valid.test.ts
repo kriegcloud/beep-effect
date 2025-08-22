@@ -7,7 +7,7 @@ test("object key & value contains element", () => {
   const rule: HasEntryRule.Input = {
     field: "people",
     op: { _tag: "in" },
-    _tag: "hasEntry",
+    type: "hasEntry",
     value: { key: "name", value: "bob" },
   };
   const result = HasEntryRule.validate(rule, bob);
@@ -18,7 +18,7 @@ test("object key & value does not contain element", () => {
   const rule: HasEntryRule.Input = {
     field: "people",
     op: { _tag: "notIn" },
-    _tag: "hasEntry",
+    type: "hasEntry",
     value: { key: "name", value: "alice" },
   };
   const result = HasEntryRule.validate(rule, bob);
@@ -30,7 +30,7 @@ test("invalid operator is handled", () => {
     field: "people",
     // @ts-expect-error
     op: "is_more_awesome_than",
-    _tag: "hasEntry",
+    type: "hasEntry",
     value: { key: "name", value: "carol" },
   };
   const result = HasEntryRule.validate(rule, bob);

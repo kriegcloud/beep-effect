@@ -15,6 +15,7 @@ import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import { makeRule } from "./internal";
 import * as Operators from "./operators";
+import { isPlainObject } from "./utils/is-plain-object";
 
 export namespace StringRule {
   export const { Rule, Input } = makeRule("string", {
@@ -59,7 +60,7 @@ export namespace StringRule {
             notEndsWith: () => !caseValue.endsWith(caseRuleValue),
             matches: ({ regex }) => regex.test(value),
           }),
-          Match.orElse(F.constFalse),
+          Match.orElse(() => false),
         ),
     ),
   );
@@ -92,7 +93,7 @@ export namespace NumberRule {
         lt: () => value < rule.value,
         lte: () => value <= rule.value,
       }),
-      Match.orElse(F.constFalse),
+      Match.orElse(() => false),
     );
 }
 
@@ -111,7 +112,7 @@ export namespace BooleanRule {
         isTrue: () => Equal.equals(value, true),
         isFalse: () => Equal.equals(value, false),
       }),
-      Match.orElse(F.constFalse),
+      Match.orElse(() => false),
     );
 }
 
@@ -119,8 +120,6 @@ export namespace ArrayValueRule {
   export const { Rule, Input } = makeRule("arrayValue", {
     field: S.String,
     op: S.Union(
-      Operators.Eq.Schema,
-      Operators.Ne.Schema,
       Operators.In.Schema,
       Operators.NotIn.Schema,
       Operators.Every.Schema,
@@ -138,7 +137,7 @@ export namespace ArrayValueRule {
         notIn: () => !value.includes(rule.value),
         every: () => A.every(value, (v) => v === rule.value),
       }),
-      Match.orElse(F.constFalse),
+      Match.orElse(() => false),
     );
 }
 
@@ -172,7 +171,7 @@ export namespace ArrayLengthRule {
         lt: () => value.length < rule.value,
         lte: () => value.length <= rule.value,
       }),
-      Match.orElse(F.constFalse),
+      Match.orElse(() => false),
     );
 }
 
@@ -193,7 +192,7 @@ export namespace HasKeyRule {
           in: () => contains,
           notIn: () => !contains,
         }),
-        Match.orElse(F.constFalse),
+        Match.orElse(() => false),
       ),
     ),
   );
@@ -216,7 +215,7 @@ export namespace HasValueRule {
           in: () => contains,
           notIn: () => !contains,
         }),
-        Match.orElse(F.constFalse),
+        Match.orElse(() => false),
       ),
     );
 }
@@ -247,7 +246,7 @@ export namespace HasEntryRule {
             in: () => contains,
             notIn: () => !contains,
           }),
-          Match.orElse(F.constFalse),
+          Match.orElse(() => false),
         ),
     );
 }
@@ -283,7 +282,7 @@ export namespace GenericComparisonRule {
         lt: () => value < rule.value,
         lte: () => value <= rule.value,
       }),
-      Match.orElse(F.constFalse),
+      Match.orElse(() => false),
     );
 }
 
@@ -331,10 +330,10 @@ export namespace GenericTypeRule {
         isNotBoolean: () => P.not(Bool.isBoolean)(value),
         isArray: () => A.isArray(value),
         isNotArray: () => P.not(A.isArray)(value),
-        isObject: () => P.isObject(value),
-        isNotObject: () => P.not(P.isObject)(value),
+        isObject: () => isPlainObject(value),
+        isNotObject: () => !isPlainObject(value),
       }),
-      Match.orElse(F.constFalse),
+      Match.orElse(() => false),
     );
 }
 
@@ -386,7 +385,7 @@ export namespace DateRule {
                       ),
                     range: () => false,
                   }),
-                  Match.orElse(F.constFalse),
+                  Match.orElse(() => false),
                 ),
               isAfter: () =>
                 Match.value(rule.value).pipe(
@@ -402,7 +401,7 @@ export namespace DateRule {
                       ),
                     range: () => false,
                   }),
-                  Match.orElse(F.constFalse),
+                  Match.orElse(() => false),
                 ),
               isBetween: () =>
                 Match.value(rule.value).pipe(
@@ -430,10 +429,10 @@ export namespace DateRule {
                         O.getOrElse(F.constFalse),
                       ),
                   }),
-                  Match.orElse(F.constFalse),
+                  Match.orElse(() => false),
                 ),
             }),
-            Match.orElse(F.constFalse),
+            Match.orElse(() => false),
           ),
       }),
     );

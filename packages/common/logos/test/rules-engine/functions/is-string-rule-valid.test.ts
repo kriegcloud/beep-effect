@@ -5,7 +5,7 @@ test("string equals to", () => {
   const rule: StringRule.Input = {
     field: "people",
     op: { _tag: "eq" },
-    _tag: "string",
+    type: "string",
     value: "bob",
     ignoreCase: false,
   };
@@ -13,11 +13,11 @@ test("string equals to", () => {
   expect(result).toBeTruthy();
 });
 
-test("string equals to (case insensitve)", () => {
+test("string equals to (case insensitive)", () => {
   const rule: StringRule.Input = {
     field: "people",
     op: { _tag: "eq" },
-    _tag: "string",
+    type: "string",
     value: "BOB",
     ignoreCase: true,
   };
@@ -29,7 +29,7 @@ test("string not equals to", () => {
   const rule: StringRule.Input = {
     field: "people",
     op: { _tag: "ne" },
-    _tag: "string",
+    type: "string",
     value: "bob",
     ignoreCase: false,
   };
@@ -41,7 +41,7 @@ test("string contains", () => {
   const rule: StringRule.Input = {
     field: "people",
     op: { _tag: "in" },
-    _tag: "string",
+    type: "string",
     value: "bob",
     ignoreCase: false,
   };
@@ -53,7 +53,7 @@ test("string does not contain", () => {
   const rule: StringRule.Input = {
     field: "people",
     op: { _tag: "notIn" },
-    _tag: "string",
+    type: "string",
     value: "alice",
     ignoreCase: false,
   };
@@ -67,7 +67,7 @@ test("string starts with", () => {
     op: {
       _tag: "startsWith",
     },
-    _tag: "string",
+    type: "string",
     value: "bob",
     ignoreCase: false,
   };
@@ -81,7 +81,7 @@ test("string ends with", () => {
     op: {
       _tag: "endsWith",
     },
-    _tag: "string",
+    type: "string",
     value: "bby",
     ignoreCase: false,
   };
@@ -94,7 +94,7 @@ test("invalid operator is handled", () => {
     field: "people",
     // @ts-expect-error
     op: "is_more_awesome_than",
-    _tag: "string",
+    type: "string",
     value: "carol",
   };
   const result = StringRule.validate(rule, "carolS");
