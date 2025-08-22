@@ -1,22 +1,22 @@
 import type { UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
+import { RuleGroup } from "./groups";
 import { createRunner, prepare } from "./prepare";
-import { RuleGroup } from "./ruleGroup";
-import type { TreeOrRuleGroup } from "./types";
+import type { RootOrRuleGroup } from "./types";
 
 /**
  * Run the rules engine against a value.
  * @export
- * @param {TreeOrRuleGroup} group
+ * @param {RootOrRuleGroup} group
  * @param {*} value
  * @return {*}  {boolean}
  */
 export function run(
-  group: TreeOrRuleGroup,
+  group: RootOrRuleGroup,
   value: UnsafeTypes.UnsafeAny,
 ): boolean {
   // Root groups: reuse prepare() for validation, normalization, and cached runner.
-  if (group.entity === "root") {
+  if (group.node === "root") {
     const runner = prepare(group);
     return runner(value);
   }

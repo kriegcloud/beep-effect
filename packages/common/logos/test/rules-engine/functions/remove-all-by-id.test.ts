@@ -1,4 +1,4 @@
-import { createRootGroup } from "@beep/logos/createRootGroup";
+import { RootGroup } from "@beep/logos";
 import {
   addGroupToRoot,
   addRuleToGroup,
@@ -9,7 +9,7 @@ import { v4 as uuid } from "uuid";
 import { expect, test } from "vitest";
 
 test("remove many deeply nested group", () => {
-  const root = createRootGroup({ logicalOp: "and" });
+  const root = RootGroup.make({ logicalOp: "and" });
   const group = addGroupToRoot(root, { logicalOp: "and" });
   const deepGroup = addGroupToRoot(group, { logicalOp: "and" });
   addRuleToGroup(deepGroup, {
@@ -35,7 +35,7 @@ test("remove many deeply nested group", () => {
 });
 
 test("remove non existent id", () => {
-  const root = createRootGroup({ logicalOp: "and" });
+  const root = RootGroup.make({ logicalOp: "and" });
   const group = addGroupToRoot(root, { logicalOp: "and" });
 
   expect(root.rules).toContain(group);

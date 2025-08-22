@@ -1,9 +1,9 @@
 import * as O from "effect/Option";
-import type { RootGroup, RuleGroup } from "../ruleGroup";
+import type { RootGroup, RuleGroup } from "../groups";
 import type { Rule } from "../rules";
 
 /**
- * Computes a structural fingerprint of a group tree to detect changes.
+ * Computes a structural fingerprint of a group root to detect changes.
  * Includes node ids, logical ops, rule tags, fields, and operator tags.
  */
 export function fingerprint(u: RuleGroup.Type | RootGroup.Type): string {
@@ -12,7 +12,7 @@ export function fingerprint(u: RuleGroup.Type | RootGroup.Type): string {
     parts.push(`U:${node.id}:${node.logicalOp}`);
     for (let i = 0; i < node.rules.length; i++) {
       const child = O.fromNullable(node.rules[i]).pipe(O.getOrThrow);
-      if (child.entity === "group") {
+      if (child.node === "group") {
         walk(child);
       } else {
         const r = child as Rule.Type;

@@ -1,9 +1,9 @@
-import { createRootGroup } from "@beep/logos/createRootGroup";
+import { RootGroup } from "@beep/logos";
 import { addGroupToRoot, addRuleToGroup, findAnyById } from "@beep/logos/crud";
 import { v4 as uuid } from "uuid";
 import { expect, test } from "vitest";
 
-const root = createRootGroup({ logicalOp: "or" });
+const root = RootGroup.make({ logicalOp: "or" });
 addRuleToGroup(root, {
   field: "name",
   op: { _tag: "in" },

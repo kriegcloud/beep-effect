@@ -1,10 +1,10 @@
 import type { GroupInput } from "@beep/logos";
-import { createRootGroup } from "@beep/logos/createRootGroup";
+import { RootGroup } from "@beep/logos";
 import { addGroupsToRoot } from "@beep/logos/crud";
 import { expect, test } from "vitest";
 
 test("groups are added to a group", () => {
-  const root = createRootGroup({ logicalOp: "and" });
+  const root = RootGroup.make({ logicalOp: "and" });
   const newGroupA: GroupInput.Type = {
     logicalOp: "and",
   };

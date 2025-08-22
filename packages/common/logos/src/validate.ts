@@ -2,7 +2,7 @@ import * as Either from "effect/Either";
 import * as O from "effect/Option";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
-import { RootGroup } from "./ruleGroup";
+import { RootGroup } from "./groups";
 
 /**
  * Validates a root group before running it.

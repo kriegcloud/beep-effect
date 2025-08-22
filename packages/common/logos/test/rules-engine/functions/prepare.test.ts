@@ -1,4 +1,4 @@
-import { createRootGroup } from "@beep/logos/createRootGroup";
+import { RootGroup } from "@beep/logos";
 import { addRuleToGroup } from "@beep/logos/crud";
 import { prepare, runPrepared } from "@beep/logos/prepare";
 import { run } from "@beep/logos/run";
@@ -53,13 +53,13 @@ describe("prepare / runPrepared", () => {
   });
 
   test("empty rules returns true", () => {
-    const emptyRoot = createRootGroup({ logicalOp: "and" });
+    const emptyRoot = RootGroup.make({ logicalOp: "and" });
     const prepared = runPrepared(emptyRoot, {});
     expect(prepared).toBe(true);
   });
 
   test("or short-circuit avoids missing-field throw", () => {
-    const root = createRootGroup({ logicalOp: "or" });
+    const root = RootGroup.make({ logicalOp: "or" });
     addRuleToGroup(root, {
       field: "present",
       op: { _tag: "isTruthy" },

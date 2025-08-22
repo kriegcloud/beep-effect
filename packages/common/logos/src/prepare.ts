@@ -1,17 +1,17 @@
+import { getAt } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";
 import * as Num from "effect/Number";
-import * as O from "effect/Option";
-import * as R from "effect/Record";
 import * as Str from "effect/String";
+import type { RootGroup, RuleGroup } from "./groups";
 import { fingerprint } from "./internal/fingerprint";
 import { normalize } from "./normalize";
-import type { RootGroup, RuleGroup } from "./ruleGroup";
 import * as Rules from "./rules";
 import { isPlainObject } from "./utils/is-plain-object";
 import { validate } from "./validate";
+
 export type Runner = (value: unknown) => boolean;
 
 type CacheEntry = { runner: Runner; fp: string };
@@ -19,8 +19,7 @@ const cache = new WeakMap<RootGroup.Type, CacheEntry>();
 
 function compileRule(rule: Rules.Rule.Type): Runner {
   // Pre-resolve a fast field accessor (direct key access)
-  const get = (obj: Record<string, any>) =>
-    R.get(rule.field)(obj).pipe(O.getOrThrow);
+  const get = (obj: Record<string, any>) => getAt(obj, rule.field);
 
   return Match.value(rule).pipe(
     Match.withReturnType<((v: any) => boolean) | boolean>(),
@@ -90,7 +89,7 @@ function compileRule(rule: Rules.Rule.Type): Runner {
 
 function compileGroup(u: RuleGroup.Type | RootGroup.Type): Runner {
   const children: Runner[] = u.rules.map((child) =>
-    child.entity === "group"
+    child.node === "group"
       ? compileGroup(child)
       : compileRule(child as Rules.Rule.Type),
   );

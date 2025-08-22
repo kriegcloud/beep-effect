@@ -1,10 +1,10 @@
 import type { RuleInput } from "@beep/logos";
-import { createRootGroup } from "@beep/logos/createRootGroup";
+import { RootGroup } from "@beep/logos";
 import { addRulesToGroup } from "@beep/logos/crud";
 import { expect, test } from "vitest";
 
 test("rules are added to a group", () => {
-  const root = createRootGroup({ logicalOp: "and" });
+  const root = RootGroup.make({ logicalOp: "and" });
   const newRuleA: RuleInput.Type = {
     field: "name",
     op: {

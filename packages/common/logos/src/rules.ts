@@ -347,22 +347,21 @@ export namespace DateRule {
     ),
     value: S.Union(
       S.TaggedStruct("range", {
-        start: BS.DateTimeUtcFromAllAcceptable,
-        end: BS.DateTimeUtcFromAllAcceptable,
+        start: BS.DateFromAllAcceptable,
+        end: BS.DateFromAllAcceptable,
       }),
       S.TaggedStruct("comparison", {
-        value: BS.DateTimeUtcFromAllAcceptable,
+        value: BS.DateFromAllAcceptable,
       }),
     ),
   });
 
   export type Rule = typeof Rule.Type;
+  export type RuleEncoded = typeof Rule.Encoded;
   export type Input = typeof Input.Type;
+  export type InputEncoded = typeof Input.Encoded;
 
-  export const validate = (
-    rule: Input,
-    value: string | number | Date | DateTime.Utc,
-  ) =>
+  export const validate = (rule: InputEncoded, value: string | number | Date) =>
     F.pipe(
       S.decodeOption(BS.DateTimeUtcFromAllAcceptable)(value),
       O.match({
@@ -380,7 +379,9 @@ export namespace DateRule {
                         S.decodeOption(BS.DateTimeUtcFromAllAcceptable)(cmpRaw),
                         O.match({
                           onNone: () => false,
-                          onSome: (cmp) => DateTime.lessThan(utc, cmp),
+                          onSome: (cmp) =>
+                            DateTime.toDate(utc).getTime() <
+                            DateTime.toDate(cmp).getTime(),
                         }),
                       ),
                     range: () => false,
@@ -396,7 +397,9 @@ export namespace DateRule {
                         S.decodeOption(BS.DateTimeUtcFromAllAcceptable)(cmpRaw),
                         O.match({
                           onNone: () => false,
-                          onSome: (cmp) => DateTime.greaterThan(utc, cmp),
+                          onSome: (cmp) =>
+                            DateTime.toDate(utc).getTime() >
+                            DateTime.toDate(cmp).getTime(),
                         }),
                       ),
                     range: () => false,
@@ -418,12 +421,12 @@ export namespace DateRule {
                             S.decodeOption(BS.DateTimeUtcFromAllAcceptable)(
                               endRaw,
                             ),
-                            O.map((end) =>
-                              DateTime.between(utc, {
-                                minimum: start,
-                                maximum: end,
-                              }),
-                            ),
+                            O.map((end) => {
+                              const u = DateTime.toDate(utc).getTime();
+                              const min = DateTime.toDate(start).getTime();
+                              const max = DateTime.toDate(end).getTime();
+                              return u >= min && u <= max;
+                            }),
                           ),
                         ),
                         O.getOrElse(F.constFalse),

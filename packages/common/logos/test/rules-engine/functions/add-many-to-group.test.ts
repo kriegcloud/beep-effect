@@ -1,10 +1,10 @@
 import type { GroupInput, RuleInput } from "@beep/logos";
-import { createRootGroup } from "@beep/logos/createRootGroup";
+import { RootGroup } from "@beep/logos";
 import { addManyToGroup } from "@beep/logos/crud";
 import { expect, test } from "vitest";
 
 test("rule and a group is added to a group", () => {
-  const root = createRootGroup({ logicalOp: "and" });
+  const root = RootGroup.make({ logicalOp: "and" });
   const newGroup: GroupInput.Type = {
     logicalOp: "and",
   };
@@ -23,6 +23,6 @@ test("rule and a group is added to a group", () => {
     expect(root.rules[index]).toBe(rule);
     expect(rule.parentId).toBe(root.id);
   });
-  expect(rulesOrGroups[0]?.entity === "group");
-  expect(rulesOrGroups[1]?.entity === "rule");
+  expect(rulesOrGroups[0]?.node === "group");
+  expect(rulesOrGroups[1]?.node === "rule");
 });

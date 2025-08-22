@@ -1,4 +1,4 @@
-import type { GroupInput, RootGroup, RuleGroup } from "./ruleGroup";
+import type { GroupInput, RootGroup, RuleGroup } from "./groups";
 import type {
   // ArrayLengthRule,
   // ArrayValueRule,
@@ -12,13 +12,13 @@ import type {
   // StringRule,
 } from "./rules";
 
-export type AnyEntity = Rule.Type | RuleGroup.Type | RootGroup.Type;
-export type TreeOrRuleGroup = RuleGroup.Type | RootGroup.Type;
+export type AnyNode = Rule.Type | RuleGroup.Type | RootGroup.Type;
+export type RootOrRuleGroup = RuleGroup.Type | RootGroup.Type;
 export type RuleOrRuleGroup = Rule.Type | RuleGroup.Type;
 export type RuleOrRuleGroupInput = RuleInput.Type | GroupInput.Type;
 export type RuleOrUndefined = Rule.Type | undefined;
-export type AnyEntityOrUndefined = AnyEntity | undefined;
-export type TreeOrRuleGroupOrUndefined = TreeOrRuleGroup | undefined;
+export type AnyNodeOrUndefined = AnyNode | undefined;
+export type RootOrRuleGroupOrUndefined = RootOrRuleGroup | undefined;
 
 // type OpsFor<T> =
 //   T extends string ? StringRule.Input /* | StringLengthRule.Input ... */ :

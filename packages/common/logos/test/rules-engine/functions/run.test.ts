@@ -1,9 +1,9 @@
-import { createRootGroup } from "@beep/logos/createRootGroup";
+import { RootGroup } from "@beep/logos";
 import { addGroupToRoot, addRuleToGroup } from "@beep/logos/crud";
 import { run } from "@beep/logos/run";
 import { expect, test } from "vitest";
 
-const root = createRootGroup({ logicalOp: "and" });
+const root = RootGroup.make({ logicalOp: "and" });
 
 const group = addGroupToRoot(root, { logicalOp: "and" });
 const firstRule = addRuleToGroup(group, {
@@ -124,7 +124,7 @@ test("test invalid rule", () => {
 });
 
 test("test no rules available", () => {
-  const noRuleRoot = createRootGroup({ logicalOp: "and" });
+  const noRuleRoot = RootGroup.make({ logicalOp: "and" });
   const result = run(noRuleRoot, {});
   expect(result).toBeTruthy();
 });

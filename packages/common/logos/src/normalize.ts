@@ -1,9 +1,9 @@
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { RuleGroup } from "./ruleGroup";
+import { RuleGroup } from "./groups";
 import { Rule } from "./rules";
-import type { RuleOrRuleGroup, TreeOrRuleGroup } from "./types";
+import type { RootOrRuleGroup, RuleOrRuleGroup } from "./types";
 
 type Options = {
   removeFailedValidations?: boolean;
@@ -11,7 +11,7 @@ type Options = {
   promoteSingleRuleGroups?: boolean;
   updateParentIds?: boolean;
 };
-export function normalize<T extends TreeOrRuleGroup>(
+export function normalize<T extends RootOrRuleGroup>(
   group: T,
   options?: Options,
 ): T {
@@ -22,7 +22,7 @@ export function normalize<T extends TreeOrRuleGroup>(
   const out: Array<RuleOrRuleGroup> = [];
 
   for (const item of group.rules) {
-    if (item.entity === "group") {
+    if (item.node === "group") {
       // Validate group shape
       if (removeFailedValidations) {
         const validated = S.encodeOption(RuleGroup)(item);

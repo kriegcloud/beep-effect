@@ -1,4 +1,4 @@
-import { createRootGroup } from "@beep/logos/createRootGroup";
+import { RootGroup } from "@beep/logos";
 import {
   addGroupToRoot,
   addRuleToGroup,
@@ -8,7 +8,7 @@ import {
 import { v4 as uuid } from "uuid";
 import { expect, test } from "vitest";
 
-const root = createRootGroup({ logicalOp: "or" });
+const root = RootGroup.make({ logicalOp: "or" });
 addRuleToGroup(root, {
   field: "name",
   op: { _tag: "in" },
@@ -63,7 +63,7 @@ test("update a group that does not have a valid parent", () => {
   if (!foundGroup) {
     throw new Error("Group not found");
   }
-  if (foundGroup.entity === "root") {
+  if (foundGroup.node === "root") {
     throw new Error("Group is not the correct type");
   }
   foundGroup.parentId = uuid();

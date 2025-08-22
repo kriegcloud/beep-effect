@@ -1,7 +1,7 @@
-import { addGroupToRoot, addRuleToGroup, createRootGroup } from "@beep/logos";
+import { addGroupToRoot, addRuleToGroup, RootGroup } from "@beep/logos";
 
 export function buildSampleRoot() {
-  const root = createRootGroup({ logicalOp: "and" });
+  const root = RootGroup.make({ logicalOp: "and" });
 
   const group = addGroupToRoot(root, { logicalOp: "and" });
   const firstRule = addRuleToGroup(group, {

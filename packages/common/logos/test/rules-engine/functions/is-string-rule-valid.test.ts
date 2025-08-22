@@ -1,4 +1,5 @@
 import { StringRule } from "@beep/logos";
+import { BS } from "@beep/schema";
 import { expect, test } from "vitest";
 
 test("string equals to", () => {
@@ -98,5 +99,29 @@ test("invalid operator is handled", () => {
     value: "carol",
   };
   const result = StringRule.validate(rule, "carolS");
+  expect(result).toBeFalsy();
+});
+
+test("string matches regex", () => {
+  const rule: StringRule.Input = {
+    field: "people",
+    op: { _tag: "matches", regex: BS.Regex.make(/^bob.*/) },
+    type: "string",
+    value: "", // not used by matches
+    ignoreCase: false,
+  };
+  const result = StringRule.validate(rule, "bobby");
+  expect(result).toBeTruthy();
+});
+
+test("string does not match regex", () => {
+  const rule: StringRule.Input = {
+    field: "people",
+    op: { _tag: "matches", regex: BS.Regex.make(/^bob$/) },
+    type: "string",
+    value: "", // not used by matches
+    ignoreCase: false,
+  };
+  const result = StringRule.validate(rule, "bobby");
   expect(result).toBeFalsy();
 });

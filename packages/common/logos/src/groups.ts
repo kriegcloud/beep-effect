@@ -1,10 +1,11 @@
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
-import { Entity, EntityId } from "./internal";
+import { v4 as uuid } from "uuid";
+import { Node, NodeId } from "./internal";
 import * as Operators from "./operators";
 import { Rule } from "./rules";
-export const RuleGroup = Entity.make("group", {
-  parentId: EntityId,
+export const RuleGroup = Node.make("group", {
+  parentId: NodeId,
   logicalOp: Operators.LogicalOp,
   rules: S.mutable(
     S.Array(
@@ -16,30 +17,37 @@ export const RuleGroup = Entity.make("group", {
   ),
 });
 export namespace RuleGroup {
-  export type Type = Entity.Type<
+  export type Type = Node.Type<
     "group",
     {
-      parentId: EntityId.Type;
+      parentId: NodeId.Type;
       logicalOp: Operators.LogicalOp.Type;
       rules: Array<Rule.Type | Type>;
     }
   >;
-  export type Encoded = Entity.Type<
+  export type Encoded = Node.Type<
     "group",
     {
-      parentId: EntityId.Encoded;
+      parentId: NodeId.Encoded;
       logicalOp: typeof Operators.LogicalOp.Encoded;
       rules: Array<Rule.Encoded | Encoded>;
     }
   >;
 }
-export const RootGroup = Entity.make("root", {
+export class RootGroup extends Node.make("root", {
   logicalOp: Operators.LogicalOp,
   rules: S.mutable(S.Array(S.Union(Rule, RuleGroup))).pipe(
     S.propertySignature,
     S.withConstructorDefault(F.constant([])),
   ),
-}).pipe(S.mutable);
+}).pipe(S.mutable) {
+  static readonly make = (newGroup: GroupInput.Type): RootGroup.Type => ({
+    ...newGroup,
+    node: "root",
+    id: uuid(),
+    rules: [],
+  });
+}
 
 export namespace RootGroup {
   export type Type = typeof RootGroup.Type;

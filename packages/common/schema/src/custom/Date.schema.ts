@@ -6,7 +6,6 @@ export const AllAcceptableDateInputs = S.Union(
   S.DateFromSelf,
   S.DateFromString,
   S.DateFromNumber,
-  S.DateTimeUtcFromSelf,
 );
 export namespace AllAcceptableDateInputs {
   export type Type = typeof AllAcceptableDateInputs.Type;
@@ -36,8 +35,8 @@ export namespace DateFromAllAcceptable {
 }
 
 export const DateTimeUtcFromAllAcceptable = S.transformOrFail(
-  AllAcceptableDateInputs,
-  S.DateTimeUtc,
+  DateFromAllAcceptable,
+  S.Union(S.DateTimeUtcFromDate, S.DateTimeUtcFromSelf),
   {
     strict: false,
     decode: (i, _, ast) =>

@@ -1,7 +1,7 @@
 import type { StringTypes, StructTypes } from "@beep/types";
 import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
-import { Entity, EntityId } from "./Entity";
+import { Node, NodeId } from "./Node";
 
 export type RuleType<
   Type extends StringTypes.NonEmptyString<string>,
@@ -9,30 +9,30 @@ export type RuleType<
 > = {
   Rule: S.Struct<
     {
-      entity: S.Literal<["rule"]>;
-      id: typeof EntityId;
+      node: S.Literal<["rule"]>;
+      id: typeof NodeId;
     } & {
       readonly type: S.Literal<[Type]>;
-      readonly parentId: typeof EntityId;
+      readonly parentId: typeof NodeId;
     } & Fields
   >;
   Input: S.Struct<{
     [K in keyof Pick<
       {
-        entity: S.Literal<["rule"]>;
-        id: typeof EntityId;
+        node: S.Literal<["rule"]>;
+        id: typeof NodeId;
       } & {
         readonly type: S.Literal<[Type]>;
-        readonly parentId: typeof EntityId;
+        readonly parentId: typeof NodeId;
       } & Fields,
       "type" | (keyof Fields & string)
     >]: Pick<
       {
-        entity: S.Literal<["rule"]>;
-        id: typeof EntityId;
+        node: S.Literal<["rule"]>;
+        id: typeof NodeId;
       } & {
         readonly type: S.Literal<[Type]>;
-        readonly parentId: typeof EntityId;
+        readonly parentId: typeof NodeId;
       } & Fields,
       "type" | (keyof Fields & string)
     >[K];
@@ -46,9 +46,9 @@ export const makeRule = <
   type: Type,
   fields: Fields,
 ): RuleType<Type, Fields> => {
-  const Rule = Entity.make("rule", {
+  const Rule = Node.make("rule", {
     type: S.Literal(type),
-    parentId: EntityId,
+    parentId: NodeId,
     ...fields,
   });
 

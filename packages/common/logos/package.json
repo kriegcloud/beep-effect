@@ -34,6 +34,7 @@
   },
   "peerDependencies": {
     "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
     "lodash.isplainobject": "^4.0.6",
     "uuid": "^11.1.0"
   },

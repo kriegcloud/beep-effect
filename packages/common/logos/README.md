@@ -5,7 +5,7 @@ A small, composable, schema‑driven rules engine built on Effect Schema. Rules 
 - Strong runtime validation via `effect/Schema`
 - Deterministic, synchronous evaluation (no side effects in rule checks)
 - Efficient execution via a compiled runner and caching keyed by a structural fingerprint
-- Convenient CRUD helpers and an internal O(1) ID index for large trees
+- Convenient CRUD helpers and an internal O(1) ID index for large roots
 
 This README documents the architecture, public APIs, and performance model, and outlines where Effect Schema's concurrency and batching annotations could be applied in the future.
 
@@ -26,7 +26,7 @@ This README documents the architecture, public APIs, and performance model, and 
 
 ## Overview
 
-The engine evaluates a tree of logical groups and rules against an input object. Each rule references a field and an operator and compares it to a provided value. Groups combine child results using `and` or `or`.
+The engine evaluates a root of logical groups and rules against an input object. Each rule references a field and an operator and compares it to a provided value. Groups combine child results using `and` or `or`.
 
 Key modules:
 - `src/rules.ts` — rule schemas and pure validation logic per rule type
@@ -37,18 +37,18 @@ Key modules:
 - `src/normalize.ts` — structure normalization
 - `src/validate.ts` — preflight validation of root groups
 - `src/crud.ts` — add/update/remove helpers; fast ID index
-- `src/internal/*` — shared primitives (`Entity`, `makeRule`, `idIndex`, `fingerprint`)
+- `src/internal/*` — shared primitives (`Node`, `makeRule`, `idIndex`, `fingerprint`)
 
 
 ## Data model
 
-Entities are created with `internal/Entity.ts`:
+Entities are created with `internal/Node.ts`:
 
 ```ts
-// entity shape: { entity: NameLiteral, id: UUID, ...fields }
-export const EntityId = S.UUID;
-export namespace Entity {
-  export const make = (name, fields) => S.Struct({ entity: S.Literal(name), id: EntityId, ...fields });
+// node shape: { node: NameLiteral, id: UUID, ...fields }
+export const NodeId = S.UUID;
+export namespace Node {
+  export const make = (name, fields) => S.Struct({ node: S.Literal(name), id: NodeId, ...fields });
 }
 ```
 
@@ -56,13 +56,13 @@ Groups are recursive and mutable (for efficient updates):
 
 ```ts
 // src/ruleGroup.ts
-export const RuleGroup = Entity.make("group", {
-  parentId: EntityId,
+export const RuleGroup = Node.make("group", {
+  parentId: NodeId,
   logicalOp: Operators.LogicalOp, // "and" | "or"
   rules: S.mutable(S.Array(S.Union(Rule, S.suspend(() => RuleGroup))))
 });
 
-export const RootGroup = Entity.make("root", {
+export const RootGroup = Node.make("root", {
   logicalOp: Operators.LogicalOp,
   rules: S.mutable(S.Array(S.Union(Rule, RuleGroup)))
 }).pipe(S.mutable);
@@ -117,9 +117,8 @@ Each operator exposes:
 Barrel exports in `src/index.ts`:
 
 ```ts
-export * from "./createRootGroup";        // createRootGroup(newGroup)
 export * from "./crud";                   // add/update/find helpers
-export { EntityId } from "./internal/Entity";
+export { NodeId } from "./internal/Node";
 export * from "./normalize";              // normalize(group, options?)
 export * from "./operators";              // operator namespaces
 export { prepare, runPrepared } from "./prepare"; // compile & run with cache
@@ -132,12 +131,12 @@ export * from "./validate";               // validate(root)
 Typical usage:
 
 ```ts
-import { createRootGroup, addRuleToGroup, Operators, prepare } from "@beep/logos";
+import { RootGroup, addRuleToGroup, Operators, prepare } from "@beep/logos";
 
-const root = createRootGroup({ logicalOp: "and" });
+const root = RootGroup.make({ logicalOp: "and" });
 
 addRuleToGroup(root, {
-  entity: "rule", // inferred by encoder in addRuleToGroup
+  node: "rule", // inferred by encoder in addRuleToGroup
   field: "name",
   op: { _tag: Operators.In.op },
   value: "Acme",
@@ -161,7 +160,7 @@ run(root, { name: "Acme" });
 
 ## Execution model (prepare/runner)
 
-`src/prepare.ts` compiles the tree into small, fast functions (`Runner = (value) => boolean`).
+`src/prepare.ts` compiles the root into small, fast functions (`Runner = (value) => boolean`).
 
 - Precompute a fast field accessor per rule (`Record.get(field)` with Option safety)
 - Compile rules into pure boolean checks using the rule‐specific `validate()`
@@ -222,10 +221,9 @@ Tests live under `packages/common/logos/test/rules-engine/`. They demonstrate in
 
 ## Appendix: Export surface
 
-- `createRootGroup(newGroup)` — create a new root group
 - `prepare(root)` / `runPrepared(root, value)` — compile & run with caching
 - `run(group, value)` — convenience runtime (root uses `prepare`, nested validates then compiles once per call)
-- `normalize(group, options?)` — restructure tree for efficient execution
+- `normalize(group, options?)` — restructure root for efficient execution
 - `validate(root)` — preflight schema validation
 - `operators` — operator IDs and schemas
 - `rules` — rule schemas and pure boolean validators per rule type
@@ -236,6 +234,6 @@ Tests live under `packages/common/logos/test/rules-engine/`. They demonstrate in
 ## Roadmap (future work)
 
 - Optional effectful runner (`prepareEffect`) with configurable concurrency/batching
-- Granular schema annotations for validation concurrency in large trees
+- Granular schema annotations for validation concurrency in large roots
 - Benchmarks (tinybench) and PERFORMANCE.md updates as features evolve
 - Document the ID index and fingerprint strategies in a dedicated performance guide

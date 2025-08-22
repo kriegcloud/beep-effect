@@ -1,3 +1,3 @@
-export * from "./Entity";
 export * from "./makeRule";
+export * from "./Node";
 export * from "./Operator";

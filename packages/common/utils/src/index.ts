@@ -1,3 +1,3 @@
 export * from "./factories";
-export * from "./guards";
+export * from "./getters";
 export * from "./transformations";

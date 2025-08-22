@@ -9,9 +9,6 @@
       "path": "../types"
     },
     {
-      "path": "../invariant"
-    },
-    {
       "path": "../utils"
     },
     {
@@ -29,8 +26,6 @@
     "@beep/logos/*": ["./src/*"],
     "@beep/types": ["../types/src/index"],
     "@beep/types/*": ["../types/src/*"],
-    "@beep/invariant": ["../invariant/src/index"],
-    "@beep/invariant/*": ["../invariant/src/*"],
     "@beep/utils": ["../utils/src/index"],
     "@beep/utils/*": ["../utils/src/*"],
     "@beep/schema": ["../schema/src/index"],

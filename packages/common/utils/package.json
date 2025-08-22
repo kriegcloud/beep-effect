@@ -37,6 +37,7 @@
     "mutative": "^1.2.0"
   },
   "devDependencies": {
+    "type-fest": "^4.41.0",
     "@beep/types": "workspace:^"
   },
   "effect": {

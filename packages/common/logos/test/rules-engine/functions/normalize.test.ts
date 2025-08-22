@@ -1,11 +1,11 @@
-import { createRootGroup } from "@beep/logos/createRootGroup";
+import { RootGroup } from "@beep/logos";
 import { addGroupToRoot, addRuleToGroup } from "@beep/logos/crud";
 import { normalize } from "@beep/logos/normalize";
 import { v4 as uuid } from "uuid";
 import { expect, test } from "vitest";
 
 test("normalization removes an invalid rule", () => {
-  const root = createRootGroup({ logicalOp: "or" });
+  const root = RootGroup.make({ logicalOp: "or" });
 
   const rule: any = addRuleToGroup(root, {
     field: "name",
@@ -22,7 +22,7 @@ test("normalization removes an invalid rule", () => {
 });
 
 test("normalization fixes the parent id of a rule", () => {
-  const root = createRootGroup({ logicalOp: "or" });
+  const root = RootGroup.make({ logicalOp: "or" });
 
   const rule: any = addRuleToGroup(root, {
     field: "name",
@@ -44,7 +44,7 @@ test("normalization fixes the parent id of a rule", () => {
 });
 
 test("normalization removes an invalid group", () => {
-  const root = createRootGroup({ logicalOp: "or" });
+  const root = RootGroup.make({ logicalOp: "or" });
 
   const group = addGroupToRoot(root, { logicalOp: "and" });
   addRuleToGroup(group, {
@@ -63,7 +63,7 @@ test("normalization removes an invalid group", () => {
 });
 
 test("normalization removes an group with no rules", () => {
-  const root = createRootGroup({ logicalOp: "or" });
+  const root = RootGroup.make({ logicalOp: "or" });
   addGroupToRoot(root, { logicalOp: "and" });
 
   expect(root.rules).toHaveLength(1);
@@ -72,7 +72,7 @@ test("normalization removes an group with no rules", () => {
 });
 
 test("normalization promotes group with 1 rule to parent level", () => {
-  const root = createRootGroup({ logicalOp: "or" });
+  const root = RootGroup.make({ logicalOp: "or" });
   addRuleToGroup(root, {
     field: "name",
     op: { _tag: "in" },
@@ -90,17 +90,17 @@ test("normalization promotes group with 1 rule to parent level", () => {
     ignoreCase: false,
   });
 
-  expect(root.rules[1]?.entity).toBe("group");
+  expect(root.rules[1]?.node).toBe("group");
   expect(root.rules[1]?.id).toBe(group.id);
 
   normalize(root);
 
-  expect(root.rules[1]?.entity).toBe("rule");
+  expect(root.rules[1]?.node).toBe("rule");
   expect(root.rules[1]?.id).toBe(rule.id);
 });
 
 test("normalization finds nothing wrong", () => {
-  const root = createRootGroup({ logicalOp: "or" });
+  const root = RootGroup.make({ logicalOp: "or" });
   addRuleToGroup(root, {
     field: "name",
     op: { _tag: "in" },
@@ -138,7 +138,7 @@ test("normalization finds nothing wrong", () => {
 });
 
 test("normalization has all options turn off", () => {
-  const root = createRootGroup({ logicalOp: "or" });
+  const root = RootGroup.make({ logicalOp: "or" });
   addRuleToGroup(root, {
     field: "name",
     op: { _tag: "in" },

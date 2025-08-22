@@ -4,7 +4,8 @@ import * as HM from "effect/HashMap";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { v4 as uuid } from "uuid";
-import type { EntityId } from "./internal";
+import { GroupInput, type RootGroup, RuleGroup } from "./groups";
+import type { NodeId } from "./internal";
 import {
   findAnyByIdFast,
   findGroupByIdFast,
@@ -12,42 +13,41 @@ import {
   getIdIndex,
   invalidateIdIndex,
 } from "./internal/idIndex";
-import { GroupInput, type RootGroup, RuleGroup } from "./ruleGroup";
 import { Rule, RuleInput } from "./rules";
 import type {
-  AnyEntityOrUndefined,
+  AnyNodeOrUndefined,
+  RootOrRuleGroup,
+  RootOrRuleGroupOrUndefined,
   RuleOrRuleGroup,
   RuleOrRuleGroupInput,
   RuleOrUndefined,
-  TreeOrRuleGroup,
-  TreeOrRuleGroupOrUndefined,
 } from "./types";
 
 /**
  * Find a rule or a group by id.
  * @export
- * @param {(TreeOrRuleGroup)} group
+ * @param {(RootOrRuleGroup)} group
  * @param {string} id
- * @return {*}  {(AnyEntityOrUndefined)}
+ * @return {*}  {(AnyNodeOrUndefined)}
  */
 
 export const findAnyById = (
-  group: TreeOrRuleGroup,
-  id: EntityId.Type,
-): AnyEntityOrUndefined => {
+  group: RootOrRuleGroup,
+  id: NodeId.Type,
+): AnyNodeOrUndefined => {
   if (group.id === id) {
     return group;
   }
 
   // Fast path via HashMap index when called with a root group
-  if (group.entity === "root") {
+  if (group.node === "root") {
     const fast = findAnyByIdFast(group, id);
     if (fast !== undefined) return fast;
   }
 
   return A.reduce(
     group.rules,
-    undefined as AnyEntityOrUndefined,
+    undefined as AnyNodeOrUndefined,
     (foundGroup, ruleOrGroup) => {
       if (foundGroup) {
         return foundGroup;
@@ -55,7 +55,7 @@ export const findAnyById = (
       if (ruleOrGroup.id === id) {
         return ruleOrGroup;
       }
-      if (ruleOrGroup.entity === "group") {
+      if (ruleOrGroup.node === "group") {
         return findAnyById(ruleOrGroup, id);
       }
       return foundGroup;
@@ -66,15 +66,15 @@ export const findAnyById = (
 /**
  * Find a rule by id.
  * @export
- * @param {TreeOrRuleGroup} group
- * @param {EntityId.Type} id
+ * @param {RootOrRuleGroup} group
+ * @param {NodeId.Type} id
  * @return {*}  {(RuleOrUndefined)}
  */
 export const findRuleById = (
-  group: TreeOrRuleGroup,
-  id: EntityId.Type,
+  group: RootOrRuleGroup,
+  id: NodeId.Type,
 ): RuleOrUndefined =>
-  group.entity === "root"
+  group.node === "root"
     ? (() => {
         const fast = findRuleByIdFast(group, id);
         if (fast !== undefined) return fast;
@@ -86,7 +86,7 @@ export const findRuleById = (
               return foundRule;
             }
 
-            if (ruleOrGroup.entity === "rule") {
+            if (ruleOrGroup.node === "rule") {
               return ruleOrGroup.id === id ? ruleOrGroup : undefined;
             }
             return findRuleById(ruleOrGroup, id);
@@ -101,7 +101,7 @@ export const findRuleById = (
             return foundRule;
           }
 
-          if (ruleOrGroup.entity === "rule") {
+          if (ruleOrGroup.node === "rule") {
             return ruleOrGroup.id === id ? ruleOrGroup : undefined;
           }
           return findRuleById(ruleOrGroup, id);
@@ -116,21 +116,21 @@ export const findRuleById = (
  * @return {*}  {(RootGroup | RuleGroup | undefined)}
  */
 export function findGroupById(
-  group: TreeOrRuleGroup,
+  group: RootOrRuleGroup,
   id: string,
-): TreeOrRuleGroupOrUndefined {
+): RootOrRuleGroupOrUndefined {
   if (group.id === id) {
     return group;
   }
-  if (group.entity === "root") {
+  if (group.node === "root") {
     const fast = findGroupByIdFast(group, id);
     if (fast !== undefined) return fast;
   }
   return A.reduce(
     group.rules,
-    undefined as TreeOrRuleGroupOrUndefined,
+    undefined as RootOrRuleGroupOrUndefined,
     (foundGroup, ruleOrGroup) => {
-      if (foundGroup || ruleOrGroup.entity === "rule") {
+      if (foundGroup || ruleOrGroup.node === "rule") {
         return foundGroup;
       }
       if (ruleOrGroup.id === id) {
@@ -150,9 +150,9 @@ export function findGroupById(
  * @param {string} id
  * @return {*}  {T}
  */
-export function removeAllById<T extends TreeOrRuleGroup>(
+export function removeAllById<T extends RootOrRuleGroup>(
   group: T,
-  id: EntityId.Type,
+  id: NodeId.Type,
 ): T {
   for (let i = group.rules.length - 1; i >= 0; i--) {
     const child = O.fromNullable(group.rules[i]).pipe(O.getOrThrow);
@@ -160,7 +160,7 @@ export function removeAllById<T extends TreeOrRuleGroup>(
       group.rules.splice(i, 1);
       continue;
     }
-    if (child.entity === "group") {
+    if (child.node === "group") {
       removeAllById(child, id);
     }
   }
@@ -173,13 +173,13 @@ export function removeAllById<T extends TreeOrRuleGroup>(
  * Mutates the root object.
  * @export
  * @param {RootGroup.Type} root
- * @param {EntityId.Type} id
+ * @param {NodeId.Type} id
  * @param {RuleInput.Type} values
  * @return {*}  {(RuleOrUndefined)}
  */
 export const updateRuleById = (
   root: RootGroup.Type,
-  id: EntityId.Type,
+  id: NodeId.Type,
   values: RuleInput.Type,
 ): RuleOrUndefined => {
   const foundRule = findRuleById(root, id);
@@ -224,16 +224,16 @@ export const updateRuleById = (
  */
 export const updateGroupById = (
   root: RootGroup.Type,
-  id: EntityId.Type,
+  id: NodeId.Type,
   values: GroupInput.Type,
-): TreeOrRuleGroupOrUndefined => {
+): RootOrRuleGroupOrUndefined => {
   const foundGroup = findGroupById(root, id);
   if (!foundGroup) {
     return;
   }
 
   // If updating the root group, mutate it directly
-  if (foundGroup.entity === "root") {
+  if (foundGroup.node === "root") {
     foundGroup.logicalOp = values.logicalOp;
     // Conservative: invalidate to reflect updated reference/props
     invalidateIdIndex(root);
@@ -264,12 +264,12 @@ export const updateGroupById = (
  * Add a rule to a group.
  * This function will mutate the parent group.
  * @export
- * @param {TreeOrRuleGroup} parent
+ * @param {RootOrRuleGroup} parent
  * @param {RuleInput.Type} newRule
  * @return {*}  {Rule.Type}
  */
 export function addRuleToGroup(
-  parent: TreeOrRuleGroup,
+  parent: RootOrRuleGroup,
   newRule: RuleInput.Type,
 ): Rule.Type {
   const rule = F.pipe(
@@ -277,7 +277,7 @@ export function addRuleToGroup(
       ...newRule,
       id: uuid(),
       parentId: parent.id,
-      entity: "rule",
+      node: "rule",
     },
     S.encodeSync(Rule),
     S.decodeSync(Rule),
@@ -290,19 +290,19 @@ export function addRuleToGroup(
  * Add a new group to a group.
  * This function will mutate the parent group.
  * @export
- * @param {TreeOrRuleGroup} parent
+ * @param {RootOrRuleGroup} parent
  * @param {GroupInput.Type} newGroup
  * @return {*}  {RuleGroup.Type}
  */
 export function addGroupToRoot(
-  parent: TreeOrRuleGroup,
+  parent: RootOrRuleGroup,
   newGroup: GroupInput.Type,
 ): RuleGroup.Type {
   const group = S.decodeSync(RuleGroup)({
     ...newGroup,
     id: uuid(),
     parentId: parent.id,
-    entity: "group",
+    node: "group",
     rules: [],
   });
   parent.rules.push(group);
@@ -318,7 +318,7 @@ export function addGroupToRoot(
  * @return {*}  {RuleOrRuleGroup}
  */
 export function addAnyToGroup(
-  parent: TreeOrRuleGroup,
+  parent: RootOrRuleGroup,
   newRuleOrRuleGroup: RuleOrRuleGroupInput,
 ): RuleOrRuleGroup {
   const isNewRule = (
@@ -341,7 +341,7 @@ export function addAnyToGroup(
  * @return {*}  {(Array<RuleOrRuleGroup>)}
  */
 export const addManyToGroup = (
-  parent: TreeOrRuleGroup,
+  parent: RootOrRuleGroup,
   newRulesOrGroups: Array<RuleOrRuleGroupInput>,
 ): Array<RuleOrRuleGroup> =>
   A.map(newRulesOrGroups, (newRuleOrRuleGroup) =>
@@ -352,12 +352,12 @@ export const addManyToGroup = (
  * Add many rules to a group.
  * This function will mutate the parent group.
  * @export
- * @param {TreeOrRuleGroup} parent
+ * @param {RootOrRuleGroup} parent
  * @param {Array<RuleInput.Type>} newRules
  * @return {*}  {Array<Rule.Type>}
  */
 export const addRulesToGroup = (
-  parent: TreeOrRuleGroup,
+  parent: RootOrRuleGroup,
   newRules: Array<RuleInput.Type>,
 ): Array<Rule.Type> =>
   A.map(newRules, (newRule) => addRuleToGroup(parent, newRule));
@@ -366,12 +366,12 @@ export const addRulesToGroup = (
  * Add many groups to a group.
  * This function will mutate the parent group.
  * @export
- * @param {TreeOrRuleGroup} parent
+ * @param {RootOrRuleGroup} parent
  * @param {Array<GroupInput.Type>} newGroups
  * @return {*}  {Array<RuleGroup.Type>}
  */
 export const addGroupsToRoot = (
-  parent: TreeOrRuleGroup,
+  parent: RootOrRuleGroup,
   newGroups: Array<GroupInput.Type>,
 ): Array<RuleGroup.Type> =>
   A.map(newGroups, (newGroup) => addGroupToRoot(parent, newGroup));
