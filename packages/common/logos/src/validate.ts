@@ -2,18 +2,18 @@ import * as Either from "effect/Either";
 import * as O from "effect/Option";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
-import { RootUnion } from "./union";
+import { RootGroup } from "./ruleGroup";
 
 /**
- * Validates a root union before running it.
+ * Validates a root group before running it.
  * @export
- * @param {RootUnion} root
+ * @param {RootGroup} root
  * @return {*}  {({ isValid: true } | { isValid: false; reason: string })}
  */
 export function validate(
-  root: RootUnion.Type,
+  root: RootGroup.Type,
 ): { isValid: true } | { isValid: false; reason: string } {
-  const validated = S.encodeEither(RootUnion)(root);
+  const validated = S.encodeEither(RootGroup)(root);
 
   if (Either.isLeft(validated)) {
     return {

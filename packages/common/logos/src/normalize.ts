@@ -1,56 +1,59 @@
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { RuleGroup } from "./ruleGroup";
 import { Rule } from "./rules";
-import type { AnyUnion, RuleOrUnion } from "./types";
-import { Union } from "./union";
+import type { RuleOrRuleGroup, TreeOrRuleGroup } from "./types";
 
 type Options = {
   removeFailedValidations?: boolean;
-  removeEmptyUnions?: boolean;
-  promoteSingleRuleUnions?: boolean;
+  removeEmptyGroups?: boolean;
+  promoteSingleRuleGroups?: boolean;
   updateParentIds?: boolean;
 };
-export function normalize<T extends AnyUnion>(union: T, options?: Options): T {
-  const promoteSingleRuleUnions = options?.promoteSingleRuleUnions ?? true;
-  const removeEmptyUnions = options?.removeEmptyUnions ?? true;
+export function normalize<T extends TreeOrRuleGroup>(
+  group: T,
+  options?: Options,
+): T {
+  const promoteSingleRuleGroups = options?.promoteSingleRuleGroups ?? true;
+  const removeEmptyGroups = options?.removeEmptyGroups ?? true;
   const removeFailedValidations = options?.removeFailedValidations ?? true;
   const updateParentIds = options?.updateParentIds ?? true;
-  const out: Array<RuleOrUnion> = [];
+  const out: Array<RuleOrRuleGroup> = [];
 
-  for (const item of union.rules) {
-    if (item.entity === "union") {
-      // Validate union shape
+  for (const item of group.rules) {
+    if (item.entity === "group") {
+      // Validate group shape
       if (removeFailedValidations) {
-        const validated = S.encodeOption(Union)(item);
+        const validated = S.encodeOption(RuleGroup)(item);
         if (!O.isSome(validated)) {
           continue;
         }
       }
 
-      // Normalize nested union recursively (in-place)
+      // Normalize nested group recursively (in-place)
       const normalizedChild = normalize(item, options);
 
-      // Remove empty unions
-      if (A.isEmptyArray(normalizedChild.rules) && removeEmptyUnions) {
+      // Remove empty groups
+      if (A.isEmptyArray(normalizedChild.rules) && removeEmptyGroups) {
         continue;
       }
 
-      // Promote single-rule union
+      // Promote single-rule group
       if (
         A.isNonEmptyArray(normalizedChild.rules) &&
         normalizedChild.rules.length === 1 &&
-        promoteSingleRuleUnions
+        promoteSingleRuleGroups
       ) {
         const only = normalizedChild.rules[0];
-        out.push(updateParentIds ? { ...only, parentId: union.id } : only);
+        out.push(updateParentIds ? { ...only, parentId: group.id } : only);
         continue;
       }
 
-      // Ensure parentId of union
+      // Ensure parentId of group
       out.push(
         updateParentIds
-          ? { ...normalizedChild, parentId: union.id }
+          ? { ...normalizedChild, parentId: group.id }
           : normalizedChild,
       );
       continue;
@@ -62,11 +65,11 @@ export function normalize<T extends AnyUnion>(union: T, options?: Options): T {
         continue;
       }
     }
-    out.push(updateParentIds ? { ...item, parentId: union.id } : item);
+    out.push(updateParentIds ? { ...item, parentId: group.id } : item);
   }
 
   // mutate underlying array in place to avoid reassigning the readonly property
-  union.rules.length = 0;
-  union.rules.push(...out);
-  return union;
+  group.rules.length = 0;
+  group.rules.push(...out);
+  return group;
 }

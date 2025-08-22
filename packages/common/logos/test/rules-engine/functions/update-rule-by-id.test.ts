@@ -1,36 +1,36 @@
-import { createRoot } from "@beep/logos/createRoot";
+import { createRootGroup } from "@beep/logos/createRootGroup";
 import {
-  addRuleToUnion,
-  addUnionToUnion,
+  addGroupToRoot,
+  addRuleToGroup,
   findRuleById,
   updateRuleById,
 } from "@beep/logos/crud";
 import { v4 as uuid } from "uuid";
 import { expect, test } from "vitest";
 
-const root = createRoot({ logicalOp: "or" });
-addRuleToUnion(root, {
+const root = createRootGroup({ logicalOp: "or" });
+addRuleToGroup(root, {
   field: "name",
   op: { _tag: "in" },
   _tag: "string",
   value: "bob",
   ignoreCase: false,
 });
-addRuleToUnion(root, {
+addRuleToGroup(root, {
   field: "name",
   op: { _tag: "in" },
   _tag: "string",
   value: "alice",
   ignoreCase: false,
 });
-const union = addUnionToUnion(root, { logicalOp: "and" });
-addRuleToUnion(union, {
+const group = addGroupToRoot(root, { logicalOp: "and" });
+addRuleToGroup(group, {
   field: "age",
   op: { _tag: "gt" },
   _tag: "number",
   value: 18,
 });
-const rule = addRuleToUnion(union, {
+const rule = addRuleToGroup(group, {
   field: "age",
   op: { _tag: "lt" },
   _tag: "number",

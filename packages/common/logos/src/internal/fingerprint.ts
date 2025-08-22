@@ -1,18 +1,18 @@
 import * as O from "effect/Option";
+import type { RootGroup, RuleGroup } from "../ruleGroup";
 import type { Rule } from "../rules";
-import type { RootUnion, Union } from "../union";
 
 /**
- * Computes a structural fingerprint of a union tree to detect changes.
+ * Computes a structural fingerprint of a group tree to detect changes.
  * Includes node ids, logical ops, rule tags, fields, and operator tags.
  */
-export function fingerprint(u: Union.Type | RootUnion.Type): string {
+export function fingerprint(u: RuleGroup.Type | RootGroup.Type): string {
   const parts: string[] = [];
-  const walk = (node: Union.Type | RootUnion.Type): void => {
+  const walk = (node: RuleGroup.Type | RootGroup.Type): void => {
     parts.push(`U:${node.id}:${node.logicalOp}`);
     for (let i = 0; i < node.rules.length; i++) {
       const child = O.fromNullable(node.rules[i]).pipe(O.getOrThrow);
-      if (child.entity === "union") {
+      if (child.entity === "group") {
         walk(child);
       } else {
         const r = child as Rule.Type;

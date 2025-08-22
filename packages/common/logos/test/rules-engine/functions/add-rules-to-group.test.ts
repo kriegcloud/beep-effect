@@ -1,10 +1,10 @@
 import type { RuleInput } from "@beep/logos";
-import { createRoot } from "@beep/logos/createRoot";
-import { addRulesToUnion } from "@beep/logos/crud";
+import { createRootGroup } from "@beep/logos/createRootGroup";
+import { addRulesToGroup } from "@beep/logos/crud";
 import { expect, test } from "vitest";
 
-test("rules are added to a union", () => {
-  const root = createRoot({ logicalOp: "and" });
+test("rules are added to a group", () => {
+  const root = createRootGroup({ logicalOp: "and" });
   const newRuleA: RuleInput.Type = {
     field: "name",
     op: {
@@ -24,7 +24,7 @@ test("rules are added to a union", () => {
     ignoreCase: false,
   };
   expect(root.rules.length).toBe(0);
-  const rules = addRulesToUnion(root, [newRuleA, newRuleB]);
+  const rules = addRulesToGroup(root, [newRuleA, newRuleB]);
   expect(root.rules.length).toBe(2);
   rules.forEach((rule, index) => {
     expect(root.rules[index]).toBe(rule);

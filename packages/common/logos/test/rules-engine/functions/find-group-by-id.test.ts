@@ -1,11 +1,13 @@
 import { createRootGroup } from "@beep/logos/createRootGroup";
-import { addGroupToRoot, addRuleToGroup, findRuleById } from "@beep/logos/crud";
-
+import {
+  addGroupToRoot,
+  addRuleToGroup,
+  findGroupById,
+} from "@beep/logos/crud";
 import { v4 as uuid } from "uuid";
 import { expect, test } from "vitest";
 
 const root = createRootGroup({ logicalOp: "or" });
-
 addRuleToGroup(root, {
   field: "name",
   op: { _tag: "in" },
@@ -21,7 +23,6 @@ addRuleToGroup(root, {
   ignoreCase: false,
 });
 const group = addGroupToRoot(root, { logicalOp: "and" });
-
 addRuleToGroup(group, {
   field: "age",
   op: { _tag: "gt" },
@@ -37,21 +38,21 @@ const rule = addRuleToGroup(group, {
 const group2 = addGroupToRoot(group, { logicalOp: "and" });
 
 test("find root group", () => {
-  const result = findRuleById(root, root.id);
-  expect(result).toBeUndefined();
+  const result = findGroupById(root, root.id);
+  expect(result).toBe(root);
 });
 
 test("find deeply nested rule", () => {
-  const result = findRuleById(root, rule.id);
-  expect(result).toBe(rule);
-});
-
-test("find deeply nested group", () => {
-  const result = findRuleById(root, group2.id);
+  const result = findGroupById(root, rule.id);
   expect(result).toBeUndefined();
 });
 
+test("find deeply nested group", () => {
+  const result = findGroupById(root, group2.id);
+  expect(result).toBe(group2);
+});
+
 test("find non existent rule", () => {
-  const result = findRuleById(root, uuid());
+  const result = findGroupById(root, uuid());
   expect(result).toBeUndefined();
 });

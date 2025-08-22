@@ -1,13 +1,13 @@
-import { createRoot } from "@beep/logos/createRoot";
-import { addRuleToUnion, addUnionToUnion } from "@beep/logos/crud";
+import { createRootGroup } from "@beep/logos/createRootGroup";
+import { addGroupToRoot, addRuleToGroup } from "@beep/logos/crud";
 import { normalize } from "@beep/logos/normalize";
 import { v4 as uuid } from "uuid";
 import { expect, test } from "vitest";
 
 test("normalization removes an invalid rule", () => {
-  const root = createRoot({ logicalOp: "or" });
+  const root = createRootGroup({ logicalOp: "or" });
 
-  const rule: any = addRuleToUnion(root, {
+  const rule: any = addRuleToGroup(root, {
     field: "name",
     op: { _tag: "in" },
     _tag: "string",
@@ -22,9 +22,9 @@ test("normalization removes an invalid rule", () => {
 });
 
 test("normalization fixes the parent id of a rule", () => {
-  const root = createRoot({ logicalOp: "or" });
+  const root = createRootGroup({ logicalOp: "or" });
 
-  const rule: any = addRuleToUnion(root, {
+  const rule: any = addRuleToGroup(root, {
     field: "name",
     op: { _tag: "in" },
     _tag: "string",
@@ -43,11 +43,11 @@ test("normalization fixes the parent id of a rule", () => {
   });
 });
 
-test("normalization removes an invalid union", () => {
-  const root = createRoot({ logicalOp: "or" });
+test("normalization removes an invalid group", () => {
+  const root = createRootGroup({ logicalOp: "or" });
 
-  const union = addUnionToUnion(root, { logicalOp: "and" });
-  addRuleToUnion(union, {
+  const group = addGroupToRoot(root, { logicalOp: "and" });
+  addRuleToGroup(group, {
     field: "name",
     op: { _tag: "in" },
     _tag: "string",
@@ -55,25 +55,25 @@ test("normalization removes an invalid union", () => {
     ignoreCase: false,
   });
   // @ts-expect-error
-  union.logicalOp = "invalid";
+  group.logicalOp = "invalid";
 
   expect(root.rules).toHaveLength(1);
   normalize(root);
   expect(root.rules).toHaveLength(0);
 });
 
-test("normalization removes an union with no rules", () => {
-  const root = createRoot({ logicalOp: "or" });
-  addUnionToUnion(root, { logicalOp: "and" });
+test("normalization removes an group with no rules", () => {
+  const root = createRootGroup({ logicalOp: "or" });
+  addGroupToRoot(root, { logicalOp: "and" });
 
   expect(root.rules).toHaveLength(1);
   normalize(root);
   expect(root.rules).toHaveLength(0);
 });
 
-test("normalization promotes union with 1 rule to parent level", () => {
-  const root = createRoot({ logicalOp: "or" });
-  addRuleToUnion(root, {
+test("normalization promotes group with 1 rule to parent level", () => {
+  const root = createRootGroup({ logicalOp: "or" });
+  addRuleToGroup(root, {
     field: "name",
     op: { _tag: "in" },
     _tag: "string",
@@ -81,8 +81,8 @@ test("normalization promotes union with 1 rule to parent level", () => {
     ignoreCase: false,
   });
 
-  const union = addUnionToUnion(root, { logicalOp: "and" });
-  const rule = addRuleToUnion(union, {
+  const group = addGroupToRoot(root, { logicalOp: "and" });
+  const rule = addRuleToGroup(group, {
     field: "name",
     op: { _tag: "in" },
     _tag: "string",
@@ -90,8 +90,8 @@ test("normalization promotes union with 1 rule to parent level", () => {
     ignoreCase: false,
   });
 
-  expect(root.rules[1]?.entity).toBe("union");
-  expect(root.rules[1]?.id).toBe(union.id);
+  expect(root.rules[1]?.entity).toBe("group");
+  expect(root.rules[1]?.id).toBe(group.id);
 
   normalize(root);
 
@@ -100,8 +100,8 @@ test("normalization promotes union with 1 rule to parent level", () => {
 });
 
 test("normalization finds nothing wrong", () => {
-  const root = createRoot({ logicalOp: "or" });
-  addRuleToUnion(root, {
+  const root = createRootGroup({ logicalOp: "or" });
+  addRuleToGroup(root, {
     field: "name",
     op: { _tag: "in" },
     _tag: "string",
@@ -109,15 +109,15 @@ test("normalization finds nothing wrong", () => {
     ignoreCase: false,
   });
 
-  const union = addUnionToUnion(root, { logicalOp: "and" });
-  addRuleToUnion(union, {
+  const group = addGroupToRoot(root, { logicalOp: "and" });
+  addRuleToGroup(group, {
     field: "name",
     op: { _tag: "in" },
     _tag: "string",
     value: "alice",
     ignoreCase: false,
   });
-  addRuleToUnion(union, {
+  addRuleToGroup(group, {
     field: "age",
     op: { _tag: "gt" },
     _tag: "number",
@@ -138,8 +138,8 @@ test("normalization finds nothing wrong", () => {
 });
 
 test("normalization has all options turn off", () => {
-  const root = createRoot({ logicalOp: "or" });
-  addRuleToUnion(root, {
+  const root = createRootGroup({ logicalOp: "or" });
+  addRuleToGroup(root, {
     field: "name",
     op: { _tag: "in" },
     _tag: "string",
@@ -147,34 +147,34 @@ test("normalization has all options turn off", () => {
     ignoreCase: false,
   });
 
-  const union = addUnionToUnion(root, { logicalOp: "and" });
-  const rule: any = addRuleToUnion(union, {
+  const group = addGroupToRoot(root, { logicalOp: "and" });
+  const rule: any = addRuleToGroup(group, {
     field: "name",
     op: { _tag: "in" },
     _tag: "string",
     value: "alice",
     ignoreCase: false,
   });
-  addRuleToUnion(union, {
+  addRuleToGroup(group, {
     field: "age",
     op: { _tag: "gt" },
     _tag: "number",
     value: 18,
   });
 
-  expect(union.parentId).toBe(root.id);
-  expect(rule.parentId).toBe(union.id);
+  expect(group.parentId).toBe(root.id);
+  expect(rule.parentId).toBe(group.id);
 
-  union.parentId = uuid();
+  group.parentId = uuid();
   rule.parentId = uuid();
 
   normalize(root, {
     updateParentIds: false,
-    promoteSingleRuleUnions: false,
-    removeEmptyUnions: false,
+    promoteSingleRuleGroups: false,
+    removeEmptyGroups: false,
     removeFailedValidations: false,
   });
 
-  expect(union.parentId).not.toBe(root.id);
-  expect(rule.parentId).not.toBe(union.id);
+  expect(group.parentId).not.toBe(root.id);
+  expect(rule.parentId).not.toBe(group.id);
 });

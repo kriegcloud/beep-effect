@@ -3,21 +3,21 @@ import { Entity, EntityId } from "./internal";
 import * as Operators from "./operators";
 import { Rule } from "./rules";
 
-export const Union = Entity.make("union", {
+export const RuleGroup = Entity.make("group", {
   parentId: EntityId,
   logicalOp: Operators.LogicalOp,
   rules: S.mutable(
     S.Array(
       S.Union(
         Rule,
-        S.suspend((): S.Schema<Union.Type, Union.Encoded> => Union),
+        S.suspend((): S.Schema<RuleGroup.Type, RuleGroup.Encoded> => RuleGroup),
       ),
     ),
   ),
 });
-export namespace Union {
+export namespace RuleGroup {
   export type Type = Entity.Type<
-    "union",
+    "group",
     {
       parentId: EntityId.Type;
       logicalOp: Operators.LogicalOp.Type;
@@ -25,7 +25,7 @@ export namespace Union {
     }
   >;
   export type Encoded = Entity.Type<
-    "union",
+    "group",
     {
       parentId: EntityId.Encoded;
       logicalOp: typeof Operators.LogicalOp.Encoded;
@@ -33,18 +33,20 @@ export namespace Union {
     }
   >;
 }
-export const RootUnion = Entity.make("rootUnion", {
+export const RootGroup = Entity.make("root", {
   logicalOp: Operators.LogicalOp,
-  rules: S.mutable(S.Array(S.Union(Rule, Union))),
+  rules: S.mutable(S.Array(S.Union(Rule, RuleGroup))),
 }).pipe(S.mutable);
-export namespace RootUnion {
-  export type Type = typeof RootUnion.Type;
-  export type Encoded = typeof RootUnion.Encoded;
+
+export namespace RootGroup {
+  export type Type = typeof RootGroup.Type;
+  export type Encoded = typeof RootGroup.Encoded;
 }
-export const UnionInput = S.Struct({
+
+export const GroupInput = S.Struct({
   logicalOp: Operators.LogicalOp,
 });
-export namespace UnionInput {
-  export type Type = typeof UnionInput.Type;
-  export type Encoded = typeof UnionInput.Encoded;
+export namespace GroupInput {
+  export type Type = typeof GroupInput.Type;
+  export type Encoded = typeof GroupInput.Encoded;
 }

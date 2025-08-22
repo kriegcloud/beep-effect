@@ -319,9 +319,9 @@ export namespace IsNotObject {
 }
 
 /**
- * Logical operator for unions.
- * - Controls how child rules/unions are combined: `and` or `or`.
- * - Used by `Union` / `RootUnion` in `union.ts`.
+ * Logical operator for groups.
+ * - Controls how child rules/groups are combined: `and` or `or`.
+ * - Used by `RuleGroup` / `RootGroup` in `group.ts`.
  */
 export const LogicalOp = S.Literal("and", "or").pipe(S.mutable);
 

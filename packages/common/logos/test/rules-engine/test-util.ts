@@ -1,84 +1,84 @@
-import { addRuleToUnion, addUnionToUnion, createRoot } from "@beep/logos";
+import { addGroupToRoot, addRuleToGroup, createRootGroup } from "@beep/logos";
 
 export function buildSampleRoot() {
-  const root = createRoot({ logicalOp: "and" });
+  const root = createRootGroup({ logicalOp: "and" });
 
-  const union = addUnionToUnion(root, { logicalOp: "and" });
-  const firstRule = addRuleToUnion(union, {
+  const group = addGroupToRoot(root, { logicalOp: "and" });
+  const firstRule = addRuleToGroup(group, {
     field: "number",
     op: { _tag: "gt" },
     _tag: "number",
     value: 18,
   });
-  addRuleToUnion(union, {
+  addRuleToGroup(group, {
     field: "number",
     op: { _tag: "lt" },
     _tag: "number",
     value: 30,
   });
-  addRuleToUnion(root, {
+  addRuleToGroup(root, {
     field: "string",
     op: { _tag: "in" },
     _tag: "string",
     value: "bob",
     ignoreCase: false,
   });
-  addRuleToUnion(root, {
+  addRuleToGroup(root, {
     field: "boolean",
     op: {
       _tag: "isTrue",
     },
     _tag: "boolean",
   });
-  addRuleToUnion(root, {
+  addRuleToGroup(root, {
     field: "array",
     op: { _tag: "in" },
     _tag: "arrayValue",
     value: "alice",
   });
-  addRuleToUnion(root, {
+  addRuleToGroup(root, {
     field: "array",
     op: { _tag: "eq" },
     _tag: "arrayLength",
     value: 1,
   });
-  addRuleToUnion(root, {
+  addRuleToGroup(root, {
     field: "object",
     op: { _tag: "in" },
     _tag: "objectKey",
     value: "name",
   });
-  addRuleToUnion(root, {
+  addRuleToGroup(root, {
     field: "object",
     op: { _tag: "in" },
     _tag: "objectValue",
     value: "bob",
   });
-  addRuleToUnion(root, {
+  addRuleToGroup(root, {
     field: "object",
     op: { _tag: "in" },
     _tag: "objectKeyValue",
     value: { key: "name", value: "bob" },
   });
-  addRuleToUnion(root, {
+  addRuleToGroup(root, {
     field: "generic",
     op: { _tag: "eq" },
     _tag: "genericComparison",
     value: "bob",
   });
-  addRuleToUnion(root, {
+  addRuleToGroup(root, {
     field: "generic",
     op: { _tag: "isTruthy" },
     _tag: "genericType",
   });
-  const orUnion = addUnionToUnion(root, { logicalOp: "or" });
-  addRuleToUnion(orUnion, {
+  const orGroup = addGroupToRoot(root, { logicalOp: "or" });
+  addRuleToGroup(orGroup, {
     field: "number",
     op: { _tag: "lt" },
     _tag: "number",
     value: 30,
   });
-  addRuleToUnion(orUnion, {
+  addRuleToGroup(orGroup, {
     field: "string",
     op: { _tag: "in" },
     _tag: "string",

@@ -1,5 +1,5 @@
-import { createRoot } from "@beep/logos/createRoot";
-import { addRuleToUnion } from "@beep/logos/crud";
+import { createRootGroup } from "@beep/logos/createRootGroup";
+import { addRuleToGroup } from "@beep/logos/crud";
 import { prepare, runPrepared } from "@beep/logos/prepare";
 import { run } from "@beep/logos/run";
 import { buildSampleRoot } from "@beep/logos/test/rules-engine/test-util";
@@ -53,19 +53,19 @@ describe("prepare / runPrepared", () => {
   });
 
   test("empty rules returns true", () => {
-    const emptyRoot = createRoot({ logicalOp: "and" });
+    const emptyRoot = createRootGroup({ logicalOp: "and" });
     const prepared = runPrepared(emptyRoot, {});
     expect(prepared).toBe(true);
   });
 
   test("or short-circuit avoids missing-field throw", () => {
-    const root = createRoot({ logicalOp: "or" });
-    addRuleToUnion(root, {
+    const root = createRootGroup({ logicalOp: "or" });
+    addRuleToGroup(root, {
       field: "present",
       op: { _tag: "isTruthy" },
       _tag: "genericType",
     });
-    addRuleToUnion(root, {
+    addRuleToGroup(root, {
       field: "missing",
       op: { _tag: "in" },
       _tag: "string",

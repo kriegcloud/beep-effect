@@ -7,58 +7,58 @@ import { v4 as uuid } from "uuid";
 import type { EntityId } from "./internal";
 import {
   findAnyByIdFast,
+  findGroupByIdFast,
   findRuleByIdFast,
-  findUnionByIdFast,
   getIdIndex,
   invalidateIdIndex,
 } from "./internal/idIndex";
+import { GroupInput, type RootGroup, RuleGroup } from "./ruleGroup";
 import { Rule, RuleInput } from "./rules";
 import type {
   AnyEntityOrUndefined,
-  AnyUnion,
-  AnyUnionOrUndefined,
+  RuleOrRuleGroup,
+  RuleOrRuleGroupInput,
   RuleOrUndefined,
-  RuleOrUnion,
-  RuleOrUnionInput,
+  TreeOrRuleGroup,
+  TreeOrRuleGroupOrUndefined,
 } from "./types";
-import { type RootUnion, Union, UnionInput } from "./union";
 
 /**
- * Find a rule or a union by id.
+ * Find a rule or a group by id.
  * @export
- * @param {(AnyUnion)} union
+ * @param {(TreeOrRuleGroup)} group
  * @param {string} id
  * @return {*}  {(AnyEntityOrUndefined)}
  */
 
 export const findAnyById = (
-  union: AnyUnion,
+  group: TreeOrRuleGroup,
   id: EntityId.Type,
 ): AnyEntityOrUndefined => {
-  if (union.id === id) {
-    return union;
+  if (group.id === id) {
+    return group;
   }
 
-  // Fast path via HashMap index when called with a root union
-  if (union.entity === "rootUnion") {
-    const fast = findAnyByIdFast(union, id);
+  // Fast path via HashMap index when called with a root group
+  if (group.entity === "root") {
+    const fast = findAnyByIdFast(group, id);
     if (fast !== undefined) return fast;
   }
 
   return A.reduce(
-    union.rules,
+    group.rules,
     undefined as AnyEntityOrUndefined,
-    (foundUnion, ruleOrUnion) => {
-      if (foundUnion) {
-        return foundUnion;
+    (foundGroup, ruleOrGroup) => {
+      if (foundGroup) {
+        return foundGroup;
       }
-      if (ruleOrUnion.id === id) {
-        return ruleOrUnion;
+      if (ruleOrGroup.id === id) {
+        return ruleOrGroup;
       }
-      if (ruleOrUnion.entity === "union") {
-        return findAnyById(ruleOrUnion, id);
+      if (ruleOrGroup.entity === "group") {
+        return findAnyById(ruleOrGroup, id);
       }
-      return foundUnion;
+      return foundGroup;
     },
   );
 };
@@ -66,105 +66,105 @@ export const findAnyById = (
 /**
  * Find a rule by id.
  * @export
- * @param {AnyUnion} union
+ * @param {TreeOrRuleGroup} group
  * @param {EntityId.Type} id
  * @return {*}  {(RuleOrUndefined)}
  */
 export const findRuleById = (
-  union: AnyUnion,
+  group: TreeOrRuleGroup,
   id: EntityId.Type,
 ): RuleOrUndefined =>
-  union.entity === "rootUnion"
+  group.entity === "root"
     ? (() => {
-        const fast = findRuleByIdFast(union, id);
+        const fast = findRuleByIdFast(group, id);
         if (fast !== undefined) return fast;
         return A.reduce(
-          union.rules,
+          group.rules,
           undefined as RuleOrUndefined,
-          (foundRule, ruleOrUnion) => {
+          (foundRule, ruleOrGroup) => {
             if (foundRule) {
               return foundRule;
             }
 
-            if (ruleOrUnion.entity === "rule") {
-              return ruleOrUnion.id === id ? ruleOrUnion : undefined;
+            if (ruleOrGroup.entity === "rule") {
+              return ruleOrGroup.id === id ? ruleOrGroup : undefined;
             }
-            return findRuleById(ruleOrUnion, id);
+            return findRuleById(ruleOrGroup, id);
           },
         );
       })()
     : A.reduce(
-        union.rules,
+        group.rules,
         undefined as RuleOrUndefined,
-        (foundRule, ruleOrUnion) => {
+        (foundRule, ruleOrGroup) => {
           if (foundRule) {
             return foundRule;
           }
 
-          if (ruleOrUnion.entity === "rule") {
-            return ruleOrUnion.id === id ? ruleOrUnion : undefined;
+          if (ruleOrGroup.entity === "rule") {
+            return ruleOrGroup.id === id ? ruleOrGroup : undefined;
           }
-          return findRuleById(ruleOrUnion, id);
+          return findRuleById(ruleOrGroup, id);
         },
       );
 
 /**
- * Find a union by id.
+ * Find a group by id.
  * @export
- * @param {(RootUnion | Union)} union
+ * @param {(RootGroup | RuleGroup)} group
  * @param {string} id
- * @return {*}  {(RootUnion | Union | undefined)}
+ * @return {*}  {(RootGroup | RuleGroup | undefined)}
  */
-export function findUnionById(
-  union: AnyUnion,
+export function findGroupById(
+  group: TreeOrRuleGroup,
   id: string,
-): AnyUnionOrUndefined {
-  if (union.id === id) {
-    return union;
+): TreeOrRuleGroupOrUndefined {
+  if (group.id === id) {
+    return group;
   }
-  if (union.entity === "rootUnion") {
-    const fast = findUnionByIdFast(union, id);
+  if (group.entity === "root") {
+    const fast = findGroupByIdFast(group, id);
     if (fast !== undefined) return fast;
   }
   return A.reduce(
-    union.rules,
-    undefined as AnyUnionOrUndefined,
-    (foundUnion, ruleOrUnion) => {
-      if (foundUnion || ruleOrUnion.entity === "rule") {
-        return foundUnion;
+    group.rules,
+    undefined as TreeOrRuleGroupOrUndefined,
+    (foundGroup, ruleOrGroup) => {
+      if (foundGroup || ruleOrGroup.entity === "rule") {
+        return foundGroup;
       }
-      if (ruleOrUnion.id === id) {
-        return ruleOrUnion;
+      if (ruleOrGroup.id === id) {
+        return ruleOrGroup;
       }
-      return findUnionById(ruleOrUnion, id);
+      return findGroupById(ruleOrGroup, id);
     },
   );
 }
 
 /**
- * Removes all rules or unions from a union and nested unions by id.
- * Mutates the original union.
+ * Removes all rules or groups from a group and nested groups by id.
+ * Mutates the original group.
  * @export
  * @template T
- * @param {T} union
+ * @param {T} group
  * @param {string} id
  * @return {*}  {T}
  */
-export function removeAllById<T extends AnyUnion>(
-  union: T,
+export function removeAllById<T extends TreeOrRuleGroup>(
+  group: T,
   id: EntityId.Type,
 ): T {
-  for (let i = union.rules.length - 1; i >= 0; i--) {
-    const child = O.fromNullable(union.rules[i]).pipe(O.getOrThrow);
+  for (let i = group.rules.length - 1; i >= 0; i--) {
+    const child = O.fromNullable(group.rules[i]).pipe(O.getOrThrow);
     if (child.id === id) {
-      union.rules.splice(i, 1);
+      group.rules.splice(i, 1);
       continue;
     }
-    if (child.entity === "union") {
+    if (child.entity === "group") {
       removeAllById(child, id);
     }
   }
-  return union;
+  return group;
 }
 
 /**
@@ -172,13 +172,13 @@ export function removeAllById<T extends AnyUnion>(
  * If the rule is not found, return undefined.
  * Mutates the root object.
  * @export
- * @param {RootUnion.Type} root
+ * @param {RootGroup.Type} root
  * @param {EntityId.Type} id
  * @param {RuleInput.Type} values
  * @return {*}  {(RuleOrUndefined)}
  */
 export const updateRuleById = (
-  root: RootUnion.Type,
+  root: RootGroup.Type,
   id: EntityId.Type,
   values: RuleInput.Type,
 ): RuleOrUndefined => {
@@ -188,7 +188,7 @@ export const updateRuleById = (
   }
 
   // Respect parentId semantics: if parentId is invalid, bail out
-  const parent = findUnionById(root, foundRule.parentId);
+  const parent = findGroupById(root, foundRule.parentId);
   if (!parent) {
     return;
   }
@@ -213,35 +213,35 @@ export const updateRuleById = (
 };
 
 /**
- * Update a union by id.
- * If the union is not found, return undefined.
+ * Update a group by id.
+ * If the group is not found, return undefined.
  * Mutates the root object.
  * @export
- * @param {RootUnion} root
+ * @param {RootGroup} root
  * @param {string} id
- * @param {UnionInput.Type} values
- * @return {*}  {(Union | RootUnion | undefined)}
+ * @param {GroupInput.Type} values
+ * @return {*}  {(RuleGroup | RootGroup | undefined)}
  */
-export const updateUnionById = (
-  root: RootUnion.Type,
+export const updateGroupById = (
+  root: RootGroup.Type,
   id: EntityId.Type,
-  values: UnionInput.Type,
-): AnyUnionOrUndefined => {
-  const foundUnion = findUnionById(root, id);
-  if (!foundUnion) {
+  values: GroupInput.Type,
+): TreeOrRuleGroupOrUndefined => {
+  const foundGroup = findGroupById(root, id);
+  if (!foundGroup) {
     return;
   }
 
-  // If updating the root union, mutate it directly
-  if (foundUnion.entity === "rootUnion") {
-    foundUnion.logicalOp = values.logicalOp;
+  // If updating the root group, mutate it directly
+  if (foundGroup.entity === "root") {
+    foundGroup.logicalOp = values.logicalOp;
     // Conservative: invalidate to reflect updated reference/props
     invalidateIdIndex(root);
-    return foundUnion;
+    return foundGroup;
   }
 
   // Otherwise, update the child within its parent in place
-  const parent = findUnionById(root, foundUnion.parentId);
+  const parent = findGroupById(root, foundGroup.parentId);
   if (!parent) {
     return;
   }
@@ -254,22 +254,22 @@ export const updateUnionById = (
   if (idx === undefined) {
     return;
   }
-  const next = { ...(parent.rules[idx] as Union.Type), ...values };
+  const next = { ...(parent.rules[idx] as RuleGroup.Type), ...values };
   parent.rules[idx] = next;
   invalidateIdIndex(root);
   return next;
 };
 
 /**
- * Add a rule to a union.
- * This function will mutate the parent union.
+ * Add a rule to a group.
+ * This function will mutate the parent group.
  * @export
- * @param {AnyUnion} parent
+ * @param {TreeOrRuleGroup} parent
  * @param {RuleInput.Type} newRule
  * @return {*}  {Rule.Type}
  */
-export function addRuleToUnion(
-  parent: AnyUnion,
+export function addRuleToGroup(
+  parent: TreeOrRuleGroup,
   newRule: RuleInput.Type,
 ): Rule.Type {
   const rule = F.pipe(
@@ -287,91 +287,91 @@ export function addRuleToUnion(
 }
 
 /**
- * Add a new union to a union.
- * This function will mutate the parent union.
+ * Add a new group to a group.
+ * This function will mutate the parent group.
  * @export
- * @param {AnyUnion} parent
- * @param {UnionInput.Type} newUnion
- * @return {*}  {Union.Type}
+ * @param {TreeOrRuleGroup} parent
+ * @param {GroupInput.Type} newGroup
+ * @return {*}  {RuleGroup.Type}
  */
-export function addUnionToUnion(
-  parent: AnyUnion,
-  newUnion: UnionInput.Type,
-): Union.Type {
-  const union = S.decodeSync(Union)({
-    ...newUnion,
+export function addGroupToRoot(
+  parent: TreeOrRuleGroup,
+  newGroup: GroupInput.Type,
+): RuleGroup.Type {
+  const group = S.decodeSync(RuleGroup)({
+    ...newGroup,
     id: uuid(),
     parentId: parent.id,
-    entity: "union",
+    entity: "group",
     rules: [],
   });
-  parent.rules.push(union);
-  return union;
+  parent.rules.push(group);
+  return group;
 }
 
 /**
- * Add a rule to a union.
- * This function will mutate the union.
+ * Add a rule to a group.
+ * This function will mutate the group.
  * @export
- * @param {(RootUnion | Union)} parent
- * @param {RuleOrUnionInput} newRuleOrUnion
- * @return {*}  {RuleOrUnion}
+ * @param {(RootGroup | RuleGroup)} parent
+ * @param {RuleOrRuleGroupInput} newRuleOrRuleGroup
+ * @return {*}  {RuleOrRuleGroup}
  */
-export function addAnyToUnion(
-  parent: AnyUnion,
-  newRuleOrUnion: RuleOrUnionInput,
-): RuleOrUnion {
+export function addAnyToGroup(
+  parent: TreeOrRuleGroup,
+  newRuleOrRuleGroup: RuleOrRuleGroupInput,
+): RuleOrRuleGroup {
   const isNewRule = (
-    ruleOrUnion: RuleOrUnionInput,
-  ): ruleOrUnion is RuleInput.Type => S.is(RuleInput)(ruleOrUnion);
+    ruleOrGroup: RuleOrRuleGroupInput,
+  ): ruleOrGroup is RuleInput.Type => S.is(RuleInput)(ruleOrGroup);
 
-  if (isNewRule(newRuleOrUnion)) {
-    return addRuleToUnion(parent, newRuleOrUnion);
+  if (isNewRule(newRuleOrRuleGroup)) {
+    return addRuleToGroup(parent, newRuleOrRuleGroup);
   }
 
-  return addUnionToUnion(parent, S.decodeSync(UnionInput)(newRuleOrUnion));
+  return addGroupToRoot(parent, S.decodeSync(GroupInput)(newRuleOrRuleGroup));
 }
 
 /**
- * Add many rules or unions to a union.
- * This function will mutate the parent union.
+ * Add many rules or groups to a group.
+ * This function will mutate the parent group.
  * @export
- * @param {(RootUnion | Union)} parent
- * @param {(Array<RuleOrUnionInput>)} newRulesOrUnions
- * @return {*}  {(Array<RuleOrUnion>)}
+ * @param {(RootGroup | RuleGroup)} parent
+ * @param {(Array<RuleOrRuleGroupInput>)} newRulesOrGroups
+ * @return {*}  {(Array<RuleOrRuleGroup>)}
  */
-export const addManyToUnion = (
-  parent: AnyUnion,
-  newRulesOrUnions: Array<RuleOrUnionInput>,
-): Array<RuleOrUnion> =>
-  A.map(newRulesOrUnions, (newRuleOrUnion) =>
-    addAnyToUnion(parent, newRuleOrUnion),
+export const addManyToGroup = (
+  parent: TreeOrRuleGroup,
+  newRulesOrGroups: Array<RuleOrRuleGroupInput>,
+): Array<RuleOrRuleGroup> =>
+  A.map(newRulesOrGroups, (newRuleOrRuleGroup) =>
+    addAnyToGroup(parent, newRuleOrRuleGroup),
   );
 
 /**
- * Add many rules to a union.
- * This function will mutate the parent union.
+ * Add many rules to a group.
+ * This function will mutate the parent group.
  * @export
- * @param {AnyUnion} parent
+ * @param {TreeOrRuleGroup} parent
  * @param {Array<RuleInput.Type>} newRules
  * @return {*}  {Array<Rule.Type>}
  */
-export const addRulesToUnion = (
-  parent: AnyUnion,
+export const addRulesToGroup = (
+  parent: TreeOrRuleGroup,
   newRules: Array<RuleInput.Type>,
 ): Array<Rule.Type> =>
-  A.map(newRules, (newRule) => addRuleToUnion(parent, newRule));
+  A.map(newRules, (newRule) => addRuleToGroup(parent, newRule));
 
 /**
- * Add many unions to a union.
- * This function will mutate the parent union.
+ * Add many groups to a group.
+ * This function will mutate the parent group.
  * @export
- * @param {AnyUnion} parent
- * @param {Array<UnionInput.Type>} newUnions
- * @return {*}  {Array<Union.Type>}
+ * @param {TreeOrRuleGroup} parent
+ * @param {Array<GroupInput.Type>} newGroups
+ * @return {*}  {Array<RuleGroup.Type>}
  */
-export const addUnionsToUnion = (
-  parent: AnyUnion,
-  newUnions: Array<UnionInput.Type>,
-): Array<Union.Type> =>
-  A.map(newUnions, (newUnion) => addUnionToUnion(parent, newUnion));
+export const addGroupsToRoot = (
+  parent: TreeOrRuleGroup,
+  newGroups: Array<GroupInput.Type>,
+): Array<RuleGroup.Type> =>
+  A.map(newGroups, (newGroup) => addGroupToRoot(parent, newGroup));

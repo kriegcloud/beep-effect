@@ -1,13 +1,13 @@
-import { createRoot } from "@beep/logos/createRoot";
-import { addRuleToUnion, addUnionToUnion } from "@beep/logos/crud";
+import { createRootGroup } from "@beep/logos/createRootGroup";
+import { addGroupToRoot, addRuleToGroup } from "@beep/logos/crud";
 import { validate } from "@beep/logos/validate";
 import { v4 as uuid } from "uuid";
 import { expect, test } from "vitest";
 
 test("rules engine passes validation", () => {
-  const root = createRoot({ logicalOp: "and" });
-  addUnionToUnion(root, { logicalOp: "and" });
-  addRuleToUnion(root, {
+  const root = createRootGroup({ logicalOp: "and" });
+  addGroupToRoot(root, { logicalOp: "and" });
+  addRuleToGroup(root, {
     field: "number",
     op: { _tag: "gt" },
     _tag: "number",
@@ -18,11 +18,11 @@ test("rules engine passes validation", () => {
   expect(result.isValid).toBeTruthy();
 });
 
-test("rules engine validation fails validation with invalid union", () => {
-  const root = createRoot({ logicalOp: "and" });
+test("rules engine validation fails validation with invalid group", () => {
+  const root = createRootGroup({ logicalOp: "and" });
 
   root.rules.push({
-    entity: "union",
+    entity: "group",
     id: uuid(),
     // @ts-expect-error
     logicalOp: "neither",
@@ -36,7 +36,7 @@ test("rules engine validation fails validation with invalid union", () => {
 });
 
 test("rules engine validation fails validation with invalid rule", () => {
-  const root = createRoot({ logicalOp: "and" });
+  const root = createRootGroup({ logicalOp: "and" });
 
   root.rules.push({
     entity: "rule",

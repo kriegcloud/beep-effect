@@ -8,14 +8,14 @@ import * as R from "effect/Record";
 import * as Str from "effect/String";
 import { fingerprint } from "./internal/fingerprint";
 import { normalize } from "./normalize";
+import type { RootGroup, RuleGroup } from "./ruleGroup";
 import * as Rules from "./rules";
-import type { RootUnion, Union } from "./union";
-import { isObject } from "./utils/is-object";
+import { isPlainObject } from "./utils/is-plain-object";
 import { validate } from "./validate";
 export type Runner = (value: unknown) => boolean;
 
 type CacheEntry = { runner: Runner; fp: string };
-const cache = new WeakMap<RootUnion.Type, CacheEntry>();
+const cache = new WeakMap<RootGroup.Type, CacheEntry>();
 
 function compileRule(rule: Rules.Rule.Type): Runner {
   // Pre-resolve a fast field accessor (direct key access)
@@ -57,19 +57,19 @@ function compileRule(rule: Rules.Rule.Type): Runner {
         ),
       objectKey: (r) => (v: any) =>
         F.pipe(get(v), (resolved) =>
-          isObject(resolved)
+          isPlainObject(resolved)
             ? Rules.ObjectKeyRule.validate(r, resolved)
             : false,
         ),
       objectValue: (r) => (v: any) =>
         F.pipe(get(v), (resolved) =>
-          isObject(resolved)
+          isPlainObject(resolved)
             ? Rules.ObjectValueRule.validate(r, resolved)
             : false,
         ),
       objectKeyValue: (r) => (v: any) =>
         F.pipe(get(v), (resolved) =>
-          isObject(resolved)
+          isPlainObject(resolved)
             ? Rules.ObjectKeyValueRule.validate(r, resolved)
             : false,
         ),
@@ -88,10 +88,10 @@ function compileRule(rule: Rules.Rule.Type): Runner {
   );
 }
 
-function compileUnion(u: Union.Type | RootUnion.Type): Runner {
+function compileGroup(u: RuleGroup.Type | RootGroup.Type): Runner {
   const children: Runner[] = u.rules.map((child) =>
-    child.entity === "union"
-      ? compileUnion(child)
+    child.entity === "group"
+      ? compileGroup(child)
       : compileRule(child as Rules.Rule.Type),
   );
 
@@ -117,7 +117,7 @@ function compileUnion(u: Union.Type | RootUnion.Type): Runner {
   };
 }
 
-export function prepare(root: RootUnion.Type): Runner {
+export function prepare(root: RootGroup.Type): Runner {
   const cached = cache.get(root);
   const currentFp = fingerprint(root);
   if (cached && cached.fp === currentFp) return cached.runner;
@@ -130,18 +130,18 @@ export function prepare(root: RootUnion.Type): Runner {
   // Normalize once for predictable structure; mutates in place.
   normalize(root);
 
-  const runner = compileUnion(root);
+  const runner = compileGroup(root);
   const entry: CacheEntry = { runner, fp: fingerprint(root) };
   cache.set(root, entry);
   return entry.runner;
 }
 
-export function runPrepared(root: RootUnion.Type, value: unknown): boolean {
+export function runPrepared(root: RootGroup.Type, value: unknown): boolean {
   return prepare(root)(value);
 }
 
-// Internal export for in-package use (e.g., run.ts) to compile unions without
+// Internal export for in-package use (e.g., run.ts) to compile groups without
 // validation or caching. Not re-exported from index.ts to keep public API clean.
-export function createRunner(u: Union.Type | RootUnion.Type): Runner {
-  return compileUnion(u);
+export function createRunner(u: RuleGroup.Type | RootGroup.Type): Runner {
+  return compileGroup(u);
 }

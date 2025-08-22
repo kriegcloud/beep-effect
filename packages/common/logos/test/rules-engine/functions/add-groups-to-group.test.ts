@@ -1,0 +1,21 @@
+import type { GroupInput } from "@beep/logos";
+import { createRootGroup } from "@beep/logos/createRootGroup";
+import { addGroupsToRoot } from "@beep/logos/crud";
+import { expect, test } from "vitest";
+
+test("groups are added to a group", () => {
+  const root = createRootGroup({ logicalOp: "and" });
+  const newGroupA: GroupInput.Type = {
+    logicalOp: "and",
+  };
+  const newGroupB: GroupInput.Type = {
+    logicalOp: "or",
+  };
+  expect(root.rules.length).toBe(0);
+  const rules = addGroupsToRoot(root, [newGroupA, newGroupB]);
+  expect(root.rules.length).toBe(2);
+  rules.forEach((rule, index) => {
+    expect(root.rules[index]).toBe(rule);
+    expect(rule.parentId).toBe(root.id);
+  });
+});

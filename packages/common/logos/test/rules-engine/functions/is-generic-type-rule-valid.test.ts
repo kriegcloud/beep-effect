@@ -12,7 +12,7 @@ test("value is truth", () => {
   expect(result).toBeTruthy();
 });
 
-test("value is falsey", () => {
+test("value is falsy", () => {
   const rule: GenericTypeRule.Input = {
     field: "name",
     op: {
