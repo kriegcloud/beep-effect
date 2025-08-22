@@ -1,4 +1,4 @@
-import { RootGroup } from "@beep/logos";
+import { RootGroup, Rule } from "@beep/logos";
 import {
   addGroupToRoot,
   addRuleToGroup,
@@ -9,20 +9,24 @@ import { v4 as uuid } from "uuid";
 import { expect, test } from "vitest";
 
 const root = RootGroup.make({ logicalOp: "or" });
-addRuleToGroup(root, {
-  field: "name",
-  op: { _tag: "in" },
-  type: "string",
-  value: "bob",
-  ignoreCase: false,
-});
-addRuleToGroup(root, {
-  field: "name",
-  op: { _tag: "in" },
-  type: "string",
-  value: "alice",
-  ignoreCase: false,
-});
+addRuleToGroup(
+  root,
+  Rule.string({
+    field: "name",
+    op: { _tag: "in" },
+    value: "bob",
+    ignoreCase: false,
+  }),
+);
+addRuleToGroup(
+  root,
+  Rule.string({
+    field: "name",
+    op: { _tag: "in" },
+    value: "alice",
+    ignoreCase: false,
+  }),
+);
 const group = addGroupToRoot(root, { logicalOp: "and" });
 
 test("update a group that exists", () => {

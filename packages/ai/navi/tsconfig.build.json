@@ -30,6 +30,9 @@
       "path": "../../common/utils/tsconfig.build.json"
     },
     {
+      "path": "../../common/logos/tsconfig.build.json"
+    },
+    {
       "path": "../../ui/tsconfig.build.json"
     },
     {

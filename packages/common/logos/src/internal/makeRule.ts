@@ -1,8 +1,8 @@
 import type { StringTypes, StructTypes } from "@beep/types";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import { Node, NodeId } from "./Node";
-
 export type RuleType<
   Type extends StringTypes.NonEmptyString<string>,
   Fields extends StructTypes.StructFieldsWithStringKeys,
@@ -50,6 +50,10 @@ export const makeRule = <
     type: S.Literal(type),
     parentId: NodeId,
     ...fields,
+  }).annotations({
+    identifier: `${Str.capitalize(type)}Rule`,
+    title: `${Str.capitalize(type)} Rule`,
+    description: `Rule for ${type}'s in the rules engine.`,
   });
 
   return {

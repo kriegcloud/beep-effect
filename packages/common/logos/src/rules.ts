@@ -441,7 +441,7 @@ export namespace DateRule {
     );
 }
 
-export const Rule = S.Union(
+export class Rule extends S.Union(
   StringRule.Rule,
   NumberRule.Rule,
   BooleanRule.Rule,
@@ -453,7 +453,82 @@ export const Rule = S.Union(
   GenericComparisonRule.Rule,
   GenericTypeRule.Rule,
   DateRule.Rule,
-);
+) {
+  static readonly string = (rule: Omit<StringRule.Input, "type">) =>
+    StringRule.Input.make({
+      type: "string",
+      ...rule,
+    });
+
+  static readonly number = ({
+    op,
+    ...rule
+  }: Omit<NumberRule.Input, "type" | "op"> & {
+    op: NumberRule.Input["op"]["_tag"];
+  }) =>
+    NumberRule.Input.make({
+      type: "number",
+      op: {
+        _tag: op,
+      },
+      ...rule,
+    });
+
+  static readonly boolean = (rule: Omit<BooleanRule.Input, "type">) =>
+    BooleanRule.Input.make({
+      type: "boolean",
+      ...rule,
+    });
+
+  static readonly arrayValue = (rule: Omit<ArrayValueRule.Input, "type">) =>
+    ArrayValueRule.Input.make({
+      type: "arrayValue",
+      ...rule,
+    });
+
+  static readonly arrayLength = (rule: Omit<ArrayLengthRule.Input, "type">) =>
+    ArrayLengthRule.Input.make({
+      type: "arrayLength",
+      ...rule,
+    });
+
+  static readonly hasKey = (rule: Omit<HasKeyRule.Input, "type">) =>
+    HasKeyRule.Input.make({
+      type: "hasKey",
+      ...rule,
+    });
+
+  static readonly hasValue = (rule: Omit<HasValueRule.Input, "type">) =>
+    HasValueRule.Input.make({
+      type: "hasValue",
+      ...rule,
+    });
+
+  static readonly hasEntry = (rule: Omit<HasEntryRule.Input, "type">) =>
+    HasEntryRule.Input.make({
+      type: "hasEntry",
+      ...rule,
+    });
+
+  static readonly genericComparison = (
+    rule: Omit<GenericComparisonRule.Input, "type">,
+  ) =>
+    GenericComparisonRule.Input.make({
+      type: "genericComparison",
+      ...rule,
+    });
+
+  static readonly genericType = (rule: Omit<GenericTypeRule.Input, "type">) =>
+    GenericTypeRule.Input.make({
+      type: "genericType",
+      ...rule,
+    });
+  static readonly date = (rule: Omit<DateRule.Input, "type">) =>
+    DateRule.Input.make({
+      type: "date",
+      ...rule,
+    });
+}
 export namespace Rule {
   export type Type = typeof Rule.Type;
   export type Encoded = typeof Rule.Encoded;

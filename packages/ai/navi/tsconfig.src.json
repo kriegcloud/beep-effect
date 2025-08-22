@@ -15,6 +15,9 @@
       "path": "../../common/utils"
     },
     {
+      "path": "../../common/logos"
+    },
+    {
       "path": "../../ui"
     },
     {
@@ -45,6 +48,8 @@
       "@beep/invariant/*": ["../../common/invariant/src/*"],
       "@beep/schema": ["../../common/schema/src/index"],
       "@beep/schema/*": ["../../common/schema/src/*"],
+      "@beep/logos": ["../../common/logos/src/index"],
+      "@beep/logos/*": ["../../common/logos/src/*"],
       "@beep/ui/*": ["../../ui/src/*"],
       "@beep/env/client": ["../../env/client"]
     }

@@ -3,9 +3,24 @@ import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 
 export const AllAcceptableDateInputs = S.Union(
-  S.DateFromSelf,
-  S.DateFromString,
-  S.DateFromNumber,
+  S.DateFromSelf.annotations({
+    jsonSchema: {
+      type: "string",
+      format: "date-time",
+    },
+  }),
+  S.DateFromString.annotations({
+    jsonSchema: {
+      type: "string",
+      format: "date-time",
+    },
+  }),
+  S.DateFromNumber.annotations({
+    jsonSchema: {
+      type: "number",
+      format: "timestamp",
+    },
+  }),
 );
 export namespace AllAcceptableDateInputs {
   export type Type = typeof AllAcceptableDateInputs.Type;
@@ -27,7 +42,12 @@ export const DateFromAllAcceptable = S.transformOrFail(
       }),
     encode: (i, _, ast) => ParseResult.succeed(i),
   },
-);
+).annotations({
+  jsonSchema: {
+    type: "string",
+    format: "date-time",
+  },
+});
 
 export namespace DateFromAllAcceptable {
   export type Type = typeof DateFromAllAcceptable.Type;
@@ -59,7 +79,12 @@ export const DateTimeUtcFromAllAcceptable = S.transformOrFail(
         ),
       ),
   },
-);
+).annotations({
+  jsonSchema: {
+    type: "string",
+    format: "date-time",
+  },
+});
 
 export namespace DateTimeUtcFromAllAcceptable {
   export type Type = typeof DateTimeUtcFromAllAcceptable.Type;

@@ -4,7 +4,7 @@ import { v4 as uuid } from "uuid";
 import { Node, NodeId } from "./internal";
 import * as Operators from "./operators";
 import { Rule } from "./rules";
-export const RuleGroup = Node.make("group", {
+export class RuleGroup extends Node.make("group", {
   parentId: NodeId,
   logicalOp: Operators.LogicalOp,
   rules: S.mutable(
@@ -15,7 +15,8 @@ export const RuleGroup = Node.make("group", {
       ),
     ),
   ),
-});
+}) {}
+
 export namespace RuleGroup {
   export type Type = Node.Type<
     "group",

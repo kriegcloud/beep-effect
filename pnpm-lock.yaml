@@ -316,6 +316,9 @@ importers:
       '@beep/invariant':
         specifier: workspace:^
         version: link:../../common/invariant/build
+      '@beep/logos':
+        specifier: workspace:^
+        version: link:../../common/logos/build
       '@beep/schema':
         specifier: workspace:^
         version: link:../../common/schema/build
@@ -386,9 +389,6 @@ importers:
       '@types/lodash.isplainobject':
         specifier: ^4.0.7
         version: 4.0.9
-      tsx:
-        specifier: ^4.20.4
-        version: 4.20.4
     publishDirectory: build
 
   packages/common/schema:
@@ -10793,7 +10793,7 @@ snapshots:
     dependencies:
       cipher-base: 1.0.6
       inherits: 2.0.4
-      ripemd160: 2.0.1
+      ripemd160: 2.0.2
       sha.js: 2.4.12
 
   create-hash@1.2.0:

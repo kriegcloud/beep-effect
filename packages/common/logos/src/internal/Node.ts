@@ -1,7 +1,11 @@
 import type { StringTypes, StructTypes } from "@beep/types";
 import * as S from "effect/Schema";
 
-export const NodeId = S.UUID;
+export const NodeId = S.UUID.annotations({
+  identifier: "NodeId",
+  title: "Node Id",
+  description: "Unique identifier for a node in the rules engine",
+});
 
 export namespace NodeId {
   export type Type = S.Schema.Type<typeof NodeId>;
@@ -20,6 +24,10 @@ export namespace Node {
       node: S.Literal(name),
       id: NodeId,
       ...fields,
+    }).annotations({
+      identifier: "Node",
+      title: "Node",
+      description: "Base Schema for a Node in the rules engine",
     });
 
   export type Type<
