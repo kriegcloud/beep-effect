@@ -1,6 +1,6 @@
 import { RootGroup } from "@beep/logos";
 import {
-  addGroupToRoot,
+  addGroup,
   addRuleToGroup,
   findRuleById,
   updateRuleById,
@@ -23,7 +23,7 @@ addRuleToGroup(root, {
   value: "alice",
   ignoreCase: false,
 });
-const group = addGroupToRoot(root, { logicalOp: "and" });
+const group = addGroup(root, { logicalOp: "and" });
 addRuleToGroup(group, {
   field: "age",
   op: { _tag: "gt" },

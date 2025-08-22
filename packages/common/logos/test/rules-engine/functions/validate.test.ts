@@ -1,12 +1,12 @@
 import { RootGroup, Rule } from "@beep/logos";
-import { addGroupToRoot, addRuleToGroup } from "@beep/logos/crud";
+import { addGroup, addRuleToGroup } from "@beep/logos/crud";
 import { validate } from "@beep/logos/validate";
 import { v4 as uuid } from "uuid";
 import { expect, test } from "vitest";
 
 test("rules engine passes validation", () => {
   const root = RootGroup.make({ logicalOp: "and" });
-  addGroupToRoot(root, { logicalOp: "and" });
+  addGroup(root, { logicalOp: "and" });
   addRuleToGroup(
     root,
     Rule.number({

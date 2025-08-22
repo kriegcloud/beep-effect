@@ -1,11 +1,11 @@
 import { RootGroup } from "@beep/logos";
-import { addGroupToRoot, addRuleToGroup } from "@beep/logos/crud";
+import { addGroup, addRuleToGroup } from "@beep/logos/crud";
 import { run } from "@beep/logos/run";
 import { expect, test } from "vitest";
 
 const root = RootGroup.make({ logicalOp: "and" });
 
-const group = addGroupToRoot(root, { logicalOp: "and" });
+const group = addGroup(root, { logicalOp: "and" });
 const firstRule = addRuleToGroup(group, {
   field: "number",
   op: { _tag: "gt" },
@@ -73,7 +73,7 @@ addRuleToGroup(root, {
   op: { _tag: "isTruthy" },
   type: "genericType",
 });
-const orGroup = addGroupToRoot(root, { logicalOp: "or" });
+const orGroup = addGroup(root, { logicalOp: "or" });
 addRuleToGroup(orGroup, {
   field: "number",
   op: { _tag: "lt" },

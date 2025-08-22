@@ -193,8 +193,8 @@ Caching:
 
 `src/crud.ts` provides helpers:
 - `findAnyById`, `findRuleById`, `findGroupById`
-- `addRuleToGroup`, `addGroupToRoot`, `addAnyToGroup`
-- `addManyToGroup`, `addRulesToGroup`, `addGroupsToRoot`
+- `addRuleToGroup`, `addGroup`, `addAnyToGroup`
+- `addManyToGroup`, `addRulesToGroup`, `addGroups`
 - `updateRuleById`, `updateGroupById`, `removeAllById`
 
 Fast lookups are powered by `src/internal/idIndex.ts`:

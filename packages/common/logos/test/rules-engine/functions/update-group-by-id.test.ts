@@ -1,6 +1,6 @@
 import { RootGroup, Rule } from "@beep/logos";
 import {
-  addGroupToRoot,
+  addGroup,
   addRuleToGroup,
   findGroupById,
   updateGroupById,
@@ -27,7 +27,7 @@ addRuleToGroup(
     ignoreCase: false,
   }),
 );
-const group = addGroupToRoot(root, { logicalOp: "and" });
+const group = addGroup(root, { logicalOp: "and" });
 
 test("update a group that exists", () => {
   const foundGroup = findGroupById(root, group.id);

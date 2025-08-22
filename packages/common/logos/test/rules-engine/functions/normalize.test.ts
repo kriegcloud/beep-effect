@@ -1,5 +1,5 @@
 import { RootGroup } from "@beep/logos";
-import { addGroupToRoot, addRuleToGroup } from "@beep/logos/crud";
+import { addGroup, addRuleToGroup } from "@beep/logos/crud";
 import { normalize } from "@beep/logos/normalize";
 import { v4 as uuid } from "uuid";
 import { expect, test } from "vitest";
@@ -46,7 +46,7 @@ test("normalization fixes the parent id of a rule", () => {
 test("normalization removes an invalid group", () => {
   const root = RootGroup.make({ logicalOp: "or" });
 
-  const group = addGroupToRoot(root, { logicalOp: "and" });
+  const group = addGroup(root, { logicalOp: "and" });
   addRuleToGroup(group, {
     field: "name",
     op: { _tag: "in" },
@@ -64,7 +64,7 @@ test("normalization removes an invalid group", () => {
 
 test("normalization removes an group with no rules", () => {
   const root = RootGroup.make({ logicalOp: "or" });
-  addGroupToRoot(root, { logicalOp: "and" });
+  addGroup(root, { logicalOp: "and" });
 
   expect(root.rules).toHaveLength(1);
   normalize(root);
@@ -81,7 +81,7 @@ test("normalization promotes group with 1 rule to parent level", () => {
     ignoreCase: false,
   });
 
-  const group = addGroupToRoot(root, { logicalOp: "and" });
+  const group = addGroup(root, { logicalOp: "and" });
   const rule = addRuleToGroup(group, {
     field: "name",
     op: { _tag: "in" },
@@ -109,7 +109,7 @@ test("normalization finds nothing wrong", () => {
     ignoreCase: false,
   });
 
-  const group = addGroupToRoot(root, { logicalOp: "and" });
+  const group = addGroup(root, { logicalOp: "and" });
   addRuleToGroup(group, {
     field: "name",
     op: { _tag: "in" },
@@ -147,7 +147,7 @@ test("normalization has all options turn off", () => {
     ignoreCase: false,
   });
 
-  const group = addGroupToRoot(root, { logicalOp: "and" });
+  const group = addGroup(root, { logicalOp: "and" });
   const rule: any = addRuleToGroup(group, {
     field: "name",
     op: { _tag: "in" },

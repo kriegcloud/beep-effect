@@ -1,5 +1,5 @@
 import { RootGroup } from "@beep/logos";
-import { addGroupToRoot, addRuleToGroup, findRuleById } from "@beep/logos/crud";
+import { addGroup, addRuleToGroup, findRuleById } from "@beep/logos/crud";
 
 import { v4 as uuid } from "uuid";
 import { expect, test } from "vitest";
@@ -20,7 +20,7 @@ addRuleToGroup(root, {
   value: "alice",
   ignoreCase: false,
 });
-const group = addGroupToRoot(root, { logicalOp: "and" });
+const group = addGroup(root, { logicalOp: "and" });
 
 addRuleToGroup(group, {
   field: "age",
@@ -34,7 +34,7 @@ const rule = addRuleToGroup(group, {
   type: "number",
   value: 30,
 });
-const group2 = addGroupToRoot(group, { logicalOp: "and" });
+const group2 = addGroup(group, { logicalOp: "and" });
 
 test("find root group", () => {
   const result = findRuleById(root, root.id);

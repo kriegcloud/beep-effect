@@ -294,7 +294,7 @@ export function addRuleToGroup(
  * @param {GroupInput.Type} newGroup
  * @return {*}  {RuleGroup.Type}
  */
-export function addGroupToRoot(
+export function addGroup(
   parent: RootOrRuleGroup,
   newGroup: GroupInput.Type,
 ): RuleGroup.Type {
@@ -329,7 +329,7 @@ export function addAnyToGroup(
     return addRuleToGroup(parent, newRuleOrRuleGroup);
   }
 
-  return addGroupToRoot(parent, S.decodeSync(GroupInput)(newRuleOrRuleGroup));
+  return addGroup(parent, S.decodeSync(GroupInput)(newRuleOrRuleGroup));
 }
 
 /**
@@ -370,8 +370,8 @@ export const addRulesToGroup = (
  * @param {Array<GroupInput.Type>} newGroups
  * @return {*}  {Array<RuleGroup.Type>}
  */
-export const addGroupsToRoot = (
+export const addGroups = (
   parent: RootOrRuleGroup,
   newGroups: Array<GroupInput.Type>,
 ): Array<RuleGroup.Type> =>
-  A.map(newGroups, (newGroup) => addGroupToRoot(parent, newGroup));
+  A.map(newGroups, (newGroup) => addGroup(parent, newGroup));

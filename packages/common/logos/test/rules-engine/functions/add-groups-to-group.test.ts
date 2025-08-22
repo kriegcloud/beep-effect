@@ -1,6 +1,6 @@
 import type { GroupInput } from "@beep/logos";
 import { RootGroup } from "@beep/logos";
-import { addGroupsToRoot } from "@beep/logos/crud";
+import { addGroups } from "@beep/logos/crud";
 import { expect, test } from "vitest";
 
 test("groups are added to a group", () => {
@@ -12,7 +12,7 @@ test("groups are added to a group", () => {
     logicalOp: "or",
   };
   expect(root.rules.length).toBe(0);
-  const rules = addGroupsToRoot(root, [newGroupA, newGroupB]);
+  const rules = addGroups(root, [newGroupA, newGroupB]);
   expect(root.rules.length).toBe(2);
   rules.forEach((rule, index) => {
     expect(root.rules[index]).toBe(rule);
