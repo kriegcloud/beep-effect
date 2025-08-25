@@ -1,4 +1,4 @@
-import { RootGroup, Rule } from "@beep/logos";
+import { RootGroup } from "@beep/logos";
 import { addGroup, addRuleToGroup } from "@beep/logos/crud";
 import { validate } from "@beep/logos/validate";
 import { v4 as uuid } from "uuid";
@@ -7,14 +7,14 @@ import { expect, test } from "vitest";
 test("rules engine passes validation", () => {
   const root = RootGroup.make({ logicalOp: "and" });
   addGroup(root, { logicalOp: "and" });
-  addRuleToGroup(
-    root,
-    Rule.number({
-      field: "number",
-      op: "gt",
-      value: 18,
-    }),
-  );
+  addRuleToGroup(root, {
+    type: "number",
+    field: "number",
+    op: {
+      _tag: "gt",
+    },
+    value: 18,
+  });
 
   const result = validate(root);
   expect(result.isValid).toBeTruthy();

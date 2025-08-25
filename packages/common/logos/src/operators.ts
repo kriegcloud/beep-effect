@@ -329,3 +329,47 @@ export namespace LogicalOp {
   export type Type = typeof LogicalOp.Type;
   export type Encoded = typeof LogicalOp.Encoded;
 }
+
+export const AnyOperator = S.Union(
+  Eq.Schema,
+  Ne.Schema,
+  In.Schema,
+  NotIn.Schema,
+  Every.Schema,
+  StartsWith.Schema,
+  NotStartsWith.Schema,
+  EndsWith.Schema,
+  NotEndsWith.Schema,
+  Matches.Schema,
+  IsBefore.Schema,
+  IsAfter.Schema,
+  IsBetween.Schema,
+  Gt.Schema,
+  Gte.Schema,
+  Lt.Schema,
+  Lte.Schema,
+  IsTrue.Schema,
+  IsFalse.Schema,
+  IsString.Schema,
+  IsNotString.Schema,
+  IsNumber.Schema,
+  IsNotNumber.Schema,
+  IsTruthy.Schema,
+  IsFalsy.Schema,
+  IsNull.Schema,
+  IsNotNull.Schema,
+  IsUndefined.Schema,
+  IsUndefined.Schema,
+  IsDefined.Schema,
+  IsBoolean.Schema,
+  IsNotBoolean.Schema,
+  IsArray.Schema,
+  IsNotArray.Schema,
+  IsObject.Schema,
+  IsNotObject.Schema,
+);
+
+export namespace AnyOperator {
+  export type Type = typeof AnyOperator.Type;
+  export type Encoded = typeof AnyOperator.Encoded;
+}

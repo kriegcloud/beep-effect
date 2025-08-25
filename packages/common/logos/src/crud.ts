@@ -13,6 +13,7 @@ import {
   getIdIndex,
   invalidateIdIndex,
 } from "./internal/idIndex";
+import { invalidatePrepared } from "./prepare";
 import { Rule, RuleInput } from "./rules";
 import type {
   AnyNodeOrUndefined,
@@ -209,6 +210,8 @@ export const updateRuleById = (
   // Invalidate ID index cache for this root, because we replaced the object reference
   // and value changes are not part of the structural fingerprint.
   invalidateIdIndex(root);
+  // Explicitly invalidate prepared runner cache to avoid stale runners
+  invalidatePrepared(root);
   return next;
 };
 
@@ -237,6 +240,8 @@ export const updateGroupById = (
     foundGroup.logicalOp = values.logicalOp;
     // Conservative: invalidate to reflect updated reference/props
     invalidateIdIndex(root);
+    // Group logicalOp affects evaluation; ensure runner cache is refreshed
+    invalidatePrepared(root);
     return foundGroup;
   }
 
@@ -257,6 +262,8 @@ export const updateGroupById = (
   const next = { ...(parent.rules[idx] as RuleGroup.Type), ...values };
   parent.rules[idx] = next;
   invalidateIdIndex(root);
+  // Group updates can affect evaluation ordering/logic; refresh runner cache
+  invalidatePrepared(root);
   return next;
 };
 

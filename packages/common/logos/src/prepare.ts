@@ -17,6 +17,11 @@ export type Runner = (value: unknown) => boolean;
 type CacheEntry = { runner: Runner; fp: string };
 const cache = new WeakMap<RootGroup.Type, CacheEntry>();
 
+// Explicit cache invalidation (belt & suspenders for callers that mutate trees)
+export function invalidatePrepared(root: RootGroup.Type): void {
+  cache.delete(root);
+}
+
 function compileRule(rule: Rules.Rule.Type): Runner {
   // Pre-resolve a fast field accessor (direct key access)
   const get = (obj: Record<string, any>) => getAt(obj, rule.field);
