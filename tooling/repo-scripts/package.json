@@ -32,7 +32,7 @@
     "@beep/tooling-utils": "workspace:^",
     "@effect/platform": "^0.90.6",
     "@effect/platform-node": "^0.96.0",
-    "effect": "^3.17.8"
+    "effect": "^3.17.9"
   },
   "effect": {
     "generateExports": {

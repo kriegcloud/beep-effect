@@ -44,26 +44,26 @@
     "deps:update": "pnpm syncpack update --target=latest --dependency-types=dev,prod,peer"
   },
   "dependencies": {
-    "tsx": "^4.20.4"
+    "tsx": "^4.20.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.3",
     "@babel/core": "^7.28.3",
     "@babel/plugin-transform-export-namespace-from": "^7.27.1",
     "@babel/plugin-transform-modules-commonjs": "^7.27.1",
-    "@biomejs/biome": "^2.2.0",
+    "@biomejs/biome": "^2.2.2",
     "@dotenvx/dotenvx": "^1.49.0",
-    "@effect/language-service": "^0.35.2",
+    "@effect/language-service": "^0.36.0",
     "@effect/vitest": "^0.25.1",
     "@types/node": "^24.3.0",
     "@vitest/coverage-v8": "^3.2.4",
     "babel-plugin-annotate-pure-calls": "^0.5.0",
-    "effect": "^3.17.8",
+    "effect": "^3.17.9",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.5",
     "prettier": "^3.6.2",
     "syncpack": "14.0.0-alpha.19",
-    "tsx": "^4.20.4",
+    "tsx": "^4.20.5",
     "turbo": "^2.5.6",
     "typescript": "^5.9.2",
     "vite-tsconfig-paths": "^5.1.4",
@@ -76,8 +76,5 @@
     "**/*.{ts,tsx,js,jsx,cjs,mjs}": [
       "biome check"
     ]
-  },
-  "trustedDependencies": [
-    "@rocicorp/zero-sqlite3"
-  ]
+  }
 }
