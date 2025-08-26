@@ -32,10 +32,7 @@
     "lint:fix": "biome check . --write"
   },
   "dependencies": {
-    "effect": "^3.17.8"
-  },
-  "devDependencies": {
-    "tsx": "^4.20.4"
+    "effect": "*"
   },
   "effect": {
     "generateExports": {

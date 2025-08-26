@@ -34,12 +34,12 @@
   "dependencies": {
     "@beep/db-scope": "workspace:^",
     "@beep/wms-tables": "workspace:^",
-    "drizzle-orm": "^0.44.4",
-    "effect": "^3.17.8",
-    "pg": "^8.16.3"
+    "drizzle-orm": "*",
+    "effect": "*",
+    "pg": "*"
   },
   "devDependencies": {
-    "@types/pg": "^8.15.5"
+    "@types/pg": "*"
   },
   "effect": {
     "generateExports": {

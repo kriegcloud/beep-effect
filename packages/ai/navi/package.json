@@ -33,22 +33,22 @@
     "execute": "pnpm tsx ./src/execute.ts"
   },
   "peerDependencies": {
-    "@beep/logos": "workspace:^",
-    "@beep/invariant": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "@beep/utils": "workspace:^",
-    "@beep/ui": "workspace:^",
     "@beep/env": "workspace:^",
-    "effect": "^3.17.8",
-    "mutative": "^1.2.0",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "@mui/material": "^7.3.1"
+    "@beep/invariant": "workspace:^",
+    "@beep/logos": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/ui": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@mui/material": "*",
+    "effect": "*",
+    "mutative": "*",
+    "react": "*",
+    "react-dom": "*"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",
-    "@types/react": "^19.1.10",
-    "@types/react-dom": "^19.1.7"
+    "@types/react": "*",
+    "@types/react-dom": "*"
   },
   "effect": {
     "generateExports": {

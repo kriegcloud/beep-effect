@@ -1,7 +1,7 @@
 import * as A from "effect/Array";
 import * as Tuple from "effect/Tuple";
 import { cloneElement } from "react";
-import { RouterLink } from "../../../routing";
+import { RouterLink } from "../../../routing/RouterLink";
 import type { NavItemDataProps, NavItemOptionsProps } from "../types";
 
 type CreateNavItemReturn = {

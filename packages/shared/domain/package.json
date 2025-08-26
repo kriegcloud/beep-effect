@@ -32,10 +32,10 @@
     "lint:fix": "biome check . --write"
   },
   "peerDependencies": {
-    "effect": "^3.17.8",
-    "@effect/sql": "^0.44.2",
+    "effect": "*",
+    "@effect/sql": "*",
     "@beep/schema": "workspace:^",
-    "@effect/experimental": "^0.54.6"
+    "@effect/experimental": "*"
   },
   "effect": {
     "generateExports": {

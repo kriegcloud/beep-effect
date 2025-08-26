@@ -35,8 +35,8 @@
     "@beep/invariant": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
-    "effect": "^3.17.8",
-    "xstate": "^5.20.2"
+    "effect": "*",
+    "xstate": "*"
   },
   "devDependencies": {
     "@beep/types": "workspace:^"

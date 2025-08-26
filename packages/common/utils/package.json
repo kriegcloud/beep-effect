@@ -33,11 +33,11 @@
   },
   "peerDependencies": {
     "@beep/invariant": "workspace:^",
-    "effect": "^3.17.8",
-    "mutative": "^1.2.0"
+    "effect": "*",
+    "mutative": "*"
   },
   "devDependencies": {
-    "type-fest": "^4.41.0",
+    "type-fest": "*",
     "@beep/types": "workspace:^"
   },
   "effect": {

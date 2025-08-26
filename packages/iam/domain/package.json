@@ -34,8 +34,8 @@
   "peerDependencies": {
     "@beep/shared-domain": "workspace:^",
     "@beep/schema": "workspace:^",
-    "effect": "^3.17.8",
-    "@effect/sql": "^0.44.2"
+    "effect": "*",
+    "@effect/sql": "*"
   },
   "effect": {
     "generateExports": {

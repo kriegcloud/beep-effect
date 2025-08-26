@@ -31,9 +31,9 @@
     "lint:fix": "biome check . --write",
     "coverage": "vitest --coverage"
   },
-  "dependencies": {
-    "drizzle-orm": "^0.44.4",
-    "effect": "^3.17.8"
+  "peerDependencies": {
+    "drizzle-orm": "*",
+    "effect": "*"
   },
   "effect": {
     "generateExports": {

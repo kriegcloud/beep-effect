@@ -31,9 +31,9 @@
     "lint": "biome check .",
     "lint:fix": "biome check . --write"
   },
-  "dependencies": {
-    "drizzle-orm": "^0.44.4",
-    "@beep/shared-tables": "workspace:^"
+  "peerDependencies": {
+    "@beep/shared-tables": "workspace:^",
+    "drizzle-orm": "*"
   },
   "effect": {
     "generateExports": {
