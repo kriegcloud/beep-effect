@@ -75,3 +75,21 @@ export namespace Json {
 
   export type Encoded = typeof Json.Encoded;
 }
+
+export const JsonArray = S.Array(Json);
+
+export namespace JsonArray {
+  export type Type = typeof JsonArray.Type;
+  export type Encoded = typeof JsonArray.Encoded;
+}
+
+export const NonEmptyJsonArray = S.NonEmptyArray(Json);
+
+export namespace NonEmptyJsonArray {
+  export type Type = typeof NonEmptyJsonArray.Type;
+  export type Encoded = typeof NonEmptyJsonArray.Encoded;
+}
+// Derive a deep structural Equivalence<Json> from the Json schema.
+// This is preferred over writing our own deep-eq, and integrates with Effect.
+// Docs: Schema -> Equivalence.
+export const jsonEq = S.equivalence(Json); // Equivalence.Equivalence<Json>

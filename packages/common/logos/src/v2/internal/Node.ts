@@ -21,7 +21,13 @@ export namespace Node {
     fields: Fields,
   ) =>
     S.Struct({
-      node: S.Literal(name),
+      node: S.Literal(name).pipe(
+        S.optional,
+        S.withDefaults({
+          constructor: () => name,
+          decoding: () => name,
+        })
+      ),
       id: NodeId,
       ...fields,
     }).annotations({
