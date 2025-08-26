@@ -31,7 +31,8 @@
     "db:reset": "bun src/scripts/ResetDatabase.ts",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "dotenvx": "dotenvx run -f ../../../.env --"
+    "dotenvx": "dotenvx run -f ../../../.env --",
+    "lint:circular": "pnpm madge -c ."
   },
   "devDependencies": {
     "@beep/db-scope": "workspace:^",

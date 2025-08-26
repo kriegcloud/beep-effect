@@ -47,6 +47,11 @@
       "dependsOn": ["^lint:fix"],
       "inputs": ["$TURBO_DEFAULT$"]
     },
+    "lint:circular": {
+      "cache": true,
+      "dependsOn": ["^lint:circular"],
+      "inputs": ["$TURBO_DEFAULT$"]
+    },
     "check": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$"]

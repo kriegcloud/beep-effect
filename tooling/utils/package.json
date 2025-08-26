@@ -26,9 +26,10 @@
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "test": "vitest run",
-    "coverage": "vitest --coverage"
+    "coverage": "vitest --coverage",
+    "lint:circular": "pnpm madge -c ."
   },
-  "dependencies": {
+  "peerDependencies": {
     "@effect/platform": "*",
     "@effect/platform-node": "*",
     "effect": "*",

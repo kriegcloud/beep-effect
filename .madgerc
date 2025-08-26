@@ -1,9 +1,9 @@
 {
   "detectiveOptions": {
-    fileExtensions: ["ts", "tsx"],
+    "extensions": "ts,tsx",
     "excludeRegExp": [
       "build",
-      ".turbo"
+      ".turbo",
       "node_modules",
       ".tsbuildinfo"
     ],

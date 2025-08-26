@@ -29,7 +29,8 @@
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "coverage": "vitest --coverage"
+    "coverage": "vitest --coverage",
+    "lint:circular": "pnpm madge -c ."
   },
   "peerDependencies": {
     "drizzle-orm": "*",

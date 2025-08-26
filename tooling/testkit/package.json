@@ -24,9 +24,10 @@
     "check": "tsc -b tsconfig.json",
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "lint": "biome check .",
-    "lint:fix": "biome check . --write"
+    "lint:fix": "biome check . --write",
+    "lint:circular": "pnpm madge -c ."
   },
-  "dependencies": {
+  "peerDependencies": {
     "@effect/platform": "*",
     "effect": "*"
   },

@@ -16,7 +16,8 @@
     "lint:fix": "biome check . --write",
     "check": "tsc --noEmit",
     "execute": "pnpm dotenvx tsx ./execute.ts",
-    "dotenvx": "dotenvx run -f ../../.env --"
+    "dotenvx": "dotenvx run -f ../../.env --",
+    "lint:circular": "pnpm madge -c ."
   },
   "dependencies": {
     "@beep/invariant": "workspace:^",

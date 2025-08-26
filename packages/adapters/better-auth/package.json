@@ -31,7 +31,8 @@
     "coverage": "vitest --coverage",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "dotenvx": "dotenvx run -f ../../../.env --"
+    "dotenvx": "dotenvx run -f ../../../.env --",
+    "lint:circular": "pnpm madge -c ."
   },
   "peerDependencies": {
     "@beep/env": "workspace:^",
