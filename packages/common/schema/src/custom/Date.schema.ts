@@ -2,6 +2,15 @@ import * as DateTime from "effect/DateTime";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 
+const DateTimeUtcByInstant = S.DateTimeUtcFromSelf.annotations({
+  equivalence: () => (a: DateTime.Utc, b: DateTime.Utc) =>
+    DateTime.toDate(a).getTime() === DateTime.toDate(b).getTime(),
+  jsonSchema: {
+    type: "string",
+    format: "date-time",
+  },
+});
+
 export const AllAcceptableDateInputs = S.Union(
   S.DateFromSelf.annotations({
     jsonSchema: {
@@ -21,6 +30,7 @@ export const AllAcceptableDateInputs = S.Union(
       format: "timestamp",
     },
   }),
+  DateTimeUtcByInstant,
 );
 export namespace AllAcceptableDateInputs {
   export type Type = typeof AllAcceptableDateInputs.Type;
@@ -55,8 +65,8 @@ export namespace DateFromAllAcceptable {
 }
 
 export const DateTimeUtcFromAllAcceptable = S.transformOrFail(
-  DateFromAllAcceptable,
-  S.Union(S.DateTimeUtcFromDate, S.DateTimeUtcFromSelf),
+  S.Union(DateFromAllAcceptable, DateTimeUtcByInstant),
+  DateTimeUtcByInstant,
   {
     strict: false,
     decode: (i, _, ast) =>

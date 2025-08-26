@@ -93,3 +93,6 @@ export namespace NonEmptyJsonArray {
 // This is preferred over writing our own deep-eq, and integrates with Effect.
 // Docs: Schema -> Equivalence.
 export const jsonEq = S.equivalence(Json); // Equivalence.Equivalence<Json>
+
+export const equalsJson: (a: Json.Type, b: Json.Type) => boolean =
+  S.equivalence(Json);

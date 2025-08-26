@@ -10,6 +10,9 @@
     },
     {
       "path": "../utils"
+    },
+    {
+      "path": "../invariant"
     }
   ],
   "compilerOptions": {
@@ -28,6 +31,8 @@
       "@beep/types/*": ["../types/src/*"],
       "@beep/utils": ["../utils/src/index"],
       "@beep/utils/*": ["../utils/src/*"],
+      "@beep/invariant": ["../invariant/src/index"],
+      "@beep/invariant/*": ["../invariant/src/*"],
       "@beep/schema": ["../schema/src/index"],
       "@beep/schema/*": ["../schema/src/*"]
     }

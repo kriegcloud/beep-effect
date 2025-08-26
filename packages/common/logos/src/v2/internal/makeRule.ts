@@ -2,7 +2,9 @@ import type { StringTypes, StructTypes } from "@beep/types";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
+import { v4 as uuid } from "uuid";
 import { Node, NodeId } from "./Node";
+
 export type RuleType<
   Type extends StringTypes.NonEmptyString<string>,
   Fields extends StructTypes.StructFieldsWithStringKeys,
@@ -10,7 +12,7 @@ export type RuleType<
   Rule: S.Struct<
     {
       node: S.PropertySignature<
-       ":",
+        ":",
         Exclude<"rule", undefined>,
         never,
         "?:",
@@ -18,16 +20,24 @@ export type RuleType<
         true,
         never
       >;
-      id: typeof NodeId;
+      id: S.PropertySignature<
+        ":",
+        NodeId.Type,
+        never,
+        ":",
+        NodeId.Type,
+        true,
+        never
+      >;
     } & {
       readonly type: S.PropertySignature<
-          ":",
-          Exclude<Type, undefined>,
-          never,
-          "?:",
-          Type | undefined,
-          true,
-          never
+        ":",
+        Exclude<Type, undefined>,
+        never,
+        "?:",
+        Type | undefined,
+        true,
+        never
       >;
       readonly parentId: typeof NodeId;
     } & Fields
@@ -36,15 +46,23 @@ export type RuleType<
     [K in keyof Pick<
       {
         node: S.PropertySignature<
-       ":",
-        Exclude<"rule", undefined>,
-        never,
-        "?:",
-        "rule" | undefined,
-        true,
-        never
-      >;
-        id: typeof NodeId;
+          ":",
+          Exclude<"rule", undefined>,
+          never,
+          "?:",
+          "rule" | undefined,
+          true,
+          never
+        >;
+        id: S.PropertySignature<
+          ":",
+          NodeId.Type,
+          never,
+          ":",
+          NodeId.Type,
+          true,
+          never
+        >;
       } & {
         readonly type: S.PropertySignature<
           ":",
@@ -61,15 +79,23 @@ export type RuleType<
     >]: Pick<
       {
         node: S.PropertySignature<
-       ":",
-        Exclude<"rule", undefined>,
-        never,
-        "?:",
-        "rule" | undefined,
-        true,
-        never
-      >;
-        id: typeof NodeId;
+          ":",
+          Exclude<"rule", undefined>,
+          never,
+          "?:",
+          "rule" | undefined,
+          true,
+          never
+        >;
+        id: S.PropertySignature<
+          ":",
+          NodeId.Type,
+          never,
+          ":",
+          NodeId.Type,
+          true,
+          never
+        >;
       } & {
         readonly type: S.PropertySignature<
           ":",
@@ -93,17 +119,15 @@ export const makeRule = <
 >(
   type: Type,
   fields: Fields,
-): RuleType<Type, Fields> => {
+) => {
   const Rule = Node.make("rule", {
-    type: S.Literal(type).pipe(
-      S.optional,
-      S.withDefaults({
-        constructor: () => type,
-        decoding: () => type,
-      }),
-    ),
-    parentId: NodeId,
     ...fields,
+    type: S.Literal(type),
+    parentId: NodeId,
+    id: NodeId.pipe(
+      S.propertySignature,
+      S.withConstructorDefault(() => uuid()),
+    ),
   }).annotations({
     identifier: `${Str.capitalize(type)}Rule`,
     title: `${Str.capitalize(type)} Rule`,

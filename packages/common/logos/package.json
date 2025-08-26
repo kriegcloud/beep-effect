@@ -35,12 +35,14 @@
   "peerDependencies": {
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
+    "@beep/invariant": "workspace:^",
     "uuid": "*",
     "effect": "*"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",
-    "@effect/platform-node": "*"
+    "@effect/platform-node": "*",
+    "type-fest": "*"
   },
   "effect": {
     "generateExports": {
