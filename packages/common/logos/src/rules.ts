@@ -15,7 +15,6 @@ import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import { makeRule } from "./internal";
 import * as Operators from "./operators";
-import { isPlainObject } from "./utils/is-plain-object";
 
 export namespace StringRule {
   export const { Rule, Input } = makeRule("string", {
@@ -339,8 +338,8 @@ export namespace GenericTypeRule {
         isNotBoolean: () => P.not(Bool.isBoolean)(value),
         isArray: () => A.isArray(value),
         isNotArray: () => P.not(A.isArray)(value),
-        isObject: () => isPlainObject(value),
-        isNotObject: () => !isPlainObject(value),
+        isObject: () => P.isRecord(value),
+        isNotObject: () => !P.isRecord(value),
       }),
       Match.orElse(() => false),
     );

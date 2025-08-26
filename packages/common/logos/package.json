@@ -35,14 +35,12 @@
   "peerDependencies": {
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
-    "lodash.isplainobject": "*",
     "uuid": "*",
     "effect": "*"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",
-    "@effect/platform-node": "*",
-    "@types/lodash.isplainobject": "*"
+    "@effect/platform-node": "*"
   },
   "effect": {
     "generateExports": {

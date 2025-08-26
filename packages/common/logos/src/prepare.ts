@@ -4,14 +4,13 @@ import * as Bool from "effect/Boolean";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";
 import * as Num from "effect/Number";
+import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import type { RootGroup, RuleGroup } from "./groups";
 import { fingerprint } from "./internal/fingerprint";
 import { normalize } from "./normalize";
 import * as Rules from "./rules";
-import { isPlainObject } from "./utils/is-plain-object";
 import { validate } from "./validate";
-
 export type Runner = (value: unknown) => boolean;
 
 type CacheEntry = { runner: Runner; fp: string };
@@ -61,19 +60,17 @@ function compileRule(rule: Rules.Rule.Type): Runner {
         ),
       hasKey: (r) => (v: any) =>
         F.pipe(get(v), (resolved) =>
-          isPlainObject(resolved)
-            ? Rules.HasKeyRule.validate(r, resolved)
-            : false,
+          P.isRecord(resolved) ? Rules.HasKeyRule.validate(r, resolved) : false,
         ),
       hasValue: (r) => (v: any) =>
         F.pipe(get(v), (resolved) =>
-          isPlainObject(resolved)
+          P.isRecord(resolved)
             ? Rules.HasValueRule.validate(r, resolved)
             : false,
         ),
       hasEntry: (r) => (v: any) =>
         F.pipe(get(v), (resolved) =>
-          isPlainObject(resolved)
+          P.isRecord(resolved)
             ? Rules.HasEntryRule.validate(r, resolved)
             : false,
         ),
