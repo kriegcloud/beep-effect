@@ -6,7 +6,7 @@ const bob = { name: "bob" };
 test("object value contains element", () => {
   const rule: HasValueRule.Input = {
     field: "people",
-    op: { _tag: "in" },
+    op: { _tag: "arrayContains" },
     type: "hasValue",
     value: "bob",
   };
@@ -17,7 +17,7 @@ test("object value contains element", () => {
 test("object value does not contain element", () => {
   const rule: HasValueRule.Input = {
     field: "people",
-    op: { _tag: "notIn" },
+    op: { _tag: "arrayNotContains" },
     type: "hasValue",
     value: "alice",
   };

@@ -11,14 +11,14 @@ import { expect, test } from "vitest";
 const root = RootGroup.make({ logicalOp: "or" });
 addRuleToGroup(root, {
   field: "name",
-  op: { _tag: "in" },
+  op: { _tag: "stringContains" },
   type: "string",
   value: "bob",
   ignoreCase: false,
 });
 addRuleToGroup(root, {
   field: "name",
-  op: { _tag: "in" },
+  op: { _tag: "stringContains" },
   type: "string",
   value: "alice",
   ignoreCase: false,

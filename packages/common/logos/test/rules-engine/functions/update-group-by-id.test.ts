@@ -12,14 +12,14 @@ const root = RootGroup.make({ logicalOp: "or" });
 addRuleToGroup(root, {
   type: "string",
   field: "name",
-  op: { _tag: "in" },
+  op: { _tag: "stringContains" },
   value: "bob",
   ignoreCase: false,
 });
 addRuleToGroup(root, {
   type: "string",
   field: "name",
-  op: { _tag: "in" },
+  op: { _tag: "stringContains" },
   value: "alice",
   ignoreCase: false,
 });

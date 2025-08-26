@@ -11,7 +11,7 @@ const all_bob = [bob, bob, bob, bob];
 test("array contains element", () => {
   const rule: ArrayValueRule.Input = {
     field: "people",
-    op: { _tag: "in" },
+    op: { _tag: "arrayContains" },
     type: "arrayValue",
     value: bob,
   };
@@ -22,7 +22,7 @@ test("array contains element", () => {
 test("array does not contain element", () => {
   const rule: ArrayValueRule.Input = {
     field: "people",
-    op: { _tag: "notIn" },
+    op: { _tag: "arrayNotContains" },
     type: "arrayValue",
     value: carol,
   };

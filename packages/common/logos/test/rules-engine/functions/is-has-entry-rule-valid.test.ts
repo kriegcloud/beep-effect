@@ -6,7 +6,7 @@ const bob = { name: "bob", age: 30 };
 test("object key & value contains element", () => {
   const rule: HasEntryRule.Input = {
     field: "people",
-    op: { _tag: "in" },
+    op: { _tag: "arrayContains" },
     type: "hasEntry",
     value: { key: "name", value: "bob" },
   };
@@ -17,7 +17,7 @@ test("object key & value contains element", () => {
 test("object key & value does not contain element", () => {
   const rule: HasEntryRule.Input = {
     field: "people",
-    op: { _tag: "notIn" },
+    op: { _tag: "arrayNotContains" },
     type: "hasEntry",
     value: { key: "name", value: "alice" },
   };

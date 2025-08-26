@@ -8,7 +8,7 @@ test("rules are added to a group", () => {
   const newRuleA: RuleInput.Type = {
     field: "name",
     op: {
-      _tag: "in",
+      _tag: "stringContains",
     },
     type: "string",
     value: "bob",
@@ -17,7 +17,7 @@ test("rules are added to a group", () => {
   const newRuleB: RuleInput.Type = {
     field: "name",
     op: {
-      _tag: "in",
+      _tag: "stringContains",
     },
     type: "string",
     value: "alice",

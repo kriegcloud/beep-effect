@@ -10,7 +10,7 @@ test("remove many deeply nested group", () => {
   const deepGroup = addGroup(group, { logicalOp: "and" });
   addRuleToGroup(deepGroup, {
     field: "name",
-    op: { _tag: "in" },
+    op: { _tag: "stringContains" },
     type: "string",
     value: "bob",
     ignoreCase: false,

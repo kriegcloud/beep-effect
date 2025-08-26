@@ -11,7 +11,7 @@ test("rule and a group is added to a group", () => {
   const newRule: RuleInput.Type = {
     field: "name",
     op: {
-      _tag: "in",
+      _tag: "stringContains",
     },
     type: "string",
     value: "bob",

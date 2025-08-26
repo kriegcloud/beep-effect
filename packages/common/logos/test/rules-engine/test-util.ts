@@ -18,7 +18,7 @@ export function buildSampleRoot() {
   });
   addRuleToGroup(root, {
     field: "string",
-    op: { _tag: "in" },
+    op: { _tag: "stringContains" },
     type: "string",
     value: "bob",
     ignoreCase: false,
@@ -32,7 +32,7 @@ export function buildSampleRoot() {
   });
   addRuleToGroup(root, {
     field: "array",
-    op: { _tag: "in" },
+    op: { _tag: "arrayContains" },
     type: "arrayValue",
     value: "alice",
   });
@@ -44,19 +44,19 @@ export function buildSampleRoot() {
   });
   addRuleToGroup(root, {
     field: "object",
-    op: { _tag: "in" },
+    op: { _tag: "arrayContains" },
     type: "hasKey",
     value: "name",
   });
   addRuleToGroup(root, {
     field: "object",
-    op: { _tag: "in" },
+    op: { _tag: "arrayContains" },
     type: "hasValue",
     value: "bob",
   });
   addRuleToGroup(root, {
     field: "object",
-    op: { _tag: "in" },
+    op: { _tag: "arrayContains" },
     type: "hasEntry",
     value: { key: "name", value: "bob" },
   });
@@ -80,7 +80,7 @@ export function buildSampleRoot() {
   });
   addRuleToGroup(orGroup, {
     field: "string",
-    op: { _tag: "in" },
+    op: { _tag: "stringContains" },
     type: "string",
     value: "bob",
     ignoreCase: false,

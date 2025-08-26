@@ -9,7 +9,7 @@ test("normalization removes an invalid rule", () => {
 
   const rule: any = addRuleToGroup(root, {
     field: "name",
-    op: { _tag: "in" },
+    op: { _tag: "stringContains" },
     type: "string",
     value: "bob",
     ignoreCase: false,
@@ -26,7 +26,7 @@ test("normalization fixes the parent id of a rule", () => {
 
   const rule: any = addRuleToGroup(root, {
     field: "name",
-    op: { _tag: "in" },
+    op: { _tag: "stringContains" },
     type: "string",
     value: "bob",
     ignoreCase: false,
@@ -49,7 +49,7 @@ test("normalization removes an invalid group", () => {
   const group = addGroup(root, { logicalOp: "and" });
   addRuleToGroup(group, {
     field: "name",
-    op: { _tag: "in" },
+    op: { _tag: "stringContains" },
     type: "string",
     value: "bob",
     ignoreCase: false,
@@ -75,7 +75,7 @@ test("normalization promotes group with 1 rule to parent level", () => {
   const root = RootGroup.make({ logicalOp: "or" });
   addRuleToGroup(root, {
     field: "name",
-    op: { _tag: "in" },
+    op: { _tag: "stringContains" },
     type: "string",
     value: "bob",
     ignoreCase: false,
@@ -84,7 +84,7 @@ test("normalization promotes group with 1 rule to parent level", () => {
   const group = addGroup(root, { logicalOp: "and" });
   const rule = addRuleToGroup(group, {
     field: "name",
-    op: { _tag: "in" },
+    op: { _tag: "stringContains" },
     type: "string",
     value: "alice",
     ignoreCase: false,
@@ -103,7 +103,7 @@ test("normalization finds nothing wrong", () => {
   const root = RootGroup.make({ logicalOp: "or" });
   addRuleToGroup(root, {
     field: "name",
-    op: { _tag: "in" },
+    op: { _tag: "stringContains" },
     type: "string",
     value: "bob",
     ignoreCase: false,
@@ -112,7 +112,7 @@ test("normalization finds nothing wrong", () => {
   const group = addGroup(root, { logicalOp: "and" });
   addRuleToGroup(group, {
     field: "name",
-    op: { _tag: "in" },
+    op: { _tag: "stringContains" },
     type: "string",
     value: "alice",
     ignoreCase: false,
@@ -141,7 +141,7 @@ test("normalization has all options turn off", () => {
   const root = RootGroup.make({ logicalOp: "or" });
   addRuleToGroup(root, {
     field: "name",
-    op: { _tag: "in" },
+    op: { _tag: "stringContains" },
     type: "string",
     value: "bob",
     ignoreCase: false,
@@ -150,7 +150,7 @@ test("normalization has all options turn off", () => {
   const group = addGroup(root, { logicalOp: "and" });
   const rule: any = addRuleToGroup(group, {
     field: "name",
-    op: { _tag: "in" },
+    op: { _tag: "stringContains" },
     type: "string",
     value: "alice",
     ignoreCase: false,

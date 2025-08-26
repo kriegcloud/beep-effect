@@ -23,8 +23,8 @@ export namespace StringRule {
     op: S.Union(
       Operators.Eq.Schema,
       Operators.Ne.Schema,
-      Operators.In.Schema,
-      Operators.NotIn.Schema,
+      Operators.StringContains.Schema,
+      Operators.StringNotContains.Schema,
       Operators.StartsWith.Schema,
       Operators.NotStartsWith.Schema,
       Operators.EndsWith.Schema,
@@ -52,8 +52,8 @@ export namespace StringRule {
           Match.tags({
             eq: () => caseValue === caseRuleValue,
             ne: () => caseValue !== caseRuleValue,
-            in: () => caseValue.includes(caseRuleValue),
-            notIn: () => !caseValue.includes(caseRuleValue),
+            stringContains: () => caseValue.includes(caseRuleValue),
+            stringNotContains: () => !caseValue.includes(caseRuleValue),
             startsWith: () => caseValue.startsWith(caseRuleValue),
             notStartsWith: () => !caseValue.startsWith(caseRuleValue),
             endsWith: () => caseValue.endsWith(caseRuleValue),
@@ -120,8 +120,8 @@ export namespace ArrayValueRule {
   export const { Rule, Input } = makeRule("arrayValue", {
     field: S.String,
     op: S.Union(
-      Operators.In.Schema,
-      Operators.NotIn.Schema,
+      Operators.ArrayContains.Schema,
+      Operators.ArrayNotContains.Schema,
       Operators.Every.Schema,
     ),
     value: S.Any,
@@ -133,8 +133,8 @@ export namespace ArrayValueRule {
     Match.value(rule.op).pipe(
       Match.withReturnType<boolean>(),
       Match.tags({
-        in: () => value.includes(rule.value),
-        notIn: () => !value.includes(rule.value),
+        arrayContains: () => value.includes(rule.value),
+        arrayNotContains: () => !value.includes(rule.value),
         every: () => A.every(value, (v) => v === rule.value),
       }),
       Match.orElse(() => false),
@@ -178,7 +178,10 @@ export namespace ArrayLengthRule {
 export namespace HasKeyRule {
   export const { Rule, Input } = makeRule("hasKey", {
     field: S.String,
-    op: S.Union(Operators.In.Schema, Operators.NotIn.Schema),
+    op: S.Union(
+      Operators.ArrayContains.Schema,
+      Operators.ArrayNotContains.Schema,
+    ),
     value: S.String,
   });
   export type Rule = typeof Rule.Type;
@@ -189,8 +192,8 @@ export namespace HasKeyRule {
       Match.value(rule.op).pipe(
         Match.withReturnType<boolean>(),
         Match.tags({
-          in: () => contains,
-          notIn: () => !contains,
+          arrayContains: () => contains,
+          arrayNotContains: () => !contains,
         }),
         Match.orElse(() => false),
       ),
@@ -201,7 +204,10 @@ export namespace HasKeyRule {
 export namespace HasValueRule {
   export const { Rule, Input } = makeRule("hasValue", {
     field: S.String,
-    op: S.Union(Operators.In.Schema, Operators.NotIn.Schema),
+    op: S.Union(
+      Operators.ArrayContains.Schema,
+      Operators.ArrayNotContains.Schema,
+    ),
     value: S.String,
   });
   export type Rule = typeof Rule.Type;
@@ -212,8 +218,8 @@ export namespace HasValueRule {
       Match.value(rule.op).pipe(
         Match.withReturnType<boolean>(),
         Match.tags({
-          in: () => contains,
-          notIn: () => !contains,
+          arrayContains: () => contains,
+          arrayNotContains: () => !contains,
         }),
         Match.orElse(() => false),
       ),
@@ -223,7 +229,10 @@ export namespace HasValueRule {
 export namespace HasEntryRule {
   export const { Rule, Input } = makeRule("hasEntry", {
     field: S.String,
-    op: S.Union(Operators.In.Schema, Operators.NotIn.Schema),
+    op: S.Union(
+      Operators.ArrayContains.Schema,
+      Operators.ArrayNotContains.Schema,
+    ),
     value: S.Struct({
       key: S.String,
       value: S.Any,
@@ -243,8 +252,8 @@ export namespace HasEntryRule {
         Match.value(rule.op).pipe(
           Match.withReturnType<boolean>(),
           Match.tags({
-            in: () => contains,
-            notIn: () => !contains,
+            arrayContains: () => contains,
+            arrayNotContains: () => !contains,
           }),
           Match.orElse(() => false),
         ),
@@ -410,27 +419,30 @@ export namespace DateRule {
                 Match.value(rule.value).pipe(
                   Match.withReturnType<boolean>(),
                   Match.tags({
-                    comparison: () => false,
-                    range: ({ start: startRaw, end: endRaw }) =>
+                    comparison: () =>
                       F.pipe(
                         S.decodeOption(BS.DateTimeUtcFromAllAcceptable)(
-                          startRaw,
+                          (rule.op as any).minimum,
                         ),
-                        O.flatMap((start) =>
+                        O.flatMap((min) =>
                           F.pipe(
                             S.decodeOption(BS.DateTimeUtcFromAllAcceptable)(
-                              endRaw,
+                              (rule.op as any).maximum,
                             ),
-                            O.map((end) => {
+                            O.map((max) => {
                               const u = DateTime.toDate(utc).getTime();
-                              const min = DateTime.toDate(start).getTime();
-                              const max = DateTime.toDate(end).getTime();
-                              return u >= min && u <= max;
+                              const minMs = DateTime.toDate(min).getTime();
+                              const maxMs = DateTime.toDate(max).getTime();
+                              const inclusive = !!(rule.op as any).inclusive;
+                              return inclusive
+                                ? u >= minMs && u <= maxMs
+                                : u > minMs && u < maxMs;
                             }),
                           ),
                         ),
                         O.getOrElse(F.constFalse),
                       ),
+                    range: () => false,
                   }),
                   Match.orElse(() => false),
                 ),

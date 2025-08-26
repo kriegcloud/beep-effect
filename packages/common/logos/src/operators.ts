@@ -24,6 +24,20 @@ import { Operator } from "./internal";
 export namespace Eq {
   export const { op, Schema } = Operator.make("eq", "equals", {});
 
+  export const make = <
+    const A,
+    const E,
+    const R,
+    const Fields extends S.Struct.Fields,
+  >(
+    dataType: S.Schema<A, E, R>,
+    fields: Fields,
+  ) =>
+    Operator.make("eq", "equals", {
+      value: dataType,
+      ...fields,
+    });
+
   export type Type = Operator.Type<"eq">;
 }
 
@@ -33,16 +47,44 @@ export namespace Ne {
   export type Type = Operator.Type<"ne">;
 }
 
-export namespace In {
-  export const { op, Schema } = Operator.make("in", "contains", {});
+export namespace StringContains {
+  export const { op, Schema } = Operator.make(
+    "stringContains",
+    "string contains",
+    {},
+  );
 
-  export type Type = Operator.Type<"in">;
+  export type Type = Operator.Type<"stringContains">;
 }
 
-export namespace NotIn {
-  export const { op, Schema } = Operator.make("notIn", "does not contain", {});
+export namespace StringNotContains {
+  export const { op, Schema } = Operator.make(
+    "stringNotContains",
+    "string does not contain",
+    {},
+  );
 
-  export type Type = Operator.Type<"notIn">;
+  export type Type = Operator.Type<"stringNotContains">;
+}
+
+export namespace ArrayContains {
+  export const { op, Schema } = Operator.make(
+    "arrayContains",
+    "array contains",
+    {},
+  );
+
+  export type Type = Operator.Type<"arrayContains">;
+}
+
+export namespace ArrayNotContains {
+  export const { op, Schema } = Operator.make(
+    "arrayNotContains",
+    "array does not contain",
+    {},
+  );
+
+  export type Type = Operator.Type<"arrayNotContains">;
 }
 
 /**
@@ -127,9 +169,14 @@ export namespace IsAfter {
 }
 
 export namespace IsBetween {
-  export const { op, Schema } = Operator.make("isBetween", "is between", {});
+  export const { op, Schema } = Operator.make("isBetween", "is between", {
+    minimum: BS.DateFromAllAcceptable,
+    maximum: BS.DateFromAllAcceptable,
+    inclusive: S.Boolean,
+  });
 
-  export type Type = Operator.Type<"isBetween">;
+  export type Type = typeof Schema.Type;
+  export type Encoded = typeof Schema.Encoded;
 }
 
 /**
@@ -333,8 +380,10 @@ export namespace LogicalOp {
 export const AnyOperator = S.Union(
   Eq.Schema,
   Ne.Schema,
-  In.Schema,
-  NotIn.Schema,
+  StringContains.Schema,
+  StringNotContains.Schema,
+  ArrayContains.Schema,
+  ArrayNotContains.Schema,
   Every.Schema,
   StartsWith.Schema,
   NotStartsWith.Schema,
@@ -359,7 +408,6 @@ export const AnyOperator = S.Union(
   IsNull.Schema,
   IsNotNull.Schema,
   IsUndefined.Schema,
-  IsUndefined.Schema,
   IsDefined.Schema,
   IsBoolean.Schema,
   IsNotBoolean.Schema,
@@ -372,4 +420,86 @@ export const AnyOperator = S.Union(
 export namespace AnyOperator {
   export type Type = typeof AnyOperator.Type;
   export type Encoded = typeof AnyOperator.Encoded;
+}
+
+/**
+ * Normalize an operator into a stable, minimal payload for fingerprinting.
+ * - Config-less operators return just their tag string.
+ * - Operators with config (e.g., `matches`) return a tuple with normalized values.
+ * - Future configs (e.g., `isBetween` with minimum/maximum/inclusive) are handled here.
+ */
+export function fingerprintOperator(
+  op: AnyOperator.Type,
+): string | readonly unknown[] {
+  const toMs = (x: unknown): number | null => {
+    const d = new Date(x as any);
+    const t = d.getTime();
+    return Number.isFinite(t) ? t : null;
+  };
+
+  switch (op._tag) {
+    case "matches": {
+      // Serialize regex deterministically
+      return [op._tag, op.regex.source, op.regex.flags] as const;
+    }
+
+    case "isBetween": {
+      // Support hypothetical future config: minimum/maximum/inclusive
+      const anyOp = op as any;
+      if ("minimum" in anyOp || "maximum" in anyOp || "inclusive" in anyOp) {
+        const min = toMs(anyOp.minimum);
+        const max = toMs(anyOp.maximum);
+        return [
+          op._tag,
+          min ?? anyOp.minimum,
+          max ?? anyOp.maximum,
+          !!anyOp.inclusive,
+        ] as const;
+      }
+      return op._tag;
+    }
+
+    // Config-less operators
+    case "eq":
+    case "ne":
+    case "stringContains":
+    case "stringNotContains":
+    case "arrayContains":
+    case "arrayNotContains":
+    case "every":
+    case "startsWith":
+    case "notStartsWith":
+    case "endsWith":
+    case "notEndsWith":
+    case "isBefore":
+    case "isAfter":
+    case "gt":
+    case "gte":
+    case "lt":
+    case "lte":
+    case "isTrue":
+    case "isFalse":
+    case "isString":
+    case "isNotString":
+    case "isNumber":
+    case "isNotNumber":
+    case "isTruthy":
+    case "isFalsy":
+    case "isNull":
+    case "isNotNull":
+    case "isUndefined":
+    case "isDefined":
+    case "isBoolean":
+    case "isNotBoolean":
+    case "isArray":
+    case "isNotArray":
+    case "isObject":
+    case "isNotObject":
+      return op._tag;
+
+    default: {
+      const _exhaustive: never = op;
+      return _exhaustive;
+    }
+  }
 }

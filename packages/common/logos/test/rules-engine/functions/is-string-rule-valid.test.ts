@@ -41,7 +41,7 @@ test("string not equals to", () => {
 test("string contains", () => {
   const rule: StringRule.Input = {
     field: "people",
-    op: { _tag: "in" },
+    op: { _tag: "stringContains" },
     type: "string",
     value: "bob",
     ignoreCase: false,
@@ -53,7 +53,7 @@ test("string contains", () => {
 test("string does not contain", () => {
   const rule: StringRule.Input = {
     field: "people",
-    op: { _tag: "notIn" },
+    op: { _tag: "stringNotContains" },
     type: "string",
     value: "alice",
     ignoreCase: false,

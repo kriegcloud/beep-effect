@@ -67,7 +67,7 @@ describe("prepare / runPrepared", () => {
     });
     addRuleToGroup(root, {
       field: "missing",
-      op: { _tag: "in" },
+      op: { _tag: "stringContains" },
       type: "string",
       value: "x",
       ignoreCase: false,
