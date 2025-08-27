@@ -29,8 +29,6 @@ export type OverrideProperties<
   // and the second bit with the mapped type is what enforces that we don't try
   // to override properties that doesn't exist in the original type.
   TOverride extends Partial<Record<keyof TOriginal, unknown>> & {
-    [Key in keyof TOverride]: Key extends keyof TOriginal
-      ? TOverride[Key]
-      : never;
+    [Key in keyof TOverride]: Key extends keyof TOriginal ? TOverride[Key] : never;
   },
 > = Merge<TOriginal, TOverride>;

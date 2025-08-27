@@ -11,9 +11,9 @@ export class RuleGroup extends Node.make("group", {
     S.Array(
       S.Union(
         Rule,
-        S.suspend((): S.Schema<RuleGroup.Type, RuleGroup.Encoded> => RuleGroup),
-      ),
-    ),
+        S.suspend((): S.Schema<RuleGroup.Type, RuleGroup.Encoded> => RuleGroup)
+      )
+    )
   ),
 }) {}
 
@@ -39,7 +39,7 @@ export class RootGroup extends Node.make("root", {
   logicalOp: Operators.LogicalOp,
   rules: S.mutable(S.Array(S.Union(Rule, RuleGroup))).pipe(
     S.propertySignature,
-    S.withConstructorDefault(F.constant([])),
+    S.withConstructorDefault(F.constant([]))
   ),
 }).pipe(S.mutable) {
   static readonly make = (newGroup: GroupInput.Type): RootGroup.Type => ({

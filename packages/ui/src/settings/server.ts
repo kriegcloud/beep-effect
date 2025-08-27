@@ -4,9 +4,7 @@ import type { SettingsState } from "./types";
 
 // ----------------------------------------------------------------------
 
-export async function detectSettings(
-  storageKey: string = SETTINGS_STORAGE_KEY,
-): Promise<SettingsState> {
+export async function detectSettings(storageKey: string = SETTINGS_STORAGE_KEY): Promise<SettingsState> {
   const cookieStore = await cookies();
 
   const settingsStore = cookieStore.get(storageKey);

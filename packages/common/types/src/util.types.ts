@@ -50,9 +50,9 @@ export type ReadonlyStringMap<V = unknown> = Readonly<Record<string, V>>;
  * type B = NonEmptyReadonlyStringKeyRecord<{}>     // never
  * type C = NonEmptyReadonlyStringKeyRecord<Record<string, number>> // T (cannot prove emptiness)
  */
-export type NonEmptyReadonlyStringKeyRecord<
-  T extends Readonly<Record<string, unknown>>,
-> = IsNever<StringKeys<T>> extends true // no string keys at all
+export type NonEmptyReadonlyStringKeyRecord<T extends Readonly<Record<string, unknown>>> = IsNever<
+  StringKeys<T>
+> extends true // no string keys at all
   ? never
   : HasEmptyKey<T> extends true // contains the empty string key
     ? never
@@ -89,8 +89,10 @@ export type NonEmptyStringToStringMap<T extends ReadonlyStringToStringMap> =
  * @example
  * type Vals = ValuesNonEmptyArray<{a: 1; b: 2}> // readonly [1 | 2, ...(1 | 2)[]]
  */
-export type ValuesNonEmptyArray<T extends Readonly<Record<string, unknown>>> =
-  readonly [T[StringKeys<T>], ...T[StringKeys<T>][]];
+export type ValuesNonEmptyArray<T extends Readonly<Record<string, unknown>>> = readonly [
+  T[StringKeys<T>],
+  ...T[StringKeys<T>][],
+];
 
 /* -------------------------------------------------------------------------------------------------
  * Effect Schema struct field maps
@@ -111,8 +113,7 @@ export type StructFieldMap = Readonly<Record<string, S.Struct.Field>>;
  *   name: S.string
  * } satisfies NonEmptyStructFieldMap; // OK
  */
-export type NonEmptyStructFieldMap<T extends StructFieldMap> =
-  NonEmptyReadonlyStringKeyRecord<T>;
+export type NonEmptyStructFieldMap<T extends StructFieldMap> = NonEmptyReadonlyStringKeyRecord<T>;
 
 /**
  * A non-empty readonly array of the string keys of a `NonEmptyStructFieldMap`.
@@ -122,7 +123,6 @@ export type NonEmptyStructFieldMap<T extends StructFieldMap> =
  * type Keys = NonEmptyStructFieldKeyList<{id: S.Struct.Field; name: S.Struct.Field}>
  * // => A.NonEmptyReadonlyArray<"id" | "name">
  */
-export type NonEmptyStructFieldKeyList<T extends StructFieldMap> =
-  T extends NonEmptyStructFieldMap<T>
-    ? A.NonEmptyReadonlyArray<StringKeys<T>>
-    : never;
+export type NonEmptyStructFieldKeyList<T extends StructFieldMap> = T extends NonEmptyStructFieldMap<T>
+  ? A.NonEmptyReadonlyArray<StringKeys<T>>
+  : never;

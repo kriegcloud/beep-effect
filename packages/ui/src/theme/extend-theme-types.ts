@@ -3,33 +3,14 @@ import type {} from "@mui/material/themeCssVarsAugmentation";
 import type {} from "@mui/x-data-grid/themeAugmentation";
 import type {} from "@mui/x-date-pickers/themeAugmentation";
 import type {} from "@mui/x-tree-view/themeAugmentation";
-import type {
-  AvatarExtendColor,
-  AvatarGroupExtendVariant,
-} from "./core/components/avatar";
+import type { AvatarExtendColor, AvatarGroupExtendVariant } from "./core/components/avatar";
 import type { BadgeExtendVariant } from "./core/components/badge";
-import type {
-  ButtonExtendColor,
-  ButtonExtendSize,
-  ButtonExtendVariant,
-} from "./core/components/button";
-import type {
-  FabExtendColor,
-  FabExtendVariant,
-} from "./core/components/button-fab";
-import type {
-  ButtonGroupExtendColor,
-  ButtonGroupExtendVariant,
-} from "./core/components/button-group";
+import type { ButtonExtendColor, ButtonExtendSize, ButtonExtendVariant } from "./core/components/button";
+import type { FabExtendColor, FabExtendVariant } from "./core/components/button-fab";
+import type { ButtonGroupExtendColor, ButtonGroupExtendVariant } from "./core/components/button-group";
 import type { IconButtonExtendColor } from "./core/components/button-icon";
-import type {
-  ChipExtendColor,
-  ChipExtendVariant,
-} from "./core/components/chip";
-import type {
-  PaginationExtendColor,
-  PaginationExtendVariant,
-} from "./core/components/pagination";
+import type { ChipExtendColor, ChipExtendVariant } from "./core/components/chip";
+import type { PaginationExtendColor, PaginationExtendVariant } from "./core/components/pagination";
 import type { RatingExtendSize } from "./core/components/rating";
 import type { SliderExtendColor } from "./core/components/slider";
 import type { TabsExtendIndicatorColor } from "./core/components/tabs";
@@ -76,8 +57,7 @@ declare module "@mui/material/styles" {
    * @from {@link file://./core/typography.ts}
    */
   interface TypographyVariants extends TypographyVariantsExtend {}
-  interface TypographyVariantsOptions
-    extends Partial<TypographyVariantsExtend> {}
+  interface TypographyVariantsOptions extends Partial<TypographyVariantsExtend> {}
 
   /**
    * ➤➤ Mixins
@@ -187,8 +167,7 @@ declare module "@mui/material/Pagination" {
   interface PaginationPropsColorOverrides extends PaginationExtendColor {}
 }
 declare module "@mui/material/PaginationItem" {
-  interface PaginationItemPropsVariantOverrides
-    extends PaginationExtendVariant {}
+  interface PaginationItemPropsVariantOverrides extends PaginationExtendVariant {}
   interface PaginationItemPropsColorOverrides extends PaginationExtendColor {}
 }
 

@@ -1,11 +1,6 @@
 import { pxToRem, rgbaFromChannel } from "@beep/ui/utils";
 import { fabClasses } from "@mui/material/Fab";
-import type {
-  Components,
-  ComponentsVariants,
-  CSSObject,
-  Theme,
-} from "@mui/material/styles";
+import type { Components, ComponentsVariants, CSSObject, Theme } from "@mui/material/styles";
 
 import { colorKeys } from "../palette";
 
@@ -26,11 +21,7 @@ export type FabExtendColor = { black: true; white: true };
 type FabVariants = ComponentsVariants<Theme>["MuiFab"];
 
 const baseColors = ["default", "inherit"] as const;
-const allColors = [
-  ...baseColors,
-  ...colorKeys.palette,
-  ...colorKeys.common,
-] as const;
+const allColors = [...baseColors, ...colorKeys.palette, ...colorKeys.common] as const;
 
 const VARIANTS = {
   filled: ["circular", "extended"],
@@ -59,10 +50,7 @@ const DIMENSIONS: Record<string, CSSObject> = {
   },
 };
 
-function isVariant<T extends string>(
-  allowed: readonly T[],
-  variant?: string,
-): variant is T {
+function isVariant<T extends string>(allowed: readonly T[], variant?: string): variant is T {
   return !!variant && allowed.includes(variant as T);
 }
 
@@ -71,32 +59,28 @@ function isVariant<T extends string>(
  * **********************************************************************/
 const filledVariants = [
   {
-    props: (props) =>
-      isVariant(VARIANTS.filled, props.variant) && props.color === "default",
+    props: (props) => isVariant(VARIANTS.filled, props.variant) && props.color === "default",
     style: ({ theme }) => ({
       ...theme.mixins.filledStyles(theme, "default", { hover: true }),
       boxShadow: theme.vars.customShadows.z8,
     }),
   },
   {
-    props: (props) =>
-      isVariant(VARIANTS.filled, props.variant) && props.color === "inherit",
+    props: (props) => isVariant(VARIANTS.filled, props.variant) && props.color === "inherit",
     style: ({ theme }) => ({
       ...theme.mixins.filledStyles(theme, "inherit", { hover: true }),
       boxShadow: theme.vars.customShadows.z8,
     }),
   },
   ...(colorKeys.common.map((colorKey) => ({
-    props: (props) =>
-      isVariant(VARIANTS.filled, props.variant) && props.color === colorKey,
+    props: (props) => isVariant(VARIANTS.filled, props.variant) && props.color === colorKey,
     style: ({ theme }) => ({
       ...theme.mixins.filledStyles(theme, colorKey, { hover: true }),
       boxShadow: theme.vars.customShadows.z8,
     }),
   })) satisfies FabVariants),
   ...(colorKeys.palette.map((colorKey) => ({
-    props: (props) =>
-      isVariant(VARIANTS.filled, props.variant) && props.color === colorKey,
+    props: (props) => isVariant(VARIANTS.filled, props.variant) && props.color === colorKey,
     style: ({ theme }) => ({
       boxShadow: theme.vars.customShadows[colorKey],
     }),
@@ -111,24 +95,17 @@ const outlinedVariants = [
       boxShadow: "none",
       borderStyle: "solid",
       backgroundColor: "transparent",
-      borderColor: rgbaFromChannel(
-        "currentColor",
-        theme.vars.opacity.outlined.border,
-      ),
+      borderColor: rgbaFromChannel("currentColor", theme.vars.opacity.outlined.border),
       "&:hover": {
         borderColor: "currentColor",
         boxShadow: "0 0 0 0.75px currentColor",
-        backgroundColor: rgbaFromChannel(
-          "currentColor",
-          theme.vars.palette.action.hoverOpacity,
-        ),
+        backgroundColor: rgbaFromChannel("currentColor", theme.vars.palette.action.hoverOpacity),
       },
     }),
   },
   {
     props: (props) =>
-      isVariant(VARIANTS.outlined, props.variant) &&
-      (props.color === "default" || props.color === "inherit"),
+      isVariant(VARIANTS.outlined, props.variant) && (props.color === "default" || props.color === "inherit"),
     style: ({ theme }) => ({
       borderColor: theme.vars.palette.shared.buttonOutlined,
       "&:hover": {
@@ -137,22 +114,19 @@ const outlinedVariants = [
     }),
   },
   {
-    props: (props) =>
-      isVariant(VARIANTS.outlined, props.variant) && props.color === "default",
+    props: (props) => isVariant(VARIANTS.outlined, props.variant) && props.color === "default",
     style: ({ theme }) => ({
       color: theme.vars.palette.action.active,
     }),
   },
   ...(colorKeys.common.map((colorKey) => ({
-    props: (props) =>
-      isVariant(VARIANTS.outlined, props.variant) && props.color === colorKey,
+    props: (props) => isVariant(VARIANTS.outlined, props.variant) && props.color === colorKey,
     style: ({ theme }) => ({
       color: theme.vars.palette.common[colorKey],
     }),
   })) satisfies FabVariants),
   ...(colorKeys.palette.map((colorKey) => ({
-    props: (props) =>
-      isVariant(VARIANTS.outlined, props.variant) && props.color === colorKey,
+    props: (props) => isVariant(VARIANTS.outlined, props.variant) && props.color === colorKey,
     style: ({ theme }) => ({
       color: theme.vars.palette[colorKey].main,
     }),
@@ -161,8 +135,7 @@ const outlinedVariants = [
 
 const softVariants = [
   ...(allColors.map((colorKey) => ({
-    props: (props) =>
-      isVariant(VARIANTS.soft, props.variant) && props.color === colorKey,
+    props: (props) => isVariant(VARIANTS.soft, props.variant) && props.color === colorKey,
     style: ({ theme }) => ({
       ...theme.mixins.softStyles(theme, colorKey, { hover: true }),
     }),
@@ -182,18 +155,15 @@ const sizeVariants = [
     }),
   },
   {
-    props: (props) =>
-      isVariant(VARIANTS.extended, props.variant) && props.size === "small",
+    props: (props) => isVariant(VARIANTS.extended, props.variant) && props.size === "small",
     style: { ...DIMENSIONS.extendedSmall },
   },
   {
-    props: (props) =>
-      isVariant(VARIANTS.extended, props.variant) && props.size === "medium",
+    props: (props) => isVariant(VARIANTS.extended, props.variant) && props.size === "medium",
     style: { ...DIMENSIONS.extendedMedium },
   },
   {
-    props: (props) =>
-      isVariant(VARIANTS.extended, props.variant) && props.size === "large",
+    props: (props) => isVariant(VARIANTS.extended, props.variant) && props.size === "large",
     style: { ...DIMENSIONS.extendedLarge },
   },
 ] satisfies FabVariants;
@@ -223,13 +193,7 @@ const MuiFab: Components<Theme>["MuiFab"] = {
   styleOverrides: {
     root: {
       "&:hover": { boxShadow: "none" },
-      variants: [
-        ...filledVariants,
-        ...outlinedVariants,
-        ...softVariants,
-        ...sizeVariants,
-        ...disabledVariants,
-      ],
+      variants: [...filledVariants, ...outlinedVariants, ...softVariants, ...sizeVariants, ...disabledVariants],
     },
   },
 };

@@ -6,18 +6,16 @@ import { Editor } from "./editor";
 
 function EditorField({ helperText, ...other }: EditorProps) {
   const field = useFieldContext<string>();
-  const { error, isError, isSubmitSuccessful } = useStore(
-    field.form.store,
-    (state) =>
-      F.pipe(
-        state.errorMap.onSubmit?.[field.name],
-        (error) =>
-          ({
-            error,
-            isError: !!error,
-            isSubmitSuccessful: state.isSubmitSuccessful,
-          }) as const,
-      ),
+  const { error, isError, isSubmitSuccessful } = useStore(field.form.store, (state) =>
+    F.pipe(
+      state.errorMap.onSubmit?.[field.name],
+      (error) =>
+        ({
+          error,
+          isError: !!error,
+          isSubmitSuccessful: state.isSubmitSuccessful,
+        }) as const
+    )
   );
   return (
     <Editor

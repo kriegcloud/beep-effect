@@ -18,9 +18,7 @@ export function parseCssVar(cssValue: unknown): string {
   const match = cssValue.match(/var\(\s*(--[\w-]+)(?:\s*,[^)]*)?\s*\)/);
 
   if (!match) {
-    console.error(
-      `Invalid CSS variable format: "${cssValue}". Expected format: var(--variable-name)`,
-    );
+    console.error(`Invalid CSS variable format: "${cssValue}". Expected format: var(--variable-name)`);
     return "";
   }
 

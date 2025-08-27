@@ -34,7 +34,7 @@ describe("Form System - Typed DSL (Effect Schema)", () => {
     expect(wf.initial).toBe(canonical.initial);
     expect(wf.steps.map((s) => s.id)).toEqual(canonical.steps.map((s) => s.id));
     expect(wf.transitions.map((t) => `${t.from}->${t.to}`)).toEqual(
-      canonical.transitions.map((t) => `${t.from}->${t.to}`),
+      canonical.transitions.map((t) => `${t.from}->${t.to}`)
     );
 
     // Confirm top-priority transition first
@@ -50,8 +50,7 @@ describe("Form System - Typed DSL (Effect Schema)", () => {
     const confirm = wf.steps.find((s) => s.id === "confirm")!;
     const confirmProp = (confirm.schema as any).properties?.confirm ?? {};
     const hasConstTrue = confirmProp.const === true;
-    const hasEnumTrue =
-      Array.isArray(confirmProp.enum) && confirmProp.enum[0] === true;
+    const hasEnumTrue = Array.isArray(confirmProp.enum) && confirmProp.enum[0] === true;
     expect(hasConstTrue || hasEnumTrue).toBe(true);
   });
 });

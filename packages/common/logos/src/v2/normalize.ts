@@ -1,9 +1,9 @@
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { Group } from "./Group";
 import { Rule } from "./Rule";
-import { RuleGroup } from "./RuleGroup";
-import type { RuleOrGroup, RuleSetOrGroup } from "./types";
+import type { RootOrGroup, RuleOrGroup } from "./types";
 
 type Options = {
   removeFailedValidations?: boolean;
@@ -11,10 +11,7 @@ type Options = {
   promoteSingleRuleGroups?: boolean;
   updateParentIds?: boolean;
 };
-export function normalize<T extends RuleSetOrGroup>(
-  group: T,
-  options?: Options,
-): T {
+export function normalize<T extends RootOrGroup>(group: T, options?: Options): T {
   const promoteSingleRuleGroups = options?.promoteSingleRuleGroups ?? true;
   const removeEmptyGroups = options?.removeEmptyGroups ?? true;
   const removeFailedValidations = options?.removeFailedValidations ?? true;
@@ -25,7 +22,7 @@ export function normalize<T extends RuleSetOrGroup>(
     if (item.node === "group") {
       // Validate group shape
       if (removeFailedValidations) {
-        const validated = S.encodeOption(RuleGroup)(item);
+        const validated = S.encodeOption(Group)(item);
         if (!O.isSome(validated)) {
           continue;
         }
@@ -40,22 +37,14 @@ export function normalize<T extends RuleSetOrGroup>(
       }
 
       // Promote single-rule group
-      if (
-        A.isNonEmptyArray(normalizedChild.rules) &&
-        normalizedChild.rules.length === 1 &&
-        promoteSingleRuleGroups
-      ) {
+      if (A.isNonEmptyArray(normalizedChild.rules) && normalizedChild.rules.length === 1 && promoteSingleRuleGroups) {
         const only = normalizedChild.rules[0];
         out.push(updateParentIds ? { ...only, parentId: group.id } : only);
         continue;
       }
 
       // Ensure parentId of group
-      out.push(
-        updateParentIds
-          ? { ...normalizedChild, parentId: group.id }
-          : normalizedChild,
-      );
+      out.push(updateParentIds ? { ...normalizedChild, parentId: group.id } : normalizedChild);
       continue;
     }
     // item is a rule

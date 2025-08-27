@@ -17,15 +17,10 @@ export function transformValueOnChange(value: string | number): string {
 
   if (P.isNullable(integerPart)) return "";
 
-  return A.length(decimalParts) > 0
-    ? Str.concat(`.${A.join("")(decimalParts)}`)(integerPart)
-    : integerPart;
+  return A.length(decimalParts) > 0 ? Str.concat(`.${A.join("")(decimalParts)}`)(integerPart) : integerPart;
 }
 
-export function transformValueOnBlur(
-  value: InputValue,
-  defaultValue: string | number = "",
-): string | number {
+export function transformValueOnBlur(value: InputValue, defaultValue: string | number = ""): string | number {
   if (!P.and(P.isNotNullable, P.isNumber)(value)) return defaultValue;
 
   const numericValue = Number.parseFloat(value.toString());

@@ -16,12 +16,7 @@ export type AnimateLogoProps = React.ComponentProps<"div"> & {
   };
 };
 
-export function AnimateLogoZoom({
-  logo,
-  slotProps,
-  sx,
-  ...other
-}: AnimateLogoProps) {
+export function AnimateLogoZoom({ logo, slotProps, sx, ...other }: AnimateLogoProps) {
   return (
     <LogoZoomRoot sx={sx} {...other}>
       <m.span
@@ -39,9 +34,7 @@ export function AnimateLogoZoom({
             {...slotProps?.logo}
             sx={[
               { width: 64, height: 64 },
-              ...(Array.isArray(slotProps?.logo?.sx)
-                ? slotProps.logo.sx
-                : [slotProps?.logo?.sx]),
+              ...(Array.isArray(slotProps?.logo?.sx) ? slotProps.logo.sx : [slotProps?.logo?.sx]),
             ]}
           />
         )}
@@ -103,12 +96,7 @@ const LogoZoomSecondaryOutline = styled(m.span)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-export function AnimateLogoRotate({
-  logo,
-  sx,
-  slotProps,
-  ...other
-}: AnimateLogoProps) {
+export function AnimateLogoRotate({ logo, sx, slotProps, ...other }: AnimateLogoProps) {
   return (
     <LogoRotateRoot sx={sx} {...other}>
       {logo ?? (
@@ -116,9 +104,7 @@ export function AnimateLogoRotate({
           {...slotProps?.logo}
           sx={[
             { zIndex: 9, width: 40, height: 40 },
-            ...(Array.isArray(slotProps?.logo?.sx)
-              ? slotProps.logo.sx
-              : [slotProps?.logo?.sx]),
+            ...(Array.isArray(slotProps?.logo?.sx) ? slotProps.logo.sx : [slotProps?.logo?.sx]),
           ]}
         />
       )}

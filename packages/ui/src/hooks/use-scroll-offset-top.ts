@@ -28,9 +28,7 @@ export type UseScrollOffsetTopReturn<T extends HTMLElement = HTMLElement> = {
   elementRef: RefObject<T>;
 };
 
-export function useScrollOffsetTop<T extends HTMLElement = HTMLElement>(
-  defaultValue = 0,
-): UseScrollOffsetTopReturn<T> {
+export function useScrollOffsetTop<T extends HTMLElement = HTMLElement>(defaultValue = 0): UseScrollOffsetTopReturn<T> {
   const elementRef = useRef<T>(null) as RefObject<T>;
 
   const [offsetTop, setOffsetTop] = useState<boolean>(false);

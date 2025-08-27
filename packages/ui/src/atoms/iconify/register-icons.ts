@@ -8,27 +8,23 @@ import allIcons from "./icon-sets";
 
 // ----------------------------------------------------------------------
 
-export const iconSets = A.reduce(
-  R.toEntries(allIcons),
-  [] as IconifyJSON[],
-  (acc, [key, value]) => {
-    const [prefix, iconName] = key.split(":");
-    const existingPrefix = acc.find((item) => item.prefix === prefix);
+export const iconSets = A.reduce(R.toEntries(allIcons), [] as IconifyJSON[], (acc, [key, value]) => {
+  const [prefix, iconName] = key.split(":");
+  const existingPrefix = acc.find((item) => item.prefix === prefix);
 
-    if (existingPrefix) {
-      existingPrefix.icons[iconName as keyof typeof existingPrefix] = value;
-    } else {
-      acc.push({
-        prefix: prefix as IconifyJSON["prefix"],
-        icons: {
-          [iconName as keyof typeof existingPrefix]: value,
-        },
-      });
-    }
+  if (existingPrefix) {
+    existingPrefix.icons[iconName as keyof typeof existingPrefix] = value;
+  } else {
+    acc.push({
+      prefix: prefix as IconifyJSON["prefix"],
+      icons: {
+        [iconName as keyof typeof existingPrefix]: value,
+      },
+    });
+  }
 
-    return acc;
-  },
-);
+  return acc;
+});
 
 export const allIconNames = Object.keys(allIcons) as IconifyName[];
 

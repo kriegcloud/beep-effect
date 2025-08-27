@@ -1,11 +1,7 @@
 import { parseCssVar } from "@beep/ui/utils";
 import type { AvatarGroupClassKey } from "@mui/material/AvatarGroup";
 import Box from "@mui/material/Box";
-import type {
-  Components,
-  ComponentsVariants,
-  Theme,
-} from "@mui/material/styles";
+import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
 import type { PaletteColorKey } from "../palette";
 
 import { colorKeys } from "../palette";
@@ -27,10 +23,7 @@ type AvatarGroupVariants = ComponentsVariants<Theme>["MuiAvatarGroup"];
 const baseColors = ["default", "inherit"] as const;
 const allColors = [...baseColors, ...colorKeys.palette] as const;
 
-export function getAvatarColor(
-  inputValue?: string,
-  fallback: AvatarExtendColor["color"] = "default",
-): string {
+export function getAvatarColor(inputValue?: string, fallback: AvatarExtendColor["color"] = "default"): string {
   if (!inputValue?.trim()) {
     return fallback;
   }
@@ -83,26 +76,20 @@ const colorVariants = [
     props: {},
     style: ({ theme }) => ({
       color: theme.vars.palette.action.active,
-      [parseCssVar(theme.vars.palette.Avatar.defaultBg)]:
-        theme.vars.palette.grey[300],
+      [parseCssVar(theme.vars.palette.Avatar.defaultBg)]: theme.vars.palette.grey[300],
       ...theme.applyStyles("dark", {
-        [parseCssVar(theme.vars.palette.Avatar.defaultBg)]:
-          theme.vars.palette.grey[700],
+        [parseCssVar(theme.vars.palette.Avatar.defaultBg)]: theme.vars.palette.grey[700],
       }),
     }),
   },
   {
-    props: (props) =>
-      props.color === "inherit" ||
-      (!!props.alt && getAvatarColor(props.alt) === "inherit"),
+    props: (props) => props.color === "inherit" || (!!props.alt && getAvatarColor(props.alt) === "inherit"),
     style: ({ theme }) => ({
       ...theme.mixins.filledStyles(theme, "inherit"),
     }),
   },
   ...(colorKeys.palette.map((colorKey) => ({
-    props: (props) =>
-      props.color === colorKey ||
-      (!!props.alt && getAvatarColor(props.alt) === colorKey),
+    props: (props) => props.color === colorKey || (!!props.alt && getAvatarColor(props.alt) === colorKey),
     style: ({ theme }) => ({
       color: theme.vars.palette[colorKey].contrastText,
       backgroundColor: theme.vars.palette[colorKey].main,

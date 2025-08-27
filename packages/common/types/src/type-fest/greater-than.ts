@@ -45,20 +45,14 @@ export type GreaterThan<A extends number, B extends number> = A extends number /
             ? false
             : true extends R[number]
               ? false
-              : [IsNegative<A>, IsNegative<B>] extends infer R extends [
-                    boolean,
-                    boolean,
-                  ]
+              : [IsNegative<A>, IsNegative<B>] extends infer R extends [boolean, boolean]
                 ? [true, false] extends R
                   ? false
                   : [false, true] extends R
                     ? true
                     : [false, false] extends R
                       ? PositiveNumericStringGt<`${A}`, `${B}`>
-                      : PositiveNumericStringGt<
-                          `${NumberAbsolute<B>}`,
-                          `${NumberAbsolute<A>}`
-                        >
+                      : PositiveNumericStringGt<`${NumberAbsolute<B>}`, `${NumberAbsolute<A>}`>
                 : never
         : never
     : never // Should never happen

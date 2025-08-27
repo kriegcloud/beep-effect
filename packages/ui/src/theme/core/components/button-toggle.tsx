@@ -1,10 +1,5 @@
 import { rgbaFromChannel } from "@beep/ui/utils";
-import type {
-  Components,
-  ComponentsVariants,
-  CSSObject,
-  Theme,
-} from "@mui/material/styles";
+import type { Components, ComponentsVariants, CSSObject, Theme } from "@mui/material/styles";
 
 import { toggleButtonClasses } from "@mui/material/ToggleButton";
 
@@ -13,8 +8,7 @@ import { colorKeys } from "../palette";
 // ----------------------------------------------------------------------
 
 type ToggleButtonVariants = ComponentsVariants<Theme>["MuiToggleButton"];
-type ToggleButtonGroupVariants =
-  ComponentsVariants<Theme>["MuiToggleButtonGroup"];
+type ToggleButtonGroupVariants = ComponentsVariants<Theme>["MuiToggleButtonGroup"];
 
 const SIZES = ["small", "medium", "large"] as const;
 const DIMENSIONS: Record<(typeof SIZES)[number] | "group", CSSObject> = {
@@ -32,13 +26,10 @@ const colorVariants = [
     props: (props) => props.color === colorKey,
     style: ({ theme }) => ({
       "&:hover": {
-        borderColor: rgbaFromChannel(
-          theme.vars.palette[colorKey].mainChannel,
-          theme.vars.opacity.outlined.border,
-        ),
+        borderColor: rgbaFromChannel(theme.vars.palette[colorKey].mainChannel, theme.vars.opacity.outlined.border),
         backgroundColor: rgbaFromChannel(
           theme.vars.palette[colorKey].mainChannel,
-          theme.vars.palette.action.hoverOpacity,
+          theme.vars.palette.action.hoverOpacity
         ),
       },
     }),

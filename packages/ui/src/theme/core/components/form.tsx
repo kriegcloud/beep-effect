@@ -32,17 +32,13 @@ const MuiInputLabel: Components<Theme>["MuiInputLabel"] = {
           props: (props) => !!props.shrink,
           style: {
             fontWeight: theme.typography.fontWeightSemiBold,
-            [`&.${inputLabelClasses.focused}:not(.${inputLabelClasses.error})`]:
-              {
-                color: "inherit",
-              },
+            [`&.${inputLabelClasses.focused}:not(.${inputLabelClasses.error})`]: {
+              color: "inherit",
+            },
           },
         },
         {
-          props: (props) =>
-            !!props.shrink &&
-            props.variant === "filled" &&
-            props.size === "medium",
+          props: (props) => !!props.shrink && props.variant === "filled" && props.size === "medium",
           style: {
             transform: "translate(12px, 6px) scale(0.75)",
           },

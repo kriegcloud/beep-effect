@@ -15,8 +15,7 @@ type EditorRootProps = {
 };
 
 export const EditorRoot = styled("div", {
-  shouldForwardProp: (prop: string) =>
-    !["error", "disabled", "fullScreen", "sx"].includes(prop),
+  shouldForwardProp: (prop: string) => !["error", "disabled", "fullScreen", "sx"].includes(prop),
 })<EditorRootProps>(({ error, disabled, fullScreen, theme }) => ({
   minHeight: 240,
   display: "flex",
@@ -69,15 +68,9 @@ export const EditorRoot = styled("div", {
     flexDirection: "column",
     borderBottomLeftRadius: "inherit",
     borderBottomRightRadius: "inherit",
-    backgroundColor: rgbaFromChannel(
-      theme.vars.palette.grey["500Channel"],
-      0.08,
-    ),
+    backgroundColor: rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.08),
     ...(error && {
-      backgroundColor: rgbaFromChannel(
-        theme.vars.palette.error.mainChannel,
-        0.08,
-      ),
+      backgroundColor: rgbaFromChannel(theme.vars.palette.error.mainChannel, 0.08),
     }),
     "& .tiptap": {
       "> * + *": { marginTop: 0, marginBottom: MARGIN },
@@ -167,10 +160,7 @@ export const EditorRoot = styled("div", {
         color: theme.vars.palette.text.secondary,
         fontSize: theme.typography.body2.fontSize,
         borderRadius: Number(theme.shape.borderRadius) / 2,
-        backgroundColor: rgbaFromChannel(
-          theme.vars.palette.grey["500Channel"],
-          0.2,
-        ),
+        backgroundColor: rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.2),
       },
       /**
        * Code block
@@ -196,14 +186,8 @@ export const EditorRoot = styled("div", {
           position: "absolute",
           color: theme.vars.palette.common.white,
           fontWeight: theme.typography.fontWeightMedium,
-          borderColor: rgbaFromChannel(
-            theme.vars.palette.grey["500Channel"],
-            0.08,
-          ),
-          backgroundColor: rgbaFromChannel(
-            theme.vars.palette.grey["500Channel"],
-            0.08,
-          ),
+          borderColor: rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.08),
+          backgroundColor: rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.08),
         },
       },
     },

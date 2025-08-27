@@ -25,7 +25,7 @@ function Slider({ helperText, slotProps, ...other }: SliderProps) {
     (state) =>
       ({
         error: state.errorMap.onSubmit?.[field.name],
-      }) as const,
+      }) as const
   );
   return (
     <Box {...slotProps?.wrapper}>
@@ -38,12 +38,7 @@ function Slider({ helperText, slotProps, ...other }: SliderProps) {
         {...other}
       />
 
-      <HelperText
-        {...slotProps?.helperText}
-        disableGutters
-        errorMessage={error}
-        helperText={helperText}
-      />
+      <HelperText {...slotProps?.helperText} disableGutters errorMessage={error} helperText={helperText} />
     </Box>
   );
 }

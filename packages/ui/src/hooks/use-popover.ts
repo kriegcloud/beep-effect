@@ -35,9 +35,7 @@ export type UsePopoverReturn<T extends HTMLElement = HTMLElement> = {
   setAnchorEl: Dispatch<SetStateAction<T | null>>;
 };
 
-export function usePopover<
-  T extends HTMLElement = HTMLElement,
->(): UsePopoverReturn<T> {
+export function usePopover<T extends HTMLElement = HTMLElement>(): UsePopoverReturn<T> {
   const [anchorEl, setAnchorEl] = useState<T | null>(null);
 
   const onOpen = useCallback((event: MouseEvent<T>) => {

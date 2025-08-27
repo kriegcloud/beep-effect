@@ -27,10 +27,7 @@ type SomeOptional = SetOptional<Foo, 'b' | 'c'>;
 
 @group type-fest
 */
-export type SetOptional<
-  BaseType,
-  Keys extends keyof BaseType,
-> = BaseType extends unknown // To distribute `BaseType` when it's a union type.
+export type SetOptional<BaseType, Keys extends keyof BaseType> = BaseType extends unknown // To distribute `BaseType` when it's a union type.
   ? Simplify<
       // Pick just the keys that are readonly from the base type.
       Except<BaseType, Keys> &

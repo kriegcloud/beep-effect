@@ -28,7 +28,7 @@ export namespace StringRule {
       Operators.NotStartsWith.Schema,
       Operators.EndsWith.Schema,
       Operators.NotEndsWith.Schema,
-      Operators.Matches.Schema,
+      Operators.Matches.Schema
     ),
     value: S.String,
     ignoreCase: S.Boolean,
@@ -59,9 +59,9 @@ export namespace StringRule {
             notEndsWith: () => !caseValue.endsWith(caseRuleValue),
             matches: ({ regex }) => regex.test(value),
           }),
-          Match.orElse(() => false),
-        ),
-    ),
+          Match.orElse(() => false)
+        )
+    )
   );
 }
 
@@ -74,7 +74,7 @@ export namespace NumberRule {
       Operators.Gt.Schema,
       Operators.Gte.Schema,
       Operators.Lt.Schema,
-      Operators.Lte.Schema,
+      Operators.Lte.Schema
     ),
     value: S.Number,
   });
@@ -92,7 +92,7 @@ export namespace NumberRule {
         lt: () => value < rule.value,
         lte: () => value <= rule.value,
       }),
-      Match.orElse(() => false),
+      Match.orElse(() => false)
     );
 }
 
@@ -111,18 +111,14 @@ export namespace BooleanRule {
         isTrue: () => Equal.equals(value, true),
         isFalse: () => Equal.equals(value, false),
       }),
-      Match.orElse(() => false),
+      Match.orElse(() => false)
     );
 }
 
 export namespace ArrayValueRule {
   export const { Rule, Input } = makeRule("arrayValue", {
     field: S.String,
-    op: S.Union(
-      Operators.ArrayContains.Schema,
-      Operators.ArrayNotContains.Schema,
-      Operators.Every.Schema,
-    ),
+    op: S.Union(Operators.ArrayContains.Schema, Operators.ArrayNotContains.Schema, Operators.Every.Schema),
     value: S.Any,
   });
   export type Rule = typeof Rule.Type;
@@ -136,7 +132,7 @@ export namespace ArrayValueRule {
         arrayNotContains: () => !value.includes(rule.value),
         every: () => A.every(value, (v) => v === rule.value),
       }),
-      Match.orElse(() => false),
+      Match.orElse(() => false)
     );
 }
 
@@ -149,17 +145,14 @@ export namespace ArrayLengthRule {
       Operators.Gt.Schema,
       Operators.Gte.Schema,
       Operators.Lt.Schema,
-      Operators.Lte.Schema,
+      Operators.Lte.Schema
     ),
     value: S.Number,
   });
   export type Rule = typeof Rule.Type;
   export type Input = typeof Input.Type;
 
-  export const validate = (
-    rule: Input,
-    value: UnsafeTypes.UnsafeArray,
-  ): boolean =>
+  export const validate = (rule: Input, value: UnsafeTypes.UnsafeArray): boolean =>
     Match.value(rule.op).pipe(
       Match.withReturnType<boolean>(),
       Match.tags({
@@ -170,17 +163,14 @@ export namespace ArrayLengthRule {
         lt: () => value.length < rule.value,
         lte: () => value.length <= rule.value,
       }),
-      Match.orElse(() => false),
+      Match.orElse(() => false)
     );
 }
 
 export namespace HasKeyRule {
   export const { Rule, Input } = makeRule("hasKey", {
     field: S.String,
-    op: S.Union(
-      Operators.ArrayContains.Schema,
-      Operators.ArrayNotContains.Schema,
-    ),
+    op: S.Union(Operators.ArrayContains.Schema, Operators.ArrayNotContains.Schema),
     value: S.String,
   });
   export type Rule = typeof Rule.Type;
@@ -194,19 +184,16 @@ export namespace HasKeyRule {
           arrayContains: () => contains,
           arrayNotContains: () => !contains,
         }),
-        Match.orElse(() => false),
-      ),
-    ),
+        Match.orElse(() => false)
+      )
+    )
   );
 }
 
 export namespace HasValueRule {
   export const { Rule, Input } = makeRule("hasValue", {
     field: S.String,
-    op: S.Union(
-      Operators.ArrayContains.Schema,
-      Operators.ArrayNotContains.Schema,
-    ),
+    op: S.Union(Operators.ArrayContains.Schema, Operators.ArrayNotContains.Schema),
     value: S.String,
   });
   export type Rule = typeof Rule.Type;
@@ -220,18 +207,15 @@ export namespace HasValueRule {
           arrayContains: () => contains,
           arrayNotContains: () => !contains,
         }),
-        Match.orElse(() => false),
-      ),
+        Match.orElse(() => false)
+      )
     );
 }
 
 export namespace HasEntryRule {
   export const { Rule, Input } = makeRule("hasEntry", {
     field: S.String,
-    op: S.Union(
-      Operators.ArrayContains.Schema,
-      Operators.ArrayNotContains.Schema,
-    ),
+    op: S.Union(Operators.ArrayContains.Schema, Operators.ArrayNotContains.Schema),
     value: S.Struct({
       key: S.String,
       value: S.Any,
@@ -242,11 +226,7 @@ export namespace HasEntryRule {
 
   export const validate = (rule: Input, value: object) =>
     F.pipe(
-      A.some(
-        R.toEntries(value),
-        ([k, v]) =>
-          Equal.equals(v)(rule.value.value) && Equal.equals(k)(rule.value.key),
-      ),
+      A.some(R.toEntries(value), ([k, v]) => Equal.equals(v)(rule.value.value) && Equal.equals(k)(rule.value.key)),
       (contains) =>
         Match.value(rule.op).pipe(
           Match.withReturnType<boolean>(),
@@ -254,8 +234,8 @@ export namespace HasEntryRule {
             arrayContains: () => contains,
             arrayNotContains: () => !contains,
           }),
-          Match.orElse(() => false),
-        ),
+          Match.orElse(() => false)
+        )
     );
 }
 
@@ -268,7 +248,7 @@ export namespace GenericComparisonRule {
       Operators.Gt.Schema,
       Operators.Gte.Schema,
       Operators.Lt.Schema,
-      Operators.Lte.Schema,
+      Operators.Lte.Schema
     ),
     value: S.Any,
   });
@@ -276,10 +256,7 @@ export namespace GenericComparisonRule {
   export type Rule = typeof Rule.Type;
   export type Input = typeof Input.Type;
 
-  export const validate = (
-    rule: Input,
-    value: UnsafeTypes.UnsafeAny,
-  ): boolean =>
+  export const validate = (rule: Input, value: UnsafeTypes.UnsafeAny): boolean =>
     Match.value(rule.op).pipe(
       Match.withReturnType<boolean>(),
       Match.tags({
@@ -290,7 +267,7 @@ export namespace GenericComparisonRule {
         lt: () => value < rule.value,
         lte: () => value <= rule.value,
       }),
-      Match.orElse(() => false),
+      Match.orElse(() => false)
     );
 }
 
@@ -313,7 +290,7 @@ export namespace GenericTypeRule {
       Operators.IsArray.Schema,
       Operators.IsNotArray.Schema,
       Operators.IsObject.Schema,
-      Operators.IsNotObject.Schema,
+      Operators.IsNotObject.Schema
     ),
   });
 
@@ -341,18 +318,14 @@ export namespace GenericTypeRule {
         isObject: () => P.isRecord(value),
         isNotObject: () => !P.isRecord(value),
       }),
-      Match.orElse(() => false),
+      Match.orElse(() => false)
     );
 }
 
 export namespace DateRule {
   export const { Rule, Input } = makeRule("date", {
     field: S.String,
-    op: S.Union(
-      Operators.IsBefore.Schema,
-      Operators.IsAfter.Schema,
-      Operators.IsBetween.Schema,
-    ),
+    op: S.Union(Operators.IsBefore.Schema, Operators.IsAfter.Schema, Operators.IsBetween.Schema),
     value: S.Union(
       S.TaggedStruct("range", {
         start: BS.DateFromAllAcceptable,
@@ -360,7 +333,7 @@ export namespace DateRule {
       }),
       S.TaggedStruct("comparison", {
         value: BS.DateFromAllAcceptable,
-      }),
+      })
     ),
   });
 
@@ -387,14 +360,12 @@ export namespace DateRule {
                         S.decodeOption(BS.DateTimeUtcFromAllAcceptable)(cmpRaw),
                         O.match({
                           onNone: () => false,
-                          onSome: (cmp) =>
-                            DateTime.toDate(utc).getTime() <
-                            DateTime.toDate(cmp).getTime(),
-                        }),
+                          onSome: (cmp) => DateTime.toDate(utc).getTime() < DateTime.toDate(cmp).getTime(),
+                        })
                       ),
                     range: () => false,
                   }),
-                  Match.orElse(() => false),
+                  Match.orElse(() => false)
                 ),
               isAfter: () =>
                 Match.value(rule.value).pipe(
@@ -405,14 +376,12 @@ export namespace DateRule {
                         S.decodeOption(BS.DateTimeUtcFromAllAcceptable)(cmpRaw),
                         O.match({
                           onNone: () => false,
-                          onSome: (cmp) =>
-                            DateTime.toDate(utc).getTime() >
-                            DateTime.toDate(cmp).getTime(),
-                        }),
+                          onSome: (cmp) => DateTime.toDate(utc).getTime() > DateTime.toDate(cmp).getTime(),
+                        })
                       ),
                     range: () => false,
                   }),
-                  Match.orElse(() => false),
+                  Match.orElse(() => false)
                 ),
               isBetween: () =>
                 Match.value(rule.value).pipe(
@@ -420,35 +389,29 @@ export namespace DateRule {
                   Match.tags({
                     comparison: () =>
                       F.pipe(
-                        S.decodeOption(BS.DateTimeUtcFromAllAcceptable)(
-                          (rule.op as any).minimum,
-                        ),
+                        S.decodeOption(BS.DateTimeUtcFromAllAcceptable)((rule.op as any).minimum),
                         O.flatMap((min) =>
                           F.pipe(
-                            S.decodeOption(BS.DateTimeUtcFromAllAcceptable)(
-                              (rule.op as any).maximum,
-                            ),
+                            S.decodeOption(BS.DateTimeUtcFromAllAcceptable)((rule.op as any).maximum),
                             O.map((max) => {
                               const u = DateTime.toDate(utc).getTime();
                               const minMs = DateTime.toDate(min).getTime();
                               const maxMs = DateTime.toDate(max).getTime();
                               const inclusive = !!(rule.op as any).inclusive;
-                              return inclusive
-                                ? u >= minMs && u <= maxMs
-                                : u > minMs && u < maxMs;
-                            }),
-                          ),
+                              return inclusive ? u >= minMs && u <= maxMs : u > minMs && u < maxMs;
+                            })
+                          )
                         ),
-                        O.getOrElse(F.constFalse),
+                        O.getOrElse(F.constFalse)
                       ),
                     range: () => false,
                   }),
-                  Match.orElse(() => false),
+                  Match.orElse(() => false)
                 ),
             }),
-            Match.orElse(() => false),
+            Match.orElse(() => false)
           ),
-      }),
+      })
     );
 }
 
@@ -463,7 +426,7 @@ export class Rule extends S.Union(
   HasEntryRule.Rule,
   GenericComparisonRule.Rule,
   GenericTypeRule.Rule,
-  DateRule.Rule,
+  DateRule.Rule
 ) {}
 export namespace Rule {
   export type Type = typeof Rule.Type;
@@ -481,7 +444,7 @@ export const RuleInput = S.Union(
   HasEntryRule.Input,
   GenericComparisonRule.Input,
   GenericTypeRule.Input,
-  DateRule.Input,
+  DateRule.Input
 );
 export namespace RuleInput {
   export type Type = typeof RuleInput.Type;

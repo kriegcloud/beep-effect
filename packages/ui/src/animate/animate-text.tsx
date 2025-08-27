@@ -57,10 +57,7 @@ export function AnimateText({
 
   const animationControls = useAnimation();
 
-  const textArray = useMemo(
-    () => (Array.isArray(textContent) ? textContent : [textContent]),
-    [textContent],
-  );
+  const textArray = useMemo(() => (Array.isArray(textContent) ? textContent : [textContent]), [textContent]);
 
   const isInView = useInView(textRef, { once, amount });
 
@@ -124,8 +121,7 @@ export function AnimateText({
             sx={{ display: "block" }}
           >
             {line.split(" ").map((word, wordIndex) => {
-              const lastWordInline =
-                line.split(" ")[line.split(" ").length - 1];
+              const lastWordInline = line.split(" ")[line.split(" ").length - 1];
 
               return (
                 <TextWord
@@ -147,10 +143,7 @@ export function AnimateText({
                   ))}
 
                   {lastWordInline !== word && (
-                    <TextWord
-                      className={animateTextClasses.space}
-                      sx={{ display: "inline-block" }}
-                    >
+                    <TextWord className={animateTextClasses.space} sx={{ display: "inline-block" }}>
                       &nbsp;
                     </TextWord>
                   )}

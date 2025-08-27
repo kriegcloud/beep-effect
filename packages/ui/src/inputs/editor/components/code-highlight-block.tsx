@@ -8,11 +8,7 @@ import { editorClasses } from "../classes";
 
 // ----------------------------------------------------------------------
 
-export function CodeHighlightBlock({
-  node,
-  extension,
-  updateAttributes,
-}: NodeViewProps) {
+export function CodeHighlightBlock({ node, extension, updateAttributes }: NodeViewProps) {
   const { language } = node.attrs;
   const { lowlight } = extension.options;
 
@@ -20,7 +16,7 @@ export function CodeHighlightBlock({
     (event: React.ChangeEvent<HTMLSelectElement>) => {
       updateAttributes({ language: event.target.value });
     },
-    [updateAttributes],
+    [updateAttributes]
   );
 
   const renderLanguageOptions = () =>

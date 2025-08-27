@@ -1,8 +1,4 @@
-import type {
-  Components,
-  ComponentsVariants,
-  Theme,
-} from "@mui/material/styles";
+import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
 import { tabClasses } from "@mui/material/Tab";
 import type { TabsClassKey } from "@mui/material/Tabs";
 
@@ -97,22 +93,18 @@ const tabsVariants = {
   list: [
     {
       props: (props) =>
-        props.indicatorColor !== "custom" &&
-        props.variant !== "fullWidth" &&
-        props.orientation !== "vertical",
+        props.indicatorColor !== "custom" && props.variant !== "fullWidth" && props.orientation !== "vertical",
       style: ({ theme }) => ({
         gap: theme.spacing(5),
         [theme.breakpoints.down("sm")]: { gap: theme.spacing(3) },
       }),
     },
     {
-      props: (props) =>
-        props.indicatorColor === "custom" && props.orientation === "horizontal",
+      props: (props) => props.indicatorColor === "custom" && props.orientation === "horizontal",
       style: { ...customTabsIndicatorStyles.listHorizontal },
     },
     {
-      props: (props) =>
-        props.indicatorColor === "custom" && props.orientation === "vertical",
+      props: (props) => props.indicatorColor === "custom" && props.orientation === "vertical",
       style: { ...customTabsIndicatorStyles.listVertical },
     },
   ],
@@ -126,8 +118,7 @@ const tabsVariants = {
       style: { ...customTabsIndicatorStyles.indicator },
     },
     {
-      props: (props) =>
-        props.indicatorColor === "custom" && props.orientation === "vertical",
+      props: (props) => props.indicatorColor === "custom" && props.orientation === "vertical",
       style: { ...customTabsIndicatorStyles.indicatorVertical },
     },
   ],

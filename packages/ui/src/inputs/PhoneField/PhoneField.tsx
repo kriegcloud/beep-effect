@@ -85,13 +85,11 @@ export function PhoneInput({
           onSearchCountry={handleSearchCountry}
           sx={{
             pl: variant === "standard" ? 0 : 1.5,
-            ...(variant === "standard" &&
-              hasLabel && { mt: size === "small" ? "16px" : "20px" }),
+            ...(variant === "standard" && hasLabel && { mt: size === "small" ? "16px" : "20px" }),
             ...((variant === "filled" || variant === "outlined") && {
               mt: size === "small" ? "8px" : "16px",
             }),
-            ...(variant === "filled" &&
-              hasLabel && { mt: size === "small" ? "21px" : "25px" }),
+            ...(variant === "filled" && hasLabel && { mt: size === "small" ? "21px" : "25px" }),
           }}
         />
       )}
@@ -151,9 +149,7 @@ function PhoneField({
       onBlur={field.handleBlur}
       fullWidth
       error={!!field.form.state.errorMap.onSubmit?.[field.name]}
-      helperText={
-        field.form.state.errorMap.onSubmit?.[field.name] ?? helperText
-      }
+      helperText={field.form.state.errorMap.onSubmit?.[field.name] ?? helperText}
       {...other}
     />
   );

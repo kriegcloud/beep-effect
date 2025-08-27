@@ -21,54 +21,26 @@ export function FileThumbnail({
   className,
   ...other
 }: FileThumbnailProps) {
-  const {
-    icon,
-    removeBtn,
-    downloadBtn,
-    tooltip: tooltipProps,
-  } = slotProps ?? {};
+  const { icon, removeBtn, downloadBtn, tooltip: tooltipProps } = slotProps ?? {};
 
   const { name, path } = fileData(file);
 
-  const previewUrl =
-    typeof file === "string" ? file : URL.createObjectURL(file);
+  const previewUrl = typeof file === "string" ? file : URL.createObjectURL(file);
 
   const format = fileFormat(path ?? previewUrl);
 
   const renderItem = () => (
-    <ItemRoot
-      className={mergeClasses([fileThumbnailClasses.root, className])}
-      {...(sx ? { sx } : {})}
-      {...other}
-    >
+    <ItemRoot className={mergeClasses([fileThumbnailClasses.root, className])} {...(sx ? { sx } : {})} {...other}>
       {format === "image" && imageView ? (
-        <ItemImg
-          src={previewUrl}
-          className={fileThumbnailClasses.img}
-          {...slotProps?.img}
-        />
+        <ItemImg src={previewUrl} className={fileThumbnailClasses.img} {...slotProps?.img} />
       ) : (
-        <ItemIcon
-          src={fileThumb(format)}
-          className={fileThumbnailClasses.icon}
-          {...icon}
-        />
+        <ItemIcon src={fileThumb(format)} className={fileThumbnailClasses.icon} {...icon} />
       )}
 
-      {onRemove && (
-        <RemoveButton
-          onClick={onRemove}
-          className={fileThumbnailClasses.removeBtn}
-          {...removeBtn}
-        />
-      )}
+      {onRemove && <RemoveButton onClick={onRemove} className={fileThumbnailClasses.removeBtn} {...removeBtn} />}
 
       {onDownload && (
-        <DownloadButton
-          onClick={onDownload}
-          className={fileThumbnailClasses.downloadBtn}
-          {...downloadBtn}
-        />
+        <DownloadButton onClick={onDownload} className={fileThumbnailClasses.downloadBtn} {...downloadBtn} />
       )}
     </ItemRoot>
   );

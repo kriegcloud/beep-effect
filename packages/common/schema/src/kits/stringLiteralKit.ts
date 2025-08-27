@@ -14,10 +14,7 @@ import * as S from "effect/Schema";
 type ValidateEnumMapping<
   Literals extends readonly string[],
   Mapping extends readonly [string, string][],
-> = Mapping extends readonly [
-  ...infer Rest extends readonly [string, string][],
-  readonly [infer Key, infer Value],
-]
+> = Mapping extends readonly [...infer Rest extends readonly [string, string][], readonly [infer Key, infer Value]]
   ? Key extends Literals[number]
     ? Rest extends readonly []
       ? true
@@ -42,10 +39,7 @@ type CreateEnumType<
   Mapping extends readonly [string, string][] | undefined,
 > = Mapping extends readonly [string, string][]
   ? {
-      readonly [K in ExtractMappedValues<Mapping>]: Extract<
-        Mapping[number],
-        readonly [any, K]
-      >[0];
+      readonly [K in ExtractMappedValues<Mapping>]: Extract<Mapping[number], readonly [any, K]>[0];
     }
   : { readonly [K in Literals[number]]: K };
 
@@ -97,9 +91,7 @@ type ValidMapping<
  * });
  * ```
  */
-export function stringLiteralKit<
-  const Literals extends A.NonEmptyReadonlyArray<string>,
->(
+export function stringLiteralKit<const Literals extends A.NonEmptyReadonlyArray<string>>(
   ...literals: Literals
 ): (annotations: DefaultAnnotations<Literals[number]>) => {
   Schema: S.Literal<[...Literals]>;
@@ -125,19 +117,14 @@ export function stringLiteralKit<
     is: (a: unknown) => a is Keys[number];
   };
   is: (a: unknown) => a is Literals[number];
-  toPgEnum: <Name extends string>(
-    name: `${SnakeTag<Name>}`,
-  ) => ReturnType<typeof pgEnum<Literals[number], Literals>>;
+  toPgEnum: <Name extends string>(name: `${SnakeTag<Name>}`) => ReturnType<typeof pgEnum<Literals[number], Literals>>;
 };
 
 export function stringLiteralKit<
   const Literals extends A.NonEmptyReadonlyArray<string>,
   const Mapping extends readonly [Literals[number], string][],
 >(
-  ...args: [
-    ...literals: Literals,
-    options: { enumMapping: ValidMapping<Literals, Mapping> },
-  ]
+  ...args: [...literals: Literals, options: { enumMapping: ValidMapping<Literals, Mapping> }]
 ): (annotations: DefaultAnnotations<Literals[number]>) => {
   Schema: S.Literal<[...Literals]>;
   Options: Literals;
@@ -163,7 +150,7 @@ export function stringLiteralKit<
   };
   is: (a: unknown) => a is Literals[number];
   toPgEnum: <Name extends string>(
-    name: `${SnakeTag<Name>}_enum`,
+    name: `${SnakeTag<Name>}_enum`
   ) => ReturnType<typeof pgEnum<Literals[number], Literals>>;
 };
 
@@ -197,7 +184,7 @@ export function stringLiteralKit<
   };
   is: (a: unknown) => a is Literals[number];
   toPgEnum: <Name extends string>(
-    name: `${SnakeTag<Name>}_enum`,
+    name: `${SnakeTag<Name>}_enum`
   ) => ReturnType<typeof pgEnum<Literals[number], Literals>>;
 } {
   // Determine if last argument is options
@@ -208,9 +195,7 @@ export function stringLiteralKit<
     args[args.length - 1] !== null;
 
   const literals = (hasOptions ? args.slice(0, -1) : args) as Literals;
-  const options = hasOptions
-    ? (args[args.length - 1] as { enumMapping?: Mapping })
-    : undefined;
+  const options = hasOptions ? (args[args.length - 1] as { enumMapping?: Mapping }) : undefined;
 
   // Create the schema
 
@@ -221,15 +206,11 @@ export function stringLiteralKit<
     // Validate at runtime
     const mappingMap = new Map(options.enumMapping);
     const setValues = A.map(options.enumMapping, ([_, v]) => v);
-    invariant(
-      A.isNonEmptyReadonlyArray(setValues),
-      "enumMapping must have unique values",
-      {
-        file: "packages/common/utils/src/factories/stringLiteralKit.ts",
-        line: 226,
-        args: [setValues],
-      },
-    );
+    invariant(A.isNonEmptyReadonlyArray(setValues), "enumMapping must have unique values", {
+      file: "packages/common/utils/src/factories/stringLiteralKit.ts",
+      line: 226,
+      args: [setValues],
+    });
     const mappedValues = new Set(setValues);
 
     // Check all literals are mapped
@@ -258,9 +239,9 @@ export function stringLiteralKit<
   const pick = <Keys extends A.NonEmptyReadonlyArray<Literals[number]>>(
     ...keys: Keys
   ): A.NonEmptyReadonlyArray<Keys[number]> => {
-    const pickedLiterals = literals.filter((lit) =>
-      keys.includes(lit),
-    ) as unknown as A.NonEmptyReadonlyArray<Keys[number]>;
+    const pickedLiterals = literals.filter((lit) => keys.includes(lit)) as unknown as A.NonEmptyReadonlyArray<
+      Keys[number]
+    >;
 
     if (pickedLiterals.length === 0) {
       throw new Error("pick operation must result in at least one literal");
@@ -272,9 +253,7 @@ export function stringLiteralKit<
   const omit = <Keys extends A.NonEmptyReadonlyArray<Literals[number]>>(
     ...keys: Keys
   ): A.NonEmptyReadonlyArray<Exclude<Literals[number], Keys[number]>> => {
-    const omittedLiterals = literals.filter(
-      (lit) => !keys.includes(lit),
-    ) as unknown as A.NonEmptyReadonlyArray<
+    const omittedLiterals = literals.filter((lit) => !keys.includes(lit)) as unknown as A.NonEmptyReadonlyArray<
       Exclude<Literals[number], Keys[number]>
     >;
 

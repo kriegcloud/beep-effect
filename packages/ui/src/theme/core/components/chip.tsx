@@ -2,12 +2,7 @@ import { chipClasses } from "@mui/material/Chip";
 import type { SvgIconProps } from "@mui/material/SvgIcon";
 
 import SvgIcon from "@mui/material/SvgIcon";
-import type {
-  Components,
-  ComponentsVariants,
-  CSSObject,
-  Theme,
-} from "@mui/material/styles";
+import type { Components, ComponentsVariants, CSSObject, Theme } from "@mui/material/styles";
 
 import { colorKeys } from "../palette";
 
@@ -23,11 +18,7 @@ export type ChipExtendColor = { black: true; white: true };
 type ChipVariants = ComponentsVariants<Theme>["MuiChip"];
 
 const baseColors = ["default"] as const;
-const allColors = [
-  ...baseColors,
-  ...colorKeys.palette,
-  ...colorKeys.common,
-] as const;
+const allColors = [...baseColors, ...colorKeys.palette, ...colorKeys.common] as const;
 
 const DIMENSIONS: Record<"small" | "medium", CSSObject> = {
   small: { borderRadius: "8px" },
@@ -173,13 +164,7 @@ const MuiChip: Components<Theme>["MuiChip"] = {
   // ▼▼▼▼▼▼▼▼ 🎨 STYLE ▼▼▼▼▼▼▼▼
   styleOverrides: {
     root: {
-      variants: [
-        ...filledVariants,
-        ...outlinedVariants,
-        ...softVariants,
-        ...sizeVariants,
-        ...disabledVariants,
-      ],
+      variants: [...filledVariants, ...outlinedVariants, ...softVariants, ...sizeVariants, ...disabledVariants],
     },
     label: ({ theme }) => ({
       fontWeight: theme.typography.fontWeightMedium,

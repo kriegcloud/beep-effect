@@ -19,14 +19,16 @@
   "json": {
     "formatter": {
       "indentStyle": "space",
-      "indentWidth": 2
+      "indentWidth": 2,
+      "trailingCommas": "none"
     },
     "parser": {
       "allowComments": true
     }
   },
   "formatter": {
-    "lineWidth": 80,
+    "enabled": true,
+    "lineWidth": 120,
     "indentStyle": "space",
     "indentWidth": 2,
     "formatWithErrors": true
@@ -37,7 +39,8 @@
       "semicolons": "always",
       "jsxQuoteStyle": "double",
       "bracketSpacing": true,
-      "bracketSameLine": false
+      "bracketSameLine": false,
+      "trailingCommas": "es5"
     }
   },
   "assist": {
@@ -60,27 +63,37 @@
         "useKeyWithClickEvents": "off",
         "noStaticElementInteractions": "off"
       },
+
       "complexity": {
         "noBannedTypes": "off",
         "noUselessConstructor": "off",
         "noUselessFragments": "off",
         "noThisInStatic": "off",
-        "useLiteralKeys": "off",
         "noForEach": "off",
         "noStaticOnlyClass": "off",
         "noArguments": "off",
-        "noCommaOperator": "off"
+        "noCommaOperator": "off",
+        "useLiteralKeys": {
+          "fix": "unsafe",
+          "level": "error"
+        }
       },
       "recommended": true,
       "correctness": {
+        "noUnusedImports": {
+          "level": "error",
+          "fix": "none"
+        },
+        "noUnusedVariables": {
+          "level": "warn",
+          "fix": "none"
+        },
         "useUniqueElementIds": "off",
         "useYield": "off",
         "noChildrenProp": "off",
         "noSwitchDeclarations": "off",
         "noUndeclaredVariables": "off",
         "useExhaustiveDependencies": "off",
-        "noUnusedVariables": "off",
-        "noUnusedImports": "off",
         "noUnusedFunctionParameters": "off",
         "useHookAtTopLevel": "off"
       },

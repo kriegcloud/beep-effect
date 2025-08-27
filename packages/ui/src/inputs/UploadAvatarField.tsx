@@ -23,10 +23,7 @@ function UploadAvatarField({ name, slotProps, ...other }: UploadFieldProps) {
         {...other}
       />
 
-      <HelperText
-        errorMessage={field.form.state.errorMap.onSubmit?.[field.name]}
-        sx={{ textAlign: "center" }}
-      />
+      <HelperText errorMessage={field.form.state.errorMap.onSubmit?.[field.name]} sx={{ textAlign: "center" }} />
     </Box>
   );
 }

@@ -8,14 +8,7 @@ import { navSectionClasses } from "../styles";
 import type { NavListProps, NavSubListProps } from "../types";
 import { NavItem } from "./nav-item";
 
-export function NavList({
-  data,
-  depth,
-  render,
-  slotProps,
-  checkPermissions,
-  enabledRootRedirect,
-}: NavListProps) {
+export function NavList({ data, depth, render, slotProps, checkPermissions, enabledRootRedirect }: NavListProps) {
   const pathname = usePathname();
   const navItemRef = useRef<HTMLButtonElement>(null);
 
@@ -63,13 +56,7 @@ export function NavList({
 
   const renderCollapse = () =>
     !!data.children && (
-      <NavCollapse
-        mountOnEnter
-        unmountOnExit
-        {...(depth ? { depth } : {})}
-        in={open}
-        data-group={data.title}
-      >
+      <NavCollapse mountOnEnter unmountOnExit {...(depth ? { depth } : {})} in={open} data-group={data.title}>
         <NavSubList
           data={data.children}
           render={render}
@@ -82,11 +69,7 @@ export function NavList({
     );
 
   // Hidden item by role
-  if (
-    data.allowedRoles &&
-    checkPermissions &&
-    checkPermissions(data.allowedRoles)
-  ) {
+  if (data.allowedRoles && checkPermissions && checkPermissions(data.allowedRoles)) {
     return null;
   }
 
@@ -107,14 +90,7 @@ export function NavList({
   );
 }
 
-function NavSubList({
-  data,
-  render,
-  depth = 0,
-  slotProps,
-  checkPermissions,
-  enabledRootRedirect,
-}: NavSubListProps) {
+function NavSubList({ data, render, depth = 0, slotProps, checkPermissions, enabledRootRedirect }: NavSubListProps) {
   return (
     <NavUl sx={{ gap: "var(--nav-item-gap)" }}>
       {data.map((list) => (

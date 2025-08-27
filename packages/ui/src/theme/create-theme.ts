@@ -1,10 +1,7 @@
 "use client";
 
 import type { SettingsState } from "@beep/ui/settings";
-import {
-  applySettingsToComponents,
-  applySettingsToTheme,
-} from "@beep/ui/theme/with-settings";
+import { applySettingsToComponents, applySettingsToTheme } from "@beep/ui/theme/with-settings";
 import type { Components, Theme } from "@mui/material/styles";
 
 import { createTheme as createMuiTheme } from "@mui/material/styles";
@@ -57,22 +54,13 @@ export function createTheme({
   localeComponents = {},
 }: CreateThemeProps = {}): Theme {
   // Update core theme settings (colorSchemes, typography, etc.)
-  const updatedCore = settingsState
-    ? applySettingsToTheme(baseTheme, settingsState)
-    : baseTheme;
+  const updatedCore = settingsState ? applySettingsToTheme(baseTheme, settingsState) : baseTheme;
 
   // Update component settings (only components)
-  const updatedComponents = settingsState
-    ? applySettingsToComponents(settingsState)
-    : {};
+  const updatedComponents = settingsState ? applySettingsToComponents(settingsState) : {};
 
   // Create and return the final theme
-  const theme = createMuiTheme(
-    updatedCore,
-    updatedComponents,
-    localeComponents,
-    themeOverrides,
-  );
+  const theme = createMuiTheme(updatedCore, updatedComponents, localeComponents, themeOverrides);
 
   return theme;
 }

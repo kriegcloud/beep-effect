@@ -56,7 +56,7 @@ export function NavSectionHorizontal({
                 checkPermissions={checkPermissions}
                 enabledRootRedirect={enabledRootRedirect}
               />
-            ) : null,
+            ) : null
           )}
         </NavUl>
       </Nav>
@@ -64,14 +64,7 @@ export function NavSectionHorizontal({
   );
 }
 
-function Group({
-  items,
-  render,
-  cssVars,
-  slotProps,
-  checkPermissions,
-  enabledRootRedirect,
-}: NavGroupProps) {
+function Group({ items, render, cssVars, slotProps, checkPermissions, enabledRootRedirect }: NavGroupProps) {
   return (
     <NavLi>
       <NavUl sx={{ flexDirection: "row", gap: "var(--nav-item-gap)" }}>

@@ -2,20 +2,20 @@ import * as S from "effect/Schema";
 import { LogicalOp, Node, NodeId } from "./internal";
 import { Rule } from "./Rule";
 
-export class RuleGroup extends Node.make("group", {
+export class Group extends Node.make("group", {
   parentId: NodeId,
   logicalOp: S.mutable(LogicalOp),
   rules: S.mutable(
     S.Array(
       S.Union(
         Rule,
-        S.suspend((): S.Schema<RuleGroup.Type, RuleGroup.Encoded> => RuleGroup),
-      ),
-    ),
+        S.suspend((): S.Schema<Group.Type, Group.Encoded> => Group)
+      )
+    )
   ),
 }) {}
 
-export namespace RuleGroup {
+export namespace Group {
   export type Type = Node.Type<
     "group",
     {

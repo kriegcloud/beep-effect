@@ -39,21 +39,14 @@ export function NavSectionVertical({
               checkPermissions={checkPermissions}
               enabledRootRedirect={enabledRootRedirect}
             />
-          ) : null,
+          ) : null
         )}
       </NavUl>
     </Nav>
   );
 }
 
-function Group({
-  items,
-  render,
-  subheader,
-  slotProps,
-  checkPermissions,
-  enabledRootRedirect,
-}: NavGroupProps) {
+function Group({ items, render, subheader, slotProps, checkPermissions, enabledRootRedirect }: NavGroupProps) {
   const groupOpen = useBoolean(true);
 
   const renderContent = () => (

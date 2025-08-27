@@ -68,7 +68,7 @@ export function buildInventoryAdjustmentTyped(): WorkflowDefinition {
       {
         "==": [{ var: "external.productDetails.lotControlled" }, true],
       },
-      1,
+      1
     )
     .when(
       "product",
@@ -76,7 +76,7 @@ export function buildInventoryAdjustmentTyped(): WorkflowDefinition {
       {
         "==": [{ var: "external.productDetails.lotControlled" }, false],
       },
-      2,
+      2
     )
     .go("lot", "adjust")
     .go("adjust", "confirm")
@@ -84,5 +84,4 @@ export function buildInventoryAdjustmentTyped(): WorkflowDefinition {
     .build();
 }
 
-export const inventoryAdjustmentTyped: WorkflowDefinition =
-  buildInventoryAdjustmentTyped();
+export const inventoryAdjustmentTyped: WorkflowDefinition = buildInventoryAdjustmentTyped();

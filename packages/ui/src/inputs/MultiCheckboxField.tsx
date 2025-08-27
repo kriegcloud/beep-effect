@@ -30,23 +30,12 @@ type MultiCheckboxProps = FormGroupProps & {
   };
 };
 
-function MultiCheckbox({
-  label,
-  options,
-  slotProps,
-  helperText,
-  ...other
-}: MultiCheckboxProps) {
+function MultiCheckbox({ label, options, slotProps, helperText, ...other }: MultiCheckboxProps) {
   const field = useFieldContext<Array<string>>();
 
   const getSelected = (selectedItems: string[], item: string) =>
-    selectedItems.includes(item)
-      ? selectedItems.filter((value) => value !== item)
-      : [...selectedItems, item];
-  const { error } = useStore(
-    field.form.store,
-    (state) => ({ error: state.errorMap.onSubmit?.[field.name] }) as const,
-  );
+    selectedItems.includes(item) ? selectedItems.filter((value) => value !== item) : [...selectedItems, item];
+  const { error } = useStore(field.form.store, (state) => ({ error: state.errorMap.onSubmit?.[field.name] }) as const);
   return (
     <FormControl component="fieldset" {...slotProps?.wrapper}>
       {label && (
@@ -73,11 +62,7 @@ function MultiCheckbox({
                 checked={field.state.value.includes(option.value)}
                 defaultValue={field.state.value}
                 onBlur={field.handleBlur}
-                onChange={() =>
-                  field.handleChange(
-                    getSelected(field.state.value, option.value),
-                  )
-                }
+                onChange={() => field.handleChange(getSelected(field.state.value, option.value))}
                 {...slotProps?.checkbox}
                 slotProps={{
                   ...slotProps?.checkbox?.slotProps,
@@ -95,12 +80,7 @@ function MultiCheckbox({
           />
         ))}
       </FormGroup>
-      <HelperText
-        {...slotProps?.helperText}
-        disableGutters
-        errorMessage={error}
-        helperText={helperText}
-      />
+      <HelperText {...slotProps?.helperText} disableGutters errorMessage={error} helperText={helperText} />
     </FormControl>
   );
 }

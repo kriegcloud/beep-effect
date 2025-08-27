@@ -14,26 +14,15 @@ import { primaryColorPresets } from "./color-presets";
  * @returns Updated theme options with applied settings.
  */
 
-export function applySettingsToTheme(
-  theme: ThemeOptions,
-  settingsState?: SettingsState,
-): ThemeOptions {
-  const {
-    direction,
-    fontFamily,
-    contrast = "default",
-    primaryColor = "default",
-  } = settingsState ?? {};
+export function applySettingsToTheme(theme: ThemeOptions, settingsState?: SettingsState): ThemeOptions {
+  const { direction, fontFamily, contrast = "default", primaryColor = "default" } = settingsState ?? {};
 
   const isDefaultContrast = contrast === "default";
   const isDefaultPrimaryColor = primaryColor === "default";
 
-  const lightPalette = theme.colorSchemes?.light
-    ?.palette as ColorSystem["palette"];
+  const lightPalette = theme.colorSchemes?.light?.palette as ColorSystem["palette"];
 
-  const primaryColorPalette = createPaletteChannel(
-    primaryColorPresets[primaryColor],
-  );
+  const primaryColorPalette = createPaletteChannel(primaryColorPresets[primaryColor]);
   // const secondaryColorPalette = createPaletteChannel(secondaryColorPresets[primaryColor]);
 
   const updateColorScheme = (schemeName: ThemeColorScheme) => {

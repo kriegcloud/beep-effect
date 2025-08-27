@@ -1,10 +1,5 @@
 import { RootGroup } from "@beep/logos";
-import {
-  addGroup,
-  addRuleToGroup,
-  findRuleById,
-  updateRuleById,
-} from "@beep/logos/crud";
+import { addGroup, addRuleToGroup, findRuleById, updateRuleById } from "@beep/logos/crud";
 import { v4 as uuid } from "uuid";
 import { expect, test } from "vitest";
 

@@ -17,15 +17,14 @@ export function useTranslate(namespace?: Namespace) {
   const { t, i18n } = useTranslation(namespace);
   const { t: tMessages } = useTranslation("messages");
 
-  const resolvedLanguage = (i18n.resolvedLanguage ||
-    fallbackLang) as SupportedLangValue.Type;
+  const resolvedLanguage = (i18n.resolvedLanguage || fallbackLang) as SupportedLangValue.Type;
   const currentLang = getCurrentLang(resolvedLanguage);
 
   const updateDirection = useCallback(
     (lang: SupportedLangValue.Type) => {
       settings.setState({ direction: i18n.dir(lang) });
     },
-    [i18n, settings],
+    [i18n, settings]
   );
 
   const updateDayjsLocale = useCallback((lang: SupportedLangValue.Type) => {
@@ -54,7 +53,7 @@ export function useTranslate(namespace?: Namespace) {
         console.error(error);
       }
     },
-    [i18n, router, tMessages, updateDayjsLocale, updateDirection],
+    [i18n, router, tMessages, updateDayjsLocale, updateDirection]
   );
 
   const handleResetLang = useCallback(() => {

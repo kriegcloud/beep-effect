@@ -7,12 +7,7 @@ import type React from "react";
 import { transformValue, transformValueOnChange } from "../utils";
 import type { DefaultOmit } from "./Field";
 
-const TextField: React.FC<DefaultOmit<TextFieldProps>> = ({
-  helperText,
-  slotProps,
-  type = "text",
-  ...props
-}) => {
+const TextField: React.FC<DefaultOmit<TextFieldProps>> = ({ helperText, slotProps, type = "text", ...props }) => {
   const field = useFieldContext<string>();
   const isNumberType = P.isNumber(field.state.value);
 
@@ -22,7 +17,7 @@ const TextField: React.FC<DefaultOmit<TextFieldProps>> = ({
       ({
         isError: !!state.errorMap.onSubmit?.[field.name],
         error: state.errorMap.onSubmit?.[field.name],
-      }) as const,
+      }) as const
   );
 
   return (
@@ -30,13 +25,9 @@ const TextField: React.FC<DefaultOmit<TextFieldProps>> = ({
       id={field.name}
       name={field.name}
       fullWidth
-      value={
-        isNumberType ? transformValue(field.state.value) : field.state.value
-      }
+      value={isNumberType ? transformValue(field.state.value) : field.state.value}
       onChange={(event) => {
-        const transformedValue = isNumberType
-          ? transformValueOnChange(event.target.value)
-          : event.target.value;
+        const transformedValue = isNumberType ? transformValueOnChange(event.target.value) : event.target.value;
 
         field.handleChange(transformedValue);
       }}

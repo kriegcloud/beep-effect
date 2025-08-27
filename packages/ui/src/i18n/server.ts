@@ -3,12 +3,7 @@ import { createInstance, type i18n } from "i18next";
 import { cookies, headers } from "next/headers";
 import { cache } from "react";
 import { initReactI18next } from "react-i18next/initReactI18next";
-import {
-  defaultNS,
-  fallbackLang,
-  SupportedLangValue,
-  storageConfig,
-} from "./constants";
+import { defaultNS, fallbackLang, SupportedLangValue, storageConfig } from "./constants";
 import { i18nOptions, i18nResourceLoader } from "./locales-config";
 
 // ----------------------------------------------------------------------
@@ -43,10 +38,7 @@ export async function detectLanguage() {
 
   // 2. Try Accept-Language header
   const headerLang = headerStore.get("accept-language") ?? undefined;
-  const fromHeader =
-    headerLang &&
-    storageConfig.cookie.autoDetection &&
-    acceptLanguage.get(headerLang);
+  const fromHeader = headerLang && storageConfig.cookie.autoDetection && acceptLanguage.get(headerLang);
 
   // 3. Fallback
   const lang = fromCookie || fromHeader || fallbackLang;
@@ -56,17 +48,11 @@ export async function detectLanguage() {
 
 // ----------------------------------------------------------------------
 
-export async function initServerI18next(
-  lang: SupportedLangValue.Type,
-  namespace: string,
-): Promise<i18n> {
+export async function initServerI18next(lang: SupportedLangValue.Type, namespace: string): Promise<i18n> {
   const i18nInstance = createInstance();
   const initOptions = i18nOptions(lang, namespace);
 
-  await i18nInstance
-    .use(initReactI18next)
-    .use(i18nResourceLoader)
-    .init(initOptions);
+  await i18nInstance.use(initReactI18next).use(i18nResourceLoader).init(initOptions);
 
   return i18nInstance;
 }
@@ -77,18 +63,12 @@ type Options = Record<string, unknown> & {
   keyPrefix?: string;
 };
 
-export const getServerTranslations = cache(
-  async (namespace = defaultNS, options: Options = {}) => {
-    const lang = await detectLanguage();
-    const i18nextInstance = await initServerI18next(lang, namespace);
+export const getServerTranslations = cache(async (namespace = defaultNS, options: Options = {}) => {
+  const lang = await detectLanguage();
+  const i18nextInstance = await initServerI18next(lang, namespace);
 
-    return {
-      t: i18nextInstance.getFixedT(
-        lang,
-        Array.isArray(namespace) ? namespace[0] : namespace,
-        options?.keyPrefix,
-      ),
-      i18n: i18nextInstance,
-    };
-  },
-);
+  return {
+    t: i18nextInstance.getFixedT(lang, Array.isArray(namespace) ? namespace[0] : namespace, options?.keyPrefix),
+    i18n: i18nextInstance,
+  };
+});

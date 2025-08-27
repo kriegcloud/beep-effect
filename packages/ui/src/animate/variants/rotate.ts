@@ -12,10 +12,7 @@ type Options = {
   transitionOut?: Transition;
 };
 
-export const varRotate = (
-  direction: Direction,
-  options?: Options,
-): Variants => {
+export const varRotate = (direction: Direction, options?: Options): Variants => {
   const deg = options?.deg || 360;
   const transitionIn = options?.transitionIn;
   const transitionOut = options?.transitionOut;

@@ -93,34 +93,18 @@ export function Image({
   const showPlaceholder = !visibleByDefault && !isLoaded && !disablePlaceholder;
 
   const renderComponents = {
-    overlay: () =>
-      slotProps?.overlay && (
-        <ImageOverlay className={imageClasses.overlay} {...slotProps.overlay} />
-      ),
+    overlay: () => slotProps?.overlay && <ImageOverlay className={imageClasses.overlay} {...slotProps.overlay} />,
     placeholder: () =>
-      showPlaceholder && (
-        <ImagePlaceholder
-          className={imageClasses.placeholder}
-          {...slotProps?.placeholder}
-        />
-      ),
+      showPlaceholder && <ImagePlaceholder className={imageClasses.placeholder} {...slotProps?.placeholder} />,
     image: () => (
-      <ImageImg
-        src={src}
-        alt={alt}
-        onLoad={handleImageLoad}
-        className={imageClasses.img}
-        {...slotProps?.img}
-      />
+      <ImageImg src={src} alt={alt} onLoad={handleImageLoad} className={imageClasses.img} {...slotProps?.img} />
     ),
   };
 
   return (
     <ImageRoot
       ref={mergeRefs([localRef, ref])}
-      effect={
-        visibleByDefault || finalEffect.disabled ? undefined : finalEffect
-      }
+      effect={visibleByDefault || finalEffect.disabled ? undefined : finalEffect}
       className={mergeClasses([imageClasses.root, className], {
         [imageClasses.state.loaded]: !visibleByDefault && isLoaded,
       })}

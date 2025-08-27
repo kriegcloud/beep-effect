@@ -1,10 +1,5 @@
 import { makeRule, Operands } from "@beep/logos/v2/internal";
-import {
-  countDistinctOverlaps,
-  has,
-  intersect,
-  missingFrom,
-} from "@beep/logos/v2/rules/util";
+import { countDistinctOverlaps, has, intersect, missingFrom } from "@beep/logos/v2/rules/util";
 import { BS } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Match from "effect/Match";
@@ -39,14 +34,7 @@ export namespace Ops {
 
 export const { Rule, Input } = makeRule("hasValue", {
   field: S.NonEmptyString,
-  op: S.Union(
-    Ops.Contains,
-    Ops.NotContains,
-    Ops.InSet,
-    Ops.OneOf,
-    Ops.AllOf,
-    Ops.NoneOf,
-  ),
+  op: S.Union(Ops.Contains, Ops.NotContains, Ops.InSet, Ops.OneOf, Ops.AllOf, Ops.NoneOf),
 });
 
 export namespace Rule {
@@ -65,25 +53,19 @@ export const makeBase = (i: Omit<Input.Type, "id" | "type">) =>
     type: "hasValue",
   });
 
-export const contains = (
-  i: Pick<Input.Type, "field"> & { value: BS.Json.Type },
-) =>
+export const contains = (i: Pick<Input.Type, "field"> & { value: BS.Json.Type }) =>
   makeBase({
     op: Ops.Contains.make(i.value),
     field: i.field,
   });
 
-export const notContains = (
-  i: Pick<Input.Type, "field"> & { value: BS.Json.Type },
-) =>
+export const notContains = (i: Pick<Input.Type, "field"> & { value: BS.Json.Type }) =>
   makeBase({
     op: Ops.NotContains.make(i.value),
     field: i.field,
   });
 
-export const inSet = (
-  i: Pick<Input.Type, "field"> & { value: (typeof Ops.InSet.Type)["value"] },
-) =>
+export const inSet = (i: Pick<Input.Type, "field"> & { value: (typeof Ops.InSet.Type)["value"] }) =>
   makeBase({
     op: Ops.InSet.make({
       value: i.value,
@@ -91,9 +73,7 @@ export const inSet = (
     } as const),
     field: i.field,
   });
-export const oneOf = (
-  i: Pick<Input.Type, "field"> & { value: (typeof Ops.OneOf.Type)["value"] },
-) =>
+export const oneOf = (i: Pick<Input.Type, "field"> & { value: (typeof Ops.OneOf.Type)["value"] }) =>
   makeBase({
     op: Ops.OneOf.make({
       value: i.value,
@@ -102,9 +82,7 @@ export const oneOf = (
     field: i.field,
   });
 
-export const allOf = (
-  i: Pick<Input.Type, "field"> & { value: (typeof Ops.AllOf.Type)["value"] },
-) =>
+export const allOf = (i: Pick<Input.Type, "field"> & { value: (typeof Ops.AllOf.Type)["value"] }) =>
   makeBase({
     op: Ops.AllOf.make({
       value: i.value,
@@ -113,9 +91,7 @@ export const allOf = (
     field: i.field,
   });
 
-export const noneOf = (
-  i: Pick<Input.Type, "field"> & { value: (typeof Ops.NoneOf.Type)["value"] },
-) =>
+export const noneOf = (i: Pick<Input.Type, "field"> & { value: (typeof Ops.NoneOf.Type)["value"] }) =>
   makeBase({
     op: Ops.NoneOf.make({
       value: i.value,
@@ -124,15 +100,10 @@ export const noneOf = (
     field: i.field,
   });
 
-export const validate = (
-  rule: Input.Type,
-  rec: R.ReadonlyRecord<string, BS.Json.Type>,
-) => {
+export const validate = (rule: Input.Type, rec: R.ReadonlyRecord<string, BS.Json.Type>) => {
   // 1) Pull values, 2) optionally filter to JSON (defensive at runtime)
   // If your input type guarantees BS.Json already, you can skip the filter.
-  const values = A.filter(R.values(rec), (v): v is BS.Json.Type =>
-    S.is(BS.Json)(v),
-  );
+  const values = A.filter(R.values(rec), (v): v is BS.Json.Type => S.is(BS.Json)(v));
 
   // precompute common checks
   const contains = has(values, rule.op.value);
@@ -154,6 +125,6 @@ export const validate = (
       // every (unique) selection element appears in the record’s values
       allOf: (op) => missingFrom(op.value, values).length === 0,
     }),
-    Match.orElse(() => false),
+    Match.orElse(() => false)
   );
 };

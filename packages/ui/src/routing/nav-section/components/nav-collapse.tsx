@@ -14,8 +14,7 @@ export const NavCollapse = styled(Collapse, {
     content: '""',
     position: "absolute",
     backgroundColor: "var(--nav-bullet-light-color)",
-    bottom:
-      "calc(var(--nav-item-sub-height) - 2px - var(--nav-bullet-size) / 2)",
+    bottom: "calc(var(--nav-item-sub-height) - 2px - var(--nav-bullet-size) / 2)",
     ...theme.applyStyles("dark", {
       backgroundColor: "var(--nav-bullet-dark-color)",
     }),

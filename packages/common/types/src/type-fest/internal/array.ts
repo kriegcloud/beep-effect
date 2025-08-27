@@ -14,8 +14,9 @@ Extracts the type of the first element of an array or tuple.
 
 @group type-fest
 */
-export type FirstArrayElement<TArray extends UnknownArrayOrTuple> =
-  TArray extends readonly [infer THead, ...unknown[]] ? THead : never;
+export type FirstArrayElement<TArray extends UnknownArrayOrTuple> = TArray extends readonly [infer THead, ...unknown[]]
+  ? THead
+  : never;
 
 /**
 Extract the element of an array that also works for array union.
@@ -40,10 +41,7 @@ type B = StaticPartOfArray<A>;
 
 @group type-fest
 */
-export type StaticPartOfArray<
-  T extends UnknownArray,
-  Result extends UnknownArray = [],
-> = T extends unknown
+export type StaticPartOfArray<T extends UnknownArray, Result extends UnknownArray = []> = T extends unknown
   ? number extends T["length"]
     ? T extends readonly [infer U, ...infer V]
       ? StaticPartOfArray<V, [...Result, U]>
@@ -86,10 +84,7 @@ type NormalResult = SetArrayAccess<ReadonlyArray, false>;
 
 @group type-fest
 */
-export type SetArrayAccess<
-  T extends UnknownArray,
-  IsReadonly extends boolean,
-> = T extends readonly [...infer U]
+export type SetArrayAccess<T extends UnknownArray, IsReadonly extends boolean> = T extends readonly [...infer U]
   ? IsReadonly extends true
     ? readonly [...U]
     : [...U]
@@ -100,11 +95,7 @@ Returns whether the given array `T` is readonly.
 
 @group type-fest
 */
-export type IsArrayReadonly<T extends UnknownArray> = IfNever<
-  T,
-  false,
-  T extends unknown[] ? false : true
->;
+export type IsArrayReadonly<T extends UnknownArray> = IfNever<T, false, T extends unknown[] ? false : true>;
 
 /**
 An if-else-like type that resolves depending on whether the given array is readonly.

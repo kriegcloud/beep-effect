@@ -28,7 +28,7 @@ export function CountryListPopover({
 
   const selectedCountry = useMemo(
     () => countries.find((country) => country.code === countryCode),
-    [countries, countryCode],
+    [countries, countryCode]
   );
 
   const dataFiltered = useMemo(
@@ -37,7 +37,7 @@ export function CountryListPopover({
         inputData: countries,
         query: searchCountry,
       }),
-    [countries, searchCountry],
+    [countries, searchCountry]
   );
 
   const notFound = dataFiltered.length === 0 && !!searchCountry;
@@ -74,10 +74,7 @@ export function CountryListPopover({
         }}
       />
 
-      <Iconify
-        icon="eva:chevron-down-fill"
-        sx={{ ml: 0.25, flexShrink: 0, color: "text.disabled" }}
-      />
+      <Iconify icon="eva:chevron-down-fill" sx={{ ml: 0.25, flexShrink: 0, color: "text.disabled" }} />
 
       <Box
         component="span"
@@ -104,10 +101,7 @@ export function CountryListPopover({
             onClickCountry(country.code as Country);
           }}
         >
-          <FlagIcon
-            code={country.code}
-            sx={{ mr: 1, width: 22, height: 22, borderRadius: "50%" }}
-          />
+          <FlagIcon code={country.code} sx={{ mr: 1, width: 22, height: 22, borderRadius: "50%" }} />
 
           <ListItemText
             primary={country.label}
@@ -160,19 +154,12 @@ export function CountryListPopover({
               input: {
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Iconify
-                      icon="eva:search-fill"
-                      sx={{ color: "text.disabled" }}
-                    />
+                    <Iconify icon="eva:search-fill" sx={{ color: "text.disabled" }} />
                   </InputAdornment>
                 ),
                 endAdornment: searchCountry && (
                   <InputAdornment position="end">
-                    <IconButton
-                      size="small"
-                      edge="end"
-                      onClick={() => onSearchCountry("")}
-                    >
+                    <IconButton size="small" edge="end" onClick={() => onSearchCountry("")}>
                       <Iconify width={16} icon="mingcute:close-line" />
                     </IconButton>
                   </InputAdornment>
@@ -183,11 +170,7 @@ export function CountryListPopover({
         </Box>
 
         <Box sx={{ flex: "1 1 auto", overflowX: "hidden" }}>
-          {notFound ? (
-            <SearchNotFound query={searchCountry} sx={{ px: 2, pt: 5 }} />
-          ) : (
-            renderList()
-          )}
+          {notFound ? <SearchNotFound query={searchCountry} sx={{ px: 2, pt: 5 }} /> : renderList()}
         </Box>
       </Popover>
     </>
@@ -203,8 +186,6 @@ function applyFilter({ inputData, query }: ApplyFilterProps) {
   if (!query) return inputData;
 
   return inputData.filter(({ label, code, phone }) =>
-    [label, code, phone].some((field) =>
-      field?.toLowerCase().includes(query.toLowerCase()),
-    ),
+    [label, code, phone].some((field) => field?.toLowerCase().includes(query.toLowerCase()))
   );
 }

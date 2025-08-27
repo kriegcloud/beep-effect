@@ -39,12 +39,7 @@ export type BgGradientProps = {
   repeats?: string[];
 };
 
-export function bgGradient({
-  sizes,
-  repeats,
-  images,
-  positions,
-}: BgGradientProps): CSSObject {
+export function bgGradient({ sizes, repeats, images, positions }: BgGradientProps): CSSObject {
   return {
     backgroundImage: images?.join(", "),
     backgroundSize: sizes?.join(", ") ?? "cover",

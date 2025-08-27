@@ -8,10 +8,7 @@ import dayjs from "dayjs";
 import * as F from "effect/Function";
 import { useFieldContext } from "../form";
 
-function DatePickerField({
-  slotProps,
-  ...other
-}: DefaultOmit<DatePickerProps>) {
+function DatePickerField({ slotProps, ...other }: DefaultOmit<DatePickerProps>) {
   const field = useFieldContext<string>();
   const { error, isError } = useStore(field.form.store, (state) =>
     F.pipe(
@@ -20,8 +17,8 @@ function DatePickerField({
         ({
           error,
           isError: !!error,
-        }) as const,
-    ),
+        }) as const
+    )
   );
   return (
     <DatePicker
@@ -34,8 +31,7 @@ function DatePickerField({
         textField: {
           fullWidth: true,
           error: isError,
-          helperText:
-            error ?? (slotProps?.textField as TextFieldProps)?.helperText,
+          helperText: error ?? (slotProps?.textField as TextFieldProps)?.helperText,
           ...slotProps?.textField,
         },
       }}

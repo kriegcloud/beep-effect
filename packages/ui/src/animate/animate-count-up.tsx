@@ -1,13 +1,7 @@
 import type { TypographyProps } from "@mui/material/Typography";
 import Typography from "@mui/material/Typography";
 import type { UseInViewOptions } from "framer-motion";
-import {
-  animate,
-  m,
-  useInView,
-  useMotionValue,
-  useTransform,
-} from "framer-motion";
+import { animate, m, useInView, useMotionValue, useTransform } from "framer-motion";
 import { useEffect, useRef } from "react";
 
 // ----------------------------------------------------------------------
@@ -45,9 +39,7 @@ export function AnimateCountUp({
 
   const inView = useInView(countRef, { once, amount });
 
-  const rounded = useTransform(startCount, (latest) =>
-    latest.toFixed(isFloat(latest) ? toFixed : 0),
-  );
+  const rounded = useTransform(startCount, (latest) => latest.toFixed(isFloat(latest) ? toFixed : 0));
 
   useEffect(() => {
     if (inView) {
@@ -80,9 +72,7 @@ function isFloat(n: number | string) {
   return typeof n === "number" && !Number.isInteger(n);
 }
 
-function shortenNumber(
-  value: number,
-): { unit: string; value: number } | undefined {
+function shortenNumber(value: number): { unit: string; value: number } | undefined {
   if (value >= 1e9) {
     return { unit: "b", value: value / 1e9 };
   }

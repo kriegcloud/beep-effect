@@ -18,9 +18,7 @@ export const scrollProgressClasses = {
   linear: createClasses("scroll__progress__linear"),
 };
 
-type BaseProps = MotionProps &
-  React.ComponentProps<"svg"> &
-  React.ComponentProps<"div">;
+type BaseProps = MotionProps & React.ComponentProps<"svg"> & React.ComponentProps<"div">;
 
 export interface ScrollProgressProps extends BaseProps {
   size?: number;
@@ -55,8 +53,7 @@ export function ScrollProgress({
 
   const transformProgress = useTransform(progress, [0, -1], [0, 1]);
 
-  const progressValue =
-    isRtl && whenScroll === "x" ? transformProgress : progress;
+  const progressValue = isRtl && whenScroll === "x" ? transformProgress : progress;
   const progressSize = variant === "circular" ? (size ?? 64) : (size ?? 3);
 
   const scaleX = useSpring(progressValue, {
@@ -119,9 +116,7 @@ export function ScrollProgress({
 
   return (
     <PortalWrapper>
-      <Box {...slotProps?.wrapper}>
-        {variant === "circular" ? renderCircular() : renderLinear()}
-      </Box>
+      <Box {...slotProps?.wrapper}>{variant === "circular" ? renderCircular() : renderLinear()}</Box>
     </PortalWrapper>
   );
 }

@@ -25,11 +25,7 @@ export const ArrowUpIcon = (props: IconProps) => (
       fill="currentColor"
       d="m8.303 11.596l3.327-3.431a.499.499 0 0 1 .74 0l6.43 6.63c.401.414.158 1.205-.37 1.205h-5.723z"
     />
-    <path
-      fill="currentColor"
-      d="M11.293 16H5.57c-.528 0-.771-.791-.37-1.205l2.406-2.482z"
-      opacity="0.5"
-    />
+    <path fill="currentColor" d="M11.293 16H5.57c-.528 0-.771-.791-.37-1.205l2.406-2.482z" opacity="0.5" />
   </SvgIcon>
 );
 
@@ -40,11 +36,7 @@ export const ArrowDownIcon = (props: IconProps) => (
       fill="currentColor"
       d="m8.303 12.404l3.327 3.431c.213.22.527.22.74 0l6.43-6.63C19.201 8.79 18.958 8 18.43 8h-5.723z"
     />
-    <path
-      fill="currentColor"
-      d="M11.293 8H5.57c-.528 0-.771.79-.37 1.205l2.406 2.481z"
-      opacity="0.5"
-    />
+    <path fill="currentColor" d="M11.293 8H5.57c-.528 0-.771.79-.37 1.205l2.406 2.481z" opacity="0.5" />
   </SvgIcon>
 );
 
@@ -80,10 +72,7 @@ export const ExportIcon = (props: IconProps) => (
 export const EyeIcon = (props: IconProps) => (
   // https://icon-sets.iconify.design/solar/eye-bold/
   <SvgIcon {...props}>
-    <path
-      fill="currentColor"
-      d="M9.75 12a2.25 2.25 0 1 1 4.5 0a2.25 2.25 0 0 1-4.5 0"
-    />
+    <path fill="currentColor" d="M9.75 12a2.25 2.25 0 1 1 4.5 0a2.25 2.25 0 0 1-4.5 0" />
     <path
       fill="currentColor"
       fillRule="evenodd"
@@ -282,10 +271,7 @@ const MuiDataGrid: Components<Theme>["MuiDataGrid"] = {
       [`& .${linearProgressClasses.root}`]: {
         height: 3,
         borderRadius: 0,
-        backgroundColor: rgbaFromChannel(
-          theme.vars.palette.text.primaryChannel,
-          0.16,
-        ),
+        backgroundColor: rgbaFromChannel(theme.vars.palette.text.primaryChannel, 0.16),
         [`& .${linearProgressClasses.bar1}, .${linearProgressClasses.bar2}`]: {
           backgroundColor: theme.vars.palette.text.primary,
         },
@@ -300,10 +286,9 @@ const MuiDataGrid: Components<Theme>["MuiDataGrid"] = {
     columnHeader: ({ theme }) => ({
       color: theme.vars.palette.text.secondary,
       backgroundColor: theme.vars.palette.background.neutral,
-      [`&.${gridClasses["columnHeader--sorted"]}, &.${gridClasses["columnHeader--sorted"]} .${gridClasses.sortIcon}`]:
-        {
-          color: theme.vars.palette.text.primary,
-        },
+      [`&.${gridClasses["columnHeader--sorted"]}, &.${gridClasses["columnHeader--sorted"]} .${gridClasses.sortIcon}`]: {
+        color: theme.vars.palette.text.primary,
+      },
     }),
     /**
      * @cell
@@ -312,10 +297,7 @@ const MuiDataGrid: Components<Theme>["MuiDataGrid"] = {
       borderTopStyle: "dashed",
       [`&.${gridClasses["cell--editing"]}`]: {
         boxShadow: "none",
-        backgroundColor: rgbaFromChannel(
-          theme.vars.palette.primary.mainChannel,
-          0.08,
-        ),
+        backgroundColor: rgbaFromChannel(theme.vars.palette.primary.mainChannel, 0.08),
       },
       "&:hover": {
         color: theme.vars.palette.primary.main,
@@ -379,10 +361,7 @@ const MuiDataGrid: Components<Theme>["MuiDataGrid"] = {
     filterFormDeleteIcon: ({ theme }) => ({
       [`& .${iconButtonClasses.root}`]: {
         padding: "5px",
-        backgroundColor: rgbaFromChannel(
-          theme.vars.palette.grey["500Channel"],
-          0.16,
-        ),
+        backgroundColor: rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.16),
         [`& .${svgIconClasses.root}`]: { width: 16, height: 16 },
       },
     }),

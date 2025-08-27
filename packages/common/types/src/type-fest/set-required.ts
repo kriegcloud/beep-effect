@@ -33,10 +33,7 @@ type ArrayExample = SetRequired<[number?, number?, number?], 0 | 1>;
 
 @group type-fest
 */
-export type SetRequired<
-  BaseType,
-  Keys extends keyof BaseType,
-> = BaseType extends UnknownArray
+export type SetRequired<BaseType, Keys extends keyof BaseType> = BaseType extends UnknownArray
   ? SetArrayRequired<BaseType, Keys> extends infer ResultantArray
     ? IfArrayReadonly<BaseType, Readonly<ResultantArray>, ResultantArray>
     : never
@@ -63,20 +60,10 @@ type SetArrayRequired<
     : TArray extends readonly [(infer First)?, ...infer Rest]
       ? "0" extends OptionalKeysOf<TArray> // If the first element of `TArray` is optional
         ? `${Counter["length"]}` extends `${Keys & (string | number)}` // If the current index needs to be required
-          ? SetArrayRequired<
-              Rest,
-              Keys,
-              [...Counter, any],
-              [...Accumulator, First]
-            >
+          ? SetArrayRequired<Rest, Keys, [...Counter, any], [...Accumulator, First]>
           : // If the current element is optional, but it doesn't need to be required,
             // then we can exit early, since no further elements can now be made required.
             [...Accumulator, ...TArray]
-        : SetArrayRequired<
-            Rest,
-            Keys,
-            [...Counter, any],
-            [...Accumulator, TArray[0]]
-          >
+        : SetArrayRequired<Rest, Keys, [...Counter, any], [...Accumulator, TArray[0]]>
       : never // Should never happen, since `[(infer F)?, ...infer R]` is a top-type for arrays.
   : never; // Should never happen

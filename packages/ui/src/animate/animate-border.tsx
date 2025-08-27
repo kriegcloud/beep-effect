@@ -6,13 +6,7 @@ import type { BoxProps } from "@mui/material/Box";
 import Box from "@mui/material/Box";
 import type { CSSObject, SxProps, Theme } from "@mui/material/styles";
 import { useTheme } from "@mui/material/styles";
-import {
-  m,
-  useAnimationFrame,
-  useMotionTemplate,
-  useMotionValue,
-  useTransform,
-} from "framer-motion";
+import { m, useAnimationFrame, useMotionTemplate, useMotionValue, useTransform } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
 // ----------------------------------------------------------------------
@@ -44,14 +38,7 @@ type AnimateBorderProps = BoxProps & {
   };
 };
 
-export function AnimateBorder({
-  sx,
-  children,
-  duration,
-  slotProps,
-  className,
-  ...other
-}: AnimateBorderProps) {
+export function AnimateBorder({ sx, children, duration, slotProps, className, ...other }: AnimateBorderProps) {
   const theme = useTheme();
 
   const rootRef = useRef<HTMLDivElement>(null);
@@ -59,10 +46,7 @@ export function AnimateBorder({
 
   const [isHidden, setIsHidden] = useState(false);
 
-  const secondaryBorderStyles = useComputedElementStyles(
-    theme,
-    primaryBorderRef,
-  );
+  const secondaryBorderStyles = useComputedElementStyles(theme, primaryBorderRef);
 
   useEffect(() => {
     const handleVisibility = () => {
@@ -82,9 +66,7 @@ export function AnimateBorder({
   }, []);
 
   const outlineColor =
-    typeof slotProps?.outlineColor === "function"
-      ? slotProps?.outlineColor(theme)
-      : slotProps?.outlineColor;
+    typeof slotProps?.outlineColor === "function" ? slotProps?.outlineColor(theme) : slotProps?.outlineColor;
 
   const borderProps = {
     duration,
@@ -104,9 +86,7 @@ export function AnimateBorder({
             padding: slotProps?.primaryBorder?.width,
           }),
         },
-        ...(Array.isArray(slotProps?.primaryBorder?.sx)
-          ? slotProps.primaryBorder.sx
-          : [slotProps?.primaryBorder?.sx]),
+        ...(Array.isArray(slotProps?.primaryBorder?.sx) ? slotProps.primaryBorder.sx : [slotProps?.primaryBorder?.sx]),
       ]}
     />
   );
@@ -115,15 +95,11 @@ export function AnimateBorder({
     slotProps?.secondaryBorder && (
       <MovingBorder
         {...borderProps}
-        size={
-          slotProps?.secondaryBorder?.size ?? slotProps?.primaryBorder?.size
-        }
+        size={slotProps?.secondaryBorder?.size ?? slotProps?.primaryBorder?.size}
         sx={[
           {
             ...theme.mixins.borderGradient({
-              padding:
-                slotProps?.secondaryBorder?.width ??
-                secondaryBorderStyles.padding,
+              padding: slotProps?.secondaryBorder?.width ?? secondaryBorderStyles.padding,
             }),
             borderRadius: secondaryBorderStyles.borderRadius,
             transform: "scale(-1, -1)",
@@ -177,15 +153,7 @@ type MovingBorderProps = BoxProps<"span"> & {
   size?: BorderStyleProps["size"];
 };
 
-function MovingBorder({
-  sx,
-  size,
-  isHidden,
-  rx = "30%",
-  ry = "30%",
-  duration = 8,
-  ...other
-}: MovingBorderProps) {
+function MovingBorder({ sx, size, isHidden, rx = "30%", ry = "30%", duration = 8, ...other }: MovingBorderProps) {
   const svgRectRef = useRef<SVGRectElement>(null);
   const progress = useMotionValue<number>(0);
 
@@ -210,20 +178,14 @@ function MovingBorder({
     }
   };
 
-  useAnimationFrame((time) =>
-    !isHidden ? updateAnimationFrame(time) : undefined,
-  );
+  useAnimationFrame((time) => (!isHidden ? updateAnimationFrame(time) : undefined));
 
   const x = useTransform(progress, (val) => calculateTransform(val).x);
   const y = useTransform(progress, (val) => calculateTransform(val).y);
   const transform = useMotionTemplate`translateX(${x}px) translateY(${y}px) translateX(-50%) translateY(-50%)`;
 
   return (
-    <Box
-      component="span"
-      sx={[{ textAlign: "initial" }, ...(Array.isArray(sx) ? sx : [sx])]}
-      {...other}
-    >
+    <Box component="span" sx={[{ textAlign: "initial" }, ...(Array.isArray(sx) ? sx : [sx])]} {...other}>
       <svg
         role={"img"}
         xmlns="http://www.w3.org/2000/svg"
@@ -233,14 +195,7 @@ function MovingBorder({
         className={animateBorderClasses.svgWrapper}
         style={{ position: "absolute" }}
       >
-        <rect
-          ref={svgRectRef}
-          fill="none"
-          width="100%"
-          height="100%"
-          rx={rx}
-          ry={ry}
-        />
+        <rect ref={svgRectRef} fill="none" width="100%" height="100%" rx={rx} ry={ry} />
       </svg>
 
       <Box
@@ -261,10 +216,7 @@ function MovingBorder({
 
 // ----------------------------------------------------------------------
 
-function useComputedElementStyles(
-  theme: Theme,
-  ref: React.RefObject<HTMLSpanElement | null>,
-) {
+function useComputedElementStyles(theme: Theme, ref: React.RefObject<HTMLSpanElement | null>) {
   const [computedStyles, setComputedStyles] = useState<CSSObject | null>(null);
 
   const isRtl = theme.direction === "rtl";
@@ -277,18 +229,10 @@ function useComputedElementStyles(
         paddingBottom: style.paddingTop,
         paddingLeft: isRtl ? style.paddingLeft : style.paddingRight,
         paddingRight: isRtl ? style.paddingRight : style.paddingLeft,
-        borderTopLeftRadius: isRtl
-          ? style.borderBottomLeftRadius
-          : style.borderBottomRightRadius,
-        borderTopRightRadius: isRtl
-          ? style.borderBottomRightRadius
-          : style.borderBottomLeftRadius,
-        borderBottomLeftRadius: isRtl
-          ? style.borderTopLeftRadius
-          : style.borderTopRightRadius,
-        borderBottomRightRadius: isRtl
-          ? style.borderTopRightRadius
-          : style.borderTopLeftRadius,
+        borderTopLeftRadius: isRtl ? style.borderBottomLeftRadius : style.borderBottomRightRadius,
+        borderTopRightRadius: isRtl ? style.borderBottomRightRadius : style.borderBottomLeftRadius,
+        borderBottomLeftRadius: isRtl ? style.borderTopLeftRadius : style.borderTopRightRadius,
+        borderBottomRightRadius: isRtl ? style.borderTopRightRadius : style.borderTopLeftRadius,
       });
     }
   }, [ref, isRtl]);

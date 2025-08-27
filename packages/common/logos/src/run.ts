@@ -11,10 +11,7 @@ import type { RootOrRuleGroup } from "./types";
  * @param {*} value
  * @return {*}  {boolean}
  */
-export function run(
-  group: RootOrRuleGroup,
-  value: UnsafeTypes.UnsafeAny,
-): boolean {
+export function run(group: RootOrRuleGroup, value: UnsafeTypes.UnsafeAny): boolean {
   // Root groups: reuse prepare() for validation, normalization, and cached runner.
   if (group.node === "root") {
     const runner = prepare(group);

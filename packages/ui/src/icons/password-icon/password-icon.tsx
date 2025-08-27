@@ -27,10 +27,7 @@ function PasswordIcon({ sx, ...other }: SvgIconProps) {
         fill="var(--warning-light)"
         d="M36.324 29.4v7.76a4.803 4.803 0 11-9.606 0V29.4c0-11.677 9.405-21.198 21.037-21.388l.353-.002c11.678 0 21.199 9.405 21.388 21.037l.003.353v7.76a4.803 4.803 0 11-9.606 0V29.4c0-6.433-5.181-11.678-11.59-11.783l-.194-.001c-6.499 0-11.785 5.286-11.785 11.784z"
       />
-      <g
-        style={{ mixBlendMode: "overlay" }}
-        filter="url(#filter0_i_1870_135517)"
-      >
+      <g style={{ mixBlendMode: "overlay" }} filter="url(#filter0_i_1870_135517)">
         <path
           fill="#fff"
           fillOpacity="0.04"
@@ -43,10 +40,7 @@ function PasswordIcon({ sx, ...other }: SvgIconProps) {
         d="M79.217 68.137c0 10.978-8.9 19.877-19.877 19.877H36.877C25.9 88.014 17 79.115 17 68.138v-20.25a8.277 8.277 0 018.277-8.277H70.94a8.277 8.277 0 018.277 8.277v20.25zM44.51 66.872a3.598 3.598 0 003.598 3.598H49.5a2.206 2.206 0 002.206-2.206c0-.91.57-1.705 1.358-2.158a9.932 9.932 0 002.254-1.767 9.865 9.865 0 002.715-7.369c-.268-5.176-4.538-9.312-9.724-9.417h-.064l-.134.001h-.004c-4.643 0-9.152 3.578-9.848 8.557-.071.545.367 1.003.916 1.003h6.204a.01.01 0 00.009-.01c.026-.187.07-.367.132-.54l.02-.056.031-.079.028-.064a2.71 2.71 0 01.935-1.128l.07-.047.06-.038.044-.026.048-.028a2.81 2.81 0 01.215-.108l.087-.038c.045-.018.09-.035.136-.05l.06-.02a2.787 2.787 0 01.351-.089l.057-.01.058-.008.067-.009.128-.011.061-.004.063-.002h.068l.002.002.056-.002c1.406.029 2.61 1.19 2.682 2.595a2.735 2.735 0 01-.748 2.04l-.049.049-.06.057a2.723 2.723 0 01-1.806.746l-.076.001h-.676a2.922 2.922 0 00-2.922 2.922v3.713zm3.598 6.113a3.545 3.545 0 00-.001 7.088h.064a3.544 3.544 0 00-.063-7.088z"
         clipRule="evenodd"
       />
-      <g
-        style={{ mixBlendMode: "overlay" }}
-        filter="url(#filter1_i_1870_135517)"
-      >
+      <g style={{ mixBlendMode: "overlay" }} filter="url(#filter1_i_1870_135517)">
         <path
           fill="#fff"
           fillOpacity="0.04"
@@ -73,11 +67,7 @@ function PasswordIcon({ sx, ...other }: SvgIconProps) {
         >
           <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
-          <feColorMatrix
-            in="SourceAlpha"
-            result="hardAlpha"
-            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-          />
+          <feColorMatrix in="SourceAlpha" result="hardAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
           <feOffset dx="-2" dy="-2" />
           <feGaussianBlur stdDeviation="2" />
           <feComposite in2="hardAlpha" k2="-1" k3="1" operator="arithmetic" />
@@ -95,11 +85,7 @@ function PasswordIcon({ sx, ...other }: SvgIconProps) {
         >
           <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
-          <feColorMatrix
-            in="SourceAlpha"
-            result="hardAlpha"
-            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-          />
+          <feColorMatrix in="SourceAlpha" result="hardAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
           <feOffset dx="-2" dy="-2" />
           <feGaussianBlur stdDeviation="2" />
           <feComposite in2="hardAlpha" k2="-1" k3="1" operator="arithmetic" />

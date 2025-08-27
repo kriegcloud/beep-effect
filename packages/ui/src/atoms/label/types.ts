@@ -1,14 +1,7 @@
 import type { SxProps, Theme } from "@mui/material/styles";
 import type React from "react";
 
-export type LabelColor =
-  | "default"
-  | "primary"
-  | "secondary"
-  | "info"
-  | "success"
-  | "warning"
-  | "error";
+export type LabelColor = "default" | "primary" | "secondary" | "info" | "success" | "warning" | "error";
 
 export type LabelVariant = "filled" | "outlined" | "soft" | "inverted";
 

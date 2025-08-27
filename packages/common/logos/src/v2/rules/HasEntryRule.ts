@@ -42,14 +42,7 @@ export namespace Ops {
  *  ────────────────────────────────────────────────────────────── */
 export const { Rule, Input } = makeRule("hasEntry", {
   field: S.NonEmptyString,
-  op: S.Union(
-    Ops.Contains,
-    Ops.NotContains,
-    Ops.InSet,
-    Ops.OneOf,
-    Ops.AllOf,
-    Ops.NoneOf,
-  ),
+  op: S.Union(Ops.Contains, Ops.NotContains, Ops.InSet, Ops.OneOf, Ops.AllOf, Ops.NoneOf),
 });
 
 export namespace Rule {
@@ -76,9 +69,7 @@ export const contains = (i: Pick<Input.Type, "field"> & { value: KV.Type }) =>
     field: i.field,
   });
 
-export const notContains = (
-  i: Pick<Input.Type, "field"> & { value: KV.Type },
-) =>
+export const notContains = (i: Pick<Input.Type, "field"> & { value: KV.Type }) =>
   makeBase({
     op: Ops.NotContains.make({
       value: i.value,
@@ -88,9 +79,7 @@ export const notContains = (
     field: i.field,
   });
 
-export const inSet = (
-  i: Pick<Input.Type, "field"> & { value: (typeof Ops.InSet.Type)["value"] },
-) =>
+export const inSet = (i: Pick<Input.Type, "field"> & { value: (typeof Ops.InSet.Type)["value"] }) =>
   makeBase({
     op: Ops.InSet.make({
       value: i.value,
@@ -98,9 +87,7 @@ export const inSet = (
     } as const),
     field: i.field,
   });
-export const oneOf = (
-  i: Pick<Input.Type, "field"> & { value: (typeof Ops.OneOf.Type)["value"] },
-) =>
+export const oneOf = (i: Pick<Input.Type, "field"> & { value: (typeof Ops.OneOf.Type)["value"] }) =>
   makeBase({
     op: Ops.OneOf.make({
       value: i.value,
@@ -109,9 +96,7 @@ export const oneOf = (
     field: i.field,
   });
 
-export const allOf = (
-  i: Pick<Input.Type, "field"> & { value: (typeof Ops.AllOf.Type)["value"] },
-) =>
+export const allOf = (i: Pick<Input.Type, "field"> & { value: (typeof Ops.AllOf.Type)["value"] }) =>
   makeBase({
     op: Ops.AllOf.make({
       value: i.value,
@@ -120,9 +105,7 @@ export const allOf = (
     field: i.field,
   });
 
-export const noneOf = (
-  i: Pick<Input.Type, "field"> & { value: (typeof Ops.NoneOf.Type)["value"] },
-) =>
+export const noneOf = (i: Pick<Input.Type, "field"> & { value: (typeof Ops.NoneOf.Type)["value"] }) =>
   makeBase({
     op: Ops.NoneOf.make({
       value: i.value,
@@ -137,25 +120,17 @@ export const noneOf = (
  *  - use an Equivalence derived from KV for deep, structural equality
  *  - implement set semantics with Array.*With & Iterable.containsWith
  *  ────────────────────────────────────────────────────────────── */
-export const validate = (
-  rule: Input.Type,
-  value: R.ReadonlyRecord<string, BS.Json.Type>,
-): boolean => {
+export const validate = (rule: Input.Type, value: R.ReadonlyRecord<string, BS.Json.Type>): boolean => {
   // Convert the runtime record to the same shape the ops are declared against.
-  const kvs: ReadonlyArray<S.Schema.Type<typeof KV>> = Struct.entries(
-    value,
-  ).map(([key, v]) => ({ key, value: v }));
+  const kvs: ReadonlyArray<S.Schema.Type<typeof KV>> = Struct.entries(value).map(([key, v]) => ({ key, value: v }));
 
   // Deep equality for { key, value } using the schema:
   const eqKV = S.equivalence(KV); // (a, b) => boolean
 
   // Helpers leveraging Effect's set ops with custom equivalence
-  const overlap = (sel: ReadonlyArray<KV.Type>) =>
-    A.intersectionWith(eqKV)(sel)(kvs); // items in both
-  const missing = (sel: ReadonlyArray<KV.Type>) =>
-    A.differenceWith(eqKV)(kvs)(sel); // elements of sel not present in kvs
-  const containsKV = (pair: KV.Type) =>
-    It.containsWith(eqKV)(pair)(kvs);
+  const overlap = (sel: ReadonlyArray<KV.Type>) => A.intersectionWith(eqKV)(sel)(kvs); // items in both
+  const missing = (sel: ReadonlyArray<KV.Type>) => A.differenceWith(eqKV)(kvs)(sel); // elements of sel not present in kvs
+  const containsKV = (pair: KV.Type) => It.containsWith(eqKV)(pair)(kvs);
 
   return Match.value(rule.op).pipe(
     Match.withReturnType<boolean>(),
@@ -179,6 +154,6 @@ export const validate = (
       // every (unique) selection element appears
       allOf: (op) => missing(op.value).length === 0,
     }),
-    Match.orElse(() => false),
+    Match.orElse(() => false)
   );
 };

@@ -8,7 +8,26 @@ export type StructFieldsWithStringKeys = {
   readonly [x: string]: S.Struct.Field;
 };
 
-export type NonEmptyStructFields<T extends StructFieldsWithStringKeys> =
+export type NonEmptyStructFields<T extends StructFieldsWithStringKeys> = keyof T extends string
+  ? keyof T extends NonEmptyString<keyof T>
+    ? T extends NonNullable<unknown>
+      ? NonNullable<unknown> extends T
+        ? never
+        : T
+      : T
+    : never
+  : never;
+
+export type NonEmptyReadonlyStructFieldKeys<T extends StructFieldsWithStringKeys> = T extends NonEmptyStructFields<T>
+  ? A.NonEmptyReadonlyArray<keyof NonEmptyStructFields<T> & string>
+  : never;
+
+export type ReadonlyNonEmptyRecordKeys<T extends UnsafeTypes.UnsafeReadonlyRecord> =
+  T extends NonEmptyRecordWithStringKeys<T> ? A.NonEmptyReadonlyArray<keyof T> : never;
+
+export type StructFieldsOrPropertySignatures = StructFieldsWithStringKeys | S.PropertySignature.Any;
+
+export type NonEmptyStructFieldsOrPropertySignatures<T extends StructFieldsOrPropertySignatures> =
   keyof T extends string
     ? keyof T extends NonEmptyString<keyof T>
       ? T extends NonNullable<unknown>
@@ -18,31 +37,3 @@ export type NonEmptyStructFields<T extends StructFieldsWithStringKeys> =
         : T
       : never
     : never;
-
-export type NonEmptyReadonlyStructFieldKeys<
-  T extends StructFieldsWithStringKeys,
-> = T extends NonEmptyStructFields<T>
-  ? A.NonEmptyReadonlyArray<keyof NonEmptyStructFields<T> & string>
-  : never;
-
-export type ReadonlyNonEmptyRecordKeys<
-  T extends UnsafeTypes.UnsafeReadonlyRecord,
-> = T extends NonEmptyRecordWithStringKeys<T>
-  ? A.NonEmptyReadonlyArray<keyof T>
-  : never;
-
-export type StructFieldsOrPropertySignatures =
-  | StructFieldsWithStringKeys
-  | S.PropertySignature.Any;
-
-export type NonEmptyStructFieldsOrPropertySignatures<
-  T extends StructFieldsOrPropertySignatures,
-> = keyof T extends string
-  ? keyof T extends NonEmptyString<keyof T>
-    ? T extends NonNullable<unknown>
-      ? NonNullable<unknown> extends T
-        ? never
-        : T
-      : T
-    : never
-  : never;

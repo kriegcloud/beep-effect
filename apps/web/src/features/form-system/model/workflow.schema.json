@@ -38,10 +38,7 @@
     },
     "JsonLogicRule": {
       "description": "A JsonLogic rule or boolean catch-all",
-      "oneOf": [
-        { "type": "boolean" },
-        { "type": "object", "additionalProperties": true }
-      ]
+      "oneOf": [{ "type": "boolean" }, { "type": "object", "additionalProperties": true }]
     },
     "StepDefinition": {
       "type": "object",

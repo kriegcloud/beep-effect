@@ -18,51 +18,20 @@ export type BaseOptionProps = Omit<ButtonBaseProps, "action"> & {
   onChangeOption: () => void;
 };
 
-export function BaseOption({
-  sx,
-  icon,
-  label,
-  action,
-  tooltip,
-  selected,
-  onChangeOption,
-  ...other
-}: BaseOptionProps) {
+export function BaseOption({ sx, icon, label, action, tooltip, selected, onChangeOption, ...other }: BaseOptionProps) {
   return (
-    <ItemRoot
-      disableRipple
-      selected={selected}
-      onClick={onChangeOption}
-      sx={sx}
-      {...other}
-    >
+    <ItemRoot disableRipple selected={selected} onClick={onChangeOption} sx={sx} {...other}>
       <TopContainer>
         {icon}
-        {action ?? (
-          <Switch
-            name={label}
-            size="small"
-            color="default"
-            checked={selected}
-            sx={{ mr: -0.75 }}
-          />
-        )}
+        {action ?? <Switch name={label} size="small" color="default" checked={selected} sx={{ mr: -0.75 }} />}
       </TopContainer>
 
       <BottomContainer>
         <ItemLabel>{label}</ItemLabel>
 
         {tooltip && (
-          <Tooltip
-            arrow
-            title={tooltip}
-            slotProps={{ tooltip: { sx: { maxWidth: 240, mr: 0.5 } } }}
-          >
-            <Iconify
-              width={16}
-              icon="eva:info-outline"
-              sx={{ cursor: "pointer", color: "text.disabled" }}
-            />
+          <Tooltip arrow title={tooltip} slotProps={{ tooltip: { sx: { maxWidth: 240, mr: 0.5 } } }}>
+            <Iconify width={16} icon="eva:info-outline" sx={{ cursor: "pointer", color: "text.disabled" }} />
           </Tooltip>
         )}
       </BottomContainer>
@@ -82,16 +51,10 @@ const ItemRoot = styled(ButtonBase, {
   borderRadius: Number(theme.shape.borderRadius) * 2,
   border: `solid 1px ${rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.12)}`,
   "&:hover": {
-    backgroundColor: rgbaFromChannel(
-      theme.vars.palette.grey["500Channel"],
-      0.08,
-    ),
+    backgroundColor: rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.08),
   },
   ...(selected && {
-    backgroundColor: rgbaFromChannel(
-      theme.vars.palette.grey["500Channel"],
-      0.08,
-    ),
+    backgroundColor: rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.08),
   }),
 }));
 

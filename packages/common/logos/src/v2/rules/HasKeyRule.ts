@@ -1,10 +1,5 @@
 import { makeRule, Operands } from "@beep/logos/v2/internal";
-import {
-  countDistinctOverlaps,
-  has,
-  intersect,
-  missingFrom,
-} from "@beep/logos/v2/rules/util";
+import { countDistinctOverlaps, has, intersect, missingFrom } from "@beep/logos/v2/rules/util";
 import type { BS } from "@beep/schema";
 import * as Match from "effect/Match";
 import * as S from "effect/Schema";
@@ -16,31 +11,15 @@ export namespace Ops {
   export class NotContains extends Operands.NotContains.Schema(S.String, {}) {}
 
   // Sets of keys
-  export class InSet extends Operands.InSet.Schema(
-    S.NonEmptyArray(S.String),
-    {},
-  ) {}
-  export class OneOf extends Operands.OneOf.Schema(
-    S.NonEmptyArray(S.String),
-    {},
-  ) {}
-  export class AllOf extends Operands.AllOf.Schema(
-    S.NonEmptyArray(S.String),
-    {},
-  ) {}
+  export class InSet extends Operands.InSet.Schema(S.NonEmptyArray(S.String), {}) {}
+  export class OneOf extends Operands.OneOf.Schema(S.NonEmptyArray(S.String), {}) {}
+  export class AllOf extends Operands.AllOf.Schema(S.NonEmptyArray(S.String), {}) {}
   export class NoneOf extends Operands.NoneOf.Schema(S.Array(S.String), {}) {}
 }
 
 export const { Rule, Input } = makeRule("hasKey", {
   field: S.NonEmptyString,
-  op: S.Union(
-    Ops.Contains,
-    Ops.NotContains,
-    Ops.InSet,
-    Ops.OneOf,
-    Ops.AllOf,
-    Ops.NoneOf,
-  ),
+  op: S.Union(Ops.Contains, Ops.NotContains, Ops.InSet, Ops.OneOf, Ops.AllOf, Ops.NoneOf),
 });
 
 const makeBase = (i: Omit<Input.Type, "type">) =>
@@ -68,9 +47,7 @@ export const notContains = (i: Pick<Input.Type, "field"> & { value: string }) =>
     field: i.field,
   });
 
-export const inSet = (
-  i: Pick<Input.Type, "field"> & { value: (typeof Ops.InSet.Type)["value"] },
-) =>
+export const inSet = (i: Pick<Input.Type, "field"> & { value: (typeof Ops.InSet.Type)["value"] }) =>
   makeBase({
     op: Ops.InSet.make({
       value: i.value,
@@ -78,9 +55,7 @@ export const inSet = (
     } as const),
     field: i.field,
   });
-export const oneOf = (
-  i: Pick<Input.Type, "field"> & { value: (typeof Ops.OneOf.Type)["value"] },
-) =>
+export const oneOf = (i: Pick<Input.Type, "field"> & { value: (typeof Ops.OneOf.Type)["value"] }) =>
   makeBase({
     op: Ops.OneOf.make({
       value: i.value,
@@ -89,9 +64,7 @@ export const oneOf = (
     field: i.field,
   });
 
-export const allOf = (
-  i: Pick<Input.Type, "field"> & { value: (typeof Ops.AllOf.Type)["value"] },
-) =>
+export const allOf = (i: Pick<Input.Type, "field"> & { value: (typeof Ops.AllOf.Type)["value"] }) =>
   makeBase({
     op: Ops.AllOf.make({
       value: i.value,
@@ -100,9 +73,7 @@ export const allOf = (
     field: i.field,
   });
 
-export const noneOf = (
-  i: Pick<Input.Type, "field"> & { value: (typeof Ops.NoneOf.Type)["value"] },
-) =>
+export const noneOf = (i: Pick<Input.Type, "field"> & { value: (typeof Ops.NoneOf.Type)["value"] }) =>
   makeBase({
     op: Ops.NoneOf.make({
       value: i.value,
@@ -127,7 +98,7 @@ export namespace Input {
  */
 export const validate = (
   rule: Input.Type,
-  value: Readonly<Record<string, BS.Json.Type>>, // runtime may still be unknown; call sites should gate by type
+  value: Readonly<Record<string, BS.Json.Type>> // runtime may still be unknown; call sites should gate by type
 ): boolean => {
   // Keys are unique strings, which are a subset of Json.Type,
   // so the Json equivalence works (primitives use ===).
@@ -142,6 +113,6 @@ export const validate = (
       noneOf: (op) => intersect(keys, op.value).length === 0, // no overlap
       allOf: (op) => missingFrom(op.value, keys).length === 0, // every selected appears
     }),
-    Match.orElse(() => false),
+    Match.orElse(() => false)
   );
 };

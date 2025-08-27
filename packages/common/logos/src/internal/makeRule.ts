@@ -44,7 +44,7 @@ export const makeRule = <
   const Fields extends StructTypes.StructFieldsWithStringKeys,
 >(
   type: Type,
-  fields: Fields,
+  fields: Fields
 ): RuleType<Type, Fields> => {
   const Rule = Node.make("rule", {
     type: S.Literal(type),

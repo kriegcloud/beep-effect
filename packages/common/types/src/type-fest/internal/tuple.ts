@@ -41,11 +41,7 @@ If `<Fill>` is not provided, it will default to `unknown`.
 
 @group type-fest
 */
-export type BuildTuple<
-  L extends number,
-  Fill = unknown,
-  T extends readonly unknown[] = [],
-> = number extends L
+export type BuildTuple<L extends number, Fill = unknown, T extends readonly unknown[] = []> = number extends L
   ? Fill[]
   : L extends T["length"]
     ? T
@@ -68,10 +64,7 @@ ArrayMax<[1, 2, 5, 3, 99, -1]>;
 
 @group type-fest
 */
-export type TupleMax<
-  A extends number[],
-  Result extends number = NegativeInfinity,
-> = number extends A[number]
+export type TupleMax<A extends number[], Result extends number = NegativeInfinity> = number extends A[number]
   ? never
   : A extends [infer F extends number, ...infer R extends number[]]
     ? GreaterThan<F, Result> extends true
@@ -96,10 +89,7 @@ ArrayMin<[1, 2, 5, 3, -5]>;
 
 @group type-fest
 */
-export type TupleMin<
-  A extends number[],
-  Result extends number = PositiveInfinity,
-> = number extends A[number]
+export type TupleMin<A extends number[], Result extends number = PositiveInfinity> = number extends A[number]
   ? never
   : A extends [infer F extends number, ...infer R extends number[]]
     ? LessThan<F, Result> extends true

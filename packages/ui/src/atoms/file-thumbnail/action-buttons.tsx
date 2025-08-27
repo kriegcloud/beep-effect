@@ -24,10 +24,7 @@ export function DownloadButton({ sx, ...other }: ButtonBaseProps) {
           transition: theme.transitions.create(["opacity"]),
           "&:hover": {
             ...theme.mixins.bgBlur({
-              color: rgbaFromChannel(
-                theme.vars.palette.grey["900Channel"],
-                0.64,
-              ),
+              color: rgbaFromChannel(theme.vars.palette.grey["900Channel"], 0.64),
             }),
             opacity: 1,
           },
@@ -54,10 +51,7 @@ export function RemoveButton({ sx, ...other }: IconButtonProps) {
           color: "common.white",
           bgcolor: rgbaFromChannel(theme.vars.palette.grey["900Channel"], 0.48),
           "&:hover": {
-            bgcolor: rgbaFromChannel(
-              theme.vars.palette.grey["900Channel"],
-              0.72,
-            ),
+            bgcolor: rgbaFromChannel(theme.vars.palette.grey["900Channel"], 0.72),
           },
         }),
         ...(Array.isArray(sx) ? sx : [sx]),

@@ -33,9 +33,7 @@ const update2: UpdateOperation<User> = {
 */
 export type OptionalKeysOf<BaseType extends object> = BaseType extends unknown // For distributing `BaseType`
   ? keyof {
-      [Key in keyof BaseType as BaseType extends Record<Key, BaseType[Key]>
-        ? never
-        : Key]: never;
+      [Key in keyof BaseType as BaseType extends Record<Key, BaseType[Key]> ? never : Key]: never;
     } &
       keyof BaseType // Intersect with `keyof BaseType` to ensure result of `OptionalKeysOf<BaseType>` is always assignable to `keyof BaseType`
   : never; // Should never happen

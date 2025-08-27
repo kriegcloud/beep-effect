@@ -6,19 +6,11 @@ import { uploadClasses } from "./classes";
 
 import type { UploadProps } from "./types";
 
-export function UploadBox({
-  placeholder,
-  error,
-  disabled,
-  className,
-  sx,
-  ...other
-}: UploadProps) {
-  const { getRootProps, getInputProps, isDragActive, isDragReject } =
-    useDropzone({
-      disabled,
-      ...other,
-    });
+export function UploadBox({ placeholder, error, disabled, className, sx, ...other }: UploadProps) {
+  const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
+    disabled,
+    ...other,
+  });
 
   const hasError = isDragReject || error;
 
@@ -44,10 +36,7 @@ export function UploadBox({
           ...(hasError && {
             color: "error.main",
             borderColor: "error.main",
-            bgcolor: rgbaFromChannel(
-              theme.vars.palette.error.mainChannel,
-              0.08,
-            ),
+            bgcolor: rgbaFromChannel(theme.vars.palette.error.mainChannel, 0.08),
           }),
           "&:hover": { opacity: 0.72 },
         }),

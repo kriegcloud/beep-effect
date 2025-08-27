@@ -1,13 +1,6 @@
 export const settingIcons = {
   moon: (
-    <svg
-      role={"img"}
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg role={"img"} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         opacity="0.4"
         d="M16.9462 11.0863C16.9759 11.0875 17.0055 11.0886 17.035 11.0898C20.1966 11.2176 22.5 13.3358 22.5 16.5C22.5 19.6642 20.1966 21.7824 17.035 21.9102C15.7057 21.9639 14.0498 22 12 22C9.9502 22 8.2943 21.9639 6.965 21.9102C3.80337 21.7824 1.5 19.6642 1.5 16.5C1.5 14.0317 2.90165 12.1999 5.019 11.4529C5.2406 8.2951 7.3872 6.02435 10.6413 6.00125C10.7585 6.00045 10.878 6 11 6C11.122 6 11.2415 6.00045 11.3587 6.00125C14.4855 6.02345 16.5897 8.1208 16.9462 11.0863Z"
@@ -20,14 +13,7 @@ export const settingIcons = {
     </svg>
   ),
   contrast: (
-    <svg
-      role={"img"}
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg role={"img"} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -47,14 +33,7 @@ export const settingIcons = {
     </svg>
   ),
   alignRight: (
-    <svg
-      role={"img"}
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg role={"img"} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g opacity="0.4">
         <path
           d="M8.0351 4.74734C8.06655 3.88857 8.5909 3.23087 9.44555 3.14106C10.1775 3.06415 11.2981 3 13 3C14.7019 3 15.8225 3.06415 16.5545 3.14106C17.4091 3.23087 17.9334 3.88857 17.9649 4.74734C17.9847 5.28845 18 6.0223 18 7C18 7.9777 17.9847 8.71155 17.9649 9.25265C17.9334 10.1115 17.4091 10.7691 16.5545 10.8589C15.8225 10.9358 14.7019 11 13 11C11.2981 11 10.1775 10.9358 9.44555 10.8589C8.5909 10.7691 8.06655 10.1115 8.0351 9.25265C8.01525 8.71155 8 7.9777 8 7C8 6.0223 8.01525 5.28845 8.0351 4.74734Z"
@@ -72,14 +51,7 @@ export const settingIcons = {
     </svg>
   ),
   autofitWidth: (
-    <svg
-      role={"img"}
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg role={"img"} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         opacity="0.4"
         d="M21 5.66667C21 4.95942 20.7037 4.28115 20.1762 3.78105C19.6488 3.28095 18.9334 3 18.1875 3H5.8125C5.06658 3 4.35121 3.28095 3.82376 3.78105C3.29632 4.28115 3 4.95942 3 5.66667V9.93333C3 10.2162 3.11853 10.4875 3.32951 10.6876C3.54048 10.8876 3.82663 11 4.125 11C4.42337 11 4.70952 10.8876 4.9205 10.6876C5.13147 10.4875 5.25 10.2162 5.25 9.93333V5.66667C5.25 5.52522 5.30926 5.38956 5.41475 5.28954C5.52024 5.18952 5.66332 5.13333 5.8125 5.13333H18.1875C18.3367 5.13333 18.4798 5.18952 18.5852 5.28954C18.6907 5.38956 18.75 5.52522 18.75 5.66667V9.93333C18.75 10.2162 18.8685 10.4875 19.0795 10.6876C19.2905 10.8876 19.5766 11 19.875 11C20.1734 11 20.4595 10.8876 20.6705 10.6876C20.8815 10.4875 21 10.2162 21 9.93333V5.66667Z"
@@ -92,52 +64,16 @@ export const settingIcons = {
     </svg>
   ),
   navVertical: (
-    <svg
-      role={"img"}
-      width="86"
-      height="64"
-      viewBox="0 0 86 64"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg role={"img"} width="86" height="64" viewBox="0 0 86 64" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g clipPath="url(#clip0_1153_603)">
         <mask id="path-2-inside-1_1153_603" fill="white">
           <path d="M0 0H32V64H0V0Z" />
         </mask>
-        <path
-          d="M31 0V64H33V0H31Z"
-          fill="currentColor"
-          fillOpacity="0.08"
-          mask="url(#path-2-inside-1_1153_603)"
-        />
+        <path d="M31 0V64H33V0H31Z" fill="currentColor" fillOpacity="0.08" mask="url(#path-2-inside-1_1153_603)" />
         <circle opacity="0.8" cx="11" cy="11" r="5" fill="currentColor" />
-        <rect
-          opacity="0.48"
-          x="6"
-          y="20"
-          width="20"
-          height="4"
-          rx="2"
-          fill="currentColor"
-        />
-        <rect
-          opacity="0.24"
-          x="6"
-          y="28"
-          width="14"
-          height="4"
-          rx="2"
-          fill="currentColor"
-        />
-        <rect
-          opacity="0.2"
-          x="36"
-          y="4"
-          width="46"
-          height="56"
-          rx="8"
-          fill="currentColor"
-        />
+        <rect opacity="0.48" x="6" y="20" width="20" height="4" rx="2" fill="currentColor" />
+        <rect opacity="0.24" x="6" y="28" width="14" height="4" rx="2" fill="currentColor" />
+        <rect opacity="0.2" x="36" y="4" width="46" height="56" rx="8" fill="currentColor" />
       </g>
       <defs>
         <clipPath id="clip0_1153_603">
@@ -150,52 +86,16 @@ export const settingIcons = {
     </svg>
   ),
   navHorizontal: (
-    <svg
-      role={"img"}
-      width="86"
-      height="64"
-      viewBox="0 0 86 64"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg role={"img"} width="86" height="64" viewBox="0 0 86 64" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g clipPath="url(#clip0_1153_596)">
         <mask id="path-2-inside-1_1153_596" fill="white">
           <path d="M0 0H86V22H0V0Z" />
         </mask>
-        <path
-          d="M86 21H0V23H86V21Z"
-          fill="currentColor"
-          fillOpacity="0.08"
-          mask="url(#path-2-inside-1_1153_596)"
-        />
+        <path d="M86 21H0V23H86V21Z" fill="currentColor" fillOpacity="0.08" mask="url(#path-2-inside-1_1153_596)" />
         <circle opacity="0.8" cx="11" cy="11" r="5" fill="currentColor" />
-        <rect
-          opacity="0.48"
-          x="20"
-          y="9"
-          width="16"
-          height="4"
-          rx="2"
-          fill="currentColor"
-        />
-        <rect
-          opacity="0.24"
-          x="40"
-          y="9"
-          width="10"
-          height="4"
-          rx="2"
-          fill="currentColor"
-        />
-        <rect
-          opacity="0.2"
-          x="4"
-          y="26"
-          width="78"
-          height="34"
-          rx="8"
-          fill="currentColor"
-        />
+        <rect opacity="0.48" x="20" y="9" width="16" height="4" rx="2" fill="currentColor" />
+        <rect opacity="0.24" x="40" y="9" width="10" height="4" rx="2" fill="currentColor" />
+        <rect opacity="0.2" x="4" y="26" width="78" height="34" rx="8" fill="currentColor" />
       </g>
       <defs>
         <clipPath id="clip0_1153_596">
@@ -208,52 +108,16 @@ export const settingIcons = {
     </svg>
   ),
   navMini: (
-    <svg
-      role={"img"}
-      width="86"
-      height="64"
-      viewBox="0 0 86 64"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg role={"img"} width="86" height="64" viewBox="0 0 86 64" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g clipPath="url(#clip0_1153_589)">
         <mask id="path-2-inside-1_1153_589" fill="white">
           <path d="M0 0H22V64H0V0Z" />
         </mask>
-        <path
-          d="M21 0V64H23V0H21Z"
-          fill="currentColor"
-          fillOpacity="0.08"
-          mask="url(#path-2-inside-1_1153_589)"
-        />
+        <path d="M21 0V64H23V0H21Z" fill="currentColor" fillOpacity="0.08" mask="url(#path-2-inside-1_1153_589)" />
         <circle opacity="0.8" cx="11" cy="11" r="5" fill="currentColor" />
-        <rect
-          opacity="0.48"
-          x="6"
-          y="20"
-          width="10"
-          height="4"
-          rx="2"
-          fill="currentColor"
-        />
-        <rect
-          opacity="0.24"
-          x="6"
-          y="28"
-          width="10"
-          height="4"
-          rx="2"
-          fill="currentColor"
-        />
-        <rect
-          opacity="0.2"
-          x="26"
-          y="4"
-          width="56"
-          height="56"
-          rx="8"
-          fill="currentColor"
-        />
+        <rect opacity="0.48" x="6" y="20" width="10" height="4" rx="2" fill="currentColor" />
+        <rect opacity="0.24" x="6" y="28" width="10" height="4" rx="2" fill="currentColor" />
+        <rect opacity="0.2" x="26" y="4" width="56" height="56" rx="8" fill="currentColor" />
       </g>
       <defs>
         <clipPath id="clip0_1153_589">
@@ -266,14 +130,7 @@ export const settingIcons = {
     </svg>
   ),
   sidebarOutline: (
-    <svg
-      role={"img"}
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg role={"img"} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -295,14 +152,7 @@ export const settingIcons = {
     </svg>
   ),
   sidebarFill: (
-    <svg
-      role={"img"}
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg role={"img"} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -312,14 +162,7 @@ export const settingIcons = {
     </svg>
   ),
   siderbarDuotone: (
-    <svg
-      role={"img"}
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg role={"img"} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         opacity="0.4"
         fillRule="evenodd"
@@ -334,14 +177,7 @@ export const settingIcons = {
     </svg>
   ),
   font: (
-    <svg
-      role={"img"}
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg role={"img"} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         opacity="0.4"
         d="M17.1229 18.16C16.5754 18.16 16.0833 18.0577 15.6464 17.8531C15.2096 17.6485 14.864 17.3526 14.6096 16.9656C14.3552 16.5729 14.228 16.0974 14.228 15.5389C14.228 14.5988 14.5792 13.8855 15.2814 13.3989C15.9837 12.9067 17.0924 12.6523 18.6076 12.6357L19.6776 12.6192V12.1049C19.6776 11.7123 19.5615 11.4109 19.3292 11.2008C19.1025 10.9851 18.7486 10.88 18.2675 10.8856C17.9136 10.8911 17.5763 10.974 17.2556 11.1344C16.9404 11.2948 16.7247 11.574 16.6086 11.9722H14.593C14.6262 11.3528 14.8059 10.8441 15.1321 10.446C15.4584 10.0423 15.9008 9.74368 16.4593 9.55013C17.0233 9.35106 17.662 9.25153 18.3754 9.25153C19.2546 9.25153 19.9596 9.36212 20.4905 9.58331C21.0214 9.79897 21.4057 10.1114 21.6435 10.5206C21.8812 10.9243 22.0001 11.4054 22.0001 11.9639V17.9941H19.9762L19.7772 16.5176C19.4841 17.137 19.1163 17.5655 18.674 17.8033C18.2371 18.0411 17.7201 18.16 17.1229 18.16ZM17.9357 16.5674C18.1569 16.5674 18.3698 16.5287 18.5744 16.4513C18.7846 16.3683 18.9698 16.2605 19.1302 16.1278C19.2961 15.9896 19.4288 15.8347 19.5283 15.6633C19.6278 15.4919 19.6776 15.3149 19.6776 15.1324V13.8634L18.8067 13.8799C18.403 13.8855 18.027 13.9352 17.6786 14.0292C17.3302 14.1177 17.0482 14.2643 16.8326 14.4689C16.6224 14.6735 16.5174 14.95 16.5174 15.2983C16.5174 15.6965 16.6556 16.0089 16.9321 16.2356C17.2086 16.4568 17.5431 16.5674 17.9357 16.5674Z"

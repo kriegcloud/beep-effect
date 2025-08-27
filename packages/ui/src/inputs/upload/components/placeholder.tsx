@@ -16,22 +16,12 @@ const uploadPlaceholderClasses = {
   description: createClasses("upload__placeholder__description"),
 };
 
-export function UploadPlaceholder({
-  sx,
-  className,
-  ...other
-}: UploadPlaceholderProps) {
+export function UploadPlaceholder({ sx, className, ...other }: UploadPlaceholderProps) {
   return (
-    <PlaceholderRoot
-      className={mergeClasses([uploadPlaceholderClasses.root, className])}
-      sx={sx}
-      {...other}
-    >
+    <PlaceholderRoot className={mergeClasses([uploadPlaceholderClasses.root, className])} sx={sx} {...other}>
       <Box sx={{ width: 200 }} />
       <PlaceholderContent>
-        <div className={uploadPlaceholderClasses.title}>
-          Drop or select file
-        </div>
+        <div className={uploadPlaceholderClasses.title}>Drop or select file</div>
         <div className={uploadPlaceholderClasses.description}>
           Drop files here or click to
           <span>browse</span>

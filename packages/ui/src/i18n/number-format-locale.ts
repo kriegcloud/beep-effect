@@ -6,8 +6,7 @@ import { getCurrentLang } from "./locales-config";
 
 export function formatNumberLocale() {
   const currentLang = getCurrentLang(
-    (i18next.resolvedLanguage ??
-      SupportedLangValue.Enum.en) as SupportedLangValue.Type,
+    (i18next.resolvedLanguage ?? SupportedLangValue.Enum.en) as SupportedLangValue.Type
   );
 
   return {

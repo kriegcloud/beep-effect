@@ -62,10 +62,7 @@ function getFontSize(fontSize: React.CSSProperties["fontSize"]) {
   return typeof fontSize === "string" ? remToPx(fontSize) : fontSize;
 }
 
-function getLineHeight(
-  lineHeight: React.CSSProperties["lineHeight"],
-  fontSize?: number,
-) {
+function getLineHeight(lineHeight: React.CSSProperties["lineHeight"], fontSize?: number) {
   if (typeof lineHeight === "string") {
     return fontSize ? remToPx(lineHeight) / fontSize : 1;
   }
@@ -73,11 +70,7 @@ function getLineHeight(
   return lineHeight;
 }
 
-function calculateHeight(
-  fontSize: number,
-  lineHeight: number,
-  line: number,
-): number {
+function calculateHeight(fontSize: number, lineHeight: number, line: number): number {
   return fontSize * lineHeight * line;
 }
 
@@ -106,9 +99,7 @@ export function maxLine({ line, persistent }: MaxLineProps): CSSObject {
   }
 
   const responsiveStyles = keys.reduce((acc, breakpoint) => {
-    const fontSize = getFontSize(
-      (persistent as MediaFontSize)[up(breakpoint)]?.fontSize,
-    );
+    const fontSize = getFontSize((persistent as MediaFontSize)[up(breakpoint)]?.fontSize);
 
     if (fontSize) {
       acc[up(breakpoint)] = {

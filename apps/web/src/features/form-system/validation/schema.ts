@@ -40,10 +40,7 @@ export interface SchemaValidationResult<T = unknown> {
 }
 
 /** Validate object shape of a WorkflowDefinition using JSON Schema */
-export function validateWorkflowJson(
-  input: unknown,
-  ajv: Ajv = getAjv(),
-): SchemaValidationResult<WorkflowDefinition> {
+export function validateWorkflowJson(input: unknown, ajv: Ajv = getAjv()): SchemaValidationResult<WorkflowDefinition> {
   const validate = ajv.compile(workflowSchema);
   const valid = validate(input) as boolean;
   return {
@@ -54,10 +51,7 @@ export function validateWorkflowJson(
 }
 
 /** Validate that a step JSON Schema itself is a valid JSON Schema */
-export function validateStepSchema(
-  schema: JSONSchema,
-  ajv: Ajv = getAjv(),
-): SchemaValidationResult<JSONSchema> {
+export function validateStepSchema(schema: JSONSchema, ajv: Ajv = getAjv()): SchemaValidationResult<JSONSchema> {
   const valid = ajv.validateSchema(schema);
   return {
     valid,
@@ -67,11 +61,7 @@ export function validateStepSchema(
 }
 
 /** Validate some data against a step's JSON Schema */
-export function validateStepData(
-  schema: JSONSchema,
-  data: unknown,
-  ajv: Ajv = getAjv(),
-): SchemaValidationResult {
+export function validateStepData(schema: JSONSchema, data: unknown, ajv: Ajv = getAjv()): SchemaValidationResult {
   const validate = ajv.compile(schema);
   const valid = validate(data);
   return { valid, errors: validate.errors ?? null };
@@ -80,7 +70,7 @@ export function validateStepData(
 /** Validate all step schemas in a workflow (structure assumed valid). */
 export function validateAllStepSchemas(
   workflow: WorkflowDefinition,
-  ajv: Ajv = getAjv(),
+  ajv: Ajv = getAjv()
 ): { ok: boolean; errorsByStep: Record<string, ErrorObject[] | null> } {
   const errorsByStep: Record<string, ErrorObject[] | null> = {};
   let ok = true;
@@ -96,7 +86,7 @@ export function validateAllStepSchemas(
 export function validateAnswersByStep(
   workflow: WorkflowDefinition,
   answers: Record<string, unknown>,
-  ajv: Ajv = getAjv(),
+  ajv: Ajv = getAjv()
 ): { ok: boolean; results: Record<string, SchemaValidationResult> } {
   const results: Record<string, SchemaValidationResult> = {};
   let ok = true;

@@ -5,10 +5,7 @@
 
 "use client";
 
-import {
-  materialCells,
-  materialRenderers,
-} from "@jsonforms/material-renderers";
+import { materialCells, materialRenderers } from "@jsonforms/material-renderers";
 import { JsonForms } from "@jsonforms/react";
 import type React from "react";
 import type { StepDefinition } from "../model/types";

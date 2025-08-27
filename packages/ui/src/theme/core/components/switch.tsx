@@ -1,10 +1,6 @@
 import { rgbaFromChannel } from "@beep/ui/utils";
 import { switchClasses } from "@mui/material/Switch";
-import type {
-  Components,
-  ComponentsVariants,
-  Theme,
-} from "@mui/material/styles";
+import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
 
 // ----------------------------------------------------------------------
 
@@ -115,10 +111,7 @@ const MuiSwitch: Components<Theme>["MuiSwitch"] = {
     track: ({ theme }) => ({
       height: DIMENSIONS.medium.track,
       borderRadius: DIMENSIONS.medium.trackRadius,
-      backgroundColor: rgbaFromChannel(
-        theme.vars.palette.grey["500Channel"],
-        0.48,
-      ),
+      backgroundColor: rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.48),
     }),
   },
 };

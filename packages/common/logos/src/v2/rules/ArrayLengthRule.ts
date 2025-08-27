@@ -128,7 +128,7 @@ export const between = (
       max: number;
     };
     inclusive?: boolean;
-  },
+  }
 ) =>
   makeBase({
     ...i,
@@ -161,6 +161,6 @@ export const validate = (rule: Input.Type, value: Array<unknown>) => {
       lte: (op) => op.value >= length,
       between: (op) => BetweenNumeric.validate(op)(length),
     }),
-    Match.orElse(() => false),
+    Match.orElse(() => false)
   );
 };

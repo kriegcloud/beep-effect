@@ -1,11 +1,7 @@
 import { rgbaFromChannel } from "@beep/ui/utils";
 import type { SvgIconProps } from "@mui/material/SvgIcon";
 import SvgIcon from "@mui/material/SvgIcon";
-import type {
-  Components,
-  ComponentsVariants,
-  Theme,
-} from "@mui/material/styles";
+import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
 
 // ----------------------------------------------------------------------
 
@@ -60,10 +56,7 @@ const MuiRating: Components<Theme>["MuiRating"] = {
       variants: [...sizeVariants],
     },
     iconEmpty: ({ theme }) => ({
-      color: rgbaFromChannel(
-        theme.vars.palette.grey["500Channel"],
-        theme.vars.palette.action.disabledOpacity,
-      ),
+      color: rgbaFromChannel(theme.vars.palette.grey["500Channel"], theme.vars.palette.action.disabledOpacity),
     }),
   },
 };

@@ -1,12 +1,7 @@
 import type { CSSObject, MixinsOptions } from "@mui/material/styles";
 import { bgBlur, bgGradient } from "./background";
 import { borderGradient } from "./border";
-import {
-  filledStyles,
-  menuItemStyles,
-  paperStyles,
-  softStyles,
-} from "./global-styles-components";
+import { filledStyles, menuItemStyles, paperStyles, softStyles } from "./global-styles-components";
 import { maxLine, textGradient } from "./text";
 
 // ----------------------------------------------------------------------

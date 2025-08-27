@@ -26,21 +26,14 @@ export type RadioGroupFieldProps = DefaultOmit<RadioGroupProps> & {
   };
 };
 
-function RadioGroupField({
-  sx,
-  label,
-  options,
-  helperText,
-  slotProps,
-  ...other
-}: RadioGroupFieldProps) {
+function RadioGroupField({ sx, label, options, helperText, slotProps, ...other }: RadioGroupFieldProps) {
   const field = useFieldContext();
   const { error } = useStore(
     field.form.store,
     (state) =>
       ({
         error: state.errorMap.onSubmit?.[field.name],
-      }) as const,
+      }) as const
   );
   const labelledby = `${field.name}-radios`;
 
@@ -95,12 +88,7 @@ function RadioGroupField({
         ))}
       </RadioGroup>
 
-      <HelperText
-        {...slotProps?.helperText}
-        disableGutters
-        errorMessage={error}
-        helperText={helperText}
-      />
+      <HelperText {...slotProps?.helperText} disableGutters errorMessage={error} helperText={helperText} />
     </FormControl>
   );
 }

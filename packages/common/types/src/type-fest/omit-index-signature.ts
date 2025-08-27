@@ -90,7 +90,5 @@ type ExampleWithoutIndexSignatures = OmitIndexSignature<Example>;
 @group type-fest
 */
 export type OmitIndexSignature<ObjectType> = {
-  [KeyType in keyof ObjectType as {} extends Record<KeyType, unknown>
-    ? never
-    : KeyType]: ObjectType[KeyType];
+  [KeyType in keyof ObjectType as {} extends Record<KeyType, unknown> ? never : KeyType]: ObjectType[KeyType];
 };

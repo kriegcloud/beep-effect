@@ -21,11 +21,7 @@ import type { CustomShadows } from "./core/custom-shadows";
 export type ThemeColorScheme = SupportedColorScheme;
 export type ThemeCssVariables = Pick<
   CssVarsThemeOptions,
-  | "cssVarPrefix"
-  | "rootSelector"
-  | "colorSchemeSelector"
-  | "disableCssColorScheme"
-  | "shouldSkipGeneratingVar"
+  "cssVarPrefix" | "rootSelector" | "colorSchemeSelector" | "disableCssColorScheme" | "shouldSkipGeneratingVar"
 >;
 
 export type ColorSchemeOptionsExtended = ColorSystemOptions & {
@@ -49,6 +45,4 @@ export type ThemeOptions = Omit<MuiThemeOptions, "components"> &
  * This is useful for partial configurations and merging deeply nested objects.
  * Supports objects, arrays, and primitive types.
  */
-export type DeepPartial<T> = T extends object
-  ? { [P in keyof T]?: DeepPartial<T[P]> }
-  : T;
+export type DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T;

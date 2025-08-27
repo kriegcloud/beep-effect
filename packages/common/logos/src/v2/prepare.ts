@@ -7,11 +7,11 @@ import * as Match from "effect/Match";
 import * as Num from "effect/Number";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import type { Group } from "./Group";
 import { FingerPrint } from "./internal";
 import { normalize } from "./normalize";
+import type { RootGroup } from "./RootGroup";
 import type { Rule } from "./Rule";
-import type { RuleGroup } from "./RuleGroup";
-import type { RuleSet } from "./RuleSet";
 import {
   ArrayLengthRule,
   ArrayValueRule,
@@ -24,15 +24,15 @@ import {
   StringRule,
   TypeRule,
 } from "./rules";
-import type { RuleSetOrGroup } from "./types";
+import type { RootOrGroup } from "./types";
 import { validate } from "./validate";
 export type Runner = (value: unknown) => boolean;
 
 type CacheEntry = { runner: Runner; fp: string };
-const cache = new WeakMap<RuleSet.Type, CacheEntry>();
+const cache = new WeakMap<RootGroup.Type, CacheEntry>();
 
 // Explicit cache invalidation (belt & suspenders for callers that mutate trees)
-export function invalidatePrepared(root: RuleSet.Type): void {
+export function invalidatePrepared(root: RootGroup.Type): void {
   cache.delete(root);
 }
 
@@ -44,37 +44,27 @@ function compileRule(rule: Rule.Type): Runner {
     Match.withReturnType<((v: any) => boolean) | boolean>(),
     Match.discriminators("type")({
       string: (r) => (v: any) =>
-        F.pipe(get(v), (resolved) =>
-          Str.isString(resolved) ? StringRule.validate(r, resolved) : false,
-        ),
+        F.pipe(get(v), (resolved) => (Str.isString(resolved) ? StringRule.validate(r, resolved) : false)),
       number: (r) => (v: any) =>
-        F.pipe(get(v), (resolved) =>
-          Num.isNumber(resolved) ? NumberRule.validate(r, resolved) : false,
-        ),
+        F.pipe(get(v), (resolved) => (Num.isNumber(resolved) ? NumberRule.validate(r, resolved) : false)),
       boolean: (r) => (v: any) =>
-        F.pipe(get(v), (resolved) =>
-          Bool.isBoolean(resolved) ? BooleanRule.validate(r, resolved) : false,
-        ),
+        F.pipe(get(v), (resolved) => (Bool.isBoolean(resolved) ? BooleanRule.validate(r, resolved) : false)),
       arrayValue: (r) => (v: any) =>
         F.pipe(get(v), (resolved) =>
-          S.is(S.Union(BS.NonEmptyJsonArray, BS.JsonArray, BS.Json))
-            ? ArrayValueRule.validate(r, resolved)
-            : false,
+          S.is(S.Union(BS.NonEmptyJsonArray, BS.JsonArray, BS.Json)) ? ArrayValueRule.validate(r, resolved) : false
         ),
       arrayLength: (r) => (v: any) =>
-        F.pipe(get(v), (resolved) =>
-          A.isArray(resolved) ? ArrayLengthRule.validate(r, resolved) : false,
-        ),
+        F.pipe(get(v), (resolved) => (A.isArray(resolved) ? ArrayLengthRule.validate(r, resolved) : false)),
       hasKey: (r) => (v: any) =>
         F.pipe(get(v), (resolved) =>
           S.is(
             S.Record({
               key: S.String,
               value: BS.Json,
-            }),
+            })
           )
             ? HasKeyRule.validate(r, resolved)
-            : false,
+            : false
         ),
       hasValue: (r) => (v: any) =>
         F.pipe(get(v), (resolved) =>
@@ -82,10 +72,10 @@ function compileRule(rule: Rule.Type): Runner {
             S.Record({
               key: S.String,
               value: BS.Json,
-            }),
+            })
           )
             ? HasValueRule.validate(r, resolved)
-            : false,
+            : false
         ),
       hasEntry: (r) => (v: any) =>
         F.pipe(get(v), (resolved) =>
@@ -93,24 +83,20 @@ function compileRule(rule: Rule.Type): Runner {
             S.Record({
               key: S.String,
               value: BS.Json,
-            }),
+            })
           )
             ? HasEntryRule.validate(r, resolved)
-            : false,
+            : false
         ),
-      typeRule: (r) => (v: any) =>
-        F.pipe(get(v), (resolved) => TypeRule.validate(r, resolved)),
-      date: (r) => (v: any) =>
-        F.pipe(get(v), (resolved) => DateRule.validate(r, resolved)),
+      typeRule: (r) => (v: any) => F.pipe(get(v), (resolved) => TypeRule.validate(r, resolved)),
+      date: (r) => (v: any) => F.pipe(get(v), (resolved) => DateRule.validate(r, resolved)),
     }),
-    Match.orElse(() => F.constant(false)),
+    Match.orElse(() => F.constant(false))
   );
 }
 
-function compileGroup(u: RuleSetOrGroup): Runner {
-  const children = u.rules.map((child) =>
-    child.node === "group" ? compileGroup(child) : compileRule(child),
-  );
+function compileGroup(u: RootOrGroup): Runner {
+  const children = u.rules.map((child) => (child.node === "group" ? compileGroup(child) : compileRule(child)));
 
   if (children.length === 0) {
     return () => true;
@@ -134,7 +120,7 @@ function compileGroup(u: RuleSetOrGroup): Runner {
   };
 }
 
-export function prepare(root: RuleSet.Type): Runner {
+export function prepare(root: RootGroup.Type): Runner {
   const cached = cache.get(root);
   const currentFp = FingerPrint.make(root);
   if (cached && cached.fp === currentFp) return cached.runner;
@@ -153,12 +139,12 @@ export function prepare(root: RuleSet.Type): Runner {
   return entry.runner;
 }
 
-export function runPrepared(root: RuleSet.Type, value: unknown): boolean {
+export function runPrepared(root: RootGroup.Type, value: unknown): boolean {
   return prepare(root)(value);
 }
 
 // Internal export for in-package use (e.g., run.ts) to compile groups without
 // validation or caching. Not re-exported from index.ts to keep public API clean.
-export function createRunner(u: RuleGroup.Type | RuleSet.Type): Runner {
+export function createRunner(u: Group.Type | RootGroup.Type): Runner {
   return compileGroup(u);
 }

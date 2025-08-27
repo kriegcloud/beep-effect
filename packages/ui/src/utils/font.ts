@@ -12,9 +12,7 @@
 const DEFAULT_FONT_FAMILY = `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"`;
 
 export function setFont(fontName?: string) {
-  return fontName
-    ? `"${fontName}", ${DEFAULT_FONT_FAMILY}`
-    : DEFAULT_FONT_FAMILY;
+  return fontName ? `"${fontName}", ${DEFAULT_FONT_FAMILY}` : DEFAULT_FONT_FAMILY;
 }
 
 // ----------------------------------------------------------------------

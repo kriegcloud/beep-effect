@@ -4,9 +4,7 @@ import type { Simplify } from "./simplify";
 
 // Merges two objects without worrying about index signatures.
 type SimpleMerge<Destination, Source> = {
-  [Key in keyof Destination as Key extends keyof Source
-    ? never
-    : Key]: Destination[Key];
+  [Key in keyof Destination as Key extends keyof Source ? never : Key]: Destination[Key];
 } & Source;
 
 /**

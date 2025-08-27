@@ -52,18 +52,12 @@ export function invalidateIdIndex(root: RootGroup.Type): void {
   cache.delete(root);
 }
 
-export function findAnyByIdFast(
-  root: RootGroup.Type,
-  id: string,
-): RuleOrRuleGroup | RootOrRuleGroup | undefined {
+export function findAnyByIdFast(root: RootGroup.Type, id: string): RuleOrRuleGroup | RootOrRuleGroup | undefined {
   const { byId } = getIdIndex(root);
   return O.getOrUndefined(HM.get(byId, id));
 }
 
-export function findGroupByIdFast(
-  root: RootGroup.Type,
-  id: string,
-): RootOrRuleGroup | undefined {
+export function findGroupByIdFast(root: RootGroup.Type, id: string): RootOrRuleGroup | undefined {
   const found = findAnyByIdFast(root, id);
   return found && found.node !== "rule" ? found : undefined;
 }

@@ -10,9 +10,7 @@ export type SubmitButtonProps = React.ComponentProps<typeof Button> & {
 const SubmitButton: React.FC<SubmitButtonProps> = (props) => {
   const form = useFormContext();
   return (
-    <form.Subscribe
-      selector={(state) => [state.isSubmitting, state.canSubmit] as const}
-    >
+    <form.Subscribe selector={(state) => [state.isSubmitting, state.canSubmit] as const}>
       {([isSubmitting, canSubmit]) => (
         <Button {...props} type={"submit"} disabled={!canSubmit}>
           {isSubmitting ? (

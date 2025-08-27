@@ -11,8 +11,7 @@ import type React from "react";
 import { useFieldContext } from "../form";
 import { HelperText } from "./components";
 
-export interface OTPFieldProps
-  extends Omit<DefaultOmit<MuiOtpInputProps>, "sx"> {
+export interface OTPFieldProps extends Omit<DefaultOmit<MuiOtpInputProps>, "sx"> {
   maxSize?: number;
   placeholder?: string;
   helperText?: React.ReactNode;
@@ -23,13 +22,7 @@ export interface OTPFieldProps
   };
 }
 
-function OTPField({
-  slotProps,
-  helperText,
-  maxSize = 56,
-  placeholder = "-",
-  ...other
-}: OTPFieldProps) {
+function OTPField({ slotProps, helperText, maxSize = 56, placeholder = "-", ...other }: OTPFieldProps) {
   const field = useFieldContext<string>();
   const { error, isError } = useStore(field.form.store, (state) =>
     F.pipe(
@@ -38,8 +31,8 @@ function OTPField({
         ({
           error,
           isError: !!error,
-        }) as const,
-    ),
+        }) as const
+    )
   );
 
   return (
@@ -54,9 +47,7 @@ function OTPField({
             maxWidth: maxSize,
           },
         },
-        ...(Array.isArray(slotProps?.wrapper?.sx)
-          ? (slotProps?.wrapper?.sx ?? [])
-          : [slotProps?.wrapper?.sx]),
+        ...(Array.isArray(slotProps?.wrapper?.sx) ? (slotProps?.wrapper?.sx ?? []) : [slotProps?.wrapper?.sx]),
       ]}
     >
       <MuiOtpInput
@@ -75,11 +66,7 @@ function OTPField({
         {...other}
       />
 
-      <HelperText
-        {...slotProps?.helperText}
-        errorMessage={error}
-        helperText={helperText}
-      />
+      <HelperText {...slotProps?.helperText} errorMessage={error} helperText={helperText} />
     </Box>
   );
 }

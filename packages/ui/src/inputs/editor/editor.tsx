@@ -116,9 +116,7 @@ export function Editor({
 
   return (
     <Portal disablePortal={!fullScreen}>
-      {fullScreen && (
-        <Backdrop open sx={[(theme) => ({ zIndex: theme.zIndex.modal - 1 })]} />
-      )}
+      {fullScreen && <Backdrop open sx={[(theme) => ({ zIndex: theme.zIndex.modal - 1 })]} />}
 
       <Box
         {...slotProps?.wrapper}
@@ -128,9 +126,7 @@ export function Editor({
             flexDirection: "column",
             ...(!editable && { cursor: "not-allowed" }),
           },
-          ...(Array.isArray(slotProps?.wrapper?.sx)
-            ? slotProps.wrapper.sx
-            : [slotProps?.wrapper?.sx]),
+          ...(Array.isArray(slotProps?.wrapper?.sx) ? slotProps.wrapper.sx : [slotProps?.wrapper?.sx]),
         ]}
       >
         <EditorRoot

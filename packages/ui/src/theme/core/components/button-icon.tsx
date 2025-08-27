@@ -1,8 +1,4 @@
-import type {
-  Components,
-  ComponentsVariants,
-  Theme,
-} from "@mui/material/styles";
+import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
 
 import { colorKeys } from "../palette";
 

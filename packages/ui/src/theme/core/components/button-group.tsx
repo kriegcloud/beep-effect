@@ -1,10 +1,6 @@
 import { rgbaFromChannel } from "@beep/ui/utils";
 import { buttonGroupClasses } from "@mui/material/ButtonGroup";
-import type {
-  Components,
-  ComponentsVariants,
-  Theme,
-} from "@mui/material/styles";
+import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
 
 import { colorKeys } from "../palette";
 
@@ -32,10 +28,7 @@ const containedVariants = [
   ...(colorKeys.palette.map((colorKey) => ({
     props: (props) => props.variant === "contained" && props.color === colorKey,
     style: ({ theme }) => ({
-      borderColor: rgbaFromChannel(
-        theme.vars.palette[colorKey].darkChannel,
-        theme.vars.opacity.outlined.border,
-      ),
+      borderColor: rgbaFromChannel(theme.vars.palette[colorKey].darkChannel, theme.vars.opacity.outlined.border),
     }),
   })) satisfies ButtonGroupVariants),
 ] satisfies ButtonGroupVariants;
@@ -44,10 +37,7 @@ const textVariants = [
   {
     props: (props) => props.variant === "text",
     style: ({ theme }) => ({
-      borderColor: rgbaFromChannel(
-        "currentColor",
-        theme.vars.opacity.outlined.border,
-      ),
+      borderColor: rgbaFromChannel("currentColor", theme.vars.opacity.outlined.border),
     }),
   },
   {
@@ -63,10 +53,7 @@ const softVariants = [
     props: (props) => props.variant === "soft",
     style: ({ theme }) => ({
       borderStyle: "solid",
-      borderColor: rgbaFromChannel(
-        "currentColor",
-        theme.vars.opacity.soft.border,
-      ),
+      borderColor: rgbaFromChannel("currentColor", theme.vars.opacity.soft.border),
     }),
   },
   {
@@ -79,13 +66,11 @@ const softVariants = [
 
 const firstButtonVariants = [
   {
-    props: (props) =>
-      props.variant === "soft" && props.orientation === "horizontal",
+    props: (props) => props.variant === "soft" && props.orientation === "horizontal",
     style: { borderRightWidth: 1 },
   },
   {
-    props: (props) =>
-      props.variant === "soft" && props.orientation === "vertical",
+    props: (props) => props.variant === "soft" && props.orientation === "vertical",
     style: { borderBottomWidth: 1 },
   },
 ] satisfies ButtonGroupVariants;
@@ -113,12 +98,7 @@ const MuiButtonGroup: Components<Theme>["MuiButtonGroup"] = {
   // ▼▼▼▼▼▼▼▼ 🎨 STYLE ▼▼▼▼▼▼▼▼
   styleOverrides: {
     grouped: {
-      variants: [
-        ...containedVariants,
-        ...textVariants,
-        ...softVariants,
-        ...disabledVariants,
-      ],
+      variants: [...containedVariants, ...textVariants, ...softVariants, ...disabledVariants],
     },
     firstButton: {
       variants: [...firstButtonVariants],

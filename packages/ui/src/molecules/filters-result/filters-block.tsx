@@ -12,13 +12,7 @@ export type FilterBlockProps = React.ComponentProps<"div"> & {
   children: React.ReactNode;
 };
 
-export function FiltersBlock({
-  label,
-  children,
-  isShow,
-  sx,
-  ...other
-}: FilterBlockProps) {
+export function FiltersBlock({ label, children, isShow, sx, ...other }: FilterBlockProps) {
   if (!isShow) {
     return null;
   }

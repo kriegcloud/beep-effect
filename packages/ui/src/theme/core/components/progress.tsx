@@ -1,10 +1,6 @@
 import { rgbaFromChannel } from "@beep/ui/utils";
 import { linearProgressClasses } from "@mui/material/LinearProgress";
-import type {
-  Components,
-  ComponentsVariants,
-  Theme,
-} from "@mui/material/styles";
+import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
 
 import { colorKeys } from "../palette";
 
@@ -26,25 +22,17 @@ function getColorStyle(theme: Theme, colorKey: (typeof allColors)[number]) {
   }
 
   return {
-    backgroundColor: rgbaFromChannel(
-      theme.vars.palette[colorKey].mainChannel,
-      LINEAR_OPACITY.track,
-    ),
+    backgroundColor: rgbaFromChannel(theme.vars.palette[colorKey].mainChannel, LINEAR_OPACITY.track),
   };
 }
 
 function getBufferStyle(theme: Theme, colorKey: (typeof allColors)[number]) {
   const isInherit = colorKey === "inherit";
 
-  const gradientColor = isInherit
-    ? "currentColor"
-    : theme.vars.palette[colorKey].mainChannel;
+  const gradientColor = isInherit ? "currentColor" : theme.vars.palette[colorKey].mainChannel;
   const backgroundColor = isInherit
     ? "currentColor"
-    : rgbaFromChannel(
-        theme.vars.palette[colorKey].mainChannel,
-        LINEAR_OPACITY.track,
-      );
+    : rgbaFromChannel(theme.vars.palette[colorKey].mainChannel, LINEAR_OPACITY.track);
 
   return {
     [`& .${linearProgressClasses.bar2}`]: {

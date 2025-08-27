@@ -21,10 +21,7 @@ export function SettingsProvider({
   const initialSettings = isCookieEnabled ? cookieSettings : defaultSettings;
   const getStorageValue = isCookieEnabled ? getCookie : getStorage;
 
-  const { state, setState, resetState, setField } = useStorage<SettingsState>(
-    storageKey,
-    initialSettings,
-  );
+  const { state, setState, resetState, setField } = useStorage<SettingsState>(storageKey, initialSettings);
 
   const [openDrawer, setOpenDrawer] = useState(false);
 
@@ -48,10 +45,7 @@ export function SettingsProvider({
 
     if (storedValue) {
       try {
-        if (
-          !storedValue.version ||
-          storedValue.version !== defaultSettings.version
-        ) {
+        if (!storedValue.version || storedValue.version !== defaultSettings.version) {
           onReset();
         }
       } catch {
@@ -72,16 +66,7 @@ export function SettingsProvider({
       setState,
       setField,
     }),
-    [
-      canReset,
-      onReset,
-      openDrawer,
-      onCloseDrawer,
-      onToggleDrawer,
-      state,
-      setField,
-      setState,
-    ],
+    [canReset, onReset, openDrawer, onCloseDrawer, onToggleDrawer, state, setField, setState]
   );
 
   return <SettingsContext value={memoizedValue}>{children}</SettingsContext>;

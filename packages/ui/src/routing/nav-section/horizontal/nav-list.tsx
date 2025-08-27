@@ -24,13 +24,7 @@ export function NavList({
 
   const isActive = isActiveLink(pathname, data.path, !!data.children);
 
-  const {
-    open,
-    onOpen,
-    onClose,
-    anchorEl,
-    elementRef: navItemRef,
-  } = usePopoverHover<HTMLButtonElement>();
+  const { open, onOpen, onClose, anchorEl, elementRef: navItemRef } = usePopoverHover<HTMLButtonElement>();
 
   const isRtl = theme.direction === "rtl";
   const id = open ? `${data.title}-popover` : undefined;
@@ -101,10 +95,7 @@ export function NavList({
           },
         }}
       >
-        <NavDropdownPaper
-          className={navSectionClasses.dropdown.paper}
-          sx={slotProps?.dropdown?.paper ?? {}}
-        >
+        <NavDropdownPaper className={navSectionClasses.dropdown.paper} sx={slotProps?.dropdown?.paper ?? {}}>
           <NavSubList
             data={data.children}
             depth={depth}
@@ -119,11 +110,7 @@ export function NavList({
     );
 
   // Hidden item by role
-  if (
-    data.allowedRoles &&
-    checkPermissions &&
-    checkPermissions(data.allowedRoles)
-  ) {
+  if (data.allowedRoles && checkPermissions && checkPermissions(data.allowedRoles)) {
     return null;
   }
 

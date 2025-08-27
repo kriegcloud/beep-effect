@@ -6,14 +6,7 @@ import type { EditorToolbarItemProps } from "../types";
 
 // ----------------------------------------------------------------------
 
-export function ToolbarItem({
-  sx,
-  icon,
-  label,
-  active,
-  disabled,
-  ...other
-}: EditorToolbarItemProps) {
+export function ToolbarItem({ sx, icon, label, active, disabled, ...other }: EditorToolbarItemProps) {
   return (
     <ItemRoot active={active} disabled={disabled} sx={sx} {...other}>
       {icon && <SvgIcon sx={{ fontSize: 18 }}>{icon}</SvgIcon>}
@@ -25,8 +18,7 @@ export function ToolbarItem({
 // ----------------------------------------------------------------------
 
 const ItemRoot = styled(ButtonBase, {
-  shouldForwardProp: (prop: string) =>
-    !["active", "disabled", "sx"].includes(prop),
+  shouldForwardProp: (prop: string) => !["active", "disabled", "sx"].includes(prop),
 })<Pick<EditorToolbarItemProps, "active" | "disabled">>(({ theme }) => ({
   ...theme.typography.body2,
   width: 28,

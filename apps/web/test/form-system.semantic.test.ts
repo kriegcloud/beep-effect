@@ -16,10 +16,7 @@ describe("Form System - Semantic Validation", () => {
   it("detects duplicate step ids", () => {
     const dup: WorkflowDefinition = {
       ...EXAMPLE,
-      steps: [
-        ...EXAMPLE.steps,
-        { ...EXAMPLE.steps[0]!, id: EXAMPLE.steps[0]!.id },
-      ],
+      steps: [...EXAMPLE.steps, { ...EXAMPLE.steps[0]!, id: EXAMPLE.steps[0]!.id }],
     };
     const res = validateWorkflow(dup);
     expect(res.ok).toBe(false);
@@ -29,16 +26,11 @@ describe("Form System - Semantic Validation", () => {
   it("detects unknown transition references", () => {
     const bad: WorkflowDefinition = {
       ...EXAMPLE,
-      transitions: [
-        ...EXAMPLE.transitions,
-        { from: "__missing__", to: "done" },
-      ],
+      transitions: [...EXAMPLE.transitions, { from: "__missing__", to: "done" }],
     } as any;
     const res = validateWorkflow(bad);
     expect(res.ok).toBe(false);
-    expect(res.issues.some((i) => i.code === "UNKNOWN_TRANSITION_REF")).toBe(
-      true,
-    );
+    expect(res.issues.some((i) => i.code === "UNKNOWN_TRANSITION_REF")).toBe(true);
   });
 
   it("flags unreachable steps", () => {
@@ -62,9 +54,7 @@ describe("Form System - Semantic Validation", () => {
       ],
     } as any;
     const res = validateWorkflow(bad);
-    expect(
-      res.issues.some((i) => i.code === "MISSING_DEFAULT_TRANSITION"),
-    ).toBe(true);
+    expect(res.issues.some((i) => i.code === "MISSING_DEFAULT_TRANSITION")).toBe(true);
   });
 
   it("detects when there is no terminal path (cycle)", () => {

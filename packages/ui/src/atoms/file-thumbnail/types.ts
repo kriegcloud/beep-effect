@@ -22,11 +22,7 @@ export type FileThumbnailProps = React.ComponentProps<"div"> & {
         tooltip?: TooltipProps | undefined;
         removeBtn?: IconButtonProps | undefined;
         downloadBtn?: ButtonBaseProps | undefined;
-        img?:
-          | (React.ComponentProps<"img"> & { sx?: SxProps<Theme> })
-          | undefined;
-        icon?:
-          | (React.ComponentProps<"img"> & { sx?: SxProps<Theme> })
-          | undefined;
+        img?: (React.ComponentProps<"img"> & { sx?: SxProps<Theme> }) | undefined;
+        icon?: (React.ComponentProps<"img"> & { sx?: SxProps<Theme> }) | undefined;
       };
 };

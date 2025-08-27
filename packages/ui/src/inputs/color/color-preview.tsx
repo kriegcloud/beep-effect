@@ -10,9 +10,7 @@ export type ColorPreviewSlotProps = {
   label?: React.ComponentProps<typeof ItemLabel>;
 };
 
-export type ColorPreviewProps = React.ComponentProps<
-  typeof ColorPreviewRoot
-> & {
+export type ColorPreviewProps = React.ComponentProps<typeof ColorPreviewRoot> & {
   limit?: number;
   size?: number;
   gap?: number;
@@ -34,11 +32,7 @@ export function ColorPreview({
   const remainingColorCount = colors.length - limit;
 
   return (
-    <ColorPreviewRoot
-      className={mergeClasses([colorPreviewClasses.root, className])}
-      sx={sx}
-      {...other}
-    >
+    <ColorPreviewRoot className={mergeClasses([colorPreviewClasses.root, className])} sx={sx} {...other}>
       {colorsRange.map((color, index) => (
         <ItemRoot
           key={color + index}
@@ -50,18 +44,13 @@ export function ColorPreview({
               "--item-size": `${size}px`,
               "--item-gap": `${-gap}px`,
             },
-            ...(Array.isArray(slotProps?.item?.sx)
-              ? slotProps.item.sx
-              : [slotProps?.item?.sx]),
+            ...(Array.isArray(slotProps?.item?.sx) ? slotProps.item.sx : [slotProps?.item?.sx]),
           ]}
         />
       ))}
 
       {colors.length > limit && (
-        <ItemLabel
-          className={colorPreviewClasses.label}
-          {...slotProps?.label}
-        >{`+${remainingColorCount}`}</ItemLabel>
+        <ItemLabel className={colorPreviewClasses.label} {...slotProps?.label}>{`+${remainingColorCount}`}</ItemLabel>
       )}
     </ColorPreviewRoot>
   );

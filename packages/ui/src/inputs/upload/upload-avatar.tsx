@@ -11,22 +11,8 @@ import { RejectionFiles } from "./components/rejection-files";
 
 import type { UploadProps } from "./types";
 
-export function UploadAvatar({
-  sx,
-  error,
-  value,
-  disabled,
-  helperText,
-  className,
-  ...other
-}: UploadProps) {
-  const {
-    getRootProps,
-    getInputProps,
-    isDragActive,
-    isDragReject,
-    fileRejections,
-  } = useDropzone({
+export function UploadAvatar({ sx, error, value, disabled, helperText, className, ...other }: UploadProps) {
+  const { getRootProps, getInputProps, isDragActive, isDragReject, fileRejections } = useDropzone({
     multiple: false,
     disabled,
     accept: { "image/*": [] },
@@ -48,13 +34,7 @@ export function UploadAvatar({
   }, [value]);
 
   const renderPreview = () =>
-    hasFile && (
-      <Image
-        alt="Avatar"
-        src={preview}
-        sx={{ width: 1, height: 1, borderRadius: "50%" }}
-      />
-    );
+    hasFile && <Image alt="Avatar" src={preview} sx={{ width: 1, height: 1, borderRadius: "50%" }} />;
 
   const renderPlaceholder = () => (
     <Box
@@ -92,9 +72,7 @@ export function UploadAvatar({
     >
       <Iconify icon="solar:camera-add-bold" width={32} />
 
-      <Typography variant="caption">
-        {hasFile ? "Update photo" : "Upload photo"}
-      </Typography>
+      <Typography variant="caption">{hasFile ? "Update photo" : "Upload photo"}</Typography>
     </Box>
   );
 
@@ -133,10 +111,7 @@ export function UploadAvatar({
             ...(hasError && { borderColor: "error.main" }),
             ...(hasFile && {
               ...(hasError && {
-                bgcolor: rgbaFromChannel(
-                  theme.vars.palette.error.mainChannel,
-                  0.08,
-                ),
+                bgcolor: rgbaFromChannel(theme.vars.palette.error.mainChannel, 0.08),
               }),
               "&:hover .upload-placeholder": { opacity: 1 },
             }),

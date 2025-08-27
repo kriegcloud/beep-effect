@@ -16,13 +16,7 @@ export type FiltersResultProps = React.ComponentProps<"div"> & {
   sx?: SxProps<Theme>;
 };
 
-export function FiltersResult({
-  sx,
-  onReset,
-  children,
-  totalResults,
-  ...other
-}: FiltersResultProps) {
+export function FiltersResult({ sx, onReset, children, totalResults, ...other }: FiltersResultProps) {
   return (
     <ResultRoot sx={sx} {...other}>
       <ResultLabel>
@@ -33,11 +27,7 @@ export function FiltersResult({
       <ResultContent>
         {children}
 
-        <Button
-          color="error"
-          onClick={onReset}
-          startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
-        >
+        <Button color="error" onClick={onReset} startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}>
           Clear
         </Button>
       </ResultContent>

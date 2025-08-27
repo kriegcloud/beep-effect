@@ -20,19 +20,9 @@ type CheckboxProps = Omit<FormControlLabelProps, "control"> & {
   };
 };
 
-function CheckboxField({
-  sx,
-  name,
-  label,
-  slotProps,
-  helperText,
-  ...other
-}: CheckboxProps) {
+function CheckboxField({ sx, name, label, slotProps, helperText, ...other }: CheckboxProps) {
   const field = useFieldContext<boolean>();
-  const { error } = useStore(
-    field.form.store,
-    (state) => ({ error: state.errorMap.onSubmit?.[field.name] }) as const,
-  );
+  const { error } = useStore(field.form.store, (state) => ({ error: state.errorMap.onSubmit?.[field.name] }) as const);
   return (
     <Box {...slotProps?.wrapper}>
       <FormControlLabel
@@ -59,11 +49,7 @@ function CheckboxField({
         {...other}
       />
 
-      <HelperText
-        {...slotProps?.helperText}
-        errorMessage={error}
-        helperText={helperText}
-      />
+      <HelperText {...slotProps?.helperText} errorMessage={error} helperText={helperText} />
     </Box>
   );
 }

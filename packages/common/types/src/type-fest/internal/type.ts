@@ -14,24 +14,18 @@ Matches non-recursive types.
 
 @group type-fest
 */
-export type NonRecursiveType =
-  | BuiltIns
-  | Function
-  | (new (
-      ...arguments_: any[]
-    ) => unknown);
+export type NonRecursiveType = BuiltIns | Function | (new (...arguments_: any[]) => unknown);
 
 /**
 Returns a boolean for whether the two given types extends the base type.
 
 @group type-fest
 */
-export type IsBothExtends<BaseType, FirstType, SecondType> =
-  FirstType extends BaseType
-    ? SecondType extends BaseType
-      ? true
-      : false
-    : false;
+export type IsBothExtends<BaseType, FirstType, SecondType> = FirstType extends BaseType
+  ? SecondType extends BaseType
+    ? true
+    : false
+  : false;
 
 /**
 Test if the given function has multiple call signatures.
@@ -43,9 +37,7 @@ Multiple call signatures cannot currently be supported due to a TypeScript limit
 
 @group type-fest
 */
-export type HasMultipleCallSignatures<
-  T extends (...arguments_: any[]) => unknown,
-> = T extends {
+export type HasMultipleCallSignatures<T extends (...arguments_: any[]) => unknown> = T extends {
   (...arguments_: infer A): unknown;
   (...arguments_: infer B): unknown;
 }
@@ -96,11 +88,7 @@ Not<false>;
 
 @group type-fest
 */
-export type Not<A extends boolean> = A extends true
-  ? false
-  : A extends false
-    ? true
-    : never;
+export type Not<A extends boolean> = A extends true ? false : A extends false ? true : never;
 
 /**
 Returns a boolean for whether the given type is a union type.
@@ -158,12 +146,7 @@ type C = IfNotAnyOrNever<never, 'VALID', 'IS_ANY', 'IS_NEVER'>;
 
 @group type-fest
 */
-export type IfNotAnyOrNever<
-  T,
-  IfNotAnyOrNever,
-  IfAny = any,
-  IfNever = never,
-> = IsAny<T> extends true
+export type IfNotAnyOrNever<T, IfNotAnyOrNever, IfAny = any, IfNever = never> = IsAny<T> extends true
   ? IfAny
   : IsNever<T> extends true
     ? IfNever

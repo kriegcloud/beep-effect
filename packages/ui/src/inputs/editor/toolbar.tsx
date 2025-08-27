@@ -34,13 +34,7 @@ export function Toolbar({
   return (
     <Stack
       className={editorClasses.toolbar.root}
-      divider={
-        <Divider
-          orientation="vertical"
-          flexItem
-          sx={{ height: 16, my: "auto" }}
-        />
-      }
+      divider={<Divider orientation="vertical" flexItem sx={{ height: 16, my: "auto" }} />}
       sx={[
         (theme) => ({
           gap: 1,
@@ -203,9 +197,7 @@ export function Toolbar({
         <ToolbarItem
           aria-label="Clear"
           className={editorClasses.toolbar.clear}
-          onClick={() =>
-            editor.chain().focus().clearNodes().unsetAllMarks().run()
-          }
+          onClick={() => editor.chain().focus().clearNodes().unsetAllMarks().run()}
           icon={toolbarIcons.clear}
         />
       </Box>
@@ -236,9 +228,7 @@ export function Toolbar({
           active={fullScreen}
           className={editorClasses.toolbar.fullscreen}
           onClick={onToggleFullScreen}
-          icon={
-            fullScreen ? toolbarIcons.fullScreen : toolbarIcons.exitFullScreen
-          }
+          icon={fullScreen ? toolbarIcons.fullScreen : toolbarIcons.exitFullScreen}
         />
       </Box>
     </Stack>

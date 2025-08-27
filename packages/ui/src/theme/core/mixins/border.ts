@@ -35,8 +35,7 @@ export function borderGradient(props?: BorderGradientProps): CSSObject {
     borderRadius: "inherit",
     /********/
     mask: "linear-gradient(#FFF 0 0) content-box, linear-gradient(#FFF 0 0)",
-    WebkitMask:
-      "linear-gradient(#FFF 0 0) content-box, linear-gradient(#FFF 0 0)",
+    WebkitMask: "linear-gradient(#FFF 0 0) content-box, linear-gradient(#FFF 0 0)",
     maskComposite: "exclude",
     WebkitMaskComposite: "xor",
     ...(color && {

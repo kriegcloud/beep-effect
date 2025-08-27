@@ -60,9 +60,7 @@ const getEffectStyles = (effect?: EffectsType) => {
   const { style, duration } = effect ?? {};
 
   const transition =
-    style === "opacity"
-      ? `opacity ${duration}ms`
-      : `opacity ${Number(duration) / 2}ms, filter ${duration}ms`;
+    style === "opacity" ? `opacity ${duration}ms` : `opacity ${Number(duration) / 2}ms, filter ${duration}ms`;
 
   return {
     [`& .${imageClasses.img}`]: {

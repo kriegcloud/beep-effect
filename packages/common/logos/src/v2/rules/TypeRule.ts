@@ -92,7 +92,7 @@ export const { Input, Rule } = makeRule("typeRule", {
     Ops.IsUndefined,
     Ops.IsBoolean,
     Ops.IsArray,
-    Ops.IsObject,
+    Ops.IsObject
   ),
 });
 
@@ -180,5 +180,5 @@ export const validate = (rule: Input.Type, value: unknown) =>
       isArray: () => A.isArray(value),
       isObject: () => P.isRecord(value),
     }),
-    Match.orElse(() => false),
+    Match.orElse(() => false)
   );

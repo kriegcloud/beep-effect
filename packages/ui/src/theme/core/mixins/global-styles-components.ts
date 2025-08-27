@@ -87,24 +87,17 @@ const cyanShape =
 const redShape =
   "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSJ1cmwoI3BhaW50MF9yYWRpYWxfNDQ2NF81NTMzNykiIGZpbGwtb3BhY2l0eT0iMC4xIi8+CjxkZWZzPgo8cmFkaWFsR3JhZGllbnQgaWQ9InBhaW50MF9yYWRpYWxfNDQ2NF81NTMzNyIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgZ3JhZGllbnRUcmFuc2Zvcm09InRyYW5zbGF0ZSgwIDEyMCkgcm90YXRlKDEzNSkgc2NhbGUoMTIzLjI1KSI+CjxzdG9wIHN0b3AtY29sb3I9IiNGRjU2MzAiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkY1NjMwIiBzdG9wLW9wYWNpdHk9IjAiLz4KPC9yYWRpYWxHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K";
 
-export function paperStyles(
-  theme: Theme,
-  options?: PaperStyleOptions,
-): CSSObject {
+export function paperStyles(theme: Theme, options?: PaperStyleOptions): CSSObject {
   const { blur = 20, color, dropdown } = options ?? {};
   return {
     ...theme.mixins.bgGradient({
       images: [`url(${cyanShape})`, `url(${redShape})`],
       sizes: ["50%", "50%"],
-      positions:
-        theme.direction === "rtl"
-          ? ["top left", "right bottom"]
-          : ["top right", "left bottom"],
+      positions: theme.direction === "rtl" ? ["top left", "right bottom"] : ["top right", "left bottom"],
     }),
     backdropFilter: `blur(${blur}px)`,
     WebkitBackdropFilter: `blur(${blur}px)`,
-    backgroundColor:
-      color ?? rgbaFromChannel(theme.vars.palette.background.paperChannel, 0.9),
+    backgroundColor: color ?? rgbaFromChannel(theme.vars.palette.background.paperChannel, 0.9),
     ...(dropdown && {
       padding: theme.spacing(0.5),
       boxShadow: theme.vars.customShadows.dropdown,
@@ -133,20 +126,13 @@ export function paperStyles(
  * ...theme.mixins.softStyles(theme, 'primary', { hover: true })
  */
 
-export type ColorKey =
-  | CommonColorsKeys
-  | PaletteColorKey
-  | "default"
-  | "inherit";
+export type ColorKey = CommonColorsKeys | PaletteColorKey | "default" | "inherit";
 
 export type StyleOptions = {
   hover?: boolean | CSSObject;
 };
 
-function getHoverStyles(
-  hoverOption: StyleOptions["hover"],
-  hoverBase: CSSObject,
-): CSSObject {
+function getHoverStyles(hoverOption: StyleOptions["hover"], hoverBase: CSSObject): CSSObject {
   if (!hoverOption) return {};
 
   return {
@@ -157,14 +143,10 @@ function getHoverStyles(
   };
 }
 
-export function filledStyles(
-  theme: Theme,
-  colorKey: ColorKey,
-  options?: StyleOptions,
-): CSSObject {
+export function filledStyles(theme: Theme, colorKey: ColorKey, options?: StyleOptions): CSSObject {
   if (!colorKey) {
     console.warn(
-      '[filledStyles] Missing colorKey. Please provide a valid color such as "primary", "black", or "default".',
+      '[filledStyles] Missing colorKey. Please provide a valid color such as "primary", "black", or "default".'
     );
     return {};
   }
@@ -211,7 +193,7 @@ export function filledStyles(
     const hover: CSSObject = getHoverStyles(options?.hover, {
       backgroundColor: rgbaFromChannel(
         `${theme.vars.palette.common[`${colorKey}Channel`]}`,
-        theme.vars.opacity.filled.commonHoverBg,
+        theme.vars.opacity.filled.commonHoverBg
       ),
     });
 
@@ -231,14 +213,10 @@ export function filledStyles(
   return { ...colorPalette.base, ...colorPalette.hover };
 }
 
-export function softStyles(
-  theme: Theme,
-  colorKey: ColorKey,
-  options?: StyleOptions,
-): CSSObject {
+export function softStyles(theme: Theme, colorKey: ColorKey, options?: StyleOptions): CSSObject {
   if (!colorKey) {
     console.warn(
-      '[softStyles] Missing colorKey. Please provide a valid color such as "primary", "black", or "default".',
+      '[softStyles] Missing colorKey. Please provide a valid color such as "primary", "black", or "default".'
     );
     return {};
   }
@@ -253,17 +231,11 @@ export function softStyles(
   if (colorKey === "inherit") {
     const base: CSSObject = {
       boxShadow: "none",
-      backgroundColor: rgbaFromChannel(
-        theme.vars.palette.grey["500Channel"],
-        theme.vars.opacity.soft.bg,
-      ),
+      backgroundColor: rgbaFromChannel(theme.vars.palette.grey["500Channel"], theme.vars.opacity.soft.bg),
     };
 
     const hover: CSSObject = getHoverStyles(options?.hover, {
-      backgroundColor: rgbaFromChannel(
-        theme.vars.palette.grey["500Channel"],
-        theme.vars.opacity.soft.hoverBg,
-      ),
+      backgroundColor: rgbaFromChannel(theme.vars.palette.grey["500Channel"], theme.vars.opacity.soft.hoverBg),
     });
 
     return { ...base, ...hover };
@@ -273,17 +245,11 @@ export function softStyles(
     const base: CSSObject = {
       boxShadow: "none",
       color: theme.vars.palette.common[colorKey],
-      backgroundColor: rgbaFromChannel(
-        "currentColor",
-        theme.vars.opacity.soft.commonBg,
-      ),
+      backgroundColor: rgbaFromChannel("currentColor", theme.vars.opacity.soft.commonBg),
     };
 
     const hover: CSSObject = getHoverStyles(options?.hover, {
-      backgroundColor: rgbaFromChannel(
-        "currentColor",
-        theme.vars.opacity.soft.commonHoverBg,
-      ),
+      backgroundColor: rgbaFromChannel("currentColor", theme.vars.opacity.soft.commonHoverBg),
     });
 
     return { ...base, ...hover };
@@ -293,19 +259,13 @@ export function softStyles(
     base: {
       boxShadow: "none",
       color: theme.vars.palette[colorKey].dark,
-      backgroundColor: rgbaFromChannel(
-        theme.vars.palette[colorKey].mainChannel,
-        theme.vars.opacity.soft.bg,
-      ),
+      backgroundColor: rgbaFromChannel(theme.vars.palette[colorKey].mainChannel, theme.vars.opacity.soft.bg),
       ...theme.applyStyles("dark", {
         color: theme.vars.palette[colorKey].light,
       }),
     },
     hover: getHoverStyles(options?.hover, {
-      backgroundColor: rgbaFromChannel(
-        theme.vars.palette[colorKey].mainChannel,
-        theme.vars.opacity.soft.hoverBg,
-      ),
+      backgroundColor: rgbaFromChannel(theme.vars.palette[colorKey].mainChannel, theme.vars.opacity.soft.hoverBg),
     }),
   };
 

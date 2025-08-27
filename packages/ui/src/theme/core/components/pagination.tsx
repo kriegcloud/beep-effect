@@ -1,10 +1,6 @@
 import { rgbaFromChannel } from "@beep/ui/utils";
 import { paginationItemClasses } from "@mui/material/PaginationItem";
-import type {
-  Components,
-  ComponentsVariants,
-  Theme,
-} from "@mui/material/styles";
+import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
 
 import { colorKeys } from "../palette";
 
@@ -48,33 +44,20 @@ const outlinedVariants = [
       borderColor: theme.vars.palette.shared.buttonOutlined,
       [`&.${paginationItemClasses.selected}`]: {
         borderColor: "currentColor",
-        backgroundColor: rgbaFromChannel(
-          "currentColor",
-          theme.vars.palette.action.selectedOpacity,
-        ),
+        backgroundColor: rgbaFromChannel("currentColor", theme.vars.palette.action.selectedOpacity),
         "&:hover": {
-          backgroundColor: rgbaFromChannel(
-            "currentColor",
-            `calc(${theme.vars.palette.action.selectedOpacity} * 2)`,
-          ),
+          backgroundColor: rgbaFromChannel("currentColor", `calc(${theme.vars.palette.action.selectedOpacity} * 2)`),
         },
       },
     }),
   },
   {
-    props: (props) =>
-      props.variant === "outlined" && props.color === "standard",
+    props: (props) => props.variant === "outlined" && props.color === "standard",
     style: ({ theme }) => ({
       [`&.${paginationItemClasses.selected}`]: {
-        backgroundColor: rgbaFromChannel(
-          theme.vars.palette.grey["500Channel"],
-          0.08,
-        ),
+        backgroundColor: rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.08),
         "&:hover": {
-          backgroundColor: rgbaFromChannel(
-            theme.vars.palette.grey["500Channel"],
-            0.16,
-          ),
+          backgroundColor: rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.16),
         },
       },
     }),
@@ -119,12 +102,7 @@ const MuiPaginationItem: Components<Theme>["MuiPaginationItem"] = {
       [`&.${paginationItemClasses.selected}`]: {
         fontWeight: theme.typography.fontWeightSemiBold,
       },
-      variants: [
-        ...textVariants,
-        ...outlinedVariants,
-        ...softVariants,
-        ...disabledVariants,
-      ],
+      variants: [...textVariants, ...outlinedVariants, ...softVariants, ...disabledVariants],
     }),
   },
 };

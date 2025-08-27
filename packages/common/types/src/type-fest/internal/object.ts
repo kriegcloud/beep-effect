@@ -28,11 +28,7 @@ type B = BuildObject<'a', string, {readonly a?: any}>;
 
 @group type-fest
 */
-export type BuildObject<
-  Key extends PropertyKey,
-  Value,
-  CopiedFrom extends object = {},
-> = Key extends keyof CopiedFrom
+export type BuildObject<Key extends PropertyKey, Value, CopiedFrom extends object = {}> = Key extends keyof CopiedFrom
   ? Pick<{ [_ in keyof CopiedFrom]: Value }, Key>
   : Key extends `${infer NumberKey extends number}`
     ? NumberKey extends keyof CopiedFrom
@@ -155,10 +151,7 @@ type Statuses = ValueOfUnion<{ id: 1, status: "open" } | { id: 2, status: "close
 
 @group type-fest
 */
-export type ValueOfUnion<
-  Union,
-  Key extends KeysOfUnion<Union>,
-> = Union extends unknown
+export type ValueOfUnion<Union, Key extends KeysOfUnion<Union>> = Union extends unknown
   ? Key extends keyof Union
     ? Union[Key]
     : never
@@ -188,10 +181,7 @@ type ReadonlyKeys = ReadonlyKeysOfUnion<User | Post>;
 */
 export type ReadonlyKeysOfUnion<Union> = Union extends unknown
   ? keyof {
-      [Key in keyof Union as IsEqual<
-        { [K in Key]: Union[Key] },
-        { readonly [K in Key]: Union[Key] }
-      > extends true
+      [Key in keyof Union as IsEqual<{ [K in Key]: Union[Key] }, { readonly [K in Key]: Union[Key] }> extends true
         ? Key
         : never]: never;
     }
@@ -254,8 +244,7 @@ type Result = ApplyDefaultOptions<PathsOptions, DefaultPathsOptions, SpecifiedOp
 export type ApplyDefaultOptions<
   Options extends object,
   Defaults extends Simplify<
-    Omit<Required<Options>, RequiredKeysOf<Options>> &
-      Partial<Record<RequiredKeysOf<Options>, never>>
+    Omit<Required<Options>, RequiredKeysOf<Options>> & Partial<Record<RequiredKeysOf<Options>, never>>
   >,
   SpecifiedOptions extends Options,
 > = IfAny<

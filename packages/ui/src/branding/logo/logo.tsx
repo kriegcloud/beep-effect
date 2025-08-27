@@ -17,14 +17,7 @@ export type LogoProps = LinkProps & {
   disabled?: boolean | undefined;
 };
 
-export function Logo({
-  sx,
-  disabled,
-  className,
-  href = "/",
-  isSingle = true,
-  ...other
-}: LogoProps) {
+export function Logo({ sx, disabled, className, href = "/", isSingle = true, ...other }: LogoProps) {
   // const theme = useTheme();
 
   // const gradientId = useId();

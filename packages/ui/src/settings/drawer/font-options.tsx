@@ -16,14 +16,7 @@ export type FontFamilyOptionsProps = BoxProps & {
   onChangeOption: (newOption: string) => void;
 };
 
-export function FontFamilyOptions({
-  sx,
-  icon,
-  value,
-  options,
-  onChangeOption,
-  ...other
-}: FontFamilyOptionsProps) {
+export function FontFamilyOptions({ sx, icon, value, options, onChangeOption, ...other }: FontFamilyOptionsProps) {
   return (
     <Box
       sx={[
@@ -53,9 +46,7 @@ export function FontFamilyOptions({
             })}
           >
             {icon}
-            {option.endsWith("Variable")
-              ? option.replace(" Variable", "")
-              : option}
+            {option.endsWith("Variable") ? option.replace(" Variable", "") : option}
           </OptionButton>
         );
       })}
@@ -71,13 +62,7 @@ export type FontSizeOptionsProps = SliderProps & {
   onChangeOption: (newOption: number) => void;
 };
 
-export function FontSizeOptions({
-  sx,
-  value,
-  options,
-  onChangeOption,
-  ...other
-}: FontSizeOptionsProps) {
+export function FontSizeOptions({ sx, value, options, onChangeOption, ...other }: FontSizeOptionsProps) {
   return (
     <Slider
       marks
@@ -89,9 +74,7 @@ export function FontSizeOptions({
       value={value}
       min={options[0]}
       max={options[1]}
-      onChange={(event: Event, newOption: number | number[]) =>
-        onChangeOption(newOption as number)
-      }
+      onChange={(event: Event, newOption: number | number[]) => onChangeOption(newOption as number)}
       sx={[
         (theme) => ({
           [`& .${sliderClasses.rail}`]: {

@@ -24,16 +24,14 @@ function RatingField({ helperText, slotProps, ...other }: RatingProps) {
     (state) =>
       ({
         error: state.errorMap.onSubmit?.[field.name],
-      }) as const,
+      }) as const
   );
   return (
     <Box
       {...slotProps?.wrapper}
       sx={[
         { display: "flex", flexDirection: "column" },
-        ...(Array.isArray(slotProps?.wrapper?.sx)
-          ? (slotProps?.wrapper?.sx ?? [])
-          : [slotProps?.wrapper?.sx]),
+        ...(Array.isArray(slotProps?.wrapper?.sx) ? (slotProps?.wrapper?.sx ?? []) : [slotProps?.wrapper?.sx]),
       ]}
     >
       <MuiRating
@@ -45,12 +43,7 @@ function RatingField({ helperText, slotProps, ...other }: RatingProps) {
         {...other}
       />
 
-      <HelperText
-        {...slotProps?.helperText}
-        disableGutters
-        errorMessage={error}
-        helperText={helperText}
-      />
+      <HelperText {...slotProps?.helperText} disableGutters errorMessage={error} helperText={helperText} />
     </Box>
   );
 }

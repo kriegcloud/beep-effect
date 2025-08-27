@@ -7,8 +7,7 @@ const MuiStepConnector: Components<Theme>["MuiStepConnector"] = {
   // ▼▼▼▼▼▼▼▼ 🎨 STYLE ▼▼▼▼▼▼▼▼
   styleOverrides: {
     root: ({ theme }) => ({
-      [parseCssVar(theme.vars.palette.StepConnector.border)]:
-        theme.vars.palette.divider,
+      [parseCssVar(theme.vars.palette.StepConnector.border)]: theme.vars.palette.divider,
     }),
   },
 };
@@ -17,8 +16,7 @@ const MuiStepContent: Components<Theme>["MuiStepContent"] = {
   // ▼▼▼▼▼▼▼▼ 🎨 STYLE ▼▼▼▼▼▼▼▼
   styleOverrides: {
     root: ({ theme }) => ({
-      [parseCssVar(theme.vars.palette.StepContent.border)]:
-        theme.vars.palette.divider,
+      [parseCssVar(theme.vars.palette.StepContent.border)]: theme.vars.palette.divider,
     }),
   },
 };

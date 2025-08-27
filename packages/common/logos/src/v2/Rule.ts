@@ -22,7 +22,7 @@ export class Rule extends S.Union(
   HasValueRule.Rule,
   NumberRule.Rule,
   StringRule.Rule,
-  TypeRule.Rule,
+  TypeRule.Rule
 ) {}
 
 export class RuleInput extends S.Union(
@@ -35,7 +35,7 @@ export class RuleInput extends S.Union(
   HasValueRule.Input,
   NumberRule.Input,
   StringRule.Input,
-  TypeRule.Input,
+  TypeRule.Input
 ) {}
 
 export namespace RuleInput {

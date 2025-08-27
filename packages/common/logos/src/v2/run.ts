@@ -1,8 +1,8 @@
 import type { UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
+import { Group } from "./Group";
 import { createRunner, prepare } from "./prepare";
-import { RuleGroup } from "./RuleGroup";
-import type { RuleSetOrGroup } from "./types";
+import type { RootOrGroup } from "./types";
 
 /**
  * Run the rules engine against a value.
@@ -11,10 +11,7 @@ import type { RuleSetOrGroup } from "./types";
  * @param {*} value
  * @return {*}  {boolean}
  */
-export function run(
-  group: RuleSetOrGroup,
-  value: UnsafeTypes.UnsafeAny,
-): boolean {
+export function run(group: RootOrGroup, value: UnsafeTypes.UnsafeAny): boolean {
   // Root groups: reuse prepare() for validation, normalization, and cached runner.
   if (group.node === "root") {
     const runner = prepare(group);
@@ -22,7 +19,7 @@ export function run(
   }
 
   // Nested groups: validate once per call, then compile and run.
-  const validated = S.decodeSync(RuleGroup)(S.encodeSync(RuleGroup)(group));
+  const validated = S.decodeSync(Group)(S.encodeSync(Group)(group));
   const runner = createRunner(validated);
   return runner(value);
 }

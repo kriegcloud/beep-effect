@@ -24,32 +24,19 @@ export type StateProps = {
  * Output: 'item__base active__class open__class'
  */
 
-export const mergeClasses = (
-  className?: string | (string | undefined)[] | null,
-  state?: StateProps,
-) =>
-  F.pipe(
-    className
-      ? A.isArray(className)
-        ? className
-        : A.make(className)
-      : A.empty(),
-    (classList) => {
-      const dynamicStateClassesArray = F.pipe(
-        R.toEntries(state || {}),
-        A.filter(([_, value]) => value !== undefined && value !== false),
-        A.map(([key, value]) => {
-          if (A.isArray(value)) {
-            return value[0] ? value[1] : "";
-          }
-          return value ? key : "";
-        }),
-        A.filter(Boolean),
-      );
+export const mergeClasses = (className?: string | (string | undefined)[] | null, state?: StateProps) =>
+  F.pipe(className ? (A.isArray(className) ? className : A.make(className)) : A.empty(), (classList) => {
+    const dynamicStateClassesArray = F.pipe(
+      R.toEntries(state || {}),
+      A.filter(([_, value]) => value !== undefined && value !== false),
+      A.map(([key, value]) => {
+        if (A.isArray(value)) {
+          return value[0] ? value[1] : "";
+        }
+        return value ? key : "";
+      }),
+      A.filter(Boolean)
+    );
 
-      return [
-        ...A.filter(classList, Boolean),
-        ...dynamicStateClassesArray,
-      ].join(" ");
-    },
-  );
+    return [...A.filter(classList, Boolean), ...dynamicStateClassesArray].join(" ");
+  });

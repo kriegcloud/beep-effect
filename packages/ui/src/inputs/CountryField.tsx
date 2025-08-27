@@ -52,23 +52,14 @@ export function CountrySelect({
   ...other
 }: CountrySelectProps) {
   const options = useMemo(
-    () =>
-      A.map(countries, (country) =>
-        getValue === "label" ? country.label : country.code,
-      ),
-    [getValue],
+    () => A.map(countries, (country) => (getValue === "label" ? country.label : country.code)),
+    [getValue]
   );
 
   const getCountry = useCallback(
     (inputValue: string) =>
       F.pipe(
-        A.findFirst(
-          countries,
-          (op) =>
-            op.label === inputValue ||
-            op.code === inputValue ||
-            op.phone === inputValue,
-        ),
+        A.findFirst(countries, (op) => op.label === inputValue || op.code === inputValue || op.phone === inputValue),
         O.match({
           onNone: () => ({ code: "", label: "", phone: "" }),
           onSome: (op) => ({
@@ -76,9 +67,9 @@ export function CountrySelect({
             label: op.label,
             phone: op.phone,
           }),
-        }),
+        })
       ),
-    [],
+    []
   );
 
   const renderOption = useCallback(
@@ -101,7 +92,7 @@ export function CountrySelect({
         </li>
       );
     },
-    [getCountry],
+    [getCountry]
   );
 
   const renderInput = useCallback(
@@ -130,10 +121,7 @@ export function CountrySelect({
             input: {
               ...params.InputProps,
               startAdornment: (
-                <InputAdornment
-                  position="start"
-                  sx={{ ...(!country.code && { display: "none" }) }}
-                >
+                <InputAdornment position="start" sx={{ ...(!country.code && { display: "none" }) }}>
                   <FlagIcon
                     key={country.label}
                     code={country.code}
@@ -158,16 +146,7 @@ export function CountrySelect({
         />
       );
     },
-    [
-      getCountry,
-      label,
-      variant,
-      placeholder,
-      helperText,
-      hiddenLabel,
-      error,
-      multiple,
-    ],
+    [getCountry, label, variant, placeholder, helperText, hiddenLabel, error, multiple]
   );
 
   const renderTags = useCallback(
@@ -183,16 +162,12 @@ export function CountrySelect({
             size="small"
             variant="soft"
             icon={
-              <FlagIcon
-                key={country.label}
-                code={country.code}
-                sx={{ width: 16, height: 16, borderRadius: "50%" }}
-              />
+              <FlagIcon key={country.label} code={country.code} sx={{ width: 16, height: 16, borderRadius: "50%" }} />
             }
           />
         );
       }),
-    [getCountry],
+    [getCountry]
   );
 
   const getOptionLabel = useCallback(
@@ -203,10 +178,10 @@ export function CountrySelect({
             O.match({
               onNone: () => "",
               onSome: (op) => op.label,
-            }),
+            })
           )
         : option,
-    [getValue],
+    [getValue]
   );
 
   return (
@@ -225,10 +200,7 @@ export function CountrySelect({
   );
 }
 
-function CountryField({
-  helperText,
-  ...other
-}: DefaultOmit<CountrySelectProps>) {
+function CountryField({ helperText, ...other }: DefaultOmit<CountrySelectProps>) {
   const field = useFieldContext();
   const { error, isError } = useStore(field.form.store, (state) =>
     F.pipe(
@@ -237,8 +209,8 @@ function CountryField({
         ({
           error,
           isError: !!error,
-        }) as const,
-    ),
+        }) as const
+    )
   );
   return (
     <CountrySelect

@@ -11,10 +11,7 @@ type Options = {
   promoteSingleRuleGroups?: boolean;
   updateParentIds?: boolean;
 };
-export function normalize<T extends RootOrRuleGroup>(
-  group: T,
-  options?: Options,
-): T {
+export function normalize<T extends RootOrRuleGroup>(group: T, options?: Options): T {
   const promoteSingleRuleGroups = options?.promoteSingleRuleGroups ?? true;
   const removeEmptyGroups = options?.removeEmptyGroups ?? true;
   const removeFailedValidations = options?.removeFailedValidations ?? true;
@@ -40,22 +37,14 @@ export function normalize<T extends RootOrRuleGroup>(
       }
 
       // Promote single-rule group
-      if (
-        A.isNonEmptyArray(normalizedChild.rules) &&
-        normalizedChild.rules.length === 1 &&
-        promoteSingleRuleGroups
-      ) {
+      if (A.isNonEmptyArray(normalizedChild.rules) && normalizedChild.rules.length === 1 && promoteSingleRuleGroups) {
         const only = normalizedChild.rules[0];
         out.push(updateParentIds ? { ...only, parentId: group.id } : only);
         continue;
       }
 
       // Ensure parentId of group
-      out.push(
-        updateParentIds
-          ? { ...normalizedChild, parentId: group.id }
-          : normalizedChild,
-      );
+      out.push(updateParentIds ? { ...normalizedChild, parentId: group.id } : normalizedChild);
       continue;
     }
     // item is a rule

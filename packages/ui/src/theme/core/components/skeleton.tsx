@@ -12,10 +12,7 @@ const MuiSkeleton: Components<Theme>["MuiSkeleton"] = {
   // ▼▼▼▼▼▼▼▼ 🎨 STYLE ▼▼▼▼▼▼▼▼
   styleOverrides: {
     root: ({ theme }) => ({
-      backgroundColor: rgbaFromChannel(
-        theme.vars.palette.grey["400Channel"],
-        0.12,
-      ),
+      backgroundColor: rgbaFromChannel(theme.vars.palette.grey["400Channel"], 0.12),
     }),
     rounded: ({ theme }) => ({
       borderRadius: Number(theme.shape.borderRadius) * 2,

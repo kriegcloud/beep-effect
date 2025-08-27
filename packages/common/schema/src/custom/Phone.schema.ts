@@ -6,15 +6,12 @@ import * as S from "effect/Schema";
 
 export const UnsafePhone = S.NonEmptyTrimmedString.pipe(
   S.pattern(/^\+\d-\d{3}-\d{3}-\d{4}$/),
-  S.brand("Phone"),
+  S.brand("Phone")
 ).annotations({
   identifier: "Phone",
   title: "Phone",
   description: "A valid phone number",
-  arbitrary: () => (fc) =>
-    fc
-      .constant(null)
-      .map(() => faker.phone.number() as B.Branded<string, "Phone">),
+  arbitrary: () => (fc) => fc.constant(null).map(() => faker.phone.number() as B.Branded<string, "Phone">),
 });
 
 /**
@@ -45,10 +42,7 @@ export const UnsafePhone = S.NonEmptyTrimmedString.pipe(
  * @category Phone
  */
 export class Phone extends S.Redacted(UnsafePhone) {
-  static readonly make = F.flow(
-    (i: string) => UnsafePhone.make(i),
-    Redacted.make,
-  );
+  static readonly make = F.flow((i: string) => UnsafePhone.make(i), Redacted.make);
 }
 
 export namespace Phone {

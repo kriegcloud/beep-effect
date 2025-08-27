@@ -23,13 +23,7 @@ export type AutocompleteProps = AutocompleteBaseProps & {
   };
 };
 
-function AutocompleteField({
-  label,
-  slotProps,
-  helperText,
-  placeholder,
-  ...other
-}: DefaultOmit<AutocompleteProps>) {
+function AutocompleteField({ label, slotProps, helperText, placeholder, ...other }: DefaultOmit<AutocompleteProps>) {
   const field = useFieldContext();
   const { error, isError } = useStore(field.form.store, (state) =>
     F.pipe(
@@ -38,8 +32,8 @@ function AutocompleteField({
         ({
           error,
           isError: !!error,
-        }) as const,
-    ),
+        }) as const
+    )
   );
   const { textfield, ...otherSlotProps } = slotProps ?? {};
 

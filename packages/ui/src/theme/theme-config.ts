@@ -1,9 +1,4 @@
-import type {
-  CommonColors,
-  Direction,
-  Theme,
-  ThemeProviderProps,
-} from "@mui/material/styles";
+import type { CommonColors, Direction, Theme, ThemeProviderProps } from "@mui/material/styles";
 import type { PaletteColorKey, PaletteColorNoChannels } from "./core/palette";
 import type { ThemeCssVariables } from "./types";
 
@@ -19,17 +14,7 @@ export type ThemeConfig = {
   palette: Record<PaletteColorKey, PaletteColorNoChannels> & {
     common: Pick<CommonColors, "black" | "white">;
     grey: {
-      [K in
-        | 50
-        | 100
-        | 200
-        | 300
-        | 400
-        | 500
-        | 600
-        | 700
-        | 800
-        | 900 as `${K}`]: string;
+      [K in 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 as `${K}`]: string;
     };
   };
 };

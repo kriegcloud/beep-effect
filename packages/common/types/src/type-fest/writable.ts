@@ -4,16 +4,15 @@ import type { Simplify } from "./simplify";
 /**
 Create a writable version of the given array type.
 */
-type WritableArray<ArrayType extends readonly unknown[]> =
-  ArrayType extends readonly []
-    ? []
-    : ArrayType extends readonly [...infer U, infer V]
-      ? [...U, V]
-      : ArrayType extends readonly [infer U, ...infer V]
-        ? [U, ...V]
-        : ArrayType extends ReadonlyArray<infer U>
-          ? U[]
-          : ArrayType;
+type WritableArray<ArrayType extends readonly unknown[]> = ArrayType extends readonly []
+  ? []
+  : ArrayType extends readonly [...infer U, infer V]
+    ? [...U, V]
+    : ArrayType extends readonly [infer U, ...infer V]
+      ? [U, ...V]
+      : ArrayType extends ReadonlyArray<infer U>
+        ? U[]
+        : ArrayType;
 
 /**
 Create a type that strips `readonly` from the given type. Inverse of `Readonly<T>`.
@@ -55,10 +54,10 @@ writableArray.push(4); // Will work as the array itself is now writable.
 
 @group type-fest
 */
-export type Writable<
-  BaseType,
-  Keys extends keyof BaseType = keyof BaseType,
-> = BaseType extends ReadonlyMap<infer KeyType, infer ValueType>
+export type Writable<BaseType, Keys extends keyof BaseType = keyof BaseType> = BaseType extends ReadonlyMap<
+  infer KeyType,
+  infer ValueType
+>
   ? Map<KeyType, ValueType>
   : BaseType extends ReadonlySet<infer ItemType>
     ? Set<ItemType>
@@ -70,9 +69,6 @@ export type Writable<
           // Pick just the keys that are not writable from the base type.
           Except<BaseType, Keys> & {
             // Pick the keys that should be writable from the base type and make them writable by removing the `readonly` modifier from the key.
-            -readonly [KeyType in keyof Pick<BaseType, Keys>]: Pick<
-              BaseType,
-              Keys
-            >[KeyType];
+            -readonly [KeyType in keyof Pick<BaseType, Keys>]: Pick<BaseType, Keys>[KeyType];
           }
         >;

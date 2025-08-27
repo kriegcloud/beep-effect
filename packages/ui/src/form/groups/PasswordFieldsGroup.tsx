@@ -40,8 +40,7 @@ type ComplexityKeys = "minLength" | "lowerCase" | "upperCase" | "number";
 
 type DefaultErrorOption = Record<ComplexityKeys, PasswordsComplexityPass>;
 
-type ErrorOption = DefaultErrorOption &
-  Record<"specialCharacters", PasswordsComplexityPass>;
+type ErrorOption = DefaultErrorOption & Record<"specialCharacters", PasswordsComplexityPass>;
 
 type Check = {
   pass: boolean;
@@ -79,12 +78,11 @@ export type PasswordChecklistProps = {
 export const validatePasswordChecklist = (
   password: string,
   messages?: ValidationMessages,
-  options?: CheckPasswordOptions,
+  options?: CheckPasswordOptions
 ): PasswordCheckListResult => {
   // -------------- default options -------------- //
   const passwordMinLength = options?.minLength || 8;
-  const allowedSpecialChar =
-    options?.allowedSpecialChar || "!@#$%^&*(),.?\":{}|<>\\[\\]\\\\/`~;'_+=-";
+  const allowedSpecialChar = options?.allowedSpecialChar || "!@#$%^&*(),.?\":{}|<>\\[\\]\\\\/`~;'_+=-";
 
   // ----------- default error messages ---------- //
   const {
@@ -174,9 +172,7 @@ export const validatePasswordChecklist = (
 export const PasswordFieldsGroup = withFieldGroup({
   defaultValues,
   render: function Render({ group }) {
-    const [rules, setRules] = React.useState<
-      PasswordCheckListResult["validationMessages"]
-    >([]);
+    const [rules, setRules] = React.useState<PasswordCheckListResult["validationMessages"]>([]);
     const showPassword = useBoolean();
     const showPasswordConfirm = useBoolean();
 
@@ -186,11 +182,7 @@ export const PasswordFieldsGroup = withFieldGroup({
         <group.AppField
           name={"password"}
           validators={{
-            onChange: ({ value }) =>
-              F.pipe(
-                validatePasswordChecklist(value).validationMessages || [],
-                setRules,
-              ),
+            onChange: ({ value }) => F.pipe(validatePasswordChecklist(value).validationMessages || [], setRules),
           }}
           children={(field) => (
             <field.Text
@@ -202,13 +194,7 @@ export const PasswordFieldsGroup = withFieldGroup({
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton onClick={showPassword.onToggle} edge="end">
-                        <Iconify
-                          icon={
-                            showPassword.value
-                              ? "solar:eye-bold"
-                              : "solar:eye-closed-bold"
-                          }
-                        />
+                        <Iconify icon={showPassword.value ? "solar:eye-bold" : "solar:eye-closed-bold"} />
                       </IconButton>
                     </InputAdornment>
                   ),
@@ -222,20 +208,14 @@ export const PasswordFieldsGroup = withFieldGroup({
             <ListItem key={index} sx={{ p: 0, paddingLeft: 1 }}>
               <ListItemIcon sx={{ minWidth: 24, "& svg": { width: 18 } }}>
                 {error.pass ? (
-                  <Iconify
-                    icon={"eva:checkmark-fill"}
-                    fill={theme.palette.success.main}
-                  />
+                  <Iconify icon={"eva:checkmark-fill"} fill={theme.palette.success.main} />
                 ) : (
                   <CloseIcon sx={{ color: theme.palette.error.main }} />
                 )}
               </ListItemIcon>
               <ListItemText
                 sx={{
-                  color: (theme) =>
-                    error.pass
-                      ? theme.palette.success.main
-                      : theme.palette.error.main,
+                  color: (theme) => (error.pass ? theme.palette.success.main : theme.palette.error.main),
                 }}
               >
                 {error.message}
@@ -263,17 +243,8 @@ export const PasswordFieldsGroup = withFieldGroup({
                 input: {
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton
-                        onClick={showPasswordConfirm.onToggle}
-                        edge="end"
-                      >
-                        <Iconify
-                          icon={
-                            showPasswordConfirm.value
-                              ? "solar:eye-bold"
-                              : "solar:eye-closed-bold"
-                          }
-                        />
+                      <IconButton onClick={showPasswordConfirm.onToggle} edge="end">
+                        <Iconify icon={showPasswordConfirm.value ? "solar:eye-bold" : "solar:eye-closed-bold"} />
                       </IconButton>
                     </InputAdornment>
                   ),

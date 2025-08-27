@@ -25,17 +25,11 @@ export const IP_REGEX =
  * @since 0.1.0
  * @category Networking
  */
-export const UnsafeIP = S.NonEmptyTrimmedString.pipe(
-  S.pattern(IP_REGEX),
-  S.brand("IP"),
-).annotations({
+export const UnsafeIP = S.NonEmptyTrimmedString.pipe(S.pattern(IP_REGEX), S.brand("IP")).annotations({
   identifier: "UnsafeIP",
   title: "IP",
   description: "A valid IP address (IPv4 or IPv6)",
-  arbitrary: () => (fc) =>
-    fc
-      .oneof(fc.ipV4(), fc.ipV6(), fc.ipV4Extended())
-      .map((_) => _ as B.Branded<string, "IP">),
+  arbitrary: () => (fc) => fc.oneof(fc.ipV4(), fc.ipV6(), fc.ipV4Extended()).map((_) => _ as B.Branded<string, "IP">),
 });
 
 export class IP extends S.Redacted(UnsafeIP) {

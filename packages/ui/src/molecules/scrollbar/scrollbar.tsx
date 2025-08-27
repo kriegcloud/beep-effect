@@ -7,15 +7,7 @@ import { scrollbarClasses } from "./classes";
 
 import type { ScrollbarProps } from "./types";
 
-export function Scrollbar({
-  sx,
-  ref,
-  children,
-  className,
-  slotProps,
-  fillContent = true,
-  ...other
-}: ScrollbarProps) {
+export function Scrollbar({ sx, ref, children, className, slotProps, fillContent = true, ...other }: ScrollbarProps) {
   return (
     <ScrollbarRoot
       scrollableNodeProps={{ ref }}
@@ -25,8 +17,7 @@ export function Scrollbar({
       sx={[
         {
           "& .simplebar-wrapper": slotProps?.wrapperSx as React.CSSProperties,
-          "& .simplebar-content-wrapper":
-            slotProps?.contentWrapperSx as React.CSSProperties,
+          "& .simplebar-content-wrapper": slotProps?.contentWrapperSx as React.CSSProperties,
           "& .simplebar-content": slotProps?.contentSx as React.CSSProperties,
         },
         ...(Array.isArray(sx) ? sx : [sx]),

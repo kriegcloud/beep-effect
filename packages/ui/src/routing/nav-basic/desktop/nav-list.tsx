@@ -11,30 +11,13 @@ import { NavItem } from "./nav-item";
 
 // ----------------------------------------------------------------------
 
-export function NavList({
-  data,
-  depth,
-  render,
-  cssVars,
-  slotProps,
-  enabledRootRedirect,
-}: NavListProps) {
+export function NavList({ data, depth, render, cssVars, slotProps, enabledRootRedirect }: NavListProps) {
   const theme = useTheme();
   const pathname = usePathname();
 
-  const isActive = isActiveLink(
-    pathname,
-    data.path,
-    data.deepMatch ?? !!data.children,
-  );
+  const isActive = isActiveLink(pathname, data.path, data.deepMatch ?? !!data.children);
 
-  const {
-    open,
-    onOpen,
-    onClose,
-    anchorEl,
-    elementRef: navItemRef,
-  } = usePopoverHover<HTMLButtonElement>();
+  const { open, onOpen, onClose, anchorEl, elementRef: navItemRef } = usePopoverHover<HTMLButtonElement>();
 
   const isRtl = theme.direction === "rtl";
   const id = open ? `${data.title}-popover` : undefined;
@@ -113,10 +96,7 @@ export function NavList({
           },
         }}
       >
-        <NavDropdownPaper
-          className={navBasicClasses.dropdown.paper}
-          sx={slotProps?.dropdown?.paper}
-        >
+        <NavDropdownPaper className={navBasicClasses.dropdown.paper} sx={slotProps?.dropdown?.paper}>
           <NavSubList
             data={data.children}
             depth={depth}
@@ -139,14 +119,7 @@ export function NavList({
 
 // ----------------------------------------------------------------------
 
-function NavSubList({
-  data,
-  render,
-  cssVars,
-  depth = 0,
-  slotProps,
-  enabledRootRedirect,
-}: NavSubListProps) {
+function NavSubList({ data, render, cssVars, depth = 0, slotProps, enabledRootRedirect }: NavSubListProps) {
   return (
     <NavUl sx={{ gap: 0.5 }}>
       {data.map((list) => (

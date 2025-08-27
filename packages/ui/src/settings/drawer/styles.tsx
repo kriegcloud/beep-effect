@@ -41,39 +41,19 @@ const LargeLabel = styled("span")(({ theme }) => ({
   }),
 }));
 
-export function LargeBlock({
-  sx,
-  title,
-  tooltip,
-  children,
-  canReset,
-  onReset,
-  ...other
-}: LargeBlockProps) {
+export function LargeBlock({ sx, title, tooltip, children, canReset, onReset, ...other }: LargeBlockProps) {
   return (
     <LargeBlockRoot sx={sx} {...other}>
       <LargeLabel>
         {canReset && (
-          <ButtonBase
-            disableRipple
-            onClick={onReset}
-            sx={{ ml: -0.5, mr: 0.5 }}
-          >
-            <Iconify
-              width={14}
-              icon="solar:restart-bold"
-              sx={{ opacity: 0.64 }}
-            />
+          <ButtonBase disableRipple onClick={onReset} sx={{ ml: -0.5, mr: 0.5 }}>
+            <Iconify width={14} icon="solar:restart-bold" sx={{ opacity: 0.64 }} />
           </ButtonBase>
         )}
         {title}
         {tooltip && (
           <Tooltip title={tooltip} placement="right" arrow>
-            <Iconify
-              width={14}
-              icon="eva:info-outline"
-              sx={{ ml: 0.5, mr: -0.5, opacity: 0.48, cursor: "pointer" }}
-            />
+            <Iconify width={14} icon="eva:info-outline" sx={{ ml: 0.5, mr: -0.5, opacity: 0.48, cursor: "pointer" }} />
           </Tooltip>
         )}
       </LargeLabel>
@@ -125,21 +105,10 @@ const SmallLabel = styled(ButtonBase, {
   ],
 }));
 
-export function SmallBlock({
-  label,
-  canReset,
-  onReset,
-  sx,
-  children,
-  ...other
-}: SmallBlockProps) {
+export function SmallBlock({ label, canReset, onReset, sx, children, ...other }: SmallBlockProps) {
   return (
     <SmallBlockRoot sx={sx} {...other}>
-      <SmallLabel
-        disableRipple
-        canReset={canReset}
-        onClick={canReset ? onReset : undefined}
-      >
+      <SmallLabel disableRipple canReset={canReset} onClick={canReset ? onReset : undefined}>
         {canReset && <Iconify width={14} icon="solar:restart-bold" />}
         {label}
       </SmallLabel>
@@ -154,12 +123,7 @@ export type OptionButtonProps = ButtonBaseProps & {
   selected?: boolean;
 };
 
-export function OptionButton({
-  selected,
-  sx,
-  children,
-  ...other
-}: OptionButtonProps) {
+export function OptionButton({ selected, sx, children, ...other }: OptionButtonProps) {
   return (
     <ButtonBase
       disableRipple
@@ -175,10 +139,7 @@ export function OptionButton({
           ...(selected && {
             color: "text.primary",
             bgcolor: "background.paper",
-            borderColor: rgbaFromChannel(
-              theme.vars.palette.grey["500Channel"],
-              0.08,
-            ),
+            borderColor: rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.08),
             boxShadow: `-8px 8px 20px -4px ${rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.12)}`,
             ...theme.applyStyles("dark", {
               boxShadow: `-8px 8px 20px -4px ${rgbaFromChannel(theme.vars.palette.common.blackChannel, 0.12)}`,

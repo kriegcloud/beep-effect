@@ -70,5 +70,5 @@ export const validate = (rule: Input.Type, value: boolean) =>
       isTrue: (r) => Equal.equals(value)(true),
       isFalse: (r) => Equal.equals(value)(false),
     }),
-    Match.orElse(() => false),
+    Match.orElse(() => false)
   );

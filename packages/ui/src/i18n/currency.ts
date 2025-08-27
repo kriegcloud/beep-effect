@@ -482,15 +482,9 @@ export const Currency = {
 export type Currency = (typeof Currency)[keyof typeof Currency];
 
 export namespace CurrencyCodeValue {
-  export const {
-    Options,
-    Enum,
-    Mock,
-    JSONSchema,
-    Pretty,
-    Equivalence,
-    Schema,
-  } = stringLiteralKit(...recordKeys(Currency))({
+  export const { Options, Enum, Mock, JSONSchema, Pretty, Equivalence, Schema } = stringLiteralKit(
+    ...recordKeys(Currency)
+  )({
     identifier: "CurrencyCodeValue",
     title: "Currency Code Value",
     description: "The possible currency values",

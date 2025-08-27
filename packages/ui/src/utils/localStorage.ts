@@ -1,7 +1,4 @@
-export function getStorage<T>(
-  key: string,
-  defaultValue?: T,
-): T | null | undefined {
+export function getStorage<T>(key: string, defaultValue?: T): T | null | undefined {
   if (!localStorageAvailable()) {
     return defaultValue ?? null;
   }

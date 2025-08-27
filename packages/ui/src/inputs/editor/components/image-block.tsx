@@ -10,8 +10,7 @@ import { ToolbarItem } from "./toolbar-item";
 
 // ----------------------------------------------------------------------
 
-type ImageBlockProps = Pick<EditorToolbarProps, "editor"> &
-  Pick<EditorToolbarItemProps, "icon">;
+type ImageBlockProps = Pick<EditorToolbarProps, "editor"> & Pick<EditorToolbarItemProps, "icon">;
 
 export function ImageBlock({ editor, icon }: ImageBlockProps) {
   const [url, setUrl] = useState("");
@@ -40,12 +39,7 @@ export function ImageBlock({ editor, icon }: ImageBlockProps) {
 
   return (
     <>
-      <ToolbarItem
-        aria-label="Image"
-        className={editorClasses.toolbar.image}
-        onClick={handleOpenPopover}
-        icon={icon}
-      />
+      <ToolbarItem aria-label="Image" className={editorClasses.toolbar.image} onClick={handleOpenPopover} icon={icon} />
 
       <Popover
         id={anchorEl ? "simple-popover" : undefined}

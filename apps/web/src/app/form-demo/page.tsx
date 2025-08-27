@@ -18,11 +18,8 @@ const inspector = createBrowserInspector();
 // JSONForms / MUI generates dynamic DOM ids that can differ between SSR and client in dev.
 // Render the StepForm only on the client to avoid hydration mismatches.
 const StepFormNoSSR = dynamic(
-  () =>
-    import("@/features/form-system/renderer/jsonformsAdapter").then(
-      (m) => m.StepForm,
-    ),
-  { ssr: false },
+  () => import("@/features/form-system/renderer/jsonformsAdapter").then((m) => m.StepForm),
+  { ssr: false }
 );
 
 export default function FormDemoPage() {
@@ -43,10 +40,7 @@ export default function FormDemoPage() {
   const SNAP_KEY = "form-demo:snapshot";
   const initialSnapshot = useMemo(() => {
     try {
-      const raw =
-        typeof window !== "undefined"
-          ? window.localStorage.getItem(SNAP_KEY)
-          : null;
+      const raw = typeof window !== "undefined" ? window.localStorage.getItem(SNAP_KEY) : null;
       if (!raw) return undefined;
       const parsed = JSON.parse(raw);
       if (
@@ -62,10 +56,7 @@ export default function FormDemoPage() {
     }
     return undefined;
   }, [workflow]);
-  const machine = useMemo(
-    () => buildMachine(workflow, evaluateJsonLogic, actors),
-    [workflow, actors],
-  );
+  const machine = useMemo(() => buildMachine(workflow, evaluateJsonLogic, actors), [workflow, actors]);
   const [state, send] = useMachine(machine, {
     inspect: inspector.inspect,
   });
@@ -74,14 +65,8 @@ export default function FormDemoPage() {
   const [pendingNext, setPendingNext] = useState(false);
 
   const rawValue = state.value as unknown;
-  const normalized =
-    typeof rawValue === "string"
-      ? (rawValue as string).replace(/^#/, "")
-      : undefined;
-  const stepId =
-    normalized && workflow.steps.some((s) => s.id === normalized)
-      ? normalized
-      : workflow.initial;
+  const normalized = typeof rawValue === "string" ? (rawValue as string).replace(/^#/, "") : undefined;
+  const stepId = normalized && workflow.steps.some((s) => s.id === normalized) ? normalized : workflow.initial;
   const step = workflow.steps.find((s) => s.id === stepId);
   const stepData = step ? answers[stepId] : undefined;
   const external = (state.context as any)?.external ?? {};
@@ -94,10 +79,7 @@ export default function FormDemoPage() {
     return res.valid === true;
   }, [step, stepData]);
 
-  const isTerminal = useMemo(
-    () => workflow.transitions.every((t) => t.from !== stepId),
-    [workflow, stepId],
-  );
+  const isTerminal = useMemo(() => workflow.transitions.every((t) => t.from !== stepId), [workflow, stepId]);
 
   // If Next was pressed on product step without prior API result, wait for the RUN result then proceed
   useEffect(() => {
@@ -222,11 +204,7 @@ export default function FormDemoPage() {
                   {JSON.stringify(external.productDetails, null, 2)}
                 </pre>
               )}
-              {fetchError && (
-                <div style={{ color: "red" }}>
-                  Failed to fetch product details: {String(fetchError)}
-                </div>
-              )}
+              {fetchError && <div style={{ color: "red" }}>Failed to fetch product details: {String(fetchError)}</div>}
             </div>
           )}
           <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
@@ -239,11 +217,7 @@ export default function FormDemoPage() {
             </Button>
             <Button
               onClick={() => {
-                if (
-                  stepId === "product" &&
-                  !external.productDetails &&
-                  !isFetching
-                ) {
+                if (stepId === "product" && !external.productDetails && !isFetching) {
                   setIsFetching(true);
                   setPendingNext(true);
                   send({
@@ -279,7 +253,7 @@ export default function FormDemoPage() {
                   external,
                 },
                 null,
-                2,
+                2
               )}
             </pre>
           </details>

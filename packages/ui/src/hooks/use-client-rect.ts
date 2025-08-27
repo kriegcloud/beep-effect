@@ -1,14 +1,7 @@
 "use client";
 import type { RefObject } from "react";
 
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 // ----------------------------------------------------------------------
 
@@ -36,15 +29,14 @@ type DOMRectValue = {
   height: number;
 };
 
-export type UseClientRectReturn<T extends HTMLElement = HTMLElement> =
-  DOMRectValue &
-    ScrollElValue & {
-      elementRef: RefObject<T>;
-    };
+export type UseClientRectReturn<T extends HTMLElement = HTMLElement> = DOMRectValue &
+  ScrollElValue & {
+    elementRef: RefObject<T>;
+  };
 
 export function useClientRect<T extends HTMLElement = HTMLElement>(
   inputRef?: RefObject<T | null>,
-  eventType?: string,
+  eventType?: string
 ): UseClientRectReturn<T> {
   const localRef = useRef<T>(null);
   const elementRef = (inputRef || localRef) as RefObject<T>;
@@ -52,8 +44,7 @@ export function useClientRect<T extends HTMLElement = HTMLElement>(
   const [rect, setRect] = useState<DOMRect | undefined>(undefined);
   const [scroll, setScroll] = useState<ScrollElValue | undefined>(undefined);
 
-  const useIsomorphicLayoutEffect =
-    typeof window !== "undefined" ? useLayoutEffect : useEffect;
+  const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
   const handleBoundingClientRect = useCallback(() => {
     if (elementRef.current) {

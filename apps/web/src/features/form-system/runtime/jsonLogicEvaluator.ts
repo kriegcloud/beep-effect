@@ -6,10 +6,7 @@
 import jsonLogic from "json-logic-js";
 import type { EvaluationContext, JsonLogicRule } from "../model/types";
 
-export function evaluateJsonLogic(
-  rule: JsonLogicRule | undefined,
-  ctx: EvaluationContext,
-): boolean {
+export function evaluateJsonLogic(rule: JsonLogicRule | undefined, ctx: EvaluationContext): boolean {
   if (rule === undefined) return true;
   if (typeof rule === "boolean") return rule;
 

@@ -43,7 +43,8 @@
     "@effect/sql": "*",
     "drizzle-orm": "*",
     "@effect/experimental": "*",
-    "randexp-ts": "*"
+    "randexp-ts": "*",
+    "jsonpath-plus": "*"
   },
   "effect": {
     "generateExports": {

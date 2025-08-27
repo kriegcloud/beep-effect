@@ -1,10 +1,6 @@
 import { rgbaFromChannel } from "@beep/ui/utils";
 import { sliderClasses } from "@mui/material/Slider";
-import type {
-  Components,
-  ComponentsVariants,
-  Theme,
-} from "@mui/material/styles";
+import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
 
 // ----------------------------------------------------------------------
 
@@ -18,10 +14,7 @@ type SliderVariants = ComponentsVariants<Theme>["MuiSlider"];
 
 const SIZES = ["small", "medium"] as const;
 const ORIENTATIONS = ["horizontal", "vertical"] as const;
-const DIMENSIONS: Record<
-  (typeof SIZES)[number],
-  { rail: number; thumb: number; mark: number }
-> = {
+const DIMENSIONS: Record<(typeof SIZES)[number], { rail: number; thumb: number; mark: number }> = {
   small: { rail: 6, thumb: 16, mark: 4 },
   medium: { rail: 10, thumb: 20, mark: 6 },
 };
@@ -42,39 +35,30 @@ const thumbVariants = [
 const railVariants = [
   ...(ORIENTATIONS.flatMap((orientation) =>
     SIZES.map((size) => ({
-      props: (props) =>
-        props.orientation === orientation && props.size === size,
-      style:
-        orientation === "horizontal"
-          ? { height: DIMENSIONS[size].rail }
-          : { width: DIMENSIONS[size].rail },
-    })),
+      props: (props) => props.orientation === orientation && props.size === size,
+      style: orientation === "horizontal" ? { height: DIMENSIONS[size].rail } : { width: DIMENSIONS[size].rail },
+    }))
   ) satisfies SliderVariants),
 ] satisfies SliderVariants;
 
 const trackVariants = [
   ...(ORIENTATIONS.flatMap((orientation) =>
     SIZES.map((size) => ({
-      props: (props) =>
-        props.orientation === orientation && props.size === size,
-      style:
-        orientation === "horizontal"
-          ? { height: DIMENSIONS[size].rail }
-          : { width: DIMENSIONS[size].rail },
-    })),
+      props: (props) => props.orientation === orientation && props.size === size,
+      style: orientation === "horizontal" ? { height: DIMENSIONS[size].rail } : { width: DIMENSIONS[size].rail },
+    }))
   ) satisfies SliderVariants),
 ] satisfies SliderVariants;
 
 const markVariants = [
   ...(ORIENTATIONS.flatMap((orientation) =>
     SIZES.map((size) => ({
-      props: (props) =>
-        props.orientation === orientation && props.size === size,
+      props: (props) => props.orientation === orientation && props.size === size,
       style:
         orientation === "horizontal"
           ? { width: 1, height: DIMENSIONS[size].mark }
           : { height: 1, width: DIMENSIONS[size].mark },
-    })),
+    }))
   ) satisfies SliderVariants),
 ] satisfies SliderVariants;
 
@@ -83,10 +67,7 @@ const markActiveVariants = [
     props: (props) => props.color === "inherit",
     style: ({ theme }) => ({
       ...theme.applyStyles("dark", {
-        backgroundColor: rgbaFromChannel(
-          theme.vars.palette.grey["800Channel"],
-          0.48,
-        ),
+        backgroundColor: rgbaFromChannel(theme.vars.palette.grey["800Channel"], 0.48),
       }),
     }),
   },
@@ -141,10 +122,7 @@ const MuiSlider: Components<Theme>["MuiSlider"] = {
       variants: [...trackVariants],
     },
     mark: ({ style, theme }) => ({
-      backgroundColor: rgbaFromChannel(
-        theme.vars.palette.grey["500Channel"],
-        0.48,
-      ),
+      backgroundColor: rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.48),
       // start mark
       '&[data-index="0"]': { display: "none" },
       // end mark
@@ -152,10 +130,7 @@ const MuiSlider: Components<Theme>["MuiSlider"] = {
       variants: [...markVariants],
     }),
     markActive: ({ theme }) => ({
-      backgroundColor: rgbaFromChannel(
-        theme.vars.palette.common.whiteChannel,
-        0.64,
-      ),
+      backgroundColor: rgbaFromChannel(theme.vars.palette.common.whiteChannel, 0.64),
       variants: [...markActiveVariants],
     }),
     markLabel: ({ theme }) => ({

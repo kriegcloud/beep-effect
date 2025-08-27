@@ -44,7 +44,7 @@ export type UseLocalStorageReturn<T> = {
 export function useLocalStorage<T>(
   key: string,
   initialState?: T,
-  options?: UseLocalStorageOptions,
+  options?: UseLocalStorageOptions
 ): UseLocalStorageReturn<T> {
   const { initializeWithValue = true } = options ?? {};
   const isObjectState = initialState && typeof initialState === "object";
@@ -78,7 +78,7 @@ export function useLocalStorage<T>(
         setState(newState as T);
       }
     },
-    [key, isObjectState],
+    [key, isObjectState]
   );
 
   const updateField = useCallback(
@@ -87,7 +87,7 @@ export function useLocalStorage<T>(
         updateState({ [fieldName]: updateValue } as Partial<T>);
       }
     },
-    [isObjectState, updateState],
+    [isObjectState, updateState]
   );
 
   const resetState = useCallback(
@@ -95,7 +95,7 @@ export function useLocalStorage<T>(
       setState(defaultState ?? initialState);
       removeStorage(key);
     },
-    [initialState, key],
+    [initialState, key]
   );
 
   return useMemo(
@@ -105,6 +105,6 @@ export function useLocalStorage<T>(
       setField: updateField,
       resetState,
     }),
-    [resetState, updateField, updateState, state],
+    [resetState, updateField, updateState, state]
   );
 }

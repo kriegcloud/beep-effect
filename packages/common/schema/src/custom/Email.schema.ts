@@ -16,11 +16,10 @@ export const EmailBase = S.Lowercase.pipe(
     message: () => "Email is required!",
   }),
   S.pattern(EMAIL_REGEX),
-  S.brand("Email"),
+  S.brand("Email")
 ).annotations({
   jsonSchema: { format: "email", type: "string" },
-  arbitrary: () => (fc) =>
-    fc.emailAddress().map((_) => _ as B.Branded<string, "Email">),
+  arbitrary: () => (fc) => fc.emailAddress().map((_) => _ as B.Branded<string, "Email">),
   title: "Email",
   message: () => "Email must be a valid email address!",
   description: "A valid email address",
@@ -41,15 +40,10 @@ export const EmailBase = S.Lowercase.pipe(
  */
 export class Email extends S.Redacted(EmailBase) {
   /* create a redacted email value */
-  static readonly make = F.flow(
-    (i: string) => EmailBase.make(i),
-    Redacted.make,
-  );
+  static readonly make = F.flow((i: string) => EmailBase.make(i), Redacted.make);
 
   /* retrieve the redacted email value */
-  static readonly value = (
-    email: Redacted.Redacted<B.Branded<string, "Email">>,
-  ) => Redacted.value(email);
+  static readonly value = (email: Redacted.Redacted<B.Branded<string, "Email">>) => Redacted.value(email);
 }
 
 export namespace Email {

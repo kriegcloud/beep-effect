@@ -30,29 +30,22 @@ export const AllAcceptableDateInputs = S.Union(
       format: "timestamp",
     },
   }),
-  DateTimeUtcByInstant,
+  DateTimeUtcByInstant
 );
 export namespace AllAcceptableDateInputs {
   export type Type = typeof AllAcceptableDateInputs.Type;
   export type Encoded = typeof AllAcceptableDateInputs.Encoded;
 }
 
-export const DateFromAllAcceptable = S.transformOrFail(
-  AllAcceptableDateInputs,
-  S.ValidDateFromSelf,
-  {
-    strict: true,
-    decode: (i, _, ast) =>
-      ParseResult.try({
-        try: () =>
-          DateTime.isDateTime(i)
-            ? DateTime.toDate(i)
-            : S.decodeSync(S.ValidDateFromSelf)(i),
-        catch: () => new ParseResult.Type(ast, i, "Invalid date"),
-      }),
-    encode: (i, _, ast) => ParseResult.succeed(i),
-  },
-).annotations({
+export const DateFromAllAcceptable = S.transformOrFail(AllAcceptableDateInputs, S.ValidDateFromSelf, {
+  strict: true,
+  decode: (i, _, ast) =>
+    ParseResult.try({
+      try: () => (DateTime.isDateTime(i) ? DateTime.toDate(i) : S.decodeSync(S.ValidDateFromSelf)(i)),
+      catch: () => new ParseResult.Type(ast, i, "Invalid date"),
+    }),
+  encode: (i, _, ast) => ParseResult.succeed(i),
+}).annotations({
   jsonSchema: {
     type: "string",
     format: "date-time",
@@ -81,14 +74,8 @@ export const DateTimeUtcFromAllAcceptable = S.transformOrFail(
         catch: () => new ParseResult.Type(S.DateTimeUtc.ast, i, "Invalid date"),
       }),
     encode: (i, _, ast) =>
-      ParseResult.fail(
-        new ParseResult.Forbidden(
-          ast,
-          i,
-          "Encoding dates back to plain text is forbidden.",
-        ),
-      ),
-  },
+      ParseResult.fail(new ParseResult.Forbidden(ast, i, "Encoding dates back to plain text is forbidden.")),
+  }
 ).annotations({
   jsonSchema: {
     type: "string",

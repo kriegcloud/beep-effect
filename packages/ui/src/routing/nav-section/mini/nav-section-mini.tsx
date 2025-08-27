@@ -44,14 +44,7 @@ export function NavSectionMini({
   );
 }
 
-function Group({
-  items,
-  render,
-  cssVars,
-  slotProps,
-  checkPermissions,
-  enabledRootRedirect,
-}: NavGroupProps) {
+function Group({ items, render, cssVars, slotProps, checkPermissions, enabledRootRedirect }: NavGroupProps) {
   return (
     <NavLi>
       <NavUl sx={{ gap: "var(--nav-item-gap)" }}>

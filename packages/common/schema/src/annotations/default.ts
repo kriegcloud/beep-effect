@@ -3,10 +3,7 @@ import type * as Arbitrary from "effect/Arbitrary";
 import type * as Pretty from "effect/Pretty";
 import type * as AST from "effect/SchemaAST";
 
-export type DefaultAnnotations<
-  A,
-  TypeParameters extends ReadonlyArray<UnsafeTypes.UnsafeAny> = readonly [],
-> = {
+export type DefaultAnnotations<A, TypeParameters extends ReadonlyArray<UnsafeTypes.UnsafeAny> = readonly []> = {
   readonly identifier: AST.IdentifierAnnotation;
   readonly title: AST.TitleAnnotation;
   readonly description: AST.DescriptionAnnotation;

@@ -57,7 +57,7 @@ export function ColorPicker({
         onChange?.(newSelected);
       }
     },
-    [onChange, value, isSingleSelect],
+    [onChange, value, isSingleSelect]
   );
 
   return (
@@ -68,18 +68,14 @@ export function ColorPicker({
         {
           "--item-size": `${size}px`,
           "--item-radius":
-            (variant === "circular" && "50%") ||
-            (variant === "rounded" && "calc(var(--item-size) / 6)") ||
-            "0px",
+            (variant === "circular" && "50%") || (variant === "rounded" && "calc(var(--item-size) / 6)") || "0px",
         },
         ...(Array.isArray(sx) ? sx : [sx]),
       ]}
       {...other}
     >
       {options.map((color) => {
-        const hasSelected = isSingleSelect
-          ? value === color
-          : (value as string[]).includes(color);
+        const hasSelected = isSingleSelect ? value === color : (value as string[]).includes(color);
 
         return (
           <li key={color}>
@@ -133,8 +129,7 @@ const ItemRoot = styled(ButtonBase)(() => ({
 }));
 
 const ItemContainer = styled("span", {
-  shouldForwardProp: (prop: string) =>
-    !["color", "hasSelected", "sx"].includes(prop),
+  shouldForwardProp: (prop: string) => !["color", "hasSelected", "sx"].includes(prop),
 })<{ color: string; hasSelected: boolean }>(({ color, theme }) => ({
   alignItems: "center",
   display: "inline-flex",
@@ -161,8 +156,7 @@ const ItemContainer = styled("span", {
 }));
 
 const ItemIcon = styled(Iconify, {
-  shouldForwardProp: (prop: string) =>
-    !["color", "hasSelected", "sx"].includes(prop),
+  shouldForwardProp: (prop: string) => !["color", "hasSelected", "sx"].includes(prop),
 })<{ color: string; hasSelected: boolean }>(({ color, theme }) => ({
   width: 0,
   height: 0,

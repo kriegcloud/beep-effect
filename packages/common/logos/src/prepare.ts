@@ -29,71 +29,33 @@ function compileRule(rule: Rules.Rule.Type): Runner {
     Match.withReturnType<((v: any) => boolean) | boolean>(),
     Match.discriminators("type")({
       string: (r) => (v: any) =>
-        F.pipe(get(v), (resolved) =>
-          Str.isString(resolved)
-            ? Rules.StringRule.validate(r, resolved)
-            : false,
-        ),
+        F.pipe(get(v), (resolved) => (Str.isString(resolved) ? Rules.StringRule.validate(r, resolved) : false)),
       number: (r) => (v: any) =>
-        F.pipe(get(v), (resolved) =>
-          Num.isNumber(resolved)
-            ? Rules.NumberRule.validate(r, resolved)
-            : false,
-        ),
+        F.pipe(get(v), (resolved) => (Num.isNumber(resolved) ? Rules.NumberRule.validate(r, resolved) : false)),
       boolean: (r) => (v: any) =>
-        F.pipe(get(v), (resolved) =>
-          Bool.isBoolean(resolved)
-            ? Rules.BooleanRule.validate(r, resolved)
-            : false,
-        ),
+        F.pipe(get(v), (resolved) => (Bool.isBoolean(resolved) ? Rules.BooleanRule.validate(r, resolved) : false)),
       arrayValue: (r) => (v: any) =>
-        F.pipe(get(v), (resolved) =>
-          A.isArray(resolved)
-            ? Rules.ArrayValueRule.validate(r, resolved)
-            : false,
-        ),
+        F.pipe(get(v), (resolved) => (A.isArray(resolved) ? Rules.ArrayValueRule.validate(r, resolved) : false)),
       arrayLength: (r) => (v: any) =>
-        F.pipe(get(v), (resolved) =>
-          A.isArray(resolved)
-            ? Rules.ArrayLengthRule.validate(r, resolved)
-            : false,
-        ),
+        F.pipe(get(v), (resolved) => (A.isArray(resolved) ? Rules.ArrayLengthRule.validate(r, resolved) : false)),
       hasKey: (r) => (v: any) =>
-        F.pipe(get(v), (resolved) =>
-          P.isRecord(resolved) ? Rules.HasKeyRule.validate(r, resolved) : false,
-        ),
+        F.pipe(get(v), (resolved) => (P.isRecord(resolved) ? Rules.HasKeyRule.validate(r, resolved) : false)),
       hasValue: (r) => (v: any) =>
-        F.pipe(get(v), (resolved) =>
-          P.isRecord(resolved)
-            ? Rules.HasValueRule.validate(r, resolved)
-            : false,
-        ),
+        F.pipe(get(v), (resolved) => (P.isRecord(resolved) ? Rules.HasValueRule.validate(r, resolved) : false)),
       hasEntry: (r) => (v: any) =>
-        F.pipe(get(v), (resolved) =>
-          P.isRecord(resolved)
-            ? Rules.HasEntryRule.validate(r, resolved)
-            : false,
-        ),
+        F.pipe(get(v), (resolved) => (P.isRecord(resolved) ? Rules.HasEntryRule.validate(r, resolved) : false)),
       genericComparison: (r) => (v: any) =>
-        F.pipe(get(v), (resolved) =>
-          Rules.GenericComparisonRule.validate(r, resolved),
-        ),
-      genericType: (r) => (v: any) =>
-        F.pipe(get(v), (resolved) =>
-          Rules.GenericTypeRule.validate(r, resolved),
-        ),
-      date: (r) => (v: any) =>
-        F.pipe(get(v), (resolved) => Rules.DateRule.validate(r, resolved)),
+        F.pipe(get(v), (resolved) => Rules.GenericComparisonRule.validate(r, resolved)),
+      genericType: (r) => (v: any) => F.pipe(get(v), (resolved) => Rules.GenericTypeRule.validate(r, resolved)),
+      date: (r) => (v: any) => F.pipe(get(v), (resolved) => Rules.DateRule.validate(r, resolved)),
     }),
-    Match.orElse(() => F.constant(false)),
+    Match.orElse(() => F.constant(false))
   );
 }
 
 function compileGroup(u: RuleGroup.Type | RootGroup.Type): Runner {
   const children: Runner[] = u.rules.map((child) =>
-    child.node === "group"
-      ? compileGroup(child)
-      : compileRule(child as Rules.Rule.Type),
+    child.node === "group" ? compileGroup(child) : compileRule(child as Rules.Rule.Type)
   );
 
   if (children.length === 0) {

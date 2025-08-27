@@ -16,13 +16,7 @@ export type NavLayoutOptionProps = BoxProps & {
   onChangeOption: (newOption: SettingsState["navLayout"]) => void;
 };
 
-export function NavLayoutOptions({
-  sx,
-  value,
-  options,
-  onChangeOption,
-  ...other
-}: NavLayoutOptionProps) {
+export function NavLayoutOptions({ sx, value, options, onChangeOption, ...other }: NavLayoutOptionProps) {
   return (
     <Box
       sx={[
@@ -70,13 +64,7 @@ export type NavColorOptionProps = BoxProps & {
   onChangeOption: (newOption: SettingsState["navColor"]) => void;
 };
 
-export function NavColorOptions({
-  sx,
-  value,
-  options,
-  onChangeOption,
-  ...other
-}: NavColorOptionProps) {
+export function NavColorOptions({ sx, value, options, onChangeOption, ...other }: NavColorOptionProps) {
   return (
     <Box
       sx={[

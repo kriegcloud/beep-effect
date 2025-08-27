@@ -50,11 +50,7 @@ type LiteralChecks<T, LiteralUnionType> =
   // Conditional type to force union distribution.
   // If `T` is none of the literal types in the union `LiteralUnionType`, then `LiteralCheck<T, LiteralType>` will evaluate to `false` for the whole union.
   // If `T` is one of the literal types in the union, it will evaluate to `boolean` (i.e. `true | false`)
-  IsNotFalse<
-    LiteralUnionType extends Primitive
-      ? LiteralCheck<T, LiteralUnionType>
-      : never
-  >;
+  IsNotFalse<LiteralUnionType extends Primitive ? LiteralCheck<T, LiteralUnionType> : never>;
 
 /**
 Returns a boolean for whether the given type is a `string` [literal type](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types).
@@ -240,11 +236,7 @@ get({[symbolValue]: 1} as const, symbolValue);
 export type IsSymbolLiteral<T> = LiteralCheck<T, symbol>;
 
 /** Helper type for `IsLiteral`. */
-type IsLiteralUnion<T> =
-  | IsStringLiteral<T>
-  | IsNumericLiteral<T>
-  | IsBooleanLiteral<T>
-  | IsSymbolLiteral<T>;
+type IsLiteralUnion<T> = IsStringLiteral<T> | IsNumericLiteral<T> | IsBooleanLiteral<T> | IsSymbolLiteral<T>;
 
 /**
 Returns a boolean for whether the given type is a [literal type](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types).
@@ -282,6 +274,4 @@ stripLeading(str, 'abc');
 
 @group type-fest
 */
-export type IsLiteral<T> = IsPrimitive<T> extends true
-  ? IsNotFalse<IsLiteralUnion<T>>
-  : false;
+export type IsLiteral<T> = IsPrimitive<T> extends true ? IsNotFalse<IsLiteralUnion<T>> : false;

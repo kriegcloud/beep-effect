@@ -5,9 +5,7 @@ import Box from "@mui/material/Box";
 import type { FormControlLabelProps } from "@mui/material/FormControlLabel";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import type { FormHelperTextProps } from "@mui/material/FormHelperText";
-import MuiRadioField, {
-  type RadioProps as MuiRadioProps,
-} from "@mui/material/Radio";
+import MuiRadioField, { type RadioProps as MuiRadioProps } from "@mui/material/Radio";
 import { useStore } from "@tanstack/react-form";
 import type React from "react";
 import type { DefaultOmit } from "./Field";
@@ -21,21 +19,14 @@ export type RadioProps = Omit<FormControlLabelProps, "control"> & {
   };
 };
 
-function RadioField({
-  name,
-  helperText,
-  label,
-  slotProps,
-  sx,
-  ...other
-}: RadioProps) {
+function RadioField({ name, helperText, label, slotProps, sx, ...other }: RadioProps) {
   const field = useFieldContext<boolean>();
   const { error } = useStore(
     field.form.store,
     (state) =>
       ({
         error: state.errorMap.onSubmit?.[field.name],
-      }) as const,
+      }) as const
   );
   return (
     <Box {...slotProps?.wrapper}>
@@ -63,11 +54,7 @@ function RadioField({
         {...other}
       />
 
-      <HelperText
-        {...slotProps?.helperText}
-        errorMessage={error}
-        helperText={helperText}
-      />
+      <HelperText {...slotProps?.helperText} errorMessage={error} helperText={helperText} />
     </Box>
   );
 }

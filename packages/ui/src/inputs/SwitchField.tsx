@@ -27,7 +27,7 @@ function Switch({ helperText, label, slotProps, sx, ...other }: SwitchProps) {
     (state) =>
       ({
         error: state.errorMap.onSubmit?.[field.name],
-      }) as const,
+      }) as const
   );
   return (
     <Box {...slotProps?.wrapper}>
@@ -55,11 +55,7 @@ function Switch({ helperText, label, slotProps, sx, ...other }: SwitchProps) {
         {...other}
       />
 
-      <HelperText
-        {...slotProps?.helperText}
-        errorMessage={error}
-        helperText={helperText}
-      />
+      <HelperText {...slotProps?.helperText} errorMessage={error} helperText={helperText} />
     </Box>
   );
 }

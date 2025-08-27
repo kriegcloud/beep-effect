@@ -7,23 +7,13 @@ import { uploadClasses } from "../classes";
 
 import type { SingleFilePreviewProps } from "../types";
 
-export function SingleFilePreview({
-  file,
-  sx,
-  className,
-  ...other
-}: SingleFilePreviewProps) {
+export function SingleFilePreview({ file, sx, className, ...other }: SingleFilePreviewProps) {
   const fileName = typeof file === "string" ? file : file.name;
 
-  const previewUrl =
-    typeof file === "string" ? file : URL.createObjectURL(file);
+  const previewUrl = typeof file === "string" ? file : URL.createObjectURL(file);
 
   return (
-    <PreviewRoot
-      className={mergeClasses([uploadClasses.uploadSinglePreview, className])}
-      sx={sx}
-      {...other}
-    >
+    <PreviewRoot className={mergeClasses([uploadClasses.uploadSinglePreview, className])} sx={sx} {...other}>
       {/* biome-ignore lint/performance/noImgElement: UI library component - preview images don't need Next.js optimization */}
       <img alt={fileName} src={previewUrl} />
     </PreviewRoot>
@@ -58,10 +48,7 @@ export function DeleteButton({ sx, ...other }: IconButtonProps) {
           color: rgbaFromChannel(theme.vars.palette.common.whiteChannel, 0.8),
           bgcolor: rgbaFromChannel(theme.vars.palette.grey["900Channel"], 0.72),
           "&:hover": {
-            bgcolor: rgbaFromChannel(
-              theme.vars.palette.grey["900Channel"],
-              0.48,
-            ),
+            bgcolor: rgbaFromChannel(theme.vars.palette.grey["900Channel"], 0.48),
           },
         }),
         ...(Array.isArray(sx) ? sx : [sx]),

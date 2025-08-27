@@ -2,11 +2,7 @@
 import { parseCssVar, rgbaFromChannel } from "@beep/ui/utils";
 import type { SvgIconProps } from "@mui/material/SvgIcon";
 import SvgIcon from "@mui/material/SvgIcon";
-import type {
-  Components,
-  ComponentsVariants,
-  Theme,
-} from "@mui/material/styles";
+import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
 
 // ----------------------------------------------------------------------
 
@@ -70,8 +66,7 @@ const ErrorIcon = (props: SvgIconProps) => (
  * **********************************************************************/
 const standardVariants = [
   ...(SEVERITIES.map((colorKey) => ({
-    props: (props) =>
-      props.variant === "standard" && props.severity === colorKey,
+    props: (props) => props.variant === "standard" && props.severity === colorKey,
     style: ({ theme }) => ({
       color: theme.vars.palette[colorKey].darker,
       backgroundColor: theme.vars.palette[colorKey].lighter,
@@ -94,14 +89,10 @@ const filledVariants = [
 
 const outlinedVariants = [
   ...(SEVERITIES.map((colorKey) => ({
-    props: (props) =>
-      props.variant === "outlined" && props.severity === colorKey,
+    props: (props) => props.variant === "outlined" && props.severity === colorKey,
     style: ({ theme }) => ({
       color: theme.vars.palette[colorKey].dark,
-      backgroundColor: rgbaFromChannel(
-        theme.vars.palette[colorKey].mainChannel,
-        0.08,
-      ),
+      backgroundColor: rgbaFromChannel(theme.vars.palette[colorKey].mainChannel, 0.08),
       border: `solid 1px ${rgbaFromChannel(theme.vars.palette[colorKey].mainChannel, 0.16)}`,
       ...theme.applyStyles("dark", {
         color: theme.vars.palette[colorKey].light,
@@ -131,14 +122,10 @@ const MuiAlert: Components<Theme>["MuiAlert"] = {
     icon: ({ theme }) => ({
       opacity: 1,
       ...theme.applyStyles("dark", {
-        [parseCssVar(theme.vars.palette.Alert.infoIconColor)]:
-          theme.vars.palette.info.light,
-        [parseCssVar(theme.vars.palette.Alert.errorIconColor)]:
-          theme.vars.palette.error.light,
-        [parseCssVar(theme.vars.palette.Alert.successIconColor)]:
-          theme.vars.palette.success.light,
-        [parseCssVar(theme.vars.palette.Alert.warningIconColor)]:
-          theme.vars.palette.warning.light,
+        [parseCssVar(theme.vars.palette.Alert.infoIconColor)]: theme.vars.palette.info.light,
+        [parseCssVar(theme.vars.palette.Alert.errorIconColor)]: theme.vars.palette.error.light,
+        [parseCssVar(theme.vars.palette.Alert.successIconColor)]: theme.vars.palette.success.light,
+        [parseCssVar(theme.vars.palette.Alert.warningIconColor)]: theme.vars.palette.warning.light,
       }),
     }),
   },

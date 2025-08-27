@@ -59,9 +59,7 @@ Disallows any of the given keys.
 
 @group type-fest
 */
-export type RequireNone<KeysType extends PropertyKey> = Partial<
-  Record<KeysType, never>
->;
+export type RequireNone<KeysType extends PropertyKey> = Partial<Record<KeysType, never>>;
 
 /**
 Utility type to retrieve only literal keys from type.
@@ -97,10 +95,7 @@ type Key4 = ExactKey<Object, 1>;
 
 @group type-fest
 */
-export type ExactKey<
-  T extends object,
-  Key extends PropertyKey,
-> = Key extends keyof T
+export type ExactKey<T extends object, Key extends PropertyKey> = Key extends keyof T
   ? Key
   : ToString<Key> extends keyof T
     ? ToString<Key>

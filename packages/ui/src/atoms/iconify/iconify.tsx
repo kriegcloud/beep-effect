@@ -17,14 +17,7 @@ export type IconifyProps = React.ComponentProps<typeof IconRoot> &
     icon: IconifyName;
   };
 
-export function Iconify({
-  className,
-  icon,
-  width = 20,
-  height,
-  sx,
-  ...other
-}: IconifyProps) {
+export function Iconify({ className, icon, width = 20, height, sx, ...other }: IconifyProps) {
   const id = useId();
 
   if (!allIconNames.includes(icon)) {
@@ -33,7 +26,7 @@ export function Iconify({
         `Icon "${icon}" is currently loaded online, which may cause flickering effects.`,
         `To ensure a smoother experience, please register your icon collection for offline use.`,
         `More information is available at`,
-      ].join("\n"),
+      ].join("\n")
     );
   }
 

@@ -8,8 +8,7 @@ export namespace EntityId {
     (annotations: DefaultAnnotations<B.Branded<string, Tag>>) =>
       S.UUID.pipe(S.brand(tag)).annotations({
         ...annotations,
-        arbitrary: () => (fc) =>
-          fc.uuid().map((_) => _ as B.Branded<string, Tag>),
+        arbitrary: () => (fc) => fc.uuid().map((_) => _ as B.Branded<string, Tag>),
         pretty: () => (i) => `${tag}(${i})`,
       });
 

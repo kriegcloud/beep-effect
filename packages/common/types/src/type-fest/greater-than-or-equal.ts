@@ -19,7 +19,8 @@ GreaterThanOrEqual<1, 5>;
 
 @group type-fest
 */
-export type GreaterThanOrEqual<
-  A extends number,
-  B extends number,
-> = number extends A | B ? never : A extends B ? true : GreaterThan<A, B>;
+export type GreaterThanOrEqual<A extends number, B extends number> = number extends A | B
+  ? never
+  : A extends B
+    ? true
+    : GreaterThan<A, B>;

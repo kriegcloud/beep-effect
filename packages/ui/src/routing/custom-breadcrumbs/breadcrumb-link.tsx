@@ -13,13 +13,7 @@ export type BreadcrumbsLinkProps = React.ComponentProps<"div"> & {
   sx?: SxProps<Theme>;
 };
 
-export function BreadcrumbsLink({
-  href,
-  icon,
-  name,
-  disabled,
-  ...other
-}: BreadcrumbsLinkProps) {
+export function BreadcrumbsLink({ href, icon, name, disabled, ...other }: BreadcrumbsLinkProps) {
   const renderContent = () => (
     <ItemRoot disabled={disabled} {...other}>
       {icon && <ItemIcon>{icon}</ItemIcon>}

@@ -9,13 +9,7 @@ export type HelperTextProps = FormHelperTextProps & {
   helperText?: React.ReactNode;
 };
 
-export function HelperText({
-  sx,
-  helperText,
-  errorMessage,
-  disableGutters,
-  ...other
-}: HelperTextProps) {
+export function HelperText({ sx, helperText, errorMessage, disableGutters, ...other }: HelperTextProps) {
   if (errorMessage || helperText) {
     return (
       <FormHelperText

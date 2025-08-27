@@ -1,8 +1,7 @@
 import * as S from "effect/Schema";
 
 // Define interfaces for recursive schemas
-export interface ICompoundStateNode
-  extends S.Schema.Type<typeof BaseStateNode> {
+export interface ICompoundStateNode extends S.Schema.Type<typeof BaseStateNode> {
   readonly type: "compound";
   readonly entry?: ReadonlyArray<S.Schema.Type<typeof ActionObject>>;
   readonly exit?: ReadonlyArray<S.Schema.Type<typeof ActionObject>>;
@@ -12,8 +11,7 @@ export interface ICompoundStateNode
   readonly states: Record<string, IStateNode>; // Recursive reference
 }
 
-export interface IParallelStateNode
-  extends S.Schema.Type<typeof BaseStateNode> {
+export interface IParallelStateNode extends S.Schema.Type<typeof BaseStateNode> {
   readonly type: "parallel";
   readonly entry?: ReadonlyArray<S.Schema.Type<typeof ActionObject>>;
   readonly exit?: ReadonlyArray<S.Schema.Type<typeof ActionObject>>;
@@ -43,7 +41,7 @@ export const BaseStateNode = S.Struct({
     S.Literal("compound"),
     S.Literal("parallel"),
     S.Literal("final"),
-    S.Literal("history"),
+    S.Literal("history")
   ),
   order: S.optional(S.Int),
   description: S.optional(S.String),
@@ -110,10 +108,7 @@ export const CompoundStateNode: S.Schema<ICompoundStateNode> = S.Struct({
   initial: S.optional(InitialTransitionObject),
   invoke: S.optional(InvokeArray),
   on: S.optional(TransitionsObject),
-  states: S.suspend(
-    (): S.Schema<Record<string, IStateNode>> =>
-      S.Record({ key: S.String, value: StateNode }),
-  ),
+  states: S.suspend((): S.Schema<Record<string, IStateNode>> => S.Record({ key: S.String, value: StateNode })),
 });
 
 export const ParallelStateNode: S.Schema<IParallelStateNode> = S.Struct({
@@ -123,10 +118,7 @@ export const ParallelStateNode: S.Schema<IParallelStateNode> = S.Struct({
   exit: S.optional(S.Array(ActionObject)),
   invoke: S.optional(InvokeArray),
   on: S.optional(TransitionsObject),
-  states: S.suspend(
-    (): S.Schema<Record<string, IStateNode>> =>
-      S.Record({ key: S.String, value: StateNode }),
-  ),
+  states: S.suspend((): S.Schema<Record<string, IStateNode>> => S.Record({ key: S.String, value: StateNode })),
 });
 
 export const StateNode = S.Union(
@@ -134,7 +126,7 @@ export const StateNode = S.Union(
   CompoundStateNode,
   ParallelStateNode,
   HistoryStateNode,
-  FinalStateNode,
+  FinalStateNode
 );
 
 // Main schema

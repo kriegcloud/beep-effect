@@ -24,14 +24,9 @@ import { Operator } from "./internal";
 export namespace Eq {
   export const { op, Schema } = Operator.make("eq", "equals", {});
 
-  export const make = <
-    const A,
-    const E,
-    const R,
-    const Fields extends S.Struct.Fields,
-  >(
+  export const make = <const A, const E, const R, const Fields extends S.Struct.Fields>(
     dataType: S.Schema<A, E, R>,
-    fields: Fields,
+    fields: Fields
   ) =>
     Operator.make("eq", "equals", {
       value: dataType,
@@ -48,41 +43,25 @@ export namespace Ne {
 }
 
 export namespace StringContains {
-  export const { op, Schema } = Operator.make(
-    "stringContains",
-    "string contains",
-    {},
-  );
+  export const { op, Schema } = Operator.make("stringContains", "string contains", {});
 
   export type Type = Operator.Type<"stringContains">;
 }
 
 export namespace StringNotContains {
-  export const { op, Schema } = Operator.make(
-    "stringNotContains",
-    "string does not contain",
-    {},
-  );
+  export const { op, Schema } = Operator.make("stringNotContains", "string does not contain", {});
 
   export type Type = Operator.Type<"stringNotContains">;
 }
 
 export namespace ArrayContains {
-  export const { op, Schema } = Operator.make(
-    "arrayContains",
-    "array contains",
-    {},
-  );
+  export const { op, Schema } = Operator.make("arrayContains", "array contains", {});
 
   export type Type = Operator.Type<"arrayContains">;
 }
 
 export namespace ArrayNotContains {
-  export const { op, Schema } = Operator.make(
-    "arrayNotContains",
-    "array does not contain",
-    {},
-  );
+  export const { op, Schema } = Operator.make("arrayNotContains", "array does not contain", {});
 
   export type Type = Operator.Type<"arrayNotContains">;
 }
@@ -111,11 +90,7 @@ export namespace StartsWith {
 }
 
 export namespace NotStartsWith {
-  export const { op, Schema } = Operator.make(
-    "notStartsWith",
-    "does not start with",
-    {},
-  );
+  export const { op, Schema } = Operator.make("notStartsWith", "does not start with", {});
 
   export type Type = Operator.Type<"notStartsWith">;
 }
@@ -127,11 +102,7 @@ export namespace EndsWith {
 }
 
 export namespace NotEndsWith {
-  export const { op, Schema } = Operator.make(
-    "notEndsWith",
-    "does not end with",
-    {},
-  );
+  export const { op, Schema } = Operator.make("notEndsWith", "does not end with", {});
 
   export type Type = Operator.Type<"notEndsWith">;
 }
@@ -192,11 +163,7 @@ export namespace Gt {
 }
 
 export namespace Gte {
-  export const { op, Schema } = Operator.make(
-    "gte",
-    "greater than or equal to",
-    {},
-  );
+  export const { op, Schema } = Operator.make("gte", "greater than or equal to", {});
   export type Type = Operator.Type<"gte">;
 }
 
@@ -206,11 +173,7 @@ export namespace Lt {
 }
 
 export namespace Lte {
-  export const { op, Schema } = Operator.make(
-    "lte",
-    "less than or equal to",
-    {},
-  );
+  export const { op, Schema } = Operator.make("lte", "less than or equal to", {});
   export type Type = Operator.Type<"lte">;
 }
 
@@ -246,11 +209,7 @@ export namespace IsString {
 }
 
 export namespace IsNotString {
-  export const { op, Schema } = Operator.make(
-    "isNotString",
-    "is not string",
-    {},
-  );
+  export const { op, Schema } = Operator.make("isNotString", "is not string", {});
 
   export type Type = Operator.Type<"isNotString">;
 }
@@ -262,11 +221,7 @@ export namespace IsNumber {
 }
 
 export namespace IsNotNumber {
-  export const { op, Schema } = Operator.make(
-    "isNotNumber",
-    "is not number",
-    {},
-  );
+  export const { op, Schema } = Operator.make("isNotNumber", "is not number", {});
 
   export type Type = Operator.Type<"isNotNumber">;
 }
@@ -302,11 +257,7 @@ export namespace IsNotNull {
  * - IsUndefined / IsDefined
  */
 export namespace IsUndefined {
-  export const { op, Schema } = Operator.make(
-    "isUndefined",
-    "is undefined",
-    {},
-  );
+  export const { op, Schema } = Operator.make("isUndefined", "is undefined", {});
   export type Type = Operator.Type<"isUndefined">;
 }
 
@@ -325,11 +276,7 @@ export namespace IsBoolean {
 }
 
 export namespace IsNotBoolean {
-  export const { op, Schema } = Operator.make(
-    "isNotBoolean",
-    "is not boolean",
-    {},
-  );
+  export const { op, Schema } = Operator.make("isNotBoolean", "is not boolean", {});
   export type Type = Operator.Type<"isNotBoolean">;
 }
 
@@ -357,11 +304,7 @@ export namespace IsObject {
 }
 
 export namespace IsNotObject {
-  export const { op, Schema } = Operator.make(
-    "isNotObject",
-    "is not object",
-    {},
-  );
+  export const { op, Schema } = Operator.make("isNotObject", "is not object", {});
   export type Type = Operator.Type<"isNotObject">;
 }
 
@@ -414,7 +357,7 @@ export const AnyOperator = S.Union(
   IsArray.Schema,
   IsNotArray.Schema,
   IsObject.Schema,
-  IsNotObject.Schema,
+  IsNotObject.Schema
 );
 
 export namespace AnyOperator {
@@ -428,9 +371,7 @@ export namespace AnyOperator {
  * - Operators with config (e.g., `matches`) return a tuple with normalized values.
  * - Future configs (e.g., `isBetween` with minimum/maximum/inclusive) are handled here.
  */
-export function fingerprintOperator(
-  op: AnyOperator.Type,
-): string | readonly unknown[] {
+export function fingerprintOperator(op: AnyOperator.Type): string | readonly unknown[] {
   const toMs = (x: unknown): number | null => {
     const d = new Date(x as any);
     const t = d.getTime();
@@ -449,12 +390,7 @@ export function fingerprintOperator(
       if ("minimum" in anyOp || "maximum" in anyOp || "inclusive" in anyOp) {
         const min = toMs(anyOp.minimum);
         const max = toMs(anyOp.maximum);
-        return [
-          op._tag,
-          min ?? anyOp.minimum,
-          max ?? anyOp.maximum,
-          !!anyOp.inclusive,
-        ] as const;
+        return [op._tag, min ?? anyOp.minimum, max ?? anyOp.maximum, !!anyOp.inclusive] as const;
       }
       return op._tag;
     }

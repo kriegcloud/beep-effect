@@ -18,9 +18,7 @@ function hasCookieStore(): boolean {
 }
 
 // Map our title-cased SameSite option to CookieStore's lowercase values
-function toCookieStoreSameSite(
-  sameSite: CookieOptions["sameSite"],
-): "strict" | "lax" | "none" | undefined {
+function toCookieStoreSameSite(sameSite: CookieOptions["sameSite"]): "strict" | "lax" | "none" | undefined {
   switch (sameSite) {
     case "Strict":
       return "strict";
@@ -54,9 +52,7 @@ export function getCookie<T>(key: string): T | null {
     const decodedCookie = decodeURIComponent(document.cookie);
     const cookieArray = Str.split("; ")(decodedCookie);
 
-    const matchedCookie = A.findFirst(cookieArray, (cookie) =>
-      Str.startsWith(keyName)(cookie),
-    );
+    const matchedCookie = A.findFirst(cookieArray, (cookie) => Str.startsWith(keyName)(cookie));
 
     if (O.isNone(matchedCookie)) return null;
 
@@ -84,23 +80,13 @@ export function getCookie<T>(key: string): T | null {
  * @example
  * setCookie('user', { name: 'John', age: 30 }, { daysUntilExpiration: 7, sameSite: 'Lax', secure: true });
  */
-export async function setCookie<T>(
-  key: string,
-  value: T,
-  options?: CookieOptions,
-): Promise<void> {
+export async function setCookie<T>(key: string, value: T, options?: CookieOptions): Promise<void> {
   if (!key || P.not(Str.isString)(key)) {
     console.error("Invalid cookie key provided");
     return;
   }
 
-  const {
-    daysUntilExpiration = 0,
-    sameSite = "Strict",
-    secure = false,
-    path = "/",
-    domain,
-  } = options ?? {};
+  const { daysUntilExpiration = 0, sameSite = "Strict", secure = false, path = "/", domain } = options ?? {};
 
   try {
     const rawValue = typeof value === "string" ? value : JSON.stringify(value);
@@ -109,9 +95,7 @@ export async function setCookie<T>(
       const sameSiteLower = toCookieStoreSameSite(sameSite);
 
       if (sameSiteLower === "none" && !secure) {
-        console.warn(
-          "SameSite=None typically requires 'secure: true'; cookie may be rejected by browsers.",
-        );
+        console.warn("SameSite=None typically requires 'secure: true'; cookie may be rejected by browsers.");
       }
 
       const init: CookieInit = {
@@ -130,9 +114,7 @@ export async function setCookie<T>(
     }
 
     // No direct document.cookie assignment allowed; fail gracefully
-    console.error(
-      "CookieStore API is not available in this environment; cannot set cookie.",
-    );
+    console.error("CookieStore API is not available in this environment; cannot set cookie.");
   } catch (error) {
     console.error("Error setting cookie:", error);
   }
@@ -147,10 +129,7 @@ export async function setCookie<T>(
  * @example
  * removeCookie('user');
  */
-export function removeCookie(
-  key: string,
-  options?: Pick<CookieOptions, "path" | "domain">,
-): void {
+export function removeCookie(key: string, options?: Pick<CookieOptions, "path" | "domain">): void {
   if (!key || P.not(Str.isString)(key)) {
     console.error("Invalid cookie key provided");
     return;
@@ -163,18 +142,12 @@ export function removeCookie(
       // Fire-and-forget; keep API sync to avoid breaking callers
       const del: CookieStoreDeleteOptions = { name: key, path };
       if (domain) del.domain = domain;
-      cookieStore
-        .delete(del)
-        .catch((error: unknown) =>
-          console.error("Error removing cookie via CookieStore:", error),
-        );
+      cookieStore.delete(del).catch((error: unknown) => console.error("Error removing cookie via CookieStore:", error));
       return;
     }
 
     // No direct document.cookie assignment allowed; fail gracefully
-    console.error(
-      "CookieStore API is not available in this environment; cannot remove cookie.",
-    );
+    console.error("CookieStore API is not available in this environment; cannot remove cookie.");
   } catch (error) {
     console.error("Error removing cookie:", error);
   }

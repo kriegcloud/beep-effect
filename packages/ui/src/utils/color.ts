@@ -65,9 +65,7 @@ export type ChannelPalette<T extends InputPalette> = T & {
   [K in keyof T as `${string & K}Channel`]: string;
 };
 
-export function createPaletteChannel<T extends InputPalette>(
-  hexPalette: T,
-): ChannelPalette<T> {
+export function createPaletteChannel<T extends InputPalette>(hexPalette: T): ChannelPalette<T> {
   const channelPalette: Record<string, string | undefined> = {};
 
   Object.entries(hexPalette).forEach(([key, value]) => {
@@ -103,8 +101,7 @@ function validateOpacity(opacity: string | number, color: string): string {
   const errors = {
     invalid: `[Alpha]: Invalid opacity "${opacity}" for ${color}.`,
     range: "Must be a number between 0 and 1 (e.g., 0.48).",
-    format:
-      'Must be a percentage (e.g., "48%") or CSS variable (e.g., "var(--opacity)").',
+    format: 'Must be a percentage (e.g., "48%") or CSS variable (e.g., "var(--opacity)").',
   };
 
   if (typeof opacity === "string") {
@@ -143,10 +140,7 @@ function validateOpacity(opacity: string | number, color: string): string {
  * console.log(rgbaVarColor); // "rgba(var(--palette-primary-lighterChannel) / 0.8)"
  */
 
-export function rgbaFromChannel(
-  color: string,
-  opacity: string | number = 1,
-): string {
+export function rgbaFromChannel(color: string, opacity: string | number = 1): string {
   if (!color?.trim()) {
     throw new Error("[Alpha]: Color is undefined or empty!");
   }
@@ -168,7 +162,7 @@ export function rgbaFromChannel(
         '- Hex: "#00B8D9"',
         '- RGB: "rgb(0, 184, 217)"',
         '- RGBA: "rgba(0, 184, 217, 1)"',
-      ].join("\n"),
+      ].join("\n")
     );
   }
 

@@ -38,14 +38,13 @@ type NegativeInfinity = StringToNumber<'-Infinity'>;
 
 @group type-fest
 */
-export type StringToNumber<S extends string> =
-  S extends `${infer N extends number}`
-    ? N
-    : S extends "Infinity"
-      ? PositiveInfinity
-      : S extends "-Infinity"
-        ? NegativeInfinity
-        : never;
+export type StringToNumber<S extends string> = S extends `${infer N extends number}`
+  ? N
+  : S extends "Infinity"
+    ? PositiveInfinity
+    : S extends "-Infinity"
+      ? NegativeInfinity
+      : never;
 
 /**
 Returns a boolean for whether the given string `S` starts with the given string `SearchString`.
@@ -67,10 +66,7 @@ StartsWith<'abcde', string>;
 
 @group type-fest
 */
-export type StartsWith<
-  S extends string,
-  SearchString extends string,
-> = string extends S | SearchString
+export type StartsWith<S extends string, SearchString extends string> = string extends S | SearchString
   ? never
   : S extends `${SearchString}${infer T}`
     ? true
@@ -90,10 +86,7 @@ StringToArray<string>;
 
 @group type-fest
 */
-export type StringToArray<
-  S extends string,
-  Result extends string[] = [],
-> = string extends S
+export type StringToArray<S extends string, Result extends string[] = []> = string extends S
   ? never
   : S extends `${infer F}${infer R}`
     ? StringToArray<R, [...Result, F]>
@@ -113,27 +106,21 @@ StringLength<string>;
 
 @group type-fest
 */
-export type StringLength<S extends string> = string extends S
-  ? never
-  : StringToArray<S>["length"];
+export type StringLength<S extends string> = string extends S ? never : StringToArray<S>["length"];
 
 /**
 Returns a boolean for whether the string is lowercased.
 
 @group type-fest
 */
-export type IsLowerCase<T extends string> = T extends Lowercase<T>
-  ? true
-  : false;
+export type IsLowerCase<T extends string> = T extends Lowercase<T> ? true : false;
 
 /**
 Returns a boolean for whether the string is uppercased.
 
 @group type-fest
 */
-export type IsUpperCase<T extends string> = T extends Uppercase<T>
-  ? true
-  : false;
+export type IsUpperCase<T extends string> = T extends Uppercase<T> ? true : false;
 
 /**
 Returns a boolean for whether a string is whitespace.
@@ -153,11 +140,7 @@ This type is a workaround for [Microsoft/TypeScript#46109](https://github.com/mi
 
 @group type-fest
 */
-export type IsNumeric<T extends string> = T extends `${number}`
-  ? Trim<T> extends T
-    ? true
-    : false
-  : false;
+export type IsNumeric<T extends string> = T extends `${number}` ? (Trim<T> extends T ? true : false) : false;
 
 /**
 Returns a boolean for whether `A` represents a number greater than `B`, where `A` and `B` are both numeric strings and have the same length.
@@ -171,10 +154,7 @@ SameLengthPositiveNumericStringGt<'10', '10'>;
 //=> false
 ```
 */
-type SameLengthPositiveNumericStringGt<
-  A extends string,
-  B extends string,
-> = A extends `${infer FirstA}${infer RestA}`
+type SameLengthPositiveNumericStringGt<A extends string, B extends string> = A extends `${infer FirstA}${infer RestA}`
   ? B extends `${infer FirstB}${infer RestB}`
     ? FirstA extends FirstB
       ? SameLengthPositiveNumericStringGt<RestA, RestB>
@@ -201,15 +181,12 @@ PositiveNumericStringGt<'1', '500'>;
 
 @group type-fest
 */
-export type PositiveNumericStringGt<
-  A extends string,
-  B extends string,
-> = A extends B
+export type PositiveNumericStringGt<A extends string, B extends string> = A extends B
   ? false
-  : [
-        BuildTuple<StringLength<A>, 0>,
-        BuildTuple<StringLength<B>, 0>,
-      ] extends infer R extends [readonly unknown[], readonly unknown[]]
+  : [BuildTuple<StringLength<A>, 0>, BuildTuple<StringLength<B>, 0>] extends infer R extends [
+        readonly unknown[],
+        readonly unknown[],
+      ]
     ? R[0] extends [...R[1], ...infer Remain extends readonly unknown[]]
       ? 0 extends Remain["length"]
         ? SameLengthPositiveNumericStringGt<A, B>

@@ -8,12 +8,7 @@ import {
   viVN as viVNDataGrid,
   zhCN as zhCNDataGrid,
 } from "@mui/x-data-grid/locales";
-import {
-  enUS as enUSDate,
-  frFR as frFRDate,
-  viVN as viVNDate,
-  zhCN as zhCNDate,
-} from "@mui/x-date-pickers/locales";
+import { enUS as enUSDate, frFR as frFRDate, viVN as viVNDate, zhCN as zhCNDate } from "@mui/x-date-pickers/locales";
 import * as A from "effect/Array";
 import { CurrencyCodeValue } from "./currency";
 export namespace SupportedLangValue {
@@ -31,7 +26,7 @@ export namespace SupportedLangValue {
     "fr",
     "vi",
     "cn",
-    "ar",
+    "ar"
   )({
     identifier: "SupportedLangValue",
     title: "Supported Lang Value",
@@ -305,7 +300,7 @@ export namespace CountryCodeValue {
     "YT",
     "ZA",
     "ZM",
-    "ZW",
+    "ZW"
   )({
     identifier: "CountryCodeValue",
     title: "Country Code Value",
@@ -379,5 +374,5 @@ export const allLanguages = A.make(
     systemValue: {
       components: { ...arSDDataGrid.components },
     },
-  },
+  }
 );

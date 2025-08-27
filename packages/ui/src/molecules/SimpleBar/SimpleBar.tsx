@@ -16,9 +16,7 @@ type RenderFunc = (props: {
   };
 }) => ReactNode;
 
-export interface SimpleBarProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "children">,
-    Core.SimpleBarOptions {
+export interface SimpleBarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "children">, Core.SimpleBarOptions {
   children?: ReactNode | RenderFunc;
   scrollableNodeProps?: {
     ref?: UnsafeTypes.UnsafeAny;
@@ -36,14 +34,8 @@ const SimpleBar = React.forwardRef<Core.SimpleBarCore | null, SimpleBarProps>(
     const rest: UnsafeTypes.UnsafeAny = {};
 
     Object.keys(otherProps).forEach((key) => {
-      if (
-        Object.prototype.hasOwnProperty.call(
-          Core.SimpleBarCore.defaultOptions,
-          key,
-        )
-      ) {
-        (options as UnsafeTypes.UnsafeAny)[key] =
-          otherProps[key as keyof Core.SimpleBarOptions];
+      if (Object.prototype.hasOwnProperty.call(Core.SimpleBarCore.defaultOptions, key)) {
+        (options as UnsafeTypes.UnsafeAny)[key] = otherProps[key as keyof Core.SimpleBarOptions];
       } else {
         rest[key] = otherProps[key as keyof Core.SimpleBarOptions];
       }
@@ -61,8 +53,7 @@ const SimpleBar = React.forwardRef<Core.SimpleBarCore | null, SimpleBarProps>(
       }`,
       tabIndex: options.tabIndex || Core.SimpleBarCore.defaultOptions.tabIndex,
       role: "region",
-      "aria-label":
-        options.ariaLabel || Core.SimpleBarCore.defaultOptions.ariaLabel,
+      "aria-label": options.ariaLabel || Core.SimpleBarCore.defaultOptions.ariaLabel,
     };
 
     React.useEffect(() => {
@@ -108,14 +99,12 @@ const SimpleBar = React.forwardRef<Core.SimpleBarCore | null, SimpleBarProps>(
             <div className={classNames.offset}>
               {typeof children === "function" ? (
                 children({
-                  scrollableNodeRef:
-                    scrollableNodeRef as React.RefObject<HTMLElement>,
+                  scrollableNodeRef: scrollableNodeRef as React.RefObject<HTMLElement>,
                   scrollableNodeProps: {
                     ...scrollableNodeFullProps,
                     ref: scrollableNodeRef as React.RefObject<HTMLElement>,
                   },
-                  contentNodeRef:
-                    contentNodeRef as React.RefObject<HTMLElement>,
+                  contentNodeRef: contentNodeRef as React.RefObject<HTMLElement>,
                   contentNodeProps: {
                     className: classNames.contentEl,
                     ref: contentNodeRef as React.RefObject<HTMLElement>,
@@ -138,7 +127,7 @@ const SimpleBar = React.forwardRef<Core.SimpleBarCore | null, SimpleBarProps>(
         </div>
       </div>
     );
-  },
+  }
 );
 
 SimpleBar.displayName = "SimpleBar";

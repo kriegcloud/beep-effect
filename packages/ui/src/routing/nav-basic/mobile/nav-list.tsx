@@ -8,21 +8,11 @@ import { NavItem } from "./nav-item";
 
 // ----------------------------------------------------------------------
 
-export function NavList({
-  data,
-  depth,
-  render,
-  slotProps,
-  enabledRootRedirect,
-}: NavListProps) {
+export function NavList({ data, depth, render, slotProps, enabledRootRedirect }: NavListProps) {
   const pathname = usePathname();
   const navItemRef = useRef<HTMLButtonElement>(null);
 
-  const isActive = isActiveLink(
-    pathname,
-    data.path,
-    data.deepMatch ?? !!data.children,
-  );
+  const isActive = isActiveLink(pathname, data.path, data.deepMatch ?? !!data.children);
 
   const { value: open, onFalse: onClose, onToggle } = useBoolean(isActive);
 
@@ -67,13 +57,7 @@ export function NavList({
 
   const renderCollapse = () =>
     !!data.children && (
-      <NavCollapse
-        mountOnEnter
-        unmountOnExit
-        depth={depth}
-        in={open}
-        data-group={data.title}
-      >
+      <NavCollapse mountOnEnter unmountOnExit depth={depth} in={open} data-group={data.title}>
         <NavSubList
           data={data.children}
           depth={depth}
@@ -103,13 +87,7 @@ export function NavList({
 
 // ----------------------------------------------------------------------
 
-function NavSubList({
-  data,
-  render,
-  depth = 0,
-  slotProps,
-  enabledRootRedirect,
-}: NavSubListProps) {
+function NavSubList({ data, render, depth = 0, slotProps, enabledRootRedirect }: NavSubListProps) {
   return (
     <NavUl sx={{ gap: "var(--nav-item-gap)" }}>
       {data.map((list) => (

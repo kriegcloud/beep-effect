@@ -8,10 +8,7 @@ import dayjs from "dayjs";
 import * as F from "effect/Function";
 import { useFieldContext } from "../form";
 
-function DateTimePickerField({
-  slotProps,
-  ...other
-}: DefaultOmit<MobileDateTimePickerProps>) {
+function DateTimePickerField({ slotProps, ...other }: DefaultOmit<MobileDateTimePickerProps>) {
   const field = useFieldContext<string>();
 
   const { error, isError } = useStore(field.form.store, (state) =>
@@ -21,8 +18,8 @@ function DateTimePickerField({
         ({
           error,
           isError: !!error,
-        }) as const,
-    ),
+        }) as const
+    )
   );
   return (
     <MobileDateTimePicker
@@ -35,8 +32,7 @@ function DateTimePickerField({
           onBlur: field.handleBlur,
           fullWidth: true,
           error: isError,
-          helperText:
-            error ?? (slotProps?.textField as TextFieldProps)?.helperText,
+          helperText: error ?? (slotProps?.textField as TextFieldProps)?.helperText,
           ...slotProps?.textField,
         },
         ...slotProps,

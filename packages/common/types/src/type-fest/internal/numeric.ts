@@ -20,10 +20,9 @@ NumberAbsolute<NegativeInfinity>
 
 @group type-fest
 */
-export type NumberAbsolute<N extends number> =
-  `${N}` extends `-${infer StringPositiveN}`
-    ? StringToNumber<StringPositiveN>
-    : N;
+export type NumberAbsolute<N extends number> = `${N}` extends `-${infer StringPositiveN}`
+  ? StringToNumber<StringPositiveN>
+  : N;
 
 /**
 Check whether the given type is a number or a number string.
@@ -72,10 +71,9 @@ export type UnionMin<N extends number> = InternalUnionMin<N>;
 /**
 The actual implementation of `UnionMin`. It's private because it has some arguments that don't need to be exposed.
 */
-type InternalUnionMin<
-  N extends number,
-  T extends UnknownArray = [],
-> = T["length"] extends N ? T["length"] : InternalUnionMin<N, [...T, unknown]>;
+type InternalUnionMin<N extends number, T extends UnknownArray = []> = T["length"] extends N
+  ? T["length"]
+  : InternalUnionMin<N, [...T, unknown]>;
 
 /**
 Returns the maximum number in the given union of numbers.
@@ -95,10 +93,7 @@ export type UnionMax<N extends number> = InternalUnionMax<N>;
 /**
 The actual implementation of `UnionMax`. It's private because it has some arguments that don't need to be exposed.
 */
-type InternalUnionMax<
-  N extends number,
-  T extends UnknownArray = [],
-> = IsNever<N> extends true
+type InternalUnionMax<N extends number, T extends UnknownArray = []> = IsNever<N> extends true
   ? T["length"]
   : T["length"] extends N
     ? InternalUnionMax<Exclude<N, T["length"]>, T>

@@ -14,30 +14,23 @@ import type * as AST from "effect/SchemaAST";
 import * as _Struct from "effect/Struct";
 
 export const withDefaultConstructor: <A, I, R>(
-  makeDefault: () => NoInfer<A>,
-) => (
-  self: S.Schema<A, I, R>,
-) => S.PropertySignature<":", A, never, ":", I, true, R> =
-  (makeDefault) => (self) =>
-    S.propertySignature(self).pipe(S.withConstructorDefault(makeDefault));
+  makeDefault: () => NoInfer<A>
+) => (self: S.Schema<A, I, R>) => S.PropertySignature<":", A, never, ":", I, true, R> = (makeDefault) => (self) =>
+  S.propertySignature(self).pipe(S.withConstructorDefault(makeDefault));
 
 /**
  * Like the default Schema `Struct` but with batching enabled by default
  */
-export function Struct<
-  Fields extends S.Struct.Fields,
-  const Records extends S.IndexSignature.NonEmptyRecords,
->(fields: Fields, ...records: Records): S.TypeLiteral<Fields, Records>;
-export function Struct<Fields extends S.Struct.Fields>(
+export function Struct<Fields extends S.Struct.Fields, const Records extends S.IndexSignature.NonEmptyRecords>(
   fields: Fields,
-): S.Struct<Fields>;
-export function Struct<
-  Fields extends S.Struct.Fields,
-  const Records extends S.IndexSignature.Records,
->(fields: Fields, ...records: Records): S.TypeLiteral<Fields, Records> {
-  return S.Struct(fields, ...(records as UnsafeTypes.UnsafeAny)).pipe(
-    S.annotations({ batching: true }),
-  );
+  ...records: Records
+): S.TypeLiteral<Fields, Records>;
+export function Struct<Fields extends S.Struct.Fields>(fields: Fields): S.Struct<Fields>;
+export function Struct<Fields extends S.Struct.Fields, const Records extends S.IndexSignature.Records>(
+  fields: Fields,
+  ...records: Records
+): S.TypeLiteral<Fields, Records> {
+  return S.Struct(fields, ...(records as UnsafeTypes.UnsafeAny)).pipe(S.annotations({ batching: true }));
 }
 
 export declare namespace Struct {
@@ -51,25 +44,19 @@ export declare namespace Struct {
 /**
  * Like the default Schema `tuple` but with batching enabled by default
  */
-export function Tuple<
-  const Elements extends S.TupleType.Elements,
-  Rest extends A.NonEmptyReadonlyArray<S.Schema.Any>,
->(elements: Elements, ...rest: Rest): S.TupleType<Elements, Rest>;
-export function Tuple<Elements extends S.TupleType.Elements>(
-  ...elements: Elements
-): S.Tuple<Elements>;
-export function Tuple(
-  ...args: ReadonlyArray<UnsafeTypes.UnsafeAny>
-): UnsafeTypes.UnsafeAny {
+export function Tuple<const Elements extends S.TupleType.Elements, Rest extends A.NonEmptyReadonlyArray<S.Schema.Any>>(
+  elements: Elements,
+  ...rest: Rest
+): S.TupleType<Elements, Rest>;
+export function Tuple<Elements extends S.TupleType.Elements>(...elements: Elements): S.Tuple<Elements>;
+export function Tuple(...args: ReadonlyArray<UnsafeTypes.UnsafeAny>): UnsafeTypes.UnsafeAny {
   return S.Tuple(...args).pipe(S.annotations({ batching: true }));
 }
 
 /**
  * Like the default Schema `NonEmptyArray` but with batching enabled by default
  */
-export function NonEmptyArray<Value extends S.Schema.Any>(
-  value: Value,
-): S.NonEmptyArray<Value> {
+export function NonEmptyArray<Value extends S.Schema.Any>(value: Value): S.NonEmptyArray<Value> {
   return F.pipe(S.NonEmptyArray(value), S.annotations({ batching: true }));
 }
 
@@ -78,7 +65,7 @@ export function NonEmptyArray<Value extends S.Schema.Any>(
  */
 export function Array<Value extends S.Schema.Any>(value: Value) {
   return F.pipe(S.Array(value), S.annotations({ batching: true }), (s) =>
-    Object.assign(s, { withDefault: s.pipe(withDefaultConstructor(() => [])) }),
+    Object.assign(s, { withDefault: s.pipe(withDefaultConstructor(() => [])) })
   );
 }
 
@@ -88,26 +75,21 @@ export function Array<Value extends S.Schema.Any>(value: Value) {
 export const ReadonlySet = <Value extends S.Schema.Any>(value: Value) =>
   F.pipe(S.ReadonlySet(value), S.annotations({ batching: true }), (s) =>
     Object.assign(s, {
-      withDefault: s.pipe(
-        withDefaultConstructor(() => new Set<S.Schema.Type<Value>>()),
-      ),
-    }),
+      withDefault: s.pipe(withDefaultConstructor(() => new Set<S.Schema.Type<Value>>())),
+    })
   );
 
 /**
  * Like the default Schema `ReadonlyMap` but with `withDefault` and batching enabled by default
  */
-export const ReadonlyMap = <
-  K extends S.Schema.Any,
-  V extends S.Schema.Any,
->(pair: {
+export const ReadonlyMap = <K extends S.Schema.Any, V extends S.Schema.Any>(pair: {
   readonly key: K;
   readonly value: V;
 }) =>
   F.pipe(S.ReadonlyMap(pair), S.annotations({ batching: true }), (s) =>
     Object.assign(s, {
       withDefault: s.pipe(withDefaultConstructor(() => new Map())),
-    }),
+    })
   );
 
 /**
@@ -117,32 +99,25 @@ export const NullOr = <S extends S.Schema.Any>(self: S) =>
   F.pipe(S.NullOr(self), (s) =>
     Object.assign(s, {
       withDefault: s.pipe(withDefaultConstructor(() => null)),
-    }),
+    })
   );
 
-export const defaultDate = <I, R>(s: S.Schema<Date, I, R>) =>
-  s.pipe(withDefaultConstructor(() => new global.Date()));
+export const defaultDate = <I, R>(s: S.Schema<Date, I, R>) => s.pipe(withDefaultConstructor(() => new global.Date()));
 
-export const defaultBool = <I, R>(s: S.Schema<boolean, I, R>) =>
-  s.pipe(withDefaultConstructor(() => false));
+export const defaultBool = <I, R>(s: S.Schema<boolean, I, R>) => s.pipe(withDefaultConstructor(() => false));
 
-export const defaultNullable = <A, I, R>(s: S.Schema<A | null, I, R>) =>
-  s.pipe(withDefaultConstructor(() => null));
+export const defaultNullable = <A, I, R>(s: S.Schema<A | null, I, R>) => s.pipe(withDefaultConstructor(() => null));
 
-export const defaultArray = <A, I, R>(s: S.Schema<ReadonlyArray<A>, I, R>) =>
-  s.pipe(withDefaultConstructor(() => []));
+export const defaultArray = <A, I, R>(s: S.Schema<ReadonlyArray<A>, I, R>) => s.pipe(withDefaultConstructor(() => []));
 
-export const defaultMap = <A, A2, I, R>(
-  s: S.Schema<ReadonlyMap<A, A2>, I, R>,
-) => s.pipe(withDefaultConstructor(() => new Map()));
+export const defaultMap = <A, A2, I, R>(s: S.Schema<ReadonlyMap<A, A2>, I, R>) =>
+  s.pipe(withDefaultConstructor(() => new Map()));
 
 export const defaultSet = <A, I, R>(s: S.Schema<ReadonlySet<A>, I, R>) =>
   s.pipe(withDefaultConstructor(() => new Set<A>()));
 
-export const withDefaultMake = <
-  Self extends S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, never>,
->(
-  s: Self,
+export const withDefaultMake = <Self extends S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, never>>(
+  s: Self
 ) => {
   const a = Object.assign(S.decodeSync(s) as WithDefaults<Self>, s);
   Object.setPrototypeOf(a, s);
@@ -151,11 +126,9 @@ export const withDefaultMake = <
   // return s as Self & WithDefaults<Self>
 };
 
-export type WithDefaults<
-  Self extends S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, never>,
-> = (
+export type WithDefaults<Self extends S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, never>> = (
   i: S.Schema.Encoded<Self>,
-  options?: AST.ParseOptions,
+  options?: AST.ParseOptions
 ) => S.Schema.Type<Self>;
 
 const makeOpt = (self: S.PropertySignature.Any, exact?: boolean) => {
@@ -168,8 +141,8 @@ const makeOpt = (self: S.PropertySignature.Any, exact?: boolean) => {
           true,
           ast.isReadonly,
           ast.annotations,
-          ast.defaultValue,
-        ),
+          ast.defaultValue
+        )
       );
     }
     case "PropertySignatureTransformation": {
@@ -179,27 +152,25 @@ const makeOpt = (self: S.PropertySignature.Any, exact?: boolean) => {
             exact ? ast.from.type : S.UndefinedOr(S.make(ast.from.type)).ast,
             true,
             ast.from.isReadonly,
-            ast.from.annotations,
+            ast.from.annotations
           ),
           new S.ToPropertySignature(
             exact ? ast.to.type : S.UndefinedOr(S.make(ast.to.type)).ast,
             true,
             ast.to.isReadonly,
             ast.to.annotations,
-            ast.to.defaultValue,
+            ast.to.defaultValue
           ),
           ast.decode,
-          ast.encode,
-        ),
+          ast.encode
+        )
       );
     }
   }
 };
 
-export function makeOptional<
-  NER extends StructTypes.StructFieldsOrPropertySignatures,
->(
-  t: StructTypes.NonEmptyStructFieldsOrPropertySignatures<NER>,
+export function makeOptional<NER extends StructTypes.StructFieldsOrPropertySignatures>(
+  t: StructTypes.NonEmptyStructFieldsOrPropertySignatures<NER>
 ): {
   [K in keyof NER]: S.PropertySignature<
     "?:",
@@ -231,10 +202,8 @@ export function makeOptional<
   }, {} as UnsafeTypes.UnsafeAny);
 }
 
-export function makeExactOptional<
-  NER extends StructTypes.StructFieldsWithStringKeys,
->(
-  t: StructTypes.NonEmptyStructFields<NER>,
+export function makeExactOptional<NER extends StructTypes.StructFieldsWithStringKeys>(
+  t: StructTypes.NonEmptyStructFields<NER>
 ): {
   [K in keyof NER]: S.PropertySignature<
     "?:",
@@ -270,21 +239,17 @@ export function makeExactOptional<
 
 export class DurationFromSeconds extends S.transform(
   S.NonNegative.annotations({
-    description:
-      "a non-negative number of seconds to be decoded into a Duration",
+    description: "a non-negative number of seconds to be decoded into a Duration",
   }),
   S.DurationFromSelf,
   {
     strict: true,
     decode: (i) => Duration.seconds(i),
     encode: (a) => Duration.toSeconds(a),
-  },
+  }
 ) {}
 
-export class DurationFromDeltaSecondsString extends S.compose(
-  S.NumberFromString,
-  DurationFromSeconds,
-).annotations({
+export class DurationFromDeltaSecondsString extends S.compose(S.NumberFromString, DurationFromSeconds).annotations({
   title: "DurationFromDeltaSecondsString",
   description: "parses a string of non-negative delta-seconds into a Duration",
 }) {}
@@ -295,26 +260,18 @@ export class DurationFromDeltaSecondsString extends S.compose(
  * @category schema
  */
 export function destructiveTransform<A, B>(
-  transform: (input: A) => B,
+  transform: (input: A) => B
 ): <I, R>(self: S.Schema<A, I, R>) => S.Schema<Readonly<B>, I, R> {
   return <I, R>(self: S.Schema<A, I, R>): S.Schema<Readonly<B>, I, R> => {
     return S.transformOrFail(self, S.Any as S.Schema<Readonly<B>>, {
       decode: (input) =>
         ParseResult.try({
           try: () => transform(input) as Readonly<B>,
-          catch: () =>
-            new ParseResult.Type(
-              self.ast,
-              input,
-              "Error applying transformation",
-            ),
+          catch: () => new ParseResult.Type(self.ast, input, "Error applying transformation"),
         }),
       encode: () =>
         ParseResult.fail(
-          new ParseResult.Forbidden(
-            self.ast,
-            "Encoding is not supported for destructive transformations",
-          ),
+          new ParseResult.Forbidden(self.ast, "Encoding is not supported for destructive transformations")
         ),
     });
   };
@@ -325,16 +282,14 @@ export function destructiveTransform<A, B>(
  *
  * @category schema
  */
-export const TrimNonEmpty = (opts?: {
-  message?: string;
-}): S.refine<string, S.filter<typeof S.Trim>> =>
+export const TrimNonEmpty = (opts?: { message?: string }): S.refine<string, S.filter<typeof S.Trim>> =>
   S.Trim.pipe(
     S.minLength(1),
     S.maxLength(5000),
     S.annotations({
       message: () => opts?.message ?? "Expected a non-empty trimmed string",
       override: true,
-    }),
+    })
   );
 
 /**
@@ -342,13 +297,11 @@ export const TrimNonEmpty = (opts?: {
  *
  * @category schema
  */
-export const NullOrFromFallible = <A, I, R>(
-  schema: S.Schema<A, I, R>,
-): S.NullOr<S.Schema<A, I, R>> =>
+export const NullOrFromFallible = <A, I, R>(schema: S.Schema<A, I, R>): S.NullOr<S.Schema<A, I, R>> =>
   S.NullOr(schema).pipe(
     S.annotations({
       decodingFallback: () => Either.right(null),
-    }),
+    })
   );
 
 /**
@@ -357,22 +310,14 @@ export const NullOrFromFallible = <A, I, R>(
  * @category schema
  */
 export const NullOrFromOptional = <A, I, R>(
-  schema: S.Schema<A, I, R>,
-): S.PropertySignature<
-  ":",
-  Exclude<A, undefined> | null,
-  never,
-  "?:",
-  I | null | undefined,
-  true,
-  R
-> =>
+  schema: S.Schema<A, I, R>
+): S.PropertySignature<":", Exclude<A, undefined> | null, never, "?:", I | null | undefined, true, R> =>
   S.NullishOr(schema).pipe(
     S.optional,
     S.withDefaults({
       constructor: () => null,
       decoding: () => null,
-    }),
+    })
   );
 
 /**
@@ -381,27 +326,22 @@ export const NullOrFromOptional = <A, I, R>(
  * @category schema
  */
 export const ArrayFromFallible = <A, I, R>(
-  schema: S.Schema<A, I, R>,
-): S.transform<
-  S.Array$<S.NullOr<S.Schema<A, I, R>>>,
-  S.SchemaClass<ReadonlyArray<A>, ReadonlyArray<A>, never>
-> =>
+  schema: S.Schema<A, I, R>
+): S.transform<S.Array$<S.NullOr<S.Schema<A, I, R>>>, S.SchemaClass<ReadonlyArray<A>, ReadonlyArray<A>, never>> =>
   S.Array(
     S.NullOr(schema).annotations({
       decodingFallback: (issue) =>
         Effect.zipRight(
-          Effect.logWarning(
-            `[ArrayFromFallible] ${ParseResult.TreeFormatter.formatIssueSync(issue)}`,
-          ),
-          Effect.succeed(null),
+          Effect.logWarning(`[ArrayFromFallible] ${ParseResult.TreeFormatter.formatIssueSync(issue)}`),
+          Effect.succeed(null)
         ),
-    }),
+    })
   ).pipe(
     S.transform(S.typeSchema(S.Array(schema)), {
       decode: (array) => array.filter(P.isNotNull),
       encode: F.identity,
       strict: true,
-    }),
+    })
   );
 
 /**
@@ -410,12 +350,9 @@ export const ArrayFromFallible = <A, I, R>(
  * @category schema
  */
 export const HashSetFromFallibleArray = <A, I, R>(
-  schema: S.Schema<A, I, R>,
+  schema: S.Schema<A, I, R>
 ): S.transform<
-  S.transform<
-    S.Array$<S.NullOr<S.Schema<A, I, R>>>,
-    S.SchemaClass<ReadonlyArray<A>, ReadonlyArray<A>, never>
-  >,
+  S.transform<S.Array$<S.NullOr<S.Schema<A, I, R>>>, S.SchemaClass<ReadonlyArray<A>, ReadonlyArray<A>, never>>,
   S.SchemaClass<HashSet.HashSet<A>, HashSet.HashSet<A>, never>
 > =>
   ArrayFromFallible(schema).pipe(
@@ -423,7 +360,7 @@ export const HashSetFromFallibleArray = <A, I, R>(
       decode: (array) => HashSet.fromIterable(array),
       encode: (hashSet) => A.fromIterable(hashSet),
       strict: true,
-    }),
+    })
   );
 
 /**
@@ -432,12 +369,9 @@ export const HashSetFromFallibleArray = <A, I, R>(
  * @category schema
  */
 export const SetFromFallibleArray = <A, I, R>(
-  schema: S.Schema<A, I, R>,
+  schema: S.Schema<A, I, R>
 ): S.transform<
-  S.transform<
-    S.Array$<S.NullOr<S.Schema<A, I, R>>>,
-    S.SchemaClass<ReadonlyArray<A>, ReadonlyArray<A>, never>
-  >,
+  S.transform<S.Array$<S.NullOr<S.Schema<A, I, R>>>, S.SchemaClass<ReadonlyArray<A>, ReadonlyArray<A>, never>>,
   S.SchemaClass<Set<A>, Set<A>, never>
 > =>
   ArrayFromFallible(schema).pipe(
@@ -445,7 +379,7 @@ export const SetFromFallibleArray = <A, I, R>(
       decode: (array) => new Set(array),
       encode: (set) => A.fromIterable(set),
       strict: true,
-    }),
+    })
   );
 
 /**
@@ -462,11 +396,8 @@ export const SetFromFallibleArray = <A, I, R>(
  * ```
  */
 export const HashSetFromIterable = <A, I, R>(
-  schema: S.Schema<A, I, R>,
-): S.transform<
-  S.Array$<S.Schema<A, I, R>>,
-  S.SchemaClass<HashSet.HashSet<A>, HashSet.HashSet<A>, never>
-> =>
+  schema: S.Schema<A, I, R>
+): S.transform<S.Array$<S.Schema<A, I, R>>, S.SchemaClass<HashSet.HashSet<A>, HashSet.HashSet<A>, never>> =>
   S.transform(S.Array(schema), S.typeSchema(S.HashSet(schema)), {
     strict: true,
     decode: (array) => HashSet.fromIterable(array),
@@ -492,17 +423,17 @@ export const formatParseIssueMessages = (
   opts?: {
     newLines?: number;
     numbered?: boolean;
-  },
+  }
 ): Effect.Effect<string, never, never> =>
   ParseResult.ArrayFormatter.formatIssue(issue).pipe(
     Effect.map((issues) =>
       issues
         .map(
           ({ message, path }, index) =>
-            `${opts?.numbered === true ? `${index + 1}. ` : ""}[${path.length > 0 ? path.join(".") : "ROOT"}] ${message}`,
+            `${opts?.numbered === true ? `${index + 1}. ` : ""}[${path.length > 0 ? path.join(".") : "ROOT"}] ${message}`
         )
-        .join("\n".repeat(opts?.newLines ?? 1)),
-    ),
+        .join("\n".repeat(opts?.newLines ?? 1))
+    )
   );
 
 // ---------------
@@ -553,11 +484,7 @@ export const WithEquality =
 
         if (equalityFn !== undefined) {
           extensions[Eq.symbol] = function (that: unknown): boolean {
-            return (
-              Eq.isEqual(that) &&
-              S.is(schema)(that) &&
-              equalityFn(this as unknown as A, that)
-            );
+            return Eq.isEqual(that) && S.is(schema)(that) && equalityFn(this as unknown as A, that);
           };
         }
 
@@ -592,16 +519,12 @@ export const deriveAndAttachProperty =
     decode: (input: FromA) => Effect.Effect<ToA, never, DecodeR>;
   }) =>
   (
-    self: S.Schema<FromA, FromI, FromR>,
-  ): S.Schema<
-    FromA & { readonly [K in Key]: ToA },
-    FromI,
-    FromR | ToR | DecodeR
-  > => {
+    self: S.Schema<FromA, FromI, FromR>
+  ): S.Schema<FromA & { readonly [K in Key]: ToA }, FromI, FromR | ToR | DecodeR> => {
     const derivedSchema = S.typeSchema(
       S.Struct({
         [args.key]: args.typeSchema,
-      } as const),
+      } as const)
     );
 
     const extendedSchema = S.extend(S.typeSchema(self), derivedSchema);
@@ -616,7 +539,7 @@ export const deriveAndAttachProperty =
               Effect.map((value) => ({
                 ...input,
                 [args.key]: value,
-              })),
+              }))
             );
           }
 
@@ -636,10 +559,8 @@ export const deriveAndAttachProperty =
  * @category schema
  */
 export const fromKey: <const K extends string>(
-  key: K,
-) => <A, I, R>(
-  self: S.Schema<A, I, R>,
-) => S.PropertySignature<":", A, K, ":", I, false, R> =
+  key: K
+) => <A, I, R>(self: S.Schema<A, I, R>) => S.PropertySignature<":", A, K, ":", I, false, R> =
   <const K extends string>(key: K) =>
   <A, I, R>(self: S.Schema<A, I, R>) =>
     self.pipe(S.propertySignature, S.fromKey(key));
@@ -649,9 +570,7 @@ export const fromKey: <const K extends string>(
  *
  * @category schema
  */
-export const reverseSchema = <A, I, R>(
-  schema: S.Schema<A, I, R>,
-): S.Schema<I, A, R> =>
+export const reverseSchema = <A, I, R>(schema: S.Schema<A, I, R>): S.Schema<I, A, R> =>
   S.transformOrFail(S.typeSchema(schema), S.encodedSchema(schema), {
     decode: ParseResult.encode(schema),
     encode: ParseResult.decode(schema),

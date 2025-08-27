@@ -2,11 +2,7 @@ import "@beep/ui/globals.css";
 import { MotionLazy } from "@beep/ui/animate/motion-lazy";
 import { Snackbar } from "@beep/ui/molecules";
 import { ProgressBar } from "@beep/ui/progress/progress-bar/progress-bar";
-import {
-  defaultSettings,
-  SettingsDrawer,
-  SettingsProvider,
-} from "@beep/ui/settings";
+import { defaultSettings, SettingsDrawer, SettingsProvider } from "@beep/ui/settings";
 import { detectSettings } from "@beep/ui/settings/server";
 import { primary, themeConfig } from "@beep/ui/theme";
 import { ThemeProvider } from "@beep/ui/theme/theme-provider";
@@ -44,10 +40,7 @@ type RootLayoutProps = {
 };
 
 async function getAppConfig() {
-  const [lang, settings] = await Promise.all([
-    detectLanguage(),
-    detectSettings(),
-  ]);
+  const [lang, settings] = await Promise.all([detectLanguage(), detectSettings()]);
 
   return {
     lang,
@@ -70,18 +63,10 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         />
         <I18nProvider lang={appConfig.i18nLang}>
           {/*<GlobalProviders>*/}
-          <SettingsProvider
-            cookieSettings={appConfig.cookieSettings}
-            defaultSettings={defaultSettings}
-          >
+          <SettingsProvider cookieSettings={appConfig.cookieSettings} defaultSettings={defaultSettings}>
             <LocalizationProvider>
-              <AppRouterCacheProvider
-                options={{ key: "css", enableCssLayer: true }}
-              >
-                <ThemeProvider
-                  modeStorageKey={themeConfig.modeStorageKey}
-                  defaultMode={themeConfig.defaultMode}
-                >
+              <AppRouterCacheProvider options={{ key: "css", enableCssLayer: true }}>
+                <ThemeProvider modeStorageKey={themeConfig.modeStorageKey} defaultMode={themeConfig.defaultMode}>
                   <MotionLazy>
                     <Snackbar />
                     <ProgressBar />

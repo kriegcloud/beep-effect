@@ -19,8 +19,8 @@ export const Password = S.Redacted(
     }),
     S.pattern(/[!@#$%^&*(),.?":{}|<>\\[\]/`~;'_+=-]/, {
       message: () => "Password must contain at least one special character!",
-    }),
-  ),
+    })
+  )
 );
 
 export namespace Password {

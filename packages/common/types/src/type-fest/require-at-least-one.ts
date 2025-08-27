@@ -24,16 +24,9 @@ const responder: RequireAtLeastOne<Responder, 'text' | 'json'> = {
 
 @group type-fest
 */
-export type RequireAtLeastOne<
+export type RequireAtLeastOne<ObjectType, KeysType extends keyof ObjectType = keyof ObjectType> = IfNotAnyOrNever<
   ObjectType,
-  KeysType extends keyof ObjectType = keyof ObjectType,
-> = IfNotAnyOrNever<
-  ObjectType,
-  IfNever<
-    KeysType,
-    never,
-    _RequireAtLeastOne<ObjectType, IfAny<KeysType, keyof ObjectType, KeysType>>
-  >
+  IfNever<KeysType, never, _RequireAtLeastOne<ObjectType, IfAny<KeysType, keyof ObjectType, KeysType>>>
 >;
 
 type _RequireAtLeastOne<ObjectType, KeysType extends keyof ObjectType> = {

@@ -69,10 +69,7 @@ const CalendarIcon = (props: SvgIconProps) => (
       d="M22 14v-2c0-.839-.013-2.335-.026-3H2.006c-.013.665 0 2.161 0 3v2c0 3.771 0 5.657 1.17 6.828C4.349 22 6.234 22 10.004 22h4c3.77 0 5.654 0 6.826-1.172C22 19.657 22 17.771 22 14"
       opacity="0.5"
     />
-    <path
-      fill="currentColor"
-      d="M18 16.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"
-    />
+    <path fill="currentColor" d="M18 16.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0" />
   </SvgIcon>
 );
 
@@ -189,8 +186,7 @@ const inputComponents: Components<Theme> = {
         variants: [
           ...inputBaseVariants.input,
           {
-            props: (props) =>
-              !props.isFieldFocused && !!props.isFieldValueEmpty,
+            props: (props) => !props.isFieldFocused && !!props.isFieldValueEmpty,
             style: {
               opacity: 1,
               color: theme.vars.palette.text.disabled,
@@ -207,8 +203,7 @@ const inputComponents: Components<Theme> = {
   },
   MuiPickersOutlinedInput: {
     styleOverrides: {
-      root: ({ theme }) =>
-        outlinedInputStyles.root(theme, pickersOutlinedInputClasses),
+      root: ({ theme }) => outlinedInputStyles.root(theme, pickersOutlinedInputClasses),
       sectionsContainer: { variants: [...outlinedInputVariants.input] },
       notchedOutline: ({ theme }) => outlinedInputStyles.notchedOutline(theme),
     },
@@ -218,8 +213,7 @@ const inputComponents: Components<Theme> = {
       disableUnderline: true,
     },
     styleOverrides: {
-      root: ({ theme }) =>
-        filledInputStyles.root(theme, pickersFilledInputClasses),
+      root: ({ theme }) => filledInputStyles.root(theme, pickersFilledInputClasses),
       sectionsContainer: { variants: [...filledInputVariants.input] },
     },
   },

@@ -20,10 +20,7 @@ Or<false, false>;
 
 @group type-fest
 */
-export type Or<A extends boolean, B extends boolean> = [
-  A,
-  B,
-][number] extends false
+export type Or<A extends boolean, B extends boolean> = [A, B][number] extends false
   ? false
   : true extends [IsEqual<A, true>, IsEqual<B, true>][number]
     ? true

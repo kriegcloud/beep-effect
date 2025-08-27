@@ -18,7 +18,7 @@ export namespace Node {
     const Fields extends StructTypes.StructFieldsWithStringKeys,
   >(
     name: Name,
-    fields: Fields,
+    fields: Fields
   ) =>
     S.Struct({
       node: S.Literal(name),
@@ -30,10 +30,7 @@ export namespace Node {
       description: "Base Schema for a Node in the rules engine",
     });
 
-  export type Type<
-    Name extends StringTypes.NonEmptyString<string>,
-    Fields extends Record<string, unknown>,
-  > = Fields & {
+  export type Type<Name extends StringTypes.NonEmptyString<string>, Fields extends Record<string, unknown>> = Fields & {
     id: NodeId.Type;
     node: Name;
   };

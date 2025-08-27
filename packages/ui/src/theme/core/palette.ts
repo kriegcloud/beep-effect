@@ -1,10 +1,5 @@
 import { createPaletteChannel, rgbaFromChannel } from "@beep/ui/utils";
-import type {
-  ColorSystemOptions,
-  PaletteColor,
-  PaletteColorChannel,
-  TypeAction,
-} from "@mui/material/styles";
+import type { ColorSystemOptions, PaletteColor, PaletteColorChannel, TypeAction } from "@mui/material/styles";
 import { themeConfig } from "../theme-config";
 import type { SchemesRecord } from "../types";
 import { opacity } from "./opacity";
@@ -17,20 +12,11 @@ import { opacity } from "./opacity";
  */
 
 // Keys for core palette colors
-export type PaletteColorKey =
-  | "primary"
-  | "secondary"
-  | "info"
-  | "success"
-  | "warning"
-  | "error";
+export type PaletteColorKey = "primary" | "secondary" | "info" | "success" | "warning" | "error";
 export type CommonColorsKeys = "black" | "white";
 
 // Palette color without channels
-export type PaletteColorNoChannels = Omit<
-  PaletteColor,
-  "lighterChannel" | "darkerChannel"
->;
+export type PaletteColorNoChannels = Omit<PaletteColor, "lighterChannel" | "darkerChannel">;
 
 // Palette color with channels
 export type PaletteColorWithChannels = PaletteColor & PaletteColorChannel;

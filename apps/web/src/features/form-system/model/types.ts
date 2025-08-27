@@ -7,13 +7,7 @@
  */
 
 // JSON value primitives
-export type JsonValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JsonObject
-  | JsonArray;
+export type JsonValue = string | number | boolean | null | JsonObject | JsonArray;
 export type JsonArray = ReadonlyArray<JsonValue>;
 export type JsonObject = { readonly [k: string]: JsonValue };
 

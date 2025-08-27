@@ -9,21 +9,11 @@ type FormHeadProps = BoxProps & {
   description?: React.ReactNode | undefined;
 };
 
-export const FormHead: React.FC<FormHeadProps> = ({
-  children,
-  sx,
-  icon,
-  title,
-  description,
-  ...props
-}) => {
+export const FormHead: React.FC<FormHeadProps> = ({ children, sx, icon, title, description, ...props }) => {
   return (
     <>
       {icon ? (
-        <Box
-          component="span"
-          sx={{ mb: 3, mx: "auto", display: "inline-flex" }}
-        >
+        <Box component="span" sx={{ mb: 3, mx: "auto", display: "inline-flex" }}>
           {icon}
         </Box>
       ) : null}
@@ -52,25 +42,17 @@ export const FormHead: React.FC<FormHeadProps> = ({
   );
 };
 
-export const FormControl: React.FC<React.ComponentProps<typeof Box>> = ({
-  children,
-  ...props
-}) => (
+export const FormControl: React.FC<React.ComponentProps<typeof Box>> = ({ children, ...props }) => (
   <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }} {...props}>
     {children}
   </Box>
 );
 
 const BoxForm: React.FC<
-  React.ComponentProps<"form"> &
-    Omit<React.ComponentProps<typeof Box>, "component" | "onSubmit">
+  React.ComponentProps<"form"> & Omit<React.ComponentProps<typeof Box>, "component" | "onSubmit">
 > = (props) => <Box component={"form"} {...props} />;
 
-export const Form: React.FC<React.ComponentProps<typeof BoxForm>> = ({
-  children,
-  onSubmit,
-  ...props
-}) => {
+export const Form: React.FC<React.ComponentProps<typeof BoxForm>> = ({ children, onSubmit, ...props }) => {
   return (
     <BoxForm
       onSubmit={(event) => {

@@ -1,11 +1,6 @@
 import { rgbaFromChannel } from "@beep/ui/utils";
 import { buttonClasses } from "@mui/material/Button";
-import type {
-  Components,
-  ComponentsVariants,
-  CSSObject,
-  Theme,
-} from "@mui/material/styles";
+import type { Components, ComponentsVariants, CSSObject, Theme } from "@mui/material/styles";
 
 import { colorKeys } from "../palette";
 
@@ -22,11 +17,7 @@ export type ButtonExtendColor = { black: true; white: true };
 type ButtonVariants = ComponentsVariants<Theme>["MuiButton"];
 
 const baseColors = ["inherit"] as const;
-const allColors = [
-  ...baseColors,
-  ...colorKeys.palette,
-  ...colorKeys.common,
-] as const;
+const allColors = [...baseColors, ...colorKeys.palette, ...colorKeys.common] as const;
 
 const DIMENSIONS: Record<"small" | "medium" | "large" | "xLarge", CSSObject> = {
   small: {
@@ -55,8 +46,7 @@ const DIMENSIONS: Record<"small" | "medium" | "large" | "xLarge", CSSObject> = {
  * **********************************************************************/
 const containedVariants = [
   {
-    props: (props) =>
-      props.variant === "contained" && props.color === "inherit",
+    props: (props) => props.variant === "contained" && props.color === "inherit",
     style: ({ theme }) => ({
       ...theme.mixins.filledStyles(theme, "inherit", {
         hover: {
@@ -89,17 +79,11 @@ const outlinedVariants = [
   {
     props: (props) => props.variant === "outlined",
     style: ({ theme }) => ({
-      borderColor: rgbaFromChannel(
-        "currentColor",
-        theme.vars.opacity.outlined.border,
-      ),
+      borderColor: rgbaFromChannel("currentColor", theme.vars.opacity.outlined.border),
       "&:hover": {
         borderColor: "currentColor",
         boxShadow: "0 0 0 0.75px currentColor",
-        backgroundColor: rgbaFromChannel(
-          "currentColor",
-          theme.vars.palette.action.hoverOpacity,
-        ),
+        backgroundColor: rgbaFromChannel("currentColor", theme.vars.palette.action.hoverOpacity),
       },
     }),
   },
@@ -125,10 +109,7 @@ const textVariants = [
     props: (props) => props.variant === "text",
     style: ({ theme }) => ({
       "&:hover": {
-        backgroundColor: rgbaFromChannel(
-          "currentColor",
-          theme.vars.palette.action.hoverOpacity,
-        ),
+        backgroundColor: rgbaFromChannel("currentColor", theme.vars.palette.action.hoverOpacity),
       },
     }),
   },

@@ -63,8 +63,8 @@ function MultiSelect({
         ({
           error,
           isError: !!error,
-        }) as const,
-    ),
+        }) as const
+    )
   );
   const renderOptions = () =>
     A.map(options, (option, i) => (
@@ -91,9 +91,7 @@ function MultiSelect({
         displayEmpty={!!placeholder}
         label={label}
         renderValue={(selected) => {
-          const selectedItems = A.filter(options, (item) =>
-            selected.includes(item.value),
-          );
+          const selectedItems = A.filter(options, (item) => selected.includes(item.value));
 
           if (!selectedItems.length && placeholder) {
             return <Box sx={{ color: "text.disabled" }}>{placeholder}</Box>;
@@ -103,13 +101,7 @@ function MultiSelect({
             return (
               <Box sx={{ gap: 0.5, display: "flex", flexWrap: "wrap" }}>
                 {A.map(selectedItems, (item) => (
-                  <Chip
-                    key={item.value}
-                    size="small"
-                    variant="soft"
-                    label={item.label}
-                    {...slotProps?.chip}
-                  />
+                  <Chip key={item.value} size="small" variant="soft" label={item.label} {...slotProps?.chip} />
                 ))}
               </Box>
             );
@@ -126,11 +118,7 @@ function MultiSelect({
         {renderOptions()}
       </Select>
 
-      <HelperText
-        {...slotProps?.helperText}
-        errorMessage={error}
-        helperText={helperText}
-      />
+      <HelperText {...slotProps?.helperText} errorMessage={error} helperText={helperText} />
     </FormControl>
   );
 }

@@ -1,15 +1,6 @@
 import { rgbaFromChannel } from "../../utils";
 import type { ThemeColorScheme } from "../types";
-import {
-  common,
-  error,
-  grey,
-  info,
-  primary,
-  secondary,
-  success,
-  warning,
-} from "./palette";
+import { common, error, grey, info, primary, secondary, success, warning } from "./palette";
 
 export interface CustomShadows {
   z1?: string | undefined;

@@ -20,9 +20,7 @@ export type Infer<S extends AnySchema> = Schema.Schema.Type<S>;
 // Dot-paths for nested objects (arrays are not expanded here)
 export type Path<T> = T extends object
   ? {
-      [K in keyof T & string]: T[K] extends object
-        ? `${K}` | `${K}.${Path<T[K]>}`
-        : `${K}`;
+      [K in keyof T & string]: T[K] extends object ? `${K}` | `${K}.${Path<T[K]>}` : `${K}`;
     }[keyof T & string]
   : never;
 export interface CreateWorkflowArgs {
@@ -42,13 +40,13 @@ export interface TypedWorkflowBuilder<S extends Record<string, AnySchema>> {
   step<Id extends string, TSchema extends AnySchema>(
     id: Id,
     schema: TSchema,
-    options?: StepOptions,
+    options?: StepOptions
   ): TypedWorkflowBuilder<S & { [K in Id]: TSchema }>;
 
   go<From extends keyof S & string, To extends keyof S & string>(
     from: From,
     to: To,
-    metadata?: JsonObject,
+    metadata?: JsonObject
   ): TypedWorkflowBuilder<S>;
 
   when<From extends keyof S & string, To extends keyof S & string>(
@@ -56,14 +54,11 @@ export interface TypedWorkflowBuilder<S extends Record<string, AnySchema>> {
     to: To,
     rule: JsonLogicRule,
     priority?: number,
-    metadata?: JsonObject,
+    metadata?: JsonObject
   ): TypedWorkflowBuilder<S>;
 
   // Typed JsonLogic helpers
-  varAnswers<K extends keyof S & string, P extends Path<Infer<S[K]>>>(
-    stepId: K,
-    path: P,
-  ): JsonObject;
+  varAnswers<K extends keyof S & string, P extends Path<Infer<S[K]>>>(stepId: K, path: P): JsonObject;
   varCurrent(path: string): JsonObject;
   varExternal(path: string): JsonObject;
   eq(a: JsonValue | JsonObject, b: JsonValue | JsonObject): JsonObject;
@@ -74,9 +69,7 @@ export interface TypedWorkflowBuilder<S extends Record<string, AnySchema>> {
   build(): WorkflowDefinition;
 }
 
-export function createTypedWorkflow(
-  args: CreateWorkflowArgs,
-): TypedWorkflowBuilder<{}> {
+export function createTypedWorkflow(args: CreateWorkflowArgs): TypedWorkflowBuilder<{}> {
   const state = {
     id: args.id,
     version: args.version,
@@ -86,15 +79,9 @@ export function createTypedWorkflow(
     transitions: [] as TransitionDefinition[],
   };
 
-  function makeBuilder<
-    T extends Record<string, AnySchema>,
-  >(): TypedWorkflowBuilder<T> {
+  function makeBuilder<T extends Record<string, AnySchema>>(): TypedWorkflowBuilder<T> {
     return {
-      step<Id extends string, TSchema extends AnySchema>(
-        id: Id,
-        schema: TSchema,
-        options?: StepOptions,
-      ) {
+      step<Id extends string, TSchema extends AnySchema>(id: Id, schema: TSchema, options?: StepOptions) {
         // Generate JSON Schema from Effect Schema and normalize to draft 2020-12
         const raw = EffectJSONSchema.make(schema) as unknown as JsonObject;
         const jsonSchema = {
@@ -114,11 +101,7 @@ export function createTypedWorkflow(
         return makeBuilder<T & { [K in Id]: TSchema }>();
       },
 
-      go<From extends keyof T & string, To extends keyof T & string>(
-        from: From,
-        to: To,
-        metadata?: JsonObject,
-      ) {
+      go<From extends keyof T & string, To extends keyof T & string>(from: From, to: To, metadata?: JsonObject) {
         state.transitions.push({ from, to, metadata });
         return makeBuilder<T>();
       },
@@ -128,16 +111,13 @@ export function createTypedWorkflow(
         to: To,
         rule: JsonLogicRule,
         priority?: number,
-        metadata?: JsonObject,
+        metadata?: JsonObject
       ) {
         state.transitions.push({ from, to, when: rule, priority, metadata });
         return makeBuilder<T>();
       },
 
-      varAnswers<K extends keyof T & string, P extends Path<Infer<T[K]>>>(
-        stepId: K,
-        path: P,
-      ) {
+      varAnswers<K extends keyof T & string, P extends Path<Infer<T[K]>>>(stepId: K, path: P) {
         return {
           var: `answers.${String(stepId)}.${String(path)}`,
         };
@@ -170,9 +150,7 @@ export function createTypedWorkflow(
       build(): WorkflowDefinition {
         // Sort transitions by priority (undefined => Infinity)
         const transitions = [...state.transitions].sort(
-          (a, b) =>
-            (a.priority ?? Number.POSITIVE_INFINITY) -
-            (b.priority ?? Number.POSITIVE_INFINITY),
+          (a, b) => (a.priority ?? Number.POSITIVE_INFINITY) - (b.priority ?? Number.POSITIVE_INFINITY)
         );
 
         return {

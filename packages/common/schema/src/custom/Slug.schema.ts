@@ -26,19 +26,13 @@ export const Slug = S.NonEmptyTrimmedString.pipe(
   S.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
     message: F.constant("Slug must be a valid slug"),
   }),
-  S.brand("Slug"),
+  S.brand("Slug")
 ).annotations({
   title: "Slug",
   identifier: "Slug",
   description: "A URL-friendly string identifier",
-  examples: A.map(
-    A.make("hello-world", "hello-world-2", "hello-world-3"),
-    (a) => a as B.Branded<string, "Slug">,
-  ),
-  arbitrary: () => (fc) =>
-    fc
-      .constant(null)
-      .map(() => faker.lorem.slug() as B.Branded<string, "Slug">),
+  examples: A.map(A.make("hello-world", "hello-world-2", "hello-world-3"), (a) => a as B.Branded<string, "Slug">),
+  arbitrary: () => (fc) => fc.constant(null).map(() => faker.lorem.slug() as B.Branded<string, "Slug">),
 });
 export namespace Slug {
   /** Slug value type. */

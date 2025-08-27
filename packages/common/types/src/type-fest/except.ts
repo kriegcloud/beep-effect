@@ -102,25 +102,12 @@ type PostPayload = Except<UserData, 'email'>;
 
 @group type-fest
 */
-export type Except<
-  ObjectType,
-  KeysType extends keyof ObjectType,
-  Options extends ExceptOptions = {},
-> = _Except<
+export type Except<ObjectType, KeysType extends keyof ObjectType, Options extends ExceptOptions = {}> = _Except<
   ObjectType,
   KeysType,
   ApplyDefaultOptions<ExceptOptions, DefaultExceptOptions, Options>
 >;
 
-type _Except<
-  ObjectType,
-  KeysType extends keyof ObjectType,
-  Options extends Required<ExceptOptions>,
-> = {
-  [KeyType in keyof ObjectType as Filter<
-    KeyType,
-    KeysType
-  >]: ObjectType[KeyType];
-} & (Options["requireExactProps"] extends true
-  ? Partial<Record<KeysType, never>>
-  : {});
+type _Except<ObjectType, KeysType extends keyof ObjectType, Options extends Required<ExceptOptions>> = {
+  [KeyType in keyof ObjectType as Filter<KeyType, KeysType>]: ObjectType[KeyType];
+} & (Options["requireExactProps"] extends true ? Partial<Record<KeysType, never>> : {});

@@ -10,12 +10,7 @@ type SelectFieldProps = DefaultOmit<TextFieldProps> & {
   children: React.ReactNode;
 };
 
-function SelectField({
-  children,
-  helperText,
-  slotProps = {},
-  ...other
-}: SelectFieldProps) {
+function SelectField({ children, helperText, slotProps = {}, ...other }: SelectFieldProps) {
   const field = useFieldContext();
   const { error, isError } = useStore(
     field.form.store,
@@ -23,7 +18,7 @@ function SelectField({
       ({
         isError: !!state.errorMap.onSubmit?.[field.name],
         error: state.errorMap.onSubmit?.[field.name],
-      }) as const,
+      }) as const
   );
   const labelId = `${field.name}-select`;
 

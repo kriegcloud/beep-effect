@@ -1,11 +1,6 @@
 import { makeRule } from "@beep/logos/v2/internal";
 import * as Operands from "@beep/logos/v2/internal/Operands";
-import {
-  countDistinctOverlaps,
-  has,
-  intersect,
-  missingFrom,
-} from "@beep/logos/v2/rules/util";
+import { countDistinctOverlaps, has, intersect, missingFrom } from "@beep/logos/v2/rules/util";
 import { BS } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Match from "effect/Match";
@@ -34,14 +29,7 @@ export namespace Ops {
 
 export const { Rule, Input } = makeRule("arrayValue", {
   field: S.NonEmptyString,
-  op: S.Union(
-    Ops.Contains,
-    Ops.NotContains,
-    Ops.InSet,
-    Ops.OneOf,
-    Ops.AllOf,
-    Ops.NoneOf,
-  ),
+  op: S.Union(Ops.Contains, Ops.NotContains, Ops.InSet, Ops.OneOf, Ops.AllOf, Ops.NoneOf),
 });
 
 export namespace Rule {
@@ -60,9 +48,7 @@ const makeBase = (i: Omit<Input.Type, "id" | "type">) =>
     type: "arrayValue",
   });
 
-export const contains = (
-  i: Pick<Input.Type, "field"> & { value: BS.Json.Type },
-) =>
+export const contains = (i: Pick<Input.Type, "field"> & { value: BS.Json.Type }) =>
   makeBase({
     op: Ops.Contains.make({
       value: i.value,
@@ -70,9 +56,7 @@ export const contains = (
     field: i.field,
   });
 
-export const notContains = (
-  i: Pick<Input.Type, "field"> & { value: BS.Json.Type },
-) =>
+export const notContains = (i: Pick<Input.Type, "field"> & { value: BS.Json.Type }) =>
   makeBase({
     op: Ops.NotContains.make({
       value: i.value,
@@ -81,9 +65,7 @@ export const notContains = (
     field: i.field,
   });
 
-export const inSet = (
-  i: Pick<Input.Type, "field"> & { value: (typeof Ops.InSet.Type)["value"] },
-) =>
+export const inSet = (i: Pick<Input.Type, "field"> & { value: (typeof Ops.InSet.Type)["value"] }) =>
   makeBase({
     op: Ops.InSet.make({
       value: i.value,
@@ -91,9 +73,7 @@ export const inSet = (
     } as const),
     field: i.field,
   });
-export const oneOf = (
-  i: Pick<Input.Type, "field"> & { value: (typeof Ops.OneOf.Type)["value"] },
-) =>
+export const oneOf = (i: Pick<Input.Type, "field"> & { value: (typeof Ops.OneOf.Type)["value"] }) =>
   makeBase({
     op: Ops.OneOf.make({
       value: i.value,
@@ -102,9 +82,7 @@ export const oneOf = (
     field: i.field,
   });
 
-export const allOf = (
-  i: Pick<Input.Type, "field"> & { value: (typeof Ops.AllOf.Type)["value"] },
-) =>
+export const allOf = (i: Pick<Input.Type, "field"> & { value: (typeof Ops.AllOf.Type)["value"] }) =>
   makeBase({
     op: Ops.AllOf.make({
       value: i.value,
@@ -113,9 +91,7 @@ export const allOf = (
     field: i.field,
   });
 
-export const noneOf = (
-  i: Pick<Input.Type, "field"> & { value: (typeof Ops.NoneOf.Type)["value"] },
-) =>
+export const noneOf = (i: Pick<Input.Type, "field"> & { value: (typeof Ops.NoneOf.Type)["value"] }) =>
   makeBase({
     op: Ops.NoneOf.make({
       value: i.value,
@@ -124,10 +100,7 @@ export const noneOf = (
     field: i.field,
   });
 
-export const validate = (
-  rule: Input.Type,
-  value: ReadonlyArray<BS.Json.Type>,
-) =>
+export const validate = (rule: Input.Type, value: ReadonlyArray<BS.Json.Type>) =>
   // Engine guarantees this rule only runs when the field resolves to an array,
   // but be defensive in case callers use validate() directly.
   A.isArray(value)
@@ -148,6 +121,6 @@ export const validate = (
           // every (unique) selection element appears in the array
           allOf: (op) => missingFrom(op.value, value).length === 0,
         }),
-        Match.orElse(() => false),
+        Match.orElse(() => false)
       )
     : false;

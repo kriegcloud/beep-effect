@@ -7,10 +7,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 export namespace Ops {
-  export class Eq extends Operands.Eq.Schema(
-    BS.DateTimeUtcFromAllAcceptable,
-    {},
-  ) {
+  export class Eq extends Operands.Eq.Schema(BS.DateTimeUtcFromAllAcceptable, {}) {
     static readonly make = (i: Omit<typeof Eq.Type, "_tag">) =>
       ({
         _tag: "eq",
@@ -18,10 +15,7 @@ export namespace Ops {
       }) as const;
   }
 
-  export class Neq extends Operands.Neq.Schema(
-    BS.DateTimeUtcFromAllAcceptable,
-    {},
-  ) {
+  export class Neq extends Operands.Neq.Schema(BS.DateTimeUtcFromAllAcceptable, {}) {
     static readonly make = (i: Omit<typeof Neq.Type, "_tag">) =>
       ({
         _tag: "ne",
@@ -29,10 +23,7 @@ export namespace Ops {
       }) as const;
   }
 
-  export class Gt extends Operands.Gt.Schema(
-    BS.DateTimeUtcFromAllAcceptable,
-    {},
-  ) {
+  export class Gt extends Operands.Gt.Schema(BS.DateTimeUtcFromAllAcceptable, {}) {
     static readonly make = (i: Omit<typeof Gt.Type, "_tag">) =>
       ({
         _tag: "gt",
@@ -40,10 +31,7 @@ export namespace Ops {
       }) as const;
   }
 
-  export class Gte extends Operands.Gte.Schema(
-    BS.DateTimeUtcFromAllAcceptable,
-    {},
-  ) {
+  export class Gte extends Operands.Gte.Schema(BS.DateTimeUtcFromAllAcceptable, {}) {
     static readonly make = (i: Omit<typeof Gte.Type, "_tag">) =>
       ({
         _tag: "gte",
@@ -51,10 +39,7 @@ export namespace Ops {
       }) as const;
   }
 
-  export class Lt extends Operands.Lt.Schema(
-    BS.DateTimeUtcFromAllAcceptable,
-    {},
-  ) {
+  export class Lt extends Operands.Lt.Schema(BS.DateTimeUtcFromAllAcceptable, {}) {
     static readonly make = (i: Omit<typeof Lt.Type, "_tag">) =>
       ({
         _tag: "lt",
@@ -62,10 +47,7 @@ export namespace Ops {
       }) as const;
   }
 
-  export class Lte extends Operands.Lte.Schema(
-    BS.DateTimeUtcFromAllAcceptable,
-    {},
-  ) {
+  export class Lte extends Operands.Lte.Schema(BS.DateTimeUtcFromAllAcceptable, {}) {
     static readonly make = (i: Omit<typeof Lte.Type, "_tag">) =>
       ({
         _tag: "lte",
@@ -73,10 +55,7 @@ export namespace Ops {
       }) as const;
   }
 
-  export class IsSameHour extends Operands.IsSameHour.Schema(
-    BS.DateTimeUtcFromAllAcceptable,
-    {},
-  ) {
+  export class IsSameHour extends Operands.IsSameHour.Schema(BS.DateTimeUtcFromAllAcceptable, {}) {
     static readonly make = (i: Omit<typeof IsSameHour.Type, "_tag">) =>
       ({
         _tag: "isSameHour",
@@ -84,10 +63,7 @@ export namespace Ops {
       }) as const;
   }
 
-  export class IsSameDay extends Operands.IsSameDay.Schema(
-    BS.DateTimeUtcFromAllAcceptable,
-    {},
-  ) {
+  export class IsSameDay extends Operands.IsSameDay.Schema(BS.DateTimeUtcFromAllAcceptable, {}) {
     static readonly make = (i: Omit<typeof IsSameDay.Type, "_tag">) =>
       ({
         _tag: "isSameDay",
@@ -95,10 +71,7 @@ export namespace Ops {
       }) as const;
   }
 
-  export class IsSameWeek extends Operands.IsSameWeek.Schema(
-    BS.DateTimeUtcFromAllAcceptable,
-    {},
-  ) {
+  export class IsSameWeek extends Operands.IsSameWeek.Schema(BS.DateTimeUtcFromAllAcceptable, {}) {
     static readonly make = (i: Omit<typeof IsSameWeek.Type, "_tag">) =>
       ({
         _tag: "isSameWeek",
@@ -106,10 +79,7 @@ export namespace Ops {
       }) as const;
   }
 
-  export class IsSameMonth extends Operands.IsSameMonth.Schema(
-    BS.DateTimeUtcFromAllAcceptable,
-    {},
-  ) {
+  export class IsSameMonth extends Operands.IsSameMonth.Schema(BS.DateTimeUtcFromAllAcceptable, {}) {
     static readonly make = (i: Omit<typeof IsSameMonth.Type, "_tag">) =>
       ({
         _tag: "isSameMonth",
@@ -117,10 +87,7 @@ export namespace Ops {
       }) as const;
   }
 
-  export class IsSameYear extends Operands.IsSameYear.Schema(
-    BS.DateTimeUtcFromAllAcceptable,
-    {},
-  ) {
+  export class IsSameYear extends Operands.IsSameYear.Schema(BS.DateTimeUtcFromAllAcceptable, {}) {
     static readonly make = (i: Omit<typeof IsSameYear.Type, "_tag">) =>
       ({
         _tag: "isSameYear",
@@ -139,9 +106,9 @@ export namespace Ops {
         S.withDefaults({
           decoding: F.constFalse,
           constructor: F.constFalse,
-        }),
+        })
       ),
-    },
+    }
   ) {}
 
   // export class Between extends BetweenNumeric {}
@@ -161,7 +128,7 @@ export const { Input, Rule } = makeRule("date", {
     Ops.IsSameWeek,
     Ops.IsSameMonth,
     Ops.IsSameYear,
-    Ops.Between,
+    Ops.Between
   ),
 });
 
@@ -184,7 +151,7 @@ export const makeBase = (i: Omit<Input.Type, "type">) =>
 export const eq = (
   i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
-  },
+  }
 ) =>
   makeBase({
     ...i,
@@ -196,7 +163,7 @@ export const eq = (
 export const ne = (
   i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
-  },
+  }
 ) =>
   makeBase({
     ...i,
@@ -208,7 +175,7 @@ export const ne = (
 export const gt = (
   i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
-  },
+  }
 ) =>
   makeBase({
     ...i,
@@ -220,7 +187,7 @@ export const gt = (
 export const gte = (
   i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
-  },
+  }
 ) =>
   makeBase({
     ...i,
@@ -232,7 +199,7 @@ export const gte = (
 export const lt = (
   i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
-  },
+  }
 ) =>
   makeBase({
     ...i,
@@ -244,7 +211,7 @@ export const lt = (
 export const lte = (
   i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
-  },
+  }
 ) =>
   makeBase({
     ...i,
@@ -256,7 +223,7 @@ export const lte = (
 export const isSameHour = (
   i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
-  },
+  }
 ) =>
   makeBase({
     ...i,
@@ -268,7 +235,7 @@ export const isSameHour = (
 export const isSameDay = (
   i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
-  },
+  }
 ) =>
   makeBase({
     ...i,
@@ -280,7 +247,7 @@ export const isSameDay = (
 export const isSameWeek = (
   i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
-  },
+  }
 ) =>
   makeBase({
     ...i,
@@ -292,7 +259,7 @@ export const isSameWeek = (
 export const isSameMonth = (
   i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
-  },
+  }
 ) =>
   makeBase({
     ...i,
@@ -304,7 +271,7 @@ export const isSameMonth = (
 export const isSameYear = (
   i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
-  },
+  }
 ) =>
   makeBase({
     ...i,
@@ -320,7 +287,7 @@ export const between = (
       end: BS.DateTimeUtcFromAllAcceptable.Type;
     };
     inclusive?: boolean;
-  },
+  }
 ) =>
   makeBase({
     ...i,
@@ -333,8 +300,7 @@ export const between = (
 
 // — helper —
 const epochMs = (dt: DateTime.Utc) => DateTime.toDate(dt).getTime();
-const sameInstant = (a: DateTime.Utc, b: DateTime.Utc) =>
-  epochMs(a) === epochMs(b);
+const sameInstant = (a: DateTime.Utc, b: DateTime.Utc) => epochMs(a) === epochMs(b);
 
 /** Same hour (UTC) bucket */
 const sameUtcHour = (a: DateTime.Utc, b: DateTime.Utc): boolean => {
@@ -363,10 +329,7 @@ const sameUtcDay = (a: DateTime.Utc, b: DateTime.Utc): boolean => {
 const sameUtcMonth = (a: DateTime.Utc, b: DateTime.Utc): boolean => {
   const da = DateTime.toDate(a);
   const db = DateTime.toDate(b);
-  return (
-    da.getUTCFullYear() === db.getUTCFullYear() &&
-    da.getUTCMonth() === db.getUTCMonth()
-  );
+  return da.getUTCFullYear() === db.getUTCFullYear() && da.getUTCMonth() === db.getUTCMonth();
 };
 
 /** Same year (UTC) bucket */
@@ -385,20 +348,11 @@ const startOfIsoWeekMs = (u: DateTime.Utc): number => {
   // JS: 0=Sun..6=Sat → ISO: Mon=0..Sun=6
   const isoDow = (d.getUTCDay() + 6) % 7;
   // Go back to Monday 00:00:00.000
-  const start = Date.UTC(
-    d.getUTCFullYear(),
-    d.getUTCMonth(),
-    d.getUTCDate() - isoDow,
-    0,
-    0,
-    0,
-    0,
-  );
+  const start = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - isoDow, 0, 0, 0, 0);
   return start;
 };
 
-const sameIsoWeek = (a: DateTime.Utc, b: DateTime.Utc): boolean =>
-  startOfIsoWeekMs(a) === startOfIsoWeekMs(b);
+const sameIsoWeek = (a: DateTime.Utc, b: DateTime.Utc): boolean => startOfIsoWeekMs(a) === startOfIsoWeekMs(b);
 
 /**
  * DateRule.validate
@@ -406,10 +360,7 @@ const sameIsoWeek = (a: DateTime.Utc, b: DateTime.Utc): boolean =>
  * - Uses effect/DateTime for strict comparisons
  * - Uses UTC bucket normalization for “isSame*” operators
  */
-export const validate = (
-  rule: Input.Type,
-  value: string | number | Date | DateTime.Utc,
-): boolean => {
+export const validate = (rule: Input.Type, value: string | number | Date | DateTime.Utc): boolean => {
   const utc = S.decodeUnknownOption(BS.DateTimeUtcFromAllAcceptable)(value);
 
   return F.pipe(
@@ -442,19 +393,14 @@ export const validate = (
               const { start, end } = op.value;
               if (op.inclusive) {
                 // min <= v <= max
-                return (
-                  DateTime.greaterThanOrEqualTo(v, start) &&
-                  DateTime.lessThanOrEqualTo(v, end)
-                );
+                return DateTime.greaterThanOrEqualTo(v, start) && DateTime.lessThanOrEqualTo(v, end);
               }
               // min < v < max
-              return (
-                DateTime.greaterThan(v, start) && DateTime.lessThan(v, end)
-              );
+              return DateTime.greaterThan(v, start) && DateTime.lessThan(v, end);
             },
           }),
-          Match.orElse(() => false),
+          Match.orElse(() => false)
         ),
-    }),
+    })
   );
 };

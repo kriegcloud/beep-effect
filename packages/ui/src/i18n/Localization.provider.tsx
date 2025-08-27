@@ -24,10 +24,7 @@ export function LocalizationProvider({ children }: Props) {
   dayjs.locale(currentLang.adapterLocale);
 
   return (
-    <Provider
-      dateAdapter={AdapterDayjs}
-      adapterLocale={currentLang.adapterLocale}
-    >
+    <Provider dateAdapter={AdapterDayjs} adapterLocale={currentLang.adapterLocale}>
       {children}
     </Provider>
   );

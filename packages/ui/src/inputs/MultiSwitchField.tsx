@@ -31,25 +31,14 @@ type MultiSwitchProps = FormGroupProps & {
   };
 };
 
-function MultiSwitchField({
-  label,
-  options,
-  helperText,
-  slotProps,
-  ...other
-}: MultiSwitchProps) {
+function MultiSwitchField({ label, options, helperText, slotProps, ...other }: MultiSwitchProps) {
   const field = useFieldContext<Array<string>>();
 
   const getSelected = (selectedItems: string[], item: string) =>
     F.pipe(selectedItems.includes(item), (contains) =>
-      contains
-        ? A.filter(selectedItems, (value) => value !== item)
-        : [...selectedItems, item],
+      contains ? A.filter(selectedItems, (value) => value !== item) : [...selectedItems, item]
     );
-  const { error } = useStore(
-    field.form.store,
-    (state) => ({ error: state.errorMap.onSubmit?.[field.name] }) as const,
-  );
+  const { error } = useStore(field.form.store, (state) => ({ error: state.errorMap.onSubmit?.[field.name] }) as const);
   return (
     <FormControl component="fieldset" {...slotProps?.wrapper}>
       {label && (
@@ -74,11 +63,7 @@ function MultiSwitchField({
             control={
               <Switch
                 checked={field.state.value.includes(option.value)}
-                onChange={() =>
-                  field.handleChange(
-                    getSelected(field.state.value, option.value),
-                  )
-                }
+                onChange={() => field.handleChange(getSelected(field.state.value, option.value))}
                 {...slotProps?.switch}
                 slotProps={{
                   ...slotProps?.switch?.slotProps,
@@ -97,12 +82,7 @@ function MultiSwitchField({
         ))}
       </FormGroup>
 
-      <HelperText
-        {...slotProps?.helperText}
-        disableGutters
-        errorMessage={error}
-        helperText={helperText}
-      />
+      <HelperText {...slotProps?.helperText} disableGutters errorMessage={error} helperText={helperText} />
     </FormControl>
   );
 }

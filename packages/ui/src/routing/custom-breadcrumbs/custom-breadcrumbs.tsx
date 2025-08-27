@@ -61,10 +61,7 @@ export function CustomBreadcrumbs({
 
   const renderLinks = () =>
     slots?.breadcrumbs ?? (
-      <Breadcrumbs
-        separator={<BreadcrumbsSeparator />}
-        {...slotProps?.breadcrumbs}
-      >
+      <Breadcrumbs separator={<BreadcrumbsSeparator />} {...slotProps?.breadcrumbs}>
         {links.map((link, index) => (
           <BreadcrumbsLink
             key={link.name ?? index}
@@ -77,9 +74,7 @@ export function CustomBreadcrumbs({
       </Breadcrumbs>
     );
 
-  const renderMoreLinks = () => (
-    <MoreLinks links={moreLinks} {...slotProps?.moreLinks} />
-  );
+  const renderMoreLinks = () => <MoreLinks links={moreLinks} {...slotProps?.moreLinks} />;
 
   return (
     <BreadcrumbsRoot sx={sx} {...other}>

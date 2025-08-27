@@ -56,24 +56,16 @@ export type NavItemDataProps = Pick<NavItemStateProps, "disabled"> & {
   children?: NavItemDataProps[] | undefined;
 };
 
-export type NavItemProps = ButtonBaseProps &
-  NavItemDataProps &
-  NavItemStateProps &
-  NavItemOptionsProps;
+export type NavItemProps = ButtonBaseProps & NavItemDataProps & NavItemStateProps & NavItemOptionsProps;
 
 /**
  * List
  */
-export type NavListProps = Pick<
-  NavItemProps,
-  "render" | "depth" | "enabledRootRedirect"
-> & {
+export type NavListProps = Pick<NavItemProps, "render" | "depth" | "enabledRootRedirect"> & {
   cssVars?: CSSObject | undefined;
   data: NavItemDataProps;
   slotProps?: NavSlotProps | undefined;
-  checkPermissions?:
-    | ((allowedRoles?: NavItemProps["allowedRoles"] | undefined) => boolean)
-    | undefined;
+  checkPermissions?: ((allowedRoles?: NavItemProps["allowedRoles"] | undefined) => boolean) | undefined;
 };
 
 export type NavSubListProps = Omit<NavListProps, "data"> & {

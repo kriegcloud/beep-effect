@@ -5,16 +5,9 @@
 
 import * as F from "effect/Function";
 import * as O from "effect/Option";
-import type {
-  SemanticIssue,
-  TransitionDefinition,
-  ValidationResult,
-  WorkflowDefinition,
-} from "../model/types";
+import type { SemanticIssue, TransitionDefinition, ValidationResult, WorkflowDefinition } from "../model/types";
 /** Main semantic validator */
-export function validateWorkflow(
-  workflow: WorkflowDefinition,
-): ValidationResult {
+export function validateWorkflow(workflow: WorkflowDefinition): ValidationResult {
   const issues: SemanticIssue[] = [];
 
   // Step maps and duplicate detection
@@ -91,14 +84,11 @@ export function validateWorkflow(
 
   // Terminal path existence: at least one reachable terminal node
   if (idToIndex.has(workflow.initial) && reachable.size > 0) {
-    const hasTerminal = Array.from(reachable).some(
-      (id) => (outgoing.get(id) ?? []).length === 0,
-    );
+    const hasTerminal = Array.from(reachable).some((id) => (outgoing.get(id) ?? []).length === 0);
     if (!hasTerminal) {
       issues.push({
         code: "NO_TERMINAL_PATH",
-        message:
-          "No terminal path: all reachable steps have outgoing transitions",
+        message: "No terminal path: all reachable steps have outgoing transitions",
         severity: "error",
       });
     }
@@ -107,9 +97,7 @@ export function validateWorkflow(
   // Missing default transition warning per step with outbound edges
   for (const [from, list] of outgoing) {
     if (list.length === 0) continue;
-    const hasDefault = list.some(
-      (t) => t.when === undefined || t.when === true,
-    );
+    const hasDefault = list.some((t) => t.when === undefined || t.when === true);
     if (!hasDefault) {
       const idx = idToIndex.get(from);
       issues.push({
@@ -126,10 +114,7 @@ export function validateWorkflow(
   return { ok, issues };
 }
 
-function computeReachable(
-  initial: string,
-  outgoing: Map<string, TransitionDefinition[]>,
-): Set<string> {
+function computeReachable(initial: string, outgoing: Map<string, TransitionDefinition[]>): Set<string> {
   const visited = new Set<string>();
   const queue: string[] = [];
   if (initial) {

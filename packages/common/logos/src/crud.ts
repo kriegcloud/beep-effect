@@ -32,10 +32,7 @@ import type {
  * @return {*}  {(AnyNodeOrUndefined)}
  */
 
-export const findAnyById = (
-  group: RootOrRuleGroup,
-  id: NodeId.Type,
-): AnyNodeOrUndefined => {
+export const findAnyById = (group: RootOrRuleGroup, id: NodeId.Type): AnyNodeOrUndefined => {
   if (group.id === id) {
     return group;
   }
@@ -46,22 +43,18 @@ export const findAnyById = (
     if (fast !== undefined) return fast;
   }
 
-  return A.reduce(
-    group.rules,
-    undefined as AnyNodeOrUndefined,
-    (foundGroup, ruleOrGroup) => {
-      if (foundGroup) {
-        return foundGroup;
-      }
-      if (ruleOrGroup.id === id) {
-        return ruleOrGroup;
-      }
-      if (ruleOrGroup.node === "group") {
-        return findAnyById(ruleOrGroup, id);
-      }
+  return A.reduce(group.rules, undefined as AnyNodeOrUndefined, (foundGroup, ruleOrGroup) => {
+    if (foundGroup) {
       return foundGroup;
-    },
-  );
+    }
+    if (ruleOrGroup.id === id) {
+      return ruleOrGroup;
+    }
+    if (ruleOrGroup.node === "group") {
+      return findAnyById(ruleOrGroup, id);
+    }
+    return foundGroup;
+  });
 };
 
 /**
@@ -71,33 +64,12 @@ export const findAnyById = (
  * @param {NodeId.Type} id
  * @return {*}  {(RuleOrUndefined)}
  */
-export const findRuleById = (
-  group: RootOrRuleGroup,
-  id: NodeId.Type,
-): RuleOrUndefined =>
+export const findRuleById = (group: RootOrRuleGroup, id: NodeId.Type): RuleOrUndefined =>
   group.node === "root"
     ? (() => {
         const fast = findRuleByIdFast(group, id);
         if (fast !== undefined) return fast;
-        return A.reduce(
-          group.rules,
-          undefined as RuleOrUndefined,
-          (foundRule, ruleOrGroup) => {
-            if (foundRule) {
-              return foundRule;
-            }
-
-            if (ruleOrGroup.node === "rule") {
-              return ruleOrGroup.id === id ? ruleOrGroup : undefined;
-            }
-            return findRuleById(ruleOrGroup, id);
-          },
-        );
-      })()
-    : A.reduce(
-        group.rules,
-        undefined as RuleOrUndefined,
-        (foundRule, ruleOrGroup) => {
+        return A.reduce(group.rules, undefined as RuleOrUndefined, (foundRule, ruleOrGroup) => {
           if (foundRule) {
             return foundRule;
           }
@@ -106,8 +78,18 @@ export const findRuleById = (
             return ruleOrGroup.id === id ? ruleOrGroup : undefined;
           }
           return findRuleById(ruleOrGroup, id);
-        },
-      );
+        });
+      })()
+    : A.reduce(group.rules, undefined as RuleOrUndefined, (foundRule, ruleOrGroup) => {
+        if (foundRule) {
+          return foundRule;
+        }
+
+        if (ruleOrGroup.node === "rule") {
+          return ruleOrGroup.id === id ? ruleOrGroup : undefined;
+        }
+        return findRuleById(ruleOrGroup, id);
+      });
 
 /**
  * Find a group by id.
@@ -116,10 +98,7 @@ export const findRuleById = (
  * @param {string} id
  * @return {*}  {(RootGroup | RuleGroup | undefined)}
  */
-export function findGroupById(
-  group: RootOrRuleGroup,
-  id: string,
-): RootOrRuleGroupOrUndefined {
+export function findGroupById(group: RootOrRuleGroup, id: string): RootOrRuleGroupOrUndefined {
   if (group.id === id) {
     return group;
   }
@@ -127,19 +106,15 @@ export function findGroupById(
     const fast = findGroupByIdFast(group, id);
     if (fast !== undefined) return fast;
   }
-  return A.reduce(
-    group.rules,
-    undefined as RootOrRuleGroupOrUndefined,
-    (foundGroup, ruleOrGroup) => {
-      if (foundGroup || ruleOrGroup.node === "rule") {
-        return foundGroup;
-      }
-      if (ruleOrGroup.id === id) {
-        return ruleOrGroup;
-      }
-      return findGroupById(ruleOrGroup, id);
-    },
-  );
+  return A.reduce(group.rules, undefined as RootOrRuleGroupOrUndefined, (foundGroup, ruleOrGroup) => {
+    if (foundGroup || ruleOrGroup.node === "rule") {
+      return foundGroup;
+    }
+    if (ruleOrGroup.id === id) {
+      return ruleOrGroup;
+    }
+    return findGroupById(ruleOrGroup, id);
+  });
 }
 
 /**
@@ -151,10 +126,7 @@ export function findGroupById(
  * @param {string} id
  * @return {*}  {T}
  */
-export function removeAllById<T extends RootOrRuleGroup>(
-  group: T,
-  id: NodeId.Type,
-): T {
+export function removeAllById<T extends RootOrRuleGroup>(group: T, id: NodeId.Type): T {
   for (let i = group.rules.length - 1; i >= 0; i--) {
     const child = O.fromNullable(group.rules[i]).pipe(O.getOrThrow);
     if (child.id === id) {
@@ -178,11 +150,7 @@ export function removeAllById<T extends RootOrRuleGroup>(
  * @param {RuleInput.Type} values
  * @return {*}  {(RuleOrUndefined)}
  */
-export const updateRuleById = (
-  root: RootGroup.Type,
-  id: NodeId.Type,
-  values: RuleInput.Type,
-): RuleOrUndefined => {
+export const updateRuleById = (root: RootGroup.Type, id: NodeId.Type, values: RuleInput.Type): RuleOrUndefined => {
   const foundRule = findRuleById(root, id);
   if (!foundRule) {
     return;
@@ -228,7 +196,7 @@ export const updateRuleById = (
 export const updateGroupById = (
   root: RootGroup.Type,
   id: NodeId.Type,
-  values: GroupInput.Type,
+  values: GroupInput.Type
 ): RootOrRuleGroupOrUndefined => {
   const foundGroup = findGroupById(root, id);
   if (!foundGroup) {
@@ -275,10 +243,7 @@ export const updateGroupById = (
  * @param {RuleInput.Type} newRule
  * @return {*}  {Rule.Type}
  */
-export function addRuleToGroup(
-  parent: RootOrRuleGroup,
-  newRule: RuleInput.Type,
-): Rule.Type {
+export function addRuleToGroup(parent: RootOrRuleGroup, newRule: RuleInput.Type): Rule.Type {
   const rule = F.pipe(
     {
       ...newRule,
@@ -287,7 +252,7 @@ export function addRuleToGroup(
       node: "rule",
     },
     S.encodeSync(Rule),
-    S.decodeSync(Rule),
+    S.decodeSync(Rule)
   );
   parent.rules.push(rule);
   return rule;
@@ -301,10 +266,7 @@ export function addRuleToGroup(
  * @param {GroupInput.Type} newGroup
  * @return {*}  {RuleGroup.Type}
  */
-export function addGroup(
-  parent: RootOrRuleGroup,
-  newGroup: GroupInput.Type,
-): RuleGroup.Type {
+export function addGroup(parent: RootOrRuleGroup, newGroup: GroupInput.Type): RuleGroup.Type {
   const group = S.decodeSync(RuleGroup)({
     ...newGroup,
     id: uuid(),
@@ -324,13 +286,8 @@ export function addGroup(
  * @param {RuleOrRuleGroupInput} newRuleOrRuleGroup
  * @return {*}  {RuleOrRuleGroup}
  */
-export function addAnyToGroup(
-  parent: RootOrRuleGroup,
-  newRuleOrRuleGroup: RuleOrRuleGroupInput,
-): RuleOrRuleGroup {
-  const isNewRule = (
-    ruleOrGroup: RuleOrRuleGroupInput,
-  ): ruleOrGroup is RuleInput.Type => S.is(RuleInput)(ruleOrGroup);
+export function addAnyToGroup(parent: RootOrRuleGroup, newRuleOrRuleGroup: RuleOrRuleGroupInput): RuleOrRuleGroup {
+  const isNewRule = (ruleOrGroup: RuleOrRuleGroupInput): ruleOrGroup is RuleInput.Type => S.is(RuleInput)(ruleOrGroup);
 
   if (isNewRule(newRuleOrRuleGroup)) {
     return addRuleToGroup(parent, newRuleOrRuleGroup);
@@ -349,11 +306,8 @@ export function addAnyToGroup(
  */
 export const addManyToGroup = (
   parent: RootOrRuleGroup,
-  newRulesOrGroups: Array<RuleOrRuleGroupInput>,
-): Array<RuleOrRuleGroup> =>
-  A.map(newRulesOrGroups, (newRuleOrRuleGroup) =>
-    addAnyToGroup(parent, newRuleOrRuleGroup),
-  );
+  newRulesOrGroups: Array<RuleOrRuleGroupInput>
+): Array<RuleOrRuleGroup> => A.map(newRulesOrGroups, (newRuleOrRuleGroup) => addAnyToGroup(parent, newRuleOrRuleGroup));
 
 /**
  * Add many rules to a group.
@@ -363,10 +317,7 @@ export const addManyToGroup = (
  * @param {Array<RuleInput.Type>} newRules
  * @return {*}  {Array<Rule.Type>}
  */
-export const addRulesToGroup = (
-  parent: RootOrRuleGroup,
-  newRules: Array<RuleInput.Type>,
-): Array<Rule.Type> =>
+export const addRulesToGroup = (parent: RootOrRuleGroup, newRules: Array<RuleInput.Type>): Array<Rule.Type> =>
   A.map(newRules, (newRule) => addRuleToGroup(parent, newRule));
 
 /**
@@ -377,8 +328,5 @@ export const addRulesToGroup = (
  * @param {Array<GroupInput.Type>} newGroups
  * @return {*}  {Array<RuleGroup.Type>}
  */
-export const addGroups = (
-  parent: RootOrRuleGroup,
-  newGroups: Array<GroupInput.Type>,
-): Array<RuleGroup.Type> =>
+export const addGroups = (parent: RootOrRuleGroup, newGroups: Array<GroupInput.Type>): Array<RuleGroup.Type> =>
   A.map(newGroups, (newGroup) => addGroup(parent, newGroup));

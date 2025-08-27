@@ -221,9 +221,7 @@ describe("DateRule.validate", () => {
       field,
       value: u("2025-04-01T00:00:00Z"),
     });
-    expect(
-      DateRule.validate(rule, new Date("2025-04-01T00:00:00Z")),
-    ).toBeTruthy();
+    expect(DateRule.validate(rule, new Date("2025-04-01T00:00:00Z"))).toBeTruthy();
   });
 
   test("decoder — value as DateTime.Utc", () => {

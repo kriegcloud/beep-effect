@@ -13,22 +13,13 @@ type BackToTopProps = FabProps & {
   renderButton?: (isVisible?: boolean) => React.ReactElement;
 };
 
-export function BackToTopButton({
-  sx,
-  isDebounce,
-  renderButton,
-  scrollThreshold = "90%",
-  ...other
-}: BackToTopProps) {
+export function BackToTopButton({ sx, isDebounce, renderButton, scrollThreshold = "90%", ...other }: BackToTopProps) {
   const { onBackToTop, isVisible } = useBackToTop(scrollThreshold, isDebounce);
 
   if (renderButton) {
-    return cloneElement(
-      renderButton(isVisible) as React.ReactElement<{ onClick?: () => void }>,
-      {
-        onClick: onBackToTop,
-      },
-    );
+    return cloneElement(renderButton(isVisible) as React.ReactElement<{ onClick?: () => void }>, {
+      onClick: onBackToTop,
+    });
   }
 
   return (

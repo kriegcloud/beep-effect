@@ -58,12 +58,9 @@ export namespace Ops {
       }) as const;
   }
 
-  export class NotContains extends Operands.NotContains.Schema(
-    S.NonEmptyString,
-    {
-      ignoreCase: IgnoreCase,
-    },
-  ) {
+  export class NotContains extends Operands.NotContains.Schema(S.NonEmptyString, {
+    ignoreCase: IgnoreCase,
+  }) {
     static readonly make = (i: Omit<typeof NotContains.Type, "_tag">) =>
       ({
         _tag: "notContains",
@@ -87,15 +84,7 @@ export namespace Ops {
 
 export const { Input, Rule } = makeRule("string", {
   field: S.NonEmptyString,
-  op: S.Union(
-    Ops.Eq,
-    Ops.Neq,
-    Ops.StartsWith,
-    Ops.EndsWith,
-    Ops.Contains,
-    Ops.NotContains,
-    Ops.Matches,
-  ),
+  op: S.Union(Ops.Eq, Ops.Neq, Ops.StartsWith, Ops.EndsWith, Ops.Contains, Ops.NotContains, Ops.Matches),
 });
 
 export namespace Input {
@@ -114,9 +103,7 @@ export const makeBase = (i: Omit<Input.Type, "type">) =>
     type: "string",
   });
 
-export const eq = (
-  i: Pick<Input.Type, "field"> & { value: string; ignoreCase?: boolean },
-) =>
+export const eq = (i: Pick<Input.Type, "field"> & { value: string; ignoreCase?: boolean }) =>
   makeBase({
     ...i,
     op: Ops.Eq.make({
@@ -125,9 +112,7 @@ export const eq = (
     }),
   });
 
-export const ne = (
-  i: Pick<Input.Type, "field"> & { value: string; ignoreCase?: boolean },
-) =>
+export const ne = (i: Pick<Input.Type, "field"> & { value: string; ignoreCase?: boolean }) =>
   makeBase({
     ...i,
     op: Ops.Neq.make({
@@ -136,9 +121,7 @@ export const ne = (
     }),
   });
 
-export const startsWith = (
-  i: Pick<Input.Type, "field"> & { value: string; ignoreCase?: boolean },
-) =>
+export const startsWith = (i: Pick<Input.Type, "field"> & { value: string; ignoreCase?: boolean }) =>
   makeBase({
     ...i,
     op: Ops.StartsWith.make({
@@ -147,9 +130,7 @@ export const startsWith = (
     }),
   });
 
-export const endsWith = (
-  i: Pick<Input.Type, "field"> & { value: string; ignoreCase?: boolean },
-) =>
+export const endsWith = (i: Pick<Input.Type, "field"> & { value: string; ignoreCase?: boolean }) =>
   makeBase({
     ...i,
     op: Ops.EndsWith.make({
@@ -158,9 +139,7 @@ export const endsWith = (
     }),
   });
 
-export const contains = (
-  i: Pick<Input.Type, "field"> & { value: string; ignoreCase?: boolean },
-) =>
+export const contains = (i: Pick<Input.Type, "field"> & { value: string; ignoreCase?: boolean }) =>
   makeBase({
     ...i,
     op: Ops.Contains.make({
@@ -169,9 +148,7 @@ export const contains = (
     }),
   });
 
-export const notContains = (
-  i: Pick<Input.Type, "field"> & { value: string; ignoreCase?: boolean },
-) =>
+export const notContains = (i: Pick<Input.Type, "field"> & { value: string; ignoreCase?: boolean }) =>
   makeBase({
     ...i,
     op: Ops.NotContains.make({
@@ -180,9 +157,7 @@ export const notContains = (
     }),
   });
 
-export const matches = (
-  i: Pick<Input.Type, "field"> & { value: BS.RegexFromString.Type },
-) =>
+export const matches = (i: Pick<Input.Type, "field"> & { value: BS.RegexFromString.Type }) =>
   makeBase({
     ...i,
     op: Ops.Matches.make({
@@ -215,10 +190,10 @@ export const validate = (rule: Input.Type, value: string) =>
               startsWith: () => caseValue.startsWith(caseRuleValue),
               endsWith: () => caseValue.endsWith(caseRuleValue),
             }),
-            Match.orElse(() => false),
-          ),
+            Match.orElse(() => false)
+          )
       );
     }),
     Match.tag("matches", (r) => r.value.test(value)),
-    Match.orElse(() => false),
+    Match.orElse(() => false)
   );

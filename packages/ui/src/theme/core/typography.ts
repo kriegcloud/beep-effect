@@ -1,8 +1,5 @@
 import { pxToRem, setFont } from "@beep/ui/utils";
-import type {
-  Breakpoint,
-  TypographyVariantsOptions,
-} from "@mui/material/styles";
+import type { Breakpoint, TypographyVariantsOptions } from "@mui/material/styles";
 
 import { createTheme } from "@mui/material/styles";
 
@@ -27,10 +24,7 @@ export type TypographyVariantsExtend = {
  * @returns CSS media query styles for responsive font sizes
  */
 type FontSizesInput = Partial<Record<Breakpoint, number>>;
-type FontSizesResult = Record<
-  string,
-  { fontSize: React.CSSProperties["fontSize"] }
->;
+type FontSizesResult = Record<string, { fontSize: React.CSSProperties["fontSize"] }>;
 
 function responsiveFontSizes(sizes: FontSizesInput): FontSizesResult {
   const {

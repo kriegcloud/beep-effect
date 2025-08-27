@@ -43,14 +43,14 @@ export function useSetState<T>(initialState?: T): UseSetStateReturn<T> {
     (fieldName: keyof T, updateValue: T[keyof T]) => {
       updateState({ [fieldName]: updateValue } as Partial<T>);
     },
-    [updateState],
+    [updateState]
   );
 
   const resetState = useCallback(
     (defaultState?: T) => {
       setState(defaultState ?? initialState);
     },
-    [initialState],
+    [initialState]
   );
 
   return {

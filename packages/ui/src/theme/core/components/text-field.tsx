@@ -1,20 +1,12 @@
 import { rgbaFromChannel } from "@beep/ui/utils";
-import type {
-  FilledInputClasses,
-  FilledInputProps,
-} from "@mui/material/FilledInput";
+import type { FilledInputClasses, FilledInputProps } from "@mui/material/FilledInput";
 import { filledInputClasses } from "@mui/material/FilledInput";
 import { inputAdornmentClasses } from "@mui/material/InputAdornment";
 import type { InputBaseClasses } from "@mui/material/InputBase";
 import { inputBaseClasses } from "@mui/material/InputBase";
 import type { OutlinedInputClasses } from "@mui/material/OutlinedInput";
 import { outlinedInputClasses } from "@mui/material/OutlinedInput";
-import type {
-  Components,
-  ComponentsVariants,
-  CSSObject,
-  Theme,
-} from "@mui/material/styles";
+import type { Components, ComponentsVariants, CSSObject, Theme } from "@mui/material/styles";
 import type { PickerTextFieldOwnerState } from "@mui/x-date-pickers/models";
 
 // ----------------------------------------------------------------------
@@ -26,19 +18,13 @@ type InputSizeProps = Pick<FilledInputProps, "size" | "hiddenLabel"> & {
 };
 
 type InputBaseVariants = ComponentsVariants<Theme>["MuiInputBase"];
-type PickersInputBaseVariants =
-  | InputBaseVariants
-  | ComponentsVariants<Theme>["MuiPickersInputBase"];
+type PickersInputBaseVariants = InputBaseVariants | ComponentsVariants<Theme>["MuiPickersInputBase"];
 
 type OutlinedInputVariants = ComponentsVariants<Theme>["MuiOutlinedInput"];
-type PickersOutlinedInputVariants =
-  | OutlinedInputVariants
-  | ComponentsVariants<Theme>["MuiPickersOutlinedInput"];
+type PickersOutlinedInputVariants = OutlinedInputVariants | ComponentsVariants<Theme>["MuiPickersOutlinedInput"];
 
 type FilledInputVariants = ComponentsVariants<Theme>["MuiFilledInput"];
-type PickersFilledInputVariants =
-  | FilledInputVariants
-  | ComponentsVariants<Theme>["MuiPickersFilledInput"];
+type PickersFilledInputVariants = FilledInputVariants | ComponentsVariants<Theme>["MuiPickersFilledInput"];
 
 export const INPUT_TYPOGRAPHY = {
   fontSize: { base: 15, responsive: 16 },
@@ -62,10 +48,7 @@ export const INPUT_PADDING = {
   },
 };
 
-export function getInputTypography(
-  theme: Theme,
-  keys: Array<"fontSize" | "height" | "lineHeight">,
-): CSSObject {
+export function getInputTypography(theme: Theme, keys: Array<"fontSize" | "height" | "lineHeight">): CSSObject {
   const { fontSize, lineHeight } = INPUT_TYPOGRAPHY;
 
   const baseStyles = {
@@ -82,9 +65,7 @@ export function getInputTypography(
 
   return {
     ...Object.fromEntries(keys.map((k) => [k, baseStyles[k]])),
-    [theme.breakpoints.down("sm")]: Object.fromEntries(
-      keys.map((k) => [k, responsiveStyles[k]]),
-    ),
+    [theme.breakpoints.down("sm")]: Object.fromEntries(keys.map((k) => [k, responsiveStyles[k]])),
   };
 }
 
@@ -92,11 +73,7 @@ export function getInputTypography(
  * 🧩 InputBase
  * **********************************************************************/
 export const inputBaseStyles = {
-  root: (
-    context: InputContext,
-    theme: Theme,
-    classes: Partial<InputBaseClasses>,
-  ): CSSObject => ({
+  root: (context: InputContext, theme: Theme, classes: Partial<InputBaseClasses>): CSSObject => ({
     "--disabled-color": theme.vars.palette.action.disabled,
     ...getInputTypography(theme, ["lineHeight"]),
     [`&.${classes.disabled}`]: {
@@ -144,8 +121,7 @@ export const inputBaseVariants = {
       style: { ...INPUT_PADDING.base.medium },
     },
     {
-      props: ({ size, ownerState }: InputSizeProps) =>
-        (size || ownerState?.inputSize) === "small",
+      props: ({ size, ownerState }: InputSizeProps) => (size || ownerState?.inputSize) === "small",
       style: { ...INPUT_PADDING.base.small },
     },
   ],
@@ -237,8 +213,7 @@ export const outlinedInputVariants = {
       style: { ...INPUT_PADDING.outlined.medium },
     },
     {
-      props: ({ size, ownerState }: InputSizeProps) =>
-        (size || ownerState?.inputSize) === "small",
+      props: ({ size, ownerState }: InputSizeProps) => (size || ownerState?.inputSize) === "small",
       style: { ...INPUT_PADDING.outlined.small },
     },
   ],
@@ -267,15 +242,9 @@ const MuiOutlinedInput: Components<Theme>["MuiOutlinedInput"] = {
 export const filledInputStyles = {
   root: (theme: Theme, classes: Partial<FilledInputClasses>): CSSObject => {
     const baseBg = rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.08);
-    const hoverBg = rgbaFromChannel(
-      theme.vars.palette.grey["500Channel"],
-      0.16,
-    );
+    const hoverBg = rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.16);
     const errorBg = rgbaFromChannel(theme.vars.palette.error.mainChannel, 0.08);
-    const errorHoverBg = rgbaFromChannel(
-      theme.vars.palette.error.mainChannel,
-      0.16,
-    );
+    const errorHoverBg = rgbaFromChannel(theme.vars.palette.error.mainChannel, 0.16);
     const disabledBg = theme.vars.palette.action.disabledBackground;
 
     return {
@@ -306,8 +275,7 @@ export const filledInputVariants = {
       style: { ...INPUT_PADDING.filled.mediumHidden },
     },
     {
-      props: (props) =>
-        !!props.multiline && !!props.hiddenLabel && props.size === "small",
+      props: (props) => !!props.multiline && !!props.hiddenLabel && props.size === "small",
       style: { ...INPUT_PADDING.filled.smallHidden },
     },
   ],
@@ -317,8 +285,7 @@ export const filledInputVariants = {
       style: { ...INPUT_PADDING.filled.medium },
     },
     {
-      props: ({ size, ownerState }: InputSizeProps) =>
-        (size || ownerState?.inputSize) === "small",
+      props: ({ size, ownerState }: InputSizeProps) => (size || ownerState?.inputSize) === "small",
       style: { ...INPUT_PADDING.filled.small },
     },
     {

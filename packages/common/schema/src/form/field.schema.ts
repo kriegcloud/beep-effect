@@ -1,30 +1,14 @@
 import * as S from "effect/Schema";
 
 export type FormFieldSchema = {
-  readonly type?:
-    | "object"
-    | "string"
-    | "number"
-    | "integer"
-    | "boolean"
-    | "array"
-    | "null"
-    | undefined;
+  readonly type?: "object" | "string" | "number" | "integer" | "boolean" | "array" | "null" | undefined;
   readonly title?: string | undefined;
   readonly description?: string | undefined;
   readonly default?: unknown | undefined;
   readonly minLength?: number | undefined;
   readonly maxLength?: number | undefined;
   readonly pattern?: string | undefined;
-  readonly format?:
-    | "email"
-    | "date"
-    | "time"
-    | "date-time"
-    | "uri"
-    | "uuid"
-    | string
-    | undefined;
+  readonly format?: "email" | "date" | "time" | "date-time" | "uri" | "uuid" | string | undefined;
   readonly minimum?: number | undefined;
   readonly maximum?: number | undefined;
   readonly exclusiveMinimum?: number | undefined;
@@ -51,17 +35,7 @@ export type FormFieldSchema = {
 };
 
 export const FormFieldSchema = S.Struct({
-  type: S.optional(
-    S.Literal(
-      "object",
-      "string",
-      "number",
-      "integer",
-      "boolean",
-      "array",
-      "null",
-    ),
-  ),
+  type: S.optional(S.Literal("object", "string", "number", "integer", "boolean", "array", "null")),
   title: S.optional(S.String),
   description: S.optional(S.String),
   default: S.optional(S.Unknown),
@@ -70,12 +44,7 @@ export const FormFieldSchema = S.Struct({
   minLength: S.optional(S.Number),
   maxLength: S.optional(S.Number),
   pattern: S.optional(S.String),
-  format: S.optional(
-    S.Union(
-      S.Literal("email", "date", "time", "date-time", "uri", "uuid"),
-      S.String,
-    ),
-  ),
+  format: S.optional(S.Union(S.Literal("email", "date", "time", "date-time", "uri", "uuid"), S.String)),
 
   // Number
   minimum: S.optional(S.Number),
@@ -95,7 +64,7 @@ export const FormFieldSchema = S.Struct({
     S.Record({
       key: S.String,
       value: S.Object,
-    }),
+    })
   ),
   required: S.optional(S.Array(S.String)),
   additionalProperties: S.optional(S.Union(S.Boolean, S.Object)),

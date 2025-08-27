@@ -2,11 +2,7 @@ import type { Get, Paths } from "type-fest";
 
 const FORBIDDEN = new Set(["__proto__", "prototype", "constructor"]);
 
-export function getAt(
-  obj: unknown,
-  path: string | Array<string | number>,
-  fallback?: unknown,
-) {
+export function getAt(obj: unknown, path: string | Array<string | number>, fallback?: unknown) {
   const parts = Array.isArray(path)
     ? path
     : path
@@ -28,7 +24,7 @@ type BracketPath<T> = Paths<T, { bracketNotation: true }>; // only strings like 
 export function getTyped<T extends object, const P extends BracketPath<T>>(
   obj: T,
   path: P,
-  fallback?: unknown,
+  fallback?: unknown
 ): Get<T, P> {
   // your getAt handles bracket syntax already: 'a[0]' -> 'a.0'
   return getAt(obj, path, fallback) as Get<T, P>;

@@ -2,13 +2,11 @@ import { BS } from "@beep/schema";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import type { RuleSetOrGroup } from "../types";
+import type { RootOrGroup } from "../types";
 import type { AnyOperator } from "./Operands";
 
 export namespace FingerPrint {
-  const fingerprintOperator = (
-    op: AnyOperator.Type,
-  ): string | readonly unknown[] => {
+  const fingerprintOperator = (op: AnyOperator.Type): string | readonly unknown[] => {
     const toMs = (x: unknown): number | null => {
       const d = new Date(x as any);
       const t = d.getTime();
@@ -46,10 +44,7 @@ export namespace FingerPrint {
         return [op._tag];
       }
       case "matches": {
-        if (
-          P.hasProperty("value")(op) &&
-          P.and(P.hasProperty("source"), P.hasProperty("flags"))(op.value)
-        ) {
+        if (P.hasProperty("value")(op) && P.and(P.hasProperty("source"), P.hasProperty("flags"))(op.value)) {
           return [op._tag, op.value.source, op.value.flags] as const;
         }
         console.error("Unknown matches operand: ", op);
@@ -97,9 +92,9 @@ export namespace FingerPrint {
    * Includes logical ops, and full rule payloads that affect evaluation.
    * Excludes volatile rule ids (id, parentId). Serializes RegExp deterministically.
    */
-  export const make = (u: RuleSetOrGroup): string => {
+  export const make = (u: RootOrGroup): string => {
     const parts: Array<string> = [];
-    const walk = (node: RuleSetOrGroup): void => {
+    const walk = (node: RootOrGroup): void => {
       parts.push(`U:${node.logicalOp}`);
       for (let i = 0; i < node.rules.length; i++) {
         const child = O.fromNullable(node.rules[i]).pipe(O.getOrThrow);

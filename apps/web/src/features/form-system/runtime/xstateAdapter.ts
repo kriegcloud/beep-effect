@@ -13,10 +13,7 @@ import type {
   WorkflowDefinition,
 } from "../model/types";
 import { validateStepData } from "../validation/schema";
-export type EvaluateFn = (
-  rule: JsonLogicRule | undefined,
-  ctx: EvaluationContext,
-) => boolean;
+export type EvaluateFn = (rule: JsonLogicRule | undefined, ctx: EvaluationContext) => boolean;
 
 export type NextEvent = { type: "NEXT"; context: EvaluationContext };
 export type BackEvent = { type: "BACK" };
@@ -49,10 +46,7 @@ export type Events =
   | ResetEvent
   | LoadSnapshotEvent;
 
-export type ActorRegistry = Record<
-  string,
-  (input?: unknown) => Promise<JsonValue>
->;
+export type ActorRegistry = Record<string, (input?: unknown) => Promise<JsonValue>>;
 
 export interface WorkflowMachineContext {
   history: string[];
@@ -76,7 +70,7 @@ export function buildMachine(
   def: WorkflowDefinition,
   evaluate: EvaluateFn,
   actors?: ActorRegistry,
-  options?: { snapshot?: Snapshot },
+  options?: { snapshot?: Snapshot }
 ) {
   const outgoing = groupOutgoing(def.transitions);
 
@@ -95,7 +89,7 @@ export function buildMachine(
           id,
           assignKey,
           result,
-        } satisfies RunSuccessEvent),
+        } satisfies RunSuccessEvent)
       )
       .catch((error) =>
         self.send({
@@ -103,7 +97,7 @@ export function buildMachine(
           id,
           assignKey,
           error,
-        } satisfies RunFailureEvent),
+        } satisfies RunFailureEvent)
       );
   };
 
@@ -111,27 +105,18 @@ export function buildMachine(
     RUN: { actions: runActor },
     RUN_SUCCESS: {
       actions: assign({
-        external: (args: {
-          context: WorkflowMachineContext;
-          event: Events;
-        }) => {
+        external: (args: { context: WorkflowMachineContext; event: Events }) => {
           const { context, event } = args;
           assertEvent(event, "RUN_SUCCESS");
           const e = event as RunSuccessEvent;
           const key = e.assignKey ?? e.id;
-          return { ...(context.external ?? {}), [key]: e.result } as Record<
-            string,
-            JsonValue
-          >;
+          return { ...(context.external ?? {}), [key]: e.result } as Record<string, JsonValue>;
         },
       }),
     },
     RUN_FAILURE: {
       actions: assign({
-        external: (args: {
-          context: WorkflowMachineContext;
-          event: Events;
-        }) => {
+        external: (args: { context: WorkflowMachineContext; event: Events }) => {
           const { context, event } = args;
           assertEvent(event, "RUN_FAILURE");
           const e = event as RunFailureEvent;
@@ -145,10 +130,7 @@ export function buildMachine(
                   e.error === null
                 ? (e.error as JsonValue)
                 : String(e.error);
-          return { ...(context.external ?? {}), [key]: value } as Record<
-            string,
-            JsonValue
-          >;
+          return { ...(context.external ?? {}), [key]: value } as Record<string, JsonValue>;
         },
       }),
     },
@@ -161,10 +143,7 @@ export function buildMachine(
       target: `#${s.id}`,
       guard: (args: { context: WorkflowMachineContext }) => {
         const { context } = args;
-        return (
-          Array.isArray(context.history) &&
-          context.history[context.history.length - 1] === s.id
-        );
+        return Array.isArray(context.history) && context.history[context.history.length - 1] === s.id;
       },
       actions: assign({
         history: (args: { context: WorkflowMachineContext }) => {
@@ -183,9 +162,7 @@ export function buildMachine(
     } else {
       // Sort by priority (lower first), undefined last
       const ordered = [...outs].sort(
-        (a, b) =>
-          (a.priority ?? Number.POSITIVE_INFINITY) -
-          (b.priority ?? Number.POSITIVE_INFINITY),
+        (a, b) => (a.priority ?? Number.POSITIVE_INFINITY) - (b.priority ?? Number.POSITIVE_INFINITY)
       );
       states[step.id] = {
         id: step.id,
@@ -194,26 +171,18 @@ export function buildMachine(
           NEXT: ordered.map((t) => ({
             target: `#${t.to}`,
             // Validate current step data before evaluating rule; only then allow transition
-            guard: (args: {
-              context: WorkflowMachineContext;
-              event: Events;
-            }) => {
+            guard: (args: { context: WorkflowMachineContext; event: Events }) => {
               const { context, event } = args;
               assertEvent(event, "NEXT");
               const ev = event as NextEvent;
-              const valid = validateStepData(
-                step.schema,
-                ev.context.currentStepAnswers,
-              ).valid as boolean;
+              const valid = validateStepData(step.schema, ev.context.currentStepAnswers).valid as boolean;
               if (!valid) return false;
               const mergedCtx: EvaluationContext = {
                 answers: {
                   ...(context.answers ?? {}),
                   ...(ev.context.answers ?? {}),
                 } as Record<string, JsonObject>,
-                currentStepAnswers: ev.context.currentStepAnswers as
-                  | JsonObject
-                  | undefined,
+                currentStepAnswers: ev.context.currentStepAnswers as JsonObject | undefined,
                 externalContext: {
                   ...(ev.context.externalContext ?? {}),
                   ...(context.external ?? {}),
@@ -226,15 +195,11 @@ export function buildMachine(
                 const { context } = args;
                 return [...(context.history ?? []), step.id];
               },
-              answers: (args: {
-                context: WorkflowMachineContext;
-                event: Events;
-              }) => {
+              answers: (args: { context: WorkflowMachineContext; event: Events }) => {
                 const { context, event } = args;
                 assertEvent(event, "NEXT");
                 const ev = event as NextEvent;
-                const curr = (ev.context.currentStepAnswers ??
-                  {}) as JsonObject;
+                const curr = (ev.context.currentStepAnswers ?? {}) as JsonObject;
                 return {
                   ...(context.answers ?? {}),
                   [step.id]: curr,
@@ -273,7 +238,7 @@ export function buildMachine(
               history: [],
               external: {},
               answers: {},
-            }) satisfies WorkflowMachineContext,
+            }) satisfies WorkflowMachineContext
         ),
       },
       LOAD_SNAPSHOT: [
@@ -283,13 +248,7 @@ export function buildMachine(
             const { event } = args;
             return event.snapshot.value === s.id;
           },
-          actions: assign<
-            WorkflowMachineContext,
-            LoadSnapshotEvent,
-            undefined,
-            Events,
-            ProvidedActor
-          >((args) => {
+          actions: assign<WorkflowMachineContext, LoadSnapshotEvent, undefined, Events, ProvidedActor>((args) => {
             const { event } = args;
             return event.snapshot.context;
           }),

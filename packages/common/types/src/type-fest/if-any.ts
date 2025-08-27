@@ -18,8 +18,4 @@ type ShouldBeBar = IfAny<'not any', 'foo', 'bar'>;
 
 @group type-fest
 */
-export type IfAny<
-  T,
-  TypeIfAny = true,
-  TypeIfNotAny = false,
-> = IsAny<T> extends true ? TypeIfAny : TypeIfNotAny;
+export type IfAny<T, TypeIfAny = true, TypeIfNotAny = false> = IsAny<T> extends true ? TypeIfAny : TypeIfNotAny;

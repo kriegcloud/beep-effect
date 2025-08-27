@@ -1,8 +1,6 @@
 import type React from "react";
 
-export function mergeRefs<T>(
-  refs: (React.Ref<T> | undefined | null)[],
-): React.RefCallback<T> {
+export function mergeRefs<T>(refs: (React.Ref<T> | undefined | null)[]): React.RefCallback<T> {
   return (value: T | null) => {
     // Early return if there are no refs
     if (refs.length === 0) return;

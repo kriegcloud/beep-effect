@@ -22,7 +22,7 @@ export const URLString = S.NonEmptyTrimmedString.pipe(
   S.annotations({
     arbitrary: () => (fc) => fc.constant(null).map(() => faker.internet.url()),
   }),
-  S.brand("URLString"),
+  S.brand("URLString")
 ).annotations({
   identifier: "URLString",
   description: "A URL string",

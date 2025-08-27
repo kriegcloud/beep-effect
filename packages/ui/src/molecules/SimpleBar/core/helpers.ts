@@ -1,11 +1,7 @@
 import type { UnsafeTypes } from "@beep/types";
 import type { SimpleBarOptions } from "./options";
 export function getElementWindow(element: Element) {
-  if (
-    !element ||
-    !element.ownerDocument ||
-    !element.ownerDocument.defaultView
-  ) {
+  if (!element || !element.ownerDocument || !element.ownerDocument.defaultView) {
     return window;
   }
   return element.ownerDocument.defaultView;
@@ -27,9 +23,8 @@ export const getOptions = (obj: UnsafeTypes.UnsafeAny) => {
     (acc: UnsafeTypes.UnsafeAny, attribute) => {
       const option = attribute.name.match(/data-simplebar-(.+)/);
       if (option) {
-        const key: keyof SimpleBarOptions = option[1].replace(
-          /\W+(.)/g,
-          (_: UnsafeTypes.UnsafeAny, chr: string) => chr.toUpperCase(),
+        const key: keyof SimpleBarOptions = option[1].replace(/\W+(.)/g, (_: UnsafeTypes.UnsafeAny, chr: string) =>
+          chr.toUpperCase()
         );
 
         switch (attribute.value) {
@@ -48,7 +43,7 @@ export const getOptions = (obj: UnsafeTypes.UnsafeAny) => {
       }
       return acc;
     },
-    initialObj,
+    initialObj
   );
   return options as SimpleBarOptions;
 };
@@ -69,8 +64,4 @@ export function classNamesToQuery(classNames: string) {
   return `.${classNames.split(" ").join(".")}`;
 }
 
-export const canUseDOM = !!(
-  typeof window !== "undefined" &&
-  window.document &&
-  window.document.createElement
-);
+export const canUseDOM = !!(typeof window !== "undefined" && window.document && window.document.createElement);

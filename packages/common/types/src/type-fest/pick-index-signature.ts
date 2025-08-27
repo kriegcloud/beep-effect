@@ -45,7 +45,5 @@ type ExampleIndexSignature = PickIndexSignature<Example>;
 @group type-fest
 */
 export type PickIndexSignature<ObjectType> = {
-  [KeyType in keyof ObjectType as {} extends Record<KeyType, unknown>
-    ? KeyType
-    : never]: ObjectType[KeyType];
+  [KeyType in keyof ObjectType as {} extends Record<KeyType, unknown> ? KeyType : never]: ObjectType[KeyType];
 };

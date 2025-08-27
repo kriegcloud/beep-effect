@@ -21,15 +21,9 @@ const MuiTableRow: Components<Theme>["MuiTableRow"] = {
   styleOverrides: {
     root: ({ theme }) => ({
       [`&.${tableRowClasses.selected}`]: {
-        backgroundColor: rgbaFromChannel(
-          theme.vars.palette.primary.darkChannel,
-          0.04,
-        ),
+        backgroundColor: rgbaFromChannel(theme.vars.palette.primary.darkChannel, 0.04),
         "&:hover": {
-          backgroundColor: rgbaFromChannel(
-            theme.vars.palette.primary.darkChannel,
-            0.08,
-          ),
+          backgroundColor: rgbaFromChannel(theme.vars.palette.primary.darkChannel, 0.08),
         },
       },
       "&:last-of-type": {

@@ -159,14 +159,8 @@ export function SettingsDrawer({ sx, defaultSettings }: SettingsDrawerProps) {
       }}
     >
       <PresetsOptions
-        icon={
-          <SvgIcon sx={{ width: 28, height: 28 }}>
-            {settingIcons.siderbarDuotone}
-          </SvgIcon>
-        }
-        options={(
-          Object.keys(primaryColorPresets) as SettingsState["primaryColor"][]
-        ).map((key) => ({
+        icon={<SvgIcon sx={{ width: 28, height: 28 }}>{settingIcons.siderbarDuotone}</SvgIcon>}
+        options={(Object.keys(primaryColorPresets) as SettingsState["primaryColor"][]).map((key) => ({
           name: key,
           value: primaryColorPresets[key].main,
         }))}
@@ -196,27 +190,15 @@ export function SettingsDrawer({ sx, defaultSettings }: SettingsDrawerProps) {
             options={[
               {
                 value: "vertical",
-                icon: (
-                  <SvgIcon sx={{ width: 1, height: "auto" }}>
-                    {settingIcons.navVertical}
-                  </SvgIcon>
-                ),
+                icon: <SvgIcon sx={{ width: 1, height: "auto" }}>{settingIcons.navVertical}</SvgIcon>,
               },
               {
                 value: "horizontal",
-                icon: (
-                  <SvgIcon sx={{ width: 1, height: "auto" }}>
-                    {settingIcons.navHorizontal}
-                  </SvgIcon>
-                ),
+                icon: <SvgIcon sx={{ width: 1, height: "auto" }}>{settingIcons.navHorizontal}</SvgIcon>,
               },
               {
                 value: "mini",
-                icon: (
-                  <SvgIcon sx={{ width: 1, height: "auto" }}>
-                    {settingIcons.navMini}
-                  </SvgIcon>
-                ),
+                icon: <SvgIcon sx={{ width: 1, height: "auto" }}>{settingIcons.navMini}</SvgIcon>,
               },
             ]}
           />
@@ -268,17 +250,8 @@ export function SettingsDrawer({ sx, defaultSettings }: SettingsDrawerProps) {
             onChangeOption={(newOption) => {
               settings.setState({ fontFamily: newOption });
             }}
-            options={[
-              themeConfig.fontFamily.primary,
-              "Inter Variable",
-              "DM Sans Variable",
-              "Nunito Sans Variable",
-            ]}
-            icon={
-              <SvgIcon sx={{ width: 28, height: 28 }}>
-                {settingIcons.font}
-              </SvgIcon>
-            }
+            options={[themeConfig.fontFamily.primary, "Inter Variable", "DM Sans Variable", "Nunito Sans Variable"]}
+            icon={<SvgIcon sx={{ width: 28, height: 28 }}>{settingIcons.font}</SvgIcon>}
           />
         </SmallBlock>
       )}
@@ -314,10 +287,7 @@ export function SettingsDrawer({ sx, defaultSettings }: SettingsDrawerProps) {
           sx: [
             (theme) => ({
               ...theme.mixins.paperStyles(theme, {
-                color: rgbaFromChannel(
-                  theme.vars.palette.background.defaultChannel,
-                  0.9,
-                ),
+                color: rgbaFromChannel(theme.vars.palette.background.defaultChannel, 0.9),
               }),
               width: 360,
             }),

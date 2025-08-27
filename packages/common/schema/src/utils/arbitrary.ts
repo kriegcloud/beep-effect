@@ -26,51 +26,29 @@ type EncodedArbitrary<A, I, R> = ArbParamsBase & {
   schema: S.Schema<A, I, R>;
 };
 
-type Arbs<A, I, R> =
-  | BoundArbitrary<A, I, R>
-  | TypeArbitrary<A, I, R>
-  | EncodedArbitrary<A, I, R>;
+type Arbs<A, I, R> = BoundArbitrary<A, I, R> | TypeArbitrary<A, I, R> | EncodedArbitrary<A, I, R>;
 
-export const makeFlat = <A extends UnsafeTypes.UnsafeReadonlyArray>(
-  arr: A,
-  qty: number,
-  flat: boolean,
-) => (qty === 1 && flat ? A.flatten(arr) : arr);
+export const makeFlat = <A extends UnsafeTypes.UnsafeReadonlyArray>(arr: A, qty: number, flat: boolean) =>
+  qty === 1 && flat ? A.flatten(arr) : arr;
 
 export const makeArb = <A, I, R>(params: Arbs<A, I, R>) =>
   Match.value(params).pipe(
     Match.tags({
       bound: ({ schema, flat = false, qty = 1 }) =>
-        makeFlat(
-          FC.sample(Arbitrary.make(S.encodedBoundSchema(schema)), qty),
-          qty,
-          flat,
-        ),
+        makeFlat(FC.sample(Arbitrary.make(S.encodedBoundSchema(schema)), qty), qty, flat),
       type: ({ schema, flat = false, qty = 1 }) =>
-        makeFlat(
-          FC.sample(Arbitrary.make(S.typeSchema(schema)), qty),
-          qty,
-          flat,
-        ),
+        makeFlat(FC.sample(Arbitrary.make(S.typeSchema(schema)), qty), qty, flat),
       encoded: ({ schema, flat = false, qty = 1 }) =>
-        makeFlat(
-          FC.sample(Arbitrary.make(S.encodedSchema(schema)), qty),
-          qty,
-          flat,
-        ),
-    }),
+        makeFlat(FC.sample(Arbitrary.make(S.encodedSchema(schema)), qty), qty, flat),
+    })
   );
 
 export const makeArbs = F.flow(
   <A, I, R>(schema: S.Schema<A, I, R>) =>
     (kind: "bound" | "type" | "encoded", qty?: number, flat?: boolean) =>
       Match.value(kind).pipe(
-        Match.when("bound", () =>
-          makeArb({ schema, _tag: "bound", qty, flat }),
-        ),
+        Match.when("bound", () => makeArb({ schema, _tag: "bound", qty, flat })),
         Match.when("type", () => makeArb({ schema, _tag: "type", qty, flat })),
-        Match.when("encoded", () =>
-          makeArb({ schema, _tag: "encoded", qty, flat }),
-        ),
-      ),
+        Match.when("encoded", () => makeArb({ schema, _tag: "encoded", qty, flat }))
+      )
 );

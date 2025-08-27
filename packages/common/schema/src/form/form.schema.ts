@@ -27,9 +27,9 @@ export const FormJsonSchema = S.parseJson(
       S.Record({
         key: S.String,
         value: FormFieldSchema,
-      }),
+      })
     ),
-  }),
+  })
 ).annotations({
   identifier: "FormJsonSchema",
 });

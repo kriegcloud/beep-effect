@@ -1,8 +1,4 @@
-import type {
-  Components,
-  ComponentsVariants,
-  Theme,
-} from "@mui/material/styles";
+import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
 
 // ----------------------------------------------------------------------
 
@@ -34,8 +30,7 @@ const colorVariants = [
 
 const statusVariants = [
   {
-    props: (props) =>
-      ["online", "always", "busy", "offline"].includes(props.variant as string),
+    props: (props) => ["online", "always", "busy", "offline"].includes(props.variant as string),
     style: ({ theme }) => ({
       width: 10,
       height: 10,
