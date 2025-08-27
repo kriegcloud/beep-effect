@@ -1,8 +1,8 @@
-import type { Or } from "@beep/types";
+import type {Or} from "@beep/types";
 import * as S from "effect/Schema";
-import type { JsonProp } from "./custom";
-import { LiteralDefaults, RegexFromString } from "./custom";
-import { Struct } from "./extended-schemas";
+import type {JsonProp} from "./custom";
+import {LiteralDefaults, RegexFromString} from "./custom";
+import {Struct} from "./extended-schemas";
 
 export const $JsonType = S.Literal("object", "array", "string", "number", "boolean", "null", "integer");
 
@@ -455,7 +455,7 @@ export class JsonSchema extends Struct(
       description: "Declares a dynamic anchor name that $dynamicRef can resolve to at runtime.",
       documentation: "https://json-schema.org/draft/2020-12/json-schema-core#section-8.2.3.2",
     }),
-    $vocabulary: S.optional(S.Record({ key: S.String, value: S.Boolean })).annotations({
+    $vocabulary: S.optional(S.Record({key: S.String, value: S.Boolean})).annotations({
       title: "Vocabulary ($vocabulary)",
       description: "Declares vocabularies (keyword sets) available in this meta‑schema.",
       documentation: "https://json-schema.org/draft/2020-12/json-schema-core#section-8.1.2",
@@ -655,7 +655,7 @@ export class JsonSchema extends Struct(
       description: "Property names that must be present in the object.",
       documentation: "https://json-schema.org/understanding-json-schema/reference/object#required-properties",
     }),
-    dependentRequired: S.optional(S.Record({ key: S.NonEmptyString, value: S.Array(S.String) })).annotations({
+    dependentRequired: S.optional(S.Record({key: S.NonEmptyString, value: S.Array(S.String)})).annotations({
       title: "dependentRequired",
       description: "Property dependencies: when a property is present, these other properties are also required.",
       documentation: "https://json-schema.org/understanding-json-schema/reference/conditionals#dependentRequired",
@@ -865,7 +865,8 @@ export class JsonSchema extends Struct(
 export class ObjectSchema extends Struct({
   ...JsonSchema.fields,
   type: LiteralDefaults("array")("array"),
-}) {}
+}) {
+}
 
 export namespace ObjectSchema {
   export interface Type extends JsonSchema.Type {
@@ -880,7 +881,8 @@ export namespace ObjectSchema {
 export class ArraySchema extends Struct({
   ...JsonSchema.fields,
   type: LiteralDefaults("array")("array"),
-}) {}
+}) {
+}
 
 export namespace ArraySchema {
   export interface Type extends JsonSchema.Type {
@@ -895,7 +897,8 @@ export namespace ArraySchema {
 export class StringSchema extends Struct({
   ...JsonSchema.fields,
   type: LiteralDefaults("string")("string"),
-}) {}
+}) {
+}
 
 export namespace StringSchema {
   export interface Type extends JsonSchema.Type {
@@ -910,7 +913,8 @@ export namespace StringSchema {
 export class NumberSchema extends Struct({
   ...JsonSchema.fields,
   type: LiteralDefaults("number")("number"),
-}) {}
+}) {
+}
 
 export namespace NumberSchema {
   export interface Type extends JsonSchema.Type {
@@ -925,7 +929,8 @@ export namespace NumberSchema {
 export class IntegerSchema extends Struct({
   ...JsonSchema.fields,
   type: LiteralDefaults("integer")("integer"),
-}) {}
+}) {
+}
 
 export namespace IntegerSchema {
   export interface Type extends JsonSchema.Type {
@@ -940,7 +945,8 @@ export namespace IntegerSchema {
 export class BooleanSchema extends Struct({
   ...JsonSchema.fields,
   type: LiteralDefaults("boolean")("boolean"),
-}) {}
+}) {
+}
 
 export namespace BooleanSchema {
   export interface Type extends JsonSchema.Type {
@@ -955,7 +961,8 @@ export namespace BooleanSchema {
 export class NullSchema extends Struct({
   ...JsonSchema.fields,
   type: LiteralDefaults("null")("null"),
-}) {}
+}) {
+}
 
 export namespace NullSchema {
   export interface Type extends JsonSchema.Type {
