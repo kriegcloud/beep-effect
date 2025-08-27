@@ -4,7 +4,7 @@ import * as S from "effect/Schema";
 export namespace Operand {
   export const make = <const Tag extends StringTypes.NonEmptyString<string>>(
     tag: Tag,
-    label: string,
+    label: StringTypes.NonEmptyString<string>,
   ) => {
     const Schema = <
       const A,

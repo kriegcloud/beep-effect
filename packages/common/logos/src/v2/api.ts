@@ -14,10 +14,8 @@ import {
 } from "./internal";
 import { invalidatePrepared } from "./prepare";
 import { Rule, RuleInput } from "./Rule";
-// import { GroupInput, type RuleSet, RuleGroup } from "./groups";
 import { GroupInput, RuleGroup } from "./RuleGroup";
 import type { RuleSet } from "./RuleSet";
-
 import type {
   AnyNodeOrUndefined,
   RuleOrGroup,

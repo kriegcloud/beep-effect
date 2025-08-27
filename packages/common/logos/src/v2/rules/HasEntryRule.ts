@@ -150,11 +150,11 @@ export const validate = (
   const eqKV = S.equivalence(KV); // (a, b) => boolean
 
   // Helpers leveraging Effect's set ops with custom equivalence
-  const overlap = (sel: ReadonlyArray<S.Schema.Type<typeof KV>>) =>
+  const overlap = (sel: ReadonlyArray<KV.Type>) =>
     A.intersectionWith(eqKV)(sel)(kvs); // items in both
-  const missing = (sel: ReadonlyArray<S.Schema.Type<typeof KV>>) =>
+  const missing = (sel: ReadonlyArray<KV.Type>) =>
     A.differenceWith(eqKV)(kvs)(sel); // elements of sel not present in kvs
-  const containsKV = (pair: S.Schema.Type<typeof KV>) =>
+  const containsKV = (pair: KV.Type) =>
     It.containsWith(eqKV)(pair)(kvs);
 
   return Match.value(rule.op).pipe(
