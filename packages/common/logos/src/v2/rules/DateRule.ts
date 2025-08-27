@@ -147,7 +147,7 @@ export namespace Ops {
   // export class Between extends BetweenNumeric {}
 }
 
-export const { Input, Rule: _Rule } = makeRule("date", {
+export const { Input, Rule } = makeRule("date", {
   field: S.NonEmptyString,
   op: S.Union(
     Ops.Eq,
@@ -164,8 +164,6 @@ export const { Input, Rule: _Rule } = makeRule("date", {
     Ops.Between,
   ),
 });
-
-export class Rule extends S.encodedSchema(_Rule) {}
 
 export namespace Input {
   export type Type = typeof Input.Type;
@@ -184,7 +182,7 @@ export const makeBase = (i: Omit<Input.Type, "type">) =>
   });
 
 export const eq = (
-  i: Pick<Input.Type, "field"> & {
+  i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
   },
 ) =>
@@ -196,7 +194,7 @@ export const eq = (
   });
 
 export const ne = (
-  i: Pick<Input.Type, "field"> & {
+  i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
   },
 ) =>
@@ -208,7 +206,7 @@ export const ne = (
   });
 
 export const gt = (
-  i: Pick<Input.Type, "field"> & {
+  i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
   },
 ) =>
@@ -220,7 +218,7 @@ export const gt = (
   });
 
 export const gte = (
-  i: Pick<Input.Type, "field"> & {
+  i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
   },
 ) =>
@@ -232,7 +230,7 @@ export const gte = (
   });
 
 export const lt = (
-  i: Pick<Input.Type, "field"> & {
+  i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
   },
 ) =>
@@ -244,7 +242,7 @@ export const lt = (
   });
 
 export const lte = (
-  i: Pick<Input.Type, "field"> & {
+  i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
   },
 ) =>
@@ -256,7 +254,7 @@ export const lte = (
   });
 
 export const isSameHour = (
-  i: Pick<Input.Type, "field"> & {
+  i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
   },
 ) =>
@@ -268,7 +266,7 @@ export const isSameHour = (
   });
 
 export const isSameDay = (
-  i: Pick<Input.Type, "field"> & {
+  i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
   },
 ) =>
@@ -280,7 +278,7 @@ export const isSameDay = (
   });
 
 export const isSameWeek = (
-  i: Pick<Input.Type, "field"> & {
+  i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
   },
 ) =>
@@ -292,7 +290,7 @@ export const isSameWeek = (
   });
 
 export const isSameMonth = (
-  i: Pick<Input.Type, "field"> & {
+  i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
   },
 ) =>
@@ -304,7 +302,7 @@ export const isSameMonth = (
   });
 
 export const isSameYear = (
-  i: Pick<Input.Type, "field"> & {
+  i: Pick<Rule.Type, "field"> & {
     value: BS.DateTimeUtcFromAllAcceptable.Type;
   },
 ) =>
@@ -316,7 +314,7 @@ export const isSameYear = (
   });
 
 export const between = (
-  i: Pick<Input.Type, "field"> & {
+  i: Pick<Rule.Type, "field"> & {
     value: {
       start: BS.DateTimeUtcFromAllAcceptable.Type;
       end: BS.DateTimeUtcFromAllAcceptable.Type;

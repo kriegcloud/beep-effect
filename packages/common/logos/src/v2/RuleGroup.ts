@@ -4,7 +4,7 @@ import { Rule } from "./Rule";
 
 export class RuleGroup extends Node.make("group", {
   parentId: NodeId,
-  logicalOp: LogicalOp,
+  logicalOp: S.mutable(LogicalOp),
   rules: S.mutable(
     S.Array(
       S.Union(

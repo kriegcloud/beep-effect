@@ -1,7 +1,11 @@
+export * from "./api";
 export { LogicalOp } from "./internal/LogicalOp";
 export { NodeId } from "./internal/Node";
+export * from "./normalize";
+export { invalidatePrepared, prepare, runPrepared } from "./prepare";
 export * from "./Rule";
 export * from "./RuleGroup";
 export * from "./RuleSet";
 export * from "./rules";
 export type * from "./types";
+export * from "./validate";

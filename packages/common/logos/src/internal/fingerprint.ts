@@ -1,7 +1,6 @@
 import * as O from "effect/Option";
 import type { RootGroup, RuleGroup } from "../groups";
 import { fingerprintOperator } from "../operators";
-import type * as RulesMod from "../rules";
 
 /**
  * Computes a structural fingerprint of a group root to detect changes.
@@ -17,8 +16,7 @@ export function fingerprint(u: RuleGroup.Type | RootGroup.Type): string {
       if (child.node === "group") {
         walk(child);
       } else {
-        const r = child as RulesMod.Rule.Type;
-        const payload = JSON.stringify(r, (k, v) => {
+        const payload = JSON.stringify(child, (k, v) => {
           if (k === "id" || k === "parentId") return undefined;
           if (k === "op") return fingerprintOperator(v);
           if (v instanceof RegExp) return `re:/${v.source}/${v.flags}`;

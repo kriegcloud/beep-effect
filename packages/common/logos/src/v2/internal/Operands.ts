@@ -159,3 +159,58 @@ export namespace IsSameYear {
 export namespace IsSameHour {
   export const { Schema, label } = Operand.make("isSameHour", "is same hour");
 }
+
+export const makeCoreOperand = <
+  const Tag extends StringTypes.NonEmptyString<string>,
+>(
+  tag: Tag,
+) =>
+  S.Struct(
+    {
+      _tag: S.Literal(tag),
+    },
+    S.Record({
+      key: S.String,
+      value: S.Any,
+    }),
+  );
+
+export class AnyOperator extends S.Union(
+  makeCoreOperand("eq"),
+  makeCoreOperand("ne"),
+  makeCoreOperand("gt"),
+  makeCoreOperand("gte"),
+  makeCoreOperand("lt"),
+  makeCoreOperand("lte"),
+  makeCoreOperand("between"),
+  makeCoreOperand("startsWith"),
+  makeCoreOperand("endsWith"),
+  makeCoreOperand("contains"),
+  makeCoreOperand("notContains"),
+  makeCoreOperand("matches"),
+  makeCoreOperand("isFalse"),
+  makeCoreOperand("isTrue"),
+  makeCoreOperand("isString"),
+  makeCoreOperand("isNumber"),
+  makeCoreOperand("isTruthy"),
+  makeCoreOperand("isFalsy"),
+  makeCoreOperand("isNull"),
+  makeCoreOperand("isUndefined"),
+  makeCoreOperand("isBoolean"),
+  makeCoreOperand("isArray"),
+  makeCoreOperand("isObject"),
+  makeCoreOperand("inSet"),
+  makeCoreOperand("oneOf"),
+  makeCoreOperand("allOf"),
+  makeCoreOperand("noneOf"),
+  makeCoreOperand("isSameHour"),
+  makeCoreOperand("isSameDay"),
+  makeCoreOperand("isSameWeek"),
+  makeCoreOperand("isSameMonth"),
+  makeCoreOperand("isSameYear"),
+) {}
+
+export namespace AnyOperator {
+  export type Type = typeof AnyOperator.Type;
+  export type Encoded = typeof AnyOperator.Encoded;
+}

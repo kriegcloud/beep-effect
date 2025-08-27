@@ -249,7 +249,7 @@ describe("DateRule.validate", () => {
     const bogus = {
       field,
       op: { _tag: "not_real", value: u("2025-01-01T00:00:00Z") } as any,
-    } as DateRule.Input.Type;
+    } as DateRule.Rule.Type;
     expect(DateRule.validate(bogus, "2025-01-01T00:00:00Z")).toBeFalsy();
   });
 });
