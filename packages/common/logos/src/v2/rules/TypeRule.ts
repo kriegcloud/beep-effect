@@ -15,6 +15,7 @@ export namespace Ops {
         value: null,
       }) as const;
   }
+
   export class IsNumber extends Operands.IsNumber.Schema(S.Null, {}) {
     static readonly make = () =>
       ({
@@ -22,6 +23,7 @@ export namespace Ops {
         value: null,
       }) as const;
   }
+
   export class IsTruthy extends Operands.IsTruthy.Schema(S.Null, {}) {
     static readonly make = () =>
       ({
@@ -29,6 +31,7 @@ export namespace Ops {
         value: null,
       }) as const;
   }
+
   export class IsFalsy extends Operands.IsFalsy.Schema(S.Null, {}) {
     static readonly make = () =>
       ({
@@ -36,6 +39,7 @@ export namespace Ops {
         value: null,
       }) as const;
   }
+
   export class IsNull extends Operands.IsNull.Schema(S.Null, {}) {
     static readonly make = () =>
       ({
@@ -43,6 +47,7 @@ export namespace Ops {
         value: null,
       }) as const;
   }
+
   export class IsUndefined extends Operands.IsUndefined.Schema(S.Null, {}) {
     static readonly make = () =>
       ({
@@ -50,6 +55,7 @@ export namespace Ops {
         value: null,
       }) as const;
   }
+
   export class IsBoolean extends Operands.IsBoolean.Schema(S.Null, {}) {
     static readonly make = () =>
       ({
@@ -57,6 +63,7 @@ export namespace Ops {
         value: null,
       }) as const;
   }
+
   export class IsArray extends Operands.IsArray.Schema(S.Null, {}) {
     static readonly make = () =>
       ({
@@ -64,6 +71,7 @@ export namespace Ops {
         value: null,
       }) as const;
   }
+
   export class IsObject extends Operands.IsObject.Schema(S.Null, {}) {
     static readonly make = () =>
       ({
@@ -98,29 +106,65 @@ export namespace Rule {
   export type Encoded = typeof Rule.Encoded;
 }
 
-const matchOp = Match.type<Input.Type["op"]["_tag"]>().pipe(
-  Match.when("isTruthy", Ops.IsTruthy.make),
-  Match.when("isFalsy", Ops.IsFalsy.make),
-  Match.when("isNull", Ops.IsNull.make),
-  Match.when("isUndefined", Ops.IsUndefined.make),
-  Match.when("isBoolean", Ops.IsBoolean.make),
-  Match.when("isArray", Ops.IsArray.make),
-  Match.when("isObject", Ops.IsObject.make),
-  Match.when("isString", Ops.IsString.make),
-  Match.when("isNumber", Ops.IsNumber.make),
-  Match.exhaustive,
-);
-
-export const make = (
-  i: Omit<Input.Type, "op" | "type"> & {
-    op: Input.Type["op"]["_tag"];
-  },
-) =>
-  ({
+const makeBase = (i: Omit<Input.Type, "type">) =>
+  Input.make({
     ...i,
     type: "typeRule",
-    op: matchOp(i.op),
-  }) as const;
+  });
+
+export const isString = (i: Pick<Input.Type, "field">) =>
+  makeBase({
+    op: Ops.IsString.make(),
+    ...i,
+  });
+
+export const isTruthy = (i: Pick<Input.Type, "field">) =>
+  makeBase({
+    op: Ops.IsTruthy.make(),
+    ...i,
+  });
+
+export const isFalsy = (i: Pick<Input.Type, "field">) =>
+  makeBase({
+    op: Ops.IsFalsy.make(),
+    ...i,
+  });
+
+export const isNull = (i: Pick<Input.Type, "field">) =>
+  makeBase({
+    op: Ops.IsNull.make(),
+    ...i,
+  });
+
+export const isUndefined = (i: Pick<Input.Type, "field">) =>
+  makeBase({
+    op: Ops.IsUndefined.make(),
+    ...i,
+  });
+
+export const isNumber = (i: Pick<Input.Type, "field">) =>
+  makeBase({
+    op: Ops.IsNumber.make(),
+    ...i,
+  });
+
+export const isBoolean = (i: Pick<Input.Type, "field">) =>
+  makeBase({
+    op: Ops.IsBoolean.make(),
+    ...i,
+  });
+
+export const isArray = (i: Pick<Input.Type, "field">) =>
+  makeBase({
+    op: Ops.IsArray.make(),
+    ...i,
+  });
+
+export const isObject = (i: Pick<Input.Type, "field">) =>
+  makeBase({
+    op: Ops.IsObject.make(),
+    ...i,
+  });
 
 export const validate = (rule: Input.Type, value: unknown) =>
   Match.value(rule.op).pipe(

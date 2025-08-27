@@ -3,71 +3,69 @@ import { BS } from "@beep/schema";
 import { expect, test } from "vitest";
 
 test("string equals to", () => {
-  const rule = StringRule.make({
+  const rule = StringRule.eq({
     field: "people",
-    op: { _tag: "eq", value: "bob", ignoreCase: false },
+    value: "bob",
+    ignoreCase: false,
   });
   const result = StringRule.validate(rule, "bob");
   expect(result).toBeTruthy();
 });
 
 test("string equals to (case insensitive)", () => {
-  const rule = StringRule.make({
+  const rule = StringRule.eq({
     field: "people",
-    op: { _tag: "eq", value: "BOB", ignoreCase: true },
+    value: "BOB",
+    ignoreCase: true,
   });
   const result = StringRule.validate(rule, "BoB");
   expect(result).toBeTruthy();
 });
 
 test("string not equals to", () => {
-  const rule = StringRule.make({
+  const rule = StringRule.ne({
     field: "people",
-    op: { _tag: "ne", value: "bob", ignoreCase: false },
+    value: "bob",
+    ignoreCase: false,
   });
   const result = StringRule.validate(rule, "alice");
   expect(result).toBeTruthy();
 });
 
 test("string contains", () => {
-  const rule = StringRule.make({
+  const rule = StringRule.contains({
     field: "people",
-    op: { _tag: "contains", value: "bob", ignoreCase: false },
+    value: "bob",
+    ignoreCase: false,
   });
   const result = StringRule.validate(rule, "bobby");
   expect(result).toBeTruthy();
 });
 
 test("string does not contain", () => {
-  const rule = StringRule.make({
+  const rule = StringRule.notContains({
     field: "people",
-    op: { _tag: "notContains", value: "alice", ignoreCase: false },
+    value: "alice",
   });
   const result = StringRule.validate(rule, "bobby");
   expect(result).toBeTruthy();
 });
 
 test("string starts with", () => {
-  const rule = StringRule.make({
+  const rule = StringRule.startsWith({
     field: "people",
-    op: {
-      _tag: "startsWith",
-      value: "bob",
-      ignoreCase: false,
-    },
+    value: "bob",
+    ignoreCase: false,
   });
   const result = StringRule.validate(rule, "bobby");
   expect(result).toBeTruthy();
 });
 
 test("string ends with", () => {
-  const rule = StringRule.make({
+  const rule = StringRule.endsWith({
     field: "people",
-    op: {
-      _tag: "endsWith",
-      value: "bby",
-      ignoreCase: false,
-    },
+    value: "bby",
+    ignoreCase: false,
   });
   const result = StringRule.validate(rule, "bobby");
   expect(result).toBeTruthy();
@@ -88,18 +86,18 @@ test("invalid operator is handled", () => {
 });
 
 test("string matches regex", () => {
-  const rule = StringRule.make({
+  const rule = StringRule.matches({
     field: "people",
-    op: { _tag: "matches", value: BS.Regex.make(/^bob.*/), ignoreCase: false },
+    value: BS.Regex.make(/^bob.*/),
   });
   const result = StringRule.validate(rule, "bobby");
   expect(result).toBeTruthy();
 });
 
 test("string does not match regex", () => {
-  const rule = StringRule.make({
+  const rule = StringRule.matches({
     field: "people",
-    op: { _tag: "matches", value: BS.Regex.make(/^bob$/), ignoreCase: false },
+    value: BS.Regex.make(/^bob$/),
   });
   const result = StringRule.validate(rule, "bobby");
   expect(result).toBeFalsy();

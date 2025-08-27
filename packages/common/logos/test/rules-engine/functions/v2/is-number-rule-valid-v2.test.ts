@@ -2,54 +2,54 @@ import { NumberRule } from "@beep/logos/v2/rules";
 import { expect, test } from "vitest";
 
 test("number is equal to", () => {
-  const rule = NumberRule.make({
+  const rule = NumberRule.eq({
     field: "names",
-    op: { _tag: "eq", value: 2 },
+    value: 2,
   });
   const result = NumberRule.validate(rule, 2);
   expect(result).toBeTruthy();
 });
 
 test("number does not equal to", () => {
-  const rule = NumberRule.make({
+  const rule = NumberRule.ne({
     field: "names",
-    op: { _tag: "ne", value: 1 },
+    value: 1,
   });
   const result = NumberRule.validate(rule, 2);
   expect(result).toBeTruthy();
 });
 
 test("number is greater than", () => {
-  const rule = NumberRule.make({
+  const rule = NumberRule.gt({
     field: "names",
-    op: { _tag: "gt", value: 1 },
+    value: 1,
   });
   const result = NumberRule.validate(rule, 2);
   expect(result).toBeTruthy();
 });
 
 test("number is greater than or equal to", () => {
-  const rule = NumberRule.make({
+  const rule = NumberRule.gte({
     field: "names",
-    op: { _tag: "gte", value: 2 },
+    value: 2,
   });
   const result = NumberRule.validate(rule, 2);
   expect(result).toBeTruthy();
 });
 
 test("number is less than", () => {
-  const rule = NumberRule.make({
+  const rule = NumberRule.lt({
     field: "names",
-    op: { _tag: "lt", value: 3 },
+    value: 3,
   });
   const result = NumberRule.validate(rule, 2);
   expect(result).toBeTruthy();
 });
 
 test("number is less than or equal to", () => {
-  const rule = NumberRule.make({
+  const rule = NumberRule.lte({
     field: "names",
-    op: { _tag: "lte", value: 2 },
+    value: 2,
   });
   const result = NumberRule.validate(rule, 2);
   expect(result).toBeTruthy();

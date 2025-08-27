@@ -16,7 +16,22 @@ export class BetweenNumeric extends Operands.Between.Schema(
   {
     inclusive: S.Boolean,
   },
-) {}
+) {
+  static readonly validate = (op: BetweenNumeric.Type) => (value: number) => {
+    const {
+      value: { min, max },
+      inclusive,
+    } = op;
+    const minInclusive = inclusive ? value >= min : value > min;
+    const maxInclusive = inclusive ? value <= max : value < max;
+    return minInclusive && maxInclusive;
+  };
+}
+
+export namespace BetweenNumeric {
+  export type Type = typeof BetweenNumeric.Type;
+  export type Encoded = typeof BetweenNumeric.Encoded;
+}
 
 // Small helpers using the equivalence-aware array fns
 export const has = (arr: ReadonlyArray<BS.Json.Type>, v: BS.Json.Type) =>

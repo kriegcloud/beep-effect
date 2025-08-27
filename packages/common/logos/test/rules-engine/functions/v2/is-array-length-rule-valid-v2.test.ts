@@ -4,54 +4,54 @@ import { expect, test } from "vitest";
 const names = ["bob", "alice"];
 // TODO(ben): CREATE A TEST FOR THE BETWEEN CASE!!!
 test("array length is equal to", () => {
-  const rule = ArrayLengthRule.make({
+  const rule = ArrayLengthRule.eq({
     field: "names",
-    op: { _tag: "eq", value: 2 },
+    value: 2,
   });
   const result = ArrayLengthRule.validate(rule, names);
   expect(result).toBeTruthy();
 });
 
 test("array length does not equal to", () => {
-  const rule = ArrayLengthRule.make({
+  const rule = ArrayLengthRule.ne({
     field: "names",
-    op: { _tag: "ne", value: 1 },
+    value: 1,
   });
   const result = ArrayLengthRule.validate(rule, names);
   expect(result).toBeTruthy();
 });
 
 test("array length is greater than", () => {
-  const rule = ArrayLengthRule.make({
+  const rule = ArrayLengthRule.gt({
     field: "names",
-    op: { _tag: "gt", value: 1 },
+    value: 1,
   });
   const result = ArrayLengthRule.validate(rule, names);
   expect(result).toBeTruthy();
 });
 
 test("array length is greater than or equal to", () => {
-  const rule = ArrayLengthRule.make({
+  const rule = ArrayLengthRule.gte({
     field: "names",
-    op: { _tag: "gte", value: 2 },
+    value: 2,
   });
   const result = ArrayLengthRule.validate(rule, names);
   expect(result).toBeTruthy();
 });
 
 test("array length is less than", () => {
-  const rule = ArrayLengthRule.make({
+  const rule = ArrayLengthRule.lt({
     field: "names",
-    op: { _tag: "lt", value: 3 },
+    value: 3,
   });
   const result = ArrayLengthRule.validate(rule, names);
   expect(result).toBeTruthy();
 });
 
 test("array length is less than or equal to", () => {
-  const rule = ArrayLengthRule.make({
+  const rule = ArrayLengthRule.lte({
     field: "names",
-    op: { _tag: "lte", value: 2 },
+    value: 2,
   });
   const result = ArrayLengthRule.validate(rule, names);
   expect(result).toBeTruthy();

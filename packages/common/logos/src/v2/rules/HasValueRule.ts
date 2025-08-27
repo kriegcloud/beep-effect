@@ -13,8 +13,20 @@ import * as S from "effect/Schema";
 
 export namespace Ops {
   // single JSON value
-  export class Contains extends Operands.Contains.Schema(BS.Json, {}) {}
-  export class NotContains extends Operands.NotContains.Schema(BS.Json, {}) {}
+  export class Contains extends Operands.Contains.Schema(BS.Json, {}) {
+    static readonly make = (value: BS.Json.Type) =>
+      ({
+        _tag: "contains",
+        value,
+      }) as const;
+  }
+  export class NotContains extends Operands.NotContains.Schema(BS.Json, {}) {
+    static readonly make = (value: BS.Json.Type) =>
+      ({
+        _tag: "notContains",
+        value,
+      }) as const;
+  }
 
   // non-empty selections
   export class InSet extends Operands.InSet.Schema(BS.NonEmptyJsonArray, {}) {}
@@ -47,10 +59,69 @@ export namespace Input {
   export type Encoded = typeof Input.Encoded;
 }
 
-export const make = (i: Omit<Input.Type, "id" | "type">) =>
+export const makeBase = (i: Omit<Input.Type, "id" | "type">) =>
   Input.make({
     ...i,
     type: "hasValue",
+  });
+
+export const contains = (
+  i: Pick<Input.Type, "field"> & { value: BS.Json.Type },
+) =>
+  makeBase({
+    op: Ops.Contains.make(i.value),
+    field: i.field,
+  });
+
+export const notContains = (
+  i: Pick<Input.Type, "field"> & { value: BS.Json.Type },
+) =>
+  makeBase({
+    op: Ops.NotContains.make(i.value),
+    field: i.field,
+  });
+
+export const inSet = (
+  i: Pick<Input.Type, "field"> & { value: (typeof Ops.InSet.Type)["value"] },
+) =>
+  makeBase({
+    op: Ops.InSet.make({
+      value: i.value,
+      _tag: "inSet",
+    } as const),
+    field: i.field,
+  });
+export const oneOf = (
+  i: Pick<Input.Type, "field"> & { value: (typeof Ops.OneOf.Type)["value"] },
+) =>
+  makeBase({
+    op: Ops.OneOf.make({
+      value: i.value,
+      _tag: "oneOf",
+    } as const),
+    field: i.field,
+  });
+
+export const allOf = (
+  i: Pick<Input.Type, "field"> & { value: (typeof Ops.AllOf.Type)["value"] },
+) =>
+  makeBase({
+    op: Ops.AllOf.make({
+      value: i.value,
+      _tag: "allOf",
+    } as const),
+    field: i.field,
+  });
+
+export const noneOf = (
+  i: Pick<Input.Type, "field"> & { value: (typeof Ops.NoneOf.Type)["value"] },
+) =>
+  makeBase({
+    op: Ops.NoneOf.make({
+      value: i.value,
+      _tag: "noneOf",
+    } as const),
+    field: i.field,
   });
 
 export const validate = (
@@ -71,7 +142,6 @@ export const validate = (
     Match.tags({
       contains: () => contains,
       notContains: () => !contains,
-
       // at least one overlap
       inSet: (op) => intersect(values, op.value).length > 0,
 

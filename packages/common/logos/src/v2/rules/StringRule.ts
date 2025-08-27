@@ -10,28 +10,74 @@ const IgnoreCase = S.Boolean;
 export namespace Ops {
   export class Eq extends Operands.Eq.Schema(S.String, {
     ignoreCase: IgnoreCase,
-  }) {}
+  }) {
+    static readonly make = (i: Omit<typeof Eq.Type, "_tag">) =>
+      ({
+        _tag: "eq",
+        ...i,
+      }) as const;
+  }
+
   export class Neq extends Operands.Neq.Schema(S.String, {
     ignoreCase: IgnoreCase,
-  }) {}
+  }) {
+    static readonly make = (i: Omit<typeof Neq.Type, "_tag">) =>
+      ({
+        _tag: "ne",
+        ...i,
+      }) as const;
+  }
+
   export class StartsWith extends Operands.StartsWith.Schema(S.NonEmptyString, {
     ignoreCase: IgnoreCase,
-  }) {}
+  }) {
+    static readonly make = (i: Omit<typeof StartsWith.Type, "_tag">) =>
+      ({
+        _tag: "startsWith",
+        ...i,
+      }) as const;
+  }
+
   export class EndsWith extends Operands.EndsWith.Schema(S.NonEmptyString, {
     ignoreCase: IgnoreCase,
-  }) {}
+  }) {
+    static readonly make = (i: Omit<typeof EndsWith.Type, "_tag">) =>
+      ({
+        _tag: "endsWith",
+        ...i,
+      }) as const;
+  }
+
   export class Contains extends Operands.Contains.Schema(S.NonEmptyString, {
     ignoreCase: IgnoreCase,
-  }) {}
+  }) {
+    static readonly make = (i: Omit<typeof Contains.Type, "_tag">) =>
+      ({
+        _tag: "contains",
+        ...i,
+      }) as const;
+  }
+
   export class NotContains extends Operands.NotContains.Schema(
     S.NonEmptyString,
     {
       ignoreCase: IgnoreCase,
     },
-  ) {}
-  export class Matches extends Operands.Matches.Schema(BS.RegexFromString, {
-    ignoreCase: IgnoreCase,
-  }) {}
+  ) {
+    static readonly make = (i: Omit<typeof NotContains.Type, "_tag">) =>
+      ({
+        _tag: "notContains",
+        ...i,
+      }) as const;
+  }
+
+  export class Matches extends Operands.Matches.Schema(BS.RegexFromString, {}) {
+    static readonly make = (i: Omit<typeof Matches.Type, "_tag">) =>
+      ({
+        _tag: "matches",
+        ...i,
+      }) as const;
+  }
 
   export namespace Matches {
     export type Type = typeof Matches.Type;
@@ -62,10 +108,86 @@ export namespace Rule {
   export type Encoded = typeof Rule.Encoded;
 }
 
-export const make = (i: Omit<Input.Type, "id" | "type">) =>
+export const makeBase = (i: Omit<Input.Type, "type">) =>
   Input.make({
     ...i,
     type: "string",
+  });
+
+export const eq = (
+  i: Pick<Input.Type, "field"> & { value: string; ignoreCase?: boolean },
+) =>
+  makeBase({
+    ...i,
+    op: Ops.Eq.make({
+      value: i.value,
+      ignoreCase: i.ignoreCase ?? false,
+    }),
+  });
+
+export const ne = (
+  i: Pick<Input.Type, "field"> & { value: string; ignoreCase?: boolean },
+) =>
+  makeBase({
+    ...i,
+    op: Ops.Neq.make({
+      value: i.value,
+      ignoreCase: i.ignoreCase ?? false,
+    }),
+  });
+
+export const startsWith = (
+  i: Pick<Input.Type, "field"> & { value: string; ignoreCase?: boolean },
+) =>
+  makeBase({
+    ...i,
+    op: Ops.StartsWith.make({
+      value: i.value,
+      ignoreCase: i.ignoreCase ?? false,
+    }),
+  });
+
+export const endsWith = (
+  i: Pick<Input.Type, "field"> & { value: string; ignoreCase?: boolean },
+) =>
+  makeBase({
+    ...i,
+    op: Ops.EndsWith.make({
+      value: i.value,
+      ignoreCase: i.ignoreCase ?? false,
+    }),
+  });
+
+export const contains = (
+  i: Pick<Input.Type, "field"> & { value: string; ignoreCase?: boolean },
+) =>
+  makeBase({
+    ...i,
+    op: Ops.Contains.make({
+      value: i.value,
+      ignoreCase: i.ignoreCase ?? false,
+    }),
+  });
+
+export const notContains = (
+  i: Pick<Input.Type, "field"> & { value: string; ignoreCase?: boolean },
+) =>
+  makeBase({
+    ...i,
+    op: Ops.NotContains.make({
+      value: i.value,
+      ignoreCase: i.ignoreCase ?? false,
+    }),
+  });
+
+export const matches = (
+  i: Pick<Input.Type, "field"> & { value: BS.RegexFromString.Type },
+) =>
+  makeBase({
+    ...i,
+    op: Ops.Matches.make({
+      value: i.value,
+    }),
   });
 
 const handleCase = (ignoreCase: boolean) => (value: string) =>

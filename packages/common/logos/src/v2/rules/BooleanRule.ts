@@ -35,14 +35,32 @@ export namespace Rule {
   export type Encoded = typeof Rule.Encoded;
 }
 
-export const make = (i: {
-  op: Input.Type["op"]["_tag"];
-  field: Input.Type["field"];
-}) =>
+// export const make = (i: {
+//   op: Input.Type["op"]["_tag"];
+//   field: Input.Type["field"];
+// }) =>
+//   Input.make({
+//     ...i,
+//     type: "boolean",
+//     op: i.op === "isTrue" ? Ops.IsTrue.make() : Ops.IsFalse.make(),
+//   });
+
+const makeBase = (i: Omit<Input.Type, "id" | "type">) =>
   Input.make({
     ...i,
     type: "boolean",
-    op: i.op === "isTrue" ? Ops.IsTrue.make() : Ops.IsFalse.make(),
+  });
+
+export const isTrue = (i: Pick<Input.Type, "field">) =>
+  makeBase({
+    op: Ops.IsTrue.make(),
+    field: i.field,
+  });
+
+export const isFalse = (i: Pick<Input.Type, "field">) =>
+  makeBase({
+    op: Ops.IsFalse.make(),
+    field: i.field,
   });
 
 export const validate = (rule: Input.Type, value: boolean) =>

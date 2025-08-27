@@ -2,27 +2,24 @@ import { TypeRule } from "@beep/logos/v2/rules";
 import { expect, test } from "vitest";
 
 test("value is truth", () => {
-  const rule = TypeRule.make({
+  const rule = TypeRule.isTruthy({
     field: "name",
-    op: "isTruthy",
   });
   const result = TypeRule.validate(rule, "bob");
   expect(result).toBeTruthy();
 });
 
 test("value is falsy", () => {
-  const rule = TypeRule.make({
+  const rule = TypeRule.isFalsy({
     field: "name",
-    op: "isFalsy",
   });
   const result = TypeRule.validate(rule, undefined);
   expect(result).toBeTruthy();
 });
 
 test("value is null", () => {
-  const rule = TypeRule.make({
+  const rule = TypeRule.isNull({
     field: "name",
-    op: "isNull",
   });
   const result = TypeRule.validate(rule, null);
   expect(result).toBeTruthy();
@@ -41,9 +38,8 @@ test("value is null", () => {
 // });
 
 test("value is undefined", () => {
-  const rule = TypeRule.make({
+  const rule = TypeRule.isUndefined({
     field: "name",
-    op: "isUndefined",
   });
   const result = TypeRule.validate(rule, undefined);
   expect(result).toBeTruthy();
@@ -62,9 +58,8 @@ test("value is undefined", () => {
 // });
 
 test("value is string", () => {
-  const rule = TypeRule.make({
+  const rule = TypeRule.isString({
     field: "name",
-    op: "isString",
   });
   const result = TypeRule.validate(rule, "alice");
   expect(result).toBeTruthy();
@@ -83,9 +78,8 @@ test("value is string", () => {
 // });
 
 test("value is number", () => {
-  const rule = TypeRule.make({
+  const rule = TypeRule.isNumber({
     field: "name",
-    op: "isNumber",
   });
   const result = TypeRule.validate(rule, 123.4);
   expect(result).toBeTruthy();
@@ -104,9 +98,8 @@ test("value is number", () => {
 // });
 
 test("value is boolean", () => {
-  const rule = TypeRule.make({
+  const rule = TypeRule.isBoolean({
     field: "name",
-    op: "isBoolean",
   });
   const result = TypeRule.validate(rule, false);
   expect(result).toBeTruthy();
@@ -125,9 +118,8 @@ test("value is boolean", () => {
 // });
 
 test("value is array", () => {
-  const rule = TypeRule.make({
+  const rule = TypeRule.isArray({
     field: "name",
-    op: "isArray",
   });
   const result = TypeRule.validate(rule, []);
   expect(result).toBeTruthy();
@@ -146,9 +138,8 @@ test("value is array", () => {
 // });
 
 test("value is object", () => {
-  const rule = TypeRule.make({
+  const rule = TypeRule.isObject({
     field: "name",
-    op: "isObject",
   });
   const result = TypeRule.validate(rule, { name: "bob" });
   expect(result).toBeTruthy();

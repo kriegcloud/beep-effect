@@ -33,3 +33,12 @@ export namespace RuleGroup {
     }
   >;
 }
+
+export class GroupInput extends S.Struct({
+  logicalOp: LogicalOp,
+}) {}
+
+export namespace GroupInput {
+  export type Type = typeof GroupInput.Type;
+  export type Encoded = typeof GroupInput.Encoded;
+}

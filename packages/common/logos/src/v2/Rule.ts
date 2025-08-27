@@ -12,7 +12,7 @@ import {
   TypeRule,
 } from "./rules";
 
-export const Rule = S.Union(
+export class Rule extends S.Union(
   ArrayLengthRule.Rule,
   ArrayValueRule.Rule,
   BooleanRule.Rule,
@@ -23,7 +23,7 @@ export const Rule = S.Union(
   NumberRule.Rule,
   StringRule.Rule,
   TypeRule.Rule,
-);
+) {}
 
 export class RuleInput extends S.Union(
   ArrayLengthRule.Input,

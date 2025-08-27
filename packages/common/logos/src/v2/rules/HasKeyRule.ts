@@ -43,10 +43,72 @@ export const { Rule, Input } = makeRule("hasKey", {
   ),
 });
 
-export const make = (i: Omit<Input.Type, "id" | "type">) =>
+const makeBase = (i: Omit<Input.Type, "type">) =>
   Input.make({
     ...i,
     type: "hasKey",
+  });
+
+export const contains = (i: Pick<Input.Type, "field"> & { value: string }) =>
+  makeBase({
+    op: Ops.Contains.make({
+      value: i.value,
+      _tag: "contains",
+    }),
+    field: i.field,
+  });
+
+export const notContains = (i: Pick<Input.Type, "field"> & { value: string }) =>
+  makeBase({
+    op: Ops.NotContains.make({
+      value: i.value,
+      _tag: "notContains",
+    }),
+
+    field: i.field,
+  });
+
+export const inSet = (
+  i: Pick<Input.Type, "field"> & { value: (typeof Ops.InSet.Type)["value"] },
+) =>
+  makeBase({
+    op: Ops.InSet.make({
+      value: i.value,
+      _tag: "inSet",
+    } as const),
+    field: i.field,
+  });
+export const oneOf = (
+  i: Pick<Input.Type, "field"> & { value: (typeof Ops.OneOf.Type)["value"] },
+) =>
+  makeBase({
+    op: Ops.OneOf.make({
+      value: i.value,
+      _tag: "oneOf",
+    } as const),
+    field: i.field,
+  });
+
+export const allOf = (
+  i: Pick<Input.Type, "field"> & { value: (typeof Ops.AllOf.Type)["value"] },
+) =>
+  makeBase({
+    op: Ops.AllOf.make({
+      value: i.value,
+      _tag: "allOf",
+    } as const),
+    field: i.field,
+  });
+
+export const noneOf = (
+  i: Pick<Input.Type, "field"> & { value: (typeof Ops.NoneOf.Type)["value"] },
+) =>
+  makeBase({
+    op: Ops.NoneOf.make({
+      value: i.value,
+      _tag: "noneOf",
+    } as const),
+    field: i.field,
   });
 
 export namespace Rule {

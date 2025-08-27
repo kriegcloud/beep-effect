@@ -7,19 +7,33 @@ import type * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
 
+export const KV = S.Struct({ key: S.String, value: BS.Json });
+
+namespace KV {
+  export type Type = S.Schema.Type<typeof KV>;
+  export type Encoded = S.Schema.Encoded<typeof KV>;
+}
+export const KVNonEmptyArray = S.NonEmptyArray(KV);
+
+namespace KVNonEmptyArray {
+  export type Type = S.Schema.Type<typeof KVNonEmptyArray>;
+  export type Encoded = S.Schema.Encoded<typeof KVNonEmptyArray>;
+}
 /** ──────────────────────────────────────────────────────────────
  *  Operand payloads: each op carries its own value type
  *  KV is exported so we can derive an Equivalence from it.
  *  ────────────────────────────────────────────────────────────── */
 export namespace Ops {
-  export const KV = S.Struct({ key: S.String, value: BS.Json });
-  export const KVNonEmptyArray = S.NonEmptyArray(KV);
-
   export class Contains extends Operands.Contains.Schema(KV, {}) {}
+
   export class NotContains extends Operands.NotContains.Schema(KV, {}) {}
+
   export class InSet extends Operands.InSet.Schema(KVNonEmptyArray, {}) {}
+
   export class OneOf extends Operands.OneOf.Schema(KVNonEmptyArray, {}) {}
+
   export class AllOf extends Operands.AllOf.Schema(KVNonEmptyArray, {}) {}
+
   export class NoneOf extends Operands.NoneOf.Schema(S.Array(KV), {}) {}
 }
 
@@ -47,10 +61,74 @@ export namespace Input {
   export type Encoded = typeof Input.Encoded;
 }
 
-export const make = (i: Omit<Input.Type, "id" | "type">) =>
+const makeBase = (i: Omit<Input.Type, "id" | "type">) =>
   Input.make({
     ...i,
     type: "hasEntry",
+  });
+
+export const contains = (i: Pick<Input.Type, "field"> & { value: KV.Type }) =>
+  makeBase({
+    op: Ops.Contains.make({
+      value: i.value,
+      _tag: "contains",
+    }),
+    field: i.field,
+  });
+
+export const notContains = (
+  i: Pick<Input.Type, "field"> & { value: KV.Type },
+) =>
+  makeBase({
+    op: Ops.NotContains.make({
+      value: i.value,
+      _tag: "notContains",
+    }),
+
+    field: i.field,
+  });
+
+export const inSet = (
+  i: Pick<Input.Type, "field"> & { value: (typeof Ops.InSet.Type)["value"] },
+) =>
+  makeBase({
+    op: Ops.InSet.make({
+      value: i.value,
+      _tag: "inSet",
+    } as const),
+    field: i.field,
+  });
+export const oneOf = (
+  i: Pick<Input.Type, "field"> & { value: (typeof Ops.OneOf.Type)["value"] },
+) =>
+  makeBase({
+    op: Ops.OneOf.make({
+      value: i.value,
+      _tag: "oneOf",
+    } as const),
+    field: i.field,
+  });
+
+export const allOf = (
+  i: Pick<Input.Type, "field"> & { value: (typeof Ops.AllOf.Type)["value"] },
+) =>
+  makeBase({
+    op: Ops.AllOf.make({
+      value: i.value,
+      _tag: "allOf",
+    } as const),
+    field: i.field,
+  });
+
+export const noneOf = (
+  i: Pick<Input.Type, "field"> & { value: (typeof Ops.NoneOf.Type)["value"] },
+) =>
+  makeBase({
+    op: Ops.NoneOf.make({
+      value: i.value,
+      _tag: "noneOf",
+    } as const),
+    field: i.field,
   });
 
 /** ──────────────────────────────────────────────────────────────
@@ -64,19 +142,19 @@ export const validate = (
   value: R.ReadonlyRecord<string, BS.Json.Type>,
 ): boolean => {
   // Convert the runtime record to the same shape the ops are declared against.
-  const kvs: ReadonlyArray<S.Schema.Type<typeof Ops.KV>> = Struct.entries(
+  const kvs: ReadonlyArray<S.Schema.Type<typeof KV>> = Struct.entries(
     value,
   ).map(([key, v]) => ({ key, value: v }));
 
   // Deep equality for { key, value } using the schema:
-  const eqKV = S.equivalence(Ops.KV); // (a, b) => boolean
+  const eqKV = S.equivalence(KV); // (a, b) => boolean
 
   // Helpers leveraging Effect's set ops with custom equivalence
-  const overlap = (sel: ReadonlyArray<S.Schema.Type<typeof Ops.KV>>) =>
+  const overlap = (sel: ReadonlyArray<S.Schema.Type<typeof KV>>) =>
     A.intersectionWith(eqKV)(sel)(kvs); // items in both
-  const missing = (sel: ReadonlyArray<S.Schema.Type<typeof Ops.KV>>) =>
+  const missing = (sel: ReadonlyArray<S.Schema.Type<typeof KV>>) =>
     A.differenceWith(eqKV)(kvs)(sel); // elements of sel not present in kvs
-  const containsKV = (pair: S.Schema.Type<typeof Ops.KV>) =>
+  const containsKV = (pair: S.Schema.Type<typeof KV>) =>
     It.containsWith(eqKV)(pair)(kvs);
 
   return Match.value(rule.op).pipe(

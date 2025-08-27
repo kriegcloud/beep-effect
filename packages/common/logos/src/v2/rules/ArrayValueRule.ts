@@ -19,7 +19,13 @@ export namespace Ops {
         _tag: "contains",
       }) as const;
   }
-  export class NotContains extends Operands.NotContains.Schema(BS.Json, {}) {}
+  export class NotContains extends Operands.NotContains.Schema(BS.Json, {}) {
+    static readonly make = (i: Omit<typeof Contains.Type, "_tag">) =>
+      ({
+        ...i,
+        _tag: "notContains",
+      }) as const;
+  }
   export class InSet extends Operands.InSet.Schema(BS.NonEmptyJsonArray, {}) {}
   export class OneOf extends Operands.OneOf.Schema(BS.NonEmptyJsonArray, {}) {}
   export class AllOf extends Operands.AllOf.Schema(BS.NonEmptyJsonArray, {}) {}
@@ -48,10 +54,74 @@ export namespace Input {
   export type Encoded = typeof Input.Encoded;
 }
 
-export const make = (i: Omit<Input.Type, "id" | "type">) =>
+const makeBase = (i: Omit<Input.Type, "id" | "type">) =>
   Input.make({
     ...i,
     type: "arrayValue",
+  });
+
+export const contains = (
+  i: Pick<Input.Type, "field"> & { value: BS.Json.Type },
+) =>
+  makeBase({
+    op: Ops.Contains.make({
+      value: i.value,
+    }),
+    field: i.field,
+  });
+
+export const notContains = (
+  i: Pick<Input.Type, "field"> & { value: BS.Json.Type },
+) =>
+  makeBase({
+    op: Ops.NotContains.make({
+      value: i.value,
+    }),
+
+    field: i.field,
+  });
+
+export const inSet = (
+  i: Pick<Input.Type, "field"> & { value: (typeof Ops.InSet.Type)["value"] },
+) =>
+  makeBase({
+    op: Ops.InSet.make({
+      value: i.value,
+      _tag: "inSet",
+    } as const),
+    field: i.field,
+  });
+export const oneOf = (
+  i: Pick<Input.Type, "field"> & { value: (typeof Ops.OneOf.Type)["value"] },
+) =>
+  makeBase({
+    op: Ops.OneOf.make({
+      value: i.value,
+      _tag: "oneOf",
+    } as const),
+    field: i.field,
+  });
+
+export const allOf = (
+  i: Pick<Input.Type, "field"> & { value: (typeof Ops.AllOf.Type)["value"] },
+) =>
+  makeBase({
+    op: Ops.AllOf.make({
+      value: i.value,
+      _tag: "allOf",
+    } as const),
+    field: i.field,
+  });
+
+export const noneOf = (
+  i: Pick<Input.Type, "field"> & { value: (typeof Ops.NoneOf.Type)["value"] },
+) =>
+  makeBase({
+    op: Ops.NoneOf.make({
+      value: i.value,
+      _tag: "noneOf",
+    } as const),
+    field: i.field,
   });
 
 export const validate = (
