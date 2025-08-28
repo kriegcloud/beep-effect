@@ -10,7 +10,7 @@ export function middleware(request: NextRequest) {
     "base-uri": ["'self'"],
     "form-action": ["'self'"],
     "manifest-src": ["'self'"],
-    "script-src": ["'self'", "blob:", "'strict-dynamic'", "'unsafe-inline'"],
+    "script-src": ["'self'", "blob:", "'strict-dynamic'"],
     "worker-src": ["'self'", "blob:"],
     "style-src": ["'self'", `'nonce-${nonce}'`],
     "font-src": ["'self'"],
