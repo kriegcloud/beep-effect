@@ -1,6 +1,6 @@
 import * as Struct from "effect/Struct";
 import type { NextConfig } from "next";
-import path from "node:path";
+
 /**
  * Static Exports in Next.js
  *
@@ -12,45 +12,24 @@ import path from "node:path";
  *
  * NOTE: Remove all "generateStaticParams()" functions if not using static exports.
  */
-const staticHost = process.env.NEXT_PUBLIC_STATIC_URL?.replace("https://", "");
+
 const CSP_DIRECTIVES = {
   "default-src": ["'self'"],
   "base-uri": ["'self'"],
   "form-action": ["'self'"],
-  "script-src": [
-    "'self'",
-    "https://www.google.com",
-    "https://maps.googleapis.com",
-    "https://www.gstatic.com",
-    "https://api.iconify.design",
-    "https://api.unisvg.com",
-    "blob:",
-  ],
+  "script-src": ["'self'", "'strict-dynamic'", "blob:"],
   "worker-src": ["'self'", "blob:"],
-  "style-src": ["'self'", "https://fonts.googleapis.com", "'unsafe-inline'"],
-  "font-src": ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
-  "style-src-elem": ["'self'", "https://fonts.googleapis.com", "'unsafe-inline'"],
-  "script-src-elem": [
-    "'self'",
-    "blob:",
-    "https://www.google.com",
-    "https://www.gstatic.com",
-    "https://vercel.live",
-    "'unsafe-inline'",
-  ],
-  "connect-src": [
-    "'self'",
-    "https://api.unisvg.com",
-    "https://api.iconify.design",
-    process.env.NEXT_PUBLIC_STATIC_URL,
-    "https://api.simplesvg.com",
-    "https://vercel.live/",
-    "https://vercel.com",
-  ],
+  "style-src": ["'self'", "'unsafe-hashes'"],
+  "font-src": ["'self'"],
+  "style-src-elem": ["'self'", "'unsafe-inline'"],
+  "manifest-src": ["'self'"],
+  "script-src-elem": ["'self'", "blob:", "https://vercel.live"],
+  "style-src-attr": ["'self'", "unsafe-hashes"],
+  "connect-src": ["'self'", process.env.NEXT_PUBLIC_STATIC_URL, "https://vercel.live/", "https://vercel.com"],
   "media-src": ["'self'", "data:"],
   "frame-ancestors": ["'self'", "https://vercel.live", "https://vercel.com"],
-  "img-src": ["'self'", "https://www.google-analytics.com", process.env.NEXT_PUBLIC_STATIC_URL, "data:"],
-  "frame-src": ["'self'", "https://google-analytics.com", "https://vercel.live", "https://vercel.com"],
+  "img-src": ["'self'", process.env.NEXT_PUBLIC_STATIC_URL, "data:", "blob:"],
+  "frame-src": ["'self'", "https://vercel.live", "https://vercel.com"],
 } as const;
 
 const genCSP = () => {
@@ -58,7 +37,7 @@ const genCSP = () => {
   for (const [k, v] of Struct.entries(CSP_DIRECTIVES)) {
     csp += `${k} ${v.join(" ")}; `;
   }
-  return csp;
+  return `${csp} upgrade-insecure-requests; frame-ancestors 'none';`;
 };
 
 const securityHeaders = [
@@ -96,17 +75,11 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
-  transpilePackages: [
-    "@beep/invariant",
-    "@beep/schema",
-    "@beep/types",
-    "@beep/ui",
-    "@beep/utils",
-    "@beep/logos",
-    "@beep/rete"
-  ],
+  trailingSlash: true,
+  ...(process.env.NODE_ENV === "development" ? { experimental: { sri: { algorithm: "sha256" } } } : {}),
+
   images: {
-    remotePatterns: staticHost ? [
+    remotePatterns: [
       {
         protocol: "https",
         hostname: `${process.env.NEXT_PUBLIC_STATIC_URL}`.replace("https://", ""),
@@ -119,7 +92,7 @@ const nextConfig = {
         port: "",
         pathname: "/**",
       },
-    ] : [],
+    ],
   },
   async headers() {
     return [
@@ -130,8 +103,21 @@ const nextConfig = {
       },
     ];
   },
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ["@svgr/webpack"],
+    });
 
-  outputFileTracingRoot: path.join(__dirname, "../../"),
+    config.experiments = {
+      ...config.experiments,
+      layers: true,
+      asyncWebAssembly: true,
+      topLevelAwait: true,
+    };
+
+    return config;
+  },
 } satisfies NextConfig;
 
 export default nextConfig;

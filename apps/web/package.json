@@ -82,6 +82,7 @@
     "i18next-browser-languagedetector": "*",
     "i18next-resources-to-backend": "*",
     "input-otp": "*",
+    "uuid": "*",
     "lodash": "*",
     "lodash-es": "*",
     "lowlight": "*",

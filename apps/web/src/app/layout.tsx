@@ -8,6 +8,7 @@ import { primary, themeConfig } from "@beep/ui/theme";
 import { ThemeProvider } from "@beep/ui/theme/theme-provider";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import type React from "react";
 // import { GlobalProviders } from "@/global-providers";
 import "dayjs/locale/en";
@@ -53,11 +54,12 @@ async function getAppConfig() {
 
 export default async function RootLayout({ children }: RootLayoutProps) {
   const appConfig = await getAppConfig();
-
+  const nonce = (await headers()).get("x-nonce") || undefined;
   return (
     <html lang={appConfig.lang ?? "en"} dir={appConfig.dir} suppressHydrationWarning>
       <body>
         <InitColorSchemeScript
+          nonce={nonce}
           modeStorageKey={themeConfig.modeStorageKey}
           attribute={themeConfig.cssVariables.colorSchemeSelector}
           defaultMode={themeConfig.defaultMode}
@@ -66,7 +68,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
           {/*<GlobalProviders>*/}
           <SettingsProvider cookieSettings={appConfig.cookieSettings} defaultSettings={defaultSettings}>
             <LocalizationProvider>
-              <AppRouterCacheProvider options={{ key: "css", enableCssLayer: true }}>
+              <AppRouterCacheProvider options={{ key: "css", enableCssLayer: true, nonce: nonce! }}>
                 <ThemeProvider modeStorageKey={themeConfig.modeStorageKey} defaultMode={themeConfig.defaultMode}>
                   <MotionLazy>
                     <Snackbar />
