@@ -2,9 +2,9 @@ import type { InternalFactRepresentation } from "@beep/rete/network";
 import * as Struct from "effect/Struct";
 import type { InsertBeepFact } from "./types";
 
-export const insertFactToFact = <SCHEMA extends object>(
-  insertion: InsertBeepFact<SCHEMA>
-): InternalFactRepresentation<SCHEMA> => {
+export const insertFactToFact = <TSchema extends object>(
+  insertion: InsertBeepFact<TSchema>
+): InternalFactRepresentation<TSchema> => {
   // @ts-expect-error
   return Struct.keys(insertion).flatMap((id) =>
     Struct.keys(insertion[id]!).map((attr) => {

@@ -1,8 +1,8 @@
 import type { FactId, Session } from "@beep/rete/network/types";
 import { hashIdAttr } from "../utils";
 
-const retrieveFactValueByIdAttr = <SCHEMA extends object, T extends keyof SCHEMA, X extends SCHEMA[T]>(
-  session: Session<SCHEMA>,
+const retrieveFactValueByIdAttr = <TSchema extends object, T extends keyof TSchema, X extends TSchema[T]>(
+  session: Session<TSchema>,
   id: FactId.Type,
   attr: T
 ): X | undefined => {

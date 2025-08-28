@@ -31,51 +31,51 @@ const extractId = (id: string) => (id.startsWith("$") ? { name: idPrefix(id), fi
 const valueKey = ({ id, attr }: { id: string; attr: string | number | symbol }) =>
   `${VALUE_PREFIX}${id}_${String(attr)}`;
 
-export const beep = <SCHEMA extends object>(autoFire = true, auditor?: Auditor): IBeep<SCHEMA> => {
-  let session = rete.initSession<SCHEMA>(autoFire, auditor);
+export const beep = <TSchema extends object>(autoFire = true, auditor?: Auditor): IBeep<TSchema> => {
+  let session = rete.initSession<TSchema>(autoFire, auditor);
   const reset = () => {
-    session = rete.initSession<SCHEMA>(autoFire, auditor);
+    session = rete.initSession<TSchema>(autoFire, auditor);
   };
-  const insert = (insertFacts: InsertBeepFact<SCHEMA>) => {
+  const insert = (insertFacts: InsertBeepFact<TSchema>) => {
     // be dumb about this
     const factTuples = insertFactToFact(insertFacts);
 
     for (let i = 0; i < factTuples.length; i++) {
-      rete.insertFact<SCHEMA>(session, factTuples[i]);
+      rete.insertFact<TSchema>(session, factTuples[i]);
     }
   };
-  const retract = (id: string, ...attrs: (keyof SCHEMA)[]) => {
+  const retract = (id: string, ...attrs: (keyof TSchema)[]) => {
     attrs.map((attr) => {
-      rete.retractFactByIdAndAttr<SCHEMA>(session, id, attr);
+      rete.retractFactByIdAndAttr<TSchema>(session, id, attr);
     });
   };
 
-  const get = <T extends keyof SCHEMA>(id: string, attr: T) => {
+  const get = <T extends keyof TSchema>(id: string, attr: T) => {
     return rete.retrieveFactValueByIdAttr(session, id, attr);
   };
 
-  const retractByConditions = (id: string, conditions: { [key in keyof SCHEMA]?: any }) => {
-    retract(id, ...(Struct.keys(conditions) as (keyof SCHEMA)[]));
+  const retractByConditions = (id: string, conditions: { [key in keyof TSchema]?: any }) => {
+    retract(id, ...(Struct.keys(conditions) as (keyof TSchema)[]));
   };
 
   const conditions = <
     T extends {
-      [ATTR in keyof Partial<SCHEMA>]: ConditionOptions<SCHEMA[ATTR]> | undefined;
+      [ATTR in keyof Partial<TSchema>]: ConditionOptions<TSchema[ATTR]> | undefined;
     },
   >(
-    conds: (schema: Condition<SCHEMA>) => T
+    conds: (schema: Condition<TSchema>) => T
   ): T => {
-    const schema = {} as unknown as Condition<SCHEMA>;
+    const schema = {} as unknown as Condition<TSchema>;
     return conds(schema);
   };
 
-  const rule = <T extends ConditionArgs<SCHEMA>>(
+  const rule = <T extends ConditionArgs<TSchema>>(
     name: string,
-    conditions: (schema: Condition<SCHEMA>) => T,
+    conditions: (schema: Condition<TSchema>) => T,
     onAlreadyExistsBehaviour = PRODUCTION_ALREADY_EXISTS_BEHAVIOR.ERROR
   ) => {
     const onAlreadyExists = onAlreadyExistsBehaviour;
-    const convertMatchFn: ConvertMatchFn<SCHEMA, EnactArgs<SCHEMA, T>> = (args) => {
+    const convertMatchFn: ConvertMatchFn<TSchema, EnactArgs<TSchema, T>> = (args) => {
       // This is where we need to convert the dictionary to the
       // js object we want
       const result = {};
@@ -98,11 +98,11 @@ export const beep = <SCHEMA extends object>(autoFire = true, auditor?: Auditor):
         }
       }
 
-      return result as EnactArgs<SCHEMA, T>;
+      return result as EnactArgs<TSchema, T>;
     };
 
-    const enact = (enaction?: EnactionArgs<SCHEMA, T>) => {
-      const production = rete.initProduction<SCHEMA, EnactArgs<SCHEMA, T>>({
+    const enact = (enaction?: EnactionArgs<TSchema, T>) => {
+      const production = rete.initProduction<TSchema, EnactArgs<TSchema, T>>({
         name: name,
         condFn: (args) => enaction?.when?.(convertMatchFn(args)) ?? true,
         convertMatchFn,
@@ -113,12 +113,12 @@ export const beep = <SCHEMA extends object>(autoFire = true, auditor?: Auditor):
       if (enaction?.thenFinally !== undefined) {
         production.thenFinallyFn = (session) => enaction?.thenFinally?.(() => rete.queryAll(session, production));
       }
-      const schema = {} as Condition<SCHEMA>;
+      const schema = {} as Condition<TSchema>;
       const cond = conditions(schema);
       const keys = _.keys(cond);
       for (let i = 0; i < keys.length; i++) {
         const id = keys[i]!;
-        const attrs = _.keys(_.get(cond, id)) as [keyof SCHEMA];
+        const attrs = _.keys(_.get(cond, id)) as [keyof TSchema];
         for (let j = 0; j < attrs.length; j++) {
           const attr = attrs[j]!;
           const options: ConditionOptions<unknown> | undefined = _.get(cond, `${id}.${String(attr)}`);
@@ -159,10 +159,10 @@ export const beep = <SCHEMA extends object>(autoFire = true, auditor?: Auditor):
       }
 
       rete.addProductionToSession(session, production, onAlreadyExists);
-      const convertFilterArgs = (filter: QueryArgs<SCHEMA, T>) => {
+      const convertFilterArgs = (filter: QueryArgs<TSchema, T>) => {
         const joinIds = Struct.keys(filter);
 
-        const filters = new Map<string, FactFragment<SCHEMA>[]>();
+        const filters = new Map<string, FactFragment<TSchema>[]>();
         for (const joinId of joinIds) {
           const filterAttrs = Struct.keys(filter[joinId]!);
           for (const attr of filterAttrs) {
@@ -183,12 +183,12 @@ export const beep = <SCHEMA extends object>(autoFire = true, auditor?: Auditor):
         return filters;
       };
 
-      const query = (filter?: QueryArgs<SCHEMA, T>) => {
+      const query = (filter?: QueryArgs<TSchema, T>) => {
         if (!filter) return rete.queryAll(session, production);
         return rete.queryAll(session, production, convertFilterArgs(filter));
       };
 
-      const queryOne = (filter?: QueryArgs<SCHEMA, T>, options?: QueryOneOptions) => {
+      const queryOne = (filter?: QueryArgs<TSchema, T>, options?: QueryOneOptions) => {
         const result = query(filter);
         if (result.length > 1 && options?.shouldThrowExceptionOnMoreThanOne) {
           throw new Error("queryOne returned more than one result!");
@@ -196,7 +196,7 @@ export const beep = <SCHEMA extends object>(autoFire = true, auditor?: Auditor):
 
         return result.pop();
       };
-      const subscribe = (fn: (results: EnactArgs<SCHEMA, T>[]) => void, filter?: QueryArgs<SCHEMA, T>) =>
+      const subscribe = (fn: (results: EnactArgs<TSchema, T>[]) => void, filter?: QueryArgs<TSchema, T>) =>
         rete.subscribeToProduction(
           session,
           production,
@@ -204,8 +204,8 @@ export const beep = <SCHEMA extends object>(autoFire = true, auditor?: Auditor):
           filter !== undefined ? convertFilterArgs(filter) : undefined
         );
       const subscribeOne = (
-        fn: (results: EnactArgs<SCHEMA, T> | undefined) => void,
-        filter?: QueryArgs<SCHEMA, T>,
+        fn: (results: EnactArgs<TSchema, T> | undefined) => void,
+        filter?: QueryArgs<TSchema, T>,
         options?: QueryOneOptions
       ) =>
         rete.subscribeToProduction(

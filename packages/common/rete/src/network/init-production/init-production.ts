@@ -1,12 +1,12 @@
 import type { CondFn, ConvertMatchFn, Production, ThenFinallyFn, ThenFn } from "@beep/rete/network/types";
 
-export const initProduction = <SCHEMA extends object, U>(production: {
+export const initProduction = <TSchema extends object, U>(production: {
   name: string;
-  convertMatchFn: ConvertMatchFn<SCHEMA, U>;
-  condFn?: CondFn<SCHEMA>;
-  thenFn?: ThenFn<SCHEMA, U>;
-  thenFinallyFn?: ThenFinallyFn<SCHEMA, U>;
-}): Production<SCHEMA, U> => {
+  convertMatchFn: ConvertMatchFn<TSchema, U>;
+  condFn?: CondFn<TSchema>;
+  thenFn?: ThenFn<TSchema, U>;
+  thenFinallyFn?: ThenFinallyFn<TSchema, U>;
+}): Production<TSchema, U> => {
   return {
     ...production,
     conditions: [],

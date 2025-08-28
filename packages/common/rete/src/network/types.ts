@@ -6,9 +6,9 @@ import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
 import type { Auditor } from "./audit";
 export type ValueOf<T> = T[keyof T];
-export type FactFragment<SCHEMA> = FactId.Type | keyof SCHEMA | ValueOf<SCHEMA>;
-export type MatchT<SCHEMA> = Map<string, FactFragment<SCHEMA>>;
-export type QueryFilter<SCHEMA> = Map<string, FactFragment<SCHEMA>[]>;
+export type FactFragment<TSchema> = FactId.Type | keyof TSchema | ValueOf<TSchema>;
+export type MatchT<TSchema> = Map<string, FactFragment<TSchema>>;
+export type QueryFilter<TSchema> = Map<string, FactFragment<TSchema>[]>;
 
 export enum PRODUCTION_ALREADY_EXISTS_BEHAVIOR {
   QUIET = 0,
@@ -31,8 +31,8 @@ export namespace Field {
 }
 
 // Shorten that name a bit
-export type InternalFactRepresentation<SCHEMA extends object> = readonly [FactId.Type, keyof SCHEMA, any];
-export const internalFactRepresentation = <const SCHEMA extends object>(schema: SCHEMA) =>
+export type InternalFactRepresentation<TSchema extends object> = readonly [FactId.Type, keyof TSchema, any];
+export const internalFactRepresentation = <const TSchema extends object>(schema: TSchema) =>
   S.Tuple(FactId, S.Literal(...Struct.keys(schema)), S.Any);
 export type Fact<T extends object> = InternalFactRepresentation<T>;
 
@@ -95,7 +95,7 @@ export type ThenFn<T extends object, U> = (then: {
   rule: Production<T, U>;
   vars: U;
 }) => Promise<void> | void;
-export type WrappedThenFn<SCHEMA> = (vars: MatchT<SCHEMA>) => Promise<void> | void;
+export type WrappedThenFn<TSchema> = (vars: MatchT<TSchema>) => Promise<void> | void;
 export type ThenFinallyFn<T extends object, U> = (session: Session<T>, rule: Production<T, U>) => Promise<void> | void;
 export type WrappedThenFinallyFn = () => Promise<void> | void;
 export type ConvertMatchFn<T, U> = (vars: MatchT<T>) => U;

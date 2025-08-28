@@ -29,7 +29,7 @@ interface NetworkGraph {
   edges: Edge[];
 }
 
-const conditionToString = <SCHEMA extends object>(condition: Condition<SCHEMA>) => {
+const conditionToString = <TSchema extends object>(condition: Condition<TSchema>) => {
   const nodeStr = condition.nodes.map((n) => `[${FIELD_TO_STR[n[0]]} ${String(n[1])}]`).join("\n");
 
   const varStr = condition.vars.map((v) => `${FIELD_TO_STR[v.field]}: ${v.name}`).join("\n");
@@ -37,7 +37,7 @@ const conditionToString = <SCHEMA extends object>(condition: Condition<SCHEMA>) 
   return `-- nodes --\n ${nodeStr}\n\n -- vars -- \n ${varStr}`;
 };
 
-const memoryNode = <SCHEMA extends object>(node: MemoryNode<SCHEMA>): Node => {
+const memoryNode = <TSchema extends object>(node: MemoryNode<TSchema>): Node => {
   const fillColor = node.type === MEMORY_NODE_TYPE.Enum.LEAF ? ",fillcolor=green,style=filled" : "";
   const matchStrs: string[] = [];
   node.matches.forEach((v, k) => {
@@ -62,7 +62,7 @@ const memoryNode = <SCHEMA extends object>(node: MemoryNode<SCHEMA>): Node => {
   };
 };
 
-const alphaNode = <SCHEMA extends object>(node: AlphaNode<SCHEMA>): Node => {
+const alphaNode = <TSchema extends object>(node: AlphaNode<TSchema>): Node => {
   const testVal = node.testField
     ? `${FIELD_TO_STR[node.testField]} ${String(node.testValue)}`
     : node.testValue
@@ -92,7 +92,7 @@ const alphaNode = <SCHEMA extends object>(node: AlphaNode<SCHEMA>): Node => {
   };
 };
 
-const joinNode = <SCHEMA extends object>(node: JoinNode<SCHEMA>): Node => {
+const joinNode = <TSchema extends object>(node: JoinNode<TSchema>): Node => {
   const cond = conditionToString(node.condition);
   const idName = node.idName ?? "";
   const label = `${node.ruleName}\n${idName}\n\n**CONDITIONS**\n\n${cond}`;
@@ -102,7 +102,7 @@ const joinNode = <SCHEMA extends object>(node: JoinNode<SCHEMA>): Node => {
     attributes: `[color=red, label="JOIN ${node.id}\n\n${label}"]`,
   };
 };
-const addMemoryNode = <SCHEMA extends object>(node: MemoryNode<SCHEMA>, graph: NetworkGraph, source?: Node) => {
+const addMemoryNode = <TSchema extends object>(node: MemoryNode<TSchema>, graph: NetworkGraph, source?: Node) => {
   const gNode = memoryNode(node);
   graph.nodes.set(gNode.id, gNode);
   if (source) graph.edges.push({ sources: [source], sink: gNode });
@@ -111,7 +111,7 @@ const addMemoryNode = <SCHEMA extends object>(node: MemoryNode<SCHEMA>, graph: N
   }
 };
 
-const addJoinNode = <SCHEMA extends object>(node: JoinNode<SCHEMA>, graph: NetworkGraph, source?: Node) => {
+const addJoinNode = <TSchema extends object>(node: JoinNode<TSchema>, graph: NetworkGraph, source?: Node) => {
   const gNode = joinNode(node);
   graph.nodes.set(gNode.id, gNode);
   if (source) graph.edges.push({ sources: [source], sink: gNode });
@@ -123,7 +123,7 @@ const addJoinNode = <SCHEMA extends object>(node: JoinNode<SCHEMA>, graph: Netwo
   }
 };
 
-const addAlphaNode = <SCHEMA extends object>(node: AlphaNode<SCHEMA>, graph: NetworkGraph, source?: Node) => {
+const addAlphaNode = <TSchema extends object>(node: AlphaNode<TSchema>, graph: NetworkGraph, source?: Node) => {
   const gNode = alphaNode(node);
   graph.nodes.set(node.id, gNode);
   if (source) graph.edges.push({ sources: [source], sink: gNode });
@@ -136,7 +136,7 @@ const addAlphaNode = <SCHEMA extends object>(node: AlphaNode<SCHEMA>, graph: Net
   });
 };
 
-const graphNetwork = <SCHEMA extends object>(node: AlphaNode<SCHEMA>, graph: NetworkGraph) => {
+const graphNetwork = <TSchema extends object>(node: AlphaNode<TSchema>, graph: NetworkGraph) => {
   addAlphaNode(node, graph);
   return graph;
 };
@@ -160,7 +160,7 @@ const toDot = (graph: NetworkGraph) => {
   return lines.join("\n");
 };
 
-export const viz = <SCHEMA extends object>(session: Session<SCHEMA>) => {
+export const viz = <TSchema extends object>(session: Session<TSchema>) => {
   const root = session.alphaNode;
   const graph: NetworkGraph = {
     title: "Network",
@@ -172,7 +172,7 @@ export const viz = <SCHEMA extends object>(session: Session<SCHEMA>) => {
   return toDot(graph);
 };
 
-export const vizOnlineUrl = <SCHEMA extends object>(session: Session<SCHEMA>, openInBrowser?: boolean) => {
+export const vizOnlineUrl = <TSchema extends object>(session: Session<TSchema>, openInBrowser?: boolean) => {
   const datums = viz(session);
   const encoded = encodeURIComponent(datums);
   const url = `https://dreampuf.github.io/GraphvizOnline/#${encoded}`;
