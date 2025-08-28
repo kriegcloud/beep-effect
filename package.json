@@ -200,7 +200,15 @@
       "json-logic-js": "^2.0.5",
       "@svgr/webpack": "^8.1.0",
       "@types/json-logic-js": "^2.0.8"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "@tailwindcss/oxide",
+      "core-js-pure",
+      "esbuild",
+      "msgpackr-extract",
+      "sharp"
+    ]
   },
   "lint-staged": {
     "*": [
