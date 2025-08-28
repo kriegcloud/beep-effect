@@ -36,7 +36,6 @@
     "lint:fix": "turbo run lint:fix",
     "test": "turbo run test",
     "coverage": "turbo run coverage",
-    "prepare": "husky",
     "dev:https": "pnpm dotenvx turbo run dev:https --concurrency=14",
     "dev": "pnpm dotenvx turbo run dev --concurrency=14",
     "dotenvx": "dotenvx run -f .env --",
@@ -146,7 +145,6 @@
       "input-otp": "^1.4.2",
       "lodash": "^4.17.21",
       "lodash-es": "^4.17.21",
-      "v8-profiler-next": "^1.10.0",
       "lowlight": "^3.3.0",
       "mui-one-time-password-input": "^5.0.0",
       "next": "^15.5.2",
@@ -210,8 +208,7 @@
       "fsevents",
       "msgpackr-extract",
       "protobufjs",
-      "sharp",
-      "v8-profiler-next"
+      "sharp"
     ]
   },
   "lint-staged": {

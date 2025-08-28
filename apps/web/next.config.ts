@@ -1,6 +1,6 @@
 import * as Struct from "effect/Struct";
 import type { NextConfig } from "next";
-
+import path from "node:path";
 /**
  * Static Exports in Next.js
  *
@@ -98,6 +98,7 @@ const securityHeaders = [
 const nextConfig = {
   trailingSlash: true,
   turbopack: {
+    root: path.join(__dirname, "../.."),
     rules: {
       "*.svg": {
         loaders: ["@svgr/webpack"],
