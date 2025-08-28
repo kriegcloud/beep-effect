@@ -9,7 +9,7 @@ import {
   PRODUCTION_ALREADY_EXISTS_BEHAVIOR,
   type Production,
   type Session,
-} from "@beep/rete/network";
+} from "@beep/rete/network/types";
 import { addNodes } from "../add-nodes";
 import { isAncestor } from "../is-ancestor";
 

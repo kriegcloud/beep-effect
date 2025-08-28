@@ -1,4 +1,4 @@
-import { type Condition, Field, type Production, type Var } from "@beep/rete/network";
+import { type Condition, Field, type Production, type Var } from "@beep/rete/network/types";
 import { isVar } from "../is-var";
 export const addConditionsToProduction = <T extends object, U>(
   production: Production<T, U>,

@@ -1,4 +1,4 @@
-import type { ExecutedNodes } from "@beep/rete/network";
+import type { ExecutedNodes } from "@beep/rete/network/types";
 
 export const recursionLimitMessage = <T extends object>(limit: number, executedNodes: ExecutedNodes<T>) => {
   const rules: string[] = [];

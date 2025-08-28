@@ -1,4 +1,4 @@
-import type { CondFn, ConvertMatchFn, Production, ThenFinallyFn, ThenFn } from "@beep/rete/network";
+import type { CondFn, ConvertMatchFn, Production, ThenFinallyFn, ThenFn } from "@beep/rete/network/types";
 
 export const initProduction = <SCHEMA extends object, U>(production: {
   name: string;

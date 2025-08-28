@@ -1,4 +1,4 @@
-import type { Binding, FactFragment } from "@beep/rete/network";
+import type { Binding, FactFragment } from "@beep/rete/network/types";
 
 export const bindingWasSet = <T>(
   binding: Binding<T> | undefined,

@@ -1,4 +1,4 @@
-import type { FactId, Session } from "@beep/rete/network";
+import type { FactId, Session } from "@beep/rete/network/types";
 import { hashIdAttr } from "../utils";
 
 const retrieveFactValueByIdAttr = <SCHEMA extends object, T extends keyof SCHEMA, X extends SCHEMA[T]>(

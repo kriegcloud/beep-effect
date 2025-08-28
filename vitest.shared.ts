@@ -14,7 +14,6 @@ const config: ViteUserConfig = {
 
   plugins: [tsconfigPaths()],
   test: {
-    testTimeout: 900_000,
     onConsoleLog: (log) => {
       console.log(log);
     },

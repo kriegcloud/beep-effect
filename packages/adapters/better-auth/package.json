@@ -28,7 +28,7 @@
     "check": "tsc -b tsconfig.json",
     "test": "vitest run",
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
-    "coverage": "vitest --coverage",
+    "coverage": "vitest run --coverage",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "dotenvx": "dotenvx run -f ../../../.env --",

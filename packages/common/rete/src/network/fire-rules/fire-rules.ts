@@ -1,4 +1,4 @@
-import type { ExecutedNodes, IdAttrs, IdAttrsHash, Match, MemoryNode, Session } from "@beep/rete/network";
+import type { ExecutedNodes, IdAttrs, IdAttrsHash, Match, MemoryNode, Session } from "@beep/rete/network/types";
 import { AuditEntryState, AuditRecordType, AuditRuleTrigger } from "../audit";
 import { bindingsToMatch } from "../bindings-to-match";
 import { raiseRecursionLimit } from "../raise-recursion-limit";

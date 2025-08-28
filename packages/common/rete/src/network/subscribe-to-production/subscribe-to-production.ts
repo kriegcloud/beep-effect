@@ -1,4 +1,4 @@
-import type { Production, QueryFilter, Session } from "@beep/rete/network";
+import type { Production, QueryFilter, Session } from "@beep/rete/network/types";
 import { queryAll } from "../query-all";
 
 export const subscribeToProduction = <T extends object, U>(

@@ -7,7 +7,7 @@ import {
   type Session,
   type Token,
   TokenKind,
-} from "@beep/rete/network";
+} from "@beep/rete/network/types";
 import { bindingsToMatch } from "../bindings-to-match";
 import { leftActivationWithoutAlpha } from "../left-activation-without-alpha";
 import { hashIdAttr, hashIdAttrs } from "../utils";

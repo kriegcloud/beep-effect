@@ -1,4 +1,4 @@
-import type { Binding } from "@beep/rete/network";
+import type { Binding } from "@beep/rete/network/types";
 
 export const getValFromBindings = <T>(bindings: Binding<T> | undefined, key: string) => {
   let cur = bindings;

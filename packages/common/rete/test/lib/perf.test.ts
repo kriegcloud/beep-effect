@@ -311,17 +311,17 @@ describe("company price scheduling...", () => {
         const priceScheduleAmount = session.get(id.toString()!, "markupAmount")!;
         const overrideParent = session.get(id.toString(), "overrideParent")!;
         const childPrice = session.get(id.toString(), "basePrice");
-        if (priceSchedule !== "FIXED") {
-          console.log("Not fixed");
-        }
+        // if (priceSchedule !== "FIXED") {
+        //   console.log("Not fixed");
+        // }
         const expectedPrice = overrideParent
           ? childPrice
           : priceSchedule === "FIXED"
             ? curPrice + priceScheduleAmount
             : curPrice * priceScheduleAmount;
-        if (childPrice !== expectedPrice) {
-          console.log("oh dear.");
-        }
+        // if (childPrice !== expectedPrice) {
+        //   console.log("oh dear.");
+        // }
         // expect(childPrice).toBe(expectedPrice)
         const parentId = session.get(id.toString(), "parentCompany");
         expect(parentId).toBe(pId.toString());

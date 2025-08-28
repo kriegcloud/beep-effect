@@ -1,4 +1,4 @@
-import { type Binding, type Condition, type Fact, Field, type Token } from "@beep/rete/network";
+import { type Binding, type Condition, type Fact, Field, type Token } from "@beep/rete/network/types";
 import { bindingWasSet } from "../binding-was-set";
 
 export const bindVarsFromFact = <T extends object>(

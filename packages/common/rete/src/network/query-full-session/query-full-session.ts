@@ -1,4 +1,4 @@
-import type { Fact, Session } from "@beep/rete/network";
+import type { Fact, Session } from "@beep/rete/network/types";
 
 export const queryFullSession = <T extends object>(session: Session<T>): Fact<T>[] => {
   const result: Fact<T>[] = [];

@@ -1,4 +1,4 @@
-import type { AlphaNode } from "@beep/rete/network";
+import type { AlphaNode } from "@beep/rete/network/types";
 
 export const addNode = <T extends object>(node: AlphaNode<T>, newNode: AlphaNode<T>): AlphaNode<T> => {
   for (let i = 0; i < node.children.length; i++) {

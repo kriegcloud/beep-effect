@@ -1,4 +1,4 @@
-import type { AlphaNode, FactId, Field, Session } from "@beep/rete/network";
+import type { AlphaNode, FactId, Field, Session } from "@beep/rete/network/types";
 import { addNode } from "../add-node";
 
 export const addNodes = <T extends object>(

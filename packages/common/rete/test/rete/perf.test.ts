@@ -107,8 +107,7 @@ it("test map instantiation", () => {
 
 describe("rete perf", () => {
   it("packed_5", () => {
-    // @ts-expect-error
-    const session = rete.initSession<Schema>(false, { enabled: true });
+    const session = rete.initSession<Schema>(false);
     const makeProduction = (name: keyof Schema) => {
       const valName = name.toLowerCase();
       const entJoin = "$ent";
@@ -157,12 +156,9 @@ describe("rete perf", () => {
     rete.insertFact(session, ["Delta", "delta", 1]);
     rete.fireRules(session);
     rete.insertFact(session, ["Delta", "delta", 1]);
-    // @ts-expect-error
-    const x = rete.queryAll(session, a);
-    // @ts-expect-error
-    const y = rete.queryAll(session, b);
-    // @ts-expect-error
-    const before = performance.now();
+    rete.queryAll(session, a);
+    rete.queryAll(session, b);
+    performance.now();
     let count = 0;
     const { hz } = bench("packed5", () => {
       const dt = Math.random();
@@ -170,8 +166,7 @@ describe("rete perf", () => {
       rete.fireRules(session);
       count++;
     });
-    // @ts-expect-error
-    const after = performance.now();
+    performance.now();
     const measureMap = new Map<string, { total: number; count: number; avg: number }>();
     performance.getEntriesByType("measure").map((p) => {
       if (!measureMap.has(p.name)) {

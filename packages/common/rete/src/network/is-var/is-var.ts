@@ -1,4 +1,4 @@
-import type { Var } from "@beep/rete/network";
+import type { Var } from "@beep/rete/network/types";
 import * as P from "effect/Predicate";
 
 /*

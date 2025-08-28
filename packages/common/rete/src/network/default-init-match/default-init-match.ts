@@ -1,4 +1,4 @@
-import type { FactFragment } from "@beep/rete/network";
+import type { FactFragment } from "@beep/rete/network/types";
 
 export const defaultInitMatch = <T>() => {
   return new Map<string, FactFragment<T>>();

@@ -23,7 +23,7 @@
     "check": "tsc -b tsconfig.json",
     "test": "vitest run",
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
-    "coverage": "vitest --coverage",
+    "coverage": "vitest run --coverage",
     "db:generate": "TSX_TSCONFIG_PATH=./tsconfig.tsx.json NODE_OPTIONS='--import tsx' pnpm dotenvx drizzle-kit generate",
     "db:migrate": "TSX_TSCONFIG_PATH=./tsconfig.tsx.json NODE_OPTIONS='--import tsx' pnpm dotenvx drizzle-kit migrate",
     "db:push": "TSX_TSCONFIG_PATH=./tsconfig.tsx.json NODE_OPTIONS='--import tsx' pnpm dotenvx drizzle-kit push",

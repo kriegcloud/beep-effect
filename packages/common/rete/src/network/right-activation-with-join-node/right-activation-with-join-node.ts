@@ -1,4 +1,4 @@
-import type { IdAttr, JoinNode, Session, Token } from "@beep/rete/network";
+import type { IdAttr, JoinNode, Session, Token } from "@beep/rete/network/types";
 import { bindVarsFromFact } from "../bind-vars-from-fact";
 import { getValFromBindings } from "../get-val-from-bindings";
 import { leftActivationOnMemoryNode } from "../left-activation-on-memory-node";

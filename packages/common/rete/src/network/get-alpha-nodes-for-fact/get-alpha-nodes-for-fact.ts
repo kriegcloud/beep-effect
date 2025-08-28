@@ -1,4 +1,4 @@
-import { type AlphaNode, type Fact, Field, type Session } from "@beep/rete/network";
+import { type AlphaNode, type Fact, Field, type Session } from "@beep/rete/network/types";
 
 export const getAlphaNodesForFact = <T extends object>(
   session: Session<T>,

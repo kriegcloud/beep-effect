@@ -1,4 +1,4 @@
-import { type AlphaNode, type Fact, type Session, type Token, TokenKind } from "@beep/rete/network";
+import { type AlphaNode, type Fact, type Session, type Token, TokenKind } from "@beep/rete/network/types";
 import { getIdAttr } from "../get-id-attr";
 import { rightActivationWithJoinNode } from "../right-activation-with-join-node";
 import { hashIdAttr } from "../utils";

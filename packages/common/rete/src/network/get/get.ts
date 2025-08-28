@@ -1,4 +1,4 @@
-import type { Production, Session } from "@beep/rete/network";
+import type { Production, Session } from "@beep/rete/network/types";
 import { bindingsToMatch } from "../bindings-to-match";
 import { hashIdAttrs } from "../utils";
 

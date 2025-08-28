@@ -1,4 +1,4 @@
-import type { Production, QueryFilter, Session } from "@beep/rete/network";
+import type { Production, QueryFilter, Session } from "@beep/rete/network/types";
 import { bindingsToMatch } from "../bindings-to-match";
 
 export const queryAll = <T extends object, U>(

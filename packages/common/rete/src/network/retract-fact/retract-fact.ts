@@ -1,4 +1,5 @@
-import { type AlphaNode, AuditAction, AuditRecordType, type Fact, type Session, TokenKind } from "@beep/rete/network";
+import { AuditAction, AuditRecordType } from "@beep/rete/network/audit";
+import { type AlphaNode, type Fact, type Session, TokenKind } from "@beep/rete/network/types";
 import _ from "lodash";
 import { fireRules } from "../fire-rules";
 import { getIdAttr } from "../get-id-attr";
