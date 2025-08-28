@@ -90,7 +90,6 @@ const securityHeaders = [
 
 const nextConfig = {
   trailingSlash: true,
-  ...(process.env.NEXT_PUBLIC_ENV === "dev" ? {} : { experimental: { sri: { algorithm: "sha256" } } }),
 
   images: {
     remotePatterns: [
