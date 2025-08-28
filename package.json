@@ -22,6 +22,7 @@
     "clean": "git clean -xdf node_modules .turbo",
     "clean:workspaces": "turbo run clean",
     "build": "pnpm dotenvx turbo run build",
+    "build:turbo": "pnpm dotenvx turbo run build:turbo",
     "execute": "pnpm dotenvx turbo run execute",
     "check": "turbo run check",
     "check:all": "turbo run lint check test",

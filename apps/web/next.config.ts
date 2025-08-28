@@ -106,7 +106,15 @@ const nextConfig = {
       },
     },
   },
-
+  transpilePackages: [
+    "@beep/invariant",
+    "@beep/schema",
+    "@beep/types",
+    "@beep/ui",
+    "@beep/utils",
+    "@beep/logos",
+    "@beep/rete"
+  ],
   images: {
     remotePatterns: [
       {

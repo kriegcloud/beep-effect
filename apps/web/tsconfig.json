@@ -27,7 +27,6 @@
     "strictNullChecks": true,
     "removeComments": false,
     "types": ["node"],
-    "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "baseUrl": ".",
     "jsx": "preserve",
