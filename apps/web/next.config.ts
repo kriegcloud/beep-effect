@@ -96,6 +96,7 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  output: "export",
   transpilePackages: [
     "@beep/invariant",
     "@beep/schema",
@@ -132,21 +133,6 @@ const nextConfig = {
   },
 
   outputFileTracingRoot: path.join(__dirname, "../../"),
-  webpack(config) {
-    config.module.rules.push({
-      test: /\.svg$/,
-      use: ["@svgr/webpack"],
-    });
-
-    config.experiments = {
-      ...config.experiments,
-      layers: true,
-      asyncWebAssembly: true,
-      topLevelAwait: true,
-    };
-
-    return config;
-  },
 } satisfies NextConfig;
 
 export default nextConfig;

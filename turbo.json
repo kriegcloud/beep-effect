@@ -5,7 +5,8 @@
     "**/.env",
     "**/.env.*",
     "tsconfig.json",
-    "tsconfig.build.json"
+    "tsconfig.build.json",
+    "tsconfig.base.json"
   ],
   "globalEnv": [
     "TURBO_TOKEN",
