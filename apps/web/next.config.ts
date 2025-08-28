@@ -96,7 +96,6 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
-  output: "export",
   transpilePackages: [
     "@beep/invariant",
     "@beep/schema",
