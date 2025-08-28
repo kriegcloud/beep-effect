@@ -96,7 +96,6 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
-  trailingSlash: true,
   turbopack: {
     root: path.join(__dirname, "../.."),
     rules: {

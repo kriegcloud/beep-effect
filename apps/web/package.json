@@ -10,6 +10,7 @@
     "dev:https": "pnpm dotenvx next dev --turbopack --experimental-https",
     "start": "pnpm dotenvx next start",
     "build": "pnpm dotenvx next build",
+    "now-build": "next build",
     "build:turbo": "pnpm dotenvx next build --turbopack",
     "clean": "rm -rf node_modules .next out dist build .turbo .tsbuildinfo",
     "lint": "biome check .",

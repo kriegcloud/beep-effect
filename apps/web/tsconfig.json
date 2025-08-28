@@ -26,33 +26,69 @@
     "strict": true,
     "strictNullChecks": true,
     "removeComments": false,
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "baseUrl": ".",
     "jsx": "preserve",
     "module": "ESNext",
     "target": "ES2022",
-    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2024",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-      "@/*": ["./src/*"],
-      "@beep/ui": ["../../packages/ui/src/index"],
-      "@beep/ui/*": ["../../packages/ui/src/*"],
-      "@beep/utils": ["../../packages/common/utils/src/index"],
-      "@beep/utils/*": ["../../packages/common/utils/src/*"],
-      "@beep/types": ["../../packages/common/types/src/index"],
-      "@beep/types/*": ["../../packages/common/types/src/*"],
-      "@beep/invariant": ["../../packages/common/invariant/src/index"],
-      "@beep/invariant/*": ["../../packages/common/invariant/src/*"],
-      "@beep/schema": ["../../packages/common/schema/src/index"],
-      "@beep/schema/*": ["../../packages/common/schema/src/*"],
-      "@beep/logos": ["../../packages/common/logos/src/index"],
-      "@beep/logos/*": ["../../packages/common/logos/src/*"],
-      "@beep/rete": ["../../packages/common/rete/src/index"],
-      "@beep/rete/*": ["../../packages/common/rete/src/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@beep/ui": [
+        "../../packages/ui/src/index"
+      ],
+      "@beep/ui/*": [
+        "../../packages/ui/src/*"
+      ],
+      "@beep/utils": [
+        "../../packages/common/utils/src/index"
+      ],
+      "@beep/utils/*": [
+        "../../packages/common/utils/src/*"
+      ],
+      "@beep/types": [
+        "../../packages/common/types/src/index"
+      ],
+      "@beep/types/*": [
+        "../../packages/common/types/src/*"
+      ],
+      "@beep/invariant": [
+        "../../packages/common/invariant/src/index"
+      ],
+      "@beep/invariant/*": [
+        "../../packages/common/invariant/src/*"
+      ],
+      "@beep/schema": [
+        "../../packages/common/schema/src/index"
+      ],
+      "@beep/schema/*": [
+        "../../packages/common/schema/src/*"
+      ],
+      "@beep/logos": [
+        "../../packages/common/logos/src/index"
+      ],
+      "@beep/logos/*": [
+        "../../packages/common/logos/src/*"
+      ],
+      "@beep/rete": [
+        "../../packages/common/rete/src/index"
+      ],
+      "@beep/rete/*": [
+        "../../packages/common/rete/src/*"
+      ]
     },
     "plugins": [
       {
@@ -63,35 +99,14 @@
       }
     ]
   },
-  "references": [
-    {
-      "path": "../../packages/ui/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/common/utils/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/common/types/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/common/invariant/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/common/schema/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/common/rete/tsconfig.build.json"
-    }
-  ],
   "include": [
-    "./scripts/*.ts",
-    "execute.ts",
     "next-env.d.ts",
-    "next.config.ts",
-    "*.json",
-    "src/**/*.json",
-    ".",
+    "**/*.ts",
+    "**/*.tsx",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["vitest.config.ts"]
+  "exclude": [
+    "node_modules",
+    "vitest.config.ts"
+  ]
 }
