@@ -50,7 +50,7 @@
     "dayjs": "*",
     "effect": "*",
     "json-logic-js": "*",
-    "next": "*",
+    "next": "^15.5.2",
     "react": "*",
     "react-dom": "*",
     "xstate": "*",
