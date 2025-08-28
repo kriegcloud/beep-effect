@@ -30,16 +30,10 @@ describe("PackageJson", () => {
         directory: ".",
       },
       bugs: "https://example.com/issues",
-      funding: [
-        "https://example.com/sponsor",
-        { url: "https://example.com/fund", type: "patreon" },
-      ],
+      funding: ["https://example.com/sponsor", { url: "https://example.com/fund", type: "patreon" }],
       workspaces: ["packages/*"],
       author: { name: "Alice" },
-      contributors: [
-        "Bob <bob@example.com>",
-        { name: "Carol", email: "c@example.com" },
-      ],
+      contributors: ["Bob <bob@example.com>", { name: "Carol", email: "c@example.com" }],
       dependencies: { a: "^1.0.0" },
       devDependencies: { b: "^2.0.0" },
       bundleDependencies: ["a"],
@@ -51,18 +45,13 @@ describe("PackageJson", () => {
     deepStrictEqual(got.name, "pkg");
     deepStrictEqual(typeof got.repository, "object");
     deepStrictEqual(
-      Array.isArray(got.workspaces) ||
-        typeof got.workspaces === "object" ||
-        got.workspaces === undefined,
-      true,
+      Array.isArray(got.workspaces) || typeof got.workspaces === "object" || got.workspaces === undefined,
+      true
     );
   });
 
   it("decodes the repo's root package.json", () => {
-    const raw = fs.readFileSync(
-      path.resolve(process.cwd(), "../../package.json"),
-      "utf8",
-    );
+    const raw = fs.readFileSync(path.resolve(process.cwd(), "../../package.json"), "utf8");
     const json = JSON.parse(raw);
     const decode = S.decodeUnknownSync(PackageJson);
     const got = decode(json);
@@ -70,10 +59,7 @@ describe("PackageJson", () => {
   });
 
   it("decodes this package's package.json", () => {
-    const raw = fs.readFileSync(
-      path.resolve(process.cwd(), "package.json"),
-      "utf8",
-    );
+    const raw = fs.readFileSync(path.resolve(process.cwd(), "package.json"), "utf8");
     const json = JSON.parse(raw);
     const decode = S.decodeUnknownSync(PackageJson);
     const got = decode(json);

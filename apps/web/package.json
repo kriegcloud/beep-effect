@@ -25,6 +25,8 @@
     "@beep/types": "workspace:^",
     "@beep/ui": "workspace:^",
     "@beep/utils": "workspace:^",
+    "@beep/logos": "workspace:^",
+    "@beep/rete": "workspace:^",
     "@emotion/cache": "*",
     "@emotion/react": "*",
     "@emotion/styled": "*",

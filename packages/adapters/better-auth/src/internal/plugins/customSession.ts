@@ -1,9 +1,7 @@
 import type { BetterAuthPlugin } from "better-auth";
 import { customSession } from "better-auth/plugins";
 
-export type CustomSessionOptions = NonNullable<
-  Parameters<typeof customSession>[0]
->;
+export type CustomSessionOptions = NonNullable<Parameters<typeof customSession>[0]>;
 /**
  * TODO factor out
  * @param opts

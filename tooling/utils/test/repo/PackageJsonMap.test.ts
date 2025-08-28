@@ -11,11 +11,7 @@ import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 
-const TestLayer = Layer.mergeAll(
-  FsUtilsLive,
-  NodeFileSystem.layer,
-  NodePath.layerPosix,
-);
+const TestLayer = Layer.mergeAll(FsUtilsLive, NodeFileSystem.layer, NodePath.layerPosix);
 
 describe("Repo/PackageJsonMap.mapWorkspaceToPackageJsonPath", () => {
   it.scoped("returns absolute package.json path for @beep/tooling-utils", () =>
@@ -28,13 +24,10 @@ describe("Repo/PackageJsonMap.mapWorkspaceToPackageJsonPath", () => {
       if (O.isSome(entry)) {
         const pkgPath = entry.value;
         deepStrictEqual(path_.isAbsolute(pkgPath), true);
-        deepStrictEqual(
-          pkgPath.endsWith(path_.join("tooling", "utils", "package.json")),
-          true,
-        );
+        deepStrictEqual(pkgPath.endsWith(path_.join("tooling", "utils", "package.json")), true);
         const exists = yield* fs.exists(pkgPath);
         deepStrictEqual(exists, true);
       }
-    }).pipe(Effect.provide(TestLayer)),
+    }).pipe(Effect.provide(TestLayer))
   );
 });

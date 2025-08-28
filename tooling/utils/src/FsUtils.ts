@@ -28,10 +28,7 @@ const make = Effect.gen(function* () {
    * @param options Glob options
    * @returns Effect that resolves to all matches
    */
-  const glob = (
-    pattern: string | ReadonlyArray<string>,
-    options?: Glob.GlobOptions,
-  ) =>
+  const glob = (pattern: string | ReadonlyArray<string>, options?: Glob.GlobOptions) =>
     Effect.tryPromise({
       try: () => Glob.glob(pattern as any, options as any),
       catch: (e) => new Error(`glob failed: ${e}`),
@@ -40,10 +37,8 @@ const make = Effect.gen(function* () {
   /**
    * Like {@link glob} but ensures only files (no directories) are returned.
    */
-  const globFiles = (
-    pattern: string | ReadonlyArray<string>,
-    options: Glob.GlobOptions = {},
-  ) => glob(pattern, { ...options, nodir: true });
+  const globFiles = (pattern: string | ReadonlyArray<string>, options: Glob.GlobOptions = {}) =>
+    glob(pattern, { ...options, nodir: true });
 
   /**
    * Modify a single file in-place.
@@ -59,11 +54,9 @@ const make = Effect.gen(function* () {
       Effect.bindTo("original"),
       Effect.let("modified", ({ original }) => f(original, path)),
       Effect.flatMap(({ modified, original }) =>
-        original === modified
-          ? Effect.void
-          : fs.writeFile(path, new TextEncoder().encode(modified)),
+        original === modified ? Effect.void : fs.writeFile(path, new TextEncoder().encode(modified))
       ),
-      Effect.withSpan("FsUtils.modifyFile", { attributes: { path } }),
+      Effect.withSpan("FsUtils.modifyFile", { attributes: { path } })
     );
 
   /**
@@ -76,16 +69,16 @@ const make = Effect.gen(function* () {
   const modifyGlob = (
     pattern: string | ReadonlyArray<string>,
     f: (s: string, path: string) => string,
-    options?: Glob.GlobOptions,
+    options?: Glob.GlobOptions
   ) =>
     globFiles(pattern, options).pipe(
       Effect.flatMap((paths) =>
         Effect.forEach(paths, (path) => modifyFile(path, f), {
           concurrency: "inherit",
           discard: true,
-        }),
+        })
       ),
-      Effect.withSpan("FsUtils.modifyGlob", { attributes: { pattern } }),
+      Effect.withSpan("FsUtils.modifyGlob", { attributes: { pattern } })
     );
 
   /**
@@ -100,7 +93,7 @@ const make = Effect.gen(function* () {
       .pipe(
         Effect.ignore,
         Effect.zipRight(fs.copy(from, to)),
-        Effect.withSpan("FsUtils.rmAndCopy", { attributes: { from, to } }),
+        Effect.withSpan("FsUtils.rmAndCopy", { attributes: { from, to } })
       );
 
   /**
@@ -113,10 +106,8 @@ const make = Effect.gen(function* () {
     fs.access(from).pipe(
       Effect.zipRight(Effect.ignore(fs.remove(to, { recursive: true }))),
       Effect.zipRight(fs.copy(from, to)),
-      Effect.catchTag("SystemError", (e) =>
-        e.reason === "NotFound" ? Effect.void : Effect.fail(e),
-      ),
-      Effect.withSpan("FsUtils.copyIfExists", { attributes: { from, to } }),
+      Effect.catchTag("SystemError", (e) => (e.reason === "NotFound" ? Effect.void : Effect.fail(e))),
+      Effect.withSpan("FsUtils.copyIfExists", { attributes: { from, to } })
     );
 
   /**
@@ -124,9 +115,7 @@ const make = Effect.gen(function* () {
    * for the same path become no-ops.
    */
   const mkdirCached_ = yield* Effect.cachedFunction((path: string) =>
-    fs
-      .makeDirectory(path, { recursive: true })
-      .pipe(Effect.withSpan("FsUtils.mkdirCached", { attributes: { path } })),
+    fs.makeDirectory(path, { recursive: true }).pipe(Effect.withSpan("FsUtils.mkdirCached", { attributes: { path } }))
   );
 
   /**
@@ -147,16 +136,14 @@ const make = Effect.gen(function* () {
           (path) => {
             const dest = path_.join(to, path_.relative(baseDir, path));
             const destDir = path_.dirname(dest);
-            return mkdirCached(destDir).pipe(
-              Effect.zipRight(fs.copyFile(path, dest)),
-            );
+            return mkdirCached(destDir).pipe(Effect.zipRight(fs.copyFile(path, dest)));
           },
-          { concurrency: "inherit", discard: true },
-        ),
+          { concurrency: "inherit", discard: true }
+        )
       ),
       Effect.withSpan("FsUtils.copyGlobCached", {
         attributes: { baseDir, pattern, to },
-      }),
+      })
     );
 
   /**
@@ -170,7 +157,7 @@ const make = Effect.gen(function* () {
       .pipe(
         Effect.ignore,
         Effect.zipRight(mkdirCached(path)),
-        Effect.withSpan("FsUtils.rmAndMkdir", { attributes: { path } }),
+        Effect.withSpan("FsUtils.rmAndMkdir", { attributes: { path } })
       );
 
   /**
@@ -194,7 +181,7 @@ const make = Effect.gen(function* () {
     fs.writeFileString(
       path,
       `${JSON.stringify(json, null, 2)}
-`,
+`
     );
 
   return {
@@ -227,9 +214,7 @@ export interface FsUtils extends Effect.Effect.Success<typeof make> {}
  * const utils = yield* FsUtils; // inside Effect.gen
  * ```
  */
-export const FsUtils = Context.GenericTag<FsUtils>(
-  "@beep/tooling-utils/FsUtils",
-);
+export const FsUtils = Context.GenericTag<FsUtils>("@beep/tooling-utils/FsUtils");
 
 /**
  * Live Layer implementation backed by Node's FileSystem/Path.
@@ -245,5 +230,5 @@ export const FsUtils = Context.GenericTag<FsUtils>(
  */
 export const FsUtilsLive = Layer.effect(FsUtils, make).pipe(
   Layer.provide(NodeFileSystem.layer),
-  Layer.provide(NodePath.layerPosix),
+  Layer.provide(NodePath.layerPosix)
 );

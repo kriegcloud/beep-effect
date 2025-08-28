@@ -15,8 +15,8 @@ export class Model extends M.Class<Model>(`OAuthAccessToken.Model`)({
     M.Sensitive(
       S.NonEmptyString.annotations({
         description: "The OAuth 2.0 access token",
-      }),
-    ),
+      })
+    )
   ),
 
   /** OAuth refresh token (sensitive) */
@@ -24,36 +24,36 @@ export class Model extends M.Class<Model>(`OAuthAccessToken.Model`)({
     M.Sensitive(
       S.NonEmptyString.annotations({
         description: "The OAuth 2.0 refresh token",
-      }),
-    ),
+      })
+    )
   ),
 
   /** When the access token expires */
   accessTokenExpiresAt: M.FieldOption(
     Common.DateTimeFromDate({
       description: "When the access token expires",
-    }),
+    })
   ),
 
   /** When the refresh token expires */
   refreshTokenExpiresAt: M.FieldOption(
     Common.DateTimeFromDate({
       description: "When the refresh token expires",
-    }),
+    })
   ),
 
   /** OAuth client identifier */
   clientId: M.FieldOption(
     S.NonEmptyString.annotations({
       description: "The OAuth client identifier",
-    }),
+    })
   ),
 
   /** User the token belongs to */
   userId: M.FieldOption(
     IamEntityIds.UserId.annotations({
       description: "ID of the user this token belongs to",
-    }),
+    })
   ),
 
   /** OAuth scopes granted */
@@ -61,7 +61,7 @@ export class Model extends M.Class<Model>(`OAuthAccessToken.Model`)({
     S.NonEmptyString.annotations({
       description: "Space-separated list of OAuth scopes",
       examples: ["read write", "profile email", "admin"],
-    }),
+    })
   ),
 
   // Default columns include organizationId

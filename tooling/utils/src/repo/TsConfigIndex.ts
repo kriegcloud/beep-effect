@@ -30,18 +30,14 @@ export const collectTsConfigPaths = Effect.gen(function* () {
   const rootBuildTsConfigPath = path_.join(repoRoot, "tsconfig.build.json");
   const rootBaseTsConfigPath = path_.join(repoRoot, "tsconfig.base.json");
 
-  for (const rootTsConfig of [
-    rootTsConfigPath,
-    rootBuildTsConfigPath,
-    rootBaseTsConfigPath,
-  ]) {
+  for (const rootTsConfig of [rootTsConfigPath, rootBuildTsConfigPath, rootBaseTsConfigPath]) {
     const exists = yield* fs.exists(rootTsConfig);
     if (!exists) {
       return yield* Effect.fail(
         new NoSuchFileError({
           path: rootTsConfig,
           message: "[collectTsConfigPaths] Invalid file path",
-        }),
+        })
       );
     }
   }
@@ -51,7 +47,7 @@ export const collectTsConfigPaths = Effect.gen(function* () {
   tsconfigMap = HashMap.set(
     tsconfigMap,
     "@beep/root",
-    A.make(rootTsConfigPath, rootBuildTsConfigPath, rootBaseTsConfigPath),
+    A.make(rootTsConfigPath, rootBuildTsConfigPath, rootBaseTsConfigPath)
   );
 
   for (const [workspace, dir] of HashMap.entries(workspaceMap)) {
@@ -63,7 +59,7 @@ export const collectTsConfigPaths = Effect.gen(function* () {
         new NoSuchFileError({
           path: baseTsConfigPath,
           message: "[collectTsConfigPaths] Invalid file path",
-        }),
+        })
       );
     }
 
@@ -72,7 +68,7 @@ export const collectTsConfigPaths = Effect.gen(function* () {
       path_.join(dir, "tsconfig.test.json"),
       path_.join(dir, "tsconfig.src.json"),
       path_.join(dir, "tsconfig.drizzle.json"),
-      path_.join(dir, "tsconfig.tsx.json"),
+      path_.join(dir, "tsconfig.tsx.json")
     );
 
     tsconfigMap = HashMap.set(tsconfigMap, workspace, A.make(baseTsConfigPath));
@@ -82,17 +78,9 @@ export const collectTsConfigPaths = Effect.gen(function* () {
       if (exists) {
         const existing = HashMap.get(tsconfigMap, workspace);
         if (O.isSome(existing)) {
-          tsconfigMap = HashMap.set(
-            tsconfigMap,
-            workspace,
-            A.append(existing.value, optionalConfig),
-          );
+          tsconfigMap = HashMap.set(tsconfigMap, workspace, A.append(existing.value, optionalConfig));
         } else {
-          tsconfigMap = HashMap.set(
-            tsconfigMap,
-            workspace,
-            A.make(baseTsConfigPath, optionalConfig),
-          );
+          tsconfigMap = HashMap.set(tsconfigMap, workspace, A.make(baseTsConfigPath, optionalConfig));
         }
       }
     }

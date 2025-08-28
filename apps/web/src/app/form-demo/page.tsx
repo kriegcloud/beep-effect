@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import { createBrowserInspector } from "@statelyai/inspect";
 import { useMachine } from "@xstate/react";
 import dynamic from "next/dynamic";
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   type ActorRegistry,
   buildMachine,
@@ -70,7 +70,7 @@ export default function FormDemoPage() {
   const step = workflow.steps.find((s) => s.id === stepId);
   const stepData = step ? answers[stepId] : undefined;
   const external = (state.context as any)?.external ?? {};
-  const fetchError = external["productDetails__error"];
+  const fetchError = external["productDetails__error" as const];
 
   // Validate current step to gate NEXT
   const isCurrentStepValid = useMemo(() => {

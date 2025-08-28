@@ -26,14 +26,10 @@ export const mapWorkspaceToPackageJsonPath = Effect.gen(function* () {
         new NoSuchFileError({
           path: basePackageJsonPath,
           message: "[mapWorkspaceToPackageJsonPath] Invalid file path",
-        }),
+        })
       );
     }
-    packageJsonMap = HashMap.set(
-      packageJsonMap,
-      workspace,
-      basePackageJsonPath,
-    );
+    packageJsonMap = HashMap.set(packageJsonMap, workspace, basePackageJsonPath);
   }
 
   return packageJsonMap;

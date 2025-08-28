@@ -72,8 +72,7 @@ export const makeOrganizationPlugin = (opts: OrganizationOptions) =>
         /**
          * Pass a custom default team creator function
          */
-        customCreateDefaultTeam:
-          opts.teams?.defaultTeam?.customCreateDefaultTeam,
+        customCreateDefaultTeam: opts.teams?.defaultTeam?.customCreateDefaultTeam,
       },
       /**
        * Maximum number of teams an organization can have.
@@ -127,8 +126,7 @@ export const makeOrganizationPlugin = (opts: OrganizationOptions) =>
      *
      * @default false
      */
-    requireEmailVerificationOnInvitation:
-      opts.requireEmailVerificationOnInvitation,
+    requireEmailVerificationOnInvitation: opts.requireEmailVerificationOnInvitation,
     /**
      * Send an email with the
      * invitation link to the user.

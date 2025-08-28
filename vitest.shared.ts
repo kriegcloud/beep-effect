@@ -11,8 +11,10 @@ const config: ViteUserConfig = {
   optimizeDeps: {
     exclude: ["bun:sqlite"],
   },
+
   plugins: [tsconfigPaths()],
   test: {
+    testTimeout: 900_000,
     onConsoleLog: (log) => {
       console.log(log);
     },

@@ -56,5 +56,5 @@ export const user = pg.pgTable(
       .index("user_2fa_enabled_idx")
       .on(t.twoFactorEnabled)
       .where(d.sql`${t.twoFactorEnabled} = true`),
-  ],
+  ]
 );

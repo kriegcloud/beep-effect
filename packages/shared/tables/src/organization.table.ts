@@ -58,12 +58,7 @@ export const organization = pg.pgTable(
       .index("organization_type_idx")
       .on(t.type),
     pg.index("organization_owner_idx").on(t.ownerUserId),
-    pg
-      .index("organization_personal_idx")
-      .on(t.isPersonal)
-      .where(d.sql`${t.isPersonal} = true`),
-    pg
-      .index("organization_subscription_idx")
-      .on(t.subscriptionTier, t.subscriptionStatus),
-  ],
+    pg.index("organization_personal_idx").on(t.isPersonal).where(d.sql`${t.isPersonal} = true`),
+    pg.index("organization_subscription_idx").on(t.subscriptionTier, t.subscriptionStatus),
+  ]
 );

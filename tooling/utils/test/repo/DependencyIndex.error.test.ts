@@ -16,24 +16,18 @@ const MissingRootPkgLayer = Layer.effect(
     return {
       ...fs,
       exists: (p: string) =>
-        p.endsWith("/package.json") || p.endsWith("\\package.json")
-          ? Effect.succeed(false)
-          : fs.exists(p),
+        p.endsWith("/package.json") || p.endsWith("\\package.json") ? Effect.succeed(false) : fs.exists(p),
     } as FileSystem.FileSystem;
-  }),
+  })
 ).pipe(Layer.provide(NodeFileSystem.layer));
 
-const BaseLayer = Layer.mergeAll(
-  FsUtilsLive,
-  NodeFileSystem.layer,
-  NodePath.layerPosix,
-);
+const BaseLayer = Layer.mergeAll(FsUtilsLive, NodeFileSystem.layer, NodePath.layerPosix);
 
 describe("Repo/DependencyIndex error path", () => {
   it.scoped("fails when root package.json is missing", () =>
     Effect.gen(function* () {
       const res = yield* Effect.either(buildRepoDependencyIndex);
       deepStrictEqual(res._tag === "Left", true);
-    }).pipe(Effect.provide(Layer.mergeAll(BaseLayer, MissingRootPkgLayer))),
+    }).pipe(Effect.provide(Layer.mergeAll(BaseLayer, MissingRootPkgLayer)))
   );
 });

@@ -74,6 +74,9 @@
     {
       "path": "packages/common/logos/tsconfig.build.json"
     },
+        {
+      "path": "packages/common/rete/tsconfig.build.json"
+    },
     {
       "path": "packages/env/tsconfig.build.json"
     },

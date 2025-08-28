@@ -19,9 +19,5 @@ export const uomTable = pg.pgTable(
       }),
     ...Common.defaultColumns,
   },
-  (t) => [
-    pg
-      .uniqueIndex("uom_item_sku_org_unique_idx")
-      .on(t.itemId, t.sku, t.organizationId),
-  ],
+  (t) => [pg.uniqueIndex("uom_item_sku_org_unique_idx").on(t.itemId, t.sku, t.organizationId)]
 );

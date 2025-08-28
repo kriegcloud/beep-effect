@@ -35,7 +35,7 @@ export class Model extends M.Class<Model>(`Jwks.Model`)({
   expiresAt: M.FieldOption(
     Common.DateTimeFromDate({
       description: "When this key expires and should no longer be used",
-    }),
+    })
   ),
 
   /** Whether the key is currently active */

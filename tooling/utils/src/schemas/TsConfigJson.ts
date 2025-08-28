@@ -2,16 +2,11 @@ import * as F from "effect/Function";
 import * as S from "effect/Schema";
 
 // Helpers
-const Nullable = <A, I = A, R = never>(schema: S.Schema<A, I, R>) =>
-  S.Union(schema, S.Null);
+const Nullable = <A, I = A, R = never>(schema: S.Schema<A, I, R>) => S.Union(schema, S.Null);
 
 const arrayUnique = <A>(item: S.Schema<A>) =>
   S.Array(item).pipe(
-    S.filter(
-      (arr) =>
-        new Set(arr.map((x) => JSON.stringify(x))).size === arr.length ||
-        "array items must be unique",
-    ),
+    S.filter((arr) => new Set(arr.map((x) => JSON.stringify(x))).size === arr.length || "array items must be unique")
   );
 
 // const atLeastOneOf = <K extends readonly string[]>(...keys: K) =>
@@ -19,22 +14,10 @@ const arrayUnique = <A>(item: S.Schema<A>) =>
 
 // Case-insensitive string enum helper
 const stringEnumCI = <L extends readonly [string, ...string[]]>(...lits: L) =>
-  S.String.pipe(
-    S.filter(
-      (s) =>
-        lits.includes(s.toLowerCase() as L[number]) ||
-        `expected one of: ${lits.join(", ")}`,
-    ),
-  );
+  S.String.pipe(S.filter((s) => lits.includes(s.toLowerCase() as L[number]) || `expected one of: ${lits.join(", ")}`));
 
 // Common enums
-const Jsx = S.Literal(
-  "react",
-  "react-jsx",
-  "react-jsxdev",
-  "preserve",
-  "react-native",
-);
+const Jsx = S.Literal("react", "react-jsx", "react-jsxdev", "preserve", "react-native");
 const NewLine = S.Literal("crlf", "lf");
 const ModuleKind = S.Literal(
   "none",
@@ -51,16 +34,9 @@ const ModuleKind = S.Literal(
   "node18",
   "node20",
   "nodenext",
-  "preserve",
+  "preserve"
 );
-const ModuleResolution = S.Literal(
-  "classic",
-  "node",
-  "node10",
-  "node16",
-  "nodenext",
-  "bundler",
-);
+const ModuleResolution = S.Literal("classic", "node", "node10", "node16", "nodenext", "bundler");
 const Target = stringEnumCI(
   "es3",
   "es5",
@@ -73,7 +49,7 @@ const Target = stringEnumCI(
   "es2020",
   "es2021",
   "es2022",
-  "esnext",
+  "esnext"
 );
 
 // Note: The official JSON schema enumerates many lib names. Start permissive; tighten later if desired.
@@ -86,9 +62,8 @@ const TsLib = S.String;
 const FilesDefinitionFields = {
   files: S.optional(
     arrayUnique(Nullable(S.String)).annotations({
-      description:
-        "If no 'files' or 'include' is present, the compiler includes all files except those in 'exclude'.",
-    }),
+      description: "If no 'files' or 'include' is present, the compiler includes all files except those in 'exclude'.",
+    })
   ),
 };
 export const FilesDefinition = S.Struct(FilesDefinitionFields).annotations({
@@ -99,7 +74,7 @@ const ExcludeDefinitionFields = {
   exclude: S.optional(
     arrayUnique(Nullable(S.String)).annotations({
       description: "List of globs or paths to exclude from compilation.",
-    }),
+    })
   ),
 };
 export const ExcludeDefinition = S.Struct(ExcludeDefinitionFields).annotations({
@@ -110,7 +85,7 @@ const IncludeDefinitionFields = {
   include: S.optional(
     arrayUnique(Nullable(S.String)).annotations({
       description: "List of globs that match files to include in compilation.",
-    }),
+    })
   ),
 };
 export const IncludeDefinition = S.Struct(IncludeDefinitionFields).annotations({
@@ -121,12 +96,10 @@ const CompileOnSaveDefinitionFields = {
   compileOnSave: S.optional(
     Nullable(S.Boolean).annotations({
       description: "Enable Compile-on-Save for this project.",
-    }),
+    })
   ),
 };
-export const CompileOnSaveDefinition = S.Struct(
-  CompileOnSaveDefinitionFields,
-).annotations({
+export const CompileOnSaveDefinition = S.Struct(CompileOnSaveDefinitionFields).annotations({
   description: "Compile-on-Save option",
 });
 
@@ -134,7 +107,7 @@ const ExtendsDefinitionFields = {
   extends: S.optional(
     S.Union(S.String, S.Array(S.String)).annotations({
       description: "Path(s) to base configuration file(s) to inherit from.",
-    }),
+    })
   ),
 };
 export const ExtendsDefinition = S.Struct(ExtendsDefinitionFields).annotations({
@@ -153,9 +126,7 @@ export const ProjectReference = S.Struct({
 const ReferencesDefinitionFields = {
   references: S.optional(Nullable(arrayUnique(ProjectReference))),
 };
-export const ReferencesDefinition = S.Struct(
-  ReferencesDefinitionFields,
-).annotations({
+export const ReferencesDefinition = S.Struct(ReferencesDefinitionFields).annotations({
   description: "Project references for composite builds.",
 });
 
@@ -174,9 +145,7 @@ const WatchOptions = S.Struct({
 const WatchOptionsDefinitionFields = {
   watchOptions: S.optional(Nullable(WatchOptions)),
 };
-export const WatchOptionsDefinition = S.Struct(
-  WatchOptionsDefinitionFields,
-).annotations({
+export const WatchOptionsDefinition = S.Struct(WatchOptionsDefinitionFields).annotations({
   description: "Container for watch options.",
 });
 
@@ -199,9 +168,7 @@ const BuildOptions = S.Struct({
 const BuildOptionsDefinitionFields = {
   buildOptions: S.optional(Nullable(BuildOptions)),
 };
-export const BuildOptionsDefinition = S.Struct(
-  BuildOptionsDefinitionFields,
-).annotations({
+export const BuildOptionsDefinition = S.Struct(BuildOptionsDefinitionFields).annotations({
   description: "Container for --build options.",
 });
 
@@ -228,9 +195,7 @@ const CompilerOptions = S.Struct(
     module: S.optional(Nullable(ModuleKind)),
     moduleResolution: S.optional(Nullable(ModuleResolution)),
     baseUrl: S.optional(Nullable(S.String)),
-    paths: S.optional(
-      Nullable(S.Record({ key: S.String, value: S.Array(S.String) })),
-    ),
+    paths: S.optional(Nullable(S.Record({ key: S.String, value: S.Array(S.String) }))),
     rootDir: S.optional(Nullable(S.String)),
     rootDirs: S.optional(Nullable(arrayUnique(S.String))),
     types: S.optional(Nullable(arrayUnique(S.String))),
@@ -277,18 +242,15 @@ const CompilerOptions = S.Struct(
     listFiles: S.optional(Nullable(S.Boolean)),
     traceResolution: S.optional(Nullable(S.Boolean)),
   },
-  S.Record({ key: S.String, value: S.Any }),
+  S.Record({ key: S.String, value: S.Any })
 ).annotations({
-  description:
-    "TypeScript compiler options controlling emit, checking, and module resolution.",
+  description: "TypeScript compiler options controlling emit, checking, and module resolution.",
 });
 
 const CompilerOptionsDefinitionFields = {
   compilerOptions: S.optional(Nullable(CompilerOptions)),
 };
-export const CompilerOptionsDefinition = S.Struct(
-  CompilerOptionsDefinitionFields,
-).annotations({
+export const CompilerOptionsDefinition = S.Struct(CompilerOptionsDefinitionFields).annotations({
   description: "Container for compilerOptions",
 });
 
@@ -305,9 +267,7 @@ const TypeAcquisition = S.Struct({
 const TypeAcquisitionDefinitionFields = {
   typeAcquisition: S.optional(Nullable(TypeAcquisition)),
 };
-export const TypeAcquisitionDefinition = S.Struct(
-  TypeAcquisitionDefinitionFields,
-).annotations({
+export const TypeAcquisitionDefinition = S.Struct(TypeAcquisitionDefinitionFields).annotations({
   description: "Container for type acquisition settings.",
 });
 
@@ -318,8 +278,7 @@ const TsNodeModuleTypes = S.Record({
   key: S.String,
   value: S.Literal("cjs", "esm", "package"),
 }).annotations({
-  description:
-    "Override paths to compile/execute as CJS, ESM or 'package' mode.",
+  description: "Override paths to compile/execute as CJS, ESM or 'package' mode.",
 });
 
 const TsNode = S.Struct({
@@ -330,7 +289,7 @@ const TsNode = S.Struct({
 }).annotations({ description: "ts-node options" });
 
 const TsNodeDefinitionFields = {
-  ["ts-node"]: S.optional(Nullable(TsNode)),
+  ["ts-node" as const]: S.optional(Nullable(TsNode)),
 };
 export const TsNodeDefinition = S.Struct(TsNodeDefinitionFields).annotations({
   description: "Container for ts-node options.",
@@ -359,13 +318,7 @@ export const TsConfigJson = S.Struct({
   ...ReferencesDefinitionFields,
 })
   .pipe(
-    S.filter((o) =>
-      F.pipe(
-        Object.keys(o),
-        (keys) =>
-          keys.some((k) => k in o) || `at least one of: ${keys.join(", ")}`,
-      ),
-    ),
+    S.filter((o) => F.pipe(Object.keys(o), (keys) => keys.some((k) => k in o) || `at least one of: ${keys.join(", ")}`))
   )
   .annotations({
     title: "JSON schema for the TypeScript compiler's configuration file",

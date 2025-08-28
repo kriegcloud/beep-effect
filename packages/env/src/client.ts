@@ -8,16 +8,10 @@ import { AuthProviderNameValue, ConfigURL, EnvValue } from "./common";
 
 export const ClientConfig = Config.nested("NEXT_PUBLIC")(
   Config.all({
-    env: S.Config("ENV", EnvValue.Schema).pipe(
-      Config.withDefault(EnvValue.Enum.dev),
-    ),
+    env: S.Config("ENV", EnvValue.Schema).pipe(Config.withDefault(EnvValue.Enum.dev)),
     appName: Config.nonEmptyString("APP_NAME"),
-    appDomain: Config.nonEmptyString("APP_DOMAIN").pipe(
-      Config.withDefault("localhost"),
-    ),
-    authProviderNames: Config.array(
-      S.Config("AUTH_PROVIDER_NAMES", AuthProviderNameValue.Schema),
-    ),
+    appDomain: Config.nonEmptyString("APP_DOMAIN").pipe(Config.withDefault("localhost")),
+    authProviderNames: Config.array(S.Config("AUTH_PROVIDER_NAMES", AuthProviderNameValue.Schema)),
     appUrl: ConfigURL("APP_URL"),
     apiUrl: ConfigURL("API_URL"),
     otlpTraceExportedUrl: ConfigURL("OTLP_TRACE_EXPORTER_URL"),
@@ -26,7 +20,7 @@ export const ClientConfig = Config.nested("NEXT_PUBLIC")(
     authUrl: ConfigURL("AUTH_URL"),
     authPath: S.Config("AUTH_PATH", URLPath),
     googleClientId: Config.redacted(Config.nonEmptyString("GOOGLE_CLIENT_ID")),
-  }),
+  })
 );
 
 // const envMap = new Map(Object.entries(import.meta.env))

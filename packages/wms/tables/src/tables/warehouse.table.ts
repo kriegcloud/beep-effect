@@ -10,14 +10,8 @@ export const warehouseTable = pg.pgTable(
     ...Common.defaultColumns,
   },
   (t) => [
-    pg
-      .uniqueIndex("warehouse_name_organization_id_idx")
-      .on(t.name, t.organizationId),
-    pg
-      .uniqueIndex("warehouse_barcode_organization_id_idx")
-      .on(t.barcode, t.organizationId),
-    pg
-      .uniqueIndex("warehouse_id_organization_id_idx")
-      .on(t.id, t.organizationId),
-  ],
+    pg.uniqueIndex("warehouse_name_organization_id_idx").on(t.name, t.organizationId),
+    pg.uniqueIndex("warehouse_barcode_organization_id_idx").on(t.barcode, t.organizationId),
+    pg.uniqueIndex("warehouse_id_organization_id_idx").on(t.id, t.organizationId),
+  ]
 );

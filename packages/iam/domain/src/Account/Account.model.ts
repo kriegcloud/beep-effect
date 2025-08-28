@@ -32,8 +32,8 @@ export class Model extends M.Class<Model>(`Account.Model`)({
     M.Sensitive(
       S.NonEmptyString.annotations({
         description: "OAuth access token for API calls",
-      }),
-    ),
+      })
+    )
   ),
 
   /** OAuth refresh token (sensitive) */
@@ -41,8 +41,8 @@ export class Model extends M.Class<Model>(`Account.Model`)({
     M.Sensitive(
       S.NonEmptyString.annotations({
         description: "OAuth refresh token for token renewal",
-      }),
-    ),
+      })
+    )
   ),
 
   /** OpenID Connect ID token (sensitive) */
@@ -50,29 +50,29 @@ export class Model extends M.Class<Model>(`Account.Model`)({
     M.Sensitive(
       S.NonEmptyString.annotations({
         description: "OpenID Connect ID token",
-      }),
-    ),
+      })
+    )
   ),
 
   /** When the access token expires */
   accessTokenExpiresAt: M.FieldOption(
     Common.DateTimeFromDate({
       description: "When the access token expires",
-    }),
+    })
   ),
 
   /** When the refresh token expires */
   refreshTokenExpiresAt: M.FieldOption(
     Common.DateTimeFromDate({
       description: "When the refresh token expires",
-    }),
+    })
   ),
 
   /** OAuth scope permissions granted */
   scope: M.FieldOption(
     S.NonEmptyString.annotations({
       description: "OAuth scope permissions",
-    }),
+    })
   ),
 
   /** Hashed password for credential-based accounts (sensitive) */
@@ -80,8 +80,8 @@ export class Model extends M.Class<Model>(`Account.Model`)({
     M.Sensitive(
       BS.Password.annotations({
         description: "Hashed password for credential providers",
-      }),
-    ),
+      })
+    )
   ),
 
   // Audit and tracking columns

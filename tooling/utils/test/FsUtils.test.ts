@@ -9,20 +9,12 @@ import * as Effect from "effect/Effect";
 import * as E from "effect/Either";
 import * as Layer from "effect/Layer";
 
-const TestLayer = Layer.mergeAll(
-  FsUtilsLive,
-  NodeFileSystem.layer,
-  NodePath.layerPosix,
-);
+const TestLayer = Layer.mergeAll(FsUtilsLive, NodeFileSystem.layer, NodePath.layerPosix);
 
 const mkTestDir = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path_ = yield* Path.Path;
-  const base = path_.join(
-    process.cwd(),
-    ".tmp-FsUtils-tests",
-    `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-  );
+  const base = path_.join(process.cwd(), ".tmp-FsUtils-tests", `${Date.now()}-${Math.random().toString(16).slice(2)}`);
   yield* fs.makeDirectory(base, { recursive: true });
   return base;
 });
@@ -30,9 +22,7 @@ const mkTestDir = Effect.gen(function* () {
 const mkTestDirScoped = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const base = yield* mkTestDir;
-  yield* Effect.addFinalizer(() =>
-    fs.remove(base, { recursive: true }).pipe(Effect.ignore),
-  );
+  yield* Effect.addFinalizer(() => fs.remove(base, { recursive: true }).pipe(Effect.ignore));
   return base;
 });
 
@@ -66,7 +56,7 @@ describe("FsUtils", () => {
 
       deepStrictEqual(txt.sort(), [f1, f3].sort());
       deepStrictEqual(filesOnly.sort(), [f1, f2, f3].sort());
-    }).pipe(Effect.provide(TestLayer)),
+    }).pipe(Effect.provide(TestLayer))
   );
 
   it.scoped("modifyFile modifies content", () =>
@@ -86,7 +76,7 @@ describe("FsUtils", () => {
       yield* utils.modifyFile(file, (s) => s);
       const content2 = yield* fs.readFileString(file);
       deepStrictEqual(content2, "HELLO");
-    }).pipe(Effect.provide(TestLayer)),
+    }).pipe(Effect.provide(TestLayer))
   );
 
   it.scoped("modifyGlob applies to all matched files", () =>
@@ -113,7 +103,7 @@ describe("FsUtils", () => {
       deepStrictEqual(cx, "MOD");
       deepStrictEqual(cy, "MOD");
       deepStrictEqual(cz, "ghi");
-    }).pipe(Effect.provide(TestLayer)),
+    }).pipe(Effect.provide(TestLayer))
   );
 
   it.scoped("rmAndCopy replaces destination directory", () =>
@@ -132,35 +122,31 @@ describe("FsUtils", () => {
       yield* utils.rmAndCopy(from, to);
       const a = yield* fs.readFileString(path_.join(to, "sub", "a.txt"));
       deepStrictEqual(a, "A");
-      const oldExists = yield* Effect.either(
-        fs.access(path_.join(to, "old.txt")),
-      );
+      const oldExists = yield* Effect.either(fs.access(path_.join(to, "old.txt")));
       deepStrictEqual(E.isLeft(oldExists), true);
-    }).pipe(Effect.provide(TestLayer)),
+    }).pipe(Effect.provide(TestLayer))
   );
 
-  it.scoped(
-    "copyIfExists copies when source exists and is a no-op otherwise",
-    () =>
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path_ = yield* Path.Path;
-        const utils = yield* FsUtils;
-        const base = yield* mkTestDirScoped;
-        const fromMissing = path_.join(base, "missing");
-        const to1 = path_.join(base, "to1");
-        yield* utils.copyIfExists(fromMissing, to1);
-        const to1Exists = yield* Effect.either(fs.access(to1));
-        deepStrictEqual(E.isLeft(to1Exists), true);
+  it.scoped("copyIfExists copies when source exists and is a no-op otherwise", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path_ = yield* Path.Path;
+      const utils = yield* FsUtils;
+      const base = yield* mkTestDirScoped;
+      const fromMissing = path_.join(base, "missing");
+      const to1 = path_.join(base, "to1");
+      yield* utils.copyIfExists(fromMissing, to1);
+      const to1Exists = yield* Effect.either(fs.access(to1));
+      deepStrictEqual(E.isLeft(to1Exists), true);
 
-        const from = path_.join(base, "from");
-        const to = path_.join(base, "to");
-        yield* fs.makeDirectory(from, { recursive: true });
-        yield* fs.writeFileString(path_.join(from, "f.txt"), "X");
-        yield* utils.copyIfExists(from, to);
-        const x = yield* fs.readFileString(path_.join(to, "f.txt"));
-        deepStrictEqual(x, "X");
-      }).pipe(Effect.provide(TestLayer)),
+      const from = path_.join(base, "from");
+      const to = path_.join(base, "to");
+      yield* fs.makeDirectory(from, { recursive: true });
+      yield* fs.writeFileString(path_.join(from, "f.txt"), "X");
+      yield* utils.copyIfExists(from, to);
+      const x = yield* fs.readFileString(path_.join(to, "f.txt"));
+      deepStrictEqual(x, "X");
+    }).pipe(Effect.provide(TestLayer))
   );
 
   it.scoped("mkdirCached can be called multiple times", () =>
@@ -175,7 +161,7 @@ describe("FsUtils", () => {
       yield* fs.writeFileString(path_.join(dir, "ok"), "1");
       const ok = yield* fs.readFileString(path_.join(dir, "ok"));
       deepStrictEqual(ok, "1");
-    }).pipe(Effect.provide(TestLayer)),
+    }).pipe(Effect.provide(TestLayer))
   );
 
   it.scoped("copyGlobCached copies while preserving structure", () =>
@@ -195,7 +181,7 @@ describe("FsUtils", () => {
       const pc = yield* fs.readFileString(path_.join(out, "c.txt"));
       deepStrictEqual(pb, "B");
       deepStrictEqual(pc, "C");
-    }).pipe(Effect.provide(TestLayer)),
+    }).pipe(Effect.provide(TestLayer))
   );
 
   it.scoped("rmAndMkdir removes and recreates directory", () =>
@@ -208,11 +194,9 @@ describe("FsUtils", () => {
       yield* fs.makeDirectory(dir, { recursive: true });
       yield* fs.writeFileString(path_.join(dir, "old.txt"), "OLD");
       yield* utils.rmAndMkdir(dir);
-      const oldExists = yield* Effect.either(
-        fs.access(path_.join(dir, "old.txt")),
-      );
+      const oldExists = yield* Effect.either(fs.access(path_.join(dir, "old.txt")));
       deepStrictEqual(E.isLeft(oldExists), true);
-    }).pipe(Effect.provide(TestLayer)),
+    }).pipe(Effect.provide(TestLayer))
   );
 
   it.scoped("readJson and writeJson roundtrip and error handling", () =>
@@ -231,6 +215,6 @@ describe("FsUtils", () => {
       yield* fs.writeFileString(bad, "{ bad json");
       const res = yield* Effect.either(utils.readJson(bad));
       deepStrictEqual(E.isLeft(res), true);
-    }).pipe(Effect.provide(TestLayer)),
+    }).pipe(Effect.provide(TestLayer))
   );
 });

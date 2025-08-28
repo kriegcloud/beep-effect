@@ -15,29 +15,18 @@ const mkMissingPkgJsonLayer = () =>
       const fs = yield* FileSystem.FileSystem;
       return {
         ...fs,
-        exists: (p: string) =>
-          p.endsWith("/tooling/utils/package.json")
-            ? Effect.succeed(false)
-            : fs.exists(p),
+        exists: (p: string) => (p.endsWith("/tooling/utils/package.json") ? Effect.succeed(false) : fs.exists(p)),
       } as FileSystem.FileSystem;
-    }),
+    })
   ).pipe(Layer.provide(NodeFileSystem.layer));
 
-const BaseLayer = Layer.mergeAll(
-  FsUtilsLive,
-  NodeFileSystem.layer,
-  NodePath.layerPosix,
-);
+const BaseLayer = Layer.mergeAll(FsUtilsLive, NodeFileSystem.layer, NodePath.layerPosix);
 
 describe("Repo/PackageJsonMap error path", () => {
   it.scoped("fails when a workspace package.json is missing", () =>
     Effect.gen(function* () {
       const res = yield* Effect.either(mapWorkspaceToPackageJsonPath);
       deepStrictEqual(res._tag === "Left", true);
-    }).pipe(
-      Effect.provide(
-        Layer.mergeAll(BaseLayer, FsUtilsLive, mkMissingPkgJsonLayer()),
-      ),
-    ),
+    }).pipe(Effect.provide(Layer.mergeAll(BaseLayer, FsUtilsLive, mkMissingPkgJsonLayer())))
   );
 });

@@ -15,9 +15,5 @@ export const walletAddress = pg.pgTable(
     isPrimary: pg.boolean("is_primary"),
     ...Common.globalColumns,
   },
-  (t) => [
-    pg
-      .uniqueIndex("wallet_address_user_chain_id_unique_idx")
-      .on(t.userId, t.address, t.chainId),
-  ],
+  (t) => [pg.uniqueIndex("wallet_address_user_chain_id_unique_idx").on(t.userId, t.address, t.chainId)]
 );

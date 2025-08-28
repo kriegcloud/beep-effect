@@ -14,21 +14,21 @@ export class Model extends M.Class<Model>(`RateLimit.Model`)({
   key: M.FieldOption(
     S.NonEmptyString.annotations({
       description: "The rate limit key identifier",
-    }),
+    })
   ),
 
   /** Current count of requests */
   count: M.FieldOption(
     S.Int.annotations({
       description: "Current count of requests within the rate limit window",
-    }),
+    })
   ),
 
   /** Timestamp of the last request */
   lastRequest: M.FieldOption(
     S.BigIntFromNumber.annotations({
       description: "Timestamp of the last request in milliseconds",
-    }),
+    })
   ),
 
   // Audit and tracking columns

@@ -28,9 +28,7 @@ export const buildRepoDependencyIndex = Effect.gen(function* () {
   const repoRootExists = yield* fs.exists(repoRootPkgJsonPath);
   if (!repoRootExists) {
     return yield* Effect.fail(
-      new Error(
-        `[buildRepoDependencyIndex] Root package.json not found at ${repoRootPkgJsonPath}`,
-      ),
+      new Error(`[buildRepoDependencyIndex] Root package.json not found at ${repoRootPkgJsonPath}`)
     );
   }
 

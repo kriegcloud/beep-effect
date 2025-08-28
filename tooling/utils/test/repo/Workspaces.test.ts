@@ -1,8 +1,5 @@
 import { FsUtilsLive } from "@beep/tooling-utils/FsUtils";
-import {
-  getWorkspaceDir,
-  resolveWorkspaceDirs,
-} from "@beep/tooling-utils/repo/Workspaces";
+import { getWorkspaceDir, resolveWorkspaceDirs } from "@beep/tooling-utils/repo/Workspaces";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
@@ -14,11 +11,7 @@ import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 
-const TestLayer = Layer.mergeAll(
-  FsUtilsLive,
-  NodeFileSystem.layer,
-  NodePath.layerPosix,
-);
+const TestLayer = Layer.mergeAll(FsUtilsLive, NodeFileSystem.layer, NodePath.layerPosix);
 
 describe("Repo/Workspaces", () => {
   it.scoped("resolveWorkspaceDirs includes @beep/tooling-utils", () =>
@@ -32,12 +25,9 @@ describe("Repo/Workspaces", () => {
         // directory exists and ends with tooling/utils
         const exists = yield* fs.exists(entry.value);
         deepStrictEqual(exists, true);
-        deepStrictEqual(
-          entry.value.endsWith(path_.join("tooling", "utils")),
-          true,
-        );
+        deepStrictEqual(entry.value.endsWith(path_.join("tooling", "utils")), true);
       }
-    }).pipe(Effect.provide(TestLayer)),
+    }).pipe(Effect.provide(TestLayer))
   );
 
   it.scoped("getWorkspaceDir returns an absolute dir for utils", () =>
@@ -47,13 +37,13 @@ describe("Repo/Workspaces", () => {
       // Should end with tooling/utils and be absolute
       deepStrictEqual(path_.isAbsolute(dir), true);
       deepStrictEqual(dir.endsWith(path_.join("tooling", "utils")), true);
-    }).pipe(Effect.provide(TestLayer)),
+    }).pipe(Effect.provide(TestLayer))
   );
 
   it.scoped("getWorkspaceDir fails for missing workspace", () =>
     Effect.gen(function* () {
       const res = yield* Effect.either(getWorkspaceDir("@beep/__missing__"));
       deepStrictEqual(res._tag === "Left", true);
-    }).pipe(Effect.provide(TestLayer)),
+    }).pipe(Effect.provide(TestLayer))
   );
 });

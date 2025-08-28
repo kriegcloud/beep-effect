@@ -33,9 +33,7 @@ describe("TsConfigJson", () => {
 
   it("enforces unique lib entries", () => {
     const decode = S.decodeUnknownSync(TsConfigJson);
-    throws(() =>
-      decode({ compilerOptions: { lib: ["ES2015", "ES2015"] }, include: [] }),
-    );
+    throws(() => decode({ compilerOptions: { lib: ["ES2015", "ES2015"] }, include: [] }));
   });
 
   it("enforces unique files entries", () => {
@@ -60,10 +58,7 @@ describe("TsConfigJson", () => {
   });
 
   it("decodes the repo's root tsconfig.json", () => {
-    const raw = fs.readFileSync(
-      path.resolve(process.cwd(), "../../tsconfig.json"),
-      "utf8",
-    );
+    const raw = fs.readFileSync(path.resolve(process.cwd(), "../../tsconfig.json"), "utf8");
     const json = JSON.parse(raw);
     const decode = S.decodeUnknownSync(TsConfigJson);
     const got = decode(json);
@@ -71,10 +66,7 @@ describe("TsConfigJson", () => {
   });
 
   it("decodes the repo's tsconfig.base.json", () => {
-    const raw = fs.readFileSync(
-      path.resolve(process.cwd(), "../../tsconfig.base.json"),
-      "utf8",
-    );
+    const raw = fs.readFileSync(path.resolve(process.cwd(), "../../tsconfig.base.json"), "utf8");
     const json = JSON.parse(raw);
     const decode = S.decodeUnknownSync(TsConfigJson);
     const got = decode(json);

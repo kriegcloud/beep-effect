@@ -15,10 +15,7 @@ export const WorkspacePkgKeyPrefix = S.Literal("@beep/");
 /**
  * Full workspace package name (e.g. "@beep/foo").
  */
-export const WorkspacePkgKey = S.TemplateLiteral(
-  WorkspacePkgKeyPrefix,
-  S.String,
-);
+export const WorkspacePkgKey = S.TemplateLiteral(WorkspacePkgKeyPrefix, S.String);
 
 /**
  * Version specifiers for workspace dependencies (e.g. "workspace:^", "workspace:^").

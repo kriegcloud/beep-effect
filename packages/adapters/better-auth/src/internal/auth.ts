@@ -7,6 +7,6 @@ import type { AuthOptions } from "./options";
 export type Auth = ReturnType<typeof betterAuth<AuthOptions>>;
 
 export const makeAuth: (opts: BetterAuthOptions) => Auth = (
-  opts: BetterAuthOptions,
+  opts: BetterAuthOptions
   // pluginOpts: MakePluginsParams,
 ) => betterAuth(makeOptions(opts));

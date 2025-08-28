@@ -9,13 +9,7 @@ import { PackageJson, RootPackageJson } from "../schemas";
 import { DomainError } from "./Errors";
 import { findRepoRoot } from "./Root";
 
-const IGNORE = [
-  "**/node_modules/**",
-  "**/dist/**",
-  "**/build/**",
-  "**/.turbo/**",
-  "**/.tsbuildinfo/**",
-] as const;
+const IGNORE = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.turbo/**", "**/.tsbuildinfo/**"] as const;
 
 /**
  * Discover workspace directories from the repo root using the root
@@ -33,9 +27,7 @@ export const resolveWorkspaceDirs = Effect.gen(function* () {
   const rootPath = yield* findRepoRoot;
 
   // Read and decode root package.json (only needs workspaces)
-  const rootPkgJson = yield* utils.readJson(
-    path_.join(rootPath, "package.json"),
-  );
+  const rootPkgJson = yield* utils.readJson(path_.join(rootPath, "package.json"));
   const rootDecoded = yield* S.decode(RootPackageJson)(rootPkgJson);
   const workspaces = rootDecoded.workspaces;
 
@@ -68,9 +60,7 @@ export const resolveWorkspaceDirs = Effect.gen(function* () {
  * @param workspace Full workspace package name (e.g. "@beep/foo")
  * @throws DomainError when the workspace cannot be found
  */
-export const getWorkspaceDir = Effect.fn("getWorkspaceDir")(function* (
-  workspace: string,
-) {
+export const getWorkspaceDir = Effect.fn("getWorkspaceDir")(function* (workspace: string) {
   const map = yield* resolveWorkspaceDirs;
   return yield* F.pipe(
     HashMap.get(map, workspace),
@@ -79,9 +69,9 @@ export const getWorkspaceDir = Effect.fn("getWorkspaceDir")(function* (
         Effect.fail(
           new DomainError({
             message: `[getWorkspaceDir] Workspace ${workspace} not found`,
-          }),
+          })
         ),
       onSome: (dir) => Effect.succeed(dir),
-    }),
+    })
   );
 });

@@ -30,5 +30,5 @@ export const verification = pg.pgTable(
     pg
       .index("verification_active_idx")
       .on(t.identifier, t.expiresAt),
-  ],
+  ]
 );

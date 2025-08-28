@@ -14,26 +14,17 @@ export const session = pg.pgTable(
       .text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade", onUpdate: "cascade" }),
-    activeOrganizationId: pg
-      .text("active_organization_id")
-      .references(() => organization.id, {
-        onDelete: "set null",
-        onUpdate: "cascade",
-      }),
-    activeTeamId: pg
-      .text("active_team_id")
-      .references(() => team.id, { onDelete: "set null", onUpdate: "cascade" }),
-    impersonatedBy: pg
-      .text("impersonated_by")
-      .references(() => user.id, { onDelete: "set null", onUpdate: "cascade" }),
+    activeOrganizationId: pg.text("active_organization_id").references(() => organization.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    activeTeamId: pg.text("active_team_id").references(() => team.id, { onDelete: "set null", onUpdate: "cascade" }),
+    impersonatedBy: pg.text("impersonated_by").references(() => user.id, { onDelete: "set null", onUpdate: "cascade" }),
     ...Common.globalColumns,
   },
   (t) => [
     // Temporal constraint - session must expire after it was created
-    pg.check(
-      "session_expires_after_created_check",
-      d.sql`${t.expiresAt} > ${t.createdAt}`,
-    ),
+    pg.check("session_expires_after_created_check", d.sql`${t.expiresAt} > ${t.createdAt}`),
 
     // Critical indexes for authentication performance
     pg
@@ -68,5 +59,5 @@ export const session = pg.pgTable(
     pg
       .index("session_user_org_active_idx")
       .on(t.userId, t.activeOrganizationId, t.expiresAt),
-  ],
+  ]
 );

@@ -6,9 +6,7 @@ import * as S from "effect/Schema";
  * @property path - The path that was expected to exist.
  * @property message - Optional human-friendly details.
  */
-export class NoSuchFileError extends S.TaggedError<NoSuchFileError>(
-  "NoSuchFileError",
-)("NoSuchFileError", {
+export class NoSuchFileError extends S.TaggedError<NoSuchFileError>("NoSuchFileError")("NoSuchFileError", {
   path: S.String,
   message: S.optional(S.String),
 }) {}
@@ -22,13 +20,10 @@ export class NoSuchFileError extends S.TaggedError<NoSuchFileError>(
  * @property message - Human-friendly details.
  * @property cause - Optional underlying cause.
  */
-export class DomainError extends S.TaggedError<DomainError>("DomainError")(
-  "DomainError",
-  {
-    message: S.String,
-    cause: S.optional(S.Unknown),
-  },
-) {}
+export class DomainError extends S.TaggedError<DomainError>("DomainError")("DomainError", {
+  message: S.String,
+  cause: S.optional(S.Unknown),
+}) {}
 
 /**
  * Error raised when a package.json that is required cannot be located.
@@ -36,9 +31,10 @@ export class DomainError extends S.TaggedError<DomainError>("DomainError")(
  * @property message - Human-friendly details.
  * @property cause - Underlying cause.
  */
-export class PackageJsonNotFound extends S.TaggedError<PackageJsonNotFound>(
+export class PackageJsonNotFound extends S.TaggedError<PackageJsonNotFound>("PackageJsonNotFound")(
   "PackageJsonNotFound",
-)("PackageJsonNotFound", {
-  message: S.String,
-  cause: S.Any,
-}) {}
+  {
+    message: S.String,
+    cause: S.Any,
+  }
+) {}

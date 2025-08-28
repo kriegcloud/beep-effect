@@ -10,11 +10,7 @@ import * as Effect from "effect/Effect";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 
-const TestLayer = Layer.mergeAll(
-  FsUtilsLive,
-  NodeFileSystem.layer,
-  NodePath.layerPosix,
-);
+const TestLayer = Layer.mergeAll(FsUtilsLive, NodeFileSystem.layer, NodePath.layerPosix);
 
 const mkTestDirScoped = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
@@ -22,12 +18,10 @@ const mkTestDirScoped = Effect.gen(function* () {
   const base = path_.join(
     process.cwd(),
     ".tmp-FsUtils-tests",
-    `deps-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    `deps-${Date.now()}-${Math.random().toString(16).slice(2)}`
   );
   yield* fs.makeDirectory(base, { recursive: true });
-  yield* Effect.addFinalizer(() =>
-    fs.remove(base, { recursive: true }).pipe(Effect.ignore),
-  );
+  yield* Effect.addFinalizer(() => fs.remove(base, { recursive: true }).pipe(Effect.ignore));
   return base;
 });
 
@@ -53,17 +47,11 @@ describe("Repo/Dependencies.extractWorkspaceDependencies", () => {
 
       const got = yield* extractWorkspaceDependencies(pkgJsonPath);
 
-      deepStrictEqual(
-        HashSet.has(got.devDependencies.workspace, "@beep/foo"),
-        true,
-      );
-      deepStrictEqual(
-        HashSet.has(got.dependencies.workspace, "@beep/bar"),
-        true,
-      );
+      deepStrictEqual(HashSet.has(got.devDependencies.workspace, "@beep/foo"), true);
+      deepStrictEqual(HashSet.has(got.dependencies.workspace, "@beep/bar"), true);
       deepStrictEqual(HashSet.has(got.devDependencies.npm, "depA"), true);
       deepStrictEqual(HashSet.has(got.dependencies.npm, "depB"), true);
-    }).pipe(Effect.provide(TestLayer)),
+    }).pipe(Effect.provide(TestLayer))
   );
 
   it.scoped("handles missing deps maps by defaulting to empty", () =>
@@ -83,6 +71,6 @@ describe("Repo/Dependencies.extractWorkspaceDependencies", () => {
       deepStrictEqual(HashSet.size(got.devDependencies.npm), 0);
       deepStrictEqual(HashSet.size(got.dependencies.workspace), 0);
       deepStrictEqual(HashSet.size(got.dependencies.npm), 0);
-    }).pipe(Effect.provide(TestLayer)),
+    }).pipe(Effect.provide(TestLayer))
   );
 });

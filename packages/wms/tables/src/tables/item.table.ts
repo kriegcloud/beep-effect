@@ -15,5 +15,5 @@ export const itemTable = pg.pgTable(
   (t) => [
     pg.uniqueIndex("item_org_name_unique_idx").on(t.organizationId, t.name),
     pg.uniqueIndex("item_org_id_unique_idx").on(t.organizationId, t.id),
-  ],
+  ]
 );

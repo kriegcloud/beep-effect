@@ -33,7 +33,8 @@
     "lint:circular": "pnpm madge -c ."
   },
   "devDependencies": {
-    "effect": "*"
+    "effect": "*",
+    "string-ts": "*"
   },
   "effect": {
     "generateExports": {

@@ -46,5 +46,5 @@ export const member = pg.pgTable(
     pg.index("member_org_status_idx").on(t.organizationId, t.status),
     pg.index("member_invited_by_idx").on(t.invitedBy),
     pg.index("member_last_active_idx").on(t.lastActiveAt),
-  ],
+  ]
 );

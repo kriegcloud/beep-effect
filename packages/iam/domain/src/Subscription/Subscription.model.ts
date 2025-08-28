@@ -21,13 +21,7 @@ export class Model extends M.Class<Model>(`SubscriptionModel`)({
   }),
 
   /** Subscription status */
-  status: S.Literal(
-    "active",
-    "canceled",
-    "past_due",
-    "trialing",
-    "incomplete",
-  ).annotations({
+  status: S.Literal("active", "canceled", "past_due", "trialing", "incomplete").annotations({
     description: "Current status of the subscription",
   }),
 
@@ -35,28 +29,28 @@ export class Model extends M.Class<Model>(`SubscriptionModel`)({
   stripeSubscriptionId: M.FieldOption(
     S.NonEmptyString.annotations({
       description: "Stripe subscription identifier",
-    }),
+    })
   ),
 
   /** When the current period starts */
   currentPeriodStart: M.FieldOption(
     Common.DateTimeFromDate({
       description: "Start of the current billing period",
-    }),
+    })
   ),
 
   /** When the current period ends */
   currentPeriodEnd: M.FieldOption(
     Common.DateTimeFromDate({
       description: "End of the current billing period",
-    }),
+    })
   ),
 
   /** When the subscription was canceled */
   canceledAt: M.FieldOption(
     Common.DateTimeFromDate({
       description: "When the subscription was canceled",
-    }),
+    })
   ),
 
   // Default columns include organizationId

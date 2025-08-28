@@ -35,7 +35,7 @@ export class Model extends M.Class<Model>(`SsoProvider.Model`)({
   metadata: M.FieldOption(
     S.String.annotations({
       description: "XML metadata for SAML providers",
-    }),
+    })
   ),
 
   // Default columns include organizationId

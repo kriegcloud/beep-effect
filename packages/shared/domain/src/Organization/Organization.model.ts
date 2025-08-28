@@ -20,27 +20,23 @@ export class Model extends M.Class<Model>(`OrganizationModel`)({
 
   /** URL-friendly slug identifier */
   slug: M.FieldOption(
-    BS.Slug.pipe(
-      S.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-      S.minLength(2),
-      S.maxLength(50),
-    ).annotations({
+    BS.Slug.pipe(S.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), S.minLength(2), S.maxLength(50)).annotations({
       description: "URL-friendly identifier for the organization",
-    }),
+    })
   ),
 
   /** Organization logo URL */
   logo: M.FieldOption(
     BS.URLString.annotations({
       description: "URL to the organization's logo",
-    }),
+    })
   ),
 
   /** Flexible metadata storage */
   metadata: M.FieldOption(
     S.String.annotations({
       description: "JSON metadata for additional organization data",
-    }),
+    })
   ),
   type: S.Literal("individual", "team", "enterprise").annotations({
     description: "The type of organization",
@@ -53,28 +49,24 @@ export class Model extends M.Class<Model>(`OrganizationModel`)({
     S.withDefaults({
       decoding: F.constFalse,
       constructor: F.constFalse,
-    }),
+    })
   ).annotations({
     description: "Whether this organization is auto-created for a user",
   }),
   maxMembers: M.FieldOption(
     S.NonNegativeInt.annotations({
       description: "The maximum number of members allowed in the organization",
-    }),
+    })
   ),
-  features: M.FieldOption(
-    M.JsonFromString(S.Record({ key: S.String, value: S.Any })),
-  ),
-  settings: M.FieldOption(
-    M.JsonFromString(S.Record({ key: S.String, value: S.Any })),
-  ),
+  features: M.FieldOption(M.JsonFromString(S.Record({ key: S.String, value: S.Any }))),
+  settings: M.FieldOption(M.JsonFromString(S.Record({ key: S.String, value: S.Any }))),
   subscriptionTier: S.Literal("free", "plus", "pro")
     .pipe(
       S.optional,
       S.withDefaults({
         decoding: F.constant("free"),
         constructor: F.constant("free"),
-      }),
+      })
     )
     .annotations({
       description: "The subscription tier of the organization",
@@ -85,7 +77,7 @@ export class Model extends M.Class<Model>(`OrganizationModel`)({
       S.withDefaults({
         decoding: F.constant("active"),
         constructor: F.constant("active"),
-      }),
+      })
     )
     .annotations({
       description: "The subscription status of the organization",

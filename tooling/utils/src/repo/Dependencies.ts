@@ -4,13 +4,7 @@ import * as Effect from "effect/Effect";
 import * as HashSet from "effect/HashSet";
 import * as S from "effect/Schema";
 import { FsUtils } from "../FsUtils";
-import {
-  Dependencies as DepsSchema,
-  NpmDepTuple,
-  PackageJson,
-  RepoDepMapValue,
-  WorkspaceDepTuple,
-} from "../schemas";
+import { Dependencies as DepsSchema, NpmDepTuple, PackageJson, RepoDepMapValue, WorkspaceDepTuple } from "../schemas";
 
 /**
  * Extract typed sets of workspace and npm dependencies from a package.json.
@@ -23,9 +17,7 @@ import {
  * @returns RepoDepMapValue with `dependencies` and `devDependencies` each containing
  *          a HashSet of workspace names and npm package names
  */
-export const extractWorkspaceDependencies = Effect.fn(
-  "extractWorkspaceDependencies",
-)(function* (pkgJsonPath: string) {
+export const extractWorkspaceDependencies = Effect.fn("extractWorkspaceDependencies")(function* (pkgJsonPath: string) {
   const fs = yield* FileSystem.FileSystem;
   const utils = yield* FsUtils;
 
@@ -43,18 +35,12 @@ export const extractWorkspaceDependencies = Effect.fn(
 
   const toDeps = (entries: ReadonlyArray<readonly [string, string]>) =>
     S.decodeSync(DepsSchema)({
-      workspace: HashSet.fromIterable(
-        A.map(A.filter(entries, isWorkspaceDep), ([k]) => k),
-      ),
+      workspace: HashSet.fromIterable(A.map(A.filter(entries, isWorkspaceDep), ([k]) => k)),
       npm: HashSet.fromIterable(A.map(A.filter(entries, isNpmDep), ([k]) => k)),
     });
 
-  const devEntries = Object.entries(devMap) as ReadonlyArray<
-    readonly [string, string]
-  >;
-  const prodEntries = Object.entries(prodMap) as ReadonlyArray<
-    readonly [string, string]
-  >;
+  const devEntries = Object.entries(devMap) as ReadonlyArray<readonly [string, string]>;
+  const prodEntries = Object.entries(prodMap) as ReadonlyArray<readonly [string, string]>;
 
   return yield* S.decode(RepoDepMapValue)({
     devDependencies: toDeps(devEntries),

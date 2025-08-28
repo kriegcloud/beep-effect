@@ -2,18 +2,10 @@ import { stringLiteralKit } from "@beep/schema/kits";
 import * as Config from "effect/Config";
 import * as F from "effect/Function";
 export namespace EnvValue {
-  export const {
-    Options,
-    Schema,
-    Enum,
-    Mock,
-    JSONSchema,
-    Pretty,
-    Equivalence,
-  } = stringLiteralKit(
+  export const { Options, Schema, Enum, Mock, JSONSchema, Pretty, Equivalence } = stringLiteralKit(
     "dev",
     "staging",
-    "prod",
+    "prod"
   )({
     identifier: "EnvValue",
     title: "Env Value",
@@ -37,7 +29,7 @@ export namespace AuthProviderNameValue {
     "google",
     "linkedin",
     "twitter",
-    "discord",
+    "discord"
     // "facebook",
     // "microsoft",
   )({
@@ -48,15 +40,7 @@ export namespace AuthProviderNameValue {
 }
 
 export namespace LogLevel {
-  export const {
-    Options,
-    Schema,
-    Enum,
-    Mock,
-    JSONSchema,
-    Pretty,
-    Equivalence,
-  } = stringLiteralKit(
+  export const { Options, Schema, Enum, Mock, JSONSchema, Pretty, Equivalence } = stringLiteralKit(
     "All",
     "Debug",
     "Error",
@@ -64,7 +48,7 @@ export namespace LogLevel {
     "Info",
     "Trace",
     "None",
-    "Warning",
+    "Warning"
   )({
     identifier: "LogLevel",
     title: "Log Level",
@@ -73,19 +57,11 @@ export namespace LogLevel {
 }
 
 export namespace LogFormat {
-  export const {
-    Options,
-    Schema,
-    Enum,
-    Mock,
-    JSONSchema,
-    Pretty,
-    Equivalence,
-  } = stringLiteralKit(
+  export const { Options, Schema, Enum, Mock, JSONSchema, Pretty, Equivalence } = stringLiteralKit(
     "pretty",
     "json",
     "logFmt",
-    "structured",
+    "structured"
   )({
     identifier: "LogFormat",
     title: "Log Format",
@@ -94,18 +70,10 @@ export namespace LogFormat {
 }
 
 export namespace SubscriptionPlanValue {
-  export const {
-    Options,
-    Schema,
-    Enum,
-    Mock,
-    JSONSchema,
-    Pretty,
-    Equivalence,
-  } = stringLiteralKit(
+  export const { Options, Schema, Enum, Mock, JSONSchema, Pretty, Equivalence } = stringLiteralKit(
     "basic",
     "pro",
-    "enterprise",
+    "enterprise"
   )({
     identifier: "SubscriptionPlanValue",
     title: "Subscription Plan Value",
@@ -116,11 +84,9 @@ export namespace SubscriptionPlanValue {
 export const ConfigURL = F.flow(
   <TName extends string>(name: TName) => name,
   Config.url,
-  Config.map((url) => url.toString()),
+  Config.map((url) => url.toString())
 );
 
 export const ConfigArrayURL = F.flow(<TName extends string>(name: TName) =>
-  Config.array(Config.hashSet(Config.url()), name).pipe(
-    Config.map((urls) => urls.map((url) => url.toString())),
-  ),
+  Config.array(Config.hashSet(Config.url()), name).pipe(Config.map((urls) => urls.map((url) => url.toString())))
 );

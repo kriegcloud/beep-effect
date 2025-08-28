@@ -10,6 +10,5 @@ export namespace IamDb {
 
   export class IamDb extends Effect.Tag("IamDb")<IamDb, Shape>() {}
 
-  export const layer = (config: Config) =>
-    Layer.scoped(IamDb, makeService(config));
+  export const layer = (config: Config) => Layer.scoped(IamDb, makeService(config));
 }

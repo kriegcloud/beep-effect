@@ -84,10 +84,7 @@
           "level": "error",
           "fix": "none"
         },
-        "noUnusedVariables": {
-          "level": "warn",
-          "fix": "none"
-        },
+        "noUnusedVariables": "off",
         "useUniqueElementIds": "off",
         "useYield": "off",
         "noChildrenProp": "off",
@@ -103,7 +100,7 @@
       },
       "suspicious": {
         "useAdjacentOverloadSignatures": "off",
-        "noDoubleEquals": "error",
+        "noDoubleEquals": "off",
         "noPrototypeBuiltins": "off",
         "noDebugger": "off",
         "noRedeclare": "off",

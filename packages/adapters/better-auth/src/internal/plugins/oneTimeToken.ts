@@ -1,9 +1,7 @@
 import type { BetterAuthPlugin } from "better-auth";
 import { oneTimeToken } from "better-auth/plugins";
 
-export type OneTimeTokenOptions = NonNullable<
-  Parameters<typeof oneTimeToken>[0]
->;
+export type OneTimeTokenOptions = NonNullable<Parameters<typeof oneTimeToken>[0]>;
 
 /**
  * TODO factor out

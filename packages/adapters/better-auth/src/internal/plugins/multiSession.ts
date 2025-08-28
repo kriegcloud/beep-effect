@@ -1,9 +1,7 @@
 import type { BetterAuthPlugin } from "better-auth";
 import { multiSession } from "better-auth/plugins";
 
-export type MultiSessionOptions = NonNullable<
-  Parameters<typeof multiSession>[0]
->;
+export type MultiSessionOptions = NonNullable<Parameters<typeof multiSession>[0]>;
 
 /**
  * TODO factor out

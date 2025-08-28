@@ -23,9 +23,5 @@ export const inventoryTable = pg.pgTable(
       .references(() => itemTable.id),
     ...Common.defaultColumns,
   },
-  (t) => [
-    pg
-      .uniqueIndex("inventory_loc_item_wh_org_idx")
-      .on(t.locationId, t.itemId, t.warehouseId, t.organizationId),
-  ],
+  (t) => [pg.uniqueIndex("inventory_loc_item_wh_org_idx").on(t.locationId, t.itemId, t.warehouseId, t.organizationId)]
 );

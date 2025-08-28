@@ -48,23 +48,9 @@ const generateAutoFillValues = Effect.gen(function* () {
   yield* Effect.log("Starting auto-fill values generation");
 
   // Generate secrets in parallel for better performance
-  const [
-    dbPassword,
-    dbAdminPassword,
-    redisPassword,
-    dbPgAdminPassword,
-    adminUserId1,
-    adminUserId2,
-  ] = yield* Effect.all(
-    [
-      generateSecret,
-      generateSecret,
-      generateSecret,
-      generateSecret,
-      generateUUID,
-      generateUUID,
-    ],
-    { concurrency: "unbounded" },
+  const [dbPassword, dbAdminPassword, redisPassword, dbPgAdminPassword, adminUserId1, adminUserId2] = yield* Effect.all(
+    [generateSecret, generateSecret, generateSecret, generateSecret, generateUUID, generateUUID],
+    { concurrency: "unbounded" }
   );
 
   const autoFillValues = {
@@ -76,15 +62,9 @@ const generateAutoFillValues = Effect.gen(function* () {
   };
 
   yield* Console.log("\n✅ Generated secure values:");
-  yield* Console.log(
-    `📊 DB_PG_PASSWORD: ${dbPassword.slice(0, 8)}... (${dbPassword.length} chars)`,
-  );
-  yield* Console.log(
-    `🔧 DB_PG_ADMIN_PW: ${dbAdminPassword.slice(0, 8)}... (${dbAdminPassword.length} chars)`,
-  );
-  yield* Console.log(
-    `🗄️  KV_REDIS_PASSWORD: ${redisPassword.slice(0, 8)}... (${redisPassword.length} chars)`,
-  );
+  yield* Console.log(`📊 DB_PG_PASSWORD: ${dbPassword.slice(0, 8)}... (${dbPassword.length} chars)`);
+  yield* Console.log(`🔧 DB_PG_ADMIN_PW: ${dbAdminPassword.slice(0, 8)}... (${dbAdminPassword.length} chars)`);
+  yield* Console.log(`🗄️  KV_REDIS_PASSWORD: ${redisPassword.slice(0, 8)}... (${redisPassword.length} chars)`);
   yield* Console.log(`👥 APP_ADMIN_USER_IDS: ${adminUserId1},${adminUserId2}`);
 
   yield* Effect.log("Auto-fill values generation completed successfully");
@@ -94,9 +74,7 @@ const generateAutoFillValues = Effect.gen(function* () {
 /**
  * Read an existing .env file and return its raw content
  */
-const readEnvFileRaw = Effect.fn("readEnvFileRaw")(function* (
-  filePath: string,
-) {
+const readEnvFileRaw = Effect.fn("readEnvFileRaw")(function* (filePath: string) {
   const fs = yield* FileSystem.FileSystem;
   const pathService = yield* Path.Path;
   const resolvedPath = pathService.resolve(filePath);
@@ -105,9 +83,7 @@ const readEnvFileRaw = Effect.fn("readEnvFileRaw")(function* (
 
   const exists = yield* fs.exists(resolvedPath);
   if (!exists) {
-    yield* Console.log(
-      `📄 File ${filePath} does not exist, will create new one`,
-    );
+    yield* Console.log(`📄 File ${filePath} does not exist, will create new one`);
     return "";
   }
 
@@ -121,14 +97,9 @@ const readEnvFileRaw = Effect.fn("readEnvFileRaw")(function* (
 /**
  * Update specific environment variables in the raw .env content while preserving all formatting
  */
-const updateEnvVariablesInContent = (
-  content: string,
-  updates: Record<string, string>,
-): Effect.Effect<string> =>
+const updateEnvVariablesInContent = (content: string, updates: Record<string, string>): Effect.Effect<string> =>
   Effect.gen(function* () {
-    yield* Effect.log(
-      "Updating environment variables in content while preserving formatting",
-    );
+    yield* Effect.log("Updating environment variables in content while preserving formatting");
 
     const lines = content.split("\n");
     const updatedLines: string[] = [];
@@ -157,9 +128,7 @@ const updateEnvVariablesInContent = (
           const quotedNewValue = `"${newValue}"`;
 
           const updatedLine = `${prefix}${quotedNewValue}`;
-          yield* Console.log(
-            `🔄 Updated ${key}: ${oldValue} → ${quotedNewValue}`,
-          );
+          yield* Console.log(`🔄 Updated ${key}: ${oldValue} → ${quotedNewValue}`);
           updatedLines.push(updatedLine);
           lineUpdated = true;
           break; // Found and updated, no need to check other keys
@@ -178,10 +147,7 @@ const updateEnvVariablesInContent = (
 /**
  * Write updated content to the .env file
  */
-const writeEnvFileRaw = Effect.fn("writeEnvFileRaw")(function* (
-  filePath: string,
-  content: string,
-) {
+const writeEnvFileRaw = Effect.fn("writeEnvFileRaw")(function* (filePath: string, content: string) {
   const fs = yield* FileSystem.FileSystem;
   const pathService = yield* Path.Path;
   const resolvedPath = pathService.resolve(filePath);
@@ -207,9 +173,7 @@ const updateEnvFile = (filePath = ".env") =>
     // Get current working directory and go up two levels to reach monorepo root
     const currentDir = process.cwd();
     const monorepoRoot = pathService.join(currentDir, "..", "..");
-    const resolvedFilePath = pathService.isAbsolute(filePath)
-      ? filePath
-      : pathService.join(monorepoRoot, filePath);
+    const resolvedFilePath = pathService.isAbsolute(filePath) ? filePath : pathService.join(monorepoRoot, filePath);
 
     yield* Console.log(`📍 Current directory: ${currentDir}`);
     yield* Console.log(`📍 Monorepo root: ${monorepoRoot}`);
@@ -222,21 +186,14 @@ const updateEnvFile = (filePath = ".env") =>
     const autoFillValues = yield* generateAutoFillValues;
 
     // Update the environment variables in the content
-    const updatedContent = yield* updateEnvVariablesInContent(
-      existingContent,
-      autoFillValues,
-    );
+    const updatedContent = yield* updateEnvVariablesInContent(existingContent, autoFillValues);
 
     // Write back to file
     yield* writeEnvFileRaw(resolvedFilePath, updatedContent);
 
     yield* Console.log(`\n🎉 Successfully updated ${resolvedFilePath}!`);
-    yield* Console.log(
-      `📊 Total variables: ${Object.keys(autoFillValues).length}`,
-    );
-    yield* Console.log(
-      `🆕 Added/Updated: ${Object.keys(autoFillValues).length}`,
-    );
+    yield* Console.log(`📊 Total variables: ${Object.keys(autoFillValues).length}`);
+    yield* Console.log(`🆕 Added/Updated: ${Object.keys(autoFillValues).length}`);
 
     return {
       totalVariables: Object.keys(autoFillValues).length,
@@ -264,8 +221,8 @@ const main = Effect.gen(function* () {
         yield* Effect.log(`Error occurred: ${String(error)}`);
         yield* Console.log(`❌ Failed to generate secrets: ${String(error)}`);
         return { error: String(error) };
-      }),
-    ),
+      })
+    )
   );
 
   if ("error" in result) {
@@ -274,9 +231,7 @@ const main = Effect.gen(function* () {
   }
 
   yield* Console.log("\n✨ All secrets generated successfully!");
-  yield* Console.log(
-    "🔐 Your .env file is now ready with secure random values.",
-  );
+  yield* Console.log("🔐 Your .env file is now ready with secure random values.");
   yield* Console.log("\n💡 Next steps:");
   yield* Console.log("   1. Review the generated values in your .env file");
   yield* Console.log("   2. Add any additional configuration as needed");
@@ -290,17 +245,11 @@ const main = Effect.gen(function* () {
       yield* Effect.log(`Fatal error: ${String(error)}`);
       yield* Console.log(`💥 Fatal error: ${String(error)}`);
       return yield* Effect.void; // This won't be reached due to process.exit
-    }),
-  ),
+    })
+  )
 );
 
 // Run the program
 NodeRuntime.runMain(main.pipe(Effect.provide(NodeContext.layer)));
 
-export {
-  generateSecret,
-  generateUUID,
-  generateAutoFillValues,
-  updateEnvFile,
-  main,
-};
+export { generateSecret, generateUUID, generateAutoFillValues, updateEnvFile, main };

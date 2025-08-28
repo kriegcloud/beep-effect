@@ -52,5 +52,5 @@ export const account = pg.pgTable(
       .index("account_refresh_token_expires_idx")
       .on(t.refreshTokenExpiresAt)
       .where(d.sql`${t.refreshTokenExpiresAt} IS NOT NULL`),
-  ],
+  ]
 );

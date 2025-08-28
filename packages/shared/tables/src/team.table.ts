@@ -27,5 +27,5 @@ export const team = pg.pgTable(
     pg
       .index("team_name_idx")
       .on(t.name),
-  ],
+  ]
 );

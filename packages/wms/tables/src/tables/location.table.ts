@@ -18,11 +18,7 @@ export const locationTable = pg.pgTable(
     ...Common.defaultColumns,
   },
   (t) => [
-    pg
-      .uniqueIndex("location_name_wh_org_id_idx")
-      .on(t.warehouseId, t.name, t.organizationId),
-    pg
-      .uniqueIndex("location_barcode_wh_org_id_idx")
-      .on(t.barcode, t.organizationId, t.warehouseId),
-  ],
+    pg.uniqueIndex("location_name_wh_org_id_idx").on(t.warehouseId, t.name, t.organizationId),
+    pg.uniqueIndex("location_barcode_wh_org_id_idx").on(t.barcode, t.organizationId, t.warehouseId),
+  ]
 );

@@ -305,8 +305,7 @@ export const makeOptions = (opts: BetterAuthOptions) =>
       /**
        * Auto signin the user after they verify their email
        */
-      autoSignInAfterVerification:
-        opts.emailVerification?.autoSignInAfterVerification,
+      autoSignInAfterVerification: opts.emailVerification?.autoSignInAfterVerification,
       /**
        * Number of seconds the verification token is
        * valid for.
@@ -374,8 +373,7 @@ export const makeOptions = (opts: BetterAuthOptions) =>
        * valid for.
        * @default 1 hour (60 * 60)
        */
-      resetPasswordTokenExpiresIn:
-        opts.emailAndPassword?.resetPasswordTokenExpiresIn,
+      resetPasswordTokenExpiresIn: opts.emailAndPassword?.resetPasswordTokenExpiresIn,
       /**
        * A callback function that is triggered
        * when a user's password is changed successfully.
@@ -400,8 +398,7 @@ export const makeOptions = (opts: BetterAuthOptions) =>
        * Whether to revoke all other sessions when resetting password
        * @default false
        */
-      revokeSessionsOnPasswordReset:
-        opts.emailAndPassword?.revokeSessionsOnPasswordReset,
+      revokeSessionsOnPasswordReset: opts.emailAndPassword?.revokeSessionsOnPasswordReset,
     },
     /**
      * list of social providers
@@ -536,8 +533,7 @@ export const makeOptions = (opts: BetterAuthOptions) =>
         /**
          * Additional cookies to be shared across subdomains
          */
-        additionalCookies:
-          opts.advanced?.crossSubDomainCookies?.additionalCookies,
+        additionalCookies: opts.advanced?.crossSubDomainCookies?.additionalCookies,
         /**
          * The domain to use for the cookies
          *

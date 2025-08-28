@@ -28,16 +28,7 @@ import { JsonLiteral, type JsonLiteralType } from "./JsonLiteral";
  */
 
 export const Json = S.suspend(
-  (): S.Schema<JsonType> =>
-    S.Union(
-      JsonLiteral,
-      S.Array(Json),
-      S.Record({ key: S.String, value: Json }),
-    ),
+  (): S.Schema<JsonType> => S.Union(JsonLiteral, S.Array(Json), S.Record({ key: S.String, value: Json }))
 );
 
-export type JsonType =
-  | JsonLiteralType
-  | Array<JsonType>
-  | ReadonlyArray<JsonType>
-  | { [key: string]: JsonType };
+export type JsonType = JsonLiteralType | Array<JsonType> | ReadonlyArray<JsonType> | { [key: string]: JsonType };

@@ -19,7 +19,7 @@ export class Model extends M.Class<Model>(`WalletAddress.Model`)({
   address: M.Generated(
     S.NonEmptyString.annotations({
       description: "The blockchain wallet address",
-    }),
+    })
   ),
 
   /** The blockchain network chain ID */
@@ -31,7 +31,7 @@ export class Model extends M.Class<Model>(`WalletAddress.Model`)({
   isPrimary: M.FieldOption(
     S.Boolean.annotations({
       description: "Whether this is the user's primary wallet address",
-    }),
+    })
   ),
 
   // Audit and tracking columns

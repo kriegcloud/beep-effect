@@ -79,6 +79,9 @@
       "path": "packages/common/logos"
     },
     {
+      "path": "packages/common/rete"
+    },
+    {
       "path": "packages/env"
     },
     {

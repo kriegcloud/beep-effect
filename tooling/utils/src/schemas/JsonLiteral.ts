@@ -6,12 +6,7 @@ import * as S from "effect/Schema";
  * @since 0.1.0
  * @category JSON
  */
-export const JsonLiteral = S.Union(
-  S.String,
-  S.Number,
-  S.Boolean,
-  S.Null,
-).annotations({
+export const JsonLiteral = S.Union(S.String, S.Number, S.Boolean, S.Null).annotations({
   identifier: "@beep/tooling-utils/schemas/JsonLiteral.Schema",
   title: "JsonLiteral",
   description: "JSON literal values (primitives accepted by JSON)",

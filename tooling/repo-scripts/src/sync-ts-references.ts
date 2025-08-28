@@ -24,30 +24,18 @@ const hasFileNamed = (files: ReadonlyArray<string>, name: string): boolean =>
 
 const runStep = (label: string, args: ReadonlyArray<string>) =>
   Effect.gen(function* () {
-    const cmd = Command.make(
-      "pnpm",
-      "-w",
-      "exec",
-      "update-ts-references",
-      ...args,
-    );
+    const cmd = Command.make("pnpm", "-w", "exec", "update-ts-references", ...args);
 
     yield* Console.log(`\n▶ ${label}`);
-    yield* Console.log(
-      `   $ pnpm -w exec update-ts-references ${args.join(" ")}`,
-    );
+    yield* Console.log(`   $ pnpm -w exec update-ts-references ${args.join(" ")}`);
 
     const out = yield* Command.string(cmd).pipe(
-      Effect.tapError((err) =>
-        Console.log(`❌ ${label} failed: ${String(err)}`),
-      ),
+      Effect.tapError((err) => Console.log(`❌ ${label} failed: ${String(err)}`))
     );
 
     yield* Console.log(`✅ ${label} completed`);
     if (out.trim().length > 0) {
-      yield* Console.log(
-        `   output: ${out.slice(0, 400)}${out.length > 400 ? "..." : ""}`,
-      );
+      yield* Console.log(`   output: ${out.slice(0, 400)}${out.length > 400 ? "..." : ""}`);
     }
   });
 
@@ -68,9 +56,7 @@ const program = Effect.gen(function* () {
     Effect.catchAll((err) =>
       Effect.gen(function* () {
         yield* Console.log(
-          `⚠️  Could not fully inspect tsconfig files (${String(
-            err,
-          )}). Proceeding with all usecases enabled...`,
+          `⚠️  Could not fully inspect tsconfig files (${String(err)}). Proceeding with all usecases enabled...`
         );
         return {
           hasBuild: true,
@@ -79,8 +65,8 @@ const program = Effect.gen(function* () {
           hasTsx: true,
           hasDrizzle: true,
         } as const;
-      }),
-    ),
+      })
+    )
   );
 
   const { hasBuild, hasSrc, hasTest, hasTsx, hasDrizzle } = detection;
@@ -107,13 +93,7 @@ const program = Effect.gen(function* () {
   // 2) Root tsconfig.json references + per-package tsconfig.json refs
   steps.push([
     "Update references for tsconfig.json",
-    [
-      "--configName",
-      "tsconfig.json",
-      "--rootConfigName",
-      "tsconfig.json",
-      ...(checkMode ? ["--check"] : []),
-    ],
+    ["--configName", "tsconfig.json", "--rootConfigName", "tsconfig.json", ...(checkMode ? ["--check"] : [])],
   ] as const);
 
   // 3) Build graph (references only, no paths)
@@ -200,8 +180,8 @@ const main = program.pipe(
       const cause = Cause.fail(error);
       yield* Console.log(`\n🔍 Error details: ${Cause.pretty(cause)}`);
       return yield* Effect.fail(error);
-    }),
-  ),
+    })
+  )
 );
 
 NodeRuntime.runMain(main);

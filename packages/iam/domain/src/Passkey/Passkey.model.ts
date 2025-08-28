@@ -14,7 +14,7 @@ export class Model extends M.Class<Model>(`Passkey.Model`)({
     S.NonEmptyString.annotations({
       description: "User-friendly name for the passkey device",
       examples: ["iPhone", "YubiKey", "Windows Hello"],
-    }),
+    })
   ),
   /** User this passkey belongs to */
   userId: IamEntityIds.UserId.annotations({
@@ -25,14 +25,14 @@ export class Model extends M.Class<Model>(`Passkey.Model`)({
   credentialID: M.Sensitive(
     S.NonEmptyString.annotations({
       description: "WebAuthn credential identifier",
-    }),
+    })
   ),
 
   /** WebAuthn public key (sensitive) */
   publicKey: M.Sensitive(
     S.NonEmptyString.annotations({
       description: "WebAuthn public key for verification",
-    }),
+    })
   ),
   /** WebAuthn counter for replay protection */
   counter: S.Int.pipe(S.nonNegative()).annotations({
@@ -49,7 +49,7 @@ export class Model extends M.Class<Model>(`Passkey.Model`)({
     S.NonEmptyString.annotations({
       description: "Transport types (e.g. 'usb' or 'nfc')",
       examples: ["usb", "nfc", "ble", "internal"],
-    }),
+    })
   ),
 
   /** Indicates if the passkey has been backed up */
@@ -61,7 +61,7 @@ export class Model extends M.Class<Model>(`Passkey.Model`)({
   aaguid: M.FieldOption(
     S.NonEmptyString.annotations({
       description: "Authenticator Attestation GUID (AAGUID)",
-    }),
+    })
   ),
 
   // Use defaultColumns to match table schema (includes organizationId)

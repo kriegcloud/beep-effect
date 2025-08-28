@@ -25,8 +25,8 @@ const License = S.Union(
     "MIT",
     "MPL-2.0",
     "MS-PL",
-    "UNLICENSED",
-  ),
+    "UNLICENSED"
+  )
 );
 
 const Scripts = S.Record({ key: S.String, value: S.String });
@@ -39,7 +39,7 @@ const Repository = S.Union(
     type: S.optional(S.String),
     url: S.optional(S.String),
     directory: S.optional(S.String),
-  }),
+  })
 );
 
 const Bugs = S.Union(
@@ -47,7 +47,7 @@ const Bugs = S.Union(
   S.Struct({
     url: S.optional(S.String),
     email: S.optional(S.String),
-  }),
+  })
 );
 
 const FundingUrl = S.String;
@@ -57,18 +57,14 @@ const FundingWay = S.Struct({
   type: S.optional(S.String),
 });
 
-const Funding = S.Union(
-  FundingUrl,
-  FundingWay,
-  S.Array(S.Union(FundingUrl, FundingWay)),
-);
+const Funding = S.Union(FundingUrl, FundingWay, S.Array(S.Union(FundingUrl, FundingWay)));
 
 const Workspaces = S.Union(
   S.Array(S.String),
   S.Struct({
     packages: S.Array(S.String),
     nohoist: S.optional(S.Array(S.String)),
-  }),
+  })
 );
 
 const Person = S.Union(
@@ -77,7 +73,7 @@ const Person = S.Union(
     name: S.NonEmptyTrimmedString,
     url: S.optional(S.String),
     email: S.optional(S.String),
-  }),
+  })
 );
 
 const DependencyMap = S.Record({
@@ -109,8 +105,8 @@ export const PackageJson = S.Struct(
         S.Struct({
           type: S.optional(License),
           url: S.optional(S.String),
-        }),
-      ),
+        })
+      )
     ),
     author: S.optional(Person),
     contributors: S.optional(S.Array(Person)),
@@ -130,7 +126,7 @@ export const PackageJson = S.Struct(
         lib: S.optional(S.String),
         man: S.optional(S.String),
         test: S.optional(S.String),
-      }),
+      })
     ),
     repository: S.optional(Repository),
     funding: S.optional(Funding),
@@ -155,5 +151,5 @@ export const PackageJson = S.Struct(
     module: S.optional(S.String),
     workspaces: S.optional(Workspaces),
   },
-  S.Record({ key: S.String, value: Json }),
+  S.Record({ key: S.String, value: Json })
 );

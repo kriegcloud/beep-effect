@@ -49,9 +49,8 @@ describe("validate", () => {
       id: uuid(),
       field: "number",
       parentId: root.id,
-      op: { _tag: "gt", value: 18 },
       // @ts-expect-error
-      _tag: "integer",
+      op: { _tag: "integer", value: 18 },
     });
 
     const result = l.validate(root);

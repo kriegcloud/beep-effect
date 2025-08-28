@@ -21,21 +21,21 @@ export class Model extends M.Class<Model>(`TeamModel`)({
   description: M.FieldOption(
     S.String.annotations({
       description: "Description of the team's purpose",
-    }),
+    })
   ),
 
   /** Team slug for URLs */
   slug: M.FieldOption(
     BS.Slug.annotations({
       description: "URL-friendly team identifier",
-    }),
+    })
   ),
 
   /** Team metadata */
   metadata: M.FieldOption(
     S.String.annotations({
       description: "JSON metadata for additional team data",
-    }),
+    })
   ),
 
   // Default columns include organizationId

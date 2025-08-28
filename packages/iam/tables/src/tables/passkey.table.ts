@@ -23,5 +23,5 @@ export const passkey = pg.pgTable(
   (t) => [
     // Count constraints
     pg.check("passkey_counter_non_negative_check", d.sql`${t.counter} >= 0`),
-  ],
+  ]
 );

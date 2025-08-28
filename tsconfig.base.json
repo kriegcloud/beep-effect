@@ -45,6 +45,15 @@
       }
     ],
     "paths": {
+      "@beep/rete": [
+        "./packages/common/rete/src/index"
+      ],
+      "@beep/rete/*": [
+        "./packages/common/rete/src/*"
+      ],
+      "@beep/rete/test/*": [
+        "./packages/common/rete/test/*"
+      ],
       "@beep/schema": [
         "./packages/common/schema/src/index"
       ],

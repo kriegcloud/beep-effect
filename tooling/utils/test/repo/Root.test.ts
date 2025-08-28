@@ -19,7 +19,7 @@ const AlwaysMissingFsLayer = Layer.effect(
       ...fs,
       exists: (_: string) => Effect.succeed(false),
     } as FileSystem.FileSystem;
-  }),
+  })
 ).pipe(Layer.provide(NodeFileSystem.layer));
 
 const PathLayer = NodePath.layerPosix;
@@ -34,13 +34,13 @@ describe("Repo/Root.findRepoRoot", () => {
       const hasGit = yield* fs.exists(path_.join(root, ".git"));
       const hasPnpm = yield* fs.exists(path_.join(root, "pnpm-workspace.yaml"));
       deepStrictEqual(hasGit || hasPnpm, true);
-    }).pipe(Effect.provide(RealLayer)),
+    }).pipe(Effect.provide(RealLayer))
   );
 
   it.scoped("fails with NoSuchFileError when no marker dirs/files exist", () =>
     Effect.gen(function* () {
       const res = yield* Effect.either(findRepoRoot);
       deepStrictEqual(res._tag === "Left", true);
-    }).pipe(Effect.provide(Layer.mergeAll(AlwaysMissingFsLayer, PathLayer))),
+    }).pipe(Effect.provide(Layer.mergeAll(AlwaysMissingFsLayer, PathLayer)))
   );
 });

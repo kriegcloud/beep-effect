@@ -9,9 +9,7 @@ export const invitation = pg.pgTable(
     id: pg.text("id").primaryKey(),
     email: pg.text("email").notNull(),
     role: pg.text("role"),
-    teamId: pg
-      .text("team_id")
-      .references(() => team.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    teamId: pg.text("team_id").references(() => team.id, { onDelete: "cascade", onUpdate: "cascade" }),
     status: pg.text("status").default("pending").notNull(),
     expiresAt: pg.timestamp("expires_at").notNull(),
     inviterId: pg
@@ -59,5 +57,5 @@ export const invitation = pg.pgTable(
       .index("invitation_team_id_idx")
       .on(t.teamId)
       .where(d.sql`${t.teamId} IS NOT NULL`),
-  ],
+  ]
 );

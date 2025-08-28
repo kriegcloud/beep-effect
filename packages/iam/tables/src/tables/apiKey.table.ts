@@ -32,25 +32,13 @@ export const apiKey = pg.pgTable(
   },
   (t) => [
     // Count constraints
-    pg.check(
-      "apikey_request_count_non_negative_check",
-      d.sql`${t.requestCount} IS NULL OR ${t.requestCount} >= 0`,
-    ),
-    pg.check(
-      "apikey_refill_amount_non_negative_check",
-      d.sql`${t.refillAmount} IS NULL OR ${t.refillAmount} >= 0`,
-    ),
+    pg.check("apikey_request_count_non_negative_check", d.sql`${t.requestCount} IS NULL OR ${t.requestCount} >= 0`),
+    pg.check("apikey_refill_amount_non_negative_check", d.sql`${t.refillAmount} IS NULL OR ${t.refillAmount} >= 0`),
     pg.check(
       "apikey_rate_limit_time_window_positive_check",
-      d.sql`${t.rateLimitTimeWindow} IS NULL OR ${t.rateLimitTimeWindow} > 0`,
+      d.sql`${t.rateLimitTimeWindow} IS NULL OR ${t.rateLimitTimeWindow} > 0`
     ),
-    pg.check(
-      "apikey_rate_limit_max_positive_check",
-      d.sql`${t.rateLimitMax} IS NULL OR ${t.rateLimitMax} > 0`,
-    ),
-    pg.check(
-      "apikey_remaining_non_negative_check",
-      d.sql`${t.remaining} IS NULL OR ${t.remaining} >= 0`,
-    ),
-  ],
+    pg.check("apikey_rate_limit_max_positive_check", d.sql`${t.rateLimitMax} IS NULL OR ${t.rateLimitMax} > 0`),
+    pg.check("apikey_remaining_non_negative_check", d.sql`${t.remaining} IS NULL OR ${t.remaining} >= 0`),
+  ]
 );

@@ -23,8 +23,7 @@ export class Model extends M.Class<Model>(`Member.Model`)(
   {
     title: "Member Model",
     description:
-      `Member model representing user membership in organizations.\n` +
-      `Maps to the \`member\` table in the database.`,
+      `Member model representing user membership in organizations.\n` + `Maps to the \`member\` table in the database.`,
     documentation: ``,
-  },
+  }
 ) {}

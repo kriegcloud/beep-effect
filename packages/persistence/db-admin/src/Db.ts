@@ -13,6 +13,5 @@ export namespace AdminDb {
 
   export class AdminDb extends Effect.Tag("IamDb")<AdminDb, Shape>() {}
 
-  export const layer = (config: Config) =>
-    Layer.scoped(AdminDb, makeService(config));
+  export const layer = (config: Config) => Layer.scoped(AdminDb, makeService(config));
 }

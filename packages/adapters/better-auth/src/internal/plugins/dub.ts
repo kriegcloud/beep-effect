@@ -7,5 +7,4 @@ export type DubOptions = NonNullable<Parameters<typeof dubAnalytics>[0]>;
  * TODO factor out
  * @param opts
  */
-export const makeDubPlugin = (opts: DubOptions) =>
-  dubAnalytics(opts satisfies DubOptions) satisfies BetterAuthPlugin;
+export const makeDubPlugin = (opts: DubOptions) => dubAnalytics(opts satisfies DubOptions) satisfies BetterAuthPlugin;

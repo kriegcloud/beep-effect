@@ -36,6 +36,6 @@ export const findRepoRoot = Effect.gen(function* () {
     new NoSuchFileError({
       path: currentDir,
       message: "[findRepoRoot] Could not find repo root",
-    }),
+    })
   );
 });

@@ -10,6 +10,5 @@ export namespace WmsDb {
 
   export class WmsDb extends Effect.Tag("WmsDb")<WmsDb, Shape>() {}
 
-  export const layer = (config: Config) =>
-    Layer.scoped(WmsDb, makeService(config));
+  export const layer = (config: Config) => Layer.scoped(WmsDb, makeService(config));
 }

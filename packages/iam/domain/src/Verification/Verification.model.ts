@@ -12,8 +12,7 @@ export class Model extends M.Class<Model>(`Verification.Model`)({
 
   /** Verification identifier (email or phone) */
   identifier: S.NonEmptyString.annotations({
-    description:
-      "The identifier being verified (email address, phone number, etc.)",
+    description: "The identifier being verified (email address, phone number, etc.)",
   }),
 
   /** Verification value/code */

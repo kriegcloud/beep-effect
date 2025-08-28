@@ -2,12 +2,12 @@ import type * as B from "effect/Brand";
 import * as F from "effect/Function";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+import * as regexes from "../regexes";
 
 /**
  * RFC-5322–ish pragmatic validator for "local@domain.tld".
  * We rely on lowercase + trim + non-empty checks around this pattern.
  */
-export const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 export const EmailBase = S.Lowercase.pipe(
   S.compose(S.Trim),
@@ -15,7 +15,7 @@ export const EmailBase = S.Lowercase.pipe(
   S.annotations({
     message: () => "Email is required!",
   }),
-  S.pattern(EMAIL_REGEX),
+  S.pattern(regexes.email),
   S.brand("Email")
 ).annotations({
   jsonSchema: { format: "email", type: "string" },

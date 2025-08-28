@@ -14,14 +14,14 @@ export class Model extends M.Class<Model>(`TwoFactor.Model`)({
   secret: M.Sensitive(
     S.NonEmptyString.annotations({
       description: "Encrypted secret key for TOTP generation",
-    }),
+    })
   ),
 
   /** Encrypted backup codes */
   backupCodes: M.Sensitive(
     S.String.annotations({
       description: "Encrypted backup codes for account recovery",
-    }),
+    })
   ),
 
   /** User this 2FA setup belongs to */

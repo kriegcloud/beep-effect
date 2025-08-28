@@ -5,10 +5,7 @@ import { InvariantViolation } from "./error";
 import type { CallMetadata } from "./meta";
 
 /** Dev flag (narrowed to boolean). Swap to your env detection if needed. */
-const __DEV__: boolean =
-  typeof process !== "undefined" &&
-  !!process.env &&
-  process.env.NODE_ENV !== "production";
+const __DEV__: boolean = typeof process !== "undefined" && !!process.env && process.env.NODE_ENV !== "production";
 
 /** Defensive, cross-platform-ish path trimming. */
 const trimPath = (filename: string): string => {
@@ -35,36 +32,24 @@ const formatArgs = (args: readonly unknown[] | undefined): string =>
   F.pipe(
     O.fromNullable(args),
     O.map((a) => a.map(safeFormatArg).join(", ")),
-    O.getOrElse(() => ""),
+    O.getOrElse(() => "")
   );
 
 type InvariantMessage = string | (() => string);
 
-type InvariantFn = (
-  condition: unknown,
-  message: InvariantMessage,
-  meta: CallMetadata.Type,
-) => asserts condition;
+type InvariantFn = (condition: unknown, message: InvariantMessage, meta: CallMetadata.Type) => asserts condition;
 
 /** Augmented function API so we can hang helpers off the callable. */
 type InvariantApi = InvariantFn & {
   /**
    * Exhaustiveness helper. Call in the "impossible" branch.
    */
-  unreachable: <T>(
-    _x: never,
-    message: InvariantMessage,
-    meta: CallMetadata.Type,
-  ) => never;
+  unreachable: <T>(_x: never, message: InvariantMessage, meta: CallMetadata.Type) => never;
 
   /**
    * Non-null / non-undefined assertion helper with narrowing.
    */
-  nonNull: <T>(
-    value: T,
-    message: InvariantMessage,
-    meta: CallMetadata.Type,
-  ) => asserts value is NonNullable<T>;
+  nonNull: <T>(value: T, message: InvariantMessage, meta: CallMetadata.Type) => asserts value is NonNullable<T>;
 };
 
 /**
@@ -81,7 +66,7 @@ type InvariantApi = InvariantFn & {
 export const invariant: InvariantApi = ((
   condition: unknown,
   message: InvariantMessage,
-  meta: CallMetadata.Type,
+  meta: CallMetadata.Type
 ): asserts condition => {
   if (condition) return;
 
@@ -114,11 +99,7 @@ export const invariant: InvariantApi = ((
 
 // -- Helpers -----------------------------------------------------------------
 
-invariant.unreachable = <T>(
-  _x: never,
-  message: InvariantMessage,
-  meta: CallMetadata.Type,
-): never => {
+invariant.unreachable = <T>(_x: never, message: InvariantMessage, meta: CallMetadata.Type): never => {
   invariant(false, message, meta);
   // Satisfy `never` for control flow analyzers (unreachable)
   throw new Error("unreachable");
@@ -127,7 +108,7 @@ invariant.unreachable = <T>(
 invariant.nonNull = <T>(
   value: T,
   message: InvariantMessage,
-  meta: CallMetadata.Type,
+  meta: CallMetadata.Type
 ): asserts value is NonNullable<T> => {
   invariant(value != null, message, meta);
 };

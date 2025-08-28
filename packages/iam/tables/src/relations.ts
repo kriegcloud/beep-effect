@@ -64,25 +64,19 @@ export const teamMemberRelations = d.relations(teamMember, ({ one }) => ({
   }),
 }));
 
-export const oauthAccessTokenRelations = d.relations(
-  oauthAccessToken,
-  ({ one }) => ({
-    user: one(user, {
-      fields: [oauthAccessToken.userId],
-      references: [user.id],
-    }),
+export const oauthAccessTokenRelations = d.relations(oauthAccessToken, ({ one }) => ({
+  user: one(user, {
+    fields: [oauthAccessToken.userId],
+    references: [user.id],
   }),
-);
+}));
 
-export const oauthApplicationRelations = d.relations(
-  oauthApplication,
-  ({ one }) => ({
-    user: one(user, {
-      fields: [oauthApplication.userId],
-      references: [user.id],
-    }),
+export const oauthApplicationRelations = d.relations(oauthApplication, ({ one }) => ({
+  user: one(user, {
+    fields: [oauthApplication.userId],
+    references: [user.id],
   }),
-);
+}));
 
 export const oauthConsentRelations = d.relations(oauthConsent, ({ one }) => ({
   user: one(user, {
@@ -181,21 +175,18 @@ export const userRelations = d.relations(user, ({ many }) => ({
   }),
 }));
 
-export const organizationRelations = d.relations(
-  organization,
-  ({ many, one }) => ({
-    // Ownership
-    owner: one(user, {
-      fields: [organization.ownerUserId],
-      references: [user.id],
-    }),
-
-    // Core organizational structure
-    members: many(member),
-    teams: many(team),
-    subscriptions: many(subscription),
+export const organizationRelations = d.relations(organization, ({ many, one }) => ({
+  // Ownership
+  owner: one(user, {
+    fields: [organization.ownerUserId],
+    references: [user.id],
   }),
-);
+
+  // Core organizational structure
+  members: many(member),
+  teams: many(team),
+  subscriptions: many(subscription),
+}));
 
 export const walletAddressRelations = d.relations(walletAddress, ({ one }) => ({
   user: one(user, {

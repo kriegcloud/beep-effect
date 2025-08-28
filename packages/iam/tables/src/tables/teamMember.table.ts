@@ -32,5 +32,5 @@ export const teamMember = pg.pgTable(
     pg
       .index("team_member_team_user_idx")
       .on(t.teamId, t.userId),
-  ],
+  ]
 );
