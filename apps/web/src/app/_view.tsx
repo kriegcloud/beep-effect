@@ -13,7 +13,7 @@ import ListItemText from "@mui/material/ListItemText";
 import Stack from "@mui/material/Stack";
 import { useTheme } from "@mui/material/styles";
 import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
+
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import React from "react";
@@ -22,7 +22,7 @@ import { criteriaQuery, passwordQuery, session } from "./_rules";
 export function View() {
   const theme = useTheme();
   const showPassword = useBoolean();
-  const [valid, setIsValid] = React.useState<boolean>(false);
+  const [, setIsValid] = React.useState<boolean>(false);
   const [criteria, setCriteria] = React.useState<Array<{ id: string; meetsCriteria: boolean }>>([]);
   React.useEffect(() => {
     passwordQuery.subscribeOne((password) => setIsValid(password?.Password.valid ?? false));
