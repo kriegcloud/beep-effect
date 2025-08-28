@@ -96,15 +96,6 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
-  turbopack: {
-    root: path.join(__dirname, "../.."),
-    rules: {
-      "*.svg": {
-        loaders: ["@svgr/webpack"],
-        as: "*.js",
-      },
-    },
-  },
   transpilePackages: [
     "@beep/invariant",
     "@beep/schema",
@@ -139,6 +130,7 @@ const nextConfig = {
       },
     ];
   },
+
   outputFileTracingRoot: path.join(__dirname, "../../"),
   webpack(config) {
     config.module.rules.push({
