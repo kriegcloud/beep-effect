@@ -39,6 +39,7 @@
     "coverage": "turbo run coverage",
     "dev:https": "pnpm dotenvx turbo run dev:https --concurrency=14",
     "dev": "pnpm dotenvx turbo run dev --concurrency=14",
+    "start": "pnpm dotenvx turbo run start",
     "dotenvx": "dotenvx run -f .env --",
     "lint:deps": "pnpm syncpack lint --dependency-types=pnpmOverrides --dependencies='!{@tanstack/react-form,@effect/platform-node}'",
     "lint:deps:fix": "pnpm syncpack fix --dependency-types=pnpmOverrides --dependencies='!{@tanstack/react-form,@effect/platform-node}'",
@@ -199,18 +200,7 @@
       "json-logic-js": "^2.0.5",
       "@svgr/webpack": "^8.1.0",
       "@types/json-logic-js": "^2.0.8"
-    },
-    "onlyBuiltDependencies": [
-      "@parcel/watcher",
-      "@tailwindcss/oxide",
-      "core-js-pure",
-      "es5-ext",
-      "esbuild",
-      "fsevents",
-      "msgpackr-extract",
-      "protobufjs",
-      "sharp"
-    ]
+    }
   },
   "lint-staged": {
     "*": [

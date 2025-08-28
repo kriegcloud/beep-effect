@@ -1,48 +1,29 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "exactOptionalPropertyTypes": false,
-    "moduleDetection": "force",
-    "downlevelIteration": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "allowImportingTsExtensions": false,
-    "isolatedModules": true,
-    "noImplicitReturns": false,
-    "noUnusedLocals": true,
-    "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": true,
-    "noEmitOnError": false,
-    "noErrorTruncation": false,
-    "noEmit": true,
-    "allowJs": false,
-    "checkJs": false,
-    "forceConsistentCasingInFileNames": true,
-    "useDefineForClassFields": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "resolveJsonModule": true,
-    "strict": true,
-    "strictNullChecks": true,
-    "removeComments": false,
-    "types": [
-      "node"
-    ],
-    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
-    "baseUrl": ".",
-    "jsx": "preserve",
-    "module": "ESNext",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
     "target": "ES2022",
     "lib": [
-      "ES2024",
-      "DOM",
-      "DOM.Iterable"
+      "ES2022",
+      "dom",
+      "dom.iterable"
     ],
-    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
     "incremental": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
+    "disableSourceOfProjectReferenceRedirect": true,
+    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "checkJs": true,
+    "module": "esnext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
     "paths": {
       "@/*": [
         "./src/*"
@@ -100,13 +81,14 @@
     ]
   },
   "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    ".",
     ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "vitest.config.ts"
+    "build",
+    "dist",
+    ".next",
+    ".expo"
   ]
 }

@@ -12,7 +12,7 @@ import path from "node:path";
  *
  * NOTE: Remove all "generateStaticParams()" functions if not using static exports.
  */
-
+const staticHost = process.env.NEXT_PUBLIC_STATIC_URL?.replace("https://", "");
 const CSP_DIRECTIVES = {
   "default-src": ["'self'"],
   "base-uri": ["'self'"],
@@ -115,7 +115,7 @@ const nextConfig = {
     "@beep/rete"
   ],
   images: {
-    remotePatterns: [
+    remotePatterns: staticHost ? [
       {
         protocol: "https",
         hostname: `${process.env.NEXT_PUBLIC_STATIC_URL}`.replace("https://", ""),
@@ -128,7 +128,7 @@ const nextConfig = {
         port: "",
         pathname: "/**",
       },
-    ],
+    ] : [],
   },
   async headers() {
     return [
@@ -139,6 +139,7 @@ const nextConfig = {
       },
     ];
   },
+  outputFileTracingRoot: path.join(__dirname, "../../"),
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,
