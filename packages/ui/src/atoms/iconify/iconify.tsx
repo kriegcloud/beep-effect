@@ -1,7 +1,5 @@
 "use client";
-
 import type { IconProps } from "@iconify/react";
-
 import { Icon } from "@iconify/react";
 import { styled } from "@mui/material/styles";
 import type React from "react";

@@ -1,4 +1,4 @@
-import { insertFactToFact } from "@beep/rete/lib/utils";
+import { insertFactToFact } from "@beep/rete/core/utils";
 import { describe, expect, it } from "@effect/vitest";
 
 describe("Utils...", () => {

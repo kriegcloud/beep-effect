@@ -1,9 +1,10 @@
-const Page = () => {
-  return (
-    <div>
-      <h1 className="text-3xl font-bold underline">Hello world!</h1>
-    </div>
-  );
-};
+import { SimpleLayout } from "@beep/ui/layouts/simple";
+import { View } from "./_view";
 
-export default Page;
+export default function Page() {
+  return (
+    <SimpleLayout>
+      <View />
+    </SimpleLayout>
+  );
+}

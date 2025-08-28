@@ -1,6 +1,6 @@
-import { consoleAuditor } from "@beep/rete/lib/auditor";
-import { beep } from "@beep/rete/lib/core";
-import { AuditorMode } from "@beep/rete/rete";
+import { consoleAuditor } from "@beep/rete/core/auditor";
+import { beep } from "@beep/rete/core/beep";
+import { AuditorMode } from "@beep/rete/network";
 import { describe, expect, it } from "@effect/vitest";
 
 type People = [id: number, color: string, leftOf: number, height: number][];

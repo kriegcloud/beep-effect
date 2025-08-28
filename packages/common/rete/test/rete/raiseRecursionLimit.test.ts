@@ -1,5 +1,5 @@
-import type { MatchT, Session } from "@beep/rete/rete";
-import { Field, rete } from "@beep/rete/rete";
+import type { MatchT, Session } from "@beep/rete/network";
+import { Field, rete } from "@beep/rete/network";
 import { describe, expect, it } from "@effect/vitest";
 
 interface Schema {

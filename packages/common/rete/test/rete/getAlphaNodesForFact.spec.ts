@@ -1,7 +1,7 @@
-import { getAlphaNodesForFact } from "@beep/rete/rete/get-alpha-nodes-for-fact";
-import { insertFact } from "@beep/rete/rete/insert-fact";
-import type { AlphaNode, Fact } from "@beep/rete/rete/types";
-import { Field } from "@beep/rete/rete/types";
+import { getAlphaNodesForFact } from "@beep/rete/network/get-alpha-nodes-for-fact";
+import { insertFact } from "@beep/rete/network/insert-fact";
+import type { AlphaNode, Fact } from "@beep/rete/network/types";
+import { Field } from "@beep/rete/network/types";
 import { describe, expect, it } from "@effect/vitest";
 import { type TestingSchema, testingSimpleSession } from "../testingUtils";
 

@@ -44,7 +44,8 @@
   "devDependencies": {
     "@beep/types": "workspace:^",
     "@types/react": "*",
-    "@types/react-dom": "*"
+    "@types/react-dom": "*",
+    "babel-plugin-transform-next-use-client": "*"
   },
   "effect": {
     "generateExports": {

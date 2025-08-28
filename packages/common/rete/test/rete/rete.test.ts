@@ -1,7 +1,7 @@
-import { consoleAuditor } from "@beep/rete/lib/auditor";
-import { AuditorMode, rete } from "@beep/rete/rete";
-import type { FactFragment, MatchT } from "@beep/rete/rete/types";
-import { Field } from "@beep/rete/rete/types";
+import { consoleAuditor } from "@beep/rete/core/auditor";
+import { AuditorMode, rete } from "@beep/rete/network";
+import type { FactFragment, MatchT } from "@beep/rete/network/types";
+import { Field } from "@beep/rete/network/types";
 import { describe, expect, it } from "@effect/vitest";
 
 type People = [id: number, color: string, leftOf: number, height: number][];

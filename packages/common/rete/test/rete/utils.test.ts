@@ -1,4 +1,4 @@
-import { hashIdAttrs } from "@beep/rete/rete/utils";
+import { hashIdAttrs } from "@beep/rete/network/utils";
 import { describe, expect, it } from "@effect/vitest";
 
 describe("hashing idAttrs...", () => {

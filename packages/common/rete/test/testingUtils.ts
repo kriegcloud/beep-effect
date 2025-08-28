@@ -1,9 +1,9 @@
 /** biome-ignore-all lint/suspicious/noExportsInTest: <explanation> */
-import { Field, type MatchT } from "@beep/rete/rete";
-import { addConditionsToProduction } from "@beep/rete/rete/add-conditions-to-production";
-import { addProductionToSession } from "@beep/rete/rete/add-production-to-session";
-import { initProduction } from "@beep/rete/rete/init-production";
-import { initSession } from "@beep/rete/rete/init-session";
+import { Field, type MatchT } from "@beep/rete/network";
+import { addConditionsToProduction } from "@beep/rete/network/add-conditions-to-production";
+import { addProductionToSession } from "@beep/rete/network/add-production-to-session";
+import { initProduction } from "@beep/rete/network/init-production";
+import { initSession } from "@beep/rete/network/init-session";
 import { describe, expect, it } from "@effect/vitest";
 // biome-ignore lint/suspicious/noExportsInTest: <explanation>
 export interface TestingSchema {

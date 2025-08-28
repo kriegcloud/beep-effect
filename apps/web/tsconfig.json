@@ -79,6 +79,9 @@
     },
     {
       "path": "../../packages/common/schema/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/rete/tsconfig.build.json"
     }
   ],
   "include": [

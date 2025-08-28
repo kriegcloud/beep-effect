@@ -1,3 +1,3 @@
-export * from "./lib/auditor";
-export * from "./lib/core";
-export * from "./lib/types";
+export * from "@beep/rete/core/auditor";
+export * from "@beep/rete/core/beep";
+export * from "@beep/rete/core/types";

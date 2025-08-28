@@ -31,7 +31,7 @@ export function Logo({ sx, disabled, className, href = "/", isSingle = true, ...
     <Box
       component={"img"}
       alt="Single logo"
-      src={`/logo/logo.png`}
+      src={`/logo.png`}
       width="100%"
       height="100%"
       sx={{

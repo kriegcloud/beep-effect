@@ -1,4 +1,4 @@
-import { isVar } from "@beep/rete/rete/is-var";
+import { isVar } from "@beep/rete/network/is-var";
 import { describe, expect, it } from "@effect/vitest";
 
 describe("isVar...", () => {

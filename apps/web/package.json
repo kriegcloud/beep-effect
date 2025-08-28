@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "dev": "pnpm dotenvx next dev --turbopack",
-    "dev:https": "pnpm dotenvx next dev --turbopack --https",
+    "dev:https": "pnpm dotenvx next dev --turbopack --experimental-https",
     "start": "pnpm dotenvx next start",
     "build": "pnpm dotenvx next build --turbopack",
     "clean": "rm -rf node_modules .next out dist build .turbo .tsbuildinfo",

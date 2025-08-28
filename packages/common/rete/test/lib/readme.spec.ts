@@ -1,4 +1,4 @@
-import { beep } from "@beep/rete/lib/core";
+import { beep } from "@beep/rete/core/beep";
 import { describe, expect, it } from "@effect/vitest";
 
 describe("Examples in readme...", () => {
