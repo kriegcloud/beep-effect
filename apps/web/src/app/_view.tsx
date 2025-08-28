@@ -98,7 +98,6 @@ export function View() {
               );
             })}
           </List>
-          <Typography>Password is {valid ? "valid" : "invalid"}</Typography>
         </Stack>
       </Form>
     </Box>
