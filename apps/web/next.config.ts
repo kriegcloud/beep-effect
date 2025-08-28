@@ -1,4 +1,4 @@
-import * as Struct from "effect/Struct";
+// import * as Struct from "effect/Struct";
 import type { NextConfig } from "next";
 
 /**
@@ -13,32 +13,32 @@ import type { NextConfig } from "next";
  * NOTE: Remove all "generateStaticParams()" functions if not using static exports.
  */
 
-const CSP_DIRECTIVES = {
-  "default-src": ["'self'"],
-  "base-uri": ["'self'"],
-  "form-action": ["'self'"],
-  "script-src": ["'self'", "'strict-dynamic'", "blob:"],
-  "worker-src": ["'self'", "blob:"],
-  "style-src": ["'self'", "'unsafe-hashes'"],
-  "font-src": ["'self'"],
-  "style-src-elem": ["'self'", "'unsafe-inline'"],
-  "manifest-src": ["'self'"],
-  "script-src-elem": ["'self'", "blob:", "https://vercel.live"],
-  "style-src-attr": ["'self'", "unsafe-hashes"],
-  "connect-src": ["'self'", process.env.NEXT_PUBLIC_STATIC_URL, "https://vercel.live/", "https://vercel.com"],
-  "media-src": ["'self'", "data:"],
-  "frame-ancestors": ["'self'", "https://vercel.live", "https://vercel.com"],
-  "img-src": ["'self'", process.env.NEXT_PUBLIC_STATIC_URL, "data:", "blob:"],
-  "frame-src": ["'self'", "https://vercel.live", "https://vercel.com"],
-} as const;
-
-const genCSP = () => {
-  let csp = "";
-  for (const [k, v] of Struct.entries(CSP_DIRECTIVES)) {
-    csp += `${k} ${v.join(" ")}; `;
-  }
-  return `${csp} upgrade-insecure-requests; frame-ancestors 'none';`;
-};
+// const CSP_DIRECTIVES = {
+//   "default-src": ["'self'"],
+//   "base-uri": ["'self'"],
+//   "form-action": ["'self'"],
+//   "script-src": ["'self'", "'strict-dynamic'", "blob:"],
+//   "worker-src": ["'self'", "blob:"],
+//   "style-src": ["'self'", "'unsafe-hashes'"],
+//   "font-src": ["'self'"],
+//   "style-src-elem": ["'self'", "'unsafe-inline'"],
+//   "manifest-src": ["'self'"],
+//   "script-src-elem": ["'self'", "blob:", "https://vercel.live"],
+//   "style-src-attr": ["'self'", "'unsafe-hashes'"],
+//   "connect-src": ["'self'", process.env.NEXT_PUBLIC_STATIC_URL, "https://vercel.live/", "https://vercel.com"],
+//   "media-src": ["'self'", "data:"],
+//   "frame-ancestors": ["'self'", "https://vercel.live", "https://vercel.com"],
+//   "img-src": ["'self'", process.env.NEXT_PUBLIC_STATIC_URL, "data:", "blob:"],
+//   "frame-src": ["'self'", "https://vercel.live", "https://vercel.com"],
+// } as const;
+//
+// const genCSP = () => {
+//   let csp = "";
+//   for (const [k, v] of Struct.entries(CSP_DIRECTIVES)) {
+//     csp += `${k} ${v.join(" ")}; `;
+//   }
+//   return `${csp} upgrade-insecure-requests;`;
+// };
 
 const securityHeaders = [
   {
@@ -61,12 +61,6 @@ const securityHeaders = [
     key: "Referrer-Policy",
     value: "same-origin",
   },
-  {
-    key: "Content-Security-Policy",
-    value: genCSP()
-      .replace(/\s{2,}/g, " ")
-      .trim(),
-  },
   // this may be needed to work locally
   // {
   //   key: "Access-Control-Allow-Origin",
@@ -76,7 +70,7 @@ const securityHeaders = [
 
 const nextConfig = {
   trailingSlash: true,
-  ...(process.env.NODE_ENV === "development" ? { experimental: { sri: { algorithm: "sha256" } } } : {}),
+  ...(process.env.NEXT_PUBLIC_ENV === "dev" ? {} : { experimental: { sri: { algorithm: "sha256" } } }),
 
   images: {
     remotePatterns: [

@@ -27,7 +27,7 @@ describe("Form System - Semantic Validation", () => {
     const bad: WorkflowDefinition = {
       ...EXAMPLE,
       transitions: [...EXAMPLE.transitions, { from: "__missing__", to: "done" }],
-    } as any;
+    };
     const res = validateWorkflow(bad);
     expect(res.ok).toBe(false);
     expect(res.issues.some((i) => i.code === "UNKNOWN_TRANSITION_REF")).toBe(true);
@@ -37,7 +37,7 @@ describe("Form System - Semantic Validation", () => {
     const bad: WorkflowDefinition = {
       ...EXAMPLE,
       steps: [...EXAMPLE.steps, { id: "ghost", schema: { type: "object" } }],
-    } as any;
+    };
     const res = validateWorkflow(bad);
     expect(res.ok).toBe(false);
     expect(res.issues.some((i) => i.code === "UNREACHABLE_STEP")).toBe(true);
@@ -52,7 +52,7 @@ describe("Form System - Semantic Validation", () => {
         { from: "adjust", to: "confirm", when: { ">": [{ var: "delta" }, 0] } },
         { from: "confirm", to: "done" },
       ],
-    } as any;
+    };
     const res = validateWorkflow(bad);
     expect(res.issues.some((i) => i.code === "MISSING_DEFAULT_TRANSITION")).toBe(true);
   });
@@ -64,7 +64,7 @@ describe("Form System - Semantic Validation", () => {
         { from: "product", to: "adjust" },
         { from: "adjust", to: "product" },
       ],
-    } as any;
+    };
     const res = validateWorkflow(cyc);
     expect(res.ok).toBe(false);
     expect(res.issues.some((i) => i.code === "NO_TERMINAL_PATH")).toBe(true);

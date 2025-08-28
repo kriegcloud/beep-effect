@@ -1,12 +1,13 @@
 import {
   type Auditor,
   type ConvertMatchFn,
+  type FactFragment,
   Field,
   PRODUCTION_ALREADY_EXISTS_BEHAVIOR,
-  type QueryFilter,
   rete,
   viz,
 } from "@beep/rete/network";
+import * as Struct from "effect/Struct";
 import * as _ from "lodash";
 import type {
   Condition,
@@ -54,7 +55,7 @@ export const beep = <SCHEMA extends object>(autoFire = true, auditor?: Auditor):
   };
 
   const retractByConditions = (id: string, conditions: { [key in keyof SCHEMA]?: any }) => {
-    retract(id, ...(Object.keys(conditions) as (keyof SCHEMA)[]));
+    retract(id, ...(Struct.keys(conditions) as (keyof SCHEMA)[]));
   };
 
   const conditions = <
@@ -112,9 +113,7 @@ export const beep = <SCHEMA extends object>(autoFire = true, auditor?: Auditor):
       if (enaction?.thenFinally !== undefined) {
         production.thenFinallyFn = (session) => enaction?.thenFinally?.(() => rete.queryAll(session, production));
       }
-      // Cast to signal type info, not actually used
-      // TODO: Do we need to do things this way?
-      const schema = {} as unknown as Condition<SCHEMA>;
+      const schema = {} as Condition<SCHEMA>;
       const cond = conditions(schema);
       const keys = _.keys(cond);
       for (let i = 0; i < keys.length; i++) {
@@ -161,11 +160,11 @@ export const beep = <SCHEMA extends object>(autoFire = true, auditor?: Auditor):
 
       rete.addProductionToSession(session, production, onAlreadyExists);
       const convertFilterArgs = (filter: QueryArgs<SCHEMA, T>) => {
-        const joinIds = Object.keys(filter);
+        const joinIds = Struct.keys(filter);
 
-        const filters: QueryFilter<SCHEMA> = new Map();
+        const filters = new Map<string, FactFragment<SCHEMA>[]>();
         for (const joinId of joinIds) {
-          const filterAttrs = Object.keys(filter[joinId]!);
+          const filterAttrs = Struct.keys(filter[joinId]!);
           for (const attr of filterAttrs) {
             // TODO: Make this type-safe?
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
