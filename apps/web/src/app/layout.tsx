@@ -27,6 +27,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  manifest: "/site.webmanifest",
   icons: [
     {
       rel: "icon",
