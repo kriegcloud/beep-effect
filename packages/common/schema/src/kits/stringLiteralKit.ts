@@ -1,16 +1,35 @@
 import { invariant } from "@beep/invariant";
 import type { DefaultAnnotations } from "@beep/schema/annotations";
+import { DiscriminatedStruct } from "@beep/schema/generics";
+import type { StringTypes } from "@beep/types";
 import type { SnakeTag } from "@beep/types/tag.types";
 import { enumFromStringArray } from "@beep/utils/transformations";
 import { pgEnum } from "drizzle-orm/pg-core";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
+import type * as Effect from "effect/Effect";
 import type * as Equivalence from "effect/Equivalence";
 import * as FC from "effect/FastCheck";
 import * as JSONSchema from "effect/JSONSchema";
+import type * as ParseResult from "effect/ParseResult";
 import * as Pretty from "effect/Pretty";
 import * as S from "effect/Schema";
 
+type TaggedMembers<Literals extends A.NonEmptyReadonlyArray<string>, D extends string> = {
+  readonly [I in keyof Literals]: DiscriminatedStruct.Schema<D, Literals[I], {}>;
+} & { readonly length: Literals["length"] };
+
+/** Object map: one member per literal key (like Enum, but values are S.Structs) */
+type TaggedMembersMap<
+  Literals extends A.NonEmptyReadonlyArray<string>,
+  D extends string
+> = {
+  readonly [L in Literals[number]]: DiscriminatedStruct.Schema<D, L, {}>;
+};
+
+type TaggedUnion<Literals extends A.NonEmptyReadonlyArray<string>, D extends string> = S.Union<
+  TaggedMembers<Literals, D>
+>;
 type ValidateEnumMapping<
   Literals extends readonly string[],
   Mapping extends readonly [string, string][],
@@ -92,7 +111,7 @@ type ValidMapping<
  * ```
  */
 export function stringLiteralKit<const Literals extends A.NonEmptyReadonlyArray<string>>(
-  ...literals: Literals
+  ...literals: Literals[number] extends StringTypes.NonEmptyString<Literals[number]> ? Literals : never
 ): (annotations: DefaultAnnotations<Literals[number]>) => {
   Schema: S.Literal<[...Literals]>;
   Options: Literals;
@@ -115,16 +134,32 @@ export function stringLiteralKit<const Literals extends A.NonEmptyReadonlyArray<
     Enum: CreateEnumType<Keys, undefined>;
     Mock: (qty: number) => [...Literals][number][];
     is: (a: unknown) => a is Keys[number];
+    toTagged: <D extends string>(
+      discriminator: StringTypes.NonEmptyString<D>
+    ) => {
+      readonly Union: TaggedUnion<Keys, D>;
+      readonly members: TaggedMembersMap<Keys, D>;
+    };
   };
   is: (a: unknown) => a is Literals[number];
+  assert: (a: unknown) => asserts a is Literals[number];
+  decode: (a: string) => Effect.Effect<Literals[number], ParseResult.ParseError, never>;
   toPgEnum: <Name extends string>(name: `${SnakeTag<Name>}`) => ReturnType<typeof pgEnum<Literals[number], Literals>>;
+  toTagged: <D extends string>(
+    discriminator: StringTypes.NonEmptyString<D>
+  ) => {
+    readonly Union: TaggedUnion<Literals, D>;
+    readonly members: TaggedMembersMap<Literals, D>;
+  };
 };
 
 export function stringLiteralKit<
   const Literals extends A.NonEmptyReadonlyArray<string>,
   const Mapping extends readonly [Literals[number], string][],
 >(
-  ...args: [...literals: Literals, options: { enumMapping: ValidMapping<Literals, Mapping> }]
+  ...args: Literals[number] extends StringTypes.NonEmptyString<Literals[number]>
+    ? [...literals: Literals, options: { enumMapping: ValidMapping<Literals, Mapping> }]
+    : never
 ): (annotations: DefaultAnnotations<Literals[number]>) => {
   Schema: S.Literal<[...Literals]>;
   Options: Literals;
@@ -147,18 +182,34 @@ export function stringLiteralKit<
     Enum: CreateEnumType<Keys, undefined>;
     Mock: (qty: number) => [...Literals][number][];
     is: (a: unknown) => a is Keys[number];
+    toTagged: <D extends string>(
+      discriminator: StringTypes.NonEmptyString<D>
+    ) => {
+      readonly Union: TaggedUnion<Keys, D>;
+      readonly members: TaggedMembersMap<Keys, D>;
+    };
   };
   is: (a: unknown) => a is Literals[number];
+  assert: (a: unknown) => asserts a is Literals[number];
+  decode: (a: string) => Effect.Effect<Literals[number], ParseResult.ParseError, never>;
   toPgEnum: <Name extends string>(
     name: `${SnakeTag<Name>}_enum`
   ) => ReturnType<typeof pgEnum<Literals[number], Literals>>;
+  toTagged: <D extends string>(
+    discriminator: StringTypes.NonEmptyString<D>
+  ) => {
+    readonly Union: TaggedUnion<Literals, D>;
+    readonly members: TaggedMembersMap<Literals, D>;
+  };
 };
 
 export function stringLiteralKit<
   const Literals extends A.NonEmptyReadonlyArray<string>,
   const Mapping extends readonly [Literals[number], string][],
 >(
-  ...args: Literals | [...Literals, { enumMapping?: Mapping }]
+  ...args: Literals[number] extends StringTypes.NonEmptyString<Literals[number]>
+    ? Literals | [...Literals, { enumMapping?: Mapping }]
+    : never
 ): (annotations: DefaultAnnotations<Literals[number]>) => {
   Schema: S.Literal<[...Literals]>;
   Options: Literals;
@@ -181,11 +232,25 @@ export function stringLiteralKit<
     Enum: CreateEnumType<Keys, undefined>;
     Mock: (qty: number) => [...Literals][number][];
     is: (a: unknown) => a is Keys[number];
+    toTagged: <D extends string>(
+      discriminator: StringTypes.NonEmptyString<D>
+    ) => {
+      readonly Union: TaggedUnion<Keys, D>;
+      readonly members: TaggedMembersMap<Keys, D>;
+    };
   };
   is: (a: unknown) => a is Literals[number];
+  assert: (a: unknown) => asserts a is Literals[number];
+  decode: (a: string) => Effect.Effect<Literals[number], ParseResult.ParseError, never>;
   toPgEnum: <Name extends string>(
     name: `${SnakeTag<Name>}_enum`
   ) => ReturnType<typeof pgEnum<Literals[number], Literals>>;
+  toTagged: <D extends string>(
+    discriminator: StringTypes.NonEmptyString<D>
+  ) => {
+    readonly Union: TaggedUnion<Literals, D>;
+    readonly members: TaggedMembersMap<Literals, D>;
+  };
 } {
   // Determine if last argument is options
   const hasOptions =
@@ -197,7 +262,32 @@ export function stringLiteralKit<
   const literals = (hasOptions ? args.slice(0, -1) : args) as Literals;
   const options = hasOptions ? (args[args.length - 1] as { enumMapping?: Mapping }) : undefined;
 
-  // Create the schema
+  /** Build a Schema.Union of S.Structs tagged by the given discriminator */
+  // Build a Schema.Union and a keyed members map for the given discriminator
+  const toTagged = <D extends string>(discriminator: StringTypes.NonEmptyString<D>) => {
+    // Tuple of S.Struct members (preserves literal order at the type level)
+    const memberTuple = literals.map((lit) => DiscriminatedStruct(discriminator)(lit, {})) as unknown as TaggedMembers<
+      Literals,
+      D
+    >;
+
+    // Keyed object map: { [literal]: S.Struct(...) }
+    const membersObj = Object.create(null) as Record<string, S.Struct<any>>;
+    literals.forEach((lit, i) => {
+      membersObj[lit] = (memberTuple as unknown as ReadonlyArray<S.Struct<any>>)[i]!;
+    });
+    Object.freeze(membersObj);
+
+    // The union schema constructed from the tuple of members
+    const Union = S.Union(
+      ...(memberTuple as unknown as [S.Schema<any, any, any>, ...S.Schema<any, any, any>[]])
+    ) as TaggedUnion<Literals, D>;
+
+    return {
+      Union,
+      members: membersObj as TaggedMembersMap<Literals, D>,
+    } as const;
+  };
 
   // Create the enum object
   let Enum: any;
@@ -278,15 +368,39 @@ export function stringLiteralKit<
       Pretty: Pretty.make(Schema),
       Equivalence: S.equivalence(Schema),
       is: S.is(Schema),
+      assert: S.asserts(Schema),
+      decode: S.decode(Schema),
       pick,
       omit,
       toPgEnum: (name) => pgEnum(name, literals),
       derive:
-        (...keys) =>
+        <Keys extends A.NonEmptyReadonlyArray<Literals[number]>>(...keys: Keys) =>
         (annotations) => {
           const Schema = S.Literal(...literals).annotations({
             arbitrary: () => (fc) => fc.constantFrom(...literals),
           });
+
+          const toTagged = <D extends string>(discriminator: StringTypes.NonEmptyString<D>) => {
+            const memberTuple = keys.map((lit) => {
+              return DiscriminatedStruct(discriminator)(lit, {});
+            }) as unknown as TaggedMembers<Keys, D>;
+
+            const membersObj = Object.create(null) as Record<string, S.Struct<any>>;
+            keys.forEach((lit, i) => {
+              membersObj[lit] = (memberTuple as unknown as ReadonlyArray<S.Struct<any>>)[i]!;
+            });
+            Object.freeze(membersObj);
+
+            const Union = S.Union(
+              ...(memberTuple as unknown as [S.Schema<any, any, any>, ...S.Schema<any, any, any>[]])
+            ) as TaggedUnion<Keys, D>;
+
+            return {
+              Union,
+              members: membersObj as TaggedMembersMap<Keys, D>,
+            } as const;
+          };
+
           return {
             Schema: S.Literal(...keys).annotations({
               ...annotations,
@@ -296,8 +410,10 @@ export function stringLiteralKit<
             Enum: enumFromStringArray(...keys),
             Mock: (qty: number) => FC.sample(Arbitrary.make(Schema), qty),
             is: S.is(Schema),
+            toTagged,
           };
         },
+      toTagged,
     } as const;
   };
 }

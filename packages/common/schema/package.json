@@ -28,9 +28,10 @@
     "test": "vitest run",
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "coverage": "vitest run --coverage",
+
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "execute": "pnpm tsx ./src/execute.ts",
+    "execute": "pnpm tsx --tsconfig ./tsconfig.src.json ./src/execute.ts",
     "lint:circular": "pnpm madge -c ."
   },
   "peerDependencies": {

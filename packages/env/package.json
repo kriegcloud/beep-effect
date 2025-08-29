@@ -37,9 +37,7 @@
   "peerDependencies": {
     "effect": "*",
     "@beep/schema": "workspace:^",
-    "@tanstack/react-form": "*",
-    "@tanstack/react-router": "*",
-    "@tanstack/react-store": "*"
+    "@tanstack/react-form": "*"
   },
   "devDependencies": {
     "vite": "*",

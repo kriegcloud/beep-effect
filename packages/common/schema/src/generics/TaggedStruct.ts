@@ -1,15 +1,20 @@
+import type { StringTypes, StructTypes } from "@beep/types";
 import * as S from "effect/Schema";
-import type * as AST from "effect/SchemaAST";
 import type { DefaultAnnotations } from "../annotations";
-
-namespace TaggedStruct {
-  export type Schema<Tag extends AST.LiteralValue, Fields extends S.Struct.Fields> = S.Struct<
+export namespace TaggedStruct {
+  export type Schema<
+    Tag extends StringTypes.NonEmptyString<string>,
+    Fields extends StructTypes.StructFieldsWithStringKeys,
+  > = S.Struct<
     {
       _tag: S.PropertySignature<":", Exclude<Tag, undefined>, never, "?:", Tag | undefined, true, never>;
     } & Fields
   >;
 
-  export type Type<Tag extends AST.LiteralValue, Fields extends S.Struct.Fields> = S.Schema.Type<Schema<Tag, Fields>>;
+  export type Type<
+    Tag extends StringTypes.NonEmptyString<string>,
+    Fields extends StructTypes.StructFieldsWithStringKeys,
+  > = S.Schema.Type<Schema<Tag, Fields>>;
 }
 
 /**
@@ -23,7 +28,10 @@ namespace TaggedStruct {
  */
 
 export const TaggedStruct =
-  <Tag extends AST.LiteralValue, Fields extends S.Struct.Fields>(tag: Tag, fields: Fields) =>
+  <const Tag extends StringTypes.NonEmptyString<string>, const Fields extends StructTypes.StructFieldsWithStringKeys>(
+    tag: Tag,
+    fields: Fields
+  ) =>
   (annotations?: DefaultAnnotations<TaggedStruct.Type<Tag, Fields>>): TaggedStruct.Schema<Tag, Fields> =>
     S.Struct({
       _tag: S.Literal(tag).pipe(
