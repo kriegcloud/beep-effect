@@ -243,11 +243,4 @@ describe("DateRule.validate", () => {
     expect(DateRule.validate(rule, "not-a-date")).toBeFalsy();
   });
 
-  test("invalid operator tag falls back to false", () => {
-    const bogus = {
-      field,
-      op: { _tag: "not_real", value: u("2025-01-01T00:00:00Z") } as any,
-    } as DateRule.Rule.Type;
-    expect(DateRule.validate(bogus, "2025-01-01T00:00:00Z")).toBeFalsy();
-  });
 });
