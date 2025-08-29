@@ -157,14 +157,4 @@ describe("HasKeyRule.validate (v2)", () => {
     expect(result).toBeFalsy();
   });
 
-  test("invalid operator is handled", () => {
-    const rule: HasKeyRule.Input.Type = {
-      field: "object",
-      // @ts-expect-error - deliberate invalid operator tag
-      op: { _tag: "is_more_awesome_than", value: "name" },
-      type: "hasKey",
-    };
-    const result = HasKeyRule.validate(rule, obj);
-    expect(result).toBeFalsy();
-  });
 });

@@ -20,15 +20,4 @@ test("boolean is false", () => {
   expect(result).toBeTruthy();
 });
 
-test("invalid operator is handled", () => {
-  const rule: BooleanRule.Input.Type = {
-    field: "status",
-    op: {
-      // @ts-expect-error
-      _tag: "is_more_awesome_than",
-    },
-    type: "boolean",
-  };
-  const result = BooleanRule.validate(rule, isValid);
-  expect(result).toBeFalsy();
-});
+

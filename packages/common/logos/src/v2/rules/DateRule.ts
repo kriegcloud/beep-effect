@@ -370,7 +370,7 @@ export const validate = (rule: Input.Type, value: string | number | Date | DateT
       onSome: (v) =>
         Match.value(rule.op).pipe(
           Match.withReturnType<boolean>(),
-          Match.tags({
+          Match.tagsExhaustive({
             /** equality / inequality */
             eq: (op) => sameInstant(op.value, v),
             ne: (op) => !sameInstant(op.value, v),
@@ -398,8 +398,7 @@ export const validate = (rule: Input.Type, value: string | number | Date | DateT
               // min < v < max
               return DateTime.greaterThan(v, start) && DateTime.lessThan(v, end);
             },
-          }),
-          Match.orElse(() => false)
+          })
         ),
     })
   );

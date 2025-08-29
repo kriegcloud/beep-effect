@@ -158,18 +158,4 @@ describe("HasEntryRule.validate", () => {
     const value = {};
     expect(HasEntryRule.validate(rule, value)).toBe(false);
   });
-
-  test("invalid operator falls back to false", () => {
-    const rule: HasEntryRule.Input.Type = {
-      field: "obj",
-      op: {
-        // @ts-expect-error – deliberately invalid
-        _tag: "is_more_awesome_than",
-        value: kv("name", "alice"),
-      },
-    };
-
-    const value = { name: "alice" };
-    expect(HasEntryRule.validate(rule as any, value)).toBe(false);
-  });
 });

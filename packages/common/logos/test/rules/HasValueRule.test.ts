@@ -97,15 +97,4 @@ describe("HasValueRule.validate", () => {
     // @ts-expect-error
     expect(HasValueRule.validate(rule, rec)).toBeTruthy();
   });
-
-  test("invalid operator tag falls back to false", () => {
-    const rule: HasValueRule.Input.Type = {
-      field: "any",
-      type: "hasValue",
-      // @ts-expect-error
-      op: { _tag: "definitely_not_real", value: "x" },
-    };
-    const rec = { a: "x" };
-    expect(HasValueRule.validate(rule, rec)).toBeFalsy();
-  });
 });

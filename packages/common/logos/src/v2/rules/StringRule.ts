@@ -195,5 +195,5 @@ export const validate = (rule: Input.Type, value: string) =>
       );
     }),
     Match.tag("matches", (r) => r.value.test(value)),
-    Match.orElse(() => false)
+    Match.exhaustive
   );

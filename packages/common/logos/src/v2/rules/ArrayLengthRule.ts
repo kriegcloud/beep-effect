@@ -152,7 +152,7 @@ export const validate = (rule: Input.Type, value: Array<unknown>) => {
   const length = A.length(value);
   return Match.value(rule.op).pipe(
     Match.withReturnType<boolean>(),
-    Match.tags({
+    Match.tagsExhaustive({
       eq: (op) => op.value === length,
       ne: (op) => op.value !== length,
       gt: (op) => op.value < length,
@@ -160,7 +160,6 @@ export const validate = (rule: Input.Type, value: Array<unknown>) => {
       lt: (op) => op.value > length,
       lte: (op) => op.value >= length,
       between: (op) => BetweenNumeric.validate(op)(length),
-    }),
-    Match.orElse(() => false)
+    })
   );
 };

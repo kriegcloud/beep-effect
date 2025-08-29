@@ -11,6 +11,7 @@ import type { Group } from "./Group";
 import { FingerPrint } from "./internal";
 import { normalize } from "./normalize";
 import type { RootGroup } from "./RootGroup";
+import type { UnsafeTypes } from "@beep/types";
 import type { Rule } from "./Rule";
 import {
   ArrayLengthRule,
@@ -38,24 +39,24 @@ export function invalidatePrepared(root: RootGroup.Type): void {
 
 function compileRule(rule: Rule.Type): Runner {
   // Pre-resolve a fast field accessor (direct key access)
-  const get = (obj: Record<string, any>) => getAt(obj, rule.field);
+  const get = (obj: Record<string, UnsafeTypes.UnsafeAny>) => getAt(obj, rule.field);
 
   return Match.value(rule).pipe(
-    Match.withReturnType<((v: any) => boolean) | boolean>(),
-    Match.discriminators("type")({
-      string: (r) => (v: any) =>
+    Match.withReturnType<((v: UnsafeTypes.UnsafeAny) => boolean) | boolean>(),
+    Match.discriminatorsExhaustive("type")({
+      string: (r) => (v: UnsafeTypes.UnsafeAny) =>
         F.pipe(get(v), (resolved) => (Str.isString(resolved) ? StringRule.validate(r, resolved) : false)),
-      number: (r) => (v: any) =>
+      number: (r) => (v: UnsafeTypes.UnsafeAny) =>
         F.pipe(get(v), (resolved) => (Num.isNumber(resolved) ? NumberRule.validate(r, resolved) : false)),
-      boolean: (r) => (v: any) =>
+      boolean: (r) => (v: UnsafeTypes.UnsafeAny) =>
         F.pipe(get(v), (resolved) => (Bool.isBoolean(resolved) ? BooleanRule.validate(r, resolved) : false)),
-      arrayValue: (r) => (v: any) =>
+      arrayValue: (r) => (v: UnsafeTypes.UnsafeAny) =>
         F.pipe(get(v), (resolved) =>
           S.is(S.Union(BS.NonEmptyJsonArray, BS.JsonArray, BS.Json)) ? ArrayValueRule.validate(r, resolved) : false
         ),
-      arrayLength: (r) => (v: any) =>
+      arrayLength: (r) => (v: UnsafeTypes.UnsafeAny) =>
         F.pipe(get(v), (resolved) => (A.isArray(resolved) ? ArrayLengthRule.validate(r, resolved) : false)),
-      hasKey: (r) => (v: any) =>
+      hasKey: (r) => (v: UnsafeTypes.UnsafeAny) =>
         F.pipe(get(v), (resolved) =>
           S.is(
             S.Record({
@@ -66,7 +67,7 @@ function compileRule(rule: Rule.Type): Runner {
             ? HasKeyRule.validate(r, resolved)
             : false
         ),
-      hasValue: (r) => (v: any) =>
+      hasValue: (r) => (v: UnsafeTypes.UnsafeAny) =>
         F.pipe(get(v), (resolved) =>
           S.is(
             S.Record({
@@ -77,7 +78,7 @@ function compileRule(rule: Rule.Type): Runner {
             ? HasValueRule.validate(r, resolved)
             : false
         ),
-      hasEntry: (r) => (v: any) =>
+      hasEntry: (r) => (v: UnsafeTypes.UnsafeAny) =>
         F.pipe(get(v), (resolved) =>
           S.is(
             S.Record({
@@ -88,10 +89,9 @@ function compileRule(rule: Rule.Type): Runner {
             ? HasEntryRule.validate(r, resolved)
             : false
         ),
-      typeRule: (r) => (v: any) => F.pipe(get(v), (resolved) => TypeRule.validate(r, resolved)),
-      date: (r) => (v: any) => F.pipe(get(v), (resolved) => DateRule.validate(r, resolved)),
-    }),
-    Match.orElse(() => F.constant(false))
+      typeRule: (r) => (v: UnsafeTypes.UnsafeAny) => F.pipe(get(v), (resolved) => TypeRule.validate(r, resolved)),
+      date: (r) => (v: UnsafeTypes.UnsafeAny) => F.pipe(get(v), (resolved) => DateRule.validate(r, resolved)),
+    })
   );
 }
 
@@ -103,7 +103,7 @@ function compileGroup(u: RootOrGroup): Runner {
   }
 
   if (u.logicalOp === "and") {
-    return (v: any) => {
+    return (v: UnsafeTypes.UnsafeAny) => {
       for (let i = 0; i < children.length; i++) {
         if (!children[i]?.(v)) return false;
       }
@@ -112,7 +112,7 @@ function compileGroup(u: RootOrGroup): Runner {
   }
 
   // logicalOp === "or"
-  return (v: any) => {
+  return (v: UnsafeTypes.UnsafeAny) => {
     for (let i = 0; i < children.length; i++) {
       if (children[i]?.(v)) return true;
     }

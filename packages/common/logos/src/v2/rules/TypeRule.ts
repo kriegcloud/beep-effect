@@ -169,7 +169,7 @@ export const isObject = (i: Pick<Input.Type, "field">) =>
 export const validate = (rule: Input.Type, value: unknown) =>
   Match.value(rule.op).pipe(
     Match.withReturnType<boolean>(),
-    Match.tags({
+    Match.tagsExhaustive({
       isString: () => Str.isString(value),
       isNumber: () => Num.isNumber(value),
       isTruthy: () => !!value,
@@ -179,6 +179,5 @@ export const validate = (rule: Input.Type, value: unknown) =>
       isBoolean: () => Bool.isBoolean(value),
       isArray: () => A.isArray(value),
       isObject: () => P.isRecord(value),
-    }),
-    Match.orElse(() => false)
+    })
   );

@@ -56,17 +56,3 @@ test("array length is less than or equal to", () => {
   const result = ArrayLengthRule.validate(rule, names);
   expect(result).toBeTruthy();
 });
-
-test("invalid operator is handled", () => {
-  const rule: ArrayLengthRule.Input.Type = {
-    field: "names",
-    op: {
-      // @ts-expect-error
-      _tag: "is_more_awesome_than",
-      value: 2,
-    },
-    type: "arrayLength",
-  };
-  const result = ArrayLengthRule.validate(rule, names);
-  expect(result).toBeFalsy();
-});

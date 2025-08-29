@@ -150,7 +150,7 @@ export const between = (
 export const validate = (rule: Input.Type, value: number) =>
   Match.value(rule.op).pipe(
     Match.withReturnType<boolean>(),
-    Match.tags({
+    Match.tagsExhaustive({
       eq: (op) => op.value === value,
       ne: (op) => op.value !== value,
       gt: (op) => op.value < value,
@@ -158,6 +158,5 @@ export const validate = (rule: Input.Type, value: number) =>
       lt: (op) => op.value > value,
       lte: (op) => op.value >= value,
       between: (op) => BetweenNumeric.validate(op)(value),
-    }),
-    Match.orElse(() => false)
+    })
   );

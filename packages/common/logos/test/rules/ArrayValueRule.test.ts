@@ -167,17 +167,6 @@ describe("ArrayValueRule.validate", () => {
     expect(result).toBeFalsy();
   });
 
-  test("invalid operator is handled", () => {
-    const rule: ArrayValueRule.Input.Type = {
-      field: "tags",
-      // @ts-expect-error
-      op: { _tag: "is_more_awesome_than", value: "x" },
-      type: "arrayValue",
-    };
-    const result = ArrayValueRule.validate(rule, ["x"]);
-    expect(result).toBeFalsy();
-  });
-
   test("allOf — duplicates in op.value don't require duplicates in the array (set semantics)", () => {
     const rule = ArrayValueRule.allOf({
       field: "tags",

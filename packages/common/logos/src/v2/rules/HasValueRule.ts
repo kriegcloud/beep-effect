@@ -110,7 +110,7 @@ export const validate = (rule: Input.Type, rec: R.ReadonlyRecord<string, BS.Json
 
   return Match.value(rule.op).pipe(
     Match.withReturnType<boolean>(),
-    Match.tags({
+    Match.tagsExhaustive({
       contains: () => contains,
       notContains: () => !contains,
       // at least one overlap
@@ -124,7 +124,6 @@ export const validate = (rule: Input.Type, rec: R.ReadonlyRecord<string, BS.Json
 
       // every (unique) selection element appears in the record’s values
       allOf: (op) => missingFrom(op.value, values).length === 0,
-    }),
-    Match.orElse(() => false)
+    })
   );
 };

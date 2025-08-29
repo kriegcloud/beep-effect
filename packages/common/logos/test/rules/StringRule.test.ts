@@ -71,20 +71,6 @@ test("string ends with", () => {
   expect(result).toBeTruthy();
 });
 
-test("invalid operator is handled", () => {
-  const rule: StringRule.Input.Type = {
-    field: "people",
-    op: {
-      // @ts-expect-error
-      _tag: "is_more_awesome_than",
-      type: "string",
-      value: "carol",
-    },
-  };
-  const result = StringRule.validate(rule, "carolS");
-  expect(result).toBeFalsy();
-});
-
 test("string matches regex", () => {
   const rule = StringRule.matches({
     field: "people",

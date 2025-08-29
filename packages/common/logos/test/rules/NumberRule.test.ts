@@ -54,17 +54,3 @@ test("number is less than or equal to", () => {
   const result = NumberRule.validate(rule, 2);
   expect(result).toBeTruthy();
 });
-
-test("invalid operator is handled", () => {
-  const rule: NumberRule.Input.Type = {
-    field: "names",
-    op: {
-      // @ts-expect-error
-      _tag: "is_more_awesome_than",
-      value: 2,
-    },
-    type: "number",
-  };
-  const result = NumberRule.validate(rule, 2);
-  expect(result).toBeFalsy();
-});

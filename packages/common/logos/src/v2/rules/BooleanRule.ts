@@ -66,9 +66,8 @@ export const isFalse = (i: Pick<Input.Type, "field">) =>
 export const validate = (rule: Input.Type, value: boolean) =>
   Match.value(rule.op).pipe(
     Match.withReturnType<boolean>(),
-    Match.tags({
-      isTrue: (r) => Equal.equals(value)(true),
-      isFalse: (r) => Equal.equals(value)(false),
+    Match.tagsExhaustive({
+      isTrue: () => Equal.equals(value)(true),
+      isFalse: () => Equal.equals(value)(false),
     }),
-    Match.orElse(() => false)
   );

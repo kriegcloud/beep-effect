@@ -144,15 +144,3 @@ test("value is object", () => {
   const result = TypeRule.validate(rule, { name: "bob" });
   expect(result).toBeTruthy();
 });
-
-test("invalid operator is handled", () => {
-  const rule: TypeRule.Input.Type = {
-    field: "name",
-    op: {
-      // @ts-expect-error
-      _tag: "is_more_awesome_than",
-    },
-  };
-  const result = TypeRule.validate(rule, undefined);
-  expect(result).toBeFalsy();
-});

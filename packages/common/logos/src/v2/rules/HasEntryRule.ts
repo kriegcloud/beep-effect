@@ -134,7 +134,7 @@ export const validate = (rule: Input.Type, value: R.ReadonlyRecord<string, BS.Js
 
   return Match.value(rule.op).pipe(
     Match.withReturnType<boolean>(),
-    Match.tags({
+    Match.tagsExhaustive({
       // exact KV membership
       contains: (op) => containsKV(op.value),
       notContains: (op) => !containsKV(op.value),
@@ -153,7 +153,6 @@ export const validate = (rule: Input.Type, value: R.ReadonlyRecord<string, BS.Js
 
       // every (unique) selection element appears
       allOf: (op) => missing(op.value).length === 0,
-    }),
-    Match.orElse(() => false)
+    })
   );
 };

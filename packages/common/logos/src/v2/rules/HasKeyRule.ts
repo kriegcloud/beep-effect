@@ -105,14 +105,13 @@ export const validate = (
   const keys: ReadonlyArray<string> = Struct.keys(value); // own, enumerable, string keys only
   return Match.value(rule.op).pipe(
     Match.withReturnType<boolean>(),
-    Match.tags({
+    Match.tagsExhaustive({
       contains: (op) => has(keys, op.value), // membership
       notContains: (op) => !has(keys, op.value), // negated membership
       inSet: (op) => intersect(keys, op.value).length > 0, // at least one overlap
       oneOf: (op) => countDistinctOverlaps(keys, op.value) === 1, // exactly one DISTINCT overlap
       noneOf: (op) => intersect(keys, op.value).length === 0, // no overlap
       allOf: (op) => missingFrom(op.value, keys).length === 0, // every selected appears
-    }),
-    Match.orElse(() => false)
+    })
   );
 };

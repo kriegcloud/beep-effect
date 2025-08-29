@@ -106,7 +106,7 @@ export const validate = (rule: Input.Type, value: ReadonlyArray<BS.Json.Type>) =
   A.isArray(value)
     ? Match.value(rule.op).pipe(
         Match.withReturnType<boolean>(),
-        Match.tags({
+        Match.tagsExhaustive({
           contains: (op) => has(value, op.value),
           notContains: (op) => !has(value, op.value),
           // “at least one” overlap between the runtime array and the selection
@@ -120,7 +120,6 @@ export const validate = (rule: Input.Type, value: ReadonlyArray<BS.Json.Type>) =
 
           // every (unique) selection element appears in the array
           allOf: (op) => missingFrom(op.value, value).length === 0,
-        }),
-        Match.orElse(() => false)
+        })
       )
     : false;
