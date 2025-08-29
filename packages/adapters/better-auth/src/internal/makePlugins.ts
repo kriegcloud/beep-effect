@@ -18,7 +18,7 @@ export type MakePluginsParams = {
   emailOTP?: PluginOptions<"emailOTP", PluginAdapters.EmailOtpOptions>;
   genericOAuth?: PluginOptions<"genericOAuth", PluginAdapters.GenericOAuthOptions>;
   haveIBeenPwned?: PluginOptions<"haveIBeenPwned", PluginAdapters.HaveIBeenPwnedOptions>;
-  // jwt?: PluginOptions<"jwt", PluginAdapters.JwtOptions>;
+  jwt?: PluginOptions<"jwt", PluginAdapters.JwtOptions>;
   magicLink?: PluginOptions<"magicLink", PluginAdapters.MagicLinkOptions>;
   mcp?: PluginOptions<"mcp", PluginAdapters.McpOptions>;
   multiSession?: PluginOptions<"multiSession", PluginAdapters.MultiSessionOptions>;
@@ -51,7 +51,7 @@ export const makePlugins = F.flow(
       opts.emailOTP ? PluginAdapters.makeEmailOtpPlugin(opts.emailOTP.options) : undefined,
       opts.genericOAuth ? PluginAdapters.makeGenericOAuthPlugin(opts.genericOAuth.options) : undefined,
       opts.haveIBeenPwned ? PluginAdapters.makeHaveIBeenPwnedPlugin(opts.haveIBeenPwned.options) : undefined,
-      // opts.jwt ? PluginAdapters.makeJwtPlugin(opts.jwt.options) : undefined,
+      opts.jwt ? PluginAdapters.makeJwtPlugin(opts.jwt.options) : undefined,
       opts.magicLink ? PluginAdapters.makeMagicLinkPlugin(opts.magicLink.options) : undefined,
       opts.mcp ? PluginAdapters.makeMcpPlugin(opts.mcp.options) : undefined,
       opts.multiSession ? PluginAdapters.makeMultiSessionPlugin(opts.multiSession.options) : undefined,

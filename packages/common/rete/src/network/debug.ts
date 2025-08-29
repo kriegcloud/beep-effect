@@ -1,5 +1,6 @@
 import { bindingsToMatch } from "./bindings-to-match";
 import {
+  type $Schema,
   type AlphaNode,
   type Condition,
   Field,
@@ -29,7 +30,7 @@ interface NetworkGraph {
   edges: Edge[];
 }
 
-const conditionToString = <TSchema extends object>(condition: Condition<TSchema>) => {
+const conditionToString = <TSchema extends $Schema>(condition: Condition<TSchema>) => {
   const nodeStr = condition.nodes.map((n) => `[${FIELD_TO_STR[n[0]]} ${String(n[1])}]`).join("\n");
 
   const varStr = condition.vars.map((v) => `${FIELD_TO_STR[v.field]}: ${v.name}`).join("\n");
@@ -37,7 +38,7 @@ const conditionToString = <TSchema extends object>(condition: Condition<TSchema>
   return `-- nodes --\n ${nodeStr}\n\n -- vars -- \n ${varStr}`;
 };
 
-const memoryNode = <TSchema extends object>(node: MemoryNode<TSchema>): Node => {
+const memoryNode = <TSchema extends $Schema>(node: MemoryNode<TSchema>): Node => {
   const fillColor = node.type === MEMORY_NODE_TYPE.Enum.LEAF ? ",fillcolor=green,style=filled" : "";
   const matchStrs: string[] = [];
   node.matches.forEach((v, k) => {
@@ -46,7 +47,7 @@ const memoryNode = <TSchema extends object>(node: MemoryNode<TSchema>): Node => 
     const varStr: string[] = [];
     const vars = bindingsToMatch(v.match.bindings);
     vars?.forEach((vv, kk) => {
-      varStr.push(`${kk} => ${vv}`);
+      varStr.push(`${kk} => ${String(vv)}`);
     });
     const matchStr = `\n\nmatch ${v.match.id} is ${
       enabled ? "enabled" : "disabled"
@@ -62,7 +63,7 @@ const memoryNode = <TSchema extends object>(node: MemoryNode<TSchema>): Node => 
   };
 };
 
-const alphaNode = <TSchema extends object>(node: AlphaNode<TSchema>): Node => {
+const alphaNode = <TSchema extends $Schema>(node: AlphaNode<TSchema>): Node => {
   const testVal = node.testField
     ? `${FIELD_TO_STR[node.testField]} ${String(node.testValue)}`
     : node.testValue
@@ -92,7 +93,7 @@ const alphaNode = <TSchema extends object>(node: AlphaNode<TSchema>): Node => {
   };
 };
 
-const joinNode = <TSchema extends object>(node: JoinNode<TSchema>): Node => {
+const joinNode = <TSchema extends $Schema>(node: JoinNode<TSchema>): Node => {
   const cond = conditionToString(node.condition);
   const idName = node.idName ?? "";
   const label = `${node.ruleName}\n${idName}\n\n**CONDITIONS**\n\n${cond}`;
@@ -102,7 +103,7 @@ const joinNode = <TSchema extends object>(node: JoinNode<TSchema>): Node => {
     attributes: `[color=red, label="JOIN ${node.id}\n\n${label}"]`,
   };
 };
-const addMemoryNode = <TSchema extends object>(node: MemoryNode<TSchema>, graph: NetworkGraph, source?: Node) => {
+const addMemoryNode = <TSchema extends $Schema>(node: MemoryNode<TSchema>, graph: NetworkGraph, source?: Node) => {
   const gNode = memoryNode(node);
   graph.nodes.set(gNode.id, gNode);
   if (source) graph.edges.push({ sources: [source], sink: gNode });
@@ -111,7 +112,7 @@ const addMemoryNode = <TSchema extends object>(node: MemoryNode<TSchema>, graph:
   }
 };
 
-const addJoinNode = <TSchema extends object>(node: JoinNode<TSchema>, graph: NetworkGraph, source?: Node) => {
+const addJoinNode = <TSchema extends $Schema>(node: JoinNode<TSchema>, graph: NetworkGraph, source?: Node) => {
   const gNode = joinNode(node);
   graph.nodes.set(gNode.id, gNode);
   if (source) graph.edges.push({ sources: [source], sink: gNode });
@@ -123,7 +124,7 @@ const addJoinNode = <TSchema extends object>(node: JoinNode<TSchema>, graph: Net
   }
 };
 
-const addAlphaNode = <TSchema extends object>(node: AlphaNode<TSchema>, graph: NetworkGraph, source?: Node) => {
+const addAlphaNode = <TSchema extends $Schema>(node: AlphaNode<TSchema>, graph: NetworkGraph, source?: Node) => {
   const gNode = alphaNode(node);
   graph.nodes.set(node.id, gNode);
   if (source) graph.edges.push({ sources: [source], sink: gNode });
@@ -136,7 +137,7 @@ const addAlphaNode = <TSchema extends object>(node: AlphaNode<TSchema>, graph: N
   });
 };
 
-const graphNetwork = <TSchema extends object>(node: AlphaNode<TSchema>, graph: NetworkGraph) => {
+const graphNetwork = <TSchema extends $Schema>(node: AlphaNode<TSchema>, graph: NetworkGraph) => {
   addAlphaNode(node, graph);
   return graph;
 };
@@ -160,7 +161,7 @@ const toDot = (graph: NetworkGraph) => {
   return lines.join("\n");
 };
 
-export const viz = <TSchema extends object>(session: Session<TSchema>) => {
+export const viz = <TSchema extends $Schema>(session: Session<TSchema>) => {
   const root = session.alphaNode;
   const graph: NetworkGraph = {
     title: "Network",
@@ -172,7 +173,7 @@ export const viz = <TSchema extends object>(session: Session<TSchema>) => {
   return toDot(graph);
 };
 
-export const vizOnlineUrl = <TSchema extends object>(session: Session<TSchema>, openInBrowser?: boolean) => {
+export const vizOnlineUrl = <TSchema extends $Schema>(session: Session<TSchema>, openInBrowser?: boolean) => {
   const datums = viz(session);
   const encoded = encodeURIComponent(datums);
   const url = `https://dreampuf.github.io/GraphvizOnline/#${encoded}`;

@@ -1,7 +1,9 @@
-import { type Binding, type Condition, type Fact, Field, type Token } from "@beep/rete/network/types";
+import { ExpectedToHaveAlphaFactsForNode } from "@beep/rete/network/bind-vars-from-fact/errors";
+import type { $Schema, Binding, Condition, Fact, Token } from "@beep/rete/network/types";
+import { Field } from "@beep/rete/network/types";
 import { bindingWasSet } from "../binding-was-set";
 
-export const bindVarsFromFact = <T extends object>(
+export const bindVarsFromFact = <T extends $Schema>(
   condition: Condition<T>,
   fact: Fact<T>,
   token: Token<T>,
@@ -17,7 +19,7 @@ export const bindVarsFromFact = <T extends object>(
       }
       currentBinding = result.binding;
     } else if (v?.field === Field.Enum.ATTRIBUTE) {
-      throw new Error(`Attributes can not contain vars: ${v}`);
+      throw new ExpectedToHaveAlphaFactsForNode(v);
     } else if (v?.field === Field.Enum.VALUE) {
       const results = bindingWasSet(currentBinding, v.name, fact[2]);
       if (!results.didBindVar) {

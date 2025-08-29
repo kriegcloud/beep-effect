@@ -1,10 +1,11 @@
 import { AuditAction, AuditRecordType } from "@beep/rete/network/audit";
-import { type AlphaNode, type Fact, type Session, TokenKind } from "@beep/rete/network/types";
+import type { $Schema, AlphaNode, Fact, Session } from "@beep/rete/network/types";
+import { TokenKind } from "@beep/rete/network/types";
 import { getIdAttr } from "../get-id-attr";
 import { rightActivationWithAlphaNode } from "../right-activation-with-alpha-node";
 import { hashIdAttr } from "../utils";
 
-export const upsertFact = <T extends object>(session: Session<T>, fact: Fact<T>, nodes: Set<AlphaNode<T>>) => {
+export const upsertFact = <T extends $Schema>(session: Session<T>, fact: Fact<T>, nodes: Set<AlphaNode<T>>) => {
   try {
     const idAttr = getIdAttr<T>(fact);
     const idAttrHash = hashIdAttr(idAttr);
@@ -52,11 +53,10 @@ export const upsertFact = <T extends object>(session: Session<T>, fact: Fact<T>,
         });
       }
 
-      // biome-ignore lint/complexity/noUselessUndefinedInitialization: <explanation>
       let didUpdate = undefined;
-      // biome-ignore lint/complexity/noUselessUndefinedInitialization: <explanation>
       let oldFactRecord = undefined;
       // update or insert facts, depending on whether the node already exists
+
       for (const n of nodes) {
         if (existingNodes.alphaNodes.has(n)) {
           const oldFact = n.facts.get(fact[0].toString())?.get(fact[1].toString());

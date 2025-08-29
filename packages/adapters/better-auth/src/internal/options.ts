@@ -32,7 +32,7 @@ import { sso } from "better-auth/plugins/sso";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Stripe } from "stripe";
 
-export const makeOptions = (opts: BetterAuthOptions) =>
+export const makeOptions = (opts: BetterAuthOptions): BetterAuthOptions =>
   ({
     /**
      * Database configuration

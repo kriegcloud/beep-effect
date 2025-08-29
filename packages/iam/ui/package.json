@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/BeepinBois/beep-effect.git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
     "directory": "packages/iam/ui"
   },
   "scripts": {
@@ -26,8 +26,9 @@
     "build-annotate": "babel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps",
     "check": "tsc -b tsconfig.json",
     "test": "vitest run",
-    "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "coverage": "vitest run --coverage",
+    "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
+
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "lint:circular": "pnpm madge -c ."

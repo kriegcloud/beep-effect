@@ -1,6 +1,6 @@
-import type { AlphaNode } from "@beep/rete/network/types";
+import type { $Schema, AlphaNode } from "@beep/rete/network/types";
 
-export const addNode = <T extends object>(node: AlphaNode<T>, newNode: AlphaNode<T>): AlphaNode<T> => {
+export const addNode = <T extends $Schema>(node: AlphaNode<T>, newNode: AlphaNode<T>): AlphaNode<T> => {
   for (let i = 0; i < node.children.length; i++) {
     if (node.children[i]?.testField === newNode.testField && node.children[i]?.testValue === newNode.testValue) {
       return node.children[i]!;

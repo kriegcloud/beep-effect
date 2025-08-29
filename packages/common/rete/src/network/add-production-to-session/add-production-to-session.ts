@@ -1,19 +1,19 @@
-import {
-  Field,
-  type IdAttrs,
-  type IdAttrsHash,
-  type JoinNode,
-  type Match,
-  MEMORY_NODE_TYPE,
-  type MemoryNode,
-  PRODUCTION_ALREADY_EXISTS_BEHAVIOR,
-  type Production,
-  type Session,
+import { ProductionAlreadyExists } from "@beep/rete/network/add-production-to-session/errors";
+import type {
+  $Schema,
+  IdAttrs,
+  IdAttrsHash,
+  JoinNode,
+  Match,
+  MemoryNode,
+  Production,
+  Session,
 } from "@beep/rete/network/types";
+import { Field, MEMORY_NODE_TYPE, PRODUCTION_ALREADY_EXISTS_BEHAVIOR } from "@beep/rete/network/types";
 import { addNodes } from "../add-nodes";
 import { isAncestor } from "../is-ancestor";
 
-export const addProductionToSession = <T extends object, U>(
+export const addProductionToSession = <T extends $Schema, U>(
   session: Session<T>,
   production: Production<T, U>,
   alreadyExistsBehaviour = PRODUCTION_ALREADY_EXISTS_BEHAVIOR.ERROR
@@ -26,7 +26,7 @@ export const addProductionToSession = <T extends object, U>(
       return;
     }
     if (alreadyExistsBehaviour === PRODUCTION_ALREADY_EXISTS_BEHAVIOR.ERROR) {
-      throw new Error(message);
+      throw new ProductionAlreadyExists(alreadyExistsBehaviour, production);
     }
   }
 
@@ -97,7 +97,11 @@ export const addProductionToSession = <T extends object, U>(
       }
 
       if (session.leafNodes.has(production.name)) {
-        throw new Error(`${production.name} already exists in session, this should have been handled above`);
+        throw new ProductionAlreadyExists(
+          alreadyExistsBehaviour,
+          production,
+          `${production.name} already exists in session, this should have been handled above`
+        );
       }
       session.leafNodes.set(production.name, memNode);
     }

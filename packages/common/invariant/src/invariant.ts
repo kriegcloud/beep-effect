@@ -74,7 +74,6 @@ export const invariant: InvariantApi = ((
 
   // Optional dev-only break for "BUG: ..." messages.
   if (__DEV__ && Str.startsWith("BUG")(msg)) {
-    // eslint-disable-next-line no-debugger
     debugger;
   }
 

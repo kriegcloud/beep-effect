@@ -210,7 +210,6 @@ describe("rete", () => {
       // After second then insert
       //  {  "c1" : "maize", "otherPerson": 2, "c2": "gold" }
       condFn: (vars) => {
-        // biome-ignore lint/suspicious/noDoubleEquals: <explanation>
         return vars.get("otherPerson") != Id.Alice;
       },
     });
@@ -491,10 +490,9 @@ describe("rete", () => {
     rete.addProductionToSession(session, rule2);
     rete.insertFact(session, [Id.Alice, "LeftOf", Id.Zach]);
     rete.fireRules(session);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
     // @ts-expect-error
     expect(alice).toBe(Id.Alice);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     expect(zach).toBe(Id.Zach);
   });
@@ -505,7 +503,6 @@ describe("rete", () => {
       name: "rule1",
       convertMatchFn,
       condFn: (vars) => {
-        // biome-ignore lint/suspicious/noDoubleEquals: <explanation>
         return vars.get("id2") != vars.get("id1");
       },
       thenFn: ({ vars, session }) => {

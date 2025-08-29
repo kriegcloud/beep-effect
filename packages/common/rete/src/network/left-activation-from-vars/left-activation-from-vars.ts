@@ -1,10 +1,11 @@
-import type { Binding, Fact, IdAttrs, JoinNode, Session, Token } from "@beep/rete/network/types";
+import { ExpectedToHaveAlphaFactsForNode } from "@beep/rete/network/left-activation-from-vars/errors";
+import type { $Schema, Binding, Fact, IdAttrs, JoinNode, Session, Token } from "@beep/rete/network/types";
 import { bindVarsFromFact } from "../bind-vars-from-fact";
 import { getIdAttr } from "../get-id-attr";
 import { leftActivationOnMemoryNode } from "../left-activation-on-memory-node";
 import { hashIdAttr } from "../utils";
 
-export const leftActivationFromVars = <T extends object>(
+export const leftActivationFromVars = <T extends $Schema>(
   session: Session<T>,
   node: JoinNode<T>,
   idAttrs: IdAttrs<T>,
@@ -23,7 +24,7 @@ export const leftActivationFromVars = <T extends object>(
     if (!child) {
       console.error("Session", JSON.stringify(session));
       console.error(`Node ${node.idName}`, JSON.stringify(node));
-      throw new Error("Expected node to have child!");
+      throw new ExpectedToHaveAlphaFactsForNode(node, session);
     }
     leftActivationOnMemoryNode(session, child, newIdAttrs, newToken, isNew, bindResults.binding!);
   }

@@ -1,10 +1,10 @@
 "use client";
 
 import { Logo } from "@beep/ui/branding";
+import { RecordUtils } from "@beep/utils/data";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import type { Breakpoint } from "@mui/material/styles";
-import { merge } from "es-toolkit";
 import { SettingsButton } from "../components/settings-button";
 import type { HeaderSectionProps, LayoutSectionProps, MainSectionProps } from "../core";
 import { HeaderSection, LayoutSection, MainSection } from "../core";
@@ -48,7 +48,7 @@ export function SimpleLayout({ sx, cssVars, children, slotProps, layoutQuery = "
         layoutQuery={layoutQuery}
         {...slotProps?.header}
         slots={{ ...headerSlots, ...slotProps?.header?.slots }}
-        slotProps={merge(headerSlotProps, slotProps?.header?.slotProps ?? {})}
+        slotProps={RecordUtils.merge(headerSlotProps, slotProps?.header?.slotProps ?? {})}
         sx={slotProps?.header?.sx}
       />
     );

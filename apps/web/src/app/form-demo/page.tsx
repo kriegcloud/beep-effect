@@ -117,7 +117,6 @@ export default function FormDemoPage() {
     } catch {
       // ignore
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialSnapshot]);
 
   // Auto-save snapshot to localStorage on every state change (value/context)

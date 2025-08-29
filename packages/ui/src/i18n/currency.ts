@@ -1,5 +1,5 @@
 import { stringLiteralKit } from "@beep/schema/kits";
-import { recordKeys } from "@beep/utils/transformations";
+import { RecordUtils } from "@beep/utils/data";
 
 /**
  * @standard ISO 4217
@@ -483,7 +483,7 @@ export type Currency = (typeof Currency)[keyof typeof Currency];
 
 export namespace CurrencyCodeValue {
   export const { Options, Enum, Mock, JSONSchema, Pretty, Equivalence, Schema } = stringLiteralKit(
-    ...recordKeys(Currency)
+    ...RecordUtils.recordKeys(Currency)
   )({
     identifier: "CurrencyCodeValue",
     title: "Currency Code Value",

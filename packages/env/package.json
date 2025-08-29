@@ -11,12 +11,13 @@
   "exports": {
     "./server": "./src/server.ts",
     "./client": "./src/client.ts",
+    "./start": "./src/start.ts",
     "./package.json": "./package.json",
     "./*": "./src/*.ts"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/BeepinBois/beep-effect.git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
     "directory": "packages/env"
   },
   "scripts": {
@@ -35,7 +36,16 @@
   },
   "peerDependencies": {
     "effect": "*",
-    "@beep/schema": "workspace:^"
+    "@beep/schema": "workspace:^",
+    "@tanstack/react-form": "*",
+    "@tanstack/react-router": "*",
+    "@tanstack/react-store": "*"
+  },
+  "devDependencies": {
+    "vite": "*",
+    "globals": "*",
+    "jsdom": "*",
+    "@vitejs/plugin-react": "*"
   },
   "effect": {
     "generateExports": {

@@ -2,6 +2,7 @@
 // So for a fact ["bob", "age", 13] this could be a map from
 // string to string | number
 
+import type { StructTypes, UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
 import type { Auditor } from "./audit";
@@ -9,6 +10,10 @@ export type ValueOf<T> = T[keyof T];
 export type FactFragment<TSchema> = FactId.Type | keyof TSchema | ValueOf<TSchema>;
 export type MatchT<TSchema> = Map<string, FactFragment<TSchema>>;
 export type QueryFilter<TSchema> = Map<string, FactFragment<TSchema>[]>;
+
+export type $Schema<T extends StructTypes.StructFieldsWithStringKeys = StructTypes.StructFieldsWithStringKeys> = {
+  readonly [K in keyof T]: S.Schema.Type<T[K]>;
+};
 
 export enum PRODUCTION_ALREADY_EXISTS_BEHAVIOR {
   QUIET = 0,
@@ -31,10 +36,15 @@ export namespace Field {
 }
 
 // Shorten that name a bit
-export type InternalFactRepresentation<TSchema extends object> = readonly [FactId.Type, keyof TSchema, any];
-export const internalFactRepresentation = <const TSchema extends object>(schema: TSchema) =>
+
+export type InternalFactRepresentation<TSchema extends $Schema> = readonly [
+  FactId.Type,
+  keyof TSchema,
+  UnsafeTypes.UnsafeAny,
+];
+export const internalFactRepresentation = <const TSchema extends $Schema>(schema: TSchema) =>
   S.Tuple(FactId, S.Literal(...Struct.keys(schema)), S.Any);
-export type Fact<T extends object> = InternalFactRepresentation<T>;
+export type Fact<T extends $Schema> = InternalFactRepresentation<T>;
 
 export type IdAttr<S> = [FactId.Type, keyof S];
 export type IdAttrs<S> = IdAttr<S>[];
@@ -59,7 +69,7 @@ export interface Binding<T> {
   parentBinding?: Binding<T>;
 }
 
-export interface Token<T extends object> {
+export interface Token<T extends $Schema> {
   fact: Fact<T>;
   kind: TokenKind.Type;
   // Only for Update Tokens
@@ -90,20 +100,20 @@ export interface Match<T> {
 }
 
 /** functions **/
-export type ThenFn<T extends object, U> = (then: {
+export type ThenFn<T extends $Schema, U> = (then: {
   session: Session<T>;
   rule: Production<T, U>;
   vars: U;
 }) => Promise<void> | void;
 export type WrappedThenFn<TSchema> = (vars: MatchT<TSchema>) => Promise<void> | void;
-export type ThenFinallyFn<T extends object, U> = (session: Session<T>, rule: Production<T, U>) => Promise<void> | void;
+export type ThenFinallyFn<T extends $Schema, U> = (session: Session<T>, rule: Production<T, U>) => Promise<void> | void;
 export type WrappedThenFinallyFn = () => Promise<void> | void;
 export type ConvertMatchFn<T, U> = (vars: MatchT<T>) => U;
 export type CondFn<T> = (vars: MatchT<T>) => boolean;
 export type InitMatchFn<T> = () => MatchT<T>;
 
 /** Alpha Network **/
-export interface AlphaNode<T extends object> {
+export interface AlphaNode<T extends $Schema> {
   id: number;
   testField?: Field.Type;
   testValue?: keyof T | FactId.Type;
@@ -133,7 +143,7 @@ export namespace IdAttrsHash {
   export type Encoded = S.Schema.Encoded<typeof IdAttrsHash>;
 }
 
-export interface MemoryNode<T extends object> {
+export interface MemoryNode<T extends $Schema> {
   id: number;
   parent: JoinNode<T>;
   child?: JoinNode<T>;
@@ -155,7 +165,7 @@ export interface LeafNode<T> {
   trigger?: boolean;
 }
 
-export interface JoinNode<T extends object> {
+export interface JoinNode<T extends $Schema> {
   id: number;
   parent?: MemoryNode<T>;
   child?: MemoryNode<T>;
@@ -169,13 +179,13 @@ export interface JoinNode<T extends object> {
 
 /** Session **/
 
-export interface Condition<T extends object> {
+export interface Condition<T extends $Schema> {
   nodes: [Field.Type, keyof T | FactId.Type][];
   vars: Array<Var.Type>;
   shouldTrigger: boolean;
 }
 
-export interface Production<T extends object, U> {
+export interface Production<T extends $Schema, U> {
   name: string;
   conditions: Condition<T>[];
   convertMatchFn: ConvertMatchFn<T, U>;
@@ -188,12 +198,12 @@ export interface Production<T extends object, U> {
   thenFinallyFn?: ThenFinallyFn<T, U>;
 }
 
-interface Mutation<T extends object> {
+interface Mutation<T extends $Schema> {
   kind: "insert" | "retract";
   fact: Fact<T>;
 }
 
-export interface DebugFrame<T extends object> {
+export interface DebugFrame<T extends $Schema> {
   initialMutations: Mutation<T>[];
   startingFacts: Fact<T>[];
   endingFacts: Fact<T>[];
@@ -205,21 +215,13 @@ export interface DebugFrame<T extends object> {
   }[];
 }
 
-export const DEFAULT_MAX_FRAME_DUMPS = 40;
-
 export interface DebugOptions {
   enabled?: boolean;
   maxFrameDumps?: number;
-  onBeforeThen?: (node: MemoryNode<any>) => void;
-  onAfterThen?: (node: MemoryNode<any>) => void;
-  onBeforeThenFinally?: (node: MemoryNode<any>) => void;
-  onAfterThenFinally?: (node: MemoryNode<any>) => void;
-}
-
-export interface Debug<T extends object> extends DebugOptions {
-  numFramesSinceInit: number;
-  frames: DebugFrame<T>[];
-  mutationsSinceLastFire: Mutation<T>[];
+  onBeforeThen?: (node: MemoryNode<$Schema>) => void;
+  onAfterThen?: (node: MemoryNode<$Schema>) => void;
+  onBeforeThenFinally?: (node: MemoryNode<$Schema>) => void;
+  onAfterThenFinally?: (node: MemoryNode<$Schema>) => void;
 }
 
 // TODO: store the WMEs in a singular data structure and reference by index?
@@ -228,7 +230,7 @@ export interface Debug<T extends object> extends DebugOptions {
 //
 // This would likely simplify cacheline targeted optimizations and/or table
 // oriented redactors?
-export interface Session<T extends object> {
+export interface Session<T extends $Schema> {
   alphaNode: AlphaNode<T>;
   leafNodes: Map<string, MemoryNode<T>>;
   idAttrNodes: Map<IdAttrsHash.Type, { alphaNodes: Set<AlphaNode<T>>; idAttr: IdAttr<T> }>;
@@ -244,4 +246,4 @@ export interface Session<T extends object> {
   auditor?: Auditor;
 }
 
-export type ExecutedNodes<T extends object> = Map<MemoryNode<T>, Set<MemoryNode<T>>>[];
+export type ExecutedNodes<T extends $Schema> = Map<MemoryNode<T>, Set<MemoryNode<T>>>[];

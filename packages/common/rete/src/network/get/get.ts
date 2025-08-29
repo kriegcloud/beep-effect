@@ -1,8 +1,8 @@
-import type { Production, Session } from "@beep/rete/network/types";
+import type { $Schema, Production, Session } from "@beep/rete/network/types";
 import { bindingsToMatch } from "../bindings-to-match";
 import { hashIdAttrs } from "../utils";
 
-export const get = <T extends object, U>(session: Session<T>, prod: Production<T, U>, i: number): U | undefined => {
+export const get = <T extends $Schema, U>(session: Session<T>, prod: Production<T, U>, i: number): U | undefined => {
   const idAttrs = session.leafNodes.get(prod.name)?.matchIds.get(i);
   if (!idAttrs) return;
   const idAttrsHash = hashIdAttrs(idAttrs);

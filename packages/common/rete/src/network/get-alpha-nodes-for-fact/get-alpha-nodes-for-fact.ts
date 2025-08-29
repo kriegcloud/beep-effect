@@ -1,6 +1,6 @@
-import { type AlphaNode, type Fact, Field, type Session } from "@beep/rete/network/types";
+import { type $Schema, type AlphaNode, type Fact, Field, type Session } from "@beep/rete/network/types";
 
-export const getAlphaNodesForFact = <T extends object>(
+export const getAlphaNodesForFact = <T extends $Schema>(
   session: Session<T>,
   node: AlphaNode<T>,
   fact: Fact<T>,

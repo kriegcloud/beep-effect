@@ -1,6 +1,6 @@
-import type { ExecutedNodes } from "@beep/rete/network/types";
-
-export const recursionLimitMessage = <T extends object>(limit: number, executedNodes: ExecutedNodes<T>) => {
+import type { $Schema, ExecutedNodes } from "@beep/rete/network/types";
+import * as Data from "effect/Data";
+export const recursionLimitMessage = <T extends $Schema>(limit: number, executedNodes: ExecutedNodes<T>) => {
   const rules: string[] = [];
   for (const node of executedNodes) {
     const key = [...node.keys()][0]!;
@@ -15,10 +15,17 @@ export const recursionLimitMessage = <T extends object>(limit: number, executedN
       ? `${rules[0]} is triggering itself!`
       : `Cycle detected! ${rules.slice(0, endIdx).reverse().join(" -> ")}`;
 
-  throw new Error(
-    `${text}\nRecursion limit hit. The current limit is ${limit} (set by the recursionLimit param of fireRules).\n NOTE: The first rule mentioned may not be the beginning of the cycle!`
-  );
+  return `${text}\nRecursion limit hit. The current limit is ${limit} (set by the recursionLimit param of fireRules).\n NOTE: The first rule mentioned may not be the beginning of the cycle!`;
 };
-export const raiseRecursionLimit = <T extends object>(limit: number, executedNodes: ExecutedNodes<T>) => {
-  throw new Error(recursionLimitMessage(limit, executedNodes));
-};
+
+export class RecursionLimitError<T extends $Schema> extends Data.TaggedError("RecursionLimitError")<{
+  limit: number;
+  executedNodes: ExecutedNodes<T>;
+}> {
+  constructor(limit: number, executedNodes: ExecutedNodes<T>) {
+    super({ limit, executedNodes });
+  }
+  get message() {
+    return recursionLimitMessage(this.limit, this.executedNodes);
+  }
+}

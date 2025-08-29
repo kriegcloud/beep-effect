@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "type": "module",
   "private": true,
+  "license": "MIT",
+  "description": "The shared ui library for beep-effect which combines @mui/material, shadcn & tailwindcss",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/ui"
+  },
   "scripts": {
     "copy-css": "copyfiles -f src/styles/globals.css build/src && copyfiles -f src/styles/globals.css build/esm && copyfiles -f src/styles/globals.css build/cjs",
     "codegen": "build-utils prepare-v2",
@@ -15,6 +22,8 @@
     "check": "tsc -b tsconfig.json",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
+    "test": "vitest run",
+    "coverage": "vitest run --coverage",
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "lint:circular": "pnpm madge -c ."
   },
@@ -188,7 +197,6 @@
     "accept-language": "*",
     "clsx": "*",
     "dayjs": "*",
-    "es-toolkit": "*",
     "framer-motion": "*",
     "i18next": "*",
     "i18next-browser-languagedetector": "*",

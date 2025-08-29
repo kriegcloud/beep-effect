@@ -1,6 +1,7 @@
-import { type Condition, Field, type Production, type Var } from "@beep/rete/network/types";
+import type { $Schema, Condition, Production, Var } from "@beep/rete/network/types";
+import { Field } from "@beep/rete/network/types";
 import { isVar } from "../is-var";
-export const addConditionsToProduction = <T extends object, U>(
+export const addConditionsToProduction = <T extends $Schema, U>(
   production: Production<T, U>,
   id: number | string | Var.Type,
   attr: keyof T,

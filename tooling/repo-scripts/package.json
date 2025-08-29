@@ -6,7 +6,7 @@
   "description": "The repo scripts package. contains useful scripts and generators for the repo",
   "repository": {
     "type": "git",
-    "url": "https://github.com/BeepinBois/beep-effect.git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
     "directory": "tooling/repo-scripts"
   },
   "publishConfig": {

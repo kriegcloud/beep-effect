@@ -1,9 +1,10 @@
-import type { IdAttr, JoinNode, Session, Token } from "@beep/rete/network/types";
+import type { $Schema, IdAttr, JoinNode, Session, Token } from "@beep/rete/network/types";
 import { bindVarsFromFact } from "../bind-vars-from-fact";
 import { getValFromBindings } from "../get-val-from-bindings";
 import { leftActivationOnMemoryNode } from "../left-activation-on-memory-node";
+import { UnexpectedNullChildForNode, UnexpectedUndefinedChildForNode } from "./errors";
 
-const rightActivationWithJoinNode = <T extends object>(
+const rightActivationWithJoinNode = <T extends $Schema>(
   session: Session<T>,
   node: JoinNode<T>,
   idAttr: IdAttr<T>,
@@ -13,7 +14,7 @@ const rightActivationWithJoinNode = <T extends object>(
     const bindings = bindVarsFromFact(node.condition, token.fact, token);
     if (bindings.didBindVar) {
       if (!node.child) {
-        throw new Error(`Unexpected undefined child for node ${node.idName}`);
+        throw new UnexpectedUndefinedChildForNode(node.idName);
       }
       leftActivationOnMemoryNode(session, node.child, [idAttr], token, true, bindings.binding!);
     }
@@ -30,7 +31,7 @@ const rightActivationWithJoinNode = <T extends object>(
         const newIdAttrs = [...match.idAttrs];
         newIdAttrs.push(idAttr);
         const child = node.child;
-        if (!child) throw new Error(`Unexpected null child for node: ${node.idName}`);
+        if (!child) throw new UnexpectedNullChildForNode(node.idName);
 
         leftActivationOnMemoryNode(session, child, newIdAttrs, token, true, bindings.binding!);
       }

@@ -26,8 +26,14 @@
     {
       "path": "packages/shared/tables/tsconfig.build.json"
     },
+        {
+      "path": "packages/shared/client/tsconfig.build.json"
+    },
     {
       "path": "packages/iam/api/tsconfig.build.json"
+    },
+    {
+      "path": "apps/web/tsconfig.json"
     },
     {
       "path": "packages/iam/application/tsconfig.build.json"

@@ -1,10 +1,18 @@
-import type { ExecutedNodes, IdAttrs, IdAttrsHash, Match, MemoryNode, Session } from "@beep/rete/network/types";
+import type {
+  $Schema,
+  ExecutedNodes,
+  IdAttrs,
+  IdAttrsHash,
+  Match,
+  MemoryNode,
+  Session,
+} from "@beep/rete/network/types";
 import { AuditEntryState, AuditRecordType, AuditRuleTrigger } from "../audit";
 import { bindingsToMatch } from "../bindings-to-match";
-import { raiseRecursionLimit } from "../raise-recursion-limit";
+import { RecursionLimitError } from "../raise-recursion-limit";
 
 const DEFAULT_RECURSION_LIMIT = 16;
-export const fireRules = <T extends object>(session: Session<T>, recursionLimit: number = DEFAULT_RECURSION_LIMIT) => {
+export const fireRules = <T extends $Schema>(session: Session<T>, recursionLimit: number = DEFAULT_RECURSION_LIMIT) => {
   try {
     if (session.insideRule) {
       return;
@@ -21,12 +29,11 @@ export const fireRules = <T extends object>(session: Session<T>, recursionLimit:
     let recurCount = 0;
     // `raiseRecursionLimit(recursionLimit, executedNodes) will explode
     // noinspection InfiniteLoopJS
-    // eslint-disable-next-line no-constant-condition
     let notFinishedExecuting = true;
     while (notFinishedExecuting) {
       if (recursionLimit >= 0) {
         if (recurCount == recursionLimit) {
-          raiseRecursionLimit(recursionLimit, executedNodes);
+          throw new RecursionLimitError(recursionLimit, executedNodes);
         }
         recurCount += 1;
       }

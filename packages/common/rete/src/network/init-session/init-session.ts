@@ -1,8 +1,8 @@
 import type { Auditor } from "@beep/rete/network/audit";
-import type { AlphaNode, Fact, IdAttr, IdAttrsHash, MemoryNode, Session } from "@beep/rete/network/types";
+import type { $Schema, AlphaNode, Fact, IdAttr, IdAttrsHash, MemoryNode, Session } from "@beep/rete/network/types";
 import { defaultInitMatch } from "../default-init-match";
 
-export const initSession = <T extends object>(autoFire = true, auditor?: Auditor): Session<T> => {
+export const initSession = <T extends $Schema>(autoFire = true, auditor?: Auditor): Session<T> => {
   let nodeIdCounter = 0;
   const nextId = () => nodeIdCounter++;
   const alphaNode: AlphaNode<T> = {

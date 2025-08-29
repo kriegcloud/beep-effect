@@ -1,7 +1,7 @@
-import type { Production, QueryFilter, Session } from "@beep/rete/network/types";
+import type { $Schema, Production, QueryFilter, Session } from "@beep/rete/network/types";
 import { queryAll } from "../query-all";
 
-export const subscribeToProduction = <T extends object, U>(
+export const subscribeToProduction = <T extends $Schema, U>(
   session: Session<T>,
   production: Production<T, U>,
   callback: (results: U[]) => void,
@@ -14,13 +14,12 @@ export const subscribeToProduction = <T extends object, U>(
       production.subscriptions.forEach(({ callback, filter }) => callback(queryAll(session, production, filter)));
     });
   }
-  const ret = () => {
+  return () => {
     production.subscriptions.delete(sub);
     if (production.subscriptions.size === 0) {
       session.subscriptionsOnProductions.delete(production.name);
     }
   };
-  return ret;
 };
 
 export default subscribeToProduction;

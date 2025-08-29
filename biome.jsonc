@@ -73,6 +73,7 @@
         "noStaticOnlyClass": "off",
         "noArguments": "off",
         "noCommaOperator": "off",
+        "noUselessUndefinedInitialization": "off",
         "useLiteralKeys": {
           "fix": "unsafe",
           "level": "error"

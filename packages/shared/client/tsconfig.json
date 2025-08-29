@@ -1,0 +1,32 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": [],
+  "compilerOptions": {
+    "paths": {
+      "@beep/shared-client/*": ["./src/*"],
+      "@beep/schema": ["../../common/schema/src/index"],
+      "@beep/schema/*": ["../../common/schema/src/*"],
+      "@beep/types": ["../../common/types/src/index"],
+      "@beep/types/*": ["../../common/types/src/*"],
+      "@beep/utils": ["../../common/utils/src/index"],
+      "@beep/utils/*": ["../../common/utils/src/*"],
+      "@beep/invariant": ["../../common/invariant/src/index"],
+      "@beep/invariant/*": ["../../common/invariant/src/*"],
+      "@beep/logos": ["../../common/logos/src/index"],
+      "@beep/logos/*": ["../../common/logos/src/*"],
+      "@beep/rete": ["../../common/rete/src/index"],
+      "@beep/rete/*": ["../../common/rete/src/*"],
+      "@beep/ui/*": ["../../ui/src/*"],
+      "@beep/env": ["../../env/src/index"],
+      "@beep/env/*": ["../../env/src/*"]
+    }
+  },
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "tsconfig.test.json"
+    }
+  ]
+}

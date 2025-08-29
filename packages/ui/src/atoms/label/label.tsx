@@ -1,4 +1,4 @@
-import { upperFirst } from "es-toolkit";
+import * as Str from "effect/String";
 import { mergeClasses } from "../../utils";
 
 import { labelClasses } from "./classes";
@@ -28,7 +28,7 @@ export function Label({
     >
       {startIcon && <LabelIcon className={labelClasses.icon}>{startIcon}</LabelIcon>}
 
-      {typeof children === "string" ? upperFirst(children) : children}
+      {typeof children === "string" ? Str.capitalize(children) : children}
 
       {endIcon && <LabelIcon className={labelClasses.icon}>{endIcon}</LabelIcon>}
     </LabelRoot>

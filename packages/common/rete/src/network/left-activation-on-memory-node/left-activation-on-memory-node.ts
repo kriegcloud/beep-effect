@@ -1,4 +1,5 @@
 import {
+  type $Schema,
   type Binding,
   type IdAttrs,
   type Match,
@@ -12,7 +13,7 @@ import { bindingsToMatch } from "../bindings-to-match";
 import { leftActivationWithoutAlpha } from "../left-activation-without-alpha";
 import { hashIdAttr, hashIdAttrs } from "../utils";
 
-export const leftActivationOnMemoryNode = <T extends object>(
+export const leftActivationOnMemoryNode = <T extends $Schema>(
   session: Session<T>,
   node: MemoryNode<T>,
   idAttrs: IdAttrs<T>,

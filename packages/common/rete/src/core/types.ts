@@ -1,33 +1,41 @@
 // trick the type-system so we can use the schema like an object
 // TODO: If the new API works, maybe we don't need to do this?
-
 import type { PRODUCTION_ALREADY_EXISTS_BEHAVIOR } from "@beep/rete/network";
+import type { $Schema } from "@beep/rete/network/types";
+import type * as O from "effect/Option";
 
 export type Pojo = { [key: string]: object };
 export type ConditionOptions<T> = { then?: boolean; match?: T; join?: string };
-export type Condition<TSchema extends object> = {
-  [ATTR in keyof TSchema]: ConditionOptions<TSchema[ATTR]>;
+export type Condition<TSchema extends $Schema> = {
+  readonly [ATTR in keyof TSchema]: ConditionOptions<TSchema[ATTR]>;
 };
-export type ConditionArgs<TSchema extends object> = {
+
+export const makeEmptyCondition = <TSchema extends $Schema>() => ({}) as Condition<TSchema>;
+
+export type ConditionArgs<TSchema extends $Schema> = {
   [key: string]: {
     [ATTR in keyof Partial<TSchema>]: ConditionOptions<TSchema[ATTR]> | undefined;
   };
 };
 
-export type EnactArgs<TSchema extends object, T extends ConditionArgs<TSchema>> = {
+export type EnactArgs<TSchema extends $Schema, T extends ConditionArgs<TSchema>> = {
   [Key in keyof T]: {
     [ATTR in keyof Required<T[Key]>]: ATTR extends keyof TSchema ? TSchema[ATTR] : never;
   } & { id: string };
 };
 
-export type QueryArgs<TSchema extends object, T extends ConditionArgs<TSchema>> = {
-  [Key in keyof T]?: {
-    [ATTR in keyof Partial<T[Key]>]: ATTR extends keyof TSchema ? TSchema[ATTR][] : never;
-  } & { ids?: string[] };
+export type QueryJoinFilter<TSchema extends $Schema> = {
+  ids?: string[];
+} & Partial<{
+  [ATTR in keyof TSchema]: TSchema[ATTR][];
+}>;
+
+export type QueryArgs<TSchema extends $Schema, T extends ConditionArgs<TSchema>> = {
+  [Key in keyof T]?: QueryJoinFilter<TSchema>;
 };
 
 /// Wrap the entire what in a function that return something we can enact? Instead of one at a time?
-export type InsertBeepFact<TSchema extends object> = {
+export type InsertBeepFact<TSchema extends $Schema> = {
   [key: string]: { [Key in keyof Partial<TSchema>]: TSchema[Key] };
 };
 
@@ -35,7 +43,7 @@ export type BeepArgs = {
   autoFire?: boolean;
 };
 
-export type EnactionArgs<TSchema extends object, T extends ConditionArgs<TSchema>> = {
+export type EnactionArgs<TSchema extends $Schema, T extends ConditionArgs<TSchema>> = {
   then?: (args: EnactArgs<TSchema, T>) => Promise<void> | void;
   when?: (args: EnactArgs<TSchema, T>) => boolean;
   thenFinally?: (getResults: () => EnactArgs<TSchema, T>[]) => Promise<void> | void;
@@ -45,9 +53,10 @@ export interface QueryOneOptions {
   shouldThrowExceptionOnMoreThanOne?: boolean;
 }
 
-export type EnactionResults<TSchema extends object, T extends ConditionArgs<TSchema>> = {
+export type EnactionResults<TSchema extends $Schema, T extends ConditionArgs<TSchema>> = {
   query: (filter?: QueryArgs<TSchema, T>) => EnactArgs<TSchema, T>[];
   queryOne: (filter?: QueryArgs<TSchema, T>, options?: QueryOneOptions) => EnactArgs<TSchema, T> | undefined;
+  queryOneOption: (filter?: QueryArgs<TSchema, T>, options?: QueryOneOptions) => O.Option<EnactArgs<TSchema, T>>;
   subscribe: (fn: (results: EnactArgs<TSchema, T>[]) => void, filter?: QueryArgs<TSchema, T>) => () => void;
 
   subscribeOne: (
@@ -55,14 +64,20 @@ export type EnactionResults<TSchema extends object, T extends ConditionArgs<TSch
     filter?: QueryArgs<TSchema, T>,
     options?: QueryOneOptions
   ) => () => void;
+  subscribeOneOption: (
+    fn: (result: O.Option<EnactArgs<TSchema, T>>) => void,
+    filter?: QueryArgs<TSchema, T>,
+    options?: QueryOneOptions
+  ) => () => void;
 };
-export type Enact<TSchema extends object, T extends ConditionArgs<TSchema>> = (
+export type Enact<TSchema extends $Schema, T extends ConditionArgs<TSchema>> = (
   enaction?: EnactionArgs<TSchema, T>
 ) => EnactionResults<TSchema, T>;
 
-export interface IBeep<TSchema extends object> {
+export interface IBeep<TSchema extends $Schema> {
   insert: (args: InsertBeepFact<TSchema>) => void;
   get: <ATTR extends keyof TSchema>(id: string, attr: ATTR) => TSchema[ATTR] | undefined;
+  getOption: <ATTR extends keyof TSchema>(id: string, attr: ATTR) => O.Option<TSchema[ATTR]>;
   retract: (id: string, ...attrs: (keyof TSchema)[]) => void;
   retractByConditions: (id: string, conditions: { [key in keyof TSchema]?: any }) => void;
   fire: (recursionLimit?: number) => void;

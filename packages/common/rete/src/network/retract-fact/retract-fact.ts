@@ -1,12 +1,13 @@
 import { AuditAction, AuditRecordType } from "@beep/rete/network/audit";
-import { type AlphaNode, type Fact, type Session, TokenKind } from "@beep/rete/network/types";
+import { ExpectedFactToBeInNodeFacts } from "@beep/rete/network/retract-fact/errors";
+import { type $Schema, type AlphaNode, type Fact, type Session, TokenKind } from "@beep/rete/network/types";
 import _ from "lodash";
 import { fireRules } from "../fire-rules";
 import { getIdAttr } from "../get-id-attr";
 import { rightActivationWithAlphaNode } from "../right-activation-with-alpha-node";
 import { hashIdAttr } from "../utils";
 
-export const retractFact = <T extends object>(session: Session<T>, fact: Fact<T>) => {
+export const retractFact = <T extends $Schema>(session: Session<T>, fact: Fact<T>) => {
   try {
     const idAttr = getIdAttr(fact);
     const idAttrHash = hashIdAttr(idAttr);
@@ -21,7 +22,7 @@ export const retractFact = <T extends object>(session: Session<T>, fact: Fact<T>
     for (const node of idAttrNodes) {
       const otherFact = node.facts.get(idAttr[0].toString())?.get(idAttr[1].toString());
       if (!_.isEqual(fact, otherFact)) {
-        throw new Error(`Expected fact ${fact} to be in node.facts at id: ${idAttr[0]}, attr: ${String(idAttr[1])}`);
+        throw new ExpectedFactToBeInNodeFacts(fact, idAttr);
       }
       session.auditor?.log?.({
         action: AuditAction.RETRACTION,

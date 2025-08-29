@@ -1,14 +1,15 @@
-import {
-  type Auditor,
-  type ConvertMatchFn,
-  type FactFragment,
-  Field,
-  PRODUCTION_ALREADY_EXISTS_BEHAVIOR,
-  rete,
-  viz,
-} from "@beep/rete/network";
+import type { $Schema, Auditor, ConvertMatchFn, FactFragment } from "@beep/rete/network";
+import { Field, PRODUCTION_ALREADY_EXISTS_BEHAVIOR, rete, viz } from "@beep/rete/network";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as Struct from "effect/Struct";
-import * as _ from "lodash";
+import _ from "lodash";
+import {
+  IncorrectJoinUsage,
+  InvalidOptionsForCondition,
+  QueryOneReturnedMoreThanOne,
+  SubscribeOneMoreThanOne,
+} from "./errors";
 import type {
   Condition,
   ConditionArgs,
@@ -31,7 +32,7 @@ const extractId = (id: string) => (id.startsWith("$") ? { name: idPrefix(id), fi
 const valueKey = ({ id, attr }: { id: string; attr: string | number | symbol }) =>
   `${VALUE_PREFIX}${id}_${String(attr)}`;
 
-export const beep = <TSchema extends object>(autoFire = true, auditor?: Auditor): IBeep<TSchema> => {
+export const beep = <TSchema extends $Schema>(autoFire = true, auditor?: Auditor): IBeep<TSchema> => {
   let session = rete.initSession<TSchema>(autoFire, auditor);
   const reset = () => {
     session = rete.initSession<TSchema>(autoFire, auditor);
@@ -40,32 +41,29 @@ export const beep = <TSchema extends object>(autoFire = true, auditor?: Auditor)
     // be dumb about this
     const factTuples = insertFactToFact(insertFacts);
 
-    for (let i = 0; i < factTuples.length; i++) {
-      rete.insertFact<TSchema>(session, factTuples[i]);
-    }
+    A.forEach(factTuples, (tuple) => rete.insertFact<TSchema>(session, tuple));
   };
-  const retract = (id: string, ...attrs: (keyof TSchema)[]) => {
-    attrs.map((attr) => {
-      rete.retractFactByIdAndAttr<TSchema>(session, id, attr);
-    });
-  };
+  const retract = (id: string, ...attrs: (keyof TSchema)[]) =>
+    A.forEach(attrs, (attr) => rete.retractFactByIdAndAttr<TSchema>(session, id, attr));
 
   const get = <T extends keyof TSchema>(id: string, attr: T) => {
     return rete.retrieveFactValueByIdAttr(session, id, attr);
   };
 
+  const getOption = <T extends keyof TSchema>(id: string, attr: T) => O.fromNullable(get(id, attr));
+
   const retractByConditions = (id: string, conditions: { [key in keyof TSchema]?: any }) => {
-    retract(id, ...(Struct.keys(conditions) as (keyof TSchema)[]));
+    retract(id, ...Struct.keys(conditions));
   };
 
   const conditions = <
     T extends {
-      [ATTR in keyof Partial<TSchema>]: ConditionOptions<TSchema[ATTR]> | undefined;
+      readonly [ATTR in keyof Partial<TSchema>]: ConditionOptions<TSchema[ATTR]> | undefined;
     },
   >(
     conds: (schema: Condition<TSchema>) => T
   ): T => {
-    const schema = {} as unknown as Condition<TSchema>;
+    const schema: Condition<TSchema> = {} as Condition<TSchema>;
     return conds(schema);
   };
 
@@ -78,7 +76,7 @@ export const beep = <TSchema extends object>(autoFire = true, auditor?: Auditor)
     const convertMatchFn: ConvertMatchFn<TSchema, EnactArgs<TSchema, T>> = (args) => {
       // This is where we need to convert the dictionary to the
       // js object we want
-      const result = {};
+      const result: EnactArgs<TSchema, T> = {} as EnactArgs<TSchema, T>;
 
       for (const [k] of args) {
         if (k.startsWith(ID_PREFIX)) {
@@ -98,7 +96,7 @@ export const beep = <TSchema extends object>(autoFire = true, auditor?: Auditor)
         }
       }
 
-      return result as EnactArgs<TSchema, T>;
+      return result;
     };
 
     const enact = (enaction?: EnactionArgs<TSchema, T>) => {
@@ -115,28 +113,20 @@ export const beep = <TSchema extends object>(autoFire = true, auditor?: Auditor)
       }
       const schema = {} as Condition<TSchema>;
       const cond = conditions(schema);
-      const keys = _.keys(cond);
-      for (let i = 0; i < keys.length; i++) {
-        const id = keys[i]!;
-        const attrs = _.keys(_.get(cond, id)) as [keyof TSchema];
-        for (let j = 0; j < attrs.length; j++) {
-          const attr = attrs[j]!;
+      const keys = Struct.keys(cond);
+      A.forEach(keys, (id) => {
+        const attrs = Struct.keys(_.get<T, keyof T>(cond, id));
+        A.forEach(attrs, (attr) => {
           const options: ConditionOptions<unknown> | undefined = _.get(cond, `${id}.${String(attr)}`);
           const conditionId = extractId(id);
 
           const join = options?.join;
           const match = options?.match;
-          if (join && match)
-            throw new Error(
-              `Invalid options for condition $${conditionId}, join and match are mutually exclusive. Please use one or the other`
-            );
+
+          if (join && match) throw new InvalidOptionsForCondition(conditionId);
 
           if (join && !_.keys(cond).includes(join)) {
-            throw new Error(
-              `Incorrect "join" usage. It must be one of the key's defined in your conditions. Valid options are ${_.keys(
-                cond
-              ).join(",")}`
-            );
+            throw new IncorrectJoinUsage(cond);
           }
 
           let conditionValue: any;
@@ -155,29 +145,30 @@ export const beep = <TSchema extends object>(autoFire = true, auditor?: Auditor)
           }
 
           rete.addConditionsToProduction(production, conditionId, attr, conditionValue, options?.then ?? true);
-        }
-      }
+        });
+      });
 
       rete.addProductionToSession(session, production, onAlreadyExists);
       const convertFilterArgs = (filter: QueryArgs<TSchema, T>) => {
+        const filters = new Map<string, FactFragment<TSchema>[]>();
         const joinIds = Struct.keys(filter);
 
-        const filters = new Map<string, FactFragment<TSchema>[]>();
         for (const joinId of joinIds) {
-          const filterAttrs = Struct.keys(filter[joinId]!);
-          for (const attr of filterAttrs) {
-            // TODO: Make this type-safe?
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            const filterAttrQueries = filter[joinId]?.[attr];
-            if (!filterAttrQueries) continue;
-            if (attr === "ids") {
-              const idKey = idPrefix(joinId);
-              filters.set(idKey, filterAttrQueries);
-            } else {
-              const idKey = valueKey({ id: joinId, attr });
-              filters.set(idKey, filterAttrQueries);
-            }
+          const joinFilter = filter[joinId];
+          if (!joinFilter) continue;
+
+          // ids filter
+          if (A.isArray(joinFilter.ids) && joinFilter.ids.length > 0) {
+            const idKey = idPrefix(joinId);
+            filters.set(idKey, joinFilter.ids);
+          }
+
+          const rest = joinFilter;
+          for (const attr of Struct.keys(rest)) {
+            const values = rest[attr];
+            if (!values || values.length === 0) continue;
+            const attrKey = valueKey({ id: joinId, attr });
+            filters.set(attrKey, values);
           }
         }
         return filters;
@@ -191,11 +182,14 @@ export const beep = <TSchema extends object>(autoFire = true, auditor?: Auditor)
       const queryOne = (filter?: QueryArgs<TSchema, T>, options?: QueryOneOptions) => {
         const result = query(filter);
         if (result.length > 1 && options?.shouldThrowExceptionOnMoreThanOne) {
-          throw new Error("queryOne returned more than one result!");
+          throw new QueryOneReturnedMoreThanOne();
         }
 
         return result.pop();
       };
+
+      const queryOneOption = (filter?: QueryArgs<TSchema, T>, options?: QueryOneOptions) =>
+        O.fromNullable(queryOne(filter, options));
       const subscribe = (fn: (results: EnactArgs<TSchema, T>[]) => void, filter?: QueryArgs<TSchema, T>) =>
         rete.subscribeToProduction(
           session,
@@ -213,7 +207,7 @@ export const beep = <TSchema extends object>(autoFire = true, auditor?: Auditor)
           production,
           (results) => {
             if (results.length > 1 && options?.shouldThrowExceptionOnMoreThanOne) {
-              throw new Error(`subscribeOne received more than one result! ${results.length} received!`);
+              throw new SubscribeOneMoreThanOne(results);
             }
 
             const item = results.pop();
@@ -222,12 +216,33 @@ export const beep = <TSchema extends object>(autoFire = true, auditor?: Auditor)
           filter !== undefined ? convertFilterArgs(filter) : undefined
         );
 
+      const subscribeOneOption = (
+        fn: (result: O.Option<EnactArgs<TSchema, T>>) => void,
+        filter?: QueryArgs<TSchema, T>,
+        options?: QueryOneOptions
+      ) =>
+        rete.subscribeToProduction(
+          session,
+          production,
+          (results) => {
+            if (results.length > 1 && options?.shouldThrowExceptionOnMoreThanOne) {
+              throw new SubscribeOneMoreThanOne(results);
+            }
+            const item = results.pop();
+            fn(O.fromNullable(item));
+          },
+          filter !== undefined ? convertFilterArgs(filter) : undefined
+        );
+
       return {
         query,
         queryOne,
+        queryOneOption,
         subscribe,
         subscribeOne,
+        subscribeOneOption,
         get,
+        getOption,
         rule: production,
       };
     };
@@ -260,6 +275,7 @@ export const beep = <TSchema extends object>(autoFire = true, auditor?: Auditor)
     perf,
     dotFile,
     get,
+    getOption,
     insert,
     retract,
     retractByConditions,

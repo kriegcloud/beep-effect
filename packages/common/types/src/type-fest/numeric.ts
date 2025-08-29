@@ -21,7 +21,6 @@ Please upvote [this issue](https://github.com/microsoft/TypeScript/issues/32277)
 @group type-fest
 */
 // See https://github.com/microsoft/TypeScript/issues/31752
-// eslint-disable-next-line @typescript-eslint/no-loss-of-precision
 export type PositiveInfinity = 1e999;
 
 /**
@@ -34,7 +33,6 @@ Please upvote [this issue](https://github.com/microsoft/TypeScript/issues/32277)
 @group type-fest
 */
 // See https://github.com/microsoft/TypeScript/issues/31752
-// eslint-disable-next-line @typescript-eslint/no-loss-of-precision
 export type NegativeInfinity = -1e999;
 
 /**

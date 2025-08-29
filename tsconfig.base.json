@@ -17,7 +17,9 @@
       "DOM",
       "DOM.Iterable"
     ],
-    "types": [],
+    "types": [
+      "vite/client",
+    ],
     "isolatedModules": true,
     "sourceMap": true,
     "declarationMap": true,
@@ -150,6 +152,9 @@
       "@beep/ui/*": [
         "./packages/ui/src/*"
       ],
+      "@beep/ui/test/*": [
+        "./packages/ui/test/*"
+      ],
       "@beep/shared-domain": [
         "./packages/shared/domain/src/index"
       ],
@@ -168,8 +173,14 @@
       "@beep/shared-tables/test/*": [
         "./packages/shared/tables/test/*"
       ],
-      "@beep/ui/test/*": [
-        "./packages/ui/src/test/*"
+      "@beep/shared-client": [
+        "./packages/shared/client/src/index"
+      ],
+      "@beep/shared-client/*": [
+        "./packages/shared/client/src/*"
+      ],
+      "@beep/shared-client/test/*": [
+        "./packages/shared/client/test/*"
       ],
       "@beep/iam-api": [
         "./packages/iam/api/src/index"

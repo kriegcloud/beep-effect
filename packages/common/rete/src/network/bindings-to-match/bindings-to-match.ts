@@ -1,6 +1,6 @@
-import type { Binding, MatchT } from "@beep/rete/network/types";
+import type { $Schema, Binding, MatchT } from "@beep/rete/network/types";
 
-export const bindingsToMatch = <T>(binding: Binding<T> | undefined) => {
+export const bindingsToMatch = <T extends $Schema>(binding: Binding<T> | undefined) => {
   const result: MatchT<T> = new Map();
   let cur = binding;
   while (cur !== undefined) {

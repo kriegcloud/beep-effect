@@ -1,8 +1,8 @@
 import type { DefaultOmit } from "@beep/ui/inputs/Field";
+import { RecordUtils } from "@beep/utils/data";
 import type { TextFieldProps } from "@mui/material/TextField";
 import TextField from "@mui/material/TextField";
 import { useStore } from "@tanstack/react-form";
-import { merge } from "es-toolkit";
 import type React from "react";
 import { useFieldContext } from "../form";
 
@@ -48,7 +48,7 @@ function SelectField({ children, helperText, slotProps = {}, ...other }: SelectF
       onChange={(e) => field.handleChange(e.target.value)}
       error={isError}
       helperText={error ?? helperText}
-      slotProps={merge(baseSlotProps, slotProps)}
+      slotProps={RecordUtils.merge(baseSlotProps, slotProps)}
       {...other}
     >
       {children}

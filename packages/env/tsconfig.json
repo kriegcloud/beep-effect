@@ -2,6 +2,9 @@
   "extends": "../../tsconfig.base.json",
   "include": [],
   "compilerOptions": {
+    "types": ["vite/client"],
+    "module": "NodeNext",
+    "allowJs": true,
     "paths": {
       "@beep/env/*": ["./src/*"],
       "@beep/schema": ["../common/schema/src/index"],

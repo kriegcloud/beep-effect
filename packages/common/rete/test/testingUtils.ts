@@ -1,41 +1,42 @@
-/** biome-ignore-all lint/suspicious/noExportsInTest: <explanation> */
 import { Field, type MatchT } from "@beep/rete/network";
 import { addConditionsToProduction } from "@beep/rete/network/add-conditions-to-production";
 import { addProductionToSession } from "@beep/rete/network/add-production-to-session";
 import { initProduction } from "@beep/rete/network/init-production";
 import { initSession } from "@beep/rete/network/init-session";
 import { describe, expect, it } from "@effect/vitest";
-// biome-ignore lint/suspicious/noExportsInTest: <explanation>
-export interface TestingSchema {
-  A: number;
-  B: number;
-  C: number;
-  D: number;
-  E: number;
-  F: number;
-  G: number;
-  H: number;
-  I: number;
-  J: number;
-  K: number;
-  L: number;
-  M: number;
-  N: number;
-  O: number;
-  P: number;
-  Q: number;
-  R: number;
-  S: number;
-  T: number;
-  U: number;
-  V: number;
-  W: number;
-  X: number;
-  Y: number;
-  Z: number;
-  Data: number;
-  delta: number;
-}
+import * as S from "effect/Schema";
+
+export const TestingSchema = S.Struct({
+  A: S.Number,
+  B: S.Number,
+  C: S.Number,
+  D: S.Number,
+  E: S.Number,
+  F: S.Number,
+  G: S.Number,
+  H: S.Number,
+  I: S.Number,
+  J: S.Number,
+  K: S.Number,
+  L: S.Number,
+  M: S.Number,
+  N: S.Number,
+  O: S.Number,
+  P: S.Number,
+  Q: S.Number,
+  R: S.Number,
+  S: S.Number,
+  T: S.Number,
+  U: S.Number,
+  V: S.Number,
+  W: S.Number,
+  X: S.Number,
+  Y: S.Number,
+  Z: S.Number,
+  Data: S.Number,
+  delta: S.Number,
+});
+export type TestingSchema = typeof TestingSchema.Type;
 
 const convertMatchFn = (vars: MatchT<TestingSchema>) => vars;
 export const testingSimpleSession = () => {

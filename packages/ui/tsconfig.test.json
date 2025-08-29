@@ -1,0 +1,26 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["test"],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node"],
+    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+    "rootDir": "test",
+    "noEmit": true
+  },
+  "paths": {
+    "@beep/ui/*": ["./src/*"],
+    "@beep/types": ["../common/types/src/index"],
+    "@beep/types/*": ["../common/types/src/*"],
+    "@beep/invariant": ["../common/invariant/src/index"],
+    "@beep/invariant/*": ["../common/invariant/src/*"],
+    "@beep/utils": ["../common/utils/src/index"],
+    "@beep/utils/*": ["../common/utils/src/*"],
+    "@beep/schema": ["../common/schema/src/index"],
+    "@beep/schema/*": ["../common/schema/src/*"]
+  }
+}

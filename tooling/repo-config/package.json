@@ -6,7 +6,7 @@
   "description": "The repo config package. contains configuration schemas & types for the repo",
   "repository": {
     "type": "git",
-    "url": "https://github.com/BeepinBois/beep-effect.git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
     "directory": "tooling/scripts"
   },
   "publishConfig": {

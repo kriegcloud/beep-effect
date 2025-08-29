@@ -7,7 +7,7 @@ export type { OrganizationOptions };
  * TODO factor out
  * @param opts
  */
-export const makeOrganizationPlugin = (opts: OrganizationOptions) =>
+export const makeOrganizationPlugin = (opts: OrganizationOptions): BetterAuthPlugin =>
   organization({
     /**
      * Configure whether new users are able to create new organizations.

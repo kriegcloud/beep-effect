@@ -8,15 +8,15 @@
     "access": "restricted",
     "directory": "build"
   },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/common/logos"
+  },
   "exports": {
     ".": "./src/index.ts",
     "./package.json": "./package.json",
     "./*": "./src/*.ts"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/BeepinBois/beep-effect.git",
-    "directory": "packages/common/logos"
   },
   "scripts": {
     "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",

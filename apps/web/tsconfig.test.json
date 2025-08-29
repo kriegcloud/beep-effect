@@ -3,16 +3,28 @@
   "include": ["test", "test/**/*.json", "test/*.*.json"],
   "references": [
     {
-      "path": "../types"
+      "path": "../../packages/common/types"
     },
     {
-      "path": "../invariant"
+      "path": "../../packages/common/invariant"
     },
     {
-      "path": "../utils"
+      "path": "../../packages/common/utils"
     },
     {
-      "path": "../schema"
+      "path": "../../packages/common/schema"
+    },
+    {
+      "path": "../../packages/common/rete"
+    },
+    {
+      "path": "../../packages/common/logos"
+    },
+    {
+      "path": "../../packages/ui"
+    },
+    {
+      "path": "../../packages/env"
     }
   ],
   "compilerOptions": {
@@ -24,15 +36,22 @@
   },
   "paths": {
     "@/*": ["./src/*"],
-    "@beep/logos": ["./src/index"],
-    "@beep/logos/*": ["./src/*"],
-    "@beep/types": ["../types/src/index"],
-    "@beep/types/*": ["../types/src/*"],
-    "@beep/invariant": ["../invariant/src/index"],
-    "@beep/invariant/*": ["../invariant/src/*"],
-    "@beep/utils": ["../utils/src/index"],
-    "@beep/utils/*": ["../utils/src/*"],
-    "@beep/schema": ["../schema/src/index"],
-    "@beep/schema/*": ["../schema/src/*"]
+    "@beep/ui/*": ["../../packages/ui/src/*"],
+    "@beep/env": ["../../packages/env/src/index"],
+    "@beep/env/*": ["../../packages/env/src/*"],
+    "@beep/utils": ["../../packages/common/utils/src/index"],
+    "@beep/utils/*": ["../../packages/common/utils/src/*"],
+    "@beep/types": ["../../packages/common/types/src/index"],
+    "@beep/types/*": ["../../packages/common/types/src/*"],
+    "@beep/invariant": ["../../packages/common/invariant/src/index"],
+    "@beep/invariant/*": ["../../packages/common/invariant/src/*"],
+    "@beep/schema": ["../../packages/common/schema/src/index"],
+    "@beep/schema/*": ["../../packages/common/schema/src/*"],
+    "@beep/logos": ["../../packages/common/logos/src/index"],
+    "@beep/logos/*": ["../../packages/common/logos/src/*"],
+    "@beep/rete": ["../../packages/common/rete/src/index"],
+    "@beep/rete/*": ["../../packages/common/rete/src/*"],
+    "@beep/shared-client": ["../../packages/shared/client/src/index"],
+    "@beep/shared-client/*": ["../../packages/shared/client/src/*"]
   }
 }

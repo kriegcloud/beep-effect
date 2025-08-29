@@ -1,6 +1,6 @@
-import type { CondFn, ConvertMatchFn, Production, ThenFinallyFn, ThenFn } from "@beep/rete/network/types";
+import type { $Schema, CondFn, ConvertMatchFn, Production, ThenFinallyFn, ThenFn } from "@beep/rete/network/types";
 
-export const initProduction = <TSchema extends object, U>(production: {
+export const initProduction = <TSchema extends $Schema, U>(production: {
   name: string;
   convertMatchFn: ConvertMatchFn<TSchema, U>;
   condFn?: CondFn<TSchema>;

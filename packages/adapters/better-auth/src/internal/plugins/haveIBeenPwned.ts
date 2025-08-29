@@ -7,5 +7,5 @@ export type HaveIBeenPwnedOptions = NonNullable<Parameters<typeof haveIBeenPwned
  * TODO factor out
  * @param opts
  */
-export const makeHaveIBeenPwnedPlugin = (opts: HaveIBeenPwnedOptions) =>
+export const makeHaveIBeenPwnedPlugin = (opts: HaveIBeenPwnedOptions): BetterAuthPlugin =>
   haveIBeenPwned(opts satisfies HaveIBeenPwnedOptions) satisfies BetterAuthPlugin;
