@@ -198,32 +198,6 @@ export interface Production<T extends $Schema, U> {
   thenFinallyFn?: ThenFinallyFn<T, U>;
 }
 
-interface Mutation<T extends $Schema> {
-  kind: "insert" | "retract";
-  fact: Fact<T>;
-}
-
-export interface DebugFrame<T extends $Schema> {
-  initialMutations: Mutation<T>[];
-  startingFacts: Fact<T>[];
-  endingFacts: Fact<T>[];
-  dt: number;
-  triggeredRules: {
-    ruleName: string;
-    kind: "then" | "thenFinally";
-    vars?: MatchT<T>;
-  }[];
-}
-
-export interface DebugOptions {
-  enabled?: boolean;
-  maxFrameDumps?: number;
-  onBeforeThen?: (node: MemoryNode<$Schema>) => void;
-  onAfterThen?: (node: MemoryNode<$Schema>) => void;
-  onBeforeThenFinally?: (node: MemoryNode<$Schema>) => void;
-  onAfterThenFinally?: (node: MemoryNode<$Schema>) => void;
-}
-
 // TODO: store the WMEs in a singular data structure and reference by index?
 // internally we would look up an id or attr by name once and use the index
 // Throughout the rest of the algorithm.

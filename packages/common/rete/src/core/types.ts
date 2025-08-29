@@ -1,16 +1,11 @@
-// trick the type-system so we can use the schema like an object
-// TODO: If the new API works, maybe we don't need to do this?
 import type { PRODUCTION_ALREADY_EXISTS_BEHAVIOR } from "@beep/rete/network";
 import type { $Schema } from "@beep/rete/network/types";
+import type { UnsafeTypes } from "@beep/types";
 import type * as O from "effect/Option";
-
-export type Pojo = { [key: string]: object };
 export type ConditionOptions<T> = { then?: boolean; match?: T; join?: string };
 export type Condition<TSchema extends $Schema> = {
   readonly [ATTR in keyof TSchema]: ConditionOptions<TSchema[ATTR]>;
 };
-
-export const makeEmptyCondition = <TSchema extends $Schema>() => ({}) as Condition<TSchema>;
 
 export type ConditionArgs<TSchema extends $Schema> = {
   [key: string]: {
@@ -37,10 +32,6 @@ export type QueryArgs<TSchema extends $Schema, T extends ConditionArgs<TSchema>>
 /// Wrap the entire what in a function that return something we can enact? Instead of one at a time?
 export type InsertBeepFact<TSchema extends $Schema> = {
   [key: string]: { [Key in keyof Partial<TSchema>]: TSchema[Key] };
-};
-
-export type BeepArgs = {
-  autoFire?: boolean;
 };
 
 export type EnactionArgs<TSchema extends $Schema, T extends ConditionArgs<TSchema>> = {
@@ -79,7 +70,7 @@ export interface IBeep<TSchema extends $Schema> {
   get: <ATTR extends keyof TSchema>(id: string, attr: ATTR) => TSchema[ATTR] | undefined;
   getOption: <ATTR extends keyof TSchema>(id: string, attr: ATTR) => O.Option<TSchema[ATTR]>;
   retract: (id: string, ...attrs: (keyof TSchema)[]) => void;
-  retractByConditions: (id: string, conditions: { [key in keyof TSchema]?: any }) => void;
+  retractByConditions: (id: string, conditions: { [key in keyof TSchema]?: UnsafeTypes.UnsafeAny }) => void;
   fire: (recursionLimit?: number) => void;
   reset: () => void;
   conditions: <

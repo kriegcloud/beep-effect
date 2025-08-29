@@ -34,9 +34,11 @@
   },
   "devDependencies": {
     "@types/lodash": "*",
-    "@faker-js/faker": "*"
+    "@faker-js/faker": "*",
+    "@types/react": "*"
   },
   "peerDependencies": {
+    "react": "*",
     "lodash": "*",
     "@beep/types": "workspace:^",
     "@beep/schema": "workspace:^",

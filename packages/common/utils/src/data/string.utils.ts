@@ -119,8 +119,7 @@ export const getNestedValue = (obj: Record<string, unknown>, path: string): unkn
   for (const part of parts) {
     // Handle array notation like [0], [1], etc.
     if (part.startsWith("[") && part.endsWith("]")) {
-      // Biome: Missing radix parameter (lint/correctness/useParseIntRadix)
-      const index = Number.parseInt(part.slice(1, -1));
+      const index = Number.parseInt(part.slice(1, -1), 10);
       if (A.isArray(current) && index >= 0 && index < current.length) {
         current = current[index];
       } else {
