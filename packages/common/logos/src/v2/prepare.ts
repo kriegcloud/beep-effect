@@ -1,4 +1,5 @@
 import { BS } from "@beep/schema";
+import type { UnsafeTypes } from "@beep/types";
 import { getAt } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
@@ -11,7 +12,6 @@ import type { Group } from "./Group";
 import { FingerPrint } from "./internal";
 import { normalize } from "./normalize";
 import type { RootGroup } from "./RootGroup";
-import type { UnsafeTypes } from "@beep/types";
 import type { Rule } from "./Rule";
 import {
   ArrayLengthRule,

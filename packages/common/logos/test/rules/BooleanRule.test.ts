@@ -19,5 +19,3 @@ test("boolean is false", () => {
   const result = BooleanRule.validate(rule, isInvalid);
   expect(result).toBeTruthy();
 });
-
-

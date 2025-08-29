@@ -242,5 +242,4 @@ describe("DateRule.validate", () => {
     });
     expect(DateRule.validate(rule, "not-a-date")).toBeFalsy();
   });
-
 });

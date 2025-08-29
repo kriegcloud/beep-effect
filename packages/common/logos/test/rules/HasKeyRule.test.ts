@@ -156,5 +156,4 @@ describe("HasKeyRule.validate (v2)", () => {
     const result = HasKeyRule.validate(rule, "not-an-object");
     expect(result).toBeFalsy();
   });
-
 });

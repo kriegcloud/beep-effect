@@ -69,5 +69,5 @@ export const validate = (rule: Input.Type, value: boolean) =>
     Match.tagsExhaustive({
       isTrue: () => Equal.equals(value)(true),
       isFalse: () => Equal.equals(value)(false),
-    }),
+    })
   );
