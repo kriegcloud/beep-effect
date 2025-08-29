@@ -5,18 +5,43 @@ const CSP_DIRECTIVES = {
   "default-src": ["'self'"],
   "base-uri": ["'self'"],
   "form-action": ["'self'"],
-  "script-src": ["'self'", "blob:"],
+  "script-src": [
+    "'self'",
+    "blob:",
+  ],
   "worker-src": ["'self'", "blob:"],
   "style-src": ["'self'", "'unsafe-inline'"],
-  "font-src": ["'self'"],
-  "style-src-elem": ["'self'", "'unsafe-inline'"],
-  "script-src-elem": ["'self'", "blob:", "https://vercel.live", "'unsafe-inline'"],
-  "connect-src": ["'self'", process.env.NEXT_PUBLIC_STATIC_URL, "https://vercel.live/", "https://vercel.com"],
+  "font-src": [
+    "'self'",
+  ],
+  "style-src-elem": [
+    "'self'",
+    "'unsafe-inline'",
+  ],
+  "script-src-elem": [
+    "'self'",
+    "blob:",
+    "https://vercel.live",
+    "'unsafe-inline'",
+  ],
+  "connect-src": [
+    "'self'",
+    "https://vercel.live/",
+    "https://vercel.com",
+  ],
   "media-src": ["'self'", "data:"],
   "frame-ancestors": ["'self'", "https://vercel.live", "https://vercel.com"],
-  "img-src": ["'self'", process.env.NEXT_PUBLIC_STATIC_URL, "data:"],
-  "frame-src": ["'self'", "https://vercel.live", "https://vercel.com"],
-} as const;
+  "img-src": [
+    "'self'",
+    "https://www.google-analytics.com",
+    "data:",
+  ],
+  "frame-src": [
+    "'self'",
+    "https://vercel.live",
+    "https://vercel.com",
+  ],
+};
 
 const genCSP = () => {
   let csp = "";
