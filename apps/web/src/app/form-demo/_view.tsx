@@ -64,12 +64,12 @@ export function View() {
   const [isFetching, setIsFetching] = useState(false);
   const [pendingNext, setPendingNext] = useState(false);
 
-  const rawValue = state.value as unknown;
-  const normalized = typeof rawValue === "string" ? (rawValue as string).replace(/^#/, "") : undefined;
+  const rawValue = state.value;
+  const normalized = typeof rawValue === "string" ? rawValue.replace(/^#/, "") : undefined;
   const stepId = normalized && workflow.steps.some((s) => s.id === normalized) ? normalized : workflow.initial;
   const step = workflow.steps.find((s) => s.id === stepId);
   const stepData = step ? answers[stepId] : undefined;
-  const external = (state.context as any)?.external ?? {};
+  const external = state.context?.external ?? {};
   const fetchError = external["productDetails__error" as const];
 
   // Validate current step to gate NEXT
@@ -90,8 +90,8 @@ export function View() {
         send({
           type: "NEXT",
           context: {
-            answers: answers as Readonly<Record<string, JsonObject>>,
-            currentStepAnswers: (answers[stepId] ?? {}) as JsonObject,
+            answers: answers,
+            currentStepAnswers: answers[stepId] ?? {},
             externalContext: {} as JsonObject,
           },
         });
@@ -102,7 +102,7 @@ export function View() {
 
   // When machine context answers change (e.g., after LOAD_SNAPSHOT or RESET), sync local answers
   useEffect(() => {
-    const ctxAnswers = (state.context as any)?.answers ?? {};
+    const ctxAnswers = state.context?.answers ?? {};
     // Only replace when they differ to avoid clobbering edits
     if (JSON.stringify(ctxAnswers) !== JSON.stringify(answers)) {
       setAnswers(ctxAnswers as Record<string, JsonObject>);
@@ -113,7 +113,7 @@ export function View() {
   useEffect(() => {
     if (!initialSnapshot) return;
     try {
-      send({ type: "LOAD_SNAPSHOT", snapshot: initialSnapshot as any });
+      send({ type: "LOAD_SNAPSHOT", snapshot: initialSnapshot });
     } catch {
       // ignore
     }
@@ -123,8 +123,8 @@ export function View() {
   useEffect(() => {
     try {
       const snapshot = {
-        value: state.value as string,
-        context: state.context as any,
+        value: state.value,
+        context: state.context,
       };
       localStorage.setItem(SNAP_KEY, JSON.stringify(snapshot));
     } catch {
@@ -155,8 +155,8 @@ export function View() {
           variant="outlined"
           onClick={() => {
             const snapshot = {
-              value: state.value as string,
-              context: state.context as any,
+              value: state.value,
+              context: state.context,
             };
             localStorage.setItem(SNAP_KEY, JSON.stringify(snapshot));
           }}

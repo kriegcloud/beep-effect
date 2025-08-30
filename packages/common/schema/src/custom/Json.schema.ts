@@ -6,7 +6,7 @@ import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { JSONPath } from "jsonpath-plus";
-
+import type { Paths } from "type-fest";
 /**
  * JSON literal values (primitives accepted by JSON).
  *
@@ -85,7 +85,7 @@ export const equalsJson: (a: Json.Type, b: Json.Type) => boolean = S.equivalence
 /**
  * https://www.ietf.org/archive/id/draft-goessner-dispatch-jsonpath-00.html
  */
-export class JsonPath extends S.String.pipe(S.pattern(path_regex)).annotations({
+export class JsonPath extends S.String.pipe(S.pattern(path_regex), S.brand("JsonPath")).annotations({
   title: "JSON path",
   description: "JSON path to a property",
 }) {
@@ -137,16 +137,16 @@ export class JsonPath extends S.String.pipe(S.pattern(path_regex)).annotations({
   /**
    * Applies a JsonPath to an object.
    */
-  static readonly getField = (object: UnsafeTypes.UnsafeAny, path: JsonPath.Type): UnsafeTypes.UnsafeAny => {
+  static readonly getField = <T extends Json.Type>(object: T, path: Paths<T>): UnsafeTypes.UnsafeAny => {
     return JSONPath({
-      path,
+      path: String(path),
       json: object,
     })[0];
   };
 }
 
 export namespace JsonPath {
-  export type Type = typeof JsonPath.Type & { __JsonPath: true };
+  export type Type = typeof JsonPath.Type;
   export type Encoded = typeof JsonPath.Encoded;
 }
 

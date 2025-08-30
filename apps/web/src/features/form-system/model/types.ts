@@ -5,7 +5,7 @@
  * Canonical data-first model for multi-step workflow definitions.
  * No external dependencies; designed to be hoisted to a package later.
  */
-
+import type { UISchemaElement } from "@jsonforms/core";
 // JSON value primitives
 export type JsonValue = string | number | boolean | null | JsonObject | JsonArray;
 export type JsonArray = ReadonlyArray<JsonValue>;
@@ -23,7 +23,7 @@ export interface StepDefinition {
   readonly title?: string;
   readonly description?: string;
   readonly schema: JSONSchema;
-  readonly uiSchema?: JsonObject;
+  readonly uiSchema?: UISchemaElement;
   readonly annotations?: JsonObject;
 }
 

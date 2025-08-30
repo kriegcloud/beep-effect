@@ -3,6 +3,7 @@
  * Location: apps/web/src/features/form-system/dsl/typed.ts
  */
 
+import type { UISchemaElement } from "@jsonforms/core";
 import { JSONSchema as EffectJSONSchema, type Schema } from "effect";
 import type {
   JsonLogicRule,
@@ -32,7 +33,7 @@ export interface CreateWorkflowArgs {
 export interface StepOptions {
   title?: string;
   description?: string;
-  uiSchema?: JsonObject;
+  uiSchema?: UISchemaElement;
   annotations?: JsonObject;
 }
 

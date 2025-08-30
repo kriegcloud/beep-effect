@@ -71,6 +71,9 @@
   },
   "pnpm": {
     "overrides": {
+      "@univerjs/themes": "^0.10.6",
+      "@univerjs/presets": "^0.10.6",
+      "@univerjs/preset-docs-core": "^0.10.6",
       "copyfiles": "^2.4.1",
       "@babel/cli": "^7.28.3",
       "@babel/core": "^7.28.3",

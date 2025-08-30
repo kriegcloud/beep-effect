@@ -78,7 +78,7 @@ export function buildMachine(
   // Action to run an actor and send back completion
   const runActor = ({ event, self }: { event: Events; self: any }) => {
     assertEvent(event, "RUN");
-    const { id, input, assignKey } = event as RunEvent;
+    const { id, input, assignKey } = event;
     const fn = actors?.[id];
     if (!fn) return;
     Promise.resolve()
@@ -110,7 +110,7 @@ export function buildMachine(
           assertEvent(event, "RUN_SUCCESS");
           const e = event as RunSuccessEvent;
           const key = e.assignKey ?? e.id;
-          return { ...(context.external ?? {}), [key]: e.result } as Record<string, JsonValue>;
+          return { ...(context.external ?? {}), [key]: e.result };
         },
       }),
     },
@@ -130,7 +130,7 @@ export function buildMachine(
                   e.error === null
                 ? (e.error as JsonValue)
                 : String(e.error);
-          return { ...(context.external ?? {}), [key]: value } as Record<string, JsonValue>;
+          return { ...(context.external ?? {}), [key]: value };
         },
       }),
     },
@@ -175,14 +175,14 @@ export function buildMachine(
               const { context, event } = args;
               assertEvent(event, "NEXT");
               const ev = event as NextEvent;
-              const valid = validateStepData(step.schema, ev.context.currentStepAnswers).valid as boolean;
+              const valid = validateStepData(step.schema, ev.context.currentStepAnswers).valid;
               if (!valid) return false;
               const mergedCtx: EvaluationContext = {
                 answers: {
                   ...(context.answers ?? {}),
                   ...(ev.context.answers ?? {}),
-                } as Record<string, JsonObject>,
-                currentStepAnswers: ev.context.currentStepAnswers as JsonObject | undefined,
+                },
+                currentStepAnswers: ev.context.currentStepAnswers,
                 externalContext: {
                   ...(ev.context.externalContext ?? {}),
                   ...(context.external ?? {}),
@@ -203,7 +203,7 @@ export function buildMachine(
                 return {
                   ...(context.answers ?? {}),
                   [step.id]: curr,
-                } as Record<string, JsonObject>;
+                };
               },
             }),
           })),

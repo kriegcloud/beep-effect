@@ -20,10 +20,7 @@ type TaggedMembers<Literals extends A.NonEmptyReadonlyArray<string>, D extends s
 } & { readonly length: Literals["length"] };
 
 /** Object map: one member per literal key (like Enum, but values are S.Structs) */
-type TaggedMembersMap<
-  Literals extends A.NonEmptyReadonlyArray<string>,
-  D extends string
-> = {
+type TaggedMembersMap<Literals extends A.NonEmptyReadonlyArray<string>, D extends string> = {
   readonly [L in Literals[number]]: DiscriminatedStruct.Schema<D, L, {}>;
 };
 

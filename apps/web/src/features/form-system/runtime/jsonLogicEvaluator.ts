@@ -17,7 +17,7 @@ export function evaluateJsonLogic(rule: JsonLogicRule | undefined, ctx: Evaluati
     external: ctx.externalContext ?? {},
   };
   try {
-    const res = jsonLogic.apply(rule as any, data);
+    const res = jsonLogic.apply(rule, data);
     return Boolean(res);
   } catch {
     // Be conservative: invalid rules evaluate to false

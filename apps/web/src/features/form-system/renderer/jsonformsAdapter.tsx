@@ -31,13 +31,13 @@ export function StepForm(props: StepFormProps) {
   return (
     <JsonForms
       schema={step.schema}
-      uischema={(step.uiSchema as any) ?? undefined}
+      uischema={step.uiSchema ?? undefined}
       data={data}
       onChange={({ data }) => onChange(data)}
       cells={materialCells}
       renderers={materialRenderers}
       config={mergedConfig}
-      ajv={jsonforms?.ajv ?? (ajv as any)}
+      ajv={jsonforms?.ajv ?? ajv}
       {...jsonforms}
     />
   );

@@ -92,7 +92,7 @@ export function validateAnswersByStep(
   let ok = true;
   for (const step of workflow.steps) {
     if (Object.prototype.hasOwnProperty.call(answers, step.id)) {
-      const res = validateStepData(step.schema, (answers as any)[step.id], ajv);
+      const res = validateStepData(step.schema, answers[step.id], ajv);
       results[step.id] = res;
       if (!res.valid) ok = false;
     }
