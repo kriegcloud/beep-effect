@@ -130,6 +130,12 @@
     },
     {
       "path": "packages/wms/tables/tsconfig.build.json"
+    },
+    {
+      "path": "apps/server/tsconfig.build.json"
+    },
+    {
+      "path": "apps/mcp/tsconfig.build.json"
     }
   ]
 }

@@ -1,0 +1,71 @@
+{
+  "name": "@beep/mcp",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "The mcp template",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "apps/mcp"
+  },
+  "main": "build/esm/server.js",
+  "module": "build/esm/server.js",
+  "types": "build/dts/server.d.ts",
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "clean": "rm -rf node_modules .next out dist build .turbo .tsbuildinfo",
+    "lint": "biome check .",
+    "test": "vitest run",
+    "lint:fix": "biome check . --write",
+    "check": "tsc -b tsconfig.json",
+    "dotenvx": "dotenvx run -f ../../.env --",
+    "lint:circular": "pnpm madge -c .",
+    "coverage": "vitest run --coverage",
+    "dev": "dotenvx -e ../../.env tsx watch src/server.ts",
+    "start": "dotenvx -e ../../.env tsx build/esm/server.js",
+    "start:source": "pnpm start",
+    "circular": "madge --circular src/server.ts"
+  },
+  "dependencies": {
+    "@effect/ai": "*",
+    "@effect/ai-anthropic": "*",
+    "@effect/ai-openai": "*",
+    "@effect/cluster": "*",
+    "@effect/experimental": "*",
+    "@effect/opentelemetry": "*",
+    "@effect/platform": "*",
+    "@effect/platform-node": "*",
+    "@effect/rpc": "*",
+    "@effect/sql": "*",
+    "@effect/sql-pg": "*",
+    "@opentelemetry/exporter-trace-otlp-http": "*",
+    "@opentelemetry/resources": "*",
+    "@opentelemetry/sdk-trace-base": "*",
+    "@opentelemetry/sdk-trace-node": "*",
+    "@opentelemetry/semantic-conventions": "*",
+    "@testcontainers/postgresql": "*",
+    "effect": "*",
+    "pg": "*"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.11",
+    "madge": "8.0.0",
+    "tsx": "^4.19.2"
+  }
+}

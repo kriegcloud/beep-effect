@@ -16,9 +16,9 @@
     "test": "vitest run",
     "lint:fix": "biome check . --write",
     "check": "tsc --noEmit",
-    "execute": "pnpm dotenvx tsx ./execute.ts",
     "dotenvx": "dotenvx run -f ../../.env --",
-    "lint:circular": "pnpm madge -c ."
+    "lint:circular": "pnpm madge -c .",
+    "execute": "pnpm dotenvx tsx ./execute.ts"
   },
   "dependencies": {
     "@beep/invariant": "workspace:^",

@@ -4,6 +4,9 @@
   "exclude": [],
   "references": [
     {
+      "path": "apps/server"
+    },
+    {
       "path": "packages/common/schema"
     },
     {
@@ -131,6 +134,10 @@
     },
     {
       "path": "packages/wms/tables"
+    },
+    {
+      "path": "apps/mcp"
     }
+
   ]
 }

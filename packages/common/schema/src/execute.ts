@@ -1,19 +1,22 @@
-import {DiscriminatedStruct} from "./generics";
 import type {
   StringTypes,
   StructTypes,
-//  UnsafeTypes
+  //  UnsafeTypes
 } from "@beep/types";
 import type * as S from "effect/Schema";
+import { DiscriminatedStruct } from "./generics";
 // import * as Data from "effect/Data";
 // import type { Paths } from "type-fest";
 export namespace Event {
-  export type Schema<EventType extends StringTypes.NonEmptyString<string>, Fields extends StructTypes.StructFieldsWithStringKeys> =
-    DiscriminatedStruct.Schema<"type", EventType, Fields>;
+  export type Schema<
+    EventType extends StringTypes.NonEmptyString<string>,
+    Fields extends StructTypes.StructFieldsWithStringKeys,
+  > = DiscriminatedStruct.Schema<"type", EventType, Fields>;
 
-  export type Type<EventType extends StringTypes.NonEmptyString<string>, Fields extends StructTypes.StructFieldsWithStringKeys> = S.Schema.Type<
-    Schema<EventType, Fields>
-  >
+  export type Type<
+    EventType extends StringTypes.NonEmptyString<string>,
+    Fields extends StructTypes.StructFieldsWithStringKeys,
+  > = S.Schema.Type<Schema<EventType, Fields>>;
 
   // export type Handler<T = Type> = (
   //   event: T,
@@ -71,8 +74,9 @@ export type FactOptions = {
 //   }
 // }
 
-export const Event = <const EventType extends string, const Fields extends StructTypes.StructFieldsWithStringKeys>(eventType: StringTypes.NonEmptyString<EventType>, fields: Fields) => {
-  return DiscriminatedStruct("type")(eventType, fields)
-}
-
-
+export const Event = <const EventType extends string, const Fields extends StructTypes.StructFieldsWithStringKeys>(
+  eventType: StringTypes.NonEmptyString<EventType>,
+  fields: Fields
+) => {
+  return DiscriminatedStruct("type")(eventType, fields);
+};

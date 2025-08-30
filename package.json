@@ -77,6 +77,8 @@
       "copyfiles": "^2.4.1",
       "@babel/cli": "^7.28.3",
       "@babel/core": "^7.28.3",
+      "@testcontainers/postgresql": "^11.5.1",
+      "@opentelemetry/exporter-trace-otlp-http": "^0.203.0",
       "@babel/plugin-transform-export-namespace-from": "^7.27.1",
       "@babel/plugin-transform-modules-commonjs": "^7.27.1",
       "@biomejs/biome": "^2.2.2",
@@ -225,9 +227,12 @@
       "@parcel/watcher",
       "@tailwindcss/oxide",
       "core-js-pure",
+      "cpu-features",
       "esbuild",
       "msgpackr-extract",
-      "sharp"
+      "protobufjs",
+      "sharp",
+      "ssh2"
     ]
   },
   "lint-staged": {
