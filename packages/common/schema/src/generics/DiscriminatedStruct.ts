@@ -1,10 +1,10 @@
-import type { StringTypes, StructTypes, UnsafeTypes } from "@beep/types";
+import type { StructTypes, UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
 
 export namespace DiscriminatedStruct {
   export type Schema<
-    Discriminator extends StringTypes.NonEmptyString<string>,
-    Literal extends StringTypes.NonEmptyString<string>,
+    Discriminator extends string,
+    Literal extends string,
     Fields extends StructTypes.StructFieldsWithStringKeys,
   > = Literal extends UnsafeTypes.UnsafeAny
     ? S.Struct<
@@ -18,15 +18,13 @@ export namespace DiscriminatedStruct {
             true,
             never
           >;
-        } & {
-          readonly [J in keyof Fields]: Fields[J];
-        }
+        } & Fields
       >
     : never;
 
   export type Type<
-    Discriminator extends StringTypes.NonEmptyString<string>,
-    Literal extends StringTypes.NonEmptyString<string>,
+    Discriminator extends string,
+    Literal extends string,
     Fields extends StructTypes.StructFieldsWithStringKeys,
   > = S.Schema.Type<Schema<Discriminator, Literal, Fields>>;
 }
@@ -42,8 +40,8 @@ export namespace DiscriminatedStruct {
 
 export const DiscriminatedStruct =
   <
-    const Discriminator extends StringTypes.NonEmptyString<string>,
-    const Literal extends StringTypes.NonEmptyString<string>,
+    const Discriminator extends string,
+    const Literal extends string,
     const Fields extends StructTypes.StructFieldsWithStringKeys,
   >(
     discriminator: Discriminator
