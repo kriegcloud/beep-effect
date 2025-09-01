@@ -36,6 +36,7 @@
   },
   "peerDependencies": {
     "effect": "*",
+    "mutative": "*",
     "@beep/types": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@beep/utils": "workspace:^",
