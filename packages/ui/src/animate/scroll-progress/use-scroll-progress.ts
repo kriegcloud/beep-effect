@@ -7,9 +7,9 @@ import { useMemo, useRef } from "react";
 // ----------------------------------------------------------------------
 
 export type UseScrollProgressReturn = {
-  scrollXProgress: MotionValue<number>;
-  scrollYProgress: MotionValue<number>;
-  elementRef: React.RefObject<HTMLDivElement | null>;
+  readonly scrollXProgress: MotionValue<number>;
+  readonly scrollYProgress: MotionValue<number>;
+  readonly elementRef: React.RefObject<HTMLDivElement | null>;
 };
 
 export type UseScrollProgress = "document" | "container";
@@ -21,10 +21,8 @@ export function useScrollProgress(target: UseScrollProgress = "document"): UseSc
 
   const { scrollYProgress, scrollXProgress } = useScroll(target === "container" ? options : undefined);
 
-  const memoizedValue = useMemo(
+  return useMemo(
     () => ({ elementRef, scrollXProgress, scrollYProgress }),
     [elementRef, scrollXProgress, scrollYProgress]
   );
-
-  return memoizedValue;
 }

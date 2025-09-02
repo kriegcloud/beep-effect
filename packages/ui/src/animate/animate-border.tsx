@@ -20,22 +20,26 @@ const animateBorderClasses = {
 };
 
 type BorderStyleProps = {
-  width?: string;
-  size?: number;
-  sx?: SxProps<Theme>;
+  readonly width?: undefined | string;
+  readonly size?: undefined | number;
+  readonly sx?: undefined | SxProps<Theme>;
 };
 
 type AnimateBorderProps = BoxProps & {
-  duration?: number;
-  slotProps?: {
-    primaryBorder?: BorderStyleProps;
-    secondaryBorder?: BorderStyleProps;
-    outlineColor?: string | ((theme: Theme) => string);
-    svgSettings?: {
-      rx?: string;
-      ry?: string;
-    };
-  };
+  readonly duration?: undefined | number;
+  readonly slotProps?:
+    | undefined
+    | {
+        readonly primaryBorder?: undefined | BorderStyleProps;
+        readonly secondaryBorder?: undefined | BorderStyleProps;
+        readonly outlineColor?: undefined | string | ((theme: Theme) => string);
+        readonly svgSettings?:
+          | undefined
+          | {
+              readonly rx?: undefined | string;
+              readonly ry?: undefined | string;
+            };
+      };
 };
 
 export function AnimateBorder({ sx, children, duration, slotProps, className, ...other }: AnimateBorderProps) {
@@ -146,11 +150,11 @@ export function AnimateBorder({ sx, children, duration, slotProps, className, ..
 // ----------------------------------------------------------------------
 
 type MovingBorderProps = BoxProps<"span"> & {
-  rx?: string;
-  ry?: string;
-  duration?: number;
-  isHidden?: boolean;
-  size?: BorderStyleProps["size"];
+  readonly rx?: undefined | string;
+  readonly ry?: undefined | string;
+  readonly duration?: undefined | number;
+  readonly isHidden?: undefined | boolean;
+  readonly size?: undefined | BorderStyleProps["size"];
 };
 
 function MovingBorder({ sx, size, isHidden, rx = "30%", ry = "30%", duration = 8, ...other }: MovingBorderProps) {

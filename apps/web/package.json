@@ -29,6 +29,8 @@
     "@beep/rete": "workspace:^",
     "@beep/shared-client": "workspace:^",
     "@beep/env": "workspace:^",
+    "@beep/iam-ui": "workspace:^",
+    "@beep/iam-domain": "workspace:^",
     "@univerjs/presets": "*",
     "@univerjs/themes": "*",
     "@univerjs/preset-docs-core": "*",

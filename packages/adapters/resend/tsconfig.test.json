@@ -1,0 +1,39 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": [
+    "test"
+  ],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../env"
+    },
+    {
+      "path": "../../common/types"
+    }
+  ],
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+    "rootDir": "test",
+    "noEmit": true
+  },
+  "paths": {
+    "@beep/resend": [
+      "./src/index"
+    ],
+    "@beep/resend/*": [
+      "./src/*"
+    ],
+    "@beep/types": [
+      "../../common/types/src/index"
+    ],
+    "@beep/types/*": [
+      "../../common/types/src/*"
+    ]
+  }
+}

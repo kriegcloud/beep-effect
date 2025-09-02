@@ -93,6 +93,9 @@
     {
       "path": "packages/adapters/better-auth"
     },
+      {
+      "path": "packages/adapters/resend"
+    },
     {
       "path": "packages/comms/api"
     },

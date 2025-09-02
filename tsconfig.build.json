@@ -26,7 +26,7 @@
     {
       "path": "packages/shared/tables/tsconfig.build.json"
     },
-        {
+    {
       "path": "packages/shared/client/tsconfig.build.json"
     },
     {
@@ -80,7 +80,7 @@
     {
       "path": "packages/common/logos/tsconfig.build.json"
     },
-        {
+    {
       "path": "packages/common/rete/tsconfig.build.json"
     },
     {
@@ -89,7 +89,10 @@
     {
       "path": "packages/adapters/better-auth/tsconfig.build.json"
     },
-     {
+    {
+      "path": "packages/adapters/resend/tsconfig.build.json"
+    },
+    {
       "path": "packages/comms/api/tsconfig.build.json"
     },
     {
@@ -113,7 +116,7 @@
     {
       "path": "packages/adapters/xstate/tsconfig.build.json"
     },
-        {
+    {
       "path": "packages/wms/api/tsconfig.build.json"
     },
     {

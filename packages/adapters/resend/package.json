@@ -1,5 +1,5 @@
 {
-  "name": "@beep/better-auth",
+  "name": "@beep/resend",
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
@@ -16,10 +16,9 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",
-    "directory": "packages/adapters/better-auth"
+    "directory": "packages/adapters/resend"
   },
   "scripts": {
-    "auth:generate": "pnpm dotenvx pnpx @better-auth/cli@latest generate --config 'src/server.ts' --output './src/internal/_generated.schema.ts' --y && pnpm lint:fix",
     "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",
     "dev": "tsc -b tsconfig.build.json --watch",
     "build-esm": "tsc -b tsconfig.build.json",
@@ -36,26 +35,22 @@
   },
   "peerDependencies": {
     "@beep/env": "workspace:^",
-    "@beep/iam-db": "workspace:^",
-    "@beep/iam-domain": "workspace:^",
-    "@beep/iam-tables": "workspace:^",
-    "@beep/resend": "workspace:^",
-    "drizzle-orm": "*",
     "effect": "*",
+    "resend": "*",
+    "@react-email/components": "*",
     "react": "*",
     "react-dom": "*",
-    "stripe": "*",
-    "zod": "*",
-    "@better-auth/stripe": "*",
-    "@dub/better-auth": "*",
-    "@simplewebauthn/server": "*",
-    "dub": "*",
-    "jose": "*",
-    "better-auth": "*"
+    "tailwind-merge": "*",
+    "clsx": "*",
+    "tailwindcss-animate": "*",
+    "tw-animate-css": "*"
   },
   "devDependencies": {
+    "@beep/types": "workspace:^",
     "@types/react": "*",
-    "@types/react-dom": "*"
+    "@types/react-dom": "*",
+    "@tailwindcss/postcss": "*",
+    "tailwindcss": "*"
   },
   "effect": {
     "generateExports": {

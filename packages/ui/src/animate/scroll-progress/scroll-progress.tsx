@@ -21,17 +21,19 @@ export const scrollProgressClasses = {
 type BaseProps = MotionProps & React.ComponentProps<"svg"> & React.ComponentProps<"div">;
 
 export interface ScrollProgressProps extends BaseProps {
-  size?: number;
-  portal?: boolean;
-  thickness?: number;
-  whenScroll?: "x" | "y";
-  sx?: SxProps<Theme>;
-  progress: MotionValue<number>;
-  variant: "linear" | "circular";
-  color?: PaletteColorKey | "inherit";
-  slotProps?: {
-    wrapper?: BoxProps;
-  };
+  readonly size?: undefined | number;
+  readonly portal?: undefined | boolean;
+  readonly thickness?: undefined | number;
+  readonly whenScroll?: undefined | "x" | "y";
+  readonly sx?: undefined | SxProps<Theme>;
+  readonly progress: MotionValue<number>;
+  readonly variant: "linear" | "circular";
+  readonly color?: undefined | PaletteColorKey | "inherit";
+  readonly slotProps?:
+    | undefined
+    | {
+        readonly wrapper?: undefined | BoxProps;
+      };
 }
 
 export function ScrollProgress({

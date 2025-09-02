@@ -7,13 +7,13 @@ import { useEffect, useRef } from "react";
 // ----------------------------------------------------------------------
 
 export type AnimateCountUpProps = TypographyProps & {
-  to: number;
-  from?: number;
-  toFixed?: number;
-  duration?: number;
-  unit?: "k" | "m" | "b" | string;
-  once?: UseInViewOptions["once"];
-  amount?: UseInViewOptions["amount"];
+  readonly to: number;
+  readonly from?: undefined | number;
+  readonly toFixed?: undefined | number;
+  readonly duration?: undefined | number;
+  readonly unit?: undefined | "k" | "m" | "b" | string;
+  readonly once?: undefined | UseInViewOptions["once"];
+  readonly amount?: undefined | UseInViewOptions["amount"];
 };
 
 export function AnimateCountUp({

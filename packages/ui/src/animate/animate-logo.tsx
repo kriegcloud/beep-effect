@@ -9,11 +9,13 @@ import type React from "react";
 // ----------------------------------------------------------------------
 
 export type AnimateLogoProps = React.ComponentProps<"div"> & {
-  sx?: SxProps<Theme>;
-  logo?: React.ReactNode;
-  slotProps?: {
-    logo?: LogoProps;
-  };
+  readonly sx?: undefined | SxProps<Theme>;
+  readonly logo?: undefined | React.ReactNode;
+  readonly slotProps?:
+    | undefined
+    | {
+        readonly logo?: undefined | LogoProps;
+      };
 };
 
 export function AnimateLogoZoom({ logo, slotProps, sx, ...other }: AnimateLogoProps) {

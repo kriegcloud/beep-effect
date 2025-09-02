@@ -195,7 +195,6 @@
     "@tiptap/react": "*",
     "@tiptap/starter-kit": "*",
     "accept-language": "*",
-    "clsx": "*",
     "dayjs": "*",
     "framer-motion": "*",
     "i18next": "*",
@@ -217,6 +216,7 @@
     "stylis": "*",
     "stylis-plugin-rtl": "*",
     "tailwind-merge": "*",
+     "clsx": "*",
     "tailwindcss-animate": "*",
     "tw-animate-css": "*"
   },
@@ -228,6 +228,7 @@
   "devDependencies": {
     "@beep/types": "workspace:^",
     "@tailwindcss/postcss": "*",
+    "tailwindcss": "*",
     "@turbo/gen": "*",
     "@types/lodash": "*",
     "@types/lodash-es": "*",
@@ -238,7 +239,6 @@
     "babel-plugin-transform-next-use-client": "*",
     "copyfiles": "*",
     "@babel/preset-react": "*",
-    "@types/copyfiles": "*",
-    "tailwindcss": "*"
+    "@types/copyfiles": "*"
   }
 }
