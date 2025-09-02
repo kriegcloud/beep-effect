@@ -135,7 +135,7 @@ export function stringLiteralKit<const Literals extends A.NonEmptyReadonlyArray<
       discriminator: StringTypes.NonEmptyString<D>
     ) => {
       readonly Union: TaggedUnion<Keys, D>;
-      readonly members: TaggedMembersMap<Keys, D>;
+      readonly Members: TaggedMembersMap<Keys, D>;
     };
   };
   is: (a: unknown) => a is Literals[number];
@@ -146,7 +146,7 @@ export function stringLiteralKit<const Literals extends A.NonEmptyReadonlyArray<
     discriminator: StringTypes.NonEmptyString<D>
   ) => {
     readonly Union: TaggedUnion<Literals, D>;
-    readonly members: TaggedMembersMap<Literals, D>;
+    readonly Members: TaggedMembersMap<Literals, D>;
   };
 };
 
@@ -183,7 +183,7 @@ export function stringLiteralKit<
       discriminator: StringTypes.NonEmptyString<D>
     ) => {
       readonly Union: TaggedUnion<Keys, D>;
-      readonly members: TaggedMembersMap<Keys, D>;
+      readonly Members: TaggedMembersMap<Keys, D>;
     };
   };
   is: (a: unknown) => a is Literals[number];
@@ -196,7 +196,7 @@ export function stringLiteralKit<
     discriminator: StringTypes.NonEmptyString<D>
   ) => {
     readonly Union: TaggedUnion<Literals, D>;
-    readonly members: TaggedMembersMap<Literals, D>;
+    readonly Members: TaggedMembersMap<Literals, D>;
   };
 };
 
@@ -233,7 +233,7 @@ export function stringLiteralKit<
       discriminator: StringTypes.NonEmptyString<D>
     ) => {
       readonly Union: TaggedUnion<Keys, D>;
-      readonly members: TaggedMembersMap<Keys, D>;
+      readonly Members: TaggedMembersMap<Keys, D>;
     };
   };
   is: (a: unknown) => a is Literals[number];
@@ -246,7 +246,7 @@ export function stringLiteralKit<
     discriminator: StringTypes.NonEmptyString<D>
   ) => {
     readonly Union: TaggedUnion<Literals, D>;
-    readonly members: TaggedMembersMap<Literals, D>;
+    readonly Members: TaggedMembersMap<Literals, D>;
   };
 } {
   // Determine if last argument is options
@@ -282,7 +282,7 @@ export function stringLiteralKit<
 
     return {
       Union,
-      members: membersObj as TaggedMembersMap<Literals, D>,
+      Members: membersObj as TaggedMembersMap<Literals, D>,
     } as const;
   };
 
@@ -394,7 +394,7 @@ export function stringLiteralKit<
 
             return {
               Union,
-              members: membersObj as TaggedMembersMap<Keys, D>,
+              Members: membersObj as TaggedMembersMap<Keys, D>,
             } as const;
           };
 

@@ -1,5 +1,6 @@
 import type { StructTypes, UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
+import type { OptionalWithDefault } from "../types";
 
 export namespace DiscriminatedStruct {
   export type Schema<
@@ -9,15 +10,7 @@ export namespace DiscriminatedStruct {
   > = Literal extends UnsafeTypes.UnsafeAny
     ? S.Struct<
         {
-          readonly [K in Discriminator]: S.PropertySignature<
-            ":",
-            Exclude<Literal, undefined>,
-            never,
-            "?:",
-            Literal | undefined,
-            true,
-            never
-          >;
+          [K in Discriminator]: OptionalWithDefault<Literal>;
         } & Fields
       >
     : never;
