@@ -3,6 +3,32 @@ import { ResendService, reactInvitationEmail, reactResetPasswordEmail } from "@b
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 
+type SendInvitationParams = Record<string, any> & {
+  readonly id: string;
+  readonly role: string;
+  readonly organization: Record<string, any> & {
+    readonly id: string;
+    readonly name: string;
+    readonly slug: string;
+    readonly logo?: string | null | undefined;
+  };
+  readonly invitation: Record<string, any> & {
+    readonly id: string;
+    readonly organizationId: string;
+    readonly email: string;
+    readonly status: string;
+    readonly teamId?: null | string;
+    readonly inviterId: string;
+  };
+  readonly email: string;
+  readonly inviter: Record<string, any> & {
+    readonly id: string;
+    readonly organizationId: string;
+    readonly userId: string;
+    readonly role: string;
+  };
+};
+
 export class AuthEmailService extends Effect.Service<AuthEmailService>()("AuthEmailService", {
   dependencies: [ResendService.Default],
   accessors: true,
@@ -20,19 +46,23 @@ export class AuthEmailService extends Effect.Service<AuthEmailService>()("AuthEm
       });
     });
 
-    const sendResetPassword = Effect.fn("sendResetPassword")(function* () {
+    const sendResetPassword = Effect.fn("sendResetPassword")(function* (params: {
+      user: { email: string; username: string };
+      url: string;
+      token: string;
+    }) {
       return yield* send({
         from: Redacted.value(emailEnv.from),
-        to: "email",
+        to: params.user.email,
         subject: "Reset your password",
         react: reactResetPasswordEmail({
-          username: "email",
-          resetLink: "url",
+          username: params.user.username,
+          resetLink: params.url,
         }),
       });
     });
 
-    const sendInvitation = Effect.fn("sendInvitation")(function* () {
+    const sendInvitation = Effect.fn("sendInvitation")(function* (params: SendInvitationParams) {
       return yield* send({
         from: Redacted.value(emailEnv.from),
         to: "",

@@ -1,3 +1,3 @@
-export * from "./components/invitation";
-export * from "./components/reset-password";
+export { reactInvitationEmail } from "./components/invitation";
+export { reactResetPasswordEmail} from "./components/reset-password";
 export * from "./Resend.service";

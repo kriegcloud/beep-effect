@@ -40,6 +40,7 @@
     "@beep/iam-domain": "workspace:^",
     "@beep/iam-tables": "workspace:^",
     "@beep/resend": "workspace:^",
+    "@beep/db-scope": "workspace:^",
     "drizzle-orm": "*",
     "effect": "*",
     "react": "*",

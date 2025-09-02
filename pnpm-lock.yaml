@@ -637,6 +637,9 @@ importers:
 
   packages/adapters/better-auth:
     dependencies:
+      '@beep/db-scope':
+        specifier: workspace:^
+        version: link:../../persistence/db-scope/build
       '@beep/env':
         specifier: workspace:^
         version: link:../../env/build

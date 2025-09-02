@@ -16,6 +16,9 @@
     },
     {
       "path": "../resend"
+    },
+    {
+      "path": "../../persistence/db-scope"
     }
   ],
   "compilerOptions": {
@@ -39,7 +42,9 @@
       "@beep/env/client": ["../../env/src/client"],
       "@beep/env/server": ["../../env/src/server"],
       "@beep/resend": ["../resend/src/index"],
-      "@beep/resend/*": ["../resend/src/*"]
+      "@beep/resend/*": ["../resend/src/*"],
+      "@beep/db-scope": ["../../persistence/db-scope/src/index"],
+      "@beep/db-scope/*": ["../../persistence/db-scope/src/*"]
     }
   }
 }
