@@ -109,7 +109,7 @@
         "noShadowRestrictedNames": "off",
         "noAssignInExpressions": "off",
         "noArrayIndexKey": "off",
-        "noExplicitAny": "off",
+        "noExplicitAny": "warn",
         "useIterableCallbackReturn": "off",
         "noThenProperty": "off",
         "noDuplicateObjectKeys": "off",
