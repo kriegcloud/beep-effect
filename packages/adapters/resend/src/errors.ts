@@ -1,6 +1,7 @@
 import * as Data from "effect/Data";
 import * as Match from "effect/Match";
 import * as S from "effect/Schema";
+
 // const RESEND_ERROR_CODES_BY_KEY = {
 //   missing_required_field: 422,
 //   invalid_idempotency_key: 400,
@@ -20,10 +21,11 @@ import * as S from "effect/Schema";
 //   internal_server_error: 500,
 // } as const;
 
-const makeResendErrorMember = <ErrorCodeKey extends string>(codeKey: ErrorCodeKey) => S.Struct({
-  message: S.String,
-  name: S.Literal(codeKey),
-});
+const makeResendErrorMember = <ErrorCodeKey extends string>(codeKey: ErrorCodeKey) =>
+  S.Struct({
+    message: S.String,
+    name: S.Literal(codeKey),
+  });
 
 export const ResendErrorSchema = S.Union(
   makeResendErrorMember("missing_required_field"),
@@ -41,26 +43,27 @@ export const ResendErrorSchema = S.Union(
   makeResendErrorMember("not_found"),
   makeResendErrorMember("method_not_allowed"),
   makeResendErrorMember("application_error"),
-  makeResendErrorMember("internal_server_error"),
+  makeResendErrorMember("internal_server_error")
 );
 
 export type ResendErrorResponse = typeof ResendErrorSchema.Type;
-
 
 export class ResendError extends Data.TaggedError("ResendError")<{
   readonly error: ResendErrorResponse;
   readonly input: unknown;
 }> {
-  constructor(readonly error: ResendErrorResponse, readonly input: unknown) {
-    super({error, input});
+  constructor(
+    readonly error: ResendErrorResponse,
+    readonly input: unknown
+  ) {
+    super({ error, input });
   }
 }
 
 export class UnknownResendError extends Data.TaggedError("UnknownResendError")<{
-  readonly cause: unknown,
-  readonly input: unknown,
-}> {
-}
+  readonly cause: unknown;
+  readonly input: unknown;
+}> {}
 
 export const matchResendError = <ErrorCodeKey extends string>(error: unknown, input: unknown) => {
   if (S.is(ResendErrorSchema)(error)) {
@@ -83,11 +86,8 @@ export const matchResendError = <ErrorCodeKey extends string>(error: unknown, in
         application_error: (e) => new ResendError(e, input),
         internal_server_error: (e) => new ResendError(e, input),
       }),
-      Match.orElse(() => new UnknownResendError({cause: error, input}))
+      Match.orElse(() => new UnknownResendError({ cause: error, input }))
     );
   }
-  return new UnknownResendError({cause: error, input});
+  return new UnknownResendError({ cause: error, input });
 };
-
-
-

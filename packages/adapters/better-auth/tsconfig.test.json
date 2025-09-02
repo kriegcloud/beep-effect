@@ -1,8 +1,6 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "include": [
-    "test"
-  ],
+  "include": ["test"],
   "references": [
     {
       "path": "tsconfig.src.json"
@@ -24,49 +22,23 @@
     }
   ],
   "compilerOptions": {
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true
   },
   "paths": {
-    "@beep/better-auth": [
-      "./src/index"
-    ],
-    "@beep/better-auth/*": [
-      "./src/*"
-    ],
-    "@beep/iam-domain": [
-      "../../iam/domain/src/index"
-    ],
-    "@beep/iam-domain/*": [
-      "../../iam/domain/src/*"
-    ],
-    "@beep/iam-tables": [
-      "../../iam/tables/src/index"
-    ],
-    "@beep/iam-tables/*": [
-      "../../iam/tables/src/*"
-    ],
-    "@beep/iam-db": [
-      "../../iam/db/src/index"
-    ],
-    "@beep/iam-db/*": [
-      "../../iam/db/src/*"
-    ],
-    "@beep/env/client": [
-      "../../env/src/client"
-    ],
-    "@beep/env/server": [
-      "../../env/src/server"
-    ],
-    "@beep/resend": [
-      "../resend/src/index"
-    ],
-    "@beep/resend/*": [
-      "../resend/src/*"
-    ]
+    "@beep/better-auth": ["./src/index"],
+    "@beep/better-auth/*": ["./src/*"],
+    "@beep/iam-domain": ["../../iam/domain/src/index"],
+    "@beep/iam-domain/*": ["../../iam/domain/src/*"],
+    "@beep/iam-tables": ["../../iam/tables/src/index"],
+    "@beep/iam-tables/*": ["../../iam/tables/src/*"],
+    "@beep/iam-db": ["../../iam/db/src/index"],
+    "@beep/iam-db/*": ["../../iam/db/src/*"],
+    "@beep/env/client": ["../../env/src/client"],
+    "@beep/env/server": ["../../env/src/server"],
+    "@beep/resend": ["../resend/src/index"],
+    "@beep/resend/*": ["../resend/src/*"]
   }
 }

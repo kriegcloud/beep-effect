@@ -216,7 +216,7 @@
     "stylis": "*",
     "stylis-plugin-rtl": "*",
     "tailwind-merge": "*",
-     "clsx": "*",
+    "clsx": "*",
     "tailwindcss-animate": "*",
     "tw-animate-css": "*"
   },
