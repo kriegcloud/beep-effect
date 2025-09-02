@@ -87,10 +87,10 @@
       "path": "packages/env/tsconfig.build.json"
     },
     {
-      "path": "packages/adapters/better-auth/tsconfig.build.json"
+      "path": "packages/adapters/resend/tsconfig.build.json"
     },
     {
-      "path": "packages/adapters/resend/tsconfig.build.json"
+      "path": "packages/adapters/better-auth/tsconfig.build.json"
     },
     {
       "path": "packages/comms/api/tsconfig.build.json"

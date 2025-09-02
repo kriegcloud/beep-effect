@@ -34,6 +34,7 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import type * as pg from "pg";
+import { v4 as uuid } from "uuid";
 import { AuthEmailService } from "./AuthEmail.service";
 
 const makeAuthOptions = (
@@ -247,11 +248,6 @@ const makeAuthOptions = (
         loginPage: "/sign-in",
       }),
       customSession(async (session) => {
-        // const userOrgs = await db.select({
-        //   orgId: DbTypes.schema.organization.id,
-        //   orgName: DbTypes.schema.organization.name,
-        // })
-        console.log(`custom session`, JSON.stringify(session, null, 2));
         return {
           ...session,
           user: {
@@ -261,7 +257,93 @@ const makeAuthOptions = (
         };
       }),
     ],
+    databaseHooks: {
+      user: {
+        create: {
+          after: async (user) => {
+            const personalOrgId = uuid();
+            const slug = `${user.name?.toLowerCase().replace(/\s+/g, "-") || "user"}-${user.id.slice(-6)}`;
+
+            // Create personal organization with multi-tenant fields
+            await db.insert(IamDbSchema.organization).values({
+              id: personalOrgId,
+              name: `${user.name || "User"}'s Organization`,
+              slug,
+              type: "individual",
+              ownerUserId: user.id,
+              isPersonal: true,
+              subscriptionTier: "free",
+              subscriptionStatus: "active",
+              createdBy: user.id,
+              source: "auto_created",
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            });
+
+            // Add user as owner with enhanced tracking
+            await db.insert(IamDbSchema.member).values({
+              id: uuid(),
+              userId: user.id,
+              organizationId: personalOrgId,
+              role: "owner",
+              status: "active",
+              joinedAt: new Date(),
+              createdBy: user.id,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            });
+          },
+        },
+      },
+      session: {
+        create: {
+          before: async (session) => {
+            // Set active organization context using enhanced fields
+            const userOrgs = await db
+              .select({
+                orgId: IamDbSchema.organization.id,
+                orgName: IamDbSchema.organization.name,
+                orgType: IamDbSchema.organization.type,
+                isPersonal: IamDbSchema.organization.isPersonal,
+                subscriptionTier: IamDbSchema.organization.subscriptionTier,
+                role: IamDbSchema.member.role,
+                memberStatus: IamDbSchema.member.status,
+              })
+              .from(IamDbSchema.member)
+              .innerJoin(IamDbSchema.organization, d.eq(IamDbSchema.member.organizationId, IamDbSchema.organization.id))
+              .where(d.and(d.eq(IamDbSchema.member.userId, session.userId), d.eq(IamDbSchema.member.status, "active")))
+              .orderBy(d.desc(IamDbSchema.organization.isPersonal)); // Personal orgs first
+
+            const activeOrgId = userOrgs[0]?.orgId;
+            const organizationContext = userOrgs.reduce(
+              (acc, org) => {
+                acc[org.orgId] = {
+                  name: org.orgName,
+                  type: org.orgType,
+                  role: org.role,
+                  isPersonal: org.isPersonal,
+                  subscriptionTier: org.subscriptionTier,
+                };
+                return acc;
+              },
+              // TODO type me
+              {} as Record<string, any>
+            );
+
+            return {
+              data: {
+                ...session,
+                activeOrganizationId: activeOrgId,
+                organizationContext: JSON.stringify(organizationContext),
+              },
+            };
+          },
+        },
+      },
+    },
   }) satisfies BetterAuthOptions;
+
+export type Options = ReturnType<typeof makeAuthOptions>;
 
 export class AuthService extends Effect.Service<AuthService>()("AuthService", {
   effect: Effect.gen(function* () {

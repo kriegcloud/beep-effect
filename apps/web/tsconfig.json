@@ -55,7 +55,9 @@
       "@beep/rete": ["../../packages/common/rete/src/index"],
       "@beep/rete/*": ["../../packages/common/rete/src/*"],
       "@beep/shared-client": ["../../packages/shared/client/src/index"],
-      "@beep/shared-client/*": ["../../packages/shared/client/src/*"]
+      "@beep/shared-client/*": ["../../packages/shared/client/src/*"],
+      "@beep/better-auth": ["../../packages/adapters/better-auth/src/index"],
+      "@beep/better-auth/*": ["../../packages/adapters/better-auth/src/*"]
     },
     "plugins": [
       {
@@ -93,6 +95,9 @@
     },
     {
       "path": "../../packages/shared/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/adapters/better-auth/tsconfig.build.json"
     }
   ],
   "include": [

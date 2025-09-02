@@ -91,10 +91,10 @@
       "path": "packages/env"
     },
     {
-      "path": "packages/adapters/better-auth"
-    },
-      {
       "path": "packages/adapters/resend"
+    },
+    {
+      "path": "packages/adapters/better-auth"
     },
     {
       "path": "packages/comms/api"
@@ -141,6 +141,5 @@
     {
       "path": "apps/mcp"
     }
-
   ]
 }

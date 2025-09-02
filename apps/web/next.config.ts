@@ -1,3 +1,4 @@
+import path from "node:path";
 import * as Struct from "effect/Struct";
 import type { NextConfig } from "next";
 
@@ -83,6 +84,15 @@ const nextConfig = {
       },
     ];
   },
+  turbopack: {
+    rules: {
+      "*.svg": {
+        loaders: ["@svgr/webpack"],
+        as: "*.js",
+      },
+    },
+  },
+  outputFileTracingRoot: path.join(__dirname, "../../"),
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,

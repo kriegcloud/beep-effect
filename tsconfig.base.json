@@ -293,6 +293,15 @@
       "@beep/env/test/*": [
         "./packages/env/test/*"
       ],
+            "@beep/resend": [
+        "./packages/adapters/resend/src/index"
+      ],
+      "@beep/resend/*": [
+        "./packages/adapters/resend/src/*"
+      ],
+      "@beep/resend/test/*": [
+        "./packages/adapters/resend/test/*"
+      ],
       "@beep/better-auth": [
         "./packages/adapters/better-auth/src/index"
       ],
@@ -301,15 +310,6 @@
       ],
       "@beep/better-auth/test/*": [
         "./packages/adapters/better-auth/test/*"
-      ],
-      "@beep/resend": [
-        "./packages/adapters/resend/src/index"
-      ],
-      "@beep/resend/*": [
-        "./packages/adapters/resend/src/*"
-      ],
-      "@beep/resend/test/*": [
-        "./packages/adapters/resend/test/*"
       ],
       "@beep/comms-api": [
         "./packages/comms/api/src/index"
