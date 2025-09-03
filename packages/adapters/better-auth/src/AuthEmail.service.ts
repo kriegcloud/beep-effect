@@ -82,6 +82,7 @@ export class AuthEmailService extends Effect.Service<AuthEmailService>()("AuthEm
         from: Redacted.value(emailEnv.from),
         to: "params.user.email",
         subject: "Your OTP",
+        // biome-ignore lint/suspicious/noTemplateCurlyInString: interpolation
         html: "`Your OTP is ${params.otp}`",
       });
     });

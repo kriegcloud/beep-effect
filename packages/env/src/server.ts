@@ -4,6 +4,7 @@ import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { AuthProviderNameValue, ConfigArrayURL, EnvValue, LogFormat, SubscriptionPlanValue } from "./common";
+
 export const ServerConfig = Config.all({
   app: Config.nested("APP")(
     Config.all({
@@ -133,10 +134,6 @@ export const ServerConfig = Config.all({
               clientSecret: Config.redacted(Config.nonEmptyString("CLIENT_SECRET")),
             })
           ),
-          // facebook: Config.nested("FACEBOOK")(Config.all({
-          //   clientId: Config.redacted(Config.string("CLIENT_ID")),
-          //   clientSecret: Config.redacted(Config.string("CLIENT_SECRET")),
-          // })),
         })
       ),
     })

@@ -227,19 +227,8 @@ const makeAuthOptions = (
       nextCookies(),
       jwt(),
       anonymous(),
-      // genericOAuth(),
-      // admin({
-      //   adminUserIds: authEnv.app.adminUserIds,
-      // }),
       multiSession(),
       oneTap(),
-      // oAuthProxy({
-      //   /**
-      //    * Auto-inference blocked by https://github.com/better-auth/better-auth/pull/2891
-      //    */
-      //   currentURL: serverEnv.app.authUrl.toString(),
-      //   productionURL: productionUrl,
-      // }),
       oidcProvider({
         loginPage: "/sign-in",
       }),
