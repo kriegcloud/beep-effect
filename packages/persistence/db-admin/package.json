@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "description": "A library for migrations, seeds & db admin",
-  "private": true,
+  "private": false,
   "publishConfig": {
     "access": "restricted",
     "directory": "build"
@@ -26,24 +26,36 @@
     "coverage": "vitest run --coverage",
     "db:generate": "TSX_TSCONFIG_PATH=./tsconfig.tsx.json NODE_OPTIONS='--import tsx' pnpm dotenvx drizzle-kit generate",
     "db:migrate": "TSX_TSCONFIG_PATH=./tsconfig.tsx.json NODE_OPTIONS='--import tsx' pnpm dotenvx drizzle-kit migrate",
-    "db:push": "TSX_TSCONFIG_PATH=./tsconfig.tsx.json NODE_OPTIONS='--import tsx' pnpm dotenvx drizzle-kit push",
-    "db:studio": "TSX_TSCONFIG_PATH=./tsconfig.tsx.json NODE_OPTIONS='--import tsx' pnpm dotenvx drizzle-kit studio",
+    "db:push": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' pnpm dotenvx drizzle-kit push",
+    "db:studio": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' pnpm dotenvx drizzle-kit studio",
     "db:reset": "bun src/scripts/ResetDatabase.ts",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "dotenvx": "dotenvx run -f ../../../.env --",
-    "lint:circular": "pnpm madge -c ."
+    "lint:circular": "pnpm madge -c .",
+    "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' pnpm dotenvx tsx --tsconfig ./tsconfig.src.json ./src/execute.ts"
   },
-  "devDependencies": {
+  "dependencies": {
     "@beep/db-scope": "workspace:^",
     "@beep/iam-tables": "workspace:^",
+    "@beep/iam-domain": "workspace:^",
+    "@effect/sql-pg": "*",
+    "@effect/sql": "*",
+    "@effect/experimental": "*",
     "@beep/shared-tables": "workspace:^",
     "@beep/wms-tables": "workspace:^",
+    "@beep/iam-db": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/types": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/invariant": "workspace:^",
     "@types/pg": "*",
     "drizzle-kit": "*",
     "drizzle-orm": "*",
     "effect": "*",
-    "pg": "*"
+    "tsx": "*",
+    "pg": "*",
+    "@beep/env": "workspace:^"
   },
   "effect": {
     "generateExports": {

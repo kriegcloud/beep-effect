@@ -6,13 +6,34 @@
       "path": "../../iam/tables"
     },
     {
-      "path": "../../wms/tables"
+      "path": "../../iam/db"
+    },
+    {
+      "path": "../../iam/domain"
     },
     {
       "path": "../../shared/tables"
     },
     {
+      "path": "../../wms/tables"
+    },
+    {
       "path": "../db-scope"
+    },
+    {
+      "path": "../../common/invariant"
+    },
+    {
+      "path": "../../common/schema"
+    },
+    {
+      "path": "../../common/types"
+    },
+    {
+      "path": "../../common/utils"
+    },
+    {
+      "path": "../../env"
     }
   ],
   "compilerOptions": {
@@ -34,7 +55,21 @@
       "@beep/db-scope": ["../db-scope/src/index"],
       "@beep/db-scope/*": ["../db-scope/src/*"],
       "@beep/wms-tables": ["../../wms/tables/src/index"],
-      "@beep/wms-tables/*": ["../../wms/tables/src/*"]
+      "@beep/wms-tables/*": ["../../wms/tables/src/*"],
+      "@beep/iam-db": ["../../iam/db/src/index"],
+      "@beep/iam-db/*": ["../../iam/db/src/*"],
+      "@beep/iam-domain": ["../../iam/domain/src/index"],
+      "@beep/iam-domain/*": ["../../iam/domain/src/*"],
+      "@beep/schema": ["../../schema/src/index"],
+      "@beep/schema/*": ["../../schema/src/*"],
+      "@beep/types": ["../../types/src/index"],
+      "@beep/types/*": ["../../types/src/*"],
+      "@beep/invariant": ["../../invariant/src/index"],
+      "@beep/invariant/*": ["../../invariant/src/*"],
+      "@beep/utils": ["../../utils/src/index"],
+      "@beep/utils/*": ["../../utils/src/*"],
+      "@beep/env/server": ["../../env/src/server"],
+      "@beep/env/client": ["../../env/src/client"]
     }
   }
 }

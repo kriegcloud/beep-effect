@@ -3,19 +3,37 @@
   "include": ["test"],
   "references": [
     {
-      "path": "tsconfig.src.json"
+      "path": "../../iam/tables"
+    },
+    {
+      "path": "../../iam/db"
+    },
+    {
+      "path": "../../iam/domain"
     },
     {
       "path": "../../shared/tables"
-    },
-    {
-      "path": "../../iam/tables"
     },
     {
       "path": "../../wms/tables"
     },
     {
       "path": "../db-scope"
+    },
+    {
+      "path": "../../common/invariant"
+    },
+    {
+      "path": "../../common/schema"
+    },
+    {
+      "path": "../../common/types"
+    },
+    {
+      "path": "../../common/utils"
+    },
+    {
+      "path": "../../env"
     }
   ],
   "compilerOptions": {
@@ -33,6 +51,8 @@
     "@beep/shared-tables/*": ["../../shared/tables/src/*"],
     "@beep/db-scope": ["../db-scope/src/index"],
     "@beep/db-scope/*": ["../db-scope/src/*"],
+    "@beep/iam-domain": ["../../iam/domain/src/index"],
+    "@beep/iam-domain/*": ["../../iam/domain/src/*"],
     "@beep/wms-tables": ["../../wms/tables/src/index"],
     "@beep/wms-tables/*": ["../../wms/tables/src/*"]
   }
