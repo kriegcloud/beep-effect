@@ -33,8 +33,6 @@ import type * as pg from "pg";
 import { v4 as uuid } from "uuid";
 import { AuthEmailService } from "./AuthEmail.service";
 
-// import { makeOrganizationPlugin} from "./internal/plugins/organization";
-
 const makeAuthOptions = (
   db: NodePgDatabase<typeof IamDbSchema> & {
     $client: pg.Pool;
