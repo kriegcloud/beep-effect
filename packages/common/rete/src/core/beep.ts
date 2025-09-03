@@ -1,5 +1,6 @@
 import type { $Schema, Auditor, ConvertMatchFn, FactFragment } from "@beep/rete/network";
 import { Field, PRODUCTION_ALREADY_EXISTS_BEHAVIOR, rete, viz } from "@beep/rete/network";
+import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Struct from "effect/Struct";
@@ -22,7 +23,7 @@ import type {
   QueryOneOptions,
 } from "./types";
 import { insertFactToFact } from "./utils";
-import type { UnsafeTypes } from "@beep/types";
+
 const ID_PREFIX = "id___";
 const VALUE_PREFIX = "val___";
 const idPrefix = (i: string) => `${ID_PREFIX}${i}`;
