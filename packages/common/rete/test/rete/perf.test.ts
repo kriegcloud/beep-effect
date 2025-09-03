@@ -175,6 +175,7 @@ describe("rete perf", () => {
       measureMap.get(p.name)!.count += 1;
       measureMap.get(p.name)!.total += p.duration;
     });
+    // biome-ignore lint/suspicious/noExplicitAny: beep
     const results: any = {};
     measureMap.forEach((agg, name) => {
       measureMap.get(name)!.avg = agg.total / agg.count;

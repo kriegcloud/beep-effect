@@ -16,6 +16,15 @@
     },
     {
       "path": "../../common/schema/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/types/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/utils/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/invariant/tsconfig.build.json"
     }
   ]
 }

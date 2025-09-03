@@ -10,6 +10,9 @@
     },
     {
       "path": "../../persistence/db-scope"
+    },
+    {
+      "path": "../../env"
     }
   ],
   "compilerOptions": {
@@ -24,6 +27,8 @@
     "@beep/iam-tables": ["../tables/src/index"],
     "@beep/iam-tables/*": ["../tables/src/*"],
     "@beep/db-scope": ["../../persistence/db-scope/src/index"],
-    "@beep/db-scope/*": ["../../persistence/db-scope/src/*"]
+    "@beep/db-scope/*": ["../../persistence/db-scope/src/*"],
+    "@beep/env/client": ["../../env/src/client"],
+    "@beep/env/server": ["../../env/src/server"]
   }
 }

@@ -67,7 +67,8 @@ const ruleEngine = {
           ruleEngine
             .evaluateRule(rule, context)
             .pipe(Effect.map((result) => ({ ruleId: rule.id, result, ruleName: rule.name })))
-        )
+        ),
+        { batching: true }
       );
 
       const results = A.map(ruleResults, (r) => r.result);

@@ -1,3 +1,5 @@
+import { Organization, Team } from "@beep/shared-domain/entities";
+
 export * as Account from "./Account";
 export * as ApiKey from "./ApiKey";
 export * as Invitation from "./Invitation";
@@ -16,3 +18,4 @@ export * as TwoFactor from "./TwoFactor";
 export * as User from "./User";
 export * as Verification from "./Verification";
 export * as WalletAddress from "./WalletAddress";
+export { Team, Organization };

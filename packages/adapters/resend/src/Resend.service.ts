@@ -1,13 +1,8 @@
 import { serverEnv } from "@beep/env/server";
 import { matchResendError } from "@beep/resend/errors";
-import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import { Resend } from "resend";
-
-export class ResendServiceError extends Data.TaggedError("ResendServiceError")<{
-  readonly cause: unknown;
-}> {}
 
 export class ResendService extends Effect.Service<ResendService>()("ResendService", {
   accessors: true,

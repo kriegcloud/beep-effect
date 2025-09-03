@@ -1,5 +1,5 @@
 {
-  "extends": "../../../tsconfig.base.json",
+  "extends": "./tsconfig.src.json",
   "include": [],
   "compilerOptions": {
     "paths": {
@@ -7,7 +7,13 @@
       "@beep/shared-domain": ["../../shared/domain/src/index"],
       "@beep/shared-domain/*": ["../../shared/domain/src/*"],
       "@beep/schema": ["../../common/schema/src/index"],
-      "@beep/schema/*": ["../../common/schema/src/*"]
+      "@beep/schema/*": ["../../common/schema/src/*"],
+      "@beep/invariant/*": ["../../common/invariant/src/*"],
+      "@beep/invariant": ["../../common/invariant/src/index"],
+      "@beep/types": ["../../common/types/src/index"],
+      "@beep/types/*": ["../../common/types/src/*"],
+      "@beep/utils": ["../../common/utils/src/index"],
+      "@beep/utils/*": ["../../common/utils/src/*"]
     }
   },
   "references": [

@@ -1,5 +1,4 @@
-import "server-only";
-import { Email } from "@beep/schema/custom";
+import { BS } from "@beep/schema";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
@@ -63,8 +62,8 @@ export const ServerConfig = Config.all({
   ),
   email: Config.nested("EMAIL")(
     Config.all({
-      from: S.Config("FROM", Email),
-      test: S.Config("FROM", Email),
+      from: S.Config("FROM", BS.Email),
+      test: S.Config("FROM", BS.Email),
       resend: Config.nested("RESEND")(
         Config.all({
           apiKey: Config.redacted(Config.nonEmptyString("API_KEY")),

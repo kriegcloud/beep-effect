@@ -37,8 +37,8 @@
   "paths": {
     "@/*": ["./src/*"],
     "@beep/ui/*": ["../../packages/ui/src/*"],
-    "@beep/env": ["../../packages/env/src/index"],
-    "@beep/env/*": ["../../packages/env/src/*"],
+    "@beep/env/client": ["../../env/src/client"],
+    "@beep/env/server": ["../../env/src/server"],
     "@beep/utils": ["../../packages/common/utils/src/index"],
     "@beep/utils/*": ["../../packages/common/utils/src/*"],
     "@beep/types": ["../../packages/common/types/src/index"],

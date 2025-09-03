@@ -16,6 +16,9 @@
     },
     {
       "path": "../../persistence/db-scope/tsconfig.build.json"
+    },
+    {
+      "path": "../../env/tsconfig.build.json"
     }
   ]
 }

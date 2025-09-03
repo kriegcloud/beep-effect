@@ -6,6 +6,8 @@ import { IamDbSchema } from "@beep/iam-tables";
 //   // SqlResolver
 // } from "@effect/sql";
 import * as DevTools from "@effect/experimental/DevTools";
+// import { v4 as uuid } from "uuid";
+import * as M from "@effect/sql/Model";
 // import * as O from "effect/Option";
 // import * as M from "@effect/sql/Model";
 import { PgClient } from "@effect/sql-pg";
@@ -15,10 +17,9 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Redacted from "effect/Redacted";
-import * as Str from "effect/String";
-// import { v4 as uuid } from "uuid";
-import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
+
 console.log(process.env.DB_PG_URL!);
 const PgLive = PgClient.layer({
   // url: Redacted.make(process.env.DB_PG_URL!),
@@ -27,8 +28,6 @@ const PgLive = PgClient.layer({
   database: "postgres",
   username: "postgres",
   password: Redacted.make("postgres"),
-
-  // transformQueryNames: Str.camelToSnake,
   transformResultNames: Str.snakeToCamel,
 });
 
@@ -138,7 +137,7 @@ const program = Effect.gen(function* () {
   //   execute: (requests) => sql`INSERT INTO people ${sql.insert(requests)} RETURNING people.*`
   // })
   // const result = yield* repo.insert({
-  //   name: "Alice Anderson Nigger",
+  //   name: "Alice Anderson",
   //   email: "alice@example.com",
   //   emailVerified: true,
   //   username: O.some("alice"),

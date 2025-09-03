@@ -7,18 +7,14 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import {
-  // admin,
   anonymous,
   apiKey,
   bearer,
-  // captcha,
   customSession,
-  // genericOAuth,
   haveIBeenPwned,
   jwt,
   mcp,
   multiSession,
-  // oAuthProxy,
   oidcProvider,
   oneTap,
   oneTimeToken,
@@ -36,6 +32,8 @@ import * as Redacted from "effect/Redacted";
 import type * as pg from "pg";
 import { v4 as uuid } from "uuid";
 import { AuthEmailService } from "./AuthEmail.service";
+
+// import { makeOrganizationPlugin} from "./internal/plugins/organization";
 
 const makeAuthOptions = (
   db: NodePgDatabase<typeof IamDbSchema> & {

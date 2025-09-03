@@ -10,6 +10,21 @@
     },
     {
       "path": "../../common/schema"
+    },
+    {
+      "path": "../../shared/domain"
+    },
+    {
+      "path": "../../common/schema"
+    },
+    {
+      "path": "../../common/types"
+    },
+    {
+      "path": "../../common/utils"
+    },
+    {
+      "path": "../../common/invariant"
     }
   ],
   "compilerOptions": {
@@ -24,6 +39,12 @@
     "@beep/shared-domain": ["../../shared/domain/src/index"],
     "@beep/shared-domain/*": ["../../shared/domain/src/*"],
     "@beep/schema": ["../../common/schema/src/index"],
-    "@beep/schema/*": ["../../common/schema/src/*"]
+    "@beep/schema/*": ["../../common/schema/src/*"],
+    "@beep/invariant/*": ["../../common/invariant/src/*"],
+    "@beep/invariant": ["../../common/invariant/src/index"],
+    "@beep/types": ["../../common/types/src/index"],
+    "@beep/types/*": ["../../common/types/src/*"],
+    "@beep/utils": ["../../common/utils/src/index"],
+    "@beep/utils/*": ["../../common/utils/src/*"]
   }
 }

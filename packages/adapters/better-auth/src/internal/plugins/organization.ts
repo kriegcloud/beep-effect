@@ -1,7 +1,7 @@
 import type { BetterAuthPlugin } from "better-auth";
 import { organization } from "better-auth/plugins";
 import type { OrganizationOptions } from "better-auth/plugins/organization";
-
+// import * as Effect from "effect/Effect";
 export type { OrganizationOptions };
 /**
  * TODO factor out
@@ -35,7 +35,7 @@ export const makeOrganizationPlugin = (opts: OrganizationOptions): BetterAuthPlu
      *
      * @default "owner"
      */
-    creatorRole: opts.creatorRole ?? "admin",
+    creatorRole: opts.creatorRole ?? "owner",
     /**
      * The maximum number of members allowed in an organization.
      *

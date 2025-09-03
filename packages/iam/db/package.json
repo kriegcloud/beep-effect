@@ -34,6 +34,9 @@
   },
   "peerDependencies": {
     "@beep/db-scope": "workspace:^",
+    "@beep/env": "workspace:^",
+    "@effect/platform-node": "*",
+    "@effect/platform": "*",
     "@beep/iam-tables": "workspace:^",
     "drizzle-orm": "*",
     "effect": "*",
