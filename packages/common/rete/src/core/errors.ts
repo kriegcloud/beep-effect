@@ -21,9 +21,9 @@ export class QueryOneReturnedMoreThanOne extends Data.TaggedError("QueryOneMoreT
 }
 
 export class SubscribeOneMoreThanOne extends Data.TaggedError("SubscribeOneMoreThanOne")<{
-  results: Array<Record<string, Record<string, any> & { id: string }>>;
+  results: Array<Record<string, Record<string, UnsafeTypes.UnsafeAny> & { id: string }>>;
 }> {
-  constructor(results: Array<Record<string, Record<string, any> & { id: string }>>) {
+  constructor(results: Array<Record<string, Record<string, UnsafeTypes.UnsafeAny> & { id: string }>>) {
     super({ results });
   }
 

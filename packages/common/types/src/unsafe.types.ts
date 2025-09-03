@@ -10,6 +10,8 @@ import type * as R from "effect/Record";
  * Prefer `unknown` in public APIs; use this only when you explicitly
  * need to disable type checking (e.g., boundary shims, rapid prototyping).
  */
+
+// biome-ignore lint/suspicious/noExplicitAny: Submit and let this be from here forth the only `any` in this codebase.
 export type UnsafeAny = any;
 
 /**

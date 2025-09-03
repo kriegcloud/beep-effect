@@ -22,7 +22,7 @@ import type {
   QueryOneOptions,
 } from "./types";
 import { insertFactToFact } from "./utils";
-
+import type { UnsafeTypes } from "@beep/types";
 const ID_PREFIX = "id___";
 const VALUE_PREFIX = "val___";
 const idPrefix = (i: string) => `${ID_PREFIX}${i}`;
@@ -52,7 +52,7 @@ export const beep = <TSchema extends $Schema>(autoFire = true, auditor?: Auditor
 
   const getOption = <T extends keyof TSchema>(id: string, attr: T) => O.fromNullable(get(id, attr));
 
-  const retractByConditions = (id: string, conditions: { [key in keyof TSchema]?: any }) => {
+  const retractByConditions = (id: string, conditions: { [key in keyof TSchema]?: UnsafeTypes.UnsafeAny }) => {
     retract(id, ...Struct.keys(conditions));
   };
 
@@ -129,7 +129,7 @@ export const beep = <TSchema extends $Schema>(autoFire = true, auditor?: Auditor
             throw new IncorrectJoinUsage(cond);
           }
 
-          let conditionValue: any;
+          let conditionValue: UnsafeTypes.UnsafeAny;
           if (match !== undefined) {
             conditionValue = match;
           } else if (join) {
