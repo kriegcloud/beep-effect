@@ -1,9 +1,9 @@
 {
-  "name": "@beep/env",
+  "name": "@beep/runtime",
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "A library for environment variables",
+  "description": "The runtime for Beep",
   "publishConfig": {
     "access": "restricted",
     "directory": "build"
@@ -18,7 +18,7 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",
-    "directory": "packages/env"
+    "directory": "packages/runtime"
   },
   "scripts": {
     "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",
@@ -35,8 +35,7 @@
     "lint:circular": "pnpm madge -c ."
   },
   "dependencies": {
-    "effect": "*",
-    "@beep/schema": "workspace:*"
+    "effect": "*"
   },
   "effect": {
     "generateExports": {

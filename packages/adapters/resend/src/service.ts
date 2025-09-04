@@ -4,7 +4,7 @@ import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import { Resend } from "resend";
 
-export class Service extends Effect.Service<Service>()("ResendService", {
+export class ResendService extends Effect.Service<ResendService>()("ResendService", {
   accessors: true,
   dependencies: [],
   effect: Effect.gen(function* () {

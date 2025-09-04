@@ -2,7 +2,7 @@ import { stringLiteralKit } from "@beep/schema/kits";
 import * as Config from "effect/Config";
 import * as F from "effect/Function";
 export namespace EnvValue {
-  export const { Options, Schema, Enum, Mock, JSONSchema, Pretty, Equivalence } = stringLiteralKit(
+  export const { Options, Schema, Enum, Mock, JSONSchema, Equivalence } = stringLiteralKit(
     "dev",
     "staging",
     "prod"

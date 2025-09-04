@@ -24,6 +24,7 @@ export function View() {
   const showPassword = useBoolean();
   const [, setIsValid] = React.useState<boolean>(false);
   const [criteria, setCriteria] = React.useState<Array<{ id: string; meetsCriteria: boolean }>>([]);
+
   React.useEffect(() => {
     passwordQuery.subscribeOne((password) => setIsValid(password?.Password.valid ?? false));
     criteriaQuery.subscribe((result) =>

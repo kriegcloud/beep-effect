@@ -1,6 +1,6 @@
 import { reactInvitationEmail, reactResetPasswordEmail, renderEmail } from "@beep/email";
 import { serverEnv } from "@beep/env/server";
-import { Service } from "@beep/resend";
+import { ResendService } from "@beep/resend";
 import { BS } from "@beep/schema";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
@@ -54,10 +54,10 @@ export namespace InvitationEmailPayload {
 }
 
 export class AuthEmailService extends Effect.Service<AuthEmailService>()("AuthEmailService", {
-  dependencies: [Service.Default],
+  dependencies: [ResendService.Default],
   accessors: true,
   effect: Effect.gen(function* () {
-    const { send } = yield* Service;
+    const { send } = yield* ResendService;
     const { email: emailEnv } = serverEnv;
 
     const sendVerification = Effect.fn("sendVerification")(function* (params: SendVerificationEmailPayload.Type) {

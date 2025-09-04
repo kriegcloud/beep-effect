@@ -9,6 +9,9 @@
       "path": "packages/common/types/tsconfig.build.json"
     },
     {
+      "path": "packages/runtime/tsconfig.build.json"
+    },
+    {
       "path": "packages/common/invariant/tsconfig.build.json"
     },
     {

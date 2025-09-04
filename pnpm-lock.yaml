@@ -1098,25 +1098,9 @@ importers:
       '@beep/schema':
         specifier: workspace:*
         version: link:../common/schema/build
-      '@tanstack/react-form':
-        specifier: 1.19.3
-        version: 1.19.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       effect:
         specifier: 3.17.13
         version: 3.17.13
-    devDependencies:
-      '@vitejs/plugin-react':
-        specifier: 5.0.2
-        version: 5.0.2(vite@7.1.4(@types/node@24.3.0)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.5)(yaml@2.8.1))
-      globals:
-        specifier: 16.3.0
-        version: 16.3.0
-      jsdom:
-        specifier: 26.1.0
-        version: 26.1.0
-      vite:
-        specifier: '*'
-        version: 7.1.4(@types/node@24.3.0)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.5)(yaml@2.8.1)
     publishDirectory: build
 
   packages/iam/api:
@@ -1296,6 +1280,13 @@ importers:
       '@types/pg':
         specifier: 8.15.5
         version: 8.15.5
+    publishDirectory: build
+
+  packages/runtime:
+    dependencies:
+      effect:
+        specifier: 3.17.13
+        version: 3.17.13
     publishDirectory: build
 
   packages/shared/client:
