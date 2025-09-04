@@ -17,10 +17,13 @@
   },
   "references": [
     {
-      "path": "../../iam/db/tsconfig.build.json"
+      "path": "../resend/tsconfig.build.json"
     },
     {
-      "path": "../resend/tsconfig.build.json"
+      "path": "../../email/tsconfig.build.json"
+    },
+    {
+      "path": "../../iam/db/tsconfig.build.json"
     },
     {
       "path": "../../iam/domain/tsconfig.build.json"

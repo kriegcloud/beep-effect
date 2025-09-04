@@ -3,6 +3,8 @@ import * as S from "effect/Schema";
 
 export type BoolSchema = S.PropertySignature<":", boolean, never, "?:", boolean | undefined, true, never>;
 
+export const BoolWithDefaultSchemaId = Symbol.for("@beep/schema/custom/BoolWithDefault");
+
 export const BoolWithDefault = (defaultValue: boolean): BoolSchema =>
   F.pipe(
     F.constant(defaultValue),
@@ -13,7 +15,9 @@ export const BoolWithDefault = (defaultValue: boolean): BoolSchema =>
           decoding: defaultValue,
           constructor: defaultValue,
         })
-      )
+      ).annotations({
+        schemaId: BoolWithDefaultSchemaId,
+      })
   );
 
 export namespace BoolWithDefault {

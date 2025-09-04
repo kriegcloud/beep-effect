@@ -33,7 +33,7 @@
     "dotenvx": "dotenvx run -f ../../../.env --",
     "lint:circular": "pnpm madge -c ."
   },
-  "peerDependencies": {
+  "dependencies": {
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/invariant": "workspace:^",

@@ -1,1 +1,1 @@
-export { default as leftActivationFromVars } from "./left-activation-from-vars";
+export { leftActivationFromVars, leftActivationOnMemoryNode } from "./left-activation-from-vars";

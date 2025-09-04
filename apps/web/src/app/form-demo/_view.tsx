@@ -1,4 +1,5 @@
 "use client";
+import type { UnsafeTypes } from "@beep/types";
 import Button from "@mui/material/Button";
 import { createBrowserInspector } from "@statelyai/inspect";
 import { useMachine } from "@xstate/react";
@@ -28,7 +29,7 @@ export function View() {
     return {
       // Mocked API: returns product details with random lot control flag after a short delay
       fetchProductDetails: async (input?: unknown) => {
-        const sku = (input as any)?.sku;
+        const sku = (input as UnsafeTypes.UnsafeAny)?.sku;
         await new Promise((r) => setTimeout(r, 800));
         return {
           sku,
@@ -210,7 +211,7 @@ export function View() {
             <Button
               variant="outlined"
               onClick={() => send({ type: "BACK" })}
-              disabled={((state.context as any)?.history?.length ?? 0) === 0}
+              disabled={(state.context?.history?.length ?? 0) === 0}
             >
               Back
             </Button>
@@ -248,7 +249,7 @@ export function View() {
                 {
                   state: state.value,
                   answers,
-                  ctxAnswers: (state.context as any)?.answers ?? {},
+                  ctxAnswers: state.context?.answers ?? {},
                   external,
                 },
                 null,
@@ -264,7 +265,7 @@ export function View() {
             <Button
               variant="outlined"
               onClick={() => send({ type: "BACK" })}
-              disabled={((state.context as any)?.history?.length ?? 0) === 0}
+              disabled={(state.context?.history?.length ?? 0) === 0}
             >
               Back
             </Button>

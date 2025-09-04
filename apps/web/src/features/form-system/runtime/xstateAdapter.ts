@@ -3,6 +3,7 @@
  * Location: apps/web/src/features/form-system/runtime/xstateAdapter.ts
  */
 
+import type { UnsafeTypes } from "@beep/types";
 import { assertEvent, assign, createMachine, type ProvidedActor } from "xstate";
 import type {
   EvaluationContext,
@@ -74,9 +75,9 @@ export function buildMachine(
 ) {
   const outgoing = groupOutgoing(def.transitions);
 
-  const states: Record<string, any> = {};
+  const states: Record<string, UnsafeTypes.UnsafeAny> = {};
   // Action to run an actor and send back completion
-  const runActor = ({ event, self }: { event: Events; self: any }) => {
+  const runActor = ({ event, self }: { event: Events; self: UnsafeTypes.UnsafeAny }) => {
     assertEvent(event, "RUN");
     const { id, input, assignKey } = event;
     const fn = actors?.[id];

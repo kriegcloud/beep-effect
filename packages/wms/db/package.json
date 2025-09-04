@@ -32,7 +32,7 @@
     "lint:fix": "biome check . --write",
     "lint:circular": "pnpm madge -c ."
   },
-  "peerDependencies": {
+  "dependencies": {
     "@beep/db-scope": "workspace:^",
     "@beep/wms-tables": "workspace:^",
     "drizzle-orm": "*",

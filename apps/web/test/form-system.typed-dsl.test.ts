@@ -1,3 +1,4 @@
+import type { UnsafeTypes } from "@beep/types";
 import { describe, expect, it } from "@effect/vitest";
 import {
   validateWorkflow as semanticValidate,
@@ -43,12 +44,12 @@ describe("Form System - Typed DSL (Effect Schema)", () => {
     // Required fields for 'product' step
     const product = wf.steps.find((s) => s.id === "product")!;
     expect(product.schema).toBeTruthy();
-    const productReq = (product.schema as any).required ?? [];
+    const productReq = (product.schema as UnsafeTypes.UnsafeAny).required ?? [];
     expect(productReq).toEqual(["sku", "location"]);
 
     // Confirm step enforces confirm === true (const true or enum [true])
     const confirm = wf.steps.find((s) => s.id === "confirm")!;
-    const confirmProp = (confirm.schema as any).properties?.confirm ?? {};
+    const confirmProp = (confirm.schema as UnsafeTypes.UnsafeAny).properties?.confirm ?? {};
     const hasConstTrue = confirmProp.const === true;
     const hasEnumTrue = Array.isArray(confirmProp.enum) && confirmProp.enum[0] === true;
     expect(hasConstTrue || hasEnumTrue).toBe(true);

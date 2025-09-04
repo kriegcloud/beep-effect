@@ -36,6 +36,9 @@
       "path": "apps/web/tsconfig.json"
     },
     {
+      "path": "packages/email/tsconfig.build.json"
+    },
+    {
       "path": "packages/iam/application/tsconfig.build.json"
     },
     {
@@ -66,18 +69,6 @@
       "path": "tooling/utils/tsconfig.build.json"
     },
     {
-      "path": "packages/workflow/dsl/tsconfig.build.json"
-    },
-    {
-      "path": "packages/workflow/model/tsconfig.build.json"
-    },
-    {
-      "path": "packages/workflow/renderer/tsconfig.build.json"
-    },
-    {
-      "path": "packages/workflow/runtime/tsconfig.build.json"
-    },
-    {
       "path": "packages/common/logos/tsconfig.build.json"
     },
     {
@@ -91,24 +82,6 @@
     },
     {
       "path": "packages/adapters/better-auth/tsconfig.build.json"
-    },
-    {
-      "path": "packages/comms/api/tsconfig.build.json"
-    },
-    {
-      "path": "packages/comms/application/tsconfig.build.json"
-    },
-    {
-      "path": "packages/comms/db/tsconfig.build.json"
-    },
-    {
-      "path": "packages/comms/domain/tsconfig.build.json"
-    },
-    {
-      "path": "packages/comms/tables/tsconfig.build.json"
-    },
-    {
-      "path": "packages/ai/navi/tsconfig.build.json"
     },
     {
       "path": "packages/ai/core/tsconfig.build.json"

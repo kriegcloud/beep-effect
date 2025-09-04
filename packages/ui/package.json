@@ -157,7 +157,7 @@
       "default": "./build/src/utils/*"
     }
   },
-  "peerDependencies": {
+  "dependencies": {
     "@beep/invariant": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",

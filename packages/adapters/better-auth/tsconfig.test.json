@@ -22,6 +22,9 @@
     },
     {
       "path": "../../persistence/db-scope"
+    },
+    {
+      "path": "../../email"
     }
   ],
   "compilerOptions": {
@@ -43,6 +46,8 @@
     "@beep/env/server": ["../../env/src/server"],
     "@beep/resend": ["../resend/src/index"],
     "@beep/resend/*": ["../resend/src/*"],
+    "@beep/email": ["../../email/src/index"],
+    "@beep/email/*": ["../../email/src/*"],
     "@beep/db-scope": ["../../persistence/db-scope/src/index"],
     "@beep/db-scope/*": ["../../persistence/db-scope/src/*"]
   }

@@ -1,6 +1,6 @@
 import { serverEnv } from "@beep/env/server";
 import { IamDb } from "@beep/iam-db";
-import { ResendService } from "@beep/resend";
+import { Service } from "@beep/resend";
 import * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import { AuthService } from "../Auth.service";
@@ -15,7 +15,7 @@ const AppLayer = Layer.mergeAll(
     })
   ),
   AuthEmailService.Default,
-  ResendService.Default
+  Service.Default
 );
 
 export const serverRuntime = ManagedRuntime.make(AppLayer);

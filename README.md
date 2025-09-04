@@ -1,79 +1,73 @@
-# TODOS
-- use `nx` instead of `turborepo`
-- create documentation generators
-- create iam domain layer
-- create vibe code tooling (claude, windsurf, cursor)
-- 
+# beep-effect
 
-## Form System — Typed Workflow DSL (Effect Schema)
+A TypeScript monorepo template for Effect enjoyers, vertical-slice fanatics, and startup gremlins. Monads? beep. Ports and adapters? beep beep.
 
-The form system provides a typed DSL to define multi-step workflows with compile-time safety and JSON Schema generation (draft 2020-12).
+## Why “beep”?
 
-Exports from `apps/web/src/features/form-system/index.ts`:
+“Beep” is an inside joke that roughly means “you beast.” When someone walks by and catches a dev grokking monads or orchestrating ports/adapters like a deity—beep.
 
-- `createTypedWorkflow` — typed builder
-- `validateWorkflowJson`, `validateAllStepSchemas` — Ajv validations
-- `validateWorkflow` — semantic validator
-- `buildMachine`, `evaluateJsonLogic` — runtime
+## What is this?
 
-### Define steps and transitions
+An open-source, batteries-included TypeScript monorepo built around Effect and a vertical-slice, hexagonal/clean architecture. It’s a long-lived playground and launchpad: a place to learn, iterate quickly on new ideas, and keep a serious toolbox sharp.
 
-```ts
-import { Schema } from "effect";
-import { createTypedWorkflow } from "@/features/form-system";
+## Goals
 
-// Effect step schemas
-const Product = Schema.Struct({
-  sku: Schema.propertySignature(Schema.String).annotations({ title: "SKU" }),
-  location: Schema.propertySignature(Schema.String).annotations({ title: "Location" }),
-  lotControlled: Schema.optional(Schema.Boolean).annotations({ title: "Lot controlled?" }),
-});
+- Open-source template for Effect TS developers to bootstrap serious projects fast
+- Learn-by-doing: hexagonal/clean/DDD, Effect (+ ecosystem), and AI agents with @effect/ai
+- Rapid prototyping for startup ideas via reusable internal packages
+- Extremely maintainable and long-lasting over “simple at all costs”
 
-const Adjust = Schema.Struct({
-  delta: Schema.propertySignature(Schema.Int).annotations({ title: "Adjustment (+/-)" }),
-});
+## Architecture
 
-// Build a workflow
-const wf = createTypedWorkflow({
-  id: "inventory-adjustment",
-  version: "1.0.0",
-  initial: "product",
-  metadata: { title: "Inventory Adjustment" },
-})
-  .step("product", Product, { title: "Select Product" })
-  .step("adjust", Adjust, { title: "Adjust Quantity" })
-  // Conditional transition using JsonLogic (typed helpers available)
-  .when(
-    "product",
-    "adjust",
-    { "==": [{ var: "external.productDetails.lotControlled" }, false] },
-    1,
-  )
-  .build();
-```
+Vertical Slice Architecture with a hexagonal/clean flavor:
+- Each slice owns its domain and exposes use cases via application ports
+- Infrastructure adapters implement those ports; IO stays out of domain logic
+- Cross-slice sharing only through shared/common modules
 
-Typed JsonLogic helpers (optional):
+See `Project Structure & Architecture` in:
+- [.windsurfrules](.windsurfrules) → repository-enforced boundaries and “allowed imports”
+- [CLAUDE.md](CLAUDE.md) → task-focused guidance for AI assistants
 
-```ts
-const b = createTypedWorkflow({ id: "x", version: "1", initial: "s" })
-  .step("s", Schema.Struct({ ok: Schema.Boolean }))
-  .when("s", "s", b.eq(b.varExternal("some.flag"), true));
-```
+## Monorepo layout
 
-### Validate workflow JSON
+- `apps/` — application surfaces (e.g., `web`, `server`, `mcp`)
+- `packages/` — vertical slices and shared libs
+  - Slices: `iam/*`, `wms/*` with `domain`, `application`, `api`, `db`, `ui`, `tables`
+  - Cross-cutting: `shared/*`, `common/*`, `adapters/*`, `persistence/*`, `ai/*`, `email/*`, `env/*`, `ui/*`
+- `tooling/*` — repo scripts, config, testkit
 
-```ts
-import { validateWorkflowJson, validateAllStepSchemas, validateWorkflow } from "@/features/form-system";
+Authoritative module boundaries via [tsconfig.base.json](tsconfig.base.json) path aliases (e.g., `@beep/iam-domain`, `@beep/wms-application`, `@beep/shared-*`, `@/*` for `apps/web`).
 
-const overall = validateWorkflowJson(wf);
-const steps = validateAllStepSchemas(wf);
-const semantic = validateWorkflow(wf);
-```
+## Tech stack
 
-### Demo: run with typed workflow
+- Language: TypeScript (strict)
+- Core: Effect 3, @effect/platform
+- DB: Postgres, Drizzle ORM, `@effect/sql*`
+- Auth: better-auth
+- UI: React + MUI (+ Tailwind utilities via @beep/ui)
+- State/machines: XState (v5)
+- Build & workspace: pnpm + Turborepo
+- Quality: Biome, Vitest
+- Optional/infra: Docker + dotenvx
+- AI: @effect/ai (+ IDE assistant rules in [.windsurfrules](.windsurfrules), `.cursorrules`, [CLAUDE.md](CLAUDE.md))
 
-The demo at `apps/web/src/app/form-demo/page.tsx` uses the typed example exported from:
+## Quick start
 
-- `apps/web/src/features/form-system/examples/inventory-adjustment.typed.ts`
+Prereqs
+- Node LTS, pnpm 10.15.0
+- Docker (for local Postgres)
+- Optional: direnv
 
-You can tweak the example and see the runtime behavior (XState v5 + JsonLogic) in the demo.
+Install & run
+```bash
+pnpm install
+cp .env.example .env
+
+# Start DB (optional if using Docker)
+pnpm db:up
+
+# Dev (all)
+pnpm dev
+
+# Dev (web only)
+pnpm dev --filter=@beep/web

@@ -1,4 +1,4 @@
-import { type Paths, validateWithSchema } from "@beep/ui/form";
+import { type Paths, validateWithSchema } from "@beep/ui/form/makeFormOptions";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 

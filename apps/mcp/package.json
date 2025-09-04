@@ -64,8 +64,8 @@
     }
   },
   "devDependencies": {
-    "@types/pg": "^8.11.11",
-    "madge": "8.0.0",
-    "tsx": "^4.19.2"
+    "@types/pg": "*",
+    "madge": "*",
+    "tsx": "*"
   }
 }

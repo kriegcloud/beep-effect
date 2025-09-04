@@ -35,6 +35,7 @@
     "better-auth": "*",
     "resend": "*",
     "@react-email/components": "*",
+    "@univerjs/preset-sheets-core": "*",
     "@univerjs/presets": "*",
     "@univerjs/themes": "*",
     "@univerjs/preset-docs-core": "*",

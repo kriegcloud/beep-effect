@@ -1,7 +1,12 @@
 {
   "extends": "./tsconfig.base.json",
-  "include": [],
+  "include": [
+    "./syncpack.config.ts"
+  ],
   "exclude": [],
+  "compilerOptions": {
+"types": ["node"]
+  },
   "references": [
     {
       "path": "apps/server"
@@ -70,18 +75,6 @@
       "path": "apps/web"
     },
     {
-      "path": "packages/workflow/dsl"
-    },
-    {
-      "path": "packages/workflow/model"
-    },
-    {
-      "path": "packages/workflow/renderer"
-    },
-    {
-      "path": "packages/workflow/runtime"
-    },
-    {
       "path": "packages/common/logos"
     },
     {
@@ -95,24 +88,6 @@
     },
     {
       "path": "packages/adapters/better-auth"
-    },
-    {
-      "path": "packages/comms/api"
-    },
-    {
-      "path": "packages/comms/application"
-    },
-    {
-      "path": "packages/comms/db"
-    },
-    {
-      "path": "packages/comms/domain"
-    },
-    {
-      "path": "packages/comms/tables"
-    },
-    {
-      "path": "packages/ai/navi"
     },
     {
       "path": "packages/ai/core"
@@ -140,6 +115,9 @@
     },
     {
       "path": "apps/mcp"
+    },
+    {
+      "path": "packages/email"
     }
   ]
 }

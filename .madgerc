@@ -1,17 +1,13 @@
 {
+  "fileExtensions": [
+    "ts",
+    "tsx",
+    "js",
+    "jsx"
+  ],
   "detectiveOptions": {
-    "extensions": "ts,tsx",
-    "excludeRegExp": [
-      "build",
-      ".turbo",
-      "node_modules",
-      ".tsbuildinfo"
-    ],
     "ts": {
       "skipTypeImports": true
-    },
-    "tsx": {
-      "skipAsyncImports": true
     }
   }
 }

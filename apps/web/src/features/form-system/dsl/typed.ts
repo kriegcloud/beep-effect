@@ -3,6 +3,7 @@
  * Location: apps/web/src/features/form-system/dsl/typed.ts
  */
 
+import type { SchemaTypes } from "@beep/types";
 import type { UISchemaElement } from "@jsonforms/core";
 import { JSONSchema as EffectJSONSchema, type Schema } from "effect";
 import type {
@@ -13,10 +14,8 @@ import type {
   TransitionDefinition,
   WorkflowDefinition,
 } from "../model/types";
-
 // Utility types for typed field paths
-type AnySchema = Schema.Schema<any, any, any>;
-export type Infer<S extends AnySchema> = Schema.Schema.Type<S>;
+export type Infer<S extends SchemaTypes.AnySchema> = Schema.Schema.Type<S>;
 
 // Dot-paths for nested objects (arrays are not expanded here)
 export type Path<T> = T extends object
@@ -37,8 +36,8 @@ export interface StepOptions {
   annotations?: JsonObject;
 }
 
-export interface TypedWorkflowBuilder<S extends Record<string, AnySchema>> {
-  step<Id extends string, TSchema extends AnySchema>(
+export interface TypedWorkflowBuilder<S extends Record<string, SchemaTypes.AnySchema>> {
+  step<Id extends string, TSchema extends SchemaTypes.AnySchema>(
     id: Id,
     schema: TSchema,
     options?: StepOptions
@@ -80,9 +79,9 @@ export function createTypedWorkflow(args: CreateWorkflowArgs): TypedWorkflowBuil
     transitions: [] as TransitionDefinition[],
   };
 
-  function makeBuilder<T extends Record<string, AnySchema>>(): TypedWorkflowBuilder<T> {
+  function makeBuilder<T extends Record<string, SchemaTypes.AnySchema>>(): TypedWorkflowBuilder<T> {
     return {
-      step<Id extends string, TSchema extends AnySchema>(id: Id, schema: TSchema, options?: StepOptions) {
+      step<Id extends string, TSchema extends SchemaTypes.AnySchema>(id: Id, schema: TSchema, options?: StepOptions) {
         // Generate JSON Schema from Effect Schema and normalize to draft 2020-12
         const raw = EffectJSONSchema.make(schema) as unknown as JsonObject;
         const jsonSchema = {

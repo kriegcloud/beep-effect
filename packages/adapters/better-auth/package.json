@@ -34,7 +34,8 @@
     "dotenvx": "dotenvx run -f ../../../.env --",
     "lint:circular": "pnpm madge -c ."
   },
-  "peerDependencies": {
+  "dependencies": {
+    "@beep/email": "workspace:^",
     "@beep/env": "workspace:^",
     "@beep/iam-db": "workspace:^",
     "@beep/iam-domain": "workspace:^",
@@ -51,10 +52,13 @@
     "@dub/better-auth": "*",
     "@simplewebauthn/server": "*",
     "dub": "*",
+    "pg": "*",
     "jose": "*",
-    "better-auth": "*"
+    "better-auth": "*",
+    "uuid": "*"
   },
   "devDependencies": {
+    "@types/pg": "*",
     "@types/react": "*",
     "@types/react-dom": "*"
   },

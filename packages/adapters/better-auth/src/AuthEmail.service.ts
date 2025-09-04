@@ -1,5 +1,6 @@
+import { reactInvitationEmail, reactResetPasswordEmail, renderEmail } from "@beep/email";
 import { serverEnv } from "@beep/env/server";
-import { ResendService, reactInvitationEmail, reactResetPasswordEmail } from "@beep/resend";
+import { Service } from "@beep/resend";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 
@@ -30,10 +31,10 @@ type SendInvitationParams = Record<string, any> & {
 };
 
 export class AuthEmailService extends Effect.Service<AuthEmailService>()("AuthEmailService", {
-  dependencies: [ResendService.Default],
+  dependencies: [Service.Default],
   accessors: true,
   effect: Effect.gen(function* () {
-    const { send } = yield* ResendService;
+    const { send } = yield* Service;
     const { email: emailEnv } = serverEnv;
 
     const sendVerification = Effect.fn("sendVerification")(function* () {
@@ -51,29 +52,36 @@ export class AuthEmailService extends Effect.Service<AuthEmailService>()("AuthEm
       url: string;
       token: string;
     }) {
+      const emailTemplate = yield* renderEmail(
+        reactResetPasswordEmail({
+          username: params.user.username,
+          resetLink: params.url,
+        })
+      );
+
       return yield* send({
         from: Redacted.value(emailEnv.from),
         to: params.user.email,
         subject: "Reset your password",
-        react: reactResetPasswordEmail({
-          username: params.user.username,
-          resetLink: params.url,
-        }),
+        react: emailTemplate,
       });
     });
 
     const sendInvitation = Effect.fn("sendInvitation")(function* (params: SendInvitationParams) {
-      return yield* send({
-        from: Redacted.value(emailEnv.from),
-        to: "",
-        subject: "You've been invited to join an organization",
-        react: reactInvitationEmail({
+      const emailTemplate = yield* renderEmail(
+        reactInvitationEmail({
           username: "",
           invitedByUsername: "",
           invitedByEmail: "",
           teamName: "",
           inviteLink: "",
-        }),
+        })
+      );
+      return yield* send({
+        from: Redacted.value(emailEnv.from),
+        to: "",
+        subject: "You've been invited to join an organization",
+        react: emailTemplate,
       });
     });
 

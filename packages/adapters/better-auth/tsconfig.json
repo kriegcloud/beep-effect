@@ -15,7 +15,9 @@
       "@beep/resend": ["../resend/src/index"],
       "@beep/resend/*": ["../resend/src/*"],
       "@beep/db-scope": ["../../persistence/db-scope/src/index"],
-      "@beep/db-scope/*": ["../../persistence/db-scope/src/*"]
+      "@beep/db-scope/*": ["../../persistence/db-scope/src/*"],
+      "@beep/email": ["../../email/src/index"],
+      "@beep/email/*": ["../../email/src/*"]
     }
   },
   "references": [

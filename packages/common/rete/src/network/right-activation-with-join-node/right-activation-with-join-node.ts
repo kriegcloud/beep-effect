@@ -1,7 +1,7 @@
 import type { $Schema, IdAttr, JoinNode, Session, Token } from "@beep/rete/network/types";
 import { bindVarsFromFact } from "../bind-vars-from-fact";
 import { getValFromBindings } from "../get-val-from-bindings";
-import { leftActivationOnMemoryNode } from "../left-activation-on-memory-node";
+import { leftActivationOnMemoryNode } from "../left-activation-from-vars";
 import { UnexpectedNullChildForNode, UnexpectedUndefinedChildForNode } from "./errors";
 
 const rightActivationWithJoinNode = <T extends $Schema>(

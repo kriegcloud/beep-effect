@@ -1,3 +1,4 @@
+import type { UnsafeTypes } from "@beep/types";
 import { describe, expect, it } from "@effect/vitest";
 import {
   validateAllStepSchemas,
@@ -16,7 +17,7 @@ describe("Form System - Schema Validation (Ajv)", () => {
   });
 
   it("fails when required properties are missing", () => {
-    const { initial: _omit, ...rest } = example as any;
+    const { initial: _omit, ...rest } = example as UnsafeTypes.UnsafeAny;
     const res = validateWorkflowJson(rest);
     expect(res.valid).toBe(false);
     expect(Array.isArray(res.errors)).toBe(true);

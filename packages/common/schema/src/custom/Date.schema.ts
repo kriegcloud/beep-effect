@@ -2,6 +2,8 @@ import * as DateTime from "effect/DateTime";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 
+export const DateTimeUtcByInstantSchemaId = Symbol.for("@beep/schema/custom/DateTimeUtcByInstant");
+
 const DateTimeUtcByInstant = S.DateTimeUtcFromSelf.annotations({
   equivalence: () => (a: DateTime.Utc, b: DateTime.Utc) =>
     DateTime.toDate(a).getTime() === DateTime.toDate(b).getTime(),
@@ -9,7 +11,10 @@ const DateTimeUtcByInstant = S.DateTimeUtcFromSelf.annotations({
     type: "string",
     format: "date-time",
   },
+  schemaId: DateTimeUtcByInstantSchemaId,
 });
+
+export const AllAcceptableDateInputsSchemaId = Symbol.for("@beep/schema/custom/AllAcceptableDateInputs");
 
 export const AllAcceptableDateInputs = S.Union(
   S.DateFromSelf.annotations({
@@ -31,7 +36,9 @@ export const AllAcceptableDateInputs = S.Union(
     },
   }),
   DateTimeUtcByInstant
-);
+).annotations({
+  schemaId: AllAcceptableDateInputsSchemaId,
+});
 export namespace AllAcceptableDateInputs {
   export type Type = typeof AllAcceptableDateInputs.Type;
   export type Encoded = typeof AllAcceptableDateInputs.Encoded;

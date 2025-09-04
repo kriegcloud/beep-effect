@@ -5,82 +5,96 @@ import * as M from "@effect/sql/Model";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
 
+export const OrganizationModelSchemaId = Symbol.for("@beep/shared-domain/OrganizationModel");
+
 /**
  * Organization model representing organizations.
  * Maps to the `organization` table in the database.
  */
-export class Model extends M.Class<Model>(`OrganizationModel`)({
-  /** Primary key identifier for the organization */
-  id: M.Generated(SharedEntityIds.OrganizationId),
+export class Model extends M.Class<Model>(`OrganizationModel`)(
+  {
+    /** Primary key identifier for the organization */
+    id: M.Generated(SharedEntityIds.OrganizationId),
 
-  /** Organization name */
-  name: S.NonEmptyString.annotations({
-    description: "The organization's display name",
-  }),
+    /** Organization name */
+    name: S.NonEmptyString.annotations({
+      description: "The organization's display name",
+    }),
 
-  /** URL-friendly slug identifier */
-  slug: M.FieldOption(
-    BS.Slug.pipe(S.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), S.minLength(2), S.maxLength(50)).annotations({
-      description: "URL-friendly identifier for the organization",
-    })
-  ),
+    /** URL-friendly slug identifier */
+    slug: M.FieldOption(
+      BS.Slug.pipe(S.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), S.minLength(2), S.maxLength(50)).annotations({
+        description: "URL-friendly identifier for the organization",
+      })
+    ),
 
-  /** Organization logo URL */
-  logo: M.FieldOption(
-    BS.URLString.annotations({
-      description: "URL to the organization's logo",
-    })
-  ),
+    /** Organization logo URL */
+    logo: M.FieldOption(
+      BS.URLString.annotations({
+        description: "URL to the organization's logo",
+      })
+    ),
 
-  /** Flexible metadata storage */
-  metadata: M.FieldOption(
-    S.String.annotations({
-      description: "JSON metadata for additional organization data",
-    })
-  ),
-  type: S.Literal("individual", "team", "enterprise").annotations({
-    description: "The type of organization",
-  }),
-  ownerUserId: IamEntityIds.UserId.annotations({
-    description: "The owner of the organization",
-  }),
-  isPersonal: S.Boolean.pipe(
-    S.optional,
-    S.withDefaults({
-      decoding: F.constFalse,
-      constructor: F.constFalse,
-    })
-  ).annotations({
-    description: "Whether this organization is auto-created for a user",
-  }),
-  maxMembers: M.FieldOption(
-    S.NonNegativeInt.annotations({
-      description: "The maximum number of members allowed in the organization",
-    })
-  ),
-  features: M.FieldOption(M.JsonFromString(S.Record({ key: S.String, value: S.Any }))),
-  settings: M.FieldOption(M.JsonFromString(S.Record({ key: S.String, value: S.Any }))),
-  subscriptionTier: S.Literal("free", "plus", "pro")
-    .pipe(
+    /** Flexible metadata storage */
+    metadata: M.FieldOption(
+      S.String.annotations({
+        description: "JSON metadata for additional organization data",
+      })
+    ),
+    type: S.Literal("individual", "team", "enterprise").annotations({
+      description: "The type of organization",
+    }),
+    ownerUserId: IamEntityIds.UserId.annotations({
+      description: "The owner of the organization",
+    }),
+    isPersonal: S.Boolean.pipe(
       S.optional,
       S.withDefaults({
-        decoding: F.constant("free"),
-        constructor: F.constant("free"),
+        decoding: F.constFalse,
+        constructor: F.constFalse,
       })
-    )
-    .annotations({
-      description: "The subscription tier of the organization",
+    ).annotations({
+      description: "Whether this organization is auto-created for a user",
     }),
-  subscriptionStatus: S.Literal("active", "canceled")
-    .pipe(
-      S.optional,
-      S.withDefaults({
-        decoding: F.constant("active"),
-        constructor: F.constant("active"),
+    maxMembers: M.FieldOption(
+      S.NonNegativeInt.annotations({
+        description: "The maximum number of members allowed in the organization",
       })
-    )
-    .annotations({
-      description: "The subscription status of the organization",
-    }),
-  ...Common.globalColumns,
-}) {}
+    ),
+    features: M.FieldOption(M.JsonFromString(S.Record({ key: S.String, value: S.Any }))),
+    settings: M.FieldOption(M.JsonFromString(S.Record({ key: S.String, value: S.Any }))),
+    subscriptionTier: S.Literal("free", "plus", "pro")
+      .pipe(
+        S.optional,
+        S.withDefaults({
+          decoding: F.constant("free"),
+          constructor: F.constant("free"),
+        })
+      )
+      .annotations({
+        description: "The subscription tier of the organization",
+      }),
+    subscriptionStatus: S.Literal("active", "canceled")
+      .pipe(
+        S.optional,
+        S.withDefaults({
+          decoding: F.constant("active"),
+          constructor: F.constant("active"),
+        })
+      )
+      .annotations({
+        description: "The subscription status of the organization",
+      }),
+    ...Common.globalColumns,
+  },
+  {
+    title: "Organization Model",
+    description: "Organization model representing organizations.",
+    schemaId: OrganizationModelSchemaId,
+  }
+) {}
+
+export namespace Model {
+  export type Type = S.Schema.Type<typeof Model>;
+  export type Encoded = S.Schema.Encoded<typeof Model>;
+}

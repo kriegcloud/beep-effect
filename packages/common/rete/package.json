@@ -37,7 +37,7 @@
     "@faker-js/faker": "*",
     "@types/react": "*"
   },
-  "peerDependencies": {
+  "dependencies": {
     "react": "*",
     "lodash": "*",
     "@beep/types": "workspace:^",

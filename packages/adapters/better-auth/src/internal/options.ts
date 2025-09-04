@@ -640,12 +640,6 @@ export const makeOptions = (opts: BetterAuthOptions): BetterAuthOptions =>
        * @default false
        */
       debug: opts.telemetry?.debug,
-      /**
-       * Disable telemetry notice
-       *
-       * @default false
-       */
-      disableNotice: opts.telemetry?.disableNotice,
     },
   }) satisfies BetterAuthOptions;
 
