@@ -3,7 +3,9 @@
   "include": [],
   "compilerOptions": {
     "paths": {
-      "@beep/shared-tables/*": ["./src/*"]
+      "@beep/shared-tables/*": ["./src/*"],
+      "@beep/shared-domain": ["../domain/src/index"],
+      "@beep/shared-domain/*": ["../domain/src/*"]
     }
   },
   "references": [

@@ -1,7 +1,12 @@
+import { Organization } from "@beep/shared-domain/entities";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import * as DateTime from "effect/DateTime";
 import * as F from "effect/Function";
+
+export const organizationTypePgEnum = Organization.makeOrganizationTypePgEnum("organization_type");
+export const subscriptionTierPgEnum = Organization.makeSubscriptionTierPgEnum("organization_subscription_tier");
+export const subscriptionStatusPgEnum = Organization.makeSubscriptionStatusPgEnum("organization_subscription_status");
 
 export const organization = pg.pgTable(
   "organization",
@@ -13,15 +18,14 @@ export const organization = pg.pgTable(
     metadata: pg.text("metadata"),
 
     // Multi-tenant enhancement fields
-    type: pg.text("type").notNull().default("individual"), // 'individual', 'team', 'enterprise'
+    type: organizationTypePgEnum().default(Organization.OrganizationTypeEnum.individual), // 'individual', 'team', 'enterprise'
     ownerUserId: pg.text("owner_user_id"), // Reference to user who owns this org (relation defined in relations.ts)
     isPersonal: pg.boolean("is_personal").notNull().default(false), // True for auto-created personal orgs
     maxMembers: pg.integer("max_members"), // Maximum members allowed
-    features: pg.text("features"), // JSON string for feature flags
-    settings: pg.text("settings"), // JSON string for org settings
-    subscriptionTier: pg.text("subscription_tier").default("free"), // 'free', 'plus', 'pro', etc.
-    subscriptionStatus: pg.text("subscription_status").default("active"), // 'active', 'canceled', etc.
-
+    features: pg.jsonb("features"), // JSON string for feature flags
+    settings: pg.jsonb("settings"), // JSON string for org settings
+    subscriptionTier: subscriptionTierPgEnum().default(Organization.SubscriptionTierEnum.free), // 'free', 'plus', 'pro', etc.
+    subscriptionStatus: subscriptionStatusPgEnum().default(Organization.SubscriptionStatusEnum.active), // 'active', 'canceled', etc.
     createdAt: pg
       .timestamp("createdAt", { withTimezone: true })
       .notNull()
@@ -40,7 +44,6 @@ export const organization = pg.pgTable(
       .default(1)
       .$onUpdateFn(() => d.sql`version + 1`),
     source: pg.text("source"), // 'api', 'import', 'migration', etc.
-    // ...withMetadataColumn<any>()
   },
   (t) => [
     // Index for name-based searches (case-insensitive)

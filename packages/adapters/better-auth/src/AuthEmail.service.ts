@@ -1,34 +1,57 @@
 import { reactInvitationEmail, reactResetPasswordEmail, renderEmail } from "@beep/email";
 import { serverEnv } from "@beep/env/server";
 import { Service } from "@beep/resend";
+import { BS } from "@beep/schema";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
+import * as S from "effect/Schema";
 
-type SendInvitationParams = Record<string, any> & {
-  readonly id: string;
-  readonly role: string;
-  readonly organization: Record<string, any> & {
-    readonly id: string;
-    readonly name: string;
-    readonly slug: string;
-    readonly logo?: string | null | undefined;
-  };
-  readonly invitation: Record<string, any> & {
-    readonly id: string;
-    readonly organizationId: string;
-    readonly email: string;
-    readonly status: string;
-    readonly teamId?: null | string;
-    readonly inviterId: string;
-  };
-  readonly email: string;
-  readonly inviter: Record<string, any> & {
-    readonly id: string;
-    readonly organizationId: string;
-    readonly userId: string;
-    readonly role: string;
-  };
-};
+export class SendVerificationEmailPayload extends S.Class<SendVerificationEmailPayload>("SendVerificationEmailPayload")(
+  {
+    email: BS.Email,
+    url: BS.URLString,
+  }
+) {}
+
+export namespace SendVerificationEmailPayload {
+  export type Type = S.Schema.Type<typeof SendVerificationEmailPayload>;
+  export type Encoded = S.Schema.Encoded<typeof SendVerificationEmailPayload>;
+}
+
+export class SendOTPEmailPayload extends S.Class<SendOTPEmailPayload>("SendOTPEmailPayload")({
+  email: BS.Email,
+  otp: S.Redacted(S.String),
+}) {}
+
+export namespace SendOTPEmailPayload {
+  export type Type = S.Schema.Type<typeof SendOTPEmailPayload>;
+  export type Encoded = S.Schema.Encoded<typeof SendOTPEmailPayload>;
+}
+
+export class SendResetPasswordEmailPayload extends S.Class<SendResetPasswordEmailPayload>(
+  "SendResetPasswordEmailPayload"
+)({
+  username: S.String,
+  url: BS.URLString,
+  email: BS.Email,
+}) {}
+
+export namespace SendResetPasswordEmailPayload {
+  export type Type = S.Schema.Type<typeof SendResetPasswordEmailPayload>;
+  export type Encoded = S.Schema.Encoded<typeof SendResetPasswordEmailPayload>;
+}
+
+export class InvitationEmailPayload extends S.Class<InvitationEmailPayload>("InvitationEmailPayload")({
+  email: BS.Email,
+  invitedByUsername: S.String,
+  invitedByEmail: BS.Email,
+  teamName: S.String,
+}) {}
+
+export namespace InvitationEmailPayload {
+  export type Type = S.Schema.Type<typeof InvitationEmailPayload>;
+  export type Encoded = S.Schema.Encoded<typeof InvitationEmailPayload>;
+}
 
 export class AuthEmailService extends Effect.Service<AuthEmailService>()("AuthEmailService", {
   dependencies: [Service.Default],
@@ -37,61 +60,54 @@ export class AuthEmailService extends Effect.Service<AuthEmailService>()("AuthEm
     const { send } = yield* Service;
     const { email: emailEnv } = serverEnv;
 
-    const sendVerification = Effect.fn("sendVerification")(function* () {
+    const sendVerification = Effect.fn("sendVerification")(function* (params: SendVerificationEmailPayload.Type) {
       return yield* send({
         from: Redacted.value(emailEnv.from),
-        to: "",
+        to: Redacted.value(params.email),
         subject: "Verify your email",
-        // html: `<a href="${params.url}">Verify your email</a>`,
-        html: "",
+        html: `<a href="${params.url.toString()}">Verify your email</a>`,
       });
     });
 
-    const sendResetPassword = Effect.fn("sendResetPassword")(function* (params: {
-      user: { email: string; username: string };
-      url: string;
-      token: string;
-    }) {
+    const sendResetPassword = Effect.fn("sendResetPassword")(function* (params: SendResetPasswordEmailPayload.Type) {
       const emailTemplate = yield* renderEmail(
         reactResetPasswordEmail({
-          username: params.user.username,
-          resetLink: params.url,
+          username: params.username,
+          resetLink: params.url.toString(),
         })
       );
 
       return yield* send({
         from: Redacted.value(emailEnv.from),
-        to: params.user.email,
+        to: Redacted.value(params.email),
         subject: "Reset your password",
         react: emailTemplate,
       });
     });
 
-    const sendInvitation = Effect.fn("sendInvitation")(function* (params: SendInvitationParams) {
+    const sendInvitation = Effect.fn("sendInvitation")(function* (params: InvitationEmailPayload.Type) {
       const emailTemplate = yield* renderEmail(
         reactInvitationEmail({
-          username: "",
-          invitedByUsername: "",
-          invitedByEmail: "",
-          teamName: "",
-          inviteLink: "",
+          email: Redacted.value(params.email),
+          invitedByUsername: params.invitedByUsername,
+          invitedByEmail: Redacted.value(params.invitedByEmail),
+          teamName: params.teamName,
         })
       );
       return yield* send({
         from: Redacted.value(emailEnv.from),
-        to: "",
+        to: Redacted.value(params.email),
         subject: "You've been invited to join an organization",
         react: emailTemplate,
       });
     });
 
-    const sendOTP = Effect.fn("sendOTP")(function* () {
+    const sendOTP = Effect.fn("sendOTP")(function* (params: SendOTPEmailPayload.Type) {
       return yield* send({
         from: Redacted.value(emailEnv.from),
-        to: "params.user.email",
+        to: Redacted.value(params.email),
         subject: "Your OTP",
-        // biome-ignore lint/suspicious/noTemplateCurlyInString: interpolation
-        html: "`Your OTP is ${params.otp}`",
+        html: `Your OTP is ${Redacted.value(params.otp)}`,
       });
     });
 

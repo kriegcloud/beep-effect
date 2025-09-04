@@ -8,6 +8,7 @@ export * as Member from "./Member";
 export * as OAuthAccessToken from "./OAuthAccessToken";
 export * as OAuthApplication from "./OAuthApplication";
 export * as OAuthConsent from "./OAuthConsent";
+export * as OrganizationRole from "./OrganizationRole";
 export * as Passkey from "./Passkey";
 export * as RateLimit from "./RateLimit";
 export * as Session from "./Session";

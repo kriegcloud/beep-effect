@@ -198,3 +198,14 @@ export namespace WalletAddressId {
   export type Type = typeof WalletAddressId.Type;
   export type Encoded = typeof WalletAddressId.Encoded;
 }
+
+export const OrganizationRoleId = BS.EntityId.make("OrganizationRole")({
+  identifier: "OrganizationRoleId",
+  description: "A unique identifier for an organization role",
+  title: "Organization Role",
+});
+
+export namespace OrganizationRoleId {
+  export type Type = typeof OrganizationRoleId.Type;
+  export type Encoded = typeof OrganizationRoleId.Encoded;
+}

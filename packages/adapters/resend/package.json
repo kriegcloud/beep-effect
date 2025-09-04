@@ -36,21 +36,10 @@
   "dependencies": {
     "@beep/env": "workspace:^",
     "effect": "*",
-    "resend": "*",
-    "@react-email/components": "*",
-    "react": "*",
-    "react-dom": "*",
-    "tailwind-merge": "*",
-    "clsx": "*",
-    "tailwindcss-animate": "*",
-    "tw-animate-css": "*"
+    "resend": "*"
   },
   "devDependencies": {
-    "@beep/types": "workspace:^",
-    "@types/react": "*",
-    "@types/react-dom": "*",
-    "@tailwindcss/postcss": "*",
-    "tailwindcss": "*"
+    "@beep/types": "workspace:^"
   },
   "effect": {
     "generateExports": {

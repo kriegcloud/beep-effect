@@ -1,0 +1,34 @@
+export const commonExtraFields = {
+  deletedAt: {
+    type: "date",
+    required: false,
+  },
+  updatedAt: {
+    type: "date",
+    required: false,
+  },
+  createdAt: {
+    type: "date",
+    required: false,
+  },
+  createdBy: {
+    type: "string",
+    required: false,
+  },
+  updatedBy: {
+    type: "string",
+    required: false,
+  },
+  deletedBy: {
+    type: "string",
+    required: false,
+  },
+  version: {
+    type: "string",
+    required: false,
+  },
+  source: {
+    type: "string",
+    required: false,
+  },
+} as const;

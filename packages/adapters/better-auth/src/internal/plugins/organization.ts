@@ -1,198 +1,152 @@
-import type { BetterAuthPlugin } from "better-auth";
+import { DbError } from "@beep/db-scope/errors";
+import { IamDb } from "@beep/iam-db";
+import { IamDbSchema } from "@beep/iam-tables";
+import { Organization } from "@beep/shared-domain/entities";
 import { organization } from "better-auth/plugins";
-import type { OrganizationOptions } from "better-auth/plugins/organization";
-// import * as Effect from "effect/Effect";
-export type { OrganizationOptions };
-/**
- * TODO factor out
- * @param opts
- */
-export const makeOrganizationPlugin = (opts: OrganizationOptions): BetterAuthPlugin =>
-  organization({
-    /**
-     * Configure whether new users are able to create new organizations.
-     * You can also pass a function that returns a boolean.
-     *
-     *  @example
-     * ```ts
-     * allowUserToCreateOrganization: async (user) => {
-     *    const plan = await getUserPlan(user);
-     *      return plan.name === "pro";
-     * }
-     * ```
-     * @default true
-     */
-    allowUserToCreateOrganization: opts.allowUserToCreateOrganization ?? false,
-    /**
-     * The maximum number of organizations a user can create.
-     *
-     * You can also pass a function that returns a boolean
-     */
-    organizationLimit: opts.organizationLimit ?? 1,
-    /**
-     * The role that is assigned to the creator of the
-     * organization.
-     *
-     * @default "owner"
-     */
-    creatorRole: opts.creatorRole ?? "owner",
-    /**
-     * The maximum number of members allowed in an organization.
-     *
-     * @default 100
-     */
-    membershipLimit: opts.membershipLimit ?? 1,
-    /**
-     * Configure the roles and permissions for the
-     * organization plugin.
-     */
-    ac: opts.ac,
-    /**
-     * Custom permissions for roles.
-     */
-    roles: opts.roles,
-    /**
-     * Support for team.
-     */
-    teams: {
-      /**
-       * Enable team features.
-       */
-      enabled: opts.teams?.enabled ?? false,
-      /**
-       * Default team configuration
-       */
-      defaultTeam: {
-        /**
-         * Enable creating a default team when an organization is created
-         *
-         * @default true
-         */
-        enabled: opts.teams?.defaultTeam?.enabled ?? false,
-        /**
-         * Pass a custom default team creator function
-         */
-        customCreateDefaultTeam: opts.teams?.defaultTeam?.customCreateDefaultTeam,
-      },
-      /**
-       * Maximum number of teams an organization can have.
-       *
-       * You can pass a number or a function that returns a number
-       *
-       * @default "unlimited"
-       *
-       * @param organization
-       * @param request
-       * @returns
-       */
-      maximumTeams: opts.teams?.maximumTeams,
-      /**
-       * The maximum number of members per team.
-       *
-       * if `undefined`, there is no limit.
-       *
-       * @default undefined
-       */
-      maximumMembersPerTeam: opts.teams?.maximumMembersPerTeam,
-      /**
-       * By default, if an organization does only have one team, they'll not be able to remove it.
-       *
-       * You can disable this behavior by setting this to `false.
-       *
-       * @default false
-       */
-      allowRemovingAllTeams: opts.teams?.allowRemovingAllTeams,
-    },
-    /**
-     * The expiration time for the invitation link.
-     *
-     * @default 48 hours
-     */
-    invitationExpiresIn: opts.invitationExpiresIn,
-    /**
-     * The maximum invitation a user can send.
-     *
-     * @default 100
-     */
-    invitationLimit: opts.invitationLimit,
-    /**
-     * Cancel pending invitations on re-invite.
-     *
-     * @default false
-     */
-    cancelPendingInvitationsOnReInvite: opts.cancelPendingInvitationsOnReInvite,
-    /**
-     * Require email verification on accepting or rejecting an invitation
-     *
-     * @default false
-     */
-    requireEmailVerificationOnInvitation: opts.requireEmailVerificationOnInvitation,
-    /**
-     * Send an email with the
-     * invitation link to the user.
-     *
-     * Note: Better Auth doesn't
-     * generate invitation URLs.
-     * You'll need to construct the
-     * URL using the invitation ID
-     * and pass it to the
-     * acceptInvitation endpoint for
-     * the user to accept the
-     * invitation.
-     *
-     * @example
-     * ```ts
-     * sendInvitationEmail: async (data) => {
-     *  const url = `https://yourapp.com/organization/
-     * accept-invitation?id=${data.id}`;
-     *  await sendEmail(data.email, "Invitation to join
-     * organization", `Click the link to join the
-     * organization: ${url}`);
-     * }
-     * ```
-     */
-    sendInvitationEmail: opts.sendInvitationEmail,
-    /**
-     * The schema for the organization plugin.
-     */
-    schema: opts.schema,
-    /**
-     * Configure how organization deletion is handled
-     */
-    organizationDeletion: {
-      /**
-       * disable deleting organization
-       */
-      disabled: opts.organizationDeletion?.disabled ?? true,
-      /**
-       * A callback that runs before the organization is
-       * deleted
-       *
-       * @param data - organization and user object
-       * @param request - the request object
-       * @returns
-       */
-      beforeDelete: opts.organizationDeletion?.beforeDelete,
-      /**
-       * A callback that runs after the organization is
-       * deleted
-       *
-       * @param data - organization and user object
-       * @param request - the request object
-       * @returns
-       */
-      afterDelete: opts.organizationDeletion?.afterDelete,
-    },
+import * as d from "drizzle-orm";
+import * as DateTime from "effect/DateTime";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
+import { AuthEmailService, InvitationEmailPayload } from "../../AuthEmail.service";
+import { commonExtraFields } from "../common";
 
-    organizationCreation: {
-      disabled: opts.organizationCreation?.disabled,
-      beforeCreate: opts.organizationCreation?.beforeCreate,
-      afterCreate: opts.organizationCreation?.afterCreate,
+export const OrganizationPlugin = Effect.gen(function* () {
+  const { db } = yield* IamDb.IamDb;
+  return organization({
+    allowUserToCreateOrganization: true,
+    organizationLimit: 3,
+    creatorRole: "owner",
+    membershipLimit: 100,
+    sendInvitationEmail: async (params) => {
+      const { serverRuntime } = await import("@beep/better-auth/lib/server-runtime");
+      const program = Effect.gen(function* () {
+        const { sendInvitation } = yield* AuthEmailService;
+        const decoded = yield* S.decode(InvitationEmailPayload)({
+          email: params.email,
+          invitedByUsername: params.inviter.user.name,
+          invitedByEmail: params.inviter.user.email,
+          teamName: params.organization.name,
+        });
+
+        yield* sendInvitation(decoded);
+      });
+
+      await serverRuntime.runPromise(program);
     },
-    /**
-     * Automatically create an organization for the user on sign up.
-     *
-     * @default false
-     */
-    autoCreateOrganizationOnSignUp: opts.autoCreateOrganizationOnSignUp,
-  } satisfies OrganizationOptions) satisfies BetterAuthPlugin;
+    teams: {
+      enabled: true,
+      maximumTeams: 10,
+      allowRemovingAllTeams: false,
+    },
+    cancelPendingInvitationsOnReInvite: true,
+    requireEmailVerificationOnInvitation: true,
+    schema: {
+      organization: {
+        additionalFields: {
+          type: {
+            type: [...Organization.OrganizationTypeOptions],
+            required: true,
+            defaultValue: Organization.OrganizationTypeEnum.individual,
+          },
+          ownerUserId: {
+            type: "string",
+            required: false,
+          },
+          isPersonal: {
+            type: "boolean",
+            required: true,
+          },
+          maxMembers: {
+            type: "number",
+            required: false,
+          },
+          features: {
+            type: "string", // JSON string
+            required: false,
+          },
+          settings: {
+            type: "string", // JSON string
+            required: false,
+          },
+          subscriptionTier: {
+            type: [...Organization.SubscriptionTierOptions],
+            required: false,
+            defaultValue: Organization.SubscriptionTierEnum.free,
+          },
+          subscriptionStatus: {
+            type: [...Organization.SubscriptionStatusOptions],
+            required: false,
+            defaultValue: Organization.SubscriptionStatusEnum.active,
+          },
+          ...commonExtraFields,
+        },
+      },
+      member: {
+        additionalFields: {
+          ...commonExtraFields,
+        },
+      },
+      invitation: {
+        additionalFields: {
+          ...commonExtraFields,
+        },
+      },
+      team: {
+        additionalFields: {
+          ...commonExtraFields,
+        },
+      },
+      organizationRole: {
+        additionalFields: {
+          ...commonExtraFields,
+        },
+      },
+    },
+    dynamicAccessControl: {
+      enabled: true,
+    },
+    organizationCreation: {
+      beforeCreate: async (params) => {
+        const { organization, user } = params;
+        return {
+          data: {
+            ...organization,
+            type: Organization.OrganizationTypeEnum.team, // User-created orgs are team type
+            ownerUserId: user.id,
+            isPersonal: false, // User-created orgs are not personal
+            subscriptionTier: Organization.SubscriptionTierEnum.free, // Default subscription
+            subscriptionStatus: Organization.SubscriptionStatusEnum.active,
+            source: "user_created",
+          },
+        };
+      },
+      afterCreate: async ({ organization, member, user }) => {
+        const { serverRuntime } = await import("@beep/better-auth/lib/server-runtime");
+        // Set proper member tracking fields for the organization creator
+        const program = Effect.gen(function* () {
+          const nowUtc = yield* DateTime.now;
+          const now = DateTime.toDate(nowUtc);
+          return yield* Effect.tryPromise({
+            try: () =>
+              db
+                .update(IamDbSchema.member)
+                .set({
+                  status: Organization.SubscriptionStatusEnum.active,
+                  joinedAt: now,
+                  lastActiveAt: now,
+                })
+                .where(d.eq(IamDbSchema.member.id, member.id)),
+            catch: (e) => Effect.fail(DbError.match(e)),
+          });
+        }).pipe(
+          Effect.match({
+            onSuccess: () => console.log(`Team organization ${organization.name} created for user ${user.id}`),
+            onFailure: (e) =>
+              console.error(`Failed to create team organization ${organization.name} for user ${user.id}: ${e}`),
+          })
+        );
+        await serverRuntime.runPromise(program);
+      },
+    },
+  });
+});

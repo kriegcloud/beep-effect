@@ -8,6 +8,7 @@ import {
   oauthAccessToken,
   oauthApplication,
   oauthConsent,
+  organizationRole,
   passkey,
   session,
   ssoProvider,
@@ -192,5 +193,12 @@ export const walletAddressRelations = d.relations(walletAddress, ({ one }) => ({
   user: one(user, {
     fields: [walletAddress.userId],
     references: [user.id],
+  }),
+}));
+
+export const organizationRoleRelations = d.relations(organizationRole, ({ one }) => ({
+  organization: one(organization, {
+    fields: [organizationRole.organizationId],
+    references: [organization.id],
   }),
 }));

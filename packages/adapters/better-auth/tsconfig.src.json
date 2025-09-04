@@ -22,6 +22,24 @@
     },
     {
       "path": "../../email"
+    },
+    {
+      "path": "../../common/schema"
+    },
+    {
+      "path": "../../common/invariant"
+    },
+    {
+      "path": "../../common/utils"
+    },
+    {
+      "path": "../../common/types"
+    },
+    {
+      "path": "../../shared/domain"
+    },
+    {
+      "path": "../../shared/tables"
     }
   ],
   "compilerOptions": {
@@ -53,7 +71,19 @@
       "@beep/email": ["../../email/src/index"],
       "@beep/email/*": ["../../email/src/*"],
       "@beep/db-scope": ["../../persistence/db-scope/src/index"],
-      "@beep/db-scope/*": ["../../persistence/db-scope/src/*"]
+      "@beep/db-scope/*": ["../../persistence/db-scope/src/*"],
+      "@beep/shared-domain": ["../../shared/domain/src/index"],
+      "@beep/shared-domain/*": ["../../shared/domain/src/*"],
+      "@beep/schema": ["../../common/schema/src/index"],
+      "@beep/schema/*": ["../../common/schema/src/*"],
+      "@beep/shared-tables": ["../../shared/tables/src/index"],
+      "@beep/shared-tables/*": ["../../shared/tables/src/*"],
+      "@beep/invariant": ["../../common/invariant/src/index"],
+      "@beep/invariant/*": ["../../common/invariant/src/*"],
+      "@beep/utils": ["../../common/utils/src/index"],
+      "@beep/utils/*": ["../../common/utils/src/*"],
+      "@beep/types": ["../../common/types/src/index"],
+      "@beep/types/*": ["../../common/types/src/*"]
     }
   }
 }

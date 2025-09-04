@@ -34,11 +34,13 @@
     "lint:circular": "pnpm madge -c ."
   },
   "dependencies": {
+    "@beep/ui": "*",
     "effect": "*",
     "@react-email/components": "*",
     "@react-email/render": "*",
     "react": "*",
     "react-dom": "*",
+    "@mui/material": "*",
     "tailwind-merge": "*",
     "clsx": "*",
     "tailwindcss-animate": "*",

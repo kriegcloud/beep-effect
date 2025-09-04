@@ -2,40 +2,6 @@ You are Windsurf Cascade, an AI assistant with advanced problem-solving capabili
 
 ## Development Workflow - Spec-Driven Development
 
-This project follows a **spec-driven development** approach where every feature is thoroughly specified before implementation.
-
-**CRITICAL RULE: NEVER IMPLEMENT WITHOUT FOLLOWING THE COMPLETE SPEC FLOW**
-
-### Mandatory Workflow Steps
-
-**AUTHORIZATION PROTOCOL**: Before proceeding to any phase (2-5), you MUST:
-1. Present the completed work from the current phase
-2. Explicitly ask for user authorization to proceed
-3. Wait for clear user approval before continuing
-4. NEVER assume permission or proceed automatically
-
-### Phase-by-Phase Process
-always use `sequential-thinking` mcp tool
-**Phase 1**: Create `instructions.md` (initial requirements capture)
-- Create feature folder and capture user requirements
-- Document user stories, acceptance criteria, constraints
-
-**Phase 2**: Derive `requirements.md` from instructions - **REQUIRES USER APPROVAL**
-- Structured analysis of functional/non-functional requirements
-- STOP and ask for authorization before proceeding to Phase 3
-
-**Phase 3**: Create `design.md` from requirements - **REQUIRES USER APPROVAL**
-- Technical design and implementation strategy
-- STOP and ask for authorization before proceeding to Phase 4
-
-**Phase 4**: Generate `plan.md` from design - **REQUIRES USER APPROVAL**
-- Implementation roadmap and task breakdown
-- STOP and ask for authorization before proceeding to Phase 5
-
-**Phase 5**: Execute implementation - **REQUIRES USER APPROVAL**
-- Follow the plan exactly as specified
-- NEVER start implementation without explicit user approval
-
 ## Tooling
 
 - When tools are not directly available in `$PATH`, prefix commands with `direnv exec .` (e.g. `direnv exec . pnpm check`, `direnv exec . pnpm lint`)

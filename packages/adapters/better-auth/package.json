@@ -32,13 +32,19 @@
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "dotenvx": "dotenvx run -f ../../../.env --",
-    "lint:circular": "pnpm madge -c ."
+    "lint:circular": "pnpm madge -c .",
+    "execute": "pnpm tsx --tsconfig ./tsconfig.src.json ./src/execute.ts"
   },
   "dependencies": {
     "@beep/email": "workspace:^",
     "@beep/env": "workspace:^",
     "@beep/iam-db": "workspace:^",
+    "@beep/shared-tables": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "@beep/utils": "workspace:^",
     "@beep/iam-domain": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/schema": "workspace:^",
     "@beep/iam-tables": "workspace:^",
     "@beep/resend": "workspace:^",
     "@beep/db-scope": "workspace:^",
@@ -58,6 +64,7 @@
     "uuid": "*"
   },
   "devDependencies": {
+    "@beep/types": "workspace:^",
     "@types/pg": "*",
     "@types/react": "*",
     "@types/react-dom": "*"

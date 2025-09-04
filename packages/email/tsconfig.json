@@ -5,7 +5,8 @@
     "paths": {
       "@beep/email/*": ["./src/*"],
       "@beep/types": ["../common/types/src/index"],
-      "@beep/types/*": ["../common/types/src/*"]
+      "@beep/types/*": ["../common/types/src/*"],
+      "@beep/ui/*": ["../ui/src/*"]
     }
   },
   "references": [

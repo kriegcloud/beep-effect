@@ -4,6 +4,7 @@ import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain/EntityIds";
 import * as M from "@effect/sql/Model";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
+import { OrganizationType, SubscriptionStatus, SubscriptionTier } from "./schemas";
 
 export const OrganizationModelSchemaId = Symbol.for("@beep/shared-domain/OrganizationModel");
 
@@ -41,9 +42,7 @@ export class Model extends M.Class<Model>(`OrganizationModel`)(
         description: "JSON metadata for additional organization data",
       })
     ),
-    type: S.Literal("individual", "team", "enterprise").annotations({
-      description: "The type of organization",
-    }),
+    type: OrganizationType,
     ownerUserId: IamEntityIds.UserId.annotations({
       description: "The owner of the organization",
     }),
@@ -63,28 +62,24 @@ export class Model extends M.Class<Model>(`OrganizationModel`)(
     ),
     features: M.FieldOption(M.JsonFromString(S.Record({ key: S.String, value: S.Any }))),
     settings: M.FieldOption(M.JsonFromString(S.Record({ key: S.String, value: S.Any }))),
-    subscriptionTier: S.Literal("free", "plus", "pro")
-      .pipe(
-        S.optional,
-        S.withDefaults({
-          decoding: F.constant("free"),
-          constructor: F.constant("free"),
-        })
-      )
-      .annotations({
-        description: "The subscription tier of the organization",
-      }),
-    subscriptionStatus: S.Literal("active", "canceled")
-      .pipe(
-        S.optional,
-        S.withDefaults({
-          decoding: F.constant("active"),
-          constructor: F.constant("active"),
-        })
-      )
-      .annotations({
-        description: "The subscription status of the organization",
-      }),
+    subscriptionTier: SubscriptionTier.pipe(
+      S.optional,
+      S.withDefaults({
+        decoding: F.constant(SubscriptionTier.Enum.free),
+        constructor: F.constant(SubscriptionTier.Enum.free),
+      })
+    ).annotations({
+      description: "The subscription tier of the organization",
+    }),
+    subscriptionStatus: SubscriptionStatus.pipe(
+      S.optional,
+      S.withDefaults({
+        decoding: F.constant(SubscriptionStatus.Enum.active),
+        constructor: F.constant(SubscriptionStatus.Enum.active),
+      })
+    ).annotations({
+      description: "The subscription status of the organization",
+    }),
     ...Common.globalColumns,
   },
   {

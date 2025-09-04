@@ -33,6 +33,7 @@
     "lint:circular": "pnpm madge -c ."
   },
   "dependencies": {
+    "@beep/shared-domain": "workspace:*",
     "drizzle-orm": "*",
     "effect": "*"
   },

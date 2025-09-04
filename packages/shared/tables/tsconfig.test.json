@@ -4,6 +4,9 @@
   "references": [
     {
       "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../domain"
     }
   ],
   "compilerOptions": {
@@ -14,6 +17,8 @@
   },
   "paths": {
     "@beep/shared-tables": ["./src/index"],
-    "@beep/shared-tables/*": ["./src/*"]
+    "@beep/shared-tables/*": ["./src/*"],
+    "@beep/shared-domain": ["../domain/src/index"],
+    "@beep/shared-domain/*": ["../domain/src/*"]
   }
 }

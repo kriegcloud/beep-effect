@@ -8,6 +8,7 @@ export * from "./member.table";
 export * from "./oauthAccessToken.table";
 export * from "./oauthApplication.table";
 export * from "./oauthConsent.table";
+export * from "./organizationRole.table";
 export * from "./passkey.table";
 export * from "./rateLimit.table";
 export * from "./session.table";

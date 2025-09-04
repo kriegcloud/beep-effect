@@ -1,4 +1,3 @@
-import { DbError } from "@beep/db-scope/errors";
 import { serverEnv } from "@beep/env/server";
 import { IamDb } from "@beep/iam-db";
 import { IamDbSchema } from "@beep/iam-tables";
@@ -19,26 +18,24 @@ import {
   oneTap,
   oneTimeToken,
   openAPI,
-  organization,
 } from "better-auth/plugins";
 import { passkey } from "better-auth/plugins/passkey";
 import { sso } from "better-auth/plugins/sso";
 import * as d from "drizzle-orm";
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
-import type * as pg from "pg";
+import * as S from "effect/Schema";
 import { v4 as uuid } from "uuid";
-import { AuthEmailService } from "./AuthEmail.service";
+import { AuthEmailService, SendResetPasswordEmailPayload } from "./AuthEmail.service";
 
-const makeAuthOptions = (
-  db: NodePgDatabase<typeof IamDbSchema> & {
-    $client: pg.Pool;
-  }
-): BetterAuthOptions =>
-  ({
+import { OrganizationPlugin } from "./internal/plugins";
+
+const AuthOptions = Effect.gen(function* () {
+  const { db } = yield* IamDb.IamDb;
+  const organizationPlugin = yield* OrganizationPlugin;
+  return {
     database: drizzleAdapter(db, { provider: "pg", usePlural: true }),
     baseURL: serverEnv.app.authUrl.toString(),
     basePath: "/api/auth",
@@ -69,14 +66,13 @@ const makeAuthOptions = (
         const program = Effect.gen(function* () {
           const { sendResetPassword } = yield* AuthEmailService;
 
-          yield* sendResetPassword({
-            user: {
-              username: params.user.name,
-              email: params.user.email,
-            },
+          const decoded = yield* S.decode(SendResetPasswordEmailPayload)({
+            username: params.user.name,
             url: params.url,
-            token: params.token,
+            email: params.user.email,
           });
+
+          yield* sendResetPassword(decoded);
         });
 
         await serverRuntime.runPromise(program);
@@ -95,122 +91,7 @@ const makeAuthOptions = (
         }) satisfies BetterAuthOptions["socialProviders"]
     ),
     plugins: [
-      organization({
-        teams: {
-          enabled: true,
-          maximumTeams: 10,
-          allowRemovingAllTeams: false,
-        },
-        sendInvitationEmail: async (params) => {
-          const { serverRuntime } = await import("@beep/better-auth/lib/server-runtime");
-          const program = Effect.gen(function* () {
-            const { sendInvitation } = yield* AuthEmailService;
-            yield* sendInvitation(params);
-          });
-
-          await serverRuntime.runPromise(program);
-        },
-        schema: {
-          organization: {
-            additionalFields: {
-              type: {
-                type: "string",
-                required: true,
-              },
-              ownerUserId: {
-                type: "string",
-                required: false,
-              },
-              isPersonal: {
-                type: "boolean",
-                required: true,
-              },
-              maxMembers: {
-                type: "number",
-                required: false,
-              },
-              features: {
-                type: "string", // JSON string
-                required: false,
-              },
-              settings: {
-                type: "string", // JSON string
-                required: false,
-              },
-              subscriptionTier: {
-                type: "string",
-                required: false,
-              },
-              subscriptionStatus: {
-                type: "string",
-                required: false,
-              },
-            },
-          },
-          member: {
-            additionalFields: {
-              status: {
-                type: "string",
-                required: true,
-              },
-              invitedBy: {
-                type: "string",
-                required: false,
-              },
-              invitedAt: {
-                type: "date",
-                required: false,
-              },
-              joinedAt: {
-                type: "date",
-                required: false,
-              },
-              lastActiveAt: {
-                type: "date",
-                required: false,
-              },
-              permissions: {
-                type: "string", // JSON string
-                required: false,
-              },
-            },
-          },
-        },
-        organizationCreation: {
-          beforeCreate: async ({ organization, user }) => {
-            return {
-              data: {
-                ...organization,
-                type: "team", // User-created orgs are team type
-                ownerUserId: user.id,
-                isPersonal: false, // User-created orgs are not personal
-                subscriptionTier: "free", // Default subscription
-                subscriptionStatus: "active",
-                source: "user_created",
-              },
-            };
-          },
-          afterCreate: async ({ organization, member, user }) => {
-            const { serverRuntime } = await import("@beep/better-auth/lib/server-runtime");
-            // Set proper member tracking fields for the organization creator
-            const program = Effect.tryPromise({
-              try: () =>
-                db
-                  .update(IamDbSchema.member)
-                  .set({
-                    status: "active",
-                    joinedAt: new Date(),
-                    lastActiveAt: new Date(),
-                  })
-                  .where(d.eq(IamDbSchema.member.id, member.id)),
-              catch: (e) => DbError.match(e),
-            });
-            await serverRuntime.runPromise(program);
-
-            console.log(`Team organization ${organization.name} created for user ${user.id}`);
-          },
-        },
-      }),
+      organizationPlugin,
       passkey({
         rpID: serverEnv.app.domain,
         rpName: `${serverEnv.app.name} Auth`,
@@ -326,14 +207,14 @@ const makeAuthOptions = (
         },
       },
     },
-  }) satisfies BetterAuthOptions;
+  } satisfies BetterAuthOptions;
+});
 
-export type Options = ReturnType<typeof makeAuthOptions>;
+export type Options = Effect.Effect.Success<typeof AuthOptions>;
 
 export class AuthService extends Effect.Service<AuthService>()("AuthService", {
   effect: Effect.gen(function* () {
-    const { db } = yield* IamDb.IamDb;
-
-    return betterAuth(makeAuthOptions(db));
-  }),
+    const opts: Options = yield* AuthOptions;
+    return betterAuth(opts);
+  }) as Effect.Effect<ReturnType<typeof betterAuth<Options>>>,
 }) {}

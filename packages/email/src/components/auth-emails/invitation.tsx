@@ -17,7 +17,7 @@ import {
 } from "@react-email/components";
 
 interface BetterAuthInviteUserEmailProps {
-  username?: string;
+  email?: string;
   invitedByUsername?: string;
   invitedByEmail?: string;
   teamName?: string;
@@ -26,7 +26,7 @@ interface BetterAuthInviteUserEmailProps {
 }
 
 export const InviteUserEmail = ({
-  username,
+  email,
   invitedByUsername,
   invitedByEmail,
   teamName,
@@ -77,7 +77,7 @@ export const InviteUserEmail = ({
             </Text>
             <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
             <Text className="text-[#666666] text-[12px] leading-[24px]">
-              This invitation was intended for <span className="text-black">{username}</span>. If you were not expecting
+              This invitation was intended for <span className="text-black">{email}</span>. If you were not expecting
               this invitation, you can ignore this email.
             </Text>
           </Container>
@@ -88,5 +88,6 @@ export const InviteUserEmail = ({
 };
 
 export function reactInvitationEmail(props: BetterAuthInviteUserEmailProps) {
+  console.log(props);
   return <InviteUserEmail {...props} />;
 }

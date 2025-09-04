@@ -69,18 +69,18 @@ export const auditColumns = {
 } as const;
 
 export const userTrackingColumns = {
-  createdBy: S.String,
-  updatedBy: S.String,
-  deletedBy: S.String,
+  createdBy: M.FieldOption(S.String),
+  updatedBy: M.FieldOption(S.String),
+  deletedBy: M.FieldOption(S.String),
 } as const;
 
 export const globalColumns = {
   ...auditColumns,
   ...userTrackingColumns,
   // Optimistic locking
-  version: S.Int.pipe(S.greaterThanOrEqualTo(1)),
+  version: M.FieldOption(S.Int.pipe(S.greaterThanOrEqualTo(1))),
   // Optional: Enhanced traceability
-  source: S.String,
+  source: M.FieldOption(S.String),
 } as const;
 
 export const defaultColumns = {
