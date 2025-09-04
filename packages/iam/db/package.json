@@ -37,6 +37,8 @@
     "@beep/env": "workspace:^",
     "@effect/platform-node": "*",
     "@effect/platform": "*",
+    "@effect/cluster": "*",
+    "@effect/workflow": "*",
     "@beep/iam-tables": "workspace:^",
     "drizzle-orm": "*",
     "effect": "*",

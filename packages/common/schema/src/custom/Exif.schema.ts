@@ -1,3 +1,4 @@
+import type { UnsafeTypes } from "@beep/types";
 import * as ParseResult from "effect/ParseResult";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -715,8 +716,8 @@ const isLargeDataValue = (value: unknown): boolean => {
 /**
  * Recursively omit large data fields from an object
  */
-const omitLargeDataFromObject = <T extends Record<string, any>>(obj: T): T => {
-  const result: Record<string, any> = {};
+const omitLargeDataFromObject = <T extends Record<string, UnsafeTypes.UnsafeAny>>(obj: T): T => {
+  const result: Record<string, UnsafeTypes.UnsafeAny> = {};
 
   for (const [key, value] of Object.entries(obj)) {
     // Skip if field name indicates large data
@@ -761,7 +762,7 @@ const omitLargeDataFromObject = <T extends Record<string, any>>(obj: T): T => {
  * const validated = yield* S.decode(ExpandedTags)(cleanExif);
  * ```
  */
-export const cleanExifData = <T extends Record<string, any>>(exifData: T): T => {
+export const cleanExifData = <T extends Record<string, UnsafeTypes.UnsafeAny>>(exifData: T): T => {
   if (!exifData || typeof exifData !== "object") {
     return exifData;
   }
@@ -776,14 +777,14 @@ export const cleanExifData = <T extends Record<string, any>>(exifData: T): T => 
  * @param exifData - Raw EXIF data from ExifReader
  * @returns EXIF data with specific large fields omitted
  */
-export const omitKnownLargeFields = <T extends Record<string, any>>(exifData: T): T => {
+export const omitKnownLargeFields = <T extends Record<string, UnsafeTypes.UnsafeAny>>(exifData: T): T => {
   let cleaned = { ...exifData };
 
   // Clean ICC profile
   if (P.isNotNullable(cleaned.icc) && typeof cleaned.icc === "object") {
     cleaned = {
       ...cleaned,
-      icc: Struct.omit("base64", "data", "buffer")(cleaned.icc as any),
+      icc: Struct.omit("base64", "data", "buffer")(cleaned.icc),
     };
   }
 
@@ -791,7 +792,7 @@ export const omitKnownLargeFields = <T extends Record<string, any>>(exifData: T)
   if (P.isNotNullable(cleaned.xmp) && typeof cleaned.xmp === "object") {
     cleaned = {
       ...cleaned,
-      xmp: Struct.omit("base64", "rawXml", "data")(cleaned.xmp as any),
+      xmp: Struct.omit("base64", "rawXml", "data")(cleaned.xmp),
     };
   }
 
@@ -799,7 +800,7 @@ export const omitKnownLargeFields = <T extends Record<string, any>>(exifData: T)
   if (P.isNotNullable(cleaned.iptc) && typeof cleaned.iptc === "object") {
     cleaned = {
       ...cleaned,
-      iptc: Struct.omit("base64", "data", "buffer")(cleaned.iptc as any),
+      iptc: Struct.omit("base64", "data", "buffer")(cleaned.iptc),
     };
   }
 
@@ -807,7 +808,7 @@ export const omitKnownLargeFields = <T extends Record<string, any>>(exifData: T)
   if (P.isNotNullable(cleaned.thumbnail) && typeof cleaned.thumbnail === "object") {
     cleaned = {
       ...cleaned,
-      thumbnail: Struct.omit("image", "base64", "blob", "buffer")(cleaned.thumbnail as any),
+      thumbnail: Struct.omit("image", "base64", "blob", "buffer")(cleaned.thumbnail),
     };
   }
 

@@ -29,7 +29,7 @@ import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import { v4 as uuid } from "uuid";
 import { AuthEmailService, SendResetPasswordEmailPayload } from "./AuthEmail.service";
-
+import { commonExtraFields } from "./internal/common";
 import { OrganizationPlugin } from "./internal/plugins";
 
 const AuthOptions = Effect.gen(function* () {
@@ -51,6 +51,9 @@ const AuthOptions = Effect.gen(function* () {
       encryptOAuthTokens: true,
     },
     session: {
+      additionalFields: {
+        ...commonExtraFields,
+      },
       cookieCache: {
         enabled: true,
         maxAge: Duration.days(30).pipe(Duration.toSeconds),
@@ -205,6 +208,11 @@ const AuthOptions = Effect.gen(function* () {
             };
           },
         },
+      },
+    },
+    user: {
+      additionalFields: {
+        ...commonExtraFields,
       },
     },
   } satisfies BetterAuthOptions;

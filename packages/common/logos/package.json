@@ -35,6 +35,8 @@
   "dependencies": {
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
+    "@effect/cluster": "*",
+    "@effect/workflow": "*",
     "@beep/invariant": "workspace:^",
     "uuid": "*",
     "effect": "*"

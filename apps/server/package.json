@@ -35,6 +35,7 @@
     "@effect/ai-anthropic": "*",
     "@effect/ai-openai": "*",
     "@effect/cluster": "*",
+    "@effect/workflow": "*",
     "@effect/experimental": "*",
     "@effect/opentelemetry": "*",
     "@effect/platform": "*",

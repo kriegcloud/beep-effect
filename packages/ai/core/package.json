@@ -37,6 +37,8 @@
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/env": "workspace:^",
+    "@effect/cluster": "*",
+    "@effect/workflow": "*",
     "effect": "*",
     "@effect/ai": "*",
     "@effect/ai-openai": "*",

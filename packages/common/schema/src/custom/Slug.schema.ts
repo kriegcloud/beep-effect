@@ -1,9 +1,9 @@
+import * as regexes from "@beep/schema/regexes";
 import { faker } from "@faker-js/faker";
 import * as A from "effect/Array";
 import type * as B from "effect/Brand";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
-
 /**
  * URL-friendly slug:
  * - Lowercase a–z and digits
@@ -23,7 +23,7 @@ import * as S from "effect/Schema";
  * @category Strings
  */
 export const Slug = S.NonEmptyTrimmedString.pipe(
-  S.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+  S.pattern(regexes.slug, {
     message: F.constant("Slug must be a valid slug"),
   }),
   S.brand("Slug")

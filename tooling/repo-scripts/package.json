@@ -32,6 +32,8 @@
   "dependencies": {
     "@beep/tooling-utils": "workspace:^",
     "@effect/platform": "*",
+    "@effect/cluster": "*",
+    "@effect/workflow": "*",
     "@effect/platform-node": "*",
     "effect": "*"
   },

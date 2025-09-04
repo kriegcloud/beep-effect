@@ -1,13 +1,11 @@
+import * as regexes from "@beep/schema/regexes";
 import { faker } from "@faker-js/faker";
 import type * as B from "effect/Brand";
 import * as F from "effect/Function";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 
-export const UnsafePhone = S.NonEmptyTrimmedString.pipe(
-  S.pattern(/^\+\d-\d{3}-\d{3}-\d{4}$/),
-  S.brand("Phone")
-).annotations({
+export const UnsafePhone = S.NonEmptyTrimmedString.pipe(S.pattern(regexes.e164), S.brand("Phone")).annotations({
   identifier: "Phone",
   title: "Phone",
   description: "A valid phone number",

@@ -13,7 +13,6 @@ export const FormJsonSchema = S.parseJson(
       key: S.String,
       value: FormFieldSchema,
     }),
-
     title: S.optional(S.String),
     description: S.optional(S.String),
     required: S.optional(S.Array(S.String)),

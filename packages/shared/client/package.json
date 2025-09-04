@@ -40,6 +40,8 @@
     "@beep/logos": "workspace:^",
     "@beep/rete": "workspace:^",
     "@beep/env": "workspace:^",
+    "@effect/cluster": "*",
+    "@effect/workflow": "*",
     "@emotion/cache": "*",
     "@emotion/react": "*",
     "@emotion/styled": "*",

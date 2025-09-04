@@ -206,3 +206,5 @@ export const sha512_base64url = /*@__PURE__*/ fixedBase64url(86);
 
 export const path_regex = Regex.make(/^($|[a-zA-Z_$][\w$]*(?:\.[a-zA-Z_$][\w$]*|\[\d+]\.?)*$)/);
 export const prop_regex = Regex.make(/^\w+$/);
+
+export const slug = Regex.make(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);

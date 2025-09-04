@@ -33,7 +33,8 @@
     "@effect/platform": "*",
     "@effect/platform-node": "*",
     "effect": "*",
-    "glob": "^11.0.3"
+    "glob": "^11.0.3",
+    "@effect/cluster": "*"
   },
   "effect": {
     "generateExports": {
