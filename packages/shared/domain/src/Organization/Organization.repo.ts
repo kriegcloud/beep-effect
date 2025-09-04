@@ -17,12 +17,11 @@ export class OrganizationRepo extends Effect.Service<OrganizationRepo>()("Organi
       });
       return {
         ...r,
-        list: (input: typeof Model.select.Type) =>
-          Effect.gen(function* () {
-            const mocked = F.pipe(Arbitrary.make(Model), (arb) => FastCheck.sample(arb, 10));
+        list: Effect.fn("OrganizationRepo.list")(function* (input: typeof Model.select.Type) {
+          const mocked = F.pipe(Arbitrary.make(Model), (arb) => FastCheck.sample(arb, 10));
 
-            return yield* Effect.succeed(mocked);
-          }),
+          return yield* Effect.succeed(mocked);
+        }),
       };
     })
   ),
