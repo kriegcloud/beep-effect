@@ -4,6 +4,9 @@
   "references": [
     {
       "path": "../../common/schema"
+    },
+    {
+      "path": "../../common/types"
     }
   ],
   "compilerOptions": {
@@ -19,7 +22,9 @@
     "paths": {
       "@beep/shared-domain/*": ["./src/*"],
       "@beep/schema": ["../../common/schema/src/index"],
-      "@beep/schema/*": ["../../common/schema/src/*"]
+      "@beep/schema/*": ["../../common/schema/src/*"],
+      "@beep/types": ["../../common/types/src/index"],
+      "@beep/types/*": ["../../common/types/src/*"]
     }
   }
 }

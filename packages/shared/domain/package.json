@@ -38,6 +38,9 @@
     "@beep/schema": "workspace:^",
     "@effect/experimental": "*"
   },
+  "devDependencies": {
+    "@beep/types": "workspace:^"
+  },
   "effect": {
     "generateExports": {
       "include": [

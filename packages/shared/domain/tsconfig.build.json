@@ -13,6 +13,9 @@
   "references": [
     {
       "path": "../../common/schema/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/types/tsconfig.build.json"
     }
   ]
 }

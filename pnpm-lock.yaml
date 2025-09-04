@@ -1635,6 +1635,10 @@ importers:
       effect:
         specifier: 3.17.13
         version: 3.17.13
+    devDependencies:
+      '@beep/types':
+        specifier: workspace:*
+        version: link:../../common/types/build
     publishDirectory: build
 
   packages/shared/tables:
