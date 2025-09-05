@@ -1,5 +1,6 @@
 import type { StructTypes, UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
+import { Struct } from "../extended-schemas";
 import type { OptionalWithDefault } from "../types";
 
 export namespace DiscriminatedStruct {
@@ -40,7 +41,7 @@ export const DiscriminatedStruct =
     discriminator: Discriminator
   ) =>
   (tag: Literal, fields: Fields) =>
-    S.Struct({
+    Struct({
       [discriminator]: S.Literal(tag).pipe(
         S.optional,
         S.withDefaults({

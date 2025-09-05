@@ -1,5 +1,4 @@
 import { BS } from "@beep/schema";
-// import * as AST from "effect/SchemaAST";
 import { faker } from "@faker-js/faker";
 import * as It from "effect/Iterable";
 import * as Match from "effect/Match";
@@ -9,7 +8,6 @@ import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import { has } from "../common";
 import { OperatorType } from "./internal";
-// import * as F from "effect/Function";
 
 export namespace ComparisonOperators {
   const factory = OperatorType.makeCategory("comparison", {});
@@ -65,7 +63,7 @@ export namespace StructureOperators {
   });
 
   export const HasEntry = factory.make("hasEntry", {
-    value: S.Struct({
+    value: BS.Struct({
       key: S.String.annotations({
         arbitrary: () => (fc) =>
           fc.constantFrom(null).map(() => faker.helpers.arrayElement(["name", "username", "email"])),

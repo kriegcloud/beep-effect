@@ -5,9 +5,6 @@ import * as Data from "effect/Data";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { SnakeCase } from "type-fest";
-// import {FieldType} from "./FieldType";
-// import {ValueType} from "./ValueType";
-// import type * as A from "effect/Array";
 
 export namespace OperatorType {
   export type TypeConfig = {
@@ -15,9 +12,6 @@ export namespace OperatorType {
     readonly symbol: StringTypes.NonEmptyString<string>;
     readonly label: StringTypes.NonEmptyString<string>;
     readonly description: StringTypes.NonEmptyString<string>;
-    // readonly requiresValue: boolean,
-    // readonly isNegatable: boolean,
-    // readonly category: StringTypes.NonEmptyString<SnakeCase<string>>,
   };
 
   export type Metadata<Config extends TypeConfig = TypeConfig> = {
