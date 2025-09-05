@@ -7,7 +7,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import { has } from "./common";
-import { OperatorType } from "./internal";
+import { OperatorType } from "./index";
 
 export namespace ComparisonOperators {
   const factory = OperatorType.makeCategory("comparison", {});
