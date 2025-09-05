@@ -1,7 +1,7 @@
 import { CategoryFactory } from "@beep/rules/internal/OperatorFactory";
 import { BS } from "@beep/schema";
 
-const emptinessFactory = new CategoryFactory({
+export const Factory = new CategoryFactory({
   category: "emptiness",
   description: "emptiness operators",
   fields: {
@@ -17,21 +17,21 @@ const common = {
   },
 } as const;
 
-export const IsEmpty = emptinessFactory.createKind({
+export const IsEmpty = Factory.createKind({
   operator: "is_empty",
   symbol: "∅",
   description: "Checks if the field value is empty",
   ...common,
 });
 
-export const IsNotEmpty = emptinessFactory.createKind({
+export const IsNotEmpty = Factory.createKind({
   operator: "is_not_empty",
   symbol: "¬∅",
   description: "Checks if the field value is not empty",
   ...common,
 });
 
-export const IsBlank = emptinessFactory.createKind({
+export const IsBlank = Factory.createKind({
   operator: "is_blank",
   symbol: `""(trim)`,
   description: "Checks if the field value is blank",
@@ -40,7 +40,7 @@ export const IsBlank = emptinessFactory.createKind({
   fields: common.fields,
 });
 
-export const IsNotBlank = emptinessFactory.createKind({
+export const IsNotBlank = Factory.createKind({
   operator: "is_not_blank",
   symbol: `¬""(trim)`,
   description: "Checks if the field value is not blank",
@@ -49,7 +49,7 @@ export const IsNotBlank = emptinessFactory.createKind({
   fields: common.fields,
 });
 
-export const IsNullishOrEmpty = emptinessFactory.createKind({
+export const IsNullishOrEmpty = Factory.createKind({
   operator: "is_nullish_or_empty",
   symbol: "null|undef|∅",
   description: "Checks if the field value is null, undefined, or empty",
@@ -58,7 +58,7 @@ export const IsNullishOrEmpty = emptinessFactory.createKind({
   fields: common.fields,
 });
 
-export const IsPresent = emptinessFactory.createKind({
+export const IsPresent = Factory.createKind({
   operator: "is_present",
   symbol: "¬(null|undef|∅)",
   description: "Checks if the field value is not null, undefined, or empty",
@@ -67,7 +67,7 @@ export const IsPresent = emptinessFactory.createKind({
   fields: common.fields,
 });
 
-export const IsEmptyDeep = emptinessFactory.createKind({
+export const IsEmptyDeep = Factory.createKind({
   operator: "is_empty_deep",
   symbol: "∅(deep)",
   description: "Checks if the field value is deeply empty",
@@ -76,7 +76,7 @@ export const IsEmptyDeep = emptinessFactory.createKind({
   fields: common.fields,
 });
 
-export const IsNotEmptyDeep = emptinessFactory.createKind({
+export const IsNotEmptyDeep = Factory.createKind({
   operator: "is_not_empty_deep",
   symbol: "¬∅(deep)",
   description: "Checks if the field value is not deeply empty",

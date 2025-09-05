@@ -1,7 +1,7 @@
 import { CategoryFactory } from "@beep/rules/internal/OperatorFactory";
 import { BS } from "@beep/schema";
 
-const comparisonFactory = new CategoryFactory({
+export const Factory = new CategoryFactory({
   category: "comparison",
   description: "Comparison operators",
   fields: {
@@ -15,56 +15,56 @@ const common = {
   requiresValue: true,
 } as const;
 
-export const Equals = comparisonFactory.createKind({
+export const Equals = Factory.createKind({
   operator: "equals",
   symbol: "===",
   description: "Checks if the field value equals the constraint value",
   ...common,
 });
 
-export const NotEquals = comparisonFactory.createKind({
+export const NotEquals = Factory.createKind({
   operator: "not_equals",
   symbol: "!==",
   description: "Checks if the field value does not equal the constraint value",
   ...common,
 });
 
-export const GreaterThan = comparisonFactory.createKind({
+export const GreaterThan = Factory.createKind({
   operator: "greater_than",
   symbol: ">",
   description: "Checks if the field value is greater than the constraint value",
   ...common,
 });
 
-export const GreaterThanOrEqual = comparisonFactory.createKind({
+export const GreaterThanOrEqual = Factory.createKind({
   operator: "greater_than_or_equal_to",
   symbol: ">=",
   description: "Checks if the field value is greater than or equal to the constraint value",
   ...common,
 });
 
-export const LessThan = comparisonFactory.createKind({
+export const LessThan = Factory.createKind({
   operator: "less_than",
   symbol: "<",
   description: "Checks if the field value is less than the constraint value",
   ...common,
 });
 
-export const LessThanOrEqual = comparisonFactory.createKind({
+export const LessThanOrEqual = Factory.createKind({
   operator: "less_than_or_equal_to",
   symbol: "<=",
   description: "Checks if the field value is less than or equal to the constraint value",
   ...common,
 });
 
-export const Between = comparisonFactory.createKind({
+export const Between = Factory.createKind({
   operator: "between",
   symbol: `x ∈ [a, b]`,
   description: "Checks if the field value is between the constraint values",
   ...common,
 });
 
-export const NotBetween = comparisonFactory.createKind({
+export const NotBetween = Factory.createKind({
   operator: "not_between",
   symbol: `x ∉ [a, b]`,
   description: "Checks if the field value is not between the constraint values",

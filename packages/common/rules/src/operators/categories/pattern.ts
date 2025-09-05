@@ -2,7 +2,7 @@ import { CategoryFactory } from "@beep/rules/internal/OperatorFactory";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 
-const patternFactory = new CategoryFactory({
+export const Factory = new CategoryFactory({
   category: "pattern",
   description: "pattern operators",
   fields: {
@@ -15,7 +15,7 @@ const common = {
   requiresValue: true,
 };
 
-export const StartsWith = patternFactory.createKind({
+export const StartsWith = Factory.createKind({
   operator: "starts_with",
   symbol: "prefix⋯",
   description: "Checks if the field value starts with the constraint value",
@@ -26,7 +26,7 @@ export const StartsWith = patternFactory.createKind({
   },
 });
 
-export const NotStartsWith = patternFactory.createKind({
+export const NotStartsWith = Factory.createKind({
   operator: "not_starts_with",
   symbol: "¬prefix⋯",
   description: "Checks if the field value does not start with the constraint value",
@@ -37,7 +37,7 @@ export const NotStartsWith = patternFactory.createKind({
   },
 });
 
-export const EndsWith = patternFactory.createKind({
+export const EndsWith = Factory.createKind({
   operator: "ends_with",
   symbol: "⋯suffix",
   description: "Checks if the field value ends with the constraint value",
@@ -48,7 +48,7 @@ export const EndsWith = patternFactory.createKind({
   },
 });
 
-export const NotEndsWith = patternFactory.createKind({
+export const NotEndsWith = Factory.createKind({
   operator: "not_ends_with",
   symbol: "⋯¬suffix",
   description: "Checks if the field value does not end with the constraint value",
@@ -59,7 +59,7 @@ export const NotEndsWith = patternFactory.createKind({
   },
 });
 
-export const Contains = patternFactory.createKind({
+export const Contains = Factory.createKind({
   operator: "contains",
   symbol: "∋",
   description: "Checks if the field value contains the constraint value",
@@ -70,7 +70,7 @@ export const Contains = patternFactory.createKind({
   },
 });
 
-export const NotContains = patternFactory.createKind({
+export const NotContains = Factory.createKind({
   operator: "not_contains",
   symbol: "∌",
   description: "Checks if the field value does not contain the constraint value",
@@ -81,7 +81,7 @@ export const NotContains = patternFactory.createKind({
   },
 });
 
-export const Matches = patternFactory.createKind({
+export const Matches = Factory.createKind({
   operator: "matches",
   symbol: "~",
   description: "Check if the field value matches the constraint regular expression",
@@ -91,7 +91,7 @@ export const Matches = patternFactory.createKind({
   },
 });
 
-export const NotMatches = patternFactory.createKind({
+export const NotMatches = Factory.createKind({
   operator: "not_matches",
   symbol: "¬~",
   description: "Check if the field value does not match the constraint regular expression",

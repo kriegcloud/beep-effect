@@ -14,6 +14,8 @@
   },
   "paths": {
     "@beep/ui/*": ["./src/*"],
+    "@beep/ui/form": ["./src/form/index"],
+    "@beep/ui/form/*": ["./src/form/*"],
     "@beep/types": ["../common/types/src/index"],
     "@beep/types/*": ["../common/types/src/*"],
     "@beep/invariant": ["../common/invariant/src/index"],

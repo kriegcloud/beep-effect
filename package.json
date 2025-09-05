@@ -2,7 +2,7 @@
   "private": true,
   "type": "module",
   "name": "@beep/root",
-  "packageManager": "pnpm@10.15.0",
+  "packageManager": "pnpm@10.15.1",
   "engines": {
     "pnpm": "10.15.0"
   },
@@ -90,15 +90,16 @@
     "@beep/email": "workspace:*"
   },
   "devDependencies": {
-    "@testing-library/dom": "*",
     "@babel/cli": "*",
     "@babel/core": "*",
     "@babel/plugin-transform-export-namespace-from": "*",
     "@babel/plugin-transform-modules-commonjs": "*",
+    "@beep/tooling-utils": "workspace:*",
     "@biomejs/biome": "*",
     "@dotenvx/dotenvx": "*",
     "@effect/language-service": "*",
     "@effect/vitest": "*",
+    "@testing-library/dom": "*",
     "@types/node": "*",
     "@vitest/coverage-v8": "*",
     "babel-plugin-annotate-pure-calls": "*",
@@ -112,8 +113,7 @@
     "typescript": "*",
     "vite-tsconfig-paths": "*",
     "vitest": "*",
-    "yaml": "*",
-    "@beep/tooling-utils": "workspace:*"
+    "yaml": "*"
   },
   "pnpm": {
     "overrides": {

@@ -84,6 +84,7 @@ export class OperatorDef<
       };
     };
 
+    // BS.Struct is the same as `Schema.Struct` just my personal one with `batching` enabled by default
     this.Schema = BS.Struct({
       category: BS.LiteralWithDefault(params.category.config.category, {
         ...makeAnnotations(params.category.category),
@@ -252,70 +253,3 @@ export class CategoryFactory<const TCategoryConfig extends CategoryConfigBase> e
     };
   }
 }
-
-export namespace ComparisonOperators {
-  const factory = new CategoryFactory({
-    category: "comparison",
-    description: "Comparison operators",
-    fields: {
-      field: S.NonEmptyString,
-    },
-  });
-
-  export const Eq = factory.createKind({
-    operator: "equals",
-    symbol: "===",
-    description: "Checks if the value is equal to the constraintValue.",
-    isNegatable: true,
-    requiresValue: true,
-    fields: {},
-  });
-
-  // const l = Eq.category.category;
-}
-
-export namespace StringOperators {
-  const factory = ComparisonOperators.Eq.createDomain({
-    type: "string",
-    fields: {
-      value: S.String,
-    },
-    description: "String comparison operators",
-  });
-
-  const eq = factory.createOperator({
-    identifier: "StringEquals",
-    title: "String Equals",
-    description: "Checks if the value is equal to the constraintValue.",
-    schemaId: Symbol.for("@beep/rules/operators/StringEquals"),
-    fields: {},
-  });
-
-  export class Equals extends S.Class<Equals>(eq.operator.identifier)(
-    eq.Schema.annotations({
-      examples: [
-        {
-          type: "string",
-          operator: "equals",
-          category: "comparison",
-          field: "test",
-          value: "test",
-        },
-      ],
-    })
-  ) {}
-
-  export namespace Equals {
-    export type Type = S.Schema.Type<typeof Equals>;
-    export type Encoded = S.Schema.Encoded<typeof Equals>;
-  }
-}
-
-// export const fn = (value: StringOperators.Equals.Type) => value;
-//
-// const i = fn({
-//   type: "string",
-//   operator: "equals",
-//   category: "comparison",
-//   field: "test",
-// });
