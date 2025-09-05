@@ -365,7 +365,7 @@ export namespace StringOperators {
     export type Encoded = S.Schema.Encoded<typeof NotMatches>;
   }
 
-  export class Any extends S.Union(
+  export class All extends S.Union(
     Eq,
     Ne,
     StartsWith,
@@ -378,13 +378,13 @@ export namespace StringOperators {
     NotContains
   ) {}
 
-  export namespace Any {
-    export type Type = S.Schema.Type<typeof Any>;
-    export type Encoded = S.Schema.Encoded<typeof Any>;
+  export namespace All {
+    export type Type = S.Schema.Type<typeof All>;
+    export type Encoded = S.Schema.Encoded<typeof All>;
   }
 
   export const match = (value: string) =>
-    Match.type<Any.Type>().pipe(
+    Match.type<All.Type>().pipe(
       Match.discriminatorsExhaustive("operator")({
         eq: (op) => op.evaluate(value),
         ne: (op) => op.evaluate(value),
@@ -603,11 +603,11 @@ export namespace NumberOperators {
     export type Encoded = S.Schema.Encoded<typeof NotBetween>;
   }
 
-  export class Any extends S.Union(Eq, Ne, Gt, Gte, Lt, Lte, Between, NotBetween) {}
+  export class All extends S.Union(Eq, Ne, Gt, Gte, Lt, Lte, Between, NotBetween) {}
 
-  export namespace Any {
-    export type Type = S.Schema.Type<typeof Any>;
-    export type Encoded = S.Schema.Encoded<typeof Any>;
+  export namespace All {
+    export type Type = S.Schema.Type<typeof All>;
+    export type Encoded = S.Schema.Encoded<typeof All>;
   }
 }
 
@@ -690,15 +690,15 @@ export namespace ObjectOperators {
     export type Encoded = S.Schema.Encoded<typeof HasEntry>;
   }
 
-  export class Any extends S.Union(HasKey, HasValue, HasEntry) {}
+  export class All extends S.Union(HasKey, HasValue, HasEntry) {}
 
-  export namespace Any {
-    export type Type = S.Schema.Type<typeof Any>;
-    export type Encoded = S.Schema.Encoded<typeof Any>;
+  export namespace All {
+    export type Type = S.Schema.Type<typeof All>;
+    export type Encoded = S.Schema.Encoded<typeof All>;
   }
 }
 
-export class Union extends S.Union(StringOperators.Any, NumberOperators.Any, ObjectOperators.Any) {}
+export class Union extends S.Union(StringOperators.All, NumberOperators.All, ObjectOperators.All) {}
 
 export namespace Union {
   export type Type = S.Schema.Type<typeof Union>;
