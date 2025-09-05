@@ -208,3 +208,5 @@ export const path_regex = Regex.make(/^($|[a-zA-Z_$][\w$]*(?:\.[a-zA-Z_$][\w$]*|
 export const prop_regex = Regex.make(/^\w+$/);
 
 export const slug = Regex.make(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+
+export const snakeCaseTagRegex = Regex.make(/^[a-z]+(?:_[a-z]+)*$/);

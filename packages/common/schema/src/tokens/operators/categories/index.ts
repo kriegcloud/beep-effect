@@ -1,9 +1,0 @@
-export * as ComparatorOps from "./comparators";
-export * as EmptinessOps from "./emptiness";
-export * as NumericOps from "./numeric";
-export * as ObjStructureOps from "./objectStructure";
-export * as SetOps from "./set";
-export * as SizeOps from "./size";
-export * as StrOps from "./string";
-export * as TemporalOps from "./temporal";
-export * as TypeOps from "./type";

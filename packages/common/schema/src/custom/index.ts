@@ -16,6 +16,7 @@ export * from "./Password.schema";
 export * from "./Phone.schema";
 export * from "./Regex.schema";
 export * from "./Slug.schema";
+export * from "./String.schema";
 export * from "./URLPath.schema";
 export * from "./Url.schema";
 export * from "./UUID.schema";

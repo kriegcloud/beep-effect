@@ -1,10 +1,11 @@
 import type { DefaultAnnotations } from "@beep/schema/annotations";
+import type { StringTypes } from "@beep/types";
 import type * as B from "effect/Brand";
 import * as S from "effect/Schema";
 
 export namespace EntityId {
   export const make =
-    <Tag extends string>(tag: Tag) =>
+    <Tag extends StringTypes.NonEmptyString<string>>(tag: Tag) =>
     (annotations: DefaultAnnotations<B.Branded<string, Tag>>) =>
       S.UUID.pipe(S.brand(tag)).annotations({
         ...annotations,

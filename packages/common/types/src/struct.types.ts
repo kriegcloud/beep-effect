@@ -1,11 +1,11 @@
 import type * as A from "effect/Array";
 import type * as S from "effect/Schema";
 import type { NonEmptyRecordWithStringKeys } from "./record.types";
+import type * as StringTypes from "./string.types";
 import type { NonEmptyString } from "./string.types";
 import type * as UnsafeTypes from "./unsafe.types";
-
 export type StructFieldsWithStringKeys = {
-  readonly [x: string]: S.Struct.Field;
+  readonly [x: StringTypes.NonEmptyString<string>]: S.Struct.Field;
 };
 
 export type NonEmptyStructFields<T extends StructFieldsWithStringKeys> = keyof T extends string

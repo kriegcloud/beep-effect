@@ -1,1 +1,1 @@
-export * from "./operators/OperatorType";
+export { CategoryFactory } from "./OperatorFactory";
