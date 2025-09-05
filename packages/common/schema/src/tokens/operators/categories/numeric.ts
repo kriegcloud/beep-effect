@@ -18,11 +18,7 @@ const kit = stringLiteralKit(
   "isNegative",
   "isNonNegative",
   "approxEq"
-)({
-  identifier: "NumericOperatorPredicates",
-  title: "Numeric Operator Predicates",
-  description: "Numeric Operator Predicates",
-});
+);
 
 const Enum = kit.Enum;
 

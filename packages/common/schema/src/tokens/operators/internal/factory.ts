@@ -9,6 +9,7 @@ export const makeFactory = <const OperatorCategory extends StringTypes.NonEmptyS
   new DiscriminatedUnionFactoryBuilder("operator", {
     category: LiteralWithDefault(category),
   });
+
 export const fields = <
   const Symbol extends StringTypes.NonEmptyString<string>,
   const Human extends StringTypes.NonEmptyString<string>,

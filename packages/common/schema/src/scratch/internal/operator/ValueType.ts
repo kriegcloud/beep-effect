@@ -2,16 +2,7 @@ import { stringLiteralKit } from "@beep/schema/kits";
 import type * as S from "effect/Schema";
 import { FieldType } from "./FieldType";
 
-const kit = stringLiteralKit(
-  ...FieldType.Options,
-  "regex",
-  "range",
-  "void"
-)({
-  identifier: "ValueTypeLiteral",
-  title: "Value Type Literal",
-  description: "Value type literals",
-});
+const kit = stringLiteralKit(...FieldType.Options, "regex", "range", "void");
 
 export class ValueType extends kit.Schema {
   static readonly Options = kit.Options;

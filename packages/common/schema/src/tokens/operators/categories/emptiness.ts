@@ -13,11 +13,7 @@ const kit = stringLiteralKit(
   "isPresent",
   "isEmptyDeep",
   "isNotEmptyDeep"
-)({
-  identifier: "EmptinessOperator",
-  title: "Emptiness Operator Predicate",
-  description: 'Covers "", [], {}, Map(0), Set(0); type-specific impl via .create',
-});
+);
 
 const Enum = kit.Enum;
 

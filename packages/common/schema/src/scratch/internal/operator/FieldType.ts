@@ -1,20 +1,7 @@
 import { stringLiteralKit } from "@beep/schema/kits";
 import type * as S from "effect/Schema";
 
-const kit = stringLiteralKit(
-  "string",
-  "number",
-  "boolean",
-  "date",
-  "array",
-  "object",
-  "any",
-  "time"
-)({
-  identifier: "FieldTypeLiteral",
-  title: "Field Type Literal",
-  description: "Field type literals",
-});
+const kit = stringLiteralKit("string", "number", "boolean", "date", "array", "object", "any", "time");
 
 export class FieldType extends kit.Schema {
   static readonly Options = kit.Options;

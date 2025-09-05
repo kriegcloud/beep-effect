@@ -14,12 +14,7 @@ const kit = stringLiteralKit(
   "matches",
   "notMatches",
   "equalsIgnoreCase"
-)({
-  identifier: "StringOperators",
-  title: "String Operators",
-  description:
-    "Basic String Operators startsWith / notStartsWith / endsWith / notEndsWith / contains / notContains / matches / notMatches",
-});
+);
 
 const Enum = kit.Enum;
 

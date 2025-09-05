@@ -19,11 +19,7 @@ const kit = stringLiteralKit(
   "containsAny",
   "containsAll",
   "containsNone"
-)({
-  identifier: "Set Operator Predicate",
-  title: "Set Operator Predicate",
-  description: "🧰 Set / Collection Relations Predicates",
-});
+);
 
 const Enum = kit.Enum;
 

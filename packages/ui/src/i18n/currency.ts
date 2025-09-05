@@ -484,11 +484,7 @@ export type Currency = (typeof Currency)[keyof typeof Currency];
 export namespace CurrencyCodeValue {
   export const { Options, Enum, Mock, JSONSchema, Pretty, Equivalence, Schema } = stringLiteralKit(
     ...RecordUtils.recordKeys(Currency)
-  )({
-    identifier: "CurrencyCodeValue",
-    title: "Currency Code Value",
-    description: "The possible currency values",
-  });
+  );
 
   export type Type = typeof Schema.Type;
 }

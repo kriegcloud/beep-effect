@@ -1,16 +1,7 @@
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
 
-const kit = BS.stringLiteralKit(
-  "free",
-  "plus",
-  "pro",
-  "enterprise"
-)({
-  description: "The subscription tier of the organization",
-  identifier: "SubscriptionTier",
-  title: "Subscription Tier",
-});
+const kit = BS.stringLiteralKit("free", "plus", "pro", "enterprise");
 
 export const makeSubscriptionTierPgEnum = kit.toPgEnum;
 export const SubscriptionTierEnum = kit.Enum;

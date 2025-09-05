@@ -17,11 +17,7 @@ const kit = stringLiteralKit(
   "isWeekday",
   "isWeekend",
   "isSameQuarter"
-)({
-  identifier: "TemporalOperatorPredicate",
-  title: "Temporal Operator Predicate",
-  description: "🗓️ Temporal Operator Predicates",
-});
+);
 
 const Enum = kit.Enum;
 

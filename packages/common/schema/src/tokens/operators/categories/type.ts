@@ -26,11 +26,7 @@ const kit = stringLiteralKit(
   "isNotObject",
   "isNullish",
   "isNotNullish"
-)({
-  identifier: "Type Operator Predicates",
-  title: "Type Operator Predicates",
-  description: "🧪 Type & Truthiness Predicates isString/Number/Array/Object/Boolean/etc. (+ not-variants)",
-});
+);
 
 const Enum = kit.Enum;
 

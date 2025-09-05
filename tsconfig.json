@@ -121,6 +121,10 @@
     },
     {
       "path": "packages/email"
+    },
+    {
+      "path": "packages/common/rules"
     }
+
   ]
 }

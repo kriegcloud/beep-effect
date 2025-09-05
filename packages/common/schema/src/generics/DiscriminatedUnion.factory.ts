@@ -1,19 +1,13 @@
 import type { OptionalWithDefault } from "@beep/schema/types";
 import { mergeFields } from "@beep/schema/utils";
 import type { StringTypes, StructTypes, UnsafeTypes } from "@beep/types";
+import * as Arbitrary from "effect/Arbitrary";
 import * as Data from "effect/Data";
-import type * as S from "effect/Schema";
+import * as FC from "effect/FastCheck";
+import * as S from "effect/Schema";
+import type * as AST from "effect/SchemaAST";
+import type { DefaultAnnotations } from "../annotations";
 import { DiscriminatedStruct } from "./DiscriminatedStruct";
-
-type MakeMemberFn<
-  Discriminator extends StringTypes.NonEmptyString<string>,
-  LiteralValue extends StringTypes.NonEmptyString<string>,
-  Fields extends StructTypes.StructFieldsWithStringKeys,
-> = <const ExtraFields extends StructTypes.StructFieldsWithStringKeys>(
-  extraFields: ExtraFields
-) => LiteralValue extends UnsafeTypes.UnsafeAny
-  ? S.Struct<{ readonly [K in Discriminator]: OptionalWithDefault<LiteralValue> } & Fields & ExtraFields>
-  : never;
 
 interface DiscriminatedUnionFactoryBuilderSpec<
   Discriminator extends StringTypes.NonEmptyString<string>,
@@ -57,6 +51,15 @@ interface DiscriminatedUnionFactorySpec<
   readonly fields: Fields;
 }
 
+export type FilterUnion<
+  Discriminator extends StringTypes.NonEmptyString<string>,
+  LiteralValue extends StringTypes.NonEmptyString<string>,
+  Fields extends StructTypes.StructFieldsWithStringKeys,
+  ExtraFields extends StructTypes.StructFieldsWithStringKeys,
+> = LiteralValue extends UnsafeTypes.UnsafeAny
+  ? S.Struct<{ readonly [K in Discriminator]: OptionalWithDefault<LiteralValue> } & Fields & ExtraFields>
+  : never;
+
 export class DiscriminatedUnionFactory<
   const Discriminator extends StringTypes.NonEmptyString<string>,
   const LiteralValue extends StringTypes.NonEmptyString<string>,
@@ -64,14 +67,51 @@ export class DiscriminatedUnionFactory<
 > extends Data.TaggedClass("DiscriminatedUnionFactory")<
   DiscriminatedUnionFactorySpec<Discriminator, LiteralValue, Fields>
 > {
-  readonly make: MakeMemberFn<Discriminator, LiteralValue, Fields>;
+  readonly make: <const ExtraFields extends StructTypes.StructFieldsWithStringKeys>(
+    extraFields: ExtraFields
+  ) => (
+    annotations: Omit<DefaultAnnotations<FilterUnion<Discriminator, LiteralValue, Fields, ExtraFields>>, "examples"> & {
+      readonly examples?: AST.ExamplesAnnotation<
+        S.Schema.Type<DiscriminatedStruct.Schema<Discriminator, LiteralValue, Fields & ExtraFields>>
+      >;
+    }
+  ) => FilterUnion<Discriminator, LiteralValue, Fields, ExtraFields>;
 
   constructor(discriminatorKey: Discriminator, discriminatorValue: LiteralValue, fields: Fields) {
     super({ discriminatorKey, discriminatorValue, fields });
-    this.make = <const ExtraFields extends StructTypes.StructFieldsWithStringKeys>(extraFields: ExtraFields) =>
-      DiscriminatedStruct<Discriminator, LiteralValue, Fields & ExtraFields>(discriminatorKey)(
-        discriminatorValue,
-        mergeFields(fields, extraFields)
-      );
+    this.make =
+      <const ExtraFields extends StructTypes.StructFieldsWithStringKeys>(extraFields: ExtraFields) =>
+      ({
+        examples,
+        ...annotations
+      }: Omit<
+        DefaultAnnotations<DiscriminatedStruct.Schema<Discriminator, LiteralValue, Fields & ExtraFields>>,
+        "examples"
+      > & {
+        readonly examples?: AST.ExamplesAnnotation<
+          S.Schema.Type<DiscriminatedStruct.Schema<Discriminator, LiteralValue, Fields & ExtraFields>>
+        >;
+      }) => {
+        const schema = DiscriminatedStruct<Discriminator, LiteralValue, Fields & ExtraFields>(discriminatorKey)(
+          discriminatorValue,
+          mergeFields(fields, extraFields)
+        ).pipe(S.annotations(annotations));
+
+        const arb = Arbitrary.make<
+          S.Schema.Type<DiscriminatedStruct.Schema<Discriminator, LiteralValue, Fields & ExtraFields>>,
+          S.Schema.Encoded<DiscriminatedStruct.Schema<Discriminator, LiteralValue, Fields & ExtraFields>>,
+          never
+        >(schema);
+        const samples = FC.sample(arb, 3);
+
+        return DiscriminatedStruct<Discriminator, LiteralValue, Fields & ExtraFields>(discriminatorKey)(
+          discriminatorValue,
+          mergeFields(fields, extraFields)
+        )
+          .pipe(S.annotations(annotations))
+          .annotations({
+            examples: [...samples],
+          });
+      };
   }
 }

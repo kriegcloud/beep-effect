@@ -1,8 +1,3 @@
-import * as F from "effect/Function";
-import * as O from "effect/Option";
-import type * as S from "effect/Schema";
-import * as AST from "effect/SchemaAST";
-
 export * from "./annotations";
 export * from "./custom";
 export * from "./EntityId";
@@ -18,7 +13,7 @@ export {
   Tuple,
 } from "./extended-schemas";
 export * from "./form";
-export { TaggedStruct } from "./generics";
+export { DiscriminatedStruct, TaggedStruct } from "./generics";
 export * from "./kits";
 /**
  * Public exports for all schemas and utilities.
@@ -28,10 +23,5 @@ export * from "./kits";
  */
 export * from "./regexes";
 export * from "./sql";
+export * from "./types";
 export * from "./utils";
-
-const DeprecatedId = Symbol.for("@beep/schema/DeprecatedId");
-export type DeprecatedId = typeof DeprecatedId;
-
-export const isDeprecated = <A, I, R>(schema: S.Schema<A, I, R>): boolean =>
-  AST.getAnnotation<boolean>(DeprecatedId)(schema.ast).pipe(O.getOrElse(F.constFalse));

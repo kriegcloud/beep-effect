@@ -1,10 +1,10 @@
-import {serverEnv} from "@beep/env/server";
-import {IamDb} from "@beep/iam-db";
-import {IamDbSchema} from "@beep/iam-tables";
-import type {BetterAuthOptions} from "better-auth";
-import {betterAuth} from "better-auth";
-import {drizzleAdapter} from "better-auth/adapters/drizzle";
-import {nextCookies} from "better-auth/next-js";
+import { serverEnv } from "@beep/env/server";
+import { IamDb } from "@beep/iam-db";
+import { IamDbSchema } from "@beep/iam-tables";
+import type { BetterAuthOptions } from "better-auth";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { nextCookies } from "better-auth/next-js";
 import {
   anonymous,
   apiKey,
@@ -19,24 +19,24 @@ import {
   oneTimeToken,
   openAPI,
 } from "better-auth/plugins";
-import {passkey} from "better-auth/plugins/passkey";
-import {sso} from "better-auth/plugins/sso";
+import { passkey } from "better-auth/plugins/passkey";
+import { sso } from "better-auth/plugins/sso";
 import * as d from "drizzle-orm";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-import {v4 as uuid} from "uuid";
-import {AuthEmailService, SendResetPasswordEmailPayload} from "./AuthEmail.service";
-import {commonExtraFields} from "./internal/common";
-import {OrganizationPlugin} from "./internal/plugins";
+import { v4 as uuid } from "uuid";
+import { AuthEmailService, SendResetPasswordEmailPayload } from "./AuthEmail.service";
+import { commonExtraFields } from "./internal/common";
+import { OrganizationPlugin } from "./internal/plugins";
 
 const AuthOptions = Effect.gen(function* () {
-  const {db} = yield* IamDb.IamDb;
+  const { db } = yield* IamDb.IamDb;
   const organizationPlugin = yield* OrganizationPlugin;
   return {
-    database: drizzleAdapter(db, {provider: "pg", usePlural: true}),
+    database: drizzleAdapter(db, { provider: "pg", usePlural: true }),
     baseURL: serverEnv.app.authUrl.toString(),
     basePath: "/api/auth",
     appName: serverEnv.app.name,
@@ -65,9 +65,9 @@ const AuthOptions = Effect.gen(function* () {
       requireEmailVerification: false,
       enabled: true,
       sendResetPassword: async (params) => {
-        const {serverRuntime} = await import("@beep/better-auth/lib/server-runtime");
+        const { serverRuntime } = await import("@beep/better-auth/lib/server-runtime");
         const program = Effect.gen(function* () {
-          const {sendResetPassword} = yield* AuthEmailService;
+          const { sendResetPassword } = yield* AuthEmailService;
 
           const decoded = yield* S.decode(SendResetPasswordEmailPayload)({
             username: params.user.name,
@@ -95,7 +95,7 @@ const AuthOptions = Effect.gen(function* () {
     ),
     plugins: [
       organizationPlugin,
-      passkey({rpID: serverEnv.app.domain, rpName: `${serverEnv.app.name} Auth`}),
+      passkey({ rpID: serverEnv.app.domain, rpName: `${serverEnv.app.name} Auth` }),
       openAPI(),
       mcp({
         loginPage: "/sign-in", // path to your login page
@@ -113,15 +113,13 @@ const AuthOptions = Effect.gen(function* () {
       oidcProvider({
         loginPage: "/sign-in",
       }),
-      customSession(async (session) => {
-        return {
-          ...session,
-          user: {
-            ...session.user,
-            dd: "test",
-          },
-        };
-      }),
+      customSession(async (session) => ({
+        ...session,
+        user: {
+          ...session.user,
+          dd: "test",
+        },
+      })),
     ],
     databaseHooks: {
       user: {
@@ -222,5 +220,4 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
     const opts: Options = yield* AuthOptions;
     return betterAuth(opts);
   }) as Effect.Effect<ReturnType<typeof betterAuth<Options>>>,
-}) {
-}
+}) {}

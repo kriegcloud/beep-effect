@@ -38,11 +38,7 @@ const kit = stringLiteralKit(
   "is_same_week",
   "is_same_month",
   "is_same_year"
-)({
-  identifier: "OperatorLiterals",
-  title: "Operator Literals",
-  description: "Operator literals for conditions",
-});
+);
 export const { Union, Members } = kit.toTagged("operator");
 
 export class Operator extends kit.Schema {

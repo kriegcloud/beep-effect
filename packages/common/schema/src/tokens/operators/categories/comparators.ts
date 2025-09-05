@@ -5,20 +5,7 @@ import * as Match from "effect/Match";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 
-const kit = stringLiteralKit(
-  "eq",
-  "ne",
-  "gt",
-  "gte",
-  "lt",
-  "lte",
-  "between",
-  "notBetween"
-)({
-  identifier: "ComparatorOperators",
-  title: "Comparator Operators",
-  description: "Basic Comparator Operators eq / ne / gt / gte / lt / lte / between / notBetween",
-});
+const kit = stringLiteralKit("eq", "ne", "gt", "gte", "lt", "lte", "between", "notBetween");
 
 const Enum = kit.Enum;
 

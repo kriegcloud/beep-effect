@@ -1,20 +1,7 @@
 import { stringLiteralKit } from "@beep/schema/kits";
 import type * as S from "effect/Schema";
 
-const kit = stringLiteralKit(
-  "comparison",
-  "type",
-  "presence",
-  "structure",
-  "set",
-  "size",
-  "pattern",
-  "temporal"
-)({
-  identifier: "OperatorCategoryLiteral",
-  title: "Operator Category Literal",
-  description: "Operator category literals",
-});
+const kit = stringLiteralKit("comparison", "type", "presence", "structure", "set", "size", "pattern", "temporal");
 
 export class OperatorCategory extends kit.Schema {
   static readonly Enum = kit.Enum;

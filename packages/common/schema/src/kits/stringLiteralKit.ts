@@ -109,7 +109,7 @@ type ValidMapping<
  */
 export function stringLiteralKit<const Literals extends A.NonEmptyReadonlyArray<string>>(
   ...literals: Literals[number] extends StringTypes.NonEmptyString<Literals[number]> ? Literals : never
-): (annotations: DefaultAnnotations<Literals[number]>) => {
+): {
   Schema: S.Literal<[...Literals]>;
   Options: Literals;
   Enum: CreateEnumType<Literals, undefined>;
@@ -157,7 +157,7 @@ export function stringLiteralKit<
   ...args: Literals[number] extends StringTypes.NonEmptyString<Literals[number]>
     ? [...literals: Literals, options: { enumMapping: ValidMapping<Literals, Mapping> }]
     : never
-): (annotations: DefaultAnnotations<Literals[number]>) => {
+): {
   Schema: S.Literal<[...Literals]>;
   Options: Literals;
   Enum: CreateEnumType<Literals, Mapping>;
@@ -207,7 +207,7 @@ export function stringLiteralKit<
   ...args: Literals[number] extends StringTypes.NonEmptyString<Literals[number]>
     ? Literals | [...Literals, { enumMapping?: Mapping }]
     : never
-): (annotations: DefaultAnnotations<Literals[number]>) => {
+): {
   Schema: S.Literal<[...Literals]>;
   Options: Literals;
   Enum: CreateEnumType<Literals, Mapping | undefined>;
@@ -350,67 +350,63 @@ export function stringLiteralKit<
 
     return omittedLiterals;
   };
+  const Schema = S.Literal(...literals).annotations({
+    arbitrary: () => (fc) => fc.constantFrom(...literals),
+  });
+  return {
+    Schema: Schema,
+    Options: literals,
+    Enum,
+    Mock: (qty: number) => FC.sample(Arbitrary.make(Schema), qty),
+    JSONSchema: JSONSchema.make(Schema),
+    Pretty: Pretty.make(Schema),
+    Equivalence: S.equivalence(Schema),
+    is: S.is(Schema),
+    assert: S.asserts(Schema),
+    decode: S.decode(Schema),
+    pick,
+    omit,
+    toPgEnum: (name) => pgEnum(name, literals),
+    derive:
+      <Keys extends A.NonEmptyReadonlyArray<Literals[number]>>(...keys: Keys) =>
+      (annotations) => {
+        const Schema = S.Literal(...literals).annotations({
+          arbitrary: () => (fc) => fc.constantFrom(...literals),
+        });
 
-  return (annotations) => {
-    const Schema = S.Literal(...literals).annotations({
-      ...annotations,
-      arbitrary: () => (fc) => fc.constantFrom(...literals),
-    });
-    return {
-      Schema: Schema,
-      Options: literals,
-      Enum,
-      Mock: (qty: number) => FC.sample(Arbitrary.make(Schema), qty),
-      JSONSchema: JSONSchema.make(Schema),
-      Pretty: Pretty.make(Schema),
-      Equivalence: S.equivalence(Schema),
-      is: S.is(Schema),
-      assert: S.asserts(Schema),
-      decode: S.decode(Schema),
-      pick,
-      omit,
-      toPgEnum: (name) => pgEnum(name, literals),
-      derive:
-        <Keys extends A.NonEmptyReadonlyArray<Literals[number]>>(...keys: Keys) =>
-        (annotations) => {
-          const Schema = S.Literal(...literals).annotations({
-            arbitrary: () => (fc) => fc.constantFrom(...literals),
+        const toTagged = <D extends string>(discriminator: StringTypes.NonEmptyString<D>) => {
+          const memberTuple = keys.map((lit) => {
+            return DiscriminatedStruct(discriminator)(lit, {});
+          }) as unknown as TaggedMembers<Keys, D>;
+
+          const membersObj = Object.create(null) as Record<string, S.Struct<any>>;
+          keys.forEach((lit, i) => {
+            membersObj[lit] = (memberTuple as unknown as ReadonlyArray<S.Struct<any>>)[i]!;
           });
+          Object.freeze(membersObj);
 
-          const toTagged = <D extends string>(discriminator: StringTypes.NonEmptyString<D>) => {
-            const memberTuple = keys.map((lit) => {
-              return DiscriminatedStruct(discriminator)(lit, {});
-            }) as unknown as TaggedMembers<Keys, D>;
-
-            const membersObj = Object.create(null) as Record<string, S.Struct<any>>;
-            keys.forEach((lit, i) => {
-              membersObj[lit] = (memberTuple as unknown as ReadonlyArray<S.Struct<any>>)[i]!;
-            });
-            Object.freeze(membersObj);
-
-            const Union = S.Union(
-              ...(memberTuple as unknown as [S.Schema<any, any, any>, ...S.Schema<any, any, any>[]])
-            ) as TaggedUnion<Keys, D>;
-
-            return {
-              Union,
-              Members: membersObj as TaggedMembersMap<Keys, D>,
-            } as const;
-          };
+          const Union = S.Union(
+            ...(memberTuple as unknown as [S.Schema<any, any, any>, ...S.Schema<any, any, any>[]])
+          ) as TaggedUnion<Keys, D>;
 
           return {
-            Schema: S.Literal(...keys).annotations({
-              ...annotations,
-              arbitrary: () => (fc) => fc.constantFrom(...literals),
-            }),
-            Options: keys,
-            Enum: enumFromStringArray(...keys),
-            Mock: (qty: number) => FC.sample(Arbitrary.make(Schema), qty),
-            is: S.is(Schema),
-            toTagged,
-          };
-        },
-      toTagged,
-    } as const;
-  };
+            Union,
+            Members: membersObj as TaggedMembersMap<Keys, D>,
+          } as const;
+        };
+
+        return {
+          Schema: S.Literal(...keys).annotations({
+            ...annotations,
+            arbitrary: () => (fc) => fc.constantFrom(...literals),
+          }),
+          Options: keys,
+          Enum: enumFromStringArray(...keys),
+          Mock: (qty: number) => FC.sample(Arbitrary.make(Schema), qty),
+          is: S.is(Schema),
+          toTagged,
+        };
+      },
+    toTagged,
+  } as const;
 }

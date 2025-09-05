@@ -3,18 +3,7 @@ import { fields, makeFactory } from "@beep/schema/tokens/operators/internal/fact
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 
-const kit = stringLiteralKit(
-  "hasKey",
-  "hasEveryKey",
-  "hasAnyKey",
-  "notHasKey",
-  "hasPath",
-  "notHasPath"
-)({
-  identifier: "ObjectStructurePredicate",
-  title: "Object Structure Operator Predicate",
-  description: "🗺️ Object Structure",
-});
+const kit = stringLiteralKit("hasKey", "hasEveryKey", "hasAnyKey", "notHasKey", "hasPath", "notHasPath");
 
 const Enum = kit.Enum;
 

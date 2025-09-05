@@ -3,19 +3,7 @@ import { describe, expect, it } from "vitest";
 
 describe("stringLiteralKit with pick and omit", () => {
   it("should work with pick method returning filtered array", () => {
-    const OrderStatus = stringLiteralKit(
-      "NEW",
-      "PICKED",
-      "INPROGRESS",
-      "COMPLETE",
-      "CANCELED",
-      "PENDING"
-    )({
-      identifier: "OrderStatus",
-      title: "Order Status",
-      description: "The status of the order",
-      default: "NEW",
-    });
+    const OrderStatus = stringLiteralKit("NEW", "PICKED", "INPROGRESS", "COMPLETE", "CANCELED", "PENDING");
 
     const pickedStatuses = OrderStatus.pick("NEW", "PENDING");
 
@@ -23,19 +11,7 @@ describe("stringLiteralKit with pick and omit", () => {
   });
 
   it("should work with omit method returning filtered array", () => {
-    const OrderStatus = stringLiteralKit(
-      "NEW",
-      "PICKED",
-      "INPROGRESS",
-      "COMPLETE",
-      "CANCELED",
-      "PENDING"
-    )({
-      identifier: "OrderStatus",
-      title: "Order Status",
-      description: "The status of the order",
-      default: "NEW",
-    });
+    const OrderStatus = stringLiteralKit("NEW", "PICKED", "INPROGRESS", "COMPLETE", "CANCELED", "PENDING");
 
     const omittedStatuses = OrderStatus.omit("NEW", "PENDING");
 
@@ -53,18 +29,10 @@ describe("stringLiteralKit with pick and omit", () => {
       "PK", // Packed
       "AL", // Allocated (ordered)
       "HO" // Hold
-    )({
-      identifier: "LicensePlateStatus",
-      title: "License Plate Status",
-      description: "The status of the license plate",
-    });
+    );
 
     // Test the usage pattern from the user's example
-    const ValidLicensePlateStatus = stringLiteralKit(...LicensePlateStatus.pick("AR", "HS", "IV", "RC", "PK"))({
-      identifier: "ValidLicensePlateStatus",
-      title: "Valid License Plate Status",
-      description: "Valid statuses for license plates",
-    });
+    const ValidLicensePlateStatus = stringLiteralKit(...LicensePlateStatus.pick("AR", "HS", "IV", "RC", "PK"));
 
     expect(ValidLicensePlateStatus.Options).toEqual(["AR", "HS", "IV", "RC", "PK"]);
     expect(ValidLicensePlateStatus.Enum.AR).toBe("AR");
@@ -89,22 +57,14 @@ describe("stringLiteralKit with pick and omit", () => {
           ["success.main", "SUCCESS"],
         ] as const,
       }
-    )({
-      identifier: "ActionColor",
-      title: "Action Color",
-      description: "Action color",
-    });
+    );
 
     const pickedColors = ActionColorValue.pick("primary.main", "secondary.main");
 
     expect(pickedColors).toEqual(["primary.main", "secondary.main"]);
 
     // Test creating new stringLiteralKit with picked values
-    const PrimaryColors = stringLiteralKit(...pickedColors)({
-      identifier: "PrimaryColors",
-      title: "Primary Colors",
-      description: "Primary color values",
-    });
+    const PrimaryColors = stringLiteralKit(...pickedColors);
 
     expect(PrimaryColors.Options).toEqual(["primary.main", "secondary.main"]);
     expect(PrimaryColors.Enum["primary.main"]).toBe("primary.main");
@@ -112,14 +72,7 @@ describe("stringLiteralKit with pick and omit", () => {
   });
 
   it("should throw error when pick results in empty array", () => {
-    const OrderStatus = stringLiteralKit(
-      "NEW",
-      "PICKED"
-    )({
-      identifier: "OrderStatus",
-      title: "Order Status",
-      description: "The status of the order",
-    });
+    const OrderStatus = stringLiteralKit("NEW", "PICKED");
 
     expect(() => {
       OrderStatus.pick("INVALID" as any);
@@ -127,14 +80,7 @@ describe("stringLiteralKit with pick and omit", () => {
   });
 
   it("should throw error when omit results in empty array", () => {
-    const OrderStatus = stringLiteralKit(
-      "NEW",
-      "PICKED"
-    )({
-      identifier: "OrderStatus",
-      title: "Order Status",
-      description: "The status of the order",
-    });
+    const OrderStatus = stringLiteralKit("NEW", "PICKED");
 
     expect(() => {
       OrderStatus.omit("NEW", "PICKED");

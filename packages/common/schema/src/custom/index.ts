@@ -6,6 +6,7 @@
  */
 
 export * from "./Bool.schema";
+export * from "./Class.schema";
 export * from "./Date.schema";
 export * from "./Email.schema";
 export * from "./IP.schema";

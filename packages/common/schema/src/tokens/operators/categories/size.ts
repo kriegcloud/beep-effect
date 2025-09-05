@@ -4,17 +4,7 @@ import { fields, makeFactory } from "@beep/schema/tokens/operators/internal/fact
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 
-const kit = stringLiteralKit(
-  "lengthEq",
-  "lengthGt",
-  "lengthLt",
-  "lengthLte",
-  "lengthBetween"
-)({
-  identifier: "SizeOperatorPredicate",
-  title: "Size Operator Predicate",
-  description: "📏 Size / Length Predicates",
-});
+const kit = stringLiteralKit("lengthEq", "lengthGt", "lengthLt", "lengthLte", "lengthBetween");
 
 const Enum = kit.Enum;
 

@@ -21,17 +21,7 @@ export namespace SupportedLangValue {
     JSONSchema,
     Pretty,
     Equivalence,
-  } = stringLiteralKit(
-    "en",
-    "fr",
-    "vi",
-    "cn",
-    "ar"
-  )({
-    identifier: "SupportedLangValue",
-    title: "Supported Lang Value",
-    description: "The supported languages of the application",
-  });
+  } = stringLiteralKit("en", "fr", "vi", "cn", "ar");
 
   export type Type = typeof Schema.Type;
 }
@@ -301,11 +291,7 @@ export namespace CountryCodeValue {
     "ZA",
     "ZM",
     "ZW"
-  )({
-    identifier: "CountryCodeValue",
-    title: "Country Code Value",
-    description: "Possible country code values",
-  });
+  );
 
   export type Type = typeof Schema.Type;
 }

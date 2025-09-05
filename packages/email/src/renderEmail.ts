@@ -14,5 +14,5 @@ export const renderEmail = Effect.fn("renderEmail")(
         }),
     });
   },
-  (effect) => effect.pipe(Effect.tapErrorTag("EmailTemplateRenderError", Effect.logError))
+  Effect.tapErrorTag("EmailTemplateRenderError", Effect.logError)
 );

@@ -1,14 +1,6 @@
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
-export const organizationTypeKit = BS.stringLiteralKit(
-  "individual",
-  "team",
-  "enterprise"
-)({
-  description: "The type of organization",
-  identifier: "OrganizationType",
-  title: "Organization Type",
-});
+export const organizationTypeKit = BS.stringLiteralKit("individual", "team", "enterprise");
 
 export const makeOrganizationTypePgEnum = organizationTypeKit.toPgEnum;
 
