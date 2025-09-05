@@ -1,37 +1,20 @@
-import type { DbError } from "@beep/db-scope/errors";
 import * as DbErrors from "@beep/db-scope/errors";
-import type { ExtractTablesWithRelations } from "drizzle-orm";
-import type { NodePgDatabase, NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
+import { serverEnv } from "@beep/env/server";
+import * as PgDrizzle from "@effect/sql-drizzle/Pg";
+import * as PgClient from "@effect/sql-pg/PgClient";
 import { drizzle } from "drizzle-orm/node-postgres";
-import type { PgTransaction } from "drizzle-orm/pg-core";
 import { Cause, Effect, Exit, Option, Runtime } from "effect";
 import * as Context from "effect/Context";
+import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
+import * as Str from "effect/String";
 import * as pg from "pg";
+import type { ConnectionOptions, DbClient, ExecuteFn, TransactionClient, TransactionContextShape } from "./types";
 
-export type Config = {
-  url: Redacted.Redacted;
-  ssl: boolean;
-};
-export type TransactionClient<TFullSchema extends Record<string, unknown> = Record<string, never>> = PgTransaction<
-  NodePgQueryResultHKT,
-  TFullSchema,
-  ExtractTablesWithRelations<TFullSchema>
->;
-
-export type DbClient<TFullSchema extends Record<string, unknown> = Record<string, never>> =
-  NodePgDatabase<TFullSchema> & {
-    $client: pg.Pool;
-  };
-
-export type TransactionContextShape<TFullSchema extends Record<string, unknown>> = <U>(
-  fn: (client: TransactionClient<TFullSchema>) => Promise<U>
-) => Effect.Effect<U, DbError>;
-
-export const makeScopedDb = <TFullSchema extends Record<string, unknown> = Record<string, never>>(
+export const makeScopedDb = <const TFullSchema extends Record<string, unknown> = Record<string, never>>(
   schema: TFullSchema
 ) => {
-  const makeService = (config: Config) =>
+  const makeService = (connectionOpts: ConnectionOptions) =>
     Effect.gen(function* () {
       const TransactionContext = Context.GenericTag<TransactionContextShape<TFullSchema>>("DbScope/TransactionContext");
 
@@ -39,10 +22,8 @@ export const makeScopedDb = <TFullSchema extends Record<string, unknown> = Recor
         Effect.sync(
           () =>
             new pg.Pool({
-              connectionString: Redacted.value(config.url),
-              ssl: config.ssl,
-              idleTimeoutMillis: 0,
-              connectionTimeoutMillis: 0,
+              connectionString: Redacted.value(connectionOpts.url),
+              ssl: connectionOpts.ssl,
             })
         ),
         (pool) => Effect.promise(() => pool.end())
@@ -148,11 +129,8 @@ export const makeScopedDb = <TFullSchema extends Record<string, unknown> = Recor
           )
       );
 
-      type ExecuteFn = <T>(
-        fn: (client: DbClient<TFullSchema> | TransactionClient<TFullSchema>) => Promise<T>
-      ) => Effect.Effect<T, DbErrors.DbError>;
       const makeQuery =
-        <A, E, R, Input = never>(queryFn: (execute: ExecuteFn, input: Input) => Effect.Effect<A, E, R>) =>
+        <A, E, R, Input = never>(queryFn: (execute: ExecuteFn<TFullSchema>, input: Input) => Effect.Effect<A, E, R>) =>
         (...args: [Input] extends [never] ? [] : [input: Input]): Effect.Effect<A, E | DbErrors.DbError, R> => {
           const input = args[0] as Input;
           // unsure what to do here. How do we create the transaction context?
@@ -172,7 +150,20 @@ export const makeScopedDb = <TFullSchema extends Record<string, unknown> = Recor
       } as const;
     });
 
+  const makeSql = () => {
+    const DrizzlePgClient = PgClient.layer({
+      port: serverEnv.db.pg.port,
+      host: serverEnv.db.pg.host,
+      username: serverEnv.db.pg.user,
+      password: serverEnv.db.pg.password,
+      ssl: serverEnv.db.pg.ssl,
+      transformResultNames: Str.snakeToCamel,
+    });
+
+    return PgDrizzle.layer.pipe(Layer.provideMerge(DrizzlePgClient));
+  };
   return {
     makeService,
+    makeSql,
   };
 };

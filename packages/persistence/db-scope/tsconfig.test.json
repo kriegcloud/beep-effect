@@ -4,6 +4,9 @@
   "references": [
     {
       "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../env"
     }
   ],
   "compilerOptions": {
@@ -14,6 +17,8 @@
   },
   "paths": {
     "@beep/db-scope": ["./src/index"],
-    "@beep/db-scope/*": ["./src/*"]
+    "@beep/db-scope/*": ["./src/*"],
+    "@beep/env/server": ["../../env/src/server"],
+    "@beep/env/client": ["../../env/src/client"]
   }
 }

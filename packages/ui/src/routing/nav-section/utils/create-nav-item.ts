@@ -1,5 +1,7 @@
+import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as Tuple from "effect/Tuple";
+import type React from "react";
 import { cloneElement } from "react";
 import { RouterLink } from "../../../routing/RouterLink";
 import type { NavItemDataProps, NavItemOptionsProps } from "../types";
@@ -9,7 +11,7 @@ type CreateNavItemReturn = {
   rootItem: boolean;
   subDeepItem: boolean;
 
-  baseProps: Record<string, any>;
+  baseProps: Record<string, UnsafeTypes.UnsafeAny>;
   renderIcon: React.ReactNode;
   renderInfo: React.ReactNode;
 };

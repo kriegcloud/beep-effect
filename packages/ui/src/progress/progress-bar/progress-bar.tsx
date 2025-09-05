@@ -1,11 +1,11 @@
 "use client";
 
+import type { UnsafeTypes } from "@beep/types";
 import NProgress from "nprogress";
 import { Suspense, useEffect } from "react";
-
 import { usePathname, useRouter, useSearchParams } from "../../hooks";
 
-type PushStateInput = [data: any, unused: string, url?: string | URL | null | undefined];
+type PushStateInput = [data: UnsafeTypes.UnsafeAny, unused: string, url?: string | URL | null | undefined];
 
 /**
  * Handles anchor click events to start the progress bar if the target URL is different from the current URL.

@@ -1,7 +1,11 @@
 {
   "extends": "../../../tsconfig.base.json",
   "include": ["src"],
-  "references": [],
+  "references": [
+    {
+      "path": "../../env"
+    }
+  ],
   "compilerOptions": {
     "types": ["node"],
     "outDir": "build/src",
@@ -13,7 +17,9 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-      "@beep/db-scope/*": ["./src/*"]
+      "@beep/db-scope/*": ["./src/*"],
+      "@beep/env/server": ["../../env/src/server"],
+      "@beep/env/client": ["../../env/src/client"]
     }
   }
 }

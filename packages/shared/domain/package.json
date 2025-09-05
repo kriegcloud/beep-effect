@@ -35,7 +35,7 @@
   "dependencies": {
     "effect": "*",
     "@effect/sql": "*",
-    "@beep/schema": "workspace:^",
+    "@beep/schema": "workspace:*",
     "@effect/experimental": "*"
   },
   "devDependencies": {

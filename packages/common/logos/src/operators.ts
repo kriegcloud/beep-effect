@@ -1,7 +1,7 @@
 import { BS } from "@beep/schema";
+import type { UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
 import { Operator } from "./internal";
-
 /**
  * Operators used by rules to compare or check values.
  *
@@ -373,7 +373,7 @@ export namespace AnyOperator {
  */
 export function fingerprintOperator(op: AnyOperator.Type): string | readonly unknown[] {
   const toMs = (x: unknown): number | null => {
-    const d = new Date(x as any);
+    const d = new Date(x as UnsafeTypes.UnsafeAny);
     const t = d.getTime();
     return Number.isFinite(t) ? t : null;
   };
@@ -386,7 +386,7 @@ export function fingerprintOperator(op: AnyOperator.Type): string | readonly unk
 
     case "isBetween": {
       // Support hypothetical future config: minimum/maximum/inclusive
-      const anyOp = op as any;
+      const anyOp = op as UnsafeTypes.UnsafeAny;
       if ("minimum" in anyOp || "maximum" in anyOp || "inclusive" in anyOp) {
         const min = toMs(anyOp.minimum);
         const max = toMs(anyOp.maximum);

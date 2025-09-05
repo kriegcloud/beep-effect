@@ -57,6 +57,11 @@ export const ServerConfig = Config.all({
         Config.all({
           url: Config.redacted(Config.nonEmptyString("URL")),
           ssl: Config.boolean("SSL").pipe(Config.withDefault(false)),
+          port: Config.port("PORT").pipe(Config.withDefault(5432)),
+          user: Config.nonEmptyString("USER").pipe(Config.withDefault("postgres")),
+          password: Config.redacted(Config.nonEmptyString("PASSWORD")),
+          host: Config.nonEmptyString("HOST").pipe(Config.withDefault("localhost")),
+          database: Config.nonEmptyString("DATABASE").pipe(Config.withDefault("postgres")),
         })
       ),
     })

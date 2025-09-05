@@ -1,4 +1,4 @@
-import { BS } from "@beep/schema";
+import { Slug, URLString } from "@beep/schema/custom";
 import * as Common from "@beep/shared-domain/common";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain/EntityIds";
 import * as M from "@effect/sql/Model";
@@ -24,14 +24,14 @@ export class Model extends M.Class<Model>(`OrganizationModel`)(
 
     /** URL-friendly slug identifier */
     slug: M.FieldOption(
-      BS.Slug.pipe(S.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), S.minLength(2), S.maxLength(50)).annotations({
+      Slug.pipe(S.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), S.minLength(2), S.maxLength(50)).annotations({
         description: "URL-friendly identifier for the organization",
       })
     ),
 
     /** Organization logo URL */
     logo: M.FieldOption(
-      BS.URLString.annotations({
+      URLString.annotations({
         description: "URL to the organization's logo",
       })
     ),

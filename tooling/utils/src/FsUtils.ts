@@ -1,3 +1,4 @@
+import type { UnsafeTypes } from "@beep/types";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
@@ -30,7 +31,7 @@ const make = Effect.gen(function* () {
    */
   const glob = (pattern: string | ReadonlyArray<string>, options?: Glob.GlobOptions) =>
     Effect.tryPromise({
-      try: () => Glob.glob(pattern as any, options as any),
+      try: () => Glob.glob(pattern as UnsafeTypes.UnsafeAny, options as UnsafeTypes.UnsafeAny),
       catch: (e) => new Error(`glob failed: ${e}`),
     }).pipe(Effect.withSpan("FsUtils.glob"));
 

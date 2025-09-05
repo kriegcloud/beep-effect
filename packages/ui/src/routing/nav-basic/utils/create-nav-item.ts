@@ -1,4 +1,5 @@
-import { cloneElement } from "react";
+import type { UnsafeTypes } from "@beep/types";
+import React from "react";
 import { RouterLink } from "../../RouterLink";
 import type { NavItemDataProps, NavItemOptionsProps } from "../types";
 
@@ -8,7 +9,7 @@ type CreateNavItemReturn = {
   subItem: boolean;
   rootItem: boolean;
   subDeepItem: boolean;
-  baseProps: Record<string, any>;
+  baseProps: Record<string, UnsafeTypes.UnsafeAny>;
   renderIcon: React.ReactNode;
   renderInfo: React.ReactNode;
 };
@@ -55,7 +56,7 @@ export function createNavItem({
     const [key, value] = info;
     const element = render.navInfo(value!)[key!];
 
-    renderInfo = element ? cloneElement(element) : null;
+    renderInfo = element ? React.cloneElement(element) : null;
   } else {
     renderInfo = info;
   }

@@ -34,6 +34,9 @@
     },
     {
       "path": "../../env"
+    },
+    {
+      "path": "../../shared/domain"
     }
   ],
   "compilerOptions": {
@@ -60,16 +63,18 @@
       "@beep/iam-db/*": ["../../iam/db/src/*"],
       "@beep/iam-domain": ["../../iam/domain/src/index"],
       "@beep/iam-domain/*": ["../../iam/domain/src/*"],
-      "@beep/schema": ["../../schema/src/index"],
-      "@beep/schema/*": ["../../schema/src/*"],
-      "@beep/types": ["../../types/src/index"],
-      "@beep/types/*": ["../../types/src/*"],
-      "@beep/invariant": ["../../invariant/src/index"],
-      "@beep/invariant/*": ["../../invariant/src/*"],
-      "@beep/utils": ["../../utils/src/index"],
-      "@beep/utils/*": ["../../utils/src/*"],
+      "@beep/schema": ["../../common/schema/src/index"],
+      "@beep/schema/*": ["../../common/schema/src/*"],
+      "@beep/types": ["../../common/types/src/index"],
+      "@beep/types/*": ["../../common/types/src/*"],
+      "@beep/invariant": ["../../common/invariant/src/index"],
+      "@beep/invariant/*": ["../../common/invariant/src/*"],
+      "@beep/utils": ["../../common/utils/src/index"],
+      "@beep/utils/*": ["../../common/utils/src/*"],
       "@beep/env/server": ["../../env/src/server"],
-      "@beep/env/client": ["../../env/src/client"]
+      "@beep/env/client": ["../../env/src/client"],
+      "@beep/shared-domain": ["../../shared/domain/src/index"],
+      "@beep/shared-domain/*": ["../../shared/domain/src/*"]
     }
   }
 }

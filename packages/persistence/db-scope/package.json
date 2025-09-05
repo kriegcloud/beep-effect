@@ -35,7 +35,11 @@
   "dependencies": {
     "drizzle-orm": "*",
     "effect": "*",
-    "pg": "*"
+    "pg": "*",
+    "@effect/sql-pg": "*",
+    "@effect/sql": "*",
+    "@effect/sql-drizzle": "*",
+    "@beep/env": "workspace:*"
   },
   "devDependencies": {
     "@types/pg": "*"

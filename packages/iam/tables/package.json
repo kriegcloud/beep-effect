@@ -34,7 +34,14 @@
   },
   "dependencies": {
     "@beep/shared-tables": "workspace:^",
+    "@beep/schema": "workspace:*",
+    "@beep/utils": "workspace:*",
+    "@beep/invariant": "workspace:*",
+    "@beep/shared-domain": "workspace:*",
     "drizzle-orm": "*"
+  },
+  "devDependencies": {
+    "@beep/types": "workspace:*"
   },
   "effect": {
     "generateExports": {

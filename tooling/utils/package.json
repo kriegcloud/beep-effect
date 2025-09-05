@@ -36,6 +36,9 @@
     "glob": "^11.0.3",
     "@effect/cluster": "*"
   },
+  "devDependencies": {
+    "@beep/types": "workspace:^"
+  },
   "effect": {
     "generateExports": {
       "include": [

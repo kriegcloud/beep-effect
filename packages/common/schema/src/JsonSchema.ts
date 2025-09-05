@@ -1,9 +1,8 @@
-import type { Or } from "@beep/types";
+import type { Or, UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
 import type { JsonProp } from "./custom";
 import { LiteralDefaults, RegexFromString } from "./custom";
 import { Struct } from "./extended-schemas";
-
 export const $JsonType = S.Literal("object", "array", "string", "number", "boolean", "null", "integer");
 
 export namespace $JsonType {
@@ -766,24 +765,24 @@ export class JsonSchema extends Struct(
       return;
     }
 
-    if ((schema as any).exclusiveMaximum === true) {
+    if ((schema as UnsafeTypes.UnsafeAny).exclusiveMaximum === true) {
       schema.exclusiveMaximum = schema.maximum;
-      delete (schema as any).exclusiveMaximum;
-    } else if ((schema as any).exclusiveMaximum === false) {
-      delete (schema as any).exclusiveMaximum;
+      delete (schema as UnsafeTypes.UnsafeAny).exclusiveMaximum;
+    } else if ((schema as UnsafeTypes.UnsafeAny).exclusiveMaximum === false) {
+      delete (schema as UnsafeTypes.UnsafeAny).exclusiveMaximum;
     }
 
-    if ((schema as any).exclusiveMinimum === true) {
+    if ((schema as UnsafeTypes.UnsafeAny).exclusiveMinimum === true) {
       schema.exclusiveMinimum = schema.minimum;
-      delete (schema as any).exclusiveMinimum;
-    } else if ((schema as any).exclusiveMinimum === false) {
-      delete (schema as any).exclusiveMinimum;
+      delete (schema as UnsafeTypes.UnsafeAny).exclusiveMinimum;
+    } else if ((schema as UnsafeTypes.UnsafeAny).exclusiveMinimum === false) {
+      delete (schema as UnsafeTypes.UnsafeAny).exclusiveMinimum;
     }
 
     // Delete all properties that are not in the JsonSchemaFields.
     for (const key of Object.keys(schema)) {
       if (!Object.keys(JsonSchema.fields).includes(key)) {
-        delete (schema as any)[key];
+        delete (schema as UnsafeTypes.UnsafeAny)[key];
       }
     }
 
@@ -839,7 +838,7 @@ export class JsonSchema extends Struct(
     }
   };
 
-  static readonly maybeGoOnArray = (value: any) => {
+  static readonly maybeGoOnArray = (value: UnsafeTypes.UnsafeAny) => {
     if (Array.isArray(value)) {
       for (const item of value) {
         JsonSchema.go(item);
@@ -849,7 +848,7 @@ export class JsonSchema extends Struct(
     }
   };
 
-  static readonly goOnRecord = (record: Record<string, any>) => {
+  static readonly goOnRecord = (record: Record<string, UnsafeTypes.UnsafeAny>) => {
     for (const key of Object.keys(record)) {
       JsonSchema.go(record[key]);
     }

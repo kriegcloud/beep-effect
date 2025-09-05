@@ -13,7 +13,7 @@ export type CookieOptions = {
 
 // Internal: feature-detect CookieStore API safely across environments (e.g. SSR)
 function hasCookieStore(): boolean {
-  return typeof (globalThis as any).cookieStore !== "undefined";
+  return typeof globalThis.cookieStore !== "undefined";
 }
 
 // Map our title-cased SameSite option to CookieStore's lowercase values
