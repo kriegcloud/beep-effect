@@ -6,7 +6,7 @@ import type * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
-import { has } from "../common";
+import { has } from "./common";
 import { OperatorType } from "./internal";
 
 export namespace ComparisonOperators {

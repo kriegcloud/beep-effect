@@ -30,16 +30,20 @@
     "coverage": "vitest run --coverage",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "lint:circular": "pnpm madge -c ."
+    "lint:circular": "pnpm madge -c .",
+    "execute": "pnpm tsx --tsconfig ./tsconfig.src.json ./src/execute.ts"
   },
   "dependencies": {
+    "@faker-js/faker": "*",
     "@beep/invariant": "workspace:^",
+    "picocolors": "*",
     "effect": "*",
     "mutative": "*"
   },
   "devDependencies": {
     "type-fest": "*",
-    "@beep/types": "workspace:^"
+    "@beep/types": "workspace:^",
+    "tsx": "*"
   },
   "effect": {
     "generateExports": {

@@ -1,4 +1,5 @@
 export { RecordUtils, StrUtils } from "./data";
+export * from "./errors";
 export * from "./factories";
 export * from "./getters";
 export * from "./guards";

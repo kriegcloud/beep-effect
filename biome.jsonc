@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.2/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.2.3/schema.json",
   "root": true,
   "files": {
     "includes": [
@@ -76,14 +76,18 @@
         "noUselessUndefinedInitialization": "off",
         "useLiteralKeys": {
           "fix": "unsafe",
-          "level": "error"
+          "level": "error",
+          "options": {}
         }
       },
       "recommended": true,
       "correctness": {
         "noUnusedImports": {
           "level": "error",
-          "fix": "none"
+          "fix": "none",
+          "options": {
+
+          }
         },
         "noUnusedVariables": "off",
         "useUniqueElementIds": "off",
@@ -100,6 +104,7 @@
         "noAccumulatingSpread": "off"
       },
       "suspicious": {
+        "noUnsafeDeclarationMerging": "off",
         "useAdjacentOverloadSignatures": "off",
         "noDoubleEquals": "off",
         "noPrototypeBuiltins": "off",
