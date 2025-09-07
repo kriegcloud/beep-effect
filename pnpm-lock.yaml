@@ -930,6 +930,41 @@ importers:
         version: 4.41.0
     publishDirectory: build
 
+  packages/common/query:
+    dependencies:
+      '@beep/invariant':
+        specifier: workspace:*
+        version: link:../invariant/build
+      '@beep/schema':
+        specifier: workspace:*
+        version: link:../schema/build
+      '@beep/utils':
+        specifier: workspace:*
+        version: link:../utils/build
+      '@effect/cluster':
+        specifier: ^0.48.3
+        version: 0.48.3(@effect/platform@0.90.7(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.7(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.7(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.7(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.3(@effect/platform@0.90.7(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.7(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+      '@effect/workflow':
+        specifier: ^0.9.3
+        version: 0.9.3(@effect/platform@0.90.7(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.7(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+      effect:
+        specifier: 3.17.13
+        version: 3.17.13
+      uuid:
+        specifier: 12.0.0
+        version: 12.0.0
+    devDependencies:
+      '@beep/types':
+        specifier: workspace:*
+        version: link:../types/build
+      '@effect/platform-node':
+        specifier: 0.96.1
+        version: 0.96.1(@effect/cluster@0.48.3(@effect/platform@0.90.7(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.7(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.7(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.7(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.3(@effect/platform@0.90.7(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.7(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.7(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.7(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.7(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.7(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+      type-fest:
+        specifier: 4.41.0
+        version: 4.41.0
+    publishDirectory: build
+
   packages/common/rete:
     dependencies:
       '@beep/invariant':

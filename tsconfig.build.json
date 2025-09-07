@@ -116,8 +116,11 @@
     {
       "path": "apps/mcp/tsconfig.build.json"
     },
-        {
+    {
       "path": "packages/common/rules/tsconfig.build.json"
+    },
+    {
+      "path": "packages/common/query/tsconfig.build.json"
     }
   ]
 }

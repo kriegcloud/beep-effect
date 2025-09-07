@@ -254,6 +254,15 @@
       "@beep/rules/test/*": [
         "./packages/common/rules/test/*"
       ],
+      "@beep/query": [
+        "./packages/common/query/src/index"
+      ],
+      "@beep/query/*": [
+        "./packages/common/query/src/*"
+      ],
+      "@beep/query/test/*": [
+        "./packages/common/query/test/*"
+      ],
       "@beep/env/client": [
         "./packages/env/src/client"
       ],

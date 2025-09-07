@@ -5,7 +5,9 @@
   ],
   "exclude": [],
   "compilerOptions": {
-"types": ["node"]
+    "types": [
+      "node"
+    ]
   },
   "references": [
     {
@@ -14,7 +16,7 @@
     {
       "path": "packages/common/schema"
     },
-       {
+    {
       "path": "packages/runtime"
     },
     {
@@ -124,7 +126,9 @@
     },
     {
       "path": "packages/common/rules"
+    },
+    {
+      "path": "packages/common/query"
     }
-
   ]
 }
