@@ -1,7 +1,9 @@
 import { invariant } from "@beep/invariant";
 import { path_regex, prop_regex } from "@beep/schema/regexes";
 import type { UnsafeTypes } from "@beep/types";
+import { faker } from "@faker-js/faker";
 import * as A from "effect/Array";
+import type * as B from "effect/Brand";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -86,8 +88,10 @@ export const equalsJson: (a: Json.Type, b: Json.Type) => boolean = S.equivalence
  * https://www.ietf.org/archive/id/draft-goessner-dispatch-jsonpath-00.html
  */
 export class JsonPath extends S.String.pipe(S.pattern(path_regex), S.brand("JsonPath")).annotations({
+  identifier: "JsonPath",
   title: "JSON path",
   description: "JSON path to a property",
+  arbitrary: () => (fc) => fc.constantFrom(null).map(() => faker.database.column() as B.Branded<string, "JsonPath">),
 }) {
   static readonly is = (value: unknown): value is JsonPath.Type => O.isSome(S.validateOption(JsonPath)(value));
   /**

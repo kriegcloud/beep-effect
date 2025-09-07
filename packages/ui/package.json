@@ -25,7 +25,8 @@
     "test": "vitest run",
     "coverage": "vitest run --coverage",
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
-    "lint:circular": "pnpm madge -c ."
+    "lint:circular": "pnpm madge -c .",
+    "execute": "pnpm tsx --tsconfig ./tsconfig.src.json ./src/execute.ts"
   },
   "exports": {
     "./globals.css": "./src/styles/globals.css",
@@ -215,6 +216,8 @@
     "sonner": "*",
     "stylis": "*",
     "stylis-plugin-rtl": "*",
+    "zod": "*",
+    "ajv": "*",
     "tailwind-merge": "*",
     "clsx": "*",
     "tailwindcss-animate": "*",

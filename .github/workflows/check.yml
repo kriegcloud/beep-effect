@@ -1,5 +1,4 @@
 name: Check
-
 on:
   workflow_dispatch:
   pull_request:
@@ -14,34 +13,7 @@ concurrency:
 permissions:
   contents: read
 
-# Make TURBO creds available to all jobs
-env:
-  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
-
 jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-
-      # Optional but helpful: persist local .turbo cache across CI runs
-      - name: Restore turbo cache
-        uses: actions/cache@v4
-        with:
-          path: .turbo
-          key: ${{ runner.os }}-turbo-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-turbo-
-
-      - name: Install dependencies
-        uses: ./.github/actions/setup
-
-      - name: Build
-        run: pnpm build
-
   types:
     name: Types
     runs-on: ubuntu-latest
@@ -50,8 +22,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         uses: ./.github/actions/setup
-      - name: Typecheck
-        run: pnpm check
+      - run: pnpm check
 
   code-quality:
     name: Code Quality
@@ -61,47 +32,28 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         uses: ./.github/actions/setup
-
-      # If "format check" is actually prettier or a dedicated script, swap to that command.
       - name: Check formatting
         id: format
         run: pnpm lint
         continue-on-error: true
-
       - name: Lint code
         id: lint
         run: pnpm lint
         continue-on-error: true
-
-      # With continue-on-error above, use .conclusion and always()
-      - name: Fail if any check failed
-        if: ${{ always() && (steps.format.conclusion == 'failure' || steps.lint.conclusion == 'failure') }}
+      - name: Check if any step failed
+        if: steps.format.outcome == 'failure' || steps.lint.outcome == 'failure'
         run: |
           echo "::error::One or more code quality checks failed"
           exit 1
 
-  test_perf_rete:
-    name: Test Perf (rete)
+  test:
+    name: Test
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      NODE_OPTIONS: --max_old_space_size=8192
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
         uses: ./.github/actions/setup
-      - name: Run tests (rete)
-        run: pnpm test --filter='@beep/rete'
-
-  test_perf_others:
-    name: Test Perf (others)
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    env:
-      NODE_OPTIONS: --max_old_space_size=8192
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install dependencies
-        uses: ./.github/actions/setup
-      - name: Run tests (others)
-        run: pnpm test --filter='!./packages/common/rete'
+      - run: pnpm test --filter=@beep/rete && pnpm test --filter='!./packages/common/rete'
+        env:
+          NODE_OPTIONS: --max_old_space_size=8192

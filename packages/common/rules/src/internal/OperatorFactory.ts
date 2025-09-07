@@ -1,15 +1,11 @@
 import { BS } from "@beep/schema";
 import type { StringTypes, StructTypes } from "@beep/types";
 import * as Data from "effect/Data";
-import * as S from "effect/Schema";
+import type * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 type OperatorConfigBase = {
-  readonly identifier: StringTypes.NonEmptyString<string>;
-  readonly title: StringTypes.NonEmptyString<string>;
-  readonly schemaId: symbol;
   readonly fields: StructTypes.StructFieldsWithStringKeys;
-  readonly description: StringTypes.NonEmptyString<string>;
 };
 
 type OperatorConfig<
@@ -20,7 +16,7 @@ type OperatorConfig<
 > = {
   readonly category: CategoryFactory<TCategoryConfig>;
   readonly kind: KindFactory<TCategoryConfig, TKindConfig>;
-  readonly domain: DomainFactory<TCategoryConfig, TKindConfig, TDomainConfig>;
+  readonly domain: DomainFactory<TCategoryConfig, TDomainConfig>;
   readonly operator: {
     readonly [K in keyof TOperatorConfig]: TOperatorConfig[K];
   };
@@ -68,7 +64,7 @@ export class OperatorDef<
       TDomainConfig["fields"] &
       TOperatorConfig["fields"]
   >;
-
+  readonly identifier: string;
   constructor(readonly params: OperatorConfig<TCategoryConfig, TKindConfig, TDomainConfig, TOperatorConfig>) {
     super(params);
 
@@ -83,7 +79,9 @@ export class OperatorDef<
         title,
       };
     };
+    const schemaAnnotations = makeAnnotations(`${params.domain.type}_${params.kind.operator}`);
 
+    this.identifier = schemaAnnotations.identifier;
     // BS.Struct is the same as `Schema.Struct` just my personal one with `batching` enabled by default
     this.Schema = BS.Struct({
       category: BS.LiteralWithDefault(params.category.config.category, {
@@ -103,10 +101,8 @@ export class OperatorDef<
       ...this.kind.kindConfig.fields,
       ...this.category.config.fields,
     }).annotations({
-      schemaId: params.operator.schemaId,
-      identifier: params.operator.identifier,
-      title: params.operator.title,
-      description: params.operator.description,
+      ...makeAnnotations(`${params.domain.type}_${params.kind.operator}`),
+      description: params.kind.description,
       [BS.SymbolAnnotationId]: params.kind.symbol,
     });
   }
@@ -118,13 +114,8 @@ type DomainConfigBase = {
   readonly fields: StructTypes.StructFieldsWithStringKeys;
 };
 
-type DomainConfig<
-  TCategoryConfig extends CategoryConfigBase,
-  TKindConfig extends KindConfigBase,
-  TDomainConfig extends DomainConfigBase,
-> = {
+type DomainConfig<TCategoryConfig extends CategoryConfigBase, TDomainConfig extends DomainConfigBase> = {
   readonly category: CategoryFactory<TCategoryConfig>;
-  readonly kind: KindFactory<TCategoryConfig, TKindConfig>;
   readonly domain: {
     readonly [K in keyof TDomainConfig]: TDomainConfig[K];
   };
@@ -132,30 +123,31 @@ type DomainConfig<
 
 export class DomainFactory<
   const TCategoryConfig extends CategoryConfigBase,
-  const TKindConfig extends KindConfigBase,
   const TDomainConfig extends DomainConfigBase,
-> extends Data.TaggedClass("DomainFactory")<DomainConfig<TCategoryConfig, TKindConfig, TDomainConfig>> {
+> extends Data.TaggedClass("DomainFactory")<DomainConfig<TCategoryConfig, TDomainConfig>> {
   readonly type: TDomainConfig["type"];
   readonly description: TDomainConfig["description"];
   readonly fields: TDomainConfig["fields"];
-  readonly createOperator: <const TOperatorConfig extends OperatorConfigBase>(
+  readonly createOperator: <const TOperatorConfig extends OperatorConfigBase, const TKindConfig extends KindConfigBase>(
     config: Omit<
       OperatorConfig<TCategoryConfig, TKindConfig, TDomainConfig, TOperatorConfig>,
       "domain" | "kind" | "category"
-    >["operator"]
+    >["operator"],
+    kind: KindFactory<TCategoryConfig, TKindConfig>
   ) => OperatorDef<TCategoryConfig, TKindConfig, TDomainConfig, TOperatorConfig>;
 
-  constructor(readonly params: DomainConfig<TCategoryConfig, TKindConfig, TDomainConfig>) {
+  constructor(readonly params: DomainConfig<TCategoryConfig, TDomainConfig>) {
     super(params);
-    this.createOperator = <const TOperatorConfig extends OperatorConfigBase>(
+    this.createOperator = <const TOperatorConfig extends OperatorConfigBase, const TKindConfig extends KindConfigBase>(
       config: Omit<
         OperatorConfig<TCategoryConfig, TKindConfig, TDomainConfig, TOperatorConfig>,
         "domain" | "kind" | "category"
-      >["operator"]
+      >["operator"],
+      kind: KindFactory<TCategoryConfig, TKindConfig>
     ) =>
       new OperatorDef({
         category: this.params.category,
-        kind: this.params.kind,
+        kind: kind,
         domain: this,
         operator: config,
       });
@@ -192,10 +184,6 @@ export class KindFactory<
   readonly description: TKindConfig["description"];
   readonly fields: TKindConfig["fields"];
 
-  readonly createDomain: <const TDomainConfig extends DomainConfigBase>(
-    config: Omit<DomainConfig<TCategoryConfig, TKindConfig, TDomainConfig>, "kind" | "category">["domain"]
-  ) => DomainFactory<TCategoryConfig, TKindConfig, TDomainConfig>;
-
   constructor(readonly params: KindConfig<TCategoryConfig, TKindConfig>) {
     super(params);
     this.operator = params.kindConfig.operator;
@@ -204,14 +192,6 @@ export class KindFactory<
     this.isNegatable = params.kindConfig.isNegatable;
     this.description = params.kindConfig.description;
     this.fields = params.kindConfig.fields;
-    this.createDomain = <const TDomainConfig extends DomainConfigBase>(
-      config: Omit<DomainConfig<TCategoryConfig, TKindConfig, TDomainConfig>, "kind" | "category">["domain"]
-    ) =>
-      new DomainFactory({
-        category: this.params.category,
-        kind: this,
-        domain: config,
-      });
   }
 }
 

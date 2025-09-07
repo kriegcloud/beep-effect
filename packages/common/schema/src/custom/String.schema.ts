@@ -1,6 +1,7 @@
 import * as regexes from "@beep/schema/regexes";
 import type { StringTypes, TagTypes } from "@beep/types";
 import * as S from "effect/Schema";
+
 export class SnakeTag extends S.NonEmptyString.pipe(
   S.lowercased({ message: () => "SnakeTag must be lowercase" }),
   S.trimmed({ message: () => "SnakeTag cannot contain trailing or leading whitespace" }),
@@ -24,6 +25,8 @@ export class SnakeTag extends S.NonEmptyString.pipe(
 }) {
   static readonly make = <const T extends StringTypes.NonEmptyString<string>>(tag: SnakeTag.Literal<T>) =>
     tag as SnakeTag.Type;
+
+  static readonly is = S.is(this);
 }
 
 export namespace SnakeTag {

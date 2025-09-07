@@ -14,6 +14,7 @@ export {
 } from "./extended-schemas";
 export * from "./form";
 export { DiscriminatedStruct, TaggedStruct } from "./generics";
+export * from "./JsonSchema";
 export * from "./kits";
 /**
  * Public exports for all schemas and utilities.

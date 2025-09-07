@@ -1,8 +1,7 @@
 import type * as LiteralTypes from "./literal.types";
 import type * as StringTypes from "./string.types";
-export type SnakeTag<S extends StringTypes.NonEmptyString<string>> = S extends `${LiteralTypes.LowerChar}${infer R}`
-  ? ValidateSnakeAfterLetter<R, S>
-  : never;
+export type SnakeTag<S extends StringTypes.NonEmptyString<string> = StringTypes.NonEmptyString<string>> =
+  S extends `${LiteralTypes.LowerChar}${infer R}` ? ValidateSnakeAfterLetter<R, S> : never;
 
 export type Underscore = "_";
 

@@ -43,6 +43,7 @@
     "@standard-schema/spec": "*",
     "@effect/sql": "*",
     "drizzle-orm": "*",
+    "zod": "*",
     "@effect/experimental": "*",
     "uuid": "*",
     "randexp-ts": "*",

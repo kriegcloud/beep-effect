@@ -9,6 +9,7 @@ export * from "./Bool.schema";
 export * from "./Class.schema";
 export * from "./Date.schema";
 export * from "./Email.schema";
+export * from "./Fn.schema";
 export * from "./IP.schema";
 export * from "./Json.schema";
 export * from "./Literal.schema";
