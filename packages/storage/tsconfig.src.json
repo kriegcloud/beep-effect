@@ -1,0 +1,59 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../env"
+    },
+    {
+      "path": "../common/schema"
+    },
+    {
+      "path": "../common/invariant"
+    },
+    {
+      "path": "../common/utils"
+    },
+    {
+      "path": "../common/types"
+    },
+    {
+      "path": "../shared/domain"
+    },
+    {
+      "path": "../shared/tables"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node"],
+    "outDir": "build/src",
+    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+    "rootDir": "src",
+    "baseUrl": ".",
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "target": "ES2022",
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@beep/storage/*": ["./src/*"],
+      "@beep/env/client": ["../env/src/client"],
+      "@beep/env/server": ["../env/src/server"],
+      "@beep/shared-domain": ["../shared/domain/src/index"],
+      "@beep/shared-domain/*": ["../shared/domain/src/*"],
+      "@beep/shared-tables": ["../shared/tables/src/index"],
+      "@beep/shared-tables/*": ["../shared/tables/src/*"],
+      "@beep/schema": ["../common/schema/src/index"],
+      "@beep/schema/*": ["../common/schema/src/*"],
+      "@beep/invariant": ["../common/invariant/src/index"],
+      "@beep/invariant/*": ["../common/invariant/src/*"],
+      "@beep/utils": ["../common/utils/src/index"],
+      "@beep/utils/*": ["../common/utils/src/*"],
+      "@beep/types": ["../common/types/src/index"],
+      "@beep/types/*": ["../common/types/src/*"]
+    }
+  }
+}

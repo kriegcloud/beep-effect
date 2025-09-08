@@ -33,5 +33,13 @@ export type ReadonlyRecordValuesNonEmptyArray<T extends RecordStringKeyValueStri
   T[keyof T],
   ...T[keyof T][],
 ];
+
+export type ReadonlyRecordEntriesNonEmptyArray<T extends RecordStringKeyValueString> = readonly [[keyof T, T[keyof T]]];
 export type NonEmptyReadonlyRecordStringValues<R extends RecordStringKeyValueString> =
   R extends NonEmptyRecordStringKeyValues<R> ? A.NonEmptyReadonlyArray<R[keyof R]> : never;
+
+export type ReversedRecord<T extends R.ReadonlyRecord<keyof T & NonEmptyString, NonEmptyString>> = {
+  readonly [P in T[keyof T]]: {
+    readonly [K in keyof T]: T[K] extends P ? K : never;
+  }[keyof T];
+};

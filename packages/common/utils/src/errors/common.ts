@@ -5,6 +5,7 @@ import * as Cause from "effect/Cause";
 import * as Chunk from "effect/Chunk";
 import * as Clock from "effect/Clock";
 import * as Config from "effect/Config";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FiberId from "effect/FiberId";
@@ -19,7 +20,6 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Record from "effect/Record";
 import color from "picocolors";
-
 /**
  * Pretty, colored console logger + small telemetry helpers for Effect.
  *
@@ -594,6 +594,7 @@ export const accumulateEffectsAndReport = <A, E, R>(
   options?: AccumulateOptions
 ): Effect.Effect<AccumulateResult<A, E>, never, R> =>
   Effect.gen(function* () {
+    const now = yield* DateTime.now;
     const res = yield* accumulateEffects(effects, { concurrency: options?.concurrency });
 
     yield* Effect.logInfo("accumulate summary", {
@@ -613,7 +614,7 @@ export const accumulateEffectsAndReport = <A, E, R>(
       const environment = getAnn("env") ?? getAnn("environment") ?? process.env.APP_ENV ?? process.env.NODE_ENV;
       const heading = formatCauseHeading(cause, {
         colors: options?.colors ?? true,
-        date: new Date(),
+        date: DateTime.toDateUtc(now),
         levelLabel: undefined,
         fiberName: undefined,
         spansText: undefined,

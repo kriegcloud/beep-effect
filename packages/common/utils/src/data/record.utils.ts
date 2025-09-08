@@ -1,11 +1,10 @@
-import type { RecordTypes, UnsafeTypes } from "@beep/types";
+import type { RecordTypes, StringTypes, UnsafeTypes } from "@beep/types";
 import { isUnsafeProperty } from "@beep/utils/guards";
 import type * as A from "effect/Array";
 import * as HashSet from "effect/HashSet";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Struct from "effect/Struct";
-
 export const recordKeys = <T extends UnsafeTypes.UnsafeReadonlyRecord>(
   record: RecordTypes.NonEmptyRecordWithStringKeys<T>
 ): A.NonEmptyReadonlyArray<keyof T> => {
@@ -20,6 +19,13 @@ export const recordStringValues = <R extends RecordTypes.RecordStringKeyValueStr
     RecordTypes.NonEmptyRecordStringKeyValues<R>
   >;
 };
+
+export const reverseRecord = <
+  T extends R.ReadonlyRecord<keyof T & StringTypes.NonEmptyString, StringTypes.NonEmptyString>,
+>(
+  obj: T
+): RecordTypes.ReversedRecord<T> =>
+  Object.fromEntries(Object.entries(obj).map(([key, value]) => [value, key] as const));
 
 /**
  * Merges the properties of the source object into the target object.

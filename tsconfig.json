@@ -129,6 +129,9 @@
     },
     {
       "path": "packages/common/query"
+    },
+    {
+      "path": "packages/storage"
     }
   ]
 }

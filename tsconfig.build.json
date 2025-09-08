@@ -121,6 +121,9 @@
     },
     {
       "path": "packages/common/query/tsconfig.build.json"
+    },
+        {
+      "path": "packages/storage/tsconfig.build.json"
     }
   ]
 }

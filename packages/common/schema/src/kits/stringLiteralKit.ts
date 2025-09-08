@@ -60,7 +60,7 @@ type CreateEnumType<
   : { readonly [K in Literals[number]]: K };
 
 // Helper type to ensure mapping is exhaustive and unique
-type ValidMapping<
+export type ValidMapping<
   Literals extends readonly string[],
   Mapping extends readonly [string, string][],
 > = ValidateEnumMapping<Literals, Mapping> extends true

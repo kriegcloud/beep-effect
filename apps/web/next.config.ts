@@ -29,6 +29,14 @@ const genCSP = () => {
 
 const securityHeaders = [
   {
+    key: "Cross-Origin-Embedder-Policy",
+    value: "require-corp",
+  },
+  {
+    key: "Cross-Origin-Opener-Policy",
+    value: "same-origin",
+  },
+  {
     key: "X-DNS-Prefetch-Control",
     value: "on",
   },

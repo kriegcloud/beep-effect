@@ -1,9 +1,9 @@
+import { Json } from "@beep/schema/custom/Json.schema";
 import type { UnsafeTypes } from "@beep/types";
 import * as ParseResult from "effect/ParseResult";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
-import { Json } from "./Json.schema";
 
 // Base tag types
 const NumberFileTag = S.Struct({

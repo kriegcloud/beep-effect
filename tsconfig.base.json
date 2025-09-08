@@ -388,6 +388,15 @@
       ],
       "@beep/wms-tables/test/*": [
         "./packages/wms/tables/test/*"
+      ],
+      "@beep/storage": [
+        "./packages/storage/src/index"
+      ],
+      "@beep/storage/*": [
+        "./packages/storage/src/*"
+      ],
+      "@beep/storage/test/*": [
+        "./packages/storage/test/*"
       ]
     }
   }
