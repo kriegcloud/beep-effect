@@ -15,7 +15,7 @@ const CSP_DIRECTIVES = {
   "connect-src": ["'self'", "https://vercel.live/", "https://vercel.com"],
   "media-src": ["'self'", "data:"],
   "frame-ancestors": ["'self'", "https://vercel.live", "https://vercel.com"],
-  "img-src": ["'self'", "https://www.google-analytics.com", "data:"],
+  "img-src": ["'self'", "https://www.google-analytics.com", "data:", "blob:"],
   "frame-src": ["'self'", "https://vercel.live", "https://vercel.com"],
 };
 

@@ -1,5 +1,6 @@
 import { RootGroup } from "@beep/logos";
 import { addGroup, addRuleToGroup, findRuleById, updateRuleById } from "@beep/logos/crud";
+import type { UnsafeTypes } from "@beep/types";
 import { v4 as uuid } from "uuid";
 import { expect, test } from "vitest";
 
@@ -72,7 +73,7 @@ test("update a rule that does not have a valid parent", () => {
   if (!foundRule) {
     throw new Error("Rule not found");
   }
-  (foundRule as any).parentId = uuid();
+  (foundRule as UnsafeTypes.UnsafeAny).parentId = uuid();
   const updatedRule = updateRuleById(root, rule.id, {
     field: "age",
     op: { _tag: "lt" },

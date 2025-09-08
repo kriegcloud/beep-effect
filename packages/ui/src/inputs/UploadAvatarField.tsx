@@ -2,10 +2,10 @@
 import Box from "@mui/material/Box";
 import { useFieldContext } from "../form";
 import { HelperText } from "./components";
-import type { FilesUploadType, UploadFieldProps } from "./upload";
+import type { FilesUploadType, UploadProps } from "./upload";
 import { type FileUploadType, UploadAvatar } from "./upload";
 
-function UploadAvatarField({ name, slotProps, ...other }: UploadFieldProps) {
+function UploadAvatarField({ slotProps, ...other }: UploadProps) {
   const field = useFieldContext<FileUploadType | FilesUploadType | undefined>();
 
   const onDrop = (acceptedFiles: File[]) => {

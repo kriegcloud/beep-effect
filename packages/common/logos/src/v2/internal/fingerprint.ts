@@ -1,14 +1,14 @@
 import { BS } from "@beep/schema";
+import type { UnsafeTypes } from "@beep/types";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type { RootOrGroup } from "../types";
 import type { AnyOperator } from "./Operands";
-
 export namespace FingerPrint {
   const fingerprintOperator = (op: AnyOperator.Type): string | readonly unknown[] => {
     const toMs = (x: unknown): number | null => {
-      const d = new Date(x as any);
+      const d = new Date(x as UnsafeTypes.UnsafeAny);
       const t = d.getTime();
       return Number.isFinite(t) ? t : null;
     };

@@ -26,18 +26,5 @@
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true
-  },
-  "paths": {
-    "@beep/ai-core": ["./src/index"],
-    "@beep/ai-core/*": ["./src/*"],
-    "@beep/utils": ["../../common/utils/src/index"],
-    "@beep/utils/*": ["../../common/utils/src/*"],
-    "@beep/types": ["../../common/types/src/index"],
-    "@beep/types/*": ["../../common/types/src/*"],
-    "@beep/invariant": ["../../common/invariant/src/index"],
-    "@beep/invariant/*": ["../../common/invariant/src/*"],
-    "@beep/schema": ["../../common/schema/src/index"],
-    "@beep/schema/*": ["../../common/schema/src/*"],
-    "@beep/env/server": ["../../env/src/server"]
   }
 }

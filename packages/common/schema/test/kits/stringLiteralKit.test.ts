@@ -1,4 +1,5 @@
 import { stringLiteralKit } from "@beep/schema/kits/stringLiteralKit";
+import type { UnsafeTypes } from "@beep/types";
 import { describe, expect, it } from "vitest";
 
 describe("stringLiteralKit with pick and omit", () => {
@@ -75,7 +76,7 @@ describe("stringLiteralKit with pick and omit", () => {
     const OrderStatus = stringLiteralKit("NEW", "PICKED");
 
     expect(() => {
-      OrderStatus.pick("INVALID" as any);
+      OrderStatus.pick("INVALID" as UnsafeTypes.UnsafeAny);
     }).toThrow("pick operation must result in at least one literal");
   });
 

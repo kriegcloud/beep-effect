@@ -17,12 +17,5 @@
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true
-  },
-  "paths": {
-    "@beep/email": ["./src/index"],
-    "@beep/email/*": ["./src/*"],
-    "@beep/ui/*": ["../ui/src/*"],
-    "@beep/types": ["../common/types/src/index"],
-    "@beep/types/*": ["../common/types/src/*"]
   }
 }

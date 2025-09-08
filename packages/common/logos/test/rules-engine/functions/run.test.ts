@@ -1,6 +1,7 @@
 import { RootGroup } from "@beep/logos";
 import { addGroup, addRuleToGroup } from "@beep/logos/crud";
 import { run } from "@beep/logos/run";
+import type { UnsafeTypes } from "@beep/types";
 import { expect, test } from "vitest";
 
 const root = RootGroup.make({ logicalOp: "and" });
@@ -101,7 +102,7 @@ test("rules engine passes", () => {
 });
 
 test("rules engine fails", () => {
-  (root as any).logicalOp = "and";
+  (root as UnsafeTypes.UnsafeAny).logicalOp = "and";
   const result = run(root, {
     string: "bob",
     boolean: true,

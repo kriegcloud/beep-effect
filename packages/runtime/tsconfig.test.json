@@ -11,9 +11,5 @@
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true
-  },
-  "paths": {
-    "@beep/runtime": ["./src/index"],
-    "@beep/runtime/*": ["./src/*"]
   }
 }

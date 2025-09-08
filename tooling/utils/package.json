@@ -37,7 +37,7 @@
     "@effect/cluster": "*"
   },
   "devDependencies": {
-    "@beep/types": "workspace:^"
+    "@beep/types": "workspace:*"
   },
   "effect": {
     "generateExports": {

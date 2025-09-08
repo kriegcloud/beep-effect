@@ -1,4 +1,4 @@
-import { fileTypeChecker } from "@beep/schema/custom/file";
+import { fileTypeChecker } from "@beep/schema/custom";
 import { describe, expect, it } from "@effect/vitest";
 
 describe("validateFileType", () => {

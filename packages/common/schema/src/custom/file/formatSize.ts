@@ -1,3 +1,4 @@
+import type { UnsafeTypes } from "@beep/types";
 import type * as S from "effect/Schema";
 import type * as Sizes from "./FileSize.schema";
 
@@ -146,7 +147,7 @@ const toLocaleStr = (
   options?: Intl.NumberFormatOptions
 ): string => {
   if (typeof locale === "string" || Array.isArray(locale)) {
-    return value.toLocaleString(locale as any, options);
+    return value.toLocaleString(locale as UnsafeTypes.UnsafeAny, options);
   }
   if (locale === true || options !== undefined) {
     return value.toLocaleString(undefined, options);

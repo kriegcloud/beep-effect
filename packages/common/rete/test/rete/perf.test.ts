@@ -94,7 +94,7 @@ it("test map instantiation", () => {
   const a2 = performance.now();
   const b3 = performance.now();
   // @ts-expect-error
-  let y: any;
+  let y: unknown;
   for (let i = 0; i < 540_000; i++) {
     y = () => i;
   }

@@ -16,9 +16,9 @@ describe("Json", () => {
 
   it("rejects functions, symbols, bigints, and undefined", () => {
     const decode = S.decodeUnknownSync(Json);
-    throws(() => decode({ toJSON: () => 1 } as any));
-    throws(() => decode(Symbol("s") as any));
-    throws(() => decode(10n as any));
-    throws(() => decode({ a: undefined } as any));
+    throws(() => decode({ toJSON: () => 1 }));
+    throws(() => decode(Symbol("s")));
+    throws(() => decode(10n));
+    throws(() => decode({ a: undefined }));
   });
 });

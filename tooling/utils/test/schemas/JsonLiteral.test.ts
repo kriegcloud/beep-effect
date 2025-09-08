@@ -14,8 +14,8 @@ describe("JsonLiteral", () => {
 
   it("rejects non-literals like objects and arrays", () => {
     const decode = S.decodeUnknownSync(JsonLiteral);
-    throws(() => decode({} as any));
-    throws(() => decode([] as any));
-    throws(() => decode(undefined as any));
+    throws(() => decode({}));
+    throws(() => decode([]));
+    throws(() => decode(undefined));
   });
 });

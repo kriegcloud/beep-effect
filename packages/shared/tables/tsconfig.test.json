@@ -14,11 +14,5 @@
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true
-  },
-  "paths": {
-    "@beep/shared-tables": ["./src/index"],
-    "@beep/shared-tables/*": ["./src/*"],
-    "@beep/shared-domain": ["../domain/src/index"],
-    "@beep/shared-domain/*": ["../domain/src/*"]
   }
 }

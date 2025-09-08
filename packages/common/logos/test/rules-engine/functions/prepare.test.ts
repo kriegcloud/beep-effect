@@ -3,6 +3,7 @@ import { addRuleToGroup } from "@beep/logos/crud";
 import { prepare, runPrepared } from "@beep/logos/prepare";
 import { run } from "@beep/logos/run";
 import { buildSampleRoot } from "@beep/logos/test/rules-engine/test-util";
+import type { UnsafeTypes } from "@beep/types";
 import { describe, expect, test } from "vitest";
 
 describe("prepare / runPrepared", () => {
@@ -45,7 +46,7 @@ describe("prepare / runPrepared", () => {
   test("invalid structure throws on prepare", () => {
     const { root, firstRule } = buildSampleRoot();
     // Corrupt a rule to break schema validation
-    const bad = { ...firstRule } as any;
+    const bad = { ...firstRule } as UnsafeTypes.UnsafeAny;
     delete bad.id;
     root.rules.splice(0, 1, bad);
 

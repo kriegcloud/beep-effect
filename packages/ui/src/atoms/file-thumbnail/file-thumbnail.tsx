@@ -1,96 +1,98 @@
 "use client";
 
-import { styled } from "@mui/material/styles";
-
+import { mergeClasses } from "@beep/ui/utils";
 import Tooltip from "@mui/material/Tooltip";
-import { mergeClasses } from "../../utils";
-
-import { DownloadButton, RemoveButton } from "./action-buttons";
+import { Iconify } from "../iconify";
 import { fileThumbnailClasses } from "./classes";
+import { DownloadButton, RemoveButton, ThumbnailImage, ThumbnailRoot } from "./styles";
 import type { FileThumbnailProps } from "./types";
-import { fileData, fileFormat, fileThumb } from "./utils";
+import { useFilePreview } from "./useFilePreview";
+import { getFileIcon, getFileMeta } from "./utils";
+
+// ----------------------------------------------------------------------
 
 export function FileThumbnail({
   sx,
   file,
   tooltip,
   onRemove,
-  imageView,
+  showImage,
   slotProps,
-  onDownload,
   className,
+  onDownload,
+  previewUrl: previewUrlProp,
   ...other
 }: FileThumbnailProps) {
-  const { icon, removeBtn, downloadBtn, tooltip: tooltipProps } = slotProps ?? {};
+  const fileMeta = getFileMeta(file);
 
-  const { name, path } = fileData(file);
+  const previewEnabled = !previewUrlProp && !!file;
+  const { previewUrl } = useFilePreview(previewEnabled ? file : null);
 
-  const previewUrl = typeof file === "string" ? file : URL.createObjectURL(file);
+  const imageSrc = previewUrlProp ?? previewUrl;
+  const canShowImage = fileMeta.format === "image" && !!showImage && imageSrc;
 
-  const format = fileFormat(path ?? previewUrl);
+  const tooltipProps = slotProps?.tooltip;
 
-  const renderItem = () => (
-    <ItemRoot className={mergeClasses([fileThumbnailClasses.root, className])} {...(sx ? { sx } : {})} {...other}>
-      {format === "image" && imageView ? (
-        <ItemImg src={previewUrl} className={fileThumbnailClasses.img} {...slotProps?.img} />
-      ) : (
-        <ItemIcon src={fileThumb(format)} className={fileThumbnailClasses.icon} {...icon} />
-      )}
-
-      {onRemove && <RemoveButton onClick={onRemove} className={fileThumbnailClasses.removeBtn} {...removeBtn} />}
-
-      {onDownload && (
-        <DownloadButton onClick={onDownload} className={fileThumbnailClasses.downloadBtn} {...downloadBtn} />
-      )}
-    </ItemRoot>
+  const renderImage = () => (
+    <ThumbnailImage
+      showImage
+      alt={fileMeta.name}
+      src={imageSrc}
+      className={fileThumbnailClasses.img}
+      {...slotProps?.img}
+    />
   );
 
-  if (tooltip) {
-    return (
-      <Tooltip
-        arrow
-        title={name}
-        {...tooltipProps}
-        slotProps={{
-          ...tooltipProps?.slotProps,
-          popper: {
-            modifiers: [
-              {
-                name: "offset",
-                options: { offset: [0, -12] },
-              },
-            ],
-            ...tooltipProps?.slotProps?.popper,
-          },
-        }}
-      >
-        {renderItem()}
-      </Tooltip>
-    );
-  }
+  const renderIcon = () => (
+    <ThumbnailImage
+      alt={fileMeta.name}
+      src={getFileIcon(fileMeta.format)}
+      className={fileThumbnailClasses.icon}
+      {...slotProps?.icon}
+    />
+  );
 
-  return renderItem();
+  const renderActions = () => (
+    <>
+      {onRemove && (
+        <RemoveButton onClick={onRemove} className={fileThumbnailClasses.removeBtn} {...slotProps?.removeBtn}>
+          <Iconify icon="mingcute:close-line" width={12} />
+        </RemoveButton>
+      )}
+
+      {onDownload && (
+        <DownloadButton onClick={onDownload} className={fileThumbnailClasses.downloadBtn} {...slotProps?.downloadBtn}>
+          <Iconify width={24} icon="eva:cloud-download-fill" />
+        </DownloadButton>
+      )}
+    </>
+  );
+
+  const renderContent = () => (
+    <ThumbnailRoot className={mergeClasses([fileThumbnailClasses.root, className])} sx={sx} {...other}>
+      {canShowImage ? renderImage() : renderIcon()}
+      {renderActions()}
+    </ThumbnailRoot>
+  );
+
+  if (!file) return null;
+
+  if (!tooltip) return renderContent();
+
+  return (
+    <Tooltip
+      arrow
+      title={fileMeta.name}
+      {...tooltipProps}
+      slotProps={{
+        ...tooltipProps?.slotProps,
+        popper: {
+          modifiers: [{ name: "offset", options: { offset: [0, -12] } }],
+          ...tooltipProps?.slotProps?.popper,
+        },
+      }}
+    >
+      {renderContent()}
+    </Tooltip>
+  );
 }
-
-const ItemRoot = styled("span")(({ theme }) => ({
-  width: 36,
-  height: 36,
-  flexShrink: 0,
-  alignItems: "center",
-  position: "relative",
-  display: "inline-flex",
-  justifyContent: "center",
-  borderRadius: Number(Number(theme.shape.borderRadius)) * 1.25,
-}));
-
-const ItemIcon = styled("img")(() => ({
-  width: "100%",
-  height: "100%",
-}));
-
-const ItemImg = styled("img")(() => ({
-  width: "100%",
-  height: "100%",
-  objectFit: "cover",
-  borderRadius: "inherit",
-}));

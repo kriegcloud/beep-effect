@@ -13,6 +13,7 @@ export * from "./Date.schema";
 export * from "./Domain.schema";
 export * from "./Email.schema";
 export * from "./Fn.schema";
+export * from "./file";
 export * from "./IP.schema";
 export * from "./Json.schema";
 export * from "./Literal.schema";

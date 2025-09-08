@@ -389,15 +389,15 @@ export namespace DateRule {
                   Match.tags({
                     comparison: () =>
                       F.pipe(
-                        S.decodeOption(BS.DateTimeUtcFromAllAcceptable)((rule.op as any).minimum),
+                        S.decodeOption(BS.DateTimeUtcFromAllAcceptable)((rule.op as UnsafeTypes.UnsafeAny).minimum),
                         O.flatMap((min) =>
                           F.pipe(
-                            S.decodeOption(BS.DateTimeUtcFromAllAcceptable)((rule.op as any).maximum),
+                            S.decodeOption(BS.DateTimeUtcFromAllAcceptable)((rule.op as UnsafeTypes.UnsafeAny).maximum),
                             O.map((max) => {
                               const u = DateTime.toDate(utc).getTime();
                               const minMs = DateTime.toDate(min).getTime();
                               const maxMs = DateTime.toDate(max).getTime();
-                              const inclusive = !!(rule.op as any).inclusive;
+                              const inclusive = !!(rule.op as UnsafeTypes.UnsafeAny).inclusive;
                               return inclusive ? u >= minMs && u <= maxMs : u > minMs && u < maxMs;
                             })
                           )

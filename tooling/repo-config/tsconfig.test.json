@@ -10,10 +10,6 @@
     "types": ["node"],
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
-    "noEmit": true,
-    "paths": {
-      "@beep/repo-config": ["./src/index"],
-      "@beep/repo-config/*": ["./src/*"]
-    }
+    "noEmit": true
   }
 }

@@ -14,8 +14,8 @@ describe("PackageJson", () => {
 
   it("rejects when name is missing or empty", () => {
     const decode = S.decodeUnknownSync(PackageJson);
-    throws(() => decode({} as any));
-    throws(() => decode({ name: "" } as any));
+    throws(() => decode({}));
+    throws(() => decode({ name: "" }));
   });
 
   it("accepts typical fields and variants", () => {

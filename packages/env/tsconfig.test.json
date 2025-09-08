@@ -14,11 +14,5 @@
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true
-  },
-  "paths": {
-    "@beep/env": ["./src/index"],
-    "@beep/env/*": ["./src/*"],
-    "@beep/schema": ["../common/schema/src/index"],
-    "@beep/schema/*": ["../common/schema/src/*"]
   }
 }

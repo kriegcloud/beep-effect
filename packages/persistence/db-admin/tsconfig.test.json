@@ -44,33 +44,5 @@
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true
-  },
-  "paths": {
-    "@beep/db-admin": ["./src/index"],
-    "@beep/db-admin/*": ["./src/*"],
-    "@beep/iam-tables": ["../../iam/tables/src/index"],
-    "@beep/iam-tables/*": ["../../iam/tables/src/*"],
-    "@beep/shared-tables": ["../../shared/tables/src/index"],
-    "@beep/shared-tables/*": ["../../shared/tables/src/*"],
-    "@beep/db-scope": ["../db-scope/src/index"],
-    "@beep/db-scope/*": ["../db-scope/src/*"],
-    "@beep/wms-tables": ["../../wms/tables/src/index"],
-    "@beep/wms-tables/*": ["../../wms/tables/src/*"],
-    "@beep/iam-db": ["../../iam/db/src/index"],
-    "@beep/iam-db/*": ["../../iam/db/src/*"],
-    "@beep/iam-domain": ["../../iam/domain/src/index"],
-    "@beep/iam-domain/*": ["../../iam/domain/src/*"],
-    "@beep/schema": ["../../schema/src/index"],
-    "@beep/schema/*": ["../../schema/src/*"],
-    "@beep/types": ["../../types/src/index"],
-    "@beep/types/*": ["../../types/src/*"],
-    "@beep/invariant": ["../../invariant/src/index"],
-    "@beep/invariant/*": ["../../invariant/src/*"],
-    "@beep/utils": ["../../utils/src/index"],
-    "@beep/utils/*": ["../../utils/src/*"],
-    "@beep/env/server": ["../../env/src/server"],
-    "@beep/env/client": ["../../env/src/client"],
-    "@beep/shared-domain": ["../../shared/domain/src/index"],
-    "@beep/shared-domain/*": ["../../shared/domain/src/*"]
   }
 }

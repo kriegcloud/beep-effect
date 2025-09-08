@@ -204,6 +204,7 @@
     "input-otp": "*",
     "lodash": "*",
     "lodash-es": "*",
+    "uuid": "*",
     "lowlight": "*",
     "mui-one-time-password-input": "*",
     "next": "*",

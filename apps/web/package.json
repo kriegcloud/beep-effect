@@ -28,7 +28,9 @@
     "@beep/logos": "workspace:^",
     "@beep/rete": "workspace:^",
     "@beep/shared-client": "workspace:^",
+    "autosuggest-highlight": "*",
     "@beep/env": "workspace:^",
+    "es-toolkit": "*",
     "@beep/iam-ui": "workspace:^",
     "@beep/iam-domain": "workspace:^",
     "@beep/better-auth": "workspace:^",
@@ -115,6 +117,7 @@
     "@types/json-logic-js": "*",
     "@types/node": "*",
     "@types/react": "*",
+    "@types/autosuggest-highlight": "*",
     "@types/react-dom": "*"
   }
 }

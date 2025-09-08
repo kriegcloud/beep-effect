@@ -1,10 +1,31 @@
 import { createClasses } from "@beep/ui/theme/create-classes";
 
+// ----------------------------------------------------------------------
+
 export const uploadClasses = {
-  upload: createClasses("upload"),
-  uploadBox: createClasses("upload__box"),
-  uploadAvatar: createClasses("upload__avatar"),
-  uploadSinglePreview: createClasses("upload__single__preview"),
-  uploadMultiPreview: createClasses("upload__multi__preview"),
-  uploadRejectionFiles: createClasses("upload__rejection__files"),
+  box: createClasses("upload__box"),
+  avatar: createClasses("upload__avatar"),
+  wrapper: createClasses("upload_wrapper"),
+  default: createClasses("upload__default"),
+  rejected: createClasses("upload__files__rejected"),
+  preview: {
+    single: createClasses("upload__preview__single"),
+    multi: createClasses("upload__preview__multi"),
+  },
+  placeholder: {
+    root: createClasses("upload__placeholder"),
+    icon: createClasses("upload__placeholder__icon"),
+    title: createClasses("upload__placeholder__title"),
+    content: createClasses("upload__placeholder__content"),
+    description: createClasses("upload__placeholder__description"),
+  },
+  state: {
+    error: "--error",
+    focused: "--focused",
+    disabled: "--disabled",
+    dragActive: "--drag-active",
+    dragAccept: "--drag-accept",
+    hasFile: "--has-file",
+    hasFiles: "--has-files",
+  },
 };
