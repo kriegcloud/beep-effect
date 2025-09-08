@@ -1,7 +1,7 @@
+import { invariant } from "@beep/invariant";
 import * as regexes from "@beep/schema/regexes";
-import type { StringTypes, TagTypes } from "@beep/types";
+import type { TagTypes } from "@beep/types";
 import * as S from "effect/Schema";
-
 export class SnakeTag extends S.NonEmptyString.pipe(
   S.lowercased({ message: () => "SnakeTag must be lowercase" }),
   S.trimmed({ message: () => "SnakeTag cannot contain trailing or leading whitespace" }),
@@ -23,15 +23,21 @@ export class SnakeTag extends S.NonEmptyString.pipe(
     - Cannot contain trailing or leading underscores
   `,
 }) {
-  static readonly make = <const T extends StringTypes.NonEmptyString<string>>(tag: SnakeTag.Literal<T>) =>
-    tag as SnakeTag.Type;
+  static readonly make = <const T extends string>(tag: SnakeTag.Literal<T>): SnakeTag.Literal<T> => {
+    const _tag = tag;
+    invariant(S.is(SnakeTag)(_tag), "Must be a valid SnakeTag", {
+      file: "@beep/schema/custom/String.schema.ts",
+      line: 28,
+      args: [tag],
+    });
+    return tag;
+  };
 
   static readonly is = S.is(this);
 }
 
 export namespace SnakeTag {
-  export type Literal<T extends StringTypes.NonEmptyString<string> = StringTypes.NonEmptyString<string>> =
-    TagTypes.SnakeTag<T>;
+  export type Literal<T extends string> = TagTypes.SnakeTag<T>;
   export type Type = S.Schema.Type<typeof SnakeTag>;
   export type Encoded = S.Schema.Encoded<typeof SnakeTag>;
 }

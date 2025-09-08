@@ -1,9 +1,10 @@
+import { IamEntityIds } from "@beep/shared-domain";
 import { Common } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 import { user } from "./user.table";
 
 export const oauthApplication = pg.pgTable("oauth_application", {
-  id: pg.text("id").primaryKey(),
+  id: Common.idColumn("oauth_application", IamEntityIds.OAuthApplicationId),
   name: pg.text("name"),
   icon: pg.text("icon"),
   metadata: pg.text("metadata"),

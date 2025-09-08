@@ -59,7 +59,7 @@ overrides:
   '@biomejs/biome': 2.2.3
   madge: 8.0.0
   '@dotenvx/dotenvx': 1.49.0
-  '@effect/language-service': 0.38.1
+  '@effect/language-service': 0.38.2
   '@effect/vitest': 0.25.1
   '@types/node': 24.3.1
   drizzle-seed: ^0.3.1
@@ -100,7 +100,7 @@ overrides:
   picocolors: ^1.1.1
   '@emotion/styled': 11.14.1
   '@iconify/react': 6.0.1
-  resend: 6.0.2
+  resend: 6.0.3
   '@react-email/components': 0.5.2
   '@mui/icons-material': 7.3.2
   '@mui/lab': 7.0.0-beta.17
@@ -177,23 +177,23 @@ overrides:
   '@faker-js/faker': 10.0.0
   '@standard-schema/spec': 1.0.0
   randexp-ts: 1.0.5
-  uuid: 12.0.0
+  uuid: 13.0.0
   '@effect/ai': 0.26.1
   '@effect/ai-openai': 0.29.1
   '@effect/ai-anthropic': 0.16.2
   stripe: 18.5.0
   zod: 4.1.5
-  dub: 0.66.1
+  dub: 0.66.2
   jose: 6.1.0
   '@dub/better-auth': 0.0.4
   autoprefixer: 10.4.21
   '@tailwindcss/vite': 4.1.13
-  '@tanstack/router-plugin': 1.131.35
+  '@tanstack/router-plugin': 1.131.36
   '@testing-library/jest-dom': 6.8.0
   '@testing-library/react': 16.3.0
-  '@better-auth/stripe': 1.3.8
+  '@better-auth/stripe': 1.3.9
   '@simplewebauthn/server': 13.1.2
-  better-auth: 1.3.8
+  better-auth: 1.3.9
   '@jsonforms/core': 3.6.0
   '@types/autosuggest-highlight': ^3.2.3
   lucide-react: 0.542.0
@@ -234,8 +234,8 @@ importers:
         specifier: 1.49.0
         version: 1.49.0
       '@effect/language-service':
-        specifier: 0.38.1
-        version: 0.38.1
+        specifier: 0.38.2
+        version: 0.38.2
       '@effect/vitest':
         specifier: 0.25.1
         version: 0.25.1(effect@3.17.13)(vitest@3.2.4(@types/node@24.3.1)(jiti@2.5.1)(jsdom@26.1.0)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.5)(yaml@2.8.1))
@@ -605,8 +605,8 @@ importers:
         specifier: ^3.3.4
         version: 3.3.4
       better-auth:
-        specifier: 1.3.8
-        version: 1.3.8(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+        specifier: 1.3.9
+        version: 1.3.9(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       clsx:
         specifier: 2.1.1
         version: 2.1.1
@@ -674,8 +674,8 @@ importers:
         specifier: 3.1.2
         version: 3.1.2(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react-is@19.1.1)(react@19.1.1)(redux@5.0.1)
       resend:
-        specifier: 6.0.2
-        version: 6.0.2(@react-email/render@1.2.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1))
+        specifier: 6.0.3
+        version: 6.0.3(@react-email/render@1.2.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1))
       sonner:
         specifier: 2.0.7
         version: 2.0.7(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -695,8 +695,8 @@ importers:
         specifier: 1.3.8
         version: 1.3.8
       uuid:
-        specifier: 12.0.0
-        version: 12.0.0
+        specifier: 13.0.0
+        version: 13.0.0
       xstate:
         specifier: 5.21.0
         version: 5.21.0
@@ -762,8 +762,8 @@ importers:
         specifier: workspace:*
         version: link:../../common/utils/build
       '@better-auth/stripe':
-        specifier: 1.3.8
-        version: 1.3.8(better-auth@1.3.8(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(stripe@18.5.0(@types/node@24.3.1))
+        specifier: 1.3.9
+        version: 1.3.9(better-auth@1.3.9(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(stripe@18.5.0(@types/node@24.3.1))
       '@dub/better-auth':
         specifier: 0.0.4
         version: 0.0.4
@@ -771,14 +771,14 @@ importers:
         specifier: 13.1.2
         version: 13.1.2
       better-auth:
-        specifier: 1.3.8
-        version: 1.3.8(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+        specifier: 1.3.9
+        version: 1.3.9(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       drizzle-orm:
         specifier: 0.44.5
         version: 0.44.5(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(kysely@0.28.5)(pg@8.16.3)(postgres@3.4.7)
       dub:
-        specifier: 0.66.1
-        version: 0.66.1
+        specifier: 0.66.2
+        version: 0.66.2
       effect:
         specifier: 3.17.13
         version: 3.17.13
@@ -798,8 +798,8 @@ importers:
         specifier: 18.5.0
         version: 18.5.0(@types/node@24.3.1)
       uuid:
-        specifier: 12.0.0
-        version: 12.0.0
+        specifier: 13.0.0
+        version: 13.0.0
       zod:
         specifier: 4.1.5
         version: 4.1.5
@@ -827,8 +827,8 @@ importers:
         specifier: 3.17.13
         version: 3.17.13
       resend:
-        specifier: 6.0.2
-        version: 6.0.2(@react-email/render@1.2.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1))
+        specifier: 6.0.3
+        version: 6.0.3(@react-email/render@1.2.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1))
     devDependencies:
       '@beep/types':
         specifier: workspace:*
@@ -930,8 +930,8 @@ importers:
         specifier: 3.17.13
         version: 3.17.13
       uuid:
-        specifier: 12.0.0
-        version: 12.0.0
+        specifier: 13.0.0
+        version: 13.0.0
     devDependencies:
       '@beep/types':
         specifier: workspace:*
@@ -965,8 +965,8 @@ importers:
         specifier: 3.17.13
         version: 3.17.13
       uuid:
-        specifier: 12.0.0
-        version: 12.0.0
+        specifier: 13.0.0
+        version: 13.0.0
     devDependencies:
       '@beep/types':
         specifier: workspace:*
@@ -1041,8 +1041,8 @@ importers:
         specifier: 3.17.13
         version: 3.17.13
       uuid:
-        specifier: 12.0.0
-        version: 12.0.0
+        specifier: 13.0.0
+        version: 13.0.0
     devDependencies:
       '@beep/types':
         specifier: workspace:*
@@ -1094,8 +1094,8 @@ importers:
         specifier: 1.0.5
         version: 1.0.5
       uuid:
-        specifier: 12.0.0
-        version: 12.0.0
+        specifier: 13.0.0
+        version: 13.0.0
       zod:
         specifier: 4.1.5
         version: 4.1.5
@@ -1706,8 +1706,8 @@ importers:
         specifier: 1.3.8
         version: 1.3.8
       uuid:
-        specifier: 12.0.0
-        version: 12.0.0
+        specifier: 13.0.0
+        version: 13.0.0
       xstate:
         specifier: 5.21.0
         version: 5.21.0
@@ -1725,8 +1725,8 @@ importers:
         specifier: 4.1.13
         version: 4.1.13(vite@7.1.4(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.5)(yaml@2.8.1))
       '@tanstack/router-plugin':
-        specifier: 1.131.35
-        version: 1.131.35(@tanstack/react-router@1.131.36(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(vite@7.1.4(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.5)(yaml@2.8.1))
+        specifier: 1.131.36
+        version: 1.131.36(@tanstack/react-router@1.131.36(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(vite@7.1.4(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.5)(yaml@2.8.1))
       '@testing-library/jest-dom':
         specifier: 6.8.0
         version: 6.8.0
@@ -1805,15 +1805,28 @@ importers:
 
   packages/shared/tables:
     dependencies:
+      '@beep/invariant':
+        specifier: workspace:*
+        version: link:../../common/invariant/build
+      '@beep/schema':
+        specifier: workspace:*
+        version: link:../../common/schema/build
       '@beep/shared-domain':
         specifier: workspace:*
         version: link:../domain/build
+      '@beep/utils':
+        specifier: workspace:*
+        version: link:../../common/utils/build
       drizzle-orm:
         specifier: 0.44.5
         version: 0.44.5(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(kysely@0.28.5)(pg@8.16.3)(postgres@3.4.7)
       effect:
         specifier: 3.17.13
         version: 3.17.13
+    devDependencies:
+      '@beep/types':
+        specifier: workspace:*
+        version: link:../../common/types/build
     publishDirectory: build
 
   packages/storage:
@@ -1842,12 +1855,18 @@ importers:
       '@effect-aws/s3':
         specifier: ^0.2.3
         version: 0.2.3(@effect-aws/client-s3@1.10.3(effect@3.17.13))(@effect/platform@0.90.7(effect@3.17.13))(effect@3.17.13)
+      '@effect/sql':
+        specifier: 0.44.2
+        version: 0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.7(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.7(effect@3.17.13))(effect@3.17.13)
+      drizzle-orm:
+        specifier: 0.44.5
+        version: 0.44.5(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(kysely@0.28.5)(pg@8.16.3)(postgres@3.4.7)
       effect:
         specifier: 3.17.13
         version: 3.17.13
       uuid:
-        specifier: 12.0.0
-        version: 12.0.0
+        specifier: 13.0.0
+        version: 13.0.0
     devDependencies:
       '@beep/types':
         specifier: workspace:*
@@ -2043,8 +2062,8 @@ importers:
         specifier: 1.3.8
         version: 1.3.8
       uuid:
-        specifier: 12.0.0
-        version: 12.0.0
+        specifier: 13.0.0
+        version: 13.0.0
       zod:
         specifier: 4.1.5
         version: 4.1.5
@@ -2997,10 +3016,10 @@ packages:
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
 
-  '@better-auth/stripe@1.3.8':
-    resolution: {integrity: sha512-te7wGQK8iGbOaGnufLrWZboxT/jDsTzSCzW2Tw+CEeBLH5ihG6hBMPpTCw4UsgZfyDOrKjBYmBa+CK3TptWjdw==}
+  '@better-auth/stripe@1.3.9':
+    resolution: {integrity: sha512-mc0esrp2dWjGGVmQbXTTHmVEv7XAlvLJeuqJIMj7+z9q80UeT9JT0/xILrwPFhZiDmXUEVQZrd+loF2m8g9Wmg==}
     peerDependencies:
-      better-auth: 1.3.8
+      better-auth: 1.3.9
       stripe: 18.5.0
 
   '@better-auth/utils@0.2.6':
@@ -3203,8 +3222,8 @@ packages:
       lmdb:
         optional: true
 
-  '@effect/language-service@0.38.1':
-    resolution: {integrity: sha512-1VxXS4w+p1pWQHW8YPnOLVJccJe7AMkh6S30Hs1sejoWFLd0x/4jvlTAWHot2d6wyKFgvDo/FsyOq2DjDJIuAg==}
+  '@effect/language-service@0.38.2':
+    resolution: {integrity: sha512-p2qBsT99h27ZiruULDF+777+wQXRFOCufcu0XaqM/ESKo5C1YHoR0CFvGmNbX7phK/NHhR1wYZZJQkipks+Row==}
     hasBin: true
 
   '@effect/opentelemetry@0.56.5':
@@ -4238,12 +4257,13 @@ packages:
   '@nicolo-ribaudo/chokidar-2@2.1.8-no-fsevents.3':
     resolution: {integrity: sha512-s88O1aVtXftvp5bCPB7WnmXc5IwOZZ7YPuwNPt+GtOOXpPvad1LfbmjYv+qII7zP6RU2QGnqve27dnLycEnyEQ==}
 
-  '@noble/ciphers@0.6.0':
-    resolution: {integrity: sha512-mIbq/R9QXk5/cTfESb1OKtyFnk7oc1Om/8onA1158K9/OZUQFDEVy55jVTato+xmp3XX6F6Qh0zz0Nc1AxAlRQ==}
-
   '@noble/ciphers@1.3.0':
     resolution: {integrity: sha512-2I0gnIVPtfnMw9ee9h1dJG7tp81+8Ob3OJb3Mv37rx5L40/b0i7djjCVvGOVqc9AEIQyvyu1i6ypKdFw8R8gQw==}
     engines: {node: ^14.21.3 || >=16}
+
+  '@noble/ciphers@2.0.0':
+    resolution: {integrity: sha512-j/l6jpnpaIBM87cAYPJzi/6TgqmBv9spkqPyCXvRYsu5uxqh6tPJZDnD85yo8VWqzTuTQPgfv7NgT63u7kbwAQ==}
+    engines: {node: '>= 20.19.0'}
 
   '@noble/curves@1.9.7':
     resolution: {integrity: sha512-gbKGcRUYIjA3/zCCNaWDciTMFI0dCkvou3TL8Zmy5Nc7sJ47a0jtOeZoTaMxkuqRo9cRhjOdZJXegxYE5FN/xw==}
@@ -4255,6 +4275,10 @@ packages:
   '@noble/hashes@1.8.0':
     resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
     engines: {node: ^14.21.3 || >=16}
+
+  '@noble/hashes@2.0.0':
+    resolution: {integrity: sha512-h8VUBlE8R42+XIDO229cgisD287im3kdY6nbNZJFjc6ZvKIXPYXe6Vc/t+kyjFdMFyt5JpapzTsEg8n63w5/lw==}
+    engines: {node: '>= 20.19.0'}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -5496,24 +5520,20 @@ packages:
       react: 19.1.1
       react-dom: 19.1.1
 
-  '@tanstack/router-core@1.131.35':
-    resolution: {integrity: sha512-wS+Tcczo3+63LbrRKQGrpUSa9yws0V/fg32KK/tOi0BDlloVM3KTED3UP2hMVyqaMgts6jK7n1b/cEGWOlLdAA==}
-    engines: {node: '>=12'}
-
   '@tanstack/router-core@1.131.36':
     resolution: {integrity: sha512-faGrKwrJBjJDxbcyeaOXgQcyccmzIGkwk+tnFeJuMTnH5OMfArykYnTZ9BxIrlOY2Mori9DXmYKMlig6mVqmGA==}
     engines: {node: '>=12'}
 
-  '@tanstack/router-generator@1.131.35':
-    resolution: {integrity: sha512-fOxjiactUQXGfOAv4dC/hFjFUSUV0XmwnQwhNHswWNol6Te/gIBBj14umAaG/PqTaQZoN/b6v+wvkVvpQt3Dbw==}
+  '@tanstack/router-generator@1.131.36':
+    resolution: {integrity: sha512-Rl1Q2DFcAFXaYSvHQwO+HKmp5zSBz8D3qZl+fJ0a0w4/2I+Km1xwjzDwBUkFVNJtTUor40uU76SYJzV0/9s1tw==}
     engines: {node: '>=12'}
 
-  '@tanstack/router-plugin@1.131.35':
-    resolution: {integrity: sha512-/J7ipJsNK1oSJv6M8gsS/0eCo34eg5DTwwX5Cv+JFoZ+svcuaJrqN2QxyMt88Kq10IKRUo8xzaLbRxwyjY8hbA==}
+  '@tanstack/router-plugin@1.131.36':
+    resolution: {integrity: sha512-EU/NopEkQw3AyjZvB33r4uIfUtbU64rbdJDCgGfumv1wpi/B4lJTO9W6iiUsoIsi1mtlNQKbFKNIbx+VyGh19Q==}
     engines: {node: '>=12'}
     peerDependencies:
       '@rsbuild/core': '>=1.0.2'
-      '@tanstack/react-router': ^1.131.35
+      '@tanstack/react-router': ^1.131.36
       vite: '>=5.0.0 || >=6.0.0'
       vite-plugin-solid: ^2.11.2
       webpack: '>=5.92.0'
@@ -6820,19 +6840,22 @@ packages:
   bcrypt-pbkdf@1.0.2:
     resolution: {integrity: sha512-qeFIXtP4MSoi6NLqO12WfqARWWuCKi2Rn/9hJLEmtB5yTNr9DqFWkJRCf2qShWzPeAMRnOgCrq0sg/KLv5ES9w==}
 
-  better-auth@1.3.8:
-    resolution: {integrity: sha512-uRFzHbWkhr8eWNy+BJwyMnrZPOvQjwrcLND3nc6jusRteYA9cjeRGElgCPTWTIyWUfzaQ708Lb5Mdq9Gv41Qpw==}
+  better-auth@1.3.9:
+    resolution: {integrity: sha512-Ty6BHzuShlqSs7I4RMlBRQ3duOWNB7WWriIu2FJVGjQAOtTVvamzFCR4/j5ROFLoNkpvNTRF7BJozsrMICL1gw==}
     peerDependencies:
+      '@lynx-js/react': '*'
       react: 19.1.1
       react-dom: 19.1.1
     peerDependenciesMeta:
+      '@lynx-js/react':
+        optional: true
       react:
         optional: true
       react-dom:
         optional: true
 
-  better-call@1.0.16:
-    resolution: {integrity: sha512-42dgJ1rOtc0anOoxjXPOWuel/Z/4aeO7EJ2SiXNwvlkySSgjXhNjAjTMWa8DL1nt6EXS3jl3VKC3mPsU/lUgVA==}
+  better-call@1.0.18:
+    resolution: {integrity: sha512-Ojyck3P3fs/egBmCW50tvfbCJorNV5KphfPOKrkCxPfOr8Brth1ruDtAJuhHVHEUiWrXv+vpEgWQk7m7FzhbbQ==}
 
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
@@ -7515,8 +7538,8 @@ packages:
       drizzle-orm:
         optional: true
 
-  dub@0.66.1:
-    resolution: {integrity: sha512-a3XlK1R7Pnfj33sB7Hpcl0lidrX3Rq46ZTQN48eCoMj+2QIumWoOZsEnAIP6qfEtvGuNCaDfCzfMh0Im2zyo5g==}
+  dub@0.66.2:
+    resolution: {integrity: sha512-F1NmLOGIZci7uUwlxya7BZvVSGMSY9s0vvBB8yWBQy5YPcDoEQDGzIW7VgRFklfZuBhi6mlVKghT620wUpVzlA==}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -9376,8 +9399,8 @@ packages:
   reselect@5.1.1:
     resolution: {integrity: sha512-K/BG6eIky/SBpzfHZv/dd+9JBFiS4SWV7FIujVyJRux6e45+73RaUHXLmIR1f7WOMaQ0U1km6qwklRQxpJJY0w==}
 
-  resend@6.0.2:
-    resolution: {integrity: sha512-um08qWpSVvEVqAePEy/bsa7pqtnJK+qTCZ0Et7YE7xuqM46J0C9gnSbIJKR3LIcRVMgO9jUeot8rH0UI84eqMQ==}
+  resend@6.0.3:
+    resolution: {integrity: sha512-Yb7o2n52v91LjkUjq5vIZQbJrGiaPoMo2VPAyS0QTKA73tmvHMUQ7P1M56J1ux/Cw9Lf68PeaKidTl6GuS8DTA==}
     engines: {node: '>=18'}
     peerDependencies:
       '@react-email/render': 1.2.2
@@ -10166,8 +10189,8 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
-  uuid@12.0.0:
-    resolution: {integrity: sha512-USe1zesMYh4fjCA8ZH5+X5WIVD0J4V1Jksm1bFTVBX2F/cwSXt0RO5w/3UXbdLKmZX65MiWV+hwhSS8p6oBTGA==}
+  uuid@13.0.0:
+    resolution: {integrity: sha512-XQegIaBTVUjSHliKqcnFqYypAd4S+WCYt5NIeRs6w/UAry7z8Y9j5ZwRRL4kzq9U3sD6v+85er9FvkEaBpji2w==}
     hasBin: true
 
   v8-compile-cache-lib@3.0.1:
@@ -10541,7 +10564,7 @@ snapshots:
       '@smithy/util-waiter': 4.1.0
       '@types/uuid': 9.0.8
       tslib: 2.8.1
-      uuid: 12.0.0
+      uuid: 13.0.0
     transitivePeerDependencies:
       - aws-crt
 
@@ -11694,9 +11717,9 @@ snapshots:
 
   '@bcoe/v8-coverage@1.0.2': {}
 
-  '@better-auth/stripe@1.3.8(better-auth@1.3.8(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(stripe@18.5.0(@types/node@24.3.1))':
+  '@better-auth/stripe@1.3.9(better-auth@1.3.9(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(stripe@18.5.0(@types/node@24.3.1))':
     dependencies:
-      better-auth: 1.3.8(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      better-auth: 1.3.9(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       stripe: 18.5.0(@types/node@24.3.1)
       zod: 4.1.5
 
@@ -11877,9 +11900,9 @@ snapshots:
     dependencies:
       '@effect/platform': 0.90.7(effect@3.17.13)
       effect: 3.17.13
-      uuid: 12.0.0
+      uuid: 13.0.0
 
-  '@effect/language-service@0.38.1': {}
+  '@effect/language-service@0.38.2': {}
 
   '@effect/opentelemetry@0.56.5(@effect/platform@0.90.7(effect@3.17.13))(@opentelemetry/api@1.9.0)(@opentelemetry/resources@2.1.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-metrics@2.1.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.1.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-node@2.1.0(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.37.0)(effect@3.17.13)':
     dependencies:
@@ -11959,7 +11982,7 @@ snapshots:
       '@effect/experimental': 0.54.6(@effect/platform@0.90.7(effect@3.17.13))(effect@3.17.13)
       '@effect/platform': 0.90.7(effect@3.17.13)
       effect: 3.17.13
-      uuid: 12.0.0
+      uuid: 13.0.0
 
   '@effect/vitest@0.25.1(effect@3.17.13)(vitest@3.2.4(@types/node@24.3.1)(jiti@2.5.1)(jsdom@26.1.0)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.5)(yaml@2.8.1))':
     dependencies:
@@ -12701,9 +12724,9 @@ snapshots:
   '@nicolo-ribaudo/chokidar-2@2.1.8-no-fsevents.3':
     optional: true
 
-  '@noble/ciphers@0.6.0': {}
-
   '@noble/ciphers@1.3.0': {}
+
+  '@noble/ciphers@2.0.0': {}
 
   '@noble/curves@1.9.7':
     dependencies:
@@ -12712,6 +12735,8 @@ snapshots:
   '@noble/ed25519@2.3.0': {}
 
   '@noble/hashes@1.8.0': {}
+
+  '@noble/hashes@2.0.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -13494,7 +13519,7 @@ snapshots:
       '@smithy/util-utf8': 4.1.0
       '@types/uuid': 9.0.8
       tslib: 2.8.1
-      uuid: 12.0.0
+      uuid: 13.0.0
 
   '@smithy/credential-provider-imds@4.1.0':
     dependencies:
@@ -13609,7 +13634,7 @@ snapshots:
       '@smithy/util-retry': 4.1.0
       '@types/uuid': 9.0.8
       tslib: 2.8.1
-      uuid: 12.0.0
+      uuid: 13.0.0
 
   '@smithy/middleware-serde@4.1.0':
     dependencies:
@@ -13807,7 +13832,7 @@ snapshots:
       partysocket: 0.0.25
       safe-stable-stringify: 2.5.0
       superjson: 1.13.3
-      uuid: 12.0.0
+      uuid: 13.0.0
       xstate: 5.21.0
     transitivePeerDependencies:
       - ws
@@ -14028,16 +14053,6 @@ snapshots:
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
 
-  '@tanstack/router-core@1.131.35':
-    dependencies:
-      '@tanstack/history': 1.131.2
-      '@tanstack/store': 0.7.4
-      cookie-es: 1.2.2
-      seroval: 1.3.2
-      seroval-plugins: 1.3.3(seroval@1.3.2)
-      tiny-invariant: 1.3.3
-      tiny-warning: 1.0.3
-
   '@tanstack/router-core@1.131.36':
     dependencies:
       '@tanstack/history': 1.131.2
@@ -14048,9 +14063,9 @@ snapshots:
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
 
-  '@tanstack/router-generator@1.131.35':
+  '@tanstack/router-generator@1.131.36':
     dependencies:
-      '@tanstack/router-core': 1.131.35
+      '@tanstack/router-core': 1.131.36
       '@tanstack/router-utils': 1.131.2
       '@tanstack/virtual-file-routes': 1.131.2
       prettier: 3.6.2
@@ -14061,7 +14076,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@tanstack/router-plugin@1.131.35(@tanstack/react-router@1.131.36(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(vite@7.1.4(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.5)(yaml@2.8.1))':
+  '@tanstack/router-plugin@1.131.36(@tanstack/react-router@1.131.36(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(vite@7.1.4(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.5)(yaml@2.8.1))':
     dependencies:
       '@babel/core': 7.28.4
       '@babel/plugin-syntax-jsx': 7.27.1(@babel/core@7.28.4)
@@ -14069,8 +14084,8 @@ snapshots:
       '@babel/template': 7.27.2
       '@babel/traverse': 7.28.4
       '@babel/types': 7.28.4
-      '@tanstack/router-core': 1.131.35
-      '@tanstack/router-generator': 1.131.35
+      '@tanstack/router-core': 1.131.36
+      '@tanstack/router-generator': 1.131.36
       '@tanstack/router-utils': 1.131.2
       '@tanstack/virtual-file-routes': 1.131.2
       babel-dead-code-elimination: 1.0.10
@@ -14664,7 +14679,7 @@ snapshots:
       '@univerjs/sheets-filter': 0.10.7(@grpc/grpc-js@1.13.4)(@wendellhu/redi@1.0.0(react@19.1.1))(rxjs@7.8.2)
       '@univerjs/sheets-hyper-link': 0.10.7(@grpc/grpc-js@1.13.4)(@wendellhu/redi@1.0.0(react@19.1.1))(rxjs@7.8.2)
       '@univerjs/thread-comment': 0.10.7(@grpc/grpc-js@1.13.4)(@wendellhu/redi@1.0.0(react@19.1.1))(rxjs@7.8.2)
-      uuid: 12.0.0
+      uuid: 13.0.0
     transitivePeerDependencies:
       - '@grpc/grpc-js'
       - '@wendellhu/redi'
@@ -16447,15 +16462,15 @@ snapshots:
     dependencies:
       tweetnacl: 0.14.5
 
-  better-auth@1.3.8(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+  better-auth@1.3.9(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
     dependencies:
       '@better-auth/utils': 0.2.6
       '@better-fetch/fetch': 1.1.18
-      '@noble/ciphers': 0.6.0
-      '@noble/hashes': 1.8.0
+      '@noble/ciphers': 2.0.0
+      '@noble/hashes': 2.0.0
       '@simplewebauthn/browser': 13.1.2
       '@simplewebauthn/server': 13.1.2
-      better-call: 1.0.16
+      better-call: 1.0.18
       defu: 6.1.4
       jose: 6.1.0
       kysely: 0.28.5
@@ -16465,7 +16480,7 @@ snapshots:
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
 
-  better-call@1.0.16:
+  better-call@1.0.18:
     dependencies:
       '@better-fetch/fetch': 1.1.18
       rou3: 0.5.1
@@ -17031,7 +17046,7 @@ snapshots:
       docker-modem: 5.0.6
       protobufjs: 7.5.4
       tar-fs: 2.1.3
-      uuid: 12.0.0
+      uuid: 13.0.0
     transitivePeerDependencies:
       - supports-color
 
@@ -17098,7 +17113,7 @@ snapshots:
     optionalDependencies:
       drizzle-orm: 0.44.5(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(kysely@0.28.5)(pg@8.16.3)(postgres@3.4.7)
 
-  dub@0.66.1:
+  dub@0.66.2:
     dependencies:
       zod: 4.1.5
 
@@ -19099,7 +19114,7 @@ snapshots:
 
   reselect@5.1.1: {}
 
-  resend@6.0.2(@react-email/render@1.2.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)):
+  resend@6.0.3(@react-email/render@1.2.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)):
     optionalDependencies:
       '@react-email/render': 1.2.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
 
@@ -19890,7 +19905,7 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  uuid@12.0.0: {}
+  uuid@13.0.0: {}
 
   v8-compile-cache-lib@3.0.1: {}
 

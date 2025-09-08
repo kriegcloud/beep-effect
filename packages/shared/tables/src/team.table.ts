@@ -1,10 +1,10 @@
+import { SharedEntityIds } from "@beep/shared-domain";
 import * as pg from "drizzle-orm/pg-core";
-import { defaultColumns } from "./common";
-
+import { defaultColumns, idColumn } from "./common";
 export const team = pg.pgTable(
   "team",
   {
-    id: pg.text("id").primaryKey(),
+    id: idColumn("organization", SharedEntityIds.OrganizationId),
     name: pg.text("name").notNull(),
     description: pg.text("description"),
     slug: pg.text("slug").unique(),

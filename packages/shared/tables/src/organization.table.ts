@@ -1,8 +1,10 @@
+import { SharedEntityIds } from "@beep/shared-domain";
 import { Organization } from "@beep/shared-domain/entities";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import * as DateTime from "effect/DateTime";
 import * as F from "effect/Function";
+import { idColumn } from "./id";
 
 export const organizationTypePgEnum = Organization.makeOrganizationTypePgEnum("organization_type");
 export const subscriptionTierPgEnum = Organization.makeSubscriptionTierPgEnum("organization_subscription_tier");
@@ -11,7 +13,7 @@ export const subscriptionStatusPgEnum = Organization.makeSubscriptionStatusPgEnu
 export const organization = pg.pgTable(
   "organization",
   {
-    id: pg.text("id").primaryKey(),
+    id: idColumn("organization", SharedEntityIds.OrganizationId),
     name: pg.text("name").notNull(),
     slug: pg.text("slug").unique(),
     logo: pg.text("logo"),

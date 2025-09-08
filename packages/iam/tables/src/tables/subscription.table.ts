@@ -1,8 +1,9 @@
+import { IamEntityIds } from "@beep/shared-domain";
 import { Common } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 
 export const subscription = pg.pgTable("subscription", {
-  id: pg.text("id").primaryKey(),
+  id: Common.idColumn("subscription", IamEntityIds.SubscriptionId),
   plan: pg.text("plan").notNull(),
   referenceId: pg.text("reference_id").notNull(),
   stripeCustomerId: pg.text("stripe_customer_id"),

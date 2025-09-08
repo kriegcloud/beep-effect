@@ -42,6 +42,8 @@
     "@beep/shared-domain": "workspace:^",
     "@beep/shared-tables": "workspace:^",
     "effect": "*",
+    "drizzle-orm": "*",
+    "@effect/sql": "*",
     "@effect-aws/s3": "*",
     "uuid": "*",
     "@effect-aws/client-s3": "*"

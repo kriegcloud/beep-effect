@@ -1,3 +1,4 @@
+import { IamEntityIds } from "@beep/shared-domain";
 import { Common } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 import { user } from "./user.table";
@@ -5,7 +6,7 @@ import { user } from "./user.table";
 export const walletAddress = pg.pgTable(
   "wallet_address",
   {
-    id: pg.text("id").primaryKey(),
+    id: Common.idColumn("wallet_address", IamEntityIds.WalletAddressId),
     userId: pg
       .text("user_id")
       .notNull()

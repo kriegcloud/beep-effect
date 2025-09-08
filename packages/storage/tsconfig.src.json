@@ -42,6 +42,7 @@
       "@beep/storage/*": ["./src/*"],
       "@beep/env/client": ["../env/src/client"],
       "@beep/env/server": ["../env/src/server"],
+      "@beep/env/common": ["../env/src/common"],
       "@beep/shared-domain": ["../shared/domain/src/index"],
       "@beep/shared-domain/*": ["../shared/domain/src/*"],
       "@beep/shared-tables": ["../shared/tables/src/index"],

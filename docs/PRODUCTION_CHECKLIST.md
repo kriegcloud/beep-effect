@@ -116,3 +116,6 @@ Until these exist, prefer environment-specific wiring and only use the heading/c
 - Multi-line logs (pretty/heading/code frames) are intentionally developer-focused.
 - Structured logs keep production fast, cheaper to store, and easy to search.
 - When in doubt, default to JSON + `withEnvLogging` in production.
+
+
+# Get rid of `execute.ts` files in various packages.

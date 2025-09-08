@@ -9,12 +9,12 @@ export const ServerConfig = Config.all({
   app: Config.nested("APP")(
     Config.all({
       name: Config.string("NAME"),
-      env: S.Config("ENV", EnvValue.Schema).pipe(Config.withDefault(EnvValue.Enum.dev)),
+      env: S.Config("ENV", EnvValue).pipe(Config.withDefault(EnvValue.Enum.dev)),
       domain: Config.string("DOMAIN").pipe(Config.withDefault("localhost")),
       adminUserIds: Config.array(S.Config("ADMIN_USER_IDS", S.UUID)),
       assetsDomain: Config.nonEmptyString("ASSETS_DOMAIN"),
       staticDomain: Config.nonEmptyString("STATIC_DOMAIN"),
-      logFormat: S.Config("LOG_FORMAT", LogFormat.Schema).pipe(Config.withDefault(LogFormat.Enum.pretty)),
+      logFormat: S.Config("LOG_FORMAT", LogFormat).pipe(Config.withDefault(LogFormat.Enum.pretty)),
       logLevel: Config.logLevel("LOG_LEVEL").pipe(Config.withDefault("None")),
       mcpUrl: Config.url("MCP_URL"),
       authUrl: Config.url("AUTH_URL"),
@@ -99,7 +99,7 @@ export const ServerConfig = Config.all({
   ),
   oauth: Config.nested("OAUTH")(
     Config.all({
-      authProviderNames: Config.array(S.Config("PROVIDER_NAMES", AuthProviderNameValue.Schema)),
+      authProviderNames: Config.array(S.Config("PROVIDER_NAMES", AuthProviderNameValue)),
       provider: Config.nested("PROVIDER")(
         Config.all({
           microsoft: Config.nested("MICROSOFT")(
@@ -160,7 +160,7 @@ export const ServerConfig = Config.all({
       ),
       plan: Config.nested("PLAN")(
         Config.all({
-          names: Config.array(Config.hashSet(S.Config("NAMES", SubscriptionPlanValue.Schema))),
+          names: Config.array(Config.hashSet(S.Config("NAMES", SubscriptionPlanValue))),
           basic: Config.nested("BASIC")(
             Config.all({
               name: Config.nonEmptyString("NAME"),

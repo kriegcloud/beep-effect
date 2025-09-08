@@ -1,10 +1,11 @@
+import { IamEntityIds } from "@beep/shared-domain";
 import { Common } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 
 export const verification = pg.pgTable(
   "verification",
   {
-    id: pg.text("id").primaryKey(),
+    id: Common.idColumn("verification", IamEntityIds.VerificationId),
     identifier: pg.text("identifier").notNull(),
     value: pg.text("value").notNull(),
     expiresAt: pg.timestamp("expires_at").notNull(),

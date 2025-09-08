@@ -8,10 +8,10 @@ import { AuthProviderNameValue, ConfigURL, EnvValue } from "./common";
 
 export const ClientConfig = Config.nested("NEXT_PUBLIC")(
   Config.all({
-    env: S.Config("ENV", EnvValue.Schema).pipe(Config.withDefault(EnvValue.Enum.dev)),
+    env: S.Config("ENV", EnvValue).pipe(Config.withDefault(EnvValue.Enum.dev)),
     appName: Config.nonEmptyString("APP_NAME"),
     appDomain: Config.nonEmptyString("APP_DOMAIN").pipe(Config.withDefault("localhost")),
-    authProviderNames: Config.array(S.Config("AUTH_PROVIDER_NAMES", AuthProviderNameValue.Schema)),
+    authProviderNames: Config.array(S.Config("AUTH_PROVIDER_NAMES", AuthProviderNameValue)),
     appUrl: ConfigURL("APP_URL"),
     apiUrl: ConfigURL("API_URL"),
     otlpTraceExportedUrl: ConfigURL("OTLP_TRACE_EXPORTER_URL"),

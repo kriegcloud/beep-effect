@@ -1,6 +1,7 @@
 import { serverEnv } from "@beep/env/server";
 import { IamDb } from "@beep/iam-db";
 import { IamDbSchema } from "@beep/iam-tables";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import type { UnsafeTypes } from "@beep/types";
 import type { BetterAuthOptions } from "better-auth";
 import { betterAuth } from "better-auth";
@@ -28,7 +29,6 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-import { v4 as uuid } from "uuid";
 import { AuthEmailService, SendResetPasswordEmailPayload } from "./AuthEmail.service";
 import { commonExtraFields } from "./internal/common";
 import { OrganizationPlugin } from "./internal/plugins";
@@ -126,12 +126,12 @@ const AuthOptions = Effect.gen(function* () {
       user: {
         create: {
           after: async (user) => {
-            const personalOrgId = uuid();
+            const personalOrgId = crypto.randomUUID();
             const slug = `${user.name?.toLowerCase().replace(/\s+/g, "-") || "user"}-${user.id.slice(-6)}`;
 
             // Create personal organization with multi-tenant fields
             await db.insert(IamDbSchema.organization).values({
-              id: personalOrgId,
+              id: SharedEntityIds.OrganizationId.make(`organization__${personalOrgId}`),
               name: `${user.name || "User"}'s Organization`,
               slug,
               type: "individual",
@@ -147,8 +147,8 @@ const AuthOptions = Effect.gen(function* () {
 
             // Add user as owner with enhanced tracking
             await db.insert(IamDbSchema.member).values({
-              id: uuid(),
-              userId: user.id,
+              id: IamEntityIds.MemberId.make(`member__${personalOrgId}`),
+              userId: S.decodeUnknownSync(IamEntityIds.UserId)(user.id),
               organizationId: personalOrgId,
               role: "owner",
               status: "active",
@@ -209,6 +209,11 @@ const AuthOptions = Effect.gen(function* () {
     user: {
       additionalFields: {
         ...commonExtraFields,
+      },
+    },
+    advanced: {
+      database: {
+        generateId: false,
       },
     },
   } satisfies BetterAuthOptions;

@@ -44,7 +44,8 @@ export namespace TopLevelDomain {
   export type Encoded = S.Schema.Encoded<typeof TopLevelDomain>;
 }
 
-export class DomainName extends S.Lowercase.pipe(
+export class DomainName extends S.String.pipe(
+  S.lowercased(),
   S.nonEmptyString({
     message: () => "Domain Name cannot be empty.",
   }),

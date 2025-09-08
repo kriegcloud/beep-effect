@@ -12,7 +12,7 @@ console.log(process.env.DB_PG_URL!);
 const program = Effect.gen(function* () {
   const { findById } = yield* User.UserRepo;
 
-  const i = yield* findById(IamEntityIds.UserId.make("5f2ad10a-fed2-40cc-ac08-a2958bc14ac8"));
+  const i = yield* findById(IamEntityIds.UserId.make("user__5f2ad10a-fed2-40cc-ac08-a2958bc14ac8"));
   yield* Console.log(i);
   // const Insert = yield* SqlResolver.ordered("InsertPerson", {
   //   Request: InsertPersonSchema,

@@ -1,12 +1,12 @@
+import { IamEntityIds } from "@beep/shared-domain";
 import { Common, team } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { user } from "./user.table";
-
 export const invitation = pg.pgTable(
   "invitation",
   {
-    id: pg.text("id").primaryKey(),
+    id: Common.idColumn("invitation", IamEntityIds.InvitationId),
     email: pg.text("email").notNull(),
     role: pg.text("role"),
     teamId: pg.text("team_id").references(() => team.id, { onDelete: "cascade", onUpdate: "cascade" }),

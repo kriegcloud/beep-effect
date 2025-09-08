@@ -3,7 +3,10 @@ import { BS } from "@beep/schema";
 // Shared ENTITY IDS
 //----------------------------------------------------------------------------------------------------------------------
 
-export const OrganizationId = BS.EntityId.make("OrganizationId")({
+export const OrganizationId = BS.EntityId.make(
+  "organization",
+  "OrganizationId"
+)({
   identifier: "OrganizationId",
   description: "A unique identifier for an organization",
   title: "Organization Id",
@@ -14,7 +17,10 @@ export namespace OrganizationId {
   export type Encoded = typeof OrganizationId.Encoded;
 }
 
-export const TeamId = BS.EntityId.make("TeamId")({
+export const TeamId = BS.EntityId.make(
+  "team",
+  "TeamId"
+)({
   identifier: "TeamId",
   description: "A unique identifier for a team",
   title: "Team Id",

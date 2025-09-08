@@ -2,7 +2,10 @@ import { BS } from "@beep/schema";
 //----------------------------------------------------------------------------------------------------------------------
 // IAM ENTITY IDS
 //----------------------------------------------------------------------------------------------------------------------
-export const AccountId = BS.EntityId.make("AccountId")({
+export const AccountId = BS.EntityId.make(
+  "account",
+  "AccountId"
+)({
   identifier: "AccountId",
   description: "A unique identifier for an account",
   title: "Account Id",
@@ -12,7 +15,10 @@ export namespace AccountId {
   export type Encoded = typeof AccountId.Encoded;
 }
 
-export const ApiKeyId = BS.EntityId.make("ApiKey")({
+export const ApiKeyId = BS.EntityId.make(
+  "apikey",
+  "ApiKey"
+)({
   identifier: "ApiKey",
   description: "A unique identifier for an api key",
   title: "Api Key",
@@ -23,7 +29,10 @@ export namespace ApiKeyId {
   export type Encoded = typeof ApiKeyId.Encoded;
 }
 
-export const InvitationId = BS.EntityId.make("Invitation")({
+export const InvitationId = BS.EntityId.make(
+  "invitation",
+  "Invitation"
+)({
   identifier: "Invitation",
   description: "A unique identifier for an invitation",
   title: "Invitation",
@@ -34,7 +43,10 @@ export namespace InvitationId {
   export type Encoded = typeof InvitationId.Encoded;
 }
 
-export const JwksId = BS.EntityId.make("Jwks")({
+export const JwksId = BS.EntityId.make(
+  "jwks",
+  "Jwks"
+)({
   identifier: "Jwks",
   description: "A unique identifier for a jwks",
   title: "Jwks",
@@ -45,7 +57,10 @@ export namespace JwksId {
   export type Encoded = typeof JwksId.Encoded;
 }
 
-export const MemberId = BS.EntityId.make("Member")({
+export const MemberId = BS.EntityId.make(
+  "member",
+  "Member"
+)({
   identifier: "Member",
   description: "A unique identifier for a member",
   title: "Member",
@@ -56,7 +71,10 @@ export namespace MemberId {
   export type Encoded = typeof MemberId.Encoded;
 }
 
-export const OAuthAccessTokenId = BS.EntityId.make("OAuthAccessToken")({
+export const OAuthAccessTokenId = BS.EntityId.make(
+  "oauth_access_token",
+  "OAuthAccessToken"
+)({
   identifier: "OAuthAccessToken",
   description: "A unique identifier for an oauth access token",
   title: "OAuth Access Token",
@@ -67,7 +85,10 @@ export namespace OAuthAccessTokenId {
   export type Encoded = typeof OAuthAccessTokenId.Encoded;
 }
 
-export const OAuthApplicationId = BS.EntityId.make("OAuthApplication")({
+export const OAuthApplicationId = BS.EntityId.make(
+  "oauth_application",
+  "OAuthApplication"
+)({
   identifier: "OAuthApplication",
   description: "A unique identifier for an oauth application",
   title: "OAuth Application",
@@ -78,7 +99,10 @@ export namespace OAuthApplicationId {
   export type Encoded = typeof OAuthApplicationId.Encoded;
 }
 
-export const OAuthConsentId = BS.EntityId.make("OAuthConsent")({
+export const OAuthConsentId = BS.EntityId.make(
+  "oauth_consent",
+  "OAuthConsent"
+)({
   identifier: "OAuthConsent",
   description: "A unique identifier for an oauth consent",
   title: "OAuth Consent",
@@ -89,7 +113,10 @@ export namespace OAuthConsentId {
   export type Encoded = typeof OAuthConsentId.Encoded;
 }
 
-export const PasskeyId = BS.EntityId.make("Passkey")({
+export const PasskeyId = BS.EntityId.make(
+  "passkey",
+  "Passkey"
+)({
   identifier: "Passkey",
   description: "A unique identifier for a passkey",
   title: "Passkey",
@@ -100,7 +127,10 @@ export namespace PasskeyId {
   export type Encoded = typeof PasskeyId.Encoded;
 }
 
-export const RateLimitId = BS.EntityId.make("RateLimit")({
+export const RateLimitId = BS.EntityId.make(
+  "rate_limit",
+  "RateLimit"
+)({
   identifier: "RateLimit",
   description: "A unique identifier for a rate limit",
   title: "Rate Limit",
@@ -111,7 +141,10 @@ export namespace RateLimitId {
   export type Encoded = typeof RateLimitId.Encoded;
 }
 
-export const SessionId = BS.EntityId.make("Session")({
+export const SessionId = BS.EntityId.make(
+  "session",
+  "Session"
+)({
   identifier: "Session",
   description: "A unique identifier for a session",
   title: "Session",
@@ -122,7 +155,10 @@ export namespace SessionId {
   export type Encoded = typeof SessionId.Encoded;
 }
 
-export const SsoProviderId = BS.EntityId.make("SsoProvider")({
+export const SsoProviderId = BS.EntityId.make(
+  "sso_provider",
+  "SsoProvider"
+)({
   identifier: "SsoProvider",
   description: "A unique identifier for an sso provider",
   title: "Sso Provider",
@@ -133,7 +169,10 @@ export namespace SsoProviderId {
   export type Encoded = typeof SsoProviderId.Encoded;
 }
 
-export const SubscriptionId = BS.EntityId.make("Subscription")({
+export const SubscriptionId = BS.EntityId.make(
+  "subscription",
+  "Subscription"
+)({
   identifier: "Subscription",
   description: "A unique identifier for a subscription",
   title: "Subscription",
@@ -144,7 +183,10 @@ export namespace SubscriptionId {
   export type Encoded = typeof SubscriptionId.Encoded;
 }
 
-export const TeamMemberId = BS.EntityId.make("TeamMember")({
+export const TeamMemberId = BS.EntityId.make(
+  "team_member",
+  "TeamMember"
+)({
   identifier: "TeamMember",
   description: "A unique identifier for a team member",
   title: "Team Member",
@@ -155,7 +197,10 @@ export namespace TeamMemberId {
   export type Encoded = typeof TeamMemberId.Encoded;
 }
 
-export const TwoFactorId = BS.EntityId.make("TwoFactor")({
+export const TwoFactorId = BS.EntityId.make(
+  "two_factor",
+  "TwoFactor"
+)({
   identifier: "TwoFactor",
   description: "A unique identifier for a two factor",
   title: "Two Factor",
@@ -166,7 +211,10 @@ export namespace TwoFactorId {
   export type Encoded = typeof TwoFactorId.Encoded;
 }
 
-export const UserId = BS.EntityId.make("User")({
+export const UserId = BS.EntityId.make(
+  "user",
+  "User"
+)({
   identifier: "User",
   description: "A unique identifier for a user",
   title: "User",
@@ -177,7 +225,10 @@ export namespace UserId {
   export type Encoded = typeof UserId.Encoded;
 }
 
-export const VerificationId = BS.EntityId.make("Verification")({
+export const VerificationId = BS.EntityId.make(
+  "verification",
+  "Verification"
+)({
   identifier: "Verification",
   description: "A unique identifier for a verification",
   title: "Verification",
@@ -188,7 +239,10 @@ export namespace VerificationId {
   export type Encoded = typeof VerificationId.Encoded;
 }
 
-export const WalletAddressId = BS.EntityId.make("WalletAddress")({
+export const WalletAddressId = BS.EntityId.make(
+  "wallet_address",
+  "WalletAddress"
+)({
   identifier: "WalletAddress",
   description: "A unique identifier for a wallet address",
   title: "Wallet Address",
@@ -199,7 +253,10 @@ export namespace WalletAddressId {
   export type Encoded = typeof WalletAddressId.Encoded;
 }
 
-export const OrganizationRoleId = BS.EntityId.make("OrganizationRole")({
+export const OrganizationRoleId = BS.EntityId.make(
+  "organization_role",
+  "OrganizationRole"
+)({
   identifier: "OrganizationRoleId",
   description: "A unique identifier for an organization role",
   title: "Organization Role",

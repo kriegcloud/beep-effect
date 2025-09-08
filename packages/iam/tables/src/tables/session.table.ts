@@ -1,3 +1,4 @@
+import { IamEntityIds } from "@beep/shared-domain";
 import { Common, organization, team } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
@@ -5,7 +6,7 @@ import { user } from "./user.table";
 export const session = pg.pgTable(
   "session",
   {
-    id: pg.text("id").primaryKey(),
+    id: Common.idColumn("session", IamEntityIds.SessionId),
     expiresAt: pg.timestamp("expires_at").notNull(),
     token: pg.text("token").notNull().unique(),
     ipAddress: pg.text("ip_address"),

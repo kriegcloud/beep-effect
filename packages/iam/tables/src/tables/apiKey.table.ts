@@ -1,3 +1,4 @@
+import { IamEntityIds } from "@beep/shared-domain";
 import { Common } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
@@ -6,7 +7,7 @@ import { user } from "./user.table";
 export const apiKey = pg.pgTable(
   "apikey",
   {
-    id: pg.text("id").primaryKey(),
+    id: Common.idColumn("apikey", IamEntityIds.ApiKeyId),
     name: pg.text("name"),
     start: pg.text("start"),
     prefix: pg.text("prefix"),

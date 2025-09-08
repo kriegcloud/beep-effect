@@ -1,9 +1,10 @@
+import { IamEntityIds } from "@beep/shared-domain";
 import { Common } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 import { user } from "./user.table";
 
 export const ssoProvider = pg.pgTable("sso_provider", {
-  id: pg.text("id").primaryKey(),
+  id: Common.idColumn("sso_provider", IamEntityIds.SsoProviderId),
   issuer: pg.text("issuer").notNull(),
   oidcConfig: pg.text("oidc_config"),
   samlConfig: pg.text("saml_config"),

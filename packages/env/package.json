@@ -11,7 +11,7 @@
   "exports": {
     "./server": "./src/server.ts",
     "./client": "./src/client.ts",
-    "./start": "./src/start.ts",
+    "./common": "./src/common.ts",
     "./package.json": "./package.json",
     "./*": "./src/*.ts"
   },

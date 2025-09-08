@@ -1,10 +1,11 @@
+import { IamEntityIds } from "@beep/shared-domain";
 import { Common } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 
 export const member = pg.pgTable(
   "member",
   {
-    id: pg.text("id").primaryKey(),
+    id: Common.idColumn("member", IamEntityIds.MemberId),
     userId: pg.text("user_id").notNull(), // Reference to user.id (relation defined in relations.ts)
     role: pg.text("role").default("member").notNull(),
 

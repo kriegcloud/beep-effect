@@ -148,6 +148,11 @@ export class MimeType extends allMimeTypes.Schema.annotations({
   static readonly Enum = allMimeTypes.Enum;
 }
 
+export namespace MimeType {
+  export type Type = S.Schema.Type<typeof MimeType>;
+  export type Encoded = S.Schema.Encoded<typeof MimeType>;
+}
+
 // Utility function to get mime type from extension
 export function getMimeTypeFromExtension(ext: string): string | undefined {
   return MimeTypeMap[ext as keyof typeof MimeTypeMap];

@@ -2,7 +2,10 @@ import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import * as DateTime from "effect/DateTime";
 import * as F from "effect/Function";
+import { idColumn } from "./id";
+
 import { organization } from "./organization.table";
+
 export const utcNow = F.constant(DateTime.toDateUtc(DateTime.unsafeNow()));
 
 export const auditColumns = {
@@ -28,12 +31,10 @@ export const globalColumns = {
     .$onUpdateFn(() => d.sql`version + 1`),
   // Optional: Enhanced traceability
   source: pg.text("source"), // 'api', 'import', 'migration', etc.
-};
+} as const;
 
 export const defaultColumns = {
   ...globalColumns,
-  // Optional: Multi-tenant support
-  // Note: organizationId reference will be defined in relations.ts to avoid circular imports
   organizationId: pg
     .text("organization_id")
     .notNull()
@@ -42,3 +43,4 @@ export const defaultColumns = {
       onUpdate: "cascade",
     }),
 } as const;
+export { idColumn };

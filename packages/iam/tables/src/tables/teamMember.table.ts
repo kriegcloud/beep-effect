@@ -1,11 +1,11 @@
+import { IamEntityIds } from "@beep/shared-domain";
 import { Common, team } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 import { user } from "./user.table";
-
 export const teamMember = pg.pgTable(
   "team_member",
   {
-    id: pg.text("id").primaryKey(),
+    id: Common.idColumn("team_member", IamEntityIds.TeamMemberId),
     teamId: pg
       .text("team_id")
       .notNull()

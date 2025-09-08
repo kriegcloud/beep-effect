@@ -28,7 +28,6 @@ export const DateTimeFromDate = (params?: { description?: string }) =>
         variant.annotations(dateTimeJsonSchemaAnnotations(params?.description)),
     })
   );
-
 export const DateTimeInsertFromDate = (params?: { description?: string }) =>
   M.DateTimeInsertFromDate.pipe(
     M.fieldEvolve({
