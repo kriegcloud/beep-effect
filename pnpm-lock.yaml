@@ -49,7 +49,6 @@ overrides:
   copyfiles: 2.4.1
   '@babel/cli': 7.28.3
   '@effect-aws/s3': ^0.2.3
-  pretty-bytes: ^7.0.1
   '@babel/core': 7.28.4
   '@effect/cluster': ^0.48.3
   '@effect/workflow': ^0.9.3
@@ -1079,9 +1078,6 @@ importers:
       mutative:
         specifier: 1.2.0
         version: 1.2.0
-      pretty-bytes:
-        specifier: ^7.0.1
-        version: 7.0.1
       randexp-ts:
         specifier: 1.0.5
         version: 1.0.5
@@ -1428,6 +1424,9 @@ importers:
         specifier: 8.16.3
         version: 8.16.3
     devDependencies:
+      '@beep/types':
+        specifier: workspace:*
+        version: link:../../common/types/build
       '@types/pg':
         specifier: 8.15.5
         version: 8.15.5
@@ -8929,10 +8928,6 @@ packages:
     resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
     engines: {node: '>=14'}
     hasBin: true
-
-  pretty-bytes@7.0.1:
-    resolution: {integrity: sha512-285/jRCYIbMGDciDdrw0KPNC4LKEEwz/bwErcYNxSJOi4CpGUuLpb9gQpg3XJP0XYj9ldSRluXxih4lX2YN8Xw==}
-    engines: {node: '>=20'}
 
   pretty-format@27.5.1:
     resolution: {integrity: sha512-Qb1gy5OrP5+zDf2Bvnzdl3jsTf1qXVMazbvCoKhtKqVs4/YK4ozX4gKQJJVyNe+cajNPn0KoC0MC3FUmaHWEmQ==}
@@ -18465,8 +18460,6 @@ snapshots:
       - supports-color
 
   prettier@3.6.2: {}
-
-  pretty-bytes@7.0.1: {}
 
   pretty-format@27.5.1:
     dependencies:

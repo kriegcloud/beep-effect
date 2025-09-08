@@ -1,14 +1,12 @@
 import * as S from "effect/Schema";
 
-export class ArrayOfNumbers extends S.Array(
-  S.Number
-).annotations({
+export class ArrayOfNumbers extends S.Array(S.Number).annotations({
   schemaId: Symbol.for("@beep/schema/custom/ArrayOfNumbers"),
   identifier: "ArrayOfNumbers",
   title: "Array of numbers",
   description: "Array of numbers",
 }) {
-  static readonly is = S.is(this)
+  static readonly is = S.is(this);
 }
 
 export namespace ArrayOfNumbers {

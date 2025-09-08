@@ -1,7 +1,7 @@
 import { invariant } from "@beep/invariant";
 import type { DefaultAnnotations } from "@beep/schema/annotations";
 import { DiscriminatedStruct } from "@beep/schema/generics";
-import type { StringTypes } from "@beep/types";
+import type { StringTypes, UnsafeTypes } from "@beep/types";
 import type { SnakeTag } from "@beep/types/tag.types";
 import { enumFromStringArray } from "@beep/utils/transformations";
 import { pgEnum } from "drizzle-orm/pg-core";
@@ -55,7 +55,7 @@ type CreateEnumType<
   Mapping extends readonly [string, string][] | undefined,
 > = Mapping extends readonly [string, string][]
   ? {
-      readonly [K in ExtractMappedValues<Mapping>]: Extract<Mapping[number], readonly [any, K]>[0];
+      readonly [K in ExtractMappedValues<Mapping>]: Extract<Mapping[number], readonly [UnsafeTypes.UnsafeAny, K]>[0];
     }
   : { readonly [K in Literals[number]]: K };
 
@@ -269,15 +269,18 @@ export function stringLiteralKit<
     >;
 
     // Keyed object map: { [literal]: S.Struct(...) }
-    const membersObj = Object.create(null) as Record<string, S.Struct<any>>;
+    const membersObj = Object.create(null) as Record<string, S.Struct<UnsafeTypes.UnsafeAny>>;
     literals.forEach((lit, i) => {
-      membersObj[lit] = (memberTuple as unknown as ReadonlyArray<S.Struct<any>>)[i]!;
+      membersObj[lit] = (memberTuple as unknown as ReadonlyArray<S.Struct<UnsafeTypes.UnsafeAny>>)[i]!;
     });
     Object.freeze(membersObj);
 
     // The union schema constructed from the tuple of members
     const Union = S.Union(
-      ...(memberTuple as unknown as [S.Schema<any, any, any>, ...S.Schema<any, any, any>[]])
+      ...(memberTuple as unknown as [
+        S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>,
+        ...S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>[],
+      ])
     ) as TaggedUnion<Literals, D>;
 
     return {
@@ -287,7 +290,7 @@ export function stringLiteralKit<
   };
 
   // Create the enum object
-  let Enum: any;
+  let Enum: UnsafeTypes.UnsafeAny;
 
   if (options?.enumMapping) {
     // Validate at runtime
@@ -313,7 +316,7 @@ export function stringLiteralKit<
     }
 
     // Create enum with mapped keys
-    Enum = {} as any;
+    Enum = {} as UnsafeTypes.UnsafeAny;
     for (const [literal, mappedKey] of options.enumMapping) {
       Enum[mappedKey] = literal;
     }
@@ -379,14 +382,17 @@ export function stringLiteralKit<
             return DiscriminatedStruct(discriminator)(lit, {});
           }) as unknown as TaggedMembers<Keys, D>;
 
-          const membersObj = Object.create(null) as Record<string, S.Struct<any>>;
+          const membersObj = Object.create(null) as Record<string, S.Struct<UnsafeTypes.UnsafeAny>>;
           keys.forEach((lit, i) => {
-            membersObj[lit] = (memberTuple as unknown as ReadonlyArray<S.Struct<any>>)[i]!;
+            membersObj[lit] = (memberTuple as unknown as ReadonlyArray<S.Struct<UnsafeTypes.UnsafeAny>>)[i]!;
           });
           Object.freeze(membersObj);
 
           const Union = S.Union(
-            ...(memberTuple as unknown as [S.Schema<any, any, any>, ...S.Schema<any, any, any>[]])
+            ...(memberTuple as unknown as [
+              S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>,
+              ...S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>[],
+            ])
           ) as TaggedUnion<Keys, D>;
 
           return {

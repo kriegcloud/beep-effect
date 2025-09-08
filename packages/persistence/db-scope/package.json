@@ -42,7 +42,8 @@
     "@beep/env": "workspace:*"
   },
   "devDependencies": {
-    "@types/pg": "*"
+    "@types/pg": "*",
+    "@beep/types": "workspace:*"
   },
   "effect": {
     "generateExports": {

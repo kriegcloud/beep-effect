@@ -5,17 +5,7 @@ import type * as S from "effect/Schema";
  *  BYTE (SI / DECIMAL)
  *  1 kB = 1,000 B
  * ────────────────────────────────────────────────────────────────────────── */
-export const ByteUnitKit = stringLiteralKit(
-  "B",
-  "kB",
-  "MB",
-  "GB",
-  "TB",
-  "PB",
-  "EB",
-  "ZB",
-  "YB",
-);
+export const ByteUnitKit = stringLiteralKit("B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB");
 
 export class ByteUnit extends ByteUnitKit.Schema.annotations({
   schemaId: Symbol.for("@beep/schema/custom/file/ByteUnit"),
@@ -37,17 +27,7 @@ export namespace ByteUnit {
  *  BYTE (IEC / BINARY)
  *  1 KiB = 1,024 B
  * ────────────────────────────────────────────────────────────────────────── */
-export const BiByteUnitKit = stringLiteralKit(
-  "B",
-  "KiB",
-  "MiB",
-  "GiB",
-  "TiB",
-  "PiB",
-  "EiB",
-  "ZiB",
-  "YiB",
-);
+export const BiByteUnitKit = stringLiteralKit("B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB");
 
 export class BiByteUnit extends BiByteUnitKit.Schema.annotations({
   schemaId: Symbol.for("@beep/schema/custom/file/BiByteUnit"),
@@ -69,17 +49,7 @@ export namespace BiByteUnit {
  *  BIT (SI / DECIMAL)
  *  1 kbit = 1,000 b
  * ────────────────────────────────────────────────────────────────────────── */
-export const BitUnitKit = stringLiteralKit(
-  "b",
-  "kbit",
-  "Mbit",
-  "Gbit",
-  "Tbit",
-  "Pbit",
-  "Ebit",
-  "Zbit",
-  "Ybit",
-);
+export const BitUnitKit = stringLiteralKit("b", "kbit", "Mbit", "Gbit", "Tbit", "Pbit", "Ebit", "Zbit", "Ybit");
 
 export class BitUnit extends BitUnitKit.Schema.annotations({
   schemaId: Symbol.for("@beep/schema/custom/file/BitUnit"),
@@ -110,7 +80,7 @@ export const BiBitUnitKit = stringLiteralKit(
   "Pibit",
   "Eibit",
   "Zibit",
-  "Yibit",
+  "Yibit"
 );
 
 export class BiBitUnit extends BiBitUnitKit.Schema.annotations({

@@ -1,5 +1,6 @@
 import * as DbErrors from "@beep/db-scope/errors";
 import { serverEnv } from "@beep/env/server";
+import type { UnsafeTypes } from "@beep/types";
 import * as PgDrizzle from "@effect/sql-drizzle/Pg";
 import * as PgClient from "@effect/sql-pg/PgClient";
 import { drizzle } from "drizzle-orm/node-postgres";
@@ -93,7 +94,7 @@ export const makeScopedDb = <const TFullSchema extends Record<string, unknown> =
             Effect.flatMap((runPromiseExit) =>
               Effect.async<T, DbErrors.DbError | E, R>((resume) => {
                 db.transaction(async (tx: TransactionClient<TFullSchema>) => {
-                  const txWrapper = (fn: (client: TransactionClient<TFullSchema>) => Promise<any>) =>
+                  const txWrapper = (fn: (client: TransactionClient<TFullSchema>) => Promise<UnsafeTypes.UnsafeAny>) =>
                     Effect.tryPromise({
                       try: () => fn(tx),
                       catch: (cause) => {

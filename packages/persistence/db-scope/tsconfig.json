@@ -5,7 +5,9 @@
     "paths": {
       "@beep/db-scope/*": ["./src/*"],
       "@beep/env/server": ["../../env/src/server"],
-      "@beep/env/client": ["../../env/src/client"]
+      "@beep/env/client": ["../../env/src/client"],
+      "@beep/types": ["../../common/types/src/index"],
+      "@beep/types/*": ["../../common/types/src/*"]
     }
   },
   "references": [

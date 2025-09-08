@@ -1,29 +1,11 @@
-import { ArrayOfNumbers } from "../Array.schema";
-import * as A from "effect/Array";
-import { Uint8Arr } from "../Uint8Array.schema";
-import { ArrBuffer } from "../ArrayBuffer.schema";
-import * as P from "effect/Predicate";
-import * as Data from "effect/Data";
 import type { UnsafeTypes } from "@beep/types";
+import * as A from "effect/Array";
+
+import * as P from "effect/Predicate";
+import { ArrayOfNumbers } from "../Array.schema";
+import { ArrBuffer } from "../ArrayBuffer.schema";
+import { Uint8Arr } from "../Uint8Array.schema";
 import type { FileInfo } from "./FileInfo.schema";
-/**
- * Takes a file content in different types, convert it into array of numbers and returns a chunk of the required size
- *
- * @param file - File content represents in Array<number> / ArrayBuffer / Uint8Array
- * @param fileChunkLength - Required file chunk length
- *
- * @returns {Array<number>} File chunk of the required size represents in Array<number>
- */
-export class TypeError extends Data.TaggedError("TypeError")<{
-  readonly customMessage: string;
-}> {
-  constructor(readonly customMessage: string) {
-    super({ customMessage })
-  }
-  get message() {
-    return this.customMessage;
-  }
-}
 
 /**
  * Determine if array of numbers is a legal file chunk
@@ -34,24 +16,24 @@ export class TypeError extends Data.TaggedError("TypeError")<{
  */
 
 function isLegalChunk(fileChunk: Array<number>): boolean {
-  return fileChunk.every((num) => P.and(P.isNumber, P.not(Number.isNaN))(num))
+  return fileChunk.every((num) => P.and(P.isNumber, P.not(Number.isNaN))(num));
 }
 
 export function getFileChunk(
-  file: Array<number> | ArrayBuffer | Uint8Array,
-  fileChunkLength: number = 32 // default length - 32 bytes
+  file: ReadonlyArray<number> | ArrayBuffer | Uint8Array,
+  fileChunkLength = 32 // default length - 32 bytes
 ): Array<number> {
-  const fileToCheck: Array<number> | Uint8Array =
-    file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+  const fileToCheck: ReadonlyArray<number> | Uint8Array = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
   let chunk: Array<number> = [];
   if (P.or(P.and(A.isArray, ArrayOfNumbers.is), P.or(ArrBuffer.is, Uint8Arr.is))(file)) {
-    chunk = Array.from(fileToCheck.slice(0, fileChunkLength))
+    chunk = Array.from(fileToCheck.slice(0, fileChunkLength));
   } else {
-    throw new TypeError(`Expected the \`file\` argument to be of type \`Array<number>\`, \`Uint8Array\`, or \`ArrayBuffer\`, got \`${typeof file}\``)
+    throw new TypeError(
+      `Expected the \`file\` argument to be of type \`Array<number>\`, \`Uint8Array\`, or \`ArrayBuffer\`, got \`${typeof file}\``
+    );
   }
 
-  if (!isLegalChunk(chunk))
-    throw new TypeError(`File content contains illegal values`);
+  if (!isLegalChunk(chunk)) throw new TypeError(`File content contains illegal values`);
 
   return chunk;
 }
@@ -79,11 +61,9 @@ export function fetchFromObject(obj: UnsafeTypes.UnsafeAny, prop: string): FileI
  *
  * @param fileChunk - A chunk from the beginning of a file content, represents in array of numbers
  *
- * @returns {string | undefined} 'webm' if found webm string A property of the rquired object
+ * @returns {string | undefined} 'webm' if found webm string A property of the required object
  */
-export function findMatroskaDocTypeElements(
-  fileChunk: Array<number>
-): string | undefined {
+export function findMatroskaDocTypeElements(fileChunk: Array<number>): string | undefined {
   const webmString = "webm";
   const mkvString = "matroska";
 
@@ -109,7 +89,7 @@ export function findMatroskaDocTypeElements(
  * @returns {boolean} True if found the "ftyp" string in the fileChunk, otherwise false
  */
 export function isftypStringIncluded(fileChunk: Array<number>): boolean {
-  const ftypSignature = [0x66, 0x74, 0x79, 0x70]; // "ftyp" signature
+  const ftypSignature = [0x66, 0x74, 0x79, 0x70] as const; // "ftyp" signature
 
   // Check the first few bytes for the "ftyp" signature
   for (let i = 0; i < fileChunk.length - ftypSignature.length; i++) {
@@ -184,7 +164,7 @@ export function isHeicSignatureIncluded(fileChunk: Array<number>): boolean {
   const byteString = fileChunk.map((num) => String.fromCharCode(num)).join("");
 
   // List of possible HEIC 'ftyp' signatures
-  const heicSignatures = ["ftypheic", "ftyphevc", "ftypmif1", "ftypmsf1"];
+  const heicSignatures = ["ftypheic", "ftyphevc", "ftypmif1", "ftypmsf1"] as const;
 
   // Check if any of the HEIC signatures are included in the byte string
   return heicSignatures.some((signature) => byteString.includes(signature));

@@ -1,30 +1,53 @@
-import * as Sizes from "./FileSize.schema";
-import * as S from "effect/Schema";
+import type * as S from "effect/Schema";
+import type * as Sizes from "./FileSize.schema";
+
 /* ============================================================================
  * Unit types inferred from your Schemas (kept in one place for clarity)
  * ========================================================================== */
-type SiByteUnit  = S.Schema.Type<typeof Sizes.ByteUnit>;   // 'B' | 'kB' | ... | 'YB'
+type SiByteUnit = S.Schema.Type<typeof Sizes.ByteUnit>; // 'B' | 'kB' | ... | 'YB'
 type IecByteUnit = S.Schema.Type<typeof Sizes.BiByteUnit>; // 'B' | 'KiB' | ... | 'YiB'
-type SiBitUnit   = S.Schema.Type<typeof Sizes.BitUnit>;    // 'b' | 'kbit' | ... | 'Ybit'
-type IecBitUnit  = S.Schema.Type<typeof Sizes.BiBitUnit>;  // 'b' | 'kibit' | ... | 'Yibit'
+type SiBitUnit = S.Schema.Type<typeof Sizes.BitUnit>; // 'b' | 'kbit' | ... | 'Ybit'
+type IecBitUnit = S.Schema.Type<typeof Sizes.BiBitUnit>; // 'b' | 'kibit' | ... | 'Yibit'
 
 /* ============================================================================
  * Runtime unit tables (type-checked against the schemas)
  * ========================================================================== */
-const BYTE_UNITS = [
-  "B","kB","MB","GB","TB","PB","EB","ZB","YB",
-] as const satisfies readonly SiByteUnit[];
+const BYTE_UNITS = ["B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"] as const satisfies readonly SiByteUnit[];
 
 const BIBYTE_UNITS = [
-  "B","KiB","MiB","GiB","TiB","PiB","EiB","ZiB","YiB",
+  "B",
+  "KiB",
+  "MiB",
+  "GiB",
+  "TiB",
+  "PiB",
+  "EiB",
+  "ZiB",
+  "YiB",
 ] as const satisfies readonly IecByteUnit[];
 
 const BIT_UNITS = [
-  "b","kbit","Mbit","Gbit","Tbit","Pbit","Ebit","Zbit","Ybit",
+  "b",
+  "kbit",
+  "Mbit",
+  "Gbit",
+  "Tbit",
+  "Pbit",
+  "Ebit",
+  "Zbit",
+  "Ybit",
 ] as const satisfies readonly SiBitUnit[];
 
 const BIBIT_UNITS = [
-  "b","kibit","Mibit","Gibit","Tibit","Pibit","Eibit","Zibit","Yibit",
+  "b",
+  "kibit",
+  "Mibit",
+  "Gibit",
+  "Tibit",
+  "Pibit",
+  "Eibit",
+  "Zibit",
+  "Yibit",
 ] as const satisfies readonly IecBitUnit[];
 
 export interface PrettyBytesOptions {
@@ -77,27 +100,22 @@ export interface PrettyBytesOptions {
 }
 
 /** Resolve `bits` with default `false`. */
-type ResolveBits<O> = O extends { bits?: infer B }
-  ? B extends boolean ? B : false
-  : false;
+type ResolveBits<O> = O extends { bits?: infer B } ? (B extends boolean ? B : false) : false;
 
 /** Resolve `binary` with default `false`. */
-type ResolveBinary<O> = O extends { binary?: infer B }
-  ? B extends boolean ? B : false
-  : false;
+type ResolveBinary<O> = O extends { binary?: infer B } ? (B extends boolean ? B : false) : false;
 
 /** Resolve `space` with default `true`. */
-type ResolveSpace<O> = O extends { space?: infer S }
-  ? S extends boolean ? S : true
-  : true;
+type ResolveSpace<O> = O extends { space?: infer S } ? (S extends boolean ? S : true) : true;
 
 /** Pick the unit family based on options. */
-type UnitFor<
-  Bits extends boolean,
-  Binary extends boolean
-> = Bits extends true
-  ? (Binary extends true ? IecBitUnit : SiBitUnit)
-  : (Binary extends true ? IecByteUnit : SiByteUnit);
+type UnitFor<Bits extends boolean, Binary extends boolean> = Bits extends true
+  ? Binary extends true
+    ? IecBitUnit
+    : SiBitUnit
+  : Binary extends true
+    ? IecByteUnit
+    : SiByteUnit;
 
 /** Unit family for a concrete options type. */
 type UnitForOptions<O> = UnitFor<ResolveBits<O>, ResolveBinary<O>>;
@@ -187,9 +205,7 @@ const divide = (n: number | bigint, divisor: number): number => {
  * prettyBytes(1024, { binary: true })    // '1 KiB'
  * prettyBytes(1920, { space: false })    // '1.92kB'
  */
-export default function formatSize<
-  O extends PrettyBytesOptions | undefined = undefined
->(
+export function formatSize<O extends PrettyBytesOptions | undefined = undefined>(
   value: number | bigint,
   options?: O
 ): PrettyBytesString<O> {
@@ -200,30 +216,27 @@ export default function formatSize<
 
   const opts: Required<Pick<PrettyBytesOptions, "bits" | "binary" | "space">> &
     Omit<PrettyBytesOptions, "bits" | "binary" | "space"> = {
-      bits: false,
-      binary: false,
-      space: true,
-      ...options,
-    };
+    bits: false,
+    binary: false,
+    space: true,
+    ...options,
+  };
 
-  const UNITS =
-    opts.bits
-      ? (opts.binary ? BIBIT_UNITS : BIT_UNITS)
-      : (opts.binary ? BIBYTE_UNITS : BYTE_UNITS);
+  const UNITS = opts.bits ? (opts.binary ? BIBIT_UNITS : BIT_UNITS) : opts.binary ? BIBYTE_UNITS : BYTE_UNITS;
 
   const separator = opts.space ? " " : "";
 
   // Special aligned zero when signed is true
   if (opts.signed && (typeof value === "number" ? value === 0 : value === 0n)) {
-    return (` 0${separator}${UNITS[0]}`) as PrettyBytesString<O>;
+    return ` 0${separator}${UNITS[0]}` as PrettyBytesString<O>;
     // ^ leading space matches original library behavior
   }
 
   const isNegative = value < 0;
-  const prefix = isNegative ? "-" : (opts.signed ? "+" : "");
+  const prefix = isNegative ? "-" : opts.signed ? "+" : "";
 
   if (isNegative) {
-    value = (typeof value === "number" ? -value : -value);
+    value = typeof value === "number" ? -value : -value;
   }
 
   let localeOptions: Intl.NumberFormatOptions | undefined;
@@ -239,20 +252,13 @@ export default function formatSize<
 
   // For magnitudes < 1, don't scale — just attach the base unit.
   if (typeof value === "number" ? value < 1 : value < 1n) {
-    const numberString = toLocaleStr(
-      typeof value === "number" ? value : Number(value),
-      opts.locale,
-      localeOptions
-    );
+    const numberString = toLocaleStr(typeof value === "number" ? value : Number(value), opts.locale, localeOptions);
     return (prefix + numberString + separator + UNITS[0]) as PrettyBytesString<O>;
   }
 
   // Compute exponent for either base 1000 (SI) or 1024 (IEC)
   const base = opts.binary ? 1024 : 1000;
-  const exp = Math.min(
-    Math.floor((opts.binary ? ln(value) / Math.log(1024) : log10(value) / 3)),
-    UNITS.length - 1
-  );
+  const exp = Math.min(Math.floor(opts.binary ? ln(value) / Math.log(1024) : log10(value) / 3), UNITS.length - 1);
 
   let scaled = divide(value, base ** exp);
 
@@ -263,11 +269,7 @@ export default function formatSize<
     scaled = Number(scaled.toPrecision(minPrecision));
   }
 
-  const numberString = toLocaleStr(
-    Number(scaled),
-    opts.locale,
-    localeOptions
-  );
+  const numberString = toLocaleStr(Number(scaled), opts.locale, localeOptions);
 
   const unit = UNITS[exp];
   return (prefix + numberString + separator + unit) as PrettyBytesString<O>;
@@ -277,9 +279,4 @@ export default function formatSize<
  * Handy re-exports (optional)
  * ========================================================================== */
 
-export type {
-  SiByteUnit,
-  IecByteUnit,
-  SiBitUnit,
-  IecBitUnit,
-};
+export type { SiByteUnit, IecByteUnit, SiBitUnit, IecBitUnit };

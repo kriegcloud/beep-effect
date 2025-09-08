@@ -1,5 +1,5 @@
-import {stringLiteralKit} from "@beep/schema/kits";
-import {RecordUtils} from "@beep/utils";
+import { stringLiteralKit } from "@beep/schema/kits";
+import { RecordUtils } from "@beep/utils";
 import type * as S from "effect/Schema";
 
 export const ImageMimeTypeMap = {

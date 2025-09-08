@@ -1,4 +1,4 @@
-import {stringLiteralKit} from "@beep/schema/kits";
+import { stringLiteralKit } from "@beep/schema/kits";
 import type * as S from "effect/Schema";
 import * as Application from "./ApplicationExt.schema";
 import * as Audio from "./AudioExt.schema";
@@ -21,8 +21,7 @@ export class Ext extends ExtKit.Schema.annotations({
   identifier: "Ext",
   title: "File extension",
   description: "File extension",
-}) {
-}
+}) {}
 
 export namespace Ext {
   export type Type = S.Schema.Type<typeof Ext>;
@@ -134,7 +133,7 @@ export const allMimeTypes = stringLiteralKit(
       ["video/quicktime", "mov"],
       ["video/x-flv", "flv"],
       ["video/x-m4v", "m4v"],
-      ["application/x-shockwave-flash", "swf"]
+      ["application/x-shockwave-flash", "swf"],
     ],
   }
 );

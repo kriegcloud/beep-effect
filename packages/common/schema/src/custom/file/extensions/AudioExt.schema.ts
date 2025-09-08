@@ -32,7 +32,20 @@ export const AudioMimeTypeKit = stringLiteralKit(...RecordUtils.recordStringValu
   ] as const,
 });
 
-export const AudioExtKit = stringLiteralKit("flac", "amr", "mp3", "wav", "ogg", "aac", "flac", "m4a", "wma", "opus", "webm", "aiff");
+export const AudioExtKit = stringLiteralKit(
+  "flac",
+  "amr",
+  "mp3",
+  "wav",
+  "ogg",
+  "aac",
+  "flac",
+  "m4a",
+  "wma",
+  "opus",
+  "webm",
+  "aiff"
+);
 
 export class AudioMimeType extends AudioMimeTypeKit.Schema.annotations({
   schemaId: Symbol.for("@beep/schema/custom/file/extensions/AudioMimeType"),

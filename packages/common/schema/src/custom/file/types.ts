@@ -23,4 +23,3 @@ export interface ValidateFileTypeOptions {
 export interface DetectFileOptions {
   chunkSize?: number;
 }
-

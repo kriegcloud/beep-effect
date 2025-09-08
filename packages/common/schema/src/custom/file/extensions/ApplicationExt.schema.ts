@@ -1,5 +1,5 @@
-import {stringLiteralKit} from "@beep/schema/kits";
-import {RecordUtils} from "@beep/utils";
+import { stringLiteralKit } from "@beep/schema/kits";
+import { RecordUtils } from "@beep/utils";
 import type * as S from "effect/Schema";
 
 export const ApplicationExtKit = stringLiteralKit(
@@ -69,7 +69,7 @@ export const ApplicationMimeTypeMap = {
   gzip: "application/gzip",
   "7z": "application/x-7z-compressed",
   rtf: "application/rtf",
-  ttf: "application/x-font-ttf"
+  ttf: "application/x-font-ttf",
 } as const;
 
 export const applicationMimeTypeKit = stringLiteralKit(...RecordUtils.recordStringValues(ApplicationMimeTypeMap), {
@@ -104,7 +104,7 @@ export const applicationMimeTypeKit = stringLiteralKit(...RecordUtils.recordStri
     ["application/gzip", "gzip"],
     ["application/x-7z-compressed", "7z"],
     ["application/rtf", "rtf"],
-    ["application/x-font-ttf", "app_ttf"]
+    ["application/x-font-ttf", "app_ttf"],
   ],
 });
 

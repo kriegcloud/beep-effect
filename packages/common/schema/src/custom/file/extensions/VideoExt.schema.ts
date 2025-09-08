@@ -13,7 +13,7 @@ export const VideoMimeTypeMap = {
   flv: "video/x-flv",
   m4v: "video/x-m4v",
   mov: "video/quicktime",
-  swf: "application/x-shockwave-flash"
+  swf: "application/x-shockwave-flash",
 } as const;
 
 export const VideoMimeTypeKit = stringLiteralKit(...RecordUtils.recordStringValues(VideoMimeTypeMap), {
@@ -28,7 +28,7 @@ export const VideoMimeTypeKit = stringLiteralKit(...RecordUtils.recordStringValu
     ["video/quicktime", "mov"],
     ["video/x-flv", "flv"],
     ["video/x-m4v", "m4v"],
-    ["application/x-shockwave-flash", "swf"]
+    ["application/x-shockwave-flash", "swf"],
   ],
 });
 

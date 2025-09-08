@@ -1,11 +1,8 @@
-import {
-  FILE_TYPES_REQUIRED_ADDITIONAL_CHECK,
-  FileTypes,
-} from "./file-types";
-import { DetectFileOptions } from "./types";
+import type { DetectedFileInfo, FileInfo } from "./FileInfo.schema";
+import type { FileSignature } from "./FileSignature.schema";
+import { FILE_TYPES_REQUIRED_ADDITIONAL_CHECK, FileTypes } from "./FileTypes";
+import type { DetectFileOptions } from "./types";
 import { getFileChunk } from "./utils";
-import { FileInfo, DetectedFileInfo } from "./FileInfo.schema";
-import { FileSignature } from "./FileSignature.schema";
 
 /**
  * Detect a file by searching for a valid file signature inside the file content
@@ -19,11 +16,7 @@ export function detectFile(
   file: Array<number> | ArrayBuffer | Uint8Array,
   options?: DetectFileOptions
 ): DetectedFileInfo | undefined {
-  if (
-    options &&
-    Object.prototype.hasOwnProperty.call(options, "chunkSize") &&
-    (options?.chunkSize ?? 0) <= 0
-  )
+  if (options && Object.prototype.hasOwnProperty.call(options, "chunkSize") && (options?.chunkSize ?? 0) <= 0)
     throw new RangeError("chunkSize must be bigger than zero");
 
   const fileChunk: Array<number> = getFileChunk(file, options?.chunkSize || 64); // Take chunk from the beginning of the file
@@ -34,12 +27,8 @@ export function detectFile(
 
   for (const type in FileTypes) {
     if (Object.prototype.hasOwnProperty.call(FileTypes, type)) {
-      const signatures: ReadonlyArray<FileSignature.Type> =
-        FileTypes.getSignaturesByName(type);
-      const matchedSignature = FileTypes.detectBySignatures(
-        fileChunk,
-        signatures
-      );
+      const signatures: ReadonlyArray<FileSignature.Type> = FileTypes.getSignaturesByName(type);
+      const matchedSignature = FileTypes.detectBySignatures(fileChunk, signatures);
       if (matchedSignature) {
         const fileType: FileInfo.Type = FileTypes.getInfoByName(type);
         if (FILE_TYPES_REQUIRED_ADDITIONAL_CHECK.includes(fileType.extension)) {
@@ -60,14 +49,10 @@ export function detectFile(
   }
 
   if (detectedFiles.length === 0) return undefined;
-  if (detectedFiles.length === 1 && filesRequiredAdditionalCheck.length === 0)
-    return detectedFiles[0];
+  if (detectedFiles.length === 1 && filesRequiredAdditionalCheck.length === 0) return detectedFiles[0];
 
   // Some files share the same signature. Additional check required
-  const detectedType = FileTypes.detectTypeByAdditionalCheck(
-    fileChunk,
-    detectedFiles
-  );
+  const detectedType = FileTypes.detectTypeByAdditionalCheck(fileChunk, detectedFiles);
   if (!detectedType) return undefined;
 
   return detectedFiles.find((df) => df.extension === detectedType);

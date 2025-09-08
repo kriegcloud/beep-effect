@@ -1,3 +1,4 @@
+import type { UnsafeTypes } from "@beep/types";
 import { formOptions } from "@tanstack/react-form";
 import * as A from "effect/Array";
 import * as Either from "effect/Either";
@@ -35,16 +36,16 @@ type PathsLimited<Data, Path extends string = "", Depth extends number = 3> = De
 export type Paths<Data> = PathsLimited<Data>;
 
 type RootErrorKey = "";
-type SchemaValidatorResult<SchemaInput extends Record<PropertyKey, any>> = Partial<
+type SchemaValidatorResult<SchemaInput extends Record<PropertyKey, UnsafeTypes.UnsafeAny>> = Partial<
   Record<Paths<SchemaInput> | RootErrorKey, string>
 > | null;
 
-export type SchemaValidatorFn<SchemaInput extends Record<PropertyKey, any>> = (submission: {
+export type SchemaValidatorFn<SchemaInput extends Record<PropertyKey, UnsafeTypes.UnsafeAny>> = (submission: {
   value: SchemaInput;
 }) => SchemaValidatorResult<SchemaInput>;
 
 export const validateWithSchema =
-  <A, I extends Record<PropertyKey, any>>(schema: S.Schema<A, I>): SchemaValidatorFn<I> =>
+  <A, I extends Record<PropertyKey, UnsafeTypes.UnsafeAny>>(schema: S.Schema<A, I>): SchemaValidatorFn<I> =>
   (submission: { value: I }): SchemaValidatorResult<I> =>
     S.decodeEither(schema, { errors: "all", onExcessProperty: "ignore" })(submission.value).pipe(
       Either.mapLeft((errors) =>
@@ -71,7 +72,7 @@ type HandledValidatorKey = "onSubmit" | "onChange" | "onBlur";
 
 export const makeFormOptions = <
   SchemaA,
-  SchemaI extends Record<PropertyKey, any>,
+  SchemaI extends Record<PropertyKey, UnsafeTypes.UnsafeAny>,
   ValidatorKey extends HandledValidatorKey,
 >(opts: {
   schema: S.Schema<SchemaA, SchemaI>;

@@ -1,6 +1,7 @@
 import { serverEnv } from "@beep/env/server";
 import { IamDb } from "@beep/iam-db";
 import { IamDbSchema } from "@beep/iam-tables";
+import type { UnsafeTypes } from "@beep/types";
 import type { BetterAuthOptions } from "better-auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -191,7 +192,7 @@ const AuthOptions = Effect.gen(function* () {
                 return acc;
               },
               // TODO type me
-              {} as Record<string, any>
+              {} as Record<string, UnsafeTypes.UnsafeAny>
             );
 
             return {

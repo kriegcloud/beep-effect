@@ -58,8 +58,9 @@ export namespace URLString {
   export type Encoded = typeof URLString.Encoded;
 }
 
-export class HttpsUrl extends S.TemplateLiteral("https://", S.Trimmed)
+export class HttpsUrl extends S.TemplateLiteral("https://", S.String)
   .pipe(
+    S.trimmed({ message: () => "Must be a trimmed string" }),
     S.nonEmptyString({ message: () => "Must be a non-empty trimmed string" }),
     S.pattern(regexes.rfc_3987_url_regex),
     S.filter((a) => Either.try(() => new URL(a).toString()).pipe(Either.isRight)),
@@ -79,8 +80,9 @@ export namespace HttpsUrl {
   export type Encoded = typeof HttpsUrl.Encoded;
 }
 
-export class HttpUrl extends S.TemplateLiteral("http://", S.Trimmed)
+export class HttpUrl extends S.TemplateLiteral("http://", S.String)
   .pipe(
+    S.trimmed({ message: () => "Must be a trimmed string" }),
     S.nonEmptyString({ message: () => "Must be a non-empty trimmed string" }),
     S.pattern(regexes.rfc_3987_url_regex),
     S.filter((a) => Either.try(() => new URL(a).toString()).pipe(Either.isRight))
