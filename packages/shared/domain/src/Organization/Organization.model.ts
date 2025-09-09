@@ -1,9 +1,10 @@
 import { Slug, URLString } from "@beep/schema/custom";
 import * as Common from "@beep/shared-domain/common";
-import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain/EntityIds";
+import { SharedEntityIds } from "@beep/shared-domain/EntityIds";
 import * as M from "@effect/sql/Model";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
+import * as IamEntityIds from "../EntityIds/iam";
 import { OrganizationType, SubscriptionStatus, SubscriptionTier } from "./schemas";
 
 export const OrganizationModelSchemaId = Symbol.for("@beep/shared-domain/OrganizationModel");

@@ -26,7 +26,7 @@ export class EntityIdKit<const Brand extends string, const Prefix extends string
 )<EntityIdFactoryConfig<Brand, Prefix>> {
   readonly Schema: EntityIdSchema<Prefix, Brand>;
   readonly makeBranded: <const T extends string>(i: T) => B.Branded<T, Brand>;
-  readonly make: (id: string) => S.Schema.Type<EntityIdSchema<Prefix, Brand>>;
+  readonly make: (id: S.Schema.Encoded<EntityIdSchema<Prefix, Brand>>) => S.Schema.Type<EntityIdSchema<Prefix, Brand>>;
   readonly create: () => S.Schema.Type<EntityIdSchema<Prefix, Brand>>;
   readonly is: (i: unknown) => i is S.Schema.Type<EntityIdSchema<Prefix, Brand>>;
 
@@ -49,7 +49,7 @@ export class EntityIdKit<const Brand extends string, const Prefix extends string
       });
 
     super(params);
-    this.make = (id: string) => {
+    this.make = (id: typeof Schema.Type) => {
       invariant(S.is(Schema)(id), "Not a valid prefixed id", {
         file: "@beep/schema/EntityId.ts",
         line: 52,

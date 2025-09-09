@@ -1,6 +1,7 @@
 import type { EnvValue } from "@beep/constants";
 import type { BS } from "@beep/schema";
 import type { SharedEntityIds } from "@beep/shared-domain/EntityIds";
+import * as IamEntityIds from "@beep/shared-domain/EntityIds/iam";
 import { File } from "@beep/shared-domain/entities";
 import type * as Organization from "@beep/shared-domain/Organization";
 import { describe, expect, it } from "@effect/vitest";
@@ -55,7 +56,7 @@ describe("File.UploadPath", () => {
       organizationType: "individual" as Organization.OrganizationType.Type,
       organizationId: "organization__87654321-4321-4321-4321-210987654321" as SharedEntityIds.OrganizationId.Type,
       entityKind: "user" as const,
-      entityIdentifier: "user123",
+      entityIdentifier: IamEntityIds.UserId.make(`user__87654321-4321-4321-4321-210987654321`),
       entityAttribute: "avatar",
       fileItemExtension: "jpg" as BS.Ext.Type,
     };
@@ -66,13 +67,13 @@ describe("File.UploadPath", () => {
 
         // Verify the encoded path has the expected structure
         expect(encoded).toMatch(
-          /^\/dev\/tenants\/[a-f0-9]{2}\/individual\/organization__[a-f0-9-]+\/user\/user123\/avatar\/\d{4}\/\d{1,2}\/file__[a-f0-9-]+\.jpg$/
+          /^\/dev\/tenants\/[a-f0-9]{2}\/individual\/organization__[a-f0-9-]+\/user\/user__87654321-4321-4321-4321-210987654321\/avatar\/\d{4}\/\d{1,2}\/file__[a-f0-9-]+\.jpg$/
         );
 
         // Verify it contains the expected components
-        expect(encoded).toContain("/dev/tenants/");
+        expect(encoded).toContain("/dev/tenants/"); //"" as IamEntityIds.UserId.Type,
         expect(encoded).toContain("/individual/");
-        expect(encoded).toContain("/user/user123/avatar/");
+        expect(encoded).toContain("/user/user__87654321-4321-4321-4321-210987654321/avatar/");
         expect(encoded).toContain(".jpg");
       }).pipe(Effect.runPromise);
     });
@@ -160,7 +161,7 @@ describe("File.UploadPath", () => {
         organizationType: "individual" as Organization.OrganizationType.Type,
         organizationId: "organization__87654321-4321-4321-4321-210987654321" as SharedEntityIds.OrganizationId.Type,
         entityKind: "user" as const,
-        entityIdentifier: "user123",
+        entityIdentifier: "user__87654321-4321-4321-4321-210987654321" as IamEntityIds.UserId.Type,
         entityAttribute: "avatar",
         fileItemExtension: "jpg" as BS.Ext.Type,
       };
@@ -179,7 +180,7 @@ describe("File.UploadPath", () => {
         organizationType: "individual" as Organization.OrganizationType.Type,
         organizationId: "organization__87654321-4321-4321-4321-210987654321" as SharedEntityIds.OrganizationId.Type,
         entityKind: "user" as const,
-        entityIdentifier: "user123",
+        entityIdentifier: "user__87654321-4321-4321-4321-210987654321" as IamEntityIds.UserId.Type,
         entityAttribute: "avatar",
         fileItemExtension: "invalid",
       };
@@ -215,7 +216,7 @@ describe("File.UploadPath", () => {
               organizationId:
                 "organization__87654321-4321-4321-4321-210987654321" as SharedEntityIds.OrganizationId.Type,
               entityKind: "user" as const,
-              entityIdentifier: "user123",
+              entityIdentifier: "user__87654321-4321-4321-4321-210987654321" as IamEntityIds.UserId.Type,
               entityAttribute: "avatar",
               fileItemExtension: "jpg" as BS.Ext.Type,
             },
@@ -242,7 +243,7 @@ describe("File.UploadPath", () => {
             organizationType: organizationType as Organization.OrganizationType.Type,
             organizationId: "organization__87654321-4321-4321-4321-210987654321" as SharedEntityIds.OrganizationId.Type,
             entityKind: "user" as const,
-            entityIdentifier: "user123",
+            entityIdentifier: "user__87654321-4321-4321-4321-210987654321" as IamEntityIds.UserId.Type,
             entityAttribute: "avatar",
             fileItemExtension: "jpg" as BS.Ext.Type,
           };
@@ -267,7 +268,7 @@ describe("File.UploadPath", () => {
             organizationType: "individual" as Organization.OrganizationType.Type,
             organizationId: "organization__87654321-4321-4321-4321-210987654321" as SharedEntityIds.OrganizationId.Type,
             entityKind: "user" as const,
-            entityIdentifier: "user123",
+            entityIdentifier: "user__87654321-4321-4321-4321-210987654321" as IamEntityIds.UserId.Type,
             entityAttribute: "avatar",
             fileItemExtension: "jpg" as BS.Ext.Type,
           };

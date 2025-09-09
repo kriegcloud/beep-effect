@@ -20,6 +20,10 @@ export const recordStringValues = <R extends RecordTypes.RecordStringKeyValueStr
   >;
 };
 
+export const valuesFromAnyRecord = <R extends RecordTypes.AnyRecordStringKey>(r: R) => {
+  return R.values(r) as unknown as RecordTypes.ReadonlyRecordValuesNonEmptyArray<R>;
+};
+
 export const reverseRecord = <
   T extends R.ReadonlyRecord<keyof T & StringTypes.NonEmptyString, StringTypes.NonEmptyString>,
 >(

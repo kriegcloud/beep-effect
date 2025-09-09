@@ -20,7 +20,8 @@
 
 import { EnvValue } from "@beep/constants";
 import { BS } from "@beep/schema";
-import { SharedEntityIds } from "@beep/shared-domain/EntityIds";
+import { AnyEntityId, IamEntityIds, SharedEntityIds } from "@beep/shared-domain/EntityIds";
+import { EntityKind } from "@beep/shared-domain/EntityKind";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Hash from "effect/Hash";
@@ -194,7 +195,7 @@ const UploadPathParts = [
   "/",
   S.encodedSchema(SharedEntityIds.OrganizationId), // Organization UUID
   "/",
-  S.Literal("organization", "user", "team"), // Entity kind
+  S.String, // Entity kind
   "/",
   S.String, // Entity identifier (user ID, team slug, etc.)
   "/",
@@ -293,11 +294,11 @@ export namespace UploadPathParser {
  * ```typescript
  * const uploadData: UploadPathDecoded.Type = {
  *   env: "dev",
- *   fileId: "file__12345678-1234-1234-1234-123456789012",
+ *   fileId: SharedEntityIds.FileId.make("file__12345678-1234-1234-1234-123456789012"),
  *   organizationType: "individual",
- *   organizationId: "organization__87654321-4321-4321-4321-210987654321",
+ *   organizationId: SharedEntityIds.OrganizationId.make("organization__87654321-4321-4321-4321-210987654321"),
  *   entityKind: "user",
- *   entityIdentifier: "user_123",
+ *   entityIdentifier: IamEntityIds.UserId.make("user__87654321-4321-4321-4321-210987654321"),
  *   entityAttribute: "avatar",
  *   fileItemExtension: "jpg"
  * };
@@ -308,8 +309,8 @@ export const UploadPathDecoded = BS.Struct({
   fileId: SharedEntityIds.FileId, // Unique file identifier
   organizationType: Organization.OrganizationType, // Organization classification
   organizationId: SharedEntityIds.OrganizationId, // Organization UUID
-  entityKind: S.Literal("organization", "user", "team"), // Type of entity owning the file
-  entityIdentifier: S.String, // Identifier for the specific entity instance
+  entityKind: EntityKind, // Type of entity owning the file
+  entityIdentifier: AnyEntityId, // Identifier for the specific entity instance
   entityAttribute: S.String, // File attribute/purpose (avatar, logo, document, etc.)
   fileItemExtension: BS.Ext, // File extension (validated against allowed types)
 }).annotations({
@@ -321,11 +322,11 @@ export const UploadPathDecoded = BS.Struct({
   examples: [
     {
       env: "dev",
-      fileId: BS.makeBranded("file__12345678-1234-1234-1234-123456789012"),
+      fileId: SharedEntityIds.FileId.make("file__12345678-1234-1234-1234-123456789012"),
       organizationType: "individual",
       organizationId: SharedEntityIds.OrganizationId.make("organization__87654321-4321-4321-4321-210987654321"),
       entityKind: "user",
-      entityIdentifier: "user_123",
+      entityIdentifier: IamEntityIds.UserId.make("user__12345678-1234-1234-1234-123456789012"),
       entityAttribute: "avatar",
       fileItemExtension: "jpg",
     },
@@ -442,8 +443,8 @@ export class UploadPath extends S.transformOrFail(UploadPathDecoded, UploadPathE
           Effect.succeed(pathParts[1]), // env
           Effect.succeed(pathParts[7]), // organizationType
           S.decodeUnknown(SharedEntityIds.OrganizationId)(pathParts[9]), // organizationId
-          Effect.succeed(pathParts[11]), // entityKind
-          Effect.succeed(pathParts[13]), //entityIdentifier
+          S.decodeUnknown(EntityKind)(pathParts[11]), // entityKind
+          S.decodeUnknown(AnyEntityId)(pathParts[13]), //entityIdentifier
           Effect.succeed(pathParts[15]), // entityAttribute
           S.decodeUnknown(SharedEntityIds.FileId)(pathParts[21]), //fileId
           S.decodeUnknown(BS.Ext)(pathParts[23]), // FileItemExtension
