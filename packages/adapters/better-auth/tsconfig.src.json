@@ -36,6 +36,9 @@
       "path": "../../common/types"
     },
     {
+      "path": "../../common/constants"
+    },
+    {
       "path": "../../shared/domain"
     },
     {
@@ -68,6 +71,8 @@
       "@beep/env/server": ["../../env/src/server"],
       "@beep/resend": ["../resend/src/index"],
       "@beep/resend/*": ["../resend/src/*"],
+      "@beep/constants": ["../../common/constants/src/index"],
+      "@beep/constants/*": ["../../common/constants/src/*"],
       "@beep/email": ["../../email/src/index"],
       "@beep/email/*": ["../../email/src/*"],
       "@beep/db-scope": ["../../persistence/db-scope/src/index"],

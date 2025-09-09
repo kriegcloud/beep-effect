@@ -1,10 +1,11 @@
 "use client";
+import { AuthProviderNameValue, EnvValue } from "@beep/constants";
 import { URLPath } from "@beep/schema/custom";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { AuthProviderNameValue, ConfigURL, EnvValue } from "./common";
+import { ConfigURL } from "./common";
 
 export const ClientConfig = Config.nested("NEXT_PUBLIC")(
   Config.all({

@@ -50,6 +50,8 @@
       "@beep/invariant/*": ["../../packages/common/invariant/src/*"],
       "@beep/schema": ["../../packages/common/schema/src/index"],
       "@beep/schema/*": ["../../packages/common/schema/src/*"],
+      "@beep/constants": ["../../packages/common/constants/src/index"],
+      "@beep/constants/*": ["../../packages/common/constants/src/*"],
       "@beep/logos": ["../../packages/common/logos/src/index"],
       "@beep/logos/*": ["../../packages/common/logos/src/*"],
       "@beep/rete": ["../../packages/common/rete/src/index"],
@@ -86,6 +88,9 @@
     },
     {
       "path": "../../packages/common/schema/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/constants/tsconfig.build.json"
     },
     {
       "path": "../../packages/common/rete/tsconfig.build.json"

@@ -35,6 +35,9 @@
       "path": "../common/types/tsconfig.build.json"
     },
     {
+      "path": "../common/constants/tsconfig.build.json"
+    },
+    {
       "path": "../env/tsconfig.build.json"
     }
   ]

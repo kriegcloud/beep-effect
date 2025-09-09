@@ -13,7 +13,7 @@ export const idColumn = <const TableName extends StringTypes.NonEmptyString, con
   const generatedId = Str.concat(Str.concat("__")(prefix), BS.UUIDLiteralEncoded.make());
   invariant(S.is(schema)(generatedId), "Invalid id generated", {
     file: "@beep/shared-tables/src/id.ts",
-    line: 10,
+    line: 14,
     args: [generatedId],
   });
   return F.pipe(generatedId, (generatedId) =>

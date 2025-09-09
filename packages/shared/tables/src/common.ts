@@ -2,9 +2,6 @@ import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import * as DateTime from "effect/DateTime";
 import * as F from "effect/Function";
-import { idColumn } from "./id";
-
-import { organization } from "./organization.table";
 
 export const utcNow = F.constant(DateTime.toDateUtc(DateTime.unsafeNow()));
 
@@ -35,12 +32,8 @@ export const globalColumns = {
 
 export const defaultColumns = {
   ...globalColumns,
-  organizationId: pg
-    .text("organization_id")
-    .notNull()
-    .references(() => organization.id, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
+  organizationId: pg.text("organization_id").notNull(),
+  // Note: Foreign key reference will be defined in the consuming table files
+  // to avoid circular dependency with organization.table.ts
 } as const;
-export { idColumn };
+export { idColumn } from "./id";

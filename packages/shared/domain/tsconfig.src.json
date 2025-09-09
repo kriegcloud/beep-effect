@@ -13,6 +13,9 @@
     },
     {
       "path": "../../common/invariant"
+    },
+    {
+      "path": "../../common/constants"
     }
   ],
   "compilerOptions": {
@@ -34,7 +37,9 @@
       "@beep/utils": ["../../common/utils/src/index"],
       "@beep/utils/*": ["../../common/utils/src/*"],
       "@beep/invariant": ["../../common/invariant/src/index"],
-      "@beep/invariant/*": ["../../common/invariant/src/*"]
+      "@beep/invariant/*": ["../../common/invariant/src/*"],
+      "@beep/constants": ["../../common/constants/src/index"],
+      "@beep/constants/*": ["../../common/constants/src/*"]
     }
   }
 }

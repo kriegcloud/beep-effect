@@ -7,7 +7,9 @@
       "@beep/env/client": ["../../env/src/client"],
       "@beep/env/server": ["../../env/src/server"],
       "@beep/types": ["../../common/types/src/index"],
-      "@beep/types/*": ["../../common/types/src/*"]
+      "@beep/types/*": ["../../common/types/src/*"],
+      "@beep/constants": ["../../common/constants/src/index"],
+      "@beep/constants/*": ["../../common/constants/src/*"]
     }
   },
   "references": [

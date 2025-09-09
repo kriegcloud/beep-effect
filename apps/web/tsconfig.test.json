@@ -21,6 +21,9 @@
       "path": "../../packages/common/logos"
     },
     {
+      "path": "../../packages/common/constants"
+    },
+    {
       "path": "../../packages/ui"
     },
     {

@@ -7,6 +7,9 @@
     },
     {
       "path": "../common/schema"
+    },
+    {
+      "path": "../common/constants"
     }
   ],
   "compilerOptions": {

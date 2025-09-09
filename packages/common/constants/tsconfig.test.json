@@ -6,13 +6,16 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../../env"
+      "path": "../types"
     },
     {
-      "path": "../../common/types"
+      "path": "../utils"
     },
     {
-      "path": "../../common/constants"
+      "path": "../schema"
+    },
+    {
+      "path": "../invariant"
     }
   ],
   "compilerOptions": {

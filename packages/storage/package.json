@@ -37,6 +37,7 @@
   "dependencies": {
     "@beep/env": "workspace:^",
     "@beep/invariant": "workspace:^",
+    "@beep/constants": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/shared-domain": "workspace:^",

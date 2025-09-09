@@ -40,3 +40,19 @@ export namespace TeamId {
   export type Type = typeof TeamId.Type;
   export type Encoded = typeof TeamId.Encoded;
 }
+
+export const FileIdKit = new BS.EntityIdKit({
+  tableName: "file",
+  brand: "FileId",
+  annotations: {
+    schemaId: Symbol.for("@beep/shared/domain/EntityIds/shared/FileId"),
+    description: "A unique identifier for a file",
+  },
+});
+
+export class FileId extends FileIdKit.Schema {
+  static readonly tableName = FileIdKit.tableName;
+  static readonly create = FileIdKit.create;
+  static readonly make = FileIdKit.make;
+  static readonly is = FileIdKit.is;
+}

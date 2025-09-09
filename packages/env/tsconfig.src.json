@@ -4,6 +4,9 @@
   "references": [
     {
       "path": "../common/schema"
+    },
+    {
+      "path": "../common/constants"
     }
   ],
   "compilerOptions": {
@@ -19,7 +22,9 @@
     "paths": {
       "@beep/env/*": ["./src/*"],
       "@beep/schema": ["../common/schema/src/index"],
-      "@beep/schema/*": ["../common/schema/src/*"]
+      "@beep/schema/*": ["../common/schema/src/*"],
+      "@beep/constants": ["../common/constants/src/index"],
+      "@beep/constants/*": ["../common/constants/src/*"]
     }
   }
 }

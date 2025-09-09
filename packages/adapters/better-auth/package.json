@@ -39,6 +39,7 @@
     "@beep/email": "workspace:^",
     "@beep/env": "workspace:^",
     "@beep/iam-db": "workspace:^",
+    "@beep/constants": "workspace:*",
     "@beep/shared-tables": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@beep/utils": "workspace:^",

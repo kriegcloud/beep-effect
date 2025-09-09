@@ -1,9 +1,10 @@
+import { AuthProviderNameValue, EnvValue, LogFormat, SubscriptionPlanValue } from "@beep/constants";
 import { BS } from "@beep/schema";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { AuthProviderNameValue, ConfigArrayURL, EnvValue, LogFormat, SubscriptionPlanValue } from "./common";
+import { ConfigArrayURL } from "./common";
 
 export const ServerConfig = Config.all({
   app: Config.nested("APP")(

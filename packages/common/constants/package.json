@@ -1,22 +1,22 @@
 {
-  "name": "@beep/shared-domain",
+  "name": "@beep/constants",
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "A package for shared domain logic & entities",
+  "description": "A library for system wide constants",
   "publishConfig": {
     "access": "restricted",
     "directory": "build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/common/constants"
   },
   "exports": {
     ".": "./src/index.ts",
     "./package.json": "./package.json",
     "./*": "./src/*.ts"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:kriegcloud/beep-effect.git",
-    "directory": "packages/shared/domain"
   },
   "scripts": {
     "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",
@@ -30,17 +30,16 @@
     "coverage": "vitest run --coverage",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "execute": "pnpm tsx --tsconfig ./tsconfig.src.json ./src/execute.ts",
     "lint:circular": "pnpm madge -c ."
   },
   "dependencies": {
-    "effect": "*",
-    "@effect/sql": "*",
-    "@beep/schema": "workspace:*",
-    "@beep/utils": "workspace:*",
-    "@beep/constants": "workspace:*",
-    "@beep/invariant": "workspace:*",
-    "@effect/experimental": "*"
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@effect/cluster": "*",
+    "@effect/workflow": "*",
+    "@beep/invariant": "workspace:^",
+    "uuid": "*",
+    "effect": "*"
   },
   "devDependencies": {
     "@beep/types": "workspace:^"

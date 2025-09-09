@@ -397,6 +397,15 @@
       ],
       "@beep/storage/test/*": [
         "./packages/storage/test/*"
+      ],
+      "@beep/constants": [
+        "./packages/common/constants/src/index"
+      ],
+      "@beep/constants/*": [
+        "./packages/common/constants/src/*"
+      ],
+      "@beep/constants/test/*": [
+        "./packages/common/constants/test/*"
       ]
     }
   }

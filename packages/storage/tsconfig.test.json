@@ -22,6 +22,9 @@
     },
     {
       "path": "../shared/tables"
+    },
+    {
+      "path": "../common/constants"
     }
   ],
   "compilerOptions": {

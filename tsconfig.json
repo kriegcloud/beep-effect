@@ -17,6 +17,9 @@
       "path": "packages/common/schema"
     },
     {
+      "path": "packages/common/constants"
+    },
+    {
       "path": "packages/runtime"
     },
     {

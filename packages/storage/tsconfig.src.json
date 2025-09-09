@@ -22,6 +22,9 @@
     },
     {
       "path": "../shared/tables"
+    },
+    {
+      "path": "../common/constants"
     }
   ],
   "compilerOptions": {
@@ -54,7 +57,9 @@
       "@beep/utils": ["../common/utils/src/index"],
       "@beep/utils/*": ["../common/utils/src/*"],
       "@beep/types": ["../common/types/src/index"],
-      "@beep/types/*": ["../common/types/src/*"]
+      "@beep/types/*": ["../common/types/src/*"],
+      "@beep/constants": ["../common/constants/src/index"],
+      "@beep/constants/*": ["../common/constants/src/*"]
     }
   }
 }

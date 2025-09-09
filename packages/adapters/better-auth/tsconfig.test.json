@@ -24,6 +24,9 @@
       "path": "../../persistence/db-scope"
     },
     {
+      "path": "../../common/constants"
+    },
+    {
       "path": "../../email"
     },
     {

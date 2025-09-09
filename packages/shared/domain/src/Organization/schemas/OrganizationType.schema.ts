@@ -8,7 +8,12 @@ export const OrganizationTypeEnum = organizationTypeKit.Enum;
 
 export const OrganizationTypeOptions = organizationTypeKit.Options;
 
-export class OrganizationType extends organizationTypeKit.Schema {
+export class OrganizationType extends organizationTypeKit.Schema.annotations({
+  schemaId: Symbol.for("@beep/shared-domain/Organization/schemas/OrganizationType"),
+  identifier: "OrganizationType",
+  title: "Organization Type",
+  description: "The type of organization (individual, team, enterprise)",
+}) {
   static readonly Options = organizationTypeKit.Options;
   static readonly Enum = organizationTypeKit.Enum;
 }

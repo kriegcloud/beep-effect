@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "@beep/env": "workspace:^",
+    "@beep/constants": "workspace:*",
     "effect": "*",
     "resend": "*"
   },

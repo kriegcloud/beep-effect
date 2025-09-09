@@ -28,6 +28,7 @@
     "@beep/logos": "workspace:^",
     "@beep/rete": "workspace:^",
     "@beep/shared-client": "workspace:^",
+    "@beep/constants": "workspace:*",
     "autosuggest-highlight": "*",
     "@beep/env": "workspace:^",
     "es-toolkit": "*",
