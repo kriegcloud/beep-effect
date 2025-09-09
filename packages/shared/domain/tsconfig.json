@@ -7,7 +7,11 @@
       "@beep/schema": ["../../common/schema/src/index"],
       "@beep/schema/*": ["../../common/schema/src/*"],
       "@beep/types": ["../../common/types/src/index"],
-      "@beep/types/*": ["../../common/types/src/*"]
+      "@beep/types/*": ["../../common/types/src/*"],
+      "@beep/utils": ["../../common/utils/src/index"],
+      "@beep/utils/*": ["../../common/utils/src/*"],
+      "@beep/invariant": ["../../common/invariant/src/index"],
+      "@beep/invariant/*": ["../../common/invariant/src/*"]
     }
   },
   "references": [

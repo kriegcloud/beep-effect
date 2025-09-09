@@ -1,12 +1,9 @@
-// import { serverEnv } from "@beep/env/server";
-// import { SharedEntityIds } from "@beep/shared-domain/EntityIds";
-
-import { EnvValue } from "@beep/env/common";
-import { BS } from "@beep/schema";
-import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain/EntityIds";
-import type * as B from "effect/Brand";
+import {EnvValue} from "@beep/env/common";
+import {BS} from "@beep/schema";
+import {IamEntityIds, SharedEntityIds} from "@beep/shared-domain/EntityIds";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 export const StoragePlatformKit = BS.stringLiteralKit("s3", "gcs");
 
@@ -25,21 +22,7 @@ export namespace StoragePlatform {
   export type Encoded = S.Schema.Type<typeof StoragePlatform>;
 }
 
-export class FolderPrefix extends S.TemplateLiteral("/", S.String).annotations({
-  schemaId: Symbol.for("@beep/storage/contract/FolderPrefix"),
-  identifier: "FolderPrefix",
-  title: "Folder Prefix",
-  description: "Folder prefix for storage service",
-  jsonSchema: { type: "string", format: "date-time" },
-  pretty: () => (i) => `FolderPrefix(${i})`,
-}) {}
-
-export namespace FolderPrefix {
-  export type Type = S.Schema.Type<typeof FolderPrefix>;
-  export type Encoded = S.Schema.Type<typeof FolderPrefix>;
-}
-
-export const EntityKindKit = BS.stringLiteralKit("organization", "user", "teams");
+export const EntityKindKit = BS.stringLiteralKit("organization", "user", "team");
 
 export class EntityKind extends EntityKindKit.Schema {
   static readonly Options = EntityKindKit.Options;
@@ -51,29 +34,103 @@ export namespace EntityKind {
   export type Encoded = S.Schema.Type<typeof EntityKind>;
 }
 
-export class BucketName extends S.String.annotations({
-  schemaId: Symbol.for("@beep/storage/contract/BucketName"),
-  identifier: "BucketName",
-  title: "Bucket Name",
-  description: "Bucket name for storage service",
-  jsonSchema: { type: "string", format: "domain-name" },
-}) {}
+export class BucketNameEncoded extends S.String.annotations({
+  schemaId: Symbol.for("@beep/storage/contract/BucketNameEncoded"),
+  identifier: "BucketNameEncoded",
+  title: "Bucket Name Encoded",
+  description: "Bucket name encoded for storage service",
+  jsonSchema: {type: "string", format: "domain-name"},
+}) {
+}
+
+export namespace BucketNameEncoded {
+  export type Type = S.Schema.Type<typeof BucketNameEncoded>;
+  export type Encoded = S.Schema.Type<typeof BucketNameEncoded>;
+}
+
+export class BucketNameDecoded extends BS.DomainName.pipe(S.brand("BucketName")).annotations({
+  schemaId: Symbol.for("@beep/storage/contract/BucketNameDecoded"),
+  identifier: "BucketNameDecoded",
+  title: "Bucket Name Decoded",
+  description: "Bucket name decoded for storage service",
+  jsonSchema: {type: "string", format: "domain-name"},
+}) {
+}
+
+export namespace BucketNameDecoded {
+  export type Type = S.Schema.Type<typeof BucketNameDecoded>;
+  export type Encoded = S.Schema.Type<typeof BucketNameDecoded>;
+}
+
+export class BucketName extends S.transformOrFail(BucketNameEncoded, BucketNameDecoded, {
+  strict: true,
+  decode: (i, _, ast) =>
+    ParseResult.try({
+      try: () => S.decodeUnknownSync(BucketNameDecoded)(i),
+      catch: () => new ParseResult.Type(ast, i, "BucketName must be a domain name"),
+    }),
+  encode: (i, _, ast) =>
+    ParseResult.try({
+      try: () => S.decodeUnknownSync(BucketNameEncoded)(i),
+      catch: () => new ParseResult.Type(ast, i, "BucketName must be a domain name"),
+    }),
+}) {
+}
 
 export namespace BucketName {
   export type Type = S.Schema.Type<typeof BucketName>;
-  export type Encoded = S.Schema.Type<typeof BucketName>;
+  export type Encoded = S.Schema.Type<typeof BucketNameEncoded>;
 }
 
-export class BucketUrl extends S.TemplateLiteral("https://", BucketName).annotations({
+export class BucketUrlEncoded extends S.TemplateLiteral("https://", BucketNameEncoded).annotations({
+  schemaId: Symbol.for("@beep/storage/contract/BucketUrlEncoded"),
+  identifier: "BucketUrlEncoded",
+  title: "Bucket URL Encoded",
+  description: "Bucket URL encoded for storage service",
+}) {
+}
+
+export namespace BucketUrlEncoded {
+  export type Type = S.Schema.Type<typeof BucketUrlEncoded>;
+  export type Encoded = S.Schema.Type<typeof BucketUrlEncoded>;
+}
+
+export class BucketUrlDecoded extends S.declare((i: unknown): i is `https://${BucketName.Type}` => {
+  if (!S.is(S.NonEmptyTrimmedString)(i)) return false;
+  if (!S.is(BS.HttpsUrl)) return false;
+  const parts = Str.split("://")(i);
+  return S.is(BucketName)(parts[1]);
+}).annotations({
+  schemaId: Symbol.for("@beep/storage/contract/BucketUrlDecoded"),
+  identifier: "BucketUrlDecoded",
+  title: "Bucket URL Decoded",
+  description: "Bucket URL decoded for storage service",
+}) {
+}
+
+export namespace BucketUrlDecoded {
+  export type Type = S.Schema.Type<typeof BucketUrlDecoded>;
+  export type Encoded = S.Schema.Type<typeof BucketUrlDecoded>;
+}
+
+export class BucketUrl extends S.transformOrFail(BucketNameEncoded, BucketUrlDecoded, {
+  strict: true,
+  decode: (i, _, ast) =>
+    ParseResult.try({
+      try: () => S.decodeUnknownSync(BucketUrlDecoded)(i),
+      catch: () => new ParseResult.Type(ast, i, "BucketUrl must be a valid URL"),
+    }),
+  encode: (i, _, ast) =>
+    ParseResult.try({
+      try: () => S.decodeUnknownSync(BucketUrlEncoded)(i),
+      catch: () => new ParseResult.Type(ast, i, "BucketUrl must be a valid URL"),
+    }),
+}).annotations({
   schemaId: Symbol.for("@beep/storage/contract/BucketUrl"),
   identifier: "BucketUrl",
   title: "Bucket URL",
   description: "Bucket URL for storage service",
-}) {}
-
-export namespace BucketUrl {
-  export type Type = S.Schema.Type<typeof BucketUrl>;
-  export type Encoded = S.Schema.Type<typeof BucketUrl>;
+}) {
 }
 
 export class EntityIdentifierEncoded extends BS.UUIDLiteralEncoded.annotations({
@@ -81,8 +138,9 @@ export class EntityIdentifierEncoded extends BS.UUIDLiteralEncoded.annotations({
   identifier: "EntityIdentifierEncoded",
   title: "Entity Identifier Encoded",
   description: "Entity identifier encoded for storage service",
-  jsonSchema: { type: "string", format: "uuid" },
-}) {}
+  jsonSchema: {type: "string", format: "uuid"},
+}) {
+}
 
 export namespace EntityIdentifierEncoded {
   export type Type = S.Schema.Type<typeof EntityIdentifierEncoded>;
@@ -94,62 +152,77 @@ export class EntityIdentifier extends BS.UUIDLiteral.pipe(S.brand("EntityIdentif
   identifier: "EntityIdentifier",
   title: "Entity Identifier",
   description: "Entity identifier for storage service",
-  jsonSchema: { type: "string", format: "uuid" },
-}) {}
+  jsonSchema: {type: "string", format: "uuid"},
+}) {
+}
 
 export class EntityAttributeEncoded extends S.String.annotations({
   schemaId: Symbol.for("@beep/storage/contract/EntityAttributeEncoded"),
   identifier: "EntityAttributeEncoded",
   title: "Entity Attribute Encoded",
   description: "Entity attribute encoded for storage service",
-}) {}
+}) {
+}
 
 export namespace EntityAttributeEncoded {
   export type Type = S.Schema.Type<typeof EntityAttributeEncoded>;
   export type Encoded = S.Schema.Type<typeof EntityAttributeEncoded>;
 }
 
-export class EntityAttribute extends S.transformOrFail(
-  EntityAttributeEncoded,
-  S.NonEmptyTrimmedString.pipe(S.brand("EntityAttribute")),
-  {
-    strict: true,
-    decode: (i, _, ast) =>
-      ParseResult.try({
-        try: () => S.decodeUnknownSync(S.NonEmptyTrimmedString.pipe(S.brand("EntityAttribute")))(i),
-        catch: () => new ParseResult.Type(ast, i, "EntityAttribute must be a non-empty trimmed string"),
-      }),
-    encode: (i) => ParseResult.succeed(i),
-  }
-).annotations({
+export class EntityAttributeDecoded extends S.NonEmptyTrimmedString.pipe(S.brand("EntityAttribute")).annotations({
+  schemaId: Symbol.for("@beep/storage/contract/EntityAttributeDecoded"),
+  identifier: "EntityAttributeDecoded",
+  title: "Entity Attribute Decoded",
+  description: "Entity attribute decoded for storage service",
+}) {
+}
+
+export class EntityAttribute extends S.transformOrFail(EntityAttributeEncoded, EntityAttributeDecoded, {
+  strict: true,
+  decode: (i, _, ast) =>
+    ParseResult.try({
+      try: () => S.decodeUnknownSync(EntityAttributeDecoded)(i),
+      catch: () => new ParseResult.Type(ast, i, "EntityAttribute must be a non-empty trimmed string"),
+    }),
+  encode: (i) => ParseResult.succeed(i),
+}).annotations({
   schemaId: Symbol.for("@beep/storage/contract/EntityAttribute"),
   identifier: "EntityAttribute",
   title: "Entity Attribute",
   description: "Entity attribute for storage service",
-}) {}
+}) {
+}
 
 export namespace EntityAttribute {
   export type Type = S.Schema.Type<typeof EntityAttribute>;
   export type Encoded = S.Schema.Type<typeof EntityAttributeEncoded>;
 }
+export const FileIdKit = new BS.EntityIdKit({
+  tableName: "file",
+  brand: "FileId",
+  annotations: {
+    schemaId: Symbol.for("@beep/storage/contract/FileIdKit"),
+    description: "File id for storage service",
+  },
+});
 
-export class FileId extends S.String.annotations({
-  schemaId: Symbol.for("@beep/storage/contract/FileId"),
-  identifier: "FileId",
-  title: "File Id",
-  description: "File id for storage service",
-  jsonSchema: { type: "string", format: "uuid" },
-  arbitrary: () => (fc) => fc.uuid().map((_) => _ as B.Branded<string, "FileId">),
-}) {}
+export class FileId extends FileIdKit.Schema {
+  static readonly tableName = FileIdKit.tableName;
+  static readonly create = FileIdKit.create;
+  static readonly make = FileIdKit.make;
+  static readonly is = FileIdKit.is;
+}
 
-export class FileItemExt extends BS.Ext {}
+export class FileItemExt extends BS.Ext {
+}
 
 export class OrgPath extends S.TemplateLiteral("/", "organizations").annotations({
   schemaId: Symbol.for("@beep/storage/contract/OrgPath"),
   identifier: "OrgPath",
   title: "Organization Path",
   description: "Organization path for storage service",
-}) {}
+}) {
+}
 
 export const OrgTypeKit = BS.stringLiteralKit("user", "organization");
 
@@ -173,9 +246,10 @@ export class YearEncoded extends S.Number.annotations({
   identifier: "YearEncoded",
   title: "Year Encoded",
   description: "Year encoded for storage service",
-  jsonSchema: { type: "number", format: "year" },
+  jsonSchema: {type: "number", format: "year"},
   examples: [2025, 2024, 2026],
-}) {}
+}) {
+}
 
 export namespace YearEncoded {
   export type Type = S.Schema.Type<typeof YearEncoded>;
@@ -187,8 +261,9 @@ export class YearDecoded extends S.Int.pipe(S.greaterThanOrEqualTo(2025), S.bran
   identifier: "YearDecoded",
   title: "Year Decoded",
   description: "Year decoded for storage service",
-  jsonSchema: { type: "number", format: "year" },
-}) {}
+  jsonSchema: {type: "number", format: "year"},
+}) {
+}
 
 export class Year extends S.transformOrFail(YearEncoded, YearDecoded, {
   strict: true,
@@ -203,8 +278,9 @@ export class Year extends S.transformOrFail(YearEncoded, YearDecoded, {
   identifier: "Year",
   title: "Year",
   description: "Year for storage service",
-  jsonSchema: { type: "number", format: "year" },
-}) {}
+  jsonSchema: {type: "number", format: "year"},
+}) {
+}
 
 export namespace Year {
   export type Type = S.Schema.Type<typeof Year>;
@@ -216,8 +292,9 @@ export class OrgIdentifierEncoded extends S.String.annotations({
   identifier: "OrgIdentifierEncoded",
   title: "Organization Identifier Encoded",
   description: "Organization identifier encoded for storage service",
-  jsonSchema: { type: "string", format: "uuid" },
-}) {}
+  jsonSchema: {type: "string", format: "uuid"},
+}) {
+}
 
 export namespace OrgIdentifierEncoded {
   export type Type = S.Schema.Type<typeof OrgIdentifierEncoded>;
@@ -229,31 +306,31 @@ export class OrgIdentifierDecoded extends S.Union(SharedEntityIds.OrganizationId
   identifier: "OrgIdentifierDecoded",
   title: "Organization Identifier Decoded",
   description: "Organization identifier decoded for storage service",
-}) {}
+}) {
+}
 
-// `/<prod|dev|stage>/organizations/<user|organization>/<EntityKind>/<Year>/<MonthNumber>/
-export const UploadPathParts = [
+// `/<prod|dev|stage>/tenants/<users|organizations>/<EntityKind>/<EntityIdentifier>/<EntityAttribute>/<Year>/<MonthNumber>/<FileId>.<Ext>
+
+
+export const UploadPathParser = S.TemplateLiteralParser(
   "/",
-  EnvValue,
+  S.Literal(...EnvValue.Options),
   "/",
-  "organizations",
+  "tenants",
   "/",
   OrgType,
   "/",
-
   EntityKind,
   "/",
   YearEncoded,
   "/",
   BS.MonthNumber,
-] as const;
-
-export const UploadPathParser = S.TemplateLiteralParser(...UploadPathParts).annotations({
+).annotations({
   schemaId: Symbol.for("@beep/storage/contract/UploadPathParser"),
   identifier: "UploadPathParser",
   title: "Upload Path Parser",
   description: "Upload path parser for storage service",
-  jsonSchema: { type: "string", format: "path" },
+  jsonSchema: {type: "string", format: "path"},
   pretty: () => (i) => `UploadPathParser(${i})`,
 });
 
@@ -262,16 +339,28 @@ export namespace UploadPathParser {
   export type Encoded = S.Schema.Type<typeof UploadPathParser>;
 }
 
-export class UploadPath extends S.TemplateLiteral(...UploadPathParts).annotations({
+export class UploadPath extends S.TemplateLiteral(
+  "/",
+  S.Literal(...EnvValue.Options),
+  "/",
+  "tenants",
+  "/",
+  OrgType,
+  "/",
+  EntityKind,
+  "/",
+  YearEncoded,
+  "/",
+  BS.MonthNumber
+).annotations({
   schemaId: Symbol.for("@beep/storage/contract/UploadPath"),
   identifier: "UploadPath",
   title: "Upload Path",
   description: "Upload path for storage service",
-  jsonSchema: { type: "string", format: "path" },
+  jsonSchema: {type: "string", format: "path"},
   pretty: () => (i) => `UploadPath(${i})`,
 }) {
   static readonly parse = S.encodeSync(UploadPathParser);
-  // static readonly make = S.decodeSync(this);
 }
 
 export namespace UploadPath {

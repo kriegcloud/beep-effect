@@ -30,12 +30,15 @@
     "coverage": "vitest run --coverage",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
+    "execute": "pnpm tsx --tsconfig ./tsconfig.src.json ./src/execute.ts",
     "lint:circular": "pnpm madge -c ."
   },
   "dependencies": {
     "effect": "*",
     "@effect/sql": "*",
     "@beep/schema": "workspace:*",
+    "@beep/utils": "workspace:*",
+    "@beep/invariant": "workspace:*",
     "@effect/experimental": "*"
   },
   "devDependencies": {

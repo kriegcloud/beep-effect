@@ -10,6 +10,7 @@ export const itemTable = pg.pgTable(
     lotControlled: pg.boolean("lot_controlled").notNull().default(false),
     description: pg.text("description"),
     active: pg.boolean("active").notNull().default(true),
+    // image
     ...Common.defaultColumns,
   },
   (t) => [

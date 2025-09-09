@@ -1,47 +1,63 @@
 import { invariant } from "@beep/invariant";
 import type { DefaultAnnotations } from "@beep/schema/annotations";
 import type * as B from "effect/Brand";
+import * as Data from "effect/Data";
+import * as F from "effect/Function";
 import * as S from "effect/Schema";
-import { SnakeTag, UUIDLiteralEncoded } from "./custom";
+import * as Str from "effect/String";
+import { type SnakeTag, UUIDLiteralEncoded } from "./custom";
 
-export class EntityIdPrefixBase extends SnakeTag.annotations({
-  schemaId: Symbol.for("@beep/schema/EntityId/EntityIdPrefixBase"),
-  identifier: "EntityIdPrefixBase",
-  title: "EntityId Prefix Base",
-  description: "A base schema for entity id prefixes",
-}) {
-  static readonly make = SnakeTag.make;
-}
+export type EntityIdSchema<Prefix extends string, Brand extends string> = S.brand<
+  S.TemplateLiteral<`${SnakeTag.Literal<Prefix>}__${string}-${string}-${string}-${string}-${string}`>,
+  Brand
+>;
 
-export namespace EntityIdPrefixBase {
-  export type Type = S.Schema.Type<typeof EntityIdPrefixBase>;
-  export type Encoded = S.Schema.Encoded<typeof EntityIdPrefixBase>;
-}
+export type EntityIdFactoryConfig<Brand extends string, TableName extends string> = {
+  readonly tableName: TableName;
+  readonly brand: Brand;
+  readonly annotations: Omit<
+    DefaultAnnotations<S.Schema.Type<EntityIdSchema<TableName, Brand>>>,
+    "identifier" | "title"
+  >;
+};
 
-export namespace EntityId {
-  export const make =
-    <const Brand extends string, const Prefix extends string>(prefix: SnakeTag.Literal<Prefix>, brand: Brand) =>
-    (
-      annotations: DefaultAnnotations<
-        S.Schema.Type<
-          S.brand<
-            S.TemplateLiteral<`${SnakeTag.Literal<Prefix>}__${string}-${string}-${string}-${string}-${string}`>,
-            Brand
-          >
-        >
-      >
-    ) => {
-      const pre = prefix;
-      invariant(S.is(EntityIdPrefixBase)(pre), "Not a valid prefix", {
-        file: "@beep/schema/EntityId.ts",
-        line: 108,
-        args: [pre],
+export class EntityIdKit<const Brand extends string, const Prefix extends string> extends Data.TaggedClass(
+  "EntityIdKit"
+)<EntityIdFactoryConfig<Brand, Prefix>> {
+  readonly Schema: EntityIdSchema<Prefix, Brand>;
+  readonly make: (id: string) => S.Schema.Type<EntityIdSchema<Prefix, Brand>>;
+  readonly create: () => S.Schema.Type<EntityIdSchema<Prefix, Brand>>;
+  readonly is: (i: unknown) => i is S.Schema.Type<EntityIdSchema<Prefix, Brand>>;
+
+  constructor(
+    params: EntityIdFactoryConfig<Brand, Prefix> & {
+      readonly tableName: SnakeTag.Literal<Prefix>;
+    }
+  ) {
+    const makeBranded = <const T extends string>(i: T) => i as B.Branded<T, Brand>;
+    const create = () => F.pipe(params.tableName, Str.concat("__"), Str.concat(UUIDLiteralEncoded.make()), makeBranded);
+    const Schema = S.TemplateLiteral(S.Literal(params.tableName), "__", UUIDLiteralEncoded)
+      .pipe(S.brand(params.brand))
+      .annotations({
+        ...params.annotations,
+        identifier: Str.endsWith("Id")(params.brand) ? params.brand : `${params.brand}Id`,
+        title: `${Str.split("_")(params.tableName).map(Str.capitalize).join(" ")} Id`,
+        jsonSchema: { type: "string", format: `${params.tableName}__uuid` },
+        arbitrary: () => (fc) => fc.constantFrom(null).map(() => create()),
+        pretty: () => (i) => `${params.brand}(${i})`,
       });
 
-      return S.TemplateLiteral(S.Literal(prefix), "__", UUIDLiteralEncoded)
-        .pipe(S.brand(brand))
-        .annotations(annotations);
+    super(params);
+    this.make = (id: string) => {
+      invariant(S.is(Schema)(id), "Not a valid prefixed id", {
+        file: "@beep/schema/EntityId.ts",
+        line: 52,
+        args: [id],
+      });
+      return id;
     };
-
-  export type Type<Tag extends string> = B.Branded<string, Tag>;
+    this.create = create;
+    this.is = S.is(Schema);
+    this.Schema = Schema;
+  }
 }

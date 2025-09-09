@@ -16,8 +16,8 @@ export class EnvValue extends EnvValueKit.Schema.annotations({
 }
 
 export namespace EnvValue {
-  export type Type = S.Schema.Type<typeof EnvValue>;
-  export type Encoded = S.Schema.Type<typeof EnvValue>;
+  export type Type = typeof EnvValue.Type;
+  export type Encoded = typeof EnvValue.Encoded;
 }
 
 export const AuthProviderNameValueKit = stringLiteralKit(
