@@ -32,7 +32,7 @@ export const RegexFromString = S.NonEmptyTrimmedString.pipe(
         try: () => Regex.make(new RegExp(value)),
         catch: () => new ParseResult.Type(ast, value, "Invalid regular expression"),
       }),
-    encode: (value, _, ast) => ParseResult.succeed(value.toString()),
+    encode: (value) => ParseResult.succeed(value.toString()),
   })
 ).annotations({
   title: "RegexFromString",
