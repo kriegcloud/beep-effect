@@ -6,9 +6,9 @@ import * as DateTime from "effect/DateTime";
 import * as F from "effect/Function";
 import { idColumn } from "./id";
 
-export const organizationTypePgEnum = Organization.makeOrganizationTypePgEnum("organization_type");
-export const subscriptionTierPgEnum = Organization.makeSubscriptionTierPgEnum("organization_subscription_tier");
-export const subscriptionStatusPgEnum = Organization.makeSubscriptionStatusPgEnum("organization_subscription_status");
+export const organizationTypePgEnum = pg.pgEnum("organization_type_enum", Organization.OrganizationType.Options);
+export const subscriptionTierPgEnum = pg.pgEnum("subscription_tier_enum", Organization.SubscriptionTier.Options);
+export const subscriptionStatusPgEnum = pg.pgEnum("subscription_status_enum", Organization.SubscriptionStatus.Options);
 
 export const organization = pg.pgTable(
   "organization",
@@ -26,8 +26,8 @@ export const organization = pg.pgTable(
     maxMembers: pg.integer("max_members"), // Maximum members allowed
     features: pg.jsonb("features"), // JSON string for feature flags
     settings: pg.jsonb("settings"), // JSON string for org settings
-    subscriptionTier: subscriptionTierPgEnum().default(Organization.SubscriptionTierEnum.free), // 'free', 'plus', 'pro', etc.
-    subscriptionStatus: subscriptionStatusPgEnum().default(Organization.SubscriptionStatusEnum.active), // 'active', 'canceled', etc.
+    subscriptionTier: subscriptionTierPgEnum().notNull().default(Organization.SubscriptionTierEnum.free), // 'free', 'plus', 'pro', etc.
+    subscriptionStatus: subscriptionStatusPgEnum().notNull().default(Organization.SubscriptionStatusEnum.active), // 'active', 'canceled', etc.
     createdAt: pg
       .timestamp("createdAt", { withTimezone: true })
       .notNull()

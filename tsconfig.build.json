@@ -5,8 +5,11 @@
     {
       "path": "packages/common/schema/tsconfig.build.json"
     },
-        {
+    {
       "path": "packages/common/constants/tsconfig.build.json"
+    },
+    {
+      "path": "packages/common/errors/tsconfig.build.json"
     },
     {
       "path": "packages/common/types/tsconfig.build.json"
@@ -36,13 +39,13 @@
       "path": "packages/shared/client/tsconfig.build.json"
     },
     {
-      "path": "packages/iam/api/tsconfig.build.json"
-    },
-    {
       "path": "apps/web/tsconfig.json"
     },
     {
       "path": "packages/email/tsconfig.build.json"
+    },
+    {
+      "path": "packages/iam/api/tsconfig.build.json"
     },
     {
       "path": "packages/iam/application/tsconfig.build.json"
@@ -125,8 +128,23 @@
     {
       "path": "packages/common/query/tsconfig.build.json"
     },
-        {
+    {
       "path": "packages/storage/tsconfig.build.json"
+    },
+    {
+      "path": "packages/files/api/tsconfig.build.json"
+    },
+    {
+      "path": "packages/files/application/tsconfig.build.json"
+    },
+    {
+      "path": "packages/files/db/tsconfig.build.json"
+    },
+    {
+      "path": "packages/files/ui/tsconfig.build.json"
+    },
+    {
+      "path": "packages/adapters/tanstack/tsconfig.build.json"
     }
   ]
 }

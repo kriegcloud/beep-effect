@@ -56,10 +56,28 @@
       "@beep/logos/*": ["../../packages/common/logos/src/*"],
       "@beep/rete": ["../../packages/common/rete/src/index"],
       "@beep/rete/*": ["../../packages/common/rete/src/*"],
+      "@beep/errors": ["../../packages/common/errors/src/index"],
+      "@beep/errors/*": ["../../packages/common/errors/src/*"],
+      "@beep/env/client": ["../../packages/env/src/client"],
+      "@beep/env/server": ["../../packages/env/src/server"],
+      "@beep/files-application": ["../../packages/files/application/src/index"],
+      "@beep/files-application/*": ["../../packages/files/application/src/*"],
+      "@beep/files-api": ["../../packages/files/api/src/index"],
+      "@beep/files-api/*": ["../../packages/files/api/src/*"],
+      "@beep/files-db": ["../../packages/files/db/src/index"],
+      "@beep/files-db/*": ["../../packages/files/db/src/*"],
+      "@beep/files-ui": ["../../packages/files/ui/src/index"],
+      "@beep/files-ui/*": ["../../packages/files/ui/src/*"],
       "@beep/shared-client": ["../../packages/shared/client/src/index"],
       "@beep/shared-client/*": ["../../packages/shared/client/src/*"],
       "@beep/better-auth": ["../../packages/adapters/better-auth/src/index"],
-      "@beep/better-auth/*": ["../../packages/adapters/better-auth/src/*"]
+      "@beep/better-auth/*": ["../../packages/adapters/better-auth/src/*"],
+      "@beep/shared-domain": ["../../packages/shared/domain/src/index"],
+      "@beep/shared-domain/*": ["../../packages/shared/domain/src/*"],
+      "@beep/runtime": ["../../packages/runtime/src/index"],
+      "@beep/runtime/*": ["../../packages/runtime/src/*"],
+      "@beep/xstate": ["../../packages/adapters/xstate/src/index"],
+      "@beep/xstate/*": ["../../packages/adapters/xstate/src/*"]
     },
     "plugins": [
       {
@@ -71,6 +89,12 @@
     ]
   },
   "references": [
+    {
+      "path": "../../packages/adapters/xstate/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/adapters/better-auth/tsconfig.build.json"
+    },
     {
       "path": "../../packages/ui/tsconfig.build.json"
     },
@@ -99,10 +123,31 @@
       "path": "../../packages/common/logos/tsconfig.build.json"
     },
     {
+      "path": "../../packages/common/errors/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/env/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/files/application/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/files/api/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/files/db/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/files/ui/tsconfig.build.json"
+    },
+    {
       "path": "../../packages/shared/client/tsconfig.build.json"
     },
     {
-      "path": "../../packages/adapters/better-auth/tsconfig.build.json"
+      "path": "../../packages/shared/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/runtime/tsconfig.build.json"
     }
   ],
   "include": [

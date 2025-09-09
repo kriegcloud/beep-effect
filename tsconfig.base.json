@@ -65,6 +65,15 @@
       "@beep/schema/test/*": [
         "./packages/common/schema/test/*"
       ],
+      "@beep/errors": [
+        "./packages/common/errors/src/index"
+      ],
+      "@beep/errors/*": [
+        "./packages/common/errors/src/*"
+      ],
+      "@beep/errors/test/*": [
+        "./packages/common/errors/test/*"
+      ],
       "@beep/types": [
         "./packages/common/types/src/index"
       ],
@@ -406,6 +415,42 @@
       ],
       "@beep/constants/test/*": [
         "./packages/common/constants/test/*"
+      ],
+      "@beep/files-api": [
+        "./packages/files/api/src/index"
+      ],
+      "@beep/files-api/*": [
+        "./packages/files/api/src/*"
+      ],
+      "@beep/files-api/test/*": [
+        "./packages/files/api/test/*"
+      ],
+      "@beep/files-application": [
+        "./packages/files/application/src/index"
+      ],
+      "@beep/files-application/*": [
+        "./packages/files/application/src/*"
+      ],
+      "@beep/files-application/test/*": [
+        "./packages/files/application/test/*"
+      ],
+      "@beep/files-db": [
+        "./packages/files/db/src/index"
+      ],
+      "@beep/files-db/*": [
+        "./packages/files/db/src/*"
+      ],
+      "@beep/files-db/test/*": [
+        "./packages/files/db/test/*"
+      ],
+      "@beep/files-ui": [
+        "./packages/files/ui/src/index"
+      ],
+      "@beep/files-ui/*": [
+        "./packages/files/ui/src/*"
+      ],
+      "@beep/files-ui/test/*": [
+        "./packages/files/ui/test/*"
       ]
     }
   }

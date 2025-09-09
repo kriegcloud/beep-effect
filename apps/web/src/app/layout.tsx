@@ -20,6 +20,7 @@ import { I18nProvider } from "@beep/ui/i18n/i18n.provider";
 import { LocalizationProvider } from "@beep/ui/i18n/Localization.provider";
 import { detectLanguage } from "@beep/ui/i18n/server";
 import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
+import { GlobalProviders } from "@/GlobalProviders";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -58,30 +59,32 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang={appConfig.lang ?? "en"} dir={appConfig.dir} suppressHydrationWarning>
       <body>
-        <InitColorSchemeScript
-          nonce={nonce}
-          modeStorageKey={themeConfig.modeStorageKey}
-          attribute={themeConfig.cssVariables.colorSchemeSelector}
-          defaultMode={themeConfig.defaultMode}
-        />
-        <I18nProvider lang={appConfig.i18nLang}>
-          {/*<GlobalProviders>*/}
-          <SettingsProvider cookieSettings={appConfig.cookieSettings} defaultSettings={defaultSettings}>
-            <LocalizationProvider>
-              <AppRouterCacheProvider options={{ key: "css", enableCssLayer: true, nonce: nonce! }}>
-                <ThemeProvider modeStorageKey={themeConfig.modeStorageKey} defaultMode={themeConfig.defaultMode}>
-                  <MotionLazy>
-                    <Snackbar />
-                    <ProgressBar />
-                    <SettingsDrawer defaultSettings={defaultSettings} />
-                    {children}
-                  </MotionLazy>
-                </ThemeProvider>
-              </AppRouterCacheProvider>
-            </LocalizationProvider>
-          </SettingsProvider>
-          {/*</GlobalProviders>*/}
-        </I18nProvider>
+        <GlobalProviders>
+          <InitColorSchemeScript
+            nonce={nonce}
+            modeStorageKey={themeConfig.modeStorageKey}
+            attribute={themeConfig.cssVariables.colorSchemeSelector}
+            defaultMode={themeConfig.defaultMode}
+          />
+          <I18nProvider lang={appConfig.i18nLang}>
+            {/*<GlobalProviders>*/}
+            <SettingsProvider cookieSettings={appConfig.cookieSettings} defaultSettings={defaultSettings}>
+              <LocalizationProvider>
+                <AppRouterCacheProvider options={{ key: "css", enableCssLayer: true, nonce: nonce! }}>
+                  <ThemeProvider modeStorageKey={themeConfig.modeStorageKey} defaultMode={themeConfig.defaultMode}>
+                    <MotionLazy>
+                      <Snackbar />
+                      <ProgressBar />
+                      <SettingsDrawer defaultSettings={defaultSettings} />
+                      {children}
+                    </MotionLazy>
+                  </ThemeProvider>
+                </AppRouterCacheProvider>
+              </LocalizationProvider>
+            </SettingsProvider>
+            {/*</GlobalProviders>*/}
+          </I18nProvider>
+        </GlobalProviders>
       </body>
     </html>
   );

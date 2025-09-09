@@ -16,3 +16,17 @@ export namespace LogFormat {
   export type Type = S.Schema.Type<typeof LogFormat>;
   export type Encoded = S.Schema.Type<typeof LogFormat>;
 }
+
+export const LogFormatTaggedKit = LogFormatKit.toTagged("_tag");
+
+export class LogFormatTagged extends LogFormatTaggedKit.Union.annotations({
+  schemaId: Symbol.for("@beep/env/common/LogFormatTagged"),
+  identifier: "LogFormatTagged",
+  title: "Log Format Tagged",
+  description: "Log format tagged.",
+}) {}
+
+export namespace LogFormatTagged {
+  export type Type = S.Schema.Type<typeof LogFormatTagged>;
+  export type Encoded = S.Schema.Type<typeof LogFormatTagged>;
+}

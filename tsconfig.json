@@ -17,6 +17,9 @@
       "path": "packages/common/schema"
     },
     {
+      "path": "packages/common/errors"
+    },
+    {
       "path": "packages/common/constants"
     },
     {
@@ -135,6 +138,18 @@
     },
     {
       "path": "packages/storage"
+    },
+    {
+      "path": "packages/files/api"
+    },
+    {
+      "path": "packages/files/application"
+    },
+    {
+      "path": "packages/files/db"
+    },
+    {
+      "path": "packages/files/ui"
     }
   ]
 }

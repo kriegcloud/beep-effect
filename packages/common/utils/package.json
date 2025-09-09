@@ -36,7 +36,6 @@
   "dependencies": {
     "@faker-js/faker": "*",
     "@beep/invariant": "workspace:^",
-    "picocolors": "*",
     "effect": "*",
     "mutative": "*"
   },
