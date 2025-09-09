@@ -56,3 +56,7 @@ export class FileId extends FileIdKit.Schema {
   static readonly make = FileIdKit.make;
   static readonly is = FileIdKit.is;
 }
+export namespace FileId {
+  export type Type = typeof FileId.Type;
+  export type Encoded = typeof FileId.Encoded;
+}

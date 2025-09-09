@@ -4,6 +4,21 @@
   "references": [
     {
       "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../common/types"
+    },
+    {
+      "path": "../common/invariant"
+    },
+    {
+      "path": "../common/utils"
+    },
+    {
+      "path": "../common/schema"
+    },
+    {
+      "path": "../common/constants"
     }
   ],
   "compilerOptions": {

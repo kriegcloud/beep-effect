@@ -162,6 +162,7 @@
     "@beep/invariant": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
+    "@beep/constants": "workspace:^",
     "@emotion/cache": "*",
     "@emotion/react": "*",
     "effect": "*",

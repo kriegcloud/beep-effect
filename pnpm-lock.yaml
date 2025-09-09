@@ -1928,6 +1928,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@beep/constants':
+        specifier: workspace:^
+        version: link:../common/constants/build
       '@beep/invariant':
         specifier: workspace:*
         version: link:../common/invariant/build

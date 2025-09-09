@@ -25,6 +25,7 @@ export class EntityIdKit<const Brand extends string, const Prefix extends string
   "EntityIdKit"
 )<EntityIdFactoryConfig<Brand, Prefix>> {
   readonly Schema: EntityIdSchema<Prefix, Brand>;
+  readonly makeBranded: <const T extends string>(i: T) => B.Branded<T, Brand>;
   readonly make: (id: string) => S.Schema.Type<EntityIdSchema<Prefix, Brand>>;
   readonly create: () => S.Schema.Type<EntityIdSchema<Prefix, Brand>>;
   readonly is: (i: unknown) => i is S.Schema.Type<EntityIdSchema<Prefix, Brand>>;
@@ -59,5 +60,6 @@ export class EntityIdKit<const Brand extends string, const Prefix extends string
     this.create = create;
     this.is = S.is(Schema);
     this.Schema = Schema;
+    this.makeBranded = makeBranded;
   }
 }
