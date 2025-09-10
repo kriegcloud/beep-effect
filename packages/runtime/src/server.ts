@@ -39,5 +39,5 @@ export const layer = Layer.mergeAll(
   PgLive,
   DbPool.Live,
   FetchHttpClient.layer,
-  Logger.pretty,
+  Logger.pretty
 );

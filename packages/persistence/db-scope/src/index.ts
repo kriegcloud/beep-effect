@@ -1,9 +1,10 @@
 export * from "./db.factory";
 export * from "./db.pool";
 export * from "./errors";
-import { serverEnv, } from "@beep/env/server";
-import * as Str from "effect/String";
+
+import { serverEnv } from "@beep/env/server";
 import { PgClient } from "@effect/sql-pg";
+import * as Str from "effect/String";
 
 export const PgLive = PgClient.layer({
   port: serverEnv.db.pg.port,

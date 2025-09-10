@@ -98,7 +98,7 @@ export const makeScopedDb = <const TFullSchema extends Record<string, unknown> =
         db,
         pool,
       } as const;
-    })
+    });
 
   return {
     makeService,
