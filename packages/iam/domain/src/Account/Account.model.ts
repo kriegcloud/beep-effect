@@ -91,6 +91,7 @@ export class Model extends M.Class<Model>(`AccountModel`)(
     ...Common.globalColumns,
   },
   {
+    identifier: "AccountModel",
     title: "Account Model",
     description: "Account model representing external OAuth provider accounts linked to users.",
     schemaId: AccountModelSchemaId,
