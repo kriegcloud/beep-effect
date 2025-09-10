@@ -9,10 +9,10 @@
       "path": "../env"
     },
     {
-      "path": "../../common/errors"
+      "path": "../common/errors"
     },
     {
-      "path": "../../common/constants"
+      "path": "../common/constants"
     }
   ],
   "compilerOptions": {
