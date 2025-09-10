@@ -1,6 +1,6 @@
 import * as Path from "node:path";
 import { fileURLToPath } from "node:url";
-import { formatCauseHeading } from "@beep/errors/utils";
+import { formatCauseHeading } from "@beep/errors/server";
 import { describe, it } from "@effect/vitest";
 import { deepStrictEqual } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";

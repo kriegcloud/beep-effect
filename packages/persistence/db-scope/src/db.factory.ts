@@ -1,3 +1,4 @@
+import { DbPool } from "@beep/db-scope/db.pool";
 import * as DbErrors from "@beep/db-scope/errors";
 import { serverEnv } from "@beep/env/server";
 import type { UnsafeTypes } from "@beep/types";
@@ -7,70 +8,17 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Cause, Effect, Exit, Option, Runtime } from "effect";
 import * as Context from "effect/Context";
 import * as Layer from "effect/Layer";
-import * as Redacted from "effect/Redacted";
 import * as Str from "effect/String";
-import * as pg from "pg";
-import type { ConnectionOptions, DbClient, ExecuteFn, TransactionClient, TransactionContextShape } from "./types";
+import type { DbClient, ExecuteFn, TransactionClient, TransactionContextShape } from "./types";
 
 export const makeScopedDb = <const TFullSchema extends Record<string, unknown> = Record<string, never>>(
   schema: TFullSchema
 ) => {
-  const makeService = (connectionOpts: ConnectionOptions) =>
+  const makeService = () =>
     Effect.gen(function* () {
       const TransactionContext = Context.GenericTag<TransactionContextShape<TFullSchema>>("DbScope/TransactionContext");
 
-      const pool = yield* Effect.acquireRelease(
-        Effect.sync(
-          () =>
-            new pg.Pool({
-              connectionString: Redacted.value(connectionOpts.url),
-              ssl: connectionOpts.ssl,
-            })
-        ),
-        (pool) => Effect.promise(() => pool.end())
-      );
-
-      yield* Effect.tryPromise(() => pool.query("SELECT 1")).pipe(
-        Effect.timeoutFail({
-          duration: "10 seconds",
-          onTimeout: () =>
-            new DbErrors.DbConnectionLostError({
-              cause: new Error("[Database] Failed to connect: timeout"),
-              message: "[Database] Failed to connect: timeout",
-            }),
-        }),
-        Effect.catchTag(
-          "UnknownException",
-          (error) =>
-            new DbErrors.DbConnectionLostError({
-              cause: error.cause,
-              message: "[Database] Failed to connect",
-            })
-        ),
-        Effect.tap(() => Effect.logInfo("[Database client]: Connection to the database established."))
-      );
-
-      const setupConnectionListeners = Effect.zipRight(
-        Effect.async<void, DbErrors.DbConnectionLostError>((resume) => {
-          const onError = (error: unknown) => {
-            resume(
-              Effect.fail(
-                new DbErrors.DbConnectionLostError({
-                  cause: error,
-                  message: error instanceof Error ? error.message : "Unknown error",
-                })
-              )
-            );
-          };
-
-          pool.on("error", onError);
-
-          return Effect.sync(() => {
-            pool.removeListener("error", onError);
-          });
-        }),
-        Effect.logInfo("[Database client]: Connection error listeners initialized.")
-      );
+      const { pool, setupConnectionListeners } = yield* DbPool;
 
       const db = drizzle(pool, { schema });
 

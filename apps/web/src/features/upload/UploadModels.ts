@@ -1,4 +1,4 @@
-import type { AccumulateResult } from "@beep/errors/utils-client";
+import type { AccumulateResult } from "@beep/errors/client";
 import type { BS } from "@beep/schema";
 import type * as Errors from "./errors";
 /**************

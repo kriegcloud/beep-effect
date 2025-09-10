@@ -1,4 +1,4 @@
-import { readEnvLoggerConfig } from "@beep/errors/utils";
+import { readEnvLoggerConfig } from "@beep/errors/server";
 import { describe, it } from "@effect/vitest";
 import { deepStrictEqual } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";

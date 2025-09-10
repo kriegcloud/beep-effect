@@ -5,25 +5,18 @@ import * as Clock from "effect/Clock";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as HashMap from "effect/HashMap";
-import type * as Layer from "effect/Layer";
 import * as List from "effect/List";
-import * as Logger from "effect/Logger";
 import * as LogLevel from "effect/LogLevel";
 import * as LogSpan from "effect/LogSpan";
 import * as Match from "effect/Match";
 import * as Metric from "effect/Metric";
 import * as O from "effect/Option";
-import type * as Record from "effect/Record";
 import color from "picocolors";
-import { makePrettyConsoleLogger } from "./utils";
+
 /**
- * Pretty, colored console logger + small telemetry helpers for Effect.
+ * Pretty, colored console logger helpers + small telemetry helpers for Effect (shared/client-safe core).
  *
- * Goals
- * - Beautiful, readable log lines
- * - Include timestamp, level, fiber id, spans, annotations
- * - Helpful cause rendering for warnings/errors
- * - Simple helpers to install the logger and set minimum levels
+ * Node/server-specific features (env, FS, OS, process) are intentionally excluded here.
  */
 
 export interface PrettyLoggerConfig {
@@ -76,7 +69,6 @@ export function formatMessage(message: unknown): string {
 export function formatAnnotations(ann: HashMap.HashMap<string, unknown>, enableColors: boolean): string {
   const parts: string[] = [];
   for (const [k, v] of HashMap.entries(ann)) {
-    // Skip internal keys if needed later
     const key = enableColors ? color.dim(String(k)) : String(k);
     const val = formatMessage(v);
     parts.push(`${key}=${val}`);
@@ -136,22 +128,8 @@ export interface CauseHeadingOptions {
   readonly includeCodeFrame?: boolean;
 }
 
-export function makePrettyConsoleLoggerLayer(cfg?: Partial<PrettyLoggerConfig>): Layer.Layer<never> {
-  const logger = makePrettyConsoleLogger(cfg);
-  return Logger.replace(Logger.defaultLogger, logger);
-}
-
-export function withPrettyLogging(cfg?: Partial<PrettyLoggerConfig>) {
-  return <A, E, R>(self: Effect.Effect<A, E, R>) =>
-    self.pipe(
-      Logger.withMinimumLogLevel(cfg?.level ?? defaultConfig.level),
-      Effect.provide(makePrettyConsoleLoggerLayer(cfg))
-    );
-}
-
 /**
  * Helper to annotate logs with a stable set of fields for a component/service.
- * Example: effect.pipe(withLogContext({ service: 'auth', version: '1.2.3' }))
  */
 export const withLogContext =
   (annotations: Readonly<Record<string, unknown>>) =>
@@ -159,7 +137,7 @@ export const withLogContext =
     self.pipe(Effect.annotateLogs(annotations));
 
 /**
- * Helper to add a root span around an operation and ensure logger context includes it.
+ * Helper to add a root span around an operation.
  */
 export const withRootSpan =
   (label: string) =>
@@ -167,28 +145,7 @@ export const withRootSpan =
     self.pipe(Effect.withLogSpan(label));
 
 /**
- * Convenience: run an Effect with pretty logging and return Exit.
- * Useful in CLIs / scripts.
- */
-export const runWithPrettyLogsExit = <A, E, R>(eff: Effect.Effect<A, E, R>, cfg?: Partial<PrettyLoggerConfig>) =>
-  Effect.exit(eff).pipe(withPrettyLogging(cfg));
-
-/**
- * Log an error cause explicitly using the pretty formatter (independent helper).
- */
-export const logCausePretty = (cause: Cause.Cause<unknown>, colors = true) =>
-  Effect.sync(() => {
-    const pretty = formatCausePretty(cause, colors);
-    if (pretty) console.error(pretty);
-  });
-
-/**
- * Instrument an effect with:
- * - a log span label
- * - optional annotations
- * - optional metrics (success/error counters and a duration histogram)
- *
- * Preserves the original error Cause by re-failing with the captured cause on failures.
+ * Instrument an effect with span, optional annotations, and optional metrics.
  */
 export interface SpanMetricsConfig {
   readonly successCounter?: Metric.Metric.Counter<number>;
@@ -228,8 +185,17 @@ export const withSpanAndMetrics =
       return yield* Effect.failCause(exit.cause);
     });
 
+/**
+ * Convenience: log a cause pretty-printed (independent helper).
+ */
+export const logCausePretty = (cause: Cause.Cause<unknown>, colors = true) =>
+  Effect.sync(() => {
+    const pretty = formatCausePretty(cause, colors);
+    if (pretty) console.error(pretty);
+  });
+
 // =========================
-// Environment-driven config
+// Environment-driven config (shared parse only)
 // =========================
 export const parseLevel = (raw: LogLevelSchema.Type): LogLevel.LogLevel => {
   return Match.value(raw).pipe(
@@ -244,3 +210,30 @@ export const parseLevel = (raw: LogLevelSchema.Type): LogLevel.LogLevel => {
     Match.exhaustive
   );
 };
+
+// =========================
+// Accumulation helpers (pure/shared)
+// =========================
+
+export interface AccumulateResult<A, E> {
+  readonly successes: ReadonlyArray<A>;
+  readonly errors: ReadonlyArray<Cause.Cause<E>>;
+}
+
+export interface AccumulateOptions {
+  readonly concurrency?: number | "unbounded";
+  readonly spanLabel?: string;
+  readonly annotations?: Readonly<Record<string, string>>;
+  readonly colors?: boolean;
+}
+
+export const accumulateEffects = <A, E, R>(
+  effects: ReadonlyArray<Effect.Effect<A, E, R>>,
+  options?: { readonly concurrency?: number | "unbounded" }
+): Effect.Effect<AccumulateResult<A, E>, never, R> =>
+  Effect.gen(function* () {
+    const [errs, oks] = yield* Effect.partition(effects, (eff) => Effect.sandbox(eff), {
+      concurrency: options?.concurrency ?? "unbounded",
+    });
+    return { successes: oks, errors: errs };
+  });

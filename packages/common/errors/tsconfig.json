@@ -4,6 +4,9 @@
   "compilerOptions": {
     "paths": {
       "@beep/errors/*": ["./src/*"],
+      "@beep/errors/shared": ["./src/shared-core"],
+      "@beep/errors/client": ["./src/client"],
+      "@beep/errors/server": ["./src/server"],
       "@beep/types": ["../types/src/index"],
       "@beep/types/*": ["../types/src/*"],
       "@beep/utils": ["../utils/src/index"],

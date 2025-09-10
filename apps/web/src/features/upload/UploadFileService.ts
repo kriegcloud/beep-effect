@@ -1,4 +1,4 @@
-import { accumulateEffectsAndReport } from "@beep/errors/utils-client";
+import { accumulateEffectsAndReport } from "@beep/errors/client";
 import * as Effect from "effect/Effect";
 import { instrumentProcessFile, makeFileAnnotations } from "./observability";
 import { extractBasicMetadata, extractExifMetadata, validateFile } from "./pipeline";

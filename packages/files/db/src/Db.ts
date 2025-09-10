@@ -1,7 +1,7 @@
 import { makeScopedDb } from "@beep/db-scope";
-import type { ConnectionOptions } from "@beep/db-scope/types";
 import * as SharedDbSchema from "@beep/shared-tables/schema";
-import * as Effect from "effect/Effect";
+import * as Context from "effect/Context";
+import type * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 
 export namespace FileDb {
@@ -9,8 +9,7 @@ export namespace FileDb {
 
   type Shape = Effect.Effect.Success<ReturnType<typeof makeService>>;
 
-  export class FileDb extends Effect.Tag("FileDb")<FileDb, Shape>() {}
+  export class FileDb extends Context.Tag("FileDb")<FileDb, Shape>() {}
 
-  export const layer = (config: ConnectionOptions) =>
-    Layer.mergeAll(Layer.scoped(FileDb, makeService(config)), makeSql());
+  export const layer = Layer.mergeAll(Layer.scoped(FileDb, makeService()), makeSql());
 }

@@ -1,4 +1,4 @@
-import { accumulateEffectsAndReport } from "@beep/errors/utils";
+import { accumulateEffectsAndReport } from "@beep/errors/server";
 import { describe, it, vi } from "@effect/vitest";
 import { deepStrictEqual } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";

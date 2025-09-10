@@ -14,7 +14,14 @@
     "directory": "packages/common/errors"
   },
   "exports": {
-    ".": "./src/index.ts",
+    ".": {
+      "browser": "./src/client.ts",
+      "node": "./src/server.ts",
+      "default": "./src/server.ts"
+    },
+    "./server": "./src/server.ts",
+    "./client": "./src/client.ts",
+    "./shared": "./src/shared-core.ts",
     "./package.json": "./package.json",
     "./*": "./src/*.ts"
   },

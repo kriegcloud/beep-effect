@@ -1,9 +1,23 @@
 import * as FS from "node:fs";
 import * as OS from "node:os";
 import * as Path from "node:path";
-import { LogFormat } from "@beep/constants";
-import type { CauseHeadingOptions, PrettyLoggerConfig } from "@beep/errors/shared";
+import type { LogFormat } from "@beep/constants";
+import * as Cause from "effect/Cause";
+import * as DateTime from "effect/DateTime";
+import * as Effect from "effect/Effect";
+import * as FiberId from "effect/FiberId";
+import * as HashMap from "effect/HashMap";
+import type * as Layer from "effect/Layer";
+import * as Logger from "effect/Logger";
+import * as LogLevel from "effect/LogLevel";
+import * as Match from "effect/Match";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as Record from "effect/Record";
+import color from "picocolors";
+import type { AccumulateOptions, AccumulateResult, PrettyLoggerConfig } from "./shared-core";
 import {
+  accumulateEffects,
   colorForLevel,
   defaultConfig,
   extractPrimaryError,
@@ -13,19 +27,50 @@ import {
   formatSpans,
   parseLevel,
   shouldPrintCause,
-} from "@beep/errors/shared";
-import * as Cause from "effect/Cause";
-import * as DateTime from "effect/DateTime";
-import * as Effect from "effect/Effect";
-import * as FiberId from "effect/FiberId";
-import * as HashMap from "effect/HashMap";
-import * as Logger from "effect/Logger";
-import * as LogLevel from "effect/LogLevel";
-import * as Match from "effect/Match";
-import * as O from "effect/Option";
-import * as P from "effect/Predicate";
-import * as Record from "effect/Record";
-import color from "picocolors";
+} from "./shared-core";
+
+// Re-export shared helpers
+export * from "./shared-core";
+export interface CauseHeadingOptions {
+  readonly colors?: boolean;
+  readonly date?: Date;
+  readonly levelLabel?: string;
+  readonly fiberName?: string;
+  readonly spansText?: string;
+  readonly service?: string;
+  readonly environment?: string;
+  readonly requestId?: string;
+  readonly correlationId?: string;
+  readonly userId?: string;
+  readonly hostname?: string;
+  readonly pid?: number | string;
+  readonly nodeVersion?: string;
+  readonly includeCodeFrame?: boolean;
+}
+/**
+ * Build a pretty console logger Layer (server-only).
+ */
+export function makePrettyConsoleLoggerLayer(cfg?: Partial<PrettyLoggerConfig>): Layer.Layer<never> {
+  const logger = makePrettyConsoleLogger(cfg);
+  return Logger.replace(Logger.defaultLogger, logger);
+}
+
+/**
+ * Wrap an Effect with pretty logging and minimum log level (server-only).
+ */
+export function withPrettyLogging(cfg?: Partial<PrettyLoggerConfig>) {
+  return <A, E, R>(self: Effect.Effect<A, E, R>) =>
+    self.pipe(
+      Logger.withMinimumLogLevel(cfg?.level ?? defaultConfig.level),
+      Effect.provide(makePrettyConsoleLoggerLayer(cfg))
+    );
+}
+
+/**
+ * Run an Effect with pretty logging and return Exit (server-only convenience).
+ */
+export const runWithPrettyLogsExit = <A, E, R>(eff: Effect.Effect<A, E, R>, cfg?: Partial<PrettyLoggerConfig>) =>
+  Effect.exit(eff).pipe(withPrettyLogging(cfg));
 
 // =========================
 // Stack parsing & fancy error headers
@@ -232,20 +277,28 @@ export function makePrettyConsoleLogger(cfg?: Partial<PrettyLoggerConfig>): Logg
 }
 
 /**
- * Reads `APP_LOG_FORMAT` and `APP_LOG_LEVEL` with env-sensitive defaults:
- * - development (NODE_ENV!=production): format=pretty, level=All
- * - production  (NODE_ENV==production): format=json,   level=Error
+ * Reads APP_LOG_FORMAT and APP_LOG_LEVEL with env-sensitive defaults.
  */
 export const readEnvLoggerConfig = Effect.gen(function* () {
-  const nodeEnv = process.env.NEXT_PUBLIC_ENV;
-  const isProd = nodeEnv === "prod";
+  const appEnv = process.env.APP_ENV ?? process.env.NODE_ENV ?? process.env.NEXT_PUBLIC_ENV;
+  const isProd = appEnv === "production" || appEnv === "prod";
 
-  const formatEnv = isProd ? "json" : (process.env.NEXT_PUBLIC_LOG_FORMAT as LogFormat.Type);
-  const levelEnv = process.env.NEXT_PUBLIC_LOG_LEVEL as LogLevel.Literal;
+  const formatRaw = process.env.APP_LOG_FORMAT ?? process.env.NEXT_PUBLIC_LOG_FORMAT ?? (isProd ? "json" : "pretty");
+  const levelRaw =
+    (process.env.APP_LOG_LEVEL as LogLevel.Literal | undefined) ??
+    (process.env.NEXT_PUBLIC_LOG_LEVEL as LogLevel.Literal | undefined) ??
+    (isProd ? ("Error" as LogLevel.Literal) : ("All" as LogLevel.Literal));
 
-  const format = isProd ? LogFormat.Enum.json : formatEnv;
+  // Dev-only soft warning when using deprecated NEXT_PUBLIC_* keys
+  if (!process.env.APP_LOG_FORMAT && process.env.NEXT_PUBLIC_LOG_FORMAT && !isProd) {
+    console.warn("@beep/errors: NEXT_PUBLIC_LOG_FORMAT is deprecated; prefer APP_LOG_FORMAT");
+  }
+  if (!process.env.APP_LOG_LEVEL && process.env.NEXT_PUBLIC_LOG_LEVEL && !isProd) {
+    console.warn("@beep/errors: NEXT_PUBLIC_LOG_LEVEL is deprecated; prefer APP_LOG_LEVEL");
+  }
 
-  const level: LogLevel.LogLevel = parseLevel(levelEnv);
+  const format = formatRaw as LogFormat.Type;
+  const level: LogLevel.LogLevel = parseLevel(levelRaw);
 
   return { format, level };
 });
@@ -282,42 +335,9 @@ export const withEnvLogging =
     });
 
 // =========================
-// Demonstrations / Examples
+// Accumulation helpers (server variant)
 // =========================
 
-// =========================
-// Accumulation helpers (reusable)
-// =========================
-
-export interface AccumulateResult<A, E> {
-  readonly successes: ReadonlyArray<A>;
-  readonly errors: ReadonlyArray<Cause.Cause<E>>;
-}
-
-export interface AccumulateOptions {
-  readonly concurrency?: number | "unbounded";
-  readonly spanLabel?: string;
-  readonly annotations?: Readonly<Record<string, string>>;
-  readonly colors?: boolean;
-}
-
-/**
- * Run all effects, capturing every failure as a Cause (no fail-fast), and return arrays.
- */
-export const accumulateEffects = <A, E, R>(
-  effects: ReadonlyArray<Effect.Effect<A, E, R>>,
-  options?: { readonly concurrency?: number | "unbounded" }
-): Effect.Effect<AccumulateResult<A, E>, never, R> =>
-  Effect.gen(function* () {
-    const [errs, oks] = yield* Effect.partition(effects, (eff) => Effect.sandbox(eff), {
-      concurrency: options?.concurrency ?? "unbounded",
-    });
-    return { successes: oks, errors: errs };
-  });
-
-/**
- * Run and log a summary. Pretty-print each error cause.
- */
 export const accumulateEffectsAndReport = <A, E, R>(
   effects: ReadonlyArray<Effect.Effect<A, E, R>>,
   options?: AccumulateOptions

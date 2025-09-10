@@ -68,6 +68,9 @@
       "@beep/errors": [
         "./packages/common/errors/src/index"
       ],
+      "@beep/errors/shared": [
+        "./packages/common/errors/src/shared-core"
+      ],
       "@beep/errors/*": [
         "./packages/common/errors/src/*"
       ],

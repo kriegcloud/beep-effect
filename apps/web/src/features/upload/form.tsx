@@ -1,16 +1,15 @@
 "use client";
-import { withEnvLogging } from "@beep/errors/utils-client";
+import { withEnvLogging } from "@beep/errors/client";
 import { BS } from "@beep/schema";
 import { Form, makeFormOptions, useAppForm } from "@beep/ui/form";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
-import { formOptions } from "@tanstack/react-form";
 import * as Console from "effect/Console";
-// import ExifReader from "exifreader";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { UploadFileService } from "@/features/upload";
+import { useRuntime } from "@/services/runtime/use-runtime";
 import { componentBoxStyles, FormActions, FormGrid } from "./components";
 import { ComponentBox } from "./layout";
 
@@ -23,52 +22,49 @@ export const OtherSchema = S.Struct({
   multiUpload: S.Array(BS.FileBase),
 });
 export type OtherSchema = typeof OtherSchema.Type;
-export const OtherFormOptions = formOptions({
-  ...makeFormOptions({
-    schema: OtherSchema,
-    defaultValues: {
-      singleUpload: null,
-      multiUpload: [],
-    },
-    validator: "onSubmit",
-  }),
-  onSubmit: async ({ formApi, value }) => {
-    const program = Effect.gen(function* () {
-      // Validate form value via schema
-      const decoded = yield* S.decode(OtherSchema)(value);
-      // Collect files from both single and multi upload fields
-      const files = [...(decoded.singleUpload ? [decoded.singleUpload] : []), ...(decoded.multiUpload ?? [])];
-      if (files.length === 0) {
-        yield* Console.log({ message: "No files selected to process." });
-        return { successes: [], errors: [] } as const;
-      }
-      const upload = yield* UploadFileService;
-      const { successes, errors } = yield* upload.processFiles({ files, config: { maxSizeBytes: 3_145_728 } });
-      // Summary
-      yield* Console.log({ successes: successes.length, errors: errors.length });
-      // Detailed per-file output
-      for (const s of successes) {
-        const { file, validated, basic, exif } = s;
-        yield* Console.log({
-          file: { name: file.name, type: file.type, size: file.size },
-          validated,
-          formattedSize: validated.formattedSize,
-          basic,
-          exif,
-        });
-      }
-      return { successes, errors };
-    }).pipe(
-      // apply client-safe pretty logging in dev
-      withEnvLogging
-    );
-
-    await Effect.runPromise(program.pipe(Effect.provide(UploadFileService.Default)));
-  },
-});
 
 export function OtherDemo() {
-  const form = useAppForm(OtherFormOptions);
+  const runtime = useRuntime();
+  const form = useAppForm({
+    ...makeFormOptions({
+      schema: OtherSchema,
+      defaultValues: {
+        singleUpload: null,
+        multiUpload: [],
+      },
+      validator: "onSubmit",
+    }),
+    onSubmit: async ({ value }) => {
+      const program = Effect.gen(function* () {
+        // Validate form value via schema
+        const decoded = yield* S.decode(OtherSchema)(value);
+        // Collect files from both single and multi upload fields
+        const files = [...(decoded.singleUpload ? [decoded.singleUpload] : []), ...(decoded.multiUpload ?? [])];
+        if (files.length === 0) {
+          yield* Console.log({ message: "No files selected to process." });
+          return { successes: [], errors: [] } as const;
+        }
+        const upload = yield* UploadFileService;
+        const { successes, errors } = yield* upload.processFiles({ files, config: { maxSizeBytes: 3_145_728 } });
+        // Summary
+        yield* Console.log({ successes: successes.length, errors: errors.length });
+        // Detailed per-file output
+        for (const s of successes) {
+          const { file, validated, basic, exif } = s;
+          yield* Console.log({
+            file: { name: file.name, type: file.type, size: file.size },
+            validated,
+            formattedSize: validated.formattedSize,
+            basic,
+            exif,
+          });
+        }
+        return { successes, errors };
+      });
+
+      await runtime.runPromise(program.pipe(withEnvLogging, Effect.provide(UploadFileService.Default)));
+    },
+  });
 
   return (
     <>

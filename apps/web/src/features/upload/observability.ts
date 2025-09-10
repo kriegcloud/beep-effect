@@ -1,4 +1,4 @@
-import { withLogContext, withRootSpan, withSpanAndMetrics } from "@beep/errors/utils-client";
+import { withLogContext, withRootSpan, withSpanAndMetrics } from "@beep/errors/client";
 import * as Effect from "effect/Effect";
 import * as Metric from "effect/Metric";
 import * as MetricBoundaries from "effect/MetricBoundaries";

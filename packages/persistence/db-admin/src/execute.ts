@@ -1,4 +1,3 @@
-import { serverEnv } from "@beep/env/server";
 import { User } from "@beep/iam-domain/entities";
 import { IamEntityIds } from "@beep/shared-domain/EntityIds";
 import * as Console from "effect/Console";
@@ -108,12 +107,7 @@ const program = Effect.gen(function* () {
   return yield* Effect.void;
 }).pipe(Effect.provide(User.UserRepo.Default));
 
-const AppLayer = Layer.mergeAll(
-  AdminDb.layer({
-    url: serverEnv.db.pg.url,
-    ssl: serverEnv.db.pg.ssl,
-  })
-);
+const AppLayer = Layer.mergeAll(AdminDb.layer);
 
 export const serverRuntime = ManagedRuntime.make(AppLayer);
 
