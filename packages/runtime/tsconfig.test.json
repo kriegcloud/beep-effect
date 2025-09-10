@@ -4,6 +4,15 @@
   "references": [
     {
       "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../env"
+    },
+    {
+      "path": "../../common/errors"
+    },
+    {
+      "path": "../../common/constants"
     }
   ],
   "compilerOptions": {

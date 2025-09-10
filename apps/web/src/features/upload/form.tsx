@@ -5,7 +5,6 @@ import { Form, makeFormOptions, useAppForm } from "@beep/ui/form";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import * as Console from "effect/Console";
-import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { UploadFileService } from "@/features/upload";
@@ -13,15 +12,10 @@ import { useRuntime } from "@/services/runtime/use-runtime";
 import { componentBoxStyles, FormActions, FormGrid } from "./components";
 import { ComponentBox } from "./layout";
 
-export class HandleSubmitError extends Data.TaggedError("HandleSubmitError")<{
-  cause: unknown;
-}> {}
-
 export const OtherSchema = S.Struct({
   singleUpload: S.NullOr(BS.FileBase),
   multiUpload: S.Array(BS.FileBase),
 });
-export type OtherSchema = typeof OtherSchema.Type;
 
 export function OtherDemo() {
   const runtime = useRuntime();
@@ -62,7 +56,8 @@ export function OtherDemo() {
         return { successes, errors };
       });
 
-      await runtime.runPromise(program.pipe(withEnvLogging, Effect.provide(UploadFileService.Default)));
+      const result = await runtime.runPromise(program.pipe(withEnvLogging, Effect.provide(UploadFileService.Default)));
+      console.log(result);
     },
   });
 

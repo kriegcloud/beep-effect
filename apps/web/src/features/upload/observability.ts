@@ -36,11 +36,6 @@ export const makeFileAnnotations = (file: File, extra?: UploadAnnotation): Uploa
   ...extra,
 });
 
-export const withUploadSpan =
-  (label: string, annotations?: UploadAnnotation) =>
-  <A, E, R>(self: Effect.Effect<A, E, R>) =>
-    self.pipe(Effect.withLogSpan(label), Effect.annotateLogs({ service: "upload", ...annotations }));
-
 export const instrumentProcessFile =
   (annotations?: UploadAnnotation) =>
   <A, E, R>(self: Effect.Effect<A, E, R>) =>
@@ -60,26 +55,7 @@ export const instrumentProcessFile =
     );
 
 // Lightweight logging helpers (level-specific)
-export const logDebug = (message: string, annotations?: UploadAnnotation) =>
-  Effect.logDebug(message).pipe(Effect.annotateLogs(annotations ?? {}));
 export const logInfo = (message: string, annotations?: UploadAnnotation) =>
   Effect.logInfo(message).pipe(Effect.annotateLogs(annotations ?? {}));
 export const logWarning = (message: string, annotations?: UploadAnnotation) =>
   Effect.logWarning(message).pipe(Effect.annotateLogs(annotations ?? {}));
-export const logError = (message: string, annotations?: UploadAnnotation) =>
-  Effect.logError(message).pipe(Effect.annotateLogs(annotations ?? {}));
-
-// Common trace label constants
-export const UploadTrace = {
-  root: "upload",
-  processFile: "upload.processFile",
-  validateFile: "upload.validateFile",
-  extractBasic: "upload.extractBasicMetadata",
-  extractExif: "upload.extractExifMetadata",
-} as const;
-
-// Provide a simple root wrapper to annotate and span top-level effects
-export const withUploadRoot =
-  (annotations?: UploadAnnotation) =>
-  <A, E, R>(self: Effect.Effect<A, E, R>) =>
-    self.pipe(withLogContext({ service: "upload", ...annotations }), withRootSpan(UploadTrace.root));

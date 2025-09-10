@@ -10,5 +10,15 @@
     "declaration": true,
     "sourceMap": true
   },
-  "references": []
+  "references": [
+    {
+      "path": "../env/tsconfig.build.json"
+    },
+    {
+      "path": "../common/constants/tsconfig.build.json"
+    },
+    {
+      "path": "../common/errors/tsconfig.build.json"
+    }
+  ]
 }

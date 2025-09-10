@@ -293,9 +293,6 @@
       "@beep/runtime/server": [
         "./packages/runtime/server"
       ],
-      "@beep/runtime/common": [
-        "./packages/runtime/src/common"
-      ],
       "@beep/runtime/test/*": [
         "./packages/runtime/test/*"
       ],

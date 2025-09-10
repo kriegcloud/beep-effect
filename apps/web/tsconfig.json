@@ -75,8 +75,8 @@
       "@beep/better-auth/*": ["../../packages/adapters/better-auth/src/*"],
       "@beep/shared-domain": ["../../packages/shared/domain/src/index"],
       "@beep/shared-domain/*": ["../../packages/shared/domain/src/*"],
-      "@beep/runtime": ["../../packages/runtime/src/index"],
-      "@beep/runtime/*": ["../../packages/runtime/src/*"],
+      "@beep/runtime/client": ["../../packages/runtime/src/client"],
+      "@beep/runtime/server": ["../../packages/runtime/src/server"],
       "@beep/xstate": ["../../packages/adapters/xstate/src/index"],
       "@beep/xstate/*": ["../../packages/adapters/xstate/src/*"]
     },

@@ -38,8 +38,6 @@ The following scaffolding has been added under `apps/web/src/features/upload/` t
 - Use Effect for all workflow steps (`Effect.fn`, `Effect.gen`), structured as a service built with `Effect.Service`
 - implement extensive logging and use error/logging utilities from `packages/common/errors/src/utils.ts` for spans, annotations, metrics, and pretty error output
 - Integrate cleanly with the React form layer (`@tanstack/react-form`) and your Upload fields
-- Respect vertical slice architecture and layering rules
--
 
 ## Non-functional constraints
 

@@ -11,7 +11,6 @@
   "exports": {
     "./server": "./src/server.ts",
     "./client": "./src/client.ts",
-    "./start": "./src/start.ts",
     "./package.json": "./package.json",
     "./*": "./src/*.ts"
   },
@@ -35,7 +34,22 @@
     "lint:circular": "pnpm madge -c ."
   },
   "dependencies": {
-    "effect": "*"
+    "effect": "*",
+    "@effect/opentelemetry": "*",
+    "@opentelemetry/sdk-trace-web": "*",
+    "@opentelemetry/exporter-trace-otlp-http": "*",
+    "@effect/platform-node": "*",
+    "@effect/experimental": "*",
+    "@effect/platform-browser": "*",
+    "@effect/platform": "*",
+    "@effect/workflow": "*",
+    "@effect/cluster": "*",
+    "@effect/sql-pg": "*",
+    "@effect/sql": "*",
+    "@opentelemetry/sdk-trace-node": "*",
+    "@beep/env": "workspace:*",
+    "@beep/constants": "workspace:*",
+    "@beep/errors": "workspace:*"
   },
   "effect": {
     "generateExports": {

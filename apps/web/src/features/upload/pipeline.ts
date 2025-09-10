@@ -13,12 +13,8 @@ import {
   type PipelineConfig,
   type ValidateFileOutput,
 } from "./UploadModels";
-// Optional: import helpers from schema namespace (available under BS)
-// - BS.detectFile, BS.getFileChunk, BS.formatSize, etc.
-
 /**
- * Validate a File against size and (eventually) signature rules.
- * NOTE: This is a scaffolding stub. Replace TODO sections with real detection and schema checks.
+ * Validate a File against size and signature rules.
  */
 export const validateFile = Effect.fn("upload.validateFile")(function* ({
   file,
@@ -121,16 +117,16 @@ export const extractBasicMetadata = Effect.fn("upload.extractBasicMetadata")(fun
   readonly detected?: BS.DetectedFileInfo.Type;
 }) {
   // Build attributes and validate at runtime using effect/Schema
-  const wrp = (file as unknown as { webkitRelativePath?: string }).webkitRelativePath;
+  const wrp = file.webkitRelativePath;
   const hasWrp = Str.isString(wrp) && wrp.length > 0;
   const candidateType = detected?.mimeType ?? file.type;
 
-  const attributesInput: Record<string, unknown> = {
+  const attributesInput = {
     size: file.size,
     type: candidateType,
     // Schema expects both lastModifiedDate and lastModified as acceptable date types
-    lastModifiedDate: new Date(file.lastModified),
-    lastModified: new Date(file.lastModified),
+    lastModifiedDate: file.lastModified,
+    lastModified: file.lastModified,
     name: file.name,
     ...(hasWrp ? { webkitRelativePath: wrp, relativePath: wrp } : {}),
   };
@@ -202,7 +198,7 @@ export const extractExifMetadata = Effect.fn("upload.extractExifMetadata")(funct
         }),
     });
     const cleaned = BS.cleanExifData(raw);
-    const decoded = yield* S.decodeUnknown(BS.ExpandedTags)(cleaned).pipe(
+    const decoded = yield* S.decode(BS.ExpandedTags)(cleaned).pipe(
       Effect.mapError(
         (e) =>
           new Errors.ExifParseError({
@@ -227,7 +223,7 @@ export const extractExifMetadata = Effect.fn("upload.extractExifMetadata")(funct
           ...makeFileAnnotations(file),
           error,
         });
-        return undefined as BS.ExpandedTags.Type | undefined;
+        return undefined;
       })
     )
   );

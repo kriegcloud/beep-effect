@@ -2,7 +2,7 @@ import { accumulateEffectsAndReport } from "@beep/errors/client";
 import * as Effect from "effect/Effect";
 import { instrumentProcessFile, makeFileAnnotations } from "./observability";
 import { extractBasicMetadata, extractExifMetadata, validateFile } from "./pipeline";
-import type { PipelineConfig, ProcessFilesResult, UploadError, UploadResult } from "./UploadModels";
+import type { PipelineConfig, ProcessFilesResult, UploadResult } from "./UploadModels";
 /**
  * UploadFileService
  * - Effect service exposing high-level operations for processing one or many files
@@ -43,7 +43,7 @@ export class UploadFileService extends Effect.Service<UploadFileService>()("Uplo
       readonly config?: PipelineConfig;
     }) {
       const effects = files.map((file) => processFile({ file, config }));
-      const result = yield* accumulateEffectsAndReport<UploadResult, UploadError, never>(effects, {
+      const result = yield* accumulateEffectsAndReport(effects, {
         concurrency: "unbounded",
         annotations: { service: "upload" },
       });

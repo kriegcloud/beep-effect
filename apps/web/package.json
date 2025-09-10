@@ -43,6 +43,7 @@
     "@effect/platform": "*",
     "@effect/rpc": "*",
     "@effect/platform-browser": "*",
+    "webp-wasm": "*",
     "@beep/better-auth": "workspace:^",
     "@beep/shared-client": "workspace:^",
     "@tanstack/react-query": "*",

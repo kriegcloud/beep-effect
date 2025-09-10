@@ -2,6 +2,20 @@ import path from "node:path";
 import * as Struct from "effect/Struct";
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_ENV === "dev";
+const otlpOrigin = process.env.NEXT_PUBLIC_OTLP_TRACE_EXPORTER_URL
+  ? new URL(process.env.NEXT_PUBLIC_OTLP_TRACE_EXPORTER_URL).origin
+  : undefined;
+const CONNECT_SRC = [
+  "'self'",
+  "https://vercel.live/",
+  "https://vercel.com",
+  // Allow WebSocket connections in development (Next HMR, Effect DevTools, etc.)
+  ...(isDev ? ["ws:", "wss:", "http://localhost:*", "http://127.0.0.1:*"] : []),
+  // Allow OTLP exporter endpoint if configured
+  ...(otlpOrigin ? [otlpOrigin] : []),
+];
+
 const CSP_DIRECTIVES = {
   "default-src": ["'self'"],
   "base-uri": ["'self'"],
@@ -12,7 +26,7 @@ const CSP_DIRECTIVES = {
   "font-src": ["'self'"],
   "style-src-elem": ["'self'", "'unsafe-inline'"],
   "script-src-elem": ["'self'", "blob:", "https://vercel.live", "'unsafe-inline'"],
-  "connect-src": ["'self'", "https://vercel.live/", "https://vercel.com"],
+  "connect-src": CONNECT_SRC,
   "media-src": ["'self'", "data:"],
   "frame-ancestors": ["'self'", "https://vercel.live", "https://vercel.com"],
   "img-src": ["'self'", "https://www.google-analytics.com", "data:", "blob:"],

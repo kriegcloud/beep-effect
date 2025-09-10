@@ -41,5 +41,7 @@ export const clientEnv = F.pipe(
     googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
   } satisfies Record<keyof ClientEnvSchema.Encoded, unknown>,
   S.decodeUnknownEither(ClientEnvSchema),
-  Either.getOrElse((parseIssue) => `❌ Invalid environment variables: ${TreeFormatter.formatErrorSync(parseIssue)}`)
+  Either.getOrElse((parseIssue) => {
+    throw new Error(`❌ Invalid environment variables: ${TreeFormatter.formatErrorSync(parseIssue)}`);
+  })
 );
