@@ -208,6 +208,7 @@ overrides:
   ajv: 8.17.1
   ajv-formats: 3.0.1
   json-logic-js: 2.0.5
+  exifreader: ^4.31.2
   '@svgr/webpack': 8.1.0
   '@types/json-logic-js': 2.0.8
 
@@ -664,6 +665,9 @@ importers:
       es-toolkit:
         specifier: ^1.39.10
         version: 1.39.10
+      exifreader:
+        specifier: ^4.31.2
+        version: 4.31.2
       framer-motion:
         specifier: 12.23.12
         version: 12.23.12(@emotion/is-prop-valid@1.4.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -6847,6 +6851,10 @@ packages:
       react:
         optional: true
 
+  '@xmldom/xmldom@0.9.8':
+    resolution: {integrity: sha512-p96FSY54r+WJ50FIOsCOjyj/wavs8921hG5+kVMmZgKcvIKxMXHTrjNJvRgWa/zuX3B6t2lijLNFaOyuxUH+2A==}
+    engines: {node: '>=14.6'}
+
   '@xstate/react@6.0.0':
     resolution: {integrity: sha512-xXlLpFJxqLhhmecAXclBECgk+B4zYSrDTl8hTfPZBogkn82OHKbm9zJxox3Z/YXoOhAQhKFTRLMYGdlbhc6T9A==}
     peerDependencies:
@@ -7949,6 +7957,9 @@ packages:
   execa@5.1.1:
     resolution: {integrity: sha512-8uSpZZocAZRBAPIEINJj3Lo9HyGitllczc27Eh5YYojjMFMn8yHMDMaUHE2Jqfq05D/wucwI4JGURyXt1vchyg==}
     engines: {node: '>=10'}
+
+  exifreader@4.31.2:
+    resolution: {integrity: sha512-1NwFxGzoVyDDXpT4pw/gqQ10domJPOJFQHNhw7I4/qJZq1Rln0OlE7bfZLTM1gfxahvVV/pe9Dvsscda8h+27g==}
 
   expect-type@1.2.2:
     resolution: {integrity: sha512-JhFGDVJ7tmDJItKhYgJCGLOWjuK9vPxiXoUFLwLDc99NlmklilbiQJwoctZtt13+xMw91MCk/REan6MWHqDjyA==}
@@ -16510,6 +16521,9 @@ snapshots:
     optionalDependencies:
       react: 19.1.1
 
+  '@xmldom/xmldom@0.9.8':
+    optional: true
+
   '@xstate/react@6.0.0(@types/react@19.1.12)(react@19.1.1)(xstate@5.21.0)':
     dependencies:
       react: 19.1.1
@@ -17592,6 +17606,10 @@ snapshots:
       onetime: 5.1.2
       signal-exit: 3.0.7
       strip-final-newline: 2.0.0
+
+  exifreader@4.31.2:
+    optionalDependencies:
+      '@xmldom/xmldom': 0.9.8
 
   expect-type@1.2.2: {}
 

@@ -1,5 +1,5 @@
 "use client";
-import { clientEnv } from "@beep/env/client";
+
 import { QueryClientProvider, QueryClient as TanstackQueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import * as Duration from "effect/Duration";
@@ -45,7 +45,7 @@ export const GlobalProviders: React.FC<GlobalProviders> = ({ children }) => {
           WorkerClient.Default,
           NetworkMonitor.Default,
           QueryClient.make(queryClient),
-          Logger.minimumLogLevel(clientEnv.env === "dev" ? LogLevel.Debug : LogLevel.Info)
+          Logger.minimumLogLevel(process.env.NEXT_PUBLIC_ENV === "dev" ? LogLevel.Debug : LogLevel.Info)
         ).pipe(Layer.provide(Logger.pretty))
       ),
     [queryClient]

@@ -29,6 +29,7 @@
     "@beep/logos": "workspace:^",
     "@beep/rete": "workspace:^",
     "@beep/env": "workspace:^",
+    "exifreader": "*",
     "@beep/ui": "workspace:^",
     "@beep/files-application": "workspace:^",
     "@beep/files-api": "workspace:^",

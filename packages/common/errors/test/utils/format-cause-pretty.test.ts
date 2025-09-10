@@ -1,4 +1,4 @@
-import { formatCausePretty } from "@beep/errors/utils";
+import { formatCausePretty } from "@beep/errors/shared";
 import { describe, it } from "@effect/vitest";
 import { deepStrictEqual } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";

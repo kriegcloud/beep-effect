@@ -284,6 +284,7 @@
       "ajv": "8.17.1",
       "ajv-formats": "3.0.1",
       "json-logic-js": "2.0.5",
+      "exifreader": "^4.31.2",
       "@svgr/webpack": "8.1.0",
       "@types/json-logic-js": "2.0.8"
     },

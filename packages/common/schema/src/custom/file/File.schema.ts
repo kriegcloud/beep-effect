@@ -1,6 +1,7 @@
 import { MimeType } from "@beep/schema/custom/file/extensions";
 import * as S from "effect/Schema";
 import { Class } from "../Class.schema";
+import { DateFromAllAcceptable } from "../dates";
 
 export class FileBase extends S.declare((i: unknown): i is File => i instanceof File).annotations({
   schemaId: Symbol.for("@beep/schema/custom/file/FileBase"),
@@ -18,9 +19,12 @@ export class FileAttributes extends Class<FileAttributes>("FileAttributes")(
   {
     size: S.NonNegativeInt,
     type: MimeType,
-    lastModified: S.DateTimeUtcFromNumber,
+    lastModifiedDate: DateFromAllAcceptable,
+    lastModified: DateFromAllAcceptable,
     name: S.NonEmptyString,
-    webkitRelativePath: S.NonEmptyString,
+    webkitRelativePath: S.optional(S.NonEmptyString),
+    relativePath: S.optional(S.NonEmptyString),
+    path: S.optional(S.NonEmptyString),
   },
   {
     schemaId: Symbol.for("@beep/schema/custom/file/FileAttributes"),

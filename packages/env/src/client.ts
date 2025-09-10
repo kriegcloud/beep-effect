@@ -1,31 +1,45 @@
 "use client";
-import { AuthProviderNameValue, EnvValue } from "@beep/constants";
-import { URLPath } from "@beep/schema/custom";
-import * as Config from "effect/Config";
-import * as ConfigProvider from "effect/ConfigProvider";
-import * as Effect from "effect/Effect";
+import { EnvValue, LogLevel } from "@beep/constants";
+import * as Either from "effect/Either";
+import * as F from "effect/Function";
+import { TreeFormatter } from "effect/ParseResult";
 import * as S from "effect/Schema";
-import { ConfigURL } from "./common";
 
-export const ClientConfig = Config.nested("NEXT_PUBLIC")(
-  Config.all({
-    env: S.Config("ENV", EnvValue).pipe(Config.withDefault(EnvValue.Enum.dev)),
-    appName: Config.nonEmptyString("APP_NAME"),
-    appDomain: Config.nonEmptyString("APP_DOMAIN").pipe(Config.withDefault("localhost")),
-    authProviderNames: Config.array(S.Config("AUTH_PROVIDER_NAMES", AuthProviderNameValue)),
-    appUrl: ConfigURL("APP_URL"),
-    apiUrl: ConfigURL("API_URL"),
-    otlpTraceExportedUrl: ConfigURL("OTLP_TRACE_EXPORTER_URL"),
-    logLevel: Config.logLevel("APP_LOG_LEVEL").pipe(Config.withDefault("None")),
-    captchaSiteKey: Config.redacted(Config.nonEmptyString("CAPTCHA_SITE_KEY")),
-    authUrl: ConfigURL("AUTH_URL"),
-    authPath: S.Config("AUTH_PATH", URLPath),
-    googleClientId: Config.redacted(Config.nonEmptyString("GOOGLE_CLIENT_ID")),
-  })
+const ClientEnvSchema = S.Struct({
+  env: EnvValue,
+  appName: S.NonEmptyTrimmedString,
+  appDomain: S.NonEmptyTrimmedString,
+  authProviderNames: S.String,
+  appUrl: S.String,
+  apiUrl: S.String,
+  otlpTraceExportedUrl: S.String,
+  logLevel: LogLevel,
+  captchaSiteKey: S.String,
+  authUrl: S.String,
+  authPath: S.String,
+  googleClientId: S.String,
+});
+
+namespace ClientEnvSchema {
+  export type Type = S.Schema.Type<typeof ClientEnvSchema>;
+  export type Encoded = S.Schema.Encoded<typeof ClientEnvSchema>;
+}
+
+export const clientEnv = F.pipe(
+  {
+    env: process.env.NEXT_PUBLIC_ENV,
+    appName: process.env.NEXT_PUBLIC_APP_NAME,
+    appDomain: process.env.NEXT_PUBLIC_APP_DOMAIN,
+    authProviderNames: process.env.NEXT_PUBLIC_AUTH_PROVIDER_NAMES,
+    appUrl: process.env.NEXT_PUBLIC_APP_URL,
+    apiUrl: process.env.NEXT_PUBLIC_API_URL,
+    otlpTraceExportedUrl: process.env.NEXT_PUBLIC_OTLP_TRACE_EXPORTER_URL,
+    logLevel: process.env.NEXT_PUBLIC_LOG_LEVEL,
+    captchaSiteKey: process.env.NEXT_PUBLIC_LOG_FORMAT,
+    authUrl: process.env.NEXT_PUBLIC_AUTH_URL,
+    authPath: process.env.NEXT_PUBLIC_AUTH_PATH,
+    googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+  } satisfies Record<keyof ClientEnvSchema.Encoded, unknown>,
+  S.decodeUnknownEither(ClientEnvSchema),
+  Either.getOrElse((parseIssue) => `❌ Invalid environment variables: ${TreeFormatter.formatErrorSync(parseIssue)}`)
 );
-
-// const envMap = new Map(Object.entries(import.meta.env))
-const provider = ConfigProvider.fromEnv().pipe(ConfigProvider.constantCase);
-const loadConfig = provider.load(ClientConfig);
-
-export const clientEnv = Effect.runSync(loadConfig);

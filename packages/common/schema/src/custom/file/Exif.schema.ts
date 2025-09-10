@@ -10,16 +10,31 @@ import * as EffStruct from "effect/Struct";
 const NumberFileTag = Struct({
   description: S.String,
   value: S.Number,
+}).annotations({
+  schemaId: Symbol.for("@beep/schema/custom/file/Exif/NumberFileTag"),
+  identifier: "NumberFileTag",
+  title: "Number File Tag",
+  description: "",
 });
 
 const NumberArrayFileTag = Struct({
   description: S.String,
   value: S.Array(S.Number),
+}).annotations({
+  schemaId: Symbol.for("@beep/schema/custom/file/Exif/NumberArrayFileTag"),
+  identifier: "NumberArrayFileTag",
+  title: "Number Array File Tag",
+  description: "",
 });
 
 const NumberArray2DFileTag = Struct({
   description: S.String,
   value: S.Union(S.Array(S.Number), S.Array(S.Array(S.Number))),
+}).annotations({
+  schemaId: Symbol.for("@beep/schema/custom/file/Exif/NumberArray2DFileTag"),
+  identifier: "NumberArray2DFileTag",
+  title: "Number Array 2D File Tag",
+  description: "",
 });
 
 const makeTypedTag = <A, I, R>(schema: S.Schema<A, I, R>) =>
@@ -29,21 +44,56 @@ const makeTypedTag = <A, I, R>(schema: S.Schema<A, I, R>) =>
     value: schema,
   });
 
-const RationalTag = makeTypedTag(S.Tuple(S.Number, S.Number));
-const NumberTag = makeTypedTag(S.Number);
-const NumberArrayTag = makeTypedTag(S.Array(S.Number));
-const StringArrayTag = makeTypedTag(S.Array(S.String));
-const StringTag = makeTypedTag(S.String);
+const RationalTag = makeTypedTag(S.Tuple(S.Number, S.Number)).annotations({
+  schemaId: Symbol.for("@beep/schema/custom/file/Exif/RationalTag"),
+  identifier: "RationalTag",
+  title: "Rational Tag",
+  description: "",
+});
+const NumberTag = makeTypedTag(S.Number).annotations({
+  schemaId: Symbol.for("@beep/schema/custom/file/Exif/NumberTag"),
+  identifier: "NumberTag",
+  title: "Number Tag",
+  description: "",
+});
+const NumberArrayTag = makeTypedTag(S.Array(S.Number)).annotations({
+  schemaId: Symbol.for("@beep/schema/custom/file/Exif/NumberArrayTag"),
+  identifier: "NumberTag",
+  title: "Number Array Tag",
+  description: "",
+});
+const StringArrayTag = makeTypedTag(S.Array(S.String)).annotations({
+  schemaId: Symbol.for("@beep/schema/custom/file/Exif/StringArrayTag"),
+  identifier: "StringArrayTag",
+  title: "String Array Tag",
+  description: "",
+});
+const StringTag = makeTypedTag(S.String).annotations({
+  schemaId: Symbol.for("@beep/schema/custom/file/Exif/StringTag"),
+  identifier: "StringTag",
+  title: "String Tag",
+  description: "",
+});
 
 const ValueTag = Struct({
   description: S.String,
   value: S.Union(S.String, S.Number),
+}).annotations({
+  schemaId: Symbol.for("@beep/schema/custom/file/Exif/ValueTag"),
+  identifier: "ValueTag",
+  title: "Value Tag",
+  description: "",
 });
 
 // File types
 const FileTypeTag = Struct({
   value: S.Literal("tiff", "jpeg", "png", "heic", "avif", "webp", "gif"),
   description: S.Literal("TIFF", "JPEG", "PNG", "HEIC", "AVIF", "WebP", "GIF"),
+}).annotations({
+  schemaId: Symbol.for("@beep/schema/custom/file/Exif/FileTypeTag"),
+  identifier: "FileTypeTag",
+  title: "File Type Tag",
+  description: "",
 });
 
 const FileTags = Struct({
@@ -55,17 +105,32 @@ const FileTags = Struct({
   width: S.optional(NumberFileTag).pipe(S.fromKey("Image Width")),
   colorComponents: S.optional(NumberFileTag).pipe(S.fromKey("Color Components")),
   subsampling: S.optional(NumberArray2DFileTag).pipe(S.fromKey("Subsampling")),
+}).annotations({
+  schemaId: Symbol.for("@beep/schema/custom/file/Exif/FileTags"),
+  identifier: "FileTags",
+  title: "File Tags",
+  description: "",
 });
 
 // JFIF tags
 const JfifResolutionUnitTag = Struct({
   value: S.Number,
   description: S.Literal("None", "inches", "cm", "Unknown"),
+}).annotations({
+  schemaId: Symbol.for("@beep/schema/custom/file/Exif/JfifResolutionUnitTag"),
+  identifier: "JfifResolutionUnitTag",
+  title: "Jfif Resolution Unit Tag",
+  description: "",
 });
 
 const JfifThumbnailTag = Struct({
   value: S.Union(S.instanceOf(ArrayBuffer), S.instanceOf(SharedArrayBuffer), S.instanceOf(Buffer)),
   description: S.Literal("<24-bit RGB pixel data>"),
+}).annotations({
+  schemaId: Symbol.for("@beep/schema/custom/file/Exif/JfifThumbnailTag"),
+  identifier: "JfifThumbnailTag",
+  title: "Jfif Thumbnail Tag",
+  description: "",
 });
 
 const JfifTags = Struct({
@@ -619,6 +684,11 @@ export const ExpandedTags = Struct({
   ),
   composite: S.optional(CompositeTags),
 });
+
+export namespace ExpandedTags {
+  export type Type = S.Schema.Type<typeof ExpandedTags>;
+  export type Encoded = S.Schema.Encoded<typeof ExpandedTags>;
+}
 
 export const ExifMetadataFromString = S.transformOrFail(S.String, ExpandedTags, {
   strict: true,
