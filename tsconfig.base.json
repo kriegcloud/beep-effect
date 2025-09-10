@@ -185,15 +185,6 @@
       "@beep/shared-tables/test/*": [
         "./packages/shared/tables/test/*"
       ],
-      "@beep/shared-client": [
-        "./packages/shared/client/src/index"
-      ],
-      "@beep/shared-client/*": [
-        "./packages/shared/client/src/*"
-      ],
-      "@beep/shared-client/test/*": [
-        "./packages/shared/client/test/*"
-      ],
       "@beep/iam-api": [
         "./packages/iam/api/src/index"
       ],

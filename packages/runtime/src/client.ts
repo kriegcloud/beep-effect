@@ -6,8 +6,6 @@ import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-web";
 import { Layer } from "effect";
 
-console.log(clientEnv.otlpTraceExportedUrl.toString());
-
 export * from "./client-services";
 export const WebSdkLive = WebSdk.layer(() => ({
   resource: { serviceName: `${clientEnv.appName}-client` },

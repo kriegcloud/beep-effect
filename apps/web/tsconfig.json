@@ -69,8 +69,6 @@
       "@beep/files-db/*": ["../../packages/files/db/src/*"],
       "@beep/files-ui": ["../../packages/files/ui/src/index"],
       "@beep/files-ui/*": ["../../packages/files/ui/src/*"],
-      "@beep/shared-client": ["../../packages/shared/client/src/index"],
-      "@beep/shared-client/*": ["../../packages/shared/client/src/*"],
       "@beep/better-auth": ["../../packages/adapters/better-auth/src/index"],
       "@beep/better-auth/*": ["../../packages/adapters/better-auth/src/*"],
       "@beep/shared-domain": ["../../packages/shared/domain/src/index"],
@@ -140,9 +138,6 @@
     },
     {
       "path": "../../packages/files/ui/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/shared/client/tsconfig.build.json"
     },
     {
       "path": "../../packages/shared/domain/tsconfig.build.json"

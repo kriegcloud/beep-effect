@@ -5,8 +5,8 @@ The file names directly correspond to the `effect` / `@effect` packages used in 
 ## Patterns
 
 - **[http-api.md](@effect-platform-HttpApi.md)** - HTTP API definition and implementation patterns using Effect platform
-- **[layer-composition.md](./layer-composition.md)** - Layer-based dependency injection and service composition patterns  
-- **[generic-testing.md](./generic-testing.md)** - General testing patterns with @effect/vitest and Effect ecosystem
+- **[layer-composition.md](layer-composition.md)** - Layer-based dependency injection and service composition patterns  
+- **[generic-testing.md](generic-testing.md)** - General testing patterns with @effect/vitest and Effect ecosystem
 
 ## Usage
 
