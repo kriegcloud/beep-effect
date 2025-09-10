@@ -1,14 +1,10 @@
 import { DbPool } from "@beep/db-scope/db.pool";
 import * as DbErrors from "@beep/db-scope/errors";
-import { serverEnv } from "@beep/env/server";
 import type { UnsafeTypes } from "@beep/types";
 import * as PgDrizzle from "@effect/sql-drizzle/Pg";
-import * as PgClient from "@effect/sql-pg/PgClient";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Cause, Effect, Exit, Option, Runtime } from "effect";
 import * as Context from "effect/Context";
-import * as Layer from "effect/Layer";
-import * as Str from "effect/String";
 import type { DbClient, ExecuteFn, TransactionClient, TransactionContextShape } from "./types";
 
 export const makeScopedDb = <const TFullSchema extends Record<string, unknown> = Record<string, never>>(
@@ -89,7 +85,12 @@ export const makeScopedDb = <const TFullSchema extends Record<string, unknown> =
           );
         };
 
+      const pgDrizzle = yield* PgDrizzle.make<typeof schema>({
+        schema: schema,
+      });
+
       return {
+        pgDrizzle,
         execute,
         transaction,
         setupConnectionListeners,
@@ -97,22 +98,9 @@ export const makeScopedDb = <const TFullSchema extends Record<string, unknown> =
         db,
         pool,
       } as const;
-    });
+    })
 
-  const makeSql = () => {
-    const DrizzlePgClient = PgClient.layer({
-      port: serverEnv.db.pg.port,
-      host: serverEnv.db.pg.host,
-      username: serverEnv.db.pg.user,
-      password: serverEnv.db.pg.password,
-      ssl: serverEnv.db.pg.ssl,
-      transformResultNames: Str.snakeToCamel,
-    });
-
-    return PgDrizzle.layer.pipe(Layer.provideMerge(DrizzlePgClient));
-  };
   return {
     makeService,
-    makeSql,
   };
 };

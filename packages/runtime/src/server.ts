@@ -1,3 +1,4 @@
+import { DbPool } from "@beep/db-scope";
 import { serverEnv } from "@beep/env/server";
 import { DevTools } from "@effect/experimental";
 import { NodeSdk } from "@effect/opentelemetry";
@@ -32,4 +33,11 @@ export type ServerLayerType =
   | typeof FetchHttpClient.layer
   | typeof Logger.pretty;
 
-export const layer = Layer.mergeAll(NodeSdkLive, DevToolsLive, PgLive, FetchHttpClient.layer, Logger.pretty);
+export const layer = Layer.mergeAll(
+  NodeSdkLive,
+  DevToolsLive,
+  PgLive,
+  DbPool.Live,
+  FetchHttpClient.layer,
+  Logger.pretty,
+);

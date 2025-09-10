@@ -1,6 +1,8 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["test"],
+  "include": [
+    "test"
+  ],
   "references": [
     {
       "path": "tsconfig.src.json"
@@ -13,10 +15,15 @@
     },
     {
       "path": "../common/constants"
+    },
+    {
+      "path": "../persistence/db-scope"
     }
   ],
   "compilerOptions": {
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true

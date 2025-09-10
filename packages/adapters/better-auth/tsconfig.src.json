@@ -43,6 +43,9 @@
     },
     {
       "path": "../../shared/tables"
+    },
+        {
+      "path": "../../runtime"
     }
   ],
   "compilerOptions": {
@@ -88,7 +91,9 @@
       "@beep/utils": ["../../common/utils/src/index"],
       "@beep/utils/*": ["../../common/utils/src/*"],
       "@beep/types": ["../../common/types/src/index"],
-      "@beep/types/*": ["../../common/types/src/*"]
+      "@beep/types/*": ["../../common/types/src/*"],
+      "@beep/runtime/server": ["../../runtime/src/server"],
+      "@beep/runtime/client": ["../../runtime/src/client"]
     }
   }
 }

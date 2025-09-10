@@ -1679,6 +1679,9 @@ importers:
       '@beep/constants':
         specifier: workspace:*
         version: link:../common/constants/build
+      '@beep/db-scope':
+        specifier: workspace:*
+        version: link:../persistence/db-scope/build
       '@beep/env':
         specifier: workspace:*
         version: link:../env/build

@@ -12,7 +12,9 @@
       "@beep/errors/shared": ["../common/errors/src/shared-core"],
       "@beep/errors/client": ["../common/errors/src/client"],
       "@beep/constants": ["../common/constants/src/index"],
-      "@beep/constants/*": ["../common/constants/src/*"]
+      "@beep/constants/*": ["../common/constants/src/*"],
+      "@beep/db-scope": ["../persistence/db-scope/src/index"],
+      "@beep/db-scope/*": ["../persistence/db-scope/src/*"]
     }
   },
   "references": [

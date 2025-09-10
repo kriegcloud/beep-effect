@@ -3,35 +3,99 @@
   "include": [],
   "compilerOptions": {
     "paths": {
-      "@beep/better-auth/*": ["./src/*"],
-      "@beep/iam-domain": ["../../iam/domain/src/index"],
-      "@beep/iam-domain/*": ["../../iam/domain/src/*"],
-      "@beep/iam-tables": ["../../iam/tables/src/index"],
-      "@beep/iam-tables/*": ["../../iam/tables/src/*"],
-      "@beep/iam-db": ["../../iam/db/src/index"],
-      "@beep/iam-db/*": ["../../iam/db/src/*"],
-      "@beep/env/client": ["../../env/src/client"],
-      "@beep/env/server": ["../../env/src/server"],
-      "@beep/resend": ["../resend/src/index"],
-      "@beep/resend/*": ["../resend/src/*"],
-      "@beep/db-scope": ["../../persistence/db-scope/src/index"],
-      "@beep/db-scope/*": ["../../persistence/db-scope/src/*"],
-      "@beep/email": ["../../email/src/index"],
-      "@beep/email/*": ["../../email/src/*"],
-      "@beep/shared-domain": ["../../shared/domain/src/index"],
-      "@beep/shared-domain/*": ["../../shared/domain/src/*"],
-      "@beep/shared-tables": ["../../shared/tables/src/index"],
-      "@beep/shared-tables/*": ["../../shared/tables/src/*"],
-      "@beep/schema": ["../../common/schema/src/index"],
-      "@beep/schema/*": ["../../common/schema/src/*"],
-      "@beep/constants": ["../../common/constants/src/index"],
-      "@beep/constants/*": ["../../common/constants/src/*"],
-      "@beep/invariant": ["../../common/invariant/src/index"],
-      "@beep/invariant/*": ["../../common/invariant/src/*"],
-      "@beep/utils": ["../../common/utils/src/index"],
-      "@beep/utils/*": ["../../common/utils/src/*"],
-      "@beep/types": ["../../common/types/src/index"],
-      "@beep/types/*": ["../../common/types/src/*"]
+      "@beep/better-auth/*": [
+        "./src/*"
+      ],
+      "@beep/iam-domain": [
+        "../../iam/domain/src/index"
+      ],
+      "@beep/iam-domain/*": [
+        "../../iam/domain/src/*"
+      ],
+      "@beep/iam-tables": [
+        "../../iam/tables/src/index"
+      ],
+      "@beep/iam-tables/*": [
+        "../../iam/tables/src/*"
+      ],
+      "@beep/iam-db": [
+        "../../iam/db/src/index"
+      ],
+      "@beep/iam-db/*": [
+        "../../iam/db/src/*"
+      ],
+      "@beep/env/client": [
+        "../../env/src/client"
+      ],
+      "@beep/env/server": [
+        "../../env/src/server"
+      ],
+      "@beep/resend": [
+        "../resend/src/index"
+      ],
+      "@beep/resend/*": [
+        "../resend/src/*"
+      ],
+      "@beep/db-scope": [
+        "../../persistence/db-scope/src/index"
+      ],
+      "@beep/db-scope/*": [
+        "../../persistence/db-scope/src/*"
+      ],
+      "@beep/email": [
+        "../../email/src/index"
+      ],
+      "@beep/email/*": [
+        "../../email/src/*"
+      ],
+      "@beep/shared-domain": [
+        "../../shared/domain/src/index"
+      ],
+      "@beep/shared-domain/*": [
+        "../../shared/domain/src/*"
+      ],
+      "@beep/shared-tables": [
+        "../../shared/tables/src/index"
+      ],
+      "@beep/shared-tables/*": [
+        "../../shared/tables/src/*"
+      ],
+      "@beep/schema": [
+        "../../common/schema/src/index"
+      ],
+      "@beep/schema/*": [
+        "../../common/schema/src/*"
+      ],
+      "@beep/constants": [
+        "../../common/constants/src/index"
+      ],
+      "@beep/constants/*": [
+        "../../common/constants/src/*"
+      ],
+      "@beep/invariant": [
+        "../../common/invariant/src/index"
+      ],
+      "@beep/invariant/*": [
+        "../../common/invariant/src/*"
+      ],
+      "@beep/utils": [
+        "../../common/utils/src/index"
+      ],
+      "@beep/utils/*": [
+        "../../common/utils/src/*"
+      ],
+      "@beep/types": [
+        "../../common/types/src/index"
+      ],
+      "@beep/types/*": [
+        "../../common/types/src/*"
+      ],
+      "@beep/runtime/server": [
+        "../../runtime/src/server"
+      ],
+      "@beep/runtime/client": [
+        "../../runtime/src/client"
+      ]
     }
   },
   "references": [

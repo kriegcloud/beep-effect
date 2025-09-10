@@ -112,32 +112,3 @@
 // export const serverRuntime = ManagedRuntime.make(AppLayer);
 //
 // serverRuntime.runPromise(Effect.scoped(program));
-import { serverEnv } from "@beep/env/server";
-import * as PgDrizzle from "@effect/sql-drizzle/Pg";
-import { PgClient } from "@effect/sql-pg";
-import * as Effect from "effect/Effect";
-import * as schema from "./schema";
-import * as Str from "effect/String";
-const PgLive = PgClient.layer({
-  port: serverEnv.db.pg.port,
-  host: serverEnv.db.pg.host,
-  username: serverEnv.db.pg.user,
-  password: serverEnv.db.pg.password,
-  ssl: serverEnv.db.pg.ssl,
-  transformResultNames: Str.snakeToCamel,
-});
-
-export class DbLive extends Effect.Service<DbLive>()("@beep/DbLive", {
-  dependencies: [PgLive],
-  effect: PgDrizzle.make<typeof schema>({
-    schema: schema,
-  })
-}) {}
-
-const program = Effect.gen(function* () {
-  const db = yield* DbLive;
-  const users = yield* db.query.user.findMany();
-  console.log("Users: ", users)
-}).pipe(Effect.catchAll((e) => Effect.logError(e)))
-
-program.pipe(Effect.provide(DbLive.Default), Effect.runPromise)

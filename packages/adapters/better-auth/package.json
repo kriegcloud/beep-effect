@@ -36,6 +36,7 @@
     "execute": "pnpm tsx --tsconfig ./tsconfig.src.json ./src/execute.ts"
   },
   "dependencies": {
+    "@beep/runtime": "workspace:*",
     "@beep/email": "workspace:^",
     "@beep/env": "workspace:^",
     "@beep/iam-db": "workspace:^",

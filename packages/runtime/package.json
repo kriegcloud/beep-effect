@@ -34,6 +34,7 @@
     "lint:circular": "pnpm madge -c ."
   },
   "dependencies": {
+    "@beep/db-scope": "workspace:*",
     "effect": "*",
     "@effect/opentelemetry": "*",
     "@opentelemetry/sdk-trace-web": "*",
