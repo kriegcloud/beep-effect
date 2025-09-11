@@ -74,6 +74,7 @@ export namespace EntityId {
     readonly is: (u: unknown) => u is Type<TableName, Brand>;
     readonly publicId: () => PublicId<TableName, Brand>;
     readonly privateId: () => PrivateId<Brand>;
+    readonly privateSchema: S.brand<S.refine<number, typeof S.NonNegative>, Brand>;
   };
 
   export const make = <const TableName extends string, const Brand extends string>(
@@ -87,6 +88,8 @@ export namespace EntityId {
     }
   ): EntityIdSchemaInstance<TableName, Brand> => {
     const factory = new Factory<TableName, Brand>(tableName, brand);
+
+    const privateSchema = S.NonNegativeInt.pipe(S.brand(brand));
 
     const schema = factory.Schema({
       ...annotations,
@@ -118,6 +121,7 @@ export namespace EntityId {
       static readonly is = S.is(schema);
       static readonly publicId = () => publicId;
       static readonly privateId = () => privateId;
+      static readonly privateSchema = privateSchema;
     }
 
     // hide the fact it extends SchemaClass

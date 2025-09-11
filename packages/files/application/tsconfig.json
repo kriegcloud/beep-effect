@@ -3,7 +3,24 @@
   "include": [],
   "compilerOptions": {
     "paths": {
-      "@beep/files-application/*": ["./src/*"]
+      "@beep/files-application/*": ["./src/*"],
+      "@beep/env/client": ["../../env/src/client"],
+      "@beep/env/server": ["../../env/src/server"],
+      "@beep/errors/client": ["../../common/errors/src/client"],
+      "@beep/errors/shared": ["../../common/errors/src/shared-core"],
+      "@beep/errors/server": ["../../common/errors/src/server"],
+      "@beep/schema": ["../../common/schema/src/index"],
+      "@beep/schema/*": ["../../common/schema/src/*"],
+      "@beep/shared-domain": ["../../shared/domain/src/index"],
+      "@beep/shared-domain/*": ["../../shared/domain/src/*"],
+      "@beep/shared-tables": ["../../shared/tables/src/index"],
+      "@beep/shared-tables/*": ["../../shared/tables/src/*"],
+      "@beep/utils": ["../../common/utils/src/index"],
+      "@beep/utils/*": ["../../common/utils/src/*"],
+      "@beep/constants": ["../../common/constants/src/index"],
+      "@beep/constants/*": ["../../common/constants/src/*"],
+      "@beep/files-db": ["../db/src/index"],
+      "@beep/files-db/*": ["../db/src/*"]
     }
   },
   "references": [

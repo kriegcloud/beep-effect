@@ -4,6 +4,30 @@
   "references": [
     {
       "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../env"
+    },
+    {
+      "path": "../../common/constants"
+    },
+    {
+      "path": "../../common/utils"
+    },
+    {
+      "path": "../../common/errors"
+    },
+    {
+      "path": "../../common/schema"
+    },
+    {
+      "path": "../../shared/domain"
+    },
+    {
+      "path": "../../shared/tables"
+    },
+    {
+      "path": "../db"
     }
   ],
   "compilerOptions": {

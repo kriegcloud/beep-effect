@@ -335,15 +335,6 @@
       "@/*": [
         "./apps/web/src/*"
       ],
-      "@beep/storage": [
-        "./packages/storage/src/index"
-      ],
-      "@beep/storage/*": [
-        "./packages/storage/src/*"
-      ],
-      "@beep/storage/test/*": [
-        "./packages/storage/test/*"
-      ],
       "@beep/constants": [
         "./packages/common/constants/src/index"
       ],

@@ -2,7 +2,7 @@ import { SharedEntityIds } from "@beep/shared-domain";
 import { Organization } from "@beep/shared-domain/entities";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-import { Table } from "./Table";
+import { Table } from "../Table";
 
 export const organizationTypePgEnum = pg.pgEnum("organization_type_enum", Organization.OrganizationType.Options);
 export const subscriptionTierPgEnum = pg.pgEnum("subscription_tier_enum", Organization.SubscriptionTier.Options);

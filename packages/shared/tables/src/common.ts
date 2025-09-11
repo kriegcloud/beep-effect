@@ -29,9 +29,3 @@ export const globalColumns = {
   // Optional: Enhanced traceability
   source: pg.text("source"), // 'api', 'import', 'migration', etc.
 } as const;
-
-export const defaultColumns = {
-  ...globalColumns,
-  // Note: Foreign key reference will be defined in the consuming table files
-  // to avoid circular dependency with organization.table.ts
-} as const;

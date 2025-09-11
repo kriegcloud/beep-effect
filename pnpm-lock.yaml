@@ -1344,6 +1344,36 @@ importers:
 
   packages/files/application:
     dependencies:
+      '@beep/constants':
+        specifier: workspace:*
+        version: link:../../common/constants/build
+      '@beep/env':
+        specifier: workspace:*
+        version: link:../../env/build
+      '@beep/errors':
+        specifier: workspace:*
+        version: link:../../common/errors/build
+      '@beep/files-db':
+        specifier: workspace:*
+        version: link:../db/build
+      '@beep/schema':
+        specifier: workspace:*
+        version: link:../../common/schema/build
+      '@beep/shared-domain':
+        specifier: workspace:*
+        version: link:../../shared/domain/build
+      '@beep/shared-tables':
+        specifier: workspace:*
+        version: link:../../shared/tables/build
+      '@beep/utils':
+        specifier: workspace:*
+        version: link:../../common/utils/build
+      '@effect-aws/client-s3':
+        specifier: ^1.10.3
+        version: 1.10.3(effect@3.17.13)
+      '@effect-aws/s3':
+        specifier: ^0.2.3
+        version: 0.2.3(@effect-aws/client-s3@1.10.3(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
       effect:
         specifier: 3.17.13
         version: 3.17.13
@@ -1791,53 +1821,6 @@ importers:
       '@beep/types':
         specifier: workspace:*
         version: link:../../common/types/build
-    publishDirectory: build
-
-  packages/storage:
-    dependencies:
-      '@beep/constants':
-        specifier: workspace:^
-        version: link:../common/constants/build
-      '@beep/env':
-        specifier: workspace:*
-        version: link:../env/build
-      '@beep/invariant':
-        specifier: workspace:*
-        version: link:../common/invariant/build
-      '@beep/schema':
-        specifier: workspace:*
-        version: link:../common/schema/build
-      '@beep/shared-domain':
-        specifier: workspace:*
-        version: link:../shared/domain/build
-      '@beep/shared-tables':
-        specifier: workspace:*
-        version: link:../shared/tables/build
-      '@beep/utils':
-        specifier: workspace:*
-        version: link:../common/utils/build
-      '@effect-aws/client-s3':
-        specifier: ^1.10.3
-        version: 1.10.3(effect@3.17.13)
-      '@effect-aws/s3':
-        specifier: ^0.2.3
-        version: 0.2.3(@effect-aws/client-s3@1.10.3(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
-      '@effect/sql':
-        specifier: 0.44.2
-        version: 0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
-      drizzle-orm:
-        specifier: 0.44.5
-        version: 0.44.5(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(kysely@0.28.5)(pg@8.16.3)(postgres@3.4.7)
-      effect:
-        specifier: 3.17.13
-        version: 3.17.13
-      uuid:
-        specifier: 13.0.0
-        version: 13.0.0
-    devDependencies:
-      '@beep/types':
-        specifier: workspace:*
-        version: link:../common/types/build
     publishDirectory: build
 
   packages/ui:
