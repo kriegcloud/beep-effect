@@ -10,6 +10,7 @@ export * from "./ArrayBuffer.schema";
 export * from "./Bool.schema";
 export * from "./Class.schema";
 export * from "./Domain.schema";
+export * from "./Duration.schema";
 export * from "./dates";
 export * from "./Email.schema";
 export * from "./Fn.schema";
