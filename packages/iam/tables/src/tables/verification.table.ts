@@ -1,15 +1,11 @@
 import { IamEntityIds } from "@beep/shared-domain";
-import { Common } from "@beep/shared-tables";
+import { Table } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
-
-export const verification = pg.pgTable(
-  "verification",
+export const verification = Table.make(IamEntityIds.VerificationId)(
   {
-    id: Common.idColumn("verification", IamEntityIds.VerificationId),
     identifier: pg.text("identifier").notNull(),
     value: pg.text("value").notNull(),
     expiresAt: pg.timestamp("expires_at").notNull(),
-    ...Common.globalColumns,
   },
   (t) => [
     // Index for verification lookups (email verification, password reset)

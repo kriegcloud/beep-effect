@@ -1,16 +1,14 @@
 import { SharedEntityIds } from "@beep/shared-domain";
+import { OrgTable } from "@beep/shared-tables/OrgTable";
 import * as pg from "drizzle-orm/pg-core";
-import { defaultColumns, idColumn } from "./common";
-export const team = pg.pgTable(
-  "team",
+
+export const team = OrgTable.make(SharedEntityIds.TeamId)(
   {
-    id: idColumn("organization", SharedEntityIds.OrganizationId),
     name: pg.text("name").notNull(),
     description: pg.text("description"),
     slug: pg.text("slug").unique(),
     metadata: pg.text("metadata"),
     logo: pg.text("logo"),
-    ...defaultColumns,
   },
   (t) => [
     // Foreign key index for join performance

@@ -1,13 +1,10 @@
 import { IamEntityIds } from "@beep/shared-domain";
-import { Common } from "@beep/shared-tables";
+import { OrgTable } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { user } from "./user.table";
-
-export const apiKey = pg.pgTable(
-  "apikey",
+export const apiKey = OrgTable.make(IamEntityIds.ApiKeyId)(
   {
-    id: Common.idColumn("apikey", IamEntityIds.ApiKeyId),
     name: pg.text("name"),
     start: pg.text("start"),
     prefix: pg.text("prefix"),
@@ -29,7 +26,6 @@ export const apiKey = pg.pgTable(
     expiresAt: pg.timestamp("expires_at"),
     permissions: pg.text("permissions"),
     metadata: pg.text("metadata"),
-    ...Common.defaultColumns,
   },
   (t) => [
     // Count constraints

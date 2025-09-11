@@ -1,48 +1,33 @@
-import { BS } from "@beep/schema";
+import { EntityId } from "@beep/schema/EntityId";
 //----------------------------------------------------------------------------------------------------------------------
 // Shared ENTITY IDS
 //----------------------------------------------------------------------------------------------------------------------
-export const OrganizationIdKit = new BS.EntityIdKit({
-  tableName: "organization",
+export const OrganizationId = EntityId.make("organization", {
   brand: "OrganizationId",
   annotations: {
     schemaId: Symbol.for("@beep/shared/domain/EntityIds/shared/OrganizationId"),
     description: "A unique identifier for an organization",
   },
 });
-export class OrganizationId extends OrganizationIdKit.Schema {
-  static readonly tableName = OrganizationIdKit.tableName;
-  static readonly create = OrganizationIdKit.create;
-  static readonly make = OrganizationIdKit.make;
-  static readonly is = OrganizationIdKit.is;
-}
 
 export namespace OrganizationId {
   export type Type = typeof OrganizationId.Type;
   export type Encoded = typeof OrganizationId.Encoded;
 }
-export const TeamIdKit = new BS.EntityIdKit({
-  tableName: "team",
+export const TeamId = EntityId.make("team", {
   brand: "TeamId",
   annotations: {
     schemaId: Symbol.for("@beep/shared/domain/EntityIds/shared/TeamId"),
     description: "A unique identifier for a team",
   },
 });
-export class TeamId extends TeamIdKit.Schema {
-  static readonly tableName = TeamIdKit.tableName;
-  static readonly create = TeamIdKit.create;
-  static readonly make = TeamIdKit.make;
-  static readonly is = TeamIdKit.is;
-}
 
 export namespace TeamId {
   export type Type = typeof TeamId.Type;
   export type Encoded = typeof TeamId.Encoded;
 }
 
-export const FileIdKit = new BS.EntityIdKit({
-  tableName: "file",
+export const FileId = EntityId.make("file", {
   brand: "FileId",
   annotations: {
     schemaId: Symbol.for("@beep/shared/domain/EntityIds/shared/FileId"),
@@ -50,13 +35,20 @@ export const FileIdKit = new BS.EntityIdKit({
   },
 });
 
-export class FileId extends FileIdKit.Schema {
-  static readonly tableName = FileIdKit.tableName;
-  static readonly create = FileIdKit.create;
-  static readonly make = FileIdKit.make;
-  static readonly is = FileIdKit.is;
-}
 export namespace FileId {
   export type Type = typeof FileId.Type;
   export type Encoded = typeof FileId.Encoded;
+}
+
+export const AuditLogId = EntityId.make("audit_log", {
+  brand: "AuditLogId",
+  annotations: {
+    schemaId: Symbol.for("@beep/shared/domain/EntityIds/shared/AuditLogId"),
+    description: "A unique identifier for an audit log",
+  },
+});
+
+export namespace AuditLogId {
+  export type Type = typeof AuditLogId.Type;
+  export type Encoded = typeof AuditLogId.Encoded;
 }

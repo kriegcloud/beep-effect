@@ -8,8 +8,6 @@
       "@beep/iam-tables/*": ["../../iam/tables/src/*"],
       "@beep/shared-tables": ["../../shared/tables/src/index"],
       "@beep/shared-tables/*": ["../../shared/tables/src/*"],
-      "@beep/wms-tables": ["../../wms/tables/src/index"],
-      "@beep/wms-tables/*": ["../../wms/tables/src/*"],
       "@beep/db-scope": ["../db-scope/src/index"],
       "@beep/db-scope/*": ["../db-scope/src/*"],
       "@beep/iam-db": ["../../iam/db/src/index"],

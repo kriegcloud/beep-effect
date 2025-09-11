@@ -6,15 +6,15 @@ import * as F from "effect/Function";
 export const utcNow = F.constant(DateTime.toDateUtc(DateTime.unsafeNow()));
 
 export const auditColumns = {
-  createdAt: pg.timestamp("createdAt", { withTimezone: true }).notNull().$defaultFn(utcNow),
-  updatedAt: pg.timestamp("updatedAt", { withTimezone: true }).notNull().$onUpdateFn(utcNow),
-  deletedAt: pg.timestamp("deletedAt", { withTimezone: true }),
+  createdAt: pg.timestamp("created_at", { withTimezone: true }).notNull().$defaultFn(utcNow),
+  updatedAt: pg.timestamp("updated_at", { withTimezone: true }).notNull().$onUpdateFn(utcNow),
+  deletedAt: pg.timestamp("deleted_at", { withTimezone: true }),
 } as const;
 
 export const userTrackingColumns = {
-  createdBy: pg.text("createdBy"),
-  updatedBy: pg.text("updatedBy"),
-  deletedBy: pg.text("deletedBy"),
+  createdBy: pg.text("created_by"),
+  updatedBy: pg.text("updated_by"),
+  deletedBy: pg.text("deleted_by"),
 } as const;
 
 export const globalColumns = {
@@ -32,8 +32,6 @@ export const globalColumns = {
 
 export const defaultColumns = {
   ...globalColumns,
-  organizationId: pg.text("organization_id").notNull(),
   // Note: Foreign key reference will be defined in the consuming table files
   // to avoid circular dependency with organization.table.ts
 } as const;
-export { idColumn } from "./id";

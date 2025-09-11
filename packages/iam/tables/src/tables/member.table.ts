@@ -1,11 +1,9 @@
 import { IamEntityIds } from "@beep/shared-domain";
-import { Common } from "@beep/shared-tables";
+import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 
-export const member = pg.pgTable(
-  "member",
+export const member = OrgTable.make(IamEntityIds.MemberId)(
   {
-    id: Common.idColumn("member", IamEntityIds.MemberId),
     userId: pg.text("user_id").notNull(), // Reference to user.id (relation defined in relations.ts)
     role: pg.text("role").default("member").notNull(),
 
@@ -16,7 +14,6 @@ export const member = pg.pgTable(
     joinedAt: pg.timestamp("joined_at", { withTimezone: true }), // When user accepted/joined
     lastActiveAt: pg.timestamp("last_active_at", { withTimezone: true }), // Last activity timestamp
     permissions: pg.text("permissions"), // JSON string for member-specific permissions
-    ...Common.defaultColumns,
   },
   (t) => [
     // Foreign key indexes for join performance

@@ -1,12 +1,10 @@
 import { IamEntityIds } from "@beep/shared-domain";
-import { Common, organization, team } from "@beep/shared-tables";
+import { organization, Table, team } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { user } from "./user.table";
-export const session = pg.pgTable(
-  "session",
+export const session = Table.make(IamEntityIds.SessionId)(
   {
-    id: Common.idColumn("session", IamEntityIds.SessionId),
     expiresAt: pg.timestamp("expires_at").notNull(),
     token: pg.text("token").notNull().unique(),
     ipAddress: pg.text("ip_address"),
@@ -21,7 +19,6 @@ export const session = pg.pgTable(
     }),
     activeTeamId: pg.text("active_team_id").references(() => team.id, { onDelete: "set null", onUpdate: "cascade" }),
     impersonatedBy: pg.text("impersonated_by").references(() => user.id, { onDelete: "set null", onUpdate: "cascade" }),
-    ...Common.globalColumns,
   },
   (t) => [
     // Temporal constraint - session must expire after it was created

@@ -1,6 +1,7 @@
 import type { StringTypes, StructTypes } from "@beep/types";
 import * as S from "effect/Schema";
 import type { DefaultAnnotations } from "../annotations";
+import { Struct } from "../extended-schemas";
 export namespace TaggedStruct {
   export type Schema<
     Tag extends StringTypes.NonEmptyString<string>,
@@ -33,7 +34,7 @@ export const TaggedStruct =
     fields: Fields
   ) =>
   (annotations?: DefaultAnnotations<TaggedStruct.Type<Tag, Fields>>): TaggedStruct.Schema<Tag, Fields> =>
-    S.Struct({
+    Struct({
       _tag: S.Literal(tag).pipe(
         S.optional,
         S.withDefaults({

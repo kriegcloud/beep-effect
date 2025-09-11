@@ -1,7 +1,7 @@
 import { serverEnv } from "@beep/env/server";
 import { IamDb } from "@beep/iam-db";
 import { IamDbSchema } from "@beep/iam-tables";
-import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+// import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import type { UnsafeTypes } from "@beep/types";
 import type { BetterAuthOptions } from "better-auth";
 import { betterAuth } from "better-auth";
@@ -124,41 +124,41 @@ const AuthOptions = Effect.gen(function* () {
     ],
     databaseHooks: {
       user: {
-        create: {
-          after: async (user) => {
-            const personalOrgId = crypto.randomUUID();
-            const slug = `${user.name?.toLowerCase().replace(/\s+/g, "-") || "user"}-${user.id.slice(-6)}`;
-
-            // Create personal organization with multi-tenant fields
-            await db.insert(IamDbSchema.organization).values({
-              id: SharedEntityIds.OrganizationId.make(`organization__${personalOrgId}`),
-              name: `${user.name || "User"}'s Organization`,
-              slug,
-              type: "individual",
-              ownerUserId: user.id,
-              isPersonal: true,
-              subscriptionTier: "free",
-              subscriptionStatus: "active",
-              createdBy: user.id,
-              source: "auto_created",
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            });
-
-            // Add user as owner with enhanced tracking
-            await db.insert(IamDbSchema.member).values({
-              id: IamEntityIds.MemberId.make(`member__${personalOrgId}`),
-              userId: S.decodeUnknownSync(IamEntityIds.UserId)(user.id),
-              organizationId: personalOrgId,
-              role: "owner",
-              status: "active",
-              joinedAt: new Date(),
-              createdBy: user.id,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            });
-          },
-        },
+        // create: {
+        //   after: async (user) => {
+        //     const personalOrgId = crypto.randomUUID();
+        //     const slug = `${user.name?.toLowerCase().replace(/\s+/g, "-") || "user"}-${user.id.slice(-6)}`;
+        //
+        //     // Create personal organization with multi-tenant fields
+        //     await db.insert(IamDbSchema.organization).values({
+        //       id: SharedEntityIds.OrganizationId.make(`organization__${personalOrgId}`),
+        //       name: `${user.name || "User"}'s Organization`,
+        //       slug,
+        //       type: "individual",
+        //       ownerUserId: user.id,
+        //       isPersonal: true,
+        //       subscriptionTier: "free",
+        //       subscriptionStatus: "active",
+        //       createdBy: user.id,
+        //       source: "auto_created",
+        //       createdAt: new Date(),
+        //       updatedAt: new Date(),
+        //     });
+        //
+        //     // Add user as owner with enhanced tracking
+        //     await db.insert(IamDbSchema.member).values({
+        //       id: IamEntityIds.MemberId.make(`member__${personalOrgId}`),
+        //       userId: S.decodeUnknownSync(IamEntityIds.UserId)(user.id),
+        //       organizationId: SharedEntityIds.OrganizationId.make(`organization__${personalOrgId}`),
+        //       role: "owner",
+        //       status: "active",
+        //       joinedAt: new Date(),
+        //       createdBy: user.id,
+        //       createdAt: new Date(),
+        //       updatedAt: new Date(),
+        //     });
+        //   },
+        // },
       },
       session: {
         create: {

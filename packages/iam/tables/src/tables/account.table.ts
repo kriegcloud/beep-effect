@@ -1,12 +1,11 @@
 import { IamEntityIds } from "@beep/shared-domain";
-import { Common } from "@beep/shared-tables";
+import { Table } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { user } from "./user.table";
-export const account = pg.pgTable(
-  "account",
+
+export const account = Table.make(IamEntityIds.AccountId)(
   {
-    id: Common.idColumn("account", IamEntityIds.AccountId),
     accountId: pg.text("account_id").notNull(),
     providerId: pg.text("provider_id").notNull(),
     userId: pg
@@ -20,7 +19,6 @@ export const account = pg.pgTable(
     refreshTokenExpiresAt: pg.timestamp("refresh_token_expires_at"),
     scope: pg.text("scope"),
     password: pg.text("password"),
-    ...Common.globalColumns,
   },
   (t) => [
     // Foreign key index for user lookups

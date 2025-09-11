@@ -1,13 +1,10 @@
 import { IamEntityIds } from "@beep/shared-domain";
-import { Common } from "@beep/shared-tables";
+import { Table } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { boolean, text } from "drizzle-orm/pg-core";
-
-export const user = pg.pgTable(
-  "user",
+export const user = Table.make(IamEntityIds.UserId)(
   {
-    id: Common.idColumn("user", IamEntityIds.UserId),
     name: pg.text("name").notNull(),
     email: pg.text("email").notNull().unique(),
     emailVerified: pg
@@ -26,7 +23,6 @@ export const user = pg.pgTable(
     banReason: pg.text("ban_reason"),
     banExpires: pg.timestamp("ban_expires"),
     stripeCustomerId: pg.text("stripe_customer_id"),
-    ...Common.globalColumns,
   },
   (t) => [
     // Index for email lookups (authentication)

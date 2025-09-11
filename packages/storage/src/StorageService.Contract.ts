@@ -187,21 +187,6 @@ export namespace EntityAttribute {
   export type Type = S.Schema.Type<typeof EntityAttribute>;
   export type Encoded = S.Schema.Type<typeof EntityAttributeEncoded>;
 }
-export const FileIdKit = new BS.EntityIdKit({
-  tableName: "file",
-  brand: "FileId",
-  annotations: {
-    schemaId: Symbol.for("@beep/storage/contract/FileIdKit"),
-    description: "File id for storage service",
-  },
-});
-
-export class FileId extends FileIdKit.Schema {
-  static readonly tableName = FileIdKit.tableName;
-  static readonly create = FileIdKit.create;
-  static readonly make = FileIdKit.make;
-  static readonly is = FileIdKit.is;
-}
 
 export class FileItemExt extends BS.Ext {}
 

@@ -36,9 +36,11 @@
   "dependencies": {
     "effect": "*",
     "@effect/sql": "*",
+    "@effect/platform": "*",
     "@beep/schema": "workspace:*",
     "@beep/utils": "workspace:*",
     "@beep/constants": "workspace:*",
+    "@beep/errors": "workspace:*",
     "@beep/invariant": "workspace:*",
     "@effect/experimental": "*"
   },

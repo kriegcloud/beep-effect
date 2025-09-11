@@ -13,7 +13,8 @@
       "@beep/invariant": ["../../common/invariant/src/index"],
       "@beep/invariant/*": ["../../common/invariant/src/*"],
       "@beep/constants": ["../../common/constants/src/index"],
-      "@beep/constants/*": ["../../common/constants/src/*"]
+      "@beep/constants/*": ["../../common/constants/src/*"],
+      "@beep/errors/shared": ["../../common/errors/src/shared-core"]
     }
   },
   "references": [

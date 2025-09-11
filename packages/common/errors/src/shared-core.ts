@@ -237,3 +237,5 @@ export const accumulateEffects = <A, E, R>(
     });
     return { successes: oks, errors: errs };
   });
+
+export * as BeepError from "./errors";

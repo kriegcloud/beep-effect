@@ -13,7 +13,9 @@
       "@beep/types": ["../../common/types/src/index"],
       "@beep/types/*": ["../../common/types/src/*"],
       "@beep/utils": ["../../common/utils/src/index"],
-      "@beep/utils/*": ["../../common/utils/src/*"]
+      "@beep/utils/*": ["../../common/utils/src/*"],
+      "@beep/constants": ["../../common/constants/src/index"],
+      "@beep/constants/*": ["../../common/constants/src/*"]
     }
   },
   "references": [

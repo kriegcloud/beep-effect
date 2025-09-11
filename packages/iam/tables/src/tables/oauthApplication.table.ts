@@ -1,10 +1,9 @@
 import { IamEntityIds } from "@beep/shared-domain";
-import { Common } from "@beep/shared-tables";
+import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 import { user } from "./user.table";
 
-export const oauthApplication = pg.pgTable("oauth_application", {
-  id: Common.idColumn("oauth_application", IamEntityIds.OAuthApplicationId),
+export const oauthApplication = OrgTable.make(IamEntityIds.OAuthApplicationId)({
   name: pg.text("name"),
   icon: pg.text("icon"),
   metadata: pg.text("metadata"),
@@ -14,5 +13,4 @@ export const oauthApplication = pg.pgTable("oauth_application", {
   type: pg.text("type"),
   disabled: pg.boolean("disabled"),
   userId: pg.text("user_id").references(() => user.id, { onDelete: "cascade" }),
-  ...Common.defaultColumns,
 });

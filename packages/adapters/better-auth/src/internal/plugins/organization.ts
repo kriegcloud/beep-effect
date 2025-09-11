@@ -1,6 +1,7 @@
 import { DbError } from "@beep/db-scope/errors";
 import { IamDb } from "@beep/iam-db";
 import { IamDbSchema } from "@beep/iam-tables";
+import { IamEntityIds } from "@beep/shared-domain";
 import { Organization } from "@beep/shared-domain/entities";
 import { organization } from "better-auth/plugins";
 import * as d from "drizzle-orm";
@@ -42,6 +43,10 @@ export const OrganizationPlugin = Effect.gen(function* () {
     requireEmailVerificationOnInvitation: true,
     schema: {
       organization: {
+        id: {
+          type: "number",
+          name: "_rowId",
+        },
         additionalFields: {
           type: {
             type: [...Organization.OrganizationTypeOptions],
@@ -135,7 +140,7 @@ export const OrganizationPlugin = Effect.gen(function* () {
                   joinedAt: now,
                   lastActiveAt: now,
                 })
-                .where(d.eq(IamDbSchema.member.id, member.id)),
+                .where(d.eq(IamDbSchema.member.id, S.decodeUnknownSync(IamEntityIds.MemberId)(member.id))),
             catch: (e) => Effect.fail(DbError.match(e)),
           });
         }).pipe(

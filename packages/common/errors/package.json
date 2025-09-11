@@ -41,6 +41,7 @@
     "dotenvx": "dotenvx run -f ../../../.env --"
   },
   "dependencies": {
+    "@effect/platform": "workspace:*",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/constants": "workspace:^",

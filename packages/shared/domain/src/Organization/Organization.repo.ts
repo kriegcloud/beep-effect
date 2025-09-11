@@ -4,14 +4,14 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as FastCheck from "effect/FastCheck";
 import * as F from "effect/Function";
+import { OrganizationId } from "../EntityIds/shared";
 import { Model } from "./Organization.model";
-
 export class OrganizationRepo extends Effect.Service<OrganizationRepo>()("OrganizationRepo", {
   accessors: true,
   effect: makeRepo(
     Effect.gen(function* () {
       const r = yield* M.makeRepository(Model, {
-        tableName: "organization",
+        tableName: OrganizationId.tableName,
         idColumn: "id",
         spanPrefix: "OrganizationRepo",
       });

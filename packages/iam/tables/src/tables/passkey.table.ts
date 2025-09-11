@@ -1,12 +1,11 @@
 import { IamEntityIds } from "@beep/shared-domain";
-import { Common } from "@beep/shared-tables";
+import { OrgTable } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { user } from "./user.table";
-export const passkey = pg.pgTable(
-  "passkey",
+
+export const passkey = OrgTable.make(IamEntityIds.PasskeyId)(
   {
-    id: Common.idColumn("passkey", IamEntityIds.PasskeyId),
     name: pg.text("name"),
     publicKey: pg.text("public_key").notNull(),
     userId: pg
@@ -19,7 +18,6 @@ export const passkey = pg.pgTable(
     backedUp: pg.boolean("backed_up").notNull(),
     transports: pg.text("transports"),
     aaguid: pg.text("aaguid"),
-    ...Common.defaultColumns,
   },
   (t) => [
     // Count constraints

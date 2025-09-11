@@ -15,9 +15,6 @@
       "path": "../../shared/tables/tsconfig.build.json"
     },
     {
-      "path": "../../wms/tables/tsconfig.build.json"
-    },
-    {
       "path": "../db-scope/tsconfig.build.json"
     },
     {

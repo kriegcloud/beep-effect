@@ -2,11 +2,9 @@ import type { BS } from "@beep/schema";
 import { SharedEntityIds } from "@beep/shared-domain";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-import * as Common from "./common";
+import { OrgTable } from "./OrgTable";
 import { organization } from "./organization.table";
-
-export const filesTable = pg.pgTable("file", {
-  id: Common.idColumn("file", SharedEntityIds.FileId),
+export const filesTable = OrgTable.make(SharedEntityIds.FileId)({
   url: pg.varchar("url", { length: 512 }).notNull(),
   size: pg
     .bigint({
@@ -25,7 +23,6 @@ export const filesTable = pg.pgTable("file", {
   entityKind: pg.text("entity_kind").notNull(),
   entityIdentifier: pg.text("entity_identifier").notNull(),
   entityAttribute: pg.text("entity_attribute").notNull(),
-  ...Common.defaultColumns,
 });
 
 export const fileRelations = d.relations(filesTable, ({ one }) => ({

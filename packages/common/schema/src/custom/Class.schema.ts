@@ -1,3 +1,4 @@
+import { variance } from "@beep/schema/variance";
 import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as Data from "effect/Data";
@@ -496,14 +497,6 @@ function getDisableValidationMakeOption(options: S.MakeOptions | undefined): boo
   return P.isBoolean(options) ? options : (options?.disableValidation ?? false);
 }
 
-const variance = {
-  /* c8 ignore next */
-  _A: (_: UnsafeTypes.UnsafeAny) => _,
-  /* c8 ignore next */
-  _I: (_: UnsafeTypes.UnsafeAny) => _,
-  /* c8 ignore next */
-  _R: (_: never) => _,
-};
 const astCache = GlobalValue.globalValue("effect/Schema/astCache", () => new WeakMap<UnsafeTypes.UnsafeAny, AST.AST>());
 
 const makeClass = <Fields extends S.Struct.Fields>({
