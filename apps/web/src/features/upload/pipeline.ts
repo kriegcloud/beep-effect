@@ -1,5 +1,12 @@
+import { formatSize } from "@beep/files-domain/utils";
+import {
+  type DetectedFileInfo,
+  ExifMetadata,
+  FileAttributes,
+  fileTypeChecker,
+  getFileChunk,
+} from "@beep/files-domain/value-objects";
 import { BS } from "@beep/schema";
-import { MimeType } from "@beep/schema/custom/file/extensions";
 import * as Effect from "effect/Effect";
 import * as Metric from "effect/Metric";
 import * as S from "effect/Schema";
@@ -23,11 +30,11 @@ export const validateFile = Effect.fn("upload.validateFile")(function* ({
   readonly file: File;
   readonly config?: PipelineConfig;
 }) {
-  const formattedSize = BS.formatSize(file.size);
+  const formattedSize = formatSize(file.size);
   // Size check (friendly message using BS.formatSize)
   if (typeof config?.maxSizeBytes === "number" && file.size > config.maxSizeBytes) {
     const actual = formattedSize;
-    const max = BS.formatSize(config.maxSizeBytes);
+    const max = formatSize(config.maxSizeBytes);
     return yield* new Errors.ValidationError({
       message: `File too large: ${actual} (max ${max})`,
       fileName: file.name,
@@ -49,8 +56,8 @@ export const validateFile = Effect.fn("upload.validateFile")(function* ({
         chunkSize,
       }),
   });
-  const chunk = BS.getFileChunk(buffer, chunkSize);
-  const detected = BS.detectFile(chunk, { chunkSize });
+  const chunk = getFileChunk(buffer, chunkSize);
+  const detected = fileTypeChecker.detectFile(chunk, { chunkSize });
   if (!detected) {
     // increment metric and warn before failing
     yield* Metric.increment(UploadMetrics.detectionFailedTotal);
@@ -65,7 +72,7 @@ export const validateFile = Effect.fn("upload.validateFile")(function* ({
   }
   // Ensure detected mime is supported by our schema; fail early with a helpful error
   const candidate = detected?.mimeType ?? file.type;
-  yield* S.decodeUnknown(MimeType)(candidate).pipe(
+  yield* S.decodeUnknown(BS.MimeType)(candidate).pipe(
     Effect.tapError((error) =>
       logWarning("upload.validateFile: unsupported mime type", {
         ...makeFileAnnotations(file),
@@ -114,7 +121,7 @@ export const extractBasicMetadata = Effect.fn("upload.extractBasicMetadata")(fun
   detected,
 }: {
   readonly file: File;
-  readonly detected?: BS.DetectedFileInfo.Type;
+  readonly detected?: DetectedFileInfo.Type;
 }) {
   // Build attributes and validate at runtime using effect/Schema
   const wrp = file.webkitRelativePath;
@@ -131,7 +138,7 @@ export const extractBasicMetadata = Effect.fn("upload.extractBasicMetadata")(fun
     ...(hasWrp ? { webkitRelativePath: wrp, relativePath: wrp } : {}),
   };
 
-  const attributes = yield* S.decodeUnknown(BS.FileAttributes)(attributesInput).pipe(
+  const attributes = yield* S.decodeUnknown(FileAttributes)(attributesInput).pipe(
     Effect.tapError((error) =>
       logWarning("upload.extractBasicMetadata: invalid file attributes", {
         ...makeFileAnnotations(file),
@@ -163,7 +170,7 @@ export const extractExifMetadata = Effect.fn("upload.extractExifMetadata")(funct
   detected,
 }: {
   readonly file: File;
-  readonly detected?: BS.DetectedFileInfo.Type;
+  readonly detected?: DetectedFileInfo.Type;
 }) {
   // Simple guard: skip if not an image by MIME (prefer detected mime when available)
   const candidateMime = detected?.mimeType ?? file.type;
@@ -197,8 +204,8 @@ export const extractExifMetadata = Effect.fn("upload.extractExifMetadata")(funct
           phase: "parse",
         }),
     });
-    const cleaned = BS.cleanExifData(raw);
-    const decoded = yield* S.decode(BS.ExpandedTags)(cleaned).pipe(
+    const cleaned = ExifMetadata.cleanExifData(raw);
+    const decoded = yield* S.decode(ExifMetadata)(cleaned).pipe(
       Effect.mapError(
         (e) =>
           new Errors.ExifParseError({
@@ -214,7 +221,7 @@ export const extractExifMetadata = Effect.fn("upload.extractExifMetadata")(funct
     // success: increment metric and log
     yield* Metric.increment(UploadMetrics.exifParsedTotal);
     yield* logInfo("upload.extractExifMetadata: parsed EXIF", makeFileAnnotations(file));
-    return decoded as BS.ExpandedTags.Type;
+    return decoded;
   }).pipe(
     Effect.catchAll((error) =>
       Effect.gen(function* () {

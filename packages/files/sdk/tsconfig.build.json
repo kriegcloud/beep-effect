@@ -1,14 +1,20 @@
 {
   "extends": "./tsconfig.src.json",
   "compilerOptions": {
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "tsBuildInfoFile": ".tsbuildinfo/build.tsbuildinfo",
     "outDir": "build/esm",
     "declarationDir": "build/dts",
     "jsx": "react-jsx",
     "module": "ESNext",
     "target": "ES2022",
-    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2024",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "moduleResolution": "bundler",
     "composite": true,
     "incremental": true,
@@ -40,7 +46,18 @@
     },
     {
       "path": "../../common/types/tsconfig.build.json"
+    },
+    {
+      "path": "../domain/tsconfig.build.json"
+    },
+    {
+      "path": "../application/tsconfig.build.json"
+    },
+    {
+      "path": "../infra/tsconfig.build.json"
     }
   ],
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }

@@ -16,7 +16,7 @@ export const fileTable = OrgTable.make(SharedEntityIds.FileId)({
   originalFilename: pg.text("original_filename").notNull(),
   basePath: pg.text("base_path").notNull(),
   path: pg.text("path").notNull(),
-  ext: pg.text("ext").notNull().$type<BS.Ext.Type>(),
+  ext: pg.text("ext").notNull().$type<BS.FileExtension.Type>(),
   mimeType: pg.text("mime_type").notNull().$type<BS.MimeType.Type>(),
   platform: pg.text("platform").notNull(),
   // Domain association

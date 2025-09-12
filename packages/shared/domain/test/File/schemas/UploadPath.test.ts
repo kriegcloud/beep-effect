@@ -58,7 +58,7 @@ describe("File.UploadPath", () => {
       entityKind: "user" as const,
       entityIdentifier: IamEntityIds.UserId.make(`user__87654321-4321-4321-4321-210987654321`),
       entityAttribute: "avatar",
-      fileItemExtension: "jpg" as BS.Ext.Type,
+      fileItemExtension: "jpg" as BS.FileExtension.Type,
     };
 
     it("should decode UploadPathDecoded to UploadPathEncoded", () => {
@@ -163,7 +163,7 @@ describe("File.UploadPath", () => {
         entityKind: "user" as const,
         entityIdentifier: "user__87654321-4321-4321-4321-210987654321" as IamEntityIds.UserId.Type,
         entityAttribute: "avatar",
-        fileItemExtension: "jpg" as BS.Ext.Type,
+        fileItemExtension: "jpg" as BS.FileExtension.Type,
       };
 
       return Effect.gen(function* () {
@@ -218,7 +218,7 @@ describe("File.UploadPath", () => {
               entityKind: "user" as const,
               entityIdentifier: "user__87654321-4321-4321-4321-210987654321" as IamEntityIds.UserId.Type,
               entityAttribute: "avatar",
-              fileItemExtension: "jpg" as BS.Ext.Type,
+              fileItemExtension: "jpg" as BS.FileExtension.Type,
             },
             entityKind,
           };
@@ -245,7 +245,7 @@ describe("File.UploadPath", () => {
             entityKind: "user" as const,
             entityIdentifier: "user__87654321-4321-4321-4321-210987654321" as IamEntityIds.UserId.Type,
             entityAttribute: "avatar",
-            fileItemExtension: "jpg" as BS.Ext.Type,
+            fileItemExtension: "jpg" as BS.FileExtension.Type,
           };
 
           const encoded = yield* S.decode(UploadPath)(decoded);
@@ -270,7 +270,7 @@ describe("File.UploadPath", () => {
             entityKind: "user" as const,
             entityIdentifier: "user__87654321-4321-4321-4321-210987654321" as IamEntityIds.UserId.Type,
             entityAttribute: "avatar",
-            fileItemExtension: "jpg" as BS.Ext.Type,
+            fileItemExtension: "jpg" as BS.FileExtension.Type,
           };
 
           const encoded = yield* S.decode(UploadPath)(decoded);

@@ -1,7 +1,12 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "include": ["src"],
-  "exclude": ["vitest.config.ts", "src/**/*.test.ts"],
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "vitest.config.ts",
+    "src/**/*.test.ts"
+  ],
   "references": [
     {
       "path": "../../shared/domain"
@@ -26,10 +31,21 @@
     },
     {
       "path": "../../common/types"
+    },
+    {
+      "path": "../domain"
+    },
+    {
+      "path": "../application"
+    },
+    {
+      "path": "../infra"
     }
   ],
   "compilerOptions": {
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
@@ -37,28 +53,82 @@
     "jsx": "react-jsx",
     "module": "ESNext",
     "target": "ES2022",
-    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2024",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-      "@beep/files-sdk/*": ["./src/*"],
-      "@beep/shared-domain": ["../../shared/domain/src/index"],
-      "@beep/shared-domain/*": ["../../shared/domain/src/*"],
-      "@beep/core-env/client": ["../../core/env/src/client"],
-      "@beep/schema": ["../../common/schema/src/index"],
-      "@beep/schema/*": ["../../common/schema/src/*"],
-      "@beep/utils": ["../../common/utils/src/index"],
-      "@beep/utils/*": ["../../common/utils/src/*"],
-      "@beep/errors/shared": ["../../common/errors/src/shared"],
-      "@beep/errors/client": ["../../common/errors/src/client"],
-      "@beep/constants": ["../../common/constants/src/index"],
-      "@beep/constants/*": ["../../common/constants/src/*"],
-      "@beep/invariant": ["../../common/invariant/src/index"],
-      "@beep/invariant/*": ["../../common/invariant/src/*"],
-      "@beep/types": ["../../common/types/src/index"],
-      "@beep/types/*": ["../../common/types/src/*"]
+      "@beep/files-sdk/*": [
+        "./src/*"
+      ],
+      "@beep/shared-domain": [
+        "../../shared/domain/src/index"
+      ],
+      "@beep/shared-domain/*": [
+        "../../shared/domain/src/*"
+      ],
+      "@beep/core-env/client": [
+        "../../core/env/src/client"
+      ],
+      "@beep/schema": [
+        "../../common/schema/src/index"
+      ],
+      "@beep/schema/*": [
+        "../../common/schema/src/*"
+      ],
+      "@beep/utils": [
+        "../../common/utils/src/index"
+      ],
+      "@beep/utils/*": [
+        "../../common/utils/src/*"
+      ],
+      "@beep/errors/shared": [
+        "../../common/errors/src/shared"
+      ],
+      "@beep/errors/client": [
+        "../../common/errors/src/client"
+      ],
+      "@beep/constants": [
+        "../../common/constants/src/index"
+      ],
+      "@beep/constants/*": [
+        "../../common/constants/src/*"
+      ],
+      "@beep/invariant": [
+        "../../common/invariant/src/index"
+      ],
+      "@beep/invariant/*": [
+        "../../common/invariant/src/*"
+      ],
+      "@beep/types": [
+        "../../common/types/src/index"
+      ],
+      "@beep/types/*": [
+        "../../common/types/src/*"
+      ],
+      "@beep/files-domain": [
+        "../domain/src/index"
+      ],
+      "@beep/files-domain/*": [
+        "../domain/src/*"
+      ],
+      "@beep/files-application": [
+        "../application/src/index"
+      ],
+      "@beep/files-application/*": [
+        "../application/src/*"
+      ],
+      "@beep/files-infra": [
+        "../infra/src/index"
+      ],
+      "@beep/files-infra/*": [
+        "../infra/src/*"
+      ]
     }
   }
 }

@@ -38,6 +38,7 @@
     "@beep/invariant": "workspace:*",
     "@beep/utils": "workspace:*",
     "@beep/constants": "workspace:*",
+    "exifreader": "workspace:*",
     "effect": "*",
     "@effect/sql": "*"
   },

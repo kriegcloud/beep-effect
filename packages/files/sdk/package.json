@@ -40,6 +40,9 @@
     "@beep/errors": "workspace:^",
     "@beep/constants": "workspace:^",
     "@beep/invariant": "workspace:^",
+    "@beep/files-domain": "workspace:*",
+    "@beep/files-application": "workspace:*",
+    "@beep/files-infra": "workspace:*",
     "effect": "*"
   },
   "devDependencies": {

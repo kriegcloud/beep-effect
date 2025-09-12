@@ -1,6 +1,8 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "include": ["test"],
+  "include": [
+    "test"
+  ],
   "references": [
     {
       "path": "tsconfig.src.json"
@@ -28,10 +30,21 @@
     },
     {
       "path": "../../common/types"
+    },
+    {
+      "path": "../domain"
+    },
+    {
+      "path": "../application"
+    },
+    {
+      "path": "../infra"
     }
   ],
   "compilerOptions": {
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true

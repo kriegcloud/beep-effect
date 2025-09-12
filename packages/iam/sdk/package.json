@@ -33,7 +33,20 @@
     "lint:circular": "pnpm madge -c ."
   },
   "dependencies": {
-    "effect": "*"
+    "effect": "*",
+    "@beep/utils": "workspace:*",
+    "@beep/invariant": "workspace:*",
+    "@beep/schema": "workspace:*",
+    "@beep/errors": "workspace:*",
+    "@beep/constants": "workspace:*",
+    "@beep/core-env": "workspace:*",
+    "@beep/shared-domain": "workspace:*",
+    "@beep/iam-domain": "workspace:*",
+    "@beep/iam-infra": "workspace:*",
+    "@beep/iam-application": "workspace:*"
+  },
+  "devDependencies": {
+    "@beep/types": "workspace:*"
   },
   "effect": {
     "generateExports": {

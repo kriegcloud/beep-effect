@@ -33,6 +33,7 @@
     "@beep/core-env": "workspace:^",
     "exifreader": "*",
     "@beep/ui": "workspace:^",
+    "@beep/files-domain": "workspace:*",
     "@beep/files-application": "workspace:^",
     "@beep/files-ui": "workspace:^",
     "@beep/files-infra": "workspace:^",

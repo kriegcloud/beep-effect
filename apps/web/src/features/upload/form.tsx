@@ -1,6 +1,6 @@
 "use client";
 import { withEnvLogging } from "@beep/errors/client";
-import { BS } from "@beep/schema";
+import { FileInstance } from "@beep/files-domain/value-objects";
 import { Form, makeFormOptions, useAppForm } from "@beep/ui/form";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -13,8 +13,8 @@ import { componentBoxStyles, FormActions, FormGrid } from "./components";
 import { ComponentBox } from "./layout";
 
 export const OtherSchema = S.Struct({
-  singleUpload: S.NullOr(BS.FileBase),
-  multiUpload: S.Array(BS.FileBase),
+  singleUpload: S.NullOr(FileInstance),
+  multiUpload: S.Array(FileInstance),
 });
 
 export function OtherDemo() {

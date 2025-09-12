@@ -1,5 +1,5 @@
 import type { AccumulateResult } from "@beep/errors/client";
-import type { BS } from "@beep/schema";
+import type { DetectedFileInfo, ExifMetadata, FileAttributes } from "@beep/files-domain/value-objects";
 import type * as Errors from "./errors";
 /**************
  * Upload pipeline shared models (scaffolding)
@@ -16,16 +16,16 @@ export interface PipelineConfig {
 
 // Step outputs
 export interface ValidateFileOutput {
-  readonly detected?: BS.DetectedFileInfo.Type;
+  readonly detected?: DetectedFileInfo.Type;
   readonly formattedSize: string;
 }
 
 export interface BasicMetadataOutput {
-  readonly attributes: BS.FileAttributes.Type;
-  readonly detected?: BS.DetectedFileInfo.Type;
+  readonly attributes: FileAttributes.Type;
+  readonly detected?: DetectedFileInfo.Type;
 }
 
-export type ExifMetadataOutput = BS.ExpandedTags.Type | undefined;
+export type ExifMetadataOutput = ExifMetadata.Type | undefined;
 
 // Union of domain failures (scaffolding)
 export type UploadError = Errors.ValidationError | Errors.DetectionError | Errors.ExifParseError;

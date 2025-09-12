@@ -312,7 +312,7 @@ export const UploadPathDecoded = BS.Struct({
   entityKind: EntityKind, // Type of entity owning the file
   entityIdentifier: AnyEntityId, // Identifier for the specific entity instance
   entityAttribute: S.String, // File attribute/purpose (avatar, logo, document, etc.)
-  fileItemExtension: BS.Ext, // File extension (validated against allowed types)
+  fileItemExtension: BS.FileExtension, // File extension (validated against allowed types)
 }).annotations({
   schemaId: Symbol.for("@beep/shared-domain/File/schemas/FilePath/UploadPathDecoded"),
   identifier: "UploadPathDecoded",
@@ -394,7 +394,7 @@ export class UploadPath extends S.transformOrFail(UploadPathDecoded, UploadPathE
           Effect.all([
             Effect.succeed(now),
             Effect.succeed(ShardPrefix.fromFileId(i.fileId)),
-            S.encode(BS.Ext)(i.fileItemExtension),
+            S.encode(BS.FileExtension)(i.fileItemExtension),
             S.decode(BS.MonthNumberFromMonthInt)(DateTime.getPartUtc(now, "month")),
           ]),
           ([now, shardPrefix, fileItemExtension, month]) =>
@@ -447,7 +447,7 @@ export class UploadPath extends S.transformOrFail(UploadPathDecoded, UploadPathE
           S.decodeUnknown(AnyEntityId)(pathParts[13]), //entityIdentifier
           Effect.succeed(pathParts[15]), // entityAttribute
           S.decodeUnknown(SharedEntityIds.FileId)(pathParts[21]), //fileId
-          S.decodeUnknown(BS.Ext)(pathParts[23]), // FileItemExtension
+          S.decodeUnknown(BS.FileExtension)(pathParts[23]), // FileItemExtension
         ]),
         ([
           env,
