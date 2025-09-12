@@ -9,7 +9,7 @@
       "path": "../../shared/domain"
     },
     {
-      "path": "../../env"
+      "path": "../../core/env"
     },
     {
       "path": "../../common/schema"

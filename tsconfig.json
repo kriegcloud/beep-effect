@@ -11,73 +11,25 @@
   },
   "references": [
     {
-      "path": "apps/server"
-    },
-    {
-      "path": "packages/common/schema"
-    },
-    {
-      "path": "packages/common/errors"
-    },
-    {
-      "path": "packages/common/constants"
-    },
-    {
-      "path": "packages/runtime"
+      "path": "packages/common/types"
     },
     {
       "path": "packages/common/invariant"
     },
     {
-      "path": "packages/common/types"
-    },
-    {
       "path": "packages/common/utils"
     },
     {
-      "path": "packages/persistence/db-admin"
+      "path": "packages/common/schema"
     },
     {
-      "path": "packages/persistence/db-scope"
+      "path": "packages/common/constants"
     },
     {
-      "path": "packages/shared/domain"
+      "path": "packages/common/errors"
     },
     {
-      "path": "packages/shared/tables"
-    },
-    {
-      "path": "packages/iam/application"
-    },
-    {
-      "path": "packages/iam/infra"
-    },
-    {
-      "path": "packages/iam/domain"
-    },
-    {
-      "path": "packages/iam/ui"
-    },
-    {
-      "path": "packages/iam/tables"
-    },
-    {
-      "path": "packages/ui"
-    },
-    {
-      "path": "tooling/repo-scripts"
-    },
-    {
-      "path": "tooling/repo-config"
-    },
-    {
-      "path": "tooling/testkit"
-    },
-    {
-      "path": "tooling/utils"
-    },
-    {
-      "path": "apps/web"
+      "path": "packages/common/rules"
     },
     {
       "path": "packages/common/logos"
@@ -86,46 +38,91 @@
       "path": "packages/common/rete"
     },
     {
-      "path": "packages/env"
-    },
-    {
-      "path": "packages/adapters/resend"
-    },
-    {
-      "path": "packages/adapters/better-auth"
-    },
-    {
-      "path": "packages/ai/core"
-    },
-    {
-      "path": "packages/adapters/xstate"
-    },
-    {
-      "path": "apps/mcp"
-    },
-    {
-      "path": "packages/email"
-    },
-    {
-      "path": "packages/common/rules"
-    },
-    {
       "path": "packages/common/query"
     },
     {
-      "path": "packages/files/application"
+      "path": "packages/shared/domain"
     },
     {
-      "path": "packages/files/ui"
+      "path": "packages/shared/tables"
+    },
+    {
+      "path": "packages/core/env"
+    },
+    {
+      "path": "packages/core/ai"
+    },
+    {
+      "path": "packages/core/email"
+    },
+    {
+      "path": "packages/core/db"
+    },
+    {
+      "path": "packages/core/runtime"
+    },
+    {
+      "path": "packages/ui"
+    },
+    {
+      "path": "packages/iam/domain"
+    },
+    {
+      "path": "packages/iam/application"
+    },
+    {
+      "path": "packages/iam/tables"
+    },
+    {
+      "path": "packages/iam/infra"
+    },
+    {
+      "path": "packages/iam/sdk"
+    },
+    {
+      "path": "packages/iam/ui"
     },
     {
       "path": "packages/files/domain"
     },
     {
+      "path": "packages/files/application"
+    },
+    {
       "path": "packages/files/tables"
     },
-        {
+    {
+      "path": "packages/files/infra"
+    },
+    {
       "path": "packages/files/sdk"
+    },
+    {
+      "path": "packages/files/ui"
+    },
+    {
+      "path": "apps/server"
+    },
+    {
+      "path": "apps/mcp"
+    },
+    {
+      "path": "apps/web/tsconfig.json"
+    },
+    {
+      "path": "packages/_internal/db-admin"
+    },
+    {
+      "path": "tooling/utils"
+    },
+    {
+      "path": "tooling/repo-config"
+    },
+    {
+      "path": "tooling/repo-scripts"
+    },
+    {
+      "path": "tooling/testkit"
     }
   ]
 }

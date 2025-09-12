@@ -59,22 +59,20 @@
       "@beep/errors/shared": ["../../packages/common/errors/src/shared"],
       "@beep/errors/client": ["../../packages/common/errors/src/client"],
       "@beep/errors/server": ["../../packages/common/errors/src/server"],
-      "@beep/env/client": ["../../packages/env/src/client"],
-      "@beep/env/server": ["../../packages/env/src/server"],
+      "@beep/core-env/client": ["../../packages/core/env/src/client"],
+      "@beep/core-env/server": ["../../packages/core/env/src/server"],
       "@beep/files-application": ["../../packages/files/application/src/index"],
       "@beep/files-application/*": ["../../packages/files/application/src/*"],
       "@beep/files-infra": ["../../packages/files/infra/src/index"],
       "@beep/files-infra/*": ["../../packages/files/infra/src/*"],
       "@beep/files-ui": ["../../packages/files/ui/src/index"],
       "@beep/files-ui/*": ["../../packages/files/ui/src/*"],
-      "@beep/better-auth": ["../../packages/adapters/better-auth/src/index"],
-      "@beep/better-auth/*": ["../../packages/adapters/better-auth/src/*"],
+      "@beep/iam-infra": ["../../packages/iam/infra/src/index"],
+      "@beep/iam-infra/*": ["../../packages/iam/infra/src/*"],
       "@beep/shared-domain": ["../../packages/shared/domain/src/index"],
       "@beep/shared-domain/*": ["../../packages/shared/domain/src/*"],
-      "@beep/runtime/client": ["../../packages/runtime/src/client"],
-      "@beep/runtime/server": ["../../packages/runtime/src/server"],
-      "@beep/xstate": ["../../packages/adapters/xstate/src/index"],
-      "@beep/xstate/*": ["../../packages/adapters/xstate/src/*"]
+      "@beep/core-runtime/client": ["../../packages/core/runtime/src/client"],
+      "@beep/core-runtime/server": ["../../packages/core/runtime/src/server"]
     },
     "plugins": [
       {
@@ -87,16 +85,13 @@
   },
   "references": [
     {
-      "path": "../../packages/adapters/xstate/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/adapters/better-auth/tsconfig.build.json"
+      "path": "../../packages/iam/infra/tsconfig.build.json"
     },
     {
       "path": "../../packages/ui/tsconfig.build.json"
     },
     {
-      "path": "../../packages/env/tsconfig.build.json"
+      "path": "../../packages/core/env/tsconfig.build.json"
     },
     {
       "path": "../../packages/common/utils/tsconfig.build.json"
@@ -123,9 +118,6 @@
       "path": "../../packages/common/errors/tsconfig.build.json"
     },
     {
-      "path": "../../packages/env/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/files/application/tsconfig.build.json"
     },
     {
@@ -138,7 +130,7 @@
       "path": "../../packages/shared/domain/tsconfig.build.json"
     },
     {
-      "path": "../../packages/runtime/tsconfig.build.json"
+      "path": "../../packages/core/runtime/tsconfig.build.json"
     }
   ],
   "include": [

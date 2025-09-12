@@ -2,7 +2,7 @@ import { BS } from "@beep/schema";
 export const EnvValueKit = BS.stringLiteralKit("dev", "staging", "prod");
 
 export class EnvValue extends EnvValueKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/env/common/EnvValue"),
+  schemaId: Symbol.for("@beep/constants/EnvValue"),
   identifier: "EnvValue",
   title: "Env Value",
   description: "Env value",

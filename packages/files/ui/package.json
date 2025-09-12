@@ -35,7 +35,7 @@
   "dependencies": {
     "@beep/ui": "workspace:^",
     "@beep/shared-domain": "workspace:^",
-    "@beep/env": "workspace:^",
+    "@beep/core-env": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/errors": "workspace:^",

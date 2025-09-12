@@ -4,10 +4,10 @@
   "compilerOptions": {
     "paths": {
       "@beep/files-infra/*": ["./src/*"],
-      "@beep/db-scope": ["../../persistence/db-scope/src/index"],
-      "@beep/db-scope/*": ["../../persistence/db-scope/src/*"],
-      "@beep/env/client": ["../../env/src/client"],
-      "@beep/env/server": ["../../env/src/server"],
+      "@beep/core-db": ["../../core/db/src/index"],
+      "@beep/core-db/*": ["../../core/db/src/*"],
+      "@beep/core-env/client": ["../../core/env/src/client"],
+      "@beep/core-env/server": ["../../core/env/src/server"],
       "@beep/shared-tables": ["../../shared/tables/src/index"],
       "@beep/shared-tables/*": ["../../shared/tables/src/*"],
       "@beep/schema": ["../../common/schema/src/index"],

@@ -10,7 +10,7 @@
       "path": "../../shared/domain"
     },
     {
-      "path": "../../env"
+      "path": "../../core/env"
     },
     {
       "path": "../../common/schema"
@@ -50,7 +50,7 @@
       "@beep/ui/*": ["../../ui/src/*"],
       "@beep/shared-domain": ["../../shared/domain/src/index"],
       "@beep/shared-domain/*": ["../../shared/domain/src/*"],
-      "@beep/env/client": ["../../env/src/client"],
+      "@beep/core-env/client": ["../../core/env/src/client"],
       "@beep/schema": ["../../common/schema/src/index"],
       "@beep/schema/*": ["../../common/schema/src/*"],
       "@beep/utils": ["../../common/utils/src/index"],

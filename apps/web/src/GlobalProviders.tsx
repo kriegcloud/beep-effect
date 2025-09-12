@@ -1,6 +1,6 @@
 "use client";
 
-import * as ClientRuntime from "@beep/runtime/client";
+import * as ClientRuntime from "@beep/core-runtime/client";
 import { QueryClientProvider, QueryClient as TanstackQueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import * as Duration from "effect/Duration";

@@ -12,7 +12,7 @@ export const AuthProviderNameValueKit = BS.stringLiteralKit(
 );
 
 export class AuthProviderNameValue extends AuthProviderNameValueKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/env/common/AuthProviderNameValue"),
+  schemaId: Symbol.for("@beep/constants/AuthProviderNameValue"),
   identifier: "AuthProviderNameValue",
   title: "Auth Provider Name Value",
   description: "Auth provider name value.",

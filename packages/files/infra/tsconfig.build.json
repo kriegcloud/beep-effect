@@ -12,10 +12,10 @@
   },
   "references": [
     {
-      "path": "../../persistence/db-scope/tsconfig.build.json"
+      "path": "../../core/db/tsconfig.build.json"
     },
     {
-      "path": "../../env/tsconfig.build.json"
+      "path": "../../core/env/tsconfig.build.json"
     },
     {
       "path": "../../shared/tables/tsconfig.build.json"

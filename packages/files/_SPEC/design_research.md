@@ -17,7 +17,7 @@ Last updated: 2025-09-12
   - [Goals](#goals)
   - [Client stub](#client-stub)
   - [Usage in UI (apps/web)](#usage-in-ui-appsweb)
-- [4. Runtime plan (@beep/runtime)](#4-runtime-plan-beep-runtime)
+- [4. Runtime plan (@beep/core-runtime)](#4-runtime-plan-beep-runtime)
   - [Provide central composable Layers for](#provide-central-composable-layers-for)
   - [Composition examples](#composition-examples)
   - [Layer composition example](#layer-composition-example)
@@ -70,7 +70,7 @@ Last updated: 2025-09-12
 * Add a pure, typed S3 key DSL (filePaths) that unifies org/user/content addressing and variants; adapters translate these to bucket/key.
 * WASM-first media pipeline (ffmpeg.wasm or mediabunny) in browser with server fallback for heavy/unsupported cases.
 * Security/performance baked in: strict CORS, checksum headers, TTLs, multipart acceleration, least-privilege IAM, lifecycle rules (expire tmp, abort incomplete MPU).
-* Centralize cross-cutting layers (config, logging, tracing, HttpClient, DB) in @beep/runtime; compose per app.
+* Centralize cross-cutting layers (config, logging, tracing, HttpClient, DB) in @beep/core-runtime; compose per app.
 * Enforce module boundaries via tags (Nx-style) and Turbo Boundaries, aligned to your slice layering rules.
 
 <details>
@@ -114,7 +114,7 @@ Last updated: 2025-09-12
 
 Related cross-cutting:
 
-- @beep/runtime
+- @beep/core-runtime
   - Purpose: Composable Layers for Config, Logger/Tracing, HttpClient defaults, DB clients, telemetry exporters.
   - Rationale: Central runtime; apps compose with slice adapters.
 
@@ -345,7 +345,7 @@ const program = Effect.gen(function* () {
   await fetch(presigned.url, { method: 'PUT', body: /* Blob */ } as any);
 });
 ```
-## 4. Runtime plan (@beep/runtime)
+## 4. Runtime plan (@beep/core-runtime)
 
 ### Provide central composable Layers for
 
@@ -359,7 +359,7 @@ apps/web: provide FetchHttpClient.layer and browser ImageTransformPort Live (ffm
 #### Layer composition example
 
 ```ts
-// @beep/runtime/src/layers.ts
+// @beep/core-runtime/src/layers.ts
 import { Layer, Effect } from 'effect';
 import { FetchHttpClient } from '@effect/platform';
 import { NodeSdk } from '@effect/opentelemetry';
@@ -633,7 +633,7 @@ Keep an application-level facade that re-exports PresignPort for imports; deprec
 ### Stages (PRs)
 
 PR1: Introduce PresignPort interface + adapters skeleton (no behavior change). Keep old SignedUrlService and implement PresignPort via delegating to it. Add lint rule to forbid importing infra from application.
-PR2: Move implementation to @beep/files-infra; wire @beep/runtime ServerRuntime to provide S3PresignLive; update @beep/files-api to depend on PresignPort only.
+PR2: Move implementation to @beep/files-infra; wire @beep/core-runtime ServerRuntime to provide S3PresignLive; update @beep/files-api to depend on PresignPort only.
 PR3: Remove old SignedUrlService and codemod imports to PresignPort; add Biome/ESLint boundaries (Nx-style enforce-module-boundaries equivalent; Turborepo Boundaries) to prevent regressions.
 PR4: Introduce SDK usage in apps/web; refactor upload POC to use FilesApiClient.
 ### Boundary enforcement
@@ -666,8 +666,8 @@ Flow: pick avatar → SDK.presignUpload → PUT → SDK.completeUpload → asser
 ```ts
 // apps/server/src/main.ts
 import { Layer, Effect } from 'effect';
-import { ServerRuntime } from '@beep/runtime';
-import { FilesRoutesLive } from '@beep/files-api';
+import { ServerRuntime } from '@beep/core-runtime';
+import { FilesRoutesLive } from '@beep/files-infra';
 
 const AppLive = Layer.mergeAll(ServerRuntime, FilesRoutesLive);
 
@@ -698,8 +698,8 @@ S3 CORS JSON and Lifecycle JSON are provided above.
 - FilesStoragePort (port): `@beep/files-application/src/ports/FilesStoragePort.ts`
 - S3 files storage adapter: `@beep/files-infra/src/S3FilesStorageLive.ts`
 - FilesApiClient: `@beep/files-sdk/src/FilesApiClient.ts`
-- FetchHttpClient.layer usage: provided by `@beep/runtime` `HttpClientLive`; browser apps provide directly.
-- Observability/Logging/Tracing/Config/DB: `@beep/runtime/src/*` (ConfigLive, LoggerLive, TracingLive, HttpClientLive, DbLive).
+- FetchHttpClient.layer usage: provided by `@beep/core-runtime` `HttpClientLive`; browser apps provide directly.
+- Observability/Logging/Tracing/Config/DB: `@beep/core-runtime/src/*` (ConfigLive, LoggerLive, TracingLive, HttpClientLive, DbLive).
 - Path DSL: `@beep/shared-domain/src/File/paths.ts`; re-export from `@beep/files-domain/src/index.ts` for convenience.
 ## Additional details and rationale
 
@@ -721,7 +721,7 @@ S3 CORS JSON and Lifecycle JSON are provided above.
 
 ### Phase 0 (infra + ports)
 Add ports in @beep/files-application and S3 adapters in @beep/files-infra.
-Introduce @beep/runtime Layers (Config/HttpClient/Tracing).
+Introduce @beep/core-runtime Layers (Config/HttpClient/Tracing).
 Keep current upload POC working via compatibility wrappers.
 ### Phase 1 (SDK + API)
 Implement @beep/files-api routes and @beep/files-sdk. Switch apps/web upload flow to SDK.

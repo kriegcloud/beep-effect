@@ -1,0 +1,27 @@
+{
+  "extends": "./tsconfig.src.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "tsBuildInfoFile": ".tsbuildinfo/build.tsbuildinfo",
+    "outDir": "build/esm",
+    "declarationDir": "build/dts",
+    "stripInternal": true,
+    "composite": true,
+    "declaration": true,
+    "sourceMap": true
+  },
+  "references": [
+    {
+      "path": "../env/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/constants/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/errors/tsconfig.build.json"
+    },
+    {
+      "path": "../db/tsconfig.build.json"
+    }
+  ]
+}

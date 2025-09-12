@@ -1,0 +1,49 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../../common/types"
+    },
+    {
+      "path": "../../common/constants"
+    },
+    {
+      "path": "../../common/errors"
+    },
+    {
+      "path": "../env"
+    },
+    {
+      "path": "../../ui"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node"],
+    "outDir": "build/src",
+    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+    "rootDir": "src",
+    "baseUrl": ".",
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "target": "ES2022",
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@beep/core-email/*": ["./src/*"],
+      "@beep/types": ["../../common/types/src/index"],
+      "@beep/types/*": ["../../common/types/src/*"],
+      "@beep/core-env/client": ["../env/src/client"],
+      "@beep/core-env/server": ["../env/src/server"],
+      "@beep/errors/shared": ["../../common/errors/src/shared"],
+      "@beep/errors/client": ["../../common/errors/src/client"],
+      "@beep/errors/server": ["../../common/errors/src/server"],
+      "@beep/constants": ["../../common/constants/src/index"],
+      "@beep/constants/*": ["../../common/constants/src/*"],
+      "@beep/ui/*": ["../../ui/src/*"]
+    }
+  }
+}

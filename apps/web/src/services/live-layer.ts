@@ -1,4 +1,4 @@
-import type * as ClientRuntime from "@beep/runtime/client";
+import type * as ClientRuntime from "@beep/core-runtime/client";
 import type * as Layer from "effect/Layer";
 import type * as ManagedRuntime from "effect/ManagedRuntime";
 import type { QueryClient } from "./common/QueryClient";

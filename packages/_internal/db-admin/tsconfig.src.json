@@ -1,0 +1,75 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../../iam/tables"
+    },
+    {
+      "path": "../../iam/infra"
+    },
+    {
+      "path": "../../iam/domain"
+    },
+    {
+      "path": "../../shared/tables"
+    },
+    {
+      "path": "../../core/db"
+    },
+    {
+      "path": "../../common/invariant"
+    },
+    {
+      "path": "../../common/schema"
+    },
+    {
+      "path": "../../common/types"
+    },
+    {
+      "path": "../../common/utils"
+    },
+    {
+      "path": "../../core/env"
+    },
+    {
+      "path": "../../shared/domain"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node"],
+    "outDir": "build/src",
+    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+    "rootDir": "src",
+    "baseUrl": ".",
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@beep/db-admin/*": ["./src/*"],
+      "@beep/iam-tables": ["../../iam/tables/src/index"],
+      "@beep/iam-tables/*": ["../../iam/tables/src/*"],
+      "@beep/shared-tables": ["../../shared/tables/src/index"],
+      "@beep/shared-tables/*": ["../../shared/tables/src/*"],
+      "@beep/core-db": ["../../core/db/src/index"],
+      "@beep/core-db/*": ["../../core/db/src/*"],
+      "@beep/iam-infra": ["../../iam/infra/src/index"],
+      "@beep/iam-infra/*": ["../../iam/infra/src/*"],
+      "@beep/schema": ["../../schema/src/index"],
+      "@beep/schema/*": ["../../schema/src/*"],
+      "@beep/types": ["../../types/src/index"],
+      "@beep/types/*": ["../../types/src/*"],
+      "@beep/invariant": ["../../invariant/src/index"],
+      "@beep/invariant/*": ["../../invariant/src/*"],
+      "@beep/utils": ["../../utils/src/index"],
+      "@beep/utils/*": ["../../utils/src/*"],
+      "@beep/core-env/server": ["../../core/env/src/server"],
+      "@beep/core-env/client": ["../../core/env/src/client"],
+      "@beep/iam-domain": ["../../iam/domain/src/index"],
+      "@beep/iam-domain/*": ["../../iam/domain/src/*"],
+      "@beep/shared-domain": ["../../shared/domain/src/index"],
+      "@beep/shared-domain/*": ["../../shared/domain/src/*"]
+    }
+  }
+}

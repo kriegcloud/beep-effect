@@ -9,13 +9,28 @@
       "path": "../tables"
     },
     {
-      "path": "../../persistence/db-scope"
+      "path": "../application"
     },
     {
-      "path": "../../env"
+      "path": "../domain"
+    },
+    {
+      "path": "../../core/db"
+    },
+    {
+      "path": "../../core/env"
+    },
+    {
+      "path": "../../core/email"
+    },
+    {
+      "path": "../../core/runtime"
     },
     {
       "path": "../../shared/tables"
+    },
+    {
+      "path": "../../shared/domain"
     },
     {
       "path": "../../common/schema"
@@ -30,10 +45,10 @@
       "path": "../../common/types"
     },
     {
-      "path": "../application"
+      "path": "../../common/constants"
     },
     {
-      "path": "../domain"
+      "path": "../../common/errors"
     }
   ],
   "compilerOptions": {

@@ -3,10 +3,10 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../../persistence/db-scope"
+      "path": "../../core/db"
     },
     {
-      "path": "../../env"
+      "path": "../../core/env"
     },
     {
       "path": "../../shared/tables"
@@ -41,11 +41,11 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-      "@beep/files-db/*": ["./src/*"],
-      "@beep/db-scope": ["../../persistence/db-scope/src/index"],
-      "@beep/db-scope/*": ["../../persistence/db-scope/src/*"],
-      "@beep/env/client": ["../../env/src/client"],
-      "@beep/env/server": ["../../env/src/server"],
+      "@beep/files-infra/*": ["./src/*"],
+      "@beep/core-db": ["../../core/db/src/index"],
+      "@beep/core-db/*": ["../../core/db/src/*"],
+      "@beep/core-env/client": ["../../core/env/src/client"],
+      "@beep/core-env/server": ["../../core/env/src/server"],
       "@beep/shared-tables": ["../../shared/tables/src/index"],
       "@beep/shared-tables/*": ["../../shared/tables/src/*"],
       "@beep/schema": ["../../common/schema/src/index"],
@@ -55,9 +55,7 @@
       "@beep/utils": ["../../common/utils/src/index"],
       "@beep/utils/*": ["../../common/utils/src/*"],
       "@beep/types": ["../../common/types/src/index"],
-      "@beep/types/*": ["../../common/types/src/*"],
-      "@beep/files-application": ["../application/src/index"],
-      "@beep/files-domain": ["../domain/src/index"]
+      "@beep/types/*": ["../../common/types/src/*"]
     }
   }
 }

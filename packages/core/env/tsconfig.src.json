@@ -1,0 +1,30 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../../common/schema"
+    },
+    {
+      "path": "../../common/constants"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node"],
+    "outDir": "build/src",
+    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+    "rootDir": "src",
+    "baseUrl": ".",
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@beep/core-env/*": ["./src/*"],
+      "@beep/schema": ["../../common/schema/src/index"],
+      "@beep/schema/*": ["../../common/schema/src/*"],
+      "@beep/constants": ["../../common/constants/src/index"],
+      "@beep/constants/*": ["../../common/constants/src/*"]
+    }
+  }
+}

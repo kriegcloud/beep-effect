@@ -1,0 +1,72 @@
+{
+  "name": "@beep/core-email",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "The better auth adapter for Beep",
+  "publishConfig": {
+    "access": "restricted",
+    "directory": "build"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/core/email"
+  },
+  "scripts": {
+    "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",
+    "dev": "tsc -b tsconfig.build.json --watch",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "vitest run",
+    "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
+    "coverage": "vitest run --coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "dotenvx": "dotenvx run -f ../../../.env --",
+    "lint:circular": "pnpm madge -c ."
+  },
+  "dependencies": {
+    "@beep/core-env": "workspace:*",
+    "@beep/constants": "workspace:*",
+    "@beep/errors": "workspace:*",
+    "@beep/ui": "workspace:*",
+    "effect": "*",
+    "@react-email/components": "*",
+    "@react-email/render": "*",
+    "react": "*",
+    "react-dom": "*",
+    "@mui/material": "*",
+    "tailwind-merge": "*",
+    "clsx": "*",
+    "tailwindcss-animate": "*",
+    "tw-animate-css": "*",
+    "resend": "*"
+  },
+  "devDependencies": {
+    "@beep/types": "workspace:^",
+    "@types/react": "*",
+    "@types/react-dom": "*",
+    "@tailwindcss/postcss": "*",
+    "tailwindcss": "*"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}

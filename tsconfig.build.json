@@ -3,6 +3,15 @@
   "include": [],
   "references": [
     {
+      "path": "packages/common/types/tsconfig.build.json"
+    },
+    {
+      "path": "packages/common/invariant/tsconfig.build.json"
+    },
+    {
+      "path": "packages/common/utils/tsconfig.build.json"
+    },
+    {
       "path": "packages/common/schema/tsconfig.build.json"
     },
     {
@@ -12,22 +21,16 @@
       "path": "packages/common/errors/tsconfig.build.json"
     },
     {
-      "path": "packages/common/types/tsconfig.build.json"
+      "path": "packages/common/rules/tsconfig.build.json"
     },
     {
-      "path": "packages/runtime/tsconfig.build.json"
+      "path": "packages/common/logos/tsconfig.build.json"
     },
     {
-      "path": "packages/common/invariant/tsconfig.build.json"
+      "path": "packages/common/rete/tsconfig.build.json"
     },
     {
-      "path": "packages/common/utils/tsconfig.build.json"
-    },
-    {
-      "path": "packages/persistence/db-scope/tsconfig.build.json"
-    },
-    {
-      "path": "packages/persistence/db-admin/tsconfig.build.json"
+      "path": "packages/common/query/tsconfig.build.json"
     },
     {
       "path": "packages/shared/domain/tsconfig.build.json"
@@ -36,13 +39,25 @@
       "path": "packages/shared/tables/tsconfig.build.json"
     },
     {
-      "path": "apps/web/tsconfig.json"
+      "path": "packages/core/env/tsconfig.build.json"
     },
     {
-      "path": "packages/email/tsconfig.build.json"
+      "path": "packages/core/ai/tsconfig.build.json"
+    },
+    {
+      "path": "packages/core/email/tsconfig.build.json"
+    },
+    {
+      "path": "packages/core/db/tsconfig.build.json"
+    },
+    {
+      "path": "packages/core/runtime/tsconfig.build.json"
     },
     {
       "path": "packages/iam/application/tsconfig.build.json"
+    },
+    {
+      "path": "packages/iam/sdk/tsconfig.build.json"
     },
     {
       "path": "packages/iam/infra/tsconfig.build.json"
@@ -60,51 +75,6 @@
       "path": "packages/ui/tsconfig.build.json"
     },
     {
-      "path": "tooling/repo-scripts/tsconfig.build.json"
-    },
-    {
-      "path": "tooling/repo-config/tsconfig.build.json"
-    },
-    {
-      "path": "tooling/testkit/tsconfig.build.json"
-    },
-    {
-      "path": "tooling/utils/tsconfig.build.json"
-    },
-    {
-      "path": "packages/common/logos/tsconfig.build.json"
-    },
-    {
-      "path": "packages/common/rete/tsconfig.build.json"
-    },
-    {
-      "path": "packages/env/tsconfig.build.json"
-    },
-    {
-      "path": "packages/adapters/resend/tsconfig.build.json"
-    },
-    {
-      "path": "packages/adapters/better-auth/tsconfig.build.json"
-    },
-    {
-      "path": "packages/ai/core/tsconfig.build.json"
-    },
-    {
-      "path": "packages/adapters/xstate/tsconfig.build.json"
-    },
-    {
-      "path": "apps/server/tsconfig.build.json"
-    },
-    {
-      "path": "apps/mcp/tsconfig.build.json"
-    },
-    {
-      "path": "packages/common/rules/tsconfig.build.json"
-    },
-    {
-      "path": "packages/common/query/tsconfig.build.json"
-    },
-    {
       "path": "packages/files/application/tsconfig.build.json"
     },
     {
@@ -113,14 +83,35 @@
     {
       "path": "packages/files/ui/tsconfig.build.json"
     },
-        {
+    {
       "path": "packages/files/domain/tsconfig.build.json"
     },
-        {
+    {
       "path": "packages/files/tables/tsconfig.build.json"
     },
     {
-      "path": "packages/adapters/tanstack/tsconfig.build.json"
+      "path": "apps/server/tsconfig.build.json"
+    },
+    {
+      "path": "apps/mcp/tsconfig.build.json"
+    },
+    {
+      "path": "apps/web/tsconfig.json"
+    },
+    {
+      "path": "packages/_internal/db-admin/tsconfig.build.json"
+    },
+    {
+      "path": "tooling/utils/tsconfig.build.json"
+    },
+    {
+      "path": "tooling/repo-config/tsconfig.build.json"
+    },
+    {
+      "path": "tooling/repo-scripts/tsconfig.build.json"
+    },
+    {
+      "path": "tooling/testkit/tsconfig.build.json"
     }
   ]
 }

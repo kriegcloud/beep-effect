@@ -6,10 +6,10 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../../persistence/db-scope"
+      "path": "../../core/db"
     },
     {
-      "path": "../../env"
+      "path": "../../core/env"
     },
     {
       "path": "../../shared/tables"

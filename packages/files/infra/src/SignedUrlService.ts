@@ -1,4 +1,4 @@
-import { serverEnv } from "@beep/env/server";
+import { serverEnv } from "@beep/core-env/server";
 import { S3Service } from "@effect-aws/client-s3";
 import * as Effect from "effect/Effect";
 

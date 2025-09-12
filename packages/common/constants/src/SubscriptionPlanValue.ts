@@ -3,7 +3,7 @@ import type * as S from "effect/Schema";
 export const SubscriptionPlanValueKit = BS.stringLiteralKit("basic", "pro", "enterprise");
 
 export class SubscriptionPlanValue extends SubscriptionPlanValueKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/env/common/SubscriptionPlanValue"),
+  schemaId: Symbol.for("@beep/constants/SubscriptionPlanValue"),
   identifier: "SubscriptionPlanValue",
   title: "Subscription Plan Value",
   description: "Possible subscription plan values.",

@@ -1,0 +1,67 @@
+{
+  "name": "@beep/core-runtime",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "The core runtime shared by vertical slice infra structure layers.",
+  "publishConfig": {
+    "access": "restricted",
+    "directory": "build"
+  },
+  "exports": {
+    "./server": "./src/server.ts",
+    "./client": "./src/client.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/core/runtime"
+  },
+  "scripts": {
+    "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",
+    "dev": "tsc -b tsconfig.build.json --watch",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "vitest run",
+    "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
+    "coverage": "vitest run --coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "lint:circular": "pnpm madge -c ."
+  },
+  "dependencies": {
+    "@beep/core-db": "workspace:*",
+    "effect": "*",
+    "@effect/opentelemetry": "*",
+    "@opentelemetry/sdk-trace-web": "*",
+    "@opentelemetry/exporter-trace-otlp-http": "*",
+    "@effect/platform-node": "*",
+    "@effect/experimental": "*",
+    "@effect/platform-browser": "*",
+    "@effect/platform": "*",
+    "@effect/workflow": "*",
+    "@effect/cluster": "*",
+    "@effect/sql-pg": "*",
+    "@effect/sql": "*",
+    "@opentelemetry/sdk-trace-node": "*",
+    "@beep/core-env": "workspace:*",
+    "@beep/constants": "workspace:*",
+    "@beep/errors": "workspace:*"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}

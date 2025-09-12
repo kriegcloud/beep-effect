@@ -1,4 +1,4 @@
-import { DbPool, makeScopedDb, PgLive } from "@beep/db-scope";
+import { DbPool, makeScopedDb, PgLive } from "@beep/core-db";
 import { IamDbSchema } from "@beep/iam-tables";
 import * as Context from "effect/Context";
 import type * as Effect from "effect/Effect";

@@ -3,10 +3,7 @@
   "include": ["test", "test/**/*.json", "test/*.*.json"],
   "references": [
     {
-      "path": "../../packages/adapters/xstate/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/adapters/better-auth/tsconfig.build.json"
+      "path": "../../packages/iam/infra/tsconfig.build.json"
     },
     {
       "path": "../../packages/ui/tsconfig.build.json"

@@ -21,13 +21,22 @@
       "path": "../domain/tsconfig.build.json"
     },
     {
-      "path": "../../persistence/db-scope/tsconfig.build.json"
+      "path": "../../core/db/tsconfig.build.json"
     },
     {
-      "path": "../../env/tsconfig.build.json"
+      "path": "../../core/env/tsconfig.build.json"
+    },
+    {
+      "path": "../../core/email/tsconfig.build.json"
+    },
+    {
+      "path": "../../core/runtime/tsconfig.build.json"
     },
     {
       "path": "../../shared/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../shared/domain/tsconfig.build.json"
     },
     {
       "path": "../../common/schema/tsconfig.build.json"
@@ -40,6 +49,12 @@
     },
     {
       "path": "../../common/types/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/constants/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/errors/tsconfig.build.json"
     }
   ]
 }
