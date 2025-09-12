@@ -1,11 +1,15 @@
 import * as HttpApiSchema from "@effect/platform/HttpApiSchema";
 import * as S from "effect/Schema";
-
 export class UnrecoverableError extends S.TaggedError<UnrecoverableError>()(
   "UnrecoverableError",
   { message: S.String, stack: S.String, attributes: S.Any },
   HttpApiSchema.annotations({ status: 500 })
 ) {}
+
+export namespace UnrecoverableError {
+  export type Type = S.Schema.Type<typeof UnrecoverableError>;
+  export type Encoded = S.Schema.Encoded<typeof UnrecoverableError>;
+}
 
 // Network
 export class NotFoundError extends S.TaggedError<NotFoundError>()(
@@ -14,11 +18,21 @@ export class NotFoundError extends S.TaggedError<NotFoundError>()(
   HttpApiSchema.annotations({ status: 404 })
 ) {}
 
-export class UniqueError extends S.TaggedError<UniqueError>()(
-  "UniqueError",
+export namespace NotFoundError {
+  export type Type = S.Schema.Type<typeof NotFoundError>;
+  export type Encoded = S.Schema.Encoded<typeof NotFoundError>;
+}
+
+export class UniqueViolationError extends S.TaggedError<UniqueViolationError>()(
+  "UniqueViolationError",
   { field: S.String, value: S.String },
   HttpApiSchema.annotations({ status: 409 })
 ) {}
+
+export namespace UniqueViolationError {
+  export type Type = S.Schema.Type<typeof UniqueViolationError>;
+  export type Encoded = S.Schema.Encoded<typeof UniqueViolationError>;
+}
 
 // Database
 export class DatabaseError extends S.TaggedError<DatabaseError>()(
@@ -27,11 +41,21 @@ export class DatabaseError extends S.TaggedError<DatabaseError>()(
   HttpApiSchema.annotations({ status: 500 })
 ) {}
 
+export namespace DatabaseError {
+  export type Type = S.Schema.Type<typeof DatabaseError>;
+  export type Encoded = S.Schema.Encoded<typeof DatabaseError>;
+}
+
 export class TransactionError extends S.TaggedError<TransactionError>()(
   "TransactionError",
   { message: S.String, operation: S.String },
   HttpApiSchema.annotations({ status: 500 })
 ) {}
+
+export namespace TransactionError {
+  export type Type = S.Schema.Type<typeof TransactionError>;
+  export type Encoded = S.Schema.Encoded<typeof TransactionError>;
+}
 
 export class ConnectionError extends S.TaggedError<ConnectionError>()(
   "ConnectionError",
@@ -39,28 +63,50 @@ export class ConnectionError extends S.TaggedError<ConnectionError>()(
   HttpApiSchema.annotations({ status: 500 })
 ) {}
 
+export namespace ConnectionError {
+  export type Type = S.Schema.Type<typeof ConnectionError>;
+  export type Encoded = S.Schema.Encoded<typeof ConnectionError>;
+}
+
 export class ParseError extends S.TaggedError<ParseError>()(
   "ParseError",
   { message: S.String },
   HttpApiSchema.annotations({ status: 400 })
 ) {}
 
-export class UnauthorizedError extends S.TaggedError<UnauthorizedError>()(
-  "UnauthorizedError",
+export namespace ParseError {
+  export type Type = S.Schema.Type<typeof ParseError>;
+  export type Encoded = S.Schema.Encoded<typeof ParseError>;
+}
+
+export class Unauthorized extends S.TaggedError<Unauthorized>("Unauthorized")(
+  "Unauthorized",
   {
-    reason: S.Literal("missing_session", "invalid_session", "expired_session", "auth_service_error"),
-    message: S.String,
+    message: S.optional(S.String),
   },
-  HttpApiSchema.annotations({ status: 401 })
+  HttpApiSchema.annotations({
+    status: 401,
+    description: "Authentication is required and has failed or has not been provided",
+  })
 ) {}
 
-export class ForbiddenError extends S.TaggedError<ForbiddenError>()(
-  "ForbiddenError",
+export namespace Unauthorized {
+  export type Type = S.Schema.Type<typeof Unauthorized>;
+  export type Encoded = S.Schema.Encoded<typeof Unauthorized>;
+}
+
+export class Forbidden extends S.TaggedError<Forbidden>("Forbidden")(
+  "Forbidden",
   {
-    reason: S.Literal("permission_denied"),
-    message: S.String,
-    resource: S.optional(S.String),
-    requiredPermission: S.optional(S.String),
+    message: S.optional(S.String),
   },
-  HttpApiSchema.annotations({ status: 403 })
+  HttpApiSchema.annotations({
+    status: 403,
+    description: "The server understood the request but refuses to authorize it",
+  })
 ) {}
+
+export namespace Forbidden {
+  export type Type = S.Schema.Type<typeof Forbidden>;
+  export type Encoded = S.Schema.Encoded<typeof Forbidden>;
+}
