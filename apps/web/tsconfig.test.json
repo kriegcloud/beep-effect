@@ -45,10 +45,7 @@
       "path": "../../packages/files/application/tsconfig.build.json"
     },
     {
-      "path": "../../packages/files/api/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/files/db/tsconfig.build.json"
+      "path": "../../packages/files/infra/tsconfig.build.json"
     },
     {
       "path": "../../packages/files/ui/tsconfig.build.json"

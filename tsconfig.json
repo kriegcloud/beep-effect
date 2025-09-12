@@ -47,13 +47,10 @@
       "path": "packages/shared/tables"
     },
     {
-      "path": "packages/iam/api"
-    },
-    {
       "path": "packages/iam/application"
     },
     {
-      "path": "packages/iam/db"
+      "path": "packages/iam/infra"
     },
     {
       "path": "packages/iam/domain"
@@ -116,16 +113,19 @@
       "path": "packages/common/query"
     },
     {
-      "path": "packages/files/api"
-    },
-    {
       "path": "packages/files/application"
     },
     {
-      "path": "packages/files/db"
+      "path": "packages/files/ui"
     },
     {
-      "path": "packages/files/ui"
+      "path": "packages/files/domain"
+    },
+    {
+      "path": "packages/files/tables"
+    },
+        {
+      "path": "packages/files/sdk"
     }
   ]
 }

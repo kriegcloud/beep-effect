@@ -1,0 +1,42 @@
+{
+  "extends": "./tsconfig.src.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "tsBuildInfoFile": ".tsbuildinfo/build.tsbuildinfo",
+    "outDir": "build/esm",
+    "declarationDir": "build/dts",
+    "stripInternal": true,
+    "composite": true,
+    "declaration": true,
+    "sourceMap": true
+  },
+  "references": [
+    {
+      "path": "../../persistence/db-scope/tsconfig.build.json"
+    },
+    {
+      "path": "../../env/tsconfig.build.json"
+    },
+    {
+      "path": "../../shared/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/schema/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/utils/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/invariant/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/types/tsconfig.build.json"
+    },
+    {
+      "path": "../application/tsconfig.build.json"
+    },
+    {
+      "path": "../domain/tsconfig.build.json"
+    }
+  ]
+}

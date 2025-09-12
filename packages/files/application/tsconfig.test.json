@@ -6,9 +6,6 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../../env"
-    },
-    {
       "path": "../../common/constants"
     },
     {
@@ -24,10 +21,7 @@
       "path": "../../shared/domain"
     },
     {
-      "path": "../../shared/tables"
-    },
-    {
-      "path": "../db"
+      "path": "../domain"
     }
   ],
   "compilerOptions": {

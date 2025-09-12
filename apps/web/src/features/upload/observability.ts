@@ -4,7 +4,7 @@ import * as Metric from "effect/Metric";
 import * as MetricBoundaries from "effect/MetricBoundaries";
 
 /**
- * Upload observability scaffolding
+ * Upload observability
  * - Spans, annotations, and metrics for the upload pipeline
  */
 

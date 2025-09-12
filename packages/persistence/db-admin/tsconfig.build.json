@@ -15,7 +15,7 @@
       "path": "../../iam/tables/tsconfig.build.json"
     },
     {
-      "path": "../../iam/db/tsconfig.build.json"
+      "path": "../../iam/infra/tsconfig.build.json"
     },
     {
       "path": "../../iam/domain/tsconfig.build.json"

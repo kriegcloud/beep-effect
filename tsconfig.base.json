@@ -185,15 +185,6 @@
       "@beep/shared-tables/test/*": [
         "./packages/shared/tables/test/*"
       ],
-      "@beep/iam-api": [
-        "./packages/iam/api/src/index"
-      ],
-      "@beep/iam-api/*": [
-        "./packages/iam/api/src/*"
-      ],
-      "@beep/iam-api/test/*": [
-        "./packages/iam/api/test/*"
-      ],
       "@beep/iam-application": [
         "./packages/iam/application/src/index"
       ],
@@ -203,14 +194,14 @@
       "@beep/iam-application/test/*": [
         "./packages/iam/application/test/*"
       ],
-      "@beep/iam-db": [
-        "./packages/iam/db/src/index"
+      "@beep/iam-infra": [
+        "./packages/iam/infra/src/index"
       ],
-      "@beep/iam-db/*": [
-        "./packages/iam/db/src/*"
+      "@beep/iam-infra/*": [
+        "./packages/iam/infra/src/*"
       ],
-      "@beep/iam-db/test/*": [
-        "./packages/iam/db/test/*"
+      "@beep/iam-infra/test/*": [
+        "./packages/iam/infra/test/*"
       ],
       "@beep/iam-domain": [
         "./packages/iam/domain/src/index"
@@ -344,15 +335,6 @@
       "@beep/constants/test/*": [
         "./packages/common/constants/test/*"
       ],
-      "@beep/files-api": [
-        "./packages/files/api/src/index"
-      ],
-      "@beep/files-api/*": [
-        "./packages/files/api/src/*"
-      ],
-      "@beep/files-api/test/*": [
-        "./packages/files/api/test/*"
-      ],
       "@beep/files-application": [
         "./packages/files/application/src/index"
       ],
@@ -362,14 +344,14 @@
       "@beep/files-application/test/*": [
         "./packages/files/application/test/*"
       ],
-      "@beep/files-db": [
-        "./packages/files/db/src/index"
+      "@beep/files-infra": [
+        "./packages/files/infra/src/index"
       ],
-      "@beep/files-db/*": [
-        "./packages/files/db/src/*"
+      "@beep/files-infra/*": [
+        "./packages/files/infra/src/*"
       ],
-      "@beep/files-db/test/*": [
-        "./packages/files/db/test/*"
+      "@beep/files-infra/test/*": [
+        "./packages/files/infra/test/*"
       ],
       "@beep/files-ui": [
         "./packages/files/ui/src/index"
@@ -379,6 +361,33 @@
       ],
       "@beep/files-ui/test/*": [
         "./packages/files/ui/test/*"
+      ],
+      "@beep/files-domain": [
+        "./packages/files/domain/src/index"
+      ],
+      "@beep/files-domain/*": [
+        "./packages/files/domain/src/*"
+      ],
+      "@beep/files-domain/test/*": [
+        "./packages/files/domain/test/*"
+      ],
+      "@beep/files-tables": [
+        "./packages/files/tables/src/index"
+      ],
+      "@beep/files-tables/*": [
+        "./packages/files/tables/src/*"
+      ],
+      "@beep/files-tables/test/*": [
+        "./packages/files/tables/test/*"
+      ],
+      "@beep/files-sdk": [
+        "./packages/files/sdk/src/index"
+      ],
+      "@beep/files-sdk/*": [
+        "./packages/files/sdk/src/*"
+      ],
+      "@beep/files-sdk/test/*": [
+        "./packages/files/sdk/test/*"
       ]
     }
   }

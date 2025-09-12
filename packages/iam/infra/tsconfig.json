@@ -1,0 +1,37 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": [],
+  "compilerOptions": {
+    "paths": {
+      "@beep/iam-infra/*": ["./src/*"],
+      "@beep/iam-tables": ["../tables/src/index"],
+      "@beep/iam-tables/*": ["../tables/src/*"],
+      "@beep/db-scope": ["../../persistence/db-scope/src/index"],
+      "@beep/db-scope/*": ["../../persistence/db-scope/src/*"],
+      "@beep/env/client": ["../../env/src/client"],
+      "@beep/env/server": ["../../env/src/server"],
+      "@beep/shared-tables": ["../../shared/tables/src/index"],
+      "@beep/shared-tables/*": ["../../shared/tables/src/*"],
+      "@beep/schema": ["../../common/schema/src/index"],
+      "@beep/schema/*": ["../../common/schema/src/*"],
+      "@beep/invariant": ["../../common/invariant/src/index"],
+      "@beep/invariant/*": ["../../common/invariant/src/*"],
+      "@beep/utils": ["../../common/utils/src/index"],
+      "@beep/utils/*": ["../../common/utils/src/*"],
+      "@beep/types": ["../../common/types/src/index"],
+      "@beep/types/*": ["../../common/types/src/*"],
+      "@beep/iam-application": ["../application/src/index"],
+      "@beep/iam-application/*": ["../application/src/*"],
+      "@beep/iam-domain": ["../domain/src/index"],
+      "@beep/iam-domain/*": ["../domain/src/*"]
+    }
+  },
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "tsconfig.test.json"
+    }
+  ]
+}

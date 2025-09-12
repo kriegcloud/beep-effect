@@ -44,7 +44,7 @@
     "@effect/sql": "*",
     "@effect/experimental": "*",
     "@beep/shared-tables": "workspace:*",
-    "@beep/iam-db": "workspace:*",
+    "@beep/iam-infra": "workspace:*",
     "@beep/schema": "workspace:*",
     "@beep/types": "workspace:*",
     "@beep/utils": "workspace:*",

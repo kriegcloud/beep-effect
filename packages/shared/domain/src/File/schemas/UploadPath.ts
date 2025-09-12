@@ -492,3 +492,8 @@ export class UploadPath extends S.transformOrFail(UploadPathDecoded, UploadPathE
     "Compatible with all environments: dev, staging, prod",
   ].join("\n- "),
 }) {}
+
+export namespace UploadPath {
+  export type Type = S.Schema.Type<typeof UploadPath>;
+  export type Encoded = S.Schema.Encoded<typeof UploadPath>;
+}

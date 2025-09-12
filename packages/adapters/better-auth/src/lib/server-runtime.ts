@@ -1,4 +1,4 @@
-import { IamDb } from "@beep/iam-db";
+import { IamDb } from "@beep/iam-infra";
 import { ResendService } from "@beep/resend";
 import * as ServerRuntime from "@beep/runtime/server";
 import * as Layer from "effect/Layer";

@@ -63,10 +63,8 @@
       "@beep/env/server": ["../../packages/env/src/server"],
       "@beep/files-application": ["../../packages/files/application/src/index"],
       "@beep/files-application/*": ["../../packages/files/application/src/*"],
-      "@beep/files-api": ["../../packages/files/api/src/index"],
-      "@beep/files-api/*": ["../../packages/files/api/src/*"],
-      "@beep/files-db": ["../../packages/files/db/src/index"],
-      "@beep/files-db/*": ["../../packages/files/db/src/*"],
+      "@beep/files-infra": ["../../packages/files/infra/src/index"],
+      "@beep/files-infra/*": ["../../packages/files/infra/src/*"],
       "@beep/files-ui": ["../../packages/files/ui/src/index"],
       "@beep/files-ui/*": ["../../packages/files/ui/src/*"],
       "@beep/better-auth": ["../../packages/adapters/better-auth/src/index"],
@@ -131,10 +129,7 @@
       "path": "../../packages/files/application/tsconfig.build.json"
     },
     {
-      "path": "../../packages/files/api/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/files/db/tsconfig.build.json"
+      "path": "../../packages/files/infra/tsconfig.build.json"
     },
     {
       "path": "../../packages/files/ui/tsconfig.build.json"

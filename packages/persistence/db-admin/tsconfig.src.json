@@ -6,7 +6,7 @@
       "path": "../../iam/tables"
     },
     {
-      "path": "../../iam/db"
+      "path": "../../iam/infra"
     },
     {
       "path": "../../iam/domain"
@@ -54,8 +54,8 @@
       "@beep/shared-tables/*": ["../../shared/tables/src/*"],
       "@beep/db-scope": ["../db-scope/src/index"],
       "@beep/db-scope/*": ["../db-scope/src/*"],
-      "@beep/iam-db": ["../../iam/db/src/index"],
-      "@beep/iam-db/*": ["../../iam/db/src/*"],
+      "@beep/iam-infra": ["../../iam/infra/src/index"],
+      "@beep/iam-infra/*": ["../../iam/infra/src/*"],
       "@beep/iam-domain": ["../../iam/domain/src/index"],
       "@beep/iam-domain/*": ["../../iam/domain/src/*"],
       "@beep/schema": ["../../common/schema/src/index"],

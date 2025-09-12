@@ -1,5 +1,5 @@
 import { DbError } from "@beep/db-scope/errors";
-import { IamDb } from "@beep/iam-db";
+import { IamDb } from "@beep/iam-infra";
 import { IamDbSchema } from "@beep/iam-tables";
 import { IamEntityIds } from "@beep/shared-domain";
 import { Organization } from "@beep/shared-domain/entities";

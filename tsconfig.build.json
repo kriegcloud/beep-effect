@@ -42,13 +42,10 @@
       "path": "packages/email/tsconfig.build.json"
     },
     {
-      "path": "packages/iam/api/tsconfig.build.json"
-    },
-    {
       "path": "packages/iam/application/tsconfig.build.json"
     },
     {
-      "path": "packages/iam/db/tsconfig.build.json"
+      "path": "packages/iam/infra/tsconfig.build.json"
     },
     {
       "path": "packages/iam/domain/tsconfig.build.json"
@@ -108,16 +105,19 @@
       "path": "packages/common/query/tsconfig.build.json"
     },
     {
-      "path": "packages/files/api/tsconfig.build.json"
-    },
-    {
       "path": "packages/files/application/tsconfig.build.json"
     },
     {
-      "path": "packages/files/db/tsconfig.build.json"
+      "path": "packages/files/sdk/tsconfig.build.json"
     },
     {
       "path": "packages/files/ui/tsconfig.build.json"
+    },
+        {
+      "path": "packages/files/domain/tsconfig.build.json"
+    },
+        {
+      "path": "packages/files/tables/tsconfig.build.json"
     },
     {
       "path": "packages/adapters/tanstack/tsconfig.build.json"

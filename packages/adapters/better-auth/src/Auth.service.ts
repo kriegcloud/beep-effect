@@ -1,5 +1,5 @@
 import { serverEnv } from "@beep/env/server";
-import { IamDb } from "@beep/iam-db";
+import { IamDb } from "@beep/iam-infra";
 import { IamDbSchema } from "@beep/iam-tables";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import type { UnsafeTypes } from "@beep/types";

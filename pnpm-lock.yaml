@@ -15,9 +15,8 @@ overrides:
   '@beep/db-scope': workspace:*
   '@beep/shared-domain': workspace:*
   '@beep/shared-tables': workspace:*
-  '@beep/iam-api': workspace:*
   '@beep/iam-application': workspace:*
-  '@beep/iam-db': workspace:*
+  '@beep/iam-infra': workspace:*
   '@beep/iam-domain': workspace:*
   '@beep/iam-ui': workspace:*
   '@beep/iam-tables': workspace:*
@@ -446,15 +445,12 @@ importers:
       '@beep/errors':
         specifier: workspace:*
         version: link:../../packages/common/errors/build
-      '@beep/files-api':
-        specifier: workspace:^
-        version: link:../../packages/files/api/build
       '@beep/files-application':
         specifier: workspace:^
         version: link:../../packages/files/application/build
-      '@beep/files-db':
+      '@beep/files-infra':
         specifier: workspace:^
-        version: link:../../packages/files/db/build
+        version: link:../../packages/files/infra/build
       '@beep/files-ui':
         specifier: workspace:^
         version: link:../../packages/files/ui/build
@@ -789,12 +785,12 @@ importers:
       '@beep/env':
         specifier: workspace:*
         version: link:../../env/build
-      '@beep/iam-db':
-        specifier: workspace:*
-        version: link:../../iam/db/build
       '@beep/iam-domain':
         specifier: workspace:*
         version: link:../../iam/domain/build
+      '@beep/iam-infra':
+        specifier: workspace:*
+        version: link:../../iam/infra/build
       '@beep/iam-tables':
         specifier: workspace:*
         version: link:../../iam/tables/build
@@ -1338,51 +1334,61 @@ importers:
         version: 3.17.13
     publishDirectory: build
 
-  packages/files/api:
-    dependencies:
-      effect:
-        specifier: 3.17.13
-        version: 3.17.13
-    publishDirectory: build
-
   packages/files/application:
     dependencies:
       '@beep/constants':
         specifier: workspace:*
         version: link:../../common/constants/build
-      '@beep/env':
-        specifier: workspace:*
-        version: link:../../env/build
       '@beep/errors':
         specifier: workspace:*
         version: link:../../common/errors/build
-      '@beep/files-db':
+      '@beep/files-domain':
         specifier: workspace:*
-        version: link:../db/build
+        version: link:../domain/build
       '@beep/schema':
         specifier: workspace:*
         version: link:../../common/schema/build
       '@beep/shared-domain':
         specifier: workspace:*
         version: link:../../shared/domain/build
-      '@beep/shared-tables':
-        specifier: workspace:*
-        version: link:../../shared/tables/build
       '@beep/utils':
         specifier: workspace:*
         version: link:../../common/utils/build
-      '@effect-aws/client-s3':
-        specifier: ^1.10.3
-        version: 1.10.3(effect@3.17.13)
-      '@effect-aws/s3':
-        specifier: ^0.2.3
-        version: 0.2.3(@effect-aws/client-s3@1.10.3(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
       effect:
         specifier: 3.17.13
         version: 3.17.13
     publishDirectory: build
 
-  packages/files/db:
+  packages/files/domain:
+    dependencies:
+      '@beep/constants':
+        specifier: workspace:*
+        version: link:../../common/constants/build
+      '@beep/invariant':
+        specifier: workspace:*
+        version: link:../../common/invariant/build
+      '@beep/schema':
+        specifier: workspace:*
+        version: link:../../common/schema/build
+      '@beep/shared-domain':
+        specifier: workspace:*
+        version: link:../../shared/domain/build
+      '@beep/utils':
+        specifier: workspace:*
+        version: link:../../common/utils/build
+      '@effect/sql':
+        specifier: 0.44.2
+        version: 0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
+      effect:
+        specifier: 3.17.13
+        version: 3.17.13
+    devDependencies:
+      '@beep/types':
+        specifier: workspace:*
+        version: link:../../common/types/build
+    publishDirectory: build
+
+  packages/files/infra:
     dependencies:
       '@beep/db-scope':
         specifier: workspace:*
@@ -1390,6 +1396,12 @@ importers:
       '@beep/env':
         specifier: workspace:*
         version: link:../../env/build
+      '@beep/files-application':
+        specifier: workspace:*
+        version: link:../application/build
+      '@beep/files-domain':
+        specifier: workspace:*
+        version: link:../domain/build
       '@beep/invariant':
         specifier: workspace:*
         version: link:../../common/invariant/build
@@ -1402,6 +1414,12 @@ importers:
       '@beep/utils':
         specifier: workspace:*
         version: link:../../common/utils/build
+      '@effect-aws/client-s3':
+        specifier: ^1.10.3
+        version: 1.10.3(effect@3.17.13)
+      '@effect-aws/s3':
+        specifier: ^0.2.3
+        version: 0.2.3(@effect-aws/client-s3@1.10.3(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
       '@effect/cluster':
         specifier: ^0.48.5
         version: 0.48.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
@@ -1433,6 +1451,67 @@ importers:
       '@types/pg':
         specifier: 8.15.5
         version: 8.15.5
+    publishDirectory: build
+
+  packages/files/sdk:
+    dependencies:
+      '@beep/constants':
+        specifier: workspace:^
+        version: link:../../common/constants/build
+      '@beep/env':
+        specifier: workspace:*
+        version: link:../../env/build
+      '@beep/errors':
+        specifier: workspace:^
+        version: link:../../common/errors/build
+      '@beep/invariant':
+        specifier: workspace:*
+        version: link:../../common/invariant/build
+      '@beep/schema':
+        specifier: workspace:*
+        version: link:../../common/schema/build
+      '@beep/shared-domain':
+        specifier: workspace:*
+        version: link:../../shared/domain/build
+      '@beep/utils':
+        specifier: workspace:*
+        version: link:../../common/utils/build
+      effect:
+        specifier: 3.17.13
+        version: 3.17.13
+    devDependencies:
+      '@beep/types':
+        specifier: workspace:*
+        version: link:../../common/types/build
+    publishDirectory: build
+
+  packages/files/tables:
+    dependencies:
+      '@beep/files-domain':
+        specifier: workspace:*
+        version: link:../domain/build
+      '@beep/invariant':
+        specifier: workspace:*
+        version: link:../../common/invariant/build
+      '@beep/schema':
+        specifier: workspace:*
+        version: link:../../common/schema/build
+      '@beep/shared-domain':
+        specifier: workspace:*
+        version: link:../../shared/domain/build
+      '@beep/shared-tables':
+        specifier: workspace:*
+        version: link:../../shared/tables/build
+      '@beep/utils':
+        specifier: workspace:*
+        version: link:../../common/utils/build
+      drizzle-orm:
+        specifier: 0.44.5
+        version: 0.44.5(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(kysely@0.28.5)(pg@8.16.3)(postgres@3.4.7)
+    devDependencies:
+      '@beep/types':
+        specifier: workspace:*
+        version: link:../../common/types/build
     publishDirectory: build
 
   packages/files/ui:
@@ -1470,74 +1549,11 @@ importers:
         version: link:../../common/types/build
     publishDirectory: build
 
-  packages/iam/api:
-    dependencies:
-      effect:
-        specifier: 3.17.13
-        version: 3.17.13
-    publishDirectory: build
-
   packages/iam/application:
     dependencies:
       effect:
         specifier: 3.17.13
         version: 3.17.13
-    publishDirectory: build
-
-  packages/iam/db:
-    dependencies:
-      '@beep/db-scope':
-        specifier: workspace:*
-        version: link:../../persistence/db-scope/build
-      '@beep/env':
-        specifier: workspace:*
-        version: link:../../env/build
-      '@beep/iam-tables':
-        specifier: workspace:*
-        version: link:../tables/build
-      '@beep/invariant':
-        specifier: workspace:*
-        version: link:../../common/invariant/build
-      '@beep/schema':
-        specifier: workspace:*
-        version: link:../../common/schema/build
-      '@beep/shared-tables':
-        specifier: workspace:*
-        version: link:../../shared/tables/build
-      '@beep/utils':
-        specifier: workspace:*
-        version: link:../../common/utils/build
-      '@effect/cluster':
-        specifier: ^0.48.5
-        version: 0.48.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
-      '@effect/experimental':
-        specifier: 0.54.6
-        version: 0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
-      '@effect/platform':
-        specifier: 0.90.9
-        version: 0.90.9(effect@3.17.13)
-      '@effect/platform-node':
-        specifier: 0.96.1
-        version: 0.96.1(@effect/cluster@0.48.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
-      '@effect/workflow':
-        specifier: ^0.9.5
-        version: 0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
-      drizzle-orm:
-        specifier: 0.44.5
-        version: 0.44.5(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(kysely@0.28.5)(pg@8.16.3)(postgres@3.4.7)
-      effect:
-        specifier: 3.17.13
-        version: 3.17.13
-      pg:
-        specifier: 8.16.3
-        version: 8.16.3
-    devDependencies:
-      '@beep/types':
-        specifier: workspace:*
-        version: link:../../common/types/build
-      '@types/pg':
-        specifier: 8.15.5
-        version: 8.15.5
     publishDirectory: build
 
   packages/iam/domain:
@@ -1567,6 +1583,104 @@ importers:
       '@beep/types':
         specifier: workspace:*
         version: link:../../common/types/build
+    publishDirectory: build
+
+  packages/iam/infra:
+    dependencies:
+      '@beep/db-scope':
+        specifier: workspace:*
+        version: link:../../persistence/db-scope/build
+      '@beep/env':
+        specifier: workspace:*
+        version: link:../../env/build
+      '@beep/iam-application':
+        specifier: workspace:*
+        version: link:../application/build
+      '@beep/iam-domain':
+        specifier: workspace:*
+        version: link:../domain/build
+      '@beep/iam-tables':
+        specifier: workspace:*
+        version: link:../tables/build
+      '@beep/invariant':
+        specifier: workspace:*
+        version: link:../../common/invariant/build
+      '@beep/schema':
+        specifier: workspace:*
+        version: link:../../common/schema/build
+      '@beep/shared-tables':
+        specifier: workspace:*
+        version: link:../../shared/tables/build
+      '@beep/utils':
+        specifier: workspace:*
+        version: link:../../common/utils/build
+      '@better-auth/stripe':
+        specifier: 1.3.9
+        version: 1.3.9(better-auth@1.3.9(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(stripe@18.5.0(@types/node@24.3.1))
+      '@dub/better-auth':
+        specifier: 0.0.4
+        version: 0.0.4
+      '@effect/cluster':
+        specifier: ^0.48.5
+        version: 0.48.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+      '@effect/experimental':
+        specifier: 0.54.6
+        version: 0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
+      '@effect/platform':
+        specifier: 0.90.9
+        version: 0.90.9(effect@3.17.13)
+      '@effect/platform-node':
+        specifier: 0.96.1
+        version: 0.96.1(@effect/cluster@0.48.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+      '@effect/workflow':
+        specifier: ^0.9.5
+        version: 0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+      '@simplewebauthn/server':
+        specifier: 13.1.2
+        version: 13.1.2
+      better-auth:
+        specifier: 1.3.9
+        version: 1.3.9(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      better-call:
+        specifier: ^1.0.18
+        version: 1.0.18
+      drizzle-orm:
+        specifier: 0.44.5
+        version: 0.44.5(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(kysely@0.28.5)(pg@8.16.3)(postgres@3.4.7)
+      dub:
+        specifier: 0.66.4
+        version: 0.66.4
+      effect:
+        specifier: 3.17.13
+        version: 3.17.13
+      jose:
+        specifier: 6.1.0
+        version: 6.1.0
+      pg:
+        specifier: 8.16.3
+        version: 8.16.3
+      react:
+        specifier: 19.1.1
+        version: 19.1.1
+      react-dom:
+        specifier: 19.1.1
+        version: 19.1.1(react@19.1.1)
+      stripe:
+        specifier: 18.5.0
+        version: 18.5.0(@types/node@24.3.1)
+      uuid:
+        specifier: 13.0.0
+        version: 13.0.0
+      zod:
+        specifier: 4.1.8
+        version: 4.1.8
+    devDependencies:
+      '@beep/types':
+        specifier: workspace:*
+        version: link:../../common/types/build
+      '@types/pg':
+        specifier: 8.15.5
+        version: 8.15.5
     publishDirectory: build
 
   packages/iam/tables:
@@ -1616,12 +1730,12 @@ importers:
       '@beep/env':
         specifier: workspace:*
         version: link:../../env/build
-      '@beep/iam-db':
-        specifier: workspace:*
-        version: link:../../iam/db/build
       '@beep/iam-domain':
         specifier: workspace:*
         version: link:../../iam/domain/build
+      '@beep/iam-infra':
+        specifier: workspace:*
+        version: link:../../iam/infra/build
       '@beep/iam-tables':
         specifier: workspace:*
         version: link:../../iam/tables/build
@@ -6537,8 +6651,8 @@ packages:
   bare-events@2.6.1:
     resolution: {integrity: sha512-AuTJkq9XmE6Vk0FJVNq5QxETrSA/vKHarWVBG5l/JbdCL1prJemiyJqUS0jrlXO0MftuPq4m3YVYhoNc5+aE/g==}
 
-  bare-fs@4.4.1:
-    resolution: {integrity: sha512-B7VdbD19fypJh6jCXgYge06pxj3UvMv+x8IOZjTSqpiy/ib3UHhwe8Zm7wqxHe7QI3CrySjui4YIRBvocuBthg==}
+  bare-fs@4.4.2:
+    resolution: {integrity: sha512-W95NLMtnREWRbiHsMrR3mRC+Z1w80Tb3y4W2v3Sszwh+M6ll0Ss16l5Zc0LLt3FqoLYn88tqp1PipFSGlt26sA==}
     engines: {bare: '>=1.16.0'}
     peerDependencies:
       bare-buffer: '*'
@@ -7279,8 +7393,8 @@ packages:
   effect@3.17.13:
     resolution: {integrity: sha512-JMz5oBxs/6mu4FP9Csjub4jYMUwMLrp+IzUmSDVIzn2NoeoyOXMl7x1lghfr3dLKWffWrdnv/d8nFFdgrHXPqw==}
 
-  electron-to-chromium@1.5.217:
-    resolution: {integrity: sha512-Pludfu5iBxp9XzNl0qq2G87hdD17ZV7h5T4n6rQXDi3nCyloBV3jreE9+8GC6g4X/5yxqVgXEURpcLtM0WS4jA==}
+  electron-to-chromium@1.5.218:
+    resolution: {integrity: sha512-uwwdN0TUHs8u6iRgN8vKeWZMRll4gBkz+QMqdS7DDe49uiK68/UX92lFb61oiFPrpYZNeZIqa4bA7O6Aiasnzg==}
 
   emoji-regex@10.5.0:
     resolution: {integrity: sha512-lb49vf1Xzfx080OKA0o6l8DQQpV+6Vg95zyCJX9VB/BqKYlhG7N4wgROUUHRA+ZPUefLnteQOad7z1kT2bV7bg==}
@@ -7957,8 +8071,8 @@ packages:
   leac@0.6.0:
     resolution: {integrity: sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==}
 
-  libphonenumber-js@1.12.15:
-    resolution: {integrity: sha512-TMDCtIhWUDHh91wRC+wFuGlIzKdPzaTUHHVrIZ3vPUEoNaXFLrsIQ1ZpAeZeXApIF6rvDksMTvjrIQlLKaYxqQ==}
+  libphonenumber-js@1.12.16:
+    resolution: {integrity: sha512-Ut/2lKjVnoVayb0dVUxWzGO5UB57bTcuJr41W6MQ2V8YolOsHWEah6I0bO5LQ71SY6WYZd3e4A4Z9r4B6zQC2g==}
 
   lie@3.1.1:
     resolution: {integrity: sha512-RiNhHysUjhrDQntfYSfY4MU24coXXdEOgw9WGcKHNeEwffDYbF//u87M1EWaMGzuFoSbqW0C9C6lEEhDOAswfw==}
@@ -15783,7 +15897,7 @@ snapshots:
   bare-events@2.6.1:
     optional: true
 
-  bare-fs@4.4.1:
+  bare-fs@4.4.2:
     dependencies:
       bare-events: 2.6.1
       bare-path: 3.0.0
@@ -15880,7 +15994,7 @@ snapshots:
   browserslist@4.25.4:
     dependencies:
       caniuse-lite: 1.0.30001741
-      electron-to-chromium: 1.5.217
+      electron-to-chromium: 1.5.218
       node-releases: 2.0.20
       update-browserslist-db: 1.1.3(browserslist@4.25.4)
 
@@ -16494,7 +16608,7 @@ snapshots:
       '@standard-schema/spec': 1.0.0
       fast-check: 3.23.2
 
-  electron-to-chromium@1.5.217: {}
+  electron-to-chromium@1.5.218: {}
 
   emoji-regex@10.5.0: {}
 
@@ -17190,7 +17304,7 @@ snapshots:
 
   leac@0.6.0: {}
 
-  libphonenumber-js@1.12.15: {}
+  libphonenumber-js@1.12.16: {}
 
   lie@3.1.1:
     dependencies:
@@ -18187,7 +18301,7 @@ snapshots:
       classnames: 2.5.1
       country-flag-icons: 1.5.20
       input-format: 0.3.14(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      libphonenumber-js: 1.12.15
+      libphonenumber-js: 1.12.16
       prop-types: 15.8.1
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
@@ -18828,7 +18942,7 @@ snapshots:
       pump: 3.0.3
       tar-stream: 3.1.7
     optionalDependencies:
-      bare-fs: 4.4.1
+      bare-fs: 4.4.2
       bare-path: 3.0.0
     transitivePeerDependencies:
       - bare-buffer
