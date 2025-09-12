@@ -2,6 +2,7 @@ import { Organization, Team } from "@beep/shared-domain/entities";
 
 export * as Account from "./Account";
 export * as ApiKey from "./ApiKey";
+export * as DeviceCode from "./DeviceCode";
 export * as Invitation from "./Invitation";
 export * as Jwks from "./Jwks";
 export * as Member from "./Member";

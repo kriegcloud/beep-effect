@@ -1,19 +1,19 @@
 import { IamEntityIds } from "@beep/shared-domain";
-import { OrgTable, team } from "@beep/shared-tables";
+import { OrgTable, teamTable } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-import { user } from "./user.table";
-export const invitation = OrgTable.make(IamEntityIds.InvitationId)(
+import { userTable } from "./user.table";
+export const invitationTable = OrgTable.make(IamEntityIds.InvitationId)(
   {
     email: pg.text("email").notNull(),
     role: pg.text("role"),
-    teamId: pg.text("team_id").references(() => team.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    teamId: pg.text("team_id").references(() => teamTable.id, { onDelete: "cascade", onUpdate: "cascade" }),
     status: pg.text("status").default("pending").notNull(),
     expiresAt: pg.timestamp("expires_at").notNull(),
     inviterId: pg
       .text("inviter_id")
       .notNull()
-      .references(() => user.id, { onDelete: "cascade", onUpdate: "cascade" }),
+      .references(() => userTable.id, { onDelete: "cascade", onUpdate: "cascade" }),
   },
   (t) => [
     // Foreign key indexes for join performance

@@ -1,9 +1,9 @@
 import { IamEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
-import { user } from "./user.table";
+import { userTable } from "./user.table";
 
-export const oauthApplication = OrgTable.make(IamEntityIds.OAuthApplicationId)({
+export const oauthApplicationTable = OrgTable.make(IamEntityIds.OAuthApplicationId)({
   name: pg.text("name"),
   icon: pg.text("icon"),
   metadata: pg.text("metadata"),
@@ -12,5 +12,5 @@ export const oauthApplication = OrgTable.make(IamEntityIds.OAuthApplicationId)({
   redirectURLs: pg.text("redirect_u_r_ls"),
   type: pg.text("type"),
   disabled: pg.boolean("disabled"),
-  userId: pg.text("user_id").references(() => user.id, { onDelete: "cascade" }),
+  userId: pg.text("user_id").references(() => userTable.id, { onDelete: "cascade" }),
 });

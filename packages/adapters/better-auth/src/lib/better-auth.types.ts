@@ -1,6 +1,5 @@
 export type LiteralString = "" | (string & Record<never, never>);
 export type FieldType = "string" | "number" | "boolean" | "date" | `${"string" | "number"}[]` | Array<LiteralString>;
-
 export type Primitive = string | number | boolean | Date | null | undefined | string[] | number[];
 
 export type FieldAttributeConfig<T extends FieldType = FieldType> = {
@@ -60,3 +59,17 @@ export type FieldAttributeConfig<T extends FieldType = FieldType> = {
 export type FieldAttribute<T extends FieldType = FieldType> = {
   type: T;
 } & FieldAttributeConfig<T>;
+
+export type Statements = {
+  readonly [resource: string]: readonly LiteralString[];
+};
+
+export type AuthPluginSchema = {
+  [table in string]: {
+    fields: {
+      [field in string]: FieldAttribute;
+    };
+    disableMigration?: boolean;
+    modelName?: string;
+  };
+};

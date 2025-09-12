@@ -21,7 +21,7 @@
     },
     "./server": "./src/server.ts",
     "./client": "./src/client.ts",
-    "./shared": "./src/shared-core.ts",
+    "./shared": "./src/shared.ts",
     "./package.json": "./package.json",
     "./*": "./src/*.ts"
   },

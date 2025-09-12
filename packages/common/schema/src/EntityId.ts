@@ -1,3 +1,4 @@
+import { invariant } from "@beep/invariant";
 import type { DefaultAnnotations } from "@beep/schema/annotations";
 import { variance } from "@beep/schema/variance";
 import type { $Type, HasDefault, HasRuntimeDefault, IsPrimaryKey, NotNull } from "drizzle-orm";
@@ -8,7 +9,7 @@ import * as F from "effect/Function";
 import * as S from "effect/Schema";
 import { TypeId } from "effect/Schema";
 import * as Str from "effect/String";
-import { type SnakeTag, UUIDLiteralEncoded } from "./custom";
+import { SnakeTag, UUIDLiteralEncoded } from "./custom";
 
 export namespace EntityId {
   type Config<Brand extends string, TableName extends string> = {
@@ -87,6 +88,11 @@ export namespace EntityId {
       readonly annotations: Omit<DefaultAnnotations<Type<TableName, Brand>>, "title" | "identifier">;
     }
   ): EntityIdSchemaInstance<TableName, Brand> => {
+    invariant(S.is(SnakeTag)(tableName), "TableName must be a snake case string", {
+      file: "./packages/common/schema/EntityId.ts",
+      line: 91,
+      args: [tableName],
+    });
     const factory = new Factory<TableName, Brand>(tableName, brand);
 
     const privateSchema = S.NonNegativeInt.pipe(S.brand(brand));

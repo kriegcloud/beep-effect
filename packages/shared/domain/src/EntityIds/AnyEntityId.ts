@@ -21,6 +21,7 @@ export class AnyEntityId extends S.Union(
   IamEntityIds.VerificationId,
   IamEntityIds.WalletAddressId,
   IamEntityIds.OrganizationRoleId,
+  IamEntityIds.DeviceCodeId,
   OrganizationId,
   TeamId
 ).annotations({

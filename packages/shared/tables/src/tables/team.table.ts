@@ -2,11 +2,11 @@ import { SharedEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables/OrgTable";
 import * as pg from "drizzle-orm/pg-core";
 
-export const team = OrgTable.make(SharedEntityIds.TeamId)(
+export const teamTable = OrgTable.make(SharedEntityIds.TeamId)(
   {
     name: pg.text("name").notNull(),
     description: pg.text("description"),
-    slug: pg.text("slug").unique(),
+    slug: pg.text("slug").notNull().unique(),
     metadata: pg.text("metadata"),
     logo: pg.text("logo"),
   },

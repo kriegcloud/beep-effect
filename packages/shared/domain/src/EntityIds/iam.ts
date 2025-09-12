@@ -247,3 +247,16 @@ export namespace OrganizationRoleId {
   export type Type = S.Schema.Type<typeof OrganizationRoleId>;
   export type Encoded = S.Schema.Encoded<typeof OrganizationRoleId>;
 }
+
+export const DeviceCodeId = EntityId.make("device_code", {
+  brand: "OrganizationRoleId",
+  annotations: {
+    schemaId: Symbol.for("@beep/shared/domain/EntityIds/iam/DeviceCodeId"),
+    description: "A unique identifier for a device code",
+  },
+});
+
+export namespace DeviceCodeId {
+  export type Type = S.Schema.Type<typeof DeviceCodeId>;
+  export type Encoded = S.Schema.Encoded<typeof DeviceCodeId>;
+}

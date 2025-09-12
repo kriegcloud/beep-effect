@@ -2,8 +2,8 @@ import { IamEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-import { user } from "./user.table";
-export const apiKey = OrgTable.make(IamEntityIds.ApiKeyId)(
+import { userTable } from "./user.table";
+export const apiKeyTable = OrgTable.make(IamEntityIds.ApiKeyId)(
   {
     name: pg.text("name"),
     start: pg.text("start"),
@@ -12,7 +12,7 @@ export const apiKey = OrgTable.make(IamEntityIds.ApiKeyId)(
     userId: pg
       .text("user_id")
       .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+      .references(() => userTable.id, { onDelete: "cascade" }),
     refillInterval: pg.integer("refill_interval"),
     refillAmount: pg.integer("refill_amount"),
     lastRefillAt: pg.timestamp("last_refill_at"),

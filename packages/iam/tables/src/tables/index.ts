@@ -1,6 +1,8 @@
-export { organization, team } from "@beep/shared-tables";
+export * from "@beep/shared-tables/tables/organization.table";
+export * from "@beep/shared-tables/tables/team.table";
 export * from "./account.table";
 export * from "./apiKey.table";
+export * from "./deviceCodes.table";
 export * from "./invitation.table";
 export * from "./jwks.table";
 export * from "./member.table";

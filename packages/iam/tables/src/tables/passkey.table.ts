@@ -2,16 +2,16 @@ import { IamEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-import { user } from "./user.table";
+import { userTable } from "./user.table";
 
-export const passkey = OrgTable.make(IamEntityIds.PasskeyId)(
+export const passkeyTable = OrgTable.make(IamEntityIds.PasskeyId)(
   {
     name: pg.text("name"),
     publicKey: pg.text("public_key").notNull(),
     userId: pg
       .text("user_id")
       .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+      .references(() => userTable.id, { onDelete: "cascade" }),
     credentialID: pg.text("credential_i_d").notNull(),
     counter: pg.integer("counter").notNull(),
     deviceType: pg.text("device_type").notNull(),

@@ -3,8 +3,8 @@ import { SharedEntityIds } from "@beep/shared-domain";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { OrgTable } from "../OrgTable";
-import { organization } from "./organization.table";
-export const filesTable = OrgTable.make(SharedEntityIds.FileId)({
+import { organizationTable } from "./organization.table";
+export const fileTable = OrgTable.make(SharedEntityIds.FileId)({
   url: pg.varchar("url", { length: 512 }).notNull(),
   size: pg
     .bigint({
@@ -25,9 +25,9 @@ export const filesTable = OrgTable.make(SharedEntityIds.FileId)({
   entityAttribute: pg.text("entity_attribute").notNull(),
 });
 
-export const fileRelations = d.relations(filesTable, ({ one }) => ({
-  organization: one(organization, {
-    fields: [filesTable.organizationId],
-    references: [organization.id],
+export const fileRelations = d.relations(fileTable, ({ one }) => ({
+  organization: one(organizationTable, {
+    fields: [fileTable.organizationId],
+    references: [organizationTable.id],
   }),
 }));

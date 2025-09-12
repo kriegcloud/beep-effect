@@ -1,17 +1,17 @@
 import { IamEntityIds } from "@beep/shared-domain";
-import { OrgTable, team } from "@beep/shared-tables";
+import { OrgTable, teamTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
-import { user } from "./user.table";
-export const teamMember = OrgTable.make(IamEntityIds.TeamMemberId)(
+import { userTable } from "./user.table";
+export const teamMemberTable = OrgTable.make(IamEntityIds.TeamMemberId)(
   {
     teamId: pg
       .text("team_id")
       .notNull()
-      .references(() => team.id, { onDelete: "cascade", onUpdate: "cascade" }),
+      .references(() => teamTable.id, { onDelete: "cascade", onUpdate: "cascade" }),
     userId: pg
       .text("user_id")
       .notNull()
-      .references(() => user.id, { onDelete: "cascade", onUpdate: "cascade" }),
+      .references(() => userTable.id, { onDelete: "cascade", onUpdate: "cascade" }),
   },
   (t) => [
     // Foreign key indexes for join performance

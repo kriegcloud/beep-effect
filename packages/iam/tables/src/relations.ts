@@ -1,204 +1,212 @@
-import { organization, team } from "@beep/shared-tables";
+import { organizationTable, teamTable } from "@beep/shared-tables/schema";
 import * as d from "drizzle-orm";
 import {
-  account,
-  apiKey,
-  invitation,
-  member,
-  oauthAccessToken,
-  oauthApplication,
-  oauthConsent,
-  organizationRole,
-  passkey,
-  session,
-  ssoProvider,
-  subscription,
-  teamMember,
-  twoFactor,
-  user,
-  walletAddress,
+  accountTable,
+  apiKeyTable,
+  deviceCodeTable,
+  invitationTable,
+  memberTable,
+  oauthAccessTokenTable,
+  oauthApplicationTable,
+  oauthConsentTable,
+  organizationRoleTable,
+  passkeyTable,
+  sessionTable,
+  ssoProviderTable,
+  subscriptionTable,
+  teamMemberTable,
+  twoFactorTable,
+  userTable,
+  walletAddressTable,
 } from "./tables";
 
-export const memberRelations = d.relations(member, ({ one }) => ({
-  organization: one(organization, {
-    fields: [member.organizationId],
-    references: [organization.id],
+export const memberRelations = d.relations(memberTable, ({ one }) => ({
+  organization: one(organizationTable, {
+    fields: [memberTable.organizationId],
+    references: [organizationTable.id],
   }),
-  user: one(user, {
-    fields: [member.userId],
-    references: [user.id],
+  user: one(userTable, {
+    fields: [memberTable.userId],
+    references: [userTable.id],
     relationName: "memberUser",
   }),
-  invitedByUser: one(user, {
-    fields: [member.invitedBy],
-    references: [user.id],
+  invitedByUser: one(userTable, {
+    fields: [memberTable.invitedBy],
+    references: [userTable.id],
     relationName: "invitedByUser",
   }),
 }));
 
-export const subscriptionRelations = d.relations(subscription, ({ one }) => ({
-  organization: one(organization, {
-    fields: [subscription.organizationId],
-    references: [organization.id],
+export const deviceCodeRelations = d.relations(deviceCodeTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [deviceCodeTable.userId],
+    references: [userTable.id],
   }),
 }));
 
-export const teamRelations = d.relations(team, ({ one, many }) => ({
-  organization: one(organization, {
-    fields: [team.organizationId],
-    references: [organization.id],
+export const subscriptionRelations = d.relations(subscriptionTable, ({ one }) => ({
+  organization: one(organizationTable, {
+    fields: [subscriptionTable.organizationId],
+    references: [organizationTable.id],
   }),
-  members: many(teamMember),
-  sessions: many(session, {
+}));
+
+export const teamRelations = d.relations(teamTable, ({ one, many }) => ({
+  organization: one(organizationTable, {
+    fields: [teamTable.organizationId],
+    references: [organizationTable.id],
+  }),
+  members: many(teamMemberTable),
+  sessions: many(sessionTable, {
     relationName: "activeTeamSessions",
   }),
 }));
 
-export const teamMemberRelations = d.relations(teamMember, ({ one }) => ({
-  team: one(team, {
-    fields: [teamMember.teamId],
-    references: [team.id],
+export const teamMemberRelations = d.relations(teamMemberTable, ({ one }) => ({
+  team: one(teamTable, {
+    fields: [teamMemberTable.teamId],
+    references: [teamTable.id],
   }),
-  user: one(user, {
-    fields: [teamMember.userId],
-    references: [user.id],
-  }),
-}));
-
-export const oauthAccessTokenRelations = d.relations(oauthAccessToken, ({ one }) => ({
-  user: one(user, {
-    fields: [oauthAccessToken.userId],
-    references: [user.id],
+  user: one(userTable, {
+    fields: [teamMemberTable.userId],
+    references: [userTable.id],
   }),
 }));
 
-export const oauthApplicationRelations = d.relations(oauthApplication, ({ one }) => ({
-  user: one(user, {
-    fields: [oauthApplication.userId],
-    references: [user.id],
+export const oauthAccessTokenRelations = d.relations(oauthAccessTokenTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [oauthAccessTokenTable.userId],
+    references: [userTable.id],
   }),
 }));
 
-export const oauthConsentRelations = d.relations(oauthConsent, ({ one }) => ({
-  user: one(user, {
-    fields: [oauthConsent.userId],
-    references: [user.id],
+export const oauthApplicationRelations = d.relations(oauthApplicationTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [oauthApplicationTable.userId],
+    references: [userTable.id],
   }),
 }));
 
-export const ssoProviderRelations = d.relations(ssoProvider, ({ one }) => ({
-  user: one(user, {
-    fields: [ssoProvider.userId],
-    references: [user.id],
-  }),
-  organization: one(organization, {
-    fields: [ssoProvider.organizationId],
-    references: [organization.id],
+export const oauthConsentRelations = d.relations(oauthConsentTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [oauthConsentTable.userId],
+    references: [userTable.id],
   }),
 }));
 
-export const accountRelations = d.relations(account, ({ one }) => ({
-  user: one(user, {
-    fields: [account.userId],
-    references: [user.id],
+export const ssoProviderRelations = d.relations(ssoProviderTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [ssoProviderTable.userId],
+    references: [userTable.id],
+  }),
+  organization: one(organizationTable, {
+    fields: [ssoProviderTable.organizationId],
+    references: [organizationTable.id],
   }),
 }));
 
-export const apiKeyRelations = d.relations(apiKey, ({ one }) => ({
-  user: one(user, {
-    fields: [apiKey.userId],
-    references: [user.id],
+export const accountRelations = d.relations(accountTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [accountTable.userId],
+    references: [userTable.id],
   }),
 }));
 
-export const invitationRelations = d.relations(invitation, ({ one }) => ({
-  organization: one(organization, {
-    fields: [invitation.organizationId],
-    references: [organization.id],
-  }),
-  inviter: one(user, {
-    fields: [invitation.inviterId],
-    references: [user.id],
+export const apiKeyRelations = d.relations(apiKeyTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [apiKeyTable.userId],
+    references: [userTable.id],
   }),
 }));
 
-export const passkeyRelations = d.relations(passkey, ({ one }) => ({
-  user: one(user, {
-    fields: [passkey.userId],
-    references: [user.id],
+export const invitationRelations = d.relations(invitationTable, ({ one }) => ({
+  organization: one(organizationTable, {
+    fields: [invitationTable.organizationId],
+    references: [organizationTable.id],
+  }),
+  inviter: one(userTable, {
+    fields: [invitationTable.inviterId],
+    references: [userTable.id],
   }),
 }));
 
-export const sessionRelations = d.relations(session, ({ one }) => ({
-  user: one(user, {
-    fields: [session.userId],
-    references: [user.id],
-  }),
-  activeOrganization: one(organization, {
-    fields: [session.activeOrganizationId],
-    references: [organization.id],
-  }),
-  activeTeam: one(team, {
-    fields: [session.activeTeamId],
-    references: [team.id],
-  }),
-  impersonator: one(user, {
-    fields: [session.impersonatedBy],
-    references: [user.id],
+export const passkeyRelations = d.relations(passkeyTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [passkeyTable.userId],
+    references: [userTable.id],
   }),
 }));
 
-export const twoFactorRelations = d.relations(twoFactor, ({ one }) => ({
-  user: one(user, {
-    fields: [twoFactor.userId],
-    references: [user.id],
+export const sessionRelations = d.relations(sessionTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [sessionTable.userId],
+    references: [userTable.id],
+  }),
+  activeOrganization: one(organizationTable, {
+    fields: [sessionTable.activeOrganizationId],
+    references: [organizationTable.id],
+  }),
+  activeTeam: one(teamTable, {
+    fields: [sessionTable.activeTeamId],
+    references: [teamTable.id],
+  }),
+  impersonator: one(userTable, {
+    fields: [sessionTable.impersonatedBy],
+    references: [userTable.id],
   }),
 }));
 
-export const userRelations = d.relations(user, ({ many }) => ({
+export const twoFactorRelations = d.relations(twoFactorTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [twoFactorTable.userId],
+    references: [userTable.id],
+  }),
+}));
+
+export const userRelations = d.relations(userTable, ({ many }) => ({
   // Organization-related relationships
-  memberships: many(member, {
+  memberships: many(memberTable, {
     relationName: "memberUser",
   }),
-  ownedOrganizations: many(organization),
-  teamMemberships: many(teamMember),
-  invitationsSent: many(member, {
+  ownedOrganizations: many(organizationTable),
+  teamMemberships: many(teamMemberTable),
+  invitationsSent: many(memberTable, {
     relationName: "invitedByUser",
   }),
-  wallets: many(walletAddress),
+  wallets: many(walletAddressTable),
   // Authentication-related relationships
-  accounts: many(account),
-  sessions: many(session),
-  passkeys: many(passkey),
-  oauthApplications: many(oauthApplication),
-  impersonatedSessions: many(session, {
+  accounts: many(accountTable),
+  sessions: many(sessionTable),
+  passkeys: many(passkeyTable),
+  oauthApplications: many(oauthApplicationTable),
+  impersonatedSessions: many(sessionTable, {
     relationName: "impersonatedSessions",
   }),
 }));
 
-export const organizationRelations = d.relations(organization, ({ many, one }) => ({
+export const organizationRelations = d.relations(organizationTable, ({ many, one }) => ({
   // Ownership
-  owner: one(user, {
-    fields: [organization.ownerUserId],
-    references: [user.id],
+  owner: one(userTable, {
+    fields: [organizationTable.ownerUserId],
+    references: [userTable.id],
   }),
 
   // Core organizational structure
-  members: many(member),
-  teams: many(team),
-  subscriptions: many(subscription),
+  members: many(memberTable),
+  teams: many(teamTable),
+  subscriptions: many(subscriptionTable),
 }));
 
-export const walletAddressRelations = d.relations(walletAddress, ({ one }) => ({
-  user: one(user, {
-    fields: [walletAddress.userId],
-    references: [user.id],
+export const walletAddressRelations = d.relations(walletAddressTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [walletAddressTable.userId],
+    references: [userTable.id],
   }),
 }));
 
-export const organizationRoleRelations = d.relations(organizationRole, ({ one }) => ({
-  organization: one(organization, {
-    fields: [organizationRole.organizationId],
-    references: [organization.id],
+export const organizationRoleRelations = d.relations(organizationRoleTable, ({ one }) => ({
+  organization: one(organizationTable, {
+    fields: [organizationRoleTable.organizationId],
+    references: [organizationTable.id],
   }),
 }));

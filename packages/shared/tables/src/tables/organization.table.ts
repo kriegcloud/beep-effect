@@ -4,25 +4,29 @@ import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { Table } from "../Table";
 
-export const organizationTypePgEnum = pg.pgEnum("organization_type_enum", Organization.OrganizationType.Options);
-export const subscriptionTierPgEnum = pg.pgEnum("subscription_tier_enum", Organization.SubscriptionTier.Options);
-export const subscriptionStatusPgEnum = pg.pgEnum("subscription_status_enum", Organization.SubscriptionStatus.Options);
+export const organizationTypePgEnum = Organization.makeOrganizationTypePgEnum("organization_type_enum");
+export const subscriptionTierPgEnum = Organization.makeSubscriptionTierPgEnum("subscription_tier_enum");
+export const subscriptionStatusPgEnum = Organization.makeSubscriptionStatusPgEnum("subscription_status_enum");
 
-export const organization = Table.make(SharedEntityIds.OrganizationId)(
+export const organizationTable = Table.make(SharedEntityIds.OrganizationId)(
   {
     name: pg.text("name").notNull(),
     slug: pg.text("slug").unique(),
     logo: pg.text("logo"),
     metadata: pg.text("metadata"),
     // Multi-tenant enhancement fields
-    type: organizationTypePgEnum().default(Organization.OrganizationTypeEnum.individual), // 'individual', 'team', 'enterprise'
+    type: organizationTypePgEnum("type").default(Organization.OrganizationTypeEnum.individual), // 'individual', 'team', 'enterprise'
     ownerUserId: pg.text("owner_user_id"), // Reference to user who owns this org (relation defined in relations.ts)
     isPersonal: pg.boolean("is_personal").notNull().default(false), // True for auto-created personal orgs
     maxMembers: pg.integer("max_members"), // Maximum members allowed
     features: pg.jsonb("features"), // JSON string for feature flags
     settings: pg.jsonb("settings"), // JSON string for org settings
-    subscriptionTier: subscriptionTierPgEnum().notNull().default(Organization.SubscriptionTierEnum.free), // 'free', 'plus', 'pro', etc.
-    subscriptionStatus: subscriptionStatusPgEnum().notNull().default(Organization.SubscriptionStatusEnum.active), // 'active', 'canceled', etc.
+    subscriptionTier: subscriptionTierPgEnum("subscription_tier")
+      .notNull()
+      .default(Organization.SubscriptionTierEnum.free), // 'free', 'plus', 'pro', etc.
+    subscriptionStatus: subscriptionStatusPgEnum("subscription_status")
+      .notNull()
+      .default(Organization.SubscriptionStatusEnum.active), // 'active', 'canceled', etc.
   },
   (t) => [
     // Index for name-based searches (case-insensitive)

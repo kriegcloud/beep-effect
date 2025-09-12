@@ -56,7 +56,7 @@
       "@beep/logos/*": ["../../packages/common/logos/src/*"],
       "@beep/rete": ["../../packages/common/rete/src/index"],
       "@beep/rete/*": ["../../packages/common/rete/src/*"],
-      "@beep/errors/shared": ["../../packages/common/errors/src/shared-core"],
+      "@beep/errors/shared": ["../../packages/common/errors/src/shared"],
       "@beep/errors/client": ["../../packages/common/errors/src/client"],
       "@beep/errors/server": ["../../packages/common/errors/src/server"],
       "@beep/env/client": ["../../packages/env/src/client"],

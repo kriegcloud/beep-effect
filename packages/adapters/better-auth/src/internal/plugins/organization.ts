@@ -134,13 +134,13 @@ export const OrganizationPlugin = Effect.gen(function* () {
           return yield* Effect.tryPromise({
             try: () =>
               db
-                .update(IamDbSchema.member)
+                .update(IamDbSchema.memberTable)
                 .set({
                   status: Organization.SubscriptionStatusEnum.active,
                   joinedAt: now,
                   lastActiveAt: now,
                 })
-                .where(d.eq(IamDbSchema.member.id, S.decodeUnknownSync(IamEntityIds.MemberId)(member.id))),
+                .where(d.eq(IamDbSchema.memberTable.id, S.decodeUnknownSync(IamEntityIds.MemberId)(member.id))),
             catch: (e) => Effect.fail(DbError.match(e)),
           });
         }).pipe(

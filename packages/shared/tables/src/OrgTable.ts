@@ -5,7 +5,7 @@ import type { $Type, BuildColumns, BuildExtraConfigColumns } from "drizzle-orm";
 import type { PgTableExtraConfigValue } from "drizzle-orm/pg-core";
 import * as pg from "drizzle-orm/pg-core";
 import { globalColumns } from "./common";
-import { organization } from "./tables/organization.table";
+import { organizationTable } from "./tables/organization.table";
 
 type OrgTableDefaultColumns<TableName extends string, Brand extends string> = DefaultColumns<TableName, Brand> & {
   organizationId: $Type<
@@ -23,7 +23,7 @@ export namespace OrgTable {
       _rowId: entityId.privateId(),
       organizationId: pg
         .text("organization_id")
-        .references(() => organization.id, {
+        .references(() => organizationTable.id, {
           onDelete: "cascade",
           onUpdate: "cascade",
         })

@@ -15,7 +15,9 @@
       "@beep/invariant": ["../../common/invariant/src/index"],
       "@beep/invariant/*": ["../../common/invariant/src/*"],
       "@beep/types": ["../../common/types/src/index"],
-      "@beep/types/*": ["../../common/types/src/*"]
+      "@beep/types/*": ["../../common/types/src/*"],
+      "@beep/iam-domain": ["../domain/src/index"],
+      "@beep/iam-domain/*": ["../domain/src/*"]
     }
   },
   "references": [

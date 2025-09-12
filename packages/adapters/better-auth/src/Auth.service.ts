@@ -1,48 +1,78 @@
 import { serverEnv } from "@beep/env/server";
 import { IamDb } from "@beep/iam-db";
 import { IamDbSchema } from "@beep/iam-tables";
-// import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import type { UnsafeTypes } from "@beep/types";
+import { stripe } from "@better-auth/stripe";
+import { dubAnalytics } from "@dub/better-auth";
 import type { BetterAuthOptions } from "better-auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import {
+  admin,
   anonymous,
   apiKey,
   bearer,
+  captcha,
   customSession,
+  deviceAuthorization,
+  genericOAuth,
   haveIBeenPwned,
   jwt,
+  lastLoginMethod,
   mcp,
   multiSession,
+  oAuthProxy,
   oidcProvider,
   oneTap,
   oneTimeToken,
   openAPI,
+  phoneNumber,
+  siwe,
+  twoFactor,
+  username,
 } from "better-auth/plugins";
 import { passkey } from "better-auth/plugins/passkey";
 import { sso } from "better-auth/plugins/sso";
 import * as d from "drizzle-orm";
+import { Dub } from "dub";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+import { Stripe } from "stripe";
 import { AuthEmailService, SendResetPasswordEmailPayload } from "./AuthEmail.service";
 import { commonExtraFields } from "./internal/common";
 import { OrganizationPlugin } from "./internal/plugins";
 
+const PRO_PRICE_ID = {
+  default: "price_1RoxnRHmTADgihIt4y8c0lVE",
+  annual: "price_1RoxnoHmTADgihItzFvVP8KT",
+} as const;
+
+const PLUS_PRICE_ID = {
+  default: "price_1RoxnJHmTADgihIthZTLmrPn",
+  annual: "price_1Roxo5HmTADgihItEbJu5llL",
+} as const;
+
+const _admin: () => ReturnType<typeof admin> = () => admin();
 const AuthOptions = Effect.gen(function* () {
   const { db } = yield* IamDb.IamDb;
   const organizationPlugin = yield* OrganizationPlugin;
   return {
-    database: drizzleAdapter(db, { provider: "pg", usePlural: true }),
+    database: drizzleAdapter(db, { provider: "pg", usePlural: false }),
     baseURL: serverEnv.app.authUrl.toString(),
     basePath: "/api/auth",
     appName: serverEnv.app.name,
     secret: Redacted.value(serverEnv.auth.secret),
     trustedOrigins: serverEnv.security.trustedOrigins,
+    rateLimit: {
+      enabled: true,
+      window: 10, // time window in seconds
+      max: 100, // max requests in the window
+    },
     account: {
       accountLinking: {
         enabled: true,
@@ -52,6 +82,7 @@ const AuthOptions = Effect.gen(function* () {
       encryptOAuthTokens: true,
     },
     session: {
+      modelName: IamEntityIds.SessionId.tableName,
       additionalFields: {
         ...commonExtraFields,
       },
@@ -95,24 +126,13 @@ const AuthOptions = Effect.gen(function* () {
         }) satisfies BetterAuthOptions["socialProviders"]
     ),
     plugins: [
-      organizationPlugin,
-      passkey({ rpID: serverEnv.app.domain, rpName: `${serverEnv.app.name} Auth` }),
-      openAPI(),
-      mcp({
-        loginPage: "/sign-in", // path to your login page
-      }),
+      _admin(),
+      anonymous(),
       apiKey(),
       bearer(),
-      haveIBeenPwned(),
-      oneTimeToken(),
-      sso(),
-      nextCookies(),
-      jwt(),
-      anonymous(),
-      multiSession(),
-      oneTap(),
-      oidcProvider({
-        loginPage: "/sign-in",
+      captcha({
+        provider: "google-recaptcha",
+        secretKey: Redacted.value(serverEnv.cloud.google.captcha.secretKey),
       }),
       customSession(async (session) => ({
         ...session,
@@ -121,44 +141,113 @@ const AuthOptions = Effect.gen(function* () {
           dd: "test",
         },
       })),
+      genericOAuth({
+        config: [
+          {
+            providerId: "google",
+            clientId: Redacted.value(serverEnv.oauth.provider.google.clientId),
+            clientSecret: Redacted.value(serverEnv.oauth.provider.google.clientSecret),
+          },
+        ],
+      }),
+      haveIBeenPwned(),
+      jwt(),
+      mcp({
+        loginPage: "/sign-in", // path to your login page
+      }),
+      multiSession(),
+      oAuthProxy(),
+      oidcProvider({
+        loginPage: "/sign-in",
+      }),
+      oneTap(),
+      oneTimeToken(),
+      openAPI(),
+      organizationPlugin,
+      passkey({ rpID: serverEnv.app.domain, rpName: `${serverEnv.app.name} Auth` }),
+      phoneNumber(),
+      siwe({
+        domain: serverEnv.app.domain,
+        getNonce: async () => {
+          return "beep";
+        },
+        verifyMessage: async (args) => {
+          return true;
+        },
+      }),
+      sso(),
+      twoFactor(),
+      nextCookies(),
+      username(),
+      stripe({
+        stripeClient: new Stripe(Redacted.value(serverEnv.payment.stripe.key) || "sk_test_"),
+        stripeWebhookSecret: Redacted.value(serverEnv.payment.stripe.webhookSecret),
+        subscription: {
+          enabled: false,
+          allowReTrialsForDifferentPlans: true,
+          plans: [
+            {
+              name: "plus",
+              priceId: PLUS_PRICE_ID.default,
+              annualDiscountPriceId: PLUS_PRICE_ID.annual,
+              freeTrial: {
+                days: 7,
+              },
+            },
+            {
+              name: "pro",
+              priceId: PRO_PRICE_ID.default,
+              annualDiscountPriceId: PRO_PRICE_ID.annual,
+              freeTrial: {
+                days: 7,
+              },
+            },
+          ],
+        },
+      }),
+      dubAnalytics({
+        dubClient: new Dub({ token: Redacted.value(serverEnv.marketing.dub.token) }),
+      }),
+      deviceAuthorization(),
+      lastLoginMethod(),
     ],
     databaseHooks: {
       user: {
-        // create: {
-        //   after: async (user) => {
-        //     const personalOrgId = crypto.randomUUID();
-        //     const slug = `${user.name?.toLowerCase().replace(/\s+/g, "-") || "user"}-${user.id.slice(-6)}`;
-        //
-        //     // Create personal organization with multi-tenant fields
-        //     await db.insert(IamDbSchema.organization).values({
-        //       id: SharedEntityIds.OrganizationId.make(`organization__${personalOrgId}`),
-        //       name: `${user.name || "User"}'s Organization`,
-        //       slug,
-        //       type: "individual",
-        //       ownerUserId: user.id,
-        //       isPersonal: true,
-        //       subscriptionTier: "free",
-        //       subscriptionStatus: "active",
-        //       createdBy: user.id,
-        //       source: "auto_created",
-        //       createdAt: new Date(),
-        //       updatedAt: new Date(),
-        //     });
-        //
-        //     // Add user as owner with enhanced tracking
-        //     await db.insert(IamDbSchema.member).values({
-        //       id: IamEntityIds.MemberId.make(`member__${personalOrgId}`),
-        //       userId: S.decodeUnknownSync(IamEntityIds.UserId)(user.id),
-        //       organizationId: SharedEntityIds.OrganizationId.make(`organization__${personalOrgId}`),
-        //       role: "owner",
-        //       status: "active",
-        //       joinedAt: new Date(),
-        //       createdBy: user.id,
-        //       createdAt: new Date(),
-        //       updatedAt: new Date(),
-        //     });
-        //   },
-        // },
+        create: {
+          after: async (user) => {
+            const personalOrgId = crypto.randomUUID();
+            const slug = `${user.name?.toLowerCase().replace(/\s+/g, "-") || "user"}-${user.id.slice(-6)}`;
+
+            // Create personal organization with multi-tenant fields
+            await db.insert(IamDbSchema.organizationTable).values({
+              id: SharedEntityIds.OrganizationId.make(`organization__${personalOrgId}`),
+              name: `${user.name || "User"}'s Organization`,
+              slug,
+              type: "individual",
+              ownerUserId: user.id,
+              isPersonal: true,
+              subscriptionTier: "free",
+              subscriptionStatus: "active",
+              createdBy: user.id,
+              source: "auto_created",
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            });
+
+            // Add user as owner with enhanced tracking
+            await db.insert(IamDbSchema.memberTable).values({
+              id: IamEntityIds.MemberId.make(`member__${personalOrgId}`),
+              userId: S.decodeUnknownSync(IamEntityIds.UserId)(user.id),
+              organizationId: SharedEntityIds.OrganizationId.make(`organization__${personalOrgId}`),
+              role: "owner",
+              status: "active",
+              joinedAt: new Date(),
+              createdBy: user.id,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            });
+          },
+        },
       },
       session: {
         create: {
@@ -166,18 +255,26 @@ const AuthOptions = Effect.gen(function* () {
             // Set active organization context using enhanced fields
             const userOrgs = await db
               .select({
-                orgId: IamDbSchema.organization.id,
-                orgName: IamDbSchema.organization.name,
-                orgType: IamDbSchema.organization.type,
-                isPersonal: IamDbSchema.organization.isPersonal,
-                subscriptionTier: IamDbSchema.organization.subscriptionTier,
-                role: IamDbSchema.member.role,
-                memberStatus: IamDbSchema.member.status,
+                orgId: IamDbSchema.organizationTable.id,
+                orgName: IamDbSchema.organizationTable.name,
+                orgType: IamDbSchema.organizationTable.type,
+                isPersonal: IamDbSchema.organizationTable.isPersonal,
+                subscriptionTier: IamDbSchema.organizationTable.subscriptionTier,
+                role: IamDbSchema.memberTable.role,
+                memberStatus: IamDbSchema.memberTable.status,
               })
-              .from(IamDbSchema.member)
-              .innerJoin(IamDbSchema.organization, d.eq(IamDbSchema.member.organizationId, IamDbSchema.organization.id))
-              .where(d.and(d.eq(IamDbSchema.member.userId, session.userId), d.eq(IamDbSchema.member.status, "active")))
-              .orderBy(d.desc(IamDbSchema.organization.isPersonal)); // Personal orgs first
+              .from(IamDbSchema.memberTable)
+              .innerJoin(
+                IamDbSchema.organizationTable,
+                d.eq(IamDbSchema.memberTable.organizationId, IamDbSchema.organizationTable.id)
+              )
+              .where(
+                d.and(
+                  d.eq(IamDbSchema.memberTable.userId, session.userId),
+                  d.eq(IamDbSchema.memberTable.status, "active")
+                )
+              )
+              .orderBy(d.desc(IamDbSchema.organizationTable.isPersonal)); // Personal orgs first
 
             const activeOrgId = userOrgs[0]?.orgId;
             const organizationContext = userOrgs.reduce(
@@ -207,10 +304,12 @@ const AuthOptions = Effect.gen(function* () {
       },
     },
     user: {
+      modelName: IamEntityIds.UserId.tableName,
       additionalFields: {
         ...commonExtraFields,
       },
     },
+
     advanced: {
       database: {
         generateId: false,

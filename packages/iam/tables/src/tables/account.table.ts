@@ -2,16 +2,16 @@ import { IamEntityIds } from "@beep/shared-domain";
 import { Table } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-import { user } from "./user.table";
+import { userTable } from "./user.table";
 
-export const account = Table.make(IamEntityIds.AccountId)(
+export const accountTable = Table.make(IamEntityIds.AccountId)(
   {
     accountId: pg.text("account_id").notNull(),
     providerId: pg.text("provider_id").notNull(),
     userId: pg
       .text("user_id")
       .notNull()
-      .references(() => user.id, { onDelete: "cascade", onUpdate: "cascade" }),
+      .references(() => userTable.id, { onDelete: "cascade", onUpdate: "cascade" }),
     accessToken: pg.text("access_token"),
     refreshToken: pg.text("refresh_token"),
     idToken: pg.text("id_token"),

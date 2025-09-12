@@ -93,7 +93,7 @@ export const ServerConfig = Config.all({
     Config.all({
       dub: Config.nested("DUB")(
         Config.all({
-          apiKey: Config.redacted(Config.nonEmptyString("API_KEY")),
+          token: Config.redacted(Config.nonEmptyString("TOKEN")),
         })
       ),
     })

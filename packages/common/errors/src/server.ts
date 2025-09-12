@@ -15,7 +15,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Record from "effect/Record";
 import color from "picocolors";
-import type { AccumulateOptions, AccumulateResult, PrettyLoggerConfig } from "./shared-core";
+import type { AccumulateOptions, AccumulateResult, PrettyLoggerConfig } from "./shared";
 import {
   accumulateEffects,
   colorForLevel,
@@ -27,10 +27,10 @@ import {
   formatSpans,
   parseLevel,
   shouldPrintCause,
-} from "./shared-core";
+} from "./shared";
 
 // Re-export shared helpers
-export * from "./shared-core";
+export * from "./shared";
 export interface CauseHeadingOptions {
   readonly colors?: boolean;
   readonly date?: Date;

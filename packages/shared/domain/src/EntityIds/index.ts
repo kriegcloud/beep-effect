@@ -1,6 +1,7 @@
 import {
   AccountId,
   ApiKeyId,
+  DeviceCodeId,
   InvitationId,
   JwksId,
   MemberId,
@@ -71,7 +72,8 @@ export namespace IamTableNames {
     UserId.tableName,
     VerificationId.tableName,
     WalletAddressId.tableName,
-    OrganizationRoleId.tableName
+    OrganizationRoleId.tableName,
+    DeviceCodeId.tableName
   );
 
   export class IamTableName extends IamTableNameKit.Schema.annotations({

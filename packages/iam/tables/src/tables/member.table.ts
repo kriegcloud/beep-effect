@@ -2,7 +2,7 @@ import { IamEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 
-export const member = OrgTable.make(IamEntityIds.MemberId)(
+export const memberTable = OrgTable.make(IamEntityIds.MemberId)(
   {
     userId: pg.text("user_id").notNull(), // Reference to user.id (relation defined in relations.ts)
     role: pg.text("role").default("member").notNull(),

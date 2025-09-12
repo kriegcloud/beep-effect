@@ -33,11 +33,12 @@
     "lint:circular": "pnpm madge -c ."
   },
   "dependencies": {
-    "@beep/shared-tables": "workspace:^",
+    "@beep/shared-tables": "workspace:*",
     "@beep/schema": "workspace:*",
     "@beep/utils": "workspace:*",
     "@beep/invariant": "workspace:*",
     "@beep/shared-domain": "workspace:*",
+    "@beep/iam-domain": "workspace:*",
     "drizzle-orm": "*"
   },
   "devDependencies": {

@@ -3,26 +3,24 @@ import { Table } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { boolean, text } from "drizzle-orm/pg-core";
-export const user = Table.make(IamEntityIds.UserId)(
+export const userTable = Table.make(IamEntityIds.UserId)(
   {
     name: pg.text("name").notNull(),
     email: pg.text("email").notNull().unique(),
-    emailVerified: pg
-      .boolean("email_verified")
-      .$defaultFn(() => false)
-      .notNull(),
+    emailVerified: pg.boolean("email_verified").default(false).notNull(),
     image: pg.text("image"),
-    phoneNumber: text("phone_number").unique(),
-    phoneNumberVerified: boolean("phone_number_verified"),
-    username: text("username").unique(),
-    displayUsername: text("display_username"),
-    twoFactorEnabled: pg.boolean("two_factor_enabled"),
-    isAnonymous: pg.boolean("is_anonymous"),
     role: pg.text("role"),
     banned: pg.boolean("banned"),
     banReason: pg.text("ban_reason"),
     banExpires: pg.timestamp("ban_expires"),
+    isAnonymous: pg.boolean("is_anonymous"),
+    phoneNumber: text("phone_number").unique(),
+    phoneNumberVerified: boolean("phone_number_verified"),
+    twoFactorEnabled: pg.boolean("two_factor_enabled"),
+    username: text("username").unique(),
+    displayUsername: text("display_username"),
     stripeCustomerId: pg.text("stripe_customer_id"),
+    lastLoginMethod: text("last_login_method"),
   },
   (t) => [
     // Index for email lookups (authentication)

@@ -1,9 +1,9 @@
 import { IamEntityIds } from "@beep/shared-domain";
-import { organization, Table, team } from "@beep/shared-tables";
+import { organizationTable, Table, teamTable } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-import { user } from "./user.table";
-export const session = Table.make(IamEntityIds.SessionId)(
+import { userTable } from "./user.table";
+export const sessionTable = Table.make(IamEntityIds.SessionId)(
   {
     expiresAt: pg.timestamp("expires_at").notNull(),
     token: pg.text("token").notNull().unique(),
@@ -12,13 +12,17 @@ export const session = Table.make(IamEntityIds.SessionId)(
     userId: pg
       .text("user_id")
       .notNull()
-      .references(() => user.id, { onDelete: "cascade", onUpdate: "cascade" }),
-    activeOrganizationId: pg.text("active_organization_id").references(() => organization.id, {
+      .references(() => userTable.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    impersonatedBy: pg
+      .text("impersonated_by")
+      .references(() => userTable.id, { onDelete: "set null", onUpdate: "cascade" }),
+    activeOrganizationId: pg.text("active_organization_id").references(() => organizationTable.id, {
       onDelete: "set null",
       onUpdate: "cascade",
     }),
-    activeTeamId: pg.text("active_team_id").references(() => team.id, { onDelete: "set null", onUpdate: "cascade" }),
-    impersonatedBy: pg.text("impersonated_by").references(() => user.id, { onDelete: "set null", onUpdate: "cascade" }),
+    activeTeamId: pg
+      .text("active_team_id")
+      .references(() => teamTable.id, { onDelete: "set null", onUpdate: "cascade" }),
   },
   (t) => [
     // Temporal constraint - session must expire after it was created

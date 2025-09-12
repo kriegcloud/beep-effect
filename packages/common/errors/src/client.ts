@@ -1,10 +1,10 @@
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
-import type { AccumulateOptions, AccumulateResult } from "./shared-core";
-import { accumulateEffects } from "./shared-core";
+import type { AccumulateOptions, AccumulateResult } from "./shared";
+import { accumulateEffects } from "./shared";
 
 // Re-export shared, Node-free helpers
-export * from "./shared-core";
+export * from "./shared";
 
 // =========================
 // Client-specific wrappers
