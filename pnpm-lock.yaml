@@ -408,69 +408,114 @@ importers:
       '@beep/constants':
         specifier: workspace:*
         version: link:../../packages/common/constants/build
+      '@beep/core-ai':
+        specifier: workspace:*
+        version: link:../../packages/core/ai/build
       '@beep/core-db':
         specifier: workspace:*
         version: link:../../packages/core/db/build
+      '@beep/core-email':
+        specifier: workspace:*
+        version: link:../../packages/core/email/build
       '@beep/core-env':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/core/env/build
       '@beep/core-runtime':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/core/runtime/build
       '@beep/errors':
         specifier: workspace:*
         version: link:../../packages/common/errors/build
       '@beep/files-application':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/files/application/build
       '@beep/files-domain':
         specifier: workspace:*
         version: link:../../packages/files/domain/build
       '@beep/files-infra':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/files/infra/build
+      '@beep/files-sdk':
+        specifier: workspace:*
+        version: link:../../packages/files/sdk/build
+      '@beep/files-tables':
+        specifier: workspace:*
+        version: link:../../packages/files/tables/build
       '@beep/files-ui':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/files/ui/build
+      '@beep/iam-application':
+        specifier: workspace:*
+        version: link:../../packages/iam/application/build
       '@beep/iam-domain':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/iam/domain/build
       '@beep/iam-infra':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/iam/infra/build
+      '@beep/iam-sdk':
+        specifier: workspace:*
+        version: link:../../packages/iam/sdk/build
+      '@beep/iam-tables':
+        specifier: workspace:*
+        version: link:../../packages/iam/tables/build
       '@beep/iam-ui':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/iam/ui/build
       '@beep/invariant':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/common/invariant/build
       '@beep/logos':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/common/logos/build
+      '@beep/query':
+        specifier: workspace:*
+        version: link:../../packages/common/query/build
       '@beep/rete':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/common/rete/build
+      '@beep/rules':
+        specifier: workspace:*
+        version: link:../../packages/common/rules/build
       '@beep/schema':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/common/schema/build
       '@beep/shared-domain':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/shared/domain/build
+      '@beep/shared-tables':
+        specifier: workspace:*
+        version: link:../../packages/shared/tables/build
       '@beep/ui':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/ui
       '@beep/utils':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/common/utils/build
+      '@better-auth/stripe':
+        specifier: 1.3.9
+        version: 1.3.9(better-auth@1.3.9(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(stripe@18.5.0(@types/node@24.3.2))
+      '@dub/better-auth':
+        specifier: 0.0.4
+        version: 0.0.4
+      '@effect/cluster':
+        specifier: ^0.48.5
+        version: 0.48.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/platform':
         specifier: 0.90.9
         version: 0.90.9(effect@3.17.13)
       '@effect/platform-browser':
         specifier: 0.70.0
         version: 0.70.0(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
+      '@effect/platform-node':
+        specifier: 0.96.1
+        version: 0.96.1(@effect/cluster@0.48.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/rpc':
         specifier: 0.69.2
         version: 0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
+      '@effect/workflow':
+        specifier: ^0.9.5
+        version: 0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@emotion/cache':
         specifier: 11.14.0
         version: 11.14.0
@@ -540,6 +585,12 @@ importers:
       '@react-email/components':
         specifier: 0.5.3
         version: 0.5.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@react-email/render':
+        specifier: 1.2.3
+        version: 1.2.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@simplewebauthn/server':
+        specifier: 13.1.2
+        version: 13.1.2
       '@statelyai/inspect':
         specifier: 0.4.0
         version: 0.4.0(ws@8.18.3)(xstate@5.21.0)
@@ -618,12 +669,21 @@ importers:
       better-auth:
         specifier: 1.3.9
         version: 1.3.9(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      better-call:
+        specifier: ^1.0.18
+        version: 1.0.18
       clsx:
         specifier: 2.1.1
         version: 2.1.1
       dayjs:
         specifier: 1.11.18
         version: 1.11.18
+      drizzle-orm:
+        specifier: 0.44.5
+        version: 0.44.5(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(kysely@0.28.5)(pg@8.16.3)(postgres@3.4.7)
+      dub:
+        specifier: 0.66.4
+        version: 0.66.4
       effect:
         specifier: 3.17.13
         version: 3.17.13
@@ -648,6 +708,9 @@ importers:
       input-otp:
         specifier: 1.4.2
         version: 1.4.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      jose:
+        specifier: 6.1.0
+        version: 6.1.0
       json-logic-js:
         specifier: 2.0.5
         version: 2.0.5
@@ -675,6 +738,9 @@ importers:
       nuqs:
         specifier: ^2.6.0
         version: 2.6.0(next@15.5.3(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)
+      pg:
+        specifier: 8.16.3
+        version: 8.16.3
       react:
         specifier: 19.1.1
         version: 19.1.1
@@ -699,6 +765,9 @@ importers:
       sonner:
         specifier: 2.0.7
         version: 2.0.7(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      stripe:
+        specifier: 18.5.0
+        version: 18.5.0(@types/node@24.3.2)
       stylis:
         specifier: 4.3.6
         version: 4.3.6
@@ -723,9 +792,12 @@ importers:
       xstate:
         specifier: 5.21.0
         version: 5.21.0
+      zod:
+        specifier: 4.1.8
+        version: 4.1.8
     devDependencies:
       '@beep/types':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/common/types/build
       '@svgr/webpack':
         specifier: 8.1.0
@@ -739,6 +811,9 @@ importers:
       '@types/node':
         specifier: 24.3.2
         version: 24.3.2
+      '@types/pg':
+        specifier: 8.15.5
+        version: 8.15.5
       '@types/react':
         specifier: 19.1.13
         version: 19.1.13
@@ -1748,9 +1823,24 @@ importers:
       '@beep/utils':
         specifier: workspace:*
         version: link:../../common/utils/build
+      '@better-auth/stripe':
+        specifier: 1.3.9
+        version: 1.3.9(better-auth@1.3.9(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(stripe@18.5.0(@types/node@24.3.2))
+      '@dub/better-auth':
+        specifier: 0.0.4
+        version: 0.0.4
+      better-auth:
+        specifier: 1.3.9
+        version: 1.3.9(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      dub:
+        specifier: 0.66.4
+        version: 0.66.4
       effect:
         specifier: 3.17.13
         version: 3.17.13
+      stripe:
+        specifier: 18.5.0
+        version: 18.5.0(@types/node@24.3.2)
     devDependencies:
       '@beep/types':
         specifier: workspace:*

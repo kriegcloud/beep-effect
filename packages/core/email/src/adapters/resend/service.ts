@@ -7,28 +7,30 @@ import { Resend } from "resend";
 export class ResendService extends Effect.Service<ResendService>()("ResendService", {
   accessors: true,
   dependencies: [],
-  effect: Effect.gen(function* () {
-    const resend = new Resend(Redacted.value(serverEnv.email.resend.apiKey));
+  effect: Effect.flatMap(
+    Effect.sync(() => new Resend(Redacted.value(serverEnv.email.resend.apiKey))),
+    (resend) =>
+      Effect.gen(function* () {
+        const send = Effect.fn("ResendService.send")(
+          function* (params: Parameters<typeof resend.emails.send>[0]) {
+            return yield* Effect.tryPromise({
+              try: () => resend.emails.send(params),
+              catch: (error) => matchResendError(error, params),
+            });
+          },
+          (effect, params) =>
+            effect.pipe(
+              Effect.withSpan("ResendService.send", { attributes: { params } }),
+              Effect.annotateLogs({ params }),
+              Effect.tapError(Effect.logError),
+              Effect.mapError((error) => Effect.dieMessage(error.message))
+            )
+        );
 
-    const send = Effect.fn("ResendService.send")(
-      function* (params: Parameters<typeof resend.emails.send>[0]) {
-        return yield* Effect.tryPromise({
-          try: () => resend.emails.send(params),
-          catch: (error) => matchResendError(error, params),
-        });
-      },
-      (effect, params) =>
-        effect.pipe(
-          Effect.withSpan("ResendService.send", { attributes: { params } }),
-          Effect.annotateLogs({ params }),
-          Effect.tapError(Effect.logError),
-          Effect.mapError((error) => Effect.dieMessage(error.message))
-        )
-    );
-
-    return {
-      resend,
-      send,
-    };
-  }),
+        return {
+          resend,
+          send,
+        };
+      })
+  ),
 }) {}

@@ -40,41 +40,66 @@
     "esModuleInterop": true,
     "paths": {
       "@/*": ["./src/*"],
-      "@beep/ui": ["../../packages/ui/src/index"],
-      "@beep/ui/*": ["../../packages/ui/src/*"],
-      "@beep/utils": ["../../packages/common/utils/src/index"],
-      "@beep/utils/*": ["../../packages/common/utils/src/*"],
       "@beep/types": ["../../packages/common/types/src/index"],
       "@beep/types/*": ["../../packages/common/types/src/*"],
       "@beep/invariant": ["../../packages/common/invariant/src/index"],
       "@beep/invariant/*": ["../../packages/common/invariant/src/*"],
+      "@beep/utils": ["../../packages/common/utils/src/index"],
+      "@beep/utils/*": ["../../packages/common/utils/src/*"],
       "@beep/schema": ["../../packages/common/schema/src/index"],
       "@beep/schema/*": ["../../packages/common/schema/src/*"],
       "@beep/constants": ["../../packages/common/constants/src/index"],
       "@beep/constants/*": ["../../packages/common/constants/src/*"],
+      "@beep/errors/client": ["../../packages/common/errors/src/client"],
+      "@beep/errors/shared": ["../../packages/common/errors/src/shared"],
+      "@beep/errors/server": ["../../packages/common/errors/src/server"],
+      "@beep/rules": ["../../packages/common/rules/src/index"],
+      "@beep/rules/*": ["../../packages/common/rules/src/*"],
       "@beep/logos": ["../../packages/common/logos/src/index"],
       "@beep/logos/*": ["../../packages/common/logos/src/*"],
       "@beep/rete": ["../../packages/common/rete/src/index"],
       "@beep/rete/*": ["../../packages/common/rete/src/*"],
-      "@beep/errors/shared": ["../../packages/common/errors/src/shared"],
-      "@beep/errors/client": ["../../packages/common/errors/src/client"],
-      "@beep/errors/server": ["../../packages/common/errors/src/server"],
+      "@beep/query": ["../../packages/common/query/src/index"],
+      "@beep/query/*": ["../../packages/common/query/src/*"],
+      "@beep/shared-domain": ["../../packages/shared/domain/src/index"],
+      "@beep/shared-domain/*": ["../../packages/shared/domain/src/*"],
+      "@beep/shared-tables": ["../../packages/shared/tables/src/index"],
+      "@beep/shared-tables/*": ["../../packages/shared/tables/src/*"],
       "@beep/core-env/client": ["../../packages/core/env/src/client"],
       "@beep/core-env/server": ["../../packages/core/env/src/server"],
+      "@beep/core-ai": ["../../packages/core/ai/src/index"],
+      "@beep/core-ai/*": ["../../packages/core/ai/src/*"],
+      "@beep/core-email": ["../../packages/core/email/src/index"],
+      "@beep/core-email/*": ["../../packages/core/email/src/*"],
+      "@beep/core-db": ["../../packages/core/db/src/index"],
+      "@beep/core-db/*": ["../../packages/core/db/src/*"],
+      "@beep/core-runtime/client": ["../../packages/core/runtime/src/client"],
+      "@beep/core-runtime/server": ["../../packages/core/runtime/src/server"],
+      "@beep/ui/*": ["../../packages/ui/src/*"],
+      "@beep/iam-domain": ["../../packages/iam/domain/src/index"],
+      "@beep/iam-domain/*": ["../../packages/iam/domain/src/*"],
+      "@beep/iam-application": ["../../packages/iam/application/src/index"],
+      "@beep/iam-application/*": ["../../packages/iam/application/src/*"],
+      "@beep/iam-tables": ["../../packages/iam/tables/src/index"],
+      "@beep/iam-tables/*": ["../../packages/iam/tables/src/*"],
+      "@beep/iam-infra": ["../../packages/iam/infra/src/index"],
+      "@beep/iam-infra/*": ["../../packages/iam/infra/src/*"],
+      "@beep/iam-sdk": ["../../packages/iam/sdk/src/index"],
+      "@beep/iam-sdk/*": ["../../packages/iam/sdk/src/*"],
+      "@beep/iam-ui": ["../../packages/iam/ui/src/index"],
+      "@beep/iam-ui/*": ["../../packages/iam/ui/src/*"],
       "@beep/files-domain": ["../../packages/files/domain/src/index"],
       "@beep/files-domain/*": ["../../packages/files/domain/src/*"],
       "@beep/files-application": ["../../packages/files/application/src/index"],
       "@beep/files-application/*": ["../../packages/files/application/src/*"],
+      "@beep/files-tables": ["../../packages/files/tables/src/index"],
+      "@beep/files-tables/*": ["../../packages/files/tables/src/*"],
       "@beep/files-infra": ["../../packages/files/infra/src/index"],
       "@beep/files-infra/*": ["../../packages/files/infra/src/*"],
+      "@beep/files-sdk": ["../../packages/files/sdk/src/index"],
+      "@beep/files-sdk/*": ["../../packages/files/sdk/src/*"],
       "@beep/files-ui": ["../../packages/files/ui/src/index"],
-      "@beep/files-ui/*": ["../../packages/files/ui/src/*"],
-      "@beep/iam-infra": ["../../packages/iam/infra/src/index"],
-      "@beep/iam-infra/*": ["../../packages/iam/infra/src/*"],
-      "@beep/shared-domain": ["../../packages/shared/domain/src/index"],
-      "@beep/shared-domain/*": ["../../packages/shared/domain/src/*"],
-      "@beep/core-runtime/client": ["../../packages/core/runtime/src/client"],
-      "@beep/core-runtime/server": ["../../packages/core/runtime/src/server"]
+      "@beep/files-ui/*": ["../../packages/files/ui/src/*"]
     },
     "plugins": [
       {
@@ -87,22 +112,13 @@
   },
   "references": [
     {
-      "path": "../../packages/iam/infra/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/ui/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/core/env/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/common/utils/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/common/types/tsconfig.build.json"
     },
     {
       "path": "../../packages/common/invariant/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/utils/tsconfig.build.json"
     },
     {
       "path": "../../packages/common/schema/tsconfig.build.json"
@@ -111,31 +127,76 @@
       "path": "../../packages/common/constants/tsconfig.build.json"
     },
     {
-      "path": "../../packages/common/rete/tsconfig.build.json"
+      "path": "../../packages/common/errors/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/rules/tsconfig.build.json"
     },
     {
       "path": "../../packages/common/logos/tsconfig.build.json"
     },
     {
-      "path": "../../packages/common/errors/tsconfig.build.json"
+      "path": "../../packages/common/rete/tsconfig.build.json"
     },
     {
-      "path": "../../packages/files/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/files/application/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/files/infra/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/files/ui/tsconfig.build.json"
+      "path": "../../packages/common/query/tsconfig.build.json"
     },
     {
       "path": "../../packages/shared/domain/tsconfig.build.json"
     },
     {
+      "path": "../../packages/shared/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/core/env/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/core/ai/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/core/email/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/core/db/tsconfig.build.json"
+    },
+    {
       "path": "../../packages/core/runtime/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/iam/application/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/iam/sdk/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/iam/infra/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/iam/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/iam/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/iam/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/files/application/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/files/sdk/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/files/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/files/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/files/tables/tsconfig.build.json"
     }
   ],
   "include": [

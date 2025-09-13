@@ -162,7 +162,7 @@
         "./packages/core/env/src/client"
       ],
       "@beep/core-env/server": [
-        "./packages/core/env/server"
+        "./packages/core/env/src/server"
       ],
       "@beep/core-env/test/*": [
         "./packages/core/env/test/*"
@@ -198,7 +198,7 @@
         "./packages/core/runtime/src/client"
       ],
       "@beep/core-runtime/server": [
-        "./packages/core/runtime/server"
+        "./packages/core/runtime/src/server"
       ],
       "@beep/core/runtime/test/*": [
         "./packages/core/runtime/test/*"

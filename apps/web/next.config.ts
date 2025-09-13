@@ -80,7 +80,38 @@ const securityHeaders = [
 
 const nextConfig = {
   trailingSlash: true,
-
+  // transpilePackages: [
+  //   "@beep/types",
+  //   "@beep/invariant",
+  //   "@beep/utils",
+  //   "@beep/schema",
+  //   "@beep/constants",
+  //   "@beep/errors",
+  //   "@beep/rules",
+  //   "@beep/logos",
+  //   "@beep/rete",
+  //   "@beep/query",
+  //   "@beep/shared-domain",
+  //   "@beep/shared-tables",
+  //   "@beep/core-env",
+  //   "@beep/core-ai",
+  //   "@beep/core-email",
+  //   "@beep/core-db",
+  //   "@beep/core-runtime",
+  //   "@beep/ui",
+  //   "@beep/iam-domain",
+  //   "@beep/iam-application",
+  //   "@beep/iam-tables",
+  //   "@beep/iam-infra",
+  //   "@beep/iam-sdk",
+  //   "@beep/iam-ui",
+  //   "@beep/files-domain",
+  //   "@beep/files-application",
+  //   "@beep/files-tables",
+  //   "@beep/files-infra",
+  //   "@beep/files-sdk",
+  //   "@beep/files-ui",
+  // ],
   images: {
     remotePatterns: [
       {

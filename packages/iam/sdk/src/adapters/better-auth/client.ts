@@ -1,3 +1,4 @@
+import { clientEnv } from "@beep/core-env/client";
 import { stripeClient } from "@better-auth/stripe/client";
 import type { ClientOptions } from "better-auth/client";
 import {
@@ -68,7 +69,7 @@ const plugins = [
   _multiSessionClient(),
   oidcClient(),
   oneTapClient({
-    clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+    clientId: clientEnv.googleClientId,
     promptOptions: {
       maxAttempts: 1,
     },
@@ -95,8 +96,8 @@ const plugins = [
 const clientOptions: Omit<ClientOptions, "plugins"> & {
   plugins: typeof plugins;
 } = {
-  baseURL: process.env.NEXT_PUBLIC_AUTH_URL!,
-  basePath: process.env.NEXT_PUBLIC_AUTH_PATH!,
+  baseURL: clientEnv.authUrl,
+  basePath: clientEnv.authPath,
   plugins: plugins as typeof plugins,
 } satisfies ClientOptions;
 
