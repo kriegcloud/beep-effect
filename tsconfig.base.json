@@ -308,6 +308,24 @@
       "@beep/files-ui/test/*": [
         "./packages/files/ui/test/*"
       ],
+      "beep/runtime-server": [
+        "./packages/runtime/server/src/index"
+      ],
+      "beep/runtime-server/*": [
+        "./packages/runtime/server/src/index"
+      ],
+       "beep/runtime-server/test/*": [
+        "./packages/runtime/server/test/*"
+      ],
+      "beep/runtime-client": [
+        "./packages/runtime/client/src/index"
+      ],
+      "beep/runtime-client/*": [
+        "./packages/runtime/client/src/index"
+      ],
+       "beep/runtime-client/test/*": [
+        "./packages/runtime/client/test/*"
+      ],
       "@/*": [
         "./apps/web/src/*"
       ],

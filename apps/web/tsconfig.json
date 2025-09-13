@@ -97,7 +97,11 @@
       "@beep/files-sdk": ["../../packages/files/sdk/src/index"],
       "@beep/files-sdk/*": ["../../packages/files/sdk/src/*"],
       "@beep/files-ui": ["../../packages/files/ui/src/index"],
-      "@beep/files-ui/*": ["../../packages/files/ui/src/*"]
+      "@beep/files-ui/*": ["../../packages/files/ui/src/*"],
+      "@beep/runtime-server": ["../../packages/runtime/server/src/index"],
+      "@beep/runtime-server/*": ["../../packages/runtime/server/src/*"],
+      "@beep/runtime-client": ["../../packages/runtime/client/src/index"],
+      "@beep/runtime-client/*": ["../../packages/runtime/client/src/*"]
     },
     "plugins": [
       {
@@ -188,10 +192,19 @@
       "path": "../../packages/files/ui/tsconfig.build.json"
     },
     {
+      "path": "../../packages/files/infra/tsconfig.build.json"
+    },
+    {
       "path": "../../packages/files/domain/tsconfig.build.json"
     },
     {
       "path": "../../packages/files/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/runtime/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/runtime/client/tsconfig.build.json"
     }
   ],
   "include": [

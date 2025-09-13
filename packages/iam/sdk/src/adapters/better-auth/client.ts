@@ -102,7 +102,7 @@ const clientOptions: Omit<ClientOptions, "plugins"> & {
   plugins: plugins as typeof plugins,
 } satisfies ClientOptions;
 
-export const client: ReturnType<typeof createAuthClient<typeof clientOptions>> = createAuthClient(clientOptions)
+export const client: ReturnType<typeof createAuthClient<typeof clientOptions>> = createAuthClient(clientOptions);
 
 export const {
   signUp,

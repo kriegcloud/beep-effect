@@ -85,6 +85,12 @@
     },
     {
       "path": "../../packages/files/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/runtime/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/runtime/client/tsconfig.build.json"
     }
   ],
   "compilerOptions": {

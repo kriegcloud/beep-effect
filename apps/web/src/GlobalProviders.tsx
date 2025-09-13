@@ -9,10 +9,10 @@ import * as LogLevel from "effect/LogLevel";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import React from "react";
+import { RuntimeProvider } from "@/services/client-runtime/runtime-provider";
 import { NetworkMonitor } from "@/services/common/NetworkMonitor";
 import type { LiveManagedRuntime } from "@/services/live-layer";
 import { DevToolsLive, HttpClientLive, WebSdkLive } from "@/services/live-layer";
-import { RuntimeProvider } from "@/services/runtime/runtime-provider";
 import { QueryClient } from "./services/common/QueryClient";
 import { WorkerClient } from "./services/worker/WorkerClient";
 

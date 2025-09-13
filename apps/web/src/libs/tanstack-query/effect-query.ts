@@ -24,8 +24,8 @@ import * as Exit from "effect/Exit";
 import * as P from "effect/Predicate";
 import * as React from "react";
 import { toast } from "sonner";
+import { useRuntime } from "@/services/client-runtime/use-runtime";
 import type { LiveRuntimeContext } from "@/services/live-layer";
-import { useRuntime } from "@/services/runtime/use-runtime";
 
 export class QueryDefect extends Data.TaggedError("QueryDefect")<{
   cause: unknown;

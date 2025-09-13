@@ -1,0 +1,62 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": [],
+  "compilerOptions": {
+    "paths": {
+      "@beep/runtime-client/*": ["./src/*"],
+      "@beep/types": ["../../packages/common/types/src/index"],
+      "@beep/types/*": ["../../packages/common/types/src/*"],
+      "@beep/invariant": ["../../packages/common/invariant/src/index"],
+      "@beep/invariant/*": ["../../packages/common/invariant/src/*"],
+      "@beep/utils": ["../../packages/common/utils/src/index"],
+      "@beep/utils/*": ["../../packages/common/utils/src/*"],
+      "@beep/schema": ["../../packages/common/schema/src/index"],
+      "@beep/schema/*": ["../../packages/common/schema/src/*"],
+      "@beep/constants": ["../../packages/common/constants/src/index"],
+      "@beep/constants/*": ["../../packages/common/constants/src/*"],
+      "@beep/errors/client": ["../../packages/common/errors/src/client"],
+      "@beep/errors/server": ["../../packages/common/errors/src/server"],
+      "@beep/rules": ["../../packages/common/rules/src/index"],
+      "@beep/rules/*": ["../../packages/common/rules/src/*"],
+      "@beep/logos": ["../../packages/common/logos/src/index"],
+      "@beep/logos/*": ["../../packages/common/logos/src/*"],
+      "@beep/rete": ["../../packages/common/rete/src/index"],
+      "@beep/rete/*": ["../../packages/common/rete/src/*"],
+      "@beep/query": ["../../packages/common/query/src/index"],
+      "@beep/query/*": ["../../packages/common/query/src/*"],
+      "@beep/shared-domain": ["../../packages/shared/domain/src/index"],
+      "@beep/shared-domain/*": ["../../packages/shared/domain/src/*"],
+      "@beep/shared-tables": ["../../packages/shared/tables/src/index"],
+      "@beep/shared-tables/*": ["../../packages/shared/tables/src/*"],
+      "@beep/core-env/client": ["../../packages/core/env/src/client"],
+      "@beep/iam-domain": ["../../packages/iam/domain/src/index"],
+      "@beep/iam-domain/*": ["../../packages/iam/domain/src/*"],
+      "@beep/iam-application": ["../../packages/iam/application/src/index"],
+      "@beep/iam-application/*": ["../../packages/iam/application/src/*"],
+      "@beep/iam-tables": ["../../packages/iam/tables/src/index"],
+      "@beep/iam-tables/*": ["../../packages/iam/tables/src/*"],
+      "@beep/iam-sdk": ["../../packages/iam/sdk/src/index"],
+      "@beep/iam-sdk/*": ["../../packages/iam/sdk/src/*"],
+      "@beep/iam-ui": ["../../packages/iam/ui/src/index"],
+      "@beep/iam-ui/*": ["../../packages/iam/ui/src/*"],
+      "@beep/files-domain": ["../../packages/files/domain/src/index"],
+      "@beep/files-domain/*": ["../../packages/files/domain/src/*"],
+      "@beep/files-application": ["../../packages/files/application/src/index"],
+      "@beep/files-application/*": ["../../packages/files/application/src/*"],
+      "@beep/files-tables": ["../../packages/files/tables/src/index"],
+      "@beep/files-tables/*": ["../../packages/files/tables/src/*"],
+      "@beep/files-sdk": ["../../packages/files/sdk/src/index"],
+      "@beep/files-sdk/*": ["../../packages/files/sdk/src/*"],
+      "@beep/files-ui": ["../../packages/files/ui/src/index"],
+      "@beep/files-ui/*": ["../../packages/files/ui/src/*"]
+    }
+  },
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "tsconfig.test.json"
+    }
+  ]
+}
