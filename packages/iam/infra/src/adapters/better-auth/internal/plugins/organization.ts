@@ -16,9 +16,9 @@ export const OrganizationPlugin = Effect.gen(function* () {
   const { sendInvitation } = yield* AuthEmailService;
   return organization({
     allowUserToCreateOrganization: true,
-    organizationLimit: 3,
+    organizationLimit: 1,
     creatorRole: "owner",
-    membershipLimit: 100,
+    membershipLimit: 2,
     sendInvitationEmail: async (params) => {
       const program = Effect.flatMap(
         S.decode(InvitationEmailPayload)({
@@ -42,8 +42,9 @@ export const OrganizationPlugin = Effect.gen(function* () {
     schema: {
       organization: {
         id: {
-          type: "number",
-          name: "_rowId",
+          // Align with Table.make public id: text("id") unique, branded
+          type: "string",
+          name: "id",
         },
         additionalFields: {
           type: {
@@ -64,11 +65,11 @@ export const OrganizationPlugin = Effect.gen(function* () {
             required: false,
           },
           features: {
-            type: "string", // JSON string
+            type: "json", // jsonb in DB
             required: false,
           },
           settings: {
-            type: "string", // JSON string
+            type: "json", // jsonb in DB
             required: false,
           },
           subscriptionTier: {
@@ -86,6 +87,13 @@ export const OrganizationPlugin = Effect.gen(function* () {
       },
       member: {
         additionalFields: {
+          // Enhanced member tracking fields (see iam/tables/src/tables/member.table.ts)
+          status: { type: "string", required: true, defaultValue: "active" },
+          invitedBy: { type: "string", required: false },
+          invitedAt: { type: "date", required: false },
+          joinedAt: { type: "date", required: false },
+          lastActiveAt: { type: "date", required: false },
+          permissions: { type: "string", required: false }, // JSON string
           ...commonExtraFields,
         },
       },
@@ -96,6 +104,10 @@ export const OrganizationPlugin = Effect.gen(function* () {
       },
       team: {
         additionalFields: {
+          // Align with shared team table (see shared/tables/src/tables/team.table.ts)
+          description: { type: "string", required: false },
+          metadata: { type: "string", required: false },
+          logo: { type: "string", required: false },
           ...commonExtraFields,
         },
       },

@@ -49,6 +49,8 @@ import { AuthEmailService, SendResetPasswordEmailPayload } from "./AuthEmail.ser
 import { commonExtraFields } from "./internal/common";
 import { OrganizationPlugin } from "./internal/plugins";
 
+// These are placeholders
+// TODO MAKE REAL.
 const PRO_PRICE_ID = {
   default: "price_1RoxnRHmTADgihIt4y8c0lVE",
   annual: "price_1RoxnoHmTADgihItzFvVP8KT",
@@ -59,7 +61,6 @@ const PLUS_PRICE_ID = {
   annual: "price_1Roxo5HmTADgihItEbJu5llL",
 } as const;
 
-const _admin: () => ReturnType<typeof admin> = () => admin();
 const AuthOptions = Effect.flatMap(
   Effect.all([IamDb.IamDb, OrganizationPlugin, AuthEmailService]),
   ([{ db }, organizationPlugin, { sendResetPassword }]) =>
@@ -124,7 +125,7 @@ const AuthOptions = Effect.flatMap(
           }) satisfies BetterAuthOptions["socialProviders"]
       ),
       plugins: [
-        _admin(),
+        admin(),
         anonymous(),
         apiKey(),
         bearer(),

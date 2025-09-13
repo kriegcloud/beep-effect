@@ -25,6 +25,7 @@ import {
 import type { apiKey, genericOAuth, jwt, multiSession, oneTimeToken } from "better-auth/plugins";
 import { createAuthClient } from "better-auth/react";
 
+// TODO THESE ARE HACK BETTER_AUTH NEEDS TO GET THEIR SHIT TOGETHER
 const _apiKeyClient: () => {
   id: "api-key";
   $InferServerPlugin: ReturnType<typeof apiKey>;
@@ -101,7 +102,7 @@ const clientOptions: Omit<ClientOptions, "plugins"> & {
   plugins: plugins as typeof plugins,
 } satisfies ClientOptions;
 
-export const client = createAuthClient(clientOptions) as ReturnType<typeof createAuthClient<typeof clientOptions>>;
+export const client: ReturnType<typeof createAuthClient<typeof clientOptions>> = createAuthClient(clientOptions)
 
 export const {
   signUp,

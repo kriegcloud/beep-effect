@@ -2,6 +2,7 @@ import { invariant } from "@beep/invariant";
 import * as regexes from "@beep/schema/regexes";
 import type { TagTypes } from "@beep/types";
 import * as S from "effect/Schema";
+
 export class SnakeTag extends S.NonEmptyString.pipe(
   S.lowercased({ message: () => "SnakeTag must be lowercase" }),
   S.trimmed({ message: () => "SnakeTag cannot contain trailing or leading whitespace" }),
@@ -24,8 +25,7 @@ export class SnakeTag extends S.NonEmptyString.pipe(
   `,
 }) {
   static readonly make = <const T extends string>(tag: SnakeTag.Literal<T>): SnakeTag.Literal<T> => {
-    const _tag = tag;
-    invariant(S.is(SnakeTag)(_tag), "Must be a valid SnakeTag", {
+    invariant(S.is(SnakeTag)(tag), "Must be a valid SnakeTag", {
       file: "@beep/schema/custom/String.schema.ts",
       line: 28,
       args: [tag],

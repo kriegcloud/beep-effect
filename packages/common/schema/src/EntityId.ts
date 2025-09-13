@@ -1,3 +1,4 @@
+// TODO put this in @beep/shared-domain
 import { invariant } from "@beep/invariant";
 import type { DefaultAnnotations } from "@beep/schema/annotations";
 import { variance } from "@beep/schema/variance";

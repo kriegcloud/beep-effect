@@ -23,7 +23,7 @@ This proposal consolidates Effect layers across the repo into a single, well-str
 - DB layering duplication and requirement leakage:
   - `IamDb.layer` in `packages/iam/infra/src/db/Db.ts` currently self-provides `PgLive` and `DbPool.Live`:
     ```ts
-    export const layer = Layer.scoped(IamDb, makeService())
+    export const layer = Layer.scoped(IamDb, Service())
       .pipe(Layer.provideMerge(Layer.mergeAll(PgLive, DbPool.Live)))
     ```
     This means building `IamDb.layer` creates its own PG stack, which conflicts with app-level runtime that also includes `PgLive` and `DbPool.Live` (see `packages/core/runtime/src/server.ts`). Due to layer memoization by reference equality, separate allocations occur.
@@ -77,7 +77,7 @@ The `ManagedRuntime` is created once from the merged layer graph and imported by
 1) IamDb: split the layer
 - File: `packages/iam/infra/src/db/Db.ts`
 - Keep the current `IamDb` tag and `makeScopedDb` call, but expose two layers:
-  - `IamDb.layerWithoutDeps = Layer.scoped(IamDb, makeService())` (requires `PgLive | DbPool.Live`)
+  - `IamDb.layerWithoutDeps = Layer.scoped(IamDb, Service())` (requires `PgLive | DbPool.Live`)
   - `IamDb.layer = Layer.provideMerge(IamDb.layerWithoutDeps, Layer.mergeAll(PgLive, DbPool.Live))` (convenience; do not use in app runtime)
 - Rationale: app runtime provides `PgLive` + `DbPool.Live` once, so all consumers share a single PG stack.
 

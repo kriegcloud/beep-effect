@@ -24,7 +24,7 @@ export const commonExtraFields = {
     required: false,
   },
   version: {
-    type: "string",
+    type: "number",
     required: false,
   },
   source: {
