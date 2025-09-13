@@ -10,8 +10,6 @@
       "@beep/core-env/server": ["../../core/env/src/server"],
       "@beep/core-email": ["../../core/email/src/index"],
       "@beep/core-email/*": ["../../core/email/src/*"],
-      "@beep/core-runtime/client": ["../../core/runtime/src/client"],
-      "@beep/core-runtime/server": ["../../core/runtime/src/server"],
       "@beep/iam-application": ["../application/src/index"],
       "@beep/iam-application/*": ["../application/src/*"],
       "@beep/iam-domain": ["../domain/src/index"],

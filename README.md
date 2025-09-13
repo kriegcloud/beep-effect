@@ -24,19 +24,23 @@ Vertical Slice Architecture with a hexagonal/clean flavor:
 - Infrastructure adapters implement those ports; IO stays out of domain logic
 - Cross-slice sharing only through shared/common modules
 
-See `Project Structure & Architecture` in:
-- [.windsurfrules](.windsurfrules) → repository-enforced boundaries and “allowed imports”
-- [CLAUDE.md](CLAUDE.md) → task-focused guidance for AI assistants
+Source of truth for rules and boundaries:
+- [.windsurfrules](.windsurfrules) → repository-enforced boundaries and allowed imports
+- [tsconfig.base.json](tsconfig.base.json) → authoritative path aliases and module boundaries
+- [turbo.json](turbo.json) → task graph and pipeline conventions
+- [pnpm-workspace.yaml](pnpm-workspace.yaml) → workspaces layout
+- [docs/patterns/](docs/patterns/) → Effect patterns and project conventions
+- [docs/PRODUCTION_CHECKLIST.md](docs/PRODUCTION_CHECKLIST.md) → production posture, logging defaults
 
 ## Monorepo layout
 
 - `apps/` — application surfaces (e.g., `web`, `server`, `mcp`)
 - `packages/` — vertical slices and shared libs
-  - Slices: `iam/*`, `wms/*` with `domain`, `application`, `api`, `db`, `ui`, `tables`
-  - Cross-cutting: `shared/*`, `common/*`, `adapters/*`, `persistence/*`, `ai/*`, `email/*`, `env/*`, `ui/*`
+  - Slices today: `iam/*`, `files/*` (layers: `domain`, `application`, `infra`, `tables`, `ui`, `sdk`)
+  - Cross-cutting: `shared/*`, `common/*`, `core/*`, `ui/*`
 - `tooling/*` — repo scripts, config, testkit
 
-Authoritative module boundaries via [tsconfig.base.json](tsconfig.base.json) path aliases (e.g., `@beep/iam-domain`, `@beep/wms-application`, `@beep/shared-*`, `@/*` for `apps/web`).
+Authoritative module boundaries via [tsconfig.base.json](tsconfig.base.json) path aliases (e.g., `@beep/iam-domain`, `@beep/files-application`, `@beep/shared-*`, `@/*` for `apps/web`).
 
 ## Tech stack
 
@@ -49,12 +53,12 @@ Authoritative module boundaries via [tsconfig.base.json](tsconfig.base.json) pat
 - Build & workspace: pnpm + Turborepo
 - Quality: Biome, Vitest
 - Optional/infra: Docker + dotenvx
-- AI: @effect/ai (+ IDE assistant rules in [.windsurfrules](.windsurfrules), `.cursorrules`, [CLAUDE.md](CLAUDE.md))
+- AI: @effect/ai (+ IDE assistant rules in [.windsurfrules](.windsurfrules), `.cursor/rules/`)
 
 ## Quick start
 
 Prereqs
-- Node LTS, pnpm 10.15.0
+- Node LTS, pnpm as pinned in root [`package.json`](package.json) (`packageManager`/`engines`)
 - Docker (for local Postgres)
 - Optional: direnv
 
@@ -71,3 +75,71 @@ pnpm dev
 
 # Dev (web only)
 pnpm dev --filter=@beep/web
+```
+
+Notes
+- Prefer running via npm scripts in the root [`package.json`](package.json). Scripts use `dotenvx` so you don’t have to.
+- If a tool isn’t in your PATH in your environment, you can prefix with `direnv exec .` (see `.windsurfrules`).
+
+## Tasks and pipelines
+
+- Lint/format: `pnpm lint`, `pnpm lint:fix` (see [biome.jsonc](biome.jsonc))
+- Typecheck: `pnpm check`
+- Tests: `pnpm test` (workspace via [vitest.workspace.ts](vitest.workspace.ts))
+- Circular import check: `pnpm lint:circular`
+- Build: `pnpm build`
+- Dev: `pnpm dev` / `pnpm dev:https`
+- DB lifecycle: `pnpm db:generate`, `pnpm db:push`, `pnpm db:migrate`, `pnpm db:studio` (wired via [turbo.json](turbo.json))
+
+See [turbo.json](turbo.json) for the authoritative task graph.
+
+## Database, cache, and telemetry (local)
+
+Defined in [docker-compose.yml](docker-compose.yml):
+- Postgres (`beep-db`) — exposed on `${DB_PG_PORT:-5432}`
+- Redis (`beep-redis`) — exposed on `${REDIS_PORT:-6379}`
+- Jaeger UI — exposed on `${JAEGER_PORT:-16686}` with OTLP `${OTLP_TRACE_EXPORTER_PORT:-4318}`
+
+Bring services up with `pnpm db:up`.
+
+## Layering and imports (enforced)
+
+Canonical rules live in [.windsurfrules](.windsurfrules). Highlights:
+- `S/domain` → entities, value objects, domain services. Pure; no IO.
+- `S/application` → use cases and ports. Depends on `S/domain`.
+- `S/infra` → adapters (DB, auth, email, file stores, etc.) implementing ports.
+- `S/tables` → DB schema/table definitions.
+- `S/ui` and app surfaces live in `apps/*` (e.g., Next.js in `apps/web`).
+
+Path aliases in [tsconfig.base.json](tsconfig.base.json) are the single source of truth for module boundaries (e.g., `@beep/iam-*`, `@beep/files-*`, `@beep/shared-*`, `@/*`).
+
+## Slices today
+
+- IAM: `packages/iam/*`
+  - Layers: [`domain`](packages/iam/domain/), [`application`](packages/iam/application/), [`infra`](packages/iam/infra/), [`tables`](packages/iam/tables/), [`ui`](packages/iam/ui/), [`sdk`](packages/iam/sdk/)
+- Files: `packages/files/*`
+  - Layers: [`domain`](packages/files/domain/), [`application`](packages/files/application/), [`infra`](packages/files/infra/), [`tables`](packages/files/tables/), [`ui`](packages/files/ui/), [`sdk`](packages/files/sdk/)
+- Shared foundations: [`packages/shared/`](packages/shared/), [`packages/common/`](packages/common/), [`packages/core/`](packages/core/)
+
+File storage approach: shared file primitives (IDs, base tables) live under `packages/shared/*`; slice-specific business logic (uploads, processing) lives in `packages/files/*`. See `packages/files/_SPEC/design_research.md` for research and `packages/common/schema/src/custom/` for related schemas (e.g., `FileExtension.schema.ts`, `MimeType.schema.ts`).
+
+## Docs and patterns
+
+- Production posture: [docs/PRODUCTION_CHECKLIST.md](docs/PRODUCTION_CHECKLIST.md)
+- Effect patterns and references: [docs/patterns/](docs/patterns/)
+- Assistant rules: [.windsurfrules](.windsurfrules)
+
+## Applications
+
+- Web (Next.js): `apps/web` (uses `@/*` path alias)
+- Server (Effect + RPC/HTTP-ready): `apps/server`
+- MCP tools: `apps/mcp`
+
+CI is defined in [.github/workflows/check.yml](.github/workflows/check.yml) and runs types, lint, and tests.
+
+## Production defaults (tl;dr)
+
+See [docs/PRODUCTION_CHECKLIST.md](docs/PRODUCTION_CHECKLIST.md) for details. Defaults today:
+- `APP_LOG_FORMAT=json`
+- `APP_LOG_LEVEL=error`
+- `NODE_ENV=production`

@@ -1,3 +1,4 @@
+import "server-only";
 import { serverEnv } from "@beep/core-env/server";
 import { IamDb } from "@beep/iam-infra/db/Db";
 import { IamDbSchema } from "@beep/iam-tables";
@@ -8,6 +9,7 @@ import { dubAnalytics } from "@dub/better-auth";
 import type { BetterAuthOptions } from "better-auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+// import * as Layer from "effect/Layer";
 import { nextCookies } from "better-auth/next-js";
 import {
   admin,
@@ -97,7 +99,6 @@ const AuthOptions = Effect.flatMap(
         requireEmailVerification: false,
         enabled: true,
         sendResetPassword: async (params) => {
-          const { serverRuntime } = await import("./lib/server-runtime");
           const program = Effect.flatMap(
             S.decode(SendResetPasswordEmailPayload)({
               username: params.user.name,
@@ -107,7 +108,7 @@ const AuthOptions = Effect.flatMap(
             sendResetPassword
           );
           // TODO figure this out
-          await serverRuntime.runPromise(program);
+          await Effect.runPromise(program);
         },
       },
       socialProviders: A.reduce(
@@ -320,14 +321,10 @@ export type Options = Effect.Effect.Success<typeof AuthOptions>;
 
 export class AuthService extends Effect.Service<AuthService>()("AuthService", {
   accessors: true,
-  effect: Effect.flatMap(
-    AuthOptions,
-    (opts) =>
-      Effect.succeed({
-        auth: betterAuth(opts),
-      })
-    // TODO figure this out
-  ).pipe(Effect.provide([IamDb.layer])) as Effect.Effect<{
-    auth: ReturnType<typeof betterAuth<Options>>;
-  }>,
+  dependencies: [AuthEmailService.DefaultWithoutDependencies, IamDb.layerWithoutDeps],
+  effect: Effect.flatMap(AuthOptions, (opts) =>
+    Effect.succeed({
+      auth: betterAuth(opts),
+    })
+  ),
 }) {}

@@ -59,9 +59,6 @@
       "path": "packages/core/db"
     },
     {
-      "path": "packages/core/runtime"
-    },
-    {
       "path": "packages/ui"
     },
     {

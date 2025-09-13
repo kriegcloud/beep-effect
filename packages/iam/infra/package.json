@@ -33,6 +33,9 @@
     "lint:circular": "pnpm madge -c ."
   },
   "dependencies": {
+    "@effect/sql": "*",
+    "@effect/sql-pg": "*",
+    "@effect/sql-drizzle": "*",
     "@effect/experimental": "*",
     "@beep/core-db": "workspace:*",
     "@beep/core-env": "workspace:*",
@@ -45,7 +48,6 @@
     "@beep/invariant": "workspace:*",
     "@beep/utils": "workspace:*",
     "@beep/constants": "workspace:*",
-    "@beep/core-runtime": "workspace:*",
     "@beep/shared-domain": "workspace:*",
     "@beep/errors": "workspace:*",
     "@effect/platform-node": "*",
@@ -53,6 +55,7 @@
     "@effect/cluster": "*",
     "@effect/workflow": "*",
     "drizzle-orm": "*",
+    "next": "*",
     "effect": "*",
     "pg": "*",
     "react": "*",

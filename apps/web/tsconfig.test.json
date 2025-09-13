@@ -51,9 +51,6 @@
       "path": "../../packages/core/db/tsconfig.build.json"
     },
     {
-      "path": "../../packages/core/runtime/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/iam/application/tsconfig.build.json"
     },
     {

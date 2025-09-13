@@ -73,8 +73,6 @@
       "@beep/core-email/*": ["../../packages/core/email/src/*"],
       "@beep/core-db": ["../../packages/core/db/src/index"],
       "@beep/core-db/*": ["../../packages/core/db/src/*"],
-      "@beep/core-runtime/client": ["../../packages/core/runtime/src/client"],
-      "@beep/core-runtime/server": ["../../packages/core/runtime/src/server"],
       "@beep/ui/*": ["../../packages/ui/src/*"],
       "@beep/iam-domain": ["../../packages/iam/domain/src/index"],
       "@beep/iam-domain/*": ["../../packages/iam/domain/src/*"],
@@ -158,9 +156,6 @@
     },
     {
       "path": "../../packages/core/db/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/core/runtime/tsconfig.build.json"
     },
     {
       "path": "../../packages/iam/application/tsconfig.build.json"

@@ -1,6 +1,5 @@
 "use client";
-
-import * as ClientRuntime from "@beep/core-runtime/client";
+import { clientEnv } from "@beep/core-env/client";
 import { QueryClientProvider, QueryClient as TanstackQueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import * as Duration from "effect/Duration";
@@ -10,7 +9,9 @@ import * as LogLevel from "effect/LogLevel";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import React from "react";
+import { NetworkMonitor } from "@/services/common/NetworkMonitor";
 import type { LiveManagedRuntime } from "@/services/live-layer";
+import { DevToolsLive, HttpClientLive, WebSdkLive } from "@/services/live-layer";
 import { RuntimeProvider } from "@/services/runtime/runtime-provider";
 import { QueryClient } from "./services/common/QueryClient";
 import { WorkerClient } from "./services/worker/WorkerClient";
@@ -42,13 +43,14 @@ export const GlobalProviders: React.FC<GlobalProviders> = ({ children }) => {
     () =>
       ManagedRuntime.make(
         Layer.mergeAll(
-          ClientRuntime.DevToolsLive,
-          ClientRuntime.WebSdkLive,
-          ClientRuntime.NetworkMonitor.Default,
+          HttpClientLive,
+          WebSdkLive,
+          NetworkMonitor.Default,
           WorkerClient.Default,
           QueryClient.make(queryClient),
-          Logger.minimumLogLevel(process.env.NEXT_PUBLIC_ENV === "dev" ? LogLevel.Debug : LogLevel.Info)
-        ).pipe(Layer.provide(Logger.pretty))
+          Logger.minimumLogLevel(clientEnv.env === "dev" ? LogLevel.Debug : LogLevel.Info),
+          clientEnv.env === "dev" ? DevToolsLive : Layer.empty
+        ).pipe(clientEnv.env === "dev" ? Layer.provide(Logger.pretty) : Layer.provide(Logger.json))
       ),
     [queryClient]
   );

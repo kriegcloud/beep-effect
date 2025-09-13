@@ -194,15 +194,6 @@
       "@beep/core-db/test/*": [
         "./packages/core/db/test/*"
       ],
-      "@beep/core-runtime/client": [
-        "./packages/core/runtime/src/client"
-      ],
-      "@beep/core-runtime/server": [
-        "./packages/core/runtime/src/server"
-      ],
-      "@beep/core/runtime/test/*": [
-        "./packages/core/runtime/test/*"
-      ],
       "@beep/ui/*": [
         "./packages/ui/src/*"
       ],

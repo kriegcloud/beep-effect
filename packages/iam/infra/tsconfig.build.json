@@ -30,9 +30,6 @@
       "path": "../../core/email/tsconfig.build.json"
     },
     {
-      "path": "../../core/runtime/tsconfig.build.json"
-    },
-    {
       "path": "../../shared/tables/tsconfig.build.json"
     },
     {

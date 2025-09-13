@@ -33,6 +33,9 @@
     "lint:circular": "pnpm madge -c ."
   },
   "dependencies": {
+    "@effect/sql": "*",
+    "@effect/sql-drizzle": "*",
+    "@effect/sql-pg": "*",
     "@effect/experimental": "*",
     "@beep/files-application": "workspace:*",
     "@beep/files-domain": "workspace:*",

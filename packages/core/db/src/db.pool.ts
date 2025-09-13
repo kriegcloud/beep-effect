@@ -3,9 +3,17 @@ import { serverEnv } from "@beep/core-env/server";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
+import type * as Scope from "effect/Scope";
 import * as pg from "pg";
 
-export const makePool = Effect.flatMap(
+export const makePool: Effect.Effect<
+  {
+    pool: pg.Pool;
+    setupConnectionListeners: Effect.Effect<void, DbErrors.DbConnectionLostError, never>;
+  },
+  never,
+  Scope.Scope
+> = Effect.flatMap(
   Effect.acquireRelease(
     Effect.sync(
       () =>
@@ -50,5 +58,5 @@ export const makePool = Effect.flatMap(
 export type DbPoolShape = Effect.Effect.Success<typeof makePool>;
 
 export class DbPool extends Effect.Tag("DbPool")<DbPool, DbPoolShape>() {
-  static readonly Live = Layer.effect(this, Effect.scoped(makePool));
+  static readonly Live: Layer.Layer<DbPool, never, never> = Layer.effect(this, Effect.scoped(makePool));
 }

@@ -24,9 +24,6 @@
       "path": "../../core/email"
     },
     {
-      "path": "../../core/runtime"
-    },
-    {
       "path": "../../shared/tables"
     },
     {

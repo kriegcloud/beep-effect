@@ -1,3 +1,4 @@
+import "server-only";
 import { ResendService, reactInvitationEmail, reactResetPasswordEmail, renderEmail } from "@beep/core-email";
 import { serverEnv } from "@beep/core-env/server";
 import { BS } from "@beep/schema";
@@ -54,6 +55,7 @@ export namespace InvitationEmailPayload {
 
 export class AuthEmailService extends Effect.Service<AuthEmailService>()("AuthEmailService", {
   accessors: true,
+  dependencies: [ResendService.Default],
   effect: Effect.flatMap(ResendService, ({ send }) =>
     Effect.gen(function* () {
       const { email: emailEnv } = serverEnv;
