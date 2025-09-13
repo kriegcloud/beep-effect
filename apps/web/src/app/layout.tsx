@@ -1,15 +1,43 @@
 import "@beep/ui/globals.css";
 import { primary } from "@beep/ui/theme";
 import type { Metadata, Viewport } from "next";
-import { headers } from "next/headers";
+import { headers as nextHeaders } from "next/headers";
 import type React from "react";
 import "dayjs/locale/en";
 import "dayjs/locale/vi";
 import "dayjs/locale/fr";
 import "dayjs/locale/zh-cn";
 import "dayjs/locale/ar-sa";
+import * as Data from "effect/Data";
+import * as Effect from "effect/Effect";
 import { getAppConfig } from "@/app-config";
 import { GlobalProviders } from "@/GlobalProviders";
+import { serverRuntime } from "@/services/server-runtime";
+
+class NonceError extends Data.TaggedError("NonceError")<{
+  readonly cause: unknown;
+  readonly message: string;
+}> {}
+
+const getNonce = Effect.gen(function* () {
+  const headers = yield* Effect.tryPromise({
+    try: async () => await nextHeaders(),
+    catch: (e) => new NonceError({ cause: e, message: "Failed to get ReadonlyHeaders from next/headers" }),
+  });
+
+  const nonce = headers.get("x-nonce") || undefined;
+  if (!nonce) {
+    yield* Effect.logInfo("No nonce found in headers");
+    return undefined;
+  }
+  return nonce;
+}).pipe(
+  Effect.withSpan("getNonce"),
+  Effect.tapError(() => Effect.logInfo("No nonce found in headers")),
+  Effect.orElseSucceed(() => undefined)
+);
+
+const getInitialProps = Effect.all([getNonce, getAppConfig]).pipe(Effect.withSpan("getInitialProps"));
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -32,8 +60,8 @@ type RootLayoutProps = {
 };
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-  const appConfig = await getAppConfig();
-  const nonce = (await headers()).get("x-nonce") || undefined;
+  const [nonce, appConfig] = await serverRuntime.runPromise(getInitialProps);
+
   return (
     <html lang={appConfig.lang ?? "en"} dir={appConfig.dir} suppressHydrationWarning>
       <body>

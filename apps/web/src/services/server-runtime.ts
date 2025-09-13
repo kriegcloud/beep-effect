@@ -63,4 +63,4 @@ const AuthLive: AuthLive = AuthService.DefaultWithoutDependencies.pipe(Layer.pro
 type AppLive = Layer.Layer<Resource.Resource | HttpClient.HttpClient | AuthService, ServerError, never>;
 const AppLive: AppLive = Layer.mergeAll(BaseLive, AuthLive);
 
-export const runtime = ManagedRuntime.make(AppLive);
+export const serverRuntime = ManagedRuntime.make(AppLive);

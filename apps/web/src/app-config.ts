@@ -1,8 +1,12 @@
 import type { SupportedLangValue } from "@beep/ui/i18n/constants";
-import { detectLanguage } from "@beep/ui/i18n/server";
-import { detectSettings } from "@beep/ui/settings/server";
+import { fallbackLang } from "@beep/ui/i18n/constants";
+import { detectLanguage as detectLanguageHandler } from "@beep/ui/i18n/server";
+import { defaultSettings } from "@beep/ui/settings";
+import { detectSettings as detectSettingsHandler } from "@beep/ui/settings/server";
 import type { SettingsState } from "@beep/ui/settings/types";
 import type { Direction } from "@mui/material/styles";
+import * as Data from "effect/Data";
+import * as Effect from "effect/Effect";
 
 export type AppConfig = {
   lang: SupportedLangValue.Type;
@@ -11,13 +15,42 @@ export type AppConfig = {
   dir: Direction;
 };
 
-export async function getAppConfig(): Promise<AppConfig> {
-  const [lang, settings] = await Promise.all([detectLanguage(), detectSettings()]);
+export class DetectLanguageError extends Data.TaggedError("DetectLanguageError")<{
+  readonly message: string;
+  readonly cause: unknown;
+}> {}
 
-  return {
+export class DetectSettingsError extends Data.TaggedError("DetectSettingsError")<{
+  readonly message: string;
+  readonly cause: unknown;
+}> {}
+
+const detectLanguage = Effect.tryPromise({
+  try: detectLanguageHandler,
+  catch: (e) => new DetectLanguageError({ message: "Failed to detect language", cause: e }),
+}).pipe(
+  Effect.withSpan("detectLanguage"),
+  Effect.tapError(() => Effect.logInfo("Failed to detect language, using fallback language `en`")),
+  Effect.orElseSucceed(() => fallbackLang)
+);
+
+const detectSettings = Effect.tryPromise({
+  try: () => detectSettingsHandler(),
+  catch: (e) => new DetectSettingsError({ message: "Failed to detect settings", cause: e }),
+}).pipe(
+  Effect.withSpan("detectSettings"),
+  Effect.tapError(() => Effect.logInfo("Failed to detect settings, using default settings")),
+  Effect.orElseSucceed(() => defaultSettings)
+);
+
+export const getAppConfig = Effect.flatMap(Effect.all([detectLanguage, detectSettings]), ([lang, settings]) =>
+  Effect.succeed({
     lang,
     i18nLang: lang,
     cookieSettings: settings,
     dir: settings.direction,
-  };
-}
+  })
+).pipe(
+  Effect.withSpan("getAppConfig"),
+  Effect.tapError(() => Effect.logInfo("Failed to get app config, using default values"))
+);
