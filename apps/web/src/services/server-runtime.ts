@@ -45,9 +45,7 @@ const BaseLive: BaseLive = Layer.mergeAll(
 type DatabaseLive = Layer.Layer<PgClient | SqlClient | DbPool, ServerError, never>;
 const DatabaseLive: DatabaseLive = Layer.mergeAll(PgLive, DbPool.Live);
 
-type SliceDbs =
-  | IamDb.IamDb
-  | FileDb.FileDb
+type SliceDbs = IamDb.IamDb | FileDb.FileDb;
 
 type SliceDbsLive = Layer.Layer<SliceDbs, ServerError, never>;
 const SliceDbsLive: SliceDbsLive = Layer.mergeAll(IamDb.layerWithoutDeps, FileDb.layerWithoutDeps).pipe(
@@ -59,10 +57,8 @@ const AuthEmailLive: AuthEmailLive = AuthEmailService.DefaultWithoutDependencies
   Layer.provide([ResendService.Default])
 );
 
-
 type AuthLive = Layer.Layer<AuthService, ServerError, never>;
 const AuthLive: AuthLive = AuthService.DefaultWithoutDependencies.pipe(Layer.provide([SliceDbsLive, AuthEmailLive]));
-
 
 type AppLive = Layer.Layer<Resource.Resource | HttpClient.HttpClient | AuthService, ServerError, never>;
 const AppLive: AppLive = Layer.mergeAll(BaseLive, AuthLive);
