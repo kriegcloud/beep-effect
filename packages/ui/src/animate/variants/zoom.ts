@@ -4,7 +4,17 @@ import { transitionEnter, transitionExit } from "./transition";
 
 // ----------------------------------------------------------------------
 
-type Direction = "in" | "inUp" | "inDown" | "inLeft" | "inRight" | "out" | "outUp" | "outDown" | "outLeft" | "outRight";
+export type Direction =
+  | "in"
+  | "inUp"
+  | "inDown"
+  | "inLeft"
+  | "inRight"
+  | "out"
+  | "outUp"
+  | "outDown"
+  | "outLeft"
+  | "outRight";
 
 type Options = {
   distance?: number;

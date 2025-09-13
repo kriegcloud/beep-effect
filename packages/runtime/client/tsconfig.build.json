@@ -1,14 +1,20 @@
 {
   "extends": "./tsconfig.src.json",
+  "include": ["src"],
   "compilerOptions": {
     "types": ["node"],
     "tsBuildInfoFile": ".tsbuildinfo/build.tsbuildinfo",
     "outDir": "build/esm",
     "declarationDir": "build/dts",
-    "stripInternal": true,
-    "composite": true,
-    "declaration": true,
-    "sourceMap": true
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "target": "ES2022",
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "stripInternal": true
   },
   "references": [
     {
