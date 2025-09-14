@@ -1,6 +1,6 @@
 import { AuthService } from "@beep/iam-infra/adapters/better-auth/Auth.service";
+import { serverRuntime } from "@beep/runtime-server";
 import * as Effect from "effect/Effect";
-import { serverRuntime } from "@/services/server-runtime";
 
 const program = Effect.flatMap(AuthService, ({ auth }) => Effect.succeed(auth.handler));
 

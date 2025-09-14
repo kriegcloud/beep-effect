@@ -8,11 +8,11 @@ import "dayjs/locale/vi";
 import "dayjs/locale/fr";
 import "dayjs/locale/zh-cn";
 import "dayjs/locale/ar-sa";
+import { serverRuntime } from "@beep/runtime-server";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import { getAppConfig } from "@/app-config";
 import { GlobalProviders } from "@/GlobalProviders";
-import { serverRuntime } from "@/services/server-runtime";
 
 class NonceError extends Data.TaggedError("NonceError")<{
   readonly cause: unknown;

@@ -1,6 +1,6 @@
+import { QueryClient } from "@beep/runtime-client";
 import * as Effect from "effect/Effect";
 import * as mutative from "mutative";
-import { QueryClient } from "@/services/common/QueryClient";
 import type { QueryVariables } from "./effect-query";
 
 export type QueryDataUpdater<TData> = (draft: mutative.Draft<TData>) => void;

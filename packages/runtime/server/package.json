@@ -72,7 +72,19 @@
     "drizzle-orm": "*",
     "next": "*",
     "effect": "*",
-    "pg": "*"
+    "pg": "*",
+    "react": "*",
+    "react-dom": "*",
+    "stripe": "*",
+    "zod": "*",
+    "@better-auth/stripe": "*",
+    "better-call": "^1.0.18",
+    "@dub/better-auth": "*",
+    "@simplewebauthn/server": "*",
+    "dub": "*",
+    "jose": "*",
+    "better-auth": "*",
+    "uuid": "*"
   },
   "devDependencies": {
     "@types/pg": "*",
