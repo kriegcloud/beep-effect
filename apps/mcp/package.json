@@ -17,17 +17,18 @@
   ],
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
+
     "clean": "rm -rf node_modules .next out dist build .turbo .tsbuildinfo",
     "lint": "biome check .",
     "test": "vitest run",
     "lint:fix": "biome check . --write",
     "check": "tsc -b tsconfig.json",
-    "dotenvx": "dotenvx run -f ../../.env --",
     "lint:circular": "pnpm madge -c .",
     "coverage": "vitest run --coverage",
-    "dev": "dotenvx -e ../../.env tsx watch src/server.ts",
-    "start": "dotenvx -e ../../.env tsx build/esm/server.js",
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx build/esm/server.js",
     "start:source": "pnpm start",
+    "dotenvx": "dotenvx run -f ../../.env --",
     "circular": "madge --circular src/server.ts"
   },
   "dependencies": {
