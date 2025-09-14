@@ -1,4 +1,5 @@
-import { Common, IamEntityIds } from "@beep/shared-domain";
+import { IamEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -9,10 +10,7 @@ export const TwoFactorModelSchemaId = Symbol.for("@beep/iam-domain/TwoFactorMode
  * Maps to the `twoFactor` table in the database.
  */
 export class Model extends M.Class<Model>(`TwoFactorModel`)(
-  {
-    /** Primary key identifier for the 2FA record */
-    id: M.Generated(IamEntityIds.TwoFactorId),
-    _rowId: M.Generated(IamEntityIds.TwoFactorId.privateSchema),
+  makeFields(IamEntityIds.TwoFactorId, {
     /** Encrypted secret key for TOTP */
     secret: M.Sensitive(
       S.NonEmptyString.annotations({
@@ -31,17 +29,14 @@ export class Model extends M.Class<Model>(`TwoFactorModel`)(
     userId: IamEntityIds.UserId.annotations({
       description: "ID of the user this 2FA setup belongs to",
     }),
-
-    // Simple audit columns
-    createdAt: Common.DateTimeInsertFromDate(),
-    updatedAt: Common.DateTimeUpdateFromDate(),
-  },
+  }),
   {
     title: "TwoFactor Model",
     description: "TwoFactor model representing two-factor authentication settings.",
     schemaId: TwoFactorModelSchemaId,
   }
 ) {}
+
 export namespace Model {
   export type Type = S.Schema.Type<typeof Model>;
   export type Encoded = S.Schema.Encoded<typeof Model>;

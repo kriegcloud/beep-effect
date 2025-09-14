@@ -39,6 +39,7 @@
     "stripe": "*",
     "effect": "*",
     "@dub/better-auth": "*",
+    "better-call": "^1.0.19",
     "@beep/utils": "workspace:*",
     "@beep/invariant": "workspace:*",
     "@beep/schema": "workspace:*",

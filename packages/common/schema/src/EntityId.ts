@@ -2,6 +2,7 @@
 import { invariant } from "@beep/invariant";
 import type { DefaultAnnotations } from "@beep/schema/annotations";
 import { variance } from "@beep/schema/variance";
+import * as M from "@effect/sql/Model";
 import type { $Type, HasDefault, HasRuntimeDefault, IsPrimaryKey, NotNull } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import type * as B from "effect/Brand";
@@ -11,7 +12,7 @@ import * as S from "effect/Schema";
 import { TypeId } from "effect/Schema";
 import * as Str from "effect/String";
 import { SnakeTag, UUIDLiteralEncoded } from "./custom";
-
+import { FieldWriteOmittable } from "./sql";
 export namespace EntityId {
   type Config<Brand extends string, TableName extends string> = {
     readonly tableName: SnakeTag.Literal<TableName>;
@@ -77,6 +78,8 @@ export namespace EntityId {
     readonly publicId: () => PublicId<TableName, Brand>;
     readonly privateId: () => PrivateId<Brand>;
     readonly privateSchema: S.brand<S.refine<number, typeof S.NonNegative>, Brand>;
+    readonly modelIdSchema: FieldWriteOmittable<SchemaType<TableName, Brand>>;
+    readonly modelRowIdSchema: M.Generated<S.brand<S.refine<number, typeof S.NonNegative>, Brand>>;
   };
 
   export const make = <const TableName extends string, const Brand extends string>(
@@ -97,6 +100,7 @@ export namespace EntityId {
     const factory = new Factory<TableName, Brand>(tableName, brand);
 
     const privateSchema = S.NonNegativeInt.pipe(S.brand(brand));
+    const modelRowIdSchema = M.Generated(privateSchema);
 
     const schema = factory.Schema({
       ...annotations,
@@ -129,6 +133,8 @@ export namespace EntityId {
       static readonly publicId = () => publicId;
       static readonly privateId = () => privateId;
       static readonly privateSchema = privateSchema;
+      static readonly modelIdSchema = FieldWriteOmittable(schema);
+      static readonly modelRowIdSchema = modelRowIdSchema;
     }
 
     // hide the fact it extends SchemaClass

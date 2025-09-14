@@ -1,5 +1,6 @@
 import { BS } from "@beep/schema";
-import { Common, IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -10,10 +11,7 @@ export const InvitationModelSchemaId = Symbol.for("@beep/iam-domain/InvitationMo
  * Maps to the `invitation` table in the database.
  */
 export class Model extends M.Class<Model>(`InvitationModel`)(
-  {
-    /** Primary key identifier for the invitation */
-    id: M.Generated(IamEntityIds.InvitationId),
-    _rowId: M.Generated(IamEntityIds.InvitationId.privateSchema),
+  makeFields(IamEntityIds.InvitationId, {
     /** Email address of the invitee */
     email: M.Sensitive(
       BS.EmailBase.annotations({
@@ -23,7 +21,7 @@ export class Model extends M.Class<Model>(`InvitationModel`)(
     ),
 
     /** Role to be assigned upon acceptance */
-    role: M.FieldOption(
+    role: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
         description: "Role to be assigned when invitation is accepted",
         examples: ["admin", "member", "viewer"],
@@ -31,7 +29,7 @@ export class Model extends M.Class<Model>(`InvitationModel`)(
     ),
 
     /** Team invitation is for (optional) */
-    teamId: M.FieldOption(
+    teamId: BS.FieldOptionOmittable(
       SharedEntityIds.TeamId.annotations({
         description: "ID of the team this invitation is for (if team-specific)",
       })
@@ -43,7 +41,7 @@ export class Model extends M.Class<Model>(`InvitationModel`)(
     }),
 
     /** When the invitation expires */
-    expiresAt: Common.DateTimeFromDate({
+    expiresAt: BS.DateTimeFromDate({
       description: "When this invitation expires",
     }),
 
@@ -52,15 +50,15 @@ export class Model extends M.Class<Model>(`InvitationModel`)(
       description: "ID of the user who sent this invitation",
     }),
 
-    // Default columns include organizationId
-    ...Common.defaultColumns,
-  },
+    organizationId: SharedEntityIds.OrganizationId,
+  }),
   {
     title: "Invitation Model",
     description: "Invitation model representing organization and team invitations.",
     schemaId: InvitationModelSchemaId,
   }
 ) {}
+
 export namespace Model {
   export type Type = S.Schema.Type<typeof Model>;
   export type Encoded = S.Schema.Encoded<typeof Model>;

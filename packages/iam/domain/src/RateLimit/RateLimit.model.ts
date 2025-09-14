@@ -1,4 +1,6 @@
-import { Common, IamEntityIds } from "@beep/shared-domain";
+import { BS } from "@beep/schema";
+import { IamEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -9,40 +11,35 @@ export const RateLimitModelSchemaId = Symbol.for("@beep/iam-domain/RateLimitMode
  * Maps to the `rate_limit` table in the database.
  */
 export class Model extends M.Class<Model>(`RateLimitModel`)(
-  {
-    /** Primary key identifier for the rate limit entry */
-    id: M.Generated(IamEntityIds.RateLimitId),
-    _rowId: M.Generated(IamEntityIds.RateLimitId.privateSchema),
+  makeFields(IamEntityIds.RateLimitId, {
     /** Rate limit key identifier */
-    key: M.FieldOption(
+    key: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
         description: "The rate limit key identifier",
       })
     ),
 
     /** Current count of requests */
-    count: M.FieldOption(
+    count: BS.FieldOptionOmittable(
       S.Int.annotations({
         description: "Current count of requests within the rate limit window",
       })
     ),
 
     /** Timestamp of the last request */
-    lastRequest: M.FieldOption(
+    lastRequest: BS.FieldOptionOmittable(
       S.BigIntFromNumber.annotations({
         description: "Timestamp of the last request in milliseconds",
       })
     ),
-
-    // Audit and tracking columns
-    ...Common.globalColumns,
-  },
+  }),
   {
     title: "Rate Limit Model",
     description: "Rate limit model for tracking API usage and rate limiting.",
     schemaId: RateLimitModelSchemaId,
   }
 ) {}
+
 export namespace Model {
   export type Type = S.Schema.Type<typeof Model>;
   export type Encoded = S.Schema.Encoded<typeof Model>;

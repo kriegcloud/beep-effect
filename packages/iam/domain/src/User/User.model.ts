@@ -1,8 +1,8 @@
 import { BS } from "@beep/schema";
-import { Common, IamEntityIds } from "@beep/shared-domain";
+import { IamEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-
 export const UserModelSchemaId = Symbol.for("@beep/iam-domain/UserModel");
 
 /**
@@ -10,10 +10,7 @@ export const UserModelSchemaId = Symbol.for("@beep/iam-domain/UserModel");
  * Maps to the `user` table in the database.
  */
 export class Model extends M.Class<Model>(`UserModel`)(
-  {
-    /** Primary key identifier for the user */
-    id: M.Generated(IamEntityIds.UserId),
-    _rowId: M.Generated(IamEntityIds.UserId.privateSchema),
+  makeFields(IamEntityIds.UserId, {
     /** User's display name */
     name: S.NonEmptyString.annotations({
       description: "The user's display name",
@@ -32,14 +29,14 @@ export class Model extends M.Class<Model>(`UserModel`)(
     }),
 
     /** User's profile image URL */
-    image: M.FieldOption(
+    image: BS.FieldOptionOmittable(
       S.String.pipe(S.pattern(/^https?:\/\/.+/)).annotations({
         description: "URL to the user's profile image",
       })
     ),
 
     /** Whether two-factor authentication is enabled */
-    twoFactorEnabled: M.FieldOption(
+    twoFactorEnabled: BS.FieldOptionOmittable(
       S.Boolean.annotations({
         description: "Whether two-factor authentication is enabled for this user",
       })
@@ -53,7 +50,7 @@ export class Model extends M.Class<Model>(`UserModel`)(
     ),
 
     /** User's role in the system */
-    role: M.FieldOption(
+    role: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
         description: "The user's role in the system",
         examples: ["admin", "member", "guest"],
@@ -61,42 +58,40 @@ export class Model extends M.Class<Model>(`UserModel`)(
     ),
 
     /** Whether the user is banned */
-    banned: M.FieldOption(
+    banned: BS.FieldOptionOmittable(
       S.Boolean.annotations({
         description: "Whether the user is currently banned",
       })
     ),
 
     /** Reason for ban if user is banned */
-    banReason: M.FieldOption(
+    banReason: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
         description: "Reason why the user was banned",
       })
     ),
 
     /** When the ban expires */
-    banExpires: M.FieldOption(
-      Common.DateTimeFromDate({
+    banExpires: BS.FieldOptionOmittable(
+      BS.DateTimeFromDate({
         description: "When the user's ban expires",
       })
     ),
 
     /** Stripe customer ID for billing */
-    stripeCustomerId: M.FieldOption(
+    stripeCustomerId: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
         description: "Stripe customer ID for billing integration",
       })
     ),
-
-    // Audit and tracking columns
-    ...Common.globalColumns,
-  },
+  }),
   {
     title: "User Model",
     description: "User model representing application users with authentication and profile data.",
     schemaId: UserModelSchemaId,
   }
 ) {}
+
 export namespace Model {
   export type Type = S.Schema.Type<typeof Model>;
   export type Encoded = S.Schema.Encoded<typeof Model>;

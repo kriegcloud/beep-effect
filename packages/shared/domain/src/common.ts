@@ -1,40 +1,74 @@
-import { DateTimeFromDate, DateTimeInsertFromDate, DateTimeUpdateFromDate } from "@beep/schema/sql/common";
-import * as M from "@effect/sql/Model";
+import { BS } from "@beep/schema";
+import type { EntityId } from "@beep/schema/EntityId";
+import type { Field } from "@effect/experimental/VariantSchema";
 import * as S from "effect/Schema";
-import { SharedEntityIds } from "./EntityIds";
-
-const OptionFromDateTime = (params?: { description?: string }) => M.FieldOption(DateTimeFromDate(params));
+import { create } from "mutative";
 
 /**
  * Audit columns optimized for PostgreSQL timestamp with timezone:
  * - createdAt: Auto-set on insert, omitted from updates
  * - updatedAt: Auto-set on both insert and update operations
- * - deletedAt: Optional field for soft delete functionality
+ * - deletedAt: Optional field for soft delete functionality defaults to null is Option on select variants
  */
 export const auditColumns = {
-  createdAt: DateTimeInsertFromDate(),
-  updatedAt: DateTimeUpdateFromDate(),
-  deletedAt: OptionFromDateTime(),
+  createdAt: BS.DateTimeFromDateOmittable({
+    description: "The date and time the record was created",
+  }),
+  updatedAt: BS.DateTimeFromDateOmittable({
+    description: "The date and time the record was last updated",
+  }),
+  deletedAt: BS.FieldOptionOmittable(
+    BS.DateTimeFromDate({
+      description: "If not null, the date and time the record was deleted",
+    })
+  ),
 } as const;
 
 export const userTrackingColumns = {
-  createdBy: M.FieldOption(S.String),
-  updatedBy: M.FieldOption(S.String),
-  deletedBy: M.FieldOption(S.String),
+  createdBy: BS.FieldOptionOmittable(S.String),
+  updatedBy: BS.FieldOptionOmittable(S.String),
+  deletedBy: BS.FieldOptionOmittable(S.String),
 } as const;
 
-export const globalColumns = {
-  ...auditColumns,
-  ...userTrackingColumns,
-  // Optimistic locking
-  version: M.FieldOption(S.Int.pipe(S.greaterThanOrEqualTo(1))),
-  // Optional: Enhanced traceability
-  source: M.FieldOption(S.String),
-} as const;
+export type Fields = Field.Fields;
 
-export const defaultColumns = {
-  ...globalColumns,
-  organizationId: SharedEntityIds.OrganizationId,
-} as const;
+function mergeFields<const A extends Fields, const B extends Fields>(a: A, b: B): A & B;
 
-export { DateTimeFromDate, DateTimeInsertFromDate, DateTimeUpdateFromDate };
+function mergeFields<const A extends Fields>(a: A): <const B extends Fields>(b: B) => A & B;
+
+function mergeFields<const A extends Fields, const B extends Fields>(a: A, b?: B) {
+  if (b === undefined) {
+    return <const C extends Fields>(bb: C): A & C =>
+      create<A & C>(a as A & C, (draft) => {
+        // Right-bias: bb overwrites keys from a on conflicts
+        Object.assign(draft, bb);
+      });
+  }
+
+  return create<A & B>(a as A & B, (draft) => {
+    // Right-bias: b overwrites keys from a on conflicts
+    Object.assign(draft, b as B);
+  });
+}
+
+export const globalColumns = mergeFields(
+  {
+    // Optimistic locking
+    version: BS.FieldWriteOmittable(S.Int.pipe(S.greaterThanOrEqualTo(1))),
+    // Optional: Enhanced traceability
+    source: BS.FieldOptionOmittable(S.String),
+  },
+  mergeFields(auditColumns, userTrackingColumns)
+);
+
+export const makeFields = <const TableName extends string, const Brand extends string, const A extends Fields>(
+  entityId: EntityId.EntityIdSchemaInstance<TableName, Brand>,
+  a: A
+) => {
+  const idFields = {
+    id: entityId.modelIdSchema,
+    _rowId: entityId.modelRowIdSchema,
+  } as const;
+  const defaultFields = mergeFields(globalColumns, idFields);
+  return mergeFields(a, defaultFields);
+};

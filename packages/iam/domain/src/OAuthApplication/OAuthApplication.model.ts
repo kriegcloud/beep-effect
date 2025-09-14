@@ -1,4 +1,6 @@
-import { Common, IamEntityIds } from "@beep/shared-domain";
+import { BS } from "@beep/schema";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -9,84 +11,78 @@ export const OAuthApplicationModelSchemaId = Symbol.for("@beep/iam-domain/OAuthA
  * Maps to the `oauth_application` table in the database.
  */
 export class Model extends M.Class<Model>(`OAuthApplicationModel`)(
-  {
-    /** Primary key identifier for the OAuth application */
-    id: M.Generated(IamEntityIds.OAuthApplicationId),
-    _rowId: M.Generated(IamEntityIds.OAuthApplicationId.privateSchema),
+  makeFields(IamEntityIds.OAuthApplicationId, {
     /** Application name */
-    name: M.FieldOption(
+    name: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
         description: "The OAuth application name",
       })
     ),
 
     /** Application icon URL */
-    icon: M.FieldOption(
+    icon: BS.FieldOptionOmittable(
       S.String.pipe(S.pattern(/^https?:\/\/.+/)).annotations({
         description: "URL to the application's icon",
       })
     ),
 
     /** Application metadata */
-    metadata: M.FieldOption(
+    metadata: BS.FieldOptionOmittable(
       S.String.annotations({
         description: "JSON metadata for the OAuth application",
       })
     ),
 
     /** OAuth client ID */
-    clientId: M.FieldOption(
+    clientId: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
         description: "The OAuth client identifier",
       })
     ),
 
     /** OAuth client secret (sensitive) */
-    clientSecret: M.FieldOption(
-      M.Sensitive(
-        S.NonEmptyString.annotations({
-          description: "The OAuth client secret",
-        })
-      )
+    clientSecret: BS.FieldSensitiveOptionOmittable(
+      S.NonEmptyString.annotations({
+        description: "The OAuth client secret",
+      })
     ),
 
     /** Redirect URLs */
-    redirectURLs: M.FieldOption(
+    redirectURLs: BS.FieldOptionOmittable(
       S.String.annotations({
         description: "JSON array of allowed redirect URLs",
       })
     ),
 
     /** Application type */
-    type: M.FieldOption(
+    type: BS.FieldOptionOmittable(
       S.Literal("web", "mobile", "native", "spa").annotations({
         description: "Type of OAuth application",
       })
     ),
 
     /** Whether the application is disabled */
-    disabled: M.FieldOption(
+    disabled: BS.FieldOptionOmittable(
       S.Boolean.annotations({
         description: "Whether the OAuth application is disabled",
       })
     ),
 
     /** User who owns this application */
-    userId: M.FieldOption(
+    userId: BS.FieldOptionOmittable(
       IamEntityIds.UserId.annotations({
         description: "ID of the user who owns this OAuth application",
       })
     ),
-
-    // Default columns include organizationId
-    ...Common.defaultColumns,
-  },
+    organizationId: SharedEntityIds.OrganizationId,
+  }),
   {
     title: "OAuth Application Model",
     description: "OAuth Application model representing registered OAuth applications.",
     schemaId: OAuthApplicationModelSchemaId,
   }
 ) {}
+
 export namespace Model {
   export type Type = S.Schema.Type<typeof Model>;
   export type Encoded = S.Schema.Encoded<typeof Model>;

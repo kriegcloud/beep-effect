@@ -1,4 +1,5 @@
-import { Common, IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -9,10 +10,7 @@ export const TeamMemberModelSchemaId = Symbol.for("@beep/iam-domain/TeamMemberMo
  * Maps to the `teamMember` table in the database.
  */
 export class Model extends M.Class<Model>(`TeamMemberModel`)(
-  {
-    /** Primary key identifier for the team membership */
-    id: M.Generated(IamEntityIds.TeamMemberId),
-    _rowId: M.Generated(IamEntityIds.TeamMemberId.privateSchema),
+  makeFields(IamEntityIds.TeamMemberId, {
     /** Team this membership belongs to */
     teamId: SharedEntityIds.TeamId.annotations({
       description: "ID of the team this membership belongs to",
@@ -27,16 +25,15 @@ export class Model extends M.Class<Model>(`TeamMemberModel`)(
     role: S.Literal("member", "admin", "owner").annotations({
       description: "The member's role within the team",
     }),
-
-    // Default columns include organizationId
-    ...Common.defaultColumns,
-  },
+    organizationId: SharedEntityIds.OrganizationId,
+  }),
   {
     title: "Team Member Model",
     description: "Team Member model representing user membership in teams.",
     schemaId: TeamMemberModelSchemaId,
   }
 ) {}
+
 export namespace Model {
   export type Type = S.Schema.Type<typeof Model>;
   export type Encoded = S.Schema.Encoded<typeof Model>;

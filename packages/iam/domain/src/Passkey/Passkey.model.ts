@@ -1,4 +1,6 @@
-import { Common, IamEntityIds } from "@beep/shared-domain";
+import { BS } from "@beep/schema";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -9,11 +11,8 @@ export const PasskeyModelSchemaId = Symbol.for("@beep/iam-domain/PasskeyModel");
  * Maps to the `passkey` table in the database.
  */
 export class Model extends M.Class<Model>(`PasskeyModel`)(
-  {
-    /** Primary key identifier for the passkey */
-    id: M.Generated(IamEntityIds.PasskeyId),
-    _rowId: M.Generated(IamEntityIds.PasskeyId.privateSchema),
-    name: M.FieldOption(
+  makeFields(IamEntityIds.PasskeyId, {
+    name: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
         description: "User-friendly name for the passkey device",
         examples: ["iPhone", "YubiKey", "Windows Hello"],
@@ -48,7 +47,7 @@ export class Model extends M.Class<Model>(`PasskeyModel`)(
     }),
 
     /** Transport types */
-    transports: M.FieldOption(
+    transports: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
         description: "Transport types (e.g. 'usb' or 'nfc')",
         examples: ["usb", "nfc", "ble", "internal"],
@@ -61,21 +60,20 @@ export class Model extends M.Class<Model>(`PasskeyModel`)(
     }),
 
     /** Authenticator Attestation GUID */
-    aaguid: M.FieldOption(
+    aaguid: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
         description: "Authenticator Attestation GUID (AAGUID)",
       })
     ),
-
-    // Use defaultColumns to match table schema (includes organizationId)
-    ...Common.defaultColumns,
-  },
+    organizationId: SharedEntityIds.OrganizationId,
+  }),
   {
     title: "Passkey Model",
     description: "Passkey model representing WebAuthn credentials for passwordless authentication.",
     schemaId: PasskeyModelSchemaId,
   }
 ) {}
+
 export namespace Model {
   export type Type = S.Schema.Type<typeof Model>;
   export type Encoded = S.Schema.Encoded<typeof Model>;

@@ -1,4 +1,6 @@
-import { Common, IamEntityIds } from "@beep/shared-domain";
+import { BS } from "@beep/schema";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -9,10 +11,7 @@ export const SubscriptionModelSchemaId = Symbol.for("@beep/iam-domain/Subscripti
  * Maps to the `subscription` table in the database.
  */
 export class Model extends M.Class<Model>(`SubscriptionModel`)(
-  {
-    /** Primary key identifier for the subscription */
-    id: M.Generated(IamEntityIds.SubscriptionId),
-    _rowId: M.Generated(IamEntityIds.SubscriptionId.privateSchema),
+  makeFields(IamEntityIds.SubscriptionId, {
     /** User this subscription belongs to */
     userId: IamEntityIds.UserId.annotations({
       description: "ID of the user this subscription belongs to",
@@ -36,35 +35,35 @@ export class Model extends M.Class<Model>(`SubscriptionModel`)(
     ),
 
     /** When the current period starts */
-    currentPeriodStart: M.FieldOption(
-      Common.DateTimeFromDate({
+    currentPeriodStart: BS.FieldOptionOmittable(
+      BS.DateTimeFromDate({
         description: "Start of the current billing period",
       })
     ),
 
     /** When the current period ends */
-    currentPeriodEnd: M.FieldOption(
-      Common.DateTimeFromDate({
+    currentPeriodEnd: BS.FieldOptionOmittable(
+      BS.DateTimeFromDate({
         description: "End of the current billing period",
       })
     ),
 
     /** When the subscription was canceled */
-    canceledAt: M.FieldOption(
-      Common.DateTimeFromDate({
+    canceledAt: BS.FieldOptionOmittable(
+      BS.DateTimeFromDate({
         description: "When the subscription was canceled",
       })
     ),
 
-    // Default columns include organizationId
-    ...Common.defaultColumns,
-  },
+    organizationId: SharedEntityIds.OrganizationId,
+  }),
   {
     title: "Subscription Model",
     description: "Subscription model representing user billing subscriptions.",
     schemaId: SubscriptionModelSchemaId,
   }
 ) {}
+
 export namespace Model {
   export type Type = S.Schema.Type<typeof Model>;
   export type Encoded = S.Schema.Encoded<typeof Model>;

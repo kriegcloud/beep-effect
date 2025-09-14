@@ -1,4 +1,6 @@
-import { Common, IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { BS } from "@beep/schema";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -9,12 +11,9 @@ export const SessionModelSchemaId = Symbol.for("@beep/iam-domain/SessionModel");
  * Maps to the `session` table in the database.
  */
 export class Model extends M.Class<Model>(`SessionModel`)(
-  {
-    /** Primary key identifier for the session */
-    id: M.Generated(IamEntityIds.SessionId),
-    _rowId: M.Generated(IamEntityIds.SessionId.privateSchema),
+  makeFields(IamEntityIds.SessionId, {
     /** When this session expires */
-    expiresAt: Common.DateTimeFromDate({
+    expiresAt: BS.DateTimeFromDate({
       description: "When this session expires",
     }),
 
@@ -24,7 +23,7 @@ export class Model extends M.Class<Model>(`SessionModel`)(
     }),
 
     /** IP address where session was created */
-    ipAddress: M.FieldOption(
+    ipAddress: BS.FieldOptionOmittable(
       S.String.pipe(
         S.pattern(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$|^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/)
       ).annotations({
@@ -34,7 +33,7 @@ export class Model extends M.Class<Model>(`SessionModel`)(
     ),
 
     /** User agent string */
-    userAgent: M.FieldOption(
+    userAgent: BS.FieldOptionOmittable(
       S.String.annotations({
         description: "User agent string from the client",
       })
@@ -46,35 +45,33 @@ export class Model extends M.Class<Model>(`SessionModel`)(
     }),
 
     /** Currently active organization for this session */
-    activeOrganizationId: M.FieldOption(
+    activeOrganizationId: BS.FieldOptionOmittable(
       SharedEntityIds.OrganizationId.annotations({
         description: "ID of the currently active organization",
       })
     ),
 
     /** Currently active team for this session */
-    activeTeamId: M.FieldOption(
+    activeTeamId: BS.FieldOptionOmittable(
       SharedEntityIds.TeamId.annotations({
         description: "ID of the currently active team",
       })
     ),
 
     /** User being impersonated (if any) */
-    impersonatedBy: M.FieldOption(
+    impersonatedBy: BS.FieldOptionOmittable(
       IamEntityIds.UserId.annotations({
         description: "ID of the user performing impersonation (if applicable)",
       })
     ),
-
-    // Audit and tracking columns
-    ...Common.globalColumns,
-  },
+  }),
   {
     title: "Session Model",
     description: "Session model representing user authentication sessions.",
     schemaId: SessionModelSchemaId,
   }
 ) {}
+
 export namespace Model {
   export type Type = S.Schema.Type<typeof Model>;
   export type Encoded = S.Schema.Encoded<typeof Model>;

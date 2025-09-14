@@ -1,4 +1,6 @@
-import { Common, IamEntityIds } from "@beep/shared-domain";
+import { BS } from "@beep/schema";
+import { IamEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -9,10 +11,7 @@ export const VerificationModelSchemaId = Symbol.for("@beep/iam-domain/Verificati
  * Maps to the `verification` table in the database.
  */
 export class Model extends M.Class<Model>(`VerificationModel`)(
-  {
-    /** Primary key identifier for the verification */
-    id: M.Generated(IamEntityIds.VerificationId),
-    _rowId: M.Generated(IamEntityIds.VerificationId.privateSchema),
+  makeFields(IamEntityIds.VerificationId, {
     /** Verification identifier (email or phone) */
     identifier: S.NonEmptyString.annotations({
       description: "The identifier being verified (email address, phone number, etc.)",
@@ -24,20 +23,19 @@ export class Model extends M.Class<Model>(`VerificationModel`)(
     }),
 
     /** When the verification expires */
-    expiresAt: Common.DateTimeFromDate({
-      description: "When this verification code expires",
-    }),
-
-    // Simple audit columns
-    createdAt: Common.DateTimeInsertFromDate(),
-    updatedAt: Common.DateTimeUpdateFromDate(),
-  },
+    expiresAt: BS.FieldOptionOmittable(
+      BS.DateTimeFromDate({
+        description: "When this verification code expires",
+      })
+    ),
+  }),
   {
     title: "Verification Model",
     description: "Verification model representing email verification codes and tokens.",
     schemaId: VerificationModelSchemaId,
   }
 ) {}
+
 export namespace Model {
   export type Type = S.Schema.Type<typeof Model>;
   export type Encoded = S.Schema.Encoded<typeof Model>;

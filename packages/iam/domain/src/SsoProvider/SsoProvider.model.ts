@@ -1,4 +1,5 @@
-import { Common, IamEntityIds } from "@beep/shared-domain";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -9,10 +10,7 @@ export const SsoProviderModelSchemaId = Symbol.for("@beep/iam-domain/SsoProvider
  * Maps to the `ssoProvider` table in the database.
  */
 export class Model extends M.Class<Model>(`SsoProviderModel`)(
-  {
-    /** Primary key identifier for the SSO provider */
-    id: M.Generated(IamEntityIds.SsoProviderId),
-    _rowId: M.Generated(IamEntityIds.SsoProviderId.privateSchema),
+  makeFields(IamEntityIds.SsoProviderId, {
     /** SSO provider name */
     name: S.NonEmptyString.annotations({
       description: "Name of the SSO provider",
@@ -41,15 +39,15 @@ export class Model extends M.Class<Model>(`SsoProviderModel`)(
       })
     ),
 
-    // Default columns include organizationId
-    ...Common.defaultColumns,
-  },
+    organizationId: SharedEntityIds.OrganizationId,
+  }),
   {
     title: "SSO Provider Model",
     description: "SSO Provider model representing Single Sign-On provider configurations.",
     schemaId: SsoProviderModelSchemaId,
   }
 ) {}
+
 export namespace Model {
   export type Type = S.Schema.Type<typeof Model>;
   export type Encoded = S.Schema.Encoded<typeof Model>;

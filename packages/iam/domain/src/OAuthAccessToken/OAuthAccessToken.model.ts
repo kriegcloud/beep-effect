@@ -1,4 +1,6 @@
-import { Common, IamEntityIds } from "@beep/shared-domain";
+import { BS } from "@beep/schema";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -9,73 +11,65 @@ export const OAuthAccessTokenModelSchemaId = Symbol.for("@beep/iam-domain/OAuthA
  * Maps to the `oauth_access_token` table in the database.
  */
 export class Model extends M.Class<Model>(`OAuthAccessTokenModel`)(
-  {
-    /** Primary key identifier for the OAuth access token */
-    id: M.Generated(IamEntityIds.OAuthAccessTokenId),
-    _rowId: M.Generated(IamEntityIds.OAuthAccessTokenId.privateSchema),
+  makeFields(IamEntityIds.OAuthAccessTokenId, {
     /** OAuth access token (sensitive) */
-    accessToken: M.FieldOption(
-      M.Sensitive(
-        S.NonEmptyString.annotations({
-          description: "The OAuth 2.0 access token",
-        })
-      )
+    accessToken: BS.FieldSensitiveOptionOmittable(
+      S.NonEmptyString.annotations({
+        description: "The OAuth 2.0 access token",
+      })
     ),
 
     /** OAuth refresh token (sensitive) */
-    refreshToken: M.FieldOption(
-      M.Sensitive(
-        S.NonEmptyString.annotations({
-          description: "The OAuth 2.0 refresh token",
-        })
-      )
+    refreshToken: BS.FieldSensitiveOptionOmittable(
+      S.NonEmptyString.annotations({
+        description: "The OAuth 2.0 refresh token",
+      })
     ),
 
     /** When the access token expires */
-    accessTokenExpiresAt: M.FieldOption(
-      Common.DateTimeFromDate({
+    accessTokenExpiresAt: BS.FieldOptionOmittable(
+      BS.DateTimeFromDate({
         description: "When the access token expires",
       })
     ),
 
     /** When the refresh token expires */
-    refreshTokenExpiresAt: M.FieldOption(
-      Common.DateTimeFromDate({
+    refreshTokenExpiresAt: BS.FieldOptionOmittable(
+      BS.DateTimeFromDate({
         description: "When the refresh token expires",
       })
     ),
 
     /** OAuth client identifier */
-    clientId: M.FieldOption(
+    clientId: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
         description: "The OAuth client identifier",
       })
     ),
 
     /** User the token belongs to */
-    userId: M.FieldOption(
+    userId: BS.FieldOptionOmittable(
       IamEntityIds.UserId.annotations({
         description: "ID of the user this token belongs to",
       })
     ),
 
     /** OAuth scopes granted */
-    scopes: M.FieldOption(
+    scopes: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
         description: "Space-separated list of OAuth scopes",
         examples: ["read write", "profile email", "admin"],
       })
     ),
-
-    // Default columns include organizationId
-    ...Common.defaultColumns,
-  },
+    organizationId: SharedEntityIds.OrganizationId,
+  }),
   {
     title: "OAuth Access Token Model",
     description: "OAuth Access Token model representing OAuth 2.0 access tokens.",
     schemaId: OAuthAccessTokenModelSchemaId,
   }
 ) {}
+
 export namespace Model {
   export type Type = S.Schema.Type<typeof Model>;
   export type Encoded = S.Schema.Encoded<typeof Model>;

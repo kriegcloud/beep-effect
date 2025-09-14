@@ -1,4 +1,5 @@
-import { Common, IamEntityIds } from "@beep/shared-domain";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -9,10 +10,7 @@ export const OAuthConsentModelSchemaId = Symbol.for("@beep/iam-domain/OAuthConse
  * Maps to the `oauth_consent` table in the database.
  */
 export class Model extends M.Class<Model>(`OAuthConsentModel`)(
-  {
-    /** Primary key identifier for the OAuth consent */
-    id: M.Generated(IamEntityIds.OAuthConsentId),
-    _rowId: M.Generated(IamEntityIds.OAuthConsentId.privateSchema),
+  makeFields(IamEntityIds.OAuthConsentId, {
     /** User who gave consent */
     userId: IamEntityIds.UserId.annotations({
       description: "ID of the user who gave consent",
@@ -33,15 +31,15 @@ export class Model extends M.Class<Model>(`OAuthConsentModel`)(
       description: "Whether the user gave consent for the requested scopes",
     }),
 
-    // Default columns include organizationId
-    ...Common.defaultColumns,
-  },
+    organizationId: SharedEntityIds.OrganizationId,
+  }),
   {
     title: "OAuth Consent Model",
     description: "OAuth Consent model representing user consent for OAuth applications.",
     schemaId: OAuthConsentModelSchemaId,
   }
 ) {}
+
 export namespace Model {
   export type Type = S.Schema.Type<typeof Model>;
   export type Encoded = S.Schema.Encoded<typeof Model>;

@@ -1,5 +1,7 @@
 import { DeviceCodeStatus } from "@beep/iam-domain/DeviceCode/schemas";
-import { Common, IamEntityIds } from "@beep/shared-domain";
+import { BS } from "@beep/schema";
+import { IamEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -11,25 +13,20 @@ export const DeviceCodeModelSchemaId = Symbol.for("@beep/iam-domain/DeviceCodeMo
  * CLI applications, IoT devices, and gaming consoles.
  */
 export class Model extends M.Class<Model>(`DeviceCodeModel`)(
-  {
-    /** Primary key identifier for the device code */
-    id: M.Generated(IamEntityIds.DeviceCodeId),
-    _rowId: M.Generated(IamEntityIds.DeviceCodeId.privateSchema),
+  makeFields(IamEntityIds.DeviceCodeId, {
     userCode: M.Sensitive(S.NonEmptyTrimmedString),
 
     userId: IamEntityIds.UserId,
 
-    expiresAt: Common.DateTimeFromDate(),
+    expiresAt: BS.DateTimeFromDate(),
 
     status: DeviceCodeStatus,
 
-    lastPolledAt: M.FieldOption(Common.DateTimeFromDate()),
-    pollingInterval: M.FieldOption(S.NonNegativeInt),
-    clientId: M.FieldOption(S.NonEmptyTrimmedString),
-    scope: M.FieldOption(S.NonEmptyTrimmedString),
-    // Default columns include organizationId
-    ...Common.globalColumns,
-  },
+    lastPolledAt: BS.FieldOptionOmittable(BS.DateTimeFromDate()),
+    pollingInterval: BS.FieldOptionOmittable(S.NonNegativeInt),
+    clientId: BS.FieldOptionOmittable(S.NonEmptyTrimmedString),
+    scope: BS.FieldOptionOmittable(S.NonEmptyTrimmedString),
+  }),
   {
     identifier: "DeviceCodeModel",
     title: "Device Code Model",

@@ -1,55 +1,245 @@
-import type * as VariantSchema from "@effect/experimental/VariantSchema";
+import type { DefaultAnnotations } from "@beep/schema/annotations";
+import type { UnsafeTypes } from "@beep/types";
+import * as VariantSchema from "@effect/experimental/VariantSchema";
 import * as M from "@effect/sql/Model";
-import type * as DateTime from "effect/DateTime";
-import type * as S from "effect/Schema";
+import * as S from "effect/Schema";
+
+const { Field } = VariantSchema.make({
+  variants: ["select", "insert", "update", "json", "jsonCreate", "jsonUpdate"],
+  defaultVariant: "select",
+});
+
+type Annotations<A, TypeParameters extends ReadonlyArray<UnsafeTypes.UnsafeAny> = readonly []> = Omit<
+  DefaultAnnotations<A, TypeParameters>,
+  "title" | "description"
+> & {
+  readonly title?: string;
+  readonly description?: string;
+};
 
 /**
  * Optimal DateTime schemas for PostgresSQL with timezone support
  */
-const dateTimeJsonSchemaAnnotations = (description?: string) =>
+const dateTimeJsonSchemaAnnotations = (annotations?: Annotations<S.Schema.Type<typeof M.DateTimeFromDate>>) =>
   ({
     jsonSchema: {
       type: "string",
-      format: "datetime-utc",
+      format: "datetime",
     },
-    description,
+    ...annotations,
   }) as const;
 
-export const DateTimeFromDate = (params?: { description?: string }) =>
-  M.DateTimeFromDate.pipe(
+export const DateTimeFromDate = (annotations?: Annotations<S.Schema.Type<typeof M.DateTimeFromDate>>) =>
+  M.DateTimeFromDate.annotations(dateTimeJsonSchemaAnnotations(annotations));
+
+/**
+ * Make a field an Option for all variants, and omittable on write variants.
+ *
+ * Behavior by variant:
+ * - select, json: required key; value is Option decoded from `S | null`
+ * - insert, update, jsonCreate, jsonUpdate: key is omittable; when present, value is Option decoded from `S | null`
+ *
+ * Use this when a column may be null/absent but clients shouldn't be forced
+ * to send the key on create/update requests.
+ * - On update/jsonUpdate: missing key means "do not modify this field".
+ * - On insert/jsonCreate: missing key lets defaults or DB behavior apply.
+ * @since 1.0.0
+ * @category optional
+ */
+export interface FieldOptionOmittable<S extends S.Schema.Any>
+  extends VariantSchema.Field<{
+    readonly select: S.OptionFromNullOr<S>;
+    readonly insert: S.optionalWith<S.OptionFromNullOr<S>, { exact: true }>;
+    readonly update: S.optionalWith<S.OptionFromNullOr<S>, { exact: true }>;
+    readonly json: S.OptionFromNullOr<S>;
+    readonly jsonCreate: S.optionalWith<S.OptionFromNullOr<S>, { exact: true }>;
+    readonly jsonUpdate: S.optionalWith<S.OptionFromNullOr<S>, { exact: true }>;
+  }> {}
+
+/**
+ * Make a field an Option for all variants, and omittable on write variants.
+ *
+ * Behavior by variant:
+ * - select, json: required key; value is Option decoded from `S | null`
+ * - insert, update, jsonCreate, jsonUpdate: key is omittable; when present, value is Option decoded from `S | null`
+ *
+ * Use this when a column may be null/absent but clients shouldn't be forced
+ * to send the key on create/update requests.
+ * - On update/jsonUpdate: missing key means "do not modify this field".
+ * - On insert/jsonCreate: missing key lets defaults or DB behavior apply.
+ * @since 1.0.0
+ * @category optional
+ */
+export const FieldOptionOmittable = <S extends S.Schema.Any>(schema: S): FieldOptionOmittable<S> =>
+  Field({
+    select: S.OptionFromNullOr(schema),
+    insert: S.optionalWith(S.OptionFromNullOr(schema), { exact: true }),
+    update: S.optionalWith(S.OptionFromNullOr(schema), { exact: true }),
+    json: S.OptionFromNullOr(schema),
+    jsonCreate: S.optionalWith(S.OptionFromNullOr(schema), { exact: true }),
+    jsonUpdate: S.optionalWith(S.OptionFromNullOr(schema), { exact: true }),
+  });
+
+/**
+ * Make a field required everywhere except on update variants.
+ *
+ * Behavior by variant:
+ * - select, insert, json, jsonCreate: required
+ * - update, jsonUpdate: key is omittable (missing key allowed; when present, must satisfy `S`)
+ * - When the key is missing, it will not be included in the update.
+ * @since 1.0.0
+ * @category optional
+ */
+export interface FieldUpdateOmittable<S extends S.Schema.Any>
+  extends VariantSchema.Field<{
+    readonly select: S;
+    readonly insert: S;
+    readonly update: S.optionalWith<S, { exact: true }>;
+    readonly json: S;
+    readonly jsonCreate: S;
+    readonly jsonUpdate: S.optionalWith<S, { exact: true }>;
+  }> {}
+
+/**
+ * Make a field required everywhere except on update variants.
+ *
+ * Behavior by variant:
+ * - select, insert, json, jsonCreate: required
+ * - update, jsonUpdate: key is omittable (missing key allowed; when present, must satisfy `S`)
+ * - When the key is missing, it will not be included in the update.
+ * @since 1.0.0
+ * @category optional
+ */
+export const FieldUpdateOmittable = <S extends S.Schema.Any>(schema: S): FieldUpdateOmittable<S> =>
+  Field({
+    select: schema,
+    insert: schema,
+    update: S.optionalWith(schema, { exact: true }),
+    json: schema,
+    jsonCreate: schema,
+    jsonUpdate: S.optionalWith(schema, { exact: true }),
+  });
+
+/**
+ * Make a field required everywhere except on write variants. Used when a field is generated by the database.
+ *
+ * Behavior by variant:
+ * - select, json: required key; value is S
+ * - insert, update, jsonCreate, jsonUpdate: key is omittable; when present, value is decoded from `S`
+ * - When the key is missing, it will not be included in the update.
+ */
+export interface FieldWriteOmittable<S extends S.Schema.Any>
+  extends VariantSchema.Field<{
+    readonly select: S;
+    readonly insert: S.optionalWith<S, { exact: true }>;
+    readonly update: S.optionalWith<S, { exact: true }>;
+    readonly json: S;
+    readonly jsonCreate: S.optionalWith<S, { exact: true }>;
+    readonly jsonUpdate: S.optionalWith<S, { exact: true }>;
+  }> {}
+
+/**
+ * Make a field required everywhere except on write variants. Used when a field is generated by the database.
+ *
+ * Behavior by variant:
+ * - select, json: required key; value is S
+ * - insert, update, jsonCreate, jsonUpdate: key is omittable; when present, value is decoded from `S`
+ * - When the key is missing, it will not be included in the update.
+ */
+export const FieldWriteOmittable = <TSchema extends S.Schema.Any>(schema: TSchema): FieldWriteOmittable<TSchema> =>
+  Field({
+    select: schema,
+    insert: S.optionalWith(schema, { exact: true }),
+    update: S.optionalWith(schema, { exact: true }),
+    json: schema,
+    jsonCreate: S.optionalWith(schema, { exact: true }),
+    jsonUpdate: S.optionalWith(schema, { exact: true }),
+  });
+
+export const DateTimeFromDateOmittable = (annotations?: Annotations<S.Schema.Type<typeof M.DateTimeFromDate>>) =>
+  FieldWriteOmittable(DateTimeFromDate()).pipe(
     M.fieldEvolve({
-      select: (variant: M.DateTimeFromDate) => variant.annotations(dateTimeJsonSchemaAnnotations(params?.description)),
-      insert: (variant: M.DateTimeFromDate) => variant.annotations(dateTimeJsonSchemaAnnotations(params?.description)),
-      update: (variant: M.DateTimeFromDate) => variant.annotations(dateTimeJsonSchemaAnnotations(params?.description)),
-      json: (variant: M.DateTimeFromDate) => variant.annotations(dateTimeJsonSchemaAnnotations(params?.description)),
-      jsonCreate: (variant: M.DateTimeFromDate) =>
-        variant.annotations(dateTimeJsonSchemaAnnotations(params?.description)),
-      jsonUpdate: (variant: M.DateTimeFromDate) =>
-        variant.annotations(dateTimeJsonSchemaAnnotations(params?.description)),
-    })
-  );
-export const DateTimeInsertFromDate = (params?: { description?: string }) =>
-  M.DateTimeInsertFromDate.pipe(
-    M.fieldEvolve({
-      select: (variant: M.DateTimeFromDate) => variant.annotations(dateTimeJsonSchemaAnnotations(params?.description)),
-      insert: (variant: VariantSchema.Overrideable<DateTime.Utc, globalThis.Date, never>) =>
-        variant.annotations(dateTimeJsonSchemaAnnotations(params?.description)),
-      json: (variant: S.transformOrFail<S.SchemaClass<string, string, never>, typeof S.DateTimeUtcFromSelf, never>) =>
-        variant.annotations(dateTimeJsonSchemaAnnotations(params?.description)),
+      select: (variant: M.DateTimeFromDate) => variant.annotations(dateTimeJsonSchemaAnnotations(annotations)),
+      insert: (
+        variant: S.optionalWith<
+          M.DateTimeFromDate,
+          {
+            exact: true;
+          }
+        >
+      ) => variant.annotations(dateTimeJsonSchemaAnnotations(annotations)),
+      update: (
+        variant: S.optionalWith<
+          M.DateTimeFromDate,
+          {
+            exact: true;
+          }
+        >
+      ) => variant.annotations(dateTimeJsonSchemaAnnotations(annotations)),
+      json: (variant: M.DateTimeFromDate) => variant.annotations(dateTimeJsonSchemaAnnotations(annotations)),
+      jsonCreate: (
+        variant: S.optionalWith<
+          M.DateTimeFromDate,
+          {
+            exact: true;
+          }
+        >
+      ) => variant.annotations(dateTimeJsonSchemaAnnotations(annotations)),
+      jsonUpdate: (
+        variant: S.optionalWith<
+          M.DateTimeFromDate,
+          {
+            exact: true;
+          }
+        >
+      ) => variant.annotations(dateTimeJsonSchemaAnnotations(annotations)),
     })
   );
 
-export const DateTimeUpdateFromDate = (params?: { description?: string }) =>
-  M.DateTimeUpdateFromDate.pipe(
-    M.fieldEvolve({
-      select: (variant: M.DateTimeFromDate) => variant.annotations(dateTimeJsonSchemaAnnotations(params?.description)),
-      insert: (variant: VariantSchema.Overrideable<DateTime.Utc, globalThis.Date, never>) =>
-        variant.annotations(dateTimeJsonSchemaAnnotations(params?.description)),
-      update: (variant: VariantSchema.Overrideable<DateTime.Utc, globalThis.Date, never>) =>
-        variant.annotations(dateTimeJsonSchemaAnnotations(params?.description)),
-      json: (variant: S.transformOrFail<S.SchemaClass<string, string, never>, typeof S.DateTimeUtcFromSelf, never>) =>
-        variant.annotations(dateTimeJsonSchemaAnnotations(params?.description)),
-    })
-  );
+/**
+ * Make a field an Option for all variants, and omittable on write variants.
+ *
+ * Behavior by variant:
+ * - select, json: required key; value is Option decoded from `S | null`
+ * - insert, update, jsonCreate, jsonUpdate: key is omittable; when present, value is Option decoded from `S | null`
+ *
+ * Use this when a column may be null/absent but clients shouldn't be forced
+ * to send the key on create/update requests.
+ * - On update/jsonUpdate: missing key means "do not modify this field".
+ * - On insert/jsonCreate: missing key lets defaults or DB behavior apply.
+ * @since 1.0.0
+ * @category optional
+ */
+export interface FieldSensitiveOptionOmittable<S extends S.Schema.Any>
+  extends VariantSchema.Field<{
+    readonly select: S.OptionFromNullOr<S.Redacted<S>>;
+    readonly insert: S.optionalWith<S.OptionFromNullOr<S.Redacted<S>>, { exact: true }>;
+    readonly update: S.optionalWith<S.OptionFromNullOr<S.Redacted<S>>, { exact: true }>;
+    readonly json: S.OptionFromNullOr<S.Redacted<S>>;
+    readonly jsonCreate: S.optionalWith<S.OptionFromNullOr<S.Redacted<S>>, { exact: true }>;
+    readonly jsonUpdate: S.optionalWith<S.OptionFromNullOr<S.Redacted<S>>, { exact: true }>;
+  }> {}
 
-export const OptionFromDateTime = (params?: { description?: string }) => M.FieldOption(DateTimeFromDate(params));
+/**
+ * Make a field an Option for all variants, and omittable on write variants.
+ *
+ * Behavior by variant:
+ * - select, json: required key; value is Option decoded from `S | null`
+ * - insert, update, jsonCreate, jsonUpdate: key is omittable; when present, value is Option decoded from `S | null`
+ *
+ * Use this when a column may be null/absent but clients shouldn't be forced
+ * to send the key on create/update requests.
+ * - On update/jsonUpdate: missing key means "do not modify this field".
+ * - On insert/jsonCreate: missing key lets defaults or DB behavior apply.
+ * @since 1.0.0
+ * @category optional
+ */
+export const FieldSensitiveOptionOmittable = <S extends S.Schema.Any>(schema: S): FieldSensitiveOptionOmittable<S> =>
+  Field({
+    select: S.OptionFromNullOr(S.Redacted(schema)),
+    insert: S.optionalWith(S.OptionFromNullOr(S.Redacted(schema)), { exact: true }),
+    update: S.optionalWith(S.OptionFromNullOr(S.Redacted(schema)), { exact: true }),
+    json: S.OptionFromNullOr(S.Redacted(schema)),
+    jsonCreate: S.optionalWith(S.OptionFromNullOr(S.Redacted(schema)), { exact: true }),
+    jsonUpdate: S.optionalWith(S.OptionFromNullOr(S.Redacted(schema)), { exact: true }),
+  });

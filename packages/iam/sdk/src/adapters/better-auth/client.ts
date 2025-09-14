@@ -60,38 +60,65 @@ export const _oneTimeTokenClient: () => {
   $InferServerPlugin: ReturnType<typeof oneTimeToken>;
 } = () => oneTimeTokenClient();
 
+const _adminClient: ReturnType<typeof adminClient> = adminClient();
+const _anonymousClient: ReturnType<typeof anonymousClient> = anonymousClient();
+const _customSessionClient: ReturnType<typeof customSessionClient> = customSessionClient();
+const _organizationClient: ReturnType<
+  typeof organizationClient<{
+    teams: {
+      enabled: true;
+    };
+    dynamicAccessControl: {
+      enabled: true;
+    };
+  }>
+> = organizationClient({
+  teams: {
+    enabled: true,
+  },
+  dynamicAccessControl: {
+    enabled: true,
+  },
+});
+const _oidcClient: ReturnType<typeof oidcClient> = oidcClient();
+const _oneTapClient: ReturnType<typeof oneTapClient> = oneTapClient({
+  clientId: clientEnv.googleClientId,
+  promptOptions: {
+    maxAttempts: 1,
+  },
+});
+const _passkeyClient: ReturnType<typeof passkeyClient> = passkeyClient();
+const _phoneNumberClient: ReturnType<typeof phoneNumberClient> = phoneNumberClient();
+const _siweClient: ReturnType<typeof siweClient> = siweClient();
+const _ssoClient: ReturnType<typeof ssoClient> = ssoClient();
+const _twoFactorClient: ReturnType<typeof twoFactorClient> = twoFactorClient();
+const _usernameClient: ReturnType<typeof usernameClient> = usernameClient();
+const _stripeClient: ReturnType<typeof stripeClient> = stripeClient({
+  subscription: true, //if you want to enable subscription management
+});
+const _deviceAuthorizationClient: ReturnType<typeof deviceAuthorizationClient> = deviceAuthorizationClient();
+const _lastLoginMethodClient: ReturnType<typeof lastLoginMethodClient> = lastLoginMethodClient();
 const plugins = [
-  adminClient(),
-  anonymousClient(),
+  _adminClient,
+  _anonymousClient,
   _apiKeyClient(),
-  customSessionClient(),
+  _customSessionClient,
   _genericOAuthClient(),
   _jwtClient(),
   _multiSessionClient(),
-  oidcClient(),
-  oneTapClient({
-    clientId: clientEnv.googleClientId,
-    promptOptions: {
-      maxAttempts: 1,
-    },
-  }),
+  _oidcClient,
+  _oneTapClient,
   _oneTimeTokenClient(),
-  organizationClient({
-    teams: {
-      enabled: true,
-    },
-  }),
-  passkeyClient(),
-  phoneNumberClient(),
-  siweClient(),
-  ssoClient(),
-  twoFactorClient(),
-  usernameClient(),
-  stripeClient({
-    subscription: true, //if you want to enable subscription management
-  }),
-  deviceAuthorizationClient(),
-  lastLoginMethodClient(),
+  _organizationClient,
+  _passkeyClient,
+  _phoneNumberClient,
+  _siweClient,
+  _ssoClient,
+  _twoFactorClient,
+  _usernameClient,
+  _stripeClient,
+  _deviceAuthorizationClient,
+  _lastLoginMethodClient,
 ] satisfies ClientOptions["plugins"];
 
 const clientOptions: Omit<ClientOptions, "plugins"> & {
@@ -104,17 +131,6 @@ const clientOptions: Omit<ClientOptions, "plugins"> & {
 
 export const client: ReturnType<typeof createAuthClient<typeof clientOptions>> = createAuthClient(clientOptions);
 
-export const {
-  signUp,
-  signIn,
-  signOut,
-  useSession,
-  forgetPassword,
-  changePassword,
-  organization,
-  requestPasswordReset,
-  resetPassword,
-  $store,
-} = client;
+export const { $store } = client;
 
 $store.listen("$sessionSignal", async () => {});

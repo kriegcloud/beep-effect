@@ -1,5 +1,6 @@
+import { BS } from "@beep/schema";
 import { Slug, URLString } from "@beep/schema/custom";
-import * as Common from "@beep/shared-domain/common";
+import { makeFields } from "@beep/shared-domain/common";
 import { SharedEntityIds } from "@beep/shared-domain/EntityIds";
 import * as M from "@effect/sql/Model";
 import * as F from "effect/Function";
@@ -13,33 +14,28 @@ export const OrganizationModelSchemaId = Symbol.for("@beep/shared-domain/Organiz
  * Organization model representing organizations.
  * Maps to the `organization` table in the database.
  */
-export class Model extends M.Class<Model>(`OrganizationModel`)(
-  {
-    /** Primary key identifier for the organization */
-    _rowId: M.Generated(SharedEntityIds.OrganizationId.privateSchema),
-    id: M.Generated(SharedEntityIds.OrganizationId),
 
+export class Model extends M.Class<Model>(`OrganizationModel`)(
+  makeFields(SharedEntityIds.OrganizationId, {
     /** Organization name */
     name: S.NonEmptyString.annotations({
       description: "The organization's display name",
     }),
 
     /** URL-friendly slug identifier */
-    slug: M.FieldOption(
-      Slug.pipe(S.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), S.minLength(2), S.maxLength(50)).annotations({
-        description: "URL-friendly identifier for the organization",
-      })
-    ),
+    slug: Slug.pipe(S.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), S.minLength(2), S.maxLength(50)).annotations({
+      description: "URL-friendly identifier for the organization",
+    }),
 
     /** Organization logo URL */
-    logo: M.FieldOption(
+    logo: BS.FieldOptionOmittable(
       URLString.annotations({
         description: "URL to the organization's logo",
       })
     ),
 
     /** Flexible metadata storage */
-    metadata: M.FieldOption(
+    metadata: BS.FieldOptionOmittable(
       S.String.annotations({
         description: "JSON metadata for additional organization data",
       })
@@ -57,13 +53,13 @@ export class Model extends M.Class<Model>(`OrganizationModel`)(
     ).annotations({
       description: "Whether this organization is auto-created for a user",
     }),
-    maxMembers: M.FieldOption(
+    maxMembers: BS.FieldOptionOmittable(
       S.NonNegativeInt.annotations({
         description: "The maximum number of members allowed in the organization",
       })
     ),
-    features: M.FieldOption(M.JsonFromString(S.Record({ key: S.String, value: S.Any }))),
-    settings: M.FieldOption(M.JsonFromString(S.Record({ key: S.String, value: S.Any }))),
+    features: BS.FieldOptionOmittable(BS.Json),
+    settings: BS.FieldOptionOmittable(BS.Json),
     subscriptionTier: SubscriptionTier.pipe(
       S.optional,
       S.withDefaults({
@@ -82,8 +78,7 @@ export class Model extends M.Class<Model>(`OrganizationModel`)(
     ).annotations({
       description: "The subscription status of the organization",
     }),
-    ...Common.globalColumns,
-  },
+  }),
   {
     title: "Organization Model",
     description: "Organization model representing organizations.",

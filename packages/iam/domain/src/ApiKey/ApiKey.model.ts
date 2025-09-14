@@ -1,7 +1,8 @@
-import { Common, IamEntityIds } from "@beep/shared-domain";
+import { BS } from "@beep/schema";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-
 export const ApikeyModelSchemaId = Symbol.for("@beep/iam-domain/ApikeyModel");
 
 /**
@@ -9,12 +10,9 @@ export const ApikeyModelSchemaId = Symbol.for("@beep/iam-domain/ApikeyModel");
  * Maps to the `apikey` table in the database.
  */
 export class Model extends M.Class<Model>(`ApikeyModel`)(
-  {
-    /** Primary key identifier for the API key */
-    id: M.Generated(IamEntityIds.ApiKeyId),
-    _rowId: M.Generated(IamEntityIds.ApiKeyId.privateSchema),
+  makeFields(IamEntityIds.ApiKeyId, {
     /** Human-readable name for the API key */
-    name: M.FieldOption(
+    name: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
         description: "Human-readable name for the API key",
         examples: ["Production API", "Development Key", "Mobile App"],
@@ -22,14 +20,14 @@ export class Model extends M.Class<Model>(`ApikeyModel`)(
     ),
 
     /** First few characters of the key (for display) */
-    start: M.FieldOption(
+    start: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
         description: "First few characters of the API key for identification",
       })
     ),
 
     /** Key prefix for categorization */
-    prefix: M.FieldOption(
+    prefix: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
         description: "Prefix to categorize API keys",
         examples: ["pk_", "sk_", "test_", "live_"],
@@ -37,7 +35,7 @@ export class Model extends M.Class<Model>(`ApikeyModel`)(
     ),
 
     /** The actual API key (sensitive) */
-    key: M.Sensitive(
+    key: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
         description: "The encrypted API key value",
       })
@@ -49,22 +47,22 @@ export class Model extends M.Class<Model>(`ApikeyModel`)(
     }),
 
     /** Rate limit refill interval in milliseconds */
-    refillInterval: M.FieldOption(
+    refillInterval: BS.FieldOptionOmittable(
       S.Int.pipe(S.positive()).annotations({
         description: "Rate limit refill interval in milliseconds",
       })
     ),
 
     /** Number of requests to add during refill */
-    refillAmount: M.FieldOption(
+    refillAmount: BS.FieldOptionOmittable(
       S.Int.pipe(S.positive()).annotations({
         description: "Number of requests to add during each refill cycle",
       })
     ),
 
     /** When the rate limit was last refilled */
-    lastRefillAt: M.FieldOption(
-      Common.DateTimeFromDate({
+    lastRefillAt: BS.FieldOptionOmittable(
+      BS.DateTimeFromDate({
         description: "When the rate limit was last refilled",
       })
     ),
@@ -90,56 +88,55 @@ export class Model extends M.Class<Model>(`ApikeyModel`)(
     }),
 
     /** Total number of requests made */
-    requestCount: M.FieldOption(
+    requestCount: BS.FieldOptionOmittable(
       S.Int.pipe(S.nonNegative()).annotations({
         description: "Total number of requests made with this key",
       })
     ),
 
     /** Remaining requests in current window */
-    remaining: M.FieldOption(
+    remaining: BS.FieldOptionOmittable(
       S.Int.pipe(S.nonNegative()).annotations({
         description: "Remaining requests in the current rate limit window",
       })
     ),
 
     /** When the last request was made */
-    lastRequest: M.FieldOption(
-      Common.DateTimeFromDate({
+    lastRequest: BS.FieldOptionOmittable(
+      BS.DateTimeFromDate({
         description: "When the last request was made with this key",
       })
     ),
 
     /** When the API key expires */
-    expiresAt: M.FieldOption(
-      Common.DateTimeFromDate({
+    expiresAt: BS.FieldOptionOmittable(
+      BS.DateTimeFromDate({
         description: "When this API key expires",
       })
     ),
 
     /** Permissions granted to this API key */
-    permissions: M.FieldOption(
+    permissions: BS.FieldOptionOmittable(
       S.String.annotations({
         description: "JSON string of permissions granted to this API key",
       })
     ),
 
     /** Additional metadata for the API key */
-    metadata: M.FieldOption(
+    metadata: BS.FieldOptionOmittable(
       S.String.annotations({
         description: "JSON metadata for additional API key configuration",
       })
     ),
-
-    // Default columns include organizationId
-    ...Common.defaultColumns,
-  },
+    organizationId: SharedEntityIds.OrganizationId,
+  }),
   {
     title: "API Key Model",
     description: "API Key model representing user API keys with rate limiting and security features.",
     schemaId: ApikeyModelSchemaId,
   }
 ) {}
+
 export namespace Model {
   export type Type = S.Schema.Type<typeof Model>;
   export type Encoded = S.Schema.Encoded<typeof Model>;
