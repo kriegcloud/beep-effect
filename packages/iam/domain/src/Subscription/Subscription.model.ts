@@ -12,7 +12,7 @@ export class Model extends M.Class<Model>(`SubscriptionModel`)(
   {
     /** Primary key identifier for the subscription */
     id: M.Generated(IamEntityIds.SubscriptionId),
-
+    _rowId: M.Generated(IamEntityIds.SubscriptionId.privateSchema),
     /** User this subscription belongs to */
     userId: IamEntityIds.UserId.annotations({
       description: "ID of the user this subscription belongs to",

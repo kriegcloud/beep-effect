@@ -12,7 +12,7 @@ export class Model extends M.Class<Model>(`PasskeyModel`)(
   {
     /** Primary key identifier for the passkey */
     id: M.Generated(IamEntityIds.PasskeyId),
-
+    _rowId: M.Generated(IamEntityIds.PasskeyId.privateSchema),
     name: M.FieldOption(
       S.NonEmptyString.annotations({
         description: "User-friendly name for the passkey device",

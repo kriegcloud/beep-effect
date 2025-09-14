@@ -12,7 +12,7 @@ export class Model extends M.Class<Model>(`ApikeyModel`)(
   {
     /** Primary key identifier for the API key */
     id: M.Generated(IamEntityIds.ApiKeyId),
-
+    _rowId: M.Generated(IamEntityIds.ApiKeyId.privateSchema),
     /** Human-readable name for the API key */
     name: M.FieldOption(
       S.NonEmptyString.annotations({

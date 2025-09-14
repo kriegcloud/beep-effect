@@ -16,6 +16,7 @@ export const OrganizationModelSchemaId = Symbol.for("@beep/shared-domain/Organiz
 export class Model extends M.Class<Model>(`OrganizationModel`)(
   {
     /** Primary key identifier for the organization */
+    _rowId: M.Generated(SharedEntityIds.OrganizationId.privateSchema),
     id: M.Generated(SharedEntityIds.OrganizationId),
 
     /** Organization name */

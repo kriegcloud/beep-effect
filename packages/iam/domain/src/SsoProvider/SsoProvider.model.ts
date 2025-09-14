@@ -12,7 +12,7 @@ export class Model extends M.Class<Model>(`SsoProviderModel`)(
   {
     /** Primary key identifier for the SSO provider */
     id: M.Generated(IamEntityIds.SsoProviderId),
-
+    _rowId: M.Generated(IamEntityIds.SsoProviderId.privateSchema),
     /** SSO provider name */
     name: S.NonEmptyString.annotations({
       description: "Name of the SSO provider",

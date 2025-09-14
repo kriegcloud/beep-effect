@@ -12,7 +12,7 @@ export class Model extends M.Class<Model>(`SessionModel`)(
   {
     /** Primary key identifier for the session */
     id: M.Generated(IamEntityIds.SessionId),
-
+    _rowId: M.Generated(IamEntityIds.SessionId.privateSchema),
     /** When this session expires */
     expiresAt: Common.DateTimeFromDate({
       description: "When this session expires",

@@ -12,7 +12,7 @@ export class Model extends M.Class<Model>(`RateLimitModel`)(
   {
     /** Primary key identifier for the rate limit entry */
     id: M.Generated(IamEntityIds.RateLimitId),
-
+    _rowId: M.Generated(IamEntityIds.RateLimitId.privateSchema),
     /** Rate limit key identifier */
     key: M.FieldOption(
       S.NonEmptyString.annotations({

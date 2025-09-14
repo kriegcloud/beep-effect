@@ -11,7 +11,7 @@ export class Model extends M.Class<Model>(`WalletAddressModel`)(
   {
     /** Primary key identifier for the wallet address */
     id: M.Generated(IamEntityIds.WalletAddressId),
-
+    _rowId: M.Generated(IamEntityIds.WalletAddressId.privateSchema),
     /** Reference to the user this wallet address belongs to */
     userId: IamEntityIds.UserId.annotations({
       description: "The userId of the user this wallet address belongs to",

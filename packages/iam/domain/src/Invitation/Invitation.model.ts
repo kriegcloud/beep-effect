@@ -13,7 +13,7 @@ export class Model extends M.Class<Model>(`InvitationModel`)(
   {
     /** Primary key identifier for the invitation */
     id: M.Generated(IamEntityIds.InvitationId),
-
+    _rowId: M.Generated(IamEntityIds.InvitationId.privateSchema),
     /** Email address of the invitee */
     email: M.Sensitive(
       BS.EmailBase.annotations({

@@ -12,7 +12,7 @@ export class Model extends M.Class<Model>(`TeamMemberModel`)(
   {
     /** Primary key identifier for the team membership */
     id: M.Generated(IamEntityIds.TeamMemberId),
-
+    _rowId: M.Generated(IamEntityIds.TeamMemberId.privateSchema),
     /** Team this membership belongs to */
     teamId: SharedEntityIds.TeamId.annotations({
       description: "ID of the team this membership belongs to",

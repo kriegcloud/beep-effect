@@ -12,7 +12,7 @@ export class Model extends M.Class<Model>(`JwksModel`)(
   {
     /** Primary key identifier for the JWKS */
     id: M.Generated(IamEntityIds.JwksId),
-
+    _rowId: M.Generated(IamEntityIds.JwksId.privateSchema),
     /** Key ID (kid) from the JWK */
     keyId: S.NonEmptyString.annotations({
       description: "The key ID (kid) from the JSON Web Key",

@@ -14,6 +14,7 @@ export class Model extends M.Class<Model>(`AccountModel`)(
   {
     /** Primary key identifier for the account */
     id: M.Generated(IamEntityIds.AccountId),
+    _rowId: M.Generated(IamEntityIds.AccountId.privateSchema),
 
     /** External account ID from the OAuth provider */
     accountId: S.NonEmptyString.annotations({

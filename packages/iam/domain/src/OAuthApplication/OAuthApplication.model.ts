@@ -12,7 +12,7 @@ export class Model extends M.Class<Model>(`OAuthApplicationModel`)(
   {
     /** Primary key identifier for the OAuth application */
     id: M.Generated(IamEntityIds.OAuthApplicationId),
-
+    _rowId: M.Generated(IamEntityIds.OAuthApplicationId.privateSchema),
     /** Application name */
     name: M.FieldOption(
       S.NonEmptyString.annotations({

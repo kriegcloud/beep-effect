@@ -13,7 +13,7 @@ export class Model extends M.Class<Model>(`UserModel`)(
   {
     /** Primary key identifier for the user */
     id: M.Generated(IamEntityIds.UserId),
-
+    _rowId: M.Generated(IamEntityIds.UserId.privateSchema),
     /** User's display name */
     name: S.NonEmptyString.annotations({
       description: "The user's display name",

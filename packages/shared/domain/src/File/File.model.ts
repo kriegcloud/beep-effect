@@ -5,6 +5,7 @@ import type * as S from "effect/Schema";
 export class Model extends M.Class<Model>(`FileModel`)({
   /** Primary key identifier for the file */
   id: M.Generated(SharedEntityIds.FileId),
+  _rowId: M.Generated(SharedEntityIds.FileId.privateSchema),
   ...Common.defaultColumns,
 }) {}
 

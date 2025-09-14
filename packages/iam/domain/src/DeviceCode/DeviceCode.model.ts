@@ -14,7 +14,7 @@ export class Model extends M.Class<Model>(`DeviceCodeModel`)(
   {
     /** Primary key identifier for the device code */
     id: M.Generated(IamEntityIds.DeviceCodeId),
-
+    _rowId: M.Generated(IamEntityIds.DeviceCodeId.privateSchema),
     userCode: M.Sensitive(S.NonEmptyTrimmedString),
 
     userId: IamEntityIds.UserId,

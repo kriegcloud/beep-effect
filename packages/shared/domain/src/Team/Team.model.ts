@@ -13,6 +13,7 @@ export const TeamModelSchemaId = Symbol.for("@beep/shared-domain/TeamModel");
 export class Model extends M.Class<Model>(`TeamModel`)(
   {
     /** Primary key identifier for the team */
+    _rowId: M.Generated(SharedEntityIds.TeamId.privateSchema),
     id: M.Generated(SharedEntityIds.TeamId),
 
     /** Team name */

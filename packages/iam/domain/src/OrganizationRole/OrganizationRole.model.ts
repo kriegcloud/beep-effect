@@ -12,7 +12,7 @@ export class Model extends M.Class<Model>(`OrganizationRoleModel`)(
   {
     /** Primary key identifier for the OrganizationRole */
     id: M.Generated(IamEntityIds.OrganizationRoleId),
-
+    _rowId: M.Generated(IamEntityIds.OrganizationRoleId.privateSchema),
     /** The role name */
     role: S.NonEmptyString,
 

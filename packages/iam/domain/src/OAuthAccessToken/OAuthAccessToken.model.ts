@@ -12,7 +12,7 @@ export class Model extends M.Class<Model>(`OAuthAccessTokenModel`)(
   {
     /** Primary key identifier for the OAuth access token */
     id: M.Generated(IamEntityIds.OAuthAccessTokenId),
-
+    _rowId: M.Generated(IamEntityIds.OAuthAccessTokenId.privateSchema),
     /** OAuth access token (sensitive) */
     accessToken: M.FieldOption(
       M.Sensitive(

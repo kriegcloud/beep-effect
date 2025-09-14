@@ -12,7 +12,7 @@ export class Model extends M.Class<Model>(`VerificationModel`)(
   {
     /** Primary key identifier for the verification */
     id: M.Generated(IamEntityIds.VerificationId),
-
+    _rowId: M.Generated(IamEntityIds.VerificationId.privateSchema),
     /** Verification identifier (email or phone) */
     identifier: S.NonEmptyString.annotations({
       description: "The identifier being verified (email address, phone number, etc.)",

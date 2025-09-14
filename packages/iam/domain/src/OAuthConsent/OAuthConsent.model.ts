@@ -12,7 +12,7 @@ export class Model extends M.Class<Model>(`OAuthConsentModel`)(
   {
     /** Primary key identifier for the OAuth consent */
     id: M.Generated(IamEntityIds.OAuthConsentId),
-
+    _rowId: M.Generated(IamEntityIds.OAuthConsentId.privateSchema),
     /** User who gave consent */
     userId: IamEntityIds.UserId.annotations({
       description: "ID of the user who gave consent",

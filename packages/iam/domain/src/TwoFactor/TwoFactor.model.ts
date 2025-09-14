@@ -12,7 +12,7 @@ export class Model extends M.Class<Model>(`TwoFactorModel`)(
   {
     /** Primary key identifier for the 2FA record */
     id: M.Generated(IamEntityIds.TwoFactorId),
-
+    _rowId: M.Generated(IamEntityIds.TwoFactorId.privateSchema),
     /** Encrypted secret key for TOTP */
     secret: M.Sensitive(
       S.NonEmptyString.annotations({

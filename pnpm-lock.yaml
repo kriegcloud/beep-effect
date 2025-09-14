@@ -75,11 +75,11 @@ overrides:
   '@mui/icons-material': 7.3.2
   '@mui/lab': 7.0.0-beta.17
   '@mui/system': 7.3.2
-  '@fontsource-variable/dm-sans': 5.2.6
-  '@fontsource-variable/inter': 5.2.6
+  '@fontsource-variable/dm-sans': 5.2.7
+  '@fontsource-variable/inter': 5.2.7
   '@fontsource-variable/nunito-sans': 5.2.6
   '@fontsource-variable/public-sans': 5.2.6
-  '@fontsource/barlow': 5.2.6
+  '@fontsource/barlow': 5.2.7
   '@mui/stylis-plugin-rtl': 7.3.2
   '@mui/x-data-grid': 8.11.2
   '@mui/x-date-pickers': 8.11.2
@@ -545,11 +545,11 @@ importers:
         specifier: 11.14.1
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.1.13)(react@19.1.1))(@types/react@19.1.13)(react@19.1.1)
       '@fontsource-variable/dm-sans':
-        specifier: 5.2.6
-        version: 5.2.6
+        specifier: 5.2.7
+        version: 5.2.7
       '@fontsource-variable/inter':
-        specifier: 5.2.6
-        version: 5.2.6
+        specifier: 5.2.7
+        version: 5.2.7
       '@fontsource-variable/nunito-sans':
         specifier: 5.2.6
         version: 5.2.6
@@ -557,8 +557,8 @@ importers:
         specifier: 5.2.6
         version: 5.2.6
       '@fontsource/barlow':
-        specifier: 5.2.6
-        version: 5.2.6
+        specifier: 5.2.7
+        version: 5.2.7
       '@iconify/react':
         specifier: 6.0.1
         version: 6.0.1(react@19.1.1)
@@ -2260,11 +2260,11 @@ importers:
         specifier: 11.14.1
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.1.13)(react@19.1.1))(@types/react@19.1.13)(react@19.1.1)
       '@fontsource-variable/dm-sans':
-        specifier: 5.2.6
-        version: 5.2.6
+        specifier: 5.2.7
+        version: 5.2.7
       '@fontsource-variable/inter':
-        specifier: 5.2.6
-        version: 5.2.6
+        specifier: 5.2.7
+        version: 5.2.7
       '@fontsource-variable/nunito-sans':
         specifier: 5.2.6
         version: 5.2.6
@@ -2272,8 +2272,8 @@ importers:
         specifier: 5.2.6
         version: 5.2.6
       '@fontsource/barlow':
-        specifier: 5.2.6
-        version: 5.2.6
+        specifier: 5.2.7
+        version: 5.2.7
       '@iconify/react':
         specifier: 6.0.1
         version: 6.0.1(react@19.1.1)
@@ -3947,11 +3947,11 @@ packages:
   '@floating-ui/utils@0.2.10':
     resolution: {integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==}
 
-  '@fontsource-variable/dm-sans@5.2.6':
-    resolution: {integrity: sha512-edr+wGsc9d7/5aMB8ty1z0Zb0fqzJtBZ5+c2FhtrJwYhefcLEOL4r66EBqeyEFhVTMhCGIjhtxmigrRbPN0mUw==}
+  '@fontsource-variable/dm-sans@5.2.7':
+    resolution: {integrity: sha512-UbBEnWAdHDatuu+pLk6iYEAv6nfv1tep+DtY5my7KjuU2/91uYlwpQ4zuQpsCs4DJJONt+x+7i/76Xrd/MkYhw==}
 
-  '@fontsource-variable/inter@5.2.6':
-    resolution: {integrity: sha512-jks/bficUPQ9nn7GvXvHtlQIPudW7Wx8CrlZoY8bhxgeobNxlQan8DclUJuYF2loYRrGpfrhCIZZspXYysiVGg==}
+  '@fontsource-variable/inter@5.2.7':
+    resolution: {integrity: sha512-1Ej2Y2l+l1VHAu0cNBmOqPdnO7MKhMvaZ4ilL/qcF5lOQw8ieLhp1APcksXIsqO3eAB0+7/nIc/3cSxfEIdj4Q==}
 
   '@fontsource-variable/nunito-sans@5.2.6':
     resolution: {integrity: sha512-lDToEZdfmhp+W62yZxDY64+tOzIBF7phjyTcIG+nh8utXMJo8IgS9iqVoOI18LyS/FMJO9Dx3kCsJEDQaf3s9g==}
@@ -3959,8 +3959,8 @@ packages:
   '@fontsource-variable/public-sans@5.2.6':
     resolution: {integrity: sha512-NXUIBhVuxk0n0S5ZUQvEJNw6k2vtgh4GIHHGMNm1hPt2dyyl7ScsDoygzUi1Q/LD4+nj6mlb1qjITzNcBAo4dw==}
 
-  '@fontsource/barlow@5.2.6':
-    resolution: {integrity: sha512-+Pdt0FkBlbwq+byIEPnD6vHs1TS9CuLWEpqG3M2Jw1mA4s5Ia1DVDAInUKdO4MvsjrwvGNJmdsjgA8mQCCh4mQ==}
+  '@fontsource/barlow@5.2.7':
+    resolution: {integrity: sha512-FIKxh15lPAJXEOI7FvBIIk/wKsiWpxodQyyBln7TSZdR5yCqcTFLtieA+3WI2YxiFjqXDQlrhZByWftg7UnkYg==}
 
   '@grpc/grpc-js@1.13.4':
     resolution: {integrity: sha512-GsFaMXCkMqkKIvwCQjCrwH+GHbPKBjhwo/8ZuUkWHqbI73Kky9I+pQltrlT0+MWpedCoosda53lgjYfyEPgxBg==}
@@ -12174,15 +12174,15 @@ snapshots:
 
   '@floating-ui/utils@0.2.10': {}
 
-  '@fontsource-variable/dm-sans@5.2.6': {}
+  '@fontsource-variable/dm-sans@5.2.7': {}
 
-  '@fontsource-variable/inter@5.2.6': {}
+  '@fontsource-variable/inter@5.2.7': {}
 
   '@fontsource-variable/nunito-sans@5.2.6': {}
 
   '@fontsource-variable/public-sans@5.2.6': {}
 
-  '@fontsource/barlow@5.2.6': {}
+  '@fontsource/barlow@5.2.7': {}
 
   '@grpc/grpc-js@1.13.4':
     dependencies:
