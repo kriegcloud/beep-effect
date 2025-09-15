@@ -167,7 +167,7 @@ overrides:
   '@testing-library/jest-dom': 6.8.0
   '@testing-library/react': 16.3.0
   '@better-auth/stripe': 1.3.9
-  '@simplewebauthn/server': 13.1.2
+  '@simplewebauthn/server': 13.2.0
   better-auth: 1.3.9
   '@jsonforms/core': 3.6.0
   '@types/autosuggest-highlight': ^3.2.3
@@ -446,9 +446,6 @@ importers:
       '@beep/files-ui':
         specifier: workspace:*
         version: link:../../packages/files/ui/build
-      '@beep/iam-application':
-        specifier: workspace:*
-        version: link:../../packages/iam/application/build
       '@beep/iam-domain':
         specifier: workspace:*
         version: link:../../packages/iam/domain/build
@@ -458,6 +455,9 @@ importers:
       '@beep/iam-sdk':
         specifier: workspace:*
         version: link:../../packages/iam/sdk/build
+      '@beep/iam-services':
+        specifier: workspace:*
+        version: link:../../packages/iam/services/build
       '@beep/iam-tables':
         specifier: workspace:*
         version: link:../../packages/iam/tables/build
@@ -621,8 +621,8 @@ importers:
         specifier: 1.2.3
         version: 1.2.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@simplewebauthn/server':
-        specifier: 13.1.2
-        version: 13.1.2
+        specifier: 13.2.0
+        version: 13.2.0
       '@statelyai/inspect':
         specifier: 0.4.0
         version: 0.4.0(ws@8.18.3)(xstate@5.21.0)
@@ -1628,13 +1628,6 @@ importers:
         version: link:../../common/types/build
     publishDirectory: build
 
-  packages/iam/application:
-    dependencies:
-      effect:
-        specifier: 3.17.13
-        version: 3.17.13
-    publishDirectory: build
-
   packages/iam/domain:
     dependencies:
       '@beep/constants':
@@ -1652,12 +1645,21 @@ importers:
       '@beep/utils':
         specifier: workspace:*
         version: link:../../common/utils/build
+      '@effect/experimental':
+        specifier: 0.54.6
+        version: 0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
       '@effect/sql':
         specifier: 0.44.2
         version: 0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
+      drizzle-orm:
+        specifier: 0.44.5
+        version: 0.44.5(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(kysely@0.28.7)(pg@8.16.3)(postgres@3.4.7)
       effect:
         specifier: 3.17.13
         version: 3.17.13
+      mutative:
+        specifier: 1.2.0
+        version: 1.2.0
     devDependencies:
       '@beep/types':
         specifier: workspace:*
@@ -1681,12 +1683,12 @@ importers:
       '@beep/errors':
         specifier: workspace:*
         version: link:../../common/errors/build
-      '@beep/iam-application':
-        specifier: workspace:*
-        version: link:../application/build
       '@beep/iam-domain':
         specifier: workspace:*
         version: link:../domain/build
+      '@beep/iam-services':
+        specifier: workspace:*
+        version: link:../services/build
       '@beep/iam-tables':
         specifier: workspace:*
         version: link:../tables/build
@@ -1736,8 +1738,8 @@ importers:
         specifier: ^0.9.5
         version: 0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@simplewebauthn/server':
-        specifier: 13.1.2
-        version: 13.1.2
+        specifier: 13.2.0
+        version: 13.2.0
       better-auth:
         specifier: 1.3.9
         version: 1.3.9(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -1781,6 +1783,9 @@ importers:
       '@beep/types':
         specifier: workspace:*
         version: link:../../common/types/build
+      '@testcontainers/postgresql':
+        specifier: 11.5.1
+        version: 11.5.1
       '@types/pg':
         specifier: 8.15.5
         version: 8.15.5
@@ -1797,15 +1802,15 @@ importers:
       '@beep/errors':
         specifier: workspace:*
         version: link:../../common/errors/build
-      '@beep/iam-application':
-        specifier: workspace:*
-        version: link:../application/build
       '@beep/iam-domain':
         specifier: workspace:*
         version: link:../domain/build
       '@beep/iam-infra':
         specifier: workspace:*
         version: link:../infra/build
+      '@beep/iam-services':
+        specifier: workspace:*
+        version: link:../services/build
       '@beep/invariant':
         specifier: workspace:*
         version: link:../../common/invariant/build
@@ -1845,6 +1850,13 @@ importers:
         version: link:../../common/types/build
     publishDirectory: build
 
+  packages/iam/services:
+    dependencies:
+      effect:
+        specifier: 3.17.13
+        version: 3.17.13
+    publishDirectory: build
+
   packages/iam/tables:
     dependencies:
       '@beep/iam-domain':
@@ -1865,9 +1877,24 @@ importers:
       '@beep/utils':
         specifier: workspace:*
         version: link:../../common/utils/build
+      '@effect/experimental':
+        specifier: 0.54.6
+        version: 0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
+      '@effect/sql':
+        specifier: 0.44.2
+        version: 0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
       drizzle-orm:
         specifier: 0.44.5
         version: 0.44.5(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(kysely@0.28.7)(pg@8.16.3)(postgres@3.4.7)
+      effect:
+        specifier: 3.17.13
+        version: 3.17.13
+      mutative:
+        specifier: 1.2.0
+        version: 1.2.0
+      uuid:
+        specifier: 13.0.0
+        version: 13.0.0
     devDependencies:
       '@beep/types':
         specifier: workspace:*
@@ -1910,15 +1937,15 @@ importers:
       '@beep/files-ui':
         specifier: workspace:*
         version: link:../../files/ui/build
-      '@beep/iam-application':
-        specifier: workspace:*
-        version: link:../../iam/application/build
       '@beep/iam-domain':
         specifier: workspace:*
         version: link:../../iam/domain/build
       '@beep/iam-sdk':
         specifier: workspace:*
         version: link:../../iam/sdk/build
+      '@beep/iam-services':
+        specifier: workspace:*
+        version: link:../../iam/services/build
       '@beep/iam-tables':
         specifier: workspace:*
         version: link:../../iam/tables/build
@@ -2044,15 +2071,15 @@ importers:
       '@beep/files-tables':
         specifier: workspace:*
         version: link:../../files/tables/build
-      '@beep/iam-application':
-        specifier: workspace:*
-        version: link:../../iam/application/build
       '@beep/iam-domain':
         specifier: workspace:*
         version: link:../../iam/domain/build
       '@beep/iam-infra':
         specifier: workspace:*
         version: link:../../iam/infra/build
+      '@beep/iam-services':
+        specifier: workspace:*
+        version: link:../../iam/services/build
       '@beep/iam-tables':
         specifier: workspace:*
         version: link:../../iam/tables/build
@@ -2126,8 +2153,8 @@ importers:
         specifier: ^2.1.0
         version: 2.1.0(@opentelemetry/api@1.9.0)
       '@simplewebauthn/server':
-        specifier: 13.1.2
-        version: 13.1.2
+        specifier: 13.2.0
+        version: 13.2.0
       better-auth:
         specifier: 1.3.9
         version: 1.3.9(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -2205,6 +2232,9 @@ importers:
       '@effect/sql':
         specifier: 0.44.2
         version: 0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
+      drizzle-orm:
+        specifier: 0.44.5
+        version: 0.44.5(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(kysely@0.28.7)(pg@8.16.3)(postgres@3.4.7)
       effect:
         specifier: 3.17.13
         version: 3.17.13
@@ -2231,6 +2261,9 @@ importers:
       '@beep/utils':
         specifier: workspace:*
         version: link:../../common/utils/build
+      '@effect/experimental':
+        specifier: 0.54.6
+        version: 0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
       '@effect/sql':
         specifier: 0.44.2
         version: 0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
@@ -2240,6 +2273,9 @@ importers:
       effect:
         specifier: 3.17.13
         version: 3.17.13
+      mutative:
+        specifier: 1.2.0
+        version: 1.2.0
     devDependencies:
       '@beep/types':
         specifier: workspace:*
@@ -4737,8 +4773,23 @@ packages:
   '@peculiar/asn1-android@2.5.0':
     resolution: {integrity: sha512-t8A83hgghWQkcneRsgGs2ebAlRe54ns88p7ouv8PW2tzF1nAW4yHcL4uZKrFpIU+uszIRzTkcCuie37gpkId0A==}
 
+  '@peculiar/asn1-cms@2.5.0':
+    resolution: {integrity: sha512-p0SjJ3TuuleIvjPM4aYfvYw8Fk1Hn/zAVyPJZTtZ2eE9/MIer6/18ROxX6N/e6edVSfvuZBqhxAj3YgsmSjQ/A==}
+
+  '@peculiar/asn1-csr@2.5.0':
+    resolution: {integrity: sha512-ioigvA6WSYN9h/YssMmmoIwgl3RvZlAYx4A/9jD2qaqXZwGcNlAxaw54eSx2QG1Yu7YyBC5Rku3nNoHrQ16YsQ==}
+
   '@peculiar/asn1-ecc@2.5.0':
     resolution: {integrity: sha512-t4eYGNhXtLRxaP50h3sfO6aJebUCDGQACoeexcelL4roMFRRVgB20yBIu2LxsPh/tdW9I282gNgMOyg3ywg/mg==}
+
+  '@peculiar/asn1-pfx@2.5.0':
+    resolution: {integrity: sha512-Vj0d0wxJZA+Ztqfb7W+/iu8Uasw6hhKtCdLKXLG/P3kEPIQpqGI4P4YXlROfl7gOCqFIbgsj1HzFIFwQ5s20ug==}
+
+  '@peculiar/asn1-pkcs8@2.5.0':
+    resolution: {integrity: sha512-L7599HTI2SLlitlpEP8oAPaJgYssByI4eCwQq2C9eC90otFpm8MRn66PpbKviweAlhinWQ3ZjDD2KIVtx7PaVw==}
+
+  '@peculiar/asn1-pkcs9@2.5.0':
+    resolution: {integrity: sha512-UgqSMBLNLR5TzEZ5ZzxR45Nk6VJrammxd60WMSkofyNzd3DQLSNycGWSK5Xg3UTYbXcDFyG8pA/7/y/ztVCa6A==}
 
   '@peculiar/asn1-rsa@2.5.0':
     resolution: {integrity: sha512-qMZ/vweiTHy9syrkkqWFvbT3eLoedvamcUdnnvwyyUNv5FgFXA3KP8td+ATibnlZ0EANW5PYRm8E6MJzEB/72Q==}
@@ -4746,8 +4797,14 @@ packages:
   '@peculiar/asn1-schema@2.5.0':
     resolution: {integrity: sha512-YM/nFfskFJSlHqv59ed6dZlLZqtZQwjRVJ4bBAiWV08Oc+1rSd5lDZcBEx0lGDHfSoH3UziI2pXt2UM33KerPQ==}
 
+  '@peculiar/asn1-x509-attr@2.5.0':
+    resolution: {integrity: sha512-9f0hPOxiJDoG/bfNLAFven+Bd4gwz/VzrCIIWc1025LEI4BXO0U5fOCTNDPbbp2ll+UzqKsZ3g61mpBp74gk9A==}
+
   '@peculiar/asn1-x509@2.5.0':
     resolution: {integrity: sha512-CpwtMCTJvfvYTFMuiME5IH+8qmDe3yEWzKHe7OOADbGfq7ohxeLaXwQo0q4du3qs0AII3UbLCvb9NF/6q0oTKQ==}
+
+  '@peculiar/x509@1.14.0':
+    resolution: {integrity: sha512-Yc4PDxN3OrxUPiXgU63c+ZRXKGE8YKF2McTciYhUHFtHVB0KMnjeFSU0qpztGhsp4P0uKix4+J2xEpIEDu8oXg==}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -5365,11 +5422,11 @@ packages:
   '@selderee/plugin-htmlparser2@0.11.0':
     resolution: {integrity: sha512-P33hHGdldxGabLFjPPpaTxVolMrzrcegejx+0GxjrIb9Zv48D8yAIA/QTDR2dFl7Uz7urX8aX6+5bCZslr+gWQ==}
 
-  '@simplewebauthn/browser@13.1.2':
-    resolution: {integrity: sha512-aZnW0KawAM83fSBUgglP5WofbrLbLyr7CoPqYr66Eppm7zO86YX6rrCjRB3hQKPrL7ATvY4FVXlykZ6w6FwYYw==}
+  '@simplewebauthn/browser@13.2.0':
+    resolution: {integrity: sha512-N3fuA1AAnTo5gCStYoIoiasPccC+xPLx2YU88Dv0GeAmPQTWHETlZQq5xZ0DgUq1H9loXMWQH5qqUjcI7BHJ1A==}
 
-  '@simplewebauthn/server@13.1.2':
-    resolution: {integrity: sha512-VwoDfvLXSCaRiD+xCIuyslU0HLxVggeE5BL06+GbsP2l1fGf5op8e0c3ZtKoi+vSg1q4ikjtAghC23ze2Q3H9g==}
+  '@simplewebauthn/server@13.2.0':
+    resolution: {integrity: sha512-meBOTUhWZsQyrBcXDva82Tiyes5UlPQu+fKuMKQlhmAJwR/a+orU8xYfpTQviEaV7qEYD4aMj9He/eBj1KX9hA==}
     engines: {node: '>=20.0.0'}
 
   '@smithy/abort-controller@4.1.1':
@@ -9516,6 +9573,9 @@ packages:
   redux@5.0.1:
     resolution: {integrity: sha512-M9/ELqF6fy8FwmkpnF0S3YKOqMyoWJ4+CS5Efg2ct3oY9daQvd/Pc71FpGZsVsbl3Cpb+IIcjBDUnnyBdQbq4w==}
 
+  reflect-metadata@0.2.2:
+    resolution: {integrity: sha512-urBwgfrvVP/eAyXx4hluJivBKzuEbSQs9rKWCrCkbSxNv8mxPcUZKeuoF3Uy4mJl3Lwprp6yy5/39VWigZ4K6Q==}
+
   regenerate-unicode-properties@10.2.2:
     resolution: {integrity: sha512-m03P+zhBeQd1RGnYxrGyDAPpWX/epKirLrp8e3qevZdVkKtnCrjjWczIbYc8+xd6vcTStVlqfycTx1KR4LOr0g==}
     engines: {node: '>=4'}
@@ -10138,6 +10198,10 @@ packages:
     resolution: {integrity: sha512-+wKjMNU9w/EaQayHXb7WA7ZaHY6hN8WgfvHNQ3t1PnU91/7O8TcTnIhCDYTZwnt8JsO9IBqZ30Ln1r7pPF52Aw==}
     engines: {node: '>=18.0.0'}
     hasBin: true
+
+  tsyringe@4.10.0:
+    resolution: {integrity: sha512-axr3IdNuVIxnaK5XGEUFTu3YmAQ6lllgrvqfEoR16g/HGnYY/6We4oWENtAnzK6/LpJ2ur9PAb80RBt7/U4ugw==}
+    engines: {node: '>= 6.0.0'}
 
   turbo-darwin-64@2.5.6:
     resolution: {integrity: sha512-3C1xEdo4aFwMJAPvtlPqz1Sw/+cddWIOmsalHFMrsqqydcptwBfu26WW2cDm3u93bUzMbBJ8k3zNKFqxJ9ei2A==}
@@ -12919,10 +12983,52 @@ snapshots:
       asn1js: 3.0.6
       tslib: 2.8.1
 
+  '@peculiar/asn1-cms@2.5.0':
+    dependencies:
+      '@peculiar/asn1-schema': 2.5.0
+      '@peculiar/asn1-x509': 2.5.0
+      '@peculiar/asn1-x509-attr': 2.5.0
+      asn1js: 3.0.6
+      tslib: 2.8.1
+
+  '@peculiar/asn1-csr@2.5.0':
+    dependencies:
+      '@peculiar/asn1-schema': 2.5.0
+      '@peculiar/asn1-x509': 2.5.0
+      asn1js: 3.0.6
+      tslib: 2.8.1
+
   '@peculiar/asn1-ecc@2.5.0':
     dependencies:
       '@peculiar/asn1-schema': 2.5.0
       '@peculiar/asn1-x509': 2.5.0
+      asn1js: 3.0.6
+      tslib: 2.8.1
+
+  '@peculiar/asn1-pfx@2.5.0':
+    dependencies:
+      '@peculiar/asn1-cms': 2.5.0
+      '@peculiar/asn1-pkcs8': 2.5.0
+      '@peculiar/asn1-rsa': 2.5.0
+      '@peculiar/asn1-schema': 2.5.0
+      asn1js: 3.0.6
+      tslib: 2.8.1
+
+  '@peculiar/asn1-pkcs8@2.5.0':
+    dependencies:
+      '@peculiar/asn1-schema': 2.5.0
+      '@peculiar/asn1-x509': 2.5.0
+      asn1js: 3.0.6
+      tslib: 2.8.1
+
+  '@peculiar/asn1-pkcs9@2.5.0':
+    dependencies:
+      '@peculiar/asn1-cms': 2.5.0
+      '@peculiar/asn1-pfx': 2.5.0
+      '@peculiar/asn1-pkcs8': 2.5.0
+      '@peculiar/asn1-schema': 2.5.0
+      '@peculiar/asn1-x509': 2.5.0
+      '@peculiar/asn1-x509-attr': 2.5.0
       asn1js: 3.0.6
       tslib: 2.8.1
 
@@ -12939,12 +13045,33 @@ snapshots:
       pvtsutils: 1.3.6
       tslib: 2.8.1
 
+  '@peculiar/asn1-x509-attr@2.5.0':
+    dependencies:
+      '@peculiar/asn1-schema': 2.5.0
+      '@peculiar/asn1-x509': 2.5.0
+      asn1js: 3.0.6
+      tslib: 2.8.1
+
   '@peculiar/asn1-x509@2.5.0':
     dependencies:
       '@peculiar/asn1-schema': 2.5.0
       asn1js: 3.0.6
       pvtsutils: 1.3.6
       tslib: 2.8.1
+
+  '@peculiar/x509@1.14.0':
+    dependencies:
+      '@peculiar/asn1-cms': 2.5.0
+      '@peculiar/asn1-csr': 2.5.0
+      '@peculiar/asn1-ecc': 2.5.0
+      '@peculiar/asn1-pkcs9': 2.5.0
+      '@peculiar/asn1-rsa': 2.5.0
+      '@peculiar/asn1-schema': 2.5.0
+      '@peculiar/asn1-x509': 2.5.0
+      pvtsutils: 1.3.6
+      reflect-metadata: 0.2.2
+      tslib: 2.8.1
+      tsyringe: 4.10.0
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -13498,9 +13625,9 @@ snapshots:
       domhandler: 5.0.3
       selderee: 0.11.0
 
-  '@simplewebauthn/browser@13.1.2': {}
+  '@simplewebauthn/browser@13.2.0': {}
 
-  '@simplewebauthn/server@13.1.2':
+  '@simplewebauthn/server@13.2.0':
     dependencies:
       '@hexagon/base64': 1.1.28
       '@levischuck/tiny-cbor': 0.2.11
@@ -13509,6 +13636,7 @@ snapshots:
       '@peculiar/asn1-rsa': 2.5.0
       '@peculiar/asn1-schema': 2.5.0
       '@peculiar/asn1-x509': 2.5.0
+      '@peculiar/x509': 1.14.0
 
   '@smithy/abort-controller@4.1.1':
     dependencies:
@@ -16393,8 +16521,8 @@ snapshots:
       '@better-fetch/fetch': 1.1.18
       '@noble/ciphers': 2.0.0
       '@noble/hashes': 2.0.0
-      '@simplewebauthn/browser': 13.1.2
-      '@simplewebauthn/server': 13.1.2
+      '@simplewebauthn/browser': 13.2.0
+      '@simplewebauthn/server': 13.2.0
       better-call: 1.0.18
       defu: 6.1.4
       jose: 6.1.0
@@ -18935,6 +19063,8 @@ snapshots:
 
   redux@5.0.1: {}
 
+  reflect-metadata@0.2.2: {}
+
   regenerate-unicode-properties@10.2.2:
     dependencies:
       regenerate: 1.4.2
@@ -19608,6 +19738,10 @@ snapshots:
       get-tsconfig: 4.10.1
     optionalDependencies:
       fsevents: 2.3.3
+
+  tsyringe@4.10.0:
+    dependencies:
+      tslib: 1.14.1
 
   turbo-darwin-64@2.5.6:
     optional: true

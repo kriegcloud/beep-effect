@@ -3,7 +3,7 @@
   "include": [],
   "compilerOptions": {
     "paths": {
-      "@beep/iam-application/*": ["./src/*"]
+      "@beep/iam-services/*": ["./src/*"]
     }
   },
   "references": [

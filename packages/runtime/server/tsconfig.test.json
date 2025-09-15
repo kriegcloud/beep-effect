@@ -51,7 +51,7 @@
       "path": "../../core/db"
     },
     {
-      "path": "../../iam/application"
+      "path": "../../iam/services"
     },
     {
       "path": "../../iam/infra"

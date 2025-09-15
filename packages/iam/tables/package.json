@@ -33,7 +33,12 @@
     "lint:circular": "pnpm madge -c ."
   },
   "dependencies": {
+    "effect": "*",
+    "@effect/sql": "*",
+    "@effect/experimental": "*",
     "@beep/shared-tables": "workspace:*",
+    "uuid": "*",
+    "mutative": "*",
     "@beep/schema": "workspace:*",
     "@beep/utils": "workspace:*",
     "@beep/invariant": "workspace:*",

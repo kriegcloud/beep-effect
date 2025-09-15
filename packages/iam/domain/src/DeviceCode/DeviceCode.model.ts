@@ -16,11 +16,11 @@ export class Model extends M.Class<Model>(`DeviceCodeModel`)(
   makeFields(IamEntityIds.DeviceCodeId, {
     userCode: M.Sensitive(S.NonEmptyTrimmedString),
 
-    userId: IamEntityIds.UserId,
+    userId: BS.FieldOptionOmittable(IamEntityIds.UserId),
 
     expiresAt: BS.DateTimeFromDate(),
 
-    status: DeviceCodeStatus,
+    status: BS.toOptionalWithDefault(DeviceCodeStatus)(DeviceCodeStatus.Enum.pending),
 
     lastPolledAt: BS.FieldOptionOmittable(BS.DateTimeFromDate()),
     pollingInterval: BS.FieldOptionOmittable(S.NonNegativeInt),
@@ -34,8 +34,3 @@ export class Model extends M.Class<Model>(`DeviceCodeModel`)(
     schemaId: DeviceCodeModelSchemaId,
   }
 ) {}
-
-export namespace Model {
-  export type Type = S.Schema.Type<typeof Model>;
-  export type Encoded = S.Schema.Encoded<typeof Model>;
-}

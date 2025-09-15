@@ -12,5 +12,8 @@ export const oauthApplicationTable = OrgTable.make(IamEntityIds.OAuthApplication
   redirectURLs: pg.text("redirect_u_r_ls"),
   type: pg.text("type"),
   disabled: pg.boolean("disabled"),
-  userId: pg.text("user_id").references(() => userTable.id, { onDelete: "cascade" }),
+  userId: pg
+    .text("user_id")
+    .$type<IamEntityIds.UserId.Type>()
+    .references(() => userTable.id, { onDelete: "cascade" }),
 });

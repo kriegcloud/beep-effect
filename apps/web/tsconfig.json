@@ -76,8 +76,8 @@
       "@beep/ui/*": ["../../packages/ui/src/*"],
       "@beep/iam-domain": ["../../packages/iam/domain/src/index"],
       "@beep/iam-domain/*": ["../../packages/iam/domain/src/*"],
-      "@beep/iam-application": ["../../packages/iam/application/src/index"],
-      "@beep/iam-application/*": ["../../packages/iam/application/src/*"],
+      "@beep/iam-services": ["../../packages/iam/services/src/index"],
+      "@beep/iam-services/*": ["../../packages/iam/services/src/*"],
       "@beep/iam-tables": ["../../packages/iam/tables/src/index"],
       "@beep/iam-tables/*": ["../../packages/iam/tables/src/*"],
       "@beep/iam-infra": ["../../packages/iam/infra/src/index"],
@@ -162,7 +162,7 @@
       "path": "../../packages/core/db/tsconfig.build.json"
     },
     {
-      "path": "../../packages/iam/application/tsconfig.build.json"
+      "path": "../../packages/iam/services/tsconfig.build.json"
     },
     {
       "path": "../../packages/iam/sdk/tsconfig.build.json"

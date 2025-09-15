@@ -1,5 +1,5 @@
 import { BS } from "@beep/schema";
-import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { IamEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
@@ -33,7 +33,6 @@ export class Model extends M.Class<Model>(`WalletAddressModel`)(
         description: "Whether this is the user's primary wallet address",
       })
     ),
-    organizationId: SharedEntityIds.OrganizationId,
   }),
   {
     schemaId: WalletAddressModelSchemaId,
@@ -41,8 +40,3 @@ export class Model extends M.Class<Model>(`WalletAddressModel`)(
     description: "Wallet address model representing blockchain wallet addresses linked to users.",
   }
 ) {}
-
-export namespace Model {
-  export type Type = S.Schema.Type<typeof Model>;
-  export type Encoded = S.Schema.Encoded<typeof Model>;
-}

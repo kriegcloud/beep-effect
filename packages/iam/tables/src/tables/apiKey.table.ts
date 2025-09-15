@@ -12,14 +12,15 @@ export const apiKeyTable = OrgTable.make(IamEntityIds.ApiKeyId)(
     userId: pg
       .text("user_id")
       .notNull()
+      .$type<IamEntityIds.UserId.Type>()
       .references(() => userTable.id, { onDelete: "cascade" }),
     refillInterval: pg.integer("refill_interval"),
     refillAmount: pg.integer("refill_amount"),
     lastRefillAt: pg.timestamp("last_refill_at"),
-    enabled: pg.boolean("enabled").default(true),
-    rateLimitEnabled: pg.boolean("rate_limit_enabled").default(true),
-    rateLimitTimeWindow: pg.integer("rate_limit_time_window").default(86400000),
-    rateLimitMax: pg.integer("rate_limit_max").default(10),
+    enabled: pg.boolean("enabled").notNull().default(true),
+    rateLimitEnabled: pg.boolean("rate_limit_enabled").notNull().default(true),
+    rateLimitTimeWindow: pg.integer("rate_limit_time_window").notNull().default(86400000),
+    rateLimitMax: pg.integer("rate_limit_max").notNull().default(10),
     requestCount: pg.integer("request_count"),
     remaining: pg.integer("remaining"),
     lastRequest: pg.timestamp("last_request"),

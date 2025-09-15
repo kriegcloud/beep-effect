@@ -99,7 +99,7 @@ const nextConfig = {
   //   "@beep/core-db",
   //   "@beep/ui",
   //   "@beep/iam-domain",
-  //   "@beep/iam-application",
+  //   "@beep/iam-services",
   //   "@beep/iam-tables",
   //   "@beep/iam-infra",
   //   "@beep/iam-sdk",

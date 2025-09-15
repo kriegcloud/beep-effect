@@ -56,7 +56,7 @@ export class Model extends M.Class<Model>(`OAuthApplicationModel`)(
 
     /** Application type */
     type: BS.FieldOptionOmittable(
-      S.Literal("web", "mobile", "native", "spa").annotations({
+      S.String.annotations({
         description: "Type of OAuth application",
       })
     ),
@@ -82,8 +82,3 @@ export class Model extends M.Class<Model>(`OAuthApplicationModel`)(
     schemaId: OAuthApplicationModelSchemaId,
   }
 ) {}
-
-export namespace Model {
-  export type Type = S.Schema.Type<typeof Model>;
-  export type Encoded = S.Schema.Encoded<typeof Model>;
-}

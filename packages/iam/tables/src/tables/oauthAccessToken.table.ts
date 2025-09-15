@@ -9,6 +9,9 @@ export const oauthAccessTokenTable = OrgTable.make(IamEntityIds.OAuthAccessToken
   accessTokenExpiresAt: pg.timestamp("access_token_expires_at"),
   refreshTokenExpiresAt: pg.timestamp("refresh_token_expires_at"),
   clientId: pg.text("client_id"),
-  userId: pg.text("user_id").references(() => userTable.id, { onDelete: "cascade" }),
+  userId: pg
+    .text("user_id")
+    .$type<IamEntityIds.UserId.Type>()
+    .references(() => userTable.id, { onDelete: "cascade" }),
   scopes: pg.text("scopes"),
 });

@@ -9,7 +9,7 @@
       "path": "../tables"
     },
     {
-      "path": "../application"
+      "path": "../services"
     },
     {
       "path": "../domain"

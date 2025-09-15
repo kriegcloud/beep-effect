@@ -34,11 +34,13 @@
   },
   "dependencies": {
     "@effect/sql": "*",
+    "@effect/experimental": "*",
     "@beep/shared-domain": "workspace:*",
     "@beep/schema": "workspace:*",
     "@beep/invariant": "workspace:*",
     "@beep/utils": "workspace:*",
     "drizzle-orm": "*",
+    "mutative": "*",
     "effect": "*"
   },
   "devDependencies": {

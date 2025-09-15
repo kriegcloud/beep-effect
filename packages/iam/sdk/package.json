@@ -49,7 +49,7 @@
     "@beep/shared-domain": "workspace:*",
     "@beep/iam-domain": "workspace:*",
     "@beep/iam-infra": "workspace:*",
-    "@beep/iam-application": "workspace:*"
+    "@beep/iam-services": "workspace:*"
   },
   "devDependencies": {
     "@beep/types": "workspace:*"

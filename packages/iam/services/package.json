@@ -1,5 +1,5 @@
 {
-  "name": "@beep/iam-application",
+  "name": "@beep/iam-services",
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
@@ -16,7 +16,7 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",
-    "directory": "packages/iam/application"
+    "directory": "packages/iam/services"
   },
   "scripts": {
     "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",

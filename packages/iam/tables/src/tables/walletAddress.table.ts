@@ -8,6 +8,7 @@ export const walletAddressTable = Table.make(IamEntityIds.WalletAddressId)(
     userId: pg
       .text("user_id")
       .notNull()
+      .$type<IamEntityIds.UserId.Type>()
       .references(() => userTable.id, { onDelete: "cascade" }),
     address: pg.text("address").notNull(),
     chainId: pg.integer("chain_id").notNull(),

@@ -141,7 +141,7 @@ import * as Organization from "@beep/shared-domain/Organization";
 import * as S from "effect/Schema";
 import { SharedEntityIds } from "@beep/shared-domain/EntityIds";
 
-export class OrganizationRepoPort extends Context.Tag("iam/application/OrganizationRepoPort")<
+export class OrganizationRepoPort extends Context.Tag("iam/services/OrganizationRepoPort")<
   OrganizationRepoPort,
   {
     insert: (
@@ -174,7 +174,7 @@ export interface MemberInsert {
   updatedAt: Date;
 }
 
-export class MemberRepoPort extends Context.Tag("iam/application/MemberRepoPort")<
+export class MemberRepoPort extends Context.Tag("iam/services/MemberRepoPort")<
   MemberRepoPort,
   {
     insert: (
@@ -205,7 +205,7 @@ export interface UserOrgRow {
   memberStatus: string;
 }
 
-export class OrganizationReadModelPort extends Context.Tag("iam/application/OrganizationReadModelPort")<
+export class OrganizationReadModelPort extends Context.Tag("iam/services/OrganizationReadModelPort")<
   OrganizationReadModelPort,
   {
     listActiveForUser: (

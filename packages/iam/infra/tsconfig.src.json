@@ -6,7 +6,7 @@
       "path": "../tables"
     },
     {
-      "path": "../application"
+      "path": "../services"
     },
     {
       "path": "../domain"
@@ -63,8 +63,8 @@
       "@beep/core-env/server": ["../../core/env/src/server"],
       "@beep/core-email": ["../../core/email/src/index"],
       "@beep/core-email/*": ["../../core/email/src/*"],
-      "@beep/iam-application": ["../application/src/index"],
-      "@beep/iam-application/*": ["../application/src/*"],
+      "@beep/iam-services": ["../services/src/index"],
+      "@beep/iam-services/*": ["../services/src/*"],
       "@beep/iam-domain": ["../domain/src/index"],
       "@beep/iam-domain/*": ["../domain/src/*"],
       "@beep/iam-tables": ["../tables/src/index"],

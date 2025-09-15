@@ -38,8 +38,11 @@
     "@beep/invariant": "workspace:*",
     "@beep/utils": "workspace:*",
     "@beep/constants": "workspace:*",
+    "drizzle-orm": "*",
     "effect": "*",
-    "@effect/sql": "*"
+    "@effect/sql": "*",
+    "@effect/experimental": "*",
+    "mutative": "*"
   },
   "devDependencies": {
     "@beep/types": "workspace:*"

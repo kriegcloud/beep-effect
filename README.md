@@ -116,7 +116,7 @@ Path aliases in [tsconfig.base.json](tsconfig.base.json) are the single source o
 ## Slices today
 
 - IAM: `packages/iam/*`
-  - Layers: [`domain`](packages/iam/domain/), [`application`](packages/iam/application/), [`infra`](packages/iam/infra/), [`tables`](packages/iam/tables/), [`ui`](packages/iam/ui/), [`sdk`](packages/iam/sdk/)
+  - Layers: [`domain`](packages/iam/domain/), [`application`](packages/iam/services/), [`infra`](packages/iam/infra/), [`tables`](packages/iam/tables/), [`ui`](packages/iam/ui/), [`sdk`](packages/iam/sdk/)
 - Files: `packages/files/*`
   - Layers: [`domain`](packages/files/domain/), [`application`](packages/files/services/), [`infra`](packages/files/infra/), [`tables`](packages/files/tables/), [`ui`](packages/files/ui/), [`sdk`](packages/files/sdk/)
 - Shared foundations: [`packages/shared/`](packages/shared/), [`packages/common/`](packages/common/), [`packages/core/`](packages/core/)

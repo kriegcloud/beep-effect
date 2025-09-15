@@ -6,7 +6,7 @@ import * as M from "@effect/sql/Model";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
 import * as IamEntityIds from "../EntityIds/iam";
-import { OrganizationType, SubscriptionStatus, SubscriptionTier } from "./schemas";
+import { OrganizationType, OrganizationTypeEnum, SubscriptionStatus, SubscriptionTier } from "./schemas";
 
 export const OrganizationModelSchemaId = Symbol.for("@beep/shared-domain/OrganizationModel");
 
@@ -40,15 +40,19 @@ export class Model extends M.Class<Model>(`OrganizationModel`)(
         description: "JSON metadata for additional organization data",
       })
     ),
-    type: OrganizationType,
+    type: OrganizationType.pipe(
+      S.optionalWith({
+        exact: true,
+        default: F.constant(OrganizationTypeEnum.individual),
+      })
+    ),
     ownerUserId: IamEntityIds.UserId.annotations({
       description: "The owner of the organization",
     }),
     isPersonal: S.Boolean.pipe(
-      S.optional,
-      S.withDefaults({
-        decoding: F.constFalse,
-        constructor: F.constFalse,
+      S.optionalWith({
+        exact: true,
+        default: F.constFalse,
       })
     ).annotations({
       description: "Whether this organization is auto-created for a user",
@@ -61,19 +65,17 @@ export class Model extends M.Class<Model>(`OrganizationModel`)(
     features: BS.FieldOptionOmittable(BS.Json),
     settings: BS.FieldOptionOmittable(BS.Json),
     subscriptionTier: SubscriptionTier.pipe(
-      S.optional,
-      S.withDefaults({
-        decoding: F.constant(SubscriptionTier.Enum.free),
-        constructor: F.constant(SubscriptionTier.Enum.free),
+      S.optionalWith({
+        exact: true,
+        default: F.constant(SubscriptionTier.Enum.free),
       })
     ).annotations({
       description: "The subscription tier of the organization",
     }),
     subscriptionStatus: SubscriptionStatus.pipe(
-      S.optional,
-      S.withDefaults({
-        decoding: F.constant(SubscriptionStatus.Enum.active),
-        constructor: F.constant(SubscriptionStatus.Enum.active),
+      S.optionalWith({
+        exact: true,
+        default: F.constant(SubscriptionStatus.Enum.active),
       })
     ).annotations({
       description: "The subscription status of the organization",
@@ -85,8 +87,3 @@ export class Model extends M.Class<Model>(`OrganizationModel`)(
     schemaId: OrganizationModelSchemaId,
   }
 ) {}
-
-export namespace Model {
-  export type Type = S.Schema.Type<typeof Model>;
-  export type Encoded = S.Schema.Encoded<typeof Model>;
-}

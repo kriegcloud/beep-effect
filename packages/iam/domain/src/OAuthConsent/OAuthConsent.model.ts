@@ -1,8 +1,8 @@
+import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-
 export const OAuthConsentModelSchemaId = Symbol.for("@beep/iam-domain/OAuthConsentModel");
 
 /**
@@ -12,9 +12,11 @@ export const OAuthConsentModelSchemaId = Symbol.for("@beep/iam-domain/OAuthConse
 export class Model extends M.Class<Model>(`OAuthConsentModel`)(
   makeFields(IamEntityIds.OAuthConsentId, {
     /** User who gave consent */
-    userId: IamEntityIds.UserId.annotations({
-      description: "ID of the user who gave consent",
-    }),
+    userId: BS.FieldOptionOmittable(
+      IamEntityIds.UserId.annotations({
+        description: "ID of the user who gave consent",
+      })
+    ),
 
     /** OAuth application receiving consent */
     clientId: S.NonEmptyString.annotations({
@@ -39,8 +41,3 @@ export class Model extends M.Class<Model>(`OAuthConsentModel`)(
     schemaId: OAuthConsentModelSchemaId,
   }
 ) {}
-
-export namespace Model {
-  export type Type = S.Schema.Type<typeof Model>;
-  export type Encoded = S.Schema.Encoded<typeof Model>;
-}

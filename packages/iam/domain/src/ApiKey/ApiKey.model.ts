@@ -68,22 +68,42 @@ export class Model extends M.Class<Model>(`ApikeyModel`)(
     ),
 
     /** Whether the API key is enabled */
-    enabled: S.Boolean.annotations({
+    enabled: S.Boolean.pipe(
+      S.optional,
+      S.withDefaults({
+        decoding: () => true,
+        constructor: () => true,
+      })
+    ).annotations({
       description: "Whether the API key is currently enabled",
     }),
 
     /** Whether rate limiting is enabled */
-    rateLimitEnabled: S.Boolean.annotations({
+    rateLimitEnabled: S.Boolean.pipe(
+      S.optional,
+      S.withDefaults({
+        decoding: () => true,
+        constructor: () => true,
+      })
+    ).annotations({
       description: "Whether rate limiting is enabled for this key",
     }),
 
     /** Rate limit time window in milliseconds */
-    rateLimitTimeWindow: S.Int.pipe(S.positive()).annotations({
-      description: "Rate limit time window in milliseconds (default: 24 hours)",
-    }),
+    rateLimitTimeWindow: S.Int.pipe(S.positive())
+      .pipe(
+        S.optional,
+        S.withDefaults({
+          constructor: () => 86400000,
+          decoding: () => 86400000,
+        })
+      )
+      .annotations({
+        description: "Rate limit time window in milliseconds (default: 24 hours)",
+      }),
 
     /** Maximum requests allowed in time window */
-    rateLimitMax: S.Int.pipe(S.positive()).annotations({
+    rateLimitMax: BS.toOptionalWithDefault(S.Int.pipe(S.positive()))(10).annotations({
       description: "Maximum number of requests allowed in the time window",
     }),
 
@@ -128,7 +148,7 @@ export class Model extends M.Class<Model>(`ApikeyModel`)(
         description: "JSON metadata for additional API key configuration",
       })
     ),
-    organizationId: SharedEntityIds.OrganizationId,
+    organizationId: BS.FieldOptionOmittable(SharedEntityIds.OrganizationId),
   }),
   {
     title: "API Key Model",
@@ -136,8 +156,3 @@ export class Model extends M.Class<Model>(`ApikeyModel`)(
     schemaId: ApikeyModelSchemaId,
   }
 ) {}
-
-export namespace Model {
-  export type Type = S.Schema.Type<typeof Model>;
-  export type Encoded = S.Schema.Encoded<typeof Model>;
-}

@@ -1,4 +1,4 @@
-import { IamEntityIds } from "@beep/shared-domain";
+import { IamEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import { organizationTable, Table, teamTable } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
@@ -11,17 +11,23 @@ export const sessionTable = Table.make(IamEntityIds.SessionId)(
     userAgent: pg.text("user_agent"),
     userId: pg
       .text("user_id")
+      .$type<typeof IamEntityIds.UserId.Type>()
       .notNull()
       .references(() => userTable.id, { onDelete: "cascade", onUpdate: "cascade" }),
     impersonatedBy: pg
       .text("impersonated_by")
+      .$type<typeof IamEntityIds.UserId.Type>()
       .references(() => userTable.id, { onDelete: "set null", onUpdate: "cascade" }),
-    activeOrganizationId: pg.text("active_organization_id").references(() => organizationTable.id, {
-      onDelete: "set null",
-      onUpdate: "cascade",
-    }),
+    activeOrganizationId: pg
+      .text("active_organization_id")
+      .$type<typeof SharedEntityIds.OrganizationId.Type>()
+      .references(() => organizationTable.id, {
+        onDelete: "set null",
+        onUpdate: "cascade",
+      }),
     activeTeamId: pg
       .text("active_team_id")
+      .$type<typeof SharedEntityIds.TeamId.Type>()
       .references(() => teamTable.id, { onDelete: "set null", onUpdate: "cascade" }),
   },
   (t) => [

@@ -43,7 +43,8 @@
     "@beep/errors": "workspace:*",
     "@beep/invariant": "workspace:*",
     "@effect/experimental": "*",
-    "mutative": "*"
+    "mutative": "*",
+    "drizzle-orm": "*"
   },
   "devDependencies": {
     "@beep/types": "workspace:^"

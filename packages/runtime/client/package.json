@@ -47,7 +47,7 @@
     "@beep/core-env": "workspace:*",
     "@beep/ui": "workspace:*",
     "@beep/iam-domain": "workspace:*",
-    "@beep/iam-application": "workspace:*",
+    "@beep/iam-services": "workspace:*",
     "@beep/iam-tables": "workspace:*",
     "@beep/iam-sdk": "workspace:*",
     "@beep/iam-ui": "workspace:*",

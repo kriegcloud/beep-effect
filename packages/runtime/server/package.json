@@ -53,7 +53,7 @@
     "@beep/core-email": "workspace:*",
     "@beep/core-db": "workspace:*",
     "@beep/iam-domain": "workspace:*",
-    "@beep/iam-application": "workspace:*",
+    "@beep/iam-services": "workspace:*",
     "@beep/iam-tables": "workspace:*",
     "@beep/iam-infra": "workspace:*",
     "@beep/files-domain": "workspace:*",

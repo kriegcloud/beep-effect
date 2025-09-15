@@ -1,19 +1,31 @@
-import { IamEntityIds } from "@beep/shared-domain";
-import { OrgTable, teamTable } from "@beep/shared-tables";
+import { Invitation } from "@beep/iam-domain/entities";
+import { IamEntityIds, type SharedEntityIds } from "@beep/shared-domain";
+import { organizationTable, Table, teamTable } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { userTable } from "./user.table";
-export const invitationTable = OrgTable.make(IamEntityIds.InvitationId)(
+
+export const invitationStatusEnum = Invitation.makeInvitationStatusPgEnum("invitation_status_enum");
+
+export const invitationTable = Table.make(IamEntityIds.InvitationId)(
   {
     email: pg.text("email").notNull(),
     role: pg.text("role"),
-    teamId: pg.text("team_id").references(() => teamTable.id, { onDelete: "cascade", onUpdate: "cascade" }),
-    status: pg.text("status").default("pending").notNull(),
+    teamId: pg
+      .text("team_id")
+      .$type<SharedEntityIds.TeamId.Type>()
+      .references(() => teamTable.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    status: invitationStatusEnum("status").notNull().default(Invitation.InvitationStatusEnum.pending),
     expiresAt: pg.timestamp("expires_at").notNull(),
     inviterId: pg
       .text("inviter_id")
       .notNull()
+      .$type<IamEntityIds.UserId.Type>()
       .references(() => userTable.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    organizationId: pg
+      .text("organization_id")
+      .$type<SharedEntityIds.OrganizationId.Type>()
+      .references(() => organizationTable.id, { onDelete: "cascade" }),
   },
   (t) => [
     // Foreign key indexes for join performance

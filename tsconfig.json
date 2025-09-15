@@ -65,7 +65,7 @@
       "path": "packages/iam/domain"
     },
     {
-      "path": "packages/iam/application"
+      "path": "packages/iam/services"
     },
     {
       "path": "packages/iam/tables"

@@ -9,5 +9,6 @@ export const twoFactorTable = OrgTable.make(IamEntityIds.TwoFactorId)({
   userId: pg
     .text("user_id")
     .notNull()
+    .$type<IamEntityIds.UserId.Type>()
     .references(() => userTable.id, { onDelete: "cascade" }),
 });

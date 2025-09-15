@@ -1,8 +1,8 @@
+import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
-import type * as S from "effect/Schema";
-import { MemberRole } from "./schemas";
+import { MemberRole, MemberRoleEnum } from "./schemas";
 
 export const MemberModelSchemaId = Symbol.for("@beep/iam-domain/MemberModel");
 
@@ -16,7 +16,7 @@ export class Model extends M.Class<Model>(`MemberModel`)(
       description: "ID of the user who is a member",
     }),
 
-    role: MemberRole.annotations({
+    role: BS.toOptionalWithDefault(MemberRole)(MemberRoleEnum.member).annotations({
       description: "The member's role within the organization",
     }),
     organizationId: SharedEntityIds.OrganizationId,
@@ -28,8 +28,3 @@ export class Model extends M.Class<Model>(`MemberModel`)(
     schemaId: MemberModelSchemaId,
   }
 ) {}
-
-export namespace Model {
-  export type Type = S.Schema.Type<typeof Model>;
-  export type Encoded = S.Schema.Encoded<typeof Model>;
-}

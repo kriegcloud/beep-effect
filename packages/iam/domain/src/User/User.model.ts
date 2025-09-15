@@ -24,7 +24,10 @@ export class Model extends M.Class<Model>(`UserModel`)(
     ),
 
     /** Whether the user's email has been verified */
-    emailVerified: S.Boolean.annotations({
+    emailVerified: S.optionalWith(S.Boolean, {
+      exact: true,
+      default: () => false,
+    }).annotations({
       description: "Whether the user's email address has been verified",
     }),
 
@@ -43,7 +46,7 @@ export class Model extends M.Class<Model>(`UserModel`)(
     ),
 
     /** Whether this is an anonymous user */
-    isAnonymous: M.FieldOption(
+    isAnonymous: BS.FieldOptionOmittable(
       S.Boolean.annotations({
         description: "Whether this user is anonymous (guest user)",
       })
@@ -91,8 +94,3 @@ export class Model extends M.Class<Model>(`UserModel`)(
     schemaId: UserModelSchemaId,
   }
 ) {}
-
-export namespace Model {
-  export type Type = S.Schema.Type<typeof Model>;
-  export type Encoded = S.Schema.Encoded<typeof Model>;
-}

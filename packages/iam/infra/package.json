@@ -40,7 +40,7 @@
     "@beep/core-db": "workspace:*",
     "@beep/core-env": "workspace:*",
     "@beep/core-email": "workspace:*",
-    "@beep/iam-application": "workspace:*",
+    "@beep/iam-services": "workspace:*",
     "@beep/iam-domain": "workspace:*",
     "@beep/iam-tables": "workspace:*",
     "@beep/shared-tables": "workspace:*",
@@ -72,6 +72,7 @@
     "uuid": "*"
   },
   "devDependencies": {
+    "@testcontainers/postgresql": "*",
     "@types/pg": "*",
     "@beep/types": "workspace:*"
   },

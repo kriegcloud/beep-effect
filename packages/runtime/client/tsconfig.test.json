@@ -42,7 +42,7 @@
       "path": "../../core/env"
     },
     {
-      "path": "../../iam/application"
+      "path": "../../iam/services"
     },
     {
       "path": "../../iam/sdk"

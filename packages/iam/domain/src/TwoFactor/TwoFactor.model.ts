@@ -36,8 +36,3 @@ export class Model extends M.Class<Model>(`TwoFactorModel`)(
     schemaId: TwoFactorModelSchemaId,
   }
 ) {}
-
-export namespace Model {
-  export type Type = S.Schema.Type<typeof Model>;
-  export type Encoded = S.Schema.Encoded<typeof Model>;
-}

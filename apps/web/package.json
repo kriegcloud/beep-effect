@@ -38,7 +38,7 @@
     "@beep/core-db": "workspace:*",
     "@beep/ui": "workspace:*",
     "@beep/iam-domain": "workspace:*",
-    "@beep/iam-application": "workspace:*",
+    "@beep/iam-services": "workspace:*",
     "@beep/iam-tables": "workspace:*",
     "@beep/iam-infra": "workspace:*",
     "@beep/iam-sdk": "workspace:*",

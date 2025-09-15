@@ -57,7 +57,7 @@
       "path": "../../core/env/tsconfig.build.json"
     },
     {
-      "path": "../../iam/application/tsconfig.build.json"
+      "path": "../../iam/services/tsconfig.build.json"
     },
     {
       "path": "../../iam/sdk/tsconfig.build.json"

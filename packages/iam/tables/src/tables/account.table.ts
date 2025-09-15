@@ -11,6 +11,7 @@ export const accountTable = Table.make(IamEntityIds.AccountId)(
     userId: pg
       .text("user_id")
       .notNull()
+      .$type<IamEntityIds.UserId.Type>()
       .references(() => userTable.id, { onDelete: "cascade", onUpdate: "cascade" }),
     accessToken: pg.text("access_token"),
     refreshToken: pg.text("refresh_token"),

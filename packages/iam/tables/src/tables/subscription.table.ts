@@ -6,7 +6,7 @@ export const subscriptionTable = OrgTable.make(IamEntityIds.SubscriptionId)({
   referenceId: pg.text("reference_id").notNull(),
   stripeCustomerId: pg.text("stripe_customer_id"),
   stripeSubscriptionId: pg.text("stripe_subscription_id"),
-  status: pg.text("status").default("incomplete"),
+  status: pg.text("status").notNull().default("incomplete"),
   periodStart: pg.timestamp("period_start"),
   periodEnd: pg.timestamp("period_end"),
   cancelAtPeriodEnd: pg.boolean("cancel_at_period_end"),

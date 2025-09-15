@@ -12,45 +12,40 @@ export const SubscriptionModelSchemaId = Symbol.for("@beep/iam-domain/Subscripti
  */
 export class Model extends M.Class<Model>(`SubscriptionModel`)(
   makeFields(IamEntityIds.SubscriptionId, {
-    /** User this subscription belongs to */
-    userId: IamEntityIds.UserId.annotations({
-      description: "ID of the user this subscription belongs to",
-    }),
-
     /** Subscription plan */
-    plan: S.Literal("free", "basic", "pro", "enterprise").annotations({
+    plan: S.String.annotations({
       description: "The subscription plan level",
     }),
 
     /** Subscription status */
-    status: S.Literal("active", "canceled", "past_due", "trialing", "incomplete").annotations({
+    status: BS.toOptionalWithDefault(S.String)("incomplete").annotations({
       description: "Current status of the subscription",
     }),
 
     /** Stripe subscription ID */
-    stripeSubscriptionId: M.FieldOption(
+    stripeSubscriptionId: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
         description: "Stripe subscription identifier",
       })
     ),
 
     /** When the current period starts */
-    currentPeriodStart: BS.FieldOptionOmittable(
+    periodStart: BS.FieldOptionOmittable(
       BS.DateTimeFromDate({
         description: "Start of the current billing period",
       })
     ),
 
     /** When the current period ends */
-    currentPeriodEnd: BS.FieldOptionOmittable(
+    periodEnd: BS.FieldOptionOmittable(
       BS.DateTimeFromDate({
         description: "End of the current billing period",
       })
     ),
 
     /** When the subscription was canceled */
-    canceledAt: BS.FieldOptionOmittable(
-      BS.DateTimeFromDate({
+    cancelAtPeriodEnd: BS.FieldOptionOmittable(
+      S.Boolean.annotations({
         description: "When the subscription was canceled",
       })
     ),
@@ -63,8 +58,3 @@ export class Model extends M.Class<Model>(`SubscriptionModel`)(
     schemaId: SubscriptionModelSchemaId,
   }
 ) {}
-
-export namespace Model {
-  export type Type = S.Schema.Type<typeof Model>;
-  export type Encoded = S.Schema.Encoded<typeof Model>;
-}

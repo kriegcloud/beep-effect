@@ -30,7 +30,7 @@
       "path": "../domain"
     },
     {
-      "path": "../application"
+      "path": "../services"
     },
     {
       "path": "../infra"

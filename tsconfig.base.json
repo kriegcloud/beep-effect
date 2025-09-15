@@ -209,14 +209,14 @@
       "@beep/iam-domain/test/*": [
         "./packages/iam/domain/test/*"
       ],
-      "@beep/iam-application": [
-        "./packages/iam/application/src/index"
+      "@beep/iam-services": [
+        "./packages/iam/services/src/index"
       ],
-      "@beep/iam-application/*": [
-        "./packages/iam/application/src/*"
+      "@beep/iam-services/*": [
+        "./packages/iam/services/src/*"
       ],
-      "@beep/iam-application/test/*": [
-        "./packages/iam/application/test/*"
+      "@beep/iam-services/test/*": [
+        "./packages/iam/services/test/*"
       ],
       "@beep/iam-tables": [
         "./packages/iam/tables/src/index"

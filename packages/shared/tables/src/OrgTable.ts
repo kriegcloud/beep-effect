@@ -1,7 +1,7 @@
 import type { EntityId } from "@beep/schema/EntityId";
 import type { SharedEntityIds } from "@beep/shared-domain/EntityIds";
 import type { DefaultColumns } from "@beep/shared-tables/Columns";
-import type { $Type, BuildColumns, BuildExtraConfigColumns } from "drizzle-orm";
+import type { $Type, BuildColumns, BuildExtraConfigColumns, NotNull } from "drizzle-orm";
 import type { PgTableExtraConfigValue } from "drizzle-orm/pg-core";
 import * as pg from "drizzle-orm/pg-core";
 import { globalColumns } from "./common";
@@ -9,7 +9,7 @@ import { organizationTable } from "./tables/organization.table";
 
 type OrgTableDefaultColumns<TableName extends string, Brand extends string> = DefaultColumns<TableName, Brand> & {
   organizationId: $Type<
-    pg.PgTextBuilderInitial<"organization_id", [string, ...string[]]>,
+    NotNull<pg.PgTextBuilderInitial<"organization_id", [string, ...string[]]>>,
     SharedEntityIds.OrganizationId.Type
   >;
 };
@@ -23,10 +23,12 @@ export namespace OrgTable {
       _rowId: entityId.privateId(),
       organizationId: pg
         .text("organization_id")
+        .notNull()
         .references(() => organizationTable.id, {
           onDelete: "cascade",
           onUpdate: "cascade",
         })
+        .notNull()
         .$type<SharedEntityIds.OrganizationId.Type>(),
       ...globalColumns,
     };

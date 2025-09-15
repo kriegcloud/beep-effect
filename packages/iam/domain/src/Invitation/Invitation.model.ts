@@ -1,3 +1,4 @@
+import { InvitationStatus, InvitationStatusEnum } from "@beep/iam-domain/Invitation/schemas";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
@@ -36,7 +37,7 @@ export class Model extends M.Class<Model>(`InvitationModel`)(
     ),
 
     /** Current status of the invitation */
-    status: S.Literal("pending", "rejected", "cancelled", "accepted").annotations({
+    status: BS.toOptionalWithDefault(InvitationStatus)(InvitationStatusEnum.pending).annotations({
       description: "Current status of the invitation",
     }),
 
@@ -50,7 +51,7 @@ export class Model extends M.Class<Model>(`InvitationModel`)(
       description: "ID of the user who sent this invitation",
     }),
 
-    organizationId: SharedEntityIds.OrganizationId,
+    organizationId: BS.FieldOptionOmittable(SharedEntityIds.OrganizationId),
   }),
   {
     title: "Invitation Model",
@@ -58,8 +59,3 @@ export class Model extends M.Class<Model>(`InvitationModel`)(
     schemaId: InvitationModelSchemaId,
   }
 ) {}
-
-export namespace Model {
-  export type Type = S.Schema.Type<typeof Model>;
-  export type Encoded = S.Schema.Encoded<typeof Model>;
-}

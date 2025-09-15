@@ -1,4 +1,5 @@
-import { SharedEntityIds } from "@beep/shared-domain";
+import type { BS } from "@beep/schema";
+import { type IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { Organization } from "@beep/shared-domain/entities";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
@@ -11,16 +12,19 @@ export const subscriptionStatusPgEnum = Organization.makeSubscriptionStatusPgEnu
 export const organizationTable = Table.make(SharedEntityIds.OrganizationId)(
   {
     name: pg.text("name").notNull(),
-    slug: pg.text("slug").unique(),
+    slug: pg.text("slug").notNull().unique(),
     logo: pg.text("logo"),
+    // todo make this typed when actually used
     metadata: pg.text("metadata"),
     // Multi-tenant enhancement fields
-    type: organizationTypePgEnum("type").default(Organization.OrganizationTypeEnum.individual), // 'individual', 'team', 'enterprise'
-    ownerUserId: pg.text("owner_user_id"), // Reference to user who owns this org (relation defined in relations.ts)
+    type: organizationTypePgEnum("type").notNull().default(Organization.OrganizationTypeEnum.individual), // 'individual', 'team', 'enterprise'
+    ownerUserId: pg.text("owner_user_id").$type<IamEntityIds.UserId.Type>().notNull(), // Reference to user who owns this org (relation defined in relations.ts)
     isPersonal: pg.boolean("is_personal").notNull().default(false), // True for auto-created personal orgs
     maxMembers: pg.integer("max_members"), // Maximum members allowed
-    features: pg.jsonb("features"), // JSON string for feature flags
-    settings: pg.jsonb("settings"), // JSON string for org settings
+    // todo make this typed when actually used
+    features: pg.jsonb("features").$type<BS.Json.Type>(), // JSON string for feature flags
+    // todo make this typed when actually used
+    settings: pg.jsonb("settings").$type<BS.Json.Type>(), // JSON string for org settings
     subscriptionTier: subscriptionTierPgEnum("subscription_tier")
       .notNull()
       .default(Organization.SubscriptionTierEnum.free), // 'free', 'plus', 'pro', etc.
