@@ -13,7 +13,8 @@ import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import * as Str from "effect/String";
 import * as pg from "pg";
-
+// TODO use this setup https://github.com/radixdlt/radix-incentives/blob/78b29f6a95cdbe20582bfa70dbe76614664292e4/experiments/preview/src/index.ts#L2
+// TODO or this https://github.com/typeonce-dev/paddle-payments-full-stack-typescript-app/blob/4829ee5e0abf35d4b87a8763049a013b77c59221/apps/server/test/paddle.test.ts
 export async function setupDockerTestDb() {
   const POSTGRES_USER = "test";
   const POSTGRES_PASSWORD = "test";

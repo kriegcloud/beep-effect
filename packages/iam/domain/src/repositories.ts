@@ -1,5 +1,3 @@
-import { OrganizationRepo } from "@beep/shared-domain/Organization";
-import { TeamRepo } from "@beep/shared-domain/Team";
 import type { SqlClient } from "@effect/sql/SqlClient";
 import * as Layer from "effect/Layer";
 import { AccountRepo } from "./Account";
@@ -44,8 +42,6 @@ export type IamRepos =
   | UserRepo
   | VerificationRepo
   | WalletAddressRepo
-  | OrganizationRepo
-  | TeamRepo;
 
 export type IamReposLive = Layer.Layer<IamRepos, never, SqlClient>;
 
@@ -70,12 +66,9 @@ export const IamReposLive: IamReposLive = Layer.mergeAll(
   UserRepo.Default,
   VerificationRepo.Default,
   WalletAddressRepo.Default,
-  OrganizationRepo.Default,
-  TeamRepo.Default
 );
 
-export { OrganizationRepo } from "@beep/shared-domain/Organization";
-export { TeamRepo } from "@beep/shared-domain/Team";
+
 export { AccountRepo } from "./Account";
 export { ApiKeyRepo } from "./ApiKey";
 export { DeviceCodeRepo } from "./DeviceCode";

@@ -1,47 +1,50 @@
-import type { UnsafeTypes } from "@beep/types";
-import type * as Effect from "effect/Effect";
+import type {UnsafeTypes} from "@beep/types";
+import * as M from "@effect/sql/Model";
+import * as Effect from "effect/Effect";
+import {EntityId} from "@beep/schema/EntityId";
+import * as Str from "effect/String";
 
-export const makeRepo = <
-  SE,
-  SR,
-  I1,
-  I2,
-  I3,
-  I4,
-  I5,
-  I6,
-  I7,
-  A1,
-  A3,
-  A5,
-  A7,
-  E1,
-  E2,
-  E3,
-  E4,
-  E5,
-  E6,
-  E7,
-  R1,
-  R2,
-  R3,
-  R4,
-  R5,
-  R6,
-  R7,
-  TExtra extends Record<string, UnsafeTypes.UnsafeAny> = NonNullable<unknown>,
->(
-  maker: Effect.Effect<
-    {
-      readonly insert: (input: I1) => Effect.Effect<A1, E1, R1>;
-      readonly insertVoid: (input: I2) => Effect.Effect<void, E2, R2>;
-      readonly update: (input: I3) => Effect.Effect<A3, E3, R3>;
-      readonly updateVoid: (input: I4) => Effect.Effect<void, E4, R4>;
-      readonly findById: (input: I5) => Effect.Effect<A5, E5, R5>;
-      readonly delete: (input: I6) => Effect.Effect<void, E6, R6>;
-      readonly list: (input: I7) => Effect.Effect<A7, E7, R7>;
-    } & TExtra,
+
+export namespace Repo {
+  const tableNameToSpanPrefix = <TableName extends string>(tableName: TableName) => {
+    const name = Str.split("_")(tableName).map(Str.capitalize).join("");
+    return `${name}Repo`;
+  };
+
+  const makeBaseRepo = <
+    TableName extends string,
+    Brand extends string,
+    Model extends M.Any,
+  >(idSchema: EntityId.EntityIdSchemaInstance<TableName, Brand>, model: Model) => {
+    return M.makeRepository(model, {
+      tableName: idSchema.tableName,
+      idColumn: "_rowId",
+      spanPrefix: tableNameToSpanPrefix(idSchema.tableName),
+    });
+  };
+
+
+  export const make = <
+    TableName extends string,
+    Brand extends string,
+    Model extends M.Any,
     SE,
-    SR
-  >
-) => maker;
+    SR,
+    TExtra extends Record<string, UnsafeTypes.UnsafeAny> = NonNullable<unknown>,
+  >(
+    idSchema: EntityId.EntityIdSchemaInstance<TableName, Brand>,
+    model: Model,
+    maker: Effect.Effect<
+      TExtra,
+      SE,
+      SR
+    >
+  ) => Effect.flatMap(maker, (extra) => Effect.gen(function* () {
+    const repoBase = yield* makeBaseRepo(idSchema, model);
+
+    return {
+      ...repoBase,
+      ...extra,
+    };
+  }));
+}
