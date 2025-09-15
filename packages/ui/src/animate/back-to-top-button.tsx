@@ -5,8 +5,6 @@ import Fab from "@mui/material/Fab";
 import type React from "react";
 import { cloneElement } from "react";
 
-// ----------------------------------------------------------------------
-
 type BackToTopProps = FabProps & {
   isDebounce?: boolean;
   scrollThreshold?: string | number;

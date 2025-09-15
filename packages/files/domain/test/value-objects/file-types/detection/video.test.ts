@@ -1,4 +1,5 @@
 import { type DetectedFileInfo, fileTypeChecker } from "@beep/files-domain/value-objects";
+import type { UnsafeTypes } from "@beep/types";
 import { describe, expect, it } from "@effect/vitest";
 
 describe("detectFile", () => {
@@ -45,7 +46,7 @@ describe("detectFile", () => {
   });
 
   it("should throw a TypeError if the file type is not valid", () => {
-    const file: any = "10";
+    const file: UnsafeTypes.UnsafeAny = "10";
     const func = () => {
       fileTypeChecker.detectFile(file);
     };

@@ -2,8 +2,6 @@ import type { SvgIconProps } from "@mui/material/SvgIcon";
 import SvgIcon from "@mui/material/SvgIcon";
 import { memo } from "react";
 
-// ----------------------------------------------------------------------
-
 function PlanPremiumIcon({ sx, ...other }: SvgIconProps) {
   return (
     <SvgIcon

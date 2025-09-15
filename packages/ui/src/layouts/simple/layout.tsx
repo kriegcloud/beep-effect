@@ -11,8 +11,6 @@ import { HeaderSection, LayoutSection, MainSection } from "../core";
 import type { SimpleCompactContentProps } from "./content";
 import { SimpleCompactContent } from "./content";
 
-// ----------------------------------------------------------------------
-
 type LayoutBaseProps = Pick<LayoutSectionProps, "sx" | "children" | "cssVars">;
 
 export type SimpleLayoutProps = LayoutBaseProps & {

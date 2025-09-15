@@ -6,8 +6,6 @@ import type { SxProps, Theme } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
 import type React from "react";
 
-// ----------------------------------------------------------------------
-
 export const chipProps: ChipProps = { size: "small", variant: "soft" };
 
 export type FiltersResultProps = React.ComponentProps<"div"> & {
@@ -34,8 +32,6 @@ export function FiltersResult({ sx, onReset, children, totalResults, ...other }:
     </ResultRoot>
   );
 }
-
-// ----------------------------------------------------------------------
 
 const ResultRoot = styled("div")``;
 

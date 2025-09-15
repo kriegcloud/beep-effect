@@ -6,8 +6,6 @@ import { m } from "framer-motion";
 
 import { varContainer } from "./variants";
 
-// ----------------------------------------------------------------------
-
 export type MotionViewportProps = BoxProps &
   MotionProps & {
     disableAnimate?: boolean;

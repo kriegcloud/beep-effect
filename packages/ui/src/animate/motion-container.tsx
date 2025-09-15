@@ -5,8 +5,6 @@ import { m } from "framer-motion";
 
 import { varContainer } from "./variants";
 
-// ----------------------------------------------------------------------
-
 export type MotionContainerProps = BoxProps &
   MotionProps & {
     animate?: boolean;

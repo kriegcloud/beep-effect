@@ -1,7 +1,5 @@
 import { createClasses } from "@beep/ui/theme/create-classes";
 
-// ----------------------------------------------------------------------
-
 export const layoutClasses = {
   root: createClasses("layout__root"),
   main: createClasses("layout__main"),

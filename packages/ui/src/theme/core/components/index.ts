@@ -43,8 +43,6 @@ import { textField } from "./text-field";
 import { timeline } from "./timeline";
 import { tooltip } from "./tooltip";
 
-// ----------------------------------------------------------------------
-
 export const components: Components<Theme> = {
   ...card,
   ...link,

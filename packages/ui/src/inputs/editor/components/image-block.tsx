@@ -8,8 +8,6 @@ import { editorClasses } from "../classes";
 import type { EditorToolbarItemProps, EditorToolbarProps } from "../types";
 import { ToolbarItem } from "./toolbar-item";
 
-// ----------------------------------------------------------------------
-
 type ImageBlockProps = Pick<EditorToolbarProps, "editor"> & Pick<EditorToolbarItemProps, "icon">;
 
 export function ImageBlock({ editor, icon }: ImageBlockProps) {

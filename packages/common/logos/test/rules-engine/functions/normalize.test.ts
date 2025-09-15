@@ -1,13 +1,14 @@
 import { RootGroup } from "@beep/logos";
 import { addGroup, addRuleToGroup } from "@beep/logos/crud";
 import { normalize } from "@beep/logos/normalize";
+import type { UnsafeTypes } from "@beep/types";
 import { v4 as uuid } from "uuid";
 import { expect, test } from "vitest";
 
 test("normalization removes an invalid rule", () => {
   const root = RootGroup.make({ logicalOp: "or" });
 
-  const rule: any = addRuleToGroup(root, {
+  const rule: UnsafeTypes.UnsafeAny = addRuleToGroup(root, {
     field: "name",
     op: { _tag: "stringContains" },
     type: "string",
@@ -24,7 +25,7 @@ test("normalization removes an invalid rule", () => {
 test("normalization fixes the parent id of a rule", () => {
   const root = RootGroup.make({ logicalOp: "or" });
 
-  const rule: any = addRuleToGroup(root, {
+  const rule: UnsafeTypes.UnsafeAny = addRuleToGroup(root, {
     field: "name",
     op: { _tag: "stringContains" },
     type: "string",

@@ -4,8 +4,6 @@ import type { SvgIconProps } from "@mui/material/SvgIcon";
 import SvgIcon from "@mui/material/SvgIcon";
 import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
-
 const SEVERITIES = ["info", "success", "warning", "error"] as const;
 
 type AlertVariants = ComponentsVariants<Theme>["MuiAlert"];

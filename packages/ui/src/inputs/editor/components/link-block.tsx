@@ -9,8 +9,6 @@ import { editorClasses } from "../classes";
 import type { EditorToolbarProps } from "../types";
 import { ToolbarItem } from "./toolbar-item";
 
-// ----------------------------------------------------------------------
-
 type LinkBlockProps = Pick<EditorToolbarProps, "editor"> & {
   icons?: Record<"link" | "unsetLink", React.ReactNode>;
 };

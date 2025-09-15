@@ -8,8 +8,6 @@ import { SETTINGS_STORAGE_KEY } from "../settings-config";
 import type { SettingsProviderProps, SettingsState } from "../types";
 import { SettingsContext } from "./settings-context";
 
-// ----------------------------------------------------------------------
-
 export function SettingsProvider({
   children,
   cookieSettings,

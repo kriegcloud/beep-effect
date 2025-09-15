@@ -4,11 +4,7 @@ import { styled } from "@mui/material/styles";
 
 import { navBasicClasses } from "../styles";
 
-// ----------------------------------------------------------------------
-
 export const Nav = styled("nav")``;
-
-// ----------------------------------------------------------------------
 
 type NavLiProps = React.ComponentProps<"li"> & { disabled?: boolean };
 
@@ -24,8 +20,6 @@ export const NavLi = styled(
     },
   ],
 }));
-
-// ----------------------------------------------------------------------
 
 type NavUlProps = React.ComponentProps<"ul">;
 

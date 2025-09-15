@@ -2,8 +2,6 @@ import type { ThemeConfig } from "@beep/ui/theme/theme-config";
 import type { ThemeColorPreset } from "@beep/ui/theme/with-settings";
 import type { SxProps, Theme } from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
-
 export type SettingsState = {
   version: string;
   fontSize: number;

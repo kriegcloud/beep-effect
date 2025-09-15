@@ -8,7 +8,6 @@ import { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { fallbackLang, type SupportedLangValue } from "./constants";
 import { getCurrentLang } from "./locales-config";
-// ----------------------------------------------------------------------
 
 export function useTranslate(namespace?: Namespace) {
   const router = useRouter();
@@ -68,8 +67,6 @@ export function useTranslate(namespace?: Namespace) {
     onResetLang: handleResetLang,
   };
 }
-
-// ----------------------------------------------------------------------
 
 export function useLocaleDirectionSync() {
   const { i18n, currentLang } = useTranslate();

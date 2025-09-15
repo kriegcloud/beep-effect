@@ -4,8 +4,6 @@ import { styled } from "@mui/material/styles";
 
 import { uploadClasses } from "../classes";
 
-// ----------------------------------------------------------------------
-
 export const UploadWrapper = styled("div")({
   width: "100%",
   position: "relative",

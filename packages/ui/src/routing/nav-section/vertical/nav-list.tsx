@@ -12,7 +12,7 @@ export function NavList({ data, depth, render, slotProps, checkPermissions, enab
   const pathname = usePathname();
   const navItemRef = useRef<HTMLButtonElement>(null);
 
-  const isActive = isActiveLink(pathname, data.path, !!data.children);
+  const isActive = isActiveLink(pathname, data.path, data.deepMatch ?? !!data.children);
 
   const { value: open, onFalse: onClose, onToggle } = useBoolean(isActive);
 
@@ -20,6 +20,7 @@ export function NavList({ data, depth, render, slotProps, checkPermissions, enab
     if (!isActive) {
       onClose();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const handleToggleMenu = useCallback(() => {
@@ -40,7 +41,7 @@ export function NavList({ data, depth, render, slotProps, checkPermissions, enab
       // state
       open={open}
       active={isActive}
-      disabled={data.disabled ?? false}
+      disabled={data.disabled}
       // options
       depth={depth}
       render={render}
@@ -56,7 +57,7 @@ export function NavList({ data, depth, render, slotProps, checkPermissions, enab
 
   const renderCollapse = () =>
     !!data.children && (
-      <NavCollapse mountOnEnter unmountOnExit {...(depth ? { depth } : {})} in={open} data-group={data.title}>
+      <NavCollapse mountOnEnter unmountOnExit depth={depth} in={open} data-group={data.title}>
         <NavSubList
           data={data.children}
           render={render}

@@ -8,8 +8,6 @@ import { styled } from "@mui/material/styles";
 import { layoutClasses } from "./classes";
 import { layoutSectionVars } from "./css-vars";
 
-// ----------------------------------------------------------------------
-
 export type LayoutSectionProps = React.ComponentProps<"div"> & {
   sx?: SxProps<Theme>;
   cssVars?: CSSObject;
@@ -58,8 +56,6 @@ export function LayoutSection({
     </>
   );
 }
-
-// ----------------------------------------------------------------------
 
 const LayoutRoot = styled("div")``;
 

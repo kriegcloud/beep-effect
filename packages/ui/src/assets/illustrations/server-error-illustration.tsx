@@ -4,8 +4,6 @@ import { memo } from "react";
 
 import { BackgroundShape } from "./background-shape";
 
-// ----------------------------------------------------------------------
-
 type SvgProps = SvgIconProps & { hideBackground?: boolean };
 
 function ServerErrorIllustration({ hideBackground, sx, ...other }: SvgProps) {

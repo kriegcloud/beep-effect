@@ -3,8 +3,6 @@ import type { SvgIconProps } from "@mui/material/SvgIcon";
 import SvgIcon from "@mui/material/SvgIcon";
 import { memo } from "react";
 
-// ----------------------------------------------------------------------
-
 type SvgProps = SvgIconProps & { hideBackground?: boolean };
 
 function ForbiddenIllustration({ hideBackground, sx, ...other }: SvgProps) {

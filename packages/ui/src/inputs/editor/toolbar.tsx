@@ -12,8 +12,6 @@ import { ToolbarItem } from "./components/toolbar-item";
 import { toolbarIcons } from "./icons";
 import type { EditorToolbarProps } from "./types";
 
-// ----------------------------------------------------------------------
-
 export function Toolbar({
   sx,
   editor,

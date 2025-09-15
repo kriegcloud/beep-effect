@@ -11,8 +11,6 @@ import type { Components, CSSObject, Theme } from "@mui/material/styles";
 import type { GridBaseIconProps } from "@mui/x-data-grid";
 import { gridClasses } from "@mui/x-data-grid";
 
-// ----------------------------------------------------------------------
-
 export type IconProps = Omit<SvgIconProps & GridBaseIconProps, "color">;
 
 /* **********************************************************************

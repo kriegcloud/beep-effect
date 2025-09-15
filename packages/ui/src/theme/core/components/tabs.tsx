@@ -2,8 +2,6 @@ import type { Components, ComponentsVariants, Theme } from "@mui/material/styles
 import { tabClasses } from "@mui/material/Tab";
 import type { TabsClassKey } from "@mui/material/Tabs";
 
-// ----------------------------------------------------------------------
-
 /**
  * TypeScript extension for MUI theme augmentation.
  * @to {@link file://./../../extend-theme-types.d.ts}

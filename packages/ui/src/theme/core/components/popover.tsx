@@ -1,8 +1,6 @@
 import { listClasses } from "@mui/material/List";
 import type { Components, Theme } from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
-
 const MuiPopover: Components<Theme>["MuiPopover"] = {
   // ▼▼▼▼▼▼▼▼ 🎨 STYLE ▼▼▼▼▼▼▼▼
   styleOverrides: {

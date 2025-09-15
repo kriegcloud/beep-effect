@@ -14,11 +14,11 @@ export function NavItem({
   info,
   title,
   caption,
-  /********/
+
   open,
   active,
   disabled,
-  /********/
+
   depth,
   render,
   hasChild,
@@ -41,8 +41,8 @@ export function NavItem({
 
   const ownerState: StyledState = {
     open,
-    active: active ?? false,
-    disabled: disabled ?? false,
+    active,
+    disabled,
     variant: navItem.rootItem ? "rootItem" : "subItem",
   };
 
@@ -56,24 +56,24 @@ export function NavItem({
         [navSectionClasses.state.active]: active,
         [navSectionClasses.state.disabled]: disabled,
       })}
-      sx={slotProps?.sx ?? {}}
+      sx={slotProps?.sx}
       {...other}
     >
       {icon && (
-        <ItemIcon {...ownerState} className={navSectionClasses.item.icon} sx={slotProps?.icon ?? {}}>
+        <ItemIcon {...ownerState} className={navSectionClasses.item.icon} sx={slotProps?.icon}>
           {navItem.renderIcon}
         </ItemIcon>
       )}
 
       {title && (
-        <ItemTexts {...ownerState} className={navSectionClasses.item.texts} sx={slotProps?.texts ?? {}}>
-          <ItemTitle {...ownerState} className={navSectionClasses.item.title} sx={slotProps?.title ?? {}}>
+        <ItemTexts {...ownerState} className={navSectionClasses.item.texts} sx={slotProps?.texts}>
+          <ItemTitle {...ownerState} className={navSectionClasses.item.title} sx={slotProps?.title}>
             {title}
           </ItemTitle>
 
           {caption && (
             <Tooltip title={caption} placement="top-start">
-              <ItemCaptionText {...ownerState} className={navSectionClasses.item.caption} sx={slotProps?.caption ?? {}}>
+              <ItemCaptionText {...ownerState} className={navSectionClasses.item.caption} sx={slotProps?.caption}>
                 {caption}
               </ItemCaptionText>
             </Tooltip>
@@ -82,7 +82,7 @@ export function NavItem({
       )}
 
       {info && (
-        <ItemInfo {...ownerState} className={navSectionClasses.item.info} sx={slotProps?.info ?? {}}>
+        <ItemInfo {...ownerState} className={navSectionClasses.item.info} sx={slotProps?.info}>
           {navItem.renderInfo}
         </ItemInfo>
       )}
@@ -92,7 +92,7 @@ export function NavItem({
           {...ownerState}
           icon={open ? "eva:arrow-ios-downward-fill" : "eva:arrow-ios-forward-fill"}
           className={navSectionClasses.item.arrow}
-          sx={slotProps?.arrow ?? {}}
+          sx={slotProps?.arrow}
         />
       )}
     </ItemRoot>
@@ -112,7 +112,7 @@ const ItemRoot = styled(ButtonBase, { shouldForwardProp })<StyledState>(({ activ
   const bulletSvg = `"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' viewBox='0 0 14 14'%3E%3Cpath d='M1 1v4a8 8 0 0 0 8 8h4' stroke='%23efefef' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"`;
 
   const bulletStyles: CSSObject = {
-    left: 12.2,
+    left: 0,
     content: '""',
     position: "absolute",
     width: "var(--nav-bullet-size)",
@@ -190,7 +190,6 @@ const ItemIcon = styled("span", { shouldForwardProp })<StyledState>(() => ({
  */
 const ItemTexts = styled("span", { shouldForwardProp })<StyledState>(() => ({
   ...navItemStyles.texts,
-  paddingLeft: 10,
 }));
 
 /**
@@ -200,12 +199,7 @@ const ItemTitle = styled("span", { shouldForwardProp })<StyledState>(({ theme })
   ...navItemStyles.title(theme),
   ...theme.typography.body2,
   fontWeight: theme.typography.fontWeightMedium,
-  variants: [
-    {
-      props: { active: true },
-      style: { fontWeight: theme.typography.fontWeightSemiBold },
-    },
-  ],
+  variants: [{ props: { active: true }, style: { fontWeight: theme.typography.fontWeightSemiBold } }],
 }));
 
 /**

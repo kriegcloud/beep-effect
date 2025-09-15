@@ -8,8 +8,6 @@ import type { SvgIconProps } from "@mui/material/SvgIcon";
 import SvgIcon from "@mui/material/SvgIcon";
 import type { Components, ComponentsVariants, CSSObject, Theme } from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
-
 type AccordionVariants = ComponentsVariants<Theme>["MuiAccordion"];
 
 /* **********************************************************************

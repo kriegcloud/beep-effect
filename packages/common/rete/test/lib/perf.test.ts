@@ -1,4 +1,5 @@
 import { beep } from "@beep/rete";
+import type { UnsafeTypes } from "@beep/types";
 import { afterAll, describe, expect, it } from "@effect/vitest";
 import { faker } from "@faker-js/faker";
 import _ from "lodash";
@@ -152,7 +153,7 @@ describe("company price scheduling...", () => {
 
   it("let's add a few complex companies", () => {
     const perf: number[] = [];
-    const insert = (obj: any) => {
+    const insert = (obj: UnsafeTypes.UnsafeAny) => {
       const b = performance.now();
       session.insert(obj);
       const a = performance.now();

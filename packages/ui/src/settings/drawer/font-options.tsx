@@ -7,8 +7,6 @@ import type { SettingsState } from "../types";
 
 import { OptionButton } from "./styles";
 
-// ----------------------------------------------------------------------
-
 export type FontFamilyOptionsProps = BoxProps & {
   options: string[];
   icon: React.ReactNode;
@@ -53,8 +51,6 @@ export function FontFamilyOptions({ sx, icon, value, options, onChangeOption, ..
     </Box>
   );
 }
-
-// ----------------------------------------------------------------------
 
 export type FontSizeOptionsProps = SliderProps & {
   options: [number, number];

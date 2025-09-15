@@ -1,11 +1,12 @@
 import type { $Schema, Condition, Production, Var } from "@beep/rete/network/types";
 import { Field } from "@beep/rete/network/types";
+import type { UnsafeTypes } from "@beep/types";
 import { isVar } from "../is-var";
 export const addConditionsToProduction = <T extends $Schema, U>(
   production: Production<T, U>,
   id: number | string | Var.Type,
   attr: keyof T,
-  value: Var.Type | any,
+  value: Var.Type | UnsafeTypes.UnsafeAny,
   then: boolean
 ) => {
   const condition: Condition<T> = { shouldTrigger: then, nodes: [], vars: [] };

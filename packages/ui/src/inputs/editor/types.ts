@@ -3,8 +3,6 @@ import type { ButtonBaseProps } from "@mui/material/ButtonBase";
 import type { SxProps, Theme } from "@mui/material/styles";
 import type { Editor, EditorOptions } from "@tiptap/react";
 
-// ----------------------------------------------------------------------
-
 export type EditorProps = Partial<EditorOptions> & {
   value?: string;
   error?: boolean;

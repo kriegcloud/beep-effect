@@ -4,8 +4,6 @@ import type { SvgIconProps } from "@mui/material/SvgIcon";
 import SvgIcon from "@mui/material/SvgIcon";
 import type { Components, Theme } from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
-
 /* **********************************************************************
  * ♉️ Custom icons
  * **********************************************************************/

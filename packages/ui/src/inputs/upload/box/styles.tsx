@@ -4,8 +4,6 @@ import { styled } from "@mui/material/styles";
 
 import { uploadClasses } from "../classes";
 
-// ----------------------------------------------------------------------
-
 export const UploadArea = styled("div")(({ theme }) => ({
   width: 64,
   height: 64,

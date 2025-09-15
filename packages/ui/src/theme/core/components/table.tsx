@@ -3,8 +3,6 @@ import type { Components, Theme } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material/TableCell";
 import { tableRowClasses } from "@mui/material/TableRow";
 
-// ----------------------------------------------------------------------
-
 const MuiTableContainer: Components<Theme>["MuiTableContainer"] = {
   // ▼▼▼▼▼▼▼▼ 🎨 STYLE ▼▼▼▼▼▼▼▼
   styleOverrides: {

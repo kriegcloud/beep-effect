@@ -1,7 +1,5 @@
 import type { Transition } from "framer-motion";
 
-// ----------------------------------------------------------------------
-
 export const varHover = (value = 1.09) => ({
   scale: value,
 });

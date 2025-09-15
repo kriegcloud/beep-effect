@@ -6,8 +6,6 @@ import { navBasicClasses } from "../styles";
 import type { NavListProps, NavSubListProps } from "../types";
 import { NavItem } from "./nav-item";
 
-// ----------------------------------------------------------------------
-
 export function NavList({ data, depth, render, slotProps, enabledRootRedirect }: NavListProps) {
   const pathname = usePathname();
   const navItemRef = useRef<HTMLButtonElement>(null);
@@ -83,8 +81,6 @@ export function NavList({ data, depth, render, slotProps, enabledRootRedirect }:
     </NavLi>
   );
 }
-
-// ----------------------------------------------------------------------
 
 function NavSubList({ data, render, depth = 0, slotProps, enabledRootRedirect }: NavSubListProps) {
   return (

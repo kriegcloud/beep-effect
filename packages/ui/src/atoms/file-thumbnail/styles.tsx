@@ -4,8 +4,6 @@ import IconButton from "@mui/material/IconButton";
 import { styled } from "@mui/material/styles";
 import type { FileThumbnailProps } from "./types";
 
-// ----------------------------------------------------------------------
-
 export const ThumbnailRoot = styled("span")(({ theme }) => ({
   width: 36,
   height: 36,

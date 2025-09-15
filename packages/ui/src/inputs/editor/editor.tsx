@@ -19,8 +19,6 @@ import { EditorRoot } from "./styles";
 import { Toolbar } from "./toolbar";
 import type { EditorProps } from "./types";
 
-// ----------------------------------------------------------------------
-
 export function Editor({
   sx,
   ref,

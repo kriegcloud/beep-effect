@@ -24,8 +24,6 @@ import { NavColorOptions, NavLayoutOptions } from "./nav-layout-option";
 import { PresetsOptions } from "./presets-options";
 import { LargeBlock, SmallBlock } from "./styles";
 
-// ----------------------------------------------------------------------
-
 export function SettingsDrawer({ sx, defaultSettings }: SettingsDrawerProps) {
   const settings = useSettingsContext();
   const { mode, setMode, colorScheme } = useColorScheme();

@@ -1,7 +1,5 @@
 import { createClasses } from "@beep/ui/theme/create-classes";
 
-// ----------------------------------------------------------------------
-
 export const colorPreviewClasses = {
   root: createClasses("color__preview__root"),
   item: createClasses("color__preview__item"),

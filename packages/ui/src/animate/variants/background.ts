@@ -1,7 +1,5 @@
 import type { TargetAndTransition, Transition, Variants } from "framer-motion";
 
-// ----------------------------------------------------------------------
-
 type Direction = "top" | "bottom" | "left" | "right";
 
 export const varBgColor = (colors: string[], options?: TargetAndTransition): Variants => ({
@@ -17,8 +15,6 @@ export const varBgColor = (colors: string[], options?: TargetAndTransition): Var
     },
   },
 });
-
-// ----------------------------------------------------------------------
 
 export const varBgKenburns = (direction: Direction, options?: TargetAndTransition): Variants => {
   const transition: Transition = {
@@ -70,8 +66,6 @@ export const varBgKenburns = (direction: Direction, options?: TargetAndTransitio
 
   return variants[direction];
 };
-
-// ----------------------------------------------------------------------
 
 export const varBgPan = (direction: Direction, colors: string[], options?: TargetAndTransition): Variants => {
   const gradient = (deg: number) => `linear-gradient(${deg}deg, ${colors.join(", ")})`;

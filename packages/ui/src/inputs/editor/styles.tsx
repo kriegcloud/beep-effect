@@ -4,8 +4,6 @@ import { styled } from "@mui/material/styles";
 
 import { editorClasses } from "./classes";
 
-// ----------------------------------------------------------------------
-
 const MARGIN = "0.75em";
 
 type EditorRootProps = {

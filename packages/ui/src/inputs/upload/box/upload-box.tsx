@@ -5,8 +5,6 @@ import { uploadClasses } from "../classes";
 import type { UploadProps } from "../types";
 import { UploadArea } from "./styles";
 
-// ----------------------------------------------------------------------
-
 export function UploadBox({ sx, error, disabled, className, placeholder, ...dropzoneOptions }: UploadProps) {
   const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
     disabled,

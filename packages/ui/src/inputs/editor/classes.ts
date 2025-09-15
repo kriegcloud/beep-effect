@@ -1,7 +1,5 @@
 import { createClasses } from "@beep/ui/theme/create-classes";
 
-// ----------------------------------------------------------------------
-
 export const editorClasses = {
   root: createClasses("editor__root"),
   toolbar: {

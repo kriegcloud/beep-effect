@@ -5,8 +5,6 @@ import type { SettingsState } from "../types";
 
 import { OptionButton } from "./styles";
 
-// ----------------------------------------------------------------------
-
 export type PresetsOptionsProps = BoxProps & {
   icon: React.ReactNode;
   value: SettingsState["primaryColor"];

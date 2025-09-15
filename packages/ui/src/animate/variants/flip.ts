@@ -2,8 +2,6 @@ import type { Transition, Variants } from "framer-motion";
 
 import { transitionEnter, transitionExit } from "./transition";
 
-// ----------------------------------------------------------------------
-
 type Direction = "inX" | "inY" | "outX" | "outY";
 
 type Options = {

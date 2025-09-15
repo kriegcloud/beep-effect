@@ -1,7 +1,5 @@
 import { createClasses } from "@beep/ui/theme/create-classes";
 
-// ----------------------------------------------------------------------
-
 export const uploadClasses = {
   box: createClasses("upload__box"),
   avatar: createClasses("upload__avatar"),

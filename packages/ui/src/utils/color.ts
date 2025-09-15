@@ -25,8 +25,6 @@ export function hexToRgbChannel(hexColor: string): string {
   return `${r} ${g} ${b}`;
 }
 
-// ----------------------------------------------------------------------
-
 /**
  * Converts a hex palette color to RGB channels palette.
  *
@@ -76,8 +74,6 @@ export function createPaletteChannel<T extends InputPalette>(hexPalette: T): Cha
 
   return { ...hexPalette, ...channelPalette } as ChannelPalette<T>;
 }
-
-// ----------------------------------------------------------------------
 
 /**
  * Adds an alpha channel to a color.

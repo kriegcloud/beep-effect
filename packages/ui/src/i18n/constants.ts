@@ -362,3 +362,6 @@ export const allLanguages = A.make(
     },
   }
 );
+
+export const allLangs = allLanguages;
+export type LangCode = LangOption["value"];

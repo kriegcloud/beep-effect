@@ -5,9 +5,7 @@ import { Iconify, iconifyClasses } from "../../../atoms";
 import { mergeClasses } from "../../../utils";
 import { navSectionClasses } from "../styles";
 
-export type NavSubheaderProps = ListSubheaderProps & {
-  open?: boolean | undefined;
-};
+export type NavSubheaderProps = ListSubheaderProps & { open?: boolean };
 
 export const NavSubheader = styled(({ open, children, className, ...other }: NavSubheaderProps) => (
   <ListSubheader

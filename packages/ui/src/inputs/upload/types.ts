@@ -4,8 +4,6 @@ import type { MultiFilePreviewProps, PreviewOrientation } from "./components/mul
 import type { RejectedFiles } from "./components/rejected-files";
 import type { UploadWrapper } from "./default/styles";
 
-// ----------------------------------------------------------------------
-
 export type FileUploadType = File | string | null;
 export type FilesUploadType = (File | string)[];
 

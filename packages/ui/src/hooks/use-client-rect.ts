@@ -3,8 +3,6 @@ import type { RefObject } from "react";
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
-// ----------------------------------------------------------------------
-
 /**
  * Custom hook to get the bounding client rect and scroll dimensions of a DOM element.
  *

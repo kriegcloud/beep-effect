@@ -2,8 +2,6 @@ import { rgbaFromChannel } from "@beep/ui/utils";
 import { sliderClasses } from "@mui/material/Slider";
 import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
-
 /**
  * TypeScript extension for MUI theme augmentation.
  * @to {@link file://./../../extend-theme-types.d.ts}

@@ -1,7 +1,5 @@
 import type { Components, Theme } from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
-
 const MuiPaper: Components<Theme>["MuiPaper"] = {
   // ▼▼▼▼▼▼▼▼ ⚙️ PROPS ▼▼▼▼▼▼▼▼
   defaultProps: {

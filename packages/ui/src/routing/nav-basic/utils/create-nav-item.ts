@@ -3,8 +3,6 @@ import React from "react";
 import { RouterLink } from "../../RouterLink";
 import type { NavItemDataProps, NavItemOptionsProps } from "../types";
 
-// ----------------------------------------------------------------------
-
 type CreateNavItemReturn = {
   subItem: boolean;
   rootItem: boolean;

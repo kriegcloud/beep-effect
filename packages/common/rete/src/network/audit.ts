@@ -1,3 +1,4 @@
+import type { UnsafeTypes } from "@beep/types";
 export enum AuditAction {
   INSERTION = "INSERTION",
   UPDATE = "UPDATE",
@@ -25,11 +26,11 @@ export type AuditRecord =
       tag: AuditRecordType.FACT;
       action: AuditAction;
 
-      fact: any;
+      fact: UnsafeTypes.UnsafeAny;
 
-      oldFact?: any;
+      oldFact?: UnsafeTypes.UnsafeAny;
 
-      meta?: any;
+      meta?: UnsafeTypes.UnsafeAny;
     }
   | {
       tag: AuditRecordType.RULE;
@@ -37,7 +38,7 @@ export type AuditRecord =
       trigger: AuditRuleTrigger;
       state: AuditEntryState;
 
-      meta?: any;
+      meta?: UnsafeTypes.UnsafeAny;
     }
   | {
       tag: AuditRecordType.FIRE;

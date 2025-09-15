@@ -4,8 +4,6 @@ import { borderGradient } from "./border";
 import { filledStyles, menuItemStyles, paperStyles, softStyles } from "./global-styles-components";
 import { maxLine, textGradient } from "./text";
 
-// ----------------------------------------------------------------------
-
 /**
  * TypeScript extension for MUI theme augmentation.
  * @to {@link file://./../../extend-theme-types.d.ts}

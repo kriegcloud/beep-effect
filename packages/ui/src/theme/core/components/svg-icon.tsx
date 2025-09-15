@@ -1,7 +1,5 @@
 import type { Components, Theme } from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
-
 const MuiSvgIcon: Components<Theme>["MuiSvgIcon"] = {
   // ▼▼▼▼▼▼▼▼ 🎨 STYLE ▼▼▼▼▼▼▼▼
   styleOverrides: {

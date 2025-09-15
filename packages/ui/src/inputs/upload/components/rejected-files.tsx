@@ -6,8 +6,6 @@ import { styled } from "@mui/material/styles";
 import type { FileRejection } from "react-dropzone";
 import { uploadClasses } from "../classes";
 
-// ----------------------------------------------------------------------
-
 export type RejectedFilesProps = React.ComponentProps<typeof RejectedList> & {
   files?: readonly FileRejection[];
 };
@@ -32,8 +30,6 @@ export function RejectedFiles({ files = [], sx, className, ...other }: RejectedF
     </RejectedList>
   );
 }
-
-// ----------------------------------------------------------------------
 
 const RejectedList = styled("ul")(({ theme }) => ({
   display: "flex",

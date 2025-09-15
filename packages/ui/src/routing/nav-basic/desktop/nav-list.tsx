@@ -9,8 +9,6 @@ import { navBasicClasses } from "../styles";
 import type { NavListProps, NavSubListProps } from "../types";
 import { NavItem } from "./nav-item";
 
-// ----------------------------------------------------------------------
-
 export function NavList({ data, depth, render, cssVars, slotProps, enabledRootRedirect }: NavListProps) {
   const theme = useTheme();
   const pathname = usePathname();
@@ -115,8 +113,6 @@ export function NavList({ data, depth, render, cssVars, slotProps, enabledRootRe
     </NavLi>
   );
 }
-
-// ----------------------------------------------------------------------
 
 function NavSubList({ data, render, cssVars, depth = 0, slotProps, enabledRootRedirect }: NavSubListProps) {
   return (

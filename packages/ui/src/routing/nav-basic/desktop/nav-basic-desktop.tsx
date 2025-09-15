@@ -4,8 +4,6 @@ import { navBasicClasses, navBasicVars } from "../styles";
 import type { NavBasicProps } from "../types";
 import { NavList } from "./nav-list";
 
-// ----------------------------------------------------------------------
-
 export function NavBasicDesktop({
   sx,
   data,

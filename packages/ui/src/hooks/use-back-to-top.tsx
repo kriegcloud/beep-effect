@@ -3,8 +3,6 @@ import type { Dispatch, SetStateAction } from "react";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-// ----------------------------------------------------------------------
-
 /**
  * Custom hook to manage the visibility of a "Back to Top" button based on scroll position.
  *
@@ -86,8 +84,6 @@ export function useBackToTop(defaultValue: string | number, isDebounce?: boolean
     setIsVisible,
   };
 }
-
-// ----------------------------------------------------------------------
 
 /**
  * Parses the input value to determine if it is a percentage or a number.

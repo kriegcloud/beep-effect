@@ -4,8 +4,6 @@ import type { Components, Theme } from "@mui/material/styles";
 
 import { getInputTypography } from "./text-field";
 
-// ----------------------------------------------------------------------
-
 const MuiFormControl: Components<Theme>["MuiFormControl"] = {
   // ▼▼▼▼▼▼▼▼ ⚙️ PROPS ▼▼▼▼▼▼▼▼
   defaultProps: {

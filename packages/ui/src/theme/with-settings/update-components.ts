@@ -2,8 +2,6 @@ import type { SettingsState } from "@beep/ui/settings";
 import { cardClasses } from "@mui/material/Card";
 import type { Components, Theme } from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
-
 export function applySettingsToComponents(settingsState?: SettingsState): {
   components: Components<Theme>;
 } {

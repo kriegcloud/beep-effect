@@ -11,8 +11,6 @@ import { m, useSpring, useTransform } from "framer-motion";
 import type React from "react";
 import { Fragment } from "react";
 
-// ----------------------------------------------------------------------
-
 export const scrollProgressClasses = {
   circular: createClasses("scroll__progress__circular"),
   linear: createClasses("scroll__progress__linear"),
@@ -122,8 +120,6 @@ export function ScrollProgress({
     </PortalWrapper>
   );
 }
-
-// ----------------------------------------------------------------------
 
 const CircularRoot = styled(m.svg)(({ theme }) => ({
   transform: "rotate(-90deg)",

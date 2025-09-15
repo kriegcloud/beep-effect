@@ -6,54 +6,53 @@ import type React from "react";
  * Item
  */
 export type NavItemRenderProps = {
-  navIcon?: Record<string, React.ReactNode> | undefined;
-  navInfo?: ((val: string) => Record<string, React.ReactElement>) | undefined;
+  navIcon?: Record<string, React.ReactNode>;
+  navInfo?: (val: string) => Record<string, React.ReactElement>;
 };
 
 export type NavItemStateProps = {
-  open?: boolean | undefined;
-  active?: boolean | undefined;
-  disabled?: boolean | undefined;
+  open?: boolean;
+  active?: boolean;
+  disabled?: boolean;
 };
 
 export type NavItemSlotProps = {
-  sx?: SxProps<Theme> | undefined;
-  icon?: SxProps<Theme> | undefined;
-  texts?: SxProps<Theme> | undefined;
-  title?: SxProps<Theme> | undefined;
-  caption?: SxProps<Theme> | undefined;
-  info?: SxProps<Theme> | undefined;
-  arrow?: SxProps<Theme> | undefined;
+  sx?: SxProps<Theme>;
+  icon?: SxProps<Theme>;
+  texts?: SxProps<Theme>;
+  title?: SxProps<Theme>;
+  caption?: SxProps<Theme>;
+  info?: SxProps<Theme>;
+  arrow?: SxProps<Theme>;
 };
 
 export type NavSlotProps = {
-  rootItem?: NavItemSlotProps | undefined;
-  subItem?: NavItemSlotProps | undefined;
-  subheader?: SxProps<Theme> | undefined;
-  dropdown?:
-    | {
-        paper?: SxProps<Theme> | undefined;
-      }
-    | undefined;
+  rootItem?: NavItemSlotProps;
+  subItem?: NavItemSlotProps;
+  subheader?: SxProps<Theme>;
+  dropdown?: {
+    paper?: SxProps<Theme>;
+  };
 };
 
 export type NavItemOptionsProps = {
-  depth?: number | undefined;
-  hasChild?: boolean | undefined;
-  externalLink?: boolean | undefined;
-  enabledRootRedirect?: boolean | undefined;
-  render?: NavItemRenderProps | undefined;
-  slotProps?: NavItemSlotProps | undefined;
+  depth?: number;
+  hasChild?: boolean;
+  externalLink?: boolean;
+  enabledRootRedirect?: boolean;
+  render?: NavItemRenderProps;
+  slotProps?: NavItemSlotProps;
 };
 
 export type NavItemDataProps = Pick<NavItemStateProps, "disabled"> & {
   path: string;
   title: string;
-  icon?: string | undefined | React.ReactNode;
-  info?: string[] | undefined | React.ReactNode;
-  caption?: string | undefined;
-  allowedRoles?: string | undefined | string[];
-  children?: NavItemDataProps[] | undefined;
+  icon?: string | React.ReactNode;
+  info?: string[] | React.ReactNode;
+  caption?: string;
+  deepMatch?: boolean;
+  allowedRoles?: string | string[];
+  children?: NavItemDataProps[];
 };
 
 export type NavItemProps = ButtonBaseProps & NavItemDataProps & NavItemStateProps & NavItemOptionsProps;
@@ -62,10 +61,10 @@ export type NavItemProps = ButtonBaseProps & NavItemDataProps & NavItemStateProp
  * List
  */
 export type NavListProps = Pick<NavItemProps, "render" | "depth" | "enabledRootRedirect"> & {
-  cssVars?: CSSObject | undefined;
+  cssVars?: CSSObject;
   data: NavItemDataProps;
-  slotProps?: NavSlotProps | undefined;
-  checkPermissions?: ((allowedRoles?: NavItemProps["allowedRoles"] | undefined) => boolean) | undefined;
+  slotProps?: NavSlotProps;
+  checkPermissions?: (allowedRoles?: NavItemProps["allowedRoles"]) => boolean;
 };
 
 export type NavSubListProps = Omit<NavListProps, "data"> & {
@@ -82,9 +81,9 @@ export type NavGroupProps = Omit<NavListProps, "data" | "depth"> & {
  */
 export type NavSectionProps = React.ComponentProps<"nav"> &
   Omit<NavListProps, "data" | "depth"> & {
-    sx?: SxProps<Theme> | undefined;
+    sx?: SxProps<Theme>;
     data: {
-      subheader: string | undefined;
+      subheader?: string;
       items: NavItemDataProps[];
     }[];
   };

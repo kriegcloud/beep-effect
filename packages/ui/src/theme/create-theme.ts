@@ -15,8 +15,6 @@ import { typography } from "./core/typography";
 import { themeConfig } from "./theme-config";
 import type { ThemeOptions } from "./types";
 
-// ----------------------------------------------------------------------
-
 export const baseTheme: ThemeOptions = {
   colorSchemes: {
     light: {
@@ -39,8 +37,6 @@ export const baseTheme: ThemeOptions = {
   direction: themeConfig.direction,
   cssVariables: themeConfig.cssVariables,
 };
-
-// ----------------------------------------------------------------------
 
 type CreateThemeProps = {
   settingsState?: SettingsState;

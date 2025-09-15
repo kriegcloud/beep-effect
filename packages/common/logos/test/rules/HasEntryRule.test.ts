@@ -1,7 +1,8 @@
 import { HasEntryRule } from "@beep/logos/v2/rules";
+import type { UnsafeTypes } from "@beep/types";
 import { describe, expect, test } from "vitest";
 
-const kv = (key: string, value: any) => ({ key, value });
+const kv = (key: string, value: UnsafeTypes.UnsafeAny) => ({ key, value });
 
 describe("HasEntryRule.validate", () => {
   test("contains — exact KV present (scalar)", () => {

@@ -2,8 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// ----------------------------------------------------------------------
-
 export type UseFilePreviewReturn = {
   previewUrl: string;
   setPreviewUrl: React.Dispatch<React.SetStateAction<string>>;
@@ -43,8 +41,6 @@ export function useFilePreview(file?: File | string | null): UseFilePreviewRetur
     setPreviewUrl,
   };
 }
-
-// ----------------------------------------------------------------------
 
 export type FilePreviewItem = {
   previewUrl: string;

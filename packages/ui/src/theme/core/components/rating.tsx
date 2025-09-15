@@ -3,8 +3,6 @@ import type { SvgIconProps } from "@mui/material/SvgIcon";
 import SvgIcon from "@mui/material/SvgIcon";
 import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
-
 /**
  * TypeScript extension for MUI theme augmentation.
  * @to {@link file://./../../extend-theme-types.d.ts}

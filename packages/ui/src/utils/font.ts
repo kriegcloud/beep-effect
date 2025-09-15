@@ -15,8 +15,6 @@ export function setFont(fontName?: string) {
   return fontName ? `"${fontName}", ${DEFAULT_FONT_FAMILY}` : DEFAULT_FONT_FAMILY;
 }
 
-// ----------------------------------------------------------------------
-
 /**
  * Converts rem to px.
  *
@@ -34,8 +32,6 @@ export function remToPx(value: string): number {
 
   return Math.round(remValue * 16);
 }
-
-// ----------------------------------------------------------------------
 
 /**
  * Converts px to rem.

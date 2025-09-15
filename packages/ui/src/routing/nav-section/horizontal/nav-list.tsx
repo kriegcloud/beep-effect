@@ -1,9 +1,9 @@
 "use client";
+import { popoverClasses } from "@mui/material/Popover";
 import { useTheme } from "@mui/material/styles";
 import { useCallback, useEffect } from "react";
 import { usePathname, usePopoverHover } from "../../../hooks";
 import { isActiveLink, isExternalLink } from "../../../utils";
-
 import { NavDropdown, NavDropdownPaper, NavLi, NavUl } from "../components";
 import { navSectionClasses } from "../styles";
 import type { NavListProps, NavSubListProps } from "../types";
@@ -22,7 +22,7 @@ export function NavList({
 
   const pathname = usePathname();
 
-  const isActive = isActiveLink(pathname, data.path, !!data.children);
+  const isActive = isActiveLink(pathname, data.path, data.deepMatch ?? !!data.children);
 
   const { open, onOpen, onClose, anchorEl, elementRef: navItemRef } = usePopoverHover<HTMLButtonElement>();
 
@@ -34,6 +34,7 @@ export function NavList({
     if (open) {
       onClose();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const handleOpenMenu = useCallback(() => {
@@ -55,7 +56,7 @@ export function NavList({
       // state
       active={isActive}
       open={open}
-      disabled={data.disabled ?? false}
+      disabled={data.disabled}
       // options
       depth={depth}
       render={render}
@@ -74,6 +75,7 @@ export function NavList({
     !!data.children && (
       <NavDropdown
         disableScrollLock
+        aria-hidden={!open}
         id={id}
         open={open}
         anchorEl={anchorEl}
@@ -94,8 +96,14 @@ export function NavList({
             className: navSectionClasses.dropdown.root,
           },
         }}
+        sx={{
+          ...cssVars,
+          [`& .${popoverClasses.paper}`]: {
+            ...(depth === 1 && { pt: 1, ml: -0.75 }),
+          },
+        }}
       >
-        <NavDropdownPaper className={navSectionClasses.dropdown.paper} sx={slotProps?.dropdown?.paper ?? {}}>
+        <NavDropdownPaper className={navSectionClasses.dropdown.paper} sx={slotProps?.dropdown?.paper}>
           <NavSubList
             data={data.children}
             depth={depth}
@@ -117,12 +125,7 @@ export function NavList({
   return (
     <NavLi disabled={data.disabled}>
       {renderNavItem()}
-      {/*
-       * TODO: Should be removed in MUI next.
-       * Add `open` condition to disable transition effect on close.
-       * https://github.com/mui/material-ui/issues/43106
-       */}
-      {open && renderDropdown()}
+      {renderDropdown()}
     </NavLi>
   );
 }

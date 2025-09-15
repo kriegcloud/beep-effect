@@ -2,8 +2,6 @@ import type { CommonColors, Direction, Theme, ThemeProviderProps } from "@mui/ma
 import type { PaletteColorKey, PaletteColorNoChannels } from "./core/palette";
 import type { ThemeCssVariables } from "./types";
 
-// ----------------------------------------------------------------------
-
 export type ThemeConfig = {
   direction: Direction;
   classesPrefix: string;

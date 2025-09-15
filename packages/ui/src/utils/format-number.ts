@@ -30,8 +30,6 @@ export function fNumber(inputValue: InputNumberValue) {
   }).format(number);
 }
 
-// ----------------------------------------------------------------------
-
 export function fCurrency(inputValue: InputNumberValue) {
   const locale = DEFAULT_LOCALE;
 
@@ -46,8 +44,6 @@ export function fCurrency(inputValue: InputNumberValue) {
   }).format(number);
 }
 
-// ----------------------------------------------------------------------
-
 export function fPercent(inputValue: InputNumberValue) {
   const locale = DEFAULT_LOCALE;
 
@@ -60,8 +56,6 @@ export function fPercent(inputValue: InputNumberValue) {
     maximumFractionDigits: 1,
   }).format(number / 100);
 }
-
-// ----------------------------------------------------------------------
 
 export function fShortenNumber(inputValue: InputNumberValue) {
   const locale = DEFAULT_LOCALE;

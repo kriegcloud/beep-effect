@@ -6,8 +6,6 @@ import ButtonBase from "@mui/material/ButtonBase";
 import { styled } from "@mui/material/styles";
 import Tooltip from "@mui/material/Tooltip";
 
-// ----------------------------------------------------------------------
-
 type LargeBlockProps = React.ComponentProps<typeof LargeBlockRoot> & {
   title: string;
   tooltip?: string;
@@ -63,8 +61,6 @@ export function LargeBlock({ sx, title, tooltip, children, canReset, onReset, ..
   );
 }
 
-// ----------------------------------------------------------------------
-
 type SmallBlockProps = React.ComponentProps<typeof SmallBlockRoot> & {
   label: string;
   canReset?: boolean;
@@ -116,8 +112,6 @@ export function SmallBlock({ label, canReset, onReset, sx, children, ...other }:
     </SmallBlockRoot>
   );
 }
-
-// ----------------------------------------------------------------------
 
 export type OptionButtonProps = ButtonBaseProps & {
   selected?: boolean;

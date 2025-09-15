@@ -7,8 +7,6 @@ import { styled } from "@mui/material/styles";
 import { uploadClasses } from "../classes";
 import type { FileUploadType } from "../types";
 
-// ----------------------------------------------------------------------
-
 export type SingleFilePreviewProps = React.ComponentProps<typeof PreviewRoot> & {
   file: FileUploadType;
 };
@@ -23,8 +21,6 @@ export function SingleFilePreview({ sx, file, className, ...other }: SingleFileP
     </PreviewRoot>
   );
 }
-
-// ----------------------------------------------------------------------
 
 const PreviewRoot = styled("div")(({ theme }) => ({
   top: 0,

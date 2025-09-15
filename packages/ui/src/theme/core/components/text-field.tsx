@@ -9,8 +9,6 @@ import { outlinedInputClasses } from "@mui/material/OutlinedInput";
 import type { Components, ComponentsVariants, CSSObject, Theme } from "@mui/material/styles";
 import type { PickerTextFieldOwnerState } from "@mui/x-date-pickers/models";
 
-// ----------------------------------------------------------------------
-
 type InputContext = "standard" | "picker";
 
 type InputSizeProps = Pick<FilledInputProps, "size" | "hiddenLabel"> & {

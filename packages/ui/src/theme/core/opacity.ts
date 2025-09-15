@@ -1,7 +1,5 @@
 import type { Opacity } from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
-
 export type OpacityExtend = {
   filled: {
     commonHoverBg: number;

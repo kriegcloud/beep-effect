@@ -1,6 +1,4 @@
 import type { UnsafeTypes } from "@beep/types";
-import * as A from "effect/Array";
-import * as Tuple from "effect/Tuple";
 import type React from "react";
 import { cloneElement } from "react";
 import { RouterLink } from "../../../routing/RouterLink";
@@ -10,7 +8,6 @@ type CreateNavItemReturn = {
   subItem: boolean;
   rootItem: boolean;
   subDeepItem: boolean;
-
   baseProps: Record<string, UnsafeTypes.UnsafeAny>;
   renderIcon: React.ReactNode;
   renderInfo: React.ReactNode;
@@ -33,7 +30,7 @@ export function createNavItem({
   const subDeepItem = Number(depth) > 2;
 
   const linkProps = externalLink
-    ? { href: path, target: "_blank", rel: "noopener" }
+    ? { href: path, target: "_blank", rel: "noopener noreferrer" }
     : { component: RouterLink, href: path };
 
   const baseProps = hasChild && !enabledRootRedirect ? { component: "div" } : linkProps;
@@ -54,11 +51,9 @@ export function createNavItem({
    */
   let renderInfo = null;
 
-  if (info && A.isArray(info) && Tuple.isTupleOfAtLeast(2)(info) && render?.navInfo) {
-    const key = info[0];
-
-    const value = info[1];
-    const element = render.navInfo(value)[key];
+  if (info && render?.navInfo && Array.isArray(info)) {
+    const [key, value] = info;
+    const element = render.navInfo(value!)[key!];
 
     renderInfo = element ? cloneElement(element) : null;
   } else {

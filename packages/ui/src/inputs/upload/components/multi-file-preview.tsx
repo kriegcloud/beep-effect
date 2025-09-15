@@ -8,8 +8,6 @@ import { styled } from "@mui/material/styles";
 import { uploadClasses } from "../classes";
 import type { FilesUploadType, UploadProps } from "../types";
 
-// ----------------------------------------------------------------------
-
 export type PreviewOrientation = "horizontal" | "vertical";
 
 export type MultiFilePreviewProps = React.ComponentProps<typeof PreviewList> &
@@ -103,8 +101,6 @@ export function MultiFilePreview({
     </PreviewList>
   );
 }
-
-// ----------------------------------------------------------------------
 
 export const PreviewList = styled("ul", {
   shouldForwardProp: (prop: string) => !["orientation", "sx"].includes(prop),

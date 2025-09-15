@@ -8,19 +8,17 @@ import { navBasicClasses, navItemStyles } from "../styles";
 import type { NavItemProps } from "../types";
 import { createNavItem } from "../utils";
 
-// ----------------------------------------------------------------------
-
 export function NavItem({
   path,
   icon,
   info,
   title,
   caption,
-  /********/
+
   open,
   active,
   disabled,
-  /********/
+
   depth,
   render,
   hasChild,
@@ -100,8 +98,6 @@ export function NavItem({
     </ItemRoot>
   );
 }
-
-// ----------------------------------------------------------------------
 
 type StyledState = Pick<NavItemProps, "open" | "active" | "disabled"> & {
   variant: "rootItem" | "subItem";

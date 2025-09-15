@@ -9,8 +9,6 @@ import type {
 } from "@mui/material/styles";
 import type { CustomShadows } from "./core/custom-shadows";
 
-// ----------------------------------------------------------------------
-
 /**
  * Theme options
  * Extended type that includes additional properties for color schemes and CSS variables.
@@ -37,8 +35,6 @@ export type ThemeOptions = Omit<MuiThemeOptions, "components"> &
     cssVariables?: ThemeCssVariables;
     components?: Components<Theme>;
   };
-
-// ----------------------------------------------------------------------
 
 /**
  * DeepPartial utility type that recursively makes all properties of T optional.

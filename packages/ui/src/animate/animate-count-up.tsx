@@ -4,8 +4,6 @@ import type { UseInViewOptions } from "framer-motion";
 import { animate, m, useInView, useMotionValue, useTransform } from "framer-motion";
 import { useEffect, useRef } from "react";
 
-// ----------------------------------------------------------------------
-
 export type AnimateCountUpProps = TypographyProps & {
   readonly to: number;
   readonly from?: undefined | number;
@@ -65,8 +63,6 @@ export function AnimateCountUp({
     </Typography>
   );
 }
-
-// ----------------------------------------------------------------------
 
 function isFloat(n: number | string) {
   return typeof n === "number" && !Number.isInteger(n);

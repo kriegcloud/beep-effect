@@ -1,8 +1,6 @@
 import { rgbaFromChannel } from "@beep/ui/utils";
 import type { Components, Theme } from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
-
 const MuiBackdrop: Components<Theme>["MuiBackdrop"] = {
   // ▼▼▼▼▼▼▼▼ 🎨 STYLE ▼▼▼▼▼▼▼▼
   styleOverrides: {

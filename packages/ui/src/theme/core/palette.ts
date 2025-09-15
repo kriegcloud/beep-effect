@@ -4,8 +4,6 @@ import { themeConfig } from "../theme-config";
 import type { SchemesRecord } from "../types";
 import { opacity } from "./opacity";
 
-// ----------------------------------------------------------------------
-
 /**
  * TypeScript extension for MUI theme augmentation.
  * @to {@link file://./../extend-theme-types.d.ts}

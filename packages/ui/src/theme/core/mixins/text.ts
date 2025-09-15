@@ -3,8 +3,6 @@ import type { CSSObject } from "@mui/material/styles";
 
 import { createTheme as getTheme } from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
-
 /**
  * Creates a text gradient effect by applying a linear gradient as the text color.
  *
@@ -25,8 +23,6 @@ export function textGradient(color?: string): CSSObject {
     color: "transparent",
   };
 }
-
-// ----------------------------------------------------------------------
 
 /**
  * Creates a multi-line text truncation style with optional height calculation based on typography.

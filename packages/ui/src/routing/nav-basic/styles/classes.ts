@@ -1,7 +1,5 @@
 import { createClasses } from "@beep/ui/theme/create-classes";
 
-// ----------------------------------------------------------------------
-
 export const navBasicClasses = {
   mobile: createClasses("nav__basic__mobile"),
   desktop: createClasses("nav__basic__desktop"),

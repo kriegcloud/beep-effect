@@ -6,8 +6,6 @@ import { initReactI18next } from "react-i18next/initReactI18next";
 import { defaultNS, fallbackLang, SupportedLangValue, storageConfig } from "./constants";
 import { i18nOptions, i18nResourceLoader } from "./locales-config";
 
-// ----------------------------------------------------------------------
-
 /**
  * Internationalization configuration for Next.js server-side.
  *
@@ -46,8 +44,6 @@ export async function detectLanguage() {
   return lang as SupportedLangValue.Type;
 }
 
-// ----------------------------------------------------------------------
-
 export async function initServerI18next(lang: SupportedLangValue.Type, namespace: string): Promise<i18n> {
   const i18nInstance = createInstance();
   const initOptions = i18nOptions(lang, namespace);
@@ -56,8 +52,6 @@ export async function initServerI18next(lang: SupportedLangValue.Type, namespace
 
   return i18nInstance;
 }
-
-// ----------------------------------------------------------------------
 
 type Options = Record<string, unknown> & {
   keyPrefix?: string;

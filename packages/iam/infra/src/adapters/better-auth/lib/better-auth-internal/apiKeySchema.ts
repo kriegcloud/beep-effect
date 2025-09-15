@@ -1,6 +1,6 @@
 import parseJSON from "@beep/iam-infra/adapters/better-auth/lib/better-auth-internal/parser";
+import type { UnsafeTypes } from "@beep/types";
 import type { AuthPluginSchema } from "../better-auth.types";
-
 export const apiKeySchema = ({ timeWindow, rateLimitMax }: { timeWindow: number; rateLimitMax: number }) =>
   ({
     apikey: {
@@ -181,7 +181,7 @@ export const apiKeySchema = ({ timeWindow, rateLimitMax }: { timeWindow: number;
             },
             output(value) {
               if (!value) return null;
-              return parseJSON<any>(value as string);
+              return parseJSON<UnsafeTypes.UnsafeAny>(value as string);
             },
           },
         },

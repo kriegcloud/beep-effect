@@ -9,8 +9,6 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import { m } from "framer-motion";
 
-// ----------------------------------------------------------------------
-
 export function View500() {
   return (
     <SimpleLayout

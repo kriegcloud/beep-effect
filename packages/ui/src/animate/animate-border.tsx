@@ -9,8 +9,6 @@ import { useTheme } from "@mui/material/styles";
 import { m, useAnimationFrame, useMotionTemplate, useMotionValue, useTransform } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
-// ----------------------------------------------------------------------
-
 const animateBorderClasses = {
   root: createClasses("border__animation__root"),
   primaryBorder: createClasses("border__animation__primary"),
@@ -147,8 +145,6 @@ export function AnimateBorder({ sx, children, duration, slotProps, className, ..
   );
 }
 
-// ----------------------------------------------------------------------
-
 type MovingBorderProps = BoxProps<"span"> & {
   readonly rx?: undefined | string;
   readonly ry?: undefined | string;
@@ -217,8 +213,6 @@ function MovingBorder({ sx, size, isHidden, rx = "30%", ry = "30%", duration = 8
     </Box>
   );
 }
-
-// ----------------------------------------------------------------------
 
 function useComputedElementStyles(theme: Theme, ref: React.RefObject<HTMLSpanElement | null>) {
   const [computedStyles, setComputedStyles] = useState<CSSObject | null>(null);

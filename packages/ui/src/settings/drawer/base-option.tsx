@@ -7,8 +7,6 @@ import Switch from "@mui/material/Switch";
 import { styled } from "@mui/material/styles";
 import Tooltip from "@mui/material/Tooltip";
 
-// ----------------------------------------------------------------------
-
 export type BaseOptionProps = Omit<ButtonBaseProps, "action"> & {
   label: string;
   tooltip?: string;
@@ -38,8 +36,6 @@ export function BaseOption({ sx, icon, label, action, tooltip, selected, onChang
     </ItemRoot>
   );
 }
-
-// ----------------------------------------------------------------------
 
 const ItemRoot = styled(ButtonBase, {
   shouldForwardProp: (prop: string) => !["selected", "sx"].includes(prop),

@@ -6,8 +6,6 @@ import type { PaletteColorKey } from "../palette";
 
 import { colorKeys } from "../palette";
 
-// ----------------------------------------------------------------------
-
 /**
  * TypeScript extension for MUI theme augmentation.
  * @to {@link file://./../../extend-theme-types.d.ts}

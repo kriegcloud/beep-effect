@@ -6,7 +6,7 @@ import { navSectionClasses } from "../styles";
 export const Nav = styled("nav")``;
 
 type NavLiProps = React.ComponentProps<"li"> & {
-  disabled?: boolean | undefined;
+  disabled?: boolean;
 };
 
 export const NavLi = styled(

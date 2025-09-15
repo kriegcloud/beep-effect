@@ -1,7 +1,5 @@
 import { useId } from "react";
 
-// ----------------------------------------------------------------------
-
 export function BackgroundShape() {
   const uniqueId = useId();
 

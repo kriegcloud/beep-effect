@@ -1,5 +1,4 @@
 import { useTheme } from "@mui/material/styles";
-import * as A from "effect/Array";
 import { Scrollbar } from "../../../molecules";
 import { mergeClasses } from "../../../utils";
 import { Nav, NavLi, NavUl } from "../components";
@@ -23,12 +22,7 @@ export function NavSectionHorizontal({
   const cssVars = { ...navSectionCssVars.horizontal(theme), ...overridesVars };
 
   return (
-    <Scrollbar
-      sx={{ height: 1 }}
-      slotProps={{
-        contentSx: { height: 1, display: "flex", alignItems: "center" },
-      }}
-    >
+    <Scrollbar sx={{ height: 1 }} slotProps={{ contentSx: { height: 1, display: "flex", alignItems: "center" } }}>
       <Nav
         className={mergeClasses([navSectionClasses.horizontal, className])}
         sx={[
@@ -45,19 +39,17 @@ export function NavSectionHorizontal({
         {...other}
       >
         <NavUl sx={{ flexDirection: "row", gap: "var(--nav-item-gap)" }}>
-          {data.map((group) =>
-            group.subheader || A.isNonEmptyArray(group.items) ? (
-              <Group
-                key={group.subheader ?? group.items[0]?.title}
-                render={render}
-                cssVars={cssVars}
-                items={group.items}
-                slotProps={slotProps}
-                checkPermissions={checkPermissions}
-                enabledRootRedirect={enabledRootRedirect}
-              />
-            ) : null
-          )}
+          {data.map((group) => (
+            <Group
+              key={group.subheader ?? group.items[0]?.title}
+              render={render}
+              cssVars={cssVars}
+              items={group.items}
+              slotProps={slotProps}
+              checkPermissions={checkPermissions}
+              enabledRootRedirect={enabledRootRedirect}
+            />
+          ))}
         </NavUl>
       </Nav>
     </Scrollbar>

@@ -1,7 +1,5 @@
 import type { TargetAndTransition, Variants } from "framer-motion";
 
-// ----------------------------------------------------------------------
-
 export const varPath = (props?: TargetAndTransition): Variants => ({
   animate: {
     fillOpacity: [0, 0, 1],

@@ -116,6 +116,7 @@
         "noArrayIndexKey": "off",
         "noExplicitAny": "warn",
         "useIterableCallbackReturn": "off",
+        "noTemplateCurlyInString": "off",
         "noThenProperty": "off",
         "noDuplicateObjectKeys": "off",
         "noCommentText": "off"

@@ -1,7 +1,5 @@
 import type { CSSObject } from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
-
 /**
  * Creates a CSS object for layered background gradients or images.
  *
@@ -47,8 +45,6 @@ export function bgGradient({ sizes, repeats, images, positions }: BgGradientProp
     backgroundPosition: positions?.join(", ") ?? "center",
   };
 }
-
-// ----------------------------------------------------------------------
 
 /**
  * Creates a CSS object for a blurred background effect with optional image overlay.

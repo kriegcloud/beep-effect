@@ -5,8 +5,6 @@ import { createShadowColor } from "../core/custom-shadows";
 import type { ThemeColorScheme, ThemeOptions } from "../types";
 import { primaryColorPresets } from "./color-presets";
 
-// ----------------------------------------------------------------------
-
 /**
  * Updates the core theme with the provided settings state.
  * @param theme - The base theme options to update.

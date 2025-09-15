@@ -6,8 +6,6 @@ import { useCallback } from "react";
 
 import { editorClasses } from "../classes";
 
-// ----------------------------------------------------------------------
-
 export function CodeHighlightBlock({ node, extension, updateAttributes }: NodeViewProps) {
   const { language } = node.attrs;
   const { lowlight } = extension.options;

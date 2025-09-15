@@ -9,8 +9,6 @@ import { RejectedFiles } from "../components/rejected-files";
 import type { UploadProps } from "../types";
 import { PlaceholderContainer, PreviewImage, UploadArea, UploadContent, UploadWrapper } from "./styles";
 
-// ----------------------------------------------------------------------
-
 export function UploadAvatar({
   sx,
   error,

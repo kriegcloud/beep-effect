@@ -7,8 +7,6 @@ import { menuItemClasses } from "@mui/material/MenuItem";
 import type { CSSObject, Theme } from "@mui/material/styles";
 import type { CommonColorsKeys, PaletteColorKey } from "../palette";
 
-// ----------------------------------------------------------------------
-
 /**
  * Generates styles for menu item components.
  *
@@ -46,8 +44,6 @@ export function menuItemStyles(theme: Theme): CSSObject {
     },
   };
 }
-
-// ----------------------------------------------------------------------
 
 /**
  * Generates styles for paper components.
@@ -105,8 +101,6 @@ export function paperStyles(theme: Theme, options?: PaperStyleOptions): CSSObjec
     }),
   };
 }
-
-// ----------------------------------------------------------------------
 
 /**
  * Generate style variant for components like Button, Chip, Label, etc.

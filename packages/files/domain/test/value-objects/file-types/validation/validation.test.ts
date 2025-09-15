@@ -1,4 +1,5 @@
 import { fileTypeChecker } from "@beep/files-domain/value-objects";
+import type { UnsafeTypes } from "@beep/types";
 import { describe, expect, it } from "@effect/vitest";
 
 describe("validateFileType", () => {
@@ -73,7 +74,7 @@ describe("validateFileType", () => {
   });
 
   it("should throw an error when given a corrupted Array<number>", () => {
-    const file: any = [
+    const file: UnsafeTypes.UnsafeAny = [
       null,
       80,
       78,

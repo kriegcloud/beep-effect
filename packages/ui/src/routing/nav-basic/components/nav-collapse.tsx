@@ -4,8 +4,6 @@ import { styled } from "@mui/material/styles";
 
 import { navBasicClasses } from "../styles";
 
-// ----------------------------------------------------------------------
-
 export const NavCollapse = styled(Collapse, {
   shouldForwardProp: (prop: string) => !["depth", "sx"].includes(prop),
 })<{ depth?: number }>(({ depth, theme }) => {

@@ -1,7 +1,5 @@
 import type { CSSObject } from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
-
 /**
  * Creates a CSS object for a gradient border.
  *
@@ -33,7 +31,7 @@ export function borderGradient(props?: BorderGradientProps): CSSObject {
     margin: "auto",
     position: "absolute",
     borderRadius: "inherit",
-    /********/
+
     mask: "linear-gradient(#FFF 0 0) content-box, linear-gradient(#FFF 0 0)",
     WebkitMask: "linear-gradient(#FFF 0 0) content-box, linear-gradient(#FFF 0 0)",
     maskComposite: "exclude",

@@ -37,6 +37,12 @@
       "require": "./build/cjs/animate/*",
       "default": "./build/src/animate/*"
     },
+    "./providers/*": {
+      "import": "./build/esm/providers/*",
+      "types": "./build/dts/providers/*",
+      "require": "./build/cjs/providers/*",
+      "default": "./build/src/providers/*"
+    },
     "./assets/*": {
       "import": "./build/esm/assets/*",
       "types": "./build/dts/assets/*",
@@ -165,6 +171,8 @@
     "@beep/constants": "workspace:^",
     "@emotion/cache": "*",
     "@emotion/react": "*",
+    "autosuggest-highlight": "*",
+    "es-toolkit": "*",
     "effect": "*",
     "@emotion/server": "*",
     "@emotion/styled": "*",
@@ -223,7 +231,14 @@
     "tailwind-merge": "*",
     "clsx": "*",
     "tailwindcss-animate": "*",
-    "tw-animate-css": "*"
+    "tw-animate-css": "*",
+    "embla-carousel": "*",
+    "embla-carousel-auto-height": "*",
+    "embla-carousel-auto-scroll": "*",
+    "embla-carousel-autoplay": "*",
+    "embla-carousel-fade": "*",
+    "embla-carousel-react": "*",
+    "react-apexcharts": "*"
   },
   "peerDependenciesMeta": {
     "@mui/icons-material": {
@@ -244,6 +259,7 @@
     "babel-plugin-transform-next-use-client": "*",
     "copyfiles": "*",
     "@babel/preset-react": "*",
-    "@types/copyfiles": "*"
+    "@types/copyfiles": "*",
+    "@types/autosuggest-highlight": "*"
   }
 }

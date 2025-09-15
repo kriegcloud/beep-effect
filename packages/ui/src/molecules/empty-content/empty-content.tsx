@@ -8,8 +8,6 @@ import type { TypographyProps } from "@mui/material/Typography";
 import Typography from "@mui/material/Typography";
 import type React from "react";
 
-// ----------------------------------------------------------------------
-
 export type EmptyContentProps = React.ComponentProps<"div"> & {
   title?: string;
   imgUrl?: string;
@@ -90,8 +88,6 @@ export function EmptyContent({
     </ContentRoot>
   );
 }
-
-// ----------------------------------------------------------------------
 
 const ContentRoot = styled("div", {
   shouldForwardProp: (prop: string) => !["filled", "sx"].includes(prop),

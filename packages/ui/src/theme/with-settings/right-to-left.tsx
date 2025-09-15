@@ -4,8 +4,6 @@ import type { Direction } from "@mui/material/styles";
 import rtlPlugin from "@mui/stylis-plugin-rtl";
 import { useEffect } from "react";
 
-// ----------------------------------------------------------------------
-
 type RtlProps = {
   direction: Direction;
   children: React.ReactNode;

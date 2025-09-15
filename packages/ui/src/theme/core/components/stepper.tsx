@@ -1,8 +1,6 @@
 import { parseCssVar } from "@beep/ui/utils";
 import type { Components, Theme } from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
-
 const MuiStepConnector: Components<Theme>["MuiStepConnector"] = {
   // ▼▼▼▼▼▼▼▼ 🎨 STYLE ▼▼▼▼▼▼▼▼
   styleOverrides: {

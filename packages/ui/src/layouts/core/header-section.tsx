@@ -11,8 +11,6 @@ import { styled } from "@mui/material/styles";
 
 import { layoutClasses } from "./classes";
 
-// ----------------------------------------------------------------------
-
 export type HeaderSectionProps = AppBarProps & {
   layoutQuery?: Breakpoint;
   disableOffset?: boolean;
@@ -74,8 +72,6 @@ export function HeaderSection({
     </HeaderRoot>
   );
 }
-
-// ----------------------------------------------------------------------
 
 type HeaderRootProps = Pick<HeaderSectionProps, "disableOffset" | "disableElevation"> & {
   isOffset: boolean;

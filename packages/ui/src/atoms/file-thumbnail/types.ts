@@ -1,8 +1,6 @@
 import type { TooltipProps } from "@mui/material/Tooltip";
 import type { DownloadButton, RemoveButton, ThumbnailImage, ThumbnailRoot } from "./styles";
 
-// ----------------------------------------------------------------------
-
 export type FileThumbnailProps = React.ComponentProps<typeof ThumbnailRoot> & {
   tooltip?: boolean;
   showImage?: boolean;

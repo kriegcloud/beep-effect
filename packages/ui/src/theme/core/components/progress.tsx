@@ -4,8 +4,6 @@ import type { Components, ComponentsVariants, Theme } from "@mui/material/styles
 
 import { colorKeys } from "../palette";
 
-// ----------------------------------------------------------------------
-
 type LinearProgressVariants = ComponentsVariants<Theme>["MuiLinearProgress"];
 
 const baseColors = ["inherit"] as const;

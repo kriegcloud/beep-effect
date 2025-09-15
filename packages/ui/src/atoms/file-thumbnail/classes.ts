@@ -1,7 +1,5 @@
 import { createClasses } from "@beep/ui/theme/create-classes";
 
-// ----------------------------------------------------------------------
-
 export const fileThumbnailClasses = {
   root: createClasses("file__thumbnail__root"),
   img: createClasses("file__thumbnail__img"),

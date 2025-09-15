@@ -1,7 +1,5 @@
 import type { Transition, Variants } from "framer-motion";
 
-// ----------------------------------------------------------------------
-
 type Options = {
   transitionIn?: Transition;
   transitionOut?: Transition;

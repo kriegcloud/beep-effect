@@ -2,8 +2,6 @@
 import type { Dispatch, SetStateAction, SyntheticEvent } from "react";
 import { useCallback, useState } from "react";
 
-// ----------------------------------------------------------------------
-
 /**
  * Custom hook to manage the state of tabs.
  *

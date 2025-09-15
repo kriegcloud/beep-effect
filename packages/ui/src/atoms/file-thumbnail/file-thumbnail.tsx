@@ -9,8 +9,6 @@ import type { FileThumbnailProps } from "./types";
 import { useFilePreview } from "./useFilePreview";
 import { getFileIcon, getFileMeta } from "./utils";
 
-// ----------------------------------------------------------------------
-
 export function FileThumbnail({
   sx,
   file,

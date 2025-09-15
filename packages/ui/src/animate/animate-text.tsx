@@ -10,8 +10,6 @@ import { useEffect, useMemo, useRef } from "react";
 
 import { varContainer, varFade } from "./variants";
 
-// ----------------------------------------------------------------------
-
 export const animateTextClasses = {
   root: createClasses("animate__text__root"),
   lines: createClasses("animate__text__lines"),
@@ -156,8 +154,6 @@ export function AnimateText({
     </Typography>
   );
 }
-
-// ----------------------------------------------------------------------
 
 const TextLine = styled("span")``;
 

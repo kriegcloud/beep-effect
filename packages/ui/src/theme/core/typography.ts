@@ -5,8 +5,6 @@ import { createTheme } from "@mui/material/styles";
 
 import { themeConfig } from "../theme-config";
 
-// ----------------------------------------------------------------------
-
 /**
  * TypeScript extension for MUI theme augmentation.
  * @to {@link file://./../extend-theme-types.d.ts}
@@ -43,8 +41,6 @@ function responsiveFontSizes(sizes: FontSizesInput): FontSizesResult {
     return styles;
   }, {} as FontSizesResult);
 }
-
-// ----------------------------------------------------------------------
 
 const primaryFont = setFont(themeConfig.fontFamily.primary);
 const secondaryFont = setFont(themeConfig.fontFamily.secondary);

@@ -7,8 +7,6 @@ import IconButton from "@mui/material/IconButton";
 import SvgIcon from "@mui/material/SvgIcon";
 import { m } from "framer-motion";
 
-// ----------------------------------------------------------------------
-
 export function SettingsButton({ sx, ...other }: IconButtonProps) {
   const settings = useSettingsContext();
 

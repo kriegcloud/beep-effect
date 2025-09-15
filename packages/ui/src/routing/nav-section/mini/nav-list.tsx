@@ -22,7 +22,7 @@ export function NavList({
 
   const pathname = usePathname();
 
-  const isActive = isActiveLink(pathname, data.path, !!data.children);
+  const isActive = isActiveLink(pathname, data.path, data.deepMatch ?? !!data.children);
 
   const { open, onOpen, onClose, anchorEl, elementRef: navItemRef } = usePopoverHover<HTMLButtonElement>();
 
@@ -34,6 +34,7 @@ export function NavList({
     if (open) {
       onClose();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const handleOpenMenu = useCallback(() => {
@@ -55,7 +56,7 @@ export function NavList({
       // state
       active={isActive}
       open={open}
-      disabled={data.disabled ?? false}
+      disabled={data.disabled}
       // options
       depth={depth}
       render={render}
@@ -74,17 +75,12 @@ export function NavList({
     !!data.children && (
       <NavDropdown
         disableScrollLock
+        aria-hidden={!open}
         id={id}
         open={open}
         anchorEl={anchorEl}
-        anchorOrigin={{
-          vertical: "center",
-          horizontal: isRtl ? "left" : "right",
-        }}
-        transformOrigin={{
-          vertical: "center",
-          horizontal: isRtl ? "right" : "left",
-        }}
+        anchorOrigin={{ vertical: "center", horizontal: isRtl ? "left" : "right" }}
+        transformOrigin={{ vertical: "center", horizontal: isRtl ? "right" : "left" }}
         slotProps={{
           paper: {
             onMouseEnter: handleOpenMenu,
@@ -92,14 +88,14 @@ export function NavList({
             className: navSectionClasses.dropdown.root,
           },
         }}
-        // sx={{ ...(cssVars ?? {}) }}
+        sx={{ ...cssVars }}
       >
-        <NavDropdownPaper className={navSectionClasses.dropdown.paper} sx={slotProps?.dropdown?.paper ?? {}}>
+        <NavDropdownPaper className={navSectionClasses.dropdown.paper} sx={slotProps?.dropdown?.paper}>
           <NavSubList
             data={data.children}
             depth={depth}
             render={render}
-            {...(cssVars ? { cssVars } : {})}
+            cssVars={cssVars}
             slotProps={slotProps}
             checkPermissions={checkPermissions}
             enabledRootRedirect={enabledRootRedirect}
@@ -116,12 +112,7 @@ export function NavList({
   return (
     <NavLi disabled={data.disabled}>
       {renderNavItem()}
-      {/*
-       * TODO: Should be removed in MUI next.
-       * Add `open` condition to disable transition effect on close.
-       * https://github.com/mui/material-ui/issues/43106
-       */}
-      {open && renderDropdown()}
+      {renderDropdown()}
     </NavLi>
   );
 }
@@ -143,7 +134,7 @@ function NavSubList({
           data={list}
           render={render}
           depth={depth + 1}
-          {...(cssVars ? { cssVars } : {})}
+          cssVars={cssVars}
           slotProps={slotProps}
           checkPermissions={checkPermissions}
           enabledRootRedirect={enabledRootRedirect}

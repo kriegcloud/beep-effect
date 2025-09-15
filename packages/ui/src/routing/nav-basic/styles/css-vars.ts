@@ -1,8 +1,6 @@
 import { rgbaFromChannel } from "@beep/ui/utils";
 import type { Theme } from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
-
 function desktopVars(theme: Theme) {
   const {
     shape,
@@ -33,8 +31,6 @@ function desktopVars(theme: Theme) {
     "--nav-icon-margin": "0 8px 0 0",
   };
 }
-
-// ----------------------------------------------------------------------
 
 function mobileVars(theme: Theme) {
   const {
@@ -71,7 +67,5 @@ function mobileVars(theme: Theme) {
     "--nav-icon-margin": "0 12px 0 0",
   };
 }
-
-// ----------------------------------------------------------------------
 
 export const navBasicVars = { desktop: desktopVars, mobile: mobileVars };

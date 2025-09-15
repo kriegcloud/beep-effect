@@ -1,8 +1,6 @@
 import { themeConfig } from "@beep/ui/theme/theme-config";
 import type { SettingsState } from "./types";
 
-// ----------------------------------------------------------------------
-
 export const SETTINGS_STORAGE_KEY: string = "app-settings";
 
 export const defaultSettings: SettingsState = {

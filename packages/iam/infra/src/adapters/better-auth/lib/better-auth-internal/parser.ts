@@ -1,3 +1,5 @@
+import type { UnsafeTypes } from "@beep/types";
+
 const PROTO_POLLUTION_PATTERNS = {
   proto:
     /"(?:_|\\u0{2}5[Ff]){2}(?:p|\\u0{2}70)(?:r|\\u0{2}72)(?:o|\\u0{2}6[Ff])(?:t|\\u0{2}74)(?:o|\\u0{2}6[Ff])(?:_|\\u0{2}5[Ff]){2}"\s*:/,
@@ -27,7 +29,7 @@ type ParseOptions = {
   /** Log warnings when suspicious patterns are detected */
   warnings?: boolean;
   /** Custom reviver function */
-  reviver?: (key: string, value: any) => any;
+  reviver?: (key: string, value: UnsafeTypes.UnsafeAny) => UnsafeTypes.UnsafeAny;
   /** Automatically convert ISO date strings to Date objects */
   parseDates?: boolean;
 };
@@ -101,7 +103,7 @@ function betterJSONParse<T = unknown>(value: unknown, options: ParseOptions = {}
   }
 
   try {
-    const secureReviver = (key: string, value: any) => {
+    const secureReviver = (key: string, value: UnsafeTypes.UnsafeAny) => {
       if (
         key === "__proto__" ||
         (key === "constructor" && value && typeof value === "object" && "prototype" in value)

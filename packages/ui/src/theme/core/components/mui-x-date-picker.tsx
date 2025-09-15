@@ -22,8 +22,6 @@ import {
   outlinedInputVariants,
 } from "./text-field";
 
-// ----------------------------------------------------------------------
-
 /* **********************************************************************
  * ♉️ Custom icons
  * **********************************************************************/
@@ -84,8 +82,6 @@ const ClockIcon = (props: SvgIconProps) => (
     />
   </SvgIcon>
 );
-
-// ----------------------------------------------------------------------
 
 const baseSlots = {
   switchViewIcon: SwitchViewIcon,
@@ -310,7 +306,7 @@ export const datePicker: Components<Theme> = {
   MuiPickerPopper,
   MuiPickersLayout,
   MuiDateTimePickerTabs,
-  /********/
+
   ...inputComponents,
   ...datePickerComponents,
   ...timePickerComponents,

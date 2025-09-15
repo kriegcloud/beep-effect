@@ -2,8 +2,6 @@ import { rgbaFromChannel } from "@beep/ui/utils";
 import { switchClasses } from "@mui/material/Switch";
 import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
-
 type SwitchVariants = ComponentsVariants<Theme>["MuiSwitch"];
 
 const DIMENSIONS: Record<

@@ -5,8 +5,6 @@ import type { SettingsState } from "../types";
 
 import { OptionButton } from "./styles";
 
-// ----------------------------------------------------------------------
-
 export type NavLayoutOptionProps = BoxProps & {
   value: SettingsState["navLayout"];
   options: {
@@ -51,8 +49,6 @@ export function NavLayoutOptions({ sx, value, options, onChangeOption, ...other 
     </Box>
   );
 }
-
-// ----------------------------------------------------------------------
 
 export type NavColorOptionProps = BoxProps & {
   value: SettingsState["navColor"];

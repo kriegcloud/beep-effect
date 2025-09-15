@@ -1,9 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
 
-// import { CONFIG } from 'src/global-config';
-
-// ----------------------------------------------------------------------
-
 export const FILE_FORMATS = {
   txt: ["txt", "md", "rtf", "csv", "log"],
   zip: ["zip", "rar", "7z", "tar", "gz", "bz2", "xz", "iso"],
@@ -84,8 +80,6 @@ const EXTENSION_TO_FORMAT: Record<string, FileFormat> = Object.fromEntries(
 );
 
 const isSupportedExtension = (ext: string): ext is AllExtensions => ALL_EXTENSIONS.has(ext as AllExtensions);
-
-// ----------------------------------------------------------------------
 
 /**
  * Extracts the file name from a URL or path.

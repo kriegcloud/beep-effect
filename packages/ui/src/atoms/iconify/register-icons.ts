@@ -6,8 +6,6 @@ import * as A from "effect/Array";
 import * as R from "effect/Record";
 import allIcons from "./icon-sets";
 
-// ----------------------------------------------------------------------
-
 export const iconSets = A.reduce(R.toEntries(allIcons), [] as IconifyJSON[], (acc, [key, value]) => {
   const [prefix, iconName] = key.split(":");
   const existingPrefix = acc.find((item) => item.prefix === prefix);
@@ -29,8 +27,6 @@ export const iconSets = A.reduce(R.toEntries(allIcons), [] as IconifyJSON[], (ac
 export const allIconNames = Object.keys(allIcons) as IconifyName[];
 
 export type IconifyName = keyof typeof allIcons;
-
-// ----------------------------------------------------------------------
 
 let areIconsRegistered = false;
 

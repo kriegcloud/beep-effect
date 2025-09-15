@@ -5,8 +5,6 @@ import { toggleButtonClasses } from "@mui/material/ToggleButton";
 
 import { colorKeys } from "../palette";
 
-// ----------------------------------------------------------------------
-
 type ToggleButtonVariants = ComponentsVariants<Theme>["MuiToggleButton"];
 type ToggleButtonGroupVariants = ComponentsVariants<Theme>["MuiToggleButtonGroup"];
 

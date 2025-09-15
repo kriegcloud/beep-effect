@@ -1,7 +1,5 @@
 import type { CSSObject, Theme } from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
-
 type NavItemStyles = {
   icon: CSSObject;
   info: CSSObject;

@@ -6,8 +6,6 @@ import { styled } from "@mui/material/styles";
 import { m } from "framer-motion";
 import type React from "react";
 
-// ----------------------------------------------------------------------
-
 export type AnimateLogoProps = React.ComponentProps<"div"> & {
   readonly sx?: undefined | SxProps<Theme>;
   readonly logo?: undefined | React.ReactNode;
@@ -95,8 +93,6 @@ const LogoZoomSecondaryOutline = styled(m.span)(({ theme }) => ({
   position: "absolute",
   border: `solid 8px ${rgbaFromChannel(theme.vars.palette.primary.darkChannel, 0.24)}`,
 }));
-
-// ----------------------------------------------------------------------
 
 export function AnimateLogoRotate({ logo, sx, slotProps, ...other }: AnimateLogoProps) {
   return (

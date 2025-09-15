@@ -4,8 +4,6 @@ import type { Components, ComponentsVariants, CSSObject, Theme } from "@mui/mate
 
 import { colorKeys } from "../palette";
 
-// ----------------------------------------------------------------------
-
 /**
  * TypeScript extension for MUI theme augmentation.
  * @to {@link file://./../../extend-theme-types.d.ts}
