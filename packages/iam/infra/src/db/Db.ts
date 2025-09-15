@@ -1,22 +1,14 @@
-import "server-only";
-import { type DbPool, makeScopedDb } from "@beep/core-db";
+import { Db } from "@beep/core-db";
 import { IamDbSchema } from "@beep/iam-tables";
-import type * as SqlClient from "@effect/sql/SqlClient";
+import type { SqlClient } from "@effect/sql/SqlClient";
+import type { SqlError } from "@effect/sql/SqlError";
+import type { ConfigError } from "effect/ConfigError";
 import * as Context from "effect/Context";
-import type * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-
 export namespace IamDb {
-  const { makeService } = makeScopedDb(IamDbSchema);
+  const { serviceEffect } = Db.make(IamDbSchema);
 
-  type Shape = Effect.Effect.Success<ReturnType<typeof makeService>>;
+  export class IamDb extends Context.Tag("@beep/iam-infra/IamDb")<IamDb, Db.Db<typeof IamDbSchema>>() {}
 
-  export class IamDb extends Context.Tag("IamDb")<IamDb, Shape>() {}
-
-  // No-deps layer: requires PgLive | DbPool.Live to be provided by the app runtime
-  //
-  export const layerWithoutDeps: Layer.Layer<IamDb, never, DbPool | SqlClient.SqlClient> = Layer.scoped(
-    IamDb,
-    makeService()
-  );
+  export const layer: Layer.Layer<IamDb, SqlError | ConfigError, SqlClient> = Layer.scoped(IamDb, serviceEffect);
 }

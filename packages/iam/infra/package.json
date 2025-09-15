@@ -63,6 +63,7 @@
     "stripe": "*",
     "zod": "*",
     "@better-auth/stripe": "*",
+    "postgres": "*",
     "better-call": "^1.0.18",
     "@dub/better-auth": "*",
     "@simplewebauthn/server": "*",

@@ -141,7 +141,6 @@ Below is a reference composition (not a code change yet). Adjust names to your a
 
 ```ts
 // apps/web/src/lib/runtime.ts
-import "server-only";
 import { Layer, Logger } from "effect";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import { NodeSdk } from "@effect/opentelemetry";

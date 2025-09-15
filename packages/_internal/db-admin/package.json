@@ -35,7 +35,7 @@
     "lint:circular": "pnpm madge -c .",
     "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' pnpm dotenvx tsx ./src/execute.ts"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@beep/invariant": "workspace:*",
     "@beep/utils": "workspace:*",
     "@beep/schema": "workspace:*",
@@ -43,14 +43,11 @@
     "@beep/errors": "workspace:*",
     "@beep/shared-domain": "workspace:*",
     "@beep/shared-tables": "workspace:*",
-    "@beep/core-email": "workspace:*",
     "@beep/core-db": "workspace:*",
     "@beep/iam-domain": "workspace:*",
-    "@beep/iam-services": "workspace:*",
     "@beep/iam-tables": "workspace:*",
     "@beep/iam-infra": "workspace:*",
     "@beep/files-domain": "workspace:*",
-    "@beep/files-services": "workspace:*",
     "@beep/files-tables": "workspace:*",
     "@beep/files-infra": "workspace:*",
     "@effect/sql-pg": "*",
@@ -69,7 +66,7 @@
     "drizzle-seed": "*",
     "@effect/platform-node": "*",
     "@effect/platform": "*",
-    "postgres": "^3.4.7"
+    "postgres": "*"
   },
   "effect": {
     "generateExports": {

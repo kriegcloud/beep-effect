@@ -1,114 +1,46 @@
-import { DbPool } from "@beep/core-db/db.pool";
-import * as DbErrors from "@beep/core-db/errors";
-import type { UnsafeTypes } from "@beep/types";
+import type * as SqlClient from "@effect/sql/SqlClient";
+import type { SqlError } from "@effect/sql/SqlError";
 import * as PgDrizzle from "@effect/sql-drizzle/Pg";
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Cause, Effect, Exit, Option, Runtime } from "effect";
-import * as Context from "effect/Context";
-import type { DbClient, ExecuteFn, TransactionClient, TransactionContextShape } from "./types";
+import * as PgClient from "@effect/sql-pg/PgClient";
+import { Effect } from "effect";
+import type { ConfigError } from "effect/ConfigError";
+import type * as Layer from "effect/Layer";
+import * as Str from "effect/String";
+import type { ConnectionOptions } from "./types";
 
-export const makeScopedDb = <const TFullSchema extends Record<string, unknown> = Record<string, never>>(
-  schema: TFullSchema
-) => {
-  const makeService = () =>
-    Effect.flatMap(
-      Effect.all([
-        DbPool,
-        PgDrizzle.make<typeof schema>({
-          schema: schema,
-        }),
-      ]),
-      ([{ pool, setupConnectionListeners }, pgDrizzle]) =>
-        Effect.gen(function* () {
-          const TransactionContext =
-            Context.GenericTag<TransactionContextShape<TFullSchema>>("DbScope/TransactionContext");
+export namespace Db {
+  export type PgLayer = Layer.Layer<PgClient.PgClient | SqlClient.SqlClient, ConfigError | SqlError, never>;
+  export const layer = (config: ConnectionOptions) =>
+    PgClient.layer({
+      url: config.url,
+      ssl: config.ssl,
+      transformResultNames: Str.snakeToCamel,
+    });
 
-          const db = drizzle(pool, { schema });
-
-          const execute = Effect.fn(<T>(fn: (client: DbClient<TFullSchema>) => Promise<T>) =>
-            Effect.tryPromise({
-              try: () => fn(db),
-              catch: (cause) => {
-                const error = DbErrors.DbError.match(cause);
-                if (error !== null) {
-                  return error;
-                }
-                throw cause;
-              },
-            })
-          );
-
-          const transaction = Effect.fn("Database.transaction")(
-            <T, E, R>(txExecute: (tx: TransactionContextShape<TFullSchema>) => Effect.Effect<T, E, R>) =>
-              Effect.runtime<R>().pipe(
-                Effect.map((runtime) => Runtime.runPromiseExit(runtime)),
-                Effect.flatMap((runPromiseExit) =>
-                  Effect.async<T, DbErrors.DbError | E, R>((resume) => {
-                    db.transaction(async (tx: TransactionClient<TFullSchema>) => {
-                      const txWrapper = (
-                        fn: (client: TransactionClient<TFullSchema>) => Promise<UnsafeTypes.UnsafeAny>
-                      ) =>
-                        Effect.tryPromise({
-                          try: () => fn(tx),
-                          catch: (cause) => {
-                            const error = DbErrors.DbError.match(cause);
-                            if (error !== null) {
-                              return error;
-                            }
-                            throw cause;
-                          },
-                        });
-
-                      const provided = Effect.provideService(TransactionContext, txWrapper)(txExecute(txWrapper));
-
-                      const result = await runPromiseExit(provided);
-                      Exit.match(result, {
-                        onSuccess: (value) => {
-                          resume(Effect.succeed(value));
-                        },
-                        onFailure: (cause) => {
-                          if (Cause.isFailure(cause)) {
-                            resume(Effect.fail(Cause.originalError(cause) as E));
-                          } else {
-                            resume(Effect.die(cause));
-                          }
-                        },
-                      });
-                    }).catch((cause) => {
-                      const error = DbErrors.DbError.match(cause);
-                      resume(error !== null ? Effect.fail(error) : Effect.die(cause));
-                    });
-                  })
-                )
-              )
-          );
-
-          const makeQuery =
-            <A, E, R, Input = never>(
-              queryFn: (execute: ExecuteFn<TFullSchema>, input: Input) => Effect.Effect<A, E, R>
-            ) =>
-            (...args: [Input] extends [never] ? [] : [input: Input]): Effect.Effect<A, E | DbErrors.DbError, R> => {
-              const input = args[0] as Input;
-              // unsure what to do here. How do we create the transaction context?
-              return Effect.serviceOption(TransactionContext).pipe(
-                Effect.map(Option.getOrNull),
-                Effect.flatMap((txOrNull) => queryFn(txOrNull ?? execute, input))
-              );
-            };
-
-          return {
-            pgDrizzle,
-            execute,
-            transaction,
-            setupConnectionListeners,
-            makeQuery,
-            db,
-            pool,
-          } as const;
-        })
-    );
-
-  return {
-    makeService,
+  export type Db<TFullSchema extends Record<string, unknown> = Record<string, never>> = {
+    readonly db: Effect.Effect.Success<ReturnType<typeof PgDrizzle.make<TFullSchema>>>;
   };
-};
+
+  type ServiceEffect<TFullSchema extends Record<string, unknown> = Record<string, never>> = Effect.Effect<
+    Db<TFullSchema>,
+    SqlError | ConfigError,
+    SqlClient.SqlClient
+  >;
+  export const make = <const TFullSchema extends Record<string, unknown> = Record<string, never>>(
+    schema: TFullSchema
+  ): { readonly serviceEffect: ServiceEffect<TFullSchema> } => {
+    const serviceEffect: ServiceEffect<TFullSchema> = Effect.gen(function* () {
+      const db = yield* PgDrizzle.make<TFullSchema>({
+        schema,
+      });
+
+      return {
+        db,
+      };
+    });
+
+    return {
+      serviceEffect,
+    };
+  };
+}

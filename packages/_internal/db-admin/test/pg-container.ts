@@ -1,5 +1,4 @@
 import { fileURLToPath } from "node:url";
-import * as Schema from "@beep/db-admin/schema";
 import { Entities } from "@beep/iam-domain";
 import { BS } from "@beep/schema";
 import * as Path from "@effect/platform/Path";
@@ -18,6 +17,8 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import path from "path";
 import postgres from "postgres";
+import * as Schema from "../src/schema";
+
 export async function setupDockerTestDb() {
   const POSTGRES_USER = "test";
   const POSTGRES_PASSWORD = "test";
@@ -85,6 +86,7 @@ export class PgContainer extends Effect.Service<PgContainer>()("PgContainer", {
         })
       )
     ),
+
     Layer.provide(NodeFileSystem.layer),
     Layer.provide(Path.layer),
     Layer.provide(PgContainer.Default),
@@ -92,3 +94,5 @@ export class PgContainer extends Effect.Service<PgContainer>()("PgContainer", {
     Layer.orDie
   );
 }
+// Layer.provide(IamRepos.layer, FilesRepos.layer),
+//

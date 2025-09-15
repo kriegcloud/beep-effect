@@ -1,4 +1,3 @@
-import type { DbPool } from "@beep/core-db";
 import type { SqlClient } from "@effect/sql/SqlClient";
 import type { SqlError } from "@effect/sql/SqlError";
 import type { ConfigError } from "effect/ConfigError";
@@ -52,9 +51,7 @@ export type IamRepos =
   | OrganizationRepo
   | TeamRepo;
 
-export type IamReposLive = Layer.Layer<IamRepos, ConfigError | SqlError, SqlClient | DbPool>;
-
-export const IamReposLive: IamReposLive = Layer.mergeAll(
+export const layer: Layer.Layer<IamRepos, SqlError | ConfigError, SqlClient> = Layer.mergeAll(
   AccountRepo.Default,
   ApiKeyRepo.Default,
   DeviceCodeRepo.Default,
@@ -77,6 +74,6 @@ export const IamReposLive: IamReposLive = Layer.mergeAll(
   WalletAddressRepo.Default,
   OrganizationRepo.Default,
   TeamRepo.Default
-);
+) satisfies Layer.Layer<IamRepos, SqlError | ConfigError, SqlClient>;
 
 export * from "./repos";

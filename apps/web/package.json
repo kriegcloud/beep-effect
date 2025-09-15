@@ -31,6 +31,7 @@
     "@beep/rete": "workspace:*",
     "@beep/query": "workspace:*",
     "@beep/shared-domain": "workspace:*",
+    "postgres": "*",
     "@beep/shared-tables": "workspace:*",
     "@beep/core-env": "workspace:*",
     "@beep/core-ai": "workspace:*",

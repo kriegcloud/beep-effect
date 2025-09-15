@@ -30,13 +30,7 @@
       "path": "../../core/env"
     },
     {
-      "path": "../../core/email"
-    },
-    {
       "path": "../../core/db"
-    },
-    {
-      "path": "../../iam/services"
     },
     {
       "path": "../../iam/infra"
@@ -46,9 +40,6 @@
     },
     {
       "path": "../../iam/tables"
-    },
-    {
-      "path": "../../files/services"
     },
     {
       "path": "../../files/infra"
@@ -97,16 +88,12 @@
       "@beep/core-db/*": ["../../core/db/src/*"],
       "@beep/iam-domain": ["../../iam/domain/src/index"],
       "@beep/iam-domain/*": ["../../iam/domain/src/*"],
-      "@beep/iam-services": ["../../iam/services/src/index"],
-      "@beep/iam-services/*": ["../../iam/services/src/*"],
       "@beep/iam-tables": ["../../iam/tables/src/index"],
       "@beep/iam-tables/*": ["../../iam/tables/src/*"],
       "@beep/iam-infra": ["../../iam/infra/src/index"],
       "@beep/iam-infra/*": ["../../iam/infra/src/*"],
       "@beep/files-domain": ["../../files/domain/src/index"],
       "@beep/files-domain/*": ["../../files/domain/src/*"],
-      "@beep/files-services": ["../../files/services/src/index"],
-      "@beep/files-services/*": ["../../files/services/src/*"],
       "@beep/files-tables": ["../../files/tables/src/index"],
       "@beep/files-tables/*": ["../../files/tables/src/*"],
       "@beep/files-infra": ["../../files/infra/src/index"],

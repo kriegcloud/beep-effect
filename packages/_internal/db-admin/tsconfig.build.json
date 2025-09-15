@@ -39,13 +39,7 @@
       "path": "../../core/env/tsconfig.build.json"
     },
     {
-      "path": "../../core/email/tsconfig.build.json"
-    },
-    {
       "path": "../../core/db/tsconfig.build.json"
-    },
-    {
-      "path": "../../iam/services/tsconfig.build.json"
     },
     {
       "path": "../../iam/infra/tsconfig.build.json"
@@ -55,9 +49,6 @@
     },
     {
       "path": "../../iam/tables/tsconfig.build.json"
-    },
-    {
-      "path": "../../files/services/tsconfig.build.json"
     },
     {
       "path": "../../files/infra/tsconfig.build.json"

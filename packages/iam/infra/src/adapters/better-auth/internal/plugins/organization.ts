@@ -1,4 +1,3 @@
-import { DbError } from "@beep/core-db/errors";
 import { IamDb } from "@beep/iam-infra/db";
 import { IamDbSchema } from "@beep/iam-tables";
 import { IamEntityIds } from "@beep/shared-domain";
@@ -140,18 +139,14 @@ export const OrganizationPlugin = Effect.gen(function* () {
         const program = Effect.gen(function* () {
           const nowUtc = yield* DateTime.now;
           const now = DateTime.toDate(nowUtc);
-          return yield* Effect.tryPromise({
-            try: () =>
-              db
-                .update(IamDbSchema.memberTable)
-                .set({
-                  status: Organization.SubscriptionStatusEnum.active,
-                  joinedAt: now,
-                  lastActiveAt: now,
-                })
-                .where(d.eq(IamDbSchema.memberTable.id, S.decodeUnknownSync(IamEntityIds.MemberId)(member.id))),
-            catch: (e) => Effect.fail(DbError.match(e)),
-          });
+          return yield* db
+            .update(IamDbSchema.memberTable)
+            .set({
+              status: Organization.SubscriptionStatusEnum.active,
+              joinedAt: now,
+              lastActiveAt: now,
+            })
+            .where(d.eq(IamDbSchema.memberTable.id, S.decodeUnknownSync(IamEntityIds.MemberId)(member.id)));
         }).pipe(
           Effect.match({
             onSuccess: () => console.log(`Team organization ${organization.name} created for user ${user.id}`),

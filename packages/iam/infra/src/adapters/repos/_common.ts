@@ -1,3 +1,2 @@
-import { PgLive } from "@beep/core-db";
 import { IamDb } from "../../db";
-export const dependencies = [IamDb.layerWithoutDeps, PgLive] as const;
+export const dependencies = [IamDb.layer] as const;

@@ -33,13 +33,7 @@
       "path": "../../core/env"
     },
     {
-      "path": "../../core/email"
-    },
-    {
       "path": "../../core/db"
-    },
-    {
-      "path": "../../iam/services"
     },
     {
       "path": "../../iam/infra"
@@ -49,9 +43,6 @@
     },
     {
       "path": "../../iam/tables"
-    },
-    {
-      "path": "../../files/services"
     },
     {
       "path": "../../files/infra"

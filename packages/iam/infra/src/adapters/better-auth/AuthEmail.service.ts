@@ -1,4 +1,3 @@
-import "server-only";
 import { ResendService, reactInvitationEmail, reactResetPasswordEmail, renderEmail } from "@beep/core-email";
 import { serverEnv } from "@beep/core-env/server";
 import { BS } from "@beep/schema";

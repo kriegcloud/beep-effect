@@ -1,6 +1,7 @@
+import { Db } from "@beep/core-db";
 import { ResendService } from "@beep/core-email";
+import { serverEnv } from "@beep/core-env/server";
 import { AuthEmailService, AuthService } from "@beep/iam-infra";
-import { DbLive } from "@beep/runtime-server/db-live";
 import { DevToolsLive } from "@beep/runtime-server/dev-tools-live";
 import { HttpClientLive } from "@beep/runtime-server/http-client-live";
 import { LogLevelLive } from "@beep/runtime-server/log-level-live";
@@ -12,21 +13,20 @@ import type { Resource } from "@effect/opentelemetry/Resource";
 import type { HttpClient } from "@effect/platform/HttpClient";
 import * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
-
-export type BaseLayer = Layer.Layer<Resource | HttpClient, never, never>;
-
-export const Base: BaseLayer = Layer.mergeAll(TelemetryLive, HttpClientLive, DevToolsLive, LogLevelLive);
+export const DbLive = Db.layer({
+  url: serverEnv.db.pg.url,
+  ssl: serverEnv.db.pg.ssl,
+});
+type Base = Layer.Layer<Resource | HttpClient, never, never>;
+export const Base: Base = Layer.mergeAll(TelemetryLive, HttpClientLive, DevToolsLive, LogLevelLive);
 
 export const SliceDependenciesLayer = Layer.provideMerge(SliceDatabasesLive, DbLive);
 
-export const Db = Layer.provideMerge(SliceRepositoriesLive, SliceDependenciesLayer);
+export const DbRepos = Layer.provideMerge(SliceRepositoriesLive, SliceDependenciesLayer);
 
-type AuthEmailLive = Layer.Layer<AuthEmailService, never, never>;
-const AuthEmailLive: AuthEmailLive = AuthEmailService.DefaultWithoutDependencies.pipe(
-  Layer.provide([ResendService.Default])
-);
+const AuthEmailLive = AuthEmailService.DefaultWithoutDependencies.pipe(Layer.provide([ResendService.Default]));
 
-export const ServicesDependencies = Layer.mergeAll(Db, AuthEmailLive);
+export const ServicesDependencies = Layer.mergeAll(DbRepos, AuthEmailLive);
 
 const AuthLive = AuthService.DefaultWithoutDependencies.pipe(Layer.provide(ServicesDependencies));
 

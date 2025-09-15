@@ -1,4 +1,3 @@
-import "server-only";
 import { serverEnv } from "@beep/core-env/server";
 import { IamDb } from "@beep/iam-infra/db/Db";
 import { IamDbSchema } from "@beep/iam-tables";
@@ -218,34 +217,37 @@ const AuthOptions = Effect.flatMap(
               const personalMemberId = IamEntityIds.MemberId.create();
               const slug = `${user.name?.toLowerCase().replace(/\s+/g, "-") || "user"}-${user.id.slice(-6)}`;
 
-              // Create personal organization with multi-tenant fields
-              await db.insert(IamDbSchema.organizationTable).values({
-                id: personalOrgId,
-                name: `${user.name || "User"}'s Organization`,
-                slug,
-                type: "individual",
-                ownerUserId: user.id,
-                isPersonal: true,
-                subscriptionTier: "free",
-                subscriptionStatus: "active",
-                createdBy: user.id,
-                source: "auto_created",
-                createdAt: new Date(),
-                updatedAt: new Date(),
+              const program = Effect.gen(function* () {
+                yield* db.insert(IamDbSchema.organizationTable).values({
+                  id: personalOrgId,
+                  name: `${user.name || "User"}'s Organization`,
+                  slug,
+                  type: "individual",
+                  ownerUserId: user.id,
+                  isPersonal: true,
+                  subscriptionTier: "free",
+                  subscriptionStatus: "active",
+                  createdBy: user.id,
+                  source: "auto_created",
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+                });
+                yield* db.insert(IamDbSchema.memberTable).values({
+                  id: personalMemberId,
+                  userId: S.decodeUnknownSync(IamEntityIds.UserId)(user.id),
+                  organizationId: personalOrgId,
+                  role: "owner",
+                  status: "active",
+                  joinedAt: new Date(),
+                  createdBy: user.id,
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+                });
               });
+              // Create personal organization with multi-tenant field
 
               // Add user as owner with enhanced tracking
-              await db.insert(IamDbSchema.memberTable).values({
-                id: personalMemberId,
-                userId: S.decodeUnknownSync(IamEntityIds.UserId)(user.id),
-                organizationId: personalOrgId,
-                role: "owner",
-                status: "active",
-                joinedAt: new Date(),
-                createdBy: user.id,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              });
+              await Effect.runPromise(program);
             },
           },
         },
@@ -253,29 +255,32 @@ const AuthOptions = Effect.flatMap(
           create: {
             before: async (session) => {
               // Set active organization context using enhanced fields
-              const userOrgs = await db
-                .select({
-                  orgId: IamDbSchema.organizationTable.id,
-                  orgName: IamDbSchema.organizationTable.name,
-                  orgType: IamDbSchema.organizationTable.type,
-                  isPersonal: IamDbSchema.organizationTable.isPersonal,
-                  subscriptionTier: IamDbSchema.organizationTable.subscriptionTier,
-                  role: IamDbSchema.memberTable.role,
-                  memberStatus: IamDbSchema.memberTable.status,
-                })
-                .from(IamDbSchema.memberTable)
-                .innerJoin(
-                  IamDbSchema.organizationTable,
-                  d.eq(IamDbSchema.memberTable.organizationId, IamDbSchema.organizationTable.id)
-                )
-                .where(
-                  d.and(
-                    d.eq(IamDbSchema.memberTable.userId, session.userId),
-                    d.eq(IamDbSchema.memberTable.status, "active")
+              const program = Effect.gen(function* () {
+                return yield* db
+                  .select({
+                    orgId: IamDbSchema.organizationTable.id,
+                    orgName: IamDbSchema.organizationTable.name,
+                    orgType: IamDbSchema.organizationTable.type,
+                    isPersonal: IamDbSchema.organizationTable.isPersonal,
+                    subscriptionTier: IamDbSchema.organizationTable.subscriptionTier,
+                    role: IamDbSchema.memberTable.role,
+                    memberStatus: IamDbSchema.memberTable.status,
+                  })
+                  .from(IamDbSchema.memberTable)
+                  .innerJoin(
+                    IamDbSchema.organizationTable,
+                    d.eq(IamDbSchema.memberTable.organizationId, IamDbSchema.organizationTable.id)
                   )
-                )
-                .orderBy(d.desc(IamDbSchema.organizationTable.isPersonal)); // Personal orgs first
+                  .where(
+                    d.and(
+                      d.eq(IamDbSchema.memberTable.userId, session.userId),
+                      d.eq(IamDbSchema.memberTable.status, "active")
+                    )
+                  )
+                  .orderBy(d.desc(IamDbSchema.organizationTable.isPersonal));
+              });
 
+              const userOrgs = await Effect.runPromise(program);
               const activeOrgId = userOrgs[0]?.orgId;
               const organizationContext = userOrgs.reduce(
                 (acc, org) => {
@@ -322,7 +327,7 @@ export type Options = Effect.Effect.Success<typeof AuthOptions>;
 
 export class AuthService extends Effect.Service<AuthService>()("AuthService", {
   accessors: true,
-  dependencies: [AuthEmailService.DefaultWithoutDependencies, IamDb.layerWithoutDeps],
+  dependencies: [AuthEmailService.DefaultWithoutDependencies, IamDb.layer],
   effect: Effect.flatMap(AuthOptions, (opts) =>
     Effect.succeed({
       auth: betterAuth(opts),

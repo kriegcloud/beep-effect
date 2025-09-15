@@ -1,7 +1,5 @@
-import { makeScopedDb } from "@beep/core-db";
-
+import { Db } from "@beep/core-db";
 import * as Context from "effect/Context";
-import type * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as DbSchema from "./schema";
 
@@ -9,12 +7,10 @@ import * as DbSchema from "./schema";
  * @internal
  */
 export namespace AdminDb {
-  const { makeService } = makeScopedDb(DbSchema);
+  const { serviceEffect } = Db.make(DbSchema);
 
-  type Shape = Effect.Effect.Success<ReturnType<typeof makeService>>;
-
-  export class AdminDb extends Context.Tag("IamDb")<AdminDb, Shape>() {}
+  export class AdminDb extends Context.Tag("@beep/admin-db/AdminDb")<AdminDb, Db.Db<typeof DbSchema>>() {}
 
   // No-deps layer: requires PgLive | DbPool.Live to be provided by the app runtime
-  export const layerWithoutDeps = Layer.scoped(AdminDb, makeService());
+  export const layer = Layer.scoped(AdminDb, serviceEffect);
 }
