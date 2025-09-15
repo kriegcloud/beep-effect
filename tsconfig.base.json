@@ -263,14 +263,14 @@
       "@beep/files-domain/test/*": [
         "./packages/files/domain/test/*"
       ],
-      "@beep/files-application": [
-        "./packages/files/application/src/index"
+      "@beep/files-services": [
+        "./packages/files/services/src/index"
       ],
-      "@beep/files-application/*": [
-        "./packages/files/application/src/*"
+      "@beep/files-services/*": [
+        "./packages/files/services/src/*"
       ],
-      "@beep/files-application/test/*": [
-        "./packages/files/application/test/*"
+      "@beep/files-services/test/*": [
+        "./packages/files/services/test/*"
       ],
       "@beep/files-tables": [
         "./packages/files/tables/src/index"

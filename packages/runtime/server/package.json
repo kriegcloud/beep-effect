@@ -57,7 +57,7 @@
     "@beep/iam-tables": "workspace:*",
     "@beep/iam-infra": "workspace:*",
     "@beep/files-domain": "workspace:*",
-    "@beep/files-application": "workspace:*",
+    "@beep/files-services": "workspace:*",
     "@beep/files-tables": "workspace:*",
     "@beep/files-infra": "workspace:*",
     "@effect/platform": "*",

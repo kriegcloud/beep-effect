@@ -428,9 +428,6 @@ importers:
       '@beep/errors':
         specifier: workspace:*
         version: link:../../packages/common/errors/build
-      '@beep/files-application':
-        specifier: workspace:*
-        version: link:../../packages/files/application/build
       '@beep/files-domain':
         specifier: workspace:*
         version: link:../../packages/files/domain/build
@@ -440,6 +437,9 @@ importers:
       '@beep/files-sdk':
         specifier: workspace:*
         version: link:../../packages/files/sdk/build
+      '@beep/files-services':
+        specifier: workspace:*
+        version: link:../../packages/files/services/build
       '@beep/files-tables':
         specifier: workspace:*
         version: link:../../packages/files/tables/build
@@ -1392,31 +1392,6 @@ importers:
         version: 3.17.13
     publishDirectory: build
 
-  packages/files/application:
-    dependencies:
-      '@beep/constants':
-        specifier: workspace:*
-        version: link:../../common/constants/build
-      '@beep/errors':
-        specifier: workspace:*
-        version: link:../../common/errors/build
-      '@beep/files-domain':
-        specifier: workspace:*
-        version: link:../domain/build
-      '@beep/schema':
-        specifier: workspace:*
-        version: link:../../common/schema/build
-      '@beep/shared-domain':
-        specifier: workspace:*
-        version: link:../../shared/domain/build
-      '@beep/utils':
-        specifier: workspace:*
-        version: link:../../common/utils/build
-      effect:
-        specifier: 3.17.13
-        version: 3.17.13
-    publishDirectory: build
-
   packages/files/domain:
     dependencies:
       '@beep/constants':
@@ -1457,12 +1432,12 @@ importers:
       '@beep/core-env':
         specifier: workspace:*
         version: link:../../core/env/build
-      '@beep/files-application':
-        specifier: workspace:*
-        version: link:../application/build
       '@beep/files-domain':
         specifier: workspace:*
         version: link:../domain/build
+      '@beep/files-services':
+        specifier: workspace:*
+        version: link:../services/build
       '@beep/invariant':
         specifier: workspace:*
         version: link:../../common/invariant/build
@@ -1534,15 +1509,15 @@ importers:
       '@beep/errors':
         specifier: workspace:^
         version: link:../../common/errors/build
-      '@beep/files-application':
-        specifier: workspace:*
-        version: link:../application/build
       '@beep/files-domain':
         specifier: workspace:*
         version: link:../domain/build
       '@beep/files-infra':
         specifier: workspace:*
         version: link:../infra/build
+      '@beep/files-services':
+        specifier: workspace:*
+        version: link:../services/build
       '@beep/invariant':
         specifier: workspace:^
         version: link:../../common/invariant/build
@@ -1562,6 +1537,31 @@ importers:
       '@beep/types':
         specifier: workspace:^
         version: link:../../common/types/build
+    publishDirectory: build
+
+  packages/files/services:
+    dependencies:
+      '@beep/constants':
+        specifier: workspace:*
+        version: link:../../common/constants/build
+      '@beep/errors':
+        specifier: workspace:*
+        version: link:../../common/errors/build
+      '@beep/files-domain':
+        specifier: workspace:*
+        version: link:../domain/build
+      '@beep/schema':
+        specifier: workspace:*
+        version: link:../../common/schema/build
+      '@beep/shared-domain':
+        specifier: workspace:*
+        version: link:../../shared/domain/build
+      '@beep/utils':
+        specifier: workspace:*
+        version: link:../../common/utils/build
+      effect:
+        specifier: 3.17.13
+        version: 3.17.13
     publishDirectory: build
 
   packages/files/tables:
@@ -1895,15 +1895,15 @@ importers:
       '@beep/errors':
         specifier: workspace:*
         version: link:../../common/errors/build
-      '@beep/files-application':
-        specifier: workspace:*
-        version: link:../../files/application/build
       '@beep/files-domain':
         specifier: workspace:*
         version: link:../../files/domain/build
       '@beep/files-sdk':
         specifier: workspace:*
         version: link:../../files/sdk/build
+      '@beep/files-services':
+        specifier: workspace:*
+        version: link:../../files/services/build
       '@beep/files-tables':
         specifier: workspace:*
         version: link:../../files/tables/build
@@ -2032,15 +2032,15 @@ importers:
       '@beep/errors':
         specifier: workspace:*
         version: link:../../common/errors/build
-      '@beep/files-application':
-        specifier: workspace:*
-        version: link:../../files/application/build
       '@beep/files-domain':
         specifier: workspace:*
         version: link:../../files/domain/build
       '@beep/files-infra':
         specifier: workspace:*
         version: link:../../files/infra/build
+      '@beep/files-services':
+        specifier: workspace:*
+        version: link:../../files/services/build
       '@beep/files-tables':
         specifier: workspace:*
         version: link:../../files/tables/build

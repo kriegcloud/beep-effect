@@ -24,7 +24,7 @@
       "path": "../../common/types"
     },
     {
-      "path": "../application"
+      "path": "../services"
     },
     {
       "path": "../domain"
@@ -42,6 +42,10 @@
     "esModuleInterop": true,
     "paths": {
       "@beep/files-infra/*": ["./src/*"],
+      "@beep/files-services": ["../services/src/index"],
+      "@beep/files-services/*": ["../services/src/*"],
+      "@beep/files-domain": ["../domain/src/index"],
+      "@beep/files-domain/*": ["../domain/src/*"],
       "@beep/core-db": ["../../core/db/src/index"],
       "@beep/core-db/*": ["../../core/db/src/*"],
       "@beep/core-env/client": ["../../core/env/src/client"],

@@ -37,7 +37,7 @@
     "@effect/sql-drizzle": "*",
     "@effect/sql-pg": "*",
     "@effect/experimental": "*",
-    "@beep/files-application": "workspace:*",
+    "@beep/files-services": "workspace:*",
     "@beep/files-domain": "workspace:*",
     "@beep/core-db": "workspace:*",
     "@beep/core-env": "workspace:*",

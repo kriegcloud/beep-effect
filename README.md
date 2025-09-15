@@ -40,7 +40,7 @@ Source of truth for rules and boundaries:
   - Cross-cutting: `shared/*`, `common/*`, `core/*`, `ui/*`
 - `tooling/*` — repo scripts, config, testkit
 
-Authoritative module boundaries via [tsconfig.base.json](tsconfig.base.json) path aliases (e.g., `@beep/iam-domain`, `@beep/files-application`, `@beep/shared-*`, `@/*` for `apps/web`).
+Authoritative module boundaries via [tsconfig.base.json](tsconfig.base.json) path aliases (e.g., `@beep/iam-domain`, `@beep/files-services`, `@beep/shared-*`, `@/*` for `apps/web`).
 
 ## Tech stack
 
@@ -118,7 +118,7 @@ Path aliases in [tsconfig.base.json](tsconfig.base.json) are the single source o
 - IAM: `packages/iam/*`
   - Layers: [`domain`](packages/iam/domain/), [`application`](packages/iam/application/), [`infra`](packages/iam/infra/), [`tables`](packages/iam/tables/), [`ui`](packages/iam/ui/), [`sdk`](packages/iam/sdk/)
 - Files: `packages/files/*`
-  - Layers: [`domain`](packages/files/domain/), [`application`](packages/files/application/), [`infra`](packages/files/infra/), [`tables`](packages/files/tables/), [`ui`](packages/files/ui/), [`sdk`](packages/files/sdk/)
+  - Layers: [`domain`](packages/files/domain/), [`application`](packages/files/services/), [`infra`](packages/files/infra/), [`tables`](packages/files/tables/), [`ui`](packages/files/ui/), [`sdk`](packages/files/sdk/)
 - Shared foundations: [`packages/shared/`](packages/shared/), [`packages/common/`](packages/common/), [`packages/core/`](packages/core/)
 
 File storage approach: shared file primitives (IDs, base tables) live under `packages/shared/*`; slice-specific business logic (uploads, processing) lives in `packages/files/*`. See `packages/files/_SPEC/design_research.md` for research and `packages/common/schema/src/custom/` for related schemas (e.g., `FileExtension.schema.ts`, `MimeType.schema.ts`).

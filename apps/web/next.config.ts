@@ -105,7 +105,7 @@ const nextConfig = {
   //   "@beep/iam-sdk",
   //   "@beep/iam-ui",
   //   "@beep/files-domain",
-  //   "@beep/files-application",
+  //   "@beep/files-services",
   //   "@beep/files-tables",
   //   "@beep/files-infra",
   //   "@beep/files-sdk",

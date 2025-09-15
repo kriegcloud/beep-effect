@@ -72,7 +72,7 @@
       "path": "../../packages/ui/tsconfig.build.json"
     },
     {
-      "path": "../../packages/files/application/tsconfig.build.json"
+      "path": "../../packages/files/services/tsconfig.build.json"
     },
     {
       "path": "../../packages/files/sdk/tsconfig.build.json"

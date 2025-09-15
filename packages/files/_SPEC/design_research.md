@@ -6,7 +6,7 @@ Last updated: 2025-09-12
 
 - [TL;DR](#tldr)
 - [1. Package map (Files slice)](#1-package-map-files-slice)
-- [2. Application ports (in @beep/files-application)](#2-application-ports-in-beep-files-application)
+- [2. Application ports (in @beep/files-services)](#2-application-ports-in-beep-files-application)
   - [FilesStoragePort](#filesstorageport)
   - [PresignPort](#presignport)
   - [ImageTransformPort](#imagetransformport)
@@ -90,7 +90,7 @@ Last updated: 2025-09-12
   - Purpose: Pure domain entities/VOs/events for files; re-export the canonical path DSL from shared.
   - Rationale: Domain remains pure; no IO.
 
-- @beep/files-application
+- @beep/files-services
   - Purpose: Use cases and ports (FilesStoragePort, PresignPort, ImageTransformPort, TranscodePort).
   - Rationale: Orchestration layer; infra-agnostic.
 
@@ -123,7 +123,7 @@ Related cross-cutting:
   - @beep/shared/domain: File entity + filePaths canonical builder (pure)
   - @beep/common/schema: file validation/EXIF
 
-## 2. Application ports (in @beep/files-application)
+## 2. Application ports (in @beep/files-services)
 
 ### FilesStoragePort
 
@@ -154,7 +154,7 @@ Related cross-cutting:
 ### TypeScript stubs (Effect 3 idioms; imports show boundaries)
 
 ```ts
-// @beep/files-application/src/ports/FilesStoragePort.ts
+// @beep/files-services/src/ports/FilesStoragePort.ts
 import { Effect } from 'effect';
 
 export type StorageKey = { bucket: string; key: string };
@@ -189,7 +189,7 @@ export class FilesStoragePort extends Effect.Service<FilesStoragePort>()('files/
 ```
 
 ```ts
-// @beep/files-application/src/ports/PresignPort.ts
+// @beep/files-services/src/ports/PresignPort.ts
 import { Effect } from 'effect';
 import { StorageKey } from './FilesStoragePort';
 
@@ -220,7 +220,7 @@ export class PresignPort extends Effect.Service<PresignPort>()('files/PresignPor
 }) {}
 ```
 ```ts
-// @beep/files-application/src/ports/ImageTransformPort.ts
+// @beep/files-services/src/ports/ImageTransformPort.ts
 import { Effect } from 'effect';
 
 export type ImageVariantSpec = {
@@ -240,7 +240,7 @@ export class ImageTransformPort extends Effect.Service<ImageTransformPort>()('fi
 ```
 
 ```ts
-// @beep/files-application/src/ports/TranscodePort.ts
+// @beep/files-services/src/ports/TranscodePort.ts
 import { Effect } from 'effect';
 
 export type VideoTranscodeSpec = {
@@ -363,7 +363,7 @@ apps/web: provide FetchHttpClient.layer and browser ImageTransformPort Live (ffm
 import { Layer, Effect } from 'effect';
 import { FetchHttpClient } from '@effect/platform';
 import { NodeSdk } from '@effect/opentelemetry';
-import { FilesStoragePort } from '@beep/files-application';
+import { FilesStoragePort } from '@beep/files-services';
 import { S3FilesStorageLive, S3PresignLive } from '@beep/files-infra';
 // plus ConfigLive, LoggerLive, DbLive you define
 
@@ -556,7 +556,7 @@ flowchart LR
     D2[filePaths facade]
   end
 
-  subgraph Application[@beep/files-application]
+  subgraph Application[@beep/files-services]
     A1[Use Cases]
     A2[FilesStoragePort]
     A3[PresignPort]
@@ -596,7 +596,7 @@ sequenceDiagram
   participant UI as UI (apps/web)
   participant SDK as @beep/files-sdk
   participant API as @beep/files-api
-  participant APP as @beep/files-application
+  participant APP as @beep/files-services
   participant DB as @beep/files-db
   participant S3 as S3 (@beep/files-infra)
 
@@ -624,10 +624,10 @@ sequenceDiagram
 
 ### Current state
 
-SignedUrlService is in @beep/files-application.
+SignedUrlService is in @beep/files-services.
 ### Target
 
-Define PresignPort in @beep/files-application (above).
+Define PresignPort in @beep/files-services (above).
 Move AWS implementation to @beep/files-infra as S3PresignLive.
 Keep an application-level facade that re-exports PresignPort for imports; deprecate direct SignedUrlService symbol.
 ### Stages (PRs)
@@ -644,7 +644,7 @@ Turborepo Boundaries (docs reference): tag packages (slice, layer) and declare a
 
 ### Contract tests (vitest)
 
-In @beep/files-application/test:
+In @beep/files-services/test:
 Mock Ports (using Effect layers): FilesStoragePortTest, PresignPortTest.
 Verify use cases orchestrate: presign → upload (simulated) → confirmUpload persists metadata with path DSL.
 ### Adapter contract tests
@@ -693,9 +693,9 @@ S3 CORS JSON and Lifecycle JSON are provided above.
 ```
 ## Where to place key components (explicit)
 
-- PresignPort (port): `@beep/files-application/src/ports/PresignPort.ts`
+- PresignPort (port): `@beep/files-services/src/ports/PresignPort.ts`
 - SignedUrlService (AWS impl): `@beep/files-infra/src/S3PresignLive.ts`
-- FilesStoragePort (port): `@beep/files-application/src/ports/FilesStoragePort.ts`
+- FilesStoragePort (port): `@beep/files-services/src/ports/FilesStoragePort.ts`
 - S3 files storage adapter: `@beep/files-infra/src/S3FilesStorageLive.ts`
 - FilesApiClient: `@beep/files-sdk/src/FilesApiClient.ts`
 - FetchHttpClient.layer usage: provided by `@beep/core-runtime` `HttpClientLive`; browser apps provide directly.
@@ -720,7 +720,7 @@ S3 CORS JSON and Lifecycle JSON are provided above.
 ## Phased adoption plan
 
 ### Phase 0 (infra + ports)
-Add ports in @beep/files-application and S3 adapters in @beep/files-infra.
+Add ports in @beep/files-services and S3 adapters in @beep/files-infra.
 Introduce @beep/core-runtime Layers (Config/HttpClient/Tracing).
 Keep current upload POC working via compatibility wrappers.
 ### Phase 1 (SDK + API)

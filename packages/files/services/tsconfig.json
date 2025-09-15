@@ -1,41 +1,9 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "include": ["src"],
-  "references": [
-    {
-      "path": "../../common/constants"
-    },
-    {
-      "path": "../../common/utils"
-    },
-    {
-      "path": "../../common/errors"
-    },
-    {
-      "path": "../../common/schema"
-    },
-    {
-      "path": "../../shared/domain"
-    },
-    {
-      "path": "../../shared/tables"
-    },
-    {
-      "path": "../domain"
-    }
-  ],
+  "include": [],
   "compilerOptions": {
-    "types": ["node"],
-    "outDir": "build/src",
-    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
-    "rootDir": "src",
-    "baseUrl": ".",
-    "moduleResolution": "bundler",
-    "incremental": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
     "paths": {
-      "@beep/files-application/*": ["./src/*"],
+      "@beep/files-services/*": ["./src/*"],
       "@beep/errors/client": ["../../common/errors/src/client"],
       "@beep/errors/shared": ["../../common/errors/src/shared"],
       "@beep/errors/server": ["../../common/errors/src/server"],
@@ -50,5 +18,13 @@
       "@beep/files-domain": ["../domain/src/index"],
       "@beep/files-domain/*": ["../domain/src/*"]
     }
-  }
+  },
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "tsconfig.test.json"
+    }
+  ]
 }

@@ -33,7 +33,7 @@
       "path": "../../common/types/tsconfig.build.json"
     },
     {
-      "path": "../application/tsconfig.build.json"
+      "path": "../services/tsconfig.build.json"
     },
     {
       "path": "../domain/tsconfig.build.json"

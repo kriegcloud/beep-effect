@@ -41,7 +41,7 @@
     "@beep/constants": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@beep/files-domain": "workspace:*",
-    "@beep/files-application": "workspace:*",
+    "@beep/files-services": "workspace:*",
     "@beep/files-infra": "workspace:*",
     "effect": "*"
   },

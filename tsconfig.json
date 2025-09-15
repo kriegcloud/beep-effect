@@ -83,7 +83,7 @@
       "path": "packages/files/domain"
     },
     {
-      "path": "packages/files/application"
+      "path": "packages/files/services"
     },
     {
       "path": "packages/files/tables"

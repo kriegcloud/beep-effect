@@ -72,7 +72,7 @@
       "path": "../../iam/tables/tsconfig.build.json"
     },
     {
-      "path": "../../files/application/tsconfig.build.json"
+      "path": "../../files/services/tsconfig.build.json"
     },
     {
       "path": "../../files/infra/tsconfig.build.json"

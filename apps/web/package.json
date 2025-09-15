@@ -44,7 +44,7 @@
     "@beep/iam-sdk": "workspace:*",
     "@beep/iam-ui": "workspace:*",
     "@beep/files-domain": "workspace:*",
-    "@beep/files-application": "workspace:*",
+    "@beep/files-services": "workspace:*",
     "@beep/files-tables": "workspace:*",
     "@beep/files-infra": "workspace:*",
     "@beep/files-sdk": "workspace:*",

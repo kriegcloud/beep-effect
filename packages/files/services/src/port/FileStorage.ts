@@ -3,7 +3,7 @@ import type { File } from "@beep/shared-domain/entities";
 import * as Context from "effect/Context";
 import type * as Effect from "effect/Effect";
 
-export class FileStorage extends Context.Tag("@beep/files-application/FileStorage")<
+export class FileStorage extends Context.Tag("@beep/files-services/FileStorage")<
   FileStorage,
   {
     readonly uploadFile: (uploadPath: File.UploadPath.Type) => Effect.Effect<void, Error, never>;
