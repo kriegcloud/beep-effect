@@ -143,7 +143,7 @@
       "@emotion/react": "11.14.0",
       "picocolors": "^1.1.1",
       "@emotion/styled": "11.14.1",
-      "@iconify/react": "6.0.1",
+      "@iconify/react": "6.0.2",
       "resend": "6.0.3",
       "@react-email/components": "0.5.3",
       "@mui/icons-material": "7.3.2",

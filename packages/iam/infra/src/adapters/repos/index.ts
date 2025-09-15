@@ -20,4 +20,3 @@ export * from "./TwoFactor.repo";
 export * from "./User.repo";
 export * from "./Verification.repo";
 export * from "./WalletAddress.repo";
-

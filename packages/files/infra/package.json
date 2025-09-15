@@ -39,6 +39,7 @@
     "@effect/experimental": "*",
     "@beep/files-services": "workspace:*",
     "@beep/files-domain": "workspace:*",
+    "@beep/files-tables": "workspace:*",
     "@beep/core-db": "workspace:*",
     "@beep/core-env": "workspace:*",
     "@effect/platform-node": "*",
@@ -53,7 +54,10 @@
     "@effect/workflow": "*",
     "drizzle-orm": "*",
     "effect": "*",
-    "pg": "*"
+    "pg": "*",
+    "@beep/constants": "workspace:*",
+    "@beep/shared-domain": "workspace:*",
+    "@beep/errors": "workspace:*"
   },
   "devDependencies": {
     "@types/pg": "*",

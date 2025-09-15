@@ -69,7 +69,7 @@ overrides:
   '@emotion/react': 11.14.0
   picocolors: ^1.1.1
   '@emotion/styled': 11.14.1
-  '@iconify/react': 6.0.1
+  '@iconify/react': 6.0.2
   resend: 6.0.3
   '@react-email/components': 0.5.3
   '@mui/icons-material': 7.3.2
@@ -567,8 +567,8 @@ importers:
         specifier: 5.2.7
         version: 5.2.7
       '@iconify/react':
-        specifier: 6.0.1
-        version: 6.0.1(react@19.1.1)
+        specifier: 6.0.2
+        version: 6.0.2(react@19.1.1)
       '@jsonforms/core':
         specifier: 3.6.0
         version: 3.6.0
@@ -1426,24 +1426,36 @@ importers:
 
   packages/files/infra:
     dependencies:
+      '@beep/constants':
+        specifier: workspace:*
+        version: link:../../common/constants/build
       '@beep/core-db':
         specifier: workspace:*
         version: link:../../core/db/build
       '@beep/core-env':
         specifier: workspace:*
         version: link:../../core/env/build
+      '@beep/errors':
+        specifier: workspace:*
+        version: link:../../common/errors/build
       '@beep/files-domain':
         specifier: workspace:*
         version: link:../domain/build
       '@beep/files-services':
         specifier: workspace:*
         version: link:../services/build
+      '@beep/files-tables':
+        specifier: workspace:*
+        version: link:../tables/build
       '@beep/invariant':
         specifier: workspace:*
         version: link:../../common/invariant/build
       '@beep/schema':
         specifier: workspace:*
         version: link:../../common/schema/build
+      '@beep/shared-domain':
+        specifier: workspace:*
+        version: link:../../shared/domain/build
       '@beep/shared-tables':
         specifier: workspace:*
         version: link:../../shared/tables/build
@@ -2324,8 +2336,8 @@ importers:
         specifier: 5.2.7
         version: 5.2.7
       '@iconify/react':
-        specifier: 6.0.1
-        version: 6.0.1(react@19.1.1)
+        specifier: 6.0.2
+        version: 6.0.2(react@19.1.1)
       '@mui/icons-material':
         specifier: 7.3.2
         version: 7.3.2(@mui/material@7.3.2(@emotion/react@11.14.0(@types/react@19.1.13)(react@19.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.13)(react@19.1.1))(@types/react@19.1.13)(react@19.1.1))(@types/react@19.1.13)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(@types/react@19.1.13)(react@19.1.1)
@@ -4056,8 +4068,8 @@ packages:
   '@hexagon/base64@1.1.28':
     resolution: {integrity: sha512-lhqDEAvWixy3bZ+UOYbPwUbBkwBq5C1LAJ/xPC8Oi+lL54oyakv/npbA0aU2hgCsx/1NUd4IBvV03+aUBWxerw==}
 
-  '@iconify/react@6.0.1':
-    resolution: {integrity: sha512-fCocnAfiGXjrA0u7KkS3W/OQHNp9LRFICudvOtxmS3Mf7U92aDhP50wyzRbobZli51zYt9ksZ9g0J7H586XvOQ==}
+  '@iconify/react@6.0.2':
+    resolution: {integrity: sha512-SMmC2sactfpJD427WJEDN6PMyznTFMhByK9yLW0gOTtnjzzbsi/Ke/XqsumsavFPwNiXs8jSiYeZTmLCLwO+Fg==}
     peerDependencies:
       react: 19.1.1
 
@@ -12379,7 +12391,7 @@ snapshots:
 
   '@hexagon/base64@1.1.28': {}
 
-  '@iconify/react@6.0.1(react@19.1.1)':
+  '@iconify/react@6.0.2(react@19.1.1)':
     dependencies:
       '@iconify/types': 2.0.0
       react: 19.1.1

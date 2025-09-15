@@ -1,9 +1,9 @@
-import {Repo} from "@beep/shared-domain/Repo";
+import { Entities } from "@beep/iam-domain";
+import { dependencies } from "@beep/iam-infra/adapters/repos/_common";
+import { IamDb } from "@beep/iam-infra/db";
+import { SharedEntityIds } from "@beep/shared-domain";
+import { Repo } from "@beep/shared-domain/Repo";
 import * as Effect from "effect/Effect";
-import {Entities} from "@beep/iam-domain";
-import {SharedEntityIds} from "@beep/shared-domain";
-import {IamDb} from "@beep/iam-infra/db";
-import {dependencies} from "@beep/iam-infra/adapters/repos/_common";
 
 export class OrganizationRepo extends Effect.Service<OrganizationRepo>()(
   "@beep/iam-infra/adapters/repos/OrganizationRepo",
@@ -21,9 +21,6 @@ export class OrganizationRepo extends Effect.Service<OrganizationRepo>()(
           // list,
         };
       })
-    )
-
+    ),
   }
-) {
-}
-
+) {}
