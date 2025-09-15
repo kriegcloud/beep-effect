@@ -11,7 +11,13 @@
       "@beep/errors/shared": ["../../common/errors/src/shared"],
       "@beep/errors/server": ["../../common/errors/src/server"],
       "@beep/constants": ["../../common/constants/src/index"],
-      "@beep/constants/*": ["../../common/constants/src/*"]
+      "@beep/constants/*": ["../../common/constants/src/*"],
+      "@beep/utils": ["../../common/utils/src/index"],
+      "@beep/utils/*": ["../../common/utils/src/*"],
+      "@beep/invariant": ["../../common/invariant/src/index"],
+      "@beep/invariant/*": ["../../common/invariant/src/*"],
+      "@beep/schema": ["../../common/schema/src/index"],
+      "@beep/schema/*": ["../../common/schema/src/*"]
     }
   },
   "references": [

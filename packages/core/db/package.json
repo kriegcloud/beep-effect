@@ -32,7 +32,7 @@
     "lint:fix": "biome check . --write",
     "lint:circular": "pnpm madge -c ."
   },
-  "dependencies": {
+  "peerDependencies": {
     "drizzle-orm": "*",
     "effect": "*",
     "pg": "*",
@@ -41,7 +41,10 @@
     "@effect/sql-drizzle": "*",
     "@beep/core-env": "workspace:*",
     "@beep/constants": "workspace:*",
-    "@beep/errors": "workspace:*"
+    "@beep/errors": "workspace:*",
+    "@beep/invariant": "workspace:*",
+    "@beep/utils": "workspace:*",
+    "@beep/schema": "workspace:*"
   },
   "devDependencies": {
     "@types/pg": "*",

@@ -41,6 +41,10 @@
     "dotenvx": "dotenvx run -f ../../../.env --"
   },
   "dependencies": {
+    "uuid": "*",
+    "picocolors": "*"
+  },
+  "peerDependencies": {
     "@effect/platform": "*",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
@@ -48,8 +52,6 @@
     "@effect/cluster": "*",
     "@effect/workflow": "*",
     "@beep/invariant": "workspace:^",
-    "uuid": "*",
-    "picocolors": "*",
     "effect": "*"
   },
   "devDependencies": {

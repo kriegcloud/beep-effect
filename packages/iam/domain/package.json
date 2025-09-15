@@ -29,10 +29,11 @@
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "coverage": "vitest run --coverage",
     "lint": "biome check .",
+    "execute": "pnpm tsx --tsconfig ./tsconfig.src.json ./src/execute.ts",
     "lint:fix": "biome check . --write",
     "lint:circular": "pnpm madge -c ."
   },
-  "dependencies": {
+  "peerDependencies": {
     "@beep/shared-domain": "workspace:*",
     "@beep/schema": "workspace:*",
     "@beep/invariant": "workspace:*",
@@ -41,7 +42,9 @@
     "drizzle-orm": "*",
     "effect": "*",
     "@effect/sql": "*",
-    "@effect/experimental": "*",
+    "@effect/experimental": "*"
+  },
+  "dependencies": {
     "mutative": "*"
   },
   "devDependencies": {

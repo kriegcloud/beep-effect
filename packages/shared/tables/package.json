@@ -32,7 +32,7 @@
     "coverage": "vitest run --coverage",
     "lint:circular": "pnpm madge -c ."
   },
-  "dependencies": {
+  "peerDependencies": {
     "@effect/sql": "*",
     "@effect/experimental": "*",
     "@beep/shared-domain": "workspace:*",
@@ -40,8 +40,10 @@
     "@beep/invariant": "workspace:*",
     "@beep/utils": "workspace:*",
     "drizzle-orm": "*",
-    "mutative": "*",
     "effect": "*"
+  },
+  "dependencies": {
+    "mutative": "*"
   },
   "devDependencies": {
     "@beep/types": "workspace:*"

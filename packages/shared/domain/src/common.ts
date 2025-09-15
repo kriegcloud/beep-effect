@@ -1,9 +1,9 @@
 import { BS } from "@beep/schema";
 import type { EntityId } from "@beep/schema/EntityId";
 import type { Field } from "@effect/experimental/VariantSchema";
+import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 import { create } from "mutative";
-
 /**
  * Audit columns optimized for PostgreSQL timestamp with timezone:
  * - createdAt: Auto-set on insert, omitted from updates
@@ -54,7 +54,7 @@ function mergeFields<const A extends Fields, const B extends Fields>(a: A, b?: B
 export const globalColumns = mergeFields(
   {
     // Optimistic locking
-    version: BS.FieldWriteOmittable(S.Int.pipe(S.greaterThanOrEqualTo(1))),
+    version: M.Generated(S.Int.pipe(S.greaterThanOrEqualTo(1))),
     // Optional: Enhanced traceability
     source: BS.FieldOptionOmittable(S.String),
   },

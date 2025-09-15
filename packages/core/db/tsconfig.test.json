@@ -10,6 +10,21 @@
     },
     {
       "path": "../../common/types"
+    },
+    {
+      "path": "../../common/constants"
+    },
+    {
+      "path": "../../common/errors"
+    },
+    {
+      "path": "../../common/invariant"
+    },
+    {
+      "path": "../../common/utils"
+    },
+    {
+      "path": "../../common/schema"
     }
   ],
   "compilerOptions": {

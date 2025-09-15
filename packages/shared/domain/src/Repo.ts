@@ -3,7 +3,6 @@ import type { UnsafeTypes } from "@beep/types";
 import * as M from "@effect/sql/Model";
 import * as Effect from "effect/Effect";
 import * as Str from "effect/String";
-
 export namespace Repo {
   const tableNameToSpanPrefix = <TableName extends string>(tableName: TableName) => {
     const name = Str.split("_")(tableName).map(Str.capitalize).join("");

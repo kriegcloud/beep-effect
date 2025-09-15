@@ -33,10 +33,12 @@
     "lint:circular": "pnpm madge -c .",
     "execute": "pnpm tsx --tsconfig ./tsconfig.src.json ./src/execute.ts"
   },
+  "peerDependencies": {
+    "@beep/invariant": "workspace:^",
+    "effect": "*"
+  },
   "dependencies": {
     "@faker-js/faker": "*",
-    "@beep/invariant": "workspace:^",
-    "effect": "*",
     "mutative": "*"
   },
   "devDependencies": {

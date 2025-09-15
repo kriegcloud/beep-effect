@@ -33,9 +33,8 @@
     "execute": "pnpm tsx --tsconfig ./tsconfig.src.json ./src/execute.ts",
     "lint:circular": "pnpm madge -c ."
   },
-  "dependencies": {
+  "peerDependencies": {
     "effect": "*",
-    "mutative": "*",
     "@beep/types": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@beep/utils": "workspace:^",
@@ -43,8 +42,11 @@
     "@standard-schema/spec": "*",
     "@effect/sql": "*",
     "drizzle-orm": "*",
+    "@effect/experimental": "*"
+  },
+  "dependencies": {
+    "mutative": "*",
     "zod": "*",
-    "@effect/experimental": "*",
     "uuid": "*",
     "randexp-ts": "*",
     "jsonpath-plus": "*"

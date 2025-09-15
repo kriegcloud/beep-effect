@@ -34,7 +34,7 @@
     "lint:fix": "biome check . --write",
     "lint:circular": "pnpm madge -c ."
   },
-  "dependencies": {
+  "peerDependencies": {
     "effect": "*",
     "@beep/schema": "workspace:*",
     "@beep/constants": "workspace:*"
