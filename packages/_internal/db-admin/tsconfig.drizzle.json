@@ -3,34 +3,64 @@
   "include": ["drizzle.config.ts"],
   "references": [
     {
-      "path": "../../iam/tables/tsconfig.build.json"
+      "path": "../../common/types"
     },
     {
-      "path": "../../iam/infra/tsconfig.build.json"
+      "path": "../../common/invariant"
     },
     {
-      "path": "../../iam/domain/tsconfig.build.json"
+      "path": "../../common/utils"
     },
     {
-      "path": "../../shared/tables/tsconfig.build.json"
+      "path": "../../common/schema"
     },
     {
-      "path": "../../core/db/tsconfig.build.json"
+      "path": "../../common/constants"
     },
     {
-      "path": "../../common/invariant/tsconfig.build.json"
+      "path": "../../common/errors"
     },
     {
-      "path": "../../core/env/tsconfig.build.json"
+      "path": "../../shared/domain"
     },
     {
-      "path": "../../common/schema/tsconfig.build.json"
+      "path": "../../shared/tables"
     },
     {
-      "path": "../../common/types/tsconfig.build.json"
+      "path": "../../core/env"
     },
     {
-      "path": "../../common/utils/tsconfig.build.json"
+      "path": "../../core/email"
+    },
+    {
+      "path": "../../core/db"
+    },
+    {
+      "path": "../../iam/services"
+    },
+    {
+      "path": "../../iam/domain"
+    },
+    {
+      "path": "../../iam/ui"
+    },
+    {
+      "path": "../../iam/tables"
+    },
+    {
+      "path": "../../ui"
+    },
+    {
+      "path": "../../files/services"
+    },
+    {
+      "path": "../../files/infra"
+    },
+    {
+      "path": "../../files/domain"
+    },
+    {
+      "path": "../../files/tables"
     }
   ],
   "compilerOptions": {

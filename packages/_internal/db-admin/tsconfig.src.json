@@ -3,7 +3,40 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../../iam/tables"
+      "path": "../../common/types"
+    },
+    {
+      "path": "../../common/invariant"
+    },
+    {
+      "path": "../../common/utils"
+    },
+    {
+      "path": "../../common/schema"
+    },
+    {
+      "path": "../../common/constants"
+    },
+    {
+      "path": "../../common/errors"
+    },
+    {
+      "path": "../../shared/domain"
+    },
+    {
+      "path": "../../shared/tables"
+    },
+    {
+      "path": "../../core/env"
+    },
+    {
+      "path": "../../core/email"
+    },
+    {
+      "path": "../../core/db"
+    },
+    {
+      "path": "../../iam/services"
     },
     {
       "path": "../../iam/infra"
@@ -12,28 +45,19 @@
       "path": "../../iam/domain"
     },
     {
-      "path": "../../shared/tables"
+      "path": "../../iam/tables"
     },
     {
-      "path": "../../core/db"
+      "path": "../../files/services"
     },
     {
-      "path": "../../common/invariant"
+      "path": "../../files/infra"
     },
     {
-      "path": "../../common/schema"
+      "path": "../../files/domain"
     },
     {
-      "path": "../../common/types"
-    },
-    {
-      "path": "../../common/utils"
-    },
-    {
-      "path": "../../core/env"
-    },
-    {
-      "path": "../../shared/domain"
+      "path": "../../files/tables"
     }
   ],
   "compilerOptions": {
@@ -48,28 +72,45 @@
     "esModuleInterop": true,
     "paths": {
       "@beep/db-admin/*": ["./src/*"],
-      "@beep/iam-tables": ["../../iam/tables/src/index"],
-      "@beep/iam-tables/*": ["../../iam/tables/src/*"],
+      "@beep/types": ["../../common/types/src/index"],
+      "@beep/types/*": ["../../common/types/src/*"],
+      "@beep/invariant": ["../../common/invariant/src/index"],
+      "@beep/invariant/*": ["../../common/invariant/src/*"],
+      "@beep/utils": ["../../common/utils/src/index"],
+      "@beep/utils/*": ["../../common/utils/src/*"],
+      "@beep/schema": ["../../common/schema/src/index"],
+      "@beep/schema/*": ["../../common/schema/src/*"],
+      "@beep/constants": ["../../common/constants/src/index"],
+      "@beep/constants/*": ["../../common/constants/src/*"],
+      "@beep/errors/client": ["../../common/errors/src/client"],
+      "@beep/errors/shared": ["../../common/errors/src/shared"],
+      "@beep/errors/server": ["../../common/errors/src/server"],
+      "@beep/shared-domain": ["../../shared/domain/src/index"],
+      "@beep/shared-domain/*": ["../../shared/domain/src/*"],
       "@beep/shared-tables": ["../../shared/tables/src/index"],
       "@beep/shared-tables/*": ["../../shared/tables/src/*"],
+      "@beep/core-env/client": ["../../core/env/src/client"],
+      "@beep/core-env/server": ["../../core/env/src/server"],
+      "@beep/core-email": ["../../core/email/src/index"],
+      "@beep/core-email/*": ["../../core/email/src/*"],
       "@beep/core-db": ["../../core/db/src/index"],
       "@beep/core-db/*": ["../../core/db/src/*"],
-      "@beep/iam-infra": ["../../iam/infra/src/index"],
-      "@beep/iam-infra/*": ["../../iam/infra/src/*"],
-      "@beep/schema": ["../../schema/src/index"],
-      "@beep/schema/*": ["../../schema/src/*"],
-      "@beep/types": ["../../types/src/index"],
-      "@beep/types/*": ["../../types/src/*"],
-      "@beep/invariant": ["../../invariant/src/index"],
-      "@beep/invariant/*": ["../../invariant/src/*"],
-      "@beep/utils": ["../../utils/src/index"],
-      "@beep/utils/*": ["../../utils/src/*"],
-      "@beep/core-env/server": ["../../core/env/src/server"],
-      "@beep/core-env/client": ["../../core/env/src/client"],
       "@beep/iam-domain": ["../../iam/domain/src/index"],
       "@beep/iam-domain/*": ["../../iam/domain/src/*"],
-      "@beep/shared-domain": ["../../shared/domain/src/index"],
-      "@beep/shared-domain/*": ["../../shared/domain/src/*"]
+      "@beep/iam-services": ["../../iam/services/src/index"],
+      "@beep/iam-services/*": ["../../iam/services/src/*"],
+      "@beep/iam-tables": ["../../iam/tables/src/index"],
+      "@beep/iam-tables/*": ["../../iam/tables/src/*"],
+      "@beep/iam-infra": ["../../iam/infra/src/index"],
+      "@beep/iam-infra/*": ["../../iam/infra/src/*"],
+      "@beep/files-domain": ["../../files/domain/src/index"],
+      "@beep/files-domain/*": ["../../files/domain/src/*"],
+      "@beep/files-services": ["../../files/services/src/index"],
+      "@beep/files-services/*": ["../../files/services/src/*"],
+      "@beep/files-tables": ["../../files/tables/src/index"],
+      "@beep/files-tables/*": ["../../files/tables/src/*"],
+      "@beep/files-infra": ["../../files/infra/src/index"],
+      "@beep/files-infra/*": ["../../files/infra/src/*"]
     }
   }
 }

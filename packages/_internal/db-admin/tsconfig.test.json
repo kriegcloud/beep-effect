@@ -3,7 +3,43 @@
   "include": ["test"],
   "references": [
     {
-      "path": "../../iam/tables"
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../common/types"
+    },
+    {
+      "path": "../../common/invariant"
+    },
+    {
+      "path": "../../common/utils"
+    },
+    {
+      "path": "../../common/schema"
+    },
+    {
+      "path": "../../common/constants"
+    },
+    {
+      "path": "../../common/errors"
+    },
+    {
+      "path": "../../shared/domain"
+    },
+    {
+      "path": "../../shared/tables"
+    },
+    {
+      "path": "../../core/env"
+    },
+    {
+      "path": "../../core/email"
+    },
+    {
+      "path": "../../core/db"
+    },
+    {
+      "path": "../../iam/services"
     },
     {
       "path": "../../iam/infra"
@@ -12,28 +48,19 @@
       "path": "../../iam/domain"
     },
     {
-      "path": "../../shared/tables"
+      "path": "../../iam/tables"
     },
     {
-      "path": "../../core/db"
+      "path": "../../files/services"
     },
     {
-      "path": "../../common/invariant"
+      "path": "../../files/infra"
     },
     {
-      "path": "../../common/schema"
+      "path": "../../files/domain"
     },
     {
-      "path": "../../common/types"
-    },
-    {
-      "path": "../../common/utils"
-    },
-    {
-      "path": "../../core/env"
-    },
-    {
-      "path": "../../shared/domain"
+      "path": "../../files/tables"
     }
   ],
   "compilerOptions": {

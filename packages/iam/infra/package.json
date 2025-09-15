@@ -72,7 +72,6 @@
     "uuid": "*"
   },
   "devDependencies": {
-    "@testcontainers/postgresql": "*",
     "@types/pg": "*",
     "@beep/types": "workspace:*"
   },

@@ -17,11 +17,9 @@ export class Model extends M.Class<Model>(`UserModel`)(
     }),
 
     /** User's email address (unique) */
-    email: M.Sensitive(
-      BS.Email.annotations({
-        description: "The user's email address",
-      })
-    ),
+    email: BS.Email.annotations({
+      description: "The user's email address",
+    }),
 
     /** Whether the user's email has been verified */
     emailVerified: S.optionalWith(S.Boolean, {
