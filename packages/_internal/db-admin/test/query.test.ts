@@ -17,18 +17,17 @@ class Service extends Effect.Service<Service>()("TestService", {
   }).pipe(Effect.provide(PgContainer.Default)),
 }) {}
 
-it.layer(Layer.provideMerge(Service.Default, PgContainer.Live), { timeout: "30 seconds" })(
-  "mocked drizzle db",
-  (it) => {
-    it.effect(
-      "mocked drizzle db should work",
-      Effect.fnUntraced(function* () {
-        const { db } = yield* Service;
-        const users = yield* db.query.userTable.findMany();
+const TestLayer = Layer.provideMerge(Service.Default, PgContainer.Live);
 
-        // const users = yield* db.query.userTable.findMany();
-        expect(users.length).toEqual(1);
-      })
-    );
-  }
-);
+it.layer(TestLayer, { timeout: "30 seconds" })("mocked drizzle db", (it) => {
+  it.effect(
+    "mocked drizzle db should work",
+    Effect.fnUntraced(function* () {
+      const { db } = yield* Service;
+      const users = yield* db.query.userTable.findMany();
+
+      // const users = yield* db.query.userTable.findMany();
+      expect(users.length).toEqual(1);
+    })
+  );
+});

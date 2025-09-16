@@ -1,2 +1,2 @@
-import { IamDb } from "../../db";
-export const dependencies = [IamDb.layer] as const;
+import { IamDb } from "@beep/iam-infra/db";
+export const dependencies = [IamDb.layerWithoutDependencies] as const;

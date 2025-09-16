@@ -1,6 +1,5 @@
 import { Db } from "@beep/core-db";
 import { ResendService } from "@beep/core-email";
-import { serverEnv } from "@beep/core-env/server";
 import { AuthEmailService, AuthService } from "@beep/iam-infra";
 import { DevToolsLive } from "@beep/runtime-server/dev-tools-live";
 import { HttpClientLive } from "@beep/runtime-server/http-client-live";
@@ -13,14 +12,11 @@ import type { Resource } from "@effect/opentelemetry/Resource";
 import type { HttpClient } from "@effect/platform/HttpClient";
 import * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
-export const DbLive = Db.layer({
-  url: serverEnv.db.pg.url,
-  ssl: serverEnv.db.pg.ssl,
-});
+
 type Base = Layer.Layer<Resource | HttpClient, never, never>;
 export const Base: Base = Layer.mergeAll(TelemetryLive, HttpClientLive, DevToolsLive, LogLevelLive);
 
-export const SliceDependenciesLayer = Layer.provideMerge(SliceDatabasesLive, DbLive);
+export const SliceDependenciesLayer = Layer.provideMerge(SliceDatabasesLive, Db.Live);
 
 export const DbRepos = Layer.provideMerge(SliceRepositoriesLive, SliceDependenciesLayer);
 

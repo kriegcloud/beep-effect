@@ -12,12 +12,22 @@ import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { Effect, Layer, Redacted } from "effect";
+import * as Data from "effect/Data";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import path from "path";
 import postgres from "postgres";
 import * as Schema from "../src/schema";
+
+export class PgContainerError extends Data.TaggedError("PgContainerError")<{
+  readonly message: string;
+  readonly cause: unknown;
+}> {}
+
+const POSTGRES_USER = "test";
+const POSTGRES_PASSWORD = "test";
+const POSTGRES_DB = "test";
 
 export async function setupDockerTestDb() {
   const POSTGRES_USER = "test";
@@ -50,11 +60,71 @@ export async function setupDockerTestDb() {
   return { container, db, confirmDatabaseReady, client };
 }
 
+const setupDocker = Effect.gen(function* () {
+  // Make sure to use Postgres 15 with pg_uuidv7 installed
+  // Ensure you have the pg_uuidv7 docker image locally
+  // You may need to modify pg_uuid's dockerfile to install the extension or build a new image from its base
+  // https://github.com/fboulnois/pg_uuidv7
+  const container = yield* Effect.tryPromise({
+    try: () =>
+      new PostgreSqlContainer("ghcr.io/fboulnois/pg_uuidv7:1.6.0")
+        .withEnvironment({
+          POSTGRES_USER: POSTGRES_USER,
+          POSTGRES_PASSWORD: POSTGRES_PASSWORD,
+          POSTGRES_DB: POSTGRES_DB,
+        })
+        .withExposedPorts(5432)
+        .start(),
+    catch: (error) =>
+      new PgContainerError({
+        message: `Failed to initialize new PgContainer`,
+        cause: error,
+      }),
+  });
+
+  const connectionString = `postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${container.getHost()}:${container.getFirstMappedPort()}/${POSTGRES_DB}`;
+  yield* Effect.logInfo(`Connection string: ${connectionString}`);
+  const client = postgres(connectionString);
+
+  const db = drizzle(client);
+
+  yield* Effect.tryPromise({
+    try: () => db.execute(sql`CREATE EXTENSION IF NOT EXISTS pg_uuidv7`),
+    catch: (error) =>
+      new PgContainerError({
+        message: `Failed to create pg_uuidv7 extension`,
+        cause: error,
+      }),
+  });
+
+  const migrationPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../drizzle");
+  yield* Effect.logInfo(`Migration path: ${migrationPath}`);
+
+  yield* Effect.tryPromise({
+    try: () => migrate(db, { migrationsFolder: migrationPath }),
+    catch: (error) =>
+      new PgContainerError({
+        message: `Failed to migrate`,
+        cause: error,
+      }),
+  });
+
+  yield* Effect.logInfo(`Confirming database is ready.`);
+  const confirmDatabaseReady = yield* Effect.tryPromise({
+    try: () => db.execute(sql`SELECT 1`),
+    catch: (e) =>
+      new PgContainerError({
+        message: `Failed to confirm database is ready`,
+        cause: e,
+      }),
+  });
+  yield* Effect.logInfo(`Database is ready.`);
+
+  return { container, db, confirmDatabaseReady, client };
+});
+
 export class PgContainer extends Effect.Service<PgContainer>()("PgContainer", {
-  scoped: Effect.acquireRelease(
-    Effect.promise(() => setupDockerTestDb()),
-    ({ container }) => Effect.promise(() => container.stop())
-  ),
+  scoped: Effect.acquireRelease(setupDocker, ({ container }) => Effect.promise(() => container.stop())),
 }) {
   static readonly Live = Layer.effectDiscard(
     Effect.gen(function* () {
@@ -86,7 +156,6 @@ export class PgContainer extends Effect.Service<PgContainer>()("PgContainer", {
         })
       )
     ),
-
     Layer.provide(NodeFileSystem.layer),
     Layer.provide(Path.layer),
     Layer.provide(PgContainer.Default),
@@ -94,5 +163,8 @@ export class PgContainer extends Effect.Service<PgContainer>()("PgContainer", {
     Layer.orDie
   );
 }
+
+export const t = PgContainer.Live;
+
 // Layer.provide(IamRepos.layer, FilesRepos.layer),
 //

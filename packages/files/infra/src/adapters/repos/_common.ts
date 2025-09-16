@@ -1,2 +1,2 @@
-import { FilesDb } from "../../db";
-export const dependencies = [FilesDb.layer] as const;
+import { FilesDb } from "@beep/files-infra/db";
+export const dependencies = [FilesDb.layerWithoutDependencies] as const;

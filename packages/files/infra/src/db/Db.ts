@@ -8,7 +8,13 @@ import * as Layer from "effect/Layer";
 export namespace FilesDb {
   const { serviceEffect } = Db.make(SharedDbSchema);
 
-  export class FilesDb extends Context.Tag("@beep/files-infra/FilesDb")<FilesDb, Db.Db<typeof SharedDbSchema>>() {}
+  export type Layer = Layer.Layer<FilesDb, SqlError | ConfigError, SqlClient>;
+  export class FilesDb extends Context.Tag("@beep/files-infra/FilesDb")<FilesDb, Db.Db<typeof SharedDbSchema>>() {
+    static readonly Live: Layer = Layer.scoped(FilesDb, serviceEffect);
+  }
 
-  export const layer: Layer.Layer<FilesDb, SqlError | ConfigError, SqlClient> = Layer.scoped(FilesDb, serviceEffect);
+  export const layerWithoutDependencies: Layer.Layer<FilesDb, SqlError | ConfigError, never> = Layer.scoped(
+    FilesDb,
+    serviceEffect
+  ).pipe(Layer.provide(Db.Live));
 }

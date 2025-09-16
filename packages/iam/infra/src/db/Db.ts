@@ -8,7 +8,13 @@ import * as Layer from "effect/Layer";
 export namespace IamDb {
   const { serviceEffect } = Db.make(IamDbSchema);
 
-  export class IamDb extends Context.Tag("@beep/iam-infra/IamDb")<IamDb, Db.Db<typeof IamDbSchema>>() {}
+  export type Layer = Layer.Layer<IamDb, SqlError | ConfigError, SqlClient>;
+  export class IamDb extends Context.Tag("@beep/iam-infra/IamDb")<IamDb, Db.Db<typeof IamDbSchema>>() {
+    static readonly Live: Layer = Layer.scoped(IamDb, serviceEffect);
+  }
 
-  export const layer: Layer.Layer<IamDb, SqlError | ConfigError, SqlClient> = Layer.scoped(IamDb, serviceEffect);
+  export const layerWithoutDependencies: Layer.Layer<IamDb, SqlError | ConfigError, never> = Layer.scoped(
+    IamDb,
+    serviceEffect
+  ).pipe(Layer.provide(Db.Live));
 }
