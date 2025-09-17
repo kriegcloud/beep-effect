@@ -33,6 +33,8 @@
     "lint:circular": "pnpm madge -c ."
   },
   "peerDependencies": {
+    "@better-auth/utils": "*",
+    "ms": "*",
     "@effect/sql": "*",
     "@effect/sql-pg": "*",
     "@effect/sql-drizzle": "*",
@@ -71,6 +73,7 @@
     "uuid": "*"
   },
   "devDependencies": {
+    "@types/ms": "*",
     "@types/pg": "*",
     "@beep/types": "workspace:^"
   },

@@ -1,15 +1,25 @@
+import { serverEnv } from "@beep/core-env/server";
 import type * as SqlClient from "@effect/sql/SqlClient";
 import type { SqlError } from "@effect/sql/SqlError";
 import * as PgDrizzle from "@effect/sql-drizzle/Pg";
 import * as PgClient from "@effect/sql-pg/PgClient";
+import { drizzle as _drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { Effect } from "effect";
 import * as Config from "effect/Config";
 import type { ConfigError } from "effect/ConfigError";
 import * as Duration from "effect/Duration";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as Redacted from "effect/Redacted";
 import * as Schedule from "effect/Schedule";
 import * as Str from "effect/String";
+import type postgres from "postgres";
+
+type DrizzleDb<TFullSchema extends Record<string, unknown> = Record<string, never>> =
+  PostgresJsDatabase<TFullSchema> & {
+    $client: postgres.Sql<{}>;
+  };
+
 import type { ConnectionOptions } from "./types";
 export namespace Db {
   export const config = {
@@ -88,6 +98,7 @@ export namespace Db {
 
   export type Db<TFullSchema extends Record<string, unknown> = Record<string, never>> = {
     readonly db: Effect.Effect.Success<ReturnType<typeof PgDrizzle.make<TFullSchema>>>;
+    readonly drizzle: DrizzleDb<TFullSchema>;
   };
 
   type ServiceEffect<TFullSchema extends Record<string, unknown> = Record<string, never>> = Effect.Effect<
@@ -102,9 +113,13 @@ export namespace Db {
       const db = yield* PgDrizzle.make<TFullSchema>({
         schema,
       });
+      const drizzle = _drizzle(Redacted.value(serverEnv.db.pg.url), {
+        schema,
+      });
 
       return {
         db,
+        drizzle,
       };
     });
 

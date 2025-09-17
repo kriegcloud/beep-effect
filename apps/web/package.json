@@ -21,6 +21,7 @@
     "execute": "pnpm dotenvx tsx ./execute.ts"
   },
   "dependencies": {
+    "@better-auth/utils": "*",
     "@beep/invariant": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/schema": "workspace:^",
@@ -64,6 +65,7 @@
     "resend": "*",
     "drizzle-orm": "*",
     "@effect/sql": "*",
+    "ms": "*",
     "@effect/sql-pg": "*",
     "@effect/sql-drizzle": "*",
     "@opentelemetry/exporter-trace-otlp-http": "*",
@@ -161,6 +163,7 @@
     "@react-email/render": "*"
   },
   "devDependencies": {
+    "@types/ms": "*",
     "@beep/types": "workspace:^",
     "@svgr/webpack": "*",
     "@types/json-logic-js": "*",
