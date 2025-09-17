@@ -11,7 +11,6 @@ import * as Layer from "effect/Layer";
 import * as Schedule from "effect/Schedule";
 import * as Str from "effect/String";
 import type { ConnectionOptions } from "./types";
-
 export namespace Db {
   export const config = {
     transformQueryNames: Str.camelToSnake,

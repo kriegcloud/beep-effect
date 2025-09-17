@@ -54,7 +54,6 @@
     "@effect/workflow": "*",
     "drizzle-orm": "*",
     "effect": "*",
-    "pg": "*",
     "@beep/constants": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/errors": "workspace:^"

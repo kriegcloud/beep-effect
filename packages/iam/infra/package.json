@@ -55,7 +55,6 @@
     "@beep/iam-tables": "workspace:^",
     "drizzle-orm": "*",
     "effect": "*",
-    "pg": "*",
     "next": "*",
     "react": "*",
     "react-dom": "*",

@@ -26,6 +26,10 @@ export const EmailBase = S.Lowercase.pipe(
   identifier: "Email",
 });
 
+export namespace EmailBase {
+  export type Type = S.Schema.Type<typeof EmailBase>;
+  export type Encoded = S.Schema.Encoded<typeof EmailBase>;
+}
 /**
  * Email address schema and helpers.
  * - lowercased

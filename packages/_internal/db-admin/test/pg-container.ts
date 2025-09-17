@@ -10,7 +10,7 @@ import * as Path from "@effect/platform/Path";
 import * as NodeContext from "@effect/platform-node/NodeContext";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as PgDrizzle from "@effect/sql-drizzle/Pg";
-import { PgClient } from "@effect/sql-pg";
+import * as PgClient from "@effect/sql-pg/PgClient";
 import { faker } from "@faker-js/faker";
 import { PostgreSqlContainer } from "@testcontainers/postgresql";
 import { sql } from "drizzle-orm";
@@ -18,11 +18,10 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { Effect, Layer, Redacted } from "effect";
 import * as Data from "effect/Data";
+import * as DateTime from "effect/DateTime";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-// TS1259: Module "path" can only be default-imported using the esModuleInterop flag
-// path.d.ts(187, 5): This module is declared with export =, and can only be used with a default import when using the esModuleInterop flag.
 import path from "path";
 import postgres from "postgres";
 
@@ -137,15 +136,16 @@ export class PgContainer extends Effect.Service<PgContainer>()("PgContainer", {
       const db = yield* PgDrizzle.make<typeof Schema>({
         schema: Schema,
       });
-
+      const now = yield* DateTime.now;
       const mockedUser = Entities.User.Model.insert.make({
         email: BS.Email.make("test@example.com"),
         name: "beep",
         emailVerified: false,
         image: O.some(faker.image.avatar()),
-        twoFactorEnabled: O.some(false),
-        isAnonymous: O.some(false),
+        createdAt: now,
+        updatedAt: now,
       });
+
       const encoded = yield* S.encode(Entities.User.Model.insert)(mockedUser);
       yield* db.insert(Schema.userTable).values([encoded]);
     })

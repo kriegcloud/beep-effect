@@ -18,7 +18,7 @@ overrides:
   nuqs: ^2.6.0
   '@effect-aws/s3': ^0.2.3
   '@babel/core': 7.28.4
-  '@effect/cluster': ^0.48.8
+  '@effect/cluster': ^0.48.9
   '@effect/workflow': ^0.9.5
   '@testcontainers/postgresql': 11.5.1
   '@opentelemetry/exporter-trace-otlp-http': 0.205.0
@@ -204,7 +204,7 @@ importers:
         specifier: 7.27.1
         version: 7.27.1(@babel/core@7.28.4)
       '@beep/tooling-utils':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:tooling/utils/build
       '@biomejs/biome':
         specifier: 2.2.4
@@ -276,8 +276,8 @@ importers:
         specifier: 0.29.1
         version: 0.29.1(@effect/ai@0.26.1(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
       '@effect/cluster':
-        specifier: ^0.48.8
-        version: 0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        specifier: ^0.48.9
+        version: 0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/experimental':
         specifier: 0.54.6
         version: 0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
@@ -289,7 +289,7 @@ importers:
         version: 0.90.9(effect@3.17.13)
       '@effect/platform-node':
         specifier: 0.96.1
-        version: 0.96.1(@effect/cluster@0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        version: 0.96.1(@effect/cluster@0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/rpc':
         specifier: 0.69.2
         version: 0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
@@ -349,8 +349,8 @@ importers:
         specifier: 0.29.1
         version: 0.29.1(@effect/ai@0.26.1(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
       '@effect/cluster':
-        specifier: ^0.48.8
-        version: 0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        specifier: ^0.48.9
+        version: 0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/experimental':
         specifier: 0.54.6
         version: 0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
@@ -362,7 +362,7 @@ importers:
         version: 0.90.9(effect@3.17.13)
       '@effect/platform-node':
         specifier: 0.96.1
-        version: 0.96.1(@effect/cluster@0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        version: 0.96.1(@effect/cluster@0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/rpc':
         specifier: 0.69.2
         version: 0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
@@ -413,82 +413,82 @@ importers:
   apps/web:
     dependencies:
       '@beep/constants':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/common/constants/build
       '@beep/core-db':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/core/db/build
       '@beep/core-email':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/core/email/build
       '@beep/core-env':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/core/env/build
       '@beep/errors':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/common/errors/build
       '@beep/files-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/files/domain/build
       '@beep/files-infra':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/files/infra/build
       '@beep/files-sdk':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/files/sdk/build
       '@beep/files-tables':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/files/tables/build
       '@beep/files-ui':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/files/ui/build
       '@beep/iam-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/iam/domain/build
       '@beep/iam-infra':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/iam/infra/build
       '@beep/iam-sdk':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/iam/sdk/build
       '@beep/iam-tables':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/iam/tables/build
       '@beep/iam-ui':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/iam/ui/build
       '@beep/invariant':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/common/invariant/build
       '@beep/logos':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/common/logos/build
       '@beep/rete':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/common/rete/build
       '@beep/rules':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/common/rules/build
       '@beep/runtime-client':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/runtime/client/build
       '@beep/runtime-server':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/runtime/server/build
       '@beep/schema':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/common/schema/build
       '@beep/shared-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/shared/domain/build
       '@beep/shared-tables':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/shared/tables/build
       '@beep/ui':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/ui
       '@beep/utils':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/common/utils/build
       '@better-auth/stripe':
         specifier: 1.3.11
@@ -497,8 +497,8 @@ importers:
         specifier: 0.0.5
         version: 0.0.5
       '@effect/cluster':
-        specifier: ^0.48.8
-        version: 0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        specifier: ^0.48.9
+        version: 0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/experimental':
         specifier: 0.54.6
         version: 0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
@@ -513,7 +513,7 @@ importers:
         version: 0.70.0(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
       '@effect/platform-node':
         specifier: 0.96.1
-        version: 0.96.1(@effect/cluster@0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        version: 0.96.1(@effect/cluster@0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/rpc':
         specifier: 0.69.2
         version: 0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
@@ -831,7 +831,7 @@ importers:
         version: 4.1.9
     devDependencies:
       '@beep/types':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/common/types/build
       '@svgr/webpack':
         specifier: 8.1.0
@@ -858,49 +858,49 @@ importers:
   packages/_internal/db-admin:
     dependencies:
       '@beep/constants':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/constants/build
       '@beep/core-db':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/db/build
       '@beep/core-env':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/env/build
       '@beep/errors':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/errors/build
       '@beep/files-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../files/domain/build
       '@beep/files-infra':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../files/infra/build
       '@beep/files-tables':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../files/tables/build
       '@beep/iam-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../iam/domain/build
       '@beep/iam-infra':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../iam/infra/build
       '@beep/iam-tables':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../iam/tables/build
       '@beep/invariant':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/invariant/build
       '@beep/schema':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/schema/build
       '@beep/shared-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../shared/domain/build
       '@beep/shared-tables':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../shared/tables/build
       '@beep/utils':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/utils/build
       '@effect/experimental':
         specifier: 0.54.6
@@ -910,7 +910,7 @@ importers:
         version: 0.90.9(effect@3.17.13)
       '@effect/platform-node':
         specifier: 0.96.1
-        version: 0.96.1(@effect/cluster@0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        version: 0.96.1(@effect/cluster@0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/sql':
         specifier: 0.44.2
         version: 0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
@@ -970,7 +970,7 @@ importers:
         version: 4.1.9
     devDependencies:
       '@beep/types':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/types/build
     publishDirectory: build
 
@@ -986,8 +986,8 @@ importers:
         specifier: workspace:^
         version: link:../utils/build
       '@effect/cluster':
-        specifier: ^0.48.8
-        version: 0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        specifier: ^0.48.9
+        version: 0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/workflow':
         specifier: ^0.9.5
         version: 0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
@@ -1018,8 +1018,8 @@ importers:
         specifier: workspace:^
         version: link:../utils/build
       '@effect/cluster':
-        specifier: ^0.48.8
-        version: 0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        specifier: ^0.48.9
+        version: 0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/platform':
         specifier: 0.90.9
         version: 0.90.9(effect@3.17.13)
@@ -1060,8 +1060,8 @@ importers:
         specifier: workspace:^
         version: link:../utils/build
       '@effect/cluster':
-        specifier: ^0.48.8
-        version: 0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        specifier: ^0.48.9
+        version: 0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/workflow':
         specifier: ^0.9.5
         version: 0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
@@ -1077,7 +1077,7 @@ importers:
         version: link:../types/build
       '@effect/platform-node':
         specifier: 0.96.1
-        version: 0.96.1(@effect/cluster@0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        version: 0.96.1(@effect/cluster@0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       type-fest:
         specifier: 5.0.0
         version: 5.0.0
@@ -1130,11 +1130,11 @@ importers:
         specifier: workspace:^
         version: link:../utils/build
       '@effect/cluster':
-        specifier: ^0.48.8
-        version: 0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        specifier: ^0.48.9
+        version: 0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/platform-node':
         specifier: 0.96.1
-        version: 0.96.1(@effect/cluster@0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        version: 0.96.1(@effect/cluster@0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/workflow':
         specifier: ^0.9.5
         version: 0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
@@ -1248,23 +1248,29 @@ importers:
   packages/core/db:
     dependencies:
       '@beep/constants':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/constants/build
       '@beep/core-env':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../env/build
       '@beep/errors':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/errors/build
       '@beep/invariant':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/invariant/build
       '@beep/schema':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/schema/build
       '@beep/utils':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/utils/build
+      '@effect/experimental':
+        specifier: 0.54.6
+        version: 0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
+      '@effect/platform':
+        specifier: 0.90.9
+        version: 0.90.9(effect@3.17.13)
       '@effect/sql':
         specifier: 0.44.2
         version: 0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
@@ -1288,7 +1294,7 @@ importers:
         version: 3.4.7
     devDependencies:
       '@beep/types':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/types/build
       '@types/pg':
         specifier: 8.15.5
@@ -1298,16 +1304,16 @@ importers:
   packages/core/email:
     dependencies:
       '@beep/constants':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/constants/build
       '@beep/core-env':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../env/build
       '@beep/errors':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/errors/build
       '@beep/ui':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../ui
       '@mui/material':
         specifier: 7.3.2
@@ -1363,10 +1369,10 @@ importers:
   packages/core/env:
     dependencies:
       '@beep/constants':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/constants/build
       '@beep/schema':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/schema/build
       effect:
         specifier: 3.17.13
@@ -1376,19 +1382,19 @@ importers:
   packages/files/domain:
     dependencies:
       '@beep/constants':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/constants/build
       '@beep/invariant':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/invariant/build
       '@beep/schema':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/schema/build
       '@beep/shared-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../shared/domain/build
       '@beep/utils':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/utils/build
       '@effect/sql':
         specifier: 0.44.2
@@ -1401,44 +1407,44 @@ importers:
         version: 4.31.2
     devDependencies:
       '@beep/types':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/types/build
     publishDirectory: build
 
   packages/files/infra:
     dependencies:
       '@beep/constants':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/constants/build
       '@beep/core-db':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/db/build
       '@beep/core-env':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/env/build
       '@beep/errors':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/errors/build
       '@beep/files-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../domain/build
       '@beep/files-tables':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../tables/build
       '@beep/invariant':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/invariant/build
       '@beep/schema':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/schema/build
       '@beep/shared-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../shared/domain/build
       '@beep/shared-tables':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../shared/tables/build
       '@beep/utils':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/utils/build
       '@effect-aws/client-s3':
         specifier: ^1.10.3
@@ -1447,8 +1453,8 @@ importers:
         specifier: ^0.2.3
         version: 0.2.3(@effect-aws/client-s3@1.10.3(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
       '@effect/cluster':
-        specifier: ^0.48.8
-        version: 0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        specifier: ^0.48.9
+        version: 0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/experimental':
         specifier: 0.54.6
         version: 0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
@@ -1457,7 +1463,7 @@ importers:
         version: 0.90.9(effect@3.17.13)
       '@effect/platform-node':
         specifier: 0.96.1
-        version: 0.96.1(@effect/cluster@0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        version: 0.96.1(@effect/cluster@0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/sql':
         specifier: 0.44.2
         version: 0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
@@ -1484,7 +1490,7 @@ importers:
         version: 3.4.7
     devDependencies:
       '@beep/types':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/types/build
       '@types/pg':
         specifier: 8.15.5
@@ -1503,10 +1509,10 @@ importers:
         specifier: workspace:^
         version: link:../../common/errors/build
       '@beep/files-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../domain/build
       '@beep/files-infra':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../infra/build
       '@beep/invariant':
         specifier: workspace:^
@@ -1532,29 +1538,29 @@ importers:
   packages/files/tables:
     dependencies:
       '@beep/files-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../domain/build
       '@beep/invariant':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/invariant/build
       '@beep/schema':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/schema/build
       '@beep/shared-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../shared/domain/build
       '@beep/shared-tables':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../shared/tables/build
       '@beep/utils':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/utils/build
       drizzle-orm:
         specifier: 0.44.5
         version: 0.44.5(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(kysely@0.28.7)(pg@8.16.3)(postgres@3.4.7)
     devDependencies:
       '@beep/types':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/types/build
     publishDirectory: build
 
@@ -1596,19 +1602,19 @@ importers:
   packages/iam/domain:
     dependencies:
       '@beep/constants':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/constants/build
       '@beep/invariant':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/invariant/build
       '@beep/schema':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/schema/build
       '@beep/shared-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../shared/domain/build
       '@beep/utils':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/utils/build
       '@effect/experimental':
         specifier: 0.54.6
@@ -1627,47 +1633,47 @@ importers:
         version: 1.2.0
     devDependencies:
       '@beep/types':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/types/build
     publishDirectory: build
 
   packages/iam/infra:
     dependencies:
       '@beep/constants':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/constants/build
       '@beep/core-db':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/db/build
       '@beep/core-email':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/email/build
       '@beep/core-env':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/env/build
       '@beep/errors':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/errors/build
       '@beep/iam-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../domain/build
       '@beep/iam-tables':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../tables/build
       '@beep/invariant':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/invariant/build
       '@beep/schema':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/schema/build
       '@beep/shared-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../shared/domain/build
       '@beep/shared-tables':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../shared/tables/build
       '@beep/utils':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/utils/build
       '@better-auth/stripe':
         specifier: 1.3.11
@@ -1676,8 +1682,8 @@ importers:
         specifier: 0.0.5
         version: 0.0.5
       '@effect/cluster':
-        specifier: ^0.48.8
-        version: 0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        specifier: ^0.48.9
+        version: 0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/experimental':
         specifier: 0.54.6
         version: 0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
@@ -1686,7 +1692,7 @@ importers:
         version: 0.90.9(effect@3.17.13)
       '@effect/platform-node':
         specifier: 0.96.1
-        version: 0.96.1(@effect/cluster@0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        version: 0.96.1(@effect/cluster@0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/sql':
         specifier: 0.44.2
         version: 0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
@@ -1746,7 +1752,7 @@ importers:
         version: 4.1.9
     devDependencies:
       '@beep/types':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/types/build
       '@types/pg':
         specifier: 8.15.5
@@ -1756,31 +1762,31 @@ importers:
   packages/iam/sdk:
     dependencies:
       '@beep/constants':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/constants/build
       '@beep/core-env':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/env/build
       '@beep/errors':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/errors/build
       '@beep/iam-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../domain/build
       '@beep/iam-infra':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../infra/build
       '@beep/invariant':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/invariant/build
       '@beep/schema':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/schema/build
       '@beep/shared-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../shared/domain/build
       '@beep/utils':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/utils/build
       '@better-auth/stripe':
         specifier: 1.3.11
@@ -1805,29 +1811,29 @@ importers:
         version: 18.5.0(@types/node@24.5.1)
     devDependencies:
       '@beep/types':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/types/build
     publishDirectory: build
 
   packages/iam/tables:
     dependencies:
       '@beep/iam-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../domain/build
       '@beep/invariant':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/invariant/build
       '@beep/schema':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/schema/build
       '@beep/shared-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../shared/domain/build
       '@beep/shared-tables':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../shared/tables/build
       '@beep/utils':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/utils/build
       '@effect/experimental':
         specifier: 0.54.6
@@ -1849,7 +1855,7 @@ importers:
         version: 13.0.0
     devDependencies:
       '@beep/types':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/types/build
     publishDirectory: build
 
@@ -1866,64 +1872,64 @@ importers:
   packages/runtime/client:
     dependencies:
       '@beep/constants':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/constants/build
       '@beep/core-env':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/env/build
       '@beep/errors':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/errors/build
       '@beep/files-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../files/domain/build
       '@beep/files-sdk':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../files/sdk/build
       '@beep/files-tables':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../files/tables/build
       '@beep/files-ui':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../files/ui/build
       '@beep/iam-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../iam/domain/build
       '@beep/iam-sdk':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../iam/sdk/build
       '@beep/iam-tables':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../iam/tables/build
       '@beep/iam-ui':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../iam/ui/build
       '@beep/invariant':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/invariant/build
       '@beep/logos':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/logos/build
       '@beep/rete':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/rete/build
       '@beep/rules':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/rules/build
       '@beep/schema':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/schema/build
       '@beep/shared-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../shared/domain/build
       '@beep/shared-tables':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../shared/tables/build
       '@beep/ui':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../ui
       '@beep/utils':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/utils/build
       '@effect/experimental':
         specifier: 0.54.6
@@ -1972,7 +1978,7 @@ importers:
         version: 19.1.1(react@19.1.1)
     devDependencies:
       '@beep/types':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/types/build
       '@types/react':
         specifier: 19.1.13
@@ -1985,61 +1991,61 @@ importers:
   packages/runtime/server:
     dependencies:
       '@beep/constants':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/constants/build
       '@beep/core-db':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/db/build
       '@beep/core-email':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/email/build
       '@beep/core-env':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/env/build
       '@beep/errors':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/errors/build
       '@beep/files-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../files/domain/build
       '@beep/files-infra':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../files/infra/build
       '@beep/files-tables':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../files/tables/build
       '@beep/iam-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../iam/domain/build
       '@beep/iam-infra':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../iam/infra/build
       '@beep/iam-tables':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../iam/tables/build
       '@beep/invariant':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/invariant/build
       '@beep/logos':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/logos/build
       '@beep/rete':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/rete/build
       '@beep/rules':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/rules/build
       '@beep/schema':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/schema/build
       '@beep/shared-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../shared/domain/build
       '@beep/shared-tables':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../shared/tables/build
       '@beep/utils':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/utils/build
       '@better-auth/stripe':
         specifier: 1.3.11
@@ -2048,8 +2054,8 @@ importers:
         specifier: 0.0.5
         version: 0.0.5
       '@effect/cluster':
-        specifier: ^0.48.8
-        version: 0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        specifier: ^0.48.9
+        version: 0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/experimental':
         specifier: 0.54.6
         version: 0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
@@ -2061,7 +2067,7 @@ importers:
         version: 0.90.9(effect@3.17.13)
       '@effect/platform-node':
         specifier: 0.96.1
-        version: 0.96.1(@effect/cluster@0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        version: 0.96.1(@effect/cluster@0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/rpc':
         specifier: 0.69.2
         version: 0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
@@ -2136,7 +2142,7 @@ importers:
         version: 4.1.9
     devDependencies:
       '@beep/types':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/types/build
       '@types/pg':
         specifier: 8.15.5
@@ -2149,19 +2155,19 @@ importers:
   packages/shared/domain:
     dependencies:
       '@beep/constants':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/constants/build
       '@beep/errors':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/errors/build
       '@beep/invariant':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/invariant/build
       '@beep/schema':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/schema/build
       '@beep/utils':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/utils/build
       '@effect/experimental':
         specifier: 0.54.6
@@ -2190,16 +2196,16 @@ importers:
   packages/shared/tables:
     dependencies:
       '@beep/invariant':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/invariant/build
       '@beep/schema':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/schema/build
       '@beep/shared-domain':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../domain/build
       '@beep/utils':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/utils/build
       '@effect/experimental':
         specifier: 0.54.6
@@ -2218,7 +2224,7 @@ importers:
         version: 1.2.0
     devDependencies:
       '@beep/types':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../common/types/build
     publishDirectory: build
 
@@ -2509,14 +2515,14 @@ importers:
         specifier: workspace:^
         version: link:../utils/build
       '@effect/cluster':
-        specifier: ^0.48.8
-        version: 0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        specifier: ^0.48.9
+        version: 0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/platform':
         specifier: 0.90.9
         version: 0.90.9(effect@3.17.13)
       '@effect/platform-node':
         specifier: 0.96.1
-        version: 0.96.1(@effect/cluster@0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        version: 0.96.1(@effect/cluster@0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/workflow':
         specifier: ^0.9.5
         version: 0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
@@ -2541,14 +2547,14 @@ importers:
   tooling/utils:
     dependencies:
       '@effect/cluster':
-        specifier: ^0.48.8
-        version: 0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        specifier: ^0.48.9
+        version: 0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/platform':
         specifier: 0.90.9
         version: 0.90.9(effect@3.17.13)
       '@effect/platform-node':
         specifier: 0.96.1
-        version: 0.96.1(@effect/cluster@0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+        version: 0.96.1(@effect/cluster@0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       effect:
         specifier: 3.17.13
         version: 3.17.13
@@ -2557,7 +2563,7 @@ importers:
         version: 11.0.3
     devDependencies:
       '@beep/types':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/common/types/build
     publishDirectory: build
 
@@ -3461,8 +3467,8 @@ packages:
       '@effect/rpc': 0.69.2
       effect: 3.17.13
 
-  '@effect/cluster@0.48.8':
-    resolution: {integrity: sha512-IQYQRjFiwqyZc/NEmbk4HGUxdaiFkLAt6B2B8xyg6iLUjso7uMMKVC21aJ74EKVIOPM/rvo1WzRmeeS643hE6Q==}
+  '@effect/cluster@0.48.9':
+    resolution: {integrity: sha512-emz8Cza563Zfc6ro/kM+2I7rVqo2Ln1EOnRHtB0VyFMy6o9ittSmhX7SC47ljf9+wAjoI2ekxGlPMrXD4zPLeA==}
     peerDependencies:
       '@effect/platform': 0.90.9
       '@effect/rpc': 0.69.2
@@ -3525,7 +3531,7 @@ packages:
   '@effect/platform-node-shared@0.49.1':
     resolution: {integrity: sha512-equU2iDott0MgXEADzmBQySBeYysZFyxVqxo58ped9U/6f519SHlTnu5mHpGeQTE/Bz0DOqD8/I+om5DvFxjIw==}
     peerDependencies:
-      '@effect/cluster': ^0.48.8
+      '@effect/cluster': ^0.48.9
       '@effect/platform': 0.90.9
       '@effect/rpc': 0.69.2
       '@effect/sql': 0.44.2
@@ -3534,7 +3540,7 @@ packages:
   '@effect/platform-node@0.96.1':
     resolution: {integrity: sha512-4nfB/XRJJ246MCdI7klTE/aVvA9txfI83RnymS7pNyoG4CXUKELi87JrkrWFTtOlewzt5UMWpmqsFmm2qHxx3A==}
     peerDependencies:
-      '@effect/cluster': ^0.48.8
+      '@effect/cluster': ^0.48.9
       '@effect/platform': 0.90.9
       '@effect/rpc': 0.69.2
       '@effect/sql': 0.44.2
@@ -11935,7 +11941,7 @@ snapshots:
       effect: 3.17.13
       find-my-way-ts: 0.1.6
 
-  '@effect/cluster@0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)':
+  '@effect/cluster@0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)':
     dependencies:
       '@effect/platform': 0.90.9(effect@3.17.13)
       '@effect/rpc': 0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
@@ -11970,9 +11976,9 @@ snapshots:
       effect: 3.17.13
       multipasta: 0.2.7
 
-  '@effect/platform-node-shared@0.49.1(@effect/cluster@0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)':
+  '@effect/platform-node-shared@0.49.1(@effect/cluster@0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)':
     dependencies:
-      '@effect/cluster': 0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+      '@effect/cluster': 0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/platform': 0.90.9(effect@3.17.13)
       '@effect/rpc': 0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
       '@effect/sql': 0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
@@ -11984,11 +11990,11 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@effect/platform-node@0.96.1(@effect/cluster@0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)':
+  '@effect/platform-node@0.96.1(@effect/cluster@0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)':
     dependencies:
-      '@effect/cluster': 0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+      '@effect/cluster': 0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/platform': 0.90.9(effect@3.17.13)
-      '@effect/platform-node-shared': 0.49.1(@effect/cluster@0.48.8(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
+      '@effect/platform-node-shared': 0.49.1(@effect/cluster@0.48.9(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/workflow@0.9.5(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(@effect/rpc@0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/sql@0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(effect@3.17.13)
       '@effect/rpc': 0.69.2(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
       '@effect/sql': 0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13))(@effect/platform@0.90.9(effect@3.17.13))(effect@3.17.13)
       effect: 3.17.13

@@ -33,12 +33,13 @@
     "lint:circular": "pnpm madge -c ."
   },
   "peerDependencies": {
+    "@effect/experimental": "*",
     "drizzle-orm": "*",
     "effect": "*",
-    "pg": "*",
     "@effect/sql-pg": "*",
     "@effect/sql": "*",
     "@effect/sql-drizzle": "*",
+    "@effect/platform": "*",
     "postgres": "*",
     "@beep/core-env": "workspace:^",
     "@beep/constants": "workspace:^",

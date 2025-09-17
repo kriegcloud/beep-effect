@@ -3,7 +3,6 @@ import { IamEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-export const UserModelSchemaId = Symbol.for("@beep/iam-domain/UserModel");
 
 /**
  * User model representing application users with authentication and profile data.
@@ -31,20 +30,6 @@ export class Model extends M.Class<Model>(`UserModel`)(
       })
     ),
 
-    /** Whether two-factor authentication is enabled */
-    twoFactorEnabled: BS.FieldOptionOmittable(
-      S.Boolean.annotations({
-        description: "Whether two-factor authentication is enabled for this user",
-      })
-    ),
-
-    /** Whether this is an anonymous user */
-    isAnonymous: BS.FieldOptionOmittable(
-      S.Boolean.annotations({
-        description: "Whether this user is anonymous (guest user)",
-      })
-    ),
-
     /** User's role in the system */
     role: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
@@ -54,11 +39,9 @@ export class Model extends M.Class<Model>(`UserModel`)(
     ),
 
     /** Whether the user is banned */
-    banned: BS.FieldOptionOmittable(
-      S.Boolean.annotations({
-        description: "Whether the user is currently banned",
-      })
-    ),
+    banned: BS.BoolWithDefault(false).annotations({
+      description: "Whether the user is currently banned",
+    }),
 
     /** Reason for ban if user is banned */
     banReason: BS.FieldOptionOmittable(
@@ -74,16 +57,54 @@ export class Model extends M.Class<Model>(`UserModel`)(
       })
     ),
 
+    /** Whether this is an anonymous user */
+    isAnonymous: BS.BoolWithDefault(false).annotations({
+      description: "Whether this user is anonymous (guest user)",
+    }),
+
+    phoneNumber: BS.FieldOptionOmittable(
+      BS.Phone.annotations({
+        description: "The user's phone number",
+      })
+    ),
+
+    phoneNumberVerified: BS.BoolWithDefault(false).annotations({
+      description: "Whether the user's phone number has been verified",
+    }),
+
+    /** Whether two-factor authentication is enabled */
+    twoFactorEnabled: BS.BoolWithDefault(false).annotations({
+      description: "Whether two-factor authentication is enabled for this user",
+    }),
+
+    username: BS.FieldOptionOmittable(
+      S.NonEmptyTrimmedString.pipe(S.lowercased()).annotations({
+        description: "The user's username",
+      })
+    ),
+
+    displayUsername: BS.FieldOptionOmittable(
+      S.NonEmptyTrimmedString.annotations({
+        description: "The user's display name",
+      })
+    ),
+
     /** Stripe customer ID for billing */
     stripeCustomerId: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
         description: "Stripe customer ID for billing integration",
       })
     ),
+
+    lastLoginMethod: BS.FieldOptionOmittable(
+      S.NonEmptyString.annotations({
+        description: "The user's last login method",
+      })
+    ),
   }),
   {
     title: "User Model",
     description: "User model representing application users with authentication and profile data.",
-    schemaId: UserModelSchemaId,
+    schemaId: Symbol.for("@beep/iam-domain/UserModel"),
   }
 ) {}

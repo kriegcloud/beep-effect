@@ -10,11 +10,6 @@ export namespace FilesDb {
 
   export type Layer = Layer.Layer<FilesDb, SqlError | ConfigError, SqlClient>;
   export class FilesDb extends Context.Tag("@beep/files-infra/FilesDb")<FilesDb, Db.Db<typeof SharedDbSchema>>() {
-    static readonly Live: Layer = Layer.scoped(FilesDb, serviceEffect);
+    static readonly Live: Layer = Layer.scoped(this, serviceEffect);
   }
-
-  export const layerWithoutDependencies: Layer.Layer<FilesDb, SqlError | ConfigError, never> = Layer.scoped(
-    FilesDb,
-    serviceEffect
-  ).pipe(Layer.provide(Db.Live));
 }

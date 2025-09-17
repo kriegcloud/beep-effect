@@ -62,7 +62,6 @@
     "@effect/workflow": "*",
     "@opentelemetry/sdk-trace-node": "*",
     "resend": "*",
-    "pg": "*",
     "drizzle-orm": "*",
     "@effect/sql": "*",
     "@effect/sql-pg": "*",

@@ -49,8 +49,7 @@
     "@opentelemetry/sdk-trace-node": "*",
     "@opentelemetry/semantic-conventions": "*",
     "@testcontainers/postgresql": "*",
-    "effect": "*",
-    "pg": "*"
+    "effect": "*"
   },
   "effect": {
     "generateExports": {

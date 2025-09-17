@@ -327,7 +327,7 @@ export type Options = Effect.Effect.Success<typeof AuthOptions>;
 
 export class AuthService extends Effect.Service<AuthService>()("AuthService", {
   accessors: true,
-  dependencies: [AuthEmailService.DefaultWithoutDependencies, IamDb.layerWithoutDependencies],
+  dependencies: [AuthEmailService.DefaultWithoutDependencies, IamDb.IamDb.Live],
   effect: Effect.flatMap(AuthOptions, (opts) =>
     Effect.succeed({
       auth: betterAuth(opts),

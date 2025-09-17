@@ -67,7 +67,6 @@
     "drizzle-orm": "*",
     "effect": "*",
     "tsx": "*",
-    "pg": "*",
     "@beep/core-env": "workspace:^",
     "drizzle-seed": "*",
     "@effect/platform-node": "*",
