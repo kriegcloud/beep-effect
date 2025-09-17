@@ -34,7 +34,19 @@
   },
   "peerDependencies": {
     "@beep/ui": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/iam-sdk": "workspace:^",
+    "@beep/iam-domain": "workspace:^",
+    "react": "*",
+    "react-dom": "*",
+    "@mui/material": "*",
+    "better-auth": "*",
     "effect": "*"
+  },
+  "devDependencies": {
+    "@beep/types": "workspace:^",
+    "@types/react": "*",
+    "@types/react-dom": "*"
   },
   "effect": {
     "generateExports": {

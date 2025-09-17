@@ -44,11 +44,9 @@ export class Model extends M.Class<Model>(`SubscriptionModel`)(
     ),
 
     /** When the subscription was canceled */
-    cancelAtPeriodEnd: BS.FieldOptionOmittable(
-      S.Boolean.annotations({
-        description: "When the subscription was canceled",
-      })
-    ),
+    cancelAtPeriodEnd: BS.BoolWithDefault(false).annotations({
+      description: "When the subscription was canceled",
+    }),
 
     organizationId: SharedEntityIds.OrganizationId,
   }),

@@ -6,7 +6,15 @@
     "baseUrl": ".",
     "paths": {
       "@beep/iam-ui/*": ["./src/*"],
-      "@beep/ui/*": ["../../ui/src/*"]
+      "@beep/ui/*": ["../../ui/src/*"],
+      "@beep/types": ["../../common/types/src/index"],
+      "@beep/types/*": ["../../common/types/src/*"],
+      "@beep/schema": ["../../common/schema/src/index"],
+      "@beep/schema/*": ["../../common/schema/src/*"],
+      "@beep/iam-sdk": ["../sdk/src/index"],
+      "@beep/iam-sdk/*": ["../sdk/src/*"],
+      "@beep/iam-domain": ["../domain/src/index"],
+      "@beep/iam-domain/*": ["../domain/src/*"]
     }
   },
   "references": [

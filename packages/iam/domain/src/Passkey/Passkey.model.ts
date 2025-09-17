@@ -55,7 +55,7 @@ export class Model extends M.Class<Model>(`PasskeyModel`)(
     ),
 
     /** Indicates if the passkey has been backed up */
-    backedUp: S.Boolean.annotations({
+    backedUp: BS.BoolWithDefault(false).annotations({
       description: "Indicates if the passkey has been backed up",
     }),
 

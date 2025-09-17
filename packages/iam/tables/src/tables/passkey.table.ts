@@ -16,7 +16,7 @@ export const passkeyTable = OrgTable.make(IamEntityIds.PasskeyId)(
     credentialID: pg.text("credential_i_d").notNull(),
     counter: pg.integer("counter").notNull(),
     deviceType: pg.text("device_type").notNull(),
-    backedUp: pg.boolean("backed_up").notNull(),
+    backedUp: pg.boolean("backed_up").notNull().default(false),
     transports: pg.text("transports"),
     aaguid: pg.text("aaguid"),
   },

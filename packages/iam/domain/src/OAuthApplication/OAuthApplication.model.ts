@@ -62,11 +62,9 @@ export class Model extends M.Class<Model>(`OAuthApplicationModel`)(
     ),
 
     /** Whether the application is disabled */
-    disabled: BS.FieldOptionOmittable(
-      S.Boolean.annotations({
-        description: "Whether the OAuth application is disabled",
-      })
-    ),
+    disabled: BS.BoolWithDefault(false).annotations({
+      description: "Whether the OAuth application is disabled",
+    }),
 
     /** User who owns this application */
     userId: BS.FieldOptionOmittable(

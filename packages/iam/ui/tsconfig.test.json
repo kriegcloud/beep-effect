@@ -7,6 +7,18 @@
     },
     {
       "path": "../../ui"
+    },
+    {
+      "path": "../sdk"
+    },
+    {
+      "path": "../domain"
+    },
+    {
+      "path": "../../common/schema"
+    },
+    {
+      "path": "../../common/types"
     }
   ],
   "compilerOptions": {

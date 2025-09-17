@@ -9,5 +9,5 @@ export const oauthConsentTable = OrgTable.make(IamEntityIds.OAuthConsentId)({
     .$type<IamEntityIds.UserId.Type>()
     .references(() => userTable.id),
   scopes: pg.text("scopes").notNull(),
-  consentGiven: pg.boolean("consent_given").notNull(),
+  consentGiven: pg.boolean("consent_given").notNull().default(false),
 });

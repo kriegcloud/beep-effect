@@ -29,7 +29,7 @@ export class Model extends M.Class<Model>(`OAuthConsentModel`)(
     }),
 
     /** Whether consent was given */
-    consentGiven: S.Boolean.annotations({
+    consentGiven: BS.BoolWithDefault(false).annotations({
       description: "Whether the user gave consent for the requested scopes",
     }),
 

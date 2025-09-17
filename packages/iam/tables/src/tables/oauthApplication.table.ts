@@ -11,7 +11,7 @@ export const oauthApplicationTable = OrgTable.make(IamEntityIds.OAuthApplication
   clientSecret: pg.text("client_secret"),
   redirectURLs: pg.text("redirect_u_r_ls"),
   type: pg.text("type"),
-  disabled: pg.boolean("disabled"),
+  disabled: pg.boolean("disabled").notNull().default(false),
   userId: pg
     .text("user_id")
     .$type<IamEntityIds.UserId.Type>()

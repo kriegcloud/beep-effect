@@ -9,6 +9,6 @@ export const subscriptionTable = OrgTable.make(IamEntityIds.SubscriptionId)({
   status: pg.text("status").notNull().default("incomplete"),
   periodStart: pg.timestamp("period_start"),
   periodEnd: pg.timestamp("period_end"),
-  cancelAtPeriodEnd: pg.boolean("cancel_at_period_end"),
+  cancelAtPeriodEnd: pg.boolean("cancel_at_period_end").notNull().default(false),
   seats: pg.integer("seats"),
 });

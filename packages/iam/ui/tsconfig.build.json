@@ -19,6 +19,18 @@
   "references": [
     {
       "path": "../../ui/tsconfig.build.json"
+    },
+    {
+      "path": "../sdk/tsconfig.build.json"
+    },
+    {
+      "path": "../domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/schema/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/types/tsconfig.build.json"
     }
   ],
   "include": ["src"]

@@ -28,11 +28,9 @@ export class Model extends M.Class<Model>(`WalletAddressModel`)(
     }),
 
     /** Whether this is the user's primary wallet address */
-    isPrimary: BS.FieldOptionOmittable(
-      S.Boolean.annotations({
-        description: "Whether this is the user's primary wallet address",
-      })
-    ),
+    isPrimary: BS.BoolWithDefault(false).annotations({
+      description: "Whether this is the user's primary wallet address",
+    }),
   }),
   {
     schemaId: WalletAddressModelSchemaId,

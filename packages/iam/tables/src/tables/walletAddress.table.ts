@@ -12,7 +12,7 @@ export const walletAddressTable = Table.make(IamEntityIds.WalletAddressId)(
       .references(() => userTable.id, { onDelete: "cascade" }),
     address: pg.text("address").notNull(),
     chainId: pg.integer("chain_id").notNull(),
-    isPrimary: pg.boolean("is_primary"),
+    isPrimary: pg.boolean("is_primary").notNull().default(false),
   },
   (t) => [pg.uniqueIndex("wallet_address_user_chain_id_unique_idx").on(t.userId, t.address, t.chainId)]
 );
