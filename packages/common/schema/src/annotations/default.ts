@@ -4,11 +4,12 @@ import type * as Pretty from "effect/Pretty";
 import type * as AST from "effect/SchemaAST";
 // todo delete this. Creates a tight coupling between rule layer and schema layer
 export const SymbolAnnotationId = Symbol.for("@beep/rules/SymbolAnnotationId");
-
+export const LabelAnnotationId = Symbol.for("@beep/schema/annotations/LabelAnnotation")
 declare module "effect/Schema" {
   namespace Annotations {
     interface GenericSchema<A> extends Schema<A> {
       [SymbolAnnotationId]?: string;
+      [LabelAnnotationId]?: string;
     }
   }
 }

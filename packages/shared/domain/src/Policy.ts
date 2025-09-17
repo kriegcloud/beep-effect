@@ -6,7 +6,7 @@ import * as Effect from "effect/Effect";
 import * as Schema from "effect/Schema";
 
 import { IamEntityIds, SharedEntityIds } from "./EntityIds";
-import * as internal from "./internal/policy.js";
+import * as internal from "./_internal/policy";
 
 // ==========================================
 // Permissions
