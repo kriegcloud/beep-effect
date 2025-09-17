@@ -1,4 +1,4 @@
-import * as internal from "@beep/shared-domain/internal/policy";
+import * as internal from "@beep/shared-domain/_internal/policy";
 import { describe, it } from "@effect/vitest";
 import { deepStrictEqual } from "assert";
 
