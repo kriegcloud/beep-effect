@@ -11,10 +11,10 @@ import { create } from "mutative";
  * - deletedAt: Optional field for soft delete functionality defaults to null is Option on select variants
  */
 export const auditColumns = {
-  createdAt: BS.DateTimeFromDateOmittable({
+  createdAt: BS.DateTimeInsertFromDateOmittable({
     description: "The date and time the record was created",
   }),
-  updatedAt: BS.DateTimeFromDateOmittable({
+  updatedAt: BS.DateTimeUpdateFromDateOmittable({
     description: "The date and time the record was last updated",
   }),
   deletedAt: BS.FieldOptionOmittable(

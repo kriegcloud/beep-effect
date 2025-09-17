@@ -35,6 +35,7 @@
     "@effect/cluster": "*",
     "@effect/workflow": "*",
     "@effect/platform-node": "*",
+    "glob": "^11.0.3",
     "effect": "*"
   },
   "effect": {

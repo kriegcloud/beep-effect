@@ -1,2 +1,2 @@
 import { FilesDb } from "@beep/files-infra/db";
-export const dependencies = [FilesDb.layerWithoutDependencies] as const;
+export const dependencies = [FilesDb.FilesDb.Live] as const;

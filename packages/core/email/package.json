@@ -34,13 +34,13 @@
     "lint:circular": "pnpm madge -c ."
   },
   "peerDependencies": {
-    "@beep/core-env": "workspace:*",
-    "@beep/constants": "workspace:*",
-    "@beep/errors": "workspace:*",
+    "@beep/core-env": "workspace:^",
+    "@beep/constants": "workspace:^",
+    "@beep/errors": "workspace:^",
     "effect": "*"
   },
   "dependencies": {
-    "@beep/ui": "workspace:*",
+    "@beep/ui": "workspace:^",
     "@react-email/components": "*",
     "@react-email/render": "*",
     "react": "*",

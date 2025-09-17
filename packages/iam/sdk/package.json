@@ -32,7 +32,7 @@
     "lint:fix": "biome check . --write",
     "lint:circular": "pnpm madge -c ."
   },
-  "dependencies": {
+  "peerDependencies": {
     "@better-auth/stripe": "*",
     "better-auth": "*",
     "dub": "*",
@@ -40,19 +40,18 @@
     "effect": "*",
     "@dub/better-auth": "*",
     "better-call": "^1.0.19",
-    "@beep/utils": "workspace:*",
-    "@beep/invariant": "workspace:*",
-    "@beep/schema": "workspace:*",
-    "@beep/errors": "workspace:*",
-    "@beep/constants": "workspace:*",
-    "@beep/core-env": "workspace:*",
-    "@beep/shared-domain": "workspace:*",
-    "@beep/iam-domain": "workspace:*",
-    "@beep/iam-infra": "workspace:*",
-    "@beep/iam-services": "workspace:*"
+    "@beep/utils": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/errors": "workspace:^",
+    "@beep/constants": "workspace:^",
+    "@beep/core-env": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/iam-domain": "workspace:^",
+    "@beep/iam-infra": "workspace:^"
   },
   "devDependencies": {
-    "@beep/types": "workspace:*"
+    "@beep/types": "workspace:^"
   },
   "effect": {
     "generateExports": {

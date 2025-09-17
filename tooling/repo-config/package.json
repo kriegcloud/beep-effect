@@ -29,7 +29,7 @@
     "coverage": "vitest run --coverage",
     "lint:circular": "pnpm madge -c ."
   },
-  "dependencies": {
+  "peerDependencies": {
     "@effect/platform": "*",
     "effect": "*"
   },

@@ -40,10 +40,7 @@
     "lint:circular": "pnpm madge -c .",
     "dotenvx": "dotenvx run -f ../../../.env --"
   },
-  "dependencies": {
-    "uuid": "*",
-    "picocolors": "*"
-  },
+  "dependencies": {},
   "peerDependencies": {
     "@effect/platform": "*",
     "@beep/schema": "workspace:^",
@@ -52,7 +49,9 @@
     "@effect/cluster": "*",
     "@effect/workflow": "*",
     "@beep/invariant": "workspace:^",
-    "effect": "*"
+    "effect": "*",
+    "uuid": "*",
+    "picocolors": "*"
   },
   "devDependencies": {
     "@beep/types": "workspace:^"

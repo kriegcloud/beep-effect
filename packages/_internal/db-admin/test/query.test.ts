@@ -1,33 +1,38 @@
-import { PgContainer } from "@beep/db-admin/test/utils";
-import { IamDbSchema } from "@beep/iam-tables";
-import * as PgDrizzle from "@effect/sql-drizzle/Pg";
+import * as Entities from "@beep/iam-domain/entities";
+import * as IamRepos from "@beep/iam-infra/adapters/repositories";
+import { IamDb } from "@beep/iam-infra/db";
+import * as BS from "@beep/schema/schema";
 import { expect, it } from "@effect/vitest";
+import { faker } from "@faker-js/faker";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
+import { PgContainer } from "./pg-container";
 
-class Service extends Effect.Service<Service>()("TestService", {
-  effect: Effect.gen(function* () {
-    const db = yield* PgDrizzle.make({
-      schema: IamDbSchema,
-    });
-
-    return {
-      db,
-    };
-  }).pipe(Effect.provide(PgContainer.Default)),
-}) {}
-
-const TestLayer = Layer.provideMerge(Service.Default, PgContainer.Live);
-
-it.layer(TestLayer, { timeout: "30 seconds" })("mocked drizzle db", (it) => {
+it.layer(PgContainer.Live, { timeout: "30 seconds" })("mocked drizzle db", (it) => {
   it.effect(
     "mocked drizzle db should work",
     Effect.fnUntraced(function* () {
-      const { db } = yield* Service;
+      const { db } = yield* IamDb.IamDb;
+      const userRepo = yield* IamRepos.UserRepo;
+
+      const mockedUser = Entities.User.Model.insert.make({
+        email: BS.Email.make("test1@example.com"),
+        name: "beep1",
+        emailVerified: false,
+        createdAt: DateTime.unsafeNow(),
+        updatedAt: DateTime.unsafeNow(),
+        image: O.some(faker.image.avatar()),
+        twoFactorEnabled: O.some(false),
+        isAnonymous: O.some(false),
+      });
+
+      yield* userRepo.insert(mockedUser);
+
       const users = yield* db.query.userTable.findMany();
 
       // const users = yield* db.query.userTable.findMany();
-      expect(users.length).toEqual(1);
+      expect(users.length).toEqual(2);
     })
   );
 });

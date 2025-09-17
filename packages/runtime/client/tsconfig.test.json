@@ -30,9 +30,6 @@
       "path": "../../common/rete"
     },
     {
-      "path": "../../common/query"
-    },
-    {
       "path": "../../shared/domain"
     },
     {
@@ -40,9 +37,6 @@
     },
     {
       "path": "../../core/env"
-    },
-    {
-      "path": "../../iam/services"
     },
     {
       "path": "../../iam/sdk"
@@ -58,9 +52,6 @@
     },
     {
       "path": "../../ui"
-    },
-    {
-      "path": "../../files/services"
     },
     {
       "path": "../../files/sdk"

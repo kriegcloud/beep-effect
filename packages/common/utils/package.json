@@ -35,9 +35,7 @@
   },
   "peerDependencies": {
     "@beep/invariant": "workspace:^",
-    "effect": "*"
-  },
-  "dependencies": {
+    "effect": "*",
     "@faker-js/faker": "*",
     "mutative": "*"
   },

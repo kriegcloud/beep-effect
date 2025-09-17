@@ -53,19 +53,19 @@ export namespace Db {
         serialize: F.identity,
       },
     },
-  } as const;
+  };
 
-  export type PgLayer = Layer.Layer<PgClient.PgClient | SqlClient.SqlClient, ConfigError | SqlError, never>;
   export const layer = (config: ConnectionOptions) =>
     PgClient.layer({
       url: config.url,
       ssl: config.ssl,
+      transformQueryNames: Str.camelToSnake,
       transformResultNames: Str.snakeToCamel,
     });
 
   export const Live = Layer.unwrapEffect(
     Effect.gen(function* () {
-      return layer({
+      return PgClient.layer({
         url: yield* Config.redacted("DB_PG_URL"),
         ssl: yield* Config.boolean("DB_PG_SSL"),
         ...config,

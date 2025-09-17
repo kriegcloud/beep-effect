@@ -32,7 +32,7 @@
     "lint:fix": "biome check . --write",
     "lint:circular": "pnpm madge -c ."
   },
-  "dependencies": {
+  "peerDependencies": {
     "@beep/shared-domain": "workspace:^",
     "@beep/core-env": "workspace:^",
     "@beep/schema": "workspace:^",
@@ -40,9 +40,8 @@
     "@beep/errors": "workspace:^",
     "@beep/constants": "workspace:^",
     "@beep/invariant": "workspace:^",
-    "@beep/files-domain": "workspace:*",
-    "@beep/files-services": "workspace:*",
-    "@beep/files-infra": "workspace:*",
+    "@beep/files-domain": "workspace:^",
+    "@beep/files-infra": "workspace:^",
     "effect": "*"
   },
   "devDependencies": {

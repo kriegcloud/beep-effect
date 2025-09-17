@@ -57,9 +57,6 @@ export const teamRelations = d.relations(teamTable, ({ one, many }) => ({
     references: [organizationTable.id],
   }),
   members: many(teamMemberTable),
-  sessions: many(sessionTable, {
-    relationName: "activeTeamSessions",
-  }),
 }));
 
 export const teamMemberRelations = d.relations(teamMemberTable, ({ one }) => ({
@@ -145,10 +142,6 @@ export const sessionRelations = d.relations(sessionTable, ({ one }) => ({
   activeOrganization: one(organizationTable, {
     fields: [sessionTable.activeOrganizationId],
     references: [organizationTable.id],
-  }),
-  activeTeam: one(teamTable, {
-    fields: [sessionTable.activeTeamId],
-    references: [teamTable.id],
   }),
   impersonator: one(userTable, {
     fields: [sessionTable.impersonatedBy],

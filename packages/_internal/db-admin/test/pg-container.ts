@@ -1,6 +1,11 @@
 import { fileURLToPath } from "node:url";
-import { Entities } from "@beep/iam-domain";
-import { BS } from "@beep/schema";
+import * as Schema from "@beep/db-admin/schema";
+import * as FilesRepos from "@beep/files-infra/adapters/repositories";
+import { FilesDb } from "@beep/files-infra/db";
+import * as Entities from "@beep/iam-domain/entities";
+import * as IamRepos from "@beep/iam-infra/adapters/repositories";
+import { IamDb } from "@beep/iam-infra/db";
+import * as BS from "@beep/schema/schema";
 import * as Path from "@effect/platform/Path";
 import * as NodeContext from "@effect/platform-node/NodeContext";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
@@ -16,9 +21,10 @@ import * as Data from "effect/Data";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+// TS1259: Module "path" can only be default-imported using the esModuleInterop flag
+// path.d.ts(187, 5): This module is declared with export =, and can only be used with a default import when using the esModuleInterop flag.
 import path from "path";
 import postgres from "postgres";
-import * as Schema from "../src/schema";
 
 export class PgContainerError extends Data.TaggedError("PgContainerError")<{
   readonly message: string;
@@ -148,11 +154,22 @@ export class PgContainer extends Effect.Service<PgContainer>()("PgContainer", {
       Layer.unwrapEffect(
         Effect.gen(function* () {
           const { container } = yield* PgContainer;
-          return PgClient.layer({
+
+          const pgClient = PgClient.layer({
             url: Redacted.make(container.getConnectionUri()),
             ssl: false,
+            transformQueryNames: Str.camelToSnake,
             transformResultNames: Str.snakeToCamel,
           });
+
+          const sliceDbLayer = Layer.mergeAll(IamDb.IamDb.Live, FilesDb.FilesDb.Live);
+
+          const reposLayer = Layer.mergeAll(IamRepos.layer, FilesRepos.layer);
+
+          const verticalSlicesLayer = Layer.provideMerge(reposLayer, sliceDbLayer);
+
+          const layer = Layer.provideMerge(verticalSlicesLayer, pgClient);
+          return layer;
         })
       )
     ),
@@ -163,8 +180,6 @@ export class PgContainer extends Effect.Service<PgContainer>()("PgContainer", {
     Layer.orDie
   );
 }
-
-export const t = PgContainer.Live;
 
 // Layer.provide(IamRepos.layer, FilesRepos.layer),
 //

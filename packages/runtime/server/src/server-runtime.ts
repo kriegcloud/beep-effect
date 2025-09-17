@@ -22,10 +22,10 @@ export const DbRepos = Layer.provideMerge(SliceRepositoriesLive, SliceDependenci
 
 const AuthEmailLive = AuthEmailService.DefaultWithoutDependencies.pipe(Layer.provide([ResendService.Default]));
 
-export const ServicesDependencies = Layer.mergeAll(DbRepos, AuthEmailLive);
+export const ServicesDependencies = Layer.provideMerge(DbRepos, AuthEmailLive);
 
-const AuthLive = AuthService.DefaultWithoutDependencies.pipe(Layer.provide(ServicesDependencies));
+const AuthLive = AuthService.DefaultWithoutDependencies.pipe(Layer.provideMerge(ServicesDependencies));
 
-const AppLive = Layer.mergeAll(Base, AuthLive).pipe(Layer.provide(LoggerLive));
+const AppLive = Layer.provideMerge(Base, AuthLive).pipe(Layer.provideMerge(LoggerLive));
 
 export const serverRuntime = ManagedRuntime.make(AppLive);

@@ -12,7 +12,7 @@ import * as S from "effect/Schema";
 import { TypeId } from "effect/Schema";
 import * as Str from "effect/String";
 import { SnakeTag, UUIDLiteralEncoded } from "./custom";
-import { FieldWriteOmittable } from "./sql";
+
 export namespace EntityId {
   type Config<Brand extends string, TableName extends string> = {
     readonly tableName: SnakeTag.Literal<TableName>;
@@ -73,7 +73,13 @@ export namespace EntityId {
     readonly publicId: () => PublicId<TableName, Brand>;
     readonly privateId: () => PrivateId<Brand>;
     readonly privateSchema: S.brand<S.refine<number, typeof S.NonNegative>, Brand>;
-    readonly modelIdSchema: FieldWriteOmittable<SchemaType<TableName>>;
+    readonly modelIdSchema: S.optionalWith<
+      SchemaType<TableName>,
+      {
+        exact: true;
+        default: () => Type<TableName>;
+      }
+    >;
     readonly modelRowIdSchema: M.Generated<S.brand<S.refine<number, typeof S.NonNegative>, Brand>>;
     readonly make: (input: string) => Type<TableName>;
   };
@@ -128,7 +134,10 @@ export namespace EntityId {
       static readonly publicId = () => publicId;
       static readonly privateId = () => privateId;
       static readonly privateSchema = privateSchema;
-      static readonly modelIdSchema = FieldWriteOmittable(schema);
+      static readonly modelIdSchema = S.optionalWith(schema, {
+        exact: true,
+        default: () => create(),
+      });
       static readonly modelRowIdSchema = modelRowIdSchema;
       static readonly make = (input: string) => {
         invariant(S.is(schema)(input), `Invalid id for ${tableName}: ${input}`, {
@@ -145,4 +154,4 @@ export namespace EntityId {
   };
 }
 
-export { TypeId } from "effect/Schema";
+// export {TypeId} from "effect/Schema";

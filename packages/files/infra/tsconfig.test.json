@@ -33,9 +33,6 @@
       "path": "../../common/errors"
     },
     {
-      "path": "../services"
-    },
-    {
       "path": "../domain"
     },
     {

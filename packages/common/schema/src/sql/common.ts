@@ -2,6 +2,7 @@ import type { DefaultAnnotations } from "@beep/schema/annotations";
 import type { UnsafeTypes } from "@beep/types";
 import * as VariantSchema from "@effect/experimental/VariantSchema";
 import * as M from "@effect/sql/Model";
+import * as DateTime from "effect/DateTime";
 import * as S from "effect/Schema";
 
 const { Field } = VariantSchema.make({
@@ -156,43 +157,33 @@ export const FieldWriteOmittable = <TSchema extends S.Schema.Any>(schema: TSchem
     jsonUpdate: S.optionalWith(schema, { exact: true }),
   });
 
-export const DateTimeFromDateOmittable = (annotations?: Annotations<S.Schema.Type<typeof M.DateTimeFromDate>>) =>
-  FieldWriteOmittable(DateTimeFromDate()).pipe(
+export const DateTimeInsertFromDateOmittable = (annotations?: Annotations<S.Schema.Type<typeof M.DateTimeFromDate>>) =>
+  DateTimeFromDate().pipe(
     M.fieldEvolve({
-      select: (variant: M.DateTimeFromDate) => variant.annotations(dateTimeJsonSchemaAnnotations(annotations)),
-      insert: (
-        variant: S.optionalWith<
-          M.DateTimeFromDate,
-          {
-            exact: true;
-          }
-        >
-      ) => variant.annotations(dateTimeJsonSchemaAnnotations(annotations)),
-      update: (
-        variant: S.optionalWith<
-          M.DateTimeFromDate,
-          {
-            exact: true;
-          }
-        >
-      ) => variant.annotations(dateTimeJsonSchemaAnnotations(annotations)),
-      json: (variant: M.DateTimeFromDate) => variant.annotations(dateTimeJsonSchemaAnnotations(annotations)),
-      jsonCreate: (
-        variant: S.optionalWith<
-          M.DateTimeFromDate,
-          {
-            exact: true;
-          }
-        >
-      ) => variant.annotations(dateTimeJsonSchemaAnnotations(annotations)),
-      jsonUpdate: (
-        variant: S.optionalWith<
-          M.DateTimeFromDate,
-          {
-            exact: true;
-          }
-        >
-      ) => variant.annotations(dateTimeJsonSchemaAnnotations(annotations)),
+      select: (variant: M.DateTimeFromDate) => variant,
+      insert: (variant: M.DateTimeFromDate) =>
+        S.optionalWith(variant, { exact: true, default: () => DateTime.unsafeNow() }),
+      update: (variant: M.DateTimeFromDate) =>
+        S.optionalWith(variant, { exact: true, default: () => DateTime.unsafeNow() }),
+      json: (variant: M.DateTimeFromDate) => variant,
+      jsonCreate: (variant: M.DateTimeFromDate) =>
+        S.optionalWith(variant, { exact: true, default: () => DateTime.unsafeNow() }),
+      jsonUpdate: (variant: M.DateTimeFromDate) =>
+        S.optionalWith(variant, { exact: true, default: () => DateTime.unsafeNow() }),
+    })
+  );
+
+export const DateTimeUpdateFromDateOmittable = (annotations?: Annotations<S.Schema.Type<typeof M.DateTimeFromDate>>) =>
+  DateTimeFromDate().pipe(
+    M.fieldEvolve({
+      select: (variant: M.DateTimeFromDate) => variant,
+      insert: (variant: M.DateTimeFromDate) => S.optional(variant),
+      update: (variant: M.DateTimeFromDate) =>
+        S.optionalWith(variant, { exact: true, default: () => DateTime.unsafeNow() }),
+      json: (variant: M.DateTimeFromDate) => variant,
+      jsonCreate: (variant: M.DateTimeFromDate) => variant,
+      jsonUpdate: (variant: M.DateTimeFromDate) =>
+        S.optionalWith(variant, { exact: true, default: () => DateTime.unsafeNow() }),
     })
   );
 

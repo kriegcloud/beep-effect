@@ -32,17 +32,17 @@
     "lint:fix": "biome check . --write",
     "lint:circular": "pnpm madge -c ."
   },
-  "dependencies": {
-    "@beep/shared-tables": "workspace:*",
-    "@beep/schema": "workspace:*",
-    "@beep/utils": "workspace:*",
-    "@beep/invariant": "workspace:*",
-    "@beep/shared-domain": "workspace:*",
-    "@beep/files-domain": "workspace:*",
+  "peerDependencies": {
+    "@beep/shared-tables": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/files-domain": "workspace:^",
     "drizzle-orm": "*"
   },
   "devDependencies": {
-    "@beep/types": "workspace:*"
+    "@beep/types": "workspace:^"
   },
   "effect": {
     "generateExports": {

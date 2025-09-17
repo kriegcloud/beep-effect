@@ -45,9 +45,6 @@
       "path": "../../common/rete/tsconfig.build.json"
     },
     {
-      "path": "../../common/query/tsconfig.build.json"
-    },
-    {
       "path": "../../shared/domain/tsconfig.build.json"
     },
     {
@@ -55,9 +52,6 @@
     },
     {
       "path": "../../core/env/tsconfig.build.json"
-    },
-    {
-      "path": "../../iam/services/tsconfig.build.json"
     },
     {
       "path": "../../iam/sdk/tsconfig.build.json"
@@ -73,9 +67,6 @@
     },
     {
       "path": "../../ui/tsconfig.build.json"
-    },
-    {
-      "path": "../../files/services/tsconfig.build.json"
     },
     {
       "path": "../../files/sdk/tsconfig.build.json"

@@ -22,12 +22,7 @@ export class Model extends M.Class<Model>(`UserModel`)(
     }),
 
     /** Whether the user's email has been verified */
-    emailVerified: S.optionalWith(S.Boolean, {
-      exact: true,
-      default: () => false,
-    }).annotations({
-      description: "Whether the user's email address has been verified",
-    }),
+    emailVerified: BS.BoolWithDefault(false),
 
     /** User's profile image URL */
     image: BS.FieldOptionOmittable(

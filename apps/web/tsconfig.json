@@ -59,16 +59,12 @@
       "@beep/logos/*": ["../../packages/common/logos/src/*"],
       "@beep/rete": ["../../packages/common/rete/src/index"],
       "@beep/rete/*": ["../../packages/common/rete/src/*"],
-      "@beep/query": ["../../packages/common/query/src/index"],
-      "@beep/query/*": ["../../packages/common/query/src/*"],
       "@beep/shared-domain": ["../../packages/shared/domain/src/index"],
       "@beep/shared-domain/*": ["../../packages/shared/domain/src/*"],
       "@beep/shared-tables": ["../../packages/shared/tables/src/index"],
       "@beep/shared-tables/*": ["../../packages/shared/tables/src/*"],
       "@beep/core-env/client": ["../../packages/core/env/src/client"],
       "@beep/core-env/server": ["../../packages/core/env/src/server"],
-      "@beep/core-ai": ["../../packages/core/ai/src/index"],
-      "@beep/core-ai/*": ["../../packages/core/ai/src/*"],
       "@beep/core-email": ["../../packages/core/email/src/index"],
       "@beep/core-email/*": ["../../packages/core/email/src/*"],
       "@beep/core-db": ["../../packages/core/db/src/index"],
@@ -76,8 +72,6 @@
       "@beep/ui/*": ["../../packages/ui/src/*"],
       "@beep/iam-domain": ["../../packages/iam/domain/src/index"],
       "@beep/iam-domain/*": ["../../packages/iam/domain/src/*"],
-      "@beep/iam-services": ["../../packages/iam/services/src/index"],
-      "@beep/iam-services/*": ["../../packages/iam/services/src/*"],
       "@beep/iam-tables": ["../../packages/iam/tables/src/index"],
       "@beep/iam-tables/*": ["../../packages/iam/tables/src/*"],
       "@beep/iam-infra": ["../../packages/iam/infra/src/index"],
@@ -88,8 +82,6 @@
       "@beep/iam-ui/*": ["../../packages/iam/ui/src/*"],
       "@beep/files-domain": ["../../packages/files/domain/src/index"],
       "@beep/files-domain/*": ["../../packages/files/domain/src/*"],
-      "@beep/files-services": ["../../packages/files/services/src/index"],
-      "@beep/files-services/*": ["../../packages/files/services/src/*"],
       "@beep/files-tables": ["../../packages/files/tables/src/index"],
       "@beep/files-tables/*": ["../../packages/files/tables/src/*"],
       "@beep/files-infra": ["../../packages/files/infra/src/index"],
@@ -141,9 +133,6 @@
       "path": "../../packages/common/rete/tsconfig.build.json"
     },
     {
-      "path": "../../packages/common/query/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/shared/domain/tsconfig.build.json"
     },
     {
@@ -153,16 +142,10 @@
       "path": "../../packages/core/env/tsconfig.build.json"
     },
     {
-      "path": "../../packages/core/ai/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/core/email/tsconfig.build.json"
     },
     {
       "path": "../../packages/core/db/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/iam/services/tsconfig.build.json"
     },
     {
       "path": "../../packages/iam/sdk/tsconfig.build.json"
@@ -181,9 +164,6 @@
     },
     {
       "path": "../../packages/ui/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/files/services/tsconfig.build.json"
     },
     {
       "path": "../../packages/files/sdk/tsconfig.build.json"

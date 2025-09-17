@@ -31,9 +31,6 @@
       "path": "../../common/rete"
     },
     {
-      "path": "../../common/query"
-    },
-    {
       "path": "../../shared/domain"
     },
     {
@@ -41,9 +38,6 @@
     },
     {
       "path": "../../core/env"
-    },
-    {
-      "path": "../../iam/services"
     },
     {
       "path": "../../iam/sdk"
@@ -59,9 +53,6 @@
     },
     {
       "path": "../../ui"
-    },
-    {
-      "path": "../../files/services"
     },
     {
       "path": "../../files/sdk"
@@ -110,8 +101,6 @@
       "@beep/logos/*": ["../../common/logos/src/*"],
       "@beep/rete": ["../../common/rete/src/index"],
       "@beep/rete/*": ["../../common/rete/src/*"],
-      "@beep/query": ["../../common/query/src/index"],
-      "@beep/query/*": ["../../common/query/src/*"],
       "@beep/shared-domain": ["../../shared/domain/src/index"],
       "@beep/shared-domain/*": ["../../shared/domain/src/*"],
       "@beep/shared-tables": ["../../shared/tables/src/index"],
@@ -120,8 +109,6 @@
       "@beep/core-server/client": ["../../core/env/src/server"],
       "@beep/iam-domain": ["../../iam/domain/src/index"],
       "@beep/iam-domain/*": ["../../iam/domain/src/*"],
-      "@beep/iam-services": ["../../iam/services/src/index"],
-      "@beep/iam-services/*": ["../../iam/services/src/*"],
       "@beep/iam-tables": ["../../iam/tables/src/index"],
       "@beep/iam-tables/*": ["../../iam/tables/src/*"],
       "@beep/iam-sdk": ["../../iam/sdk/src/index"],
@@ -130,8 +117,6 @@
       "@beep/iam-ui/*": ["../../iam/ui/src/*"],
       "@beep/files-domain": ["../../files/domain/src/index"],
       "@beep/files-domain/*": ["../../files/domain/src/*"],
-      "@beep/files-services": ["../../files/services/src/index"],
-      "@beep/files-services/*": ["../../files/services/src/*"],
       "@beep/files-tables": ["../../files/tables/src/index"],
       "@beep/files-tables/*": ["../../files/tables/src/*"],
       "@beep/files-sdk": ["../../files/sdk/src/index"],

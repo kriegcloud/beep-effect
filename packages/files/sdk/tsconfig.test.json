@@ -33,9 +33,6 @@
       "path": "../domain"
     },
     {
-      "path": "../services"
-    },
-    {
       "path": "../infra"
     }
   ],

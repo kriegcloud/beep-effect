@@ -32,21 +32,20 @@
     "lint:fix": "biome check . --write",
     "lint:circular": "pnpm madge -c ."
   },
-  "dependencies": {
+  "peerDependencies": {
     "@effect/sql": "*",
     "@effect/sql-drizzle": "*",
     "@effect/sql-pg": "*",
     "@effect/experimental": "*",
-    "@beep/files-services": "workspace:*",
-    "@beep/files-domain": "workspace:*",
-    "@beep/files-tables": "workspace:*",
-    "@beep/core-db": "workspace:*",
-    "@beep/core-env": "workspace:*",
+    "@beep/files-domain": "workspace:^",
+    "@beep/files-tables": "workspace:^",
+    "@beep/core-db": "workspace:^",
+    "@beep/core-env": "workspace:^",
     "@effect/platform-node": "*",
-    "@beep/shared-tables": "workspace:*",
-    "@beep/schema": "workspace:*",
-    "@beep/invariant": "workspace:*",
-    "@beep/utils": "workspace:*",
+    "@beep/shared-tables": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "@beep/utils": "workspace:^",
     "@effect-aws/s3": "*",
     "@effect-aws/client-s3": "*",
     "postgres": "*",
@@ -56,13 +55,13 @@
     "drizzle-orm": "*",
     "effect": "*",
     "pg": "*",
-    "@beep/constants": "workspace:*",
-    "@beep/shared-domain": "workspace:*",
-    "@beep/errors": "workspace:*"
+    "@beep/constants": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/errors": "workspace:^"
   },
   "devDependencies": {
     "@types/pg": "*",
-    "@beep/types": "workspace:*"
+    "@beep/types": "workspace:^"
   },
   "effect": {
     "generateExports": {

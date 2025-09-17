@@ -42,9 +42,7 @@
     "@standard-schema/spec": "*",
     "@effect/sql": "*",
     "drizzle-orm": "*",
-    "@effect/experimental": "*"
-  },
-  "dependencies": {
+    "@effect/experimental": "*",
     "mutative": "*",
     "zod": "*",
     "uuid": "*",

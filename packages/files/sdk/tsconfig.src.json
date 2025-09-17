@@ -31,9 +31,6 @@
       "path": "../domain"
     },
     {
-      "path": "../services"
-    },
-    {
       "path": "../infra"
     }
   ],
@@ -70,8 +67,6 @@
       "@beep/types/*": ["../../common/types/src/*"],
       "@beep/files-domain": ["../domain/src/index"],
       "@beep/files-domain/*": ["../domain/src/*"],
-      "@beep/files-services": ["../services/src/index"],
-      "@beep/files-services/*": ["../services/src/*"],
       "@beep/files-infra": ["../infra/src/index"],
       "@beep/files-infra/*": ["../infra/src/*"]
     }

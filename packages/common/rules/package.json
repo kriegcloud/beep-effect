@@ -33,7 +33,7 @@
     "lint:circular": "pnpm madge -c .",
     "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json pnpm tsx ./src/execute.ts"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/invariant": "workspace:^",

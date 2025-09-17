@@ -36,8 +36,8 @@
   },
   "peerDependencies": {
     "effect": "*",
-    "@beep/schema": "workspace:*",
-    "@beep/constants": "workspace:*"
+    "@beep/schema": "workspace:^",
+    "@beep/constants": "workspace:^"
   },
   "effect": {
     "generateExports": {

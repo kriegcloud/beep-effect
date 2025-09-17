@@ -131,15 +131,6 @@
       "@beep/rete/test/*": [
         "./packages/common/rete/test/*"
       ],
-      "@beep/query": [
-        "./packages/common/query/src/index"
-      ],
-      "@beep/query/*": [
-        "./packages/common/query/src/*"
-      ],
-      "@beep/query/test/*": [
-        "./packages/common/query/test/*"
-      ],
       "@beep/shared-domain": [
         "./packages/shared/domain/src/index"
       ],
@@ -166,15 +157,6 @@
       ],
       "@beep/core-env/test/*": [
         "./packages/core/env/test/*"
-      ],
-      "@beep/core-ai": [
-        "./packages/core/ai/src/index"
-      ],
-      "@beep/core-ai/*": [
-        "./packages/core/ai/src/*"
-      ],
-      "@beep/core-ai/test/*": [
-        "./packages/core/ai/test/*"
       ],
       "@beep/core-email": [
         "./packages/core/email/src/index"
@@ -208,15 +190,6 @@
       ],
       "@beep/iam-domain/test/*": [
         "./packages/iam/domain/test/*"
-      ],
-      "@beep/iam-services": [
-        "./packages/iam/services/src/index"
-      ],
-      "@beep/iam-services/*": [
-        "./packages/iam/services/src/*"
-      ],
-      "@beep/iam-services/test/*": [
-        "./packages/iam/services/test/*"
       ],
       "@beep/iam-tables": [
         "./packages/iam/tables/src/index"
@@ -262,15 +235,6 @@
       ],
       "@beep/files-domain/test/*": [
         "./packages/files/domain/test/*"
-      ],
-      "@beep/files-services": [
-        "./packages/files/services/src/index"
-      ],
-      "@beep/files-services/*": [
-        "./packages/files/services/src/*"
-      ],
-      "@beep/files-services/test/*": [
-        "./packages/files/services/test/*"
       ],
       "@beep/files-tables": [
         "./packages/files/tables/src/index"

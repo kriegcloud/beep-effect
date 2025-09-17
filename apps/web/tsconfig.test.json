@@ -30,9 +30,6 @@
       "path": "../../packages/common/rete/tsconfig.build.json"
     },
     {
-      "path": "../../packages/common/query/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/shared/domain/tsconfig.build.json"
     },
     {
@@ -42,16 +39,10 @@
       "path": "../../packages/core/env/tsconfig.build.json"
     },
     {
-      "path": "../../packages/core/ai/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/core/email/tsconfig.build.json"
     },
     {
       "path": "../../packages/core/db/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/iam/services/tsconfig.build.json"
     },
     {
       "path": "../../packages/iam/sdk/tsconfig.build.json"
@@ -70,9 +61,6 @@
     },
     {
       "path": "../../packages/ui/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/files/services/tsconfig.build.json"
     },
     {
       "path": "../../packages/files/sdk/tsconfig.build.json"

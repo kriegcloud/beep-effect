@@ -36,20 +36,18 @@
     "effect": "*",
     "@effect/sql": "*",
     "@effect/experimental": "*",
-    "@beep/shared-tables": "workspace:*",
-    "@beep/schema": "workspace:*",
-    "@beep/utils": "workspace:*",
-    "@beep/invariant": "workspace:*",
-    "@beep/shared-domain": "workspace:*",
-    "@beep/iam-domain": "workspace:*",
-    "drizzle-orm": "*"
-  },
-  "dependencies": {
+    "@beep/shared-tables": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/iam-domain": "workspace:^",
+    "drizzle-orm": "*",
     "uuid": "*",
     "mutative": "*"
   },
   "devDependencies": {
-    "@beep/types": "workspace:*"
+    "@beep/types": "workspace:^"
   },
   "effect": {
     "generateExports": {

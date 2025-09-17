@@ -38,9 +38,6 @@
       "path": "packages/common/rete"
     },
     {
-      "path": "packages/common/query"
-    },
-    {
       "path": "packages/shared/domain"
     },
     {
@@ -48,9 +45,6 @@
     },
     {
       "path": "packages/core/env"
-    },
-    {
-      "path": "packages/core/ai"
     },
     {
       "path": "packages/core/email"
@@ -63,9 +57,6 @@
     },
     {
       "path": "packages/iam/domain"
-    },
-    {
-      "path": "packages/iam/services"
     },
     {
       "path": "packages/iam/tables"
@@ -81,9 +72,6 @@
     },
     {
       "path": "packages/files/domain"
-    },
-    {
-      "path": "packages/files/services"
     },
     {
       "path": "packages/files/tables"

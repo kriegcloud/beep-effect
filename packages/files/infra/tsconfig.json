@@ -4,8 +4,6 @@
   "compilerOptions": {
     "paths": {
       "@beep/files-infra/*": ["./src/*"],
-      "@beep/files-services": ["../services/src/index"],
-      "@beep/files-services/*": ["../services/src/*"],
       "@beep/files-domain": ["../domain/src/index"],
       "@beep/files-domain/*": ["../domain/src/*"],
       "@beep/files-tables": ["../tables/src/index"],

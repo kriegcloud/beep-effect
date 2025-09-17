@@ -9,9 +9,6 @@
       "path": "../tables"
     },
     {
-      "path": "../services"
-    },
-    {
       "path": "../domain"
     },
     {

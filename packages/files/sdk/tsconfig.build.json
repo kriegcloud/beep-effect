@@ -45,9 +45,6 @@
       "path": "../domain/tsconfig.build.json"
     },
     {
-      "path": "../services/tsconfig.build.json"
-    },
-    {
       "path": "../infra/tsconfig.build.json"
     }
   ],

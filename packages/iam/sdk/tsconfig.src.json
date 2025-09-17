@@ -30,9 +30,6 @@
       "path": "../domain"
     },
     {
-      "path": "../services"
-    },
-    {
       "path": "../infra"
     }
   ],
@@ -65,8 +62,6 @@
       "@beep/core-env/server": ["../../core/env/src/server"],
       "@beep/shared-domain": ["../../shared/domain/src/index"],
       "@beep/shared-domain/*": ["../../shared/domain/src/*"],
-      "@beep/iam-services": ["../services/src/index"],
-      "@beep/iam-services/*": ["../services/src/*"],
       "@beep/iam-domain": ["../domain/src/index"],
       "@beep/iam-domain/*": ["../domain/src/*"],
       "@beep/iam-infra": ["../infra/src/index"],
