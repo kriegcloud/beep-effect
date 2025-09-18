@@ -57,8 +57,8 @@ The code snippets below show the shape, file placement, and relationships. They 
 File: `packages/iam/domain/src/services/OrgProvisioning.service.ts`
 
 ```ts
-import { SharedEntityIds } from "@beep/shared-domain/EntityIds";
-import { IamEntityIds } from "@beep/shared-domain/EntityIds/iam";
+import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
+import { IamEntityIds } from "@beep/shared-domain/entity-ids/iam";
 import * as Organization from "@beep/shared-domain/Organization";
 import * as S from "effect/Schema";
 
@@ -139,7 +139,7 @@ Files: `packages/iam/services/src/ports/OrganizationRepo.port.ts`, `packages/iam
 import * as Context from "effect/Context";
 import * as Organization from "@beep/shared-domain/Organization";
 import * as S from "effect/Schema";
-import { SharedEntityIds } from "@beep/shared-domain/EntityIds";
+import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 
 export class OrganizationRepoPort extends Context.Tag("iam/services/OrganizationRepoPort")<
   OrganizationRepoPort,
@@ -159,8 +159,8 @@ export class OrganizationRepoPort extends Context.Tag("iam/services/Organization
 // packages/iam/services/src/ports/MemberRepo.port.ts
 import * as Context from "effect/Context";
 import * as S from "effect/Schema";
-import { IamEntityIds } from "@beep/shared-domain/EntityIds/iam";
-import { SharedEntityIds } from "@beep/shared-domain/EntityIds";
+import { IamEntityIds } from "@beep/shared-domain/entity-ids/iam";
+import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 
 export interface MemberInsert {
   id: S.Schema.Type<typeof IamEntityIds.MemberId>;
@@ -192,8 +192,8 @@ export class MemberRepoPort extends Context.Tag("iam/services/MemberRepoPort")<
 // packages/iam/services/src/ports/OrganizationReadModel.port.ts
 import * as Context from "effect/Context";
 import * as S from "effect/Schema";
-import { IamEntityIds } from "@beep/shared-domain/EntityIds/iam";
-import { SharedEntityIds } from "@beep/shared-domain/EntityIds";
+import { IamEntityIds } from "@beep/shared-domain/entity-ids/iam";
+import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 
 export interface UserOrgRow {
   orgId: S.Schema.Type<typeof SharedEntityIds.OrganizationId>;
@@ -331,7 +331,7 @@ import * as S from "effect/Schema";
 import { OrgProvisioning } from "@beep/iam-domain/services/OrgProvisioning.service";
 import { OrganizationRepoPort } from "@beep/iam-services/ports/OrganizationRepo.port";
 import { MemberRepoPort } from "@beep/iam-services/ports/MemberRepo.port";
-import { IamEntityIds } from "@beep/shared-domain/EntityIds/iam";
+import { IamEntityIds } from "@beep/shared-domain/entity-ids/iam";
 
 export interface ProvisionPersonalOrgInput {
   userId: S.Schema.Type<typeof IamEntityIds.UserId>;
@@ -356,7 +356,7 @@ export const ProvisionPersonalOrg = {
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { OrganizationReadModelPort } from "@beep/iam-services/ports/OrganizationReadModel.port";
-import { IamEntityIds } from "@beep/shared-domain/EntityIds/iam";
+import { IamEntityIds } from "@beep/shared-domain/entity-ids/iam";
 
 export const BuildSessionOrgContext = {
   run: (userId: S.Schema.Type<typeof IamEntityIds.UserId>) =>

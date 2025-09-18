@@ -5,7 +5,7 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Schema from "effect/Schema";
 import * as internal from "./_internal/policy";
-import { IamEntityIds, SharedEntityIds } from "./EntityIds";
+import { IamEntityIds, SharedEntityIds } from "./entity-ids";
 
 // ==========================================
 // Permissions

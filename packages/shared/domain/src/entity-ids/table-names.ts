@@ -1,3 +1,4 @@
+import { BS } from "@beep/schema";
 import {
   AccountId,
   ApiKeyId,
@@ -19,15 +20,7 @@ import {
   UserId,
   VerificationId,
   WalletAddressId,
-} from "@beep/shared-domain/EntityIds/iam";
-
-export * from "./AnyEntityId";
-export * as IamEntityIds from "./iam";
-
-export * as SharedEntityIds from "./shared";
-export * as WmsEntityIds from "./wms";
-
-import { BS } from "@beep/schema";
+} from "@beep/shared-domain/entity-ids/iam";
 import type * as S from "effect/Schema";
 import { FileId, OrganizationId, TeamId } from "./shared";
 

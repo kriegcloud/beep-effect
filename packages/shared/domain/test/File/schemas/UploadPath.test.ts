@@ -1,9 +1,9 @@
 import type { EnvValue } from "@beep/constants";
 import type { BS } from "@beep/schema";
-import type { SharedEntityIds } from "@beep/shared-domain/EntityIds";
-import * as IamEntityIds from "@beep/shared-domain/EntityIds/iam";
 import { File } from "@beep/shared-domain/entities";
-import type * as Organization from "@beep/shared-domain/Organization";
+import type * as Organization from "@beep/shared-domain/entities/Organization";
+import type { SharedEntityIds } from "@beep/shared-domain/entity-ids";
+import * as IamEntityIds from "@beep/shared-domain/entity-ids/iam";
 import { describe, expect, it } from "@effect/vitest";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";

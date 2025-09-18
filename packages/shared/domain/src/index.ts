@@ -1,4 +1,4 @@
 export * as Common from "./common";
-export * from "./EntityIds";
-export * from "./EntityKind";
 export * as Entities from "./entities";
+export * from "./entity-ids";
+export * from "./entity-ids/entity-kind";

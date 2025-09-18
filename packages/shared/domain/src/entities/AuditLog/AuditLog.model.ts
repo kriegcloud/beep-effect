@@ -1,6 +1,6 @@
 import { BS } from "@beep/schema";
 import { makeFields } from "@beep/shared-domain/common";
-import { AnyEntityId, AnyTableName, IamEntityIds, SharedEntityIds } from "@beep/shared-domain/EntityIds";
+import { AnyEntityId, AnyTableName, IamEntityIds, SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 

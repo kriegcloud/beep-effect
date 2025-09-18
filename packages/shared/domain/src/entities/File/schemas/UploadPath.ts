@@ -20,14 +20,14 @@
 
 import { EnvValue } from "@beep/constants";
 import { BS } from "@beep/schema";
-import { AnyEntityId, IamEntityIds, SharedEntityIds } from "@beep/shared-domain/EntityIds";
-import { EntityKind } from "@beep/shared-domain/EntityKind";
+import * as Organization from "@beep/shared-domain/entities/Organization";
+import { AnyEntityId, IamEntityIds, SharedEntityIds } from "@beep/shared-domain/entity-ids";
+import { EntityKind } from "@beep/shared-domain/entity-ids/entity-kind";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Hash from "effect/Hash";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
-import * as Organization from "../../Organization";
 
 /**
  * Encoded shard prefix as a plain string.
