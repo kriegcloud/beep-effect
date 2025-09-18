@@ -1,9 +1,9 @@
-import { InvitationStatus, InvitationStatusEnum } from "@beep/iam-domain/Invitation/schemas";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
+import { InvitationStatus, InvitationStatusEnum } from "./schemas";
 
 export const InvitationModelSchemaId = Symbol.for("@beep/iam-domain/InvitationModel");
 
