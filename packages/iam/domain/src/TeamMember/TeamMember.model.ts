@@ -16,7 +16,7 @@ export class Model extends M.Class<Model>(`TeamMemberModel`)(
     }),
 
     /** User who is a member of the team */
-    userId: IamEntityIds.UserId.annotations({
+    userId: SharedEntityIds.UserId.annotations({
       description: "ID of the user who is a team member",
     }),
     organizationId: SharedEntityIds.OrganizationId,

@@ -1,5 +1,6 @@
 export * from "@beep/shared-tables/tables/organization.table";
 export * from "@beep/shared-tables/tables/team.table";
+export * from "@beep/shared-tables/tables/user.table";
 export * from "./account.table";
 export * from "./apiKey.table";
 export * from "./deviceCodes.table";
@@ -17,6 +18,5 @@ export * from "./ssoProvider.table";
 export * from "./subscription.table";
 export * from "./teamMember.table";
 export * from "./twoFactor.table";
-export * from "./user.table";
 export * from "./verification.table";
 export * from "./walletAddress.table";

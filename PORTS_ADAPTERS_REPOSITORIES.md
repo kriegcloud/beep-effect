@@ -64,7 +64,7 @@ import * as S from "effect/Schema";
 
 /** Input from the auth layer about the user we just created */
 export interface NewUserInput {
-  id: S.Schema.Type<typeof IamEntityIds.UserId>;
+  id: S.Schema.Type<typeof SharedEntityIds.UserId>;
   name?: string | null;
 }
 
@@ -77,7 +77,7 @@ export interface PersonalOrgPlan {
   memberInsert: {
     // simplified; use your Member.Model.insert.Type if available
     id: S.Schema.Type<typeof IamEntityIds.MemberId>;
-    userId: S.Schema.Type<typeof IamEntityIds.UserId>;
+    userId: S.Schema.Type<typeof SharedEntityIds.UserId>;
     organizationId: S.Schema.Type<typeof SharedEntityIds.OrganizationId>;
     role: "owner" | "admin" | "member";
     status: "active" | "invited";
@@ -164,7 +164,7 @@ import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 
 export interface MemberInsert {
   id: S.Schema.Type<typeof IamEntityIds.MemberId>;
-  userId: S.Schema.Type<typeof IamEntityIds.UserId>;
+  userId: S.Schema.Type<typeof SharedEntityIds.UserId>;
   organizationId: S.Schema.Type<typeof SharedEntityIds.OrganizationId>;
   role: "owner" | "admin" | "member";
   status: "active" | "invited";
@@ -209,7 +209,7 @@ export class OrganizationReadModelPort extends Context.Tag("iam/services/Organiz
   OrganizationReadModelPort,
   {
     listActiveForUser: (
-      userId: S.Schema.Type<typeof IamEntityIds.UserId>
+      userId: S.Schema.Type<typeof SharedEntityIds.UserId>
     ) => import("effect/Effect").Effect<ReadonlyArray<UserOrgRow>, unknown, never>;
   }
 >() {}
@@ -334,7 +334,7 @@ import { MemberRepoPort } from "@beep/iam-services/ports/MemberRepo.port";
 import { IamEntityIds } from "@beep/shared-domain/entity-ids/iam";
 
 export interface ProvisionPersonalOrgInput {
-  userId: S.Schema.Type<typeof IamEntityIds.UserId>;
+  userId: S.Schema.Type<typeof SharedEntityIds.UserId>;
   name?: string | null;
 }
 
@@ -359,7 +359,7 @@ import { OrganizationReadModelPort } from "@beep/iam-services/ports/Organization
 import { IamEntityIds } from "@beep/shared-domain/entity-ids/iam";
 
 export const BuildSessionOrgContext = {
-  run: (userId: S.Schema.Type<typeof IamEntityIds.UserId>) =>
+  run: (userId: S.Schema.Type<typeof SharedEntityIds.UserId>) =>
     Effect.gen(function* () {
       const readModel = yield* OrganizationReadModelPort;
       const userOrgs = yield* readModel.listActiveForUser(userId);
@@ -401,14 +401,14 @@ import { OrganizationReadModelLive } from "@beep/iam-infra/adapters/db/Organizat
 // Provision personal org after user creation
 await Effect.runPromise(
   ProvisionPersonalOrg.run({
-    userId: S.decodeUnknownSync(IamEntityIds.UserId)(user.id),
+    userId: S.decodeUnknownSync(SharedEntityIds.UserId)(user.id),
     name: user.name,
   }).pipe(Effect.provide(OrganizationRepoLive), Effect.provide(MemberRepoLive))
 );
 
 // Build session org context before session creation
 const { activeOrgId, organizationContext } = await Effect.runPromise(
-  BuildSessionOrgContext.run(S.decodeUnknownSync(IamEntityIds.UserId)(session.userId)).pipe(
+  BuildSessionOrgContext.run(S.decodeUnknownSync(SharedEntityIds.UserId)(session.userId)).pipe(
     Effect.provide(OrganizationReadModelLive)
   )
 );

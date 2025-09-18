@@ -4,7 +4,8 @@ import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
-import { SessionId, UserId } from "../src/entity-ids/iam";
+import { SessionId } from "../src/entity-ids/iam";
+import { UserId } from "../src/entity-ids/shared";
 import * as Policy from "../src/Policy";
 
 const mockUser = (permissions: ReadonlyArray<Policy.Permission>): Policy.CurrentUser["Type"] => ({

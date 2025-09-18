@@ -94,7 +94,7 @@ const AuthOptions = Effect.gen(function* () {
                 name: `${user.name || "User"}'s Organization`,
                 slug,
                 type: "individual",
-                ownerUserId: user.id,
+                ownerUserId: SharedEntityIds.UserId.make(user.id),
                 isPersonal: true,
                 subscriptionTier: "free",
                 subscriptionStatus: "active",
@@ -105,7 +105,7 @@ const AuthOptions = Effect.gen(function* () {
               });
               yield* db.insert(IamDbSchema.memberTable).values({
                 id: personalMemberId,
-                userId: S.decodeUnknownSync(IamEntityIds.UserId)(user.id),
+                userId: S.decodeUnknownSync(SharedEntityIds.UserId)(user.id),
                 organizationId: personalOrgId,
                 role: "owner",
                 status: "active",
@@ -144,7 +144,7 @@ const AuthOptions = Effect.gen(function* () {
                 )
                 .where(
                   d.and(
-                    d.eq(IamDbSchema.memberTable.userId, session.userId),
+                    d.eq(IamDbSchema.memberTable.userId, SharedEntityIds.UserId.make(session.userId)),
                     d.eq(IamDbSchema.memberTable.status, "active")
                   )
                 )
@@ -180,7 +180,7 @@ const AuthOptions = Effect.gen(function* () {
       },
     },
     user: {
-      modelName: IamEntityIds.UserId.tableName,
+      modelName: SharedEntityIds.UserId.tableName,
       additionalFields: {
         ...commonExtraFields,
       },

@@ -1,7 +1,6 @@
 import { IamEntityIds, type SharedEntityIds } from "@beep/shared-domain";
-import { organizationTable, Table } from "@beep/shared-tables";
+import { organizationTable, Table, userTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
-import { userTable } from "./user.table";
 
 export const ssoProviderTable = Table.make(IamEntityIds.SsoProviderId)({
   issuer: pg.text("issuer").notNull(),
@@ -9,7 +8,7 @@ export const ssoProviderTable = Table.make(IamEntityIds.SsoProviderId)({
   samlConfig: pg.text("saml_config"),
   userId: pg
     .text("user_id")
-    .$type<IamEntityIds.UserId.Type>()
+    .$type<SharedEntityIds.UserId.Type>()
     .references(() => userTable.id, { onDelete: "cascade" }),
   providerId: pg.text("provider_id").notNull().unique(),
   organizationId: pg

@@ -35,7 +35,7 @@ const Permissions = internal.makePermissions({
   [IamEntityIds.SubscriptionId.tableName]: commonPermissions,
   [IamEntityIds.TeamMemberId.tableName]: commonPermissions,
   [IamEntityIds.TwoFactorId.tableName]: commonPermissions,
-  [IamEntityIds.UserId.tableName]: commonPermissions,
+  [SharedEntityIds.UserId.tableName]: commonPermissions,
   [IamEntityIds.VerificationId.tableName]: commonPermissions,
   [IamEntityIds.WalletAddressId.tableName]: commonPermissions,
 } as const);
@@ -53,7 +53,7 @@ export class CurrentUser extends Context.Tag("CurrentUser")<
   CurrentUser,
   {
     readonly sessionId: IamEntityIds.SessionId.Type;
-    readonly userId: IamEntityIds.UserId.Type;
+    readonly userId: SharedEntityIds.UserId.Type;
     readonly permissions: Set<Permission>;
   }
 >() {}

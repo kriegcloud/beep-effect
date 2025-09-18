@@ -17,15 +17,20 @@ import {
   SubscriptionId,
   TeamMemberId,
   TwoFactorId,
-  UserId,
   VerificationId,
   WalletAddressId,
 } from "@beep/shared-domain/entity-ids/iam";
 import type * as S from "effect/Schema";
-import { FileId, OrganizationId, TeamId } from "./shared";
+import { AuditLogId, FileId, OrganizationId, TeamId, UserId } from "./shared";
 
 export namespace SharedTableNames {
-  export const SharedTableNameKit = BS.stringLiteralKit(FileId.tableName, TeamId.tableName, OrganizationId.tableName);
+  export const SharedTableNameKit = BS.stringLiteralKit(
+    FileId.tableName,
+    TeamId.tableName,
+    OrganizationId.tableName,
+    UserId.tableName,
+    AuditLogId.tableName
+  );
 
   export class SharedTableName extends SharedTableNameKit.Schema.annotations({
     schemaId: Symbol.for("@beep/shared/domain/EntityIds/iam/SharedTableName"),
@@ -62,7 +67,6 @@ export namespace IamTableNames {
     SubscriptionId.tableName,
     TeamMemberId.tableName,
     TwoFactorId.tableName,
-    UserId.tableName,
     VerificationId.tableName,
     WalletAddressId.tableName,
     OrganizationRoleId.tableName,

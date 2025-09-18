@@ -1,6 +1,7 @@
 import type { BS } from "@beep/schema";
-import { type IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { SharedEntityIds } from "@beep/shared-domain";
 import { Organization } from "@beep/shared-domain/entities";
+import { userTable } from "@beep/shared-tables/tables/user.table";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { Table } from "../Table";
@@ -18,7 +19,14 @@ export const organizationTable = Table.make(SharedEntityIds.OrganizationId)(
     metadata: pg.text("metadata"),
     // Multi-tenant enhancement fields
     type: organizationTypePgEnum("type").notNull().default(Organization.OrganizationTypeEnum.individual), // 'individual', 'team', 'enterprise'
-    ownerUserId: pg.text("owner_user_id").$type<IamEntityIds.UserId.Type>().notNull(), // Reference to user who owns this org (relation defined in relations.ts)
+    ownerUserId: pg
+      .text("owner_user_id")
+      .$type<SharedEntityIds.UserId.Type>()
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }), // Reference to user who owns this org (relation defined in relations.ts)
     isPersonal: pg.boolean("is_personal").notNull().default(false), // True for auto-created personal orgs
     maxMembers: pg.integer("max_members"), // Maximum members allowed
     // todo make this typed when actually used

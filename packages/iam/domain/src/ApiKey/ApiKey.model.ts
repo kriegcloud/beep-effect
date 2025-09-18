@@ -42,7 +42,7 @@ export class Model extends M.Class<Model>(`ApikeyModel`)(
     ),
 
     /** User this API key belongs to */
-    userId: IamEntityIds.UserId.annotations({
+    userId: SharedEntityIds.UserId.annotations({
       description: "ID of the user who owns this API key",
     }),
 

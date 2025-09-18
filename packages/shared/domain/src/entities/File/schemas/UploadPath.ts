@@ -21,7 +21,7 @@
 import { EnvValue } from "@beep/constants";
 import { BS } from "@beep/schema";
 import * as Organization from "@beep/shared-domain/entities/Organization";
-import { AnyEntityId, IamEntityIds, SharedEntityIds } from "@beep/shared-domain/entity-ids";
+import { AnyEntityId, SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import { EntityKind } from "@beep/shared-domain/entity-ids/entity-kind";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -298,7 +298,7 @@ export namespace UploadPathParser {
  *   organizationType: "individual",
  *   organizationId: SharedEntityIds.OrganizationId.make("organization__87654321-4321-4321-4321-210987654321"),
  *   entityKind: "user",
- *   entityIdentifier: IamEntityIds.UserId.make("user__87654321-4321-4321-4321-210987654321"),
+ *   entityIdentifier: SharedEntityIds.UserId.make("user__87654321-4321-4321-4321-210987654321"),
  *   entityAttribute: "avatar",
  *   fileItemExtension: "jpg"
  * };
@@ -326,7 +326,7 @@ export const UploadPathDecoded = BS.Struct({
       organizationType: "individual",
       organizationId: SharedEntityIds.OrganizationId.make("organization__87654321-4321-4321-4321-210987654321"),
       entityKind: "user",
-      entityIdentifier: IamEntityIds.UserId.make("user__12345678-1234-1234-1234-123456789012"),
+      entityIdentifier: SharedEntityIds.UserId.make("user__12345678-1234-1234-1234-123456789012"),
       entityAttribute: "avatar",
       fileItemExtension: "jpg",
     },

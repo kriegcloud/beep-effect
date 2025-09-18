@@ -1,8 +1,7 @@
 import { IamEntityIds, type SharedEntityIds } from "@beep/shared-domain";
-import { organizationTable, Table, teamTable } from "@beep/shared-tables";
+import { organizationTable, Table, teamTable, userTable } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-import { userTable } from "./user.table";
 export const sessionTable = Table.make(IamEntityIds.SessionId)(
   {
     expiresAt: pg.timestamp("expires_at").notNull(),
@@ -11,12 +10,12 @@ export const sessionTable = Table.make(IamEntityIds.SessionId)(
     userAgent: pg.text("user_agent"),
     userId: pg
       .text("user_id")
-      .$type<typeof IamEntityIds.UserId.Type>()
+      .$type<typeof SharedEntityIds.UserId.Type>()
       .notNull()
       .references(() => userTable.id, { onDelete: "cascade", onUpdate: "cascade" }),
     impersonatedBy: pg
       .text("impersonated_by")
-      .$type<typeof IamEntityIds.UserId.Type>()
+      .$type<typeof SharedEntityIds.UserId.Type>()
       .references(() => userTable.id, { onDelete: "set null", onUpdate: "cascade" }),
     activeOrganizationId: pg
       .text("active_organization_id")

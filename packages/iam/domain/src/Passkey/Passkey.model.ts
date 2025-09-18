@@ -19,7 +19,7 @@ export class Model extends M.Class<Model>(`PasskeyModel`)(
       })
     ),
     /** User this passkey belongs to */
-    userId: IamEntityIds.UserId.annotations({
+    userId: SharedEntityIds.UserId.annotations({
       description: "ID of the user this passkey belongs to",
     }),
 

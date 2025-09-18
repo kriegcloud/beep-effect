@@ -1,5 +1,5 @@
 import { BS } from "@beep/schema";
-import { IamEntityIds } from "@beep/shared-domain";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
@@ -24,7 +24,7 @@ export class Model extends M.Class<Model>(`AccountModel`)(
     }),
 
     /** Reference to the user this account belongs to */
-    userId: IamEntityIds.UserId.annotations({
+    userId: SharedEntityIds.UserId.annotations({
       description: "The userId of the user this account belongs to",
     }),
 

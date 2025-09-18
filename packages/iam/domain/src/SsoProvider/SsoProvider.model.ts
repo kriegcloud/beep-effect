@@ -15,7 +15,7 @@ export class Model extends M.Class<Model>(`SsoProviderModel`)(
     domain: S.String,
     oidcConfig: BS.FieldOptionOmittable(S.String),
     samlConfig: BS.FieldOptionOmittable(S.String),
-    userId: BS.FieldOptionOmittable(IamEntityIds.UserId),
+    userId: BS.FieldOptionOmittable(SharedEntityIds.UserId),
     providerId: S.String,
 
     organizationId: BS.FieldOptionOmittable(SharedEntityIds.OrganizationId),

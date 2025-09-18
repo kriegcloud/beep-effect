@@ -1,9 +1,8 @@
 import { Invitation } from "@beep/iam-domain/entities";
 import { IamEntityIds, type SharedEntityIds } from "@beep/shared-domain";
-import { organizationTable, Table, teamTable } from "@beep/shared-tables";
+import { organizationTable, Table, teamTable, userTable } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-import { userTable } from "./user.table";
 
 export const invitationStatusEnum = Invitation.makeInvitationStatusPgEnum("invitation_status_enum");
 
@@ -20,7 +19,7 @@ export const invitationTable = Table.make(IamEntityIds.InvitationId)(
     inviterId: pg
       .text("inviter_id")
       .notNull()
-      .$type<IamEntityIds.UserId.Type>()
+      .$type<SharedEntityIds.UserId.Type>()
       .references(() => userTable.id, { onDelete: "cascade", onUpdate: "cascade" }),
     organizationId: pg
       .text("organization_id")

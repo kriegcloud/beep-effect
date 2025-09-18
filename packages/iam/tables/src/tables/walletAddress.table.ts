@@ -1,14 +1,13 @@
-import { IamEntityIds } from "@beep/shared-domain";
-import { Table } from "@beep/shared-tables";
+import { IamEntityIds, type SharedEntityIds } from "@beep/shared-domain";
+import { Table, userTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
-import { userTable } from "./user.table";
 
 export const walletAddressTable = Table.make(IamEntityIds.WalletAddressId)(
   {
     userId: pg
       .text("user_id")
       .notNull()
-      .$type<IamEntityIds.UserId.Type>()
+      .$type<SharedEntityIds.UserId.Type>()
       .references(() => userTable.id, { onDelete: "cascade" }),
     address: pg.text("address").notNull(),
     chainId: pg.integer("chain_id").notNull(),

@@ -1,4 +1,4 @@
-import { Organization, Team } from "@beep/shared-domain/entities";
+import { Organization, Team, User } from "@beep/shared-domain/entities";
 
 export * as Account from "./Account";
 export * as ApiKey from "./ApiKey";
@@ -17,7 +17,6 @@ export * as SsoProvider from "./SsoProvider";
 export * as Subscription from "./Subscription";
 export * as TeamMember from "./TeamMember";
 export * as TwoFactor from "./TwoFactor";
-export * as User from "./User";
 export * as Verification from "./Verification";
 export * as WalletAddress from "./WalletAddress";
-export { Team, Organization };
+export { Team, Organization, User };

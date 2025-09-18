@@ -40,7 +40,7 @@ export class Model extends M.Class<Model>(`SessionModel`)(
     ),
 
     /** User this session belongs to */
-    userId: IamEntityIds.UserId.annotations({
+    userId: SharedEntityIds.UserId.annotations({
       description: "ID of the user this session belongs to",
     }),
 
@@ -60,7 +60,7 @@ export class Model extends M.Class<Model>(`SessionModel`)(
 
     /** User being impersonated (if any) */
     impersonatedBy: BS.FieldOptionOmittable(
-      IamEntityIds.UserId.annotations({
+      SharedEntityIds.UserId.annotations({
         description: "ID of the user performing impersonation (if applicable)",
       })
     ),

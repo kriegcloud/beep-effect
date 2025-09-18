@@ -12,7 +12,7 @@ export const MemberModelSchemaId = Symbol.for("@beep/iam-domain/MemberModel");
  */
 export class Model extends M.Class<Model>(`MemberModel`)(
   makeFields(IamEntityIds.MemberId, {
-    userId: IamEntityIds.UserId.annotations({
+    userId: SharedEntityIds.UserId.annotations({
       description: "ID of the user who is a member",
     }),
 

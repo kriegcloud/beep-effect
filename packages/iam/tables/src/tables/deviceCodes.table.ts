@@ -1,8 +1,7 @@
 import { DeviceCode } from "@beep/iam-domain/entities";
 import { IamEntityIds } from "@beep/shared-domain";
-import { Table } from "@beep/shared-tables";
+import { Table, userTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
-import { userTable } from "./user.table";
 
 export const deviceCodeStatusPgEnum = DeviceCode.makeDeviceCodeStatusPgEnum("device_code_status_enum");
 /**

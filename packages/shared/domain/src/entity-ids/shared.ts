@@ -52,3 +52,16 @@ export namespace AuditLogId {
   export type Type = typeof AuditLogId.Type;
   export type Encoded = typeof AuditLogId.Encoded;
 }
+
+export const UserId = EntityId.make("user", {
+  brand: "UserId",
+  annotations: {
+    schemaId: Symbol.for("@beep/shared/domain/EntityIds/iam/UserId"),
+    description: "A unique identifier for a user",
+  },
+});
+
+export namespace UserId {
+  export type Type = typeof UserId.Type;
+  export type Encoded = typeof UserId.Encoded;
+}

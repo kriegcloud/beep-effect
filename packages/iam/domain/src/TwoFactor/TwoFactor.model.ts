@@ -1,4 +1,4 @@
-import { IamEntityIds } from "@beep/shared-domain";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
@@ -26,7 +26,7 @@ export class Model extends M.Class<Model>(`TwoFactorModel`)(
     ),
 
     /** User this 2FA setup belongs to */
-    userId: IamEntityIds.UserId.annotations({
+    userId: SharedEntityIds.UserId.annotations({
       description: "ID of the user this 2FA setup belongs to",
     }),
   }),

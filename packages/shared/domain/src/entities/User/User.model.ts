@@ -1,6 +1,6 @@
 import { BS } from "@beep/schema";
-import { IamEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
+import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -9,7 +9,7 @@ import * as S from "effect/Schema";
  * Maps to the `user` table in the database.
  */
 export class Model extends M.Class<Model>(`UserModel`)(
-  makeFields(IamEntityIds.UserId, {
+  makeFields(SharedEntityIds.UserId, {
     /** User's display name */
     name: S.NonEmptyString.annotations({
       description: "The user's display name",

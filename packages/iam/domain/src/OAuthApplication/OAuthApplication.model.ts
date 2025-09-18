@@ -68,7 +68,7 @@ export class Model extends M.Class<Model>(`OAuthApplicationModel`)(
 
     /** User who owns this application */
     userId: BS.FieldOptionOmittable(
-      IamEntityIds.UserId.annotations({
+      SharedEntityIds.UserId.annotations({
         description: "ID of the user who owns this OAuth application",
       })
     ),

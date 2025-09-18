@@ -1,4 +1,4 @@
-import { organizationTable, teamTable } from "@beep/shared-tables/schema";
+import { organizationTable, teamTable, userTable } from "@beep/shared-tables/schema";
 import * as d from "drizzle-orm";
 import {
   accountTable,
@@ -16,7 +16,6 @@ import {
   subscriptionTable,
   teamMemberTable,
   twoFactorTable,
-  userTable,
   walletAddressTable,
 } from "./tables";
 

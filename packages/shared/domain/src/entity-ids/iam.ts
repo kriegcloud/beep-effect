@@ -196,19 +196,6 @@ export const TwoFactorId = EntityId.make("two_factor", {
   },
 });
 
-export const UserId = EntityId.make("user", {
-  brand: "UserId",
-  annotations: {
-    schemaId: Symbol.for("@beep/shared/domain/EntityIds/iam/UserId"),
-    description: "A unique identifier for a user",
-  },
-});
-
-export namespace UserId {
-  export type Type = S.Schema.Type<typeof UserId>;
-  export type Encoded = S.Schema.Encoded<typeof UserId>;
-}
-
 export const VerificationId = EntityId.make("verification", {
   brand: "VerificationId",
   annotations: {

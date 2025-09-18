@@ -13,7 +13,7 @@ export class Model extends M.Class<Model>(`OAuthConsentModel`)(
   makeFields(IamEntityIds.OAuthConsentId, {
     /** User who gave consent */
     userId: BS.FieldOptionOmittable(
-      IamEntityIds.UserId.annotations({
+      SharedEntityIds.UserId.annotations({
         description: "ID of the user who gave consent",
       })
     ),

@@ -11,7 +11,7 @@ export class Model extends M.Class<Model>(`AuditLogModel`)(
     entityId: AnyEntityId,
     action: S.String,
     userSessionId: BS.FieldOptionOmittable(IamEntityIds.SessionId),
-    userId: IamEntityIds.UserId,
+    userId: SharedEntityIds.UserId,
     userEmail: M.Sensitive(
       BS.Email.annotations({
         description: "The user's email address",

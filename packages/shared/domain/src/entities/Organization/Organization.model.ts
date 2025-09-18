@@ -1,7 +1,7 @@
 import { BS } from "@beep/schema";
 import { Slug, URLString } from "@beep/schema/custom";
 import { makeFields } from "@beep/shared-domain/common";
-import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain/entity-ids";
+import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import * as M from "@effect/sql/Model";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
@@ -45,7 +45,7 @@ export class Model extends M.Class<Model>(`OrganizationModel`)(
         default: F.constant(OrganizationTypeEnum.individual),
       })
     ),
-    ownerUserId: IamEntityIds.UserId.annotations({
+    ownerUserId: SharedEntityIds.UserId.annotations({
       description: "The owner of the organization",
     }),
     isPersonal: S.Boolean.pipe(

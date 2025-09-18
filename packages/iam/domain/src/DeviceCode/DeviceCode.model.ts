@@ -1,6 +1,6 @@
 import { DeviceCodeStatus } from "@beep/iam-domain/DeviceCode/schemas";
 import { BS } from "@beep/schema";
-import { IamEntityIds } from "@beep/shared-domain";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
@@ -16,7 +16,7 @@ export class Model extends M.Class<Model>(`DeviceCodeModel`)(
   makeFields(IamEntityIds.DeviceCodeId, {
     userCode: M.Sensitive(S.NonEmptyTrimmedString),
 
-    userId: BS.FieldOptionOmittable(IamEntityIds.UserId),
+    userId: BS.FieldOptionOmittable(SharedEntityIds.UserId),
 
     expiresAt: BS.DateTimeFromDate(),
 

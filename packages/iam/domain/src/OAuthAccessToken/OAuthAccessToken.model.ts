@@ -49,7 +49,7 @@ export class Model extends M.Class<Model>(`OAuthAccessTokenModel`)(
 
     /** User the token belongs to */
     userId: BS.FieldOptionOmittable(
-      IamEntityIds.UserId.annotations({
+      SharedEntityIds.UserId.annotations({
         description: "ID of the user this token belongs to",
       })
     ),

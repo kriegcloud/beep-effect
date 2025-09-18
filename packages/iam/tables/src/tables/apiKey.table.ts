@@ -1,8 +1,7 @@
-import { IamEntityIds } from "@beep/shared-domain";
-import { OrgTable } from "@beep/shared-tables";
+import { IamEntityIds, type SharedEntityIds } from "@beep/shared-domain";
+import { OrgTable, userTable } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-import { userTable } from "./user.table";
 export const apiKeyTable = OrgTable.make(IamEntityIds.ApiKeyId)(
   {
     name: pg.text("name"),
@@ -12,7 +11,7 @@ export const apiKeyTable = OrgTable.make(IamEntityIds.ApiKeyId)(
     userId: pg
       .text("user_id")
       .notNull()
-      .$type<IamEntityIds.UserId.Type>()
+      .$type<SharedEntityIds.UserId.Type>()
       .references(() => userTable.id, { onDelete: "cascade" }),
     refillInterval: pg.integer("refill_interval"),
     refillAmount: pg.integer("refill_amount"),

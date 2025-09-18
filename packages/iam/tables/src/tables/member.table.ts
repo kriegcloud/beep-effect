@@ -1,5 +1,5 @@
 import { Member } from "@beep/iam-domain/entities";
-import { IamEntityIds } from "@beep/shared-domain";
+import { IamEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 
@@ -7,7 +7,7 @@ export const memberRoleEnum = Member.makeMemberRolePgEnum("member_role_enum");
 
 export const memberTable = OrgTable.make(IamEntityIds.MemberId)(
   {
-    userId: pg.text("user_id").$type<IamEntityIds.UserId.Type>().notNull(), // Reference to user.id (relation defined in relations.ts)
+    userId: pg.text("user_id").$type<SharedEntityIds.UserId.Type>().notNull(), // Reference to user.id (relation defined in relations.ts)
     role: memberRoleEnum("role").notNull().default(Member.MemberRoleEnum.member),
 
     // Enhanced member tracking fields

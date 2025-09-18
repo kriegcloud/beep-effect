@@ -1,8 +1,7 @@
-import { IamEntityIds } from "@beep/shared-domain";
-import { Table } from "@beep/shared-tables";
+import { IamEntityIds, type SharedEntityIds } from "@beep/shared-domain";
+import { Table, userTable } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-import { userTable } from "./user.table";
 
 export const accountTable = Table.make(IamEntityIds.AccountId)(
   {
@@ -11,7 +10,7 @@ export const accountTable = Table.make(IamEntityIds.AccountId)(
     userId: pg
       .text("user_id")
       .notNull()
-      .$type<IamEntityIds.UserId.Type>()
+      .$type<SharedEntityIds.UserId.Type>()
       .references(() => userTable.id, { onDelete: "cascade", onUpdate: "cascade" }),
     accessToken: pg.text("access_token"),
     refreshToken: pg.text("refresh_token"),

@@ -1,7 +1,6 @@
-import { IamEntityIds } from "@beep/shared-domain";
-import { OrgTable } from "@beep/shared-tables";
+import { IamEntityIds, type SharedEntityIds } from "@beep/shared-domain";
+import { OrgTable, userTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
-import { userTable } from "./user.table";
 
 export const twoFactorTable = OrgTable.make(IamEntityIds.TwoFactorId)({
   secret: pg.text("secret").notNull(),
@@ -9,6 +8,6 @@ export const twoFactorTable = OrgTable.make(IamEntityIds.TwoFactorId)({
   userId: pg
     .text("user_id")
     .notNull()
-    .$type<IamEntityIds.UserId.Type>()
+    .$type<SharedEntityIds.UserId.Type>()
     .references(() => userTable.id, { onDelete: "cascade" }),
 });

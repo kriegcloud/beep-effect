@@ -47,7 +47,7 @@ export class Model extends M.Class<Model>(`InvitationModel`)(
     }),
 
     /** User who sent the invitation */
-    inviterId: IamEntityIds.UserId.annotations({
+    inviterId: SharedEntityIds.UserId.annotations({
       description: "ID of the user who sent this invitation",
     }),
 
