@@ -2,7 +2,7 @@ import { Entities } from "@beep/iam-domain";
 import { dependencies } from "@beep/iam-infra/adapters/repos/_common";
 import { IamDb } from "@beep/iam-infra/db";
 import { SharedEntityIds } from "@beep/shared-domain";
-import { Repo } from "@beep/shared-domain/Repo";
+import { Repo } from "@beep/shared-domain/abstractions";
 import * as Effect from "effect/Effect";
 
 export class UserRepo extends Effect.Service<UserRepo>()("@beep/iam-infra/adapters/repos/UserRepo", {

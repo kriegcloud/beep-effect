@@ -17,7 +17,7 @@ export class Model extends M.Class<Model>(`DeviceCodeModel`)(
     userCode: M.Sensitive(S.NonEmptyTrimmedString),
 
     userId: BS.FieldOptionOmittable(SharedEntityIds.UserId),
-
+    deviceCode: M.Sensitive(S.NonEmptyTrimmedString),
     expiresAt: BS.DateTimeFromDate(),
 
     status: BS.toOptionalWithDefault(DeviceCodeStatus)(DeviceCodeStatus.Enum.pending),
