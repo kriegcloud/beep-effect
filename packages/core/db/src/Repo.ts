@@ -2,15 +2,13 @@ import type { EntityId } from "@beep/schema/EntityId";
 import type { UnsafeTypes } from "@beep/types";
 import type * as M from "@effect/sql/Model";
 import * as SqlClient from "@effect/sql/SqlClient";
-import type { SqlError } from "@effect/sql/SqlError";
 import * as SqlSchema from "@effect/sql/SqlSchema";
 import type * as A from "effect/Array";
-import type { NoSuchElementException } from "effect/Cause";
 import * as Effect from "effect/Effect";
 import type * as O from "effect/Option";
-import type { ParseError } from "effect/ParseResult";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { DbError } from "./errors";
 
 export namespace Repo {
   const tableNameToSpanPrefix = <TableName extends string>(tableName: TableName) => {
@@ -32,47 +30,39 @@ export namespace Repo {
     {
       readonly insert: (
         insert: Model["insert"]["Type"]
-      ) => Effect.Effect<
-        Model["Type"],
-        SqlError | NoSuchElementException | ParseError,
-        Model["Context"] | Model["insert"]["Context"]
-      >;
+      ) => Effect.Effect<Model["Type"], DbError | null, Model["Context"] | Model["insert"]["Context"]>;
       readonly insertVoid: (
         insert: Model["insert"]["Type"]
-      ) => Effect.Effect<void, SqlError | ParseError, Model["Context"] | Model["insert"]["Context"]>;
+      ) => Effect.Effect<void, DbError | null, Model["Context"] | Model["insert"]["Context"]>;
       readonly update: (
         update: Model["update"]["Type"]
-      ) => Effect.Effect<
-        Model["Type"],
-        SqlError | ParseError | NoSuchElementException,
-        Model["Context"] | Model["update"]["Context"]
-      >;
+      ) => Effect.Effect<Model["Type"], DbError | null, Model["Context"] | Model["update"]["Context"]>;
       readonly updateVoid: (
         update: Model["update"]["Type"]
-      ) => Effect.Effect<void, SqlError | ParseError, Model["Context"] | Model["update"]["Context"]>;
+      ) => Effect.Effect<void, DbError | null, Model["Context"] | Model["update"]["Context"]>;
       readonly findById: (
         id: S.Schema.Type<Model["fields"][Id]>
       ) => Effect.Effect<
         O.Option<Model["Type"]>,
-        SqlError | ParseError,
+        DbError | null,
         Model["Context"] | S.Schema.Context<Model["fields"][Id]>
       >;
       readonly delete: (
         id: S.Schema.Type<Model["fields"][Id]>
-      ) => Effect.Effect<void, SqlError | ParseError, S.Schema.Context<Model["fields"][Id]>>;
+      ) => Effect.Effect<void, DbError | null, S.Schema.Context<Model["fields"][Id]>>;
       readonly deleteMany: (
         ids: A.NonEmptyReadonlyArray<S.Schema.Type<Model["fields"][Id]>>
-      ) => Effect.Effect<void, SqlError | ParseError, S.Schema.Context<Model["fields"][Id]>>;
+      ) => Effect.Effect<void, DbError | null, S.Schema.Context<Model["fields"][Id]>>;
       readonly insertMany: (
         insert: A.NonEmptyReadonlyArray<Model["insert"]["Type"]>
       ) => Effect.Effect<
         A.NonEmptyReadonlyArray<Model["Type"]>,
-        SqlError | ParseError | NoSuchElementException,
+        DbError | null,
         Model["Context"] | Model["insert"]["Context"]
       >;
       readonly insertManyVoid: (
         insert: A.NonEmptyReadonlyArray<Model["insert"]["Type"]>
-      ) => Effect.Effect<void, SqlError | ParseError, Model["Context"] | Model["insert"]["Context"]>;
+      ) => Effect.Effect<void, DbError | null, Model["Context"] | Model["insert"]["Context"]>;
     },
     never,
     SqlClient.SqlClient
@@ -91,12 +81,13 @@ export namespace Repo {
 
       const insert = (
         insert: Model["insert"]["Type"]
-      ): Effect.Effect<
-        Model["Type"],
-        SqlError | NoSuchElementException | ParseError,
-        Model["Context"] | Model["insert"]["Context"]
-      > =>
+      ): Effect.Effect<Model["Type"], DbError | null, Model["Context"] | Model["insert"]["Context"]> =>
         insertSchema(insert).pipe(
+          Effect.catchTags({
+            NoSuchElementException: (e) => Effect.die(e),
+            ParseError: (e) => Effect.die(e),
+          }),
+          Effect.mapError(DbError.match),
           Effect.withSpan(`${spanPrefix}.insert`, {
             captureStackTrace: false,
             attributes: { insert },
@@ -110,18 +101,23 @@ export namespace Repo {
         Request: insertManyRequestSchema,
         Result: insertManyResultSchema,
         execute: (request) => sql`
-          insert into ${sql(tableName)} ${sql.insert(request).returning("*")}
-      `,
+            insert into ${sql(tableName)} ${sql.insert(request).returning("*")}
+        `,
       });
 
       const insertMany = (
         insert: A.NonEmptyReadonlyArray<Model["insert"]["Type"]>
       ): Effect.Effect<
         A.NonEmptyReadonlyArray<Model["Type"]>,
-        SqlError | ParseError | NoSuchElementException,
+        DbError | null,
         Model["Context"] | Model["insert"]["Context"]
       > =>
         insertManySchema(insert).pipe(
+          Effect.catchTags({
+            ParseError: (e) => Effect.die(e),
+            NoSuchElementException: (e) => Effect.die(e),
+          }),
+          Effect.mapError(DbError.match),
           Effect.withSpan(`${spanPrefix}.insertMany`, {
             captureStackTrace: false,
             attributes: { insert },
@@ -131,18 +127,16 @@ export namespace Repo {
       const insertManyVoidSchema = SqlSchema.void({
         Request: insertManyRequestSchema,
         execute: (request) => sql`
-          insert into ${sql(tableName)} ${sql.insert(request)}
-      `,
+            insert into ${sql(tableName)} ${sql.insert(request)}
+        `,
       });
 
       const insertManyVoid = (
         insert: A.NonEmptyReadonlyArray<Model["insert"]["Type"]>
-      ): Effect.Effect<void, SqlError | ParseError, Model["Context"] | Model["insert"]["Context"]> =>
+      ): Effect.Effect<void, DbError | null, Model["Context"] | Model["insert"]["Context"]> =>
         insertManyVoidSchema(insert).pipe(
-          // Effect.catchTags({
-          //   ParseError: (e) => Effect.die(e),
-          //   SqlError: (e) => ,
-          // }),
+          Effect.catchTag("ParseError", (e) => Effect.die(e)),
+          Effect.mapError(DbError.match),
           Effect.withSpan(`${spanPrefix}.insertManyVoid`, {
             captureStackTrace: false,
             attributes: { insert },
@@ -156,8 +150,10 @@ export namespace Repo {
 
       const insertVoid = (
         insert: Model["insert"]["Type"]
-      ): Effect.Effect<void, SqlError | ParseError, Model["Context"] | Model["insert"]["Context"]> =>
+      ): Effect.Effect<void, DbError | null, Model["Context"] | Model["insert"]["Context"]> =>
         insertVoidSchema(insert).pipe(
+          Effect.catchTag("ParseError", (e) => Effect.die(e)),
+          Effect.mapError(DbError.match),
           Effect.withSpan(`${spanPrefix}.insertVoid`, {
             captureStackTrace: false,
             attributes: { insert },
@@ -169,20 +165,21 @@ export namespace Repo {
         Result: model,
         execute: (request) =>
           sql`
-            update ${sql(tableName)}
-            set ${sql.update(request, [idColumn])}
-            where ${sql(idColumn)} = ${request[idColumn]} returning *
-        `,
+              update ${sql(tableName)}
+              set ${sql.update(request, [idColumn])}
+              where ${sql(idColumn)} = ${request[idColumn]} returning *
+          `,
       });
 
       const update = (
         update: Model["update"]["Type"]
-      ): Effect.Effect<
-        Model["Type"],
-        SqlError | ParseError | NoSuchElementException,
-        Model["Context"] | Model["update"]["Context"]
-      > =>
+      ): Effect.Effect<Model["Type"], DbError | null, Model["Context"] | Model["update"]["Context"]> =>
         updateSchema(update).pipe(
+          Effect.catchTags({
+            ParseError: (e) => Effect.die(e),
+            NoSuchElementException: (e) => Effect.die(e),
+          }),
+          Effect.mapError(DbError.match),
           Effect.withSpan(`${spanPrefix}.update`, {
             captureStackTrace: false,
             attributes: { update },
@@ -193,16 +190,18 @@ export namespace Repo {
         Request: model.update,
         execute: (request) =>
           sql`
-            update ${sql(tableName)}
-            set ${sql.update(request, [idColumn])}
-            where ${sql(idColumn)} = ${request[idColumn]}
-        `,
+              update ${sql(tableName)}
+              set ${sql.update(request, [idColumn])}
+              where ${sql(idColumn)} = ${request[idColumn]}
+          `,
       });
 
       const updateVoid = (
         update: Model["update"]["Type"]
-      ): Effect.Effect<void, SqlError | ParseError, Model["Context"] | Model["update"]["Context"]> =>
+      ): Effect.Effect<void, DbError | null, Model["Context"] | Model["update"]["Context"]> =>
         updateVoidSchema(update).pipe(
+          Effect.catchTag("ParseError", (e) => Effect.die(e)),
+          Effect.mapError(DbError.match),
           Effect.withSpan(`${spanPrefix}.updateVoid`, {
             captureStackTrace: false,
             attributes: { update },
@@ -213,20 +212,22 @@ export namespace Repo {
         Request: options.idSchema.privateSchema,
         Result: model,
         execute: (id) => sql`
-          select *
-          from ${sql(tableName)}
-          where ${sql(idColumn)} = ${id}
-      `,
+            select *
+            from ${sql(tableName)}
+            where ${sql(idColumn)} = ${id}
+        `,
       });
 
       const findById = (
         id: S.Schema.Type<Model["fields"][Id]>
       ): Effect.Effect<
         O.Option<Model["Type"]>,
-        SqlError | ParseError,
+        DbError | null,
         Model["Context"] | S.Schema.Context<Model["fields"][Id]>
       > =>
         findByIdSchema(id).pipe(
+          Effect.catchTag("ParseError", (e) => Effect.die(e)),
+          Effect.mapError(DbError.match),
           Effect.withSpan(`${spanPrefix}.findById`, {
             captureStackTrace: false,
             attributes: { id },
@@ -236,16 +237,18 @@ export namespace Repo {
       const deleteSchema = SqlSchema.void({
         Request: options.idSchema.privateSchema,
         execute: (id) => sql`
-          delete
-          from ${sql(tableName)}
-          where ${sql(idColumn)} = ${id}
-      `,
+            delete
+            from ${sql(tableName)}
+            where ${sql(idColumn)} = ${id}
+        `,
       });
 
       const del = (
         id: S.Schema.Type<Model["fields"][Id]>
-      ): Effect.Effect<void, SqlError | ParseError, S.Schema.Context<Model["fields"][Id]>> =>
+      ): Effect.Effect<void, DbError | null, S.Schema.Context<Model["fields"][Id]>> =>
         deleteSchema(id).pipe(
+          Effect.catchTag("ParseError", (e) => Effect.die(e)),
+          Effect.mapError(DbError.match),
           Effect.withSpan(`${spanPrefix}.delete`, {
             captureStackTrace: false,
             attributes: { id },
@@ -255,16 +258,18 @@ export namespace Repo {
       const deleteManySchema = SqlSchema.void({
         Request: S.NonEmptyArray(options.idSchema.privateSchema),
         execute: (ids) => sql`
-          delete
-          from ${sql(tableName)}
-          where ${sql.in(idColumn, ids)}
-      `,
+            delete
+            from ${sql(tableName)}
+            where ${sql.in(idColumn, ids)}
+        `,
       });
 
       const deleteMany = (
         ids: A.NonEmptyReadonlyArray<S.Schema.Type<Model["fields"][Id]>>
-      ): Effect.Effect<void, SqlError | ParseError, S.Schema.Context<Model["fields"][Id]>> =>
+      ): Effect.Effect<void, DbError | null, S.Schema.Context<Model["fields"][Id]>> =>
         deleteManySchema(ids).pipe(
+          Effect.catchTag("ParseError", (e) => Effect.die(e)),
+          Effect.mapError(DbError.match),
           Effect.withSpan(`${spanPrefix}.deleteMany`, {
             captureStackTrace: false,
             attributes: { ids },
