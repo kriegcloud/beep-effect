@@ -139,6 +139,10 @@ export namespace Repo {
         insert: A.NonEmptyReadonlyArray<Model["insert"]["Type"]>
       ): Effect.Effect<void, SqlError | ParseError, Model["Context"] | Model["insert"]["Context"]> =>
         insertManyVoidSchema(insert).pipe(
+          // Effect.catchTags({
+          //   ParseError: (e) => Effect.die(e),
+          //   SqlError: (e) => ,
+          // }),
           Effect.withSpan(`${spanPrefix}.insertManyVoid`, {
             captureStackTrace: false,
             attributes: { insert },
