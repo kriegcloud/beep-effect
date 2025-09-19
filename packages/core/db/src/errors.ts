@@ -1,10 +1,11 @@
 import type { UnsafeTypes } from "@beep/types";
 import { SqlError } from "@effect/sql/SqlError";
 import * as Cause from "effect/Cause";
-import * as Match from "effect/Match";
+import * as Data from "effect/Data";
 import * as S from "effect/Schema";
 import postgres from "postgres";
-export const DbErrorType = S.Literal("unique_violation", "foreign_key_violation", "connection_error");
+// import type { DrizzleQueryError } from "drizzle-orm/errors";
+import { type PostgresError, ReversedPostgresError } from "./postgres/postgres-error.enum";
 
 export const DbErrorCause = S.instanceOf(postgres.PostgresError);
 
@@ -57,7 +58,7 @@ export const extractPostgresErrorFromCause = (cause: Cause.Cause<unknown>): post
 /**
  * Extracts PostgresError from a SqlError by drilling down through nested cause structures
  */
-const extractPostgresErrorFromSqlError = (sqlError: unknown): postgres.PostgresError | null => {
+export const extractPostgresErrorFromSqlError = (sqlError: unknown): postgres.PostgresError | null => {
   // Check if it's directly a PostgresError
   if (S.is(DbErrorCause)(sqlError)) {
     return sqlError;
@@ -81,10 +82,11 @@ const extractPostgresErrorFromSqlError = (sqlError: unknown): postgres.PostgresE
   return null;
 };
 
-export class DbError extends S.TaggedError<DbError>("DbError")("DbError", {
-  type: DbErrorType,
-  cause: DbErrorCause,
-}) {
+export class DbError extends Data.TaggedError("DbError")<{
+  readonly type: keyof typeof PostgresError;
+  readonly cause: postgres.PostgresError;
+  // readonly drizzleError: DrizzleQueryError | null
+}> {
   public override toString() {
     return `DbError: ${this.cause.message}`;
   }
@@ -96,17 +98,16 @@ export class DbError extends S.TaggedError<DbError>("DbError")("DbError", {
   static readonly match = (error: unknown) => {
     // Try to extract PostgresError from nested SqlError structure
     const postgresError = extractPostgresErrorFromSqlError(error);
-    if (postgresError) {
-      return matchPgError(postgresError);
+    if (!postgresError) {
+      console.error("Unknown error: ", error);
+      throw new Error(`Unknown error: ${error}`);
     }
 
-    return null;
+    return matchPgError(postgresError);
   };
 }
-
-export const matchPgError = Match.type<S.Schema.Type<typeof DbErrorCause>>().pipe(
-  Match.when({ code: "23505" }, (m) => new DbError({ type: "unique_violation", cause: m })),
-  Match.when({ code: "23503" }, (m) => new DbError({ type: "foreign_key_violation", cause: m })),
-  Match.when({ code: "08000" }, (m) => new DbError({ type: "connection_error", cause: m })),
-  Match.orElse(() => null)
-);
+export const matchPgError = (error: S.Schema.Type<typeof DbErrorCause>) => {
+  const code = error.code as (typeof PostgresError)[keyof typeof PostgresError];
+  return new DbError({ type: ReversedPostgresError[code], cause: error });
+};
+export type { PostgresError };

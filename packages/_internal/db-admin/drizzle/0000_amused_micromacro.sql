@@ -6,7 +6,7 @@ CREATE TYPE "public"."invitation_status_enum" AS ENUM('pending', 'rejected', 'ca
 CREATE TYPE "public"."member_role_enum" AS ENUM('admin', 'member', 'viewer', 'owner');--> statement-breakpoint
 CREATE TABLE "organization" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
 	"deleted_at" timestamp with time zone,
@@ -33,7 +33,7 @@ CREATE TABLE "organization" (
 --> statement-breakpoint
 CREATE TABLE "team" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"organization_id" text NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
@@ -52,9 +52,42 @@ CREATE TABLE "team" (
 	CONSTRAINT "team_slug_unique" UNIQUE("slug")
 );
 --> statement-breakpoint
+CREATE TABLE "user" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone NOT NULL,
+	"updated_at" timestamp with time zone NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text,
+	"updated_by" text,
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"name" text NOT NULL,
+	"email" text NOT NULL,
+	"email_verified" boolean DEFAULT false NOT NULL,
+	"image" text,
+	"role" text,
+	"banned" boolean DEFAULT false NOT NULL,
+	"ban_reason" text,
+	"ban_expires" timestamp,
+	"is_anonymous" boolean DEFAULT false NOT NULL,
+	"phone_number" text,
+	"phone_number_verified" boolean DEFAULT false NOT NULL,
+	"two_factor_enabled" boolean DEFAULT false NOT NULL,
+	"username" text,
+	"display_username" text,
+	"stripe_customer_id" text,
+	"last_login_method" text,
+	CONSTRAINT "user_id_unique" UNIQUE("id"),
+	CONSTRAINT "user_email_unique" UNIQUE("email"),
+	CONSTRAINT "user_phone_number_unique" UNIQUE("phone_number"),
+	CONSTRAINT "user_username_unique" UNIQUE("username")
+);
+--> statement-breakpoint
 CREATE TABLE "account" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
 	"deleted_at" timestamp with time zone,
@@ -78,7 +111,7 @@ CREATE TABLE "account" (
 --> statement-breakpoint
 CREATE TABLE "apikey" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"organization_id" text NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
@@ -116,7 +149,7 @@ CREATE TABLE "apikey" (
 --> statement-breakpoint
 CREATE TABLE "device_code" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
 	"deleted_at" timestamp with time zone,
@@ -139,7 +172,7 @@ CREATE TABLE "device_code" (
 --> statement-breakpoint
 CREATE TABLE "invitation" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
 	"deleted_at" timestamp with time zone,
@@ -160,7 +193,7 @@ CREATE TABLE "invitation" (
 --> statement-breakpoint
 CREATE TABLE "jwks" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
 	"deleted_at" timestamp with time zone,
@@ -176,7 +209,7 @@ CREATE TABLE "jwks" (
 --> statement-breakpoint
 CREATE TABLE "member" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"organization_id" text NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
@@ -199,7 +232,7 @@ CREATE TABLE "member" (
 --> statement-breakpoint
 CREATE TABLE "oauth_access_token" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"organization_id" text NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
@@ -223,7 +256,7 @@ CREATE TABLE "oauth_access_token" (
 --> statement-breakpoint
 CREATE TABLE "oauth_application" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"organization_id" text NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
@@ -240,7 +273,7 @@ CREATE TABLE "oauth_application" (
 	"client_secret" text,
 	"redirect_u_r_ls" text,
 	"type" text,
-	"disabled" boolean,
+	"disabled" boolean DEFAULT false NOT NULL,
 	"user_id" text,
 	CONSTRAINT "oauth_application_id_unique" UNIQUE("id"),
 	CONSTRAINT "oauth_application_client_id_unique" UNIQUE("client_id")
@@ -248,7 +281,7 @@ CREATE TABLE "oauth_application" (
 --> statement-breakpoint
 CREATE TABLE "oauth_consent" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"organization_id" text NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
@@ -261,13 +294,13 @@ CREATE TABLE "oauth_consent" (
 	"client_id" text NOT NULL,
 	"user_id" text,
 	"scopes" text NOT NULL,
-	"consent_given" boolean NOT NULL,
+	"consent_given" boolean DEFAULT false NOT NULL,
 	CONSTRAINT "oauth_consent_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
 CREATE TABLE "organization_role" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"organization_id" text NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
@@ -284,7 +317,7 @@ CREATE TABLE "organization_role" (
 --> statement-breakpoint
 CREATE TABLE "passkey" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"organization_id" text NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
@@ -300,7 +333,7 @@ CREATE TABLE "passkey" (
 	"credential_i_d" text NOT NULL,
 	"counter" integer NOT NULL,
 	"device_type" text NOT NULL,
-	"backed_up" boolean NOT NULL,
+	"backed_up" boolean DEFAULT false NOT NULL,
 	"transports" text,
 	"aaguid" text,
 	CONSTRAINT "passkey_id_unique" UNIQUE("id"),
@@ -309,7 +342,7 @@ CREATE TABLE "passkey" (
 --> statement-breakpoint
 CREATE TABLE "rate_limit" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
 	"deleted_at" timestamp with time zone,
@@ -326,7 +359,7 @@ CREATE TABLE "rate_limit" (
 --> statement-breakpoint
 CREATE TABLE "session" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
 	"deleted_at" timestamp with time zone,
@@ -350,7 +383,7 @@ CREATE TABLE "session" (
 --> statement-breakpoint
 CREATE TABLE "sso_provider" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
 	"deleted_at" timestamp with time zone,
@@ -372,7 +405,7 @@ CREATE TABLE "sso_provider" (
 --> statement-breakpoint
 CREATE TABLE "subscription" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"organization_id" text NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
@@ -389,14 +422,14 @@ CREATE TABLE "subscription" (
 	"status" text DEFAULT 'incomplete' NOT NULL,
 	"period_start" timestamp,
 	"period_end" timestamp,
-	"cancel_at_period_end" boolean,
+	"cancel_at_period_end" boolean DEFAULT false NOT NULL,
 	"seats" integer,
 	CONSTRAINT "subscription_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
 CREATE TABLE "team_member" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"organization_id" text NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
@@ -413,7 +446,7 @@ CREATE TABLE "team_member" (
 --> statement-breakpoint
 CREATE TABLE "two_factor" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"organization_id" text NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
@@ -429,42 +462,9 @@ CREATE TABLE "two_factor" (
 	CONSTRAINT "two_factor_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
-CREATE TABLE "user" (
-	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
-	"created_at" timestamp with time zone NOT NULL,
-	"updated_at" timestamp with time zone NOT NULL,
-	"deleted_at" timestamp with time zone,
-	"created_by" text,
-	"updated_by" text,
-	"deleted_by" text,
-	"version" integer DEFAULT 1 NOT NULL,
-	"source" text,
-	"name" text NOT NULL,
-	"email" text NOT NULL,
-	"email_verified" boolean DEFAULT false NOT NULL,
-	"image" text,
-	"role" text,
-	"banned" boolean,
-	"ban_reason" text,
-	"ban_expires" timestamp,
-	"is_anonymous" boolean,
-	"phone_number" text,
-	"phone_number_verified" boolean,
-	"two_factor_enabled" boolean,
-	"username" text,
-	"display_username" text,
-	"stripe_customer_id" text,
-	"last_login_method" text,
-	CONSTRAINT "user_id_unique" UNIQUE("id"),
-	CONSTRAINT "user_email_unique" UNIQUE("email"),
-	CONSTRAINT "user_phone_number_unique" UNIQUE("phone_number"),
-	CONSTRAINT "user_username_unique" UNIQUE("username")
-);
---> statement-breakpoint
 CREATE TABLE "verification" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
 	"deleted_at" timestamp with time zone,
@@ -481,7 +481,7 @@ CREATE TABLE "verification" (
 --> statement-breakpoint
 CREATE TABLE "wallet_address" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
 	"deleted_at" timestamp with time zone,
@@ -493,13 +493,13 @@ CREATE TABLE "wallet_address" (
 	"user_id" text NOT NULL,
 	"address" text NOT NULL,
 	"chain_id" integer NOT NULL,
-	"is_primary" boolean,
+	"is_primary" boolean DEFAULT false NOT NULL,
 	CONSTRAINT "wallet_address_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
 CREATE TABLE "file" (
 	"id" text NOT NULL,
-	"_rowId" serial PRIMARY KEY NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
 	"organization_id" text NOT NULL,
 	"created_at" timestamp with time zone NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
@@ -525,6 +525,7 @@ CREATE TABLE "file" (
 	CONSTRAINT "file_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
+ALTER TABLE "organization" ADD CONSTRAINT "organization_owner_user_id_user_id_fk" FOREIGN KEY ("owner_user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "team" ADD CONSTRAINT "team_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "apikey" ADD CONSTRAINT "apikey_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
@@ -566,6 +567,11 @@ CREATE INDEX "organization_subscription_idx" ON "organization" USING btree ("sub
 CREATE INDEX "team_organization_id_idx" ON "team" USING btree ("organization_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "team_org_name_unique_idx" ON "team" USING btree ("organization_id","name");--> statement-breakpoint
 CREATE INDEX "team_name_idx" ON "team" USING btree ("name");--> statement-breakpoint
+CREATE INDEX "user_email_idx" ON "user" USING btree ("email");--> statement-breakpoint
+CREATE INDEX "user_active_idx" ON "user" USING btree ("id","email_verified") WHERE "user"."banned" IS NOT TRUE AND "user"."email_verified" = true;--> statement-breakpoint
+CREATE INDEX "user_role_idx" ON "user" USING btree ("role") WHERE "user"."role" IS NOT NULL;--> statement-breakpoint
+CREATE INDEX "user_banned_expires_idx" ON "user" USING btree ("ban_expires") WHERE "user"."banned" = true AND "user"."ban_expires" IS NOT NULL;--> statement-breakpoint
+CREATE INDEX "user_2fa_enabled_idx" ON "user" USING btree ("two_factor_enabled") WHERE "user"."two_factor_enabled" = true;--> statement-breakpoint
 CREATE INDEX "account_user_id_idx" ON "account" USING btree ("user_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "account_provider_account_unique_idx" ON "account" USING btree ("provider_id","account_id");--> statement-breakpoint
 CREATE INDEX "account_provider_id_idx" ON "account" USING btree ("provider_id");--> statement-breakpoint
@@ -601,11 +607,6 @@ CREATE INDEX "team_member_team_id_idx" ON "team_member" USING btree ("team_id");
 CREATE INDEX "team_member_user_id_idx" ON "team_member" USING btree ("user_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "team_member_team_user_unique_idx" ON "team_member" USING btree ("team_id","user_id");--> statement-breakpoint
 CREATE INDEX "team_member_team_user_idx" ON "team_member" USING btree ("team_id","user_id");--> statement-breakpoint
-CREATE INDEX "user_email_idx" ON "user" USING btree ("email");--> statement-breakpoint
-CREATE INDEX "user_active_idx" ON "user" USING btree ("id","email_verified") WHERE "user"."banned" IS NOT TRUE AND "user"."email_verified" = true;--> statement-breakpoint
-CREATE INDEX "user_role_idx" ON "user" USING btree ("role") WHERE "user"."role" IS NOT NULL;--> statement-breakpoint
-CREATE INDEX "user_banned_expires_idx" ON "user" USING btree ("ban_expires") WHERE "user"."banned" = true AND "user"."ban_expires" IS NOT NULL;--> statement-breakpoint
-CREATE INDEX "user_2fa_enabled_idx" ON "user" USING btree ("two_factor_enabled") WHERE "user"."two_factor_enabled" = true;--> statement-breakpoint
 CREATE INDEX "verification_identifier_idx" ON "verification" USING btree ("identifier");--> statement-breakpoint
 CREATE INDEX "verification_identifier_value_idx" ON "verification" USING btree ("identifier","value");--> statement-breakpoint
 CREATE INDEX "verification_expires_at_idx" ON "verification" USING btree ("expires_at");--> statement-breakpoint

@@ -1,5 +1,5 @@
-import { Db } from "@beep/core-db";
-import { IamDbSchema } from "@beep/iam-tables";
+import { Db } from "@beep/core-db/db.factory";
+import * as IamDbSchema from "@beep/iam-tables/schema";
 import type { SqlClient } from "@effect/sql/SqlClient";
 import type { SqlError } from "@effect/sql/SqlError";
 import type { ConfigError } from "effect/ConfigError";
@@ -11,7 +11,6 @@ export namespace IamDb {
   export type Layer = Layer.Layer<IamDb, SqlError | ConfigError, SqlClient>;
 
   export class IamDb extends Effect.Service<IamDb>()("@beep/iam-infra/IamDb", {
-    dependencies: [Db.Live],
     effect: serviceEffect,
     accessors: true,
   }) {

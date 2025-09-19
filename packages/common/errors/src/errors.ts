@@ -1,5 +1,13 @@
 import * as HttpApiSchema from "@effect/platform/HttpApiSchema";
+import * as Data from "effect/Data";
 import * as S from "effect/Schema";
+
+export class Es5Error extends Data.Error<{
+  readonly name: string;
+  readonly message: string;
+  readonly stack?: string | undefined;
+}> {}
+
 export class UnrecoverableError extends S.TaggedError<UnrecoverableError>()(
   "UnrecoverableError",
   { message: S.String, stack: S.String, attributes: S.Any },

@@ -1,5 +1,6 @@
-import { IamEntityIds, type SharedEntityIds } from "@beep/shared-domain";
-import { Table, userTable } from "@beep/shared-tables";
+import { IamEntityIds, type SharedEntityIds } from "@beep/shared-domain/entity-ids";
+import { userTable } from "@beep/shared-tables/schema";
+import { Table } from "@beep/shared-tables/Table";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 

@@ -60,7 +60,7 @@ export namespace EntityId {
   >;
 
   export type PrivateId<Brand extends string> = $Type<
-    IsPrimaryKey<NotNull<NotNull<pg.PgSerialBuilderInitial<"_rowId">>>>,
+    IsPrimaryKey<NotNull<NotNull<pg.PgSerialBuilderInitial<"_row_id">>>>,
     B.Branded<number, Brand>
   >;
 
@@ -122,7 +122,7 @@ export namespace EntityId {
       .$type<typeof schema.Type>()
       .$defaultFn(() => create());
 
-    const privateId = pg.serial("_rowId").notNull().primaryKey().$type<B.Branded<number, Brand>>();
+    const privateId = pg.serial("_row_id").notNull().primaryKey().$type<B.Branded<number, Brand>>();
 
     class WithStatics extends schema {
       [TypeId] = variance;

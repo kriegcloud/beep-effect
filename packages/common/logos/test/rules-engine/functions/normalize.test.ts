@@ -149,7 +149,7 @@ test("normalization has all options turn off", () => {
   });
 
   const group = addGroup(root, { logicalOp: "and" });
-  const rule: any = addRuleToGroup(group, {
+  const rule: UnsafeTypes.UnsafeAny = addRuleToGroup(group, {
     field: "name",
     op: { _tag: "stringContains" },
     type: "string",

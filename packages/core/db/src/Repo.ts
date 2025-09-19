@@ -30,39 +30,25 @@ export namespace Repo {
     {
       readonly insert: (
         insert: Model["insert"]["Type"]
-      ) => Effect.Effect<Model["Type"], DbError | null, Model["Context"] | Model["insert"]["Context"]>;
+      ) => Effect.Effect<Model["Type"], DbError, Model["Context"] | Model["insert"]["Context"]>;
       readonly insertVoid: (
         insert: Model["insert"]["Type"]
-      ) => Effect.Effect<void, DbError | null, Model["Context"] | Model["insert"]["Context"]>;
+      ) => Effect.Effect<void, DbError, Model["Context"] | Model["insert"]["Context"]>;
       readonly update: (
         update: Model["update"]["Type"]
-      ) => Effect.Effect<Model["Type"], DbError | null, Model["Context"] | Model["update"]["Context"]>;
+      ) => Effect.Effect<Model["Type"], DbError, Model["Context"] | Model["update"]["Context"]>;
       readonly updateVoid: (
         update: Model["update"]["Type"]
-      ) => Effect.Effect<void, DbError | null, Model["Context"] | Model["update"]["Context"]>;
+      ) => Effect.Effect<void, DbError, Model["Context"] | Model["update"]["Context"]>;
       readonly findById: (
         id: S.Schema.Type<Model["fields"][Id]>
-      ) => Effect.Effect<
-        O.Option<Model["Type"]>,
-        DbError | null,
-        Model["Context"] | S.Schema.Context<Model["fields"][Id]>
-      >;
+      ) => Effect.Effect<O.Option<Model["Type"]>, DbError, Model["Context"] | S.Schema.Context<Model["fields"][Id]>>;
       readonly delete: (
         id: S.Schema.Type<Model["fields"][Id]>
-      ) => Effect.Effect<void, DbError | null, S.Schema.Context<Model["fields"][Id]>>;
-      readonly deleteMany: (
-        ids: A.NonEmptyReadonlyArray<S.Schema.Type<Model["fields"][Id]>>
-      ) => Effect.Effect<void, DbError | null, S.Schema.Context<Model["fields"][Id]>>;
-      readonly insertMany: (
-        insert: A.NonEmptyReadonlyArray<Model["insert"]["Type"]>
-      ) => Effect.Effect<
-        A.NonEmptyReadonlyArray<Model["Type"]>,
-        DbError | null,
-        Model["Context"] | Model["insert"]["Context"]
-      >;
+      ) => Effect.Effect<void, DbError, S.Schema.Context<Model["fields"][Id]>>;
       readonly insertManyVoid: (
         insert: A.NonEmptyReadonlyArray<Model["insert"]["Type"]>
-      ) => Effect.Effect<void, DbError | null, Model["Context"] | Model["insert"]["Context"]>;
+      ) => Effect.Effect<void, DbError, Model["Context"] | Model["insert"]["Context"]>;
     },
     never,
     SqlClient.SqlClient
@@ -81,7 +67,7 @@ export namespace Repo {
 
       const insert = (
         insert: Model["insert"]["Type"]
-      ): Effect.Effect<Model["Type"], DbError | null, Model["Context"] | Model["insert"]["Context"]> =>
+      ): Effect.Effect<Model["Type"], DbError, Model["Context"] | Model["insert"]["Context"]> =>
         insertSchema(insert).pipe(
           Effect.catchTags({
             NoSuchElementException: (e) => Effect.die(e),
@@ -95,34 +81,6 @@ export namespace Repo {
         );
 
       const insertManyRequestSchema = S.NonEmptyArray(model.insert);
-      const insertManyResultSchema = S.NonEmptyArray(model);
-
-      const insertManySchema = SqlSchema.single({
-        Request: insertManyRequestSchema,
-        Result: insertManyResultSchema,
-        execute: (request) => sql`
-            insert into ${sql(tableName)} ${sql.insert(request).returning("*")}
-        `,
-      });
-
-      const insertMany = (
-        insert: A.NonEmptyReadonlyArray<Model["insert"]["Type"]>
-      ): Effect.Effect<
-        A.NonEmptyReadonlyArray<Model["Type"]>,
-        DbError | null,
-        Model["Context"] | Model["insert"]["Context"]
-      > =>
-        insertManySchema(insert).pipe(
-          Effect.catchTags({
-            ParseError: (e) => Effect.die(e),
-            NoSuchElementException: (e) => Effect.die(e),
-          }),
-          Effect.mapError(DbError.match),
-          Effect.withSpan(`${spanPrefix}.insertMany`, {
-            captureStackTrace: false,
-            attributes: { insert },
-          })
-        );
 
       const insertManyVoidSchema = SqlSchema.void({
         Request: insertManyRequestSchema,
@@ -133,7 +91,7 @@ export namespace Repo {
 
       const insertManyVoid = (
         insert: A.NonEmptyReadonlyArray<Model["insert"]["Type"]>
-      ): Effect.Effect<void, DbError | null, Model["Context"] | Model["insert"]["Context"]> =>
+      ): Effect.Effect<void, DbError, Model["Context"] | Model["insert"]["Context"]> =>
         insertManyVoidSchema(insert).pipe(
           Effect.catchTag("ParseError", (e) => Effect.die(e)),
           Effect.mapError(DbError.match),
@@ -150,7 +108,7 @@ export namespace Repo {
 
       const insertVoid = (
         insert: Model["insert"]["Type"]
-      ): Effect.Effect<void, DbError | null, Model["Context"] | Model["insert"]["Context"]> =>
+      ): Effect.Effect<void, DbError, Model["Context"] | Model["insert"]["Context"]> =>
         insertVoidSchema(insert).pipe(
           Effect.catchTag("ParseError", (e) => Effect.die(e)),
           Effect.mapError(DbError.match),
@@ -173,7 +131,7 @@ export namespace Repo {
 
       const update = (
         update: Model["update"]["Type"]
-      ): Effect.Effect<Model["Type"], DbError | null, Model["Context"] | Model["update"]["Context"]> =>
+      ): Effect.Effect<Model["Type"], DbError, Model["Context"] | Model["update"]["Context"]> =>
         updateSchema(update).pipe(
           Effect.catchTags({
             ParseError: (e) => Effect.die(e),
@@ -198,7 +156,7 @@ export namespace Repo {
 
       const updateVoid = (
         update: Model["update"]["Type"]
-      ): Effect.Effect<void, DbError | null, Model["Context"] | Model["update"]["Context"]> =>
+      ): Effect.Effect<void, DbError, Model["Context"] | Model["update"]["Context"]> =>
         updateVoidSchema(update).pipe(
           Effect.catchTag("ParseError", (e) => Effect.die(e)),
           Effect.mapError(DbError.match),
@@ -220,11 +178,7 @@ export namespace Repo {
 
       const findById = (
         id: S.Schema.Type<Model["fields"][Id]>
-      ): Effect.Effect<
-        O.Option<Model["Type"]>,
-        DbError | null,
-        Model["Context"] | S.Schema.Context<Model["fields"][Id]>
-      > =>
+      ): Effect.Effect<O.Option<Model["Type"]>, DbError, Model["Context"] | S.Schema.Context<Model["fields"][Id]>> =>
         findByIdSchema(id).pipe(
           Effect.catchTag("ParseError", (e) => Effect.die(e)),
           Effect.mapError(DbError.match),
@@ -245,7 +199,7 @@ export namespace Repo {
 
       const del = (
         id: S.Schema.Type<Model["fields"][Id]>
-      ): Effect.Effect<void, DbError | null, S.Schema.Context<Model["fields"][Id]>> =>
+      ): Effect.Effect<void, DbError, S.Schema.Context<Model["fields"][Id]>> =>
         deleteSchema(id).pipe(
           Effect.catchTag("ParseError", (e) => Effect.die(e)),
           Effect.mapError(DbError.match),
@@ -254,28 +208,6 @@ export namespace Repo {
             attributes: { id },
           })
         );
-
-      const deleteManySchema = SqlSchema.void({
-        Request: S.NonEmptyArray(options.idSchema.privateSchema),
-        execute: (ids) => sql`
-            delete
-            from ${sql(tableName)}
-            where ${sql.in(idColumn, ids)}
-        `,
-      });
-
-      const deleteMany = (
-        ids: A.NonEmptyReadonlyArray<S.Schema.Type<Model["fields"][Id]>>
-      ): Effect.Effect<void, DbError | null, S.Schema.Context<Model["fields"][Id]>> =>
-        deleteManySchema(ids).pipe(
-          Effect.catchTag("ParseError", (e) => Effect.die(e)),
-          Effect.mapError(DbError.match),
-          Effect.withSpan(`${spanPrefix}.deleteMany`, {
-            captureStackTrace: false,
-            attributes: { ids },
-          })
-        );
-
       return {
         insertManyVoid,
         insert,
@@ -284,8 +216,6 @@ export namespace Repo {
         updateVoid,
         findById,
         delete: del,
-        deleteMany,
-        insertMany,
       };
     });
 

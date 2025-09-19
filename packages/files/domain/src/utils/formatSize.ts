@@ -161,7 +161,7 @@ const log10 = (n: number | bigint): number => {
   }
   // BigInt: approximate log10 using length + first digits
   const s = n.toString(10);
-  return s.length + Math.log10(Number.parseFloat(`0.` + s.slice(0, 15)));
+  return s.length + Math.log10(Number.parseFloat(`0.${s.slice(0, 15)}`));
 };
 
 const ln = (n: number | bigint): number => {

@@ -993,7 +993,7 @@ export class FileTypes extends Data.TaggedClass("FileTypes") {
       const offset = signature.offset || 0;
       let skippedBytes = 0;
       for (let i = 0; i < signature.sequence.length; i++) {
-        if (signature.skippedBytes && signature.skippedBytes.includes(i)) {
+        if (signature.skippedBytes?.includes(i)) {
           skippedBytes++;
           continue;
         }
