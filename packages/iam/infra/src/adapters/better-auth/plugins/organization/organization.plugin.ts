@@ -21,8 +21,7 @@ export const organizationPluginOptions = Effect.gen(function* () {
     organizationLimit: 1,
     creatorRole: "owner",
     membershipLimit: 2,
-    sendInvitationEmail: async (params) => {
-      const program = Effect.flatMap(
+    sendInvitationEmail: async (params) => void await Effect.flatMap(
         S.decode(InvitationEmailPayload)({
           email: params.email,
           invitedByUsername: params.inviter.user.name,
@@ -30,10 +29,7 @@ export const organizationPluginOptions = Effect.gen(function* () {
           teamName: params.organization.name,
         }),
         sendInvitation
-      );
-
-      await Effect.runPromise(program);
-    },
+      ).pipe(Effect.runPromise),
     teams: {
       enabled: true,
       maximumTeams: 10,
