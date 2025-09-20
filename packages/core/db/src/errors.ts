@@ -121,7 +121,7 @@ const extractPostgresError = (value: unknown): postgres.PostgresError | null => 
 };
 
 export class DbError extends Data.TaggedError("DbError")<{
-  readonly type: keyof typeof PostgresError;
+  readonly type: keyof typeof PostgresError | "UNKNOWN";
   readonly cause: postgres.PostgresError;
 }> {
   public override toString() {

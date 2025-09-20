@@ -4,12 +4,11 @@ import * as Effect from "effect/Effect";
 
 const program = Effect.flatMap(AuthService, ({ auth }) => Effect.succeed(auth.handler));
 
-export const GET = async (req: Request) => {
+const route = async (req: Request) => {
   const handler = await serverRuntime.runPromise(program);
 
   return handler(req);
 };
-export const POST = async (req: Request) => {
-  const handler = await serverRuntime.runPromise(program);
-  return handler(req);
-};
+
+export const POST = route;
+export const GET = route;

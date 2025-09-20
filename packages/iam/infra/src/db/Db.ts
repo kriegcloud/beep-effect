@@ -6,14 +6,16 @@ import type { ConfigError } from "effect/ConfigError";
 import * as Effect from "effect/Effect";
 import type * as Layer from "effect/Layer";
 export namespace IamDb {
-  const { serviceEffect } = Db.make<typeof IamDbSchema>(IamDbSchema);
+  const factory = Db.make<typeof IamDbSchema>(IamDbSchema);
 
   export type Layer = Layer.Layer<IamDb, SqlError | ConfigError, SqlClient>;
 
   export class IamDb extends Effect.Service<IamDb>()("@beep/iam-infra/IamDb", {
-    effect: serviceEffect,
+    effect: factory.serviceEffect,
     accessors: true,
   }) {
     static readonly Live = IamDb.Default;
   }
+
+  export const TransactionContext = factory.TransactionContext;
 }

@@ -12,7 +12,7 @@ overrides:
   yaml: 2.8.1
   '@tanstack/react-query-devtools': ^5.89.0
   '@tanstack/react-query': ^5.89.0
-  '@univerjs/themes': 0.10.8
+  '@univerjs/themes': 0.10.9
   '@univerjs/presets': 0.10.8
   '@univerjs/preset-docs-core': 0.10.8
   copyfiles: 2.4.1
@@ -671,8 +671,8 @@ importers:
         specifier: 0.10.8
         version: 0.10.8(@grpc/grpc-js@1.14.0)(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(@wendellhu/redi@1.0.0(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(rxjs@7.8.2)
       '@univerjs/themes':
-        specifier: 0.10.8
-        version: 0.10.8
+        specifier: 0.10.9
+        version: 0.10.9
       '@xstate/react':
         specifier: 6.0.0
         version: 6.0.0(@types/react@19.1.13)(react@19.1.1)(xstate@5.22.0)
@@ -6788,8 +6788,8 @@ packages:
   '@univerjs/telemetry@0.10.8':
     resolution: {integrity: sha512-38zzReOOhe3Gz3rZfB4fNT/1PKU5WUjZj5Tm/B6XxNyEKxCOuyDW3zvENH4mysu7VnRi/QdSgUSc9jmQLLX0PA==}
 
-  '@univerjs/themes@0.10.8':
-    resolution: {integrity: sha512-IVFzBn0btWwCypfkCRUZfFh5pSRlPCQAh2dhDeWJvK7KV4UisuHvcIu+hxoW75cmA3PCr3aC0S/zm46uxRsyYQ==}
+  '@univerjs/themes@0.10.9':
+    resolution: {integrity: sha512-cpO1HRfC2cmdOBqiCqhqQ+xFsmNdEhSNkvnZ+GQj5/PO4vcq97dpnBRQPhsiSGgaVPhS8CzuK7HAf3IpJUH4Yw==}
 
   '@univerjs/thread-comment-ui@0.10.8':
     resolution: {integrity: sha512-jddIgzGYlNFT0XMkWFqiHxXR8eSrNEugtCgOm/roa7ojCC0Hls7/j/sz/Injyvl+r8N+D3WWmv3n+P2p3v4p1g==}
@@ -15095,7 +15095,7 @@ snapshots:
   '@univerjs/core@0.10.8(@grpc/grpc-js@1.14.0)(@wendellhu/redi@1.0.0(react@19.1.1))(rxjs@7.8.2)':
     dependencies:
       '@univerjs/protocol': 0.1.46(@grpc/grpc-js@1.14.0)(rxjs@7.8.2)
-      '@univerjs/themes': 0.10.8
+      '@univerjs/themes': 0.10.9
       '@wendellhu/redi': 1.0.0(react@19.1.1)
       async-lock: 1.4.1
       dayjs: 1.11.18
@@ -15127,7 +15127,7 @@ snapshots:
       '@radix-ui/react-separator': 1.1.7(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@radix-ui/react-slot': 1.2.3(@types/react@19.1.13)(react@19.1.1)
       '@univerjs/icons': 0.4.8(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      '@univerjs/themes': 0.10.8
+      '@univerjs/themes': 0.10.9
       class-variance-authority: 0.7.1
       clsx: 2.1.1
       dayjs: 1.11.18
@@ -16138,7 +16138,7 @@ snapshots:
       - '@wendellhu/redi'
       - rxjs
 
-  '@univerjs/themes@0.10.8': {}
+  '@univerjs/themes@0.10.9': {}
 
   '@univerjs/thread-comment-ui@0.10.8(@grpc/grpc-js@1.14.0)(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(@wendellhu/redi@1.0.0(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(rxjs@7.8.2)':
     dependencies:

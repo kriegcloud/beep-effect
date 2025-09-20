@@ -1,4 +1,4 @@
-import { Db, DbError } from "@beep/core-db";
+import { Db } from "@beep/core-db";
 import { FilesDb, FilesRepos } from "@beep/files-infra";
 import * as Entities from "@beep/iam-domain/entities";
 import { IamDb, IamRepos } from "@beep/iam-infra";
@@ -22,10 +22,10 @@ export const SliceDependenciesLayer = Layer.provideMerge(SliceDatabasesLive, Db.
 export const DbRepos = Layer.provideMerge(SliceRepositoriesLive, SliceDependenciesLayer);
 
 const program = Effect.gen(function* () {
-  const userRepo = yield* IamRepos.UserRepo;
-  const { db } = yield* IamDb.IamDb;
+  const { execute, transaction, makeQuery } = yield* IamDb.IamDb;
 
   const now = yield* DateTime.now;
+
   const mockedUser = Entities.User.Model.insert.make({
     email: BS.Email.make(`test1-${crypto.randomUUID()}@example.com`),
     name: "beep",
@@ -34,17 +34,32 @@ const program = Effect.gen(function* () {
     updatedAt: now,
     image: O.some(faker.image.avatar()),
   });
-  yield* userRepo.insert(mockedUser);
 
   const encodedMockedUser = yield* S.encode(Entities.User.Model.insert)(mockedUser);
 
-  const error = yield* db
-    .insert(IamDbSchema.userTable)
-    .values(encodedMockedUser)
-    .returning()
-    .pipe(Effect.mapError(DbError.match), Effect.flip);
+  const insertUser = makeQuery((execute, input: typeof Entities.User.Model.insert.Type) =>
+    S.encode(Entities.User.Model.insert)(input).pipe(
+      Effect.flatMap((encoded) => execute((client) => client.insert(IamDbSchema.userTable).values(encoded).returning()))
+    )
+  );
 
-  yield* Console.log(JSON.stringify(error, null, 2));
+  const r = yield* transaction((txnClient) =>
+    Effect.gen(function* () {
+      yield* execute((client) => client.insert(IamDbSchema.userTable).values(encodedMockedUser).returning());
+      yield* insertUser(mockedUser);
+    }).pipe(Effect.provideService(IamDb.TransactionContext, txnClient))
+  ).pipe(Effect.flip);
+  yield* Console.log(JSON.stringify(r, null, 2));
+  // const error = yield* Effect.tryPromise({
+  //   try: () =>
+  //     drizzle.transaction(async (tx) => tx.insert(IamDbSchema.userTable).values(encodedMockedUser).returning()),
+  //   catch: (e) => {
+  //     console.log("RAW ERROR: ", JSON.stringify(e, null, 2));
+  //     return DbError.match(e);
+  //   },
+  // }).pipe(Effect.flip);
+  //
+  // yield* Console.log(JSON.stringify(error, null, 2));
 });
 
 NodeRuntime.runMain(program.pipe(Effect.provide([NodeContext.layer, DbRepos])));

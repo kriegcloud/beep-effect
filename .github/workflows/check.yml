@@ -17,17 +17,17 @@ jobs:
   types:
     name: Types
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
         uses: ./.github/actions/setup
-      - run: pnpm check
+      - run: pnpm check --filter=@beep/server-runtime && pnpm check --filter='!./packages/runtime/server'
 
   code-quality:
     name: Code Quality
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
@@ -49,7 +49,7 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
