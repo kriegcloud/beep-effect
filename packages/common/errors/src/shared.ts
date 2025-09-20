@@ -34,7 +34,7 @@ export interface PrettyLoggerConfig {
 }
 
 export const defaultConfig: PrettyLoggerConfig = {
-  level: LogLevel.Info,
+  level: LogLevel.All,
   colors: true,
   showDate: true,
   showFiberId: true,

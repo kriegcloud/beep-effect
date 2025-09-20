@@ -8,7 +8,7 @@ import { Effect } from "effect";
 import * as Config from "effect/Config";
 import type { ConfigError } from "effect/ConfigError";
 import * as Duration from "effect/Duration";
-import * as F from "effect/Function";
+// import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import * as Schedule from "effect/Schedule";
@@ -31,36 +31,36 @@ export namespace Db {
     // - 1184: TIMESTAMP WITH TIME ZONE
     // - 3802: JSONB (return as string instead of parsed object)
     types: {
-      114: {
-        to: 25,
-        from: [114],
-        parse: F.identity,
-        serialize: F.identity,
-      },
-      1082: {
-        to: 25,
-        from: [1082],
-        parse: F.identity,
-        serialize: F.identity,
-      },
-      1114: {
-        to: 25,
-        from: [1114],
-        parse: F.identity,
-        serialize: F.identity,
-      },
-      1184: {
-        to: 25,
-        from: [1184],
-        parse: F.identity,
-        serialize: F.identity,
-      },
-      3802: {
-        to: 25,
-        from: [3802],
-        parse: F.identity,
-        serialize: F.identity,
-      },
+      // 114: {
+      //   to: 25,
+      //   from: [114],
+      //   parse: F.identity,
+      //   serialize: F.identity,
+      // },
+      // 1082: {
+      //   to: 25,
+      //   from: [1082],
+      //   parse: F.identity,
+      //   serialize: F.identity,
+      // },
+      // 1114: {
+      //   to: 25,
+      //   from: [1114],
+      //   parse: F.identity,
+      //   serialize: F.identity,
+      // },
+      // 1184: {
+      //   to: 25,
+      //   from: [1184],
+      //   parse: F.identity,
+      //   serialize: F.identity,
+      // },
+      // 3802: {
+      //   to: 25,
+      //   from: [3802],
+      //   parse: F.identity,
+      //   serialize: F.identity,
+      // },
     },
   };
 

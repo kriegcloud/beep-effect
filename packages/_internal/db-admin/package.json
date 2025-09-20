@@ -50,6 +50,7 @@
     "@beep/files-domain": "workspace:^",
     "@beep/files-tables": "workspace:^",
     "@beep/files-infra": "workspace:^",
+    "sql-formatter": "*",
     "@effect/sql-pg": "*",
     "@faker-js/faker": "*",
     "@effect/sql-drizzle": "*",

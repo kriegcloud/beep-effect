@@ -534,3 +534,4 @@ export const PostgresError = {
 } as const;
 
 export const ReversedPostgresError = RecordUtils.reverseRecord(PostgresError);
+export type PostgresErrorCodeKey = (typeof PostgresError)[keyof typeof PostgresError];

@@ -90,6 +90,7 @@
       "@univerjs/presets": "0.10.8",
       "@univerjs/preset-docs-core": "0.10.8",
       "copyfiles": "2.4.1",
+      "sql-formatter": "^15.6.9",
       "@babel/cli": "7.28.3",
       "nuqs": "^2.6.0",
       "@effect-aws/s3": "^0.2.3",

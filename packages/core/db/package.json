@@ -40,6 +40,7 @@
     "@effect/sql": "*",
     "@effect/sql-drizzle": "*",
     "@effect/platform": "*",
+    "sql-formatter": "*",
     "postgres": "*",
     "@beep/core-env": "workspace:^",
     "@beep/constants": "workspace:^",
