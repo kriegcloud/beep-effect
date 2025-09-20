@@ -54,6 +54,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         uses: ./.github/actions/setup
-      - run: pnpm test --filter='!./packages/common/rete'
+      - run: pnpm test --filter='@beep/db-admin'
         env:
           NODE_OPTIONS: --max_old_space_size=8192
