@@ -1,6 +1,5 @@
 import { clientEnv } from "@beep/core-env/client";
 import { stripeClient } from "@better-auth/stripe/client";
-import type { ClientOptions } from "better-auth/client";
 import {
   adminClient,
   anonymousClient,
@@ -22,116 +21,50 @@ import {
   twoFactorClient,
   usernameClient,
 } from "better-auth/client/plugins";
-import type { apiKey, genericOAuth, jwt, multiSession, oneTimeToken } from "better-auth/plugins";
 import { createAuthClient } from "better-auth/react";
 import * as Redacted from "effect/Redacted";
 
-// TODO THESE ARE HACK BETTER_AUTH NEEDS TO GET THEIR SHIT TOGETHER
-const _apiKeyClient: () => {
-  id: "api-key";
-  $InferServerPlugin: ReturnType<typeof apiKey>;
-  pathMethods: {
-    "/api-key/create": "POST";
-    "/api-key/delete": "POST";
-    "/api-key/delete-all-expired-api-keys": "POST";
-  };
-} = apiKeyClient;
-
-const _jwtClient: () => {
-  id: "better-auth-client";
-  $InferServerPlugin: ReturnType<typeof jwt>;
-} = jwtClient;
-
-const _genericOAuthClient: () => {
-  id: "generic-oauth-client";
-  $InferServerPlugin: ReturnType<typeof genericOAuth>;
-} = genericOAuthClient;
-
-export const _multiSessionClient: () => {
-  id: "multi-session";
-  $InferServerPlugin: ReturnType<typeof multiSession>;
-  atomListeners: Array<{
-    matcher: (path: string) => boolean;
-    signal: "$sessionSignal" | Omit<string, "$sessionSignal">;
-  }>;
-} = () => multiSessionClient();
-
-export const _oneTimeTokenClient: () => {
-  id: "one-time-token";
-  $InferServerPlugin: ReturnType<typeof oneTimeToken>;
-} = () => oneTimeTokenClient();
-
-const _adminClient: ReturnType<typeof adminClient> = adminClient();
-const _anonymousClient: ReturnType<typeof anonymousClient> = anonymousClient();
-const _customSessionClient: ReturnType<typeof customSessionClient> = customSessionClient();
-const _organizationClient: ReturnType<
-  typeof organizationClient<{
-    teams: {
-      enabled: true;
-    };
-    dynamicAccessControl: {
-      enabled: true;
-    };
-  }>
-> = organizationClient({
-  teams: {
-    enabled: true,
-  },
-  dynamicAccessControl: {
-    enabled: true,
-  },
-});
-const _oidcClient: ReturnType<typeof oidcClient> = oidcClient();
-const _oneTapClient: ReturnType<typeof oneTapClient> = oneTapClient({
-  clientId: Redacted.value(clientEnv.googleClientId),
-  promptOptions: {
-    maxAttempts: 1,
-  },
-});
-const _passkeyClient: ReturnType<typeof passkeyClient> = passkeyClient();
-const _phoneNumberClient: ReturnType<typeof phoneNumberClient> = phoneNumberClient();
-const _siweClient: ReturnType<typeof siweClient> = siweClient();
-const _ssoClient: ReturnType<typeof ssoClient> = ssoClient();
-const _twoFactorClient: ReturnType<typeof twoFactorClient> = twoFactorClient();
-const _usernameClient: ReturnType<typeof usernameClient> = usernameClient();
-const _stripeClient: ReturnType<typeof stripeClient> = stripeClient({
-  subscription: true, //if you want to enable subscription management
-});
-const _deviceAuthorizationClient: ReturnType<typeof deviceAuthorizationClient> = deviceAuthorizationClient();
-const _lastLoginMethodClient: ReturnType<typeof lastLoginMethodClient> = lastLoginMethodClient();
-const plugins = [
-  _adminClient,
-  _anonymousClient,
-  _apiKeyClient(),
-  _customSessionClient,
-  _genericOAuthClient(),
-  _jwtClient(),
-  _multiSessionClient(),
-  _oidcClient,
-  _oneTapClient,
-  _oneTimeTokenClient(),
-  _organizationClient,
-  _passkeyClient,
-  _phoneNumberClient,
-  _siweClient,
-  _ssoClient,
-  _twoFactorClient,
-  _usernameClient,
-  _stripeClient,
-  _deviceAuthorizationClient,
-  _lastLoginMethodClient,
-] satisfies ClientOptions["plugins"];
-
-const clientOptions: Omit<ClientOptions, "plugins"> & {
-  plugins: typeof plugins;
-} = {
+export const client = createAuthClient({
   baseURL: clientEnv.authUrl,
   basePath: clientEnv.authPath,
-  plugins: plugins as typeof plugins,
-} satisfies ClientOptions;
+  plugins: [
+    adminClient(),
+    anonymousClient(),
+    apiKeyClient(),
+    customSessionClient(),
+    genericOAuthClient(),
+    jwtClient(),
+    multiSessionClient(),
+    oidcClient(),
+    oneTapClient({
+      clientId: Redacted.value(clientEnv.googleClientId),
+      promptOptions: {
+        maxAttempts: 1,
+      },
+    }),
+    oneTimeTokenClient(),
+    organizationClient({
+      teams: {
+        enabled: true,
+      },
+      dynamicAccessControl: {
+        enabled: true,
+      },
+    }),
+    passkeyClient(),
+    phoneNumberClient(),
+    siweClient(),
+    ssoClient(),
+    twoFactorClient(),
+    usernameClient(),
+    stripeClient({
+      subscription: true,
+    }),
+    deviceAuthorizationClient(),
+    lastLoginMethodClient(),
+  ],
+});
 
-export const client: ReturnType<typeof createAuthClient<typeof clientOptions>> = createAuthClient(clientOptions);
-
-export const { $store } = client;
+export const { $store, signIn } = client;
 
 $store.listen("$sessionSignal", async () => {});

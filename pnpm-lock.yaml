@@ -1815,6 +1815,9 @@ importers:
       effect:
         specifier: 3.17.14
         version: 3.17.14
+      jose:
+        specifier: 6.1.0
+        version: 6.1.0
       stripe:
         specifier: 18.5.0
         version: 18.5.0(@types/node@24.5.2)

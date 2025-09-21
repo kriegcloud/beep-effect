@@ -41,6 +41,7 @@
     "@dub/better-auth": "*",
     "better-call": "^1.0.19",
     "@beep/utils": "workspace:^",
+    "jose": "*",
     "@beep/invariant": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/errors": "workspace:^",
