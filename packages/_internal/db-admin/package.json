@@ -33,7 +33,7 @@
     "lint:fix": "biome check . --write",
     "dotenvx": "dotenvx run -f ../../../.env --",
     "lint:circular": "pnpm madge -c .",
-    "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' pnpm dotenvx tsx ./src/execute.ts"
+    "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' pnpm dotenvx tsx ./src/execute1.ts"
   },
   "dependencies": {
     "@beep/invariant": "workspace:^",

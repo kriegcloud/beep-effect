@@ -25,7 +25,7 @@ export interface BasicMetadataOutput {
   readonly detected?: DetectedFileInfo.Type;
 }
 
-export type ExifMetadataOutput = ExifMetadata.Type | undefined;
+export type ExifMetadataOutput = typeof ExifMetadata.Type | undefined;
 
 // Union of domain failures (scaffolding)
 export type UploadError = Errors.ValidationError | Errors.DetectionError | Errors.ExifParseError;

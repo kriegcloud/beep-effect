@@ -198,7 +198,7 @@ export class ExifMetadata extends ExpandedTags.annotations({
         }),
     });
     const cleaned = cleanExifData(raw);
-    return yield* S.decode(ExifMetadata)(cleaned).pipe(
+    return yield* S.decodeUnknown(ExifMetadata)(cleaned).pipe(
       Effect.mapError(
         (e) =>
           new Errors.ExifParseError({
@@ -212,9 +212,4 @@ export class ExifMetadata extends ExpandedTags.annotations({
       )
     );
   });
-}
-
-export namespace ExifMetadata {
-  export type Type = S.Schema.Type<typeof ExifMetadata>;
-  export type Encoded = S.Schema.Encoded<typeof ExifMetadata>;
 }

@@ -1,65 +1,124 @@
-import { Db } from "@beep/core-db";
-import { FilesDb, FilesRepos } from "@beep/files-infra";
+import { PostgresErrorEnum } from "@beep/core-db";
+import { PostgresErrorCode } from "@beep/core-db/postgres/postgres-error.enum";
 import * as Entities from "@beep/iam-domain/entities";
-import { IamDb, IamRepos } from "@beep/iam-infra";
-import { IamDbSchema } from "@beep/iam-tables";
-import * as BS from "@beep/schema/schema";
-import * as NodeContext from "@effect/platform-node/NodeContext";
+import { Email } from "@beep/schema/schema";
+import { reverseRecord } from "@beep/utils/data/record.utils";
 import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
-import { faker } from "@faker-js/faker";
-import * as Console from "effect/Console";
-import * as DateTime from "effect/DateTime";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as O from "effect/Option";
-import * as S from "effect/Schema";
+import { SqlError } from "@effect/sql/SqlError";
+import * as PgDrizzle from "@effect/sql-drizzle/Pg";
+import * as PgClient from "@effect/sql-pg/PgClient";
+import { DrizzleQueryError } from "drizzle-orm";
+import { Cause, Config, Console, Effect, Exit, Layer, Option, pipe, Schema, String as Str } from "effect";
+import * as Data from "effect/Data";
+import postgres from "postgres";
+import * as DbSchema from "./schema";
 
-export const SliceDatabasesLive = Layer.mergeAll(IamDb.IamDb.Live, FilesDb.FilesDb.Live);
-export const SliceRepositoriesLive = Layer.mergeAll(IamRepos.layer, FilesRepos.layer);
+const SEPARATOR = "=".repeat(100);
 
-export const SliceDependenciesLayer = Layer.provideMerge(SliceDatabasesLive, Db.Live);
-
-export const DbRepos = Layer.provideMerge(SliceRepositoriesLive, SliceDependenciesLayer);
-
-const program = Effect.gen(function* () {
-  const { execute, transaction, makeQuery } = yield* IamDb.IamDb;
-
-  const now = yield* DateTime.now;
-
+const programThatErrors = Effect.gen(function* () {
+  const db = yield* PgDrizzle.make({
+    schema: DbSchema,
+  });
   const mockedUser = Entities.User.Model.insert.make({
-    email: BS.Email.make(`test1-${crypto.randomUUID()}@example.com`),
+    email: Email.make(`test1-${crypto.randomUUID()}@example.com`),
     name: "beep",
-    emailVerified: false,
-    createdAt: now,
-    updatedAt: now,
-    image: O.some(faker.image.avatar()),
   });
 
-  const encodedMockedUser = yield* S.encode(Entities.User.Model.insert)(mockedUser);
+  const encodedMockedUser = yield* Schema.encode(Entities.User.Model.insert)(mockedUser);
+  // intentionally insert a duplicate to violate constraint
+  yield* db.insert(DbSchema.userTable).values(encodedMockedUser);
+  const error = yield* db.insert(DbSchema.userTable).values(encodedMockedUser).returning().pipe(Effect.flip);
 
-  const insertUser = makeQuery((execute, input: typeof Entities.User.Model.insert.Type) =>
-    S.encode(Entities.User.Model.insert)(input).pipe(
-      Effect.flatMap((encoded) => execute((client) => client.insert(IamDbSchema.userTable).values(encoded).returning()))
-    )
-  );
+  yield* Console.log(JSON.stringify(error, null, 2));
+  yield* Console.log("=".repeat(100));
 
-  const r = yield* transaction((txnClient) =>
-    Effect.gen(function* () {
-      yield* execute((client) => client.insert(IamDbSchema.userTable).values(encodedMockedUser).returning());
-      yield* insertUser(mockedUser);
-    }).pipe(Effect.provideService(IamDb.TransactionContext, txnClient))
-  ).pipe(Effect.flip);
-  yield* Console.log(JSON.stringify(r, null, 2));
-  // const error = yield* Effect.tryPromise({
-  //   try: () =>
-  //     drizzle.transaction(async (tx) => tx.insert(IamDbSchema.userTable).values(encodedMockedUser).returning()),
-  //   catch: (e) => {
-  //     console.log("RAW ERROR: ", JSON.stringify(e, null, 2));
-  //     return DbError.match(e);
-  //   },
-  // }).pipe(Effect.flip);
-  //
-  // yield* Console.log(JSON.stringify(error, null, 2));
+  return yield* Effect.fail(error);
+}).pipe(
+  Effect.catchTags({
+    ParseError: Effect.die,
+  })
+);
+
+class DbError extends Data.TaggedError("DbError")<{
+  readonly type: keyof typeof PostgresErrorEnum | "UNKNOWN";
+  readonly message: string;
+  readonly pgError: postgres.PostgresError | null;
+  readonly drizzleQueryError: DrizzleQueryError | null;
+  readonly sqlError: SqlError | null;
+  readonly cause: unknown;
+}> {}
+
+const inspectFailure = (cause: Cause.Cause<unknown>) => {
+  let pgError: postgres.PostgresError | null = null;
+  let sqlError: SqlError | null = null;
+  let drizzleQueryError: DrizzleQueryError | null = null;
+  let type: keyof typeof PostgresErrorEnum | "UNKNOWN" = "UNKNOWN";
+  let message = "Unknown Error.";
+
+  if (Cause.isFailType(cause)) {
+    console.log("Captured Cause:");
+    console.log(JSON.stringify(cause, null, 2));
+    console.log(SEPARATOR);
+
+    pipe(
+      Cause.failureOption(cause),
+      Option.match({
+        onNone: () => console.error("No error found."),
+        onSome: (error) => {
+          if (error instanceof SqlError) {
+            sqlError = error;
+            message = error.message;
+
+            if (error.cause instanceof DrizzleQueryError) {
+              drizzleQueryError = error.cause;
+
+              // Temporary workaround: JSON round-tripping exposes the nested PostgresError
+              // because FiberFailure hides it behind non-enumerable symbols.
+              pipe(error.cause, JSON.stringify, JSON.parse, (errorCause) => {
+                if (Cause.isFailType(errorCause.cause.cause)) {
+                  pgError = new postgres.PostgresError(errorCause.cause.cause.failure.cause);
+
+                  if (Schema.is(PostgresErrorCode)(pgError.code)) {
+                    type = reverseRecord(PostgresErrorEnum)[pgError.code];
+                  }
+                }
+              });
+            }
+          }
+        },
+      })
+    );
+  }
+
+  const dbError = new DbError({
+    type,
+    message,
+    cause,
+    pgError,
+    sqlError,
+    drizzleQueryError,
+  });
+
+  console.log(JSON.stringify(dbError, null, 2));
+  console.log(SEPARATOR);
+  return dbError;
+};
+
+const program = Effect.gen(function* () {
+  const exit = yield* Effect.exit(programThatErrors);
+  return yield* Exit.match(exit, {
+    onSuccess: () => Console.log("Success!"),
+    onFailure: (cause) => inspectFailure(cause),
+  });
 });
-
-NodeRuntime.runMain(program.pipe(Effect.provide([NodeContext.layer, DbRepos])));
+const dbLayer = Layer.unwrapEffect(
+  Effect.gen(function* () {
+    return PgClient.layer({
+      url: yield* Config.redacted("DB_PG_URL"),
+      ssl: yield* Config.boolean("DB_PG_SSL"),
+      transformQueryNames: Str.camelToSnake,
+      transformResultNames: Str.snakeToCamel,
+    });
+  })
+);
+NodeRuntime.runMain(program.pipe(Effect.provide(dbLayer)));

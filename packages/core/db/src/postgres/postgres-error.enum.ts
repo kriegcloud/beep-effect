@@ -1,12 +1,12 @@
 import { RecordUtils } from "@beep/utils";
-
-export const PostgresError = {
+import * as S from "effect/Schema";
+export const PostgresErrorEnum = {
   /** Class 00 - Successful Completion: [S] successful_completion */
-  SUCCESSFUL_COMPLETION: "00000" as const,
+  SUCCESSFUL_COMPLETION: "00000",
   /** Class 01 - Warning: [W] warning */
-  WARNING: "01000" as const,
+  WARNING: "01000",
   /** Class 01 - Warning: [W] dynamic_result_sets_returned */
-  WARNING_DYNAMIC_RESULT_SETS_RETURNED: "0100C" as const,
+  WARNING_DYNAMIC_RESULT_SETS_RETURNED: "0100C",
   /** Class 01 - Warning: [W] implicit_zero_bit_padding */
   WARNING_IMPLICIT_ZERO_BIT_PADDING: "01008",
   /** Class 01 - Warning: [W] null_value_eliminated_in_set_function */
@@ -531,7 +531,13 @@ export const PostgresError = {
   DATA_CORRUPTED: "XX001",
   /** Class XX - Internal Error: [E] index_corrupted */
   INDEX_CORRUPTED: "XX002",
+  UNKNOWN: "UNKNOWN",
 } as const;
 
-export const ReversedPostgresError = RecordUtils.reverseRecord(PostgresError);
-export type PostgresErrorCodeKey = (typeof PostgresError)[keyof typeof PostgresError];
+export const PostgresErrorCode = S.Literal(...RecordUtils.recordStringValues(PostgresErrorEnum));
+export type PostgresErrorCode = S.Schema.Type<typeof PostgresErrorCode>;
+
+export const PostgresErrorType = S.Literal(...([...RecordUtils.recordKeys(PostgresErrorEnum), "UNKNOWN"] as const));
+
+export const PostgresErrorTypeEnum = RecordUtils.reverseRecord(PostgresErrorEnum);
+export type PostgresErrorType = S.Schema.Type<typeof PostgresErrorType>;

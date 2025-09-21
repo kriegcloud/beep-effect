@@ -1,11 +1,11 @@
 import type { DrizzleQueryError } from "drizzle-orm/errors";
 import * as Data from "effect/Data";
-import type { PostgresError } from "./postgres-error.enum";
+import type { PostgresErrorEnum } from "./postgres-error.enum";
 
 export class DatabaseError<BaseError extends { message: string } = { message: string }> extends Data.TaggedError(
   "DatabaseError"
 )<{
-  readonly type: keyof typeof PostgresError | "UNKNOWN";
+  readonly type: keyof typeof PostgresErrorEnum | "UNKNOWN";
   readonly cause: BaseError;
   readonly drizzleError: DrizzleQueryError | null;
 }> {

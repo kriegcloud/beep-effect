@@ -72,6 +72,10 @@ export namespace EntityId {
     readonly is: (u: unknown) => u is Type<TableName>;
     readonly publicId: () => PublicId<TableName, Brand>;
     readonly privateId: () => PrivateId<Brand>;
+    readonly privateIdColumnNameSql: "_row_id";
+    readonly privateIdColumnName: "_rowId";
+    readonly publicIdColumnNameSql: "id";
+    readonly publicIdColumnName: "id";
     readonly privateSchema: S.brand<S.refine<number, typeof S.NonNegative>, Brand>;
     readonly modelIdSchema: S.optionalWith<
       SchemaType<TableName>,
@@ -94,7 +98,7 @@ export namespace EntityId {
       readonly annotations: Omit<DefaultAnnotations<Type<TableName>>, "title" | "identifier">;
     }
   ): EntityIdSchemaInstance<TableName, Brand> => {
-    invariant(S.is(SnakeTag)(tableName), "TableName must be a snake case string", {
+    invariant(S.is(SnakeTag)(tableName), "TableName must be a lowercase snake case string", {
       file: "./packages/common/schema/EntityId.ts",
       line: 91,
       args: [tableName],
@@ -134,6 +138,10 @@ export namespace EntityId {
       static readonly publicId = () => publicId;
       static readonly privateId = () => privateId;
       static readonly privateSchema = privateSchema;
+      static readonly privateIdColumnNameSql = "_row_id" as const;
+      static readonly privateIdColumnName = "_rowId" as const;
+      static readonly publicIdColumnNameSql = "id" as const;
+      static readonly publicIdColumnName = "id" as const;
       static readonly modelIdSchema = S.optionalWith(schema, {
         exact: true,
         default: () => create(),

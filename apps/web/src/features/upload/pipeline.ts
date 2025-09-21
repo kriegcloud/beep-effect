@@ -205,7 +205,7 @@ export const extractExifMetadata = Effect.fn("upload.extractExifMetadata")(funct
         }),
     });
     const cleaned = ExifMetadata.cleanExifData(raw);
-    const decoded = yield* S.decode(ExifMetadata)(cleaned).pipe(
+    const decoded = yield* S.decodeUnknown(ExifMetadata)(cleaned).pipe(
       Effect.mapError(
         (e) =>
           new Errors.ExifParseError({

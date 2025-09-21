@@ -5,7 +5,7 @@ import * as Data from "effect/Data";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
 import postgres from "postgres";
-import { type PostgresError, type PostgresErrorCodeKey, ReversedPostgresError } from "./postgres/postgres-error.enum";
+import { PostgresErrorEnum, type PostgresErrorType, PostgresErrorTypeEnum } from "./postgres/postgres-error.enum";
 
 export const DbErrorCause = S.instanceOf(postgres.PostgresError);
 
@@ -120,8 +120,36 @@ const extractPostgresError = (value: unknown): postgres.PostgresError | null => 
   return null;
 };
 
+class PostgresError extends Data.Error<{
+  name: "PostgresError";
+  severity_local: string;
+  severity: string;
+  code: string;
+  position: string;
+  file: string;
+  line: string;
+  routine: string;
+
+  detail?: string | undefined;
+  hint?: string | undefined;
+  internal_position?: string | undefined;
+  internal_query?: string | undefined;
+  where?: string | undefined;
+  schema_name?: string | undefined;
+  table_name?: string | undefined;
+  column_name?: string | undefined;
+  data?: string | undefined;
+  type_name?: string | undefined;
+  constraint_name?: string | undefined;
+
+  /** Only set when debug is enabled */
+  query: string;
+  /** Only set when debug is enabled */
+  parameters: any[];
+}> {}
+
 export class DbError extends Data.TaggedError("DbError")<{
-  readonly type: keyof typeof PostgresError | "UNKNOWN";
+  readonly type: PostgresErrorType | "UNKNOWN";
   readonly cause: postgres.PostgresError;
 }> {
   public override toString() {
@@ -141,7 +169,7 @@ export class DbError extends Data.TaggedError("DbError")<{
       const query = error.query;
       const parameters = error.params;
       const cause = F.pipe(error, JSON.stringify, JSON.parse, (parsed) => {
-        return new postgres.PostgresError({
+        return new PostgresError({
           ...parsed?.cause?.cause?.failure?.cause,
           parameters,
           query,
@@ -149,7 +177,7 @@ export class DbError extends Data.TaggedError("DbError")<{
       });
 
       return new DbError({
-        type: ReversedPostgresError[cause.code as PostgresErrorCodeKey],
+        type: PostgresErrorTypeEnum[cause.code as keyof typeof PostgresErrorTypeEnum],
         cause,
       });
     }
@@ -158,11 +186,12 @@ export class DbError extends Data.TaggedError("DbError")<{
       const query = error?.cause?.query;
       const params = error?.cause?.params;
       const cause = F.pipe(error?.cause, JSON.stringify, JSON.parse, (parsed) => {
-        const pgError = JSON.parse(JSON.stringify(parsed?.cause)).cause?.failure?.cause;
-        return new postgres.PostgresError({ ...pgError, query, parameters: params });
+        const pgError: PostgresError = JSON.parse(JSON.stringify(parsed?.cause)).cause?.failure?.cause;
+        return new PostgresError({ ...pgError, query: query, parameters: params });
       });
+      const code = cause.code;
       return new DbError({
-        type: ReversedPostgresError[cause.code as PostgresErrorCodeKey],
+        type: PostgresErrorTypeEnum[code as keyof typeof PostgresErrorTypeEnum],
         cause,
       });
     }
@@ -177,7 +206,7 @@ export class DbError extends Data.TaggedError("DbError")<{
 }
 
 export const matchPgError = (error: S.Schema.Type<typeof DbErrorCause>) => {
-  const code = error.code as PostgresErrorCodeKey;
-  return new DbError({ type: ReversedPostgresError[code], cause: error });
+  const code = error.code as keyof typeof PostgresErrorEnum;
+  return new DbError({ type: PostgresErrorTypeEnum[code as keyof typeof PostgresErrorTypeEnum], cause: error });
 };
-export type { PostgresError };
+export { PostgresErrorEnum };

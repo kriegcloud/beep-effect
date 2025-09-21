@@ -231,17 +231,12 @@ export namespace Repo {
     model: Model,
     maker: Effect.Effect<TExtra, SE, SR>
   ) =>
-    Effect.flatMap(maker, (extra) =>
-      Effect.gen(function* () {
-        const repoBase = yield* makeBaseRepo(model, {
-          idColumn: "_rowId" as const,
-          idSchema: idSchema,
-        });
-
-        return {
-          ...repoBase,
+    Effect.flatMap(
+      Effect.all([maker, makeBaseRepo(model, { idColumn: idSchema.privateIdColumnName, idSchema: idSchema })]),
+      ([extra, baseRepo]) =>
+        Effect.succeed({
           ...extra,
-        };
-      })
+          ...baseRepo,
+        } as const)
     );
 }
