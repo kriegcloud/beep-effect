@@ -5,7 +5,7 @@ import * as pg from "drizzle-orm/pg-core";
 
 export const memberRoleEnum = Member.makeMemberRolePgEnum("member_role_enum");
 
-export const memberTable = OrgTable.make(IamEntityIds.MemberId)(
+export const member = OrgTable.make(IamEntityIds.MemberId)(
   {
     userId: pg.text("user_id").$type<SharedEntityIds.UserId.Type>().notNull(), // Reference to user.id (relation defined in relations.ts)
     role: memberRoleEnum("role").notNull().default(Member.MemberRoleEnum.member),

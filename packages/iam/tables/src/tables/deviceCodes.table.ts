@@ -1,6 +1,6 @@
 import { DeviceCode } from "@beep/iam-domain/entities";
 import { IamEntityIds } from "@beep/shared-domain";
-import { Table, userTable } from "@beep/shared-tables";
+import { Table, user } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 
 export const deviceCodeStatusPgEnum = DeviceCode.makeDeviceCodeStatusPgEnum("device_code_status_enum");
@@ -8,13 +8,13 @@ export const deviceCodeStatusPgEnum = DeviceCode.makeDeviceCodeStatusPgEnum("dev
  * DeviceCodes table schema for storing OAuth 2.0 Device Authorization data.
  * Each record represents a device authorization request (device code flow).
  */
-export const deviceCodeTable = Table.make(IamEntityIds.DeviceCodeId)({
+export const deviceCode = Table.make(IamEntityIds.DeviceCodeId)({
   /** Device verification code issued to the device (long random string, not shown to user). */
   deviceCode: pg.text("device_code").notNull(),
   /** User-friendly code for verification (short code the user enters on the auth page). */
   userCode: pg.text("user_code").notNull(),
   /** ID of the user who approved or denied the request (nullable until user acts). */
-  userId: pg.text("user_id").references(() => userTable.id, {
+  userId: pg.text("user_id").references(() => user.id, {
     onDelete: "cascade",
     onUpdate: "cascade",
   }),

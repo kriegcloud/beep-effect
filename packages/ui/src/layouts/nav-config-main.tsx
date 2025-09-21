@@ -1,5 +1,5 @@
+import { paths } from "@beep/constants";
 import { Iconify } from "@beep/ui/atoms";
-import { paths } from "@beep/ui/layouts/nav-config-dashboard";
 import type { NavMainProps } from "./main/nav/types";
 
 export const navData: NavMainProps["data"] = [

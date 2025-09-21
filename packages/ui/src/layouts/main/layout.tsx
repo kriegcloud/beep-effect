@@ -2,10 +2,10 @@
 
 import { Logo } from "@beep/ui/branding";
 import { useBoolean, usePathname } from "@beep/ui/hooks";
-import { paths } from "@beep/ui/layouts/nav-config-dashboard";
+// import { paths } from "@beep/constants";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
+// import Button from "@mui/material/Button";
 import type { Breakpoint } from "@mui/material/styles";
 import { MenuButton } from "../components/menu-button";
 import { SettingsButton } from "../components/settings-button";
@@ -85,18 +85,18 @@ export function MainLayout({ sx, cssVars, children, slotProps, layoutQuery = "md
             <SignInButton />
 
             {/** @slot Purchase button */}
-            <Button
-              variant="contained"
-              rel="noopener noreferrer"
-              target="_blank"
-              href={paths.minimalStore}
-              sx={(theme) => ({
-                display: "none",
-                [theme.breakpoints.up(layoutQuery)]: { display: "inline-flex" },
-              })}
-            >
-              Purchase
-            </Button>
+            {/*<Button*/}
+            {/*  variant="contained"*/}
+            {/*  rel="noopener noreferrer"*/}
+            {/*  target="_blank"*/}
+            {/*  href={paths.minimalStore}*/}
+            {/*  sx={(theme) => ({*/}
+            {/*    display: "none",*/}
+            {/*    [theme.breakpoints.up(layoutQuery)]: { display: "inline-flex" },*/}
+            {/*  })}*/}
+            {/*>*/}
+            {/*  Purchase*/}
+            {/*</Button>*/}
           </Box>
         </>
       ),

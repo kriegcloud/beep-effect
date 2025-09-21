@@ -13,7 +13,7 @@ export class FileRepo extends Effect.Service<FileRepo>()("@beep/files-infra/adap
     File.Model,
     Effect.gen(function* () {
       yield* FilesDb.FilesDb;
-      // const list = makeQuery((execute, input: string) => execute((client) => client.query.accountTable.findMany()));
+      // const list = makeQuery((execute, input: string) => execute((client) => client.query.account.findMany()));
 
       return {
         // list,

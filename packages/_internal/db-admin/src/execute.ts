@@ -14,7 +14,6 @@ import postgres from "postgres";
 import * as DbSchema from "./schema";
 
 const SEPARATOR = "=".repeat(100);
-
 const programThatErrors = Effect.gen(function* () {
   const db = yield* PgDrizzle.make({
     schema: DbSchema,
@@ -23,11 +22,10 @@ const programThatErrors = Effect.gen(function* () {
     email: Email.make(`test1-${crypto.randomUUID()}@example.com`),
     name: "beep",
   });
-
   const encodedMockedUser = yield* Schema.encode(Entities.User.Model.insert)(mockedUser);
   // intentionally insert a duplicate to violate constraint
-  yield* db.insert(DbSchema.userTable).values(encodedMockedUser);
-  const error = yield* db.insert(DbSchema.userTable).values(encodedMockedUser).returning().pipe(Effect.flip);
+  yield* db.insert(DbSchema.user).values(encodedMockedUser);
+  const error = yield* db.insert(DbSchema.user).values(encodedMockedUser).returning().pipe(Effect.flip);
 
   yield* Console.log(JSON.stringify(error, null, 2));
   yield* Console.log("=".repeat(100));
@@ -38,7 +36,6 @@ const programThatErrors = Effect.gen(function* () {
     ParseError: Effect.die,
   })
 );
-
 class DbError extends Data.TaggedError("DbError")<{
   readonly type: keyof typeof PostgresErrorEnum | "UNKNOWN";
   readonly message: string;
@@ -47,19 +44,16 @@ class DbError extends Data.TaggedError("DbError")<{
   readonly sqlError: SqlError | null;
   readonly cause: unknown;
 }> {}
-
 const inspectFailure = (cause: Cause.Cause<unknown>) => {
   let pgError: postgres.PostgresError | null = null;
   let sqlError: SqlError | null = null;
   let drizzleQueryError: DrizzleQueryError | null = null;
   let type: keyof typeof PostgresErrorEnum | "UNKNOWN" = "UNKNOWN";
   let message = "Unknown Error.";
-
   if (Cause.isFailType(cause)) {
     console.log("Captured Cause:");
     console.log(JSON.stringify(cause, null, 2));
     console.log(SEPARATOR);
-
     pipe(
       Cause.failureOption(cause),
       Option.match({
@@ -89,21 +83,9 @@ const inspectFailure = (cause: Cause.Cause<unknown>) => {
       })
     );
   }
-
-  const dbError = new DbError({
-    type,
-    message,
-    cause,
-    pgError,
-    sqlError,
-    drizzleQueryError,
-  });
-
-  console.log(JSON.stringify(dbError, null, 2));
-  console.log(SEPARATOR);
+  const dbError = new DbError({ type, message, cause, pgError, sqlError, drizzleQueryError });
   return dbError;
 };
-
 const program = Effect.gen(function* () {
   const exit = yield* Effect.exit(programThatErrors);
   return yield* Exit.match(exit, {

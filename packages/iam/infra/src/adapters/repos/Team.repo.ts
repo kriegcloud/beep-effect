@@ -13,7 +13,7 @@ export class TeamRepo extends Effect.Service<TeamRepo>()("@beep/iam-infra/adapte
     Entities.Team.Model,
     Effect.gen(function* () {
       yield* IamDb.IamDb;
-      // const list = makeQuery((execute, input: string) => execute((client) => client.query.accountTable.findMany()));
+      // const list = makeQuery((execute, input: string) => execute((client) => client.query.account.findMany()));
 
       return {
         // list,

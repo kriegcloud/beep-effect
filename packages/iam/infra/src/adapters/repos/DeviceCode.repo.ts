@@ -19,11 +19,11 @@ export class DeviceCodeRepo extends Effect.Service<DeviceCodeRepo>()("@beep/iam-
 
       // const upsert = (upsert: typeof Entities.DeviceCode.Model.insert.Type) => Effect.gen(function* () {
       //   const encoded = yield* S.encode(Entities.DeviceCode.Model.insert)(upsert);
-      //   return yield* db.insert(IamDbSchema.deviceCodeTable).values(encoded).returning().onConflictDoUpdate({
-      //     target: [IamDbSchema.deviceCodeTable.deviceCode, IamDbSchema.deviceCodeTable.clientId],
+      //   return yield* db.insert(IamDbSchema.deviceCode).values(encoded).returning().onConflictDoUpdate({
+      //     target: [IamDbSchema.deviceCode.deviceCode, IamDbSchema.deviceCode.clientId],
       //     set: {
-      //       status: sql.raw(`excluded.${IamDbSchema.deviceCodeTable.status.name}`),
-      //       expiresAt: sql.raw(`excluded.${IamDbSchema.deviceCodeTable.expiresAt.name}`),
+      //       status: sql.raw(`excluded.${IamDbSchema.deviceCode.status.name}`),
+      //       expiresAt: sql.raw(`excluded.${IamDbSchema.deviceCode.expiresAt.name}`),
       //       // ...other columns to update
       //     },
       //   });

@@ -1,18 +1,18 @@
 import { IamEntityIds, type SharedEntityIds } from "@beep/shared-domain";
-import { OrgTable, teamTable, userTable } from "@beep/shared-tables";
+import { OrgTable, team, user } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
-export const teamMemberTable = OrgTable.make(IamEntityIds.TeamMemberId)(
+export const teamMember = OrgTable.make(IamEntityIds.TeamMemberId)(
   {
     teamId: pg
       .text("team_id")
       .notNull()
       .$type<SharedEntityIds.TeamId.Type>()
-      .references(() => teamTable.id, { onDelete: "cascade", onUpdate: "cascade" }),
+      .references(() => team.id, { onDelete: "cascade", onUpdate: "cascade" }),
     userId: pg
       .text("user_id")
       .notNull()
       .$type<SharedEntityIds.UserId.Type>()
-      .references(() => userTable.id, { onDelete: "cascade", onUpdate: "cascade" }),
+      .references(() => user.id, { onDelete: "cascade", onUpdate: "cascade" }),
   },
   (t) => [
     // Foreign key indexes for join performance

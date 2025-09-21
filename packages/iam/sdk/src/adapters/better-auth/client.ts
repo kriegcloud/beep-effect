@@ -24,6 +24,7 @@ import {
 } from "better-auth/client/plugins";
 import type { apiKey, genericOAuth, jwt, multiSession, oneTimeToken } from "better-auth/plugins";
 import { createAuthClient } from "better-auth/react";
+import * as Redacted from "effect/Redacted";
 
 // TODO THESE ARE HACK BETTER_AUTH NEEDS TO GET THEIR SHIT TOGETHER
 const _apiKeyClient: () => {
@@ -82,7 +83,7 @@ const _organizationClient: ReturnType<
 });
 const _oidcClient: ReturnType<typeof oidcClient> = oidcClient();
 const _oneTapClient: ReturnType<typeof oneTapClient> = oneTapClient({
-  clientId: clientEnv.googleClientId,
+  clientId: Redacted.value(clientEnv.googleClientId),
   promptOptions: {
     maxAttempts: 1,
   },

@@ -1,7 +1,7 @@
 import type { BS } from "@beep/schema";
 import { SharedEntityIds } from "@beep/shared-domain";
 import { Organization } from "@beep/shared-domain/entities";
-import { userTable } from "@beep/shared-tables/tables/user.table";
+import { user } from "@beep/shared-tables/tables/user.table";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { Table } from "../Table";
@@ -10,7 +10,7 @@ export const organizationTypePgEnum = Organization.makeOrganizationTypePgEnum("o
 export const subscriptionTierPgEnum = Organization.makeSubscriptionTierPgEnum("subscription_tier_enum");
 export const subscriptionStatusPgEnum = Organization.makeSubscriptionStatusPgEnum("subscription_status_enum");
 
-export const organizationTable = Table.make(SharedEntityIds.OrganizationId)(
+export const organization = Table.make(SharedEntityIds.OrganizationId)(
   {
     name: pg.text("name").notNull(),
     slug: pg.text("slug").notNull().unique(),
@@ -23,7 +23,7 @@ export const organizationTable = Table.make(SharedEntityIds.OrganizationId)(
       .text("owner_user_id")
       .$type<SharedEntityIds.UserId.Type>()
       .notNull()
-      .references(() => userTable.id, {
+      .references(() => user.id, {
         onDelete: "cascade",
         onUpdate: "cascade",
       }), // Reference to user who owns this org (relation defined in relations.ts)

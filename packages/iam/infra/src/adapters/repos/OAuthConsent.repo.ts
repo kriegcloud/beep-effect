@@ -15,7 +15,7 @@ export class OAuthConsentRepo extends Effect.Service<OAuthConsentRepo>()(
       Entities.OAuthConsent.Model,
       Effect.gen(function* () {
         yield* IamDb.IamDb;
-        // const list = makeQuery((execute, input: string) => execute((client) => client.query.accountTable.findMany()));
+        // const list = makeQuery((execute, input: string) => execute((client) => client.query.account.findMany()));
 
         return {
           // list,

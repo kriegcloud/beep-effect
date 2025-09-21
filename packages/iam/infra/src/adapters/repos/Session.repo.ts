@@ -13,7 +13,7 @@ export class SessionRepo extends Effect.Service<SessionRepo>()("@beep/iam-infra/
     Entities.Session.Model,
     Effect.gen(function* () {
       yield* IamDb.IamDb;
-      // const list = makeQuery((execute, input: string) => execute((client) => client.query.accountTable.findMany()));
+      // const list = makeQuery((execute, input: string) => execute((client) => client.query.account.findMany()));
 
       return {
         // list,

@@ -14,7 +14,12 @@
       "@beep/iam-sdk": ["../sdk/src/index"],
       "@beep/iam-sdk/*": ["../sdk/src/*"],
       "@beep/iam-domain": ["../domain/src/index"],
-      "@beep/iam-domain/*": ["../domain/src/*"]
+      "@beep/iam-domain/*": ["../domain/src/*"],
+      "@beep/core-env/client": ["../../core/env/src/client"],
+      "@beep/constants": ["../../common/constants/src/index"],
+      "@beep/constants/*": ["../../common/constants/src/*"],
+      "@beep/errors/shared": ["../../common/errors/src/shared"],
+      "@beep/errors/client": ["../../common/errors/src/client"]
     }
   },
   "references": [

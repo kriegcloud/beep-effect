@@ -629,7 +629,7 @@ Table: `twoFactor`
 
 ### Server
 
-**twoFactorTable**: The name of the table that stores the two factor authentication data. Default: `twoFactor`.
+**twoFactor**: The name of the table that stores the two factor authentication data. Default: `twoFactor`.
 
 **skipVerificationOnEnable**: Skip the verification process before enabling two factor for a user.
 

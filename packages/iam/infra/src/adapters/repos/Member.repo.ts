@@ -13,7 +13,7 @@ export class MemberRepo extends Effect.Service<MemberRepo>()("@beep/iam-infra/ad
     Entities.Member.Model,
     Effect.gen(function* () {
       yield* IamDb.IamDb;
-      // const list = makeQuery((execute, input: string) => execute((client) => client.query.accountTable.findMany()));
+      // const list = makeQuery((execute, input: string) => execute((client) => client.query.account.findMany()));
 
       return {
         // list,

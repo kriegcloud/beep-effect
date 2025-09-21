@@ -15,7 +15,7 @@ export class SubscriptionRepo extends Effect.Service<SubscriptionRepo>()(
       Entities.Subscription.Model,
       Effect.gen(function* () {
         yield* IamDb.IamDb;
-        // const list = makeQuery((execute, input: string) => execute((client) => client.query.accountTable.findMany()));
+        // const list = makeQuery((execute, input: string) => execute((client) => client.query.account.findMany()));
 
         return {
           // list,

@@ -2,16 +2,7 @@ export * from "./annotations";
 export * from "./custom";
 export * from "./EntityId";
 // export * from "./extended-schemas";
-export {
-  Array,
-  deriveAndAttachProperty,
-  NonEmptyArray,
-  NullOr,
-  ReadonlyMap,
-  ReadonlySet,
-  Struct,
-  Tuple,
-} from "./extended-schemas";
+export * from "./extended-schemas";
 export * from "./form";
 export { DiscriminatedStruct, TaggedStruct } from "./generics";
 export * from "./JsonSchema";

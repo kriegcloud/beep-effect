@@ -3,7 +3,7 @@ import { Table } from "@beep/shared-tables/Table";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 
-export const userTable = Table.make(SharedEntityIds.UserId)(
+export const user = Table.make(SharedEntityIds.UserId)(
   {
     name: pg.text("name").notNull(),
     email: pg.text("email").notNull().unique(),

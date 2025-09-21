@@ -1,23 +1,29 @@
 "use client";
-import { EnvValue, LogLevel } from "@beep/constants";
+import { AuthProviderNameValue, EnvValue, LogLevel } from "@beep/constants";
+import { BS } from "@beep/schema";
 import * as Either from "effect/Either";
 import * as F from "effect/Function";
 import { TreeFormatter } from "effect/ParseResult";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
+
+const AuthProviderNames = BS.destructiveTransform((i: string) =>
+  S.decodeUnknownSync(S.NonEmptyArray(AuthProviderNameValue))(Str.split(",")(i))
+)(S.String);
 
 const ClientEnvSchema = S.Struct({
   env: EnvValue,
   appName: S.NonEmptyTrimmedString,
   appDomain: S.NonEmptyTrimmedString,
-  authProviderNames: S.String,
-  appUrl: S.String,
-  apiUrl: S.String,
-  otlpTraceExportedUrl: S.String,
+  authProviderNames: AuthProviderNames,
+  appUrl: BS.URLString,
+  apiUrl: BS.URLString,
+  otlpTraceExportedUrl: BS.URLString,
   logLevel: LogLevel,
-  captchaSiteKey: S.String,
-  authUrl: S.String,
-  authPath: S.String,
-  googleClientId: S.String,
+  captchaSiteKey: S.Redacted(S.String),
+  authUrl: BS.URLString,
+  authPath: BS.URLPath,
+  googleClientId: S.Redacted(S.String),
 });
 
 namespace ClientEnvSchema {

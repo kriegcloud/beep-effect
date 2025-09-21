@@ -13,7 +13,7 @@ export class PasskeyRepo extends Effect.Service<PasskeyRepo>()("@beep/iam-infra/
     Entities.Passkey.Model,
     Effect.gen(function* () {
       yield* IamDb.IamDb;
-      // const list = makeQuery((execute, input: string) => execute((client) => client.query.accountTable.findMany()));
+      // const list = makeQuery((execute, input: string) => execute((client) => client.query.account.findMany()));
 
       return {
         // list,

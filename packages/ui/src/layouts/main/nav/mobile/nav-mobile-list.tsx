@@ -1,5 +1,5 @@
+import { paths } from "@beep/constants";
 import { useBoolean, usePathname } from "@beep/ui/hooks";
-import { paths } from "@beep/ui/layouts/nav-config-dashboard";
 import { NavSectionVertical, navSectionClasses } from "@beep/ui/routing";
 import { isActiveLink, isExternalLink, rgbaFromChannel } from "@beep/ui/utils";
 import Collapse from "@mui/material/Collapse";

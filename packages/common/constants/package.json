@@ -36,6 +36,7 @@
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@effect/cluster": "*",
+    "es-toolkit": "*",
     "@effect/workflow": "*",
     "@beep/invariant": "workspace:^",
     "uuid": "*",

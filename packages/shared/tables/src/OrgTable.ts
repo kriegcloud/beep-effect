@@ -5,7 +5,7 @@ import type { $Type, BuildColumns, BuildExtraConfigColumns, NotNull } from "driz
 import type { PgTableExtraConfigValue } from "drizzle-orm/pg-core";
 import * as pg from "drizzle-orm/pg-core";
 import { globalColumns } from "./common";
-import { organizationTable } from "./tables/organization.table";
+import { organization } from "./tables/organization.table";
 
 type OrgTableDefaultColumns<TableName extends string, Brand extends string> = DefaultColumns<TableName, Brand> & {
   organizationId: $Type<
@@ -24,7 +24,7 @@ export namespace OrgTable {
       organizationId: pg
         .text("organization_id")
         .notNull()
-        .references(() => organizationTable.id, {
+        .references(() => organization.id, {
           onDelete: "cascade",
           onUpdate: "cascade",
         })

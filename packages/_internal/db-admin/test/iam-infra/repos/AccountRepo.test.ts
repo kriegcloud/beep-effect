@@ -1,4 +1,4 @@
-import { PgContainer } from "@beep/db-admin/test/pg-container";
+import { PgContainer, pgContainerPreflight } from "@beep/db-admin/test/pg-container";
 import * as Entities from "@beep/iam-domain/entities";
 import { IamDb } from "@beep/iam-infra";
 import * as IamRepos from "@beep/iam-infra/adapters/repositories";
@@ -9,6 +9,13 @@ import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Schema from "../../../src/schema";
+
+const preflight = pgContainerPreflight;
+const describePg = preflight.type === "ready" ? describe : describe.skip;
+
+if (preflight.type === "skip") {
+  console.warn(`[@beep/iam-infra AccountRepo] skipping docker-backed tests: ${preflight.reason}`);
+}
 
 const baseAccount = Entities.Account.Model.insert
   .pick("createdAt", "updatedAt", "source", "createdBy", "updatedBy", "providerId")
@@ -22,7 +29,7 @@ const baseAccount = Entities.Account.Model.insert
   });
 
 // Note: Build insert payloads inside each test using the seeded userId and a fresh accountId
-describe("@beep/iam-infra AccountRepo tests", () => {
+describePg("@beep/iam-infra AccountRepo tests", () => {
   it.layer(PgContainer.Live, { timeout: "30 seconds" })("test AccountRepo methods", (it) => {
     const createTestUser = Effect.gen(function* () {
       const userRepo = yield* IamRepos.UserRepo;
@@ -55,7 +62,7 @@ describe("@beep/iam-infra AccountRepo tests", () => {
         const insertResult = yield* repo.insert(insertAccount);
 
         expect(insertResult.id).toEqual(insertAccountId);
-        const accounts = yield* db.select().from(Schema.accountTable);
+        const accounts = yield* db.select().from(Schema.account);
         const foundInsert = accounts.find((account) => account.id === insertAccountId);
 
         expect(!!foundInsert?.id).toEqual(true);
@@ -95,7 +102,7 @@ describe("@beep/iam-infra AccountRepo tests", () => {
           accountId: crypto.randomUUID(),
         });
         yield* repo.insertVoid(insertVoidAccount);
-        const accounts = yield* db.select().from(Schema.accountTable);
+        const accounts = yield* db.select().from(Schema.account);
         const foundVoid = accounts.find((account) => account.id === insertVoidAccountId);
         expect(!!foundVoid?.id).toEqual(true);
       })
@@ -124,7 +131,7 @@ describe("@beep/iam-infra AccountRepo tests", () => {
         ] as const;
         yield* repo.insertManyVoid(insertManyVoidAccounts);
 
-        const accounts = yield* db.query.accountTable.findMany();
+        const accounts = yield* db.query.account.findMany();
 
         const found1 = accounts.find((account) => account.id === insertManyVoidAccountId1);
         const found2 = accounts.find((account) => account.id === insertManyVoidAccountId2);

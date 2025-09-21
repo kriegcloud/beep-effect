@@ -3,7 +3,7 @@ import * as Admin from "./admin";
 import * as Anonymous from "./anonymous";
 import * as ApiKey from "./api-key";
 import * as Bearer from "./bearer";
-import * as Captcha from "./captcha";
+// import * as Captcha from "./captcha";
 import * as CustomSession from "./custom-session";
 import * as DeviceAuthorization from "./device-authorization";
 import * as DubAnalytics from "./dub-analytics";
@@ -33,7 +33,7 @@ const AllPluginsArray = [
   Anonymous.anonymousPlugin,
   ApiKey.apiKeyPlugin,
   Bearer.bearerPlugin,
-  Captcha.captchaPlugin,
+  // Captcha.captchaPlugin,
   CustomSession.customSessionPlugin,
   DeviceAuthorization.deviceAuthorizationPlugin,
   DubAnalytics.dubAnalyticsPlugin,

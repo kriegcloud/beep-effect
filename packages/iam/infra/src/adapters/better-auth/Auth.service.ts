@@ -22,7 +22,13 @@ const AuthOptions = Effect.gen(function* () {
   const { sendResetPassword } = yield* AuthEmailService;
 
   return yield* Effect.succeed({
-    database: drizzleAdapter(drizzle, { provider: "pg", usePlural: false }),
+    database: drizzleAdapter(drizzle, {
+      debugLogs: true,
+      provider: "pg",
+      usePlural: false,
+      schema: IamDbSchema,
+      camelCase: true,
+    }),
     baseURL: serverEnv.app.authUrl.toString(),
     basePath: "/api/auth",
     appName: serverEnv.app.name,
@@ -89,7 +95,7 @@ const AuthOptions = Effect.gen(function* () {
             const slug = `${user.name?.toLowerCase().replace(/\s+/g, "-") || "user"}-${user.id.slice(-6)}`;
 
             const program = Effect.gen(function* () {
-              yield* db.insert(IamDbSchema.organizationTable).values({
+              yield* db.insert(IamDbSchema.organization).values({
                 id: personalOrgId,
                 name: `${user.name || "User"}'s Organization`,
                 slug,
@@ -103,7 +109,7 @@ const AuthOptions = Effect.gen(function* () {
                 createdAt: new Date(),
                 updatedAt: new Date(),
               });
-              yield* db.insert(IamDbSchema.memberTable).values({
+              yield* db.insert(IamDbSchema.member).values({
                 id: personalMemberId,
                 userId: S.decodeUnknownSync(SharedEntityIds.UserId)(user.id),
                 organizationId: personalOrgId,
@@ -129,26 +135,26 @@ const AuthOptions = Effect.gen(function* () {
             const program = Effect.gen(function* () {
               return yield* db
                 .select({
-                  orgId: IamDbSchema.organizationTable.id,
-                  orgName: IamDbSchema.organizationTable.name,
-                  orgType: IamDbSchema.organizationTable.type,
-                  isPersonal: IamDbSchema.organizationTable.isPersonal,
-                  subscriptionTier: IamDbSchema.organizationTable.subscriptionTier,
-                  role: IamDbSchema.memberTable.role,
-                  memberStatus: IamDbSchema.memberTable.status,
+                  orgId: IamDbSchema.organization.id,
+                  orgName: IamDbSchema.organization.name,
+                  orgType: IamDbSchema.organization.type,
+                  isPersonal: IamDbSchema.organization.isPersonal,
+                  subscriptionTier: IamDbSchema.organization.subscriptionTier,
+                  role: IamDbSchema.member.role,
+                  memberStatus: IamDbSchema.member.status,
                 })
-                .from(IamDbSchema.memberTable)
+                .from(IamDbSchema.member)
                 .innerJoin(
-                  IamDbSchema.organizationTable,
-                  d.eq(IamDbSchema.memberTable.organizationId, IamDbSchema.organizationTable.id)
+                  IamDbSchema.organization,
+                  d.eq(IamDbSchema.member.organizationId, IamDbSchema.organization.id)
                 )
                 .where(
                   d.and(
-                    d.eq(IamDbSchema.memberTable.userId, SharedEntityIds.UserId.make(session.userId)),
-                    d.eq(IamDbSchema.memberTable.status, "active")
+                    d.eq(IamDbSchema.member.userId, SharedEntityIds.UserId.make(session.userId)),
+                    d.eq(IamDbSchema.member.status, "active")
                   )
                 )
-                .orderBy(d.desc(IamDbSchema.organizationTable.isPersonal));
+                .orderBy(d.desc(IamDbSchema.organization.isPersonal));
             });
 
             const userOrgs = await Effect.runPromise(program);

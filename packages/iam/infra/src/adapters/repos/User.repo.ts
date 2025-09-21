@@ -13,7 +13,7 @@ export class UserRepo extends Effect.Service<UserRepo>()("@beep/iam-infra/adapte
     Entities.User.Model,
     Effect.gen(function* () {
       yield* IamDb.IamDb;
-      // const list = makeQuery((execute, input: string) => execute((client) => client.query.accountTable.findMany()));
+      // const list = makeQuery((execute, input: string) => execute((client) => client.query.account.findMany()));
 
       return {
         // list,

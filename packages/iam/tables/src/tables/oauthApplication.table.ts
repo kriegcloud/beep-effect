@@ -1,8 +1,8 @@
 import { IamEntityIds, type SharedEntityIds } from "@beep/shared-domain";
-import { OrgTable, userTable } from "@beep/shared-tables";
+import { OrgTable, user } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 
-export const oauthApplicationTable = OrgTable.make(IamEntityIds.OAuthApplicationId)({
+export const oauthApplication = OrgTable.make(IamEntityIds.OAuthApplicationId)({
   name: pg.text("name"),
   icon: pg.text("icon"),
   metadata: pg.text("metadata"),
@@ -14,5 +14,5 @@ export const oauthApplicationTable = OrgTable.make(IamEntityIds.OAuthApplication
   userId: pg
     .text("user_id")
     .$type<SharedEntityIds.UserId.Type>()
-    .references(() => userTable.id, { onDelete: "cascade" }),
+    .references(() => user.id, { onDelete: "cascade" }),
 });

@@ -15,7 +15,7 @@ export class VerificationRepo extends Effect.Service<VerificationRepo>()(
       Entities.Verification.Model,
       Effect.gen(function* () {
         yield* IamDb.IamDb;
-        // const list = makeQuery((execute, input: string) => execute((client) => client.query.accountTable.findMany()));
+        // const list = makeQuery((execute, input: string) => execute((client) => client.query.account.findMany()));
 
         return {
           // list,

@@ -1,6 +1,6 @@
+import { paths } from "@beep/constants";
 import { Iconify } from "@beep/ui/atoms";
 import { Logo } from "@beep/ui/branding";
-import { paths } from "@beep/ui/layouts/nav-config-dashboard";
 import { RouterLink } from "@beep/ui/routing";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
@@ -51,7 +51,7 @@ const LINKS = [
       { name: "Privacy policy", href: "#" },
     ],
   },
-  { headline: "Contact", children: [{ name: "support@minimals.cc", href: "#" }] },
+  { headline: "Contact", children: [{ name: "support@codedank.com", href: "#" }] },
 ];
 
 const FooterRoot = styled("footer")(({ theme }) => ({
@@ -180,7 +180,7 @@ export function HomeFooter({ sx, ...other }: FooterProps) {
         <Box sx={{ mt: 1, typography: "caption" }}>
           © All rights reserved.
           <br /> made by
-          <Link href="https://minimals.cc/"> minimals.cc </Link>
+          <Link href="https://codedank.com/"> CodeDank INC. </Link>
         </Box>
       </Container>
     </FooterRoot>

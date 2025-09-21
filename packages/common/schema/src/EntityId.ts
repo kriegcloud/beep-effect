@@ -122,7 +122,7 @@ export namespace EntityId {
     const publicId = pg
       .text("id")
       .notNull()
-      .unique(`${tableName}_id_unique`)
+      .unique()
       .$type<typeof schema.Type>()
       .$defaultFn(() => create());
 

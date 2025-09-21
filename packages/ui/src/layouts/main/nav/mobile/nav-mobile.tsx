@@ -1,9 +1,9 @@
 import { Logo } from "@beep/ui/branding";
 import { usePathname } from "@beep/ui/hooks";
-import { paths } from "@beep/ui/layouts/nav-config-dashboard";
+// import { paths } from "@beep/constants";
 import { Scrollbar } from "@beep/ui/molecules";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
+// import Button from "@mui/material/Button";
 import Drawer from "@mui/material/Drawer";
 import { useEffect } from "react";
 import { SignInButton } from "../../../components/sign-in-button";
@@ -88,9 +88,9 @@ export function NavMobile({ data, open, onClose, slots, sx }: NavMobileProps) {
         >
           <SignInButton fullWidth />
 
-          <Button fullWidth variant="contained" rel="noopener noreferrer" target="_blank" href={paths.minimalStore}>
-            Purchase
-          </Button>
+          {/*<Button fullWidth variant="contained" rel="noopener noreferrer" target="_blank" href={paths.minimalStore}>*/}
+          {/*  Purchase*/}
+          {/*</Button>*/}
         </Box>
       )}
     </Drawer>

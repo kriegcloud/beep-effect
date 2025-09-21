@@ -13,7 +13,7 @@ export class RateLimitRepo extends Effect.Service<RateLimitRepo>()("@beep/iam-in
     Entities.RateLimit.Model,
     Effect.gen(function* () {
       yield* IamDb.IamDb;
-      // const list = makeQuery((execute, input: string) => execute((client) => client.query.accountTable.findMany()));
+      // const list = makeQuery((execute, input: string) => execute((client) => client.query.account.findMany()));
 
       return {
         // list,

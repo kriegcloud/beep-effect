@@ -1,10 +1,10 @@
 import { IamEntityIds, type SharedEntityIds } from "@beep/shared-domain/entity-ids";
-import { userTable } from "@beep/shared-tables/schema";
+import { user } from "@beep/shared-tables/schema";
 import { Table } from "@beep/shared-tables/Table";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 
-export const accountTable = Table.make(IamEntityIds.AccountId)(
+export const account = Table.make(IamEntityIds.AccountId)(
   {
     accountId: pg.text("account_id").notNull(),
     providerId: pg.text("provider_id").notNull(),
@@ -12,7 +12,7 @@ export const accountTable = Table.make(IamEntityIds.AccountId)(
       .text("user_id")
       .notNull()
       .$type<SharedEntityIds.UserId.Type>()
-      .references(() => userTable.id, { onDelete: "cascade", onUpdate: "cascade" }),
+      .references(() => user.id, { onDelete: "cascade", onUpdate: "cascade" }),
     accessToken: pg.text("access_token"),
     refreshToken: pg.text("refresh_token"),
     idToken: pg.text("id_token"),

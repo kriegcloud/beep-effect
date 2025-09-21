@@ -2,13 +2,10 @@ import { clientEnv } from "@beep/core-env/client";
 import { QueryClient } from "@beep/runtime-client/services/common/QueryClient";
 import { WorkerClient } from "@beep/runtime-client/worker/WorkerClient";
 import { DevTools } from "@effect/experimental";
-import { WebSdk } from "@effect/opentelemetry";
-import type { Resource } from "@effect/opentelemetry/Resource";
+import * as Otlp from "@effect/opentelemetry/Otlp";
 import { FetchHttpClient } from "@effect/platform";
 import type { HttpClient } from "@effect/platform/HttpClient";
 import { BrowserSocket } from "@effect/platform-browser";
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
-import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-web";
 import type { QueryClient as TanstackQueryClient } from "@tanstack/react-query";
 import * as Layer from "effect/Layer";
 import type * as ManagedRuntime from "effect/ManagedRuntime";
@@ -26,15 +23,14 @@ export const DevToolsLive: DevToolsLive =
     ? DevTools.layerWebSocket().pipe(Layer.provide(BrowserSocket.layerWebSocketConstructor))
     : Layer.empty;
 
-export type WebSdkLive = Layer.Layer<Resource, never, never>;
-export const WebSdkLive: WebSdkLive = WebSdk.layer(() => ({
-  resource: { serviceName: `${clientEnv.appName}` },
-  spanProcessor: new BatchSpanProcessor(
-    new OTLPTraceExporter({
-      url: clientEnv.otlpTraceExportedUrl.toString(),
-    })
-  ),
-}));
+export type WebSdkLive = Layer.Layer<never, never, never>;
+export const WebSdkLive: WebSdkLive = Otlp.layer({
+  baseUrl: clientEnv.otlpTraceExportedUrl.toString(),
+  resource: {
+    serviceName: `${clientEnv.appName}`,
+  },
+}).pipe(Layer.provideMerge(FetchHttpClient.layer));
+
 export type NetworkMonitorLive = Layer.Layer<NetworkMonitor, never, never>;
 export const NetworkMonitorLive: NetworkMonitorLive = NetworkMonitor.Default;
 
@@ -54,7 +50,7 @@ export const LogLevelLive: LogLevelLive = Logger.minimumLogLevel(
 export type LoggerLive = Layer.Layer<never, never, never>;
 export const LoggerLive: LoggerLive = clientEnv.env === "dev" ? Logger.pretty : Logger.json;
 // NetworkMonitor | QueryClient | WorkerClient | HttpClient | Resource
-type AppLayers = HttpClient | Resource | NetworkMonitor | WorkerClient | QueryClient;
+type AppLayers = HttpClient | NetworkMonitor | WorkerClient | QueryClient;
 
 export type AppLayer = Layer.Layer<AppLayers, never, never>;
 

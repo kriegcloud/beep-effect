@@ -7,9 +7,16 @@ import { faker } from "@faker-js/faker";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import { PgContainer } from "./pg-container";
+import { PgContainer, pgContainerPreflight } from "./pg-container";
 
-describe("@beep/core-db", () =>
+const preflight = pgContainerPreflight;
+const describePg = preflight.type === "ready" ? describe : describe.skip;
+
+if (preflight.type === "skip") {
+  console.warn(`[@beep/core-db] skipping docker-backed tests: ${preflight.reason}`);
+}
+
+describePg("@beep/core-db", () =>
   it.layer(PgContainer.Live, { timeout: "30 seconds" })("test core db errors", (it) => {
     it.effect(
       "error should be matched",
@@ -35,4 +42,5 @@ describe("@beep/core-db", () =>
         assert.isTrue(error.type === "UNIQUE_VIOLATION");
       })
     );
-  }));
+  })
+);

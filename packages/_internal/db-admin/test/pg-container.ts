@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import * as Schema from "@beep/db-admin/schema";
 import * as FilesRepos from "@beep/files-infra/adapters/repositories";
@@ -29,6 +30,109 @@ export class PgContainerError extends Data.TaggedError("PgContainerError")<{
   readonly message: string;
   readonly cause: unknown;
 }> {}
+
+export class PgContainerUnsupported extends Data.TaggedError("PgContainerUnsupported")<{
+  readonly message: string;
+  readonly cause?: unknown;
+}> {}
+
+export type PgContainerPreflightResult =
+  | { readonly type: "ready" }
+  | { readonly type: "skip"; readonly reason: string; readonly cause?: unknown };
+
+const EXPLICIT_SKIP_ENV_VARS = ["BEEP_SKIP_PG_CONTAINER_TESTS", "SKIP_DOCKER_TESTS", "TESTCONTAINERS_DISABLED"];
+
+const resolveExplicitSkipReason = (): string | undefined => {
+  for (const env of EXPLICIT_SKIP_ENV_VARS) {
+    const raw = process.env[env];
+    if (typeof raw === "string" && raw.length > 0 && raw.toLowerCase() !== "false") {
+      return `Environment variable ${env} is set, skipping PgContainer-dependent tests`;
+    }
+  }
+  return undefined;
+};
+
+const extractMessage = (cause: unknown): string => (cause instanceof Error ? cause.message : String(cause ?? ""));
+
+const classifyUnsupportedCause = (cause: unknown): string | undefined => {
+  if (cause && typeof cause === "object" && "code" in cause) {
+    const code = (cause as NodeJS.ErrnoException).code;
+    if (code === "ENOENT") {
+      return "Docker socket not found (is the Docker daemon running?)";
+    }
+    if (code === "ECONNREFUSED") {
+      return "Docker daemon refused the connection";
+    }
+    if (code === "EACCES") {
+      return "Access to the Docker socket was denied";
+    }
+  }
+
+  const message = extractMessage(cause);
+  const lower = message.toLowerCase();
+  if (message.includes("operation not supported")) {
+    return "Docker networking is not supported in this environment";
+  }
+  if (lower.includes("permission denied") || lower.includes("operation not permitted")) {
+    return "Access to the Docker daemon was denied";
+  }
+  if (message.includes("connect ENOENT") || message.includes("ENOENT: no such file or directory")) {
+    return "Docker socket not found (is the Docker daemon running?)";
+  }
+  if (message.includes("ECONNREFUSED")) {
+    return "Docker daemon refused the connection";
+  }
+  if (lower.includes("unable to find image")) {
+    return "Required Docker image is not available locally (pull the image or allow pulling)";
+  }
+  return undefined;
+};
+
+export const pgContainerPreflight: PgContainerPreflightResult = (() => {
+  const explicitReason = resolveExplicitSkipReason();
+  if (explicitReason) {
+    return { type: "skip", reason: explicitReason };
+  }
+
+  try {
+    const result = spawnSync("docker", ["run", "--rm", "--pull", "never", "alpine:3.19", "/bin/true"], {
+      stdio: "pipe",
+      encoding: "utf-8",
+      timeout: 15_000,
+    });
+
+    if (result.error) {
+      const reason = classifyUnsupportedCause(result.error);
+      if (reason) {
+        return { type: "skip", reason, cause: result.error };
+      }
+      throw result.error;
+    }
+
+    if (result.status === 0) {
+      return { type: "ready" };
+    }
+
+    const stderr = result.stderr ?? "";
+    const stdout = result.stdout ?? "";
+    const combined = `${stderr}\n${stdout}`.trim();
+    const reason = classifyUnsupportedCause(combined);
+    if (reason) {
+      return { type: "skip", reason, cause: combined };
+    }
+    return {
+      type: "skip",
+      reason: `Docker preflight failed with exit code ${result.status ?? "unknown"}`,
+      cause: combined,
+    };
+  } catch (cause) {
+    const reason = classifyUnsupportedCause(cause);
+    if (reason) {
+      return { type: "skip", reason, cause };
+    }
+    throw cause;
+  }
+})();
 
 const POSTGRES_USER = "test";
 const POSTGRES_PASSWORD = "test";
@@ -70,6 +174,16 @@ const setupDocker = Effect.gen(function* () {
   // Ensure you have the pg_uuidv7 docker image locally
   // You may need to modify pg_uuid's dockerfile to install the extension or build a new image from its base
   // https://github.com/fboulnois/pg_uuidv7
+  const preflight = yield* Effect.sync(() => pgContainerPreflight);
+  if (preflight.type === "skip") {
+    return yield* Effect.fail(
+      new PgContainerUnsupported({
+        message: preflight.reason,
+        cause: preflight.cause,
+      })
+    );
+  }
+
   const container = yield* Effect.tryPromise({
     try: () =>
       new PostgreSqlContainer("ghcr.io/fboulnois/pg_uuidv7:1.6.0")
@@ -147,7 +261,7 @@ export class PgContainer extends Effect.Service<PgContainer>()("PgContainer", {
       });
 
       const encoded = yield* S.encode(Entities.User.Model.insert)(mockedUser);
-      yield* db.insert(Schema.userTable).values([encoded]);
+      yield* db.insert(Schema.user).values([encoded]);
     })
   ).pipe(
     Layer.provideMerge(

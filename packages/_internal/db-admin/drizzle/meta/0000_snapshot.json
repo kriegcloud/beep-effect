@@ -1,5 +1,5 @@
 {
-  "id": "3d0f6476-08bb-45a0-80f2-788f7d2b1536",
+  "id": "c8321d41-2b17-4628-a4fa-7e1cc4c57ca2",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -973,17 +973,7 @@
           "with": {}
         }
       },
-      "foreignKeys": {
-        "account_user_id_user_id_fk": {
-          "name": "account_user_id_user_id_fk",
-          "tableFrom": "account",
-          "tableTo": "user",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "account_id_unique": {
