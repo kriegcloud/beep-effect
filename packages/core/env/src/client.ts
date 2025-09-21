@@ -23,7 +23,7 @@ const ClientEnvSchema = S.Struct({
   captchaSiteKey: S.Redacted(S.String),
   authUrl: BS.URLString,
   authPath: BS.URLPath,
-  googleClientId: S.Redacted(S.String),
+  googleClientId: S.String,
 });
 
 namespace ClientEnvSchema {

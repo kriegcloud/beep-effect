@@ -22,7 +22,6 @@ import {
   usernameClient,
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
-import * as Redacted from "effect/Redacted";
 
 export const client = createAuthClient({
   baseURL: clientEnv.authUrl,
@@ -37,7 +36,7 @@ export const client = createAuthClient({
     multiSessionClient(),
     oidcClient(),
     oneTapClient({
-      clientId: Redacted.value(clientEnv.googleClientId),
+      clientId: clientEnv.googleClientId,
       promptOptions: {
         maxAttempts: 1,
       },
