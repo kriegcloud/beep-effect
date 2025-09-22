@@ -31,7 +31,7 @@ export namespace MonthString {
   export type Type = S.Schema.Type<typeof MonthString>;
   export type Encoded = S.Schema.Encoded<typeof MonthString>;
 }
-
+// todo should use `S.transformLiteral` for this.
 export const MonthNumberKit = stringLiteralKit("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", {
   enumMapping: [
     ["01", "january"],
@@ -83,7 +83,7 @@ export namespace MonthInt {
   export type Type = S.Schema.Type<typeof MonthInt>;
   export type Encoded = S.Schema.Encoded<typeof MonthInt>;
 }
-
+// todo should use `S.transformLiteral` for this.
 export const monthIntToNumber = Match.type<MonthInt.Type>().pipe(
   Match.when(1, () => MonthNumber.Enum.january),
   Match.when(2, () => MonthNumber.Enum.february),
@@ -99,7 +99,7 @@ export const monthIntToNumber = Match.type<MonthInt.Type>().pipe(
   Match.when(12, () => MonthNumber.Enum.december),
   Match.exhaustive
 );
-
+// todo should use `S.transformLiteral` for this.
 export const monthNumberToInt = Match.type<MonthNumber.Type>().pipe(
   Match.when("01", () => 1 as const),
   Match.when("02", () => 2 as const),

@@ -118,3 +118,9 @@ export namespace Forbidden {
   export type Type = S.Schema.Type<typeof Forbidden>;
   export type Encoded = S.Schema.Encoded<typeof Forbidden>;
 }
+
+export class UnknownError extends S.TaggedError<UnknownError>()("UnknownError", {
+  cause: S.Unknown,
+}) {
+  readonly message = "An unknown error has occurred.";
+}

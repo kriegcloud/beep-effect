@@ -4,8 +4,6 @@ import { create } from "mutative";
 
 type Fields = S.Struct.Fields;
 
-// const baseState = {} as Fields;
-
 export function mergeFields<const A extends Fields, const B extends Fields>(a: A, b: B): A & B;
 
 export function mergeFields<const A extends Fields>(a: A): <const B extends Fields>(b: B) => A & B;

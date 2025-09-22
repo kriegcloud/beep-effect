@@ -7,13 +7,18 @@ import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
 import { client } from "../adapters";
 
-export const signInEmail = Effect.tryPromise({
-  try: () =>
-    client.signIn.email({
-      email: "",
-      password: "",
-    }),
-  catch: (e) => {},
+export const signInEmail = Effect.fn("signInEmail")(function* (params: {
+  email: BS.Email.Type;
+  password: Redacted.Redacted<BS.Password.Type>;
+}) {
+  return yield* Effect.tryPromise({
+    try: () =>
+      client.signIn.email({
+        email: Redacted.value(params.email),
+        password: Redacted.value(params.password),
+      }),
+    catch: (e) => {},
+  });
 });
 
 export const signInSocial = Effect.fn("signInSocial")(function* (provider: AuthProviderNameValue.Type) {
