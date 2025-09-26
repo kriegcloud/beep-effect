@@ -1,4 +1,5 @@
 "use client";
+import { assetPaths } from "@beep/constants";
 import Box from "@mui/material/Box";
 import type { LinkProps } from "@mui/material/Link";
 import Link from "@mui/material/Link";
@@ -31,7 +32,7 @@ export function Logo({ sx, disabled, className, href = "/", isSingle = true, ...
     <Box
       component={"img"}
       alt="Single logo"
-      src={`/logo.png`}
+      src={assetPaths.logo}
       width="100%"
       height="100%"
       sx={{
@@ -44,7 +45,7 @@ export function Logo({ sx, disabled, className, href = "/", isSingle = true, ...
 
   const fullLogo = (
     // biome-ignore lint/performance/noImgElement: UI library component - consumers can optimize images as needed
-    <img alt="Full logo" src={`/logo/logo.png`} width="100%" height="100%" />
+    <img alt="Full logo" src={assetPaths.logo} width="100%" height="100%" />
   );
 
   // const singleLogo = (

@@ -1,3 +1,4 @@
+import { assetPaths } from "@beep/constants";
 import { BackgroundShape } from "@beep/ui/assets/illustrations/background-shape";
 import type { SvgIconProps } from "@mui/material/SvgIcon";
 import SvgIcon from "@mui/material/SvgIcon";
@@ -7,7 +8,7 @@ type SvgProps = SvgIconProps & { hideBackground?: boolean };
 
 function ForbiddenIllustration({ hideBackground, sx, ...other }: SvgProps) {
   const renderCharacterImage = () => (
-    <image href={`/assets/illustrations/characters/character-reject.webp`} height="280" x="220" y="40" />
+    <image href={assetPaths.assets.illustrations.characters.characterReject} height="280" x="220" y="40" />
   );
 
   return (

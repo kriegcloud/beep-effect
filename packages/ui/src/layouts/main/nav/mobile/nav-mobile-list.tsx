@@ -1,4 +1,4 @@
-import { paths } from "@beep/constants";
+import { assetPaths } from "@beep/constants";
 import { useBoolean, usePathname } from "@beep/ui/hooks";
 import { NavSectionVertical, navSectionClasses } from "@beep/ui/routing";
 import { isActiveLink, isExternalLink, rgbaFromChannel } from "@beep/ui/utils";
@@ -12,9 +12,7 @@ export function NavList({ data, sx, ...other }: NavListProps) {
   const pathname = usePathname();
   const navItemRef = useRef<HTMLButtonElement>(null);
 
-  const isNotRootOrDocs = !["/", paths.docs].includes(pathname);
-  const isNotComponentsPath = !pathname.startsWith(paths.components);
-  const isOpenPath = !!data.children && isNotRootOrDocs && isNotComponentsPath;
+  const isOpenPath = !!data.children;
 
   const isActive = isActiveLink(pathname, data.path, data.deepMatch ?? !!data.children);
 
@@ -64,7 +62,7 @@ export function NavList({ data, sx, ...other }: NavListProps) {
                     backgroundSize: "auto 88%",
                     backgroundPosition: "center",
                     backgroundRepeat: "no-repeat",
-                    backgroundImage: `url(/assets/illustrations/illustration-dashboard.webp)`,
+                    backgroundImage: `url(${assetPaths.assets.illustrations.illustrationDashboard})`,
                     border: `solid 1px ${rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.12)}`,
                   },
                 }),

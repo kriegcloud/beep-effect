@@ -1,3 +1,4 @@
+import { assetPaths } from "@beep/constants";
 import { transitionTap, varHover, varTap } from "@beep/ui/animate";
 import { RouterLink } from "@beep/ui/routing";
 import { rgbaFromChannel } from "@beep/ui/utils";
@@ -42,7 +43,7 @@ export function NavItemDashboard({ path, sx, ...other }: NavItemDashboardProps) 
           whileHover={varHover(1.02)}
           transition={transitionTap()}
           alt="Dashboard illustration"
-          src={`/assets/illustrations/illustration-dashboard.webp`}
+          src={assetPaths.assets.illustrations.illustrationDashboard}
           sx={{ width: 640, objectFit: "cover", aspectRatio: "4/3" }}
         />
       </Box>

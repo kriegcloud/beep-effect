@@ -1,14 +1,14 @@
+import { assetPaths } from "@beep/constants";
 import type { SvgIconProps } from "@mui/material/SvgIcon";
 import SvgIcon from "@mui/material/SvgIcon";
 import { memo } from "react";
-
 import { BackgroundShape } from "./background-shape";
 
 type SvgProps = SvgIconProps & { hideBackground?: boolean };
 
 function PageNotFoundIllustration({ hideBackground, sx, ...other }: SvgProps) {
   const renderCharacterImage = () => (
-    <image href={`/assets/illustrations/characters/character-question.webp`} height="280" x="220" y="40" />
+    <image href={assetPaths.assets.illustrations.characters.characterQuestion} height="280" x="220" y="40" />
   );
 
   return (

@@ -1,3 +1,4 @@
+import { assetPaths } from "@beep/constants";
 import { Label } from "@beep/ui/atoms";
 import { useAuthAdapterProvider } from "@beep/ui/providers";
 import { rgbaFromChannel } from "@beep/ui/utils";
@@ -7,7 +8,6 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { m } from "framer-motion";
-
 export function NavUpgrade({ sx, ...other }: BoxProps) {
   const {
     session: { user },
@@ -63,7 +63,7 @@ export function UpgradeBlock({ sx, ...other }: BoxProps) {
           ...theme.mixins.bgGradient({
             images: [
               `linear-gradient(135deg, ${rgbaFromChannel(theme.vars.palette.error.lightChannel, 0.92)}, ${rgbaFromChannel(theme.vars.palette.secondary.darkChannel, 0.92)})`,
-              `url(/assets/background/background-7.webp)`,
+              `url(${assetPaths.assets.background.background7})`,
             ],
           }),
           px: 3,
@@ -97,7 +97,7 @@ export function UpgradeBlock({ sx, ...other }: BoxProps) {
           repeatDelay: 0,
         }}
         alt="Small Rocket"
-        src={`/assets/illustrations/illustration-rocket-small.webp`}
+        src={assetPaths.assets.illustrations.illustrationRocketSmall}
         sx={{
           right: 0,
           width: 112,

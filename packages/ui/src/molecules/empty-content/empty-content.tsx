@@ -1,4 +1,5 @@
 "use client";
+import { assetPaths } from "@beep/constants";
 import { rgbaFromChannel } from "@beep/ui/utils";
 import type { BoxProps } from "@mui/material/Box";
 import Box from "@mui/material/Box";
@@ -37,7 +38,7 @@ export function EmptyContent({
       <Box
         component="img"
         alt="Empty content"
-        src={imgUrl ?? `/assets/icons/empty/ic-content.svg`}
+        src={imgUrl ?? assetPaths.assets.icons.empty.icContent}
         {...slotProps?.img}
         sx={[
           {
