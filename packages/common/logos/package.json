@@ -33,13 +33,13 @@
     "lint:circular": "pnpm madge -c ."
   },
   "peerDependencies": {
+    "effect": "*",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@effect/cluster": "*",
     "@effect/workflow": "*",
     "@beep/invariant": "workspace:^",
-    "uuid": "*",
-    "effect": "*"
+    "uuid": "*"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",

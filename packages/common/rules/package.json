@@ -34,6 +34,7 @@
     "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json pnpm tsx ./src/execute.ts"
   },
   "peerDependencies": {
+    "effect": "*",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/invariant": "workspace:^",
@@ -41,8 +42,7 @@
     "@effect/workflow": "*",
     "@effect/platform-node": "*",
     "uuid": "*",
-    "@faker-js/faker": "*",
-    "effect": "*"
+    "@faker-js/faker": "*"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",

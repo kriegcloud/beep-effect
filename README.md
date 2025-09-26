@@ -63,6 +63,7 @@ Prereqs
 
 Install & run
 ```bash
+# sometimes you have to run install twice idk why...
 pnpm install
 cp .env.example .env
 

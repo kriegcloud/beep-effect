@@ -33,7 +33,6 @@
     "lint:circular": "pnpm madge -c ."
   },
   "peerDependencies": {
-    "@better-auth/utils": "*",
     "ms": "*",
     "@effect/sql": "*",
     "@effect/sql-pg": "*",
@@ -50,14 +49,11 @@
     "react-dom": "*",
     "stripe": "*",
     "zod": "*",
-    "@better-auth/stripe": "*",
     "postgres": "*",
     "better-call": "*",
-    "@dub/better-auth": "*",
     "@simplewebauthn/server": "*",
     "dub": "*",
     "jose": "*",
-    "better-auth": "*",
     "uuid": "*",
     "@beep/core-db": "workspace:^",
     "@beep/core-env": "workspace:^",
@@ -77,6 +73,12 @@
     "@types/react-dom": "*",
     "@types/ms": "*",
     "@beep/types": "workspace:^"
+  },
+  "dependencies": {
+    "@better-auth/stripe": "*",
+    "@dub/better-auth": "*",
+    "better-auth": "*",
+    "@better-auth/utils": "*"
   },
   "effect": {
     "generateExports": {

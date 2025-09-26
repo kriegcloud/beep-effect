@@ -1,5 +1,4 @@
 import { invariant } from "@beep/invariant";
-import type { DefaultAnnotations } from "@beep/schema/annotations";
 import { DiscriminatedStruct } from "@beep/schema/generics";
 import type { StringTypes, UnsafeTypes } from "@beep/types";
 import type { SnakeTag } from "@beep/types/tag.types";
@@ -125,7 +124,7 @@ export function stringLiteralKit<const Literals extends A.NonEmptyReadonlyArray<
   ) => A.NonEmptyReadonlyArray<Exclude<Literals[number], Keys[number]>>;
   derive: <Keys extends A.NonEmptyReadonlyArray<Literals[number]>>(
     ...keys: Keys
-  ) => (annotations: DefaultAnnotations<Keys[number]>) => {
+  ) => {
     Schema: S.Literal<[...Keys]>;
     Options: Keys;
     Enum: CreateEnumType<Keys, undefined>;
@@ -173,7 +172,7 @@ export function stringLiteralKit<
   ) => A.NonEmptyReadonlyArray<Exclude<Literals[number], Keys[number]>>;
   derive: <Keys extends A.NonEmptyReadonlyArray<Literals[number]>>(
     ...keys: Keys
-  ) => (annotations: DefaultAnnotations<Keys[number]>) => {
+  ) => {
     Schema: S.Literal<[...Keys]>;
     Options: Keys;
     Enum: CreateEnumType<Keys, undefined>;
@@ -223,7 +222,7 @@ export function stringLiteralKit<
   ) => A.NonEmptyReadonlyArray<Exclude<Literals[number], Keys[number]>>;
   derive: <Keys extends A.NonEmptyReadonlyArray<Literals[number]>>(
     ...keys: Keys
-  ) => (annotations: DefaultAnnotations<Keys[number]>) => {
+  ) => {
     Schema: S.Literal<[...Keys]>;
     Options: Keys;
     Enum: CreateEnumType<Keys, undefined>;
@@ -372,9 +371,9 @@ export function stringLiteralKit<
     toPgEnum: (name) => pgEnum(name, literals),
     derive:
       <Keys extends A.NonEmptyReadonlyArray<Literals[number]>>(...keys: Keys) =>
-      (annotations) => {
-        const Schema = S.Literal(...literals).annotations({
-          arbitrary: () => (fc) => fc.constantFrom(...literals),
+      {
+        const Schema = S.Literal(...keys).annotations({
+          arbitrary: () => (fc) => fc.constantFrom(...keys),
         });
 
         const toTagged = <D extends string>(discriminator: StringTypes.NonEmptyString<D>) => {
@@ -403,7 +402,6 @@ export function stringLiteralKit<
 
         return {
           Schema: S.Literal(...keys).annotations({
-            ...annotations,
             arbitrary: () => (fc) => fc.constantFrom(...literals),
           }),
           Options: keys,

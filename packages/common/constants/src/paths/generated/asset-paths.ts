@@ -105,5 +105,5 @@ export const publicPaths = [
   "/icons/icon-72x72.png",
   "/icons/icon-96x96.png",
   "/logo.png",
-  "/site.webmanifest",
+  "/site.webmanifest"
 ] as const;

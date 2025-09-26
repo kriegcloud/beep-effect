@@ -34,8 +34,8 @@
     "execute": "pnpm tsx --tsconfig ./tsconfig.src.json ./src/execute.ts"
   },
   "peerDependencies": {
-    "@beep/invariant": "workspace:^",
     "effect": "*",
+    "@beep/invariant": "workspace:^",
     "@faker-js/faker": "*",
     "mutative": "*"
   },

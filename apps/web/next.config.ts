@@ -1,7 +1,7 @@
 import path from "node:path";
 import * as Struct from "effect/Struct";
 import type { NextConfig } from "next";
-
+// "development" | "test" | "production
 const isDev = process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_ENV === "dev";
 const otlpOrigin = process.env.NEXT_PUBLIC_OTLP_TRACE_EXPORTER_URL
   ? new URL(process.env.NEXT_PUBLIC_OTLP_TRACE_EXPORTER_URL).origin
@@ -70,12 +70,12 @@ const securityHeaders = [
     key: "Referrer-Policy",
     value: "same-origin",
   },
-  {
+  ...(process.env.NODE_ENV === "production" ? [{
     key: "Content-Security-Policy",
     value: genCSP()
       .replace(/\s{2,}/g, " ")
       .trim(),
-  },
+  }] as const : [])
 ];
 
 const nextConfig = {

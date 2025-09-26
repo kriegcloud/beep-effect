@@ -32,8 +32,10 @@
     "lint:fix": "biome check . --write",
     "lint:circular": "pnpm madge -c ."
   },
+  "peerDependencies": {
+    "effect": "*"
+  },
   "devDependencies": {
-    "effect": "*",
     "string-ts": "*"
   },
   "effect": {

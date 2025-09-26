@@ -6,10 +6,10 @@
   "description": "CodeDank Website",
   "private": true,
   "scripts": {
-    "dev": "pnpm dotenvx next dev --turbopack",
+    "dev": "pnpm dotenvx next dev",
     "dev:https": "pnpm dotenvx next dev --turbopack --experimental-https",
     "start": "pnpm dotenvx next start",
-    "build": "next build --turbopack",
+    "build": "pnpm dotenvx next build --turbopack",
     "build:turbo": "pnpm dotenvx next build --turbopack",
     "clean": "rm -rf node_modules .next out dist build .turbo .tsbuildinfo",
     "lint": "biome check .",

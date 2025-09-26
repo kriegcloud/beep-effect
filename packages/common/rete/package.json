@@ -32,18 +32,18 @@
     "lint:fix": "biome check . --write",
     "lint:circular": "pnpm madge -c ./src"
   },
-  "devDependencies": {
-    "@types/lodash": "*",
-    "@faker-js/faker": "*",
-    "@types/react": "*"
-  },
   "peerDependencies": {
+    "effect": "*",
     "react": "*",
     "lodash": "*",
     "@beep/types": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
-    "@beep/invariant": "workspace:^",
-    "effect": "*"
+    "@beep/invariant": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/lodash": "*",
+    "@faker-js/faker": "*",
+    "@types/react": "*"
   }
 }

@@ -52,7 +52,7 @@ type SplitPath<S extends string> = S extends `${infer A}/${infer B}`
 type RemoveExt<S extends string> = S extends `${infer Base}.${string}` ? Base : S;
 
 /** Runtime mirror of `RemoveExt`. */
-function removeExt(name: string): string {
+export function removeExt(name: string): string {
   const i = name.lastIndexOf(".");
   return i === -1 ? name : name.slice(0, i);
 }

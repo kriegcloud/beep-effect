@@ -37,9 +37,7 @@
     "@beep/core-env": "workspace:^",
     "@beep/constants": "workspace:^",
     "@beep/errors": "workspace:^",
-    "effect": "*"
-  },
-  "dependencies": {
+    "effect": "*",
     "@beep/ui": "workspace:^",
     "@react-email/components": "*",
     "@react-email/render": "*",
