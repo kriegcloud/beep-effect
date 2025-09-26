@@ -27,7 +27,9 @@
     "lint:fix": "biome check . --write",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
-    "lint:circular": "pnpm madge -c ."
+    "lint:circular": "pnpm madge -c .",
+    "dotenvx": "dotenvx run -f ../../.env --",
+    "generate-public-paths": "pnpm dotenvx tsx src/generate-asset-paths.ts"
   },
   "dependencies": {
     "@beep/tooling-utils": "workspace:^",

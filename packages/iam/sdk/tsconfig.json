@@ -23,8 +23,7 @@
       "@beep/shared-domain/*": ["../../shared/domain/src/*"],
       "@beep/iam-domain": ["../domain/src/index"],
       "@beep/iam-domain/*": ["../domain/src/*"],
-      "@beep/iam-infra": ["../infra/src/index"],
-      "@beep/iam-infra/*": ["../infra/src/*"]
+      "@beep/ui/*": ["../../ui/src/*"]
     }
   },
   "references": [

@@ -30,6 +30,7 @@
     "coverage": "vitest run --coverage",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
+    "execute": "tsx ./src/execute.ts",
     "lint:circular": "pnpm madge -c ."
   },
   "peerDependencies": {

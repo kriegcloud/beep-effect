@@ -1,6 +1,6 @@
 import { clientEnv } from "@beep/core-env/client";
-import { QueryClient } from "@beep/runtime-client/services/common/QueryClient";
-import { WorkerClient } from "@beep/runtime-client/worker/WorkerClient";
+import { QueryClient } from "@beep/runtime-client/services/common/query-client";
+import { WorkerClient } from "@beep/runtime-client/worker/worker-client";
 import { DevTools } from "@effect/experimental";
 import * as Otlp from "@effect/opentelemetry/Otlp";
 import { FetchHttpClient } from "@effect/platform";
@@ -8,14 +8,13 @@ import type { HttpClient } from "@effect/platform/HttpClient";
 import { BrowserSocket } from "@effect/platform-browser";
 import type { QueryClient as TanstackQueryClient } from "@tanstack/react-query";
 import * as Layer from "effect/Layer";
+import * as Logger from "effect/Logger";
+import * as LogLevel from "effect/LogLevel";
 import type * as ManagedRuntime from "effect/ManagedRuntime";
-import { NetworkMonitor } from "../common/NetworkMonitor";
+import { NetworkMonitor } from "../common/network-monitor";
 
 export type HttpClientLive = Layer.Layer<HttpClient, never, never>;
 export const HttpClientLive: HttpClientLive = FetchHttpClient.layer;
-
-import * as Logger from "effect/Logger";
-import * as LogLevel from "effect/LogLevel";
 
 export type DevToolsLive = Layer.Layer<never, never, never>;
 export const DevToolsLive: DevToolsLive =
@@ -25,7 +24,7 @@ export const DevToolsLive: DevToolsLive =
 
 export type WebSdkLive = Layer.Layer<never, never, never>;
 export const WebSdkLive: WebSdkLive = Otlp.layer({
-  baseUrl: clientEnv.otlpTraceExportedUrl.toString(),
+  baseUrl: process.env.NEXT_PUBLIC_OTLP_TRACE_EXPORTER_URL!,
   resource: {
     serviceName: `${clientEnv.appName}`,
   },

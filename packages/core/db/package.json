@@ -50,7 +50,6 @@
     "@beep/schema": "workspace:^"
   },
   "devDependencies": {
-    "@types/pg": "*",
     "@beep/types": "workspace:^"
   },
   "effect": {

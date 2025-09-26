@@ -67,6 +67,12 @@
       "require": "./build/cjs/components/*",
       "default": "./build/src/components/*"
     },
+    "./common/*": {
+      "import": "./build/esm/common/*",
+      "types": "./build/dts/common/*",
+      "require": "./build/cjs/common/*",
+      "default": "./build/src/common/*"
+    },
     "./form/*": {
       "import": "./build/esm/form/*",
       "types": "./build/dts/form/*",

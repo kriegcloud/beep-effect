@@ -63,7 +63,6 @@
     "@testcontainers/postgresql": "*",
     "@effect/sql": "*",
     "@effect/experimental": "*",
-    "@types/pg": "*",
     "drizzle-kit": "*",
     "drizzle-orm": "*",
     "effect": "*",

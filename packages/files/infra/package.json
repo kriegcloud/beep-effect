@@ -59,7 +59,6 @@
     "@beep/errors": "workspace:^"
   },
   "devDependencies": {
-    "@types/pg": "*",
     "@beep/types": "workspace:^"
   },
   "effect": {

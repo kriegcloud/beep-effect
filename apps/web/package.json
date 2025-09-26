@@ -61,15 +61,12 @@
     "@effect/platform-node": "*",
     "@effect/cluster": "*",
     "@effect/workflow": "*",
-    "@opentelemetry/sdk-trace-node": "*",
     "resend": "*",
     "drizzle-orm": "*",
     "@effect/sql": "*",
     "ms": "*",
     "@effect/sql-pg": "*",
     "@effect/sql-drizzle": "*",
-    "@opentelemetry/exporter-trace-otlp-http": "*",
-    "@opentelemetry/sdk-trace-web": "*",
     "nuqs": "*",
     "@effect/platform-browser": "*",
     "@tanstack/react-query": "*",
@@ -159,8 +156,16 @@
     "@dub/better-auth": "*",
     "@simplewebauthn/server": "*",
     "dub": "*",
+    "@effect-atom/atom-react": "*",
     "jose": "*",
-    "@react-email/render": "*"
+    "@react-email/render": "*",
+    "embla-carousel": "*",
+    "embla-carousel-auto-height": "*",
+    "embla-carousel-auto-scroll": "*",
+    "embla-carousel-autoplay": "*",
+    "embla-carousel-fade": "*",
+    "embla-carousel-react": "*",
+    "react-apexcharts": "*"
   },
   "devDependencies": {
     "@types/ms": "*",
@@ -171,6 +176,15 @@
     "@types/react": "*",
     "@types/autosuggest-highlight": "*",
     "@types/react-dom": "*",
-    "@types/pg": "*"
+    "@tailwindcss/postcss": "*",
+    "tailwindcss": "*",
+    "@turbo/gen": "*",
+    "@types/lodash": "*",
+    "@types/lodash-es": "*",
+    "@types/nprogress": "*",
+    "babel-plugin-transform-next-use-client": "*",
+    "copyfiles": "*",
+    "@babel/preset-react": "*",
+    "@types/copyfiles": "*"
   }
 }

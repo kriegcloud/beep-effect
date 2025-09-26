@@ -3,7 +3,7 @@ import * as BrowserWorkerRunner from "@effect/platform-browser/BrowserWorkerRunn
 import * as RpcServer from "@effect/rpc/RpcServer";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { FilterError, WorkerRpc } from "./WorkerRpc";
+import { FilterError, WorkerRpc } from "./worker-rpc";
 
 const isPrime = (num: number): boolean => {
   if (num <= 1) return false;

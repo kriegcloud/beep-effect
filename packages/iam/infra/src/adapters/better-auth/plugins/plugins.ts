@@ -14,7 +14,7 @@ import * as LastLoginMethod from "./last-login-method";
 import * as Mcp from "./mcp";
 import * as MultiSession from "./multi-session";
 import * as NextCookies from "./next-cookies";
-import * as OauthProxy from "./oauth-proxy";
+// import * as OAuthProxy from "./oauth-proxy";
 import * as OidcProvider from "./oidc-provider";
 import * as OneTap from "./one-tap";
 import * as OneTimeToken from "./one-time-token";
@@ -45,7 +45,7 @@ const AllPluginsArray = [
   MultiSession.multiSessionPlugin,
   NextCookies.nextCookiesPlugin,
   OneTap.oneTapPlugin,
-  OauthProxy.oauthProxyPlugin,
+  // OAuthProxy.oauthProxyPlugin,
   OidcProvider.oidcProviderPlugin,
   OpenApi.openApiPlugin,
   OneTimeToken.oneTimeTokenPlugin,

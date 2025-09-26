@@ -142,6 +142,10 @@
       "cache": true,
       "persistent": true
     },
+    "gen:beep-paths": {
+      "cache": false,
+      "persistent": false
+    },
     "start": {
       "cache": false,
       "persistent": true

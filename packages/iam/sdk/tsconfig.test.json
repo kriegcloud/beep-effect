@@ -30,7 +30,7 @@
       "path": "../domain"
     },
     {
-      "path": "../infra"
+      "path": "../../ui"
     }
   ],
   "compilerOptions": {

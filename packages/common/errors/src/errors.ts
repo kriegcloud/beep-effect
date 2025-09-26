@@ -121,6 +121,9 @@ export namespace Forbidden {
 
 export class UnknownError extends S.TaggedError<UnknownError>()("UnknownError", {
   cause: S.Unknown,
+  customMessage: S.optional(S.String),
 }) {
-  readonly message = "An unknown error has occurred.";
+  get message() {
+    return this.customMessage ?? "An unknown error has occurred.";
+  }
 }

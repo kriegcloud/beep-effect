@@ -66,9 +66,7 @@
     "@effect/platform-node": "*",
     "@effect/cluster": "*",
     "@effect/workflow": "*",
-    "@opentelemetry/sdk-trace-node": "*",
     "resend": "*",
-    "@opentelemetry/exporter-trace-otlp-http": "*",
     "drizzle-orm": "*",
     "next": "*",
     "effect": "*",
@@ -87,7 +85,6 @@
   },
   "devDependencies": {
     "tsx": "*",
-    "@types/pg": "*",
     "@beep/types": "workspace:^"
   },
   "effect": {
