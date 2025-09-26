@@ -1,15 +1,15 @@
+import { DomainError } from "@beep/tooling-utils/repo";
 import type { UnsafeTypes } from "@beep/types";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
+import * as Bool from "effect/Boolean";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Glob from "glob";
-import {DomainError} from "@beep/tooling-utils/repo";
-import * as Bool from "effect/Boolean";
-import * as F from "effect/Function";
 
 /**
  * Internal constructor for the FsUtils service.
@@ -168,15 +168,19 @@ const make = Effect.gen(function* () {
    *
    */
   const existsOrThrow = Effect.fn("existsOrThrow")(function* (path: string) {
-    return yield* Effect.flatMap(fs.exists(path), F.pipe(
-      Bool.match({
-        onTrue: () => Effect.succeed(path),
-        onFalse: () => new DomainError({
-          message: `Path ${path} does not exist`,
+    return yield* Effect.flatMap(
+      fs.exists(path),
+      F.pipe(
+        Bool.match({
+          onTrue: () => Effect.succeed(path),
+          onFalse: () =>
+            new DomainError({
+              message: `Path ${path} does not exist`,
+            }),
         })
-      })
-    ));
-  })
+      )
+    );
+  });
 
   /**
    * Read a JSON file and parse it, mapping parsing errors into a friendly Error.

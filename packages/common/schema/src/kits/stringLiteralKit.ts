@@ -369,48 +369,46 @@ export function stringLiteralKit<
     pick,
     omit,
     toPgEnum: (name) => pgEnum(name, literals),
-    derive:
-      <Keys extends A.NonEmptyReadonlyArray<Literals[number]>>(...keys: Keys) =>
-      {
-        const Schema = S.Literal(...keys).annotations({
-          arbitrary: () => (fc) => fc.constantFrom(...keys),
+    derive: <Keys extends A.NonEmptyReadonlyArray<Literals[number]>>(...keys: Keys) => {
+      const Schema = S.Literal(...keys).annotations({
+        arbitrary: () => (fc) => fc.constantFrom(...keys),
+      });
+
+      const toTagged = <D extends string>(discriminator: StringTypes.NonEmptyString<D>) => {
+        const memberTuple = keys.map((lit) => {
+          return DiscriminatedStruct(discriminator)(lit, {});
+        }) as unknown as TaggedMembers<Keys, D>;
+
+        const membersObj = Object.create(null) as Record<string, S.Struct<UnsafeTypes.UnsafeAny>>;
+        keys.forEach((lit, i) => {
+          membersObj[lit] = (memberTuple as unknown as ReadonlyArray<S.Struct<UnsafeTypes.UnsafeAny>>)[i]!;
         });
+        Object.freeze(membersObj);
 
-        const toTagged = <D extends string>(discriminator: StringTypes.NonEmptyString<D>) => {
-          const memberTuple = keys.map((lit) => {
-            return DiscriminatedStruct(discriminator)(lit, {});
-          }) as unknown as TaggedMembers<Keys, D>;
-
-          const membersObj = Object.create(null) as Record<string, S.Struct<UnsafeTypes.UnsafeAny>>;
-          keys.forEach((lit, i) => {
-            membersObj[lit] = (memberTuple as unknown as ReadonlyArray<S.Struct<UnsafeTypes.UnsafeAny>>)[i]!;
-          });
-          Object.freeze(membersObj);
-
-          const Union = S.Union(
-            ...(memberTuple as unknown as [
-              S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>,
-              ...S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>[],
-            ])
-          ) as TaggedUnion<Keys, D>;
-
-          return {
-            Union,
-            Members: membersObj as TaggedMembersMap<Keys, D>,
-          } as const;
-        };
+        const Union = S.Union(
+          ...(memberTuple as unknown as [
+            S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>,
+            ...S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>[],
+          ])
+        ) as TaggedUnion<Keys, D>;
 
         return {
-          Schema: S.Literal(...keys).annotations({
-            arbitrary: () => (fc) => fc.constantFrom(...literals),
-          }),
-          Options: keys,
-          Enum: enumFromStringArray(...keys),
-          Mock: (qty: number) => FC.sample(Arbitrary.make(Schema), qty),
-          is: S.is(Schema),
-          toTagged,
-        };
-      },
+          Union,
+          Members: membersObj as TaggedMembersMap<Keys, D>,
+        } as const;
+      };
+
+      return {
+        Schema: S.Literal(...keys).annotations({
+          arbitrary: () => (fc) => fc.constantFrom(...literals),
+        }),
+        Options: keys,
+        Enum: enumFromStringArray(...keys),
+        Mock: (qty: number) => FC.sample(Arbitrary.make(Schema), qty),
+        is: S.is(Schema),
+        toTagged,
+      };
+    },
     toTagged,
   } as const;
 }

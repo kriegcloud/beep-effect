@@ -13,6 +13,7 @@ import * as Effect from "effect/Effect";
 import { TreeFormatter } from "effect/ParseResult";
 import * as S from "effect/Schema";
 import { AssetPaths } from "./utils";
+import { convertDirectoryToNextgen } from "./utils/convert-to-nextgen";
 
 /**
  * Recursively collect all files under a directory.
@@ -42,6 +43,11 @@ const program = Effect.gen(function* () {
     return yield* new DomainError({
       message: `publicDir: ${publicDir} does not exist in file system`,
     });
+  }
+
+  const conversions = yield* convertDirectoryToNextgen({ dir: publicDir });
+  if (conversions.length > 0) {
+    yield* Console.log("Converted assets:", JSON.stringify(conversions, null, 2));
   }
 
   const constantsDir = yield* getWorkspaceDir("@beep/constants");

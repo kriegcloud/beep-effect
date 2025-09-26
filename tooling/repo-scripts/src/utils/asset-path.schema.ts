@@ -1,7 +1,7 @@
-import {BS} from "@beep/schema";
-import * as S from "effect/Schema";
-import {toJsAccessor, removeExt} from "@beep/constants/paths/utils/public-paths-to-record";
+import { removeExt, toJsAccessor } from "@beep/constants/paths/utils/public-paths-to-record";
+import { BS } from "@beep/schema";
 import * as F from "effect/Function";
+import * as S from "effect/Schema";
 
 const SupportedFileExtensionKit = BS.stringLiteralKit(
   "gif",
@@ -20,35 +20,28 @@ const SupportedFileExtensionKit = BS.stringLiteralKit(
   "js"
 );
 
-export const NextgenConvertableExtensionKit = SupportedFileExtensionKit.derive(
-  "jpg",
-  "jpeg",
-  "png",
-  "avif"
-);
+export const NextgenConvertableExtensionKit = SupportedFileExtensionKit.derive("jpg", "jpeg", "png", "webp");
 
-export class NextgenConvertableExtensions extends F.pipe({
-    fields: {mod: S.instanceOf(WebAssembly.Module)},
-    members: NextgenConvertableExtensionKit.toTagged("_tag").Members
-  }, ({fields, members}) =>
+export class NextgenConvertableExtensions extends F.pipe(
+  {
+    fields: { mod: S.instanceOf(WebAssembly.Module) },
+    members: NextgenConvertableExtensionKit.toTagged("_tag").Members,
+  },
+  ({ fields, members }) =>
     S.Union(
-      S.Struct({...members.jpg.fields, ...fields}),
-      S.Struct({...members.jpeg.fields, ...fields}),
-      S.Struct({...members.avif.fields, ...fields}),
-      S.Struct({...members.png.fields, ...fields})
+      S.Struct({ ...members.jpg.fields, ...fields }),
+      S.Struct({ ...members.jpeg.fields, ...fields }),
+      S.Struct({ ...members.png.fields, ...fields }),
+      S.Struct({ ...members.webp.fields, ...fields })
     )
-) {
-
-}
+) {}
 
 export namespace NextgenConvertableExtensions {
   export type Type = typeof NextgenConvertableExtensions.Type;
   export type Encoded = typeof NextgenConvertableExtensions.Encoded;
 }
 
-export const SupportedFileExtensionSet = new Set([
-  ...SupportedFileExtensionKit.Options,
-]);
+export const SupportedFileExtensionSet = new Set([...SupportedFileExtensionKit.Options]);
 
 const jsIdentifierStartRegex = /^[a-z_$]/;
 const jsIdentifierRegex = /^[a-z_$][a-z0-9_$]*$/;
@@ -220,7 +213,9 @@ export const AssetPaths = S.Array(AssetPath).pipe(
       for (const [accessor, pathsForAccessor] of accessorMap) {
         if (childDirs.has(accessor)) {
           const dirPath = dir === "/" ? `/${accessor}` : `${dir}/${accessor}`;
-          directoryAccessorConflicts.push(`${dir}: accessor "${accessor}" conflicts with directory "${dirPath}" ← ${pathsForAccessor.join(", ")}`);
+          directoryAccessorConflicts.push(
+            `${dir}: accessor "${accessor}" conflicts with directory "${dirPath}" ← ${pathsForAccessor.join(", ")}`
+          );
         }
       }
     }
@@ -229,8 +224,10 @@ export const AssetPaths = S.Array(AssetPath).pipe(
       return `Asset file accessors conflict with directory names: ${directoryAccessorConflicts.join("; ")}`;
     }
 
-    return accessorCollisions.length === 0 ||
-      `Asset file names generate conflicting JS accessors: ${accessorCollisions.join("; ")}`;
+    return (
+      accessorCollisions.length === 0 ||
+      `Asset file names generate conflicting JS accessors: ${accessorCollisions.join("; ")}`
+    );
   })
 );
 

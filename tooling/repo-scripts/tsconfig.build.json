@@ -7,7 +7,7 @@
     {
       "path": "../../packages/common/types/tsconfig.build.json"
     },
-   {
+    {
       "path": "../../packages/common/constants/tsconfig.build.json"
     },
     {

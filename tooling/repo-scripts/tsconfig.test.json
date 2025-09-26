@@ -5,10 +5,10 @@
     {
       "path": "tsconfig.src.json"
     },
-            {
+    {
       "path": "../../packages/common/types"
     },
-   {
+    {
       "path": "../../packages/common/constants"
     },
     {
