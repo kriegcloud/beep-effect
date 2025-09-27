@@ -1,9 +1,7 @@
 import type { BoxProps } from "@mui/material/Box";
-
 import Box from "@mui/material/Box";
-import Link from "@mui/material/Link";
 
-export function SignUpTerms({ sx, ...other }: BoxProps) {
+export function Privacy({ sx, ...other }: BoxProps) {
   return (
     <Box
       component="span"
@@ -19,15 +17,7 @@ export function SignUpTerms({ sx, ...other }: BoxProps) {
       ]}
       {...other}
     >
-      {"By signing up, I agree to "}
-      <Link underline="always" color="text.primary">
-        Terms of service
-      </Link>
-      {" and "}
-      <Link underline="always" color="text.primary">
-        Privacy policy
-      </Link>
-      .
+      Privacy Policy
     </Box>
   );
 }

@@ -1,9 +1,8 @@
-import type { AuthProviderNameValue } from "@beep/constants";
+import { type AuthProviderNameValue, paths } from "@beep/constants";
 import { IamError } from "@beep/iam-sdk/errors";
 import { BS } from "@beep/schema";
 import type { IamEntityIds } from "@beep/shared-domain";
 import { withToast } from "@beep/ui/common";
-import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as F from "effect/Function";
@@ -32,7 +31,7 @@ const signInEmail = Effect.fn("signInEmail")(
     );
 
     if (result.error) {
-      return yield* Effect.fail(new IamError(result.error, result.error.message));
+      return yield* Effect.fail(new IamError(result.error, result.error.message ?? "Failed to signin"));
     }
 
     return yield* Effect.succeed(result.data);
@@ -51,14 +50,16 @@ const signInEmail = Effect.fn("signInEmail")(
 
 const signInSocial = Effect.fn("signInSocial")(
   function* (provider: AuthProviderNameValue.Type) {
-    const result = yield* Effect.tryPromise(() =>
-      client.signIn.social({
-        provider,
-      })
-    );
+    const result = yield* Effect.tryPromise({
+      try: () =>
+        client.signIn.social({
+          provider,
+        }),
+      catch: IamError.match,
+    });
 
     if (result.error) {
-      return yield* Effect.fail(new IamError(result.error, result.error.message));
+      return yield* Effect.fail(new IamError(result.error, result.error.message ?? "Failed to signin"));
     }
 
     return yield* Effect.succeed(result.data);
@@ -77,6 +78,11 @@ const signInSocial = Effect.fn("signInSocial")(
 
 const signInPasskey = Effect.fn("signInPasskey")(
   function* ({ onSuccess }: { onSuccess: () => void }) {
+    let error: Record<string, any> & {
+      message: string;
+    } = {
+      message: "failed to sign in with passkey",
+    };
     const result = yield* Effect.tryPromise({
       try: () =>
         client.signIn.passkey({
@@ -85,16 +91,17 @@ const signInPasskey = Effect.fn("signInPasskey")(
               onSuccess();
             },
             onError(context) {
-              console.error(context.error);
+              error = context.error;
               throw context.error;
             },
           },
         }),
-      catch: IamError.match,
+      catch: (e) => new IamError(e, error.message),
     });
 
     if (result.error) {
-      return yield* Effect.fail(new IamError(result.error, result.error.message));
+      yield* Effect.logError(JSON.stringify(result.error, null, 2));
+      return yield* Effect.fail(new IamError(result.error, error.message));
     }
 
     return yield* Effect.succeed(result.data);
@@ -102,7 +109,10 @@ const signInPasskey = Effect.fn("signInPasskey")(
   withToast({
     onWaiting: "Signing in...",
     onSuccess: "Signed in successfully",
-    onFailure: "Failed to sign in",
+    onFailure: O.match({
+      onNone: () => "Failed to sign in with passkey.",
+      onSome: (e) => e.customMessage,
+    }),
   }),
   Effect.catchAll(() => Effect.succeed(undefined)),
   Effect.asVoid
@@ -125,14 +135,14 @@ const signInOneTap = Effect.fn("signInOneTap")(
 );
 
 export class ResetPasswordContract extends S.Struct({
-  newPassword: BS.Password,
-  confirmPassword: BS.Password,
+  password: BS.Password,
+  passwordConfirm: BS.Password,
 }).pipe(
   S.filter(
-    ({ newPassword, confirmPassword }) =>
+    ({ password, passwordConfirm }) =>
       Equal.equals(
-        Redacted.value<BS.Password.Encoded>(newPassword),
-        Redacted.value<BS.Password.Encoded>(confirmPassword)
+        Redacted.value<BS.Password.Encoded>(password),
+        Redacted.value<BS.Password.Encoded>(passwordConfirm)
       ) || "Passwords do not match"
   )
 ) {}
@@ -147,7 +157,16 @@ const resetPassword = Effect.fnUntraced(
       new URLSearchParams(window.location.search).get("token"),
       O.fromNullable,
       O.match({
-        onNone: () => Effect.fail(new Error("No token found")),
+        onNone: () =>
+          Effect.fail(
+            new IamError(
+              {
+                id: "reset-password-token",
+                resource: "reset-password-token",
+              },
+              "No token found"
+            )
+          ),
         onSome: (token) => Effect.succeed(Redacted.make(token)),
       })
     );
@@ -155,10 +174,10 @@ const resetPassword = Effect.fnUntraced(
     const result = yield* F.pipe(
       params,
       S.encode(ResetPasswordContract),
-      Effect.flatMap(({ newPassword }) =>
+      Effect.flatMap(({ password }) =>
         Effect.tryPromise(() =>
           client.resetPassword({
-            newPassword,
+            newPassword: password,
             token: Redacted.value(token),
           })
         )
@@ -166,8 +185,7 @@ const resetPassword = Effect.fnUntraced(
     );
 
     if (result.error) {
-      yield* Console.error(result.error);
-      return yield* Effect.fail(new IamError(result.error, result.error.message));
+      return yield* Effect.fail(new IamError(result.error, result.error.message ?? "Failed to reset password"));
     }
 
     return yield* Effect.succeed(result.data);
@@ -184,18 +202,27 @@ const resetPassword = Effect.fnUntraced(
   Effect.asVoid
 );
 
+export class RequestPasswordResetContract extends BS.Class<ResetPasswordContract>("RequestPasswordResetContract")({
+  email: BS.Email,
+  redirectTo: BS.StringWithDefault(paths.auth.requestResetPassword),
+}) {}
+
+export namespace RequestPasswordResetContract {
+  export type Type = typeof RequestPasswordResetContract.Type;
+  export type Encoded = typeof RequestPasswordResetContract.Encoded;
+}
+
 const requestPasswordReset = Effect.fn("requestPasswordReset")(
-  function* (email: BS.Email.Type) {
-    const result = yield* Effect.tryPromise(() =>
-      client.requestPasswordReset({
-        email: Redacted.value(email),
-        redirectTo: "/reset-password",
+  function* (value: RequestPasswordResetContract.Type) {
+    const result = yield* Effect.flatMap(S.encode(RequestPasswordResetContract)(value), (encoded) =>
+      Effect.tryPromise({
+        try: () => client.requestPasswordReset(encoded),
+        catch: IamError.match,
       })
     );
 
     if (result.error) {
-      yield* Console.error(result.error);
-      return yield* Effect.fail(new IamError(result.error, result.error.message));
+      return yield* Effect.fail(new IamError(result.error, result.error.message ?? "Failed to request password reset"));
     }
     return yield* Effect.succeed(result.data);
   },
@@ -215,8 +242,7 @@ const sendOtp = Effect.fn("sendOTP")(
   function* () {
     const result = yield* Effect.tryPromise(() => client.twoFactor.sendOtp());
     if (result.error) {
-      yield* Console.error(result.error);
-      return yield* Effect.fail(new IamError(result.error, result.error.message));
+      return yield* Effect.fail(new IamError(result.error, result.error.message ?? "Failed to send one time password"));
     }
     return yield* Effect.succeed(result.data);
   },
@@ -241,8 +267,9 @@ const verifyOtp = Effect.fn("verifyOtp")(
     );
 
     if (result.error) {
-      yield* Console.error(result.error);
-      return yield* Effect.fail(new IamError(result.error, result.error.message));
+      return yield* Effect.fail(
+        new IamError(result.error, result.error.message ?? "Failed to verify one time password")
+      );
     }
     return yield* Effect.succeed(result.data);
   },
@@ -266,8 +293,7 @@ const verifyTotp = Effect.fn("verifyTotp")(
       })
     );
     if (result.error) {
-      yield* Console.error(result.error);
-      return yield* Effect.fail(new IamError(result.error, result.error.message));
+      return yield* Effect.fail(new IamError(result.error, result.error.message ?? "Failed to verify Totp"));
     }
 
     return yield* Effect.succeed(result.data);
@@ -286,15 +312,16 @@ const verifyTotp = Effect.fn("verifyTotp")(
 
 const acceptInvitation = Effect.fn("acceptInvitation")(
   function* (invitationId: IamEntityIds.InvitationId.Type) {
-    const result = yield* Effect.tryPromise(() =>
-      client.organization.acceptInvitation({
-        invitationId: invitationId,
-      })
-    );
+    const result = yield* Effect.tryPromise({
+      try: () =>
+        client.organization.acceptInvitation({
+          invitationId: invitationId,
+        }),
+      catch: IamError.match,
+    });
 
     if (result.error) {
-      yield* Console.error(result.error);
-      return yield* Effect.fail(new IamError(result.error, result.error.message));
+      return yield* Effect.fail(new IamError(result.error, result.error.message ?? "Failed to accept invitation"));
     }
     return yield* Effect.succeed(result.data);
   },
@@ -312,15 +339,18 @@ const acceptInvitation = Effect.fn("acceptInvitation")(
 
 const oauth2Register = Effect.fn("oauth2Register")(
   function* (clientName: string) {
-    const result = yield* Effect.tryPromise(() =>
-      client.oauth2.register({
-        client_name: clientName,
-        redirect_uris: [""],
-      })
-    );
+    const result = yield* Effect.tryPromise({
+      try: () =>
+        client.oauth2.register({
+          client_name: clientName,
+          redirect_uris: [""],
+        }),
+      catch: IamError.match,
+    });
     if (result.error) {
-      yield* Console.error(result.error);
-      return yield* Effect.fail(new IamError(result.error, result.error.message));
+      return yield* Effect.fail(
+        new IamError(result.error, result.error.message ?? "Failed to register OAuth2 Application")
+      );
     }
 
     return yield* Effect.succeed(result.data);
@@ -337,12 +367,160 @@ const oauth2Register = Effect.fn("oauth2Register")(
   Effect.asVoid
 );
 
+export class SignupContract extends S.Class<SignupContract>("SignupContract")({
+  email: BS.Email,
+  rememberMe: BS.BoolWithDefault(false),
+  redirectTo: BS.StringWithDefault(paths.root),
+  password: BS.Password,
+  passwordConfirm: BS.Password,
+  firstName: S.NonEmptyTrimmedString,
+  lastName: S.NonEmptyTrimmedString,
+}) {
+  readonly name: string = `${this.firstName} ${this.lastName}`;
+
+  static readonly encodeWithName = (value: SignupContract.Type) =>
+    Effect.gen(function* () {
+      const encoded = yield* S.encode(SignupContract)(value);
+      return { ...encoded, name: value.name };
+    }).pipe(
+      Effect.catchTag("ParseError", () => Effect.dieMessage(`Failed to encode from ${JSON.stringify(value, null, 2)}`))
+    );
+
+  static readonly NoContext = S.Struct(SignupContract.fields) as S.Struct<{
+    [K in keyof typeof SignupContract.fields]: (typeof SignupContract.fields)[K];
+  }>;
+}
+
+export namespace SignupContract {
+  export type Type = typeof SignupContract.Type;
+  export type Encoded = typeof SignupContract.Encoded;
+}
+
+const signUpEmail = Effect.fn("signUpEmail")(
+  function* (value: SignupContract.Type) {
+    const signUpData = new SignupContract(value);
+
+    const result = yield* F.pipe(
+      signUpData,
+      SignupContract.encodeWithName,
+      Effect.flatMap((encoded) =>
+        Effect.tryPromise({
+          try: () => client.signUp.email(encoded),
+          catch: IamError.match,
+        })
+      )
+    );
+
+    if (result.error) {
+      return yield* Effect.fail(new IamError(result.error, result.error.message ?? "Failed to signup"));
+    }
+    return result.data;
+  },
+  withToast({
+    onWaiting: "Signing up...",
+    onSuccess: "Welcome to traveler.",
+    onFailure: O.match({
+      onNone: () => "Failed to signup for unknown reason",
+      onSome: (e) => e.message,
+    }),
+  }),
+  Effect.catchAll(() => Effect.succeed(undefined)),
+  Effect.asVoid
+);
+
+export class VerifyEmailContract extends BS.Class<VerifyEmailContract>("VerifyEmailContract")({
+  email: BS.Email,
+}) {}
+
+export namespace VerifyEmailContract {
+  export type Type = typeof VerifyEmailContract.Type;
+  export type Encoded = typeof RequestPasswordResetContract.Encoded;
+}
+
+const verifyEmail = Effect.fn("verifyEmail")(
+  function* (value: VerifyEmailContract.Type) {
+    const result = yield* Effect.flatMap(S.encode(VerifyEmailContract)(value), (encoded) =>
+      Effect.tryPromise({
+        try: () => client.sendVerificationEmail(encoded),
+        catch: IamError.match,
+      })
+    ).pipe(
+      Effect.catchTag("ParseError", () => Effect.dieMessage(`Failed to encode from ${JSON.stringify(value, null, 2)}`))
+    );
+
+    if (result.error) {
+      return yield* Effect.fail(
+        new IamError(result.error, result.error.message ?? "Failed to send verification email")
+      );
+    }
+    return yield* Effect.succeed(result.data);
+  },
+  withToast({
+    onWaiting: "Sending verification email...",
+    onSuccess: "Email verification sent successfully",
+    onFailure: O.match({
+      onNone: () => "Failed to send verification email",
+      onSome: (e) => e.message,
+    }),
+  }),
+  Effect.catchAll(() => Effect.succeed(undefined)),
+  Effect.asVoid
+);
+
+export class VerifyPhoneContract extends BS.Class<VerifyPhoneContract>("VerifyPhoneContract")({
+  phoneNumber: BS.Phone,
+  code: S.Redacted(S.NonEmptyTrimmedString),
+  updatePhoneNumber: BS.BoolWithDefault(true),
+}) {}
+
+export namespace VerifyPhoneContract {
+  export type Type = typeof VerifyPhoneContract.Type;
+  export type Encoded = typeof RequestPasswordResetContract.Encoded;
+}
+
+const verifyPhone = Effect.fn("verifyPhone")(
+  function* (value: VerifyPhoneContract.Type) {
+    const result = yield* Effect.flatMap(S.encode(VerifyPhoneContract)(value), (encoded) =>
+      Effect.tryPromise({
+        try: () => client.phoneNumber.verify(encoded),
+        catch: IamError.match,
+      })
+    ).pipe(
+      Effect.catchTag("ParseError", () => Effect.dieMessage(`Failed to encode from ${JSON.stringify(value, null, 2)}`))
+    );
+
+    if (result.error) {
+      return yield* Effect.fail(
+        new IamError(result.error, result.error.message ?? "Failed to send phone number verification")
+      );
+    }
+    return yield* Effect.succeed(result.data);
+  },
+  withToast({
+    onWaiting: "Sending phone number verification...",
+    onSuccess: "Phone number verification sent successfully",
+    onFailure: O.match({
+      onNone: () => "Failed to send phone number verification for an unknown reason",
+      onSome: (e) => e.message,
+    }),
+  }),
+  Effect.catchAll(() => Effect.succeed(undefined)),
+  Effect.asVoid
+);
+
 export const iam = {
   signIn: {
     email: signInEmail,
     social: signInSocial,
     passkey: signInPasskey,
     oneTap: signInOneTap,
+  },
+  signUp: {
+    email: signUpEmail,
+  },
+  verify: {
+    email: verifyEmail,
+    phone: verifyPhone,
   },
   resetPassword,
   requestPasswordReset,

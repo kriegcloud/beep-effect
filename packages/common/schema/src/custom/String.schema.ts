@@ -1,6 +1,7 @@
 import { invariant } from "@beep/invariant";
 import * as regexes from "@beep/schema/regexes";
 import type { TagTypes } from "@beep/types";
+import * as F from "effect/Function";
 import * as S from "effect/Schema";
 
 export class SnakeTag extends S.NonEmptyString.pipe(
@@ -40,4 +41,22 @@ export namespace SnakeTag {
   export type Literal<T extends string> = TagTypes.SnakeTag<T>;
   export type Type = S.Schema.Type<typeof SnakeTag>;
   export type Encoded = S.Schema.Encoded<typeof SnakeTag>;
+}
+
+export type StringPropertyOmittable = S.PropertySignature<":", string, never, "?:", string | undefined, true, never>;
+
+export const StringWithDefault = (defaultValue: string): StringPropertyOmittable =>
+  F.pipe(F.constant(defaultValue), (thunk) =>
+    S.String.pipe(
+      S.optional,
+      S.withDefaults({
+        decoding: thunk,
+        constructor: thunk,
+      })
+    )
+  );
+
+export namespace StringWithDefault {
+  export type Type = S.Schema.Type<ReturnType<typeof StringWithDefault>>;
+  export type Encoded = S.Schema.Encoded<ReturnType<typeof StringWithDefault>>;
 }

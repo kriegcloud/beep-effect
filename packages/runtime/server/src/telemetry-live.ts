@@ -5,7 +5,7 @@ import * as Layer from "effect/Layer";
 
 export type TelemetryLive = Layer.Layer<never, never, never>;
 export const TelemetryLive = Otlp.layer({
-  baseUrl: "https://localhost:4318",
+  baseUrl: serverEnv.otlp.traceExporterUrl.toString(),
   resource: {
     serviceName: `${serverEnv.app.name}-server`,
   },

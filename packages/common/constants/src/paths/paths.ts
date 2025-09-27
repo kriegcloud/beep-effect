@@ -7,6 +7,7 @@ const DASHBOARD = createPath("/dashboard");
 
 export const paths = {
   // static
+  root: "/",
   comingSoon: "/coming-soon",
   maintenance: "/maintenance",
   pricing: "/pricing",
@@ -14,11 +15,14 @@ export const paths = {
   about: "/about-us",
   contact: "/contact-us",
   faqs: "/faqs",
+  terms: "/terms",
+  privacy: "/privacy-policy",
   // auth
   auth: {
     signIn: AUTH("sign-in"),
     signUp: AUTH("sign-up"),
     updatePassword: AUTH("update-password"),
+    requestResetPassword: AUTH("request-reset-password"),
     resetPassword: AUTH("reset-password"),
     verify: AUTH("verify"),
     twoFactor: {

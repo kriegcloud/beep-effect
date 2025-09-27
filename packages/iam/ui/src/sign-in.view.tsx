@@ -9,6 +9,7 @@ import { RouterLink } from "@beep/ui/routing";
 import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import { FormDivider, FormHead } from "./_components";
 import { SignInSocial } from "./sign-in-social";
 
@@ -30,19 +31,13 @@ export const SignInView = () => {
         sx={{ textAlign: { xs: "center", md: "left" } }}
       />
       <SignInEmailForm
-        onSubmit={async (valuesEffect) => Effect.flatMap(valuesEffect, iam.signIn.email).pipe(runtime.runPromise)}
+        onSubmit={async (valuesEffect) => F.pipe(valuesEffect, Effect.flatMap(iam.signIn.email), runtime.runPromise)}
       />
       <FormDivider />
-      <Stack sx={{}} spacing={2}>
-        <SignInSocial signIn={async (provider) => iam.signIn.social(provider).pipe(runtime.runPromise)} />
+      <Stack spacing={2}>
+        <SignInSocial signIn={async (provider) => F.pipe(provider, iam.signIn.social, runtime.runPromise)} />
         <SignInPasskey
-          onSubmit={async () =>
-            runtime.runPromise(
-              iam.signIn.passkey({
-                onSuccess: () => router.push("/"),
-              })
-            )
-          }
+          onSubmit={async () => runtime.runPromise(iam.signIn.passkey({ onSuccess: () => router.push(paths.root) }))}
         />
       </Stack>
     </>

@@ -4,12 +4,12 @@ import * as Data from "effect/Data";
 import * as P from "effect/Predicate";
 
 export class IamError extends Data.TaggedError("IamError")<{
-  readonly customMessage?: string | undefined;
+  readonly customMessage: string;
   readonly cause: unknown;
 }> {
   constructor(
     readonly cause: unknown,
-    readonly customMessage?: string
+    readonly customMessage: string
   ) {
     super({ customMessage: customMessage ?? "Unknown Error has occurred", cause });
   }

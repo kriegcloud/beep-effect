@@ -24,7 +24,7 @@ export const DevToolsLive: DevToolsLive =
 
 export type WebSdkLive = Layer.Layer<never, never, never>;
 export const WebSdkLive: WebSdkLive = Otlp.layer({
-  baseUrl: "https://localhost:4318",
+  baseUrl: clientEnv.otlpTraceExportedUrl,
   resource: {
     serviceName: `${clientEnv.appName}`,
   },

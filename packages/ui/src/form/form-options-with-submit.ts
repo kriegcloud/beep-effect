@@ -8,30 +8,30 @@ import { makeFormOptions } from "./makeFormOptions";
 
 type Params<
   Fields extends S.Struct.Fields,
-  A extends S.Struct.Type<Fields>,
-  I extends Record<PropertyKey, UnsafeTypes.UnsafeAny>,
-  Self extends S.Schema<A, I, never>,
+  SchemaA,
+  SchemaI extends Record<PropertyKey, UnsafeTypes.UnsafeAny>,
+  SchemaR,
 > = {
-  schema: S.Schema<A, I, never>;
-  onSubmit: (values: Effect.Effect<A, ParseError, never>) => Promise<void>;
-  defaultValues: I;
+  schema: S.Schema<SchemaA, SchemaI, SchemaR>;
+  onSubmit: (values: Effect.Effect<SchemaA, ParseError, never>) => Promise<void>;
+  defaultValues: SchemaI;
 };
 
 export const formOptionsWithSubmit = <
   const Fields extends S.Struct.Fields,
-  const A extends S.Struct.Type<Fields>,
+  const A,
   const I extends Record<PropertyKey, UnsafeTypes.UnsafeAny>,
-  const Self extends S.Schema<A, I, never>,
+  const SchemaR,
 >({
   schema,
   onSubmit,
   defaultValues,
-}: Params<Fields, A, I, Self>) =>
+}: Params<Fields, A, I, SchemaR>) =>
   formOptions({
     ...makeFormOptions({
       schema,
       defaultValues,
       validator: "onSubmit",
     }),
-    onSubmit: async ({ value }) => F.pipe(value, S.decode(schema), onSubmit),
+    onSubmit: async ({ value }) => F.pipe(value, S.decode(S.typeSchema(schema)), onSubmit),
   });

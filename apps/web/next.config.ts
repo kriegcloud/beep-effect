@@ -4,9 +4,17 @@ import type { NextConfig } from "next";
 
 // "development" | "test" | "production
 // const isDev = process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_ENV === "dev";
+const fallbackOtlpOrigins = ["http://localhost:4318", "http://127.0.0.1:4318"] as const;
+
 const otlpOrigin = process.env.NEXT_PUBLIC_OTLP_TRACE_EXPORTER_URL
   ? new URL(process.env.NEXT_PUBLIC_OTLP_TRACE_EXPORTER_URL).origin
   : undefined;
+
+const otlpOrigins = Array.from(
+  new Set([otlpOrigin, ...fallbackOtlpOrigins].filter((origin): origin is string => Boolean(origin)))
+);
+
+const primaryOtlpOrigin = otlpOrigins[0];
 
 const CONNECT_SRC_BASE = [
   "'self'",
@@ -23,7 +31,7 @@ const CONNECT_SRC_BASE = [
   "wss://localhost:34437",
 ];
 
-const CONNECT_SRC = Array.from(new Set([...CONNECT_SRC_BASE, ...(otlpOrigin ? [otlpOrigin] : [])]));
+const CONNECT_SRC = Array.from(new Set([...CONNECT_SRC_BASE, ...otlpOrigins]));
 
 const CSP_DIRECTIVES = {
   "default-src": ["'self'"],
@@ -33,7 +41,7 @@ const CSP_DIRECTIVES = {
   "worker-src": ["'self'", "blob:"],
   "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
   "font-src": ["'self'", "https://fonts.scalar.com"],
-  "style-src-elem": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+  "style-src-elem": ["'self'", "'unsafe-inline'", `https://www.googletagmanager.com`, "https://cdn.jsdelivr.net"],
   "script-src-elem": ["'self'", "blob:", "https://vercel.live", "https://cdn.jsdelivr.net", "'unsafe-inline'"],
   "connect-src": CONNECT_SRC,
   "media-src": ["'self'", "data:"],
@@ -52,13 +60,9 @@ const genCSP = () => {
 
 const securityHeaders = [
   {
-    key: "Cross-Origin-Embedder-Policy",
-    value: "require-corp",
+    key: "Cross-Origin-Opener-Policy",
+    value: "same-origin",
   },
-  // {
-  //   key: "Cross-Origin-Opener-Policy",
-  //   value: "same-origin",
-  // },
   {
     key: "X-DNS-Prefetch-Control",
     value: "on",
@@ -79,6 +83,22 @@ const securityHeaders = [
     key: "Referrer-Policy",
     value: "same-origin",
   },
+  ...(primaryOtlpOrigin
+    ? ([
+        {
+          key: "Access-Control-Allow-Origin",
+          value: primaryOtlpOrigin,
+        },
+        {
+          key: "Access-Control-Allow-Methods",
+          value: "GET,POST,OPTIONS",
+        },
+        {
+          key: "Access-Control-Allow-Headers",
+          value: "Content-Type,Authorization,Baggage,traceparent",
+        },
+      ] satisfies readonly { key: string; value: string }[])
+    : []),
   ...(process.env.NODE_ENV === "production"
     ? ([
         {
@@ -120,6 +140,7 @@ const nextConfig = {
   //   "@beep/files-sdk",
   //   "@beep/files-ui",
   // ],
+
   images: {
     remotePatterns: [
       {
@@ -135,6 +156,14 @@ const nextConfig = {
         pathname: "/**",
       },
     ],
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/api/metrics/:path*",
+        destination: "http://localhost:4318/v1/metrics/:path*", // Proxy to your metrics server
+      },
+    ];
   },
   async headers() {
     return [
@@ -154,20 +183,28 @@ const nextConfig = {
     },
   },
   outputFileTracingRoot: path.join(__dirname, "../../"),
-  webpack(config) {
-    config.module.rules.push({
-      test: /\.svg$/,
-      use: ["@svgr/webpack"],
-    });
 
-    config.experiments = {
-      ...config.experiments,
-      layers: true,
-      asyncWebAssembly: true,
-      topLevelAwait: true,
-    };
-
-    return config;
+  // webpack(config) {
+  //   config.watchOptions = {
+  //     poll: 1000,
+  //     aggregateTimeout: 1000,
+  //   };
+  //   config.module.rules.push({
+  //     test: /\.svg$/,
+  //     use: ["@svgr/webpack"],
+  //   });
+  //
+  //   config.experiments = {
+  //     ...config.experiments,
+  //     layers: true,
+  //     asyncWebAssembly: true,
+  //     topLevelAwait: true,
+  //   };
+  //
+  //   return config;
+  // },
+  experimental: {
+    browserDebugInfoInTerminal: true,
   },
 } satisfies NextConfig;
 

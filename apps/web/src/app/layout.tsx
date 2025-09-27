@@ -11,6 +11,7 @@ import "dayjs/locale/ar-sa";
 import { serverRuntime } from "@beep/runtime-server";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
+import Script from "next/script";
 import { getAppConfig } from "@/app-config";
 import { GlobalProviders } from "@/GlobalProviders";
 
@@ -64,6 +65,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
 
   return (
     <html lang={appConfig.lang ?? "en"} dir={appConfig.dir} suppressHydrationWarning>
+      <Script src="https://www.googletagmanager.com/gtag/js" strategy="afterInteractive" nonce={nonce} />
       <body>
         <GlobalProviders appConfig={appConfig} nonce={nonce}>
           {children}

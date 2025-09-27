@@ -20,7 +20,9 @@ export const apiKey = OrgTable.make(IamEntityIds.ApiKeyId)(
     rateLimitEnabled: pg.boolean("rate_limit_enabled").notNull().default(true),
     rateLimitTimeWindow: pg.integer("rate_limit_time_window").notNull().default(86400000),
     rateLimitMax: pg.integer("rate_limit_max").notNull().default(10),
+    // todo defaults
     requestCount: pg.integer("request_count"),
+    // todo defaults
     remaining: pg.integer("remaining"),
     lastRequest: pg.timestamp("last_request"),
     expiresAt: pg.timestamp("expires_at"),

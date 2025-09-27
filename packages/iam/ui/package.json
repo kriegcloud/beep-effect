@@ -34,7 +34,7 @@
     "dotenvx": "dotenvx run -f ../../../.env --",
     "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' pnpm dotenvx tsx ./src/execute.ts"
   },
-  "peerDependencies": {
+  "dependencies": {
     "@tanstack/react-form": "*",
     "@beep/ui": "workspace:^",
     "@beep/schema": "workspace:^",
