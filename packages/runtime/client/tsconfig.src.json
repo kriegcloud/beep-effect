@@ -40,25 +40,13 @@
       "path": "../../core/env"
     },
     {
-      "path": "../../iam/sdk"
-    },
-    {
       "path": "../../iam/domain"
-    },
-    {
-      "path": "../../iam/ui"
     },
     {
       "path": "../../iam/tables"
     },
     {
       "path": "../../ui"
-    },
-    {
-      "path": "../../files/sdk"
-    },
-    {
-      "path": "../../files/ui"
     },
     {
       "path": "../../files/domain"
@@ -111,18 +99,10 @@
       "@beep/iam-domain/*": ["../../iam/domain/src/*"],
       "@beep/iam-tables": ["../../iam/tables/src/index"],
       "@beep/iam-tables/*": ["../../iam/tables/src/*"],
-      "@beep/iam-sdk": ["../../iam/sdk/src/index"],
-      "@beep/iam-sdk/*": ["../../iam/sdk/src/*"],
-      "@beep/iam-ui": ["../../iam/ui/src/index"],
-      "@beep/iam-ui/*": ["../../iam/ui/src/*"],
       "@beep/files-domain": ["../../files/domain/src/index"],
       "@beep/files-domain/*": ["../../files/domain/src/*"],
       "@beep/files-tables": ["../../files/tables/src/index"],
-      "@beep/files-tables/*": ["../../files/tables/src/*"],
-      "@beep/files-sdk": ["../../files/sdk/src/index"],
-      "@beep/files-sdk/*": ["../../files/sdk/src/*"],
-      "@beep/files-ui": ["../../files/ui/src/index"],
-      "@beep/files-ui/*": ["../../files/ui/src/*"]
+      "@beep/files-tables/*": ["../../files/tables/src/*"]
     }
   }
 }

@@ -1,4 +1,5 @@
 export { Form, FormControl, FormHead } from "./Form";
+export * from "./form-options-with-submit";
 export * from "./makeFormOptions";
 export {
   fieldContext,

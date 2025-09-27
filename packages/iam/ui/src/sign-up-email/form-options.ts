@@ -7,7 +7,7 @@ import * as S from "effect/Schema";
 export const FormSchema = S.Struct({
   firstName: S.NonEmptyTrimmedString,
   lastName: S.NonEmptyTrimmedString,
-  email: BS.EmailBase,
+  email: BS.Email,
   password: BS.Password,
   confirmPassword: BS.Password,
   rememberMe: BS.BoolWithDefault(false),

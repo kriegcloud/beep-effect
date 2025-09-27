@@ -1,4 +1,5 @@
 import type { UnsafeTypes } from "@beep/types";
+import type { FormOptions } from "@tanstack/react-form";
 import { formOptions } from "@tanstack/react-form";
 import * as A from "effect/Array";
 import * as Either from "effect/Either";
@@ -68,8 +69,21 @@ export const validateWithSchema =
       Either.getOrNull
     );
 
-type HandledValidatorKey = "onSubmit" | "onChange" | "onBlur";
-
+export type HandledValidatorKey = "onSubmit" | "onChange" | "onBlur";
+export type MakeFormOptionsReturn<SchemaA, SchemaI extends Record<PropertyKey, UnsafeTypes.UnsafeAny>> = FormOptions<
+  SchemaI,
+  undefined,
+  SchemaValidatorFn<SchemaI>,
+  SchemaValidatorFn<SchemaI>,
+  SchemaValidatorFn<SchemaI>,
+  undefined,
+  SchemaValidatorFn<SchemaI>,
+  SchemaValidatorFn<SchemaI>,
+  undefined,
+  undefined,
+  undefined,
+  undefined
+>;
 export const makeFormOptions = <
   SchemaA,
   SchemaI extends Record<PropertyKey, UnsafeTypes.UnsafeAny>,
@@ -78,7 +92,7 @@ export const makeFormOptions = <
   schema: S.Schema<SchemaA, SchemaI>;
   defaultValues: SchemaI;
   validator: ValidatorKey;
-}) => {
+}): MakeFormOptionsReturn<SchemaA, SchemaI> => {
   const specificValidatorFn = validateWithSchema(opts.schema);
 
   const validators = Match.value(opts.validator satisfies HandledValidatorKey).pipe(

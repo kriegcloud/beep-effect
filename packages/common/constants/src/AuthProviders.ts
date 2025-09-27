@@ -21,7 +21,7 @@ export class AuthProviderNameValue extends AuthProviderNameValueKit.Schema.annot
   description: "Auth provider name value.",
 }) {
   static readonly Options = AuthProviderNameValueKit.Options;
-  static readonly filterMap = (supportedAuthProviders: A.NonEmptyReadonlyArray<AuthProviderNameValue.Type>) =>
+  static readonly filter = (supportedAuthProviders: A.NonEmptyReadonlyArray<AuthProviderNameValue.Type>) =>
     F.pipe(
       AuthProviderNameValue.Options,
       A.filter((provider) => supportedAuthProviders.includes(provider)),

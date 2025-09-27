@@ -16,7 +16,7 @@ export const SignInSocial = ({ signIn, sx, ...rest }: Props) => {
         {
           gap: 1.5,
           display: "flex",
-          justifyContent: "center",
+          justifyContent: "space-evenly",
         },
         ...(Array.isArray(sx) ? sx : [sx]),
       ]}
@@ -24,7 +24,7 @@ export const SignInSocial = ({ signIn, sx, ...rest }: Props) => {
     >
       {F.pipe(
         clientEnv.authProviderNames,
-        AuthProviderNameValue.filterMap,
+        AuthProviderNameValue.filter,
         A.map((provider) =>
           F.pipe(SocialProviderIcons[provider], (Component) => (
             <SocialIconButton key={provider} onClick={() => signIn(provider)} name={provider}>

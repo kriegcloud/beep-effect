@@ -71,7 +71,7 @@ export class Model extends M.Class<Model>(`AccountModel`)(
     ),
 
     /** Hashed password for credential-based accounts (sensitive) */
-    password: BS.FieldSensitiveOptionOmittable(
+    password: BS.FieldOptionOmittable(
       BS.Password.annotations({
         description: "Hashed password for credential providers",
       })

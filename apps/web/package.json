@@ -6,7 +6,7 @@
   "description": "CodeDank Website",
   "private": true,
   "scripts": {
-    "dev": "pnpm dotenvx next dev",
+    "dev": "pnpm dotenvx next dev --turbopack",
     "dev:https": "pnpm dotenvx next dev --turbopack --experimental-https",
     "start": "pnpm dotenvx next start",
     "build": "pnpm dotenvx next build --turbopack",
@@ -152,7 +152,7 @@
     "stripe": "*",
     "zod": "*",
     "@better-auth/stripe": "*",
-    "better-call": "^1.0.18",
+    "better-call": "*",
     "@dub/better-auth": "*",
     "@simplewebauthn/server": "*",
     "dub": "*",

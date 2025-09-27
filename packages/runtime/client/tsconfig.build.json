@@ -54,25 +54,13 @@
       "path": "../../core/env/tsconfig.build.json"
     },
     {
-      "path": "../../iam/sdk/tsconfig.build.json"
-    },
-    {
       "path": "../../iam/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../iam/ui/tsconfig.build.json"
     },
     {
       "path": "../../iam/tables/tsconfig.build.json"
     },
     {
       "path": "../../ui/tsconfig.build.json"
-    },
-    {
-      "path": "../../files/sdk/tsconfig.build.json"
-    },
-    {
-      "path": "../../files/ui/tsconfig.build.json"
     },
     {
       "path": "../../files/domain/tsconfig.build.json"

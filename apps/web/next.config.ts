@@ -3,19 +3,27 @@ import * as Struct from "effect/Struct";
 import type { NextConfig } from "next";
 
 // "development" | "test" | "production
-const isDev = process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_ENV === "dev";
+// const isDev = process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_ENV === "dev";
 const otlpOrigin = process.env.NEXT_PUBLIC_OTLP_TRACE_EXPORTER_URL
   ? new URL(process.env.NEXT_PUBLIC_OTLP_TRACE_EXPORTER_URL).origin
   : undefined;
-const CONNECT_SRC = [
+
+const CONNECT_SRC_BASE = [
   "'self'",
   "https://vercel.live/",
   "https://vercel.com",
   // Allow WebSocket connections in development (Next HMR, Effect DevTools, etc.)
-  ...(isDev ? ["ws:", "wss:", "http://localhost:*", "http://127.0.0.1:*"] : []),
-  // Allow OTLP exporter endpoint if configured
-  ...(otlpOrigin ? [otlpOrigin] : []),
+  "ws:",
+  "wss:",
+  "http://localhost:*",
+  "http://127.0.0.1:*",
+  "https://localhost:*",
+  "https://127.0.0.1:*",
+  "ws://localhost:34437",
+  "wss://localhost:34437",
 ];
+
+const CONNECT_SRC = Array.from(new Set([...CONNECT_SRC_BASE, ...(otlpOrigin ? [otlpOrigin] : [])]));
 
 const CSP_DIRECTIVES = {
   "default-src": ["'self'"],
@@ -47,10 +55,10 @@ const securityHeaders = [
     key: "Cross-Origin-Embedder-Policy",
     value: "require-corp",
   },
-  {
-    key: "Cross-Origin-Opener-Policy",
-    value: "same-origin",
-  },
+  // {
+  //   key: "Cross-Origin-Opener-Policy",
+  //   value: "same-origin",
+  // },
   {
     key: "X-DNS-Prefetch-Control",
     value: "on",

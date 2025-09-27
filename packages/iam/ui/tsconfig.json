@@ -19,7 +19,13 @@
       "@beep/constants": ["../../common/constants/src/index"],
       "@beep/constants/*": ["../../common/constants/src/*"],
       "@beep/errors/shared": ["../../common/errors/src/shared"],
-      "@beep/errors/client": ["../../common/errors/src/client"]
+      "@beep/errors/client": ["../../common/errors/src/client"],
+      "@beep/invariant": ["../../common/invariant/src/index"],
+      "@beep/invariant/*": ["../../common/invariant/src/*"],
+      "@beep/utils": ["../../common/utils/src/index"],
+      "@beep/utils/*": ["../../common/utils/src/*"],
+      "@beep/runtime-client": ["../../runtime/client/src/index"],
+      "@beep/runtime-client/*": ["../../runtime/client/src/*"]
     }
   },
   "references": [

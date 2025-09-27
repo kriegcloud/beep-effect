@@ -39,25 +39,13 @@
       "path": "../../core/env"
     },
     {
-      "path": "../../iam/sdk"
-    },
-    {
       "path": "../../iam/domain"
-    },
-    {
-      "path": "../../iam/ui"
     },
     {
       "path": "../../iam/tables"
     },
     {
       "path": "../../ui"
-    },
-    {
-      "path": "../../files/sdk"
-    },
-    {
-      "path": "../../files/ui"
     },
     {
       "path": "../../files/domain"

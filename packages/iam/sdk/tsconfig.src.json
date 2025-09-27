@@ -59,7 +59,6 @@
       "@beep/errors/client": ["../../common/errors/src/client"],
       "@beep/errors/server": ["../../common/errors/src/server"],
       "@beep/core-env/client": ["../../core/env/src/client"],
-      "@beep/core-env/server": ["../../core/env/src/server"],
       "@beep/shared-domain": ["../../shared/domain/src/index"],
       "@beep/shared-domain/*": ["../../shared/domain/src/*"],
       "@beep/iam-domain": ["../domain/src/index"],
