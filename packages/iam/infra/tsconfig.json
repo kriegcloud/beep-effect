@@ -30,7 +30,8 @@
       "@beep/errors/shared": ["../../common/errors/src/shared"],
       "@beep/errors/server": ["../../common/errors/src/server"],
       "@beep/types": ["../../common/types/src/index"],
-      "@beep/types/*": ["../../common/types/src/*"]
+      "@beep/types/*": ["../../common/types/src/*"],
+      "@beep/ui/*": ["../../ui/src/*"]
     }
   },
   "references": [

@@ -8,6 +8,7 @@ import * as Match from "effect/Match";
 import { ArrayFormatter } from "effect/ParseResult";
 import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
+
 type BuildTuple<N extends number, Acc extends ReadonlyArray<unknown> = []> = Acc["length"] extends N
   ? Acc
   : BuildTuple<N, [...Acc, unknown]>;
@@ -46,9 +47,9 @@ export type SchemaValidatorFn<SchemaInput extends Record<PropertyKey, UnsafeType
 }) => SchemaValidatorResult<SchemaInput>;
 
 export const validateWithSchema =
-  <A, I extends Record<PropertyKey, UnsafeTypes.UnsafeAny>, R>(schema: S.Schema<A, I, R>): SchemaValidatorFn<I> =>
+  <A, I extends Record<PropertyKey, UnsafeTypes.UnsafeAny>>(schema: S.Schema<A, I>): SchemaValidatorFn<I> =>
   (submission: { value: I }): SchemaValidatorResult<I> =>
-    S.decodeEither(S.encodedBoundSchema(schema), { errors: "all", onExcessProperty: "ignore" })(submission.value).pipe(
+    S.decodeEither(schema, { errors: "all", onExcessProperty: "ignore" })(submission.value).pipe(
       Either.mapLeft((errors) =>
         pipe(
           errors,
@@ -87,10 +88,9 @@ export type MakeFormOptionsReturn<SchemaA, SchemaI extends Record<PropertyKey, U
 export const makeFormOptions = <
   SchemaA,
   SchemaI extends Record<PropertyKey, UnsafeTypes.UnsafeAny>,
-  SchemaR,
   ValidatorKey extends HandledValidatorKey,
 >(opts: {
-  schema: S.Schema<SchemaA, SchemaI, SchemaR>;
+  schema: S.Schema<SchemaA, SchemaI>;
   defaultValues: SchemaI;
   validator: ValidatorKey;
 }): MakeFormOptionsReturn<SchemaA, SchemaI> => {

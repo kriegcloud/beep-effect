@@ -11,6 +11,7 @@ import * as GenericOAuth from "./generic-oauth";
 import * as HaveIBeenPwned from "./have-i-been-pwned";
 import * as Jwt from "./jwt";
 import * as LastLoginMethod from "./last-login-method";
+import * as Localization from "./localization";
 import * as Mcp from "./mcp";
 import * as MultiSession from "./multi-session";
 import * as NextCookies from "./next-cookies";
@@ -57,6 +58,7 @@ const AllPluginsArray = [
   Stripe.stripePlugin,
   TwoFactor.twoFactorPlugin,
   Username.usernamePlugin,
+  Localization.localizationPlugin,
 ] as const;
 
 export type Plugins = Effect.Effect.Success<(typeof AllPluginsArray)[number]>;

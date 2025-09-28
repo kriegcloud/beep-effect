@@ -22,6 +22,7 @@
     "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
     "check": "tsc -b tsconfig.json",
     "test": "pnpm dotenvx vitest run",
+    "dotenvx": "dotenvx run -f ../../../.env --",
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "coverage": "vitest run --coverage",
     "db:generate": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' pnpm dotenvx drizzle-kit generate",
@@ -31,7 +32,6 @@
     "db:reset": "bun src/scripts/ResetDatabase.ts",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "dotenvx": "dotenvx run -f ../../../.env --",
     "lint:circular": "pnpm madge -c .",
     "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' pnpm dotenvx tsx ./src/execute1.ts"
   },

@@ -1,30 +1,68 @@
+import { BS } from "@beep/schema";
 import { stringLiteralKit } from "@beep/schema/kits";
 import type { Components, Theme } from "@mui/material/styles";
-// MUI Data Grid Locales
 import {
   arSD as arSDDataGrid,
   enUS as enUSDataGrid,
   frFR as frFRDataGrid,
-  viVN as viVNDataGrid,
   zhCN as zhCNDataGrid,
 } from "@mui/x-data-grid/locales";
-import { enUS as enUSDate, frFR as frFRDate, viVN as viVNDate, zhCN as zhCNDate } from "@mui/x-date-pickers/locales";
+import { enUS as enUSDate, frFR as frFRDate, zhCN as zhCNDate } from "@mui/x-date-pickers/locales";
 import * as A from "effect/Array";
+import * as S from "effect/Schema";
 import { CurrencyCodeValue } from "./currency";
-export namespace SupportedLangValue {
-  export const {
-    Options,
-    Schema,
-    Enum,
 
-    Mock,
-    JSONSchema,
-    Pretty,
-    Equivalence,
-  } = stringLiteralKit("en", "fr", "vi", "cn", "ar");
+export namespace SupportedLangValue {
+  export const { Options, Schema, Enum, Mock, JSONSchema, Pretty, Equivalence } = stringLiteralKit(
+    "en",
+    "fr",
+    "cn",
+    "ar"
+  );
 
   export type Type = typeof Schema.Type;
 }
+
+export const AdapterLocaleKit = BS.stringLiteralKit(
+  "default",
+  "pt-BR",
+  "pt-PT",
+  "es-ES",
+  "fr-FR",
+  "pl-PL",
+  "id-ID",
+  "ja-JP",
+  "ar-SA",
+  "el-GR",
+  "sv-SE",
+  "it-IT",
+  "de-DE",
+  "de-DE-informal",
+  "de-DE-formal",
+  "zh-Hant",
+  "zh-Hans",
+  "ko-KR",
+  "hi-HI",
+  "tr-TR",
+  "nl-NL",
+  "nl-NL-informal",
+  "nl-NL-formal",
+  "fa-IR",
+  "ru-RU",
+  "mr-MR"
+);
+
+export class AdapterLocale extends AdapterLocaleKit.Schema {
+  static readonly Options = AdapterLocaleKit.Options;
+  static readonly Enum = AdapterLocaleKit.Enum;
+}
+
+export class LangValueToAdapterLocale extends S.transformLiterals(
+  ["en", "default"],
+  ["fr", "fr-FR"],
+  ["cn", "zh-Hant"],
+  ["ar", "ar-SA"]
+) {}
 
 export const fallbackLang = SupportedLangValue.Enum.en;
 
@@ -36,16 +74,7 @@ export const storageConfig = {
 } as const;
 
 export namespace CountryCodeValue {
-  export const {
-    Options,
-    Schema,
-    Enum,
-
-    Mock,
-    JSONSchema,
-    Pretty,
-    Equivalence,
-  } = stringLiteralKit(
+  export const { Options, Schema, Enum, Mock, JSONSchema, Pretty, Equivalence } = stringLiteralKit(
     "AC",
     "AD",
     "AE",
@@ -329,16 +358,6 @@ export const allLanguages = A.make(
     numberFormat: { code: "fr-FR", currency: CurrencyCodeValue.Enum.EUR },
     systemValue: {
       components: { ...frFRDate.components, ...frFRDataGrid.components },
-    },
-  },
-  {
-    value: SupportedLangValue.Enum.vi,
-    label: "Vietnamese",
-    countryCode: CountryCodeValue.Enum.VN,
-    adapterLocale: "vi",
-    numberFormat: { code: "vi-VN", currency: CurrencyCodeValue.Enum.VND },
-    systemValue: {
-      components: { ...viVNDate.components, ...viVNDataGrid.components },
     },
   },
   {

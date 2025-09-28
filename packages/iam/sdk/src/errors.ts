@@ -3,20 +3,55 @@ import { BetterAuthError } from "@beep/iam-sdk/adapters";
 import * as Data from "effect/Data";
 import * as P from "effect/Predicate";
 
+export interface IamErrorMetadata {
+  readonly code?: string;
+  readonly status?: number;
+  readonly statusText?: string;
+  readonly plugin?: string;
+  readonly method?: string;
+  readonly betterAuthCause?: unknown;
+}
+
 export class IamError extends Data.TaggedError("IamError")<{
   readonly customMessage: string;
   readonly cause: unknown;
+  readonly code?: string;
+  readonly status?: number;
+  readonly statusText?: string;
+  readonly plugin?: string;
+  readonly method?: string;
+  readonly betterAuthCause?: unknown;
 }> {
+  readonly code?: string;
+  readonly status?: number;
+  readonly statusText?: string;
+  readonly plugin?: string;
+  readonly method?: string;
+  readonly betterAuthCause?: unknown;
+
   constructor(
     readonly cause: unknown,
-    readonly customMessage: string
+    readonly customMessage: string,
+    metadata: IamErrorMetadata = {}
   ) {
-    super({ customMessage: customMessage ?? "Unknown Error has occurred", cause });
+    const normalizedMessage = customMessage ?? "Unknown Error has occurred";
+    super({
+      customMessage: normalizedMessage,
+      cause,
+      ...metadata,
+    });
+
+    this.code = metadata.code;
+    this.status = metadata.status;
+    this.statusText = metadata.statusText;
+    this.plugin = metadata.plugin;
+    this.method = metadata.method;
+    this.betterAuthCause = metadata.betterAuthCause;
   }
 
-  static readonly match = (error: unknown) => {
+  static readonly match = (error: unknown, metadata: IamErrorMetadata = {}) => {
     if (error instanceof BetterAuthError) {
-      return new IamError(error.cause, error.message);
+      return new IamError(error.cause, error.message, metadata);
     }
 
     const customMessage =
@@ -26,7 +61,7 @@ export class IamError extends Data.TaggedError("IamError")<{
       customMessage,
     });
 
-    return new IamError(cause, customMessage);
+    return new IamError(cause, customMessage, metadata);
   };
 
   get message() {

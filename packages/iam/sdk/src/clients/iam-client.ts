@@ -1,4 +1,5 @@
 import { type AuthProviderNameValue, paths } from "@beep/constants";
+import { createBetterAuthHandler } from "@beep/iam-sdk/better-auth/handler";
 import { IamError } from "@beep/iam-sdk/errors";
 import { BS } from "@beep/schema";
 import type { IamEntityIds } from "@beep/shared-domain";
@@ -7,8 +8,10 @@ import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
+import * as ParseResult from "effect/ParseResult";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+import * as Struct from "effect/Struct";
 import { client } from "../adapters";
 
 export class SignInEmailContract extends S.Struct({
@@ -22,32 +25,37 @@ export namespace SignInEmailContract {
   export type Encoded = typeof SignInEmailContract.Encoded;
 }
 
-const signInEmail = Effect.fn("signInEmail")(
-  function* (params: SignInEmailContract.Type) {
-    const result = yield* F.pipe(
-      params,
-      S.encode(SignInEmailContract),
-      Effect.flatMap((encoded) => Effect.tryPromise(() => client.signIn.email(encoded)))
-    );
+export const mapBetterAuthResult = <Output>(
+  result:
+    | { readonly data: Output; readonly error: null }
+    | {
+        readonly data: null;
+        readonly error: NonNullable<unknown>;
+      }
+) => (result.error ? { error: result.error } : ({ data: result.data } as const));
 
-    if (result.error) {
-      return yield* Effect.fail(new IamError(result.error, result.error.message ?? "Failed to signin"));
-    }
-
-    return yield* Effect.succeed(result.data);
-  },
-  withToast({
+const signInEmail = createBetterAuthHandler<SignInEmailContract.Type, SignInEmailContract.Encoded>({
+  name: "signInEmail",
+  plugin: "sign-in",
+  method: "email",
+  schema: SignInEmailContract,
+  run: async (encoded) => mapBetterAuthResult(await client.signIn.email(encoded)),
+  toast: {
     onWaiting: "Signing in...",
     onSuccess: "Signed in successfully",
-    onFailure: O.match({
+    onFailure: {
       onNone: () => "Failed to signin",
       onSome: (e) => e.message,
-    }),
-  }),
-  Effect.catchAll(() => Effect.succeed(undefined)),
-  Effect.asVoid
-);
-
+    },
+  },
+  defaultErrorMessage: "Failed to signin",
+});
+/**
+ * onFailure: (error) => ({
+ *   onNone: () => "Failed to signin",
+ *   onSome: (e) => e.message,
+ * })
+ */
 const signInSocial = Effect.fn("signInSocial")(
   function* (provider: AuthProviderNameValue.Type) {
     const result = yield* Effect.tryPromise({
@@ -366,8 +374,7 @@ const oauth2Register = Effect.fn("oauth2Register")(
   Effect.catchAll(() => Effect.succeed(undefined)),
   Effect.asVoid
 );
-
-export class SignupContract extends S.Class<SignupContract>("SignupContract")({
+const formSchema = S.Struct({
   email: BS.Email,
   rememberMe: BS.BoolWithDefault(false),
   redirectTo: BS.StringWithDefault(paths.root),
@@ -375,21 +382,26 @@ export class SignupContract extends S.Class<SignupContract>("SignupContract")({
   passwordConfirm: BS.Password,
   firstName: S.NonEmptyTrimmedString,
   lastName: S.NonEmptyTrimmedString,
-}) {
-  readonly name: string = `${this.firstName} ${this.lastName}`;
-
-  static readonly encodeWithName = (value: SignupContract.Type) =>
-    Effect.gen(function* () {
-      const encoded = yield* S.encode(SignupContract)(value);
-      return { ...encoded, name: value.name };
-    }).pipe(
-      Effect.catchTag("ParseError", () => Effect.dieMessage(`Failed to encode from ${JSON.stringify(value, null, 2)}`))
-    );
-
-  static readonly NoContext = S.Struct(SignupContract.fields) as S.Struct<{
-    [K in keyof typeof SignupContract.fields]: (typeof SignupContract.fields)[K];
-  }>;
-}
+});
+const withName = S.Struct({ ...formSchema.fields, name: S.String });
+export const SignupContract = S.transformOrFail(formSchema, withName, {
+  strict: true,
+  decode: (value, _, ast) =>
+    ParseResult.try({
+      try: () => {
+        const name = `${value.firstName} ${value.lastName}`;
+        return S.encodeSync(withName)({ ...value, name });
+      },
+      catch: () => new ParseResult.Type(ast, value, "could not decode signup"),
+    }),
+  encode: (value, _, ast) =>
+    ParseResult.try({
+      try: () => {
+        return S.decodeSync(formSchema)(Struct.omit(value, "name"));
+      },
+      catch: () => new ParseResult.Type(ast, value, "could not encode signup"),
+    }),
+});
 
 export namespace SignupContract {
   export type Type = typeof SignupContract.Type;
@@ -398,14 +410,12 @@ export namespace SignupContract {
 
 const signUpEmail = Effect.fn("signUpEmail")(
   function* (value: SignupContract.Type) {
-    const signUpData = new SignupContract(value);
-
     const result = yield* F.pipe(
-      signUpData,
-      SignupContract.encodeWithName,
+      value,
+      S.encode(SignupContract),
       Effect.flatMap((encoded) =>
         Effect.tryPromise({
-          try: () => client.signUp.email(encoded),
+          try: () => client.signUp.email({ ...encoded, name: value.name }),
           catch: IamError.match,
         })
       )

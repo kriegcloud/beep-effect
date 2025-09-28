@@ -24,9 +24,9 @@ export const DevToolsLive: DevToolsLive =
 
 export type WebSdkLive = Layer.Layer<never, never, never>;
 export const WebSdkLive: WebSdkLive = Otlp.layer({
-  baseUrl: clientEnv.otlpTraceExportedUrl,
+  baseUrl: "http://localhost:4318/v1/traces",
   resource: {
-    serviceName: `${clientEnv.appName}`,
+    serviceName: `${clientEnv.appName} client`,
   },
 }).pipe(Layer.provideMerge(FetchHttpClient.layer));
 

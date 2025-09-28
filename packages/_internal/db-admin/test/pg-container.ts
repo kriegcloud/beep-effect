@@ -138,37 +138,6 @@ const POSTGRES_USER = "test";
 const POSTGRES_PASSWORD = "test";
 const POSTGRES_DB = "test";
 
-export async function setupDockerTestDb() {
-  const POSTGRES_USER = "test";
-  const POSTGRES_PASSWORD = "test";
-  const POSTGRES_DB = "test";
-
-  // Make sure to use Postgres 15 with pg_uuidv7 installed
-  // Ensure you have the pg_uuidv7 docker image locally
-  // You may need to modify pg_uuid's dockerfile to install the extension or build a new image from its base
-  // https://github.com/fboulnois/pg_uuidv7
-  const container = await new PostgreSqlContainer("ghcr.io/fboulnois/pg_uuidv7:1.6.0")
-    .withEnvironment({
-      POSTGRES_USER: POSTGRES_USER,
-      POSTGRES_PASSWORD: POSTGRES_PASSWORD,
-      POSTGRES_DB: POSTGRES_DB,
-    })
-    .withExposedPorts(5432)
-    .start();
-
-  const connectionString = `postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${container.getHost()}:${container.getFirstMappedPort()}/${POSTGRES_DB}`;
-  const client = postgres(connectionString);
-  const db = drizzle(client);
-
-  await db.execute(sql`CREATE EXTENSION IF NOT EXISTS pg_uuidv7`);
-  const migrationPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../drizzle");
-  await migrate(db, { migrationsFolder: migrationPath });
-
-  const confirmDatabaseReady = await db.execute(sql`SELECT 1`);
-
-  return { container, db, confirmDatabaseReady, client };
-}
-
 const setupDocker = Effect.gen(function* () {
   // Make sure to use Postgres 15 with pg_uuidv7 installed
   // Ensure you have the pg_uuidv7 docker image locally
@@ -282,8 +251,7 @@ export class PgContainer extends Effect.Service<PgContainer>()("PgContainer", {
 
           const verticalSlicesLayer = Layer.provideMerge(reposLayer, sliceDbLayer);
 
-          const layer = Layer.provideMerge(verticalSlicesLayer, pgClient);
-          return layer;
+          return Layer.provideMerge(verticalSlicesLayer, pgClient);
         })
       )
     ),
@@ -294,6 +262,3 @@ export class PgContainer extends Effect.Service<PgContainer>()("PgContainer", {
     Layer.orDie
   );
 }
-
-// Layer.provide(IamRepos.layer, FilesRepos.layer),
-//

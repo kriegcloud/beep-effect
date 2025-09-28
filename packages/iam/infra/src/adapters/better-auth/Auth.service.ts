@@ -36,6 +36,7 @@ const AuthOptions = Effect.gen(function* () {
     basePath: "/api/auth",
     appName: serverEnv.app.name,
     secret: Redacted.value(serverEnv.auth.secret),
+    // todo clean these up
     trustedOrigins: [...serverEnv.security.trustedOrigins, "http://localhost:4318", "http://127.0.0.1:4318"],
     rateLimit: {
       enabled: true,

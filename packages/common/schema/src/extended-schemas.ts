@@ -1,6 +1,5 @@
 import type { StructTypes, UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
-import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
 import * as Eq from "effect/Equal";
@@ -236,23 +235,6 @@ export function makeExactOptional<NER extends StructTypes.StructFieldsWithString
     return prev;
   }, {} as UnsafeTypes.UnsafeAny);
 }
-
-export class DurationFromSeconds extends S.transform(
-  S.NonNegative.annotations({
-    description: "a non-negative number of seconds to be decoded into a Duration",
-  }),
-  S.DurationFromSelf,
-  {
-    strict: true,
-    decode: (i) => Duration.seconds(i),
-    encode: (a) => Duration.toSeconds(a),
-  }
-) {}
-
-export class DurationFromDeltaSecondsString extends S.compose(S.NumberFromString, DurationFromSeconds).annotations({
-  title: "DurationFromDeltaSecondsString",
-  description: "parses a string of non-negative delta-seconds into a Duration",
-}) {}
 
 /**
  * A schema for destructive transformations when you need to infer the type from the result of the transformation callback, without specifying the encoded type.

@@ -45,6 +45,7 @@
     "esModuleInterop": true,
     "paths": {
       "@beep/iam-sdk/*": ["./src/*"],
+      "@beep/iam-sdk/better-auth/*": ["./src/better-auth/*"],
       "@beep/types": ["../../common/types/src/index"],
       "@beep/types/*": ["../../common/types/src/*"],
       "@beep/utils": ["../../common/utils/src/index"],
