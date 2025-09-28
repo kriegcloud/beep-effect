@@ -33,7 +33,7 @@ export const SignUpView = () => {
       <Terms />
       <Box sx={{ gap: 2, display: "flex", flexDirection: "column" }}>
         <FormDivider />
-        <SignInSocial signIn={async (provider) => F.pipe(iam.signIn.social(provider), runtime.runPromise)} />
+        <SignInSocial signIn={async (provider) => F.pipe(iam.signIn.social({ provider }), runtime.runPromise)} />
       </Box>
     </>
   );

@@ -35,7 +35,7 @@ export const SignInView = () => {
       />
       <FormDivider />
       <Stack spacing={2}>
-        <SignInSocial signIn={async (provider) => F.pipe(provider, iam.signIn.social, runtime.runPromise)} />
+        <SignInSocial signIn={async (provider) => F.pipe({ provider }, iam.signIn.social, runtime.runPromise)} />
         <SignInPasskey
           onSubmit={async () => runtime.runPromise(iam.signIn.passkey({ onSuccess: () => router.push(paths.root) }))}
         />

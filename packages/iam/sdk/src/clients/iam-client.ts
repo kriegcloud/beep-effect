@@ -1,4 +1,4 @@
-import { type AuthProviderNameValue, paths } from "@beep/constants";
+import { paths } from "@beep/constants";
 import { createBetterAuthHandler } from "@beep/iam-sdk/better-auth/handler";
 import { IamError } from "@beep/iam-sdk/errors";
 import { BS } from "@beep/schema";
@@ -13,6 +13,7 @@ import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
 import { client } from "../adapters";
+import type { SignInSocialContract } from "./sign-in";
 
 export class SignInEmailContract extends S.Struct({
   email: BS.Email,
@@ -49,98 +50,84 @@ const signInEmail = createBetterAuthHandler<SignInEmailContract.Type, SignInEmai
     },
   },
   defaultErrorMessage: "Failed to signin",
+  annotations: { action: "sign-in", method: "email" },
 });
-/**
- * onFailure: (error) => ({
- *   onNone: () => "Failed to signin",
- *   onSome: (e) => e.message,
- * })
- */
-const signInSocial = Effect.fn("signInSocial")(
-  function* (provider: AuthProviderNameValue.Type) {
-    const result = yield* Effect.tryPromise({
-      try: () =>
-        client.signIn.social({
-          provider,
-        }),
-      catch: IamError.match,
-    });
-
-    if (result.error) {
-      return yield* Effect.fail(new IamError(result.error, result.error.message ?? "Failed to signin"));
-    }
-
-    return yield* Effect.succeed(result.data);
-  },
-  withToast({
+const signInSocial = createBetterAuthHandler<SignInSocialContract.Type, SignInSocialContract.Encoded>({
+  name: "signInSocial",
+  plugin: "sign-in",
+  method: "social",
+  prepare: ({ provider }) => Effect.succeed({ provider }),
+  run: async (encoded) => mapBetterAuthResult(await client.signIn.social(encoded)),
+  toast: {
     onWaiting: "Signing in...",
     onSuccess: "Signed in successfully",
-    onFailure: O.match({
+    onFailure: {
       onNone: () => "Failed to signin",
       onSome: (e) => e.message,
-    }),
-  }),
-  Effect.catchAll(() => Effect.succeed(undefined)),
-  Effect.asVoid
-);
-
-const signInPasskey = Effect.fn("signInPasskey")(
-  function* ({ onSuccess }: { onSuccess: () => void }) {
-    let error: Record<string, any> & {
-      message: string;
-    } = {
-      message: "failed to sign in with passkey",
-    };
-    const result = yield* Effect.tryPromise({
-      try: () =>
-        client.signIn.passkey({
-          fetchOptions: {
-            onSuccess() {
-              onSuccess();
-            },
-            onError(context) {
-              error = context.error;
-              throw context.error;
-            },
-          },
-        }),
-      catch: (e) => new IamError(e, error.message),
-    });
-
-    if (result.error) {
-      yield* Effect.logError(JSON.stringify(result.error, null, 2));
-      return yield* Effect.fail(new IamError(result.error, error.message));
-    }
-
-    return yield* Effect.succeed(result.data);
+    },
   },
-  withToast({
+  defaultErrorMessage: "Failed to signin",
+  annotations: { action: "sign-in", method: "social" },
+});
+
+interface SignInPasskeyInput {
+  readonly onSuccess: () => void;
+}
+
+const signInPasskey = createBetterAuthHandler<SignInPasskeyInput>({
+  name: "signInPasskey",
+  plugin: "sign-in",
+  method: "passkey",
+  run: async ({ onSuccess }) => {
+    let capturedError: unknown;
+
+    try {
+      const response = await client.signIn.passkey({
+        fetchOptions: {
+          onSuccess,
+          onError(context) {
+            capturedError = context.error;
+            throw context.error;
+          },
+        },
+      });
+
+      return mapBetterAuthResult(response);
+    } catch (error) {
+      throw capturedError ?? error;
+    }
+  },
+  toast: {
     onWaiting: "Signing in...",
     onSuccess: "Signed in successfully",
-    onFailure: O.match({
+    onFailure: {
       onNone: () => "Failed to sign in with passkey.",
       onSome: (e) => e.customMessage,
-    }),
-  }),
-  Effect.catchAll(() => Effect.succeed(undefined)),
-  Effect.asVoid
-);
-
-const signInOneTap = Effect.fn("signInOneTap")(
-  function* () {
-    yield* Effect.tryPromise(() => client.oneTap());
+    },
   },
-  withToast({
+  defaultErrorMessage: "Failed to sign in with passkey.",
+  annotations: { action: "sign-in", method: "passkey" },
+});
+
+const signInOneTap = createBetterAuthHandler<void>({
+  name: "signInOneTap",
+  plugin: "sign-in",
+  method: "oneTap",
+  run: async () => {
+    await client.oneTap();
+    return mapBetterAuthResult<void>({ data: undefined, error: null });
+  },
+  toast: {
     onWaiting: "Signing in...",
     onSuccess: "Signed in successfully",
-    onFailure: O.match({
+    onFailure: {
       onNone: () => "Failed to signin",
       onSome: (e) => e.message,
-    }),
-  }),
-  Effect.catchAll(() => Effect.succeed(undefined)),
-  Effect.asVoid
-);
+    },
+  },
+  defaultErrorMessage: "Failed to signin",
+  annotations: { action: "sign-in", method: "oneTap" },
+});
 
 export class ResetPasswordContract extends S.Struct({
   password: BS.Password,
