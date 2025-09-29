@@ -1,7 +1,7 @@
 import path from "node:path";
-import * as Struct from "effect/Struct";
-import type {NextConfig} from "next";
 import withBundleAnalyzer from "@next/bundle-analyzer";
+import * as Struct from "effect/Struct";
+import type { NextConfig } from "next";
 
 type WithBundleAnalyzerConfig = Parameters<typeof withBundleAnalyzer>[0];
 // "development" | "test" | "production
@@ -87,29 +87,29 @@ const securityHeaders = [
   },
   ...(primaryOtlpOrigin
     ? ([
-      {
-        key: "Access-Control-Allow-Origin",
-        value: primaryOtlpOrigin,
-      },
-      {
-        key: "Access-Control-Allow-Methods",
-        value: "GET,POST,OPTIONS",
-      },
-      {
-        key: "Access-Control-Allow-Headers",
-        value: "Content-Type,Authorization,Baggage,traceparent",
-      },
-    ] satisfies readonly { key: string; value: string }[])
+        {
+          key: "Access-Control-Allow-Origin",
+          value: primaryOtlpOrigin,
+        },
+        {
+          key: "Access-Control-Allow-Methods",
+          value: "GET,POST,OPTIONS",
+        },
+        {
+          key: "Access-Control-Allow-Headers",
+          value: "Content-Type,Authorization,Baggage,traceparent",
+        },
+      ] satisfies readonly { key: string; value: string }[])
     : []),
   ...(process.env.NODE_ENV === "production"
     ? ([
-      {
-        key: "Content-Security-Policy",
-        value: genCSP()
-          .replace(/\s{2,}/g, " ")
-          .trim(),
-      },
-    ] as const)
+        {
+          key: "Content-Security-Policy",
+          value: genCSP()
+            .replace(/\s{2,}/g, " ")
+            .trim(),
+        },
+      ] as const)
     : []),
 ];
 
@@ -206,11 +206,10 @@ const nextConfig = {
   //   return config;
   // },
   experimental: {
-    optimizePackageImports: ['@iconify/react', 'lodash', '@mui/x-date-pickers', '@mui/lab'],
+    optimizePackageImports: ["@iconify/react", "lodash", "@mui/x-date-pickers", "@mui/lab"],
     browserDebugInfoInTerminal: true,
   },
 } satisfies NextConfig;
-
 
 const config = withBundleAnalyzer({
   enabled: process.env.ENV === "dev",
