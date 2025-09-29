@@ -26,6 +26,7 @@ const Upload = React.lazy(() => import("@beep/ui/inputs/UploadField"));
 const UploadBox = React.lazy(() => import("@beep/ui/inputs/UploadBoxField"));
 const Editor = React.lazy(() => import("@beep/ui/inputs/EditorField"));
 const Color = React.lazy(() => import("@beep/ui/inputs/ColorField"));
+const Emoji = React.lazy(() => import("@beep/ui/inputs/EmojiField"));
 export const { fieldContext, useFieldContext, formContext, useFormContext } = createFormHookContexts();
 
 export const { useAppForm, withForm, withFieldGroup } = createFormHook({
@@ -52,6 +53,7 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
     Select,
     Switch,
     Text,
+    Emoji,
   },
   formComponents: {
     Submit,

@@ -1,4 +1,4 @@
-import { paths } from "@beep/constants";
+import { paths } from "@beep/shared-domain";
 import { Iconify } from "@beep/ui/atoms";
 import { Logo } from "@beep/ui/branding";
 import { RouterLink } from "@beep/ui/routing";

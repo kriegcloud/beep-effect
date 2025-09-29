@@ -1,8 +1,10 @@
-import { rgbaFromChannel } from "@beep/ui/utils";
-import { buttonClasses } from "@mui/material/Button";
+import { cssVarRgba, rgbaFromChannel } from "@beep/ui/utils";
+import type { ButtonProps } from "@mui/material/Button";
+import { type ButtonClasses, buttonClasses } from "@mui/material/Button";
 import type { Components, ComponentsVariants, CSSObject, Theme } from "@mui/material/styles";
-
+import * as Str from "effect/String";
 import { colorKeys } from "../palette";
+import { LinkBehavior } from "./link";
 
 /**
  * TypeScript extension for MUI theme augmentation.
@@ -135,7 +137,67 @@ const softVariants = [
     }),
   })) satisfies ButtonVariants),
 ] satisfies ButtonVariants;
+export type PaletteColorKey = (typeof colorKeys.palette)[number];
+const btnColors: PaletteColorKey[] = ["primary", "secondary", "info", "success", "warning", "error"];
+const btnCustomVariants: ComponentsVariants<Theme>["MuiButton"] = btnColors.map((color) => ({
+  props: { variant: "soft", color: color as ButtonProps["color"] },
+  style: (style) => {
+    const theme = style.theme as Theme;
 
+    return {
+      background: cssVarRgba(theme.vars.palette[color].mainChannel, 0.15),
+      color: theme.vars.palette[color].dark,
+      "&:hover": {
+        background: cssVarRgba(theme.vars.palette[color].mainChannel, 0.2),
+      },
+    };
+  },
+}));
+
+const shapes = ["circle", "square"];
+const sizes: {
+  [key: string]: number;
+} = { small: 30, medium: 36, large: 42 };
+
+const btnShapeVariants: ComponentsVariants<Theme>["MuiButton"] = [];
+
+shapes.forEach((shape) => {
+  Object.keys(sizes).forEach((size) => {
+    btnShapeVariants.push({
+      props: {
+        shape: shape as ButtonProps["shape"],
+        size: size as ButtonProps["size"],
+      },
+      style: {
+        height: sizes[size],
+        minWidth: sizes[size],
+        padding: 0,
+        borderRadius: shape === "circle" ? "50%" : undefined,
+      },
+    });
+  });
+});
+declare module "@mui/material/Button" {
+  interface ButtonPropsVariantOverrides {
+    soft: true;
+    dashed: true;
+  }
+
+  interface ButtonPropsColorOverrides {
+    neutral: true;
+  }
+
+  interface ButtonClasses {
+    outlinedNeutral: true;
+  }
+
+  interface ButtonOwnProps {
+    shape?: "square" | "circle";
+  }
+}
+export type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
 const sizeVariants = [
   {
     props: {},
@@ -197,7 +259,36 @@ const MuiButtonBase: Components<Theme>["MuiButtonBase"] = {
       fontFamily: theme.typography.fontFamily,
     }),
   },
+  defaultProps: {
+    LinkComponent: LinkBehavior,
+  },
 };
+const outlineStyles = (theme: Theme) =>
+  btnColors.reduce((acc: any, color) => {
+    const paletteColor = theme.vars.palette[color];
+
+    acc[`&.${buttonClasses.outlined}.${buttonClasses[`color${Str.capitalize(color)}` as keyof ButtonClasses]}`] = {
+      "&:hover": {
+        backgroundColor: cssVarRgba(paletteColor.mainChannel, 0.12),
+        borderColor: cssVarRgba(paletteColor.mainChannel, 0.5),
+      },
+    };
+
+    return acc;
+  }, {});
+
+const textBtnStyles = (theme: Theme) =>
+  btnColors.reduce((acc: any, color) => {
+    const paletteColor = theme.vars.palette[color];
+
+    acc[`&.${buttonClasses.text}.${buttonClasses[`color${Str.capitalize(color)}` as keyof ButtonClasses]}`] = {
+      "&:hover": {
+        backgroundColor: cssVarRgba(paletteColor.mainChannel, 0.12),
+      },
+    };
+
+    return acc;
+  }, {});
 
 const MuiButton: Components<Theme>["MuiButton"] = {
   // ▼▼▼▼▼▼▼▼ ⚙️ PROPS ▼▼▼▼▼▼▼▼
@@ -207,7 +298,15 @@ const MuiButton: Components<Theme>["MuiButton"] = {
   },
   // ▼▼▼▼▼▼▼▼ 🎨 STYLE ▼▼▼▼▼▼▼▼
   styleOverrides: {
-    root: {
+    root: ({ theme }) => ({
+      textTransform: "none",
+      fontSize: "14px",
+      fontWeight: 600,
+      borderRadius: "8px",
+      padding: theme.spacing(1, 2),
+      lineHeight: 1.429,
+      ...outlineStyles(theme),
+      ...textBtnStyles(theme),
       variants: [
         ...containedVariants,
         ...outlinedVariants,
@@ -215,7 +314,49 @@ const MuiButton: Components<Theme>["MuiButton"] = {
         ...softVariants,
         ...sizeVariants,
         ...disabledVariants,
+        ...btnCustomVariants,
+        ...btnShapeVariants,
       ],
+    }),
+    sizeLarge: {
+      fontSize: "16px",
+      padding: "10px 22px",
+      lineHeight: 1.375,
+    },
+    sizeSmall: {
+      padding: "6px 10px",
+      lineHeight: 1.286,
+    },
+    outlinedSizeLarge: {
+      paddingTop: "9px",
+      paddingBottom: "9px",
+    },
+    outlinedSizeMedium: {
+      paddingTop: "7px",
+      paddingBottom: "7px",
+    },
+    outlinedSizeSmall: {
+      paddingTop: "5px",
+      paddingBottom: "5px",
+    },
+    outlinedError: {},
+
+    startIcon: {
+      marginRight: 4,
+      "& > *:first-of-type": {
+        fontSize: 16,
+      },
+    },
+    endIcon: {
+      marginLeft: 4,
+      "& > *:first-of-type": {
+        fontSize: 16,
+      },
+    },
+    iconSizeLarge: {
+      "& > *:first-of-type": {
+        fontSize: 16,
+      },
     },
   },
 };

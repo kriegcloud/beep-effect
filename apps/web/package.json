@@ -49,6 +49,7 @@
     "@beep/files-ui": "workspace:^",
     "@beep/runtime-server": "workspace:^",
     "@beep/runtime-client": "workspace:^",
+    "@beep/theme": "workspace:^",
     "@effect/platform": "*",
     "@effect/rpc": "*",
     "picocolors": "*",
@@ -185,6 +186,7 @@
     "babel-plugin-transform-next-use-client": "*",
     "copyfiles": "*",
     "@babel/preset-react": "*",
+    "@next/bundle-analyzer": "^15.5.4",
     "@types/copyfiles": "*"
   }
 }

@@ -7,6 +7,9 @@
       "path": "../../ui"
     },
     {
+      "path": "../../theme"
+    },
+    {
       "path": "../sdk"
     },
     {
@@ -35,6 +38,9 @@
     },
     {
       "path": "../../runtime/client"
+    },
+    {
+      "path": "../../shared/domain"
     }
   ],
   "compilerOptions": {
@@ -54,6 +60,8 @@
     "paths": {
       "@beep/iam-ui/*": ["./src/*"],
       "@beep/ui/*": ["../../ui/src/*"],
+      "@beep/theme": ["../../theme/src/index"],
+      "@beep/theme/*": ["../../theme/src/*"],
       "@beep/types": ["../../common/types/src/index"],
       "@beep/types/*": ["../../common/types/src/*"],
       "@beep/schema": ["../../common/schema/src/index"],
@@ -72,7 +80,9 @@
       "@beep/errors/shared": ["../../common/errors/src/shared"],
       "@beep/errors/client": ["../../common/errors/src/client"],
       "@beep/runtime-client": ["../../runtime/client/src/index"],
-      "@beep/runtime-client/*": ["../../runtime/client/src/*"]
+      "@beep/runtime-client/*": ["../../runtime/client/src/*"],
+      "@beep/shared-domain": ["../../shared/domain/src/index"],
+      "@beep/shared-domain/*": ["../../shared/domain/src/*"]
     }
   }
 }

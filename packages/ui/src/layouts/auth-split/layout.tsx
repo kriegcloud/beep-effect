@@ -1,6 +1,7 @@
 "use client";
 
-import { assetPaths, paths } from "@beep/constants";
+import { assetPaths } from "@beep/constants";
+import { paths } from "@beep/shared-domain";
 import { Logo } from "@beep/ui/branding";
 import { RouterLink } from "@beep/ui/routing";
 import Alert from "@mui/material/Alert";

@@ -2,7 +2,7 @@ import { CSPHeader } from "@beep/constants/Csp";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { v4 as uuid } from "uuid";
-// import { paths } from "@beep/constants";
+// import { paths } from "@beep/shared-domain";
 
 // const authPaths = [
 //   paths.auth.signIn,

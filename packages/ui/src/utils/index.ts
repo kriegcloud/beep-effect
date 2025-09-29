@@ -14,6 +14,7 @@ export {
 } from "./cookies";
 export { createCtx } from "./createCtx";
 export * from "./css-variables";
+export * from "./cssVarRgba";
 export {
   pxToRem,
   remToPx,

@@ -220,3 +220,8 @@ export const rfc_3987_url_regex = Regex.make(
 /** RFC3339 date-time (ISO 8601 profile), with leap-second support. */
 export const rfc3339DateTime =
   /^(?<date>(?!0000)\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01]))T(?<time>(?:[01]\d|2[0-3]):[0-5]\d:(?:[0-5]\d|60))(?:\.(?<frac>\d{1,9}))?(?<zone>Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/;
+
+// Matches ONLY a standalone CSS hex color string
+export const css_hex_color_regex = Regex.make(/^#(?:[A-F0-9]{3,4}|[A-F0-9]{6}(?:[A-F0-9]{2})?)$/i);
+
+export const rgb_number_part_regex = Regex.make(/^[+-]?(?:\d+\.?\d*|\.\d+)$/);

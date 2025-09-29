@@ -8,16 +8,15 @@ import * as regexes from "../regexes";
  * RFC-5322–ish pragmatic validator for "local@domain.tld".
  * We rely on lowercase + trim + non-empty checks around this pattern.
  */
-
-export const EmailBase = S.Lowercase.pipe(
+export const EmailEncoded = S.Lowercase.pipe(
   S.compose(S.Trim),
   S.compose(S.NonEmptyTrimmedString),
   S.annotations({
     message: () => "Email is required!",
   }),
-  S.pattern(regexes.email),
-  S.brand("Email")
-).annotations({
+  S.pattern(regexes.email)
+);
+export const EmailBase = EmailEncoded.pipe(S.brand("Email")).annotations({
   jsonSchema: { format: "email", type: "string" },
   arbitrary: () => (fc) => fc.emailAddress().map((_) => _ as B.Branded<string, "Email">),
   title: "Email",

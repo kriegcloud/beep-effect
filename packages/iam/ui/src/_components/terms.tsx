@@ -1,4 +1,4 @@
-import { paths } from "@beep/constants";
+import { paths } from "@beep/shared-domain";
 import { RouterLink } from "@beep/ui/routing";
 import type { BoxProps } from "@mui/material/Box";
 import Box from "@mui/material/Box";

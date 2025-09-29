@@ -1,185 +1,107 @@
-import { withToast } from "@beep/ui/common/with-toast";
+import { AuthHandler } from "@beep/iam-sdk/auth-wrapper";
+import { SignInEmailContract, type SignInSocialContract } from "@beep/iam-sdk/clients";
 import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
-import * as O from "effect/Option";
-import * as S from "effect/Schema";
 import { client } from "../../adapters";
-import { IamError } from "../../errors";
-import {
-  SignInEmailContract,
-  SignInPhoneNumberContract,
-  type SignInSocialContract,
-  SignInUsernameContract,
-} from "./sign-in.contract";
 
-const signInEmail = Effect.fn("signInEmail")(
-  function* (params: SignInEmailContract.Type) {
-    const result = yield* F.pipe(
-      params,
-      S.encode(SignInEmailContract),
-      Effect.flatMap((encoded) => Effect.tryPromise(() => client.signIn.email(encoded)))
-    );
-
-    if (result.error) {
-      return yield* Effect.fail(new IamError(result.error, result.error.message ?? "Failed to signin"));
-    }
-
-    return yield* Effect.succeed(result.data);
-  },
-  withToast({
+const signInEmail = AuthHandler.make<SignInEmailContract.Type, SignInEmailContract.Encoded>({
+  name: "signInEmail",
+  plugin: "sign-in",
+  method: "email",
+  schema: SignInEmailContract,
+  run: AuthHandler.map(client.signIn.email),
+  toast: {
     onWaiting: "Signing in...",
     onSuccess: "Signed in successfully",
-    onFailure: O.match({
+    onFailure: {
       onNone: () => "Failed to signin",
       onSome: (e) => e.message,
-    }),
-  }),
-  Effect.catchAll(() => Effect.succeed(undefined)),
-  Effect.asVoid
-);
-
-const signInUsername = Effect.fn("signInUsername")(
-  function* (params: SignInUsernameContract.Type) {
-    const result = yield* F.pipe(
-      params,
-      S.encode(SignInUsernameContract),
-      Effect.flatMap((encoded) => Effect.tryPromise(() => client.signIn.username(encoded)))
-    );
-
-    if (result.error) {
-      return yield* Effect.fail(new IamError(result.error, result.error.message ?? "Failed to signin"));
-    }
-
-    return yield* Effect.succeed(result.data);
+    },
   },
-  withToast({
+  defaultErrorMessage: "Failed to signin",
+  annotations: { action: "sign-in", method: "email" },
+});
+const signInSocial = AuthHandler.make<SignInSocialContract.Type, SignInSocialContract.Encoded>({
+  name: "signInSocial",
+  plugin: "sign-in",
+  method: "social",
+  prepare: ({ provider }) => Effect.succeed({ provider }),
+  run: AuthHandler.map(client.signIn.social),
+  toast: {
     onWaiting: "Signing in...",
     onSuccess: "Signed in successfully",
-    onFailure: O.match({
+    onFailure: {
       onNone: () => "Failed to signin",
       onSome: (e) => e.message,
-    }),
-  }),
-  Effect.catchAll(() => Effect.succeed(undefined)),
-  Effect.asVoid
-);
-
-const signInPhoneNumber = Effect.fn("signInPhoneNumber")(
-  function* (params: SignInPhoneNumberContract.Type) {
-    const result = yield* F.pipe(
-      params,
-      S.encode(SignInPhoneNumberContract),
-      Effect.flatMap((encoded) => Effect.tryPromise(() => client.signIn.phoneNumber(encoded)))
-    );
-
-    if (result.error) {
-      return yield* Effect.fail(new IamError(result.error, result.error.message ?? "Failed to signin"));
-    }
-
-    return yield* Effect.succeed(result.data);
+    },
   },
-  withToast({
-    onWaiting: "Signing in...",
-    onSuccess: "Signed in successfully",
-    onFailure: O.match({
-      onNone: () => "Failed to signin",
-      onSome: (e) => e.message,
-    }),
-  }),
-  Effect.catchAll(() => Effect.succeed(undefined)),
-  Effect.asVoid
-);
+  defaultErrorMessage: "Failed to signin",
+  annotations: { action: "sign-in", method: "social" },
+});
 
-const signInSocial = Effect.fn("signInSocial")(
-  function* ({ provider }: SignInSocialContract.Type) {
-    const result = yield* Effect.tryPromise({
-      try: () =>
-        client.signIn.social({
-          provider,
-        }),
-      catch: IamError.match,
-    });
+export interface SignInPasskeyInput {
+  readonly onSuccess: () => void;
+}
 
-    if (result.error) {
-      return yield* Effect.fail(new IamError(result.error, result.error.message ?? "Failed to signin"));
-    }
+const signInPasskey = AuthHandler.make<SignInPasskeyInput>({
+  name: "signInPasskey",
+  plugin: "sign-in",
+  method: "passkey",
+  run: AuthHandler.map((input, { signal } = {}) => {
+    let capturedError: unknown;
 
-    return yield* Effect.succeed(result.data);
-  },
-  withToast({
-    onWaiting: "Signing in...",
-    onSuccess: "Signed in successfully",
-    onFailure: O.match({
-      onNone: () => "Failed to signin",
-      onSome: (e) => e.message,
-    }),
-  }),
-  Effect.catchAll(() => Effect.succeed(undefined)),
-  Effect.asVoid
-);
-
-const signInPasskey = Effect.fn("signInPasskey")(
-  function* ({ onSuccess }: { onSuccess: () => void }) {
-    let error: Record<string, any> & {
-      message: string;
-    } = {
-      message: "failed to sign in with passkey",
-    };
-    const result = yield* Effect.tryPromise({
-      try: () =>
-        client.signIn.passkey({
-          fetchOptions: {
-            onSuccess() {
-              onSuccess();
-            },
-            onError(context) {
-              error = context.error;
-              throw context.error;
-            },
+    return client.signIn
+      .passkey({
+        fetchOptions: {
+          signal,
+          onSuccess: input.onSuccess,
+          onError(context) {
+            capturedError = context.error;
+            throw context.error;
           },
-        }),
-      catch: (e) => new IamError(e, error.message),
-    });
-
-    if (result.error) {
-      yield* Effect.logError(JSON.stringify(result.error, null, 2));
-      return yield* Effect.fail(new IamError(result.error, error.message));
-    }
-
-    return yield* Effect.succeed(result.data);
-  },
-  withToast({
+        },
+      })
+      .catch((error) => {
+        throw capturedError ?? error;
+      });
+  }),
+  toast: {
     onWaiting: "Signing in...",
     onSuccess: "Signed in successfully",
-    onFailure: O.match({
+    onFailure: {
       onNone: () => "Failed to sign in with passkey.",
       onSome: (e) => e.customMessage,
-    }),
-  }),
-  Effect.catchAll(() => Effect.succeed(undefined)),
-  Effect.asVoid
-);
-
-const signInOneTap = Effect.fn("signInOneTap")(
-  function* () {
-    yield* Effect.tryPromise(() => client.oneTap());
+    },
   },
-  withToast({
+  defaultErrorMessage: "Failed to sign in with passkey.",
+  annotations: { action: "sign-in", method: "passkey" },
+});
+
+const signInOneTap = AuthHandler.make<void>({
+  name: "signInOneTap",
+  plugin: "sign-in",
+  method: "oneTap",
+  run: AuthHandler.map(async () => {
+    try {
+      await client.oneTap();
+      return { data: null, error: null } as const;
+    } catch (error) {
+      throw error;
+    }
+  }),
+  toast: {
     onWaiting: "Signing in...",
     onSuccess: "Signed in successfully",
-    onFailure: O.match({
+    onFailure: {
       onNone: () => "Failed to signin",
       onSome: (e) => e.message,
-    }),
-  }),
-  Effect.catchAll(() => Effect.succeed(undefined)),
-  Effect.asVoid
-);
+    },
+  },
+  defaultErrorMessage: "Failed to signin",
+  annotations: { action: "sign-in", method: "oneTap" },
+});
 
 export const signInClient = {
   email: signInEmail,
-  username: signInUsername,
-  phoneNumber: signInPhoneNumber,
   social: signInSocial,
   passkey: signInPasskey,
   oneTap: signInOneTap,

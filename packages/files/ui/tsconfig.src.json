@@ -7,6 +7,9 @@
       "path": "../../ui"
     },
     {
+      "path": "../../theme"
+    },
+    {
       "path": "../../shared/domain"
     },
     {
@@ -48,6 +51,8 @@
     "paths": {
       "@beep/files-ui/*": ["./src/*"],
       "@beep/ui/*": ["../../ui/src/*"],
+      "@beep/theme": ["../../theme/src/index"],
+      "@beep/theme/*": ["../../theme/src/*"],
       "@beep/shared-domain": ["../../shared/domain/src/index"],
       "@beep/shared-domain/*": ["../../shared/domain/src/*"],
       "@beep/core-env/client": ["../../core/env/src/client"],

@@ -7,6 +7,8 @@
     "paths": {
       "@beep/iam-ui/*": ["./src/*"],
       "@beep/ui/*": ["../../ui/src/*"],
+      "@beep/theme": ["../../theme/src/index"],
+      "@beep/theme/*": ["../../theme/src/*"],
       "@beep/types": ["../../common/types/src/index"],
       "@beep/types/*": ["../../common/types/src/*"],
       "@beep/schema": ["../../common/schema/src/index"],
@@ -25,7 +27,9 @@
       "@beep/utils": ["../../common/utils/src/index"],
       "@beep/utils/*": ["../../common/utils/src/*"],
       "@beep/runtime-client": ["../../runtime/client/src/index"],
-      "@beep/runtime-client/*": ["../../runtime/client/src/*"]
+      "@beep/runtime-client/*": ["../../runtime/client/src/*"],
+      "@beep/shared-domain": ["../../shared/domain/src/index"],
+      "@beep/shared-domain/*": ["../../shared/domain/src/*"]
     }
   },
   "references": [

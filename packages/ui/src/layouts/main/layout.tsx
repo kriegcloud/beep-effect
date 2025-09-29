@@ -2,7 +2,7 @@
 
 import { Logo } from "@beep/ui/branding";
 import { useBoolean, usePathname } from "@beep/ui/hooks";
-// import { paths } from "@beep/constants";
+// import { paths } from "@beep/shared-domain";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 // import Button from "@mui/material/Button";

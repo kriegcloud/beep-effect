@@ -1,7 +1,9 @@
 import path from "node:path";
 import * as Struct from "effect/Struct";
-import type { NextConfig } from "next";
+import type {NextConfig} from "next";
+import withBundleAnalyzer from "@next/bundle-analyzer";
 
+type WithBundleAnalyzerConfig = Parameters<typeof withBundleAnalyzer>[0];
 // "development" | "test" | "production
 // const isDev = process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_ENV === "dev";
 const fallbackOtlpOrigins = ["http://localhost:4318", "http://127.0.0.1:4318"] as const;
@@ -85,29 +87,29 @@ const securityHeaders = [
   },
   ...(primaryOtlpOrigin
     ? ([
-        {
-          key: "Access-Control-Allow-Origin",
-          value: primaryOtlpOrigin,
-        },
-        {
-          key: "Access-Control-Allow-Methods",
-          value: "GET,POST,OPTIONS",
-        },
-        {
-          key: "Access-Control-Allow-Headers",
-          value: "Content-Type,Authorization,Baggage,traceparent",
-        },
-      ] satisfies readonly { key: string; value: string }[])
+      {
+        key: "Access-Control-Allow-Origin",
+        value: primaryOtlpOrigin,
+      },
+      {
+        key: "Access-Control-Allow-Methods",
+        value: "GET,POST,OPTIONS",
+      },
+      {
+        key: "Access-Control-Allow-Headers",
+        value: "Content-Type,Authorization,Baggage,traceparent",
+      },
+    ] satisfies readonly { key: string; value: string }[])
     : []),
   ...(process.env.NODE_ENV === "production"
     ? ([
-        {
-          key: "Content-Security-Policy",
-          value: genCSP()
-            .replace(/\s{2,}/g, " ")
-            .trim(),
-        },
-      ] as const)
+      {
+        key: "Content-Security-Policy",
+        value: genCSP()
+          .replace(/\s{2,}/g, " ")
+          .trim(),
+      },
+    ] as const)
     : []),
 ];
 
@@ -204,8 +206,14 @@ const nextConfig = {
   //   return config;
   // },
   experimental: {
+    optimizePackageImports: ['@iconify/react', 'lodash', '@mui/x-date-pickers', '@mui/lab'],
     browserDebugInfoInTerminal: true,
   },
 } satisfies NextConfig;
 
-export default nextConfig;
+
+const config = withBundleAnalyzer({
+  enabled: process.env.ENV === "dev",
+  openAnalyzer: true,
+} satisfies WithBundleAnalyzerConfig)(nextConfig);
+export default config;

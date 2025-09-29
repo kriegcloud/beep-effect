@@ -1,2 +1,2 @@
-export * from "./better-auth";
+export * from "./auth-wrapper";
 export * from "./clients";

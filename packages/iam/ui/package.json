@@ -46,6 +46,8 @@
     "@beep/constants": "workspace:^",
     "@beep/errors": "workspace:^",
     "@beep/runtime-client": "workspace:^",
+    "@beep/theme": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
     "react": "*",
     "react-dom": "*",
     "@mui/material": "*",

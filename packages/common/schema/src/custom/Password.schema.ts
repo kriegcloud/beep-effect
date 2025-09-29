@@ -1,6 +1,6 @@
 import * as S from "effect/Schema";
 
-export class PasswordBase extends S.NonEmptyString.pipe(
+export class EncodedPassword extends S.NonEmptyString.pipe(
   S.minLength(8, {
     message: () => "Password must be at least 8 characters long!",
   }),
@@ -18,9 +18,10 @@ export class PasswordBase extends S.NonEmptyString.pipe(
   }),
   S.pattern(/[!@#$%^&*(),.?":{}|<>\\[\]/`~;'_+=-]/, {
     message: () => "Password must contain at least one special character!",
-  }),
-  S.brand("Password")
+  })
 ) {}
+
+export class PasswordBase extends EncodedPassword.pipe(S.brand("Password")) {}
 
 export class Password extends S.Redacted(PasswordBase).annotations({
   schemaId: Symbol.for("@beep/schema/custom/Password"),

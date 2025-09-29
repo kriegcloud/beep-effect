@@ -1,2 +1,2 @@
 export { signInClient } from "./sign-in.client";
-export * from "./sign-in.contract";
+export * from "./sign-in.contracts";

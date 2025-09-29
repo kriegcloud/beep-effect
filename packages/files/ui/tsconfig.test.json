@@ -9,6 +9,9 @@
       "path": "../../ui"
     },
     {
+      "path": "../../theme"
+    },
+    {
       "path": "../../shared/domain"
     },
     {

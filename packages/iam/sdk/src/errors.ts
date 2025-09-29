@@ -9,7 +9,7 @@ export interface IamErrorMetadata {
   readonly statusText?: string;
   readonly plugin?: string;
   readonly method?: string;
-  readonly betterAuthCause?: unknown;
+  readonly authCause?: unknown;
 }
 
 export class IamError extends Data.TaggedError("IamError")<{
@@ -20,19 +20,19 @@ export class IamError extends Data.TaggedError("IamError")<{
   readonly statusText?: string;
   readonly plugin?: string;
   readonly method?: string;
-  readonly betterAuthCause?: unknown;
+  readonly authCause?: unknown;
 }> {
   readonly code?: string;
   readonly status?: number;
   readonly statusText?: string;
   readonly plugin?: string;
   readonly method?: string;
-  readonly betterAuthCause?: unknown;
+  readonly authCause?: unknown;
 
   constructor(
     readonly cause: unknown,
     readonly customMessage: string,
-    metadata: IamErrorMetadata = {}
+    readonly metadata: IamErrorMetadata = {}
   ) {
     const normalizedMessage = customMessage ?? "Unknown Error has occurred";
     super({
@@ -46,7 +46,7 @@ export class IamError extends Data.TaggedError("IamError")<{
     this.statusText = metadata.statusText;
     this.plugin = metadata.plugin;
     this.method = metadata.method;
-    this.betterAuthCause = metadata.betterAuthCause;
+    this.authCause = metadata.authCause;
   }
 
   static readonly match = (error: unknown, metadata: IamErrorMetadata = {}) => {

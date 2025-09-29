@@ -182,6 +182,9 @@
       "@beep/ui/test/*": [
         "./packages/ui/test/*"
       ],
+      "@beep/theme": ["./packages/theme/src/index"],
+      "@beep/theme/*": ["./packages/theme/src/*"],
+      "@beep/theme/test/*": ["./packages/theme/test/*"],
       "@beep/iam-domain": [
         "./packages/iam/domain/src/index"
       ],
