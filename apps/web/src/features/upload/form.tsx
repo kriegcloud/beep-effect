@@ -1,7 +1,7 @@
 "use client";
 import { withEnvLogging } from "@beep/errors/client";
 import { FileInstance } from "@beep/files-domain/value-objects";
-import { useRuntime } from "@beep/runtime-client";
+import { runClientPromise, useRuntime } from "@beep/runtime-client";
 import { Form, makeFormOptions, useAppForm } from "@beep/ui/form";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -56,7 +56,11 @@ export function OtherDemo() {
         return { successes, errors };
       });
 
-      const result = await runtime.runPromise(program.pipe(withEnvLogging, Effect.provide(UploadFileService.Default)));
+      const result = await runClientPromise(
+        runtime,
+        program.pipe(withEnvLogging, Effect.provide(UploadFileService.Default)),
+        "upload.form.submit"
+      );
       console.log(result);
     },
   });

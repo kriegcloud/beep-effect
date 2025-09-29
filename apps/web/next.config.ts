@@ -176,38 +176,38 @@ const nextConfig = {
       },
     ];
   },
-  turbopack: {
-    rules: {
-      "*.svg": {
-        loaders: ["@svgr/webpack"],
-        as: "*.js",
-      },
-    },
-  },
+  // turbopack: {
+  //   rules: {
+  //     "*.svg": {
+  //       loaders: ["@svgr/webpack"],
+  //       as: "*.js",
+  //     },
+  //   },
+  // },
   outputFileTracingRoot: path.join(__dirname, "../../"),
 
-  // webpack(config) {
-  //   config.watchOptions = {
-  //     poll: 1000,
-  //     aggregateTimeout: 1000,
-  //   };
-  //   config.module.rules.push({
-  //     test: /\.svg$/,
-  //     use: ["@svgr/webpack"],
-  //   });
-  //
-  //   config.experiments = {
-  //     ...config.experiments,
-  //     layers: true,
-  //     asyncWebAssembly: true,
-  //     topLevelAwait: true,
-  //   };
-  //
-  //   return config;
-  // },
+  webpack(config) {
+    config.watchOptions = {
+      poll: 1000,
+      aggregateTimeout: 1000,
+    };
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ["@svgr/webpack"],
+    });
+
+    config.experiments = {
+      ...config.experiments,
+      layers: true,
+      asyncWebAssembly: true,
+      topLevelAwait: true,
+    };
+
+    return config;
+  },
   experimental: {
     optimizePackageImports: ["@iconify/react", "lodash", "@mui/x-date-pickers", "@mui/lab"],
-    browserDebugInfoInTerminal: true,
+    // browserDebugInfoInTerminal: true,
   },
 } satisfies NextConfig;
 

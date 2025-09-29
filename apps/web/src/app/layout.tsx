@@ -8,7 +8,7 @@ import "dayjs/locale/vi";
 import "dayjs/locale/fr";
 import "dayjs/locale/zh-cn";
 import "dayjs/locale/ar-sa";
-import { serverRuntime } from "@beep/runtime-server";
+import { runServerPromise } from "@beep/runtime-server";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import Script from "next/script";
@@ -61,7 +61,7 @@ type RootLayoutProps = {
 };
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-  const [nonce, appConfig] = await serverRuntime.runPromise(getInitialProps);
+  const [nonce, appConfig] = await runServerPromise(getInitialProps, "RootLayout.getInitialProps");
 
   return (
     <html lang={appConfig.lang ?? "en"} dir={appConfig.dir} suppressHydrationWarning>

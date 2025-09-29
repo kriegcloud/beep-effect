@@ -1,7 +1,7 @@
 "use client";
 import { iam } from "@beep/iam-sdk";
 import { FormHead, FormReturnLink } from "@beep/iam-ui/_components";
-import { useRuntime } from "@beep/runtime-client";
+import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { paths } from "@beep/shared-domain";
 import { EmailInboxIcon } from "@beep/ui/icons";
 import * as Effect from "effect/Effect";
@@ -10,6 +10,7 @@ import { VerifyEmailForm } from "./verify-email.form";
 
 export const VerifyEmailView = () => {
   const runtime = useRuntime();
+  const runVerifyEmail = makeRunClientPromise(runtime, "iam.verify.email");
   return (
     <>
       <FormHead
@@ -18,7 +19,7 @@ export const VerifyEmailView = () => {
         description={`We've emailed a confirmation link to you your email address.`}
       />
       <VerifyEmailForm
-        onSubmit={async (valueEffect) => F.pipe(valueEffect, Effect.flatMap(iam.verify.email), runtime.runPromise)}
+        onSubmit={async (valueEffect) => F.pipe(valueEffect, Effect.flatMap(iam.verify.email), runVerifyEmail)}
       />
       <FormReturnLink href={paths.auth.signIn} sx={{ mt: 0 }} />
     </>

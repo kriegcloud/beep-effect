@@ -1,6 +1,5 @@
 import { AuthHandler } from "@beep/iam-sdk/auth-wrapper";
-import { SignInEmailContract, type SignInSocialContract } from "@beep/iam-sdk/clients";
-import * as Effect from "effect/Effect";
+import { SignInEmailContract, SignInSocialContract } from "@beep/iam-sdk/clients";
 import { client } from "../../adapters";
 
 const signInEmail = AuthHandler.make<SignInEmailContract.Type, SignInEmailContract.Encoded>({
@@ -20,11 +19,11 @@ const signInEmail = AuthHandler.make<SignInEmailContract.Type, SignInEmailContra
   defaultErrorMessage: "Failed to signin",
   annotations: { action: "sign-in", method: "email" },
 });
-const signInSocial = AuthHandler.make<SignInSocialContract.Type, SignInSocialContract.Encoded>({
+const signInSocial = AuthHandler.make({
   name: "signInSocial",
   plugin: "sign-in",
   method: "social",
-  prepare: ({ provider }) => Effect.succeed({ provider }),
+  schema: SignInSocialContract,
   run: AuthHandler.map(client.signIn.social),
   toast: {
     onWaiting: "Signing in...",

@@ -1,18 +1,48 @@
 import { Db } from "@beep/core-db";
 import { ResendService } from "@beep/core-email";
-import { AuthEmailService, AuthService } from "@beep/iam-infra";
-import { DevToolsLive } from "@beep/runtime-server/dev-tools-live";
-import { LogLevelLive } from "@beep/runtime-server/log-level-live";
-import { LoggerLive } from "@beep/runtime-server/logger-live";
-import { SliceDatabasesLive } from "@beep/runtime-server/slice-databases-live";
-import { SliceRepositoriesLive } from "@beep/runtime-server/slice-repositories-live";
-import { TelemetryLive } from "@beep/runtime-server/telemetry-live";
-import type { HttpClient } from "@effect/platform/HttpClient";
+import { serverEnv } from "@beep/core-env/server";
+import { makePrettyConsoleLoggerLayer } from "@beep/errors/server";
+import { FilesRepos } from "@beep/files-infra";
+import { FilesDb } from "@beep/files-infra/db";
+import { AuthEmailService, AuthService, IamRepos } from "@beep/iam-infra";
+import { IamDb } from "@beep/iam-infra/db";
+import { DevTools } from "@effect/experimental";
+import { NodeSdk } from "@effect/opentelemetry";
+import type { Resource } from "@effect/opentelemetry/Resource";
+import { NodeSocket } from "@effect/platform-node";
+import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
+import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
+import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Logger from "effect/Logger";
+import * as LogLevel from "effect/LogLevel";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 
-type Base = Layer.Layer<HttpClient, never, never>;
-export const Base: Base = Layer.mergeAll(TelemetryLive, DevToolsLive, LogLevelLive);
+export const TelemetryLive = NodeSdk.layer(() => ({
+  resource: { serviceName: `${serverEnv.app.name}-server` },
+  spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({ url: "http://localhost:4318/v1/traces" })),
+  logRecordProcessor: new BatchLogRecordProcessor(new OTLPLogExporter({ url: "http://localhost:4318/v1/logs" })),
+}));
+export const SliceRepositoriesLive = Layer.mergeAll(IamRepos.layer, FilesRepos.layer);
+
+export const SliceDatabasesLive = Layer.mergeAll(IamDb.IamDb.Live, FilesDb.FilesDb.Live);
+
+export type LoggerLive = Layer.Layer<never, never, never>;
+export const LoggerLive: LoggerLive = serverEnv.app.env === "dev" ? makePrettyConsoleLoggerLayer() : Logger.json;
+export type LogLevelLive = Layer.Layer<never, never, never>;
+export const LogLevelLive: LogLevelLive = Logger.minimumLogLevel(
+  serverEnv.app.env === "dev" ? LogLevel.Debug : LogLevel.Info
+);
+export type DevToolsLive = Layer.Layer<never, never, never>;
+
+export const DevToolsLive: DevToolsLive =
+  serverEnv.app.env === "dev"
+    ? DevTools.layerWebSocket().pipe(Layer.provide(NodeSocket.layerWebSocketConstructor))
+    : Layer.empty;
+type Base = Layer.Layer<Resource, never, never>;
+export const Base: Base = Layer.mergeAll(LoggerLive, TelemetryLive, DevToolsLive);
 
 export const SliceDependenciesLayer = Layer.provideMerge(SliceDatabasesLive, Db.Live);
 
@@ -24,6 +54,20 @@ export const ServicesDependencies = Layer.provideMerge(DbRepos, AuthEmailLive);
 
 const AuthLive = AuthService.DefaultWithoutDependencies.pipe(Layer.provideMerge(ServicesDependencies));
 
-const AppLive = Layer.provideMerge(Base, AuthLive).pipe(Layer.provideMerge(LoggerLive));
+const AppLive = AuthLive.pipe(Layer.provideMerge(LoggerLive));
 
-export const serverRuntime = ManagedRuntime.make(AppLive);
+export const serverRuntime = ManagedRuntime.make(AppLive.pipe(Layer.provide([Base, LogLevelLive])));
+
+type ServerRuntimeEnv = Layer.Layer.Success<typeof AppLive>;
+
+export const runServerPromise = <A, E>(
+  effect: Effect.Effect<A, E, ServerRuntimeEnv>,
+  spanName = "serverRuntime.runPromise",
+  options?: Parameters<typeof serverRuntime.runPromise>[1]
+) => serverRuntime.runPromise(Effect.withSpan(effect, spanName), options);
+
+export const runServerPromiseExit = <A, E>(
+  effect: Effect.Effect<A, E, ServerRuntimeEnv>,
+  spanName = "serverRuntime.runPromiseExit",
+  options?: Parameters<typeof serverRuntime.runPromiseExit>[1]
+) => serverRuntime.runPromiseExit(Effect.withSpan(effect, spanName), options);

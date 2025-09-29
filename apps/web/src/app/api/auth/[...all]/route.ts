@@ -1,11 +1,15 @@
 import { AuthService } from "@beep/iam-infra/adapters/better-auth/Auth.service";
-import { serverRuntime } from "@beep/runtime-server";
+import { runServerPromise } from "@beep/runtime-server";
 import * as Effect from "effect/Effect";
 
-const program = Effect.flatMap(AuthService, ({ auth }) => Effect.succeed(auth.handler));
+const program = Effect.flatMap(AuthService, ({ auth }) =>
+  Effect.gen(function* () {
+    return yield* Effect.succeed(auth.handler);
+  })
+);
 
 const route = async (req: Request) => {
-  const handler = await serverRuntime.runPromise(program);
+  const handler = await runServerPromise(program, "auth.route");
 
   return handler(req);
 };

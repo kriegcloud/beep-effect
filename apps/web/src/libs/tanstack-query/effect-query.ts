@@ -1,5 +1,5 @@
 import type { LiveRuntimeContext } from "@beep/runtime-client";
-import { useRuntime } from "@beep/runtime-client";
+import { runClientPromiseExit, useRuntime } from "@beep/runtime-client";
 import type { UnsafeTypes } from "@beep/types";
 import {
   type GetNextPageParamFunction,
@@ -95,7 +95,7 @@ const useRunner = <A, E extends EffectfulError, R extends LiveRuntimeContext>({
             }),
             Effect.tapErrorCause(Effect.logError),
             Effect.withSpan(span),
-            runtime.runPromiseExit
+            (effect) => runClientPromiseExit(runtime, effect, `clientRuntime.runPromiseExit.${span}`)
           )
           .then(
             Exit.match({
@@ -115,7 +115,7 @@ const useRunner = <A, E extends EffectfulError, R extends LiveRuntimeContext>({
             })
           );
       },
-    [runtime.runPromiseExit, toastifyDefects, toastifyErrors, toastifySuccess]
+    [runtime, toastifyDefects, toastifyErrors, toastifySuccess]
   );
 };
 

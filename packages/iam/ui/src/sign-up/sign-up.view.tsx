@@ -1,6 +1,6 @@
 "use client";
 import { iam } from "@beep/iam-sdk";
-import { useRuntime } from "@beep/runtime-client";
+import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { paths } from "@beep/shared-domain";
 import { RouterLink } from "@beep/ui/routing";
 import Box from "@mui/material/Box";
@@ -13,6 +13,8 @@ import { SignUpSocial } from "./sign-up-social";
 
 export const SignUpView = () => {
   const runtime = useRuntime();
+  const runSignUpEmail = makeRunClientPromise(runtime, "iam.signUp.email");
+  const runSocialSignIn = makeRunClientPromise(runtime, "iam.signIn.social");
   return (
     <>
       <FormHead
@@ -28,12 +30,12 @@ export const SignUpView = () => {
         sx={{ textAlign: { xs: "center", md: "left" } }}
       />
       <SignUpEmailForm
-        onSubmit={async (valueEffect) => F.pipe(valueEffect, Effect.flatMap(iam.signUp.email), runtime.runPromise)}
+        onSubmit={async (valueEffect) => F.pipe(valueEffect, Effect.flatMap(iam.signUp.email), runSignUpEmail)}
       />
       <Terms />
       <Box sx={{ gap: 2, display: "flex", flexDirection: "column" }}>
         <FormDivider />
-        <SignUpSocial signUp={async (provider) => F.pipe(iam.signIn.social({ provider }), runtime.runPromise)} />
+        <SignUpSocial signUp={async (provider) => F.pipe(iam.signIn.social({ provider }), runSocialSignIn)} />
       </Box>
     </>
   );

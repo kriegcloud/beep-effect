@@ -18,7 +18,7 @@ const signUpEmail = AuthHandler.make<SignupContract.Encoded, SignupContract.Enco
   run: AuthHandler.map(client.signUp.email),
   toast: {
     onWaiting: "Signing up...",
-    onSuccess: "Welcome to traveler.",
+    onSuccess: "Welcome traveler.",
     onFailure: {
       onNone: () => "Failed to signup for unknown reason",
       onSome: (e) => e.message,

@@ -1,6 +1,6 @@
 import { withToast } from "@beep/ui/common";
 import type * as Effect from "effect/Effect";
-import * as Option from "effect/Option";
+import * as O from "effect/Option";
 
 interface ToastFailureMatcher<E, ExtraArgs extends Array<unknown>> {
   readonly onNone: (...args: ExtraArgs) => string;
@@ -9,8 +9,8 @@ interface ToastFailureMatcher<E, ExtraArgs extends Array<unknown>> {
 
 type ToastFailureHandler<E, ExtraArgs extends Array<unknown>> =
   | string
-  | ((error: Option.Option<E>, ...args: ExtraArgs) => string)
-  | ((error: Option.Option<E>, ...args: ExtraArgs) => ToastFailureMatcher<E, ExtraArgs>)
+  | ((error: O.Option<E>, ...args: ExtraArgs) => string)
+  | ((error: O.Option<E>, ...args: ExtraArgs) => ToastFailureMatcher<E, ExtraArgs>)
   | ToastFailureMatcher<E, ExtraArgs>;
 
 export interface ToastMessages<Output, E, ExtraArgs extends Array<unknown>> {
@@ -40,7 +40,7 @@ const isFailureMatcher = <E, ExtraArgs extends Array<unknown>>(
 
 const resolveToastFailure = <E, ExtraArgs extends Array<unknown>>(
   handler: ToastFailureHandler<E, ExtraArgs>,
-  error: Option.Option<E>,
+  error: O.Option<E>,
   args: ExtraArgs
 ): string => {
   if (typeof handler === "string") {
@@ -54,7 +54,7 @@ const resolveToastFailure = <E, ExtraArgs extends Array<unknown>>(
   }
 
   if (isFailureMatcher<E, ExtraArgs>(result)) {
-    return Option.match(error, {
+    return O.match(error, {
       onNone: () => result.onNone(...args),
       onSome: (value) => result.onSome(value, ...args),
     });
@@ -79,7 +79,7 @@ export const decorateWithToast = <Output, E, ExtraArgs extends Array<unknown>, R
   const normalizedFailure =
     typeof messages.onFailure === "string"
       ? messages.onFailure
-      : (error: Option.Option<E>, ...args: ExtraArgs) => resolveToastFailure(messages.onFailure, error, args);
+      : (error: O.Option<E>, ...args: ExtraArgs) => resolveToastFailure(messages.onFailure, error, args);
 
   return (effect: Effect.Effect<Output, E, R>, ...args: ExtraArgs): Effect.Effect<Output, E, R> =>
     withToast<Output, E, ExtraArgs, R>({

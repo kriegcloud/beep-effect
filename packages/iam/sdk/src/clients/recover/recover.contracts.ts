@@ -10,10 +10,7 @@ export class ResetPasswordContract extends S.Struct({
 }).pipe(
   S.filter(
     ({ newPassword, passwordConfirm }) =>
-      Equal.equals(
-        Redacted.value<BS.Password.Encoded>(newPassword),
-        Redacted.value<BS.Password.Encoded>(passwordConfirm)
-      ) || "Passwords do not match"
+      Equal.equals(Redacted.value(newPassword), Redacted.value(passwordConfirm)) || "Passwords do not match"
   )
 ) {}
 

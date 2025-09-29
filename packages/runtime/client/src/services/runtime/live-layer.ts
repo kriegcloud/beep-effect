@@ -2,11 +2,16 @@ import { clientEnv } from "@beep/core-env/client";
 import { QueryClient } from "@beep/runtime-client/services/common/query-client";
 import { WorkerClient } from "@beep/runtime-client/worker/worker-client";
 import { DevTools } from "@effect/experimental";
-import * as Otlp from "@effect/opentelemetry/Otlp";
+import { WebSdk } from "@effect/opentelemetry";
 import { FetchHttpClient } from "@effect/platform";
 import type { HttpClient } from "@effect/platform/HttpClient";
 import { BrowserSocket } from "@effect/platform-browser";
+import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
+import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import type { QueryClient as TanstackQueryClient } from "@tanstack/react-query";
+import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as LogLevel from "effect/LogLevel";
@@ -23,12 +28,13 @@ export const DevToolsLive: DevToolsLive =
     : Layer.empty;
 
 export type WebSdkLive = Layer.Layer<never, never, never>;
-export const WebSdkLive: WebSdkLive = Otlp.layer({
-  baseUrl: "http://localhost:4318/v1/traces",
+export const WebSdkLive: WebSdkLive = WebSdk.layer(() => ({
   resource: {
-    serviceName: `${clientEnv.appName} client`,
+    serviceName: `beep-effect-client`,
   },
-}).pipe(Layer.provideMerge(FetchHttpClient.layer));
+  spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({ url: "http://localhost:4318/v1/traces" })),
+  logRecordProcessor: new BatchLogRecordProcessor(new OTLPLogExporter({ url: "http://localhost:4318/v1/logs" })),
+})).pipe(Layer.provideMerge(FetchHttpClient.layer));
 
 export type NetworkMonitorLive = Layer.Layer<NetworkMonitor, never, never>;
 export const NetworkMonitorLive: NetworkMonitorLive = NetworkMonitor.Default;
@@ -67,3 +73,31 @@ export const layer: AppLive = (queryClient: TanstackQueryClient) =>
 
 export type LiveManagedRuntime = ManagedRuntime.ManagedRuntime<Layer.Layer.Success<AppLayer>, never>;
 export type LiveRuntimeContext = ManagedRuntime.ManagedRuntime.Context<LiveManagedRuntime>;
+
+type ClientRuntimeEnv = Layer.Layer.Success<AppLayer>;
+type RunPromiseOptions = Parameters<LiveManagedRuntime["runPromise"]>[1];
+type RunPromiseExitOptions = Parameters<LiveManagedRuntime["runPromiseExit"]>[1];
+
+export const runClientPromise = <A, E>(
+  runtime: LiveManagedRuntime,
+  effect: Effect.Effect<A, E, ClientRuntimeEnv>,
+  spanName = "clientRuntime.runPromise",
+  options?: RunPromiseOptions
+) => runtime.runPromise(Effect.withSpan(effect, spanName), options);
+
+export const makeRunClientPromise =
+  (runtime: LiveManagedRuntime, spanName = "clientRuntime.runPromise", options?: RunPromiseOptions) =>
+  <A, E>(effect: Effect.Effect<A, E, ClientRuntimeEnv>) =>
+    runClientPromise(runtime, effect, spanName, options);
+
+export const runClientPromiseExit = <A, E>(
+  runtime: LiveManagedRuntime,
+  effect: Effect.Effect<A, E, ClientRuntimeEnv>,
+  spanName = "clientRuntime.runPromiseExit",
+  options?: RunPromiseExitOptions
+) => runtime.runPromiseExit(Effect.withSpan(effect, spanName), options);
+
+export const makeRunClientPromiseExit =
+  (runtime: LiveManagedRuntime, spanName = "clientRuntime.runPromiseExit", options?: RunPromiseExitOptions) =>
+  <A, E>(effect: Effect.Effect<A, E, ClientRuntimeEnv>) =>
+    runClientPromiseExit(runtime, effect, spanName, options);

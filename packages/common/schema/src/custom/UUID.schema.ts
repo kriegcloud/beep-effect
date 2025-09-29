@@ -1,6 +1,6 @@
-import { randomUUID } from "node:crypto";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
+import { v4 as randomUUID } from "uuid";
 export const BrandedUUID = <const Brand extends string>(brand: Brand) => S.UUID.pipe(S.brand(brand));
 // todo should be check for length on these string but `S.TemplateLiteral` doesn't support it yet.
 export class UUIDLiteralEncoded extends S.TemplateLiteral(
@@ -19,7 +19,8 @@ export class UUIDLiteralEncoded extends S.TemplateLiteral(
   title: "UUID Literal Encoded",
   description: "UUID Literal Encoded",
 }) {
-  static readonly make = (): UUIDLiteralEncoded.Type => randomUUID();
+  static readonly make = (): UUIDLiteralEncoded.Type =>
+    randomUUID() as `${string}-${string}-${string}-${string}-${string}`;
 }
 
 export namespace UUIDLiteralEncoded {
