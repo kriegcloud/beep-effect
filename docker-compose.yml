@@ -27,7 +27,6 @@ services:
     ports:
       - "4000:3000"
       - "4318:4318"
-      - "9464:9464"
     volumes:
       - ./docker/grafana/otelcol-config.yaml:/otel-lgtm/otelcol-config.yaml:ro
 

@@ -7,7 +7,6 @@ import type { IamEntityIds, SharedEntityIds } from "../entity-ids";
 const auth = PathBuilder.createRoot("/auth");
 const twoFactor = auth.child("two-factor");
 const device = auth.child("device");
-const verify = auth.child("verify");
 const account = (id: IamEntityIds.AccountId.Type) => PathBuilder.createRoot("/account").child(id);
 const dashboard = PathBuilder.createRoot("/dashboard");
 const user = dashboard.child("user");
@@ -35,19 +34,22 @@ export const paths = PathBuilder.collection({
     resetPassword: auth("reset-password"),
     verification: {
       email: F.pipe(
-        verify.child("email"),
+        auth.child("verify-email"),
         (ve) =>
           ({
             root: ve.root,
-            verify: (token: string) => `${ve.root}?token=${token}` as const,
-            error: (errorMessage: string) => `${ve.root}?errorMessage=${errorMessage}` as const,
-            e: (errorMessage: string) =>
-              PathBuilder.dynamicQueries(ve.root)({
+            verify: (errorMessage: string) => {
+              const path = PathBuilder.dynamicQueries(ve.root)({
                 errorMessage,
-              }),
+              });
+              return path;
+            },
+            error: (errorMessage: string) => `${ve.root}?errorMessage=${errorMessage}` as const,
           }) as const
       ),
-      phone: verify("phone"),
+      phone: {
+        root: auth.child("phone"),
+      },
     },
     twoFactor: {
       totp: twoFactor("totp"),

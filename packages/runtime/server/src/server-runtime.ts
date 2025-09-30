@@ -11,29 +11,31 @@ import { NodeSdk } from "@effect/opentelemetry";
 import type { Resource } from "@effect/opentelemetry/Resource";
 import { NodeSocket } from "@effect/platform-node";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
-import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-proto";
+// import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-proto";
+// import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
+// import * as Duration from "effect/Duration";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
-import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
+
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
-import * as Duration from "effect/Duration";
+
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as LogLevel from "effect/LogLevel";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 
-const metricExporter = new OTLPMetricExporter({
-  url: "http://localhost:4318/v1/metrics",
-});
+// const metricExporter = new OTLPMetricExporter({
+//   url: "http://localhost:4318/v1/metrics",
+// });
 export const TelemetryLive = NodeSdk.layer(() => ({
   resource: { serviceName: `${serverEnv.app.name}-server` },
   spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({ url: "http://localhost:4318/v1/traces" })),
   logRecordProcessor: new BatchLogRecordProcessor(new OTLPLogExporter({ url: "http://localhost:4318/v1/logs" })),
-  metricReader: new PeriodicExportingMetricReader({
-    exporter: metricExporter,
-    exportIntervalMillis: Duration.toMillis("5 seconds"),
-  }),
+  // metricReader: new PeriodicExportingMetricReader({
+  //   exporter: metricExporter,
+  //   exportIntervalMillis: Duration.toMillis("5 seconds"),
+  // }),
 }));
 export const SliceRepositoriesLive = Layer.mergeAll(IamRepos.layer, FilesRepos.layer);
 

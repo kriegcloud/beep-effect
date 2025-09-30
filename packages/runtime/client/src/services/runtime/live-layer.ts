@@ -7,13 +7,15 @@ import { FetchHttpClient } from "@effect/platform";
 import type { HttpClient } from "@effect/platform/HttpClient";
 import { BrowserSocket } from "@effect/platform-browser";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
-import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-proto";
+// import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-proto";
+// import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
+// import * as Duration from "effect/Duration";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
-import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
+
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import type { QueryClient as TanstackQueryClient } from "@tanstack/react-query";
-import * as Duration from "effect/Duration";
+
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
@@ -21,9 +23,9 @@ import * as LogLevel from "effect/LogLevel";
 import type * as ManagedRuntime from "effect/ManagedRuntime";
 import { NetworkMonitor } from "../common/network-monitor";
 
-const metricExporter = new OTLPMetricExporter({
-  url: "http://localhost:4318/v1/metrics",
-});
+// const metricExporter = new OTLPMetricExporter({
+//   url: "http://localhost:4318/v1/metrics",
+// });
 
 export type HttpClientLive = Layer.Layer<HttpClient, never, never>;
 export const HttpClientLive: HttpClientLive = FetchHttpClient.layer;
@@ -41,10 +43,10 @@ export const WebSdkLive: WebSdkLive = WebSdk.layer(() => ({
   },
   spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({ url: "http://localhost:4318/v1/traces" })),
   logRecordProcessor: new BatchLogRecordProcessor(new OTLPLogExporter({ url: "http://localhost:4318/v1/logs" })),
-  metricReader: new PeriodicExportingMetricReader({
-    exporter: metricExporter,
-    exportIntervalMillis: Duration.toMillis("5 seconds"),
-  }),
+  // metricReader: new PeriodicExportingMetricReader({
+  //   exporter: metricExporter,
+  //   exportIntervalMillis: Duration.toMillis("5 seconds"),
+  // }),
 })).pipe(Layer.provideMerge(FetchHttpClient.layer));
 
 export type NetworkMonitorLive = Layer.Layer<NetworkMonitor, never, never>;

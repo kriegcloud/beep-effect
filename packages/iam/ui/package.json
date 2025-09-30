@@ -48,6 +48,8 @@
     "@beep/runtime-client": "workspace:^",
     "@beep/theme": "workspace:^",
     "@beep/shared-domain": "workspace:^",
+    "next": "*",
+    "framer-motion": "*",
     "react": "*",
     "react-dom": "*",
     "@mui/material": "*",

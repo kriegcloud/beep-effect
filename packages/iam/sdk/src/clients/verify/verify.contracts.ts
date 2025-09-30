@@ -24,9 +24,9 @@ export namespace SendEmailVerificationContract {
 }
 
 export class VerifyEmailContract extends BS.Class<VerifyEmailContract>("VerifyEmailContract")({
-  token: S.Redacted(S.NonEmptyString),
-  onFailure: BS.NoInputVoidFn.Schema,
-  onSuccess: BS.NoInputVoidFn.Schema,
+  token: S.Any,
+  onFailure: S.Any,
+  onSuccess: S.Any,
 }) {}
 
 export namespace VerifyEmailContract {

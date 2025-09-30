@@ -114,7 +114,7 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
-  trailingSlash: true,
+  trailingSlash: false,
   // transpilePackages: [
   //   "@beep/types",
   //   "@beep/invariant",

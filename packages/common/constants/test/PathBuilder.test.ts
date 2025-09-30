@@ -7,12 +7,12 @@ describe("PathBuilder", () => {
       auth: {
         verification: {
           email: {
-            verify: (token: string) => `/auth/verify/email?token=${token}` as const,
+            verify: (token: string) => `/auth/verify-email?token=${token}` as const,
           },
         },
       },
     } as const);
 
-    expect(paths.auth.verification.email.verify("abc.def")).toBe("/auth/verify/email?token=abc.def");
+    expect(paths.auth.verification.email.verify("abc.def")).toBe("/auth/verify-email?token=abc.def");
   });
 });

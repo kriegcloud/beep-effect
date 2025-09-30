@@ -42,19 +42,30 @@ const verifyEmail = AuthHandler.make<VerifyEmailContract.Type, VerifyEmailContra
   plugin: "verification",
   method: "verifyEmail",
   schema: VerifyEmailContract,
-  run: AuthHandler.map(({ token, onSuccess, onFailure }) =>
-    client.verifyEmail(
-      {
-        query: {
-          token,
+  run: AuthHandler.map(({ token, onSuccess, onFailure }) => {
+    let capturedError: unknown;
+    console.log("token: ", token);
+    console.log("onSuccess: ", onSuccess);
+    console.log("onFailure: ", onFailure);
+    return client
+      .verifyEmail(
+        {
+          query: {
+            token,
+          },
         },
-      },
-      {
-        onSuccess: () => void onSuccess(undefined),
-        onError: () => void onFailure(undefined),
-      }
-    )
-  ),
+        {
+          onSuccess: () => void onSuccess(undefined),
+          onError: (ctx) => {
+            capturedError = ctx.error;
+            void onFailure(undefined);
+          },
+        }
+      )
+      .catch((e) => {
+        throw capturedError ?? e;
+      });
+  }),
   toast: {
     onWaiting: "verifying email...",
     onSuccess: "Email verified!",

@@ -1,2 +1,2 @@
-export * from "./verify-email.view";
+export { EmailVerificationSent } from "./components";
 export * from "./verify-phone.view";
