@@ -1,5 +1,5 @@
 "use client";
-import { SignupContract } from "@beep/iam-sdk/clients";
+import { SignUpValue } from "@beep/iam-sdk/clients";
 import { Form, formOptionsWithSubmit, useAppForm } from "@beep/ui/form";
 import { PasswordFieldsGroup } from "@beep/ui/form/groups";
 import Box from "@mui/material/Box";
@@ -8,13 +8,13 @@ import type { ParseError } from "effect/ParseResult";
 import type React from "react";
 
 type Props = {
-  onSubmit: (values: Effect.Effect<SignupContract.Type, ParseError, never>) => Promise<void>;
+  onSubmit: (values: Effect.Effect<SignUpValue.Type, ParseError, never>) => Promise<void>;
 };
 
 export const SignUpEmailForm: React.FC<Props> = ({ onSubmit }) => {
   const form = useAppForm(
     formOptionsWithSubmit({
-      schema: SignupContract,
+      schema: SignUpValue,
       defaultValues: {
         email: "",
         password: "",

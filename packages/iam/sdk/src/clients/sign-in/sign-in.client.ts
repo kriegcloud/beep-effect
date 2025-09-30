@@ -1,5 +1,5 @@
 import { AuthHandler } from "@beep/iam-sdk/auth-wrapper";
-import { SignInEmailContract, SignInSocialContract } from "@beep/iam-sdk/clients";
+import { SignInEmailContract, SignInPasskeyContract, SignInSocialContract } from "@beep/iam-sdk/clients";
 import { client } from "../../adapters";
 
 const signInEmail = AuthHandler.make<SignInEmailContract.Type, SignInEmailContract.Encoded>({
@@ -37,22 +37,17 @@ const signInSocial = AuthHandler.make({
   annotations: { action: "sign-in", method: "social" },
 });
 
-export interface SignInPasskeyInput {
-  readonly onSuccess: () => void;
-}
-
-const signInPasskey = AuthHandler.make<SignInPasskeyInput>({
+const signInPasskey = AuthHandler.make({
   name: "signInPasskey",
   plugin: "sign-in",
   method: "passkey",
-  run: AuthHandler.map((input, { signal } = {}) => {
+  schema: SignInPasskeyContract,
+  run: AuthHandler.map(({ onSuccess }) => {
     let capturedError: unknown;
-
     return client.signIn
       .passkey({
         fetchOptions: {
-          signal,
-          onSuccess: input.onSuccess,
+          onSuccess: () => onSuccess(undefined),
           onError(context) {
             capturedError = context.error;
             throw context.error;

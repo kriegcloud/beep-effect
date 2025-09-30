@@ -1,8 +1,19 @@
 import { serverEnv } from "@beep/core-env/server";
+import { makePrettyConsoleLoggerLayer } from "@beep/errors/server";
 import { IamDb } from "@beep/iam-infra/db/Db";
 import { IamDbSchema } from "@beep/iam-tables";
-import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { BS } from "@beep/schema";
+import { IamEntityIds, paths, SharedEntityIds } from "@beep/shared-domain";
 import type { UnsafeTypes } from "@beep/types";
+import { DevTools } from "@effect/experimental";
+import { NodeSdk } from "@effect/opentelemetry";
+import { NodeSocket } from "@effect/platform-node";
+import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
+import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-proto";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
+import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
+import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import type { BetterAuthOptions } from "better-auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -10,16 +21,54 @@ import * as d from "drizzle-orm";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as Logger from "effect/Logger";
+import * as LogLevel from "effect/LogLevel";
+import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-import { AuthEmailService, SendResetPasswordEmailPayload } from "./AuthEmail.service";
+import { AuthEmailService, SendResetPasswordEmailPayload, SendVerificationEmailPayload } from "./AuthEmail.service";
 import { commonExtraFields } from "./internal";
 import { AllPlugins } from "./plugins";
+
+const metricExporter = new OTLPMetricExporter({
+  url: "http://localhost:4318/v1/metrics",
+});
+export const TelemetryLive = NodeSdk.layer(() => ({
+  resource: { serviceName: `${serverEnv.app.name}-server` },
+  spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({ url: "http://localhost:4318/v1/traces" })),
+  logRecordProcessor: new BatchLogRecordProcessor(new OTLPLogExporter({ url: "http://localhost:4318/v1/logs" })),
+  metricReader: new PeriodicExportingMetricReader({
+    exporter: metricExporter,
+    exportIntervalMillis: Duration.toMillis("5 seconds"),
+  }),
+}));
+
+export type LoggerLive = Layer.Layer<never, never, never>;
+export const LoggerLive: LoggerLive = serverEnv.app.env === "dev" ? makePrettyConsoleLoggerLayer() : Logger.json;
+export type LogLevelLive = Layer.Layer<never, never, never>;
+export const LogLevelLive: LogLevelLive = Logger.minimumLogLevel(
+  serverEnv.app.env === "dev" ? LogLevel.Debug : LogLevel.Info
+);
+
+export const DevToolsLive =
+  serverEnv.app.env === "dev"
+    ? DevTools.layerWebSocket().pipe(Layer.provide(NodeSocket.layerWebSocketConstructor))
+    : Layer.empty;
+const AuthLive = Layer.mergeAll(TelemetryLive, LoggerLive, LogLevelLive, DevToolsLive);
+
+type AuthRuntimeLive = Layer.Layer.Success<typeof AuthLive>;
+const authRuntime = ManagedRuntime.make(AuthLive);
+export const runAuthPromise = <A, E>(
+  effect: Effect.Effect<A, E, AuthRuntimeLive>,
+  spanName = "authRuntime.runAuthPromise",
+  options?: Parameters<typeof authRuntime.runPromise>[1]
+) => authRuntime.runPromise(Effect.withSpan(effect, spanName), options);
 
 const AuthOptions = Effect.gen(function* () {
   const { db, drizzle } = yield* IamDb.IamDb;
   const plugins = yield* AllPlugins;
-  const { sendResetPassword } = yield* AuthEmailService;
+  const { sendResetPassword, sendVerification } = yield* AuthEmailService;
 
   return yield* Effect.succeed({
     telemetry: {
@@ -63,18 +112,35 @@ const AuthOptions = Effect.gen(function* () {
       expiresIn: Duration.days(30).pipe(Duration.toSeconds),
       updateAge: Duration.days(1).pipe(Duration.toSeconds),
     },
+    emailVerification: {
+      async sendVerificationEmail(params) {
+        await runAuthPromise(
+          Effect.flatMap(
+            S.decode(SendVerificationEmailPayload)({
+              email: params.user.email,
+              url: BS.URLString.make(`http://localhost:3000${paths.auth.verification.email.verify(params.token)}`),
+            }),
+            sendVerification
+          ),
+          "AuthService.emailVerification.sendVerificationEmail"
+        );
+      },
+    },
     emailAndPassword: {
       requireEmailVerification: false,
       enabled: true,
       sendResetPassword: async (params) => {
-        await Effect.flatMap(
-          S.decode(SendResetPasswordEmailPayload)({
-            username: params.user.name,
-            url: params.url,
-            email: params.user.email,
-          }),
-          sendResetPassword
-        ).pipe(Effect.runPromise);
+        await runAuthPromise(
+          Effect.flatMap(
+            S.decode(SendResetPasswordEmailPayload)({
+              username: params.user.name,
+              url: params.url,
+              email: params.user.email,
+            }),
+            sendResetPassword
+          ),
+          "AuthService.emailAndPassword.sendResetPassword"
+        );
       },
     },
     socialProviders: A.reduce(
@@ -128,7 +194,7 @@ const AuthOptions = Effect.gen(function* () {
             // Create personal organization with multi-tenant field
 
             // Add user as owner with enhanced tracking
-            await Effect.runPromise(program);
+            await runAuthPromise(program, "AuthService.databaseHooks.user.create.after");
           },
         },
       },
@@ -161,7 +227,7 @@ const AuthOptions = Effect.gen(function* () {
                 .orderBy(d.desc(IamDbSchema.organization.isPersonal));
             });
 
-            const userOrgs = await Effect.runPromise(program);
+            const userOrgs = await runAuthPromise(program, "AuthService.databaseHooks.session.create.before");
             const activeOrgId = userOrgs[0]?.orgId;
             const organizationContext = userOrgs.reduce(
               (acc, org) => {

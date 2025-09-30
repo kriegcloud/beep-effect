@@ -1,19 +1,20 @@
-// paths.ts
-import { createPath } from "@beep/constants/paths/utils";
-import type { EntityId } from "@beep/schema/EntityId";
+import { PathBuilder } from "@beep/constants/paths/utils";
 import * as F from "effect/Function";
+import type { IamEntityIds, SharedEntityIds } from "../entity-ids";
 
 // Base builders
-const auth = createPath("/auth");
+
+const auth = PathBuilder.createRoot("/auth");
 const twoFactor = auth.child("two-factor");
+const device = auth.child("device");
 const verify = auth.child("verify");
-const account = (id: EntityId.Type<"account">) => createPath("/account").child(id);
-const dashboard = createPath("/dashboard");
+const account = (id: IamEntityIds.AccountId.Type) => PathBuilder.createRoot("/account").child(id);
+const dashboard = PathBuilder.createRoot("/dashboard");
 const user = dashboard.child("user");
 const fileManager = dashboard.child("file-manager");
-const organization = (id: EntityId.Type<"organization">) => createPath("/organizations").child(id);
+const organization = (id: SharedEntityIds.OrganizationId.Type) => PathBuilder.createRoot("/organizations").child(id);
 
-export const paths = {
+export const paths = PathBuilder.collection({
   // static
   root: "/",
   comingSoon: "/coming-soon",
@@ -32,8 +33,20 @@ export const paths = {
     updatePassword: auth("update-password"),
     requestResetPassword: auth("request-reset-password"),
     resetPassword: auth("reset-password"),
-    verify: {
-      email: verify("email"),
+    verification: {
+      email: F.pipe(
+        verify.child("email"),
+        (ve) =>
+          ({
+            root: ve.root,
+            verify: (token: string) => `${ve.root}?token=${token}` as const,
+            error: (errorMessage: string) => `${ve.root}?errorMessage=${errorMessage}` as const,
+            e: (errorMessage: string) =>
+              PathBuilder.dynamicQueries(ve.root)({
+                errorMessage,
+              }),
+          }) as const
+      ),
       phone: verify("phone"),
     },
     twoFactor: {
@@ -41,6 +54,12 @@ export const paths = {
       otp: twoFactor("otp"),
     },
     acceptInvitation: auth("accept-invitation"),
+    device: {
+      root: device.root,
+      approve: device("approve"),
+      denied: device("denied"),
+      success: device("success"),
+    },
   },
   organizations: F.flow(organization, (o) => ({
     root: o.root,
@@ -60,11 +79,11 @@ export const paths = {
   },
   // dashboard
   dashboard: {
-    root: dashboard.root, // "/dashboard"
+    root: dashboard.root,
     user: {
-      root: user.root, // "/dashboard/user"
+      root: user.root,
       account: user("account"),
-      edit: (id: EntityId.Type<"user">) => user.child(id)("edit"),
+      edit: (id: SharedEntityIds.UserId.Type) => user.child(id)("edit"),
     },
   },
-} as const;
+} as const);

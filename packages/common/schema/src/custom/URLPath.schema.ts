@@ -1,10 +1,13 @@
+import type { StringTypes } from "@beep/types";
 import * as A from "effect/Array";
+import type * as B from "effect/Brand";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { makeBranded } from "../utils";
 
 /**
- * Schema for validating NextJS pathnames including static assets
- * Supports: /icons/navbar/ic-lock.svg, /api/users/[id], /_next/static/...
+ * Schema for validating NextJS pathnames including static assets and optional query strings.
+ * Supports: /icons/navbar/ic-lock.svg, /api/users/[id], /_next/static/..., /auth/verify/email?token=abc
  *
  * Pattern explanation:
  * - ^\/: Must start with forward slash
@@ -12,7 +15,7 @@ import * as Str from "effect/String";
  * - (?:[\w\-\.]*)?$: Optional filename at the end
  */
 export class URLPath extends S.TemplateLiteral("/", S.String).pipe(
-  S.pattern(/^\/(?:[\w\-.]+\/)*(?:[\w\-.]*)?$/),
+  S.pattern(/^\/(?:[\w\-.]+\/)*(?:[\w\-.]*)?(?:\?(?:[A-Za-z0-9\-._~!$&'()*+,;=:@/?%]*))?$/),
   S.annotations({
     title: "NextJS Path",
     description: "A valid NextJS pathname including static assets, API routes, and pages",
@@ -22,6 +25,7 @@ export class URLPath extends S.TemplateLiteral("/", S.String).pipe(
       "/dashboard/settings",
       "/_next/static/chunks/123.js",
       "/",
+      "/auth/verify/email?token=example",
     ],
     arbitrary: () => (fc) => {
       // Generate realistic NextJS paths for testing
@@ -41,9 +45,27 @@ export class URLPath extends S.TemplateLiteral("/", S.String).pipe(
         { nil: undefined }
       );
 
-      return fc.tuple(segments, filename).map(([segs, file]) => {
+      const queryParams = fc.option(
+        fc
+          .array(
+            fc
+              .record({
+                key: fc.stringMatching(/^[A-Za-z0-9_-]+$/).filter((s) => s.length > 0 && s.length < 20),
+                value: fc
+                  .stringMatching(/^[A-Za-z0-9\-._~!$&'()*+,;=:@/?%]+$/)
+                  .filter((s) => s.length > 0 && s.length < 50),
+              })
+              .map(({ key, value }) => `${key}=${value}`),
+            { minLength: 1, maxLength: 3 }
+          )
+          .map((params) => params.join("&")),
+        { nil: undefined }
+      );
+
+      return fc.tuple(segments, filename, queryParams).map(([segs, file, query]) => {
         const path = Str.concat(`${A.join("/")(segs)}${segs.length > 0 && file ? "/" : ""}${file || ""}`)(`/`);
-        return path === "//" ? "/" : path;
+        const normalizedPath = path === "//" ? "/" : path;
+        return makeBranded(query ? `${normalizedPath}?${query}` : normalizedPath);
       });
     },
   }),
@@ -56,4 +78,6 @@ export namespace URLPath {
   /** URL path type (branded). */
   export type Type = typeof URLPath.Type;
   export type Encoded = typeof URLPath.Encoded;
+
+  export type Branded<T extends StringTypes.NonEmptyString> = B.Branded<T, "URLPath">;
 }

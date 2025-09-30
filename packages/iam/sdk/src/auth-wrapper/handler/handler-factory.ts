@@ -257,7 +257,7 @@ export namespace AuthHandler {
     <Input, Output>(
       executor: (
         encoded: Input,
-        options?: { readonly signal?: AbortSignal }
+        options?: { readonly signal?: AbortSignal | undefined | null }
       ) => Promise<
         | { readonly data: Output; readonly error: null }
         | {

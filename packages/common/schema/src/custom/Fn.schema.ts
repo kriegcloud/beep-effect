@@ -8,6 +8,7 @@ export class Fn<const IA, const IE, const OA, const OE> extends Data.TaggedClass
   readonly implement: (
     fnUnknown: (i: S.Schema.Type<S.Schema<IA, IE>>) => S.Schema.Type<S.Schema<OA, OE>>
   ) => (unknownInput: IA) => OA;
+
   constructor({
     input,
     output,
@@ -20,6 +21,7 @@ export class Fn<const IA, const IE, const OA, const OE> extends Data.TaggedClass
       title: "ValidatedFunction",
       description: "Wraps a function to validate inputs/outputs at call time",
     }) {}
+
     super({ Schema: BaseFn });
     this.implement = (fnUnknown: (i: S.Schema.Type<S.Schema<IA, IE>>) => S.Schema.Type<S.Schema<OA, OE>>) => {
       const fn = S.decodeUnknownSync(BaseFn)(fnUnknown);
@@ -36,4 +38,13 @@ export class Fn<const IA, const IE, const OA, const OE> extends Data.TaggedClass
     readonly input: S.Schema<IA, IE, never>;
     readonly output: S.Schema<OA, OA, never>;
   }) => new Fn(params);
+}
+
+export namespace NoInputVoidFn {
+  export const { Schema, implement } = new Fn({
+    input: S.Any,
+    output: S.Void,
+  });
+  export type Type = typeof Schema.Type;
+  export type Encoded = typeof Schema.Encoded;
 }

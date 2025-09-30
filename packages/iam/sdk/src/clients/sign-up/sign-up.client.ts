@@ -1,21 +1,30 @@
 import { AuthHandler } from "@beep/iam-sdk/auth-wrapper";
-import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
+import { paths } from "@beep/shared-domain";
 import { client } from "../../adapters";
+import { IamError } from "../../errors";
 import { SignupContract } from "./sign-up.contracts";
 
-const signUpEmail = AuthHandler.make<SignupContract.Encoded, SignupContract.Encoded & { readonly name: string }>({
+const signUpEmail = AuthHandler.make({
   name: "signUpEmail",
   plugin: "sign-up",
   method: "email",
-  prepare: (value) =>
-    Effect.flatMap(S.decode(SignupContract)(value), (encoded) =>
-      Effect.succeed({
-        name: encoded.name,
+  schema: SignupContract,
+  run: AuthHandler.map(({ value, onSuccess }) => {
+    let capturedError: IamError | undefined = undefined;
+    return client.signUp
+      .email({
         ...value,
+        fetchOptions: {
+          onError: (ctx) => {
+            capturedError = new IamError(ctx.error, ctx.error.message ?? "FailedToSignUp");
+          },
+          onSuccess: () => onSuccess(paths.root),
+        },
       })
-    ).pipe(Effect.catchTag("ParseError", (e) => Effect.dieMessage(e.message))),
-  run: AuthHandler.map(client.signUp.email),
+      .catch((error) => {
+        throw capturedError ?? error;
+      });
+  }),
   toast: {
     onWaiting: "Signing up...",
     onSuccess: "Welcome traveler.",

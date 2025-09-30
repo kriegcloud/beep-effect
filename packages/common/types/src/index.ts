@@ -1,3 +1,4 @@
+export type * from "./common.types";
 export type * as FnTypes from "./fn.types";
 export type * as LiteralTypes from "./literal.types";
 export type * as Or from "./or.types";

@@ -1,13 +1,30 @@
 import { AuthHandler } from "@beep/iam-sdk/auth-wrapper";
-import { VerifyEmailContract, VerifyPhoneContract } from "@beep/iam-sdk/clients";
+import { SendEmailVerificationContract, SendVerifyPhoneContract, VerifyEmailContract } from "@beep/iam-sdk/clients";
 import { client } from "../../adapters";
 
-const verifyEmail = AuthHandler.make<VerifyEmailContract.Type, VerifyEmailContract.Encoded>({
-  name: "verifyEmail",
+const sendVerificationEmail = AuthHandler.make<
+  SendEmailVerificationContract.Type,
+  SendEmailVerificationContract.Encoded
+>({
+  name: "sendVerificationEmail",
   plugin: "verification",
-  method: "email",
-  schema: VerifyEmailContract,
-  run: AuthHandler.map(client.sendVerificationEmail),
+  method: "sendVerificationEmail",
+  schema: SendEmailVerificationContract,
+  run: AuthHandler.map(async ({ email }) => {
+    let capturedError: unknown;
+    return client
+      .sendVerificationEmail({
+        email,
+        fetchOptions: {
+          onError: (ctx) => {
+            capturedError = ctx.error;
+          },
+        },
+      })
+      .catch((e) => {
+        throw capturedError ?? e;
+      });
+  }),
   toast: {
     onWaiting: "Sending verification email...",
     onSuccess: "Email verification sent successfully",
@@ -17,14 +34,44 @@ const verifyEmail = AuthHandler.make<VerifyEmailContract.Type, VerifyEmailContra
     },
   },
   defaultErrorMessage: "Failed to send verification email",
-  annotations: { action: "verification", method: "email" },
+  annotations: { action: "verification", method: "sendVerificationEmail" },
 });
 
-const verifyPhone = AuthHandler.make<VerifyPhoneContract.Type, VerifyPhoneContract.Encoded>({
+const verifyEmail = AuthHandler.make<VerifyEmailContract.Type, VerifyEmailContract.Encoded>({
+  name: "verifyEmail",
+  plugin: "verification",
+  method: "verifyEmail",
+  schema: VerifyEmailContract,
+  run: AuthHandler.map(({ token, onSuccess, onFailure }) =>
+    client.verifyEmail(
+      {
+        query: {
+          token,
+        },
+      },
+      {
+        onSuccess: () => void onSuccess(undefined),
+        onError: () => void onFailure(undefined),
+      }
+    )
+  ),
+  toast: {
+    onWaiting: "verifying email...",
+    onSuccess: "Email verified!",
+    onFailure: {
+      onNone: () => "Failed to verify email for an unknown reason",
+      onSome: (e) => e.message,
+    },
+  },
+  defaultErrorMessage: "Failed to verify email",
+  annotations: { action: "verification", method: "verifyEmail" },
+});
+
+const sendVerifyPhone = AuthHandler.make<SendVerifyPhoneContract.Type, SendVerifyPhoneContract.Encoded>({
   name: "verifyPhone",
   plugin: "verification",
   method: "phone",
-  schema: VerifyPhoneContract,
+  schema: SendVerifyPhoneContract,
   run: AuthHandler.map(client.phoneNumber.verify),
   toast: {
     onWaiting: "Sending phone number verification...",
@@ -39,6 +86,9 @@ const verifyPhone = AuthHandler.make<VerifyPhoneContract.Type, VerifyPhoneContra
 });
 
 export const verifyClient = {
-  phone: verifyPhone,
-  email: verifyEmail,
+  phone: sendVerifyPhone,
+  email: {
+    sendVerificationEmail: sendVerificationEmail,
+    verifyEmail: verifyEmail,
+  },
 } as const;

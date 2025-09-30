@@ -1,19 +1,32 @@
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 
-export class VerifyPhoneContract extends BS.Class<VerifyPhoneContract>("VerifyPhoneContract")({
+export class SendVerifyPhoneContract extends BS.Class<SendVerifyPhoneContract>("SendVerifyPhoneContract")({
   phoneNumber: BS.Phone,
   code: S.Redacted(S.NonEmptyTrimmedString),
   updatePhoneNumber: BS.BoolWithDefault(true),
 }) {}
 
-export namespace VerifyPhoneContract {
-  export type Type = typeof VerifyPhoneContract.Type;
-  export type Encoded = typeof VerifyPhoneContract.Encoded;
+export namespace SendVerifyPhoneContract {
+  export type Type = typeof SendVerifyPhoneContract.Type;
+  export type Encoded = typeof SendVerifyPhoneContract.Encoded;
+}
+
+export class SendEmailVerificationContract extends BS.Class<SendEmailVerificationContract>(
+  "SendEmailVerificationContract"
+)({
+  email: BS.Email,
+}) {}
+
+export namespace SendEmailVerificationContract {
+  export type Type = typeof SendEmailVerificationContract.Type;
+  export type Encoded = typeof SendEmailVerificationContract.Encoded;
 }
 
 export class VerifyEmailContract extends BS.Class<VerifyEmailContract>("VerifyEmailContract")({
-  email: BS.Email,
+  token: S.Redacted(S.NonEmptyString),
+  onFailure: BS.NoInputVoidFn.Schema,
+  onSuccess: BS.NoInputVoidFn.Schema,
 }) {}
 
 export namespace VerifyEmailContract {

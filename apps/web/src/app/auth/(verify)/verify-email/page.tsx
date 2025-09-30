@@ -6,8 +6,6 @@ export const metadata: Metadata = {
   title: `Verify email - ${serverEnv.app.name}`,
 };
 
-const Page = () => {
+export default function VerifyEmailPage() {
   return <VerifyEmailView />;
-};
-
-export default Page;
+}

@@ -47,6 +47,7 @@
     "jose": "*",
     "@beep/utils": "workspace:^",
     "@beep/invariant": "workspace:^",
+    "next": "workspace:*",
     "@beep/schema": "workspace:^",
     "@beep/errors": "workspace:^",
     "@beep/constants": "workspace:^",

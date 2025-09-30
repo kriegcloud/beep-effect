@@ -1,16 +1,16 @@
-import { VerifyPhoneContract } from "@beep/iam-sdk/clients";
+import { SendVerifyPhoneContract } from "@beep/iam-sdk/clients";
 import { Form, formOptionsWithSubmit, useAppForm } from "@beep/ui/form";
 import type * as Effect from "effect/Effect";
 import type { ParseError } from "effect/ParseResult";
 import type React from "react";
 
 type Props = {
-  onSubmit: (values: Effect.Effect<VerifyPhoneContract.Type, ParseError, never>) => Promise<void>;
+  onSubmit: (values: Effect.Effect<SendVerifyPhoneContract.Type, ParseError, never>) => Promise<void>;
 };
 export const VerifyPhoneForm: React.FC<Props> = ({ onSubmit }) => {
   const form = useAppForm(
     formOptionsWithSubmit({
-      schema: VerifyPhoneContract,
+      schema: SendVerifyPhoneContract,
       defaultValues: {
         phoneNumber: "",
         code: "",

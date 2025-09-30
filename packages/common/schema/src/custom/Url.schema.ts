@@ -1,4 +1,3 @@
-import * as regexes from "@beep/schema/regexes";
 import { faker } from "@faker-js/faker";
 import * as Either from "effect/Either";
 import * as S from "effect/Schema";
@@ -41,7 +40,6 @@ export namespace CustomURL {
 
 export class URLString extends S.Trimmed.pipe(
   S.nonEmptyString({ message: () => "Must be a non-empty trimmed string" }),
-  S.pattern(regexes.rfc_3987_url_regex),
   S.filter((a) => Either.try(() => new URL(a).toString()).pipe(Either.isRight)),
   S.brand("URLString")
 ).annotations({
@@ -62,7 +60,6 @@ export class HttpsUrl extends S.TemplateLiteral("https://", S.String)
   .pipe(
     S.trimmed({ message: () => "Must be a trimmed string" }),
     S.nonEmptyString({ message: () => "Must be a non-empty trimmed string" }),
-    S.pattern(regexes.rfc_3987_url_regex),
     S.filter((a) => Either.try(() => new URL(a).toString()).pipe(Either.isRight)),
     S.brand("HttpsUrl")
   )
@@ -84,7 +81,6 @@ export class HttpUrl extends S.TemplateLiteral("http://", S.String)
   .pipe(
     S.trimmed({ message: () => "Must be a trimmed string" }),
     S.nonEmptyString({ message: () => "Must be a non-empty trimmed string" }),
-    S.pattern(regexes.rfc_3987_url_regex),
     S.filter((a) => Either.try(() => new URL(a).toString()).pipe(Either.isRight))
   )
   .annotations({

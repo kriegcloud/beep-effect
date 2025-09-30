@@ -1,6 +1,6 @@
 "use client";
 import { iam } from "@beep/iam-sdk";
-import { makeRunClientPromise, runClientPromise, useRuntime, WebSdkLive } from "@beep/runtime-client";
+import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { paths } from "@beep/shared-domain";
 import { useRouter } from "@beep/ui/hooks";
 import { RouterLink } from "@beep/ui/routing";
@@ -18,6 +18,7 @@ export const SignInView = () => {
   const router = useRouter();
   const runEmailSignIn = makeRunClientPromise(runtime, "iam.signIn.email");
   const runSocialSignIn = makeRunClientPromise(runtime, "iam.signIn.social");
+  const runPasskeySignIn = makeRunClientPromise(runtime, "iam.signIn.passkey");
   return (
     <>
       <FormHead
@@ -33,25 +34,13 @@ export const SignInView = () => {
         sx={{ textAlign: { xs: "center", md: "left" } }}
       />
       <SignInEmailForm
-        onSubmit={async (valuesEffect) =>
-          F.pipe(valuesEffect, Effect.flatMap(iam.signIn.email), Effect.provide(WebSdkLive), runEmailSignIn)
-        }
+        onSubmit={async (valuesEffect) => F.pipe(Effect.flatMap(valuesEffect, iam.signIn.email), runEmailSignIn)}
       />
       <FormDivider />
       <Stack spacing={2}>
-        <SignInSocial
-          signIn={async (provider) =>
-            F.pipe({ provider }, iam.signIn.social, Effect.provide(WebSdkLive), runSocialSignIn)
-          }
-        />
+        <SignInSocial signIn={async (provider) => runSocialSignIn(iam.signIn.social({ provider }))} />
         <SignInPasskey
-          onSubmit={async () =>
-            runClientPromise(
-              runtime,
-              iam.signIn.passkey({ onSuccess: () => router.push(paths.root) }).pipe(Effect.provide(WebSdkLive)),
-              "iam.signIn.passkey"
-            )
-          }
+          onSubmit={async () => runPasskeySignIn(iam.signIn.passkey({ onSuccess: () => void router.push(paths.root) }))}
         />
       </Stack>
     </>

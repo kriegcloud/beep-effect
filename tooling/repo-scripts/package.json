@@ -30,8 +30,7 @@
     "lint:circular": "pnpm madge -c .",
     "dotenvx": "dotenvx run -f ../../.env --",
     "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' pnpm dotenvx tsx ./src/execute.ts",
-    "generate-public-paths": "pnpm dotenvx tsx src/generate-asset-paths.ts",
-    "convert-public-images-to-nextgen": "pnpm dotenvx tsx src/convert-public-images-to-nextgen.ts"
+    "generate-public-paths": "pnpm dotenvx tsx src/generate-asset-paths.ts"
   },
   "dependencies": {
     "@beep/utils": "workspace:^",

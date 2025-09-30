@@ -59,56 +59,88 @@ export class AuthEmailService extends Effect.Service<AuthEmailService>()("AuthEm
     Effect.gen(function* () {
       const { email: emailEnv } = serverEnv;
 
-      const sendVerification = Effect.fn("sendVerification")(function* (params: SendVerificationEmailPayload.Type) {
-        yield* send({
-          from: Redacted.value(emailEnv.from),
-          to: Redacted.value(params.email),
-          subject: "Verify your email",
-          html: `<a href="${params.url.toString()}">Verify your email</a>`,
-        });
-      });
+      const sendVerification = Effect.fn("sendVerification")(
+        function* (params: SendVerificationEmailPayload.Type) {
+          yield* send({
+            from: Redacted.value(emailEnv.from),
+            to: Redacted.value(params.email),
+            subject: "Verify your email",
+            html: `<a href="${params.url.toString()}">Verify your email</a>`,
+          });
+        },
+        (effect, n) =>
+          effect.pipe(
+            Effect.withSpan("AuthEmailService.sendVerification"),
+            Effect.annotateLogs({ arguments: n }),
+            Effect.tapError(Effect.logError)
+          )
+      );
 
-      const sendResetPassword = Effect.fn("sendResetPassword")(function* (params: SendResetPasswordEmailPayload.Type) {
-        const emailTemplate = yield* renderEmail(
-          reactResetPasswordEmail({
-            username: params.username,
-            resetLink: params.url.toString(),
-          })
-        );
+      const sendResetPassword = Effect.fn("sendResetPassword")(
+        function* (params: SendResetPasswordEmailPayload.Type) {
+          const emailTemplate = yield* renderEmail(
+            reactResetPasswordEmail({
+              username: params.username,
+              resetLink: params.url.toString(),
+            })
+          );
 
-        yield* send({
-          from: Redacted.value(emailEnv.from),
-          to: Redacted.value(params.email),
-          subject: "Reset your password",
-          react: emailTemplate,
-        });
-      });
+          yield* send({
+            from: Redacted.value(emailEnv.from),
+            to: Redacted.value(params.email),
+            subject: "Reset your password",
+            react: emailTemplate,
+          });
+        },
+        (effect, n) =>
+          effect.pipe(
+            Effect.withSpan("AuthEmailService.sendResetPassword"),
+            Effect.annotateLogs({ arguments: n }),
+            Effect.tapError(Effect.logError)
+          )
+      );
 
-      const sendInvitation = Effect.fn("sendInvitation")(function* (params: InvitationEmailPayload.Type) {
-        const emailTemplate = yield* renderEmail(
-          reactInvitationEmail({
-            email: Redacted.value(params.email),
-            invitedByUsername: params.invitedByUsername,
-            invitedByEmail: Redacted.value(params.invitedByEmail),
-            teamName: params.teamName,
-          })
-        );
-        yield* send({
-          from: Redacted.value(emailEnv.from),
-          to: Redacted.value(params.email),
-          subject: "You've been invited to join an organization",
-          react: emailTemplate,
-        });
-      });
+      const sendInvitation = Effect.fn("sendInvitation")(
+        function* (params: InvitationEmailPayload.Type) {
+          const emailTemplate = yield* renderEmail(
+            reactInvitationEmail({
+              email: Redacted.value(params.email),
+              invitedByUsername: params.invitedByUsername,
+              invitedByEmail: Redacted.value(params.invitedByEmail),
+              teamName: params.teamName,
+            })
+          );
+          yield* send({
+            from: Redacted.value(emailEnv.from),
+            to: Redacted.value(params.email),
+            subject: "You've been invited to join an organization",
+            react: emailTemplate,
+          });
+        },
+        (effect, n) =>
+          effect.pipe(
+            Effect.withSpan("AuthEmailService.sendInvitation"),
+            Effect.annotateLogs({ arguments: n }),
+            Effect.tapError(Effect.logError)
+          )
+      );
 
-      const sendOTP = Effect.fn("sendOTP")(function* (params: SendOTPEmailPayload.Type) {
-        yield* send({
-          from: Redacted.value(emailEnv.from),
-          to: Redacted.value(params.email),
-          subject: "Your OTP",
-          html: `Your OTP is ${Redacted.value(params.otp)}`,
-        });
-      });
+      const sendOTP = Effect.fn("sendOTP")(
+        function* (params: SendOTPEmailPayload.Type) {
+          yield* send({
+            from: Redacted.value(emailEnv.from),
+            to: Redacted.value(params.email),
+            subject: "Your OTP",
+            html: `Your OTP is ${Redacted.value(params.otp)}`,
+          });
+        },
+        (effect, n) =>
+          effect.pipe(
+            Effect.withSpan("AuthEmailService.sendOTP"),
+            Effect.annotateLogs({ arguments: n }),
+            Effect.tapError(Effect.logError)
+          )
+      );
 
       return {
         sendVerification,

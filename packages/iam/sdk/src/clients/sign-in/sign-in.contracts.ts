@@ -82,3 +82,23 @@ export namespace SignInPhoneNumberContract {
   export type Type = typeof SignInPhoneNumberContract.Type;
   export type Encoded = typeof SignInPhoneNumberContract.Encoded;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+// SIGN IN PASSKEY CONTRACT
+//----------------------------------------------------------------------------------------------------------------------
+export class SignInPasskeyContract extends BS.Class<SignInPasskeyContract>("SignInPasskeyContract")(
+  {
+    onSuccess: BS.NoInputVoidFn.Schema,
+  },
+  {
+    schemaId: Symbol.for("@beep/iam-sdk/clients/SignInPasskeyContract"),
+    identifier: "SignInPasskeyContract",
+    description: "Contract for signing in with a passkey",
+    title: "Sign in with passkey",
+  }
+) {}
+
+export namespace SignInPasskeyContract {
+  export type Type = typeof SignInPasskeyContract.Type;
+  export type Encoded = typeof SignInPasskeyContract.Encoded;
+}

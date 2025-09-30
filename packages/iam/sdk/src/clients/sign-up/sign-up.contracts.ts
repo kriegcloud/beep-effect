@@ -18,7 +18,7 @@ const SignUpFrom = S.Struct({
 const SignUpTo = S.Struct({
   email: S.encodedSchema(BS.Email),
   rememberMe: BS.BoolWithDefault(false),
-  redirectTo: BS.StringWithDefault(paths.root),
+  callbackURL: BS.StringWithDefault(paths.root),
   password: S.encodedSchema(BS.Password),
   passwordConfirm: S.encodedSchema(BS.Password),
   firstName: S.NonEmptyTrimmedString,
@@ -26,7 +26,7 @@ const SignUpTo = S.Struct({
   name: S.NonEmptyTrimmedString,
 });
 
-export class SignupContract extends S.transformOrFail(SignUpFrom, SignUpTo, {
+export class SignUpValue extends S.transformOrFail(SignUpFrom, SignUpTo, {
   strict: true,
   decode: ({ rememberMe = false, ...value }, _, ast) =>
     ParseResult.try({
@@ -52,6 +52,19 @@ export class SignupContract extends S.transformOrFail(SignUpFrom, SignUpTo, {
       },
       catch: () => new ParseResult.Type(ast, value, "could not encode signup"),
     }),
+}) {}
+
+export namespace SignUpValue {
+  export type Type = typeof SignUpValue.Type;
+  export type Encoded = typeof SignUpValue.Encoded;
+}
+
+export class SignupContract extends BS.Class<SignupContract>("SignupContract")({
+  value: S.typeSchema(SignUpValue),
+  onSuccess: new BS.Fn({
+    input: BS.URLPath,
+    output: S.Void,
+  }).Schema,
 }) {}
 
 export namespace SignupContract {
