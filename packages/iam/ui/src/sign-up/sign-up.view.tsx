@@ -3,8 +3,9 @@ import { iam } from "@beep/iam-sdk";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { paths } from "@beep/shared-domain";
 import { varFade } from "@beep/ui/animate";
-import { useRouter } from "@beep/ui/hooks";
+import { useBoolean, useRouter } from "@beep/ui/hooks";
 import { EmailInboxIcon } from "@beep/ui/icons";
+import { SplashScreen } from "@beep/ui/progress/loading-screen/splash-screen";
 import { RouterLink } from "@beep/ui/routing";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -25,10 +26,15 @@ export const SignUpView = () => {
   const router = useRouter();
   const runSignUpEmail = makeRunClientPromise(runtime, "iam.signUp.email");
   const runSocialSignIn = makeRunClientPromise(runtime, "iam.signIn.social");
+  const { value: isLoading, setValue: setIsLoading } = useBoolean();
   const [verificationNotice, setVerificationNotice] = useState<{
     redirectPath: string;
     firstName: string;
   } | null>(null);
+
+  if (isLoading) {
+    return <SplashScreen />;
+  }
 
   return (
     <AnimatePresence mode={"wait"} initial={false}>
@@ -60,7 +66,10 @@ export const SignUpView = () => {
               variant={"contained"}
               color={"primary"}
               fullWidth
-              onClick={() => router.push(verificationNotice.redirectPath)}
+              onClick={() => {
+                setIsLoading(true);
+                void router.push(verificationNotice.redirectPath);
+              }}
             >
               Skip for now.
             </Button>

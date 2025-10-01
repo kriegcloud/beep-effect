@@ -37,7 +37,8 @@
   "peerDependencies": {
     "effect": "*",
     "@beep/schema": "workspace:^",
-    "@beep/constants": "workspace:^"
+    "@beep/constants": "workspace:^",
+    "@beep/shared-domain": "workspace:^"
   },
   "effect": {
     "generateExports": {

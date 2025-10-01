@@ -1,5 +1,5 @@
 {
-  "id": "61b7a0f7-735b-45f6-b121-b85de77416ff",
+  "id": "d841e6fb-9212-4bf0-b908-db31936466d5",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -556,6 +556,14 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'user'"
+        },
+        "gender": {
+          "name": "gender",
+          "type": "user_gender_enum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'male'"
         },
         "banned": {
           "name": "banned",
@@ -4331,6 +4339,11 @@
       "name": "subscription_tier_enum",
       "schema": "public",
       "values": ["free", "plus", "pro", "enterprise"]
+    },
+    "public.user_gender_enum": {
+      "name": "user_gender_enum",
+      "schema": "public",
+      "values": ["male", "female"]
     },
     "public.user_role_enum": {
       "name": "user_role_enum",

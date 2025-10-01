@@ -17,6 +17,10 @@ export class UserGender extends UserGenderKit.Schema.annotations({
 }) {
   static readonly Options = UserGenderKit.Options;
   static readonly Enum = UserGenderKit.Enum;
+  static readonly DropDownOptions = UserGenderKit.Options.map((option) => ({
+    label: option,
+    value: option,
+  }));
 }
 
 export namespace UserGender {

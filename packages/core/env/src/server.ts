@@ -1,22 +1,25 @@
-import { AuthProviderNameValue, EnvValue, LogFormat, SubscriptionPlanValue } from "@beep/constants";
+import { AuthProviderNameValue, EnvValue, LogFormat } from "@beep/constants";
 import { BS } from "@beep/schema";
+import { SharedEntityIds } from "@beep/shared-domain";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
+import * as LogLevel from "effect/LogLevel";
+import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import { ConfigArrayURL } from "./common";
 
+const withPlaceholderRedacted = <A>(config: Config.Config<A>) =>
+  config.pipe(Config.withDefault(Redacted.make("not-a-real-token")));
 export const ServerConfig = Config.all({
   app: Config.nested("APP")(
     Config.all({
       name: Config.string("NAME"),
       env: S.Config("ENV", EnvValue).pipe(Config.withDefault(EnvValue.Enum.dev)),
       domain: Config.string("DOMAIN").pipe(Config.withDefault("localhost")),
-      adminUserIds: Config.array(S.Config("ADMIN_USER_IDS", S.UUID)),
-      assetsDomain: Config.nonEmptyString("ASSETS_DOMAIN"),
-      staticDomain: Config.nonEmptyString("STATIC_DOMAIN"),
+      adminUserIds: Config.array(S.Config("ADMIN_USER_IDS", SharedEntityIds.UserId)),
       logFormat: S.Config("LOG_FORMAT", LogFormat).pipe(Config.withDefault(LogFormat.Enum.pretty)),
-      logLevel: Config.logLevel("LOG_LEVEL").pipe(Config.withDefault("None")),
+      logLevel: Config.logLevel("LOG_LEVEL").pipe(Config.withDefault(LogLevel.None)),
       mcpUrl: Config.url("MCP_URL"),
       authUrl: Config.url("AUTH_URL"),
       apiUrl: Config.url("API_URL"),
@@ -30,9 +33,9 @@ export const ServerConfig = Config.all({
     Config.all({
       aws: Config.nested("AWS")(
         Config.all({
-          region: Config.nonEmptyString("REGION"),
-          accessKeyId: Config.redacted(Config.nonEmptyString("ACCESS_KEY_ID")),
-          secretAccessKey: Config.redacted(Config.nonEmptyString("SECRET_ACCESS_KEY")),
+          region: Config.nonEmptyString("REGION").pipe(Config.withDefault("us-east-1")),
+          accessKeyId: Config.redacted(Config.nonEmptyString("ACCESS_KEY_ID")).pipe(withPlaceholderRedacted),
+          secretAccessKey: Config.redacted(Config.nonEmptyString("SECRET_ACCESS_KEY")).pipe(withPlaceholderRedacted),
           s3: Config.nested("S3")(
             Config.all({
               bucketName: Config.nonEmptyString("BUCKET_NAME"),
@@ -44,8 +47,8 @@ export const ServerConfig = Config.all({
         Config.all({
           captcha: Config.nested("CAPTCHA")(
             Config.all({
-              siteKey: Config.redacted(Config.nonEmptyString("SITE_KEY")),
-              secretKey: Config.redacted(Config.nonEmptyString("SECRET_KEY")),
+              siteKey: Config.redacted(Config.nonEmptyString("SITE_KEY")).pipe(withPlaceholderRedacted),
+              secretKey: Config.redacted(Config.nonEmptyString("SECRET_KEY")).pipe(withPlaceholderRedacted),
             })
           ),
         })
@@ -67,13 +70,23 @@ export const ServerConfig = Config.all({
       ),
     })
   ),
+  payment: Config.nested("PAYMENT")(
+    Config.all({
+      stripe: Config.nested("STRIPE")(
+        Config.all({
+          key: Config.redacted(Config.nonEmptyString("KEY")).pipe(withPlaceholderRedacted),
+          webhookSecret: Config.redacted(Config.nonEmptyString("WEBHOOK_SECRET")).pipe(withPlaceholderRedacted),
+        })
+      ),
+    })
+  ),
   email: Config.nested("EMAIL")(
     Config.all({
-      from: S.Config("FROM", BS.Email),
-      test: S.Config("FROM", BS.Email),
+      from: Config.succeed(BS.Email.make("beep@codedank.com")),
+      test: Config.succeed(BS.Email.make("beep@codank.com")),
       resend: Config.nested("RESEND")(
         Config.all({
-          apiKey: Config.redacted(Config.nonEmptyString("API_KEY")),
+          apiKey: Config.redacted(Config.nonEmptyString("API_KEY")).pipe(withPlaceholderRedacted),
         })
       ),
     })
@@ -93,7 +106,7 @@ export const ServerConfig = Config.all({
     Config.all({
       dub: Config.nested("DUB")(
         Config.all({
-          token: Config.redacted(Config.nonEmptyString("TOKEN")),
+          token: Config.redacted(Config.nonEmptyString("TOKEN")).pipe(withPlaceholderRedacted),
         })
       ),
     })
@@ -105,39 +118,39 @@ export const ServerConfig = Config.all({
         Config.all({
           microsoft: Config.nested("MICROSOFT")(
             Config.all({
-              clientId: Config.redacted(Config.nonEmptyString("CLIENT_ID")),
-              clientSecret: Config.redacted(Config.nonEmptyString("CLIENT_SECRET")),
-              tenantId: Config.redacted(Config.nonEmptyString("TENANT_ID")),
+              clientId: Config.redacted(Config.nonEmptyString("CLIENT_ID")).pipe(Config.option),
+              clientSecret: Config.redacted(Config.nonEmptyString("CLIENT_SECRET")).pipe(Config.option),
+              tenantId: Config.redacted(Config.nonEmptyString("TENANT_ID")).pipe(Config.option),
             })
           ),
           google: Config.nested("GOOGLE")(
             Config.all({
-              clientId: Config.redacted(Config.nonEmptyString("CLIENT_ID")),
-              clientSecret: Config.redacted(Config.nonEmptyString("CLIENT_SECRET")),
+              clientId: Config.redacted(Config.nonEmptyString("CLIENT_ID")).pipe(Config.option),
+              clientSecret: Config.redacted(Config.nonEmptyString("CLIENT_SECRET")).pipe(Config.option),
             })
           ),
           discord: Config.nested("DISCORD")(
             Config.all({
-              clientId: Config.redacted(Config.nonEmptyString("CLIENT_ID")),
-              clientSecret: Config.redacted(Config.nonEmptyString("CLIENT_SECRET")),
+              clientId: Config.redacted(Config.nonEmptyString("CLIENT_ID")).pipe(Config.option),
+              clientSecret: Config.redacted(Config.nonEmptyString("CLIENT_SECRET")).pipe(Config.option),
             })
           ),
           github: Config.nested("GITHUB")(
             Config.all({
-              clientId: Config.redacted(Config.nonEmptyString("CLIENT_ID")),
-              clientSecret: Config.redacted(Config.nonEmptyString("CLIENT_SECRET")),
+              clientId: Config.redacted(Config.nonEmptyString("CLIENT_ID")).pipe(Config.option),
+              clientSecret: Config.redacted(Config.nonEmptyString("CLIENT_SECRET")).pipe(Config.option),
             })
           ),
           linkedin: Config.nested("LINKEDIN")(
             Config.all({
-              clientId: Config.redacted(Config.nonEmptyString("CLIENT_ID")),
-              clientSecret: Config.redacted(Config.nonEmptyString("CLIENT_SECRET")),
+              clientId: Config.redacted(Config.nonEmptyString("CLIENT_ID")).pipe(Config.option),
+              clientSecret: Config.redacted(Config.nonEmptyString("CLIENT_SECRET")).pipe(Config.option),
             })
           ),
           twitter: Config.nested("TWITTER")(
             Config.all({
-              clientId: Config.redacted(Config.nonEmptyString("CLIENT_ID")),
-              clientSecret: Config.redacted(Config.nonEmptyString("CLIENT_SECRET")),
+              clientId: Config.redacted(Config.nonEmptyString("CLIENT_ID")).pipe(Config.option),
+              clientSecret: Config.redacted(Config.nonEmptyString("CLIENT_SECRET")).pipe(Config.option),
             })
           ),
         })
@@ -147,47 +160,7 @@ export const ServerConfig = Config.all({
   otlp: Config.nested("OTLP")(
     Config.all({
       traceExporterUrl: Config.url("TRACE_EXPORTER_URL"),
-    })
-  ),
-  payment: Config.nested("PAYMENT")(
-    Config.all({
-      subscriptionsEnabled: Config.boolean("SUBSCRIPTIONS_ENABLED").pipe(Config.withDefault(false)),
-      successUrl: Config.url("SUCCESS_URL"),
-      stripe: Config.nested("STRIPE")(
-        Config.all({
-          key: Config.redacted(Config.nonEmptyString("KEY")),
-          webhookSecret: Config.redacted(Config.nonEmptyString("WEBHOOK_SECRET")),
-        })
-      ),
-      plan: Config.nested("PLAN")(
-        Config.all({
-          names: Config.array(Config.hashSet(S.Config("NAMES", SubscriptionPlanValue))),
-          basic: Config.nested("BASIC")(
-            Config.all({
-              name: Config.nonEmptyString("NAME"),
-              priceId: Config.nonEmptyString("PRICE_ID"),
-              annualDiscountPriceId: Config.nonEmptyString("ANNUAL_DISCOUNT_PRICE_ID"),
-              freeTrialDays: Config.integer("FREE_TRIAL_DAYS"),
-            })
-          ),
-          pro: Config.nested("PRO")(
-            Config.all({
-              name: Config.nonEmptyString("NAME"),
-              priceId: Config.nonEmptyString("PRICE_ID"),
-              annualDiscountPriceId: Config.nonEmptyString("ANNUAL_DISCOUNT_PRICE_ID"),
-              freeTrialDays: Config.integer("FREE_TRIAL_DAYS"),
-            })
-          ),
-          enterprise: Config.nested("ENTERPRISE")(
-            Config.all({
-              name: Config.nonEmptyString("NAME"),
-              priceId: Config.nonEmptyString("PRICE_ID"),
-              annualDiscountPriceId: Config.nonEmptyString("ANNUAL_DISCOUNT_PRICE_ID"),
-              freeTrialDays: Config.integer("FREE_TRIAL_DAYS"),
-            })
-          ),
-        })
-      ),
+      logExporterUrl: Config.url("LOG_EXPORTER_URL"),
     })
   ),
   security: Config.nested("SECURITY")(
@@ -199,12 +172,12 @@ export const ServerConfig = Config.all({
     Config.all({
       openai: Config.nested("OPENAI")(
         Config.all({
-          apiKey: Config.redacted(Config.nonEmptyString("API_KEY")),
+          apiKey: Config.redacted(Config.nonEmptyString("API_KEY")).pipe(withPlaceholderRedacted),
         })
       ),
       anthropic: Config.nested("ANTHROPIC")(
         Config.all({
-          apiKey: Config.redacted(Config.nonEmptyString("API_KEY")),
+          apiKey: Config.redacted(Config.nonEmptyString("API_KEY")).pipe(withPlaceholderRedacted),
         })
       ),
     })

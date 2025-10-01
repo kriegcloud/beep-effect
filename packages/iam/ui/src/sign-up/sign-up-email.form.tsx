@@ -4,6 +4,7 @@ import * as SharedEntities from "@beep/shared-domain/entities";
 import { Form, formOptionsWithSubmit, useAppForm } from "@beep/ui/form";
 import { PasswordFieldsGroup } from "@beep/ui/form/groups";
 import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
 import type * as Effect from "effect/Effect";
 import type { ParseError } from "effect/ParseResult";
 import type React from "react";
@@ -41,18 +42,6 @@ export const SignUpEmailForm: React.FC<Props> = ({ onSubmit }) => {
           >
             <form.AppField name={"firstName"} children={(field) => <field.Text label={"First name"} />} />
             <form.AppField name={"lastName"} children={(field) => <field.Text label={"lastName"} />} />
-            <form.AppField
-              name={"gender"}
-              children={(field) => (
-                <field.RadioGroup
-                  options={[
-                    { label: "Male", value: "male" },
-                    { label: "Female", value: "female" },
-                  ]}
-                  label={"Gender"}
-                />
-              )}
-            />
           </Box>
           <form.AppField name={"email"} children={(field) => <field.Text label={"Email"} type={"email"} />} />
 
@@ -63,6 +52,14 @@ export const SignUpEmailForm: React.FC<Props> = ({ onSubmit }) => {
               passwordConfirm: "passwordConfirm",
             }}
           />
+          <Stack direction={"row"} spacing={2}>
+            <form.AppField
+              name={"gender"}
+              children={(field) => (
+                <field.RadioGroup options={SharedEntities.User.UserGender.DropDownOptions} label={"Gender"} row />
+              )}
+            />
+          </Stack>
           <form.Submit variant={"contained"} />
         </Box>
       </form.AppForm>

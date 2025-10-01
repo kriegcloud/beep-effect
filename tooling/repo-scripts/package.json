@@ -30,6 +30,8 @@
     "lint:circular": "pnpm madge -c .",
     "dotenvx": "dotenvx run -f ../../.env --",
     "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' pnpm dotenvx tsx ./src/execute.ts",
+    "gen:secrets": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' pnpm dotenvx tsx ./src/generate-env-secrets.ts",
+    "bootstrap": "tsx ./src/bootstrap.ts",
     "generate-public-paths": "pnpm dotenvx tsx src/generate-asset-paths.ts"
   },
   "dependencies": {
@@ -44,6 +46,7 @@
     "@effect/platform-node": "*",
     "glob": "^11.0.3",
     "effect": "*",
+    "picocolors": "*",
     "@jsquash/webp": "^1.5.0",
     "@jsquash/avif": "^2.1.1",
     "@jsquash/jpeg": "^1.6.0",

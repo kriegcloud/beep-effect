@@ -1,18 +1,4 @@
 import { serverEnv } from "@beep/core-env/server";
-// import {DevTools} from "@effect/experimental";
-// import {NodeSdk} from "@effect/opentelemetry";
-// import {NodeSocket} from "@effect/platform-node";
-// import {OTLPLogExporter} from "@opentelemetry/exporter-logs-otlp-http";
-// import * as Layer from "effect/Layer";
-// import * as Logger from "effect/Logger";
-// import * as LogLevel from "effect/LogLevel";
-// import * as ManagedRuntime from "effect/ManagedRuntime";
-// import {makePrettyConsoleLoggerLayer} from "@beep/errors/server";
-// import {OTLPTraceExporter} from "@opentelemetry/exporter-trace-otlp-http";
-// import {BatchLogRecordProcessor} from "@opentelemetry/sdk-logs";
-// import {BatchSpanProcessor} from "@opentelemetry/sdk-trace-base";
-// import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-proto";
-// import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import * as IamEntities from "@beep/iam-domain/entities";
 import { IamDb } from "@beep/iam-infra/db/Db";
 import { IamDbSchema } from "@beep/iam-tables";
@@ -26,58 +12,29 @@ import * as d from "drizzle-orm";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import * as Equal from "effect/Equal";
+import * as F from "effect/Function";
+import * as LogLevel from "effect/LogLevel";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import { AuthEmailService, SendResetPasswordEmailPayload, SendVerificationEmailPayload } from "./AuthEmail.service";
 import { commonExtraFields } from "./internal";
 import { AllPlugins } from "./plugins";
 
-//
-// // const metricExporter = new OTLPMetricExporter({
-// //   url: "http://localhost:4318/v1/metrics",
-// // });
-// export const TelemetryLive = NodeSdk.layer(() => ({
-//   resource: {serviceName: `${serverEnv.app.name}-server-auth`},
-//   spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({url: "http://localhost:4318/v1/traces"})),
-//   logRecordProcessor: new BatchLogRecordProcessor(new OTLPLogExporter({url: "http://localhost:4318/v1/logs"})),
-//   // metricReader: new PeriodicExportingMetricReader({
-//   //   exporter: metricExporter,
-//   //   exportIntervalMillis: Duration.toMillis("5 seconds"),
-//   // }),
-// }));
-//
-// export type LoggerLive = Layer.Layer<never, never, never>;
-// export const LoggerLive: LoggerLive = serverEnv.app.env === "dev" ? makePrettyConsoleLoggerLayer() : Logger.json;
-// export type LogLevelLive = Layer.Layer<never, never, never>;
-// export const LogLevelLive: LogLevelLive = Logger.minimumLogLevel(
-//   serverEnv.app.env === "dev" ? LogLevel.Debug : LogLevel.Info
-// );
-//
-// export const DevToolsLive =
-//   serverEnv.app.env === "dev"
-//     ? DevTools.layerWebSocket().pipe(Layer.provide(NodeSocket.layerWebSocketConstructor))
-//     : Layer.empty;
-// const AuthLive = Layer.mergeAll(TelemetryLive, LoggerLive, LogLevelLive, DevToolsLive);
-//
-// type AuthRuntimeLive = Layer.Layer.Success<typeof AuthLive>;
-// const authRuntime = ManagedRuntime.make(AuthLive);
-// export const runAuthPromise = <A, E>(
-//   effect: Effect.Effect<A, E, AuthRuntimeLive>,
-//   spanName = "authRuntime.runAuthPromise",
-//   options?: Parameters<typeof authRuntime.runPromise>[1]
-// ) => authRuntime.runPromise(Effect.withSpan(effect, spanName), options);
-
 const AuthOptions = Effect.gen(function* () {
   const { db, drizzle } = yield* IamDb.IamDb;
   const plugins = yield* AllPlugins;
   const { sendResetPassword, sendVerification } = yield* AuthEmailService;
+  const isDebug = P.or(Equal.equals(LogLevel.Debug), Equal.equals(LogLevel.All))(serverEnv.app.logLevel);
 
   return yield* Effect.succeed({
     telemetry: {
-      debug: true,
+      debug: isDebug,
     },
     database: drizzleAdapter(drizzle, {
-      debugLogs: true,
+      debugLogs: isDebug,
       provider: "pg",
       usePlural: false,
       schema: IamDbSchema,
@@ -87,8 +44,7 @@ const AuthOptions = Effect.gen(function* () {
     basePath: "/api/auth",
     appName: serverEnv.app.name,
     secret: Redacted.value(serverEnv.auth.secret),
-    // todo clean these up
-    trustedOrigins: [...serverEnv.security.trustedOrigins, "http://localhost:4318", "http://127.0.0.1:4318"],
+    trustedOrigins: [...serverEnv.security.trustedOrigins],
     rateLimit: {
       enabled: true,
       window: 10, // time window in seconds
@@ -122,8 +78,7 @@ const AuthOptions = Effect.gen(function* () {
             S.decode(SendVerificationEmailPayload)({
               email: params.user.email,
               url: BS.URLString.make(
-                // TODO make env
-                `http://localhost:3000${paths.auth.verification.email.verify(params.token)}`
+                `${serverEnv.app.clientUrl}${paths.auth.verification.email.verify(params.token)}`
               ).toString(),
             }),
             sendVerification
@@ -150,14 +105,14 @@ const AuthOptions = Effect.gen(function* () {
     socialProviders: A.reduce(
       serverEnv.oauth.authProviderNames,
       {} as BetterAuthOptions["socialProviders"],
-      (acc, provider) =>
-        ({
-          ...acc,
-          [provider]: {
-            clientSecret: Redacted.value(serverEnv.oauth.provider[provider].clientSecret),
-            clientId: Redacted.value(serverEnv.oauth.provider[provider].clientId),
-          },
-        }) satisfies BetterAuthOptions["socialProviders"]
+      (acc, provider) => ({
+        ...acc,
+        ...F.pipe(serverEnv.oauth.provider[provider], (providerParams) =>
+          O.isSome(providerParams.clientSecret) && O.isSome(providerParams.clientId)
+            ? { [provider]: providerParams }
+            : {}
+        ),
+      })
     ),
     plugins,
     databaseHooks: {

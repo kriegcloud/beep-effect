@@ -1,13 +1,17 @@
 #!/usr/bin/env node
 import * as crypto from "node:crypto";
+import { findRepoRoot } from "@beep/tooling-utils/repo";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as NodeContext from "@effect/platform-node/NodeContext";
 import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Encoding from "effect/Encoding";
+import * as O from "effect/Option";
 import * as Random from "effect/Random";
+import * as Struct from "effect/Struct";
 
 /**
  * Generate a secure random secret using Effect's Random service
@@ -34,7 +38,7 @@ const generateSecret = Effect.gen(function* () {
 const generateUUID = Effect.gen(function* () {
   yield* Effect.log("Generating secure UUID");
 
-  const uuid = yield* Effect.sync(() => crypto.randomUUID());
+  const uuid = yield* Effect.sync(() => `user__${crypto.randomUUID()}`);
 
   yield* Effect.log(`Generated UUID: ${uuid}`);
   return uuid;
@@ -48,22 +52,19 @@ const generateAutoFillValues = Effect.gen(function* () {
   yield* Effect.log("Starting auto-fill values generation");
 
   // Generate secrets in parallel for better performance
-  const [dbPassword, dbAdminPassword, redisPassword, dbPgAdminPassword, adminUserId1, adminUserId2] = yield* Effect.all(
-    [generateSecret, generateSecret, generateSecret, generateSecret, generateUUID, generateUUID],
+  const [redisPassword, betterAuthSecret, adminUserId1, adminUserId2] = yield* Effect.all(
+    [generateSecret, generateSecret, generateUUID, generateUUID],
     { concurrency: "unbounded" }
   );
 
   const autoFillValues = {
-    BETTER_AUTH_SECRET: dbPgAdminPassword,
-    DB_PG_PASSWORD: dbPassword,
-    DB_PG_ADMIN_PW: dbAdminPassword,
+    BETTER_AUTH_SECRET: betterAuthSecret,
     KV_REDIS_PASSWORD: redisPassword,
     APP_ADMIN_USER_IDS: `${adminUserId1},${adminUserId2}`,
   };
 
   yield* Console.log("\n✅ Generated secure values:");
-  yield* Console.log(`📊 DB_PG_PASSWORD: ${dbPassword.slice(0, 8)}... (${dbPassword.length} chars)`);
-  yield* Console.log(`🔧 DB_PG_ADMIN_PW: ${dbAdminPassword.slice(0, 8)}... (${dbAdminPassword.length} chars)`);
+  yield* Console.log(`🔧 BETTER_AUTH_SECRET: ${betterAuthSecret.slice(0, 8)}... (${betterAuthSecret.length} chars)`);
   yield* Console.log(`🗄️  KV_REDIS_PASSWORD: ${redisPassword.slice(0, 8)}... (${redisPassword.length} chars)`);
   yield* Console.log(`👥 APP_ADMIN_USER_IDS: ${adminUserId1},${adminUserId2}`);
 
@@ -101,8 +102,9 @@ const updateEnvVariablesInContent = (content: string, updates: Record<string, st
   Effect.gen(function* () {
     yield* Effect.log("Updating environment variables in content while preserving formatting");
 
-    const lines = content.split("\n");
+    const lines = content.length === 0 ? [] : content.split("\n");
     const updatedLines: string[] = [];
+    const remainingKeys = new Set(Struct.keys(updates));
 
     for (const line of lines) {
       const trimmedLine = line.trim();
@@ -115,7 +117,7 @@ const updateEnvVariablesInContent = (content: string, updates: Record<string, st
 
       // Check if this line defines one of our target variables
       let lineUpdated = false;
-      for (const [key, newValue] of Object.entries(updates)) {
+      for (const [key, newValue] of Struct.entries(updates)) {
         // Match patterns like: KEY="value" or KEY=value or KEY=${VAR}
         const keyPattern = new RegExp(`^(\\s*${key}\\s*=)(.*)$`);
         const match = line.match(keyPattern);
@@ -131,6 +133,7 @@ const updateEnvVariablesInContent = (content: string, updates: Record<string, st
           yield* Console.log(`🔄 Updated ${key}: ${oldValue} → ${quotedNewValue}`);
           updatedLines.push(updatedLine);
           lineUpdated = true;
+          remainingKeys.delete(key);
           break; // Found and updated, no need to check other keys
         }
       }
@@ -138,6 +141,29 @@ const updateEnvVariablesInContent = (content: string, updates: Record<string, st
       // If no updates were made, keep the original line
       if (!lineUpdated) {
         updatedLines.push(line);
+      }
+    }
+
+    if (remainingKeys.size > 0) {
+      const needsSeparator =
+        A.isNonEmptyArray(updatedLines) &&
+        A.get(A.length(updatedLines) - 1)(updatedLines).pipe(
+          O.match({
+            onNone: () => false,
+            onSome: (line) => line.trim().length > 0,
+          })
+        );
+
+      if (needsSeparator) {
+        updatedLines.push("");
+      }
+
+      for (const key of remainingKeys) {
+        const value = updates[key];
+        const quotedNewValue = `"${value}"`;
+        const newLine = `${key}=${quotedNewValue}`;
+        yield* Console.log(`➕ Added ${key}: ${quotedNewValue}`);
+        updatedLines.push(newLine);
       }
     }
 
@@ -167,13 +193,10 @@ const updateEnvFile = (filePath = ".env") =>
   Effect.gen(function* () {
     yield* Console.log(`\n🔄 Updating ${filePath} with generated secrets...`);
 
-    // Resolve path relative to monorepo root (two levels up from tooling/scripts)
     const pathService = yield* Path.Path;
-
-    // Get current working directory and go up two levels to reach monorepo root
     const currentDir = process.cwd();
-    const monorepoRoot = pathService.join(currentDir, "..", "..");
-    const resolvedFilePath = pathService.isAbsolute(filePath) ? filePath : pathService.join(monorepoRoot, filePath);
+    const monorepoRoot = yield* findRepoRoot;
+    const resolvedFilePath = pathService.isAbsolute(filePath) ? filePath : pathService.resolve(monorepoRoot, filePath);
 
     yield* Console.log(`📍 Current directory: ${currentDir}`);
     yield* Console.log(`📍 Monorepo root: ${monorepoRoot}`);
@@ -192,19 +215,16 @@ const updateEnvFile = (filePath = ".env") =>
     yield* writeEnvFileRaw(resolvedFilePath, updatedContent);
 
     yield* Console.log(`\n🎉 Successfully updated ${resolvedFilePath}!`);
-    yield* Console.log(`📊 Total variables: ${Object.keys(autoFillValues).length}`);
-    yield* Console.log(`🆕 Added/Updated: ${Object.keys(autoFillValues).length}`);
+    yield* Console.log(`📊 Total variables: ${Struct.keys(autoFillValues).length}`);
+    yield* Console.log(`🆕 Added/Updated: ${Struct.keys(autoFillValues).length}`);
 
     return {
-      totalVariables: Object.keys(autoFillValues).length,
-      updatedVariables: Object.keys(autoFillValues).length,
+      totalVariables: Struct.keys(autoFillValues).length,
+      updatedVariables: Struct.keys(autoFillValues).length,
     };
   });
 
-/**
- * Main program to generate and update .env secrets
- */
-const main = Effect.gen(function* () {
+const generateEnvSecrets = Effect.gen(function* () {
   yield* Console.log("🐝 BEEP Environment Secrets Generator");
   yield* Console.log("=====================================");
   yield* Effect.log("Starting environment secrets generation");
@@ -248,8 +268,11 @@ const main = Effect.gen(function* () {
     })
   )
 );
+/**
+ * Main program to generate and update .env secrets
+ */
 
 // Run the program
-NodeRuntime.runMain(main.pipe(Effect.provide(NodeContext.layer)));
+NodeRuntime.runMain(generateEnvSecrets.pipe(Effect.provide(NodeContext.layer)));
 
-export { generateSecret, generateUUID, generateAutoFillValues, updateEnvFile, main };
+export { generateSecret, generateUUID, generateAutoFillValues, updateEnvFile, generateEnvSecrets };

@@ -8,15 +8,10 @@ import { AuthEmailService, AuthService, IamRepos } from "@beep/iam-infra";
 import { IamDb } from "@beep/iam-infra/db";
 import { DevTools } from "@effect/experimental";
 import { NodeSdk } from "@effect/opentelemetry";
-import type { Resource } from "@effect/opentelemetry/Resource";
 import { NodeSocket } from "@effect/platform-node";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
-// import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-proto";
-// import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
-// import * as Duration from "effect/Duration";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
-
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 
 import * as Effect from "effect/Effect";
@@ -25,59 +20,101 @@ import * as Logger from "effect/Logger";
 import * as LogLevel from "effect/LogLevel";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 
-// const metricExporter = new OTLPMetricExporter({
-//   url: "http://localhost:4318/v1/metrics",
-// });
+// ============================================================================
+// Environment constants
+// ============================================================================
+
+const isDevEnvironment = serverEnv.app.env === "dev";
+const serviceName = `${serverEnv.app.name}-server`;
+const otlpTraceExporterUrl = serverEnv.otlp.traceExporterUrl.toString();
+const otlpLogExporterUrl = serverEnv.otlp.logExporterUrl.toString();
+
+// ============================================================================
+// Telemetry
+// ============================================================================
+
+/**
+ * Configures the OpenTelemetry SDK with OTLP exporters for traces and logs.
+ */
 export const TelemetryLive = NodeSdk.layer(() => ({
-  resource: { serviceName: `${serverEnv.app.name}-server` },
-  spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({ url: "http://localhost:4318/v1/traces" })),
-  logRecordProcessor: new BatchLogRecordProcessor(new OTLPLogExporter({ url: "http://localhost:4318/v1/logs" })),
-  // metricReader: new PeriodicExportingMetricReader({
-  //   exporter: metricExporter,
-  //   exportIntervalMillis: Duration.toMillis("5 seconds"),
-  // }),
+  resource: { serviceName },
+  spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({ url: otlpTraceExporterUrl })),
+  logRecordProcessor: new BatchLogRecordProcessor(new OTLPLogExporter({ url: otlpLogExporterUrl })),
 }));
+
+// ============================================================================
+// Logging & developer tooling
+// ============================================================================
+
+/** Provides JSON logging in production and a pretty console logger locally. */
+export const LoggerLive = isDevEnvironment ? makePrettyConsoleLoggerLayer() : Logger.json;
+
+/** Dynamically adjusts the minimum log level based on the environment. */
+export const LogLevelLive = Logger.minimumLogLevel(isDevEnvironment ? LogLevel.Debug : LogLevel.Info);
+
+/**
+ * Optional developer tools, exposed only in development to avoid production overhead.
+ */
+export const DevToolsLive = isDevEnvironment
+  ? DevTools.layerWebSocket().pipe(Layer.provide(NodeSocket.layerWebSocketConstructor))
+  : Layer.empty;
+
+/** Shared base layer containing observability infrastructure. */
+export const ObservabilityLive = Layer.mergeAll(LoggerLive, TelemetryLive, DevToolsLive);
+
+// ============================================================================
+// Persistence slices
+// ============================================================================
+
+/** Combines infra-specific repositories required by the server runtime. */
 export const SliceRepositoriesLive = Layer.mergeAll(IamRepos.layer, FilesRepos.layer);
 
+/** Establishes connections to the databases used by the runtime. */
 export const SliceDatabasesLive = Layer.mergeAll(IamDb.IamDb.Live, FilesDb.FilesDb.Live);
 
-export type LoggerLive = Layer.Layer<never, never, never>;
-export const LoggerLive: LoggerLive = serverEnv.app.env === "dev" ? makePrettyConsoleLoggerLayer() : Logger.json;
-export type LogLevelLive = Layer.Layer<never, never, never>;
-export const LogLevelLive: LogLevelLive = Logger.minimumLogLevel(
-  serverEnv.app.env === "dev" ? LogLevel.Debug : LogLevel.Info
-);
-export type DevToolsLive = Layer.Layer<never, never, never>;
+/** Provides database connections to the common database layer. */
+export const DatabaseInfrastructureLive = Layer.provideMerge(SliceDatabasesLive, Db.Live);
 
-export const DevToolsLive: DevToolsLive =
-  serverEnv.app.env === "dev"
-    ? DevTools.layerWebSocket().pipe(Layer.provide(NodeSocket.layerWebSocketConstructor))
-    : Layer.empty;
-type Base = Layer.Layer<Resource, never, never>;
-export const Base: Base = Layer.mergeAll(LoggerLive, TelemetryLive, DevToolsLive);
+/** Supplies repository services backed by the configured databases. */
+export const RepositoriesLive = Layer.provideMerge(SliceRepositoriesLive, DatabaseInfrastructureLive);
 
-export const SliceDependenciesLayer = Layer.provideMerge(SliceDatabasesLive, Db.Live);
+// ============================================================================
+// Domain services
+// ============================================================================
 
-export const DbRepos = Layer.provideMerge(SliceRepositoriesLive, SliceDependenciesLayer);
-
+/** Enables email delivery for authentication flows. */
 const AuthEmailLive = AuthEmailService.DefaultWithoutDependencies.pipe(Layer.provide([ResendService.Default]));
 
-export const ServicesDependencies = Layer.provideMerge(DbRepos, AuthEmailLive);
+/** Aggregates the service layer dependencies consumed by Auth and related modules. */
+export const CoreServicesLive = Layer.provideMerge(RepositoriesLive, AuthEmailLive);
 
-const AuthLive = AuthService.DefaultWithoutDependencies.pipe(Layer.provideMerge(ServicesDependencies));
+const AuthLive = AuthService.DefaultWithoutDependencies.pipe(Layer.provideMerge(CoreServicesLive));
 
 const AppLive = AuthLive.pipe(Layer.provideMerge(LoggerLive));
 
-export const serverRuntime = ManagedRuntime.make(AppLive.pipe(Layer.provide([Base, LogLevelLive])));
+// ============================================================================
+// Runtime helpers
+// ============================================================================
+
+/**
+ * Managed runtime powering the server layer. Provides telemetry, logging, and service dependencies.
+ */
+export const serverRuntime = ManagedRuntime.make(AppLive.pipe(Layer.provide([ObservabilityLive, LogLevelLive])));
 
 type ServerRuntimeEnv = Layer.Layer.Success<typeof AppLive>;
 
+/**
+ * Runs an Effect within the configured server runtime while recording a tracing span.
+ */
 export const runServerPromise = <A, E>(
   effect: Effect.Effect<A, E, ServerRuntimeEnv>,
   spanName = "serverRuntime.runPromise",
   options?: Parameters<typeof serverRuntime.runPromise>[1]
 ) => serverRuntime.runPromise(Effect.withSpan(effect, spanName), options);
 
+/**
+ * Runs an Effect within the configured server runtime and captures the full Exit value.
+ */
 export const runServerPromiseExit = <A, E>(
   effect: Effect.Effect<A, E, ServerRuntimeEnv>,
   spanName = "serverRuntime.runPromiseExit",

@@ -10,8 +10,9 @@ import { useStore } from "@tanstack/react-form";
 import type React from "react";
 import type { DefaultOmit } from "./Field";
 
-export type RadioProps = Omit<FormControlLabelProps, "control"> & {
+export type RadioProps = Omit<FormControlLabelProps, "control" | "label"> & {
   helperText?: React.ReactNode;
+  label?: string;
   slotProps?: {
     wrapper?: BoxProps;
     switch?: DefaultOmit<MuiRadioProps>;

@@ -65,10 +65,7 @@ Install & run
 ```bash
 # sometimes you have to run install twice idk why...
 pnpm install
-cp .env.example .env
-
-# Start DB (optional if using Docker)
-pnpm db:up
+pnpm bootstrap  # spins up Docker services + runs migrations
 
 # Dev (all)
 pnpm dev
@@ -78,6 +75,7 @@ pnpm dev --filter=@beep/web
 ```
 
 Notes
+- Run `pnpm bootstrap` after installing to launch Docker services and apply migrations before development.
 - Prefer running via npm scripts in the root [`package.json`](package.json). Scripts use `dotenvx` so you don’t have to.
 - If a tool isn’t in your PATH in your environment, you can prefix with `direnv exec .` (see `.windsurfrules`).
 
@@ -89,6 +87,7 @@ Notes
 - Circular import check: `pnpm lint:circular`
 - Build: `pnpm build`
 - Dev: `pnpm dev` / `pnpm dev:https`
+- Bootstrap: `pnpm bootstrap`
 - DB lifecycle: `pnpm db:generate`, `pnpm db:push`, `pnpm db:migrate`, `pnpm db:studio` (wired via [turbo.json](turbo.json))
 
 See [turbo.json](turbo.json) for the authoritative task graph.

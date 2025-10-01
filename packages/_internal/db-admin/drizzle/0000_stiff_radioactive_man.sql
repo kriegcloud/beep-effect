@@ -1,6 +1,7 @@
 CREATE TYPE "public"."organization_type_enum" AS ENUM('individual', 'team', 'enterprise');--> statement-breakpoint
 CREATE TYPE "public"."subscription_status_enum" AS ENUM('active', 'canceled');--> statement-breakpoint
 CREATE TYPE "public"."subscription_tier_enum" AS ENUM('free', 'plus', 'pro', 'enterprise');--> statement-breakpoint
+CREATE TYPE "public"."user_gender_enum" AS ENUM('male', 'female');--> statement-breakpoint
 CREATE TYPE "public"."user_role_enum" AS ENUM('admin', 'super_admin', 'user', 'tenant', 'guest');--> statement-breakpoint
 CREATE TYPE "public"."device_code_status_enum" AS ENUM('pending', 'approved', 'denied');--> statement-breakpoint
 CREATE TYPE "public"."invitation_status_enum" AS ENUM('pending', 'rejected', 'cancelled', 'accepted');--> statement-breakpoint
@@ -70,6 +71,7 @@ CREATE TABLE "user" (
 	"email_verified" boolean DEFAULT false NOT NULL,
 	"image" text,
 	"role" "user_role_enum" DEFAULT 'user' NOT NULL,
+	"gender" "user_gender_enum" DEFAULT 'male' NOT NULL,
 	"banned" boolean DEFAULT false NOT NULL,
 	"ban_reason" text,
 	"ban_expires" timestamp,

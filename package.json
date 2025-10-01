@@ -39,6 +39,7 @@
     "coverage": "turbo run coverage",
     "dev:https": "pnpm dotenvx turbo run dev:https --concurrency=36",
     "dev": "pnpm dotenvx turbo run dev --concurrency=36",
+    "bootstrap": "tsx ./tooling/repo-scripts/src/bootstrap.ts",
     "start": "pnpm dotenvx turbo run start",
     "update-lockfile": "pnpm install --lockfile-only",
     "dotenvx": "dotenvx run -f .env --",
@@ -46,6 +47,7 @@
     "lint:deps:fix": "pnpm syncpack fix --dependency-types=pnpmOverrides --dependencies='!{@tanstack/react-form,@effect/platform-node}'",
     "deps:update": "pnpm syncpack update --target=latest --dependency-types=pnpmOverrides --dependencies='!{@tanstack/react-form,@effect/platform-node}'",
     "lint:circular": "turbo run lint:circular",
+    "gen:secrets": "pnpm dotenvx tsx ./tooling/repo-scripts/src/generate-env-secrets.ts",
     "gen:beep-paths": "pnpm dotenvx tsx ./tooling/repo-scripts/src/generate-asset-paths.ts",
     "run:scratch": "pnpm tsx ./syncpack.config.ts"
   },
