@@ -264,6 +264,10 @@ const AuthOptions = Effect.gen(function* () {
     user: {
       modelName: SharedEntityIds.UserId.tableName,
       additionalFields: {
+        gender: {
+          type: "string",
+          required: true,
+        },
         ...commonExtraFields,
       },
     },

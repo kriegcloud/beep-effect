@@ -6,24 +6,26 @@ import { enumFromStringArray } from "@beep/utils/transformations";
 import { pgEnum } from "drizzle-orm/pg-core";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
-import type * as Effect from "effect/Effect";
+import * as Effect from "effect/Effect";
 import type * as Equivalence from "effect/Equivalence";
 import * as FC from "effect/FastCheck";
+import * as F from "effect/Function";
 import * as JSONSchema from "effect/JSONSchema";
 import type * as ParseResult from "effect/ParseResult";
 import * as Pretty from "effect/Pretty";
+import * as Random from "effect/Random";
 import * as S from "effect/Schema";
 
-type TaggedMembers<Literals extends A.NonEmptyReadonlyArray<string>, D extends string> = {
+type TaggedMembers<Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>, D extends string> = {
   readonly [I in keyof Literals]: DiscriminatedStruct.Schema<D, Literals[I], {}>;
 } & { readonly length: Literals["length"] };
 
 /** Object map: one member per literal key (like Enum, but values are S.Structs) */
-type TaggedMembersMap<Literals extends A.NonEmptyReadonlyArray<string>, D extends string> = {
+type TaggedMembersMap<Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>, D extends string> = {
   readonly [L in Literals[number]]: DiscriminatedStruct.Schema<D, L, {}>;
 };
 
-type TaggedUnion<Literals extends A.NonEmptyReadonlyArray<string>, D extends string> = S.Union<
+type TaggedUnion<Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>, D extends string> = S.Union<
   TaggedMembers<Literals, D>
 >;
 type ValidateEnumMapping<
@@ -67,6 +69,17 @@ export type ValidMapping<
     ? Mapping
     : never
   : never;
+export type RandomSelection<Options extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>> =
+  () => Options[number];
+
+export const randomSelection = <Literal extends StringTypes.NonEmptyString>(
+  options: A.NonEmptyReadonlyArray<Literal>
+): Literal =>
+  F.pipe(
+    Random.nextIntBetween(0, A.length(options)),
+    Effect.flatMap((idx) => A.get(idx)(options)),
+    Effect.catchTag("NoSuchElementException", () => Effect.dieMessage("randomSelection: options are empty"))
+  ).pipe(Effect.runSync);
 
 /**
  * @since 0.1.0
@@ -106,7 +119,7 @@ export type ValidMapping<
  * });
  * ```
  */
-export function stringLiteralKit<const Literals extends A.NonEmptyReadonlyArray<string>>(
+export function stringLiteralKit<const Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>>(
   ...literals: Literals[number] extends StringTypes.NonEmptyString<Literals[number]> ? Literals : never
 ): {
   Schema: S.Literal<[...Literals]>;
@@ -130,6 +143,7 @@ export function stringLiteralKit<const Literals extends A.NonEmptyReadonlyArray<
     Enum: CreateEnumType<Keys, undefined>;
     Mock: (qty: number) => [...Literals][number][];
     is: (a: unknown) => a is Keys[number];
+    getRandom: RandomSelection<Keys>;
     toTagged: <D extends string>(
       discriminator: StringTypes.NonEmptyString<D>
     ) => {
@@ -137,6 +151,7 @@ export function stringLiteralKit<const Literals extends A.NonEmptyReadonlyArray<
       readonly Members: TaggedMembersMap<Keys, D>;
     };
   };
+  getRandom: RandomSelection<Literals>;
   is: (a: unknown) => a is Literals[number];
   assert: (a: unknown) => asserts a is Literals[number];
   decode: (a: string) => Effect.Effect<Literals[number], ParseResult.ParseError, never>;
@@ -150,7 +165,7 @@ export function stringLiteralKit<const Literals extends A.NonEmptyReadonlyArray<
 };
 
 export function stringLiteralKit<
-  const Literals extends A.NonEmptyReadonlyArray<string>,
+  const Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>,
   const Mapping extends readonly [Literals[number], string][],
 >(
   ...args: Literals[number] extends StringTypes.NonEmptyString<Literals[number]>
@@ -177,6 +192,7 @@ export function stringLiteralKit<
     Options: Keys;
     Enum: CreateEnumType<Keys, undefined>;
     Mock: (qty: number) => [...Literals][number][];
+    getRandom: RandomSelection<Keys>;
     is: (a: unknown) => a is Keys[number];
     toTagged: <D extends string>(
       discriminator: StringTypes.NonEmptyString<D>
@@ -185,6 +201,7 @@ export function stringLiteralKit<
       readonly Members: TaggedMembersMap<Keys, D>;
     };
   };
+  getRandom: RandomSelection<Literals>;
   is: (a: unknown) => a is Literals[number];
   assert: (a: unknown) => asserts a is Literals[number];
   decode: (a: string) => Effect.Effect<Literals[number], ParseResult.ParseError, never>;
@@ -200,7 +217,7 @@ export function stringLiteralKit<
 };
 
 export function stringLiteralKit<
-  const Literals extends A.NonEmptyReadonlyArray<string>,
+  const Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>,
   const Mapping extends readonly [Literals[number], string][],
 >(
   ...args: Literals[number] extends StringTypes.NonEmptyString<Literals[number]>
@@ -228,6 +245,7 @@ export function stringLiteralKit<
     Enum: CreateEnumType<Keys, undefined>;
     Mock: (qty: number) => [...Literals][number][];
     is: (a: unknown) => a is Keys[number];
+    getRandom: RandomSelection<Keys>;
     toTagged: <D extends string>(
       discriminator: StringTypes.NonEmptyString<D>
     ) => {
@@ -235,6 +253,7 @@ export function stringLiteralKit<
       readonly Members: TaggedMembersMap<Keys, D>;
     };
   };
+  getRandom: RandomSelection<Literals>;
   is: (a: unknown) => a is Literals[number];
   assert: (a: unknown) => asserts a is Literals[number];
   decode: (a: string) => Effect.Effect<Literals[number], ParseResult.ParseError, never>;
@@ -407,8 +426,10 @@ export function stringLiteralKit<
         Mock: (qty: number) => FC.sample(Arbitrary.make(Schema), qty),
         is: S.is(Schema),
         toTagged,
+        getRandom: () => randomSelection(keys),
       };
     },
+    getRandom: () => randomSelection(literals),
     toTagged,
   } as const;
 }

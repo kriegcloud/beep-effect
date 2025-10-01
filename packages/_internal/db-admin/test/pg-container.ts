@@ -224,6 +224,7 @@ export class PgContainer extends Effect.Service<PgContainer>()("PgContainer", {
         email: BS.Email.make("test@example.com"),
         name: "beep",
         emailVerified: false,
+        gender: "male",
         image: O.some(faker.image.avatar()),
         createdAt: now,
         updatedAt: now,

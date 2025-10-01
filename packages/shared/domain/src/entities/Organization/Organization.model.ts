@@ -3,7 +3,6 @@ import { Slug, URLString } from "@beep/schema/custom";
 import { makeFields } from "@beep/shared-domain/common";
 import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import * as M from "@effect/sql/Model";
-import * as F from "effect/Function";
 import * as S from "effect/Schema";
 import { OrganizationType, OrganizationTypeEnum, SubscriptionStatus, SubscriptionTier } from "./schemas";
 
@@ -39,21 +38,13 @@ export class Model extends M.Class<Model>(`OrganizationModel`)(
         description: "JSON metadata for additional organization data",
       })
     ),
-    type: OrganizationType.pipe(
-      S.optionalWith({
-        exact: true,
-        default: F.constant(OrganizationTypeEnum.individual),
-      })
-    ),
+    type: BS.toOptionalWithDefault(OrganizationType)(OrganizationTypeEnum.individual).annotations({
+      description: "The type of the organization",
+    }),
     ownerUserId: SharedEntityIds.UserId.annotations({
       description: "The owner of the organization",
     }),
-    isPersonal: S.Boolean.pipe(
-      S.optionalWith({
-        exact: true,
-        default: F.constFalse,
-      })
-    ).annotations({
+    isPersonal: BS.BoolFalse.annotations({
       description: "Whether this organization is auto-created for a user",
     }),
     maxMembers: BS.FieldOptionOmittable(
@@ -63,20 +54,10 @@ export class Model extends M.Class<Model>(`OrganizationModel`)(
     ),
     features: BS.FieldOptionOmittable(BS.Json),
     settings: BS.FieldOptionOmittable(BS.Json),
-    subscriptionTier: SubscriptionTier.pipe(
-      S.optionalWith({
-        exact: true,
-        default: F.constant(SubscriptionTier.Enum.free),
-      })
-    ).annotations({
+    subscriptionTier: BS.toOptionalWithDefault(SubscriptionTier)(SubscriptionTier.Enum.free).annotations({
       description: "The subscription tier of the organization",
     }),
-    subscriptionStatus: SubscriptionStatus.pipe(
-      S.optionalWith({
-        exact: true,
-        default: F.constant(SubscriptionStatus.Enum.active),
-      })
-    ).annotations({
+    subscriptionStatus: BS.toOptionalWithDefault(SubscriptionStatus)(SubscriptionStatus.Enum.active).annotations({
       description: "The subscription status of the organization",
     }),
   }),

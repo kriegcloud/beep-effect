@@ -245,7 +245,10 @@ export const RGBFromHex = destructiveTransform((i: HexColor.Type) => {
   return S.decodeUnknownSync(RGBLiteralValue)(`${r} ${g} ${b}`);
 })(HexColor);
 
-export namespace RGBFromHex {}
+export namespace RGBFromHex {
+  export type Type = typeof RGBFromHex.Type;
+  export type Encoded = typeof RGBFromHex.Encoded;
+}
 
 /**
  * Convert a space-separated "r g b" string into "#RRGGBB".

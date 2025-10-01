@@ -1,5 +1,6 @@
 "use client";
 import { SignUpValue } from "@beep/iam-sdk/clients";
+import * as SharedEntities from "@beep/shared-domain/entities";
 import { Form, formOptionsWithSubmit, useAppForm } from "@beep/ui/form";
 import { PasswordFieldsGroup } from "@beep/ui/form/groups";
 import Box from "@mui/material/Box";
@@ -18,6 +19,7 @@ export const SignUpEmailForm: React.FC<Props> = ({ onSubmit }) => {
       defaultValues: {
         email: "",
         password: "",
+        gender: SharedEntities.User.UserGenderEnum.male,
         passwordConfirm: "",
         firstName: "",
         lastName: "",
@@ -39,6 +41,18 @@ export const SignUpEmailForm: React.FC<Props> = ({ onSubmit }) => {
           >
             <form.AppField name={"firstName"} children={(field) => <field.Text label={"First name"} />} />
             <form.AppField name={"lastName"} children={(field) => <field.Text label={"lastName"} />} />
+            <form.AppField
+              name={"gender"}
+              children={(field) => (
+                <field.RadioGroup
+                  options={[
+                    { label: "Male", value: "male" },
+                    { label: "Female", value: "female" },
+                  ]}
+                  label={"Gender"}
+                />
+              )}
+            />
           </Box>
           <form.AppField name={"email"} children={(field) => <field.Text label={"Email"} type={"email"} />} />
 

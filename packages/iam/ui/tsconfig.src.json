@@ -7,9 +7,6 @@
       "path": "../../ui"
     },
     {
-      "path": "../../theme"
-    },
-    {
       "path": "../sdk"
     },
     {
@@ -60,8 +57,6 @@
     "paths": {
       "@beep/iam-ui/*": ["./src/*"],
       "@beep/ui/*": ["../../ui/src/*"],
-      "@beep/theme": ["../../theme/src/index"],
-      "@beep/theme/*": ["../../theme/src/*"],
       "@beep/types": ["../../common/types/src/index"],
       "@beep/types/*": ["../../common/types/src/*"],
       "@beep/schema": ["../../common/schema/src/index"],

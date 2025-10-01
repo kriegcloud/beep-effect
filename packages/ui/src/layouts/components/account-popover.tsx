@@ -1,3 +1,4 @@
+import { paths } from "@beep/shared-domain";
 import { Label } from "@beep/ui/atoms";
 import { usePathname, usePopover } from "@beep/ui/hooks";
 import { CustomPopover } from "@beep/ui/organisms";
@@ -13,6 +14,8 @@ import Typography from "@mui/material/Typography";
 
 import { AccountButton } from "./account-button";
 import { SignOutButton } from "./sign-out-button";
+
+// ----------------------------------------------------------------------
 
 export type AccountPopoverProps = IconButtonProps & {
   data?: {
@@ -37,7 +40,7 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
       open={open}
       anchorEl={anchorEl}
       onClose={onClose}
-      slotProps={{ paper: { sx: { p: 0, width: 200 } }, arrow: { offset: 20 } }}
+      slotProps={{ paper: { sx: { p: 0, width: 200 } } }}
     >
       <Box sx={{ p: 2, pb: 1.5 }}>
         <Typography variant="subtitle2" noWrap>
@@ -54,7 +57,7 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
       <MenuList sx={{ p: 1, my: 1, "& li": { p: 0 } }}>
         {data.map((option) => {
           const rootLabel = pathname.includes("/dashboard") ? "Home" : "Dashboard";
-          const rootHref = pathname.includes("/dashboard") ? "/" : "/dashboard";
+          const rootHref = pathname.includes("/dashboard") ? "/" : paths.dashboard.root;
 
           return (
             <MenuItem key={option.label}>

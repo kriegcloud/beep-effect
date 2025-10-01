@@ -35,10 +35,3 @@ export type ThemeOptions = Omit<MuiThemeOptions, "components"> &
     cssVariables?: ThemeCssVariables;
     components?: Components<Theme>;
   };
-
-/**
- * DeepPartial utility type that recursively makes all properties of T optional.
- * This is useful for partial configurations and merging deeply nested objects.
- * Supports objects, arrays, and primitive types.
- */
-export type DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T;

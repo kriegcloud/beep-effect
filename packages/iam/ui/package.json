@@ -46,7 +46,6 @@
     "@beep/constants": "workspace:^",
     "@beep/errors": "workspace:^",
     "@beep/runtime-client": "workspace:^",
-    "@beep/theme": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "next": "*",
     "framer-motion": "*",

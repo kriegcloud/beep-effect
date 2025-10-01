@@ -63,9 +63,6 @@
       "path": "../../packages/ui/tsconfig.build.json"
     },
     {
-      "path": "../../packages/theme/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/files/sdk/tsconfig.build.json"
     },
     {

@@ -54,7 +54,9 @@ export class HexColor extends S.transformOrFail(HexColorEncoded, HexColorDecoded
   identifier: "HexColor",
   title: "Css Hex Color",
   description: "Represents a css hex color",
-}) {}
+}) {
+  static readonly make = (i: HexColorEncoded.Type) => HexColorDecoded.make(i);
+}
 
 export namespace HexColor {
   export type Type = typeof HexColor.Type;

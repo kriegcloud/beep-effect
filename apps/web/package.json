@@ -49,7 +49,6 @@
     "@beep/files-ui": "workspace:^",
     "@beep/runtime-server": "workspace:^",
     "@beep/runtime-client": "workspace:^",
-    "@beep/theme": "workspace:^",
     "@effect/platform": "*",
     "@effect/rpc": "*",
     "picocolors": "*",

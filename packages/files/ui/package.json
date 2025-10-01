@@ -34,7 +34,6 @@
   },
   "peerDependencies": {
     "@beep/ui": "workspace:^",
-    "@beep/theme": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/core-env": "workspace:^",
     "@beep/schema": "workspace:^",

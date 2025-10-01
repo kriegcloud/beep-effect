@@ -1,6 +1,6 @@
+import type { AdminOptions } from "better-auth/plugins/admin";
 import { admin } from "better-auth/plugins/admin";
 import * as Effect from "effect/Effect";
-import type { AdminOptions } from "./plugin-options";
 
 export const adminPluginOptions = Effect.gen(function* () {
   return {} satisfies AdminOptions;

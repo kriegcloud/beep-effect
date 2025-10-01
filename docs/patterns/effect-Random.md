@@ -144,7 +144,7 @@ const randomValues = Effect.gen(function* () {
   const float = yield* Random.next
   
   // Random integer in range
-  const int = yield* Random.nextIntBetween(1, 100)
+      const int = yield* Random.nextIntBetween(1, 100)
   
   // Random boolean
   const bool = yield* Random.nextBoolean

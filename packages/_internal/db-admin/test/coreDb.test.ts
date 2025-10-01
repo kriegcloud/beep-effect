@@ -27,6 +27,7 @@ describePg("@beep/core-db", () =>
         const mockedUser = Entities.User.Model.insert.make({
           email: BS.Email.make(`test1-${crypto.randomUUID()}@example.com`),
           name: "beep",
+          gender: "male",
           emailVerified: false,
           createdAt: now,
           updatedAt: now,

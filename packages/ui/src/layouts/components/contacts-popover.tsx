@@ -17,6 +17,8 @@ import Typography from "@mui/material/Typography";
 import { m } from "framer-motion";
 import { fToNow } from "src/utils/format-time";
 
+// ----------------------------------------------------------------------
+
 export type ContactsPopoverProps = IconButtonProps & {
   data?: {
     id: string;
@@ -35,7 +37,7 @@ export function ContactsPopover({ data = [], sx, ...other }: ContactsPopoverProp
   const { open, anchorEl, onClose, onOpen } = usePopover();
 
   const renderMenuList = () => (
-    <CustomPopover open={open} anchorEl={anchorEl} onClose={onClose} slotProps={{ arrow: { offset: 20 } }}>
+    <CustomPopover open={open} anchorEl={anchorEl} onClose={onClose}>
       <Typography variant="h6" sx={{ p: 1.5 }}>
         Contacts <span>({data.length})</span>
       </Typography>

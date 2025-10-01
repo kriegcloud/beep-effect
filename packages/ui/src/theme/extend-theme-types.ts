@@ -1,3 +1,4 @@
+import type { DeepPartial } from "@beep/types";
 import type { AvatarExtendColor, AvatarGroupExtendVariant } from "@beep/ui/theme/core/components/avatar";
 import type { BadgeExtendVariant } from "@beep/ui/theme/core/components/badge";
 import type { ButtonExtendColor, ButtonExtendSize, ButtonExtendVariant } from "@beep/ui/theme/core/components/button";
@@ -21,7 +22,6 @@ import type {
   TypeTextExtend,
 } from "@beep/ui/theme/core/palette";
 import type { TypographyVariantsExtend } from "@beep/ui/theme/core/typography";
-import type { DeepPartial } from "@beep/ui/theme/types";
 import type {} from "@mui/lab/themeAugmentation";
 import type {} from "@mui/material/themeCssVarsAugmentation";
 import type {} from "@mui/x-data-grid/themeAugmentation";

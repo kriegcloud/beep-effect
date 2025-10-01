@@ -21,6 +21,7 @@ const programThatErrors = Effect.gen(function* () {
   const mockedUser = Entities.User.Model.insert.make({
     email: Email.make(`test1-${crypto.randomUUID()}@example.com`),
     name: "beep",
+    gender: "male",
   });
   const encodedMockedUser = yield* Schema.encode(Entities.User.Model.insert)(mockedUser);
   // intentionally insert a duplicate to violate constraint

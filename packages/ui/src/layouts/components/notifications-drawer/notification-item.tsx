@@ -1,4 +1,5 @@
 import { FileThumbnail, Label } from "@beep/ui/atoms";
+import { fToNow } from "@beep/ui/utils/format-time";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -6,7 +7,6 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import SvgIcon from "@mui/material/SvgIcon";
-import { fToNow } from "src/utils/format-time";
 
 import { notificationIcons } from "./icons";
 

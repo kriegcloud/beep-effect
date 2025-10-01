@@ -38,7 +38,6 @@ const schema = {
 } satisfies AuthPluginSchema;
 
 type AdminSchema = typeof schema;
-
 export interface AdminOptions {
   /**
    * The default role for a user

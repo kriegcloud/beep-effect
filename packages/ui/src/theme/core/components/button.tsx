@@ -195,9 +195,7 @@ declare module "@mui/material/Button" {
     shape?: "square" | "circle";
   }
 }
-export type DeepPartial<T> = {
-  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
-};
+
 const sizeVariants = [
   {
     props: {},

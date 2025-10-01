@@ -1,5 +1,5 @@
 {
-  "id": "0ed8e262-54b5-4aef-87d7-9e8e42bce23c",
+  "id": "61b7a0f7-735b-45f6-b121-b85de77416ff",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -551,9 +551,11 @@
         },
         "role": {
           "name": "role",
-          "type": "text",
+          "type": "user_role_enum",
+          "typeSchema": "public",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "'user'"
         },
         "banned": {
           "name": "banned",
@@ -1853,7 +1855,8 @@
         },
         "status": {
           "name": "status",
-          "type": "text",
+          "type": "member_status_enum",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
           "default": "'active'"
@@ -4329,6 +4332,11 @@
       "schema": "public",
       "values": ["free", "plus", "pro", "enterprise"]
     },
+    "public.user_role_enum": {
+      "name": "user_role_enum",
+      "schema": "public",
+      "values": ["admin", "super_admin", "user", "tenant", "guest"]
+    },
     "public.device_code_status_enum": {
       "name": "device_code_status_enum",
       "schema": "public",
@@ -4343,6 +4351,11 @@
       "name": "member_role_enum",
       "schema": "public",
       "values": ["admin", "member", "viewer", "owner"]
+    },
+    "public.member_status_enum": {
+      "name": "member_status_enum",
+      "schema": "public",
+      "values": ["active", "inactive", "offline", "suspended", "deleted", "invited"]
     }
   },
   "schemas": {},

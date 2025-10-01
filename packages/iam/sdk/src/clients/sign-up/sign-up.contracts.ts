@@ -1,5 +1,6 @@
 import { BS } from "@beep/schema";
 import { paths } from "@beep/shared-domain";
+import * as SharedEntities from "@beep/shared-domain/entities";
 import * as ParseResult from "effect/ParseResult";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
@@ -9,6 +10,7 @@ const SignUpFrom = S.Struct({
   email: BS.Email,
   rememberMe: BS.BoolWithDefault(false),
   redirectTo: BS.StringWithDefault(paths.root),
+  gender: SharedEntities.User.Model.insert.fields.gender,
   password: BS.Password,
   passwordConfirm: BS.Password,
   firstName: S.NonEmptyTrimmedString,
@@ -19,6 +21,7 @@ const SignUpTo = S.Struct({
   email: S.encodedSchema(BS.Email),
   rememberMe: BS.BoolWithDefault(false),
   callbackURL: BS.StringWithDefault(paths.root),
+  gender: SharedEntities.User.Model.insert.fields.gender,
   password: S.encodedSchema(BS.Password),
   passwordConfirm: S.encodedSchema(BS.Password),
   firstName: S.NonEmptyTrimmedString,
@@ -35,6 +38,7 @@ export class SignUpValue extends S.transformOrFail(SignUpFrom, SignUpTo, {
         return {
           firstName: value.firstName,
           lastName: value.lastName,
+          gender: value.gender,
           email: Redacted.value(value.email),
           password: Redacted.value(value.password),
           passwordConfirm: Redacted.value(value.passwordConfirm),

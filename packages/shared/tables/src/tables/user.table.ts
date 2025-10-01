@@ -1,15 +1,18 @@
 import { SharedEntityIds } from "@beep/shared-domain";
+import * as SharedEntities from "@beep/shared-domain/entities";
 import { Table } from "@beep/shared-tables/Table";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-
+export const userRolePgEnum = SharedEntities.User.makeUserRolePgEnum("user_role_enum");
+export const userGenderPgEnum = SharedEntities.User.makeUserGenderPgEnum("user_gender_enum");
 export const user = Table.make(SharedEntityIds.UserId)(
   {
     name: pg.text("name").notNull(),
     email: pg.text("email").notNull().unique(),
     emailVerified: pg.boolean("email_verified").default(false).notNull(),
     image: pg.text("image"),
-    role: pg.text("role"),
+    role: userRolePgEnum("role").notNull().default(SharedEntities.User.UserRole.Enum.user),
+    gender: userGenderPgEnum("gender").notNull().default(SharedEntities.User.UserGender.Enum.male),
     banned: pg.boolean("banned").notNull().default(false),
     banReason: pg.text("ban_reason"),
     banExpires: pg.timestamp("ban_expires"),

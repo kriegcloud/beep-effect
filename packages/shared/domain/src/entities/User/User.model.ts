@@ -1,5 +1,6 @@
 import { BS } from "@beep/schema";
 import { makeFields } from "@beep/shared-domain/common";
+import { UserGender, UserRole } from "@beep/shared-domain/entities/User/schemas";
 import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
@@ -31,12 +32,13 @@ export class Model extends M.Class<Model>(`UserModel`)(
     ),
 
     /** User's role in the system */
-    role: BS.FieldOptionOmittable(
-      S.NonEmptyString.annotations({
-        description: "The user's role in the system",
-        examples: ["admin", "member", "guest"],
-      })
-    ),
+    role: BS.toOptionalWithDefault(UserRole)(UserRole.Enum.user).annotations({
+      description: "The user's role in the system",
+    }),
+    /* The user's gender */
+    gender: BS.toOptionalWithDefault(UserGender)(UserGender.Enum.male).annotations({
+      description: "The user's gender",
+    }),
 
     /** Whether the user is banned */
     banned: BS.BoolWithDefault(false).annotations({

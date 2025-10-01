@@ -1,1 +1,2 @@
-export * from "./UserType";
+export * from "./UserGender";
+export * from "./UserRole";

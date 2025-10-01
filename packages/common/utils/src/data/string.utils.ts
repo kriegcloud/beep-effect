@@ -1,8 +1,9 @@
+import type { StringTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
-
+import * as ArrayUtils from "./array.utils";
 /**
  * Generates initials from a given name.
  *
@@ -134,3 +135,101 @@ export const getNestedValue = (obj: Record<string, unknown>, path: string): unkn
 
   return current;
 };
+
+export type LiteralValue = StringTypes.NonEmptyString;
+
+export const applySuffix =
+  <const Suffix extends LiteralValue, const Prefix extends LiteralValue>(suffix: Suffix) =>
+  (prefix: Prefix) =>
+    `${prefix}${suffix}` as const;
+
+export const applyPrefix =
+  <const Prefix extends LiteralValue, const Suffix extends LiteralValue>(prefix: Prefix) =>
+  (suffix: Suffix) =>
+    `${prefix}${suffix}` as const;
+
+export function mapApplyPrefix<const Prefix extends LiteralValue>(
+  prefix: Prefix
+): {
+  <const Literal extends LiteralValue>(
+    literals: A.NonEmptyReadonlyArray<Literal>
+  ): A.NonEmptyReadonlyArray<`${Prefix}${Literal}`>;
+  <const Literals extends readonly [LiteralValue, ...LiteralValue[]]>(
+    ...literals: Literals
+  ): A.NonEmptyReadonlyArray<`${Prefix}${Literals[number]}`>;
+} {
+  const mapArray = <const Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>>(
+    literals: Literals
+  ): A.NonEmptyReadonlyArray<`${Prefix}${Literals[number]}`> => {
+    const applyFn = applyPrefix(prefix);
+    return ArrayUtils.NonEmptyReadonly.mapWith(applyFn)(literals);
+  };
+
+  const mapFn = <const Literal extends StringTypes.NonEmptyString>(
+    first: A.NonEmptyReadonlyArray<Literal> | Literal,
+    ...rest: Literal[]
+  ): A.NonEmptyReadonlyArray<`${Prefix}${Literal}`> => {
+    if (Array.isArray(first)) {
+      if (first.length === 0) {
+        throw new TypeError("Expected a non-empty readonly array of literals");
+      }
+      return mapArray(first as A.NonEmptyReadonlyArray<Literal>);
+    }
+
+    const tuple = [first, ...rest] as readonly [Literal, ...Literal[]];
+    return mapArray(tuple as A.NonEmptyReadonlyArray<Literal>);
+  };
+
+  return mapFn as {
+    <const Literal extends LiteralValue>(
+      literals: A.NonEmptyReadonlyArray<Literal>
+    ): A.NonEmptyReadonlyArray<`${Prefix}${Literal}`>;
+    <const Literals extends readonly [StringTypes.NonEmptyString, ...StringTypes.NonEmptyString[]]>(
+      ...literals: Literals
+    ): A.NonEmptyReadonlyArray<`${Prefix}${Literals[number]}`>;
+  };
+}
+
+export function mapApplySuffix<const Suffix extends StringTypes.NonEmptyString>(
+  suffix: Suffix
+): {
+  <const Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>>(
+    literals: Literals
+  ): A.NonEmptyReadonlyArray<`${Literals[number]}${Suffix}`>;
+  <const Literals extends readonly [StringTypes.NonEmptyString, ...StringTypes.NonEmptyString[]]>(
+    ...literals: Literals
+  ): A.NonEmptyReadonlyArray<`${Literals[number]}${Suffix}`>;
+} {
+  const mapArray = <Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>>(
+    literals: Literals
+  ): A.NonEmptyReadonlyArray<`${Literals[number]}${Suffix}`> => {
+    const applyFn = applySuffix(suffix);
+    return ArrayUtils.NonEmptyReadonly.mapWith(applyFn)(literals);
+  };
+
+  const mapFn = <const Literal extends StringTypes.NonEmptyString>(
+    first: A.NonEmptyReadonlyArray<Literal> | Literal,
+    ...rest: Literal[]
+  ): A.NonEmptyReadonlyArray<`${Literal}${Suffix}`> => {
+    if (Array.isArray(first)) {
+      if (first.length === 0) {
+        throw new TypeError("Expected a non-empty readonly array of literals");
+      }
+      return mapArray(first as A.NonEmptyReadonlyArray<Literal>);
+    }
+
+    const tuple = [first, ...rest] as readonly [Literal, ...Literal[]];
+    return mapArray(tuple as A.NonEmptyReadonlyArray<Literal>);
+  };
+
+  return mapFn as {
+    <const Literal extends StringTypes.NonEmptyString>(
+      literals: A.NonEmptyReadonlyArray<Literal>
+    ): A.NonEmptyReadonlyArray<`${Literal}${Suffix}`>;
+    <const Literals extends readonly [StringTypes.NonEmptyString, ...StringTypes.NonEmptyString[]]>(
+      ...literals: Literals
+    ): A.NonEmptyReadonlyArray<`${Literals[number]}${Suffix}`>;
+  };
+}
+
+export const strLiteralFromNum = <T extends number>(value: T) => `${value}` as const;

@@ -37,6 +37,7 @@ describePg("@beep/iam-infra AccountRepo tests", () => {
       const userInsert = Entities.User.Model.insert.make({
         email: BS.Email.make(`acc-repo-${crypto.randomUUID()}@example.com`),
         name: "beep",
+        gender: "male",
         emailVerified: false,
         createdAt: now,
         updatedAt: now,

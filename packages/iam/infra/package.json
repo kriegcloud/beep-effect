@@ -46,6 +46,7 @@
     "@opentelemetry/exporter-trace-otlp-http": "*",
     "@opentelemetry/sdk-trace-base": "*",
     "@opentelemetry/sdk-trace-node": "*",
+    "@better-auth/core": "*",
     "@opentelemetry/sdk-trace-web": "*",
     "@opentelemetry/sdk-metrics": "*",
     "@opentelemetry/exporter-prometheus": "*",

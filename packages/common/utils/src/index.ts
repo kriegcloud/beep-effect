@@ -1,4 +1,5 @@
-export { RecordUtils, StrUtils, StructUtils } from "./data";
+export * from "./assertions";
+export { ArrayUtils, RecordUtils, StrUtils, StructUtils } from "./data";
 // export * from "./errors";
 export * from "./factories";
 export * from "./getters";

@@ -56,9 +56,6 @@
       "path": "packages/ui"
     },
     {
-      "path": "packages/theme"
-    },
-    {
       "path": "packages/iam/domain"
     },
     {

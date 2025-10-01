@@ -1,4 +1,4 @@
-import { rgbaFromChannel } from "@beep/ui/utils";
+import { noRtlFlip, rgbaFromChannel } from "@beep/ui/utils";
 import { autocompleteClasses } from "@mui/material/Autocomplete";
 import { checkboxClasses } from "@mui/material/Checkbox";
 
@@ -6,6 +6,8 @@ import { dividerClasses } from "@mui/material/Divider";
 import { menuItemClasses } from "@mui/material/MenuItem";
 import type { CSSObject, Theme } from "@mui/material/styles";
 import type { CommonColorsKeys, PaletteColorKey } from "../palette";
+
+// ----------------------------------------------------------------------
 
 /**
  * Generates styles for menu item components.
@@ -44,6 +46,8 @@ export function menuItemStyles(theme: Theme): CSSObject {
     },
   };
 }
+
+// ----------------------------------------------------------------------
 
 /**
  * Generates styles for paper components.
@@ -85,11 +89,12 @@ const redShape =
 
 export function paperStyles(theme: Theme, options?: PaperStyleOptions): CSSObject {
   const { blur = 20, color, dropdown } = options ?? {};
+
   return {
     ...theme.mixins.bgGradient({
       images: [`url(${cyanShape})`, `url(${redShape})`],
       sizes: ["50%", "50%"],
-      positions: theme.direction === "rtl" ? ["top left", "right bottom"] : ["top right", "left bottom"],
+      positions: [noRtlFlip("top right"), noRtlFlip("left bottom")],
     }),
     backdropFilter: `blur(${blur}px)`,
     WebkitBackdropFilter: `blur(${blur}px)`,
@@ -101,6 +106,8 @@ export function paperStyles(theme: Theme, options?: PaperStyleOptions): CSSObjec
     }),
   };
 }
+
+// ----------------------------------------------------------------------
 
 /**
  * Generate style variant for components like Button, Chip, Label, etc.
