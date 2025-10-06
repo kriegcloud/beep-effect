@@ -1,0 +1,274 @@
+{
+  "name": "@beep/ui",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "description": "The shared ui library for beep-effect which combines @mui/material, shadcn & tailwindcss",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/ui"
+  },
+  "scripts": {
+    "copy-css": "copyfiles -f src/styles/globals.css build/src && copyfiles -f src/styles/globals.css build/esm && copyfiles -f src/styles/globals.css build/cjs",
+    "codegen": "build-utils prepare-v2",
+    "dotenvx": "dotenvx run -f ../../.env --",
+    "dev": "pnpm dotenvx tsc -b tsconfig.build.json --watch",
+    "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate && pnpm copy-css",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps ",
+    "build-annotate": "babel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "test": "vitest run",
+    "coverage": "vitest run --coverage",
+    "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
+    "lint:circular": "pnpm madge -c .",
+    "execute": "pnpm tsx --tsconfig ./tsconfig.src.json ./src/execute.ts"
+  },
+  "exports": {
+    "./globals.css": "./src/styles/globals.css",
+    "./postcss.config": "./postcss.config.mjs",
+    "./animate/*": {
+      "import": "./build/esm/animate/*",
+      "types": "./build/dts/animate/*",
+      "require": "./build/cjs/animate/*",
+      "default": "./build/src/animate/*"
+    },
+    "./providers/*": {
+      "import": "./build/esm/providers/*",
+      "types": "./build/dts/providers/*",
+      "require": "./build/cjs/providers/*",
+      "default": "./build/src/providers/*"
+    },
+    "./assets/*": {
+      "import": "./build/esm/assets/*",
+      "types": "./build/dts/assets/*",
+      "require": "./build/cjs/assets/*",
+      "default": "./build/src/assets/*"
+    },
+    "./atoms/*": {
+      "import": "./build/esm/atoms/*",
+      "types": "./build/dts/atoms/*",
+      "require": "./build/cjs/atoms/*",
+      "default": "./build/src/atoms/*"
+    },
+    "./branding/*": {
+      "import": "./build/esm/branding/*",
+      "types": "./build/dts/branding/*",
+      "require": "./build/cjs/branding/*",
+      "default": "./build/src/branding/*"
+    },
+    "./components/*": {
+      "import": "./build/esm/components/*",
+      "types": "./build/dts/components/*",
+      "require": "./build/cjs/components/*",
+      "default": "./build/src/components/*"
+    },
+    "./common/*": {
+      "import": "./build/esm/common/*",
+      "types": "./build/dts/common/*",
+      "require": "./build/cjs/common/*",
+      "default": "./build/src/common/*"
+    },
+    "./form/*": {
+      "import": "./build/esm/form/*",
+      "types": "./build/dts/form/*",
+      "require": "./build/cjs/form/*",
+      "default": "./build/src/form/*"
+    },
+    "./hooks/*": {
+      "import": "./build/esm/hooks/*",
+      "types": "./build/dts/hooks/*",
+      "require": "./build/cjs/hooks/*",
+      "default": "./build/src/hooks/*"
+    },
+    "./icons/*": {
+      "import": "./build/esm/icons/*",
+      "types": "./build/dts/icons/*",
+      "require": "./build/cjs/icons/*",
+      "default": "./build/src/icons/*"
+    },
+    "./inputs/*": {
+      "import": "./build/esm/inputs/*",
+      "types": "./build/dts/inputs/*",
+      "require": "./build/cjs/inputs/*",
+      "default": "./build/src/inputs/*"
+    },
+    "./layouts/*": {
+      "import": "./build/esm/layouts/*",
+      "types": "./build/dts/layouts/*",
+      "require": "./build/cjs/layouts/*",
+      "default": "./build/src/layouts/*"
+    },
+    "./lib/*": {
+      "import": "./build/esm/lib/*",
+      "types": "./build/dts/lib/*",
+      "require": "./build/cjs/lib/*",
+      "default": "./build/src/lib/*"
+    },
+    "./messages/*": {
+      "import": "./build/esm/messages/*",
+      "types": "./build/dts/messages/*",
+      "require": "./build/cjs/messages/*",
+      "default": "./build/src/messages/*"
+    },
+    "./i18n/*": {
+      "import": "./build/esm/i18n/*",
+      "types": "./build/dts/i18n/*",
+      "require": "./build/cjs/i18n/*",
+      "default": "./build/src/i18n/*"
+    },
+    "./molecules/*": {
+      "import": "./build/esm/molecules/*",
+      "types": "./build/dts/molecules/*",
+      "require": "./build/cjs/molecules/*",
+      "default": "./build/src/molecules/*"
+    },
+    "./organisms/*": {
+      "import": "./build/esm/organisms/*",
+      "types": "./build/dts/organisms/*",
+      "require": "./build/cjs/organisms/*",
+      "default": "./build/src/organisms/*"
+    },
+    "./progress/*": {
+      "import": "./build/esm/progress/*",
+      "types": "./build/dts/progress/*",
+      "require": "./build/cjs/progress/*",
+      "default": "./build/src/progress/*"
+    },
+    "./routing/*": {
+      "import": "./build/esm/routing/*",
+      "types": "./build/dts/routing/*",
+      "require": "./build/cjs/routing/*",
+      "default": "./build/src/routing/*"
+    },
+    "./sections/*": {
+      "import": "./build/esm/sections/*",
+      "types": "./build/dts/sections/*",
+      "require": "./build/cjs/sections/*",
+      "default": "./build/src/sections/*"
+    },
+    "./settings/*": {
+      "import": "./build/esm/settings/*",
+      "types": "./build/dts/settings/*",
+      "require": "./build/cjs/settings/*",
+      "default": "./build/src/settings/*"
+    },
+    "./theme/*": {
+      "import": "./build/esm/theme/*",
+      "types": "./build/dts/theme/*",
+      "require": "./build/cjs/theme/*",
+      "default": "./build/src/theme/*"
+    },
+    "./utils/*": {
+      "import": "./build/esm/utils/*",
+      "types": "./build/dts/utils/*",
+      "require": "./build/cjs/utils/*",
+      "default": "./build/src/utils/*"
+    }
+  },
+  "peerDependencies": {
+    "@beep/invariant": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/constants": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@emotion/cache": "*",
+    "@emotion/react": "*",
+    "autosuggest-highlight": "*",
+    "@emoji-mart/react": "*",
+    "@emoji-mart/data": "*",
+    "es-toolkit": "*",
+    "effect": "*",
+    "@emotion/server": "*",
+    "@emotion/styled": "*",
+    "@iconify/react": "*",
+    "@mui/icons-material": "*",
+    "@mui/lab": "*",
+    "@mui/material": "*",
+    "@mui/system": "*",
+    "react": "*",
+    "@fontsource-variable/dm-sans": "*",
+    "@fontsource-variable/inter": "*",
+    "@fontsource-variable/nunito-sans": "*",
+    "@fontsource-variable/public-sans": "*",
+    "@fontsource/barlow": "*",
+    "@mui/stylis-plugin-rtl": "*",
+    "@mui/x-data-grid": "*",
+    "@mui/x-date-pickers": "*",
+    "@mui/x-tree-view": "*",
+    "@tanstack/react-form": "*",
+    "@tiptap/core": "*",
+    "@tiptap/extension-code-block": "*",
+    "@tiptap/extension-code-block-lowlight": "*",
+    "@tiptap/extension-heading": "*",
+    "@tiptap/extension-image": "*",
+    "@tiptap/extension-link": "*",
+    "@tiptap/extension-placeholder": "*",
+    "@tiptap/extension-text-align": "*",
+    "@tiptap/extension-underline": "*",
+    "@tiptap/pm": "*",
+    "@tiptap/react": "*",
+    "@tiptap/starter-kit": "*",
+    "accept-language": "*",
+    "dayjs": "*",
+    "framer-motion": "*",
+    "i18next": "*",
+    "i18next-browser-languagedetector": "*",
+    "i18next-resources-to-backend": "*",
+    "input-otp": "*",
+    "lodash": "*",
+    "lodash-es": "*",
+    "uuid": "*",
+    "lowlight": "*",
+    "mui-one-time-password-input": "*",
+    "next": "*",
+    "nprogress": "*",
+    "react-dom": "*",
+    "react-dropzone": "*",
+    "react-i18next": "*",
+    "react-phone-number-input": "*",
+    "recharts": "*",
+    "sonner": "*",
+    "stylis": "*",
+    "stylis-plugin-rtl": "*",
+    "zod": "*",
+    "ajv": "*",
+    "tailwind-merge": "*",
+    "clsx": "*",
+    "tailwindcss-animate": "*",
+    "tw-animate-css": "*",
+    "embla-carousel": "*",
+    "embla-carousel-auto-height": "*",
+    "embla-carousel-auto-scroll": "*",
+    "embla-carousel-autoplay": "*",
+    "embla-carousel-fade": "*",
+    "embla-carousel-react": "*",
+    "react-apexcharts": "*"
+  },
+  "peerDependenciesMeta": {
+    "@mui/icons-material": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@beep/types": "workspace:^",
+    "@tailwindcss/postcss": "*",
+    "tailwindcss": "*",
+    "@turbo/gen": "*",
+    "@types/lodash": "*",
+    "@types/lodash-es": "*",
+    "@types/node": "*",
+    "@types/nprogress": "*",
+    "@types/react": "*",
+    "@types/react-dom": "*",
+    "babel-plugin-transform-next-use-client": "*",
+    "copyfiles": "*",
+    "@babel/preset-react": "*",
+    "@types/copyfiles": "*",
+    "@types/autosuggest-highlight": "*"
+  }
+}

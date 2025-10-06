@@ -1,0 +1,30 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["test"],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../packages/common/types"
+    },
+    {
+      "path": "../../packages/common/constants"
+    },
+    {
+      "path": "../../packages/common/utils"
+    },
+    {
+      "path": "../../packages/common/invariant"
+    },
+    {
+      "path": "../../packages/common/schema"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node"],
+    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+    "rootDir": "test",
+    "noEmit": true
+  }
+}

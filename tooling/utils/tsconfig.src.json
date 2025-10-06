@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["src"],
+  "exclude": ["vitest.config.ts"],
+  "references": [
+    {
+      "path": "../../packages/common/types"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node"],
+    "outDir": "build/src",
+    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+    "rootDir": "src",
+    "baseUrl": ".",
+    "paths": {
+      "@beep/tooling-utils/*": ["./src/*"],
+      "@beep/types": ["../../packages/common/types/src/index"],
+      "@beep/types/*": ["../../packages/common/types/src/*"]
+    }
+  }
+}

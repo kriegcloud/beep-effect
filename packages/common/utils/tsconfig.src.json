@@ -1,0 +1,30 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../types"
+    },
+    {
+      "path": "../invariant"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node"],
+    "outDir": "build/src",
+    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+    "rootDir": "src",
+    "baseUrl": ".",
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@beep/utils/*": ["./src/*"],
+      "@beep/types": ["../types/src/index"],
+      "@beep/types/*": ["../types/src/*"],
+      "@beep/invariant": ["../invariant/src/index"],
+      "@beep/invariant/*": ["../invariant/src/*"]
+    }
+  }
+}

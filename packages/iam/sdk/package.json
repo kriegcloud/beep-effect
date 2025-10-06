@@ -1,0 +1,74 @@
+{
+  "name": "@beep/iam-sdk",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "The presentation layer for the IAM system",
+  "publishConfig": {
+    "access": "restricted",
+    "directory": "build"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/iam/sdk"
+  },
+  "scripts": {
+    "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",
+    "dev": "tsc -b tsconfig.build.json --watch",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "pnpm dotenvx vitest run",
+    "dotenvx": "dotenvx run -f ../../../.env --",
+    "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
+    "coverage": "vitest run --coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "lint:circular": "pnpm madge -c ."
+  },
+  "dependencies": {
+    "mutative": "*",
+    "@effect-atom/atom-react": "*",
+    "@better-auth/stripe": "*",
+    "better-auth": "*",
+    "sonner": "*",
+    "dub": "*",
+    "stripe": "*",
+    "effect": "*",
+    "@dub/better-auth": "*",
+    "better-call": "*",
+    "jose": "*",
+    "@beep/utils": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "next": "workspace:*",
+    "@beep/schema": "workspace:^",
+    "@beep/errors": "workspace:^",
+    "@beep/constants": "workspace:^",
+    "@beep/ui": "workspace:^",
+    "@beep/core-env": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/iam-domain": "workspace:^"
+  },
+  "devDependencies": {
+    "@beep/types": "workspace:^"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}

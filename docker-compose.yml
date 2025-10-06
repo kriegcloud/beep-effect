@@ -1,0 +1,36 @@
+services:
+  redis:
+    image: redis:latest
+    container_name: beep-redis
+    ports:
+      - "${REDIS_PORT:-6379}:${REDIS_PORT:-6379}"
+    volumes:
+      - redis_data:/data
+  postgres:
+    container_name: beep-db
+    image: postgres:16-alpine
+
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+    ports:
+      - "${DB_PG_PORT:-5432}:${DB_PG_PORT:-5432}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/otel-lgtm:0.11.10
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "4000:3000"
+      - "4318:4318"
+    volumes:
+      - ./docker/grafana/otelcol-config.yaml:/otel-lgtm/otelcol-config.yaml:ro
+
+volumes:
+  redis_data:
+  postgres_data:
+    driver: local

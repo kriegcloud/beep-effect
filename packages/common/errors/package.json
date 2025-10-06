@@ -1,0 +1,70 @@
+{
+  "name": "@beep/errors",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "A library for system wide errors & error utilities",
+  "publishConfig": {
+    "access": "restricted",
+    "directory": "build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/common/errors"
+  },
+  "exports": {
+    ".": {
+      "browser": "./src/client.ts",
+      "node": "./src/server.ts",
+      "default": "./src/server.ts"
+    },
+    "./server": "./src/server.ts",
+    "./client": "./src/client.ts",
+    "./shared": "./src/shared.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",
+    "dev": "tsc -b tsconfig.build.json --watch",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "pnpm dotenvx vitest run",
+    "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
+    "coverage": "vitest run --coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "lint:circular": "pnpm madge -c .",
+    "dotenvx": "dotenvx run -f ../../../.env --"
+  },
+  "peerDependencies": {
+    "effect": "*",
+    "@effect/platform": "*",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/constants": "workspace:^",
+    "@effect/cluster": "*",
+    "@effect/workflow": "*",
+    "@beep/invariant": "workspace:^",
+    "uuid": "*",
+    "picocolors": "*"
+  },
+  "devDependencies": {
+    "@beep/types": "workspace:^"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": ["test"],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../ui"
+    },
+    {
+      "path": "../../shared/domain"
+    },
+    {
+      "path": "../sdk"
+    },
+    {
+      "path": "../domain"
+    },
+    {
+      "path": "../../common/schema"
+    },
+    {
+      "path": "../../common/types"
+    },
+    {
+      "path": "../../core/env"
+    },
+    {
+      "path": "../../common/constants"
+    },
+    {
+      "path": "../../common/errors"
+    },
+    {
+      "path": "../../common/invariant"
+    },
+    {
+      "path": "../../common/utils"
+    },
+    {
+      "path": "../../runtime/client"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node"],
+    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+    "rootDir": "test",
+    "noEmit": true
+  }
+}

@@ -1,0 +1,8 @@
+@import '../SimpleBar/simplebar.css';
+
+.simplebar-scrollbar:before {
+  background-color: var(--palette-text-disabled);
+}
+.simplebar-scrollbar.simplebar-visible:before {
+  opacity: 0.48;
+}

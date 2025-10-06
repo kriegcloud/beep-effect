@@ -1,0 +1,119 @@
+{
+  "extends": "./tsconfig.base.json",
+  "include": [
+    "./syncpack.config.ts"
+  ],
+  "exclude": [],
+  "compilerOptions": {
+    "types": [
+      "node"
+    ]
+  },
+  "references": [
+    {
+      "path": "packages/common/types"
+    },
+    {
+      "path": "packages/common/invariant"
+    },
+    {
+      "path": "packages/common/utils"
+    },
+    {
+      "path": "packages/common/schema"
+    },
+    {
+      "path": "packages/common/constants"
+    },
+    {
+      "path": "packages/common/errors"
+    },
+    {
+      "path": "packages/common/rules"
+    },
+    {
+      "path": "packages/common/logos"
+    },
+    {
+      "path": "packages/common/rete"
+    },
+    {
+      "path": "packages/shared/domain"
+    },
+    {
+      "path": "packages/shared/tables"
+    },
+    {
+      "path": "packages/core/env"
+    },
+    {
+      "path": "packages/core/email"
+    },
+    {
+      "path": "packages/core/db"
+    },
+    {
+      "path": "packages/ui"
+    },
+    {
+      "path": "packages/iam/domain"
+    },
+    {
+      "path": "packages/iam/tables"
+    },
+    {
+      "path": "packages/iam/infra"
+    },
+    {
+      "path": "packages/iam/sdk"
+    },
+    {
+      "path": "packages/iam/ui"
+    },
+    {
+      "path": "packages/files/domain"
+    },
+    {
+      "path": "packages/files/tables"
+    },
+    {
+      "path": "packages/files/infra"
+    },
+    {
+      "path": "packages/files/sdk"
+    },
+    {
+      "path": "packages/files/ui"
+    },
+    {
+      "path": "packages/runtime/server"
+    },
+    {
+      "path": "packages/runtime/client"
+    },
+    {
+      "path": "apps/server"
+    },
+    {
+      "path": "apps/mcp"
+    },
+    {
+      "path": "apps/web/tsconfig.json"
+    },
+    {
+      "path": "packages/_internal/db-admin"
+    },
+    {
+      "path": "tooling/utils"
+    },
+    {
+      "path": "tooling/repo-config"
+    },
+    {
+      "path": "tooling/repo-scripts"
+    },
+    {
+      "path": "tooling/testkit"
+    }
+  ]
+}

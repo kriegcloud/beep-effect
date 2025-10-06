@@ -1,0 +1,91 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["test", "test/**/*.json", "test/*.*.json"],
+  "references": [
+    {
+      "path": "../../packages/common/types/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/invariant/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/utils/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/schema/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/constants/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/errors/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/rules/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/logos/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/rete/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/shared/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/shared/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/core/env/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/core/email/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/core/db/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/iam/sdk/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/iam/infra/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/iam/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/iam/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/iam/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/files/sdk/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/files/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/files/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/files/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/runtime/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/runtime/client/tsconfig.build.json"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node"],
+    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+    "rootDir": "test",
+    "resolveJsonModule": true,
+    "noEmit": true
+  }
+}

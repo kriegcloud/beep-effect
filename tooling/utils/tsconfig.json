@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [],
+  "exclude": [],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@beep/tooling-utils": ["./src/index"],
+      "@beep/tooling-utils/*": ["./src/*"],
+      "@beep/types": ["../../packages/common/types/src/index"],
+      "@beep/types/*": ["../../packages/common/types/src/*"]
+    }
+  },
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "tsconfig.test.json"
+    }
+  ]
+}

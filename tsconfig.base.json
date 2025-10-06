@@ -1,0 +1,343 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "exactOptionalPropertyTypes": false,
+    "moduleDetection": "force",
+    "composite": true,
+    "downlevelIteration": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "declaration": true,
+    "skipLibCheck": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "bundler",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": [
+      "vite/client"
+    ],
+    "isolatedModules": true,
+    "sourceMap": true,
+    "declarationMap": true,
+    "noImplicitReturns": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "noEmitOnError": false,
+    "noErrorTruncation": false,
+    "allowJs": false,
+    "checkJs": false,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noUncheckedIndexedAccess": true,
+    "strictNullChecks": true,
+    "baseUrl": ".",
+    "target": "ES2022",
+    "module": "esnext",
+    "incremental": true,
+    "removeComments": false,
+    "plugins": [
+      {
+        "name": "@effect/language-service"
+      }
+    ],
+    "paths": {
+      "@beep/types": [
+        "./packages/common/types/src/index"
+      ],
+      "@beep/types/*": [
+        "./packages/common/types/src/*"
+      ],
+      "@beep/types/test/*": [
+        "./packages/common/types/test/*"
+      ],
+      "@beep/invariant": [
+        "./packages/common/invariant/src/index"
+      ],
+      "@beep/invariant/*": [
+        "./packages/common/invariant/src/*"
+      ],
+      "@beep/invariant/test/*": [
+        "./packages/common/invariant/test/*"
+      ],
+      "@beep/utils": [
+        "./packages/common/utils/src/index"
+      ],
+      "@beep/utils/*": [
+        "./packages/common/utils/src/*"
+      ],
+      "@beep/utils/test/*": [
+        "./packages/common/utils/test/*"
+      ],
+      "@beep/schema": [
+        "./packages/common/schema/src/index"
+      ],
+      "@beep/schema/*": [
+        "./packages/common/schema/src/*"
+      ],
+      "@beep/schema/test/*": [
+        "./packages/common/schema/test/*"
+      ],
+      "@beep/constants": [
+        "./packages/common/constants/src/index"
+      ],
+      "@beep/constants/*": [
+        "./packages/common/constants/src/*"
+      ],
+      "@beep/constants/test/*": [
+        "./packages/common/constants/test/*"
+      ],
+      "@beep/errors/client": [
+        "./packages/common/errors/src/client"
+      ],
+      "@beep/errors/shared": [
+        "./packages/common/errors/src/shared"
+      ],
+      "@beep/errors/server": [
+        "./packages/common/errors/src/server"
+      ],
+      "@beep/errors/test/*": [
+        "./packages/common/errors/test/*"
+      ],
+      "@beep/rules": [
+        "./packages/common/rules/src/index"
+      ],
+      "@beep/rules/*": [
+        "./packages/common/rules/src/*"
+      ],
+      "@beep/rules/test/*": [
+        "./packages/common/rules/test/*"
+      ],
+      "@beep/logos": [
+        "./packages/common/logos/src/index"
+      ],
+      "@beep/logos/*": [
+        "./packages/common/logos/src/*"
+      ],
+      "@beep/logos/test/*": [
+        "./packages/common/logos/test/*"
+      ],
+      "@beep/rete": [
+        "./packages/common/rete/src/index"
+      ],
+      "@beep/rete/*": [
+        "./packages/common/rete/src/*"
+      ],
+      "@beep/rete/test/*": [
+        "./packages/common/rete/test/*"
+      ],
+      "@beep/shared-domain": [
+        "./packages/shared/domain/src/index"
+      ],
+      "@beep/shared-domain/*": [
+        "./packages/shared/domain/src/*"
+      ],
+      "@beep/shared-domain/test/*": [
+        "./packages/shared/domain/test/*"
+      ],
+      "@beep/shared-tables": [
+        "./packages/shared/tables/src/index"
+      ],
+      "@beep/shared-tables/*": [
+        "./packages/shared/tables/src/*"
+      ],
+      "@beep/shared-tables/test/*": [
+        "./packages/shared/tables/test/*"
+      ],
+      "@beep/core-env/client": [
+        "./packages/core/env/src/client"
+      ],
+      "@beep/core-env/server": [
+        "./packages/core/env/src/server"
+      ],
+      "@beep/core-env/test/*": [
+        "./packages/core/env/test/*"
+      ],
+      "@beep/core-email": [
+        "./packages/core/email/src/index"
+      ],
+      "@beep/core-email/*": [
+        "./packages/core/email/src/*"
+      ],
+      "@beep/core-email/test/*": [
+        "./packages/core/email/test/*"
+      ],
+      "@beep/core-db": [
+        "./packages/core/db/src/index"
+      ],
+      "@beep/core-db/*": [
+        "./packages/core/db/src/*"
+      ],
+      "@beep/core-db/test/*": [
+        "./packages/core/db/test/*"
+      ],
+      "@beep/ui/*": [
+        "./packages/ui/src/*"
+      ],
+      "@beep/ui/test/*": [
+        "./packages/ui/test/*"
+      ],
+      "@beep/iam-domain": [
+        "./packages/iam/domain/src/index"
+      ],
+      "@beep/iam-domain/*": [
+        "./packages/iam/domain/src/*"
+      ],
+      "@beep/iam-domain/test/*": [
+        "./packages/iam/domain/test/*"
+      ],
+      "@beep/iam-tables": [
+        "./packages/iam/tables/src/index"
+      ],
+      "@beep/iam-tables/*": [
+        "./packages/iam/tables/src/*"
+      ],
+      "@beep/iam-tables/test/*": [
+        "./packages/iam/tables/test/*"
+      ],
+      "@beep/iam-infra": [
+        "./packages/iam/infra/src/index"
+      ],
+      "@beep/iam-infra/*": [
+        "./packages/iam/infra/src/*"
+      ],
+      "@beep/iam-infra/test/*": [
+        "./packages/iam/infra/test/*"
+      ],
+      "@beep/iam-sdk": [
+        "./packages/iam/sdk/src/index"
+      ],
+      "@beep/iam-sdk/*": [
+        "./packages/iam/sdk/src/*"
+      ],
+      "@beep/iam-sdk/test/*": [
+        "./packages/iam/sdk/test/*"
+      ],
+      "@beep/iam-ui": [
+        "./packages/iam/ui/src/index"
+      ],
+      "@beep/iam-ui/*": [
+        "./packages/iam/ui/src/*"
+      ],
+      "@beep/iam-ui/test/*": [
+        "./packages/iam/ui/test/*"
+      ],
+      "@beep/files-domain": [
+        "./packages/files/domain/src/index"
+      ],
+      "@beep/files-domain/*": [
+        "./packages/files/domain/src/*"
+      ],
+      "@beep/files-domain/test/*": [
+        "./packages/files/domain/test/*"
+      ],
+      "@beep/files-tables": [
+        "./packages/files/tables/src/index"
+      ],
+      "@beep/files-tables/*": [
+        "./packages/files/tables/src/*"
+      ],
+      "@beep/files-tables/test/*": [
+        "./packages/files/tables/test/*"
+      ],
+      "@beep/files-infra": [
+        "./packages/files/infra/src/index"
+      ],
+      "@beep/files-infra/*": [
+        "./packages/files/infra/src/*"
+      ],
+      "@beep/files-infra/test/*": [
+        "./packages/files/infra/test/*"
+      ],
+      "@beep/files-sdk": [
+        "./packages/files/sdk/src/index"
+      ],
+      "@beep/files-sdk/*": [
+        "./packages/files/sdk/src/*"
+      ],
+      "@beep/files-sdk/test/*": [
+        "./packages/files/sdk/test/*"
+      ],
+      "@beep/files-ui": [
+        "./packages/files/ui/src/index"
+      ],
+      "@beep/files-ui/*": [
+        "./packages/files/ui/src/*"
+      ],
+      "@beep/files-ui/test/*": [
+        "./packages/files/ui/test/*"
+      ],
+      "beep/runtime-server": [
+        "./packages/runtime/server/src/index"
+      ],
+      "beep/runtime-server/*": [
+        "./packages/runtime/server/src/index"
+      ],
+       "beep/runtime-server/test/*": [
+        "./packages/runtime/server/test/*"
+      ],
+      "beep/runtime-client": [
+        "./packages/runtime/client/src/index"
+      ],
+      "beep/runtime-client/*": [
+        "./packages/runtime/client/src/index"
+      ],
+       "beep/runtime-client/test/*": [
+        "./packages/runtime/client/test/*"
+      ],
+      "@/*": [
+        "./apps/web/src/*"
+      ],
+      "@beep/db-admin": [
+        "./packages/_internal/db-admin/src/index"
+      ],
+      "@beep/db-admin/*": [
+        "./packages/_internal/db-admin/src/*"
+      ],
+      "@beep/db-admin/test/*": [
+        "./packages/_internal/db-admin/test/*"
+      ],
+      "@beep/tooling-utils": [
+        "./tooling/utils/src/index"
+      ],
+      "@beep/tooling-utils/*": [
+        "./tooling/utils/src/*"
+      ],
+      "@beep/tooling-utils/test/*": [
+        "./tooling/utils/test/*"
+      ],
+      "@beep/repo-config": [
+        "./tooling/repo-config/src/index"
+      ],
+      "@beep/repo-config/*": [
+        "./tooling/repo-config/src/*"
+      ],
+      "@beep/repo-config/test/*": [
+        "./tooling/repo-config/test/*"
+      ],
+      "@beep/repo-scripts": [
+        "./tooling/repo-scripts/src/index"
+      ],
+      "@beep/repo-scripts/*": [
+        "./tooling/repo-scripts/src/*"
+      ],
+      "@beep/repo-scripts/test/*": [
+        "./tooling/repo-scripts/test/*"
+      ],
+      "@beep/testkit": [
+        "./tooling/testkit/src/index"
+      ],
+      "@beep/testkit/*": [
+        "./tooling/testkit/src/*"
+      ],
+      "@beep/testkit/test/*": [
+        "./tooling/testkit/test/*"
+      ]
+    }
+  }
+}
