@@ -8,12 +8,14 @@ import Stack from "@mui/material/Stack";
 import type * as Effect from "effect/Effect";
 import type { ParseError } from "effect/ParseResult";
 import type React from "react";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 type Props = {
   onSubmit: (values: Effect.Effect<SignUpValue.Type, ParseError, never>) => Promise<void>;
 };
 
 export const SignUpEmailForm: React.FC<Props> = ({ onSubmit }) => {
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const form = useAppForm(
     formOptionsWithSubmit({
       schema: SignUpValue,
@@ -23,6 +25,7 @@ export const SignUpEmailForm: React.FC<Props> = ({ onSubmit }) => {
         gender: SharedEntities.User.UserGenderEnum.male,
         passwordConfirm: "",
         firstName: "",
+        captchaResponse: "",
         lastName: "",
         rememberMe: false,
       },
@@ -30,7 +33,22 @@ export const SignUpEmailForm: React.FC<Props> = ({ onSubmit }) => {
     })
   );
   return (
-    <Form onSubmit={form.handleSubmit}>
+    <Form
+      onSubmit={async (e) => {
+        e.preventDefault();
+
+        if (!executeRecaptcha) {
+          console.error("executeRecaptcha is not available");
+          return;
+        }
+
+        const token = await executeRecaptcha("contact_form");
+        console.log("Recaptcha token:", token);
+
+        form.setFieldValue("captchaResponse", token);
+        return form.handleSubmit();
+      }}
+    >
       <form.AppForm>
         <Box sx={{ gap: 3, display: "flex", flexDirection: "column" }}>
           <Box

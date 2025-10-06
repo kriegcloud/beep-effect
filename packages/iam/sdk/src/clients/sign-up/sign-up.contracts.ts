@@ -9,24 +9,26 @@ import * as Struct from "effect/Struct";
 const SignUpFrom = S.Struct({
   email: BS.Email,
   rememberMe: BS.BoolWithDefault(false),
-  redirectTo: BS.StringWithDefault(paths.root),
+  redirectTo: BS.StringWithDefault(paths.dashboard.root),
   gender: SharedEntities.User.Model.insert.fields.gender,
   password: BS.Password,
   passwordConfirm: BS.Password,
   firstName: S.NonEmptyTrimmedString,
   lastName: S.NonEmptyTrimmedString,
+  captchaResponse: S.Redacted(S.String),
 });
 
 const SignUpTo = S.Struct({
   email: S.encodedSchema(BS.Email),
   rememberMe: BS.BoolWithDefault(false),
-  callbackURL: BS.StringWithDefault(paths.root),
+  callbackURL: BS.StringWithDefault(paths.dashboard.root),
   gender: SharedEntities.User.Model.insert.fields.gender,
   password: S.encodedSchema(BS.Password),
   passwordConfirm: S.encodedSchema(BS.Password),
   firstName: S.NonEmptyTrimmedString,
   lastName: S.NonEmptyTrimmedString,
   name: S.NonEmptyTrimmedString,
+  captchaResponse: S.Redacted(S.String),
 });
 
 export class SignUpValue extends S.transformOrFail(SignUpFrom, SignUpTo, {
@@ -44,6 +46,7 @@ export class SignUpValue extends S.transformOrFail(SignUpFrom, SignUpTo, {
           passwordConfirm: Redacted.value(value.passwordConfirm),
           redirectTo: value.redirectTo,
           rememberMe,
+          captchaResponse: Redacted.value(value.captchaResponse),
           name,
         };
       },

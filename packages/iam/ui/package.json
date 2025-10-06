@@ -46,6 +46,7 @@
     "@beep/constants": "workspace:^",
     "@beep/errors": "workspace:^",
     "@beep/runtime-client": "workspace:^",
+    "react-google-recaptcha-v3": "*",
     "@beep/shared-domain": "workspace:^",
     "next": "*",
     "framer-motion": "*",

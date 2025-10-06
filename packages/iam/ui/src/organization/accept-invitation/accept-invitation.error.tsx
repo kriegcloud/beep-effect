@@ -27,7 +27,7 @@ export function InvitationError() {
         </Typography>
       </CardContent>
       <CardActions sx={{ px: 3, pb: 3, pt: 0 }}>
-        <Button component={RouterLink} href={paths.root} variant="outlined" fullWidth>
+        <Button component={RouterLink} href={paths.dashboard.root} variant="outlined" fullWidth>
           Go back to home
         </Button>
       </CardActions>

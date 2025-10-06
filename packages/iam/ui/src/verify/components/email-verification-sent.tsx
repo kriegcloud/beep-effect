@@ -26,7 +26,7 @@ export const EmailVerificationSent = () => {
         color={"primary"}
         component={RouterLink}
         onClick={() => setIsLoading(true)}
-        href={paths.root}
+        href={paths.dashboard.root}
         fullWidth
       >
         continue.

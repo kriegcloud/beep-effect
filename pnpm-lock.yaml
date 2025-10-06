@@ -17,6 +17,7 @@ overrides:
   '@opentelemetry/sdk-trace-web': ^2.1.0
   '@opentelemetry/sdk-metrics': ^2.1.0
   '@opentelemetry/sdk-logs': ^0.205.0
+  react-google-recaptcha-v3: ^1.11.0
   '@opentelemetry/exporter-prometheus': ^0.205.0
   '@opentelemetry/exporter-trace-otlp-proto': ^0.205.0
   '@opentelemetry/exporter-logs-otlp-http': ^0.205.0
@@ -784,6 +785,9 @@ importers:
       react-dropzone:
         specifier: 14.3.8
         version: 14.3.8(react@19.2.0)
+      react-google-recaptcha-v3:
+        specifier: ^1.11.0
+        version: 1.11.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react-i18next:
         specifier: 16.0.0
         version: 16.0.0(i18next@25.5.3(typescript@5.9.3))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
@@ -1291,6 +1295,9 @@ importers:
       mutative:
         specifier: 1.3.0
         version: 1.3.0
+      next:
+        specifier: ^15.5.4
+        version: 15.5.4(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@beep/types':
         specifier: workspace:^
@@ -1690,7 +1697,10 @@ importers:
     publishDirectory: build
 
   packages/iam/infra:
-    dependencies:
+    devDependencies:
+      '@babel/core':
+        specifier: 7.28.4
+        version: 7.28.4
       '@beep/constants':
         specifier: workspace:^
         version: link:../../common/constants/build
@@ -1724,6 +1734,9 @@ importers:
       '@beep/shared-tables':
         specifier: workspace:^
         version: link:../../shared/tables/build
+      '@beep/types':
+        specifier: workspace:^
+        version: link:../../common/types/build
       '@beep/ui':
         specifier: workspace:^
         version: link:../../ui
@@ -1769,6 +1782,9 @@ importers:
       '@effect/workflow':
         specifier: ^0.11.3
         version: 0.11.3(@effect/platform@0.92.1(effect@3.18.2))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.2))(effect@3.18.2))(effect@3.18.2)
+      '@opentelemetry/api':
+        specifier: ^1.9.0
+        version: 1.9.0
       '@opentelemetry/context-async-hooks':
         specifier: ^2.1.0
         version: 2.1.0(@opentelemetry/api@1.9.0)
@@ -1820,6 +1836,15 @@ importers:
       '@simplewebauthn/server':
         specifier: 13.2.2
         version: 13.2.2
+      '@types/ms':
+        specifier: ^2.1.0
+        version: 2.1.0
+      '@types/react':
+        specifier: 19.2.0
+        version: 19.2.0
+      '@types/react-dom':
+        specifier: 19.2.0
+        version: 19.2.0(@types/react@19.2.0)
       better-auth:
         specifier: 1.3.26
         version: 1.3.26(next@15.5.4(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -1865,19 +1890,6 @@ importers:
       zod:
         specifier: 4.1.11
         version: 4.1.11
-    devDependencies:
-      '@beep/types':
-        specifier: workspace:^
-        version: link:../../common/types/build
-      '@types/ms':
-        specifier: ^2.1.0
-        version: 2.1.0
-      '@types/react':
-        specifier: 19.2.0
-        version: 19.2.0
-      '@types/react-dom':
-        specifier: 19.2.0
-        version: 19.2.0(@types/react@19.2.0)
     publishDirectory: build
 
   packages/iam/sdk:
@@ -2054,6 +2066,9 @@ importers:
       react-dom:
         specifier: 19.2.0
         version: 19.2.0(react@19.2.0)
+      react-google-recaptcha-v3:
+        specifier: ^1.11.0
+        version: 1.11.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@beep/types':
         specifier: workspace:^
@@ -9855,6 +9870,12 @@ packages:
     engines: {node: '>= 10.13'}
     peerDependencies:
       react: 19.2.0
+
+  react-google-recaptcha-v3@1.11.0:
+    resolution: {integrity: sha512-kLQqpz/77m8+trpBwzqcxNtvWZYoZ/YO6Vm2cVTHW8hs80BWUfDpC7RDwuAvpswwtSYApWfaSpIDFWAIBNIYxQ==}
+    peerDependencies:
+      react: 19.2.0
+      react-dom: 19.2.0
 
   react-grid-layout@1.5.2:
     resolution: {integrity: sha512-vT7xmQqszTT+sQw/LfisrEO4le1EPNnSEMVHy6sBZyzS3yGkMywdOd+5iEFFwQwt0NSaGkxuRmYwa1JsP6OJdw==}
@@ -19557,6 +19578,12 @@ snapshots:
       file-selector: 2.1.2
       prop-types: 15.8.1
       react: 19.2.0
+
+  react-google-recaptcha-v3@1.11.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
+    dependencies:
+      hoist-non-react-statics: 3.3.2
+      react: 19.2.0
+      react-dom: 19.2.0(react@19.2.0)
 
   react-grid-layout@1.5.2(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
     dependencies:

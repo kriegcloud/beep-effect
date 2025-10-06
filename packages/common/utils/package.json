@@ -37,7 +37,8 @@
     "effect": "*",
     "@beep/invariant": "workspace:^",
     "@faker-js/faker": "*",
-    "mutative": "*"
+    "mutative": "*",
+    "next": "*"
   },
   "devDependencies": {
     "type-fest": "*",

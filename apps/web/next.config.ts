@@ -44,12 +44,20 @@ const CSP_DIRECTIVES = {
   "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
   "font-src": ["'self'", "https://fonts.scalar.com"],
   "style-src-elem": ["'self'", "'unsafe-inline'", `https://www.googletagmanager.com`, "https://cdn.jsdelivr.net"],
-  "script-src-elem": ["'self'", "blob:", "https://vercel.live", "https://cdn.jsdelivr.net", "'unsafe-inline'"],
+  "script-src-elem": [
+    "'self'",
+    "blob:",
+    "https://vercel.live",
+    "https://cdn.jsdelivr.net",
+    "https://www.google.com",
+    "https://www.gstatic.com",
+    "'unsafe-inline'",
+  ],
   "connect-src": CONNECT_SRC,
   "media-src": ["'self'", "data:"],
   "frame-ancestors": ["'self'", "https://vercel.live", "https://vercel.com"],
   "img-src": ["'self'", "https://www.google-analytics.com", "data:", "blob:"],
-  "frame-src": ["'self'", "https://vercel.live", "https://vercel.com"],
+  "frame-src": ["'self'", "https://vercel.live", "https://www.google.com", "https://vercel.com"],
 };
 
 const genCSP = () => {
@@ -176,35 +184,35 @@ const nextConfig = {
       },
     ];
   },
-  // turbopack: {
-  //   rules: {
-  //     "*.svg": {
-  //       loaders: ["@svgr/webpack"],
-  //       as: "*.js",
-  //     },
-  //   },
-  // },
+  turbopack: {
+    rules: {
+      "*.svg": {
+        loaders: ["@svgr/webpack"],
+        as: "*.js",
+      },
+    },
+  },
   outputFileTracingRoot: path.join(__dirname, "../../"),
 
-  webpack(config) {
-    config.watchOptions = {
-      poll: 1000,
-      aggregateTimeout: 1000,
-    };
-    config.module.rules.push({
-      test: /\.svg$/,
-      use: ["@svgr/webpack"],
-    });
-
-    config.experiments = {
-      ...config.experiments,
-      layers: true,
-      asyncWebAssembly: true,
-      topLevelAwait: true,
-    };
-
-    return config;
-  },
+  // webpack(config) {
+  //   config.watchOptions = {
+  //     poll: 1000,
+  //     aggregateTimeout: 1000,
+  //   };
+  //   config.module.rules.push({
+  //     test: /\.svg$/,
+  //     use: ["@svgr/webpack"],
+  //   });
+  //
+  //   config.experiments = {
+  //     ...config.experiments,
+  //     layers: true,
+  //     asyncWebAssembly: true,
+  //     topLevelAwait: true,
+  //   };
+  //
+  //   return config;
+  // },
   experimental: {
     optimizePackageImports: ["@iconify/react", "lodash", "@mui/x-date-pickers", "@mui/lab"],
     // browserDebugInfoInTerminal: true,

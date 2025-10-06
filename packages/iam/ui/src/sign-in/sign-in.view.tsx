@@ -40,7 +40,9 @@ export const SignInView = () => {
       <Stack spacing={2}>
         <SignInSocial signIn={async (provider) => runSocialSignIn(iam.signIn.social({ provider }))} />
         <SignInPasskey
-          onSubmit={async () => runPasskeySignIn(iam.signIn.passkey({ onSuccess: () => void router.push(paths.root) }))}
+          onSubmit={async () =>
+            runPasskeySignIn(iam.signIn.passkey({ onSuccess: () => void router.push(paths.dashboard.root) }))
+          }
         />
       </Stack>
     </>

@@ -41,13 +41,15 @@ const cspDirectives = (nonce: string) =>
       `https://www.googletagmanager.com`,
       "blob:",
       "https://vercel.live",
+      "https://www.gstatic.com",
       "https://cdn.jsdelivr.net",
+      "https://www.google.com",
     ],
     "connect-src": connectSrc,
     "media-src": ["'self'", "data:"],
     "frame-ancestors": ["'self'", "https://vercel.live", "https://vercel.com"],
     "img-src": ["'self'", "https://www.google-analytics.com", "data:", "blob:"],
-    "frame-src": ["'self'", "https://vercel.live", "https://vercel.com"],
+    "frame-src": ["'self'", "https://vercel.live", "https://www.google.com", "https://vercel.com"],
   }) as const;
 
 const genCSP = (nonce: string) => {

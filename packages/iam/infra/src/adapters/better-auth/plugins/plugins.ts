@@ -3,7 +3,7 @@ import * as Admin from "./admin";
 import * as Anonymous from "./anonymous";
 import * as ApiKey from "./api-key";
 import * as Bearer from "./bearer";
-// import * as Captcha from "./captcha";
+import * as Captcha from "./captcha";
 import * as CustomSession from "./custom-session";
 import * as DeviceAuthorization from "./device-authorization";
 import * as DubAnalytics from "./dub-analytics";
@@ -15,10 +15,11 @@ import * as Localization from "./localization";
 import * as Mcp from "./mcp";
 import * as MultiSession from "./multi-session";
 import * as NextCookies from "./next-cookies";
-// import * as OAuthProxy from "./oauth-proxy";
+
 import * as OidcProvider from "./oidc-provider";
 import * as OneTap from "./one-tap";
 import * as OneTimeToken from "./one-time-token";
+
 import * as OpenApi from "./open-api";
 import * as Organization from "./organization";
 import * as Passkey from "./passkey";
@@ -34,7 +35,7 @@ const AllPluginsArray = [
   Anonymous.anonymousPlugin,
   ApiKey.apiKeyPlugin,
   Bearer.bearerPlugin,
-  // Captcha.captchaPlugin,
+  Captcha.captchaPlugin,
   CustomSession.customSessionPlugin,
   DeviceAuthorization.deviceAuthorizationPlugin,
   DubAnalytics.dubAnalyticsPlugin,
@@ -46,7 +47,6 @@ const AllPluginsArray = [
   MultiSession.multiSessionPlugin,
   NextCookies.nextCookiesPlugin,
   OneTap.oneTapPlugin,
-  // OAuthProxy.oauthProxyPlugin,
   OidcProvider.oidcProviderPlugin,
   OpenApi.openApiPlugin,
   OneTimeToken.oneTimeTokenPlugin,

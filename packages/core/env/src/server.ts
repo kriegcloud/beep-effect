@@ -5,17 +5,40 @@ import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as LogLevel from "effect/LogLevel";
+import * as Match from "effect/Match";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { ConfigArrayURL } from "./common";
 
+const PLACEHOLDER_VALUE = "PLACE_HOLDER";
+
 const withPlaceholderRedacted = <A>(config: Config.Config<A>) =>
-  config.pipe(Config.withDefault(Redacted.make("not-a-real-token")));
+  config.pipe(Config.withDefault(Redacted.make(PLACEHOLDER_VALUE)));
+
+export const isPlaceholder = <A>(configValue: A) =>
+  Redacted.isRedacted(configValue)
+    ? Redacted.value(configValue) === PLACEHOLDER_VALUE
+    : configValue === PLACEHOLDER_VALUE;
+
 export const ServerConfig = Config.all({
+  nodeEnv: Config.literal("development", "production", "test")("NODE_ENV"),
+
   app: Config.nested("APP")(
     Config.all({
+      protocol: S.Config("ENV", EnvValue).pipe(
+        Config.map((env) =>
+          Match.value(env).pipe(
+            Match.when("dev", () => "http"),
+            Match.when("staging", () => "https"),
+            Match.when("prod", () => "https"),
+            Match.exhaustive
+          )
+        )
+      ),
       name: Config.string("NAME"),
       env: S.Config("ENV", EnvValue).pipe(Config.withDefault(EnvValue.Enum.dev)),
+      rootDomain: Config.string("DOMAIN").pipe(Config.map((domain) => Str.split(":")(domain)[0])),
       domain: Config.string("DOMAIN").pipe(Config.withDefault("localhost")),
       adminUserIds: Config.array(S.Config("ADMIN_USER_IDS", SharedEntityIds.UserId)),
       logFormat: S.Config("LOG_FORMAT", LogFormat).pipe(Config.withDefault(LogFormat.Enum.pretty)),

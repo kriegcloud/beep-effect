@@ -39,10 +39,9 @@ export const paths = PathBuilder.collection({
           ({
             root: ve.root,
             verify: (errorMessage: string) => {
-              const path = PathBuilder.dynamicQueries(ve.root)({
+              return PathBuilder.dynamicQueries(ve.root)({
                 errorMessage,
               });
-              return path;
             },
             error: (errorMessage: string) => `${ve.root}?errorMessage=${errorMessage}` as const,
           }) as const
@@ -63,12 +62,20 @@ export const paths = PathBuilder.collection({
       success: device("success"),
     },
   },
-  organizations: F.flow(organization, (o) => ({
-    root: o.root,
-    edit: o("edit"),
-    members: o("members"),
-    settings: o("settings"),
-  })),
+  settings: {
+    root: "/settings",
+  },
+  admin: {
+    root: "/admin",
+  },
+  organizations: {
+    root: "/organizations",
+    ...F.flow(organization, (o) => ({
+      edit: o("edit"),
+      members: o("members"),
+      settings: o("settings"),
+    })),
+  },
   account: F.flow(account, (a) => ({
     root: a.root,
     edit: a("edit"),

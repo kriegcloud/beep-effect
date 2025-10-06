@@ -1,5 +1,5 @@
 "use client";
-import { AuthProviderNameValue, EnvValue, LogLevel } from "@beep/constants";
+import { AuthProviderNameValue, EnvValue, LogFormat, LogLevel } from "@beep/constants";
 import { BS } from "@beep/schema";
 import * as Either from "effect/Either";
 import * as F from "effect/Function";
@@ -21,6 +21,7 @@ const ClientEnvSchema = S.Struct({
   otlpTraceExportedUrl: BS.URLString,
   otlpLogExportedUrl: BS.URLString,
   logLevel: LogLevel,
+  logFormat: LogFormat,
   captchaSiteKey: S.Redacted(S.String),
   authUrl: BS.URLString,
   authPath: BS.URLPath,
@@ -43,7 +44,8 @@ export const clientEnv = F.pipe(
     otlpTraceExportedUrl: process.env.NEXT_PUBLIC_OTLP_TRACE_EXPORTER_URL,
     otlpLogExportedUrl: process.env.NEXT_PUBLIC_OTLP_LOG_EXPORTER_URL,
     logLevel: process.env.NEXT_PUBLIC_LOG_LEVEL,
-    captchaSiteKey: process.env.NEXT_PUBLIC_LOG_FORMAT,
+    logFormat: process.env.NEXT_PUBLIC_LOG_FORMAT,
+    captchaSiteKey: process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY,
     authUrl: process.env.NEXT_PUBLIC_AUTH_URL,
     authPath: process.env.NEXT_PUBLIC_AUTH_PATH,
     googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,

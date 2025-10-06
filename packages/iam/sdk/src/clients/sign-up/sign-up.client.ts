@@ -1,5 +1,6 @@
 import { AuthHandler } from "@beep/iam-sdk/auth-wrapper";
 import { paths } from "@beep/shared-domain";
+import * as Redacted from "effect/Redacted";
 import { client } from "../../adapters";
 import { IamError } from "../../errors";
 import { SignupContract } from "./sign-up.contracts";
@@ -9,7 +10,7 @@ const signUpEmail = AuthHandler.make({
   plugin: "sign-up",
   method: "email",
   schema: SignupContract,
-  run: AuthHandler.map(({ value, onSuccess }) => {
+  run: AuthHandler.map(({ value: { captchaResponse, ...value }, onSuccess }) => {
     let capturedError: IamError | undefined = undefined;
     return client.signUp
       .email({
@@ -18,7 +19,10 @@ const signUpEmail = AuthHandler.make({
           onError: (ctx) => {
             capturedError = new IamError(ctx.error, ctx.error.message ?? "FailedToSignUp");
           },
-          onSuccess: () => onSuccess(paths.root),
+          onSuccess: () => onSuccess(paths.dashboard.root),
+          headers: {
+            "x-captcha-response": Redacted.value(captchaResponse),
+          },
         },
       })
       .catch((error) => {
