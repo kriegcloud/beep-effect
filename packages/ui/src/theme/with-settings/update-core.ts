@@ -1,10 +1,10 @@
 import type { SettingsState } from "@beep/ui/settings";
 import { createPaletteChannel, hexToRgbChannel, setFont } from "@beep/ui/utils";
-import type { ColorSystem } from "@mui/material/styles";
-import { createShadowColor } from "../core/custom-shadows";
+import type { ColorSystem, ColorSystemOptions, Shadows } from "@mui/material/styles";
+import * as P from "effect/Predicate";
+import { type CustomShadows, createShadowColor } from "../core/custom-shadows";
 import type { ThemeColorScheme, ThemeOptions } from "../types";
 import { primaryColorPresets } from "./color-presets";
-
 /**
  * Updates the core theme with the provided settings state.
  * @param theme - The base theme options to update.
@@ -25,6 +25,20 @@ export function applySettingsToTheme(theme: ThemeOptions, settingsState?: Settin
 
   const updateColorScheme = (schemeName: ThemeColorScheme) => {
     const currentScheme = theme.colorSchemes?.[schemeName];
+
+    type CurrentSchemeType =
+      | (boolean &
+          ColorSystemOptions & {
+            shadows?: Partial<Shadows>;
+            customShadows?: Partial<CustomShadows>;
+          })
+      | (ColorSystemOptions & {
+          shadows?: Partial<Shadows>;
+          customShadows?: Partial<CustomShadows>;
+        })
+      | undefined;
+    const handleCurrentSchema = (scheme: CurrentSchemeType) =>
+      P.and(P.isNotNullable, P.isObject)(scheme) ? scheme : {};
 
     const updatedPalette = {
       ...currentScheme?.palette,
@@ -52,7 +66,7 @@ export function applySettingsToTheme(theme: ThemeOptions, settingsState?: Settin
     };
 
     return {
-      ...currentScheme,
+      ...handleCurrentSchema(currentScheme),
       palette: updatedPalette,
       customShadows: updatedCustomShadows,
     };

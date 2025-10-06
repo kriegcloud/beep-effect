@@ -8,14 +8,16 @@ import * as d from "drizzle-orm";
 import type { ConfigError } from "effect/ConfigError";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import { AuthEmailService, InvitationEmailPayload } from "../../AuthEmail.service";
 import { commonExtraFields } from "../../internal";
 import type { OrganizationOptions } from "./plugin-options";
-
 export const organizationPluginOptions = Effect.gen(function* () {
   const { db } = yield* IamDb.IamDb;
   const { sendInvitation } = yield* AuthEmailService;
+  const runtime = yield* Effect.runtime();
+  const runPromise = Runtime.runPromise(runtime);
   return {
     allowUserToCreateOrganization: true,
     organizationLimit: 1,
@@ -30,7 +32,7 @@ export const organizationPluginOptions = Effect.gen(function* () {
           teamName: params.organization.name,
         }),
         sendInvitation
-      ).pipe(Effect.runPromise)),
+      ).pipe(runPromise)),
     teams: {
       enabled: true,
       maximumTeams: 10,
@@ -149,7 +151,7 @@ export const organizationPluginOptions = Effect.gen(function* () {
               console.error(`Failed to create team organization ${organization.name} for user ${user.id}: ${e}`),
           })
         );
-        await Effect.runPromise(program);
+        await runPromise(program);
       },
     },
   } satisfies OrganizationOptions;

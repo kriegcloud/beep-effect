@@ -18,6 +18,7 @@ import * as LogLevel from "effect/LogLevel";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
+import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import { AuthEmailService, SendResetPasswordEmailPayload, SendVerificationEmailPayload } from "./AuthEmail.service";
 import { commonExtraFields } from "./internal";
@@ -25,9 +26,12 @@ import { AllPlugins } from "./plugins";
 
 const AuthOptions = Effect.gen(function* () {
   const { db, drizzle } = yield* IamDb.IamDb;
-  const plugins = yield* AllPlugins;
   const { sendResetPassword, sendVerification } = yield* AuthEmailService;
+  const plugins = yield* AllPlugins;
   const isDebug = P.or(Equal.equals(LogLevel.Debug), Equal.equals(LogLevel.All))(serverEnv.app.logLevel);
+
+  const runtime = yield* Effect.runtime();
+  const runPromise = Runtime.runPromise(runtime);
 
   return yield* Effect.succeed({
     telemetry: {
@@ -51,6 +55,7 @@ const AuthOptions = Effect.gen(function* () {
       max: 100, // max requests in the window
     },
     account: {
+      additionalFields: commonExtraFields,
       accountLinking: {
         enabled: true,
         allowDifferentEmails: true,
@@ -60,9 +65,7 @@ const AuthOptions = Effect.gen(function* () {
     },
     session: {
       modelName: IamEntityIds.SessionId.tableName,
-      additionalFields: {
-        ...commonExtraFields,
-      },
+      additionalFields: commonExtraFields,
       cookieCache: {
         enabled: true,
         maxAge: Duration.days(30).pipe(Duration.toSeconds),
@@ -72,8 +75,8 @@ const AuthOptions = Effect.gen(function* () {
     },
     emailVerification: {
       sendOnSignUp: true,
-      async sendVerificationEmail(params) {
-        await Effect.runPromise(
+      sendVerificationEmail: async (params) =>
+        void (await runPromise(
           Effect.flatMap(
             S.decode(SendVerificationEmailPayload)({
               email: params.user.email,
@@ -83,14 +86,13 @@ const AuthOptions = Effect.gen(function* () {
             }),
             sendVerification
           ).pipe(Effect.withSpan("AuthService.emailVerification.sendVerificationEmail"))
-        );
-      },
+        )),
     },
     emailAndPassword: {
       requireEmailVerification: false,
       enabled: true,
-      sendResetPassword: async (params) => {
-        await Effect.runPromise(
+      sendResetPassword: async (params) =>
+        void (await runPromise(
           Effect.flatMap(
             S.decode(SendResetPasswordEmailPayload)({
               username: params.user.name,
@@ -99,8 +101,7 @@ const AuthOptions = Effect.gen(function* () {
             }),
             sendResetPassword
           ).pipe(Effect.withSpan("AuthService.emailAndPassword.sendResetPassword"))
-        );
-      },
+        )),
     },
     socialProviders: A.reduce(
       serverEnv.oauth.authProviderNames,
@@ -153,7 +154,7 @@ const AuthOptions = Effect.gen(function* () {
             // Create personal organization with multi-tenant field
 
             // Add user as owner with enhanced tracking
-            await Effect.runPromise(program.pipe(Effect.withSpan("AuthService.databaseHooks.user.create.after")));
+            await runPromise(program.pipe(Effect.withSpan("AuthService.databaseHooks.user.create.after")));
           },
         },
       },
@@ -186,7 +187,7 @@ const AuthOptions = Effect.gen(function* () {
                 .orderBy(d.desc(IamDbSchema.organization.isPersonal));
             });
 
-            const userOrgs = await Effect.runPromise(
+            const userOrgs = await runPromise(
               program.pipe(Effect.withSpan("AuthService.databaseHooks.session.create.before"))
             );
             const activeOrgId = userOrgs[0]?.orgId;
