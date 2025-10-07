@@ -2,35 +2,23 @@
 import { invariant } from "@beep/invariant";
 import type { DefaultAnnotations } from "@beep/schema/annotations";
 import { variance } from "@beep/schema/variance";
-<<<<<<< HEAD
-import * as M from "@effect/sql/Model";
-import type { $Type, HasDefault, HasRuntimeDefault, IsPrimaryKey, NotNull } from "drizzle-orm";
-import * as pg from "drizzle-orm/pg-core";
-=======
 import { StrUtils } from "@beep/utils";
 import * as M from "@effect/sql/Model";
 import type { $Type, HasDefault, HasRuntimeDefault, IsPrimaryKey, NotNull } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import * as A from "effect/Array";
->>>>>>> auth-type-perf
 import type * as B from "effect/Brand";
 import * as Data from "effect/Data";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
 import { TypeId } from "effect/Schema";
 import * as Str from "effect/String";
-<<<<<<< HEAD
-import { SnakeTag, UUIDLiteralEncoded } from "./custom";
-
-export namespace EntityId {
-=======
 import { typeid } from "typeid-js";
 import { SnakeTag, UUIDLiteralEncoded } from "./custom";
 
 export namespace EntityId {
   export const getIdType = F.flow(Str.split("__"), A.headNonEmpty);
   export const getEntityId = (entity: string) => typeid(StrUtils.mkEntityType(entity));
->>>>>>> auth-type-perf
   type Config<Brand extends string, TableName extends string> = {
     readonly tableName: SnakeTag.Literal<TableName>;
     readonly brand: Brand;

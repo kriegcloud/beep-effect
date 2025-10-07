@@ -1,9 +1,4 @@
 import { CSPHeader } from "@beep/constants/Csp";
-<<<<<<< HEAD
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-import { v4 as uuid } from "uuid";
-=======
 // import { AuthService } from "@beep/iam-infra";
 // import { serverRuntime } from "@beep/runtime-server";
 // import * as Data from "effect/Data";
@@ -19,7 +14,6 @@ import { v4 as uuid } from "uuid";
 //   const { api } = yield* AuthService;
 // });
 
->>>>>>> auth-type-perf
 // import { paths } from "@beep/shared-domain";
 
 // const authPaths = [

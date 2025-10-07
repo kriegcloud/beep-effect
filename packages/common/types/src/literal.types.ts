@@ -52,8 +52,6 @@ export type UpperChar =
   | "X"
   | "Y"
   | "Z";
-<<<<<<< HEAD
-=======
 
 export namespace CaseTransform {
   export type SnakeToPascal<S extends string> = S extends `${infer Head}_${infer Tail}`
@@ -85,15 +83,7 @@ export namespace CaseTransform {
                 ? `${S}s`
                 : `${Base}${Consonant}ies`
               : // Words ending in s, x, z, ch, sh
-                S extends
-                    | `${infer Base}s`
-                    | `${infer Base}x`
-                    | `${infer Base}z`
-                    | `${infer Base}ch`
-                    | `${
-                        // biome-ignore lint/correctness/noUnusedVariables: this is the way
-                        infer Base
-                      }sh`
+                S extends `${infer Base}s` | `${infer Base}x` | `${infer Base}z` | `${infer Base}ch` | `${infer Base}sh`
                 ? `${S}es`
                 : // Words ending in 'f' or 'fe'
                   S extends `${infer Base}f`
@@ -133,4 +123,3 @@ export namespace CaseTransform {
   export type SnakePluralToPascalSingular<S extends string> = SnakeToPascal<Singularize<S>>;
   export type PascalSingularToSnakePlural<S extends string> = Pluralize<PascalToSnakeClean<S>>;
 }
->>>>>>> auth-type-perf

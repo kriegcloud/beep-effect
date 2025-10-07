@@ -1,18 +1,12 @@
 import type { StringTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
-<<<<<<< HEAD
-import * as O from "effect/Option";
-import * as Str from "effect/String";
-import * as ArrayUtils from "./array.utils";
-=======
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Record from "effect/Record";
 import * as Str from "effect/String";
 import * as ArrayUtils from "./array.utils";
 
->>>>>>> auth-type-perf
 /**
  * Generates initials from a given name.
  *
@@ -242,8 +236,6 @@ export function mapApplySuffix<const Suffix extends StringTypes.NonEmptyString>(
 }
 
 export const strLiteralFromNum = <T extends number>(value: T) => `${value}` as const;
-<<<<<<< HEAD
-=======
 
 const irregularPlurals: Record<string, string> = {
   address: "addresses",
@@ -450,4 +442,3 @@ export const formatLabel = (fieldName: string): string =>
       )
     )
   );
->>>>>>> auth-type-perf

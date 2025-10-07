@@ -1,13 +1,6 @@
 {
   "extends": "./tsconfig.src.json",
   "compilerOptions": {
-<<<<<<< HEAD
-    "types": ["node"],
-    "tsBuildInfoFile": ".tsbuildinfo/build.tsbuildinfo",
-    "outDir": "build/esm",
-    "declarationDir": "build/dts",
-    "stripInternal": true
-=======
     "types": ["bun", "node"],
     "tsBuildInfoFile": ".tsbuildinfo/build.tsbuildinfo",
     "outDir": "build/esm",
@@ -16,7 +9,6 @@
     "composite": true,
     "declaration": true,
     "sourceMap": true
->>>>>>> auth-type-perf
   },
   "include": ["src/**/*.ts"],
   "exclude": []

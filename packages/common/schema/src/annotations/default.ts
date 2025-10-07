@@ -1,12 +1,5 @@
 import type { UnsafeTypes } from "@beep/types";
 import type * as Arbitrary from "effect/Arbitrary";
-<<<<<<< HEAD
-import type * as Pretty from "effect/Pretty";
-import type * as AST from "effect/SchemaAST";
-// todo delete this. Creates a tight coupling between rule layer and schema layer
-export const SymbolAnnotationId = Symbol.for("@beep/rules/SymbolAnnotationId");
-export const LabelAnnotationId = Symbol.for("@beep/schema/annotations/LabelAnnotation");
-=======
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
@@ -148,14 +141,11 @@ export type RelationConfig = {
   form?: RelationUiForm;
 };
 
->>>>>>> auth-type-perf
 declare module "effect/Schema" {
   namespace Annotations {
     interface GenericSchema<A> extends Schema<A> {
       [SymbolAnnotationId]?: string;
       [LabelAnnotationId]?: string;
-<<<<<<< HEAD
-=======
       [BSFieldName]?: string;
       [BSCustomField]?: boolean;
       [BSSkipField]?: boolean;
@@ -191,7 +181,6 @@ declare module "effect/Schema" {
         targetEntityTag: string;
       };
       [BSFilterFn]?: (entity: A) => boolean;
->>>>>>> auth-type-perf
     }
   }
 }
@@ -216,8 +205,6 @@ export type DefaultAnnotations<A, TypeParameters extends ReadonlyArray<UnsafeTyp
   readonly decodingFallback?: AST.DecodingFallbackAnnotation<A>;
   readonly [SymbolAnnotationId]?: string;
 };
-<<<<<<< HEAD
-=======
 
 export const getUnderlyingType = (ast: AST.AST): "string" | "number" | "boolean" | "unknown" => {
   if (AST.isUnion(ast)) {
@@ -262,4 +249,3 @@ export const getUnderlyingType = (ast: AST.AST): "string" | "number" | "boolean"
       return "unknown" as const;
   }
 };
->>>>>>> auth-type-perf

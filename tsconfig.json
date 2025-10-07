@@ -91,12 +91,9 @@
     {
       "path": "packages/runtime/client"
     },
-<<<<<<< HEAD
-=======
      {
       "path": "packages/runtime/shared"
     },
->>>>>>> auth-type-perf
     {
       "path": "apps/server"
     },

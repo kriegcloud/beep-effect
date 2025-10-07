@@ -9,19 +9,13 @@
     "esModuleInterop": true,
     "declaration": true,
     "skipLibCheck": true,
-<<<<<<< HEAD
-=======
     "preserveWatchOutput": true,
     "inlineSources": false,
->>>>>>> auth-type-perf
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "moduleResolution": "bundler",
     "lib": [
-<<<<<<< HEAD
-=======
       "ES2019",
->>>>>>> auth-type-perf
       "ES2022",
       "DOM",
       "DOM.Iterable"
@@ -287,11 +281,6 @@
       "beep/runtime-server/*": [
         "./packages/runtime/server/src/index"
       ],
-<<<<<<< HEAD
-       "beep/runtime-server/test/*": [
-        "./packages/runtime/server/test/*"
-      ],
-=======
       "beep/runtime-server/test/*": [
         "./packages/runtime/server/test/*"
       ],
@@ -304,18 +293,13 @@
       "beep/runtime-shared/test/*": [
         "./packages/runtime/shared/test/*"
       ],
->>>>>>> auth-type-perf
       "beep/runtime-client": [
         "./packages/runtime/client/src/index"
       ],
       "beep/runtime-client/*": [
         "./packages/runtime/client/src/index"
       ],
-<<<<<<< HEAD
-       "beep/runtime-client/test/*": [
-=======
       "beep/runtime-client/test/*": [
->>>>>>> auth-type-perf
         "./packages/runtime/client/test/*"
       ],
       "@/*": [

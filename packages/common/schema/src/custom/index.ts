@@ -15,20 +15,14 @@ export * from "./dates";
 export * from "./Email.schema";
 export * from "./FileExtension.schema";
 export * from "./Fn.schema";
-<<<<<<< HEAD
-=======
 export * from "./Graph.schema";
->>>>>>> auth-type-perf
 export * from "./Hex.schema";
 export * from "./Hex.schema";
 export * from "./IP.schema";
 export * from "./Json.schema";
 export * from "./Literal.schema";
 export * from "./MimeType.schema";
-<<<<<<< HEAD
-=======
 export * from "./Number.schemas";
->>>>>>> auth-type-perf
 export * from "./Password.schema";
 export * from "./PgSerial.schema";
 export * from "./Phone.schema";

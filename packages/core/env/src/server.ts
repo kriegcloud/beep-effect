@@ -4,15 +4,10 @@ import { SharedEntityIds } from "@beep/shared-domain";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
-<<<<<<< HEAD
-import * as LogLevel from "effect/LogLevel";
-import * as Match from "effect/Match";
-=======
 import * as F from "effect/Function";
 import * as LogLevel from "effect/LogLevel";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
->>>>>>> auth-type-perf
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -28,15 +23,8 @@ export const isPlaceholder = <A>(configValue: A) =>
     ? Redacted.value(configValue) === PLACEHOLDER_VALUE
     : configValue === PLACEHOLDER_VALUE;
 
-<<<<<<< HEAD
-export const ServerConfig = Config.all({
-  nodeEnv: Config.literal("development", "production", "test")("NODE_ENV"),
-
-  app: Config.nested("APP")(
-=======
 const AppConfig = Config.zipWith(
   Config.nested("APP")(
->>>>>>> auth-type-perf
     Config.all({
       protocol: S.Config("ENV", EnvValue).pipe(
         Config.map((env) =>
@@ -61,8 +49,6 @@ const AppConfig = Config.zipWith(
       clientUrl: Config.url("CLIENT_URL"),
     })
   ),
-<<<<<<< HEAD
-=======
   Config.nested("VERCEL")(
     Config.all({
       projectProductionUrl: Config.option(S.Config("PROJECT_PRODUCTION_URL", BS.DomainName)),
@@ -126,7 +112,6 @@ export const ServerConfig = Config.all({
   ),
   productionUrl: Config.option(S.Config("VERCEL_PROJECT_PRODUCTION_URL", BS.DomainName)),
   app: AppConfig,
->>>>>>> auth-type-perf
   auth: Config.all({
     secret: Config.redacted(Config.nonEmptyString("BETTER_AUTH_SECRET")),
   }),

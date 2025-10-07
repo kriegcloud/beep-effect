@@ -3,22 +3,15 @@
   "include": ["src"],
   "exclude": ["vitest.config.ts"],
   "compilerOptions": {
-<<<<<<< HEAD
-    "types": ["node"],
-=======
     "types": ["bun", "node"],
->>>>>>> auth-type-perf
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
     "baseUrl": ".",
-<<<<<<< HEAD
-=======
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
->>>>>>> auth-type-perf
     "paths": {
       "@beep/testkit/*": ["./src/*"]
     }

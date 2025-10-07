@@ -36,14 +36,10 @@
     "effect": "*"
   },
   "devDependencies": {
-<<<<<<< HEAD
-    "string-ts": "*"
-=======
     "string-ts": "*",
     "@beep/testkit": "workspace:^",
     "effect": "*",
     "@types/bun": "*"
->>>>>>> auth-type-perf
   },
   "effect": {
     "generateExports": {

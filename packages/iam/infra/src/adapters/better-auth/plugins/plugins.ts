@@ -1,10 +1,6 @@
-<<<<<<< HEAD
-import * as Effect from "effect/Effect";
-=======
 import type { IamDb } from "@beep/iam-infra/db";
 import * as Effect from "effect/Effect";
 import type { AuthEmailService } from "../AuthEmail.service";
->>>>>>> auth-type-perf
 import * as Admin from "./admin";
 import * as Anonymous from "./anonymous";
 import * as ApiKey from "./api-key";
@@ -21,17 +17,9 @@ import * as Localization from "./localization";
 import * as Mcp from "./mcp";
 import * as MultiSession from "./multi-session";
 import * as NextCookies from "./next-cookies";
-<<<<<<< HEAD
-
 import * as OidcProvider from "./oidc-provider";
 import * as OneTap from "./one-tap";
 import * as OneTimeToken from "./one-time-token";
-
-=======
-import * as OidcProvider from "./oidc-provider";
-import * as OneTap from "./one-tap";
-import * as OneTimeToken from "./one-time-token";
->>>>>>> auth-type-perf
 import * as OpenApi from "./open-api";
 import * as Organization from "./organization";
 import * as Passkey from "./passkey";
@@ -42,9 +30,6 @@ import * as Stripe from "./stripe";
 import * as TwoFactor from "./two-factor";
 import * as Username from "./username";
 
-<<<<<<< HEAD
-const AllPluginsArray = [
-=======
 export type Plugins = Array<
   | Admin.AdminPlugin
   | Anonymous.AnonymousPlugin
@@ -76,7 +61,6 @@ export type Plugins = Array<
   | Localization.LocalizationPlugin
 >;
 const allPluginsArray = [
->>>>>>> auth-type-perf
   Admin.adminPlugin,
   Anonymous.anonymousPlugin,
   ApiKey.apiKeyPlugin,
@@ -105,13 +89,6 @@ const allPluginsArray = [
   TwoFactor.twoFactorPlugin,
   Username.usernamePlugin,
   Localization.localizationPlugin,
-<<<<<<< HEAD
-] as const;
-
-export type Plugins = Effect.Effect.Success<(typeof AllPluginsArray)[number]>;
-
-export const AllPlugins = Effect.all(AllPluginsArray);
-=======
 ];
 
 // export type Plugins = Effect.Effect.Success<(typeof AllPluginsArray)[number]>;
@@ -120,4 +97,3 @@ export const AllPlugins: Effect.Effect<Plugins, never, IamDb.IamDb | AuthEmailSe
   Effect.all(allPluginsArray),
   Effect.succeed
 ).pipe(Effect.catchAll((e) => Effect.dieMessage(`Failed to initialize AllPlugins due to: ${e}`)));
->>>>>>> auth-type-perf

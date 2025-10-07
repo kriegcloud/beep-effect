@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-import { oidcProvider } from "better-auth/plugins/oidc-provider";
-import * as Effect from "effect/Effect";
-import type { OIDCOptions } from "./plugin-options";
-=======
 import type { OIDCOptions } from "better-auth/plugins/oidc-provider";
 import { oidcProvider } from "better-auth/plugins/oidc-provider";
 import * as Effect from "effect/Effect";
->>>>>>> auth-type-perf
 
 export type OIDCProviderPluginEffect = Effect.Effect<ReturnType<typeof oidcProvider>, never, never>;
 export type OIDCProviderPlugin = Effect.Effect.Success<OIDCProviderPluginEffect>;

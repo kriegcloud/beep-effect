@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 import type { AuthProviderNameValue } from "@beep/constants";
->>>>>>> auth-type-perf
 import { serverEnv } from "@beep/core-env/server";
 import * as IamEntities from "@beep/iam-domain/entities";
 import { IamDb } from "@beep/iam-infra/db/Db";
@@ -9,20 +6,14 @@ import { IamDbSchema } from "@beep/iam-tables";
 import { BS } from "@beep/schema";
 import { IamEntityIds, paths, SharedEntityIds } from "@beep/shared-domain";
 import type { UnsafeTypes } from "@beep/types";
-<<<<<<< HEAD
-=======
 import type { SqlError } from "@effect/sql/SqlError";
->>>>>>> auth-type-perf
 import type { BetterAuthOptions } from "better-auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import * as d from "drizzle-orm";
 import * as A from "effect/Array";
-<<<<<<< HEAD
-=======
 import type { ConfigError } from "effect/ConfigError";
 import * as Data from "effect/Data";
->>>>>>> auth-type-perf
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
@@ -33,13 +24,6 @@ import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
-<<<<<<< HEAD
-import { AuthEmailService, SendResetPasswordEmailPayload, SendVerificationEmailPayload } from "./AuthEmail.service";
-import { commonExtraFields } from "./internal";
-import { AllPlugins } from "./plugins";
-
-const AuthOptions = Effect.gen(function* () {
-=======
 import { headers as nextHeaders } from "next/headers";
 import { AuthEmailService, SendResetPasswordEmailPayload, SendVerificationEmailPayload } from "./AuthEmail.service";
 import { type CommonExtraFields, commonExtraFields } from "./internal";
@@ -87,7 +71,6 @@ type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "user"> 
 };
 
 const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService> = Effect.gen(function* () {
->>>>>>> auth-type-perf
   const { db, drizzle } = yield* IamDb.IamDb;
   const { sendResetPassword, sendVerification } = yield* AuthEmailService;
   const plugins = yield* AllPlugins;
@@ -96,11 +79,7 @@ const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService> = 
   const runtime = yield* Effect.runtime();
   const runPromise = Runtime.runPromise(runtime);
 
-<<<<<<< HEAD
-  return yield* Effect.succeed({
-=======
   const opts: Opts = {
->>>>>>> auth-type-perf
     telemetry: {
       debug: isDebug,
     },
@@ -300,21 +279,6 @@ const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService> = 
         generateId: false,
       },
     },
-<<<<<<< HEAD
-  } satisfies BetterAuthOptions);
-});
-
-export type Options = Effect.Effect.Success<typeof AuthOptions>;
-
-export class AuthService extends Effect.Service<AuthService>()("AuthService", {
-  accessors: true,
-  dependencies: [AuthEmailService.DefaultWithoutDependencies, IamDb.IamDb.Live],
-  effect: Effect.flatMap(AuthOptions, (opts) =>
-    Effect.succeed({
-      auth: betterAuth(opts),
-    })
-  ),
-=======
   } as const;
   return opts;
 });
@@ -386,5 +350,4 @@ const authServiceEffect: Effect.Effect<
 export class AuthService extends Effect.Service<AuthService>()("AuthService", {
   dependencies: [AuthEmailService.DefaultWithoutDependencies, IamDb.IamDb.Live],
   effect: authServiceEffect,
->>>>>>> auth-type-perf
 }) {}

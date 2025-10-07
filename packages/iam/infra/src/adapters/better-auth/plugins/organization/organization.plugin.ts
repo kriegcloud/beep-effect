@@ -3,10 +3,7 @@ import { IamDbSchema } from "@beep/iam-tables";
 import { IamEntityIds } from "@beep/shared-domain";
 import { Organization } from "@beep/shared-domain/entities";
 import type { SqlError } from "@effect/sql/SqlError";
-<<<<<<< HEAD
-=======
 import type { OrganizationOptions } from "better-auth/plugins/organization";
->>>>>>> auth-type-perf
 import { organization } from "better-auth/plugins/organization";
 import * as d from "drizzle-orm";
 import type { ConfigError } from "effect/ConfigError";
@@ -16,9 +13,6 @@ import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import { AuthEmailService, InvitationEmailPayload } from "../../AuthEmail.service";
 import { commonExtraFields } from "../../internal";
-<<<<<<< HEAD
-import type { OrganizationOptions } from "./plugin-options";
-=======
 
 const organizationSchema = {
   additionalFields: {
@@ -119,17 +113,12 @@ type OrgOpts = Omit<OrganizationOptions, "teams" | "schema" | "dynamicAccessCont
   };
 };
 
->>>>>>> auth-type-perf
 export const organizationPluginOptions = Effect.gen(function* () {
   const { db } = yield* IamDb.IamDb;
   const { sendInvitation } = yield* AuthEmailService;
   const runtime = yield* Effect.runtime();
   const runPromise = Runtime.runPromise(runtime);
-<<<<<<< HEAD
-  return {
-=======
   const orgOpts: OrgOpts = {
->>>>>>> auth-type-perf
     allowUserToCreateOrganization: true,
     organizationLimit: 1,
     creatorRole: "owner",
@@ -155,11 +144,7 @@ export const organizationPluginOptions = Effect.gen(function* () {
       organization: {
         additionalFields: {
           type: {
-<<<<<<< HEAD
-            type: [...Organization.OrganizationTypeOptions],
-=======
             type: "string",
->>>>>>> auth-type-perf
             required: true,
             defaultValue: Organization.OrganizationTypeEnum.individual,
           },
@@ -184,20 +169,12 @@ export const organizationPluginOptions = Effect.gen(function* () {
             required: false,
           },
           subscriptionTier: {
-<<<<<<< HEAD
-            type: [...Organization.SubscriptionTierOptions],
-=======
             type: "string",
->>>>>>> auth-type-perf
             required: false,
             defaultValue: Organization.SubscriptionTierEnum.free,
           },
           subscriptionStatus: {
-<<<<<<< HEAD
-            type: [...Organization.SubscriptionStatusOptions],
-=======
             type: "string",
->>>>>>> auth-type-perf
             required: false,
             defaultValue: Organization.SubscriptionStatusEnum.active,
           },
@@ -277,16 +254,6 @@ export const organizationPluginOptions = Effect.gen(function* () {
         await runPromise(program);
       },
     },
-<<<<<<< HEAD
-  } satisfies OrganizationOptions;
-});
-
-type Options = Effect.Effect.Success<typeof organizationPluginOptions>;
-type Context = Effect.Effect.Context<typeof organizationPluginOptions>;
-
-export type OrganizationPluginEffect = Effect.Effect<
-  ReturnType<typeof organization<Options>>,
-=======
   };
   return orgOpts;
 });
@@ -295,22 +262,13 @@ type Context = Effect.Effect.Context<typeof organizationPluginOptions>;
 
 export type OrganizationPluginEffect = Effect.Effect<
   ReturnType<typeof organization<OrgOpts>>,
->>>>>>> auth-type-perf
   SqlError | ConfigError,
   Context
 >;
 
-<<<<<<< HEAD
-export type OrganizationPlugin = Effect.Effect.Success<OrganizationPluginEffect>;
-
-export const organizationPlugin: OrganizationPluginEffect = Effect.gen(function* () {
-  const options = yield* organizationPluginOptions;
-  return organization(options satisfies OrganizationOptions);
-=======
 export type OrganizationPlugin = ReturnType<typeof organization<OrgOpts>>;
 
 export const organizationPlugin: OrganizationPluginEffect = Effect.gen(function* () {
   const options = yield* organizationPluginOptions;
   return organization<OrgOpts>(options);
->>>>>>> auth-type-perf
 });

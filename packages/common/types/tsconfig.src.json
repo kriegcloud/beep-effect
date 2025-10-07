@@ -1,11 +1,6 @@
 {
   "extends": "../../../tsconfig.base.json",
   "include": ["src"],
-<<<<<<< HEAD
-  "references": [],
-  "compilerOptions": {
-    "types": ["node"],
-=======
   "references": [
     {
       "path": "../../../tooling/testkit"
@@ -13,7 +8,6 @@
   ],
   "compilerOptions": {
     "types": ["bun", "node"],
->>>>>>> auth-type-perf
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
@@ -23,13 +17,9 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-<<<<<<< HEAD
-      "@beep/types/*": ["./src/*"]
-=======
       "@beep/types/*": ["./src/*"],
       "@beep/testkit": ["../../../tooling/testkit/src/index"],
       "@beep/testkit/*": ["../../../tooling/testkit/src/*"]
->>>>>>> auth-type-perf
     }
   }
 }

@@ -4,10 +4,7 @@ import type { UnsafeTypes } from "@beep/types";
 import { faker } from "@faker-js/faker";
 import * as A from "effect/Array";
 import type * as B from "effect/Brand";
-<<<<<<< HEAD
-=======
 import * as Effect from "effect/Effect";
->>>>>>> auth-type-perf
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -170,8 +167,6 @@ export namespace JsonProp {
   export type Type = typeof JsonProp.Type & { __JsonPath: true; __JsonProp: true };
   export type Encoded = typeof JsonProp.Encoded;
 }
-<<<<<<< HEAD
-=======
 
 /**
  * Schema transformer that converts JSON string or Array<string> to Array<string> and vice versa.
@@ -251,4 +246,3 @@ export const JsonStringToArray = <A>(itemSchema: S.Schema<A, any, never>) =>
     encode: (array) => Effect.succeed(JSON.stringify(array)),
     strict: true,
   });
->>>>>>> auth-type-perf

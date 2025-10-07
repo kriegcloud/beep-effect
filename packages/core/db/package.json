@@ -42,21 +42,12 @@
     "@effect/platform": "*",
     "sql-formatter": "*",
     "postgres": "*",
-<<<<<<< HEAD
-=======
     "@rocicorp/zero": "*",
->>>>>>> auth-type-perf
     "@beep/core-env": "workspace:^",
     "@beep/constants": "workspace:^",
     "@beep/errors": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@beep/utils": "workspace:^",
-<<<<<<< HEAD
-    "@beep/schema": "workspace:^"
-  },
-  "devDependencies": {
-    "@beep/types": "workspace:^"
-=======
     "@beep/schema": "workspace:^",
     "drizzle-zero": "*"
   },
@@ -65,7 +56,6 @@
     "@types/bun": "*",
     "@testcontainers/postgresql": "*",
     "testcontainers": "*"
->>>>>>> auth-type-perf
   },
   "effect": {
     "generateExports": {

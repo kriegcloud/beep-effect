@@ -13,8 +13,6 @@ export namespace ArrayOfNumbers {
   export type Type = S.Schema.Type<typeof ArrayOfNumbers>;
   export type Encoded = S.Schema.Encoded<typeof ArrayOfNumbers>;
 }
-<<<<<<< HEAD
-=======
 
 export const arrayToCommaSeparatedString = <A extends string | number | boolean>(
   literalSchema: S.Schema<A, A, never>
@@ -24,4 +22,3 @@ export const arrayToCommaSeparatedString = <A extends string | number | boolean>
     encode: (array) => array.join(","),
     strict: true,
   });
->>>>>>> auth-type-perf
