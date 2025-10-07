@@ -46,14 +46,14 @@ jobs:
           echo "::error::One or more code quality checks failed"
           exit 1
 
-#   test:
-#     name: Test
-#     runs-on: ubuntu-latest
-#     timeout-minutes: 20
-#     steps:
-#       - uses: actions/checkout@v4
-#       - name: Install dependencies
-#         uses: ./.github/actions/setup
-#       - run: pnpm test --filter=@beep/rete && pnpm test --filter='!./packages/common/rete'
-#         env:
-#           NODE_OPTIONS: --max_old_space_size=8192
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        uses: ./.github/actions/setup
+      - run: pnpm test --filter=@beep/rete && sleep 5 && pnpm test --filter='!./packages/common/rete'
+        env:
+          NODE_OPTIONS: --max_old_space_size=8192
