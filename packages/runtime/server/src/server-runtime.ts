@@ -4,7 +4,7 @@ import { serverEnv } from "@beep/core-env/server";
 import { makePrettyConsoleLoggerLayer } from "@beep/errors/server";
 import { FilesRepos } from "@beep/files-infra";
 import { FilesDb } from "@beep/files-infra/db";
-import { AuthEmailService, AuthService, IamRepos } from "@beep/iam-infra";
+import { AuthEmailService, AuthService, IamConfig, IamRepos } from "@beep/iam-infra";
 import { IamDb } from "@beep/iam-infra/db";
 import { DevTools } from "@effect/experimental";
 import { NodeSdk } from "@effect/opentelemetry";
@@ -83,12 +83,16 @@ export const RepositoriesLive = Layer.provideMerge(SliceRepositoriesLive, Databa
 // ============================================================================
 
 /** Enables email delivery for authentication flows. */
-const AuthEmailLive = AuthEmailService.DefaultWithoutDependencies.pipe(Layer.provide([ResendService.Default]));
+const AuthEmailLive = AuthEmailService.DefaultWithoutDependencies.pipe(
+  Layer.provide([ResendService.Default, IamConfig.Live])
+);
 
 /** Aggregates the service layer dependencies consumed by Auth and related modules. */
 export const CoreServicesLive = Layer.provideMerge(RepositoriesLive, AuthEmailLive);
 
-const AuthLive = AuthService.DefaultWithoutDependencies.pipe(Layer.provideMerge(CoreServicesLive));
+const AuthLive = AuthService.DefaultWithoutDependencies.pipe(
+  Layer.provide([CoreServicesLive, IamConfig.Live])
+);
 
 const AppLive = AuthLive.pipe(Layer.provideMerge(LoggerLive));
 

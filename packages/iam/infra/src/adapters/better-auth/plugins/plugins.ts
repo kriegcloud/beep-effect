@@ -1,3 +1,4 @@
+import type { IamConfig } from "@beep/iam-infra/config";
 import type { IamDb } from "@beep/iam-infra/db";
 import * as Effect from "effect/Effect";
 import type { AuthEmailService } from "../AuthEmail.service";
@@ -93,7 +94,7 @@ const allPluginsArray = [
 
 // export type Plugins = Effect.Effect.Success<(typeof AllPluginsArray)[number]>;
 
-export const AllPlugins: Effect.Effect<Plugins, never, IamDb.IamDb | AuthEmailService> = Effect.flatMap(
+export const AllPlugins: Effect.Effect<Plugins, never, IamDb.IamDb | AuthEmailService | IamConfig> = Effect.flatMap(
   Effect.all(allPluginsArray),
   Effect.succeed
 ).pipe(Effect.catchAll((e) => Effect.dieMessage(`Failed to initialize AllPlugins due to: ${e}`)));

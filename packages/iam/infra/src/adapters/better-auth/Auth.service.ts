@@ -1,7 +1,7 @@
 import type { AuthProviderNameValue } from "@beep/constants";
-import { serverEnv } from "@beep/core-env/server";
 import * as IamEntities from "@beep/iam-domain/entities";
 import { IamDb } from "@beep/iam-infra/db/Db";
+import { IamConfig } from "@beep/iam-infra/config";
 import { IamDbSchema } from "@beep/iam-tables";
 import { BS } from "@beep/schema";
 import { IamEntityIds, paths, SharedEntityIds } from "@beep/shared-domain";
@@ -70,11 +70,12 @@ type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "user"> 
   };
 };
 
-const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService> = Effect.gen(function* () {
+const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService | IamConfig> = Effect.gen(function* () {
   const { db, drizzle } = yield* IamDb.IamDb;
   const { sendResetPassword, sendVerification } = yield* AuthEmailService;
   const plugins = yield* AllPlugins;
-  const isDebug = P.or(Equal.equals(LogLevel.Debug), Equal.equals(LogLevel.All))(serverEnv.app.logLevel);
+  const config = yield* IamConfig;
+  const isDebug = P.or(Equal.equals(LogLevel.Debug), Equal.equals(LogLevel.All))(config.app.logLevel);
 
   const runtime = yield* Effect.runtime();
   const runPromise = Runtime.runPromise(runtime);
@@ -90,11 +91,11 @@ const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService> = 
       schema: IamDbSchema,
       camelCase: true,
     }),
-    baseURL: serverEnv.app.authUrl.toString(),
+    baseURL: config.app.authUrl.toString(),
     basePath: "/api/auth",
-    appName: serverEnv.app.name,
-    secret: Redacted.value(serverEnv.auth.secret),
-    trustedOrigins: [...serverEnv.security.trustedOrigins],
+    appName: config.app.name,
+    secret: Redacted.value(config.auth.secret),
+    trustedOrigins: [...config.security.trustedOrigins],
     rateLimit: {
       enabled: true,
       window: 10, // time window in seconds
@@ -105,7 +106,7 @@ const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService> = 
       accountLinking: {
         enabled: true,
         allowDifferentEmails: true,
-        trustedProviders: serverEnv.oauth.authProviderNames,
+        trustedProviders: config.oauth.authProviderNames,
       },
       encryptOAuthTokens: true,
     },
@@ -127,7 +128,7 @@ const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService> = 
             S.decode(SendVerificationEmailPayload)({
               email: params.user.email,
               url: BS.URLString.make(
-                `${serverEnv.app.clientUrl}${paths.auth.verification.email.verify(params.token)}`
+                `${config.app.clientUrl}${paths.auth.verification.email.verify(params.token)}`
               ).toString(),
             }),
             sendVerification
@@ -150,11 +151,11 @@ const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService> = 
         )),
     },
     socialProviders: A.reduce(
-      serverEnv.oauth.authProviderNames,
+      config.oauth.authProviderNames,
       {} as BetterAuthOptions["socialProviders"],
       (acc, provider) => ({
         ...acc,
-        ...F.pipe(serverEnv.oauth.provider[provider], (providerParams) =>
+        ...F.pipe(config.oauth.provider[provider], (providerParams) =>
           O.isSome(providerParams.clientSecret) && O.isSome(providerParams.clientId)
             ? { [provider]: providerParams }
             : {}
@@ -301,7 +302,7 @@ const authServiceEffect: Effect.Effect<
     readonly getHeadersEffect: () => Effect.Effect<ReadonlyHeaders, AuthServiceError, never>;
   },
   SqlError | ConfigError,
-  AuthEmailService | IamDb.IamDb
+  AuthEmailService | IamDb.IamDb | IamConfig
 > = Effect.gen(function* () {
   const authOptions = yield* AuthOptions;
   const auth = betterAuth(authOptions);
@@ -348,6 +349,6 @@ const authServiceEffect: Effect.Effect<
 });
 
 export class AuthService extends Effect.Service<AuthService>()("AuthService", {
-  dependencies: [AuthEmailService.DefaultWithoutDependencies, IamDb.IamDb.Live],
+  dependencies: [AuthEmailService.DefaultWithoutDependencies, IamDb.IamDb.Live, IamConfig.Live],
   effect: authServiceEffect,
 }) {}

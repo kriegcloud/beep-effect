@@ -1,4 +1,4 @@
-import { serverEnv } from "@beep/core-env/server";
+import { IamConfig } from "@beep/iam-infra/config";
 import { stripe } from "@better-auth/stripe";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
@@ -17,9 +17,10 @@ const PLUS_PRICE_ID = {
 } as const;
 
 const stripeOptions = Effect.gen(function* () {
+  const config = yield* IamConfig;
   return {
-    stripeClient: new Stripe(Redacted.value(serverEnv.payment.stripe.key) || "sk_test_"),
-    stripeWebhookSecret: Redacted.value(serverEnv.payment.stripe.webhookSecret),
+    stripeClient: new Stripe(Redacted.value(config.payment.stripe.key) || "sk_test_"),
+    stripeWebhookSecret: Redacted.value(config.payment.stripe.webhookSecret),
     subscription: {
       enabled: false,
       plans: [
@@ -46,7 +47,7 @@ const stripeOptions = Effect.gen(function* () {
 
 type Options = Effect.Effect.Success<typeof stripeOptions>;
 
-export type StripePluginEffect = Effect.Effect<ReturnType<typeof stripe<Options>>, never, never>;
+export type StripePluginEffect = Effect.Effect<ReturnType<typeof stripe<Options>>, never, IamConfig>;
 export type StripePlugin = Effect.Effect.Success<StripePluginEffect>;
 
 export const stripePlugin: StripePluginEffect = Effect.gen(function* () {
