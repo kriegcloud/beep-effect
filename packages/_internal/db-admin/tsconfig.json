@@ -1,6 +1,10 @@
 {
   "extends": "../../../tsconfig.base.json",
+<<<<<<< HEAD
   "include": [],
+=======
+  "include": ["drizzle-zero.config.ts"],
+>>>>>>> auth-type-perf
   "compilerOptions": {
     "paths": {
       "@beep/db-admin/*": ["./src/*"],

@@ -80,6 +80,12 @@
     {
       "path": "packages/runtime/server/tsconfig.build.json"
     },
+<<<<<<< HEAD
+=======
+        {
+      "path": "packages/runtime/shared/tsconfig.build.json"
+    },
+>>>>>>> auth-type-perf
     {
       "path": "packages/runtime/client/tsconfig.build.json"
     },

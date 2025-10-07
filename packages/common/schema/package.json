@@ -47,10 +47,20 @@
     "zod": "*",
     "uuid": "*",
     "randexp-ts": "*",
+<<<<<<< HEAD
     "jsonpath-plus": "*"
   },
   "devDependencies": {
     "type-fest": "*"
+=======
+    "jsonpath-plus": "*",
+    "typeid-js": "*"
+  },
+  "devDependencies": {
+    "type-fest": "*",
+    "@beep/testkit": "workspace:^",
+    "@types/bun": "*"
+>>>>>>> auth-type-perf
   },
   "effect": {
     "generateExports": {

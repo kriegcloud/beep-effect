@@ -31,6 +31,15 @@
     "@effect/platform": "*",
     "effect": "*"
   },
+<<<<<<< HEAD
+=======
+  "devDependencies": {
+    "@effect/platform-bun": "*",
+    "@types/bun": "*",
+    "@testcontainers/postgresql": "*",
+    "testcontainers": "*"
+  },
+>>>>>>> auth-type-perf
   "effect": {
     "generateExports": {
       "include": [

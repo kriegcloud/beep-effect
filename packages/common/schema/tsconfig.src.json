@@ -10,10 +10,20 @@
     },
     {
       "path": "../utils"
+<<<<<<< HEAD
     }
   ],
   "compilerOptions": {
     "types": ["node"],
+=======
+    },
+    {
+      "path": "../../../tooling/testkit"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["bun", "node"],
+>>>>>>> auth-type-perf
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
@@ -23,6 +33,11 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
+<<<<<<< HEAD
+=======
+      "@beep/testkit": ["../../../tooling/testkit/src/index"],
+      "@beep/testkit/*": ["../../../tooling/testkit/src/*"],
+>>>>>>> auth-type-perf
       "@beep/schema/*": ["./src/*"],
       "@beep/invariant": ["../invariant/src/index"],
       "@beep/invariant/*": ["../invariant/src/*"],

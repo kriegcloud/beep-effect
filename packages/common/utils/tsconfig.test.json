@@ -10,10 +10,20 @@
     },
     {
       "path": "../invariant"
+<<<<<<< HEAD
     }
   ],
   "compilerOptions": {
     "types": ["node"],
+=======
+    },
+    {
+      "path": "../../../tooling/testkit"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node", "bun"],
+>>>>>>> auth-type-perf
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true

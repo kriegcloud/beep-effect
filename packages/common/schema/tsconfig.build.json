@@ -1,7 +1,11 @@
 {
   "extends": "./tsconfig.src.json",
   "compilerOptions": {
+<<<<<<< HEAD
     "types": ["node"],
+=======
+    "types": ["bun", "node"],
+>>>>>>> auth-type-perf
     "tsBuildInfoFile": ".tsbuildinfo/build.tsbuildinfo",
     "outDir": "build/esm",
     "declarationDir": "build/dts",
@@ -12,6 +16,12 @@
   },
   "references": [
     {
+<<<<<<< HEAD
+=======
+      "path": "../../../tooling/testkit/tsconfig.build.json"
+    },
+    {
+>>>>>>> auth-type-perf
       "path": "../types/tsconfig.build.json"
     },
     {

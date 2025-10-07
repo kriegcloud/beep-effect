@@ -4,10 +4,20 @@
   "references": [
     {
       "path": "tsconfig.src.json"
+<<<<<<< HEAD
     }
   ],
   "compilerOptions": {
     "types": ["node"],
+=======
+    },
+    {
+      "path": "../../../tooling/testkit"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["bun", "node"],
+>>>>>>> auth-type-perf
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true

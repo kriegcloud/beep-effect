@@ -36,6 +36,11 @@
     "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' pnpm dotenvx tsx ./src/execute1.ts"
   },
   "dependencies": {
+<<<<<<< HEAD
+=======
+    "drizzle-zero": "*",
+    "@rocicorp/zero": "*",
+>>>>>>> auth-type-perf
     "@beep/invariant": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/schema": "workspace:^",

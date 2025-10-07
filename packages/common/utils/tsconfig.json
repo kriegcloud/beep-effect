@@ -3,6 +3,11 @@
   "include": [],
   "compilerOptions": {
     "paths": {
+<<<<<<< HEAD
+=======
+      "@beep/testkit": ["../../../tooling/testkit/src/index"],
+      "@beep/testkit/*": ["../../../tooling/testkit/src/*"],
+>>>>>>> auth-type-perf
       "@beep/utils/*": ["./src/*"],
       "@beep/types": ["../types/src/index"],
       "@beep/types/*": ["../types/src/*"],

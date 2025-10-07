@@ -1,7 +1,25 @@
 import { CSPHeader } from "@beep/constants/Csp";
+<<<<<<< HEAD
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { v4 as uuid } from "uuid";
+=======
+// import { AuthService } from "@beep/iam-infra";
+// import { serverRuntime } from "@beep/runtime-server";
+// import * as Data from "effect/Data";
+// import * as Effect from "effect/Effect";
+// import * as O from "effect/Option";
+// import * as P from "effect/Predicate";
+// import * as Str from "effect/String";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { v4 as uuid } from "uuid";
+
+// const middlewareProgram = Effect.fn("middlewareProgram")(function* () {
+//   const { api } = yield* AuthService;
+// });
+
+>>>>>>> auth-type-perf
 // import { paths } from "@beep/shared-domain";
 
 // const authPaths = [

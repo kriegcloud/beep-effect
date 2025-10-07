@@ -42,7 +42,13 @@
   },
   "devDependencies": {
     "type-fest": "*",
+<<<<<<< HEAD
     "@beep/types": "workspace:^",
+=======
+    "@beep/testkit": "workspace:^",
+    "@beep/types": "workspace:^",
+    "@types/bun": "*",
+>>>>>>> auth-type-perf
     "tsx": "*"
   },
   "effect": {

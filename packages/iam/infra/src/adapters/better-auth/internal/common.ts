@@ -32,3 +32,8 @@ export const commonExtraFields = {
     required: false,
   },
 } as const;
+<<<<<<< HEAD
+=======
+
+export type CommonExtraFields = typeof commonExtraFields;
+>>>>>>> auth-type-perf

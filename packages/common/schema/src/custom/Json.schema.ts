@@ -4,6 +4,10 @@ import type { UnsafeTypes } from "@beep/types";
 import { faker } from "@faker-js/faker";
 import * as A from "effect/Array";
 import type * as B from "effect/Brand";
+<<<<<<< HEAD
+=======
+import * as Effect from "effect/Effect";
+>>>>>>> auth-type-perf
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -166,3 +170,85 @@ export namespace JsonProp {
   export type Type = typeof JsonProp.Type & { __JsonPath: true; __JsonProp: true };
   export type Encoded = typeof JsonProp.Encoded;
 }
+<<<<<<< HEAD
+=======
+
+/**
+ * Schema transformer that converts JSON string or Array<string> to Array<string> and vice versa.
+ * Uses proper schema validation to ensure the result is actually an array of strings.
+ * Falls back to empty array if parsing fails or result is not a valid string array.
+ * Accepts both JSON strings and arrays on the encoded side for flexibility.
+ *
+ * Examples:
+ * - '["tag1", "tag2"]' -> ["tag1", "tag2"]
+ * - ["tag1", "tag2"] -> ["tag1", "tag2"]
+ * - '[]' -> []
+ * - [] -> []
+ * - 'invalid json' -> []
+ * - '["valid", 123, "mixed"]' -> [] (invalid due to mixed types)
+ * - 'null' -> []
+ */
+export const JsonStringToStringArray = S.transformOrFail(S.Union(S.String, S.Array(S.String)), S.Array(S.String), {
+  decode: (input) =>
+    Effect.gen(function* () {
+      // If input is already an array, validate it directly
+      if (Array.isArray(input)) {
+        return yield* S.decodeUnknown(S.Array(S.String))(input).pipe(Effect.orElse(() => Effect.succeed([])));
+      }
+
+      // If input is a string, try to parse the JSON
+      const parsed = yield* Effect.try(() => JSON.parse(input as string)).pipe(
+        Effect.orElse(() => Effect.succeed(null))
+      );
+
+      // Validate that the parsed result is an array of strings
+      return yield* S.decodeUnknown(S.Array(S.String))(parsed).pipe(Effect.orElse(() => Effect.succeed([])));
+    }),
+  encode: (array) => Effect.succeed(JSON.stringify(array)),
+  strict: true,
+});
+
+/**
+ * Generic JSON string to array transformer that handles both JSON strings and arrays.
+ * Falls back to empty array if parsing fails or validation fails.
+ *
+ * @param itemSchema - The schema for individual array items
+ * @returns A transformer schema that converts between JSON strings/arrays and validated arrays
+ */
+export const JsonStringToArray = <A>(itemSchema: S.Schema<A, any, never>) =>
+  S.transformOrFail(S.Union(S.String, S.Array(S.Unknown)), S.Array(itemSchema), {
+    decode: (input) =>
+      Effect.gen(function* () {
+        // If input is already an array, validate it directly
+        if (Array.isArray(input)) {
+          return yield* S.decodeUnknown(S.Array(itemSchema))(input).pipe(
+            Effect.tapError((error) =>
+              Effect.logError("Failed to validate array in JsonStringToArray", { error, input })
+            ),
+            Effect.orElse(() => Effect.succeed([] as ReadonlyArray<A>))
+          );
+        }
+
+        // If input is a string, try to parse the JSON
+        const parsed = yield* Effect.try(() => JSON.parse(input as string)).pipe(
+          Effect.tapError((error) =>
+            Effect.logError("Failed to parse JSON string in JsonStringToArray", { error, input })
+          ),
+          Effect.orElse(() => Effect.succeed(null))
+        );
+
+        // Validate that the parsed result is an array of the correct type
+        return yield* S.decodeUnknown(S.Array(itemSchema))(parsed).pipe(
+          Effect.tapError((error) =>
+            Effect.logError("Failed to validate parsed JSON in JsonStringToArray", {
+              error,
+              parsed,
+            })
+          ),
+          Effect.orElse(() => Effect.succeed([] as ReadonlyArray<A>))
+        );
+      }),
+    encode: (array) => Effect.succeed(JSON.stringify(array)),
+    strict: true,
+  });
+>>>>>>> auth-type-perf

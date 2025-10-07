@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import type { AuthProviderNameValue } from "@beep/constants";
+>>>>>>> auth-type-perf
 import { serverEnv } from "@beep/core-env/server";
 import * as IamEntities from "@beep/iam-domain/entities";
 import { IamDb } from "@beep/iam-infra/db/Db";
@@ -5,11 +9,20 @@ import { IamDbSchema } from "@beep/iam-tables";
 import { BS } from "@beep/schema";
 import { IamEntityIds, paths, SharedEntityIds } from "@beep/shared-domain";
 import type { UnsafeTypes } from "@beep/types";
+<<<<<<< HEAD
+=======
+import type { SqlError } from "@effect/sql/SqlError";
+>>>>>>> auth-type-perf
 import type { BetterAuthOptions } from "better-auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import * as d from "drizzle-orm";
 import * as A from "effect/Array";
+<<<<<<< HEAD
+=======
+import type { ConfigError } from "effect/ConfigError";
+import * as Data from "effect/Data";
+>>>>>>> auth-type-perf
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
@@ -20,11 +33,61 @@ import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
+<<<<<<< HEAD
 import { AuthEmailService, SendResetPasswordEmailPayload, SendVerificationEmailPayload } from "./AuthEmail.service";
 import { commonExtraFields } from "./internal";
 import { AllPlugins } from "./plugins";
 
 const AuthOptions = Effect.gen(function* () {
+=======
+import { headers as nextHeaders } from "next/headers";
+import { AuthEmailService, SendResetPasswordEmailPayload, SendVerificationEmailPayload } from "./AuthEmail.service";
+import { type CommonExtraFields, commonExtraFields } from "./internal";
+import { AllPlugins } from "./plugins";
+import type { Plugins } from "./plugins/plugins";
+
+export type ReadonlyHeaders = Headers & {
+  /** @deprecated Method unavailable on `ReadonlyHeaders`. Read more: https://nextjs.org/docs/app/api-reference/functions/headers */
+  append(...args: any[]): void;
+  /** @deprecated Method unavailable on `ReadonlyHeaders`. Read more: https://nextjs.org/docs/app/api-reference/functions/headers */
+  set(...args: any[]): void;
+  /** @deprecated Method unavailable on `ReadonlyHeaders`. Read more: https://nextjs.org/docs/app/api-reference/functions/headers */
+  delete(...args: any[]): void;
+};
+type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "user"> & {
+  account: {
+    additionalFields: CommonExtraFields;
+    accountLinking: {
+      enabled: boolean;
+      allowDifferentEmails: boolean;
+      trustedProviders: AuthProviderNameValue.Type[];
+    };
+    encryptOAuthTokens: boolean;
+  };
+  session: {
+    modelName: typeof IamEntityIds.SessionId.tableName;
+    additionalFields: CommonExtraFields;
+    cookieCache: {
+      enabled: true;
+      maxAge: number;
+    };
+    expiresIn: number;
+    updateAge: number;
+  };
+  plugins: Plugins;
+  user: {
+    modelName: typeof SharedEntityIds.UserId.tableName;
+    additionalFields: CommonExtraFields & {
+      gender: {
+        type: "string";
+        required: true;
+      };
+    };
+  };
+};
+
+const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService> = Effect.gen(function* () {
+>>>>>>> auth-type-perf
   const { db, drizzle } = yield* IamDb.IamDb;
   const { sendResetPassword, sendVerification } = yield* AuthEmailService;
   const plugins = yield* AllPlugins;
@@ -33,7 +96,11 @@ const AuthOptions = Effect.gen(function* () {
   const runtime = yield* Effect.runtime();
   const runPromise = Runtime.runPromise(runtime);
 
+<<<<<<< HEAD
   return yield* Effect.succeed({
+=======
+  const opts: Opts = {
+>>>>>>> auth-type-perf
     telemetry: {
       debug: isDebug,
     },
@@ -233,6 +300,7 @@ const AuthOptions = Effect.gen(function* () {
         generateId: false,
       },
     },
+<<<<<<< HEAD
   } satisfies BetterAuthOptions);
 });
 
@@ -246,4 +314,77 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
       auth: betterAuth(opts),
     })
   ),
+=======
+  } as const;
+  return opts;
+});
+
+export type Auth = ReturnType<typeof betterAuth<Opts>>;
+export type $Infer = Auth["$Infer"];
+export type Session = $Infer["Session"];
+export type User = $Infer["User"];
+
+export class AuthServiceError extends Data.TaggedError("AuthServiceError")<{
+  readonly cause: unknown;
+  readonly message: string;
+}> {}
+
+const authServiceEffect: Effect.Effect<
+  {
+    readonly auth: () => Auth;
+    readonly getSession: () => Effect.Effect<Session, AuthServiceError, never>;
+    readonly listSessions: () => Effect.Effect<Session[], AuthServiceError, never>;
+    readonly getHeadersEffect: () => Effect.Effect<ReadonlyHeaders, AuthServiceError, never>;
+  },
+  SqlError | ConfigError,
+  AuthEmailService | IamDb.IamDb
+> = Effect.gen(function* () {
+  const authOptions = yield* AuthOptions;
+  const auth = betterAuth(authOptions);
+
+  const runtime = yield* Effect.runtime();
+  const runPromise = Runtime.runPromise(runtime);
+  const getHeadersEffect = Effect.tryPromise({
+    try: async (): Promise<ReadonlyHeaders> => await nextHeaders(),
+    catch: (e) =>
+      new AuthServiceError({
+        cause: e,
+        message: "Failed to get headers",
+      }),
+  }).pipe(Effect.tapError(Effect.logError), Effect.withSpan(`AuthService.getHeadersEffect`));
+  const getHeaders: () => Promise<ReadonlyHeaders> = () =>
+    getHeadersEffect.pipe(Effect.withSpan("AuthService.getHeaders"), runPromise);
+
+  const getSession: () => Effect.Effect<Session, AuthServiceError, never> = () =>
+    Effect.tryPromise({
+      try: async (): Promise<Session> => await auth.api.getSession({ headers: await getHeaders() }),
+      catch: (e) =>
+        new AuthServiceError({
+          cause: e,
+          message: "Failed to get session",
+        }),
+    }).pipe(Effect.tapError(Effect.logError), Effect.withSpan(`AuthService.getSession`));
+
+  const listSessions: () => Effect.Effect<Session[], AuthServiceError, never> = () =>
+    Effect.tryPromise({
+      try: async () => await auth.api.listSessions({ headers: await getHeaders() }),
+      catch: (e) =>
+        new AuthServiceError({
+          cause: e,
+          message: "Failed to list sessions",
+        }),
+    }).pipe(Effect.tapError(Effect.logError), Effect.withSpan(`AuthService.listSessions`));
+
+  return yield* Effect.succeed({
+    auth: () => auth,
+    getSession,
+    listSessions,
+    getHeadersEffect: () => getHeadersEffect,
+  });
+});
+
+export class AuthService extends Effect.Service<AuthService>()("AuthService", {
+  dependencies: [AuthEmailService.DefaultWithoutDependencies, IamDb.IamDb.Live],
+  effect: authServiceEffect,
+>>>>>>> auth-type-perf
 }) {}

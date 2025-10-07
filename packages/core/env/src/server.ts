@@ -4,8 +4,15 @@ import { SharedEntityIds } from "@beep/shared-domain";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
+<<<<<<< HEAD
 import * as LogLevel from "effect/LogLevel";
 import * as Match from "effect/Match";
+=======
+import * as F from "effect/Function";
+import * as LogLevel from "effect/LogLevel";
+import * as Match from "effect/Match";
+import * as O from "effect/Option";
+>>>>>>> auth-type-perf
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -21,10 +28,15 @@ export const isPlaceholder = <A>(configValue: A) =>
     ? Redacted.value(configValue) === PLACEHOLDER_VALUE
     : configValue === PLACEHOLDER_VALUE;
 
+<<<<<<< HEAD
 export const ServerConfig = Config.all({
   nodeEnv: Config.literal("development", "production", "test")("NODE_ENV"),
 
   app: Config.nested("APP")(
+=======
+const AppConfig = Config.zipWith(
+  Config.nested("APP")(
+>>>>>>> auth-type-perf
     Config.all({
       protocol: S.Config("ENV", EnvValue).pipe(
         Config.map((env) =>
@@ -49,6 +61,72 @@ export const ServerConfig = Config.all({
       clientUrl: Config.url("CLIENT_URL"),
     })
   ),
+<<<<<<< HEAD
+=======
+  Config.nested("VERCEL")(
+    Config.all({
+      projectProductionUrl: Config.option(S.Config("PROJECT_PRODUCTION_URL", BS.DomainName)),
+      vercelEnv: Config.option(Config.literal("production", "preview", "development", "staging")("ENV")),
+      vercelUrl: Config.option(S.Config("URL", BS.DomainName)),
+    })
+  ),
+  (appConfig, vercelConfig) => {
+    const clientUrl = BS.URLString.make(`https://${appConfig.clientUrl}`);
+    const projectProductionUrl = F.pipe(
+      vercelConfig.projectProductionUrl,
+      O.match({
+        onNone: () => clientUrl,
+        onSome: (prodUrl) => BS.URLString.make(`https://${prodUrl}`),
+      })
+    );
+    const baseUrl = O.all([vercelConfig.vercelUrl, vercelConfig.vercelEnv]).pipe(
+      O.match({
+        onNone: () => BS.URLString.make(`http://${appConfig.clientUrl}`),
+        onSome: ([vercelUrl, vEnv]) =>
+          vEnv === "production"
+            ? projectProductionUrl
+            : vEnv === "preview"
+              ? BS.URLString.make(`https://${vercelUrl}`)
+              : clientUrl,
+      })
+    );
+    return {
+      ...appConfig,
+      baseUrl,
+      projectProductionUrl,
+      vercelEnv: F.pipe(
+        vercelConfig.vercelEnv,
+        O.match({
+          onNone: () => "development",
+          onSome: (v) => v,
+        })
+      ),
+    };
+  }
+);
+
+export const ServerConfig = Config.all({
+  nodeEnv: Config.literal("development", "production", "test")("NODE_ENV"),
+  baseUrl: Config.nested("VERCEL")(
+    Config.all({
+      url: Config.option(S.Config("URL", BS.DomainName)),
+      env: Config.option(Config.literal("production", "preview", "development", "staging")("ENV")),
+      projectProductionUrl: Config.option(S.Config("PROJECT_PRODUCTION_URL", BS.DomainName)),
+    })
+  ).pipe(
+    Config.map(({ env, url, projectProductionUrl }) => {
+      const baseUrl =
+        O.isSome(env) && env.value === "production" && O.isSome(projectProductionUrl)
+          ? BS.URLString.make(`https://${projectProductionUrl.value}`)
+          : O.isSome(url)
+            ? BS.URLString.make(`https://${url}`)
+            : BS.URLString.make(`http://localhost:3000`);
+      return baseUrl.toString();
+    })
+  ),
+  productionUrl: Config.option(S.Config("VERCEL_PROJECT_PRODUCTION_URL", BS.DomainName)),
+  app: AppConfig,
+>>>>>>> auth-type-perf
   auth: Config.all({
     secret: Config.redacted(Config.nonEmptyString("BETTER_AUTH_SECRET")),
   }),
