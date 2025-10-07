@@ -1,6 +1,7 @@
 export type * from "./common.types";
 export type * as FnTypes from "./fn.types";
 export type * as LiteralTypes from "./literal.types";
+export type * as MutTypes from "./mut.types";
 export type * as Or from "./or.types";
 export type * as RecordTypes from "./record.types";
 export type * as SchemaTypes from "./schema.types";

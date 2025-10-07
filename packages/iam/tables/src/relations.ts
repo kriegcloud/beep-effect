@@ -145,6 +145,7 @@ export const sessionRelations = d.relations(session, ({ one }) => ({
   impersonator: one(user, {
     fields: [session.impersonatedBy],
     references: [user.id],
+    relationName: "impersonatedSessions",
   }),
 }));
 

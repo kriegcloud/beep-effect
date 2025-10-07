@@ -3,6 +3,7 @@ import { IamDbSchema } from "@beep/iam-tables";
 import { IamEntityIds } from "@beep/shared-domain";
 import { Organization } from "@beep/shared-domain/entities";
 import type { SqlError } from "@effect/sql/SqlError";
+import type { OrganizationOptions } from "better-auth/plugins/organization";
 import { organization } from "better-auth/plugins/organization";
 import * as d from "drizzle-orm";
 import type { ConfigError } from "effect/ConfigError";
@@ -12,13 +13,112 @@ import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import { AuthEmailService, InvitationEmailPayload } from "../../AuthEmail.service";
 import { commonExtraFields } from "../../internal";
-import type { OrganizationOptions } from "./plugin-options";
+
+const organizationSchema = {
+  additionalFields: {
+    type: {
+      type: "string",
+      required: true,
+      defaultValue: Organization.OrganizationTypeEnum.individual,
+    },
+    ownerUserId: {
+      type: "string",
+      required: false,
+    },
+    isPersonal: {
+      type: "boolean",
+      required: true,
+    },
+    maxMembers: {
+      type: "number",
+      required: false,
+    },
+    features: {
+      type: "json", // jsonb in DB
+      required: false,
+    },
+    settings: {
+      type: "json", // jsonb in DB
+      required: false,
+    },
+    subscriptionTier: {
+      type: "string",
+      required: false,
+      defaultValue: Organization.SubscriptionTierEnum.free,
+    },
+    subscriptionStatus: {
+      type: "string",
+      required: false,
+      defaultValue: Organization.SubscriptionStatusEnum.active,
+    },
+    ...commonExtraFields,
+  },
+} as const;
+type OrganizationSchema = typeof organizationSchema;
+const memberSchema = {
+  additionalFields: {
+    // Enhanced member tracking fields (see iam/tables/src/tables/member.table.ts)
+    status: { type: "string", required: true, defaultValue: "active" },
+    invitedBy: { type: "string", required: false },
+    invitedAt: { type: "date", required: false },
+    joinedAt: { type: "date", required: false },
+    lastActiveAt: { type: "date", required: false },
+    permissions: { type: "string", required: false }, // JSON string
+    ...commonExtraFields,
+  },
+} as const;
+type MemberSchema = typeof memberSchema;
+const invitationSchema = {
+  additionalFields: {
+    ...commonExtraFields,
+  },
+} as const;
+type InvitationSchema = typeof invitationSchema;
+
+const teamSchema = {
+  additionalFields: {
+    // Align with shared team table (see shared/tables/src/tables/team.table.ts)
+    description: { type: "string", required: false },
+    metadata: { type: "string", required: false },
+    logo: { type: "string", required: false },
+    ...commonExtraFields,
+  },
+} as const;
+type TeamSchema = typeof teamSchema;
+
+const organizationRoleSchema = {
+  additionalFields: {
+    ...commonExtraFields,
+  },
+} as const;
+type OrganizationRoleSchema = typeof organizationRoleSchema;
+type OrgOpts = Omit<OrganizationOptions, "teams" | "schema" | "dynamicAccessControl"> & {
+  schema: Omit<
+    OrganizationOptions["schema"],
+    "organization" | "member" | "invitation" | "team" | "organizationRole"
+  > & {
+    organization: OrganizationSchema;
+    member: MemberSchema;
+    invitation: InvitationSchema;
+    team: TeamSchema;
+    organizationRole: OrganizationRoleSchema;
+  };
+  teams: {
+    enabled: true;
+    maximumTeams: number;
+    allowRemovingAllTeams: boolean;
+  };
+  dynamicAccessControl: {
+    enabled: true;
+  };
+};
+
 export const organizationPluginOptions = Effect.gen(function* () {
   const { db } = yield* IamDb.IamDb;
   const { sendInvitation } = yield* AuthEmailService;
   const runtime = yield* Effect.runtime();
   const runPromise = Runtime.runPromise(runtime);
-  return {
+  const orgOpts: OrgOpts = {
     allowUserToCreateOrganization: true,
     organizationLimit: 1,
     creatorRole: "owner",
@@ -44,7 +144,7 @@ export const organizationPluginOptions = Effect.gen(function* () {
       organization: {
         additionalFields: {
           type: {
-            type: [...Organization.OrganizationTypeOptions],
+            type: "string",
             required: true,
             defaultValue: Organization.OrganizationTypeEnum.individual,
           },
@@ -69,12 +169,12 @@ export const organizationPluginOptions = Effect.gen(function* () {
             required: false,
           },
           subscriptionTier: {
-            type: [...Organization.SubscriptionTierOptions],
+            type: "string",
             required: false,
             defaultValue: Organization.SubscriptionTierEnum.free,
           },
           subscriptionStatus: {
-            type: [...Organization.SubscriptionStatusOptions],
+            type: "string",
             required: false,
             defaultValue: Organization.SubscriptionStatusEnum.active,
           },
@@ -154,21 +254,21 @@ export const organizationPluginOptions = Effect.gen(function* () {
         await runPromise(program);
       },
     },
-  } satisfies OrganizationOptions;
-})
+  };
+  return orgOpts;
+});
 
-type Options = Effect.Effect.Success<typeof organizationPluginOptions>;
 type Context = Effect.Effect.Context<typeof organizationPluginOptions>;
 
 export type OrganizationPluginEffect = Effect.Effect<
-  ReturnType<typeof organization<Options>>,
+  ReturnType<typeof organization<OrgOpts>>,
   SqlError | ConfigError,
   Context
 >;
 
-export type OrganizationPlugin = Effect.Effect.Success<OrganizationPluginEffect>;
+export type OrganizationPlugin = ReturnType<typeof organization<OrgOpts>>;
 
 export const organizationPlugin: OrganizationPluginEffect = Effect.gen(function* () {
   const options = yield* organizationPluginOptions;
-  return organization(options satisfies OrganizationOptions);
-})
+  return organization<OrgOpts>(options);
+});

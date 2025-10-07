@@ -1,9 +1,12 @@
 import type { StringTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
+import * as Record from "effect/Record";
 import * as Str from "effect/String";
 import * as ArrayUtils from "./array.utils";
+
 /**
  * Generates initials from a given name.
  *
@@ -233,3 +236,209 @@ export function mapApplySuffix<const Suffix extends StringTypes.NonEmptyString>(
 }
 
 export const strLiteralFromNum = <T extends number>(value: T) => `${value}` as const;
+
+const irregularPlurals: Record<string, string> = {
+  address: "addresses",
+  campus: "campuses",
+  child: "children",
+  person: "people",
+};
+
+const irregularSingulars = F.pipe(
+  irregularPlurals,
+  Record.toEntries,
+  A.map(([a, b]) => [b, a] as const),
+  Record.fromEntries
+);
+
+export function pluralize(word: string): string {
+  // Handle empty strings
+  if (Str.isEmpty(word)) return word;
+
+  const lower = word.toLowerCase();
+
+  // Check for irregular plurals (case-insensitive)
+  if (irregularPlurals[lower]) {
+    return preserveCase(word, irregularPlurals[lower]);
+  }
+
+  // Words ending in 'y' preceded by consonant
+  if (word.length > 1 && word.endsWith("y")) {
+    const beforeY = word[word.length - 2] || "";
+    if (!"aeiou".includes(beforeY.toLowerCase())) {
+      return `${word.slice(0, -1)}ies`;
+    }
+  }
+
+  // Words ending in s, x, z, ch, sh
+  if (word.match(/[sxz]$|[cs]h$/)) {
+    return `${word}es`;
+  }
+
+  // Words ending in 'f' or 'fe'
+  if (word.endsWith("f")) {
+    return `${word.slice(0, -1)}ves`;
+  }
+  if (word.endsWith("fe")) {
+    return `${word.slice(0, -2)}ves`;
+  }
+
+  // Words ending in 'o' preceded by consonant
+  if (word.length > 1 && word.endsWith("o")) {
+    const beforeO = word[word.length - 2] || "";
+    if (!"aeiou".includes(beforeO.toLowerCase())) {
+      // Common exceptions that just add 's'
+      const oExceptions = ["photo", "piano", "halo", "solo", "pro", "auto"];
+      if (!oExceptions.includes(lower)) {
+        return `${word}es`;
+      }
+    }
+  }
+
+  // Default: add 's'
+  return `${word}s`;
+}
+
+export function singularize(word: string): string {
+  // Handle empty strings
+  if (!word) return word;
+
+  const lower = word.toLowerCase();
+
+  // Check for irregular singulars (case-insensitive)
+  if (irregularSingulars[lower]) {
+    return preserveCase(word, irregularSingulars[lower]);
+  }
+
+  // Check if word is already a singular form from our irregular plurals
+  // This prevents singularizing words that are already singular
+  const singularValues = F.pipe(irregularPlurals, Record.values);
+  if (F.pipe(singularValues, A.contains(lower))) {
+    return word;
+  }
+
+  // Words ending in 'us' are typically already singular (Latin origin)
+  // Common examples: campus, status, virus, focus, bonus, genus, etc.
+  if (word.endsWith("us")) {
+    return word;
+  }
+
+  // Words ending in 'ies'
+  if (word.endsWith("ies")) {
+    return `${word.slice(0, -3)}y`;
+  }
+
+  // Words ending in 'ves'
+  if (word.endsWith("ves")) {
+    return `${word.slice(0, -3)}f`;
+  }
+
+  // Words ending in 'es'
+  if (word.endsWith("es")) {
+    const base = word.slice(0, -2);
+    // Check if base ends in s, x, z, ch, sh
+    if (base.match(/[sxz]$|[cs]h$/)) {
+      return base;
+    }
+    // Check if base ends in 'o' preceded by consonant
+    if (base.length > 1 && base.endsWith("o")) {
+      const beforeO = base[base.length - 2] || "";
+      if (!"aeiou".includes(beforeO.toLowerCase())) {
+        return base;
+      }
+    }
+    // Otherwise, it might be a regular 'e' ending
+    return `${base}e`;
+  }
+
+  // Words ending in 's' (but not 'ss')
+  if (word.endsWith("s") && !word.endsWith("ss")) {
+    return word.slice(0, -1);
+  }
+
+  // If no plural pattern found, return as is
+  return word;
+}
+
+// Helper function to preserve the case pattern of the original word
+function preserveCase(original: string, transformed: string): string {
+  if (F.pipe(original, Str.length) === 0) {
+    return transformed;
+  }
+
+  // If original is all uppercase
+  if (original === F.pipe(original, Str.toUpperCase)) {
+    return F.pipe(transformed, Str.toUpperCase);
+  }
+
+  // If original starts with uppercase
+  const firstChar = F.pipe(
+    original,
+    Str.charAt(0),
+    O.getOrElse(() => "")
+  );
+  if (firstChar === F.pipe(firstChar, Str.toUpperCase)) {
+    return F.pipe(transformed, Str.capitalize, Str.toLowerCase, Str.capitalize);
+  }
+
+  // Otherwise, return lowercase
+  return F.pipe(transformed, Str.toLowerCase);
+}
+
+/**
+ * Converts table name to entity name (people -> Person, addresses -> Address)
+ */
+export const mkEntityName = F.flow(Str.snakeToPascal, singularize);
+
+/**
+ * Converts entity name to table name (Person -> people, Address -> addresses)
+ */
+export const mkTableName = F.flow(Str.pascalToSnake, pluralize);
+
+/**
+ * Converts entity name to Zero schema table name (Person -> people, PhoneNumber -> phoneNumbers)
+ */
+export const mkZeroTableName = F.flow(Str.uncapitalize, pluralize);
+
+/**
+ * Converts table name to entity type for IDs (people -> person, phone_numbers -> phonenumber)
+ */
+export const mkEntityType = F.flow(Str.snakeToPascal, Str.toLowerCase, singularize);
+
+/**
+ * Converts entity name to standardized URL parameter name (Person -> personId, PhoneNumber -> phoneNumberId)
+ */
+export const mkUrlParamName = F.flow(Str.uncapitalize, Str.concat("Id"));
+
+/**
+ * Formats a field name into a human-readable label using Effect-TS String utilities
+ * Handles snake_case, kebab-case, camelCase, PascalCase, and mixed formats
+ * Examples:
+ * - "first_name" -> "First Name"
+ * - "firstName" -> "First Name"
+ * - "FirstName" -> "First Name"
+ * - "first-name" -> "First Name"
+ * - "phoneNumber2" -> "Phone Number 2"
+ */
+export const formatLabel = (fieldName: string): string =>
+  F.pipe(
+    fieldName,
+    Match.value,
+    Match.when(Str.isEmpty, () => ""),
+    Match.when(Str.includes(" "), (name) => F.pipe(name, Str.split(" "), A.map(Str.capitalize), A.join(" "))),
+    Match.when(Str.includes("_"), (name) => F.pipe(name, Str.split("_"), A.map(Str.capitalize), A.join(" "))),
+    Match.when(Str.includes("-"), (name) => F.pipe(name, Str.split("-"), A.map(Str.capitalize), A.join(" "))),
+    Match.orElse((name) =>
+      F.pipe(
+        name,
+        // Convert camelCase/PascalCase to kebab-case with regex for numbers
+        Str.replace(/([a-z])([A-Z])/g, "$1-$2"),
+        Str.replace(/([a-z])(\d)/g, "$1-$2"),
+        Str.replace(/(\d)([A-Z])/g, "$1-$2"),
+        Str.toLowerCase,
+        Str.split("-"),
+        A.map(Str.capitalize),
+        A.join(" ")
+      )
+    )
+  );

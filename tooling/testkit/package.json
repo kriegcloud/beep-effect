@@ -31,6 +31,12 @@
     "@effect/platform": "*",
     "effect": "*"
   },
+  "devDependencies": {
+    "@effect/platform-bun": "*",
+    "@types/bun": "*",
+    "@testcontainers/postgresql": "*",
+    "testcontainers": "*"
+  },
   "effect": {
     "generateExports": {
       "include": [

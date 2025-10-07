@@ -91,6 +91,9 @@
     {
       "path": "packages/runtime/client"
     },
+     {
+      "path": "packages/runtime/shared"
+    },
     {
       "path": "apps/server"
     },

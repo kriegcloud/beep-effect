@@ -1,0 +1,5 @@
+[install]
+
+# installation strategy: "hoisted" or "isolated"
+# default: "hoisted"
+linker = "isolated"

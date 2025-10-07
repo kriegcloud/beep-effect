@@ -9,10 +9,13 @@
     "esModuleInterop": true,
     "declaration": true,
     "skipLibCheck": true,
+    "preserveWatchOutput": true,
+    "inlineSources": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "moduleResolution": "bundler",
     "lib": [
+      "ES2019",
       "ES2022",
       "DOM",
       "DOM.Iterable"
@@ -278,8 +281,17 @@
       "beep/runtime-server/*": [
         "./packages/runtime/server/src/index"
       ],
-       "beep/runtime-server/test/*": [
+      "beep/runtime-server/test/*": [
         "./packages/runtime/server/test/*"
+      ],
+      "beep/runtime-shared": [
+        "./packages/runtime/shared/src/index"
+      ],
+      "beep/runtime-shared/*": [
+        "./packages/runtime/shared/src/index"
+      ],
+      "beep/runtime-shared/test/*": [
+        "./packages/runtime/shared/test/*"
       ],
       "beep/runtime-client": [
         "./packages/runtime/client/src/index"
@@ -287,7 +299,7 @@
       "beep/runtime-client/*": [
         "./packages/runtime/client/src/index"
       ],
-       "beep/runtime-client/test/*": [
+      "beep/runtime-client/test/*": [
         "./packages/runtime/client/test/*"
       ],
       "@/*": [

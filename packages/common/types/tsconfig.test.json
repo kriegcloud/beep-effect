@@ -4,10 +4,13 @@
   "references": [
     {
       "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../../tooling/testkit"
     }
   ],
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["bun", "node"],
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true

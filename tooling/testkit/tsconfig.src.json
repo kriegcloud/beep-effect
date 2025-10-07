@@ -3,11 +3,15 @@
   "include": ["src"],
   "exclude": ["vitest.config.ts"],
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["bun", "node"],
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
     "baseUrl": ".",
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
     "paths": {
       "@beep/testkit/*": ["./src/*"]
     }

@@ -3,7 +3,9 @@
   "include": [],
   "compilerOptions": {
     "paths": {
-      "@beep/types/*": ["./src/*"]
+      "@beep/types/*": ["./src/*"],
+      "@beep/testkit": ["../../../tooling/testkit/src/index"],
+      "@beep/testkit/*": ["../../../tooling/testkit/src/*"]
     }
   },
   "references": [

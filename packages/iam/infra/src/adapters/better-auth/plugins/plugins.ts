@@ -1,4 +1,6 @@
+import type { IamDb } from "@beep/iam-infra/db";
 import * as Effect from "effect/Effect";
+import type { AuthEmailService } from "../AuthEmail.service";
 import * as Admin from "./admin";
 import * as Anonymous from "./anonymous";
 import * as ApiKey from "./api-key";
@@ -15,7 +17,6 @@ import * as Localization from "./localization";
 import * as Mcp from "./mcp";
 import * as MultiSession from "./multi-session";
 import * as NextCookies from "./next-cookies";
-import type { AuthEmailService } from "../AuthEmail.service";
 import * as OidcProvider from "./oidc-provider";
 import * as OneTap from "./one-tap";
 import * as OneTimeToken from "./one-time-token";
@@ -28,38 +29,37 @@ import * as SSO from "./sso";
 import * as Stripe from "./stripe";
 import * as TwoFactor from "./two-factor";
 import * as Username from "./username";
-import type { IamDb } from "@beep/iam-infra/db";
 
 export type Plugins = Array<
- | Admin.AdminPlugin
- | Anonymous.AnonymousPlugin
- | ApiKey.ApiKeyPlugin
- | Bearer.BearerPlugin
- | Captcha.CaptchaPlugin
- | CustomSession.CustomSessionPlugin
- | DeviceAuthorization.DeviceAuthorizationPlugin
- | DubAnalytics.DubAnalyticsPlugin
- | GenericOAuth.GenericOAuthPlugin
- | HaveIBeenPwned.HaveIBeenPwnedPlugin
- | Jwt.JwtPlugin
- | LastLoginMethod.LastLoginMethodPlugin
- | Mcp.McpPlugin
- | MultiSession.MultiSessionPlugin
- | NextCookies.NextCookiesPlugin
- | OneTap.OneTapPlugin
- | OidcProvider.OIDCProviderPlugin
- | OpenApi.OpenApiPlugin
- | OneTimeToken.OneTimeTokenPlugin
- | Organization.OrganizationPlugin
- | PhoneNumber.PhoneNumberPlugin
- | Passkey.PasskeyPlugin
- | SSO.SSOPlugin
- | SIWE.SIWEPlugin
- | Stripe.StripePlugin
- | TwoFactor.TwoFactorPlugin
- | Username.UsernamePlugin
- | Localization.LocalizationPlugin
->
+  | Admin.AdminPlugin
+  | Anonymous.AnonymousPlugin
+  | ApiKey.ApiKeyPlugin
+  | Bearer.BearerPlugin
+  | Captcha.CaptchaPlugin
+  | CustomSession.CustomSessionPlugin
+  | DeviceAuthorization.DeviceAuthorizationPlugin
+  | DubAnalytics.DubAnalyticsPlugin
+  | GenericOAuth.GenericOAuthPlugin
+  | HaveIBeenPwned.HaveIBeenPwnedPlugin
+  | Jwt.JwtPlugin
+  | LastLoginMethod.LastLoginMethodPlugin
+  | Mcp.McpPlugin
+  | MultiSession.MultiSessionPlugin
+  | NextCookies.NextCookiesPlugin
+  | OneTap.OneTapPlugin
+  | OidcProvider.OIDCProviderPlugin
+  | OpenApi.OpenApiPlugin
+  | OneTimeToken.OneTimeTokenPlugin
+  | Organization.OrganizationPlugin
+  | PhoneNumber.PhoneNumberPlugin
+  | Passkey.PasskeyPlugin
+  | SSO.SSOPlugin
+  | SIWE.SIWEPlugin
+  | Stripe.StripePlugin
+  | TwoFactor.TwoFactorPlugin
+  | Username.UsernamePlugin
+  | Localization.LocalizationPlugin
+>;
 const allPluginsArray = [
   Admin.adminPlugin,
   Anonymous.anonymousPlugin,
@@ -93,8 +93,7 @@ const allPluginsArray = [
 
 // export type Plugins = Effect.Effect.Success<(typeof AllPluginsArray)[number]>;
 
-export const AllPlugins: Effect.Effect<Plugins, never, IamDb.IamDb | AuthEmailService> =
- Effect.flatMap(Effect.all(allPluginsArray), Effect.succeed).pipe(
-   Effect.catchAll((e) => Effect.dieMessage(`Failed to initialize AllPlugins due to: ${e}`))
- )
-
+export const AllPlugins: Effect.Effect<Plugins, never, IamDb.IamDb | AuthEmailService> = Effect.flatMap(
+  Effect.all(allPluginsArray),
+  Effect.succeed
+).pipe(Effect.catchAll((e) => Effect.dieMessage(`Failed to initialize AllPlugins due to: ${e}`)));

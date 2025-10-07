@@ -10,10 +10,13 @@
     },
     {
       "path": "../invariant"
+    },
+    {
+      "path": "../../../tooling/testkit"
     }
   ],
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["node", "bun"],
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true

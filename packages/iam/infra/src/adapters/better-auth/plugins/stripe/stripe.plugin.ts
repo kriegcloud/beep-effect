@@ -3,7 +3,6 @@ import { stripe } from "@better-auth/stripe";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import { Stripe } from "stripe";
-import type { StripeOptions } from "./plugin-options";
 
 // These are placeholders
 // TODO MAKE REAL.
@@ -42,7 +41,7 @@ const stripeOptions = Effect.gen(function* () {
         },
       ],
     },
-  } satisfies StripeOptions;
+  };
 });
 
 type Options = Effect.Effect.Success<typeof stripeOptions>;

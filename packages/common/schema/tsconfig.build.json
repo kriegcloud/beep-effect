@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.src.json",
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["bun", "node"],
     "tsBuildInfoFile": ".tsbuildinfo/build.tsbuildinfo",
     "outDir": "build/esm",
     "declarationDir": "build/dts",
@@ -11,6 +11,9 @@
     "sourceMap": true
   },
   "references": [
+    {
+      "path": "../../../tooling/testkit/tsconfig.build.json"
+    },
     {
       "path": "../types/tsconfig.build.json"
     },

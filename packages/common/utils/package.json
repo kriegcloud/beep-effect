@@ -42,7 +42,9 @@
   },
   "devDependencies": {
     "type-fest": "*",
+    "@beep/testkit": "workspace:^",
     "@beep/types": "workspace:^",
+    "@types/bun": "*",
     "tsx": "*"
   },
   "effect": {

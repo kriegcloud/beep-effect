@@ -1,9 +1,13 @@
 {
   "extends": "../../../tsconfig.base.json",
   "include": ["src"],
-  "references": [],
+  "references": [
+    {
+      "path": "../../../tooling/testkit"
+    }
+  ],
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["bun", "node"],
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
@@ -13,7 +17,9 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-      "@beep/types/*": ["./src/*"]
+      "@beep/types/*": ["./src/*"],
+      "@beep/testkit": ["../../../tooling/testkit/src/index"],
+      "@beep/testkit/*": ["../../../tooling/testkit/src/*"]
     }
   }
 }

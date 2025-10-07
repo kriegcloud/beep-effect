@@ -36,7 +36,10 @@
     "effect": "*"
   },
   "devDependencies": {
-    "string-ts": "*"
+    "string-ts": "*",
+    "@beep/testkit": "workspace:^",
+    "effect": "*",
+    "@types/bun": "*"
   },
   "effect": {
     "generateExports": {

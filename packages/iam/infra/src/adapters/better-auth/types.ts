@@ -1,4 +1,4 @@
-import type { $Infer, Auth, Session } from "better-auth";
+import type { $Infer, Auth, Session } from "./Auth.service";
 
 export type { $Infer, Auth, Session };
 export type $ErrorCodes = Auth["$ERROR_CODES"];
