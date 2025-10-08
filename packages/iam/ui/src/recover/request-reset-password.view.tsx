@@ -7,6 +7,7 @@ import { PasswordIcon } from "@beep/ui/icons/password-icon/index";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import { RequestResetPasswordForm } from "./request-reset-password.form";
+
 export const RequestResetPasswordView = () => {
   const runtime = useRuntime();
   const runRequestReset = makeRunClientPromise(runtime, "iam.recover.requestPasswordReset");
@@ -18,9 +19,9 @@ export const RequestResetPasswordView = () => {
         description={`Please enter the email address associated with your account and we'll email you a link to reset your password.`}
       />
       <RequestResetPasswordForm
-        onSubmit={async (valueEffect) =>
-          F.pipe(valueEffect, Effect.flatMap(iam.recover.requestPasswordReset), runRequestReset)
-        }
+        onSubmit={F.flow(async (valueEffect) =>
+          runRequestReset(F.pipe(valueEffect, Effect.flatMap(iam.recover.requestPasswordReset)))
+        )}
       />
       <FormReturnLink href={paths.auth.signIn} />
     </>

@@ -84,7 +84,8 @@ export namespace PathBuilder {
   const isReadonlyRecord = (input: unknown): input is UnsafeTypes.UnsafeReadonlyRecord =>
     typeof input === "object" && input !== null && !Array.isArray(input);
 
-  const formatTrail = (trail: readonly (string | number)[]) => (trail.length > 0 ? trail.join(".") : "(root)");
+  const formatTrail = (trail: readonly (string | number)[]) =>
+    trail.length > 0 ? trail.join(".") : ("(root)" as const);
 
   const ensure = <Value extends PathValue>(
     value: Value,
@@ -106,7 +107,7 @@ export namespace PathBuilder {
 
     if (isReadonlyRecord(value)) {
       const result: Record<string, unknown> = {};
-      for (const [key, nested] of Object.entries(value as Record<string, PathValue>)) {
+      for (const [key, nested] of Struct.entries(value)) {
         result[key] = ensure(nested, [...trail, key]);
       }
       return result as SafePathValue<Value>;
@@ -129,15 +130,15 @@ export namespace PathBuilder {
     params: Params
   ): QueryStringFromParams<Params> =>
     F.pipe(
-      Struct.entries(params),
+      Struct.entries<Params>(params),
       (entries) => {
         if (A.isEmptyReadonlyArray(entries)) {
           throw new Error("Invalid query parameters");
         }
         return entries;
       },
-      A.map(([key, value]) => `${key}=${value}`),
-      A.join("&")
+      A.map(([key, value]) => `${key}=${value}` as const),
+      A.join("&" as const)
     ) as QueryStringFromParams<Params>;
 
   const toQuery = <const Params extends R.ReadonlyRecord<StringTypes.NonEmptyString, StringTypes.NonEmptyString>>(
@@ -147,5 +148,5 @@ export namespace PathBuilder {
   export const dynamicQueries =
     <R extends StringTypes.NonEmptyString>(root: R) =>
     <const Params extends R.ReadonlyRecord<StringTypes.NonEmptyString, StringTypes.NonEmptyString>>(param: Params) =>
-      `${root}?${toQuery(param)}` as `${R}?${QueryStringFromParams<Params>}`;
+      `${root}?${toQuery(param)}` as const;
 }

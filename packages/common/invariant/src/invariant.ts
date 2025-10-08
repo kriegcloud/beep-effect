@@ -1,3 +1,4 @@
+import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
@@ -31,7 +32,7 @@ const safeFormatArg = (x: unknown): string => {
 const formatArgs = (args: readonly unknown[] | undefined): string =>
   F.pipe(
     O.fromNullable(args),
-    O.map((a) => a.map(safeFormatArg).join(", ")),
+    O.map((a) => A.join(", ")(a.map(safeFormatArg))),
     O.getOrElse(() => "")
   );
 

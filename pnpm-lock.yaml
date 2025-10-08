@@ -64,7 +64,7 @@ overrides:
   husky: 9.1.7
   lint-staged: 16.2.3
   prettier: 3.6.2
-  '@rocicorp/zero': ^0.24.2025100800
+  '@rocicorp/zero': ^0.24.2025100802
   syncpack: 14.0.0-alpha.23
   tsx: 4.20.6
   turbo: 2.5.8
@@ -92,7 +92,7 @@ overrides:
   '@better-auth/core': ^1.3.27
   '@types/react-dom': 19.2.1
   drizzle-orm: 0.44.6
-  es-toolkit: ^1.39.10
+  es-toolkit: ^1.40.0
   '@emotion/cache': 11.14.0
   '@emotion/react': 11.14.0
   picocolors: ^1.1.1
@@ -721,8 +721,8 @@ importers:
         specifier: ^8.6.0
         version: 8.6.0(react@19.2.0)
       es-toolkit:
-        specifier: ^1.39.10
-        version: 1.39.10
+        specifier: ^1.40.0
+        version: 1.40.0
       exifreader:
         specifier: ^4.32.0
         version: 4.32.0
@@ -992,8 +992,8 @@ importers:
         specifier: 10.0.0
         version: 10.0.0
       '@rocicorp/zero':
-        specifier: ^0.24.2025100800
-        version: 0.24.2025100800(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))
+        specifier: ^0.24.2025100802
+        version: 0.24.2025100802(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))
       '@testcontainers/postgresql':
         specifier: 11.7.1
         version: 11.7.1
@@ -1008,7 +1008,7 @@ importers:
         version: 0.3.1(drizzle-orm@0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7))
       drizzle-zero:
         specifier: ^0.14.3
-        version: 0.14.3(@rocicorp/zero@0.24.2025100800(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0)))(@types/pg@8.15.5)(drizzle-orm@0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7))(postgres@3.4.7)(prettier@3.6.2)
+        version: 0.14.3(@rocicorp/zero@0.24.2025100802(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0)))(@types/pg@8.15.5)(drizzle-orm@0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7))(postgres@3.4.7)(prettier@3.6.2)
       effect:
         specifier: 3.18.4
         version: 3.18.4
@@ -1069,8 +1069,8 @@ importers:
         specifier: 3.18.4
         version: 3.18.4
       es-toolkit:
-        specifier: ^1.39.10
-        version: 1.39.10
+        specifier: ^1.40.0
+        version: 1.40.0
       typeid-js:
         specifier: ^1.2.0
         version: 1.2.0
@@ -1378,14 +1378,14 @@ importers:
         specifier: 0.47.0
         version: 0.47.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/sql@0.46.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4)
       '@rocicorp/zero':
-        specifier: ^0.24.2025100800
-        version: 0.24.2025100800(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))
+        specifier: ^0.24.2025100802
+        version: 0.24.2025100802(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))
       drizzle-orm:
         specifier: 0.44.6
         version: 0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7)
       drizzle-zero:
         specifier: ^0.14.3
-        version: 0.14.3(@rocicorp/zero@0.24.2025100800(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0)))(@types/pg@8.15.5)(drizzle-orm@0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7))(postgres@3.4.7)(prettier@3.6.2)
+        version: 0.14.3(@rocicorp/zero@0.24.2025100802(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0)))(@types/pg@8.15.5)(drizzle-orm@0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7))(postgres@3.4.7)(prettier@3.6.2)
       effect:
         specifier: 3.18.4
         version: 3.18.4
@@ -2600,8 +2600,8 @@ importers:
         specifier: ^2.1.0
         version: 2.1.0(@opentelemetry/api@1.9.0)
       '@rocicorp/zero':
-        specifier: ^0.24.2025100800
-        version: 0.24.2025100800(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))
+        specifier: ^0.24.2025100802
+        version: 0.24.2025100802(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))
       '@tanstack/react-query':
         specifier: ^5.90.2
         version: 5.90.2(react@19.2.0)
@@ -2613,7 +2613,7 @@ importers:
         version: 1.3.27(next@15.5.4(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       drizzle-zero:
         specifier: ^0.14.3
-        version: 0.14.3(@rocicorp/zero@0.24.2025100800(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0)))(@types/pg@8.15.5)(drizzle-orm@0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7))(postgres@3.4.7)(prettier@3.6.2)
+        version: 0.14.3(@rocicorp/zero@0.24.2025100802(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0)))(@types/pg@8.15.5)(drizzle-orm@0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7))(postgres@3.4.7)(prettier@3.6.2)
       effect:
         specifier: 3.18.4
         version: 3.18.4
@@ -2876,8 +2876,8 @@ importers:
         specifier: ^8.6.0
         version: 8.6.0(react@19.2.0)
       es-toolkit:
-        specifier: ^1.39.10
-        version: 1.39.10
+        specifier: ^1.40.0
+        version: 1.40.0
       framer-motion:
         specifier: 12.23.22
         version: 12.23.22(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -6347,8 +6347,8 @@ packages:
     resolution: {integrity: sha512-xR+fGqQJjfxmaKmobVVsmerSc/JNpJG5hwOxoAdj/kPkax5n85iHeW/4D9ss+8frP9oI/3KzRcxZosTwPp3lYw==}
     hasBin: true
 
-  '@rocicorp/zero@0.24.2025100800':
-    resolution: {integrity: sha512-NVO6RK3qXrkjoPCT9EPoAZCEABlaPhYP/jtuxUVlbfNi45ZvCS4OdxZdCjUEmZzJZ2vKuWlVINgmMpGKr7xFOA==}
+  '@rocicorp/zero@0.24.2025100802':
+    resolution: {integrity: sha512-TCJC6iebKvy2WstXYXdFFz2SjmTdWCXQbgo5kkrXP18gldC5lr294qNfeaZDmEt5AI1noKMwqdIBP4n5grzA8g==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -8999,7 +8999,7 @@ packages:
     resolution: {integrity: sha512-ncIBRORigaxwaOv74WhesX7VvYRUWdLuBIt/AT9iOLNiA98A3vSJhsX4DgCRvfa9FXTLlDpm3egCmNxjVLvFTg==}
     hasBin: true
     peerDependencies:
-      '@rocicorp/zero': ^0.24.2025100800
+      '@rocicorp/zero': ^0.24.2025100802
       '@types/pg': ''
       drizzle-orm: 0.44.6
       pg: ''
@@ -9130,8 +9130,8 @@ packages:
     resolution: {integrity: sha512-FGgH2h8zKNim9ljj7dankFPcICIK9Cp5bm+c2gQSYePhpaG5+esrLODihIorn+Pe6FGJzWhXQotPv73jTaldXA==}
     engines: {node: '>= 0.4'}
 
-  es-toolkit@1.39.10:
-    resolution: {integrity: sha512-E0iGnTtbDhkeczB0T+mxmoVlT4YNweEKBLq7oaU4p11mecdsZpNWOglI4895Vh4usbQ+LsJiuLuI2L0Vdmfm2w==}
+  es-toolkit@1.40.0:
+    resolution: {integrity: sha512-8o6w0KFmU0CiIl0/Q/BCEOabF2IJaELM1T2PWj6e8KqzHv1gdx+7JtFnDwOx1kJH/isJ5NwlDG1nCr1HrRF94Q==}
 
   esbuild-register@3.6.0:
     resolution: {integrity: sha512-H2/S7Pm8a9CL1uhp9OvjwrBh5Pvx0H8qVOxNu8Wed9Y7qv56MPtq+GGM8RJpq6glYJn9Wspr8uw7l55uyinNeg==}
@@ -15887,7 +15887,7 @@ snapshots:
       bindings: 1.5.0
       prebuild-install: 7.1.3
 
-  '@rocicorp/zero@0.24.2025100800(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))':
+  '@rocicorp/zero@0.24.2025100802(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))':
     dependencies:
       '@badrap/valita': 0.3.11
       '@databases/escape-identifier': 1.0.3
@@ -19684,9 +19684,9 @@ snapshots:
     optionalDependencies:
       drizzle-orm: 0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7)
 
-  drizzle-zero@0.14.3(@rocicorp/zero@0.24.2025100800(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0)))(@types/pg@8.15.5)(drizzle-orm@0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7))(postgres@3.4.7)(prettier@3.6.2):
+  drizzle-zero@0.14.3(@rocicorp/zero@0.24.2025100802(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0)))(@types/pg@8.15.5)(drizzle-orm@0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7))(postgres@3.4.7)(prettier@3.6.2):
     dependencies:
-      '@rocicorp/zero': 0.24.2025100800(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))
+      '@rocicorp/zero': 0.24.2025100802(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))
       camelcase: 8.0.0
       commander: 14.0.1
       drizzle-orm: 0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7)
@@ -19809,7 +19809,7 @@ snapshots:
     dependencies:
       es-errors: 1.3.0
 
-  es-toolkit@1.39.10: {}
+  es-toolkit@1.40.0: {}
 
   esbuild-register@3.6.0(esbuild@0.25.10):
     dependencies:
@@ -21810,7 +21810,7 @@ snapshots:
       '@reduxjs/toolkit': 2.9.0(react-redux@9.2.0(@types/react@19.2.2)(react@19.2.0)(redux@5.0.1))(react@19.2.0)
       clsx: 2.1.1
       decimal.js-light: 2.5.1
-      es-toolkit: 1.39.10
+      es-toolkit: 1.40.0
       eventemitter3: 5.0.1
       immer: 10.1.3
       react: 19.2.0

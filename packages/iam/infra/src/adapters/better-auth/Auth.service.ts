@@ -279,6 +279,12 @@ const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService | I
       database: {
         generateId: false,
       },
+      defaultCookieAttributes: {
+        httpOnly: true,
+        partitioned: true,
+        sameSite: "none",
+        secure: true,
+      },
     },
   } as const;
   return opts;

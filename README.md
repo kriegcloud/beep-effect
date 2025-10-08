@@ -1,4 +1,6 @@
 # beep-effect
+[deep-wiki](https://deepwiki.com/kriegcloud/beep-effect)
+
 A TypeScript monorepo template for Effect enjoyers, vertical-slice fanatics, and startup gremlins. Monads? beep. Ports and adapters? beep beep.
 
 ## Why “beep”?
@@ -15,6 +17,8 @@ An open-source, batteries-included TypeScript monorepo built around Effect and a
 - Learn-by-doing: hexagonal/clean/DDD, Effect (+ ecosystem), and AI agents with @effect/ai
 - Rapid prototyping for startup ideas via reusable internal packages
 - Extremely maintainable and long-lasting over “simple at all costs”
+
+
 
 ## Architecture
 

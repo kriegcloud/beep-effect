@@ -33,8 +33,7 @@ const AppConfig = Config.zipWith(
         Config.map((env) =>
           Match.value(env).pipe(
             Match.when("dev", () => "http"),
-            Match.when("staging", () => "https"),
-            Match.when("prod", () => "https"),
+            Match.whenOr("staging", "prod", () => "https"),
             Match.exhaustive
           )
         )

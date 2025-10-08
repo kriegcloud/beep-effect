@@ -33,8 +33,12 @@ export const SignInView = () => {
         }
         sx={{ textAlign: { xs: "center", md: "left" } }}
       />
-      <SignInEmailForm
-        onSubmit={async (valuesEffect) => F.pipe(Effect.flatMap(valuesEffect, iam.signIn.email), runEmailSignIn)}
+      <SignInEmailForm // F.pipe(iam.signIn.email)
+        onSubmit={async (valueEffect) => {
+          return F.pipe(F.identity(Effect.flatMap(iam.signIn.email)), (mapper) =>
+            F.pipe(valueEffect, mapper, runEmailSignIn)
+          );
+        }}
       />
       <FormDivider />
       <Stack spacing={2}>

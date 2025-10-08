@@ -17,7 +17,6 @@ import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
-import * as LogLevel from "effect/LogLevel";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 
 // ============================================================================
@@ -50,7 +49,7 @@ export const TelemetryLive = NodeSdk.layer(() => ({
 export const LoggerLive = isDevEnvironment ? makePrettyConsoleLoggerLayer() : Logger.json;
 
 /** Dynamically adjusts the minimum log level based on the environment. */
-export const LogLevelLive = Logger.minimumLogLevel(isDevEnvironment ? LogLevel.Debug : LogLevel.Info);
+export const LogLevelLive = Logger.minimumLogLevel(serverEnv.app.logLevel);
 
 /**
  * Optional developer tools, exposed only in development to avoid production overhead.

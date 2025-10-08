@@ -29,11 +29,9 @@ export const mergeHandlerContext = (
 
 export const handlerFiberRef: HandlerFiberRef = Effect.runSync(
   Effect.scoped(
-    Effect.gen(function* () {
-      return yield* FiberRef.make(emptyHandlerContext, {
-        fork: (value) => value,
-        join: mergeHandlerContext,
-      });
+    FiberRef.make(emptyHandlerContext, {
+      fork: (value) => value,
+      join: mergeHandlerContext,
     })
   )
 );
