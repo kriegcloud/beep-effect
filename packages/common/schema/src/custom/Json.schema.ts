@@ -1,6 +1,6 @@
 import { invariant } from "@beep/invariant";
 import { path_regex, prop_regex } from "@beep/schema/regexes";
-import type { UnsafeTypes } from "@beep/types";
+
 import { faker } from "@faker-js/faker";
 import * as A from "effect/Array";
 import type * as B from "effect/Brand";
@@ -8,8 +8,7 @@ import * as Effect from "effect/Effect";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { JSONPath } from "jsonpath-plus";
-import type { Paths } from "type-fest";
+
 /**
  * JSON literal values (primitives accepted by JSON).
  *
@@ -138,15 +137,6 @@ export class JsonPath extends S.String.pipe(S.pattern(path_regex), S.brand("Json
         .match(/[a-zA-Z_$][\w$]*|\[\d+]/g)
         ?.map((part) => (part.startsWith("[") ? part.replace(/[[\]]/g, "") : part)) ?? []
     );
-  };
-  /**
-   * Applies a JsonPath to an object.
-   */
-  static readonly getField = <T extends Json.Type>(object: T, path: Paths<T>): UnsafeTypes.UnsafeAny => {
-    return JSONPath({
-      path: String(path),
-      json: object,
-    })[0];
   };
 }
 

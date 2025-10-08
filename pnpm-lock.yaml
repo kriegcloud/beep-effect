@@ -9,7 +9,7 @@ overrides:
   ms: ^2.1.3
   '@types/ms': ^2.1.0
   postgres: ^3.4.7
-  drizzle-zero: ^0.14.2
+  drizzle-zero: ^0.14.3
   '@effect-aws/client-s3': ^1.10.3
   yaml: 2.8.1
   '@opentelemetry/api': ^1.9.0
@@ -51,7 +51,7 @@ overrides:
   '@biomejs/biome': 2.2.5
   madge: 8.0.0
   '@dotenvx/dotenvx': 1.51.0
-  '@effect/language-service': 0.42.0
+  '@effect/language-service': 0.43.2
   better-auth-localization: ^2.1.8
   '@effect/vitest': 0.26.0
   '@types/node': 24.7.0
@@ -64,7 +64,7 @@ overrides:
   husky: 9.1.7
   lint-staged: 16.2.3
   prettier: 3.6.2
-  '@rocicorp/zero': ^0.24.2025100400
+  '@rocicorp/zero': ^0.24.2025100800
   syncpack: 14.0.0-alpha.23
   tsx: 4.20.6
   turbo: 2.5.8
@@ -121,7 +121,6 @@ overrides:
   '@tanstack/react-table': 8.21.3
   class-variance-authority: 0.7.1
   '@tiptap/core': 3.6.5
-  jsonpath-plus: 10.3.0
   '@tiptap/extension-code-block': 3.6.5
   '@tiptap/extension-code-block-lowlight': 3.6.5
   '@tiptap/extension-heading': 3.6.5
@@ -138,7 +137,7 @@ overrides:
   clsx: 2.1.1
   dayjs: 1.11.18
   framer-motion: 12.23.22
-  typeid-js: ''
+  typeid-js: ^1.2.0
   i18next: 25.5.3
   i18next-browser-languagedetector: 8.2.0
   i18next-resources-to-backend: 1.2.1
@@ -184,9 +183,9 @@ overrides:
   '@standard-schema/spec': 1.0.0
   randexp-ts: 1.0.5
   uuid: 13.0.0
-  '@effect/ai': 0.30.0
-  '@effect/ai-openai': 0.33.0
-  '@effect/ai-anthropic': 0.20.0
+  '@effect/ai': 0.31.0
+  '@effect/ai-openai': 0.34.0
+  '@effect/ai-anthropic': 0.21.0
   stripe: 19.1.0
   zod: 4.1.12
   dub: 0.67.0
@@ -243,8 +242,8 @@ importers:
         specifier: 1.51.0
         version: 1.51.0
       '@effect/language-service':
-        specifier: 0.42.0
-        version: 0.42.0
+        specifier: 0.43.2
+        version: 0.43.2
       '@effect/platform-bun':
         specifier: ^0.81.1
         version: 0.81.1(@effect/cluster@0.50.4(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/sql@0.46.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/workflow@0.11.3(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/sql@0.46.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4)
@@ -303,14 +302,14 @@ importers:
   apps/mcp:
     dependencies:
       '@effect/ai':
-        specifier: 0.30.0
-        version: 0.30.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4)
+        specifier: 0.31.0
+        version: 0.31.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4)
       '@effect/ai-anthropic':
-        specifier: 0.20.0
-        version: 0.20.0(@effect/ai@0.30.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4))(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4)
+        specifier: 0.21.0
+        version: 0.21.0(@effect/ai@0.31.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4))(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4)
       '@effect/ai-openai':
-        specifier: 0.33.0
-        version: 0.33.0(@effect/ai@0.30.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4))(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4)
+        specifier: 0.34.0
+        version: 0.34.0(@effect/ai@0.31.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4))(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4)
       '@effect/cluster':
         specifier: ^0.50.4
         version: 0.50.4(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/sql@0.46.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/workflow@0.11.3(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4))(effect@3.18.4)
@@ -355,14 +354,14 @@ importers:
   apps/server:
     dependencies:
       '@effect/ai':
-        specifier: 0.30.0
-        version: 0.30.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4)
+        specifier: 0.31.0
+        version: 0.31.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4)
       '@effect/ai-anthropic':
-        specifier: 0.20.0
-        version: 0.20.0(@effect/ai@0.30.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4))(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4)
+        specifier: 0.21.0
+        version: 0.21.0(@effect/ai@0.31.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4))(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4)
       '@effect/ai-openai':
-        specifier: 0.33.0
-        version: 0.33.0(@effect/ai@0.30.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4))(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4)
+        specifier: 0.34.0
+        version: 0.34.0(@effect/ai@0.31.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4))(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4)
       '@effect/cluster':
         specifier: ^0.50.4
         version: 0.50.4(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/sql@0.46.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/workflow@0.11.3(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4))(effect@3.18.4)
@@ -469,6 +468,9 @@ importers:
       '@beep/runtime-server':
         specifier: workspace:^
         version: link:../../packages/runtime/server/build
+      '@beep/runtime-shared':
+        specifier: workspace:^
+        version: link:../../packages/runtime/shared/build
       '@beep/schema':
         specifier: workspace:^
         version: link:../../packages/common/schema/build
@@ -745,9 +747,6 @@ importers:
       json-logic-js:
         specifier: 2.0.5
         version: 2.0.5
-      jsonpath-plus:
-        specifier: 10.3.0
-        version: 10.3.0
       lodash:
         specifier: 4.17.21
         version: 4.17.21
@@ -993,8 +992,8 @@ importers:
         specifier: 10.0.0
         version: 10.0.0
       '@rocicorp/zero':
-        specifier: ^0.24.2025100400
-        version: 0.24.2025100400(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))
+        specifier: ^0.24.2025100800
+        version: 0.24.2025100800(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))
       '@testcontainers/postgresql':
         specifier: 11.7.1
         version: 11.7.1
@@ -1008,14 +1007,11 @@ importers:
         specifier: ^0.3.1
         version: 0.3.1(drizzle-orm@0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7))
       drizzle-zero:
-        specifier: ^0.14.2
-        version: 0.14.2(@rocicorp/zero@0.24.2025100400(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0)))(@types/pg@8.15.5)(drizzle-orm@0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7))(postgres@3.4.7)(prettier@3.6.2)
+        specifier: ^0.14.3
+        version: 0.14.3(@rocicorp/zero@0.24.2025100800(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0)))(@types/pg@8.15.5)(drizzle-orm@0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7))(postgres@3.4.7)(prettier@3.6.2)
       effect:
         specifier: 3.18.4
         version: 3.18.4
-      jsonpath-plus:
-        specifier: 10.3.0
-        version: 10.3.0
       mutative:
         specifier: 1.3.0
         version: 1.3.0
@@ -1047,19 +1043,25 @@ importers:
     publishDirectory: build
 
   packages/common/constants:
-    dependencies:
+    devDependencies:
       '@beep/invariant':
         specifier: workspace:^
         version: link:../invariant/build
       '@beep/schema':
         specifier: workspace:^
         version: link:../schema/build
+      '@beep/types':
+        specifier: workspace:^
+        version: link:../types/build
       '@beep/utils':
         specifier: workspace:^
         version: link:../utils/build
       '@effect/cluster':
         specifier: ^0.50.4
         version: 0.50.4(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/sql@0.46.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/workflow@0.11.3(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4))(effect@3.18.4)
+      '@effect/vitest':
+        specifier: 0.26.0
+        version: 0.26.0(effect@3.18.4)(vitest@3.2.4(@types/node@24.7.0)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.20.6)(yaml@2.8.1))
       '@effect/workflow':
         specifier: ^0.11.3
         version: 0.11.3(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4)
@@ -1069,13 +1071,12 @@ importers:
       es-toolkit:
         specifier: ^1.39.10
         version: 1.39.10
+      typeid-js:
+        specifier: ^1.2.0
+        version: 1.2.0
       uuid:
         specifier: 13.0.0
         version: 13.0.0
-    devDependencies:
-      '@beep/types':
-        specifier: workspace:^
-        version: link:../types/build
     publishDirectory: build
 
   packages/common/errors:
@@ -1263,9 +1264,6 @@ importers:
       effect:
         specifier: 3.18.4
         version: 3.18.4
-      jsonpath-plus:
-        specifier: 10.3.0
-        version: 10.3.0
       mutative:
         specifier: 1.3.0
         version: 1.3.0
@@ -1273,7 +1271,7 @@ importers:
         specifier: 1.0.5
         version: 1.0.5
       typeid-js:
-        specifier: ''
+        specifier: ^1.2.0
         version: 1.2.0
       uuid:
         specifier: 13.0.0
@@ -1380,14 +1378,14 @@ importers:
         specifier: 0.47.0
         version: 0.47.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/sql@0.46.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4)
       '@rocicorp/zero':
-        specifier: ^0.24.2025100400
-        version: 0.24.2025100400(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))
+        specifier: ^0.24.2025100800
+        version: 0.24.2025100800(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))
       drizzle-orm:
         specifier: 0.44.6
         version: 0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7)
       drizzle-zero:
-        specifier: ^0.14.2
-        version: 0.14.2(@rocicorp/zero@0.24.2025100400(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0)))(@types/pg@8.15.5)(drizzle-orm@0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7))(postgres@3.4.7)(prettier@3.6.2)
+        specifier: ^0.14.3
+        version: 0.14.3(@rocicorp/zero@0.24.2025100800(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0)))(@types/pg@8.15.5)(drizzle-orm@0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7))(postgres@3.4.7)(prettier@3.6.2)
       effect:
         specifier: 3.18.4
         version: 3.18.4
@@ -2602,8 +2600,8 @@ importers:
         specifier: ^2.1.0
         version: 2.1.0(@opentelemetry/api@1.9.0)
       '@rocicorp/zero':
-        specifier: ^0.24.2025100400
-        version: 0.24.2025100400(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))
+        specifier: ^0.24.2025100800
+        version: 0.24.2025100800(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))
       '@tanstack/react-query':
         specifier: ^5.90.2
         version: 5.90.2(react@19.2.0)
@@ -2614,8 +2612,8 @@ importers:
         specifier: 1.3.27
         version: 1.3.27(next@15.5.4(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       drizzle-zero:
-        specifier: ^0.14.2
-        version: 0.14.2(@rocicorp/zero@0.24.2025100400(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0)))(@types/pg@8.15.5)(drizzle-orm@0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7))(postgres@3.4.7)(prettier@3.6.2)
+        specifier: ^0.14.3
+        version: 0.14.3(@rocicorp/zero@0.24.2025100800(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0)))(@types/pg@8.15.5)(drizzle-orm@0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7))(postgres@3.4.7)(prettier@3.6.2)
       effect:
         specifier: 3.18.4
         version: 3.18.4
@@ -4035,24 +4033,24 @@ packages:
       '@effect/platform': 0.92.1
       effect: 3.18.4
 
-  '@effect/ai-anthropic@0.20.0':
-    resolution: {integrity: sha512-1QdsLV1+bfU2UwSF7b9T+8B7l+TInMriOmTE8M4LQ39/rOjN6PnXYco5nqrPwhs7hBRYpZ26+W0OStQBnhNDIg==}
+  '@effect/ai-anthropic@0.21.0':
+    resolution: {integrity: sha512-fFwMpnTIccSj0nS+tqHhFR1wzWaRwG1JkdeAnmnAJJ5zy7s2VwMDLOyROHulWodnBwW+Oa1Jkxe3Fz6CvBSuRw==}
     peerDependencies:
-      '@effect/ai': 0.30.0
+      '@effect/ai': 0.31.0
       '@effect/experimental': 0.56.0
       '@effect/platform': 0.92.1
       effect: 3.18.4
 
-  '@effect/ai-openai@0.33.0':
-    resolution: {integrity: sha512-Hf9GJv/ZwSuQp7LpphBJmtLu9WRlBhXFbFguNdy345NaABVFa303Qv9JipXsHUoAOrrtyAd94WxNhDc/J6yI/w==}
+  '@effect/ai-openai@0.34.0':
+    resolution: {integrity: sha512-7xcH3xoMZhgbnlvMASOv2L+MqN8Bon+pdNhnwGMH1+F1k/zZSsf1NjPFqw/szz523E3MhEv/YU+80bOBdni1ig==}
     peerDependencies:
-      '@effect/ai': 0.30.0
+      '@effect/ai': 0.31.0
       '@effect/experimental': 0.56.0
       '@effect/platform': 0.92.1
       effect: 3.18.4
 
-  '@effect/ai@0.30.0':
-    resolution: {integrity: sha512-ubuc3QE3MjgtpXWs9aNxxGWPgWnFotvClYVdoelDwWO4iiudvr8cvbBtpFrJbe6IyXl19xG0iwL3HDDYjNFEmQ==}
+  '@effect/ai@0.31.0':
+    resolution: {integrity: sha512-d+IrHfmIPG8mJkmt1gAOM98FjLIIjQ3CWFwZCNf86aXcfk7S9iNTNRHbtVv2EWyHxn+xqjBZ3F1peVfBNnoCkA==}
     peerDependencies:
       '@effect/experimental': 0.56.0
       '@effect/platform': 0.92.1
@@ -4081,8 +4079,8 @@ packages:
       lmdb:
         optional: true
 
-  '@effect/language-service@0.42.0':
-    resolution: {integrity: sha512-a5naAdmFxrp6T6IsKNTbsoPJXgn2/WXcjzHHrvq7O/MCCWWiJepSVeJiD8rhb8YsWhiNXnvV5/MzOtljwWHY7w==}
+  '@effect/language-service@0.43.2':
+    resolution: {integrity: sha512-87V/AmnbJQDZmR6tbUpKDlejV2IWK2ldzHi8ZT5pauvw+Hh8Ksn+1eep5RWn3qwI39L9AUPCPS5kYcqXqI1ANA==}
     hasBin: true
 
   '@effect/opentelemetry@0.58.0':
@@ -4838,18 +4836,6 @@ packages:
 
   '@js-sdsl/ordered-map@4.4.2':
     resolution: {integrity: sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==}
-
-  '@jsep-plugin/assignment@1.3.0':
-    resolution: {integrity: sha512-VVgV+CXrhbMI3aSusQyclHkenWSAm95WaiKrMxRFam3JSUiIaQjoMIw2sEs/OX4XifnqeQUN4DYbJjlA8EfktQ==}
-    engines: {node: '>= 10.16.0'}
-    peerDependencies:
-      jsep: ^0.4.0||^1.0.0
-
-  '@jsep-plugin/regex@1.0.4':
-    resolution: {integrity: sha512-q7qL4Mgjs1vByCaTnDFcBnV9HS7GVPJX5vyVoCgZHNSC9rjwIlmbXG5sUuorR5ndfHAIlJ8pVStxvjXHbNvtUg==}
-    engines: {node: '>= 10.16.0'}
-    peerDependencies:
-      jsep: ^0.4.0||^1.0.0
 
   '@jsonforms/core@3.6.0':
     resolution: {integrity: sha512-Qz7qJPf/yP4ybqknZ500zggIDZRJfcufu+3efp/xNWf05mpXvxN9TdfmA++BdXi5Nr4UAgjos2kFmQpZpQaCDw==}
@@ -6361,8 +6347,8 @@ packages:
     resolution: {integrity: sha512-xR+fGqQJjfxmaKmobVVsmerSc/JNpJG5hwOxoAdj/kPkax5n85iHeW/4D9ss+8frP9oI/3KzRcxZosTwPp3lYw==}
     hasBin: true
 
-  '@rocicorp/zero@0.24.2025100400':
-    resolution: {integrity: sha512-/YsnwP7MiZsbKzIw4jvdjFU98YT14pOWdd5KTqsNPil1t+RyfSXmR3vQZGI9i4Cq464WXIknfas2ZTO8rykM0g==}
+  '@rocicorp/zero@0.24.2025100800':
+    resolution: {integrity: sha512-NVO6RK3qXrkjoPCT9EPoAZCEABlaPhYP/jtuxUVlbfNi45ZvCS4OdxZdCjUEmZzJZ2vKuWlVINgmMpGKr7xFOA==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -8229,8 +8215,8 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  baseline-browser-mapping@2.8.12:
-    resolution: {integrity: sha512-vAPMQdnyKCBtkmQA6FMCBvU9qFIppS3nzyXnEM+Lo2IAhG4Mpjv9cCxMudhgV3YdNNJv6TNqXy97dfRVL2LmaQ==}
+  baseline-browser-mapping@2.8.13:
+    resolution: {integrity: sha512-7s16KR8io8nIBWQyCYhmFhd+ebIzb9VKTzki+wOJXHTxTnV6+mFGH3+Jwn1zoKaY9/H9T/0BcKCZnzXljPnpSQ==}
     hasBin: true
 
   basic-auth@2.0.1:
@@ -9009,11 +8995,11 @@ packages:
       drizzle-orm:
         optional: true
 
-  drizzle-zero@0.14.2:
-    resolution: {integrity: sha512-tlfI1O27OdwLDHaqsopmfMFb+BT0EPNT5mK5YyQa/C08LyzSCcfl4tTlM1Nk6Q8IQvuV+AgO1NjUER5hItH/mA==}
+  drizzle-zero@0.14.3:
+    resolution: {integrity: sha512-ncIBRORigaxwaOv74WhesX7VvYRUWdLuBIt/AT9iOLNiA98A3vSJhsX4DgCRvfa9FXTLlDpm3egCmNxjVLvFTg==}
     hasBin: true
     peerDependencies:
-      '@rocicorp/zero': ^0.24.2025100400
+      '@rocicorp/zero': ^0.24.2025100800
       '@types/pg': ''
       drizzle-orm: 0.44.6
       pg: ''
@@ -9837,10 +9823,6 @@ packages:
     resolution: {integrity: sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==}
     hasBin: true
 
-  jsep@1.4.0:
-    resolution: {integrity: sha512-B7qPcEVE3NVkmSJbaYxvv4cHkVW7DQsZz13pUMrfS8z8Q/BuShN+gcTXrUlPiGqM2/t/EEaI030bpxMqY8gMlw==}
-    engines: {node: '>= 10.16.0'}
-
   jsesc@3.1.0:
     resolution: {integrity: sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA==}
     engines: {node: '>=6'}
@@ -9874,11 +9856,6 @@ packages:
 
   jsonfile@6.2.0:
     resolution: {integrity: sha512-FGuPw30AdOIUTRMC2OMRtQV+jkVj2cfPqSeWXv1NEAJ1qZ5zb1X6z1mFhbfOB/iy3ssJCD+3KuZ8r8C3uVFlAg==}
-
-  jsonpath-plus@10.3.0:
-    resolution: {integrity: sha512-8TNmfeTCk2Le33A3vRRwtuworG/L5RrgMvdjhKZxvyShO+mBu2fP50OWUjRLNtvw344DdDarFh9buFAZs5ujeA==}
-    engines: {node: '>=18.0.0'}
-    hasBin: true
 
   kasi@1.1.1:
     resolution: {integrity: sha512-pzBwGWFIjf84T/8aD0XzMli1T3Ckr/jVLh6v0Jskwiv5ehmcgDM+vpYFSk8WzGn4ed4HqgaifTgQUHzzZHa+Qw==}
@@ -11217,8 +11194,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  semver@7.7.2:
-    resolution: {integrity: sha512-RF0Fw+rO5AMf9MAyaRXI4AV0Ulj5lMHqVxxdSgiVbixSCXoEmmX/jk0CuJw4+3SqroYO9VoUh+HcuJivvtJemA==}
+  semver@7.7.3:
+    resolution: {integrity: sha512-SdsKMrI9TdgjdweUSR9MweHA4EJ8YxHn8DFaDisvhVlUOe4BF1tLD7GAj0lIqWVl+dPb/rExr0Btby5loQm20Q==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -13561,23 +13538,23 @@ snapshots:
       '@effect/platform': 0.92.1(effect@3.18.4)
       effect: 3.18.4
 
-  '@effect/ai-anthropic@0.20.0(@effect/ai@0.30.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4))(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4)':
+  '@effect/ai-anthropic@0.21.0(@effect/ai@0.31.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4))(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4)':
     dependencies:
       '@anthropic-ai/tokenizer': 0.0.4
-      '@effect/ai': 0.30.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4)
+      '@effect/ai': 0.31.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4)
       '@effect/experimental': 0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4)
       '@effect/platform': 0.92.1(effect@3.18.4)
       effect: 3.18.4
 
-  '@effect/ai-openai@0.33.0(@effect/ai@0.30.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4))(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4)':
+  '@effect/ai-openai@0.34.0(@effect/ai@0.31.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4))(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4)':
     dependencies:
-      '@effect/ai': 0.30.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4)
+      '@effect/ai': 0.31.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4)
       '@effect/experimental': 0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4)
       '@effect/platform': 0.92.1(effect@3.18.4)
       effect: 3.18.4
       gpt-tokenizer: 2.9.0
 
-  '@effect/ai@0.30.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4)':
+  '@effect/ai@0.31.0(@effect/experimental@0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(@effect/platform@0.92.1(effect@3.18.4))(@effect/rpc@0.71.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4))(effect@3.18.4)':
     dependencies:
       '@effect/experimental': 0.56.0(@effect/platform@0.92.1(effect@3.18.4))(effect@3.18.4)
       '@effect/platform': 0.92.1(effect@3.18.4)
@@ -13599,7 +13576,7 @@ snapshots:
       effect: 3.18.4
       uuid: 13.0.0
 
-  '@effect/language-service@0.42.0': {}
+  '@effect/language-service@0.43.2': {}
 
   '@effect/opentelemetry@0.58.0(@effect/platform@0.92.1(effect@3.18.4))(@opentelemetry/api@1.9.0)(@opentelemetry/resources@2.1.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-logs@0.206.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-metrics@2.1.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.1.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-node@2.1.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-web@2.1.0(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.37.0)(effect@3.18.4)':
     dependencies:
@@ -14218,14 +14195,6 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.5
 
   '@js-sdsl/ordered-map@4.4.2': {}
-
-  '@jsep-plugin/assignment@1.3.0(jsep@1.4.0)':
-    dependencies:
-      jsep: 1.4.0
-
-  '@jsep-plugin/regex@1.0.4(jsep@1.4.0)':
-    dependencies:
-      jsep: 1.4.0
 
   '@jsonforms/core@3.6.0':
     dependencies:
@@ -15918,7 +15887,7 @@ snapshots:
       bindings: 1.5.0
       prebuild-install: 7.1.3
 
-  '@rocicorp/zero@0.24.2025100400(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))':
+  '@rocicorp/zero@0.24.2025100800(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))':
     dependencies:
       '@badrap/valita': 0.3.11
       '@databases/escape-identifier': 1.0.3
@@ -15963,7 +15932,7 @@ snapshots:
       pg-format: pg-format-fix@1.0.5
       postgres: 3.4.7
       prettier: 3.6.2
-      semver: 7.7.2
+      semver: 7.7.3
       tsx: 4.20.6
       url-pattern: 1.0.3
       ws: 8.18.3
@@ -17143,7 +17112,7 @@ snapshots:
       fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.7.2
+      semver: 7.7.3
       ts-api-utils: 2.1.0(typescript@5.9.3)
       typescript: 5.9.3
     transitivePeerDependencies:
@@ -18995,7 +18964,7 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  baseline-browser-mapping@2.8.12: {}
+  baseline-browser-mapping@2.8.13: {}
 
   basic-auth@2.0.1:
     dependencies:
@@ -19075,7 +19044,7 @@ snapshots:
 
   browserslist@4.26.3:
     dependencies:
-      baseline-browser-mapping: 2.8.12
+      baseline-browser-mapping: 2.8.13
       caniuse-lite: 1.0.30001748
       electron-to-chromium: 1.5.232
       node-releases: 2.0.23
@@ -19715,9 +19684,9 @@ snapshots:
     optionalDependencies:
       drizzle-orm: 0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7)
 
-  drizzle-zero@0.14.2(@rocicorp/zero@0.24.2025100400(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0)))(@types/pg@8.15.5)(drizzle-orm@0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7))(postgres@3.4.7)(prettier@3.6.2):
+  drizzle-zero@0.14.3(@rocicorp/zero@0.24.2025100800(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0)))(@types/pg@8.15.5)(drizzle-orm@0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7))(postgres@3.4.7)(prettier@3.6.2):
     dependencies:
-      '@rocicorp/zero': 0.24.2025100400(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))
+      '@rocicorp/zero': 0.24.2025100800(@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0))
       camelcase: 8.0.0
       commander: 14.0.1
       drizzle-orm: 0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(bun-types@1.2.23(@types/react@19.2.2))(kysely@0.28.7)(postgres@3.4.7)
@@ -20033,7 +20002,7 @@ snapshots:
       process-warning: 5.0.0
       rfdc: 1.4.1
       secure-json-parse: 4.1.0
-      semver: 7.7.2
+      semver: 7.7.3
       toad-cache: 3.7.0
 
   fastq@1.19.1:
@@ -20598,8 +20567,6 @@ snapshots:
     dependencies:
       argparse: 2.0.1
 
-  jsep@1.4.0: {}
-
   jsesc@3.1.0: {}
 
   json-bigint@1.0.0:
@@ -20627,12 +20594,6 @@ snapshots:
       universalify: 2.0.1
     optionalDependencies:
       graceful-fs: 4.2.11
-
-  jsonpath-plus@10.3.0:
-    dependencies:
-      '@jsep-plugin/assignment': 1.3.0(jsep@1.4.0)
-      '@jsep-plugin/regex': 1.0.4(jsep@1.4.0)
-      jsep: 1.4.0
 
   kasi@1.1.1: {}
 
@@ -20833,7 +20794,7 @@ snapshots:
 
   make-dir@4.0.0:
     dependencies:
-      semver: 7.7.2
+      semver: 7.7.3
 
   make-error@1.3.6: {}
 
@@ -21042,7 +21003,7 @@ snapshots:
 
   node-abi@3.78.0:
     dependencies:
-      semver: 7.7.2
+      semver: 7.7.3
 
   node-addon-api@7.1.1: {}
 
@@ -22063,7 +22024,7 @@ snapshots:
 
   semver@7.6.2: {}
 
-  semver@7.7.2: {}
+  semver@7.7.3: {}
 
   sentence-case@2.1.1:
     dependencies:
@@ -22087,7 +22048,7 @@ snapshots:
     dependencies:
       '@img/colour': 1.0.0
       detect-libc: 2.1.2
-      semver: 7.7.2
+      semver: 7.7.3
     optionalDependencies:
       '@img/sharp-darwin-arm64': 0.34.4
       '@img/sharp-darwin-x64': 0.34.4

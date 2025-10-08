@@ -90,9 +90,7 @@ const AuthEmailLive = AuthEmailService.DefaultWithoutDependencies.pipe(
 /** Aggregates the service layer dependencies consumed by Auth and related modules. */
 export const CoreServicesLive = Layer.provideMerge(RepositoriesLive, AuthEmailLive);
 
-const AuthLive = AuthService.DefaultWithoutDependencies.pipe(
-  Layer.provide([CoreServicesLive, IamConfig.Live])
-);
+const AuthLive = AuthService.DefaultWithoutDependencies.pipe(Layer.provide([CoreServicesLive, IamConfig.Live]));
 
 const AppLive = AuthLive.pipe(Layer.provideMerge(LoggerLive));
 

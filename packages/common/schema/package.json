@@ -29,8 +29,9 @@
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "coverage": "vitest run --coverage",
     "lint": "biome check .",
+    "dotenvx": "dotenvx run -f ../../../.env --",
     "lint:fix": "biome check . --write",
-    "execute": "pnpm tsx --tsconfig ./tsconfig.src.json ./src/execute.ts",
+    "execute": "pnpm dotenvx tsx --tsconfig ./tsconfig.src.json ./src/execute.ts",
     "lint:circular": "pnpm madge -c ."
   },
   "dependencies": {
@@ -47,7 +48,6 @@
     "zod": "*",
     "uuid": "*",
     "randexp-ts": "*",
-    "jsonpath-plus": "*",
     "typeid-js": "*"
   },
   "devDependencies": {

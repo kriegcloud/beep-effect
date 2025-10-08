@@ -1,72 +1,8 @@
 import path from "node:path";
 import withBundleAnalyzer from "@next/bundle-analyzer";
-import * as Struct from "effect/Struct";
 import type { NextConfig } from "next";
 
 type WithBundleAnalyzerConfig = Parameters<typeof withBundleAnalyzer>[0];
-// "development" | "test" | "production
-// const isDev = process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_ENV === "dev";
-const fallbackOtlpOrigins = ["http://localhost:4318", "http://127.0.0.1:4318"] as const;
-
-const otlpOrigin = process.env.NEXT_PUBLIC_OTLP_TRACE_EXPORTER_URL
-  ? new URL(process.env.NEXT_PUBLIC_OTLP_TRACE_EXPORTER_URL).origin
-  : undefined;
-
-const otlpOrigins = Array.from(
-  new Set([otlpOrigin, ...fallbackOtlpOrigins].filter((origin): origin is string => Boolean(origin)))
-);
-
-const primaryOtlpOrigin = otlpOrigins[0];
-
-const CONNECT_SRC_BASE = [
-  "'self'",
-  "https://vercel.live/",
-  "https://vercel.com",
-  // Allow WebSocket connections in development (Next HMR, Effect DevTools, etc.)
-  "ws:",
-  "wss:",
-  "http://localhost:*",
-  "http://127.0.0.1:*",
-  "https://localhost:*",
-  "https://127.0.0.1:*",
-  "ws://localhost:34437",
-  "wss://localhost:34437",
-];
-
-const CONNECT_SRC = Array.from(new Set([...CONNECT_SRC_BASE, ...otlpOrigins]));
-
-const CSP_DIRECTIVES = {
-  "default-src": ["'self'"],
-  "base-uri": ["'self'"],
-  "form-action": ["'self'"],
-  "script-src": ["'self'", "blob:", "https://cdn.jsdelivr.net"],
-  "worker-src": ["'self'", "blob:"],
-  "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-  "font-src": ["'self'", "https://fonts.scalar.com"],
-  "style-src-elem": ["'self'", "'unsafe-inline'", `https://www.googletagmanager.com`, "https://cdn.jsdelivr.net"],
-  "script-src-elem": [
-    "'self'",
-    "blob:",
-    "https://vercel.live",
-    "https://cdn.jsdelivr.net",
-    "https://www.google.com",
-    "https://www.gstatic.com",
-    "'unsafe-inline'",
-  ],
-  "connect-src": CONNECT_SRC,
-  "media-src": ["'self'", "data:"],
-  "frame-ancestors": ["'self'", "https://vercel.live", "https://vercel.com"],
-  "img-src": ["'self'", "https://www.google-analytics.com", "data:", "blob:"],
-  "frame-src": ["'self'", "https://vercel.live", "https://www.google.com", "https://vercel.com"],
-};
-
-const genCSP = () => {
-  let csp = "";
-  for (const [key, value] of Struct.entries(CSP_DIRECTIVES)) {
-    csp += `${key} ${value.join(" ")}; `;
-  }
-  return csp;
-};
 
 const securityHeaders = [
   {
@@ -93,63 +29,37 @@ const securityHeaders = [
     key: "Referrer-Policy",
     value: "same-origin",
   },
-  ...(primaryOtlpOrigin
-    ? ([
-        {
-          key: "Access-Control-Allow-Origin",
-          value: primaryOtlpOrigin,
-        },
-        {
-          key: "Access-Control-Allow-Methods",
-          value: "GET,POST,OPTIONS",
-        },
-        {
-          key: "Access-Control-Allow-Headers",
-          value: "Content-Type,Authorization,Baggage,traceparent",
-        },
-      ] satisfies readonly { key: string; value: string }[])
-    : []),
-  ...(process.env.NODE_ENV === "production"
-    ? ([
-        {
-          key: "Content-Security-Policy",
-          value: genCSP()
-            .replace(/\s{2,}/g, " ")
-            .trim(),
-        },
-      ] as const)
-    : []),
 ];
 
 const nextConfig = {
   trailingSlash: false,
-  // transpilePackages: [
-  //   "@beep/types",
-  //   "@beep/invariant",
-  //   "@beep/utils",
-  //   "@beep/schema",
-  //   "@beep/constants",
-  //   "@beep/errors",
-  //   "@beep/rules",
-  //   "@beep/logos",
-  //   "@beep/rete",
-  //   "@beep/shared-domain",
-  //   "@beep/shared-tables",
-  //   "@beep/core-env",
-  //   "@beep/core-email",
-  //   "@beep/core-db",
-  //   "@beep/ui",
-  //   "@beep/iam-domain",
-  //   "@beep/iam-tables",
-  //   "@beep/iam-infra",
-  //   "@beep/iam-sdk",
-  //   "@beep/iam-ui",
-  //   "@beep/files-domain",
-  //   "@beep/files-tables",
-  //   "@beep/files-infra",
-  //   "@beep/files-sdk",
-  //   "@beep/files-ui",
-  // ],
+  transpilePackages: [
+    "@beep/types",
+    "@beep/invariant",
+    "@beep/utils",
+    "@beep/schema",
+    "@beep/constants",
+    "@beep/errors",
+    "@beep/rules",
+    "@beep/logos",
+    "@beep/rete",
+    "@beep/shared-domain",
+    "@beep/shared-tables",
+    "@beep/core-env",
+    "@beep/core-email",
+    "@beep/core-db",
+    "@beep/ui",
+    "@beep/iam-domain",
+    "@beep/iam-tables",
+    "@beep/iam-infra",
+    "@beep/iam-sdk",
+    "@beep/iam-ui",
+    "@beep/files-domain",
+    "@beep/files-tables",
+    "@beep/files-infra",
+    "@beep/files-sdk",
+    "@beep/files-ui",
+  ],
 
   images: {
     remotePatterns: [
@@ -193,26 +103,25 @@ const nextConfig = {
     },
   },
   outputFileTracingRoot: path.join(__dirname, "../../"),
+  webpack(config) {
+    config.watchOptions = {
+      poll: 1000,
+      aggregateTimeout: 1000,
+    };
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ["@svgr/webpack"],
+    });
 
-  // webpack(config) {
-  //   config.watchOptions = {
-  //     poll: 1000,
-  //     aggregateTimeout: 1000,
-  //   };
-  //   config.module.rules.push({
-  //     test: /\.svg$/,
-  //     use: ["@svgr/webpack"],
-  //   });
-  //
-  //   config.experiments = {
-  //     ...config.experiments,
-  //     layers: true,
-  //     asyncWebAssembly: true,
-  //     topLevelAwait: true,
-  //   };
-  //
-  //   return config;
-  // },
+    config.experiments = {
+      ...config.experiments,
+      layers: true,
+      asyncWebAssembly: true,
+      topLevelAwait: true,
+    };
+
+    return config;
+  },
   experimental: {
     optimizePackageImports: ["@iconify/react", "lodash", "@mui/x-date-pickers", "@mui/lab"],
     // browserDebugInfoInTerminal: true,

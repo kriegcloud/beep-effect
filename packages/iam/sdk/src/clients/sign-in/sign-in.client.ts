@@ -1,5 +1,9 @@
 import { AuthHandler } from "@beep/iam-sdk/auth-wrapper";
-import { SignInEmailContract, SignInPasskeyContract, SignInSocialContract } from "@beep/iam-sdk/clients";
+import {
+  SignInEmailContract,
+  SignInPasskeyContract,
+  SignInSocialContract,
+} from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
 import { client } from "../../adapters";
 
 const signInEmail = AuthHandler.make<SignInEmailContract.Type, SignInEmailContract.Encoded>({

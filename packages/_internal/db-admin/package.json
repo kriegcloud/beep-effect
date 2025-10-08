@@ -60,7 +60,6 @@
     "zod": "*",
     "uuid": "*",
     "randexp-ts": "*",
-    "jsonpath-plus": "*",
     "picocolors": "*",
     "@testcontainers/postgresql": "*",
     "@effect/sql": "*",

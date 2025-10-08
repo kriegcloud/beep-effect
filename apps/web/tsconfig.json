@@ -93,7 +93,9 @@
       "@beep/runtime-server": ["../../packages/runtime/server/src/index"],
       "@beep/runtime-server/*": ["../../packages/runtime/server/src/*"],
       "@beep/runtime-client": ["../../packages/runtime/client/src/index"],
-      "@beep/runtime-client/*": ["../../packages/runtime/client/src/*"]
+      "@beep/runtime-client/*": ["../../packages/runtime/client/src/*"],
+      "@beep/runtime-shared": ["../../packages/runtime/shared/src/index"],
+      "@beep/runtime-shared/*": ["../../packages/runtime/shared/src/*"]
     },
     "plugins": [
       {
@@ -185,6 +187,9 @@
     },
     {
       "path": "../../packages/runtime/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/runtime/shared/tsconfig.build.json"
     }
   ],
   "include": [

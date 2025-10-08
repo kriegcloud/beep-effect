@@ -60,8 +60,7 @@ export class HttpsUrl extends S.TemplateLiteral("https://", S.String)
   .pipe(
     S.trimmed({ message: () => "Must be a trimmed string" }),
     S.nonEmptyString({ message: () => "Must be a non-empty trimmed string" }),
-    S.filter((a) => Either.try(() => new URL(a).toString()).pipe(Either.isRight)),
-    S.brand("HttpsUrl")
+    S.filter((a) => Either.try(() => new URL(a).toString()).pipe(Either.isRight))
   )
   .annotations({
     schemaId: Symbol.for("@beep/schema/custom/HttpsUrl"),
@@ -95,4 +94,18 @@ export namespace HttpUrl {
   /** URL string type (branded). */
   export type Type = typeof HttpUrl.Type;
   export type Encoded = typeof HttpUrl.Encoded;
+}
+
+export class Url extends S.Union(HttpUrl, HttpsUrl).annotations({
+  schemaId: Symbol.for("@beep/schema/custom/Url"),
+  identifier: "Url",
+  description: "An http or https URL",
+  title: "Url",
+  jsonSchema: { type: "string", format: "url" },
+}) {}
+
+export namespace Url {
+  /** URL string type (branded). */
+  export type Type = typeof Url.Type;
+  export type Encoded = typeof Url.Encoded;
 }

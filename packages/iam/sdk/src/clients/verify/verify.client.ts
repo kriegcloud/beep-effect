@@ -1,5 +1,9 @@
 import { AuthHandler } from "@beep/iam-sdk/auth-wrapper";
-import { SendEmailVerificationContract, SendVerifyPhoneContract, VerifyEmailContract } from "@beep/iam-sdk/clients";
+import {
+  SendEmailVerificationContract,
+  SendVerifyPhoneContract,
+  VerifyEmailContract,
+} from "@beep/iam-sdk/clients/verify/verify.contracts";
 import { client } from "../../adapters";
 
 const sendVerificationEmail = AuthHandler.make<

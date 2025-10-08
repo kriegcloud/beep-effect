@@ -1,5 +1,8 @@
 import { AuthProviderNameValue, EnvValue, LogFormat } from "@beep/constants";
-import { BS } from "@beep/schema";
+import { Csp } from "@beep/schema/config/Csp";
+import { DomainName } from "@beep/schema/custom/Domain.schema";
+import { Email } from "@beep/schema/custom/Email.schema";
+import { URLString } from "@beep/schema/custom/Url.schema";
 import { SharedEntityIds } from "@beep/shared-domain";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
@@ -51,28 +54,28 @@ const AppConfig = Config.zipWith(
   ),
   Config.nested("VERCEL")(
     Config.all({
-      projectProductionUrl: Config.option(S.Config("PROJECT_PRODUCTION_URL", BS.DomainName)),
+      projectProductionUrl: Config.option(S.Config("PROJECT_PRODUCTION_URL", DomainName)),
       vercelEnv: Config.option(Config.literal("production", "preview", "development", "staging")("ENV")),
-      vercelUrl: Config.option(S.Config("URL", BS.DomainName)),
+      vercelUrl: Config.option(S.Config("URL", DomainName)),
     })
   ),
   (appConfig, vercelConfig) => {
-    const clientUrl = BS.URLString.make(`https://${appConfig.clientUrl}`);
+    const clientUrl = URLString.make(`https://${appConfig.clientUrl}`);
     const projectProductionUrl = F.pipe(
       vercelConfig.projectProductionUrl,
       O.match({
         onNone: () => clientUrl,
-        onSome: (prodUrl) => BS.URLString.make(`https://${prodUrl}`),
+        onSome: (prodUrl) => URLString.make(`https://${prodUrl}`),
       })
     );
     const baseUrl = O.all([vercelConfig.vercelUrl, vercelConfig.vercelEnv]).pipe(
       O.match({
-        onNone: () => BS.URLString.make(`http://${appConfig.clientUrl}`),
+        onNone: () => URLString.make(`http://${appConfig.clientUrl}`),
         onSome: ([vercelUrl, vEnv]) =>
           vEnv === "production"
             ? projectProductionUrl
             : vEnv === "preview"
-              ? BS.URLString.make(`https://${vercelUrl}`)
+              ? URLString.make(`https://${vercelUrl}`)
               : clientUrl,
       })
     );
@@ -95,22 +98,22 @@ export const ServerConfig = Config.all({
   nodeEnv: Config.literal("development", "production", "test")("NODE_ENV"),
   baseUrl: Config.nested("VERCEL")(
     Config.all({
-      url: Config.option(S.Config("URL", BS.DomainName)),
+      url: Config.option(S.Config("URL", DomainName)),
       env: Config.option(Config.literal("production", "preview", "development", "staging")("ENV")),
-      projectProductionUrl: Config.option(S.Config("PROJECT_PRODUCTION_URL", BS.DomainName)),
+      projectProductionUrl: Config.option(S.Config("PROJECT_PRODUCTION_URL", DomainName)),
     })
   ).pipe(
     Config.map(({ env, url, projectProductionUrl }) => {
       const baseUrl =
         O.isSome(env) && env.value === "production" && O.isSome(projectProductionUrl)
-          ? BS.URLString.make(`https://${projectProductionUrl.value}`)
+          ? URLString.make(`https://${projectProductionUrl.value}`)
           : O.isSome(url)
-            ? BS.URLString.make(`https://${url}`)
-            : BS.URLString.make(`http://localhost:3000`);
+            ? URLString.make(`https://${url}`)
+            : URLString.make(`http://localhost:3000`);
       return baseUrl.toString();
     })
   ),
-  productionUrl: Config.option(S.Config("VERCEL_PROJECT_PRODUCTION_URL", BS.DomainName)),
+  productionUrl: Config.option(S.Config("VERCEL_PROJECT_PRODUCTION_URL", DomainName)),
   app: AppConfig,
   auth: Config.all({
     secret: Config.redacted(Config.nonEmptyString("BETTER_AUTH_SECRET")),
@@ -168,8 +171,8 @@ export const ServerConfig = Config.all({
   ),
   email: Config.nested("EMAIL")(
     Config.all({
-      from: Config.succeed(BS.Email.make("beep@codedank.com")),
-      test: Config.succeed(BS.Email.make("beep@codank.com")),
+      from: Config.succeed(Email.make("beep@codedank.com")),
+      test: Config.succeed(Email.make("beep@codank.com")),
       resend: Config.nested("RESEND")(
         Config.all({
           apiKey: Config.redacted(Config.nonEmptyString("API_KEY")).pipe(withPlaceholderRedacted),
@@ -252,6 +255,7 @@ export const ServerConfig = Config.all({
   security: Config.nested("SECURITY")(
     Config.all({
       trustedOrigins: ConfigArrayURL("TRUSTED_ORIGINS"),
+      csp: Csp.Config("CSP").pipe(Config.map(Csp.toHeader)),
     })
   ),
   ai: Config.nested("AI")(

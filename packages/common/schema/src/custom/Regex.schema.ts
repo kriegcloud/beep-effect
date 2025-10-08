@@ -24,7 +24,7 @@ export namespace Regex {
   export type Encoded = typeof Regex.Encoded;
 }
 
-export const RegexFromString = S.NonEmptyTrimmedString.pipe(
+export class RegexFromString extends S.NonEmptyTrimmedString.pipe(
   S.transformOrFail(Regex, {
     strict: true,
     decode: (value, _, ast) =>
@@ -39,7 +39,9 @@ export const RegexFromString = S.NonEmptyTrimmedString.pipe(
   identifier: "RegexFromString",
   description: "A string that is a valid regular expression",
   arbitrary: () => (fc) => fc.constant(null).map(() => FC.sample(Arbitrary.make(Regex), 1)[0] as typeof Regex.Type),
-});
+}) {
+  static readonly make = (value: string) => S.decodeSync(RegexFromString)(value);
+}
 export namespace RegexFromString {
   /** RegexFromString value type. */
   export type Type = typeof RegexFromString.Type;

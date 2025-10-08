@@ -1,4 +1,5 @@
 export * from "./annotations";
+export * from "./config";
 export * from "./custom";
 export * from "./custom-fields-schema";
 export * from "./EntityId";

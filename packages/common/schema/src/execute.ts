@@ -1,15 +1,12 @@
-import { BS } from "@beep/schema";
-import * as S from "effect/Schema";
+import * as Effect from "effect/Effect";
+import { Csp } from "./config";
 
-const myFnKit = new BS.Fn({
-  input: S.String,
-  output: S.String,
+// import * as Config from "effect/Config";
+// import * as S from "effect/Schema";
+const program = Effect.gen(function* () {
+  const csp = yield* Csp.Config("SECURITY_CSP");
+
+  yield* Effect.log(csp);
 });
 
-const myFnSchema = myFnKit.Schema;
-const MyActualFn = (input: string) => input;
-
-const implementation = myFnKit.implement(MyActualFn);
-
-console.log(S.decodeUnknownOption(myFnSchema)(MyActualFn));
-console.log(implementation("beep"));
+Effect.runPromise(program);

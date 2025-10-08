@@ -4,8 +4,8 @@ import type { SqlClient } from "@effect/sql/SqlClient";
 import type { SqlError } from "@effect/sql/SqlError";
 import type { ConfigError } from "effect/ConfigError";
 import * as Context from "effect/Context";
-import * as Layer from "effect/Layer";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
 export namespace FilesDb {
   const { serviceEffect } = Db.make(SharedDbSchema);
 

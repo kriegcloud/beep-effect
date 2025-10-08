@@ -41,9 +41,20 @@
     "es-toolkit": "*",
     "@effect/workflow": "*",
     "@beep/invariant": "workspace:^",
-    "uuid": "*"
+    "uuid": "*",
+    "typeid-js": "*"
   },
   "devDependencies": {
+    "effect": "*",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@effect/cluster": "*",
+    "es-toolkit": "*",
+    "@effect/workflow": "*",
+    "@beep/invariant": "workspace:^",
+    "uuid": "*",
+    "typeid-js": "*",
+    "@effect/vitest": "*",
     "@beep/types": "workspace:^"
   },
   "effect": {

@@ -79,6 +79,9 @@
     },
     {
       "path": "../../packages/runtime/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/runtime/shared/tsconfig.build.json"
     }
   ],
   "compilerOptions": {

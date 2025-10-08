@@ -1,5 +1,5 @@
 import { AuthHandler } from "@beep/iam-sdk/auth-wrapper";
-import { RequestResetPasswordContract, ResetPasswordContract } from "@beep/iam-sdk/clients";
+import { RequestResetPasswordContract, ResetPasswordContract } from "@beep/iam-sdk/clients/recover/recover.contracts";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";

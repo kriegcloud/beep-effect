@@ -1,7 +1,7 @@
 import type { AuthProviderNameValue } from "@beep/constants";
 import * as IamEntities from "@beep/iam-domain/entities";
-import { IamDb } from "@beep/iam-infra/db/Db";
 import { IamConfig } from "@beep/iam-infra/config";
+import { IamDb } from "@beep/iam-infra/db/Db";
 import { IamDbSchema } from "@beep/iam-tables";
 import { BS } from "@beep/schema";
 import { IamEntityIds, paths, SharedEntityIds } from "@beep/shared-domain";

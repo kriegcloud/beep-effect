@@ -1,9 +1,9 @@
-import type {ExtractTablesWithRelations} from "drizzle-orm";
-import type {PgTransaction} from "drizzle-orm/pg-core";
-import type {PostgresJsDatabase, PostgresJsQueryResultHKT} from "drizzle-orm/postgres-js";
+import type { ExtractTablesWithRelations } from "drizzle-orm";
+import type { PgTransaction } from "drizzle-orm/pg-core";
+import type { PostgresJsDatabase, PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
 import type * as Effect from "effect/Effect";
 import type * as Redacted from "effect/Redacted";
-import type {DbError} from "./PgClient.errors";
+import type { DbError } from "./PgClient.errors";
 
 export type ConnectionOptions = {
   url: Redacted.Redacted<string>;
