@@ -1,6 +1,6 @@
-import { type DetectedFileInfo, fileTypeChecker } from "@beep/files-domain/value-objects";
+import { describe, expect, it } from "bun:test";
 import type { UnsafeTypes } from "@beep/types";
-import { describe, expect, it } from "@effect/vitest";
+import { type DetectedFileInfo, fileTypeChecker } from "../../../../src/value-objects";
 
 describe("detectFile", () => {
   it("should detect the file type of an Array<number> as a png file", () => {

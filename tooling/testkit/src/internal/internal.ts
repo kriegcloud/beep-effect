@@ -35,7 +35,7 @@ const runTest = <E, A>(effect: Effect.Effect<A, E>) => runPromise(effect);
 const TestEnv = TestEnvironment.TestContext.pipe(Layer.provide(Logger.remove(Logger.defaultLogger)));
 
 export const addEqualityTesters = () => {
-  // Bun's expect doesn't have addEqualityTesters like vitest
+  // Bun's expect doesn't have addEqualityTesters like bun:test
 };
 
 const testOptions = (timeout?: number | { timeout?: number }) =>

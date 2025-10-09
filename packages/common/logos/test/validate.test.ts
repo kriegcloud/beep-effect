@@ -1,5 +1,5 @@
+import { describe, expect, test } from "bun:test";
 import * as l from "@beep/logos/v2";
-import { describe, expect, test } from "@effect/vitest";
 import { v4 as uuid } from "uuid";
 
 describe("validate", () => {

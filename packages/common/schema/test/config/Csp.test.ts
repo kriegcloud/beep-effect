@@ -1,6 +1,7 @@
+import { describe, expect, it } from "bun:test";
 import { BS } from "@beep/schema";
 import { CSPFromString, CSPString } from "@beep/schema/config";
-import { describe, expect, it } from "@effect/vitest";
+import { deepStrictEqual } from "@beep/testkit";
 import * as S from "effect/Schema";
 
 const decodeFromString = S.decodeUnknownSync(CSPFromString);
@@ -13,7 +14,11 @@ describe("CSPFromString", () => {
     const input = "script-src='self',https://example.com,https://google.com;";
     const result = decodeFromString(input);
 
-    expect(result.directives["script-src"]).toEqual(["'self'", "https://example.com", "https://google.com"]);
+    deepStrictEqual(result.directives["script-src"], [
+      "'self'",
+      BS.URLString.make("https://example.com"),
+      BS.URLString.make("https://google.com"),
+    ]);
   });
 
   it("decodes multiple directives and preserves order", () => {
@@ -21,15 +26,19 @@ describe("CSPFromString", () => {
 
     const result = decodeFromString(input);
 
-    expect(result.directives["script-src"]).toEqual(["'self'", "https://example.com"]);
-    expect(result.directives["style-src"]).toEqual(["'self'", "'unsafe-inline'", "https://cdn.example.com"]);
+    expect(result.directives["script-src"]).toEqual(["'self'", BS.URLString.make("https://example.com")]);
+    expect(result.directives["style-src"]).toEqual([
+      "'self'",
+      "'unsafe-inline'",
+      BS.URLString.make("https://cdn.example.com"),
+    ]);
   });
 
   it("normalizes whitespace before decoding", () => {
     const input = "script-src='self', https://example.com;style-src='self' , 'none';";
     const result = decodeFromString(input);
 
-    expect(result.directives["script-src"]).toEqual(["'self'", "https://example.com"]);
+    expect(result.directives["script-src"]).toEqual(["'self'", BS.URLString.make("https://example.com")]);
     expect(result.directives["style-src"]).toEqual(["'self'", "'none'"]);
   });
 
@@ -108,9 +117,17 @@ describe("CSPFromString", () => {
     const decoded = decodeFromString(encoded);
 
     expect(decoded.directives["default-src"]).toEqual(["'self'"]);
-    expect(decoded.directives["script-src"]).toEqual(["'self'", "https://example.com", "https://cdn.example.com"]);
-    expect(decoded.directives["style-src"]).toEqual(["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"]);
-    expect(decoded.directives["img-src"]).toEqual(["'self'", "data:", "https://images.example.com"]);
+    expect(decoded.directives["script-src"]).toEqual([
+      "'self'",
+      BS.URLString.make("https://example.com"),
+      BS.URLString.make("https://cdn.example.com"),
+    ]);
+    expect(decoded.directives["style-src"]).toEqual([
+      "'self'",
+      "'unsafe-inline'",
+      BS.URLString.make("https://fonts.googleapis.com"),
+    ]);
+    expect(decoded.directives["img-src"]).toEqual(["'self'", "data:", BS.URLString.make("https://images.example.com")]);
   });
 });
 

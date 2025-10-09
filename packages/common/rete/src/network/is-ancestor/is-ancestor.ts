@@ -1,4 +1,4 @@
-import type { $Schema, JoinNode } from "@beep/rete/network/types";
+import type { $Schema, JoinNode } from "../../network/types";
 
 export const isAncestor = <T extends $Schema>(x: JoinNode<T>, y: JoinNode<T>): boolean => {
   let node = y;

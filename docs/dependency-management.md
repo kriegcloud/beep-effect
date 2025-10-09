@@ -6,7 +6,7 @@ Update all NPM dependencies across the entire monorepo using the automated TypeS
 
 ```bash
 # 1. Dry run to preview changes
-direnv exec . pnpm deps:update
+direnv exec . bun run deps:update
 
 # 3. Review changes  
 git diff package.json packages/**/package.json
@@ -19,7 +19,7 @@ git diff package.json packages/**/package.json
 ```bash
 
 # Examples:
-direnv exec . pnpm deps:update
+direnv exec . bun run deps:update
 ```
 
 
@@ -36,15 +36,15 @@ These warnings are normal and can be ignored:
 After dependency updates, verify these meta-items:
 
 - [ ] Version constants updated appropriately
-- [ ] TypeScript build passes: `direnv exec . pnpm build`
-- [ ] TypeScript type checks pass: `direnv exec . pnpm check`
-- [ ] Linting passes: `direnv exec . pnpm lint:fix`
+- [ ] TypeScript build passes: `direnv exec . bun run build`
+- [ ] TypeScript type checks pass: `direnv exec . bun run check`
+- [ ] Linting passes: `direnv exec . bun run lint:fix`
 
 ## Troubleshooting
 
 **"Command not found" errors:** Use `direnv exec .` prefix for all commands
 
-**Script execution issues:** Ensure TypeScript builds pass: `direnv exec . pnpm check`
+**Script execution issues:** Ensure TypeScript builds pass: `direnv exec . bun run check`
 
 **Update failures:** If updates break the build, rollback with `git checkout .` and update manually
 
@@ -70,4 +70,4 @@ To update patched dependencies manually:
 3. If not needed, remove from `patchedDependencies` configuration
 4. Then run the update process
 
-Current patched dependencies are listed in the root `package.json` under `pnpm.patchedDependencies`.
+Current pinned dependencies are listed in the root `package.json` under `catalog`.

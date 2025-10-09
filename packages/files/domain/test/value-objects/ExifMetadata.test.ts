@@ -1,5 +1,5 @@
+import { describe, expect, it } from "bun:test";
 import * as S from "effect/Schema";
-import { describe, expect, it } from "vitest";
 import { ExifMetadata } from "../../src/value-objects";
 
 // Helper to make a simple NumberTag (id/description/value)

@@ -3,8 +3,8 @@
   "include": [],
   "exclude": [],
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
+      "*": ["./*"],
       "@beep/repo-scripts/*": ["./src/*"],
       "@beep/tooling-utils": ["../utils/src/index"],
       "@beep/tooling-utils/*": ["../utils/src/*"],

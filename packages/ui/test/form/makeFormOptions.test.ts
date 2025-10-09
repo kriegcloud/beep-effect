@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@effect/vitest";
+import { describe, expect, it } from "bun:test";
 import * as S from "effect/Schema";
 import { type Paths, validateWithSchema } from "../../src/form/makeFormOptions";
 

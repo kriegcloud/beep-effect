@@ -19,32 +19,32 @@
     "build": "tsc -b tsconfig.build.json",
     "clean": "rm -rf node_modules .next out dist build .turbo .tsbuildinfo",
     "lint": "biome check .",
-    "test": "vitest run",
+    "test": "TESTCONTAINERS_RYUK_DISABLED=true bun test",
     "lint:fix": "biome check . --write",
     "check": "tsc -b tsconfig.json",
-    "lint:circular": "pnpm madge -c .",
-    "coverage": "vitest run --coverage",
+    "lint:circular": "bunx madge -c .",
+    "coverage": "bun test --coverage",
     "dev": "tsx watch src/server.ts",
     "start": "tsx build/esm/server.js",
-    "start:source": "pnpm start",
+    "start:source": "bun run start",
     "dotenvx": "dotenvx run -f ../../.env --",
     "circular": "madge --circular src/server.ts"
   },
   "dependencies": {
-    "@effect/ai": "*",
-    "@effect/ai-anthropic": "*",
-    "@effect/ai-openai": "*",
-    "@effect/cluster": "*",
-    "@effect/workflow": "*",
-    "@effect/experimental": "*",
-    "@effect/opentelemetry": "*",
-    "@effect/platform": "*",
-    "@effect/platform-node": "*",
-    "@effect/rpc": "*",
-    "@effect/sql": "*",
-    "@effect/sql-pg": "*",
-    "@testcontainers/postgresql": "*",
-    "effect": "*"
+    "@effect/ai": "catalog:",
+    "@effect/ai-anthropic": "catalog:",
+    "@effect/ai-openai": "catalog:",
+    "@effect/cluster": "catalog:",
+    "@effect/workflow": "catalog:",
+    "@effect/experimental": "catalog:",
+    "@effect/opentelemetry": "catalog:",
+    "@effect/platform": "catalog:",
+    "@effect/platform-bun": "catalog:",
+    "@effect/rpc": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/sql-pg": "catalog:",
+    "@testcontainers/postgresql": "catalog:",
+    "effect": "catalog:"
   },
   "effect": {
     "generateExports": {
@@ -59,7 +59,8 @@
     }
   },
   "devDependencies": {
-    "madge": "*",
-    "tsx": "*"
+    "@types/bun": "catalog:",
+    "madge": "catalog:",
+    "tsx": "catalog:"
   }
 }

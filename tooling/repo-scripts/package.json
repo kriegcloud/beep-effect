@@ -25,14 +25,14 @@
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "test": "vitest run",
-    "coverage": "vitest run --coverage",
-    "lint:circular": "pnpm madge -c .",
+    "test": "bun test",
+    "coverage": "bun test --coverage",
+    "lint:circular": "bunx madge -c .",
     "dotenvx": "dotenvx run -f ../../.env --",
-    "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' pnpm dotenvx tsx ./src/execute.ts",
-    "gen:secrets": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' pnpm dotenvx tsx ./src/generate-env-secrets.ts",
+    "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx tsx ./src/execute.ts",
+    "gen:secrets": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx tsx ./src/generate-env-secrets.ts",
     "bootstrap": "tsx ./src/bootstrap.ts",
-    "generate-public-paths": "pnpm dotenvx tsx src/generate-asset-paths.ts"
+    "generate-public-paths": "bun run dotenvx -- bunx tsx src/generate-asset-paths.ts"
   },
   "dependencies": {
     "@beep/utils": "workspace:^",
@@ -40,13 +40,13 @@
     "@beep/invariant": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/tooling-utils": "workspace:^",
-    "@effect/platform": "*",
-    "@effect/cluster": "*",
-    "@effect/workflow": "*",
-    "@effect/platform-node": "*",
+    "@effect/platform": "catalog:",
+    "@effect/cluster": "catalog:",
+    "@effect/workflow": "catalog:",
+    "@effect/platform-bun": "catalog:",
     "glob": "^11.0.3",
-    "effect": "*",
-    "picocolors": "*",
+    "effect": "catalog:",
+    "picocolors": "catalog:",
     "@jsquash/webp": "^1.5.0",
     "@jsquash/avif": "^2.1.1",
     "@jsquash/jpeg": "^1.6.0",
@@ -54,6 +54,7 @@
     "@jsquash/png": "^3.1.1"
   },
   "devDependencies": {
+    "@types/bun": "catalog:",
     "@beep/types": "workspace:^"
   },
   "effect": {

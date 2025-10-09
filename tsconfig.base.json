@@ -21,7 +21,7 @@
       "DOM.Iterable"
     ],
     "types": [
-      "vite/client"
+      "bun"
     ],
     "isolatedModules": true,
     "sourceMap": true,
@@ -39,7 +39,6 @@
     "noImplicitThis": true,
     "noUncheckedIndexedAccess": true,
     "strictNullChecks": true,
-    "baseUrl": ".",
     "target": "ES2022",
     "module": "esnext",
     "incremental": true,
@@ -50,6 +49,7 @@
       }
     ],
     "paths": {
+      "*": ["./*"],
       "@beep/types": [
         "./packages/common/types/src/index"
       ],

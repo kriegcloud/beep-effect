@@ -1,9 +1,9 @@
 import { BS } from "@beep/schema";
 import { makeFields } from "@beep/shared-domain/common";
-import { UserGender, UserRole } from "@beep/shared-domain/entities/User/schemas";
-import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
+import { SharedEntityIds } from "../../entity-ids";
+import { UserGender, UserRole } from "./schemas";
 
 /**
  * User model representing application users with authentication and profile data.

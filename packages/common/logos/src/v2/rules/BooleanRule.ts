@@ -1,7 +1,7 @@
-import { makeRule, Operands } from "@beep/logos/v2/internal";
 import * as Equal from "effect/Equal";
 import * as Match from "effect/Match";
 import * as S from "effect/Schema";
+import { makeRule, Operands } from "../internal";
 
 export namespace Ops {
   export class IsTrue extends Operands.IsTrue.Schema(S.Null, {}) {

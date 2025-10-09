@@ -1,14 +1,14 @@
-import { findRepoRoot } from "@beep/tooling-utils/repo/Root";
+import { describe } from "bun:test";
+import { deepStrictEqual, scoped } from "@beep/testkit";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
-import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
-import * as NodePath from "@effect/platform-node/NodePath";
-import { describe, it } from "@effect/vitest";
-import { deepStrictEqual } from "@effect/vitest/utils";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import { findRepoRoot } from "../../src/repo/Root";
 
-const RealLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layerPosix);
+const RealLayer = Layer.mergeAll(BunFileSystem.layer, BunPath.layerPosix);
 
 // Layer that forces fs.exists to always return false, to exercise the failure path
 const AlwaysMissingFsLayer = Layer.effect(
@@ -20,24 +20,24 @@ const AlwaysMissingFsLayer = Layer.effect(
       exists: (_: string) => Effect.succeed(false),
     } as FileSystem.FileSystem;
   })
-).pipe(Layer.provide(NodeFileSystem.layer));
+).pipe(Layer.provide(BunFileSystem.layer));
 
-const PathLayer = NodePath.layerPosix;
+const PathLayer = BunPath.layerPosix;
 
 describe("Repo/Root.findRepoRoot", () => {
-  it.scoped("finds repo root that contains .git or pnpm-workspace.yaml", () =>
+  scoped("finds repo root that contains .git or bun.lock", () =>
     Effect.gen(function* () {
       const path_ = yield* Path.Path;
       const fs = yield* FileSystem.FileSystem;
       const root = yield* findRepoRoot;
       deepStrictEqual(path_.isAbsolute(root), true);
       const hasGit = yield* fs.exists(path_.join(root, ".git"));
-      const hasPnpm = yield* fs.exists(path_.join(root, "pnpm-workspace.yaml"));
-      deepStrictEqual(hasGit || hasPnpm, true);
+      const hasBunLock = yield* fs.exists(path_.join(root, "bun.lock"));
+      deepStrictEqual(hasGit || hasBunLock, true);
     }).pipe(Effect.provide(RealLayer))
   );
 
-  it.scoped("fails with NoSuchFileError when no marker dirs/files exist", () =>
+  scoped("fails with NoSuchFileError when no marker dirs/files exist", () =>
     Effect.gen(function* () {
       const res = yield* Effect.either(findRepoRoot);
       deepStrictEqual(res._tag === "Left", true);

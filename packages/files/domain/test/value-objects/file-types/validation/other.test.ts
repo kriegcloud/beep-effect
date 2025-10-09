@@ -1,5 +1,5 @@
-import { fileTypeChecker } from "@beep/files-domain/value-objects";
-import { describe, expect, it } from "@effect/vitest";
+import { describe, expect, it } from "bun:test";
+import { fileTypeChecker } from "../../../../src/value-objects";
 
 describe("validateFileType", () => {
   it("should return true when given an Array<number> of a orc file and using the isORC() function", () => {

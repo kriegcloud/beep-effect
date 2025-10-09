@@ -1,5 +1,5 @@
-import type { Var } from "@beep/rete/network/types";
 import * as P from "effect/Predicate";
+import type { Var } from "../../network/types";
 
 /*
  * something as simple as `isVar` to perform algebra on the essentially every beepin thang.

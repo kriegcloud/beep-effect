@@ -2,7 +2,7 @@
   "extends": "./tsconfig.src.json",
   "include": ["src"],
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["node", "bun"],
     "tsBuildInfoFile": ".tsbuildinfo/build.tsbuildinfo",
     "outDir": "build/esm",
     "declarationDir": "build/dts",

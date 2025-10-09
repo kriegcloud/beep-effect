@@ -1,6 +1,6 @@
-import { ExpectedToHaveAlphaFactsForNode } from "@beep/rete/network/bind-vars-from-fact/errors";
-import type { $Schema, Binding, Condition, Fact, Token } from "@beep/rete/network/types";
-import { Field } from "@beep/rete/network/types";
+import { ExpectedToHaveAlphaFactsForNode } from "../../network/bind-vars-from-fact/errors";
+import type { $Schema, Binding, Condition, Fact, Token } from "../../network/types";
+import { Field } from "../../network/types";
 import { bindingWasSet } from "../binding-was-set";
 
 export const bindVarsFromFact = <T extends $Schema>(

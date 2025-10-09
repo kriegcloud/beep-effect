@@ -3,6 +3,7 @@
   "include": [],
   "compilerOptions": {
     "paths": {
+      "*": ["./*"],
       "@beep/files-infra/*": ["./src/*"],
       "@beep/files-domain": ["../domain/src/index"],
       "@beep/files-domain/*": ["../domain/src/*"],

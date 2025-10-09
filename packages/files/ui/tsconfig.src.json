@@ -1,7 +1,7 @@
 {
   "extends": "../../../tsconfig.base.json",
   "include": ["src"],
-  "exclude": ["vitest.config.ts", "src/**/*.test.ts"],
+  "exclude": [],
   "references": [
     {
       "path": "../../ui"
@@ -32,11 +32,11 @@
     }
   ],
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["node", "bun"],
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
-    "baseUrl": ".",
+
     "jsx": "react-jsx",
     "module": "ESNext",
     "target": "ES2022",
@@ -46,6 +46,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
+      "*": ["./*"],
       "@beep/files-ui/*": ["./src/*"],
       "@beep/ui/*": ["../../ui/src/*"],
       "@beep/shared-domain": ["../../shared/domain/src/index"],

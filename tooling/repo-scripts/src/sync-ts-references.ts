@@ -2,8 +2,8 @@
 import { FsUtilsLive } from "@beep/tooling-utils/FsUtils";
 import { collectTsConfigPaths } from "@beep/tooling-utils/repo/TsConfigIndex";
 import * as Command from "@effect/platform/Command";
-import * as NodeContext from "@effect/platform-node/NodeContext";
-import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
@@ -15,8 +15,8 @@ import * as Effect from "effect/Effect";
  * config and instead run the necessary commands directly in sequence.
  *
  * Usage:
- *   pnpm --filter @beep/repo-scripts sync-ts               # apply changes
- *   pnpm --filter @beep/repo-scripts sync-ts -- --check    # check mode (no changes)
+ *   bunx turbo run sync-ts --filter=@beep/repo-scripts               # apply changes
+ *   bunx turbo run sync-ts --filter=@beep/repo-scripts -- --check    # check mode (no changes)
  */
 
 const hasFileNamed = (files: ReadonlyArray<string>, name: string): boolean =>
@@ -24,10 +24,10 @@ const hasFileNamed = (files: ReadonlyArray<string>, name: string): boolean =>
 
 const runStep = (label: string, args: ReadonlyArray<string>) =>
   Effect.gen(function* () {
-    const cmd = Command.make("pnpm", "-w", "exec", "update-ts-references", ...args);
+    const cmd = Command.make("bunx", "update-ts-references", ...args);
 
     yield* Console.log(`\n▶ ${label}`);
-    yield* Console.log(`   $ pnpm -w exec update-ts-references ${args.join(" ")}`);
+    yield* Console.log(`   $ bunx update-ts-references ${args.join(" ")}`);
 
     const out = yield* Command.string(cmd).pipe(
       Effect.tapError((err) => Console.log(`❌ ${label} failed: ${String(err)}`))
@@ -172,7 +172,7 @@ const program = Effect.gen(function* () {
 });
 
 const main = program.pipe(
-  Effect.provide([NodeContext.layer, FsUtilsLive]),
+  Effect.provide([BunContext.layer, FsUtilsLive]),
   Effect.catchAll((error) =>
     Effect.gen(function* () {
       const msg = String(error);
@@ -184,4 +184,4 @@ const main = program.pipe(
   )
 );
 
-NodeRuntime.runMain(main);
+BunRuntime.runMain(main);

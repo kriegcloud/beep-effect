@@ -3,8 +3,8 @@
   "include": [],
   "exclude": ["src/**/*.test.ts"],
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
+      "*": ["./*"],
       "@beep/files-ui/*": ["./src/*"],
       "@beep/ui/*": ["../../ui/src/*"],
       "@beep/shared-domain": ["../../shared/domain/src/index"],

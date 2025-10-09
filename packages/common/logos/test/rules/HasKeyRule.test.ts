@@ -1,5 +1,5 @@
-import { HasKeyRule } from "@beep/logos/v2/rules";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "bun:test";
+import { HasKeyRule } from "../../src/v2/rules";
 
 describe("HasKeyRule.validate (v2)", () => {
   // typical input object (note: includes an empty-string key which JSON allows)

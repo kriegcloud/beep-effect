@@ -1,7 +1,7 @@
-import { AuditAction, AuditRecordType } from "@beep/rete/network/audit";
-import { ExpectedFactToBeInNodeFacts } from "@beep/rete/network/retract-fact/errors";
-import { type $Schema, type AlphaNode, type Fact, type Session, TokenKind } from "@beep/rete/network/types";
 import _ from "lodash";
+import { AuditAction, AuditRecordType } from "../../network/audit";
+import { ExpectedFactToBeInNodeFacts } from "../../network/retract-fact/errors";
+import { type $Schema, type AlphaNode, type Fact, type Session, TokenKind } from "../../network/types";
 import { fireRules } from "../fire-rules";
 import { getIdAttr } from "../get-id-attr";
 import { rightActivationWithAlphaNode } from "../right-activation-with-alpha-node";

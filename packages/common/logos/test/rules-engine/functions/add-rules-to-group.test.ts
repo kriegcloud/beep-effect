@@ -1,7 +1,7 @@
+import { expect, test } from "bun:test";
 import type { RuleInput } from "@beep/logos";
 import { RootGroup } from "@beep/logos";
 import { addRulesToGroup } from "@beep/logos/crud";
-import { expect, test } from "vitest";
 
 test("rules are added to a group", () => {
   const root = RootGroup.make({ logicalOp: "and" });

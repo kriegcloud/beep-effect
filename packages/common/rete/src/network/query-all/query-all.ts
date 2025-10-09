@@ -1,4 +1,4 @@
-import type { $Schema, Production, QueryFilter, Session } from "@beep/rete/network/types";
+import type { $Schema, Production, QueryFilter, Session } from "../../network/types";
 import { bindingsToMatch } from "../bindings-to-match";
 
 export const queryAll = <T extends $Schema, U>(

@@ -1,12 +1,12 @@
+import { describe, expect, it } from "bun:test";
+import * as Duration from "effect/Duration";
 import {
   buildHandlerOptions,
   withAnnotations,
   withFiberContext,
   withRetryOptions,
   withTracing,
-} from "@beep/iam-sdk/auth-wrapper/config";
-import { describe, expect, it } from "@effect/vitest";
-import * as Duration from "effect/Duration";
+} from "../../src/auth-wrapper/config";
 
 describe("handler options builder", () => {
   it("returns default options when input is undefined", () => {

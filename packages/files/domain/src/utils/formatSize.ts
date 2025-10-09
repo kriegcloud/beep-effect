@@ -1,6 +1,6 @@
-import type * as Sizes from "@beep/files-domain/value-objects/FileSize";
 import type { UnsafeTypes } from "@beep/types";
 import type * as S from "effect/Schema";
+import type * as Sizes from "../value-objects/FileSize";
 
 /* ============================================================================
  * Unit types inferred from your Schemas (kept in one place for clarity)

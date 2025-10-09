@@ -5,6 +5,7 @@ import { Iconify } from "@beep/ui/atoms";
 import { usePopover } from "@beep/ui/hooks";
 import { Scrollbar } from "@beep/ui/molecules";
 import { CustomPopover } from "@beep/ui/organisms";
+import { fToNow } from "@beep/ui/utils/format-time";
 import Avatar from "@mui/material/Avatar";
 import type { BadgeProps } from "@mui/material/Badge";
 import Badge from "@mui/material/Badge";
@@ -15,7 +16,6 @@ import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Typography from "@mui/material/Typography";
 import { m } from "framer-motion";
-import { fToNow } from "src/utils/format-time";
 
 // ----------------------------------------------------------------------
 

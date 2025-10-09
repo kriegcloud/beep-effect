@@ -1,7 +1,7 @@
-import type { $Schema, InternalFactRepresentation } from "@beep/rete/network";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Struct from "effect/Struct";
+import type { $Schema, InternalFactRepresentation } from "../network";
 import type { InsertBeepFact } from "./types";
 export const insertFactToFact = <TSchema extends $Schema>(
   insertion: InsertBeepFact<TSchema>

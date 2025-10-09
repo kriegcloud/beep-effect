@@ -1,4 +1,4 @@
-import type { $Schema, Production, QueryFilter, Session } from "@beep/rete/network/types";
+import type { $Schema, Production, QueryFilter, Session } from "../../network/types";
 import { queryAll } from "../query-all";
 
 export const subscribeToProduction = <T extends $Schema, U>(

@@ -1,8 +1,8 @@
 // import {findRepoRoot} from "@beep/tooling-utils/repo";
 // import * as FileSystem from "@effect/platform/FileSystem";
 // import * as Path from "@effect/platform/Path";
-// import * as NodeContext from "@effect/platform-node/NodeContext";
-// import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
+// import * as BunContext from "@effect/platform-bun/BunContext";
+// import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 // import * as A from "effect/Array";
 // import * as Console from "effect/Console";
 // import * as Effect from "effect/Effect";
@@ -346,13 +346,13 @@
 // const layer = Layer.empty.pipe(
 //   Layer.provide(
 //     [
-//       NodeContext.layer,
+//       BunContext.layer,
 //       FsUtils.FsUtilsLive
 //     ]
 //   )
 // );
 //
-// NodeRuntime.runMain(
+// BunRuntime.runMain(
 //   program.pipe(
 //     Effect.provide(layer),
 //     Effect.catchAll((error) => Effect.gen(function* () {

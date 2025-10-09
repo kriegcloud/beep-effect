@@ -1,5 +1,5 @@
-import { isVar } from "@beep/rete/network/is-var";
-import { describe, expect, it } from "@effect/vitest";
+import { describe, expect, it } from "bun:test";
+import { isVar } from "../../src/network/is-var";
 
 describe("isVar...", () => {
   it("successfully detects a var", () => {

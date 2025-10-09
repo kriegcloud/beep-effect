@@ -39,14 +39,14 @@ Source of truth links in this repo:
 - MUI questions: use the `mui-mcp` docs tool and fetch the exact component/version.
 
 ## CLI Commands (common)
-- Lint: `pnpm lint` / Fix: `pnpm lint:fix` (see `biome.jsonc`)
-- Type check: `pnpm check`
-- Test: `pnpm test` (workspace driven by `vitest.workspace.ts`)
-- Build: `pnpm build`
-- Dev (all): `pnpm dev`
-- Dev (web): `pnpm dev --filter=@beep/web`
-- DB lifecycle: `pnpm db:generate` | `pnpm db:push` | `pnpm db:migrate` | `pnpm db:studio`
-- Local services up: `pnpm db:up` (see `docker-compose.yml` for Postgres, Redis, Jaeger)
+- Lint: `bun lint` / Fix: `bun lint:fix` (see `biome.jsonc`)
+- Type check: `bun check`
+- Test: `bun run test`
+- Build: `bun run build`
+- Dev (all): `bun run dev`
+- Dev (web): `bun run dev --filter=@beep/web`
+- DB lifecycle: `bun db:generate` | `bun db:migrate` | `bun db:studio`
+- Local services up: `bun db:up` (see `docker-compose.yml` for Postgres, Redis, Jaeger)
 
 ---
 
@@ -94,7 +94,6 @@ Authoritative module boundaries: `tsconfig.base.json` (e.g., `@beep/iam-*`, `@be
 5. Update path aliases if a new package is added (`tsconfig.base.json`), and wire tasks in `turbo.json` if needed.
 
 ### Testing strategy
-- Unit tests colocated within each package (`vitest.workspace.ts` includes `packages/**`).
 - Integration/e2e at the app layer (`apps/*`).
 - Prefer testing use cases through application facades; mock adapters via ports.
 

@@ -1,16 +1,16 @@
-import { FsUtilsLive } from "@beep/tooling-utils/FsUtils";
+import { describe } from "bun:test";
+import { deepStrictEqual, scoped } from "@beep/testkit";
 import { extractWorkspaceDependencies } from "@beep/tooling-utils/repo/Dependencies";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
-import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
-import * as NodePath from "@effect/platform-node/NodePath";
-import { describe, it } from "@effect/vitest";
-import { deepStrictEqual } from "@effect/vitest/utils";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
 import * as Effect from "effect/Effect";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
+import { FsUtilsLive } from "../../src/FsUtils";
 
-const TestLayer = Layer.mergeAll(FsUtilsLive, NodeFileSystem.layer, NodePath.layerPosix);
+const TestLayer = Layer.mergeAll(FsUtilsLive, BunFileSystem.layer, BunPath.layerPosix);
 
 const mkTestDirScoped = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
@@ -26,7 +26,7 @@ const mkTestDirScoped = Effect.gen(function* () {
 });
 
 describe("Repo/Dependencies.extractWorkspaceDependencies", () => {
-  it.scoped("splits workspace and npm deps in dev and prod", () =>
+  scoped("splits workspace and npm deps in dev and prod", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path_ = yield* Path.Path;
@@ -54,7 +54,7 @@ describe("Repo/Dependencies.extractWorkspaceDependencies", () => {
     }).pipe(Effect.provide(TestLayer))
   );
 
-  it.scoped("handles missing deps maps by defaulting to empty", () =>
+  scoped("handles missing deps maps by defaulting to empty", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path_ = yield* Path.Path;

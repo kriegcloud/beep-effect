@@ -25,18 +25,19 @@
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo .tmp-FsUtils-tests",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "test": "vitest run",
-    "coverage": "vitest run --coverage",
-    "lint:circular": "pnpm madge -c ."
+    "test": "bun test",
+    "coverage": "bun test --coverage",
+    "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
-    "@effect/platform": "*",
-    "@effect/platform-node": "*",
-    "effect": "*",
+    "@effect/platform": "catalog:",
+    "@effect/platform-bun": "catalog:",
+    "effect": "catalog:",
     "glob": "^11.0.3",
-    "@effect/cluster": "*"
+    "@effect/cluster": "catalog:"
   },
   "devDependencies": {
+    "@types/bun": "catalog:",
     "@beep/types": "workspace:^"
   },
   "effect": {

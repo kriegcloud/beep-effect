@@ -1,15 +1,15 @@
-import { DomainError } from "@beep/tooling-utils/repo";
 import type { UnsafeTypes } from "@beep/types";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
-import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
-import * as NodePath from "@effect/platform-node/NodePath";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
 import * as Bool from "effect/Boolean";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Glob from "glob";
+import { DomainError } from "./repo/Errors";
 
 /**
  * Internal constructor for the FsUtils service.
@@ -252,6 +252,6 @@ export const FsUtils = Context.GenericTag<FsUtils>("@beep/tooling-utils/FsUtils"
  * ```
  */
 export const FsUtilsLive = Layer.effect(FsUtils, make).pipe(
-  Layer.provide(NodeFileSystem.layer),
-  Layer.provide(NodePath.layerPosix)
+  Layer.provide(BunFileSystem.layer),
+  Layer.provide(BunPath.layerPosix)
 );

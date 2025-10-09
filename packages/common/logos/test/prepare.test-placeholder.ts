@@ -1,4 +1,4 @@
-// import { describe, expect, test } from "@effect/vitest";
+// import { describe, expect, test } from ""bun:test"";
 //
 // describe("prepare / runPrepared", () => {
 //

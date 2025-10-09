@@ -1,10 +1,10 @@
+import { describe, vi } from "bun:test";
 import { accumulateEffectsAndReport } from "@beep/errors/server";
-import { describe, it, vi } from "@effect/vitest";
-import { deepStrictEqual } from "@effect/vitest/utils";
+import { deepStrictEqual, scoped } from "@beep/testkit";
 import * as Effect from "effect/Effect";
 
 describe("errors/accumulateEffectsAndReport", () => {
-  it.scoped("collects successes/errors and logs a heading and cause", () =>
+  scoped("collects successes/errors and logs a heading and cause", () =>
     Effect.gen(function* () {
       const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
       yield* Effect.addFinalizer(() => Effect.sync(() => errSpy.mockRestore()));

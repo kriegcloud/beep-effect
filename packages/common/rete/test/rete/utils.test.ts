@@ -1,5 +1,5 @@
-import { hashIdAttrs } from "@beep/rete/network/utils";
-import { describe, expect, it } from "@effect/vitest";
+import { describe, expect, it } from "bun:test";
+import { hashIdAttrs } from "../../src/network/utils";
 
 describe("hashing idAttrs...", () => {
   it("different arrays of idAttrs hash uniquely", () => {

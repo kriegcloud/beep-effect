@@ -1,4 +1,3 @@
-import { makeRule, Operands } from "@beep/logos/v2/internal";
 import { BS } from "@beep/schema";
 import * as A from "effect/Array";
 import * as It from "effect/Iterable";
@@ -6,6 +5,7 @@ import * as Match from "effect/Match";
 import type * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
+import { makeRule, Operands } from "../internal";
 
 export const KV = S.Struct({ key: S.String, value: BS.Json });
 

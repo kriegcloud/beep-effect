@@ -1,5 +1,5 @@
-import { addConditionsToProduction } from "@beep/rete/network/add-conditions-to-production";
-import { initSession } from "@beep/rete/network/init-session";
+import { addConditionsToProduction } from "../network/add-conditions-to-production";
+import { initSession } from "../network/init-session";
 import { addProductionToSession } from "./add-production-to-session";
 import { contains } from "./contains";
 import { fireRules } from "./fire-rules";

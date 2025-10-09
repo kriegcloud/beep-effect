@@ -1,8 +1,7 @@
+import { expect, test } from "bun:test";
 import { RootGroup } from "@beep/logos";
 import { addGroup, addRuleToGroup, findRuleById } from "@beep/logos/crud";
-
 import { v4 as uuid } from "uuid";
-import { expect, test } from "vitest";
 
 const root = RootGroup.make({ logicalOp: "or" });
 

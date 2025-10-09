@@ -19,35 +19,48 @@
     "directory": "packages/iam/tables"
   },
   "scripts": {
-    "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",
+    "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
     "dev": "tsc -b tsconfig.build.json --watch",
     "build-esm": "tsc -b tsconfig.build.json",
     "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
     "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
     "check": "tsc -b tsconfig.json",
-    "test": "vitest run",
+    "test": "bun test",
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
-    "coverage": "vitest run --coverage",
+    "coverage": "bun test --coverage",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "lint:circular": "pnpm madge -c ."
+    "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
-    "effect": "*",
-    "@effect/sql": "*",
-    "@effect/experimental": "*",
+    "effect": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/experimental": "catalog:",
     "@beep/shared-tables": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/iam-domain": "workspace:^",
-    "drizzle-orm": "*",
-    "uuid": "*",
-    "mutative": "*"
+    "drizzle-orm": "catalog:",
+    "uuid": "catalog:",
+    "mutative": "catalog:"
   },
   "devDependencies": {
-    "@beep/types": "workspace:^"
+    "@types/bun": "catalog:",
+    "@beep/types": "workspace:^",
+    "effect": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/experimental": "catalog:",
+    "@beep/shared-tables": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/iam-domain": "workspace:^",
+    "drizzle-orm": "catalog:",
+    "uuid": "catalog:",
+    "mutative": "catalog:"
   },
   "effect": {
     "generateExports": {

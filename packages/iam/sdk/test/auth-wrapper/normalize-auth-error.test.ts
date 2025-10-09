@@ -1,10 +1,11 @@
-import { normalizeAuthError } from "@beep/iam-sdk/auth-wrapper/errors";
+import { describe } from "bun:test";
 import { IamError } from "@beep/iam-sdk/errors";
-import { assert, describe, it } from "@effect/vitest";
+import { assertInstanceOf, deepStrictEqual, effect, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
+import { normalizeAuthError } from "../../src/auth-wrapper/errors";
 
 describe("normalizeAuthError", () => {
-  it("maps structured Better Auth error payloads", () =>
+  effect("maps structured Better Auth error payloads", () =>
     Effect.gen(function* () {
       const payload = {
         error: {
@@ -21,17 +22,18 @@ describe("normalizeAuthError", () => {
         method: "otp",
       });
 
-      assert.instanceOf(iamError, IamError);
-      assert.strictEqual(iamError.message, "Too many attempts");
-      assert.strictEqual(iamError.code, "RATE_LIMITED");
-      assert.strictEqual(iamError.status, 429);
-      assert.strictEqual(iamError.statusText, "Too Many Requests");
-      assert.strictEqual(iamError.plugin, "phone");
-      assert.strictEqual(iamError.method, "otp");
-      assert.deepStrictEqual(iamError.authCause, { retryAfter: 30 });
-    }));
+      assertInstanceOf(iamError, IamError);
+      strictEqual(iamError.message, "Too many attempts");
+      strictEqual(iamError.code, "RATE_LIMITED");
+      strictEqual(iamError.status, 429);
+      strictEqual(iamError.statusText, "Too Many Requests");
+      strictEqual(iamError.plugin, "phone");
+      strictEqual(iamError.method, "otp");
+      deepStrictEqual(iamError.authCause, { retryAfter: 30 });
+    })
+  );
 
-  it("falls back to metadata when payload is missing", () =>
+  effect("falls back to metadata when payload is missing", () =>
     Effect.gen(function* () {
       const iamError = normalizeAuthError(null, {
         defaultMessage: "Handler failed",
@@ -42,15 +44,16 @@ describe("normalizeAuthError", () => {
         method: "email",
       });
 
-      assert.strictEqual(iamError.message, "Handler failed");
-      assert.strictEqual(iamError.code, "UNKNOWN");
-      assert.strictEqual(iamError.status, 500);
-      assert.strictEqual(iamError.statusText, "Internal Server Error");
-      assert.strictEqual(iamError.plugin, "sign-in");
-      assert.strictEqual(iamError.method, "email");
-    }));
+      strictEqual(iamError.message, "Handler failed");
+      strictEqual(iamError.code, "UNKNOWN");
+      strictEqual(iamError.status, 500);
+      strictEqual(iamError.statusText, "Internal Server Error");
+      strictEqual(iamError.plugin, "sign-in");
+      strictEqual(iamError.method, "email");
+    })
+  );
 
-  it("supports error channel via Effect.flip", () =>
+  effect("supports error channel via Effect.flip", () =>
     Effect.gen(function* () {
       const effect = Effect.fail(
         normalizeAuthError(
@@ -64,7 +67,8 @@ describe("normalizeAuthError", () => {
       );
 
       const error = yield* Effect.flip(effect);
-      assert.instanceOf(error, IamError);
-      assert.strictEqual(error.message, "failure");
-    }));
+      assertInstanceOf(error, IamError);
+      strictEqual(error.message, "failure");
+    })
+  );
 });

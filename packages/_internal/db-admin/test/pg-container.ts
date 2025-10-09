@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
-import * as Schema from "@beep/db-admin/schema";
 import * as FilesRepos from "@beep/files-infra/adapters/repositories";
 import { FilesDb } from "@beep/files-infra/db";
 import * as Entities from "@beep/iam-domain/entities";
@@ -8,8 +8,8 @@ import * as IamRepos from "@beep/iam-infra/adapters/repositories";
 import { IamDb } from "@beep/iam-infra/db";
 import * as BS from "@beep/schema/schema";
 import * as Path from "@effect/platform/Path";
-import * as NodeContext from "@effect/platform-node/NodeContext";
-import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as PgDrizzle from "@effect/sql-drizzle/Pg";
 import * as PgClient from "@effect/sql-pg/PgClient";
 import { faker } from "@faker-js/faker";
@@ -23,8 +23,8 @@ import * as DateTime from "effect/DateTime";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import path from "path";
 import postgres from "postgres";
+import * as Schema from "../src/schema";
 
 export class PgContainerError extends Data.TaggedError("PgContainerError")<{
   readonly message: string;
@@ -256,10 +256,10 @@ export class PgContainer extends Effect.Service<PgContainer>()("PgContainer", {
         })
       )
     ),
-    Layer.provide(NodeFileSystem.layer),
+    Layer.provide(BunFileSystem.layer),
     Layer.provide(Path.layer),
     Layer.provide(PgContainer.Default),
-    Layer.provide(NodeContext.layer),
+    Layer.provide(BunContext.layer),
     Layer.orDie
   );
 }

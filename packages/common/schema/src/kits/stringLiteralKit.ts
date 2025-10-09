@@ -2,7 +2,7 @@ import { invariant } from "@beep/invariant";
 import { DiscriminatedStruct } from "@beep/schema/generics";
 import type { StringTypes, UnsafeTypes } from "@beep/types";
 import type { SnakeTag } from "@beep/types/tag.types";
-import { enumFromStringArray } from "@beep/utils/transformations";
+import { enumFromStringArray } from "@beep/utils";
 import { pgEnum } from "drizzle-orm/pg-core";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";

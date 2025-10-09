@@ -1,4 +1,5 @@
 import * as Cause from "effect/Cause";
+import * as Clock from "effect/Clock";
 import type * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
@@ -90,6 +91,8 @@ const toSuccessData = <A>(result: AuthErrorPayload | AuthSuccess<A>, context: Ca
   );
 };
 
+const liveClock = Clock.make();
+
 export const callAuth = <A>(context: CallAuthContext, executor: AuthExecutor<A>): Effect.Effect<A, IamError> => {
   const baseEffect = Effect.scoped(
     Effect.gen(function* () {
@@ -118,11 +121,13 @@ export const callAuth = <A>(context: CallAuthContext, executor: AuthExecutor<A>)
   );
 
   const timeoutWrapped = context.timeout
-    ? baseEffect.pipe(
-        Effect.timeoutFail({
-          duration: context.timeout.duration,
-          onTimeout: () => createTimeoutError(context),
-        })
+    ? Effect.withClock(liveClock)(
+        baseEffect.pipe(
+          Effect.timeoutFail({
+            duration: context.timeout.duration,
+            onTimeout: () => createTimeoutError(context),
+          })
+        )
       )
     : baseEffect;
 

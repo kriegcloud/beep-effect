@@ -3,6 +3,7 @@
   "include": [],
   "compilerOptions": {
     "paths": {
+      "*": ["./*"],
       "@beep/core-db/*": ["./src/*"],
       "@beep/core-env/server": ["../env/src/server"],
       "@beep/core-env/client": ["../env/src/client"],

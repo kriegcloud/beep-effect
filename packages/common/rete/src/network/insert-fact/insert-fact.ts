@@ -1,4 +1,4 @@
-import type { $Schema, AlphaNode, Fact, Session } from "@beep/rete/network/types";
+import type { $Schema, AlphaNode, Fact, Session } from "../../network/types";
 import { fireRules } from "../fire-rules";
 import { getAlphaNodesForFact } from "../get-alpha-nodes-for-fact";
 import { upsertFact } from "../upsert-fact";

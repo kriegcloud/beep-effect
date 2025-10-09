@@ -5,6 +5,7 @@
   "compilerOptions": {
     "types": ["bun", "node"],
     "paths": {
+      "*": ["./*"],
       "@beep/testkit": ["../../../tooling/testkit/src/index"],
       "@beep/testkit/*": ["../../../tooling/testkit/src/*"],
       "@beep/runtime-shared": ["./src/index"],

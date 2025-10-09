@@ -1,5 +1,5 @@
-import { ArrayLengthRule } from "@beep/logos/v2/rules";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
+import { ArrayLengthRule } from "../../src/v2/rules";
 
 const names = ["bob", "alice"];
 // TODO(ben): CREATE A TEST FOR THE BETWEEN CASE!!!

@@ -1,8 +1,11 @@
 import { BS } from "@beep/schema";
-import { makeFields } from "@beep/shared-domain/common";
-import { AnyEntityId, AnyTableName, IamEntityIds, SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
+import { makeFields } from "../../common";
+import { AnyEntityId } from "../../entity-ids/any-entity-id";
+import * as IamEntityIds from "../../entity-ids/iam";
+import * as SharedEntityIds from "../../entity-ids/shared";
+import { AnyTableName } from "../../entity-ids/table-names";
 
 export class Model extends M.Class<Model>(`AuditLogModel`)(
   makeFields(SharedEntityIds.AuditLogId, {

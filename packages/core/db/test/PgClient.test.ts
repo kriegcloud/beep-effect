@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@effect/vitest";
+import { describe, expect, it } from "bun:test";
 
 describe("Dummy", () => {
   it("should pass", () => {
@@ -7,7 +7,7 @@ describe("Dummy", () => {
 });
 // import * as PgClient from "@beep/core-db/sql-pg-bun/PgClient.js";
 // import * as Statement from "@effect/sql/Statement";
-// import { expect } from "@effect/vitest";
+// import { expect } from ""bun:test"";
 // import { Effect, String } from "effect";
 // import { effect, layer } from "./internal";
 // import { PgContainer } from "./utils.js";

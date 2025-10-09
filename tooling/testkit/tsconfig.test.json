@@ -7,9 +7,13 @@
     }
   ],
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["node", "bun"],
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "*": ["./*"],
+      "@beep/testkit/*": ["./src/*"]
+    }
   }
 }

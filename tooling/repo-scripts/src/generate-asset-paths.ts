@@ -5,8 +5,8 @@ import { FsUtilsLive } from "@beep/tooling-utils/FsUtils";
 import { DomainError, getWorkspaceDir } from "@beep/tooling-utils/repo";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
-import * as NodeContext from "@effect/platform-node/NodeContext";
-import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -78,7 +78,7 @@ export const publicPaths = ${JSON.stringify(files, null, 2)} as const;
 
   yield* fs.writeFileString(assetPathsFile, content);
 }).pipe(
-  Effect.provide([NodeContext.layer, FsUtilsLive]),
+  Effect.provide([BunContext.layer, FsUtilsLive]),
   Effect.catchAll((error) =>
     Effect.gen(function* () {
       const msg = String(error);
@@ -90,4 +90,4 @@ export const publicPaths = ${JSON.stringify(files, null, 2)} as const;
   )
 );
 
-NodeRuntime.runMain(program);
+BunRuntime.runMain(program);

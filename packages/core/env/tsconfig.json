@@ -6,6 +6,7 @@
     "module": "NodeNext",
     "allowJs": true,
     "paths": {
+      "*": ["./*"],
       "@beep/core-env/*": ["./src/*"],
       "@beep/schema": ["../../common/schema/src/index"],
       "@beep/schema/*": ["../../common/schema/src/*"],

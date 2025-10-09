@@ -5,11 +5,11 @@ import { LiteralDefaults, RegexFromString } from "./custom";
 import { Struct } from "./extended-schemas";
 export const $JsonType = S.Literal("object", "array", "string", "number", "boolean", "null", "integer");
 
-export namespace $JsonType {
+export declare namespace $JsonType {
   export type Type = "object" | "array" | "string" | "number" | "boolean" | "null" | "integer";
 }
 
-export namespace _JsonSchema {
+export declare namespace _JsonSchema {
   export type Type = boolean | JsonSchema.Type;
 }
 
@@ -24,14 +24,14 @@ const $Schema = S.Literal(
   "http://json-schema.org/draft-04/schema#"
 );
 
-namespace $Schema {
+declare namespace $Schema {
   export type Type =
     | "https://json-schema.org/draft/2020-12/schema"
     | "http://json-schema.org/draft-07/schema#"
     | "http://json-schema.org/draft-04/schema#";
 }
 
-export namespace JsonSchema {
+export declare namespace JsonSchema {
   export type Type = {
     /**
      * @description A catch-all index signature to allow other properties.

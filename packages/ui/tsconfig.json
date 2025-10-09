@@ -3,8 +3,8 @@
   "include": [],
   "exclude": ["src/**/*.test.ts"],
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
+      "*": ["./*"],
       "@beep/ui/*": ["./src/*"],
       "@beep/ui/form": ["./src/form/index"],
       "@beep/ui/form/*": ["./src/form/*"],

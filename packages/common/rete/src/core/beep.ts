@@ -1,10 +1,10 @@
-import type { $Schema, Auditor, ConvertMatchFn, FactFragment } from "@beep/rete/network";
-import { Field, PRODUCTION_ALREADY_EXISTS_BEHAVIOR, rete, viz } from "@beep/rete/network";
 import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Struct from "effect/Struct";
 import _ from "lodash";
+import type { $Schema, Auditor, ConvertMatchFn, FactFragment } from "../network";
+import { Field, PRODUCTION_ALREADY_EXISTS_BEHAVIOR, rete, viz } from "../network";
 import {
   IncorrectJoinUsage,
   InvalidOptionsForCondition,

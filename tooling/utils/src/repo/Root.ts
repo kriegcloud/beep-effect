@@ -7,7 +7,7 @@ import { NoSuchFileError } from "./Errors";
  * Find the repository root by walking upward from this module's directory.
  *
  * A directory is considered the repo root if it contains either a `.git`
- * directory or a `pnpm-workspace.yaml` file.
+ * directory or a Bun workspace marker (`bun.lock`).
  *
  * @returns Absolute path to the repo root
  * @throws NoSuchFileError if no matching directory is found
@@ -21,9 +21,9 @@ export const findRepoRoot = Effect.gen(function* () {
 
   while (true) {
     const hasGit = yield* fs.exists(path.join(current, ".git"));
-    const hasPnpm = yield* fs.exists(path.join(current, "pnpm-workspace.yaml"));
+    const hasBunLock = yield* fs.exists(path.join(current, "bun.lock"));
 
-    if (hasGit || hasPnpm) {
+    if (hasGit || hasBunLock) {
       return current;
     }
 

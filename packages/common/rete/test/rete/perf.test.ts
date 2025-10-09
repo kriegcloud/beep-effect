@@ -1,7 +1,7 @@
+import { describe, expect, it } from "bun:test";
 import { performance } from "node:perf_hooks";
-import type { MatchT } from "@beep/rete/network";
-import { Field, rete } from "@beep/rete/network";
-import { describe, expect, it } from "@effect/vitest";
+import type { MatchT } from "../../src/network";
+import { Field, rete } from "../../src/network";
 
 const bench = (name: string, fn: () => void) => {
   let cycle_n = 1;

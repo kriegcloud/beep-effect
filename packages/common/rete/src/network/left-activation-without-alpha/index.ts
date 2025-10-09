@@ -1,1 +1,1 @@
-export { default as leftActivationWithoutAlpha } from "./left-activation-without-alpha";
+export { default as leftActivationWithoutAlpha } from "../left-activation/shared";

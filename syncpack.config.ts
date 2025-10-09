@@ -1,11 +1,17 @@
 import type { RcFile } from "syncpack";
 
 const config = {
+  customTypes: {
+    catalog: {
+      path: "catalog",
+      strategy: "versionsByName",
+    },
+  },
   versionGroups: [
     {
-      label: "PNPM Overrides (Pinned)",
+      label: "Catalog (Pinned)",
       dependencies: ["**"],
-      dependencyTypes: ["pnpmOverrides"],
+      dependencyTypes: ["catalog"],
       preferVersion: "highestSemver",
     },
   ],

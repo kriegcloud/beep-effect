@@ -3,7 +3,7 @@ import { PostgresErrorCode } from "@beep/core-db/postgres/postgres-error.enum";
 import * as Entities from "@beep/iam-domain/entities";
 import { Email } from "@beep/schema/schema";
 import { reverseRecord } from "@beep/utils/data/record.utils";
-import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import { SqlError } from "@effect/sql/SqlError";
 import * as PgDrizzle from "@effect/sql-drizzle/Pg";
 import * as PgClient from "@effect/sql-pg/PgClient";
@@ -104,4 +104,4 @@ const dbLayer = Layer.unwrapEffect(
     });
   })
 );
-NodeRuntime.runMain(program.pipe(Effect.provide(dbLayer)));
+BunRuntime.runMain(program.pipe(Effect.provide(dbLayer)));

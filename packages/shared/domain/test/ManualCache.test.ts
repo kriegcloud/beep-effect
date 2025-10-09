@@ -1,11 +1,13 @@
-import { strictEqual } from "node:assert";
+import { describe } from "bun:test";
 import * as ManualCache from "@beep/shared-domain/ManualCache";
-import { describe, it } from "@effect/vitest";
+import { scoped, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
 import * as TestClock from "effect/TestClock";
 
 describe("ManualCache", () => {
-  it.scoped("should handle basic set and get operations", () =>
+  scoped("should handle basic set and get operations", () =>
     Effect.gen(function* () {
       const cache = yield* ManualCache.make<string, string>({
         capacity: 100,
@@ -16,11 +18,20 @@ describe("ManualCache", () => {
       const value = yield* cache.get("key");
 
       strictEqual(value._tag, "Some");
-      strictEqual(value.value, "value");
+      strictEqual(
+        F.pipe(
+          value,
+          O.match({
+            onNone: () => "",
+            onSome: (value) => value,
+          })
+        ),
+        "value"
+      );
     })
   );
 
-  it.scoped("should respect TTL and expire items", () =>
+  scoped("should respect TTL and expire items", () =>
     Effect.gen(function* () {
       const cache = yield* ManualCache.make<string, string>({
         capacity: 100,
@@ -35,7 +46,7 @@ describe("ManualCache", () => {
     })
   );
 
-  it.scoped("should respect capacity limits", () =>
+  scoped("should respect capacity limits", () =>
     Effect.gen(function* () {
       const cache = yield* ManualCache.make<string, string>({
         capacity: 2,
@@ -64,7 +75,7 @@ describe("ManualCache", () => {
     })
   );
 
-  it.scoped("should handle invalidation correctly", () =>
+  scoped("should handle invalidation correctly", () =>
     Effect.gen(function* () {
       const cache = yield* ManualCache.make<string, string>({
         capacity: 100,
@@ -79,7 +90,7 @@ describe("ManualCache", () => {
     })
   );
 
-  it.scoped("should handle invalidateAll correctly", () =>
+  scoped("should handle invalidateAll correctly", () =>
     Effect.gen(function* () {
       const cache = yield* ManualCache.make<string, string>({
         capacity: 100,
@@ -95,7 +106,7 @@ describe("ManualCache", () => {
     })
   );
 
-  it.scoped("should correctly track contains status", () =>
+  scoped("should correctly track contains status", () =>
     Effect.gen(function* () {
       const cache = yield* ManualCache.make<string, string>({
         capacity: 100,
@@ -112,7 +123,7 @@ describe("ManualCache", () => {
     })
   );
 
-  it.scoped("should handle keys, values, and entries correctly", () =>
+  scoped("should handle keys, values, and entries correctly", () =>
     Effect.gen(function* () {
       const cache = yield* ManualCache.make<string, string>({
         capacity: 100,
@@ -136,7 +147,7 @@ describe("ManualCache", () => {
     })
   );
 
-  it.scoped("should periodically evict items based on TTL", () =>
+  scoped("should periodically evict items based on TTL", () =>
     Effect.gen(function* () {
       const cache = yield* ManualCache.make<string, string>({
         capacity: 100,

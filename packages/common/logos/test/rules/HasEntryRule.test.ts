@@ -1,6 +1,6 @@
-import { HasEntryRule } from "@beep/logos/v2/rules";
+import { describe, expect, test } from "bun:test";
 import type { UnsafeTypes } from "@beep/types";
-import { describe, expect, test } from "vitest";
+import { HasEntryRule } from "../../src/v2/rules";
 
 const kv = (key: string, value: UnsafeTypes.UnsafeAny) => ({ key, value });
 

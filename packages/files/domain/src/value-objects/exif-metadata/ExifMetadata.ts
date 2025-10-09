@@ -1,11 +1,11 @@
-import * as Errors from "@beep/files-domain/errors";
-import { readFileArrayBuffer } from "@beep/files-domain/utils";
 import type { UnsafeTypes } from "@beep/types";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
 import ExifReader from "exifreader";
+import * as Errors from "../../errors";
+import { readFileArrayBuffer } from "../../utils";
 import { ExpandedTags } from "./ExifTags";
 
 /**

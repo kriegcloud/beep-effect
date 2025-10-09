@@ -21,14 +21,15 @@
       "path": "../../packages/common/schema"
     }
   ],
-  "exclude": ["vitest.config.ts"],
+  "exclude": [],
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["node", "bun"],
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
-    "baseUrl": ".",
+
     "paths": {
+      "*": ["./*"],
       "@beep/repo-scripts/*": ["./src/*"],
       "@beep/tooling-utils": ["../utils/src/index"],
       "@beep/tooling-utils/*": ["../utils/src/*"],

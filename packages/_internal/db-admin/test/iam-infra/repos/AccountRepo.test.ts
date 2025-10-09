@@ -1,10 +1,11 @@
+import { describe, expect } from "bun:test";
 import { PgContainer, pgContainerPreflight } from "@beep/db-admin/test/pg-container";
 import * as Entities from "@beep/iam-domain/entities";
 import { IamDb } from "@beep/iam-infra";
 import * as IamRepos from "@beep/iam-infra/adapters/repositories";
 import { BS } from "@beep/schema";
-import { IamEntityIds } from "@beep/shared-domain";
-import { describe, expect, it } from "@effect/vitest";
+import { IamEntityIds } from "@beep/shared-domain/entity-ids";
+import { layer } from "@beep/testkit";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
@@ -30,7 +31,7 @@ const baseAccount = Entities.Account.Model.insert
 
 // Note: Build insert payloads inside each test using the seeded userId and a fresh accountId
 describePg("@beep/iam-infra AccountRepo tests", () => {
-  it.layer(PgContainer.Live, { timeout: "30 seconds" })("test AccountRepo methods", (it) => {
+  layer(PgContainer.Live, { timeout: "30 seconds" })("test AccountRepo methods", (it) => {
     const createTestUser = Effect.gen(function* () {
       const userRepo = yield* IamRepos.UserRepo;
       const now = yield* DateTime.now;

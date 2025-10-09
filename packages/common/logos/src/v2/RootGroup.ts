@@ -1,8 +1,8 @@
-import { LogicalOp, Node } from "@beep/logos/v2/internal";
 import * as S from "effect/Schema";
 import type * as Types from "effect/Types";
 import { v4 as uuid } from "uuid";
 import { Group, type GroupInput } from "./Group";
+import { LogicalOp, Node } from "./internal";
 import { Rule } from "./Rule";
 export class RootGroup extends Node.make("root", {
   logicalOp: LogicalOp,

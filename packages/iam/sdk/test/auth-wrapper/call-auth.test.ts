@@ -1,22 +1,24 @@
-import { callAuth } from "@beep/iam-sdk/auth-wrapper/handler";
+import { describe } from "bun:test";
 import { IamError } from "@beep/iam-sdk/errors";
-import { assert, describe, it } from "@effect/vitest";
+import { assertInstanceOf, effect, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
 import * as Metric from "effect/Metric";
 import * as MetricBoundaries from "effect/MetricBoundaries";
 import * as Schedule from "effect/Schedule";
+import { callAuth } from "../../src/auth-wrapper/handler";
 
 describe("callAuth", () => {
-  it("returns response data when executor succeeds", () =>
+  effect("returns response data when executor succeeds", () =>
     Effect.gen(function* () {
       const effect = callAuth({ plugin: "test", method: "demo" }, async (_signal) => ({ data: "ok" }));
 
       const result = yield* effect;
-      assert.strictEqual(result, "ok");
-    }));
+      strictEqual(result, "ok");
+    })
+  );
 
-  it("normalizes Better Auth error payloads", () =>
+  effect("normalizes Better Auth error payloads", () =>
     Effect.gen(function* () {
       const effect = callAuth({ plugin: "test", method: "demo", defaultErrorMessage: "failed" }, async (_signal) => ({
         error: {
@@ -28,13 +30,14 @@ describe("callAuth", () => {
       }));
 
       const error = yield* effect.pipe(Effect.flip);
-      assert.instanceOf(error, IamError);
-      assert.strictEqual(error.message, "nope");
-      assert.strictEqual(error.code, "BAD");
-      assert.strictEqual(error.status, 400);
-    }));
+      assertInstanceOf(error, IamError);
+      strictEqual(error.message, "nope");
+      strictEqual(error.code, "BAD");
+      strictEqual(error.status, 400);
+    })
+  );
 
-  it("records metrics when configured", () =>
+  effect("records metrics when configured", () =>
     Effect.gen(function* () {
       const successCounter = Metric.counter("callAuth_success");
       const errorCounter = Metric.counter("callAuth_error");
@@ -57,29 +60,31 @@ describe("callAuth", () => {
       );
 
       const result = yield* effect;
-      assert.strictEqual(result, "ok");
+      strictEqual(result, "ok");
 
       const successState = yield* Metric.value(successCounter);
       const errorState = yield* Metric.value(errorCounter);
       const latencyState = yield* Metric.value(latencyHistogram);
 
-      assert.strictEqual(successState.count, 1);
-      assert.strictEqual(errorState.count, 0);
-      assert.strictEqual(latencyState.count, 1);
-    }));
+      strictEqual(successState.count, 1);
+      strictEqual(errorState.count, 0);
+      strictEqual(latencyState.count, 1);
+    })
+  );
 
-  it("wraps thrown executor errors", () =>
+  effect("wraps thrown executor errors", () =>
     Effect.gen(function* () {
       const effect = callAuth({ plugin: "test", method: "throws" }, async (_signal) => {
         throw new Error("boom");
       });
 
       const error = yield* Effect.flip(effect);
-      assert.instanceOf(error, IamError);
-      assert.strictEqual(error.message, "boom");
-    }));
+      assertInstanceOf(error, IamError);
+      strictEqual(error.message, "boom");
+    })
+  );
 
-  it("fails fast when a timeout is configured", () =>
+  effect("fails fast when a timeout is configured", () =>
     Effect.gen(function* () {
       const effect = callAuth(
         {
@@ -97,11 +102,12 @@ describe("callAuth", () => {
       );
 
       const error = yield* Effect.flip(effect);
-      assert.instanceOf(error, IamError);
-      assert.strictEqual(error.message, "request timed out");
-    }));
+      assertInstanceOf(error, IamError);
+      strictEqual(error.message, "request timed out");
+    })
+  );
 
-  it("retries transient errors according to the provided policy", () =>
+  effect("retries transient errors according to the provided policy", () =>
     Effect.gen(function* () {
       let attempts = 0;
 
@@ -131,11 +137,12 @@ describe("callAuth", () => {
       );
 
       const result = yield* effect;
-      assert.strictEqual(result, "ok");
-      assert.strictEqual(attempts, 2);
-    }));
+      strictEqual(result, "ok");
+      strictEqual(attempts, 2);
+    })
+  );
 
-  it("guards concurrent submissions when semaphoreKey is provided", () =>
+  effect("guards concurrent submissions when semaphoreKey is provided", () =>
     Effect.gen(function* () {
       let running = 0;
       let maxRunning = 0;
@@ -156,10 +163,11 @@ describe("callAuth", () => {
       yield* Fiber.join(fiberA);
       yield* Fiber.join(fiberB);
 
-      assert.strictEqual(maxRunning, 1);
-    }));
+      strictEqual(maxRunning, 1);
+    })
+  );
 
-  it("allows concurrent submissions for different semaphore keys", () =>
+  effect("allows concurrent submissions for different semaphore keys", () =>
     Effect.gen(function* () {
       let running = 0;
       let maxRunning = 0;
@@ -181,6 +189,7 @@ describe("callAuth", () => {
       yield* Fiber.join(fiberA);
       yield* Fiber.join(fiberB);
 
-      assert.strictEqual(maxRunning, 2);
-    }));
+      strictEqual(maxRunning, 2);
+    })
+  );
 });

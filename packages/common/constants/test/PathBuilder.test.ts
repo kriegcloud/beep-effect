@@ -1,5 +1,5 @@
+import { describe, expect, it } from "bun:test";
 import { PathBuilder } from "@beep/constants/paths/utils";
-import { describe, expect, it } from "@effect/vitest";
 
 describe("PathBuilder", () => {
   it("allows query strings in generated paths", () => {
@@ -13,6 +13,8 @@ describe("PathBuilder", () => {
       },
     } as const);
 
-    expect(paths.auth.verification.email.verify("abc.def")).toBe("/auth/verify-email?token=abc.def");
+    expect(paths.auth.verification.email.verify("abc.def")).toBe(
+      "/auth/verify-email?token=abc.def" as PathBuilder.SafeStringPath<`/auth/verify-email?token=${string}`>
+    );
   });
 });

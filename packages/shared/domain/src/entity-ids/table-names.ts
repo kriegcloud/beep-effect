@@ -1,4 +1,5 @@
 import { BS } from "@beep/schema";
+import type * as S from "effect/Schema";
 import {
   AccountId,
   ApiKeyId,
@@ -19,8 +20,7 @@ import {
   TwoFactorId,
   VerificationId,
   WalletAddressId,
-} from "@beep/shared-domain/entity-ids/iam";
-import type * as S from "effect/Schema";
+} from "./iam";
 import { AuditLogId, FileId, OrganizationId, TeamId, UserId } from "./shared";
 
 export namespace SharedTableNames {

@@ -34,16 +34,17 @@
     }
   ],
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["node", "bun"],
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
-    "baseUrl": ".",
+
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
+      "*": ["./*"],
       "@beep/iam-sdk/*": ["./src/*"],
       "@beep/iam-sdk/better-auth/*": ["./src/better-auth/*"],
       "@beep/types": ["../../common/types/src/index"],

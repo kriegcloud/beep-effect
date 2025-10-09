@@ -3,6 +3,7 @@
   "include": ["drizzle-zero.config.ts"],
   "compilerOptions": {
     "paths": {
+      "*": ["./*"],
       "@beep/db-admin/*": ["./src/*"],
       "@beep/types": ["../../common/types/src/index"],
       "@beep/types/*": ["../../common/types/src/*"],

@@ -55,7 +55,7 @@
     }
   ],
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["node", "bun"],
     "rootDir": ".",
     "outDir": "build"
   }

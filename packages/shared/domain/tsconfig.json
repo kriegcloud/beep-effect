@@ -3,6 +3,7 @@
   "include": [],
   "compilerOptions": {
     "paths": {
+      "*": ["./*"],
       "@beep/shared-domain/*": ["./src/*"],
       "@beep/schema": ["../../common/schema/src/index"],
       "@beep/schema/*": ["../../common/schema/src/*"],
