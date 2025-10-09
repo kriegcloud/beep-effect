@@ -165,19 +165,19 @@
     "embla-carousel-autoplay": "catalog:",
     "embla-carousel-fade": "catalog:",
     "embla-carousel-react": "catalog:",
-    "react-apexcharts": "catalog:"
+    "react-apexcharts": "catalog:",
+    "@svgr/webpack": "catalog:",
+    "@tailwindcss/postcss": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
     "@types/ms": "catalog:",
     "@beep/types": "workspace:^",
-    "@svgr/webpack": "catalog:",
     "@types/json-logic-js": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/autosuggest-highlight": "catalog:",
     "@types/react-dom": "catalog:",
-    "@tailwindcss/postcss": "catalog:",
     "@opentelemetry/api": "catalog:",
     "@opentelemetry/exporter-trace-otlp-http": "catalog:",
     "@opentelemetry/sdk-trace-base": "catalog:",

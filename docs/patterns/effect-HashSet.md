@@ -732,7 +732,7 @@ class DependencyResolver {
   static generateInstallScript(
     packages: Map<string, Package>,
     options: {
-      packageManager: 'npm' | 'yarn' | 'pnpm'
+      packageManager: 'bun'
       skipOptional: boolean
       production: boolean
     }

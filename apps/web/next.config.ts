@@ -1,8 +1,32 @@
+import { createRequire } from "node:module";
 import path from "node:path";
-import withBundleAnalyzer from "@next/bundle-analyzer";
 import type { NextConfig } from "next";
 
-type WithBundleAnalyzerConfig = Parameters<typeof withBundleAnalyzer>[0];
+type BundleAnalyzerFactory = (options?: {
+  enabled?: boolean | string;
+  openAnalyzer?: boolean;
+}) => (config: NextConfig) => NextConfig;
+
+type WithBundleAnalyzerConfig = Parameters<BundleAnalyzerFactory>[0];
+
+const require = createRequire(import.meta.url);
+
+const withBundleAnalyzer = (() => {
+  if (process.env.ENV !== "dev") {
+    return (config: NextConfig) => config;
+  }
+
+  try {
+    const plugin = require("@next/bundle-analyzer") as BundleAnalyzerFactory;
+    return plugin({
+      enabled: true,
+      openAnalyzer: true,
+    } satisfies WithBundleAnalyzerConfig);
+  } catch (error) {
+    console.warn("Skipping @next/bundle-analyzer because it is not installed in this environment.", error);
+    return (config: NextConfig) => config;
+  }
+})();
 
 const securityHeaders = [
   {
@@ -128,8 +152,5 @@ const nextConfig = {
   },
 } satisfies NextConfig;
 
-const config = withBundleAnalyzer({
-  enabled: process.env.ENV === "dev",
-  openAnalyzer: true,
-} satisfies WithBundleAnalyzerConfig)(nextConfig);
+const config = withBundleAnalyzer(nextConfig);
 export default config;

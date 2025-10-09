@@ -84,7 +84,7 @@
 - When implementing metrics, cross-check `apps/web/src/features/upload/observability.ts` per SPEC callout.
 - Watch for tree-shaking/side-effects when editing `src/index.ts` exports.
 - Prioritize writing tests alongside implementation; TODO entries assume test coverage at each milestone.
-- Run type checks with `pnpm check --filter=@beep/iam-sdk` after each completed task to catch regressions early.
+- Run type checks with `bunx turbo run check --filter=@beep/iam-sdk` after each completed task to catch regressions early.
 - Never and I mean ABSOLUTELY NEVER use type assertions unless you have permission from the user.
 - Prefer Immutable operations avoiding things like Array.push
-- Make sure to run `pnpm check --filter=@beep/iam-sdk` before writing or making changes to tests.
+- Make sure to run `bunx turbo run check --filter=@beep/iam-sdk` before writing or making changes to tests.
