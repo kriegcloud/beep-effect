@@ -30,21 +30,6 @@
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "paths": {
-      "*": ["./*"],
-      "@beep/shared-domain/*": ["./src/*"],
-      "@beep/schema": ["../../common/schema/src/index"],
-      "@beep/schema/*": ["../../common/schema/src/*"],
-      "@beep/types": ["../../common/types/src/index"],
-      "@beep/types/*": ["../../common/types/src/*"],
-      "@beep/utils": ["../../common/utils/src/index"],
-      "@beep/utils/*": ["../../common/utils/src/*"],
-      "@beep/invariant": ["../../common/invariant/src/index"],
-      "@beep/invariant/*": ["../../common/invariant/src/*"],
-      "@beep/constants": ["../../common/constants/src/index"],
-      "@beep/constants/*": ["../../common/constants/src/*"],
-      "@beep/errors/shared": ["../../common/errors/src/shared"]
-    }
+    "esModuleInterop": true
   }
 }

@@ -15,12 +15,6 @@
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "paths": {
-      "*": ["./*"],
-      "@beep/types/*": ["./src/*"],
-      "@beep/testkit": ["../../../tooling/testkit/src/index"],
-      "@beep/testkit/*": ["../../../tooling/testkit/src/*"]
-    }
+    "esModuleInterop": true
   }
 }

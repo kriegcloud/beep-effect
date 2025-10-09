@@ -6,11 +6,6 @@
     "types": ["node", "bun"],
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
-    "rootDir": "src",
-
-    "paths": {
-      "*": ["./*"],
-      "@beep/repo-config/*": ["./src/*"]
-    }
+    "rootDir": "src"
   }
 }

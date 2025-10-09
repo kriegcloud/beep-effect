@@ -33,25 +33,6 @@
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "paths": {
-      "*": ["./*"],
-      "@beep/iam-domain/*": ["./src/*"],
-      "@beep/shared-domain": ["../../shared/domain/src/index"],
-      "@beep/shared-domain/*": ["../../shared/domain/src/*"],
-      "@beep/schema": ["../../common/schema/src/index"],
-      "@beep/schema/*": ["../../common/schema/src/*"],
-      "@beep/invariant/*": ["../../common/invariant/src/*"],
-      "@beep/invariant": ["../../common/invariant/src/index"],
-      "@beep/types": ["../../common/types/src/index"],
-      "@beep/types/*": ["../../common/types/src/*"],
-      "@beep/utils": ["../../common/utils/src/index"],
-      "@beep/utils/*": ["../../common/utils/src/*"],
-      "@beep/constants": ["../../common/constants/src/index"],
-      "@beep/constants/*": ["../../common/constants/src/*"],
-      "@beep/errors/shared": ["../../common/errors/src/shared"],
-      "@beep/errors/client": ["../../common/errors/src/client"],
-      "@beep/errors/server": ["../../common/errors/src/server"]
-    }
+    "esModuleInterop": true
   }
 }

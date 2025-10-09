@@ -46,32 +46,6 @@
     "types": ["node", "bun"],
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
-    "noEmit": true,
-    "paths": {
-      "*": ["./*"],
-      "@beep/iam-ui/*": ["./src/*"],
-      "@beep/ui/*": ["../../ui/src/*"],
-      "@beep/types": ["../../common/types/src/index"],
-      "@beep/types/*": ["../../common/types/src/*"],
-      "@beep/schema": ["../../common/schema/src/index"],
-      "@beep/schema/*": ["../../common/schema/src/*"],
-      "@beep/iam-sdk": ["../sdk/src/index"],
-      "@beep/iam-sdk/*": ["../sdk/src/*"],
-      "@beep/iam-domain": ["../domain/src/index"],
-      "@beep/iam-domain/*": ["../domain/src/*"],
-      "@beep/core-env/client": ["../../core/env/src/client"],
-      "@beep/constants": ["../../common/constants/src/index"],
-      "@beep/constants/*": ["../../common/constants/src/*"],
-      "@beep/invariant": ["../../common/invariant/src/index"],
-      "@beep/invariant/*": ["../../common/invariant/src/*"],
-      "@beep/utils": ["../../common/utils/src/index"],
-      "@beep/utils/*": ["../../common/utils/src/*"],
-      "@beep/errors/shared": ["../../common/errors/src/shared"],
-      "@beep/errors/client": ["../../common/errors/src/client"],
-      "@beep/runtime-client": ["../../runtime/client/src/index"],
-      "@beep/runtime-client/*": ["../../runtime/client/src/*"],
-      "@beep/shared-domain": ["../../shared/domain/src/index"],
-      "@beep/shared-domain/*": ["../../shared/domain/src/*"]
-    }
+    "noEmit": true
   }
 }

@@ -6,7 +6,8 @@
   "exclude": [],
   "compilerOptions": {
     "types": [
-      "node"
+      "node",
+      "bun"
     ]
   },
   "references": [

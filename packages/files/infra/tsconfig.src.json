@@ -48,35 +48,6 @@
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "paths": {
-      "*": ["./*"],
-      "@beep/files-infra/*": ["./src/*"],
-      "@beep/files-domain": ["../domain/src/index"],
-      "@beep/files-domain/*": ["../domain/src/*"],
-      "@beep/files-tables": ["../tables/src/index"],
-      "@beep/files-tables/*": ["../tables/src/*"],
-      "@beep/core-db": ["../../core/db/src/index"],
-      "@beep/core-db/*": ["../../core/db/src/*"],
-      "@beep/core-env/client": ["../../core/env/src/client"],
-      "@beep/core-env/server": ["../../core/env/src/server"],
-      "@beep/shared-tables": ["../../shared/tables/src/index"],
-      "@beep/shared-tables/*": ["../../shared/tables/src/*"],
-      "@beep/shared-domain": ["../../shared/domain/src/index"],
-      "@beep/shared-domain/*": ["../../shared/domain/src/*"],
-      "@beep/constants": ["../../common/constants/src/index"],
-      "@beep/constants/*": ["../../common/constants/src/*"],
-      "@beep/errors/client": ["../../common/errors/src/client"],
-      "@beep/errors/shared": ["../../common/errors/src/shared"],
-      "@beep/errors/server": ["../../common/errors/src/server"],
-      "@beep/schema": ["../../common/schema/src/index"],
-      "@beep/schema/*": ["../../common/schema/src/*"],
-      "@beep/invariant": ["../../common/invariant/src/index"],
-      "@beep/invariant/*": ["../../common/invariant/src/*"],
-      "@beep/utils": ["../../common/utils/src/index"],
-      "@beep/utils/*": ["../../common/utils/src/*"],
-      "@beep/types": ["../../common/types/src/index"],
-      "@beep/types/*": ["../../common/types/src/*"]
-    }
+    "esModuleInterop": true
   }
 }

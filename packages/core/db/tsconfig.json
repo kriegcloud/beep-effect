@@ -1,26 +1,6 @@
 {
   "extends": "../../../tsconfig.base.json",
   "include": [],
-  "compilerOptions": {
-    "paths": {
-      "*": ["./*"],
-      "@beep/core-db/*": ["./src/*"],
-      "@beep/core-env/server": ["../env/src/server"],
-      "@beep/core-env/client": ["../env/src/client"],
-      "@beep/types": ["../../common/types/src/index"],
-      "@beep/types/*": ["../../common/types/src/*"],
-      "@beep/errors/shared": ["../../common/errors/src/shared"],
-      "@beep/errors/server": ["../../common/errors/src/server"],
-      "@beep/constants": ["../../common/constants/src/index"],
-      "@beep/constants/*": ["../../common/constants/src/*"],
-      "@beep/utils": ["../../common/utils/src/index"],
-      "@beep/utils/*": ["../../common/utils/src/*"],
-      "@beep/invariant": ["../../common/invariant/src/index"],
-      "@beep/invariant/*": ["../../common/invariant/src/*"],
-      "@beep/schema": ["../../common/schema/src/index"],
-      "@beep/schema/*": ["../../common/schema/src/*"]
-    }
-  },
   "references": [
     {
       "path": "tsconfig.src.json"

@@ -1,12 +1,6 @@
 {
   "extends": "../../../tsconfig.base.json",
   "include": [],
-  "compilerOptions": {
-    "paths": {
-      "*": ["./*"],
-      "@beep/invariant/*": ["./src/*"]
-    }
-  },
   "references": [
     {
       "path": "tsconfig.src.json"

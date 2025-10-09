@@ -28,22 +28,6 @@
     "types": ["node", "bun"],
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
-    "noEmit": true,
-    "paths": {
-      "*": ["./*"],
-      "@beep/ui/*": ["./src/*"],
-      "@beep/types": ["../common/types/src/index"],
-      "@beep/types/*": ["../common/types/src/*"],
-      "@beep/invariant": ["../common/invariant/src/index"],
-      "@beep/invariant/*": ["../common/invariant/src/*"],
-      "@beep/utils": ["../common/utils/src/index"],
-      "@beep/utils/*": ["../common/utils/src/*"],
-      "@beep/schema": ["../common/schema/src/index"],
-      "@beep/schema/*": ["../common/schema/src/*"],
-      "@beep/constants": ["../common/constants/src/index"],
-      "@beep/constants/*": ["../common/constants/src/*"],
-      "@beep/shared-domain": ["../shared/domain/src/index"],
-      "@beep/shared-domain/*": ["../shared/domain/src/*"]
-    }
+    "noEmit": true
   }
 }

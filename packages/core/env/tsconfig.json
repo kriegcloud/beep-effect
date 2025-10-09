@@ -4,17 +4,7 @@
   "compilerOptions": {
     "types": ["vite/client"],
     "module": "NodeNext",
-    "allowJs": true,
-    "paths": {
-      "*": ["./*"],
-      "@beep/core-env/*": ["./src/*"],
-      "@beep/schema": ["../../common/schema/src/index"],
-      "@beep/schema/*": ["../../common/schema/src/*"],
-      "@beep/constants": ["../../common/constants/src/index"],
-      "@beep/constants/*": ["../../common/constants/src/*"],
-      "@beep/shared-domain": ["../../shared/domain/src/index"],
-      "@beep/shared-domain/*": ["../../shared/domain/src/*"]
-    }
+    "allowJs": true
   },
   "references": [
     {

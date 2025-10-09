@@ -2,12 +2,6 @@
   "extends": "../../tsconfig.base.json",
   "include": [],
   "exclude": [],
-  "compilerOptions": {
-    "paths": {
-      "*": ["./*"],
-      "@beep/testkit/*": ["./src/*"]
-    }
-  },
   "references": [
     {
       "path": "tsconfig.src.json"

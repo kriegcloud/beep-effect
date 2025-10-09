@@ -11,10 +11,6 @@
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "paths": {
-      "*": ["./*"],
-      "@beep/invariant/*": ["./src/*"]
-    }
+    "esModuleInterop": true
   }
 }

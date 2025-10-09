@@ -11,12 +11,6 @@
     "types": ["node", "bun"],
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
-    "rootDir": "src",
-    "paths": {
-      "*": ["./*"],
-      "@beep/tooling-utils/*": ["./src/*"],
-      "@beep/types": ["../../packages/common/types/src/index"],
-      "@beep/types/*": ["../../packages/common/types/src/*"]
-    }
+    "rootDir": "src"
   }
 }

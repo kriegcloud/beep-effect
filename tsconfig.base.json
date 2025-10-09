@@ -21,6 +21,7 @@
       "DOM.Iterable"
     ],
     "types": [
+      "node",
       "bun"
     ],
     "isolatedModules": true,

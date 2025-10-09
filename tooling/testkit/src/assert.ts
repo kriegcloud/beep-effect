@@ -3,7 +3,6 @@
  */
 
 import { expect } from "bun:test";
-import type { UnsafeTypes } from "@beep/types";
 import type * as Cause from "effect/Cause";
 import * as Either from "effect/Either";
 import * as Equal from "effect/Equal";
@@ -81,7 +80,7 @@ export function doesNotThrow(thunk: () => void, _message?: string, ..._: Array<n
  *
  * @since 0.21.0
  */
-export function assertInstanceOf<C extends abstract new (...args: UnsafeTypes.UnsafeAny) => UnsafeTypes.UnsafeAny>(
+export function assertInstanceOf<C extends abstract new (...args: any) => any>(
   value: unknown,
   constructor: C,
   _message?: string,

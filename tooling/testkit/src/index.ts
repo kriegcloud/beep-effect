@@ -1,7 +1,6 @@
 /**
  * @since 1.0.0
  */
-import type { UnsafeTypes } from "@beep/types";
 import type * as Duration from "effect/Duration";
 import type * as Effect from "effect/Effect";
 import type * as FC from "effect/FastCheck";
@@ -24,7 +23,7 @@ export namespace BunTest {
   /**
    * @since 1.0.0
    */
-  export type TestFunction<A, E, R, TestArgs extends Array<UnsafeTypes.UnsafeAny>> = (
+  export type TestFunction<A, E, R, TestArgs extends Array<any>> = (
     ...args: TestArgs
   ) => Effect.Effect<A, E, R>;
 
@@ -33,7 +32,7 @@ export namespace BunTest {
    */
   export type Test<R> = <A, E>(
     name: string,
-    self: TestFunction<A, E, R, [UnsafeTypes.UnsafeAny]>,
+    self: TestFunction<A, E, R, [any]>,
     timeout?: number | { timeout?: number }
   ) => void;
 
@@ -41,8 +40,8 @@ export namespace BunTest {
    * @since 1.0.0
    */
   export type Arbitraries =
-    | Array<Schema.Schema.Any | FC.Arbitrary<UnsafeTypes.UnsafeAny>>
-    | { [K in string]: Schema.Schema.Any | FC.Arbitrary<UnsafeTypes.UnsafeAny> };
+    | Array<Schema.Schema.Any | FC.Arbitrary<any>>
+    | { [K in string]: Schema.Schema.Any | FC.Arbitrary<any> };
 
   /**
    * @since 1.0.0
@@ -59,8 +58,8 @@ export namespace BunTest {
     prop: <const Arbs extends Arbitraries, A, E>(
       name: string,
       arbitraries: Arbs,
-      self: TestFunction<A, E, R, [UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny]>,
-      timeout?: number | { timeout?: number; fastCheck?: UnsafeTypes.UnsafeAny }
+      self: TestFunction<A, E, R, [any, any]>,
+      timeout?: number | { timeout?: number; fastCheck?: any }
     ) => void;
   }
 
@@ -82,14 +81,14 @@ export namespace BunTest {
         readonly timeout?: Duration.DurationInput;
       }
     ) => {
-      (f: (it: UnsafeTypes.UnsafeAny) => void): void;
-      (name: string, f: (it: UnsafeTypes.UnsafeAny) => void): void;
+      (f: (it: any) => void): void;
+      (name: string, f: (it: any) => void): void;
     };
     readonly prop: <const Arbs extends Arbitraries>(
       name: string,
       arbitraries: Arbs,
-      self: (properties: UnsafeTypes.UnsafeAny, ctx: UnsafeTypes.UnsafeAny) => void,
-      timeout?: number | { timeout?: number; fastCheck?: UnsafeTypes.UnsafeAny }
+      self: (properties: any, ctx: any) => void,
+      timeout?: number | { timeout?: number; fastCheck?: any }
     ) => void;
   }
 }
@@ -133,8 +132,8 @@ export const layer: <R, E>(
     readonly excludeTestServices?: boolean;
   }
 ) => {
-  (f: (it: UnsafeTypes.UnsafeAny) => void): void;
-  (name: string, f: (it: UnsafeTypes.UnsafeAny) => void): void;
+  (f: (it: any) => void): void;
+  (name: string, f: (it: any) => void): void;
 } = internal.layer;
 
 /**
@@ -153,7 +152,7 @@ export const prop: BunTest.Methods["prop"] = internal.prop;
 /**
  * @since 1.0.0
  */
-export const makeMethods: (it: UnsafeTypes.UnsafeAny) => BunTest.Methods = internal.makeMethods;
+export const makeMethods: (it: any) => BunTest.Methods = internal.makeMethods;
 
 /**
  * @since 1.0.0

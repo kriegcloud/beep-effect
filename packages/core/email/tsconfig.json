@@ -1,22 +1,6 @@
 {
   "extends": "../../../tsconfig.base.json",
   "include": [],
-  "compilerOptions": {
-    "paths": {
-      "*": ["./*"],
-      "@beep/core-email/*": ["./src/*"],
-      "@beep/types": ["../../common/types/src/index"],
-      "@beep/types/*": ["../../common/types/src/*"],
-      "@beep/core-env/client": ["../env/src/client"],
-      "@beep/core-env/server": ["../env/src/server"],
-      "@beep/errors/shared": ["../../common/errors/src/shared"],
-      "@beep/errors/client": ["../../common/errors/src/client"],
-      "@beep/errors/server": ["../../common/errors/src/server"],
-      "@beep/constants": ["../../common/constants/src/index"],
-      "@beep/constants/*": ["../../common/constants/src/*"],
-      "@beep/ui/*": ["../../ui/src/*"]
-    }
-  },
   "references": [
     {
       "path": "tsconfig.src.json"

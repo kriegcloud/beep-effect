@@ -24,18 +24,6 @@
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "paths": {
-      "*": ["./*"],
-      "@beep/logos/*": ["./src/*"],
-      "@beep/types": ["../types/src/index"],
-      "@beep/types/*": ["../types/src/*"],
-      "@beep/utils": ["../utils/src/index"],
-      "@beep/utils/*": ["../utils/src/*"],
-      "@beep/invariant": ["../invariant/src/index"],
-      "@beep/invariant/*": ["../invariant/src/*"],
-      "@beep/schema": ["../schema/src/index"],
-      "@beep/schema/*": ["../schema/src/*"]
-    }
+    "esModuleInterop": true
   }
 }

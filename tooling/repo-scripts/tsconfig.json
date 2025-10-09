@@ -2,24 +2,6 @@
   "extends": "../../tsconfig.base.json",
   "include": [],
   "exclude": [],
-  "compilerOptions": {
-    "paths": {
-      "*": ["./*"],
-      "@beep/repo-scripts/*": ["./src/*"],
-      "@beep/tooling-utils": ["../utils/src/index"],
-      "@beep/tooling-utils/*": ["../utils/src/*"],
-      "@beep/invariant": ["../../packages/common/invariant/src/index"],
-      "@beep/invariant/*": ["../../packages/common/invariant/src/*"],
-      "@beep/types": ["../../packages/common/types/src/index"],
-      "@beep/types/*": ["../../packages/common/types/src/*"],
-      "@beep/utils": ["../../packages/common/utils/src/index"],
-      "@beep/utils/*": ["../../packages/common/utils/src/*"],
-      "@beep/constants": ["../../packages/common/constants/src/index"],
-      "@beep/constants/*": ["../../packages/common/constants/src/*"],
-      "@beep/schema": ["../../packages/common/schema/src/index"],
-      "@beep/schema/*": ["../../packages/common/schema/src/*"]
-    }
-  },
   "references": [
     {
       "path": "tsconfig.src.json"

@@ -1,26 +1,6 @@
 {
   "extends": "../../../tsconfig.base.json",
   "include": [],
-  "compilerOptions": {
-    "paths": {
-      "*": ["./*"],
-      "@beep/files-tables/*": ["./src/*"],
-      "@beep/shared-tables": ["../../shared/tables/src/index"],
-      "@beep/shared-tables/*": ["../../shared/tables/src/*"],
-      "@beep/shared-domain": ["../../shared/domain/src/index"],
-      "@beep/shared-domain/*": ["../../shared/domain/src/*"],
-      "@beep/schema": ["../../common/schema/src/index"],
-      "@beep/schema/*": ["../../common/schema/src/*"],
-      "@beep/utils": ["../../common/utils/src/index"],
-      "@beep/utils/*": ["../../common/utils/src/*"],
-      "@beep/invariant": ["../../common/invariant/src/index"],
-      "@beep/invariant/*": ["../../common/invariant/src/*"],
-      "@beep/types": ["../../common/types/src/index"],
-      "@beep/types/*": ["../../common/types/src/*"],
-      "@beep/files-domain": ["../domain/src/index"],
-      "@beep/files-domain/*": ["../domain/src/*"]
-    }
-  },
   "references": [
     {
       "path": "tsconfig.src.json"

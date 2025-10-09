@@ -6,10 +6,6 @@
     "types": ["node", "bun"],
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "src",
-    "noEmit": true,
-    "paths": {
-      "*": ["./*"],
-      "@/*": ["./src/*"]
-    }
+    "noEmit": true
   }
 }

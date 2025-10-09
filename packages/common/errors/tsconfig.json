@@ -1,25 +1,6 @@
 {
   "extends": "../../../tsconfig.base.json",
   "include": [],
-  "compilerOptions": {
-    "paths": {
-      "*": ["./*"],
-      "@beep/errors/*": ["./src/*"],
-      "@beep/errors/shared": ["./src/shared"],
-      "@beep/errors/client": ["./src/client"],
-      "@beep/errors/server": ["./src/server"],
-      "@beep/types": ["../types/src/index"],
-      "@beep/types/*": ["../types/src/*"],
-      "@beep/utils": ["../utils/src/index"],
-      "@beep/utils/*": ["../utils/src/*"],
-      "@beep/invariant": ["../invariant/src/index"],
-      "@beep/invariant/*": ["../invariant/src/*"],
-      "@beep/schema": ["../schema/src/index"],
-      "@beep/schema/*": ["../schema/src/*"],
-      "@beep/constants": ["../constants/src/index"],
-      "@beep/constants/*": ["../constants/src/*"]
-    }
-  },
   "references": [
     {
       "path": "tsconfig.src.json"

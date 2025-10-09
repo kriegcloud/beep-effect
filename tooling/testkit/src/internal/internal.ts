@@ -3,7 +3,6 @@
  */
 
 import { describe, it } from "bun:test";
-import type { UnsafeTypes } from "@beep/types";
 import * as Cause from "effect/Cause";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -44,8 +43,8 @@ const testOptions = (timeout?: number | { timeout?: number }) =>
 
 const makeTester = <R>(mapEffect: <A, E>(self: Effect.Effect<A, E, R>) => Effect.Effect<A, E, never>) => {
   const run =
-    <A, E>(self: (...args: Array<UnsafeTypes.UnsafeAny>) => Effect.Effect<A, E, R>) =>
-    (...args: Array<UnsafeTypes.UnsafeAny>) =>
+    <A, E>(self: (...args: Array<any>) => Effect.Effect<A, E, R>) =>
+    (...args: Array<any>) =>
       pipe(
         Effect.suspend(() => self(...args)),
         mapEffect,
@@ -54,22 +53,22 @@ const makeTester = <R>(mapEffect: <A, E>(self: Effect.Effect<A, E, R>) => Effect
 
   const f = (
     name: string,
-    self: (...args: Array<UnsafeTypes.UnsafeAny>) => Effect.Effect<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, R>,
-    timeout?: UnsafeTypes.UnsafeAny
+    self: (...args: Array<any>) => Effect.Effect<any, any, R>,
+    timeout?: any
   ) => it(name, run(self), testOptions(timeout));
 
   const skip = (
     name: string,
-    self: (...args: Array<UnsafeTypes.UnsafeAny>) => Effect.Effect<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, R>,
-    timeout?: UnsafeTypes.UnsafeAny
+    self: (...args: Array<any>) => Effect.Effect<any, any, R>,
+    timeout?: any
   ) => it.skip(name, run(self), testOptions(timeout));
 
   const skipIf =
     (condition: unknown) =>
     (
       name: string,
-      self: (...args: Array<UnsafeTypes.UnsafeAny>) => Effect.Effect<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, R>,
-      timeout?: UnsafeTypes.UnsafeAny
+      self: (...args: Array<any>) => Effect.Effect<any, any, R>,
+      timeout?: any
     ) =>
       condition ? skip(name, self, timeout) : f(name, self, timeout);
 
@@ -77,23 +76,23 @@ const makeTester = <R>(mapEffect: <A, E>(self: Effect.Effect<A, E, R>) => Effect
     (condition: unknown) =>
     (
       name: string,
-      self: (...args: Array<UnsafeTypes.UnsafeAny>) => Effect.Effect<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, R>,
-      timeout?: UnsafeTypes.UnsafeAny
+      self: (...args: Array<any>) => Effect.Effect<any, any, R>,
+      timeout?: any
     ) =>
       condition ? f(name, self, timeout) : skip(name, self, timeout);
 
   const only = (
     name: string,
-    self: (...args: Array<UnsafeTypes.UnsafeAny>) => Effect.Effect<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, R>,
-    timeout?: UnsafeTypes.UnsafeAny
+    self: (...args: Array<any>) => Effect.Effect<any, any, R>,
+    timeout?: any
   ) => it.only(name, run(self), testOptions(timeout));
 
   const each =
-    (cases: ReadonlyArray<UnsafeTypes.UnsafeAny>) =>
+    (cases: ReadonlyArray<any>) =>
     (
       name: string,
-      self: (...args: Array<UnsafeTypes.UnsafeAny>) => Effect.Effect<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, R>,
-      timeout?: UnsafeTypes.UnsafeAny
+      self: (...args: Array<any>) => Effect.Effect<any, any, R>,
+      timeout?: any
     ) => {
       cases.forEach((testCase, index) => {
         it(`${name} [${index}]`, () => run(self)(testCase), testOptions(timeout));
@@ -102,8 +101,8 @@ const makeTester = <R>(mapEffect: <A, E>(self: Effect.Effect<A, E, R>) => Effect
 
   const fails = (
     name: string,
-    self: (...args: Array<UnsafeTypes.UnsafeAny>) => Effect.Effect<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, R>,
-    timeout?: UnsafeTypes.UnsafeAny
+    self: (...args: Array<any>) => Effect.Effect<any, any, R>,
+    timeout?: any
   ) =>
     it(
       name,
@@ -121,9 +120,9 @@ const makeTester = <R>(mapEffect: <A, E>(self: Effect.Effect<A, E, R>) => Effect
   // Simplified prop without FastCheck for now
   const prop = (
     name: string,
-    _arbitraries: UnsafeTypes.UnsafeAny,
-    self: (...args: Array<UnsafeTypes.UnsafeAny>) => Effect.Effect<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, R>,
-    timeout?: UnsafeTypes.UnsafeAny
+    _arbitraries: any,
+    self: (...args: Array<any>) => Effect.Effect<any, any, R>,
+    timeout?: any
   ) => {
     // For now, just run the test once with empty properties
     return it(name, run(self), testOptions(timeout));
@@ -134,9 +133,9 @@ const makeTester = <R>(mapEffect: <A, E>(self: Effect.Effect<A, E, R>) => Effect
 
 export const prop = (
   name: string,
-  _arbitraries: UnsafeTypes.UnsafeAny,
-  self: (properties: UnsafeTypes.UnsafeAny, ctx: UnsafeTypes.UnsafeAny) => void,
-  timeout?: UnsafeTypes.UnsafeAny
+  _arbitraries: any,
+  self: (properties: any, ctx: any) => void,
+  timeout?: any
 ) => {
   // Simplified prop without FastCheck for now
   return it(name, () => self({}, {}), testOptions(timeout));
@@ -151,7 +150,7 @@ export const layer = <R, E>(
   }
 ) => {
   return (
-    ...args: [name: string, f: (it: UnsafeTypes.UnsafeAny) => void] | [f: (it: UnsafeTypes.UnsafeAny) => void]
+    ...args: [name: string, f: (it: any) => void] | [f: (it: any) => void]
   ) => {
     const excludeTestServices = options?.excludeTestServices ?? false;
     const withTestEnv = excludeTestServices
@@ -173,7 +172,7 @@ export const layer = <R, E>(
       ),
       flakyTest,
       layer: (
-        nestedLayer: Layer.Layer<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, R>,
+        nestedLayer: Layer.Layer<any, any, R>,
         options?: { readonly timeout?: Duration.DurationInput }
       ) => {
         return layer(Layer.provideMerge(nestedLayer, withTestEnv), {
@@ -230,5 +229,5 @@ export const makeMethods = () => ({
 
 export const { effect, live, scoped, scopedLive } = makeMethods();
 
-export const describeWrapped = (name: string, f: (it: UnsafeTypes.UnsafeAny) => void) =>
+export const describeWrapped = (name: string, f: (it: any) => void) =>
   describe(name, () => f(makeMethods()));

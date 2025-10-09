@@ -2,26 +2,6 @@
   "extends": "../../tsconfig.base.json",
   "include": [],
   "exclude": ["src/**/*.test.ts"],
-  "compilerOptions": {
-    "paths": {
-      "*": ["./*"],
-      "@beep/ui/*": ["./src/*"],
-      "@beep/ui/form": ["./src/form/index"],
-      "@beep/ui/form/*": ["./src/form/*"],
-      "@beep/types": ["../common/types/src/index"],
-      "@beep/types/*": ["../common/types/src/*"],
-      "@beep/invariant": ["../common/invariant/src/index"],
-      "@beep/invariant/*": ["../common/invariant/src/*"],
-      "@beep/utils": ["../common/utils/src/index"],
-      "@beep/utils/*": ["../common/utils/src/*"],
-      "@beep/schema": ["../common/schema/src/index"],
-      "@beep/schema/*": ["../common/schema/src/*"],
-      "@beep/constants": ["../common/constants/src/index"],
-      "@beep/constants/*": ["../common/constants/src/*"],
-      "@beep/shared-domain": ["../shared/domain/src/index"],
-      "@beep/shared-domain/*": ["../shared/domain/src/*"]
-    }
-  },
   "references": [
     {
       "path": "tsconfig.src.json"
