@@ -1843,7 +1843,7 @@ const validateConfig = (raw: RawConfig): Either.Either<string[], ValidatedConfig
   // Port validation
   const port = Match.value(raw.PORT).pipe(
     Match.when(
-      (p) => p !== undefined && !isNaN(parseInt(p, 10)) && parseInt(p, 10) > 0,
+      (p) => p !== undefined && !Number.isNaN(parseInt(p, 10)) && parseInt(p, 10) > 0,
       (p) => parseInt(p!, 10)
     ),
     Match.orElse((p) => {

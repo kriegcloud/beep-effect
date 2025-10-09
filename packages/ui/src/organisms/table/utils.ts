@@ -1,3 +1,4 @@
+import type { UnsafeTypes } from "@beep/types";
 export function rowInPage<T>(data: T[], page: number, rowsPerPage: number) {
   return data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 }
@@ -25,8 +26,8 @@ export function emptyRows(page: number, rowsPerPage: number, arrayLength: number
  * const ex3 = getNestedProperty(data, 'more.protein');
  * console.log('ex3', ex3); // output: 42
  */
-function getNestedProperty<T>(obj: T, key: string): any {
-  return key.split(".").reduce((acc: any, part: string) => acc && acc[part], obj);
+function getNestedProperty<T>(obj: T, key: string): UnsafeTypes.UnsafeAny {
+  return key.split(".").reduce((acc: UnsafeTypes.UnsafeAny, part: string) => acc?.[part], obj);
 }
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -44,7 +45,7 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   return 0;
 }
 
-export function getComparator<Key extends keyof any>(
+export function getComparator<Key extends keyof UnsafeTypes.UnsafeAny>(
   order: "asc" | "desc",
   orderBy: Key
 ): (a: { [key in Key]: number | string }, b: { [key in Key]: number | string }) => number {

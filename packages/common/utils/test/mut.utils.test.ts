@@ -1,5 +1,6 @@
 import { expect } from "bun:test";
 import { effect } from "@beep/testkit";
+import type { UnsafeTypes } from "@beep/types";
 import { removeReadonly, removeReadonlyNonEmpty, SyncStatus } from "@beep/utils";
 import { type Array as EArray, Effect, Equal } from "effect";
 
@@ -38,7 +39,7 @@ effect("removeReadonly should work with different array types", () =>
     expect(objectResult).toEqual([{ id: 1 }, { id: 2 }]);
 
     // Test with empty array
-    const emptyArray: ReadonlyArray<any> = [];
+    const emptyArray: ReadonlyArray<UnsafeTypes.UnsafeAny> = [];
     const emptyResult = removeReadonly(emptyArray);
     expect(emptyResult).toEqual([]);
   })

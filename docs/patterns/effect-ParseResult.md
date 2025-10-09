@@ -789,7 +789,7 @@ const ConfigValue = Schema.String.pipe(
       decode: (str) => {
         // Try to parse as number first
         const num = Number(str)
-        return !isNaN(num) ? num : str
+        return !Number.isNaN(num) ? num : str
       },
       encode: (value) => String(value)
     }

@@ -117,7 +117,7 @@ export namespace EntityId {
       ...annotations,
       identifier: Str.endsWith("Id")(brand) ? brand : `${brand}Id`,
       title: `${Str.split("_")(tableName).map(Str.capitalize).join(" ")} Id`,
-      jsonSchema: { type: "string", format: tableName + "__" + "`${uuid}`" },
+      jsonSchema: { type: "string", format: `${tableName}__"\`\${uuid}\`"` },
       arbitrary: () => (fc) => fc.constantFrom(null).map(() => create()),
       pretty: () => (i) => `${brand}(${i})`,
     });

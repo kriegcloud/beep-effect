@@ -1,6 +1,6 @@
 import { invariant } from "@beep/invariant";
 import { path_regex, prop_regex } from "@beep/schema/regexes";
-
+import type { UnsafeTypes } from "@beep/types";
 import { faker } from "@faker-js/faker";
 import * as A from "effect/Array";
 import type * as B from "effect/Brand";
@@ -45,7 +45,7 @@ export namespace JsonLiteral {
  * ```ts
  * const decode = S.decodeUnknown(Json.Schema);
  * const ok = decode({ a: [1, "x", null], b: { c: true } });
- * const bad = decode({ toJSON: () => 1 } as any); // functions are not JSON
+ * const bad = decode({ toJSON: () => 1 } as UnsafeTypes.UnsafeAny); // functions are not JSON
  * ```
  *
  * @since 0.1.0
@@ -200,7 +200,7 @@ export const JsonStringToStringArray = S.transformOrFail(S.Union(S.String, S.Arr
  * @param itemSchema - The schema for individual array items
  * @returns A transformer schema that converts between JSON strings/arrays and validated arrays
  */
-export const JsonStringToArray = <A>(itemSchema: S.Schema<A, any, never>) =>
+export const JsonStringToArray = <A>(itemSchema: S.Schema<A, UnsafeTypes.UnsafeAny, never>) =>
   S.transformOrFail(S.Union(S.String, S.Array(S.Unknown)), S.Array(itemSchema), {
     decode: (input) =>
       Effect.gen(function* () {

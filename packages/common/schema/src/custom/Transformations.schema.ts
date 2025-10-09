@@ -5,7 +5,7 @@ export class IntFromStr extends S.transformOrFail(S.String, S.Int, {
   strict: true,
   decode: (i, _, ast) =>
     ParseResult.try({
-      try: () => S.decodeSync(S.Int)(Number.parseInt(i)),
+      try: () => S.decodeSync(S.Int)(Number.parseInt(i, -10)),
       catch: () => new ParseResult.Type(ast, i, "Invalid int from string"),
     }),
   encode: (i, _, ast) => ParseResult.succeed(String(i)),

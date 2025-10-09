@@ -43,10 +43,7 @@ export function Logo({ sx, disabled, className, href = "/", isSingle = true, ...
     />
   );
 
-  const fullLogo = (
-    // biome-ignore lint/performance/noImgElement: UI library component - consumers can optimize images as needed
-    <img alt="Full logo" src={assetPaths.logo} width="100%" height="100%" />
-  );
+  const fullLogo = <img alt="Full logo" src={assetPaths.logo} width="100%" height="100%" />;
 
   // const singleLogo = (
   //   <svg

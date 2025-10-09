@@ -1,3 +1,4 @@
+import type { UnsafeTypes } from "@beep/types";
 import { cssVarRgba, rgbaFromChannel } from "@beep/ui/utils";
 import type { ButtonProps } from "@mui/material/Button";
 import { type ButtonClasses, buttonClasses } from "@mui/material/Button";
@@ -5,7 +6,6 @@ import type { Components, ComponentsVariants, CSSObject, Theme } from "@mui/mate
 import * as Str from "effect/String";
 import { colorKeys } from "../palette";
 import { LinkBehavior } from "./link";
-
 /**
  * TypeScript extension for MUI theme augmentation.
  * @to {@link file://./../../extend-theme-types.d.ts}
@@ -262,7 +262,7 @@ const MuiButtonBase: Components<Theme>["MuiButtonBase"] = {
   },
 };
 const outlineStyles = (theme: Theme) =>
-  btnColors.reduce((acc: any, color) => {
+  btnColors.reduce((acc: UnsafeTypes.UnsafeAny, color) => {
     const paletteColor = theme.vars.palette[color];
 
     acc[`&.${buttonClasses.outlined}.${buttonClasses[`color${Str.capitalize(color)}` as keyof ButtonClasses]}`] = {
@@ -276,7 +276,7 @@ const outlineStyles = (theme: Theme) =>
   }, {});
 
 const textBtnStyles = (theme: Theme) =>
-  btnColors.reduce((acc: any, color) => {
+  btnColors.reduce((acc: UnsafeTypes.UnsafeAny, color) => {
     const paletteColor = theme.vars.palette[color];
 
     acc[`&.${buttonClasses.text}.${buttonClasses[`color${Str.capitalize(color)}` as keyof ButtonClasses]}`] = {

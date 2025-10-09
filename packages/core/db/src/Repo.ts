@@ -3,16 +3,15 @@ import type { UnsafeTypes } from "@beep/types";
 import type * as M from "@effect/sql/Model";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as SqlSchema from "@effect/sql/SqlSchema";
-import type * as A from "effect/Array";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import type * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { DbError } from "./errors";
-
 export namespace Repo {
   const tableNameToSpanPrefix = <TableName extends string>(tableName: TableName) => {
-    const name = Str.split("_")(tableName).map(Str.capitalize).join("");
+    const name = A.join("")(A.map(Str.split("_")(tableName), Str.capitalize));
     return `${name}Repo`;
   };
   const makeBaseRepo = <

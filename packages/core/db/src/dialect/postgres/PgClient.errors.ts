@@ -1,3 +1,4 @@
+import type { UnsafeTypes } from "@beep/types";
 import { SqlError } from "@effect/sql/SqlError";
 import { DrizzleQueryError } from "drizzle-orm";
 import * as Cause from "effect/Cause";
@@ -6,7 +7,6 @@ import * as F from "effect/Function";
 import * as S from "effect/Schema";
 import postgres from "postgres";
 import { PostgresErrorEnum, type PostgresErrorType, PostgresErrorTypeEnum } from "./PgError";
-
 export const DbErrorCause = S.instanceOf(postgres.PostgresError);
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
@@ -43,7 +43,7 @@ export const extractPostgresErrorFromCause = (cause: Cause.Cause<unknown>): post
 };
 
 /**
- * Attempts to extract a PostgresError from any supported SQL error shape.
+ * Attempts to extract a PostgresError from UnsafeTypes.UnsafeAny supported SQL error shape.
  */
 export const extractPostgresErrorFromSqlError = (sqlError: unknown): postgres.PostgresError | null => {
   return extractPostgresError(sqlError);
@@ -145,7 +145,7 @@ class PostgresError extends Data.Error<{
   /** Only set when debug is enabled */
   query: string;
   /** Only set when debug is enabled */
-  parameters: any[];
+  parameters: UnsafeTypes.UnsafeAny[];
 }> {}
 
 export class DbError extends Data.TaggedError("DbError")<{

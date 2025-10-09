@@ -79,12 +79,8 @@ const signInOneTap = AuthHandler.make<void>({
   plugin: "sign-in",
   method: "oneTap",
   run: AuthHandler.map(async () => {
-    try {
-      await client.oneTap();
-      return { data: null, error: null } as const;
-    } catch (error) {
-      throw error;
-    }
+    await client.oneTap();
+    return { data: null, error: null } as const;
   }),
   toast: {
     onWaiting: "Signing in...",

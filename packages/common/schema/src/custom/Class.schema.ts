@@ -367,7 +367,7 @@ export function formatUnknown(input: unknown, whitespace: number | string | unde
       if (seen.has(v)) return CIRCULAR;
       seen.add(v);
       if (!gap || v.length <= 1) return `[${v.map((x) => go(x, d)).join(",")}]`;
-      const inner = v.map((x) => go(x, d + 1)).join(",\n" + ind(d + 1));
+      const inner = v.map((x) => go(x, d + 1)).join(`,\n${ind(d + 1)}`);
       return `[\n${ind(d + 1)}${inner}\n${ind(d)}]`;
     }
 
@@ -384,7 +384,7 @@ export function formatUnknown(input: unknown, whitespace: number | string | unde
 
     if (P.isNumber(v) || v == null || P.isBoolean(v) || P.isSymbol(v)) return String(v);
 
-    if (P.isBigInt(v)) return String(v) + "n";
+    if (P.isBigInt(v)) return `${String(v)}n`;
 
     if (v instanceof Set || v instanceof Map) {
       if (seen.has(v)) return CIRCULAR;

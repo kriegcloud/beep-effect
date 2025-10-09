@@ -917,7 +917,7 @@ const dataTransformationExample = () => {
   // Validation functions
   const validators = [
     (data: RawUserData) => data.email.includes('@'),
-    (data: RawUserData) => !isNaN(Number(data.age)),
+    (data: RawUserData) => !Number.isNaN(Number(data.age)),
     (data: RawUserData) => data.role === 'user' || data.role === 'admin'
   ]
   

@@ -1,6 +1,7 @@
 /**
  * @since 1.0.0
  */
+import type { UnsafeTypes } from "@beep/types";
 import * as Reactivity from "@effect/experimental/Reactivity";
 import * as Client from "@effect/sql/SqlClient";
 import type { Connection } from "@effect/sql/SqlConnection";
@@ -160,7 +161,7 @@ export const make = (options: PgClientConfig): Effect.Effect<PgClient, SqlError,
     class ConnectionImpl implements Connection {
       constructor(private readonly sql: SQL) {}
 
-      private run(query: Promise<any>) {
+      private run(query: Promise<UnsafeTypes.UnsafeAny>) {
         return Effect.tryPromise({
           catch: (cause) => new SqlError({ cause, message: "Failed to execute statement" }),
           try: () => query,
@@ -172,20 +173,20 @@ export const make = (options: PgClientConfig): Effect.Effect<PgClient, SqlError,
         params: ReadonlyArray<Primitive>,
         transformRows: (<A extends object>(row: ReadonlyArray<A>) => ReadonlyArray<A>) | undefined
       ) {
-        const result = this.run(this.sql.unsafe(sql, params as any));
+        const result = this.run(this.sql.unsafe(sql, params as UnsafeTypes.UnsafeAny));
         return transformRows ? Effect.map(result, transformRows) : result;
       }
 
       executeRaw(sql: string, params: ReadonlyArray<Primitive>) {
-        return this.run(this.sql.unsafe(sql, params as any));
+        return this.run(this.sql.unsafe(sql, params as UnsafeTypes.UnsafeAny));
       }
 
       executeWithoutTransform(sql: string, params: ReadonlyArray<Primitive>) {
-        return this.run(this.sql.unsafe(sql, params as any));
+        return this.run(this.sql.unsafe(sql, params as UnsafeTypes.UnsafeAny));
       }
 
       executeValues(sql: string, params: ReadonlyArray<Primitive>) {
-        return this.run(this.sql.unsafe(sql, params as any));
+        return this.run(this.sql.unsafe(sql, params as UnsafeTypes.UnsafeAny));
       }
 
       executeUnprepared(

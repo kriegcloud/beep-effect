@@ -1063,7 +1063,7 @@ export class FileTypes extends Data.TaggedClass("FileTypes") {
         ? signature.sequence.length + signature.skippedBytes.length
         : signature.sequence.length;
       for (let i = 0; i < signatureLength; i++) {
-        if (signature.skippedBytes && signature.skippedBytes.includes(i)) {
+        if (signature.skippedBytes?.includes(i)) {
           skippedBytes++;
           continue;
         }

@@ -1,5 +1,6 @@
 import { expect } from "bun:test";
 import { effect } from "@beep/testkit";
+import type { UnsafeTypes } from "@beep/types";
 import { asyncNoOp, asyncNullOp, noOp, nullOp, nullOpE } from "@beep/utils/noOps";
 import { Effect } from "effect";
 
@@ -220,8 +221,8 @@ effect("no-op functions should never throw errors", () =>
     expect(() => nullOpE()).not.toThrow();
 
     // Test calling with unexpected arguments (should still work)
-    expect(() => (noOp as any)(1, 2, 3)).not.toThrow();
-    expect(() => (nullOp as any)("test")).not.toThrow();
+    expect(() => (noOp as UnsafeTypes.UnsafeAny)(1, 2, 3)).not.toThrow();
+    expect(() => (nullOp as UnsafeTypes.UnsafeAny)("test")).not.toThrow();
   })
 );
 

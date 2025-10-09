@@ -1,4 +1,5 @@
-export default function compressFileName(fileName: any): string {
+import type { UnsafeTypes } from "@beep/types";
+export default function compressFileName(fileName: UnsafeTypes.UnsafeAny): string {
   // Define the maximum length for the substring
   const maxSubstrLength = 18;
 

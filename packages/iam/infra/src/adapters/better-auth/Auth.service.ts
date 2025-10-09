@@ -29,14 +29,13 @@ import { AuthEmailService, SendResetPasswordEmailPayload, SendVerificationEmailP
 import { type CommonExtraFields, commonExtraFields } from "./internal";
 import { AllPlugins } from "./plugins";
 import type { Plugins } from "./plugins/plugins";
-
 export type ReadonlyHeaders = Headers & {
   /** @deprecated Method unavailable on `ReadonlyHeaders`. Read more: https://nextjs.org/docs/app/api-reference/functions/headers */
-  append(...args: any[]): void;
+  append(...args: UnsafeTypes.UnsafeAny[]): void;
   /** @deprecated Method unavailable on `ReadonlyHeaders`. Read more: https://nextjs.org/docs/app/api-reference/functions/headers */
-  set(...args: any[]): void;
+  set(...args: UnsafeTypes.UnsafeAny[]): void;
   /** @deprecated Method unavailable on `ReadonlyHeaders`. Read more: https://nextjs.org/docs/app/api-reference/functions/headers */
-  delete(...args: any[]): void;
+  delete(...args: UnsafeTypes.UnsafeAny[]): void;
 };
 type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "user"> & {
   account: {

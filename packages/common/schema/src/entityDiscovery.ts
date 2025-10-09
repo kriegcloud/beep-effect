@@ -1,6 +1,6 @@
 import { BSTable, type FieldConfig } from "@beep/schema/annotations";
 import * as bS from "@beep/schema/entity-s";
-
+import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
@@ -9,11 +9,10 @@ import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
 import * as Str from "effect/String";
 import type { EntityId } from "./EntityId";
-
 // Dynamic union type that includes all schemas with _tag field that represent business entities
 // This mirrors the logic in discoverEntitySchemas() but at the type level
 export type EntityUnion = {
-  [K in keyof typeof bS]: (typeof bS)[K] extends S.Schema<infer A, any, any>
+  [K in keyof typeof bS]: (typeof bS)[K] extends S.Schema<infer A, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>
     ? A extends { _tag: string; id: string; orgId: string }
       ? IsBusinessEntity<A> extends true
         ? A
@@ -40,7 +39,7 @@ export const discoverEntitySchemas = () => {
         return O.none();
       }
 
-      const schemaObj = schema as S.Schema<any, any, never>;
+      const schemaObj = schema as S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, never>;
 
       // Check if it has a _tag field
       const tagOpt = extractEntityTagOpt(schemaObj);
@@ -87,7 +86,9 @@ const getAnnotationFromSchema = <A>(annotationId: symbol, ast: AST.AST): O.Optio
  * Get schema for an entity type by tag (case-insensitive)
  * This function can be used on both frontend and backend
  */
-export const getSchemaByEntityType = (entityType: string): O.Option<S.Schema<any, any, never>> => {
+export const getSchemaByEntityType = (
+  entityType: string
+): O.Option<S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, never>> => {
   const entities = discoverEntitySchemas();
 
   return F.pipe(
@@ -98,7 +99,7 @@ export const getSchemaByEntityType = (entityType: string): O.Option<S.Schema<any
 };
 
 export interface EntityUiConfig<TTableName extends string, TBrand extends string> {
-  schema: S.Schema<any, any, never>;
+  schema: S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, never>;
   tag: EntityId.EntityIdSchemaInstance<TTableName, TBrand>;
   navConfig: NonNullable<FieldConfig["navigation"]>;
   navItem: {

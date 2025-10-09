@@ -26,7 +26,7 @@ function collectFiles(dir: string, baseDir: string = dir): string[] {
       return collectFiles(fullPath, baseDir);
     }
     // Return path relative to PUBLIC_DIR and prefix with "/"
-    return ["/" + nodePath.relative(baseDir, fullPath).replace(/\\/g, "/")];
+    return [`/${nodePath.relative(baseDir, fullPath).replace(/\\/g, "/")}`];
   });
 }
 
