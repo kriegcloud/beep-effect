@@ -11,7 +11,7 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import color from "picocolors";
-import { generateEnvSecrets } from "./generate-env-secrets";
+import { generateEnvSecrets } from "./generate-env-secrets.js";
 
 const CONTENT_WIDTH = 70;
 const BORDER = color.gray(`+${"-".repeat(CONTENT_WIDTH + 2)}+`);
@@ -168,19 +168,17 @@ const program = Effect.gen(function* () {
 
 const layer = Layer.mergeAll(BunContext.layer, FsUtils.FsUtilsLive);
 
-BunRuntime.runMain(
-  Effect.scoped(
-    program.pipe(
-      Effect.provide(layer),
-      Effect.catchAll((error) =>
-        Effect.gen(function* () {
-          const message = String(error);
-          yield* Console.log(`\nBOOTSTRAP FAILURE :: ${message}`);
-          const cause = Cause.fail(error);
-          yield* Console.log(`\nTRACE :: ${Cause.pretty(cause)}`);
-          return yield* Effect.fail(error);
-        })
-      )
-    )
+const main = program.pipe(
+  Effect.provide(layer),
+  Effect.catchAll((error) =>
+    Effect.gen(function* () {
+      const message = String(error);
+      yield* Console.log(`\nBOOTSTRAP FAILURE :: ${message}`);
+      const cause = Cause.fail(error);
+      yield* Console.log(`\nTRACE :: ${Cause.pretty(cause)}`);
+      return yield* Effect.fail(error);
+    })
   )
 );
+
+BunRuntime.runMain(main);

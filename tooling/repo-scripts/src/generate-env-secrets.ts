@@ -259,20 +259,22 @@ const generateEnvSecrets = Effect.gen(function* () {
 
   yield* Effect.log("Program completed successfully");
   return result;
-}).pipe(
-  Effect.catchAll((error) =>
-    Effect.gen(function* () {
-      yield* Effect.log(`Fatal error: ${String(error)}`);
-      yield* Console.log(`💥 Fatal error: ${String(error)}`);
-      return yield* Effect.void; // This won't be reached due to process.exit
-    })
-  )
-);
+});
 /**
  * Main program to generate and update .env secrets
  */
 
-// Run the program
-BunRuntime.runMain(generateEnvSecrets.pipe(Effect.provide(BunContext.layer)));
+const program = generateEnvSecrets.pipe(
+  Effect.catchAll((error) =>
+    Effect.gen(function* () {
+      yield* Effect.log(`Fatal error: ${String(error)}`);
+      yield* Console.log(`💥 Fatal error: ${String(error)}`);
+      return yield* Effect.void;
+    })
+  ),
+  Effect.provide(BunContext.layer)
+);
+
+BunRuntime.runMain(program);
 
 export { generateSecret, generateUUID, generateAutoFillValues, updateEnvFile, generateEnvSecrets };

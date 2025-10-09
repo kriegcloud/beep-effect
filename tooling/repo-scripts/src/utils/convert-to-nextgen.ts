@@ -19,7 +19,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { NextgenConvertableExtensionKit } from "./asset-path.schema";
+import { NextgenConvertableExtensionKit } from "./asset-path.schema.js";
 
 const repoScriptsDir = nodePath.resolve(nodePath.dirname(fileURLToPath(import.meta.url)), "../../");
 

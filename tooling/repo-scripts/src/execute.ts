@@ -8,7 +8,8 @@ import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import { convertDirectoryToNextgen } from "./utils/convert-to-nextgen";
+import * as Layer from "effect/Layer";
+import { convertDirectoryToNextgen } from "./utils/convert-to-nextgen.js";
 
 const program = Effect.gen(function* () {
   const path = yield* Path.Path;
@@ -33,11 +34,14 @@ const program = Effect.gen(function* () {
     yield* Console.log("No legacy assets to convert.");
     return results;
   }
-
   yield* Console.log("Converted assets:", JSON.stringify(results, null, 2));
   return results;
-}).pipe(
-  Effect.provide([BunContext.layer, FsUtilsLive]),
+});
+
+const layer = Layer.mergeAll(BunContext.layer, FsUtilsLive);
+
+const main = program.pipe(
+  Effect.provide(layer),
   Effect.catchAll((error) =>
     Effect.gen(function* () {
       yield* Console.log("\n💥 Program failed:", String(error));
@@ -48,4 +52,4 @@ const program = Effect.gen(function* () {
   )
 );
 
-BunRuntime.runMain(program);
+BunRuntime.runMain(main);

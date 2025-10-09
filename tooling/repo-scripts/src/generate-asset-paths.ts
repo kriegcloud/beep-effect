@@ -10,10 +10,11 @@ import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
 import { TreeFormatter } from "effect/ParseResult";
 import * as S from "effect/Schema";
-import { AssetPaths } from "./utils";
-import { convertDirectoryToNextgen } from "./utils/convert-to-nextgen";
+import { AssetPaths } from "./utils/index.js";
+import { convertDirectoryToNextgen } from "./utils/convert-to-nextgen.js";
 
 /**
  * Recursively collect all files under a directory.
@@ -75,10 +76,13 @@ const program = Effect.gen(function* () {
 
 export const publicPaths = ${JSON.stringify(files, null, 2)} as const;
 `;
-
   yield* fs.writeFileString(assetPathsFile, content);
-}).pipe(
-  Effect.provide([BunContext.layer, FsUtilsLive]),
+});
+
+const layer = Layer.mergeAll(BunContext.layer, FsUtilsLive);
+
+const main = program.pipe(
+  Effect.provide(layer),
   Effect.catchAll((error) =>
     Effect.gen(function* () {
       const msg = String(error);
@@ -90,4 +94,4 @@ export const publicPaths = ${JSON.stringify(files, null, 2)} as const;
   )
 );
 
-BunRuntime.runMain(program);
+BunRuntime.runMain(main);
