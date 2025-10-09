@@ -4,6 +4,7 @@
   "exclude": ["src/**/*.test.ts"],
   "compilerOptions": {
     "paths": {
+      "*": ["./*"],
       "@beep/runtime-client/*": ["./src/*"],
       "@beep/types": ["../../common/types/src/index"],
       "@beep/types/*": ["../../common/types/src/*"],

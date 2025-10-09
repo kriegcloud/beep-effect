@@ -3,6 +3,7 @@
   "include": [],
   "compilerOptions": {
     "paths": {
+      "*": ["./*"],
       "@beep/core-email/*": ["./src/*"],
       "@beep/types": ["../../common/types/src/index"],
       "@beep/types/*": ["../../common/types/src/*"],

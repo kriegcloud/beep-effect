@@ -1,11 +1,5 @@
-import {
-  formatSize,
-  type IecBitUnit,
-  type IecByteUnit,
-  type SiBitUnit,
-  type SiByteUnit,
-} from "@beep/files-domain/utils";
-import { afterEach, describe, expect, expectTypeOf, it, vi } from "@effect/vitest";
+import { afterEach, describe, expect, expectTypeOf, it, vi } from "bun:test";
+import { formatSize, type IecBitUnit, type IecByteUnit, type SiBitUnit, type SiByteUnit } from "../../src/utils";
 
 /** Useful unit catalogs for parsing/assertions in tests */
 const SI_BYTE_UNITS = ["B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"] as const;
@@ -157,7 +151,7 @@ describe("formatSize — exponent edges and unit selection", () => {
       const value = 1000n ** BigInt(i); // exact BigInt scaling
       const out = formatSize(value);
       const { numberPart, unit } = splitOut(out);
-      expect(unit).toBe(SI_BYTE_UNITS[i]);
+      expect(unit).toBe(SI_BYTE_UNITS[i]!);
       // For exact powers, we expect a clean "1"
       expect(numberPart).toBe("1");
     }
@@ -168,7 +162,7 @@ describe("formatSize — exponent edges and unit selection", () => {
       const value = 1024n ** BigInt(i);
       const out = formatSize(value, { binary: true });
       const { numberPart, unit } = splitOut(out);
-      expect(unit).toBe(IEC_BYTE_UNITS[i]);
+      expect(unit).toBe(IEC_BYTE_UNITS[i]!);
       expect(numberPart).toBe("1");
     }
   });
@@ -178,7 +172,7 @@ describe("formatSize — exponent edges and unit selection", () => {
       const value = 1000n ** BigInt(i);
       const out = formatSize(value, { bits: true });
       const { numberPart, unit } = splitOut(out);
-      expect(unit).toBe(SI_BIT_UNITS[i]);
+      expect(unit).toBe(SI_BIT_UNITS[i]!);
       expect(numberPart).toBe("1");
     }
   });
@@ -188,7 +182,7 @@ describe("formatSize — exponent edges and unit selection", () => {
       const value = 1024n ** BigInt(i);
       const out = formatSize(value, { bits: true, binary: true });
       const { numberPart, unit } = splitOut(out);
-      expect(unit).toBe(IEC_BIT_UNITS[i]);
+      expect(unit).toBe(IEC_BIT_UNITS[i]!);
       expect(numberPart).toBe("1");
     }
   });

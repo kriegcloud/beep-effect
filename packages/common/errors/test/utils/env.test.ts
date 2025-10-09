@@ -1,11 +1,11 @@
+import { describe } from "bun:test";
 import { readEnvLoggerConfig } from "@beep/errors/server";
-import { describe, it } from "@effect/vitest";
-import { deepStrictEqual } from "@effect/vitest/utils";
+import { deepStrictEqual, scoped } from "@beep/testkit";
 import * as Effect from "effect/Effect";
 import * as LogLevel from "effect/LogLevel";
 
 describe("errors/readEnvLoggerConfig", () => {
-  it.scoped("defaults to pretty + All in development (no NODE_ENV)", () =>
+  scoped("defaults to pretty + All in development (no NODE_ENV)", () =>
     Effect.gen(function* () {
       const prev = process.env.NODE_ENV;
       delete process.env.NODE_ENV;

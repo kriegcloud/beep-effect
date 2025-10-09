@@ -3,6 +3,7 @@
   "include": [],
   "compilerOptions": {
     "paths": {
+      "*": ["./*"],
       "@beep/iam-sdk/*": ["./src/*"],
       "@beep/iam-sdk/better-auth/*": ["./src/better-auth/*"],
       "@beep/types": ["../../common/types/src/index"],

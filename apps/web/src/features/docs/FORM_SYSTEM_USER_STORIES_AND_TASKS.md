@@ -3,7 +3,7 @@
 # Dynamic Multi‑Step Workflow Form System — User Stories & Implementation Tasks
 
 > Scope: Breakdown derived from the provided research/architecture plan for a TypeScript‑first, data‑driven multi‑step workflow/form system (DSL → JSON model → runtime → renderer), featuring JsonLogic conditions, Ajv validation, an XState‑backed engine, and JSONForms integration.
-> 
+>
 
 **Metadata legend:**
 
@@ -14,7 +14,7 @@
 ## DSL (Domain‑Specific Language) Design
 
 > Fluent, type‑safe builder that emits the canonical workflow JSON and (optionally) re‑hydrates from JSON; enforces step/field references at compile‑time; provides helpers for conditions.
-> 
+>
 - **User Story:** *As a workflow designer (developer), I can define workflows via a fluent TS DSL so I get compile‑time safety for steps, fields, and transitions while producing canonical JSON for runtime/renderer.*
     - Design the DSL surface (builder pattern) for `Workflow.create() → .step() → .transition() → .build()`. *(Task Type: Backend/Language Design | Output: TS API & docs | Depends on: Workflow model types)*
     - Implement `StepBuilder` to capture `id`, `title`, `description`, `schema`, `uiSchema`, `annotations`. *(Task Type: Backend | Output: TS code | Depends on: DSL API design)*
@@ -34,16 +34,16 @@
 
 - Provide Typedoc & examples for common patterns (branching by enum; multi‑page wizard). *(Task Type: Documentation | Output: MD + code samples | Depends on: DSL MVP)*
 - Add type tests (tsd) ensuring incorrect step/field references fail at compile time. *(Task Type: Testing | Output: tsd tests | Depends on: DSL types)*
-    
+
     *(Grounded in the document’s DSL goals and example builder sketch.)*
-    
+
 
 ---
 
 ## Canonical Workflow JSON Model & Serialization
 
 > Single source of truth: steps, transitions with JsonLogic when, priorities, initial state, and metadata; formal JSON Schema for definitions.
-> 
+>
 - **User Story:** *As the system, I need a canonical JSON model to persist, transport, validate, and interpret workflows (no code embedded).*
     - Author the **WorkflowDefinition JSON Schema** (v1) covering `id`, `version`, `schemaVersion`, `initial`, `steps[]`, `transitions[]`, `metadata`. *(Task Type: Validation | Output: JSON Schema | Depends on: Model spec)*
     - Define **Step** and **Transition** subschemas, including `priority`, default transitions (missing `when` → unconditional), and references (`from`/`to`). *(Task Type: Validation | Output: JSON Schema | Depends on: Model spec)*
@@ -60,7 +60,7 @@
 ## Schema Strategy & Validation (JSON Schema + Ajv)
 
 > JSON Schema (Draft 2020‑12) as canonical; Ajv as runtime validator; code‑first authoring via Effect Schema for DX.
-> 
+>
 - **User Story:** *As a developer, I can write step data schemas in TS and ship JSON Schema to the engine/renderer.*
     - Implement Effect Schema → JSON Schema generator wrapper with tests. *(Task Type: Backend | Output: TS adapter | Depends on: Effect Schema, JSON Schema draft 2020‑12)*
 - **User Story:** *As the engine/UI, I can validate user input consistently across browser/server using Ajv.*
@@ -78,7 +78,7 @@
 ## Conditional Logic Engine (JsonLogic)
 
 > Branching via data‑only JsonLogic rules; allow‑listed operators; validated rule shapes; shared evaluation on client/server.
-> 
+>
 - **User Story:** *As a workflow author, I can express branching conditions declaratively in JSON and reuse them in all environments.*
     - Integrate `json-logic-js`; implement a **rule schema** limiting operators (allow‑list) and validating rule shapes at load‑time. *(Task Type: Backend/Security | Output: TS + JSON Schema | Depends on: Workflow JSON model)*
 - **User Story:** *As the engine, I can evaluate rules over a controlled evaluation context.*
@@ -93,7 +93,7 @@
 ## Runtime Execution Engine (XState Adapter)
 
 > Generate an XState machine from workflow JSON; single generic guard reads JsonLogic from transition meta; actions assign/validate; serializable state.
-> 
+>
 - **User Story:** *As the system, I can execute the workflow by moving between steps based on validated input and conditions.*
     - Implement **machine generator**: steps → states (atomic), transitions → `on.NEXT[]` with `cond: 'evaluateCondition'` and `meta.rule`. *(Task Type: Backend | Output: TS code | Depends on: Workflow JSON, JsonLogic, XState)*
     - Implement **generic guard** `evaluateCondition` that fetches `rule` from transition meta and runs it over the evaluation context. *(Task Type: Backend | Output: TS code | Depends on: Conditional engine)*
@@ -116,7 +116,7 @@
 ## Form Renderer Integration (JSONForms primary)
 
 > UI renders current step from JSON Schema + UI schema; leverages Ajv; supports within‑step rules; customizable widgets/themes.
-> 
+>
 - **User Story:** *As an end‑user, I see a dynamic form for the current step; on submit, I advance per workflow logic.*
     - Build `<WorkflowFormRenderer>` React component that subscribes to the engine (via `useMachine` or service), renders JSONForms with current step schema and UI schema, and dispatches `NEXT` on submit. *(Task Type: Frontend | Output: React/TS code | Depends on: Runtime engine, Ajv)*
     - Configure JSONForms with shared Ajv instance; pass per‑step validator; render field‑level errors. *(Task Type: Frontend | Output: React/TS code | Depends on: Ajv factory)*
@@ -134,7 +134,7 @@
 ## Persistence & Resume
 
 > Serializable engine state; storage adapters (localStorage/DB); robust resume logic; external context injection.
-> 
+>
 - **User Story:** *As a user, I can leave and resume a workflow later on the same or different device.*
     - Define a **snapshot format** `{ workflowId, version, state: { value, context }, savedAt }`. *(Task Type: Backend | Output: TS types | Depends on: Engine serialization)*
     - Implement pluggable storage adapters: `localStorage`, IndexedDB, and generic server API adapter. *(Task Type: Backend | Output: TS code | Depends on: Snapshot format)*
@@ -149,7 +149,7 @@
 ## Versioning Strategy & Migrations
 
 > Semantic versioning on workflow definitions; separate schemaVersion; definition and state migration functions; policy for in‑flight instances.
-> 
+>
 - **User Story:** *As a maintainer, I can evolve workflows safely with explicit versioning and automated migrations where feasible.*
     - Adopt semver for workflow **definition** `version` and add model **schemaVersion**; document compatibility policy. *(Task Type: Architecture/Docs | Output: Policy doc | Depends on: JSON model)*
     - Implement **definition migration registry**: functions `v1 → v1.1`, `v1.1 → v2`, composable upgrade runner. *(Task Type: Backend | Output: TS code | Depends on: Workflow JSON schema)*
@@ -165,10 +165,10 @@
 
 ## Monorepo Architecture & Project Structure
 
-> Packages: workflow-model, workflow-dsl, workflow-runtime, workflow-renderer-jsonforms; pnpm workspaces; TS project refs; ESM/CJS.
-> 
+> Packages: workflow-model, workflow-dsl, workflow-runtime, workflow-renderer-jsonforms; bun workspaces; TS project refs; ESM/CJS.
+>
 - **User Story:** *As a contributor, I can develop across packages with fast builds and clear boundaries.*
-    - Initialize pnpm workspace; set up package folders and TS project references. *(Task Type: DevOps | Output: Repo scaffolding | Depends on: Package plan)*
+    - Initialize bun workspace; set up package folders and TS project references. *(Task Type: DevOps | Output: Repo scaffolding | Depends on: Package plan)*
     - Set up CI (e.g., Bitbucket/GitHub) to run typecheck, build, tests across workspaces. *(Task Type: DevOps | Output: CI pipeline | Depends on: Build & test scripts)*
 - **User Story:** *As a consumer, I can install only what I need (engine without renderer, etc.).*
     - Ensure package boundaries and peerDeps are correct; avoid leaking renderer deps into runtime. *(Task Type: Packaging | Output: package.json metadata | Depends on: Build configs)*
@@ -182,7 +182,7 @@
 ## Testing Strategy
 
 > Unit tests (model/DSL/runtime/rules), integration (DSL→engine), UI tests (renderer), type tests, cross‑version tests, perf smoke tests.
-> 
+>
 - **User Story:** *As QA, I can rely on automated tests that cover branching, validation, and persistence.*
     - Unit tests: DSL `.build()` happy/invalid paths; JsonLogic evaluation; Ajv validation; priority/default resolution. *(Task Type: Testing | Output: Tests | Depends on: DSL, Conditional, Validation)*
     - Integration: define workflow via DSL, run through engine with event sequences (Move/Consume/Adjust branches). *(Task Type: Testing | Output: Tests | Depends on: Runtime + DSL)*
@@ -198,7 +198,7 @@
 ## Security & Safety
 
 > No eval; allow‑listed JsonLogic ops; strict Ajv; sanitized context; resilient engine failure modes.
-> 
+>
 - **User Story:** *As a platform owner, I can safely execute untrusted workflow JSON without executing code.*
     - Enforce “data‑only” contract in schema (no functions in persisted config); validate rule shapes; disallow unknown props (Ajv strict). *(Task Type: Security/Validation | Output: Schemas + checks | Depends on: JSON model)*
     - Sanitize evaluation context and deep‑freeze external context; guard against prototype pollution. *(Task Type: Security | Output: TS utilities | Depends on: Conditional engine)*
@@ -212,7 +212,7 @@
 ## Observability & Analytics (Foundational)
 
 > Hooks for progression events; optional logging/metrics; groundwork for analytics and future visual tooling.
-> 
+>
 - **User Story:** *As an analyst, I can understand user progression and drop‑offs.*
     - Emit events: `STEP_ENTER`, `STEP_SUBMIT`, `BRANCH_TAKEN`, `WORKFLOW_COMPLETE` with workflow/step IDs only (no PII in logs). *(Task Type: Backend | Output: Event API | Depends on: Runtime service wrapper)*
 - **User Story (future):** *As a designer, I can visualize workflows and traverse paths.*
@@ -225,7 +225,7 @@
 ## Documentation & Developer Experience
 
 > Clear docs, guides, examples, and CLI; encourage schema/DSL best practices; migration playbooks.
-> 
+>
 - **User Story:** *As a developer, I can adopt the system quickly with copy‑pasteable examples.*
     - Author quick‑start: define a 3‑step workflow in DSL, run in React with JSONForms. *(Task Type: Docs | Output: README/tutorial | Depends on: MVP)*
     - Write “patterns” guide: branching by enum, default transitions, dynamic fields via UI schema, external context usage. *(Task Type: Docs | Output: MD | Depends on: Renderer & Runtime)*

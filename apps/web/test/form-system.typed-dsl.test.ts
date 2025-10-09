@@ -1,12 +1,12 @@
+import { describe, expect, it } from "bun:test";
 import type { UnsafeTypes } from "@beep/types";
-import { describe, expect, it } from "@effect/vitest";
 import {
   validateWorkflow as semanticValidate,
   validateAllStepSchemas,
   validateWorkflowJson,
   type WorkflowDefinition,
-} from "@/features/form-system";
-import { buildInventoryAdjustmentTyped } from "@/features/form-system/examples/inventory-adjustment.typed";
+} from "../src/features/form-system";
+import { buildInventoryAdjustmentTyped } from "../src/features/form-system/examples/inventory-adjustment.typed";
 import example from "./example-workflow";
 
 /**

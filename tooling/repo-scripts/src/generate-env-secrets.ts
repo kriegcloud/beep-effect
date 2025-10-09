@@ -3,8 +3,8 @@ import * as crypto from "node:crypto";
 import { findRepoRoot } from "@beep/tooling-utils/repo";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
-import * as NodeContext from "@effect/platform-node/NodeContext";
-import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -273,6 +273,6 @@ const generateEnvSecrets = Effect.gen(function* () {
  */
 
 // Run the program
-NodeRuntime.runMain(generateEnvSecrets.pipe(Effect.provide(NodeContext.layer)));
+BunRuntime.runMain(generateEnvSecrets.pipe(Effect.provide(BunContext.layer)));
 
 export { generateSecret, generateUUID, generateAutoFillValues, updateEnvFile, generateEnvSecrets };

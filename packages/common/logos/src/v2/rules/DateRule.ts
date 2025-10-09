@@ -1,10 +1,10 @@
-import { makeRule, Operands } from "@beep/logos/v2/internal";
 import { BS } from "@beep/schema";
 import * as DateTime from "effect/DateTime";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { makeRule, Operands } from "../internal";
 
 export namespace Ops {
   export class Eq extends Operands.Eq.Schema(BS.DateTimeUtcFromAllAcceptable, {}) {

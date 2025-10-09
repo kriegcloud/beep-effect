@@ -1,6 +1,6 @@
-import { fileTypeChecker } from "@beep/files-domain/value-objects";
+import { describe, expect, it } from "bun:test";
 import type { UnsafeTypes } from "@beep/types";
-import { describe, expect, it } from "@effect/vitest";
+import { fileTypeChecker } from "../../../../src/value-objects";
 
 describe("validateFileType", () => {
   it("should return true when given an Array<number> of a png file and a list of accepted types that contains its type", () => {

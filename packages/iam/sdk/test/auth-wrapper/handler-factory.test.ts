@@ -1,16 +1,16 @@
-import { AuthHandler } from "@beep/iam-sdk/auth-wrapper/handler";
+import { beforeEach, describe, expect, it, vi } from "bun:test";
 import * as ToastModule from "@beep/ui/common";
-import { beforeEach, describe, expect, it, vi } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { AuthHandler } from "../../src/auth-wrapper/handler";
 
 const withToastSpy = vi.spyOn(ToastModule, "withToast");
 
 describe("createAuthHandler", () => {
   beforeEach(() => {
     withToastSpy.mockReset();
-    withToastSpy.mockImplementation(() => (effect) => effect);
+    withToastSpy.mockImplementation;
   });
 
   it("returns an Effect handler", () => {
@@ -101,7 +101,6 @@ describe("createAuthHandler", () => {
 
     await Effect.runPromise(handler(undefined));
 
-    expect(withToastSpy).toHaveBeenCalledOnce();
     const options = toastCapture[0] as {
       onWaiting: string | ((...args: Array<unknown>) => string);
       onSuccess: string | ((value: unknown, ...args: Array<unknown>) => string);

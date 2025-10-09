@@ -1,6 +1,6 @@
 import { BS } from "@beep/schema";
-import { IamTableNames, SharedTableNames } from "@beep/shared-domain/entity-ids/index";
 import type * as S from "effect/Schema";
+import { IamTableNames, SharedTableNames } from "./table-names";
 
 export const EntityKindKit = BS.stringLiteralKit(
   ...IamTableNames.IamTableNameKit.Options,

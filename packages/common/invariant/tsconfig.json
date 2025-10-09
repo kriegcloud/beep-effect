@@ -3,6 +3,7 @@
   "include": [],
   "compilerOptions": {
     "paths": {
+      "*": ["./*"],
       "@beep/invariant/*": ["./src/*"]
     }
   },

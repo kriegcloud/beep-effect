@@ -26,10 +26,9 @@
     "strict": true,
     "strictNullChecks": true,
     "removeComments": false,
-    "types": ["node"],
+    "types": ["node", "bun"],
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
-    "baseUrl": ".",
     "jsx": "preserve",
     "module": "ESNext",
     "target": "ES2022",
@@ -39,6 +38,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
+      "*": ["./*"],
       "@/*": ["./src/*"],
       "@beep/types": ["../../packages/common/types/src/index"],
       "@beep/types/*": ["../../packages/common/types/src/*"],
@@ -202,5 +202,5 @@
     ".",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["vitest.config.ts"]
+  "exclude": []
 }

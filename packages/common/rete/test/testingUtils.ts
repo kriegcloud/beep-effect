@@ -1,10 +1,10 @@
-import { Field, type MatchT } from "@beep/rete/network";
-import { addConditionsToProduction } from "@beep/rete/network/add-conditions-to-production";
-import { addProductionToSession } from "@beep/rete/network/add-production-to-session";
-import { initProduction } from "@beep/rete/network/init-production";
-import { initSession } from "@beep/rete/network/init-session";
-import { describe, expect, it } from "@effect/vitest";
+import { describe, expect, it } from "bun:test";
 import * as S from "effect/Schema";
+import { Field, type MatchT } from "../src/network";
+import { addConditionsToProduction } from "../src/network/add-conditions-to-production";
+import { addProductionToSession } from "../src/network/add-production-to-session";
+import { initProduction } from "../src/network/init-production";
+import { initSession } from "../src/network/init-session";
 
 export const TestingSchema = S.Struct({
   A: S.Number,

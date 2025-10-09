@@ -1,12 +1,12 @@
+import { describe, expect, it } from "bun:test";
 import type { UnsafeTypes } from "@beep/types";
-import { describe, expect, it } from "@effect/vitest";
 import {
   validateAllStepSchemas,
   validateStepData,
   validateStepSchema,
   validateWorkflowJson,
   type WorkflowDefinition,
-} from "@/features/form-system";
+} from "../src/features/form-system";
 import example from "./example-workflow";
 
 describe("Form System - Schema Validation (Ajv)", () => {

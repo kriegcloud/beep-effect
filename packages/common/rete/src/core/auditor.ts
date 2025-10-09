@@ -1,4 +1,4 @@
-import { type Auditor as A, type AuditorMode as AM, consoleAuditor as cA } from "@beep/rete/network";
+import { type Auditor as A, type AuditorMode as AM, consoleAuditor as cA } from "../network";
 
 export type Auditor = A;
 export type AuditorMode = AM;

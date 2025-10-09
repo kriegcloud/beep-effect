@@ -3,6 +3,7 @@
   "include": [],
   "compilerOptions": {
     "paths": {
+      "*": ["./*"],
       "@beep/logos/*": ["./src/*"],
       "@beep/types": ["../types/src/index"],
       "@beep/types/*": ["../types/src/*"],

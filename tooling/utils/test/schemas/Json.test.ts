@@ -1,7 +1,7 @@
-import { Json } from "@beep/tooling-utils";
-import { describe, it } from "@effect/vitest";
-import { deepStrictEqual, throws } from "@effect/vitest/utils";
+import { describe, it } from "bun:test";
+import { deepStrictEqual, throws } from "@beep/testkit";
 import * as S from "effect/Schema";
+import { Json } from "../../src/schemas/Json";
 
 describe("Json", () => {
   it("accepts recursive structures of literals, arrays, and objects", () => {

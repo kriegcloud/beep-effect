@@ -31,7 +31,6 @@ Source of truth for rules and boundaries:
 - [.windsurfrules](.windsurfrules) → repository-enforced boundaries and allowed imports
 - [tsconfig.base.json](tsconfig.base.json) → authoritative path aliases and module boundaries
 - [turbo.json](turbo.json) → task graph and pipeline conventions
-- [pnpm-workspace.yaml](pnpm-workspace.yaml) → workspaces layout
 - [docs/patterns/](docs/patterns/) → Effect patterns and project conventions
 - [docs/PRODUCTION_CHECKLIST.md](docs/PRODUCTION_CHECKLIST.md) → production posture, logging defaults
 
@@ -53,7 +52,7 @@ Authoritative module boundaries via [tsconfig.base.json](tsconfig.base.json) pat
 - Auth: better-auth
 - UI: React + MUI (+ Tailwind utilities via @beep/ui)
 - State/machines: XState (v5)
-- Build & workspace: pnpm + Turborepo
+- Build & workspace: bun + Turborepo
 - Quality: Biome, Vitest
 - Optional/infra: Docker + dotenvx
 - AI: @effect/ai (+ IDE assistant rules in [.windsurfrules](.windsurfrules), `.cursor/rules/`)
@@ -61,38 +60,40 @@ Authoritative module boundaries via [tsconfig.base.json](tsconfig.base.json) pat
 ## Quick start
 
 Prereqs
-- Node LTS, pnpm as pinned in root [`package.json`](package.json) (`packageManager`/`engines`)
+- Bun >= 1.2.4 (pinned in [`.bun-version`](.bun-version))
+- Node 22 LTS (still required for remaining Node-targeted tooling until runtime migration completes)
 - Docker (for local Postgres)
 - Optional: direnv
 
 Install & run
 ```bash
-# sometimes you have to run install twice idk why...
-pnpm install
-pnpm bootstrap  # spins up Docker services + runs migrations
+# install dependencies
+bun install
+
+# bootstrap: spins up Docker services + runs migrations
+bun run bootstrap
 
 # Dev (all)
-pnpm dev
+bun run dev
 
 # Dev (web only)
-pnpm dev --filter=@beep/web
+bunx turbo run dev --filter=@beep/web
 ```
 
 Notes
-- Run `pnpm bootstrap` after installing to launch Docker services and apply migrations before development.
-- Prefer running via npm scripts in the root [`package.json`](package.json). Scripts use `dotenvx` so you don’t have to.
+- Run `bun run bootstrap` after installing to launch Docker services and apply migrations before development.
+- Prefer running via root scripts in [`package.json`](package.json). Scripts use `dotenvx` so you don’t have to.
 - If a tool isn’t in your PATH in your environment, you can prefix with `direnv exec .` (see `.windsurfrules`).
 
 ## Tasks and pipelines
 
-- Lint/format: `pnpm lint`, `pnpm lint:fix` (see [biome.jsonc](biome.jsonc))
-- Typecheck: `pnpm check`
-- Tests: `pnpm test` (workspace via [vitest.workspace.ts](vitest.workspace.ts))
-- Circular import check: `pnpm lint:circular`
-- Build: `pnpm build`
-- Dev: `pnpm dev` / `pnpm dev:https`
-- Bootstrap: `pnpm bootstrap`
-- DB lifecycle: `pnpm db:generate`, `pnpm db:push`, `pnpm db:migrate`, `pnpm db:studio` (wired via [turbo.json](turbo.json))
+- Lint/format: `bun run lint`, `bun run lint:fix` (see [biome.jsonc](biome.jsonc))
+- Typecheck: `bun run check`
+- Circular import check: `bun run lint:circular`
+- Build: `bun run build`
+- Dev: `bun run dev` / `bun run dev:https`
+- Bootstrap: `bun run bootstrap`
+- DB lifecycle: `bun run db:generate`, `bun run db:push`, `bun run db:migrate`, `bun run db:studio` (wired via [turbo.json](turbo.json))
 
 See [turbo.json](turbo.json) for the authoritative task graph.
 
@@ -103,7 +104,7 @@ Defined in [docker-compose.yml](docker-compose.yml):
 - Redis (`beep-redis`) — exposed on `${REDIS_PORT:-6379}`
 - Jaeger UI — exposed on `${JAEGER_PORT:-16686}` with OTLP `${OTLP_TRACE_EXPORTER_PORT:-4318}`
 
-Bring services up with `pnpm db:up`.
+Bring services up with `bun run db:up`.
 
 ## Layering and imports (enforced)
 

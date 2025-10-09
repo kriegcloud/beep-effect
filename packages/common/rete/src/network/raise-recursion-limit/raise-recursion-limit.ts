@@ -1,5 +1,5 @@
-import type { $Schema, ExecutedNodes } from "@beep/rete/network/types";
 import * as Data from "effect/Data";
+import type { $Schema, ExecutedNodes } from "../../network/types";
 export const recursionLimitMessage = <T extends $Schema>(limit: number, executedNodes: ExecutedNodes<T>) => {
   const rules: string[] = [];
   for (const node of executedNodes) {

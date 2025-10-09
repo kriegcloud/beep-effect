@@ -1,9 +1,9 @@
-import { makeRule, Operands } from "@beep/logos/v2/internal";
 import { BS } from "@beep/schema";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { makeRule, Operands } from "../internal";
 
 const IgnoreCase = S.Boolean;
 

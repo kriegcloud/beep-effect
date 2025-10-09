@@ -1,5 +1,5 @@
 // import { v4 as uuid } from "uuid";
-// import { expect, test, describe } from "@effect/vitest";
+// import { expect, test, describe } from ""bun:test"";
 // import * as l from "@beep/logos/v2";
 //
 // describe("normalize", () => {

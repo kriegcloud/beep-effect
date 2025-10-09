@@ -3,6 +3,7 @@
   "include": [],
   "compilerOptions": {
     "paths": {
+      "*": ["./*"],
       "@beep/iam-infra/*": ["./src/*"],
       "@beep/core-db": ["../../core/db/src/index"],
       "@beep/core-db/*": ["../../core/db/src/*"],

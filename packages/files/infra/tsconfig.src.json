@@ -40,16 +40,17 @@
     }
   ],
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["node", "bun"],
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
-    "baseUrl": ".",
+
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
+      "*": ["./*"],
       "@beep/files-infra/*": ["./src/*"],
       "@beep/files-domain": ["../domain/src/index"],
       "@beep/files-domain/*": ["../domain/src/*"],

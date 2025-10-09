@@ -1,6 +1,6 @@
+import { describe, expect, it } from "bun:test";
 import { stringLiteralKit } from "@beep/schema/kits/stringLiteralKit";
 import type { UnsafeTypes } from "@beep/types";
-import { describe, expect, it } from "vitest";
 
 describe("stringLiteralKit with pick and omit", () => {
   it("should work with pick method returning filtered array", () => {

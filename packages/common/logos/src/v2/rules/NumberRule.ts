@@ -1,7 +1,7 @@
-import { makeRule, Operands } from "@beep/logos/v2/internal";
-import { BetweenNumeric } from "@beep/logos/v2/rules/util";
 import * as Match from "effect/Match";
 import * as S from "effect/Schema";
+import { makeRule, Operands } from "../internal";
+import { BetweenNumeric } from "./util";
 
 export namespace Ops {
   export class Eq extends Operands.Eq.Schema(S.Number, {}) {

@@ -94,7 +94,9 @@ export function shouldPrintCause(
 
 export function formatCausePretty(cause: Cause.Cause<unknown>, enableColors = true): string {
   const pretty = Cause.isEmpty(cause) ? "" : Cause.pretty(cause);
-  return enableColors && pretty ? color.red(pretty) : pretty;
+  if (!enableColors || !pretty) return pretty;
+  const colored = color.red(pretty);
+  return colored === pretty ? `\u001b[31m${pretty}\u001b[39m` : colored;
 }
 
 export function extractPrimaryError(cause: Cause.Cause<unknown>): { error?: Error; message: string } {

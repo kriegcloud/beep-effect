@@ -1,10 +1,10 @@
+import { describe, expect, test } from "bun:test";
 import { RootGroup } from "@beep/logos";
 import { addRuleToGroup } from "@beep/logos/crud";
 import { prepare, runPrepared } from "@beep/logos/prepare";
 import { run } from "@beep/logos/run";
-import { buildSampleRoot } from "@beep/logos/test/rules-engine/test-util";
 import type { UnsafeTypes } from "@beep/types";
-import { describe, expect, test } from "vitest";
+import { buildSampleRoot } from "../test-util";
 
 describe("prepare / runPrepared", () => {
   test("parity: pass case", () => {

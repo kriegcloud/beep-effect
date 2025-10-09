@@ -3,8 +3,8 @@
 // import * as AiToolkit from "@effect/ai/AiToolkit";
 // import * as McpServer from "@effect/ai/McpServer";
 // import * as HttpRouter from "@effect/platform/HttpRouter";
-// import * as NodeHttpServer from "@effect/platform-node/NodeHttpServer";
-// import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
+// import * as NodeHttpServer from "@effect/platform-bun/NodeHttpServer";
+// import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 // import * as Effect from "effect/Effect";
 // import * as Layer from "effect/Layer";
 // import * as S from "effect/Schema";
@@ -44,4 +44,4 @@
 //   Layer.provide(NodeHttpServer.layer(createServer, { port: 8081 }))
 // );
 //
-// Layer.launch(ServerLayer).pipe(NodeRuntime.runMain);
+// Layer.launch(ServerLayer).pipe(BunRuntime.runMain);

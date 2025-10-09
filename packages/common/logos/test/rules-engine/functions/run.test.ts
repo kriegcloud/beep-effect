@@ -1,8 +1,8 @@
+import { expect, test } from "bun:test";
 import { RootGroup } from "@beep/logos";
 import { addGroup, addRuleToGroup } from "@beep/logos/crud";
 import { run } from "@beep/logos/run";
 import type { UnsafeTypes } from "@beep/types";
-import { expect, test } from "vitest";
 
 const root = RootGroup.make({ logicalOp: "and" });
 

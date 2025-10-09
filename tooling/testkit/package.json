@@ -25,17 +25,19 @@
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "lint:circular": "pnpm madge -c ."
+    "lint:circular": "bunx madge -c .",
+    "test": "bun test",
+    "coverage": "bun test --coverage"
   },
   "dependencies": {
-    "@effect/platform": "*",
-    "effect": "*"
+    "@effect/platform": "catalog:",
+    "effect": "catalog:"
   },
   "devDependencies": {
-    "@effect/platform-bun": "*",
-    "@types/bun": "*",
-    "@testcontainers/postgresql": "*",
-    "testcontainers": "*"
+    "@effect/platform-bun": "catalog:",
+    "@types/bun": "catalog:",
+    "@testcontainers/postgresql": "catalog:",
+    "testcontainers": "catalog:"
   },
   "effect": {
     "generateExports": {

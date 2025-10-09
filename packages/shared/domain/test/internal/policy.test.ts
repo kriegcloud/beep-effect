@@ -1,6 +1,7 @@
+import { describe, it } from "bun:test";
 import * as internal from "@beep/shared-domain/_internal/policy";
-import { describe, it } from "@effect/vitest";
-import { deepStrictEqual } from "assert";
+
+import { deepStrictEqual } from "@beep/testkit";
 
 describe("makePermissions", () => {
   it("generates correct permission strings for actions", () => {

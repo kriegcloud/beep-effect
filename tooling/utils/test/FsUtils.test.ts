@@ -1,15 +1,15 @@
-import { FsUtils, FsUtilsLive } from "@beep/tooling-utils/FsUtils";
+import { describe } from "bun:test";
+import { deepStrictEqual, scoped } from "@beep/testkit";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
-import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
-import * as NodePath from "@effect/platform-node/NodePath";
-import { describe, it } from "@effect/vitest";
-import { deepStrictEqual } from "@effect/vitest/utils";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
 import * as Effect from "effect/Effect";
 import * as E from "effect/Either";
 import * as Layer from "effect/Layer";
+import { FsUtils, FsUtilsLive } from "../src/FsUtils";
 
-const TestLayer = Layer.mergeAll(FsUtilsLive, NodeFileSystem.layer, NodePath.layerPosix);
+const TestLayer = Layer.mergeAll(FsUtilsLive, BunFileSystem.layer, BunPath.layerPosix);
 
 const mkTestDir = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
@@ -27,7 +27,7 @@ const mkTestDirScoped = Effect.gen(function* () {
 });
 
 describe("FsUtils", () => {
-  it.scoped("glob and globFiles find files", () =>
+  scoped("glob and globFiles find files", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path_ = yield* Path.Path;
@@ -59,7 +59,7 @@ describe("FsUtils", () => {
     }).pipe(Effect.provide(TestLayer))
   );
 
-  it.scoped("modifyFile modifies content", () =>
+  scoped("modifyFile modifies content", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path_ = yield* Path.Path;
@@ -79,7 +79,7 @@ describe("FsUtils", () => {
     }).pipe(Effect.provide(TestLayer))
   );
 
-  it.scoped("modifyGlob applies to all matched files", () =>
+  scoped("modifyGlob applies to all matched files", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path_ = yield* Path.Path;
@@ -106,7 +106,7 @@ describe("FsUtils", () => {
     }).pipe(Effect.provide(TestLayer))
   );
 
-  it.scoped("rmAndCopy replaces destination directory", () =>
+  scoped("rmAndCopy replaces destination directory", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path_ = yield* Path.Path;
@@ -127,7 +127,7 @@ describe("FsUtils", () => {
     }).pipe(Effect.provide(TestLayer))
   );
 
-  it.scoped("copyIfExists copies when source exists and is a no-op otherwise", () =>
+  scoped("copyIfExists copies when source exists and is a no-op otherwise", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path_ = yield* Path.Path;
@@ -149,7 +149,7 @@ describe("FsUtils", () => {
     }).pipe(Effect.provide(TestLayer))
   );
 
-  it.scoped("mkdirCached can be called multiple times", () =>
+  scoped("mkdirCached can be called multiple times", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path_ = yield* Path.Path;
@@ -164,7 +164,7 @@ describe("FsUtils", () => {
     }).pipe(Effect.provide(TestLayer))
   );
 
-  it.scoped("copyGlobCached copies while preserving structure", () =>
+  scoped("copyGlobCached copies while preserving structure", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path_ = yield* Path.Path;
@@ -184,7 +184,7 @@ describe("FsUtils", () => {
     }).pipe(Effect.provide(TestLayer))
   );
 
-  it.scoped("rmAndMkdir removes and recreates directory", () =>
+  scoped("rmAndMkdir removes and recreates directory", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path_ = yield* Path.Path;
@@ -199,7 +199,7 @@ describe("FsUtils", () => {
     }).pipe(Effect.provide(TestLayer))
   );
 
-  it.scoped("readJson and writeJson roundtrip and error handling", () =>
+  scoped("readJson and writeJson roundtrip and error handling", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path_ = yield* Path.Path;

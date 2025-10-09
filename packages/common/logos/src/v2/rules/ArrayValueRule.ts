@@ -1,10 +1,10 @@
-import { makeRule } from "@beep/logos/v2/internal";
-import * as Operands from "@beep/logos/v2/internal/Operands";
-import { countDistinctOverlaps, has, intersect, missingFrom } from "@beep/logos/v2/rules/util";
 import { BS } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Match from "effect/Match";
 import * as S from "effect/Schema";
+import { countDistinctOverlaps, has, intersect, missingFrom } from "../../v2/rules/util";
+import { makeRule } from "../internal";
+import * as Operands from "../internal/Operands";
 
 export namespace Ops {
   export class Contains extends Operands.Contains.Schema(BS.Json, {}) {

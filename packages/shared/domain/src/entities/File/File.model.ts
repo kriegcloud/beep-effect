@@ -1,6 +1,6 @@
 import { makeFields } from "@beep/shared-domain/common";
-import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import * as M from "@effect/sql/Model";
+import { SharedEntityIds } from "../../entity-ids";
 
 export class Model extends M.Class<Model>(`FileModel`)(
   makeFields(SharedEntityIds.FileId, {

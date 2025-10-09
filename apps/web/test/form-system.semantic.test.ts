@@ -1,6 +1,6 @@
-import { describe, expect, it } from "@effect/vitest";
-import type { WorkflowDefinition } from "@/features/form-system";
-import { validateWorkflow } from "@/features/form-system";
+import { describe, expect, it } from "bun:test";
+import type { WorkflowDefinition } from "../src/features/form-system";
+import { validateWorkflow } from "../src/features/form-system";
 import example from "./example-workflow";
 
 const EXAMPLE = example as unknown as WorkflowDefinition;

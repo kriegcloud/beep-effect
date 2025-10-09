@@ -1,8 +1,8 @@
-import { consoleAuditor } from "@beep/rete/core/auditor";
-import { AuditorMode, rete } from "@beep/rete/network";
-import type { FactFragment, MatchT } from "@beep/rete/network/types";
-import { Field } from "@beep/rete/network/types";
-import { describe, expect, it } from "@effect/vitest";
+import { describe, expect, it } from "bun:test";
+import { consoleAuditor } from "../../src/core/auditor";
+import { AuditorMode, rete } from "../../src/network";
+import type { FactFragment, MatchT } from "../../src/network/types";
+import { Field } from "../../src/network/types";
 
 type People = [id: number, color: string, leftOf: number, height: number][];
 

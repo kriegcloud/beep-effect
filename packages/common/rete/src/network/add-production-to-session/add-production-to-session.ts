@@ -1,4 +1,4 @@
-import { ProductionAlreadyExists } from "@beep/rete/network/add-production-to-session/errors";
+import { ProductionAlreadyExists } from "../../network/add-production-to-session/errors";
 import type {
   $Schema,
   IdAttrs,
@@ -8,8 +8,8 @@ import type {
   MemoryNode,
   Production,
   Session,
-} from "@beep/rete/network/types";
-import { Field, MEMORY_NODE_TYPE, PRODUCTION_ALREADY_EXISTS_BEHAVIOR } from "@beep/rete/network/types";
+} from "../../network/types";
+import { Field, MEMORY_NODE_TYPE, PRODUCTION_ALREADY_EXISTS_BEHAVIOR } from "../../network/types";
 import { addNodes } from "../add-nodes";
 import { isAncestor } from "../is-ancestor";
 

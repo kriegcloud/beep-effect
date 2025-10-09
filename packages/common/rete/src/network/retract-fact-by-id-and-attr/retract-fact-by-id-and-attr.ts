@@ -1,5 +1,5 @@
-import { AuditAction, AuditRecordType } from "@beep/rete/network/audit";
-import { type $Schema, type AlphaNode, type Session, TokenKind } from "@beep/rete/network/types";
+import { AuditAction, AuditRecordType } from "../../network/audit";
+import { type $Schema, type AlphaNode, type Session, TokenKind } from "../../network/types";
 import { fireRules } from "../fire-rules";
 import { rightActivationWithAlphaNode } from "../right-activation-with-alpha-node";
 import { hashIdAttr } from "../utils";

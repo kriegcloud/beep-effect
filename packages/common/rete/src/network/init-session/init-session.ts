@@ -1,5 +1,5 @@
-import type { Auditor } from "@beep/rete/network/audit";
-import type { $Schema, AlphaNode, Fact, IdAttr, IdAttrsHash, MemoryNode, Session } from "@beep/rete/network/types";
+import type { Auditor } from "../../network/audit";
+import type { $Schema, AlphaNode, Fact, IdAttr, IdAttrsHash, MemoryNode, Session } from "../../network/types";
 import { defaultInitMatch } from "../default-init-match";
 
 export const initSession = <T extends $Schema>(autoFire = true, auditor?: Auditor): Session<T> => {

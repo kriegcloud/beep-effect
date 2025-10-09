@@ -3,8 +3,8 @@
   "include": [],
   "exclude": [],
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
+      "*": ["./*"],
       "@beep/testkit/*": ["./src/*"]
     }
   },

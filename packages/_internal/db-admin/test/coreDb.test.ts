@@ -1,8 +1,9 @@
+import { describe } from "bun:test";
 import { DbError } from "@beep/core-db/errors";
 import * as Entities from "@beep/iam-domain/entities";
 import * as IamRepos from "@beep/iam-infra/adapters/repositories";
 import * as BS from "@beep/schema/schema";
-import { assert, describe, it } from "@effect/vitest";
+import { assertTrue, layer } from "@beep/testkit";
 import { faker } from "@faker-js/faker";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -10,17 +11,14 @@ import * as O from "effect/Option";
 import { PgContainer, pgContainerPreflight } from "./pg-container";
 
 const preflight = pgContainerPreflight;
-const describePg = preflight.type === "ready" ? describe : describe.skip;
 
 if (preflight.type === "skip") {
   console.warn(`[@beep/core-db] skipping docker-backed tests: ${preflight.reason}`);
-}
-
-describePg("@beep/core-db", () =>
-  it.layer(PgContainer.Live, { timeout: "30 seconds" })("test core db errors", (it) => {
-    it.effect(
-      "error should be matched",
-      Effect.fnUntraced(function* () {
+  describe.skip("test core db errors", () => undefined);
+} else {
+  layer(PgContainer.Live)("test core db errors", (it) => {
+    it.effect("error should be matched", () =>
+      Effect.gen(function* () {
         const userRepo = yield* IamRepos.UserRepo;
 
         const now = yield* DateTime.now;
@@ -39,9 +37,9 @@ describePg("@beep/core-db", () =>
         // This should cause a unique violation since we're inserting the same user again
         const error = yield* userRepo.insert(mockedUser).pipe(Effect.flip);
 
-        assert.isTrue(error instanceof DbError);
-        assert.isTrue(error.type === "UNIQUE_VIOLATION");
+        assertTrue(error instanceof DbError);
+        assertTrue(error.type === "UNIQUE_VIOLATION");
       })
     );
-  })
-);
+  });
+}

@@ -1,4 +1,4 @@
-import type { $Schema, FactId, Session } from "@beep/rete/network/types";
+import type { $Schema, FactId, Session } from "../../network/types";
 import { hashIdAttr } from "../utils";
 
 const retrieveFactValueByIdAttr = <TSchema extends $Schema, T extends keyof TSchema, X extends TSchema[T]>(

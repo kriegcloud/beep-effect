@@ -1,5 +1,5 @@
-import { fileTypeChecker } from "@beep/files-domain/value-objects";
-import { describe, expect, it } from "@effect/vitest";
+import { describe, expect, it } from "bun:test";
+import { fileTypeChecker } from "../../../../src/value-objects";
 
 describe("image validation", () => {
   it("should return false for a corrupted Array<number> of an avif file which does not include the 'ftypavif' string", () => {

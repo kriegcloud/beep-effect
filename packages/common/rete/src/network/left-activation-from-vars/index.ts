@@ -1,1 +1,1 @@
-export { leftActivationFromVars, leftActivationOnMemoryNode } from "./left-activation-from-vars";
+export { leftActivationFromVars, leftActivationOnMemoryNode } from "../left-activation/shared";

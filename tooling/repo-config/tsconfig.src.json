@@ -1,14 +1,15 @@
 {
   "extends": "../../tsconfig.base.json",
   "include": ["src"],
-  "exclude": ["vitest.config.ts"],
+  "exclude": [],
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["node", "bun"],
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
-    "baseUrl": ".",
+
     "paths": {
+      "*": ["./*"],
       "@beep/repo-config/*": ["./src/*"]
     }
   }

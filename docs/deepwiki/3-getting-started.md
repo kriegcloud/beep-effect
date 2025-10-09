@@ -17,7 +17,6 @@ Relevant source files
 *   [packages/core/env/src/server.ts](https://github.com/kriegcloud/beep-effect/blob/b64126f6/packages/core/env/src/server.ts)
 *   [packages/iam/infra/package.json](https://github.com/kriegcloud/beep-effect/blob/b64126f6/packages/iam/infra/package.json)
 *   [packages/iam/ui/src/sign-up/sign-up-email.form.tsx](https://github.com/kriegcloud/beep-effect/blob/b64126f6/packages/iam/ui/src/sign-up/sign-up-email.form.tsx)
-*   [pnpm-lock.yaml](https://github.com/kriegcloud/beep-effect/blob/b64126f6/pnpm-lock.yaml)
 *   [tsconfig.base.json](https://github.com/kriegcloud/beep-effect/blob/b64126f6/tsconfig.base.json)
 *   [tsconfig.build.json](https://github.com/kriegcloud/beep-effect/blob/b64126f6/tsconfig.build.json)
 *   [tsconfig.json](https://github.com/kriegcloud/beep-effect/blob/b64126f6/tsconfig.json)
@@ -31,15 +30,15 @@ Prerequisites
 
 The following tools must be installed on your development machine:
 
-| Tool | Version | Purpose |
-| --- | --- | --- |
-| Node.js | 18+ | JavaScript runtime |
-| pnpm | 10.18.0 | Package manager (exact version enforced) |
-| Docker | Latest | Container runtime for services |
-| Docker Compose | Latest | Multi-container orchestration |
+| Tool              | Version | Purpose |
+|-------------------| --- | --- |
+| Node.js           | 18+ | JavaScript runtime |
+| bun               | 1.2.4" | Package manager (exact version enforced) |
+| Docker            | Latest | Container runtime for services |
+| Docker Compose    | Latest | Multi-container orchestration |
 | PostgreSQL Client | 14+ | Database CLI tools (optional) |
 
-**Sources:**[package.json 5-8](https://github.com/kriegcloud/beep-effect/blob/b64126f6/package.json#L5-L8)[pnpm-lock.yaml 1-6](https://github.com/kriegcloud/beep-effect/blob/b64126f6/pnpm-lock.yaml#L1-L6)
+**Sources:**[package.json 5-8](https://github.com/kriegcloud/beep-effect/blob/b64126f6/package.json#L5-L8)
 
 Repository Structure
 --------------------
@@ -56,15 +55,15 @@ Quick Start
 git clone git@github.com:kriegcloud/beep-effect.git
 cd beep-effect
 
-# Install dependencies (pnpm will auto-use version 10.18.0)
-pnpm install
+# Install dependencies via Bun
+bun install
 ```
 
 ### 2. Environment Setup
 
 ```
 # Generate required secrets for .env file
-pnpm gen:secrets
+bun run gen:secrets
 
 # Review and customize .env file
 # Edit .env with your local configuration
@@ -83,7 +82,7 @@ See [Environment Configuration](https://deepwiki.com/kriegcloud/beep-effect/3.2-
 
 ```
 # Start PostgreSQL, Redis, and other Docker services
-pnpm services:up
+bun run services:up
 
 # Verify services are running
 docker compose ps
@@ -93,13 +92,13 @@ docker compose ps
 
 ```
 # Generate Drizzle types from schema
-pnpm db:generate
+bun run db:generate
 
 # Run migrations
-pnpm db:migrate
+bun run db:migrate
 
 # (Optional) Open Drizzle Studio to inspect database
-pnpm db:studio
+bun run db:studio
 ```
 
 See [Database Setup](https://deepwiki.com/kriegcloud/beep-effect/3.3-database-setup) for detailed migration and seeding instructions.
@@ -108,12 +107,12 @@ See [Database Setup](https://deepwiki.com/kriegcloud/beep-effect/3.3-database-se
 
 ```
 # Start all applications in development mode
-pnpm dev
+bun run dev
 
 # Or start individual applications:
-pnpm --filter @beep/web dev
-pnpm --filter @beep/server dev
-ppnpm --filter @beep/mcp dev
+bunx turbo run dev --filter=@beep/web
+bunx turbo run dev --filter=@beep/server
+bunx turbo run dev --filter=@beep/mcp
 ```
 
 **Sources:**[package.json 21-52](https://github.com/kriegcloud/beep-effect/blob/b64126f6/package.json#L21-L52)[apps/web/package.json 8-11](https://github.com/kriegcloud/beep-effect/blob/b64126f6/apps/web/package.json#L8-L11)
@@ -130,72 +129,72 @@ Common Commands Reference
 
 | Command | Description |
 | --- | --- |
-| `pnpm install` | Install all dependencies |
-| `pnpm update-lockfile` | Update pnpm-lock.yaml without installing |
-| `pnpm lint:deps` | Check dependency version consistency with syncpack |
-| `pnpm lint:deps:fix` | Auto-fix dependency version mismatches |
+| `bun install` | Install all dependencies |
+| `bun pm update` | Update `bun.lock` without reinstalling |
+| `bun run lint:deps` | Check dependency version consistency with syncpack |
+| `bun run lint:deps:fix` | Auto-fix dependency version mismatches |
 
 ### Build and Development
 
 | Command | Description |
 | --- | --- |
-| `pnpm dev` | Start all applications in development mode with hot reload |
-| `pnpm build` | Build all packages and applications |
-| `pnpm start` | Start production builds |
-| `pnpm clean` | Remove build artifacts |
-| `pnpm clean:workspaces` | Clean all workspace packages |
+| `bun run dev` | Start all applications in development mode with hot reload |
+| `bun run build` | Build all packages and applications |
+| `bun run start` | Start production builds |
+| `bun run clean` | Remove build artifacts |
+| `bun run clean:workspaces` | Clean all workspace packages |
 
 ### Database Operations
 
 | Command | Description |
 | --- | --- |
-| `pnpm db:generate` | Generate TypeScript types from Drizzle schemas |
-| `pnpm db:migrate` | Apply pending database migrations |
-| `pnpm db:push` | Push schema changes directly to database (dev only) |
-| `pnpm db:studio` | Open Drizzle Studio GUI |
-| `pnpm db:exec` | Open PostgreSQL shell in Docker container |
+| `bun run db:generate` | Generate TypeScript types from Drizzle schemas |
+| `bun run db:migrate` | Apply pending database migrations |
+| `bun run db:push` | Push schema changes directly to database (dev only) |
+| `bun run db:studio` | Open Drizzle Studio GUI |
+| `bun run db:exec` | Open PostgreSQL shell in Docker container |
 
 ### Quality Assurance
 
 | Command | Description |
 | --- | --- |
-| `pnpm check` | Type-check all TypeScript code with tsc |
-| `pnpm lint` | Run Biome linter and check circular dependencies |
-| `pnpm lint:fix` | Auto-fix linting issues |
-| `pnpm lint:circular` | Check for circular dependencies with Madge |
-| `pnpm test` | Run test suites with Vitest |
-| `pnpm coverage` | Generate test coverage reports |
+| `bun run check` | Type-check all TypeScript code with tsc |
+| `bun run lint` | Run Biome linter and check circular dependencies |
+| `bun run lint:fix` | Auto-fix linting issues |
+| `bun run lint:circular` | Check for circular dependencies with Madge |
+| `bun run test` | Run test suites with Vitest |
+| `bun run coverage` | Generate test coverage reports |
 
 ### Docker Services
 
 | Command | Description |
 | --- | --- |
-| `pnpm services:up` | Start all Docker services (PostgreSQL, Redis, etc.) |
+| `bun run services:up` | Start all Docker services (PostgreSQL, Redis, etc.) |
 | `docker compose down` | Stop all services |
 | `docker compose ps` | List running services |
-| `pnpm nuke` | Completely remove all Docker resources |
+| `bun run nuke` | Completely remove all Docker resources |
 
 **Sources:**[package.json 21-52](https://github.com/kriegcloud/beep-effect/blob/b64126f6/package.json#L21-L52)
 
 Application-Specific Commands
 -----------------------------
 
-Each application can be targeted individually using pnpm's `--filter` flag:
+Each application can be targeted individually using Turbo filters:
 
 ```
 # Web application (Next.js)
-pnpm --filter @beep/web dev           # Development server
-pnpm --filter @beep/web build         # Production build
-pnpm --filter @beep/web lint          # Lint web code
-pnpm --filter @beep/web check         # Type check
+bunx turbo run dev --filter=@beep/web           # Development server
+bunx turbo run build --filter=@beep/web         # Production build
+bunx turbo run lint --filter=@beep/web          # Lint web code
+bunx turbo run check --filter=@beep/web         # Type check
 
 # Server application (Effect Platform Node)
-pnpm --filter @beep/server dev
-pnpm --filter @beep/server build
+bunx turbo run dev --filter=@beep/server
+bunx turbo run build --filter=@beep/server
 
 # MCP application (AI Tools Server)
-pnpm --filter @beep/mcp dev
-pnpm --filter @beep/mcp build
+bunx turbo run dev --filter=@beep/mcp
+bunx turbo run build --filter=@beep/mcp
 ```
 
 **Sources:**[apps/web/package.json 1-3](https://github.com/kriegcloud/beep-effect/blob/b64126f6/apps/web/package.json#L1-L3)[package.json 9-13](https://github.com/kriegcloud/beep-effect/blob/b64126f6/package.json#L9-L13)
@@ -230,7 +229,7 @@ Environment Variable Loading
 The codebase uses `@dotenvx/dotenvx` to load environment variables with enhanced security:
 
 1.   **Root .env file**: Store all environment variables in the repository root
-2.   **Prefixed commands**: All commands that need env vars use `pnpm dotenvx <command>`
+2.   **Prefixed commands**: All commands that need env vars use `bun run dotenvx -- <command>`
 3.   **Client vs Server split**:
     *   Client variables: `NEXT_PUBLIC_*` prefix, loaded by [packages/core/env/src/client.ts 1-58](https://github.com/kriegcloud/beep-effect/blob/b64126f6/packages/core/env/src/client.ts#L1-L58)
     *   Server variables: Loaded by [packages/core/env/src/server.ts 1-214](https://github.com/kriegcloud/beep-effect/blob/b64126f6/packages/core/env/src/server.ts#L1-L214) using Effect Config
@@ -239,11 +238,11 @@ Example of how dotenvx wraps commands:
 
 ```
 # Defined in package.json
-"dotenvx": "dotenvx run -f .env --"
+"dotenvx": "bunx dotenvx run -f .env --"
 
 # Used in other scripts
-"dev": "pnpm dotenvx turbo run dev --concurrency=36"
-"db:migrate": "pnpm dotenvx turbo run db:migrate"
+"dev": "bun run dotenvx -- bunx turbo run dev --concurrency=36"
+"db:migrate": "bun run dotenvx -- bunx turbo run db:migrate"
 ```
 
 **Sources:**[package.json 45](https://github.com/kriegcloud/beep-effect/blob/b64126f6/package.json#L45-L45)[package.json 40-41](https://github.com/kriegcloud/beep-effect/blob/b64126f6/package.json#L40-L41)[packages/core/env/src/client.ts 36-57](https://github.com/kriegcloud/beep-effect/blob/b64126f6/packages/core/env/src/client.ts#L36-L57)[packages/core/env/src/server.ts 210-213](https://github.com/kriegcloud/beep-effect/blob/b64126f6/packages/core/env/src/server.ts#L210-L213)
@@ -283,7 +282,7 @@ lsof -i :3000
 ```
 # Restart all services
 docker compose down
-pnpm services:up
+bun run services:up
 
 # View service logs
 docker compose logs -f postgres
@@ -297,24 +296,24 @@ docker compose logs -f redis
 rm -rf .turbo
 
 # Clear all build artifacts
-pnpm clean:workspaces
+bun run clean:workspaces
 
 # Reinstall dependencies
-pnpm clean
-pnpm install
+bun run clean
+bun install
 ```
 
 ### TypeScript Errors
 
 ```
 # Check all projects
-pnpm check
+bun run check
 
 # Check specific application
-pnpm --filter @beep/web check
+bunx turbo run check --filter=@beep/web
 
 # Rebuild all packages
-pnpm build
+bun run build
 ```
 
 **Sources:**[package.json 22-29](https://github.com/kriegcloud/beep-effect/blob/b64126f6/package.json#L22-L29)[package.json 32-35](https://github.com/kriegcloud/beep-effect/blob/b64126f6/package.json#L32-L35)

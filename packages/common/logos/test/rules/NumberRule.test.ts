@@ -1,5 +1,5 @@
-import { NumberRule } from "@beep/logos/v2/rules";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
+import { NumberRule } from "../../src/v2/rules";
 
 test("number is equal to", () => {
   const rule = NumberRule.eq({

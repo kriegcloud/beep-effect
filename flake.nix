@@ -16,10 +16,8 @@
       devShells = forAllSystems (pkgs: {
         default = pkgs.mkShell {
           packages = with pkgs; [
-            corepack
             bun
             nodejs_22
-            nodePackages.pnpm
             postgresql
             git
             deno
@@ -27,7 +25,6 @@
           
           shellHook = ''
             echo "Node.js: $(node --version)"
-            echo "pnpm: $(pnpm --version)"
             echo "Bun: $(bun --version)"
             echo "Deno: $(deno --version | head -n1)"
             echo "$(psql --version)"

@@ -1,5 +1,5 @@
-import { ArrayValueRule } from "@beep/logos/v2/rules";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "bun:test";
+import { ArrayValueRule } from "../../src/v2/rules";
 
 describe("ArrayValueRule.validate", () => {
   const red = { id: 1, label: "red", meta: { tags: ["primary", { k: 1 }] } };

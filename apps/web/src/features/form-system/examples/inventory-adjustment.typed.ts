@@ -4,8 +4,8 @@
  */
 
 import { Schema } from "effect";
-import type { WorkflowDefinition } from "@/features/form-system";
-import { createTypedWorkflow } from "@/features/form-system/dsl/typed";
+import { createTypedWorkflow } from "../dsl/typed";
+import type { WorkflowDefinition } from "../model/types";
 
 // Step schemas using Effect Schema
 const Product = Schema.Struct({

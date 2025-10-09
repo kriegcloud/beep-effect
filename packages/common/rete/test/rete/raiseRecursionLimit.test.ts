@@ -1,6 +1,6 @@
-import type { MatchT, Session } from "@beep/rete/network";
-import { Field, rete } from "@beep/rete/network";
-import { describe, expect, it } from "@effect/vitest";
+import { describe, expect, it } from "bun:test";
+import type { MatchT, Session } from "../../src/network";
+import { Field, rete } from "../../src/network";
 
 interface Schema {
   a: number;

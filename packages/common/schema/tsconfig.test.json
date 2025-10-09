@@ -22,6 +22,18 @@
     "types": ["bun", "node"],
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "*": ["./*"],
+      "@beep/testkit": ["../../../tooling/testkit/src/index"],
+      "@beep/testkit/*": ["../../../tooling/testkit/src/*"],
+      "@beep/schema/*": ["./src/*"],
+      "@beep/invariant": ["../invariant/src/index"],
+      "@beep/invariant/*": ["../invariant/src/*"],
+      "@beep/types": ["../types/src/index"],
+      "@beep/types/*": ["../types/src/*"],
+      "@beep/utils": ["../utils/src/index"],
+      "@beep/utils/*": ["../utils/src/*"]
+    }
   }
 }

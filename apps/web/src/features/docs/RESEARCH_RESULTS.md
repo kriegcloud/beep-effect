@@ -38,7 +38,7 @@ This document provides a comprehensive research plan and architectural blueprint
 5. **Execution engine:** Should we implement a custom workflow engine or leverage an existing state machine library like XState? How will we handle guard conditions, actions, and persistence of state (e.g. allowing a user to resume a partially completed workflow)?
 6. **Renderer:** Which form rendering library should we integrate with (e.g., JSONForms vs. React JSONSchema Form)? How will we handle dynamic visibility of fields, custom layouts, and UI schema considerations in the chosen renderer?
 7. **Versioning and migration:** How will we version the workflow definitions and manage migrations for workflows that are long-lived or in-flight when definitions change?
-8. **Monorepo and packaging:** How should we organize the code (likely a monorepo with pnpm and TypeScript project references)? How will we structure the packages (e.g., separate packages for DSL, runtime, renderer, etc.) and manage build/compile steps efficiently?
+8. **Monorepo and packaging:** How should we organize the code (likely a monorepo with bun and TypeScript project references)? How will we structure the packages (e.g., separate packages for DSL, runtime, renderer, etc.) and manage build/compile steps efficiently?
 
 ## Architecture Overview (Proposed)
 
@@ -423,7 +423,7 @@ In summary, **versioning will be explicit and every workflow definition is tagge
 
 ## Monorepo Structure and Build Process
 
-We plan to use a **monorepo** (managed with pnpm or Yarn workspaces) to organize the various modules of this project. A monorepo will make it easier to coordinate changes across the DSL, engine, and renderer packages and ensure they stay in sync.
+We plan to use a **monorepo** (managed with bun) to organize the various modules of this project. A monorepo will make it easier to coordinate changes across the DSL, engine, and renderer packages and ensure they stay in sync.
 
 **Proposed Packages:**
 
@@ -434,7 +434,7 @@ We plan to use a **monorepo** (managed with pnpm or Yarn workspaces) to organize
 - **`@beep/workflow-renderer-rjsf` (optional):** If we decide to support RJSF as an alternative, this would be a similar integration package but using RJSF. This might not be implemented initially, but structuring the code to allow it means not hard-coding JSONForms specifics into the core runtime.
 - **`@beep/workflow-examples`:** A collection of example workflows and possibly a demo application. This could include sample code using the DSL to define workflows, and a simple web app that runs one of the workflows (for development/testing purposes). This might not be published as a library but kept in the repo as a reference and testbed.
 
-**Monorepo Tools:** We'll likely use **pnpm** for its workspace features and ease of use. Each package will have its own `package.json` and `tsconfig.json`. We’ll configure TypeScript project references so that, for example, `workflow-dsl` references `workflow-model`, `workflow-runtime` references `workflow-model`, etc. This ensures that running `tsc -b` (build with references) compiles things in the right order.
+**Monorepo Tools:** We'll likely use **bun** for its workspace features and ease of use. Each package will have its own `package.json` and `tsconfig.json`. We’ll configure TypeScript project references so that, for example, `workflow-dsl` references `workflow-model`, `workflow-runtime` references `workflow-model`, etc. This ensures that running `tsc -b` (build with references) compiles things in the right order.
 
 **Build Outputs:** We will compile each package to both CommonJS and ESM outputs (to support Node and modern bundlers). This can be done with a tool like `tsup` or just multiple `tsc` configs. We will generate type declaration files (`.d.ts`) for all.
 
@@ -473,7 +473,7 @@ We might use a naming convention like `@beep/...` for package names. If this sys
 
 **Monorepo Scripts:** In the root `package.json`, we will have scripts such as:
 
-- `build` – build all packages (e.g., `pnpm run -r build` to run build in each or use lerna/pnpm to orchestrate).
+- `build` – build all packages (e.g., `bun run -r build` to run build in each or use bun to orchestrate).
 - `lint`, `test` – run linters or tests across packages.
 - `dev` – possibly start an example app for live development.
 

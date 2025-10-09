@@ -1,7 +1,7 @@
-import type { PRODUCTION_ALREADY_EXISTS_BEHAVIOR } from "@beep/rete/network";
-import type { $Schema } from "@beep/rete/network/types";
 import type { UnsafeTypes } from "@beep/types";
 import type * as O from "effect/Option";
+import type { PRODUCTION_ALREADY_EXISTS_BEHAVIOR } from "../network";
+import type { $Schema } from "../network/types";
 export type ConditionOptions<T> = { then?: boolean; match?: T; join?: string };
 export type Condition<TSchema extends $Schema> = {
   readonly [ATTR in keyof TSchema]: ConditionOptions<TSchema[ATTR]>;

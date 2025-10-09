@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@effect/vitest";
+import { describe, expect, it } from "bun:test";
 import * as S from "effect/Schema";
 import { createActor } from "xstate";
 import {
@@ -7,7 +7,7 @@ import {
   type EvaluationContext,
   evaluateJsonLogic,
   type WorkflowDefinition,
-} from "@/features/form-system";
+} from "../src/features/form-system";
 
 function makeDef(): WorkflowDefinition {
   return (

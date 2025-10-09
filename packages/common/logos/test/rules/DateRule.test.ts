@@ -1,7 +1,8 @@
 // If you export DateRule from v2 under this path, great; otherwise adjust the import:
-import { DateRule } from "@beep/logos/v2/rules";
+
+import { describe, expect, test } from "bun:test";
 import * as DateTime from "effect/DateTime";
-import { describe, expect, test } from "vitest";
+import { DateRule } from "../../src/v2/rules";
 
 const u = (iso: string) => DateTime.unsafeFromDate(new Date(iso));
 const ms = (iso: string) => Date.parse(iso);

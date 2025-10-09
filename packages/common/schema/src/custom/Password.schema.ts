@@ -30,7 +30,7 @@ export class Password extends S.Redacted(PasswordBase).annotations({
   title: "Password",
 }) {}
 
-export namespace Password {
+export declare namespace Password {
   export type Type = typeof Password.Type;
   export type Encoded = typeof Password.Encoded;
 }

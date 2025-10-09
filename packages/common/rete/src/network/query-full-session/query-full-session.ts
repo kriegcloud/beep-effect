@@ -1,5 +1,5 @@
-import { NoNodesInSession } from "@beep/rete/network/query-full-session/errors";
-import type { $Schema, Fact, Session } from "@beep/rete/network/types";
+import { NoNodesInSession } from "../../network/query-full-session/errors";
+import type { $Schema, Fact, Session } from "../../network/types";
 
 export const queryFullSession = <T extends $Schema>(session: Session<T>): Fact<T>[] => {
   const result: Fact<T>[] = [];

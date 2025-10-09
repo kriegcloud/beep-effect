@@ -1,7 +1,7 @@
 import { BeepError } from "@beep/errors/client";
-import { BetterAuthError } from "@beep/iam-sdk/adapters";
 import * as Data from "effect/Data";
 import * as P from "effect/Predicate";
+import { BetterAuthError } from "./adapters";
 
 export interface IamErrorMetadata {
   readonly code?: string;

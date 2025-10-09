@@ -13,6 +13,12 @@
     "types": ["bun", "node"],
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "*": ["./*"],
+      "@beep/types/*": ["./src/*"],
+      "@beep/testkit": ["../../../tooling/testkit/src/index"],
+      "@beep/testkit/*": ["../../../tooling/testkit/src/*"]
+    }
   }
 }

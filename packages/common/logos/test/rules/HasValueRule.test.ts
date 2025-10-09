@@ -1,7 +1,7 @@
-import { HasValueRule } from "@beep/logos/v2/rules"; // adjust import to your path
+import { describe, expect, test } from "bun:test";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
-import { describe, expect, test } from "vitest";
+import { HasValueRule } from "../../src/v2/rules";
 
 const asJson = <A>(a: A) => (S.is(BS.Json)(a) ? (a as BS.Json.Type) : a);
 

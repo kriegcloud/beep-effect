@@ -19,23 +19,23 @@
     "directory": "packages/iam/ui"
   },
   "scripts": {
-    "dev": "pnpm dotenvx tsc -b tsconfig.build.json --watch",
-    "build": "pnpm build-esm && pnpm build-cjs && pnpm build-annotate",
+    "dev": "bun run dotenvx -- bunx tsc -b tsconfig.build.json --watch",
+    "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
     "build-esm": "tsc -b tsconfig.build.json",
     "build-cjs": "babel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps ",
     "build-annotate": "babel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps",
     "check": "tsc -b tsconfig.json",
-    "test": "vitest run",
-    "coverage": "vitest run --coverage",
+    "test": "bun test",
+    "coverage": "bun test --coverage",
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "lint:circular": "pnpm madge -c .",
+    "lint:circular": "bunx madge -c .",
     "dotenvx": "dotenvx run -f ../../../.env --",
-    "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' pnpm dotenvx tsx ./src/execute.ts"
+    "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx tsx ./src/execute.ts"
   },
   "dependencies": {
-    "@tanstack/react-form": "*",
+    "@tanstack/react-form": "catalog:",
     "@beep/ui": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/invariant": "workspace:^",
@@ -46,21 +46,22 @@
     "@beep/constants": "workspace:^",
     "@beep/errors": "workspace:^",
     "@beep/runtime-client": "workspace:^",
-    "react-google-recaptcha-v3": "*",
+    "react-google-recaptcha-v3": "catalog:",
     "@beep/shared-domain": "workspace:^",
-    "next": "*",
-    "framer-motion": "*",
-    "react": "*",
-    "react-dom": "*",
-    "@mui/material": "*",
-    "better-auth": "*",
-    "effect": "*"
+    "next": "catalog:",
+    "framer-motion": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "@mui/material": "catalog:",
+    "better-auth": "catalog:",
+    "effect": "catalog:"
   },
   "devDependencies": {
+    "@types/bun": "catalog:",
     "@beep/types": "workspace:^",
-    "@types/react": "*",
-    "@types/react-dom": "*",
-    "tsx": "*"
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "tsx": "catalog:"
   },
   "effect": {
     "generateExports": {

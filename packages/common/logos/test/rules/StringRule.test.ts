@@ -1,6 +1,6 @@
-import { StringRule } from "@beep/logos/v2/rules";
+import { expect, test } from "bun:test";
 import { BS } from "@beep/schema";
-import { expect, test } from "vitest";
+import { StringRule } from "../../src/v2/rules";
 
 test("string equals to", () => {
   const rule = StringRule.eq({

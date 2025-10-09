@@ -56,7 +56,7 @@
    - `pnpm <script>` → `bun run <script>` for script chaining.
    - `pnpm <binary>` → `bunx <binary>` for CLI tools (turbo, vitest, madge, syncpack, biome, dotenvx, tsx, etc.).
    - `pnpm dotenvx ...` → `bunx dotenvx -- ...` to maintain env loading.
-   - `pnpm vitest run ...` → `bunx vitest run ...`.
+   - `pnpm bun test ...` → `bunx bun test ...`.
 2. Update root scripts (`package.json`) using the new pattern. Examples:
    - `build`: `bunx dotenvx -- bunx turbo run build`
    - `dev`: `bunx dotenvx -- bunx turbo run dev --concurrency=36`
@@ -132,6 +132,6 @@
 | `pnpm <binary>` | `bunx <binary>` | Executes local CLI binaries. |
 | `pnpm dotenvx <cmd>` | `bunx dotenvx -- <cmd>` | Use `--` to forward arguments after env loading. |
 | `pnpm tsx ...` | `bunx tsx ...` | Works for direct exec and watch mode. |
-| `pnpm test --filter=...` | `bunx vitest run --filter=...` | Same CLI options available. |
+| `pnpm test --filter=...` | `bunx bun test --filter=...` | Same CLI options available. |
 | `pnpm update-lockfile` | `bun pm update` or `bun install --force` | Regenerates `bun.lockb`. |
 | `pnpm exec <cmd>` | `bunx <cmd>` | Bunx handles on-demand CLI execution. |

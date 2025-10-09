@@ -148,6 +148,37 @@ function renderCodeFrame(
   }
 }
 
+function inferFunctionName(file: string, line: number): string | undefined {
+  try {
+    const content = FS.readFileSync(file, "utf8");
+    const lines = content.split(/\r?\n/);
+    const index = Math.max(0, line - 1);
+    const currentLine = lines[index] ?? "";
+    const callMatch = currentLine.match(/([A-Za-z0-9_$]+)\s*\(/);
+    if (callMatch?.[1]) {
+      return callMatch[1];
+    }
+    for (let i = index; i >= 0; i--) {
+      const raw = lines[i] ?? "";
+      const trimmed = raw.trim();
+      if (trimmed.length === 0) {
+        continue;
+      }
+      const functionMatch = trimmed.match(/function\s+([A-Za-z0-9_$]+)/);
+      if (functionMatch?.[1]) {
+        return functionMatch[1];
+      }
+      const assignedMatch = trimmed.match(/const\s+([A-Za-z0-9_$]+)\s*=\s*(?:async\s+)?(?:function\s*)?\(/);
+      if (assignedMatch?.[1]) {
+        return assignedMatch[1];
+      }
+    }
+    return undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export function formatCauseHeading(cause: Cause.Cause<unknown>, options: boolean | CauseHeadingOptions = true): string {
   if (Cause.isEmpty(cause)) return "";
   const opts = typeof options === "boolean" ? ({ colors: options } as CauseHeadingOptions) : (options ?? {});
@@ -163,6 +194,9 @@ export function formatCauseHeading(cause: Cause.Cause<unknown>, options: boolean
   const rel = Path.relative(root, frame.file) || frame.file;
   const filename = Path.basename(rel);
   const code = (s: string) => (enableColors ? color.bold(s) : s);
+  const inferredFunc =
+    !frame.func || frame.func === "<anonymous>" ? inferFunctionName(frame.file, frame.line) : undefined;
+  const functionLabel = frame.func && frame.func !== "<anonymous>" ? frame.func : inferredFunc;
   const border = enableColors
     ? color.magenta("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     : "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
@@ -173,7 +207,7 @@ export function formatCauseHeading(cause: Cause.Cause<unknown>, options: boolean
     `┃ 🗂 Path: ${code(rel)}`,
     `┃ 📄 File: ${code(filename)}`,
     `┃ 📍 Line: ${code(String(frame.line))}:${code(String(frame.col))}`,
-    frame.func ? `┃ 🔧 Function: ${code(frame.func)}` : undefined,
+    functionLabel ? `┃ 🔧 Function: ${code(functionLabel)}` : undefined,
     `┃ 🕒 Time: ${code(nowIso)}`,
     error?.name ? `┃ 🧪 Type: ${code(error.name)}` : undefined,
     opts.levelLabel ? `┃ 🏷️ Level: ${code(opts.levelLabel)}` : undefined,

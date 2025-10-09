@@ -1,12 +1,4 @@
-import type {
-  $Schema,
-  ExecutedNodes,
-  IdAttrs,
-  IdAttrsHash,
-  Match,
-  MemoryNode,
-  Session,
-} from "@beep/rete/network/types";
+import type { $Schema, ExecutedNodes, IdAttrs, IdAttrsHash, Match, MemoryNode, Session } from "../../network/types";
 import { AuditEntryState, AuditRecordType, AuditRuleTrigger } from "../audit";
 import { bindingsToMatch } from "../bindings-to-match";
 import { RecursionLimitError } from "../raise-recursion-limit";

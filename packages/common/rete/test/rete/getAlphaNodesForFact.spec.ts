@@ -1,8 +1,8 @@
-import { getAlphaNodesForFact } from "@beep/rete/network/get-alpha-nodes-for-fact";
-import { insertFact } from "@beep/rete/network/insert-fact";
-import type { AlphaNode, Fact } from "@beep/rete/network/types";
-import { Field } from "@beep/rete/network/types";
-import { describe, expect, it } from "@effect/vitest";
+import { describe, expect, it } from "bun:test";
+import { getAlphaNodesForFact } from "../../src/network/get-alpha-nodes-for-fact";
+import { insertFact } from "../../src/network/insert-fact";
+import type { AlphaNode, Fact } from "../../src/network/types";
+import { Field } from "../../src/network/types";
 import { type TestingSchema, testingSimpleSession } from "../testingUtils";
 
 describe("getAlphaNodesForFact...", () => {

@@ -1,10 +1,10 @@
-import { makeRule, Operands } from "@beep/logos/v2/internal";
-import { countDistinctOverlaps, has, intersect, missingFrom } from "@beep/logos/v2/rules/util";
 import { BS } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Match from "effect/Match";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import { makeRule, Operands } from "../internal";
+import { countDistinctOverlaps, has, intersect, missingFrom } from "./util";
 
 export namespace Ops {
   // single JSON value

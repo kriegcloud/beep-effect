@@ -1,7 +1,7 @@
 {
   "extends": "../../../tsconfig.base.json",
   "include": ["src"],
-  "exclude": ["vitest.config.ts", "src/**/*.test.ts"],
+  "exclude": [],
   "references": [
     {
       "path": "../../common/types"
@@ -56,11 +56,11 @@
     }
   ],
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["node", "bun"],
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
-    "baseUrl": ".",
+
     "jsx": "react-jsx",
     "module": "ESNext",
     "target": "ES2022",
@@ -70,6 +70,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
+      "*": ["./*"],
       "@beep/runtime-client/*": ["./src/*"],
       "@beep/types": ["../../common/types/src/index"],
       "@beep/types/*": ["../../common/types/src/*"],

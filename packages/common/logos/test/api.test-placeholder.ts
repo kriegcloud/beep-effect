@@ -3,7 +3,7 @@
 //   describe,
 //   expect,
 //   test,
-// } from "@effect/vitest";
+// } from ""bun:test"";
 //
 // describe("api", () => {
 //   describe("addAnyToGroup", () => {

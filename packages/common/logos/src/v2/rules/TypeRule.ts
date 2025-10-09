@@ -1,4 +1,3 @@
-import { makeRule, Operands } from "@beep/logos/v2/internal";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import * as Match from "effect/Match";
@@ -6,6 +5,7 @@ import * as Num from "effect/Number";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { makeRule, Operands } from "../internal";
 
 export namespace Ops {
   export class IsString extends Operands.IsString.Schema(S.Null, {}) {

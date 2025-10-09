@@ -3,6 +3,7 @@
   "include": [],
   "compilerOptions": {
     "paths": {
+      "*": ["./*"],
       "@beep/errors/*": ["./src/*"],
       "@beep/errors/shared": ["./src/shared"],
       "@beep/errors/client": ["./src/client"],

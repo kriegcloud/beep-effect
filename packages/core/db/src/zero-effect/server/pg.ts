@@ -87,7 +87,7 @@ export function zeroEffectPgProcessor<TSchema extends Schema, MD extends CustomM
  * @since 1.0.0
  * @category symbols
  */
-export const TypeId: unique symbol = Symbol.for("@openfaith/zero-effect/ZeroStore");
+export const TypeId: unique symbol = Symbol.for("@beep/zero-effect/ZeroStore");
 
 /**
  * @since 1.0.0
@@ -133,7 +133,7 @@ export declare namespace ZeroStore {
  * @since 1.0.0
  * @category symbols
  */
-export const ZeroSchemaStoreTypeId: unique symbol = Symbol.for("@openfaith/zero-effect/ZeroSchemaStore");
+export const ZeroSchemaStoreTypeId: unique symbol = Symbol.for("@beep/zero-effect/ZeroSchemaStore");
 
 /**
  * @since 1.0.0
@@ -170,7 +170,7 @@ export interface ZeroSchemaStore<TSchema extends Schema, MD extends CustomMutato
  * @since 1.0.0
  * @category tags
  */
-export const ZeroStore: Context.Tag<ZeroStore, ZeroStore> = Context.GenericTag<ZeroStore>("@openfaith/zero/ZeroStore");
+export const ZeroStore: Context.Tag<ZeroStore, ZeroStore> = Context.GenericTag<ZeroStore>("@beep/zero/ZeroStore");
 
 /**
  * @since 1.0.0

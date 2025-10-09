@@ -8,7 +8,7 @@ import { AuthEmailService, AuthService, IamConfig, IamRepos } from "@beep/iam-in
 import { IamDb } from "@beep/iam-infra/db";
 import { DevTools } from "@effect/experimental";
 import { NodeSdk } from "@effect/opentelemetry";
-import { NodeSocket } from "@effect/platform-node";
+import { BunSocket } from "@effect/platform-bun";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
@@ -55,7 +55,7 @@ export const LogLevelLive = Logger.minimumLogLevel(serverEnv.app.logLevel);
  * Optional developer tools, exposed only in development to avoid production overhead.
  */
 export const DevToolsLive = isDevEnvironment
-  ? DevTools.layerWebSocket().pipe(Layer.provide(NodeSocket.layerWebSocketConstructor))
+  ? DevTools.layerWebSocket().pipe(Layer.provide(BunSocket.layerWebSocketConstructor))
   : Layer.empty;
 
 /** Shared base layer containing observability infrastructure. */

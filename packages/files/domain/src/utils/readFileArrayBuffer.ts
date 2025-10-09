@@ -1,5 +1,5 @@
-import * as Errors from "@beep/files-domain/errors";
 import * as Effect from "effect/Effect";
+import * as Errors from "../errors";
 
 export const readFileArrayBuffer = Effect.fn("readFileArrayBuffer")(function* (file: File) {
   return yield* Effect.tryPromise({

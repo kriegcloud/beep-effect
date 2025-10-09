@@ -3,8 +3,8 @@ import { FsUtils } from "@beep/tooling-utils";
 import { findRepoRoot } from "@beep/tooling-utils/repo";
 import * as Command from "@effect/platform/Command";
 import * as Path from "@effect/platform/Path";
-import * as NodeContext from "@effect/platform-node/NodeContext";
-import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -93,7 +93,7 @@ const devBanner = color.green(`
 |_______/ |________/|________/|__/            |_______/ |________/|________/|__/      |__/
 
                     The hive is primed. System nominal. time to beep.                     
-                                      run \`pnpm dev\`                                      
+                                      run \`bun run dev\`                                      
 
 `);
 
@@ -135,7 +135,7 @@ const program = Effect.gen(function* () {
     });
 
   const dockerComposeUp = F.pipe(
-    Command.make("dotenvx", "run", "-f", ".env", "--", "docker", "compose", "up", "-d"),
+    Command.make("bunx", "dotenvx", "run", "-f", ".env", "--", "docker", "compose", "up", "-d"),
     Command.workingDirectory(repoRoot),
     Command.stdout("inherit"),
     Command.stderr("inherit")
@@ -144,17 +144,21 @@ const program = Effect.gen(function* () {
   yield* runCommandWithLogs(
     dockerComposeUp,
     "Bring up local infrastructure",
-    "dotenvx run -f .env -- docker compose up -d"
+    "bunx dotenvx run -f .env -- docker compose up -d"
   );
 
   const runDbMigrate = F.pipe(
-    Command.make("pnpm", "dotenvx", "turbo", "run", "db:migrate", "--ui", "stream"),
+    Command.make("bun", "run", "dotenvx", "--", "bunx", "turbo", "run", "db:migrate", "--ui", "stream"),
     Command.workingDirectory(repoRoot),
     Command.stdout("inherit"),
     Command.stderr("inherit")
   );
 
-  yield* runCommandWithLogs(runDbMigrate, "Apply database migrations", "pnpm dotenvx turbo run db:migrate --ui stream");
+  yield* runCommandWithLogs(
+    runDbMigrate,
+    "Apply database migrations",
+    "bun run dotenvx -- bunx turbo run db:migrate --ui stream"
+  );
 
   yield* Console.log(completionDivider);
   yield* Console.log("BEEP hive routines complete -- systems are online.");
@@ -162,9 +166,9 @@ const program = Effect.gen(function* () {
   yield* Console.log(devBanner);
 });
 
-const layer = Layer.mergeAll(NodeContext.layer, FsUtils.FsUtilsLive);
+const layer = Layer.mergeAll(BunContext.layer, FsUtils.FsUtilsLive);
 
-NodeRuntime.runMain(
+BunRuntime.runMain(
   Effect.scoped(
     program.pipe(
       Effect.provide(layer),

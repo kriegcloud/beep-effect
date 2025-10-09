@@ -1,5 +1,5 @@
-import { BooleanRule } from "@beep/logos/v2/rules";
-import { expect, test } from "vitest";
+import { expect, test } from "bun:test";
+import { BooleanRule } from "../../src/v2/rules";
 
 const isValid = true;
 const isInvalid = false;

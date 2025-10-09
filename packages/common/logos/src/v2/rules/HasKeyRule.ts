@@ -1,9 +1,9 @@
-import { makeRule, Operands } from "@beep/logos/v2/internal";
-import { countDistinctOverlaps, has, intersect, missingFrom } from "@beep/logos/v2/rules/util";
 import type { BS } from "@beep/schema";
 import * as Match from "effect/Match";
 import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
+import { makeRule, Operands } from "../internal";
+import { countDistinctOverlaps, has, intersect, missingFrom } from "./util";
 
 export namespace Ops {
   // Single key

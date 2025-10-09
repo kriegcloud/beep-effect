@@ -32,7 +32,7 @@ Use `withEnvLogging(...)` to apply these settings to any Effect.
 
 ```bash
 # Example (shell) – simulate prod locally
-APP_LOG_FORMAT=json APP_LOG_LEVEL=error NODE_ENV=production pnpm --filter @beep/server start
+APP_LOG_FORMAT=json APP_LOG_LEVEL=error NODE_ENV=production bun run --filter @beep/server start
 ```
 
 ---

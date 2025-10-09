@@ -3,13 +3,13 @@
   "include": ["src/**/*.test.ts"],
   "references": [{ "path": "tsconfig.src.json" }],
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["node", "bun"],
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "src",
     "noEmit": true,
 
-    "baseUrl": ".",
     "paths": {
+      "*": ["./*"],
       "@/*": ["./src/*"]
     }
   }

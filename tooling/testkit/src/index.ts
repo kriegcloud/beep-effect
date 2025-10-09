@@ -15,6 +15,7 @@ import * as internal from "./internal/internal.js";
  * @since 1.0.0
  */
 export * from "bun:test";
+export * from "./assert";
 
 /**
  * @since 1.0.0
