@@ -5,7 +5,7 @@ import {
   expandBidirectionalPairs,
   groupPairsBySource,
   type RelationshipInput,
-} from "@beep/schema/relationship-utils";
+} from "@beep/schema/relationship-utils.js";
 import { effect } from "@beep/testkit";
 import { Array, Effect, pipe } from "effect";
 

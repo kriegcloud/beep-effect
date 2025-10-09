@@ -9,7 +9,7 @@ import {
   mkZeroTableName,
   pluralize,
   singularize,
-} from "@beep/utils/data/string.utils";
+} from "@beep/utils/data/string.utils.js";
 import { Effect } from "effect";
 
 // Test pluralize function with regular cases

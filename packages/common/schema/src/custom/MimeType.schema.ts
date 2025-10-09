@@ -1,6 +1,6 @@
 import { RecordUtils } from "@beep/utils";
 import type * as S from "effect/Schema";
-import { stringLiteralKit } from "../kits";
+import { stringLiteralKit } from "../kits/stringLiteralKit.js";
 //----------------------------------------------------------------------------------------------------------------------
 // APPLICATION MIME TYPES
 //----------------------------------------------------------------------------------------------------------------------

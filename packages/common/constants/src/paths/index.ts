@@ -1,2 +1,2 @@
-export * from "./asset-paths";
-export * from "./utils";
+export * from "./asset-paths.js";
+export * from "./utils.js";

@@ -9,7 +9,7 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Glob from "glob";
-import { DomainError } from "./repo/Errors";
+import { DomainError } from "./repo/Errors.js";
 
 /**
  * Internal constructor for the FsUtils service.

@@ -1,1 +1,1 @@
-export * from "./isUnsafeProperty.guard";
+export * from "./isUnsafeProperty.guard.js";

@@ -1,2 +1,2 @@
-export * from "./field.schema";
-export * from "./form.schema";
+export * from "./field.schema.js";
+export * from "./form.schema.js";

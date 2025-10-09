@@ -1,2 +1,2 @@
-export * from "./path-builder";
-export * from "./public-paths-to-record";
+export * from "./path-builder.js";
+export * from "./public-paths-to-record.js";

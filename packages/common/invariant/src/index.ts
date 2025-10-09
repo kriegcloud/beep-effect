@@ -1,3 +1,3 @@
-export * from "./error";
-export * from "./invariant";
-export * from "./meta";
+export * from "./error.js";
+export { invariant } from "./invariant.js";
+export * from "./meta.js";

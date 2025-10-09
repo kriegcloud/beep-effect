@@ -8,8 +8,8 @@ import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import { FsUtilsLive } from "../../src/FsUtils";
-import { mapWorkspaceToPackageJsonPath } from "../../src/repo/PackageJsonMap";
+import { FsUtilsLive } from "../../src/FsUtils.js";
+import { mapWorkspaceToPackageJsonPath } from "../../src/repo/index.js";
 
 const TestLayer = Layer.mergeAll(FsUtilsLive, BunFileSystem.layer, BunPath.layerPosix);
 

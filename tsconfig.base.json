@@ -13,10 +13,9 @@
     "inlineSources": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "moduleResolution": "bundler",
+    "moduleResolution": "NodeNext",
     "lib": [
-      "ES2019",
-      "ES2022",
+      "ES2024",
       "DOM",
       "DOM.Iterable"
     ],
@@ -39,8 +38,8 @@
     "noImplicitThis": true,
     "noUncheckedIndexedAccess": true,
     "strictNullChecks": true,
-    "target": "ES2022",
-    "module": "esnext",
+    "target": "ES2024",
+    "module": "NodeNext",
     "incremental": true,
     "removeComments": false,
     "plugins": [

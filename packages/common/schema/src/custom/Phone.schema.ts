@@ -1,4 +1,4 @@
-import * as regexes from "@beep/schema/regexes";
+import * as regexes from "@beep/schema/regexes.js";
 import { faker } from "@faker-js/faker";
 import type * as B from "effect/Brand";
 import * as F from "effect/Function";

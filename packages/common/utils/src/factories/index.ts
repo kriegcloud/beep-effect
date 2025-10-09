@@ -1,1 +1,1 @@
-export * from "./URN.factory";
+export * from "./URN.factory.js";

@@ -1,1 +1,1 @@
-export * from "./getters/index";
+export * from "./getters/index.js";

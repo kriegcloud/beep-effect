@@ -1,7 +1,7 @@
 import * as Match from "effect/Match";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
-import { stringLiteralKit } from "../../kits";
+import { stringLiteralKit } from "@beep/schema/kits/index.js";
 export const MonthStringKit = stringLiteralKit(
   "january",
   "february",

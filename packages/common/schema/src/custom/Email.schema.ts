@@ -2,7 +2,7 @@ import type * as B from "effect/Brand";
 import * as F from "effect/Function";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-import * as regexes from "../regexes";
+import * as regexes from "../regexes.js";
 
 /**
  * RFC-5322–ish pragmatic validator for "local@domain.tld".

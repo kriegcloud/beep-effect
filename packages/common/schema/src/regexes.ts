@@ -1,4 +1,4 @@
-import { Regex } from "./custom/Regex.schema";
+import { Regex } from "./custom/Regex.schema.js";
 
 export const cuid = Regex.make(/^[cC][^\s-]{8,}$/);
 

@@ -1,5 +1,5 @@
-import { TaggedClass } from "@beep/schema/custom/Class.schema";
-import { HexColor } from "@beep/schema/custom/Hex.schema";
+import { TaggedClass } from "@beep/schema/custom/Class.schema.js";
+import { HexColor } from "@beep/schema/custom/Hex.schema.js";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as Num from "effect/Number";
@@ -9,8 +9,8 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Tuple from "effect/Tuple";
-import { destructiveTransform } from "../extended-schemas";
-import { IntFromStr } from "./Transformations.schema";
+import { destructiveTransform } from "../extended-schemas.js";
+import { IntFromStr } from "./Transformations.schema.js";
 
 export class RGBNumberPart extends S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(255)).annotations({
   schemaId: Symbol.for("@beep/schema/RGBNumberPart"),

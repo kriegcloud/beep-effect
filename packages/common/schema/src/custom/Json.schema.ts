@@ -1,5 +1,5 @@
 import { invariant } from "@beep/invariant";
-import { path_regex, prop_regex } from "@beep/schema/regexes";
+import { path_regex, prop_regex } from "@beep/schema/regexes.js";
 import type { UnsafeTypes } from "@beep/types";
 import { faker } from "@faker-js/faker";
 import * as A from "effect/Array";
@@ -121,7 +121,7 @@ export class JsonPath extends S.String.pipe(S.pattern(path_regex), S.brand("Json
       line: 118,
       args: [candidatePath],
     });
-    return candidatePath;
+    return candidatePath as JsonPath.Type;
   };
   /**
    * Splits a JsonPath into its constituent parts.

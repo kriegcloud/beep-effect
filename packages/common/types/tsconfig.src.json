@@ -12,15 +12,15 @@
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
 
-    "moduleResolution": "bundler",
+    "moduleResolution": "NodeNext",
     "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-      "*": ["./*"],
-      "@beep/types/*": ["./src/*"],
-      "@beep/testkit": ["../../../tooling/testkit/src/index"],
-      "@beep/testkit/*": ["../../../tooling/testkit/src/*"]
+      "*": ["./*.js"],
+      "@beep/types/*": ["./src/*.js"],
+      "@beep/testkit": ["../../../tooling/testkit/src/index.js"],
+      "@beep/testkit/*": ["../../../tooling/testkit/src/*.js"]
     }
   }
 }

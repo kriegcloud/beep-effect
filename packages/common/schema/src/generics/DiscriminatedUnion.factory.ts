@@ -1,13 +1,13 @@
-import type { OptionalWithDefault } from "@beep/schema/types";
-import { mergeFields } from "@beep/schema/utils";
+import type { OptionalWithDefault } from "@beep/schema/types.js";
+import { mergeFields } from "@beep/schema/utils/mergeFields.js";
 import type { StringTypes, StructTypes, UnsafeTypes } from "@beep/types";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Data from "effect/Data";
 import * as FC from "effect/FastCheck";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
-import type { DefaultAnnotations } from "../annotations";
-import { DiscriminatedStruct } from "./DiscriminatedStruct";
+import type { DefaultAnnotations } from "../annotations/default.js";
+import { DiscriminatedStruct } from "./DiscriminatedStruct.js";
 
 interface DiscriminatedUnionFactoryBuilderSpec<
   Discriminator extends StringTypes.NonEmptyString<string>,

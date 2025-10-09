@@ -4,11 +4,11 @@
   "exclude": [],
   "compilerOptions": {
     "paths": {
-      "*": ["./*"],
-      "@beep/tooling-utils": ["./src/index"],
-      "@beep/tooling-utils/*": ["./src/*"],
-      "@beep/types": ["../../packages/common/types/src/index"],
-      "@beep/types/*": ["../../packages/common/types/src/*"]
+      "*": ["./*.js"],
+      "@beep/tooling-utils": ["./src/index.js"],
+      "@beep/tooling-utils/*": ["./src/*.js"],
+      "@beep/types": ["../../packages/common/types/src/index.js"],
+      "@beep/types/*": ["../../packages/common/types/src/*.js"]
     }
   },
   "references": [

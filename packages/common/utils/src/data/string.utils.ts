@@ -5,7 +5,7 @@ import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Record from "effect/Record";
 import * as Str from "effect/String";
-import * as ArrayUtils from "./array.utils";
+import * as ArrayUtils from "./array.utils.js";
 
 /**
  * Generates initials from a given name.

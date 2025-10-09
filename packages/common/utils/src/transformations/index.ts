@@ -1,2 +1,2 @@
-export * from "./enumFromStringArray";
-export * from "./valuesFromEnum";
+export * from "./enumFromStringArray.js";
+export * from "./valuesFromEnum.js";

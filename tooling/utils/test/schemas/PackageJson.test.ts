@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { deepStrictEqual, throws } from "@beep/testkit";
 import * as S from "effect/Schema";
-import { PackageJson } from "../../src/schemas/PackageJson";
+import { PackageJson } from "../../src/schemas/PackageJson.js";
 
 describe("PackageJson", () => {
   it("accepts minimal with required name", () => {

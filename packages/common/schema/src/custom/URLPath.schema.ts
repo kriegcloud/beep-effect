@@ -3,7 +3,7 @@ import * as A from "effect/Array";
 import type * as B from "effect/Brand";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { makeBranded } from "../utils";
+import { makeBranded } from "../utils/brands.js";
 
 /**
  * Schema for validating NextJS pathnames including static assets and optional query strings.

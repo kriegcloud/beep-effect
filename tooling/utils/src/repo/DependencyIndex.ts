@@ -4,10 +4,10 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as S from "effect/Schema";
-import { type RepoDepMapValue, WorkspacePkgKey } from "../schemas";
-import { extractWorkspaceDependencies } from "./Dependencies";
-import { mapWorkspaceToPackageJsonPath } from "./PackageJsonMap";
-import { findRepoRoot } from "./Root";
+import { type RepoDepMapValue, WorkspacePkgKey } from "../schemas/index.js";
+import { extractWorkspaceDependencies } from "./Dependencies.js";
+import { mapWorkspaceToPackageJsonPath } from "./PackageJsonMap.js";
+import { findRepoRoot } from "./Root.js";
 
 /**
  * Build a repository-wide dependency index for all workspaces plus `@beep/root`.

@@ -1,4 +1,4 @@
-import * as regexes from "@beep/schema/regexes";
+import * as regexes from "@beep/schema/regexes.js";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 export const HexColorEncoded = S.TemplateLiteral("#", S.String).annotations({

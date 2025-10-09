@@ -1,2 +1,2 @@
-export * from "./default";
-export * from "./example-annotations";
+export * from "./default.js";
+export * from "./example-annotations.js";

@@ -1,4 +1,4 @@
-import { makeAssertsFn, makeAssertsReturn } from "@beep/utils/assertions";
+import { makeAssertsFn, makeAssertsReturn } from "@beep/utils/assertions/index.js";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";

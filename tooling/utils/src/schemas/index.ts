@@ -4,9 +4,9 @@
  * Includes JSON primitives, package.json, tsconfig.json, and workspace
  * dependency schemas leveraged across repo utilities.
  */
-export * from "./Json";
-export * from "./JsonLiteral";
-export * from "./PackageJson";
-export * from "./RootPackageJson";
-export * from "./TsConfigJson";
-export * from "./WorkspaceDependencies";
+export * from "./Json.js";
+export * from "./JsonLiteral.js";
+export * from "./PackageJson.js";
+export * from "./RootPackageJson.js";
+export * from "./TsConfigJson.js";
+export * from "./WorkspaceDependencies.js";

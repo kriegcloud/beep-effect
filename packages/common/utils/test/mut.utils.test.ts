@@ -1,7 +1,8 @@
 import { expect } from "bun:test";
 import { effect } from "@beep/testkit";
 import type { UnsafeTypes } from "@beep/types";
-import { removeReadonly, removeReadonlyNonEmpty, SyncStatus } from "@beep/utils";
+import { removeReadonly, removeReadonlyNonEmpty } from "@beep/utils/mut.utils.js";
+import { SyncStatus } from "@beep/utils/sync.utils.js"
 import { type Array as EArray, Effect, Equal } from "effect";
 
 // Test removeReadonly function

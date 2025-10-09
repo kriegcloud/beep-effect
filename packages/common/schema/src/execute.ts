@@ -1,5 +1,5 @@
 import * as Effect from "effect/Effect";
-import { Csp } from "./config";
+import { Csp } from "./config.js";
 
 // import * as Config from "effect/Config";
 // import * as S from "effect/Schema";

@@ -1,4 +1,4 @@
-import type { DefaultAnnotations } from "@beep/schema/annotations";
+import type { DefaultAnnotations } from "@beep/schema/annotations/default.js";
 import type { UnsafeTypes } from "@beep/types";
 import * as VariantSchema from "@effect/experimental/VariantSchema";
 import * as M from "@effect/sql/Model";

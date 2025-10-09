@@ -7,9 +7,9 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
 import * as Str from "effect/String";
-import type { FieldConfig } from "./annotations";
-import { BSUiConfig } from "./annotations";
-import { EntityId } from "./EntityId";
+import type { FieldConfig } from "./annotations.js";
+import { BSUiConfig } from "./annotations.js";
+import { EntityId } from "./EntityId.js";
 
 /**
  * Helper function to get annotation from schema, handling both old and new formats

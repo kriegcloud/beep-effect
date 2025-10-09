@@ -1,5 +1,5 @@
 import * as S from "effect/Schema";
-import { Json } from "./Json";
+import { Json } from "./Json.js";
 
 const License = S.Union(
   S.String,

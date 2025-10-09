@@ -2,7 +2,7 @@ import type { StringTypes } from "@beep/types";
 import type * as A from "effect/Array";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
-import type { DefaultAnnotations } from "../annotations";
+import type { DefaultAnnotations } from "../annotations/default.js";
 
 export function LiteralDefaults<const Literals extends A.NonEmptyReadonlyArray<AST.LiteralValue>>(
   ...literals: Literals

@@ -1,7 +1,7 @@
 import { expect } from "bun:test";
 import { effect } from "@beep/testkit";
 import type { UnsafeTypes } from "@beep/types";
-import { asyncNoOp, asyncNullOp, noOp, nullOp, nullOpE } from "@beep/utils/noOps";
+import { asyncNoOp, asyncNullOp, noOp, nullOp, nullOpE } from "@beep/utils/noOps.js";
 import { Effect } from "effect";
 
 // Test noOp function

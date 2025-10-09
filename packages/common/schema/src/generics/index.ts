@@ -1,2 +1,2 @@
-export * from "./DiscriminatedStruct";
-export * from "./TaggedStruct";
+export * from "./DiscriminatedStruct.js";
+export * from "./TaggedStruct.js";

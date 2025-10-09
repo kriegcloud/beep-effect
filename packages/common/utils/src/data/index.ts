@@ -1,4 +1,4 @@
-export * as ArrayUtils from "./array.utils";
-export * as RecordUtils from "./record.utils";
-export * as StrUtils from "./string.utils";
-export * as StructUtils from "./struct.utils";
+export * as ArrayUtils from "./array.utils.js";
+export * as RecordUtils from "./record.utils.js";
+export * as StrUtils from "./string.utils.js";
+export * as StructUtils from "./struct.utils.js";

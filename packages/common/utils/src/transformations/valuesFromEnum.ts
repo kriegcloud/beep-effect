@@ -10,12 +10,12 @@ export const valuesFromEnum = F.flow(
       line: 10,
       args: [inputEnum],
     });
-    const values = R.values(inputEnum) as readonly (string & A)[];
+    const values = R.values(inputEnum) as ReadonlyArray<A>;
     invariant(A.isNonEmptyReadonlyArray(values), "Empty enum", {
       file: "packages/common/utils/src/transformations/valuesFromEnum.ts",
       line: 13,
       args: [inputEnum],
     });
-    return values;
+    return values as A.NonEmptyReadonlyArray<A>;
   }
 );

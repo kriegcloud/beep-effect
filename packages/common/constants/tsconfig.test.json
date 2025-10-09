@@ -25,15 +25,15 @@
     "noEmit": true,
     "paths": {
       "*": ["./*"],
-      "@beep/constants/*": ["./src/*"],
-      "@beep/types": ["../types/src/index"],
-      "@beep/types/*": ["../types/src/*"],
-      "@beep/utils": ["../utils/src/index"],
-      "@beep/utils/*": ["../utils/src/*"],
-      "@beep/invariant": ["../invariant/src/index"],
-      "@beep/invariant/*": ["../invariant/src/*"],
-      "@beep/schema": ["../schema/src/index"],
-      "@beep/schema/*": ["../schema/src/*"]
+      "@beep/constants/*": ["./src/*.js"],
+      "@beep/types": ["../types/src/index.js"],
+      "@beep/types/*": ["../types/src/*.js"],
+      "@beep/utils": ["../utils/src/index.js"],
+      "@beep/utils/*": ["../utils/src/*.js"],
+      "@beep/invariant": ["../invariant/src/index.js"],
+      "@beep/invariant/*": ["../invariant/src/*.js"],
+      "@beep/schema": ["../schema/src/index.js"],
+      "@beep/schema/*": ["../schema/src/*.js"]
     }
   }
 }

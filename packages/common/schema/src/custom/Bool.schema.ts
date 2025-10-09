@@ -1,5 +1,5 @@
 import * as S from "effect/Schema";
-import { toOptionalWithDefault } from "../utils";
+import { toOptionalWithDefault } from "../utils/toOptionalWith.js";
 
 export type BoolSchema = S.PropertySignature<":", boolean, never, "?:", boolean | undefined, true, never>;
 

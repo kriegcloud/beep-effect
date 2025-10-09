@@ -8,7 +8,7 @@ import * as BunPath from "@effect/platform-bun/BunPath";
 import * as Effect from "effect/Effect";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
-import { FsUtilsLive } from "../../src/FsUtils";
+import { FsUtilsLive } from "../../src/FsUtils.js";
 
 const TestLayer = Layer.mergeAll(FsUtilsLive, BunFileSystem.layer, BunPath.layerPosix);
 

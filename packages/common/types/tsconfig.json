@@ -3,10 +3,10 @@
   "include": [],
   "compilerOptions": {
     "paths": {
-      "*": ["./*"],
-      "@beep/types/*": ["./src/*"],
-      "@beep/testkit": ["../../../tooling/testkit/src/index"],
-      "@beep/testkit/*": ["../../../tooling/testkit/src/*"]
+      "*": ["./*.js"],
+      "@beep/types/*": ["./src/*.js"],
+      "@beep/testkit": ["../../../tooling/testkit/src/index.js"],
+      "@beep/testkit/*": ["../../../tooling/testkit/src/*.js"]
     }
   },
   "references": [

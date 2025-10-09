@@ -5,8 +5,8 @@ import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { FsUtilsLive } from "../../src/FsUtils";
-import { mapWorkspaceToPackageJsonPath } from "../../src/repo/PackageJsonMap";
+import { FsUtilsLive } from "../../src/FsUtils.js";
+import { mapWorkspaceToPackageJsonPath } from "../../src/repo/PackageJsonMap.js";
 
 const mkMissingPkgJsonLayer = () =>
   Layer.effect(

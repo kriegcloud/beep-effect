@@ -1,1 +1,1 @@
-export * from "./custom/Graph.schema";
+export * from "./custom/Graph.schema.js";

@@ -4,10 +4,10 @@ import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { FsUtils } from "../FsUtils";
-import { PackageJson, RootPackageJson } from "../schemas";
-import { DomainError } from "./Errors";
-import { findRepoRoot } from "./Root";
+import { FsUtils } from "../FsUtils.js";
+import { PackageJson, RootPackageJson } from "../schemas/index.js";
+import { DomainError } from "./Errors.js";
+import { findRepoRoot } from "./Root.js";
 
 const IGNORE = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.turbo/**", "**/.tsbuildinfo/**"] as const;
 

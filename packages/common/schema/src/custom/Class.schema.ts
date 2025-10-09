@@ -1,4 +1,4 @@
-import { variance } from "@beep/schema/variance";
+import { variance } from "@beep/schema/variance.js";
 import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as Data from "effect/Data";

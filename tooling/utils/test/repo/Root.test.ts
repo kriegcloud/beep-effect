@@ -6,7 +6,7 @@ import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { findRepoRoot } from "../../src/repo/Root";
+import { findRepoRoot } from "../../src/repo/Root.js";
 
 const RealLayer = Layer.mergeAll(BunFileSystem.layer, BunPath.layerPosix);
 

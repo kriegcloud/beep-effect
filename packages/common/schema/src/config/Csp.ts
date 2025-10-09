@@ -1,6 +1,6 @@
-import { RegexFromString } from "@beep/schema/custom/Regex.schema";
-import { URLString } from "@beep/schema/custom/Url.schema";
-import { stringLiteralKit } from "@beep/schema/kits/stringLiteralKit";
+import { RegexFromString } from "@beep/schema/custom/Regex.schema.js";
+import { URLString } from "@beep/schema/custom/Url.schema.js";
+import { stringLiteralKit } from "@beep/schema/kits/stringLiteralKit.js";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";

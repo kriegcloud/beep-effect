@@ -1,7 +1,7 @@
 import { Schema } from "effect";
-import { BSUiConfig, type FieldConfig } from "./annotations";
-import { JsonStringToArray, JsonStringToStringArray, TimestampToIsoString } from "./custom";
-import { CustomFieldSchema } from "./custom-fields-schema";
+import { BSUiConfig, type FieldConfig } from "./annotations.js";
+import { JsonStringToArray, JsonStringToStringArray, TimestampToIsoString } from "./custom/index.js";
+import { CustomFieldSchema } from "./custom-fields-schema.js";
 
 // Base system fields as a class
 export class BaseSystemFields extends Schema.Class<BaseSystemFields>("BaseSystemFields")({

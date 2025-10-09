@@ -1,1 +1,1 @@
-export * from "./stringLiteralKit";
+export * from "./stringLiteralKit.js";

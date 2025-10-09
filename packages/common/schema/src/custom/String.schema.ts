@@ -1,5 +1,5 @@
 import { invariant } from "@beep/invariant";
-import * as regexes from "@beep/schema/regexes";
+import * as regexes from "@beep/schema/regexes.js";
 import type { TagTypes } from "@beep/types";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";

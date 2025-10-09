@@ -45,7 +45,7 @@
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
 
-    "moduleResolution": "bundler",
+    "moduleResolution": "NodeNext",
     "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true,

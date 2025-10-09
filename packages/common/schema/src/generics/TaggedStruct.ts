@@ -1,7 +1,7 @@
 import type { StringTypes, StructTypes } from "@beep/types";
 import * as S from "effect/Schema";
-import type { DefaultAnnotations } from "../annotations";
-import { Struct } from "../extended-schemas";
+import type { DefaultAnnotations } from "../annotations.js";
+import { Struct } from "../extended-schemas.js";
 export namespace TaggedStruct {
   export type Schema<
     Tag extends StringTypes.NonEmptyString<string>,

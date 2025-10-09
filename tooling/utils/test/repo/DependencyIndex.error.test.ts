@@ -5,8 +5,8 @@ import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { FsUtilsLive } from "../../src/FsUtils";
-import { buildRepoDependencyIndex } from "../../src/repo/DependencyIndex";
+import { FsUtilsLive } from "../../src/FsUtils.js";
+import { buildRepoDependencyIndex } from "../../src/repo/DependencyIndex.js";
 
 // Override exists to make root package.json appear missing
 const MissingRootPkgLayer = Layer.effect(

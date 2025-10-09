@@ -1,8 +1,9 @@
 import type { Or, UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
-import type { JsonProp } from "./custom";
-import { LiteralDefaults, RegexFromString } from "./custom";
-import { Struct } from "./extended-schemas";
+import type { JsonProp } from "./custom/Json.schema.js";
+import { LiteralDefaults } from "./custom/Literal.schema.js";
+import { RegexFromString } from "./custom/Regex.schema.js";
+import { Struct } from "./extended-schemas.js";
 export const $JsonType = S.Literal("object", "array", "string", "number", "boolean", "null", "integer");
 
 export declare namespace $JsonType {

@@ -5,7 +5,7 @@ import * as F from "effect/Function";
 import * as P from "effect/Predicate";
 import type * as R from "effect/Record";
 import { create } from "mutative";
-import { valuesFromEnum } from "./valuesFromEnum";
+import { valuesFromEnum } from "./valuesFromEnum.js";
 
 export const enumOf = <T extends string>(...literals: A.NonEmptyReadonlyArray<StringTypes.NonEmptyString<T>>) => {
   const enumObj = A.reduce(literals, {} as { readonly [K in T]: K }, (acc, k) => ({ ...acc, [k]: k }));

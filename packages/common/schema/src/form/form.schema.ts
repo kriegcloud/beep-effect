@@ -1,5 +1,5 @@
 import * as S from "effect/Schema";
-import { FormFieldSchema } from "./field.schema";
+import { FormFieldSchema } from "./field.schema.js";
 /**
  * A schema for validating JSON Schema objects using AJV.
  * Validates that an object conforms to the JSON Schema specification.

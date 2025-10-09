@@ -14,7 +14,7 @@ import * as S from "effect/Schema";
 import { TypeId } from "effect/Schema";
 import * as Str from "effect/String";
 import { typeid } from "typeid-js";
-import { SnakeTag, UUIDLiteralEncoded } from "./custom";
+import { SnakeTag, UUIDLiteralEncoded } from "./custom/index.js";
 
 export namespace EntityId {
   export const getIdType = F.flow(Str.split("__"), A.headNonEmpty);
@@ -109,6 +109,8 @@ export namespace EntityId {
       args: [tableName],
     });
     const factory = new Factory<TableName, Brand>(tableName, brand);
+    const create = (): Type<TableName> =>
+      F.pipe(tableName, Str.concat("__"), Str.concat(UUIDLiteralEncoded.make())) as Type<TableName>;
 
     const privateSchema = S.NonNegativeInt.pipe(S.brand(brand));
     const modelRowIdSchema = M.Generated(privateSchema);
@@ -122,13 +124,11 @@ export namespace EntityId {
       pretty: () => (i) => `${brand}(${i})`,
     });
 
-    const create = () => Str.concat(UUIDLiteralEncoded.make())(Str.concat("__")(tableName));
-
     const publicId = pg
       .text("id")
       .notNull()
       .unique()
-      .$type<typeof schema.Type>()
+      .$type<Type<TableName>>()
       .$defaultFn(() => create());
 
     const privateId = pg.serial("_row_id").notNull().primaryKey().$type<B.Branded<number, Brand>>();
@@ -158,7 +158,7 @@ export namespace EntityId {
           line: 134,
           args: [input],
         });
-        return input;
+        return input as Type<TableName>;
       };
     }
 

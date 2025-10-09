@@ -8,7 +8,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
 import * as Str from "effect/String";
-import type { EntityId } from "./EntityId";
+import type { EntityId } from "./EntityId.js";
 // Dynamic union type that includes all schemas with _tag field that represent business entities
 // This mirrors the logic in discoverEntitySchemas() but at the type level
 export type EntityUnion = {

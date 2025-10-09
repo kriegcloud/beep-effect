@@ -1,7 +1,7 @@
 import type { StructTypes, UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
-import { Struct } from "../extended-schemas";
-import type { OptionalWithDefault } from "../types";
+import { Struct } from "../extended-schemas.js";
+import type { OptionalWithDefault } from "../types.js";
 
 export namespace DiscriminatedStruct {
   export type Schema<

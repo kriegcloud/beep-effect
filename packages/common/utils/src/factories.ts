@@ -1,1 +1,1 @@
-export * from "./factories/index";
+export * from "./factories/index.js";
