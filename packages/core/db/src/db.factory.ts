@@ -1,13 +1,14 @@
 import { serverEnv } from "@beep/core-env/server";
 import type { UnsafeTypes } from "@beep/types";
 import type * as SqlClient from "@effect/sql/SqlClient";
-import type { SqlError } from "@effect/sql/SqlError";
+
 import * as PgDrizzle from "@effect/sql-drizzle/Pg";
 import * as PgClient from "@effect/sql-pg/PgClient";
 import { drizzle as _drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { Cause, Effect, Exit, Option, Runtime } from "effect";
 import * as Config from "effect/Config";
 import type { ConfigError } from "effect/ConfigError";
+import type { SqlError } from "@effect/sql/SqlError";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
 import * as Layer from "effect/Layer";

@@ -1,0 +1,97 @@
+{
+  "name": "@beep/trpc-play",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "A library for migrations, seeds & db admin",
+  "private": false,
+  "publishConfig": {
+    "access": "restricted",
+    "directory": "build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/_internal/trpc-play"
+  },
+  "scripts": {
+    "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
+    "dev": "tsc -b tsconfig.build.json --watch",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "bun run dotenvx -- bunx bun test",
+    "dotenvx": "dotenvx run -f ../../../.env --",
+    "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
+    "coverage": "bun test --coverage",
+    "db:generate": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx drizzle-kit generate",
+    "db:migrate": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx drizzle-kit migrate",
+    "db:push": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx drizzle-kit push",
+    "db:studio": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx drizzle-kit studio",
+    "db:reset": "bun src/scripts/ResetDatabase.ts",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "lint:circular": "bunx madge -c .",
+    "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx tsx ./src/execute1.ts"
+  },
+  "dependencies": {
+    "@trpc/server": "^11.6.0",
+    "superjson": "^2.2.2",
+    "@trpc/react": "^9.27.4",
+    "@trpc/client": "^11.6.0",
+    "drizzle-zero": "catalog:",
+    "@rocicorp/zero": "catalog:",
+    "@beep/invariant": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/constants": "workspace:^",
+    "@beep/errors": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/shared-tables": "workspace:^",
+    "@beep/core-db": "workspace:^",
+    "@beep/iam-domain": "workspace:^",
+    "@beep/iam-tables": "workspace:^",
+    "@beep/iam-infra": "workspace:^",
+    "@beep/files-domain": "workspace:^",
+    "@beep/files-tables": "workspace:^",
+    "@beep/files-infra": "workspace:^",
+    "@effect/platform-bun": "catalog:",
+    "sql-formatter": "catalog:",
+    "@effect/sql-pg": "catalog:",
+    "@faker-js/faker": "catalog:",
+    "@effect/sql-drizzle": "catalog:",
+    "mutative": "catalog:",
+    "zod": "catalog:",
+    "uuid": "catalog:",
+    "randexp-ts": "catalog:",
+    "picocolors": "catalog:",
+    "@testcontainers/postgresql": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/experimental": "catalog:",
+    "drizzle-kit": "catalog:",
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:",
+    "tsx": "catalog:",
+    "@beep/core-env": "workspace:^",
+    "drizzle-seed": "catalog:",
+    "@effect/platform": "catalog:",
+    "postgres": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@beep/types": "workspace:^"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}

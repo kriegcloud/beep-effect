@@ -51,7 +51,9 @@
       }
     ],
     "paths": {
-      "*": ["./*"],
+      "*": [
+        "./*"
+      ],
       "@beep/types": [
         "./packages/common/types/src/index"
       ],
@@ -315,6 +317,15 @@
       ],
       "@beep/db-admin/test/*": [
         "./packages/_internal/db-admin/test/*"
+      ],
+      "@beep/trpc-play": [
+        "./packages/_internal/trpc-play/src/index"
+      ],
+      "@beep/trpc-play/*": [
+        "./packages/_internal/trpc-play/src/*"
+      ],
+      "@beep/trpc-play/test/*": [
+        "./packages/_internal/trpc-play/test/*"
       ],
       "@beep/tooling-utils": [
         "./tooling/utils/src/index"

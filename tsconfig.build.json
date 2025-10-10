@@ -80,7 +80,7 @@
     {
       "path": "packages/runtime/server/tsconfig.build.json"
     },
-        {
+    {
       "path": "packages/runtime/shared/tsconfig.build.json"
     },
     {
@@ -97,6 +97,9 @@
     },
     {
       "path": "packages/_internal/db-admin/tsconfig.build.json"
+    },
+    {
+      "path": "packages/_internal/trpc-play/tsconfig.build.json"
     },
     {
       "path": "tooling/utils/tsconfig.build.json"

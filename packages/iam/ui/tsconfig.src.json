@@ -45,7 +45,6 @@
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
-
     "jsx": "react-jsx",
     "module": "ESNext",
     "target": "ES2022",
