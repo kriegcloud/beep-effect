@@ -3,6 +3,9 @@
   "include": ["src"],
   "references": [
     {
+      "path": "tsconfig.build.json"
+    },
+    {
       "path": "../../../tooling/testkit"
     }
   ],
@@ -11,8 +14,6 @@
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
-
-    "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true

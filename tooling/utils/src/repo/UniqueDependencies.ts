@@ -1,8 +1,8 @@
+import { buildRepoDependencyIndex } from "@beep/tooling-utils/repo/DependencyIndex";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
-import { buildRepoDependencyIndex } from "./DependencyIndex";
 
 /**
  * Collect unique npm dependencies across the entire repo.

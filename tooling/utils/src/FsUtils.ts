@@ -1,3 +1,4 @@
+import { DomainError } from "@beep/tooling-utils/repo/Errors";
 import type { UnsafeTypes } from "@beep/types";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
@@ -9,7 +10,6 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Glob from "glob";
-import { DomainError } from "./repo/Errors";
 
 /**
  * Internal constructor for the FsUtils service.

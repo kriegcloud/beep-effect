@@ -1,12 +1,12 @@
+import { NoSuchFileError } from "@beep/tooling-utils/repo/Errors";
+import { findRepoRoot } from "@beep/tooling-utils/repo/Root";
+import { resolveWorkspaceDirs } from "@beep/tooling-utils/repo/Workspaces";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
-import { NoSuchFileError } from "./Errors";
-import { findRepoRoot } from "./Root";
-import { resolveWorkspaceDirs } from "./Workspaces";
 
 /**
  * Collect tsconfig.json related paths for root and each workspace.

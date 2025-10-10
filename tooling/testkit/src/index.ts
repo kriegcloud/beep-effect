@@ -23,9 +23,7 @@ export namespace BunTest {
   /**
    * @since 1.0.0
    */
-  export type TestFunction<A, E, R, TestArgs extends Array<any>> = (
-    ...args: TestArgs
-  ) => Effect.Effect<A, E, R>;
+  export type TestFunction<A, E, R, TestArgs extends Array<any>> = (...args: TestArgs) => Effect.Effect<A, E, R>;
 
   /**
    * @since 1.0.0

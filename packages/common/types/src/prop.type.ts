@@ -1,5 +1,5 @@
 import type * as S from "effect/Schema";
-import type * as StringTypes from "./string.types";
+import type * as StringTypes from "./string.types.js";
 
 export type PropertyKey<Literal extends string> = StringTypes.NonEmptyString<Literal>;
 

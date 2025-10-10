@@ -2,8 +2,8 @@ import { describe, it } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
 import { deepStrictEqual, throws } from "@beep/testkit";
+import { PackageJson } from "@beep/tooling-utils/schemas/PackageJson";
 import * as S from "effect/Schema";
-import { PackageJson } from "../../src/schemas/PackageJson";
 
 describe("PackageJson", () => {
   it("accepts minimal with required name", () => {

@@ -1,5 +1,5 @@
+import { Json } from "@beep/tooling-utils/schemas/Json";
 import * as S from "effect/Schema";
-import { Json } from "./Json";
 
 const License = S.Union(
   S.String,

@@ -1,12 +1,12 @@
 import { describe } from "bun:test";
 import { deepStrictEqual, scoped } from "@beep/testkit";
+import { findRepoRoot } from "@beep/tooling-utils/repo/Root";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { findRepoRoot } from "../../src/repo/Root";
 
 const RealLayer = Layer.mergeAll(BunFileSystem.layer, BunPath.layerPosix);
 

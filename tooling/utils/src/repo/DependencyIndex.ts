@@ -1,13 +1,13 @@
+import { extractWorkspaceDependencies } from "@beep/tooling-utils/repo/Dependencies";
+import { mapWorkspaceToPackageJsonPath } from "@beep/tooling-utils/repo/PackageJsonMap";
+import { findRepoRoot } from "@beep/tooling-utils/repo/Root";
+import { type RepoDepMapValue, WorkspacePkgKey } from "@beep/tooling-utils/schemas";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as S from "effect/Schema";
-import { type RepoDepMapValue, WorkspacePkgKey } from "../schemas";
-import { extractWorkspaceDependencies } from "./Dependencies";
-import { mapWorkspaceToPackageJsonPath } from "./PackageJsonMap";
-import { findRepoRoot } from "./Root";
 
 /**
  * Build a repository-wide dependency index for all workspaces plus `@beep/root`.

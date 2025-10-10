@@ -1,5 +1,6 @@
 import { describe } from "bun:test";
 import { deepStrictEqual, scoped } from "@beep/testkit";
+import { FsUtilsLive } from "@beep/tooling-utils/FsUtils";
 import { extractWorkspaceDependencies } from "@beep/tooling-utils/repo/Dependencies";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
@@ -8,7 +9,6 @@ import * as BunPath from "@effect/platform-bun/BunPath";
 import * as Effect from "effect/Effect";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
-import { FsUtilsLive } from "../../src/FsUtils";
 
 const TestLayer = Layer.mergeAll(FsUtilsLive, BunFileSystem.layer, BunPath.layerPosix);
 

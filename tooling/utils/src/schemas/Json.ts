@@ -1,5 +1,5 @@
+import { JsonLiteral, type JsonLiteralType } from "@beep/tooling-utils/schemas/JsonLiteral";
 import * as S from "effect/Schema";
-import { JsonLiteral, type JsonLiteralType } from "./JsonLiteral";
 
 /**
  * General JSON structure (recursive).

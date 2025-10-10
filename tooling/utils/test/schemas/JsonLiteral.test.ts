@@ -1,7 +1,7 @@
 import { describe, it } from "bun:test";
 import { deepStrictEqual, throws } from "@beep/testkit";
+import { JsonLiteral } from "@beep/tooling-utils/schemas/JsonLiteral";
 import * as S from "effect/Schema";
-import { JsonLiteral } from "../../src/schemas/JsonLiteral";
 
 describe("JsonLiteral", () => {
   it("accepts primitives: string, number, boolean, null", () => {

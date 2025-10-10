@@ -5,6 +5,8 @@
     "tsBuildInfoFile": ".tsbuildinfo/build.tsbuildinfo",
     "outDir": "build/esm",
     "declarationDir": "build/dts",
+    "moduleResolution": "NodeNext",
+    "module": "NodeNext",
     "stripInternal": true,
     "composite": true,
     "declaration": true,

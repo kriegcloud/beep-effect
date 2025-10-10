@@ -51,59 +51,32 @@ const makeTester = <R>(mapEffect: <A, E>(self: Effect.Effect<A, E, R>) => Effect
         runTest
       );
 
-  const f = (
-    name: string,
-    self: (...args: Array<any>) => Effect.Effect<any, any, R>,
-    timeout?: any
-  ) => it(name, run(self), testOptions(timeout));
+  const f = (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) =>
+    it(name, run(self), testOptions(timeout));
 
-  const skip = (
-    name: string,
-    self: (...args: Array<any>) => Effect.Effect<any, any, R>,
-    timeout?: any
-  ) => it.skip(name, run(self), testOptions(timeout));
+  const skip = (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) =>
+    it.skip(name, run(self), testOptions(timeout));
 
   const skipIf =
-    (condition: unknown) =>
-    (
-      name: string,
-      self: (...args: Array<any>) => Effect.Effect<any, any, R>,
-      timeout?: any
-    ) =>
+    (condition: unknown) => (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) =>
       condition ? skip(name, self, timeout) : f(name, self, timeout);
 
   const runIf =
-    (condition: unknown) =>
-    (
-      name: string,
-      self: (...args: Array<any>) => Effect.Effect<any, any, R>,
-      timeout?: any
-    ) =>
+    (condition: unknown) => (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) =>
       condition ? f(name, self, timeout) : skip(name, self, timeout);
 
-  const only = (
-    name: string,
-    self: (...args: Array<any>) => Effect.Effect<any, any, R>,
-    timeout?: any
-  ) => it.only(name, run(self), testOptions(timeout));
+  const only = (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) =>
+    it.only(name, run(self), testOptions(timeout));
 
   const each =
     (cases: ReadonlyArray<any>) =>
-    (
-      name: string,
-      self: (...args: Array<any>) => Effect.Effect<any, any, R>,
-      timeout?: any
-    ) => {
+    (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) => {
       cases.forEach((testCase, index) => {
         it(`${name} [${index}]`, () => run(self)(testCase), testOptions(timeout));
       });
     };
 
-  const fails = (
-    name: string,
-    self: (...args: Array<any>) => Effect.Effect<any, any, R>,
-    timeout?: any
-  ) =>
+  const fails = (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) =>
     it(
       name,
       async () => {
@@ -131,12 +104,7 @@ const makeTester = <R>(mapEffect: <A, E>(self: Effect.Effect<A, E, R>) => Effect
   return Object.assign(f, { each, fails, only, prop, runIf, skip, skipIf });
 };
 
-export const prop = (
-  name: string,
-  _arbitraries: any,
-  self: (properties: any, ctx: any) => void,
-  timeout?: any
-) => {
+export const prop = (name: string, _arbitraries: any, self: (properties: any, ctx: any) => void, timeout?: any) => {
   // Simplified prop without FastCheck for now
   return it(name, () => self({}, {}), testOptions(timeout));
 };
@@ -149,9 +117,7 @@ export const layer = <R, E>(
     readonly excludeTestServices?: boolean;
   }
 ) => {
-  return (
-    ...args: [name: string, f: (it: any) => void] | [f: (it: any) => void]
-  ) => {
+  return (...args: [name: string, f: (it: any) => void] | [f: (it: any) => void]) => {
     const excludeTestServices = options?.excludeTestServices ?? false;
     const withTestEnv = excludeTestServices
       ? (layer_ as Layer.Layer<R | TestServices.TestServices, E>)
@@ -171,10 +137,7 @@ export const layer = <R, E>(
         Effect.flatMap(runtimeEffect, (runtime) => effect.pipe(Effect.provide(runtime)))
       ),
       flakyTest,
-      layer: (
-        nestedLayer: Layer.Layer<any, any, R>,
-        options?: { readonly timeout?: Duration.DurationInput }
-      ) => {
+      layer: (nestedLayer: Layer.Layer<any, any, R>, options?: { readonly timeout?: Duration.DurationInput }) => {
         return layer(Layer.provideMerge(nestedLayer, withTestEnv), {
           ...options,
           excludeTestServices,
@@ -229,5 +192,4 @@ export const makeMethods = () => ({
 
 export const { effect, live, scoped, scopedLive } = makeMethods();
 
-export const describeWrapped = (name: string, f: (it: any) => void) =>
-  describe(name, () => f(makeMethods()));
+export const describeWrapped = (name: string, f: (it: any) => void) => describe(name, () => f(makeMethods()));

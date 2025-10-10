@@ -1,9 +1,9 @@
+import { NoSuchFileError } from "@beep/tooling-utils/repo/Errors";
+import { resolveWorkspaceDirs } from "@beep/tooling-utils/repo/Workspaces";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
-import { NoSuchFileError } from "./Errors";
-import { resolveWorkspaceDirs } from "./Workspaces";
 
 /**
  * Build a map of workspace package name -> absolute package.json path.

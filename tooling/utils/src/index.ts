@@ -7,7 +7,7 @@
  * - getUniqueDeps: compatibility alias for unique dependency collection
  * - schemas: Effect schemas used by the tooling
  */
-export * as FsUtils from "./FsUtils";
-export * as Repo from "./repo";
-export { getUniqueDeps } from "./repo/UniqueDependencies";
-export * from "./schemas";
+export * as FsUtils from "@beep/tooling-utils/FsUtils";
+export * as Repo from "@beep/tooling-utils/repo";
+export { getUniqueDeps } from "@beep/tooling-utils/repo/UniqueDependencies";
+export * from "@beep/tooling-utils/schemas";

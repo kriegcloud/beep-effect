@@ -1,4 +1,4 @@
-import type * as LiteralTypes from "./literal.types";
+import type * as LiteralTypes from "./literal.types.js";
 
 export type SnakeTag<S extends string = string> = S extends `${LiteralTypes.LowerChar}${infer R}`
   ? ValidateSnakeAfterLetter<R, S>

@@ -1,12 +1,12 @@
 import { describe } from "bun:test";
 import { deepStrictEqual, scoped } from "@beep/testkit";
+import { FsUtilsLive } from "@beep/tooling-utils/FsUtils";
+import { buildRepoDependencyIndex } from "@beep/tooling-utils/repo/DependencyIndex";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { FsUtilsLive } from "../../src/FsUtils";
-import { buildRepoDependencyIndex } from "../../src/repo/DependencyIndex";
 
 // Override exists to make root package.json appear missing
 const MissingRootPkgLayer = Layer.effect(

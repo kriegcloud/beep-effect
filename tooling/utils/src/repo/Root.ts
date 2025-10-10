@@ -1,7 +1,7 @@
+import { NoSuchFileError } from "@beep/tooling-utils/repo/Errors";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as Effect from "effect/Effect";
-import { NoSuchFileError } from "./Errors";
 
 /**
  * Find the repository root by walking upward from this module's directory.

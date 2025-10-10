@@ -1,5 +1,7 @@
 import { describe } from "bun:test";
 import { deepStrictEqual, scoped } from "@beep/testkit";
+import { FsUtilsLive } from "@beep/tooling-utils/FsUtils";
+import { mapWorkspaceToPackageJsonPath } from "@beep/tooling-utils/repo/PackageJsonMap";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
@@ -8,8 +10,6 @@ import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import { FsUtilsLive } from "../../src/FsUtils";
-import { mapWorkspaceToPackageJsonPath } from "../../src/repo/PackageJsonMap";
 
 const TestLayer = Layer.mergeAll(FsUtilsLive, BunFileSystem.layer, BunPath.layerPosix);
 
