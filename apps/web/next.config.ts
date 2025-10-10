@@ -95,7 +95,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: process.env.NEXT_PUBLIC_STATIC_URL!.replace("https://", ""),
+        hostname: process.env.NEXT_PUBLIC_STATIC_URL?.replace("https://", "") ?? "",
         port: "",
         pathname: "/**",
       },

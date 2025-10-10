@@ -8,12 +8,14 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "declaration": true,
-    "skipLibCheck": true,
     "preserveWatchOutput": true,
     "inlineSources": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "moduleResolution": "bundler",
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "rewriteRelativeImportExtensions": true,
     "lib": [
       "ES2019",
       "ES2022",
@@ -24,7 +26,6 @@
       "node",
       "bun"
     ],
-    "isolatedModules": true,
     "sourceMap": true,
     "declarationMap": true,
     "noImplicitReturns": false,
