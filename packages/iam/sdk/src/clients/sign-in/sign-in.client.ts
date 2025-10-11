@@ -41,7 +41,7 @@ const signInEmail = AuthHandler.make<SignInEmailContract.Type, SignInEmailContra
     });
 
     if (result.error == null) {
-      notifySessionRefresh()
+      notifySessionRefresh();
     }
 
     return result;
@@ -120,8 +120,6 @@ const signInPasskey = AuthHandler.make({
   defaultErrorMessage: "Failed to sign in with passkey.",
   annotations: { action: "sign-in", method: "passkey" },
 });
-
-
 
 const signInOneTap = AuthHandler.make<void>({
   name: "signInOneTap",

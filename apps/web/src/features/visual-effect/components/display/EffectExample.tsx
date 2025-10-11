@@ -10,8 +10,9 @@ import type { VisualRef } from "../../VisualRef";
 import type { VisualScope } from "../../VisualScope";
 import { EffectNode } from "../effect";
 import { FloatingHighlight } from "../feedback";
+import { ScheduleTimeline } from "../ScheduleTimeline";
 import { ScopeStack } from "../scope";
-import { RefDisplay, ScheduleTimeline } from "./";
+import { RefDisplay } from "./RefDisplay";
 
 export interface EffectHighlight {
   text: string;
