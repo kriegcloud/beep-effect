@@ -1,5 +1,5 @@
+import { Regex } from "@beep/schema/custom/Regex.schema";
 import * as S from "effect/Schema";
-import { Regex } from "../Regex.schema";
 
 /**
  * Schema transformer that converts timestamp (number) or ISO string to ISO string and vice versa.

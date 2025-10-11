@@ -1,2 +1,2 @@
-export * from "./field.schema";
-export * from "./form.schema";
+export * from "@beep/schema/form/field.schema";
+export * from "@beep/schema/form/form.schema";

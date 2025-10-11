@@ -1,1 +1,1 @@
-export * from "./assertions/index";
+export * from "@beep/utils/assertions/index";

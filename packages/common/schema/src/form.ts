@@ -1,1 +1,1 @@
-export * from "./form/index";
+export * from "@beep/schema/form/index";

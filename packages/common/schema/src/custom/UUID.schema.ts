@@ -23,7 +23,7 @@ export class UUIDLiteralEncoded extends S.TemplateLiteral(
     randomUUID() as `${string}-${string}-${string}-${string}-${string}`;
 }
 
-export namespace UUIDLiteralEncoded {
+export declare namespace UUIDLiteralEncoded {
   export type Type = S.Schema.Type<typeof UUIDLiteralEncoded>;
   export type Encoded = S.Schema.Encoded<typeof UUIDLiteralEncoded>;
 }
@@ -42,7 +42,7 @@ export class UUIDLiteral extends S.transformOrFail(UUIDLiteralEncoded, S.UUID, {
     }),
 }) {}
 
-export namespace UUIDLiteral {
+export declare namespace UUIDLiteral {
   export type Type = S.Schema.Type<typeof UUIDLiteral>;
   export type Encoded = S.Schema.Encoded<typeof UUIDLiteral>;
 }

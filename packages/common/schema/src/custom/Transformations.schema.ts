@@ -16,7 +16,7 @@ export class IntFromStr extends S.transformOrFail(S.String, S.Int, {
   description: "Transforms a string into an integer",
 }) {}
 
-export namespace IntFromStr {
+export declare namespace IntFromStr {
   export type Type = typeof IntFromStr.Type;
   export type Encoded = typeof IntFromStr.Encoded;
 }

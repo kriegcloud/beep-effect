@@ -1,1 +1,1 @@
-export * from "./getters/index";
+export * from "@beep/utils/getters/index";

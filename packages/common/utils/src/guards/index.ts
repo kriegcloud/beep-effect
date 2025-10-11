@@ -1,1 +1,1 @@
-export * from "./isUnsafeProperty.guard";
+export * from "@beep/utils/guards/isUnsafeProperty.guard";

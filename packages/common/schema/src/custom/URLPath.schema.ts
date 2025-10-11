@@ -1,9 +1,9 @@
+import { makeBranded } from "@beep/schema/utils";
 import type { StringTypes } from "@beep/types";
 import * as A from "effect/Array";
 import type * as B from "effect/Brand";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { makeBranded } from "../utils";
 
 /**
  * Schema for validating NextJS pathnames including static assets and optional query strings.
@@ -74,7 +74,7 @@ export class URLPath extends S.TemplateLiteral("/", S.String).pipe(
   static readonly is = (input: unknown): input is URLPath.Type => S.is(URLPath)(input);
 }
 
-export namespace URLPath {
+export declare namespace URLPath {
   /** URL path type (branded). */
   export type Type = typeof URLPath.Type;
   export type Encoded = typeof URLPath.Encoded;

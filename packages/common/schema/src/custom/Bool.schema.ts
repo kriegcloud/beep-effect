@@ -1,11 +1,11 @@
+import { toOptionalWithDefault } from "@beep/schema/utils";
 import * as S from "effect/Schema";
-import { toOptionalWithDefault } from "../utils";
 
 export type BoolSchema = S.PropertySignature<":", boolean, never, "?:", boolean | undefined, true, never>;
 
 export const BoolWithDefault = (defaultValue: boolean): BoolSchema => toOptionalWithDefault(S.Boolean)(defaultValue);
 
-export namespace BoolWithDefault {
+export declare namespace BoolWithDefault {
   export type Type = S.Schema.Type<BoolSchema>;
   export type Encoded = S.Schema.Encoded<BoolSchema>;
 }
@@ -17,7 +17,7 @@ export const BoolTrue = toOptionalWithDefault(S.Boolean)(true).annotations({
   description: "Boolean who's value is always false",
 });
 
-export namespace BoolTrue {
+export declare namespace BoolTrue {
   export type Type = S.Schema.Type<typeof BoolTrue>;
   export type Encoded = S.Schema.Encoded<typeof BoolTrue>;
 }
@@ -28,7 +28,7 @@ export const BoolFalse = toOptionalWithDefault(S.Boolean)(false).annotations({
   title: "Boolean False",
   description: "Boolean who's value is always false",
 });
-export namespace BoolFalse {
+export declare namespace BoolFalse {
   export type Type = S.Schema.Type<typeof BoolFalse>;
   export type Encoded = S.Schema.Encoded<typeof BoolFalse>;
 }

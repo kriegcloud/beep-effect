@@ -1,24 +1,23 @@
-export * from "./annotations";
-export * from "./config";
-export * from "./custom";
-export * from "./custom-fields-schema";
-export * from "./EntityId";
-export * from "./entityDiscovery";
+export * from "@beep/schema/annotations";
+export * from "@beep/schema/config";
+export * from "@beep/schema/custom";
+export * from "@beep/schema/custom-fields-schema";
+export * from "@beep/schema/EntityId";
 // export * from "./extended-schemas";
-export * from "./extended-schemas";
-export * from "./form";
-export { DiscriminatedStruct, TaggedStruct } from "./generics";
-export * from "./introspection";
-export * from "./JsonSchema";
-export * from "./kits";
+export * from "@beep/schema/extended-schemas";
+export * from "@beep/schema/form";
+export { DiscriminatedStruct, TaggedStruct } from "@beep/schema/generics";
+export * from "@beep/schema/introspection";
+export * from "@beep/schema/JsonSchema";
+export * from "@beep/schema/kits";
 /**
  * Public exports for all schemas and utilities.
  * Keep this as the single import surface for consumers.
  *
  * @since 0.1.0
  */
-export * from "./regexes";
-export * from "./sql";
-export * from "./system-schema";
-export * from "./types";
-export * from "./utils";
+export * from "@beep/schema/regexes";
+export * from "@beep/schema/sql";
+export * from "@beep/schema/system-schema";
+export * from "@beep/schema/types";
+export * from "@beep/schema/utils";

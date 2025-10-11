@@ -1,1 +1,1 @@
-export * from "./Csp";
+export * from "@beep/schema/config/Csp";

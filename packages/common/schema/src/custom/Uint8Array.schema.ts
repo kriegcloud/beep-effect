@@ -9,7 +9,7 @@ export class Uint8Arr extends S.instanceOf(Uint8Array).annotations({
   static readonly is = S.is(this);
 }
 
-export namespace Uint8Arr {
+export declare namespace Uint8Arr {
   export type Type = S.Schema.Type<typeof Uint8Arr>;
   export type Encoded = S.Schema.Encoded<typeof Uint8Arr>;
 }

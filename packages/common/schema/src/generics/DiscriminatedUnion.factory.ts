@@ -1,3 +1,5 @@
+import type { DefaultAnnotations } from "@beep/schema/annotations";
+import { DiscriminatedStruct } from "@beep/schema/generics/DiscriminatedStruct";
 import type { OptionalWithDefault } from "@beep/schema/types";
 import { mergeFields } from "@beep/schema/utils";
 import type { StringTypes, StructTypes, UnsafeTypes } from "@beep/types";
@@ -6,8 +8,6 @@ import * as Data from "effect/Data";
 import * as FC from "effect/FastCheck";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
-import type { DefaultAnnotations } from "../annotations";
-import { DiscriminatedStruct } from "./DiscriminatedStruct";
 
 interface DiscriminatedUnionFactoryBuilderSpec<
   Discriminator extends StringTypes.NonEmptyString<string>,

@@ -21,7 +21,7 @@ export const JsonLiteral = S.Union(S.String, S.Number, S.Boolean, S.Null).annota
   description: "JSON literal values (primitives accepted by JSON)",
   arbitrary: () => (fc) => fc.oneof(fc.string(), fc.float(), fc.integer(), fc.boolean(), fc.constant(null)),
 });
-export namespace JsonLiteral {
+export declare namespace JsonLiteral {
   export type Type = typeof JsonLiteral.Type;
   export type Encoded = typeof JsonLiteral.Encoded;
 }
@@ -58,7 +58,7 @@ export const Json = S.suspend(
   title: "Json",
   description: "A Valid JSON",
 });
-export namespace Json {
+export declare namespace Json {
   export type Type = JsonLiteral.Type | { [key: string]: Type } | Type[] | ReadonlyArray<Type>;
 
   export type Encoded = typeof Json.Encoded;
@@ -66,14 +66,14 @@ export namespace Json {
 
 export const JsonArray = S.Array(Json);
 
-export namespace JsonArray {
+export declare namespace JsonArray {
   export type Type = typeof JsonArray.Type;
   export type Encoded = typeof JsonArray.Encoded;
 }
 
 export const NonEmptyJsonArray = S.NonEmptyArray(Json);
 
-export namespace NonEmptyJsonArray {
+export declare namespace NonEmptyJsonArray {
   export type Type = typeof NonEmptyJsonArray.Type;
   export type Encoded = typeof NonEmptyJsonArray.Encoded;
 }
@@ -140,7 +140,7 @@ export class JsonPath extends S.String.pipe(S.pattern(path_regex), S.brand("Json
   };
 }
 
-export namespace JsonPath {
+export declare namespace JsonPath {
   export type Type = typeof JsonPath.Type;
   export type Encoded = typeof JsonPath.Encoded;
 }
@@ -153,7 +153,7 @@ export class JsonProp extends S.NonEmptyString.pipe(
   static readonly is = (value: unknown): value is JsonProp.Type => O.isSome(S.validateOption(JsonProp)(value));
 }
 
-export namespace JsonProp {
+export declare namespace JsonProp {
   export type Type = typeof JsonProp.Type & { __JsonPath: true; __JsonProp: true };
   export type Encoded = typeof JsonProp.Encoded;
 }

@@ -32,7 +32,7 @@ export const IPv4 = S.NonEmptyString.pipe(
   arbitrary: () => (fc) => fc.oneof(fc.ipV4(), fc.ipV4Extended()).map((_) => _ as B.Branded<string, "IPv4">),
 });
 
-export namespace IPv4 {
+export declare namespace IPv4 {
   export type Type = S.Schema.Type<typeof IPv4>;
   export type Encoded = S.Schema.Encoded<typeof IPv4>;
 }
@@ -47,7 +47,7 @@ export const IPv6 = S.NonEmptyString.pipe(
   arbitrary: () => (fc) => fc.ipV6().map((_) => _ as B.Branded<string, "IPv6">),
 });
 
-export namespace IPv6 {
+export declare namespace IPv6 {
   export type Type = S.Schema.Type<typeof IPv6>;
   export type Encoded = S.Schema.Encoded<typeof IPv6>;
 }
@@ -59,7 +59,7 @@ export const IP = S.Union(IPv4, IPv6).annotations({
   arbitrary: () => (fc) => fc.oneof(fc.ipV4(), fc.ipV6()).map((_) => (S.is(IPv4)(_) ? IPv4.make(_) : IPv6.make(_))),
 });
 
-export namespace IP {
+export declare namespace IP {
   /** IP value type. */
   export type Type = typeof IP.Type;
   /** IP encoded value type. */

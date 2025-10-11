@@ -13,7 +13,7 @@ export class PgSerialSchema extends S.NonNegativeInt.annotations({
   description: "Auto-incrementing 32-bit integer primary key. Equivalent to PostgreSQL SERIAL.",
 }) {}
 
-export namespace PgSerialSchema {
+export declare namespace PgSerialSchema {
   export type Type = S.Schema.Type<typeof PgSerialSchema>;
   export type Encoded = S.Schema.Encoded<typeof PgSerialSchema>;
 }

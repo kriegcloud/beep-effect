@@ -9,7 +9,7 @@ export class ArrayOfNumbers extends S.Array(S.Number).annotations({
   static readonly is = S.is(this);
 }
 
-export namespace ArrayOfNumbers {
+export declare namespace ArrayOfNumbers {
   export type Type = S.Schema.Type<typeof ArrayOfNumbers>;
   export type Encoded = S.Schema.Encoded<typeof ArrayOfNumbers>;
 }

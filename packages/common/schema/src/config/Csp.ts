@@ -77,7 +77,7 @@ export const CSPDirectivePart = S.TemplateLiteralParser(
     "Parses a single CSP directive segment comprising the directive name, an equal sign, one or more values, and the trailing delimiter.",
 });
 
-export namespace CSPDirectivePart {
+export declare namespace CSPDirectivePart {
   export type Type = typeof CSPDirectivePart.Type;
   export type Encoded = typeof CSPDirectivePart.Encoded;
 }
@@ -135,7 +135,7 @@ const CSPStruct = S.Struct({
 
 /** Structured representation of CSP directives keyed by their directive name. */
 
-export namespace CSPStruct {
+export declare namespace CSPStruct {
   /** Inferred runtime type of the CSP struct schema. */
   export type Type = S.Schema.Type<typeof CSPStruct>;
   /** Encoded type produced by the CSP struct schema. */
@@ -362,7 +362,7 @@ export const CSPFromString = S.transformOrFail(CSPString, CSPStruct, {
   ] as const,
 });
 
-export namespace CSPFromString {
+export declare namespace CSPFromString {
   /** Structured CSP representation produced by decoding a CSP string. */
   export type Type = typeof CSPFromString.Type;
   /** Validated CSP string produced by encoding a CSP struct. */
@@ -406,7 +406,7 @@ export class Csp extends CSPFromString.annotations({
   static readonly toHeader = (csp: CSPFromString.Type) => toHeader(csp.directives);
 }
 
-export namespace Csp {
+export declare namespace Csp {
   export type Type = typeof CSPFromString.Type;
   export type Encoded = typeof CSPFromString.Encoded;
 }

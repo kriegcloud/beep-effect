@@ -1,3 +1,6 @@
+import type { FieldConfig } from "@beep/schema/annotations";
+import { BSUiConfig } from "@beep/schema/annotations";
+import { EntityId } from "@beep/schema/EntityId";
 import { BaseIdentifiedEntity, BaseSystemFields } from "@beep/schema/system-schema";
 import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
@@ -7,9 +10,6 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
 import * as Str from "effect/String";
-import type { FieldConfig } from "./annotations";
-import { BSUiConfig } from "./annotations";
-import { EntityId } from "./EntityId";
 
 /**
  * Helper function to get annotation from schema, handling both old and new formats

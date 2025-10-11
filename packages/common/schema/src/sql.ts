@@ -1,1 +1,1 @@
-export * from "./sql/index";
+export * from "@beep/schema/sql/index";

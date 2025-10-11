@@ -47,7 +47,8 @@ export const getNameInitials = (name: string | null | undefined): string => {
  * normalizeString("Café") // Returns "cafe"
  * normalizeString("Größe") // Returns "grosse"
  */
-export const normalizeString = F.flow(
+export type NormalizeString = (str: string) => string;
+export const normalizeString: NormalizeString = F.flow(
   Str.normalize("NFKD"),
   Str.replace(/[\u0300-\u036f]/g, ""), // Remove combining diacritical marks
   Str.toLowerCase,
@@ -65,7 +66,11 @@ export const normalizeString = F.flow(
  * stripMessageFormatting("Hello\\n\\nWorld") // Returns "Hello World"
  * stripMessageFormatting("*Hello* World") // Returns "Hello World"
  */
-export const stripMessageFormatting = F.flow(Str.replace(/\\n\\n/g, " "), Str.replace(/\*(.*?)\*/g, "$1"));
+export type StripMessageFormatting = (message: string) => string;
+export const stripMessageFormatting: StripMessageFormatting = F.flow(
+  Str.replace(/\\n\\n/g, " "),
+  Str.replace(/\*(.*?)\*/g, "$1")
+);
 
 /**
  * Interpolates variables in a template string using handlebars-style syntax.
@@ -141,15 +146,23 @@ export const getNestedValue = (obj: Record<string, unknown>, path: string): unkn
 
 export type LiteralValue = StringTypes.NonEmptyString;
 
-export const applySuffix =
+export type ApplySuffix = <const Suffix extends LiteralValue, const Prefix extends LiteralValue>(
+  suffix: Suffix
+) => (prefix: Prefix) => `${Prefix}${Suffix}`;
+
+export const applySuffix: ApplySuffix =
   <const Suffix extends LiteralValue, const Prefix extends LiteralValue>(suffix: Suffix) =>
   (prefix: Prefix) =>
-    `${prefix}${suffix}` as const;
+    `${prefix}${suffix}`;
 
-export const applyPrefix =
+export type ApplyPrefix = <const Prefix extends LiteralValue, const Suffix extends LiteralValue>(
+  prefix: Prefix
+) => (suffix: Suffix) => `${Prefix}${Suffix}`;
+
+export const applyPrefix: ApplyPrefix =
   <const Prefix extends LiteralValue, const Suffix extends LiteralValue>(prefix: Prefix) =>
   (suffix: Suffix) =>
-    `${prefix}${suffix}` as const;
+    `${prefix}${suffix}`;
 
 export function mapApplyPrefix<const Prefix extends LiteralValue>(
   prefix: Prefix
@@ -235,7 +248,9 @@ export function mapApplySuffix<const Suffix extends StringTypes.NonEmptyString>(
   };
 }
 
-export const strLiteralFromNum = <T extends number>(value: T) => `${value}` as const;
+export type StrLiteralFromNum = <T extends number>(value: T) => `${T}`;
+
+export const strLiteralFromNum: StrLiteralFromNum = <T extends number>(value: T) => `${value}` as const;
 
 const irregularPlurals: Record<string, string> = {
   address: "addresses",
@@ -388,27 +403,32 @@ function preserveCase(original: string, transformed: string): string {
 /**
  * Converts table name to entity name (people -> Person, addresses -> Address)
  */
-export const mkEntityName = F.flow(Str.snakeToPascal, singularize);
+export type MkEntityName = (tableName: string) => string;
+export const mkEntityName: MkEntityName = F.flow(Str.snakeToPascal, singularize);
 
 /**
  * Converts entity name to table name (Person -> people, Address -> addresses)
  */
-export const mkTableName = F.flow(Str.pascalToSnake, pluralize);
+export type MkTableName = (entityName: string) => string;
+export const mkTableName: MkTableName = F.flow(Str.pascalToSnake, pluralize);
 
 /**
  * Converts entity name to Zero schema table name (Person -> people, PhoneNumber -> phoneNumbers)
  */
-export const mkZeroTableName = F.flow(Str.uncapitalize, pluralize);
+export type MkZeroTableName = (entityName: string) => string;
+export const mkZeroTableName: MkZeroTableName = F.flow(Str.uncapitalize, pluralize);
 
 /**
  * Converts table name to entity type for IDs (people -> person, phone_numbers -> phonenumber)
  */
-export const mkEntityType = F.flow(Str.snakeToPascal, Str.toLowerCase, singularize);
+export type MkEntityType = (tableName: string) => string;
+export const mkEntityType: MkEntityType = F.flow(Str.snakeToPascal, Str.toLowerCase, singularize);
 
 /**
  * Converts entity name to standardized URL parameter name (Person -> personId, PhoneNumber -> phoneNumberId)
  */
-export const mkUrlParamName = F.flow(Str.uncapitalize, Str.concat("Id"));
+export type MkUrlParamName = (entityName: string) => string;
+export const mkUrlParamName: MkUrlParamName = F.flow(Str.uncapitalize, Str.concat("Id"));
 
 /**
  * Formats a field name into a human-readable label using Effect-TS String utilities

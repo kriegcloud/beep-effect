@@ -1,6 +1,6 @@
+import { stringLiteralKit } from "@beep/schema/kits";
 import { RecordUtils } from "@beep/utils";
 import type * as S from "effect/Schema";
-import { stringLiteralKit } from "../kits";
 //----------------------------------------------------------------------------------------------------------------------
 // APPLICATION MIME TYPES
 //----------------------------------------------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ export class ApplicationMimeType extends ApplicationMimeTypeKit.Schema.annotatio
   static readonly Enum = ApplicationMimeTypeKit.Enum;
 }
 
-export namespace ApplicationMimeType {
+export declare namespace ApplicationMimeType {
   export type Type = S.Schema.Type<typeof ApplicationMimeType>;
   export type Encoded = S.Schema.Encoded<typeof ApplicationMimeType>;
 }
@@ -136,7 +136,7 @@ export class AudioMimeType extends AudioMimeTypeKit.Schema.annotations({
   static readonly Enum = AudioMimeTypeKit.Enum;
 }
 
-export namespace AudioMimeType {
+export declare namespace AudioMimeType {
   export type Type = S.Schema.Type<typeof AudioMimeType>;
   export type Encoded = S.Schema.Encoded<typeof AudioMimeType>;
 }
@@ -170,7 +170,7 @@ export class FontMimeType extends FontMimeTypeKit.Schema.annotations({
   static readonly Enum = FontMimeTypeKit.Enum;
 }
 
-export namespace FontMimeType {
+export declare namespace FontMimeType {
   export type Type = S.Schema.Type<typeof FontMimeType>;
   export type Encoded = S.Schema.Encoded<typeof FontMimeType>;
 }
@@ -240,7 +240,7 @@ export class ImageMimeType extends ImageMimeTypeKit.Schema.annotations({
   static readonly Enum = ImageMimeTypeKit.Enum;
 }
 
-export namespace ImageMimeType {
+export declare namespace ImageMimeType {
   export type Type = S.Schema.Type<typeof ImageMimeType>;
   export type Encoded = S.Schema.Encoded<typeof ImageMimeType>;
 }
@@ -282,7 +282,7 @@ export class TextMimeType extends TextMimeTypeKit.Schema.annotations({
   static readonly Enum = TextMimeTypeKit.Enum;
 }
 
-export namespace TextMimeType {
+export declare namespace TextMimeType {
   export type Type = S.Schema.Type<typeof TextMimeType>;
   export type Encoded = S.Schema.Encoded<typeof TextMimeType>;
 }
@@ -330,7 +330,7 @@ export class VideoMimeType extends VideoMimeTypeKit.Schema.annotations({
   static readonly Enum = VideoMimeTypeKit.Enum;
 }
 
-export namespace VideoMimeType {
+export declare namespace VideoMimeType {
   export type Type = S.Schema.Type<typeof VideoMimeType>;
   export type Encoded = S.Schema.Encoded<typeof VideoMimeType>;
 }
@@ -457,7 +457,7 @@ export class MimeType extends MimeTypeKit.Schema.annotations({
   static readonly Enum = MimeTypeKit.Enum;
 }
 
-export namespace MimeType {
+export declare namespace MimeType {
   export type Type = S.Schema.Type<typeof MimeType>;
   export type Encoded = S.Schema.Encoded<typeof MimeType>;
 }

@@ -12,7 +12,7 @@ export const HexColorEncoded = S.TemplateLiteral("#", S.String).annotations({
   },
 });
 
-export namespace HexColorEncoded {
+export declare namespace HexColorEncoded {
   export type Type = typeof HexColorEncoded.Type;
   export type Encoded = typeof HexColorEncoded.Encoded;
 }
@@ -32,7 +32,7 @@ export const HexColorDecoded = S.NonEmptyTrimmedString.pipe(
   },
 });
 
-export namespace HexColorDecoded {
+export declare namespace HexColorDecoded {
   export type Type = typeof HexColorDecoded.Type;
   export type Decoded = typeof HexColorDecoded.Encoded;
 }
@@ -58,7 +58,7 @@ export class HexColor extends S.transformOrFail(HexColorEncoded, HexColorDecoded
   static readonly make = (i: HexColorEncoded.Type) => HexColorDecoded.make(i);
 }
 
-export namespace HexColor {
+export declare namespace HexColor {
   export type Type = typeof HexColor.Type;
   export type Encoded = typeof HexColor.Encoded;
 }

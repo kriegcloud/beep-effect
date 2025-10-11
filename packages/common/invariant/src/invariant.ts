@@ -1,9 +1,9 @@
+import { InvariantViolation } from "@beep/invariant/error";
+import type { CallMetadata } from "@beep/invariant/meta";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
-import { InvariantViolation } from "./error";
-import type { CallMetadata } from "./meta";
 
 /** Dev flag (narrowed to boolean). Swap to your env detection if needed. */
 const __DEV__: boolean = typeof process !== "undefined" && !!process.env && process.env.NODE_ENV !== "production";

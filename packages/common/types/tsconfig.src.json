@@ -14,8 +14,12 @@
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
-    "incremental": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true
+    "rewriteRelativeImportExtensions": true,
+    "erasableSyntaxOnly": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "isolatedDeclarations": true,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true
   }
 }

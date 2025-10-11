@@ -2,7 +2,9 @@ import type { UnsafeTypes } from "@beep/types";
 
 const FORBIDDEN = new Set(["__proto__", "prototype", "constructor"]);
 
-export function getAt(obj: unknown, path: string | Array<string | number>, fallback?: unknown) {
+type GetAt = (obj: unknown, path: string | (string | number)[], fallback?: unknown) => UnsafeTypes.UnsafeAny;
+
+export const getAt: GetAt = (obj: unknown, path: string | Array<string | number>, fallback?: unknown) => {
   const parts = Array.isArray(path)
     ? path
     : path
@@ -17,4 +19,4 @@ export function getAt(obj: unknown, path: string | Array<string | number>, fallb
     cur = cur[key as UnsafeTypes.UnsafeAny];
   }
   return cur === undefined ? fallback : cur;
-}
+};

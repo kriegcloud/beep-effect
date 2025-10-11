@@ -9,7 +9,7 @@ export class ArrBuffer extends S.instanceOf(ArrayBuffer).annotations({
   static readonly is = S.is(this);
 }
 
-export namespace ArrBuffer {
+export declare namespace ArrBuffer {
   export type Type = S.Schema.Type<typeof ArrBuffer>;
   export type Encoded = S.Schema.Encoded<typeof ArrBuffer>;
 }

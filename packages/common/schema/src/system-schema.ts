@@ -1,7 +1,7 @@
+import { BSUiConfig, type FieldConfig } from "@beep/schema/annotations";
+import { JsonStringToArray, JsonStringToStringArray, TimestampToIsoString } from "@beep/schema/custom";
+import { CustomFieldSchema } from "@beep/schema/custom-fields-schema";
 import { Schema } from "effect";
-import { BSUiConfig, type FieldConfig } from "./annotations";
-import { JsonStringToArray, JsonStringToStringArray, TimestampToIsoString } from "./custom";
-import { CustomFieldSchema } from "./custom-fields-schema";
 
 // Base system fields as a class
 export class BaseSystemFields extends Schema.Class<BaseSystemFields>("BaseSystemFields")({

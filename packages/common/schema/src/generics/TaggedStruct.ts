@@ -1,8 +1,8 @@
+import type { DefaultAnnotations } from "@beep/schema/annotations";
+import { Struct } from "@beep/schema/extended-schemas";
 import type { StringTypes, StructTypes } from "@beep/types";
 import * as S from "effect/Schema";
-import type { DefaultAnnotations } from "../annotations";
-import { Struct } from "../extended-schemas";
-export namespace TaggedStruct {
+export declare namespace TaggedStruct {
   export type Schema<
     Tag extends StringTypes.NonEmptyString<string>,
     Fields extends StructTypes.StructFieldsWithStringKeys,

@@ -1,1 +1,1 @@
-export * from "./stringLiteralKit";
+export * from "@beep/schema/kits/stringLiteralKit";

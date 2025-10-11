@@ -18,7 +18,7 @@ export class DomainLabel extends S.Lowercase.pipe(
   arbitrary: () => (fc) => fc.constantFrom(null).map(() => faker.internet.domainWord()),
 }) {}
 
-export namespace DomainLabel {
+export declare namespace DomainLabel {
   export type Type = S.Schema.Type<typeof DomainLabel>;
   export type Encoded = S.Schema.Encoded<typeof DomainLabel>;
 }
@@ -39,7 +39,7 @@ export class TopLevelDomain extends S.Lowercase.pipe(
   arbitrary: () => (fc) => fc.constantFrom(null).map(() => faker.internet.domainSuffix()),
 }) {}
 
-export namespace TopLevelDomain {
+export declare namespace TopLevelDomain {
   export type Type = S.Schema.Type<typeof TopLevelDomain>;
   export type Encoded = S.Schema.Encoded<typeof TopLevelDomain>;
 }

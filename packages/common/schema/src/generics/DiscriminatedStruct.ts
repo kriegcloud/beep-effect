@@ -1,9 +1,9 @@
+import { Struct } from "@beep/schema/extended-schemas";
+import type { OptionalWithDefault } from "@beep/schema/types";
 import type { StructTypes, UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
-import { Struct } from "../extended-schemas";
-import type { OptionalWithDefault } from "../types";
 
-export namespace DiscriminatedStruct {
+export declare namespace DiscriminatedStruct {
   export type Schema<
     Discriminator extends string,
     Literal extends string,

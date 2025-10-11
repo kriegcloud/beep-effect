@@ -1,7 +1,7 @@
+import { stringLiteralKit } from "@beep/schema/kits";
 import * as Match from "effect/Match";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
-import { stringLiteralKit } from "../../kits";
 export const MonthStringKit = stringLiteralKit(
   "january",
   "february",
@@ -27,7 +27,7 @@ export class MonthString extends MonthStringKit.Schema.annotations({
   static readonly Options = MonthStringKit.Options;
 }
 
-export namespace MonthString {
+export declare namespace MonthString {
   export type Type = S.Schema.Type<typeof MonthString>;
   export type Encoded = S.Schema.Encoded<typeof MonthString>;
 }
@@ -59,7 +59,7 @@ export class MonthNumber extends MonthNumberKit.Schema.annotations({
   static readonly Options = MonthNumberKit.Options;
 }
 
-export namespace MonthNumber {
+export declare namespace MonthNumber {
   export type Type = S.Schema.Type<typeof MonthNumber>;
   export type Encoded = S.Schema.Encoded<typeof MonthNumber>;
 }
@@ -79,7 +79,7 @@ export class MonthInt extends S.transformOrFail(S.Int, MonthInts, {
   description: "Month of the year as an integer",
 }) {}
 
-export namespace MonthInt {
+export declare namespace MonthInt {
   export type Type = S.Schema.Type<typeof MonthInt>;
   export type Encoded = S.Schema.Encoded<typeof MonthInt>;
 }
@@ -127,7 +127,7 @@ export class MonthNumberFromMonthInt extends S.transform(MonthInt, MonthNumber, 
   description: "Month of the year as a number from a month int",
 }) {}
 
-export namespace MonthNumberFromMonthInt {
+export declare namespace MonthNumberFromMonthInt {
   export type Type = S.Schema.Type<typeof MonthNumberFromMonthInt>;
   export type Encoded = S.Schema.Encoded<typeof MonthNumberFromMonthInt>;
 }

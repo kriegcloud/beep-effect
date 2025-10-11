@@ -8,4 +8,6 @@
  * @returns `true` if the property is unsafe to modify directly, `false` otherwise
  * @internal
  */
-export const isUnsafeProperty = (key: PropertyKey) => key === "__proto__";
+export type IsUnsafeProperty = (key: PropertyKey) => boolean;
+
+export const isUnsafeProperty: IsUnsafeProperty = (key: PropertyKey) => key === "__proto__";

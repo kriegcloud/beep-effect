@@ -17,7 +17,7 @@ export const Regex = S.instanceOf(RegExp)
         .map(() => new RegExp(new RandExp(/<([a-z]\w{0,20})>foo<\1>/).gen()) as B.Branded<RegExp, "Regex">),
   });
 
-export namespace Regex {
+export declare namespace Regex {
   /** Regex value type. */
   export type Type = typeof Regex.Type;
   /** Encoded Regex value type. */
@@ -42,7 +42,7 @@ export class RegexFromString extends S.NonEmptyTrimmedString.pipe(
 }) {
   static readonly make = (value: string) => S.decodeSync(RegexFromString)(value);
 }
-export namespace RegexFromString {
+export declare namespace RegexFromString {
   /** RegexFromString value type. */
   export type Type = typeof RegexFromString.Type;
   /** Encoded RegexFromString value type. */

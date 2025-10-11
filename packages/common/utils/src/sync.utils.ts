@@ -1,4 +1,5 @@
-import * as Data from "effect/Data";
+import type * as Data from "effect/Data";
+
 export type SyncStatus = Data.TaggedEnum<{
   notSynced: {};
   syncing: {
@@ -10,7 +11,8 @@ export type SyncStatus = Data.TaggedEnum<{
     message: string;
   };
 }>;
-export const SyncStatus = Data.taggedEnum<SyncStatus>();
+
+// export const SyncStatus   = Data.taggedEnum<SyncStatus>();
 
 export type AdapterSyncItem = {
   readonly module: string;

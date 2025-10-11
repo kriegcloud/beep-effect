@@ -32,7 +32,7 @@ export class CustomURL extends S.instanceOf(URL)
     jsonSchema: { type: "string", format: "url" },
   }) {}
 
-export namespace CustomURL {
+export declare namespace CustomURL {
   /** URL string type (branded). */
   export type Type = typeof CustomURL.Type;
   export type Encoded = typeof CustomURL.Encoded;
@@ -50,7 +50,7 @@ export class URLString extends S.Trimmed.pipe(
   jsonSchema: { type: "string", format: "url" },
 }) {}
 
-export namespace URLString {
+export declare namespace URLString {
   /** URL string type (branded). */
   export type Type = typeof URLString.Type;
   export type Encoded = typeof URLString.Encoded;
@@ -70,7 +70,7 @@ export class HttpsUrl extends S.TemplateLiteral("https://", S.String)
     jsonSchema: { type: "string", format: "url" },
   }) {}
 
-export namespace HttpsUrl {
+export declare namespace HttpsUrl {
   /** URL string type (branded). */
   export type Type = typeof HttpsUrl.Type;
   export type Encoded = typeof HttpsUrl.Encoded;
@@ -90,7 +90,7 @@ export class HttpUrl extends S.TemplateLiteral("http://", S.String)
     jsonSchema: { type: "string", format: "url" },
   }) {}
 
-export namespace HttpUrl {
+export declare namespace HttpUrl {
   /** URL string type (branded). */
   export type Type = typeof HttpUrl.Type;
   export type Encoded = typeof HttpUrl.Encoded;
@@ -104,7 +104,7 @@ export class Url extends S.Union(HttpUrl, HttpsUrl).annotations({
   jsonSchema: { type: "string", format: "url" },
 }) {}
 
-export namespace Url {
+export declare namespace Url {
   /** URL string type (branded). */
   export type Type = typeof Url.Type;
   export type Encoded = typeof Url.Encoded;

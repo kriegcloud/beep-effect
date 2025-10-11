@@ -1,1 +1,1 @@
-export * from "./generics/index";
+export * from "@beep/schema/generics/index";

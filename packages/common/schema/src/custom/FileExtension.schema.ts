@@ -1,5 +1,5 @@
+import { stringLiteralKit } from "@beep/schema/kits";
 import type * as S from "effect/Schema";
-import { stringLiteralKit } from "../kits";
 //----------------------------------------------------------------------------------------------------------------------
 // APPLICATION EXTENSIONS
 //----------------------------------------------------------------------------------------------------------------------
@@ -48,7 +48,7 @@ export class ApplicationExtension extends ApplicationExtensionKit.Schema.annotat
   static readonly Enum = ApplicationExtensionKit.Enum;
 }
 
-export namespace ApplicationExtension {
+export declare namespace ApplicationExtension {
   export type Type = S.Schema.Type<typeof ApplicationExtension>;
   export type Encoded = S.Schema.Encoded<typeof ApplicationExtension>;
 }
@@ -81,7 +81,7 @@ export class AudioExtension extends AudioExtensionKit.Schema.annotations({
   static readonly Enum = AudioExtensionKit.Enum;
 }
 
-export namespace AudioExtension {
+export declare namespace AudioExtension {
   export type Type = S.Schema.Type<typeof AudioExtension>;
   export type Encoded = S.Schema.Encoded<typeof AudioExtension>;
 }
@@ -101,7 +101,7 @@ export class FontExtension extends FontExtensionKit.Schema.annotations({
   static readonly Enum = FontExtensionKit.Enum;
 }
 
-export namespace FontExtension {
+export declare namespace FontExtension {
   export type Type = S.Schema.Type<typeof FontExtension>;
   export type Encoded = S.Schema.Encoded<typeof FontExtension>;
 }
@@ -145,7 +145,7 @@ export class ImageExtension extends ImageExtensionKit.Schema.annotations({
   static readonly Enum = ImageExtensionKit.Enum;
 }
 
-export namespace ImageExtension {
+export declare namespace ImageExtension {
   export type Type = S.Schema.Type<typeof ImageExtension>;
   export type Encoded = S.Schema.Encoded<typeof ImageExtension>;
 }
@@ -165,7 +165,7 @@ export class TextExtension extends TextExtensionKit.Schema.annotations({
   static readonly Enum = TextExtensionKit.Enum;
 }
 
-export namespace TextExtension {
+export declare namespace TextExtension {
   export type Type = S.Schema.Type<typeof TextExtension>;
   export type Encoded = S.Schema.Encoded<typeof TextExtension>;
 }
@@ -198,7 +198,7 @@ export class VideoExtension extends VideoExtensionKit.Schema.annotations({
   static readonly Enum = VideoExtensionKit.Enum;
 }
 
-export namespace VideoExtension {
+export declare namespace VideoExtension {
   export type Type = S.Schema.Type<typeof VideoExtension>;
   export type Encoded = S.Schema.Encoded<typeof VideoExtension>;
 }
@@ -223,7 +223,7 @@ export class FileExtension extends FileExtensionKit.Schema.annotations({
   description: "All file extensions",
 }) {}
 
-export namespace FileExtension {
+export declare namespace FileExtension {
   export type Type = S.Schema.Type<typeof FileExtension>;
   export type Encoded = S.Schema.Encoded<typeof FileExtension>;
 }

@@ -181,7 +181,7 @@ export const TaggedDurationInputUnion = S.Union(
   )
 );
 
-export namespace TaggedDurationInputUnion {
+export declare namespace TaggedDurationInputUnion {
   export type Type = typeof TaggedDurationInputUnion.Type;
   export type Encoded = typeof TaggedDurationInputUnion.Encoded;
 }

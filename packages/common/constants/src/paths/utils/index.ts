@@ -1,2 +1,2 @@
-export * from "./path-builder";
-export * from "./public-paths-to-record";
+export * from "@beep/constants/paths/utils/path-builder";
+export * from "@beep/constants/paths/utils/public-paths-to-record";

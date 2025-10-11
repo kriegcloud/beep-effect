@@ -1,5 +1,7 @@
 import { TaggedClass } from "@beep/schema/custom/Class.schema";
 import { HexColor } from "@beep/schema/custom/Hex.schema";
+import { IntFromStr } from "@beep/schema/custom/Transformations.schema";
+import { destructiveTransform } from "@beep/schema/extended-schemas";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as Num from "effect/Number";
@@ -9,8 +11,6 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Tuple from "effect/Tuple";
-import { destructiveTransform } from "../extended-schemas";
-import { IntFromStr } from "./Transformations.schema";
 
 export class RGBNumberPart extends S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(255)).annotations({
   schemaId: Symbol.for("@beep/schema/RGBNumberPart"),
@@ -32,7 +32,7 @@ export class TaggedRGBNumberPart extends TaggedClass<TaggedRGBNumberPart>("Tagge
   }
 ) {}
 
-export namespace TaggedRGBNumberPart {
+export declare namespace TaggedRGBNumberPart {
   export type Type = typeof TaggedRGBNumberPart.Type;
   export type Encoded = typeof TaggedRGBNumberPart.Encoded;
 }
@@ -69,7 +69,7 @@ export class TaggedRGBPercentPart extends TaggedClass<TaggedRGBPercentPart>("Tag
   }
 ) {}
 
-export namespace TaggedRGBPercentPart {
+export declare namespace TaggedRGBPercentPart {
   export type Type = typeof TaggedRGBPercentPart.Type;
   export type Encoded = typeof TaggedRGBPercentPart.Encoded;
 }
@@ -99,24 +99,24 @@ export class DiscriminatedRGBPart extends S.Union(
   description: "Discriminated RGB Part",
 }) {}
 
-export namespace RGBPart {
+export declare namespace RGBPart {
   export type Type = typeof RGBPart.Type;
   export type Encoded = typeof RGBPart.Encoded;
 }
 
-export namespace RGBPercentPart {
+export declare namespace RGBPercentPart {
   export type Type = typeof RGBPercentPart.Type;
   export type Encoded = typeof RGBPercentPart.Encoded;
 }
 
-export namespace RGBNumberPart {
+export declare namespace RGBNumberPart {
   export type Type = typeof RGBNumberPart.Type;
   export type Encoded = typeof RGBNumberPart.Encoded;
 }
 
 export const RGBLiteralValueEncoded = S.TemplateLiteral(S.Number, " ", S.Number, " ", S.Number);
 
-export namespace RGBLiteralValueEncoded {
+export declare namespace RGBLiteralValueEncoded {
   export type Type = typeof RGBLiteralValueEncoded.Type;
   export type Encoded = typeof RGBLiteralValueEncoded.Encoded;
 }
@@ -132,7 +132,7 @@ export class RGBValuesTuple extends S.Tuple(RGBPart, RGBPart, RGBPart).annotatio
   description: "RGB Values Tuple",
 }) {}
 
-export namespace RGBValuesTuple {
+export declare namespace RGBValuesTuple {
   export type Type = typeof RGBValuesTuple.Type;
   export type Encoded = typeof RGBValuesTuple.Encoded;
 }
@@ -188,7 +188,7 @@ export class RGBLiteralValue extends S.declare(isRGBLiteralValue)
     `rgb(${i})` as const;
 }
 
-export namespace RGBLiteralValue {
+export declare namespace RGBLiteralValue {
   export type Type = typeof RGBLiteralValue.Type;
   export type Encoded = typeof RGBLiteralValue.Encoded;
 }
@@ -208,7 +208,7 @@ export class RGBLiteralValueFromString extends S.transformOrFail(S.NonEmptyTrimm
   description: "RGB Literal Value From String",
 }) {}
 
-export namespace RGBLiteralValueFromString {
+export declare namespace RGBLiteralValueFromString {
   export type Type = typeof RGBLiteralValueFromString.Type;
   export type Encoded = typeof RGBLiteralValueFromString.Encoded;
 }
@@ -232,7 +232,7 @@ export class RGBLiteralValueFromTuple extends S.transformOrFail(RGBValuesTuple, 
   description: "RGB Literal Value From Tuple",
 }) {}
 
-export namespace RGBLiteralValueFromTuple {
+export declare namespace RGBLiteralValueFromTuple {
   export type Type = typeof RGBLiteralValueFromTuple.Type;
   export type Encoded = typeof RGBLiteralValueFromTuple.Encoded;
 }
@@ -245,7 +245,7 @@ export const RGBFromHex = destructiveTransform((i: HexColor.Type) => {
   return S.decodeUnknownSync(RGBLiteralValue)(`${r} ${g} ${b}`);
 })(HexColor);
 
-export namespace RGBFromHex {
+export declare namespace RGBFromHex {
   export type Type = typeof RGBFromHex.Type;
   export type Encoded = typeof RGBFromHex.Encoded;
 }

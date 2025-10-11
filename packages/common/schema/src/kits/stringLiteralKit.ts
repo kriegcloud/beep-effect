@@ -78,8 +78,9 @@ export const randomSelection = <Literal extends StringTypes.NonEmptyString>(
   F.pipe(
     Random.nextIntBetween(0, A.length(options)),
     Effect.flatMap((idx) => A.get(idx)(options)),
-    Effect.catchTag("NoSuchElementException", () => Effect.dieMessage("randomSelection: options are empty"))
-  ).pipe(Effect.runSync);
+    Effect.catchTag("NoSuchElementException", () => Effect.dieMessage("randomSelection: options are empty")),
+    Effect.runSync
+  );
 
 /**
  * @since 0.1.0

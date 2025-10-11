@@ -43,7 +43,7 @@ export class Phone extends S.Redacted(UnsafePhone) {
   static readonly make = F.flow((i: string) => UnsafePhone.make(i), Redacted.make);
 }
 
-export namespace Phone {
+export declare namespace Phone {
   export type Type = typeof Phone.Type;
   export type Encoded = typeof Phone.Encoded;
 }

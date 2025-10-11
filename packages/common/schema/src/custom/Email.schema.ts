@@ -1,8 +1,8 @@
+import * as regexes from "@beep/schema/regexes";
 import type * as B from "effect/Brand";
 import * as F from "effect/Function";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-import * as regexes from "../regexes";
 
 /**
  * RFC-5322–ish pragmatic validator for "local@domain.tld".
@@ -25,7 +25,7 @@ export const EmailBase = EmailEncoded.pipe(S.brand("Email")).annotations({
   identifier: "Email",
 });
 
-export namespace EmailBase {
+export declare namespace EmailBase {
   export type Type = S.Schema.Type<typeof EmailBase>;
   export type Encoded = S.Schema.Encoded<typeof EmailBase>;
 }
@@ -49,7 +49,7 @@ export class Email extends S.Redacted(EmailBase) {
   static readonly value = (email: Redacted.Redacted<B.Branded<string, "Email">>) => Redacted.value(email);
 }
 
-export namespace Email {
+export declare namespace Email {
   /** Email value type (redacted, branded). */
   export type Type = typeof Email.Type;
   /** Email encoded type */

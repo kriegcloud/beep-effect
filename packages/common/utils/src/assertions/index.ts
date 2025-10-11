@@ -1,1 +1,1 @@
-export * from "./common";
+export * from "@beep/utils/assertions/common";

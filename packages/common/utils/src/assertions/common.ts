@@ -3,11 +3,19 @@ import * as S from "effect/Schema";
 
 export type AssertsFn<T> = (u: unknown) => asserts u is T;
 
-export const makeAssertsFn = <const A, const I, const R>(
+export type MakeAssertsFn = <const A, const I, const R>(
+  schema: S.Schema<A, I, R>
+) => AssertsFn<S.Schema.Type<S.Schema<A, I, R>>>;
+
+export const makeAssertsFn: MakeAssertsFn = <const A, const I, const R>(
   schema: S.Schema<A, I, R>
 ): AssertsFn<S.Schema.Type<S.Schema<A, I, R>>> => S.asserts(schema);
 
-export const makeAssertsReturn = F.dual<
+export type MakeAssertsReturn = <const A, const I, const R>(
+  schema: S.Schema<A, I, R>
+) => (input: unknown) => S.Schema.Type<S.Schema<A, I, R>>;
+
+export const makeAssertsReturn: MakeAssertsReturn = F.dual<
   <const A, const I, const R>(schema: S.Schema<A, I, R>) => (input: unknown) => S.Schema.Type<S.Schema<A, I, R>>,
   <const A, const I, const R>(input: unknown, schema: S.Schema<A, I, R>) => S.Schema.Type<S.Schema<A, I, R>>
 >(2, <const A, const I, const R>(input: unknown, schema: S.Schema<A, I, R>): S.Schema.Type<S.Schema<A, I, R>> => {

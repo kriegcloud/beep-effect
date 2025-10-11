@@ -1,1 +1,1 @@
-export * from "./transformations/index";
+export * from "@beep/utils/transformations/index";

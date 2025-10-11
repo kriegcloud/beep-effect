@@ -1,8 +1,8 @@
+import type { DefaultAnnotations } from "@beep/schema/annotations";
 import type { StringTypes } from "@beep/types";
 import type * as A from "effect/Array";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
-import type { DefaultAnnotations } from "../annotations";
 
 export function LiteralDefaults<const Literals extends A.NonEmptyReadonlyArray<AST.LiteralValue>>(
   ...literals: Literals
@@ -22,7 +22,7 @@ export function LiteralDefaults<const Literals extends A.NonEmptyReadonlyArray<A
   };
 }
 
-export namespace LiteralDefaults {
+export declare namespace LiteralDefaults {
   export type Type<Literals extends A.NonEmptyReadonlyArray<AST.LiteralValue>> = S.Schema.Type<
     ReturnType<typeof LiteralDefaults<Literals>>
   >;
@@ -47,7 +47,7 @@ export const LiteralWithDefault = <const Literal extends StringTypes.NonEmptyStr
     )
     .annotations(annotations ?? {});
 
-export namespace LiteralWithDefault {
+export declare namespace LiteralWithDefault {
   export type Schema<Literal extends string> = S.PropertySignature<
     ":",
     Exclude<Literal, undefined>,

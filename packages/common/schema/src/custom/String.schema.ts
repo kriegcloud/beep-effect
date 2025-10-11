@@ -37,7 +37,7 @@ export class SnakeTag extends S.NonEmptyString.pipe(
   static readonly is = S.is(this);
 }
 
-export namespace SnakeTag {
+export declare namespace SnakeTag {
   export type Literal<T extends string> = TagTypes.SnakeTag<T>;
   export type Type = S.Schema.Type<typeof SnakeTag>;
   export type Encoded = S.Schema.Encoded<typeof SnakeTag>;
@@ -56,7 +56,7 @@ export const StringWithDefault = (defaultValue: string): StringPropertyOmittable
     )
   );
 
-export namespace StringWithDefault {
+export declare namespace StringWithDefault {
   export type Type = S.Schema.Type<ReturnType<typeof StringWithDefault>>;
   export type Encoded = S.Schema.Encoded<ReturnType<typeof StringWithDefault>>;
 }

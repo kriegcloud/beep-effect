@@ -1,1 +1,1 @@
-export * as BS from "./schema";
+export * as BS from "@beep/schema/schema";

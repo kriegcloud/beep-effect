@@ -39,7 +39,7 @@ export const AllAcceptableDateInputs = S.Union(
 ).annotations({
   schemaId: AllAcceptableDateInputsSchemaId,
 });
-export namespace AllAcceptableDateInputs {
+export declare namespace AllAcceptableDateInputs {
   export type Type = typeof AllAcceptableDateInputs.Type;
   export type Encoded = typeof AllAcceptableDateInputs.Encoded;
 }
@@ -59,7 +59,7 @@ export const DateFromAllAcceptable = S.transformOrFail(AllAcceptableDateInputs, 
   },
 });
 
-export namespace DateFromAllAcceptable {
+export declare namespace DateFromAllAcceptable {
   export type Type = typeof DateFromAllAcceptable.Type;
   export type Encoded = typeof DateFromAllAcceptable.Encoded;
 }
@@ -90,7 +90,7 @@ export const DateTimeUtcFromAllAcceptable = S.transformOrFail(
   },
 });
 
-export namespace DateTimeUtcFromAllAcceptable {
+export declare namespace DateTimeUtcFromAllAcceptable {
   export type Type = typeof DateTimeUtcFromAllAcceptable.Type;
   export type Encoded = typeof DateTimeUtcFromAllAcceptable.Encoded;
 }

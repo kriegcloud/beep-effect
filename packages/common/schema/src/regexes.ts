@@ -1,4 +1,4 @@
-import { Regex } from "./custom/Regex.schema";
+import { Regex } from "@beep/schema/custom/Regex.schema";
 
 export const cuid = Regex.make(/^[cC][^\s-]{8,}$/);
 

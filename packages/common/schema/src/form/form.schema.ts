@@ -1,5 +1,5 @@
+import { FormFieldSchema } from "@beep/schema/form/field.schema";
 import * as S from "effect/Schema";
-import { FormFieldSchema } from "./field.schema";
 /**
  * A schema for validating JSON Schema objects using AJV.
  * Validates that an object conforms to the JSON Schema specification.

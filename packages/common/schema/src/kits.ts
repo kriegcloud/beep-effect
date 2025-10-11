@@ -1,1 +1,1 @@
-export * from "./kits/index";
+export * from "@beep/schema/kits/index";

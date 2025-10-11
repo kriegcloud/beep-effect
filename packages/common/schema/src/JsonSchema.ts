@@ -866,7 +866,7 @@ export class ObjectSchema extends Struct({
   type: LiteralDefaults("array")("array"),
 }) {}
 
-export namespace ObjectSchema {
+export declare namespace ObjectSchema {
   export interface Type extends JsonSchema.Type {
     type: "object";
   }
@@ -881,7 +881,7 @@ export class ArraySchema extends Struct({
   type: LiteralDefaults("array")("array"),
 }) {}
 
-export namespace ArraySchema {
+export declare namespace ArraySchema {
   export interface Type extends JsonSchema.Type {
     type: "array";
   }
@@ -896,7 +896,7 @@ export class StringSchema extends Struct({
   type: LiteralDefaults("string")("string"),
 }) {}
 
-export namespace StringSchema {
+export declare namespace StringSchema {
   export interface Type extends JsonSchema.Type {
     type: "string";
   }
@@ -911,7 +911,7 @@ export class NumberSchema extends Struct({
   type: LiteralDefaults("number")("number"),
 }) {}
 
-export namespace NumberSchema {
+export declare namespace NumberSchema {
   export interface Type extends JsonSchema.Type {
     type: "number";
   }
@@ -926,7 +926,7 @@ export class IntegerSchema extends Struct({
   type: LiteralDefaults("integer")("integer"),
 }) {}
 
-export namespace IntegerSchema {
+export declare namespace IntegerSchema {
   export interface Type extends JsonSchema.Type {
     type: "integer";
   }
@@ -941,7 +941,7 @@ export class BooleanSchema extends Struct({
   type: LiteralDefaults("boolean")("boolean"),
 }) {}
 
-export namespace BooleanSchema {
+export declare namespace BooleanSchema {
   export interface Type extends JsonSchema.Type {
     type: "boolean";
   }
@@ -956,7 +956,7 @@ export class NullSchema extends Struct({
   type: LiteralDefaults("null")("null"),
 }) {}
 
-export namespace NullSchema {
+export declare namespace NullSchema {
   export interface Type extends JsonSchema.Type {
     type: "null";
   }

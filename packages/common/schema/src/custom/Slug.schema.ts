@@ -21,7 +21,7 @@ export const SlugBase = S.String.pipe(
   arbitrary: () => (fc) => fc.constant(null).map(() => faker.lorem.slug()),
 });
 
-export namespace SlugBase {
+export declare namespace SlugBase {
   export type Type = S.Schema.Type<typeof SlugBase>;
   export type Encoded = S.Schema.Encoded<typeof SlugBase>;
 }
@@ -50,7 +50,7 @@ export const Slug = SlugBase.pipe(S.brand("Slug")).annotations({
   examples: A.map(A.make("hello-world", "hello-world-2", "hello-world-3"), (a) => a as B.Branded<string, "Slug">),
   arbitrary: () => (fc) => fc.constant(null).map(() => faker.lorem.slug() as B.Branded<string, "Slug">),
 });
-export namespace Slug {
+export declare namespace Slug {
   /** Slug value type. */
   export type Type = typeof Slug.Type;
   export type Encoded = typeof Slug.Encoded;
