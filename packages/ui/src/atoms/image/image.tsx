@@ -1,6 +1,6 @@
 "use client";
 
-import { mergeClasses, mergeRefs } from "@beep/ui/utils";
+import { mergeClasses, mergeRefs } from "@beep/ui-core/utils";
 import type { Breakpoint } from "@mui/material/styles";
 import type { UseInViewOptions } from "framer-motion";
 import { useInView } from "framer-motion";

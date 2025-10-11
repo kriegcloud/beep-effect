@@ -1,5 +1,6 @@
+import * as Effect from "effect/Effect";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-
 /**
  * Error indicating an expected file path does not exist.
  *
@@ -23,7 +24,30 @@ export class NoSuchFileError extends S.TaggedError<NoSuchFileError>("NoSuchFileE
 export class DomainError extends S.TaggedError<DomainError>("DomainError")("DomainError", {
   message: S.String,
   cause: S.optional(S.Unknown),
-}) {}
+}) {
+  static readonly is = S.is(DomainError);
+
+  static readonly selfOrMap = (e: unknown) => {
+    if (DomainError.is(e)) {
+      return e;
+    }
+
+    if (e instanceof Error) {
+      return new DomainError({
+        message: e.message,
+        cause: e,
+      });
+    }
+
+    return new DomainError({
+      cause: e,
+      message:
+        P.or(P.isObject, P.isRecord)(e) && P.hasProperty("message")(e) && P.isString(e.message) ? e.message : String(e),
+    });
+  };
+
+  static readonly mapError = Effect.mapError(DomainError.selfOrMap);
+}
 
 /**
  * Error raised when a package.json that is required cannot be located.

@@ -5,7 +5,7 @@ import { Iconify } from "@beep/ui/atoms";
 import { usePopover } from "@beep/ui/hooks";
 import { Scrollbar } from "@beep/ui/molecules";
 import { CustomPopover } from "@beep/ui/organisms";
-import { fToNow } from "@beep/ui/utils/format-time";
+import { fToNow } from "@beep/ui-core/utils/format-time";
 import Avatar from "@mui/material/Avatar";
 import type { BadgeProps } from "@mui/material/Badge";
 import Badge from "@mui/material/Badge";

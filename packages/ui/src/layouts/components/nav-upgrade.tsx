@@ -1,7 +1,7 @@
 import { assetPaths } from "@beep/constants";
 import { Label } from "@beep/ui/atoms";
 import { useAuthAdapterProvider } from "@beep/ui/providers";
-import { rgbaFromChannel } from "@beep/ui/utils";
+import { rgbaFromChannel } from "@beep/ui-core/utils";
 import Avatar from "@mui/material/Avatar";
 import type { BoxProps } from "@mui/material/Box";
 import Box from "@mui/material/Box";

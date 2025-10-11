@@ -1,7 +1,7 @@
 import { assetPaths } from "@beep/constants";
 import { transitionTap, varHover, varTap } from "@beep/ui/animate";
 import { RouterLink } from "@beep/ui/routing";
-import { rgbaFromChannel } from "@beep/ui/utils";
+import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { BoxProps } from "@mui/material/Box";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";

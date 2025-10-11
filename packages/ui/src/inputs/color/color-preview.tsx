@@ -1,4 +1,4 @@
-import { mergeClasses, rgbaFromChannel } from "@beep/ui/utils";
+import { mergeClasses, rgbaFromChannel } from "@beep/ui-core/utils";
 import { styled } from "@mui/material/styles";
 
 import type React from "react";

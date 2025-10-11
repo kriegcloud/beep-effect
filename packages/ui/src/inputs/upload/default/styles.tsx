@@ -1,4 +1,4 @@
-import { rgbaFromChannel } from "@beep/ui/utils";
+import { rgbaFromChannel } from "@beep/ui-core/utils";
 import IconButton from "@mui/material/IconButton";
 import { styled } from "@mui/material/styles";
 

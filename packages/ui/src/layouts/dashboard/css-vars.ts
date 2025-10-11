@@ -1,7 +1,7 @@
 import { bulletColor } from "@beep/ui/routing";
 import type { SettingsState } from "@beep/ui/settings";
 
-import { rgbaFromChannel } from "@beep/ui/utils";
+import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { CSSObject, Theme } from "@mui/material/styles";
 
 export function dashboardLayoutVars(theme: Theme) {

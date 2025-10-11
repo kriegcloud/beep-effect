@@ -33,6 +33,9 @@
     },
     {
       "path": "../shared/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../ui-core/tsconfig.build.json"
     }
   ],
   "include": ["src"]

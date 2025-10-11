@@ -9,6 +9,9 @@
       "path": "../../ui"
     },
     {
+      "path": "../../ui-core"
+    },
+    {
       "path": "../../shared/domain"
     },
     {

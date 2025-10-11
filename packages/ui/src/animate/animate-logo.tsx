@@ -1,6 +1,6 @@
 import type { LogoProps } from "@beep/ui/branding";
 import { Logo } from "@beep/ui/branding";
-import { rgbaFromChannel } from "@beep/ui/utils";
+import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
 import { m } from "framer-motion";

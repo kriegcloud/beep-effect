@@ -8,9 +8,15 @@
     }
   ],
   "compilerOptions": {
-    "types": ["node", "bun"],
+    "types": ["bun", "node"],
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
-    "rootDir": "src"
+    "rootDir": "src",
+    "module": "ESNext",
+    "isolatedModules": false,
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true
   }
 }

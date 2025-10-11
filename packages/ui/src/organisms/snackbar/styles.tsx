@@ -1,4 +1,4 @@
-import { rgbaFromChannel } from "@beep/ui/utils";
+import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { CSSObject, Theme } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
 import { Toaster } from "sonner";

@@ -42,7 +42,9 @@
     "@effect/workflow": "catalog:",
     "@beep/invariant": "workspace:^",
     "uuid": "catalog:",
-    "typeid-js": "catalog:"
+    "typeid-js": "catalog:",
+    "i18n-iso-countries": "catalog:",
+    "cldr-localenames-full": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
@@ -52,6 +54,8 @@
     "@effect/cluster": "catalog:",
     "es-toolkit": "catalog:",
     "@effect/workflow": "catalog:",
+    "i18n-iso-countries": "catalog:",
+    "cldr-localenames-full": "catalog:",
     "@beep/invariant": "workspace:^",
     "uuid": "catalog:",
     "typeid-js": "catalog:",

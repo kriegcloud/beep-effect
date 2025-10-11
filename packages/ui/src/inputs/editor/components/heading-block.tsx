@@ -1,5 +1,5 @@
 import { Iconify } from "@beep/ui/atoms";
-import { rgbaFromChannel } from "@beep/ui/utils";
+import { rgbaFromChannel } from "@beep/ui-core/utils";
 import ButtonBase, { buttonBaseClasses } from "@mui/material/ButtonBase";
 import { listClasses } from "@mui/material/List";
 

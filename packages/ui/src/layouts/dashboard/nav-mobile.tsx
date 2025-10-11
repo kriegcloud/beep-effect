@@ -3,7 +3,7 @@ import { usePathname } from "@beep/ui/hooks";
 import { Scrollbar } from "@beep/ui/molecules";
 import type { NavSectionProps } from "@beep/ui/routing";
 import { NavSectionVertical } from "@beep/ui/routing";
-import { mergeClasses } from "@beep/ui/utils";
+import { mergeClasses } from "@beep/ui-core/utils";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import { useEffect } from "react";

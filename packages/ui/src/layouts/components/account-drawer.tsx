@@ -7,7 +7,7 @@ import { useBoolean, usePathname } from "@beep/ui/hooks";
 import { Scrollbar } from "@beep/ui/molecules";
 import { useAuthAdapterProvider } from "@beep/ui/providers";
 import { RouterLink } from "@beep/ui/routing";
-import { rgbaFromChannel } from "@beep/ui/utils";
+import { rgbaFromChannel } from "@beep/ui-core/utils";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";

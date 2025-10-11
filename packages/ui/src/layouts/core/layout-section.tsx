@@ -1,6 +1,6 @@
 "use client";
 
-import { mergeClasses } from "@beep/ui/utils";
+import { mergeClasses } from "@beep/ui-core/utils";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import type { CSSObject, SxProps, Theme } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";

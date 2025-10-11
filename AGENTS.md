@@ -141,6 +141,7 @@ namespace imports.
 - `effect/Schema` as `import * as S from "effect/Schema";`
 - `effect/SchemaAST` as `import * as AST from "effect/SchemaAST"`
 - `effect/Brand` as `import * as B from "effect/Brand";`
+- **Uppercase constructors** Always prefer the PascalCase constructor exports provided by Effect modules (for example `S.Struct`, `S.Array`, `S.String`). Do not use legacy lowercase aliases such as `S.struct` or `S.array`.
 
 ### Effect Array Utilities - NEVER USE NATIVE ARRAY METHODS
 

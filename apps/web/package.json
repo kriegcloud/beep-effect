@@ -47,6 +47,7 @@
     "@beep/shared-domain": "workspace:^",
     "@beep/shared-tables": "workspace:^",
     "@beep/ui": "workspace:^",
+    "@beep/ui-core": "workspace:^",
     "@beep/utils": "workspace:^",
     "@better-auth/stripe": "catalog:",
     "@better-auth/utils": "catalog:",

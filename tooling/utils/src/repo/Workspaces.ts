@@ -2,6 +2,7 @@ import { FsUtils } from "@beep/tooling-utils/FsUtils";
 import { DomainError } from "@beep/tooling-utils/repo/Errors";
 import { findRepoRoot } from "@beep/tooling-utils/repo/Root";
 import { PackageJson, RootPackageJson } from "@beep/tooling-utils/schemas";
+import type * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -21,7 +22,11 @@ const IGNORE = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.turbo/**
  *   build/artifact directories
  * - Returns a HashMap of package name -> absolute directory
  */
-export const resolveWorkspaceDirs = Effect.gen(function* () {
+export const resolveWorkspaceDirs: Effect.Effect<
+  HashMap.HashMap<string, string>,
+  DomainError,
+  Path.Path | FsUtils | FileSystem.FileSystem
+> = Effect.gen(function* () {
   const path_ = yield* Path.Path;
   const utils = yield* FsUtils;
   const rootPath = yield* findRepoRoot;
@@ -52,7 +57,7 @@ export const resolveWorkspaceDirs = Effect.gen(function* () {
   }
 
   return map;
-});
+}).pipe(Effect.mapError(DomainError.selfOrMap));
 
 /**
  * Resolve a workspace's absolute directory by its package name.
@@ -60,7 +65,10 @@ export const resolveWorkspaceDirs = Effect.gen(function* () {
  * @param workspace Full workspace package name (e.g. "@beep/foo")
  * @throws DomainError when the workspace cannot be found
  */
-export const getWorkspaceDir = Effect.fn("getWorkspaceDir")(function* (workspace: string) {
+export type GetWorkSpaceDir = (
+  workspace: string
+) => Effect.Effect<string, DomainError, Path.Path | FileSystem.FileSystem | FsUtils>;
+export const getWorkspaceDir: GetWorkSpaceDir = Effect.fn("getWorkspaceDir")(function* (workspace: string) {
   const map = yield* resolveWorkspaceDirs;
   return yield* F.pipe(
     HashMap.get(map, workspace),

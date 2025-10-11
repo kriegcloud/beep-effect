@@ -1,5 +1,5 @@
 "use client";
-import { createCtx } from "@beep/ui/utils";
+import { createCtx } from "@beep/ui-core/utils";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";

@@ -1,5 +1,5 @@
 import type { SettingsState } from "@beep/ui/settings";
-import { createPaletteChannel, hexToRgbChannel, setFont } from "@beep/ui/utils";
+import { createPaletteChannel, hexToRgbChannel, setFont } from "@beep/ui-core/utils";
 import type { ColorSystem, ColorSystemOptions, Shadows } from "@mui/material/styles";
 import * as P from "effect/Predicate";
 import { type CustomShadows, createShadowColor } from "../core/custom-shadows";

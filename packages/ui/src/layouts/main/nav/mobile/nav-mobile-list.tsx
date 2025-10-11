@@ -1,7 +1,7 @@
 import { assetPaths } from "@beep/constants";
 import { useBoolean, usePathname } from "@beep/ui/hooks";
 import { NavSectionVertical, navSectionClasses } from "@beep/ui/routing";
-import { isActiveLink, isExternalLink, rgbaFromChannel } from "@beep/ui/utils";
+import { isActiveLink, isExternalLink, rgbaFromChannel } from "@beep/ui-core/utils";
 import Collapse from "@mui/material/Collapse";
 import { useCallback, useRef } from "react";
 import { NavLi } from "../components";

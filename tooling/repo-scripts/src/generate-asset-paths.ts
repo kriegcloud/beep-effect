@@ -50,7 +50,7 @@ const program = Effect.gen(function* () {
 
   const constantsDir = yield* getWorkspaceDir("@beep/constants");
 
-  const assetPathsFile = path.join(constantsDir, "src", "paths", "generated", "asset-paths.ts");
+  const assetPathsFile = path.join(constantsDir, "src", "_generated", "asset-paths.ts");
 
   if (!(yield* fs.exists(assetPathsFile))) {
     return yield* new DomainError({

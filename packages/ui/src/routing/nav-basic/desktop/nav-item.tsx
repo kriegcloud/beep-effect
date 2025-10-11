@@ -1,5 +1,5 @@
 import { Iconify } from "@beep/ui/atoms";
-import { mergeClasses } from "@beep/ui/utils";
+import { mergeClasses } from "@beep/ui-core/utils";
 import ButtonBase from "@mui/material/ButtonBase";
 import type { CSSObject } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";

@@ -2,7 +2,7 @@ import { Iconify } from "@beep/ui/atoms";
 import { usePathname, useRouter } from "@beep/ui/hooks";
 import { SearchNotFound } from "@beep/ui/messages/search-not-found";
 import { RouterLink } from "@beep/ui/routing";
-import { isEqualPath } from "@beep/ui/utils";
+import { isEqualPath } from "@beep/ui-core/utils";
 
 import Autocomplete, { autocompleteClasses } from "@mui/material/Autocomplete";
 import InputAdornment from "@mui/material/InputAdornment";

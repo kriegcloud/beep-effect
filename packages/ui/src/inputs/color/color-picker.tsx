@@ -1,5 +1,5 @@
 import { Iconify } from "@beep/ui/atoms";
-import { mergeClasses, rgbaFromChannel } from "@beep/ui/utils";
+import { mergeClasses, rgbaFromChannel } from "@beep/ui-core/utils";
 import ButtonBase from "@mui/material/ButtonBase";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { alpha as hexAlpha, styled } from "@mui/material/styles";

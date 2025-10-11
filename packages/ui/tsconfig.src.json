@@ -20,6 +20,9 @@
     },
     {
       "path": "../shared/domain"
+    },
+    {
+      "path": "../ui-core"
     }
   ],
   "compilerOptions": {

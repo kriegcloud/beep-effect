@@ -1,5 +1,5 @@
 import { useBoolean, usePathname } from "@beep/ui/hooks";
-import { isActiveLink, isEqualPath, isExternalLink } from "@beep/ui/utils";
+import { isActiveLink, isEqualPath, isExternalLink } from "@beep/ui-core/utils";
 import { useCallback, useEffect, useRef } from "react";
 import { Nav, NavDropdown, NavLi, NavUl } from "../components";
 import type { NavListProps, NavSubListProps } from "../types";

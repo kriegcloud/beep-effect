@@ -1,6 +1,6 @@
 "use client";
 
-import { mergeClasses, rgbaFromChannel } from "@beep/ui/utils";
+import { mergeClasses, rgbaFromChannel } from "@beep/ui-core/utils";
 import { styled } from "@mui/material/styles";
 import { carouselClasses } from "../classes";
 import type { CarouselProgressBarProps } from "../types";

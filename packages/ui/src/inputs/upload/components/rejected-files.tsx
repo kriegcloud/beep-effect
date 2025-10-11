@@ -1,6 +1,6 @@
 import { getFileMeta } from "@beep/ui/atoms";
 
-import { fData, mergeClasses, rgbaFromChannel } from "@beep/ui/utils";
+import { fData, mergeClasses, rgbaFromChannel } from "@beep/ui-core/utils";
 
 import { styled } from "@mui/material/styles";
 import type { FileRejection } from "react-dropzone";

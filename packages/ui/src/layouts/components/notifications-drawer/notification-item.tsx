@@ -1,5 +1,5 @@
 import { FileThumbnail, Label } from "@beep/ui/atoms";
-import { fToNow } from "@beep/ui/utils/format-time";
+import { fToNow } from "@beep/ui-core/utils/format-time";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";

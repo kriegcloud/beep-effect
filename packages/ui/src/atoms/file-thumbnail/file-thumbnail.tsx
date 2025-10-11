@@ -1,6 +1,6 @@
 "use client";
 
-import { mergeClasses } from "@beep/ui/utils";
+import { mergeClasses } from "@beep/ui-core/utils";
 import Tooltip from "@mui/material/Tooltip";
 import { Iconify } from "../iconify";
 import { fileThumbnailClasses } from "./classes";

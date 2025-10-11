@@ -1,7 +1,7 @@
 import type { FileThumbnailProps } from "@beep/ui/atoms";
 import { FileThumbnail, getFileMeta, Iconify, useFilesPreview } from "@beep/ui/atoms";
 
-import { fData, mergeClasses, rgbaFromChannel } from "@beep/ui/utils";
+import { fData, mergeClasses, rgbaFromChannel } from "@beep/ui-core/utils";
 import IconButton from "@mui/material/IconButton";
 import ListItemText from "@mui/material/ListItemText";
 import { styled } from "@mui/material/styles";

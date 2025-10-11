@@ -1,7 +1,7 @@
 import type { NavSectionProps } from "@beep/ui/routing";
 import { NavSectionHorizontal } from "@beep/ui/routing";
 
-import { mergeClasses, rgbaFromChannel } from "@beep/ui/utils";
+import { mergeClasses, rgbaFromChannel } from "@beep/ui-core/utils";
 
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";

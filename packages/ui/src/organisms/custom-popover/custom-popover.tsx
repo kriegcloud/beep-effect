@@ -1,6 +1,6 @@
 "use client";
 
-import { mergeRefs } from "@beep/ui/utils";
+import { mergeRefs } from "@beep/ui-core/utils";
 import { listClasses } from "@mui/material/List";
 import { menuItemClasses } from "@mui/material/MenuItem";
 import Popover from "@mui/material/Popover";

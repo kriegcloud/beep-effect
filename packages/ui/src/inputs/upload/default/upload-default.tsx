@@ -1,6 +1,6 @@
 import { UploadIllustration } from "@beep/ui/assets/illustrations";
 import { Iconify } from "@beep/ui/atoms/iconify";
-import { mergeClasses } from "@beep/ui/utils";
+import { mergeClasses } from "@beep/ui-core/utils";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";

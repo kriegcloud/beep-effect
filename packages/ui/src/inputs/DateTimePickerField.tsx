@@ -1,5 +1,5 @@
 import type { DefaultOmit } from "@beep/ui/inputs/Field";
-import { formatPatterns } from "@beep/ui/utils";
+import { formatPatterns } from "@beep/ui-core/utils";
 import type { TextFieldProps } from "@mui/material/TextField";
 import type { MobileDateTimePickerProps } from "@mui/x-date-pickers/MobileDateTimePicker";
 import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";

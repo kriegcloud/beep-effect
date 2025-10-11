@@ -1,6 +1,6 @@
 import { Iconify } from "@beep/ui/atoms";
 
-import { rgbaFromChannel } from "@beep/ui/utils";
+import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { IconButtonProps } from "@mui/material/IconButton";
 import IconButton from "@mui/material/IconButton";
 

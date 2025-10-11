@@ -1,7 +1,7 @@
 import { Iconify } from "@beep/ui/atoms";
 import { createNavItem, navItemStyles, navSectionClasses } from "@beep/ui/routing";
 
-import { mergeClasses, rgbaFromChannel } from "@beep/ui/utils";
+import { mergeClasses, rgbaFromChannel } from "@beep/ui-core/utils";
 import ButtonBase from "@mui/material/ButtonBase";
 import type { CSSObject } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";

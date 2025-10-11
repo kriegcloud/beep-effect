@@ -1,5 +1,5 @@
 "use client";
-import { createCtx } from "@beep/ui/utils";
+import { createCtx } from "@beep/ui-core/utils";
 import type { Breakpoint, Theme } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
 import React from "react";

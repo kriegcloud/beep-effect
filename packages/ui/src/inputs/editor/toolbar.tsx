@@ -1,4 +1,4 @@
-import { rgbaFromChannel } from "@beep/ui/utils";
+import { rgbaFromChannel } from "@beep/ui-core/utils";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import type { StackProps } from "@mui/material/Stack";

@@ -1,4 +1,4 @@
-import { mergeClasses } from "@beep/ui/utils";
+import { mergeClasses } from "@beep/ui-core/utils";
 import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
 import FormHelperText from "@mui/material/FormHelperText";

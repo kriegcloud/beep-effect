@@ -5,7 +5,7 @@ import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { paths } from "@beep/shared-domain";
 import { useRouter } from "@beep/ui/hooks";
 import { DashboardLayout } from "@beep/ui/layouts";
-import { fSub } from "@beep/ui/utils";
+import { fSub } from "@beep/ui-core/utils";
 import { faker } from "@faker-js/faker";
 import * as Effect from "effect/Effect";
 import type React from "react";

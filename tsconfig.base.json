@@ -181,6 +181,12 @@
       "@beep/core-db/test/*": [
         "./packages/core/db/test/*"
       ],
+      "@beep/ui-core/*": [
+        "./packages/ui-core/src/*"
+      ],
+      "@beep/ui-core/test/*": [
+        "./packages/ui-core/test/*"
+      ],
       "@beep/ui/*": [
         "./packages/ui/src/*"
       ],

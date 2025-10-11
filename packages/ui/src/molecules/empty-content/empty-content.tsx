@@ -1,6 +1,6 @@
 "use client";
 import { assetPaths } from "@beep/constants";
-import { rgbaFromChannel } from "@beep/ui/utils";
+import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { BoxProps } from "@mui/material/Box";
 import Box from "@mui/material/Box";
 import type { SxProps, Theme } from "@mui/material/styles";

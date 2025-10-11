@@ -5,7 +5,7 @@ import { useBoolean } from "@beep/ui/hooks";
 import { Scrollbar } from "@beep/ui/molecules";
 import type { NavSectionProps } from "@beep/ui/routing";
 import { SearchNotFound } from "@beep/ui/sections";
-import { rgbaFromChannel } from "@beep/ui/utils";
+import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { BoxProps } from "@mui/material/Box";
 
 import Box from "@mui/material/Box";

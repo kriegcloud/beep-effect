@@ -1,5 +1,5 @@
 import { createClasses } from "@beep/ui/theme/create-classes";
-import { mergeClasses } from "@beep/ui/utils";
+import { mergeClasses } from "@beep/ui-core/utils";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
 import type { TypographyProps } from "@mui/material/Typography";

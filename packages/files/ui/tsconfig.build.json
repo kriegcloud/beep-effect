@@ -18,6 +18,9 @@
   },
   "references": [
     {
+      "path": "../../ui-core/tsconfig.build.json"
+    },
+    {
       "path": "../../ui/tsconfig.build.json"
     },
     {

@@ -1,4 +1,4 @@
-import { rgbaFromChannel } from "@beep/ui/utils";
+import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { Theme } from "@mui/material/styles";
 
 function desktopVars(theme: Theme) {

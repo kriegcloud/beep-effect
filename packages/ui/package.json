@@ -204,6 +204,7 @@
     "@beep/invariant": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
+    "@beep/ui-core": "workspace:^",
     "@beep/constants": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@emotion/cache": "catalog:",
@@ -280,6 +281,7 @@
     "react-apexcharts": "catalog:"
   },
   "devDependencies": {
+    "@beep/ui-core": "workspace:^",
     "@types/bun": "catalog:",
     "@beep/types": "workspace:^",
     "@tailwindcss/postcss": "catalog:",

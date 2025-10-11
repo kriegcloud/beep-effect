@@ -3,7 +3,7 @@
 import { Iconify } from "@beep/ui/atoms";
 import { usePopover } from "@beep/ui/hooks";
 
-import { rgbaFromChannel } from "@beep/ui/utils";
+import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { ButtonBaseProps } from "@mui/material/ButtonBase";
 import ButtonBase from "@mui/material/ButtonBase";
 import MenuItem from "@mui/material/MenuItem";

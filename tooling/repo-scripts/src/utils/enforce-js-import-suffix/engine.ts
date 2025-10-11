@@ -467,16 +467,7 @@ const processSourceFile = (sourceFile: SourceFile, path_: Path.Path): SourceFile
 const gatherSourceFilesForPackage = (dir: string) =>
   Effect.gen(function* () {
     const fsUtils = yield* FsUtils;
-    const patterns = [
-      "**/*.ts",
-      "**/*.tsx",
-      "**/*.mts",
-      "**/*.cts",
-      "**/*.js",
-      "**/*.jsx",
-      "**/*.mjs",
-      "**/*.cjs",
-    ] as const;
+    const patterns = ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"];
 
     const ignore = [
       "**/node_modules/**",

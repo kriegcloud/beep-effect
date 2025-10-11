@@ -2,7 +2,7 @@ import { Logo } from "@beep/ui/branding";
 import { Scrollbar } from "@beep/ui/molecules";
 import type { NavSectionProps } from "@beep/ui/routing";
 import { NavSectionMini, NavSectionVertical } from "@beep/ui/routing";
-import { mergeClasses, rgbaFromChannel } from "@beep/ui/utils";
+import { mergeClasses, rgbaFromChannel } from "@beep/ui-core/utils";
 import Box from "@mui/material/Box";
 import type { Breakpoint } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";

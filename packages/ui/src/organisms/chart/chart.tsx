@@ -1,6 +1,6 @@
 "use client";
 
-import { mergeClasses } from "@beep/ui/utils";
+import { mergeClasses } from "@beep/ui-core/utils";
 import NoSsr from "@mui/material/NoSsr";
 import { styled } from "@mui/material/styles";
 import { lazy, Suspense } from "react";

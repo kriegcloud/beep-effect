@@ -57,6 +57,9 @@
       "path": "packages/ui"
     },
     {
+      "path": "packages/ui-core"
+    },
+    {
       "path": "packages/iam/domain"
     },
     {

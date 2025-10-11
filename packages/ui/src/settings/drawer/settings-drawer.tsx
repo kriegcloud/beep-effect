@@ -4,7 +4,7 @@ import { Iconify, Label } from "@beep/ui/atoms";
 import { Scrollbar } from "@beep/ui/molecules";
 import { themeConfig } from "@beep/ui/theme/theme-config";
 import { primaryColorPresets } from "@beep/ui/theme/with-settings";
-import { hasKeys, rgbaFromChannel } from "@beep/ui/utils";
+import { hasKeys, rgbaFromChannel } from "@beep/ui-core/utils";
 import Badge from "@mui/material/Badge";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";

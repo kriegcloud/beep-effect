@@ -1,5 +1,5 @@
 import { Iconify } from "@beep/ui/atoms";
-import { mergeClasses } from "@beep/ui/utils";
+import { mergeClasses } from "@beep/ui-core/utils";
 import { useDropzone } from "react-dropzone";
 import { uploadClasses } from "../classes";
 import type { UploadProps } from "../types";

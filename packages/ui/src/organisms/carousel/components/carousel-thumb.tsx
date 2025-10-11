@@ -1,6 +1,6 @@
 "use client";
 
-import { mergeClasses } from "@beep/ui/utils";
+import { mergeClasses } from "@beep/ui-core/utils";
 import ButtonBase from "@mui/material/ButtonBase";
 
 import { styled } from "@mui/material/styles";

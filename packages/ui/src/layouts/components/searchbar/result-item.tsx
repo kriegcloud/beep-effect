@@ -1,6 +1,6 @@
 import { Label } from "@beep/ui/atoms";
 import { RouterLink } from "@beep/ui/routing";
-import { isExternalLink, rgbaFromChannel } from "@beep/ui/utils";
+import { isExternalLink, rgbaFromChannel } from "@beep/ui-core/utils";
 import Box from "@mui/material/Box";
 import type { ListItemButtonProps } from "@mui/material/ListItemButton";
 import ListItemButton from "@mui/material/ListItemButton";

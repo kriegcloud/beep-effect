@@ -73,6 +73,7 @@ const nextConfig = {
     "@beep/core-email",
     "@beep/core-db",
     "@beep/ui",
+    "@beep/ui-core",
     "@beep/iam-domain",
     "@beep/iam-tables",
     "@beep/iam-infra",

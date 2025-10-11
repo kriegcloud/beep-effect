@@ -1,5 +1,5 @@
 import { navSectionClasses } from "@beep/ui/routing";
-import { mergeClasses } from "@beep/ui/utils";
+import { mergeClasses } from "@beep/ui-core/utils";
 import { styled } from "@mui/material/styles";
 
 export const Nav = styled("nav")``;

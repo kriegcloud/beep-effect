@@ -1,7 +1,7 @@
 "use client";
 
 import { useScrollOffsetTop } from "@beep/ui/hooks";
-import { mergeClasses, rgbaFromChannel } from "@beep/ui/utils";
+import { mergeClasses, rgbaFromChannel } from "@beep/ui-core/utils";
 import type { AppBarProps } from "@mui/material/AppBar";
 import AppBar from "@mui/material/AppBar";
 import type { ContainerProps } from "@mui/material/Container";

@@ -37,6 +37,7 @@
   "dependencies": {
     "@tanstack/react-form": "catalog:",
     "@beep/ui": "workspace:^",
+    "@beep/ui-core": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@beep/utils": "workspace:^",

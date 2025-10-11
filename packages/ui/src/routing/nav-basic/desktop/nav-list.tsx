@@ -1,5 +1,5 @@
 import { usePathname, usePopoverHover } from "@beep/ui/hooks";
-import { isActiveLink, isExternalLink } from "@beep/ui/utils";
+import { isActiveLink, isExternalLink } from "@beep/ui-core/utils";
 import { popoverClasses } from "@mui/material/Popover";
 
 import { useTheme } from "@mui/material/styles";

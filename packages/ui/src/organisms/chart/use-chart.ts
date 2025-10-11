@@ -1,5 +1,5 @@
 "use client";
-import { rgbaFromChannel } from "@beep/ui/utils";
+import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { Theme } from "@mui/material/styles";
 import { useTheme } from "@mui/material/styles";
 import { merge } from "es-toolkit";

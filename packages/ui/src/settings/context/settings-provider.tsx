@@ -1,7 +1,7 @@
 "use client";
 
 import { useCookies, useLocalStorage } from "@beep/ui/hooks";
-import { getCookie, getStorage } from "@beep/ui/utils";
+import { getCookie, getStorage } from "@beep/ui-core/utils";
 import * as Equal from "effect/Equal";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SETTINGS_STORAGE_KEY } from "../settings-config";
