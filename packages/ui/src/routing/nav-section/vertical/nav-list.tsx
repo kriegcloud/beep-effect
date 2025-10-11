@@ -20,7 +20,6 @@ export function NavList({ data, depth, render, slotProps, checkPermissions, enab
     if (!isActive) {
       onClose();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const handleToggleMenu = useCallback(() => {

@@ -28,7 +28,19 @@ const GuestGuardContent: React.FC<GuestGuardContentProps> = ({
   const searchParams = useSearchParams();
   const callbackTarget = AuthCallback.getURL(searchParams);
   const redirectTarget = callbackTarget === AuthCallback.defaultTarget ? redirectTo : callbackTarget;
-  const { data: session, isPending, error } = client.useSession();
+  const { data: session, isPending, error, refetch } = client.useSession();
+  const [hasRefetched, setHasRefetched] = React.useState(false);
+
+  React.useEffect(() => {
+    client.$store.notify("$sessionSignal");
+  }, []);
+
+  React.useEffect(() => {
+    if (!isPending && !session && !hasRefetched) {
+      setHasRefetched(true);
+      refetch();
+    }
+  }, [hasRefetched, isPending, refetch, session]);
 
   React.useEffect(() => {
     if (!isPending && session) {

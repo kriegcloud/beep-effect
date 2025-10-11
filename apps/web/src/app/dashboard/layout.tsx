@@ -2,13 +2,13 @@
 import { assetPaths } from "@beep/constants";
 import { iam } from "@beep/iam-sdk";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
+import { paths } from "@beep/shared-domain";
 import { useRouter } from "@beep/ui/hooks";
 import { DashboardLayout } from "@beep/ui/layouts";
 import { fSub } from "@beep/ui/utils";
 import { faker } from "@faker-js/faker";
 import * as Effect from "effect/Effect";
 import type React from "react";
-import { paths } from "@beep/shared-domain";
 import { AuthGuard } from "@/providers/AuthGuard";
 
 const _id = [
@@ -316,7 +316,10 @@ export default function Layout({ children }: Props) {
       signOut={() =>
         runSignOut(
           iam.signOut({
-            onSuccess: () => router.push(paths.auth.signIn),
+            onSuccess: () => {
+              router.refresh();
+              void router.push(paths.auth.signIn);
+            },
           })
         )
       }

@@ -4,11 +4,13 @@ import * as S from "effect/Schema";
 //----------------------------------------------------------------------------------------------------------------------
 // SIGN IN EMAIL CONTRACT
 //----------------------------------------------------------------------------------------------------------------------
+
 export class SignInEmailContract extends BS.Class<SignInEmailContract>("SignInEmailContract")(
   {
     email: BS.Email,
     password: BS.Password,
     rememberMe: BS.BoolWithDefault(false),
+    captchaResponse: S.Redacted(S.String),
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/SignInEmailContract"),

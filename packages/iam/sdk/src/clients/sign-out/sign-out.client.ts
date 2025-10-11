@@ -1,27 +1,31 @@
 import { AuthHandler } from "@beep/iam-sdk/auth-wrapper";
-import { SignOutContract } from "@beep/iam-sdk/clients/sign-out/sign-out.contract";
+import type { SignOutContract } from "@beep/iam-sdk/clients/sign-out/sign-out.contract";
 import { client } from "../../adapters";
 
 export const signOutClient = AuthHandler.make<SignOutContract.Type, SignOutContract.Encoded>({
   name: "signOut",
   method: "signOut",
   plugin: "core",
-  schema: SignOutContract,
   run: AuthHandler.map(async ({ onSuccess }) => {
     let capturedError: unknown;
-
-    await client.signOut({
-      fetchOptions: {
-        onSuccess: () => void onSuccess(undefined),
-        onError: (ctx) => {
-          capturedError = ctx.error;
+    const result = await client
+      .signOut({
+        fetchOptions: {
+          onSuccess: () => void onSuccess(undefined),
+          onError: (ctx) => {
+            capturedError = ctx.error;
+          },
         },
-      },
-    });
-    if (capturedError) {
-      return { data: null, error: capturedError } as const;
+      })
+      .catch((e) => {
+        throw capturedError ?? e;
+      });
+
+    if (result.error == null) {
+      client.$store.notify("$sessionSignal");
     }
-    return { data: null, error: null } as const;
+
+    return result;
   }),
   toast: {
     onWaiting: "Signing out...",

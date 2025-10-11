@@ -13,7 +13,6 @@ import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import type React from "react";
 import type { AppConfig } from "./app-config";
-import { PageTransition } from "./PageTransition";
 
 type GlobalProviders = {
   children: React.ReactNode;
@@ -39,7 +38,7 @@ export function GlobalProviders({ children, appConfig, nonce }: GlobalProviders)
                   <Snackbar />
                   <ProgressBar />
                   <SettingsDrawer defaultSettings={defaultSettings} />
-                  <PageTransition>{children}</PageTransition>
+                  {children}
                 </MotionLazy>
               </ThemeProvider>
             </AppRouterCacheProvider>

@@ -18,13 +18,25 @@ type AuthGuardContentProps = AuthGuardProps & {
 };
 
 const AuthGuardContent: React.FC<AuthGuardContentProps> = ({ children, router, ...props }) => {
-  const { data: session, isPending, error } = client.useSession();
+  const { data: session, isPending, error, refetch } = client.useSession();
+  const [hasRefetched, setHasRefetched] = React.useState(false);
 
   React.useEffect(() => {
-    if (!isPending && !session) {
+    client.$store.notify("$sessionSignal");
+  }, []);
+
+  React.useEffect(() => {
+    if (!isPending && !session && !hasRefetched) {
+      setHasRefetched(true);
+      refetch();
+    }
+  }, [hasRefetched, isPending, refetch, session]);
+
+  React.useEffect(() => {
+    if (!isPending && !session && hasRefetched) {
       void router.replace(paths.auth.signIn);
     }
-  }, [isPending, session, router]);
+  }, [hasRefetched, isPending, session, router]);
 
   if (error) {
     throw error instanceof Error ? error : new Error("Failed to resolve authenticated session");

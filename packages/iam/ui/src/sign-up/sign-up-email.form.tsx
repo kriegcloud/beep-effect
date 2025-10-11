@@ -43,7 +43,6 @@ export const SignUpEmailForm: React.FC<Props> = ({ onSubmit }) => {
         }
 
         const token = await executeRecaptcha("contact_form");
-        console.log("Recaptcha token:", token);
 
         form.setFieldValue("captchaResponse", token);
         return form.handleSubmit();

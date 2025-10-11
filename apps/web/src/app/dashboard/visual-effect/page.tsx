@@ -1,3 +1,4 @@
+import { DashboardContent } from "@beep/ui/layouts/dashboard/content";
 import type { Metadata } from "next";
 import ClientAppContent from "./ClientAppContent";
 
@@ -6,5 +7,9 @@ export const metadata: Metadata = {
 };
 
 export default function VisualEffectPage() {
-  return <ClientAppContent />;
+  return (
+    <DashboardContent>
+      <ClientAppContent />
+    </DashboardContent>
+  );
 }

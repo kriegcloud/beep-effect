@@ -1,9 +1,9 @@
 "use client";
-
-import { ArrowClockwiseIcon, HashStraightIcon, HeartIcon, PlayIcon, SkullIcon, StopIcon } from "@phosphor-icons/react";
-import { MotionConfig } from "motion/react";
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
-import { EffectLogo } from "@/features/visual-effect/components/feedback";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import { AnimatePresence, MotionConfig, m } from "motion/react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { NavigationSidebar, PageHeader } from "@/features/visual-effect/components/layout";
 import { QuickOpen } from "@/features/visual-effect/components/ui";
 // Examples
@@ -31,17 +31,22 @@ import EffectTimeout from "@/features/visual-effect/examples/effect-timeout";
 import EffectValidate from "@/features/visual-effect/examples/effect-validate";
 import RefMake from "@/features/visual-effect/examples/ref-make";
 import RefUpdateAndGet from "@/features/visual-effect/examples/ref-update-and-get";
-import type { AppItem, ExampleItem, ExampleMeta } from "@/features/visual-effect/lib/example-types";
+import type { ExampleMeta } from "@/features/visual-effect/lib/example-types";
 import { defaultSpring } from "@/features/visual-effect/motionConfig";
 import { appItems, createExampleId } from "@/features/visual-effect/shared/appItems";
 import { taskSounds } from "@/features/visual-effect/sounds/TaskSounds";
-import { InfoCallout } from "./components/InfoCallout";
 
 type ExampleComponent = React.ComponentType<{
   index: number;
   metadata: ExampleMeta;
   exampleId: string;
 }>;
+
+type PreparedExample = {
+  id: string;
+  metadata: ExampleMeta;
+  index: number;
+};
 
 const exampleComponentById: Record<string, ExampleComponent> = {
   "effect-acquire-release": EffectAcquireRelease,
@@ -70,174 +75,113 @@ const exampleComponentById: Record<string, ExampleComponent> = {
   "ref-update-and-get": RefUpdateAndGet,
 };
 
-// Helper function to get item section
-function getItemSection(item: AppItem): string {
-  return item.type === "example" ? item.metadata.section : item.section;
-}
-
 function AppContentInner() {
   const [isMuted, setIsMuted] = useState(false);
 
-  // Update sound system when mute changes
   useEffect(() => {
     taskSounds.setMuted(isMuted);
   }, [isMuted]);
 
-  const [currentExampleId, setCurrentExampleId] = useState<string | undefined>();
+  const preparedExamples = useMemo(
+    () =>
+      F.pipe(
+        appItems,
+        A.filterMap((item, index) =>
+          item.type === "example"
+            ? O.some<PreparedExample>({
+                id: createExampleId(item.metadata.name, item.metadata.variant),
+                metadata: item.metadata,
+                index,
+              })
+            : O.none()
+        )
+      ),
+    []
+  );
 
-  // Handle example selection from sidebar
-  const handleExampleSelect = useCallback((id: string) => {
-    setCurrentExampleId(id);
-    // Scroll to the element
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  }, []);
-
-  // Prepare data for the Command-K quick-open modal
   const quickOpenItems = useMemo(
     () =>
-      appItems
-        .filter((item): item is ExampleItem => item.type === "example")
-        .map((item) => ({
-          id: createExampleId(item.metadata.name, item.metadata.variant),
+      F.pipe(
+        preparedExamples,
+        A.map((item) => ({
+          id: item.id,
           name: item.metadata.name,
           ...(item.metadata.variant ? { variant: item.metadata.variant } : {}),
           section: item.metadata.section,
-        })),
-    []
+        }))
+      ),
+    [preparedExamples]
   );
 
-  // Memoize the examples for NavigationSidebar to prevent re-renders
-  const navigationExamples = useMemo(
-    () =>
-      appItems
-        .filter((item): item is ExampleItem => item.type === "example")
-        .map((item) => ({
-          id: createExampleId(item.metadata.name, item.metadata.variant),
-          name: item.metadata.name,
-          ...(item.metadata.variant ? { variant: item.metadata.variant } : {}),
-          section: item.metadata.section,
-        })),
-    []
+  const [currentExampleId, setCurrentExampleId] = useState<string | undefined>(() =>
+    F.pipe(
+      preparedExamples,
+      A.get(0),
+      O.map((item) => item.id),
+      O.getOrUndefined
+    )
   );
+
+  const currentExampleOption = useMemo(
+    () =>
+      F.pipe(
+        O.fromNullable(currentExampleId),
+        O.flatMap((id) =>
+          F.pipe(
+            preparedExamples,
+            A.findFirst((item) => item.id === id)
+          )
+        ),
+        O.orElse(() => F.pipe(preparedExamples, A.get(0)))
+      ),
+    [currentExampleId, preparedExamples]
+  );
+
+  const currentExample = useMemo(() => O.getOrUndefined(currentExampleOption), [currentExampleOption]);
+
+  const handleExampleSelect = useCallback((id: string) => {
+    setCurrentExampleId(id);
+  }, []);
+
+  const ExampleComponent = currentExample ? exampleComponentById[currentExample.metadata.id] : undefined;
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-white font-mono relative overflow-hidden">
-      {/* Command-K quick-open modal */}
+    <div className="relative min-h-screen overflow-hidden bg-[var(--color-background-default)]">
       <QuickOpen items={quickOpenItems} onSelect={handleExampleSelect} />
 
-      <div className="relative mx-auto flex w-full max-w-screen-2xl flex-col gap-12 px-4 pb-16 pt-12 sm:px-6 lg:px-8 xl:flex-row xl:items-start xl:gap-16">
-        {/* Navigation Sidebar */}
+      <div className="relative flex w-full max-w-screen-2xl flex-col gap-8 pt-0 xl:flex-row xl:items-start xl:gap-10">
         <NavigationSidebar
-          className="order-last w-full flex-none rounded-2xl border border-neutral-800/60 bg-neutral-900/40 backdrop-blur xl:order-first xl:sticky xl:top-12 xl:mb-0 xl:h-[calc(100vh-6rem)] xl:w-64 xl:overflow-hidden xl:rounded-none xl:border-none xl:bg-transparent"
-          examples={navigationExamples}
-          currentExample={currentExampleId || undefined}
+          className="w-full flex-none rounded-3xl bg-[rgba(var(--mui-palette-background-paperChannel),0.92)] backdrop-blur-sm xl:sticky xl:top-0 xl:mb-0 xl:h-[calc(100vh-4rem)] xl:w-[25rem] xl:rounded-none"
+          examples={quickOpenItems}
+          currentExample={currentExample?.id}
           onExampleSelect={handleExampleSelect}
         />
 
-        <div className="flex-1">
-          <div className="relative z-10 mx-auto flex w-full max-w-screen-lg flex-col items-center gap-10">
+        <main className="flex-1 pt-10 sm:pt-12">
+          <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-col gap-3">
             <PageHeader isMuted={isMuted} onMuteToggle={() => setIsMuted(!isMuted)} />
 
-            {/* Introduction section */}
-            <div className="relative w-full max-w-screen-md overflow-hidden rounded-2xl border border-neutral-700/50 bg-gradient-to-br from-neutral-900/80 to-neutral-900/40 p-8 text-lg text-neutral-300 shadow-2xl backdrop-blur-sm">
-              <div className="relative z-10">
-                <p className="text-left text-xl font-light leading-relaxed">
-                  Here are some interactive examples of TypeScript's beautiful{" "}
-                  <EffectLogo className="relative inline-block h-4 top-[-1px] pr-3 opacity-90" />
-                  <a
-                    href="https://effect.website"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block cursor-pointer font-extrabold tracking-wider transition-all duration-300 hover:text-white"
+            {currentExample && ExampleComponent ? (
+              <div className="relative rounded-3xl bg-[rgba(var(--mui-palette-background-paperChannel),0.94)] p-3 shadow-[0_16px_70px_rgba(0,0,0,0.28)]">
+                <AnimatePresence initial={false} mode="wait">
+                  <m.div
+                    key={currentExample.id}
+                    initial={{ opacity: 0, x: 48 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -32 }}
+                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                   >
-                    Effect
-                  </a>{" "}
-                  library. Tap the following effects to <PlayIcon size={16} className="mr-2 inline" weight="bold" />
-                  <span className="font-bold">run</span>, <StopIcon size={16} className="mr-2 inline" weight="bold" />
-                  <span className="font-bold">interrupt</span>, or{" "}
-                  <ArrowClockwiseIcon size={16} className="mr-2 inline" weight="bold" />
-                  <span className="font-bold">reset</span> them.
-                </p>
+                    <ExampleComponent
+                      metadata={currentExample.metadata}
+                      index={currentExample.index}
+                      exampleId={currentExample.id}
+                    />
+                  </m.div>
+                </AnimatePresence>
               </div>
-            </div>
-
-            {/* Multiple effect examples and callouts */}
-            <div className="flex w-full max-w-screen-md flex-col items-center gap-y-8 sm:gap-y-12">
-              {appItems.map((item, index) => {
-                const prevItem: AppItem | undefined = index > 0 ? appItems[index - 1] : undefined;
-                const showSectionHeader =
-                  index === 0 || (prevItem !== undefined && getItemSection(prevItem) !== getItemSection(item));
-
-                return (
-                  <Fragment key={index}>
-                    {showSectionHeader && (
-                      <div className="w-full pt-6">
-                        <h2 className="mb-2 flex items-center gap-3 text-lg font-bold tracking-wider text-neutral-300 sm:text-2xl">
-                          <span className="rounded-lg border border-neutral-700/50 bg-gradient-to-br from-neutral-800 to-neutral-900 p-2">
-                            <HashStraightIcon weight="bold" size={20} className="text-neutral-400" />
-                          </span>
-                          <span className="text-neutral-400">{getItemSection(item).toUpperCase()}</span>
-                        </h2>
-                      </div>
-                    )}
-                    <div className="relative w-full">
-                      {item.type === "example" ? (
-                        <div id={createExampleId(item.metadata.name, item.metadata.variant)}>
-                          {(() => {
-                            const Component = exampleComponentById[item.metadata.id];
-                            if (!Component) return null;
-                            return (
-                              <Component
-                                metadata={item.metadata}
-                                index={index}
-                                exampleId={createExampleId(item.metadata.name, item.metadata.variant)}
-                              />
-                            );
-                          })()}
-                        </div>
-                      ) : (
-                        <InfoCallout>{item.content}</InfoCallout>
-                      )}
-                    </div>
-                  </Fragment>
-                );
-              })}
-            </div>
-
-            {/* Footer */}
-            <footer className="mt-24 mb-12 flex w-full max-w-screen-md items-center justify-between text-xs sm:text-base">
-              {/* Left side */}
-              <div className="flex items-center gap-1.5 font-bold tracking-wide text-neutral-400 sm:gap-2">
-                EFFECT OR
-                <SkullIcon size={16} weight="fill" className="text-neutral-400 sm:hidden" />
-                <SkullIcon size={19} weight="fill" className="ml-[3px] hidden text-neutral-400 sm:block" />
-              </div>
-
-              {/* Right side */}
-              <a
-                href="https://twitter.com/kitlangton"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center gap-1.5 font-bold tracking-wide text-neutral-400 transition-all duration-300 hover:text-neutral-200 sm:gap-2"
-              >
-                <HeartIcon
-                  size={14}
-                  weight="fill"
-                  className="text-red-500 transition-transform duration-300 group-hover:scale-110 group-hover:text-red-400 sm:hidden"
-                />
-                <HeartIcon
-                  size={18}
-                  weight="fill"
-                  className="hidden text-red-500 transition-transform duration-300 group-hover:scale-110 group-hover:text-red-400 sm:block"
-                />
-                KIT
-              </a>
-            </footer>
+            ) : null}
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ interface QuickOpenProps {
   /**
    * Items that can be searched and selected.
    */
-  items: Array<QuickOpenItem>;
+  items: ReadonlyArray<QuickOpenItem>;
   /**
    * Called with the `id` of the selected item.
    */

@@ -26,7 +26,6 @@ export function NavMobile({ sx, data, open, slots, onClose, className, checkPerm
     if (open) {
       onClose();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   return (

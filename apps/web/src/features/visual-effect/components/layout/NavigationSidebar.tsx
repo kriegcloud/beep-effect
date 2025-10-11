@@ -1,4 +1,8 @@
 import { HashStraightIcon } from "@phosphor-icons/react";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as R from "effect/Record";
+import * as Str from "effect/String";
 import { memo, useMemo } from "react";
 
 interface Example {
@@ -9,26 +13,18 @@ interface Example {
 }
 
 interface NavigationSidebarProps {
-  examples: Array<Example>;
+  examples: ReadonlyArray<Example>;
   currentExample?: string | undefined;
   onExampleSelect: (id: string) => void;
   className?: string;
 }
 
 function NavigationSidebarComponent({ className, currentExample, examples, onExampleSelect }: NavigationSidebarProps) {
-  // Group examples by section - memoize to avoid recomputation
   const sections = useMemo(
     () =>
-      examples.reduce(
-        (acc, example) => {
-          const section = example.section || "Other";
-          if (!acc[section]) {
-            acc[section] = [];
-          }
-          acc[section].push(example);
-          return acc;
-        },
-        {} as Record<string, Array<Example>>
+      F.pipe(
+        examples,
+        A.groupBy((example) => example.section ?? "Other")
       ),
     [examples]
   );
@@ -37,46 +33,64 @@ function NavigationSidebarComponent({ className, currentExample, examples, onExa
 
   return (
     <aside className={containerClassName}>
-      <div className="h-full overflow-y-auto border-neutral-800 xl:border-r">
-        <div className="p-6">
-          <div className="mb-6">
-            <h2 className="text-sm font-mono text-neutral-500 mb-4">EXAMPLES</h2>
-          </div>
+      <div className="group h-full overflow-hidden">
+        <div className="nav-scroll h-full overflow-y-auto overflow-x-hidden pr-2">
+          <div className="p-4">
+            <div className="mb-6 border-b border-white/5 pb-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.4em] text-neutral-500">Examples</p>
+            </div>
 
-          <div>
-            {Object.entries(sections).map(([sectionName, sectionExamples]) => (
-              <div key={sectionName} className="mb-8">
-                <h3 className="text-xs font-mono text-neutral-600 mb-3 font-bold tracking-wider">
-                  <span className="flex items-center gap-1">
-                    <HashStraightIcon size={14} />
-                    {sectionName.toUpperCase()}
-                  </span>
-                </h3>
-                <nav className="space-y-1">
-                  {sectionExamples.map((example) => {
-                    const isActive = currentExample === example.id;
+            {F.pipe(
+              sections,
+              R.toEntries,
+              A.map(([sectionName, sectionExamples]) => (
+                <div key={sectionName} className="mb-6 last:mb-0">
+                  <h3 className="mb-3 flex items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.35em] text-neutral-500">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-xl border border-white/5 bg-white/5">
+                      <HashStraightIcon size={16} />
+                    </span>
+                    {Str.toUpperCase(sectionName)}
+                  </h3>
+                  <nav className="space-y-1">
+                    {F.pipe(
+                      sectionExamples,
+                      A.map((example) => {
+                        const isActive = currentExample === example.id;
 
-                    return (
-                      <button
-                        type="button"
-                        key={example.id}
-                        onClick={() => onExampleSelect(example.id)}
-                        className={`
-                          w-full text-left py-1 px-2 -mx-2 text-sm font-mono cursor-pointer rounded-md
-                          ${isActive ? "text-white" : "text-neutral-400 hover:text-neutral-200 hover:bg-white/5"}
-                          focus:outline-none
-                        `}
-                      >
-                        <span className="flex items-baseline gap-1.5">
-                          <span>{example.name}</span>
-                          {example.variant && <span className="text-xs text-neutral-500">{example.variant}</span>}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </nav>
-              </div>
-            ))}
+                        return (
+                          <button
+                            type="button"
+                            key={example.id}
+                            onClick={() => onExampleSelect(example.id)}
+                            className={`group relative flex w-full items-center justify-between gap-3 overflow-hidden rounded-xl py-2 pl-3 pr-4 text-left text-sm font-mono tracking-tight transition-colors duration-200 ${
+                              isActive
+                                ? "bg-white/10 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.08)]"
+                                : "text-neutral-400 hover:bg-white/5 hover:text-white"
+                            }`}
+                          >
+                            <span className="flex min-w-0 items-center gap-2">
+                              <span
+                                className={`h-2 w-2 flex-shrink-0 rounded-full transition-colors duration-200 ${
+                                  isActive
+                                    ? "bg-emerald-400 shadow-[0_0_0_4px_rgba(16,185,129,0.25)]"
+                                    : "bg-neutral-600"
+                                }`}
+                              />
+                              <span className="truncate">{example.name}</span>
+                            </span>
+                            {example.variant ? (
+                              <span className="text-[0.55rem] uppercase tracking-[0.35em] text-neutral-500">
+                                {example.variant}
+                              </span>
+                            ) : null}
+                          </button>
+                        );
+                      })
+                    )}
+                  </nav>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

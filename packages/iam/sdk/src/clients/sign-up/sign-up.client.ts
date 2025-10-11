@@ -10,7 +10,7 @@ const signUpEmail = AuthHandler.make({
   plugin: "sign-up",
   method: "email",
   schema: SignupContract,
-  run: AuthHandler.map(({ value: { captchaResponse, ...value }, onSuccess }) => {
+  run: AuthHandler.map(async ({ value: { captchaResponse, ...value }, onSuccess }) => {
     let capturedError: IamError | undefined = undefined;
     return client.signUp
       .email({

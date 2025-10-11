@@ -1,11 +1,10 @@
 import { clientEnv } from "@beep/core-env/client";
 import { QueryClient as RuntimeQueryClient } from "@beep/runtime-client/services/common/query-client";
 import { WorkerClient } from "@beep/runtime-client/worker/worker-client";
-import { DevTools } from "@effect/experimental";
+
 import { WebSdk } from "@effect/opentelemetry";
 import { FetchHttpClient } from "@effect/platform";
 import type { HttpClient } from "@effect/platform/HttpClient";
-import { BrowserSocket } from "@effect/platform-browser";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
@@ -48,13 +47,8 @@ export const LoggerLive = isDevEnvironment ? Logger.pretty : Logger.json;
 /** Dynamically tunes the minimum log level to suit the environment. */
 export const LogLevelLive = Logger.minimumLogLevel(isDevEnvironment ? LogLevel.Debug : LogLevel.Info);
 
-/** Enables optional Effect DevTools during development. */
-export const DevToolsLive = isDevEnvironment
-  ? DevTools.layerWebSocket().pipe(Layer.provide(BrowserSocket.layerWebSocketConstructor))
-  : Layer.empty;
-
 /** Shared observability stack for the client runtime. */
-export const ObservabilityLive = Layer.mergeAll(LoggerLive, TelemetryLive, DevToolsLive);
+export const ObservabilityLive = Layer.mergeAll(LoggerLive, TelemetryLive);
 
 // ============================================================================
 // Runtime infrastructure

@@ -27,7 +27,11 @@ export const SignInSocial = ({ signIn, sx, ...rest }: Props) => {
         AuthProviderNameValue.filter,
         A.map((provider) =>
           F.pipe(SocialProviderIcons[provider], (Component) => (
-            <SocialIconButton key={provider} onClick={() => signIn(provider)} name={provider}>
+            <SocialIconButton
+              key={provider}
+              onClick={() => signIn(provider)}
+              name={provider === "twitter" ? "X" : provider}
+            >
               <Component />
             </SocialIconButton>
           ))
