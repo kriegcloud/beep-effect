@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { Effect, Schedule } from "effect"
-import { useMemo } from "react"
-import { EffectExample } from "@/components/display"
-import { StringResult } from "@/components/renderers"
-import type { ExampleComponentProps } from "@/lib/example-types"
-import { visualEffect } from "@/VisualEffect"
-import { createCounter } from "./helpers"
+import { Effect, Schedule } from "effect";
+import { useMemo } from "react";
+import { EffectExample } from "@/features/visual-effect/components/display";
+import { StringResult } from "@/features/visual-effect/components/renderers";
+import type { ExampleComponentProps } from "@/features/visual-effect/lib/example-types";
+import { visualEffect } from "@/features/visual-effect/VisualEffect";
+import { createCounter } from "./helpers";
 
-const notificationCount = createCounter(0)
+const notificationCount = createCounter(0);
 
 const notifications = [
   "📞 Unknown Caller",
@@ -30,7 +30,7 @@ const notifications = [
   "🌧️ Rain All Week",
   "📉 Stocks Down 20%",
   "🥀 Plant Died",
-]
+];
 
 /**
  * Simulates checking phone notifications - the classic compulsive behavior
@@ -39,42 +39,39 @@ const notifications = [
 function checkNotifications(): Effect.Effect<StringResult, string, never> {
   return Effect.gen(function* () {
     if (notificationCount.current >= notifications.length) {
-      yield* Effect.fail("☠️ Phone Died!")
+      return yield* Effect.fail("☠️ Phone Died!");
     }
 
-    const notification = notifications[notificationCount.current]
-    notificationCount.increment()
-    yield* Effect.sleep(500)
+    const notification = notifications[notificationCount.current];
+    notificationCount.increment();
+    yield* Effect.sleep(500);
 
-    return new StringResult(notification!)
-  })
+    return new StringResult(notification!);
+  });
 }
 
 export function EffectRepeatSpacedExample({ exampleId, index, metadata }: ExampleComponentProps) {
-  const baseTask = useMemo(() => visualEffect("phone", checkNotifications()), [])
+  const baseTask = useMemo(() => visualEffect("phone", checkNotifications()), []);
 
   const repeatedTask = useMemo(
     () =>
       visualEffect(
         "checking",
-        baseTask.effect.pipe(
-          Effect.repeat(Schedule.spaced("2 seconds")),
-          Effect.ensuring(notificationCount.reset),
-        ),
+        baseTask.effect.pipe(Effect.repeat(Schedule.spaced("2 seconds")), Effect.ensuring(notificationCount.reset))
       ),
-    [baseTask],
-  )
+    [baseTask]
+  );
 
   const codeSnippet = `const phone = checkNotifications();
-const checking = Effect.repeat(phone, Schedule.spaced("2 seconds"));`
+const checking = Effect.repeat(phone, Schedule.spaced("2 seconds"));`;
 
   const taskHighlightMap = useMemo(
     () => ({
       phone: { text: "checkNotifications()" },
       checking: { text: 'Effect.repeat(phone, Schedule.spaced("2 seconds"))' },
     }),
-    [],
-  )
+    []
+  );
 
   return (
     <EffectExample
@@ -89,7 +86,7 @@ const checking = Effect.repeat(phone, Schedule.spaced("2 seconds"));`
       {...(index !== undefined && { index })}
       exampleId={exampleId}
     />
-  )
+  );
 }
 
-export default EffectRepeatSpacedExample
+export default EffectRepeatSpacedExample;

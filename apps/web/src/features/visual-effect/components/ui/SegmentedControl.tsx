@@ -1,16 +1,16 @@
-import { motion } from "motion/react"
-import { useEffect, useRef, useState } from "react"
+import { m } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 
 interface SegmentedControlProps<T extends string | number> {
-  value: T
-  onChange: (value: T) => void
-  options: ReadonlyArray<T>
-  className?: string
-  disabled?: boolean
-  backgroundClassName?: string
-  buttonClassName?: string
-  enableKeyboard?: boolean
-  exampleIndex?: number
+  value: T;
+  onChange: (value: T) => void;
+  options: ReadonlyArray<T>;
+  className?: string;
+  disabled?: boolean;
+  backgroundClassName?: string;
+  buttonClassName?: string;
+  enableKeyboard?: boolean;
+  exampleIndex?: number;
 }
 
 export function SegmentedControl<T extends string | number>({
@@ -24,45 +24,44 @@ export function SegmentedControl<T extends string | number>({
   options,
   value,
 }: SegmentedControlProps<T>) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const buttonRefs = useRef<Map<T, HTMLButtonElement>>(new Map())
+  const containerRef = useRef<HTMLDivElement>(null);
+  const buttonRefs = useRef<Map<T, HTMLButtonElement>>(new Map());
   const [indicatorStyle, setIndicatorStyle] = useState({
     left: 0,
     width: 0,
-  })
+  });
 
   // Update indicator position when value changes
   useEffect(() => {
-    const activeButton = buttonRefs.current.get(value)
-    const container = containerRef.current
+    const activeButton = buttonRefs.current.get(value);
+    const container = containerRef.current;
 
     if (activeButton && container) {
-      const containerRect = container.getBoundingClientRect()
-      const buttonRect = activeButton.getBoundingClientRect()
+      const containerRect = container.getBoundingClientRect();
+      const buttonRect = activeButton.getBoundingClientRect();
 
-      const left = buttonRect.left - containerRect.left
-      const width = buttonRect.width
+      const left = buttonRect.left - containerRect.left;
+      const width = buttonRect.width;
 
-      setIndicatorStyle({ left, width })
+      setIndicatorStyle({ left, width });
     }
-  }, [value, options])
-
+  }, [value, options]);
 
   // Set button ref
   const setButtonRef = (option: T) => (el: HTMLButtonElement | null) => {
     if (el) {
-      buttonRefs.current.set(option, el)
+      buttonRefs.current.set(option, el);
     } else {
-      buttonRefs.current.delete(option)
+      buttonRefs.current.delete(option);
     }
-  }
+  };
 
   return (
     <div
       ref={containerRef}
       className={`relative flex items-center bg-neutral-800/50 rounded-lg p-1 border border-neutral-700/30 ${className}`}
     >
-      {options.map(option => (
+      {options.map((option) => (
         <button
           type="button"
           key={option}
@@ -71,11 +70,7 @@ export function SegmentedControl<T extends string | number>({
           disabled={disabled}
           className={`
             relative z-10 px-3 py-1.5 text-sm font-mono rounded-md transition-colors duration-200 flex-1 text-center cursor-pointer
-            ${
-              value === option
-                ? "text-white font-medium"
-                : "text-neutral-400 hover:text-neutral-300"
-            }
+            ${value === option ? "text-white font-medium" : "text-neutral-400 hover:text-neutral-300"}
             ${disabled ? "opacity-50 cursor-not-allowed" : ""}
             ${buttonClassName}
           `}
@@ -83,7 +78,7 @@ export function SegmentedControl<T extends string | number>({
           {option}
         </button>
       ))}
-      <motion.div
+      <m.div
         className={`absolute top-1 bottom-1 rounded-md shadow-md ${backgroundClassName}`}
         initial={false}
         animate={{
@@ -98,5 +93,5 @@ export function SegmentedControl<T extends string | number>({
         style={{ zIndex: 0 }}
       />
     </div>
-  )
+  );
 }

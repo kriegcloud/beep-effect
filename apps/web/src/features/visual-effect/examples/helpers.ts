@@ -1,5 +1,5 @@
-import { Effect } from "effect"
-import { EmojiResult, TemperatureResult } from "../components/renderers"
+import { Effect } from "effect";
+import { EmojiResult, TemperatureResult } from "../components/renderers";
 
 /**
  * Generates a random delay with jitter for realistic network simulation
@@ -8,7 +8,7 @@ import { EmojiResult, TemperatureResult } from "../components/renderers"
  * @returns A delay between baseDelay - jitter and baseDelay + jitter
  */
 export function getDelay(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 /**
@@ -20,12 +20,12 @@ export function getDelay(min: number, max: number): number {
 export function getWeather(location?: string): Effect.Effect<TemperatureResult, never, never> {
   return Effect.gen(function* () {
     // Simulate network delay with jitter
-    const delay = getDelay(500, 900)
-    yield* Effect.sleep(delay)
+    const delay = getDelay(500, 900);
+    yield* Effect.sleep(delay);
 
-    const temp = Math.floor(Math.random() * 30) + 60 // 60-90°F
-    return new TemperatureResult(temp, location)
-  })
+    const temp = Math.floor(Math.random() * 30) + 60; // 60-90°F
+    return new TemperatureResult(temp, location);
+  });
 }
 
 export enum Emoji {
@@ -49,11 +49,11 @@ export enum Emoji {
  */
 export function loadEmoji(emoji: Emoji) {
   return Effect.gen(function* () {
-    const delay = getDelay(500, 900)
-    yield* Effect.sleep(delay)
+    const delay = getDelay(500, 900);
+    yield* Effect.sleep(delay);
 
-    return new EmojiResult(emoji)
-  })
+    return new EmojiResult(emoji);
+  });
 }
 
 /**
@@ -61,18 +61,18 @@ export function loadEmoji(emoji: Emoji) {
  * @param initialValue - Initial counter value (default 0)
  * @returns Object with counter, increment, and reset effect
  */
-export function createCounter(initialValue: number = 0) {
-  let value = initialValue
+export function createCounter(initialValue = 0) {
+  let value = initialValue;
 
   return {
     get current() {
-      return value
+      return value;
     },
     increment() {
-      value++
+      value++;
     },
     reset: Effect.sync(() => {
-      value = initialValue
+      value = initialValue;
     }),
-  }
+  };
 }

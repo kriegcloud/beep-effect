@@ -46,9 +46,9 @@ const signInPasskey = AuthHandler.make({
   plugin: "sign-in",
   method: "passkey",
   schema: SignInPasskeyContract,
-  run: AuthHandler.map(({ onSuccess }) => {
+  run: AuthHandler.map(async ({ onSuccess }) => {
     let capturedError: unknown;
-    return client.signIn
+    return await client.signIn
       .passkey({
         fetchOptions: {
           onSuccess: () => onSuccess(undefined),

@@ -1,3 +1,3 @@
-export { QuickOpen } from "./QuickOpen"
-export { SegmentedControl } from "./SegmentedControl"
-export { VolumeToggle } from "./VolumeToggle"
+export { QuickOpen } from "./QuickOpen";
+export { SegmentedControl } from "./SegmentedControl";
+export { VolumeToggle } from "./VolumeToggle";

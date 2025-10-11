@@ -1,70 +1,62 @@
-"use client"
+"use client";
 
-import { Effect, Schedule } from "effect"
-import { useMemo, useRef } from "react"
-import { EffectExample } from "@/components/display"
-import { EmojiResult } from "@/components/renderers"
-import type { ExampleComponentProps } from "@/lib/example-types"
-import { visualEffect } from "@/VisualEffect"
-import { getDelay } from "./helpers"
+import { Effect, Schedule } from "effect";
+import { useMemo, useRef } from "react";
+import { EffectExample } from "@/features/visual-effect/components/display";
+import { EmojiResult } from "@/features/visual-effect/components/renderers";
+import type { ExampleComponentProps } from "@/features/visual-effect/lib/example-types";
+import { visualEffect } from "@/features/visual-effect/VisualEffect";
+import { getDelay } from "./helpers";
 
 export function EffectRetryExample({ exampleId, index, metadata }: ExampleComponentProps) {
-  const retryCountRef = useRef(0)
+  const retryCountRef = useRef(0);
 
   const swipeCardTask = useMemo(
     () =>
       visualEffect(
         "swipeCard",
         Effect.gen(function* () {
-          const delay = getDelay(200, 400)
-          yield* Effect.sleep(delay)
+          const delay = getDelay(200, 400);
+          yield* Effect.sleep(delay);
 
           // Determine failure based on current retry count
-          const currentRetryCount = retryCountRef.current
-          const failureThreshold = Math.floor(Math.random() * 4) + 2 // 2-5 failures needed
-          const shouldFail = currentRetryCount < failureThreshold
+          const currentRetryCount = retryCountRef.current;
+          const failureThreshold = Math.floor(Math.random() * 4) + 2; // 2-5 failures needed
+          const shouldFail = currentRetryCount < failureThreshold;
 
           if (shouldFail) {
-            retryCountRef.current += 1
+            retryCountRef.current += 1;
             // Randomly select from different error messages
-            const errors = [
-              "Card Read Error!",
-              "Too Fast!",
-              "Too Slow!",
-              "Overdraft Fee!",
-              "Insufficient Funds!",
-            ]
-            const randomError = errors[Math.floor(Math.random() * errors.length)]
-            return yield* Effect.fail(randomError)
+            const errors = ["Card Read Error!", "Too Fast!", "Too Slow!", "Overdraft Fee!", "Insufficient Funds!"];
+            const randomError = errors[Math.floor(Math.random() * errors.length)];
+            return yield* Effect.fail(randomError);
           }
 
           // Success! Reset the counter and return result
-          retryCountRef.current = 0
-          return new EmojiResult("💰")
-        }),
+          retryCountRef.current = 0;
+          return new EmojiResult("💰");
+        })
       ),
-    [retryCountRef],
-  )
+    [retryCountRef]
+  );
 
   const retryTask = useMemo(() => {
-    const retry = swipeCardTask.effect.pipe(
-      Effect.retry(Schedule.forever.pipe(Schedule.addDelay(() => "1 second"))),
-    )
+    const retry = swipeCardTask.effect.pipe(Effect.retry(Schedule.forever.pipe(Schedule.addDelay(() => "1 second"))));
 
-    return visualEffect("result", retry)
-  }, [swipeCardTask])
+    return visualEffect("result", retry);
+  }, [swipeCardTask]);
 
   const codeSnippet = `
 const swipeCard = swipeCard();
-const result = Effect.eventually(swipeCard);`
+const result = Effect.eventually(swipeCard);`;
 
   const taskHighlightMap = useMemo(
     () => ({
       swipeCard: { text: "swipeCard()" },
       result: { text: "Effect.eventually(swipeCard)" },
     }),
-    [],
-  )
+    []
+  );
 
   return (
     <EffectExample
@@ -78,7 +70,7 @@ const result = Effect.eventually(swipeCard);`
       {...(index !== undefined && { index })}
       exampleId={exampleId}
     />
-  )
+  );
 }
 
-export default EffectRetryExample
+export default EffectRetryExample;

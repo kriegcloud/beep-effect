@@ -1,38 +1,35 @@
-"use client"
+"use client";
 
-import { Effect } from "effect"
-import { useMemo } from "react"
-import { EffectExample } from "@/components/display"
-import { TemperatureArrayResult } from "@/components/renderers/TemperatureResult"
-import type { ExampleComponentProps } from "@/lib/example-types"
-import { visualEffect } from "@/VisualEffect"
-import { getWeather } from "./helpers"
+import { Effect } from "effect";
+import { useMemo } from "react";
+import { EffectExample } from "@/features/visual-effect/components/display";
+import { TemperatureArrayResult } from "@/features/visual-effect/components/renderers/TemperatureResult";
+import type { ExampleComponentProps } from "@/features/visual-effect/lib/example-types";
+import { visualEffect } from "@/features/visual-effect/VisualEffect";
+import { getWeather } from "./helpers";
 
-const locations = ["New York", "London", "Tokyo"]
+const locations = ["New York", "London", "Tokyo"];
 
 export function EffectForEachExample({ exampleId, index, metadata }: ExampleComponentProps) {
   // Create tasks at the top level
-  const newYorkTask = useMemo(() => visualEffect("newYork", getWeather("New York")), [])
-  const londonTask = useMemo(() => visualEffect("london", getWeather("London")), [])
-  const tokyoTask = useMemo(() => visualEffect("tokyo", getWeather("Tokyo")), [])
+  const newYorkTask = useMemo(() => visualEffect("newYork", getWeather("New York")), []);
+  const londonTask = useMemo(() => visualEffect("london", getWeather("London")), []);
+  const tokyoTask = useMemo(() => visualEffect("tokyo", getWeather("Tokyo")), []);
 
-  const locationTasks = useMemo(
-    () => [newYorkTask, londonTask, tokyoTask],
-    [newYorkTask, londonTask, tokyoTask],
-  )
+  const locationTasks = useMemo(() => [newYorkTask, londonTask, tokyoTask], [newYorkTask, londonTask, tokyoTask]);
 
   const forEachTask = useMemo(() => {
     const forEach = Effect.forEach(locations, (_, i) => {
-      const task = locationTasks[i]
-      return task ? task.effect : Effect.fail("Task not found")
-    }).pipe(Effect.map(results => new TemperatureArrayResult(results.map(r => r.value))))
+      const task = locationTasks[i];
+      return task ? task.effect : Effect.fail("Task not found");
+    }).pipe(Effect.map((results) => new TemperatureArrayResult(results.map((r) => r.value))));
 
-    return visualEffect("result", forEach)
-  }, [locationTasks])
+    return visualEffect("result", forEach);
+  }, [locationTasks]);
 
   const codeSnippet = `const locations = ["New York", "London", "Tokyo"];
 
-const result = Effect.forEach(locations, getWeather);`
+const result = Effect.forEach(locations, getWeather);`;
 
   const taskHighlightMap = useMemo(
     () => ({
@@ -41,8 +38,8 @@ const result = Effect.forEach(locations, getWeather);`
       tokyo: { text: "Tokyo" },
       result: { text: "Effect.forEach(locations, getWeather)" },
     }),
-    [],
-  )
+    []
+  );
 
   return (
     <EffectExample
@@ -56,7 +53,7 @@ const result = Effect.forEach(locations, getWeather);`
       {...(index !== undefined && { index })}
       exampleId={exampleId}
     />
-  )
+  );
 }
 
-export default EffectForEachExample
+export default EffectForEachExample;

@@ -1,7 +1,7 @@
-import { motion } from "motion/react"
-import React, { useEffect, useRef, useState } from "react"
-import type { VisualEffect } from "@/VisualEffect"
-import { useVisualEffectState } from "@/VisualEffect"
+import { m } from "motion/react";
+import React, { useEffect, useRef, useState } from "react";
+import type { VisualEffect } from "@/features/visual-effect/VisualEffect";
+import { useVisualEffectState } from "@/features/visual-effect/VisualEffect";
 
 // Timeline styling configuration
 const TIMELINE_CONFIG = {
@@ -58,24 +58,24 @@ const TIMELINE_CONFIG = {
       bounce: 0.4,
     },
   },
-} as const
+} as const;
 
 export interface ScheduleTimelineProps {
-  baseEffect: VisualEffect<unknown, unknown>
-  repeatEffect: VisualEffect<unknown, unknown>
-  className?: string
-  pixelsPerSecond?: number
-  scrollThreshold?: number
+  baseEffect: VisualEffect<unknown, unknown>;
+  repeatEffect: VisualEffect<unknown, unknown>;
+  className?: string;
+  pixelsPerSecond?: number;
+  scrollThreshold?: number;
 }
 
 interface TrailSegment {
-  id: string
-  startX: number
-  endX: number
-  type: "running" | "gap"
-  complete: boolean
-  startTime?: number // For calculating duration
-  endTime?: number
+  id: string;
+  startX: number;
+  endX: number;
+  type: "running" | "gap";
+  complete: boolean;
+  startTime?: number; // For calculating duration
+  endTime?: number;
 }
 
 export function ScheduleTimeline({
@@ -85,68 +85,68 @@ export function ScheduleTimeline({
   repeatEffect: repeatTask,
   scrollThreshold = 0.8,
 }: ScheduleTimelineProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const baseState = useVisualEffectState(baseTask)
-  const repeatState = useVisualEffectState(repeatTask)
-  const [isActive, setIsActive] = useState(false)
-  const [startTime, setStartTime] = useState<number | null>(null)
-  const [currentX, setCurrentX] = useState(0)
-  const [scrollOffset, setScrollOffset] = useState(0)
-  const [trailSegments, setTrailSegments] = useState<Array<TrailSegment>>([])
-  const [lastTaskState, setLastTaskState] = useState<string | null>(null)
-  const [isClearing, setIsClearing] = useState(false)
-  const [, setElapsedTime] = useState(0)
-  const [, setFinalElapsedTime] = useState<number | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const baseState = useVisualEffectState(baseTask);
+  const repeatState = useVisualEffectState(repeatTask);
+  const [isActive, setIsActive] = useState(false);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [currentX, setCurrentX] = useState(0);
+  const [scrollOffset, setScrollOffset] = useState(0);
+  const [trailSegments, setTrailSegments] = useState<Array<TrailSegment>>([]);
+  const [lastTaskState, setLastTaskState] = useState<string | null>(null);
+  const [isClearing, setIsClearing] = useState(false);
+  const [, setElapsedTime] = useState(0);
+  const [, setFinalElapsedTime] = useState<number | null>(null);
 
   // Generate unique segment ID
-  const generateSegmentId = () => `segment-${Date.now()}-${Math.random()}`
+  const generateSegmentId = () => `segment-${Date.now()}-${Math.random()}`;
 
   // Format time function (same as TaskNode)
   const formatTime = (ms: number) => {
-    return `${ms}ms`
-  }
+    return `${ms}ms`;
+  };
 
   // Handle base task state changes and timeline activation
   useEffect(() => {
     // Reset timeline when base task is reset to idle state
     if (baseState.type === "idle" && (isActive || trailSegments.length > 0)) {
-      setIsClearing(true)
+      setIsClearing(true);
       setTimeout(() => {
-        setIsActive(false)
-        setStartTime(null)
-        setLastTaskState(null)
-        setIsClearing(false)
-        setTrailSegments([])
-        setCurrentX(TIMELINE_CONFIG.startOffset)
-        setScrollOffset(0)
-        setElapsedTime(0)
-        setFinalElapsedTime(null)
-      }, 300)
-      return
+        setIsActive(false);
+        setStartTime(null);
+        setLastTaskState(null);
+        setIsClearing(false);
+        setTrailSegments([]);
+        setCurrentX(TIMELINE_CONFIG.startOffset);
+        setScrollOffset(0);
+        setElapsedTime(0);
+        setFinalElapsedTime(null);
+      }, 300);
+      return;
     }
 
     // Handle base task state changes for trail coloring
     if (isActive && lastTaskState !== baseState.type && startTime) {
       if (lastTaskState === null && baseState.type === "running") {
-        setLastTaskState("running")
-        return
+        setLastTaskState("running");
+        return;
       }
-      const now = Date.now()
-      const elapsed = now - startTime
-      const currentPosition = TIMELINE_CONFIG.startOffset + (elapsed / 1000) * pixelsPerSecond
+      const now = Date.now();
+      const elapsed = now - startTime;
+      const currentPosition = TIMELINE_CONFIG.startOffset + (elapsed / 1000) * pixelsPerSecond;
 
-      setTrailSegments(prev => {
-        const updated = [...prev]
+      setTrailSegments((prev) => {
+        const updated = [...prev];
         if (updated.length > 0) {
-          const lastIndex = updated.length - 1
-          const last = updated[lastIndex]
+          const lastIndex = updated.length - 1;
+          const last = updated[lastIndex];
           if (last) {
-            last.endX = currentPosition
-            last.complete = true
-            last.endTime = now
+            last.endX = currentPosition;
+            last.complete = true;
+            last.endTime = now;
           }
         }
-        const segmentType = baseState.type === "running" ? "running" : "gap"
+        const segmentType = baseState.type === "running" ? "running" : "gap";
         updated.push({
           id: generateSegmentId(),
           startX: currentPosition,
@@ -154,94 +154,92 @@ export function ScheduleTimeline({
           type: segmentType,
           complete: false,
           startTime: now,
-        })
-        return updated
-      })
-      setLastTaskState(baseState.type)
+        });
+        return updated;
+      });
+      setLastTaskState(baseState.type);
     }
-  }, [baseState.type, isActive, lastTaskState, startTime, pixelsPerSecond, trailSegments.length])
+  }, [baseState.type, isActive, lastTaskState, startTime, pixelsPerSecond, trailSegments.length]);
 
   // Handle repeat task state changes
   useEffect(() => {
     // Start timeline when repeat task starts running
     if (repeatState.type === "running" && !isActive) {
-      setIsActive(true)
-      setStartTime(Date.now())
-      setCurrentX(TIMELINE_CONFIG.startOffset)
-      setScrollOffset(0)
-      setTrailSegments([])
-      setLastTaskState(null)
-      return
+      setIsActive(true);
+      setStartTime(Date.now());
+      setCurrentX(TIMELINE_CONFIG.startOffset);
+      setScrollOffset(0);
+      setTrailSegments([]);
+      setLastTaskState(null);
+      return;
     }
 
     // Stop timeline animation when repeat task completes, fails, or is interrupted
     if (
-      (repeatState.type === "completed" ||
-        repeatState.type === "failed" ||
-        repeatState.type === "interrupted") &&
+      (repeatState.type === "completed" || repeatState.type === "failed" || repeatState.type === "interrupted") &&
       isActive
     ) {
-      setTrailSegments(prev => {
-        const updated = [...prev]
+      setTrailSegments((prev) => {
+        const updated = [...prev];
         if (updated.length > 0) {
-          const lastIndex = updated.length - 1
-          const last = updated[lastIndex]
+          const lastIndex = updated.length - 1;
+          const last = updated[lastIndex];
           if (last) {
-            last.complete = true
-            last.endTime = Date.now()
+            last.complete = true;
+            last.endTime = Date.now();
           }
         }
-        return updated
-      })
+        return updated;
+      });
       if (startTime) {
-        setFinalElapsedTime(Date.now() - startTime)
+        setFinalElapsedTime(Date.now() - startTime);
       }
-      setIsActive(false)
-      return
+      setIsActive(false);
+      return;
     }
 
     // Reset timeline only when tasks are reset to idle state
     if (repeatState.type === "idle" && (isActive || trailSegments.length > 0)) {
-      setIsClearing(true)
+      setIsClearing(true);
       setTimeout(() => {
-        setIsActive(false)
-        setStartTime(null)
-        setLastTaskState(null)
-        setIsClearing(false)
-        setTrailSegments([])
-        setCurrentX(TIMELINE_CONFIG.startOffset)
-        setScrollOffset(0)
-        setElapsedTime(0)
-        setFinalElapsedTime(null)
-      }, 300)
-      return
+        setIsActive(false);
+        setStartTime(null);
+        setLastTaskState(null);
+        setIsClearing(false);
+        setTrailSegments([]);
+        setCurrentX(TIMELINE_CONFIG.startOffset);
+        setScrollOffset(0);
+        setElapsedTime(0);
+        setFinalElapsedTime(null);
+      }, 300);
+      return;
     }
-  }, [repeatState.type, isActive, startTime, trailSegments.length])
+  }, [repeatState.type, isActive, startTime, trailSegments.length]);
 
   // Animation loop - just moves cursor and extends current segment
   useEffect(() => {
-    if (!isActive || !startTime) return
+    if (!isActive || !startTime) return;
 
-    let animationFrame: number
+    let animationFrame: number;
 
     const animate = () => {
-      const now = Date.now()
-      const elapsed = now - startTime
+      const now = Date.now();
+      const elapsed = now - startTime;
 
       // Calculate new cursor position
-      const newX = TIMELINE_CONFIG.startOffset + (elapsed / 1000) * pixelsPerSecond
+      const newX = TIMELINE_CONFIG.startOffset + (elapsed / 1000) * pixelsPerSecond;
 
       // Update elapsed time
-      setElapsedTime(elapsed)
+      setElapsedTime(elapsed);
 
       // Extend the current (last) segment to cursor position
-      setTrailSegments(prev => {
-        const updated = [...prev]
+      setTrailSegments((prev) => {
+        const updated = [...prev];
         if (updated.length > 0) {
-          const lastIndex = updated.length - 1
-          const last = updated[lastIndex]
+          const lastIndex = updated.length - 1;
+          const last = updated[lastIndex];
           if (last) {
-            last.endX = newX
+            last.endX = newX;
           }
         } else {
           // First segment if none exist - only start when base task is running
@@ -253,30 +251,30 @@ export function ScheduleTimeline({
               type: "running",
               complete: false,
               startTime,
-            })
+            });
           }
         }
-        return updated
-      })
+        return updated;
+      });
 
       // Handle scrolling when cursor gets near the edge (simplified for now)
-      const timelineWidth = containerRef.current?.offsetWidth || 500
-      const scrollThresholdX = timelineWidth * scrollThreshold
+      const timelineWidth = containerRef.current?.offsetWidth || 500;
+      const scrollThresholdX = timelineWidth * scrollThreshold;
       if (newX > scrollThresholdX) {
-        setScrollOffset(newX - scrollThresholdX)
+        setScrollOffset(newX - scrollThresholdX);
       }
 
-      setCurrentX(newX)
+      setCurrentX(newX);
 
-      animationFrame = requestAnimationFrame(animate)
-    }
+      animationFrame = requestAnimationFrame(animate);
+    };
 
-    animationFrame = requestAnimationFrame(animate)
+    animationFrame = requestAnimationFrame(animate);
 
     return () => {
-      cancelAnimationFrame(animationFrame)
-    }
-  }, [isActive, startTime, baseState.type, pixelsPerSecond, scrollThreshold])
+      cancelAnimationFrame(animationFrame);
+    };
+  }, [isActive, startTime, baseState.type, pixelsPerSecond, scrollThreshold]);
 
   return (
     <div className={`w-full ${className} relative`} ref={containerRef}>
@@ -315,18 +313,15 @@ export function ScheduleTimeline({
 
           {/* Tick marks */}
           {(() => {
-            const containerWidth = containerRef.current?.offsetWidth || 1000
-            const totalWidth = containerWidth + scrollOffset + 500 // Add extra width for scrolling
-            const tickCount = Math.ceil(totalWidth / TIMELINE_CONFIG.tickMarkSpacing)
-            const ticks = []
+            const containerWidth = containerRef.current?.offsetWidth || 1000;
+            const totalWidth = containerWidth + scrollOffset + 500; // Add extra width for scrolling
+            const tickCount = Math.ceil(totalWidth / TIMELINE_CONFIG.tickMarkSpacing);
+            const ticks = [];
 
             for (let i = 1; i <= tickCount; i++) {
-              const x = i * TIMELINE_CONFIG.tickMarkSpacing - scrollOffset
+              const x = i * TIMELINE_CONFIG.tickMarkSpacing - scrollOffset;
               // Only render ticks that are visible
-              if (
-                x >= -TIMELINE_CONFIG.tickMarkSpacing &&
-                x <= containerWidth + TIMELINE_CONFIG.tickMarkSpacing
-              ) {
+              if (x >= -TIMELINE_CONFIG.tickMarkSpacing && x <= containerWidth + TIMELINE_CONFIG.tickMarkSpacing) {
                 ticks.push(
                   <div
                     key={i}
@@ -338,26 +333,26 @@ export function ScheduleTimeline({
                       top: "0",
                       backgroundColor: TIMELINE_CONFIG.rawColors.tickMark,
                     }}
-                  />,
-                )
+                  />
+                );
               }
             }
 
-            return ticks
+            return ticks;
           })()}
 
           {/* Trail segments */}
-          {trailSegments.map(segment => {
-            const width = segment.endX - segment.startX
-            const left = segment.startX - scrollOffset - 16
+          {trailSegments.map((segment) => {
+            const width = segment.endX - segment.startX;
+            const left = segment.startX - scrollOffset - 16;
 
             if (segment.type === "running") {
-              const isActive = !segment.complete
+              const isActive = !segment.complete;
 
               return (
                 <div key={segment.id}>
                   {/* Blue line */}
-                  <motion.div
+                  <m.div
                     className="absolute"
                     style={{
                       left: `${left}px`,
@@ -386,7 +381,7 @@ export function ScheduleTimeline({
                     }}
                   />
                   {/* Start dot */}
-                  <motion.div
+                  <m.div
                     className="absolute rounded-full z-12"
                     style={{
                       left: `${left - TIMELINE_CONFIG.dotOffset}px`,
@@ -420,7 +415,7 @@ export function ScheduleTimeline({
                   />
                   {/* End dot (only if segment is complete) */}
                   {segment.complete && (
-                    <motion.div
+                    <m.div
                       className="absolute rounded-full z-12"
                       style={{
                         left: `${left + width - TIMELINE_CONFIG.dotOffset}px`,
@@ -457,94 +452,93 @@ export function ScheduleTimeline({
                     />
                   )}
                 </div>
-              )
-            } else {
-              const isActive = !segment.complete
-              // Calculate current duration - either completed or elapsed so far
-              let segmentDuration = null
-              if (segment.startTime) {
-                if (segment.endTime) {
-                  // Completed segment
-                  segmentDuration = segment.endTime - segment.startTime
-                } else if (isActive && startTime) {
-                  // Active segment - show elapsed time
-                  segmentDuration = Date.now() - segment.startTime
-                }
+              );
+            }
+            const isActive = !segment.complete;
+            // Calculate current duration - either completed or elapsed so far
+            let segmentDuration = null;
+            if (segment.startTime) {
+              if (segment.endTime) {
+                // Completed segment
+                segmentDuration = segment.endTime - segment.startTime;
+              } else if (isActive && startTime) {
+                // Active segment - show elapsed time
+                segmentDuration = Date.now() - segment.startTime;
               }
+            }
 
-              // Calculate clean positions without all the offset confusion
-              const segmentStartX = segment.startX - scrollOffset
-              const segmentEndX = segment.endX - scrollOffset
-              const segmentWidth = segmentEndX - segmentStartX
+            // Calculate clean positions without all the offset confusion
+            const segmentStartX = segment.startX - scrollOffset;
+            const segmentEndX = segment.endX - scrollOffset;
+            const segmentWidth = segmentEndX - segmentStartX;
 
-              return (
-                <React.Fragment key={segment.id}>
-                  {/* Gap line */}
-                  <motion.div
-                    className="absolute rounded-full"
+            return (
+              <React.Fragment key={segment.id}>
+                {/* Gap line */}
+                <m.div
+                  className="absolute rounded-full"
+                  style={{
+                    left: `${segmentStartX - 16}px`, // Apply -16 offset only here
+                    width: `${segmentWidth}px`,
+                    height: `${TIMELINE_CONFIG.lineThickness}px`,
+                    top: TIMELINE_CONFIG.lineTopOffset,
+                    transform: "translateY(-50%)",
+                  }}
+                  initial={{ width: 0 }}
+                  animate={{
+                    width: `${segmentWidth}px`,
+                    backgroundColor: isActive
+                      ? TIMELINE_CONFIG.rawColors.gapActive
+                      : TIMELINE_CONFIG.rawColors.gapInactive,
+                    opacity: isClearing ? 0 : 1,
+                  }}
+                  transition={{
+                    width: {
+                      duration: 0, // No delay for width animation
+                    },
+                    backgroundColor: TIMELINE_CONFIG.animation.activeToInactive,
+                    opacity: {
+                      duration: 0.3,
+                      ease: "easeInOut",
+                    },
+                  }}
+                />
+
+                {/* Duration label for gap segments */}
+                {segmentDuration !== null && segmentWidth > 50 && (
+                  <div
+                    className="absolute pointer-events-none"
                     style={{
-                      left: `${segmentStartX - 16}px`, // Apply -16 offset only here
-                      width: `${segmentWidth}px`,
-                      height: `${TIMELINE_CONFIG.lineThickness}px`,
-                      top: TIMELINE_CONFIG.lineTopOffset,
-                      transform: "translateY(-50%)",
+                      left: `${segmentStartX - 16 + segmentWidth / 2}px`,
+                      top: `${TIMELINE_CONFIG.height / 2}px`,
+                      transform: "translate(-50%, -50%)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
-                    initial={{ width: 0 }}
-                    animate={{
-                      width: `${segmentWidth}px`,
-                      backgroundColor: isActive
-                        ? TIMELINE_CONFIG.rawColors.gapActive
-                        : TIMELINE_CONFIG.rawColors.gapInactive,
-                      opacity: isClearing ? 0 : 1,
-                    }}
-                    transition={{
-                      width: {
-                        duration: 0, // No delay for width animation
-                      },
-                      backgroundColor: TIMELINE_CONFIG.animation.activeToInactive,
-                      opacity: {
+                  >
+                    <m.div
+                      className="bg-neutral-900/90 px-2 py-0.5 rounded text-xs font-mono text-neutral-300 border border-neutral-700 whitespace-nowrap"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{
+                        opacity: isClearing ? 0 : 1,
+                        scale: 1,
+                      }}
+                      transition={{
                         duration: 0.3,
-                        ease: "easeInOut",
-                      },
-                    }}
-                  />
-
-                  {/* Duration label for gap segments */}
-                  {segmentDuration !== null && segmentWidth > 50 && (
-                    <div
-                      className="absolute pointer-events-none"
-                      style={{
-                        left: `${segmentStartX - 16 + segmentWidth / 2}px`,
-                        top: `${TIMELINE_CONFIG.height / 2}px`,
-                        transform: "translate(-50%, -50%)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
+                        ease: "easeOut",
                       }}
                     >
-                      <motion.div
-                        className="bg-neutral-900/90 px-2 py-0.5 rounded text-xs font-mono text-neutral-300 border border-neutral-700 whitespace-nowrap"
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{
-                          opacity: isClearing ? 0 : 1,
-                          scale: 1,
-                        }}
-                        transition={{
-                          duration: 0.3,
-                          ease: "easeOut",
-                        }}
-                      >
-                        {formatTime(segmentDuration)}
-                      </motion.div>
-                    </div>
-                  )}
-                </React.Fragment>
-              )
-            }
+                      {formatTime(segmentDuration)}
+                    </m.div>
+                  </div>
+                )}
+              </React.Fragment>
+            );
           })}
 
           {/* Cursor - vertical line that changes color when stopped */}
-          <motion.div
+          <m.div
             className="absolute"
             style={{
               left: `${currentX - scrollOffset - 16}px`,
@@ -577,5 +571,5 @@ export function ScheduleTimeline({
         </div>
       </div>
     </div>
-  )
+  );
 }

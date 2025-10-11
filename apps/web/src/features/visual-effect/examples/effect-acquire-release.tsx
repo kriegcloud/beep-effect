@@ -1,50 +1,50 @@
-"use client"
+"use client";
 
-import { Effect } from "effect"
-import { useEffect, useMemo, useRef } from "react"
-import { EffectExample } from "@/components/display"
-import { StringResult } from "@/components/renderers"
-import { useVisualScope } from "@/hooks/useVisualScope"
-import type { ExampleComponentProps } from "@/lib/example-types"
-import { useVisualEffectState, visualEffect } from "@/VisualEffect"
-import { VisualScope } from "@/VisualScope"
-import { getDelay } from "./helpers"
+import { Effect } from "effect";
+import { useEffect, useMemo, useRef } from "react";
+import { EffectExample } from "@/features/visual-effect/components/display";
+import { StringResult } from "@/features/visual-effect/components/renderers";
+import { useVisualScope } from "@/features/visual-effect/hooks/useVisualScope";
+import type { ExampleComponentProps } from "@/features/visual-effect/lib/example-types";
+import { useVisualEffectState, visualEffect } from "@/features/visual-effect/VisualEffect";
+import { VisualScope } from "@/features/visual-effect/VisualScope";
+import { getDelay } from "./helpers";
 
 // Simulate resource acquisition with cleanup
 function acquireDatabase() {
   return Effect.gen(function* () {
-    yield* Effect.sleep(getDelay(600, 900))
+    yield* Effect.sleep(getDelay(600, 900));
     return {
       connection: "DATABASE",
       close: () => console.log("Database connection closed"),
-    }
-  })
+    };
+  });
 }
 
 function acquireCache() {
   return Effect.gen(function* () {
-    yield* Effect.sleep(getDelay(600, 900))
+    yield* Effect.sleep(getDelay(600, 900));
     return {
       connection: "CACHE",
       close: () => console.log("Cache connection closed"),
-    }
-  })
+    };
+  });
 }
 
 function acquireLogger() {
   return Effect.gen(function* () {
-    yield* Effect.sleep(getDelay(600, 900))
+    yield* Effect.sleep(getDelay(600, 900));
     return {
       file: "LOGGER",
       close: () => console.log("Logger file closed"),
-    }
-  })
+    };
+  });
 }
 
 export function EffectAcquireReleaseExample({ exampleId, index, metadata }: ExampleComponentProps) {
-  const scope = useMemo(() => new VisualScope("resourceScope"), [])
-  const runCountRef = useRef(0)
-  useVisualScope(scope)
+  const scope = useMemo(() => new VisualScope("resourceScope"), []);
+  const runCountRef = useRef(0);
+  useVisualScope(scope);
 
   // Individual resource tasks
   const dbTask = useMemo(
@@ -52,79 +52,79 @@ export function EffectAcquireReleaseExample({ exampleId, index, metadata }: Exam
       visualEffect(
         "database",
         acquireDatabase().pipe(
-          Effect.map(db => new StringResult(db.connection)),
+          Effect.map((db) => new StringResult(db.connection)),
           Effect.tap(() => scope.addFinalizer("Close database")),
-          Effect.tap(() => Effect.sleep(200)),
-        ),
+          Effect.tap(() => Effect.sleep(200))
+        )
       ),
-    [scope],
-  )
+    [scope]
+  );
 
   const cacheTask = useMemo(
     () =>
       visualEffect(
         "cache",
         acquireCache().pipe(
-          Effect.map(cache => new StringResult(cache.connection)),
+          Effect.map((cache) => new StringResult(cache.connection)),
           Effect.tap(() => scope.addFinalizer("Flush cache")),
-          Effect.tap(() => Effect.sleep(200)),
-        ),
+          Effect.tap(() => Effect.sleep(200))
+        )
       ),
-    [scope],
-  )
+    [scope]
+  );
 
   const loggerTask = useMemo(
     () =>
       visualEffect(
         "logger",
         acquireLogger().pipe(
-          Effect.map(logger => new StringResult(logger.file)),
+          Effect.map((logger) => new StringResult(logger.file)),
           Effect.tap(() => scope.addFinalizer("Close log file")),
-          Effect.tap(() => Effect.sleep(200)),
-        ),
+          Effect.tap(() => Effect.sleep(200))
+        )
       ),
-    [scope],
-  )
+    [scope]
+  );
 
   // Main effect that uses scoped resources
   const mainTask = useMemo(() => {
     const scopedEffect = Effect.gen(function* () {
       // Increment run count
-      runCountRef.current += 1
-      const currentRun = runCountRef.current
+      runCountRef.current += 1;
+      const currentRun = runCountRef.current;
 
       // Simulate scope acquisition
-      scope.setState("acquiring")
+      scope.setState("acquiring");
 
       // Acquire resources in order
-      yield* dbTask.effect
+      yield* dbTask.effect;
 
-      yield* cacheTask.effect
+      yield* cacheTask.effect;
 
-      yield* loggerTask.effect
+      yield* loggerTask.effect;
 
-      scope.setState("active")
+      scope.setState("active");
 
       // Do some work with resources
-      yield* Effect.sleep(getDelay(1000, 1500))
+      yield* Effect.sleep(getDelay(1000, 1500));
 
       // Cycle through success, failure, and death
-      const cyclePosition = (currentRun - 1) % 3
+      const cyclePosition = (currentRun - 1) % 3;
 
       if (cyclePosition === 0) {
         // First run: succeed
-        return new StringResult("Work completed!")
-      } else if (cyclePosition === 1) {
-        // Second run: fail
-        return yield* Effect.fail("Oops.")
-      } else {
-        // Third run: die
-        return yield* Effect.die("BANG!")
+        return new StringResult("Work completed!");
       }
-    })
+      if (cyclePosition === 1) {
+        // Second run: fail
+        return yield* Effect.fail("Oops.");
+      }
+      // Third run: die
+      return yield* Effect.die("BANG!");
+    });
 
-    return visualEffect("result", scopedEffect)
-  }, [dbTask, cacheTask, loggerTask, scope])
+    return visualEffect("result", scopedEffect);
+  }, [dbTask, cacheTask, loggerTask, scope]);
 
   // Handle scope cleanup when main task completes
   useEffect(() => {
@@ -137,15 +137,15 @@ export function EffectAcquireReleaseExample({ exampleId, index, metadata }: Exam
         scope.state !== "released"
       ) {
         // Run finalizers (guaranteed cleanup!)
-        scope.runFinalizers()
+        scope.runFinalizers();
       } else if (mainTask.state.type === "idle") {
         // Reset scope when task resets
-        scope.reset()
+        scope.reset();
       }
-    })
+    });
 
-    return unsubscribe
-  }, [mainTask, scope])
+    return unsubscribe;
+  }, [mainTask, scope]);
 
   const codeSnippet = `
 const makeDatabase = Effect.acquireRelease(
@@ -169,7 +169,7 @@ const result = Effect.gen(function* () {
   const logger = yield* makeLogger
   return yield* doWork(db, cache, logger)
 })
-.pipe(Effect.scoped)`
+.pipe(Effect.scoped)`;
 
   const taskHighlightMap = useMemo(
     () => ({
@@ -178,14 +178,14 @@ const result = Effect.gen(function* () {
       logger: { text: "makeLogger" },
       result: { text: "result" },
     }),
-    [],
-  )
+    []
+  );
 
   // Subscribe to main task state changes
-  const mainTaskState = useVisualEffectState(mainTask)
+  const mainTaskState = useVisualEffectState(mainTask);
 
   // Set dark mode when the main task dies
-  const isDarkMode = mainTaskState.type === "death"
+  const isDarkMode = mainTaskState.type === "death";
 
   return (
     <EffectExample
@@ -201,7 +201,7 @@ const result = Effect.gen(function* () {
       {...(index !== undefined && { index })}
       exampleId={exampleId}
     />
-  )
+  );
 }
 
-export default EffectAcquireReleaseExample
+export default EffectAcquireReleaseExample;

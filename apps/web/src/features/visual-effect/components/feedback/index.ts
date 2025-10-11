@@ -1,5 +1,5 @@
-export { DeathBubble } from "./DeathBubble"
-export { EffectLogo } from "./EffectLogo"
-export { FailureBubble } from "./FailureBubble"
-export { FloatingHighlight } from "./FloatingHighlight"
-export { NotificationBubble } from "./NotificationBubble"
+export { DeathBubble } from "./DeathBubble";
+export { EffectLogo } from "./EffectLogo";
+export { FailureBubble } from "./FailureBubble";
+export { FloatingHighlight } from "./FloatingHighlight";
+export { NotificationBubble } from "./NotificationBubble";

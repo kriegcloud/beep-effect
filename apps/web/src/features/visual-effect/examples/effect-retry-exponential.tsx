@@ -1,62 +1,56 @@
-"use client"
+"use client";
 
-import { Effect, Schedule } from "effect"
-import { useMemo } from "react"
-import { EffectExample } from "@/components/display"
-import type { ExampleComponentProps } from "@/lib/example-types"
-import { visualEffect } from "@/VisualEffect"
-import { createCounter, getDelay } from "./helpers"
+import { Effect, Schedule } from "effect";
+import { useMemo } from "react";
+import { EffectExample } from "@/features/visual-effect/components/display";
+import type { ExampleComponentProps } from "@/features/visual-effect/lib/example-types";
+import { visualEffect } from "@/features/visual-effect/VisualEffect";
+import { createCounter, getDelay } from "./helpers";
 
-const parkingAttempt = createCounter(0)
+const parkingAttempt = createCounter(0);
 
-const attempts = ["😤 Too Close!", "😡 Too Far!", "🤬 Neutral!", "😑 Focus."]
+const attempts = ["😤 Too Close!", "😡 Too Far!", "🤬 Neutral!", "😑 Focus."];
 
 function attemptParallelPark(): Effect.Effect<void, string, never> {
   return Effect.gen(function* () {
-    const delay = getDelay(400, 800)
-    yield* Effect.sleep(delay)
+    const delay = getDelay(400, 800);
+    yield* Effect.sleep(delay);
 
-    const message = attempts[Math.min(parkingAttempt.current, attempts.length - 1)]!
+    const message = attempts[Math.min(parkingAttempt.current, attempts.length - 1)]!;
 
-    parkingAttempt.increment()
+    parkingAttempt.increment();
 
     // Reset counter after giving up
     if (parkingAttempt.current > attempts.length) {
-      return "🚗 Parked!"
+      return "🚗 Parked!";
     }
 
-    return yield* Effect.fail(message)
-  })
+    return yield* Effect.fail(message);
+  });
 }
 
-export function EffectRetryExponentialExample({
-  exampleId,
-  index,
-  metadata,
-}: ExampleComponentProps) {
-  const baseTask = useMemo(() => visualEffect("park", attemptParallelPark()), [])
+export function EffectRetryExponentialExample({ exampleId, index, metadata }: ExampleComponentProps) {
+  const baseTask = useMemo(() => visualEffect("park", attemptParallelPark()), []);
 
   const repeatedTask = useMemo(
     () =>
       visualEffect(
         "result",
-        Effect.retry(baseTask.effect, Schedule.exponential("700 millis")).pipe(
-          Effect.ensuring(parkingAttempt.reset),
-        ),
+        Effect.retry(baseTask.effect, Schedule.exponential("700 millis")).pipe(Effect.ensuring(parkingAttempt.reset))
       ),
-    [baseTask],
-  )
+    [baseTask]
+  );
 
   const codeSnippet = `const park = attemptParallelPark();
-const result = Effect.retry(park, Schedule.exponential("700 millis"));`
+const result = Effect.retry(park, Schedule.exponential("700 millis"));`;
 
   const taskHighlightMap = useMemo(
     () => ({
       park: { text: "attemptParallelPark()" },
       result: { text: 'Effect.retry(park, Schedule.exponential("700 millis"))' },
     }),
-    [],
-  )
+    []
+  );
 
   return (
     <EffectExample
@@ -71,7 +65,7 @@ const result = Effect.retry(park, Schedule.exponential("700 millis"));`
       {...(index !== undefined && { index })}
       exampleId={exampleId}
     />
-  )
+  );
 }
 
-export default EffectRetryExponentialExample
+export default EffectRetryExponentialExample;

@@ -1,55 +1,55 @@
-"use client"
+"use client";
 
-import { animate, motion, useMotionValue, useTransform } from "motion/react"
-import { useEffect } from "react"
-import { taskSounds } from "@/sounds/TaskSounds"
-import type { Notification } from "@/VisualEffect"
+import { animate, m, useMotionValue, useTransform } from "motion/react";
+import { useEffect } from "react";
+import { taskSounds } from "@/features/visual-effect/sounds/TaskSounds";
+import type { Notification } from "@/features/visual-effect/VisualEffect";
 
 interface NotificationBubbleProps {
-  notification: Notification
+  notification: Notification;
 }
 
 export function NotificationBubble({ notification }: NotificationBubbleProps) {
-  const floatY = useMotionValue(0)
+  const floatY = useMotionValue(0);
 
   // Play notification chime when notification appears
   useEffect(() => {
-    taskSounds.playNotificationChime()
-  }, []) // Only play once when component mounts
+    taskSounds.playNotificationChime();
+  }, []); // Only play once when component mounts
 
   // Gentle floating animation
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
 
     const floatSequence = async () => {
-      if (cancelled) return
+      if (cancelled) return;
       // Faster floating up and down with ease in out
       while (!cancelled) {
         await animate(floatY, -12, {
           duration: 0.8,
           ease: "easeInOut",
-        }).finished
+        }).finished;
 
-        if (cancelled) break
+        if (cancelled) break;
 
         await animate(floatY, 0, {
           duration: 0.8,
           ease: "easeInOut",
-        }).finished
+        }).finished;
       }
-    }
+    };
 
-    floatSequence()
+    floatSequence();
 
     return () => {
-      cancelled = true
-    }
-  }, [floatY])
+      cancelled = true;
+    };
+  }, [floatY]);
 
-  const transform = useTransform([floatY], ([y]) => `translateY(${y}px)`)
+  const transform = useTransform([floatY], ([y]) => `translateY(${y}px)`);
 
   return (
-    <motion.div
+    <m.div
       style={{
         position: "absolute",
         bottom: "100%",
@@ -67,7 +67,7 @@ export function NotificationBubble({ notification }: NotificationBubbleProps) {
         bounce: 0.1,
       }}
     >
-      <motion.div
+      <m.div
         style={{
           transform,
         }}
@@ -100,7 +100,7 @@ export function NotificationBubble({ notification }: NotificationBubbleProps) {
           {notification.icon && <span className="text-lg">{notification.icon}</span>}
           <span>{notification.message}</span>
         </div>
-      </motion.div>
-    </motion.div>
-  )
+      </m.div>
+    </m.div>
+  );
 }

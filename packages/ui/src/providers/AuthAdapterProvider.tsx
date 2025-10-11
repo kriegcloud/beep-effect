@@ -16,15 +16,13 @@ type User = {
   readonly id: string | number;
   readonly email: string;
   readonly name: string;
-  readonly username?: string;
-  readonly image?: string;
-  readonly role: string;
+  readonly username?: undefined | null | string;
+  readonly image?: string | null | undefined;
+  readonly role?: string | null | undefined;
 };
 
 type Session = {
   readonly user: User;
-  readonly activeAccount: Account;
-  readonly activeOrganization: Org;
 };
 type Notification = {
   readonly id: string;

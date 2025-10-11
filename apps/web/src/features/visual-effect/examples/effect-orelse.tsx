@@ -1,71 +1,69 @@
-"use client"
+"use client";
 
-import { Effect } from "effect"
-import { useMemo, useRef } from "react"
-import { EffectExample } from "@/components/display"
-import { EmojiResult } from "@/components/renderers"
-import type { ExampleComponentProps } from "@/lib/example-types"
-import { VisualEffect, visualEffect } from "@/VisualEffect"
-import { getDelay } from "./helpers"
+import { Effect } from "effect";
+import { useMemo, useRef } from "react";
+import { EffectExample } from "@/features/visual-effect/components/display";
+import { EmojiResult } from "@/features/visual-effect/components/renderers";
+import type { ExampleComponentProps } from "@/features/visual-effect/lib/example-types";
+import { VisualEffect, visualEffect } from "@/features/visual-effect/VisualEffect";
+import { getDelay } from "./helpers";
 
 export function EffectOrElseExample({ exampleId, index, metadata }: ExampleComponentProps) {
-  const attemptCountRef = useRef(0)
+  const attemptCountRef = useRef(0);
 
   const shoot = useMemo(
     () =>
       visualEffect(
         "shoot",
         Effect.gen(function* () {
-          const delay = getDelay(300, 600)
-          yield* Effect.sleep(delay)
+          const delay = getDelay(300, 600);
+          yield* Effect.sleep(delay);
 
-          const currentAttempt = attemptCountRef.current
-          attemptCountRef.current++
-          const cyclePosition = currentAttempt % 3
+          const currentAttempt = attemptCountRef.current;
+          attemptCountRef.current++;
+          const cyclePosition = currentAttempt % 3;
 
           // Cycle: 0 = fail, 1 = succeed, 2 = fail
           if (cyclePosition === 0 || cyclePosition === 2) {
-            return yield* Effect.fail("Out of Ammo!")
-          } else {
-            return new EmojiResult("🔫")
+            return yield* Effect.fail("Out of Ammo!");
           }
-        }),
+          return new EmojiResult("🔫");
+        })
       ),
-    [],
-  )
+    []
+  );
 
   const question = useMemo(
     () =>
       visualEffect(
         "question",
         Effect.gen(function* () {
-          const delay = getDelay(400, 700)
-          yield* Effect.sleep(delay)
+          const delay = getDelay(400, 700);
+          yield* Effect.sleep(delay);
 
-          const currentAttempt = attemptCountRef.current - 1 // Use -1 because shoot already incremented
-          const cyclePosition = currentAttempt % 3
+          const currentAttempt = attemptCountRef.current - 1; // Use -1 because shoot already incremented
+          const cyclePosition = currentAttempt % 3;
 
           // Fail only on the third attempt of each cycle (position 2)
           if (cyclePosition === 2) {
-            return yield* Effect.fail("Brain Fart!")
-          } else {
-            return new EmojiResult("💬")
+            return yield* Effect.fail("Brain Fart!");
           }
-        }),
+          return new EmojiResult("💬");
+        })
       ),
-    [attemptCountRef],
-  )
+    [attemptCountRef]
+  );
 
   const orElseTask = useMemo(() => {
-    const orElse = Effect.orElse(shoot.effect, () => question.effect)
-    return new VisualEffect("result", orElse)
-  }, [shoot, question])
+    const orElse = Effect.orElse(shoot.effect, () => question.effect);
+    return new VisualEffect("result", orElse);
+  }, [shoot, question]);
 
   const codeSnippet = `
 const shoot = shootFirst();
 const question = askQuestions();
 const result = Effect.orElse(shoot, () => question);
-  `
+  `;
 
   const taskHighlightMap = useMemo(
     () => ({
@@ -73,10 +71,10 @@ const result = Effect.orElse(shoot, () => question);
       question: { text: "askQuestions()" },
       result: { text: "Effect.orElse(shoot, () => question)" },
     }),
-    [],
-  )
+    []
+  );
 
-  const tasks = useMemo(() => [shoot, question], [shoot, question])
+  const tasks = useMemo(() => [shoot, question], [shoot, question]);
 
   return (
     <EffectExample
@@ -90,7 +88,7 @@ const result = Effect.orElse(shoot, () => question);
       {...(index !== undefined && { index })}
       exampleId={exampleId}
     />
-  )
+  );
 }
 
-export default EffectOrElseExample
+export default EffectOrElseExample;

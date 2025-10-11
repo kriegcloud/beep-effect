@@ -1,12 +1,23 @@
 "use client";
 
-import { varFade } from "@beep/ui/animate/variants/fade";
 import Box from "@mui/material/Box";
-import { AnimatePresence, m } from "framer-motion";
+import { AnimatePresence, m, type Variants } from "framer-motion";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 
-const pageVariants = varFade("inUp", { distance: 48 });
+const pageVariants: Variants = {
+  initial: { opacity: 0, transform: "none" },
+  animate: {
+    opacity: 1,
+    transform: "none",
+    transition: { duration: 0.24, ease: "easeOut" },
+  },
+  exit: {
+    opacity: 0,
+    transform: "none",
+    transition: { duration: 0.2, ease: "easeIn" },
+  },
+};
 
 type PageTransitionProps = {
   children: ReactNode;
@@ -14,6 +25,11 @@ type PageTransitionProps = {
 
 export function PageTransition({ children }: PageTransitionProps) {
   const pathname = usePathname();
+  const [canAnimate, setCanAnimate] = useState(false);
+
+  useEffect(() => {
+    setCanAnimate(true);
+  }, []);
 
   return (
     <AnimatePresence mode={"wait"} initial={false}>
@@ -21,7 +37,7 @@ export function PageTransition({ children }: PageTransitionProps) {
         key={pathname}
         component={m.div}
         variants={pageVariants}
-        initial={"initial"}
+        initial={canAnimate ? "initial" : false}
         animate={"animate"}
         exit={"exit"}
         sx={{ width: 1, minHeight: "100%", display: "flex", flexDirection: "column", flexGrow: 1 }}

@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { Cause, Effect } from "effect"
-import { AnimatePresence, motion } from "motion/react"
-import { useEffect, useMemo, useRef, useState } from "react"
-import { EffectExample } from "@/components/display"
-import { EmojiResult } from "@/components/renderers"
-import type { ExampleComponentProps } from "@/lib/example-types"
-import { visualEffect } from "@/VisualEffect"
-import { getDelay } from "./helpers"
+import { Cause, Effect } from "effect";
+import { AnimatePresence, m } from "motion/react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { EffectExample } from "@/features/visual-effect/components/display";
+import { EmojiResult } from "@/features/visual-effect/components/renderers";
+import type { ExampleComponentProps } from "@/features/visual-effect/lib/example-types";
+import { visualEffect } from "@/features/visual-effect/VisualEffect";
+import { getDelay } from "./helpers";
 
 // Password generator
 function generatePassword(): string {
@@ -27,14 +27,14 @@ function generatePassword(): string {
     "iloveyou",
     "monkey123",
     "dragon",
-  ]
-  return passwords[Math.floor(Math.random() * passwords.length)]!
+  ];
+  return passwords[Math.floor(Math.random() * passwords.length)]!;
 }
 
 export function EffectValidateExample({ exampleId, index, metadata }: ExampleComponentProps) {
   // Use state to track current password and trigger re-renders
-  const password = useRef(generatePassword())
-  const [, setState] = useState(0)
+  const password = useRef(generatePassword());
+  const [, setState] = useState(0);
 
   // Individual validation tasks with random errors
   const length = useMemo(
@@ -42,81 +42,81 @@ export function EffectValidateExample({ exampleId, index, metadata }: ExampleCom
       visualEffect(
         "length",
         Effect.gen(function* () {
-          yield* Effect.sleep(getDelay(600, 900))
+          yield* Effect.sleep(getDelay(600, 900));
 
-          const len = password.current.length
+          const len = password.current.length;
 
           // Real length validation - tuned to fail ~50% of passwords
           if (len < 8) {
-            return yield* Effect.fail("Too Short!")
+            return yield* Effect.fail("Too Short!");
           }
           if (len > 20) {
-            return yield* Effect.fail("Too Long!")
+            return yield* Effect.fail("Too Long!");
           }
           // Add some randomness to make borderline cases sometimes fail
           if (len === 8 && Math.random() < 0.3) {
-            return yield* Effect.fail("Too Weak!")
+            return yield* Effect.fail("Too Weak!");
           }
 
-          return new EmojiResult("👌")
-        }),
+          return new EmojiResult("👌");
+        })
       ),
-    [],
-  )
+    []
+  );
 
   const complexity = useMemo(
     () =>
       visualEffect(
         "complexity",
         Effect.gen(function* () {
-          yield* Effect.sleep(getDelay(400, 600))
+          yield* Effect.sleep(getDelay(400, 600));
 
-          const hasLower = /[a-z]/.test(password.current)
-          const hasUpper = /[A-Z]/.test(password.current)
-          const hasNumbers = /[0-9]/.test(password.current)
-          const hasSpecial = /[^a-zA-Z0-9]/.test(password.current)
+          const hasLower = /[a-z]/.test(password.current);
+          const hasUpper = /[A-Z]/.test(password.current);
+          const hasNumbers = /[0-9]/.test(password.current);
+          const hasSpecial = /[^a-zA-Z0-9]/.test(password.current);
 
-          const complexity = [hasLower, hasUpper, hasNumbers, hasSpecial].filter(Boolean).length
+          const complexity = [hasLower, hasUpper, hasNumbers, hasSpecial].filter(Boolean).length;
 
           // Real complexity validation - tuned to fail ~50% of passwords
           if (complexity < 2) {
-            return yield* Effect.fail("Too Simple!")
+            return yield* Effect.fail("Too Simple!");
           }
 
           // Check for obviously weak patterns
           if (password.current.toLowerCase() === password.current && !hasNumbers && !hasSpecial) {
-            return yield* Effect.fail("Weak!")
+            return yield* Effect.fail("Weak!");
           }
 
           if (/^\d+$/.test(password.current)) {
-            return yield* Effect.fail("Only #s!")
+            return yield* Effect.fail("Only #s!");
           }
 
           // Sometimes fail even decent passwords to hit ~50% rate
           if (complexity === 2 && Math.random() < 0.3) {
-            return yield* Effect.fail("Meh!")
+            return yield* Effect.fail("Meh!");
           }
 
-          return new EmojiResult("👌")
-        }),
+          return new EmojiResult("👌");
+        })
       ),
-    [],
-  )
+    []
+  );
 
   const vibes = useMemo(
     () =>
       visualEffect(
         "vibes",
         Effect.gen(function* () {
-          yield* Effect.sleep(getDelay(350, 550))
+          yield* Effect.sleep(getDelay(350, 550));
 
           // Only fail 40% of the time
           if (Math.random() > 0.4) {
-            return new EmojiResult("👌")
+            return new EmojiResult("👌");
           }
 
           // Special failure message for each specific password
-          const currentPassword = password.current
+          const currentPassword = password.current;
           const vibeFailures: Record<string, string> = {
             password123: "Basic!",
             "12345678": "Boring!",
@@ -133,32 +133,32 @@ export function EffectValidateExample({ exampleId, index, metadata }: ExampleCom
             iloveyou: "Cheesy!",
             monkey123: "Random!",
             dragon: "Fantasy!",
-          }
+          };
 
-          const vibeError = vibeFailures[currentPassword]
+          const vibeError = vibeFailures[currentPassword];
           if (vibeError) {
-            return yield* Effect.fail(vibeError)
+            return yield* Effect.fail(vibeError);
           }
 
           // Fallback for any password not in the list
-          return yield* Effect.fail("Off!")
-        }),
+          return yield* Effect.fail("Off!");
+        })
       ),
-    [],
-  )
+    []
+  );
 
   // Subscribe to task state changes to generate new password and trigger re-render when reset
   useEffect(() => {
     const unsubscribe = length.subscribe(() => {
       if (length.state.type === "idle") {
-        password.current = generatePassword()
+        password.current = generatePassword();
         // Invalidate the view by updating the state
-        setState(prev => prev + 1) // Assuming setState is a state updater function
+        setState((prev) => prev + 1); // Assuming setState is a state updater function
       }
-    })
+    });
 
-    return unsubscribe
-  }, [length])
+    return unsubscribe;
+  }, [length]);
 
   // Validation task that accumulates all errors
   const validationTask = useMemo(() => {
@@ -166,15 +166,15 @@ export function EffectValidateExample({ exampleId, index, metadata }: ExampleCom
       Effect.validate(complexity.effect),
       Effect.validate(vibes.effect),
       Effect.map(() => "Password Accepted!"),
-      Effect.mapErrorCause(cause => {
+      Effect.mapErrorCause((cause) => {
         // Extract all failure messages from the accumulated cause
-        const failures = Cause.failures(cause)
-        return Cause.fail(`${failures.length} error${failures.length === 1 ? "" : "s"}`)
-      }),
-    )
+        const failures = Cause.failures(cause);
+        return Cause.fail(`${failures.length} error${failures.length === 1 ? "" : "s"}`);
+      })
+    );
 
-    return visualEffect("result", validateAll)
-  }, [length, complexity, vibes])
+    return visualEffect("result", validateAll);
+  }, [length, complexity, vibes]);
 
   const codeSnippet = `const length = checkLength(password);
 const complexity = checkComplexity(password);
@@ -183,7 +183,7 @@ const vibes = checkVibes(password);
 const result = length.pipe(
   Effect.validate(complexity),
   Effect.validate(vibes)
-);`
+);`;
 
   const taskHighlightMap = useMemo(
     () => ({
@@ -192,15 +192,15 @@ const result = length.pipe(
       vibes: { text: "checkVibes(password)" },
       result: { text: "length.pipe(Effect.validate(...))" },
     }),
-    [],
-  )
+    []
+  );
 
   return (
     <>
       <div className="text-neutral-400 text-sm mb-2 font-mono">
         Testing password:{" "}
         <AnimatePresence mode="wait">
-          <motion.span
+          <m.span
             key={password.current}
             initial={{ scale: 0.8, opacity: 0, filter: "blur(4px)" }}
             animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
@@ -209,7 +209,7 @@ const result = length.pipe(
             className="text-white"
           >
             {password.current}
-          </motion.span>
+          </m.span>
         </AnimatePresence>
       </div>
       <EffectExample
@@ -224,7 +224,7 @@ const result = length.pipe(
         exampleId={exampleId}
       />
     </>
-  )
+  );
 }
 
-export default EffectValidateExample
+export default EffectValidateExample;

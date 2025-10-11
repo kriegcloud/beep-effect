@@ -1,20 +1,17 @@
-import { motion } from "motion/react"
-import { theme } from "../../theme"
-import type { AnimationValues } from "./useEffectAnimations"
+import { m } from "motion/react";
+import { theme } from "../../theme";
+import type { AnimationValues } from "./useEffectAnimations";
 
 interface EffectOverlayProps {
-  isRunning: boolean
-  animations: Pick<
-    AnimationValues,
-    "borderRadius" | "borderOpacity" | "flashOpacity" | "flashColor"
-  >
+  isRunning: boolean;
+  animations: Pick<AnimationValues, "borderRadius" | "borderOpacity" | "flashOpacity" | "flashColor">;
 }
 
 function RunningOverlay() {
   return (
     <>
       {[0, 0.2, 0.4, 0.6, 0.8, 1].map((delay, i) => (
-        <motion.div
+        <m.div
           key={i}
           style={{
             position: "absolute",
@@ -33,13 +30,13 @@ function RunningOverlay() {
           transition={{
             duration: 0.8,
             delay,
-            repeat: Infinity,
+            repeat: Number.POSITIVE_INFINITY,
             ease: [0.5, 0, 0.1, 1],
           }}
         />
       ))}
     </>
-  )
+  );
 }
 
 export function EffectOverlay({ animations, isRunning }: EffectOverlayProps) {
@@ -47,7 +44,7 @@ export function EffectOverlay({ animations, isRunning }: EffectOverlayProps) {
     <>
       {/* Animated border overlay for running state */}
       {isRunning && (
-        <motion.div
+        <m.div
           style={{
             position: "absolute",
             inset: 0,
@@ -63,7 +60,7 @@ export function EffectOverlay({ animations, isRunning }: EffectOverlayProps) {
       {isRunning && <RunningOverlay />}
 
       {/* Flash effect overlay */}
-      <motion.div
+      <m.div
         style={{
           position: "absolute",
           inset: 0,
@@ -75,5 +72,5 @@ export function EffectOverlay({ animations, isRunning }: EffectOverlayProps) {
         }}
       />
     </>
-  )
+  );
 }

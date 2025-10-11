@@ -1,41 +1,28 @@
-import { motion, useTransform } from "motion/react"
-import { animationTokens } from "../../animationTokens"
-import type { VisualEffect } from "../../VisualEffect"
-import { nodeVariants } from "./nodeVariants"
-import { getTaskShadow } from "./taskUtils"
-import type { AnimationValues } from "./useEffectAnimations"
+import { m, useTransform } from "motion/react";
+import { animationTokens } from "../../animationTokens";
+import type { VisualEffect } from "../../VisualEffect";
+import { nodeVariants } from "./nodeVariants";
+import { getTaskShadow } from "./taskUtils";
+import type { AnimationValues } from "./useEffectAnimations";
 
 interface EffectContainerProps {
-  state: VisualEffect<unknown, unknown>["state"]
+  state: VisualEffect<unknown, unknown>["state"];
   animations: Pick<
     AnimationValues,
-    | "nodeWidth"
-    | "nodeHeight"
-    | "borderRadius"
-    | "rotation"
-    | "shakeX"
-    | "shakeY"
-    | "blurAmount"
-    | "glowIntensity"
-  >
-  onMouseEnter?: () => void
-  onMouseLeave?: () => void
-  children: React.ReactNode
+    "nodeWidth" | "nodeHeight" | "borderRadius" | "rotation" | "shakeX" | "shakeY" | "blurAmount" | "glowIntensity"
+  >;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+  children: React.ReactNode;
 }
 
-export function EffectContainer({
-  animations,
-  children,
-  onMouseEnter,
-  onMouseLeave,
-  state,
-}: EffectContainerProps) {
-  const isDeath = state.type === "death"
+export function EffectContainer({ animations, children, onMouseEnter, onMouseLeave, state }: EffectContainerProps) {
+  const isDeath = state.type === "death";
   // Use variants for static state-based properties
-  const current = state.type as keyof typeof nodeVariants
+  const current = state.type as keyof typeof nodeVariants;
 
   return (
-    <motion.div
+    <m.div
       // Hybrid approach: variants handle static properties
       variants={nodeVariants}
       animate={current}
@@ -62,32 +49,30 @@ export function EffectContainer({
 
         filter: useTransform([animations.blurAmount], ([blur = 0]: Array<number>) => {
           // Cap blur radius to 2px max for better performance
-          const cappedBlur = Math.min(blur, 2)
+          const cappedBlur = Math.min(blur, 2);
 
           return isDeath
             ? `blur(${cappedBlur}px) contrast(${animationTokens.effects.death.contrast}) brightness(${animationTokens.effects.death.brightness})`
-            : `blur(${cappedBlur}px)`
+            : `blur(${cappedBlur}px)`;
         }),
         // Use box-shadow for glow instead of expensive drop-shadow
         boxShadow: useTransform([animations.glowIntensity], ([glow = 0]: Array<number>) => {
-          const cappedGlow = Math.min(glow, 8)
-          const baseGlow = getTaskShadow(state)
+          const cappedGlow = Math.min(glow, 8);
+          const baseGlow = getTaskShadow(state);
 
           if (isDeath) {
             return cappedGlow > 0
               ? `${baseGlow}, 0 0 ${cappedGlow * 2}px ${animationTokens.colors.glow.death}`
-              : baseGlow
+              : baseGlow;
           }
 
-          return cappedGlow > 0
-            ? `${baseGlow}, 0 0 ${cappedGlow}px ${animationTokens.colors.glow.running}`
-            : baseGlow
+          return cappedGlow > 0 ? `${baseGlow}, 0 0 ${cappedGlow}px ${animationTokens.colors.glow.running}` : baseGlow;
         }),
       }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
       {children}
-    </motion.div>
-  )
+    </m.div>
+  );
 }

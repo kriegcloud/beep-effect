@@ -1,23 +1,19 @@
-"use client"
+"use client";
 
-import { Effect } from "effect"
-import { useMemo } from "react"
-import { EffectExample } from "@/components/display"
-import { NumberResult } from "@/components/renderers"
-import type { ExampleComponentProps } from "@/lib/example-types"
-import { visualEffect } from "@/VisualEffect"
+import { Effect } from "effect";
+import { useMemo } from "react";
+import { EffectExample } from "@/features/visual-effect/components/display";
+import { NumberResult } from "@/features/visual-effect/components/renderers";
+import type { ExampleComponentProps } from "@/features/visual-effect/lib/example-types";
+import { visualEffect } from "@/features/visual-effect/VisualEffect";
 
 export function EffectSyncExample({ exampleId, index, metadata }: ExampleComponentProps) {
   const syncTask = useMemo(
-    () =>
-      visualEffect(
-        "random",
-        Effect.sync(() => Math.random()).pipe(Effect.map(value => new NumberResult(value))),
-      ),
-    [],
-  )
+    () => visualEffect("random", Effect.sync(() => Math.random()).pipe(Effect.map((value) => new NumberResult(value)))),
+    []
+  );
 
-  const codeSnippet = `const random = Effect.sync(() => Math.random())`
+  const codeSnippet = `const random = Effect.sync(() => Math.random())`;
 
   const taskHighlightMap = useMemo(
     () => ({
@@ -25,8 +21,8 @@ export function EffectSyncExample({ exampleId, index, metadata }: ExampleCompone
         text: "Effect.sync(() => Math.random())",
       },
     }),
-    [],
-  )
+    []
+  );
 
   return (
     <EffectExample
@@ -39,7 +35,7 @@ export function EffectSyncExample({ exampleId, index, metadata }: ExampleCompone
       {...(index !== undefined && { index })}
       exampleId={exampleId}
     />
-  )
+  );
 }
 
-export default EffectSyncExample
+export default EffectSyncExample;

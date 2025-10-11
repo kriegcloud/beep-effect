@@ -1,6 +1,6 @@
 "use client";
 import { clientEnv } from "@beep/core-env/client";
-import { iam } from "@beep/iam-sdk";
+import { AuthCallback, iam } from "@beep/iam-sdk";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { paths } from "@beep/shared-domain";
 import { varFade } from "@beep/ui/animate";
@@ -16,6 +16,7 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Redacted from "effect/Redacted";
 import { AnimatePresence, m } from "framer-motion";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 import { FormDivider, FormHead, Terms } from "../_components";
@@ -27,6 +28,12 @@ const signUpTransitionVariants = varFade("inUp", { distance: 64 });
 export const SignUpView = () => {
   const runtime = useRuntime();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackURL = AuthCallback.getURL(searchParams);
+  const signInHref =
+    callbackURL === AuthCallback.defaultTarget
+      ? paths.auth.signIn
+      : `${paths.auth.signIn}?${AuthCallback.paramName}=${encodeURIComponent(callbackURL)}`;
   const runSignUpEmail = makeRunClientPromise(runtime, "iam.signUp.email");
   const runSocialSignIn = makeRunClientPromise(runtime, "iam.signIn.social");
   const { value: isLoading, setValue: setIsLoading } = useBoolean();
@@ -94,7 +101,7 @@ export const SignUpView = () => {
               description={
                 <>
                   {`Already have an account? `}
-                  <Link component={RouterLink} href={paths.auth.signIn} variant={"subtitle2"}>
+                  <Link component={RouterLink} href={signInHref} variant={"subtitle2"}>
                     Sign in
                   </Link>
                 </>

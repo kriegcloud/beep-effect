@@ -5,7 +5,7 @@ import { twoFactorClient } from "@beep/iam-sdk/clients/two-factor";
 import { verifyClient } from "@beep/iam-sdk/clients/verify";
 import { recoverClient } from "./recover";
 import { signInClient } from "./sign-in";
-
+import { signOutClient } from "./sign-out";
 export const iam = {
   signIn: signInClient,
   recover: recoverClient,
@@ -14,4 +14,5 @@ export const iam = {
   twoFactor: twoFactorClient,
   organization: organizationClient,
   oauth2: oauth2Client,
+  signOut: signOutClient,
 } as const;

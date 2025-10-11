@@ -1,31 +1,31 @@
-import { AnimatePresence, motion } from "motion/react"
-import { useEffect, useRef, useState } from "react"
-import { animationTokens } from "../../animationTokens"
-import type { Finalizer } from "../../VisualScope"
+import { AnimatePresence, m } from "motion/react";
+import { useEffect, useRef, useState } from "react";
+import { animationTokens } from "../../animationTokens";
+import type { Finalizer } from "../../VisualScope";
 
 interface FinalizerCardProps {
-  finalizer: Finalizer
+  finalizer: Finalizer;
 }
 
 export function FinalizerCard({ finalizer }: FinalizerCardProps) {
-  const isRunning = finalizer.state === "running"
-  const isCompleted = finalizer.state === "completed"
+  const isRunning = finalizer.state === "running";
+  const isCompleted = finalizer.state === "completed";
 
   // Track state transitions
-  const prevStateRef = useRef(finalizer.state)
-  const [justCompleted, setJustCompleted] = useState(false)
+  const prevStateRef = useRef(finalizer.state);
+  const [justCompleted, setJustCompleted] = useState(false);
 
   useEffect(() => {
     if (prevStateRef.current !== "completed" && finalizer.state === "completed") {
-      setJustCompleted(true)
-      const timeout = setTimeout(() => setJustCompleted(false), 600) // Match animation duration
-      return () => clearTimeout(timeout)
+      setJustCompleted(true);
+      const timeout = setTimeout(() => setJustCompleted(false), 600); // Match animation duration
+      return () => clearTimeout(timeout);
     }
-    prevStateRef.current = finalizer.state
-  }, [finalizer.state])
+    prevStateRef.current = finalizer.state;
+  }, [finalizer.state]);
 
   return (
-    <motion.div
+    <m.div
       initial={{
         opacity: 0,
         scale: 1.2,
@@ -60,7 +60,7 @@ export function FinalizerCard({ finalizer }: FinalizerCardProps) {
       }}
     >
       {/* Checkbox container */}
-      <motion.div
+      <m.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={animationTokens.springs.default}
@@ -74,7 +74,7 @@ export function FinalizerCard({ finalizer }: FinalizerCardProps) {
       >
         <AnimatePresence mode="popLayout">
           {isCompleted && (
-            <motion.div
+            <m.div
               key="check"
               initial={{ scale: 0, rotate: -180, filter: "blur(10px)" }}
               animate={{ scale: 1, rotate: 0, filter: "blur(0px)" }}
@@ -83,6 +83,7 @@ export function FinalizerCard({ finalizer }: FinalizerCardProps) {
               className="absolute inset-0 flex items-center justify-center"
             >
               <svg
+                role={"img"}
                 width="14"
                 height="10"
                 viewBox="0 0 14 10"
@@ -97,13 +98,13 @@ export function FinalizerCard({ finalizer }: FinalizerCardProps) {
                   strokeLinejoin="round"
                 />
               </svg>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
 
         {/* Running animation */}
         {isRunning && (
-          <motion.div
+          <m.div
             className="absolute inset-0 rounded"
             animate={{
               scale: [1, 1.3, 1],
@@ -111,7 +112,7 @@ export function FinalizerCard({ finalizer }: FinalizerCardProps) {
             }}
             transition={{
               duration: 1.5,
-              repeat: Infinity,
+              repeat: Number.POSITIVE_INFINITY,
               ease: "easeInOut",
             }}
             style={{
@@ -119,10 +120,10 @@ export function FinalizerCard({ finalizer }: FinalizerCardProps) {
             }}
           />
         )}
-      </motion.div>
+      </m.div>
       {/* Running pulse effect */}
       {isRunning && (
-        <motion.div
+        <m.div
           className="absolute inset-0 rounded-lg"
           initial={{ opacity: 0 }}
           animate={{
@@ -130,19 +131,18 @@ export function FinalizerCard({ finalizer }: FinalizerCardProps) {
           }}
           transition={{
             duration: 2,
-            repeat: Infinity,
+            repeat: Number.POSITIVE_INFINITY,
             ease: "easeInOut",
           }}
           style={{
-            background:
-              "radial-gradient(ellipse at center, rgba(59, 130, 246, 0.2) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse at center, rgba(59, 130, 246, 0.2) 0%, transparent 70%)",
           }}
         />
       )}
 
       {/* Completion flash */}
       {justCompleted && (
-        <motion.div
+        <m.div
           className="absolute inset-0 rounded-lg"
           initial={{
             opacity: 0.8,
@@ -157,21 +157,16 @@ export function FinalizerCard({ finalizer }: FinalizerCardProps) {
             ease: "easeOut",
           }}
           style={{
-            background:
-              "radial-gradient(ellipse at center, rgba(34, 197, 94, 0.4) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse at center, rgba(34, 197, 94, 0.4) 0%, transparent 70%)",
           }}
         />
       )}
 
       {/* Content */}
       <div className="relative z-10">
-        <motion.span
+        <m.span
           className={`font-mono text-base font-medium ${
-            finalizer.state === "pending"
-              ? "text-white"
-              : isRunning
-                ? "text-blue-300"
-                : "text-green-300/90"
+            finalizer.state === "pending" ? "text-white" : isRunning ? "text-blue-300" : "text-green-300/90"
           }`}
           animate={{
             opacity: 1,
@@ -179,8 +174,8 @@ export function FinalizerCard({ finalizer }: FinalizerCardProps) {
           transition={{ duration: 0.2 }}
         >
           {finalizer.name}
-        </motion.span>
+        </m.span>
       </div>
-    </motion.div>
-  )
+    </m.div>
+  );
 }

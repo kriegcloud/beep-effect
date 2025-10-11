@@ -1,4 +1,4 @@
-import { motion, type Transition } from "motion/react"
+import { m, type Transition } from "motion/react";
 
 export function EffectLogo({ className = "h-7" }: { className?: string }) {
   // Base animation keyframes for the pulsing / glowing effect
@@ -6,16 +6,17 @@ export function EffectLogo({ className = "h-7" }: { className?: string }) {
     scale: [1],
     opacity: [1],
     y: [0], // subtle vertical motion (up then back)
-  }
+  };
 
   const baseTransition: Transition = {
     duration: 2,
     ease: "easeInOut" as const,
-    repeat: Infinity,
-  }
+    repeat: Number.POSITIVE_INFINITY,
+  };
 
   return (
     <svg
+      role={"img"}
       viewBox="0 0 32 32"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -23,7 +24,7 @@ export function EffectLogo({ className = "h-7" }: { className?: string }) {
       style={{ overflow: "visible" }}
     >
       {/* Layer 1 */}
-      <motion.path
+      <m.path
         fillRule="evenodd"
         clipRule="evenodd"
         d="M29.8022 24.317C30.2747 24.05 30.4361 23.4582 30.1636 22.9953C29.891 22.5329 29.2873 22.3741 28.8148 22.6411L15.9211 29.9362L3.07463 22.6683C2.60281 22.4012 1.999 22.5594 1.72597 23.0225C1.45347 23.4854 1.61541 24.077 2.08741 24.3441L15.3897 31.8698C15.5053 31.9353 15.6327 31.9771 15.7645 31.9929C15.8963 32.0087 16.0299 31.9981 16.1576 31.9617C16.278 31.9433 16.3941 31.9031 16.5002 31.8431L29.8022 24.317Z"
@@ -37,7 +38,7 @@ export function EffectLogo({ className = "h-7" }: { className?: string }) {
       />
 
       {/* Layer 2 */}
-      <motion.path
+      <m.path
         fillRule="evenodd"
         clipRule="evenodd"
         d="M31.1298 16.6012C31.1974 16.1929 31.0061 15.7675 30.6177 15.5488L16.555 7.63105C16.4443 7.56873 16.3234 7.52682 16.198 7.50732C16.0631 7.46888 15.922 7.45758 15.7827 7.47405C15.6434 7.49053 15.5088 7.53446 15.3865 7.60332L1.32289 15.5214C0.913972 15.7518 0.723686 16.2117 0.824499 16.6391C0.780205 16.9913 0.91787 17.3598 1.32768 17.5916L15.3904 25.5478C15.5127 25.6169 15.6475 25.661 15.7869 25.6776C15.9263 25.6942 16.0675 25.6829 16.2026 25.6445C16.3297 25.6253 16.4522 25.583 16.5642 25.5197L30.6275 17.563C31.0408 17.329 31.1776 16.9562 31.1298 16.6012ZM28.2266 16.5591L15.9459 9.64453L3.67206 16.5554L15.9528 23.5034L28.2266 16.5591Z"
@@ -51,7 +52,7 @@ export function EffectLogo({ className = "h-7" }: { className?: string }) {
       />
 
       {/* Top filled + outline group */}
-      <motion.g
+      <m.g
         animate={pulseKeyframes}
         transition={{ ...baseTransition, delay: 0.2 }}
         style={{ transformOrigin: "50% 50%" }}
@@ -86,9 +87,9 @@ export function EffectLogo({ className = "h-7" }: { className?: string }) {
             filter: "drop-shadow(0 0 4px rgba(59,130,246,0.4))",
           }}
         />
-      </motion.g>
+      </m.g>
 
       {/* (Former Layer 5) is now part of the grouped animation above */}
     </svg>
-  )
+  );
 }

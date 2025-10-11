@@ -1,18 +1,18 @@
-import { motion } from "motion/react"
-import { Timer } from "@/components/Timer"
-import { theme } from "@/theme"
-import type { VisualEffect } from "@/VisualEffect"
-import { useVisualEffectState } from "@/VisualEffect"
+import { m } from "motion/react";
+import { Timer } from "@/features/visual-effect/components/Timer";
+import { theme } from "@/features/visual-effect/theme";
+import type { VisualEffect } from "@/features/visual-effect/VisualEffect";
+import { useVisualEffectState } from "@/features/visual-effect/VisualEffect";
 
 interface EffectLabelProps {
-  effect: VisualEffect<unknown, unknown>
+  effect: VisualEffect<unknown, unknown>;
 }
 
 export function EffectLabel({ effect }: EffectLabelProps) {
-  const state = useVisualEffectState(effect)
+  const state = useVisualEffectState(effect);
 
   return (
-    <motion.div
+    <m.div
       style={{
         marginTop: theme.spacing.sm,
         fontSize: "0.75rem",
@@ -26,6 +26,6 @@ export function EffectLabel({ effect }: EffectLabelProps) {
       transition={{ duration: 0.3 }}
     >
       <Timer effect={effect} />
-    </motion.div>
-  )
+    </m.div>
+  );
 }

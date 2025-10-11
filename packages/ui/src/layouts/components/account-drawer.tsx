@@ -1,5 +1,6 @@
 "use client";
 
+import { assetPaths } from "@beep/constants";
 import { AnimateBorder } from "@beep/ui/animate";
 import { Iconify, Label } from "@beep/ui/atoms";
 import { useBoolean, usePathname } from "@beep/ui/hooks";
@@ -46,7 +47,11 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
         primaryBorder: { size: 120, sx: { color: "primary.main" } },
       }}
     >
-      <Avatar src={user?.image} alt={user?.name} sx={{ width: 1, height: 1 }}>
+      <Avatar
+        src={user?.image ?? assetPaths.assets.images.mock.avatar.avatar1}
+        alt={user?.name}
+        sx={{ width: 1, height: 1 }}
+      >
         {user?.name?.charAt(0).toUpperCase()}
       </Avatar>
     </AnimateBorder>

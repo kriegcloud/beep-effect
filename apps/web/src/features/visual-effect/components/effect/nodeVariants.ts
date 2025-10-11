@@ -1,5 +1,5 @@
-import { animationTokens } from "../../animationTokens"
-import { TASK_COLORS } from "../../constants/colors"
+import { animationTokens } from "../../animationTokens";
+import { TASK_COLORS } from "../../constants/colors";
 
 // Hybrid approach: Only handle static state-based properties in variants
 // Keep complex animations (jitter, pulses, flashes, dynamic sizing) imperative
@@ -71,7 +71,7 @@ export const nodeVariants = {
       opacity: animationTokens.springs.default,
     },
   },
-} as const
+} as const;
 
 // Note: Width, height, and complex animations remain imperative
 // This preserves dynamic width expansion and complex timing sequences

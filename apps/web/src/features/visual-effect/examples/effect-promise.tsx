@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { useMemo } from "react"
-import { EffectExample } from "@/components/display"
-import type { ExampleComponentProps } from "@/lib/example-types"
-import { visualEffect } from "@/VisualEffect"
-import { getWeather } from "./helpers"
+import { useMemo } from "react";
+import { EffectExample } from "@/features/visual-effect/components/display";
+import type { ExampleComponentProps } from "@/features/visual-effect/lib/example-types";
+import { visualEffect } from "@/features/visual-effect/VisualEffect";
+import { getWeather } from "./helpers";
 
 export function EffectPromiseExample({ exampleId, index, metadata }: ExampleComponentProps) {
   // Simulate a weather API call with built-in jittered delay
-  const promiseTask = useMemo(() => visualEffect("london", getWeather("London")), [])
+  const promiseTask = useMemo(() => visualEffect("london", getWeather("London")), []);
 
   const codeSnippet = `function readTemperature(location) {
   return Effect.promise(() =>
@@ -18,7 +18,7 @@ export function EffectPromiseExample({ exampleId, index, metadata }: ExampleComp
 }
 
 const london = readTemperature("London")
-`
+`;
 
   const taskHighlightMap = useMemo(
     () => ({
@@ -26,8 +26,8 @@ const london = readTemperature("London")
         text: 'readTemperature("London")',
       },
     }),
-    [],
-  )
+    []
+  );
 
   return (
     <EffectExample
@@ -40,7 +40,7 @@ const london = readTemperature("London")
       {...(index !== undefined && { index })}
       exampleId={exampleId}
     />
-  )
+  );
 }
 
-export default EffectPromiseExample
+export default EffectPromiseExample;

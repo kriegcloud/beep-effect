@@ -1,2 +1,2 @@
-export { NavigationSidebar } from "./NavigationSidebar"
-export { PageHeader } from "./PageHeader"
+export { NavigationSidebar } from "./NavigationSidebar";
+export { PageHeader } from "./PageHeader";

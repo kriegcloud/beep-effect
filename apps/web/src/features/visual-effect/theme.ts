@@ -59,4 +59,4 @@ export const theme = {
       visualDuration: 0.5,
     },
   },
-}
+};

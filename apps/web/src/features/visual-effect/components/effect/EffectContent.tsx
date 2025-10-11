@@ -1,34 +1,34 @@
-import { SkullIcon, StarFourIcon, WarningOctagonIcon } from "@phosphor-icons/react"
-import { AnimatePresence, motion } from "motion/react"
-import { useLayoutEffect, useRef } from "react"
-import { theme } from "../../theme"
-import type { VisualEffect } from "../../VisualEffect"
-import { isRenderableResult, renderResult } from "../renderers"
-import type { AnimationValues } from "./useEffectAnimations"
+import { SkullIcon, StarFourIcon, WarningOctagonIcon } from "@phosphor-icons/react";
+import { AnimatePresence, m } from "motion/react";
+import { useLayoutEffect, useRef } from "react";
+import { theme } from "../../theme";
+import type { VisualEffect } from "../../VisualEffect";
+import { isRenderableResult, renderResult } from "../renderers";
+import type { AnimationValues } from "./useEffectAnimations";
 
-type EffectState = VisualEffect<unknown, unknown>["state"]
+type EffectState = VisualEffect<unknown, unknown>["state"];
 
 interface EffectContentProps {
-  state: EffectState
-  animations: Pick<AnimationValues, "contentOpacity" | "contentScale" | "nodeWidth">
+  state: EffectState;
+  animations: Pick<AnimationValues, "contentOpacity" | "contentScale" | "nodeWidth">;
 }
 
 function TaskIcon({ size, type }: { type: string; size: number }) {
-  const iconSize = size * 0.5
+  const iconSize = size * 0.5;
   const iconProps = {
     size: iconSize,
     color: "rgba(255, 255, 255, 0.9)",
-  }
+  };
 
   switch (type) {
     case "failed":
-      return <SkullIcon {...iconProps} weight="fill" />
+      return <SkullIcon {...iconProps} weight="fill" />;
     case "death":
-      return <SkullIcon {...iconProps} weight="fill" color="#dc2626" />
+      return <SkullIcon {...iconProps} weight="fill" color="#dc2626" />;
     case "interrupted":
-      return <WarningOctagonIcon {...iconProps} weight="fill" />
+      return <WarningOctagonIcon {...iconProps} weight="fill" />;
     default:
-      return <StarFourIcon {...iconProps} weight="fill" />
+      return <StarFourIcon {...iconProps} weight="fill" />;
   }
 }
 
@@ -38,7 +38,7 @@ function TaskContentInner({ state }: { state: EffectState }) {
     case "interrupted":
     case "death":
       return (
-        <motion.div
+        <m.div
           key={state.type}
           initial={{ scale: 0, filter: "blur(10px)" }}
           animate={{ scale: 1, filter: "blur(0px)" }}
@@ -50,15 +50,15 @@ function TaskContentInner({ state }: { state: EffectState }) {
           }}
         >
           <TaskIcon type={state.type} size={64} />
-        </motion.div>
-      )
+        </m.div>
+      );
 
     case "completed": {
-      const { result } = state
-      const content = isRenderableResult(result) ? renderResult(result) : String(result)
+      const { result } = state;
+      const content = isRenderableResult(result) ? renderResult(result) : String(result);
 
       return (
-        <motion.div
+        <m.div
           key="result"
           initial={{ opacity: 0, scale: 0.5, filter: "blur(10px)" }}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
@@ -70,16 +70,16 @@ function TaskContentInner({ state }: { state: EffectState }) {
           }}
         >
           {content}
-        </motion.div>
-      )
+        </m.div>
+      );
     }
 
     case "running":
-      return null
+      return null;
 
     default:
       return (
-        <motion.div
+        <m.div
           key="star"
           initial={{ scale: 0, filter: "blur(10px)" }}
           animate={{ scale: 1, filter: "blur(0px)" }}
@@ -87,27 +87,27 @@ function TaskContentInner({ state }: { state: EffectState }) {
           transition={{ type: "spring", bounce: 0.3, visualDuration: 0.3 }}
         >
           <TaskIcon type="default" size={64} />
-        </motion.div>
-      )
+        </m.div>
+      );
   }
 }
 
 export function EffectContent({ animations, state }: EffectContentProps) {
-  const contentRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // Auto-resize width based on content (synchronous, before paint)
   useLayoutEffect(() => {
     if (state.type === "completed" && contentRef.current) {
-      const actualWidth = contentRef.current.scrollWidth
+      const actualWidth = contentRef.current.scrollWidth;
 
       if (actualWidth > 64 - 16) {
-        animations.nodeWidth.set(actualWidth + 24)
+        animations.nodeWidth.set(actualWidth + 24);
       }
     }
-  }, [state, animations.nodeWidth])
+  }, [state, animations.nodeWidth]);
 
   return (
-    <motion.div
+    <m.div
       style={{
         position: "absolute",
         inset: 0,
@@ -126,6 +126,6 @@ export function EffectContent({ animations, state }: EffectContentProps) {
           <TaskContentInner state={state} />
         </AnimatePresence>
       </div>
-    </motion.div>
-  )
+    </m.div>
+  );
 }

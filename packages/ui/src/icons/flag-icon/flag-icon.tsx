@@ -13,6 +13,7 @@ export function FlagIcon({ code, className, sx, ...other }: FlagIconProps) {
   if (!code) {
     return null;
   }
+  console.log(code);
 
   return (
     <FlagRoot className={mergeClasses([flagIconClasses.root, className])} {...(sx ? { sx } : {})} {...other}>

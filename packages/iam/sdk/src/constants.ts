@@ -1,20 +1,63 @@
 import { paths } from "@beep/shared-domain";
+import * as A from "effect/Array";
 import * as F from "effect/Function";
-import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
-import type { ReadonlyURLSearchParams } from "next/navigation";
+import * as Str from "effect/String";
+
+const privateRoutePrefixes = [
+  paths.dashboard.root,
+  paths.settings.root,
+  paths.admin.root,
+  paths.organizations.root,
+  paths.auth.device.root,
+  "/account",
+  paths.fileManager.root,
+] as const;
+
+const stripFragment = (value: string) =>
+  F.pipe(
+    Str.split("#")(value),
+    A.head,
+    O.getOrElse(() => value)
+  );
+
+const stripQuery = (value: string) =>
+  F.pipe(
+    Str.split("?")(value),
+    A.head,
+    O.getOrElse(() => value)
+  );
+
+const normalizePathname = (value: string) => F.pipe(value, stripFragment, stripQuery);
+
+const startsWithPrefix = (pathname: string) =>
+  A.some(privateRoutePrefixes, (prefix) => Str.startsWith(prefix)(pathname));
+
+const isAbsolutePath = (value: string) => Str.startsWith("/")(value) && !Str.startsWith("//")(value);
 
 export namespace AuthCallback {
-  const paramName = "callbackURL" as const;
-  const allowed = HashSet.make(paths.dashboard.root, paths.auth.device.root);
+  export const paramName = "callbackURL" as const;
+  export const defaultTarget = paths.dashboard.root;
 
-  export const getURL = (queryParams: ReadonlyURLSearchParams) =>
-    F.pipe(
-      queryParams.get(paramName),
-      O.fromNullable,
-      O.match({
-        onNone: () => paths.dashboard.root,
-        onSome: (callbackUrl) => (HashSet.has(callbackUrl)(allowed) ? callbackUrl : paths.dashboard.root),
-      })
-    );
+  export type SearchParamsLike = Pick<URLSearchParams, "get">;
+
+  export const sanitizePath = (raw: string | null | undefined) => {
+    if (!raw) {
+      return defaultTarget;
+    }
+
+    if (!isAbsolutePath(raw)) {
+      return defaultTarget;
+    }
+
+    const normalized = normalizePathname(raw);
+
+    if (!startsWithPrefix(normalized)) {
+      return defaultTarget;
+    }
+
+    return raw;
+  };
+
+  export const getURL = (queryParams: SearchParamsLike) => sanitizePath(queryParams.get(paramName));
 }

@@ -1,37 +1,36 @@
-"use client"
+"use client";
 
-import { animate, motion, useMotionValue, useTransform } from "motion/react"
-import { useEffect } from "react"
-import { animationTokens } from "@/animationTokens"
+import { animate, m, useMotionValue, useTransform } from "motion/react";
+import { useEffect } from "react";
+import { animationTokens } from "@/features/visual-effect/animationTokens";
 
 interface FailureBubbleProps {
-  error: unknown
+  error: unknown;
 }
 
 export function FailureBubble({ error }: FailureBubbleProps) {
-  const errorMessage = error instanceof Error ? error.message : String(error)
-  const shakeX = useMotionValue(0)
-  const shakeY = useMotionValue(0)
-  const rotation = useMotionValue(0)
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  const shakeX = useMotionValue(0);
+  const shakeY = useMotionValue(0);
+  const rotation = useMotionValue(0);
 
   // Shake animation when bubble appears
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
     const shakeSequence = async () => {
-      if (cancelled) return
+      if (cancelled) return;
 
       // Shake animation - similar to error node but gentler
-      const shakeIntensity = animationTokens.shake.bubble.intensity
-      const shakeDuration = animationTokens.shake.bubble.duration
-      const shakeCount = animationTokens.shake.bubble.count
+      const shakeIntensity = animationTokens.shake.bubble.intensity;
+      const shakeDuration = animationTokens.shake.bubble.duration;
+      const shakeCount = animationTokens.shake.bubble.count;
 
       for (let i = 0; i < shakeCount; i++) {
-        if (cancelled) break
+        if (cancelled) break;
 
-        const xOffset = (Math.random() - 0.5) * shakeIntensity
-        const yOffset =
-          (Math.random() - 0.5) * shakeIntensity + animationTokens.shake.bubble.yOffset
-        const rotOffset = (Math.random() - 0.5) * animationTokens.shake.bubble.rotationRange
+        const xOffset = (Math.random() - 0.5) * shakeIntensity;
+        const yOffset = (Math.random() - 0.5) * shakeIntensity + animationTokens.shake.bubble.yOffset;
+        const rotOffset = (Math.random() - 0.5) * animationTokens.shake.bubble.rotationRange;
 
         await Promise.all([
           animate(shakeX, xOffset, {
@@ -46,9 +45,9 @@ export function FailureBubble({ error }: FailureBubbleProps) {
             duration: shakeDuration,
             ease: "easeInOut",
           }).finished,
-        ])
+        ]);
 
-        if (cancelled) break
+        if (cancelled) break;
       }
 
       // Return to rest position
@@ -66,21 +65,21 @@ export function FailureBubble({ error }: FailureBubbleProps) {
             duration: animationTokens.shake.bubble.returnDuration,
             ease: "easeOut",
           }).finished,
-        ])
+        ]);
       }
-    }
+    };
 
     // Start shake after a brief delay to let the bubble appear first
-    const timer = setTimeout(shakeSequence, animationTokens.shake.bubble.delay)
+    const timer = setTimeout(shakeSequence, animationTokens.shake.bubble.delay);
 
     return () => {
-      cancelled = true
-      clearTimeout(timer)
-    }
-  }, [shakeX, shakeY, rotation])
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [shakeX, shakeY, rotation]);
 
   return (
-    <motion.div
+    <m.div
       initial={{
         opacity: 0,
         scale: 0.8,
@@ -137,6 +136,6 @@ export function FailureBubble({ error }: FailureBubbleProps) {
           borderTop: `${animationTokens.dimensions.failureBubble.arrowSize} solid ${animationTokens.colors.failureBubble.background}`,
         }}
       />
-    </motion.div>
-  )
+    </m.div>
+  );
 }

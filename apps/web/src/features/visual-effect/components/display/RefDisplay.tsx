@@ -1,24 +1,24 @@
-import { AnimatePresence, motion, type Transition } from "motion/react"
-import { useVisualRef, type VisualRef } from "@/VisualRef"
+import { AnimatePresence, m, type Transition } from "motion/react";
+import { useVisualRef, type VisualRef } from "@/features/visual-effect/VisualRef";
 
 interface RefDisplayProps<A> {
-  visualRef: VisualRef<A>
-  style?: React.CSSProperties
+  visualRef: VisualRef<A>;
+  style?: React.CSSProperties;
 }
 
 export function RefDisplay<A>({ style = {}, visualRef }: RefDisplayProps<A>) {
-  const { justChanged, value } = useVisualRef(visualRef)
+  const { justChanged, value } = useVisualRef(visualRef);
 
   // Dynamic transition: quick flash in (50ms) then slow fade out (600ms)
   const transition: Transition = {
     visualDuration: justChanged ? 0.1 : 0.3,
     bounce: 0,
     type: "spring",
-  }
+  };
 
   return (
     <div className="flex" style={{ ...style, position: "relative", flex: "1 1 auto" }}>
-      <motion.div
+      <m.div
         className="flex items-center  rounded-lg border"
         initial={{
           backgroundColor: "rgba(38, 38, 38, 0.8)",
@@ -33,12 +33,10 @@ export function RefDisplay<A>({ style = {}, visualRef }: RefDisplayProps<A>) {
         transition={transition}
       >
         {/* Ref name */}
-        <span className="text-md font-medium whitespace-nowrap text-neutral-400 p-2 px-4">
-          {visualRef.name}
-        </span>
+        <span className="text-md font-medium whitespace-nowrap text-neutral-400 p-2 px-4">{visualRef.name}</span>
 
         {/* Vertical separator */}
-        <motion.span
+        <m.span
           className="w-px h-full "
           initial={{ backgroundColor: "rgba(64, 64, 64, 0.5)" }}
           animate={{
@@ -54,7 +52,7 @@ export function RefDisplay<A>({ style = {}, visualRef }: RefDisplayProps<A>) {
         {/* Ref value with odometer-style transition */}
         <div className="text-md font-mono font-semibold text-neutral-100 min-w-0 overflow-hidden p-2 px-4">
           <AnimatePresence mode="popLayout" initial={false}>
-            <motion.span
+            <m.span
               key={String(value)}
               initial={{ y: -8, opacity: 0, filter: "blur(4px)" }}
               animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
@@ -63,10 +61,10 @@ export function RefDisplay<A>({ style = {}, visualRef }: RefDisplayProps<A>) {
               className="inline-block"
             >
               {String(value)}
-            </motion.span>
+            </m.span>
           </AnimatePresence>
         </div>
-      </motion.div>
+      </m.div>
     </div>
-  )
+  );
 }

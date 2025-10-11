@@ -1,45 +1,44 @@
-"use client"
+"use client";
 
-import { animate, motion, useMotionValue, useTransform } from "motion/react"
-import { useEffect, useMemo } from "react"
-import { animationTokens } from "@/animationTokens"
+import { animate, m, useMotionValue, useTransform } from "motion/react";
+import { useEffect, useMemo } from "react";
+import { animationTokens } from "@/features/visual-effect/animationTokens";
 
 interface DeathBubbleProps {
-  error: unknown
+  error: unknown;
 }
 
 export function DeathBubble({ error }: DeathBubbleProps) {
   // Generate glitchy characters instead of showing the real message
   const glitchChars = useMemo(() => {
-    const source = error instanceof Error ? error.message : String(error ?? "DEAD")
-    const charset = "@#$%&*/=-+?!~<>\\|█▓▒░"
+    const source = error instanceof Error ? error.message : String(error ?? "DEAD");
+    const charset = "@#$%&*/=-+?!~<>\\|█▓▒░";
     return Array.from({ length: Math.max(6, Math.min(source.length, 16)) })
       .map(() => charset[Math.floor(Math.random() * charset.length)])
-      .join("")
-  }, [error])
+      .join("");
+  }, [error]);
 
-  const shakeX = useMotionValue(0)
-  const shakeY = useMotionValue(0)
-  const rotation = useMotionValue(0)
+  const shakeX = useMotionValue(0);
+  const shakeY = useMotionValue(0);
+  const rotation = useMotionValue(0);
 
   // Re-use the same shake behaviour as FailureBubble
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
 
     const shakeSequence = async () => {
-      if (cancelled) return
+      if (cancelled) return;
 
-      const shakeIntensity = animationTokens.shake.bubble.intensity
-      const shakeDuration = animationTokens.shake.bubble.duration
-      const shakeCount = animationTokens.shake.bubble.count
+      const shakeIntensity = animationTokens.shake.bubble.intensity;
+      const shakeDuration = animationTokens.shake.bubble.duration;
+      const shakeCount = animationTokens.shake.bubble.count;
 
       for (let i = 0; i < shakeCount; i++) {
-        if (cancelled) break
+        if (cancelled) break;
 
-        const xOffset = (Math.random() - 0.5) * shakeIntensity
-        const yOffset =
-          (Math.random() - 0.5) * shakeIntensity + animationTokens.shake.bubble.yOffset
-        const rotOffset = (Math.random() - 0.5) * animationTokens.shake.bubble.rotationRange
+        const xOffset = (Math.random() - 0.5) * shakeIntensity;
+        const yOffset = (Math.random() - 0.5) * shakeIntensity + animationTokens.shake.bubble.yOffset;
+        const rotOffset = (Math.random() - 0.5) * animationTokens.shake.bubble.rotationRange;
 
         await Promise.all([
           animate(shakeX, xOffset, {
@@ -54,9 +53,9 @@ export function DeathBubble({ error }: DeathBubbleProps) {
             duration: shakeDuration,
             ease: "easeInOut",
           }).finished,
-        ])
+        ]);
 
-        if (cancelled) break
+        if (cancelled) break;
       }
 
       if (!cancelled) {
@@ -73,23 +72,23 @@ export function DeathBubble({ error }: DeathBubbleProps) {
             duration: animationTokens.shake.bubble.returnDuration,
             ease: "easeOut",
           }).finished,
-        ])
+        ]);
       }
-    }
+    };
 
-    const timer = setTimeout(shakeSequence, animationTokens.shake.bubble.delay)
+    const timer = setTimeout(shakeSequence, animationTokens.shake.bubble.delay);
 
     return () => {
-      cancelled = true
-      clearTimeout(timer)
-    }
-  }, [shakeX, shakeY, rotation])
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [shakeX, shakeY, rotation]);
 
-  const background = "rgba(0,0,0,0.95)" // black background
-  const arrowColor = "rgba(0,0,0,0.95)"
+  const background = "rgba(0,0,0,0.95)"; // black background
+  const arrowColor = "rgba(0,0,0,0.95)";
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, scale: 0.8, y: 20, filter: "blur(5px)" }}
       animate={{ opacity: 1, scale: 1, y: -5, filter: "blur(0px)" }}
       exit={{ opacity: 0, scale: 0.8, y: 20, filter: "blur(5px)" }}
@@ -132,6 +131,6 @@ export function DeathBubble({ error }: DeathBubbleProps) {
           borderTop: `${animationTokens.dimensions.failureBubble.arrowSize} solid ${arrowColor}`,
         }}
       />
-    </motion.div>
-  )
+    </m.div>
+  );
 }

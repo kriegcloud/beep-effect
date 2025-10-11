@@ -1,26 +1,26 @@
-import { AnimatePresence, motion } from "motion/react"
-import type { Language } from "prism-react-renderer"
-import { Highlight, themes } from "prism-react-renderer"
-import type React from "react"
-import { useEffect, useMemo, useRef } from "react"
+import { AnimatePresence, m } from "motion/react";
+import type { Language } from "prism-react-renderer";
+import { Highlight, themes } from "prism-react-renderer";
+import type React from "react";
+import { useEffect, useMemo, useRef } from "react";
 
-const { oneDark } = themes
+const { oneDark } = themes;
 
 interface CodeBlockProps {
-  code: string
-  language?: Language
+  code: string;
+  language?: Language;
   /**
    * Line numbers (1-based) that should be visually highlighted.
    */
-  activeLines?: Array<number>
+  activeLines?: Array<number>;
   /**
    * Called when the user hovers a line. null means hover left the block.
    */
-  onLineHover?: (lineNo: number | null) => void
+  onLineHover?: (lineNo: number | null) => void;
   /**
    * Optional style overrides for the <pre> element.
    */
-  style?: React.CSSProperties
+  style?: React.CSSProperties;
 }
 
 export const CodeBlock: React.FC<CodeBlockProps> = ({
@@ -31,64 +31,64 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
   style,
 }) => {
   // Ensure active lines are unique for comparison in effect deps
-  const active = Array.from(new Set(activeLines))
+  const active = Array.from(new Set(activeLines));
 
   // Store previous lines to compare for changes
-  const prevLinesRef = useRef<Array<string>>([])
-  const isInitialRender = useRef(true)
+  const prevLinesRef = useRef<Array<string>>([]);
+  const isInitialRender = useRef(true);
 
   // Split current code into lines for comparison
-  const currentLines = useMemo(() => code.trim().split("\n"), [code])
+  const currentLines = useMemo(() => code.trim().split("\n"), [code]);
 
   // Determine stable vs new/removed lines by content
   const lineStates = useMemo(() => {
-    const prev = prevLinesRef.current
-    const prevSet = new Set(prev)
-    const currentSet = new Set(currentLines)
+    const prev = prevLinesRef.current;
+    const prevSet = new Set(prev);
+    const currentSet = new Set(currentLines);
 
     // Don't animate on initial render
     if (isInitialRender.current) {
-      prevLinesRef.current = [...currentLines]
-      isInitialRender.current = false
-      return { stable: currentSet, new: new Set(), removed: new Set() }
+      prevLinesRef.current = [...currentLines];
+      isInitialRender.current = false;
+      return { stable: currentSet, new: new Set(), removed: new Set() };
     }
 
-    const stableLines = new Set()
-    const newLines = new Set()
-    const removedLines = new Set()
+    const stableLines = new Set();
+    const newLines = new Set();
+    const removedLines = new Set();
 
     // Find stable lines (exist in both)
     for (const line of currentLines) {
       if (prevSet.has(line)) {
-        stableLines.add(line)
+        stableLines.add(line);
       } else {
-        newLines.add(line)
+        newLines.add(line);
       }
     }
 
     // Find removed lines (existed before but not now)
     for (const line of prev) {
       if (!currentSet.has(line)) {
-        removedLines.add(line)
+        removedLines.add(line);
       }
     }
 
     // Update the ref for next comparison
-    prevLinesRef.current = [...currentLines]
+    prevLinesRef.current = [...currentLines];
 
-    return { stable: stableLines, new: newLines, removed: removedLines }
-  }, [currentLines])
+    return { stable: stableLines, new: newLines, removed: removedLines };
+  }, [currentLines]);
 
   useEffect(() => {
-    if (active.length === 0) return
+    if (active.length === 0) return;
     // Scroll the first active line into view smoothly
-    const selector = `[data-line-no="${active[0]}"]`
-    const el = document.querySelector(selector)
-    el?.scrollIntoView({ behavior: "smooth", block: "center" })
-  }, [active])
+    const selector = `[data-line-no="${active[0]}"]`;
+    const el = document.querySelector(selector);
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [active]);
 
   return (
-    <motion.div
+    <m.div
       transition={{
         type: "spring",
         visualDuration: 0.1,
@@ -118,11 +118,11 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
           >
             <AnimatePresence mode="popLayout" initial={false}>
               {tokens.map((line: any, i: number) => {
-                const lineNo = i + 1
-                const isActive = active.includes(lineNo)
-                const lineContent = currentLines[i]
+                const lineNo = i + 1;
+                const isActive = active.includes(lineNo);
+                const lineContent = currentLines[i];
                 // const isNewLine = lineStates.new.has(lineContent);
-                const isNewLine = lineStates.new.has(lineContent)
+                const isNewLine = lineStates.new.has(lineContent);
 
                 const { key: _, ...lineProps } = getLineProps({
                   line,
@@ -135,10 +135,10 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
                   },
                   onMouseEnter: () => onLineHover?.(lineNo),
                   onMouseLeave: () => onLineHover?.(null),
-                })
+                });
 
                 return (
-                  <motion.div
+                  <m.div
                     key={`${i}-${lineContent}`}
                     {...lineProps}
                     data-line-no={lineNo}
@@ -159,16 +159,16 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
                       const { key: tokenKey, ...tokenProps } = getTokenProps({
                         token,
                         key: i,
-                      })
-                      return <span key={tokenKey} {...tokenProps} />
+                      });
+                      return <span key={tokenKey} {...tokenProps} />;
                     })}
-                  </motion.div>
-                )
+                  </m.div>
+                );
               })}
             </AnimatePresence>
           </pre>
         )}
       </Highlight>
-    </motion.div>
-  )
-}
+    </m.div>
+  );
+};

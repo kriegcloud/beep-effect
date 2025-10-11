@@ -48,9 +48,6 @@ const verifyEmail = AuthHandler.make<VerifyEmailContract.Type, VerifyEmailContra
   schema: VerifyEmailContract,
   run: AuthHandler.map(({ token, onSuccess, onFailure }) => {
     let capturedError: unknown;
-    console.log("token: ", token);
-    console.log("onSuccess: ", onSuccess);
-    console.log("onFailure: ", onFailure);
     return client
       .verifyEmail(
         {

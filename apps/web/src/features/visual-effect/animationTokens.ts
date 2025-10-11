@@ -174,4 +174,4 @@ export const animationTokens = {
       bubbleScale: 0.8,
     } as const,
   },
-} as const
+} as const;

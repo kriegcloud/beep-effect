@@ -1,41 +1,41 @@
-import { CaretRightIcon } from "@phosphor-icons/react"
-import { AnimatePresence, motion } from "motion/react"
-import { useLayoutEffect, useRef, useState } from "react"
-import { useVisualScope } from "../../hooks/useVisualScope"
-import type { VisualScope } from "../../VisualScope"
-import { FinalizerCard } from "./FinalizerCard"
+import { CaretRightIcon } from "@phosphor-icons/react";
+import { AnimatePresence, m } from "motion/react";
+import { useLayoutEffect, useRef, useState } from "react";
+import { useVisualScope } from "../../hooks/useVisualScope";
+import type { VisualScope } from "../../VisualScope";
+import { FinalizerCard } from "./FinalizerCard";
 
 interface ScopeStackProps {
-  scope: VisualScope
+  scope: VisualScope;
 }
 
 export function ScopeStack({ scope }: ScopeStackProps) {
-  useVisualScope(scope)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [containerWidth, setContainerWidth] = useState(0)
-  const cardWidth = 200 // Based on minWidth in FinalizerCard
+  useVisualScope(scope);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const cardWidth = 200; // Based on minWidth in FinalizerCard
 
   useLayoutEffect(() => {
     const updateWidth = () => {
       if (containerRef.current) {
-        setContainerWidth(containerRef.current.offsetWidth)
+        setContainerWidth(containerRef.current.offsetWidth);
       }
-    }
+    };
 
-    updateWidth()
+    updateWidth();
 
-    const resizeObserver = new ResizeObserver(updateWidth)
+    const resizeObserver = new ResizeObserver(updateWidth);
     if (containerRef.current) {
-      resizeObserver.observe(containerRef.current)
+      resizeObserver.observe(containerRef.current);
     }
 
     return () => {
-      resizeObserver.disconnect()
-    }
-  }, [])
+      resizeObserver.disconnect();
+    };
+  }, []);
 
-  const pendingFinalizers = scope.finalizers.filter(f => f.state === "pending")
-  const completedFinalizers = scope.finalizers.filter(f => f.state === "completed")
+  const pendingFinalizers = scope.finalizers.filter((f) => f.state === "pending");
+  const completedFinalizers = scope.finalizers.filter((f) => f.state === "completed");
 
   // Don't render until we have container width
   if (containerWidth === 0) {
@@ -48,8 +48,8 @@ export function ScopeStack({ scope }: ScopeStackProps) {
           <div className="flex items-center gap-2">
             {/* Left chevrons */}
             <div className="flex gap-1">
-              {[0, 1, 2].map(i => (
-                <motion.span
+              {[0, 1, 2].map((i) => (
+                <m.span
                   key={`left-${i}`}
                   className="text-neutral-600"
                   animate={{
@@ -57,13 +57,13 @@ export function ScopeStack({ scope }: ScopeStackProps) {
                   }}
                   transition={{
                     duration: 2,
-                    repeat: Infinity,
+                    repeat: Number.POSITIVE_INFINITY,
                     delay: i * 0.15,
                     ease: "easeInOut",
                   }}
                 >
                   ›
-                </motion.span>
+                </m.span>
               ))}
             </div>
             <span className="tracking-widest">FINALIZERS!</span>
@@ -71,8 +71,8 @@ export function ScopeStack({ scope }: ScopeStackProps) {
 
             {/* Right chevrons */}
             <div className="flex gap-1">
-              {[3, 4, 5].map(i => (
-                <motion.span
+              {[3, 4, 5].map((i) => (
+                <m.span
                   key={`right-${i}`}
                   className="text-neutral-600"
                   animate={{
@@ -80,19 +80,19 @@ export function ScopeStack({ scope }: ScopeStackProps) {
                   }}
                   transition={{
                     duration: 2,
-                    repeat: Infinity,
+                    repeat: Number.POSITIVE_INFINITY,
                     delay: i * 0.15,
                     ease: "easeInOut",
                   }}
                 >
                   ›
-                </motion.span>
+                </m.span>
               ))}
             </div>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -101,8 +101,8 @@ export function ScopeStack({ scope }: ScopeStackProps) {
         <div className="flex items-center gap-2">
           {/* Left chevrons */}
           <div className="flex gap-1">
-            {[0, 1, 2].map(i => (
-              <motion.span
+            {[0, 1, 2].map((i) => (
+              <m.span
                 key={`left-${i}`}
                 className="text-neutral-600"
                 animate={{
@@ -110,13 +110,13 @@ export function ScopeStack({ scope }: ScopeStackProps) {
                 }}
                 transition={{
                   duration: 2,
-                  repeat: Infinity,
+                  repeat: Number.POSITIVE_INFINITY,
                   delay: i * 0.1,
                   ease: "easeInOut",
                 }}
               >
                 <CaretRightIcon size={16} weight="fill" />
-              </motion.span>
+              </m.span>
             ))}
           </div>
 
@@ -124,8 +124,8 @@ export function ScopeStack({ scope }: ScopeStackProps) {
 
           {/* Right chevrons */}
           <div className="flex gap-1">
-            {[4, 5, 6].map(i => (
-              <motion.span
+            {[4, 5, 6].map((i) => (
+              <m.span
                 key={`right-${i}`}
                 className="text-neutral-600"
                 animate={{
@@ -133,50 +133,50 @@ export function ScopeStack({ scope }: ScopeStackProps) {
                 }}
                 transition={{
                   duration: 2,
-                  repeat: Infinity,
+                  repeat: Number.POSITIVE_INFINITY,
                   delay: i * 0.15,
                   ease: "easeInOut",
                 }}
               >
                 <CaretRightIcon size={16} weight="fill" />
-              </motion.span>
+              </m.span>
             ))}
           </div>
         </div>
       </div>
       <AnimatePresence mode="popLayout">
-        {scope.finalizers.map(finalizer => {
-          const isRunning = finalizer.state === "running"
-          const isPending = finalizer.state === "pending"
-          const isCompleted = finalizer.state === "completed"
+        {scope.finalizers.map((finalizer) => {
+          const isRunning = finalizer.state === "running";
+          const isPending = finalizer.state === "pending";
+          const isCompleted = finalizer.state === "completed";
 
           // Find indices
-          const pendingIndex = pendingFinalizers.indexOf(finalizer)
-          const completedIndex = completedFinalizers.indexOf(finalizer)
+          const pendingIndex = pendingFinalizers.indexOf(finalizer);
+          const completedIndex = completedFinalizers.indexOf(finalizer);
 
           // Calculate x position from left edge
-          let xPosition = 0
-          let zIndex = 10
+          let xPosition = 0;
+          let zIndex = 10;
 
           if (isRunning) {
             // Center the running finalizer
-            xPosition = (containerWidth - cardWidth) / 2
-            zIndex = 20
+            xPosition = (containerWidth - cardWidth) / 2;
+            zIndex = 20;
           } else if (isPending) {
             // Stack pending on the left
-            xPosition = pendingIndex * 35 + 16
-            zIndex = 10 + pendingIndex
+            xPosition = pendingIndex * 35 + 16;
+            zIndex = 10 + pendingIndex;
           } else if (isCompleted) {
             // Stack completed on the right (calculate from left)
-            const rightOffset = (completedFinalizers.length - 1 - completedIndex) * 35 + 16
-            xPosition = containerWidth - rightOffset - cardWidth
-            zIndex = 10 - completedIndex
+            const rightOffset = (completedFinalizers.length - 1 - completedIndex) * 35 + 16;
+            xPosition = containerWidth - rightOffset - cardWidth;
+            zIndex = 10 - completedIndex;
           }
 
-          const scale = isRunning ? 1.05 : 1
+          const scale = isRunning ? 1.05 : 1;
 
           return (
-            <motion.div
+            <m.div
               key={finalizer.id}
               layoutId={finalizer.id}
               className="absolute"
@@ -196,10 +196,10 @@ export function ScopeStack({ scope }: ScopeStackProps) {
               }}
             >
               <FinalizerCard finalizer={finalizer} />
-            </motion.div>
-          )
+            </m.div>
+          );
         })}
       </AnimatePresence>
     </div>
-  )
+  );
 }

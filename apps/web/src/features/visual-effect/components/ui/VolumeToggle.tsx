@@ -1,39 +1,39 @@
-import { AnimatePresence, motion, useSpring } from "motion/react"
-import { useEffect, useRef } from "react"
-import { taskSounds } from "@/sounds/TaskSounds"
+import { AnimatePresence, m, useSpring } from "motion/react";
+import { useEffect, useRef } from "react";
+import { taskSounds } from "@/features/visual-effect/sounds/TaskSounds";
 
 interface VolumeToggleProps {
-  isMuted: boolean
-  onToggle: () => void
+  isMuted: boolean;
+  onToggle: () => void;
 }
 
 export function VolumeToggle({ isMuted, onToggle }: VolumeToggleProps) {
-  const onRef = useRef<HTMLSpanElement>(null)
-  const offRef = useRef<HTMLSpanElement>(null)
-  const width = useSpring(0, { stiffness: 400, damping: 30 })
+  const onRef = useRef<HTMLSpanElement>(null);
+  const offRef = useRef<HTMLSpanElement>(null);
+  const width = useSpring(0, { stiffness: 400, damping: 30 });
 
   useEffect(() => {
     // Measure the widths of ON and OFF text
     if (onRef.current && offRef.current) {
-      const targetWidth = isMuted ? offRef.current.offsetWidth : onRef.current.offsetWidth
-      width.set(targetWidth)
+      const targetWidth = isMuted ? offRef.current.offsetWidth : onRef.current.offsetWidth;
+      width.set(targetWidth);
     }
-  }, [isMuted, width])
+  }, [isMuted, width]);
   const handleToggle = async () => {
     // If currently muted and about to unmute, play success sound
     if (isMuted) {
       // First toggle to unmute
-      onToggle()
+      onToggle();
       // Immediately update TaskSounds muted state to prevent race condition
-      taskSounds.setMuted(false)
+      taskSounds.setMuted(false);
       // Then play the success sound (since sound is now enabled)
-      await taskSounds.playSuccess()
+      await taskSounds.playSuccess();
     } else {
       // Toggle to mute and immediately update TaskSounds
-      onToggle()
-      taskSounds.setMuted(true)
+      onToggle();
+      taskSounds.setMuted(true);
     }
-  }
+  };
   return (
     <button
       type="button"
@@ -46,10 +46,7 @@ export function VolumeToggle({ isMuted, onToggle }: VolumeToggleProps) {
         <span className="text-base font-mono font-bold text-neutral-400 select-none uppercase tracking-wide">
           SOUND
         </span>
-        <motion.div
-          className="relative flex items-center overflow-hidden"
-          style={{ height: "1.2em", width }}
-        >
+        <m.div className="relative flex items-center overflow-hidden" style={{ height: "1.2em", width }}>
           {/* Hidden measurement spans */}
           <span
             ref={onRef}
@@ -67,7 +64,7 @@ export function VolumeToggle({ isMuted, onToggle }: VolumeToggleProps) {
           </span>
 
           <AnimatePresence mode="popLayout">
-            <motion.span
+            <m.span
               key={isMuted ? "off" : "on"}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -82,9 +79,9 @@ export function VolumeToggle({ isMuted, onToggle }: VolumeToggleProps) {
               style={{ lineHeight: 1 }}
             >
               {isMuted ? "OFF" : "ON"}
-            </motion.span>
+            </m.span>
           </AnimatePresence>
-        </motion.div>
+        </m.div>
       </div>
 
       {/* iOS-style toggle switch */}
@@ -102,5 +99,5 @@ export function VolumeToggle({ isMuted, onToggle }: VolumeToggleProps) {
         />
       </div>
     </button>
-  )
+  );
 }

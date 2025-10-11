@@ -1,17 +1,15 @@
-import { LightbulbFilamentIcon } from "@phosphor-icons/react"
-import { memo } from "react"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
+import { LightbulbFilamentIcon } from "@phosphor-icons/react";
+import { memo } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface InfoCalloutProps {
-  children: string
+  children: string;
 }
 
 function InfoCalloutComponent({ children }: InfoCalloutProps) {
   return (
-    <div
-      className="bg-neutral-900/50 border border-amber-500/15 rounded-2xl p-4"
-    >
+    <div className="bg-neutral-900/50 border border-amber-500/15 rounded-2xl p-4">
       <div className="flex items-start gap-3">
         <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
           <LightbulbFilamentIcon weight="fill" size={24} className="text-amber-400" />
@@ -21,9 +19,7 @@ function InfoCalloutComponent({ children }: InfoCalloutProps) {
             remarkPlugins={[remarkGfm]}
             components={{
               p: ({ children }) => (
-                <p className="text-neutral-400 text-base leading-relaxed mb-2 last:mb-0">
-                  {children}
-                </p>
+                <p className="text-neutral-400 text-base leading-relaxed mb-2 last:mb-0">{children}</p>
               ),
               code: ({ children }) => <code className="text-amber-400 text-base">{children}</code>,
               strong: ({ children }) => <strong className="text-amber-400">{children}</strong>,
@@ -35,7 +31,7 @@ function InfoCalloutComponent({ children }: InfoCalloutProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export const InfoCallout = memo(InfoCalloutComponent)
+export const InfoCallout = memo(InfoCalloutComponent);

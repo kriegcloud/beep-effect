@@ -1,9 +1,9 @@
-import type { RenderableResult } from "./RenderableResult"
+import type { RenderableResult } from "./RenderableResult";
 
 export class TemperatureResult implements RenderableResult {
   constructor(
     public value: number,
-    public location?: string,
+    public location?: string
   ) {}
 
   render() {
@@ -11,7 +11,7 @@ export class TemperatureResult implements RenderableResult {
       <div key="temp" className="text-xl">
         {this.value}°
       </div>
-    )
+    );
   }
 }
 
@@ -21,8 +21,8 @@ export class TemperatureArrayResult implements RenderableResult {
   render() {
     return (
       <div key="array" className="text-xl">
-        [{this.values.map(t => `${t}°`).join(", ")}]
+        [{this.values.map((t) => `${t}°`).join(", ")}]
       </div>
-    )
+    );
   }
 }

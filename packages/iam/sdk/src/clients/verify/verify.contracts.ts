@@ -24,12 +24,18 @@ export namespace SendEmailVerificationContract {
 }
 
 export class VerifyEmailContract extends BS.Class<VerifyEmailContract>("VerifyEmailContract")({
-  token: S.Any,
-  onFailure: S.Any,
-  onSuccess: S.Any,
+  token: S.Redacted(S.String),
+  onFailure: new BS.Fn({
+    input: S.Undefined,
+    output: S.Void,
+  }).Schema,
+  onSuccess: new BS.Fn({
+    input: S.Undefined,
+    output: S.Void,
+  }).Schema,
 }) {}
 
-export namespace VerifyEmailContract {
+export declare namespace VerifyEmailContract {
   export type Type = typeof VerifyEmailContract.Type;
   export type Encoded = typeof VerifyEmailContract.Encoded;
 }

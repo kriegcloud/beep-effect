@@ -1,4 +1,4 @@
-import type { ExampleMeta } from "./example-types"
+import type { ExampleMeta } from "./example-types";
 
 // This is the single source of truth for all examples
 // Examples are listed in the exact order they should appear
@@ -175,10 +175,10 @@ export const examplesManifest: Array<ExampleMeta> = [
     description: "Acquire resources with guaranteed cleanup",
     section: "scope",
   },
-]
+];
 
 // Section callout content
-export const sectionCallouts: Partial<Record<ExampleMeta["section"], string>> = {}
+export const sectionCallouts: Partial<Record<ExampleMeta["section"], string>> = {};
 //   {
 //     "error handling": `**Error Handling** in Effect is **type-safe** and **composable**. Effects track potential errors at the type level, enabling precise error recovery and handling strategies.
 
@@ -199,11 +199,11 @@ export const sectionCallouts: Partial<Record<ExampleMeta["section"], string>> = 
 
 // Helper function to get metadata by ID
 export function getExampleMeta(id: string): ExampleMeta | undefined {
-  return examplesManifest.find(meta => meta.id === id)
+  return examplesManifest.find((meta) => meta.id === id);
 }
 
 // Helper function to load example component dynamically
 export async function loadExampleComponent(id: string) {
-  const mod = await import(`../examples/${id}`)
-  return mod.default
+  const mod = await import(`../examples/${id}`);
+  return mod.default;
 }

@@ -1,20 +1,17 @@
-"use client"
+"use client";
 
-import { Effect } from "effect"
-import { useMemo } from "react"
-import { EffectExample } from "@/components/display"
-import type { ExampleComponentProps } from "@/lib/example-types"
-import { useVisualEffectState, visualEffect } from "@/VisualEffect"
+import { Effect } from "effect";
+import { useMemo } from "react";
+import { EffectExample } from "@/features/visual-effect/components/display";
+import type { ExampleComponentProps } from "@/features/visual-effect/lib/example-types";
+import { useVisualEffectState, visualEffect } from "@/features/visual-effect/VisualEffect";
 
 export function EffectDieExample({ exampleId, index, metadata }: ExampleComponentProps) {
-  const deathTask = useMemo(
-    () => visualEffect("death", Effect.die(new Error("404: Will to live not found"))),
-    [],
-  )
+  const deathTask = useMemo(() => visualEffect("death", Effect.die(new Error("404: Will to live not found"))), []);
 
-  const deathState = useVisualEffectState(deathTask)
+  const deathState = useVisualEffectState(deathTask);
 
-  const codeSnippet = `const death = Effect.die(new Error("FATAL: System corrupted"))`
+  const codeSnippet = `const death = Effect.die(new Error("FATAL: System corrupted"))`;
 
   const taskHighlightMap = useMemo(
     () => ({
@@ -22,11 +19,11 @@ export function EffectDieExample({ exampleId, index, metadata }: ExampleComponen
         text: 'Effect.die(new Error("FATAL: System corrupted"))',
       },
     }),
-    [],
-  )
+    []
+  );
 
   // Start with normal mode, transition to dark when task dies
-  const isDarkMode = deathState.type === "death"
+  const isDarkMode = deathState.type === "death";
 
   return (
     <EffectExample
@@ -40,7 +37,7 @@ export function EffectDieExample({ exampleId, index, metadata }: ExampleComponen
       {...(index !== undefined && { index })}
       exampleId={exampleId}
     />
-  )
+  );
 }
 
-export default EffectDieExample
+export default EffectDieExample;
