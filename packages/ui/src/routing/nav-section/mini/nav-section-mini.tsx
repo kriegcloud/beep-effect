@@ -1,5 +1,5 @@
+import { mergeClasses } from "@beep/ui-core/utils";
 import { useTheme } from "@mui/material/styles";
-import { mergeClasses } from "../../../utils";
 
 import { Nav, NavLi, NavUl } from "../components";
 import { navSectionClasses, navSectionCssVars } from "../styles";

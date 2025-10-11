@@ -1,5 +1,5 @@
+import { mergeClasses } from "@beep/ui-core/utils";
 import * as Str from "effect/String";
-import { mergeClasses } from "../../utils";
 
 import { labelClasses } from "./classes";
 import { LabelIcon, LabelRoot } from "./styles";

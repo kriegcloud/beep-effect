@@ -12,7 +12,6 @@
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@beep/ui/components",
-    "utils": "@beep/ui/utils",
     "hooks": "@beep/ui/hooks",
     "lib": "@beep/ui/lib",
     "ui": "@beep/ui/components",

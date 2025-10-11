@@ -1,8 +1,8 @@
 "use client";
 
+import { mergeClasses } from "@beep/ui-core/utils";
 import { styled } from "@mui/material/styles";
 import type React from "react";
-import { mergeClasses } from "../../utils";
 import { flagIconClasses } from "./classes";
 
 export type FlagIconProps = React.ComponentProps<typeof FlagRoot> & {

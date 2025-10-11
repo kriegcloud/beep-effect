@@ -1,6 +1,6 @@
+import { mergeClasses } from "@beep/ui-core/utils";
 import { useTheme } from "@mui/material/styles";
 import { Scrollbar } from "../../../molecules";
-import { mergeClasses } from "../../../utils";
 import { Nav, NavLi, NavUl } from "../components";
 import { navSectionClasses, navSectionCssVars } from "../styles";
 import type { NavGroupProps, NavSectionProps } from "../types";

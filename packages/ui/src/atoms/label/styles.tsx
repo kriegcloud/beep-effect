@@ -1,8 +1,8 @@
 "use client";
 
+import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { CSSObject } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
-import { rgbaFromChannel } from "../../utils";
 
 import type { LabelProps } from "./types";
 

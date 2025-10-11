@@ -1,7 +1,7 @@
 "use client";
 
+import { mergeClasses } from "@beep/ui-core/utils";
 import { styled } from "@mui/material/styles";
-import { mergeClasses } from "../../utils";
 
 import { svgColorClasses } from "./classes";
 

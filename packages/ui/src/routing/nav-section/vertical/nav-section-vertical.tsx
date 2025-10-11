@@ -1,7 +1,7 @@
+import { mergeClasses } from "@beep/ui-core/utils";
 import Collapse from "@mui/material/Collapse";
 import { useTheme } from "@mui/material/styles";
 import { useBoolean } from "../../../hooks";
-import { mergeClasses } from "../../../utils";
 import { Nav, NavLi, NavSubheader, NavUl } from "../components";
 import { navSectionClasses, navSectionCssVars } from "../styles";
 import type { NavGroupProps, NavSectionProps } from "../types";

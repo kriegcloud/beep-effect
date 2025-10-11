@@ -1,5 +1,5 @@
+import { createCtx } from "@beep/ui-core/utils";
 import type React from "react";
-import { createCtx } from "../utils";
 
 type Org = {
   readonly id: string | number;

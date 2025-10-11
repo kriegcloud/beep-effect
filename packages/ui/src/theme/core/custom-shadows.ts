@@ -1,4 +1,4 @@
-import { rgbaFromChannel } from "../../utils";
+import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { ThemeColorScheme } from "../types";
 import { common, error, grey, info, primary, secondary, success, warning } from "./palette";
 

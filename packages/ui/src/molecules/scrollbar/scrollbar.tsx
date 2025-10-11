@@ -1,7 +1,7 @@
 "use client";
+import { mergeClasses } from "@beep/ui-core/utils";
 import { styled } from "@mui/material/styles";
 import type * as React from "react";
-import { mergeClasses } from "../../utils";
 import { SimpleBar } from "../SimpleBar";
 import { scrollbarClasses } from "./classes";
 

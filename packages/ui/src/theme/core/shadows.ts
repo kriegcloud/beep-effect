@@ -1,6 +1,5 @@
+import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { Shadows } from "@mui/material/styles";
-
-import { rgbaFromChannel } from "../../utils";
 import type { ThemeColorScheme } from "../types";
 import { common, grey } from "./palette";
 

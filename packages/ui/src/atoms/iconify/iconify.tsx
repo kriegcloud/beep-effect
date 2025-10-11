@@ -1,10 +1,10 @@
 "use client";
+import { mergeClasses } from "@beep/ui-core/utils";
 import type { IconProps } from "@iconify/react";
 import { Icon } from "@iconify/react";
 import { styled } from "@mui/material/styles";
 import type React from "react";
 import { useId } from "react";
-import { mergeClasses } from "../../utils";
 
 import { iconifyClasses } from "./classes";
 import type { IconifyName } from "./register-icons";

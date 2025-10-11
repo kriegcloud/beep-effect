@@ -192,12 +192,6 @@
       "types": "./build/dts/theme/*",
       "require": "./build/cjs/theme/*",
       "default": "./build/src/theme/*"
-    },
-    "./utils/*": {
-      "import": "./build/esm/utils/*",
-      "types": "./build/dts/utils/*",
-      "require": "./build/cjs/utils/*",
-      "default": "./build/src/utils/*"
     }
   },
   "peerDependencies": {

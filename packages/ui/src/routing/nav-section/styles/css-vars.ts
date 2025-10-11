@@ -1,6 +1,5 @@
+import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { Theme } from "@mui/material/styles";
-
-import { rgbaFromChannel } from "../../../utils";
 
 export const bulletColor = { dark: "#282F37", light: "#EDEFF2" };
 

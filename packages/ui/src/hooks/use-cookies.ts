@@ -1,7 +1,7 @@
 "use client";
+import type { CookieOptions } from "@beep/ui-core/utils";
+import { getCookie, removeCookie, setCookie } from "@beep/ui-core/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { CookieOptions } from "../utils";
-import { getCookie, removeCookie, setCookie } from "../utils";
 
 /**
  * Custom hook to manage state with cookies.

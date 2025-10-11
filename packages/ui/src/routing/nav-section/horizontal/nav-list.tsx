@@ -1,9 +1,9 @@
 "use client";
+import { isActiveLink, isExternalLink } from "@beep/ui-core/utils";
 import { popoverClasses } from "@mui/material/Popover";
 import { useTheme } from "@mui/material/styles";
 import { useCallback, useEffect } from "react";
 import { usePathname, usePopoverHover } from "../../../hooks";
-import { isActiveLink, isExternalLink } from "../../../utils";
 import { NavDropdown, NavDropdownPaper, NavLi, NavUl } from "../components";
 import { navSectionClasses } from "../styles";
 import type { NavListProps, NavSubListProps } from "../types";

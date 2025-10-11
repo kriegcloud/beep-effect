@@ -1,7 +1,7 @@
 "use client";
-import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { getStorage, removeStorage, setStorage } from "../utils";
+import { getStorage, removeStorage, setStorage } from "@beep/ui-core/utils";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 /**
  * Custom hook to manage state with local storage.

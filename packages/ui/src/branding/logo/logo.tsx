@@ -1,5 +1,7 @@
 "use client";
 import { assetPaths } from "@beep/constants";
+// import { useId } from "react";
+import { mergeClasses } from "@beep/ui-core/utils";
 import Box from "@mui/material/Box";
 import type { LinkProps } from "@mui/material/Link";
 import Link from "@mui/material/Link";
@@ -8,8 +10,6 @@ import {
   //  useTheme
 } from "@mui/material/styles";
 import { RouterLink } from "../../routing";
-// import { useId } from "react";
-import { mergeClasses } from "../../utils";
 
 import { logoClasses } from "./classes";
 

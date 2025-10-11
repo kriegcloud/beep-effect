@@ -1,8 +1,8 @@
+import { mergeClasses } from "@beep/ui-core/utils";
 import type { ListSubheaderProps } from "@mui/material/ListSubheader";
 import ListSubheader from "@mui/material/ListSubheader";
 import { styled } from "@mui/material/styles";
 import { Iconify, iconifyClasses } from "../../../atoms";
-import { mergeClasses } from "../../../utils";
 import { navSectionClasses } from "../styles";
 
 export type NavSubheaderProps = ListSubheaderProps & { open?: boolean };

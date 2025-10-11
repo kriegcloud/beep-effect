@@ -1,6 +1,6 @@
+import { mergeClasses } from "@beep/ui-core/utils";
 import { styled } from "@mui/material/styles";
 import type React from "react";
-import { mergeClasses } from "../../../utils";
 import { navSectionClasses } from "../styles";
 
 export const Nav = styled("nav")``;

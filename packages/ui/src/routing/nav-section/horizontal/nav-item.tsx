@@ -1,9 +1,9 @@
+import { mergeClasses } from "@beep/ui-core/utils";
 import ButtonBase from "@mui/material/ButtonBase";
 import type { CSSObject } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
 import Tooltip from "@mui/material/Tooltip";
 import { Iconify } from "../../../atoms";
-import { mergeClasses } from "../../../utils";
 import { navItemStyles, navSectionClasses } from "../styles";
 import type { NavItemProps } from "../types";
 import { createNavItem } from "../utils";

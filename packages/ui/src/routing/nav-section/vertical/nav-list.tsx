@@ -1,7 +1,7 @@
 "use client";
+import { isActiveLink, isExternalLink } from "@beep/ui-core/utils";
 import { useCallback, useEffect, useRef } from "react";
 import { useBoolean, usePathname } from "../../../hooks";
-import { isActiveLink, isExternalLink } from "../../../utils";
 
 import { NavCollapse, NavLi, NavUl } from "../components";
 import { navSectionClasses } from "../styles";
