@@ -14,6 +14,7 @@ import * as d from "drizzle-orm";
 import * as A from "effect/Array";
 import type { ConfigError } from "effect/ConfigError";
 import * as Data from "effect/Data";
+import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
@@ -171,6 +172,7 @@ const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService | I
             const slug = `${user.name?.toLowerCase().replace(/\s+/g, "-") || "user"}-${user.id.slice(-6)}`;
 
             const program = Effect.gen(function* () {
+              const now = yield* DateTime.now.pipe(Effect.flatMap((now) => Effect.succeed(DateTime.toDate(now))));
               yield* db.insert(IamDbSchema.organization).values({
                 id: personalOrgId,
                 name: `${user.name || "User"}'s Organization`,
@@ -182,8 +184,8 @@ const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService | I
                 subscriptionStatus: "active",
                 createdBy: user.id,
                 source: "auto_created",
-                createdAt: new Date(),
-                updatedAt: new Date(),
+                createdAt: now,
+                updatedAt: now,
               });
               yield* db.insert(IamDbSchema.member).values({
                 id: personalMemberId,
@@ -191,10 +193,10 @@ const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService | I
                 organizationId: personalOrgId,
                 role: "owner",
                 status: IamEntities.Member.MemberStatusEnum.active,
-                joinedAt: new Date(),
+                joinedAt: now,
                 createdBy: user.id,
-                createdAt: new Date(),
-                updatedAt: new Date(),
+                createdAt: now,
+                updatedAt: now,
               });
             });
             // Create personal organization with multi-tenant field
