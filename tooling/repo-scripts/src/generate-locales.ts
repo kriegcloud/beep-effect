@@ -46,12 +46,14 @@ const program = Effect.gen(function* () {
   const loggedPath = path.relative(repo.REPOSITORY_ROOT, outputFilePath);
   yield* Console.log(`✨ Wrote ${loggedPath}`);
 }).pipe(
-  Effect.provide(repoLayer),
-  Effect.provide(fetchLayer),
-  Effect.provide(FetchHttpClient.layer),
-  Effect.provide(BunFileSystem.layer),
-  Effect.provide(BunPath.layerPosix),
-  Effect.provide(BunContext.layer),
+  Effect.provide([
+    repoLayer,
+    fetchLayer,
+    FetchHttpClient.layer,
+    BunFileSystem.layer,
+    BunPath.layerPosix,
+    BunContext.layer,
+  ]),
   Effect.catchAll((error) =>
     Effect.gen(function* () {
       yield* Console.log("\n💥 Program failed:", String(error));

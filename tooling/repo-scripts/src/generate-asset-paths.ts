@@ -90,4 +90,4 @@ export const publicPaths = ${JSON.stringify(files, null, 2)} as const;
   )
 );
 
-BunRuntime.runMain(program);
+BunRuntime.runMain(Effect.scoped(program));
