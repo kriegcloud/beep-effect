@@ -35,7 +35,7 @@ const Footer = () => {
           <Box component="span" whiteSpace="nowrap">
             Thank you for creating with
             <Box component="strong" mx={0.5}>
-              Aurora{" "}
+              Beep Effect{" "}
             </Box>
           </Box>
 
@@ -44,8 +44,8 @@ const Footer = () => {
               |
             </Box>{" "}
             {dayjs().year()} ©
-            <Link href="https://themewagon.com/" target="_blank" sx={{ textDecoration: "none", mx: 0.5 }}>
-              ThemeWagon
+            <Link href="https://codedank.com/" target="_blank" sx={{ textDecoration: "none", mx: 0.5 }}>
+              CodeDank INC
             </Link>
           </Box>
         </Typography>

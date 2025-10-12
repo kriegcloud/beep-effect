@@ -1,4 +1,3 @@
-import { assetPaths } from "@beep/constants";
 import type { TextDirection } from "@beep/ui-core/settings";
 import { FormControlLabel, Radio } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
@@ -7,6 +6,8 @@ import type { ChangeEvent } from "react";
 import { useSettingsContext } from "../SettingsProvider";
 import SettingsItem from "./SettingsItem";
 import SettingsPanelRadioGroup from "./SettingsPanelRadioGroup";
+
+const SETTINGS_PANEL_IMAGE_BASE = "/assets/images/sections/settings-panel";
 
 const TextDirectionPanel = () => {
   const {
@@ -32,11 +33,7 @@ const TextDirectionPanel = () => {
         label={
           <SettingsItem
             label="LTR"
-            image={
-              theme.palette.mode === "light"
-                ? assetPaths.assets.images.sections.ltr
-                : assetPaths.assets.images.sections.ltrDark
-            }
+            image={`${SETTINGS_PANEL_IMAGE_BASE}/ltr${theme.palette.mode === "dark" ? "-dark" : ""}.avif`}
             active={textDirection === "ltr"}
           />
         }
@@ -47,11 +44,7 @@ const TextDirectionPanel = () => {
         label={
           <SettingsItem
             label="RTL"
-            image={
-              theme.palette.mode === "light"
-                ? assetPaths.assets.images.sections.rtl
-                : assetPaths.assets.images.sections.rtlDark
-            }
+            image={`${SETTINGS_PANEL_IMAGE_BASE}/rtl${theme.palette.mode === "dark" ? "-dark" : ""}.avif`}
             active={textDirection === "rtl"}
           />
         }

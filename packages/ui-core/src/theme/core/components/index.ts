@@ -28,6 +28,7 @@ import { treeView } from "./mui-x-tree-view";
 import { pagination } from "./pagination";
 import { paper } from "./paper";
 import { popover } from "./popover";
+import { popper } from "./popper";
 import { progress } from "./progress";
 import { radio } from "./radio";
 import { rating } from "./rating";
@@ -44,7 +45,6 @@ import { textField } from "./text-field";
 import { timeline } from "./timeline";
 import { toolbar } from "./toolbar";
 import { tooltip } from "./tooltip";
-
 export { toolbar };
 
 export const components: Components<Theme> = {
@@ -96,4 +96,5 @@ export const components: Components<Theme> = {
   ...treeView,
   ...dataGrid,
   ...datePicker,
+  ...popper,
 };

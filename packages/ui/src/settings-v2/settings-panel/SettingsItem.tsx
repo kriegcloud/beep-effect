@@ -1,6 +1,6 @@
 "use client";
 
-import { Iconify, Image } from "@beep/ui/atoms";
+import { Iconify } from "@beep/ui/atoms";
 import { Box, Typography } from "@mui/material";
 
 import { useState } from "react";
@@ -51,7 +51,13 @@ const SettingsItem = ({ label, image, active }: SettingsItemProps) => {
           },
         ]}
       >
-        <Image src={image} sx={{ height: 1, width: 1, display: "block" }} />
+        <Box
+          component="img"
+          src={image}
+          alt=""
+          draggable={false}
+          sx={{ height: 1, width: 1, display: "block", borderRadius: 1 }}
+        />
       </Box>
 
       {active && (

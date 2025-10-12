@@ -1,5 +1,5 @@
 import type { DefaultAnnotations } from "@beep/schema/annotations";
-import { DiscriminatedStruct } from "@beep/schema/generics/DiscriminatedStruct";
+import { TaggedUnion } from "@beep/schema/generics/TaggedUnion";
 import type { OptionalWithDefault } from "@beep/schema/types";
 import { mergeFields } from "@beep/schema/utils";
 import type { StringTypes, StructTypes, UnsafeTypes } from "@beep/types";
@@ -9,7 +9,7 @@ import * as FC from "effect/FastCheck";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
 
-interface DiscriminatedUnionFactoryBuilderSpec<
+interface TaggedUnionFactoryBuilderSpec<
   Discriminator extends StringTypes.NonEmptyString<string>,
   Fields extends StructTypes.StructFieldsWithStringKeys,
 > {
@@ -17,17 +17,17 @@ interface DiscriminatedUnionFactoryBuilderSpec<
   readonly fields: Fields;
 }
 
-export class DiscriminatedUnionFactoryBuilder<
+export class TaggedUnionFactoryBuilder<
   const Discriminator extends StringTypes.NonEmptyString<string>,
   const Fields extends StructTypes.StructFieldsWithStringKeys,
-> extends Data.TaggedClass("DiscriminatedUnionFactory")<DiscriminatedUnionFactoryBuilderSpec<Discriminator, Fields>> {
+> extends Data.TaggedClass("TaggedUnionFactory")<TaggedUnionFactoryBuilderSpec<Discriminator, Fields>> {
   readonly make: <
     const LiteralValue extends StringTypes.NonEmptyString<string>,
     const ExtraFields extends StructTypes.StructFieldsWithStringKeys,
   >(
     literal: LiteralValue,
     extraFields: ExtraFields
-  ) => DiscriminatedUnionFactory<Discriminator, LiteralValue, Fields & ExtraFields>;
+  ) => TaggedUnionFactory<Discriminator, LiteralValue, Fields & ExtraFields>;
 
   constructor(discriminatorKey: Discriminator, fields: Fields) {
     super({ discriminatorKey, fields });
@@ -37,11 +37,11 @@ export class DiscriminatedUnionFactoryBuilder<
     >(
       literal: LiteralValue,
       extraFields: ExtraFields
-    ) => new DiscriminatedUnionFactory(discriminatorKey, literal, mergeFields(fields, extraFields));
+    ) => new TaggedUnionFactory(discriminatorKey, literal, mergeFields(fields, extraFields));
   }
 }
 
-interface DiscriminatedUnionFactorySpec<
+interface TaggedUnionFactorySpec<
   Discriminator extends StringTypes.NonEmptyString<string>,
   LiteralValue extends StringTypes.NonEmptyString<string>,
   Fields extends StructTypes.StructFieldsWithStringKeys,
@@ -60,19 +60,17 @@ export type FilterUnion<
   ? S.Struct<{ readonly [K in Discriminator]: OptionalWithDefault<LiteralValue> } & Fields & ExtraFields>
   : never;
 
-export class DiscriminatedUnionFactory<
+export class TaggedUnionFactory<
   const Discriminator extends StringTypes.NonEmptyString<string>,
   const LiteralValue extends StringTypes.NonEmptyString<string>,
   const Fields extends StructTypes.StructFieldsWithStringKeys,
-> extends Data.TaggedClass("DiscriminatedUnionFactory")<
-  DiscriminatedUnionFactorySpec<Discriminator, LiteralValue, Fields>
-> {
+> extends Data.TaggedClass("TaggedUnionFactory")<TaggedUnionFactorySpec<Discriminator, LiteralValue, Fields>> {
   readonly make: <const ExtraFields extends StructTypes.StructFieldsWithStringKeys>(
     extraFields: ExtraFields
   ) => (
     annotations: Omit<DefaultAnnotations<FilterUnion<Discriminator, LiteralValue, Fields, ExtraFields>>, "examples"> & {
       readonly examples?: AST.ExamplesAnnotation<
-        S.Schema.Type<DiscriminatedStruct.Schema<Discriminator, LiteralValue, Fields & ExtraFields>>
+        S.Schema.Type<TaggedUnion.Schema<Discriminator, LiteralValue, Fields & ExtraFields>>
       >;
     }
   ) => FilterUnion<Discriminator, LiteralValue, Fields, ExtraFields>;
@@ -84,27 +82,24 @@ export class DiscriminatedUnionFactory<
       ({
         examples,
         ...annotations
-      }: Omit<
-        DefaultAnnotations<DiscriminatedStruct.Schema<Discriminator, LiteralValue, Fields & ExtraFields>>,
-        "examples"
-      > & {
+      }: Omit<DefaultAnnotations<TaggedUnion.Schema<Discriminator, LiteralValue, Fields & ExtraFields>>, "examples"> & {
         readonly examples?: AST.ExamplesAnnotation<
-          S.Schema.Type<DiscriminatedStruct.Schema<Discriminator, LiteralValue, Fields & ExtraFields>>
+          S.Schema.Type<TaggedUnion.Schema<Discriminator, LiteralValue, Fields & ExtraFields>>
         >;
       }) => {
-        const schema = DiscriminatedStruct<Discriminator, LiteralValue, Fields & ExtraFields>(discriminatorKey)(
+        const schema = TaggedUnion<Discriminator, LiteralValue, Fields & ExtraFields>(discriminatorKey)(
           discriminatorValue,
           mergeFields(fields, extraFields)
         ).pipe(S.annotations(annotations));
 
         const arb = Arbitrary.make<
-          S.Schema.Type<DiscriminatedStruct.Schema<Discriminator, LiteralValue, Fields & ExtraFields>>,
-          S.Schema.Encoded<DiscriminatedStruct.Schema<Discriminator, LiteralValue, Fields & ExtraFields>>,
+          S.Schema.Type<TaggedUnion.Schema<Discriminator, LiteralValue, Fields & ExtraFields>>,
+          S.Schema.Encoded<TaggedUnion.Schema<Discriminator, LiteralValue, Fields & ExtraFields>>,
           never
         >(schema);
         const samples = FC.sample(arb, 3);
 
-        return DiscriminatedStruct<Discriminator, LiteralValue, Fields & ExtraFields>(discriminatorKey)(
+        return TaggedUnion<Discriminator, LiteralValue, Fields & ExtraFields>(discriminatorKey)(
           discriminatorValue,
           mergeFields(fields, extraFields)
         )

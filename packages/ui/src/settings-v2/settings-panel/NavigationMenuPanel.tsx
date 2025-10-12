@@ -1,4 +1,3 @@
-import { assetPaths } from "@beep/constants";
 import type { NavigationMenuType } from "@beep/ui-core/settings";
 import { FormControlLabel, Radio } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
@@ -9,6 +8,8 @@ import { useSettingsContext } from "../SettingsProvider";
 import { SET_NAVIGATION_MENU_TYPE } from "../SettingsReducer";
 import SettingsItem from "./SettingsItem";
 import SettingsPanelRadioGroup from "./SettingsPanelRadioGroup";
+
+const SETTINGS_PANEL_IMAGE_BASE = "/assets/images/sections/settings-panel";
 
 const NavigationMenuPanel = () => {
   const {
@@ -40,11 +41,7 @@ const NavigationMenuPanel = () => {
         label={
           <SettingsItem
             label="Sidenav"
-            image={
-              theme.palette.mode === "light"
-                ? assetPaths.assets.images.sections.settingspanel.sidenav
-                : assetPaths.assets.images.sections.settingspanel.sidenavDark
-            }
+            image={`${SETTINGS_PANEL_IMAGE_BASE}/sidenav${theme.palette.mode === "dark" ? "-dark" : ""}.avif`}
             active={!disableNavigationMenuSection && navigationMenuType === "sidenav"}
           />
         }
@@ -55,11 +52,7 @@ const NavigationMenuPanel = () => {
         label={
           <SettingsItem
             label="Topnav"
-            image={
-              theme.palette.mode === "light"
-                ? assetPaths.assets.images.sections.settingspanel.topnav
-                : assetPaths.assets.images.sections.settingspanel.topnavDark
-            }
+            image={`${SETTINGS_PANEL_IMAGE_BASE}/topnav${theme.palette.mode === "dark" ? "-dark" : ""}.avif`}
             active={!disableNavigationMenuSection && navigationMenuType === "topnav"}
           />
         }
@@ -70,11 +63,7 @@ const NavigationMenuPanel = () => {
         label={
           <SettingsItem
             label="Combo"
-            image={
-              theme.palette.mode === "light"
-                ? assetPaths.assets.images.sections.settingspanel.combo
-                : assetPaths.assets.images.sections.settingspanel.comboDark
-            }
+            image={`${SETTINGS_PANEL_IMAGE_BASE}/combo${theme.palette.mode === "dark" ? "-dark" : ""}.avif`}
             active={!disableNavigationMenuSection && navigationMenuType === "combo"}
           />
         }

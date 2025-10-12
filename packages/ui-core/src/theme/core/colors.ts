@@ -10,7 +10,7 @@ export const grey = {
   800: "#1B2124",
   900: "#111417",
   950: "#06080A",
-};
+} as const;
 export const blue = {
   50: "#EAF3FD",
   100: "#C6DDFB",
@@ -23,7 +23,7 @@ export const blue = {
   800: "#1C4984",
   900: "#143560",
   950: "#0A1B30",
-};
+} as const;
 export const purple = {
   50: "#F2E4FE",
   100: "#E6CAFE",
@@ -36,7 +36,7 @@ export const purple = {
   800: "#5B2489",
   900: "#421A64",
   950: "#210D32",
-};
+} as const;
 
 export const red = {
   50: "#F9E2E6",
@@ -50,7 +50,7 @@ export const red = {
   800: "#721324",
   900: "#530E1A",
   950: "#3A0A12",
-};
+} as const;
 export const orange = {
   50: "#FEEFE1",
   100: "#FCDFC4",
@@ -63,7 +63,7 @@ export const orange = {
   800: "#874E17",
   900: "#623811",
   950: "#372412",
-};
+} as const;
 export const green = {
   50: "#E6F5F0",
   100: "#BBE4D5",
@@ -76,7 +76,7 @@ export const green = {
   800: "#05573A",
   900: "#04402A",
   950: "#022015",
-};
+} as const;
 export const lightBlue = {
   50: "#E0F3FA",
   100: "#BCE6F4",
@@ -89,9 +89,9 @@ export const lightBlue = {
   800: "#075B76",
   900: "#054256",
   950: "#03212B",
-};
+} as const;
 
 export const basic = {
   white: "#ffffff",
   black: "#000000",
-};
+} as const;

@@ -52,7 +52,7 @@ Key modules under `src/`:
 - `JsonSchema.ts` — JSON Schema derivation and helpers for forms/docs.
 - `extended-schemas.ts` — additional combinators and struct utilities (`Struct`, `Tuple`, `Array`, `NonEmptyArray`,
   `deriveAndAttachProperty`, etc.).
-- `generics/` — helpers like `DiscriminatedStruct` and `TaggedStruct`.
+- `generics/` — helpers like `TaggedUnion` and `TaggedStruct`.
 - `sql/` — SQL modeling helpers (annotation‑only), e.g. `DateTimeFromDate`, `OptionFromDateTime` tuned for Postgres
   and JSON Schema formats.
 - `annotations/`, `utils/`, `form/`, `kits/`, `regexes.ts` — focused utilities and presets used by the above.

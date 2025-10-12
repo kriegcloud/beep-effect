@@ -1,5 +1,4 @@
 "use client";
-import { assetPaths } from "@beep/constants";
 import type { SideNavType } from "@beep/ui-core/settings";
 import { FormControlLabel, Radio } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
@@ -11,9 +10,11 @@ import { SET_SIDENAV_SHAPE } from "../SettingsReducer";
 import SettingsItem from "./SettingsItem";
 import SettingsPanelRadioGroup from "./SettingsPanelRadioGroup";
 
+const SETTINGS_PANEL_IMAGE_BASE = "/assets/images/sections/settings-panel";
+
 const SidenavShapePanel = () => {
   const {
-    config: { sideNavType },
+    config: { sidenavType },
     configDispatch,
   } = useSettingsContext();
   const theme = useTheme();
@@ -35,19 +36,15 @@ const SidenavShapePanel = () => {
   };
 
   return (
-    <SettingsPanelRadioGroup name="sidenav-shape" value={sideNavType} onChange={handleChange}>
+    <SettingsPanelRadioGroup name="sidenav-shape" value={sidenavType} onChange={handleChange}>
       <FormControlLabel
         value="default"
         control={<Radio />}
         label={
           <SettingsItem
             label="Default"
-            image={
-              theme.palette.mode === "light"
-                ? assetPaths.assets.images.sections.sidenavDefault
-                : assetPaths.assets.images.sections.sidenavDefaultDark
-            }
-            active={!disableSidenavShapeSection && sideNavType === "default"}
+            image={`${SETTINGS_PANEL_IMAGE_BASE}/sidenav-default${theme.palette.mode === "dark" ? "-dark" : ""}.avif`}
+            active={!disableSidenavShapeSection && sidenavType === "default"}
           />
         }
       />
@@ -57,12 +54,8 @@ const SidenavShapePanel = () => {
         label={
           <SettingsItem
             label="Slim"
-            image={
-              theme.palette.mode === "light"
-                ? assetPaths.assets.images.sections.slim
-                : assetPaths.assets.images.sections.slimDark
-            }
-            active={!disableSidenavShapeSection && sideNavType === "slim"}
+            image={`${SETTINGS_PANEL_IMAGE_BASE}/slim${theme.palette.mode === "dark" ? "-dark" : ""}.avif`}
+            active={!disableSidenavShapeSection && sidenavType === "slim"}
           />
         }
       />
@@ -72,12 +65,8 @@ const SidenavShapePanel = () => {
         label={
           <SettingsItem
             label="Stacked"
-            image={
-              theme.palette.mode === "light"
-                ? assetPaths.assets.images.sections.stacked
-                : assetPaths.assets.images.sections.stackedDark
-            }
-            active={!disableSidenavShapeSection && sideNavType === "stacked"}
+            image={`${SETTINGS_PANEL_IMAGE_BASE}/stacked${theme.palette.mode === "dark" ? "-dark" : ""}.avif`}
+            active={!disableSidenavShapeSection && sidenavType === "stacked"}
           />
         }
       />

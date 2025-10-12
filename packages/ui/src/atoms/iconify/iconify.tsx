@@ -1,14 +1,13 @@
 "use client";
+import type { IconifyName } from "@beep/ui-core/constants/iconify/register-icons";
+import { allIconNames, registerIcons } from "@beep/ui-core/constants/iconify/register-icons";
 import { mergeClasses } from "@beep/ui-core/utils";
 import type { IconProps } from "@iconify/react";
 import { Icon } from "@iconify/react";
 import { styled } from "@mui/material/styles";
 import type React from "react";
 import { useId } from "react";
-
 import { iconifyClasses } from "./classes";
-import type { IconifyName } from "./register-icons";
-import { allIconNames, registerIcons } from "./register-icons";
 
 export type IconifyProps = React.ComponentProps<typeof IconRoot> &
   Omit<IconProps, "icon"> & {

@@ -36,6 +36,12 @@
       "require": "./build/cjs/i18n/*",
       "default": "./src/i18n/*.ts"
     },
+    "./constants/*": {
+      "import": "./src/constants/*.ts",
+      "types": "./build/dts/constants/*",
+      "require": "./build/cjs/constants/*",
+      "default": "./src/constants/*.ts"
+    },
     "./settings/*": {
       "import": "./src/settings/*.ts",
       "types": "./build/dts/settings/*",
@@ -79,6 +85,7 @@
     "@mui/x-tree-view": "catalog:",
     "accept-language": "catalog:",
     "dayjs": "catalog:",
+    "@iconify/react": "catalog:",
     "i18next": "catalog:",
     "i18next-browser-languagedetector": "catalog:",
     "i18next-resources-to-backend": "catalog:",
@@ -101,6 +108,7 @@
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/constants": "workspace:^",
+    "@iconify/react": "catalog:",
     "@beep/shared-domain": "workspace:^",
     "@emotion/cache": "catalog:",
     "@emotion/react": "catalog:",

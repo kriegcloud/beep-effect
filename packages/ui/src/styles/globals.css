@@ -32,37 +32,57 @@
 * Baseline
 *************************************** */
 html {
-  height: 100%;
-  -webkit-overflow-scrolling: touch;
+    height: 100%;
+    -webkit-overflow-scrolling: touch;
 }
+
+html,
+body {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+body {
+    color: var(--foreground);
+    background: var(--background);
+    font-family: Arial, Helvetica, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
 body,
 #root,
 #root__layout {
-  display: flex;
-  flex: 1 1 auto;
-  min-height: 100%;
-  flex-direction: column;
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 100%;
+    flex-direction: column;
 }
+
 img {
-  max-width: 100%;
-  vertical-align: middle;
+    max-width: 100%;
+    vertical-align: middle;
 }
+
 ul {
-  margin: 0;
-  padding: 0;
-  list-style-type: none;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
 }
+
 input[type='number'] {
-  -moz-appearance: textfield;
-  appearance: none;
+    -moz-appearance: textfield;
+    appearance: none;
 }
+
 input[type='number']::-webkit-outer-spin-button {
-  margin: 0;
-  -webkit-appearance: none;
+    margin: 0;
+    -webkit-appearance: none;
 }
+
 input[type='number']::-webkit-inner-spin-button {
-  margin: 0;
-  -webkit-appearance: none;
+    margin: 0;
+    -webkit-appearance: none;
 }
 
 
@@ -70,272 +90,276 @@ input[type='number']::-webkit-inner-spin-button {
 * SimpleBar
 *************************************** */
 [data-simplebar] {
-  position: relative;
-  flex-direction: column;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  align-content: flex-start;
-  align-items: flex-start;
+    position: relative;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+    align-items: flex-start;
 }
 
 .simplebar-wrapper {
-  overflow: hidden;
-  width: inherit;
-  height: inherit;
-  max-width: inherit;
-  max-height: inherit;
+    overflow: hidden;
+    width: inherit;
+    height: inherit;
+    max-width: inherit;
+    max-height: inherit;
 }
 
 .simplebar-mask {
-  direction: inherit;
-  position: absolute;
-  overflow: hidden;
-  padding: 0;
-  margin: 0;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  width: auto !important;
-  height: auto !important;
-  z-index: 0;
+    direction: inherit;
+    position: absolute;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: auto !important;
+    height: auto !important;
+    z-index: 0;
 }
 
 .simplebar-offset {
-  direction: inherit !important;
-  box-sizing: inherit !important;
-  resize: none !important;
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  padding: 0;
-  margin: 0;
-  -webkit-overflow-scrolling: touch;
+    direction: inherit !important;
+    box-sizing: inherit !important;
+    resize: none !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    padding: 0;
+    margin: 0;
+    -webkit-overflow-scrolling: touch;
 }
 
 .simplebar-content-wrapper {
-  direction: inherit;
-  box-sizing: border-box !important;
-  position: relative;
-  display: block;
-  height: 100%; /* Required for horizontal native scrollbar to not appear if parent is taller than natural height */
-  width: auto;
-  max-width: 100%; /* Not required for horizontal scroll to trigger */
-  max-height: 100%; /* Needed for vertical scroll to trigger */
-  overflow: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+    direction: inherit;
+    box-sizing: border-box !important;
+    position: relative;
+    display: block;
+    height: 100%; /* Required for horizontal native scrollbar to not appear if parent is taller than natural height */
+    width: auto;
+    max-width: 100%; /* Not required for horizontal scroll to trigger */
+    max-height: 100%; /* Needed for vertical scroll to trigger */
+    overflow: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
 .simplebar-content-wrapper::-webkit-scrollbar,
 .simplebar-hide-scrollbar::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
+    display: none;
+    width: 0;
+    height: 0;
 }
 
 .simplebar-content:before,
 .simplebar-content:after {
-  content: ' ';
-  display: table;
+    content: ' ';
+    display: table;
 }
 
 .simplebar-placeholder {
-  max-height: 100%;
-  max-width: 100%;
-  width: 100%;
-  pointer-events: none;
+    max-height: 100%;
+    max-width: 100%;
+    width: 100%;
+    pointer-events: none;
 }
 
 .simplebar-height-auto-observer-wrapper {
-  box-sizing: inherit !important;
-  height: 100%;
-  width: 100%;
-  max-width: 1px;
-  position: relative;
-  float: left;
-  max-height: 1px;
-  overflow: hidden;
-  z-index: -1;
-  padding: 0;
-  margin: 0;
-  pointer-events: none;
-  flex-grow: inherit;
-  flex-shrink: 0;
-  flex-basis: 0;
+    box-sizing: inherit !important;
+    height: 100%;
+    width: 100%;
+    max-width: 1px;
+    position: relative;
+    float: left;
+    max-height: 1px;
+    overflow: hidden;
+    z-index: -1;
+    padding: 0;
+    margin: 0;
+    pointer-events: none;
+    flex-grow: inherit;
+    flex-shrink: 0;
+    flex-basis: 0;
 }
 
 .simplebar-height-auto-observer {
-  box-sizing: inherit;
-  display: block;
-  opacity: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 1000%;
-  width: 1000%;
-  min-height: 1px;
-  min-width: 1px;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: -1;
+    box-sizing: inherit;
+    display: block;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 1000%;
+    width: 1000%;
+    min-height: 1px;
+    min-width: 1px;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: -1;
 }
 
 .simplebar-track {
-  z-index: 1;
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  overflow: hidden;
+    z-index: 1;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
 }
 
 [data-simplebar].simplebar-dragging {
-  pointer-events: none;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+    pointer-events: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 [data-simplebar].simplebar-dragging .simplebar-content {
-  pointer-events: none;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+    pointer-events: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 [data-simplebar].simplebar-dragging .simplebar-track {
-  pointer-events: all;
+    pointer-events: all;
 }
 
 .simplebar-scrollbar {
-  position: absolute;
-  left: 0;
-  right: 0;
-  min-height: 10px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    min-height: 10px;
 }
 
 .simplebar-scrollbar:before {
-  position: absolute;
-  content: '';
-  background: black;
-  border-radius: 7px;
-  left: 2px;
-  right: 2px;
-  opacity: 0;
-  transition: opacity 0.2s 0.5s linear;
+    position: absolute;
+    content: '';
+    background: black;
+    border-radius: 7px;
+    left: 2px;
+    right: 2px;
+    opacity: 0;
+    transition: opacity 0.2s 0.5s linear;
 }
 
 .simplebar-scrollbar.simplebar-visible:before {
-  opacity: 0.5;
-  transition-delay: 0s;
-  transition-duration: 0s;
+    opacity: 0.5;
+    transition-delay: 0s;
+    transition-duration: 0s;
 }
 
 .simplebar-track.simplebar-vertical {
-  top: 0;
-  width: 11px;
+    top: 0;
+    width: 11px;
 }
 
 .simplebar-scrollbar:before {
-  top: 2px;
-  bottom: 2px;
-  left: 2px;
-  right: 2px;
+    top: 2px;
+    bottom: 2px;
+    left: 2px;
+    right: 2px;
 }
 
 .simplebar-track.simplebar-horizontal {
-  left: 0;
-  height: 11px;
+    left: 0;
+    height: 11px;
 }
 
 .simplebar-track.simplebar-horizontal .simplebar-scrollbar {
-  right: auto;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  min-height: 0;
-  min-width: 10px;
-  width: auto;
+    right: auto;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    min-height: 0;
+    min-width: 10px;
+    width: auto;
 }
 
 /* Rtl support */
 [data-simplebar-direction='rtl'] .simplebar-track.simplebar-vertical {
-  right: auto;
-  left: 0;
+    right: auto;
+    left: 0;
 }
 
 .simplebar-dummy-scrollbar-size {
-  direction: rtl;
-  position: fixed;
-  opacity: 0;
-  visibility: hidden;
-  height: 500px;
-  width: 500px;
-  overflow-y: hidden;
-  overflow-x: scroll;
-  -ms-overflow-style: scrollbar !important;
+    direction: rtl;
+    position: fixed;
+    opacity: 0;
+    visibility: hidden;
+    height: 500px;
+    width: 500px;
+    overflow-y: hidden;
+    overflow-x: scroll;
+    -ms-overflow-style: scrollbar !important;
 }
 
 .simplebar-dummy-scrollbar-size > div {
-  width: 200%;
-  height: 200%;
-  margin: 10px 0;
+    width: 200%;
+    height: 200%;
+    margin: 10px 0;
 }
 
 .simplebar-hide-scrollbar {
-  position: fixed;
-  left: 0;
-  visibility: hidden;
-  overflow-y: scroll;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+    position: fixed;
+    left: 0;
+    visibility: hidden;
+    overflow-y: scroll;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
+
 /** **************************************
 * Scrollbar
 *************************************** */
 .simplebar-scrollbar:before {
-  background-color: var(--palette-text-disabled);
+    background-color: var(--palette-text-disabled);
 }
+
 .simplebar-scrollbar.simplebar-visible:before {
-  opacity: 0.48;
+    opacity: 0.48;
 }
+
 /** **************************************
 * nprogress
 *************************************** */
 
 #nprogress {
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 2.5px;
-  z-index: 9999;
-  position: fixed;
-  pointer-events: none;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2.5px;
+    z-index: 9999;
+    position: fixed;
+    pointer-events: none;
 }
+
 #nprogress .bar {
-  height: 100%;
-  background-color: var(--palette-primary-main);
-  box-shadow: 0 0 2.5px var(--palette-primary-main);
+    height: 100%;
+    background-color: var(--palette-primary-main);
+    box-shadow: 0 0 2.5px var(--palette-primary-main);
 }
+
 #nprogress .peg {
-  right: 0;
-  opacity: 1;
-  width: 100px;
-  height: 100%;
-  display: block;
-  position: absolute;
-  transform: rotate(3deg) translate(0px, -4px);
-  box-shadow:
-    0 0 10px var(--palette-primary-main),
+    right: 0;
+    opacity: 1;
+    width: 100px;
+    height: 100%;
+    display: block;
+    position: absolute;
+    transform: rotate(3deg) translate(0px, -4px);
+    box-shadow: 0 0 10px var(--palette-primary-main),
     0 0 5px var(--palette-primary-main);
 }
 
@@ -343,358 +367,376 @@ input[type='number']::-webkit-inner-spin-button {
 * Tailwind theme extended with mui
 *************************************** */
 @theme inline {
-  /* Material UI typography */
-  --font-h1: var(--mui-font-h1);
-  --font-h2: var(--mui-font-h2);
-  --font-h3: var(--mui-font-h3);
-  --font-h4: var(--mui-font-h4);
-  --font-h5: var(--mui-font-h5);
-  --font-h6: var(--mui-font-h6);
-  --font-subtitle1: var(--mui-font-subtitle1);
-  --font-subtitle2: var(--mui-font-subtitle2);
-  --font-body1: var(--mui-font-body1);
-  --font-body2: var(--mui-font-body2);
-  --font-button: var(--mui-font-button);
-  --font-caption: var(--mui-font-caption);
-  --font-overline: var(--mui-font-overline);
+    /* Material UI typography */
+    --font-h1: var(--mui-font-h1);
+    --font-h2: var(--mui-font-h2);
+    --font-h3: var(--mui-font-h3);
+    --font-h4: var(--mui-font-h4);
+    --font-h5: var(--mui-font-h5);
+    --font-h6: var(--mui-font-h6);
+    --font-subtitle1: var(--mui-font-subtitle1);
+    --font-subtitle2: var(--mui-font-subtitle2);
+    --font-body1: var(--mui-font-body1);
+    --font-body2: var(--mui-font-body2);
+    --font-button: var(--mui-font-button);
+    --font-caption: var(--mui-font-caption);
+    --font-overline: var(--mui-font-overline);
 
-  --letter-spacing-h1: -0.01562em;
-  --letter-spacing-h2: -0.00833em;
-  --letter-spacing-h4: 0.00735em;
-  --letter-spacing-h6: 0.0075em;
-  --letter-spacing-body1: 0.00938em;
-  --letter-spacing-body2: 0.01071em;
+    --letter-spacing-h1: -0.01562em;
+    --letter-spacing-h2: -0.00833em;
+    --letter-spacing-h4: 0.00735em;
+    --letter-spacing-h6: 0.0075em;
+    --letter-spacing-body1: 0.00938em;
+    --letter-spacing-body2: 0.01071em;
 
-  /* Material UI breakpoints */
-  --breakpoint-sm: 37.5rem; /* 600px */
-  --breakpoint-md: 56.25rem; /* 900px */
-  --breakpoint-lg: 75rem; /* 1200px */
-  --breakpoint-xl: 96rem; /* 1536px */
-  --breakpoint-2xl: 120rem; /* 1920px */
+    /* Material UI breakpoints */
+    --breakpoint-sm: 37.5rem; /* 600px */
+    --breakpoint-md: 56.25rem; /* 900px */
+    --breakpoint-lg: 75rem; /* 1200px */
+    --breakpoint-xl: 96rem; /* 1536px */
+    --breakpoint-2xl: 120rem; /* 1920px */
+    /* Material UI theme colors */
+    --color-primary: rgb(var(--mui-palette-primary-mainChannel));
+    --color-primary-light: rgb(var(--mui-palette-primary-lightChannel));
+    --color-primary-dark: rgb(var(--mui-palette-primary-darkChannel));
+    --color-primary-contrast: rgb(var(--mui-palette-primary-contrastTextChannel));
 
-  /* Material UI theme colors */
-  --color-primary: rgb(var(--mui-palette-primary-mainChannel));
-  --color-primary-light: rgb(var(--mui-palette-primary-lightChannel));
-  --color-primary-dark: rgb(var(--mui-palette-primary-darkChannel));
-  --color-primary-contrast: rgb(var(--mui-palette-primary-contrastTextChannel));
+    --color-secondary: rgb(var(--mui-palette-secondary-mainChannel));
+    --color-secondary-light: rgb(var(--mui-palette-secondary-lightChannel));
+    --color-secondary-dark: rgb(var(--mui-palette-secondary-darkChannel));
+    --color-secondary-contrast: rgb(var(--mui-palette-secondary-contrastTextChannel));
 
-  --color-secondary: rgb(var(--mui-palette-secondary-mainChannel));
-  --color-secondary-light: rgb(var(--mui-palette-secondary-lightChannel));
-  --color-secondary-dark: rgb(var(--mui-palette-secondary-darkChannel));
-  --color-secondary-contrast: rgb(var(--mui-palette-secondary-contrastTextChannel));
+    /* Material UI status colors */
+    --color-info: rgb(var(--mui-palette-info-mainChannel));
+    --color-info-light: rgb(var(--mui-palette-info-lightChannel));
+    --color-info-dark: rgb(var(--mui-palette-info-darkChannel));
+    --color-info-contrast: rgb(var(--mui-palette-info-contrastTextChannel));
 
-  /* Material UI status colors */
-  --color-info: rgb(var(--mui-palette-info-mainChannel));
-  --color-info-light: rgb(var(--mui-palette-info-lightChannel));
-  --color-info-dark: rgb(var(--mui-palette-info-darkChannel));
-  --color-info-contrast: rgb(var(--mui-palette-info-contrastTextChannel));
+    --color-error: rgb(var(--mui-palette-error-mainChannel));
+    --color-error-light: rgb(var(--mui-palette-error-lightChannel));
+    --color-error-dark: rgb(var(--mui-palette-error-darkChannel));
+    --color-error-contrast: rgb(var(--mui-palette-error-contrastTextChannel));
 
-  --color-error: rgb(var(--mui-palette-error-mainChannel));
-  --color-error-light: rgb(var(--mui-palette-error-lightChannel));
-  --color-error-dark: rgb(var(--mui-palette-error-darkChannel));
-  --color-error-contrast: rgb(var(--mui-palette-error-contrastTextChannel));
+    --color-success: rgb(var(--mui-palette-success-mainChannel));
+    --color-success-light: rgb(var(--mui-palette-success-lightChannel));
+    --color-success-dark: rgb(var(--mui-palette-success-darkChannel));
+    --color-success-contrast: rgb(var(--mui-palette-success-contrastTextChannel));
 
-  --color-success: rgb(var(--mui-palette-success-mainChannel));
-  --color-success-light: rgb(var(--mui-palette-success-lightChannel));
-  --color-success-dark: rgb(var(--mui-palette-success-darkChannel));
-  --color-success-contrast: rgb(var(--mui-palette-success-contrastTextChannel));
+    --color-warning: rgb(var(--mui-palette-warning-mainChannel));
+    --color-warning-light: rgb(var(--mui-palette-warning-lightChannel));
+    --color-warning-dark: rgb(var(--mui-palette-warning-darkChannel));
+    --color-warning-contrast: rgb(var(--mui-palette-warning-contrastTextChannel));
 
-  --color-warning: rgb(var(--mui-palette-warning-mainChannel));
-  --color-warning-light: rgb(var(--mui-palette-warning-lightChannel));
-  --color-warning-dark: rgb(var(--mui-palette-warning-darkChannel));
-  --color-warning-contrast: rgb(var(--mui-palette-warning-contrastTextChannel));
+    /* Material UI text & common colors */
+    --color-text-primary: rgb(var(--mui-palette-text-primaryChannel));
+    --color-text-secondary: rgb(var(--mui-palette-text-secondaryChannel));
+    --color-text-disabled: var(--mui-palette-text-disabled);
+    --color-common-background: var(--mui-palette-common-background);
+    --color-common-onBackground: var(--mui-palette-common-onBackground);
+    --color-divider: var(--mui-palette-divider);
 
-  /* Material UI text & common colors */
-  --color-text-primary: rgb(var(--mui-palette-text-primaryChannel));
-  --color-text-secondary: rgb(var(--mui-palette-text-secondaryChannel));
-  --color-text-disabled: var(--mui-palette-text-disabled);
-  --color-common-background: var(--mui-palette-common-background);
-  --color-common-onBackground: var(--mui-palette-common-onBackground);
-  --color-divider: var(--mui-palette-divider);
+    /* Material UI background colors */
+    --color-background-default: rgb(var(--mui-palette-background-defaultChannel));
+    --color-background-paper: rgb(var(--mui-palette-background-paperChannel));
 
-  /* Material UI background colors */
-  --color-background-default: rgb(var(--mui-palette-background-defaultChannel));
-  --color-background-paper: rgb(var(--mui-palette-background-paperChannel));
+    /* Material UI action colors */
+    --color-action-active: var(--mui-palette-action-active);
+    --color-action-hover: var(--mui-palette-action-hover);
+    --color-action-selected: var(--mui-palette-action-selected);
+    --color-action-disabled: var(--mui-palette-action-disabled);
+    --color-action-focus: var(--mui-palette-action-focus);
 
-  /* Material UI action colors */
-  --color-action-active: var(--mui-palette-action-active);
-  --color-action-hover: var(--mui-palette-action-hover);
-  --color-action-selected: var(--mui-palette-action-selected);
-  --color-action-disabled: var(--mui-palette-action-disabled);
-  --color-action-focus: var(--mui-palette-action-focus);
+    /* Material UI gray scale */
+    --color-gray-50: var(--mui-palette-grey-50);
+    --color-gray-100: var(--mui-palette-grey-100);
+    --color-gray-200: var(--mui-palette-grey-200);
+    --color-gray-300: var(--mui-palette-grey-300);
+    --color-gray-400: var(--mui-palette-grey-400);
+    --color-gray-500: var(--mui-palette-grey-500);
+    --color-gray-600: var(--mui-palette-grey-600);
+    --color-gray-700: var(--mui-palette-grey-700);
+    --color-gray-800: var(--mui-palette-grey-800);
+    --color-gray-900: var(--mui-palette-grey-900);
+    --color-gray-A100: var(--mui-palette-grey-A100);
+    --color-gray-A200: var(--mui-palette-grey-A200);
+    --color-gray-A400: var(--mui-palette-grey-A400);
+    --color-gray-A700: var(--mui-palette-grey-A700);
 
-  /* Material UI gray scale */
-  --color-gray-50: var(--mui-palette-grey-50);
-  --color-gray-100: var(--mui-palette-grey-100);
-  --color-gray-200: var(--mui-palette-grey-200);
-  --color-gray-300: var(--mui-palette-grey-300);
-  --color-gray-400: var(--mui-palette-grey-400);
-  --color-gray-500: var(--mui-palette-grey-500);
-  --color-gray-600: var(--mui-palette-grey-600);
-  --color-gray-700: var(--mui-palette-grey-700);
-  --color-gray-800: var(--mui-palette-grey-800);
-  --color-gray-900: var(--mui-palette-grey-900);
-  --color-gray-A100: var(--mui-palette-grey-A100);
-  --color-gray-A200: var(--mui-palette-grey-A200);
-  --color-gray-A400: var(--mui-palette-grey-A400);
-  --color-gray-A700: var(--mui-palette-grey-A700);
+    /* Material UI Component Colors */
+    /* Alert */
+    --color-Alert-error: var(--mui-palette-Alert-errorColor);
+    --color-Alert-info: var(--mui-palette-Alert-infoColor);
+    --color-Alert-success: var(--mui-palette-Alert-successColor);
+    --color-Alert-warning: var(--mui-palette-Alert-warningColor);
+    --color-Alert-errorFilled: var(--mui-palette-Alert-errorFilledBg);
+    --color-Alert-infoFilled: var(--mui-palette-Alert-infoFilledBg);
+    --color-Alert-successFilled: var(--mui-palette-Alert-successFilledBg);
+    --color-Alert-warningFilled: var(--mui-palette-Alert-warningFilledBg);
+    --color-Alert-errorFilledColor: var(--mui-palette-Alert-errorFilledColor);
+    --color-Alert-infoFilledColor: var(--mui-palette-Alert-infoFilledColor);
+    --color-Alert-successFilledColor: var(--mui-palette-Alert-successFilledColor);
+    --color-Alert-warningFilledColor: var(--mui-palette-Alert-warningFilledColor);
+    --color-Alert-errorStandard: var(--mui-palette-Alert-errorStandardBg);
+    --color-Alert-infoStandard: var(--mui-palette-Alert-infoStandardBg);
+    --color-Alert-successStandard: var(--mui-palette-Alert-successStandardBg);
+    --color-Alert-warningStandard: var(--mui-palette-Alert-warningStandardBg);
+    --color-Alert-errorIcon: var(--mui-palette-Alert-errorIconColor);
+    --color-Alert-infoIcon: var(--mui-palette-Alert-infoIconColor);
+    --color-Alert-successIcon: var(--mui-palette-Alert-successIconColor);
+    --color-Alert-warningIcon: var(--mui-palette-Alert-warningIconColor);
 
-  /* Material UI Component Colors */
-  /* Alert */
-  --color-Alert-error: var(--mui-palette-Alert-errorColor);
-  --color-Alert-info: var(--mui-palette-Alert-infoColor);
-  --color-Alert-success: var(--mui-palette-Alert-successColor);
-  --color-Alert-warning: var(--mui-palette-Alert-warningColor);
-  --color-Alert-errorFilled: var(--mui-palette-Alert-errorFilledBg);
-  --color-Alert-infoFilled: var(--mui-palette-Alert-infoFilledBg);
-  --color-Alert-successFilled: var(--mui-palette-Alert-successFilledBg);
-  --color-Alert-warningFilled: var(--mui-palette-Alert-warningFilledBg);
-  --color-Alert-errorFilledColor: var(--mui-palette-Alert-errorFilledColor);
-  --color-Alert-infoFilledColor: var(--mui-palette-Alert-infoFilledColor);
-  --color-Alert-successFilledColor: var(--mui-palette-Alert-successFilledColor);
-  --color-Alert-warningFilledColor: var(--mui-palette-Alert-warningFilledColor);
-  --color-Alert-errorStandard: var(--mui-palette-Alert-errorStandardBg);
-  --color-Alert-infoStandard: var(--mui-palette-Alert-infoStandardBg);
-  --color-Alert-successStandard: var(--mui-palette-Alert-successStandardBg);
-  --color-Alert-warningStandard: var(--mui-palette-Alert-warningStandardBg);
-  --color-Alert-errorIcon: var(--mui-palette-Alert-errorIconColor);
-  --color-Alert-infoIcon: var(--mui-palette-Alert-infoIconColor);
-  --color-Alert-successIcon: var(--mui-palette-Alert-successIconColor);
-  --color-Alert-warningIcon: var(--mui-palette-Alert-warningIconColor);
+    /* AppBar */
+    --color-AppBar-default: var(--mui-palette-AppBar-defaultBg);
 
-  /* AppBar */
-  --color-AppBar-default: var(--mui-palette-AppBar-defaultBg);
+    /* Avatar */
+    --color-Avatar-default: var(--mui-palette-Avatar-defaultBg);
 
-  /* Avatar */
-  --color-Avatar-default: var(--mui-palette-Avatar-defaultBg);
+    /* Button */
+    --color-Button-inheritContained: var(--mui-palette-Button-inheritContainedBg);
+    --color-Button-inheritContainedHover: var(
+            --mui-palette-Button-inheritContainedHoverBg
+    );
 
-  /* Button */
-  --color-Button-inheritContained: var(--mui-palette-Button-inheritContainedBg);
-  --color-Button-inheritContainedHover: var(
-    --mui-palette-Button-inheritContainedHoverBg
-  );
+    /* Chip */
+    --color-Chip-defaultBorder: var(--mui-palette-Chip-defaultBorder);
+    --color-Chip-defaultAvatar: var(--mui-palette-Chip-defaultAvatarColor);
+    --color-Chip-defaultIcon: var(--mui-palette-Chip-defaultIconColor);
 
-  /* Chip */
-  --color-Chip-defaultBorder: var(--mui-palette-Chip-defaultBorder);
-  --color-Chip-defaultAvatar: var(--mui-palette-Chip-defaultAvatarColor);
-  --color-Chip-defaultIcon: var(--mui-palette-Chip-defaultIconColor);
+    /* FilledInput */
+    --color-FilledInput-bg: var(--mui-palette-FilledInput-bg);
+    --color-FilledInput-hover: var(--mui-palette-FilledInput-hoverBg);
+    --color-FilledInput-disabled: var(--mui-palette-FilledInput-disabledBg);
 
-  /* FilledInput */
-  --color-FilledInput-bg: var(--mui-palette-FilledInput-bg);
-  --color-FilledInput-hover: var(--mui-palette-FilledInput-hoverBg);
-  --color-FilledInput-disabled: var(--mui-palette-FilledInput-disabledBg);
+    /* LinearProgress */
+    --color-LinearProgress-primary: var(--mui-palette-LinearProgress-primaryBg);
+    --color-LinearProgress-secondary: var(--mui-palette-LinearProgress-secondaryBg);
+    --color-LinearProgress-error: var(--mui-palette-LinearProgress-errorBg);
+    --color-LinearProgress-info: var(--mui-palette-LinearProgress-infoBg);
+    --color-LinearProgress-success: var(--mui-palette-LinearProgress-successBg);
+    --color-LinearProgress-warning: var(--mui-palette-LinearProgress-warningBg);
 
-  /* LinearProgress */
-  --color-LinearProgress-primary: var(--mui-palette-LinearProgress-primaryBg);
-  --color-LinearProgress-secondary: var(--mui-palette-LinearProgress-secondaryBg);
-  --color-LinearProgress-error: var(--mui-palette-LinearProgress-errorBg);
-  --color-LinearProgress-info: var(--mui-palette-LinearProgress-infoBg);
-  --color-LinearProgress-success: var(--mui-palette-LinearProgress-successBg);
-  --color-LinearProgress-warning: var(--mui-palette-LinearProgress-warningBg);
+    /* Skeleton */
+    --color-Skeleton-bg: var(--mui-palette-Skeleton-bg);
 
-  /* Skeleton */
-  --color-Skeleton-bg: var(--mui-palette-Skeleton-bg);
+    /* Slider */
+    --color-Slider-primary: var(--mui-palette-Slider-primaryTrack);
+    --color-Slider-secondary: var(--mui-palette-Slider-secondaryTrack);
+    --color-Slider-error: var(--mui-palette-Slider-errorTrack);
+    --color-Slider-info: var(--mui-palette-Slider-infoTrack);
+    --color-Slider-success: var(--mui-palette-Slider-successTrack);
+    --color-Slider-warning: var(--mui-palette-Slider-warningTrack);
 
-  /* Slider */
-  --color-Slider-primary: var(--mui-palette-Slider-primaryTrack);
-  --color-Slider-secondary: var(--mui-palette-Slider-secondaryTrack);
-  --color-Slider-error: var(--mui-palette-Slider-errorTrack);
-  --color-Slider-info: var(--mui-palette-Slider-infoTrack);
-  --color-Slider-success: var(--mui-palette-Slider-successTrack);
-  --color-Slider-warning: var(--mui-palette-Slider-warningTrack);
+    /* SnackbarContent */
+    --color-SnackbarContent-bg: var(--mui-palette-SnackbarContent-bg);
+    --color-SnackbarContent-text: var(--mui-palette-SnackbarContent-color);
 
-  /* SnackbarContent */
-  --color-SnackbarContent-bg: var(--mui-palette-SnackbarContent-bg);
-  --color-SnackbarContent-text: var(--mui-palette-SnackbarContent-color);
+    /* SpeedDialAction */
+    --color-SpeedDialAction-fabHover: var(--mui-palette-SpeedDialAction-fabHoverBg);
 
-  /* SpeedDialAction */
-  --color-SpeedDialAction-fabHover: var(--mui-palette-SpeedDialAction-fabHoverBg);
+    /* StepConnector & StepContent */
+    --color-StepConnector-border: var(--mui-palette-StepConnector-border);
+    --color-StepContent-border: var(--mui-palette-StepContent-border);
 
-  /* StepConnector & StepContent */
-  --color-StepConnector-border: var(--mui-palette-StepConnector-border);
-  --color-StepContent-border: var(--mui-palette-StepContent-border);
+    /* Switch */
+    --color-Switch-default: var(--mui-palette-Switch-defaultColor);
+    --color-Switch-defaultDisabled: var(--mui-palette-Switch-defaultDisabledColor);
+    --color-Switch-primaryDisabled: var(--mui-palette-Switch-primaryDisabledColor);
+    --color-Switch-secondaryDisabled: var(--mui-palette-Switch-secondaryDisabledColor);
+    --color-Switch-errorDisabled: var(--mui-palette-Switch-errorDisabledColor);
+    --color-Switch-infoDisabled: var(--mui-palette-Switch-infoDisabledColor);
+    --color-Switch-successDisabled: var(--mui-palette-Switch-successDisabledColor);
+    --color-Switch-warningDisabled: var(--mui-palette-Switch-warningDisabledColor);
 
-  /* Switch */
-  --color-Switch-default: var(--mui-palette-Switch-defaultColor);
-  --color-Switch-defaultDisabled: var(--mui-palette-Switch-defaultDisabledColor);
-  --color-Switch-primaryDisabled: var(--mui-palette-Switch-primaryDisabledColor);
-  --color-Switch-secondaryDisabled: var(--mui-palette-Switch-secondaryDisabledColor);
-  --color-Switch-errorDisabled: var(--mui-palette-Switch-errorDisabledColor);
-  --color-Switch-infoDisabled: var(--mui-palette-Switch-infoDisabledColor);
-  --color-Switch-successDisabled: var(--mui-palette-Switch-successDisabledColor);
-  --color-Switch-warningDisabled: var(--mui-palette-Switch-warningDisabledColor);
+    /* TableCell */
+    --color-TableCell-border: var(--mui-palette-TableCell-border);
 
-  /* TableCell */
-  --color-TableCell-border: var(--mui-palette-TableCell-border);
+    /* Tooltip */
+    --color-Tooltip-bg: var(--mui-palette-Tooltip-bg);
 
-  /* Tooltip */
-  --color-Tooltip-bg: var(--mui-palette-Tooltip-bg);
+    /* Material UI shadows */
+    --shadow-1: var(--mui-shadows-1);
+    --shadow-2: var(--mui-shadows-2);
+    --shadow-3: var(--mui-shadows-3);
+    --shadow-4: var(--mui-shadows-4);
+    --shadow-5: var(--mui-shadows-5);
+    --shadow-6: var(--mui-shadows-6);
+    --shadow-7: var(--mui-shadows-7);
+    --shadow-8: var(--mui-shadows-8);
+    --shadow-9: var(--mui-shadows-9);
+    --shadow-10: var(--mui-shadows-10);
+    --shadow-11: var(--mui-shadows-11);
+    --shadow-12: var(--mui-shadows-12);
+    --shadow-13: var(--mui-shadows-13);
+    --shadow-14: var(--mui-shadows-14);
+    --shadow-15: var(--mui-shadows-15);
+    --shadow-16: var(--mui-shadows-16);
+    --shadow-17: var(--mui-shadows-17);
+    --shadow-18: var(--mui-shadows-18);
+    --shadow-19: var(--mui-shadows-19);
+    --shadow-20: var(--mui-shadows-20);
+    --shadow-21: var(--mui-shadows-21);
+    --shadow-22: var(--mui-shadows-22);
+    --shadow-23: var(--mui-shadows-23);
+    --shadow-24: var(--mui-shadows-24);
 
-  /* Material UI shadows */
-  --shadow-1: var(--mui-shadows-1);
-  --shadow-2: var(--mui-shadows-2);
-  --shadow-3: var(--mui-shadows-3);
-  --shadow-4: var(--mui-shadows-4);
-  --shadow-5: var(--mui-shadows-5);
-  --shadow-6: var(--mui-shadows-6);
-  --shadow-7: var(--mui-shadows-7);
-  --shadow-8: var(--mui-shadows-8);
-  --shadow-9: var(--mui-shadows-9);
-  --shadow-10: var(--mui-shadows-10);
-  --shadow-11: var(--mui-shadows-11);
-  --shadow-12: var(--mui-shadows-12);
-  --shadow-13: var(--mui-shadows-13);
-  --shadow-14: var(--mui-shadows-14);
-  --shadow-15: var(--mui-shadows-15);
-  --shadow-16: var(--mui-shadows-16);
-  --shadow-17: var(--mui-shadows-17);
-  --shadow-18: var(--mui-shadows-18);
-  --shadow-19: var(--mui-shadows-19);
-  --shadow-20: var(--mui-shadows-20);
-  --shadow-21: var(--mui-shadows-21);
-  --shadow-22: var(--mui-shadows-22);
-  --shadow-23: var(--mui-shadows-23);
-  --shadow-24: var(--mui-shadows-24);
+    /* Material UI opacity */
+    --opacity-activated: calc(100% * var(--mui-palette-action-activatedOpacity));
+    --opacity-disabled: calc(100% * var(--mui-palette-action-disabledOpacity));
+    --opacity-focus: calc(100% * var(--mui-palette-action-focusOpacity));
+    --opacity-hover: calc(100% * var(--mui-palette-action-hoverOpacity));
+    --opacity-selected: calc(100% * var(--mui-palette-action-selectedOpacity));
 
-  /* Material UI opacity */
-  --opacity-activated: calc(100% * var(--mui-palette-action-activatedOpacity));
-  --opacity-disabled: calc(100% * var(--mui-palette-action-disabledOpacity));
-  --opacity-focus: calc(100% * var(--mui-palette-action-focusOpacity));
-  --opacity-hover: calc(100% * var(--mui-palette-action-hoverOpacity));
-  --opacity-selected: calc(100% * var(--mui-palette-action-selectedOpacity));
-
-  /* Material UI overlays */
-  --overlay-1: var(--mui-overlays-1);
-  --overlay-2: var(--mui-overlays-2);
-  --overlay-3: var(--mui-overlays-3);
-  --overlay-4: var(--mui-overlays-4);
-  --overlay-5: var(--mui-overlays-5);
-  --overlay-6: var(--mui-overlays-6);
-  --overlay-7: var(--mui-overlays-7);
-  --overlay-8: var(--mui-overlays-8);
-  --overlay-9: var(--mui-overlays-9);
-  --overlay-10: var(--mui-overlays-10);
-  --overlay-11: var(--mui-overlays-11);
-  --overlay-12: var(--mui-overlays-12);
-  --overlay-13: var(--mui-overlays-13);
-  --overlay-14: var(--mui-overlays-14);
-  --overlay-15: var(--mui-overlays-15);
-  --overlay-16: var(--mui-overlays-16);
-  --overlay-17: var(--mui-overlays-17);
-  --overlay-18: var(--mui-overlays-18);
-  --overlay-19: var(--mui-overlays-19);
-  --overlay-20: var(--mui-overlays-20);
-  --overlay-21: var(--mui-overlays-21);
-  --overlay-22: var(--mui-overlays-22);
-  --overlay-23: var(--mui-overlays-23);
-  --overlay-24: var(--mui-overlays-24);
+    /* Material UI overlays */
+    --overlay-1: var(--mui-overlays-1);
+    --overlay-2: var(--mui-overlays-2);
+    --overlay-3: var(--mui-overlays-3);
+    --overlay-4: var(--mui-overlays-4);
+    --overlay-5: var(--mui-overlays-5);
+    --overlay-6: var(--mui-overlays-6);
+    --overlay-7: var(--mui-overlays-7);
+    --overlay-8: var(--mui-overlays-8);
+    --overlay-9: var(--mui-overlays-9);
+    --overlay-10: var(--mui-overlays-10);
+    --overlay-11: var(--mui-overlays-11);
+    --overlay-12: var(--mui-overlays-12);
+    --overlay-13: var(--mui-overlays-13);
+    --overlay-14: var(--mui-overlays-14);
+    --overlay-15: var(--mui-overlays-15);
+    --overlay-16: var(--mui-overlays-16);
+    --overlay-17: var(--mui-overlays-17);
+    --overlay-18: var(--mui-overlays-18);
+    --overlay-19: var(--mui-overlays-19);
+    --overlay-20: var(--mui-overlays-20);
+    --overlay-21: var(--mui-overlays-21);
+    --overlay-22: var(--mui-overlays-22);
+    --overlay-23: var(--mui-overlays-23);
+    --overlay-24: var(--mui-overlays-24);
 }
 
 /* Material UI base styles */
 @layer base {
-  h1 {
-    font: var(--mui-font-h1);
-    letter-spacing: -0.01562em;
-  }
-  h2 {
-    font: var(--mui-font-h2);
-    letter-spacing: -0.00833em;
-  }
-  h3 {
-    font: var(--mui-font-h3);
-  }
-  h4 {
-    font: var(--mui-font-h4);
-    letter-spacing: 0.00735em;
-  }
-  h5 {
-    font: var(--mui-font-h5);
-  }
-  h6 {
-    font: var(--mui-font-h6);
-    letter-spacing: 0.0075em;
-  }
-  p {
-    font: var(--mui-font-body1);
-    letter-spacing: 0.00938em;
-  }
-  span {
-    font: var(--mui-font-body2);
-    letter-spacing: 0.01071em;
-  }
+    h1 {
+        font: var(--mui-font-h1);
+        letter-spacing: -0.01562em;
+    }
+
+    h2 {
+        font: var(--mui-font-h2);
+        letter-spacing: -0.00833em;
+    }
+
+    h3 {
+        font: var(--mui-font-h3);
+    }
+
+    h4 {
+        font: var(--mui-font-h4);
+        letter-spacing: 0.00735em;
+    }
+
+    h5 {
+        font: var(--mui-font-h5);
+    }
+
+    h6 {
+        font: var(--mui-font-h6);
+        letter-spacing: 0.0075em;
+    }
+
+    p {
+        font: var(--mui-font-body1);
+        letter-spacing: 0.00938em;
+    }
+
+    span {
+        font: var(--mui-font-body2);
+        letter-spacing: 0.01071em;
+    }
 }
 
 /* Material UI typography utilities */
 @utility typography-* {
-  font: --value(--font- *);
+    font: --value(--font- *);
 }
 
 /* Material UI overlay utilities */
 @utility overlay-* {
-  background-image: --value(--overlay- *);
+    background-image: --value(--overlay- *);
 }
 
 /* Material UI elevation utilities */
 @utility elevation-* {
-  background-image: --value(--overlay- *);
-  box-shadow: --value(--shadow- *);
+    background-image: --value(--overlay- *);
+    box-shadow: --value(--shadow- *);
 }
 /* Apex Charts */
 .apexcharts-canvas {
-  /**
-  * Tooltip
-  */
-  .apexcharts-tooltip {
-    min-width: 80px;
-    border-radius: 10px;
-    backdrop-filter: blur(6px);
-    color: var(--palette-text-primary);
-    box-shadow: var(--customShadows-dropdown);
-    background-color: rgba(var(--palette-background-defaultChannel) / 0.9);
-  }
-  .apexcharts-xaxistooltip {
-    border-radius: 10px;
-    border-color: transparent;
-    backdrop-filter: blur(6px);
-    color: var(--palette-text-primary);
-    box-shadow: var(--customShadows-dropdown);
-    background-color: rgba(var(--palette-background-defaultChannel) / 0.9);
-    &::before {
-      border-bottom-color: rgba(var(--palette-grey-500Channel) / 0.16);
+    /**
+    * Tooltip
+    */
+
+    .apexcharts-tooltip {
+        min-width: 80px;
+        border-radius: 10px;
+        backdrop-filter: blur(6px);
+        color: var(--palette-text-primary);
+        box-shadow: var(--customShadows-dropdown);
+        background-color: rgba(var(--palette-background-defaultChannel) / 0.9);
     }
-    &::after {
-      border-bottom-color: rgba(var(--palette-background-defaultChannel) / 0.9);
+
+    .apexcharts-xaxistooltip {
+        border-radius: 10px;
+        border-color: transparent;
+        backdrop-filter: blur(6px);
+        color: var(--palette-text-primary);
+        box-shadow: var(--customShadows-dropdown);
+        background-color: rgba(var(--palette-background-defaultChannel) / 0.9);
+
+        &::before {
+            border-bottom-color: rgba(var(--palette-grey-500Channel) / 0.16);
+        }
+
+        &::after {
+            border-bottom-color: rgba(var(--palette-background-defaultChannel) / 0.9);
+        }
     }
-  }
-  .apexcharts-tooltip-title {
-    font-weight: 700;
-    text-align: center;
-    color: var(--palette-text-secondary);
-    background-color: var(--palette-background-neutral);
-  }
-  /**
-  * Tooltip: group
-  */
-  .apexcharts-tooltip-series-group {
-    padding: 4px 12px;
-  }
-  .apexcharts-tooltip-marker {
-    margin-right: 8px;
-  }
-  /**
-  * Legend
-  */
-  .apexcharts-legend {
-    padding: 0;
-  }
-  .apexcharts-legend-marker {
-    margin-right: 6px;
-  }
-  .apexcharts-legend-text {
-    margin-left: 0;
-    padding-left: 0;
-    line-height: 18px;
-  }
+
+    .apexcharts-tooltip-title {
+        font-weight: 700;
+        text-align: center;
+        color: var(--palette-text-secondary);
+        background-color: var(--palette-background-neutral);
+    }
+
+    /**
+    * Tooltip: group
+    */
+
+    .apexcharts-tooltip-series-group {
+        padding: 4px 12px;
+    }
+
+    .apexcharts-tooltip-marker {
+        margin-right: 8px;
+    }
+
+    /**
+    * Legend
+    */
+
+    .apexcharts-legend {
+        padding: 0;
+    }
+
+    .apexcharts-legend-marker {
+        margin-right: 6px;
+    }
+
+    .apexcharts-legend-text {
+        margin-left: 0;
+        padding-left: 0;
+        line-height: 18px;
+    }
 }
 
 /** **************************************
@@ -703,33 +745,33 @@ input[type='number']::-webkit-inner-spin-button {
 
 /* Base theme using MUI variables */
 .bn-container[data-color-scheme] {
-  /* Text colors */
-  --bn-colors-editor-text: var(--color-text-primary);
-  --bn-colors-menu-text: var(--color-text-primary);
-  --bn-colors-tooltip-text: var(--color-common-onBackground);
-  --bn-colors-hovered-text: var(--color-text-primary);
-  --bn-colors-selected-text: var(--color-text-primary);
-  --bn-colors-disabled-text: var(--color-text-disabled);
+    /* Text colors */
+    --bn-colors-editor-text: var(--color-text-primary);
+    --bn-colors-menu-text: var(--color-text-primary);
+    --bn-colors-tooltip-text: var(--color-common-onBackground);
+    --bn-colors-hovered-text: var(--color-text-primary);
+    --bn-colors-selected-text: var(--color-text-primary);
+    --bn-colors-disabled-text: var(--color-text-disabled);
 
-  /* Background colors */
-  --bn-colors-editor-background: var(--color-background-paper);
-  --bn-colors-menu-background: var(--color-background-paper);
-  --bn-colors-tooltip-background: var(--color-gray-900);
-  --bn-colors-hovered-background: var(--color-action-hover);
-  --bn-colors-selected-background: var(--color-action-selected);
-  --bn-colors-disabled-background: var(--color-action-disabled);
+    /* Background colors */
+    --bn-colors-editor-background: var(--color-background-paper);
+    --bn-colors-menu-background: var(--color-background-paper);
+    --bn-colors-tooltip-background: var(--color-gray-900);
+    --bn-colors-hovered-background: var(--color-action-hover);
+    --bn-colors-selected-background: var(--color-action-selected);
+    --bn-colors-disabled-background: var(--color-action-disabled);
 
-  /* Other colors */
-  --bn-colors-shadow: rgba(0, 0, 0, 0.2);
-  --bn-colors-border: var(--color-divider);
-  --bn-colors-side-menu: var(--color-text-secondary);
-  --bn-color-highlight-colors: var(--color-background-default);
+    /* Other colors */
+    --bn-colors-shadow: rgba(0, 0, 0, 0.2);
+    --bn-colors-border: var(--color-divider);
+    --bn-colors-side-menu: var(--color-text-secondary);
+    --bn-color-highlight-colors: var(--color-background-default);
 
-  /* Style properties */
-  --bn-border-radius: 4px;
+    /* Style properties */
+    --bn-border-radius: 4px;
 
-  /* Extract font family from MUI font variable */
-  --bn-font-family: var(--mui-font-family-body1,
+    /* Extract font family from MUI font variable */
+    --bn-font-family: var(--mui-font-family-body1,
     "Public Sans Variable",
     -apple-system,
     BlinkMacSystemFont,
@@ -742,55 +784,61 @@ input[type='number']::-webkit-inner-spin-button {
 
 /* Dark mode adjustments */
 .bn-container[data-color-scheme="dark"] {
-  /* In dark mode, tooltip should have a lighter background */
-  --bn-colors-tooltip-background: var(--color-gray-800);
+    /* In dark mode, tooltip should have a lighter background */
+    --bn-colors-tooltip-background: var(--color-gray-800);
 
-  /* Side menu should be more visible in dark mode */
-  --bn-colors-side-menu: var(--color-text-secondary);
+    /* Side menu should be more visible in dark mode */
+    --bn-colors-side-menu: var(--color-text-secondary);
 }
 
 /* Additional refinements for better integration */
 .bn-container {
-  /* Menu shadow using MUI shadow system */
-  .bn-menu {
-    box-shadow: var(--shadow-8);
-  }
+    /* Menu shadow using MUI shadow system */
 
-  /* Tooltip shadow */
-  .bn-tooltip {
-    box-shadow: var(--shadow-4);
-  }
+    .bn-menu {
+        box-shadow: var(--shadow-8);
+    }
 
-  /* Use MUI typography for consistency */
-  .bn-editor {
-    font: var(--font-body1);
-    letter-spacing: var(--letter-spacing-body1);
-  }
+    /* Tooltip shadow */
+
+    .bn-tooltip {
+        box-shadow: var(--shadow-4);
+    }
+
+    /* Use MUI typography for consistency */
+
+    .bn-editor {
+        font: var(--font-body1);
+        letter-spacing: var(--letter-spacing-body1);
+    }
 }
 
 /* Optional: Add MUI-style elevation to floating elements */
 .bn-container {
-  .bn-menu,
-  .bn-tooltip,
-  .bn-formatting-toolbar {
-    /* Use MUI elevation pattern */
-    background-image: var(--overlay-8);
-    box-shadow: var(--shadow-8);
-  }
+    .bn-menu,
+    .bn-tooltip,
+    .bn-formatting-toolbar {
+        /* Use MUI elevation pattern */
+        background-image: var(--overlay-8);
+        box-shadow: var(--shadow-8);
+    }
 
-  /* Hover states with MUI opacity */
-  .bn-menu-item:hover {
-    background-color: var(--color-action-hover);
-  }
+    /* Hover states with MUI opacity */
 
-  /* Selected states */
-  .bn-menu-item.selected {
-    background-color: var(--color-action-selected);
-  }
+    .bn-menu-item:hover {
+        background-color: var(--color-action-hover);
+    }
 
-  /* Focus states */
-  .bn-menu-item:focus-visible {
-    outline: 2px solid var(--color-primary);
-    outline-offset: -2px;
-  }
+    /* Selected states */
+
+    .bn-menu-item.selected {
+        background-color: var(--color-action-selected);
+    }
+
+    /* Focus states */
+
+    .bn-menu-item:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: -2px;
+    }
 }

@@ -1,7 +1,7 @@
+import { svgIconClasses } from "@mui/material";
 import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
 import { tabClasses } from "@mui/material/Tab";
 import type { TabsClassKey } from "@mui/material/Tabs";
-
 /**
  * TypeScript extension for MUI theme augmentation.
  * @to {@link file://./../../extend-theme-types.d.ts}
@@ -156,6 +156,7 @@ const MuiTabs: Components<Theme>["MuiTabs"] = {
       variants: [...tabsVariants.root],
     },
     list: {
+      gap: "8px",
       variants: [...tabsVariants.list],
     },
     indicator: {
@@ -174,9 +175,14 @@ const MuiTab: Components<Theme>["MuiTab"] = {
   styleOverrides: {
     root: ({ theme }) => ({
       opacity: 1,
-      minWidth: 48,
+      padding: "8px",
+      minWidth: "36px",
+      [`.${svgIconClasses.root}`]: {
+        fontSize: 20,
+      },
       paddingLeft: 0,
       paddingRight: 0,
+      minHeight: "36px",
       color: theme.vars.palette.text.secondary,
       fontWeight: theme.typography.fontWeightMedium,
       lineHeight: theme.typography.body2.lineHeight,

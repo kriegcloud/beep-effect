@@ -5,7 +5,7 @@ export const tooltipFormatterList = (params: CallbackDataParams | CallbackDataPa
 
   const result = paramsArray.map((param) => {
     const hasSeriesName = !(
-      // biome-ignore lint/suspicious/noControlCharactersInRegex: <explanation>
+      // biome-ignore lint/suspicious/noControlCharactersInRegex: i don't care
       (typeof param.seriesName === "string" && /^series\u0000\d+$/.test(param.seriesName))
     );
 

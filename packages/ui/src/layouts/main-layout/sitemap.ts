@@ -1,4 +1,5 @@
 import type { SxProps } from "@mui/material";
+import type { IconifyProps } from "../../atoms";
 import docSitemap from "./docSitemap";
 import paths, { rootPaths } from "./paths";
 
@@ -9,7 +10,7 @@ export interface SubMenuItem {
   selectionPrefix?: string;
   path?: string;
   active?: boolean;
-  icon?: string;
+  icon?: IconifyProps["icon"];
   iconSx?: SxProps;
   items?: SubMenuItem[];
   new?: boolean;
@@ -20,7 +21,7 @@ export interface MenuItem {
   id: string;
   key?: string; // used for the locale
   subheader: string;
-  icon: string;
+  icon: IconifyProps["icon"];
   iconSx?: SxProps;
   items: SubMenuItem[];
 }

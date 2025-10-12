@@ -77,7 +77,7 @@ export class SettingsAction extends S.Union(
             ...state,
             sidenavCollapsed: true,
             drawerWidth:
-              state.sideNavType === "stacked" ? mainDrawerWidth.stackedNavCollapsed : mainDrawerWidth.collapsed,
+              state.sidenavType === "stacked" ? mainDrawerWidth.stackedNavCollapsed : mainDrawerWidth.collapsed,
           }),
           EXPAND_NAVBAR: () => ({
             ...state,
@@ -88,19 +88,19 @@ export class SettingsAction extends S.Union(
             Match.value(action.payload).pipe(
               Match.when("default", (payload) => ({
                 ...state,
-                sideNavType: payload,
+                sidenavType: payload,
                 sidenavCollapsed: false,
                 drawerWidth: mainDrawerWidth.full,
               })),
               Match.when("slim", (payload) => ({
                 ...state,
-                sideNavType: payload,
+                sidenavType: payload,
                 sidenavCollapsed: false,
                 drawerWidth: mainDrawerWidth.slim,
               })),
               Match.when("stacked", (payload) => ({
                 ...state,
-                sideNavType: payload,
+                sidenavType: payload,
                 sidenavCollapsed: false,
                 drawerWidth: mainDrawerWidth.full,
               }))

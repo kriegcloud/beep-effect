@@ -2,7 +2,7 @@ import { chipClasses } from "@mui/material/Chip";
 import type { SvgIconProps } from "@mui/material/SvgIcon";
 
 import SvgIcon from "@mui/material/SvgIcon";
-import type { Components, ComponentsVariants, CSSObject, Theme } from "@mui/material/styles";
+import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
 
 import { colorKeys } from "../palette";
 
@@ -17,11 +17,6 @@ type ChipVariants = ComponentsVariants<Theme>["MuiChip"];
 
 const baseColors = ["default"] as const;
 const allColors = [...baseColors, ...colorKeys.palette, ...colorKeys.common] as const;
-
-const DIMENSIONS: Record<"small" | "medium", CSSObject> = {
-  small: { borderRadius: "8px" },
-  medium: { borderRadius: "10px" },
-};
 
 /* **********************************************************************
  * ♉️ Custom icons
@@ -118,12 +113,77 @@ const avatarVariants = [
 
 const sizeVariants = [
   {
+    props: (props) => props.size === "xsmall",
+    style: ({ theme }) => ({
+      borderRadius: "6px",
+      height: 16,
+      padding: theme.spacing(0.5),
+      [`& .${chipClasses.label}`]: {
+        paddingLeft: theme.spacing(0.25),
+        paddingRight: theme.spacing(0.25),
+        fontSize: 10,
+        lineHeight: 1,
+      },
+      "& .MuiChip-labelXsmall": {
+        paddingLeft: theme.spacing(0.25),
+        paddingRight: theme.spacing(0.25),
+        fontSize: 10,
+      },
+      [`& .${chipClasses.icon}`]: {
+        fontSize: 10,
+        margin: theme.spacing(0.125),
+      },
+      [`& .${chipClasses.deleteIcon}`]: {
+        fontSize: 10,
+        margin: theme.spacing(0.125),
+      },
+      [`& .${chipClasses.avatar}`]: {
+        height: 12,
+        width: 12,
+      },
+    }),
+  },
+  {
     props: (props) => props.size === "small",
-    style: { ...DIMENSIONS.small },
+    style: ({ theme }) => ({
+      borderRadius: "8px",
+      height: 20,
+      padding: theme.spacing(0.25),
+      [`& .${chipClasses.label}`]: {
+        paddingLeft: theme.spacing(0.5),
+        paddingRight: theme.spacing(0.5),
+        fontSize: 12,
+      },
+      [`& .${chipClasses.icon}`]: {
+        fontSize: 12,
+        margin: theme.spacing(0.25),
+      },
+      [`& .${chipClasses.deleteIcon}`]: {
+        fontSize: 12,
+        margin: theme.spacing(0.25),
+      },
+    }),
   },
   {
     props: (props) => props.size === "medium",
-    style: { ...DIMENSIONS.medium },
+    style: ({ theme }) => ({
+      borderRadius: "10px",
+      height: 24,
+      padding: theme.spacing(0.5),
+      [`& .${chipClasses.label}`]: {
+        paddingLeft: theme.spacing(0.75),
+        paddingRight: theme.spacing(0.75),
+        fontSize: 12,
+      },
+      [`& .${chipClasses.icon}`]: {
+        fontSize: 14,
+        margin: "0 2px 2px 2px",
+      },
+      [`& .${chipClasses.deleteIcon}`]: {
+        fontSize: 14,
+        margin: "2px 2px 2px 0",
+      },
+    }),
   },
 ] satisfies ChipVariants;
 
@@ -158,6 +218,7 @@ const MuiChip: Components<Theme>["MuiChip"] = {
   defaultProps: {
     deleteIcon: <DeleteIcon />,
     variant: "soft",
+    size: "small",
   },
   // ▼▼▼▼▼▼▼▼ 🎨 STYLE ▼▼▼▼▼▼▼▼
   styleOverrides: {
@@ -165,7 +226,10 @@ const MuiChip: Components<Theme>["MuiChip"] = {
       variants: [...filledVariants, ...outlinedVariants, ...softVariants, ...sizeVariants, ...disabledVariants],
     },
     label: ({ theme }) => ({
-      fontWeight: theme.typography.fontWeightMedium,
+      ...theme.typography.subtitle2,
+      fontWeight: 600,
+      lineHeight: 1,
+      overflow: "unset",
     }),
     avatar: {
       variants: [...avatarVariants],

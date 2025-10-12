@@ -52,6 +52,7 @@ const Topnav = () => {
             color="inherit"
             aria-label="open drawer"
             edge="start"
+            className="appbar-drawer-button"
             onClick={handleDrawerToggle}
             sx={[
               {
@@ -71,9 +72,11 @@ const Topnav = () => {
           <Logo showName={upSm} />
         </Box>
         <Stack
+          direction="row"
           sx={{
             alignItems: "center",
             flex: 1,
+            flexWrap: "nowrap",
           }}
         >
           {upLg && <TopnavItems />}

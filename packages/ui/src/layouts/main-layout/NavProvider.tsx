@@ -42,7 +42,7 @@ const NavProvider = ({ children }: PropsWithChildren) => {
   const downMd = down("md");
 
   const {
-    config: { sidenavCollapsed, navigationMenuType, topNavType, sideNavType },
+    config: { sidenavCollapsed, navigationMenuType, topnavType, sidenavType },
     setConfig,
     configDispatch,
   } = useSettingsContext();
@@ -68,7 +68,7 @@ const NavProvider = ({ children }: PropsWithChildren) => {
       return "appbar";
     }
     if (navigationMenuType === "combo") {
-      switch (topNavType) {
+      switch (topnavType) {
         case "default": {
           return "appbar";
         }
@@ -80,18 +80,18 @@ const NavProvider = ({ children }: PropsWithChildren) => {
         }
       }
     }
-  }, [navigationMenuType, topNavType, downMd]);
+  }, [navigationMenuType, topnavType, downMd]);
 
   const topbarHeight = useMemo(() => {
     if (navigationMenuType === "sidenav") {
       return theme.mixins.topbar.default;
     }
-    return theme.mixins.topbar[topNavType];
-  }, [navigationMenuType, topNavType]);
+    return theme.mixins.topbar[topnavType];
+  }, [navigationMenuType, topnavType]);
 
   useEffect(() => {
     if (navigationMenuType === "sidenav" || navigationMenuType === "combo") {
-      if (sideNavType !== "slim") {
+      if (sidenavType !== "slim") {
         if (sidenavCollapsed) {
           configDispatch({
             type: COLLAPSE_NAVBAR,
@@ -122,7 +122,7 @@ const NavProvider = ({ children }: PropsWithChildren) => {
     if (!loaded) {
       setLoaded(true);
     }
-  }, [currentBreakpoint, navigationMenuType, downMd]);
+  }, [currentBreakpoint, navigationMenuType, downMd, sidenavType, sidenavCollapsed]);
 
   useEffect(() => {
     if (currentBreakpoint !== "md" && responsievSidenavCollapsed) {

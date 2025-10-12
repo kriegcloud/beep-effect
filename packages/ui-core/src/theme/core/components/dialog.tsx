@@ -2,6 +2,14 @@ import type { Components, Theme } from "@mui/material/styles";
 
 const MuiDialog: Components<Theme>["MuiDialog"] = {
   // ▼▼▼▼▼▼▼▼ 🎨 STYLE ▼▼▼▼▼▼▼▼
+  defaultProps: {
+    slotProps: {
+      paper: {
+        variant: "elevation",
+        elevation: 6,
+      },
+    },
+  },
   styleOverrides: {
     paper: {
       variants: [

@@ -1,6 +1,6 @@
 "use client";
 
-import { Iconify, type IconifyProps } from "@beep/ui/atoms";
+import { Iconify } from "@beep/ui/atoms";
 import paths from "@beep/ui/layouts/main-layout/paths";
 import type { SubMenuItem } from "@beep/ui/layouts/main-layout/sitemap";
 import { useBreakpoints } from "@beep/ui/providers";
@@ -41,13 +41,13 @@ const NavItem = ({ item, level }: NavItemProps) => {
   const upMd = up("md");
   const upLg = up("lg");
   const {
-    config: { sidenavCollapsed, sideNavType, navColor, openNavbarDrawer },
+    config: { sidenavCollapsed, sidenavType, navColor, openNavbarDrawer },
     configDispatch,
     handleDrawerToggle,
   } = useSettingsContext();
 
   const hasNestedItems = useMemo(() => Object.prototype.hasOwnProperty.call(item, "items"), [item]);
-  const isStackedSideNav = useMemo(() => upMd && sideNavType === "stacked", [sideNavType, upMd]);
+  const isStackedSideNav = useMemo(() => upMd && sidenavType === "stacked", [sidenavType, upMd]);
 
   const expandIcon = (
     <Iconify
@@ -131,7 +131,7 @@ const NavItem = ({ item, level }: NavItemProps) => {
             pathname !== paths.comingSoon &&
             (pathname === item.path ||
               (item.selectionPrefix && pathname!.includes(item.selectionPrefix)) ||
-              (sidenavCollapsed && sideNavType === "default" && isNestedItemOpen(item.items)) ||
+              (sidenavCollapsed && sidenavType === "default" && isNestedItemOpen(item.items)) ||
               (openItems[level] !== item.pathName && isNestedItemOpen(item.items)))
           }
           sx={[
@@ -196,7 +196,7 @@ const NavItem = ({ item, level }: NavItemProps) => {
                   },
                 }}
               >
-                <Iconify icon={item.icon as IconifyProps["icon"]} sx={item.iconSx} />
+                <Iconify icon={item.icon} sx={item.iconSx} />
               </ListItemIcon>
             </Badge>
           )}
@@ -239,7 +239,7 @@ const NavItem = ({ item, level }: NavItemProps) => {
               )}
 
               {item.new && (!sidenavCollapsed || level > 0 || isStackedSideNav) && (
-                <Chip size="small" label="new" color="warning" sx={{ textTransform: "capitalize", ml: 1 }} />
+                <Chip size="xsmall" label="new" color="warning" sx={{ textTransform: "capitalize", ml: 1 }} />
               )}
             </ListItemText>
 

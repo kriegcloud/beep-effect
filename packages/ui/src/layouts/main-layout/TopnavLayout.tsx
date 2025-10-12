@@ -17,7 +17,7 @@ import useSettingsPanelMountEffect from "./useSettingsPanelMountEffect";
 
 const TopnavLayout = ({ children }: PropsWithChildren) => {
   const {
-    config: { drawerWidth, navigationMenuType, topNavType, openNavbarDrawer, navColor },
+    config: { drawerWidth, navigationMenuType, topnavType, openNavbarDrawer, navColor },
     setConfig,
   } = useSettingsContext();
 
@@ -33,14 +33,14 @@ const TopnavLayout = ({ children }: PropsWithChildren) => {
   });
 
   const toolbarVarint: ToolbarOwnProps["variant"] = useMemo(() => {
-    if (topNavType === "slim") {
+    if (topnavType === "slim") {
       return "appbarSlim";
     }
-    if (topNavType === "stacked") {
+    if (topnavType === "stacked") {
       return "appbarStacked";
     }
     return "appbar";
-  }, [navigationMenuType, topNavType]);
+  }, [navigationMenuType, topnavType]);
 
   return (
     <Box>

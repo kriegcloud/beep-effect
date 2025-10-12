@@ -9,8 +9,8 @@ const validators = {
   themeMode: ["light", "dark", "system"],
   textDirection: ["ltr", "rtl"],
   navigationMenuType: ["sidenav", "topnav", "combo"],
-  sideNavType: ["default", "stacked", "slim"],
-  topNavType: ["default", "stacked", "slim"],
+  sidenavType: ["default", "stacked", "slim"],
+  topnavType: ["default", "stacked", "slim"],
   navColor: ["default", "vibrant"],
   locale: ["en-US", "fr-FR", "bn-BD", "zh-CN", "hi-IN", "ar-SA"],
 };

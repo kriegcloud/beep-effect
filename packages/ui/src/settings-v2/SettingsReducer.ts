@@ -26,7 +26,7 @@ export const settingsReducer = (state: SettingsConfig.Type, action: SettingsActi
     case COLLAPSE_NAVBAR: {
       updatedState = {
         sidenavCollapsed: true,
-        drawerWidth: state.sideNavType === "stacked" ? mainDrawerWidth.stackedNavCollapsed : mainDrawerWidth.collapsed,
+        drawerWidth: state.sidenavType === "stacked" ? mainDrawerWidth.stackedNavCollapsed : mainDrawerWidth.collapsed,
       };
       break;
     }
@@ -76,7 +76,7 @@ export const settingsReducer = (state: SettingsConfig.Type, action: SettingsActi
       switch (action.payload) {
         case "default": {
           updatedState = {
-            sideNavType: "default",
+            sidenavType: "default",
             sidenavCollapsed: false,
             drawerWidth: mainDrawerWidth.full,
           };
@@ -84,7 +84,7 @@ export const settingsReducer = (state: SettingsConfig.Type, action: SettingsActi
         }
         case "slim": {
           updatedState = {
-            sideNavType: "slim",
+            sidenavType: "slim",
             sidenavCollapsed: false,
             drawerWidth: mainDrawerWidth.slim,
           };
@@ -92,7 +92,7 @@ export const settingsReducer = (state: SettingsConfig.Type, action: SettingsActi
         }
         case "stacked": {
           updatedState = {
-            sideNavType: "stacked",
+            sidenavType: "stacked",
             sidenavCollapsed: false,
             drawerWidth: mainDrawerWidth.full,
           };
@@ -125,7 +125,7 @@ export const settingsReducer = (state: SettingsConfig.Type, action: SettingsActi
       [
         "themeMode",
         "sidenavCollapsed",
-        "sideNavType",
+        "sidenavType",
         "textDirection",
         "navigationMenuType",
         "topnavType",

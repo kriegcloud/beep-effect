@@ -22,7 +22,7 @@ import TopnavSlim from "./topnav/TopnavSlim";
 
 const MainLayout = ({ children }: PropsWithChildren) => {
   const {
-    config: { drawerWidth, sideNavType, navigationMenuType, topNavType, openNavbarDrawer, navColor },
+    config: { drawerWidth, sidenavType, navigationMenuType, topnavType, openNavbarDrawer, navColor },
     setConfig,
   } = useSettingsContext();
 
@@ -32,17 +32,17 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     });
   };
 
-  const toolbarVarint: ToolbarOwnProps["variant"] = useMemo(() => {
+  const toolbarVariant: ToolbarOwnProps["variant"] = useMemo(() => {
     if (navigationMenuType !== "sidenav") {
-      if (topNavType === "slim") {
+      if (topnavType === "slim") {
         return "appbarSlim";
       }
-      if (topNavType === "stacked") {
+      if (topnavType === "stacked") {
         return "appbarStacked";
       }
     }
     return "appbar";
-  }, [navigationMenuType, topNavType]);
+  }, [navigationMenuType, topnavType]);
 
   return (
     <Box>
@@ -57,17 +57,17 @@ const MainLayout = ({ children }: PropsWithChildren) => {
 
           {(navigationMenuType === "sidenav" || navigationMenuType === "combo") && (
             <>
-              {sideNavType === "default" && <Sidenav />}
-              {sideNavType === "slim" && <SlimSidenav />}
-              {sideNavType === "stacked" && <StackedSidenav />}
+              {sidenavType === "default" && <Sidenav />}
+              {sidenavType === "slim" && <SlimSidenav />}
+              {sidenavType === "stacked" && <StackedSidenav />}
             </>
           )}
 
           {(navigationMenuType === "topnav" || navigationMenuType === "combo") && (
             <>
-              {topNavType === "default" && <Topnav />}
-              {topNavType === "slim" && <TopnavSlim />}
-              {topNavType === "stacked" && <TopNavStacked />}
+              {topnavType === "default" && <Topnav />}
+              {topnavType === "slim" && <TopnavSlim />}
+              {topnavType === "stacked" && <TopNavStacked />}
             </>
           )}
 
@@ -108,13 +108,13 @@ const MainLayout = ({ children }: PropsWithChildren) => {
                 display: "flex",
                 flexDirection: "column",
               },
-              sideNavType === "default" && {
+              sidenavType === "default" && {
                 ml: { md: `${mainDrawerWidth.collapsed}px`, lg: 0 },
               },
-              sideNavType === "stacked" && {
+              sidenavType === "stacked" && {
                 ml: { md: `${mainDrawerWidth.stackedNavCollapsed}px`, lg: 0 },
               },
-              sideNavType === "slim" && {
+              sidenavType === "slim" && {
                 ml: { xs: 0 },
               },
               navigationMenuType === "topnav" && {
@@ -122,7 +122,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
               },
             ]}
           >
-            <Toolbar variant={toolbarVarint} />
+            <Toolbar variant={toolbarVariant} />
 
             <Box sx={{ flex: 1 }}>
               <Box

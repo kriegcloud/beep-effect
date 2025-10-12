@@ -182,6 +182,10 @@ declare module "@mui/material/Chip" {
   interface ChipPropsVariantOverrides extends ChipExtendVariant {}
 
   interface ChipPropsColorOverrides extends ChipExtendColor {}
+
+  interface ChipPropsSizeOverrides {
+    xsmall: true;
+  }
 }
 
 /**

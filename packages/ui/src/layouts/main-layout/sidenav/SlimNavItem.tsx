@@ -1,6 +1,6 @@
 "use client";
 
-import { Iconify, type IconifyProps } from "@beep/ui/atoms";
+import { Iconify } from "@beep/ui/atoms";
 import paths from "@beep/ui/layouts/main-layout/paths";
 import type { SubMenuItem } from "@beep/ui/layouts/main-layout/sitemap";
 import { useSettingsContext } from "@beep/ui/settings-v2/SettingsProvider";
@@ -106,7 +106,7 @@ const SlimNavItem = ({ item, level }: SlimNavItemProps) => {
           invisible={!item.new && !item.hasNew}
           sx={{ [`& .${badgeClasses.badge}`]: { top: -4, right: -4 } }}
         >
-          <Iconify icon={item.icon as IconifyProps["icon"]} sx={{ fontSize: 22 }} />
+          <Iconify icon={item.icon} sx={{ fontSize: 22 }} />
         </Badge>
       )}
 

@@ -225,7 +225,7 @@ export function Logo({ sx, disabled, className, showName = false, href = "/", is
             // },
           ]}
         >
-          aurora
+          beep-effect
         </Typography>
       )}
     </>

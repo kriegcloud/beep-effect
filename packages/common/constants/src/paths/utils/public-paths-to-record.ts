@@ -7,7 +7,7 @@ import * as Str from "effect/String";
 // public-paths-to-record.ts
 // -------------------------------------------------------------------------------------------------
 // Build a type-safe accessor object and tuple structure from a list of public asset paths.
-// Keys are folder names (unchanged) and file names camelized with dashes removed.
+// Folder keys are camelized (dashes removed) and file names camelized with dashes removed.
 // Leaves can be either exact literal path strings or widened to `string` via an option.
 // -------------------------------------------------------------------------------------------------
 
@@ -62,6 +62,9 @@ type CamelCase<S extends string> = S extends `${infer H}-${infer C}${infer R}`
   ? `${H}${Uppercase<C>}${CamelCase<R>}`
   : S;
 
+/** Camelized directory key preserving literal types. */
+type DirectoryKey<S extends string> = CamelCase<S>;
+
 /** Camelized base name key used for file leaves. */
 type FileKey<S extends string> = CamelCase<RemoveExt<S>>;
 
@@ -79,7 +82,7 @@ type UnionToIntersection<U> = (U extends unknown ? (x: U) => void : never) exten
  * - Leaf: `[fileBaseName (no ext), camelizedFileBase]`
  *
  * @example
- * "/assets/background/background-3-blur.webp"
+ * "/assets/background/background-3-blur.avif"
  * -> ["assets", ["background", ["background-3-blur", "background3Blur"]]]
  */
 export type NestedTuple = readonly [string, NestedTuple] | readonly [string, string];
@@ -88,7 +91,7 @@ export type NestedTuple = readonly [string, NestedTuple] | readonly [string, str
 type BuildNestedTuple<Segs extends readonly string[]> = Segs extends [infer Only extends string]
   ? readonly [RemoveExt<Only>, FileKey<Only>]
   : Segs extends [infer Head extends string, ...infer Tail extends string[]]
-    ? readonly [Head, BuildNestedTuple<Tail>]
+    ? readonly [DirectoryKey<Head>, BuildNestedTuple<Tail>]
     : never;
 
 /** Map an array of paths to nested tuples. */
@@ -102,6 +105,7 @@ export type PathTuplesFrom<Paths extends readonly string[]> = {
  * @example
  * toNestedTuple("/logo.png") // ["logo", "logo"]
  * toNestedTuple("/a/b/file-name.svg") // ["a", ["b", ["file-name", "fileName"]]]
+ * toNestedTuple("/settings-panel/icon.svg") // ["settingsPanel", "icon"]
  *
  * @category Paths • Tuples
  * @since 1.0.0
@@ -119,9 +123,9 @@ export function toNestedTuple(path: string): NestedTuple {
   }
 
   // Build from tail: [lastDir, camelFileBase] then wrap upward with parent dirs.
-  let node: NestedTuple = [parts[parts.length - 2]!, camel] as const;
+  let node: NestedTuple = [toJsAccessor(parts[parts.length - 2]!), camel] as const;
   for (let i = parts.length - 3; i >= 0; i--) {
-    node = [parts[i]!, node] as const;
+    node = [toJsAccessor(parts[i]!), node] as const;
   }
   return node;
 }
@@ -162,7 +166,7 @@ type BuildNest<
   P extends string,
   Widen extends boolean,
 > = Dirs extends [infer H extends string, ...infer T extends string[]]
-  ? { [K in H]: BuildNest<T, File, P, Widen> }
+  ? { [K in DirectoryKey<H>]: BuildNest<T, File, P, Widen> }
   : { [K in FileKey<File>]: Widen extends true ? string : P };
 
 /** Merge all per-path objects into one tree, keeping literal keys. */
@@ -186,19 +190,19 @@ export type BuildOptions = {
 /**
  * Build a type-safe accessor object from an array of public paths.
  *
- * - Directory segments become nested objects (keys unchanged).
+ * - Directory segments become nested objects (keys camelized).
  * - File leaves become camelized keys of the file base name (extension removed).
  * - Leaf values are, by default, the exact literal path strings; you can widen them to `string`.
  *
  * @example
  * const publicPaths = [
  *   "/logo.png",
- *   "/assets/background/background-3-blur.webp",
+ *   "/assets/background/background-3-blur.avif",
  * ] as const;
  *
  * const obj = pathObjFromPaths(publicPaths);
  * // obj.logo === "/logo.png"
- * // obj.assets.background.background3Blur === "/assets/background/background-3-blur.webp"
+ * // obj.assets.background.background3Blur === "/assets/background/background-3-blur.avif"
  *
  * const wide = pathObjFromPaths(publicPaths, { widenLeavesToString: true });
  * // wide.logo is typed as string (value still "/logo.png" at runtime)
@@ -215,7 +219,7 @@ export function pathObjFromPaths<
   const root: Record<string, unknown> = {};
 
   for (const p of paths as readonly string[]) {
-    const parts = p.split("/").filter(Boolean); // e.g. ["assets","background","background-3-blur.webp"]
+    const parts = p.split("/").filter(Boolean); // e.g. ["assets","background","background-3-blur.avif"]
     const file = parts[parts.length - 1]!;
     const fileKey = toJsAccessor(removeExt(file)); // e.g. "background3Blur"
 
@@ -227,7 +231,8 @@ export function pathObjFromPaths<
       let node = root as Record<string, unknown>;
       for (let i = 0; i < parts.length - 1; i++) {
         const seg = parts[i]!;
-        node = (node[seg] ??= {}) as Record<string, unknown>;
+        const dirKey = toJsAccessor(seg);
+        node = (node[dirKey] ??= {}) as Record<string, unknown>;
       }
       node[fileKey] = widen ? (p as string) : p;
     }
@@ -248,7 +253,7 @@ export function pathObjFromPaths<
  *    …to avoid very large union types in IntelliSense while keeping exact values at runtime.
  *
  * 3) The accessor keys shown in IntelliSense come from:
- *    - directories: unchanged ("assets", "icons", …)
+ *    - directories: camelized via `toJsAccessor` ("assets", "settingsPanel", …)
  *    - files: camelized base names ("androidChrome192x192", "background3Blur", "logo", …)
  *
  * 4) If you still see unions at leaves, something widened your `publicPaths` before reaching

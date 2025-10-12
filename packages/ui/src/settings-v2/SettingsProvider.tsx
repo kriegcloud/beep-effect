@@ -20,11 +20,19 @@ interface SettingsContextInterFace {
 export const SettingsContext = createContext({} as SettingsContextInterFace);
 
 export const SettingsProvider = ({ children }: PropsWithChildren) => {
+  const persistedSidenavType = (getItemFromStore("sidenavType") ??
+    getItemFromStore("sideNavType") ??
+    SettingsConfig.initialValue.sidenavType) as SettingsConfig.Type["sidenavType"];
+
+  const persistedTopnavType = (getItemFromStore("topnavType") ??
+    getItemFromStore("topNavType") ??
+    SettingsConfig.initialValue.topnavType) as SettingsConfig.Type["topnavType"];
+
   const configState: SettingsConfig.Type = {
     ...SettingsConfig.initialValue,
     sidenavCollapsed: getItemFromStore("sidenavCollapsed", SettingsConfig.initialValue.sidenavCollapsed),
-    sideNavType: getItemFromStore("sideNavType", SettingsConfig.initialValue.sideNavType),
-    topNavType: getItemFromStore("topnavType", SettingsConfig.initialValue.topNavType),
+    sidenavType: persistedSidenavType,
+    topnavType: persistedTopnavType,
     textDirection: getItemFromStore("textDirection", SettingsConfig.initialValue.textDirection),
     navigationMenuType: getItemFromStore("navigationMenuType", SettingsConfig.initialValue.navigationMenuType),
     navColor: getItemFromStore("navColor", SettingsConfig.initialValue.navColor),

@@ -1,6 +1,6 @@
 import { removeExt, toJsAccessor } from "@beep/constants/paths/utils/public-paths-to-record";
 import { BS } from "@beep/schema";
-import * as F from "effect/Function";
+
 import * as S from "effect/Schema";
 
 const SupportedFileExtensionKit = BS.stringLiteralKit(
@@ -22,31 +22,12 @@ const SupportedFileExtensionKit = BS.stringLiteralKit(
 
 export const NextgenConvertableExtensionKit = SupportedFileExtensionKit.derive("jpg", "jpeg", "png", "webp");
 
-export class NextgenConvertableExtensions extends F.pipe(
-  {
-    fields: { mod: S.instanceOf(WebAssembly.Module) },
-    members: NextgenConvertableExtensionKit.toTagged("_tag").Members,
-  },
-  ({ fields, members }) =>
-    S.Union(
-      S.Struct({ ...members.jpg.fields, ...fields }),
-      S.Struct({ ...members.jpeg.fields, ...fields }),
-      S.Struct({ ...members.png.fields, ...fields }),
-      S.Struct({ ...members.webp.fields, ...fields })
-    )
-) {}
-
-export namespace NextgenConvertableExtensions {
-  export type Type = typeof NextgenConvertableExtensions.Type;
-  export type Encoded = typeof NextgenConvertableExtensions.Encoded;
-}
-
 export const SupportedFileExtensionSet = new Set([...SupportedFileExtensionKit.Options]);
 
 const jsIdentifierStartRegex = /^[a-z_$]/;
-const jsIdentifierRegex = /^[a-z_$][a-z0-9_$]*$/;
 const jsPropertyAccessorRegex = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 const kebabCaseFileBaseRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const directorySegmentRegex = /^[a-z0-9_$]+(?:-[a-z0-9_$]+)*$/;
 const reservedObjectKeys = new Set(["__proto__", "prototype", "constructor"]);
 
 // Schema enforcing the expected invariants for generated public asset paths.
@@ -73,8 +54,15 @@ export const AssetPath = S.String.pipe(
 
     const directorySegments = segments.slice(0, -1);
     for (const segment of directorySegments) {
-      if (!jsIdentifierRegex.test(segment)) {
-        return `Directory segment "${segment}" must be a valid JavaScript identifier`;
+      if (!directorySegmentRegex.test(segment)) {
+        return `Directory segment "${segment}" may only contain lowercase letters, digits, '_' or '-' separators`;
+      }
+      const accessorCandidate = toJsAccessor(segment);
+      if (!jsPropertyAccessorRegex.test(accessorCandidate)) {
+        return `Directory segment "${segment}" generates invalid JS accessor "${accessorCandidate}"`;
+      }
+      if (reservedObjectKeys.has(accessorCandidate)) {
+        return `Directory segment "${segment}" generates reserved JS accessor "${accessorCandidate}"`;
       }
     }
 
@@ -125,12 +113,14 @@ export const AssetPaths = S.Array(AssetPath).pipe(
   }),
   S.filter((paths) => {
     const duplicateBases: string[] = [];
+    const invalidDirectoryAccessorSources = new Set<string>();
     const invalidAccessorSources: string[] = [];
     const accessorCollisions: string[] = [];
+    const directoryAccessorCollisionMessages = new Set<string>();
     const directoryAccessorConflicts: string[] = [];
     const baseNamesByDir = new Map<string, Map<string, string[]>>();
     const accessorByDir = new Map<string, Map<string, string[]>>();
-    const directoryChildren = new Map<string, Set<string>>();
+    const directoryAccessorsByDir = new Map<string, Map<string, string>>();
 
     const register = (collection: Map<string, Map<string, string[]>>, dir: string, key: string, path: string) => {
       let perDir = collection.get(dir);
@@ -146,13 +136,20 @@ export const AssetPaths = S.Array(AssetPath).pipe(
       }
     };
 
-    const registerDirectoryChild = (parent: string, child: string) => {
-      let children = directoryChildren.get(parent);
-      if (!children) {
-        children = new Set<string>();
-        directoryChildren.set(parent, children);
+    const registerDirectoryAccessor = (parent: string, accessor: string, sourceDir: string) => {
+      let perDir = directoryAccessorsByDir.get(parent);
+      if (!perDir) {
+        perDir = new Map<string, string>();
+        directoryAccessorsByDir.set(parent, perDir);
       }
-      children.add(child);
+      const existing = perDir.get(accessor);
+      if (existing && existing !== sourceDir) {
+        directoryAccessorCollisionMessages.add(`${parent}: accessor "${accessor}" ← ${existing}, ${sourceDir}`);
+        return;
+      }
+      if (!existing) {
+        perDir.set(accessor, sourceDir);
+      }
     };
 
     for (const path of paths) {
@@ -165,8 +162,18 @@ export const AssetPaths = S.Array(AssetPath).pipe(
       const directorySegments = segments.slice(0, -1);
       let parentDir = "/";
       for (const segment of directorySegments) {
-        registerDirectoryChild(parentDir, segment);
-        parentDir = parentDir === "/" ? `/${segment}` : `${parentDir}/${segment}`;
+        const currentDirPath = parentDir === "/" ? `/${segment}` : `${parentDir}/${segment}`;
+        const directoryAccessor = toJsAccessor(segment);
+        if (
+          !directoryAccessor ||
+          !jsPropertyAccessorRegex.test(directoryAccessor) ||
+          reservedObjectKeys.has(directoryAccessor)
+        ) {
+          invalidDirectoryAccessorSources.add(currentDirPath);
+        } else {
+          registerDirectoryAccessor(parentDir, directoryAccessor, currentDirPath);
+        }
+        parentDir = currentDirPath;
       }
 
       register(baseNamesByDir, directory, baseName, path);
@@ -191,8 +198,18 @@ export const AssetPaths = S.Array(AssetPath).pipe(
       }
     }
 
+    if (invalidDirectoryAccessorSources.size > 0) {
+      return `Directory names generate invalid JS accessors: ${Array.from(invalidDirectoryAccessorSources).join(", ")}`;
+    }
+
     if (duplicateBases.length > 0) {
       return `Duplicate asset file base names detected: ${duplicateBases.join("; ")}`;
+    }
+
+    if (directoryAccessorCollisionMessages.size > 0) {
+      return `Directory names generate conflicting JS accessors: ${Array.from(directoryAccessorCollisionMessages).join(
+        "; "
+      )}`;
     }
 
     if (invalidAccessorSources.length > 0) {
@@ -208,13 +225,13 @@ export const AssetPaths = S.Array(AssetPath).pipe(
     }
 
     for (const [dir, accessorMap] of accessorByDir) {
-      const childDirs = directoryChildren.get(dir);
+      const childDirs = directoryAccessorsByDir.get(dir);
       if (!childDirs) continue;
       for (const [accessor, pathsForAccessor] of accessorMap) {
-        if (childDirs.has(accessor)) {
-          const dirPath = dir === "/" ? `/${accessor}` : `${dir}/${accessor}`;
+        const childDirPath = childDirs.get(accessor);
+        if (childDirPath) {
           directoryAccessorConflicts.push(
-            `${dir}: accessor "${accessor}" conflicts with directory "${dirPath}" ← ${pathsForAccessor.join(", ")}`
+            `${dir}: accessor "${accessor}" conflicts with directory "${childDirPath}" ← ${pathsForAccessor.join(", ")}`
           );
         }
       }

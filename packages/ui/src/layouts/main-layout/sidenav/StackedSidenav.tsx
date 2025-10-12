@@ -1,6 +1,6 @@
 "use client";
 
-import { Iconify, type IconifyProps, StatusAvatar, VibrantBackground } from "@beep/ui/atoms";
+import { Iconify, StatusAvatar, VibrantBackground } from "@beep/ui/atoms";
 import { Logo } from "@beep/ui/branding";
 import { useThemeMode } from "@beep/ui/hooks";
 import sitemap, { type MenuItem, type SubMenuItem } from "@beep/ui/layouts/main-layout/sitemap";
@@ -147,7 +147,7 @@ const StackedSidenav = () => {
                       setSelectedMenu(item);
                     }}
                   >
-                    <Iconify icon={item.icon as IconifyProps["icon"]} sx={{ fontSize: 24 }} />
+                    <Iconify icon={item.icon} sx={{ fontSize: 24 }} />
                   </IconButton>
                 </ListItem>
               ))}

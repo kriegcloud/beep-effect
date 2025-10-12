@@ -19,7 +19,7 @@ import useSettingsPanelMountEffect from "./useSettingsPanelMountEffect";
 
 const SidenavLayout = ({ children }: PropsWithChildren) => {
   const {
-    config: { drawerWidth, sideNavType, openNavbarDrawer, navColor },
+    config: { drawerWidth, sidenavType, openNavbarDrawer, navColor },
     setConfig,
   } = useSettingsContext();
 
@@ -85,13 +85,13 @@ const SidenavLayout = ({ children }: PropsWithChildren) => {
                 display: "flex",
                 flexDirection: "column",
               },
-              sideNavType === "default" && {
+              sidenavType === "default" && {
                 ml: { md: `${mainDrawerWidth.collapsed}px`, lg: 0 },
               },
-              sideNavType === "stacked" && {
+              sidenavType === "stacked" && {
                 ml: { md: `${mainDrawerWidth.stackedNavCollapsed}px`, lg: 0 },
               },
-              sideNavType === "slim" && {
+              sidenavType === "slim" && {
                 ml: { xs: 0 },
               },
             ]}

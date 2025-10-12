@@ -5,7 +5,6 @@ import { runClientPromise, useRuntime } from "@beep/runtime-client";
 import { Form, makeFormOptions, useAppForm } from "@beep/ui/form";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
-import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { UploadFileService } from "@/features/upload";
@@ -35,24 +34,13 @@ export function OtherDemo() {
         // Collect files from both single and multi upload fields
         const files = [...(decoded.singleUpload ? [decoded.singleUpload] : []), ...(decoded.multiUpload ?? [])];
         if (files.length === 0) {
-          yield* Console.log({ message: "No files selected to process." });
           return { successes: [], errors: [] } as const;
         }
         const upload = yield* UploadFileService;
         const { successes, errors } = yield* upload.processFiles({ files, config: { maxSizeBytes: 3_145_728 } });
         // Summary
-        yield* Console.log({ successes: successes.length, errors: errors.length });
         // Detailed per-file output
-        for (const s of successes) {
-          const { file, validated, basic, exif } = s;
-          yield* Console.log({
-            file: { name: file.name, type: file.type, size: file.size },
-            validated,
-            formattedSize: validated.formattedSize,
-            basic,
-            exif,
-          });
-        }
+
         return { successes, errors };
       });
 

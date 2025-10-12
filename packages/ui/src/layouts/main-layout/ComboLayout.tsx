@@ -22,7 +22,7 @@ import useSettingsPanelMountEffect from "./useSettingsPanelMountEffect";
 
 const ComboLayout = ({ children }: PropsWithChildren) => {
   const {
-    config: { drawerWidth, sideNavType, navigationMenuType, topNavType, openNavbarDrawer, navColor },
+    config: { drawerWidth, sidenavType, navigationMenuType, topnavType, openNavbarDrawer, navColor },
     setConfig,
   } = useSettingsContext();
 
@@ -39,15 +39,15 @@ const ComboLayout = ({ children }: PropsWithChildren) => {
 
   const toolbarVarint: ToolbarOwnProps["variant"] = useMemo(() => {
     if (navigationMenuType !== "sidenav") {
-      if (topNavType === "slim") {
+      if (topnavType === "slim") {
         return "appbarSlim";
       }
-      if (topNavType === "stacked") {
+      if (topnavType === "stacked") {
         return "appbarStacked";
       }
     }
     return "appbar";
-  }, [navigationMenuType, topNavType]);
+  }, [navigationMenuType, topnavType]);
 
   return (
     <Box>
@@ -102,13 +102,13 @@ const ComboLayout = ({ children }: PropsWithChildren) => {
                 display: "flex",
                 flexDirection: "column",
               },
-              sideNavType === "default" && {
+              sidenavType === "default" && {
                 ml: { md: `${mainDrawerWidth.collapsed}px`, lg: 0 },
               },
-              sideNavType === "stacked" && {
+              sidenavType === "stacked" && {
                 ml: { md: `${mainDrawerWidth.stackedNavCollapsed}px`, lg: 0 },
               },
-              sideNavType === "slim" && {
+              sidenavType === "slim" && {
                 ml: { xs: 0 },
               },
             ]}

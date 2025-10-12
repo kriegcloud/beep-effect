@@ -6,7 +6,6 @@ import { StrUtils } from "@beep/utils";
 import * as M from "@effect/sql/Model";
 import type { $Type, HasDefault, HasRuntimeDefault, IsPrimaryKey, NotNull } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-import * as A from "effect/Array";
 import type * as B from "effect/Brand";
 import * as Data from "effect/Data";
 import * as F from "effect/Function";
@@ -15,7 +14,6 @@ import { TypeId } from "effect/Schema";
 import * as Str from "effect/String";
 import { typeid } from "typeid-js";
 
-export const getIdType = F.flow(Str.split("__"), A.headNonEmpty);
 export const getEntityId = (entity: string) => typeid(StrUtils.mkEntityType(entity));
 type Config<Brand extends string, TableName extends string> = {
   readonly tableName: SnakeTag.Literal<TableName>;

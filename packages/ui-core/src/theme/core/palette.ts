@@ -49,6 +49,15 @@ export type TypeBackgroundExtend = {
   elevation3: string;
   elevation4: string;
   menu: string;
+  menuElevation1: string;
+  menuElevation2: string;
+  elevation1Channel: string;
+  elevation2Channel: string;
+  elevation3Channel: string;
+  elevation4Channel: string;
+  menuChannel: string;
+  menuElevation1Channel: string;
+  menuElevation2Channel: string;
 };
 
 // Extended grey colors

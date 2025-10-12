@@ -1,6 +1,5 @@
 "use client";
 
-import { assetPaths } from "@beep/constants";
 import type { TopNavType } from "@beep/ui-core/settings";
 import { FormControlLabel, Radio } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
@@ -10,9 +9,11 @@ import { useSettingsContext } from "../SettingsProvider";
 import SettingsItem from "./SettingsItem";
 import SettingsPanelRadioGroup from "./SettingsPanelRadioGroup";
 
+const SETTINGS_PANEL_IMAGE_BASE = "/assets/images/sections/settings-panel";
+
 const TopnavShapePanel = () => {
   const {
-    config: { topNavType },
+    config: { topnavType, themeMode },
     setConfig,
   } = useSettingsContext();
   const router = useRouter();
@@ -23,24 +24,20 @@ const TopnavShapePanel = () => {
     router.replace(pathname);
     const value = (event.target as HTMLInputElement).value as TopNavType.Type;
     setConfig({
-      topNavType: value,
+      topnavType: value,
     });
   };
 
   return (
-    <SettingsPanelRadioGroup name="sidenav-shape" value={topNavType} onChange={handleChange}>
+    <SettingsPanelRadioGroup name="sidenav-shape" value={topnavType} onChange={handleChange}>
       <FormControlLabel
         value="default"
         control={<Radio />}
         label={
           <SettingsItem
             label="Default"
-            image={
-              theme.palette.mode === "light"
-                ? assetPaths.assets.images.sections.topnavDefault
-                : assetPaths.assets.images.sections.topnavDefaultDark
-            }
-            active={topNavType === "default"}
+            image={`${SETTINGS_PANEL_IMAGE_BASE}/topnav-default${theme.palette.mode === "dark" ? "-dark" : ""}.avif`}
+            active={topnavType === "default"}
           />
         }
       />
@@ -50,12 +47,8 @@ const TopnavShapePanel = () => {
         label={
           <SettingsItem
             label="Slim"
-            image={
-              theme.palette.mode === "light"
-                ? assetPaths.assets.images.sections.topnavSlim
-                : assetPaths.assets.images.sections.topnavSlimDark
-            }
-            active={topNavType === "slim"}
+            image={`${SETTINGS_PANEL_IMAGE_BASE}/topnav-slim${themeMode === "dark" ? "-dark" : ""}.avif`}
+            active={topnavType === "slim"}
           />
         }
       />
@@ -65,12 +58,8 @@ const TopnavShapePanel = () => {
         label={
           <SettingsItem
             label="Stacked"
-            image={
-              theme.palette.mode === "light"
-                ? assetPaths.assets.images.sections.topnavStacked
-                : assetPaths.assets.images.sections.topnavStackedDark
-            }
-            active={topNavType === "stacked"}
+            image={`${SETTINGS_PANEL_IMAGE_BASE}/topnav-stacked${themeMode === "dark" ? "-dark" : ""}.avif`}
+            active={topnavType === "stacked"}
           />
         }
       />

@@ -26,6 +26,7 @@ const TopnavItems = ({ type = "default" }: TopnavItemsProps) => {
 
   return (
     <Stack
+      direction="row"
       sx={{
         alignItems: "center",
         gap: "2px",
@@ -39,14 +40,26 @@ const TopnavItems = ({ type = "default" }: TopnavItemsProps) => {
           className={clsx({
             active: isNestedItemOpen(menu.items),
           })}
-          color={isNestedItemOpen(menu.items) ? "primary" : "neutral"}
+          color="inherit"
           size={type === "slim" ? "small" : "large"}
           endIcon={<Iconify icon="material-symbols:expand-more-rounded" />}
           onClick={(event) => {
             setAnchorEl(event.currentTarget);
             setSelectedMenu(menu);
           }}
-          sx={{ px: 2, fontSize: 14 }}
+          sx={[
+            (theme) => ({
+              px: 2,
+              fontSize: 14,
+              color: theme.vars.palette.text.secondary,
+              "&:hover": {
+                color: theme.vars.palette.text.primary,
+              },
+            }),
+            isNestedItemOpen(menu.items) && {
+              color: "primary.main",
+            },
+          ]}
         >
           {menu.subheader}
         </Button>

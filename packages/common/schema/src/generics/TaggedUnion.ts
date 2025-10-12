@@ -3,7 +3,7 @@ import type { OptionalWithDefault } from "@beep/schema/types";
 import type { StructTypes, UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
 
-export declare namespace DiscriminatedStruct {
+export declare namespace TaggedUnion {
   export type Schema<
     Discriminator extends string,
     Literal extends string,
@@ -32,7 +32,7 @@ export declare namespace DiscriminatedStruct {
  * @param discriminator
  */
 
-export const DiscriminatedStruct =
+export const TaggedUnion =
   <
     const Discriminator extends string,
     const Literal extends string,
@@ -50,4 +50,5 @@ export const DiscriminatedStruct =
         })
       ),
       ...fields,
-    }) as DiscriminatedStruct.Schema<Discriminator, Literal, Fields>;
+      // TODO make this could be danker beep.
+    }) as TaggedUnion.Schema<Discriminator, Literal, Fields>;

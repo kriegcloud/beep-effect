@@ -12,7 +12,7 @@ import SearchBox, { SearchBoxButton } from "../common/search-box/SearchBox";
 
 const AppBar = () => {
   const {
-    config: { drawerWidth, sideNavType, navColor },
+    config: { drawerWidth, sidenavType, navColor },
     handleDrawerToggle,
   } = useSettingsContext();
 
@@ -20,13 +20,13 @@ const AppBar = () => {
   const upSm = up("sm");
   const upMd = up("md");
 
-  const prevSidenavTypeRef = useRef(sideNavType);
+  const prevSidenavTypeRef = useRef(sidenavType);
 
   useEffect(() => {
-    if (prevSidenavTypeRef.current !== sideNavType) {
-      prevSidenavTypeRef.current = sideNavType;
+    if (prevSidenavTypeRef.current !== sidenavType) {
+      prevSidenavTypeRef.current = sidenavType;
     }
-  }, [sideNavType]);
+  }, [sidenavType]);
 
   return (
     <MuiAppBar
@@ -41,8 +41,8 @@ const AppBar = () => {
             outline: "none",
           },
         },
-        sideNavType === "stacked" &&
-          sideNavType === prevSidenavTypeRef.current &&
+        sidenavType === "stacked" &&
+          sidenavType === prevSidenavTypeRef.current &&
           ((theme) => ({
             transition: theme.transitions.create(["width"], {
               duration: theme.transitions.duration.standard,
@@ -61,7 +61,14 @@ const AppBar = () => {
             pr: 2,
           }}
         >
-          <Button color="neutral" variant="soft" shape="circle" aria-label="open drawer" onClick={handleDrawerToggle}>
+          <Button
+            color="neutral"
+            variant="soft"
+            shape="circle"
+            className="appbar-drawer-button"
+            aria-label="open drawer"
+            onClick={handleDrawerToggle}
+          >
             <Iconify icon="material-symbols:menu-rounded" sx={{ fontSize: 20 }} />
           </Button>
 
