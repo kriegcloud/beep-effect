@@ -21,3 +21,4 @@ export { useScrollOffsetTop } from "./use-scroll-offset-top";
 export { useSearchParams } from "./use-search-params";
 export * from "./use-set-state";
 export * from "./use-tabs";
+export * from "./use-theme-mode";

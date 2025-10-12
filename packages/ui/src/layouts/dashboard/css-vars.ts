@@ -1,5 +1,5 @@
 import { bulletColor } from "@beep/ui/routing";
-import type { SettingsState } from "@beep/ui/settings";
+import type { SettingsState } from "@beep/ui-core/settings";
 
 import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { CSSObject, Theme } from "@mui/material/styles";

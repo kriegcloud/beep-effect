@@ -1,13 +1,13 @@
 "use client";
 import { useTranslate } from "@beep/ui/i18n";
+import { createTheme } from "@beep/ui-core/theme/create-theme";
+import type { ThemeOptions } from "@beep/ui-core/theme/types";
+import { Rtl } from "@beep/ui-core/theme/with-settings";
 import CssBaseline from "@mui/material/CssBaseline";
 import type { ThemeProviderProps as MuiThemeProviderProps } from "@mui/material/styles";
 import { ThemeProvider as ThemeVarsProvider } from "@mui/material/styles";
 import { useSettingsContext } from "../settings";
-import { createTheme } from "./create-theme";
 import type {} from "./extend-theme-types";
-import type { ThemeOptions } from "./types";
-import { Rtl } from "./with-settings";
 export type ThemeProviderProps = Partial<MuiThemeProviderProps> & {
   themeOverrides?: undefined | ThemeOptions;
 };

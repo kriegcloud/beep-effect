@@ -1,4 +1,4 @@
-import { createClasses } from "../../../theme/create-classes";
+import { createClasses } from "@beep/ui-core/theme/create-classes";
 
 export const navSectionClasses = {
   mini: createClasses("nav__section__mini"),

@@ -1,5 +1,5 @@
-import { LangValueToAdapterLocale } from "@beep/ui/i18n/constants";
-import { detectLanguage } from "@beep/ui/i18n/server";
+import { LangValueToAdapterLocale } from "@beep/ui-core/i18n/constants";
+import { detectLanguage } from "@beep/ui-core/i18n/server";
 import { localization } from "better-auth-localization";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";

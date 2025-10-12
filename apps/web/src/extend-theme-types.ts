@@ -1,18 +1,25 @@
 import type { DeepPartial } from "@beep/types";
-import type { AvatarExtendColor, AvatarGroupExtendVariant } from "@beep/ui/theme/core/components/avatar";
-import type { BadgeExtendVariant } from "@beep/ui/theme/core/components/badge";
-import type { ButtonExtendColor, ButtonExtendSize, ButtonExtendVariant } from "@beep/ui/theme/core/components/button";
-import type { FabExtendColor, FabExtendVariant } from "@beep/ui/theme/core/components/button-fab";
-import type { ButtonGroupExtendColor, ButtonGroupExtendVariant } from "@beep/ui/theme/core/components/button-group";
-import type { IconButtonExtendColor } from "@beep/ui/theme/core/components/button-icon";
-import type { ChipExtendColor, ChipExtendVariant } from "@beep/ui/theme/core/components/chip";
-import type { PaginationExtendColor, PaginationExtendVariant } from "@beep/ui/theme/core/components/pagination";
-import type { RatingExtendSize } from "@beep/ui/theme/core/components/rating";
-import type { SliderExtendColor } from "@beep/ui/theme/core/components/slider";
-import type { TabsExtendIndicatorColor } from "@beep/ui/theme/core/components/tabs";
-import type { CustomShadows } from "@beep/ui/theme/core/custom-shadows";
-import type { MixinsExtend } from "@beep/ui/theme/core/mixins";
-import type { OpacityExtend } from "@beep/ui/theme/core/opacity";
+import type { AvatarExtendColor, AvatarGroupExtendVariant } from "@beep/ui-core/theme/core/components/avatar";
+import type { BadgeExtendVariant } from "@beep/ui-core/theme/core/components/badge";
+import type {
+  ButtonExtendColor,
+  ButtonExtendSize,
+  ButtonExtendVariant,
+} from "@beep/ui-core/theme/core/components/button";
+import type { FabExtendColor, FabExtendVariant } from "@beep/ui-core/theme/core/components/button-fab";
+import type {
+  ButtonGroupExtendColor,
+  ButtonGroupExtendVariant,
+} from "@beep/ui-core/theme/core/components/button-group";
+import type { IconButtonExtendColor } from "@beep/ui-core/theme/core/components/button-icon";
+import type { ChipExtendColor, ChipExtendVariant } from "@beep/ui-core/theme/core/components/chip";
+import type { PaginationExtendColor, PaginationExtendVariant } from "@beep/ui-core/theme/core/components/pagination";
+import type { RatingExtendSize } from "@beep/ui-core/theme/core/components/rating";
+import type { SliderExtendColor } from "@beep/ui-core/theme/core/components/slider";
+import type { TabsExtendIndicatorColor } from "@beep/ui-core/theme/core/components/tabs";
+import type { CustomShadows } from "@beep/ui-core/theme/core/custom-shadows";
+import type { MixinsExtend } from "@beep/ui-core/theme/core/mixins";
+import type { OpacityExtend } from "@beep/ui-core/theme/core/opacity";
 import type {
   CommonColorsExtend,
   GreyExtend,
@@ -20,8 +27,8 @@ import type {
   PaletteExtend,
   TypeBackgroundExtend,
   TypeTextExtend,
-} from "@beep/ui/theme/core/palette";
-import type { TypographyVariantsExtend } from "@beep/ui/theme/core/typography";
+} from "@beep/ui-core/theme/core/palette";
+import type { TypographyVariantsExtend } from "@beep/ui-core/theme/core/typography";
 import type {} from "@mui/lab/themeAugmentation";
 import type {} from "@mui/material/themeCssVarsAugmentation";
 import type {} from "@mui/x-data-grid/themeAugmentation";

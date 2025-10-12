@@ -1,14 +1,15 @@
 "use client";
 import { BeepProvider } from "@beep/runtime-client";
-
 import { MotionLazy } from "@beep/ui/animate/motion-lazy";
 import { I18nProvider } from "@beep/ui/i18n/i18n.provider";
 import { LocalizationProvider } from "@beep/ui/i18n/Localization.provider";
 import { Snackbar } from "@beep/ui/molecules";
 import { ProgressBar } from "@beep/ui/progress/progress-bar/progress-bar";
-import { defaultSettings, SettingsDrawer, SettingsProvider } from "@beep/ui/settings";
-import { themeConfig } from "@beep/ui/theme";
+import { BreakpointsProvider } from "@beep/ui/providers/break-points.provider";
+import { SettingsDrawer, SettingsProvider } from "@beep/ui/settings";
 import { ThemeProvider } from "@beep/ui/theme/theme-provider";
+import { defaultSettings } from "@beep/ui-core/settings";
+import { themeConfig } from "@beep/ui-core/theme";
 import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import type React from "react";
@@ -34,12 +35,14 @@ export function GlobalProviders({ children, appConfig, nonce }: GlobalProviders)
           <LocalizationProvider>
             <AppRouterCacheProvider options={{ key: "css", enableCssLayer: true, nonce }}>
               <ThemeProvider modeStorageKey={themeConfig.modeStorageKey} defaultMode={themeConfig.defaultMode}>
-                <MotionLazy>
-                  <Snackbar />
-                  <ProgressBar />
-                  <SettingsDrawer defaultSettings={defaultSettings} />
-                  {children}
-                </MotionLazy>
+                <BreakpointsProvider>
+                  <MotionLazy>
+                    <Snackbar />
+                    <ProgressBar />
+                    <SettingsDrawer defaultSettings={defaultSettings} />
+                    {children}
+                  </MotionLazy>
+                </BreakpointsProvider>
               </ThemeProvider>
             </AppRouterCacheProvider>
           </LocalizationProvider>

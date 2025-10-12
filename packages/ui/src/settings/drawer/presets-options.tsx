@@ -1,7 +1,7 @@
+import type { SettingsState } from "@beep/ui-core/settings/types";
 import type { BoxProps } from "@mui/material/Box";
 import Box from "@mui/material/Box";
 import { alpha as hexAlpha } from "@mui/material/styles";
-import type { SettingsState } from "../types";
 
 import { OptionButton } from "./styles";
 

@@ -12,12 +12,12 @@ interface BreakpointsContext {
   readonly between: (start: Breakpoint | number, end: Breakpoint | number) => boolean;
 }
 
-const [useBreakPoints, Provider] = createCtx<BreakpointsContext>("BreakPointsContext");
+const [useBreakpoints, Provider] = createCtx<BreakpointsContext>("BreakPointsContext");
 
 type Props = {
   children: React.ReactNode;
 };
-export const BreakPointsProvider: React.FC<Props> = ({ children }) => {
+export const BreakpointsProvider: React.FC<Props> = ({ children }) => {
   const [currentBreakpoint, setCurrentBreakpoint] = React.useState<Breakpoint>("xs");
 
   const up = (key: Breakpoint | number) => useMediaQuery<Theme>((theme) => theme.breakpoints.up(key));
@@ -58,4 +58,4 @@ export const BreakPointsProvider: React.FC<Props> = ({ children }) => {
   );
 };
 
-export { useBreakPoints };
+export { useBreakpoints };

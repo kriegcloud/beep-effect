@@ -1,9 +1,9 @@
-import type { SupportedLangValue } from "@beep/ui/i18n/constants";
-import { fallbackLang } from "@beep/ui/i18n/constants";
-import { detectLanguage as detectLanguageHandler } from "@beep/ui/i18n/server";
-import { defaultSettings } from "@beep/ui/settings";
-import { detectSettings as detectSettingsHandler } from "@beep/ui/settings/server";
-import type { SettingsState } from "@beep/ui/settings/types";
+import type { SupportedLangValue } from "@beep/ui-core/i18n/constants";
+import { fallbackLang } from "@beep/ui-core/i18n/constants";
+import { detectLanguage as detectLanguageHandler } from "@beep/ui-core/i18n/server";
+import { defaultSettings } from "@beep/ui-core/settings";
+import { detectSettings as detectSettingsHandler } from "@beep/ui-core/settings/server";
+import type { SettingsState } from "@beep/ui-core/settings/types";
 import type { Direction } from "@mui/material/styles";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";

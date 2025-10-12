@@ -46,6 +46,7 @@
     "@beep/shared-tables": "workspace:^",
     "@beep/core-env": "workspace:^",
     "@beep/ui": "workspace:^",
+    "@beep/ui-core": "workspace:^",
     "@beep/iam-domain": "workspace:^",
     "@beep/iam-tables": "workspace:^",
     "@beep/files-domain": "workspace:^",

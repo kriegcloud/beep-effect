@@ -1,6 +1,6 @@
 "use client";
 
-import { createClasses } from "@beep/ui/theme/create-classes";
+import { createClasses } from "@beep/ui-core/theme/create-classes";
 import { mergeClasses } from "@beep/ui-core/utils";
 import type { BoxProps } from "@mui/material/Box";
 import Box from "@mui/material/Box";

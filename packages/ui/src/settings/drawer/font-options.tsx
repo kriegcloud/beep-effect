@@ -1,9 +1,9 @@
+import type { SettingsState } from "@beep/ui-core/settings/types";
 import { setFont } from "@beep/ui-core/utils";
 import type { BoxProps } from "@mui/material/Box";
 import Box from "@mui/material/Box";
 import type { SliderProps } from "@mui/material/Slider";
 import Slider, { sliderClasses } from "@mui/material/Slider";
-import type { SettingsState } from "../types";
 
 import { OptionButton } from "./styles";
 

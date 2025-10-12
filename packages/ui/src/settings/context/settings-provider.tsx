@@ -1,11 +1,11 @@
 "use client";
 
 import { useCookies, useLocalStorage } from "@beep/ui/hooks";
+import { SETTINGS_STORAGE_KEY } from "@beep/ui-core/settings/settings-config";
+import type { SettingsProviderProps, SettingsState } from "@beep/ui-core/settings/types";
 import { getCookie, getStorage } from "@beep/ui-core/utils";
 import * as Equal from "effect/Equal";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { SETTINGS_STORAGE_KEY } from "../settings-config";
-import type { SettingsProviderProps, SettingsState } from "../types";
 import { SettingsContext } from "./settings-context";
 
 export function SettingsProvider({

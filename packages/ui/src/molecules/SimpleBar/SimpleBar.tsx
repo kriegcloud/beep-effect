@@ -1,4 +1,5 @@
 import type { UnsafeTypes } from "@beep/types";
+import { Box, type BoxProps } from "@mui/material";
 import type { ReactNode } from "react";
 import * as React from "react";
 import * as Core from "./core";
@@ -23,6 +24,7 @@ export interface SimpleBarProps extends Omit<React.HTMLAttributes<HTMLDivElement
     className?: string;
     [key: string]: UnsafeTypes.UnsafeAny;
   };
+  sx?: BoxProps["sx"];
 }
 
 const SimpleBar = React.forwardRef<Core.SimpleBarCore | null, SimpleBarProps>(
@@ -90,7 +92,7 @@ const SimpleBar = React.forwardRef<Core.SimpleBarCore | null, SimpleBarProps>(
     }, []);
 
     return (
-      <div data-simplebar="init" ref={elRef} {...rest}>
+      <Box sx={otherProps.sx} data-simplebar="init" ref={elRef} {...rest}>
         <div className={classNames.wrapper}>
           <div className={classNames.heightAutoObserverWrapperEl}>
             <div className={classNames.heightAutoObserverEl} />
@@ -125,7 +127,7 @@ const SimpleBar = React.forwardRef<Core.SimpleBarCore | null, SimpleBarProps>(
         <div className={`${classNames.track} ${classNames.vertical}`}>
           <div className={classNames.scrollbar} />
         </div>
-      </div>
+      </Box>
     );
   }
 );

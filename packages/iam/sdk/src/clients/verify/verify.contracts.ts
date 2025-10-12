@@ -12,7 +12,7 @@ export namespace SendVerifyPhoneContract {
   export type Encoded = typeof SendVerifyPhoneContract.Encoded;
 }
 
-export class SendEmailVerificationContract extends BS.Class<SendEmailVerificationContract>(
+export class SendEmailVerificationContract extends S.Class<SendEmailVerificationContract>(
   "SendEmailVerificationContract"
 )({
   email: BS.Email,
@@ -23,7 +23,7 @@ export namespace SendEmailVerificationContract {
   export type Encoded = typeof SendEmailVerificationContract.Encoded;
 }
 
-export class VerifyEmailContract extends BS.Class<VerifyEmailContract>("VerifyEmailContract")({
+export class VerifyEmailContract extends S.Class<VerifyEmailContract>("VerifyEmailContract")({
   token: S.Redacted(S.String),
   onFailure: new BS.Fn({
     input: S.Undefined,

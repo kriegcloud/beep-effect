@@ -42,9 +42,10 @@ import { table } from "./table";
 import { tabs } from "./tabs";
 import { textField } from "./text-field";
 import { timeline } from "./timeline";
+import { toolbar } from "./toolbar";
 import { tooltip } from "./tooltip";
 
-export { toolbar } from "./toolbar";
+export { toolbar };
 
 export const components: Components<Theme> = {
   ...typography,

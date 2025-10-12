@@ -62,7 +62,7 @@
     {
       "path": "packages/ui/tsconfig.build.json"
     },
-        {
+    {
       "path": "packages/ui-core/tsconfig.build.json"
     },
     {
@@ -83,7 +83,7 @@
     {
       "path": "packages/runtime/server/tsconfig.build.json"
     },
-        {
+    {
       "path": "packages/runtime/shared/tsconfig.build.json"
     },
     {

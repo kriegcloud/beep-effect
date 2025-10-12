@@ -1,4 +1,5 @@
 import nodeFs from "node:fs";
+import { createRequire } from "node:module";
 import nodePath from "node:path";
 import { fileURLToPath } from "node:url";
 import { removeExt } from "@beep/constants/paths/utils";
@@ -22,6 +23,28 @@ import * as Str from "effect/String";
 import { NextgenConvertableExtensionKit } from "./asset-path.schema";
 
 const repoScriptsDir = nodePath.resolve(nodePath.dirname(fileURLToPath(import.meta.url)), "../../");
+const moduleRequire = createRequire(import.meta.url);
+const repoRootDir = nodePath.resolve(repoScriptsDir, "../..");
+const rootNodeModulesDir = nodePath.join(repoRootDir, "node_modules");
+const repoScriptsNodeModulesDir = nodePath.join(repoScriptsDir, "node_modules");
+
+const resolveModuleAssetPath = (specifier: string) =>
+  F.pipe(
+    [
+      (() => {
+        try {
+          return moduleRequire.resolve(specifier);
+        } catch {
+          return undefined;
+        }
+      })(),
+      nodePath.join(rootNodeModulesDir, specifier),
+      nodePath.join(repoScriptsNodeModulesDir, specifier),
+    ],
+    A.filterMap(O.fromNullable),
+    A.findFirst((candidate) => nodeFs.existsSync(candidate)),
+    O.getOrElse(() => nodePath.join(rootNodeModulesDir, specifier))
+  );
 
 /** Recursively collect all files under a directory. */
 export function collectFiles(dir: string, baseDir: string = dir): string[] {
@@ -41,25 +64,25 @@ export const ConvertableFile = BS.destructiveTransform((i: { _tag: string; path:
     S.TaggedStruct("png", {
       path: S.NonEmptyTrimmedString,
       modPath: BS.toOptionalWithDefault(S.NonEmptyTrimmedString)(
-        nodePath.join(repoScriptsDir, "node_modules/@jsquash/png/codec/pkg/squoosh_png_bg.wasm")
+        resolveModuleAssetPath("@jsquash/png/codec/pkg/squoosh_png_bg.wasm")
       ),
     }),
     S.TaggedStruct("jpg", {
       path: S.NonEmptyTrimmedString,
       modPath: BS.toOptionalWithDefault(S.NonEmptyTrimmedString)(
-        nodePath.join(repoScriptsDir, "node_modules/@jsquash/jpeg/codec/dec/mozjpeg_dec.wasm")
+        resolveModuleAssetPath("@jsquash/jpeg/codec/dec/mozjpeg_dec.wasm")
       ),
     }),
     S.TaggedStruct("jpeg", {
       path: S.NonEmptyTrimmedString,
       modPath: BS.toOptionalWithDefault(S.NonEmptyTrimmedString)(
-        nodePath.join(repoScriptsDir, "node_modules/@jsquash/jpeg/codec/dec/mozjpeg_dec.wasm")
+        resolveModuleAssetPath("@jsquash/jpeg/codec/dec/mozjpeg_dec.wasm")
       ),
     }),
     S.TaggedStruct("webp", {
       path: S.NonEmptyTrimmedString,
       modPath: BS.toOptionalWithDefault(S.NonEmptyTrimmedString)(
-        nodePath.join(repoScriptsDir, "node_modules/@jsquash/webp/codec/dec/webp_dec.wasm")
+        resolveModuleAssetPath("@jsquash/webp/codec/dec/webp_dec.wasm")
       ),
     })
   );
@@ -361,7 +384,7 @@ export const convertDirectoryToNextgen = Effect.fn("convertDirectoryToNextgen")(
   }
 
   const avifEncoderBinary = yield* loadWasmBinary(
-    "./node_modules/@jsquash/avif/codec/enc/avif_enc.wasm",
+    resolveModuleAssetPath("@jsquash/avif/codec/enc/avif_enc.wasm"),
     "AVIF encoder"
   );
 

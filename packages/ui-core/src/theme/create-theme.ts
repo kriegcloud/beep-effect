@@ -3,7 +3,6 @@
 import type { SettingsState } from "@beep/ui-core/settings";
 import { applySettingsToComponents, applySettingsToTheme } from "@beep/ui-core/theme/with-settings";
 import type { Components, Theme } from "@mui/material/styles";
-
 import { createTheme as createMuiTheme } from "@mui/material/styles";
 import { components } from "./core/components";
 import { customShadows } from "./core/custom-shadows";
@@ -12,6 +11,7 @@ import { opacity } from "./core/opacity";
 import { palette } from "./core/palette";
 import { shadows } from "./core/shadows";
 import { typography } from "./core/typography";
+import sxConfig from "./sx-config";
 import { themeConfig } from "./theme-config";
 import type { ThemeOptions } from "./types";
 
@@ -35,6 +35,7 @@ export const baseTheme: ThemeOptions = {
   typography,
   shape: { borderRadius: 8 },
   direction: themeConfig.direction,
+  unstable_sxConfig: sxConfig,
   cssVariables: themeConfig.cssVariables,
 };
 

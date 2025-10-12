@@ -1,5 +1,5 @@
 import "@beep/ui/globals.css";
-import { primary } from "@beep/ui/theme";
+import { primary } from "@beep/ui-core/theme";
 import type { Metadata, Viewport } from "next";
 import { headers as nextHeaders } from "next/headers";
 import type React from "react";
@@ -9,11 +9,14 @@ import "dayjs/locale/fr";
 import "dayjs/locale/zh-cn";
 import "dayjs/locale/ar-sa";
 import { runServerPromise } from "@beep/runtime-server";
+import "react-datepicker/dist/react-datepicker.css";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import Script from "next/script";
 import { getAppConfig } from "@/app-config";
 import { GlobalProviders } from "@/GlobalProviders";
+
+export const runtime = "nodejs";
 
 class NonceError extends Data.TaggedError("NonceError")<{
   readonly cause: unknown;

@@ -296,9 +296,34 @@
     "yaml": "2.8.1",
     "zod": "4.1.12",
     "i18n-iso-countries": "^7.14.0",
-    "cldr-localenames-full": "^47.0.0"
+    "cldr-localenames-full": "^47.0.0",
+    "echarts": "^6.0.0",
+    "simplebar-react": "^3.3.2",
+    "@gsap/react": "^2.1.2",
+    "gsap": "^3.13.0",
+    "react-datepicker": "^8.7.0"
   },
   "dependenciesCatalog": [
+    {
+      "name": "react-datepicker",
+      "version": "^8.7.0"
+    },
+    {
+      "name": "@gsap/react",
+      "version": "^2.1.2"
+    },
+    {
+      "name": "gsap",
+      "version": "^3.13.0"
+    },
+    {
+      "name": "simplebar-react",
+      "version": "^3.3.2"
+    },
+    {
+      "name": "echarts",
+      "version": "^6.0.0"
+    },
     {
       "name": "cldr-localenames-full",
       "version": "^47.0.0"

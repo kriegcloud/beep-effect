@@ -1,7 +1,7 @@
+import type { SettingsState } from "@beep/ui-core/settings/types";
 import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { BoxProps } from "@mui/material/Box";
 import Box from "@mui/material/Box";
-import type { SettingsState } from "../types";
 
 import { OptionButton } from "./styles";
 

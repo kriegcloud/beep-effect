@@ -2,10 +2,10 @@
 
 import { Logo } from "@beep/ui/branding";
 import { useBoolean } from "@beep/ui/hooks";
-import { allLangs } from "@beep/ui/i18n";
 import { useAuthAdapterProvider } from "@beep/ui/providers";
 import type { NavItemProps, NavSectionProps } from "@beep/ui/routing";
 import { useSettingsContext } from "@beep/ui/settings";
+import { allLangs } from "@beep/ui-core/i18n";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import { iconButtonClasses } from "@mui/material/IconButton";

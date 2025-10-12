@@ -5,12 +5,13 @@ import { WorkerClient } from "@beep/runtime-client/worker/worker-client";
 import { WebSdk } from "@effect/opentelemetry";
 import { FetchHttpClient } from "@effect/platform";
 import type { HttpClient } from "@effect/platform/HttpClient";
+import type * as KeyValueStore from "@effect/platform/KeyValueStore";
+import { BrowserKeyValueStore } from "@effect/platform-browser";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import type { QueryClient as TanstackQueryClient } from "@tanstack/react-query";
-
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
@@ -70,7 +71,12 @@ export const makeQueryClientLayer = (queryClient: TanstackQueryClient) => Runtim
 // Runtime assembly
 // ============================================================================
 
-type ClientRuntimeServices = HttpClient | NetworkMonitor | WorkerClient | RuntimeQueryClient;
+type ClientRuntimeServices =
+  | HttpClient
+  | NetworkMonitor
+  | WorkerClient
+  | RuntimeQueryClient
+  | KeyValueStore.KeyValueStore;
 
 export type ClientRuntimeLayer = Layer.Layer<ClientRuntimeServices, never, never>;
 
@@ -85,7 +91,8 @@ export const createClientRuntimeLayer: ClientRuntimeLive = (queryClient) =>
     ObservabilityLive,
     NetworkMonitorLive,
     WorkerClientLive,
-    makeQueryClientLayer(queryClient)
+    makeQueryClientLayer(queryClient),
+    BrowserKeyValueStore.layerLocalStorage
   ).pipe(Layer.provide(LogLevelLive));
 
 /** Maintains the previous export name for backwards compatibility. */

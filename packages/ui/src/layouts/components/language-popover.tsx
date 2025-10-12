@@ -2,10 +2,10 @@
 
 import { transitionTap, varHover, varTap } from "@beep/ui/animate";
 import { usePopover } from "@beep/ui/hooks";
-import type { LangCode } from "@beep/ui/i18n";
 import { useTranslate } from "@beep/ui/i18n";
 import { FlagIcon } from "@beep/ui/icons";
 import { CustomPopover } from "@beep/ui/organisms";
+import type { LangCode } from "@beep/ui-core/i18n";
 import type { IconButtonProps } from "@mui/material/IconButton";
 import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";

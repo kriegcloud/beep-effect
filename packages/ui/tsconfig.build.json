@@ -38,5 +38,5 @@
       "path": "../ui-core/tsconfig.build.json"
     }
   ],
-  "include": ["src"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.mts", "src/**/*.cts", "src/**/*.d.ts"]
 }

@@ -1,0 +1,557 @@
+import paths from "./docPaths";
+import type { MenuItem } from "./sitemap";
+
+const docSitemap: MenuItem[] = [
+  {
+    id: "documentation",
+    subheader: "Docs",
+    icon: "material-symbols:description-outline-rounded",
+    items: [
+      {
+        name: "Guide",
+        pathName: "doc-guide",
+        icon: "material-symbols:import-contacts-outline-rounded",
+        active: true,
+        items: [
+          {
+            name: "Introduction",
+            path: paths.introduction,
+            pathName: "doc-introduction",
+            active: true,
+          },
+          {
+            name: "Getting Started",
+            path: paths.gettingStared,
+            pathName: "doc-getting-started",
+            active: true,
+          },
+          {
+            name: "Configuration",
+            path: paths.configuration,
+            pathName: "doc-configuration",
+            active: true,
+          },
+          {
+            name: "Layouts",
+            path: paths.layouts,
+            pathName: "doc-layouts",
+            active: true,
+          },
+          {
+            name: "Folder Structure",
+            path: paths.folderStructure,
+            pathName: "doc-folderStructure",
+            active: true,
+          },
+          {
+            name: "Routing",
+            path: paths.routing,
+            pathName: "doc-routing",
+            active: true,
+          },
+          {
+            name: "Theming",
+            path: paths.theming,
+            pathName: "doc-theming",
+            active: true,
+          },
+          {
+            name: "Icons",
+            path: paths.icons,
+            pathName: "doc-icons",
+            active: true,
+            new: true,
+          },
+          {
+            name: "Localization",
+            path: paths.localization,
+            pathName: "doc-localization",
+            active: true,
+          },
+          {
+            name: "Authentication",
+            path: paths.authentication,
+            pathName: "doc-authentication",
+            active: true,
+          },
+
+          {
+            name: "API Calls",
+            path: paths.apiCalls,
+            pathName: "doc-api-calls",
+            active: true,
+          },
+          {
+            name: "Dependencies",
+            path: paths.dependencies,
+            pathName: "doc-dependencies",
+            active: true,
+          },
+        ],
+      },
+      {
+        name: "Components",
+        pathName: "doc-components",
+        icon: "material-symbols:deployed-code-outline",
+        active: true,
+        items: [
+          {
+            name: "Inputs",
+            pathName: "component-doc-inputs",
+            active: true,
+            items: [
+              {
+                name: "Autocomplete",
+                path: paths.autocomplete,
+                pathName: "component-doc-autocomplete",
+                active: true,
+              },
+              {
+                name: "Buttons",
+                path: paths.button,
+                pathName: "component-doc-component-buttons",
+                active: true,
+              },
+              {
+                name: "Button Group",
+                path: paths.buttonGroup,
+                pathName: "component-doc-ButtonGroup",
+                active: true,
+              },
+              {
+                name: "Checkbox",
+                path: paths.checkbox,
+                pathName: "component-doc-checkbox",
+                active: true,
+              },
+              {
+                name: "Floating Action Button",
+                path: paths.fab,
+                pathName: "component-doc-FAB",
+                active: true,
+              },
+              {
+                name: "Radio",
+                path: paths.radio,
+                pathName: "component-doc-radio",
+                active: true,
+              },
+              {
+                name: "Rating",
+                path: paths.rating,
+                pathName: "component-doc-rating",
+                active: true,
+              },
+              {
+                name: "Select",
+                path: paths.select,
+                pathName: "component-doc-select",
+                active: true,
+              },
+              {
+                name: "Slider",
+                path: paths.slider,
+                pathName: "component-doc-slider",
+                active: true,
+              },
+              {
+                name: "Switch",
+                path: paths.switch,
+                pathName: "component-doc-Switch",
+                active: true,
+              },
+              {
+                name: "Text Field",
+                path: paths.textfield,
+                pathName: "component-doc-text-field",
+                active: true,
+              },
+              {
+                name: "Transfer List",
+                path: paths.transferList,
+                pathName: "component-doc-transfer-list",
+                active: true,
+              },
+              {
+                name: "Toggle Button",
+                path: paths.toggleButton,
+                pathName: "component-doc-ToggleButton",
+                active: true,
+              },
+            ],
+          },
+          {
+            name: "Data Display",
+            pathName: "component-doc-data-display",
+            active: true,
+            items: [
+              {
+                name: "Avatar",
+                path: paths.avatar,
+                pathName: "component-doc-avatar",
+                active: true,
+              },
+              {
+                name: "Badge",
+                path: paths.badge,
+                pathName: "component-doc-badge",
+                active: true,
+              },
+              {
+                name: "Chips",
+                path: paths.chip,
+                pathName: "component-doc-chips",
+                active: true,
+              },
+              {
+                name: "Divider",
+                path: paths.divider,
+                pathName: "component-doc-divider",
+                active: true,
+              },
+              {
+                name: "List",
+                path: paths.list,
+                pathName: "component-doc-list",
+                active: true,
+              },
+              {
+                name: "Table",
+                path: paths.table,
+                pathName: "component-doc-Table",
+                active: true,
+              },
+              {
+                name: "Tooltip",
+                path: paths.tooltip,
+                pathName: "component-doc-Tooltip",
+                active: true,
+              },
+              {
+                name: "Typography",
+                path: paths.typography,
+                pathName: "component-doc-typography",
+                active: true,
+              },
+            ],
+          },
+          {
+            name: "Feedback",
+            pathName: "component-doc-feedback",
+            active: true,
+            items: [
+              {
+                name: "Alert",
+                path: paths.alert,
+                pathName: "component-doc-alert",
+                active: true,
+              },
+              {
+                name: "Backdrop",
+                path: paths.backdrop,
+                pathName: "component-doc-backdrop",
+                active: true,
+              },
+              {
+                name: "Dialog",
+                path: paths.dialog,
+                pathName: "component-doc-Dialog",
+                active: true,
+              },
+              {
+                name: "Progress",
+                path: paths.progress,
+                pathName: "component-doc-progress",
+                active: true,
+              },
+              {
+                name: "Skeleton",
+                path: paths.skeleton,
+                pathName: "component-doc-skeleton",
+                active: true,
+              },
+              {
+                name: "Snackbar",
+                path: paths.snackbar,
+                pathName: "component-doc-snackbar",
+                active: true,
+              },
+            ],
+          },
+          {
+            name: "Navigation",
+            pathName: "component-doc-navigation",
+            active: true,
+            items: [
+              {
+                name: "Bottom Navigation",
+                path: paths.bottomNavigation,
+                pathName: "component-doc-bottom-navigation",
+                active: true,
+              },
+              {
+                name: "Breadcrumbs",
+                path: paths.breadcrumbs,
+                pathName: "component-doc-breadcrumbs",
+                active: true,
+              },
+              {
+                name: "Drawer",
+                path: paths.drawer,
+                pathName: "component-doc-drawer",
+                active: true,
+              },
+              {
+                name: "Link",
+                path: paths.link,
+                pathName: "component-doc-link",
+                active: true,
+              },
+              {
+                name: "Menu",
+                path: paths.menu,
+                pathName: "component-doc-menu",
+                active: true,
+              },
+              {
+                name: "Pagination",
+                path: paths.pagination,
+                pathName: "component-doc-pagination",
+                active: true,
+              },
+              {
+                name: "Speed Dial",
+                path: paths.speedDial,
+                pathName: "component-doc-speed-dial",
+                active: true,
+              },
+              {
+                name: "Stepper",
+                path: paths.stepper,
+                pathName: "component-doc-stepper",
+                active: true,
+              },
+              {
+                name: "Tabs",
+                path: paths.tabs,
+                pathName: "component-doc-tabs",
+                active: true,
+              },
+            ],
+          },
+          {
+            name: "Layout",
+            pathName: "component-doc-layout",
+            active: true,
+            items: [
+              {
+                name: "Box",
+                path: paths.box,
+                pathName: "component-doc-box",
+                active: true,
+              },
+              {
+                name: "Container",
+                path: paths.container,
+                pathName: "component-doc-container-doc",
+                active: true,
+              },
+              {
+                name: "Grid",
+                path: paths.grid,
+                pathName: "component-doc-grid",
+                active: true,
+              },
+              {
+                name: "Stack",
+                path: paths.stack,
+                pathName: "component-doc-stack",
+                active: true,
+              },
+              {
+                name: "Image List",
+                path: paths.imageList,
+                pathName: "component-doc-image-list",
+                active: true,
+              },
+            ],
+          },
+
+          {
+            name: "Surfaces",
+            pathName: "component-doc-surfaces",
+            active: true,
+            items: [
+              {
+                name: "Accordion",
+                path: paths.accordion,
+                pathName: "component-doc-accordion",
+                active: true,
+              },
+              {
+                name: "AppBar",
+                path: paths.appBar,
+                pathName: "component-doc-app-bar",
+                active: true,
+              },
+              {
+                name: "Card",
+                path: paths.card,
+                pathName: "component-doc-card",
+                active: true,
+              },
+              {
+                name: "Paper",
+                path: paths.paper,
+                pathName: "component-doc-paper",
+                active: true,
+              },
+            ],
+          },
+          {
+            name: "Utils",
+            pathName: "component-doc-utils",
+            active: true,
+            items: [
+              {
+                name: "Modal",
+                path: paths.modal,
+                pathName: "component-doc-modal",
+                active: true,
+              },
+              {
+                name: "Popover",
+                path: paths.popover,
+                pathName: "component-doc-popover",
+                active: true,
+              },
+              {
+                name: "Popper",
+                path: paths.popper,
+                pathName: "component-doc-popper",
+                active: true,
+              },
+            ],
+          },
+          {
+            name: "Lab",
+            pathName: "component-doc-lab",
+            active: true,
+            items: [
+              {
+                name: "Timeline",
+                path: paths.timeline,
+                pathName: "component-doc-timeline",
+                active: true,
+              },
+            ],
+          },
+          {
+            name: "Mui X",
+            pathName: "component-doc-muix",
+            active: true,
+            items: [
+              {
+                name: "Data Grid",
+                path: paths.dataGrid,
+                pathName: "component-doc-data-grid",
+                active: true,
+              },
+              {
+                name: "Date Time Pickers",
+                path: paths.dateTimePickers,
+                pathName: "component-doc-date-time-pickers",
+                active: true,
+              },
+            ],
+          },
+          {
+            name: "Extra",
+            pathName: "component-doc-extra",
+            active: true,
+            items: [
+              {
+                name: "Date Range Picker",
+                path: paths.dateRangePicker,
+                pathName: "component-doc-date-range-picker",
+                active: true,
+              },
+              {
+                name: "ECharts",
+                path: paths.echarts,
+                pathName: "component-doc-echarts",
+                active: true,
+              },
+              {
+                name: "Editor",
+                path: paths.editor,
+                pathName: "component-doc-editor",
+                active: true,
+              },
+              {
+                name: "Icon",
+                path: paths.icon,
+                pathName: "component-doc-icon",
+                active: true,
+              },
+              {
+                name: "Scrollbar",
+                path: paths.scrollbar,
+                pathName: "component-doc-scrollbar",
+                active: true,
+              },
+              {
+                name: "Swiper",
+                path: paths.swiper,
+                pathName: "component-doc-swiper",
+                active: true,
+              },
+              {
+                name: "File Uploader",
+                path: paths.fileUploader,
+                pathName: "component-doc-file-uploader",
+                active: true,
+              },
+              {
+                name: "Lightbox",
+                path: paths.lightbox,
+                pathName: "component-doc-lightbox",
+                active: true,
+              },
+              {
+                name: "Emoji picker",
+                path: paths.emojiPicker,
+                pathName: "component-doc-emoji-picker",
+                active: true,
+              },
+              {
+                name: "Resizable",
+                path: paths.resizable,
+                pathName: "component-doc-resizable",
+                active: true,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        name: "Changelog",
+        key: "Changelog",
+        path: paths.changelog,
+        pathName: "changelog",
+        icon: "material-symbols:change-circle-outline",
+        active: true,
+      },
+      {
+        name: "Migration",
+        key: "Migration",
+        path: paths.migration,
+        pathName: "migration",
+        icon: "material-symbols:fast-forward-outline",
+        active: true,
+      },
+    ],
+  },
+];
+
+export default docSitemap;

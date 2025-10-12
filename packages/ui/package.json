@@ -49,6 +49,12 @@
       "require": "./build/cjs/assets/*",
       "default": "./build/src/assets/*"
     },
+    "./styled/*": {
+      "import": "./build/esm/styled/*",
+      "types": "./build/dts/styled/*",
+      "require": "./build/cjs/styled/*",
+      "default": "./build/src/styled/*"
+    },
     "./atoms/*": {
       "import": "./build/esm/atoms/*",
       "types": "./build/dts/atoms/*",
@@ -60,12 +66,6 @@
       "types": "./build/dts/branding/*",
       "require": "./build/cjs/branding/*",
       "default": "./build/src/branding/*"
-    },
-    "./common": {
-      "import": "./src/common/index.ts",
-      "types": "./build/dts/common/index.d.ts",
-      "require": "./build/cjs/common/index.js",
-      "default": "./src/common/index.ts"
     },
     "./components/*": {
       "import": "./build/esm/components/*",
@@ -79,23 +79,11 @@
       "require": "./build/cjs/common/*",
       "default": "./build/src/common/*"
     },
-    "./i18n": {
-      "import": "./src/i18n/index.ts",
-      "types": "./build/dts/i18n/index.d.ts",
-      "require": "./build/cjs/i18n/index.js",
-      "default": "./src/i18n/index.ts"
-    },
     "./form/*": {
       "import": "./build/esm/form/*",
       "types": "./build/dts/form/*",
       "require": "./build/cjs/form/*",
       "default": "./build/src/form/*"
-    },
-    "./hooks": {
-      "import": "./src/hooks/index.ts",
-      "types": "./build/dts/hooks/index.d.ts",
-      "require": "./build/cjs/hooks/index.js",
-      "default": "./src/hooks/index.ts"
     },
     "./hooks/*": {
       "import": "./src/hooks/*.ts",
@@ -133,12 +121,6 @@
       "require": "./build/cjs/messages/*",
       "default": "./build/src/messages/*"
     },
-    "./molecules": {
-      "import": "./src/molecules/index.ts",
-      "types": "./build/dts/molecules/index.d.ts",
-      "require": "./build/cjs/molecules/index.js",
-      "default": "./src/molecules/index.ts"
-    },
     "./i18n/*": {
       "import": "./src/i18n/*.ts",
       "types": "./build/dts/i18n/*",
@@ -175,17 +157,17 @@
       "require": "./build/cjs/sections/*",
       "default": "./build/src/sections/*"
     },
-    "./settings": {
-      "import": "./src/settings/index.ts",
-      "types": "./build/dts/settings/index.d.ts",
-      "require": "./build/cjs/settings/index.js",
-      "default": "./src/settings/index.ts"
-    },
     "./settings/*": {
       "import": "./src/settings/*.ts",
       "types": "./build/dts/settings/*",
       "require": "./build/cjs/settings/*",
       "default": "./src/settings/*.ts"
+    },
+    "./settings-v2/*": {
+      "import": "./src/settings-v2/*.ts",
+      "types": "./build/dts/settings-v2/*",
+      "require": "./build/cjs/settings-v2/*",
+      "default": "./src/settings-v2/*.ts"
     },
     "./theme/*": {
       "import": "./build/esm/theme/*",
@@ -279,6 +261,7 @@
     "@types/bun": "catalog:",
     "@beep/types": "workspace:^",
     "@tailwindcss/postcss": "catalog:",
+    "simplebar-react": "catalog:",
     "tailwindcss": "catalog:",
     "@turbo/gen": "catalog:",
     "@types/lodash": "catalog:",
@@ -368,6 +351,8 @@
     "embla-carousel-autoplay": "catalog:",
     "embla-carousel-fade": "catalog:",
     "embla-carousel-react": "catalog:",
-    "react-apexcharts": "catalog:"
+    "react-apexcharts": "catalog:",
+    "@gsap/react": "catalog:",
+    "gsap": "catalog:"
   }
 }

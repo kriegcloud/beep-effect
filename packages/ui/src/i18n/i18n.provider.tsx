@@ -1,11 +1,11 @@
 "use client";
+import type { SupportedLangValue } from "@beep/ui-core/i18n/constants";
+import { i18nOptions, i18nResourceLoader } from "@beep/ui-core/i18n/locales-config";
 import i18next from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import type React from "react";
 import { useMemo } from "react";
 import { initReactI18next, I18nextProvider as Provider } from "react-i18next";
-import type { SupportedLangValue } from "./constants";
-import { i18nOptions, i18nResourceLoader } from "./locales-config";
 
 void i18next
   .use(LanguageDetector)

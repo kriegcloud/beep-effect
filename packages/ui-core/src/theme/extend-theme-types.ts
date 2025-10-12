@@ -45,16 +45,28 @@ declare module "@mui/material/styles" {
    */
   // primary, secondary, info, success, warning, error
   interface PaletteColor extends PaletteColorExtend {}
+
   interface SimplePaletteColorOptions extends Partial<PaletteColorExtend> {}
 
   // text, background, common, grey
   interface Color extends GreyExtend {}
+
   interface TypeText extends TypeTextExtend {}
+
   interface CommonColors extends CommonColorsExtend {}
+
   interface TypeBackground extends TypeBackgroundExtend {}
 
+  interface PaletteColor {
+    lighter: string;
+    darker: string;
+  }
+
   // extend palette
-  interface Palette extends PaletteExtend {}
+  interface Palette extends PaletteExtend {
+    neutral: PaletteColor;
+  }
+
   interface PaletteOptions extends DeepPartial<PaletteExtend> {}
 
   /**
@@ -62,6 +74,7 @@ declare module "@mui/material/styles" {
    * @from {@link file://./core/typography.ts}
    */
   interface TypographyVariants extends TypographyVariantsExtend {}
+
   interface TypographyVariantsOptions extends Partial<TypographyVariantsExtend> {}
 
   /**
@@ -69,6 +82,7 @@ declare module "@mui/material/styles" {
    * @from {@link file://./core/mixins.ts}
    */
   interface Mixins extends MixinsExtend {}
+
   interface MixinsOptions extends Partial<MixinsExtend> {}
 
   /**
@@ -87,9 +101,11 @@ declare module "@mui/material/styles" {
   interface Theme {
     customShadows: CustomShadows;
   }
+
   interface ThemeOptions {
     customShadows?: Partial<CustomShadows>;
   }
+
   interface ThemeVars {
     customShadows: CustomShadows;
   }
@@ -124,7 +140,9 @@ declare module "@mui/material/Badge" {
  */
 declare module "@mui/material/Button" {
   interface ButtonPropsVariantOverrides extends ButtonExtendVariant {}
+
   interface ButtonPropsColorOverrides extends ButtonExtendColor {}
+
   interface ButtonPropsSizeOverrides extends ButtonExtendSize {}
 }
 
@@ -142,6 +160,7 @@ declare module "@mui/material/IconButton" {
  */
 declare module "@mui/material/ButtonGroup" {
   interface ButtonGroupPropsVariantOverrides extends ButtonGroupExtendVariant {}
+
   interface ButtonGroupPropsColorOverrides extends ButtonGroupExtendColor {}
 }
 
@@ -151,6 +170,7 @@ declare module "@mui/material/ButtonGroup" {
  */
 declare module "@mui/material/Fab" {
   interface FabPropsVariantOverrides extends FabExtendVariant {}
+
   interface FabPropsColorOverrides extends FabExtendColor {}
 }
 
@@ -160,6 +180,7 @@ declare module "@mui/material/Fab" {
  */
 declare module "@mui/material/Chip" {
   interface ChipPropsVariantOverrides extends ChipExtendVariant {}
+
   interface ChipPropsColorOverrides extends ChipExtendColor {}
 }
 
@@ -169,10 +190,12 @@ declare module "@mui/material/Chip" {
  */
 declare module "@mui/material/Pagination" {
   interface PaginationPropsVariantOverrides extends PaginationExtendVariant {}
+
   interface PaginationPropsColorOverrides extends PaginationExtendColor {}
 }
 declare module "@mui/material/PaginationItem" {
   interface PaginationItemPropsVariantOverrides extends PaginationExtendVariant {}
+
   interface PaginationItemPropsColorOverrides extends PaginationExtendColor {}
 }
 
