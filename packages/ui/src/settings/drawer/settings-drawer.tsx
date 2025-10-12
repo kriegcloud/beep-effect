@@ -2,8 +2,9 @@
 
 import { Iconify, Label } from "@beep/ui/atoms";
 import { Scrollbar } from "@beep/ui/molecules";
-import { themeConfig } from "@beep/ui/theme/theme-config";
-import { primaryColorPresets } from "@beep/ui/theme/with-settings";
+import type { SettingsDrawerProps, SettingsState } from "@beep/ui-core/settings/types";
+import { themeConfig } from "@beep/ui-core/theme/theme-config";
+import { primaryColorPresets } from "@beep/ui-core/theme/with-settings";
 import { hasKeys, rgbaFromChannel } from "@beep/ui-core/utils";
 import Badge from "@mui/material/Badge";
 import Box from "@mui/material/Box";
@@ -15,7 +16,6 @@ import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import { useCallback, useEffect } from "react";
 import { useSettingsContext } from "../context/use-settings-context";
-import type { SettingsDrawerProps, SettingsState } from "../types";
 import { BaseOption } from "./base-option";
 import { FontFamilyOptions, FontSizeOptions } from "./font-options";
 import { FullScreenButton } from "./fullscreen-button";

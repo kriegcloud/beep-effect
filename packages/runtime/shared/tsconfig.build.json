@@ -66,6 +66,9 @@
       "path": "../../ui/tsconfig.build.json"
     },
     {
+      "path": "../../ui-core/tsconfig.build.json"
+    },
+    {
       "path": "../../files/domain/tsconfig.build.json"
     },
     {

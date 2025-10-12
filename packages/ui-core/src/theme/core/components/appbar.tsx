@@ -3,7 +3,7 @@ import type { Components, Theme } from "@mui/material/styles";
 const MuiAppBar: Components<Theme>["MuiAppBar"] = {
   // ▼▼▼▼▼▼▼▼ ⚙️ PROPS ▼▼▼▼▼▼▼▼
   defaultProps: {
-    color: "transparent",
+    color: "inherit",
   },
   // ▼▼▼▼▼▼▼▼ 🎨 STYLE ▼▼▼▼▼▼▼▼
   styleOverrides: {

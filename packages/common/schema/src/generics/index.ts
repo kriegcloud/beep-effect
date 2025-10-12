@@ -1,2 +1,2 @@
-export * from "@beep/schema/generics/DiscriminatedStruct";
 export * from "@beep/schema/generics/TaggedStruct";
+export * from "@beep/schema/generics/TaggedUnion";

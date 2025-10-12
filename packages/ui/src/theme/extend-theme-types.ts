@@ -1,18 +1,25 @@
 import type { DeepPartial } from "@beep/types";
-import type { AvatarExtendColor, AvatarGroupExtendVariant } from "@beep/ui/theme/core/components/avatar";
-import type { BadgeExtendVariant } from "@beep/ui/theme/core/components/badge";
-import type { ButtonExtendColor, ButtonExtendSize, ButtonExtendVariant } from "@beep/ui/theme/core/components/button";
-import type { FabExtendColor, FabExtendVariant } from "@beep/ui/theme/core/components/button-fab";
-import type { ButtonGroupExtendColor, ButtonGroupExtendVariant } from "@beep/ui/theme/core/components/button-group";
-import type { IconButtonExtendColor } from "@beep/ui/theme/core/components/button-icon";
-import type { ChipExtendColor, ChipExtendVariant } from "@beep/ui/theme/core/components/chip";
-import type { PaginationExtendColor, PaginationExtendVariant } from "@beep/ui/theme/core/components/pagination";
-import type { RatingExtendSize } from "@beep/ui/theme/core/components/rating";
-import type { SliderExtendColor } from "@beep/ui/theme/core/components/slider";
-import type { TabsExtendIndicatorColor } from "@beep/ui/theme/core/components/tabs";
-import type { CustomShadows } from "@beep/ui/theme/core/custom-shadows";
-import type { MixinsExtend } from "@beep/ui/theme/core/mixins";
-import type { OpacityExtend } from "@beep/ui/theme/core/opacity";
+import type { AvatarExtendColor, AvatarGroupExtendVariant } from "@beep/ui-core/theme/core/components/avatar";
+import type { BadgeExtendVariant } from "@beep/ui-core/theme/core/components/badge";
+import type {
+  ButtonExtendColor,
+  ButtonExtendSize,
+  ButtonExtendVariant,
+} from "@beep/ui-core/theme/core/components/button";
+import type { FabExtendColor, FabExtendVariant } from "@beep/ui-core/theme/core/components/button-fab";
+import type {
+  ButtonGroupExtendColor,
+  ButtonGroupExtendVariant,
+} from "@beep/ui-core/theme/core/components/button-group";
+import type { IconButtonExtendColor } from "@beep/ui-core/theme/core/components/button-icon";
+import type { ChipExtendColor, ChipExtendVariant } from "@beep/ui-core/theme/core/components/chip";
+import type { PaginationExtendColor, PaginationExtendVariant } from "@beep/ui-core/theme/core/components/pagination";
+import type { RatingExtendSize } from "@beep/ui-core/theme/core/components/rating";
+import type { SliderExtendColor } from "@beep/ui-core/theme/core/components/slider";
+import type { TabsExtendIndicatorColor } from "@beep/ui-core/theme/core/components/tabs";
+import type { CustomShadows } from "@beep/ui-core/theme/core/custom-shadows";
+import type { MixinsExtend } from "@beep/ui-core/theme/core/mixins";
+import type { OpacityExtend } from "@beep/ui-core/theme/core/opacity";
 import type {
   CommonColorsExtend,
   GreyExtend,
@@ -20,8 +27,8 @@ import type {
   PaletteExtend,
   TypeBackgroundExtend,
   TypeTextExtend,
-} from "@beep/ui/theme/core/palette";
-import type { TypographyVariantsExtend } from "@beep/ui/theme/core/typography";
+} from "@beep/ui-core/theme/core/palette";
+import type { TypographyVariantsExtend } from "@beep/ui-core/theme/core/typography";
 import type {} from "@mui/lab/themeAugmentation";
 import type {} from "@mui/material/themeCssVarsAugmentation";
 import type {} from "@mui/x-data-grid/themeAugmentation";
@@ -38,16 +45,28 @@ declare module "@mui/material/styles" {
    */
   // primary, secondary, info, success, warning, error
   interface PaletteColor extends PaletteColorExtend {}
+
   interface SimplePaletteColorOptions extends Partial<PaletteColorExtend> {}
 
   // text, background, common, grey
   interface Color extends GreyExtend {}
+
   interface TypeText extends TypeTextExtend {}
+
   interface CommonColors extends CommonColorsExtend {}
+
   interface TypeBackground extends TypeBackgroundExtend {}
 
+  interface PaletteColor {
+    lighter: string;
+    darker: string;
+  }
+
   // extend palette
-  interface Palette extends PaletteExtend {}
+  interface Palette extends PaletteExtend {
+    neutral: PaletteColor;
+  }
+
   interface PaletteOptions extends DeepPartial<PaletteExtend> {}
 
   /**
@@ -55,6 +74,7 @@ declare module "@mui/material/styles" {
    * @from {@link file://./core/typography.ts}
    */
   interface TypographyVariants extends TypographyVariantsExtend {}
+
   interface TypographyVariantsOptions extends Partial<TypographyVariantsExtend> {}
 
   /**
@@ -62,6 +82,7 @@ declare module "@mui/material/styles" {
    * @from {@link file://./core/mixins.ts}
    */
   interface Mixins extends MixinsExtend {}
+
   interface MixinsOptions extends Partial<MixinsExtend> {}
 
   /**
@@ -80,9 +101,11 @@ declare module "@mui/material/styles" {
   interface Theme {
     customShadows: CustomShadows;
   }
+
   interface ThemeOptions {
     customShadows?: Partial<CustomShadows>;
   }
+
   interface ThemeVars {
     customShadows: CustomShadows;
   }
@@ -117,7 +140,9 @@ declare module "@mui/material/Badge" {
  */
 declare module "@mui/material/Button" {
   interface ButtonPropsVariantOverrides extends ButtonExtendVariant {}
+
   interface ButtonPropsColorOverrides extends ButtonExtendColor {}
+
   interface ButtonPropsSizeOverrides extends ButtonExtendSize {}
 }
 
@@ -135,6 +160,7 @@ declare module "@mui/material/IconButton" {
  */
 declare module "@mui/material/ButtonGroup" {
   interface ButtonGroupPropsVariantOverrides extends ButtonGroupExtendVariant {}
+
   interface ButtonGroupPropsColorOverrides extends ButtonGroupExtendColor {}
 }
 
@@ -144,6 +170,7 @@ declare module "@mui/material/ButtonGroup" {
  */
 declare module "@mui/material/Fab" {
   interface FabPropsVariantOverrides extends FabExtendVariant {}
+
   interface FabPropsColorOverrides extends FabExtendColor {}
 }
 
@@ -153,7 +180,12 @@ declare module "@mui/material/Fab" {
  */
 declare module "@mui/material/Chip" {
   interface ChipPropsVariantOverrides extends ChipExtendVariant {}
+
   interface ChipPropsColorOverrides extends ChipExtendColor {}
+
+  interface ChipPropsSizeOverrides {
+    xsmall: true;
+  }
 }
 
 /**
@@ -162,10 +194,12 @@ declare module "@mui/material/Chip" {
  */
 declare module "@mui/material/Pagination" {
   interface PaginationPropsVariantOverrides extends PaginationExtendVariant {}
+
   interface PaginationPropsColorOverrides extends PaginationExtendColor {}
 }
 declare module "@mui/material/PaginationItem" {
   interface PaginationItemPropsVariantOverrides extends PaginationExtendVariant {}
+
   interface PaginationItemPropsColorOverrides extends PaginationExtendColor {}
 }
 

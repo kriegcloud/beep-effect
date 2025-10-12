@@ -9,6 +9,7 @@ import {
   styled,
   //  useTheme
 } from "@mui/material/styles";
+import Typography from "@mui/material/Typography";
 import { RouterLink } from "../../routing";
 
 import { logoClasses } from "./classes";
@@ -16,9 +17,10 @@ import { logoClasses } from "./classes";
 export type LogoProps = LinkProps & {
   isSingle?: boolean | undefined;
   disabled?: boolean | undefined;
+  showName?: boolean | undefined;
 };
 
-export function Logo({ sx, disabled, className, href = "/", isSingle = true, ...other }: LogoProps) {
+export function Logo({ sx, disabled, className, showName = false, href = "/", isSingle = true, ...other }: LogoProps) {
   // const theme = useTheme();
 
   // const gradientId = useId();
@@ -178,25 +180,55 @@ export function Logo({ sx, disabled, className, href = "/", isSingle = true, ...
   // );
 
   return (
-    <LogoRoot
-      component={RouterLink}
-      href={href}
-      aria-label="Logo"
-      underline="none"
-      className={mergeClasses([logoClasses.root, className])}
-      sx={[
-        {
-          width: 40,
-          height: 40,
-          ...(!isSingle && { width: 102, height: 36 }),
-          ...(disabled && { pointerEvents: "none" }),
-        },
-        ...(Array.isArray(sx) ? sx : [sx]),
-      ]}
-      {...other}
-    >
-      {isSingle ? singleLogo : fullLogo}
-    </LogoRoot>
+    <>
+      <LogoRoot
+        component={RouterLink}
+        href={href}
+        aria-label="Logo"
+        underline="none"
+        className={mergeClasses([logoClasses.root, className])}
+        sx={[
+          {
+            width: 40,
+            height: 40,
+            ...(!isSingle && { width: 102, height: 36 }),
+            ...(disabled && { pointerEvents: "none" }),
+          },
+          ...(Array.isArray(sx) ? sx : [sx]),
+        ]}
+        {...other}
+      >
+        {isSingle ? singleLogo : fullLogo}
+      </LogoRoot>
+      {showName && (
+        <Typography
+          sx={[
+            {
+              color: "text.secondary",
+              fontWeight: "medium",
+              fontSize: 29.5,
+              lineHeight: 1,
+              margin: 1,
+              marginLeft: 0.625,
+              letterSpacing: "-.8px",
+            },
+            // navColor !== 'vibrant' && {
+            //   background: ({ vars, direction }) =>
+            //     direction === 'rtl'
+            //       ? `linear-gradient(100.06deg, #20DE99 93.03%, #7DB1F5 27.63%, #5A9EF6 49.36%, ${vars.palette.text.secondary} 50.11%, ${vars.palette.text.secondary} 87.87%)`
+            //       : `linear-gradient(100.06deg, #20DE99 6.97%, #7DB1F5 27.63%, #5A9EF6 49.36%, ${vars.palette.text.secondary} 50.11%, ${vars.palette.text.secondary} 87.87%);`,
+            //   backgroundSize: '240% 100%',
+            //   backgroundPosition: ({ direction }) => (direction === 'rtl' ? 'left' : 'right'),
+            //   WebkitBackgroundClip: 'text',
+            //   WebkitTextFillColor: 'transparent',
+            //   transition: 'background-position .3s cubic-bezier(0.8, 0.63, .5, 1)',
+            // },
+          ]}
+        >
+          beep-effect
+        </Typography>
+      )}
+    </>
   );
 }
 

@@ -18,7 +18,8 @@ export class AuthProviderNameValue extends AuthProviderNameValueKit.Schema.annot
   schemaId: Symbol.for("@beep/constants/AuthProviderNameValue"),
   identifier: "AuthProviderNameValue",
   title: "Auth Provider Name Value",
-  description: "Auth provider name value.",
+  description: "One of the supported social authentication providers.",
+  examples: AuthProviderNameValueKit.Options,
 }) {
   static readonly Options = AuthProviderNameValueKit.Options;
   static readonly filter = (supportedAuthProviders: A.NonEmptyReadonlyArray<AuthProviderNameValue.Type>) =>

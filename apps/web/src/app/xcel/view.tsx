@@ -1,7 +1,7 @@
 "use client";
 import "@univerjs/preset-sheets-core/lib/index.css";
 import { useSettingsContext } from "@beep/ui/settings";
-import { background } from "@beep/ui/theme/core/palette";
+import { background } from "@beep/ui-core/theme/core/palette";
 import Box from "@mui/material/Box";
 import docsCoreEnUS from "@univerjs/preset-docs-core/locales/en-US";
 import { UniverSheetsCorePreset } from "@univerjs/preset-sheets-core";

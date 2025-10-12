@@ -1,9 +1,23 @@
 import { rgbaFromChannel } from "@beep/ui-core/utils";
+import { paperClasses } from "@mui/material/Paper";
 import type { Components, Theme } from "@mui/material/styles";
 
 const MuiDrawer: Components<Theme>["MuiDrawer"] = {
   // ▼▼▼▼▼▼▼▼ 🎨 STYLE ▼▼▼▼▼▼▼▼
+  defaultProps: {
+    slotProps: {
+      paper: {
+        variant: "elevation",
+        elevation: 6,
+      },
+    },
+  },
   styleOverrides: {
+    docked: {
+      [`& .${paperClasses.root}`]: {
+        boxShadow: "none",
+      },
+    },
     paper: {
       variants: [
         {

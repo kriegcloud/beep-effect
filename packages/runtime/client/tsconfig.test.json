@@ -48,6 +48,9 @@
       "path": "../../ui"
     },
     {
+      "path": "../../ui-core"
+    },
+    {
       "path": "../../files/domain"
     },
     {

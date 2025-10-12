@@ -21,6 +21,7 @@
     "execute": "bun run dotenvx -- bunx tsx ./execute.ts"
   },
   "dependencies": {
+    "react-datepicker": "catalog:",
     "@beep/constants": "workspace:^",
     "@beep/core-db": "workspace:^",
     "@beep/core-email": "workspace:^",

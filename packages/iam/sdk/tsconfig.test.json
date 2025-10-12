@@ -34,6 +34,9 @@
     },
     {
       "path": "../../ui"
+    },
+    {
+      "path": "../../ui-core"
     }
   ],
   "compilerOptions": {

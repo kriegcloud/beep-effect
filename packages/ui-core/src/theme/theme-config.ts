@@ -12,7 +12,7 @@ export type ThemeConfig = {
   palette: Record<PaletteColorKey, PaletteColorNoChannels> & {
     common: Pick<CommonColors, "black" | "white">;
     grey: {
-      [K in 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 as `${K}`]: string;
+      [K in 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950 as `${K}`]: string;
     };
   };
 };
@@ -102,6 +102,7 @@ export const themeConfig: ThemeConfig = {
       700: "#454F5B",
       800: "#1C252E",
       900: "#141A21",
+      950: "#06080A",
     },
     common: {
       black: "#000000",

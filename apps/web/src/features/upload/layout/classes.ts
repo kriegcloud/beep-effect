@@ -1,4 +1,4 @@
-import { createClasses } from "@beep/ui/theme/create-classes";
+import { createClasses } from "@beep/ui-core/theme/create-classes";
 
 export const componentLayoutClasses = {
   root: createClasses("component__layout"),

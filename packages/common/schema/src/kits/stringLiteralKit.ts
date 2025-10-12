@@ -1,5 +1,5 @@
 import { invariant } from "@beep/invariant";
-import { DiscriminatedStruct } from "@beep/schema/generics";
+import { TaggedUnion } from "@beep/schema/generics";
 import type { StringTypes, UnsafeTypes } from "@beep/types";
 import type { SnakeTag } from "@beep/types/tag.types";
 import { enumFromStringArray } from "@beep/utils";
@@ -17,12 +17,12 @@ import * as Random from "effect/Random";
 import * as S from "effect/Schema";
 
 type TaggedMembers<Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>, D extends string> = {
-  readonly [I in keyof Literals]: DiscriminatedStruct.Schema<D, Literals[I], {}>;
+  readonly [I in keyof Literals]: TaggedUnion.Schema<D, Literals[I], {}>;
 } & { readonly length: Literals["length"] };
 
 /** Object map: one member per literal key (like Enum, but values are S.Structs) */
 type TaggedMembersMap<Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>, D extends string> = {
-  readonly [L in Literals[number]]: DiscriminatedStruct.Schema<D, L, {}>;
+  readonly [L in Literals[number]]: TaggedUnion.Schema<D, L, {}>;
 };
 
 type TaggedUnion<Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>, D extends string> = S.Union<
@@ -282,7 +282,7 @@ export function stringLiteralKit<
   // Build a Schema.Union and a keyed members map for the given discriminator
   const toTagged = <D extends string>(discriminator: StringTypes.NonEmptyString<D>) => {
     // Tuple of S.Struct members (preserves literal order at the type level)
-    const memberTuple = literals.map((lit) => DiscriminatedStruct(discriminator)(lit, {})) as unknown as TaggedMembers<
+    const memberTuple = literals.map((lit) => TaggedUnion(discriminator)(lit, {})) as unknown as TaggedMembers<
       Literals,
       D
     >;
@@ -353,6 +353,7 @@ export function stringLiteralKit<
     >;
 
     if (pickedLiterals.length === 0) {
+      // todo use `effect/Data/TaggedError`
       throw new Error("pick operation must result in at least one literal");
     }
 
@@ -396,7 +397,8 @@ export function stringLiteralKit<
 
       const toTagged = <D extends string>(discriminator: StringTypes.NonEmptyString<D>) => {
         const memberTuple = keys.map((lit) => {
-          return DiscriminatedStruct(discriminator)(lit, {});
+          return TaggedUnion(discriminator)(lit, {});
+          // todo: remove this cast
         }) as unknown as TaggedMembers<Keys, D>;
 
         const membersObj = Object.create(null) as Record<string, S.Struct<UnsafeTypes.UnsafeAny>>;
@@ -406,6 +408,7 @@ export function stringLiteralKit<
         Object.freeze(membersObj);
 
         const Union = S.Union(
+          // todo: remove this cast
           ...(memberTuple as unknown as [
             S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>,
             ...S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>[],
