@@ -6,7 +6,7 @@
   "description": "CodeDank Website",
   "private": true,
   "scripts": {
-    "dev": "bun run dotenvx -- next dev --turbopack",
+    "dev": "NODE_OPTIONS='--inspect' bun run dotenvx -- next dev --turbopack",
     "dev:https": "bun run dotenvx -- bunx next dev --turbopack --experimental-https",
     "start": "bun run dotenvx -- next start",
     "build": "bun run dotenvx -- next build",

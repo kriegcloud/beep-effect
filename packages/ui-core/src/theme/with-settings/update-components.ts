@@ -12,7 +12,7 @@ export function applySettingsToComponents(settingsState?: SettingsState): {
       },
       body: {
         [`& .${cardClasses.root}`]: {
-          ...(settingsState?.contrast === "hight" && {
+          ...(settingsState?.contrast === "high" && {
             "--card-shadow": theme.vars.customShadows.z1,
           }),
         },

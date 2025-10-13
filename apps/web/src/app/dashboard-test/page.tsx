@@ -1,3 +1,5 @@
+"use client";
+
 export default function Page() {
-  return <>beep</>;
+  return <p>beep</p>;
 }

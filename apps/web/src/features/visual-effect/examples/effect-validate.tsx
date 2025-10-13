@@ -148,17 +148,17 @@ export function EffectValidateExample({ exampleId, index, metadata }: ExampleCom
   );
 
   // Subscribe to task state changes to generate new password and trigger re-render when reset
-  useEffect(() => {
-    const unsubscribe = length.subscribe(() => {
-      if (length.state.type === "idle") {
-        password.current = generatePassword();
-        // Invalidate the view by updating the state
-        setState((prev) => prev + 1); // Assuming setState is a state updater function
-      }
-    });
-
-    return unsubscribe;
-  }, [length]);
+  useEffect(
+    () =>
+      length.subscribe(() => {
+        if (length.state.type === "idle") {
+          password.current = generatePassword();
+          // Invalidate the view by updating the state
+          setState((prev) => prev + 1); // Assuming setState is a state updater function
+        }
+      }),
+    [length]
+  );
 
   // Validation task that accumulates all errors
   const validationTask = useMemo(() => {

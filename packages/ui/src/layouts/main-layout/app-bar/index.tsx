@@ -52,7 +52,7 @@ const AppBar = () => {
       ]}
     >
       {navColor === "vibrant" && !upMd && <VibrantBackground position="top" />}
-      <Toolbar variant="appbar" sx={{ px: { xs: 3, md: 5 } }}>
+      <Toolbar variant="appbar" sx={{ px: { xs: 3, md: 5 }, position: "relative" }}>
         <Box
           sx={{
             display: { xs: "flex", md: "none" },
@@ -71,11 +71,20 @@ const AppBar = () => {
           >
             <Iconify icon="material-symbols:menu-rounded" sx={{ fontSize: 20 }} />
           </Button>
-
-          <Box>
-            <Logo showName={upSm} />
-          </Box>
         </Box>
+        <Logo
+          showName={upSm}
+          sx={[
+            {
+              display: { xs: "flex", md: "none" },
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 48,
+              height: 48,
+            },
+          ]}
+        />
 
         <Stack
           sx={{

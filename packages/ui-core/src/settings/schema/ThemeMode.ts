@@ -1,5 +1,5 @@
 import { BS } from "@beep/schema";
-import type * as S from "effect/Schema";
+import * as S from "effect/Schema";
 
 export const ThemeModeKit = BS.stringLiteralKit("light", "dark", "system");
 
@@ -11,6 +11,7 @@ export class ThemeMode extends ThemeModeKit.Schema.annotations({
 }) {
   static readonly Options = ThemeModeKit.Options;
   static readonly Enum = ThemeModeKit.Enum;
+  static readonly make = S.decodeUnknownSync(ThemeMode);
 }
 
 export declare namespace ThemeMode {

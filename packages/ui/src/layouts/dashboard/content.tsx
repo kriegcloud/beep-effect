@@ -1,5 +1,4 @@
 "use client";
-
 import { useSettingsContext } from "@beep/ui/settings";
 import { mergeClasses } from "@beep/ui-core/utils";
 import type { ContainerProps } from "@mui/material/Container";

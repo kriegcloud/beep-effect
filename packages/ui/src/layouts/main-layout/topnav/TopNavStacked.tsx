@@ -45,6 +45,7 @@ const TopNavStacked = () => {
               alignItems: "center",
               gap: 1,
               mr: 5,
+              justifyContent: { xs: "flex-start", md: "center" },
             }}
           >
             <IconButton

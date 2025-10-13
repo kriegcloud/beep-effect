@@ -1,5 +1,9 @@
 import { useThemeMode } from "@beep/ui/hooks";
-import type { ThemeMode } from "@beep/ui-core/settings";
+import { ThemeMode } from "@beep/ui-core/settings";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as Struct from "effect/Struct";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useSettingsContext } from "./SettingsProvider";
@@ -19,11 +23,11 @@ export const useConfigFromQuery = () => {
   const searchParams = useSearchParams();
   const { setThemeMode, resetTheme } = useThemeMode();
   const { setConfig, configDispatch } = useSettingsContext();
-
   useEffect(() => {
     const paramCount = Array.from(searchParams.entries()).length;
-    const defaultConfigs = searchParams.get("defaultConfigs");
-    if (paramCount > 0 && Object.keys(validators).some((key) => searchParams.has(key))) {
+    const defaultConfigs = F.pipe(F.identity(searchParams.get("defaultConfigs")), O.fromNullable);
+
+    if (paramCount > 0 && A.some(Struct.keys(validators), (key) => searchParams.has(key))) {
       configDispatch({ type: RESET });
     }
 
@@ -34,16 +38,16 @@ export const useConfigFromQuery = () => {
 
     const config: Record<string, string> = {};
 
-    Object.keys(validators).forEach((key) => {
+    Struct.keys(validators).forEach((key) => {
       const value = searchParams.get(key);
-      if (value && (validators as any)[key].includes(value)) {
+      if (value && validators[key].includes(value)) {
         config[key] = value;
       }
     });
 
-    if (Object.keys(config).length) {
+    if (Struct.keys(config).length) {
       if (config.themeMode) {
-        setThemeMode(config.themeMode as ThemeMode.Type);
+        setThemeMode(ThemeMode.make(config.themeMode));
         delete config.themeMode;
       }
 

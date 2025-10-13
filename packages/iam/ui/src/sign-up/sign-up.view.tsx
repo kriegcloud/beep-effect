@@ -1,5 +1,4 @@
 "use client";
-import { clientEnv } from "@beep/core-env/client";
 import { AuthCallback, iam } from "@beep/iam-sdk";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { paths } from "@beep/shared-domain";
@@ -14,11 +13,9 @@ import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
-import * as Redacted from "effect/Redacted";
 import { AnimatePresence, m } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 import { FormDivider, FormHead, Terms } from "../_components";
 import { SignUpEmailForm } from "./sign-up-email.form";
 import { SignUpSocial } from "./sign-up-social";
@@ -47,92 +44,90 @@ export const SignUpView = () => {
   }
 
   return (
-    <GoogleReCaptchaProvider reCaptchaKey={Redacted.value(clientEnv.captchaSiteKey)}>
-      <AnimatePresence mode={"wait"} initial={false}>
-        {verificationNotice ? (
-          <Box
-            key={"verification-notice"}
-            component={m.div}
-            variants={signUpTransitionVariants}
-            initial={"initial"}
-            animate={"animate"}
-            exit={"exit"}
-            sx={{ width: 1 }}
-          >
-            <Stack
-              spacing={3}
-              sx={{ textAlign: { xs: "center", md: "left" }, alignItems: { xs: "center", md: "flex-start" } }}
-            >
-              <FormHead
-                icon={<EmailInboxIcon />}
-                title={"Check your inbox"}
-                description={
-                  <>
-                    Thanks {verificationNotice.firstName}! We just sent a verification email to the address you
-                    provided. You can verify whenever it suits you—skip for now and start exploring.
-                  </>
-                }
-              />
-              <Button
-                variant={"contained"}
-                color={"primary"}
-                fullWidth
-                onClick={() => {
-                  setIsLoading(true);
-                  void router.push(verificationNotice.redirectPath);
-                }}
-              >
-                Skip for now.
-              </Button>
-            </Stack>
-          </Box>
-        ) : (
-          <Box
-            key={"sign-up-form"}
-            component={m.div}
-            variants={signUpTransitionVariants}
-            initial={"initial"}
-            animate={"animate"}
-            exit={"exit"}
-            sx={{ width: 1 }}
+    <AnimatePresence mode={"wait"} initial={false}>
+      {verificationNotice ? (
+        <Box
+          key={"verification-notice"}
+          component={m.div}
+          variants={signUpTransitionVariants}
+          initial={"initial"}
+          animate={"animate"}
+          exit={"exit"}
+          sx={{ width: 1 }}
+        >
+          <Stack
+            spacing={3}
+            sx={{ textAlign: { xs: "center", md: "left" }, alignItems: { xs: "center", md: "flex-start" } }}
           >
             <FormHead
-              title={"Get Started"}
+              icon={<EmailInboxIcon />}
+              title={"Check your inbox"}
               description={
                 <>
-                  {`Already have an account? `}
-                  <Link component={RouterLink} href={signInHref} variant={"subtitle2"}>
-                    Sign in
-                  </Link>
+                  Thanks {verificationNotice.firstName}! We just sent a verification email to the address you provided.
+                  You can verify whenever it suits you—skip for now and start exploring.
                 </>
               }
-              sx={{ textAlign: { xs: "center", md: "left" } }}
             />
-            <SignUpEmailForm
-              onSubmit={async (valueEffect) =>
-                runSignUpEmail(
-                  Effect.gen(function* () {
-                    const value = yield* valueEffect;
-                    return yield* iam.signUp.email({
-                      value,
-                      onSuccess: (path) =>
-                        setVerificationNotice({
-                          redirectPath: path,
-                          firstName: value.firstName,
-                        }),
-                    });
-                  })
-                )
-              }
-            />
-            <Terms />
-            <Box sx={{ gap: 2, display: "flex", flexDirection: "column" }}>
-              <FormDivider />
-              <SignUpSocial signUp={async (provider) => F.pipe(iam.signIn.social({ provider }), runSocialSignIn)} />
-            </Box>
+            <Button
+              variant={"contained"}
+              color={"primary"}
+              fullWidth
+              onClick={() => {
+                setIsLoading(true);
+                void router.push(verificationNotice.redirectPath);
+              }}
+            >
+              Skip for now.
+            </Button>
+          </Stack>
+        </Box>
+      ) : (
+        <Box
+          key={"sign-up-form"}
+          component={m.div}
+          variants={signUpTransitionVariants}
+          initial={"initial"}
+          animate={"animate"}
+          exit={"exit"}
+          sx={{ width: 1 }}
+        >
+          <FormHead
+            title={"Get Started"}
+            description={
+              <>
+                {`Already have an account? `}
+                <Link component={RouterLink} href={signInHref} variant={"subtitle2"}>
+                  Sign in
+                </Link>
+              </>
+            }
+            sx={{ textAlign: { xs: "center", md: "left" } }}
+          />
+          <SignUpEmailForm
+            onSubmit={async (valueEffect) =>
+              runSignUpEmail(
+                Effect.gen(function* () {
+                  const value = yield* valueEffect;
+                  return yield* iam.signUp.email({
+                    value,
+                    onSuccess: (path) =>
+                      setVerificationNotice({
+                        redirectPath: path,
+                        firstName: value.firstName,
+                      }),
+                  });
+                })
+              )
+            }
+          />
+          <Terms />
+          <Box sx={{ gap: 2, display: "flex", flexDirection: "column" }}>
+            <FormDivider />
+            <SignUpSocial signUp={async (provider) => F.pipe(iam.signIn.social({ provider }), runSocialSignIn)} />
           </Box>
-        )}
-      </AnimatePresence>
-    </GoogleReCaptchaProvider>
+        </Box>
+      )}
+    </AnimatePresence>
   );
 };

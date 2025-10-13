@@ -1,4 +1,5 @@
 "use client";
+import { clientEnv } from "@beep/core-env/client";
 import { BeepProvider } from "@beep/runtime-client";
 import { MotionLazy } from "@beep/ui/animate/motion-lazy";
 import { I18nProvider } from "@beep/ui/i18n/i18n.provider";
@@ -12,7 +13,9 @@ import { defaultSettings } from "@beep/ui-core/settings";
 import { themeConfig } from "@beep/ui-core/theme";
 import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
+import * as Redacted from "effect/Redacted";
 import type React from "react";
+import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 import type { AppConfig } from "./app-config";
 
 type GlobalProviders = {
@@ -23,31 +26,33 @@ type GlobalProviders = {
 
 export function GlobalProviders({ children, appConfig, nonce }: GlobalProviders) {
   return (
-    <BeepProvider>
-      <InitColorSchemeScript
-        nonce={nonce}
-        modeStorageKey={themeConfig.modeStorageKey}
-        attribute={themeConfig.cssVariables.colorSchemeSelector}
-        defaultMode={themeConfig.defaultMode}
-      />
-      <I18nProvider lang={appConfig.i18nLang}>
-        <SettingsProvider cookieSettings={appConfig.cookieSettings} defaultSettings={defaultSettings}>
-          <LocalizationProvider>
-            <AppRouterCacheProvider options={{ key: "css", enableCssLayer: true, nonce }}>
-              <ThemeProvider modeStorageKey={themeConfig.modeStorageKey} defaultMode={themeConfig.defaultMode}>
-                <BreakpointsProvider>
-                  <MotionLazy>
-                    <Snackbar />
-                    <ProgressBar />
-                    <SettingsDrawer defaultSettings={defaultSettings} />
-                    {children}
-                  </MotionLazy>
-                </BreakpointsProvider>
-              </ThemeProvider>
-            </AppRouterCacheProvider>
-          </LocalizationProvider>
-        </SettingsProvider>
-      </I18nProvider>
-    </BeepProvider>
+    <GoogleReCaptchaProvider reCaptchaKey={Redacted.value(clientEnv.captchaSiteKey)}>
+      <BeepProvider>
+        <InitColorSchemeScript
+          nonce={nonce}
+          modeStorageKey={themeConfig.modeStorageKey}
+          attribute={themeConfig.cssVariables.colorSchemeSelector}
+          defaultMode={themeConfig.defaultMode}
+        />
+        <I18nProvider lang={appConfig.i18nLang}>
+          <SettingsProvider cookieSettings={appConfig.cookieSettings} defaultSettings={defaultSettings}>
+            <LocalizationProvider>
+              <AppRouterCacheProvider options={{ key: "css", enableCssLayer: true, nonce }}>
+                <ThemeProvider modeStorageKey={themeConfig.modeStorageKey} defaultMode={themeConfig.defaultMode}>
+                  <BreakpointsProvider>
+                    <MotionLazy>
+                      <Snackbar />
+                      <ProgressBar />
+                      <SettingsDrawer defaultSettings={defaultSettings} />
+                      {children}
+                    </MotionLazy>
+                  </BreakpointsProvider>
+                </ThemeProvider>
+              </AppRouterCacheProvider>
+            </LocalizationProvider>
+          </SettingsProvider>
+        </I18nProvider>
+      </BeepProvider>
+    </GoogleReCaptchaProvider>
   );
 }

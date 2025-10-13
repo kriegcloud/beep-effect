@@ -1,5 +1,4 @@
 "use client";
-import { clientEnv } from "@beep/core-env/client";
 import { AuthCallback, iam } from "@beep/iam-sdk";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { paths } from "@beep/shared-domain";
@@ -8,9 +7,7 @@ import { RouterLink } from "@beep/ui/routing";
 import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import * as Effect from "effect/Effect";
-import * as Redacted from "effect/Redacted";
 import { useSearchParams } from "next/navigation";
-import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 import { FormDivider, FormHead } from "../_components";
 import { SignInEmailForm } from "./sign-in-email.form";
 import { SignInPasskey } from "./sign-in-passkey";
@@ -25,7 +22,7 @@ export const SignInView = () => {
   const runSocialSignIn = makeRunClientPromise(runtime, "iam.signIn.social");
   const runPasskeySignIn = makeRunClientPromise(runtime, "iam.signIn.passkey");
   return (
-    <GoogleReCaptchaProvider reCaptchaKey={Redacted.value(clientEnv.captchaSiteKey)}>
+    <>
       <FormHead
         title="Sign in to your account"
         description={
@@ -56,6 +53,6 @@ export const SignInView = () => {
           }
         />
       </Stack>
-    </GoogleReCaptchaProvider>
+    </>
   );
 };

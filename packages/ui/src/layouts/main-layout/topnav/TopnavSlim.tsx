@@ -49,6 +49,7 @@ const TopnavSlim = ({ sx }: TopnavSlimProps) => {
             alignItems: "center",
             gap: 1,
             mr: 3,
+            justifyContent: { xs: "flex-start", lg: "center" },
           }}
         >
           <IconButton

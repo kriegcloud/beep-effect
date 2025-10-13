@@ -2,6 +2,7 @@
 
 import { VibrantBackground } from "@beep/ui/atoms";
 import { useSettingsContext } from "@beep/ui/settings-v2/SettingsProvider";
+import { GlowEffectPaper } from "@beep/ui/surfaces";
 import { mainDrawerWidth } from "@beep/ui-core/settings";
 import { sidenavVibrantStyle } from "@beep/ui-core/theme/styles/vibrantNav";
 import { Drawer, drawerClasses } from "@mui/material";
@@ -10,7 +11,6 @@ import Toolbar, { type ToolbarOwnProps } from "@mui/material/Toolbar";
 import clsx from "clsx";
 import { type PropsWithChildren, useMemo } from "react";
 import AppBar from "./app-bar";
-import Footer from "./footer";
 import NavProvider from "./NavProvider";
 import Sidenav from "./sidenav";
 import SidenavDrawerContent from "./sidenav/SidenavDrawerContent";
@@ -123,7 +123,6 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             ]}
           >
             <Toolbar variant={toolbarVariant} />
-
             <Box sx={{ flex: 1 }}>
               <Box
                 sx={[
@@ -133,10 +132,9 @@ const MainLayout = ({ children }: PropsWithChildren) => {
                   },
                 ]}
               >
-                {children}
+                <GlowEffectPaper sx={{ height: 1 }}>{children}</GlowEffectPaper>
               </Box>
             </Box>
-            <Footer />
           </Box>
         </NavProvider>
       </Box>

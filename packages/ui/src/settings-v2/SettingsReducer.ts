@@ -1,7 +1,7 @@
 import { mainDrawerWidth, type SettingsAction, SettingsConfig } from "@beep/ui-core/settings/schema";
-
 import { setItemToStore } from "@beep/ui-core/utils";
-
+import * as A from "effect/Array";
+import * as Struct from "effect/Struct";
 //Action types
 export const SET_CONFIG = "SET_CONFIG";
 export const REFRESH = "REFRESH";
@@ -120,7 +120,7 @@ export const settingsReducer = (state: SettingsConfig.Type, action: SettingsActi
     default:
       return state;
   }
-  Object.keys(updatedState).forEach((key) => {
+  A.forEach(Struct.keys(updatedState), (key) => {
     if (
       [
         "themeMode",
@@ -133,7 +133,7 @@ export const settingsReducer = (state: SettingsConfig.Type, action: SettingsActi
         "locale",
       ].includes(key)
     ) {
-      setItemToStore(key, String(updatedState[key as keyof SettingsConfig.Type]));
+      setItemToStore(key, String(updatedState[key]));
     }
   });
 

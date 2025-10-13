@@ -67,6 +67,12 @@
       "require": "./build/cjs/branding/*",
       "default": "./build/src/branding/*"
     },
+    "./surfaces/*": {
+      "import": "./build/esm/surfaces/*",
+      "types": "./build/dts/surfaces/*",
+      "require": "./build/cjs/surfaces/*",
+      "default": "./build/src/surfaces/*"
+    },
     "./components/*": {
       "import": "./build/esm/components/*",
       "types": "./build/dts/components/*",

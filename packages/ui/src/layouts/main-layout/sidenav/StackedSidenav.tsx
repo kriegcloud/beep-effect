@@ -77,6 +77,7 @@ const StackedSidenav = () => {
               sidenavCollapsed && {
                 display: "flex",
                 alignItems: "center",
+                justifyContent: "center",
               },
             ]}
           >

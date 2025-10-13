@@ -30,8 +30,16 @@ const withBundleAnalyzer = (() => {
 
 const securityHeaders = [
   {
+    key: "Cross-Origin-Embedder-Policy",
+    value: "require-corp",
+  },
+  {
     key: "Cross-Origin-Opener-Policy",
     value: "same-origin",
+  },
+  {
+    key: "Cross-Origin-Resource-Policy",
+    value: "cross-origin",
   },
   {
     key: "X-DNS-Prefetch-Control",
@@ -128,7 +136,7 @@ const nextConfig = {
     },
   },
   outputFileTracingRoot: path.join(__dirname, "../../"),
-  webpack(config) {
+  webpack(config, { isServer }) {
     config.watchOptions = {
       poll: 1000,
       aggregateTimeout: 1000,
@@ -137,6 +145,18 @@ const nextConfig = {
       test: /\.svg$/,
       use: ["@svgr/webpack"],
     });
+    config.module.rules.push({
+      test: /\.wasm$/,
+      type: "webassembly/async",
+    });
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        crypto: false,
+      };
+    }
 
     config.experiments = {
       ...config.experiments,
@@ -149,7 +169,6 @@ const nextConfig = {
   },
   experimental: {
     optimizePackageImports: ["@iconify/react", "lodash", "@mui/x-date-pickers", "@mui/lab"],
-    // browserDebugInfoInTerminal: true,
   },
 } satisfies NextConfig;
 

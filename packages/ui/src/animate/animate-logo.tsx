@@ -30,7 +30,6 @@ export function AnimateLogoZoom({ logo, slotProps, sx, ...other }: AnimateLogoPr
       >
         {logo ?? (
           <Logo
-            disabled
             {...slotProps?.logo}
             sx={[
               { width: 64, height: 64 },

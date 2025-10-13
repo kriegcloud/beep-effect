@@ -113,11 +113,11 @@ export function SettingsDrawer({ sx, defaultSettings }: SettingsDrawerProps) {
   const renderContrast = () => (
     <BaseOption
       label="Contrast"
-      selected={settings.state.contrast === "hight"}
+      selected={settings.state.contrast === "high"}
       icon={<SvgIcon>{settingIcons.contrast}</SvgIcon>}
       onChangeOption={() => {
         settings.setState({
-          contrast: settings.state.contrast === "default" ? "hight" : "default",
+          contrast: settings.state.contrast === "default" ? "high" : "default",
         });
       }}
     />

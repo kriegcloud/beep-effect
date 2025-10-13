@@ -7,7 +7,7 @@ export type SettingsState = {
   fontSize: number;
   fontFamily: string;
   compactLayout: boolean;
-  contrast: "default" | "hight";
+  contrast: "default" | "high";
   primaryColor: ThemeColorPreset;
   mode: ThemeConfig["defaultMode"];
   navColor: "integrate" | "apparent";

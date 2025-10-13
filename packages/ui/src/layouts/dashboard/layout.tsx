@@ -1,10 +1,10 @@
 "use client";
-
 import { Logo } from "@beep/ui/branding";
 import { useBoolean } from "@beep/ui/hooks";
 import { useAuthAdapterProvider } from "@beep/ui/providers";
 import type { NavItemProps, NavSectionProps } from "@beep/ui/routing";
 import { useSettingsContext } from "@beep/ui/settings";
+import { GlowEffectPaper } from "@beep/ui/surfaces";
 import { allLangs } from "@beep/ui-core/i18n";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
@@ -183,39 +183,41 @@ export function DashboardLayout({ sx, cssVars, children, slotProps, layoutQuery 
   const renderMain = () => <MainSection {...slotProps?.main}>{children}</MainSection>;
 
   return (
-    <LayoutSection
-      /** **************************************
-       * @Header
-       *************************************** */
-      headerSection={renderHeader()}
-      /** **************************************
-       * @Sidebar
-       *************************************** */
-      sidebarSection={isNavHorizontal ? null : renderSidebar()}
-      /** **************************************
-       * @Footer
-       *************************************** */
-      footerSection={renderFooter()}
-      /** **************************************
-       * @Styles
-       *************************************** */
-      cssVars={{ ...dashboardLayoutVars(theme), ...navVars.layout, ...cssVars }}
-      sx={[
-        {
-          [`& .${layoutClasses.sidebarContainer}`]: {
-            [theme.breakpoints.up(layoutQuery)]: {
-              pl: isNavMini ? "var(--layout-nav-mini-width)" : "var(--layout-nav-vertical-width)",
-              transition: theme.transitions.create(["padding-left"], {
-                easing: "var(--layout-transition-easing)",
-                duration: "var(--layout-transition-duration)",
-              }),
+    <GlowEffectPaper sx={{ height: "100vh" }}>
+      <LayoutSection
+        /** **************************************
+         * @Header
+         *************************************** */
+        headerSection={renderHeader()}
+        /** **************************************
+         * @Sidebar
+         *************************************** */
+        sidebarSection={isNavHorizontal ? null : renderSidebar()}
+        /** **************************************
+         * @Footer
+         *************************************** */
+        footerSection={renderFooter()}
+        /** **************************************
+         * @Styles
+         *************************************** */
+        cssVars={{ ...dashboardLayoutVars(theme), ...navVars.layout, ...cssVars }}
+        sx={[
+          {
+            [`& .${layoutClasses.sidebarContainer}`]: {
+              [theme.breakpoints.up(layoutQuery)]: {
+                pl: isNavMini ? "var(--layout-nav-mini-width)" : "var(--layout-nav-vertical-width)",
+                transition: theme.transitions.create(["padding-left"], {
+                  easing: "var(--layout-transition-easing)",
+                  duration: "var(--layout-transition-duration)",
+                }),
+              },
             },
           },
-        },
-        ...(Array.isArray(sx) ? sx : [sx]),
-      ]}
-    >
-      {renderMain()}
-    </LayoutSection>
+          ...(Array.isArray(sx) ? sx : [sx]),
+        ]}
+      >
+        {renderMain()}
+      </LayoutSection>
+    </GlowEffectPaper>
   );
 }
