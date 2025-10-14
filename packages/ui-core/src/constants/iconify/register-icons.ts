@@ -38,7 +38,7 @@ export const iconSets = F.pipe(
   })
 );
 
-export const allIconNames = Object.keys(allIcons) as IconifyName[];
+export const allIconNames: IconifyName[] = Struct.keys(allIcons);
 
 export type IconifyName = keyof typeof allIcons;
 

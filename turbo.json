@@ -150,6 +150,13 @@
       "cache": false,
       "persistent": false
     },
+    "iconify": {
+      "cache": false,
+      "persistent": false,
+      "dependsOn": [
+        "^build"
+      ]
+    },
     "start": {
       "cache": false,
       "persistent": true

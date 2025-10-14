@@ -331,15 +331,6 @@
       "@beep/tooling-utils/test/*": [
         "./tooling/utils/test/*"
       ],
-      "@beep/repo-config": [
-        "./tooling/repo-config/src/index"
-      ],
-      "@beep/repo-config/*": [
-        "./tooling/repo-config/src/*"
-      ],
-      "@beep/repo-config/test/*": [
-        "./tooling/repo-config/test/*"
-      ],
       "@beep/repo-scripts": [
         "./tooling/repo-scripts/src/index"
       ],

@@ -1,5 +1,5 @@
 # beep-effect
-[deep-wiki](https://deepwiki.com/kriegcloud/beep-effect)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/kriegcloud/beep-effect)
 
 A TypeScript monorepo template for Effect enjoyers, vertical-slice fanatics, and startup gremlins. Monads? beep. Ports and adapters? beep beep.
 

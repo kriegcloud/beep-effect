@@ -33,7 +33,8 @@
     "gen:secrets": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx tsx ./src/generate-env-secrets.ts",
     "bootstrap": "tsx ./src/bootstrap.ts",
     "generate-public-paths": "bun run dotenvx -- bunx tsx src/generate-asset-paths.ts",
-    "gen:locales": "bun run dotenvx -- bunx tsx src/generate-locales.ts"
+    "gen:locales": "bun run dotenvx -- bunx tsx src/generate-locales.ts",
+    "iconify": "bunx dotenvx run -f ../../.env -- bun run ./src/iconify/index.ts"
   },
   "dependencies": {
     "i18n-iso-countries": "catalog:",

@@ -1,3 +1,4 @@
+import type { UnsafeTypes } from "@beep/types";
 import { AnimatePresence, m } from "motion/react";
 import type { Language } from "prism-react-renderer";
 import { Highlight, themes } from "prism-react-renderer";
@@ -97,7 +98,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
       style={{ overflow: "hidden" }}
     >
       <Highlight theme={oneDark} code={code.trim()} language={language}>
-        {({ className, getLineProps, getTokenProps, style: defaultStyle, tokens }: any) => (
+        {({ className, getLineProps, getTokenProps, style: defaultStyle, tokens }: UnsafeTypes.UnsafeAny) => (
           <pre
             className={className}
             style={{
@@ -117,7 +118,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
             }}
           >
             <AnimatePresence mode="popLayout" initial={false}>
-              {tokens.map((line: any, i: number) => {
+              {tokens.map((line: UnsafeTypes.UnsafeAny, i: number) => {
                 const lineNo = i + 1;
                 const isActive = active.includes(lineNo);
                 const lineContent = currentLines[i];
@@ -155,7 +156,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
                       bounce: 0,
                     }}
                   >
-                    {line.map((token: any, i: number) => {
+                    {line.map((token: UnsafeTypes.UnsafeAny, i: number) => {
                       const { key: tokenKey, ...tokenProps } = getTokenProps({
                         token,
                         key: i,

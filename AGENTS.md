@@ -35,6 +35,35 @@ React 19), `apps/server` (Effect Platform runtime), and `apps/mcp` (MCP tooling)
 `packages/common/*`. Architecture details live in `README.md`, `.windsurfrules`, `docs/patterns/`, and
 `docs/PRODUCTION_CHECKLIST.md`.
 
+## Package Agent Guides
+
+- `packages/ui-core/AGENTS.md` — authoritative reference for the design tokens, MUI overrides, and settings pipeline that power `@beep/ui` and downstream apps.
+- `packages/ui/AGENTS.md` — orientation for the composite React component library consuming `ui-core`, MUI, shadcn, and Tailwind stacks.
+- `packages/common/utils/AGENTS.md` — guardrails, Effect collection/string reminders, and toolcall shortcuts for the pure runtime helper suite (`@beep/utils`) relied on across slices.
+- `packages/common/types/AGENTS.md` — compile-time type idioms, zero-runtime constraints, and Schema doc references for `@beep/types`.
+- `packages/common/schema/AGENTS.md` — canonical Effect schema toolkit covering EntityId factories, kits, JSON Schema normalization, and downstream usage snapshots.
+- `packages/common/invariant/AGENTS.md` — assertion contract, tagged error schema cues, and debugger notes for `@beep/invariant`.
+- `packages/common/errors/AGENTS.md` — logging & telemetry playbook for `@beep/errors`, including env-driven logger layers, accumulation helpers, and span/metric instrumentation recipes.
+- `packages/common/constants/AGENTS.md` — schema-backed enums, locale + asset generators, and path-builder safety guidelines tailored for `@beep/constants` consumers across env loaders and UI manifests.
+- `packages/core/env/AGENTS.md` — server/client env loaders, redacted secret guardrails, and usage snapshots that anchor runtime telemetry and auth surfaces.
+- `packages/core/email/AGENTS.md` — Resend service wiring, React Email rendering safeguards, and authentication flow recipes tying IAM payloads to transport.
+- `packages/shared/domain/AGENTS.md` — shared-kernel reference for entity ids/models, ManualCache, policy combinators, and PathBuilder-powered routing recipes used across IAM and Files slices.
+- `packages/shared/tables/AGENTS.md` — shared Postgres table factories, audit defaults, and multi-tenant recipes that keep IAM/files schemas aligned with domain entities.
+- `packages/core/db/AGENTS.md` — Postgres Layer orchestration, repo factories with `DbError` mapping, Bun SQL adapters, and Zero mutator bridging patterns for infrastructure slices.
+- `packages/_internal/db-admin/AGENTS.md` — migration warehouse outlining admin schema exports, Drizzle CLI workflows, and Pg Testcontainer harnesses for slice-wide validation.
+- `packages/files/domain/AGENTS.md` — files domain value-objects guide covering signature registries, EXIF schemas, size formatters, and Effect-first upload helpers.
+- `packages/files/infra/AGENTS.md` — Files slice infrastructure map covering `FilesDb`, repo layers, and S3 `StorageService` conventions for apps and test harnesses.
+- `packages/iam/tables/AGENTS.md` — IAM Drizzle schema reference covering tenant-aware tables, domain-driven enums, relations, and Better Auth adapter touchpoints.
+- `packages/iam/infra/AGENTS.md` — Better Auth service wiring, IAM repo bundle guardrails, and Layer assembly patterns tying `IamConfig` + `IamDb` into downstream runtimes.
+- `packages/iam/ui/AGENTS.md` — IAM React flow guide covering runtime runners, schema-backed forms, recaptcha, and social provider UX guardrails.
+- `packages/iam/domain/AGENTS.md` — IAM entity model inventory, schema-kit guardrails, usage snapshots, and Effect-first recipes for working with `Entities.*` across repos, tables, and tests.
+- `packages/iam/sdk/AGENTS.md` — Better Auth handler playbook covering AuthCallback sanitization, semaphore guards, instrumentation wiring, and usage references across `apps/web` and IAM UI clients.
+- `packages/runtime/client/AGENTS.md` — client-side ManagedRuntime assembly, TanStack Query injection, and worker RPC guardrails for App Router surfaces.
+- `packages/runtime/server/AGENTS.md` — ManagedRuntime assembly for server hosts, observability layer wiring, `runServerPromise*` helpers, and live usage references from Next.js entry points.
+- `tooling/testkit/AGENTS.md` — Bun-first Effect testing harness guide covering Layer sharing, flaky retry scaffolds, and assertion shims for Option/Either/Exit-heavy suites.
+- `tooling/repo-scripts/AGENTS.md` — repo maintenance CLI playbook detailing bootstrap/env generators, Iconify registry workflows, and schema-backed asset/locales tooling with Effect layering tips.
+- `tooling/utils/AGENTS.md` — repository automation toolkit guide detailing FsUtils/RepoUtils layers, workspace + tsconfig schema guardrails, and script usage snapshots.
+
 ## Development Commands
 
 - **Preferred Invocation** Always use root scripts (wired with `dotenvx`). Example: `bun run dev`, `bun run build`,
@@ -121,6 +150,17 @@ React 19), `apps/server` (Effect Platform runtime), and `apps/mcp` (MCP tooling)
   `direnv exec .`.
 - **Documentation** Keep architecture docs aligned; update `docs/patterns/` or `.windsurfrules` when introducing new
   patterns.
+
+## Tool Call Reference
+
+- **Directory overview** Prefer `jetbrains__list_directory_tree` with `projectPath: "/home/elpresidank/YeeBois/projects/beep-effect"` over ad-hoc `ls`; adjust `maxDepth` instead of chaining shell commands.
+- **Inspect files** Use `jetbrains__get_file_text_by_path` (always pass `projectPath`) or `jetbrains__open_file_in_editor`; avoid shell `cat`.
+- **Search** Reach for `jetbrains__search_in_files_by_text` / `jetbrains__search_in_files_by_regex` or `jetbrains__find_files_by_name_keyword` before launching external grep; when shell is mandatory, prefer `rg`.
+- **Edits** Default to `apply_patch` for single-file diffs (respect grammar, no parallel tool calls). For deterministic replacements, lean on `jetbrains__replace_text_in_file`; reserve `jetbrains__create_new_file` for new artifacts.
+- **Commands** Run scripts through `jetbrains__execute_terminal_command` with the repo `projectPath`; when falling back to `shell`, wrap commands as `["bash", "-lc", "<command>"]` and always provide `workdir`.
+- **Docs & APIs** Use `mui-mcp__useMuiDocs` for MUI references (after selecting the correct version). For other libraries, call `context7__resolve-library-id` followed by `context7__get-library-docs`. Reach for `npm-sentinel__npmLatest` / `npm-sentinel__npmTrends` when package intel is required.
+- **Plans & tracking** Invoke `update_plan` for multi-step work (never single-step) and refresh statuses after completing each step.
+- **Verification** Capture selective test output via `jetbrains__execute_terminal_command`; summarize results instead of pasting full logs.
 
 ## CRITICAL RULES
 
