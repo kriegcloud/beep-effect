@@ -1,6 +1,6 @@
-import {BS} from "@beep/schema";
-import {IamEntityIds, SharedEntityIds} from "@beep/shared-domain";
-import {makeFields} from "@beep/shared-domain/common";
+import { BS } from "@beep/schema";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -98,10 +98,9 @@ export class Model extends M.Class<Model>(`ApikeyModel`)(
         constructor: () => 86400000,
         decoding: () => 86400000,
       })
-    )
-      .annotations({
-        description: "Rate limit time window in milliseconds (default: 24 hours)",
-      }),
+    ).annotations({
+      description: "Rate limit time window in milliseconds (default: 24 hours)",
+    }),
 
     /** Maximum requests allowed in time window */
     rateLimitMax: BS.toOptionalWithDefault(S.Int.pipe(S.positive()))(10).annotations({
@@ -156,5 +155,4 @@ export class Model extends M.Class<Model>(`ApikeyModel`)(
     description: "API Key model representing user API keys with rate limiting and security features.",
     schemaId: ApikeyModelSchemaId,
   }
-) {
-}
+) {}

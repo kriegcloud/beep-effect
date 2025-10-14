@@ -19,7 +19,7 @@ export class EntityKind extends EntityKindKit.Schema.annotations({
   static readonly is = EntityKindKit.is;
 }
 
-export namespace EntityKind {
+export declare namespace EntityKind {
   export type Type = S.Schema.Type<typeof EntityKindKit>;
   export type Encoded = S.Schema.Encoded<typeof EntityKindKit>;
 }

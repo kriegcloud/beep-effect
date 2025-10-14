@@ -9,7 +9,7 @@ export const AccountId = EntityId.make("account", {
   },
 });
 
-export namespace AccountId {
+export declare namespace AccountId {
   export type Type = S.Schema.Type<typeof AccountId>;
   export type Encoded = S.Schema.Encoded<typeof AccountId>;
 }
@@ -22,7 +22,7 @@ export const ApiKeyId = EntityId.make("apikey", {
   },
 });
 
-export namespace ApiKeyId {
+export declare namespace ApiKeyId {
   export type Type = S.Schema.Type<typeof ApiKeyId>;
   export type Encoded = S.Schema.Encoded<typeof ApiKeyId>;
 }
@@ -35,7 +35,7 @@ export const InvitationId = EntityId.make("invitation", {
   },
 });
 
-export namespace InvitationId {
+export declare namespace InvitationId {
   export type Type = S.Schema.Type<typeof InvitationId>;
   export type Encoded = S.Schema.Encoded<typeof InvitationId>;
 }
@@ -48,7 +48,7 @@ export const JwksId = EntityId.make("jwks", {
   },
 });
 
-export namespace JwksId {
+export declare namespace JwksId {
   export type Type = S.Schema.Type<typeof JwksId>;
   export type Encoded = S.Schema.Encoded<typeof JwksId>;
 }
@@ -61,7 +61,7 @@ export const MemberId = EntityId.make("member", {
   },
 });
 
-export namespace MemberId {
+export declare namespace MemberId {
   export type Type = S.Schema.Type<typeof MemberId>;
   export type Encoded = S.Schema.Encoded<typeof MemberId>;
 }
@@ -74,7 +74,7 @@ export const OAuthAccessTokenId = EntityId.make("oauth_access_token", {
   },
 });
 
-export namespace OAuthAccessTokenId {
+export declare namespace OAuthAccessTokenId {
   export type Type = S.Schema.Type<typeof OAuthAccessTokenId>;
   export type Encoded = S.Schema.Encoded<typeof OAuthAccessTokenId>;
 }
@@ -87,7 +87,7 @@ export const OAuthApplicationId = EntityId.make("oauth_application", {
   },
 });
 
-export namespace OAuthApplicationId {
+export declare namespace OAuthApplicationId {
   export type Type = S.Schema.Type<typeof OAuthApplicationId>;
   export type Encoded = S.Schema.Encoded<typeof OAuthApplicationId>;
 }
@@ -100,7 +100,7 @@ export const OAuthConsentId = EntityId.make("oauth_consent", {
   },
 });
 
-export namespace OAuthConsentId {
+export declare namespace OAuthConsentId {
   export type Type = S.Schema.Type<typeof OAuthConsentId>;
   export type Encoded = S.Schema.Encoded<typeof OAuthConsentId>;
 }
@@ -113,7 +113,7 @@ export const PasskeyId = EntityId.make("passkey", {
   },
 });
 
-export namespace PasskeyId {
+export declare namespace PasskeyId {
   export type Type = S.Schema.Type<typeof PasskeyId>;
   export type Encoded = S.Schema.Encoded<typeof PasskeyId>;
 }
@@ -126,12 +126,12 @@ export const RateLimitId = EntityId.make("rate_limit", {
   },
 });
 
-export namespace RateLimitId {
+export declare namespace RateLimitId {
   export type Type = S.Schema.Type<typeof RateLimitId>;
   export type Encoded = S.Schema.Encoded<typeof RateLimitId>;
 }
 
-export namespace SessionId {
+export declare namespace SessionId {
   export type Type = S.Schema.Type<typeof SessionId>;
   export type Encoded = S.Schema.Encoded<typeof SessionId>;
 }
@@ -144,7 +144,7 @@ export const SessionId = EntityId.make("session", {
   },
 });
 
-export namespace SsoProviderId {
+export declare namespace SsoProviderId {
   export type Type = S.Schema.Type<typeof SsoProviderId>;
   export type Encoded = S.Schema.Encoded<typeof SsoProviderId>;
 }
@@ -157,7 +157,7 @@ export const SsoProviderId = EntityId.make("sso_provider", {
   },
 });
 
-export namespace SubscriptionId {
+export declare namespace SubscriptionId {
   export type Type = S.Schema.Type<typeof SubscriptionId>;
   export type Encoded = S.Schema.Encoded<typeof SubscriptionId>;
 }
@@ -170,7 +170,7 @@ export const SubscriptionId = EntityId.make("subscription", {
   },
 });
 
-export namespace TeamMemberId {
+export declare namespace TeamMemberId {
   export type Type = S.Schema.Type<typeof TeamMemberId>;
   export type Encoded = S.Schema.Encoded<typeof TeamMemberId>;
 }
@@ -183,7 +183,7 @@ export const TeamMemberId = EntityId.make("team_member", {
   },
 });
 
-export namespace TwoFactorId {
+export declare namespace TwoFactorId {
   export type Type = S.Schema.Type<typeof TwoFactorId>;
   export type Encoded = S.Schema.Encoded<typeof TwoFactorId>;
 }
@@ -204,7 +204,7 @@ export const VerificationId = EntityId.make("verification", {
   },
 });
 
-export namespace VerificationId {
+export declare namespace VerificationId {
   export type Type = S.Schema.Type<typeof VerificationId>;
   export type Encoded = S.Schema.Encoded<typeof VerificationId>;
 }
@@ -217,7 +217,7 @@ export const WalletAddressId = EntityId.make("wallet_address", {
   },
 });
 
-export namespace WalletAddressId {
+export declare namespace WalletAddressId {
   export type Type = S.Schema.Type<typeof WalletAddressId>;
   export type Encoded = S.Schema.Encoded<typeof WalletAddressId>;
 }
@@ -230,7 +230,7 @@ export const OrganizationRoleId = EntityId.make("organization_role", {
   },
 });
 
-export namespace OrganizationRoleId {
+export declare namespace OrganizationRoleId {
   export type Type = S.Schema.Type<typeof OrganizationRoleId>;
   export type Encoded = S.Schema.Encoded<typeof OrganizationRoleId>;
 }
@@ -243,7 +243,7 @@ export const DeviceCodeId = EntityId.make("device_code", {
   },
 });
 
-export namespace DeviceCodeId {
+export declare namespace DeviceCodeId {
   export type Type = S.Schema.Type<typeof DeviceCodeId>;
   export type Encoded = S.Schema.Encoded<typeof DeviceCodeId>;
 }

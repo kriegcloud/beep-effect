@@ -11,7 +11,7 @@ export const InventoryId = EntityId.make("inventory", {
   },
 });
 
-export namespace InventoryId {
+export declare namespace InventoryId {
   export type Type = S.Schema.Type<typeof InventoryId>;
   export type Encoded = S.Schema.Encoded<typeof InventoryId>;
 }
@@ -24,7 +24,7 @@ export const ItemId = EntityId.make("item", {
   },
 });
 
-export namespace ItemId {
+export declare namespace ItemId {
   export type Type = S.Schema.Type<typeof ItemId>;
   export type Encoded = S.Schema.Encoded<typeof ItemId>;
 }
@@ -37,7 +37,7 @@ export const LocationId = EntityId.make("location", {
   },
 });
 
-export namespace LocationId {
+export declare namespace LocationId {
   export type Type = S.Schema.Type<typeof LocationId>;
   export type Encoded = S.Schema.Encoded<typeof LocationId>;
 }
@@ -49,7 +49,7 @@ export const OrderId = EntityId.make("order", {
     description: "A unique identifier for an order",
   },
 });
-export namespace OrderId {
+export declare namespace OrderId {
   export type Type = S.Schema.Type<typeof OrderId>;
   export type Encoded = S.Schema.Encoded<typeof OrderId>;
 }
@@ -61,7 +61,7 @@ export const UomId = EntityId.make("uom", {
     description: "A unique identifier for a uom",
   },
 });
-export namespace UomId {
+export declare namespace UomId {
   export type Type = S.Schema.Type<typeof UomId>;
   export type Encoded = S.Schema.Encoded<typeof UomId>;
 }
@@ -74,7 +74,7 @@ export const WarehouseId = EntityId.make("warehouse", {
   },
 });
 
-export namespace WarehouseId {
+export declare namespace WarehouseId {
   export type Type = S.Schema.Type<typeof WarehouseId>;
   export type Encoded = S.Schema.Encoded<typeof WarehouseId>;
 }
@@ -86,7 +86,7 @@ export const WorkId = EntityId.make("work", {
     description: "A unique identifier for a work",
   },
 });
-export namespace WorkId {
+export declare namespace WorkId {
   export type Type = S.Schema.Type<typeof WorkId>;
   export type Encoded = S.Schema.Encoded<typeof WorkId>;
 }

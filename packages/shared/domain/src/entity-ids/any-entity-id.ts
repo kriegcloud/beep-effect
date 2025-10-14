@@ -31,7 +31,7 @@ export class AnyEntityId extends S.Union(
   identifier: "AnyEntityId",
 }) {}
 
-export namespace AnyEntityId {
+export declare namespace AnyEntityId {
   export type Type = S.Schema.Type<typeof AnyEntityId>;
   export type Encoded = S.Schema.Encoded<typeof AnyEntityId>;
 }

@@ -10,7 +10,7 @@ export const OrganizationId = EntityId.make("organization", {
   },
 });
 
-export namespace OrganizationId {
+export declare namespace OrganizationId {
   export type Type = typeof OrganizationId.Type;
   export type Encoded = typeof OrganizationId.Encoded;
 }
@@ -22,7 +22,7 @@ export const TeamId = EntityId.make("team", {
   },
 });
 
-export namespace TeamId {
+export declare namespace TeamId {
   export type Type = typeof TeamId.Type;
   export type Encoded = typeof TeamId.Encoded;
 }
@@ -35,7 +35,7 @@ export const FileId = EntityId.make("file", {
   },
 });
 
-export namespace FileId {
+export declare namespace FileId {
   export type Type = typeof FileId.Type;
   export type Encoded = typeof FileId.Encoded;
 }
@@ -48,7 +48,7 @@ export const AuditLogId = EntityId.make("audit_log", {
   },
 });
 
-export namespace AuditLogId {
+export declare namespace AuditLogId {
   export type Type = typeof AuditLogId.Type;
   export type Encoded = typeof AuditLogId.Encoded;
 }
@@ -61,7 +61,7 @@ export const UserId = EntityId.make("user", {
   },
 });
 
-export namespace UserId {
+export declare namespace UserId {
   export type Type = typeof UserId.Type;
   export type Encoded = typeof UserId.Encoded;
 }
