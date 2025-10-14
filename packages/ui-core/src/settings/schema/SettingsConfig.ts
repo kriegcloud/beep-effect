@@ -24,7 +24,7 @@ export class SettingsConfig extends S.Struct({
     textDirection: TextDirection.Enum.ltr,
     themeMode: ThemeMode.Enum.system,
     navigationMenuType: NavigationMenuType.Enum.sidenav,
-    sidenavType: SideNavType.Enum.default,
+    sidenavType: SideNavType.Enum.stacked,
     topnavType: TopNavType.Enum.default,
     navColor: NavColor.Enum.default,
     locale: SupportedLocale.Enum["en-US"],
