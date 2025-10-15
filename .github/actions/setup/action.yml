@@ -13,10 +13,10 @@ runs:
       uses: oven-sh/setup-bun@v1
       with:
         bun-version-file: .bun-version
-    - name: Install node
+    - name: Install bun
       uses: oven-sh/setup-bun@v2
       with:
-        node-version: ${{ inputs.node-version }}
+        bun-version: ${{ inputs.bun-version }}
         cache: npm
     - name: Install dependencies
       shell: bash

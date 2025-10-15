@@ -167,7 +167,7 @@
     },
     "test": {
       "dependsOn": [
-        "^test"
+        "^build"
       ],
       "inputs": [
         "$TURBO_DEFAULT$"
