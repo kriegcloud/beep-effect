@@ -16,7 +16,7 @@ import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import * as Redacted from "effect/Redacted";
 import type React from "react";
 import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
-import type { AppConfig } from "./app-config";
+import type { AppConfig } from "@/app-config";
 
 type GlobalProviders = {
   children: React.ReactNode;

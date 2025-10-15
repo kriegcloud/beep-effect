@@ -27,6 +27,7 @@ export * from "@beep/schema/custom/PgSerial.schema";
 export * from "@beep/schema/custom/Phone.schema";
 export * from "@beep/schema/custom/Regex.schema";
 export * from "@beep/schema/custom/RGB.schema";
+export * from "@beep/schema/custom/SemanticVersion.schema";
 export * from "@beep/schema/custom/Slug.schema";
 export * from "@beep/schema/custom/String.schema";
 export * from "@beep/schema/custom/Transformations.schema";

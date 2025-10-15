@@ -6,11 +6,11 @@ import type React from "react";
 import { RouterLink } from "../RouterLink";
 
 export type BreadcrumbsLinkProps = React.ComponentProps<"div"> & {
-  name?: string;
-  href?: string;
-  disabled?: boolean;
-  icon?: React.ReactNode;
-  sx?: SxProps<Theme>;
+  readonly name?: string | undefined;
+  readonly href?: string | undefined;
+  readonly disabled?: boolean | undefined;
+  readonly icon?: React.ReactNode | undefined;
+  readonly sx?: SxProps<Theme> | undefined;
 };
 
 export function BreadcrumbsLink({ href, icon, name, disabled, ...other }: BreadcrumbsLinkProps) {

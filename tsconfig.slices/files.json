@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "../packages/files/domain" },
+    { "path": "../packages/files/tables" },
+    { "path": "../packages/files/infra" },
+    { "path": "../packages/files/sdk" },
+    { "path": "../packages/files/ui" }
+  ]
+}

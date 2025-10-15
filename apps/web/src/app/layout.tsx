@@ -9,7 +9,6 @@ import "dayjs/locale/fr";
 import "dayjs/locale/zh-cn";
 import "dayjs/locale/ar-sa";
 import { runServerPromise } from "@beep/runtime-server";
-import "react-datepicker/dist/react-datepicker.css";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import Script from "next/script";

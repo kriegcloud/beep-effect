@@ -1,6 +1,6 @@
 import type { UnsafeTypes } from "@beep/types";
 import * as Data from "effect/Data";
-import _ from "lodash";
+import * as Struct from "effect/Struct";
 
 export class InvalidOptionsForCondition extends Data.TaggedError("InvalidOptionsForCondition")<{
   conditionId: string | { name: string; field: 0 };
@@ -40,7 +40,7 @@ export class IncorrectJoinUsage extends Data.TaggedError("InvalidOptionsForCondi
   }
 
   get message() {
-    return `Incorrect "join" usage. It must be one of the key's defined in your conditions. Valid options are ${_.keys(
+    return `Incorrect "join" usage. It must be one of the key's defined in your conditions. Valid options are ${Struct.keys(
       this.cond
     ).join(",")}`;
   }

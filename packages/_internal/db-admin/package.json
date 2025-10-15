@@ -53,7 +53,6 @@
     "@beep/files-tables": "workspace:^",
     "@beep/files-infra": "workspace:^",
     "@effect/platform-bun": "catalog:",
-    "sql-formatter": "catalog:",
     "@effect/sql-pg": "catalog:",
     "@faker-js/faker": "catalog:",
     "@effect/sql-drizzle": "catalog:",
@@ -70,7 +69,6 @@
     "effect": "catalog:",
     "tsx": "catalog:",
     "@beep/core-env": "workspace:^",
-    "drizzle-seed": "catalog:",
     "@effect/platform": "catalog:",
     "postgres": "catalog:"
   },

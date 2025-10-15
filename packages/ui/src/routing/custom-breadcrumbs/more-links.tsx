@@ -3,7 +3,7 @@ import { styled } from "@mui/material/styles";
 import type React from "react";
 
 export type MoreLinksProps = React.ComponentProps<typeof MoreLinksRoot> & {
-  links?: string[];
+  readonly links?: string[] | undefined;
 };
 
 export function MoreLinks({ links, sx, ...other }: MoreLinksProps) {

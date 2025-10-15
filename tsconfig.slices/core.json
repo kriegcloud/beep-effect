@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    { "path": "../packages/core/env" },
+    { "path": "../packages/core/email" },
+    { "path": "../packages/core/db" }
+  ]
+}

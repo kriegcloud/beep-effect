@@ -47,8 +47,7 @@
     "mutative": "catalog:",
     "zod": "catalog:",
     "uuid": "catalog:",
-    "randexp-ts": "catalog:",
-    "typeid-js": "catalog:"
+    "randexp-ts": "catalog:"
   },
   "devDependencies": {
     "type-fest": "catalog:",

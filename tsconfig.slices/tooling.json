@@ -1,0 +1,9 @@
+{
+  "files": [],
+  "references": [
+    { "path": "../tooling/utils" },
+    { "path": "../tooling/repo-config" },
+    { "path": "../tooling/repo-scripts" },
+    { "path": "../tooling/testkit" }
+  ]
+}

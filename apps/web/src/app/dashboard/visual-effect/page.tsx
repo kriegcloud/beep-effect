@@ -1,6 +1,6 @@
 import { DashboardContent } from "@beep/ui/layouts/dashboard/content";
 import type { Metadata } from "next";
-import ClientAppContent from "./ClientAppContent";
+import ClientAppContent from "@/app/dashboard/visual-effect/ClientAppContent";
 
 export const metadata: Metadata = {
   title: "Visual Effect",

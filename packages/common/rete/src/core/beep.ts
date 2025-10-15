@@ -1,8 +1,9 @@
 import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
+import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as Struct from "effect/Struct";
-import _ from "lodash";
+import { get as lodashGet, set as lodashSet } from "lodash-es";
 import type { $Schema, Auditor, ConvertMatchFn, FactFragment } from "../network";
 import { Field, PRODUCTION_ALREADY_EXISTS_BEHAVIOR, rete, viz } from "../network";
 import {
@@ -82,7 +83,7 @@ export const beep = <TSchema extends $Schema>(autoFire = true, auditor?: Auditor
       for (const [k] of args) {
         if (k.startsWith(ID_PREFIX)) {
           const id = k.replace(ID_PREFIX, "");
-          _.set(result, id, { id: args.get(k) });
+          lodashSet(result, id, { id: args.get(k) });
         }
       }
 
@@ -90,10 +91,10 @@ export const beep = <TSchema extends $Schema>(autoFire = true, auditor?: Auditor
         if (k.startsWith(VALUE_PREFIX)) {
           const value = k.replace(VALUE_PREFIX, "");
           const [id, attr] = value.split("_");
-          if (!_.get(result, id!)) {
-            _.set(result, id!, { id });
+          if (lodashGet(result, id!) === undefined) {
+            lodashSet(result, id!, { id });
           }
-          _.set(result, `${id}.${attr}`, args.get(k));
+          lodashSet(result, `${id}.${attr}`, args.get(k));
         }
       }
 
@@ -116,9 +117,10 @@ export const beep = <TSchema extends $Schema>(autoFire = true, auditor?: Auditor
       const cond = conditions(schema);
       const keys = Struct.keys(cond);
       A.forEach(keys, (id) => {
-        const attrs = Struct.keys(_.get<T, keyof T>(cond, id));
+        const condForId = (lodashGet(cond, id) ?? {}) as Record<string, ConditionOptions<UnsafeTypes.UnsafeAny>>;
+        const attrs = Struct.keys(condForId);
         A.forEach(attrs, (attr) => {
-          const options: ConditionOptions<unknown> | undefined = _.get(cond, `${id}.${String(attr)}`);
+          const options: ConditionOptions<unknown> | undefined = lodashGet(cond, `${id}.${String(attr)}`);
           const conditionId = extractId(id);
 
           const join = options?.join;
@@ -126,7 +128,14 @@ export const beep = <TSchema extends $Schema>(autoFire = true, auditor?: Auditor
 
           if (join && match) throw new InvalidOptionsForCondition(conditionId);
 
-          if (join && !_.keys(cond).includes(join)) {
+          const joinExists = join
+            ? F.pipe(
+                keys,
+                A.some((candidate) => candidate === join)
+              )
+            : false;
+
+          if (join && !joinExists) {
             throw new IncorrectJoinUsage(cond);
           }
 

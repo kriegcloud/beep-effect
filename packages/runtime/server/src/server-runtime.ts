@@ -119,5 +119,7 @@ export const runServerPromise = <A, E>(
 export const runServerPromiseExit = <A, E>(
   effect: Effect.Effect<A, E, ServerRuntimeEnv>,
   spanName = "serverRuntime.runPromiseExit",
-  options?: Parameters<typeof serverRuntime.runPromiseExit>[1]
+  options?: {
+    readonly signal?: AbortSignal | undefined;
+  }
 ) => serverRuntime.runPromiseExit(Effect.withSpan(effect, spanName), options);

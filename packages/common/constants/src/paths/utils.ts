@@ -1,1 +1,1 @@
-export * from "./utils/index";
+export * from "@beep/constants/paths/utils/index";

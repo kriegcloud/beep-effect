@@ -35,7 +35,6 @@
   "peerDependencies": {
     "effect": "catalog:",
     "react": "catalog:",
-    "lodash": "catalog:",
     "@beep/types": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",

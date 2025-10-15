@@ -1,6 +1,7 @@
 import type { LiveRuntimeContext } from "@beep/runtime-client";
 import { runClientPromiseExit, useRuntime } from "@beep/runtime-client";
 import type { UnsafeTypes } from "@beep/types";
+import { toast } from "@beep/ui/molecules";
 import {
   type GetNextPageParamFunction,
   type GetPreviousPageParamFunction,
@@ -25,7 +26,6 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as P from "effect/Predicate";
 import * as React from "react";
-import { toast } from "sonner";
 
 export class QueryDefect extends Data.TaggedError("QueryDefect")<{
   cause: unknown;

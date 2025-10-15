@@ -3,124 +3,31 @@
   "include": [
     "./syncpack.config.ts"
   ],
-  "exclude": [],
+  "exclude": [
+    "**/dist/**",
+    "**/build/**",
+    "**/.turbo/**",
+    "**/.next/**",
+    "**/.output/**",
+    "**/.expo/**"
+  ],
   "compilerOptions": {
     "types": [
       "node",
       "bun"
-    ]
+    ],
+    "disableSourceOfProjectReferenceRedirect": true
   },
   "references": [
-    {
-      "path": "packages/common/types"
-    },
-    {
-      "path": "packages/common/invariant"
-    },
-    {
-      "path": "packages/common/utils"
-    },
-    {
-      "path": "packages/common/schema"
-    },
-    {
-      "path": "packages/common/constants"
-    },
-    {
-      "path": "packages/common/errors"
-    },
-    {
-      "path": "packages/common/rules"
-    },
-    {
-      "path": "packages/common/logos"
-    },
-    {
-      "path": "packages/common/rete"
-    },
-    {
-      "path": "packages/shared/domain"
-    },
-    {
-      "path": "packages/shared/tables"
-    },
-    {
-      "path": "packages/core/env"
-    },
-    {
-      "path": "packages/core/email"
-    },
-    {
-      "path": "packages/core/db"
-    },
-    {
-      "path": "packages/ui"
-    },
-    {
-      "path": "packages/ui-core"
-    },
-    {
-      "path": "packages/iam/domain"
-    },
-    {
-      "path": "packages/iam/tables"
-    },
-    {
-      "path": "packages/iam/infra"
-    },
-    {
-      "path": "packages/iam/sdk"
-    },
-    {
-      "path": "packages/iam/ui"
-    },
-    {
-      "path": "packages/files/domain"
-    },
-    {
-      "path": "packages/files/tables"
-    },
-    {
-      "path": "packages/files/infra"
-    },
-    {
-      "path": "packages/files/sdk"
-    },
-    {
-      "path": "packages/files/ui"
-    },
-    {
-      "path": "packages/runtime/server"
-    },
-    {
-      "path": "packages/runtime/client"
-    },
-     {
-      "path": "packages/runtime/shared"
-    },
-    {
-      "path": "apps/server"
-    },
-    {
-      "path": "apps/mcp"
-    },
-    {
-      "path": "apps/web/tsconfig.json"
-    },
-    {
-      "path": "packages/_internal/db-admin"
-    },
-    {
-      "path": "tooling/utils"
-    },
-    {
-      "path": "tooling/repo-config"
-    },
-    {
-      "path": "tooling/repo-scripts"
-    },
-    {
-      "path": "tooling/testkit"
-    }
+    { "path": "tsconfig.slices/common.json" },
+    { "path": "tsconfig.slices/shared.json" },
+    { "path": "tsconfig.slices/core.json" },
+    { "path": "tsconfig.slices/ui.json" },
+    { "path": "tsconfig.slices/iam.json" },
+    { "path": "tsconfig.slices/files.json" },
+    { "path": "tsconfig.slices/runtime.json" },
+    { "path": "tsconfig.slices/apps.json" },
+    { "path": "tsconfig.slices/internal.json" },
+    { "path": "tsconfig.slices/tooling.json" }
   ]
 }

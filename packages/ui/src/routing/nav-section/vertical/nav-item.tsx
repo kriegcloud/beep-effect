@@ -109,26 +109,6 @@ const shouldForwardProp = (prop: string) => !["open", "active", "disabled", "var
  * @slot root
  */
 const ItemRoot = styled(ButtonBase, { shouldForwardProp })<StyledState>(({ active, open, theme }) => {
-  const bulletSvg = `"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' viewBox='0 0 14 14'%3E%3Cpath d='M1 1v4a8 8 0 0 0 8 8h4' stroke='%23efefef' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"`;
-
-  const bulletStyles: CSSObject = {
-    left: 0,
-    content: '""',
-    position: "absolute",
-    width: "var(--nav-bullet-size)",
-    height: "var(--nav-bullet-size)",
-    backgroundColor: "var(--nav-bullet-light-color)",
-    mask: `url(${bulletSvg}) no-repeat 50% 50%/100% auto`,
-    WebkitMask: `url(${bulletSvg}) no-repeat 50% 50%/100% auto`,
-    transform:
-      theme.direction === "rtl"
-        ? "translate(calc(var(--nav-bullet-size) * 1), calc(var(--nav-bullet-size) * -0.4)) scaleX(-1)"
-        : "translate(calc(var(--nav-bullet-size) * -1), calc(var(--nav-bullet-size) * -0.4))",
-    ...theme.applyStyles("dark", {
-      backgroundColor: "var(--nav-bullet-dark-color)",
-    }),
-  };
-
   const rootItemStyles: CSSObject = {
     minHeight: "var(--nav-item-root-height)",
     ...(open && {
@@ -147,7 +127,7 @@ const ItemRoot = styled(ButtonBase, { shouldForwardProp })<StyledState>(({ activ
 
   const subItemStyles: CSSObject = {
     minHeight: "var(--nav-item-sub-height)",
-    "&::before": bulletStyles,
+    // "&::before": bulletStyles,
     ...(open && {
       color: "var(--nav-item-sub-open-color)",
       backgroundColor: "var(--nav-item-sub-open-bg)",

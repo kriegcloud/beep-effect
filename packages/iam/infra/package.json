@@ -33,7 +33,6 @@
     "lint:circular": "bunx madge -c ."
   },
   "dependencies": {
-    "ms": "catalog:",
     "@effect/sql": "catalog:",
     "@effect/sql-pg": "catalog:",
     "@effect/sql-drizzle": "catalog:",
@@ -97,9 +96,7 @@
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@types/ms": "catalog:",
     "@beep/types": "workspace:^",
-    "ms": "catalog:",
     "@effect/sql": "catalog:",
     "@effect/sql-pg": "catalog:",
     "@effect/sql-drizzle": "catalog:",

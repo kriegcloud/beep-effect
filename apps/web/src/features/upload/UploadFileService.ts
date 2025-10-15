@@ -1,8 +1,8 @@
 import { accumulateEffectsAndReport } from "@beep/errors/client";
 import * as Effect from "effect/Effect";
-import { instrumentProcessFile, makeFileAnnotations } from "./observability";
-import { extractBasicMetadata, extractExifMetadata, validateFile } from "./pipeline";
-import type { PipelineConfig, ProcessFilesResult, UploadResult } from "./UploadModels";
+import { instrumentProcessFile, makeFileAnnotations } from "@/features/upload/observability";
+import { extractBasicMetadata, extractExifMetadata, validateFile } from "@/features/upload/pipeline";
+import type { PipelineConfig, ProcessFilesResult, UploadResult } from "@/features/upload/UploadModels";
 /**
  * UploadFileService
  * - Effect service exposing high-level operations for processing one or many files

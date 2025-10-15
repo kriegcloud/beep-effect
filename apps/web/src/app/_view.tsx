@@ -2,7 +2,6 @@
 import { Iconify } from "@beep/ui/atoms/iconify/iconify";
 import { Form } from "@beep/ui/form";
 import { useBoolean } from "@beep/ui/hooks";
-import CloseIcon from "@mui/icons-material/Close";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -17,7 +16,7 @@ import TextField from "@mui/material/TextField";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import React from "react";
-import { criteriaQuery, passwordQuery, session } from "./_rules";
+import { criteriaQuery, passwordQuery, session } from "@/app/_rules";
 
 export function View() {
   const theme = useTheme();
@@ -85,7 +84,7 @@ export function View() {
                     {c.meetsCriteria ? (
                       <Iconify icon={"eva:checkmark-fill"} fill={theme.palette.success.main} />
                     ) : (
-                      <CloseIcon sx={(theme) => ({ color: theme.palette.error.main })} />
+                      <Iconify icon={"material-symbols:close"} fill={theme.palette.error.main} />
                     )}
                   </ListItemIcon>
                   <ListItemText

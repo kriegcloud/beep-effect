@@ -16,27 +16,27 @@ import {
 } from "./styles";
 
 export type CustomBreadcrumbsSlotProps = {
-  breadcrumbs: BreadcrumbsProps;
-  moreLinks: Omit<MoreLinksProps, "links">;
-  heading: React.ComponentProps<typeof BreadcrumbsHeading>;
-  content: React.ComponentProps<typeof BreadcrumbsContent>;
-  container: React.ComponentProps<typeof BreadcrumbsContainer>;
+  readonly breadcrumbs: BreadcrumbsProps;
+  readonly moreLinks: Omit<MoreLinksProps, "links">;
+  readonly heading: React.ComponentProps<typeof BreadcrumbsHeading>;
+  readonly content: React.ComponentProps<typeof BreadcrumbsContent>;
+  readonly container: React.ComponentProps<typeof BreadcrumbsContainer>;
 };
 
 export type CustomBreadcrumbsSlots = {
-  breadcrumbs?: React.ReactNode;
+  readonly breadcrumbs?: React.ReactNode | undefined;
 };
 
 export type CustomBreadcrumbsProps = React.ComponentProps<"div"> & {
-  sx?: SxProps<Theme>;
-  heading?: string;
-  activeLast?: boolean;
-  backHref?: string;
-  action?: React.ReactNode;
-  links?: BreadcrumbsLinkProps[];
-  moreLinks?: MoreLinksProps["links"];
-  slots?: CustomBreadcrumbsSlots;
-  slotProps?: Partial<CustomBreadcrumbsSlotProps>;
+  readonly sx?: SxProps<Theme> | undefined;
+  readonly heading?: string | undefined;
+  readonly activeLast?: boolean | undefined;
+  readonly backHref?: string | undefined;
+  readonly action?: React.ReactNode | undefined;
+  readonly links?: BreadcrumbsLinkProps[] | undefined;
+  readonly moreLinks?: MoreLinksProps["links"] | undefined;
+  readonly slots?: CustomBreadcrumbsSlots | undefined;
+  readonly slotProps?: Partial<CustomBreadcrumbsSlotProps> | undefined;
 };
 
 export function CustomBreadcrumbs({

@@ -41,10 +41,7 @@
     "es-toolkit": "catalog:",
     "@effect/workflow": "catalog:",
     "@beep/invariant": "workspace:^",
-    "uuid": "catalog:",
-    "typeid-js": "catalog:",
-    "i18n-iso-countries": "catalog:",
-    "cldr-localenames-full": "catalog:"
+    "uuid": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
@@ -54,11 +51,8 @@
     "@effect/cluster": "catalog:",
     "es-toolkit": "catalog:",
     "@effect/workflow": "catalog:",
-    "i18n-iso-countries": "catalog:",
-    "cldr-localenames-full": "catalog:",
     "@beep/invariant": "workspace:^",
     "uuid": "catalog:",
-    "typeid-js": "catalog:",
     "@beep/types": "workspace:^"
   },
   "effect": {

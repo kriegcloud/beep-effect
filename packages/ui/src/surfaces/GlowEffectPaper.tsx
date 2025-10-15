@@ -85,10 +85,10 @@ const shimmer = keyframes`
 const createPrimaryGlow = (theme: Theme) => {
   const isDark = theme.palette.mode === "dark";
   return `radial-gradient(120% 120% at 50% 50%, ${alpha(
-    theme.palette.success.main,
+    theme.palette.primary.main,
     isDark ? 0.55 : 0.48
-  )} 0%, ${alpha(theme.palette.success.light, isDark ? 0.22 : 0.32)} 32%, ${alpha(
-    theme.palette.success.light,
+  )} 0%, ${alpha(theme.palette.primary.light, isDark ? 0.22 : 0.32)} 32%, ${alpha(
+    theme.palette.primary.light,
     isDark ? 0.05 : 0.12
   )} 58%, transparent 78%)`;
 };
@@ -98,8 +98,8 @@ const createSecondaryGlow = (theme: Theme) => {
   return `radial-gradient(120% 120% at 50% 50%, ${alpha(
     theme.palette.primary.light,
     isDark ? 0.35 : 0.3
-  )} 0%, ${alpha(theme.palette.success.main, isDark ? 0.18 : 0.22)} 28%, ${alpha(
-    theme.palette.success.main,
+  )} 0%, ${alpha(theme.palette.primary.main, isDark ? 0.18 : 0.22)} 28%, ${alpha(
+    theme.palette.primary.main,
     isDark ? 0.05 : 0.08
   )} 56%, transparent 78%)`;
 };
@@ -107,9 +107,9 @@ const createSecondaryGlow = (theme: Theme) => {
 const createAccentGlow = (theme: Theme) => {
   const isDark = theme.palette.mode === "dark";
   return `radial-gradient(120% 120% at 50% 40%, ${alpha(
-    theme.palette.success.light,
+    theme.palette.primary.light,
     isDark ? 0.34 : 0.5
-  )} 0%, ${alpha(theme.palette.success.main, isDark ? 0.2 : 0.26)} 36%, ${alpha(
+  )} 0%, ${alpha(theme.palette.primary.main, isDark ? 0.2 : 0.26)} 36%, ${alpha(
     theme.palette.primary.light,
     isDark ? 0.04 : 0.06
   )} 60%, transparent 80%)`;
@@ -120,7 +120,7 @@ const Root = styled(Box)(({ theme }) => {
   const backgroundColor = isDark ? "#03080A" : alpha(theme.palette.background.paper, 0.88);
   const secondaryLayer = isDark
     ? "none"
-    : `radial-gradient(circle at 45% 8%, ${alpha(theme.palette.success.light, 0.18)} 0%, transparent 55%), radial-gradient(circle at 60% 90%, ${alpha(theme.palette.primary.dark, 0.16)} 0%, transparent 62%)`;
+    : `radial-gradient(circle at 45% 8%, ${alpha(theme.palette.primary.light, 0.18)} 0%, transparent 55%), radial-gradient(circle at 60% 90%, ${alpha(theme.palette.primary.dark, 0.16)} 0%, transparent 62%)`;
 
   return {
     position: "relative",
@@ -134,8 +134,8 @@ const Root = styled(Box)(({ theme }) => {
       position: "absolute",
       inset: "-45%",
       borderRadius: "50%",
-      background: `radial-gradient(circle, ${alpha(theme.palette.success.dark, isDark ? 0.32 : 0.32)} 0%, ${alpha(
-        theme.palette.success.main,
+      background: `radial-gradient(circle, ${alpha(theme.palette.primary.dark, isDark ? 0.32 : 0.32)} 0%, ${alpha(
+        theme.palette.primary.main,
         isDark ? 0.18 : 0.24
       )} 28%, transparent 70%)`,
       filter: `blur(${isDark ? 180 : 140}px)`,
@@ -150,9 +150,9 @@ const Root = styled(Box)(({ theme }) => {
       inset: "12%",
       borderRadius: "32%",
       background: `linear-gradient(140deg, ${alpha(
-        isDark ? theme.palette.success.dark : theme.palette.success.light,
+        isDark ? theme.palette.primary.dark : theme.palette.primary.light,
         isDark ? 0.1 : 0.16
-      )}, ${alpha(theme.palette.success.dark, isDark ? 0.03 : 0.06)}, transparent 72%)`,
+      )}, ${alpha(theme.palette.primary.dark, isDark ? 0.03 : 0.06)}, transparent 72%)`,
       mixBlendMode: isDark ? "normal" : "lighten",
       filter: `blur(${isDark ? 80 : 60}px)`,
       opacity: isDark ? 0.12 : 0.22,
@@ -260,8 +260,8 @@ const GlowRing = styled("div")(({ theme }) => ({
   borderRadius: "50%",
   background:
     theme.palette.mode === "dark"
-      ? `radial-gradient(circle, ${alpha(theme.palette.success.main, 0.16)} 0%, transparent 58%)`
-      : `radial-gradient(circle, ${alpha(theme.palette.success.main, 0.3)} 0%, transparent 58%)`,
+      ? `radial-gradient(circle, ${alpha(theme.palette.primary.main, 0.16)} 0%, transparent 58%)`
+      : `radial-gradient(circle, ${alpha(theme.palette.primary.main, 0.3)} 0%, transparent 58%)`,
   filter: `blur(${theme.palette.mode === "dark" ? 120 : 100}px)`,
   opacity: 0,
   animation: `${backdropFadeIn} 2200ms ease-out forwards`,

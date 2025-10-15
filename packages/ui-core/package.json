@@ -119,7 +119,6 @@
     "@emotion/server": "catalog:",
     "@emotion/styled": "catalog:",
     "@mui/lab": "catalog:",
-    "echarts": "catalog:",
     "@mui/material": "catalog:",
     "@mui/system": "catalog:",
     "react": "catalog:",

@@ -1,5 +1,5 @@
 import type { UnsafeTypes } from "@beep/types";
-import type { DebouncedFunc } from "lodash";
+import type { DebouncedFunc } from "lodash-es";
 import debounce from "lodash-es/debounce.js";
 import throttle from "lodash-es/throttle.js";
 import * as helpers from "./helpers";

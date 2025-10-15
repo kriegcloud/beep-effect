@@ -1,1 +1,1 @@
-export * from "./elements";
+export * from "@/features/upload/components/elements";

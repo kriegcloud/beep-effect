@@ -76,7 +76,6 @@
     "tsx": "catalog:",
     "turbo": "catalog:",
     "typescript": "catalog:",
-    "yaml": "catalog:",
     "babel-plugin-transform-next-use-client": "catalog:",
     "@beep/testkit": "workspace:^"
   },
@@ -138,7 +137,6 @@
     "@jsonforms/core": "3.6.0",
     "@jsonforms/material-renderers": "3.6.0",
     "@jsonforms/react": "3.6.0",
-    "@mui/icons-material": "7.3.4",
     "@mui/lab": "7.0.1-beta.18",
     "@mui/material": "7.3.4",
     "@mui/material-nextjs": "7.3.3",
@@ -196,15 +194,10 @@
     "@types/json-logic-js": "2.0.8",
     "@types/lodash": "4.17.20",
     "@types/lodash-es": "4.17.12",
-    "@types/ms": "^2.1.0",
     "@types/node": "24.7.2",
     "@types/nprogress": "0.2.3",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
-    "@univerjs/preset-docs-core": "0.10.10",
-    "@univerjs/preset-sheets-core": "0.10.10",
-    "@univerjs/presets": "0.10.10",
-    "@univerjs/themes": "0.10.10",
     "@xstate/react": "6.0.0",
     "accept-language": "3.0.20",
     "ajv": "8.17.1",
@@ -219,11 +212,9 @@
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "copyfiles": "2.4.1",
-    "csstype": "^3.1.3",
     "dayjs": "1.11.18",
     "drizzle-kit": "^0.31.5",
     "drizzle-orm": "^0.44.6",
-    "drizzle-seed": "^0.3.1",
     "drizzle-zero": "^0.14.3",
     "dub": "0.67.0",
     "effect": "3.18.4",
@@ -236,25 +227,20 @@
     "es-toolkit": "^1.40.0",
     "exifreader": "^4.32.0",
     "framer-motion": "12.23.24",
-    "globals": "16.4.0",
     "husky": "9.1.7",
     "i18next": "25.6.0",
     "i18next-browser-languagedetector": "8.2.0",
     "i18next-resources-to-backend": "1.2.1",
-    "input-otp": "1.4.2",
     "jose": "6.1.0",
     "json-logic-js": "2.0.5",
     "lint-staged": "16.2.4",
-    "lodash": "4.17.21",
     "lodash-es": "4.17.21",
     "lowlight": "3.3.0",
-    "lucide-react": "0.545.0",
     "madge": "8.0.0",
     "motion": "12.23.24",
-    "ms": "^2.1.3",
     "mui-one-time-password-input": "5.0.0",
     "mutative": "1.3.0",
-    "next": "^15.5.5",
+    "next": "16.0.0-canary.5",
     "nprogress": "0.2.0",
     "nuqs": "^2.7.1",
     "picocolors": "^1.1.1",
@@ -268,71 +254,28 @@
     "react-dropzone": "14.3.8",
     "react-google-recaptcha-v3": "^1.11.0",
     "react-i18next": "16.0.1",
-    "react-is": "19.2.0",
     "react-phone-number-input": "3.4.12",
-    "recharts": "3.2.1",
     "resend": "6.1.3",
     "sonner": "2.0.7",
-    "sql-formatter": "^15.6.10",
     "string-ts": "2.2.1",
     "stripe": "19.1.0",
     "stylis": "4.3.6",
     "stylis-plugin-rtl": "2.1.1",
-    "svelte-gantt": "^4.5.0",
     "syncpack": "14.0.0-alpha.23",
     "tailwind-merge": "3.3.1",
     "tailwindcss": "4.1.14",
     "tailwindcss-animate": "1.0.7",
-    "terser": "5.44.0",
     "testcontainers": "^11.7.1",
     "tsx": "4.20.6",
     "turbo": "2.5.8",
     "tw-animate-css": "1.4.0",
     "type-fest": "5.1.0",
-    "typeid-js": "^1.2.0",
     "typescript": "5.9.3",
     "uuid": "13.0.0",
-    "webp-wasm": "^1.0.6",
     "xstate": "5.23.0",
-    "yaml": "2.8.1",
-    "zod": "4.1.12",
-    "i18n-iso-countries": "^7.14.0",
-    "cldr-localenames-full": "^47.0.0",
-    "echarts": "^6.0.0",
-    "simplebar-react": "^3.3.2",
-    "@gsap/react": "^2.1.2",
-    "gsap": "^3.13.0",
-    "react-datepicker": "^8.7.0"
+    "zod": "4.1.12"
   },
   "dependenciesCatalog": [
-    {
-      "name": "react-datepicker",
-      "version": "^8.7.0"
-    },
-    {
-      "name": "@gsap/react",
-      "version": "^2.1.2"
-    },
-    {
-      "name": "gsap",
-      "version": "^3.13.0"
-    },
-    {
-      "name": "simplebar-react",
-      "version": "^3.3.2"
-    },
-    {
-      "name": "echarts",
-      "version": "^6.0.0"
-    },
-    {
-      "name": "cldr-localenames-full",
-      "version": "^47.0.0"
-    },
-    {
-      "name": "i18n-iso-countries",
-      "version": "^7.14.0"
-    },
     {
       "name": "@effect/sql-drizzle",
       "version": "^0.45.0"
@@ -528,10 +471,6 @@
     {
       "name": "@jsonforms/react",
       "version": "3.6.0"
-    },
-    {
-      "name": "@mui/icons-material",
-      "version": "7.3.4"
     },
     {
       "name": "@mui/lab",
@@ -754,16 +693,8 @@
       "version": "2.0.8"
     },
     {
-      "name": "@types/lodash",
-      "version": "4.17.20"
-    },
-    {
       "name": "@types/lodash-es",
       "version": "4.17.12"
-    },
-    {
-      "name": "@types/ms",
-      "version": "^2.1.0"
     },
     {
       "name": "@types/node",
@@ -780,22 +711,6 @@
     {
       "name": "@types/react-dom",
       "version": "19.2.1"
-    },
-    {
-      "name": "@univerjs/preset-docs-core",
-      "version": "0.10.10"
-    },
-    {
-      "name": "@univerjs/preset-sheets-core",
-      "version": "0.10.10"
-    },
-    {
-      "name": "@univerjs/presets",
-      "version": "0.10.10"
-    },
-    {
-      "name": "@univerjs/themes",
-      "version": "0.10.10"
     },
     {
       "name": "@xstate/react",
@@ -854,10 +769,6 @@
       "version": "2.4.1"
     },
     {
-      "name": "csstype",
-      "version": "^3.1.3"
-    },
-    {
       "name": "dayjs",
       "version": "1.11.18"
     },
@@ -868,10 +779,6 @@
     {
       "name": "drizzle-orm",
       "version": "^0.44.6"
-    },
-    {
-      "name": "drizzle-seed",
-      "version": "^0.3.1"
     },
     {
       "name": "drizzle-zero",
@@ -922,10 +829,6 @@
       "version": "12.23.22"
     },
     {
-      "name": "globals",
-      "version": "16.4.0"
-    },
-    {
       "name": "husky",
       "version": "9.1.7"
     },
@@ -942,10 +845,6 @@
       "version": "1.2.1"
     },
     {
-      "name": "input-otp",
-      "version": "1.4.2"
-    },
-    {
       "name": "jose",
       "version": "6.1.0"
     },
@@ -958,10 +857,6 @@
       "version": "16.2.3"
     },
     {
-      "name": "lodash",
-      "version": "4.17.21"
-    },
-    {
       "name": "lodash-es",
       "version": "4.17.21"
     },
@@ -970,20 +865,12 @@
       "version": "3.3.0"
     },
     {
-      "name": "lucide-react",
-      "version": "0.545.0"
-    },
-    {
       "name": "madge",
       "version": "8.0.0"
     },
     {
       "name": "motion",
       "version": "12.23.22"
-    },
-    {
-      "name": "ms",
-      "version": "^2.1.3"
     },
     {
       "name": "mui-one-time-password-input",
@@ -995,7 +882,7 @@
     },
     {
       "name": "next",
-      "version": "^15.5.4"
+      "version": "16.0.0-canary.4"
     },
     {
       "name": "nprogress",
@@ -1050,16 +937,8 @@
       "version": "16.0.0"
     },
     {
-      "name": "react-is",
-      "version": "19.2.0"
-    },
-    {
       "name": "react-phone-number-input",
       "version": "3.4.12"
-    },
-    {
-      "name": "recharts",
-      "version": "3.2.1"
     },
     {
       "name": "resend",
@@ -1068,10 +947,6 @@
     {
       "name": "sonner",
       "version": "2.0.7"
-    },
-    {
-      "name": "sql-formatter",
-      "version": "^15.6.10"
     },
     {
       "name": "string-ts",
@@ -1090,10 +965,6 @@
       "version": "2.1.1"
     },
     {
-      "name": "svelte-gantt",
-      "version": "^4.5.0"
-    },
-    {
       "name": "syncpack",
       "version": "14.0.0-alpha.23"
     },
@@ -1108,10 +979,6 @@
     {
       "name": "tailwindcss-animate",
       "version": "1.0.7"
-    },
-    {
-      "name": "terser",
-      "version": "5.44.0"
     },
     {
       "name": "testcontainers",
@@ -1134,10 +1001,6 @@
       "version": "5.0.1"
     },
     {
-      "name": "typeid-js",
-      "version": "^1.2.0"
-    },
-    {
       "name": "typescript",
       "version": "5.9.3"
     },
@@ -1146,16 +1009,8 @@
       "version": "13.0.0"
     },
     {
-      "name": "webp-wasm",
-      "version": "^1.0.6"
-    },
-    {
       "name": "xstate",
       "version": "5.22.1"
-    },
-    {
-      "name": "yaml",
-      "version": "2.8.1"
     },
     {
       "name": "zod",

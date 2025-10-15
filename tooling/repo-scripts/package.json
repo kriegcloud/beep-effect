@@ -37,8 +37,6 @@
     "iconify": "bunx dotenvx run -f ../../.env -- bun run ./src/iconify/index.ts"
   },
   "dependencies": {
-    "i18n-iso-countries": "catalog:",
-    "cldr-localenames-full": "catalog:",
     "@beep/utils": "workspace:^",
     "@beep/constants": "workspace:^",
     "@beep/invariant": "workspace:^",

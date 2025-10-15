@@ -1,0 +1,7 @@
+{
+  "files": [],
+  "references": [
+    { "path": "../packages/shared/domain" },
+    { "path": "../packages/shared/tables" }
+  ]
+}

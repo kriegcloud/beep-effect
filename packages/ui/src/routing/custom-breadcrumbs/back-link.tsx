@@ -4,7 +4,7 @@ import Link from "@mui/material/Link";
 import { RouterLink } from "../RouterLink";
 
 export type BackLinkProps = LinkProps & {
-  label?: string;
+  readonly label?: string | undefined;
 };
 
 export function BackLink({ sx, label, ...other }: BackLinkProps) {

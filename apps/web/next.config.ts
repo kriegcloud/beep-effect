@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import type { NextConfig } from "next";
@@ -51,37 +52,107 @@ const securityHeaders = [
   },
 ];
 
-const nextConfig = {
-  trailingSlash: false,
-  transpilePackages: [
-    "@beep/types",
-    "@beep/invariant",
-    "@beep/utils",
-    "@beep/schema",
-    "@beep/constants",
-    "@beep/errors",
-    "@beep/rules",
-    "@beep/logos",
-    "@beep/rete",
-    "@beep/shared-domain",
-    "@beep/shared-tables",
-    "@beep/core-env",
-    "@beep/core-email",
-    "@beep/core-db",
+const candidateTranspilePackages = [
+  "@beep/types",
+  "@beep/invariant",
+  "@beep/utils",
+  "@beep/schema",
+  "@beep/constants",
+  "@beep/errors",
+  "@beep/rules",
+  "@beep/logos",
+  "@beep/rete",
+  "@beep/shared-domain",
+  "@beep/shared-tables",
+  "@beep/core-env",
+  "@beep/core-email",
+  "@beep/core-db",
+  "@beep/ui",
+  "@beep/ui-core",
+  "@beep/iam-domain",
+  "@beep/iam-tables",
+  "@beep/iam-infra",
+  "@beep/iam-sdk",
+  "@beep/iam-ui",
+  "@beep/files-domain",
+  "@beep/files-tables",
+  "@beep/files-infra",
+  "@beep/files-sdk",
+  "@beep/files-ui",
+];
+
+const resolvePackageJson = (pkgName: string) => {
+  try {
+    return require.resolve(`${pkgName}/package.json`, { paths: [__dirname] });
+  } catch {
+    return null;
+  }
+};
+
+const shouldTranspile = (pkgName: string) => {
+  const pkgJsonPath = resolvePackageJson(pkgName);
+  if (pkgJsonPath === null) {
+    return true;
+  }
+
+  try {
+    const pkgJsonRaw = fs.readFileSync(pkgJsonPath, "utf8");
+    const pkgJson = JSON.parse(pkgJsonRaw) as Record<string, unknown>;
+
+    const checkExports = (value: unknown): boolean => {
+      if (typeof value === "string") {
+        return value.endsWith(".ts") || value.includes("/src/");
+      }
+      if (value !== null && typeof value === "object") {
+        return Object.values(value).some(checkExports);
+      }
+      return false;
+    };
+
+    if ("exports" in pkgJson && pkgJson.exports !== null) {
+      if (checkExports(pkgJson.exports)) {
+        return true;
+      }
+    }
+
+    if ("module" in pkgJson && typeof pkgJson.module === "string") {
+      return pkgJson.module.endsWith(".ts") || pkgJson.module.includes("/src/");
+    }
+
+    if ("main" in pkgJson && typeof pkgJson.main === "string") {
+      return pkgJson.main.endsWith(".ts") || pkgJson.main.includes("/src/");
+    }
+
+    return false;
+  } catch {
+    return true;
+  }
+};
+
+const transpilePackages = candidateTranspilePackages.filter(shouldTranspile);
+
+const optimizeImports = Array.from(
+  new Set([
+    "@iconify/react",
+    "lodash-es",
+    "@mui/x-date-pickers",
+    "@mui/lab",
+    "@mui/icons-material",
+    "@mui/material",
+    "@mui/system",
     "@beep/ui",
     "@beep/ui-core",
-    "@beep/iam-domain",
-    "@beep/iam-tables",
-    "@beep/iam-infra",
-    "@beep/iam-sdk",
-    "@beep/iam-ui",
-    "@beep/files-domain",
-    "@beep/files-tables",
-    "@beep/files-infra",
-    "@beep/files-sdk",
-    "@beep/files-ui",
-  ],
+    "@tanstack/react-query",
+    "react-phone-number-input",
+    "@effect/platform",
+    "@effect/opentelemetry",
+  ])
+);
 
+const nextConfig = {
+  reactCompiler: true,
+  trailingSlash: false,
+  transpilePackages,
   images: {
     remotePatterns: [
       {
@@ -124,39 +195,9 @@ const nextConfig = {
     },
   },
   outputFileTracingRoot: path.join(__dirname, "../../"),
-  webpack(config, { isServer }) {
-    config.watchOptions = {
-      poll: 1000,
-      aggregateTimeout: 1000,
-    };
-    config.module.rules.push({
-      test: /\.svg$/,
-      use: ["@svgr/webpack"],
-    });
-    config.module.rules.push({
-      test: /\.wasm$/,
-      type: "webassembly/async",
-    });
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        path: false,
-        crypto: false,
-      };
-    }
-
-    config.experiments = {
-      ...config.experiments,
-      layers: true,
-      asyncWebAssembly: true,
-      topLevelAwait: true,
-    };
-
-    return config;
-  },
   experimental: {
-    optimizePackageImports: ["@iconify/react", "lodash", "@mui/x-date-pickers", "@mui/lab"],
+    optimizePackageImports: optimizeImports,
+    turbopackFileSystemCacheForDev: true,
   },
 } satisfies NextConfig;
 

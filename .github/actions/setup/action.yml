@@ -14,7 +14,7 @@ runs:
       with:
         bun-version-file: .bun-version
     - name: Install node
-      uses: actions/setup-node@v4
+      uses: oven-sh/setup-bun@v2
       with:
         node-version: ${{ inputs.node-version }}
         cache: npm

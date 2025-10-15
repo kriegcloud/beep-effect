@@ -1,7 +1,6 @@
 "use client";
 import { Iconify } from "@beep/ui/atoms/iconify/iconify";
 import { useBoolean } from "@beep/ui/hooks/use-boolean";
-import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import List from "@mui/material/List";
@@ -210,7 +209,7 @@ export const PasswordFieldsGroup = withFieldGroup({
                 {error.pass ? (
                   <Iconify icon={"eva:checkmark-fill"} fill={theme.palette.success.main} />
                 ) : (
-                  <CloseIcon sx={{ color: theme.palette.error.main }} />
+                  <Iconify icon={"material-symbols:close"} fill={theme.palette.error.main} />
                 )}
               </ListItemIcon>
               <ListItemText

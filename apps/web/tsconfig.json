@@ -37,6 +37,7 @@
     "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
+    "disableSourceOfProjectReferenceRedirect": true,
     "paths": {
       "*": ["./*"],
       "@/*": ["./src/*"],

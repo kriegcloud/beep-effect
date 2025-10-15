@@ -15,7 +15,6 @@ export {
 export { createCtx } from "./createCtx";
 export * from "./css-variables";
 export * from "./cssVarRgba";
-export * from "./echart-utils";
 export {
   pxToRem,
   remToPx,
