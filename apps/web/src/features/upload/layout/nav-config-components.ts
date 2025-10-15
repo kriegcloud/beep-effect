@@ -1,4 +1,4 @@
-import { kebabCase, orderBy } from "es-toolkit";
+import { ArrayUtils, StrUtils } from "@beep/utils";
 
 // import { CONFIG } from "@/global-config";
 
@@ -18,8 +18,8 @@ export type NavItemData = {
 
 const createNavItem = ({ category, name, iconPrefix, packageType }: CreateNavItemProps) => ({
   name,
-  href: `/components/${category}/${kebabCase(name)}`,
-  icon: `/assets/icons/components/${iconPrefix}-${kebabCase(name)}.svg`,
+  href: `/components/${category}/${StrUtils.kebabCase(name)}`,
+  icon: `/assets/icons/components/${iconPrefix}-${StrUtils.kebabCase(name)}.svg`,
   packageType,
 });
 
@@ -127,6 +127,6 @@ const extraNav = [
 
 export const allComponents = [
   { title: "Foundation", items: foundationNav },
-  { title: "MUI", items: orderBy(muiNav, ["name"], ["asc"]) },
-  { title: "Extra", items: orderBy(extraNav, ["name"], ["asc"]) },
+  { title: "MUI", items: ArrayUtils.orderBy(muiNav, ["name"], ["asc"]) },
+  { title: "Extra", items: ArrayUtils.orderBy(extraNav, ["name"], ["asc"]) },
 ];

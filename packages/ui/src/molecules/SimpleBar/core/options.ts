@@ -1,7 +1,6 @@
 import type { UnsafeTypes } from "@beep/types";
-import type { DebouncedFunc } from "lodash-es";
-import debounce from "lodash-es/debounce.js";
-import throttle from "lodash-es/throttle.js";
+import type { DebouncedFunc } from "@beep/utils";
+import { debounce, throttle } from "@beep/utils";
 import * as helpers from "./helpers";
 import scrollbarWidth from "./scrollbar-width";
 

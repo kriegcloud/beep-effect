@@ -1,8 +1,8 @@
 "use client";
 import { rgbaFromChannel } from "@beep/ui-core/utils";
+import { ObjectUtils } from "@beep/utils";
 import type { Theme } from "@mui/material/styles";
 import { useTheme } from "@mui/material/styles";
-import { merge } from "es-toolkit";
 import type { ChartOptions } from "./types";
 
 export function useChart(updatedOptions?: ChartOptions): ChartOptions {
@@ -10,7 +10,7 @@ export function useChart(updatedOptions?: ChartOptions): ChartOptions {
 
   const baseOptions = baseChartOptions(theme) ?? {};
 
-  return merge(baseOptions, updatedOptions ?? {});
+  return ObjectUtils.deepMerge(baseOptions, updatedOptions ?? {});
 }
 
 const baseChartOptions = (theme: Theme): ChartOptions => {

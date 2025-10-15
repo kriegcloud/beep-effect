@@ -32,7 +32,7 @@ Configuration and guardrails for AI collaborators working in the `beep-effect` m
 `beep-effect` is a Bun-managed monorepo delivering a full-stack Effect application. It combines `apps/web` (Next.js 15 +
 React 19), `apps/server` (Effect Platform runtime), and `apps/mcp` (MCP tooling) atop vertical slices in
 `packages/iam/*`, `packages/files/*`, and shared foundations under `packages/shared/*`, `packages/core/*`, and
-`packages/common/*`. Architecture details live in `README.md`, `.windsurfrules`, `docs/patterns/`, and
+`packages/common/*`. Architecture details live in `README.md``, `docs/patterns/`, and
 `docs/PRODUCTION_CHECKLIST.md`.
 
 ## Package Agent Guides
@@ -148,7 +148,7 @@ React 19), `apps/server` (Effect Platform runtime), and `apps/mcp` (MCP tooling)
   avoid auto-running expensive commands unless necessary and approved.
 - **Respect Tooling Updates** Bun scripts wrap `bunx turbo` with `dotenvx`. If PATH issues arise, prepend
   `direnv exec .`.
-- **Documentation** Keep architecture docs aligned; update `docs/patterns/` or `.windsurfrules` when introducing new
+- **Documentation** Keep architecture docs aligned; update `docs/patterns/`` when introducing new
   patterns.
 
 ## Tool Call Reference
@@ -202,23 +202,23 @@ items.find((item) => item.id === targetId);
 Array.from(iterable);
 
 // ✅ REQUIRED - Effect Array utilities with pipe
-pipe(
+F.pipe(
   items,
-  Array.map((item) => item.name)
+  A.map((item) => item.name)
 );
-pipe(
+F.pipe(
   items,
-  Array.filter((item) => item.active)
+  A.filter((item) => item.active)
 );
-pipe(
+F.pipe(
   items,
-  Array.forEach((item) => Effect.log(item))
+  A.forEach((item) => Effect.log(item))
 );
 F.pipe(
   items,
   A.findFirst((item) => item.id === targetId)
 );
-pipe(iterable, A.fromIterable);
+F.pipe(iterable, A.fromIterable);
 ```
 
 **Use Effect's Array utilities for ALL array operations - no exceptions:**
@@ -272,7 +272,8 @@ const isValid = str.endsWith("s");
 const parts = str.split(" ");
 const trimmed = str.trim();
 const replaced = str.replace(/old/g, "new");
-
+```
+```ts
 // ✅ REQUIRED - Effect String utilities
 const result = F.pipe(
   str,
@@ -356,7 +357,6 @@ const replaced = F.pipe(str, Str.replace(/old/g, "new"));
 ## Key References
 
 - `README.md` — onboarding & summary
-- `.windsurfrules` — architecture guardrails
 - `docs/patterns/` — implementation recipes
 - `turbo.json` — pipeline graph
 - `package.json#workspaces` — workspace layout

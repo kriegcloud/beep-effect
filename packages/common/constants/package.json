@@ -38,7 +38,6 @@
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@effect/cluster": "catalog:",
-    "es-toolkit": "catalog:",
     "@effect/workflow": "catalog:",
     "@beep/invariant": "workspace:^",
     "uuid": "catalog:"
@@ -49,7 +48,6 @@
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@effect/cluster": "catalog:",
-    "es-toolkit": "catalog:",
     "@effect/workflow": "catalog:",
     "@beep/invariant": "workspace:^",
     "uuid": "catalog:",

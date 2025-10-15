@@ -1,4 +1,4 @@
-import { isEqual } from "lodash-es";
+import { deepEqual } from "@beep/utils";
 import { AuditAction, AuditRecordType } from "../../network/audit";
 import { ExpectedFactToBeInNodeFacts } from "../../network/retract-fact/errors";
 import { type $Schema, type AlphaNode, type Fact, type Session, TokenKind } from "../../network/types";
@@ -21,7 +21,7 @@ export const retractFact = <T extends $Schema>(session: Session<T>, fact: Fact<T
 
     for (const node of idAttrNodes) {
       const otherFact = node.facts.get(idAttr[0].toString())?.get(idAttr[1].toString());
-      if (!isEqual(fact, otherFact)) {
+      if (!deepEqual(fact, otherFact)) {
         throw new ExpectedFactToBeInNodeFacts(fact, idAttr);
       }
       session.auditor?.log?.({

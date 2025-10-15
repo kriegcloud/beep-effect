@@ -46,7 +46,6 @@
     "effect": "catalog:"
   },
   "devDependencies": {
-    "string-ts": "catalog:",
     "@beep/testkit": "workspace:^",
     "effect": "catalog:",
     "@types/bun": "catalog:"

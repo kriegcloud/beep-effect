@@ -134,7 +134,6 @@ const transpilePackages = candidateTranspilePackages.filter(shouldTranspile);
 const optimizeImports = Array.from(
   new Set([
     "@iconify/react",
-    "lodash-es",
     "@mui/x-date-pickers",
     "@mui/lab",
     "@mui/icons-material",

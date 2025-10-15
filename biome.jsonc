@@ -104,6 +104,7 @@
         "noAccumulatingSpread": "off"
       },
       "suspicious": {
+        "noSelfCompare": "off",
         "noUnsafeDeclarationMerging": "off",
         "useAdjacentOverloadSignatures": "off",
         "noDoubleEquals": "off",

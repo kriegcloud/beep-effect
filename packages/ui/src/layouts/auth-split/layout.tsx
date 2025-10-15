@@ -4,11 +4,11 @@ import { assetPaths } from "@beep/constants";
 import { paths } from "@beep/shared-domain";
 import { Logo } from "@beep/ui/branding";
 import { RouterLink } from "@beep/ui/routing";
+import { ObjectUtils } from "@beep/utils";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import type { Breakpoint } from "@mui/material/styles";
-import { merge } from "es-toolkit";
 import { SettingsButton } from "../components/settings-button";
 import type { HeaderSectionProps, LayoutSectionProps, MainSectionProps } from "../core";
 import { HeaderSection, LayoutSection, MainSection } from "../core";
@@ -68,7 +68,7 @@ export function AuthSplitLayout({ sx, cssVars, children, slotProps, layoutQuery 
         layoutQuery={layoutQuery}
         {...slotProps?.header}
         slots={{ ...headerSlots, ...slotProps?.header?.slots }}
-        slotProps={merge(headerSlotProps, slotProps?.header?.slotProps ?? {})}
+        slotProps={ObjectUtils.deepMerge(headerSlotProps, slotProps?.header?.slotProps ?? {})}
         sx={[
           { position: { [layoutQuery]: "fixed" } },
           ...(Array.isArray(slotProps?.header?.sx) ? slotProps.header.sx : [slotProps?.header?.sx]),

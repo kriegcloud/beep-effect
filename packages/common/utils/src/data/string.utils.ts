@@ -57,6 +57,22 @@ export const normalizeString: NormalizeString = F.flow(
   Str.replace(/ß/g, "ss")
 );
 
+export const kebabCase = (value: string): string =>
+  F.pipe(value, Str.trim, (trimmed) =>
+    Str.isEmpty(trimmed)
+      ? ""
+      : F.pipe(
+          trimmed,
+          Str.replace(/([a-z\d])([A-Z])/g, "$1-$2"),
+          Str.replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2"),
+          normalizeString,
+          Str.replace(/[^a-z0-9]+/g, "-"),
+          Str.replace(/-+/g, "-"),
+          Str.replace(/^-+/, ""),
+          Str.replace(/-+$/, "")
+        )
+  );
+
 /**
  * Formats the message by replacing double newlines with a space and removing asterisks around words.
  *

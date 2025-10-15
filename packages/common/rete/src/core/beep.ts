@@ -1,9 +1,9 @@
 import type { UnsafeTypes } from "@beep/types";
+import { getPath, setPath } from "@beep/utils";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as Struct from "effect/Struct";
-import { get as lodashGet, set as lodashSet } from "lodash-es";
 import type { $Schema, Auditor, ConvertMatchFn, FactFragment } from "../network";
 import { Field, PRODUCTION_ALREADY_EXISTS_BEHAVIOR, rete, viz } from "../network";
 import {
@@ -83,7 +83,7 @@ export const beep = <TSchema extends $Schema>(autoFire = true, auditor?: Auditor
       for (const [k] of args) {
         if (k.startsWith(ID_PREFIX)) {
           const id = k.replace(ID_PREFIX, "");
-          lodashSet(result, id, { id: args.get(k) });
+          setPath(result, id, { id: args.get(k) });
         }
       }
 
@@ -91,10 +91,10 @@ export const beep = <TSchema extends $Schema>(autoFire = true, auditor?: Auditor
         if (k.startsWith(VALUE_PREFIX)) {
           const value = k.replace(VALUE_PREFIX, "");
           const [id, attr] = value.split("_");
-          if (lodashGet(result, id!) === undefined) {
-            lodashSet(result, id!, { id });
+          if (getPath(result, id!) === undefined) {
+            setPath(result, id!, { id });
           }
-          lodashSet(result, `${id}.${attr}`, args.get(k));
+          setPath(result, `${id}.${attr}`, args.get(k));
         }
       }
 
@@ -117,10 +117,10 @@ export const beep = <TSchema extends $Schema>(autoFire = true, auditor?: Auditor
       const cond = conditions(schema);
       const keys = Struct.keys(cond);
       A.forEach(keys, (id) => {
-        const condForId = (lodashGet(cond, id) ?? {}) as Record<string, ConditionOptions<UnsafeTypes.UnsafeAny>>;
+        const condForId = (getPath(cond, id) ?? {}) as Record<string, ConditionOptions<UnsafeTypes.UnsafeAny>>;
         const attrs = Struct.keys(condForId);
         A.forEach(attrs, (attr) => {
-          const options: ConditionOptions<unknown> | undefined = lodashGet(cond, `${id}.${String(attr)}`);
+          const options = getPath(cond, `${id}.${String(attr)}`) as ConditionOptions<unknown> | undefined;
           const conditionId = extractId(id);
 
           const join = options?.join;

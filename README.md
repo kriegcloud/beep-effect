@@ -28,7 +28,6 @@ Vertical Slice Architecture with a hexagonal/clean flavor:
 - Cross-slice sharing only through shared/common modules
 
 Source of truth for rules and boundaries:
-- [.windsurfrules](.windsurfrules) → repository-enforced boundaries and allowed imports
 - [tsconfig.base.json](tsconfig.base.json) → authoritative path aliases and module boundaries
 - [turbo.json](turbo.json) → task graph and pipeline conventions
 - [docs/patterns/](docs/patterns/) → Effect patterns and project conventions
@@ -55,7 +54,6 @@ Authoritative module boundaries via [tsconfig.base.json](tsconfig.base.json) pat
 - Build & workspace: bun + Turborepo
 - Quality: Biome, Vitest
 - Optional/infra: Docker + dotenvx
-- AI: @effect/ai (+ IDE assistant rules in [.windsurfrules](.windsurfrules), `.cursor/rules/`)
 
 ## Quick start
 
@@ -83,7 +81,6 @@ bunx turbo run dev --filter=@beep/web
 Notes
 - Run `bun run bootstrap` after installing to launch Docker services and apply migrations before development.
 - Prefer running via root scripts in [`package.json`](package.json). Scripts use `dotenvx` so you don’t have to.
-- If a tool isn’t in your PATH in your environment, you can prefix with `direnv exec .` (see `.windsurfrules`).
 
 ## Tasks and pipelines
 
@@ -108,7 +105,6 @@ Bring services up with `bun run db:up`.
 
 ## Layering and imports (enforced)
 
-Canonical rules live in [.windsurfrules](.windsurfrules). Highlights:
 - `S/domain` → entities, value objects, domain services. Pure; no IO.
 - `S/application` → use cases and ports. Depends on `S/domain`.
 - `S/infra` → adapters (DB, auth, email, file stores, etc.) implementing ports.
@@ -131,7 +127,6 @@ File storage approach: shared file primitives (IDs, base tables) live under `pac
 
 - Production posture: [docs/PRODUCTION_CHECKLIST.md](docs/PRODUCTION_CHECKLIST.md)
 - Effect patterns and references: [docs/patterns/](docs/patterns/)
-- Assistant rules: [.windsurfrules](.windsurfrules)
 
 ## Applications
 

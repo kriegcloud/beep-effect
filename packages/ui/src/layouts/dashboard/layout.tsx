@@ -6,12 +6,12 @@ import type { NavItemProps, NavSectionProps } from "@beep/ui/routing";
 import { useSettingsContext } from "@beep/ui/settings";
 import { GlowEffectPaper } from "@beep/ui/surfaces";
 import { allLangs } from "@beep/ui-core/i18n";
+import { ObjectUtils } from "@beep/utils";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import { iconButtonClasses } from "@mui/material/IconButton";
 import type { Breakpoint } from "@mui/material/styles";
 import { useTheme } from "@mui/material/styles";
-import { merge } from "es-toolkit";
 import { AccountDrawer } from "../components/account-drawer";
 import { ContactsPopover } from "../components/contacts-popover";
 import { LanguagePopover } from "../components/language-popover";
@@ -161,7 +161,7 @@ export function DashboardLayout({ sx, cssVars, children, slotProps, layoutQuery 
         disableElevation={isNavVertical}
         {...slotProps?.header}
         slots={{ ...headerSlots, ...slotProps?.header?.slots }}
-        slotProps={merge(headerSlotProps, slotProps?.header?.slotProps ?? {})}
+        slotProps={ObjectUtils.deepMerge(headerSlotProps, slotProps?.header?.slotProps ?? {})}
         sx={slotProps?.header?.sx}
       />
     );

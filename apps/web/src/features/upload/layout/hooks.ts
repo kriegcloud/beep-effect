@@ -1,4 +1,4 @@
-import { throttle } from "es-toolkit";
+import { throttle } from "@beep/utils";
 import { useCallback, useEffect, useState } from "react";
 
 export function useScroll(queryClassName: string, offsetValue: number) {
@@ -30,6 +30,7 @@ export function useScroll(queryClassName: string, offsetValue: number) {
 
     return () => {
       window.removeEventListener("scroll", throttledHandleScroll);
+      throttledHandleScroll.cancel();
     };
   }, [throttledHandleScroll]);
 
