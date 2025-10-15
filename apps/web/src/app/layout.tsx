@@ -30,13 +30,11 @@ const getNonce = Effect.gen(function* () {
 
   const nonce = headers.get("x-nonce") || undefined;
   if (!nonce) {
-    yield* Effect.logInfo("No nonce found in headers");
     return undefined;
   }
   return nonce;
 }).pipe(
   Effect.withSpan("getNonce"),
-  Effect.tapError(() => Effect.logInfo("No nonce found in headers")),
   Effect.orElseSucceed(() => undefined)
 );
 

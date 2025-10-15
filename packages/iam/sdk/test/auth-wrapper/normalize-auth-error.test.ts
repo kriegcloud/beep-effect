@@ -1,3 +1,5 @@
+import "../setup/client-env.stub";
+
 import { describe } from "bun:test";
 import { IamError } from "@beep/iam-sdk/errors";
 import { assertInstanceOf, deepStrictEqual, effect, strictEqual } from "@beep/testkit";

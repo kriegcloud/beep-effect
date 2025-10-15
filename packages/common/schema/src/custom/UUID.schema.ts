@@ -1,6 +1,7 @@
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
-import { v4 as randomUUID } from "uuid";
+import { v4 as uuid } from "uuid";
+
 export const BrandedUUID = <const Brand extends string>(brand: Brand) => S.UUID.pipe(S.brand(brand));
 // todo should be check for length on these string but `S.TemplateLiteral` doesn't support it yet.
 export class UUIDLiteralEncoded extends S.TemplateLiteral(
@@ -19,8 +20,7 @@ export class UUIDLiteralEncoded extends S.TemplateLiteral(
   title: "UUID Literal Encoded",
   description: "UUID Literal Encoded",
 }) {
-  static readonly make = (): UUIDLiteralEncoded.Type =>
-    randomUUID() as `${string}-${string}-${string}-${string}-${string}`;
+  static readonly create = (): UUIDLiteralEncoded.Type => uuid() as `${string}-${string}-${string}-${string}-${string}`;
 }
 
 export declare namespace UUIDLiteralEncoded {
@@ -40,7 +40,9 @@ export class UUIDLiteral extends S.transformOrFail(UUIDLiteralEncoded, S.UUID, {
       try: () => S.decodeUnknownSync(UUIDLiteralEncoded)(i),
       catch: () => new ParseResult.Type(ast, i, "Invalid UUID"),
     }),
-}) {}
+}) {
+  static readonly create: () => UUIDLiteral.Type = () => UUIDLiteralEncoded.create();
+}
 
 export declare namespace UUIDLiteral {
   export type Type = S.Schema.Type<typeof UUIDLiteral>;

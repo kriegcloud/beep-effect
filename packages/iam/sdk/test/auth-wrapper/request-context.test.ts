@@ -1,3 +1,5 @@
+import "../setup/client-env.stub";
+
 import { describe } from "bun:test";
 import { effect, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";

@@ -34,7 +34,7 @@ export class Factory<const TableName extends string, const Brand extends string>
     readonly tableName: SnakeTag.Literal<TableName>,
     readonly brand: Brand
   ) {
-    const create = () => F.pipe(tableName, Str.concat("__"), Str.concat(UUIDLiteralEncoded.make()));
+    const create = () => F.pipe(tableName, Str.concat("__"), Str.concat(UUIDLiteralEncoded.create()));
     super({ tableName, brand });
     this.Schema = (annotations: Annotations<TableName, Brand>) =>
       S.TemplateLiteral(S.Literal(tableName), "__", UUIDLiteralEncoded).annotations({
@@ -115,7 +115,7 @@ export const make = <const TableName extends string, const Brand extends string>
     pretty: () => (i) => `${brand}(${i})`,
   });
 
-  const create = () => Str.concat(UUIDLiteralEncoded.make())(Str.concat("__")(tableName));
+  const create = () => Str.concat(UUIDLiteralEncoded.create())(Str.concat("__")(tableName));
 
   const publicId = pg
     .text("id")

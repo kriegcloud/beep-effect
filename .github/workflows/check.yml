@@ -22,6 +22,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         uses: ./.github/actions/setup
+      - name: Build web dependencies
+        run: bunx turbo run build --filter=@beep/web...
       - run: bunx turbo run check --filter=@beep/runtime-server && bunx turbo run check --filter='!./packages/runtime/server'
 
   code-quality:

@@ -1,6 +1,7 @@
 import { BS } from "@beep/schema";
 import { themeConfig } from "@beep/ui-core/theme/theme-config";
 import * as S from "effect/Schema";
+
 export const SettingsContrastKit = BS.stringLiteralKit("default", "high");
 export class SettingsContrast extends SettingsContrastKit.Schema.annotations({
   schemaId: Symbol.for("@beep/ui-core/settings/schema/SettingsContrast"),

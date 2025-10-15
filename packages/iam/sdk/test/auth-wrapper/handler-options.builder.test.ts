@@ -1,3 +1,5 @@
+import "../setup/client-env.stub";
+
 import { describe, expect, it } from "bun:test";
 import * as Duration from "effect/Duration";
 import {

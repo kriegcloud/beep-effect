@@ -3,7 +3,6 @@
 import { Context, Effect, Fiber, Option } from "effect";
 import { useSyncExternalStore } from "react";
 import { taskSounds } from "./sounds/TaskSounds";
-
 export type EffectState<A, E> =
   | { type: "idle" }
   | { type: "running" }

@@ -1,3 +1,5 @@
+import "../setup/client-env.stub";
+
 import { beforeEach, describe, expect, it, vi } from "bun:test";
 import * as ToastModule from "@beep/ui/common";
 import * as Effect from "effect/Effect";
