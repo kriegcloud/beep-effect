@@ -35,6 +35,7 @@
   "dependencies": {
     "@effect/sql": "catalog:",
     "@effect/sql-pg": "catalog:",
+    "@better-auth/sso": "catalog:",
     "@effect/sql-drizzle": "catalog:",
     "@effect/experimental": "catalog:",
     "@effect/workflow": "catalog:",

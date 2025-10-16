@@ -38,22 +38,22 @@ export declare namespace CustomURL {
   export type Encoded = typeof CustomURL.Encoded;
 }
 
-export class URLString extends S.Trimmed.pipe(
+export class Url extends S.Trimmed.pipe(
   S.nonEmptyString({ message: () => "Must be a non-empty trimmed string" }),
   S.filter((a) => Either.try(() => new URL(a).toString()).pipe(Either.isRight)),
-  S.brand("URLString")
+  S.brand("Url")
 ).annotations({
-  schemaId: Symbol.for("@beep/schema/custom/URLString"),
-  identifier: "URLString",
+  schemaId: Symbol.for("@beep/schema/custom/Url"),
+  identifier: "Url",
   description: "A URL string",
   title: "URL String",
   jsonSchema: { type: "string", format: "url" },
 }) {}
 
-export declare namespace URLString {
+export declare namespace Url {
   /** URL string type (branded). */
-  export type Type = typeof URLString.Type;
-  export type Encoded = typeof URLString.Encoded;
+  export type Type = typeof Url.Type;
+  export type Encoded = typeof Url.Encoded;
 }
 
 export class HttpsUrl extends S.TemplateLiteral("https://", S.String)
@@ -96,16 +96,19 @@ export declare namespace HttpUrl {
   export type Encoded = typeof HttpUrl.Encoded;
 }
 
-export class Url extends S.Union(HttpUrl, HttpsUrl).annotations({
+export class URLString extends S.Union(HttpUrl, HttpsUrl).annotations({
   schemaId: Symbol.for("@beep/schema/custom/Url"),
   identifier: "Url",
   description: "An http or https URL",
   title: "Url",
   jsonSchema: { type: "string", format: "url" },
-}) {}
+}) {
+  static readonly make = S.decodeUnknownSync(URLString);
+  static readonly is = S.is(URLString);
+}
 
-export declare namespace Url {
+export declare namespace UrlString {
   /** URL string type (branded). */
-  export type Type = typeof Url.Type;
-  export type Encoded = typeof Url.Encoded;
+  export type Type = typeof URLString.Type;
+  export type Encoded = typeof URLString.Encoded;
 }

@@ -2,7 +2,7 @@ import { AuthProviderNameValue, EnvValue, LogFormat } from "@beep/constants";
 import { Csp } from "@beep/schema/config/Csp";
 import { DomainName } from "@beep/schema/custom/Domain.schema";
 import { Email } from "@beep/schema/custom/Email.schema";
-import { URLString } from "@beep/schema/custom/Url.schema";
+import { Url } from "@beep/schema/custom/Url.schema";
 import { SharedEntityIds } from "@beep/shared-domain";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
@@ -59,22 +59,22 @@ const AppConfig = Config.zipWith(
     })
   ),
   (appConfig, vercelConfig) => {
-    const clientUrl = URLString.make(`https://${appConfig.clientUrl}`);
+    const clientUrl = Url.make(`https://${appConfig.clientUrl}`);
     const projectProductionUrl = F.pipe(
       vercelConfig.projectProductionUrl,
       O.match({
         onNone: () => clientUrl,
-        onSome: (prodUrl) => URLString.make(`https://${prodUrl}`),
+        onSome: (prodUrl) => Url.make(`https://${prodUrl}`),
       })
     );
     const baseUrl = O.all([vercelConfig.vercelUrl, vercelConfig.vercelEnv]).pipe(
       O.match({
-        onNone: () => URLString.make(`http://${appConfig.clientUrl}`),
+        onNone: () => Url.make(`http://${appConfig.clientUrl}`),
         onSome: ([vercelUrl, vEnv]) =>
           vEnv === "production"
             ? projectProductionUrl
             : vEnv === "preview"
-              ? URLString.make(`https://${vercelUrl}`)
+              ? Url.make(`https://${vercelUrl}`)
               : clientUrl,
       })
     );
@@ -105,10 +105,10 @@ export const ServerConfig = Config.all({
     Config.map(({ env, url, projectProductionUrl }) => {
       const baseUrl =
         O.isSome(env) && env.value === "production" && O.isSome(projectProductionUrl)
-          ? URLString.make(`https://${projectProductionUrl.value}`)
+          ? Url.make(`https://${projectProductionUrl.value}`)
           : O.isSome(url)
-            ? URLString.make(`https://${url}`)
-            : URLString.make(`http://localhost:3000`);
+            ? Url.make(`https://${url}`)
+            : Url.make(`http://localhost:3000`);
       return baseUrl.toString();
     })
   ),

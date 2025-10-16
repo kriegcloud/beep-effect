@@ -1,4 +1,4 @@
-import { sso } from "better-auth/plugins/sso";
+import { sso } from "@better-auth/sso";
 import * as Effect from "effect/Effect";
 
 export type SSOPluginEffect = Effect.Effect<ReturnType<typeof sso>, never, never>;

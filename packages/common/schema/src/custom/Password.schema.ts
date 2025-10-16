@@ -1,5 +1,5 @@
+import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-
 export class EncodedPassword extends S.NonEmptyString.pipe(
   S.minLength(8, {
     message: () => "Password must be at least 8 characters long!",
@@ -28,7 +28,9 @@ export class Password extends S.Redacted(PasswordBase).annotations({
   identifier: "Password",
   description: "Redacted Password Schema",
   title: "Password",
-}) {}
+}) {
+  static readonly make = (v: string): Password.Type => Redacted.make(PasswordBase.make(v));
+}
 
 export declare namespace Password {
   export type Type = typeof Password.Type;

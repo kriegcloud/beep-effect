@@ -7,6 +7,7 @@ export * from "@beep/schema/EntityId";
 export * from "@beep/schema/extended-schemas";
 export * from "@beep/schema/form";
 export { TaggedStruct, TaggedUnion } from "@beep/schema/generics";
+export * from "@beep/schema/http";
 export * from "@beep/schema/JsonSchema";
 export * from "@beep/schema/kits";
 /**

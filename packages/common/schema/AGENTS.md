@@ -22,7 +22,7 @@
 ## Usage Snapshots
 - `packages/shared/domain/src/entities/User/User.model.ts:12` — shows `BS.Email`, `BS.BoolWithDefault`, and optional field helpers in shared domain models (annotation pattern + Drizzle integration).
 - `packages/iam/domain/src/entities/Session/Session.model.ts:16` — composes `BS.DateTimeFromDate` with entity IDs to enforce timestamp precision in IAM sessions.
-- `packages/iam/infra/src/adapters/better-auth/Auth.service.ts:130` — decodes effect payloads with `S.decode` while leveraging `BS.URLString.make` inside effectful orchestration.
+- `packages/iam/infra/src/adapters/better-auth/Auth.service.ts:130` — decodes effect payloads with `S.decode` while leveraging `BS.Url.make` inside effectful orchestration.
 - `packages/shared/domain/src/entity-ids/entity-kind.ts:5` — illustrates `BS.stringLiteralKit` derived enums feeding multi-tenant entity kind guards.
 - `packages/shared/domain/src/common.ts:15` — exemplifies `BS.DateTimeInsertFromDateOmittable` for audited timestamp defaults in shared table mixins.
 
@@ -91,7 +91,7 @@ import * as S from "effect/Schema";
 
 const Profile = S.Struct({
   id: BS.UUIDLiteralEncoded,
-  website: BS.URLString,
+  website: BS.Url,
   bio: S.optional(S.String),
 }).annotations({
   identifier: "Profile",

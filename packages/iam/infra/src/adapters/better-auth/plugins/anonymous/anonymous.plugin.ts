@@ -3,4 +3,4 @@ import * as Effect from "effect/Effect";
 
 export type AnonymousPluginEffect = Effect.Effect<ReturnType<typeof anonymous>, never, never>;
 export type AnonymousPlugin = Effect.Effect.Success<AnonymousPluginEffect>;
-export const anonymousPlugin = Effect.succeed(anonymous());
+export const anonymousPlugin: AnonymousPluginEffect = Effect.succeed(anonymous());

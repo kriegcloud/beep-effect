@@ -60,6 +60,9 @@
       "path": "../../iam/tables/tsconfig.build.json"
     },
     {
+      "path": "../../iam/sdk/tsconfig.build.json"
+    },
+    {
       "path": "../../ui/tsconfig.build.json"
     },
     {

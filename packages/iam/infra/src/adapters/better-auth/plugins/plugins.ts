@@ -1,7 +1,7 @@
+import type { AuthEmailService } from "@beep/iam-infra/adapters/better-auth/AuthEmail.service";
 import type { IamConfig } from "@beep/iam-infra/config";
 import type { IamDb } from "@beep/iam-infra/db";
 import * as Effect from "effect/Effect";
-import type { AuthEmailService } from "../AuthEmail.service";
 import * as Admin from "./admin";
 import * as Anonymous from "./anonymous";
 import * as ApiKey from "./api-key";
@@ -18,6 +18,7 @@ import * as Localization from "./localization";
 import * as Mcp from "./mcp";
 import * as MultiSession from "./multi-session";
 import * as NextCookies from "./next-cookies";
+import * as OAuthProxyPlugin from "./oauth-proxy";
 import * as OidcProvider from "./oidc-provider";
 import * as OneTap from "./one-tap";
 import * as OneTimeToken from "./one-time-token";
@@ -51,6 +52,7 @@ export type Plugins = Array<
   | OidcProvider.OIDCProviderPlugin
   | OpenApi.OpenApiPlugin
   | OneTimeToken.OneTimeTokenPlugin
+  | OAuthProxyPlugin.OauthProxyPlugin
   | Organization.OrganizationPlugin
   | PhoneNumber.PhoneNumberPlugin
   | Passkey.PasskeyPlugin
@@ -74,13 +76,15 @@ const allPluginsArray = [
   HaveIBeenPwned.haveIBeenPwnedPlugin,
   Jwt.jwtPlugin,
   LastLoginMethod.lastLoginMethodPlugin,
+  Localization.localizationPlugin,
   Mcp.mcpPlugin,
   MultiSession.multiSessionPlugin,
   NextCookies.nextCookiesPlugin,
-  OneTap.oneTapPlugin,
+  OAuthProxyPlugin.oauthProxyPlugin,
   OidcProvider.oidcProviderPlugin,
-  OpenApi.openApiPlugin,
+  OneTap.oneTapPlugin,
   OneTimeToken.oneTimeTokenPlugin,
+  OpenApi.openApiPlugin,
   Organization.organizationPlugin,
   PhoneNumber.phoneNumberPlugin,
   Passkey.passkeyPlugin,
@@ -89,7 +93,6 @@ const allPluginsArray = [
   Stripe.stripePlugin,
   TwoFactor.twoFactorPlugin,
   Username.usernamePlugin,
-  Localization.localizationPlugin,
 ];
 
 // export type Plugins = Effect.Effect.Success<(typeof AllPluginsArray)[number]>;

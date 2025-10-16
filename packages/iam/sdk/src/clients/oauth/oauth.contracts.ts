@@ -3,7 +3,7 @@ import * as S from "effect/Schema";
 
 export class OAuthRegisterContract extends S.Class<OAuthRegisterContract>("OAuthRegisterContract")({
   client_name: S.NonEmptyTrimmedString,
-  redirect_uris: S.mutable(S.Array(BS.URLString)),
+  redirect_uris: S.mutable(S.Array(BS.Url)),
 }) {}
 
 export namespace OAuthRegisterContract {

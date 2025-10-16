@@ -1,5 +1,5 @@
 import { RegexFromString } from "@beep/schema/custom/Regex.schema";
-import { URLString } from "@beep/schema/custom/Url.schema";
+import { Url } from "@beep/schema/custom/Url.schema";
 import { stringLiteralKit } from "@beep/schema/kits/stringLiteralKit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -109,17 +109,17 @@ export class StaticDirective extends StaticDirectiveSchema {
 }
 
 /** Valid directive value which can be a static keyword or a validated URL string. */
-export const CSPDirectiveValue = S.Union(StaticDirective, URLString).annotations({
+export const CSPDirectiveValue = S.Union(StaticDirective, Url).annotations({
   title: "CSP Directive Value",
   description: "Represents a single value allowed in a CSP directive: a static keyword or a URL string.",
-  examples: ["'self'", URLString.make("https://cdn.example.com")] as const,
+  examples: ["'self'", Url.make("https://cdn.example.com")] as const,
 });
 
 /** Non-empty collection of directive values where the first element must be the default `'self'` keyword. */
 export const CSPDirectiveValues = S.NonEmptyArray(CSPDirectiveValue).annotations({
   title: "CSP Directive Values",
   description: "A non-empty, ordered list of directive values starting with the default `'self'` keyword.",
-  examples: [["'self'", URLString.make("https://cdn.example.com")]] as const,
+  examples: [["'self'", Url.make("https://cdn.example.com")]] as const,
 });
 
 const CSPStruct = S.Struct({
@@ -356,7 +356,7 @@ export const CSPFromString = S.transformOrFail(CSPString, CSPStruct, {
   examples: [
     {
       directives: {
-        "script-src": ["'self'", URLString.make("https://example.com")],
+        "script-src": ["'self'", Url.make("https://example.com")],
       },
     },
   ] as const,

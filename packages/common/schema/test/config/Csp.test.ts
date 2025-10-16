@@ -16,8 +16,8 @@ describe("CSPFromString", () => {
 
     deepStrictEqual(result.directives["script-src"], [
       "'self'",
-      BS.URLString.make("https://example.com"),
-      BS.URLString.make("https://google.com"),
+      BS.Url.make("https://example.com"),
+      BS.Url.make("https://google.com"),
     ]);
   });
 
@@ -26,11 +26,11 @@ describe("CSPFromString", () => {
 
     const result = decodeFromString(input);
 
-    expect(result.directives["script-src"]).toEqual(["'self'", BS.URLString.make("https://example.com")]);
+    expect(result.directives["script-src"]).toEqual(["'self'", BS.Url.make("https://example.com")]);
     expect(result.directives["style-src"]).toEqual([
       "'self'",
       "'unsafe-inline'",
-      BS.URLString.make("https://cdn.example.com"),
+      BS.Url.make("https://cdn.example.com"),
     ]);
   });
 
@@ -38,7 +38,7 @@ describe("CSPFromString", () => {
     const input = "script-src='self', https://example.com;style-src='self' , 'none';";
     const result = decodeFromString(input);
 
-    expect(result.directives["script-src"]).toEqual(["'self'", BS.URLString.make("https://example.com")]);
+    expect(result.directives["script-src"]).toEqual(["'self'", BS.Url.make("https://example.com")]);
     expect(result.directives["style-src"]).toEqual(["'self'", "'none'"]);
   });
 
@@ -69,7 +69,7 @@ describe("CSPFromString", () => {
   it("encodes a CSP struct into a normalized policy string", () => {
     const struct = {
       directives: {
-        "script-src": ["'self'", BS.URLString.make("https://example.com")],
+        "script-src": ["'self'", BS.Url.make("https://example.com")],
         "style-src": ["'self'", "'unsafe-inline'"],
       },
     } as const;
@@ -82,7 +82,7 @@ describe("CSPFromString", () => {
   it("throws when encoding a directive whose values do not start with 'self'", () => {
     const struct = {
       directives: {
-        "script-src": [BS.URLString.make("https://example.com"), "'self'"],
+        "script-src": [BS.Url.make("https://example.com"), "'self'"],
       },
     } as const;
 
@@ -103,13 +103,9 @@ describe("CSPFromString", () => {
     const struct = {
       directives: {
         "default-src": ["'self'"],
-        "script-src": [
-          "'self'",
-          BS.URLString.make("https://example.com"),
-          BS.URLString.make("https://cdn.example.com"),
-        ],
-        "style-src": ["'self'", "'unsafe-inline'", BS.URLString.make("https://fonts.googleapis.com")],
-        "img-src": ["'self'", "data:", BS.URLString.make("https://images.example.com")],
+        "script-src": ["'self'", BS.Url.make("https://example.com"), BS.Url.make("https://cdn.example.com")],
+        "style-src": ["'self'", "'unsafe-inline'", BS.Url.make("https://fonts.googleapis.com")],
+        "img-src": ["'self'", "data:", BS.Url.make("https://images.example.com")],
       },
     } as const;
 
@@ -119,15 +115,15 @@ describe("CSPFromString", () => {
     expect(decoded.directives["default-src"]).toEqual(["'self'"]);
     expect(decoded.directives["script-src"]).toEqual([
       "'self'",
-      BS.URLString.make("https://example.com"),
-      BS.URLString.make("https://cdn.example.com"),
+      BS.Url.make("https://example.com"),
+      BS.Url.make("https://cdn.example.com"),
     ]);
     expect(decoded.directives["style-src"]).toEqual([
       "'self'",
       "'unsafe-inline'",
-      BS.URLString.make("https://fonts.googleapis.com"),
+      BS.Url.make("https://fonts.googleapis.com"),
     ]);
-    expect(decoded.directives["img-src"]).toEqual(["'self'", "data:", BS.URLString.make("https://images.example.com")]);
+    expect(decoded.directives["img-src"]).toEqual(["'self'", "data:", BS.Url.make("https://images.example.com")]);
   });
 });
 

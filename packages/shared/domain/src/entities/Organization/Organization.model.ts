@@ -1,5 +1,5 @@
 import { BS } from "@beep/schema";
-import { Slug, URLString } from "@beep/schema/custom";
+import { Slug, Url } from "@beep/schema/custom";
 import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
@@ -27,7 +27,7 @@ export class Model extends M.Class<Model>(`OrganizationModel`)(
 
     /** Organization logo URL */
     logo: BS.FieldOptionOmittable(
-      URLString.annotations({
+      Url.annotations({
         description: "URL to the organization's logo",
       })
     ),

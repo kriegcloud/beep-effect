@@ -8,7 +8,7 @@ import * as S from "effect/Schema";
 export class SendVerificationEmailPayload extends S.Class<SendVerificationEmailPayload>("SendVerificationEmailPayload")(
   {
     email: BS.Email,
-    url: BS.URLString,
+    url: BS.Url,
   }
 ) {}
 
@@ -31,7 +31,7 @@ export class SendResetPasswordEmailPayload extends S.Class<SendResetPasswordEmai
   "SendResetPasswordEmailPayload"
 )({
   username: S.String,
-  url: BS.URLString,
+  url: BS.Url,
   email: BS.Email,
 }) {}
 

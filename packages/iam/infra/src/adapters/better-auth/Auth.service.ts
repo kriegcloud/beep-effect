@@ -127,7 +127,7 @@ const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService | I
           Effect.flatMap(
             S.decode(SendVerificationEmailPayload)({
               email: params.user.email,
-              url: BS.URLString.make(
+              url: BS.Url.make(
                 `${config.app.clientUrl}${paths.auth.verification.email.verify(params.token)}`
               ).toString(),
             }),
