@@ -6,10 +6,10 @@ import { useRouter } from "@beep/ui/hooks";
 import { RouterLink } from "@beep/ui/routing";
 import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
-import * as Effect from "effect/Effect";
+// import * as Effect from "effect/Effect";
 import { useSearchParams } from "next/navigation";
 import { FormDivider, FormHead } from "../_components";
-import { SignInEmailForm } from "./sign-in-email.form";
+import {SignInEmailForm} from "../sign-in-v2/sign-in-email.form";
 import { SignInPasskey } from "./sign-in-passkey";
 import { SignInSocial } from "./sign-in-social";
 
@@ -18,7 +18,6 @@ export const SignInView = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackURL = AuthCallback.getURL(searchParams);
-  const runEmailSignIn = makeRunClientPromise(runtime, "iam.signIn.email");
   const runSocialSignIn = makeRunClientPromise(runtime, "iam.signIn.social");
   const runPasskeySignIn = makeRunClientPromise(runtime, "iam.signIn.passkey");
   return (
@@ -36,7 +35,7 @@ export const SignInView = () => {
         sx={{ textAlign: { xs: "center", md: "left" } }}
       />
       <SignInEmailForm
-        onSubmit={async (valueEffect) => runEmailSignIn(Effect.flatMap(valueEffect, iam.signIn.email))}
+        // onSubmit={async (valueEffect) => runEmailSignIn(Effect.flatMap(valueEffect, iam.signIn.email))}
       />
       <FormDivider />
       <Stack spacing={2}>

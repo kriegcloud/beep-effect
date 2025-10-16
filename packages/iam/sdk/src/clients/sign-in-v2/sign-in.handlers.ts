@@ -5,7 +5,7 @@ import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import * as Str from "effect/String";
 
-export const SignInContext = SignIn.of({
+export const SignInHandlers = SignIn.of({
   SignInEmail: (args) =>
     Effect.gen(function* () {
       let captchaToken: string | null = null;
