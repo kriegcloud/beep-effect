@@ -82,13 +82,12 @@ export type ClientRuntimeLayer = Layer.Layer<ClientRuntimeServices, never, never
 
 export type ClientRuntimeLive = (queryClient: TanstackQueryClient) => ClientRuntimeLayer;
 
-
 export const clientRuntimeLayer = Layer.mergeAll(
-    ObservabilityLive,
-    NetworkMonitorLive,
-    WorkerClientLive,
-    BrowserKeyValueStore.layerLocalStorage
-  ).pipe(Layer.provide(LogLevelLive))
+  ObservabilityLive,
+  NetworkMonitorLive,
+  WorkerClientLive,
+  BrowserKeyValueStore.layerLocalStorage
+).pipe(Layer.provide(LogLevelLive));
 /**
  * Builds the live client runtime layer with observability, networking, and worker services.
  */

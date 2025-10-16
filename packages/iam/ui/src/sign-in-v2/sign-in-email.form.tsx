@@ -1,41 +1,42 @@
 "use client";
-import {SignInEmailContract} from "@beep/iam-sdk/clients";
-import {SignInHandlers} from "@beep/iam-sdk/clients/sign-in-v2/sign-in.handlers";
-import {paths} from "@beep/shared-domain";
-import {Iconify} from "@beep/ui/atoms";
-import {withToast} from "@beep/ui/common";
-import {Form, formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
-import {useBoolean} from "@beep/ui/hooks";
-import {RouterLink} from "@beep/ui/routing";
-import {Atom, useAtom} from "@effect-atom/atom-react";
+import { SignInEmailContract } from "@beep/iam-sdk/clients";
+import { SignInHandlers } from "@beep/iam-sdk/clients/sign-in-v2/sign-in.handlers";
+import { paths } from "@beep/shared-domain";
+import { Iconify } from "@beep/ui/atoms";
+import { withToast } from "@beep/ui/common";
+import { Form, formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
+import { useBoolean } from "@beep/ui/hooks";
+import { RouterLink } from "@beep/ui/routing";
+import { Atom, useAtom } from "@effect-atom/atom-react";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import Link from "@mui/material/Link";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
-import {useGoogleReCaptcha} from "react-google-recaptcha-v3";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 // import {clientRuntimeLayer} from "@beep/runtime-client";
 
 // const runtime = Atom.runtime(clientRuntimeLayer)
 // todo replace with runtime
-const signInAtom = Atom.fn(F.flow(
+const signInAtom = Atom.fn(
+  F.flow(
     SignInHandlers.SignInEmail,
     withToast({
       onWaiting: "Signing in",
       onSuccess: "Signed in successfully",
       onFailure: O.match({
         onNone: () => "Failed with unknown error.",
-        onSome: (e) => e.message
-      })
+        onSome: (e) => e.message,
+      }),
     })
-  ));
-
+  )
+);
 
 export const SignInEmailForm = () => {
   const showPassword = useBoolean();
-  const {executeRecaptcha} = useGoogleReCaptcha();
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const [, signIn] = useAtom(signInAtom);
   const form = useAppForm(
     formOptionsWithSubmitEffect({
@@ -49,8 +50,6 @@ export const SignInEmailForm = () => {
       onSubmit: async (value) => signIn(value),
     })
   );
-
-
 
   return (
     <Form
@@ -79,7 +78,7 @@ export const SignInEmailForm = () => {
             label={"Email"}
             type={"email"}
             slotProps={{
-              inputLabel: {shrink: true},
+              inputLabel: { shrink: true },
             }}
           />
         )}
@@ -96,7 +95,7 @@ export const SignInEmailForm = () => {
           href={paths.auth.resetPassword}
           variant="body2"
           color="inherit"
-          sx={{alignSelf: "flex-end"}}
+          sx={{ alignSelf: "flex-end" }}
         >
           Forgot password?
         </Link>
@@ -107,12 +106,12 @@ export const SignInEmailForm = () => {
               label={"Password"}
               type={showPassword.value ? "text" : "password"}
               slotProps={{
-                inputLabel: {shrink: true},
+                inputLabel: { shrink: true },
                 input: {
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton onClick={showPassword.onToggle} edge="end">
-                        <Iconify icon={showPassword.value ? "solar:eye-bold" : "solar:eye-closed-bold"}/>
+                        <Iconify icon={showPassword.value ? "solar:eye-bold" : "solar:eye-closed-bold"} />
                       </IconButton>
                     </InputAdornment>
                   ),
@@ -123,7 +122,7 @@ export const SignInEmailForm = () => {
         />
       </Box>
       <form.AppForm>
-        <form.Submit variant={"contained"}/>
+        <form.Submit variant={"contained"} />
       </form.AppForm>
     </Form>
   );
