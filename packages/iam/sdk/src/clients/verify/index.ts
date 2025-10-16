@@ -1,2 +1,2 @@
-export { verifyClient } from "./verify.client";
 export * from "./verify.contracts";
+export * from "./verify.implementations";

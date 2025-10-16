@@ -30,7 +30,6 @@ const detectLanguage = Effect.tryPromise({
   catch: (e) => new DetectLanguageError({ message: "Failed to detect language", cause: e }),
 }).pipe(
   Effect.withSpan("detectLanguage"),
-  Effect.tapError(() => Effect.logInfo("Failed to detect language, using fallback language `en`")),
   Effect.orElseSucceed(() => fallbackLang)
 );
 
@@ -39,7 +38,6 @@ const detectSettings = Effect.tryPromise({
   catch: (e) => new DetectSettingsError({ message: "Failed to detect settings", cause: e }),
 }).pipe(
   Effect.withSpan("detectSettings"),
-  Effect.tapError(() => Effect.logInfo("Failed to detect settings, using default settings")),
   Effect.orElseSucceed(() => defaultSettings)
 );
 
@@ -50,7 +48,4 @@ export const getAppConfig = Effect.flatMap(Effect.all([detectLanguage, detectSet
     cookieSettings: settings,
     dir: settings.direction,
   })
-).pipe(
-  Effect.withSpan("getAppConfig"),
-  Effect.tapError(() => Effect.logInfo("Failed to get app config, using default values"))
-);
+).pipe(Effect.withSpan("getAppConfig"));

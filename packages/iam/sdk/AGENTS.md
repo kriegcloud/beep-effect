@@ -1,73 +1,93 @@
 # AGENTS Guide — `@beep/iam-sdk`
 
 ## Purpose & Fit
-`@beep/iam-sdk` is the thin-but-opinionated client layer that lets UI and runtime callers exercise Better Auth flows without touching raw adapters. The package centralizes handler factories, instrumentation, concurrency guards, and typed contracts so slices such as `apps/web` and `packages/iam/ui` can run IAM actions through Effect-first pipelines. README notes refer to `SPEC.md` / `TODO.md`, but those files are absent—treat this guide as the authoritative reference until the design docs land.
+`@beep/iam-sdk` is the typed contract layer that bridges Better Auth’s React client with Effect-first flows across the repo. The package now centers on contract schemas plus thin Effect implementations—`AuthHandler.make`, keyed semaphores, and the old `auth-wrapper` pipeline are gone. UI slices (`packages/iam/ui`, `apps/web`) consume these contracts directly through runtime helpers, while adapters keep raw Better Auth usage isolated to this workspace.
 
 ## Surface Map
-- **Root exports (`src/index.ts`)** — re-export the auth wrapper, IAM clients, and callback constants so consumers can import from `@beep/iam-sdk`.
-- **Auth Wrapper (`src/auth-wrapper/*`)** — `handler` composes `callAuth` with retry/timeout policies, toast decoration, and `AuthHandler.make`. `context` manages FiberRefs for annotations + metric tags. `concurrency` holds the keyed semaphore registry. `errors` normalizes Better Auth payloads into `IamError`. `instrumentation` wires logging, tracing, and metrics hooks.
-- **Clients (`src/clients/*`)** — verticalized handler bundles (`sign-in`, `sign-up`, `verify`, `two-factor`, `organization`, `oauth`, etc.) that call the generated Better Auth React client. `iam.client.ts` assembles the public `iam` facade.
-- **Adapters (`src/adapters/better-auth`)** — wraps `createAuthClient` with the configured plugin suite and exposes the Better Auth React store plus error glue types.
-- **Constants (`src/constants.ts`)** — `AuthCallback` helpers sanitize callback URLs against `@beep/shared-domain` route prefixes and enforce on-path redirects.
-- **Errors (`src/errors.ts`)** — `IamError` bridges Better Auth failures with the shared `BeepError` hierarchy and stores metadata used across telemetry.
-- **Tests (`test/auth-wrapper/*`)** — Vitest suites exercise handler timeouts, retries, semaphore guards, instrumentation metrics, request context propagation, and error normalization. There is no coverage for `AuthCallback` or the high-level clients yet.
+- **Root exports (`src/index.ts`)** — expose domain-specific contracts + implementations (sign-in/out, sign-up, recover, verify, two-factor, organization, oauth) and `AuthCallback`. No aggregate `iam` facade is published yet; `src/clients/iam.client.ts` remains commented until the bundle stabilises.
+- **Adapters (`src/adapters/better-auth/*`)** — instantiate the Better Auth React client with all required plugins (`client.ts`) and wrap provider errors (`errors.ts`). `$store` and `signIn` are re-exported for guards that need to bind to session state. `src/adapters/better-call/*` hosts shared HTTP error helpers (currently only used internally).
+- **ContractKit (`src/contractkit`)** — Effect-based contract authoring utilities:
+  - `Contract.ts` defines user + provider-defined contract primitives, context annotations, and helper types.
+  - `ContractSet.ts` groups contracts, produces Layer/Context bindings, and provides the `handle` executor used by implementers.
+  - `failure-continuation.ts` exposes `makeFailureContinuation` to convert Better Auth promise APIs into Effect failures tagged with `IamError`.
+  - `IamError.ts` gives the structured error family shared by contract sets. Keep it in sync with `packages/common/schema` HTTP models.
+- **Errors (`src/errors.ts`)** — wraps `BetterAuthError` into the shared `IamError` class so UI callers always receive consistent metadata (`code`, `status`, `plugin`, `method`).
+- **Clients (`src/clients/*`)** — each domain directory exports `<feature>.contracts.ts` (Effect schema definitions) and `<feature>.implementations.ts` (Effect wrappers that call the Better Auth client via `makeFailureContinuation`). Contracts are also collected into `ContractSet` instances for easy registration.
+- **Constants (`src/constants.ts`)** — `AuthCallback` sanitisation helpers to keep callback URLs constrained to known private prefixes.
+- **Tests (`test/Dummy.test.ts`)** — placeholder Bun test file. Add focused suites beside new logic; nothing exercises the contract implementations yet.
 
 ## Usage Snapshots
-- `apps/web/src/providers/GuestGuard.tsx:29` uses `AuthCallback.getURL` and `client.useSession()` to redirect signed-in visitors away from guest-only routes.
-- `apps/web/src/providers/AuthGuard.tsx:21` drives `client.useSession()` and `client.$store.notify("$sessionSignal")` to hydrate authenticated layouts.
-- `apps/web/src/middleware.ts:73` sanitizes incoming callback targets through `AuthCallback.getURL` / `AuthCallback.sanitizePath` before issuing redirects.
-- `packages/iam/ui/src/sign-in/sign-in.view.tsx:20` pulls `AuthCallback.getURL` and `iam.signIn.*` handlers into the runtime client bridge used by form submissions.
-- `apps/web/src/app/dashboard/layout.tsx:308` runs `iam.signOut` via `makeRunClientPromise` and supplies UI callbacks that push to `paths.auth.signIn`.
+- `apps/web/src/app/dashboard/layout.tsx:3` pipes `SignOutImplementations.SignOutContract` through atoms + `withToast` to power dashboard sign-out while refreshing the runtime.
+- `apps/web/src/providers/AuthGuard.tsx:3` imports the Better Auth `client`, triggers `$store.notify("$sessionSignal")` on mount, and redirects when sessions disappear.
+- `apps/web/src/providers/GuestGuard.tsx:3` combines `AuthCallback.getURL` with `client.useSession()` to keep signed-in users away from guest-only pages.
+- `packages/iam/ui/src/sign-in/sign-in.view.tsx:2` and sibling forms consume `SignInImplementations` contracts to build runtime-powered atoms that surface toast + navigation.
+- `packages/iam/ui/src/verify/verify-phone.form.tsx:1` uses `VerifyImplementations` directly, showing how UI forms should bind to contract sets without an `iam` facade.
 
 ## Tooling & Docs Shortcuts
 - `context7__resolve-library-id` — `{"libraryName":"effect"}`
-- `context7__get-library-docs` — `{"context7CompatibleLibraryID":"/effect-ts/effect","topic":"TSemaphore","tokens":1500}`
-- `effect_docs__effect_docs_search` — `{"query":"TSemaphore"}`
-- `effect_docs__get_effect_doc` — `{"documentId":10635}`
-- `effect_docs__effect_docs_search` — `{"query":"SynchronizedRef"}`
-- `effect_docs__get_effect_doc` — `{"documentId":10224}`
+- `context7__get-library-docs` — `{"context7CompatibleLibraryID":"/effect-ts/effect","topic":"Effect.async","tokens":1500}`
+- `effect_docs__effect_docs_search` — `{"query":"AbortController signal Effect"}`
+- `effect_docs__get_effect_doc` — `{"documentId":10386}` (covers `Effect.annotateLogs`)
+- `effect_docs__effect_docs_search` — `{"query":"Redacted value"}` for sanitising credentials before transport
 
 ## Authoring Guardrails
-- Preserve namespace imports for every Effect module and shared package (`import * as Effect from "effect/Effect"`, `import { iam } from "@beep/iam-sdk"`). Never drop to native array or string helpers in new code—follow the repo-wide rule.
-- Extend the `auth-wrapper` layer (handlers, context, instrumentation) instead of bypassing it with raw Better Auth client calls; that is how retries, spans, and toast semantics stay consistent.
-- When adding handlers, prefer `AuthHandler.make` with `schema` or `prepare` pipelines so validation failures become `IamError` instances. Feed toast overrides through the helper instead of inlining UI notifications.
-- Guard concurrent submissions with `withSubmissionGuard` and use stable keys (`plugin.method` pairs). Reuse `buildHandlerOptions` families for shared settings rather than mutating handler configs manually.
-- Update `AuthCallback` route prefixes in step with middleware (`apps/web/src/middleware.ts`) so client-side and edge sanitization stay aligned.
-- Maintain telemetry wiring: always annotate new handlers with meaningful `annotations` / `metrics` fields and keep `withRequestContext` in the call chain.
-- Surface Better Auth error codes via `normalizeAuthError` so downstream UI can rely on `IamError.code` / `status`. If the Better Auth SDK changes payload shape, update the normalizer and the tests together.
+- Keep namespace imports for every Effect module and repo package (`import * as Effect from "effect/Effect"`, `import * as F from "effect/Function"`). Native array/string helpers remain forbidden—pipe through `effect/Array` and `effect/String`.
+- Treat `contractkit` as the single source of truth for new flows: define schemas with `Contract.make`, group them via `ContractSet.make`, and expose implementations with `ContractSet.of`.
+- When calling Better Auth methods, always wrap them with `makeFailureContinuation({ contract, metadata })`. This guarantees uniform `IamError` instances, log annotations, and optional abort controllers.
+- Fire `client.$store.notify("$sessionSignal")` after any successful operation that mutates session state (sign-in, sign-out, passkey, social). Guards rely on that signal (see `apps/web/src/providers/AuthGuard.tsx:16`).
+- Avoid resurrecting `AuthHandler`/`auth-wrapper` semantics—timeouts, retries, and toasts now live in consuming layers (atoms + `withToast`). Keep SDK implementations narrowly focused on transport and error shaping.
+- Keep `AuthCallback` prefixes aligned with `apps/web/src/middleware.ts`. Update both whenever authenticated route trees move.
 
 ## Quick Recipes
-### Run email sign-in through the runtime bridge
+### Wire a sign-out atom with toast feedback
 ```ts
-import * as Effect from "effect/Effect";
+import { SignOutImplementations } from "@beep/iam-sdk";
+import { clientRuntimeLayer } from "@beep/runtime-client";
+import { withToast } from "@beep/ui/common/with-toast";
+import { Atom } from "@effect-atom/atom-react";
 import * as F from "effect/Function";
-import type { SignInEmailContract } from "@beep/iam-sdk/clients";
-import { iam } from "@beep/iam-sdk";
-import { makeRunClientPromise } from "@beep/runtime-client";
+import * as O from "effect/Option";
 
-export const submitEmailSignIn = (runtime: Runtime, input: SignInEmailContract.Type) =>
-  makeRunClientPromise(runtime, "iam.signIn.email")(
-    F.pipe(Effect.succeed(input), Effect.flatMap(iam.signIn.email))
-  );
+const runtime = Atom.runtime(clientRuntimeLayer);
+
+export const signOutAtom = runtime.fn(
+  F.flow(
+    SignOutImplementations.SignOutContract,
+    withToast({
+      onWaiting: "Signing out",
+      onSuccess: "Signed out successfully",
+      onFailure: O.match({ onNone: () => "Failed with unknown error.", onSome: (err) => err.message }),
+    })
+  )
+);
 ```
 
-### Create a guarded handler with retry + timeout semantics
+### Bridge a Better Auth call with `makeFailureContinuation`
 ```ts
-import { AuthHandler } from "@beep/iam-sdk/auth-wrapper";
-import { SendVerifyPhoneContract } from "@beep/iam-sdk/clients/verify/verify.contracts";
-import { client } from "@beep/iam-sdk/adapters";
+import { client } from "@beep/iam-sdk/adapters/better-auth/client";
+import { makeFailureContinuation } from "@beep/iam-sdk/contractkit";
+import type { SignInSocialPayload } from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
+import * as Effect from "effect/Effect";
 
-export const sendPhoneChallenge = AuthHandler.make<SendVerifyPhoneContract.Type, SendVerifyPhoneContract.Encoded>({
-  name: "sendPhoneChallenge",
-  plugin: "verification",
-  method: "phone",
-  schema: SendVerifyPhoneContract,
-  retry: { maxAttempts: 2, baseDelay: "150 millis" },
-  timeout: { duration: "3 seconds", message: "Timed out waiting for phone verification" },
-  semaphoreKey: "verification.phone",
-  run: AuthHandler.map(client.phoneNumber.verify),
-  annotations: { action: "verification", method: "phone" },
-});
+export const signInWithProvider = (payload: SignInSocialPayload.Type) =>
+  Effect.gen(function* () {
+    const continuation = makeFailureContinuation({
+      contract: "SignInSocialContract",
+      metadata: () => ({ plugin: "sign-in", method: "social" }),
+    }, { supportsAbort: true });
+
+    yield* Effect.flatMap(
+      continuation.run((handlers) =>
+        client.signIn.social(
+          { provider: payload.provider, callbackURL: payload.callbackURL },
+          handlers.signal ? { signal: handlers.signal, onError: handlers.onError } : { onError: handlers.onError }
+        )
+      ),
+      continuation.raiseResult
+    );
+
+    client.$store.notify("$sessionSignal");
+  });
 ```
 
 ### Sanitize callback targets before redirecting
@@ -81,16 +101,16 @@ export const resolveCallbackTarget = (raw: string | null | undefined) =>
 ```
 
 ## Verifications
-- `bun run --filter @beep/iam-sdk lint` — Biome check for the SDK only.
-- `bun run --filter @beep/iam-sdk test` — Vitest suite covering auth wrapper behavior.
+- `bun run --filter @beep/iam-sdk lint` — Biome check for contracts, adapters, and docs.
 - `bun run --filter @beep/iam-sdk check` — TypeScript project references build.
-- `bun run --filter @beep/iam-sdk build` — Ensures both ESM and CJS bundles compile after handler changes.
-- When touching middleware-aligned behavior, also run `bun run --filter apps/web lint` to catch callback routing regressions.
+- `bun run --filter @beep/iam-sdk build` — Emits ESM/CJS bundles; catches export drift when contract directories move.
+- `bun run --filter @beep/iam-sdk test` — Currently only the placeholder suite; expand alongside new Effect logic.
+- Touching `AuthCallback` or session guards? Also run `bun run --filter apps/web lint` to confirm route and guard consumers stay healthy.
 
 ## Contributor Checklist
-- Sync new Better Auth endpoints by adding contracts (`src/clients/**.contracts.ts`), handlers, and the aggregated `iam` facade export; update usage snapshots here if the surface grows.
-- Expand Vitest coverage for any new handler branch (timeouts, retries, semaphore usage, context propagation) and add missing tests for `AuthCallback` when tweaking its normalization logic.
-- Keep `client.$store.notify("$sessionSignal")` semantics intact when changing session-related handlers—`apps/web/src/providers/*` assume the signal fires on successful auth.
-- Update route prefix lists in both `AuthCallback` and `apps/web/src/middleware.ts` whenever dashboard pathing changes.
-- Record any new Effect patterns or external references by appending to the Tooling section, so future agents have the same docs payloads.
-- If README references regain `SPEC.md` / `TODO.md`, cross-link them from this guide; until then, treat this file as the onboarding entry point.
+- Add new Better Auth flows by creating matching `*.contracts.ts` and `*.implementations.ts` files, registering them with the existing `ContractSet`, and re-exporting through `src/clients/index.ts`.
+- Populate metadata in `makeFailureContinuation({ contract, metadata })` with the actual plugin/method; telemetry and error toasts rely on those strings.
+- Ensure credential-bearing fields (email, password, tokens) use `Redacted.value` before passing into Better Auth helpers.
+- Keep session-mutating implementations notifying `$sessionSignal`; update usage snapshots if the interaction points move.
+- Update this guide whenever `contractkit` APIs change (for example, new helpers on `ContractSet`) so downstream agents stay aligned.
+- Replace the dummy Bun test with meaningful coverage when modifying `contractkit` or adapters; co-locate tests beside the touched module.

@@ -1,39 +1,55 @@
 "use client";
-import { SignInEmailContract } from "@beep/iam-sdk/clients";
+import { SignInEmailPayload } from "@beep/iam-sdk/clients";
+import { SignInImplementations } from "@beep/iam-sdk/clients/sign-in/sign-in.implementations";
+import { clientRuntimeLayer } from "@beep/runtime-client";
 import { paths } from "@beep/shared-domain";
 import { Iconify } from "@beep/ui/atoms";
-import { Form, formOptionsWithSubmit, useAppForm } from "@beep/ui/form";
+import { withToast } from "@beep/ui/common";
+import { Form, formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
 import { useBoolean } from "@beep/ui/hooks";
 import { RouterLink } from "@beep/ui/routing";
-
+import { Atom, useAtom } from "@effect-atom/atom-react";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import Link from "@mui/material/Link";
-import type * as Effect from "effect/Effect";
-import type { ParseError } from "effect/ParseResult";
-import type React from "react";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
-type Props = {
-  onSubmit: (values: Effect.Effect<SignInEmailContract.Type, ParseError, never>) => Promise<void>;
-};
+const runtime = Atom.runtime(clientRuntimeLayer);
 
-export const SignInEmailForm: React.FC<Props> = ({ onSubmit }) => {
+const signInEmailAtom = runtime.fn(
+  F.flow(
+    SignInImplementations.SignInEmailContract,
+    withToast({
+      onWaiting: "Signing in",
+      onSuccess: "Signed in successfully",
+      onFailure: O.match({
+        onNone: () => "Failed with unknown error.",
+        onSome: (e) => e.message,
+      }),
+    })
+  )
+);
+
+export const SignInEmailForm = () => {
   const showPassword = useBoolean();
   const { executeRecaptcha } = useGoogleReCaptcha();
+  const [, signIn] = useAtom(signInEmailAtom);
   const form = useAppForm(
-    formOptionsWithSubmit({
-      schema: SignInEmailContract,
+    formOptionsWithSubmitEffect({
+      schema: SignInEmailPayload,
       defaultValues: {
         email: "",
         password: "",
         captchaResponse: "",
         rememberMe: false,
       },
-      onSubmit,
+      onSubmit: async (value) => signIn(value),
     })
   );
+
   return (
     <Form
       sx={{

@@ -1,22 +1,35 @@
 "use client";
-import { ResetPasswordContract } from "@beep/iam-sdk/clients";
+import { RecoverImplementations, ResetPasswordPayload } from "@beep/iam-sdk/clients";
+import { clientRuntimeLayer } from "@beep/runtime-client";
 import { paths } from "@beep/shared-domain";
-import { Form, formOptionsWithSubmit, useAppForm } from "@beep/ui/form";
+import { withToast } from "@beep/ui/common";
+import { Form, formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
 import { PasswordFieldsGroup } from "@beep/ui/form/groups";
 import { useRouter, useSearchParams } from "@beep/ui/hooks";
-
 import { SplashScreen } from "@beep/ui/progress";
-import type * as Effect from "effect/Effect";
+import { Atom, useAtom } from "@effect-atom/atom-react";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
-import type { ParseError } from "effect/ParseResult";
 import React from "react";
 
-type Props = {
-  onSubmit: (values: Effect.Effect<ResetPasswordContract.Type, ParseError, never>) => Promise<void>;
-};
+const runtime = Atom.runtime(clientRuntimeLayer);
 
-export const ResetPasswordForm: React.FC<Props> = ({ onSubmit }) => {
+const resetPasswordAtom = runtime.fn(
+  F.flow(
+    RecoverImplementations.ResetPasswordContract,
+    withToast({
+      onWaiting: "Resetting password",
+      onSuccess: "Password reset successfully",
+      onFailure: O.match({
+        onNone: () => "Password reset failed",
+        onSome: (error) => error.message,
+      }),
+    })
+  )
+);
+
+export const ResetPasswordForm = () => {
+  const [, resetPassword] = useAtom(resetPasswordAtom);
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = O.fromNullable(searchParams.get("token"));
@@ -37,13 +50,13 @@ export const ResetPasswordForm: React.FC<Props> = ({ onSubmit }) => {
   }
 
   const form = useAppForm(
-    formOptionsWithSubmit({
-      schema: ResetPasswordContract,
+    formOptionsWithSubmitEffect({
+      schema: ResetPasswordPayload,
       defaultValues: {
         newPassword: "",
         passwordConfirm: "",
       },
-      onSubmit,
+      onSubmit: async (value) => resetPassword(value),
     })
   );
   return (

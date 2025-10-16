@@ -8,7 +8,9 @@ import "dayjs/locale/vi";
 import "dayjs/locale/fr";
 import "dayjs/locale/zh-cn";
 import "dayjs/locale/ar-sa";
+import { KaServices } from "@beep/runtime-client";
 import { runServerPromise } from "@beep/runtime-server";
+import { RegistryProvider } from "@effect-atom/atom-react";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import Script from "next/script";
@@ -68,7 +70,10 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       <Script src="https://www.googletagmanager.com/gtag/js" strategy="afterInteractive" nonce={nonce} />
       <body>
         <GlobalProviders appConfig={appConfig} nonce={nonce}>
-          {children}
+          <RegistryProvider>
+            <KaServices />
+            {children}
+          </RegistryProvider>
         </GlobalProviders>
       </body>
     </html>

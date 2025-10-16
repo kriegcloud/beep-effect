@@ -1,17 +1,18 @@
 import { clientEnv } from "@beep/core-env/client";
-import { QueryClient as RuntimeQueryClient } from "@beep/runtime-client/services/common/query-client";
-import { WorkerClient } from "@beep/runtime-client/worker/worker-client";
 
+import { WorkerClient } from "@beep/runtime-client/worker/worker-client";
 import { WebSdk } from "@effect/opentelemetry";
 import { FetchHttpClient } from "@effect/platform";
 import type { HttpClient } from "@effect/platform/HttpClient";
 import type * as KeyValueStore from "@effect/platform/KeyValueStore";
 import { BrowserKeyValueStore } from "@effect/platform-browser";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
+import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-proto";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
+import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
-import type { QueryClient as TanstackQueryClient } from "@tanstack/react-query";
+
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
@@ -26,8 +27,6 @@ import { NetworkMonitor } from "../common/network-monitor";
 
 const isDevEnvironment = clientEnv.env === "dev";
 const serviceName = `${clientEnv.appName}-client`;
-const otlpTraceExporterUrl = clientEnv.otlpTraceExportedUrl.toString();
-const otlpLogExporterUrl = clientEnv.otlpLogExportedUrl.toString();
 
 // ============================================================================
 // Observability
@@ -38,8 +37,13 @@ const otlpLogExporterUrl = clientEnv.otlpLogExportedUrl.toString();
  */
 export const TelemetryLive = WebSdk.layer(() => ({
   resource: { serviceName },
-  spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({ url: otlpTraceExporterUrl })),
-  logRecordProcessor: new BatchLogRecordProcessor(new OTLPLogExporter({ url: otlpLogExporterUrl })),
+  spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({ url: clientEnv.otlpTraceExportedUrl })),
+  logRecordProcessor: new BatchLogRecordProcessor(new OTLPLogExporter({ url: clientEnv.otlpLogExportedUrl })),
+  metricReader: new PeriodicExportingMetricReader({
+    exporter: new OTLPMetricExporter({
+      url: clientEnv.otlpMetricExportedUrl,
+    }),
+  }),
 })).pipe(Layer.provideMerge(FetchHttpClient.layer));
 
 /** Provides pretty logging locally and structured logs in production. */
@@ -65,44 +69,22 @@ export const NetworkMonitorLive = NetworkMonitor.Default;
 export const WorkerClientLive = WorkerClient.Default;
 
 /** Converts the provided TanStack QueryClient into an Effect layer. */
-export const makeQueryClientLayer = (queryClient: TanstackQueryClient) => RuntimeQueryClient.make(queryClient);
 
 // ============================================================================
 // Runtime assembly
 // ============================================================================
 
-type ClientRuntimeServices =
-  | HttpClient
-  | NetworkMonitor
-  | WorkerClient
-  | RuntimeQueryClient
-  | KeyValueStore.KeyValueStore;
+type ClientRuntimeServices = HttpClient | NetworkMonitor | WorkerClient | KeyValueStore.KeyValueStore;
 
 export type ClientRuntimeLayer = Layer.Layer<ClientRuntimeServices, never, never>;
 
-export type ClientRuntimeLive = (queryClient: TanstackQueryClient) => ClientRuntimeLayer;
-
 export const clientRuntimeLayer = Layer.mergeAll(
+  HttpClientLive,
   ObservabilityLive,
   NetworkMonitorLive,
   WorkerClientLive,
   BrowserKeyValueStore.layerLocalStorage
 ).pipe(Layer.provide(LogLevelLive));
-/**
- * Builds the live client runtime layer with observability, networking, and worker services.
- */
-export const createClientRuntimeLayer: ClientRuntimeLive = (queryClient) =>
-  Layer.mergeAll(
-    HttpClientLive,
-    ObservabilityLive,
-    NetworkMonitorLive,
-    WorkerClientLive,
-    makeQueryClientLayer(queryClient),
-    BrowserKeyValueStore.layerLocalStorage
-  ).pipe(Layer.provide(LogLevelLive));
-
-/** Maintains the previous export name for backwards compatibility. */
-export const layer = createClientRuntimeLayer;
 
 // ============================================================================
 // Runtime helpers

@@ -1,22 +1,36 @@
-import { RequestResetPasswordContract } from "@beep/iam-sdk/clients";
-import { Form } from "@beep/ui/form";
-import { formOptionsWithSubmit } from "@beep/ui/form/form-options-with-submit";
+import { RecoverImplementations, RequestResetPasswordPayload } from "@beep/iam-sdk/clients";
+import { clientRuntimeLayer } from "@beep/runtime-client";
+import { withToast } from "@beep/ui/common";
+import { Form, formOptionsWithSubmitEffect } from "@beep/ui/form";
 import { useAppForm } from "@beep/ui/form/useAppForm";
-import type * as Effect from "effect/Effect";
-import type { ParseError } from "effect/ParseResult";
-import type React from "react";
+import { Atom, useAtom } from "@effect-atom/atom-react";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
 
-type Props = {
-  onSubmit: (values: Effect.Effect<RequestResetPasswordContract.Type, ParseError, never>) => Promise<void>;
-};
-export const RequestResetPasswordForm: React.FC<Props> = ({ onSubmit }) => {
+const runtime = Atom.runtime(clientRuntimeLayer);
+
+const requestResetPasswordAtom = runtime.fn(
+  F.flow(
+    RecoverImplementations.RequestResetPasswordContract,
+    withToast({
+      onWaiting: "Requesting reset password",
+      onSuccess: "Reset password requested successfully",
+      onFailure: O.match({
+        onNone: () => "Reset password request failed",
+        onSome: (error) => error.message,
+      }),
+    })
+  )
+);
+export const RequestResetPasswordForm = () => {
+  const [, requestPasswordRest] = useAtom(requestResetPasswordAtom);
   const form = useAppForm(
-    formOptionsWithSubmit({
-      schema: RequestResetPasswordContract,
+    formOptionsWithSubmitEffect({
+      schema: RequestResetPasswordPayload,
       defaultValues: {
         email: "",
       },
-      onSubmit,
+      onSubmit: async (value) => requestPasswordRest(value),
     })
   );
 

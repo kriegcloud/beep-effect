@@ -1,29 +1,46 @@
 "use client";
-import { AuthCallback, iam } from "@beep/iam-sdk";
-import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
+import { AuthCallback, SignInImplementations } from "@beep/iam-sdk";
+import { clientRuntimeLayer } from "@beep/runtime-client";
 import { paths } from "@beep/shared-domain";
 import { varFade } from "@beep/ui/animate";
+import { withToast } from "@beep/ui/common";
 import { useBoolean, useRouter } from "@beep/ui/hooks";
 import { EmailInboxIcon } from "@beep/ui/icons";
 import { SplashScreen } from "@beep/ui/progress/loading-screen/splash-screen";
 import { RouterLink } from "@beep/ui/routing";
+import { Atom, useAtom } from "@effect-atom/atom-react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
-import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
+import * as O from "effect/Option";
 import { AnimatePresence, m } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import { FormDivider, FormHead, Terms } from "../_components";
 import { SignUpEmailForm } from "./sign-up-email.form";
 import { SignUpSocial } from "./sign-up-social";
 
 const signUpTransitionVariants = varFade("inUp", { distance: 64 });
+const runtime = Atom.runtime(clientRuntimeLayer);
+const signUpSocialAtom = runtime.fn(
+  F.flow(
+    SignInImplementations.SignInSocialContract,
+    withToast({
+      onWaiting: "Signing in",
+      onSuccess: "Signed in successfully",
+      onFailure: O.match({
+        onNone: () => "Failed with unknown error.",
+        onSome: (e) => e.message,
+      }),
+    })
+  )
+);
 
 export const SignUpView = () => {
-  const runtime = useRuntime();
+  const [, signUpSocial] = useAtom(signUpSocialAtom);
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackURL = AuthCallback.getURL(searchParams);
@@ -31,15 +48,14 @@ export const SignUpView = () => {
     callbackURL === AuthCallback.defaultTarget
       ? paths.auth.signIn
       : `${paths.auth.signIn}?${AuthCallback.paramName}=${encodeURIComponent(callbackURL)}`;
-  const runSignUpEmail = makeRunClientPromise(runtime, "iam.signUp.email");
-  const runSocialSignIn = makeRunClientPromise(runtime, "iam.signIn.social");
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const { value: isLoading, setValue: setIsLoading } = useBoolean();
   const [verificationNotice, setVerificationNotice] = useState<{
     redirectPath: string;
     firstName: string;
   } | null>(null);
 
-  if (isLoading) {
+  if (isLoading || !executeRecaptcha) {
     return <SplashScreen />;
   }
 
@@ -104,27 +120,11 @@ export const SignUpView = () => {
             }
             sx={{ textAlign: { xs: "center", md: "left" } }}
           />
-          <SignUpEmailForm
-            onSubmit={async (valueEffect) =>
-              runSignUpEmail(
-                Effect.gen(function* () {
-                  const value = yield* valueEffect;
-                  return yield* iam.signUp.email({
-                    value,
-                    onSuccess: (path) =>
-                      setVerificationNotice({
-                        redirectPath: path,
-                        firstName: value.firstName,
-                      }),
-                  });
-                })
-              )
-            }
-          />
+          <SignUpEmailForm executeRecaptcha={executeRecaptcha} setVerificationNotice={setVerificationNotice} />
           <Terms />
           <Box sx={{ gap: 2, display: "flex", flexDirection: "column" }}>
             <FormDivider />
-            <SignUpSocial signUp={async (provider) => F.pipe(iam.signIn.social({ provider }), runSocialSignIn)} />
+            <SignUpSocial signUp={async (provider) => signUpSocial({ provider })} />
           </Box>
         </Box>
       )}

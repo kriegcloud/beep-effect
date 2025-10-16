@@ -141,7 +141,6 @@ const optimizeImports = Array.from(
     "@mui/system",
     "@beep/ui",
     "@beep/ui-core",
-    "@tanstack/react-query",
     "react-phone-number-input",
     "@effect/platform",
     "@effect/opentelemetry",
@@ -167,14 +166,6 @@ const nextConfig = {
         pathname: "/**",
       },
     ],
-  },
-  async rewrites() {
-    return [
-      {
-        source: "/api/metrics/:path*",
-        destination: "http://localhost:4318/v1/metrics/:path*", // Proxy to your metrics server
-      },
-    ];
   },
   async headers() {
     return [

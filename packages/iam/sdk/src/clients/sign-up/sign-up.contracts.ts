@@ -1,10 +1,14 @@
+import { Contract, ContractSet } from "@beep/iam-sdk/contractkit";
 import { BS } from "@beep/schema";
 import { paths } from "@beep/shared-domain";
 import * as SharedEntities from "@beep/shared-domain/entities";
+import * as F from "effect/Function";
 import * as ParseResult from "effect/ParseResult";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
+import { IamError } from "../../errors";
 
 const SignUpFrom = S.Struct({
   email: BS.Email,
@@ -36,7 +40,7 @@ export class SignUpValue extends S.transformOrFail(SignUpFrom, SignUpTo, {
   decode: ({ rememberMe = false, ...value }, _, ast) =>
     ParseResult.try({
       try: () => {
-        const name = `${value.firstName} ${value.lastName}`;
+        const name = F.pipe(value.firstName, Str.concat(" "), Str.concat(value.lastName));
         return {
           firstName: value.firstName,
           lastName: value.lastName,
@@ -48,7 +52,7 @@ export class SignUpValue extends S.transformOrFail(SignUpFrom, SignUpTo, {
           rememberMe,
           captchaResponse: Redacted.value(value.captchaResponse),
           name,
-        };
+        } as const;
       },
       catch: () => new ParseResult.Type(ast, value, "could not decode signup"),
     }),
@@ -62,19 +66,35 @@ export class SignUpValue extends S.transformOrFail(SignUpFrom, SignUpTo, {
 }) {}
 
 export namespace SignUpValue {
-  export type Type = typeof SignUpValue.Type;
-  export type Encoded = typeof SignUpValue.Encoded;
+  export type Type = S.Schema.Type<typeof SignUpValue>;
+  export type Encoded = S.Schema.Encoded<typeof SignUpValue>;
 }
 
-export class SignupContract extends BS.Class<SignupContract>("SignupContract")({
-  value: S.typeSchema(SignUpValue),
-  onSuccess: new BS.Fn({
-    input: BS.URLPath,
-    output: S.Void,
-  }).Schema,
-}) {}
+export class SignUpEmailPayload extends BS.Class<SignUpEmailPayload>("SignUpEmailPayload")(
+  {
+    value: S.typeSchema(SignUpValue),
+    onSuccess: new BS.Fn({
+      input: BS.URLPath,
+      output: S.Void,
+    }).Schema,
+  },
+  {
+    schemaId: Symbol.for("@beep/iam-sdk/clients/SignUpEmailPayload"),
+    identifier: "SignUpEmailPayload",
+    description: "Payload for signing up a new user via email.",
+  }
+) {}
 
-export namespace SignupContract {
-  export type Type = typeof SignupContract.Type;
-  export type Encoded = typeof SignupContract.Encoded;
+export namespace SignUpEmailPayload {
+  export type Type = S.Schema.Type<typeof SignUpEmailPayload>;
+  export type Encoded = S.Schema.Encoded<typeof SignUpEmailPayload>;
 }
+
+export const SignUpEmailContract = Contract.make("SignUpEmailContract", {
+  description: "Signs up a new user using email credentials.",
+  parameters: SignUpEmailPayload.fields,
+  failure: S.instanceOf(IamError),
+  success: S.Void,
+});
+
+export const SignUpContractSet = ContractSet.make(SignUpEmailContract);

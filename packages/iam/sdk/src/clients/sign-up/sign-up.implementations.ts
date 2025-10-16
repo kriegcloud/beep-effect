@@ -1,0 +1,52 @@
+import { client } from "@beep/iam-sdk/adapters";
+import { SignUpContractSet } from "@beep/iam-sdk/clients/sign-up/sign-up.contracts";
+import { makeFailureContinuation } from "@beep/iam-sdk/contractkit";
+import { paths } from "@beep/shared-domain";
+import * as Effect from "effect/Effect";
+import * as Redacted from "effect/Redacted";
+import type { SignUpEmailPayload } from "./sign-up.contracts";
+
+const SignUpEmailHandler = Effect.fn("SignUpEmailHandler")(function* (payload: SignUpEmailPayload.Type) {
+  const continuation = makeFailureContinuation({
+    contract: "SignUpEmailContract",
+    metadata: () => ({
+      plugin: "sign-up",
+      method: "email",
+    }),
+  });
+
+  const { value, onSuccess } = payload;
+  const { captchaResponse, ...rest } = value;
+
+  const result = yield* continuation.run((handlers) =>
+    client.signUp.email({
+      ...rest,
+      fetchOptions: handlers.signal
+        ? {
+            headers: {
+              "x-captcha-response": Redacted.value(captchaResponse),
+            },
+            onSuccess: () => onSuccess(paths.dashboard.root),
+            onError: handlers.onError,
+            signal: handlers.signal,
+          }
+        : {
+            headers: {
+              "x-captcha-response": Redacted.value(captchaResponse),
+            },
+            onSuccess: () => onSuccess(paths.dashboard.root),
+            onError: handlers.onError,
+          },
+    })
+  );
+
+  yield* continuation.raiseResult(result);
+
+  if (result.error == null) {
+    client.$store.notify("$sessionSignal");
+  }
+});
+
+export const SignUpImplementations = SignUpContractSet.of({
+  SignUpEmailContract: SignUpEmailHandler,
+});

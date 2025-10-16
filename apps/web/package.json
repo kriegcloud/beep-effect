@@ -92,8 +92,6 @@
     "@svgr/webpack": "catalog:",
     "@tailwindcss/postcss": "catalog:",
     "@tanstack/react-form": "catalog:",
-    "@tanstack/react-query": "catalog:",
-    "@tanstack/react-query-devtools": "catalog:",
     "@tiptap/core": "catalog:",
     "@tiptap/extension-code-block": "catalog:",
     "@tiptap/extension-code-block-lowlight": "catalog:",

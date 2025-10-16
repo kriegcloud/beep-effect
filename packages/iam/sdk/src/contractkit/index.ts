@@ -139,11 +139,11 @@ export * as Contract from "./Contract";
  * @since 1.0.0
  */
 export * as ContractSet from "./ContractSet";
-export * as IamError from "./IamError";
 export {
-  makeFailureContinuation,
   type FailureContinuation,
   type FailureContinuationContext,
   type FailureContinuationHandlers,
   type FailureContinuationOptions,
+  makeFailureContinuation,
 } from "./failure-continuation";
+export * as IamError from "./IamError";

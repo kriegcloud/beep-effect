@@ -1,2 +1,2 @@
-export { organizationClient } from "./organization.client";
 export * from "./organization.contracts";
+export * from "./organization.implementations";

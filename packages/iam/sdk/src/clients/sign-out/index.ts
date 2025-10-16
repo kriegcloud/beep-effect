@@ -1,2 +1,2 @@
-export * from "./sign-out.client";
-export * from "./sign-out.contract";
+export * from "./sign-out.contracts";
+export * from "./sign-out.implementations";

@@ -1,82 +1,84 @@
 # AGENTS — `@beep/runtime-client`
 
 ## Purpose & Fit
-- Anchors every browser surface that needs Effect services, OTLP telemetry, TanStack Query, and RPC worker access. `BeepProvider` stitches these concerns into the App Router shell (`packages/runtime/client/src/beep-provider.tsx:17`) and is mounted in `apps/web/src/GlobalProviders.tsx:30`.
-- Complements `@beep/runtime-server` by mirroring observability defaults (Web SDK exporters, pretty logging in dev) while staying browser-safe (`packages/runtime/client/src/services/runtime/live-layer.ts:39`).
-- Supplies a consistent entrypoint for IAM/UI slices and feature forms to run Effects with dependency injection via `ManagedRuntime.make` (`packages/runtime/client/src/services/runtime/live-layer.ts:115`), keeping the layers aligned with shared domains (`packages/runtime/client/src/services/runtime/live-layer.ts:88`).
+- Anchors every browser surface that needs Effect services, OTLP telemetry, managed runtime assembly, effect-atom registries, and RPC worker access; `BeepProvider` wires these concerns into the App Router shell (`packages/runtime/client/src/beep-provider.tsx:11`) and mounts inside `apps/web/src/GlobalProviders.tsx:17`.
+- Mirrors `@beep/runtime-server` observability defaults while staying browser-safe via Web SDK exporters and local log tuning (`packages/runtime/client/src/services/runtime/live-layer.ts:52`).
+- Supplies entry points for IAM/UI slices to run Effects through `ManagedRuntime.make` and `Atom.runtime`, keeping dependency injection aligned with shared domains and worker contracts (`packages/runtime/client/src/services/runtime/live-layer.ts:74`).
+- Pairs with the `@effect-atom/atom-react` registry so atoms created with `Atom.runtime` share the same `LiveManagedRuntime` once `KaServices` is mounted under the app-level `RegistryProvider` (`packages/runtime/client/src/services/runtime/ka-services.ts:7`).
 
 ## Surface Map
-- `BeepProvider` — wraps the React tree with TanStack `QueryClientProvider`, runtime context, and Nuqs adapter (`packages/runtime/client/src/beep-provider.tsx:17`).
-- `QueryClient` — `Context.Tag` exposing the ambient TanStack client to Effects (`packages/runtime/client/src/services/common/query-client.ts:5`).
-- `NetworkMonitor` — scoped service streaming navigator connectivity and gating network-dependent Effects (`packages/runtime/client/src/services/common/network-monitor.ts:6`).
-- `layerIndexedDB` — scoped `KeyValueStore` layer backed by IndexedDB; use when durable caching beats `localStorage` (`packages/runtime/client/src/services/common/layer-indexed-db.ts:9`).
-- `createClientRuntimeLayer` (`layer`) — assembles Fetch HttpClient, telemetry, worker client, query client, and browser key-value store (`packages/runtime/client/src/services/runtime/live-layer.ts:88`).
-- `runClientPromise` / `runClientPromiseExit` and `make*` helpers — decorate Effects with spans and execute them inside a `LiveManagedRuntime` (`packages/runtime/client/src/services/runtime/live-layer.ts:115`, `packages/runtime/client/src/services/runtime/live-layer.ts:125`, `packages/runtime/client/src/services/runtime/live-layer.ts:146`).
-- `RuntimeProvider` / `useRuntime` — React context surface for Sharing the `LiveManagedRuntime` (`packages/runtime/client/src/services/runtime/runtime-provider.tsx:7`, `packages/runtime/client/src/services/runtime/use-runtime.tsx:6`).
-- `WorkerClient` — RPC client service pointing to the bundled web worker transport (`packages/runtime/client/src/worker/worker-client.ts:23`); pairs with the worker implementation (`packages/runtime/client/src/worker/worker.ts:30`) and schema (`packages/runtime/client/src/worker/worker-rpc.ts:5`).
+- `BeepProvider` & `RuntimeProvider` — instantiate the `LiveManagedRuntime` from `clientRuntimeLayer` and expose it through context alongside the Nuqs adapter (`packages/runtime/client/src/beep-provider.tsx:11`, `packages/runtime/client/src/services/runtime/runtime-provider.tsx:7`).
+- `clientRuntimeLayer` — merges Fetch `HttpClient`, telemetry exporters, log level tuning, network monitor, worker client, and local storage key-value store for browser-safe Effects (`packages/runtime/client/src/services/runtime/live-layer.ts:74`).
+- `KaServices` & `makeAtomRuntime` — pre-register a global atom runtime that injects `clientRuntimeLayer` and the default worker services when mounted via `useAtomMount` (`packages/runtime/client/src/services/runtime/ka-services.ts:7`, `packages/runtime/client/src/services/runtime/make-atom-runtime.ts:3`).
+- `runClientPromise*` helpers — wrap client Effects in spans and reusable runners for both resolved values and `Exit`s (`packages/runtime/client/src/services/runtime/live-layer.ts:109`).
+- `layerIndexedDB` plus browser storage utilities — supply durable `KeyValueStore` implementations when local caching needs IndexedDB over the default `BrowserKeyValueStore.layerLocalStorage` (`packages/runtime/client/src/services/common/layer-indexed-db.ts:9`).
+- `NetworkMonitor` & `WorkerClient` — gate network-bound Effects on connectivity and expose the RPC worker transport inside the runtime (`packages/runtime/client/src/services/common/network-monitor.ts:6`, `packages/runtime/client/src/worker/worker-client.ts:7`).
 
 ## Usage Snapshots
-- `BeepProvider` hosts global providers before UI shells mount (`apps/web/src/GlobalProviders.tsx:30`).
-- `runClientPromiseExit` powers the Effect-aware TanStack hooks, surfacing toastified failures and spans (`apps/web/src/libs/tanstack-query/effect-query.ts:98`).
-- `makeRunClientPromise` drives IAM auth flows so UI handlers execute through the runtime (`packages/iam/ui/src/sign-in/sign-in.view.tsx:21`).
-- `runClientPromise` wraps upload processing with additional layers and env-aware logging (`apps/web/src/features/upload/form.tsx:47`).
-- `QueryClient` tag is provided to other packages for cache priming helpers (`apps/web/src/libs/tanstack-query/query-data-helpers.ts:1`).
+- `BeepProvider` hosts global providers before UI shells mount (`apps/web/src/GlobalProviders.tsx:17`).
+- `KaServices` sits under the `RegistryProvider` at the root layout so all client atoms share the same runtime (`apps/web/src/app/layout.tsx:41`).
+- `Atom.runtime(clientRuntimeLayer)` powers IAM flows like the dashboard layout sign-out atom (`apps/web/src/app/dashboard/layout.tsx:18`).
+- `makeRunClientPromise` wraps imperative handlers to preserve spans when bridging to UI callbacks (`apps/web/src/app/dashboard/layout.tsx:329`).
 
 ## Tooling & Docs Shortcuts
-- Effect docs refresher (ManagedRuntime): `effect_docs__get_effect_doc` with payload `{ "documentId": 7293 }`.
-- Effect website deep dive (ManagedRuntime patterns): `context7__get-library-docs` with payload `{ "context7CompatibleLibraryID": "/llmstxt/effect_website_llms-small_txt", "topic": "ManagedRuntime", "tokens": 800 }`.
-- Repository scripts:
-  - `bun run check --filter @beep/runtime-client`
-  - `bun run lint --filter @beep/runtime-client`
-  - `bun run test --filter @beep/runtime-client`
-  - `bun run build --filter @beep/runtime-client`
-- Worker rebuild (when touching `src/worker/*`): `bun run build --filter @beep/runtime-client#worker`.
+- Effect ManagedRuntime refresher: `effect_docs__get_effect_doc({ "documentId": 7293 })`.
+- `@effect-atom/atom-react` registry patterns: run `markdownify__webpage-to-markdown` against https://github.com/Effect-TS/atom/blob/main/packages/atom-react/README.md when you need API specifics.
+- Repo scripts: `bun run check|lint|test|build --filter @beep/runtime-client`.
+- Worker rebuild (touching `src/worker/*`): `bun run build --filter @beep/runtime-client#worker`.
 
 ## Authoring Guardrails
-- Always namespace Effect imports (`import * as Effect from "effect/Effect";`, `import * as A from "effect/Array";`, `import * as Str from "effect/String";`). Native array/string/object helpers are forbidden; pipe through the Effect collections utilities.
-- `BeepProvider` is a `"use client"` component. Avoid server-only APIs (e.g., Node-only env access) anywhere under `packages/runtime/client`.
-- Preserve `ManagedRuntime.dispose` semantics. `RuntimeProvider` already handles cleanup (`packages/runtime/client/src/services/runtime/runtime-provider.tsx:15`); never short-circuit unmount paths.
-- `createClientRuntimeLayer` wires OTLP exporters using env URLs. When adjusting observability, ensure both trace and log exporters stay environment-aware and keep the merged `LogLevel` layer (`packages/runtime/client/src/services/runtime/live-layer.ts:58`).
-- Worker contracts must remain serialisable. Only use schema-safe payloads and return types defined via `effect/Schema` (`packages/runtime/client/src/worker/worker-rpc.ts:5`). When adding RPC methods, keep concurrency budgets conservative (`packages/runtime/client/src/worker/worker-client.ts:11`).
-- `layerIndexedDB` assumes the browser has IndexedDB APIs. For SSR or tests, provide an alternative (`KeyValueStore` mock) before running Effects that depend on it.
-- Maintain alignment with sibling docs (`packages/runtime/server/AGENTS.md`, `packages/runtime/shared/AGENTS.md` if/when added) to avoid drift in observability or layer naming.
+- Namespace Effect imports (`import * as Effect from "effect/Effect";`, `import * as A from "effect/Array";`, `import * as Str from "effect/String";`); native array/string/object helpers remain forbidden—pipe through the Effect collections utilities.
+- `BeepProvider` and `KaServices` are `"use client"` surfaces; avoid server-only APIs anywhere under `packages/runtime/client`.
+- Let `RuntimeProvider` own `ManagedRuntime.dispose`; do not short-circuit unmount paths or create competing runtimes per component.
+- Preserve observability layering: keep trace/log exporters environment-aware and maintain the merged log-level layer when tweaking `clientRuntimeLayer`.
+- Effect-atom integration relies on mounting `KaServices` under a single `RegistryProvider`; additional atom contexts should extend `clientRuntimeLayer` rather than rehydrating worker or telemetry services.
+- `layerIndexedDB` assumes browser IndexedDB APIs; provide a mock `KeyValueStore` for SSR/tests before running dependent Effects.
 
 ## Quick Recipes
 
-- **Map runtime runners to IAM intents inside a client hook**
+- **Compose IAM atoms with the shared runtime**
 
   ```ts
   import * as F from "effect/Function";
-  import * as A from "effect/Array";
-  import type { LiveManagedRuntime } from "@beep/runtime-client";
-  import { makeRunClientPromise } from "@beep/runtime-client";
+  import * as O from "effect/Option";
+  import { clientRuntimeLayer } from "@beep/runtime-client";
+  import { withToast } from "@beep/ui/common/with-toast";
+  import { SignOutImplementations } from "@beep/iam-sdk";
+  import { Atom, useAtom } from "@effect-atom/atom-react";
 
-  type Intent = { readonly span: string; readonly action: string };
+  const runtime = Atom.runtime(clientRuntimeLayer);
 
-  export const useIamRunners = (runtime: LiveManagedRuntime) =>
-    F.pipe(
-      [
-        { span: "iam.signIn.email", action: "Email" },
-        { span: "iam.signIn.passkey", action: "Passkey" },
-      ] as const satisfies ReadonlyArray<Intent>,
-      A.map((intent) => ({
-        label: intent.action,
-        run: makeRunClientPromise(runtime, intent.span),
-      }))
-    );
+  const signOutAtom = runtime.fn(
+    F.flow(
+      SignOutImplementations.SignOutContract,
+      withToast({
+        onWaiting: "Signing out",
+        onSuccess: "Signed out successfully",
+        onFailure: O.match({
+          onNone: () => "Failed with unknown error.",
+          onSome: (error) => error.message,
+        }),
+      })
+    )
+  );
+
+  export const useSignOut = () => useAtom(signOutAtom);
   ```
 
-- **Provide IndexedDB-backed persistence in the runtime layer**
+- **Extend the runtime with IndexedDB caching**
 
   ```ts
   import * as Layer from "effect/Layer";
-  import { createClientRuntimeLayer } from "@beep/runtime-client";
+  import { Atom } from "@effect-atom/atom-react";
+  import { clientRuntimeLayer } from "@beep/runtime-client";
   import { layerIndexedDB } from "@beep/runtime-client/services/common/layer-indexed-db";
 
-  export const withDurableCache = (queryClient: import("@tanstack/react-query").QueryClient) =>
-    createClientRuntimeLayer(queryClient).pipe(
-      Layer.provide(layerIndexedDB({ dbName: "beep-cache", storeName: "kv" }))
-    );
+  export const durableRuntime = Atom.runtime(
+    Layer.mergeAll(
+      clientRuntimeLayer,
+      layerIndexedDB({ dbName: "beep-cache", storeName: "kv" })
+    )
+  );
   ```
 
 - **Execute a worker RPC inside an Effect span**
@@ -106,8 +108,8 @@
 - `bun run build --filter @beep/runtime-client` — validates worker bundling and emits ESM/CJS outputs.
 
 ## Contributor Checklist
-- Update this guide when adding exports or changing runtime composition; ensure root `AGENTS.md` references stay accurate.
-- Confirm new Effects receive the necessary layers (telemetry, HttpClient, QueryClient) through `createClientRuntimeLayer`; document any optional layers.
-- If you alter worker RPC contracts, regenerate consumer snapshots and double-check browser bundler settings (module type `module`).
+- Update this guide when exports or runtime composition change; ensure root `AGENTS.md` references stay accurate.
+- Keep `clientRuntimeLayer` providing telemetry, `HttpClient`, and worker wiring when adding optional layers; document any extras (e.g., `layerIndexedDB`).
+- If atom runtime wiring changes, adjust `KaServices`, root `RegistryProvider` usage, and note downstream migration steps.
+- When altering worker RPC contracts, regenerate consumer snapshots and double-check browser bundler settings (`type: "module"`).
 - For new persistence strategies, add fallbacks or mocks for non-browser contexts and describe them here.
-- Coordinate with `packages/runtime/server` and `packages/runtime/shared` docs so observability and Layer naming remain consistent.

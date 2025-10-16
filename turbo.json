@@ -132,7 +132,7 @@
     },
     "check": {
       "dependsOn": [
-        "^check"
+        "^build"
       ],
       "inputs": [
         "$TURBO_DEFAULT$"

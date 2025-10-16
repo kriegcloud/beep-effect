@@ -180,7 +180,11 @@ export type ContractsByName<Contracts> = Contracts extends Record<string, Contra
 export type ImplementationsFrom<Contracts extends Record<string, Contract.Any>> = {
   readonly [Name in keyof Contracts as Contract.RequiresImplementation<Contracts[Name]> extends true ? Name : never]: (
     params: Contract.Parameters<Contracts[Name]>
-  ) => Effect.Effect<Contract.Success<Contracts[Name]>, Contract.Failure<Contracts[Name]>, Contract.Requirements<Contracts[Name]>>;
+  ) => Effect.Effect<
+    Contract.Success<Contracts[Name]>,
+    Contract.Failure<Contracts[Name]>,
+    Contract.Requirements<Contracts[Name]>
+  >;
 };
 
 /**
@@ -368,7 +372,9 @@ const Proto = {
 const makeProto = <Contracts extends Record<string, Contract.Any>>(contracts: Contracts): ContractSet<Contracts> =>
   Object.assign(() => {}, Proto, { contracts }) as UnsafeTypes.UnsafeAny;
 
-const resolveInput = <Contracts extends ReadonlyArray<Contract.Any>>(...contracts: Contracts): Record<string, Contracts[number]> => {
+const resolveInput = <Contracts extends ReadonlyArray<Contract.Any>>(
+  ...contracts: Contracts
+): Record<string, Contracts[number]> => {
   const output = {} as Record<string, Contracts[number]>;
   for (const contract of contracts) {
     output[contract.name] = (
@@ -418,8 +424,9 @@ export const empty: ContractSet<{}> = makeProto({});
  * @since 1.0.0
  * @category Constructors
  */
-export const make = <Contracts extends ReadonlyArray<Contract.Any>>(...contracts: Contracts): ContractSet<ContractsByName<Contracts>> =>
-  makeProto(resolveInput(...contracts)) as UnsafeTypes.UnsafeAny;
+export const make = <Contracts extends ReadonlyArray<Contract.Any>>(
+  ...contracts: Contracts
+): ContractSet<ContractsByName<Contracts>> => makeProto(resolveInput(...contracts)) as UnsafeTypes.UnsafeAny;
 
 /**
  * A utility type which simplifies a record type.

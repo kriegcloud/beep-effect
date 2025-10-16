@@ -1,22 +1,36 @@
-import { SendVerifyPhoneContract } from "@beep/iam-sdk/clients";
-import { Form, formOptionsWithSubmit, useAppForm } from "@beep/ui/form";
-import type * as Effect from "effect/Effect";
-import type { ParseError } from "effect/ParseResult";
-import type React from "react";
+import { SendVerifyPhonePayload, VerifyImplementations } from "@beep/iam-sdk/clients";
+import { clientRuntimeLayer } from "@beep/runtime-client";
+import { withToast } from "@beep/ui/common";
+import { Form, formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
+import { Atom, useAtom } from "@effect-atom/atom-react";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
 
-type Props = {
-  onSubmit: (values: Effect.Effect<SendVerifyPhoneContract.Type, ParseError, never>) => Promise<void>;
-};
-export const VerifyPhoneForm: React.FC<Props> = ({ onSubmit }) => {
+const runtime = Atom.runtime(clientRuntimeLayer);
+const verifyPhoneAtom = runtime.fn(
+  F.flow(
+    VerifyImplementations.SendVerifyPhoneContract,
+    withToast({
+      onWaiting: "Verifying phone",
+      onSuccess: "Phone verified.",
+      onFailure: O.match({
+        onNone: () => "Failed with unknown error.",
+        onSome: (e) => e.message,
+      }),
+    })
+  )
+);
+export const VerifyPhoneForm = () => {
+  const [, verifyPhone] = useAtom(verifyPhoneAtom);
   const form = useAppForm(
-    formOptionsWithSubmit({
-      schema: SendVerifyPhoneContract,
+    formOptionsWithSubmitEffect({
+      schema: SendVerifyPhonePayload,
       defaultValues: {
         phoneNumber: "",
         code: "",
         updatePhoneNumber: true,
       },
-      onSubmit,
+      onSubmit: async (value) => verifyPhone(value),
     })
   );
   return (

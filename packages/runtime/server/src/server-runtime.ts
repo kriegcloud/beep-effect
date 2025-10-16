@@ -10,8 +10,10 @@ import { DevTools } from "@effect/experimental";
 import { NodeSdk } from "@effect/opentelemetry";
 import { BunSocket } from "@effect/platform-bun";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
+import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-proto";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
+import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 
 import * as Effect from "effect/Effect";
@@ -27,6 +29,7 @@ const isDevEnvironment = serverEnv.app.env === "dev";
 const serviceName = `${serverEnv.app.name}-server`;
 const otlpTraceExporterUrl = serverEnv.otlp.traceExporterUrl.toString();
 const otlpLogExporterUrl = serverEnv.otlp.logExporterUrl.toString();
+const otlpMetricExporterUrl = serverEnv.otlp.metricExporterUrl.toString();
 
 // ============================================================================
 // Telemetry
@@ -39,6 +42,9 @@ export const TelemetryLive = NodeSdk.layer(() => ({
   resource: { serviceName },
   spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({ url: otlpTraceExporterUrl })),
   logRecordProcessor: new BatchLogRecordProcessor(new OTLPLogExporter({ url: otlpLogExporterUrl })),
+  metricReader: new PeriodicExportingMetricReader({
+    exporter: new OTLPMetricExporter({ url: otlpMetricExporterUrl }),
+  }),
 }));
 
 // ============================================================================

@@ -1,5 +1,5 @@
-import { IamError, type IamErrorMetadata } from "../errors";
 import * as Effect from "effect/Effect";
+import { IamError, type IamErrorMetadata } from "../errors";
 
 export interface FailureContinuationContext {
   readonly contract: string;
@@ -19,12 +19,8 @@ export interface FailureContinuationHandlers {
 }
 
 export interface FailureContinuation {
-  readonly run: <A>(
-    register: (handlers: FailureContinuationHandlers) => Promise<A>
-  ) => Effect.Effect<A, FailureError>;
-  readonly raiseResult: (
-    result: { readonly error: unknown | null | undefined }
-  ) => Effect.Effect<void, FailureError>;
+  readonly run: <A>(register: (handlers: FailureContinuationHandlers) => Promise<A>) => Effect.Effect<A, FailureError>;
+  readonly raiseResult: (result: { readonly error: unknown | null | undefined }) => Effect.Effect<void, FailureError>;
 }
 
 type FailureError = InstanceType<typeof IamError>;
@@ -43,13 +39,9 @@ export const makeFailureContinuation = (
     };
   };
 
-  const normalize = (error: unknown): FailureError =>
-    IamError.match(error, computeMetadata());
+  const normalize = (error: unknown): FailureError => IamError.match(error, computeMetadata());
 
-  const annotate = <R, E, A>(
-    effect: Effect.Effect<A, E, R>,
-    metadata: IamErrorMetadata
-  ) =>
+  const annotate = <R, E, A>(effect: Effect.Effect<A, E, R>, metadata: IamErrorMetadata) =>
     effect.pipe(
       Effect.annotateLogs({
         contract: ctx.contract,
@@ -58,9 +50,7 @@ export const makeFailureContinuation = (
       })
     );
 
-  const run: FailureContinuation["run"] = <A>(
-    register: (handlers: FailureContinuationHandlers) => Promise<A>
-  ) => {
+  const run: FailureContinuation["run"] = <A>(register: (handlers: FailureContinuationHandlers) => Promise<A>) => {
     const metadata = computeMetadata();
     const effect = Effect.async<A, FailureError>((resume) => {
       const controller = supportsAbort ? new AbortController() : undefined;

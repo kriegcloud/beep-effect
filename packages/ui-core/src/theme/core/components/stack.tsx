@@ -4,7 +4,6 @@ const MuiStack: Components<Theme>["MuiStack"] = {
   // ▼▼▼▼▼▼▼▼ ⚙️ PROPS ▼▼▼▼▼▼▼▼
   defaultProps: {
     useFlexGap: true,
-    direction: "row",
   },
 };
 

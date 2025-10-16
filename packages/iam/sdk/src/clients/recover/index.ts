@@ -1,2 +1,2 @@
-export { recoverClient } from "./recover.client";
 export * from "./recover.contracts";
+export * from "./recover.implementations";

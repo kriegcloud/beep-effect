@@ -249,6 +249,7 @@ export const ServerConfig = Config.all({
     Config.all({
       traceExporterUrl: Config.url("TRACE_EXPORTER_URL"),
       logExporterUrl: Config.url("LOG_EXPORTER_URL"),
+      metricExporterUrl: Config.url("METRIC_EXPORTER_URL"),
     })
   ),
   security: Config.nested("SECURITY")(

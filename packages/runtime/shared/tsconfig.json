@@ -3,7 +3,8 @@
   "include": ["drizzle-zero.config.ts"],
   "exclude": ["src/**/*.test.ts"],
   "compilerOptions": {
-    "types": ["bun", "node"]
+    "types": ["bun", "node"],
+    "noEmit": true
   },
   "references": [
     {

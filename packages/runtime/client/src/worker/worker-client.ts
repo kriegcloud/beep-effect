@@ -6,7 +6,7 @@ import * as Layer from "effect/Layer";
 import { WorkerRpc } from "./worker-rpc";
 
 const RpcProtocol = RpcClient.layerProtocolWorker({
-  size: 2,
+  size: 1,
   concurrency: 1,
 }).pipe(
   Layer.provide(
@@ -20,7 +20,7 @@ const RpcProtocol = RpcClient.layerProtocolWorker({
   Layer.orDie
 );
 
-export class WorkerClient extends Effect.Service<WorkerClient>()("@beep/WorkerClient", {
+export class WorkerClient extends Effect.Service<WorkerClient>()("@beep/runtime-client/WorkerClient", {
   dependencies: [RpcProtocol],
   scoped: Effect.gen(function* () {
     return {
