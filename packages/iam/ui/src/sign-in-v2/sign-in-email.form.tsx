@@ -1,6 +1,6 @@
 "use client";
 import { SignInEmailContract } from "@beep/iam-sdk/clients";
-import { SignInHandlers } from "@beep/iam-sdk/clients/sign-in-v2/sign-in.handlers";
+import { SignInImplementations } from "@beep/iam-sdk/clients/sign-in-v2/sign-in.implementations";
 import { paths } from "@beep/shared-domain";
 import { Iconify } from "@beep/ui/atoms";
 import { withToast } from "@beep/ui/common";
@@ -22,7 +22,7 @@ import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 // todo replace with runtime
 const signInAtom = Atom.fn(
   F.flow(
-    SignInHandlers.SignInEmail,
+    SignInImplementations.SignInEmailContract,
     withToast({
       onWaiting: "Signing in",
       onSuccess: "Signed in successfully",

@@ -1,5 +1,5 @@
 /**
- * The `Handler` module provides a typed way to describe effectful auth handlers
+ * The `Contract` module provides a typed way to describe effectful auth contracts
  * that can be shared between clients and identity runtimes.
  *
  * Use it to define public entry points for onboarding, multi-factor
@@ -8,11 +8,11 @@
  *
  * @example
  * ```ts
- * import * as Handler from "@beep/iam-sdk/authkit/Handler"
+ * import * as Contract from "@beep/iam-sdk/authkit/Contract"
  * import * as S from "effect/Schema"
  *
- * // Define a handler invoked when the user submits a one-time code
- * const VerifyMfaCode = Handler.make("VerifyMfaCode", {
+ * // Define a contract invoked when the user submits a one-time code
+ * const VerifyMfaCode = Contract.make("VerifyMfaCode", {
  *   description: "Validates a one-time code during sign-in",
  *   parameters: {
  *     userId: S.String,
@@ -44,15 +44,15 @@ import type * as IamError from "./IamError";
 // =============================================================================
 
 /**
- * Unique identifier for user-defined handlers.
+ * Unique identifier for user-defined contracts.
  *
  * @since 1.0.0
  * @category Type Ids
  */
-export const TypeId = "~@beep/iam-sdk/Handler";
+export const TypeId = "~@beep/iam-sdk/Contract";
 
 /**
- * Type-level representation of the user-defined handler identifier.
+ * Type-level representation of the user-defined contract identifier.
  *
  * @since 1.0.0
  * @category Type Ids
@@ -60,15 +60,15 @@ export const TypeId = "~@beep/iam-sdk/Handler";
 export type TypeId = typeof TypeId;
 
 /**
- * Unique identifier for provider-defined handlers.
+ * Unique identifier for provider-defined contracts.
  *
  * @since 1.0.0
  * @category Type Ids
  */
-export const ProviderDefinedTypeId = "~@beep/iam-sdk/Handler/ProviderDefined";
+export const ProviderDefinedTypeId = "~@beep/iam-sdk/Contract/ProviderDefined";
 
 /**
- * Type-level representation of the provider-defined handler identifier.
+ * Type-level representation of the provider-defined contract identifier.
  *
  * @since 1.0.0
  * @category Type Ids
@@ -80,18 +80,18 @@ export type ProviderDefinedTypeId = typeof ProviderDefinedTypeId;
 // =============================================================================
 
 /**
- * A user-defined handler that identity clients can call to perform an action.
+ * A user-defined contract that identity clients can call to perform an action.
  *
- * Handlers describe the contract between an auth surface (web, mobile, CLI) and
- * the runtime that fulfills the operation. Each handler declares schemas for
+ * Contracts describe the contract between an auth surface (web, mobile, CLI) and
+ * the runtime that fulfills the operation. Each contract declares schemas for
  * parameters, success results, and failure results to keep validation explicit.
  *
  * @example
  * ```ts
- * import * as Handler from "@beep/iam-sdk/authkit/Handler"
+ * import * as Contract from "@beep/iam-sdk/authkit/Contract"
  * import * as S from "effect/Schema"
  *
- * const StartPasswordReset = Handler.make("StartPasswordReset", {
+ * const StartPasswordReset = Contract.make("StartPasswordReset", {
  *   description: "Issues a reset token when a user asks to reset their password",
  *   parameters: {
  *     email: S.String
@@ -105,7 +105,7 @@ export type ProviderDefinedTypeId = typeof ProviderDefinedTypeId;
  * @since 1.0.0
  * @category Models
  */
-export interface Handler<
+export interface Contract<
   Name extends string,
   Config extends {
     readonly parameters: AnyStructSchema;
@@ -114,76 +114,76 @@ export interface Handler<
     readonly failureMode: FailureMode;
   },
   Requirements = never,
-> extends Handler.Variance<Requirements> {
+> extends Contract.Variance<Requirements> {
   /**
-   * The handler identifier which is used to uniquely identify the handler.
+   * The contract identifier which is used to uniquely identify the contract.
    */
   readonly id: string;
 
   /**
-   * The name of the handler.
+   * The name of the contract.
    */
   readonly name: Name;
 
   /**
-   * The optional description of the handler.
+   * The optional description of the contract.
    */
   readonly description?: string | undefined;
 
   /**
-   * The strategy used for handling errors returned from handler call implementation
+   * The strategy used for handling errors returned from contract call implementation
    * execution.
    *
-   * If set to `"error"` (the default), errors that occur during handler call
+   * If set to `"error"` (the default), errors that occur during contract call
    * implementation execution will be returned in the error channel of the calling
    * effect.
    *
-   * If set to `"return"`, errors that occur during handler call implementation execution
-   * will be captured and returned as part of the handler call result.
+   * If set to `"return"`, errors that occur during contract call implementation execution
+   * will be captured and returned as part of the contract call result.
    */
   readonly failureMode: FailureMode;
 
   /**
-   * A `Schema` representing the parameters that a handler must be called with.
+   * A `Schema` representing the parameters that a contract must be called with.
    */
   readonly parametersSchema: Config["parameters"];
 
   /**
-   * A `Schema` representing the value that a handler must return when called if
-   * the handler call is successful.
+   * A `Schema` representing the value that a contract must return when called if
+   * the contract call is successful.
    */
   readonly successSchema: Config["success"];
 
   /**
-   * A `Schema` representing the value that a handler must return when called if
+   * A `Schema` representing the value that a contract must return when called if
    * it fails.
    */
   readonly failureSchema: Config["failure"];
 
   /**
-   * A `Context` object containing handler annotations which can store metadata
-   * about the handler.
+   * A `Context` object containing contract annotations which can store metadata
+   * about the contract.
    */
   readonly annotations: Context.Context<never>;
 
   /**
-   * Adds a _request-level_ dependency which must be provided before the handler
+   * Adds a _request-level_ dependency which must be provided before the contract
    * call implementation can be executed.
    *
    * This can be useful when the auth client must supply per-request data (for
    * example, tenant context or trace metadata) rather than capturing it when the
-   * handler implementation layer is created.
+   * contract implementation layer is created.
    */
   addDependency<Identifier, Service>(
     tag: Context.Tag<Identifier, Service>
-  ): Handler<Name, Config, Identifier | Requirements>;
+  ): Contract<Name, Config, Identifier | Requirements>;
 
   /**
-   * Set the schema to use to validate the result of a handler call when successful.
+   * Set the schema to use to validate the result of a contract call when successful.
    */
   setParameters<ParametersSchema extends S.Struct<UnsafeTypes.UnsafeAny> | S.Struct.Fields>(
     schema: ParametersSchema
-  ): Handler<
+  ): Contract<
     Name,
     {
       readonly parameters: ParametersSchema extends S.Struct<infer _>
@@ -199,11 +199,11 @@ export interface Handler<
   >;
 
   /**
-   * Set the schema to use to validate the result of a handler call when successful.
+   * Set the schema to use to validate the result of a contract call when successful.
    */
   setSuccess<SuccessSchema extends S.Schema.Any>(
     schema: SuccessSchema
-  ): Handler<
+  ): Contract<
     Name,
     {
       readonly parameters: Config["parameters"];
@@ -215,11 +215,11 @@ export interface Handler<
   >;
 
   /**
-   * Set the schema to use to validate the result of a handler call when it fails.
+   * Set the schema to use to validate the result of a contract call when it fails.
    */
   setFailure<FailureSchema extends S.Schema.Any>(
     schema: FailureSchema
-  ): Handler<
+  ): Contract<
     Name,
     {
       readonly parameters: Config["parameters"];
@@ -231,32 +231,32 @@ export interface Handler<
   >;
 
   /**
-   * Add an annotation to the handler.
+   * Add an annotation to the contract.
    */
-  annotate<I, S>(tag: Context.Tag<I, S>, value: S): Handler<Name, Config, Requirements>;
+  annotate<I, S>(tag: Context.Tag<I, S>, value: S): Contract<Name, Config, Requirements>;
 
   /**
-   * Add many annotations to the handler.
+   * Add many annotations to the contract.
    */
-  annotateContext<I>(context: Context.Context<I>): Handler<Name, Config, Requirements>;
+  annotateContext<I>(context: Context.Context<I>): Contract<Name, Config, Requirements>;
 }
 
 /**
- * A provider-defined handler wraps functionality that ships with an external
+ * A provider-defined contract wraps functionality that ships with an external
  * auth provider (for example, Better Auth hosted screens or third-party social
  * sign-in callbacks).
  *
- * These handlers are triggered by the provider and optionally require an
+ * These contracts are triggered by the provider and optionally require an
  * application-defined implementation to post-process the provider output.
  *
  * @example
  * ```ts
- * import * as Handler from "@beep/iam-sdk/authkit/Handler"
+ * import * as Contract from "@beep/iam-sdk/authkit/Contract"
  * import * as S from "effect/Schema"
  *
- * const HostedPasswordReset = Handler.providerDefined({
+ * const HostedPasswordReset = Contract.providerDefined({
  *   id: "betterauth.reset_password",
- *   handlerSetName: "HostedPasswordReset",
+ *   contractSetName: "HostedPasswordReset",
  *   providerName: "reset_password",
  *   args: {
  *     redirectUri: S.String
@@ -286,7 +286,7 @@ export interface ProviderDefined<
     readonly failureMode: "error";
   },
   RequiresImplementation extends boolean = false,
-> extends Handler<
+> extends Contract<
       Name,
       {
         readonly parameters: Config["parameters"];
@@ -295,40 +295,40 @@ export interface ProviderDefined<
         readonly failureMode: Config["failureMode"];
       }
     >,
-    Handler.ProviderDefinedProto {
+    Contract.ProviderDefinedProto {
   /**
-   * The arguments passed to the provider-defined handler.
+   * The arguments passed to the provider-defined contract.
    */
   readonly args: Config["args"]["Encoded"];
 
   /**
    * A `Schema` representing the arguments provided by the end-user which will
-   * be used to configure the behavior of the provider-defined handler.
+   * be used to configure the behavior of the provider-defined contract.
    */
   readonly argsSchema: Config["args"];
 
   /**
-   * Name of the handler as recognized by the external auth provider.
+   * Name of the contract as recognized by the external auth provider.
    */
   readonly providerName: string;
 
   /**
-   * If set to `true`, this provider-defined handler requires a user-defined
-   * implementation when converting the `HandlerSet` containing this handler
+   * If set to `true`, this provider-defined contract requires a user-defined
+   * implementation when converting the `ContractSet` containing this contract
    * into a `Layer`.
    */
   readonly requiresImplementation: RequiresImplementation;
 }
 
 /**
- * The strategy used for handling errors returned from handler call implementation
+ * The strategy used for handling errors returned from contract call implementation
  * execution.
  *
- * If set to `"error"` (the default), errors that occur during handler call implementation
+ * If set to `"error"` (the default), errors that occur during contract call implementation
  * execution will be returned in the error channel of the calling effect.
  *
- * If set to `"return"`, errors that occur during handler call implementation execution
- * will be captured and returned as part of the handler call result.
+ * If set to `"return"`, errors that occur during contract call implementation execution
+ * will be captured and returned as part of the contract call result.
  *
  * @since 1.0.0
  * @category Models
@@ -338,7 +338,7 @@ export type FailureMode = "error" | "return";
 /**
  * @since 1.0.0
  */
-export declare namespace Handler {
+export declare namespace Contract {
   /**
    * @since 1.0.0
    * @category Models
@@ -369,14 +369,14 @@ export declare namespace Handler {
 // =============================================================================
 
 /**
- * Type guard to check if a value is a user-defined handler.
+ * Type guard to check if a value is a user-defined contract.
  *
  * @example
  * ```ts
- * import * as Handler from "@beep/iam-sdk/authkit/Handler"
+ * import * as Contract from "@beep/iam-sdk/authkit/Contract"
  * import * as S from "effect/Schema"
  *
- * const SignInEmail = Handler.make("SignInEmail", {
+ * const SignInEmail = Contract.make("SignInEmail", {
  *   description: "Authenticates a user with email and password",
  *   parameters: {
  *     email: S.String,
@@ -387,9 +387,9 @@ export declare namespace Handler {
  *   })
  * })
  *
- * const HostedPasswordReset = Handler.providerDefined({
+ * const HostedPasswordReset = Contract.providerDefined({
  *   id: "betterauth.reset_password",
- *   handlerSetName: "HostedPasswordReset",
+ *   contractSetName: "HostedPasswordReset",
  *   providerName: "reset_password",
  *   args: {
  *     redirectUri: S.String
@@ -399,28 +399,28 @@ export declare namespace Handler {
  *   })
  * })
  *
- * console.log(Handler.isUserDefined(SignInEmail))           // true
- * console.log(Handler.isUserDefined(HostedPasswordReset))   // false
+ * console.log(Contract.isUserDefined(SignInEmail))           // true
+ * console.log(Contract.isUserDefined(HostedPasswordReset))   // false
  * ```
  *
  * @since 1.0.0
  * @category Guards
  */
-export const isUserDefined = (u: unknown): u is Handler<string, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny> =>
+export const isUserDefined = (u: unknown): u is Contract<string, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny> =>
   Predicate.hasProperty(u, TypeId) && !isProviderDefined(u);
 
 /**
- * Type guard to check if a value is a provider-defined handler.
+ * Type guard to check if a value is a provider-defined contract.
  *
  * @param u - The value to check
- * @returns `true` if the value is a provider-defined `Handler`, `false` otherwise
+ * @returns `true` if the value is a provider-defined `Contract`, `false` otherwise
  *
  * @example
  * ```ts
- * import * as Handler from "@beep/iam-sdk/authkit/Handler"
+ * import * as Contract from "@beep/iam-sdk/authkit/Contract"
  * import * as S from "effect/Schema"
  *
- * const SignInEmail = Handler.make("SignInEmail", {
+ * const SignInEmail = Contract.make("SignInEmail", {
  *   description: "Authenticates a user with email and password",
  *   parameters: {
  *     email: S.String,
@@ -431,9 +431,9 @@ export const isUserDefined = (u: unknown): u is Handler<string, UnsafeTypes.Unsa
  *   })
  * })
  *
- * const HostedPasswordReset = Handler.providerDefined({
+ * const HostedPasswordReset = Contract.providerDefined({
  *   id: "betterauth.reset_password",
- *   handlerSetName: "HostedPasswordReset",
+ *   contractSetName: "HostedPasswordReset",
  *   providerName: "reset_password",
  *   args: {
  *     redirectUri: S.String
@@ -443,8 +443,8 @@ export const isUserDefined = (u: unknown): u is Handler<string, UnsafeTypes.Unsa
  *   })
  * })
  *
- * console.log(Handler.isProviderDefined(SignInEmail))           // false
- * console.log(Handler.isProviderDefined(HostedPasswordReset))   // true
+ * console.log(Contract.isProviderDefined(SignInEmail))           // false
+ * console.log(Contract.isProviderDefined(HostedPasswordReset))   // true
  * ```
  *
  * @since 1.0.0
@@ -458,7 +458,7 @@ export const isProviderDefined = (u: unknown): u is ProviderDefined<string, Unsa
 // =============================================================================
 
 /**
- * A type which represents any `Handler`.
+ * A type which represents any `Contract`.
  *
  * @since 1.0.0
  * @category Utility Types
@@ -478,7 +478,7 @@ export interface Any extends Pipeable {
 }
 
 /**
- * A type which represents any provider-defined `Handler`.
+ * A type which represents any provider-defined `Contract`.
  *
  * @since 1.0.0
  * @category Utility Types
@@ -517,13 +517,13 @@ export interface AnyTaggedRequestSchema extends AnyStructSchema {
 }
 
 /**
- * A utility type to convert a `S.TaggedRequest` into an `Handler`.
+ * A utility type to convert a `S.TaggedRequest` into an `Contract`.
  *
  * @since 1.0.0
  * @category Utility Types
  */
 export interface FromTaggedRequest<S extends AnyTaggedRequestSchema>
-  extends Handler<
+  extends Contract<
     S["_tag"],
     {
       readonly parameters: S;
@@ -534,131 +534,131 @@ export interface FromTaggedRequest<S extends AnyTaggedRequestSchema>
   > {}
 
 /**
- * A utility type to extract the `Name` type from an `Handler`.
+ * A utility type to extract the `Name` type from an `Contract`.
  *
  * @since 1.0.0
  * @category Utility Types
  */
-export type Name<T> = T extends Handler<infer _Name, infer _Config, infer _Requirements> ? _Name : never;
+export type Name<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements> ? _Name : never;
 
 /**
- * A utility type to extract the type of the handler call parameters.
+ * A utility type to extract the type of the contract call parameters.
  *
  * @since 1.0.0
  * @category Utility Types
  */
-export type Parameters<T> = T extends Handler<infer _Name, infer _Config, infer _Requirements>
+export type Parameters<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
   ? S.Struct.Type<_Config["parameters"]["fields"]>
   : never;
 
 /**
- * A utility type to extract the encoded type of the handler call parameters.
+ * A utility type to extract the encoded type of the contract call parameters.
  *
  * @since 1.0.0
  * @category Utility Types
  */
-export type ParametersEncoded<T> = T extends Handler<infer _Name, infer _Config, infer _Requirements>
+export type ParametersEncoded<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
   ? S.Schema.Encoded<_Config["parameters"]>
   : never;
 
 /**
- * A utility type to extract the schema for the parameters which an `Handler`
+ * A utility type to extract the schema for the parameters which an `Contract`
  * must be called with.
  *
  * @since 1.0.0
  * @category Utility Types
  */
-export type ParametersSchema<T> = T extends Handler<infer _Name, infer _Config, infer _Requirements>
+export type ParametersSchema<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
   ? _Config["parameters"]
   : never;
 
 /**
- * A utility type to extract the type of the handler call result when it succeeds.
+ * A utility type to extract the type of the contract call result when it succeeds.
  *
  * @since 1.0.0
  * @category Utility Types
  */
-export type Success<T> = T extends Handler<infer _Name, infer _Config, infer _Requirements>
+export type Success<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
   ? S.Schema.Type<_Config["success"]>
   : never;
 
 /**
- * A utility type to extract the encoded type of the handler call result when
+ * A utility type to extract the encoded type of the contract call result when
  * it succeeds.
  *
  * @since 1.0.0
  * @category Utility Types
  */
-export type SuccessEncoded<T> = T extends Handler<infer _Name, infer _Config, infer _Requirements>
+export type SuccessEncoded<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
   ? S.Schema.Encoded<_Config["success"]>
   : never;
 
 /**
- * A utility type to extract the schema for the return type of a handler call when
- * the handler call succeeds.
+ * A utility type to extract the schema for the return type of a contract call when
+ * the contract call succeeds.
  *
  * @since 1.0.0
  * @category Utility Types
  */
-export type SuccessSchema<T> = T extends Handler<infer _Name, infer _Config, infer _Requirements>
+export type SuccessSchema<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
   ? _Config["success"]
   : never;
 
 /**
- * A utility type to extract the type of the handler call result when it fails.
+ * A utility type to extract the type of the contract call result when it fails.
  *
  * @since 1.0.0
  * @category Utility Types
  */
-export type Failure<T> = T extends Handler<infer _Name, infer _Config, infer _Requirements>
+export type Failure<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
   ? S.Schema.Type<_Config["failure"]>
   : never;
 
 /**
- * A utility type to extract the encoded type of the handler call result when
+ * A utility type to extract the encoded type of the contract call result when
  * it fails.
  *
  * @since 1.0.0
  * @category Utility Types
  */
-export type FailureEncoded<T> = T extends Handler<infer _Name, infer _Config, infer _Requirements>
+export type FailureEncoded<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
   ? S.Schema.Encoded<_Config["failure"]>
   : never;
 
 /**
- * A utility type to extract the type of the handler call result whether it
+ * A utility type to extract the type of the contract call result whether it
  * succeeds or fails.
  *
  * @since 1.0.0
  * @category Utility Types
  */
-export type Result<T> = T extends Handler<infer _Name, infer _Config, infer _Requirements>
+export type Result<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
   ? Success<T> | Failure<T>
   : never;
 
 /**
- * A utility type to extract the encoded type of the handler call result whether
+ * A utility type to extract the encoded type of the contract call result whether
  * it succeeds or fails.
  *
  * @since 1.0.0
  * @category Utility Types
  */
-export type ResultEncoded<T> = T extends Handler<infer _Name, infer _Config, infer _Requirements>
+export type ResultEncoded<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
   ? SuccessEncoded<T> | FailureEncoded<T>
   : never;
 
 /**
- * A utility type to extract the requirements of an `Handler`.
+ * A utility type to extract the requirements of an `Contract`.
  *
  * @since 1.0.0
  * @category Utility Types
  */
-export type Requirements<T> = T extends Handler<infer _Name, infer _Config, infer _Requirements>
+export type Requirements<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
   ? _Config["parameters"]["Context"] | _Config["success"]["Context"] | _Config["failure"]["Context"] | _Requirements
   : never;
 
 /**
- * Represents an `Handler` that has been implemented within the application.
+ * Represents an `Contract` that has been implemented within the application.
  *
  * @since 1.0.0
  * @category Models
@@ -673,62 +673,62 @@ export interface Implementation<Name extends string> {
 }
 
 /**
- * Represents the result of calling the implementation for a particular `Handler`.
+ * Represents the result of calling the implementation for a particular `Contract`.
  *
  * @since 1.0.0
  * @category Models
  */
-export interface ImplementationResult<Handler extends Any> {
+export interface ImplementationResult<Contract extends Any> {
   /**
-   * Whether the result of executing the handler call implementation was an error or not.
+   * Whether the result of executing the contract call implementation was an error or not.
    */
   readonly isFailure: boolean;
   /**
-   * The result of executing the implementation for a particular handler.
+   * The result of executing the implementation for a particular contract.
    */
-  readonly result: Result<Handler>;
+  readonly result: Result<Contract>;
   /**
-   * The pre-encoded handler call result of executing the implementation for a particular
-   * handler as a JSON-serializable value. The encoded result can be forwarded to
-   * clients, stored for auditing, or chained into subsequent handler calls.
+   * The pre-encoded contract call result of executing the implementation for a particular
+   * contract as a JSON-serializable value. The encoded result can be forwarded to
+   * clients, stored for auditing, or chained into subsequent contract calls.
    */
   readonly encodedResult: unknown;
 }
 
 /**
  * A utility type which represents the possible errors that can be raised by
- * a handler call's implementation.
+ * a contract call's implementation.
  *
  * @since 1.0.0
  * @category Utility Types
  */
-export type ImplementationError<T> = T extends Handler<infer _Name, infer _Config, infer _Requirements>
+export type ImplementationError<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
   ? _Config["failureMode"] extends "error"
     ? _Config["failure"]["Type"]
     : never
   : never;
 
 /**
- * A utility type to create a union of `Implementation` types for all handlers in a
+ * A utility type to create a union of `Implementation` types for all contracts in a
  * record.
  *
  * @since 1.0.0
  * @category Utility Types
  */
-export type ImplementationsFor<Handlers extends Record<string, Any>> = {
-  [Name in keyof Handlers]: RequiresImplementation<Handlers[Name]> extends true
-    ? Implementation<Handlers[Name]["name"]>
+export type ImplementationsFor<Contracts extends Record<string, Any>> = {
+  [Name in keyof Contracts]: RequiresImplementation<Contracts[Name]> extends true
+    ? Implementation<Contracts[Name]["name"]>
     : never;
-}[keyof Handlers];
+}[keyof Contracts];
 
 /**
- * A utility type to determine if the specified handler requires a user-defined
+ * A utility type to determine if the specified contract requires a user-defined
  * implementation to be implemented.
  *
  * @since 1.0.0
  * @category Utility Types
  */
-export type RequiresImplementation<Handler extends Any> = Handler extends ProviderDefined<
+export type RequiresImplementation<Contract extends Any> = Contract extends ProviderDefined<
   infer _Name,
   infer _Config,
   infer _RequiresImplementation
@@ -801,7 +801,7 @@ const userDefinedProto = <
   readonly failureSchema: Failure;
   readonly annotations: Context.Context<never>;
   readonly failureMode: Mode;
-}): Handler<
+}): Contract<
   Name,
   {
     readonly parameters: Parameters;
@@ -811,7 +811,7 @@ const userDefinedProto = <
   }
 > => {
   const self = Object.assign(Object.create(Proto), options);
-  self.id = `@beep/iam-sdk/Handler/${options.name}`;
+  self.id = `@beep/iam-sdk/Contract/${options.name}`;
   return self;
 };
 
@@ -849,18 +849,18 @@ const providerDefinedProto = <
 const constEmptyStruct = S.Struct({});
 
 /**
- * Creates a user-defined handler with the specified name and configuration.
+ * Creates a user-defined contract with the specified name and configuration.
  *
- * Use this to expose operations that auth clients call. The handler definition
+ * Use this to expose operations that auth clients call. The contract definition
  * includes parameter validation, success/failure schemas, and optional service
  * dependencies so that the runtime contract stays explicit.
  *
  * @example
  * ```ts
- * import * as Handler from "@beep/iam-sdk/authkit/Handler"
+ * import * as Contract from "@beep/iam-sdk/authkit/Contract"
  * import * as S from "effect/Schema"
  *
- * const StartEmailVerification = Handler.make("StartEmailVerification", {
+ * const StartEmailVerification = Contract.make("StartEmailVerification", {
  *   description: "Sends a verification link to a pending member",
  *   parameters: {
  *     email: S.String
@@ -883,43 +883,43 @@ export const make = <
   Dependencies extends Array<Context.Tag<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>> = [],
 >(
   /**
-   * The unique name identifier for this handler.
+   * The unique name identifier for this contract.
    */
   name: Name,
   options?: {
     /**
-     * An optional description explaining what the handler does.
+     * An optional description explaining what the contract does.
      */
     readonly description?: string | undefined;
     /**
-     * Schema defining the parameters this handler accepts.
+     * Schema defining the parameters this contract accepts.
      */
     readonly parameters?: Parameters | undefined;
     /**
-     * Schema for successful handler execution results.
+     * Schema for successful contract execution results.
      */
     readonly success?: Success | undefined;
     /**
-     * Schema for handler execution failures.
+     * Schema for contract execution failures.
      */
     readonly failure?: Failure | undefined;
     /**
-     * The strategy used for handling errors returned from handler call implementation
+     * The strategy used for handling errors returned from contract call implementation
      * execution.
      *
-     * If set to `"error"` (the default), errors that occur during handler call implementation
+     * If set to `"error"` (the default), errors that occur during contract call implementation
      * execution will be returned in the error channel of the calling effect.
      *
-     * If set to `"return"`, errors that occur during handler call implementation execution
-     * will be captured and returned as part of the handler call result.
+     * If set to `"return"`, errors that occur during contract call implementation execution
+     * will be captured and returned as part of the contract call result.
      */
     readonly failureMode?: Mode;
     /**
-     * Service dependencies required by the handler implementation.
+     * Service dependencies required by the contract implementation.
      */
     readonly dependencies?: Dependencies | undefined;
   }
-): Handler<
+): Contract<
   Name,
   {
     readonly parameters: S.Struct<Parameters>;
@@ -943,20 +943,20 @@ export const make = <
 };
 
 /**
- * Creates a provider-defined handler that delegates to functionality supplied
+ * Creates a provider-defined contract that delegates to functionality supplied
  * by an auth provider.
  *
- * The provider triggers these handlers, but your runtime can still validate the
+ * The provider triggers these contracts, but your runtime can still validate the
  * payload, enforce failure handling, and merge in application-specific logic.
  *
  * @example
  * ```ts
- * import * as Handler from "@beep/iam-sdk/authkit/Handler"
+ * import * as Contract from "@beep/iam-sdk/authkit/Contract"
  * import * as S from "effect/Schema"
  *
- * const HostedMagicLink = Handler.providerDefined({
+ * const HostedMagicLink = Contract.providerDefined({
  *   id: "betterauth.magic_link",
- *   handlerSetName: "HostedMagicLink",
+ *   contractSetName: "HostedMagicLink",
  *   providerName: "magic_link",
  *   args: {
  *     redirectUri: S.String
@@ -980,15 +980,15 @@ export const providerDefined =
     RequiresImplementation extends boolean = false,
   >(options: {
     /**
-     * Unique identifier following format `<provider>.<handler-name>`.
+     * Unique identifier following format `<provider>.<contract-name>`.
      */
     readonly id: `${string}.${string}`;
     /**
-     * Name used by the HandlerSet to identify this handler.
+     * Name used by the ContractSet to identify this contract.
      */
-    readonly handlerSetName: Name;
+    readonly contractSetName: Name;
     /**
-     * Name of the handler as recognized by the auth provider.
+     * Name of the contract as recognized by the auth provider.
      */
     readonly providerName: string;
     /**
@@ -996,19 +996,19 @@ export const providerDefined =
      */
     readonly args: Args;
     /**
-     * Whether this handler requires a custom implementation implementation.
+     * Whether this contract requires a custom implementation implementation.
      */
     readonly requiresImplementation?: RequiresImplementation | undefined;
     /**
-     * Schema for parameters the provider sends when calling the handler.
+     * Schema for parameters the provider sends when calling the contract.
      */
     readonly parameters?: Parameters | undefined;
     /**
-     * Schema for successful handler execution results.
+     * Schema for successful contract execution results.
      */
     readonly success?: Success | undefined;
     /**
-     * Schema for failed handler execution results.
+     * Schema for failed contract execution results.
      */
     readonly failure?: Failure | undefined;
   }) =>
@@ -1017,14 +1017,14 @@ export const providerDefined =
       ? S.Simplify<
           S.Struct.Encoded<Args> & {
             /**
-             * The strategy used for handling errors returned from handler call implementation
+             * The strategy used for handling errors returned from contract call implementation
              * execution.
              *
-             * If set to `"error"` (the default), errors that occur during handler call implementation
+             * If set to `"error"` (the default), errors that occur during contract call implementation
              * execution will be returned in the error channel of the calling effect.
              *
-             * If set to `"return"`, errors that occur during handler call implementation execution
-             * will be captured and returned as part of the handler call result.
+             * If set to `"return"`, errors that occur during contract call implementation execution
+             * will be captured and returned as part of the contract call result.
              */
             readonly failureMode?: Mode;
           }
@@ -1046,7 +1046,7 @@ export const providerDefined =
     const failureSchema = options?.failure ?? S.Never;
     return providerDefinedProto({
       id: options.id,
-      name: options.handlerSetName,
+      name: options.contractSetName,
       providerName: options.providerName,
       args,
       argsSchema: S.Struct(options.args as UnsafeTypes.UnsafeAny),
@@ -1059,15 +1059,15 @@ export const providerDefined =
   };
 
 /**
- * Creates a Handler from a S.TaggedRequest.
+ * Creates a Contract from a S.TaggedRequest.
  *
- * This utility function converts Effect's TaggedRequest schemas into Handler
+ * This utility function converts Effect's TaggedRequest schemas into Contract
  * definitions, automatically mapping the request parameters, success, and
  * failure schemas.
  *
  * @example
  * ```ts
- * import * as Handler from "@beep/iam-sdk/authkit/Handler"
+ * import * as Contract from "@beep/iam-sdk/authkit/Contract"
  * import * as S from "effect/Schema"
  *
  * // Define a tagged request for verifying a pending invitation
@@ -1085,8 +1085,8 @@ export const providerDefined =
  *   }
  * }) {}
  *
- * // Convert to a Handler
- * const getInvitationHandler = Handler.fromTaggedRequest(GetInvitation)
+ * // Convert to a Contract
+ * const getInvitationContract = Contract.fromTaggedRequest(GetInvitation)
  * ```
  *
  * @since 1.0.0
@@ -1108,21 +1108,21 @@ export const fromTaggedRequest = <S extends AnyTaggedRequestSchema>(schema: S): 
 // =============================================================================
 
 /**
- * Extracts the description from a handler's metadata.
+ * Extracts the description from a contract's metadata.
  *
- * Returns the handler's description if explicitly set, otherwise attempts to
+ * Returns the contract's description if explicitly set, otherwise attempts to
  * extract it from the parameter schema's AST annotations.
  *
  * @example
  * ```ts
- * import * as Handler from "@beep/iam-sdk/authkit/Handler"
+ * import * as Contract from "@beep/iam-sdk/authkit/Contract"
  *
- * const myHandler = Handler.make("example", {
- *   description: "This is an example handler"
+ * const myContract = Contract.make("example", {
+ *   description: "This is an example contract"
  * })
  *
- * const description = Handler.getDescription(myHandler)
- * console.log(description) // "This is an example handler"
+ * const description = Contract.getDescription(myContract)
+ * console.log(description) // "This is an example contract"
  * ```
  *
  * @since 1.0.0
@@ -1138,14 +1138,14 @@ export const getDescription = <
   },
 >(
   /**
-   * The handler to get the description from.
+   * The contract to get the description from.
    */
-  handler: Handler<Name, Config>
+  contract: Contract<Name, Config>
 ): string | undefined => {
-  if (Predicate.isNotUndefined(handler.description)) {
-    return handler.description;
+  if (Predicate.isNotUndefined(contract.description)) {
+    return contract.description;
   }
-  return getDescriptionFromSchemaAst(handler.parametersSchema.ast);
+  return getDescriptionFromSchemaAst(contract.parametersSchema.ast);
 };
 
 /**
@@ -1164,25 +1164,25 @@ export const getDescriptionFromSchemaAst = (ast: AST.AST): string | undefined =>
 };
 
 /**
- * Generates a JSON Schema for a handler.
+ * Generates a JSON Schema for a contract.
  *
  * This function creates a JSON Schema representation that can be shared with
- * clients or documentation generators to describe the parameters a handler
+ * clients or documentation generators to describe the parameters a contract
  * expects.
  *
  * @example
  * ```ts
- * import * as Handler from "@beep/iam-sdk/authkit/Handler"
+ * import * as Contract from "@beep/iam-sdk/authkit/Contract"
  * import * as S from "effect/Schema"
  *
- * const completeProfile = Handler.make("complete_profile", {
+ * const completeProfile = Contract.make("complete_profile", {
  *   parameters: {
  *     displayName: S.String,
  *     timezone: S.optional(S.String)
  *   }
  * })
  *
- * const jsonSchema = Handler.getJsonSchema(completeProfile)
+ * const jsonSchema = Contract.getJsonSchema(completeProfile)
  * console.log(jsonSchema)
  * // {
  * //   type: "object",
@@ -1206,8 +1206,8 @@ export const getJsonSchema = <
     readonly failureMode: FailureMode;
   },
 >(
-  handler: Handler<Name, Config>
-): JsonSchema.JsonSchema7 => getJsonSchemaFromSchemaAst(handler.parametersSchema.ast);
+  contract: Contract<Name, Config>
+): JsonSchema.JsonSchema7 => getJsonSchemaFromSchemaAst(contract.parametersSchema.ast);
 
 /**
  * @since 1.0.0
@@ -1238,90 +1238,90 @@ export const getJsonSchemaFromSchemaAst = (ast: AST.AST): JsonSchema.JsonSchema7
 // =============================================================================
 
 /**
- * Annotation for providing a human-readable title for handlers.
+ * Annotation for providing a human-readable title for contracts.
  *
  * @example
  * ```ts
- * import * as Handler from "@beep/iam-sdk/authkit/Handler"
+ * import * as Contract from "@beep/iam-sdk/authkit/Contract"
  *
- * const myHandler = Handler.make("start_password_reset")
- *   .annotate(Handler.Title, "Start Password Reset")
+ * const myContract = Contract.make("start_password_reset")
+ *   .annotate(Contract.Title, "Start Password Reset")
  * ```
  *
  * @since 1.0.0
  * @category Annotations
  */
-export class Title extends Context.Tag("@beep/iam-sdk/Handler/Title")<Title, string>() {}
+export class Title extends Context.Tag("@beep/iam-sdk/Contract/Title")<Title, string>() {}
 
 /**
- * Annotation indicating whether a handler only reads data without making changes.
+ * Annotation indicating whether a contract only reads data without making changes.
  *
  * @example
  * ```ts
- * import * as Handler from "@beep/iam-sdk/authkit/Handler"
+ * import * as Contract from "@beep/iam-sdk/authkit/Contract"
  *
- * const readOnlyHandler = Handler.make("get_user_info")
- *   .annotate(Handler.Readonly, true)
+ * const readOnlyContract = Contract.make("get_user_info")
+ *   .annotate(Contract.Readonly, true)
  * ```
  *
  * @since 1.0.0
  * @category Annotations
  */
-export class Readonly extends Context.Reference<Readonly>()("@beep/iam-sdk/Handler/Readonly", {
+export class Readonly extends Context.Reference<Readonly>()("@beep/iam-sdk/Contract/Readonly", {
   defaultValue: F.constFalse,
 }) {}
 
 /**
- * Annotation indicating whether a handler performs destructive operations.
+ * Annotation indicating whether a contract performs destructive operations.
  *
  * @example
  * ```ts
- * import * as Handler from "@beep/iam-sdk/authkit/Handler"
+ * import * as Contract from "@beep/iam-sdk/authkit/Contract"
  *
- * const safeHandler = Handler.make("revoke_all_sessions")
- *   .annotate(Handler.Destructive, true)
+ * const safeContract = Contract.make("revoke_all_sessions")
+ *   .annotate(Contract.Destructive, true)
  * ```
  *
  * @since 1.0.0
  * @category Annotations
  */
-export class Destructive extends Context.Reference<Destructive>()("@beep/iam-sdk/Handler/Destructive", {
+export class Destructive extends Context.Reference<Destructive>()("@beep/iam-sdk/Contract/Destructive", {
   defaultValue: F.constTrue,
 }) {}
 
 /**
- * Annotation indicating whether a handler can be called multiple times safely.
+ * Annotation indicating whether a contract can be called multiple times safely.
  *
  * @example
  * ```ts
- * import * as Handler from "@beep/iam-sdk/authkit/Handler"
+ * import * as Contract from "@beep/iam-sdk/authkit/Contract"
  *
- * const idempotentHandler = Handler.make("fetch_active_session")
- *   .annotate(Handler.Idempotent, true)
+ * const idempotentContract = Contract.make("fetch_active_session")
+ *   .annotate(Contract.Idempotent, true)
  * ```
  *
  * @since 1.0.0
  * @category Annotations
  */
-export class Idempotent extends Context.Reference<Idempotent>()("@beep/iam-sdk/Handler/Idempotent", {
+export class Idempotent extends Context.Reference<Idempotent>()("@beep/iam-sdk/Contract/Idempotent", {
   defaultValue: F.constFalse,
 }) {}
 
 /**
- * Annotation indicating whether a handler can handle arbitrary external data.
+ * Annotation indicating whether a contract can handle arbitrary external data.
  *
  * @example
  * ```ts
- * import * as Handler from "@beep/iam-sdk/authkit/Handler"
+ * import * as Contract from "@beep/iam-sdk/authkit/Contract"
  *
- * const restrictedHandler = Handler.make("issue_admin_token")
- *   .annotate(Handler.OpenWorld, false)
+ * const restrictedContract = Contract.make("issue_admin_token")
+ *   .annotate(Contract.OpenWorld, false)
  * ```
  *
  * @since 1.0.0
  * @category Annotations
  */
-export class OpenWorld extends Context.Reference<OpenWorld>()("@beep/iam-sdk/Handler/OpenWorld", {
+export class OpenWorld extends Context.Reference<OpenWorld>()("@beep/iam-sdk/Contract/OpenWorld", {
   defaultValue: F.constTrue,
 }) {}
 
@@ -1393,16 +1393,3 @@ export const unsafeSecureJsonParse = (text: string): unknown => {
   }
 };
 
-export const mapBoundary =
-  <Input, Output>(
-    executor: (
-      encoded: Input,
-      options?: { readonly signal?: AbortSignal | undefined | null }
-    ) => Promise<
-      { readonly data: Output; readonly error: null } | { readonly data: null; readonly error: NonNullable<unknown> }
-    >
-  ) =>
-  (encoded: Input, signal: AbortSignal) =>
-    F.pipe(executor(encoded, { signal }), (promise) =>
-      promise.then((result) => (result.error ? { error: result.error } : ({ data: result.data } as const)))
-    );

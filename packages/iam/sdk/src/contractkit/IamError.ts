@@ -36,7 +36,7 @@ export type TypeId = typeof TypeId;
  * import { IamError } from "@beep/iam-sdk"
  *
  * const someError = new Error("generic error")
- * const aiError = new IamError.UnknownError({
+ * const iamError = new IamError.UnknownError({
  *   module: "Test",
  *   method: "example"
  * })
