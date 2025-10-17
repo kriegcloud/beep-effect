@@ -21,12 +21,12 @@ export class SignInEmailPayload extends BS.Class<SignInEmailPayload>("SignInEmai
   }
 ) {}
 
-export namespace SignInEmailPayload {
+export declare namespace SignInEmailPayload {
   export type Type = S.Schema.Type<typeof SignInEmailPayload>;
   export type Encoded = S.Schema.Encoded<typeof SignInEmailPayload>;
 }
 
-export const SignInEmailContract = Contract.make("SignInEmailContract", {
+export const SignInEmailContract = Contract.make("SignInEmail", {
   description: "Signs the user in using email",
   parameters: SignInEmailPayload.fields,
   failure: S.instanceOf(IamError),
@@ -48,12 +48,12 @@ export class SignInSocialPayload extends BS.Class<SignInSocialPayload>("SignInSo
   }
 ) {}
 
-export namespace SignInSocialPayload {
+export declare namespace SignInSocialPayload {
   export type Type = S.Schema.Type<typeof SignInSocialPayload>;
   export type Encoded = S.Schema.Encoded<typeof SignInSocialPayload>;
 }
 
-export const SignInSocialContract = Contract.make("SignInSocialContract", {
+export const SignInSocialContract = Contract.make("SignInSocial", {
   description: "Contract for signing in a user with a social auth provider.",
   parameters: SignInSocialPayload.fields,
   failure: S.instanceOf(IamError),
@@ -78,12 +78,12 @@ export class SignInUsernamePayload extends BS.Class<SignInUsernamePayload>("Sign
   }
 ) {}
 
-export namespace SignInUsernamePayload {
+export declare namespace SignInUsernamePayload {
   export type Type = S.Schema.Type<typeof SignInUsernamePayload>;
   export type Encoded = S.Schema.Encoded<typeof SignInUsernamePayload>;
 }
 
-export const SignInUsernameContract = Contract.make("SignInUsernameContract", {
+export const SignInUsernameContract = Contract.make("SignInUsername", {
   description: "Signs the user in using their username.",
   parameters: SignInUsernamePayload.fields,
   failure: S.instanceOf(IamError),
@@ -107,12 +107,12 @@ export class SignInPhoneNumberPayload extends BS.Class<SignInPhoneNumberPayload>
   }
 ) {}
 
-export namespace SignInPhoneNumberPayload {
+export declare namespace SignInPhoneNumberPayload {
   export type Type = S.Schema.Type<typeof SignInPhoneNumberPayload>;
   export type Encoded = S.Schema.Encoded<typeof SignInPhoneNumberPayload>;
 }
 
-export const SignInPhoneNumberContract = Contract.make("SignInPhoneNumberContract", {
+export const SignInPhoneNumberContract = Contract.make("SignInPhoneNumber", {
   description: "Signs the user in using their phone number.",
   parameters: SignInPhoneNumberPayload.fields,
   failure: S.instanceOf(IamError),
@@ -132,12 +132,12 @@ export class SignInPasskeyPayload extends BS.Class<SignInPasskeyPayload>("SignIn
   }
 ) {}
 
-export namespace SignInPasskeyPayload {
+export declare namespace SignInPasskeyPayload {
   export type Type = S.Schema.Type<typeof SignInPasskeyPayload>;
   export type Encoded = S.Schema.Encoded<typeof SignInPasskeyPayload>;
 }
 
-export const SignInPasskeyContract = Contract.make("SignInPasskeyContract", {
+export const SignInPasskeyContract = Contract.make("SignInPasskey", {
   description: "Signs the user in using a passkey.",
   parameters: SignInPasskeyPayload.fields,
   failure: S.instanceOf(IamError),
@@ -152,7 +152,7 @@ export declare namespace SignInOneTapPayload {
   export type Type = S.Schema.Type<typeof SignInOneTapPayload>;
   export type Encoded = S.Schema.Encoded<typeof SignInOneTapPayload>;
 }
-export const SignInOneTapContract = Contract.make("SignInOneTapContract", {
+export const SignInOneTapContract = Contract.make("SignInOneTap", {
   description: "Signs the user in using a one tap.",
   parameters: SignInOneTapPayload.fields,
   failure: S.instanceOf(IamError),

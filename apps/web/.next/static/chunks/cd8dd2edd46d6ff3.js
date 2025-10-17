@@ -1,0 +1,1 @@
+(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,213258,o=>{o.v({demo:{lang:"English",description:"The starting point for your next project is based on MUI. Easy customization helps you build apps faster and better."}})}]);

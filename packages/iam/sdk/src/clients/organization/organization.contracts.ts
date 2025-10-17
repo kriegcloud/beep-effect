@@ -15,7 +15,7 @@ export class AcceptInvitationPayload extends BS.Class<AcceptInvitationPayload>("
   }
 ) {}
 
-export namespace AcceptInvitationPayload {
+export declare namespace AcceptInvitationPayload {
   export type Type = S.Schema.Type<typeof AcceptInvitationPayload>;
   export type Encoded = S.Schema.Encoded<typeof AcceptInvitationPayload>;
 }

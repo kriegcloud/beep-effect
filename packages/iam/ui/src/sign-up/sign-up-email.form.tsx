@@ -1,35 +1,19 @@
 "use client";
-import { SignUpImplementations, SignUpValue } from "@beep/iam-sdk/clients";
-import { clientRuntimeLayer, makeRunClientPromise, useRuntime } from "@beep/runtime-client";
+import { SignUpValue } from "@beep/iam-sdk/clients";
+import { useSignUpEmail } from "@beep/iam-ui/sign-up/sign-up.atoms";
+import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { paths } from "@beep/shared-domain";
 import * as SharedEntities from "@beep/shared-domain/entities";
-import { withToast } from "@beep/ui/common/with-toast";
 import { Form, formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
 import { PasswordFieldsGroup } from "@beep/ui/form/groups";
-import { Atom, useAtom } from "@effect-atom/atom-react";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
-import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
 import type React from "react";
+import { GoogleReCaptcha } from "react-google-recaptcha-v3";
 import { toast } from "sonner";
 
-const runtime = Atom.runtime(clientRuntimeLayer);
-const signUpEmailAtom = runtime.fn(
-  F.flow(
-    SignUpImplementations.SignUpEmailContract,
-    withToast({
-      onWaiting: "Signing up",
-      onSuccess: "Signed up successfully",
-      onFailure: O.match({
-        onNone: () => "Failed with unknown error.",
-        onSome: (e) => e.message,
-      }),
-    })
-  )
-);
 type Props = {
   setVerificationNotice: React.Dispatch<
     React.SetStateAction<{
@@ -43,8 +27,8 @@ type Props = {
 export const SignUpEmailForm: React.FC<Props> = ({ setVerificationNotice, executeRecaptcha }) => {
   const runtime = useRuntime();
   const runClientPromise = makeRunClientPromise(runtime);
+  const { signUpEmail } = useSignUpEmail();
 
-  const [, signUpEmail] = useAtom(signUpEmailAtom);
   const form = useAppForm(
     formOptionsWithSubmitEffect({
       schema: SignUpValue,
@@ -134,6 +118,11 @@ export const SignUpEmailForm: React.FC<Props> = ({ setVerificationNotice, execut
               )}
             />
           </Stack>
+          <GoogleReCaptcha
+            onVerify={(response) => {
+              form.setFieldValue("captchaResponse", response);
+            }}
+          />
           <form.Submit variant={"contained"} />
         </Box>
       </form.AppForm>

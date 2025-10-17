@@ -65,14 +65,14 @@ export class SignUpValue extends S.transformOrFail(SignUpFrom, SignUpTo, {
     }),
 }) {}
 
-export namespace SignUpValue {
+export declare namespace SignUpValue {
   export type Type = S.Schema.Type<typeof SignUpValue>;
   export type Encoded = S.Schema.Encoded<typeof SignUpValue>;
 }
 
 export class SignUpEmailPayload extends BS.Class<SignUpEmailPayload>("SignUpEmailPayload")(
   {
-    value: S.typeSchema(SignUpValue),
+    value: SignUpValue,
     onSuccess: new BS.Fn({
       input: BS.URLPath,
       output: S.Void,
@@ -85,16 +85,16 @@ export class SignUpEmailPayload extends BS.Class<SignUpEmailPayload>("SignUpEmai
   }
 ) {}
 
-export namespace SignUpEmailPayload {
+export declare namespace SignUpEmailPayload {
   export type Type = S.Schema.Type<typeof SignUpEmailPayload>;
   export type Encoded = S.Schema.Encoded<typeof SignUpEmailPayload>;
 }
 
-export const SignUpEmailContract = Contract.make("SignUpEmailContract", {
+export const SignUpEmailContract = Contract.make("SignUpEmail", {
   description: "Signs up a new user using email credentials.",
   parameters: SignUpEmailPayload.fields,
   failure: S.instanceOf(IamError),
-  success: S.Void,
+  success: S.Union(S.TaggedStruct("Success", {}), S.TaggedStruct("Failure", {})),
 });
 
 export const SignUpContractSet = ContractSet.make(SignUpEmailContract);

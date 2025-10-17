@@ -16,9 +16,9 @@ export class SendVerifyPhonePayload extends BS.Class<SendVerifyPhonePayload>("Se
   }
 ) {}
 
-export namespace SendVerifyPhonePayload {
-  export type Type = typeof SendVerifyPhonePayload.Type;
-  export type Encoded = typeof SendVerifyPhonePayload.Encoded;
+export declare namespace SendVerifyPhonePayload {
+  export type Type = S.Schema.Type<typeof SendVerifyPhonePayload>;
+  export type Encoded = S.Schema.Encoded<typeof SendVerifyPhonePayload.Encoded>;
 }
 
 export class SendEmailVerificationPayload extends S.Class<SendEmailVerificationPayload>("SendEmailVerificationPayload")(
@@ -32,7 +32,7 @@ export class SendEmailVerificationPayload extends S.Class<SendEmailVerificationP
   }
 ) {}
 
-export namespace SendEmailVerificationPayload {
+export declare namespace SendEmailVerificationPayload {
   export type Type = S.Schema.Type<typeof SendEmailVerificationPayload>;
   export type Encoded = S.Schema.Encoded<typeof SendEmailVerificationPayload>;
 }
@@ -56,7 +56,7 @@ export class VerifyEmailPayload extends S.Class<VerifyEmailPayload>("VerifyEmail
   }
 ) {}
 
-export namespace VerifyEmailPayload {
+export declare namespace VerifyEmailPayload {
   export type Type = S.Schema.Type<typeof VerifyEmailPayload>;
   export type Encoded = S.Schema.Encoded<typeof VerifyEmailPayload>;
 }

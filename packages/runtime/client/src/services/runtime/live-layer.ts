@@ -37,11 +37,13 @@ const serviceName = `${clientEnv.appName}-client`;
  */
 export const TelemetryLive = WebSdk.layer(() => ({
   resource: { serviceName },
-  spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({ url: clientEnv.otlpTraceExportedUrl })),
-  logRecordProcessor: new BatchLogRecordProcessor(new OTLPLogExporter({ url: clientEnv.otlpLogExportedUrl })),
+  spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({ url: process.env.NEXT_PUBLIC_OTLP_LOG_EXPORTER_URL! })),
+  logRecordProcessor: new BatchLogRecordProcessor(
+    new OTLPLogExporter({ url: process.env.NEXT_PUBLIC_OTLP_LOG_EXPORTER_URL! })
+  ),
   metricReader: new PeriodicExportingMetricReader({
     exporter: new OTLPMetricExporter({
-      url: clientEnv.otlpMetricExportedUrl,
+      url: process.env.NEXT_PUBLIC_OTLP_LOG_EXPORTER_URL!,
     }),
   }),
 })).pipe(Layer.provideMerge(FetchHttpClient.layer));

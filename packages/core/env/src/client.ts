@@ -18,9 +18,9 @@ const ClientEnvSchema = S.Struct({
   authProviderNames: AuthProviderNames,
   appUrl: BS.Url,
   apiUrl: BS.Url,
-  otlpTraceExportedUrl: BS.Url,
-  otlpLogExportedUrl: BS.Url,
-  otlpMetricExportedUrl: BS.Url,
+  otlpTraceExporterUrl: BS.Url,
+  otlpLogExporterUrl: BS.Url,
+  otlpMetricExporterUrl: BS.Url,
   logLevel: LogLevel,
   logFormat: LogFormat,
   captchaSiteKey: S.Redacted(S.String),
@@ -29,7 +29,7 @@ const ClientEnvSchema = S.Struct({
   googleClientId: S.String,
 });
 
-namespace ClientEnvSchema {
+declare namespace ClientEnvSchema {
   export type Type = S.Schema.Type<typeof ClientEnvSchema>;
   export type Encoded = S.Schema.Encoded<typeof ClientEnvSchema>;
 }
@@ -42,9 +42,9 @@ export const clientEnv = F.pipe(
     authProviderNames: process.env.NEXT_PUBLIC_AUTH_PROVIDER_NAMES,
     appUrl: process.env.NEXT_PUBLIC_APP_URL,
     apiUrl: process.env.NEXT_PUBLIC_API_URL,
-    otlpTraceExportedUrl: process.env.NEXT_PUBLIC_OTLP_TRACE_EXPORTER_URL,
-    otlpLogExportedUrl: process.env.NEXT_PUBLIC_OTLP_LOG_EXPORTER_URL,
-    otlpMetricExportedUrl: process.env.NEXT_PUBLIC_OTLP_METRIC_EXPORTER_URL,
+    otlpTraceExporterUrl: process.env.NEXT_PUBLIC_OTLP_TRACE_EXPORTER_URL,
+    otlpLogExporterUrl: process.env.NEXT_PUBLIC_OTLP_LOG_EXPORTER_URL,
+    otlpMetricExporterUrl: process.env.NEXT_PUBLIC_OTLP_METRIC_EXPORTER_URL,
     logLevel: process.env.NEXT_PUBLIC_LOG_LEVEL,
     logFormat: process.env.NEXT_PUBLIC_LOG_FORMAT,
     captchaSiteKey: process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY,

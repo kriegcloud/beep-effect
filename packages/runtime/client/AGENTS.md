@@ -22,7 +22,7 @@
 
 ## Tooling & Docs Shortcuts
 - Effect ManagedRuntime refresher: `effect_docs__get_effect_doc({ "documentId": 7293 })`.
-- `@effect-atom/atom-react` registry patterns: run `markdownify__webpage-to-markdown` against https://github.com/Effect-TS/atom/blob/main/packages/atom-react/README.md when you need API specifics.
+- `@effect-atom/atom-react` registry patterns: run `markdownify__webpage-to-markdown` against https://github.com/tim-smart/effect-atom/blob/main/README.md when you need API specifics.
 - Repo scripts: `bun run check|lint|test|build --filter @beep/runtime-client`.
 - Worker rebuild (touching `src/worker/*`): `bun run build --filter @beep/runtime-client#worker`.
 

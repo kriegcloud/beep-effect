@@ -5,7 +5,6 @@ import { defaultSettings } from "@beep/ui-core/settings";
 import { detectSettings as detectSettingsHandler } from "@beep/ui-core/settings/server";
 import type { SettingsState } from "@beep/ui-core/settings/types";
 import type { Direction } from "@mui/material/styles";
-import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 
 export type AppConfig = {
@@ -15,19 +14,9 @@ export type AppConfig = {
   dir: Direction;
 };
 
-export class DetectLanguageError extends Data.TaggedError("DetectLanguageError")<{
-  readonly message: string;
-  readonly cause: unknown;
-}> {}
-
-export class DetectSettingsError extends Data.TaggedError("DetectSettingsError")<{
-  readonly message: string;
-  readonly cause: unknown;
-}> {}
-
 const detectLanguage = Effect.tryPromise({
   try: detectLanguageHandler,
-  catch: (e) => new DetectLanguageError({ message: "Failed to detect language", cause: e }),
+  catch: (e) => fallbackLang,
 }).pipe(
   Effect.withSpan("detectLanguage"),
   Effect.orElseSucceed(() => fallbackLang)
@@ -35,7 +24,7 @@ const detectLanguage = Effect.tryPromise({
 
 const detectSettings = Effect.tryPromise({
   try: () => detectSettingsHandler(),
-  catch: (e) => new DetectSettingsError({ message: "Failed to detect settings", cause: e }),
+  catch: (e) => defaultSettings,
 }).pipe(
   Effect.withSpan("detectSettings"),
   Effect.orElseSucceed(() => defaultSettings)

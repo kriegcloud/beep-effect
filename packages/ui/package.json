@@ -253,9 +253,11 @@
     "embla-carousel-autoplay": "catalog:",
     "embla-carousel-fade": "catalog:",
     "embla-carousel-react": "catalog:",
-    "react-apexcharts": "catalog:"
+    "react-apexcharts": "catalog:",
+    "react-google-recaptcha-v3": "catalog:"
   },
   "devDependencies": {
+    "react-google-recaptcha-v3": "catalog:",
     "@beep/ui-core": "workspace:^",
     "@types/bun": "catalog:",
     "@beep/types": "workspace:^",

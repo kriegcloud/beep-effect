@@ -39,7 +39,7 @@ export class RequestResetPasswordPayload extends BS.Class<RequestResetPasswordPa
   }
 ) {}
 
-export namespace RequestResetPasswordPayload {
+export declare namespace RequestResetPasswordPayload {
   export type Type = S.Schema.Type<typeof RequestResetPasswordPayload>;
   export type Encoded = S.Schema.Encoded<typeof RequestResetPasswordPayload>;
 }

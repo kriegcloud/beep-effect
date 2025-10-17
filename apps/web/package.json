@@ -3,8 +3,13 @@
   "author": "elpresidank",
   "version": "0.1.0",
   "type": "module",
-  "description": "CodeDank Website",
+  "description": "beep-effect app",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "apps/web"
+  },
   "scripts": {
     "dev": "NODE_OPTIONS='--inspect' bun run dotenvx -- next dev --turbopack",
     "dev:https": "bun run dotenvx -- bunx next dev --turbopack --experimental-https",

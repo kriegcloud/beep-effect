@@ -4,6 +4,7 @@ import { useCookies, useLocalStorage } from "@beep/ui/hooks";
 import { SETTINGS_STORAGE_KEY } from "@beep/ui-core/settings/settings-config";
 import type { SettingsProviderProps, SettingsState } from "@beep/ui-core/settings/types";
 import { getCookie, getStorage } from "@beep/ui-core/utils";
+import { useMediaQuery } from "@mui/material";
 import * as Equal from "effect/Equal";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SettingsContext } from "./settings-context";
@@ -51,7 +52,8 @@ export function SettingsProvider({
       }
     }
   }, []);
-
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  const isDarkMode = state.mode === "dark" || (state.mode === "system" && prefersDarkMode);
   const memoizedValue = useMemo(
     () => ({
       canReset,
@@ -59,11 +61,12 @@ export function SettingsProvider({
       openDrawer,
       onCloseDrawer,
       onToggleDrawer,
+      isDarkMode,
       state,
       setState,
       setField,
     }),
-    [canReset, onReset, openDrawer, onCloseDrawer, onToggleDrawer, state, setField, setState]
+    [isDarkMode, canReset, onReset, openDrawer, onCloseDrawer, onToggleDrawer, state, setField, setState]
   );
 
   return <SettingsContext value={memoizedValue}>{children}</SettingsContext>;

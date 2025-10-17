@@ -27,7 +27,7 @@ const signUpTransitionVariants = varFade("inUp", { distance: 64 });
 const runtime = Atom.runtime(clientRuntimeLayer);
 const signUpSocialAtom = runtime.fn(
   F.flow(
-    SignInImplementations.SignInSocialContract,
+    SignInImplementations.SignInSocial,
     withToast({
       onWaiting: "Signing in",
       onSuccess: "Signed in successfully",

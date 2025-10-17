@@ -12,9 +12,9 @@ import type {
 
 const SignInSocialHandler = Effect.fn("SignInSocialHandler")(function* (payload: SignInSocialPayload.Type) {
   const continuation = makeFailureContinuation({
-    contract: "SignInSocialContract",
+    contract: "SignInSocial",
     metadata: () => ({
-      plugin: "sign-in",
+      plugin: "signIn",
       method: "social",
     }),
   });
@@ -41,9 +41,9 @@ const SignInSocialHandler = Effect.fn("SignInSocialHandler")(function* (payload:
 
 const SignInEmailHandler = Effect.fn("SignInEmailHandler")(function* (payload: SignInEmailPayload.Type) {
   const continuation = makeFailureContinuation({
-    contract: "SignInEmailContract",
+    contract: "SignInEmail",
     metadata: () => ({
-      plugin: "sign-in",
+      plugin: "signIn",
       method: "email",
     }),
   });
@@ -81,9 +81,9 @@ const SignInUsernameHandler = Effect.fn("SignInUsernameHandler")(function* (payl
   const { username, password, rememberMe, captchaResponse, callbackURL } = payload;
 
   const continuation = makeFailureContinuation({
-    contract: "SignInUsernameContract",
+    contract: "SignInUsername",
     metadata: () => ({
-      plugin: "sign-in",
+      plugin: "signIn",
       method: "username",
     }),
   });
@@ -123,9 +123,9 @@ const SignInPhoneNumberHandler = Effect.fn("SignInPhoneNumberHandler")(function*
   payload: SignInPhoneNumberPayload.Type
 ) {
   const continuation = makeFailureContinuation({
-    contract: "SignInUsernameContract",
+    contract: "SignInUsername",
     metadata: () => ({
-      plugin: "sign-in",
+      plugin: "signIn",
       method: "phoneNumber",
     }),
   });
@@ -162,7 +162,7 @@ const SignInPhoneNumberHandler = Effect.fn("SignInPhoneNumberHandler")(function*
 
 const SignInOneTapHandler = Effect.fn("SignInOneTapHandler")(function* () {
   const continuation = makeFailureContinuation({
-    contract: "SignInOneTapContract",
+    contract: "SignInOneTap",
     metadata: () => ({
       plugin: "oneTap",
       method: "signIn",
@@ -182,9 +182,9 @@ const SignInOneTapHandler = Effect.fn("SignInOneTapHandler")(function* () {
 
 const SignInPasskeyHandler = Effect.fn("SignInPasskey")(function* () {
   const continuation = makeFailureContinuation({
-    contract: "SignInPasskeyContract",
+    contract: "SignInPasskey",
     metadata: () => ({
-      plugin: "sign-in",
+      plugin: "signIn",
       method: "passkey",
     }),
   });
@@ -210,10 +210,10 @@ const SignInPasskeyHandler = Effect.fn("SignInPasskey")(function* () {
 });
 
 export const SignInImplementations = SignInContractSet.of({
-  SignInEmailContract: SignInEmailHandler,
-  SignInSocialContract: SignInSocialHandler,
-  SignInPhoneNumberContract: SignInPhoneNumberHandler,
-  SignInUsernameContract: SignInUsernameHandler,
-  SignInPasskeyContract: SignInPasskeyHandler,
-  SignInOneTapContract: SignInOneTapHandler,
+  SignInEmail: SignInEmailHandler,
+  SignInSocial: SignInSocialHandler,
+  SignInPhoneNumber: SignInPhoneNumberHandler,
+  SignInUsername: SignInUsernameHandler,
+  SignInPasskey: SignInPasskeyHandler,
+  SignInOneTap: SignInOneTapHandler,
 });

@@ -1,0 +1,1 @@
+(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,553350,e=>{e.v({app:"تطبيق",job:"وظيفة",user:"مستخدم",travel:"السفر",invoice:"فاتورة",blog:{title:"مدونة",caption:"اختصارات لوحة المفاتيح المخصصة."},subheader:"العنوان الفرعي"})}]);

@@ -25,7 +25,7 @@ export class VerifyOtpPayload extends BS.Class<VerifyOtpPayload>("VerifyOtpPaylo
   }
 ) {}
 
-export namespace VerifyOtpPayload {
+export declare namespace VerifyOtpPayload {
   export type Type = S.Schema.Type<typeof VerifyOtpPayload>;
   export type Encoded = S.Schema.Encoded<typeof VerifyOtpPayload>;
 }
@@ -41,7 +41,7 @@ export class VerifyTotpPayload extends BS.Class<VerifyTotpPayload>("VerifyTotpPa
   }
 ) {}
 
-export namespace VerifyTotpPayload {
+export declare namespace VerifyTotpPayload {
   export type Type = S.Schema.Type<typeof VerifyTotpPayload>;
   export type Encoded = S.Schema.Encoded<typeof VerifyTotpPayload>;
 }

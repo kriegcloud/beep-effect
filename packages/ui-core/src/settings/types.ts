@@ -17,6 +17,7 @@ export type SettingsState = {
 
 export type SettingsContextValue = {
   state: SettingsState;
+  isDarkMode: boolean;
   canReset: boolean;
   onReset: () => void;
   setState: (updateValue: Partial<SettingsState>) => void;

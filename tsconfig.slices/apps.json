@@ -1,8 +1,14 @@
 {
   "files": [],
   "references": [
-    { "path": "../apps/server" },
-    { "path": "../apps/mcp" },
-    { "path": "../apps/web/tsconfig.json" }
+    {
+      "path": "../apps/server"
+    },
+    {
+      "path": "../apps/mcp"
+    },
+    {
+      "path": "../apps/web/tsconfig.json"
+    }
   ]
 }

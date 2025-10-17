@@ -17,7 +17,7 @@ export class SignOutPayload extends BS.Class<SignOutPayload>("SignOutPayload")(
   }
 ) {}
 
-export namespace SignOutPayload {
+export declare namespace SignOutPayload {
   export type Type = S.Schema.Type<typeof SignOutPayload>;
   export type Encoded = S.Schema.Encoded<typeof SignOutPayload>;
 }

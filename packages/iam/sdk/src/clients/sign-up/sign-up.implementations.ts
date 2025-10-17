@@ -8,9 +8,9 @@ import type { SignUpEmailPayload } from "./sign-up.contracts";
 
 const SignUpEmailHandler = Effect.fn("SignUpEmailHandler")(function* (payload: SignUpEmailPayload.Type) {
   const continuation = makeFailureContinuation({
-    contract: "SignUpEmailContract",
+    contract: "SignUpEmail",
     metadata: () => ({
-      plugin: "sign-up",
+      plugin: "signUp",
       method: "email",
     }),
   });
@@ -45,8 +45,10 @@ const SignUpEmailHandler = Effect.fn("SignUpEmailHandler")(function* (payload: S
   if (result.error == null) {
     client.$store.notify("$sessionSignal");
   }
+
+  return result.error ? ({ _tag: "Failure" } as const) : ({ _tag: "Success" } as const);
 });
 
 export const SignUpImplementations = SignUpContractSet.of({
-  SignUpEmailContract: SignUpEmailHandler,
+  SignUpEmail: SignUpEmailHandler,
 });

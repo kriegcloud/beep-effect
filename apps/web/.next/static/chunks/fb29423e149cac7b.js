@@ -1,0 +1,1 @@
+(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,302585,e=>{e.v({app:"App",job:"Job",user:"User",travel:"Travel",invoice:"Invoice",blog:{title:"Blog",caption:"Custom keyboard shortcuts."},subheader:"Sub header"})}]);

@@ -15,7 +15,7 @@ export class OAuthRegisterPayload extends BS.Class<OAuthRegisterPayload>("OAuthR
   }
 ) {}
 
-export namespace OAuthRegisterPayload {
+export declare namespace OAuthRegisterPayload {
   export type Type = S.Schema.Type<typeof OAuthRegisterPayload>;
   export type Encoded = S.Schema.Encoded<typeof OAuthRegisterPayload>;
 }

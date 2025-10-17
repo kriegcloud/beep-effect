@@ -1,0 +1,1 @@
+(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,536039,e=>{e.v({demo:{lang:"France",description:"Le point de départ pour votre prochain projet est basé sur MUI. La personnalisation facile vous aide à construire des applications plus rapidement et mieux."}})}]);
