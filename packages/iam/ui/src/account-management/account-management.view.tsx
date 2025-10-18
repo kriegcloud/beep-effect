@@ -1,5 +1,4 @@
 "use client";
-import { AccountManagementProvider } from "@beep/iam-ui/account-management/account-management.provider";
 import { SimpleBar } from "@beep/ui/molecules/SimpleBar";
 import { useBreakpoints } from "@beep/ui/providers";
 import { useSettingsContext } from "@beep/ui/settings";
@@ -26,82 +25,80 @@ export const AccountManagementView = () => {
   const handleChange = (_event: React.SyntheticEvent, newValue: string): void => setActiveTab(newValue);
 
   return (
-    <AccountManagementProvider>
-      <TabContext value={activeTab}>
-        <Stack>
-          {downMd ? (
-            <Drawer
-              hideBackdrop
-              anchor={direction === "ltr" ? "left" : "right"}
-              open={showTabList}
-              onClose={() => setShowTabList(false)}
-              ModalProps={{
-                keepMounted: true,
-                disablePortal: true,
-              }}
-              slotProps={{
-                paper: {
-                  sx: {
-                    bgcolor: "background.elevation1",
-                    width: 1,
-                    overflow: "hidden",
-                    pointerEvents: "auto",
-                    // height: ({ mixins }) => mixins.contentHeight(topbarHeight),
-                    // top: ({ mixins }) => mixins.topOffset(topbarHeight, 1),
-                  },
+    <TabContext value={activeTab}>
+      <Stack>
+        {downMd ? (
+          <Drawer
+            hideBackdrop
+            anchor={direction === "ltr" ? "left" : "right"}
+            open={showTabList}
+            onClose={() => setShowTabList(false)}
+            ModalProps={{
+              keepMounted: true,
+              disablePortal: true,
+            }}
+            slotProps={{
+              paper: {
+                sx: {
+                  bgcolor: "background.elevation1",
+                  width: 1,
+                  overflow: "hidden",
+                  pointerEvents: "auto",
+                  // height: ({ mixins }) => mixins.contentHeight(topbarHeight),
+                  // top: ({ mixins }) => mixins.topOffset(topbarHeight, 1),
                 },
-              }}
-              sx={{
-                pointerEvents: "none",
-              }}
-            >
-              <SimpleBar>
-                <SideTabList setShowTabList={setShowTabList} handleChange={handleChange} />
-              </SimpleBar>
-            </Drawer>
-          ) : (
-            <Paper
-              component={"div"}
-              sx={{
-                width: { md: 324, lg: 405 },
-                position: "sticky",
-                // top: ({ mixins }) => mixins.topOffset(topbarHeight),
-                // height: ({ mixins }) => mixins.contentHeight(topbarHeight),
-              }}
-            >
-              <SimpleBar>
-                <SideTabList setShowTabList={setShowTabList} handleChange={handleChange} />
-              </SimpleBar>
-            </Paper>
-          )}
-
-          <Paper sx={{ flex: 1, maxWidth: 1 }}>
-            <Container
-              maxWidth={false}
-              sx={{
-                px: { xs: 3, md: 5 },
-                py: 5,
-                maxWidth: { xs: 628, md: 660 },
-                overflowY: "hidden",
-                height: downMd ? 1 : "auto",
-              }}
-            >
-              {A.map(accountTabs, (tab, index) => (
-                <AccountTabPanel
-                  key={`${tab}-${index}`}
-                  label={tab.label}
-                  value={tab.value}
-                  title={tab.title}
-                  panelIcon={tab.panelIcon}
-                  setShowTabList={setShowTabList}
-                >
-                  {tab.tabPanel}
-                </AccountTabPanel>
-              ))}
-            </Container>
+              },
+            }}
+            sx={{
+              pointerEvents: "none",
+            }}
+          >
+            <SimpleBar>
+              <SideTabList setShowTabList={setShowTabList} handleChange={handleChange} />
+            </SimpleBar>
+          </Drawer>
+        ) : (
+          <Paper
+            component={"div"}
+            sx={{
+              width: { md: 324, lg: 405 },
+              position: "sticky",
+              // top: ({ mixins }) => mixins.topOffset(topbarHeight),
+              // height: ({ mixins }) => mixins.contentHeight(topbarHeight),
+            }}
+          >
+            <SimpleBar>
+              <SideTabList setShowTabList={setShowTabList} handleChange={handleChange} />
+            </SimpleBar>
           </Paper>
-        </Stack>
-      </TabContext>
-    </AccountManagementProvider>
+        )}
+
+        <Paper sx={{ flex: 1, maxWidth: 1 }}>
+          <Container
+            maxWidth={false}
+            sx={{
+              px: { xs: 3, md: 5 },
+              py: 5,
+              maxWidth: { xs: 628, md: 660 },
+              overflowY: "hidden",
+              height: downMd ? 1 : "auto",
+            }}
+          >
+            {A.map(accountTabs, (tab, index) => (
+              <AccountTabPanel
+                key={`${tab}-${index}`}
+                label={tab.label}
+                value={tab.value}
+                title={tab.title}
+                panelIcon={tab.panelIcon}
+                setShowTabList={setShowTabList}
+              >
+                {tab.tabPanel}
+              </AccountTabPanel>
+            ))}
+          </Container>
+        </Paper>
+      </Stack>
+    </TabContext>
   );
 };

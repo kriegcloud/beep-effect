@@ -28,8 +28,9 @@ const PRIVATE_PREFIXES = [
   paths.dashboard.root,
   paths.settings.root,
   paths.organizations.root,
-  "/account",
+  "/dashboard/account-management",
   paths.fileManager.root,
+
   paths.admin.root,
 ] as const;
 

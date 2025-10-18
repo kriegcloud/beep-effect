@@ -1,3 +1,4 @@
+"use client";
 import { Iconify } from "@beep/ui/atoms";
 import { useBoolean } from "@beep/ui/hooks";
 import Box from "@mui/material/Box";
