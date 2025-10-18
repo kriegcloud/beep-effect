@@ -225,3 +225,29 @@ export const rfc3339DateTime =
 export const css_hex_color_regex = Regex.make(/^#(?:[A-F0-9]{3,4}|[A-F0-9]{6}(?:[A-F0-9]{2})?)$/i);
 
 export const rgb_number_part_regex = Regex.make(/^[+-]?(?:\d+\.?\d*|\.\d+)$/);
+
+// biome-ignore lint/suspicious/noControlCharactersInRegex: This is intentional
+export const NO_ASCII_CTRL = Regex.make(/^[^\x00-\x1F\x7F]+$/);
+
+export const US_POSTAL_CODE_REGEX = Regex.make(/^\d{5}(-\d{4})?$/);
+
+export const CANADA_POSTAL_CODE_REGEX = Regex.make(/^[A-Z]\d[A-Z][ ]?\d[A-Z]\d$/);
+export const GREAT_BRITAIN_POSTAL_CODE_REGEX = Regex.make(/^(GIR 0AA|[A-Z]{1,2}\d[A-Z\d]?[ ]?\d[A-Z]{2})$/);
+export const GERMANY_POSTAL_CODE_REGEX = Regex.make(/^\d{5}$/);
+export const FRANCE_POSTAL_CODE_REGEX = Regex.make(/^\d{5}$/);
+export const NETHERLANDS_POSTAL_CODE_REGEX = Regex.make(/^\d{4}[ ]?[A-Z]{2}$/);
+export const AUSTRALIA_POSTAL_CODE_REGEX = Regex.make(/^\d{4}$/);
+export const BRAZIL_POSTAL_CODE_REGEX = Regex.make(/^\d{5}-?\d{3}$/);
+export const IRELAND_POSTAL_CODE_REGEX = Regex.make(/^[A-Z0-9]{3}[ ]?[A-Z0-9]{4}$/);
+
+export const POSTAL_CODE_REGEX = {
+  US: US_POSTAL_CODE_REGEX,
+  CANADA: CANADA_POSTAL_CODE_REGEX,
+  GREAT_BRITAIN: GREAT_BRITAIN_POSTAL_CODE_REGEX,
+  GERMANY: GERMANY_POSTAL_CODE_REGEX,
+  FRANCE: FRANCE_POSTAL_CODE_REGEX,
+  NETHERLANDS: NETHERLANDS_POSTAL_CODE_REGEX,
+  AUSTRALIA: AUSTRALIA_POSTAL_CODE_REGEX,
+  BRAZIL: BRAZIL_POSTAL_CODE_REGEX,
+  IRELAND: IRELAND_POSTAL_CODE_REGEX,
+} as const;

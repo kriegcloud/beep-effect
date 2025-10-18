@@ -1,1 +1,0 @@
-(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,526704,o=>{o.v({languageSwitch:{success:"语言已更改！",error:"更改语言时出错！",loading:"加载中..."}})}]);

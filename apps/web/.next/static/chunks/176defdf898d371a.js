@@ -1,1 +1,0 @@
-(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,212152,o=>{o.v({app:"Application",job:"Emploi",user:"Utilisateur",travel:"Voyage",invoice:"Facture",blog:{title:"Blog",caption:"Raccourcis clavier personnalisés."},subheader:"Sous-titre"})}]);

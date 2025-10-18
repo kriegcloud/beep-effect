@@ -1,3 +1,4 @@
+import { RecordUtils } from "@beep/utils";
 import type { IconifyJSON } from "@iconify/react";
 import { addCollection } from "@iconify/react";
 import * as A from "effect/Array";
@@ -37,8 +38,8 @@ export const iconSets = F.pipe(
     return acc;
   })
 );
-
-export const allIconNames: IconifyName[] = Struct.keys(allIcons);
+export const allIconNamesNonEmpty = RecordUtils.recordKeys(allIcons);
+export const allIconNames: IconifyName[] = [...allIconNamesNonEmpty];
 
 export type IconifyName = keyof typeof allIcons;
 

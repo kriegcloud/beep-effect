@@ -4,52 +4,52 @@
   "exclude": [],
   "references": [
     {
-      "path": "../../common/types/tsconfig.build.json"
+      "path": "../../common/types"
     },
     {
-      "path": "../../common/invariant/tsconfig.build.json"
+      "path": "../../common/invariant"
     },
     {
-      "path": "../../common/utils/tsconfig.build.json"
+      "path": "../../common/utils"
     },
     {
-      "path": "../../common/schema/tsconfig.build.json"
+      "path": "../../common/schema"
     },
     {
-      "path": "../../common/constants/tsconfig.build.json"
+      "path": "../../common/constants"
     },
     {
-      "path": "../../common/errors/tsconfig.build.json"
+      "path": "../../common/errors"
     },
     {
-      "path": "../../shared/domain/tsconfig.build.json"
+      "path": "../../shared/domain"
     },
     {
-      "path": "../../shared/tables/tsconfig.build.json"
+      "path": "../../shared/tables"
     },
     {
-      "path": "../../core/env/tsconfig.build.json"
+      "path": "../../core/env"
     },
     {
-      "path": "../../core/db/tsconfig.build.json"
+      "path": "../../core/db"
     },
     {
-      "path": "../../iam/infra/tsconfig.build.json"
+      "path": "../../iam/infra"
     },
     {
-      "path": "../../iam/domain/tsconfig.build.json"
+      "path": "../../iam/domain"
     },
     {
-      "path": "../../iam/tables/tsconfig.build.json"
+      "path": "../../iam/tables"
     },
     {
-      "path": "../../files/infra/tsconfig.build.json"
+      "path": "../../files/infra"
     },
     {
-      "path": "../../files/domain/tsconfig.build.json"
+      "path": "../../files/domain"
     },
     {
-      "path": "../../files/tables/tsconfig.build.json"
+      "path": "../../files/tables"
     }
   ],
   "compilerOptions": {

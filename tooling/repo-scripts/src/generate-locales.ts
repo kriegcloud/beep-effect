@@ -16,7 +16,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Str from "effect/String";
 
-const GENERATED_RELATIVE_DIR = ["packages", "common", "constants", "src", "_generated"] as const;
+const GENERATED_RELATIVE_DIR = ["packages", "common", "schema", "src", "custom", "locales"] as const;
 
 const GENERATED_FILENAME = "ALL_LOCALES.generated.ts" as const;
 

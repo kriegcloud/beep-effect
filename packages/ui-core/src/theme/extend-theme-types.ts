@@ -226,3 +226,12 @@ declare module "@mui/material/Rating" {
 declare module "@mui/material/Tabs" {
   interface TabsPropsIndicatorColorOverrides extends TabsExtendIndicatorColor {}
 }
+
+declare module "@mui/material" {
+  interface TextFieldPropsSizeOverrides {
+    large: true;
+  }
+  interface InputBasePropsSizeOverrides {
+    large: true;
+  }
+}

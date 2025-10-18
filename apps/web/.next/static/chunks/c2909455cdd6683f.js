@@ -1,1 +1,0 @@
-(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,364898,e=>{e.v({demo:{lang:"Chinese",description:"您的下一个项目的起点基于 MUI。简单的定制可帮助您更快、更好地构建应用程序。"}})}]);

@@ -21,6 +21,13 @@ export class Model extends M.Class<Model>(`UserModel`)(
       description: "The user's email address",
     }),
 
+    /** User's secondary email address (unique) */
+    secondaryEmail: BS.FieldOptionOmittable(
+      BS.Email.annotations({
+        description: "The user's secondary email address",
+      })
+    ),
+
     /** Whether the user's email has been verified */
     emailVerified: BS.BoolWithDefault(false),
 

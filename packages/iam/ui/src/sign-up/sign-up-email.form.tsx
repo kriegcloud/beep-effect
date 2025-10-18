@@ -11,7 +11,6 @@ import Stack from "@mui/material/Stack";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import type React from "react";
-import { GoogleReCaptcha } from "react-google-recaptcha-v3";
 import { toast } from "sonner";
 
 type Props = {
@@ -78,11 +77,6 @@ export const SignUpEmailForm: React.FC<Props> = ({ setVerificationNotice, execut
             rememberMe: value.rememberMe,
             captchaResponse: token,
           },
-          onSuccess: (path) =>
-            setVerificationNotice({
-              redirectPath: path,
-              firstName: value.firstName,
-            }),
         });
       },
     })
@@ -118,11 +112,6 @@ export const SignUpEmailForm: React.FC<Props> = ({ setVerificationNotice, execut
               )}
             />
           </Stack>
-          <GoogleReCaptcha
-            onVerify={(response) => {
-              form.setFieldValue("captchaResponse", response);
-            }}
-          />
           <form.Submit variant={"contained"} />
         </Box>
       </form.AppForm>

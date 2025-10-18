@@ -1,1 +1,0 @@
-(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,311808,e=>{e.v({app:"应用",job:"工作",user:"用户",travel:"旅行",invoice:"发票",blog:{title:"博客",caption:"自定义键盘快捷键。"},subheader:"子标题"})}]);

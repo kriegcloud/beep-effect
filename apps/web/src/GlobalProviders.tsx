@@ -13,8 +13,8 @@ import { themeConfig } from "@beep/ui-core/theme";
 import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import type React from "react";
-
 import type { AppConfig } from "@/app-config";
+import RecaptchaProvider from "./recaptcha-provider.client";
 
 type GlobalProviders = {
   children: React.ReactNode;
@@ -37,12 +37,14 @@ export function GlobalProviders({ children, appConfig, nonce }: GlobalProviders)
             <AppRouterCacheProvider options={{ key: "css", enableCssLayer: true, nonce }}>
               <ThemeProvider modeStorageKey={themeConfig.modeStorageKey} defaultMode={themeConfig.defaultMode}>
                 <BreakpointsProvider>
-                  <MotionLazy>
-                    <Snackbar />
-                    <ProgressBar />
-                    <SettingsDrawer defaultSettings={defaultSettings} />
-                    {children}
-                  </MotionLazy>
+                  <RecaptchaProvider>
+                    <MotionLazy>
+                      <Snackbar />
+                      <ProgressBar />
+                      <SettingsDrawer defaultSettings={defaultSettings} />
+                      {children}
+                    </MotionLazy>
+                  </RecaptchaProvider>
                 </BreakpointsProvider>
               </ThemeProvider>
             </AppRouterCacheProvider>

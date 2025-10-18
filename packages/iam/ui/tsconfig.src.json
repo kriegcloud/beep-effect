@@ -1,7 +1,7 @@
 {
   "extends": "../../../tsconfig.base.json",
   "include": ["src"],
-  "exclude": [],
+  "exclude": ["build"],
   "references": [
     {
       "path": "../../ui"

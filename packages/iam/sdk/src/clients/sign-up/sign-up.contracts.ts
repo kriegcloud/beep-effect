@@ -73,10 +73,6 @@ export declare namespace SignUpValue {
 export class SignUpEmailPayload extends BS.Class<SignUpEmailPayload>("SignUpEmailPayload")(
   {
     value: SignUpValue,
-    onSuccess: new BS.Fn({
-      input: BS.URLPath,
-      output: S.Void,
-    }).Schema,
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/SignUpEmailPayload"),

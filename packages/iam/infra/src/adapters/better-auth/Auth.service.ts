@@ -66,6 +66,10 @@ type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "user"> 
         type: "string";
         required: true;
       };
+      secondaryEmailAddress: {
+        type: "string";
+        required: false;
+      };
     };
   };
 };
@@ -271,6 +275,10 @@ const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService | I
         gender: {
           type: "string",
           required: true,
+        },
+        secondaryEmailAddress: {
+          type: "string",
+          required: false,
         },
         ...commonExtraFields,
       },
