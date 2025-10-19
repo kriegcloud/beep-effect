@@ -25,11 +25,11 @@ Keep these files open; they contain the canonical shapes for request/response pa
 ### 2.1 Contracts (`packages/iam/sdk/src/clients/admin/admin.contracts.ts`)
 - Added comprehensive schemas for every admin endpoint.
 - Introduced shared structures (`AdminUser`, `AdminSession`, etc.).
-- **Important issue:** some fields currently import from `@beep/shared-domain/entity-ids` and primitive schemas. Review the TypeScript build failures (see §3) to reconcile shape mismatches.
+- Schemas now rely on local primitives (`AdminUserId`, `AdminRoleValue`); cross-slice dependencies on `@beep/shared-domain` have been removed.
 
 ### 2.2 Implementations (`packages/iam/sdk/src/clients/admin/admin.implementations.ts`)
 - All admin methods wired through `makeFailureContinuation`, full decode/notify logic.
-- **Blocking:** several casts using `as any` were introduced temporarily during build troubleshooting; per latest instruction they must be removed (see §4).
+- `as any` has been removed across the current admin handlers; response decoding now consistently uses `requireData` + `decodeResult` (including stop impersonating, revoke/remove flows, and permission checks).
 - Session-mutation handlers notify `$sessionSignal`.
 
 No other files touched beyond the new working notes.
@@ -40,42 +40,15 @@ No other files touched beyond the new working notes.
 
 Command: `PATH="$HOME/.bun/bin:$PATH" bun run build --filter=@beep/iam-sdk`
 
-Outcome: **failing**. Key diagnostics to address in next session:
-
-1. **Schema Usage Errors**
-   - `AdminUser` currently references `SharedEntityIds.UserId` etc.; TypeScript complains certain optional schema helpers are not compatible with `Contract.make` expectations (e.g., `optionalWith` not matching `Schema.All`). Need to rework these property schemas (likely switch to plain `S.String`/`S.optional` wrappers).
-   - Similar issue for `AdminSession` fields.
-
-2. **Permission Payload Struct**
-   - `AdminHasPermissionPayload` currently declared as a `Class` but registered incorrectly with `Contract.make` (`parameters` expects `.fields`). Reconcile by switching back to `S.Struct`/custom validation pipeline that enforces "exactly one of" semantics without using `ParseResult` heavy logic.
-
-3. **Client Type Mismatches**
-   - Better Auth client type definitions expect specific literal unions for roles (`"user" | "admin" | ...`). We must align the contract payload types and encoded values (likely reusing enums from docs or narrowing to string literals) so we no longer need casts.
-   - `client.admin.createUser` expects redacted email/password types; adjust call-site to pass `Redacted.value` only where required and align with expected types (verify D.TS definitions).
-
-4. **Boolean Response Normalisation**
-   - Comparisons like `raw === true` on objects triggered TS2367. Should decode `raw` via schema, or map to explicit shape before decode (e.g., `typeof raw === "boolean" ? { success: raw } : raw`).
-
-Fixing the above should leave the build green; re-run the command afterwards.
+Outcome: **passing** (latest run).
 
 ---
 
 ## 4. Immediate Next Actions for the Successor Agent
 
-1. **Remove `as any` usage**
-   - Search `admin.implementations.ts` for `as any`. Replace with precise typing by aligning payload schemas and Return types with the Better Auth client signatures.
-
-2. **Refine Contract Schemas**
-   - Revisit each schema causing issues (`AdminUser`, `AdminSession`, etc.). Prefer plain `S.String`, `S.Boolean`, etc., or wrap with `S.optional` rather than reusing model insert schemas that introduce optional defaults.
-   - For permission payload validation, consider a helper `ensureExclusive` that runs in handler prior to calling the client, instead of encoding the rule in the schema.
-
-3. **Synchronise Types Between Payloads and Client**
-   - Inspect `node_modules/better-auth/dist/plugins/admin/index.d.ts` around each method to confirm exact parameter types.
-   - Update contract payloads so encoded types match expectation (e.g., `role?: string | readonly string[]`, `banReason?: string | undefined`, etc.).
-
-4. **Re-run Build**
-   - After adjustments: `PATH="$HOME/.bun/bin:$PATH" bun run build --filter=@beep/iam-sdk` (the PATH prefix is required; earlier runs showed `bun` missing otherwise).
-   - Capture any remaining diagnostics in this file if new blockers appear.
+1. Audit `BETTER_AUTH_CLIENT_AND_METHODS_LIST.md` to mark completed admin methods and choose the next batch (e.g., ban/unban UI integration or remaining checklist items).
+2. Evaluate consumer surfaces (runtime/UI) that should start wiring these admin contracts, noting any missing atoms/hooks before implementation begins.
+3. Maintain the build gate (`PATH="$HOME/.bun/bin:$PATH" bun run build --filter=@beep/iam-sdk`) after each batch and record findings here.
 
 ---
 
@@ -113,3 +86,26 @@ Keep this log updated if more commands are run.
 ---
 
 Feel free to append to this file as the effort progresses; it is intended to serve as the running log for admin client integration work.
+
+---
+
+## 8. Progress Log
+
+- **Batch 1 — `setRole`, `getUser`, `createUser` (current session)**  
+  - Normalised admin contract schemas to use local `AdminUserId`/`S.*` primitives (removed `SharedEntityIds` dependency); constrained `AdminRole` to `"user" | "admin"`.  
+  - Updated the three handlers to drop every `as any`, build request objects with typed spreads, and reuse typed `FetchOptions`. Added explicit failure typing via `InstanceType<typeof IamError>` and tightened `decodeResult`.  
+  - Build command: `PATH="$HOME/.bun/bin:$PATH" bun run build --filter=@beep/iam-sdk` (fails).  
+    - Resolved earlier schema errors; remaining blockers include `decodeResult` still inferred as `Effect<any, never, unknown>` (`admin.implementations.ts:78`) plus downstream handlers that have not been retyped yet (`StopImpersonating`, revoke/remove flows, `hasPermission`).  
+  - Next batch should address the remaining handlers’ typing (ensure each returns `Effect<Success, IamError, never>` and eliminate `ParseError` leakage) before retrying the build.
+- **Batch 2 — `updateUser`, `listUsers`, `listUserSessions` (current session)**  
+  - Reworked `decodeResult` to use `S.decodeUnknownSync` through `Effect.try`/`Effect.orDieWith`, eliminating the `unknown` environment channel.  
+  - Retyped the three handlers to rely on `Parameters<typeof client.admin.*>[0]` request shapes; removed the remaining `as any` usage and kept `makeFailureContinuation` metadata intact.  
+  - Build command: `PATH="$HOME/.bun/bin:$PATH" bun run build --filter=@beep/iam-sdk` (fails).  
+    - Outstanding diagnostics now limited to `AdminStopImpersonatingHandler` (parameter typed as `{}`) plus `AdminRemoveUserHandler` and `AdminHasPermissionHandler` leaking `ParseError`. Next batch should widen the stop-impersonating payload and route both boolean/permission responses through `decodeResult`.
+- **Batch 3 — `stopImpersonating`, `removeUser`, `hasPermission` (current session)**  
+  - Annotated `AdminStopImpersonatingHandler` with the contract success type while widening its parameter to `unknown`, keeping the `$sessionSignal` notification and avoiding the `{}` signature error.  
+  - Refactored `AdminRemoveUserHandler` and `AdminHasPermissionHandler` to reuse `requireData`/`decodeResult`; the latter now enforces XOR semantics between `permission` and `permissions` to raise `IamError` on invalid payloads.  
+  - Build command: `PATH="$HOME/.bun/bin:$PATH" bun run build --filter=@beep/iam-sdk` (passes).  
+- **Batch 4 — `revokeUserSession`, `revokeUserSessions` (current session)**  
+  - Migrated both revoke handlers to the shared `requireData` + `decodeResult` helpers, eliminating custom `ParseError` catch blocks while preserving failure typing.  
+  - Build command: `PATH="$HOME/.bun/bin:$PATH" bun run build --filter=@beep/iam-sdk` (passes).  

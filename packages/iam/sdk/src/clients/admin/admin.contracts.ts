@@ -1,12 +1,12 @@
 import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
 import { IamError } from "@beep/iam-sdk/errors";
 import { BS } from "@beep/schema";
-import {SharedEntityIds} from "@beep/shared-domain";
-import * as SharedEntities from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
 
-const AdminRoleValue = S.NonEmptyTrimmedString;
-const AdminRoleInput = S.Union(AdminRoleValue, S.Array(AdminRoleValue));
+const AdminRoleValue = S.Literal("user", "admin");
+const AdminRoleArray = S.Array(AdminRoleValue);
+const AdminRoleInput = S.Union(AdminRoleValue, AdminRoleArray);
+const AdminUserId = S.NonEmptyTrimmedString;
 const PermissionMatrix = S.Record({
   key: S.NonEmptyTrimmedString,
   value: S.Array(S.NonEmptyTrimmedString),
@@ -14,7 +14,7 @@ const PermissionMatrix = S.Record({
 
 export class AdminUser extends S.Class<AdminUser>("AdminUser")(
   {
-    id: SharedEntityIds.UserId,
+    id: AdminUserId,
     email: BS.Email,
     emailVerified: S.Boolean,
     name: S.NonEmptyTrimmedString,
@@ -42,13 +42,13 @@ export class AdminSession extends S.Class<AdminSession>("AdminSession")(
   {
     id: S.NonEmptyTrimmedString,
     token: S.String,
-    userId: SharedEntityIds.UserId,
+    userId: AdminUserId,
     createdAt: BS.DateTimeFromDate(),
     updatedAt: BS.DateTimeFromDate(),
     expiresAt: BS.DateTimeFromDate(),
     ipAddress: S.optional(S.NullOr(S.String)),
     userAgent: S.optional(S.NullOr(S.String)),
-    impersonatedBy: S.optional(S.NullOr(SharedEntityIds.UserId)),
+    impersonatedBy: S.optional(S.NullOr(AdminUserId)),
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/AdminSession"),
@@ -64,7 +64,7 @@ export declare namespace AdminSession {
 
 export class AdminSetRolePayload extends S.Class<AdminSetRolePayload>("AdminSetRolePayload")(
   {
-    userId: SharedEntities.User.Model.select.fields.id,
+    userId: AdminUserId,
     role: AdminRoleInput,
   },
   {
@@ -104,7 +104,7 @@ export const AdminSetRoleContract = Contract.make("AdminSetRole", {
 
 export class AdminGetUserPayload extends S.Class<AdminGetUserPayload>("AdminGetUserPayload")(
   {
-    userId: SharedEntities.User.Model.select.fields.id,
+    userId: AdminUserId,
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/AdminGetUserPayload"),
@@ -154,7 +154,7 @@ export const AdminCreateUserContract = Contract.make("AdminCreateUser", {
 
 export class AdminUpdateUserPayload extends S.Class<AdminUpdateUserPayload>("AdminUpdateUserPayload")(
   {
-    userId: SharedEntityIds.UserId,
+    userId: AdminUserId,
     data: S.Record({ key: S.String, value: S.Unknown }),
   },
   {
@@ -234,11 +234,9 @@ export const AdminListUsersContract = Contract.make("AdminListUsers", {
   failure: S.instanceOf(IamError),
 });
 
-export class AdminListUserSessionsPayload extends S.Class<AdminListUserSessionsPayload>(
-  "AdminListUserSessionsPayload"
-)(
+export class AdminListUserSessionsPayload extends S.Class<AdminListUserSessionsPayload>("AdminListUserSessionsPayload")(
   {
-    userId: SharedEntityIds.UserId,
+    userId: AdminUserId,
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/AdminListUserSessionsPayload"),
@@ -252,9 +250,7 @@ export declare namespace AdminListUserSessionsPayload {
   export type Encoded = S.Schema.Encoded<typeof AdminListUserSessionsPayload>;
 }
 
-export class AdminListUserSessionsSuccess extends S.Class<AdminListUserSessionsSuccess>(
-  "AdminListUserSessionsSuccess"
-)(
+export class AdminListUserSessionsSuccess extends S.Class<AdminListUserSessionsSuccess>("AdminListUserSessionsSuccess")(
   {
     sessions: S.Array(AdminSession),
   },
@@ -279,7 +275,7 @@ export const AdminListUserSessionsContract = Contract.make("AdminListUserSession
 
 export class AdminUnbanUserPayload extends S.Class<AdminUnbanUserPayload>("AdminUnbanUserPayload")(
   {
-    userId: SharedEntityIds.UserId,
+    userId: AdminUserId,
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/AdminUnbanUserPayload"),
@@ -302,7 +298,7 @@ export const AdminUnbanUserContract = Contract.make("AdminUnbanUser", {
 
 export class AdminBanUserPayload extends S.Class<AdminBanUserPayload>("AdminBanUserPayload")(
   {
-    userId: SharedEntityIds.UserId,
+    userId: AdminUserId,
     banReason: S.optional(S.String),
     banExpiresIn: S.optional(S.Number),
   },
@@ -325,11 +321,9 @@ export const AdminBanUserContract = Contract.make("AdminBanUser", {
   failure: S.instanceOf(IamError),
 });
 
-export class AdminImpersonateUserPayload extends S.Class<AdminImpersonateUserPayload>(
-  "AdminImpersonateUserPayload"
-)(
+export class AdminImpersonateUserPayload extends S.Class<AdminImpersonateUserPayload>("AdminImpersonateUserPayload")(
   {
-    userId: SharedEntityIds.UserId,
+    userId: AdminUserId,
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/AdminImpersonateUserPayload"),
@@ -426,7 +420,7 @@ export class AdminRevokeUserSessionsPayload extends S.Class<AdminRevokeUserSessi
   "AdminRevokeUserSessionsPayload"
 )(
   {
-    userId: SharedEntityIds.UserId,
+    userId: AdminUserId,
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/AdminRevokeUserSessionsPayload"),
@@ -449,7 +443,7 @@ export const AdminRevokeUserSessionsContract = Contract.make("AdminRevokeUserSes
 
 export class AdminRemoveUserPayload extends S.Class<AdminRemoveUserPayload>("AdminRemoveUserPayload")(
   {
-    userId: SharedEntityIds.UserId,
+    userId: AdminUserId,
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/AdminRemoveUserPayload"),
@@ -470,11 +464,9 @@ export const AdminRemoveUserContract = Contract.make("AdminRemoveUser", {
   failure: S.instanceOf(IamError),
 });
 
-export class AdminSetUserPasswordPayload extends S.Class<AdminSetUserPasswordPayload>(
-  "AdminSetUserPasswordPayload"
-)(
+export class AdminSetUserPasswordPayload extends S.Class<AdminSetUserPasswordPayload>("AdminSetUserPasswordPayload")(
   {
-    userId: SharedEntityIds.UserId,
+    userId: AdminUserId,
     newPassword: BS.Password,
   },
   {
@@ -489,9 +481,7 @@ export declare namespace AdminSetUserPasswordPayload {
   export type Encoded = S.Schema.Encoded<typeof AdminSetUserPasswordPayload>;
 }
 
-export class AdminSetUserPasswordSuccess extends S.Class<AdminSetUserPasswordSuccess>(
-  "AdminSetUserPasswordSuccess"
-)(
+export class AdminSetUserPasswordSuccess extends S.Class<AdminSetUserPasswordSuccess>("AdminSetUserPasswordSuccess")(
   {
     status: S.Boolean,
   },
@@ -516,8 +506,8 @@ export const AdminSetUserPasswordContract = Contract.make("AdminSetUserPassword"
 
 export class AdminHasPermissionPayload extends S.Class<AdminHasPermissionPayload>("AdminHasPermissionPayload")(
   {
-    userId: S.optional(SharedEntityIds.UserId),
-    role: S.optional(S.NonEmptyTrimmedString),
+    userId: S.optional(AdminUserId),
+    role: S.optional(AdminRoleValue),
     permission: S.optional(PermissionMatrix),
     permissions: S.optional(PermissionMatrix),
   },
@@ -536,7 +526,7 @@ export declare namespace AdminHasPermissionPayload {
 export class AdminHasPermissionSuccess extends S.Class<AdminHasPermissionSuccess>("AdminHasPermissionSuccess")(
   {
     success: S.Boolean,
-    error: S.Null,
+    error: S.NullOr(S.String),
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/AdminHasPermissionSuccess"),
