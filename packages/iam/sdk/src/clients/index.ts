@@ -1,7 +1,10 @@
 // export { iam, iamContracts, iamImplementations } from "./iam.client";
 export * from "./anonymous";
 export * from "./api-key";
+export * from "./device-authorization";
+export * from "./multi-session";
 export * from "./oauth";
+export * from "./oidc";
 export * from "./organization";
 export * from "./recover";
 export * from "./session";

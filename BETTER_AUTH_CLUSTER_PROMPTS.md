@@ -16,9 +16,9 @@ Tasks:
 2. Gather docs:
    - context7__resolve-library-id {"libraryName":"better-auth"}
    - context7__get-library-docs {"context7CompatibleLibraryID":"/better-auth/better-auth","topic":"concepts/email","tokens":800}
-   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/send-verification-email\"","maxUsageCount":3,"timeout":120000}
-   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/verify-email\"","maxUsageCount":3,"timeout":120000}
-   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/get-session\"","maxUsageCount":3,"timeout":120000}
+   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/send-verification-email\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
+   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/verify-email\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
+   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/get-session\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
    (The OpenAPI JSON is huge; these targeted searches return the needed snippet without custom scripts.)
 3. For each method:
    a. Update contracts in `packages/iam/sdk/src/clients/<feature>/<feature>.contracts.ts` (schemas, namespace exports, Contract.make, ContractSet entry).
@@ -38,7 +38,7 @@ Tasks:
 2. Gather docs:
    - context7__resolve-library-id {"libraryName":"better-auth"}
    - context7__get-library-docs {"context7CompatibleLibraryID":"/better-auth/better-auth","topic":"plugins/admin","tokens":800}
-   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/admin\"","maxUsageCount":3,"timeout":120000}
+   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/admin\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
    (This search returns focused OpenAPI snippets—no custom parsing scripts needed.)
 3. Work in small batches (2–3 methods at a time) to conserve context:
    a. Update `packages/iam/sdk/src/clients/admin/admin.contracts.ts` for the batch (schemas, namespace exports, Contract.make, ContractSet entries).
@@ -61,8 +61,8 @@ Tasks:
    - context7__resolve-library-id {"libraryName":"better-auth"}
    - context7__get-library-docs {"context7CompatibleLibraryID":"/better-auth/better-auth","topic":"plugins/api-key","tokens":800}
    - context7__get-library-docs {"context7CompatibleLibraryID":"/better-auth/better-auth","topic":"plugins/anonymous","tokens":400}
-   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/api-key\"","maxUsageCount":3,"timeout":120000}
-   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/sign-in/anonymous\"","maxUsageCount":3,"timeout":120000}
+   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/api-key\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
+   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/sign-in/anonymous\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
    (These searches slice the spec down to the relevant method definitions.)
 3. For each method:
    a. Update `packages/iam/sdk/src/clients/<feature>/<feature>.contracts.ts` (schemas, namespaces, Contract.make, ContractSet entry).
@@ -83,8 +83,8 @@ Tasks:
    - context7__resolve-library-id {"libraryName":"better-auth"}
    - context7__get-library-docs {"context7CompatibleLibraryID":"/better-auth/better-auth","topic":"plugins/device-authorization","tokens":800}
    - context7__get-library-docs {"context7CompatibleLibraryID":"/better-auth/better-auth","topic":"plugins/oidc-provider","tokens":800}
-   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/device\"","maxUsageCount":3,"timeout":120000}
-   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/oauth2\"","maxUsageCount":3,"timeout":120000}
+   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/device\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
+   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/oauth2\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
    (Limit `maxUsageCount` to keep responses focused; no need for external scripts.)
 3. For each method:
    a. Update `packages/iam/sdk/src/clients/<feature>/<feature>.contracts.ts` (schemas, namespace exports, Contract.make, ContractSet entry).
@@ -95,18 +95,18 @@ Tasks:
 
 ---
 
-## 5. JWT & Multi-Session Cluster
+## 5. JMulti-Session Cluster
 
 ```text
-You are GPT-5 Codex. Your cluster: jwt/multi-session (methods: auth.jwt.*, auth.multiSession.*).
+You are GPT-5 Codex. Your cluster: jwt/multi-session (methods: auth.multiSession.*).
 Tasks:
 1. Read `packages/iam/sdk/AGENTS.md`, `BETTER_AUTH_CLIENT_METHOD_PROCESS.md`, and the relevant sections in `BETTER_AUTH_CLIENT_AND_METHODS_LIST.md`.
 2. Gather docs:
    - context7__resolve-library-id {"libraryName":"better-auth"}
    - context7__get-library-docs {"context7CompatibleLibraryID":"/better-auth/better-auth","topic":"plugins/jwt","tokens":600}
    - context7__get-library-docs {"context7CompatibleLibraryID":"/better-auth/better-auth","topic":"plugins/multi-session","tokens":600}
-   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/jwt\"","maxUsageCount":3,"timeout":120000}
-   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/multi-session\"","maxUsageCount":3,"timeout":120000}
+   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/jwt\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
+   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/multi-session\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
    (Small `maxUsageCount` values return the relevant snippets quickly.)
 3. For each method:
    a. Update `packages/iam/sdk/src/clients/<feature>/<feature>.contracts.ts` (schemas, namespaces, Contract.make, ContractSet entry).

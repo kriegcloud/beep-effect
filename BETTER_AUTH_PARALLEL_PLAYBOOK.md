@@ -53,7 +53,7 @@ cluster but keeps reviewers in the loop.
      ```json
      {"tool":"context7__resolve-library-id","args":{"libraryName":"better-auth"}}
      {"tool":"context7__get-library-docs","args":{"context7CompatibleLibraryID":"/better-auth/better-auth","topic":"<topic>","tokens":800}}
-     {"tool":"jetbrains__search_in_files_by_text","args":{"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/<api path>\"","maxUsageCount":3,"timeout":120000}}
+    {"tool":"jetbrains__search_in_files_by_text","args":{"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/<api path>\"","maxUsageCount":3,"timeout":120000,"useRegex":false}}
      ```
 
    - The `jetbrains__search_in_files_by_text` call returns just the relevant snippet from the large OpenAPI JSON—no custom scripts needed.
