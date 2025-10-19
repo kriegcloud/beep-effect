@@ -1,80 +1,105 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { VerifyContractSet } from "@beep/iam-sdk/clients/verify/verify.contracts";
+import {
+  SendEmailVerificationContract,
+  VerifyContractSet,
+  VerifyEmailContract,
+} from "@beep/iam-sdk/clients/verify/verify.contracts";
 import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
+import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
-
+import * as S from "effect/Schema";
 import type { SendEmailVerificationPayload, SendVerifyPhonePayload, VerifyEmailPayload } from "./verify.contracts";
 
-const SendEmailVerificationHandler = Effect.fn("SendEmailVerificationHandler")(function* (
-  payload: SendEmailVerificationPayload.Type
-) {
-  const continuation = makeFailureContinuation({
-    contract: "SendEmailVerificationContract",
-    metadata: () => ({
-      plugin: "verification",
-      method: "sendVerificationEmail",
-    }),
-  });
+const SendEmailVerificationHandler = Effect.fn("SendEmailVerificationHandler")(
+  function* (payload: SendEmailVerificationPayload.Type) {
+    const continuation = makeFailureContinuation({
+      contract: "SendEmailVerificationContract",
+      metadata: () => ({
+        plugin: "verification",
+        method: "sendVerificationEmail",
+      }),
+    });
 
-  const result = yield* continuation.run((handlers) =>
-    client.sendVerificationEmail({
-      email: Redacted.value(payload.email),
-      fetchOptions: handlers.signal
-        ? {
-            onError: handlers.onError,
-            signal: handlers.signal,
-          }
-        : {
-            onError: handlers.onError,
+    const result = yield* continuation.run((handlers) =>
+      client.sendVerificationEmail({
+        email: Redacted.value(payload.email),
+        ...(payload.callbackURL === undefined ? {} : { callbackURL: payload.callbackURL }),
+        fetchOptions: handlers.signal
+          ? {
+              onError: handlers.onError,
+              signal: handlers.signal,
+            }
+          : {
+              onError: handlers.onError,
+            },
+      })
+    );
+
+    yield* continuation.raiseResult(result);
+
+    const response = result.data ?? { status: true };
+
+    return yield* S.decodeUnknown(SendEmailVerificationContract.successSchema)(response);
+  },
+  Effect.catchTags({
+    ParseError: (error) => Effect.dieMessage(`SendEmailVerificationHandler failed to parse response: ${error.message}`),
+  })
+);
+
+const VerifyEmailHandler = Effect.fn("VerifyEmailHandler")(
+  function* (payload: VerifyEmailPayload.Type) {
+    const continuation = makeFailureContinuation({
+      contract: "VerifyEmailContract",
+      metadata: () => ({
+        plugin: "verification",
+        method: "verifyEmail",
+      }),
+    });
+
+    const result = yield* continuation.run((handlers) =>
+      client.verifyEmail(
+        {
+          query: {
+            token: Redacted.value(payload.token),
+            ...(payload.callbackURL === undefined ? {} : { callbackURL: payload.callbackURL }),
           },
-    })
-  );
-
-  yield* continuation.raiseResult(result);
-});
-
-const VerifyEmailHandler = Effect.fn("VerifyEmailHandler")(function* (payload: VerifyEmailPayload.Type) {
-  const continuation = makeFailureContinuation({
-    contract: "VerifyEmailContract",
-    metadata: () => ({
-      plugin: "verification",
-      method: "verifyEmail",
-    }),
-  });
-
-  const result = yield* continuation.run((handlers) =>
-    client.verifyEmail(
-      {
-        query: {
-          token: Redacted.value(payload.token),
         },
-      },
-      handlers.signal
-        ? {
-            signal: handlers.signal,
-            onSuccess: () => {
-              payload.onSuccess(undefined);
-            },
-            onError: (ctx) => {
-              payload.onFailure(undefined);
-              handlers.onError(ctx);
-            },
-          }
-        : {
-            onSuccess: () => {
-              payload.onSuccess(undefined);
-            },
-            onError: (ctx) => {
-              payload.onFailure(undefined);
-              handlers.onError(ctx);
-            },
-          }
-    )
-  );
+        handlers.signal
+          ? {
+              signal: handlers.signal,
+              onSuccess: () => {
+                payload.onSuccess(undefined);
+              },
+              onError: (ctx) => {
+                payload.onFailure(undefined);
+                handlers.onError(ctx);
+              },
+            }
+          : {
+              onSuccess: () => {
+                payload.onSuccess(undefined);
+              },
+              onError: (ctx) => {
+                payload.onFailure(undefined);
+                handlers.onError(ctx);
+              },
+            }
+      )
+    );
 
-  yield* continuation.raiseResult(result);
-});
+    yield* continuation.raiseResult(result);
+
+    if (result.data == null) {
+      return yield* new IamError({}, "VerifyEmailHandler returned no payload from Better Auth");
+    }
+
+    return yield* S.decodeUnknown(VerifyEmailContract.successSchema)(result.data);
+  },
+  Effect.catchTags({
+    ParseError: (error) => Effect.dieMessage(`VerifyEmailHandler failed to parse response: ${error.message}`),
+  })
+);
 
 const SendVerifyPhoneHandler = Effect.fn("SendVerifyPhoneHandler")(function* (payload: SendVerifyPhonePayload.Type) {
   const { phoneNumber, code, updatePhoneNumber } = payload;
@@ -86,11 +111,19 @@ const SendVerifyPhoneHandler = Effect.fn("SendVerifyPhoneHandler")(function* (pa
     }),
   });
 
-  const result = yield* continuation.run(() =>
+  const result = yield* continuation.run((handlers) =>
     client.phoneNumber.verify({
       phoneNumber: Redacted.value(phoneNumber),
       code: Redacted.value(code),
       updatePhoneNumber: updatePhoneNumber,
+      fetchOptions: handlers.signal
+        ? {
+            signal: handlers.signal,
+            onError: handlers.onError,
+          }
+        : {
+            onError: handlers.onError,
+          },
     })
   );
 

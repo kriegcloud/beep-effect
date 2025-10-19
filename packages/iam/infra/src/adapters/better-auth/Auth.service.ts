@@ -5,7 +5,7 @@ import { IamConfig } from "@beep/iam-infra/config";
 import { IamDb } from "@beep/iam-infra/db/Db";
 import { IamDbSchema } from "@beep/iam-tables";
 import { BS } from "@beep/schema";
-import { EntitySource, IamEntityIds, paths, SharedEntityIds } from "@beep/shared-domain";
+import { IamEntityIds, paths, SharedEntityIds } from "@beep/shared-domain";
 import * as Organization from "@beep/shared-domain/entities/Organization";
 import type { UnsafeTypes } from "@beep/types";
 import type { SqlError } from "@effect/sql/SqlError";
@@ -184,7 +184,7 @@ const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService | I
                 updateAt: now,
                 createdAt: now,
                 createdBy: user.id,
-                source: EntitySource.Enum.auto_created,
+                source: "auto_created",
               };
               yield* db.insert(IamDbSchema.organization).values({
                 id: personalOrgId,
