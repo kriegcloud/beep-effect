@@ -34,7 +34,10 @@ Respect everything in `AGENTS.md` (namespace imports, no native array/string hel
 2. Pull focused docs for the method you are implementing (adjust `topic`) →  
    `context7__get-library-docs {"context7CompatibleLibraryID":"/better-auth/better-auth","topic":"client.<plugin-or-scope>","tokens":800}`
 3. Cross-check the local OpenAPI export for payload/response contracts →  
-   `jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","searchText":"\"/auth.<method-path>\"","pathInProject":"better-auth-api-spec.json","maxUsageCount":20}`
+   `jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/auth.<method-path>\"","maxUsageCount":5}`
+   - Tip: set `maxUsageCount` to a small number (1–5) and, if needed, add `timeout`:  
+     `{"projectPath":"/home/.../beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/sign-in/email\"","maxUsageCount":3,"timeout":120000}`
+   - This returns just the relevant snippet from the large JSON file—no custom scripts required.
 4. When Effect APIs are unclear, search official docs → `effect_docs__effect_docs_search {"query":"makeFailureContinuation"}`
 
 Document the Better Auth plugin + method identifier (example: plugin `signIn`, method `email`) for later metadata.
