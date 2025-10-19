@@ -5,14 +5,16 @@ import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
+const AnonymousSignInMetadata = {
+  plugin: "signIn",
+  method: "anonymous",
+} as const;
+
 const AnonymousSignInHandler = Effect.fn("AnonymousSignInHandler")(
   function* () {
     const continuation = makeFailureContinuation({
       contract: "AnonymousSignIn",
-      metadata: () => ({
-        plugin: "signIn",
-        method: "anonymous",
-      }),
+      metadata: () => AnonymousSignInMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -40,7 +42,7 @@ const AnonymousSignInHandler = Effect.fn("AnonymousSignInHandler")(
     return yield* S.decodeUnknown(AnonymousSignInContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.dieMessage(`AnonymousSignInHandler failed to parse response: ${error.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, AnonymousSignInMetadata)),
   })
 );
 

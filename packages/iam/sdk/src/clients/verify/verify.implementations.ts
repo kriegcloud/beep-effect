@@ -11,14 +11,21 @@ import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import type { SendEmailVerificationPayload, SendVerifyPhonePayload, VerifyEmailPayload } from "./verify.contracts";
 
+const SendEmailVerificationMetadata = {
+  plugin: "verification",
+  method: "sendVerificationEmail",
+} as const;
+
+const VerifyEmailMetadata = {
+  plugin: "verification",
+  method: "verifyEmail",
+} as const;
+
 const SendEmailVerificationHandler = Effect.fn("SendEmailVerificationHandler")(
   function* (payload: SendEmailVerificationPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "SendEmailVerificationContract",
-      metadata: () => ({
-        plugin: "verification",
-        method: "sendVerificationEmail",
-      }),
+      metadata: () => SendEmailVerificationMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -43,7 +50,7 @@ const SendEmailVerificationHandler = Effect.fn("SendEmailVerificationHandler")(
     return yield* S.decodeUnknown(SendEmailVerificationContract.successSchema)(response);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.dieMessage(`SendEmailVerificationHandler failed to parse response: ${error.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, SendEmailVerificationMetadata)),
   })
 );
 
@@ -51,10 +58,7 @@ const VerifyEmailHandler = Effect.fn("VerifyEmailHandler")(
   function* (payload: VerifyEmailPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "VerifyEmailContract",
-      metadata: () => ({
-        plugin: "verification",
-        method: "verifyEmail",
-      }),
+      metadata: () => VerifyEmailMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -97,7 +101,7 @@ const VerifyEmailHandler = Effect.fn("VerifyEmailHandler")(
     return yield* S.decodeUnknown(VerifyEmailContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.dieMessage(`VerifyEmailHandler failed to parse response: ${error.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, VerifyEmailMetadata)),
   })
 );
 

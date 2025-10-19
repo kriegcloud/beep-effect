@@ -17,22 +17,20 @@ const OAuth2AuthorizeResponseSchema = S.Struct({
 
 export class OAuth2AuthorizePayload extends BS.Class<OAuth2AuthorizePayload>("OAuth2AuthorizePayload")(
   {
-    response_type: S.Union(S.Literal("code"), S.Literal("token")),
+    response_type: S.Literal("code", "token"),
     client_id: S.String,
     state: S.String,
     redirect_uri: S.optional(BS.URLString),
     scope: S.optional(S.String),
-    prompt: S.optional(
-      S.Union(S.Literal("none"), S.Literal("consent"), S.Literal("login"), S.Literal("select_account"))
-    ),
-    display: S.optional(S.Union(S.Literal("page"), S.Literal("popup"), S.Literal("touch"), S.Literal("wap"))),
+    prompt: S.optional(S.Literal("none", "consent", "login", "select_account")),
+    display: S.optional(S.Literal("page", "popup", "touch", "wap")),
     ui_locales: S.optional(S.String),
     max_age: S.optional(S.Number),
     acr_values: S.optional(S.String),
     login_hint: S.optional(S.String),
     id_token_hint: S.optional(S.String),
     code_challenge: S.optional(S.String),
-    code_challenge_method: S.optional(S.Union(S.Literal("plain"), S.Literal("s256"))),
+    code_challenge_method: S.optional(S.Literal("plain", "s256")),
     nonce: S.optional(S.String),
   },
   {
@@ -155,23 +153,19 @@ export declare namespace OAuth2UserInfoSuccess {
   export type Encoded = S.Schema.Encoded<typeof OAuth2UserInfoSuccess>;
 }
 
-const TokenEndpointAuthMethod = S.Union(
-  S.Literal("none"),
-  S.Literal("client_secret_basic"),
-  S.Literal("client_secret_post")
+const TokenEndpointAuthMethod = S.Literal("none", "client_secret_basic", "client_secret_post");
+
+const GrantTypeSchema = S.Literal(
+  "authorization_code",
+  "refresh_token",
+  "client_credentials",
+  "password",
+  "implicit",
+  "urn:ietf:params:oauth:grant-type:jwt-bearer",
+  "urn:ietf:params:oauth:grant-type:saml2-bearer"
 );
 
-const GrantTypeSchema = S.Union(
-  S.Literal("authorization_code"),
-  S.Literal("refresh_token"),
-  S.Literal("client_credentials"),
-  S.Literal("password"),
-  S.Literal("implicit"),
-  S.Literal("urn:ietf:params:oauth:grant-type:jwt-bearer"),
-  S.Literal("urn:ietf:params:oauth:grant-type:saml2-bearer")
-);
-
-const ResponseTypeSchema = S.Union(S.Literal("code"), S.Literal("token"));
+const ResponseTypeSchema = S.Literal("code", "token");
 
 export class OAuth2RegisterPayload extends BS.Class<OAuth2RegisterPayload>("OAuth2RegisterPayload")(
   {

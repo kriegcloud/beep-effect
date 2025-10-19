@@ -6,8 +6,19 @@ import {
   SessionContractSet,
 } from "@beep/iam-sdk/clients/session/session.contracts";
 import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
+import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+
+const GetSessionMetadata = {
+  plugin: "session",
+  method: "getSession",
+} as const;
+
+const ListSessionsMetadata = {
+  plugin: "session",
+  method: "listSessions",
+} as const;
 
 // =====================================================================================================================
 // Get Session Handler
@@ -16,10 +27,7 @@ const GetSessionHandler = Effect.fn("GetSessionHandler")(
   function* () {
     const continuation = makeFailureContinuation({
       contract: "GetSession",
-      metadata: () => ({
-        plugin: "session",
-        method: "getSession",
-      }),
+      metadata: () => GetSessionMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -39,7 +47,7 @@ const GetSessionHandler = Effect.fn("GetSessionHandler")(
     return yield* Effect.flatMap(S.encodeUnknown(GetSessionSuccess)(result.data), S.decodeUnknown(GetSessionSuccess));
   },
   Effect.catchTags({
-    ParseError: (e) => Effect.dieMessage(`Failed to parse session data: ${e.message}`),
+    ParseError: (error) => IamError.match(error, ListSessionsMetadata),
   })
 );
 // =====================================================================================================================
@@ -49,10 +57,7 @@ const ListSessionsHandler = Effect.fn("ListSessionsHandler")(
   function* () {
     const continuation = makeFailureContinuation({
       contract: "ListSessions",
-      metadata: () => ({
-        plugin: "session",
-        method: "listSessions",
-      }),
+      metadata: () => ListSessionsMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -76,7 +81,7 @@ const ListSessionsHandler = Effect.fn("ListSessionsHandler")(
     );
   },
   Effect.catchTags({
-    ParseError: (e) => Effect.dieMessage(`Failed to parse session data: ${e.message}`),
+    ParseError: (error) => IamError.match(error, ListSessionsMetadata),
   })
 );
 

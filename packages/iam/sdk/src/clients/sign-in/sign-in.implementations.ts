@@ -133,7 +133,7 @@ const SignInPhoneNumberHandler = Effect.fn("SignInPhoneNumberHandler")(function*
   payload: SignInPhoneNumberPayload.Type
 ) {
   const continuation = makeFailureContinuation({
-    contract: "SignInUsername",
+    contract: "SignInPhoneNumber",
     metadata: () => ({
       plugin: "signIn",
       method: "phoneNumber",

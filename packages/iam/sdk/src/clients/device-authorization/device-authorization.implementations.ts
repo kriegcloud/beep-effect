@@ -16,14 +16,36 @@ import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
+const DeviceAuthorizationCodeMetadata = {
+  plugin: "device-authorization",
+  method: "code",
+} as const;
+
+const DeviceAuthorizationTokenMetadata = {
+  plugin: "device-authorization",
+  method: "token",
+} as const;
+
+const DeviceAuthorizationStatusMetadata = {
+  plugin: "device-authorization",
+  method: "status",
+} as const;
+
+const DeviceAuthorizationApproveMetadata = {
+  plugin: "device-authorization",
+  method: "approve",
+} as const;
+
+const DeviceAuthorizationDenyMetadata = {
+  plugin: "device-authorization",
+  method: "deny",
+} as const;
+
 const DeviceAuthorizationCodeHandler = Effect.fn("DeviceAuthorizationCodeHandler")(
   function* (payload: DeviceAuthorizationCodePayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "DeviceAuthorizationCode",
-      metadata: () => ({
-        plugin: "device-authorization",
-        method: "code",
-      }),
+      metadata: () => DeviceAuthorizationCodeMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -48,8 +70,7 @@ const DeviceAuthorizationCodeHandler = Effect.fn("DeviceAuthorizationCodeHandler
     return yield* S.decodeUnknown(DeviceAuthorizationCodeContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) =>
-      Effect.dieMessage(`DeviceAuthorizationCodeHandler failed to parse response: ${error.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationCodeMetadata)),
   })
 );
 
@@ -57,10 +78,7 @@ const DeviceAuthorizationTokenHandler = Effect.fn("DeviceAuthorizationTokenHandl
   function* (payload: DeviceAuthorizationTokenPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "DeviceAuthorizationToken",
-      metadata: () => ({
-        plugin: "device-authorization",
-        method: "token",
-      }),
+      metadata: () => DeviceAuthorizationTokenMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -86,8 +104,7 @@ const DeviceAuthorizationTokenHandler = Effect.fn("DeviceAuthorizationTokenHandl
     return yield* S.decodeUnknown(DeviceAuthorizationTokenContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) =>
-      Effect.dieMessage(`DeviceAuthorizationTokenHandler failed to parse response: ${error.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationTokenMetadata)),
   })
 );
 
@@ -95,10 +112,7 @@ const DeviceAuthorizationStatusHandler = Effect.fn("DeviceAuthorizationStatusHan
   function* (payload: DeviceAuthorizationStatusPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "DeviceAuthorizationStatus",
-      metadata: () => ({
-        plugin: "device-authorization",
-        method: "status",
-      }),
+      metadata: () => DeviceAuthorizationStatusMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -124,8 +138,7 @@ const DeviceAuthorizationStatusHandler = Effect.fn("DeviceAuthorizationStatusHan
     return yield* S.decodeUnknown(DeviceAuthorizationStatusContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) =>
-      Effect.dieMessage(`DeviceAuthorizationStatusHandler failed to parse response: ${error.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationStatusMetadata)),
   })
 );
 
@@ -133,10 +146,7 @@ const DeviceAuthorizationApproveHandler = Effect.fn("DeviceAuthorizationApproveH
   function* (payload: DeviceAuthorizationDecisionPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "DeviceAuthorizationApprove",
-      metadata: () => ({
-        plugin: "device-authorization",
-        method: "approve",
-      }),
+      metadata: () => DeviceAuthorizationApproveMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -160,8 +170,7 @@ const DeviceAuthorizationApproveHandler = Effect.fn("DeviceAuthorizationApproveH
     return yield* S.decodeUnknown(DeviceAuthorizationApproveContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) =>
-      Effect.dieMessage(`DeviceAuthorizationApproveHandler failed to parse response: ${error.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationApproveMetadata)),
   })
 );
 
@@ -169,10 +178,7 @@ const DeviceAuthorizationDenyHandler = Effect.fn("DeviceAuthorizationDenyHandler
   function* (payload: DeviceAuthorizationDecisionPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "DeviceAuthorizationDeny",
-      metadata: () => ({
-        plugin: "device-authorization",
-        method: "deny",
-      }),
+      metadata: () => DeviceAuthorizationDenyMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -196,8 +202,7 @@ const DeviceAuthorizationDenyHandler = Effect.fn("DeviceAuthorizationDenyHandler
     return yield* S.decodeUnknown(DeviceAuthorizationDenyContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) =>
-      Effect.dieMessage(`DeviceAuthorizationDenyHandler failed to parse response: ${error.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationDenyMetadata)),
   })
 );
 

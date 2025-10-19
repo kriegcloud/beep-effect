@@ -7,13 +7,20 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { RequestResetPasswordPayload, ResetPasswordPayload } from "./recover.contracts";
 
+const ResetPasswordMetadata = {
+  plugin: "reset-password",
+  method: "submit",
+} as const;
+
+const RequestResetPasswordMetadata = {
+  plugin: "reset-password",
+  method: "request",
+} as const;
+
 const ResetPasswordHandler = Effect.fn("ResetPasswordHandler")(function* (payload: ResetPasswordPayload.Type) {
   const continuation = makeFailureContinuation({
     contract: "ResetPasswordContract",
-    metadata: () => ({
-      plugin: "reset-password",
-      method: "submit",
-    }),
+    metadata: () => ResetPasswordMetadata,
   });
 
   const token = new URLSearchParams(window.location.search).get("token");
@@ -36,7 +43,7 @@ const ResetPasswordHandler = Effect.fn("ResetPasswordHandler")(function* (payloa
   }
 
   const encoded = yield* S.encode(ResetPasswordPayload)(payload).pipe(
-    Effect.catchTag("ParseError", (e) => Effect.dieMessage(e.message))
+    Effect.catchTag("ParseError", (error) => Effect.fail(IamError.match(error, ResetPasswordMetadata)))
   );
 
   const result = yield* continuation.run(() =>
@@ -54,14 +61,11 @@ const RequestPasswordResetHandler = Effect.fn("RequestPasswordResetHandler")(fun
 ) {
   const continuation = makeFailureContinuation({
     contract: "RequestResetPasswordContract",
-    metadata: () => ({
-      plugin: "reset-password",
-      method: "request",
-    }),
+    metadata: () => RequestResetPasswordMetadata,
   });
 
   const encoded = yield* S.encode(RequestResetPasswordPayload)(payload).pipe(
-    Effect.catchTag("ParseError", (e) => Effect.dieMessage(e.message))
+    Effect.catchTag("ParseError", (error) => Effect.fail(IamError.match(error, RequestResetPasswordMetadata)))
   );
 
   const result = yield* continuation.run(() => client.requestPasswordReset(encoded));

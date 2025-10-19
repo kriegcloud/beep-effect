@@ -16,20 +16,42 @@ import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { OAuthRegisterPayload } from "./oauth.contracts";
 
+const OAuthRegisterMetadata = {
+  plugin: "oauth2",
+  method: "register",
+} as const;
+
+const LinkSocialMetadata = {
+  plugin: "oauth2",
+  method: "linkSocial",
+} as const;
+
+const GetAccessTokenMetadata = {
+  plugin: "oauth2",
+  method: "getAccessToken",
+} as const;
+
+const GetAccountInfoMetadata = {
+  plugin: "oauth2",
+  method: "getAccountInfo",
+} as const;
+
+const RequestAdditionalScopesMetadata = {
+  plugin: "oauth2",
+  method: "requestAdditionalScopes",
+} as const;
+
 // =====================================================================================================================
 // OAuth Register Handler
 // =====================================================================================================================
 const OAuthRegisterHandler = Effect.fn("OAuthRegisterHandler")(function* (payload: OAuthRegisterPayload.Type) {
   const continuation = makeFailureContinuation({
     contract: "OAuthRegisterContract",
-    metadata: () => ({
-      plugin: "oauth2",
-      method: "register",
-    }),
+    metadata: () => OAuthRegisterMetadata,
   });
 
   const encoded = yield* S.encode(OAuthRegisterPayload)(payload).pipe(
-    Effect.catchTag("ParseError", (e) => Effect.dieMessage(e.message))
+    Effect.catchTag("ParseError", (error) => Effect.fail(IamError.match(error, OAuthRegisterMetadata)))
   );
 
   const result = yield* continuation.run(() => client.oauth2.register(encoded));
@@ -44,10 +66,7 @@ const LinkSocialHandler = Effect.fn("LinkSocial")(
   function* (payload: LinkSocialPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "LinkSocial",
-      metadata: () => ({
-        plugin: "oauth2",
-        method: "linkSocial",
-      }),
+      metadata: () => LinkSocialMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -69,7 +88,7 @@ const LinkSocialHandler = Effect.fn("LinkSocial")(
     return yield* S.decode(LinkSocialContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (e) => Effect.dieMessage(`LinkSocialHandler failed to parse response: ${e.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, LinkSocialMetadata)),
   })
 );
 // =====================================================================================================================
@@ -79,10 +98,7 @@ const GetAccessTokenHandler = Effect.fn("GetAccessTokenHandler")(
   function* (payload: GetAccessTokenPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "GetAccessToken",
-      metadata: () => ({
-        plugin: "oauth2",
-        method: "getAccessToken",
-      }),
+      metadata: () => GetAccessTokenMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -109,7 +125,7 @@ const GetAccessTokenHandler = Effect.fn("GetAccessTokenHandler")(
     return yield* S.decode(GetAccessTokenSuccess)(result.data);
   },
   Effect.catchTags({
-    ParseError: (e) => Effect.dieMessage(`GetAccessTokenHandler failed to parse response: ${e.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, GetAccessTokenMetadata)),
   })
 );
 
@@ -120,10 +136,7 @@ const GetAccountInfoHandler = Effect.fn("GetAccountInfoHandler")(
   function* (payload: GetAccountInfoPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "GetAccountInfo",
-      metadata: () => ({
-        plugin: "oauth2",
-        method: "getAccountInfo",
-      }),
+      metadata: () => GetAccountInfoMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -145,7 +158,7 @@ const GetAccountInfoHandler = Effect.fn("GetAccountInfoHandler")(
     return yield* S.decodeUnknown(GetAccountInfoSuccess)(result.data);
   },
   Effect.catchTags({
-    ParseError: (e) => Effect.dieMessage(`GetAccountInfoHandler failed to parse response: ${e.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, GetAccountInfoMetadata)),
   })
 );
 
@@ -156,10 +169,7 @@ const RequestAdditionalScopesHandler = Effect.fn("RequestAdditionalScopesHandler
   function* (payload: RequestAdditionalScopesPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "RequestAdditionalScopes",
-      metadata: () => ({
-        plugin: "oauth2",
-        method: "requestAdditionalScopes",
-      }),
+      metadata: () => RequestAdditionalScopesMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -182,7 +192,7 @@ const RequestAdditionalScopesHandler = Effect.fn("RequestAdditionalScopesHandler
     return yield* S.decodeUnknown(RequestAdditionalScopesSuccess)(result.data);
   },
   Effect.catchTags({
-    ParseError: (e) => Effect.dieMessage(`RequestAdditionalScopesHandler failed to parse response: ${e.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, RequestAdditionalScopesMetadata)),
   })
 );
 

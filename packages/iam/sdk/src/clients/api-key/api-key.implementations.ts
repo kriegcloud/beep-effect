@@ -16,14 +16,16 @@ import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
+const ApiKeyCreateMetadata = {
+  plugin: "api-key",
+  method: "create",
+} as const;
+
 const ApiKeyCreateHandler = Effect.fn("ApiKeyCreateHandler")(
   function* (payload: ApiKeyCreatePayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "ApiKeyCreate",
-      metadata: () => ({
-        plugin: "api-key",
-        method: "create",
-      }),
+      metadata: () => ApiKeyCreateMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -63,18 +65,20 @@ const ApiKeyCreateHandler = Effect.fn("ApiKeyCreateHandler")(
     return yield* S.decodeUnknown(ApiKeyCreateContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.dieMessage(`ApiKeyCreateHandler failed to parse response: ${error.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyCreateMetadata)),
   })
 );
+
+const ApiKeyGetMetadata = {
+  plugin: "api-key",
+  method: "get",
+} as const;
 
 const ApiKeyGetHandler = Effect.fn("ApiKeyGetHandler")(
   function* (payload: ApiKeyGetPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "ApiKeyGet",
-      metadata: () => ({
-        plugin: "api-key",
-        method: "get",
-      }),
+      metadata: () => ApiKeyGetMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -107,18 +111,20 @@ const ApiKeyGetHandler = Effect.fn("ApiKeyGetHandler")(
     return yield* S.decodeUnknown(ApiKeyGetContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.dieMessage(`ApiKeyGetHandler failed to parse response: ${error.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyGetMetadata)),
   })
 );
+
+const ApiKeyUpdateMetadata = {
+  plugin: "api-key",
+  method: "update",
+} as const;
 
 const ApiKeyUpdateHandler = Effect.fn("ApiKeyUpdateHandler")(
   function* (payload: ApiKeyUpdatePayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "ApiKeyUpdate",
-      metadata: () => ({
-        plugin: "api-key",
-        method: "update",
-      }),
+      metadata: () => ApiKeyUpdateMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -159,18 +165,20 @@ const ApiKeyUpdateHandler = Effect.fn("ApiKeyUpdateHandler")(
     return yield* S.decodeUnknown(ApiKeyUpdateContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.dieMessage(`ApiKeyUpdateHandler failed to parse response: ${error.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyUpdateMetadata)),
   })
 );
+
+const ApiKeyDeleteMetadata = {
+  plugin: "api-key",
+  method: "delete",
+} as const;
 
 const ApiKeyDeleteHandler = Effect.fn("ApiKeyDeleteHandler")(
   function* (payload: ApiKeyDeletePayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "ApiKeyDelete",
-      metadata: () => ({
-        plugin: "api-key",
-        method: "delete",
-      }),
+      metadata: () => ApiKeyDeleteMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -199,18 +207,20 @@ const ApiKeyDeleteHandler = Effect.fn("ApiKeyDeleteHandler")(
     return yield* S.decodeUnknown(ApiKeyDeleteContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.dieMessage(`ApiKeyDeleteHandler failed to parse response: ${error.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyDeleteMetadata)),
   })
 );
+
+const ApiKeyListMetadata = {
+  plugin: "api-key",
+  method: "list",
+} as const;
 
 const ApiKeyListHandler = Effect.fn("ApiKeyListHandler")(
   function* () {
     const continuation = makeFailureContinuation({
       contract: "ApiKeyList",
-      metadata: () => ({
-        plugin: "api-key",
-        method: "list",
-      }),
+      metadata: () => ApiKeyListMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -239,7 +249,7 @@ const ApiKeyListHandler = Effect.fn("ApiKeyListHandler")(
     return yield* S.decodeUnknown(ApiKeyListContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.dieMessage(`ApiKeyListHandler failed to parse response: ${error.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyListMetadata)),
   })
 );
 

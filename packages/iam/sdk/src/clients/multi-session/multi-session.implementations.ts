@@ -12,14 +12,26 @@ import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 
+const MultiSessionListMetadata = {
+  plugin: "multiSession",
+  method: "listDeviceSessions",
+} as const;
+
+const MultiSessionSetActiveMetadata = {
+  plugin: "multiSession",
+  method: "setActive",
+} as const;
+
+const MultiSessionRevokeMetadata = {
+  plugin: "multiSession",
+  method: "revoke",
+} as const;
+
 const MultiSessionListHandler = Effect.fn("MultiSessionListHandler")(
   function* () {
     const continuation = makeFailureContinuation({
       contract: "MultiSessionList",
-      metadata: () => ({
-        plugin: "multiSession",
-        method: "listDeviceSessions",
-      }),
+      metadata: () => MultiSessionListMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -48,7 +60,7 @@ const MultiSessionListHandler = Effect.fn("MultiSessionListHandler")(
     return yield* S.decodeUnknown(MultiSessionListContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.dieMessage(`MultiSessionListHandler failed to parse response: ${error.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, MultiSessionListMetadata)),
   })
 );
 
@@ -56,10 +68,7 @@ const MultiSessionSetActiveHandler = Effect.fn("MultiSessionSetActiveHandler")(
   function* (payload: MultiSessionTokenPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "MultiSessionSetActive",
-      metadata: () => ({
-        plugin: "multiSession",
-        method: "setActive",
-      }),
+      metadata: () => MultiSessionSetActiveMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -94,7 +103,7 @@ const MultiSessionSetActiveHandler = Effect.fn("MultiSessionSetActiveHandler")(
     return decoded;
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.dieMessage(`MultiSessionSetActiveHandler failed to parse response: ${error.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, MultiSessionSetActiveMetadata)),
   })
 );
 
@@ -102,10 +111,7 @@ const MultiSessionRevokeHandler = Effect.fn("MultiSessionRevokeHandler")(
   function* (payload: MultiSessionTokenPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "MultiSessionRevoke",
-      metadata: () => ({
-        plugin: "multiSession",
-        method: "revoke",
-      }),
+      metadata: () => MultiSessionRevokeMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -140,7 +146,7 @@ const MultiSessionRevokeHandler = Effect.fn("MultiSessionRevokeHandler")(
     return decoded;
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.dieMessage(`MultiSessionRevokeHandler failed to parse response: ${error.message}`),
+    ParseError: (error) => Effect.fail(IamError.match(error, MultiSessionRevokeMetadata)),
   })
 );
 
