@@ -27,7 +27,7 @@ Examples of how these are used can be found in the following places:
 - [signInSocial](packages/iam/sdk/src/clients/sign-in/sign-in.contracts.ts)
 
 The process for defining a better-auth adapter using these contracts is the following:
-- use the context7 mcp tool to fetch documentation regarding the better-auth client method you are trying to implement
+- use the context7 mcp tool and reference the [better-auth-api-spec.json](better-auth-api-spec.json) file to fetch documentation regarding the better-auth client method you are trying to implement
   - Determine the request payload parameters and create an effect/Schema using the `BS.Class` schema from `@beep/schema`
     - if the method has no payload make the contracts parameters property `{}` 
   - Determine the response payload parameters and create an effect/Schema using the `BS.Class` schema from `@beep/schema`
