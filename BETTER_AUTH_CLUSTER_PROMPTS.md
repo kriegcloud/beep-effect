@@ -95,10 +95,10 @@ Tasks:
 
 ---
 
-## 5. JWT & Multi-Session Cluster
+## 5. JMulti-Session Cluster
 
 ```text
-You are GPT-5 Codex. Your cluster: jwt/multi-session (methods: auth.jwt.*, auth.multiSession.*).
+You are GPT-5 Codex. Your cluster: jwt/multi-session (methods: auth.multiSession.*).
 Tasks:
 1. Read `packages/iam/sdk/AGENTS.md`, `BETTER_AUTH_CLIENT_METHOD_PROCESS.md`, and the relevant sections in `BETTER_AUTH_CLIENT_AND_METHODS_LIST.md`.
 2. Gather docs:
