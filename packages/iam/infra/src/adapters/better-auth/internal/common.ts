@@ -1,4 +1,8 @@
 export const commonExtraFields = {
+  _rowId: {
+    type: "number",
+    required: false,
+  },
   deletedAt: {
     type: "date",
     required: false,

@@ -1,6 +1,6 @@
 import { client } from "@beep/iam-sdk/adapters";
 import { SignInContractSet } from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
-import { makeFailureContinuation } from "@beep/iam-sdk/contractkit";
+import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import type {
@@ -10,6 +10,9 @@ import type {
   SignInUsernamePayload,
 } from "./sign-in.contracts";
 
+// =====================================================================================================================
+// Sign In Social Handler
+// =====================================================================================================================
 const SignInSocialHandler = Effect.fn("SignInSocialHandler")(function* (payload: SignInSocialPayload.Type) {
   const continuation = makeFailureContinuation({
     contract: "SignInSocial",
@@ -38,7 +41,9 @@ const SignInSocialHandler = Effect.fn("SignInSocialHandler")(function* (payload:
     continuation.raiseResult
   );
 });
-
+// =====================================================================================================================
+// Sign In Email Handler
+// =====================================================================================================================
 const SignInEmailHandler = Effect.fn("SignInEmailHandler")(function* (payload: SignInEmailPayload.Type) {
   const continuation = makeFailureContinuation({
     contract: "SignInEmail",
@@ -76,7 +81,9 @@ const SignInEmailHandler = Effect.fn("SignInEmailHandler")(function* (payload: S
     client.$store.notify("$sessionSignal");
   }
 });
-
+// =====================================================================================================================
+// Sign In Username Handler
+// =====================================================================================================================
 const SignInUsernameHandler = Effect.fn("SignInUsernameHandler")(function* (payload: SignInUsernamePayload.Type) {
   const { username, password, rememberMe, captchaResponse, callbackURL } = payload;
 
@@ -119,6 +126,9 @@ const SignInUsernameHandler = Effect.fn("SignInUsernameHandler")(function* (payl
   );
 });
 
+// =====================================================================================================================
+// Sign In Phone Number Handler
+// =====================================================================================================================
 const SignInPhoneNumberHandler = Effect.fn("SignInPhoneNumberHandler")(function* (
   payload: SignInPhoneNumberPayload.Type
 ) {
@@ -159,7 +169,9 @@ const SignInPhoneNumberHandler = Effect.fn("SignInPhoneNumberHandler")(function*
     }
   );
 });
-
+// =====================================================================================================================
+// Sign In One Tap Handler
+// =====================================================================================================================
 const SignInOneTapHandler = Effect.fn("SignInOneTapHandler")(function* () {
   const continuation = makeFailureContinuation({
     contract: "SignInOneTap",
@@ -179,7 +191,9 @@ const SignInOneTapHandler = Effect.fn("SignInOneTapHandler")(function* () {
     })
   );
 });
-
+// =====================================================================================================================
+// Sign In Passkey Handler
+// =====================================================================================================================
 const SignInPasskeyHandler = Effect.fn("SignInPasskey")(function* () {
   const continuation = makeFailureContinuation({
     contract: "SignInPasskey",
@@ -208,7 +222,9 @@ const SignInPasskeyHandler = Effect.fn("SignInPasskey")(function* () {
     }
   );
 });
-
+// =====================================================================================================================
+// Sign In Implementations Service
+// =====================================================================================================================
 export const SignInImplementations = SignInContractSet.of({
   SignInEmail: SignInEmailHandler,
   SignInSocial: SignInSocialHandler,

@@ -26,7 +26,10 @@
     "execute": "bun run dotenvx -- bunx tsx ./execute.ts"
   },
   "dependencies": {
-    "babel-plugin-react-compiler": "^1.0.0",
+    "turndown": "catalog:",
+    "rehype-raw": "catalog:",
+    "rehype-highlight": "catalog:",
+    "babel-plugin-react-compiler": "catalog:",
     "@beep/constants": "workspace:^",
     "@beep/core-db": "workspace:^",
     "@beep/core-email": "workspace:^",
@@ -189,7 +192,8 @@
     "babel-plugin-transform-next-use-client": "catalog:",
     "copyfiles": "catalog:",
     "@babel/preset-react": "catalog:",
-    "@next/bundle-analyzer": "16.0.0-beta.0"
+    "@next/bundle-analyzer": "16.0.0-beta.0",
+    "@types/turndown": "catalog:"
   },
   "overrides": {
     "@types/react": "19.2.2",

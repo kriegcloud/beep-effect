@@ -1,10 +1,12 @@
 import type { AuthProviderNameValue } from "@beep/constants";
 import * as IamEntities from "@beep/iam-domain/entities";
+import * as Member from "@beep/iam-domain/entities/Member";
 import { IamConfig } from "@beep/iam-infra/config";
 import { IamDb } from "@beep/iam-infra/db/Db";
 import { IamDbSchema } from "@beep/iam-tables";
 import { BS } from "@beep/schema";
-import { IamEntityIds, paths, SharedEntityIds } from "@beep/shared-domain";
+import { EntitySource, IamEntityIds, paths, SharedEntityIds } from "@beep/shared-domain";
+import * as Organization from "@beep/shared-domain/entities/Organization";
 import type { UnsafeTypes } from "@beep/types";
 import type { SqlError } from "@effect/sql/SqlError";
 import type { BetterAuthOptions } from "better-auth";
@@ -30,6 +32,7 @@ import { AuthEmailService, SendResetPasswordEmailPayload, SendVerificationEmailP
 import { type CommonExtraFields, commonExtraFields } from "./internal";
 import { AllPlugins } from "./plugins";
 import type { Plugins } from "./plugins/plugins";
+
 export type ReadonlyHeaders = Headers & {
   /** @deprecated Method unavailable on `ReadonlyHeaders`. Read more: https://nextjs.org/docs/app/api-reference/functions/headers */
   append(...args: UnsafeTypes.UnsafeAny[]): void;
@@ -177,30 +180,31 @@ const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService | I
 
             const program = Effect.gen(function* () {
               const now = yield* DateTime.now.pipe(Effect.flatMap((now) => Effect.succeed(DateTime.toDate(now))));
+              const commonFieldValues = {
+                updateAt: now,
+                createdAt: now,
+                createdBy: user.id,
+                source: EntitySource.Enum.auto_created,
+              };
               yield* db.insert(IamDbSchema.organization).values({
                 id: personalOrgId,
                 name: `${user.name || "User"}'s Organization`,
                 slug,
-                type: "individual",
+                type: Organization.OrganizationTypeEnum.individual,
                 ownerUserId: SharedEntityIds.UserId.make(user.id),
                 isPersonal: true,
-                subscriptionTier: "free",
-                subscriptionStatus: "active",
-                createdBy: user.id,
-                source: "auto_created",
-                createdAt: now,
-                updatedAt: now,
+                subscriptionTier: Organization.SubscriptionTierEnum.free,
+                subscriptionStatus: Organization.SubscriptionStatusEnum.active,
+                ...commonFieldValues,
               });
               yield* db.insert(IamDbSchema.member).values({
                 id: personalMemberId,
                 userId: S.decodeUnknownSync(SharedEntityIds.UserId)(user.id),
                 organizationId: personalOrgId,
-                role: "owner",
+                role: Member.MemberRoleEnum.owner,
                 status: IamEntities.Member.MemberStatusEnum.active,
                 joinedAt: now,
-                createdBy: user.id,
-                createdAt: now,
-                updatedAt: now,
+                ...commonFieldValues,
               });
             });
             // Create personal organization with multi-tenant field

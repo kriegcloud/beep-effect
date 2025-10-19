@@ -18,12 +18,14 @@ export class Model extends M.Class<Model>(`SessionModel`)(
     }),
 
     /** Unique session token */
-    token: S.NonEmptyString.annotations({
-      description: "Unique session token for authentication",
-    }),
+    token: M.Sensitive(
+      S.NonEmptyString.annotations({
+        description: "Unique session token for authentication",
+      })
+    ),
 
     /** IP address where session was created */
-    ipAddress: BS.FieldOptionOmittable(
+    ipAddress: BS.FieldSensitiveOptionOmittable(
       S.String.pipe(
         S.pattern(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$|^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/)
       ).annotations({
@@ -33,7 +35,7 @@ export class Model extends M.Class<Model>(`SessionModel`)(
     ),
 
     /** User agent string */
-    userAgent: BS.FieldOptionOmittable(
+    userAgent: BS.FieldSensitiveOptionOmittable(
       S.String.annotations({
         description: "User agent string from the client",
       })

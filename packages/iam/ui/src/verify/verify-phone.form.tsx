@@ -9,7 +9,7 @@ import * as O from "effect/Option";
 const runtime = Atom.runtime(clientRuntimeLayer);
 const verifyPhoneAtom = runtime.fn(
   F.flow(
-    VerifyImplementations.SendVerifyPhoneContract,
+    VerifyImplementations.SendVerifyPhone,
     withToast({
       onWaiting: "Verifying phone",
       onSuccess: "Phone verified.",

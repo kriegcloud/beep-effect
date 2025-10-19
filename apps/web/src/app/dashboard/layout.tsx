@@ -19,7 +19,7 @@ const runtime = Atom.runtime(clientRuntimeLayer);
 
 const signOutAtom = runtime.fn(
   F.flow(
-    SignOutImplementations.SignOutContract,
+    SignOutImplementations.SignOut,
     withToast({
       onWaiting: "Signing out",
       onSuccess: "Signed out successfully",

@@ -1,9 +1,11 @@
-import { Contract, ContractSet } from "@beep/iam-sdk/contractkit";
+import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
 import { BS } from "@beep/schema";
 import { IamEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
-
+// =====================================================================================================================
+// Accept Invitation Contract
+// =====================================================================================================================
 export class AcceptInvitationPayload extends BS.Class<AcceptInvitationPayload>("AcceptInvitationPayload")(
   {
     invitationId: IamEntityIds.InvitationId,
@@ -20,11 +22,13 @@ export declare namespace AcceptInvitationPayload {
   export type Encoded = S.Schema.Encoded<typeof AcceptInvitationPayload>;
 }
 
-export const AcceptInvitationContract = Contract.make("AcceptInvitationContract", {
+export const AcceptInvitationContract = Contract.make("AcceptInvitation", {
   description: "Accepts an organization invitation.",
   parameters: AcceptInvitationPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });
-
+// =====================================================================================================================
+// Organization Contract Set
+// =====================================================================================================================
 export const OrganizationContractSet = ContractSet.make(AcceptInvitationContract);

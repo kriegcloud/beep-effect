@@ -1,6 +1,6 @@
 import { client } from "@beep/iam-sdk/adapters";
 import { VerifyContractSet } from "@beep/iam-sdk/clients/verify/verify.contracts";
-import { makeFailureContinuation } from "@beep/iam-sdk/contractkit";
+import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 
@@ -98,7 +98,7 @@ const SendVerifyPhoneHandler = Effect.fn("SendVerifyPhoneHandler")(function* (pa
 });
 
 export const VerifyImplementations = VerifyContractSet.of({
-  SendVerifyPhoneContract: SendVerifyPhoneHandler,
-  SendEmailVerificationContract: SendEmailVerificationHandler,
-  VerifyEmailContract: VerifyEmailHandler,
+  SendVerifyPhone: SendVerifyPhoneHandler,
+  SendEmailVerification: SendEmailVerificationHandler,
+  VerifyEmail: VerifyEmailHandler,
 });

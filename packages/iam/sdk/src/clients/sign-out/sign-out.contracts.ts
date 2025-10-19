@@ -1,8 +1,10 @@
-import { Contract, ContractSet } from "@beep/iam-sdk/contractkit";
+import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
-
+// =====================================================================================================================
+// Sign Out Contract
+// =====================================================================================================================
 export class SignOutPayload extends BS.Class<SignOutPayload>("SignOutPayload")(
   {
     onSuccess: new BS.Fn({
@@ -22,11 +24,13 @@ export declare namespace SignOutPayload {
   export type Encoded = S.Schema.Encoded<typeof SignOutPayload>;
 }
 
-export const SignOutContract = Contract.make("SignOutContract", {
+export const SignOutContract = Contract.make("SignOut", {
   description: "Signs the current user out of their active session.",
   parameters: SignOutPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });
-
+// =====================================================================================================================
+// Sign Out Contract Set
+// =====================================================================================================================
 export const SignOutContractSet = ContractSet.make(SignOutContract);

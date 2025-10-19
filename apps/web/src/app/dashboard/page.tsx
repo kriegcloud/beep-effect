@@ -4,5 +4,5 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: `Dashboard - ${serverEnv.app.name}` };
 export default function Page() {
-  return <DashboardContent>beep!</DashboardContent>;
+  return <DashboardContent sx={{ overflowY: "scroll" }}>beep</DashboardContent>;
 }

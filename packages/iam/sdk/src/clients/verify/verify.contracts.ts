@@ -1,8 +1,10 @@
-import { Contract, ContractSet } from "@beep/iam-sdk/contractkit";
+import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
-
+// =====================================================================================================================
+// Send Verify Phone Contract
+// =====================================================================================================================
 export class SendVerifyPhonePayload extends BS.Class<SendVerifyPhonePayload>("SendVerifyPhonePayload")(
   {
     phoneNumber: BS.Phone,
@@ -21,6 +23,17 @@ export declare namespace SendVerifyPhonePayload {
   export type Encoded = S.Schema.Encoded<typeof SendVerifyPhonePayload.Encoded>;
 }
 
+export const SendVerifyPhoneContract = Contract.make("SendVerifyPhone", {
+  description: "Sends a phone verification request.",
+  parameters: SendVerifyPhonePayload.fields,
+  failure: S.instanceOf(IamError),
+  success: S.Void,
+});
+
+// =====================================================================================================================
+// Send Email Verification Contract
+// =====================================================================================================================
+
 export class SendEmailVerificationPayload extends S.Class<SendEmailVerificationPayload>("SendEmailVerificationPayload")(
   {
     email: BS.Email,
@@ -37,6 +50,16 @@ export declare namespace SendEmailVerificationPayload {
   export type Encoded = S.Schema.Encoded<typeof SendEmailVerificationPayload>;
 }
 
+export const SendEmailVerificationContract = Contract.make("SendEmailVerification", {
+  description: "Sends an email verification link to the user.",
+  parameters: SendEmailVerificationPayload.fields,
+  failure: S.instanceOf(IamError),
+  success: S.Void,
+});
+
+// =====================================================================================================================
+// Verify Email Contract
+// =====================================================================================================================
 export class VerifyEmailPayload extends S.Class<VerifyEmailPayload>("VerifyEmailPayload")(
   {
     token: S.Redacted(S.String),
@@ -61,26 +84,16 @@ export declare namespace VerifyEmailPayload {
   export type Encoded = S.Schema.Encoded<typeof VerifyEmailPayload>;
 }
 
-export const SendVerifyPhoneContract = Contract.make("SendVerifyPhoneContract", {
-  description: "Sends a phone verification request.",
-  parameters: SendVerifyPhonePayload.fields,
-  failure: S.instanceOf(IamError),
-  success: S.Void,
-});
-
-export const SendEmailVerificationContract = Contract.make("SendEmailVerificationContract", {
-  description: "Sends an email verification link to the user.",
-  parameters: SendEmailVerificationPayload.fields,
-  failure: S.instanceOf(IamError),
-  success: S.Void,
-});
-
-export const VerifyEmailContract = Contract.make("VerifyEmailContract", {
+export const VerifyEmailContract = Contract.make("VerifyEmail", {
   description: "Verifies a user's email via a token.",
   parameters: VerifyEmailPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });
+
+// =====================================================================================================================
+// Verify Contract Set
+// =====================================================================================================================
 
 export const VerifyContractSet = ContractSet.make(
   SendVerifyPhoneContract,

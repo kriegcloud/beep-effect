@@ -1,6 +1,6 @@
 import { client } from "@beep/iam-sdk/adapters";
 import { RecoverContractSet } from "@beep/iam-sdk/clients/recover/recover.contracts";
-import { makeFailureContinuation } from "@beep/iam-sdk/contractkit";
+import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
@@ -70,6 +70,6 @@ const RequestPasswordResetHandler = Effect.fn("RequestPasswordResetHandler")(fun
 });
 
 export const RecoverImplementations = RecoverContractSet.of({
-  ResetPasswordContract: ResetPasswordHandler,
-  RequestResetPasswordContract: RequestPasswordResetHandler,
+  ResetPassword: ResetPasswordHandler,
+  RequestResetPassword: RequestPasswordResetHandler,
 });

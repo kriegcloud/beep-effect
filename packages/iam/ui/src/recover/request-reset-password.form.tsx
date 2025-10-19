@@ -11,7 +11,7 @@ const runtime = Atom.runtime(clientRuntimeLayer);
 
 const requestResetPasswordAtom = runtime.fn(
   F.flow(
-    RecoverImplementations.RequestResetPasswordContract,
+    RecoverImplementations.RequestResetPassword,
     withToast({
       onWaiting: "Requesting reset password",
       onSuccess: "Reset password requested successfully",

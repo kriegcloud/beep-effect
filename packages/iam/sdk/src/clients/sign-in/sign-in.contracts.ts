@@ -1,6 +1,7 @@
 import { AuthProviderNameValue } from "@beep/constants";
-import { Contract, ContractSet } from "@beep/iam-sdk/contractkit";
+import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
 import { BS } from "@beep/schema";
+import { User } from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
 
@@ -9,7 +10,7 @@ import { IamError } from "../../errors";
 // =====================================================================================================================
 export class SignInEmailPayload extends BS.Class<SignInEmailPayload>("SignInEmailPayload")(
   {
-    email: BS.Email,
+    email: User.Model.insert.fields.email,
     password: BS.Password,
     rememberMe: BS.BoolWithDefault(false),
     captchaResponse: S.Redacted(S.String),
@@ -158,7 +159,9 @@ export const SignInOneTapContract = Contract.make("SignInOneTap", {
   failure: S.instanceOf(IamError),
   success: S.Void,
 });
-
+// =====================================================================================================================
+// SignIn Contract Set
+// =====================================================================================================================
 export const SignInContractSet = ContractSet.make(
   SignInEmailContract,
   SignInSocialContract,

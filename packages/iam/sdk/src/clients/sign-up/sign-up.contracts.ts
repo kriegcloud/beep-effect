@@ -1,4 +1,4 @@
-import { Contract, ContractSet } from "@beep/iam-sdk/contractkit";
+import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
 import { BS } from "@beep/schema";
 import { paths } from "@beep/shared-domain";
 import * as SharedEntities from "@beep/shared-domain/entities";
@@ -10,6 +10,9 @@ import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import { IamError } from "../../errors";
 
+// =====================================================================================================================
+// Sign Up Email Contract
+// =====================================================================================================================
 const SignUpFrom = S.Struct({
   email: BS.Email,
   rememberMe: BS.BoolWithDefault(false),
@@ -92,5 +95,9 @@ export const SignUpEmailContract = Contract.make("SignUpEmail", {
   failure: S.instanceOf(IamError),
   success: S.Union(S.TaggedStruct("Success", {}), S.TaggedStruct("Failure", {})),
 });
+
+// =====================================================================================================================
+// Sign Up Contract Set
+// =====================================================================================================================
 
 export const SignUpContractSet = ContractSet.make(SignUpEmailContract);

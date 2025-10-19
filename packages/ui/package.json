@@ -37,6 +37,12 @@
       "require": "./build/cjs/animate/*",
       "default": "./build/src/animate/*"
     },
+    "./data-display/*": {
+      "import": "./build/esm/data-display/*",
+      "types": "./build/dts/data-display/*",
+      "require": "./build/cjs/data-display/*",
+      "default": "./build/src/data-display/*"
+    },
     "./providers/*": {
       "import": "./build/esm/providers/*",
       "types": "./build/dts/providers/*",
@@ -254,10 +260,19 @@
     "embla-carousel-fade": "catalog:",
     "embla-carousel-react": "catalog:",
     "react-apexcharts": "catalog:",
-    "react-google-recaptcha-v3": "catalog:"
+    "turndown": "catalog:",
+    "rehype-raw": "catalog:",
+    "rehype-highlight": "catalog:",
+    "remark-gfm": "catalog:",
+    "react-markdown": "catalog:"
   },
   "devDependencies": {
-    "react-google-recaptcha-v3": "catalog:",
+    "turndown": "catalog:",
+    "rehype-raw": "catalog:",
+    "rehype-highlight": "catalog:",
+    "remark-gfm": "catalog:",
+    "react-markdown": "catalog:",
+    "@types/turndown": "catalog:",
     "@beep/ui-core": "workspace:^",
     "@types/bun": "catalog:",
     "@beep/types": "workspace:^",
