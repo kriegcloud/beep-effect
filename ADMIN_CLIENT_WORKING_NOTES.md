@@ -1,4 +1,4 @@
-# Admin Client Implementation Working Notes
+(# Admin Client Implementation Working Notes
 
 These notes capture the state of the ongoing `@beep/iam-sdk` admin client work so a fresh GPT-5 Codex session can resume without re-discovering context. Follow the order below to rebuild understanding and recover momentum.
 
