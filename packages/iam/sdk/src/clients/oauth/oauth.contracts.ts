@@ -1,6 +1,6 @@
 import { AuthProviderNameValue } from "@beep/constants";
 import { Account } from "@beep/iam-domain/entities";
-import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
 import { BS } from "@beep/schema";
 import { IamEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
@@ -224,7 +224,7 @@ export const RequestAdditionalScopesContract = Contract.make("RequestAdditionalS
 // =====================================================================================================================
 // OAuth Contract Set
 // =====================================================================================================================
-export const OAuthContractSet = ContractSet.make(
+export const OAuthContractKit = ContractKit.make(
   OAuthRegisterContract,
   LinkSocialContract,
   GetAccessTokenContract,

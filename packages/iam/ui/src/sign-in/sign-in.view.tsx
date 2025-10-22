@@ -1,5 +1,5 @@
 "use client";
-import { useSignInPasskey, useSignInSocial } from "@beep/iam-ui/sign-in/sign-in.atoms";
+import { useSignInPasskey, useSignInSocial } from "@beep/iam-sdk/clients/sign-in";
 import { paths } from "@beep/shared-domain";
 import { RouterLink } from "@beep/ui/routing";
 import Link from "@mui/material/Link";

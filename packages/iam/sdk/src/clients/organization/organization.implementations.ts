@@ -1,5 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { OrganizationContractSet } from "@beep/iam-sdk/clients/organization/organization.contracts";
+import { OrganizationContractKit } from "@beep/iam-sdk/clients/organization/organization.contracts";
 import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
 import * as Effect from "effect/Effect";
 import type { AcceptInvitationPayload } from "./organization.contracts";
@@ -21,6 +21,6 @@ const AcceptInvitationHandler = Effect.fn("AcceptInvitationHandler")(function* (
   yield* continuation.raiseResult(result);
 });
 
-export const OrganizationImplementations = OrganizationContractSet.of({
+export const OrganizationImplementations = OrganizationContractKit.of({
   AcceptInvitation: AcceptInvitationHandler,
 });

@@ -1,4 +1,4 @@
-import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
 import { BS } from "@beep/schema";
 import { IamEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
@@ -31,4 +31,4 @@ export const AcceptInvitationContract = Contract.make("AcceptInvitation", {
 // =====================================================================================================================
 // Organization Contract Set
 // =====================================================================================================================
-export const OrganizationContractSet = ContractSet.make(AcceptInvitationContract);
+export const OrganizationContractKit = ContractKit.make(AcceptInvitationContract);

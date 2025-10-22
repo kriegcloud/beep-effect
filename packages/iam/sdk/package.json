@@ -33,8 +33,9 @@
     "lint:fix": "biome check . --write",
     "lint:circular": "bunx madge -c ."
   },
-  "dependencies": {
+  "peerDependencies": {
     "mutative": "catalog:",
+    "@beep/runtime-client": "workspace:^",
     "@effect-atom/atom-react": "catalog:",
     "@better-auth/stripe": "catalog:",
     "better-auth": "catalog:",
@@ -58,6 +59,29 @@
     "@beep/iam-domain": "workspace:^"
   },
   "devDependencies": {
+    "mutative": "catalog:",
+    "@beep/runtime-client": "workspace:^",
+    "@effect-atom/atom-react": "catalog:",
+    "@better-auth/stripe": "catalog:",
+    "better-auth": "catalog:",
+    "sonner": "catalog:",
+    "dub": "catalog:",
+    "stripe": "catalog:",
+    "effect": "catalog:",
+    "@dub/better-auth": "catalog:",
+    "better-call": "catalog:",
+    "jose": "catalog:",
+    "@beep/utils": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "next": "catalog:",
+    "@beep/schema": "workspace:^",
+    "@beep/errors": "workspace:^",
+    "@beep/constants": "workspace:^",
+    "@beep/ui": "workspace:^",
+    "@beep/ui-core": "workspace:^",
+    "@beep/core-env": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/iam-domain": "workspace:^",
     "@types/bun": "catalog:",
     "@beep/types": "workspace:^"
   },

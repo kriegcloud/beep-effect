@@ -1,48 +1,41 @@
-import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
+import { ApiKey } from "@beep/iam-domain/entities";
+import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
 import { BS } from "@beep/schema";
-import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { IamEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
 
-const NullableString = S.NullOr(S.String);
-const NullableNumber = S.NullOr(S.Number);
-const NullableDate = S.NullOr(BS.DateTimeFromDate());
-const NullableUnknown = S.NullOr(S.Unknown);
-const ApiKeyPermissionsRecord = S.Record({
-  key: S.String,
-  value: S.mutable(S.Array(S.String)),
-});
-const NullablePermissions = S.NullOr(ApiKeyPermissionsRecord);
-
-const ApiKeyBaseFields = {
-  id: IamEntityIds.ApiKeyId,
-  name: NullableString,
-  start: NullableString,
-  prefix: NullableString,
-  userId: SharedEntityIds.UserId,
-  refillInterval: NullableNumber,
-  refillAmount: NullableNumber,
-  lastRefillAt: NullableDate,
-  enabled: S.Boolean,
-  rateLimitEnabled: S.Boolean,
-  rateLimitTimeWindow: NullableNumber,
-  rateLimitMax: NullableNumber,
-  requestCount: S.Number,
-  remaining: NullableNumber,
-  lastRequest: NullableDate,
-  expiresAt: NullableDate,
-  createdAt: BS.DateTimeFromDate(),
-  updatedAt: BS.DateTimeFromDate(),
-  metadata: NullableUnknown,
-  permissions: NullablePermissions,
-};
-
-export class ApiKeyView extends BS.Class<ApiKeyView>("ApiKeyView")(ApiKeyBaseFields, {
-  schemaId: Symbol.for("@beep/iam-sdk/clients/api-key/ApiKeyView"),
-  identifier: "ApiKeyView",
-  title: "API Key View",
-  description: "Represents an API key returned by Better Auth.",
-}) {}
+export class ApiKeyView extends BS.Class<ApiKeyView>("ApiKeyView")(
+  ApiKey.Model.select.pick(
+    "id",
+    "name",
+    "start",
+    "prefix",
+    "userId",
+    "organizationId",
+    "refillInterval",
+    "refillAmount",
+    "lastRefillAt",
+    "enabled",
+    "rateLimitEnabled",
+    "rateLimitTimeWindow",
+    "rateLimitMax",
+    "requestCount",
+    "remaining",
+    "lastRequest",
+    "expiresAt",
+    "createdAt",
+    "updatedAt",
+    "metadata",
+    "permissions"
+  ),
+  {
+    schemaId: Symbol.for("@beep/iam-sdk/clients/api-key/ApiKeyView"),
+    identifier: "ApiKeyView",
+    title: "API Key View",
+    description: "Represents an API key returned by Better Auth.",
+  }
+) {}
 
 export declare namespace ApiKeyView {
   export type Type = S.Schema.Type<typeof ApiKeyView>;
@@ -50,10 +43,32 @@ export declare namespace ApiKeyView {
 }
 
 export class ApiKeyCreateSuccess extends BS.Class<ApiKeyCreateSuccess>("ApiKeyCreateSuccess")(
-  {
-    key: S.String,
-    ...ApiKeyBaseFields,
-  },
+  S.Struct({
+    key: S.Redacted(S.String),
+    ...ApiKey.Model.select.pick(
+      "id",
+      "name",
+      "start",
+      "prefix",
+      "userId",
+      "organizationId",
+      "refillInterval",
+      "refillAmount",
+      "lastRefillAt",
+      "enabled",
+      "rateLimitEnabled",
+      "rateLimitTimeWindow",
+      "rateLimitMax",
+      "requestCount",
+      "remaining",
+      "lastRequest",
+      "expiresAt",
+      "createdAt",
+      "updatedAt",
+      "metadata",
+      "permissions"
+    ).fields,
+  }),
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/api-key/ApiKeyCreateSuccess"),
     identifier: "ApiKeyCreateSuccess",
@@ -85,20 +100,23 @@ export declare namespace ApiKeyDeleteSuccess {
 }
 
 export class ApiKeyCreatePayload extends BS.Class<ApiKeyCreatePayload>("ApiKeyCreatePayload")(
-  {
-    name: S.optional(S.String),
-    expiresIn: S.optional(S.NullOr(S.Number)),
-    userId: S.optional(SharedEntityIds.UserId),
-    prefix: S.optional(S.String),
-    remaining: S.optional(S.NullOr(S.Number)),
-    metadata: S.optional(NullableUnknown),
-    refillAmount: S.optional(S.Number),
-    refillInterval: S.optional(S.Number),
-    rateLimitTimeWindow: S.optional(S.Number),
-    rateLimitMax: S.optional(S.Number),
-    rateLimitEnabled: S.optional(S.Boolean),
-    permissions: S.optional(ApiKeyPermissionsRecord),
-  },
+  S.Struct({
+    ...ApiKey.Model.insert.pick(
+      "name",
+      "userId",
+      "prefix",
+      "remaining",
+      "metadata",
+      "refillAmount",
+      "refillInterval",
+      "rateLimitTimeWindow",
+      "rateLimitMax",
+      "rateLimitEnabled",
+      "permissions",
+      "organizationId"
+    ).fields,
+    expiresIn: S.optional(S.NullOr(BS.DurationFromSeconds)),
+  }),
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/api-key/ApiKeyCreatePayload"),
     identifier: "ApiKeyCreatePayload",
@@ -113,21 +131,24 @@ export declare namespace ApiKeyCreatePayload {
 }
 
 export class ApiKeyUpdatePayload extends BS.Class<ApiKeyUpdatePayload>("ApiKeyUpdatePayload")(
-  {
+  S.Struct({
     keyId: IamEntityIds.ApiKeyId,
-    userId: S.optional(SharedEntityIds.UserId),
-    name: S.optional(S.String),
-    enabled: S.optional(S.Boolean),
-    remaining: S.optional(S.Number),
-    refillAmount: S.optional(S.Number),
-    refillInterval: S.optional(S.Number),
-    metadata: S.optional(NullableUnknown),
-    expiresIn: S.optional(S.NullOr(S.Number)),
-    rateLimitEnabled: S.optional(S.Boolean),
-    rateLimitTimeWindow: S.optional(S.Number),
-    rateLimitMax: S.optional(S.Number),
-    permissions: S.optional(S.NullOr(ApiKeyPermissionsRecord)),
-  },
+    ...ApiKey.Model.update.pick(
+      "userId",
+      "name",
+      "enabled",
+      "remaining",
+      "refillAmount",
+      "refillInterval",
+      "metadata",
+      "rateLimitEnabled",
+      "rateLimitTimeWindow",
+      "rateLimitMax",
+      "permissions",
+      "organizationId"
+    ).fields,
+    expiresIn: S.optional(S.NullOr(BS.DurationFromSeconds)),
+  }),
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/api-key/ApiKeyUpdatePayload"),
     identifier: "ApiKeyUpdatePayload",
@@ -210,7 +231,7 @@ export const ApiKeyListContract = Contract.make("ApiKeyList", {
   success: S.Array(ApiKeyView),
 });
 
-export const ApiKeyContractSet = ContractSet.make(
+export const ApiKeyContractKit = ContractKit.make(
   ApiKeyCreateContract,
   ApiKeyGetContract,
   ApiKeyUpdateContract,

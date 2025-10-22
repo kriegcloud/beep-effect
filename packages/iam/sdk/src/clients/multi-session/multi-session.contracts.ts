@@ -1,24 +1,24 @@
-import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
+import { Session } from "@beep/iam-domain/entities";
+import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
 import { BS } from "@beep/schema";
-import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { User } from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
-
-const NullableString = S.NullOr(S.String);
 export class MultiSessionSessionView extends BS.Class<MultiSessionSessionView>("MultiSessionSessionView")(
-  {
-    id: IamEntityIds.SessionId,
-    token: S.Redacted(S.String),
-    userId: SharedEntityIds.UserId,
-    createdAt: BS.DateTimeFromDate(),
-    updatedAt: BS.DateTimeFromDate(),
-    expiresAt: BS.DateTimeFromDate(),
-    ipAddress: S.optional(NullableString),
-    userAgent: S.optional(NullableString),
-    activeOrganizationId: S.optional(S.NullOr(SharedEntityIds.OrganizationId)),
-    activeTeamId: S.optional(S.NullOr(SharedEntityIds.TeamId)),
-    impersonatedBy: S.optional(S.NullOr(SharedEntityIds.UserId)),
-  },
+  Session.Model.select.pick(
+    "id",
+    "token",
+    "userId",
+    "createdAt",
+    "createdBy",
+    "updatedAt",
+    "expiresAt",
+    "ipAddress",
+    "userAgent",
+    "activeOrganizationId",
+    "activeTeamId",
+    "impersonatedBy"
+  ),
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/multi-session/MultiSessionSessionView"),
     identifier: "MultiSessionSessionView",
@@ -33,15 +33,7 @@ export declare namespace MultiSessionSessionView {
 }
 
 export class MultiSessionUserView extends BS.Class<MultiSessionUserView>("MultiSessionUserView")(
-  {
-    id: SharedEntityIds.UserId,
-    email: BS.Email,
-    emailVerified: S.Boolean,
-    name: S.String,
-    image: S.optional(S.NullOr(BS.URLString)),
-    createdAt: BS.DateTimeFromDate(),
-    updatedAt: BS.DateTimeFromDate(),
-  },
+  User.Model.select.pick("id", "email", "emailVerified", "name", "image", "createdAt", "updatedAt"),
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/multi-session/MultiSessionUserView"),
     identifier: "MultiSessionUserView",
@@ -128,7 +120,7 @@ export const MultiSessionRevokeContract = Contract.make("MultiSessionRevoke", {
   success: MultiSessionRevokeSuccess,
 });
 
-export const MultiSessionContractSet = ContractSet.make(
+export const MultiSessionContractKit = ContractKit.make(
   MultiSessionListContract,
   MultiSessionSetActiveContract,
   MultiSessionRevokeContract

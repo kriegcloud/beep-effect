@@ -234,3 +234,28 @@ export const FieldSensitiveOptionOmittable = <S extends S.Schema.Any>(schema: S)
     jsonCreate: S.optionalWith(S.OptionFromNullOr(S.Redacted(schema)), { exact: true }),
     jsonUpdate: S.optionalWith(S.OptionFromNullOr(S.Redacted(schema)), { exact: true }),
   });
+
+/**
+ * Nullable JSON field stored as text in the database with Option semantics.
+ *
+ * Behavior by variant:
+ * - select: required key; value decoded as Option from `string | null`
+ * - insert, update: key is omittable; when present, value decoded as Option from `string | null`
+ * - json: required key; value decoded as Option from `S | null`
+ * - jsonCreate, jsonUpdate: key is omittable; when present, value decoded as Option from `S | null`
+ *
+ * This mirrors `M.FieldOption(M.JsonFromString(schema))` but ensures the encoded
+ * shape for database selections is `string | null` (no `undefined`), matching
+ * Drizzle models for nullable text columns.
+ */
+export const JsonFromStringOption = <TSchema extends S.Schema.All>(schema: TSchema) =>
+  M.JsonFromString(schema).pipe(
+    M.fieldEvolve({
+      select: (variant) => S.OptionFromNullOr(S.asSchema(variant)),
+      insert: (variant) => S.optionalWith(S.OptionFromNullOr(S.asSchema(variant)), { exact: true }),
+      update: (variant) => S.optionalWith(S.OptionFromNullOr(S.asSchema(variant)), { exact: true }),
+      json: (variant) => S.OptionFromNullOr(S.asSchema(variant)),
+      jsonCreate: (variant) => S.optionalWith(S.OptionFromNullOr(S.asSchema(variant)), { exact: true }),
+      jsonUpdate: (variant) => S.optionalWith(S.OptionFromNullOr(S.asSchema(variant)), { exact: true }),
+    })
+  );

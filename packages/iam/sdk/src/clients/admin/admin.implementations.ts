@@ -1,37 +1,39 @@
 import { client } from "@beep/iam-sdk/adapters";
+import type {
+  AdminBanUserPayload,
+  AdminCreateUserPayload,
+  AdminGetUserPayload,
+  AdminHasPermissionPayload,
+  AdminImpersonateUserPayload,
+  AdminListUserSessionsPayload,
+  AdminListUsersPayload,
+  AdminRemoveUserPayload,
+  AdminRevokeUserSessionPayload,
+  AdminRevokeUserSessionsPayload,
+  AdminSessionBundleSuccess,
+  AdminSetRolePayload,
+  AdminSetUserPasswordPayload,
+  AdminUnbanUserPayload,
+  AdminUpdateUserPayload,
+  AdminUserSuccess,
+} from "@beep/iam-sdk/clients/admin/admin.contracts";
 import {
   AdminBanUserContract,
-  type AdminBanUserPayload,
-  AdminContractSet,
+  AdminContractKit,
   AdminCreateUserContract,
-  type AdminCreateUserPayload,
   AdminGetUserContract,
-  type AdminGetUserPayload,
   AdminHasPermissionContract,
-  type AdminHasPermissionPayload,
   AdminImpersonateUserContract,
-  type AdminImpersonateUserPayload,
   AdminListUserSessionsContract,
-  type AdminListUserSessionsPayload,
   AdminListUsersContract,
-  type AdminListUsersPayload,
   AdminRemoveUserContract,
-  type AdminRemoveUserPayload,
   AdminRevokeUserSessionContract,
-  type AdminRevokeUserSessionPayload,
   AdminRevokeUserSessionsContract,
-  type AdminRevokeUserSessionsPayload,
-  type AdminSessionBundleSuccess,
   AdminSetRoleContract,
-  type AdminSetRolePayload,
   AdminSetUserPasswordContract,
-  type AdminSetUserPasswordPayload,
   AdminStopImpersonatingContract,
   AdminUnbanUserContract,
-  type AdminUnbanUserPayload,
   AdminUpdateUserContract,
-  type AdminUpdateUserPayload,
-  type AdminUserSuccess,
 } from "@beep/iam-sdk/clients/admin/admin.contracts";
 import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
 import type { FailureContinuationHandlers } from "@beep/iam-sdk/contract-kit/failure-continuation";
@@ -622,7 +624,7 @@ const AdminHasPermissionHandler = Effect.fn("AdminHasPermissionHandler")(functio
   return yield* decodeResult(AdminHasPermissionContract.successSchema, "AdminHasPermissionHandler", raw);
 });
 
-export const AdminImplementations = AdminContractSet.of({
+export const AdminImplementations = AdminContractKit.of({
   // type error
   AdminSetRole: AdminSetRoleHandler,
   AdminGetUser: AdminGetUserHandler,

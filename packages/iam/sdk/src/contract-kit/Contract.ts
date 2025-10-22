@@ -8,7 +8,7 @@
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
  * import * as S from "effect/Schema"
  *
  * // Define a contract invoked when the user submits a one-time code
@@ -38,7 +38,7 @@ import * as Predicate from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
 import type { Covariant } from "effect/Types";
-import type * as IamError from "./IamError";
+import type * as ContractError from "./ContractError";
 // =============================================================================
 // Type Ids
 // =============================================================================
@@ -88,7 +88,7 @@ export type ProviderDefinedTypeId = typeof ProviderDefinedTypeId;
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
  * import * as S from "effect/Schema"
  *
  * const StartPasswordReset = Contract.make("StartPasswordReset", {
@@ -251,12 +251,12 @@ export interface Contract<
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
  * import * as S from "effect/Schema"
  *
  * const HostedPasswordReset = Contract.providerDefined({
  *   id: "betterauth.reset_password",
- *   contractSetName: "HostedPasswordReset",
+ *   contractKitName: "HostedPasswordReset",
  *   providerName: "reset_password",
  *   args: {
  *     redirectUri: S.String
@@ -314,7 +314,7 @@ export interface ProviderDefined<
 
   /**
    * If set to `true`, this provider-defined contract requires a user-defined
-   * implementation when converting the `ContractSet` containing this contract
+   * implementation when converting the `ContractKit` containing this contract
    * into a `Layer`.
    */
   readonly requiresImplementation: RequiresImplementation;
@@ -373,7 +373,7 @@ export declare namespace Contract {
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
  * import * as S from "effect/Schema"
  *
  * const SignInEmail = Contract.make("SignInEmail", {
@@ -389,7 +389,7 @@ export declare namespace Contract {
  *
  * const HostedPasswordReset = Contract.providerDefined({
  *   id: "betterauth.reset_password",
- *   contractSetName: "HostedPasswordReset",
+ *   contractKitName: "HostedPasswordReset",
  *   providerName: "reset_password",
  *   args: {
  *     redirectUri: S.String
@@ -417,7 +417,7 @@ export const isUserDefined = (u: unknown): u is Contract<string, UnsafeTypes.Uns
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
  * import * as S from "effect/Schema"
  *
  * const SignInEmail = Contract.make("SignInEmail", {
@@ -433,7 +433,7 @@ export const isUserDefined = (u: unknown): u is Contract<string, UnsafeTypes.Uns
  *
  * const HostedPasswordReset = Contract.providerDefined({
  *   id: "betterauth.reset_password",
- *   contractSetName: "HostedPasswordReset",
+ *   contractKitName: "HostedPasswordReset",
  *   providerName: "reset_password",
  *   args: {
  *     redirectUri: S.String
@@ -488,7 +488,7 @@ export interface AnyProviderDefined extends Any {
   readonly argsSchema: AnyStructSchema;
   readonly requiresImplementation: boolean;
   readonly providerName: string;
-  readonly decodeResult: (result: unknown) => Effect.Effect<UnsafeTypes.UnsafeAny, IamError.IamError>;
+  readonly decodeResult: (result: unknown) => Effect.Effect<UnsafeTypes.UnsafeAny, ContractError.ContractError>;
 }
 
 /**
@@ -857,7 +857,7 @@ const constEmptyStruct = S.Struct({});
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
  * import * as S from "effect/Schema"
  *
  * const StartEmailVerification = Contract.make("StartEmailVerification", {
@@ -951,12 +951,12 @@ export const make = <
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
  * import * as S from "effect/Schema"
  *
  * const HostedMagicLink = Contract.providerDefined({
  *   id: "betterauth.magic_link",
- *   contractSetName: "HostedMagicLink",
+ *   contractKitName: "HostedMagicLink",
  *   providerName: "magic_link",
  *   args: {
  *     redirectUri: S.String
@@ -984,9 +984,9 @@ export const providerDefined =
      */
     readonly id: `${string}.${string}`;
     /**
-     * Name used by the ContractSet to identify this contract.
+     * Name used by the ContractKit to identify this contract.
      */
-    readonly contractSetName: Name;
+    readonly contractKitName: Name;
     /**
      * Name of the contract as recognized by the auth provider.
      */
@@ -1046,7 +1046,7 @@ export const providerDefined =
     const failureSchema = options?.failure ?? S.Never;
     return providerDefinedProto({
       id: options.id,
-      name: options.contractSetName,
+      name: options.contractKitName,
       providerName: options.providerName,
       args,
       argsSchema: S.Struct(options.args as UnsafeTypes.UnsafeAny),
@@ -1067,7 +1067,7 @@ export const providerDefined =
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
  * import * as S from "effect/Schema"
  *
  * // Define a tagged request for verifying a pending invitation
@@ -1115,7 +1115,7 @@ export const fromTaggedRequest = <S extends AnyTaggedRequestSchema>(schema: S): 
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
  *
  * const myContract = Contract.make("example", {
  *   description: "This is an example contract"
@@ -1172,7 +1172,7 @@ export const getDescriptionFromSchemaAst = (ast: AST.AST): string | undefined =>
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
  * import * as S from "effect/Schema"
  *
  * const completeProfile = Contract.make("complete_profile", {
@@ -1242,7 +1242,7 @@ export const getJsonSchemaFromSchemaAst = (ast: AST.AST): JsonSchema.JsonSchema7
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
  *
  * const myContract = Contract.make("start_password_reset")
  *   .annotate(Contract.Title, "Start Password Reset")
@@ -1258,7 +1258,7 @@ export class Title extends Context.Tag("@beep/iam-sdk/Contract/Title")<Title, st
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
  *
  * const readOnlyContract = Contract.make("get_user_info")
  *   .annotate(Contract.Readonly, true)
@@ -1276,7 +1276,7 @@ export class Readonly extends Context.Reference<Readonly>()("@beep/iam-sdk/Contr
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
  *
  * const safeContract = Contract.make("revoke_all_sessions")
  *   .annotate(Contract.Destructive, true)
@@ -1294,7 +1294,7 @@ export class Destructive extends Context.Reference<Destructive>()("@beep/iam-sdk
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
  *
  * const idempotentContract = Contract.make("fetch_active_session")
  *   .annotate(Contract.Idempotent, true)
@@ -1312,7 +1312,7 @@ export class Idempotent extends Context.Reference<Idempotent>()("@beep/iam-sdk/C
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
  *
  * const restrictedContract = Contract.make("issue_admin_token")
  *   .annotate(Contract.OpenWorld, false)

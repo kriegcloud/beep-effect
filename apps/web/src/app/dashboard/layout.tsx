@@ -1,35 +1,15 @@
 "use client";
 import { assetPaths } from "@beep/constants";
-import { SignOutImplementations } from "@beep/iam-sdk";
-import { clientRuntimeLayer, makeRunClientPromise, useRuntime } from "@beep/runtime-client";
+import { useSignOut } from "@beep/iam-sdk/clients/sign-out";
+import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { paths } from "@beep/shared-domain";
-import { withToast } from "@beep/ui/common/with-toast";
 import { useRouter } from "@beep/ui/hooks";
 import { DashboardLayout } from "@beep/ui/layouts";
 import { fSub } from "@beep/ui-core/utils";
-import { Atom, useAtom } from "@effect-atom/atom-react";
 import { faker } from "@faker-js/faker";
 import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
-import * as O from "effect/Option";
 import type React from "react";
 import { AuthGuard } from "@/providers/AuthGuard";
-
-const runtime = Atom.runtime(clientRuntimeLayer);
-
-const signOutAtom = runtime.fn(
-  F.flow(
-    SignOutImplementations.SignOut,
-    withToast({
-      onWaiting: "Signing out",
-      onSuccess: "Signed out successfully",
-      onFailure: O.match({
-        onNone: () => "Failed with unknown error.",
-        onSome: (e) => e.message,
-      }),
-    })
-  )
-);
 
 const _id = [
   `e99f09a7-dd88-49d5-b1c8-1daf80c2d7b1`,
@@ -325,7 +305,7 @@ const switchOrg = async () => {
 export default function Layout({ children }: Props) {
   const router = useRouter();
   const runtime = useRuntime();
-  const [, signOut] = useAtom(signOutAtom);
+  const { signOut } = useSignOut();
   const runSwitchAccount = makeRunClientPromise(runtime, "iam.account.switchAccount");
   const runSwitchOrg = makeRunClientPromise(runtime, "iam.organization.switchOrg");
 

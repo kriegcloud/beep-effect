@@ -9,6 +9,9 @@
       "path": "../../common/utils"
     },
     {
+      "path": "../../runtime/client"
+    },
+    {
       "path": "../../common/invariant"
     },
     {
@@ -41,7 +44,6 @@
     "outDir": "build/src",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src",
-
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,

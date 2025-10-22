@@ -1,4 +1,4 @@
-import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
@@ -79,4 +79,4 @@ export const VerifyTotpContract = Contract.make("VerifyTotp", {
 // Two Factor Contract Set
 // =====================================================================================================================
 
-export const TwoFactorContractSet = ContractSet.make(SendOtpContract, VerifyOtpContract, VerifyTotpContract);
+export const TwoFactorContractKit = ContractKit.make(SendOtpContract, VerifyOtpContract, VerifyTotpContract);

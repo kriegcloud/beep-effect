@@ -6,7 +6,7 @@ import {
   GetAccountInfoSuccess,
   LinkSocialContract,
   type LinkSocialPayload,
-  OAuthContractSet,
+  OAuthContractKit,
   type RequestAdditionalScopesPayload,
   RequestAdditionalScopesSuccess,
 } from "@beep/iam-sdk/clients/oauth/oauth.contracts";
@@ -200,7 +200,7 @@ const RequestAdditionalScopesHandler = Effect.fn("RequestAdditionalScopesHandler
 // OAuthImplementations Service
 // =====================================================================================================================
 
-export const OAuthImplementations = OAuthContractSet.of({
+export const OAuthImplementations = OAuthContractKit.of({
   OAuthRegister: OAuthRegisterHandler,
   LinkSocial: LinkSocialHandler,
   GetAccessToken: GetAccessTokenHandler,

@@ -185,3 +185,25 @@ export declare namespace TaggedDurationInputUnion {
   export type Type = typeof TaggedDurationInputUnion.Type;
   export type Encoded = typeof TaggedDurationInputUnion.Encoded;
 }
+
+export class DurationFromSeconds extends S.transform(
+  S.NonNegative.annotations({
+    description: "a non-negative number of seconds to be decoded into a Duration",
+  }),
+  S.DurationFromSelf,
+  {
+    decode: (i) => Duration.seconds(i),
+    encode: (a) => Duration.toSeconds(a),
+    strict: true,
+  }
+).annotations({
+  schemaId: Symbol.for("@beep/schema/custom/Duration/DurationFromSeconds"),
+  identifier: "DurationFromSeconds",
+  title: "Duration from seconds",
+  description: "a non-negative number of seconds to be decoded into a Duration",
+}) {}
+
+export declare namespace DurationFromSeconds {
+  export type Type = typeof DurationFromSeconds.Type;
+  export type Encoded = typeof DurationFromSeconds.Encoded;
+}

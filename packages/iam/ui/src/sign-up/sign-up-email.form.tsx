@@ -1,6 +1,6 @@
 "use client";
 import { SignUpValue } from "@beep/iam-sdk/clients";
-import { useSignUpEmail } from "@beep/iam-ui/sign-up/sign-up.atoms";
+import { useSignUpEmail } from "@beep/iam-sdk/clients/sign-up";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { paths } from "@beep/shared-domain";
 import * as SharedEntities from "@beep/shared-domain/entities";

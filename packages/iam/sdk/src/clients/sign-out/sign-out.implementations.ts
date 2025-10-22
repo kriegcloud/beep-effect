@@ -1,5 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { SignOutContractSet } from "@beep/iam-sdk/clients/sign-out/sign-out.contracts";
+import { SignOutContractKit } from "@beep/iam-sdk/clients/sign-out/sign-out.contracts";
 import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
 import * as Effect from "effect/Effect";
 import type { SignOutPayload } from "./sign-out.contracts";
@@ -35,6 +35,6 @@ const SignOutHandler = Effect.fn("SignOutHandler")(function* (payload: SignOutPa
   }
 });
 
-export const SignOutImplementations = SignOutContractSet.of({
+export const SignOutImplementations = SignOutContractKit.of({
   SignOut: SignOutHandler,
 });

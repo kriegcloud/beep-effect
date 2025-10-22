@@ -1,47 +1,63 @@
 import { client } from "@beep/iam-sdk/adapters";
 import {
-  ApiKeyContractSet,
+  ApiKeyContractKit,
   ApiKeyCreateContract,
-  type ApiKeyCreatePayload,
+  ApiKeyCreatePayload,
   ApiKeyDeleteContract,
   type ApiKeyDeletePayload,
   ApiKeyGetContract,
   type ApiKeyGetPayload,
   ApiKeyListContract,
   ApiKeyUpdateContract,
-  type ApiKeyUpdatePayload,
+  ApiKeyUpdatePayload,
 } from "@beep/iam-sdk/clients/api-key/api-key.contracts";
 import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
 import { IamError } from "@beep/iam-sdk/errors";
+import { PolicyRecord } from "@beep/shared-domain/Policy";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
-const ApiKeyCreateMetadata = {
-  plugin: "api-key",
-  method: "create",
-} as const;
+const ApiKeyCreateMetadata = () =>
+  ({
+    plugin: "api-key",
+    method: "create",
+  }) as const;
+
+const encodePermissions = F.flow(
+  (permissions: string | null | undefined) => O.fromNullable(permissions),
+  O.match({
+    onNone: () => Effect.succeed(undefined),
+    onSome: (permissions) => S.decode(S.parseJson(PolicyRecord))(permissions),
+  })
+);
 
 const ApiKeyCreateHandler = Effect.fn("ApiKeyCreateHandler")(
   function* (payload: ApiKeyCreatePayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "ApiKeyCreate",
-      metadata: () => ApiKeyCreateMetadata,
+      metadata: ApiKeyCreateMetadata,
     });
+
+    const encoded = yield* S.encode(ApiKeyCreatePayload)(payload);
+
+    const permissionsEncoded = yield* encodePermissions(encoded.permissions);
 
     const result = yield* continuation.run((handlers) =>
       client.apiKey.create({
-        ...(payload.name === undefined ? {} : { name: payload.name }),
-        ...(payload.expiresIn === undefined ? {} : { expiresIn: payload.expiresIn }),
-        ...(payload.userId === undefined ? {} : { userId: payload.userId }),
-        ...(payload.prefix === undefined ? {} : { prefix: payload.prefix }),
-        ...(payload.remaining === undefined ? {} : { remaining: payload.remaining }),
-        ...(payload.metadata === undefined ? {} : { metadata: payload.metadata }),
-        ...(payload.refillAmount === undefined ? {} : { refillAmount: payload.refillAmount }),
-        ...(payload.refillInterval === undefined ? {} : { refillInterval: payload.refillInterval }),
-        ...(payload.rateLimitTimeWindow === undefined ? {} : { rateLimitTimeWindow: payload.rateLimitTimeWindow }),
-        ...(payload.rateLimitMax === undefined ? {} : { rateLimitMax: payload.rateLimitMax }),
-        ...(payload.rateLimitEnabled === undefined ? {} : { rateLimitEnabled: payload.rateLimitEnabled }),
-        ...(payload.permissions === undefined ? {} : { permissions: payload.permissions }),
+        name: encoded.name ?? undefined,
+        expiresIn: encoded.expiresIn,
+        userId: encoded.userId,
+        prefix: encoded.prefix ?? undefined,
+        remaining: encoded.remaining,
+        metadata: encoded.metadata,
+        refillAmount: encoded.refillAmount ?? undefined,
+        refillInterval: encoded.refillInterval ?? undefined,
+        rateLimitTimeWindow: encoded.rateLimitTimeWindow,
+        rateLimitMax: encoded.rateLimitMax,
+        rateLimitEnabled: encoded.rateLimitEnabled,
+        permissions: permissionsEncoded,
         fetchOptions: handlers.signal
           ? {
               onError: handlers.onError,
@@ -65,20 +81,21 @@ const ApiKeyCreateHandler = Effect.fn("ApiKeyCreateHandler")(
     return yield* S.decodeUnknown(ApiKeyCreateContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyCreateMetadata)),
+    ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyCreateMetadata())),
   })
 );
 
-const ApiKeyGetMetadata = {
-  plugin: "api-key",
-  method: "get",
-} as const;
+const ApiKeyGetMetadata = () =>
+  ({
+    plugin: "api-key",
+    method: "get",
+  }) as const;
 
 const ApiKeyGetHandler = Effect.fn("ApiKeyGetHandler")(
   function* (payload: ApiKeyGetPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "ApiKeyGet",
-      metadata: () => ApiKeyGetMetadata,
+      metadata: ApiKeyGetMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -111,37 +128,42 @@ const ApiKeyGetHandler = Effect.fn("ApiKeyGetHandler")(
     return yield* S.decodeUnknown(ApiKeyGetContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyGetMetadata)),
+    ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyGetMetadata())),
   })
 );
 
-const ApiKeyUpdateMetadata = {
-  plugin: "api-key",
-  method: "update",
-} as const;
+const ApiKeyUpdateMetadata = () =>
+  ({
+    plugin: "api-key",
+    method: "update",
+  }) as const;
 
 const ApiKeyUpdateHandler = Effect.fn("ApiKeyUpdateHandler")(
   function* (payload: ApiKeyUpdatePayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "ApiKeyUpdate",
-      metadata: () => ApiKeyUpdateMetadata,
+      metadata: ApiKeyUpdateMetadata,
     });
+
+    const encoded = yield* S.encode(ApiKeyUpdatePayload)(payload);
+
+    const permissionsEncoded = yield* encodePermissions(encoded.permissions);
 
     const result = yield* continuation.run((handlers) =>
       client.apiKey.update({
-        keyId: payload.keyId,
-        ...(payload.userId === undefined ? {} : { userId: payload.userId }),
-        ...(payload.name === undefined ? {} : { name: payload.name }),
-        ...(payload.enabled === undefined ? {} : { enabled: payload.enabled }),
-        ...(payload.remaining === undefined ? {} : { remaining: payload.remaining }),
-        ...(payload.refillAmount === undefined ? {} : { refillAmount: payload.refillAmount }),
-        ...(payload.refillInterval === undefined ? {} : { refillInterval: payload.refillInterval }),
-        ...(payload.metadata === undefined ? {} : { metadata: payload.metadata }),
-        ...(payload.expiresIn === undefined ? {} : { expiresIn: payload.expiresIn }),
-        ...(payload.rateLimitEnabled === undefined ? {} : { rateLimitEnabled: payload.rateLimitEnabled }),
-        ...(payload.rateLimitTimeWindow === undefined ? {} : { rateLimitTimeWindow: payload.rateLimitTimeWindow }),
-        ...(payload.rateLimitMax === undefined ? {} : { rateLimitMax: payload.rateLimitMax }),
-        ...(payload.permissions === undefined ? {} : { permissions: payload.permissions }),
+        keyId: encoded.keyId,
+        userId: encoded.userId,
+        name: encoded.name ?? undefined,
+        enabled: encoded.enabled,
+        remaining: encoded.remaining ?? undefined,
+        refillAmount: encoded.refillAmount ?? undefined,
+        refillInterval: encoded.refillInterval ?? undefined,
+        metadata: encoded.metadata,
+        expiresIn: encoded.expiresIn,
+        rateLimitEnabled: encoded.rateLimitEnabled,
+        rateLimitTimeWindow: encoded.rateLimitTimeWindow,
+        rateLimitMax: encoded.rateLimitMax,
+        permissions: permissionsEncoded,
         fetchOptions: handlers.signal
           ? {
               onError: handlers.onError,
@@ -165,7 +187,7 @@ const ApiKeyUpdateHandler = Effect.fn("ApiKeyUpdateHandler")(
     return yield* S.decodeUnknown(ApiKeyUpdateContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyUpdateMetadata)),
+    ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyUpdateMetadata())),
   })
 );
 
@@ -211,16 +233,17 @@ const ApiKeyDeleteHandler = Effect.fn("ApiKeyDeleteHandler")(
   })
 );
 
-const ApiKeyListMetadata = {
-  plugin: "api-key",
-  method: "list",
-} as const;
+const ApiKeyListMetadata = () =>
+  ({
+    plugin: "api-key",
+    method: "list",
+  }) as const;
 
 const ApiKeyListHandler = Effect.fn("ApiKeyListHandler")(
   function* () {
     const continuation = makeFailureContinuation({
       contract: "ApiKeyList",
-      metadata: () => ApiKeyListMetadata,
+      metadata: ApiKeyListMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -249,11 +272,11 @@ const ApiKeyListHandler = Effect.fn("ApiKeyListHandler")(
     return yield* S.decodeUnknown(ApiKeyListContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyListMetadata)),
+    ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyListMetadata())),
   })
 );
 
-export const ApiKeyImplementations = ApiKeyContractSet.of({
+export const ApiKeyImplementations = ApiKeyContractKit.of({
   ApiKeyCreate: ApiKeyCreateHandler,
   ApiKeyGet: ApiKeyGetHandler,
   ApiKeyUpdate: ApiKeyUpdateHandler,

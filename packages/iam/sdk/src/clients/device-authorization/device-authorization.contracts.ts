@@ -1,4 +1,4 @@
-import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
@@ -206,7 +206,7 @@ export const DeviceAuthorizationDenyContract = Contract.make("DeviceAuthorizatio
   success: DeviceAuthorizationDecisionSuccess,
 });
 
-export const DeviceAuthorizationContractSet = ContractSet.make(
+export const DeviceAuthorizationContractKit = ContractKit.make(
   DeviceAuthorizationCodeContract,
   DeviceAuthorizationTokenContract,
   DeviceAuthorizationStatusContract,

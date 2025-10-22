@@ -1,45 +1,45 @@
 // import {
-//   OAuthContractSet,
+//   OAuthContractKit,
 //   OAuthImplementations,
 // } from "./oauth";
 // import {
-//   OrganizationContractSet,
+//   OrganizationContractKit,
 //   OrganizationImplementations,
 // } from "./organization";
 // import {
-//   RecoverContractSet,
+//   RecoverContractKit,
 //   RecoverImplementations,
 // } from "./recover";
 // import {
-//   SignInContractSet,
+//   SignInContractKit,
 //   SignInImplementations,
 // } from "./sign-in";
 // import {
-//   SignOutContractSet,
+//   SignOutContractKit,
 //   SignOutImplementations,
 // } from "./sign-out";
 // import {
-//   SignUpContractSet,
+//   SignUpContractKit,
 //   SignUpImplementations,
 // } from "./sign-up";
 // import {
-//   TwoFactorContractSet,
+//   TwoFactorContractKit,
 //   TwoFactorImplementations,
 // } from "./two-factor";
 // import {
-//   VerifyContractSet,
+//   VerifyContractKit,
 //   VerifyImplementations,
 // } from "./verify";
 //
 // export const iamContracts = {
-//   signIn: SignInContractSet,
-//   signUp: SignUpContractSet,
-//   recover: RecoverContractSet,
-//   verify: VerifyContractSet,
-//   twoFactor: TwoFactorContractSet,
-//   organization: OrganizationContractSet,
-//   oauth2: OAuthContractSet,
-//   signOut: SignOutContractSet,
+//   signIn: SignInContractKit,
+//   signUp: SignUpContractKit,
+//   recover: RecoverContractKit,
+//   verify: VerifyContractKit,
+//   twoFactor: TwoFactorContractKit,
+//   organization: OrganizationContractKit,
+//   oauth2: OAuthContractKit,
+//   signOut: SignOutContractKit,
 // } as const;
 //
 // export const iamImplementations = {

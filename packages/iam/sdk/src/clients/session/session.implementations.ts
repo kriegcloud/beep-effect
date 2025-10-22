@@ -3,7 +3,7 @@ import type { RevokeSessionPayload } from "@beep/iam-sdk/clients/session/session
 import {
   GetSessionSuccess,
   ListSessionsSuccess,
-  SessionContractSet,
+  SessionContractKit,
 } from "@beep/iam-sdk/clients/session/session.contracts";
 import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
 import { IamError } from "@beep/iam-sdk/errors";
@@ -170,7 +170,7 @@ const RevokeSessionsHandler = Effect.fn("RevokeSessionsHandler")(function* () {
 // =====================================================================================================================
 // Session Implementations Service
 // =====================================================================================================================
-export const SessionImplementations = SessionContractSet.of({
+export const SessionImplementations = SessionContractKit.of({
   GetSession: GetSessionHandler,
   ListSessions: ListSessionsHandler,
   RevokeSession: RevokeSessionHandler,

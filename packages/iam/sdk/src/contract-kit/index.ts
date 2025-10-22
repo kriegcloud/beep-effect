@@ -100,14 +100,15 @@
  * @since 1.0.0
  */
 export * as Contract from "./Contract";
+export * as ContractError from "./ContractError";
 /**
- * The `ContractSet` module allows for creating and implementing a collection of
+ * The `ContractKit` module allows for creating and implementing a collection of
  * `Contract`s which can be used to enhance the capabilities of a large language
  * model beyond simple text generation.
  *
  * @example
  * ```ts
- * import { ContractSet, Contract } from "@beep/iam-sdk"
+ * import { ContractKit, Contract } from "@beep/iam-sdk"
  * import * as Effect from "effect/Effect";
  * import * as S from "effect/Schema";
  *
@@ -128,9 +129,9 @@ export * as Contract from "./Contract";
  * })
  *
  * // Create a contractSt with multiple contracts
- * const MyContractSet = ContractSet.make(SignInEmail, SignInSocial)
+ * const MyContractKit = ContractKit.make(SignInEmail, SignInSocial)
  *
- * const MyContractSetLayer = MyContractSet.toLayer({
+ * const MyContractKitLayer = MyContractKit.toLayer({
  *   SignInEmail: ({ email, password }) => Effect.succeed("Signed in Successfully"),
  *   SignInSocial: ({ provider }) => Effect.succeed("Signed in Successfully")
  * })
@@ -138,7 +139,7 @@ export * as Contract from "./Contract";
  *
  * @since 1.0.0
  */
-export * as ContractSet from "./ContractSet";
+export * as ContractKit from "./ContractKit";
 export {
   type FailureContinuation,
   type FailureContinuationContext,
@@ -146,4 +147,3 @@ export {
   type FailureContinuationOptions,
   makeFailureContinuation,
 } from "./failure-continuation";
-export * as IamError from "./IamError";

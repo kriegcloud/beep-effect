@@ -11,7 +11,7 @@ import {
   OAuth2TokenContract,
   type OAuth2TokenPayload,
   OAuth2UserInfoContract,
-  OidcContractSet,
+  OidcContractKit,
 } from "@beep/iam-sdk/clients/oidc/oidc.contracts";
 import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
 import { IamError } from "@beep/iam-sdk/errors";
@@ -244,7 +244,7 @@ const OAuth2ClientHandler = Effect.fn("OAuth2ClientHandler")(
   })
 );
 
-export const OidcImplementations = OidcContractSet.of({
+export const OidcImplementations = OidcContractKit.of({
   OAuth2Authorize: OAuth2AuthorizeHandler,
   OAuth2Consent: OAuth2ConsentHandler,
   OAuth2Token: OAuth2TokenHandler,

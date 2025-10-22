@@ -1,20 +1,15 @@
 "use client";
-import { AuthCallback, SignInImplementations } from "@beep/iam-sdk";
-import { clientRuntimeLayer } from "@beep/runtime-client";
+import { AuthCallback, useSignInSocial } from "@beep/iam-sdk";
 import { paths } from "@beep/shared-domain";
 import { varFade } from "@beep/ui/animate";
-import { withToast } from "@beep/ui/common";
 import { useBoolean, useRouter } from "@beep/ui/hooks";
 import { EmailInboxIcon } from "@beep/ui/icons";
 import { SplashScreen } from "@beep/ui/progress/loading-screen/splash-screen";
 import { RouterLink } from "@beep/ui/routing";
-import { Atom, useAtom } from "@effect-atom/atom-react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
-import * as F from "effect/Function";
-import * as O from "effect/Option";
 import { AnimatePresence, m } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -24,23 +19,9 @@ import { SignUpEmailForm } from "./sign-up-email.form";
 import { SignUpSocial } from "./sign-up-social";
 
 const signUpTransitionVariants = varFade("inUp", { distance: 64 });
-const runtime = Atom.runtime(clientRuntimeLayer);
-const signUpSocialAtom = runtime.fn(
-  F.flow(
-    SignInImplementations.SignInSocial,
-    withToast({
-      onWaiting: "Signing in",
-      onSuccess: "Signed in successfully",
-      onFailure: O.match({
-        onNone: () => "Failed with unknown error.",
-        onSome: (e) => e.message,
-      }),
-    })
-  )
-);
 
 export const SignUpView = () => {
-  const [, signUpSocial] = useAtom(signUpSocialAtom);
+  const { signInSocial } = useSignInSocial();
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackURL = AuthCallback.getURL(searchParams);
@@ -124,7 +105,7 @@ export const SignUpView = () => {
           <Terms />
           <Box sx={{ gap: 2, display: "flex", flexDirection: "column" }}>
             <FormDivider />
-            <SignUpSocial signUp={async (provider) => signUpSocial({ provider })} />
+            <SignUpSocial signUp={async (provider) => signInSocial({ provider })} />
           </Box>
         </Box>
       )}

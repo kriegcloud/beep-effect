@@ -1,5 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { TwoFactorContractSet } from "@beep/iam-sdk/clients/two-factor/two-factor.contracts";
+import { TwoFactorContractKit } from "@beep/iam-sdk/clients/two-factor/two-factor.contracts";
 import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
@@ -55,7 +55,7 @@ const VerifyTotpHandler = Effect.fn("VerifyTotpHandler")(function* (payload: Ver
   yield* continuation.raiseResult(result);
 });
 
-export const TwoFactorImplementations = TwoFactorContractSet.of({
+export const TwoFactorImplementations = TwoFactorContractKit.of({
   SendOtp: SendOtpHandler,
   VerifyOtp: VerifyOtpHandler,
   VerifyTotp: VerifyTotpHandler,

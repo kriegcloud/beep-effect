@@ -5,8 +5,25 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Schema from "effect/Schema";
 import * as internal from "./_internal/policy";
-import { IamEntityIds, SharedEntityIds } from "./entity-ids";
+import { PermissionAction, PolicyBuilder } from "./_internal/policy-builder";
+import { AnyTableName, IamEntityIds, SharedEntityIds } from "./entity-ids";
 
+const policyBuilder = new PolicyBuilder({
+  domains: AnyTableName.Options,
+  permissionActions: [PermissionAction.Enum.read, PermissionAction.Enum.manage, PermissionAction.Enum.delete],
+});
+
+export class PolicyRecord extends policyBuilder.PolicySchema.annotations({
+  schemaId: Symbol.for("@beep/shared-domain/Policy/PolicyRecord"),
+  identifier: "PolicyRecord",
+  title: "Policy Record",
+  description: "A record which defines an access control policy for a user or API key.",
+}) {}
+
+export declare namespace PolicyRecord {
+  export type Type = typeof PolicyRecord.Type;
+  export type Encoded = typeof PolicyRecord.Encoded;
+}
 // ==========================================
 // Permissions
 // ==========================================

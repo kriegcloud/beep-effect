@@ -1,4 +1,4 @@
-import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
 import { BS } from "@beep/schema";
 import { paths } from "@beep/shared-domain";
 import * as SharedEntities from "@beep/shared-domain/entities";
@@ -100,4 +100,4 @@ export const SignUpEmailContract = Contract.make("SignUpEmail", {
 // Sign Up Contract Set
 // =====================================================================================================================
 
-export const SignUpContractSet = ContractSet.make(SignUpEmailContract);
+export const SignUpContractKit = ContractKit.make(SignUpEmailContract);

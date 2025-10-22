@@ -1,4 +1,4 @@
-import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
@@ -33,4 +33,4 @@ export const SignOutContract = Contract.make("SignOut", {
 // =====================================================================================================================
 // Sign Out Contract Set
 // =====================================================================================================================
-export const SignOutContractSet = ContractSet.make(SignOutContract);
+export const SignOutContractKit = ContractKit.make(SignOutContract);

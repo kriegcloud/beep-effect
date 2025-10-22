@@ -1,4 +1,4 @@
-import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
 import { BS } from "@beep/schema";
 import { paths } from "@beep/shared-domain";
 import * as Equal from "effect/Equal";
@@ -67,4 +67,4 @@ export const RequestResetPasswordContract = Contract.make("RequestResetPassword"
 // =====================================================================================================================
 // Recover Contract Set
 // =====================================================================================================================
-export const RecoverContractSet = ContractSet.make(ResetPasswordContract, RequestResetPasswordContract);
+export const RecoverContractKit = ContractKit.make(ResetPasswordContract, RequestResetPasswordContract);

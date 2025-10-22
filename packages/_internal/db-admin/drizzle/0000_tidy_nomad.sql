@@ -2,7 +2,7 @@ CREATE TYPE "public"."organization_type_enum" AS ENUM('individual', 'team', 'ent
 CREATE TYPE "public"."subscription_status_enum" AS ENUM('active', 'canceled');--> statement-breakpoint
 CREATE TYPE "public"."subscription_tier_enum" AS ENUM('free', 'plus', 'pro', 'enterprise');--> statement-breakpoint
 CREATE TYPE "public"."user_gender_enum" AS ENUM('male', 'female');--> statement-breakpoint
-CREATE TYPE "public"."user_role_enum" AS ENUM('admin', 'super_admin', 'user', 'tenant', 'guest');--> statement-breakpoint
+CREATE TYPE "public"."user_role_enum" AS ENUM('admin', 'user');--> statement-breakpoint
 CREATE TYPE "public"."device_code_status_enum" AS ENUM('pending', 'approved', 'denied');--> statement-breakpoint
 CREATE TYPE "public"."invitation_status_enum" AS ENUM('pending', 'rejected', 'cancelled', 'accepted');--> statement-breakpoint
 CREATE TYPE "public"."member_role_enum" AS ENUM('admin', 'member', 'viewer', 'owner');--> statement-breakpoint

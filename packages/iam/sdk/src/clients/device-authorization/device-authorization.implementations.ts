@@ -3,7 +3,7 @@ import {
   DeviceAuthorizationApproveContract,
   DeviceAuthorizationCodeContract,
   type DeviceAuthorizationCodePayload,
-  DeviceAuthorizationContractSet,
+  DeviceAuthorizationContractKit,
   type DeviceAuthorizationDecisionPayload,
   DeviceAuthorizationDenyContract,
   DeviceAuthorizationStatusContract,
@@ -206,7 +206,7 @@ const DeviceAuthorizationDenyHandler = Effect.fn("DeviceAuthorizationDenyHandler
   })
 );
 
-export const DeviceAuthorizationImplementations = DeviceAuthorizationContractSet.of({
+export const DeviceAuthorizationImplementations = DeviceAuthorizationContractKit.of({
   DeviceAuthorizationCode: DeviceAuthorizationCodeHandler,
   DeviceAuthorizationToken: DeviceAuthorizationTokenHandler,
   DeviceAuthorizationStatus: DeviceAuthorizationStatusHandler,

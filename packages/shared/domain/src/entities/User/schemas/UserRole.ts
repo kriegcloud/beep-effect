@@ -1,7 +1,7 @@
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
 
-export const UserRoleKit = BS.stringLiteralKit("admin", "super_admin", "user", "tenant", "guest");
+export const UserRoleKit = BS.stringLiteralKit("admin", "user");
 
 export const UserRoleEnum = UserRoleKit.Enum;
 

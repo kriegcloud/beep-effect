@@ -1,5 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { SignInContractSet } from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
+import { SignInContractKit } from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
 import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
@@ -225,7 +225,7 @@ const SignInPasskeyHandler = Effect.fn("SignInPasskey")(function* () {
 // =====================================================================================================================
 // Sign In Implementations Service
 // =====================================================================================================================
-export const SignInImplementations = SignInContractSet.of({
+export const SignInImplementations = SignInContractKit.of({
   SignInEmail: SignInEmailHandler,
   SignInSocial: SignInSocialHandler,
   SignInPhoneNumber: SignInPhoneNumberHandler,

@@ -1,4 +1,4 @@
-import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
 import { BS } from "@beep/schema";
 import * as SharedEntities from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
@@ -6,27 +6,27 @@ import { IamError } from "../../errors";
 // =====================================================================================================================
 // Send Verify Phone Contract
 // =====================================================================================================================
-export class SendVerifyPhonePayload extends BS.Class<SendVerifyPhonePayload>("SendVerifyPhonePayload")(
+export class VerifyPhonePayload extends BS.Class<VerifyPhonePayload>("VerifyPhonePayload")(
   {
     phoneNumber: BS.Phone,
     code: S.Redacted(S.NonEmptyTrimmedString),
     updatePhoneNumber: BS.BoolWithDefault(true),
   },
   {
-    schemaId: Symbol.for("@beep/iam-sdk/clients/SendVerifyPhonePayload"),
-    identifier: "SendVerifyPhonePayload",
+    schemaId: Symbol.for("@beep/iam-sdk/clients/VerifyPhonePayload"),
+    identifier: "VerifyPhonePayload",
     description: "Payload for verifying a user's phone number.",
   }
 ) {}
 
-export declare namespace SendVerifyPhonePayload {
-  export type Type = S.Schema.Type<typeof SendVerifyPhonePayload>;
-  export type Encoded = S.Schema.Encoded<typeof SendVerifyPhonePayload.Encoded>;
+export declare namespace VerifyPhonePayload {
+  export type Type = S.Schema.Type<typeof VerifyPhonePayload>;
+  export type Encoded = S.Schema.Encoded<typeof VerifyPhonePayload.Encoded>;
 }
 
-export const SendVerifyPhoneContract = Contract.make("SendVerifyPhone", {
+export const VerifyPhoneContract = Contract.make("VerifyPhone", {
   description: "Sends a phone verification request.",
-  parameters: SendVerifyPhonePayload.fields,
+  parameters: VerifyPhonePayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });
@@ -153,8 +153,8 @@ export const VerifyEmailContract = Contract.make("VerifyEmail", {
 // Verify Contract Set
 // =====================================================================================================================
 
-export const VerifyContractSet = ContractSet.make(
-  SendVerifyPhoneContract,
+export const VerifyContractKit = ContractKit.make(
+  VerifyPhoneContract,
   SendEmailVerificationContract,
   VerifyEmailContract
 );

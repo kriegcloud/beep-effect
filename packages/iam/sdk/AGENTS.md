@@ -17,7 +17,7 @@ through runtime helpers, while adapters keep raw Better Auth usage isolated to t
   bind to session state. `src/adapters/better-call/*` hosts shared HTTP error helpers (currently only used internally).
 - **ContractKit (`src/contractkit`)** — Effect-based contract authoring utilities:
     - `Contract.ts` defines user + provider-defined contract primitives, context annotations, and helper types.
-    - `ContractSet.ts` groups contracts, produces Layer/Context bindings, and provides the `handle` executor used by
+    - `ContractKit.ts` groups contracts, produces Layer/Context bindings, and provides the `handle` executor used by
       implementers.
     - `failure-continuation.ts` exposes `makeFailureContinuation` to convert Better Auth promise APIs into Effect
       failures tagged with `IamError`.
@@ -27,7 +27,7 @@ through runtime helpers, while adapters keep raw Better Auth usage isolated to t
   consistent metadata (`code`, `status`, `plugin`, `method`).
 - **Clients (`src/clients/*`)** — each domain directory exports `<feature>.contracts.ts` (Effect schema definitions) and
   `<feature>.implementations.ts` (Effect wrappers that call the Better Auth client via `makeFailureContinuation`).
-  Contracts are also collected into `ContractSet` instances for easy registration.
+  Contracts are also collected into `ContractKit` instances for easy registration.
 - **Constants (`src/constants.ts`)** — `AuthCallback` sanitisation helpers to keep callback URLs constrained to known
   private prefixes.
 - **Tests (`test/Dummy.test.ts`)** — placeholder Bun test file. Add focused suites beside new logic; nothing exercises
@@ -61,7 +61,7 @@ through runtime helpers, while adapters keep raw Better Auth usage isolated to t
   `import * as F from "effect/Function"`). Native array/string helpers remain forbidden—pipe through `effect/Array` and
   `effect/String`.
 - Treat `contractkit` as the single source of truth for new flows: define schemas with `Contract.make`, group them via
-  `ContractSet.make`, and expose implementations with `ContractSet.of`.
+  `ContractKit.make`, and expose implementations with `ContractKit.of`.
 - When calling Better Auth methods, always wrap them with `makeFailureContinuation({ contract, metadata })`. This
   guarantees uniform `IamError` instances, log annotations, and optional abort controllers.
 - Fire `client.$store.notify("$sessionSignal")` after any successful operation that mutates session state (sign-in,
@@ -148,14 +148,14 @@ export const resolveCallbackTarget = (raw: string | null | undefined) =>
 ## Contributor Checklist
 
 - Add new Better Auth flows by creating matching `*.contracts.ts` and `*.implementations.ts` files, registering them
-  with the existing `ContractSet`, and re-exporting through `src/clients/index.ts`.
+  with the existing `ContractKit`, and re-exporting through `src/clients/index.ts`.
 - Populate metadata in `makeFailureContinuation({ contract, metadata })` with the actual plugin/method; telemetry and
   error toasts rely on those strings.
 - Ensure credential-bearing fields (email, password, tokens) use `Redacted.value` before passing into Better Auth
   helpers.
 - Keep session-mutating implementations notifying `$sessionSignal`; update usage snapshots if the interaction points
   move.
-- Update this guide whenever `contractkit` APIs change (for example, new helpers on `ContractSet`) so downstream agents
+- Update this guide whenever `contractkit` APIs change (for example, new helpers on `ContractKit`) so downstream agents
   stay aligned.
 - Replace the dummy Bun test with meaningful coverage when modifying `contractkit` or adapters; co-locate tests beside
   the touched module.

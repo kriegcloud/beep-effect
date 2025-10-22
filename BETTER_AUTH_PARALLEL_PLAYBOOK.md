@@ -62,7 +62,7 @@ cluster but keeps reviewers in the loop.
 3. **Contract Authoring (see SOP §2)**  
    - Create/extend `BS.Class` schemas with namespaces.  
    - Define `Contract.make` entries (`failure: S.instanceOf(IamError)`).  
-   - Append to the appropriate `ContractSet`.  
+   - Append to the appropriate `ContractKit`.  
    - Export via the feature `index.ts`.
 
 4. **Implementation (see SOP §3)**  
@@ -121,7 +121,7 @@ Target method: <PLUGIN.METHOD>
 1. Summarize the request/response schema from Better Auth docs + OpenAPI.
 2. Implement or refine the schemas in `packages/iam/sdk/src/clients/<feature>/<feature>.contracts.ts`.
 3. Ensure namespaces export `Type` and `Encoded` types.
-4. Register the contract in the local `ContractSet`.
+4. Register the contract in the local `ContractKit`.
 Do not modify implementations yet; just confirm contracts match the docs.
 ```
 
@@ -134,7 +134,7 @@ Target contract: <ContractName>
 3. Map payload fields, wrap secrets with `Redacted.value`, and pass `handlers.onError` + optional `handlers.signal`.
 4. Decode success payloads with `S.decodeUnknown` if result schema is not `S.Void`.
 5. Call `client.$store.notify("$sessionSignal")` when the method mutates session state.
-6. Register the handler in `ContractSet.of`.
+6. Register the handler in `ContractKit.of`.
 7. Run `bun run build --filter=@beep/iam-sdk` and share the output.
 ```
 

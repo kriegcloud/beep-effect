@@ -1,6 +1,6 @@
 "use client";
 import { SignInEmailPayload } from "@beep/iam-sdk/clients";
-import { useSignInEmail } from "@beep/iam-ui/sign-in/sign-in.atoms";
+import { useSignInEmail } from "@beep/iam-sdk/clients/sign-in";
 import { paths } from "@beep/shared-domain";
 import { Iconify } from "@beep/ui/atoms";
 import { Form, formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";

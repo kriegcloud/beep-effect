@@ -1,5 +1,5 @@
+import { IamError, type IamErrorMetadata } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
-import { IamError, type IamErrorMetadata } from "../errors";
 
 export interface FailureContinuationContext {
   readonly contract: string;

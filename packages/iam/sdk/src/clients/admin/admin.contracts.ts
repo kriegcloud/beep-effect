@@ -1,31 +1,32 @@
-import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
+import { Session } from "@beep/iam-domain/entities";
+import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
 import { IamError } from "@beep/iam-sdk/errors";
 import { BS } from "@beep/schema";
+import { SharedEntityIds } from "@beep/shared-domain";
+import { User } from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
 
-const AdminRoleValue = S.Literal("user", "admin");
-const AdminRoleArray = S.Array(AdminRoleValue);
-const AdminRoleInput = S.Union(AdminRoleValue, AdminRoleArray);
-const AdminUserId = S.NonEmptyTrimmedString;
+const AdminRoleInput = S.Union(User.UserRole, S.Array(User.UserRole));
+
 const PermissionMatrix = S.Record({
   key: S.NonEmptyTrimmedString,
   value: S.Array(S.NonEmptyTrimmedString),
 });
 
 export class AdminUser extends S.Class<AdminUser>("AdminUser")(
-  {
-    id: AdminUserId,
-    email: BS.Email,
-    emailVerified: S.Boolean,
-    name: S.NonEmptyTrimmedString,
-    image: S.optional(S.NullOr(BS.URLString)),
-    createdAt: BS.DateTimeFromDate(),
-    updatedAt: BS.DateTimeFromDate(),
-    role: S.optional(S.String),
-    banned: S.optional(S.NullOr(S.Boolean)),
-    banReason: S.optional(S.NullOr(S.String)),
-    banExpires: S.optional(S.NullOr(BS.DateTimeFromDate())),
-  },
+  User.Model.select.pick(
+    "id",
+    "email",
+    "emailVerified",
+    "name",
+    "image",
+    "createdAt",
+    "updatedAt",
+    "role",
+    "banned",
+    "banReason",
+    "banExpires"
+  ),
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/AdminUser"),
     identifier: "AdminUser",
@@ -39,17 +40,17 @@ export declare namespace AdminUser {
 }
 
 export class AdminSession extends S.Class<AdminSession>("AdminSession")(
-  {
-    id: S.NonEmptyTrimmedString,
-    token: S.String,
-    userId: AdminUserId,
-    createdAt: BS.DateTimeFromDate(),
-    updatedAt: BS.DateTimeFromDate(),
-    expiresAt: BS.DateTimeFromDate(),
-    ipAddress: S.optional(S.NullOr(S.String)),
-    userAgent: S.optional(S.NullOr(S.String)),
-    impersonatedBy: S.optional(S.NullOr(AdminUserId)),
-  },
+  Session.Model.select.pick(
+    "id",
+    "token",
+    "userId",
+    "createdAt",
+    "updatedAt",
+    "expiresAt",
+    "ipAddress",
+    "userAgent",
+    "impersonatedBy"
+  ),
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/AdminSession"),
     identifier: "AdminSession",
@@ -64,7 +65,7 @@ export declare namespace AdminSession {
 
 export class AdminSetRolePayload extends S.Class<AdminSetRolePayload>("AdminSetRolePayload")(
   {
-    userId: AdminUserId,
+    userId: SharedEntityIds.UserId,
     role: AdminRoleInput,
   },
   {
@@ -104,7 +105,7 @@ export const AdminSetRoleContract = Contract.make("AdminSetRole", {
 
 export class AdminGetUserPayload extends S.Class<AdminGetUserPayload>("AdminGetUserPayload")(
   {
-    userId: AdminUserId,
+    userId: SharedEntityIds.UserId,
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/AdminGetUserPayload"),
@@ -154,7 +155,7 @@ export const AdminCreateUserContract = Contract.make("AdminCreateUser", {
 
 export class AdminUpdateUserPayload extends S.Class<AdminUpdateUserPayload>("AdminUpdateUserPayload")(
   {
-    userId: AdminUserId,
+    userId: SharedEntityIds.UserId,
     data: S.Record({ key: S.String, value: S.Unknown }),
   },
   {
@@ -236,7 +237,7 @@ export const AdminListUsersContract = Contract.make("AdminListUsers", {
 
 export class AdminListUserSessionsPayload extends S.Class<AdminListUserSessionsPayload>("AdminListUserSessionsPayload")(
   {
-    userId: AdminUserId,
+    userId: SharedEntityIds.UserId,
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/AdminListUserSessionsPayload"),
@@ -275,7 +276,7 @@ export const AdminListUserSessionsContract = Contract.make("AdminListUserSession
 
 export class AdminUnbanUserPayload extends S.Class<AdminUnbanUserPayload>("AdminUnbanUserPayload")(
   {
-    userId: AdminUserId,
+    userId: SharedEntityIds.UserId,
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/AdminUnbanUserPayload"),
@@ -298,7 +299,7 @@ export const AdminUnbanUserContract = Contract.make("AdminUnbanUser", {
 
 export class AdminBanUserPayload extends S.Class<AdminBanUserPayload>("AdminBanUserPayload")(
   {
-    userId: AdminUserId,
+    userId: SharedEntityIds.UserId,
     banReason: S.optional(S.String),
     banExpiresIn: S.optional(S.Number),
   },
@@ -323,7 +324,7 @@ export const AdminBanUserContract = Contract.make("AdminBanUser", {
 
 export class AdminImpersonateUserPayload extends S.Class<AdminImpersonateUserPayload>("AdminImpersonateUserPayload")(
   {
-    userId: AdminUserId,
+    userId: SharedEntityIds.UserId,
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/AdminImpersonateUserPayload"),
@@ -420,7 +421,7 @@ export class AdminRevokeUserSessionsPayload extends S.Class<AdminRevokeUserSessi
   "AdminRevokeUserSessionsPayload"
 )(
   {
-    userId: AdminUserId,
+    userId: SharedEntityIds.UserId,
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/AdminRevokeUserSessionsPayload"),
@@ -443,7 +444,7 @@ export const AdminRevokeUserSessionsContract = Contract.make("AdminRevokeUserSes
 
 export class AdminRemoveUserPayload extends S.Class<AdminRemoveUserPayload>("AdminRemoveUserPayload")(
   {
-    userId: AdminUserId,
+    userId: SharedEntityIds.UserId,
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/AdminRemoveUserPayload"),
@@ -466,7 +467,7 @@ export const AdminRemoveUserContract = Contract.make("AdminRemoveUser", {
 
 export class AdminSetUserPasswordPayload extends S.Class<AdminSetUserPasswordPayload>("AdminSetUserPasswordPayload")(
   {
-    userId: AdminUserId,
+    userId: SharedEntityIds.UserId,
     newPassword: BS.Password,
   },
   {
@@ -506,8 +507,8 @@ export const AdminSetUserPasswordContract = Contract.make("AdminSetUserPassword"
 
 export class AdminHasPermissionPayload extends S.Class<AdminHasPermissionPayload>("AdminHasPermissionPayload")(
   {
-    userId: S.optional(AdminUserId),
-    role: S.optional(AdminRoleValue),
+    userId: S.optional(SharedEntityIds.UserId),
+    role: S.optional(User.UserRole),
     permission: S.optional(PermissionMatrix),
     permissions: S.optional(PermissionMatrix),
   },
@@ -547,7 +548,7 @@ export const AdminHasPermissionContract = Contract.make("AdminHasPermission", {
   failure: S.instanceOf(IamError),
 });
 
-export const AdminContractSet = ContractSet.make(
+export const AdminContractKit = ContractKit.make(
   AdminSetRoleContract,
   AdminGetUserContract,
   AdminCreateUserContract,

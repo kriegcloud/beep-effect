@@ -1,4 +1,4 @@
-import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
@@ -15,22 +15,90 @@ const OAuth2AuthorizeResponseSchema = S.Struct({
   description: "Redirect directive for OAuth2 authorization requests.",
 });
 
+export const OAuth2AuthorizeResponseTypeKit = BS.stringLiteralKit("code", "token");
+
+export class OAuth2AuthorizeResponseType extends OAuth2AuthorizeResponseTypeKit.Schema.annotations({
+  schemaId: Symbol.for("@beep/iam-sdk/clients/oidc/OAuth2AuthorizeResponseType"),
+  identifier: "OAuth2AuthorizeResponseType",
+  title: "OAuth2 Authorize Response Type",
+  description: "Response type for OAuth2 authorization requests.",
+}) {
+  static readonly Options = OAuth2AuthorizeResponseTypeKit.Options;
+  static readonly Enum = OAuth2AuthorizeResponseTypeKit.Enum;
+}
+
+export declare namespace OAuth2AuthorizeResponseType {
+  export type Type = typeof OAuth2AuthorizeResponseType.Type;
+  export type Encoded = typeof OAuth2AuthorizeResponseType.Encoded;
+}
+
+export const OAuth2AuthorizePromptKit = BS.stringLiteralKit("none", "consent", "login", "select_account");
+
+export class OAuth2AuthorizePrompt extends OAuth2AuthorizePromptKit.Schema.annotations({
+  schemaId: Symbol.for("@beep/iam-sdk/clients/oidc/OAuth2AuthorizePrompt"),
+  identifier: "OAuth2AuthorizePrompt",
+  title: "OAuth2 Authorize Prompt",
+  description: "Prompt parameter for OAuth2 authorization requests.",
+}) {
+  static readonly Options = OAuth2AuthorizePromptKit.Options;
+  static readonly Enum = OAuth2AuthorizePromptKit.Enum;
+}
+
+export declare namespace OAuthAuthorizePrompt {
+  export type Type = typeof OAuth2AuthorizePrompt.Type;
+  export type Encoded = typeof OAuth2AuthorizePrompt.Encoded;
+}
+
+export const OAuth2AuthorizeDisplayKit = BS.stringLiteralKit("page", "popup", "touch", "wap");
+
+export class OAuth2AuthorizeDisplay extends OAuth2AuthorizeDisplayKit.Schema.annotations({
+  schemaId: Symbol.for("@beep/iam-sdk/clients/oidc/OAuth2AuthorizeDisplay"),
+  identifier: "OAuth2AuthorizeDisplay",
+  title: "OAuth2 Authorize Display",
+  description: "Display parameter for OAuth2 authorization requests.",
+}) {
+  static readonly Options = OAuth2AuthorizeDisplayKit.Options;
+  static readonly Enum = OAuth2AuthorizeDisplayKit.Enum;
+}
+
+export declare namespace OAuth2AuthorizeDisplay {
+  export type Type = typeof OAuth2AuthorizeDisplay.Type;
+  export type Encoded = typeof OAuth2AuthorizeDisplay.Encoded;
+}
+
+export const OAuth2AuthorizeCodeChallengeMethodKit = BS.stringLiteralKit("plain", "S256");
+
+export class OAuth2AuthorizeCodeChallengeMethod extends OAuth2AuthorizeCodeChallengeMethodKit.Schema.annotations({
+  schemaId: Symbol.for("@beep/iam-sdk/clients/oidc/OAuth2AuthorizeCodeChallengeMethod"),
+  identifier: "OAuth2AuthorizeCodeChallengeMethod",
+  title: "OAuth2 Authorize Code Challenge Method",
+  description: "Code challenge method for OAuth2 authorization requests.",
+}) {
+  static readonly Options = OAuth2AuthorizeCodeChallengeMethodKit.Options;
+  static readonly Enum = OAuth2AuthorizeCodeChallengeMethodKit.Enum;
+}
+
+export declare namespace OAuth2AuthorizeCodeChallengeMethod {
+  export type Type = typeof OAuth2AuthorizeCodeChallengeMethod.Type;
+  export type Encoded = typeof OAuth2AuthorizeCodeChallengeMethod.Encoded;
+}
+
 export class OAuth2AuthorizePayload extends BS.Class<OAuth2AuthorizePayload>("OAuth2AuthorizePayload")(
   {
-    response_type: S.Literal("code", "token"),
+    response_type: OAuth2AuthorizeResponseType,
     client_id: S.String,
     state: S.String,
     redirect_uri: S.optional(BS.URLString),
     scope: S.optional(S.String),
-    prompt: S.optional(S.Literal("none", "consent", "login", "select_account")),
-    display: S.optional(S.Literal("page", "popup", "touch", "wap")),
+    prompt: S.optional(OAuth2AuthorizePrompt),
+    display: S.optional(OAuth2AuthorizeDisplay),
     ui_locales: S.optional(S.String),
     max_age: S.optional(S.Number),
     acr_values: S.optional(S.String),
     login_hint: S.optional(S.String),
     id_token_hint: S.optional(S.String),
     code_challenge: S.optional(S.String),
-    code_challenge_method: S.optional(S.Literal("plain", "s256")),
+    code_challenge_method: S.optional(OAuth2AuthorizeCodeChallengeMethod),
     nonce: S.optional(S.String),
   },
   {
@@ -315,7 +383,7 @@ export const OAuth2ClientContract = Contract.make("OAuth2Client", {
   success: OAuth2ClientSuccess,
 });
 
-export const OidcContractSet = ContractSet.make(
+export const OidcContractKit = ContractKit.make(
   OAuth2AuthorizeContract,
   OAuth2ConsentContract,
   OAuth2TokenContract,

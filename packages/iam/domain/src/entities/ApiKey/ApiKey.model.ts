@@ -1,9 +1,9 @@
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
+import { PolicyRecord } from "@beep/shared-domain/Policy";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-
 export const ApikeyModelSchemaId = Symbol.for("@beep/iam-domain/ApikeyModel");
 
 /**
@@ -36,7 +36,7 @@ export class Model extends M.Class<Model>(`ApikeyModel`)(
     ),
 
     /** The actual API key (sensitive) */
-    key: BS.FieldOptionOmittable(
+    key: BS.FieldSensitiveOptionOmittable(
       S.NonEmptyString.annotations({
         description: "The encrypted API key value",
       })
@@ -136,9 +136,9 @@ export class Model extends M.Class<Model>(`ApikeyModel`)(
     ),
 
     /** Permissions granted to this API key */
-    permissions: BS.FieldOptionOmittable(
-      S.String.annotations({
-        description: "JSON string of permissions granted to this API key",
+    permissions: BS.JsonFromStringOption(
+      PolicyRecord.annotations({
+        description: "Permissions granted to this API key",
       })
     ),
 

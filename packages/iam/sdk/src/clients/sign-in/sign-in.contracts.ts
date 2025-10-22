@@ -1,5 +1,5 @@
 import { AuthProviderNameValue } from "@beep/constants";
-import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
 import { BS } from "@beep/schema";
 import { User } from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
@@ -162,7 +162,7 @@ export const SignInOneTapContract = Contract.make("SignInOneTap", {
 // =====================================================================================================================
 // SignIn Contract Set
 // =====================================================================================================================
-export const SignInContractSet = ContractSet.make(
+export const SignInContractKit = ContractKit.make(
   SignInEmailContract,
   SignInSocialContract,
   SignInUsernameContract,

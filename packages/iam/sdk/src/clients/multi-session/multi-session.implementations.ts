@@ -1,6 +1,6 @@
 import { client } from "@beep/iam-sdk/adapters";
 import {
-  MultiSessionContractSet,
+  MultiSessionContractKit,
   MultiSessionListContract,
   MultiSessionRevokeContract,
   MultiSessionSetActiveContract,
@@ -150,7 +150,7 @@ const MultiSessionRevokeHandler = Effect.fn("MultiSessionRevokeHandler")(
   })
 );
 
-export const MultiSessionImplementations = MultiSessionContractSet.of({
+export const MultiSessionImplementations = MultiSessionContractKit.of({
   MultiSessionList: MultiSessionListHandler,
   MultiSessionSetActive: MultiSessionSetActiveHandler,
   MultiSessionRevoke: MultiSessionRevokeHandler,

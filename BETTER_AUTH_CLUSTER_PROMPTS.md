@@ -21,8 +21,8 @@ Tasks:
    - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/get-session\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
    (The OpenAPI JSON is huge; these targeted searches return the needed snippet without custom scripts.)
 3. For each method:
-   a. Update contracts in `packages/iam/sdk/src/clients/<feature>/<feature>.contracts.ts` (schemas, namespace exports, Contract.make, ContractSet entry).
-   b. Update implementations in `packages/iam/sdk/src/clients/<feature>/<feature>.implementations.ts` (Effect.fn handler, makeFailureContinuation, Redacted.value, session notifications, ContractSet.of).
+   a. Update contracts in `packages/iam/sdk/src/clients/<feature>/<feature>.contracts.ts` (schemas, namespace exports, Contract.make, ContractKit entry).
+   b. Update implementations in `packages/iam/sdk/src/clients/<feature>/<feature>.implementations.ts` (Effect.fn handler, makeFailureContinuation, Redacted.value, session notifications, ContractKit.of).
 4. Run `bun run build --filter=@beep/iam-sdk` and report the output.
 5. Update checklist entries after successful build.
 ```
@@ -41,8 +41,8 @@ Tasks:
    - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/admin\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
    (This search returns focused OpenAPI snippets—no custom parsing scripts needed.)
 3. Work in small batches (2–3 methods at a time) to conserve context:
-   a. Update `packages/iam/sdk/src/clients/admin/admin.contracts.ts` for the batch (schemas, namespace exports, Contract.make, ContractSet entries).
-   b. Update `packages/iam/sdk/src/clients/admin/admin.implementations.ts` for the same batch (Effect.fn, makeFailureContinuation, Redacted.value, session notifications, ContractSet.of).
+   a. Update `packages/iam/sdk/src/clients/admin/admin.contracts.ts` for the batch (schemas, namespace exports, Contract.make, ContractKit entries).
+   b. Update `packages/iam/sdk/src/clients/admin/admin.implementations.ts` for the same batch (Effect.fn, makeFailureContinuation, Redacted.value, session notifications, ContractKit.of).
    c. Remove any temporary `as any` casts by aligning schemas/handlers with Better Auth client types.
    d. Run `PATH="$HOME/.bun/bin:$PATH" bun run build --filter=@beep/iam-sdk` after each batch and record results.
 4. Log progress, remaining issues, and build diagnostics in `ADMIN_CLIENT_WORKING_NOTES.md` after each batch.
@@ -65,8 +65,8 @@ Tasks:
    - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/sign-in/anonymous\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
    (These searches slice the spec down to the relevant method definitions.)
 3. For each method:
-   a. Update `packages/iam/sdk/src/clients/<feature>/<feature>.contracts.ts` (schemas, namespaces, Contract.make, ContractSet entry).
-   b. Update `packages/iam/sdk/src/clients/<feature>/<feature>.implementations.ts` (Effect.fn handler, makeFailureContinuation, Redacted.value, session notifications, ContractSet.of).
+   a. Update `packages/iam/sdk/src/clients/<feature>/<feature>.contracts.ts` (schemas, namespaces, Contract.make, ContractKit entry).
+   b. Update `packages/iam/sdk/src/clients/<feature>/<feature>.implementations.ts` (Effect.fn handler, makeFailureContinuation, Redacted.value, session notifications, ContractKit.of).
 4. Run `bun run build --filter=@beep/iam-sdk` and report the result.
 5. Update checklist items after a successful build.
 ```
@@ -87,8 +87,8 @@ Tasks:
    - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/oauth2\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
    (Limit `maxUsageCount` to keep responses focused; no need for external scripts.)
 3. For each method:
-   a. Update `packages/iam/sdk/src/clients/<feature>/<feature>.contracts.ts` (schemas, namespace exports, Contract.make, ContractSet entry).
-   b. Update `packages/iam/sdk/src/clients/<feature>/<feature>.implementations.ts` (Effect.fn handler, makeFailureContinuation, Redacted.value, session notifications, ContractSet.of).
+   a. Update `packages/iam/sdk/src/clients/<feature>/<feature>.contracts.ts` (schemas, namespace exports, Contract.make, ContractKit entry).
+   b. Update `packages/iam/sdk/src/clients/<feature>/<feature>.implementations.ts` (Effect.fn handler, makeFailureContinuation, Redacted.value, session notifications, ContractKit.of).
 4. Run `bun run build --filter=@beep/iam-sdk` and report the result.
 5. Update checklist items after successful verification.
 ```
@@ -109,15 +109,78 @@ Tasks:
    - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/multi-session\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
    (Small `maxUsageCount` values return the relevant snippets quickly.)
 3. For each method:
-   a. Update `packages/iam/sdk/src/clients/<feature>/<feature>.contracts.ts` (schemas, namespaces, Contract.make, ContractSet entry).
-   b. Update `packages/iam/sdk/src/clients/<feature>/<feature>.implementations.ts` (Effect.fn handler, makeFailureContinuation, Redacted.value, session notifications, ContractSet.of).
+   a. Update `packages/iam/sdk/src/clients/<feature>/<feature>.contracts.ts` (schemas, namespaces, Contract.make, ContractKit entry).
+   b. Update `packages/iam/sdk/src/clients/<feature>/<feature>.implementations.ts` (Effect.fn handler, makeFailureContinuation, Redacted.value, session notifications, ContractKit.of).
 4. Run `bun run build --filter=@beep/iam-sdk` and report the outcome.
 5. Update checklist items post verification.
 ```
 
 ---
 
-## 6. Daily Update Template
+## 6. Organization Cluster
+
+```text
+You are GPT-5 Codex. Your cluster: organization-core (methods: auth.organization.create, .checkSlug, .list, .setActive, .getFullOrganization, .update, .delete, .inviteMember, .getInvitation, .cancelInvitation, .rejectInvitation, .listInvitations, .listUserInvitations, .listMembers, .removeMember, .updateMemberRole, .getActiveMember, .getActiveMemberRole, .addMember, .leave, .createRole, .deleteRole, .listRoles, .getRole, .updateRole, .acceptInvitation).
+Tasks:
+1. Read `packages/iam/sdk/AGENTS.md`, `BETTER_AUTH_CLIENT_METHOD_PROCESS.md`, `BETTER_AUTH_CLIENT_AND_METHODS_LIST.md` (organization section), and the latest admin/organization notes if any.
+2. Gather docs:
+   - context7__resolve-library-id {"libraryName":"better-auth"}
+   - context7__get-library-docs {"context7CompatibleLibraryID":"/better-auth/better-auth","topic":"plugins/organization","tokens":1200}
+   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/organization/create\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
+   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/organization/invite-member\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
+   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/organization/list-members\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
+   - jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/shared/domain/src/entities/Organization/Organization.model.ts"}
+   - jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/domain/src/entities/Member/Member.model.ts"}
+   - jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/domain/src/entities/OrganizationRole/OrganizationRole.model.ts"}
+   - Review the canonical ApiKey slice for Model.* usage:
+     - jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/sdk/src/clients/api-key/api-key.contracts.ts"}
+     - jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/sdk/src/clients/api-key/api-key.implementations.ts"}
+   (These focused searches keep the OpenAPI context manageable—no custom scripts.)
+3. For each method in this cluster:
+   a. Derive contracts from the domain models in step 2 (use `Model.select/insert/update.pick(...).fields` spreads) and update `packages/iam/sdk/src/clients/organization/organization.contracts.ts` (schemas, namespaces, Contract.make, ContractKit entries). Do not hand-roll DTOs—extend the domain model first if a field is missing.
+   b. Update `packages/iam/sdk/src/clients/organization/organization.implementations.ts` (Effect.fn handlers, makeFailureContinuation, Redacted.value, session notifications, ContractKit.of) and encode/decode with the same schemas. Convert every `ParseError` with `Effect.fail(IamError.match(...))`.
+   c. Wire or adjust supporting UI/runtime hooks as noted in the checklist (ensure `$sessionSignal` is emitted when org context changes).
+4. Run `bun run build --filter=@beep/iam-sdk` after completing a logical batch and report the result.
+5. When the build is clean and behavior verified, update the corresponding entries in `BETTER_AUTH_CLIENT_AND_METHODS_LIST.md` (coordinate file edits if another cluster agent is active).
+6. If you discover gaps in the domain models, stop and note them in the checklist + team cluster prompt so the orchestrator can schedule schema updates before proceeding.
+```
+
+---
+
+## 7. Team Cluster
+
+```text
+You are GPT-5 Codex. Your cluster: organization-teams (methods: auth.organization.createTeam, .listTeams, .updateTeam, .removeTeam, .setActiveTeam, .listUserTeams, .listTeamMembers, .addTeamMember, .removeTeamMember).
+Tasks:
+1. Read `packages/iam/sdk/AGENTS.md`, `BETTER_AUTH_CLIENT_METHOD_PROCESS.md`, and the team subsection of `BETTER_AUTH_CLIENT_AND_METHODS_LIST.md`.
+2. Gather docs:
+   - context7__resolve-library-id {"libraryName":"better-auth"}
+   - context7__get-library-docs {"context7CompatibleLibraryID":"/better-auth/better-auth","topic":"plugins/organization","tokens":800}
+   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/organization/create-team\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
+   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/organization/list-team-members\"","maxUsageCount":3,"timeout":120000,"useRegex":false}
+   - jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/domain/src/entities/TeamMember/TeamMember.model.ts"}
+   - jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/shared/domain/src/entities/Organization/Organization.model.ts"}
+   - Review canonical ApiKey files for Model.* integration:
+     - jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/sdk/src/clients/api-key/api-key.contracts.ts"}
+     - jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/sdk/src/clients/api-key/api-key.implementations.ts"}
+   (These commands surface the exact OpenAPI snippets without needing helper scripts.)
+3. Scaffold the new client slice if it does not exist:
+   - `packages/iam/sdk/src/clients/team/team.contracts.ts`
+   - `packages/iam/sdk/src/clients/team/team.implementations.ts`
+   - `packages/iam/sdk/src/clients/team/index.ts`
+   Ensure the module exports follow existing Effect import conventions and are registered in `packages/iam/sdk/src/clients/index.ts`.
+4. For each method:
+   a. Implement contracts in `team.contracts.ts` by spreading the `Model.select/insert/update` fields gathered in step 2 (no manual DTO duplication). Add new properties to the domain model first if they do not exist.
+   b. Implement handlers in `team.implementations.ts` (Effect.fn, makeFailureContinuation, runtime notifications) and encode/decode with the same schemas. Wrap every `ParseError` via `Effect.fail(IamError.match(...))`.
+   c. Update or add UI/runtime hooks cited in the checklist (e.g. `packages/iam/ui/src/organization/teams/*`), emitting `$sessionSignal` when active team changes.
+5. Run `bun run build --filter=@beep/iam-sdk` after a batch of updates and share the output. Add any new files to git if the CLI indicates they are untracked.
+6. After verification, check off the relevant team items in `BETTER_AUTH_CLIENT_AND_METHODS_LIST.md` (coordinate edits if another agent is touching the file).
+7. Escalate missing domain fields or schema misalignments in the checklist before proceeding to maintain parity with the backend models.
+```
+
+---
+
+## 8. Daily Update Template
 
 ```text
 - Cluster: <cluster name>

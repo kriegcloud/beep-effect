@@ -4,8 +4,6 @@ import { makeFields } from "@beep/shared-domain/common";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
-export const OAuthAccessTokenModelSchemaId = Symbol.for("@beep/iam-domain/OAuthAccessTokenModel");
-
 /**
  * OAuth Access Token model representing OAuth 2.0 access tokens.
  * Maps to the `oauth_access_token` table in the database.
@@ -66,6 +64,6 @@ export class Model extends M.Class<Model>(`OAuthAccessTokenModel`)(
   {
     title: "OAuth Access Token Model",
     description: "OAuth Access Token model representing OAuth 2.0 access tokens.",
-    schemaId: OAuthAccessTokenModelSchemaId,
+    schemaId: Symbol.for("@beep/iam-domain/entities/OAuthAccessTokenModel"),
   }
 ) {}

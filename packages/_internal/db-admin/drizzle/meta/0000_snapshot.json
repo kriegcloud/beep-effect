@@ -1,5 +1,5 @@
 {
-  "id": "c6f7841a-5b72-46ef-b5e9-47d6450582ba",
+  "id": "547acccb-c720-4e79-83b7-02e0ab1afbf6",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -4359,7 +4359,7 @@
     "public.user_role_enum": {
       "name": "user_role_enum",
       "schema": "public",
-      "values": ["admin", "super_admin", "user", "tenant", "guest"]
+      "values": ["admin", "user"]
     },
     "public.device_code_status_enum": {
       "name": "device_code_status_enum",

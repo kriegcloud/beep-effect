@@ -1,5 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { AnonymousContractSet, AnonymousSignInContract } from "@beep/iam-sdk/clients/anonymous/anonymous.contracts";
+import { AnonymousContractKit, AnonymousSignInContract } from "@beep/iam-sdk/clients/anonymous/anonymous.contracts";
 import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
@@ -46,6 +46,6 @@ const AnonymousSignInHandler = Effect.fn("AnonymousSignInHandler")(
   })
 );
 
-export const AnonymousImplementations = AnonymousContractSet.of({
+export const AnonymousImplementations = AnonymousContractKit.of({
   AnonymousSignIn: AnonymousSignInHandler,
 });

@@ -1,5 +1,5 @@
 import { Session } from "@beep/iam-domain/entities";
-import { Contract, ContractSet } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
 import { IamError } from "@beep/iam-sdk/errors";
 import { BS } from "@beep/schema";
 import { User } from "@beep/shared-domain/entities";
@@ -96,7 +96,7 @@ export const RevokeSessionsContract = Contract.make("RevokeSessions", {
 // =====================================================================================================================
 // Session Contract Set
 // =====================================================================================================================
-export const SessionContractSet = ContractSet.make(
+export const SessionContractKit = ContractKit.make(
   GetSessionContract,
   ListSessionsContract,
   RevokeSessionContract,

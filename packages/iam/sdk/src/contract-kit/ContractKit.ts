@@ -1,11 +1,11 @@
 /**
- * The `ContractSet` module groups related auth contracts into a cohesive bundle
+ * The `ContractKit` module groups related auth contracts into a cohesive bundle
  * that can be implemented once and shared across clients.
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
- * import * as ContractSet from "@beep/iam-sdk/authkit/ContractSet"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
+ * import * as ContractKit from "@beep/iam-sdk/contract-kit/ContractKit"
  * import * as Effect from "effect/Effect"
  * import * as S from "effect/Schema"
  *
@@ -21,7 +21,7 @@
  *   success: S.Struct({ sessionToken: S.String })
  * })
  *
- * const AuthContracts = ContractSet.make(StartPasswordReset, VerifyMfaCode)
+ * const AuthContracts = ContractKit.make(StartPasswordReset, VerifyMfaCode)
  *
  * const layer = AuthContracts.toLayer({
  *   StartPasswordReset: ({ email }) =>
@@ -49,18 +49,18 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type * as Scope from "effect/Scope";
 import * as Contract from "./Contract";
-import * as IamError from "./IamError";
+import * as ContractError from "./ContractError";
 
 /**
- * Unique identifier for contractSet instances.
+ * Unique identifier for contractKit instances.
  *
  * @since 1.0.0
  * @category Type Ids
  */
-export const TypeId = "~@beep/iam-sdk/ContractSet";
+export const TypeId = "~@beep/iam-sdk/ContractKit";
 
 /**
- * Type-level representation of the contractSet identifier.
+ * Type-level representation of the contractKit identifier.
  *
  * @since 1.0.0
  * @category Type Ids
@@ -72,8 +72,8 @@ export type TypeId = typeof TypeId;
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
- * import * as ContractSet from "@beep/iam-sdk/authkit/ContractSet"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
+ * import * as ContractKit from "@beep/iam-sdk/contract-kit/ContractKit"
  * import * as Effect from "effect/Effect"
  * import * as S from "effect/Schema"
  *
@@ -89,7 +89,7 @@ export type TypeId = typeof TypeId;
  *   success: S.Struct({ sessionToken: S.String })
  * })
  *
- * const Kit = ContractSet.make(SignInEmail, RefreshSession)
+ * const Kit = ContractKit.make(SignInEmail, RefreshSession)
  *
  * const implementations = Kit.toLayer({
  *   SignInEmail: ({ email }) => Effect.succeed({ sessionToken: email }),
@@ -100,7 +100,7 @@ export type TypeId = typeof TypeId;
  * @since 1.0.0
  * @category Models
  */
-export interface ContractSet<in out Contracts extends Record<string, Contract.Any>>
+export interface ContractKit<in out Contracts extends Record<string, Contract.Any>>
   extends Effect.Effect<WithImplementation<Contracts>, never, Contract.ImplementationsFor<Contracts>>,
     Inspectable,
     Pipeable {
@@ -109,7 +109,7 @@ export interface ContractSet<in out Contracts extends Record<string, Contract.An
   new (_: never): {};
 
   /**
-   * A record containing all contracts in this contractSet.
+   * A record containing all contracts in this contractKit.
    */
   readonly contracts: Contracts;
 
@@ -119,16 +119,16 @@ export interface ContractSet<in out Contracts extends Record<string, Contract.An
   of<Implementations extends ImplementationsFrom<Contracts>>(implementations: Implementations): Implementations;
 
   /**
-   * Converts a contractSet into an Effect Context containing implementations for each contract
-   * in the contractSet.
+   * Converts a contractKit into an Effect Context containing implementations for each contract
+   * in the contractKit.
    */
   toContext<Implementations extends ImplementationsFrom<Contracts>, EX = never, RX = never>(
     build: Implementations | Effect.Effect<Implementations, EX, RX>
   ): Effect.Effect<Context.Context<Contract.ImplementationsFor<Contracts>>, EX, RX>;
 
   /**
-   * Converts a contractSet into a Layer containing implementations for each contract in the
-   * contractSet.
+   * Converts a contractKit into a Layer containing implementations for each contract in the
+   * contractKit.
    */
   toLayer<Implementations extends ImplementationsFrom<Contracts>, EX = never, RX = never>(
     /**
@@ -139,7 +139,7 @@ export interface ContractSet<in out Contracts extends Record<string, Contract.An
 }
 
 /**
- * A utility type which structurally represents any contractSet instance.
+ * A utility type which structurally represents any contractKit instance.
  *
  * @since 1.0.0
  * @category Utility Types
@@ -151,12 +151,12 @@ export interface Any {
 
 /**
  * A utility type which can be used to extract the contract definitions from a
- * contractSet.
+ * contractKit.
  *
  * @since 1.0.0
  * @category Utility Types
  */
-export type Contracts<T> = T extends ContractSet<infer Contracts> ? Contracts : never;
+export type Contracts<T> = T extends ContractKit<infer Contracts> ? Contracts : never;
 
 /**
  * A utility type which can transforms either a record or an array of contracts into
@@ -188,14 +188,14 @@ export type ImplementationsFrom<Contracts extends Record<string, Contract.Any>> 
 };
 
 /**
- * A contractSet instance with registered implementations ready for contract execution.
+ * A contractKit instance with registered implementations ready for contract execution.
  *
  * @since 1.0.0
  * @category Models
  */
 export interface WithImplementation<in out Contracts extends Record<string, Contract.Any>> {
   /**
-   * The contracts available in this contractSet instance.
+   * The contracts available in this contractKit instance.
    */
   readonly contracts: Contracts;
 
@@ -226,7 +226,7 @@ const Proto = {
   ...InspectableProto,
   of: identity,
   toContext(
-    this: ContractSet<Record<string, Contract.Any>>,
+    this: ContractKit<Record<string, Contract.Any>>,
     build:
       | Record<string, (params: UnsafeTypes.UnsafeAny) => UnsafeTypes.UnsafeAny>
       | Effect.Effect<Record<string, (params: UnsafeTypes.UnsafeAny) => UnsafeTypes.UnsafeAny>>
@@ -243,14 +243,14 @@ const Proto = {
     });
   },
   toLayer(
-    this: ContractSet<Record<string, Contract.Any>>,
+    this: ContractKit<Record<string, Contract.Any>>,
     build:
       | Record<string, (params: UnsafeTypes.UnsafeAny) => UnsafeTypes.UnsafeAny>
       | Effect.Effect<Record<string, (params: UnsafeTypes.UnsafeAny) => UnsafeTypes.UnsafeAny>>
   ) {
     return Layer.scopedContext(this.toContext(build));
   },
-  commit(this: ContractSet<Record<string, Contract.Any>>) {
+  commit(this: ContractKit<Record<string, Contract.Any>>) {
     return Effect.gen(this, function* () {
       const contracts = this.contracts;
       const context = yield* Effect.context<never>();
@@ -287,7 +287,7 @@ const Proto = {
         }
         return schemas;
       };
-      const handle = Effect.fn("ContractSet.handle", { captureStackTrace: false })(function* (
+      const handle = Effect.fn("ContractKit.handle", { captureStackTrace: false })(function* (
         name: string,
         params: unknown
       ) {
@@ -295,18 +295,18 @@ const Proto = {
         const contract = contracts[name];
         if (P.isUndefined(contract)) {
           const contractNames = Object.keys(contracts).join(",");
-          return yield* new IamError.MalformedOutput({
-            module: "ContractSet",
+          return yield* new ContractError.MalformedOutput({
+            module: "ContractKit",
             method: `${name}.handle`,
-            description: `Failed to find contract with name '${name}' in contractSet - available contracts: ${contractNames}`,
+            description: `Failed to find contract with name '${name}' in contractKit - available contracts: ${contractNames}`,
           });
         }
         const schemas = getSchemas(contract);
         const decodedParams = yield* Effect.mapError(
           schemas.decodeParameters(params),
           (cause) =>
-            new IamError.MalformedOutput({
-              module: "ContractSet",
+            new ContractError.MalformedOutput({
+              module: "ContractKit",
               method: `${name}.handle`,
               description: `Failed to decode contract call parameters for contract '${name}' from:\n'${JSON.stringify(
                 params,
@@ -327,8 +327,8 @@ const Proto = {
           Effect.mapInputContext((input) => Context.merge(schemas.context, input)),
           Effect.mapError((cause) =>
             ParseResult.isParseError(cause)
-              ? new IamError.MalformedInput({
-                  module: "ContractSet",
+              ? new ContractError.MalformedInput({
+                  module: "ContractKit",
                   method: `${name}.handle`,
                   description: `Failed to validate contract call result for contract '${name}'`,
                   cause,
@@ -339,8 +339,8 @@ const Proto = {
         const encodedResult = yield* Effect.mapError(
           schemas.encodeResult(result),
           (cause) =>
-            new IamError.MalformedInput({
-              module: "ContractSet",
+            new ContractError.MalformedInput({
+              module: "ContractKit",
               method: `${name}.handle`,
               description: `Failed to encode contract call result for contract '${name}'`,
               cause,
@@ -358,9 +358,9 @@ const Proto = {
       } satisfies WithImplementation<Record<string, UnsafeTypes.UnsafeAny>>;
     });
   },
-  toJSON(this: ContractSet<UnsafeTypes.UnsafeAny>): unknown {
+  toJSON(this: ContractKit<UnsafeTypes.UnsafeAny>): unknown {
     return {
-      _id: "@beep/iam-sdk/ContractSet",
+      _id: "@beep/iam-sdk/ContractKit",
       contracts: Array.from(Object.values(this.contracts)).map((contract) => (contract as Contract.Any).name),
     };
   },
@@ -369,7 +369,7 @@ const Proto = {
   },
 };
 
-const makeProto = <Contracts extends Record<string, Contract.Any>>(contracts: Contracts): ContractSet<Contracts> =>
+const makeProto = <Contracts extends Record<string, Contract.Any>>(contracts: Contracts): ContractKit<Contracts> =>
   Object.assign(() => {}, Proto, { contracts }) as UnsafeTypes.UnsafeAny;
 
 const resolveInput = <Contracts extends ReadonlyArray<Contract.Any>>(
@@ -385,18 +385,18 @@ const resolveInput = <Contracts extends ReadonlyArray<Contract.Any>>(
 };
 
 /**
- * An empty contractSet with no contracts.
+ * An empty contractKit with no contracts.
  *
- * Useful as a starting point for building contractSets or as a default value. Can
+ * Useful as a starting point for building contractKits or as a default value. Can
  * be extended using the merge function to add contracts.
  *
  * @since 1.0.0
  * @category Constructors
  */
-export const empty: ContractSet<{}> = makeProto({});
+export const empty: ContractKit<{}> = makeProto({});
 
 /**
- * Creates a new contractSet from the specified contracts.
+ * Creates a new contractKit from the specified contracts.
  *
  * Use this to compose related auth contracts so they can be provided and
  * implemented together. Contracts can be `Contract.make` definitions or tagged
@@ -404,8 +404,8 @@ export const empty: ContractSet<{}> = makeProto({});
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
- * import * as ContractSet from "@beep/iam-sdk/authkit/ContractSet"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
+ * import * as ContractKit from "@beep/iam-sdk/contract-kit/ContractKit"
  * import * as S from "effect/Schema"
  *
  * const SignInEmail = Contract.make("SignInEmail", {
@@ -418,7 +418,7 @@ export const empty: ContractSet<{}> = makeProto({});
  *   success: S.Struct({ memberId: S.String })
  * })
  *
- * const contractSet = ContractSet.make(SignInEmail, VerifyInvite)
+ * const contractKit = ContractKit.make(SignInEmail, VerifyInvite)
  * ```
  *
  * @since 1.0.0
@@ -426,7 +426,7 @@ export const empty: ContractSet<{}> = makeProto({});
  */
 export const make = <Contracts extends ReadonlyArray<Contract.Any>>(
   ...contracts: Contracts
-): ContractSet<ContractsByName<Contracts>> => makeProto(resolveInput(...contracts)) as UnsafeTypes.UnsafeAny;
+): ContractKit<ContractsByName<Contracts>> => makeProto(resolveInput(...contracts)) as UnsafeTypes.UnsafeAny;
 
 /**
  * A utility type which simplifies a record type.
@@ -450,68 +450,68 @@ export type MergeRecords<U> = {
 };
 
 /**
- * A utility type which merges the contract calls of two contractSets into a single
- * contractSet.
+ * A utility type which merges the contract calls of two contractKits into a single
+ * contractKit.
  *
  * @since 1.0.0
  * @category Utility Types
  */
-export type MergedContracts<ContractSets extends ReadonlyArray<Any>> = SimplifyRecord<
-  MergeRecords<Contracts<ContractSets[number]>>
+export type MergedContracts<ContractKits extends ReadonlyArray<Any>> = SimplifyRecord<
+  MergeRecords<Contracts<ContractKits[number]>>
 >;
 
 /**
- * Merges multiple contractSets into a single contractSet.
+ * Merges multiple contractKits into a single contractKit.
  *
- * Combines all contracts from the provided contractSets into one unified contractSet.
- * If there are naming conflicts, contracts from later contractSets will override
+ * Combines all contracts from the provided contractKits into one unified contractKit.
+ * If there are naming conflicts, contracts from later contractKits will override
  * contracts from earlier ones.
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
- * import * as ContractSet from "@beep/iam-sdk/authkit/ContractSet"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
+ * import * as ContractKit from "@beep/iam-sdk/contract-kit/ContractKit"
  *
- * const signInKit = ContractSet.make(
+ * const signInKit = ContractKit.make(
  *   Contract.make("SignInEmail"),
  *   Contract.make("SignInMagicLink")
  * )
  *
- * const recoveryKit = ContractSet.make(
+ * const recoveryKit = ContractKit.make(
  *   Contract.make("StartPasswordReset"),
  *   Contract.make("CompletePasswordReset")
  * )
  *
- * const combined = ContractSet.merge(signInKit, recoveryKit)
+ * const combined = ContractKit.merge(signInKit, recoveryKit)
  * // combined now has: SignInEmail, SignInMagicLink, StartPasswordReset, CompletePasswordReset
  * ```
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/authkit/Contract"
- * import * as ContractSet from "@beep/iam-sdk/authkit/ContractSet"
+ * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
+ * import * as ContractKit from "@beep/iam-sdk/contract-kit/ContractKit"
  *
- * // Incremental contractSet building
- * const baseKit = ContractSet.make(Contract.make("SignOut"))
- * const extendedKit = ContractSet.merge(
+ * // Incremental contractKit building
+ * const baseKit = ContractKit.make(Contract.make("SignOut"))
+ * const extendedKit = ContractKit.merge(
  *   baseKit,
- *   ContractSet.make(Contract.make("LinkSocialAccount")),
- *   ContractSet.make(Contract.make("UnlinkSocialAccount"))
+ *   ContractKit.make(Contract.make("LinkSocialAccount")),
+ *   ContractKit.make(Contract.make("UnlinkSocialAccount"))
  * )
  * ```
  *
  * @since 1.0.0
  * @category Constructors
  */
-export const merge = <const ContractSets extends ReadonlyArray<Any>>(
+export const merge = <const ContractKits extends ReadonlyArray<Any>>(
   /**
-   * The contractSets to merge together.
+   * The contractKits to merge together.
    */
-  ...contractSets: ContractSets
-): ContractSet<MergedContracts<ContractSets>> => {
+  ...contractKits: ContractKits
+): ContractKit<MergedContracts<ContractKits>> => {
   const contracts = {} as Record<string, UnsafeTypes.UnsafeAny>;
-  for (const contractSet of contractSets) {
-    for (const [name, contract] of Object.entries(contractSet.contracts)) {
+  for (const contractKit of contractKits) {
+    for (const [name, contract] of Object.entries(contractKit.contracts)) {
       contracts[name] = contract;
     }
   }
