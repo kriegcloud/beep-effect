@@ -71,7 +71,7 @@ export const PasskeyListContract = Contract.make("PasskeyList", {
   description: "Lists passkeys that belong to the authenticated user.",
   parameters: {},
   failure: S.instanceOf(IamError),
-  success: S.Array(PasskeyView),
+  success: S.mutable(S.Array(PasskeyView)),
 });
 
 export class PasskeyDeletePayload extends BS.Class<PasskeyDeletePayload>("PasskeyDeletePayload")(

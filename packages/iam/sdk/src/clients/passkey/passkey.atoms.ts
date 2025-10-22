@@ -1,63 +1,75 @@
 "use client";
-import { iamAtomRuntime } from "@beep/iam-sdk/clients/runtime";
-import { withToast } from "@beep/ui/common";
-import { useAtom } from "@effect-atom/atom-react";
+import {iamAtomRuntime} from "@beep/iam-sdk/clients/runtime";
+import {withToast} from "@beep/ui/common";
+import {useAtom, useAtomSet} from "@effect-atom/atom-react";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
+import * as Effect from "effect/Effect";
+import {PasskeyImplementations} from "./passkey.implementations";
 
-import { PasskeyImplementations } from "./passkey.implementations";
+export const listPasskeyAtom = iamAtomRuntime.fn(PasskeyImplementations.PasskeyList);
 
-const mutationToastOptions = {
-  onWaiting: "Processing passkey request",
-  onSuccess: "Passkey action completed successfully",
+const addAtom = iamAtomRuntime.fn(
+  F.flow(
+    PasskeyImplementations.PasskeyAdd,
+    withToast({
+      onWaiting: "Registering passkey",
+      onSuccess: "Passkey registered successfully",
+      onFailure: O.match({
+        onNone: () => "Failed to register passkey.",
+        onSome: (e: { message: string }) => e.message,
+      }),
+    }),
+    Effect.asVoid
+  )
+);
+const deleteAtom = iamAtomRuntime.fn(F.flow(PasskeyImplementations.PasskeyDelete, withToast({
+  onWaiting: "deleting passkey...",
+  onSuccess: "Passkey Deleted!",
   onFailure: O.match({
     onNone: () => "Passkey action failed with an unknown error.",
     onSome: (e: { message: string }) => e.message,
   }),
-} as const;
+})));
 
-const addToastOptions = {
-  onWaiting: "Registering passkey",
-  onSuccess: "Passkey registered successfully",
+const updateAtom = iamAtomRuntime.fn(F.flow(PasskeyImplementations.PasskeyUpdate, withToast({
+  onWaiting: "Updating Passkey...",
+  onSuccess: "Passkey updated!",
   onFailure: O.match({
-    onNone: () => "Failed to register passkey.",
+    onNone: () => "Passkey action failed with an unknown error.",
     onSome: (e: { message: string }) => e.message,
   }),
-} as const;
-
-const listAtom = iamAtomRuntime.fn(PasskeyImplementations.PasskeyList);
-const addAtom = iamAtomRuntime.fn(F.flow(PasskeyImplementations.PasskeyAdd, withToast(addToastOptions)));
-const deleteAtom = iamAtomRuntime.fn(F.flow(PasskeyImplementations.PasskeyDelete, withToast(mutationToastOptions)));
-const updateAtom = iamAtomRuntime.fn(F.flow(PasskeyImplementations.PasskeyUpdate, withToast(mutationToastOptions)));
+})));
 
 export const usePasskeyList = () => {
-  const [result, run] = useAtom(listAtom);
+  const [passkeyListResult, listPasskeys] = useAtom(listPasskeyAtom);
   return {
-    passkeyListResult: result,
-    listPasskeys: run,
+    passkeyListResult,
+    listPasskeys,
   };
 };
 
 export const usePasskeyAdd = () => {
-  const [result, run] = useAtom(addAtom);
+  const addPasskey = useAtomSet(addAtom, {
+    mode: "promise"
+  });
   return {
-    passkeyAddResult: result,
-    addPasskey: run,
+    addPasskey,
   };
 };
 
 export const usePasskeyDelete = () => {
-  const [result, run] = useAtom(deleteAtom);
+  const [passkeyDeleteResult, deletePasskey] = useAtom(deleteAtom, {mode: "promiseExit"});
   return {
-    passkeyDeleteResult: result,
-    deletePasskey: run,
+    passkeyDeleteResult,
+    deletePasskey,
   };
 };
 
 export const usePasskeyUpdate = () => {
-  const [result, run] = useAtom(updateAtom);
+  const [passkeyUpdateResult, updatePasskey] = useAtom(updateAtom);
   return {
-    passkeyUpdateResult: result,
-    updatePasskey: run,
+    passkeyUpdateResult,
+    updatePasskey,
   };
 };
