@@ -1,8 +1,13 @@
-import { BS } from "@beep/schema";
-import { themeConfig } from "@beep/ui-core/theme/theme-config";
+import {BS} from "@beep/schema";
+import {themeConfig} from "@beep/ui-core/theme/theme-config";
 import * as S from "effect/Schema";
+import * as F from "effect/Function";
+import {StructUtils} from "@beep/utils";
+import {Atom} from "@effect-atom/atom-react";
+import {BrowserKeyValueStore} from "@effect/platform-browser";
 
 export const SettingsContrastKit = BS.stringLiteralKit("default", "high");
+
 export class SettingsContrast extends SettingsContrastKit.Schema.annotations({
   schemaId: Symbol.for("@beep/ui-core/settings/schema/SettingsContrast"),
   identifier: "SettingsContrast",
@@ -140,3 +145,119 @@ export declare namespace SettingsState {
   export type Type = typeof SettingsState.Type;
   export type Encoded = typeof SettingsState.Encoded;
 }
+
+export const SettingsUpdateValue = S.partial(SettingsState).annotations({
+  schemaId: Symbol.for("@beep/ui-core/settings/schema/SettingsUpdateValue"),
+  identifier: "SettingsUpdateValue",
+  title: "Settings Update Value",
+  description: "A value representing the update value of the settings",
+});
+
+export declare namespace SettingsUpdateValue {
+  export type Type = typeof SettingsUpdateValue.Type;
+  export type Encoded = typeof SettingsUpdateValue.Encoded;
+}
+
+export const SettingsFieldNameKit = BS.stringLiteralKit(
+  ...StructUtils.structKeys(SettingsState.fields)
+);
+
+
+export class SettingsFieldName extends SettingsFieldNameKit.Schema.annotations({
+  schemaId: Symbol.for("@beep/ui-core/settings/schema/SettingsFieldName"),
+  identifier: "SettingsFieldName",
+  title: "Settings Field Name",
+  description: "A value representing the name of the field of the settings",
+}) {
+  static readonly Options = SettingsFieldNameKit.Options;
+  static readonly Enum = SettingsFieldNameKit.Enum;
+}
+
+export declare namespace SettingsFieldName {
+  export type Type = typeof SettingsFieldName.Type;
+  export type Encoded = typeof SettingsFieldName.Encoded;
+}
+
+
+export const SetFieldInput = F.pipe(
+  SettingsFieldNameKit.toTagged("name"),
+  ({Members}) => S.Union(
+    S.Struct({
+      name: Members.compactLayout,
+      value: SettingsState.fields.compactLayout,
+    }),
+    S.Struct({
+      name: Members.contrast,
+      value: SettingsState.fields.contrast,
+    }),
+    S.Struct({
+      name: Members.direction,
+      value: SettingsState.fields.direction,
+    }),
+    S.Struct({
+      name: Members.navColor,
+      value: SettingsState.fields.navColor,
+    }),
+    S.Struct({
+      name: Members.navLayout,
+      value: SettingsState.fields.navLayout,
+    }),
+    S.Struct({
+      name: Members.mode,
+      value: SettingsState.fields.mode,
+    }),
+    S.Struct({
+      name: Members.primaryColor,
+      value: SettingsState.fields.primaryColor,
+    }),
+    S.Struct({
+      name: Members.fontSize,
+      value: SettingsState.fields.fontSize,
+    }),
+    S.Struct({
+      name: Members.fontFamily,
+      value: SettingsState.fields.fontFamily,
+    }),
+    S.Struct({
+      name: Members.version,
+      value: SettingsState.fields.version,
+    }),
+  )
+);
+
+export declare namespace SetFieldInput {
+  export type Type = typeof SetFieldInput.Type;
+  export type Encoded = typeof SetFieldInput.Encoded;
+}
+
+export class SettingsContext extends BS.Class<SettingsContext>("SettingsContext")({
+  state: SettingsState,
+  isDarkMode: S.Boolean,
+  canReset: S.Boolean,
+  onReset: BS.NoInputVoidFn.Schema,
+  setState: new BS.Fn({
+    input: SettingsUpdateValue,
+    output: S.Void,
+  }).Schema,
+  setField: new BS.Fn({
+    input: SetFieldInput,
+    output: S.Void,
+  }).Schema,
+  openDrawer: S.Boolean,
+  onCloseDrawer: BS.NoInputVoidFn.Schema,
+  onToggleDrawer: BS.NoInputVoidFn.Schema,
+}) {
+}
+
+export declare namespace SettingsContext {
+  export type Type = typeof SettingsContext.Type;
+  export type Encoded = typeof SettingsContext.Encoded;
+}
+
+
+export const settingsAtom = Atom.kvs({
+  runtime: Atom.runtime(BrowserKeyValueStore.layerLocalStorage),
+  key: "settings",
+  schema: SettingsState,
+  defaultValue: () => SettingsState.defaultSettings,
+});
