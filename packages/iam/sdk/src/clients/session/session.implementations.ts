@@ -1,3 +1,4 @@
+"use client";
 import { client } from "@beep/iam-sdk/adapters";
 import type { RevokeSessionPayload } from "@beep/iam-sdk/clients/session/session.contracts";
 import {
@@ -44,7 +45,7 @@ const GetSessionHandler = Effect.fn("GetSessionHandler")(
     );
     yield* continuation.raiseResult(result);
 
-    return yield* Effect.flatMap(S.encodeUnknown(GetSessionSuccess)(result.data), S.decodeUnknown(GetSessionSuccess));
+    return yield* S.decodeUnknown(GetSessionSuccess)(result.data);
   },
   Effect.catchTags({
     ParseError: (error) => IamError.match(error, ListSessionsMetadata),

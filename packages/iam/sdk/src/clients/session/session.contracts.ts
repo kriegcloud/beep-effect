@@ -1,3 +1,4 @@
+"use client";
 import { Session } from "@beep/iam-domain/entities";
 import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
 import { IamError } from "@beep/iam-sdk/errors";
@@ -10,8 +11,74 @@ import * as S from "effect/Schema";
 // =====================================================================================================================
 export class GetSessionSuccess extends BS.Class<GetSessionSuccess>("GetSessionSuccess")(
   {
-    session: Session.Model,
-    user: User.Model,
+    // activeOrganizationId
+    // activeTeamId
+    // createdAt
+    // createdBy
+    // deletedAt
+    // deletedBy
+    // expiresAt
+    // id
+
+    // impersonatedBy
+    // ipAddress
+    // source
+    // token
+    // updatedAt
+    // updatedBy
+    // userAgent
+    // userId
+    // version
+    // _rowId
+    session: Session.Model.select.pick(
+      "activeOrganizationId",
+      "activeTeamId",
+      "createdAt",
+      "createdBy",
+      "deletedAt",
+      "deletedBy",
+      "expiresAt",
+      "id",
+      "impersonatedBy",
+      "ipAddress",
+      "source",
+      "token",
+      "updatedAt",
+      "updatedBy",
+      "userAgent",
+      "userId",
+      "version",
+      "_rowId"
+    ),
+
+    user: User.Model.select.pick(
+      "banExpires",
+      "banReason",
+      "banned",
+      "createdAt",
+      "createdBy",
+      "deletedAt",
+      "deletedBy",
+      "displayUsername",
+      "email",
+      "emailVerified",
+      "gender",
+      "id",
+      "image",
+      "isAnonymous",
+      "name",
+      "phoneNumber",
+      "phoneNumberVerified",
+      "role",
+      "source",
+      "stripeCustomerId",
+      "twoFactorEnabled",
+      "updatedAt",
+      "updatedBy",
+      "username",
+      "version",
+      "_rowId"
+    ),
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/session/GetSessionSuccess"),

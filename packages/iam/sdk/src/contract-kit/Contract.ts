@@ -1271,60 +1271,6 @@ export class Readonly extends Context.Reference<Readonly>()("@beep/iam-sdk/Contr
   defaultValue: F.constFalse,
 }) {}
 
-/**
- * Annotation indicating whether a contract performs destructive operations.
- *
- * @example
- * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
- *
- * const safeContract = Contract.make("revoke_all_sessions")
- *   .annotate(Contract.Destructive, true)
- * ```
- *
- * @since 1.0.0
- * @category Annotations
- */
-export class Destructive extends Context.Reference<Destructive>()("@beep/iam-sdk/Contract/Destructive", {
-  defaultValue: F.constTrue,
-}) {}
-
-/**
- * Annotation indicating whether a contract can be called multiple times safely.
- *
- * @example
- * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
- *
- * const idempotentContract = Contract.make("fetch_active_session")
- *   .annotate(Contract.Idempotent, true)
- * ```
- *
- * @since 1.0.0
- * @category Annotations
- */
-export class Idempotent extends Context.Reference<Idempotent>()("@beep/iam-sdk/Contract/Idempotent", {
-  defaultValue: F.constFalse,
-}) {}
-
-/**
- * Annotation indicating whether a contract can handle arbitrary external data.
- *
- * @example
- * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
- *
- * const restrictedContract = Contract.make("issue_admin_token")
- *   .annotate(Contract.OpenWorld, false)
- * ```
- *
- * @since 1.0.0
- * @category Annotations
- */
-export class OpenWorld extends Context.Reference<OpenWorld>()("@beep/iam-sdk/Contract/OpenWorld", {
-  defaultValue: F.constTrue,
-}) {}
-
 const suspectProtoRx = /"__proto__"\s*:/;
 const suspectConstructorRx = /"constructor"\s*:/;
 

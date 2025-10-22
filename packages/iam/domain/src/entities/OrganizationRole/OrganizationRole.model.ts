@@ -1,8 +1,9 @@
+import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
+import { PolicyRecord } from "@beep/shared-domain/Policy";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-
 export const OrganizationRoleModelSchemaId = Symbol.for("@beep/iam-domain/OrganizationRoleModel");
 
 /**
@@ -15,7 +16,11 @@ export class Model extends M.Class<Model>(`OrganizationRoleModel`)(
     role: S.NonEmptyString,
 
     /** The role permission */
-    permission: S.NonEmptyString,
+    permission: BS.JsonFromStringOption(
+      PolicyRecord.annotations({
+        description: "Permissions granted to this API key",
+      })
+    ),
 
     organizationId: SharedEntityIds.OrganizationId,
   }),
