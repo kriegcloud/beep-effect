@@ -1,6 +1,6 @@
 "use client";
 import { Session } from "@beep/iam-domain/entities";
-import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit, } from "@beep/iam-sdk/contract-kit";
 import { IamError } from "@beep/iam-sdk/errors";
 import { BS } from "@beep/schema";
 import { User } from "@beep/shared-domain/entities";
@@ -9,27 +9,9 @@ import * as S from "effect/Schema";
 // =====================================================================================================================
 // GetSession
 // =====================================================================================================================
+
 export class GetSessionSuccess extends BS.Class<GetSessionSuccess>("GetSessionSuccess")(
   {
-    // activeOrganizationId
-    // activeTeamId
-    // createdAt
-    // createdBy
-    // deletedAt
-    // deletedBy
-    // expiresAt
-    // id
-
-    // impersonatedBy
-    // ipAddress
-    // source
-    // token
-    // updatedAt
-    // updatedBy
-    // userAgent
-    // userId
-    // version
-    // _rowId
     session: Session.Model.select.pick(
       "activeOrganizationId",
       "activeTeamId",
