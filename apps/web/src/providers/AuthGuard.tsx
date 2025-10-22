@@ -1,10 +1,14 @@
 "use client";
-
-import { client } from "@beep/iam-sdk/adapters/better-auth/client";
+import { useGetSession } from "@beep/iam-sdk/clients/session";
+// import {client} from "@beep/iam-sdk/adapters/better-auth/client";
 import { paths } from "@beep/shared-domain";
 import { useRouter } from "@beep/ui/hooks";
 import { SplashScreen } from "@beep/ui/progress/loading-screen/splash-screen";
 import { AuthAdapterProvider } from "@beep/ui/providers";
+import { Result } from "@effect-atom/atom-react";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as Redacted from "effect/Redacted";
 import React from "react";
 import { GuardErrorBoundary } from "@/providers/GuardErrorBoundary";
 import { GuardErrorFallback } from "@/providers/GuardErrorFallback";
@@ -18,42 +22,51 @@ type AuthGuardContentProps = AuthGuardProps & {
 };
 
 const AuthGuardContent: React.FC<AuthGuardContentProps> = ({ children, router, ...props }) => {
-  const { data: session, isPending, error, refetch } = client.useSession();
-  const [hasRefetched, setHasRefetched] = React.useState(false);
-
-  React.useEffect(() => {
-    client.$store.notify("$sessionSignal");
-  }, []);
-
-  React.useEffect(() => {
-    if (!isPending && !session && !hasRefetched) {
-      setHasRefetched(true);
-      refetch();
-    }
-  }, [hasRefetched, isPending, refetch, session]);
-
-  React.useEffect(() => {
-    if (!isPending && !session && hasRefetched) {
-      void router.replace(paths.auth.signIn);
-    }
-  }, [hasRefetched, isPending, session, router]);
-
-  if (error) {
-    throw error instanceof Error ? error : new Error("Failed to resolve authenticated session");
-  }
-
-  if (isPending) {
-    return <SplashScreen />;
-  }
-
-  if (!session) {
-    return <SplashScreen />;
-  }
+  const { sessionResult } = useGetSession();
 
   return (
-    <AuthAdapterProvider {...props} session={session}>
-      {children}
-    </AuthAdapterProvider>
+    <>
+      {Result.builder(sessionResult)
+        .onInitial(() => <SplashScreen />)
+        .onDefect(() => <div>an error occurred</div>)
+        .onErrorTag("IamError", () => <div>a failure occurred</div>)
+        .onSuccess(({ session, user }) => (
+          <AuthAdapterProvider
+            {...props}
+            session={{
+              ...session,
+              user: {
+                ...user,
+                email: Redacted.value(user.email),
+                phoneNumber: F.pipe(
+                  user.phoneNumber,
+                  O.match({
+                    onNone: () => null,
+                    onSome: (pn) => Redacted.value(pn),
+                  })
+                ),
+                username: F.pipe(
+                  user.username,
+                  O.match({
+                    onNone: () => null,
+                    onSome: (username) => username,
+                  })
+                ),
+                image: F.pipe(
+                  user.image,
+                  O.match({
+                    onNone: () => null,
+                    onSome: (image) => image,
+                  })
+                ),
+              },
+            }}
+          >
+            {children}
+          </AuthAdapterProvider>
+        ))
+        .render()}
+    </>
   );
 };
 

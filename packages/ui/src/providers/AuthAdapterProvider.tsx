@@ -16,9 +16,10 @@ type User = {
   readonly id: string | number;
   readonly email: string;
   readonly name: string;
+  readonly phoneNumber: string | null;
   readonly username?: undefined | null | string;
   readonly image?: string | null | undefined;
-  readonly role?: string | null | undefined;
+  readonly role: string;
 };
 
 type Session = {

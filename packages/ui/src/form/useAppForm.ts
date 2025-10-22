@@ -20,7 +20,7 @@ const Slider = React.lazy(() => import("@beep/ui/inputs/SliderField"));
 const DatePicker = React.lazy(() => import("@beep/ui/inputs/DatePickerField"));
 const OTP = React.lazy(() => import("@beep/ui/inputs/OTPField"));
 const DateTimePicker = React.lazy(() => import("@beep/ui/inputs/DateTimePickerField"));
-const Phone = React.lazy(() => import("@beep/ui/inputs/PhoneField/PhoneField"));
+const Phone = React.lazy(() => import("@beep/ui/inputs/PhoneField"));
 const UploadAvatar = React.lazy(() => import("@beep/ui/inputs/UploadAvatarField"));
 const Upload = React.lazy(() => import("@beep/ui/inputs/UploadField"));
 const UploadBox = React.lazy(() => import("@beep/ui/inputs/UploadBoxField"));

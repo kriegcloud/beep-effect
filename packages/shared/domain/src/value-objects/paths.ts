@@ -78,6 +78,7 @@ const dashboardAdminPermissions = dashboardAdmin.child("permissions");
 const dashboardAdminOauthClients = dashboardAdmin.child("oauth-clients");
 const dashboardAdminOauthClient = (clientId: string) => dashboardAdminOauthClients.child(clientId);
 const user = dashboard.child("user");
+const userAccount = user.child("account");
 const fileManager = dashboard.child("file-manager");
 const organization = (id: SharedEntityIds.OrganizationId.Type) => PathBuilder.createRoot("/organizations").child(id);
 const oauth2 = PathBuilder.createRoot("/oauth2");
@@ -89,7 +90,6 @@ const oauth2Clients = oauth2.child("clients");
 const oauth2Client = (clientId: string) => oauth2Clients.child(clientId);
 const apiRoot = PathBuilder.createRoot("/api");
 const apiAuth = apiRoot.child("auth");
-const apiAuthJwks = apiAuth.child("jwks");
 const apiAuthDevice = apiAuth.child("device");
 const apiOauth2 = apiRoot.child("oauth2");
 const apiOauth2Authorize = apiOauth2.child("authorize");
@@ -493,7 +493,13 @@ export const paths = PathBuilder.collection({
     root: dashboard.root,
     user: {
       root: user.root,
-      account: user("account"),
+      account: {
+        root: userAccount.root,
+        billing: userAccount("billing"),
+        notifications: userAccount("notifications"),
+        socials: userAccount("socials"),
+        changePassword: userAccount("change-password"),
+      },
       edit: (id: SharedEntityIds.UserId.Type) => user.child(id)("edit"),
     },
     security: {
@@ -610,7 +616,6 @@ export const paths = PathBuilder.collection({
     root: apiRoot.root,
     auth: {
       root: apiAuth.root,
-      jwks: apiAuthJwks.root,
       device: {
         root: apiAuthDevice.root,
       },

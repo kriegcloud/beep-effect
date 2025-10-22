@@ -5,11 +5,15 @@ import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { paths } from "@beep/shared-domain";
 import { useRouter } from "@beep/ui/hooks";
 import { DashboardLayout } from "@beep/ui/layouts";
-import { fSub } from "@beep/ui-core/utils";
-import { faker } from "@faker-js/faker";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import type React from "react";
+import * as F from "effect/Function";
+import React from "react";
 import { AuthGuard } from "@/providers/AuthGuard";
+
+const MS_PER_HOUR = 60 * 60 * 1000;
+const MS_PER_DAY = 24 * MS_PER_HOUR;
+const REFERENCE_ACTIVITY_TIMESTAMP = Date.UTC(2024, 0, 1, 12, 0, 0);
 
 const _id = [
   `e99f09a7-dd88-49d5-b1c8-1daf80c2d7b1`,
@@ -201,8 +205,13 @@ const _images = [
   assetPaths.assets.images.mock.avatar.avatar4,
 ];
 
-const _contacts = Array.from({ length: 20 }, (_, index) => {
+const _lastActivity = A.makeBy(20, (index) =>
+  new Date(REFERENCE_ACTIVITY_TIMESTAMP - index * (MS_PER_DAY + MS_PER_HOUR)).toISOString()
+);
+
+const _contacts = A.makeBy(20, (index) => {
   const status = (index % 2 && "online") || (index % 3 && "offline") || (index % 4 && "always") || "busy";
+  const avatarUrl = _images[index % _images.length]!;
 
   return {
     id: _id[index]!,
@@ -211,8 +220,8 @@ const _contacts = Array.from({ length: 20 }, (_, index) => {
     email: _emails[index]!,
     name: _fullNames[index]!,
     phoneNumber: _phoneNumbers[index]!,
-    lastActivity: fSub({ days: index, hours: index }),
-    avatarUrl: faker.helpers.arrayElement(_images),
+    lastActivity: _lastActivity[index]!,
+    avatarUrl,
     address: _fullAddress[index]!,
   };
 });
@@ -236,38 +245,58 @@ const _workspaces = [
     logo: assetPaths.assets.icons.workspaces.logo3,
   },
 ];
-const _notifications = Array.from({ length: 9 }, (_, index) => ({
-  id: _id[index]!,
-  avatarUrl: faker.helpers.arrayElement(_images),
-  type: ["friend", "project", "file", "tags", "payment", "order", "delivery", "chat", "mail"][index]!,
-  category: [
-    "Communication",
-    "Project UI",
-    "File manager",
-    "File manager",
-    "File manager",
-    "Order",
-    "Order",
-    "Communication",
-    "Communication",
-  ][index]!,
-  isUnread: faker.datatype.boolean(),
-  createdAt: fSub({ days: index, hours: index }),
-  title:
-    (index === 0 && `<p><strong>Deja Brady</strong> sent you a friend request</p>`) ||
-    (index === 1 &&
-      `<p><strong>Jayvon Hull</strong> mentioned you in <strong><a href='#'>Minimal UI</a></strong></p>`) ||
-    (index === 2 &&
-      `<p><strong>Lainey Davidson</strong> added file to <strong><a href='#'>File manager</a></strong></p>`) ||
-    (index === 3 &&
-      `<p><strong>Angelique Morse</strong> added new tags to <strong><a href='#'>File manager<a/></strong></p>`) ||
-    (index === 4 && `<p><strong>Giana Brandt</strong> request a payment of <strong>$200</strong></p>`) ||
-    (index === 5 && `<p>Your order is placed waiting for shipping</p>`) ||
-    (index === 6 && `<p>Delivery processing your order is being shipped</p>`) ||
-    (index === 7 && `<p>You have new message 5 unread messages</p>`) ||
-    (index === 8 && `<p>You have new mail`) ||
-    "",
-}));
+
+const _notificationTypes = [
+  "friend",
+  "project",
+  "file",
+  "tags",
+  "payment",
+  "order",
+  "delivery",
+  "chat",
+  "mail",
+] as const;
+
+const _notificationCategories = [
+  "Communication",
+  "Project UI",
+  "File manager",
+  "File manager",
+  "File manager",
+  "Order",
+  "Order",
+  "Communication",
+  "Communication",
+] as const;
+
+const _notificationTitles = [
+  `<p><strong>Deja Brady</strong> sent you a friend request</p>`,
+  `<p><strong>Jayvon Hull</strong> mentioned you in <strong><a href='#'>Minimal UI</a></strong></p>`,
+  `<p><strong>Lainey Davidson</strong> added file to <strong><a href='#'>File manager</a></strong></p>`,
+  `<p><strong>Angelique Morse</strong> added new tags to <strong><a href='#'>File manager</a></strong></p>`,
+  `<p><strong>Giana Brandt</strong> request a payment of <strong>$200</strong></p>`,
+  `<p>Your order is placed waiting for shipping</p>`,
+  `<p>Delivery processing your order is being shipped</p>`,
+  `<p>You have new message 5 unread messages</p>`,
+  `<p>You have new mail</p>`,
+] as const;
+
+const _notificationCreatedAt = F.pipe(_lastActivity, A.take(9));
+
+const _notifications = A.map(_notificationCreatedAt, (createdAt, index) => {
+  const avatarUrl = _images[index % _images.length]!;
+
+  return {
+    id: _id[index]!,
+    avatarUrl,
+    type: _notificationTypes[index]!,
+    category: _notificationCategories[index]!,
+    isUnread: false,
+    createdAt,
+    title: _notificationTitles[index]!,
+  };
+});
 const TEMP_MOCKED_DATA = {
   userOrgs: [
     {
@@ -310,24 +339,26 @@ export default function Layout({ children }: Props) {
   const runSwitchOrg = makeRunClientPromise(runtime, "iam.organization.switchOrg");
 
   return (
-    <AuthGuard
-      switchAccount={() => runSwitchAccount(Effect.tryPromise(switchAccount))}
-      switchOrganization={() => runSwitchOrg(Effect.tryPromise(switchOrg))}
-      signOut={async () =>
-        signOut({
-          onSuccess: () => {
-            router.refresh();
-            void router.push(paths.auth.signIn);
-          },
-        })
-      }
-      userOrgs={TEMP_MOCKED_DATA.userOrgs}
-      userAccounts={TEMP_MOCKED_DATA.userAccounts}
-      notifications={TEMP_MOCKED_DATA.notifications}
-      workspaces={TEMP_MOCKED_DATA.workspaces}
-      contacts={TEMP_MOCKED_DATA.contacts}
-    >
-      <DashboardLayout>{children}</DashboardLayout>
-    </AuthGuard>
+    <React.Suspense>
+      <AuthGuard
+        switchAccount={() => runSwitchAccount(Effect.tryPromise(switchAccount))}
+        switchOrganization={() => runSwitchOrg(Effect.tryPromise(switchOrg))}
+        signOut={async () =>
+          signOut({
+            onSuccess: () => {
+              router.refresh();
+              void router.push(paths.auth.signIn);
+            },
+          })
+        }
+        userOrgs={TEMP_MOCKED_DATA.userOrgs}
+        userAccounts={TEMP_MOCKED_DATA.userAccounts}
+        notifications={TEMP_MOCKED_DATA.notifications}
+        workspaces={TEMP_MOCKED_DATA.workspaces}
+        contacts={TEMP_MOCKED_DATA.contacts}
+      >
+        <DashboardLayout>{children}</DashboardLayout>
+      </AuthGuard>
+    </React.Suspense>
   );
 }

@@ -6,6 +6,7 @@ export * from "./multi-session";
 export * from "./oauth";
 export * from "./oidc";
 export * from "./organization";
+export * from "./passkey";
 export * from "./recover";
 export * from "./session";
 export * from "./sign-in";
