@@ -1,12 +1,12 @@
-import type {RecordTypes, StructTypes} from "@beep/types";
-import type * as A from "effect/Array";
-import * as Struct from "effect/Struct";
-import * as S from "effect/Schema";
-import * as R from "effect/Record";
-import type * as StringTypes from "@beep/types/string.types";
-import type {NonEmptyString} from "@beep/types/string.types";
 import { invariant } from "@beep/invariant";
-import type {ReadonlyRecordEntriesNonEmptyArray} from "@beep/types/record.types";
+import type { RecordTypes, StructTypes } from "@beep/types";
+import type { ReadonlyRecordEntriesNonEmptyArray } from "@beep/types/record.types";
+import type * as StringTypes from "@beep/types/string.types";
+import type { NonEmptyString } from "@beep/types/string.types";
+import type * as A from "effect/Array";
+import * as R from "effect/Record";
+import type * as S from "effect/Schema";
+import * as Struct from "effect/Struct";
 
 export const structStringEntries = <T extends RecordTypes.RecordStringKeyValueString>(
   s: RecordTypes.NonEmptyRecordStringKeyValues<T>
@@ -26,9 +26,9 @@ export type NonEmptyStructValueSchemaAny<T extends RecordValueSchemaAny> = keyof
       : T
     : never
   : never;
-export const structValues = <
-  const Fields extends RecordValueSchemaAny
->(fields: NonEmptyStructValueSchemaAny<Fields>): A.NonEmptyReadonlyArray<Fields[keyof Fields]> => {
+export const structValues = <const Fields extends RecordValueSchemaAny>(
+  fields: NonEmptyStructValueSchemaAny<Fields>
+): A.NonEmptyReadonlyArray<Fields[keyof Fields]> => {
   invariant(!R.isEmptyReadonlyRecord(fields), "Empty struct", {
     file: "packages/common/utils/src/data/struct.utils.ts",
     line: 31,
@@ -51,5 +51,5 @@ export const structEntries = <T extends StructTypes.StructFieldsWithStringKeys>(
     line: 51,
     args: [s],
   });
-  return Struct.entries(s) as unknown as ReadonlyRecordEntriesNonEmptyArray<T>
+  return Struct.entries(s) as unknown as ReadonlyRecordEntriesNonEmptyArray<T>;
 };

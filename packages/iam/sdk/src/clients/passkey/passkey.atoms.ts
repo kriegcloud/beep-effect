@@ -1,11 +1,11 @@
 "use client";
-import {iamAtomRuntime} from "@beep/iam-sdk/clients/runtime";
-import {withToast} from "@beep/ui/common";
-import {useAtom, useAtomSet} from "@effect-atom/atom-react";
+import { iamAtomRuntime } from "@beep/iam-sdk/clients/runtime";
+import { withToast } from "@beep/ui/common";
+import { useAtom, useAtomSet } from "@effect-atom/atom-react";
+import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
-import * as Effect from "effect/Effect";
-import {PasskeyImplementations} from "./passkey.implementations";
+import { PasskeyImplementations } from "./passkey.implementations";
 
 export const listPasskeyAtom = iamAtomRuntime.fn(PasskeyImplementations.PasskeyList);
 
@@ -23,23 +23,33 @@ const addAtom = iamAtomRuntime.fn(
     Effect.asVoid
   )
 );
-const deleteAtom = iamAtomRuntime.fn(F.flow(PasskeyImplementations.PasskeyDelete, withToast({
-  onWaiting: "deleting passkey...",
-  onSuccess: "Passkey Deleted!",
-  onFailure: O.match({
-    onNone: () => "Passkey action failed with an unknown error.",
-    onSome: (e: { message: string }) => e.message,
-  }),
-})));
+const deleteAtom = iamAtomRuntime.fn(
+  F.flow(
+    PasskeyImplementations.PasskeyDelete,
+    withToast({
+      onWaiting: "deleting passkey...",
+      onSuccess: "Passkey Deleted!",
+      onFailure: O.match({
+        onNone: () => "Passkey action failed with an unknown error.",
+        onSome: (e: { message: string }) => e.message,
+      }),
+    })
+  )
+);
 
-const updateAtom = iamAtomRuntime.fn(F.flow(PasskeyImplementations.PasskeyUpdate, withToast({
-  onWaiting: "Updating Passkey...",
-  onSuccess: "Passkey updated!",
-  onFailure: O.match({
-    onNone: () => "Passkey action failed with an unknown error.",
-    onSome: (e: { message: string }) => e.message,
-  }),
-})));
+const updateAtom = iamAtomRuntime.fn(
+  F.flow(
+    PasskeyImplementations.PasskeyUpdate,
+    withToast({
+      onWaiting: "Updating Passkey...",
+      onSuccess: "Passkey updated!",
+      onFailure: O.match({
+        onNone: () => "Passkey action failed with an unknown error.",
+        onSome: (e: { message: string }) => e.message,
+      }),
+    })
+  )
+);
 
 export const usePasskeyList = () => {
   const [passkeyListResult, listPasskeys] = useAtom(listPasskeyAtom);
@@ -51,7 +61,7 @@ export const usePasskeyList = () => {
 
 export const usePasskeyAdd = () => {
   const addPasskey = useAtomSet(addAtom, {
-    mode: "promise"
+    mode: "promise",
   });
   return {
     addPasskey,
@@ -59,7 +69,7 @@ export const usePasskeyAdd = () => {
 };
 
 export const usePasskeyDelete = () => {
-  const [passkeyDeleteResult, deletePasskey] = useAtom(deleteAtom, {mode: "promiseExit"});
+  const [passkeyDeleteResult, deletePasskey] = useAtom(deleteAtom, { mode: "promiseExit" });
   return {
     passkeyDeleteResult,
     deletePasskey,

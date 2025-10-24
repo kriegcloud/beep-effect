@@ -50,16 +50,16 @@ export function ComponentCard({ item, sx, ...other }: ComponentCardProps) {
         sx={[
           (theme) => ({
             overflow: "hidden",
-            bgcolor: rgbaFromChannel(theme.vars?.palette.grey["500Channel"]!, 0.06),
+            bgcolor: rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.06),
             transition: theme.transitions.create("background-color", {
               duration: theme.transitions.duration.shortest,
               easing: theme.transitions.easing.sharp,
             }),
             "&:hover": {
-              bgcolor: rgbaFromChannel(theme.vars?.palette.grey["500Channel"]!, 0.12),
+              bgcolor: rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.12),
             },
             ...theme.applyStyles("dark", {
-              bgcolor: rgbaFromChannel(theme.vars?.palette.grey["500Channel"]!, 0.04),
+              bgcolor: rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.04),
             }),
           }),
         ]}

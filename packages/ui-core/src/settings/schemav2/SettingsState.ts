@@ -1,10 +1,10 @@
-import {BS} from "@beep/schema";
-import {themeConfig} from "@beep/ui-core/theme/theme-config";
-import * as S from "effect/Schema";
+import { BS } from "@beep/schema";
+import { themeConfig } from "@beep/ui-core/theme/theme-config";
+import { StructUtils } from "@beep/utils";
+import { BrowserKeyValueStore } from "@effect/platform-browser";
+import { Atom } from "@effect-atom/atom-react";
 import * as F from "effect/Function";
-import {StructUtils} from "@beep/utils";
-import {Atom} from "@effect-atom/atom-react";
-import {BrowserKeyValueStore} from "@effect/platform-browser";
+import * as S from "effect/Schema";
 
 export const SettingsContrastKit = BS.stringLiteralKit("default", "high");
 
@@ -22,7 +22,7 @@ export declare namespace SettingsContrast {
   export type Type = typeof SettingsContrast.Type;
   export type Encoded = typeof SettingsContrast.Encoded;
 }
-
+// https://moneymotion.io/auth/verifyEmail/eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImJlbmphbWludG9wcG9sZEBnbWFpbC5jb20iLCJpYXQiOjE3NjEyMzU4ODUsImV4cCI6MTc2MTIzOTQ4NX0.UGeWH8z2aPh78MCXSGKT2XC-QfNRsSZfELGedo1xT_8
 export const SettingsPrimaryColorKit = BS.stringLiteralKit(
   "default",
   "preset1",
@@ -158,10 +158,7 @@ export declare namespace SettingsUpdateValue {
   export type Encoded = typeof SettingsUpdateValue.Encoded;
 }
 
-export const SettingsFieldNameKit = BS.stringLiteralKit(
-  ...StructUtils.structKeys(SettingsState.fields)
-);
-
+export const SettingsFieldNameKit = BS.stringLiteralKit(...StructUtils.structKeys(SettingsState.fields));
 
 export class SettingsFieldName extends SettingsFieldNameKit.Schema.annotations({
   schemaId: Symbol.for("@beep/ui-core/settings/schema/SettingsFieldName"),
@@ -178,10 +175,8 @@ export declare namespace SettingsFieldName {
   export type Encoded = typeof SettingsFieldName.Encoded;
 }
 
-
-export const SetFieldInput = F.pipe(
-  SettingsFieldNameKit.toTagged("name"),
-  ({Members}) => S.Union(
+export const SetFieldInput = F.pipe(SettingsFieldNameKit.toTagged("name"), ({ Members }) =>
+  S.Union(
     S.Struct({
       name: Members.compactLayout,
       value: SettingsState.fields.compactLayout,
@@ -221,7 +216,7 @@ export const SetFieldInput = F.pipe(
     S.Struct({
       name: Members.version,
       value: SettingsState.fields.version,
-    }),
+    })
   )
 );
 
@@ -246,14 +241,12 @@ export class SettingsContext extends BS.Class<SettingsContext>("SettingsContext"
   openDrawer: S.Boolean,
   onCloseDrawer: BS.NoInputVoidFn.Schema,
   onToggleDrawer: BS.NoInputVoidFn.Schema,
-}) {
-}
+}) {}
 
 export declare namespace SettingsContext {
   export type Type = typeof SettingsContext.Type;
   export type Encoded = typeof SettingsContext.Encoded;
 }
-
 
 export const settingsAtom = Atom.kvs({
   runtime: Atom.runtime(BrowserKeyValueStore.layerLocalStorage),
