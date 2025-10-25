@@ -22,7 +22,7 @@ export const BSPartialTransformer = Symbol.for("@beep/schema/partialTransformer"
 export const BSFilterFn = Symbol.for("@beep/schema/filterFn");
 export const BSFolderType = Symbol.for("@beep/schema/folderType");
 export const BSTable = Symbol.for("@beep/schema/table");
-export const BSUiConfig = Symbol.for("@beep/schema/uiConfig");
+export const BSUIConfig = Symbol.for("@beep/schema/uiConfig");
 export const BSRelations = Symbol.for("@beep/schema/relations");
 export const BSForeignKey = Symbol.for("@beep/schema/foreignKey");
 
@@ -51,7 +51,8 @@ export interface FieldConfig {
       | "date"
       | "datetime"
       | "tags"
-      | "otp";
+      | "otp"
+      | "addressLocation";
     label?: string;
     placeholder?: string;
     required?: boolean;
@@ -65,6 +66,7 @@ export interface FieldConfig {
     max?: number | string;
     step?: number;
     order?: number;
+    composite?: Array<string>;
   };
   table?: {
     header?: string;
@@ -156,7 +158,7 @@ declare module "effect/Schema" {
       [BSTransformer]?: unknown;
       [BSFolderType]?: string;
       [BSTable]?: unknown;
-      [BSUiConfig]?: FieldConfig;
+      [BSUIConfig]?: FieldConfig;
       [BSRelations]?: ReadonlyArray<RelationConfig>;
       [BSForeignKey]?: {
         targetEntityTag: string;
@@ -175,7 +177,7 @@ declare module "effect/Schema" {
       [BSTransformer]?: unknown;
       [BSFolderType]?: string;
       [BSTable]?: unknown;
-      [BSUiConfig]?: FieldConfig;
+      [BSUIConfig]?: FieldConfig;
       [BSRelations]?: ReadonlyArray<RelationConfig>;
       [BSForeignKey]?: {
         targetEntityTag: string;

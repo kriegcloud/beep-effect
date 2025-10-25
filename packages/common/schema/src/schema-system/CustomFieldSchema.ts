@@ -67,7 +67,7 @@ export const getCustomFieldValue = (customFields: Array<CustomFieldSchema>) => (
     O.flatMapNullable((x) => x.value)
   );
 
-export const mkCustomField = <T extends "string" | "number" | "boolean">(
+export const makeCustomField = <T extends "string" | "number" | "boolean">(
   type: T,
   name: string,
   value: T extends "string" ? string : T extends "number" ? number : T extends "boolean" ? boolean : null | undefined,

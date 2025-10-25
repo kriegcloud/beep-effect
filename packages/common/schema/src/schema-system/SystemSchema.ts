@@ -1,13 +1,13 @@
-import { BSUiConfig, type FieldConfig } from "@beep/schema/annotations";
+import { BSUIConfig, type FieldConfig } from "@beep/schema/annotations/default";
 import { JsonStringToArray, JsonStringToStringArray, TimestampToIsoString } from "@beep/schema/custom";
-import { CustomFieldSchema } from "@beep/schema/custom-fields-schema";
+import { CustomFieldSchema } from "@beep/schema/schema-system/CustomFieldSchema";
 import { Schema } from "effect";
 
 // Base system fields as a class
 export class BaseSystemFields extends Schema.Class<BaseSystemFields>("BaseSystemFields")({
   createdAt: TimestampToIsoString.annotations({
     description: "The datetime the record was created",
-    [BSUiConfig]: {
+    [BSUIConfig]: {
       field: {
         hidden: true,
       },
@@ -21,7 +21,7 @@ export class BaseSystemFields extends Schema.Class<BaseSystemFields>("BaseSystem
   }),
   createdBy: Schema.String.pipe(Schema.NullOr, Schema.optional).annotations({
     description: "The typeid of the user who created the record",
-    [BSUiConfig]: {
+    [BSUIConfig]: {
       field: {
         hidden: true,
       },
@@ -33,7 +33,7 @@ export class BaseSystemFields extends Schema.Class<BaseSystemFields>("BaseSystem
   }),
   customFields: JsonStringToArray(CustomFieldSchema).annotations({
     description: "The custom fields for the record",
-    [BSUiConfig]: {
+    [BSUIConfig]: {
       field: {
         hidden: true,
       },
@@ -45,7 +45,7 @@ export class BaseSystemFields extends Schema.Class<BaseSystemFields>("BaseSystem
   }),
   deletedAt: TimestampToIsoString.pipe(Schema.NullOr, Schema.optional).annotations({
     description: "The datetime the record was deleted",
-    [BSUiConfig]: {
+    [BSUIConfig]: {
       field: {
         hidden: true,
       },
@@ -57,7 +57,7 @@ export class BaseSystemFields extends Schema.Class<BaseSystemFields>("BaseSystem
   }),
   deletedBy: Schema.String.pipe(Schema.NullOr, Schema.optional).annotations({
     description: "The typeid of the user who deleted the record",
-    [BSUiConfig]: {
+    [BSUIConfig]: {
       field: {
         hidden: true,
       },
@@ -69,7 +69,7 @@ export class BaseSystemFields extends Schema.Class<BaseSystemFields>("BaseSystem
   }),
   inactivatedAt: TimestampToIsoString.pipe(Schema.NullOr, Schema.optional).annotations({
     description: "The datetime the record was inactivated",
-    [BSUiConfig]: {
+    [BSUIConfig]: {
       field: {
         hidden: true,
       },
@@ -81,7 +81,7 @@ export class BaseSystemFields extends Schema.Class<BaseSystemFields>("BaseSystem
   }),
   inactivatedBy: Schema.String.pipe(Schema.NullOr, Schema.optional).annotations({
     description: "The typeid of the user who inactivated the record",
-    [BSUiConfig]: {
+    [BSUIConfig]: {
       field: {
         hidden: true,
       },
@@ -93,7 +93,7 @@ export class BaseSystemFields extends Schema.Class<BaseSystemFields>("BaseSystem
   }),
   status: Schema.Literal("active", "inactive").annotations({
     description: "The status of the record",
-    [BSUiConfig]: {
+    [BSUIConfig]: {
       field: {
         hidden: true,
       },
@@ -107,7 +107,7 @@ export class BaseSystemFields extends Schema.Class<BaseSystemFields>("BaseSystem
   }),
   tags: JsonStringToStringArray.annotations({
     description: "The tags for the record",
-    [BSUiConfig]: {
+    [BSUIConfig]: {
       field: {
         hidden: true,
       },
@@ -118,7 +118,7 @@ export class BaseSystemFields extends Schema.Class<BaseSystemFields>("BaseSystem
   }),
   updatedAt: TimestampToIsoString.pipe(Schema.NullOr, Schema.optional).annotations({
     description: "The datetime the record was updated",
-    [BSUiConfig]: {
+    [BSUIConfig]: {
       field: {
         hidden: true,
       },
@@ -132,7 +132,7 @@ export class BaseSystemFields extends Schema.Class<BaseSystemFields>("BaseSystem
   }),
   updatedBy: Schema.String.pipe(Schema.NullOr, Schema.optional).annotations({
     description: "The typeid of the user who updated the record",
-    [BSUiConfig]: {
+    [BSUIConfig]: {
       field: {
         hidden: true,
       },
@@ -153,7 +153,7 @@ export class BaseIdentifiedEntity extends Schema.Class<BaseIdentifiedEntity>("Ba
     })
   ).annotations({
     description: "The external ids for the record (e.g. PCO, CCB, etc.)",
-    [BSUiConfig]: {
+    [BSUIConfig]: {
       field: {
         hidden: true,
       },
@@ -165,7 +165,7 @@ export class BaseIdentifiedEntity extends Schema.Class<BaseIdentifiedEntity>("Ba
   }),
   id: Schema.String.annotations({
     description: "The typeid for the record",
-    [BSUiConfig]: {
+    [BSUIConfig]: {
       field: {
         hidden: true,
       },
@@ -177,7 +177,7 @@ export class BaseIdentifiedEntity extends Schema.Class<BaseIdentifiedEntity>("Ba
   }),
   orgId: Schema.String.annotations({
     description: "The typeid for the organization",
-    [BSUiConfig]: {
+    [BSUIConfig]: {
       field: {
         hidden: true,
       },

@@ -158,3 +158,5 @@ export const make = <const TableName extends string, const Brand extends string>
   // hide the fact it extends SchemaClass
   return WithStatics;
 };
+
+export const getEntityId = <TableName extends string>(entityId: Type<TableName>) => F.pipe(entityId);

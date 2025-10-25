@@ -1,14 +1,49 @@
+import { stringLiteralKit } from "@beep/schema/kits";
 import * as S from "effect/Schema";
 
+export const FormFieldTypeKit = stringLiteralKit("object", "string", "number", "integer", "boolean", "array", "null");
+
+export class FormFieldType extends FormFieldTypeKit.Schema.annotations({
+  schemaId: Symbol.for("@beep/schema/form/FormFieldType"),
+  identifier: "FormFieldType",
+  title: "Form Field Type",
+  description: "The type of the form field.",
+}) {
+  static readonly Options = FormFieldTypeKit.Options;
+  static readonly Enum = FormFieldTypeKit.Enum;
+}
+
+export declare namespace FormFieldType {
+  export type Type = typeof FormFieldType.Type;
+  export type Encoded = typeof FormFieldType.Encoded;
+}
+
+export const FormFieldFormatKit = stringLiteralKit("email", "date", "time", "date-time", "uri", "uuid");
+
+export class FormFieldFormat extends FormFieldFormatKit.Schema.annotations({
+  schemaId: Symbol.for("@beep/schema/form/FormFieldFormat"),
+  identifier: "FormFieldFormat",
+  title: "Form Field Format",
+  description: "The format of the form field.",
+}) {
+  static readonly Options = FormFieldFormatKit.Options;
+  static readonly Enum = FormFieldFormatKit.Enum;
+}
+
+export declare namespace FormFieldFormat {
+  export type Type = typeof FormFieldFormat.Type;
+  export type Encoded = typeof FormFieldFormat.Encoded;
+}
+
 export type FormFieldSchema = {
-  readonly type?: "object" | "string" | "number" | "integer" | "boolean" | "array" | "null" | undefined;
+  readonly type?: FormFieldType.Type | undefined;
   readonly title?: string | undefined;
   readonly description?: string | undefined;
   readonly default?: unknown | undefined;
   readonly minLength?: number | undefined;
   readonly maxLength?: number | undefined;
   readonly pattern?: string | undefined;
-  readonly format?: "email" | "date" | "time" | "date-time" | "uri" | "uuid" | string | undefined;
+  readonly format?: FormFieldFormat.Type | string | undefined;
   readonly minimum?: number | undefined;
   readonly maximum?: number | undefined;
   readonly exclusiveMinimum?: number | undefined;
@@ -35,7 +70,7 @@ export type FormFieldSchema = {
 };
 
 export const FormFieldSchema = S.Struct({
-  type: S.optional(S.Literal("object", "string", "number", "integer", "boolean", "array", "null")),
+  type: S.optional(FormFieldType),
   title: S.optional(S.String),
   description: S.optional(S.String),
   default: S.optional(S.Unknown),
@@ -44,7 +79,7 @@ export const FormFieldSchema = S.Struct({
   minLength: S.optional(S.Number),
   maxLength: S.optional(S.Number),
   pattern: S.optional(S.String),
-  format: S.optional(S.Union(S.Literal("email", "date", "time", "date-time", "uri", "uuid"), S.String)),
+  format: S.optional(S.Union(FormFieldFormat, S.String)),
 
   // Number
   minimum: S.optional(S.Number),

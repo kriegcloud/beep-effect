@@ -10,3 +10,4 @@ export * from "@beep/utils/object/path";
 export * from "@beep/utils/sync.utils";
 export * from "@beep/utils/timing";
 export * from "@beep/utils/transformations";
+export * from "./const";

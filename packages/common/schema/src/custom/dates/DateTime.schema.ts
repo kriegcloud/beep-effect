@@ -1,6 +1,8 @@
 import * as DateTime from "effect/DateTime";
+import * as F from "effect/Function";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 export const DateTimeUtcByInstantSchemaId = Symbol.for("@beep/schema/custom/DateTimeUtcByInstant");
 
@@ -94,3 +96,12 @@ export declare namespace DateTimeUtcFromAllAcceptable {
   export type Type = typeof DateTimeUtcFromAllAcceptable.Type;
   export type Encoded = typeof DateTimeUtcFromAllAcceptable.Encoded;
 }
+
+export const normalizeIsoString = (dateValue: number | string | Date): string =>
+  F.pipe(new Date(dateValue).toISOString(), Str.replace(/\.\d{3}Z$/, "Z"));
+
+export const IsoStringToTimestamp = S.transform(S.Union(S.String, S.Number), S.Number, {
+  decode: (input: string | number) => new Date(input).getTime(),
+  encode: normalizeIsoString,
+  strict: true,
+});
