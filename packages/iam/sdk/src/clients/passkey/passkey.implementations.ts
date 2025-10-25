@@ -12,7 +12,9 @@ import {
 } from "@beep/iam-sdk/clients/passkey/passkey.contracts";
 import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
 import { IamError } from "@beep/iam-sdk/errors";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import * as S from "effect/Schema";
 
 const metadataFactory = new MetadataFactory("passkey");
@@ -69,17 +71,29 @@ const PasskeyListHandler = Effect.fn("PasskeyListHandler")(
       }
     );
 
-    const result = yield* continuation.run((handlers) =>
-      client.passkey.listUserPasskeys(undefined, withFetchOptions(handlers))
+    return yield* F.pipe(
+      continuation.run((handlers) => client.passkey.listUserPasskeys(undefined, withFetchOptions(handlers))),
+      Effect.flatMap((result) =>
+        Effect.gen(function* () {
+          if (result.data == null) {
+            return yield* new IamError(
+              {},
+              "PasskeyListHandler returned no payload from Better Auth",
+              PasskeyListMetadata()
+            );
+          }
+
+          yield* continuation.raiseResult(result);
+
+          return yield* S.decodeUnknown(PasskeyListContract.successSchema)(
+            A.map(result.data, (passkey) => ({
+              id: passkey.id,
+              name: passkey.name,
+            }))
+          );
+        })
+      )
     );
-
-    yield* continuation.raiseResult(result);
-
-    if (result.data == null) {
-      return yield* new IamError({}, "PasskeyListHandler returned no payload from Better Auth", PasskeyListMetadata());
-    }
-
-    return yield* S.decodeUnknown(PasskeyListContract.successSchema)(result.data);
   },
   Effect.catchTags({ ParseError: (error) => Effect.fail(IamError.match(error, PasskeyListMetadata())) })
 );

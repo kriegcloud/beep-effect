@@ -1,20 +1,17 @@
 import { formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
-import { usePasskeyAdd, usePasskeyUpdate } from "./passkey.atoms";
-import { PasskeyAddPayload, PasskeyUpdatePayload } from "./passkey.contracts";
+import * as S from "effect/Schema";
+import { usePasskeyCRUD } from "./passkey.atoms";
+import { PasskeyAddPayload, PasskeyUpdatePayload, type PasskeyView } from "./passkey.contracts";
 
-export const usePasskeyAddForm = () => {
-  const { addPasskey } = usePasskeyAdd();
-
+export const useAddPasskeyForm = () => {
+  const { addPasskey } = usePasskeyCRUD();
   const form = useAppForm(
     formOptionsWithSubmitEffect({
       schema: PasskeyAddPayload,
       defaultValues: {
         name: "",
       },
-      onSubmit: async (value) => {
-        await addPasskey(value);
-        form.reset();
-      },
+      onSubmit: async (value) => addPasskey(value),
     })
   );
 
@@ -23,13 +20,26 @@ export const usePasskeyAddForm = () => {
   };
 };
 
-export const usePasskeyUpdateForm = (defaultValues: PasskeyUpdatePayload.Encoded) => {
-  const { updatePasskey } = usePasskeyUpdate();
+type UsePasskeyUpdateFormProps = {
+  readonly defaultValues: PasskeyView.Type;
+  readonly onDone: () => void;
+};
+
+export const useUpdatePasskeyForm = ({ defaultValues, onDone }: UsePasskeyUpdateFormProps) => {
+  const { updatePasskey } = usePasskeyCRUD();
   const form = useAppForm(
     formOptionsWithSubmitEffect({
-      schema: PasskeyUpdatePayload,
-      defaultValues,
-      onSubmit: async (value) => updatePasskey(value),
+      schema: PasskeyUpdatePayload.pipe(S.pick("name")),
+      defaultValues: {
+        name: defaultValues.name,
+      },
+      onSubmit: async (value) => {
+        updatePasskey({
+          name: value.name,
+          id: defaultValues.id,
+        });
+        onDone();
+      },
     })
   );
 

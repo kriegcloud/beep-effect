@@ -1,4 +1,5 @@
 export * from "./organization";
+export * from "./passkey";
 export * from "./recover";
 export * from "./sign-in";
 export * from "./sign-up";

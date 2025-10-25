@@ -5,7 +5,7 @@ import * as pg from "drizzle-orm/pg-core";
 
 export const passkey = OrgTable.make(IamEntityIds.PasskeyId)(
   {
-    name: pg.text("name"),
+    name: pg.text("name").notNull(),
     publicKey: pg.text("public_key").notNull(),
     userId: pg
       .text("user_id")

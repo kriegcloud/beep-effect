@@ -6,35 +6,12 @@ import * as S from "effect/Schema";
 
 import { IamError } from "../../errors";
 
-export class PasskeyView extends BS.Class<PasskeyView>("PasskeyView")(
-  Passkey.Model.select.pick(
-    "id",
-    "name",
-    "userId",
-    "organizationId",
-    "credentialID",
-    "publicKey",
-    "counter",
-    "deviceType",
-    "backedUp",
-    "transports",
-    "aaguid",
-    "createdAt",
-    "updatedAt",
-    "version",
-    "source",
-    "deletedAt",
-    "createdBy",
-    "updatedBy",
-    "deletedBy"
-  ),
-  {
-    schemaId: Symbol.for("@beep/iam-sdk/clients/passkey/PasskeyView"),
-    identifier: "PasskeyView",
-    title: "Passkey View",
-    description: "Represents a passkey credential managed by Better Auth.",
-  }
-) {}
+export class PasskeyView extends BS.Class<PasskeyView>("PasskeyView")(Passkey.Model.select.pick("id", "name"), {
+  schemaId: Symbol.for("@beep/iam-sdk/clients/passkey/PasskeyView"),
+  identifier: "PasskeyView",
+  title: "Passkey View",
+  description: "Represents a passkey credential managed by Better Auth.",
+}) {}
 
 export declare namespace PasskeyView {
   export type Type = S.Schema.Type<typeof PasskeyView>;
@@ -99,10 +76,10 @@ export const PasskeyDeleteContract = Contract.make("PasskeyDelete", {
 });
 
 export class PasskeyUpdatePayload extends BS.Class<PasskeyUpdatePayload>("PasskeyUpdatePayload")(
-  S.Struct({
+  {
     id: IamEntityIds.PasskeyId,
-    ...Passkey.Model.update.pick("name").fields,
-  }),
+    name: S.NonEmptyTrimmedString,
+  },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/passkey/PasskeyUpdatePayload"),
     identifier: "PasskeyUpdatePayload",

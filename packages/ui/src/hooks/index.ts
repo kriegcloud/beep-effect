@@ -1,4 +1,5 @@
 export * from "../form/useAppForm";
+export * from "./stable-hooks";
 export * from "./use-back-to-top";
 export { useBoolean } from "./use-boolean";
 export * from "./use-callback-ref";
@@ -10,6 +11,7 @@ export * from "./use-hash";
 export * from "./use-hash-scroll-into-view";
 export * from "./use-image-dimensions";
 export { useIsClient } from "./use-is-client";
+export * from "./use-is-pwa";
 export { useIsomorphicLayoutEffect } from "./use-isomorphic-layout-effect";
 export { useLocalStorage } from "./use-local-storage";
 export { useParams } from "./use-params";

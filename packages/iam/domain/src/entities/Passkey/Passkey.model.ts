@@ -12,12 +12,10 @@ export const PasskeyModelSchemaId = Symbol.for("@beep/iam-domain/PasskeyModel");
  */
 export class Model extends M.Class<Model>(`PasskeyModel`)(
   makeFields(IamEntityIds.PasskeyId, {
-    name: BS.FieldOptionOmittable(
-      S.NonEmptyString.annotations({
-        description: "User-friendly name for the passkey device",
-        examples: ["iPhone", "YubiKey", "Windows Hello"],
-      })
-    ),
+    name: BS.NameAttribute.annotations({
+      description: "User-friendly name for the passkey device",
+      examples: ["iPhone", "YubiKey", "Windows Hello"],
+    }),
     /** User this passkey belongs to */
     userId: SharedEntityIds.UserId.annotations({
       description: "ID of the user this passkey belongs to",
