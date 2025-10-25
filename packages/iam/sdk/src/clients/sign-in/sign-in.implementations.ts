@@ -1,4 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
+import { MetadataFactory, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import { SignInContractKit } from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
 import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
 import * as Effect from "effect/Effect";
@@ -10,16 +11,22 @@ import type {
   SignInUsernamePayload,
 } from "./sign-in.contracts";
 
+const metadataFactory = new MetadataFactory("sign-in");
+
+const SignInSocialMetadata = metadataFactory.make("social");
+const SignInEmailMetadata = metadataFactory.make("email");
+const SignInUsernameMetadata = metadataFactory.make("username");
+const SignInPhoneNumberMetadata = metadataFactory.make("phoneNumber");
+const SignInOneTapMetadata = metadataFactory.make("oneTap");
+const SignInPasskeyMetadata = metadataFactory.make("passkey");
+
 // =====================================================================================================================
 // Sign In Social Handler
 // =====================================================================================================================
 const SignInSocialHandler = Effect.fn("SignInSocialHandler")(function* (payload: SignInSocialPayload.Type) {
   const continuation = makeFailureContinuation({
     contract: "SignInSocial",
-    metadata: () => ({
-      plugin: "signIn",
-      method: "social",
-    }),
+    metadata: SignInSocialMetadata,
   });
   yield* Effect.flatMap(
     continuation.run((handlers) =>
@@ -28,14 +35,7 @@ const SignInSocialHandler = Effect.fn("SignInSocialHandler")(function* (payload:
           provider: payload.provider,
           callbackURL: payload.callbackURL,
         },
-        handlers.signal
-          ? {
-              onError: handlers.onError,
-              signal: handlers.signal,
-            }
-          : {
-              onError: handlers.onError,
-            }
+        withFetchOptions(handlers)
       )
     ),
     continuation.raiseResult
@@ -47,10 +47,7 @@ const SignInSocialHandler = Effect.fn("SignInSocialHandler")(function* (payload:
 const SignInEmailHandler = Effect.fn("SignInEmailHandler")(function* (payload: SignInEmailPayload.Type) {
   const continuation = makeFailureContinuation({
     contract: "SignInEmail",
-    metadata: () => ({
-      plugin: "signIn",
-      method: "email",
-    }),
+    metadata: SignInEmailMetadata,
   });
 
   const result = yield* continuation.run((handlers) =>
@@ -58,20 +55,11 @@ const SignInEmailHandler = Effect.fn("SignInEmailHandler")(function* (payload: S
       email: Redacted.value(payload.email),
       password: Redacted.value(payload.password),
       rememberMe: payload.rememberMe,
-      fetchOptions: handlers.signal
-        ? {
-            headers: {
-              "x-captcha-response": Redacted.value(payload.captchaResponse),
-            },
-            onError: handlers.onError,
-            signal: handlers.signal,
-          }
-        : {
-            headers: {
-              "x-captcha-response": Redacted.value(payload.captchaResponse),
-            },
-            onError: handlers.onError,
-          },
+      fetchOptions: withFetchOptions(handlers, {
+        headers: {
+          "x-captcha-response": Redacted.value(payload.captchaResponse),
+        },
+      }),
     })
   );
 
@@ -89,10 +77,7 @@ const SignInUsernameHandler = Effect.fn("SignInUsernameHandler")(function* (payl
 
   const continuation = makeFailureContinuation({
     contract: "SignInUsername",
-    metadata: () => ({
-      plugin: "signIn",
-      method: "username",
-    }),
+    metadata: SignInUsernameMetadata,
   });
   yield* Effect.flatMap(
     continuation.run((handlers) =>
@@ -101,20 +86,11 @@ const SignInUsernameHandler = Effect.fn("SignInUsernameHandler")(function* (payl
         password: Redacted.value(password),
         rememberMe: rememberMe,
         callbackURL: callbackURL,
-        fetchOptions: handlers.signal
-          ? {
-              headers: {
-                "x-captcha-response": Redacted.value(captchaResponse),
-              },
-              onError: handlers.onError,
-              signal: handlers.signal,
-            }
-          : {
-              headers: {
-                "x-captcha-response": Redacted.value(captchaResponse),
-              },
-              onError: handlers.onError,
-            },
+        fetchOptions: withFetchOptions(handlers, {
+          headers: {
+            "x-captcha-response": Redacted.value(captchaResponse),
+          },
+        }),
       })
     ),
     (result) => {
@@ -134,10 +110,7 @@ const SignInPhoneNumberHandler = Effect.fn("SignInPhoneNumberHandler")(function*
 ) {
   const continuation = makeFailureContinuation({
     contract: "SignInPhoneNumber",
-    metadata: () => ({
-      plugin: "signIn",
-      method: "phoneNumber",
-    }),
+    metadata: SignInPhoneNumberMetadata,
   });
   yield* Effect.flatMap(
     continuation.run((handlers) =>
@@ -145,20 +118,11 @@ const SignInPhoneNumberHandler = Effect.fn("SignInPhoneNumberHandler")(function*
         phoneNumber: Redacted.value(payload.phoneNumber),
         password: Redacted.value(payload.password),
         rememberMe: payload.rememberMe,
-        fetchOptions: handlers.signal
-          ? {
-              headers: {
-                "x-captcha-response": Redacted.value(payload.captchaResponse),
-              },
-              onError: handlers.onError,
-              signal: handlers.signal,
-            }
-          : {
-              headers: {
-                "x-captcha-response": Redacted.value(payload.captchaResponse),
-              },
-              onError: handlers.onError,
-            },
+        fetchOptions: withFetchOptions(handlers, {
+          headers: {
+            "x-captcha-response": Redacted.value(payload.captchaResponse),
+          },
+        }),
       })
     ),
     (result) => {
@@ -175,19 +139,11 @@ const SignInPhoneNumberHandler = Effect.fn("SignInPhoneNumberHandler")(function*
 const SignInOneTapHandler = Effect.fn("SignInOneTapHandler")(function* () {
   const continuation = makeFailureContinuation({
     contract: "SignInOneTap",
-    metadata: () => ({
-      plugin: "oneTap",
-      method: "signIn",
-    }),
+    metadata: SignInOneTapMetadata,
   });
   yield* continuation.run((handlers) =>
     client.oneTap({
-      fetchOptions: handlers.signal
-        ? {
-            onError: handlers.onError,
-            signal: handlers.signal,
-          }
-        : { onError: handlers.onError },
+      fetchOptions: withFetchOptions(handlers),
     })
   );
 });
@@ -197,21 +153,13 @@ const SignInOneTapHandler = Effect.fn("SignInOneTapHandler")(function* () {
 const SignInPasskeyHandler = Effect.fn("SignInPasskey")(function* () {
   const continuation = makeFailureContinuation({
     contract: "SignInPasskey",
-    metadata: () => ({
-      plugin: "signIn",
-      method: "passkey",
-    }),
+    metadata: SignInPasskeyMetadata,
   });
 
   yield* Effect.flatMap(
     continuation.run((handlers) =>
       client.signIn.passkey({
-        fetchOptions: handlers.signal
-          ? {
-              onError: handlers.onError,
-              signal: handlers.signal,
-            }
-          : { onError: handlers.onError },
+        fetchOptions: withFetchOptions(handlers),
       })
     ),
     (result) => {

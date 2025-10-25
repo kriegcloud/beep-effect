@@ -56,9 +56,11 @@
     "@beep/ui-core": "workspace:^",
     "@beep/core-env": "workspace:^",
     "@beep/shared-domain": "workspace:^",
-    "@beep/iam-domain": "workspace:^"
+    "@beep/iam-domain": "workspace:^",
+    "@better-fetch/fetch": "catalog:"
   },
   "devDependencies": {
+    "@better-fetch/fetch": "catalog:",
     "mutative": "catalog:",
     "@beep/runtime-client": "workspace:^",
     "@effect-atom/atom-react": "catalog:",

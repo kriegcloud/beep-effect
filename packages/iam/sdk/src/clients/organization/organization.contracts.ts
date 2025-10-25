@@ -823,77 +823,6 @@ export declare namespace OrganizationRoleListPayload {
   export type Type = S.Schema.Type<typeof OrganizationRoleListPayload>;
   export type Encoded = S.Schema.Encoded<typeof OrganizationRoleListPayload>;
 }
-//
-// export class OrganizationRoleGetPayload extends BS.Class<OrganizationRoleGetPayload>(
-//   "OrganizationRoleGetPayload"
-// )(S.Struct(OrganizationRoleIdentifierFields), {
-//   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationRoleGetPayload"),
-//   identifier: "OrganizationRoleGetPayload",
-//   title: "Organization Role Get Payload",
-//   description: "Payload identifying the organization role to retrieve.",
-// }) {}
-//
-// export declare namespace OrganizationRoleGetPayload {
-//   export type Type = S.Schema.Type<typeof OrganizationRoleGetPayload>;
-//   export type Encoded = S.Schema.Encoded<typeof OrganizationRoleGetPayload>;
-// }
-//
-// const OrganizationRoleUpdateDataFields = {
-//   permission: S.optional(PolicyRecord),
-//   roleName: S.optional(S.String),
-// } as const;
-//
-// export class OrganizationRoleUpdateData extends BS.Class<OrganizationRoleUpdateData>(
-//   "OrganizationRoleUpdateData"
-// )(S.Struct(OrganizationRoleUpdateDataFields), {
-//   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationRoleUpdateData"),
-//   identifier: "OrganizationRoleUpdateData",
-//   title: "Organization Role Update Data",
-//   description: "Mutable fields for updating an organization role.",
-// }) {}
-//
-// export declare namespace OrganizationRoleUpdateData {
-//   export type Type = S.Schema.Type<typeof OrganizationRoleUpdateData>;
-//   export type Encoded = S.Schema.Encoded<typeof OrganizationRoleUpdateData>;
-// }
-//
-// const OrganizationRoleUpdatePayloadFields = {
-//   ...OrganizationRoleIdentifierFields,
-//   data: OrganizationRoleUpdateData,
-// } as const;
-//
-// export class OrganizationRoleUpdatePayload extends BS.Class<OrganizationRoleUpdatePayload>(
-//   "OrganizationRoleUpdatePayload"
-// )(S.Struct(OrganizationRoleUpdatePayloadFields), {
-//   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationRoleUpdatePayload"),
-//   identifier: "OrganizationRoleUpdatePayload",
-//   title: "Organization Role Update Payload",
-//   description: "Payload for updating a dynamic access-control role.",
-// }) {}
-//
-// export declare namespace OrganizationRoleUpdatePayload {
-//   export type Type = S.Schema.Type<typeof OrganizationRoleUpdatePayload>;
-//   export type Encoded = S.Schema.Encoded<typeof OrganizationRoleUpdatePayload>;
-// }
-//
-// const OrganizationRoleUpdateSuccessFields = {
-//   success: S.Boolean,
-//   roleData: OrganizationRoleView,
-// } as const;
-//
-// export class OrganizationRoleUpdateSuccess extends BS.Class<OrganizationRoleUpdateSuccess>(
-//   "OrganizationRoleUpdateSuccess"
-// )(S.Struct(OrganizationRoleUpdateSuccessFields), {
-//   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationRoleUpdateSuccess"),
-//   identifier: "OrganizationRoleUpdateSuccess",
-//   title: "Organization Role Update Success",
-//   description: "Response returned after updating an organization role.",
-// }) {}
-//
-// export declare namespace OrganizationRoleUpdateSuccess {
-//   export type Type = S.Schema.Type<typeof OrganizationRoleUpdateSuccess>;
-//   export type Encoded = S.Schema.Encoded<typeof OrganizationRoleUpdateSuccess>;
-// }
 
 export const OrganizationCreateContract = Contract.make("OrganizationCreate", {
   description: "Creates a new organization.",
@@ -1056,20 +985,6 @@ export const OrganizationListRolesContract = Contract.make("OrganizationListRole
   success: S.Array(OrganizationRoleView),
 });
 
-// export const OrganizationGetRoleContract = Contract.make("OrganizationGetRole", {
-//   description: "Retrieves a specific dynamic access-control role.",
-//   parameters: OrganizationRoleGetPayload.fields,
-//   failure: S.instanceOf(IamError),
-//   success: OrganizationRoleView,
-// });
-//
-// export const OrganizationUpdateRoleContract = Contract.make("OrganizationUpdateRole", {
-//   description: "Updates metadata and permissions associated with a dynamic role.",
-//   parameters: OrganizationRoleUpdatePayload.fields,
-//   failure: S.instanceOf(IamError),
-//   success: OrganizationRoleUpdateSuccess,
-// });
-
 export const OrganizationContractKit = ContractKit.make(
   OrganizationCreateContract,
   OrganizationCheckSlugContract,
@@ -1094,6 +1009,4 @@ export const OrganizationContractKit = ContractKit.make(
   OrganizationCreateRoleContract,
   OrganizationDeleteRoleContract,
   OrganizationListRolesContract
-  // OrganizationGetRoleContract,
-  // OrganizationUpdateRoleContract
 );

@@ -67,6 +67,7 @@ cluster but keeps reviewers in the loop.
 
 4. **Implementation (see SOP §3)**  
    - Use `Effect.fn` wrappers and `makeFailureContinuation`.  
+   - Import helper utilities from `@beep/iam-sdk/clients/_internal` (`MetadataFactory`, `withFetchOptions`, `addFetchOptions`, `requireData`, `decodeResult`, `compact`) instead of reimplementing fetch plumbing or null guards.  
    - Pass `handlers.signal` and `handlers.onError` correctly.  
    - Notify `$sessionSignal` when the call mutates session state.  
    - Decode success payloads with `S.decodeUnknown` (unless `S.Void`).
@@ -90,6 +91,7 @@ cluster but keeps reviewers in the loop.
 - During review, check:
   - Contract namespace exports
   - `makeFailureContinuation` metadata strings (must match plugin + method)
+  - Usage of the `_internal` helper utilities (`MetadataFactory`, `withFetchOptions`, `addFetchOptions`, `requireData`, `decodeResult`, `compact`) instead of ad-hoc implementations
   - Use of `Redacted.value` for secrets
   - Session notifications
   - Updated exports in `index.ts` files

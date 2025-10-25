@@ -1,4 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
+import { MetadataFactory, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   DeviceAuthorizationApproveContract,
   DeviceAuthorizationCodeContract,
@@ -16,61 +17,47 @@ import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
-const DeviceAuthorizationCodeMetadata = {
-  plugin: "device-authorization",
-  method: "code",
-} as const;
+const metadataFactory = new MetadataFactory("device-authorization");
 
-const DeviceAuthorizationTokenMetadata = {
-  plugin: "device-authorization",
-  method: "token",
-} as const;
+const DeviceAuthorizationCodeMetadata = metadataFactory.make("code");
 
-const DeviceAuthorizationStatusMetadata = {
-  plugin: "device-authorization",
-  method: "status",
-} as const;
+const DeviceAuthorizationTokenMetadata = metadataFactory.make("token");
 
-const DeviceAuthorizationApproveMetadata = {
-  plugin: "device-authorization",
-  method: "approve",
-} as const;
+const DeviceAuthorizationStatusMetadata = metadataFactory.make("status");
 
-const DeviceAuthorizationDenyMetadata = {
-  plugin: "device-authorization",
-  method: "deny",
-} as const;
+const DeviceAuthorizationApproveMetadata = metadataFactory.make("approve");
+
+const DeviceAuthorizationDenyMetadata = metadataFactory.make("deny");
 
 const DeviceAuthorizationCodeHandler = Effect.fn("DeviceAuthorizationCodeHandler")(
   function* (payload: DeviceAuthorizationCodePayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "DeviceAuthorizationCode",
-      metadata: () => DeviceAuthorizationCodeMetadata,
+      metadata: DeviceAuthorizationCodeMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
       client.device.code({
         client_id: payload.client_id,
         ...(payload.scope === undefined ? {} : { scope: payload.scope }),
-        fetchOptions: handlers.signal
-          ? { onError: handlers.onError, signal: handlers.signal }
-          : { onError: handlers.onError },
+        fetchOptions: withFetchOptions(handlers),
       })
     );
 
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "DeviceAuthorizationCodeHandler returned no payload from Better Auth", {
-        plugin: "device-authorization",
-        method: "code",
-      });
+      return yield* new IamError(
+        {},
+        "DeviceAuthorizationCodeHandler returned no payload from Better Auth",
+        DeviceAuthorizationCodeMetadata()
+      );
     }
 
     return yield* S.decodeUnknown(DeviceAuthorizationCodeContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationCodeMetadata)),
+    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationCodeMetadata())),
   })
 );
 
@@ -78,7 +65,7 @@ const DeviceAuthorizationTokenHandler = Effect.fn("DeviceAuthorizationTokenHandl
   function* (payload: DeviceAuthorizationTokenPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "DeviceAuthorizationToken",
-      metadata: () => DeviceAuthorizationTokenMetadata,
+      metadata: DeviceAuthorizationTokenMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -86,25 +73,24 @@ const DeviceAuthorizationTokenHandler = Effect.fn("DeviceAuthorizationTokenHandl
         grant_type: payload.grant_type,
         device_code: payload.device_code,
         client_id: payload.client_id,
-        fetchOptions: handlers.signal
-          ? { onError: handlers.onError, signal: handlers.signal }
-          : { onError: handlers.onError },
+        fetchOptions: withFetchOptions(handlers),
       })
     );
 
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "DeviceAuthorizationTokenHandler returned no payload from Better Auth", {
-        plugin: "device-authorization",
-        method: "token",
-      });
+      return yield* new IamError(
+        {},
+        "DeviceAuthorizationTokenHandler returned no payload from Better Auth",
+        DeviceAuthorizationTokenMetadata()
+      );
     }
 
     return yield* S.decodeUnknown(DeviceAuthorizationTokenContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationTokenMetadata)),
+    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationTokenMetadata())),
   })
 );
 
@@ -112,7 +98,7 @@ const DeviceAuthorizationStatusHandler = Effect.fn("DeviceAuthorizationStatusHan
   function* (payload: DeviceAuthorizationStatusPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "DeviceAuthorizationStatus",
-      metadata: () => DeviceAuthorizationStatusMetadata,
+      metadata: DeviceAuthorizationStatusMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -120,25 +106,24 @@ const DeviceAuthorizationStatusHandler = Effect.fn("DeviceAuthorizationStatusHan
         query: {
           user_code: payload.user_code,
         },
-        fetchOptions: handlers.signal
-          ? { onError: handlers.onError, signal: handlers.signal }
-          : { onError: handlers.onError },
+        fetchOptions: withFetchOptions(handlers),
       })
     );
 
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "DeviceAuthorizationStatusHandler returned no payload from Better Auth", {
-        plugin: "device-authorization",
-        method: "status",
-      });
+      return yield* new IamError(
+        {},
+        "DeviceAuthorizationStatusHandler returned no payload from Better Auth",
+        DeviceAuthorizationStatusMetadata()
+      );
     }
 
     return yield* S.decodeUnknown(DeviceAuthorizationStatusContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationStatusMetadata)),
+    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationStatusMetadata())),
   })
 );
 
@@ -146,31 +131,30 @@ const DeviceAuthorizationApproveHandler = Effect.fn("DeviceAuthorizationApproveH
   function* (payload: DeviceAuthorizationDecisionPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "DeviceAuthorizationApprove",
-      metadata: () => DeviceAuthorizationApproveMetadata,
+      metadata: DeviceAuthorizationApproveMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
       client.device.approve({
         userCode: payload.userCode,
-        fetchOptions: handlers.signal
-          ? { onError: handlers.onError, signal: handlers.signal }
-          : { onError: handlers.onError },
+        fetchOptions: withFetchOptions(handlers),
       })
     );
 
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "DeviceAuthorizationApproveHandler returned no payload from Better Auth", {
-        plugin: "device-authorization",
-        method: "approve",
-      });
+      return yield* new IamError(
+        {},
+        "DeviceAuthorizationApproveHandler returned no payload from Better Auth",
+        DeviceAuthorizationApproveMetadata()
+      );
     }
 
     return yield* S.decodeUnknown(DeviceAuthorizationApproveContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationApproveMetadata)),
+    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationApproveMetadata())),
   })
 );
 
@@ -178,31 +162,30 @@ const DeviceAuthorizationDenyHandler = Effect.fn("DeviceAuthorizationDenyHandler
   function* (payload: DeviceAuthorizationDecisionPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "DeviceAuthorizationDeny",
-      metadata: () => DeviceAuthorizationDenyMetadata,
+      metadata: DeviceAuthorizationDenyMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
       client.device.deny({
         userCode: payload.userCode,
-        fetchOptions: handlers.signal
-          ? { onError: handlers.onError, signal: handlers.signal }
-          : { onError: handlers.onError },
+        fetchOptions: withFetchOptions(handlers),
       })
     );
 
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "DeviceAuthorizationDenyHandler returned no payload from Better Auth", {
-        plugin: "device-authorization",
-        method: "deny",
-      });
+      return yield* new IamError(
+        {},
+        "DeviceAuthorizationDenyHandler returned no payload from Better Auth",
+        DeviceAuthorizationDenyMetadata()
+      );
     }
 
     return yield* S.decodeUnknown(DeviceAuthorizationDenyContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationDenyMetadata)),
+    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationDenyMetadata())),
   })
 );
 

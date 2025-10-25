@@ -1,20 +1,28 @@
 import { client } from "@beep/iam-sdk/adapters";
+import { MetadataFactory, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import { TwoFactorContractKit } from "@beep/iam-sdk/clients/two-factor/two-factor.contracts";
 import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import type { VerifyOtpPayload, VerifyTotpPayload } from "./two-factor.contracts";
 
+const metadataFactory = new MetadataFactory("two-factor");
+
+const SendOtpMetadata = metadataFactory.make("sendOtp");
+const VerifyOtpMetadata = metadataFactory.make("verifyOtp");
+const VerifyTotpMetadata = metadataFactory.make("verifyTotp");
+
 const SendOtpHandler = Effect.fn("SendOtpContract")(function* () {
   const continuation = makeFailureContinuation({
     contract: "SendOtpContract",
-    metadata: () => ({
-      plugin: "two-factor",
-      method: "sendOtp",
-    }),
+    metadata: SendOtpMetadata,
   });
 
-  const result = yield* continuation.run(() => client.twoFactor.sendOtp());
+  const result = yield* continuation.run((handlers) =>
+    client.twoFactor.sendOtp({
+      fetchOptions: withFetchOptions(handlers),
+    })
+  );
 
   yield* continuation.raiseResult(result);
 });
@@ -22,15 +30,13 @@ const SendOtpHandler = Effect.fn("SendOtpContract")(function* () {
 const VerifyOtpHandler = Effect.fn("VerifyOtpHandler")(function* (payload: VerifyOtpPayload.Type) {
   const continuation = makeFailureContinuation({
     contract: "VerifyOtpContract",
-    metadata: () => ({
-      plugin: "two-factor",
-      method: "verifyOtp",
-    }),
+    metadata: VerifyOtpMetadata,
   });
 
-  const result = yield* continuation.run(() =>
+  const result = yield* continuation.run((handlers) =>
     client.twoFactor.verifyOtp({
       code: Redacted.value(payload.code),
+      fetchOptions: withFetchOptions(handlers),
     })
   );
 
@@ -40,15 +46,13 @@ const VerifyOtpHandler = Effect.fn("VerifyOtpHandler")(function* (payload: Verif
 const VerifyTotpHandler = Effect.fn("VerifyTotpHandler")(function* (payload: VerifyTotpPayload.Type) {
   const continuation = makeFailureContinuation({
     contract: "VerifyTotpContract",
-    metadata: () => ({
-      plugin: "two-factor",
-      method: "verifyTotp",
-    }),
+    metadata: VerifyTotpMetadata,
   });
 
-  const result = yield* continuation.run(() =>
+  const result = yield* continuation.run((handlers) =>
     client.twoFactor.verifyTotp({
       code: Redacted.value(payload.code),
+      fetchOptions: withFetchOptions(handlers),
     })
   );
 

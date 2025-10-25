@@ -80,25 +80,39 @@ Use `jetbrains__reformat_file` when the schema file needs formatting consistency
 
 1. Open the sibling implementation file →  
    `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/sdk/src/clients/<feature>/<feature>.implementations.ts"}`
-2. Create an Effect handler:
+2. Import and reuse the shared helpers from `@beep/iam-sdk/clients/_internal`:
+   - `MetadataFactory` — build `() => ({ plugin, method })` factories once per file and pass them to `makeFailureContinuation`.
+   - `withFetchOptions` / `addFetchOptions` — attach `handlers.onError` + `handlers.signal` to Better Auth calls (and merge extra headers when needed).
+   - `requireData` — fail fast with a tagged `IamError` when Better Auth returns `null`/`undefined`.
+   - `decodeResult` — synchronously decode responses with the contract success schema and surface helpful parser errors.
+   - `compact` — strip `undefined` entries from encoded query objects before passing them to adapters.
+3. Create an Effect handler using those helpers:
    ```ts
+   import {
+     MetadataFactory,
+     addFetchOptions,
+     decodeResult,
+     requireData,
+     withFetchOptions,
+   } from "@beep/iam-sdk/clients/_internal";
+
+   const metadataFactory = new MetadataFactory("<plugin>");
+   const FooMetadata = metadataFactory.make("<method>");
+
    const FooHandler = Effect.fn("FooHandler")(function* (payload: FooPayload.Type) {
      const continuation = makeFailureContinuation({
        contract: "Foo",
-       metadata: () => ({ plugin: "<plugin>", method: "<method>" }),
+       metadata: FooMetadata,
      }, { supportsAbort: true /* when Better Auth accepts AbortSignal */ });
 
      const encodedPayload = yield* S.encodeUnknown(FooPayload)(payload);
 
      const result = yield* continuation.run((handlers) =>
        client.<plugin>.<method>(
-         {
+         addFetchOptions(handlers, {
            // spread encoded payload fields, wrap secrets with Redacted.value
            ...encodedPayload,
-           fetchOptions: handlers.signal
-             ? { signal: handlers.signal, onError: handlers.onError }
-             : { onError: handlers.onError },
-         }
+         })
        )
      );
 
@@ -108,22 +122,18 @@ Use `jetbrains__reformat_file` when the schema file needs formatting consistency
        client.$store.notify("$sessionSignal");
      }
 
-     if (result.data == null) {
-       return yield* new IamError(
-         new Error("Missing Foo response"),
-         "FooHandler returned no payload from Better Auth",
-         { plugin: "<plugin>", method: "<method>" }
-       );
-     }
+     const data = yield* requireData(result.data, "FooHandler", FooMetadata());
 
-     return yield* S.decodeUnknown(FooSuccess)(result.data);
-   });
+     return yield* decodeResult(FooSuccess, "FooHandler", data);
+   }, Effect.catchTags({
+     ParseError: (error) => Effect.fail(IamError.match(error, FooMetadata())),
+   }));
    ```
    - Use `Redacted.value` for secrets/tokens.
-   - Encode outbound payloads with the contract schema (for example `S.encodeUnknown(FooPayload)(payload)`) before spreading into the Better Auth adapter so runtime expectations stay aligned with domain typing.
-   - Pass `handlers.signal` + `handlers.onError` via `fetchOptions` when the Better Auth API supports aborts.
-   - Decode the success payload with `S.decodeUnknown` and surface `IamError` only. Any `ParseError` should be converted via `Effect.fail(IamError.match(error, metadata))`.
-3. Register the handler inside `ContractKit.of({ ... })`.
+   - Encode outbound payloads with the contract schema (for example `S.encodeUnknown(FooPayload)(payload)`) before handing them to Better Auth.
+   - Prefer `addFetchOptions` for body/JSON payloads and `withFetchOptions` for methods that accept separate `fetchOptions`.
+   - Convert `ParseError` through `Effect.fail(IamError.match(error, metadata))` so failures remain typed.
+4. Register the handler inside `ContractKit.of({ ... })`.
 
 If the response is `S.Void`, omit the decode/return block. Wrap additional parsing failures with `Effect.catchTags`
 to convert `ParseError` into tagged `IamError` failures instead of defects. For unexpected `null`/`undefined` payloads,
@@ -158,6 +168,7 @@ prefer raising a new `IamError` with the appropriate plugin/method metadata inst
 - [ ] Create `Contract.make` with `failure: S.instanceOf(IamError)`.
 - [ ] Register schemas in the feature `ContractKit`.
 - [ ] Implement `Effect.fn` handler using `makeFailureContinuation`.
+- [ ] Import helper utilities from `@beep/iam-sdk/clients/_internal` (`MetadataFactory`, `withFetchOptions`, `addFetchOptions`, `requireData`, `decodeResult`, `compact`) instead of reimplementing per-method plumbing.
 - [ ] Encode outbound payloads and decode inbound data with the contract schemas (`S.encodeUnknown`, `S.decodeUnknown`).
 - [ ] Convert `ParseError` into `Effect.fail(IamError.match(...))` instead of letting defects escape.
 - [ ] Notify `$store` on session mutations and decode successful responses.

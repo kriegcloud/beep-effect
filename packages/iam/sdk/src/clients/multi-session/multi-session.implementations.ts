@@ -1,4 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
+import { MetadataFactory, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   MultiSessionContractKit,
   MultiSessionListContract,
@@ -12,40 +13,23 @@ import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 
-const MultiSessionListMetadata = {
-  plugin: "multiSession",
-  method: "listDeviceSessions",
-} as const;
+const metadataFactory = new MetadataFactory("multiSession");
 
-const MultiSessionSetActiveMetadata = {
-  plugin: "multiSession",
-  method: "setActive",
-} as const;
+const MultiSessionListMetadata = metadataFactory.make("listDeviceSessions");
 
-const MultiSessionRevokeMetadata = {
-  plugin: "multiSession",
-  method: "revoke",
-} as const;
+const MultiSessionSetActiveMetadata = metadataFactory.make("setActive");
+
+const MultiSessionRevokeMetadata = metadataFactory.make("revoke");
 
 const MultiSessionListHandler = Effect.fn("MultiSessionListHandler")(
   function* () {
     const continuation = makeFailureContinuation({
       contract: "MultiSessionList",
-      metadata: () => MultiSessionListMetadata,
+      metadata: MultiSessionListMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
-      client.multiSession.listDeviceSessions(
-        undefined,
-        handlers.signal
-          ? {
-              onError: handlers.onError,
-              signal: handlers.signal,
-            }
-          : {
-              onError: handlers.onError,
-            }
-      )
+      client.multiSession.listDeviceSessions(undefined, withFetchOptions(handlers))
     );
 
     yield* continuation.raiseResult(result);
@@ -60,7 +44,7 @@ const MultiSessionListHandler = Effect.fn("MultiSessionListHandler")(
     return yield* S.decodeUnknown(MultiSessionListContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, MultiSessionListMetadata)),
+    ParseError: (error) => Effect.fail(IamError.match(error, MultiSessionListMetadata())),
   })
 );
 
@@ -68,7 +52,7 @@ const MultiSessionSetActiveHandler = Effect.fn("MultiSessionSetActiveHandler")(
   function* (payload: MultiSessionTokenPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "MultiSessionSetActive",
-      metadata: () => MultiSessionSetActiveMetadata,
+      metadata: MultiSessionSetActiveMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -76,14 +60,7 @@ const MultiSessionSetActiveHandler = Effect.fn("MultiSessionSetActiveHandler")(
         {
           sessionToken: Redacted.value(payload.sessionToken),
         },
-        handlers.signal
-          ? {
-              onError: handlers.onError,
-              signal: handlers.signal,
-            }
-          : {
-              onError: handlers.onError,
-            }
+        withFetchOptions(handlers)
       )
     );
 
@@ -103,7 +80,7 @@ const MultiSessionSetActiveHandler = Effect.fn("MultiSessionSetActiveHandler")(
     return decoded;
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, MultiSessionSetActiveMetadata)),
+    ParseError: (error) => Effect.fail(IamError.match(error, MultiSessionSetActiveMetadata())),
   })
 );
 
@@ -111,7 +88,7 @@ const MultiSessionRevokeHandler = Effect.fn("MultiSessionRevokeHandler")(
   function* (payload: MultiSessionTokenPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "MultiSessionRevoke",
-      metadata: () => MultiSessionRevokeMetadata,
+      metadata: MultiSessionRevokeMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -119,14 +96,7 @@ const MultiSessionRevokeHandler = Effect.fn("MultiSessionRevokeHandler")(
         {
           sessionToken: Redacted.value(payload.sessionToken),
         },
-        handlers.signal
-          ? {
-              onError: handlers.onError,
-              signal: handlers.signal,
-            }
-          : {
-              onError: handlers.onError,
-            }
+        withFetchOptions(handlers)
       )
     );
 
@@ -146,7 +116,7 @@ const MultiSessionRevokeHandler = Effect.fn("MultiSessionRevokeHandler")(
     return decoded;
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, MultiSessionRevokeMetadata)),
+    ParseError: (error) => Effect.fail(IamError.match(error, MultiSessionRevokeMetadata())),
   })
 );
 

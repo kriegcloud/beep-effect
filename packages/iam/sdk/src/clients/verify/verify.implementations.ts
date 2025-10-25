@@ -1,4 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
+import { MetadataFactory, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   SendEmailVerificationContract,
   VerifyContractKit,
@@ -11,35 +12,24 @@ import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import type { SendEmailVerificationPayload, VerifyEmailPayload, VerifyPhonePayload } from "./verify.contracts";
 
-const SendEmailVerificationMetadata = {
-  plugin: "verification",
-  method: "sendVerificationEmail",
-} as const;
+const metadataFactory = new MetadataFactory("verification");
 
-const VerifyEmailMetadata = {
-  plugin: "verification",
-  method: "verifyEmail",
-} as const;
+const SendEmailVerificationMetadata = metadataFactory.make("sendVerificationEmail");
+const VerifyEmailMetadata = metadataFactory.make("verifyEmail");
+const VerifyPhoneMetadata = metadataFactory.make("verifyPhone");
 
 const SendEmailVerificationHandler = Effect.fn("SendEmailVerificationHandler")(
   function* (payload: SendEmailVerificationPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "SendEmailVerificationContract",
-      metadata: () => SendEmailVerificationMetadata,
+      metadata: SendEmailVerificationMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
       client.sendVerificationEmail({
         email: Redacted.value(payload.email),
         ...(payload.callbackURL === undefined ? {} : { callbackURL: payload.callbackURL }),
-        fetchOptions: handlers.signal
-          ? {
-              onError: handlers.onError,
-              signal: handlers.signal,
-            }
-          : {
-              onError: handlers.onError,
-            },
+        fetchOptions: withFetchOptions(handlers),
       })
     );
 
@@ -50,7 +40,7 @@ const SendEmailVerificationHandler = Effect.fn("SendEmailVerificationHandler")(
     return yield* S.decodeUnknown(SendEmailVerificationContract.successSchema)(response);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, SendEmailVerificationMetadata)),
+    ParseError: (error) => Effect.fail(IamError.match(error, SendEmailVerificationMetadata())),
   })
 );
 
@@ -58,7 +48,7 @@ const VerifyEmailHandler = Effect.fn("VerifyEmailHandler")(
   function* (payload: VerifyEmailPayload.Type) {
     const continuation = makeFailureContinuation({
       contract: "VerifyEmailContract",
-      metadata: () => VerifyEmailMetadata,
+      metadata: VerifyEmailMetadata,
     });
 
     const result = yield* continuation.run((handlers) =>
@@ -69,26 +59,11 @@ const VerifyEmailHandler = Effect.fn("VerifyEmailHandler")(
             ...(payload.callbackURL === undefined ? {} : { callbackURL: payload.callbackURL }),
           },
         },
-        handlers.signal
-          ? {
-              signal: handlers.signal,
-              onSuccess: () => {
-                payload.onSuccess(undefined);
-              },
-              onError: (ctx) => {
-                payload.onFailure(undefined);
-                handlers.onError(ctx);
-              },
-            }
-          : {
-              onSuccess: () => {
-                payload.onSuccess(undefined);
-              },
-              onError: (ctx) => {
-                payload.onFailure(undefined);
-                handlers.onError(ctx);
-              },
-            }
+        withFetchOptions(handlers, {
+          onSuccess: () => {
+            payload.onSuccess(undefined);
+          },
+        })
       )
     );
 
@@ -101,7 +76,7 @@ const VerifyEmailHandler = Effect.fn("VerifyEmailHandler")(
     return yield* S.decodeUnknown(VerifyEmailContract.successSchema)(result.data);
   },
   Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, VerifyEmailMetadata)),
+    ParseError: (error) => Effect.fail(IamError.match(error, VerifyEmailMetadata())),
   })
 );
 
@@ -109,10 +84,7 @@ const VerifyPhoneHandler = Effect.fn("VerifyPhoneHandler")(function* (payload: V
   const { phoneNumber, code, updatePhoneNumber } = payload;
   const continuation = makeFailureContinuation({
     contract: "VerifyPhoneContract",
-    metadata: () => ({
-      plugin: "verification",
-      method: "phone",
-    }),
+    metadata: VerifyPhoneMetadata,
   });
 
   const result = yield* continuation.run((handlers) =>
@@ -120,14 +92,7 @@ const VerifyPhoneHandler = Effect.fn("VerifyPhoneHandler")(function* (payload: V
       phoneNumber: Redacted.value(phoneNumber),
       code: Redacted.value(code),
       updatePhoneNumber: updatePhoneNumber,
-      fetchOptions: handlers.signal
-        ? {
-            signal: handlers.signal,
-            onError: handlers.onError,
-          }
-        : {
-            onError: handlers.onError,
-          },
+      fetchOptions: withFetchOptions(handlers),
     })
   );
 

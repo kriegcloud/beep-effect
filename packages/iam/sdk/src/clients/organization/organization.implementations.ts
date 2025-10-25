@@ -1,4 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
+import { addFetchOptions, compact, makeMetadata, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   AcceptInvitationContract,
   AcceptInvitationPayload,
@@ -20,8 +21,6 @@ import {
   OrganizationGetFullPayload,
   OrganizationGetInvitationContract,
   OrganizationGetInvitationPayload,
-  // OrganizationGetRoleContract,
-  // OrganizationRoleGetPayload,
   OrganizationInviteMemberContract,
   OrganizationInviteMemberPayload,
   OrganizationLeaveContract,
@@ -41,50 +40,17 @@ import {
   OrganizationRoleCreatePayload,
   OrganizationRoleDeletePayload,
   OrganizationRoleListPayload,
-  // OrganizationRoleUpdatePayload,
   OrganizationSetActiveContract,
   OrganizationSetActivePayload,
   OrganizationUpdateContract,
   OrganizationUpdateMemberRoleContract,
   OrganizationUpdateMemberRolePayload,
   OrganizationUpdatePayload,
-  // OrganizationUpdateRoleContract,
 } from "@beep/iam-sdk/clients/organization/organization.contracts";
 import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
-import type { FailureContinuationHandlers } from "@beep/iam-sdk/contract-kit/failure-continuation";
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-
-const makeMetadata = (method: string) => () =>
-  ({
-    plugin: "organization",
-    method,
-  }) as const;
-
-const mapOnError =
-  (handlers: FailureContinuationHandlers) =>
-  (error: unknown): void => {
-    handlers.onError({ error });
-  };
-
-const withFetchOptions = (handlers: FailureContinuationHandlers) =>
-  handlers.signal
-    ? {
-        onError: mapOnError(handlers),
-        signal: handlers.signal,
-      }
-    : {
-        onError: mapOnError(handlers),
-      };
-
-const addFetchOptions = <A extends Record<string, unknown>>(handlers: FailureContinuationHandlers, body: A) => ({
-  ...body,
-  fetchOptions: withFetchOptions(handlers),
-});
-
-const compact = <A extends Record<string, unknown>>(input: A) =>
-  Object.fromEntries(Object.entries(input).filter(([, value]) => value !== undefined)) as Partial<A>;
 
 const OrganizationCreateMetadata = makeMetadata("create");
 const OrganizationCheckSlugMetadata = makeMetadata("checkSlug");
@@ -109,8 +75,6 @@ const OrganizationLeaveMetadata = makeMetadata("leave");
 const OrganizationCreateRoleMetadata = makeMetadata("createRole");
 const OrganizationDeleteRoleMetadata = makeMetadata("deleteRole");
 const OrganizationListRolesMetadata = makeMetadata("listRoles");
-// const OrganizationGetRoleMetadata = makeMetadata("getRole");
-// const OrganizationUpdateRoleMetadata = makeMetadata("updateRole");
 
 const OrganizationCreateHandler = Effect.fn("OrganizationCreateHandler")(
   function* (payload: OrganizationCreatePayload.Type) {
@@ -871,93 +835,6 @@ const OrganizationListRolesHandler = Effect.fn("OrganizationListRolesHandler")(
   })
 );
 
-// const OrganizationGetRoleHandler = Effect.fn("OrganizationGetRoleHandler")(
-//   function* (payload: OrganizationRoleGetPayload.Type) {
-//     const continuation = makeFailureContinuation({
-//       contract: "OrganizationGetRole",
-//       metadata: OrganizationGetRoleMetadata,
-//     });
-//
-//     const encoded = yield* S.encode(OrganizationRoleGetPayload)(payload);
-//
-//     const result = yield* continuation.run((handlers) =>
-//       client.organization.getRole({query: encoded}, withFetchOptions(handlers))
-//     );
-//
-//     yield* continuation.raiseResult(result);
-//
-//     if (!result.data) {
-//       return yield* Effect.fail(
-//         new IamError(
-//           {},
-//           "OrganizationGetRoleHandler returned no payload from Better Auth",
-//           OrganizationGetRoleMetadata()
-//         )
-//       );
-//     }
-//     const data = result.data;
-//
-//     return yield* S.decodeUnknown(OrganizationGetRoleContract.successSchema)(data);
-//   },
-//   Effect.catchTags({
-//     ParseError: (error) => Effect.fail(IamError.match(error, OrganizationGetRoleMetadata())),
-//   })
-// );
-
-// const OrganizationUpdateRoleHandler = Effect.fn("OrganizationUpdateRoleHandler")(
-//   function* (payload: OrganizationRoleUpdatePayload.Type) {
-//     const continuation = makeFailureContinuation({
-//       contract: "OrganizationUpdateRole",
-//       metadata: OrganizationUpdateRoleMetadata,
-//     });
-//
-//     const encoded = yield* S.encode(OrganizationRoleUpdatePayload)(payload);
-//
-//     const { roleId, roleName, organizationId, data: payloadData } = encoded;
-//
-//     if (roleId === undefined && roleName === undefined) {
-//       return yield* Effect.fail(
-//         new IamError(
-//           {},
-//           "OrganizationUpdateRoleHandler received neither roleId nor roleName",
-//           OrganizationUpdateRoleMetadata()
-//         )
-//       );
-//     }
-//
-//     const base = {
-//       ...(organizationId !== undefined ? { organizationId } : {}),
-//       ...(roleId !== undefined
-//         ? { roleId }
-//         : { roleName: roleName as NonNullable<typeof roleName> }),
-//       data: payloadData,
-//     };
-//
-//     const result = yield* continuation.run((handlers) =>
-//       (client.organization.updateRole as any)({
-//         ...base,
-//         fetchOptions: withFetchOptions(handlers),
-//       })
-//     );
-//
-//     yield* continuation.raiseResult(result);
-//
-//     if (!result.data) {
-//       return yield* Effect.fail(new IamError(
-//         {},
-//         "OrganizationUpdateRoleHandler returned no payload from Better Auth",
-//         OrganizationUpdateRoleMetadata()
-//       ));
-//     }
-//     const responseData = result.data;
-//
-//     return yield* S.decodeUnknown(OrganizationUpdateRoleContract.successSchema)(responseData);
-//   },
-//   Effect.catchTags({
-//     ParseError: (error) => Effect.fail(IamError.match(error, OrganizationUpdateRoleMetadata())),
-//   })
-// );
-
 export const OrganizationImplementations = OrganizationContractKit.of({
   OrganizationCreate: OrganizationCreateHandler,
   OrganizationCheckSlug: OrganizationCheckSlugHandler,
@@ -982,6 +859,4 @@ export const OrganizationImplementations = OrganizationContractKit.of({
   OrganizationCreateRole: OrganizationCreateRoleHandler,
   OrganizationDeleteRole: OrganizationDeleteRoleHandler,
   OrganizationListRoles: OrganizationListRolesHandler,
-  // OrganizationGetRole: OrganizationGetRoleHandler,
-  // OrganizationUpdateRole: OrganizationUpdateRoleHandler,
 });

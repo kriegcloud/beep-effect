@@ -1,4 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
+import { MetadataFactory, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   PasskeyAddContract,
   PasskeyAddPayload,
@@ -14,29 +15,12 @@ import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
-const PasskeyAddMetadata = () =>
-  ({
-    plugin: "passkey",
-    method: "addPasskey",
-  }) as const;
+const metadataFactory = new MetadataFactory("passkey");
 
-const PasskeyListMetadata = () =>
-  ({
-    plugin: "passkey",
-    method: "listUserPasskeys",
-  }) as const;
-
-const PasskeyDeleteMetadata = () =>
-  ({
-    plugin: "passkey",
-    method: "deletePasskey",
-  }) as const;
-
-const PasskeyUpdateMetadata = () =>
-  ({
-    plugin: "passkey",
-    method: "updatePasskey",
-  }) as const;
+const PasskeyAddMetadata = metadataFactory.make("addPasskey");
+const PasskeyListMetadata = metadataFactory.make("listUserPasskeys");
+const PasskeyDeleteMetadata = metadataFactory.make("deletePasskey");
+const PasskeyUpdateMetadata = metadataFactory.make("updatePasskey");
 
 const PasskeyAddHandler = Effect.fn("PasskeyAddHandler")(
   function* (payload: PasskeyAddPayload.Type) {
@@ -58,11 +42,9 @@ const PasskeyAddHandler = Effect.fn("PasskeyAddHandler")(
           name: encoded.name ?? undefined,
           authenticatorAttachment: encoded.authenticatorAttachment ?? undefined,
           useAutoRegister: encoded.useAutoRegister ?? undefined,
-          fetchOptions: handlers.signal
-            ? { onError: handlers.onError, signal: handlers.signal }
-            : { onError: handlers.onError },
+          fetchOptions: withFetchOptions(handlers),
         },
-        handlers.signal ? { onError: handlers.onError, signal: handlers.signal } : { onError: handlers.onError }
+        withFetchOptions(handlers)
       )
     );
 
@@ -88,10 +70,7 @@ const PasskeyListHandler = Effect.fn("PasskeyListHandler")(
     );
 
     const result = yield* continuation.run((handlers) =>
-      client.passkey.listUserPasskeys(
-        undefined,
-        handlers.signal ? { onError: handlers.onError, signal: handlers.signal } : { onError: handlers.onError }
-      )
+      client.passkey.listUserPasskeys(undefined, withFetchOptions(handlers))
     );
 
     yield* continuation.raiseResult(result);
@@ -119,7 +98,7 @@ const PasskeyDeleteHandler = Effect.fn("PasskeyDeleteHandler")(
         {
           id: encoded.id,
         },
-        handlers.signal ? { onError: handlers.onError, signal: handlers.signal } : { onError: handlers.onError }
+        withFetchOptions(handlers)
       )
     );
 
@@ -149,7 +128,7 @@ const PasskeyUpdateHandler = Effect.fn("PasskeyUpdateHandler")(
           id,
           name,
         },
-        handlers.signal ? { onError: handlers.onError, signal: handlers.signal } : { onError: handlers.onError }
+        withFetchOptions(handlers)
       )
     );
 
