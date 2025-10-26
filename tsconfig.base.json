@@ -292,31 +292,31 @@
       "@beep/files-ui/test/*": [
         "./packages/files/ui/test/*"
       ],
-      "beep/runtime-server": [
+      "@beep/runtime-server": [
         "./packages/runtime/server/src/index"
       ],
-      "beep/runtime-server/*": [
-        "./packages/runtime/server/src/index"
+      "@beep/runtime-server/*": [
+        "./packages/runtime/server/src/*"
       ],
-      "beep/runtime-server/test/*": [
+      "@beep/runtime-server/test/*": [
         "./packages/runtime/server/test/*"
       ],
-      "beep/runtime-shared": [
+      "@beep/runtime-shared": [
         "./packages/runtime/shared/src/index"
       ],
-      "beep/runtime-shared/*": [
-        "./packages/runtime/shared/src/index"
+      "@beep/runtime-shared/*": [
+        "./packages/runtime/shared/src/*"
       ],
-      "beep/runtime-shared/test/*": [
+      "@beep/runtime-shared/test/*": [
         "./packages/runtime/shared/test/*"
       ],
-      "beep/runtime-client": [
+      "@beep/runtime-client": [
         "./packages/runtime/client/src/index"
       ],
-      "beep/runtime-client/*": [
-        "./packages/runtime/client/src/index"
+      "@beep/runtime-client/*": [
+        "./packages/runtime/client/src/*"
       ],
-      "beep/runtime-client/test/*": [
+      "@beep/runtime-client/test/*": [
         "./packages/runtime/client/test/*"
       ],
       "@/*": [

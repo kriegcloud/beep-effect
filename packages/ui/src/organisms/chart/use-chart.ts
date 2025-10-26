@@ -156,13 +156,23 @@ const baseChartOptions = (theme: Theme): ChartOptions => {
        * bar
        * https://apexcharts.com/docs/options/plotoptions/bar/
        */
-      bar: { borderRadius: 4, columnWidth: "48%", borderRadiusApplication: "end" },
+      bar: {
+        borderRadius: 4,
+        columnWidth: "48%",
+        borderRadiusApplication: "end",
+      },
       /**
        * pie + donut
        * https://apexcharts.com/docs/options/plotoptions/pie/
        */
       pie: {
-        donut: { labels: { show: true, value: { ...LABEL_VALUE }, total: { ...LABEL_TOTAL } } },
+        donut: {
+          labels: {
+            show: true,
+            value: { ...LABEL_VALUE },
+            total: { ...LABEL_TOTAL },
+          },
+        },
       },
       /**
        * radialBar
@@ -210,7 +220,9 @@ const baseChartOptions = (theme: Theme): ChartOptions => {
     responsive: [
       {
         breakpoint: theme.breakpoints.values.sm, // sm ~ 600
-        options: { plotOptions: { bar: { borderRadius: 3, columnWidth: "80%" } } },
+        options: {
+          plotOptions: { bar: { borderRadius: 3, columnWidth: "80%" } },
+        },
       },
       {
         breakpoint: theme.breakpoints.values.md, // md ~ 900

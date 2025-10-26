@@ -163,7 +163,12 @@ const ItemIcon = styled("span", { shouldForwardProp })<StyledState>(() => ({
   width: "var(--nav-icon-size)",
   height: "var(--nav-icon-size)",
   margin: "var(--nav-icon-root-margin)",
-  variants: [{ props: { variant: "subItem" }, style: { margin: "var(--nav-icon-sub-margin)" } }],
+  variants: [
+    {
+      props: { variant: "subItem" },
+      style: { margin: "var(--nav-icon-sub-margin)" },
+    },
+  ],
 }));
 
 /**
@@ -174,7 +179,12 @@ const ItemTitle = styled("span", { shouldForwardProp })<StyledState>(({ theme })
   ...theme.typography.body2,
   whiteSpace: "nowrap",
   fontWeight: theme.typography.fontWeightMedium,
-  variants: [{ props: { active: true }, style: { fontWeight: theme.typography.fontWeightSemiBold } }],
+  variants: [
+    {
+      props: { active: true },
+      style: { fontWeight: theme.typography.fontWeightSemiBold },
+    },
+  ],
 }));
 
 /**
@@ -183,7 +193,12 @@ const ItemTitle = styled("span", { shouldForwardProp })<StyledState>(({ theme })
 const ItemCaptionIcon = styled(Iconify, { shouldForwardProp })<StyledState>(({ theme }) => ({
   ...navItemStyles.captionIcon,
   color: "var(--nav-item-caption-color)",
-  variants: [{ props: { variant: "rootItem" }, style: { marginLeft: theme.spacing(0.75) } }],
+  variants: [
+    {
+      props: { variant: "rootItem" },
+      style: { marginLeft: theme.spacing(0.75) },
+    },
+  ],
 }));
 
 /**
@@ -198,5 +213,10 @@ const ItemInfo = styled("span", { shouldForwardProp })<StyledState>(({ theme }) 
  */
 const ItemArrow = styled(Iconify, { shouldForwardProp })<StyledState>(({ theme }) => ({
   ...navItemStyles.arrow(theme),
-  variants: [{ props: { variant: "subItem" }, style: { marginRight: theme.spacing(-0.5) } }],
+  variants: [
+    {
+      props: { variant: "subItem" },
+      style: { marginRight: theme.spacing(-0.5) },
+    },
+  ],
 }));

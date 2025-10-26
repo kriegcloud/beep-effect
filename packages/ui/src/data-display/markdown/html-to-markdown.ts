@@ -12,7 +12,10 @@ type INode = HTMLElement & {
 
 const excludeTags = ["pre", "code"];
 
-const turndownService = new TurndownService({ codeBlockStyle: "fenced", fence: "```" });
+const turndownService = new TurndownService({
+  codeBlockStyle: "fenced",
+  fence: "```",
+});
 
 const filterTags = htmlTags.filter((item) => !excludeTags.includes(item)) as Filter;
 

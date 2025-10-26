@@ -6,5 +6,11 @@
     {
       "path": "tsconfig.src.json"
     }
-  ]
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@beep/ui/*": ["../../packages/ui/src/*"],
+      "@beep/ui/test/*": ["../../packages/ui/test/*"]
+    }
+  }
 }

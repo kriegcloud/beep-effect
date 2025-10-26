@@ -69,11 +69,15 @@ const ArrowButtonRoot = styled(ButtonBase, {
     { props: { disabled: true }, style: { opacity: 0.4 } },
     {
       props: { axis: "y" },
-      style: { [`& .${carouselClasses.arrows.svg}`]: { transform: "rotate(90deg)" } },
+      style: {
+        [`& .${carouselClasses.arrows.svg}`]: { transform: "rotate(90deg)" },
+      },
     },
     {
       props: { direction: "rtl" },
-      style: { [`& .${carouselClasses.arrows.svg}`]: { transform: "scaleX(-1)" } },
+      style: {
+        [`& .${carouselClasses.arrows.svg}`]: { transform: "scaleX(-1)" },
+      },
     },
   ],
 }));

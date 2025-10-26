@@ -162,19 +162,31 @@ export const Arrow = styled("span", {
     variants: [
       {
         props: (props) => props.placement?.startsWith("top-"),
-        style: { ...getArrowPlacementStyles("top"), left: noRtlFlip(`${offsetX}px`) },
+        style: {
+          ...getArrowPlacementStyles("top"),
+          left: noRtlFlip(`${offsetX}px`),
+        },
       },
       {
         props: (props) => props.placement?.startsWith("bottom-"),
-        style: { ...getArrowPlacementStyles("bottom"), left: noRtlFlip(`${offsetX}px`) },
+        style: {
+          ...getArrowPlacementStyles("bottom"),
+          left: noRtlFlip(`${offsetX}px`),
+        },
       },
       {
         props: (props) => props.placement?.startsWith("left-"),
-        style: { ...getArrowPlacementStyles("left", isRtl), top: `${offsetY}px` },
+        style: {
+          ...getArrowPlacementStyles("left", isRtl),
+          top: `${offsetY}px`,
+        },
       },
       {
         props: (props) => props.placement?.startsWith("right-"),
-        style: { ...getArrowPlacementStyles("right", isRtl), top: `${offsetY}px` },
+        style: {
+          ...getArrowPlacementStyles("right", isRtl),
+          top: `${offsetY}px`,
+        },
       },
     ],
   };

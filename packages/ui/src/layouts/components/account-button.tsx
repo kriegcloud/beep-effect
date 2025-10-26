@@ -23,7 +23,11 @@ export function AccountButton({ photoURL, displayName, sx, ...other }: AccountBu
       <AnimateBorder
         sx={{ p: "3px", borderRadius: "50%", width: 40, height: 40 }}
         slotProps={{
-          primaryBorder: { size: 60, width: "1px", sx: { color: "primary.main" } },
+          primaryBorder: {
+            size: 60,
+            width: "1px",
+            sx: { color: "primary.main" },
+          },
           secondaryBorder: { sx: { color: "warning.main" } },
         }}
       >

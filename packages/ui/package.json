@@ -26,7 +26,8 @@
     "coverage": "bun test --coverage",
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "lint:circular": "bunx madge -c .",
-    "execute": "bunx tsx --tsconfig ./tsconfig.src.json ./src/execute.ts"
+    "execute": "bunx tsx --tsconfig ./tsconfig.src.json ./src/execute.ts",
+    "ui-add": "bunx --bun shadcn@latest add && prettier src --write --list-different"
   },
   "exports": {
     "./globals.css": "./src/styles/globals.css",
@@ -273,7 +274,13 @@
     "react-markdown": "catalog:",
     "class-variance-authority": "catalog:",
     "@radix-ui/react-toast": "catalog:",
-    "@zip.js/zip.js": "catalog:"
+    "@zip.js/zip.js": "catalog:",
+    "@radix-ui/react-dialog": "catalog:",
+    "@radix-ui/react-separator": "catalog:",
+    "@radix-ui/react-slot": "catalog:",
+    "@radix-ui/react-tooltip": "catalog:",
+    "lucide-react": "catalog:",
+    "@radix-ui/react-accordion": "catalog:"
   },
   "devDependencies": {
     "@zip.js/zip.js": "catalog:",
@@ -369,6 +376,13 @@
     "embla-carousel-autoplay": "catalog:",
     "embla-carousel-fade": "catalog:",
     "embla-carousel-react": "catalog:",
-    "react-apexcharts": "catalog:"
+    "react-apexcharts": "catalog:",
+    "@radix-ui/react-dialog": "catalog:",
+    "@radix-ui/react-separator": "catalog:",
+    "@radix-ui/react-slot": "catalog:",
+    "@radix-ui/react-tooltip": "catalog:",
+    "lucide-react": "catalog:",
+    "prettier": "catalog:",
+    "@radix-ui/react-accordion": "catalog:"
   }
 }

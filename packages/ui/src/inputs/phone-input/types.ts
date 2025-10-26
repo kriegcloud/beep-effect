@@ -18,5 +18,9 @@ export type CountryListProps = ButtonBaseProps & {
   selectedCountry?: Country;
   onSearchCountry: (inputValue: string) => void;
   onSelectedCountry: (inputValue: Country) => void;
-  options: A.NonEmptyReadonlyArray<{ label: string; code: string; phone: string }>;
+  options: A.NonEmptyReadonlyArray<{
+    label: string;
+    code: string;
+    phone: string;
+  }>;
 };

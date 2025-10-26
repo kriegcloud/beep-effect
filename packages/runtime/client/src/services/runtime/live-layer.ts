@@ -1,5 +1,4 @@
 import { clientEnv } from "@beep/core-env/client";
-import { WorkerClient } from "@beep/runtime-client/worker/worker-client";
 import { Toaster } from "@beep/ui/services/toaster.service";
 import { WebSdk } from "@effect/opentelemetry";
 import { FetchHttpClient } from "@effect/platform";
@@ -18,6 +17,7 @@ import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as LogLevel from "effect/LogLevel";
 import type * as ManagedRuntime from "effect/ManagedRuntime";
+import { WorkerClient } from "../../worker/worker-client";
 import { NetworkMonitor } from "../common/network-monitor";
 
 // ============================================================================

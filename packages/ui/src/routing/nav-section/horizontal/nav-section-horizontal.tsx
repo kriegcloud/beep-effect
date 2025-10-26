@@ -22,7 +22,12 @@ export function NavSectionHorizontal({
   const cssVars = { ...navSectionCssVars.horizontal(theme), ...overridesVars };
 
   return (
-    <Scrollbar sx={{ height: 1 }} slotProps={{ contentSx: { height: 1, display: "flex", alignItems: "center" } }}>
+    <Scrollbar
+      sx={{ height: 1 }}
+      slotProps={{
+        contentSx: { height: 1, display: "flex", alignItems: "center" },
+      }}
+    >
       <Nav
         className={mergeClasses([navSectionClasses.horizontal, className])}
         sx={[

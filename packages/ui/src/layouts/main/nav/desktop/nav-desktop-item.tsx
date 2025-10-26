@@ -22,7 +22,11 @@ export function NavItem({
 }: NavItemProps) {
   const navItem = createNavItem({ path, hasChild, externalLink });
 
-  const ownerState: StyledState = { open, active, variant: !subItem ? "rootItem" : "subItem" };
+  const ownerState: StyledState = {
+    open,
+    active,
+    variant: !subItem ? "rootItem" : "subItem",
+  };
 
   return (
     <ItemRoot
@@ -70,7 +74,10 @@ const ItemRoot = styled(ButtonBase, { shouldForwardProp })<StyledState>(({ activ
     transition: theme.transitions.create(["opacity", "scale"], {
       duration: theme.transitions.duration.shorter,
     }),
-    ...(active && { ...dotTransitions.out, backgroundColor: theme.vars.palette.primary.main }),
+    ...(active && {
+      ...dotTransitions.out,
+      backgroundColor: theme.vars.palette.primary.main,
+    }),
   };
 
   const rootItemStyles: CSSObject = {
@@ -105,8 +112,14 @@ const ItemTitle = styled("span", { shouldForwardProp })<StyledState>(({ theme })
   ...theme.typography.body2,
   fontWeight: theme.typography.fontWeightMedium,
   variants: [
-    { props: { variant: "subItem" }, style: { fontSize: theme.typography.pxToRem(13) } },
-    { props: { active: true }, style: { fontWeight: theme.typography.fontWeightSemiBold } },
+    {
+      props: { variant: "subItem" },
+      style: { fontSize: theme.typography.pxToRem(13) },
+    },
+    {
+      props: { active: true },
+      style: { fontWeight: theme.typography.fontWeightSemiBold },
+    },
   ],
 }));
 

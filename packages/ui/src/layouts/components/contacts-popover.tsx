@@ -116,7 +116,9 @@ export function ContactsPopover({ data = [], sx, ...other }: ContactsPopoverProp
         aria-label="Contacts button"
         onClick={onOpen}
         sx={[
-          (theme) => ({ ...(open && { bgcolor: theme.vars.palette.action.selected }) }),
+          (theme) => ({
+            ...(open && { bgcolor: theme.vars.palette.action.selected }),
+          }),
           ...(Array.isArray(sx) ? sx : [sx]),
         ]}
         {...other}

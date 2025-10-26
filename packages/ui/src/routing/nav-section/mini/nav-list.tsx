@@ -78,8 +78,14 @@ export function NavList({
         id={id}
         open={open}
         anchorEl={anchorEl}
-        anchorOrigin={{ vertical: "center", horizontal: isRtl ? "left" : "right" }}
-        transformOrigin={{ vertical: "center", horizontal: isRtl ? "right" : "left" }}
+        anchorOrigin={{
+          vertical: "center",
+          horizontal: isRtl ? "left" : "right",
+        }}
+        transformOrigin={{
+          vertical: "center",
+          horizontal: isRtl ? "right" : "left",
+        }}
         slotProps={{
           paper: {
             onMouseEnter: handleOpenMenu,

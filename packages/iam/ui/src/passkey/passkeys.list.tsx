@@ -1,84 +1,74 @@
 "use client";
-import { useUpdatePasskeyForm } from "@beep/iam-sdk";
+import { editingPasskeyAtom, usePasskeyCRUD } from "@beep/iam-sdk";
 import type { PasskeyView } from "@beep/iam-sdk/clients/passkey/passkey.contracts";
+import { PasskeyForm } from "@beep/iam-ui/passkey/passkey.form";
 import { PasskeyItem } from "@beep/iam-ui/passkey/passkey.item";
-import { Form } from "@beep/ui/form";
+import { PasskeysEmpty } from "@beep/iam-ui/passkey/passkeys.empty";
+import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { useBoolean } from "@beep/ui/hooks";
-import { SearchNotFound } from "@beep/ui/messages/search-not-found/search-not-found";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
+import { useConfirm } from "@beep/ui/organisms";
+import { useAtomSet } from "@effect-atom/atom-react";
 import List from "@mui/material/List";
 import * as A from "effect/Array";
-
-type PasskeyUpdateDialogProps = {
-  readonly passkey: PasskeyView.Type;
-  readonly updateDialogOpen: boolean;
-  readonly closeUpdateDialog: () => void;
-};
-const PasskeyUpdateDialog = ({ passkey, updateDialogOpen, closeUpdateDialog }: PasskeyUpdateDialogProps) => {
-  const { form } = useUpdatePasskeyForm({
-    defaultValues: passkey,
-    onDone: closeUpdateDialog,
-  });
-  return (
-    <Form onSubmit={form.handleSubmit}>
-      <Dialog open={updateDialogOpen}>
-        <DialogTitle>Update Passkey</DialogTitle>
-        <DialogContent>
-          <form.AppField name={"name"} children={(field) => <field.Text />} />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              closeUpdateDialog();
-              form.reset();
-            }}
-          >
-            Cancel
-          </Button>
-          <form.AppForm>
-            <form.Submit variant={"contained"}>Update Passkey</form.Submit>
-          </form.AppForm>
-        </DialogActions>
-      </Dialog>
-    </Form>
-  );
-};
+import * as Effect from "effect/Effect";
+import * as Match from "effect/Match";
+import React from "react";
 
 type Props = {
-  readonly passkeys: Array<PasskeyView.Type>;
-  readonly onDelete: (passkey: PasskeyView.Type) => void;
+  readonly passkeys: ReadonlyArray<PasskeyView.Type>;
 };
 
-export const PasskeysList = ({ passkeys, onDelete }: Props) => {
-  const { value: updateDialogOpen, setValue: setUpdateDialogOpen } = useBoolean();
+export const PasskeysList = ({ passkeys }: Props) => {
+  const { value: passkeyDialogOpen, setValue: setPasskeyDialogOpen } = useBoolean();
+  const setCurrentPasskey = useAtomSet(editingPasskeyAtom);
+  const { deletePasskey } = usePasskeyCRUD();
+  const confirm = useConfirm();
+  const runtime = useRuntime();
+  const runDelete = makeRunClientPromise(runtime, "passkey.delete");
 
-  return (
-    <List>
-      {A.match(passkeys, {
-        onEmpty: () => <SearchNotFound />,
-        onNonEmpty: (passkeys) =>
-          A.map(passkeys, (passkey) => (
-            <>
-              <PasskeyUpdateDialog
-                passkey={passkey}
-                updateDialogOpen={updateDialogOpen}
-                closeUpdateDialog={() => setUpdateDialogOpen(false)}
-              />
-              <PasskeyItem
-                key={passkey.id}
-                passkey={passkey}
-                onUpdate={() => {
-                  setUpdateDialogOpen(true);
-                }}
-                onDelete={onDelete}
-              />
-            </>
-          )),
-      })}
-    </List>
-  );
+  const handleDelete = async (passkey: PasskeyView.Type) =>
+    runDelete(
+      Effect.gen(function* () {
+        const confirmResult = yield* Effect.tryPromise(() =>
+          confirm({
+            title: "Are you sure?",
+            description: "Are you sure you want to delete this passkey?",
+          })
+        );
+
+        return yield* Effect.sync(() =>
+          Match.value(confirmResult).pipe(
+            Match.when({ reason: "confirm" }, () => {
+              deletePasskey({ id: passkey.id });
+              setPasskeyDialogOpen(false);
+            }),
+            Match.orElse(() => {
+              setPasskeyDialogOpen(false);
+            })
+          )
+        );
+      })
+    );
+
+  return A.match(passkeys, {
+    onEmpty: () => <PasskeysEmpty onAdd={() => setPasskeyDialogOpen(true)} />,
+    onNonEmpty: (passkeys) => (
+      <List>
+        {A.map(passkeys, (passkey) => (
+          <React.Fragment key={passkey.id}>
+            <PasskeyForm passkeyDialogOpen={passkeyDialogOpen} setPasskeyDialogOpen={setPasskeyDialogOpen} />
+            <PasskeyItem
+              key={passkey.id}
+              passkey={passkey}
+              onUpdate={(passkey) => {
+                setCurrentPasskey(passkey);
+                setPasskeyDialogOpen(true);
+              }}
+              onDelete={async (passkey) => handleDelete(passkey)}
+            />
+          </React.Fragment>
+        ))}
+      </List>
+    ),
+  });
 };

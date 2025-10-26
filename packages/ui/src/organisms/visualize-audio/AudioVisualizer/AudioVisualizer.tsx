@@ -117,7 +117,11 @@ const processBlob = Effect.fnUntraced(function* ({
         setData(barsData);
         draw(barsData, canvasRef.current, barWidth, gap, backgroundColor, barColor, barPlayedColor);
       }),
-    catch: (e) => new AudioVisualizerError({ message: "Failed to decode audio data", cause: e }),
+    catch: (e) =>
+      new AudioVisualizerError({
+        message: "Failed to decode audio data",
+        cause: e,
+      }),
   });
 });
 

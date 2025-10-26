@@ -44,7 +44,12 @@ export function NotificationsDrawer({ data = [], sx, ...other }: NotificationsDr
   const totalUnRead = notifications.filter((item) => item.isUnread === true).length;
 
   const handleMarkAllAsRead = () => {
-    setNotifications(notifications.map((notification) => ({ ...notification, isUnread: false })));
+    setNotifications(
+      notifications.map((notification) => ({
+        ...notification,
+        isUnread: false,
+      }))
+    );
   };
 
   const renderHead = () => (

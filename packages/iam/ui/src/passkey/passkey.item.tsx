@@ -7,8 +7,8 @@ import Stack from "@mui/material/Stack";
 
 type Props = {
   readonly passkey: PasskeyView.Type;
-  readonly onUpdate: () => void;
-  readonly onDelete: (passkey: PasskeyView.Type) => void;
+  readonly onUpdate: (passkey: PasskeyView.Type) => void;
+  readonly onDelete: (passkey: PasskeyView.Type) => Promise<void>;
 };
 
 export const PasskeyItem = ({ passkey, onUpdate, onDelete }: Props) => {
@@ -21,10 +21,10 @@ export const PasskeyItem = ({ passkey, onUpdate, onDelete }: Props) => {
     >
       <ListItemText title={passkey.name} />
       <Stack direction={"column"} spacing={2}>
-        <IconButton onClick={() => onUpdate()}>
+        <IconButton onClick={() => onUpdate(passkey)}>
           <Iconify icon={"material-symbols:edit"} />
         </IconButton>
-        <IconButton onClick={() => onDelete(passkey)}>
+        <IconButton onClick={async () => onDelete(passkey)}>
           <Iconify icon={"solar:trash-bin-trash-bold"} />
         </IconButton>
       </Stack>

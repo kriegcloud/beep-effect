@@ -1,17 +1,19 @@
 import { usePasskeyCRUD } from "@beep/iam-sdk";
+import { PasskeysFallback } from "@beep/iam-ui/passkey/passkeys.fallback";
 import { PasskeysList } from "@beep/iam-ui/passkey/passkeys.list";
+import { PasskeysSkeleton } from "@beep/iam-ui/passkey/passkeys.skeleton";
 import { Result } from "@effect-atom/atom-react";
 
 export const PasskeysView = () => {
-  const { passkeysResult, deletePasskey } = usePasskeyCRUD();
+  const { passkeysResult } = usePasskeyCRUD();
 
   return (
     <>
-      {Result.match(passkeysResult, {
-        onInitial: () => <>Loading...</>,
-        onFailure: () => <>Failure...</>,
-        onSuccess: (passkeys) => <PasskeysList passkeys={passkeys.value} onDelete={(id) => deletePasskey(id)} />,
-      })}
+      {Result.builder(passkeysResult)
+        .onInitial(() => <PasskeysSkeleton />)
+        .onFailure(() => <PasskeysFallback />)
+        .onSuccess((passkeys) => <PasskeysList passkeys={passkeys} />)
+        .render()}
     </>
   );
 };

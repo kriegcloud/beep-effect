@@ -51,7 +51,10 @@ const LINKS = [
       { name: "Privacy policy", href: "#" },
     ],
   },
-  { headline: "Contact", children: [{ name: "support@codedank.com", href: "#" }] },
+  {
+    headline: "Contact",
+    children: [{ name: "support@codedank.com", href: "#" }],
+  },
 ];
 
 const FooterRoot = styled("footer")(({ theme }) => ({
@@ -82,7 +85,9 @@ export function Footer({ sx, layoutQuery = "md", ...other }: FooterProps & { lay
             (theme) => ({
               mt: 3,
               justifyContent: "center",
-              [theme.breakpoints.up(layoutQuery)]: { justifyContent: "space-between" },
+              [theme.breakpoints.up(layoutQuery)]: {
+                justifyContent: "space-between",
+              },
             }),
           ]}
         >
@@ -105,7 +110,10 @@ export function Footer({ sx, layoutQuery = "md", ...other }: FooterProps & { lay
                 mb: 5,
                 display: "flex",
                 justifyContent: "center",
-                [theme.breakpoints.up(layoutQuery)]: { mb: 0, justifyContent: "flex-start" },
+                [theme.breakpoints.up(layoutQuery)]: {
+                  mb: 0,
+                  justifyContent: "flex-start",
+                },
               })}
             >
               {_socials.map((social) => (
@@ -137,7 +145,9 @@ export function Footer({ sx, layoutQuery = "md", ...other }: FooterProps & { lay
                     display: "flex",
                     alignItems: "center",
                     flexDirection: "column",
-                    [theme.breakpoints.up(layoutQuery)]: { alignItems: "flex-start" },
+                    [theme.breakpoints.up(layoutQuery)]: {
+                      alignItems: "flex-start",
+                    },
                   })}
                 >
                   <Typography component="div" variant="overline">

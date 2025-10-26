@@ -84,7 +84,15 @@ export function NotificationItem({ notification }: NotificationItemProps) {
           {relativeCreatedAt && (
             <>
               {relativeCreatedAt}
-              <Box component="span" sx={{ width: 2, height: 2, borderRadius: "50%", bgcolor: "currentColor" }} />
+              <Box
+                component="span"
+                sx={{
+                  width: 2,
+                  height: 2,
+                  borderRadius: "50%",
+                  bgcolor: "currentColor",
+                }}
+              />
             </>
           )}
           {notification.category}

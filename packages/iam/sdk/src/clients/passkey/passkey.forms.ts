@@ -1,9 +1,19 @@
+import { usePasskeyCRUD } from "@beep/iam-sdk/clients/passkey/passkey.atoms";
+import {
+  PasskeyAddPayload,
+  PasskeyUpdatePayload,
+  type PasskeyView,
+} from "@beep/iam-sdk/clients/passkey/passkey.contracts";
+import { IamEntityIds } from "@beep/shared-domain";
 import { formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
 import * as S from "effect/Schema";
-import { usePasskeyCRUD } from "./passkey.atoms";
-import { PasskeyAddPayload, PasskeyUpdatePayload, type PasskeyView } from "./passkey.contracts";
 
-export const useAddPasskeyForm = () => {
+type PasskeyFormPropsBase = {
+  readonly onDone: (formReset: () => void) => void;
+};
+
+type UsePasskeyAddFormProps = PasskeyFormPropsBase;
+export const useAddPasskeyForm = ({ onDone }: UsePasskeyAddFormProps) => {
   const { addPasskey } = usePasskeyCRUD();
   const form = useAppForm(
     formOptionsWithSubmitEffect({
@@ -11,7 +21,13 @@ export const useAddPasskeyForm = () => {
       defaultValues: {
         name: "",
       },
-      onSubmit: async (value) => addPasskey(value),
+      onSubmit: async (value) => {
+        await addPasskey({
+          ...value,
+          id: IamEntityIds.PasskeyId.create(),
+        });
+        onDone(form.reset);
+      },
     })
   );
 
@@ -20,9 +36,8 @@ export const useAddPasskeyForm = () => {
   };
 };
 
-type UsePasskeyUpdateFormProps = {
+type UsePasskeyUpdateFormProps = PasskeyFormPropsBase & {
   readonly defaultValues: PasskeyView.Type;
-  readonly onDone: () => void;
 };
 
 export const useUpdatePasskeyForm = ({ defaultValues, onDone }: UsePasskeyUpdateFormProps) => {
@@ -34,11 +49,11 @@ export const useUpdatePasskeyForm = ({ defaultValues, onDone }: UsePasskeyUpdate
         name: defaultValues.name,
       },
       onSubmit: async (value) => {
-        updatePasskey({
+        await updatePasskey({
           name: value.name,
           id: defaultValues.id,
         });
-        onDone();
+        onDone(form.reset);
       },
     })
   );

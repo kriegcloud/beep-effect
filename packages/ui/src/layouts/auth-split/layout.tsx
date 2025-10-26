@@ -50,7 +50,13 @@ export function AuthSplitLayout({ sx, cssVars, children, slotProps, layoutQuery 
         </>
       ),
       rightArea: (
-        <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, sm: 1.5 } }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: { xs: 1, sm: 1.5 },
+          }}
+        >
           {/** @slot Help link */}
           <Link href={paths.faqs} component={RouterLink} color="inherit" sx={{ typography: "subtitle2" }}>
             Need help?
@@ -83,7 +89,9 @@ export function AuthSplitLayout({ sx, cssVars, children, slotProps, layoutQuery 
     <MainSection
       {...slotProps?.main}
       sx={[
-        (theme) => ({ [theme.breakpoints.up(layoutQuery)]: { flexDirection: "row" } }),
+        (theme) => ({
+          [theme.breakpoints.up(layoutQuery)]: { flexDirection: "row" },
+        }),
         ...(Array.isArray(slotProps?.main?.sx) ? slotProps.main.sx : [slotProps?.main?.sx]),
       ]}
     >

@@ -67,7 +67,9 @@ const ItemRoot = styled(ButtonBase, { shouldForwardProp })<StyledState>(({ theme
   const activeStyles: CSSObject = {
     color: theme.vars.palette.primary.main,
     backgroundColor: rgbaFromChannel(theme.vars.palette.primary.mainChannel, 0.08),
-    "&:hover": { backgroundColor: rgbaFromChannel(theme.vars.palette.primary.mainChannel, 0.16) },
+    "&:hover": {
+      backgroundColor: rgbaFromChannel(theme.vars.palette.primary.mainChannel, 0.16),
+    },
   };
 
   return {
@@ -98,7 +100,12 @@ const ItemTitle = styled("span", { shouldForwardProp })<StyledState>(({ theme })
   ...navItemStyles.title(theme),
   ...theme.typography.body2,
   fontWeight: theme.typography.fontWeightMedium,
-  variants: [{ props: { active: true }, style: { fontWeight: theme.typography.fontWeightSemiBold } }],
+  variants: [
+    {
+      props: { active: true },
+      style: { fontWeight: theme.typography.fontWeightSemiBold },
+    },
+  ],
 }));
 
 /**

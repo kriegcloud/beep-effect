@@ -103,7 +103,9 @@ export function NavSearch({ navData = [], sx }: NavSearchProps) {
       )}
       renderOption={(props, option, state) => {
         const { key, ...otherProps } = props;
-        const matches = match(option.name, state.inputValue, { insideWords: true });
+        const matches = match(option.name, state.inputValue, {
+          insideWords: true,
+        });
         const parts = parse(option.name, matches);
 
         return (

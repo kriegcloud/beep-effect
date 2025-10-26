@@ -6,4 +6,4 @@ export type {
   ConfirmResult,
   ConfirmResultReason,
 } from "./types";
-export { default as useConfirm } from "./useConfirm";
+export { useConfirm, useConfirmEffect } from "./useConfirm";

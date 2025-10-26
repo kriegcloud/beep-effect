@@ -76,7 +76,9 @@ export function DashboardLayout({ sx, cssVars, children, slotProps, layoutQuery 
           ...(isNavHorizontal && {
             bgcolor: "var(--layout-nav-bg)",
             height: { [layoutQuery]: "var(--layout-nav-horizontal-height)" },
-            [`& .${iconButtonClasses.root}`]: { color: "var(--layout-nav-text-secondary-color)" },
+            [`& .${iconButtonClasses.root}`]: {
+              color: "var(--layout-nav-text-secondary-color)",
+            },
           }),
         },
       },
@@ -101,7 +103,11 @@ export function DashboardLayout({ sx, cssVars, children, slotProps, layoutQuery 
           {/** @slot Nav mobile */}
           <MenuButton
             onClick={onOpen}
-            sx={{ mr: 1, ml: -1, [theme.breakpoints.up(layoutQuery)]: { display: "none" } }}
+            sx={{
+              mr: 1,
+              ml: -1,
+              [theme.breakpoints.up(layoutQuery)]: { display: "none" },
+            }}
           />
           <NavMobile
             data={navData}
@@ -127,12 +133,22 @@ export function DashboardLayout({ sx, cssVars, children, slotProps, layoutQuery 
           {/** @slot Workspace popover */}
           <WorkspacesPopover
             data={_workspaces}
-            sx={{ ...(isNavHorizontal && { color: "var(--layout-nav-text-primary-color)" }) }}
+            sx={{
+              ...(isNavHorizontal && {
+                color: "var(--layout-nav-text-primary-color)",
+              }),
+            }}
           />
         </>
       ),
       rightArea: (
-        <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0, sm: 0.75 } }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: { xs: 0, sm: 0.75 },
+          }}
+        >
           {/** @slot Searchbar */}
           <Searchbar data={navData} />
 

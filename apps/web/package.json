@@ -11,7 +11,7 @@
     "directory": "apps/web"
   },
   "scripts": {
-    "dev": "NODE_OPTIONS='--inspect' bun run dotenvx -- next dev --turbopack",
+    "dev": "NODE_OPTIONS='--inspect=9231' bun run dotenvx -- next dev --turbopack",
     "dev:https": "bun run dotenvx -- bunx next dev --turbopack --experimental-https",
     "start": "bun run dotenvx -- next start",
     "build": "bun run dotenvx -- next build --turbopack",
@@ -164,20 +164,28 @@
     "stylis-plugin-rtl": "catalog:",
     "tailwind-merge": "catalog:",
     "tailwindcss-animate": "catalog:",
-    "tone": "^15.1.22",
+    "tone": "catalog:",
     "tw-animate-css": "catalog:",
     "uuid": "catalog:",
     "xstate": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "class-variance-authority": "catalog:",
+    "@radix-ui/react-toast": "catalog:",
+    "@zip.js/zip.js": "catalog:",
+    "@radix-ui/react-dialog": "catalog:",
+    "@radix-ui/react-separator": "catalog:",
+    "@radix-ui/react-slot": "catalog:",
+    "@radix-ui/react-tooltip": "catalog:",
+    "lucide-react": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
     "@beep/types": "workspace:^",
     "@types/json-logic-js": "catalog:",
     "@types/node": "catalog:",
-    "@types/react": "19.2.2",
+    "@types/react": "catalog:",
     "@types/autosuggest-highlight": "catalog:",
-    "@types/react-dom": "19.2.2",
+    "@types/react-dom": "catalog:",
     "@opentelemetry/api": "catalog:",
     "@opentelemetry/exporter-trace-otlp-http": "catalog:",
     "@opentelemetry/sdk-trace-base": "catalog:",
@@ -193,11 +201,7 @@
     "babel-plugin-transform-next-use-client": "catalog:",
     "copyfiles": "catalog:",
     "@babel/preset-react": "catalog:",
-    "@next/bundle-analyzer": "16.0.0-beta.0",
+    "@next/bundle-analyzer": "catalog:",
     "@types/turndown": "catalog:"
-  },
-  "overrides": {
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.2"
   }
 }

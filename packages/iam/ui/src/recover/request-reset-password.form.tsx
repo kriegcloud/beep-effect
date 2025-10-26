@@ -1,15 +1,13 @@
 import { RecoverImplementations, RequestResetPasswordPayload } from "@beep/iam-sdk/clients";
-import { clientRuntimeLayer } from "@beep/runtime-client";
+import { iamAtomRuntime } from "@beep/iam-sdk/clients/runtime";
 import { withToast } from "@beep/ui/common";
 import { Form, formOptionsWithSubmitEffect } from "@beep/ui/form";
 import { useAppForm } from "@beep/ui/form/useAppForm";
-import { Atom, useAtom } from "@effect-atom/atom-react";
+import { useAtom } from "@effect-atom/atom-react";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 
-const runtime = Atom.runtime(clientRuntimeLayer);
-
-const requestResetPasswordAtom = runtime.fn(
+const requestResetPasswordAtom = iamAtomRuntime.fn(
   F.flow(
     RecoverImplementations.RequestResetPassword,
     withToast({

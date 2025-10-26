@@ -1,6 +1,7 @@
+import * as Effect from "effect/Effect";
 import React from "react";
 import ConfirmContext from "./ConfirmContext";
-import type { ConfirmFunc } from "./types";
+import type { ConfirmFunc, ConfirmOptions } from "./types";
 
 let idCounter = 0;
 
@@ -12,7 +13,7 @@ const useConfirmId = (): string => {
   return `confirm-${id}`;
 };
 
-const useConfirm = (): ConfirmFunc => {
+export const useConfirm = (): ConfirmFunc => {
   const parentId = useConfirmId();
   const { confirmBase, closeOnParentUnmount } = React.useContext(ConfirmContext);
 
@@ -31,4 +32,11 @@ const useConfirm = (): ConfirmFunc => {
   return confirm;
 };
 
-export default useConfirm;
+export const useConfirmEffect = () => {
+  const confirm = useConfirm();
+  return (opts: ConfirmOptions) =>
+    Effect.tryPromise({
+      try: () => confirm(opts),
+      catch: (e) => Effect.fail(new Error(`useConfirmEffect: Error while confirming: ${e}`)),
+    });
+};

@@ -81,7 +81,9 @@
       ],
       "inputs": [
         "$TURBO_DEFAULT$"
-      ]
+      ],
+      "cache": false,
+      "interactive": true
     },
     "db:migrate": {
       "dependsOn": [
@@ -184,6 +186,10 @@
     },
     "//#clean": {
       "cache": false
+    },
+    "ui-add": {
+      "cache": false,
+      "interactive": true
     }
   }
 }

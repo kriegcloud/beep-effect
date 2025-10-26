@@ -1,20 +1,18 @@
 "use client";
 import { RecoverImplementations, ResetPasswordPayload } from "@beep/iam-sdk/clients";
-import { clientRuntimeLayer } from "@beep/runtime-client";
+import { iamAtomRuntime } from "@beep/iam-sdk/clients/runtime";
 import { paths } from "@beep/shared-domain";
 import { withToast } from "@beep/ui/common";
 import { Form, formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
 import { PasswordFieldsGroup } from "@beep/ui/form/groups";
 import { useRouter, useSearchParams } from "@beep/ui/hooks";
 import { SplashScreen } from "@beep/ui/progress";
-import { Atom, useAtom } from "@effect-atom/atom-react";
+import { useAtom } from "@effect-atom/atom-react";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import React from "react";
 
-const runtime = Atom.runtime(clientRuntimeLayer);
-
-const resetPasswordAtom = runtime.fn(
+const resetPasswordAtom = iamAtomRuntime.fn(
   F.flow(
     RecoverImplementations.ResetPassword,
     withToast({

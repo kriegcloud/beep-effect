@@ -82,7 +82,13 @@ export function WorkspacesPopover({ data = [], sx, ...other }: WorkspacesPopover
         sx={{ width: 24, height: 24, borderRadius: "50%" }}
       />
 
-      <Box component="span" sx={{ typography: "subtitle2", display: { xs: "none", [mediaQuery]: "inline-flex" } }}>
+      <Box
+        component="span"
+        sx={{
+          typography: "subtitle2",
+          display: { xs: "none", [mediaQuery]: "inline-flex" },
+        }}
+      >
         {workspace?.name}
       </Box>
 

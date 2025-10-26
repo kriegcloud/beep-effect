@@ -75,8 +75,14 @@ const ThumbsRoot = styled("div", {
               height: "100%",
               position: "absolute",
             },
-            "&::before": { left: -8, background: `linear-gradient(to right, ${maskBg}` },
-            "&::after": { right: -8, background: `linear-gradient(to left, ${maskBg}` },
+            "&::before": {
+              left: -8,
+              background: `linear-gradient(to right, ${maskBg}`,
+            },
+            "&::after": {
+              right: -8,
+              background: `linear-gradient(to left, ${maskBg}`,
+            },
           }),
         },
       },
@@ -95,8 +101,14 @@ const ThumbsRoot = styled("div", {
               width: "100%",
               position: "absolute",
             },
-            "&::before": { top: -8, background: `linear-gradient(to bottom, ${maskBg}` },
-            "&::after": { bottom: -8, background: `linear-gradient(to top, ${maskBg}` },
+            "&::before": {
+              top: -8,
+              background: `linear-gradient(to bottom, ${maskBg}`,
+            },
+            "&::after": {
+              bottom: -8,
+              background: `linear-gradient(to top, ${maskBg}`,
+            },
           }),
         },
       },

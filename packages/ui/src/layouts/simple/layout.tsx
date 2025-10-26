@@ -24,7 +24,9 @@ export type SimpleLayoutProps = LayoutBaseProps & {
 
 export function SimpleLayout({ sx, cssVars, children, slotProps, layoutQuery = "md" }: SimpleLayoutProps) {
   const renderHeader = () => {
-    const headerSlotProps: HeaderSectionProps["slotProps"] = { container: { maxWidth: false } };
+    const headerSlotProps: HeaderSectionProps["slotProps"] = {
+      container: { maxWidth: false },
+    };
 
     const headerSlots: HeaderSectionProps["slots"] = {
       topArea: (
@@ -34,7 +36,13 @@ export function SimpleLayout({ sx, cssVars, children, slotProps, layoutQuery = "
       ),
       leftArea: <Logo />,
       rightArea: (
-        <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, sm: 1.5 } }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: { xs: 1, sm: 1.5 },
+          }}
+        >
           {/** @slot Settings button */}
           <SettingsButton />
         </Box>

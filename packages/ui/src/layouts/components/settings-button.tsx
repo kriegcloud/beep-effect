@@ -31,7 +31,11 @@ export function SettingsButton({ sx, ...other }: IconButtonProps) {
             clipRule="evenodd"
             opacity="0.4"
             animate={{ rotate: 360 }}
-            transition={{ duration: 8, ease: "linear", repeat: Number.POSITIVE_INFINITY }}
+            transition={{
+              duration: 8,
+              ease: "linear",
+              repeat: Number.POSITIVE_INFINITY,
+            }}
           />
           <path
             fill="currentColor"

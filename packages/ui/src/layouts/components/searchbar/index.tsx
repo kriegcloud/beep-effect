@@ -144,10 +144,14 @@ export function Searchbar({ data: navItems = [], sx, ...other }: SearchbarProps)
       }}
     >
       {dataFiltered.map((item) => {
-        const matchesTitle = match(item.title, searchQuery, { insideWords: true });
+        const matchesTitle = match(item.title, searchQuery, {
+          insideWords: true,
+        });
         const partsTitle = parse(item.title, matchesTitle);
 
-        const matchesPath = match(item.path, searchQuery, { insideWords: true });
+        const matchesPath = match(item.path, searchQuery, {
+          insideWords: true,
+        });
         const partsPath = parse(item.path, matchesPath);
 
         return (
@@ -174,7 +178,10 @@ export function Searchbar({ data: navItems = [], sx, ...other }: SearchbarProps)
         maxWidth="sm"
         open={open}
         onClose={handleClose}
-        transitionDuration={{ enter: theme.transitions.duration.shortest, exit: 100 }}
+        transitionDuration={{
+          enter: theme.transitions.duration.shortest,
+          exit: 100,
+        }}
         sx={[
           {
             [`& .${dialogClasses.paper}`]: { mt: 15, overflow: "unset" },

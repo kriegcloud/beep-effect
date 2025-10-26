@@ -1,10 +1,9 @@
 import { Passkey } from "@beep/iam-domain/entities";
 import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
+import { IamError } from "@beep/iam-sdk/errors";
 import { BS } from "@beep/schema";
 import { IamEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
-
-import { IamError } from "../../errors";
 
 export class PasskeyView extends BS.Class<PasskeyView>("PasskeyView")(
   BS.mergeFields(Passkey.Model.select.pick("id").fields, {
@@ -25,7 +24,7 @@ export declare namespace PasskeyView {
 
 export class PasskeyAddPayload extends BS.Class<PasskeyAddPayload>("PasskeyAddPayload")(
   S.Struct({
-    ...Passkey.Model.insert.pick("name").fields,
+    ...Passkey.Model.insert.pick("name", "id").fields,
     authenticatorAttachment: S.optional(S.Literal("platform", "cross-platform")),
     useAutoRegister: S.optional(S.Boolean),
   }),
