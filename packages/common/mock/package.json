@@ -1,22 +1,29 @@
 {
-  "name": "@beep/utils",
+  "name": "@beep/mock",
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "A library for common utility functions",
+  "description": "A library for system wide errors & error utilities",
   "publishConfig": {
     "access": "restricted",
     "directory": "build"
   },
-  "exports": {
-    ".": "./src/index.ts",
-    "./package.json": "./package.json",
-    "./*": "./src/*.ts"
-  },
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",
-    "directory": "packages/common/utils"
+    "directory": "packages/common/mock"
+  },
+  "exports": {
+    ".": {
+      "browser": "./src/client.ts",
+      "node": "./src/server.ts",
+      "default": "./src/server.ts"
+    },
+    "./server": "./src/server.ts",
+    "./client": "./src/client.ts",
+    "./shared": "./src/shared.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
   },
   "scripts": {
     "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
@@ -25,29 +32,39 @@
     "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
     "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
     "check": "tsc -b tsconfig.json",
-    "test": "bun test",
+    "test": "bun run dotenvx -- bunx bun test",
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "coverage": "bun test --coverage",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "lint:circular": "bunx madge -c .",
-    "execute": "bunx tsx --tsconfig ./tsconfig.src.json ./src/execute.ts"
+    "dotenvx": "dotenvx run -f ../../../.env --"
   },
   "peerDependencies": {
-    "dayjs": "catalog:",
     "effect": "catalog:",
+    "@effect/platform": "catalog:",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/constants": "workspace:^",
+    "@effect/cluster": "catalog:",
+    "@effect/workflow": "catalog:",
     "@beep/invariant": "workspace:^",
-    "@faker-js/faker": "catalog:",
-    "mutative": "catalog:",
-    "next": "catalog:"
+    "uuid": "catalog:",
+    "picocolors": "catalog:"
   },
   "devDependencies": {
-    "dayjs": "catalog:",
-    "type-fest": "catalog:",
-    "@beep/testkit": "workspace:^",
-    "@beep/types": "workspace:^",
     "@types/bun": "catalog:",
-    "tsx": "catalog:"
+    "@beep/types": "workspace:^",
+    "effect": "catalog:",
+    "@effect/platform": "catalog:",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/constants": "workspace:^",
+    "@effect/cluster": "catalog:",
+    "@effect/workflow": "catalog:",
+    "@beep/invariant": "workspace:^",
+    "uuid": "catalog:",
+    "picocolors": "catalog:"
   },
   "effect": {
     "generateExports": {

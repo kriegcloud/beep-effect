@@ -34,7 +34,6 @@
     "bootstrap": "tsx ./src/bootstrap.ts",
     "generate-public-paths": "bun run dotenvx -- bunx tsx src/generate-asset-paths.ts",
     "gen:locales": "bun run dotenvx -- bunx tsx src/generate-locales.ts",
-    "write-atom-docs": "bun run dotenvx -- bunx tsx src/write-atom-docs.ts",
     "iconify": "bunx dotenvx run -f ../../.env -- bun run ./src/iconify/index.ts"
   },
   "dependencies": {

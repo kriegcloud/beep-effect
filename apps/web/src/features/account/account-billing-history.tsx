@@ -16,7 +16,7 @@ import type { IUserAccountBillingHistory } from "./types";
 // ----------------------------------------------------------------------
 
 type Props = CardProps & {
-  invoices: IUserAccountBillingHistory[];
+  readonly invoices: ReadonlyArray<IUserAccountBillingHistory>;
 };
 
 export function AccountBillingHistory({ invoices, sx, ...other }: Props) {

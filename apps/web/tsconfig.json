@@ -54,6 +54,8 @@
       "@beep/errors/client": ["../../packages/common/errors/src/client"],
       "@beep/errors/shared": ["../../packages/common/errors/src/shared"],
       "@beep/errors/server": ["../../packages/common/errors/src/server"],
+      "@beep/mock": ["../../packages/common/mock/src/index"],
+      "@beep/mock/*": ["../../packages/common/mock/src/*"],
       "@beep/rules": ["../../packages/common/rules/src/index"],
       "@beep/rules/*": ["../../packages/common/rules/src/*"],
       "@beep/logos": ["../../packages/common/logos/src/index"],
@@ -132,6 +134,9 @@
     },
     {
       "path": "../../packages/common/logos/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/mock/tsconfig.build.json"
     },
     {
       "path": "../../packages/common/rete/tsconfig.build.json"

@@ -17,13 +17,13 @@ import type { IAddressItem, IPaymentCard } from "./types";
 // ----------------------------------------------------------------------
 
 type Props = {
-  cardList: IPaymentCard[];
-  addressBook: IAddressItem[];
-  plans: {
-    price: number;
-    primary: boolean;
-    subscription: string;
-  }[];
+  readonly cardList: ReadonlyArray<IPaymentCard>;
+  readonly addressBook: ReadonlyArray<IAddressItem>;
+  readonly plans: ReadonlyArray<{
+    readonly price: number;
+    readonly primary: boolean;
+    readonly subscription: string;
+  }>;
 };
 
 export function AccountBillingPlan({ cardList, addressBook, plans }: Props) {

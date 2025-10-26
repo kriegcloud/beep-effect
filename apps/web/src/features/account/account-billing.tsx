@@ -8,14 +8,14 @@ import type { IAddressItem, IPaymentCard, IUserAccountBillingHistory } from "./t
 // ----------------------------------------------------------------------
 
 type Props = {
-  plans: {
-    subscription: string;
-    price: number;
-    primary: boolean;
-  }[];
-  cards: IPaymentCard[];
-  addressBook: IAddressItem[];
-  invoices: IUserAccountBillingHistory[];
+  readonly plans: ReadonlyArray<{
+    readonly subscription: string;
+    readonly price: number;
+    readonly primary: boolean;
+  }>;
+  readonly cards: ReadonlyArray<IPaymentCard>;
+  readonly addressBook: ReadonlyArray<IAddressItem>;
+  readonly invoices: ReadonlyArray<IUserAccountBillingHistory>;
 };
 
 export function AccountBilling({ cards, plans, invoices, addressBook }: Props) {

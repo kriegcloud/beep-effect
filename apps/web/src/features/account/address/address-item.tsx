@@ -8,8 +8,8 @@ import type { IAddressItem } from "../types";
 // ----------------------------------------------------------------------
 
 type Props = PaperProps & {
-  action?: React.ReactNode;
-  address: IAddressItem;
+  readonly action?: React.ReactNode;
+  readonly address: IAddressItem;
 };
 
 export function AddressItem({ address, action, sx, ...other }: Props) {

@@ -9,6 +9,7 @@
     { "path": "../packages/common/errors" },
     { "path": "../packages/common/rules" },
     { "path": "../packages/common/logos" },
-    { "path": "../packages/common/rete" }
+    { "path": "../packages/common/rete" },
+    { "path": "../packages/common/mock" }
   ]
 }

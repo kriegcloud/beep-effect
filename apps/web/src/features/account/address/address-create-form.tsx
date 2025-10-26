@@ -29,12 +29,14 @@ export const AddressCreate = S.Struct({
 // ----------------------------------------------------------------------
 
 type Props = DialogProps & {
-  onClose: () => void;
-  onCreate: (address: IAddressItem) => void;
-  slotProps?: DialogProps["slotProps"] & {
-    cancelButton?: ButtonProps & { label?: string };
-    submitButton?: ButtonProps & { label?: string };
-  };
+  readonly onClose: () => void;
+  readonly onCreate: (address: IAddressItem) => void;
+  readonly slotProps?:
+    | (DialogProps["slotProps"] & {
+        readonly cancelButton?: (ButtonProps & { readonly label?: string | undefined }) | undefined;
+        readonly submitButton?: (ButtonProps & { readonly label?: string | undefined }) | undefined;
+      })
+    | undefined;
 };
 
 export function AddressCreateForm({ open, onClose, onCreate, slotProps, sx, ...other }: Props) {

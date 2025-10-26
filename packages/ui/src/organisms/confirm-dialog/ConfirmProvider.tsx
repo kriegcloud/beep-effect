@@ -1,5 +1,6 @@
 import type { DialogProps } from "@mui/material/Dialog";
 import type { FormControlLabelProps } from "@mui/material/FormControlLabel";
+import { create } from "mutative";
 import React from "react";
 import ConfirmationDialog from "./ConfirmationDialog";
 import ConfirmContext, { type ConfirmContextValue } from "./ConfirmContext";
@@ -31,59 +32,60 @@ const DEFAULT_OPTIONS: ResolvedConfirmOptions = {
   acknowledgementCheckboxProps: {},
 };
 
-const buildOptions = (defaultOptions: ConfirmOptions, options: ConfirmOptions): ResolvedConfirmOptions => {
-  const dialogProps = {
-    ...(defaultOptions.dialogProps ?? DEFAULT_OPTIONS.dialogProps),
-    ...(options.dialogProps ?? {}),
-  };
-  const dialogActionsProps = {
-    ...(defaultOptions.dialogActionsProps ?? DEFAULT_OPTIONS.dialogActionsProps),
-    ...(options.dialogActionsProps ?? {}),
-  };
-  const confirmationButtonProps = {
-    ...(defaultOptions.confirmationButtonProps ?? DEFAULT_OPTIONS.confirmationButtonProps),
-    ...(options.confirmationButtonProps ?? {}),
-  };
-  const cancellationButtonProps = {
-    ...(defaultOptions.cancellationButtonProps ?? DEFAULT_OPTIONS.cancellationButtonProps),
-    ...(options.cancellationButtonProps ?? {}),
-  };
-  const titleProps = {
-    ...(defaultOptions.titleProps ?? DEFAULT_OPTIONS.titleProps),
-    ...(options.titleProps ?? {}),
-  };
-  const contentProps = {
-    ...(defaultOptions.contentProps ?? DEFAULT_OPTIONS.contentProps),
-    ...(options.contentProps ?? {}),
-  };
-  const confirmationKeywordTextFieldProps = {
-    ...(defaultOptions.confirmationKeywordTextFieldProps ?? DEFAULT_OPTIONS.confirmationKeywordTextFieldProps),
-    ...(options.confirmationKeywordTextFieldProps ?? {}),
-  };
-  const acknowledgementFormControlLabelProps = {
-    ...(defaultOptions.acknowledgementFormControlLabelProps ?? DEFAULT_OPTIONS.acknowledgementFormControlLabelProps),
-    ...(options.acknowledgementFormControlLabelProps ?? {}),
-  };
-  const acknowledgementCheckboxProps = {
-    ...(defaultOptions.acknowledgementCheckboxProps ?? DEFAULT_OPTIONS.acknowledgementCheckboxProps),
-    ...(options.acknowledgementCheckboxProps ?? {}),
-  };
+const buildOptions = (defaultOptions: ConfirmOptions, options: ConfirmOptions): ResolvedConfirmOptions =>
+  create(DEFAULT_OPTIONS, (draft) => {
+    const mergeInto = (target: object, source: object | undefined): void => {
+      if (source !== undefined) {
+        Object.assign(target, source);
+      }
+    };
 
-  return {
-    ...DEFAULT_OPTIONS,
-    ...defaultOptions,
-    ...options,
-    dialogProps,
-    dialogActionsProps,
-    confirmationButtonProps,
-    cancellationButtonProps,
-    titleProps,
-    contentProps,
-    confirmationKeywordTextFieldProps,
-    acknowledgementFormControlLabelProps,
-    acknowledgementCheckboxProps,
-  };
-};
+    const applyOptions = (source: ConfirmOptions): void => {
+      if (source.title !== undefined) {
+        draft.title = source.title;
+      }
+      if (source.description !== undefined) {
+        draft.description = source.description;
+      }
+      if (source.content !== undefined) {
+        draft.content = source.content;
+      }
+      if (source.confirmationText !== undefined) {
+        draft.confirmationText = source.confirmationText;
+      }
+      if (source.cancellationText !== undefined) {
+        draft.cancellationText = source.cancellationText;
+      }
+      if (source.allowClose !== undefined) {
+        draft.allowClose = source.allowClose;
+      }
+      if (source.confirmationKeyword !== undefined) {
+        draft.confirmationKeyword = source.confirmationKeyword;
+      }
+      if (source.hideCancelButton !== undefined) {
+        draft.hideCancelButton = source.hideCancelButton;
+      }
+      if (source.buttonOrder !== undefined) {
+        draft.buttonOrder = source.buttonOrder;
+      }
+      if (source.acknowledgement !== undefined) {
+        draft.acknowledgement = source.acknowledgement;
+      }
+
+      mergeInto(draft.dialogProps, source.dialogProps);
+      mergeInto(draft.dialogActionsProps, source.dialogActionsProps);
+      mergeInto(draft.confirmationButtonProps, source.confirmationButtonProps);
+      mergeInto(draft.cancellationButtonProps, source.cancellationButtonProps);
+      mergeInto(draft.titleProps, source.titleProps);
+      mergeInto(draft.contentProps, source.contentProps);
+      mergeInto(draft.confirmationKeywordTextFieldProps, source.confirmationKeywordTextFieldProps);
+      mergeInto(draft.acknowledgementFormControlLabelProps, source.acknowledgementFormControlLabelProps);
+      mergeInto(draft.acknowledgementCheckboxProps, source.acknowledgementCheckboxProps);
+    };
+
+    applyOptions(defaultOptions);
+    applyOptions(options);
+  });
 
 let confirmGlobal: ConfirmFunc = () => Promise.reject<ConfirmResult>(new Error("Missing ConfirmProvider"));
 

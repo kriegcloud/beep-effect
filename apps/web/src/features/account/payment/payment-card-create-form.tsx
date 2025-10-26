@@ -11,11 +11,11 @@ import TextField from "@mui/material/TextField";
 // ----------------------------------------------------------------------
 
 type PaymentCardCreateFormProps = BoxProps & {
-  isRHF?: boolean;
-  numberField?: TextFieldProps & { name: string };
-  holderField?: TextFieldProps & { name: string };
-  dateField?: TextFieldProps & { name: string };
-  cvvField?: TextFieldProps & { name: string };
+  readonly isRHF?: boolean;
+  readonly numberField?: TextFieldProps & { name: string };
+  readonly holderField?: TextFieldProps & { name: string };
+  readonly dateField?: TextFieldProps & { name: string };
+  readonly cvvField?: TextFieldProps & { name: string };
 };
 
 export function PaymentCardCreateForm({

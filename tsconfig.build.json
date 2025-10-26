@@ -20,6 +20,9 @@
     {
       "path": "packages/common/errors/tsconfig.build.json"
     },
+        {
+      "path": "packages/common/mock/tsconfig.build.json"
+    },
     {
       "path": "packages/common/rules/tsconfig.build.json"
     },

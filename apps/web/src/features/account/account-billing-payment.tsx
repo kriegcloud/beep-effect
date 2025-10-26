@@ -16,7 +16,7 @@ import type { IPaymentCard } from "./types";
 // ----------------------------------------------------------------------
 
 type Props = CardProps & {
-  cards: IPaymentCard[];
+  cards: ReadonlyArray<IPaymentCard>;
 };
 
 export function AccountBillingPayment({ cards, sx, ...other }: Props) {

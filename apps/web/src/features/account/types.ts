@@ -1,32 +1,32 @@
 export type IDateValue = string | number | null;
 
 export type IUserAccountBillingHistory = {
-  id: string;
-  price: number;
-  invoiceNumber: string;
-  createdAt: IDateValue;
+  readonly id: string;
+  readonly price: number;
+  readonly invoiceNumber: string;
+  readonly createdAt: IDateValue;
 };
 
 export type IPaymentCard = {
-  id: string;
-  cardType: string;
-  primary?: boolean;
-  cardNumber: string;
+  readonly id: string;
+  readonly cardType: string;
+  readonly primary?: boolean | undefined;
+  readonly cardNumber: string;
 };
 
 export type IAddressItem = {
-  id?: string;
-  name: string;
-  company?: string;
-  primary?: boolean;
-  fullAddress: string;
-  phoneNumber?: string;
-  addressType?: string;
+  readonly id?: string;
+  readonly name: string;
+  readonly company?: string | undefined;
+  readonly primary?: boolean | undefined;
+  readonly fullAddress: string;
+  readonly phoneNumber?: string | undefined;
+  readonly addressType?: string | undefined;
 };
 
 export type ISocialLink = {
-  x: string;
-  facebook: string;
-  linkedin: string;
-  instagram: string;
+  readonly x: string;
+  readonly facebook: string;
+  readonly linkedin: string;
+  readonly instagram: string;
 };

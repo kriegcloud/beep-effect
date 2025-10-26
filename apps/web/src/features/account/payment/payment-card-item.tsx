@@ -14,7 +14,7 @@ import type { IPaymentCard } from "../types";
 // ----------------------------------------------------------------------
 
 type PaymentItemProps = PaperProps & {
-  card: IPaymentCard;
+  readonly card: IPaymentCard;
 };
 
 export function PaymentCardItem({ card, sx, ...other }: PaymentItemProps) {

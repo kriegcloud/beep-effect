@@ -30,6 +30,7 @@
     "rehype-raw": "catalog:",
     "rehype-highlight": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
+    "@beep/mock": "workspace:^",
     "@beep/constants": "workspace:^",
     "@beep/core-db": "workspace:^",
     "@beep/core-email": "workspace:^",

@@ -15,12 +15,12 @@ import type { IAddressItem } from "../types";
 // ----------------------------------------------------------------------
 
 type Props = Omit<DialogProps, "onSelect"> & {
-  title?: string;
-  list: IAddressItem[];
-  action?: React.ReactNode;
-  onClose: () => void;
-  selected: (selectedId: string) => boolean;
-  onSelect: (address: IAddressItem | null) => void;
+  readonly title?: string;
+  readonly list: ReadonlyArray<IAddressItem>;
+  readonly action?: React.ReactNode;
+  readonly onClose: () => void;
+  readonly selected: (selectedId: string) => boolean;
+  readonly onSelect: (address: IAddressItem | null) => void;
 };
 
 export function AddressListDialog({
@@ -137,7 +137,7 @@ export function AddressListDialog({
 
 type ApplyFilterProps = {
   query: string;
-  inputData: IAddressItem[];
+  inputData: ReadonlyArray<IAddressItem>;
 };
 
 function applyFilter({ inputData, query }: ApplyFilterProps) {

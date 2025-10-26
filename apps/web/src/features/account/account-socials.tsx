@@ -9,7 +9,7 @@ import * as Struct from "effect/Struct";
 import type { ISocialLink } from "./types";
 
 type Props = {
-  socialLinks: ISocialLink;
+  readonly socialLinks: ISocialLink;
 };
 
 export class AccountSocialsPayload extends BS.Class<AccountSocialsPayload>("AccountSocialsPayload")({

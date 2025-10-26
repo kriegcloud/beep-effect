@@ -16,7 +16,7 @@ import type { IAddressItem } from "./types";
 // ----------------------------------------------------------------------
 
 type Props = CardProps & {
-  addressBook: IAddressItem[];
+  readonly addressBook: ReadonlyArray<IAddressItem>;
 };
 
 export function AccountBillingAddress({ addressBook, sx, ...other }: Props) {

@@ -18,6 +18,9 @@
       "path": "../../packages/common/constants/tsconfig.build.json"
     },
     {
+      "path": "../../packages/common/mock/tsconfig.build.json"
+    },
+    {
       "path": "../../packages/common/errors/tsconfig.build.json"
     },
     {
@@ -113,6 +116,8 @@
       "@beep/rules/*": ["../../packages/common/rules/src/*"],
       "@beep/logos": ["../../packages/common/logos/src/index"],
       "@beep/logos/*": ["../../packages/common/logos/src/*"],
+      "@beep/mock": ["../../packages/common/mock/src/index"],
+      "@beep/mock/*": ["../../packages/common/mock/src/*"],
       "@beep/rete": ["../../packages/common/rete/src/index"],
       "@beep/rete/*": ["../../packages/common/rete/src/*"],
       "@beep/shared-domain": ["../../packages/shared/domain/src/index"],

@@ -109,6 +109,15 @@
       "@beep/errors/test/*": [
         "./packages/common/errors/test/*"
       ],
+      "@beep/mock": [
+        "./packages/common/mock/src/index"
+      ],
+      "@beep/mock/*": [
+        "./packages/common/mock/src/*"
+      ],
+      "@beep/mock/test/*": [
+        "./packages/common/mock/test/*"
+      ],
       "@beep/rules": [
         "./packages/common/rules/src/index"
       ],
