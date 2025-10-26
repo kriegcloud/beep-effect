@@ -7,6 +7,7 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import SvgIcon from "@mui/material/SvgIcon";
+import { useEffect, useState } from "react";
 
 import { notificationIcons } from "./icons";
 
@@ -42,6 +43,17 @@ const renderIcon = (type: string) =>
   })[type];
 
 export function NotificationItem({ notification }: NotificationItemProps) {
+  const [relativeCreatedAt, setRelativeCreatedAt] = useState("");
+
+  useEffect(() => {
+    if (!notification.createdAt) {
+      setRelativeCreatedAt("");
+      return;
+    }
+
+    setRelativeCreatedAt(fToNow(notification.createdAt));
+  }, [notification.createdAt]);
+
   const renderAvatar = () => (
     <ListItemAvatar>
       {notification.avatarUrl ? (
@@ -69,8 +81,12 @@ export function NotificationItem({ notification }: NotificationItemProps) {
       primary={readerContent(notification.title)}
       secondary={
         <>
-          {fToNow(notification.createdAt)}
-          <Box component="span" sx={{ width: 2, height: 2, borderRadius: "50%", bgcolor: "currentColor" }} />
+          {relativeCreatedAt && (
+            <>
+              {relativeCreatedAt}
+              <Box component="span" sx={{ width: 2, height: 2, borderRadius: "50%", bgcolor: "currentColor" }} />
+            </>
+          )}
           {notification.category}
         </>
       }

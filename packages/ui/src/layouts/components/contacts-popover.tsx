@@ -15,7 +15,10 @@ import ListItemText from "@mui/material/ListItemText";
 import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Typography from "@mui/material/Typography";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
 import { m } from "framer-motion";
+import { useEffect, useState } from "react";
 
 // ----------------------------------------------------------------------
 
@@ -33,34 +36,71 @@ export type ContactsPopoverProps = IconButtonProps & {
   }[];
 };
 
+type Contact = NonNullable<ContactsPopoverProps["data"]>[number];
+
+type ContactWithRelativeLastActivity = Contact & {
+  relativeLastActivity: string;
+};
+
 export function ContactsPopover({ data = [], sx, ...other }: ContactsPopoverProps) {
   const { open, anchorEl, onClose, onOpen } = usePopover();
+
+  const [contactsWithRelativeLastActivity, setContactsWithRelativeLastActivity] = useState<
+    ContactWithRelativeLastActivity[]
+  >(() =>
+    F.pipe(
+      data,
+      A.map(
+        (contact): ContactWithRelativeLastActivity => ({
+          ...contact,
+          relativeLastActivity: "",
+        })
+      )
+    )
+  );
+
+  useEffect(() => {
+    setContactsWithRelativeLastActivity(
+      F.pipe(
+        data,
+        A.map(
+          (contact): ContactWithRelativeLastActivity => ({
+            ...contact,
+            relativeLastActivity: contact.status === "offline" ? fToNow(contact.lastActivity) : "",
+          })
+        )
+      )
+    );
+  }, [data]);
 
   const renderMenuList = () => (
     <CustomPopover open={open} anchorEl={anchorEl} onClose={onClose}>
       <Typography variant="h6" sx={{ p: 1.5 }}>
-        Contacts <span>({data.length})</span>
+        Contacts <span>({contactsWithRelativeLastActivity.length})</span>
       </Typography>
 
       <Scrollbar sx={{ height: 320, width: 320 }}>
         <MenuList>
-          {data.map((contact) => (
-            <MenuItem key={contact.id} sx={{ p: 1 }}>
-              <Badge variant={contact.status as BadgeProps["variant"]} badgeContent=" ">
-                <Avatar alt={contact.name} src={contact.avatarUrl} />
-              </Badge>
+          {F.pipe(
+            contactsWithRelativeLastActivity,
+            A.map((contact) => (
+              <MenuItem key={contact.id} sx={{ p: 1 }}>
+                <Badge variant={contact.status as BadgeProps["variant"]} badgeContent=" ">
+                  <Avatar alt={contact.name} src={contact.avatarUrl} />
+                </Badge>
 
-              <ListItemText
-                primary={contact.name}
-                secondary={contact.status === "offline" ? fToNow(contact.lastActivity) : ""}
-                slotProps={{
-                  secondary: {
-                    sx: { typography: "caption", color: "text.disabled" },
-                  },
-                }}
-              />
-            </MenuItem>
-          ))}
+                <ListItemText
+                  primary={contact.name}
+                  secondary={contact.relativeLastActivity}
+                  slotProps={{
+                    secondary: {
+                      sx: { typography: "caption", color: "text.disabled" },
+                    },
+                  }}
+                />
+              </MenuItem>
+            ))
+          )}
         </MenuList>
       </Scrollbar>
     </CustomPopover>

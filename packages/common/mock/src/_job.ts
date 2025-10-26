@@ -1,3 +1,4 @@
+import { _lastActivity } from "@beep/mock/_time";
 import { _mock } from "./_mock";
 
 // ----------------------------------------------------------------------
@@ -139,8 +140,8 @@ export const _jobs = Array.from({ length: 12 }, (_, index) => {
     candidates: CANDIDATES,
     role: _mock.role(index),
     title: _mock.jobTitle(index),
-    createdAt: _mock.time(index),
-    expiredDate: _mock.time(index),
+    createdAt: _lastActivity[index]!,
+    expiredDate: _lastActivity[index]!,
     skills: JOB_SKILL_OPTIONS.slice(0, 3),
     totalViews: _mock.number.nativeL(index),
     locations: [_mock.countryNames(1), _mock.countryNames(2)],

@@ -1,3 +1,4 @@
+"use client";
 import { fAdd, fSub } from "@beep/utils/format-time";
 
 import { _mock } from "./_mock";

@@ -78,6 +78,10 @@ const dashboardAdminPermissions = dashboardAdmin.child("permissions");
 const dashboardAdminOauthClients = dashboardAdmin.child("oauth-clients");
 const dashboardAdminOauthClient = (clientId: string) => dashboardAdminOauthClients.child(clientId);
 const user = dashboard.child("user");
+const userDialog = (settingsTab: string) =>
+  PathBuilder.dynamicQueries(user.root)({
+    settingsTab,
+  });
 const userAccount = user.child("account");
 const fileManager = dashboard.child("file-manager");
 const organization = (id: SharedEntityIds.OrganizationId.Type) => PathBuilder.createRoot("/organizations").child(id);
@@ -493,6 +497,7 @@ export const paths = PathBuilder.collection({
     root: dashboard.root,
     user: {
       root: user.root,
+      accountSettings: userDialog,
       account: {
         root: userAccount.root,
         billing: userAccount("billing"),

@@ -1,3 +1,4 @@
+import { _lastActivity } from "@beep/mock/_time";
 import { _mock } from "./_mock";
 
 // ----------------------------------------------------------------------
@@ -44,14 +45,14 @@ export const _userFriends = Array.from({ length: 18 }, (_, index) => ({
 
 export const _userGallery = Array.from({ length: 12 }, (_, index) => ({
   id: _mock.id(index),
-  postedAt: _mock.time(index),
+  postedAt: _lastActivity[index]!,
   title: _mock.postTitle(index),
   imageUrl: _mock.image.cover(index),
 }));
 
 export const _userFeeds = Array.from({ length: 3 }, (_, index) => ({
   id: _mock.id(index),
-  createdAt: _mock.time(index),
+  createdAt: _lastActivity[index]!,
   media: _mock.image.travel(index + 1),
   message: _mock.sentence(index),
   personLikes: Array.from({ length: 20 }, (__, personIndex) => ({
@@ -66,7 +67,7 @@ export const _userFeeds = Array.from({ length: 3 }, (_, index) => ({
         avatarUrl: _mock.image.avatar(index + 5),
         name: _mock.fullName(index + 5),
       },
-      createdAt: _mock.time(2),
+      createdAt: _lastActivity[2]!,
       message: "Praesent venenatis metus at",
     },
     {
@@ -76,7 +77,7 @@ export const _userFeeds = Array.from({ length: 3 }, (_, index) => ({
         avatarUrl: _mock.image.avatar(index + 6),
         name: _mock.fullName(index + 6),
       },
-      createdAt: _mock.time(3),
+      createdAt: _lastActivity[3]!,
       message:
         "Etiam rhoncus. Nullam vel sem. Pellentesque libero tortor, tincidunt et, tincidunt eget, semper nec, quam. Sed lectus.",
     },
@@ -113,7 +114,7 @@ export const _userAddressBook = Array.from({ length: 4 }, (_, index) => ({
 export const _userInvoices = Array.from({ length: 10 }, (_, index) => ({
   id: _mock.id(index),
   invoiceNumber: `INV-199${index}`,
-  createdAt: _mock.time(index),
+  createdAt: _lastActivity[index]!,
   price: _mock.number.price(index),
 }));
 

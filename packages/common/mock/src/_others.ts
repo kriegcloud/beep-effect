@@ -1,5 +1,7 @@
+import { _lastActivity } from "@beep/mock/_time";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
 import { _mock } from "./_mock";
-
 // ----------------------------------------------------------------------
 
 export const _carouselsMembers = Array.from({ length: 6 }, (_, index) => ({
@@ -43,57 +45,59 @@ export const _contacts = Array.from({ length: 20 }, (_, index) => {
     email: _mock.email(index),
     name: _mock.fullName(index),
     phoneNumber: _mock.phoneNumber(index),
-    lastActivity: _mock.time(index),
+    lastActivity: _lastActivity[index]!,
     avatarUrl: _mock.image.avatar(index),
     address: _mock.fullAddress(index),
   };
 });
+const _notificationTypes = [
+  "friend",
+  "project",
+  "file",
+  "tags",
+  "payment",
+  "order",
+  "delivery",
+  "chat",
+  "mail",
+] as const;
 
-// ----------------------------------------------------------------------
+const _notificationCategories = [
+  "Communication",
+  "Project UI",
+  "File manager",
+  "File manager",
+  "File manager",
+  "Order",
+  "Order",
+  "Communication",
+  "Communication",
+] as const;
+const _notificationCreatedAt = F.pipe(_lastActivity, A.take(9));
+const _notificationTitles = [
+  `<p><strong>Deja Brady</strong> sent you a friend request</p>`,
+  `<p><strong>Jayvon Hull</strong> mentioned you in <strong><a href='#'>Minimal UI</a></strong></p>`,
+  `<p><strong>Lainey Davidson</strong> added file to <strong><a href='#'>File manager</a></strong></p>`,
+  `<p><strong>Angelique Morse</strong> added new tags to <strong><a href='#'>File manager</a></strong></p>`,
+  `<p><strong>Giana Brandt</strong> request a payment of <strong>$200</strong></p>`,
+  `<p>Your order is placed waiting for shipping</p>`,
+  `<p>Delivery processing your order is being shipped</p>`,
+  `<p>You have new message 5 unread messages</p>`,
+  `<p>You have new mail</p>`,
+] as const;
+export const _notifications = A.map(_notificationCreatedAt, (createdAt, index) => {
+  const avatarUrl = _mock.image.avatar(index);
 
-export const _notifications = Array.from({ length: 9 }, (_, index) => ({
-  id: _mock.id(index),
-  avatarUrl: [
-    _mock.image.avatar(1),
-    _mock.image.avatar(2),
-    _mock.image.avatar(3),
-    _mock.image.avatar(4),
-    _mock.image.avatar(5),
-    null,
-    null,
-    null,
-    null,
-    null,
-  ][index]!,
-  type: ["friend", "project", "file", "tags", "payment", "order", "delivery", "chat", "mail"][index],
-  category: [
-    "Communication",
-    "Project UI",
-    "File manager",
-    "File manager",
-    "File manager",
-    "Order",
-    "Order",
-    "Communication",
-    "Communication",
-  ][index]!,
-  isUnRead: _mock.boolean(index),
-  createdAt: _mock.time(index),
-  title:
-    (index === 0 && `<p><strong>Deja Brady</strong> sent you a friend request</p>`) ||
-    (index === 1 &&
-      `<p><strong>Jayvon Hull</strong> mentioned you in <strong><a href='#'>Minimal UI</a></strong></p>`) ||
-    (index === 2 &&
-      `<p><strong>Lainey Davidson</strong> added file to <strong><a href='#'>File manager</a></strong></p>`) ||
-    (index === 3 &&
-      `<p><strong>Angelique Morse</strong> added new tags to <strong><a href='#'>File manager<a/></strong></p>`) ||
-    (index === 4 && `<p><strong>Giana Brandt</strong> request a payment of <strong>$200</strong></p>`) ||
-    (index === 5 && `<p>Your order is placed waiting for shipping</p>`) ||
-    (index === 6 && `<p>Delivery processing your order is being shipped</p>`) ||
-    (index === 7 && `<p>You have new message 5 unread messages</p>`) ||
-    (index === 8 && `<p>You have new mail`) ||
-    "",
-}));
+  return {
+    id: _mock.id(index)!,
+    avatarUrl,
+    type: _notificationTypes[index]!,
+    category: _notificationCategories[index]!,
+    isUnread: false,
+    createdAt,
+    title: _notificationTitles[index]!,
+  };
+});
 
 // ----------------------------------------------------------------------
 
@@ -166,42 +170,42 @@ export const _pricingPlans = [
 export const _testimonials = [
   {
     name: _mock.fullName(1),
-    postedDate: _mock.time(1),
+    postedDate: _lastActivity[1]!,
     ratingNumber: _mock.number.rating(1),
     avatarUrl: _mock.image.avatar(1),
     content: `Excellent Work! Thanks a lot!`,
   },
   {
     name: _mock.fullName(2),
-    postedDate: _mock.time(2),
+    postedDate: _lastActivity[2]!,
     ratingNumber: _mock.number.rating(2),
     avatarUrl: _mock.image.avatar(2),
     content: `It's a very good dashboard and we are really liking the product . We've done some things, like migrate to TS and implementing a react useContext api, to fit our job methodology but the product is one of the best in terms of design and application architecture. The team did a really good job.`,
   },
   {
     name: _mock.fullName(3),
-    postedDate: _mock.time(3),
+    postedDate: _lastActivity[3]!,
     ratingNumber: _mock.number.rating(3),
     avatarUrl: _mock.image.avatar(3),
     content: `Customer support is realy fast and helpful the desgin of this theme is looks amazing also the code is very clean and readble realy good job !`,
   },
   {
     name: _mock.fullName(4),
-    postedDate: _mock.time(4),
+    postedDate: _lastActivity[4]!,
     ratingNumber: _mock.number.rating(4),
     avatarUrl: _mock.image.avatar(4),
     content: `Amazing, really good code quality and gives you a lot of examples for implementations.`,
   },
   {
     name: _mock.fullName(5),
-    postedDate: _mock.time(5),
+    postedDate: _lastActivity[5]!,
     ratingNumber: _mock.number.rating(5),
     avatarUrl: _mock.image.avatar(5),
     content: `Got a few questions after purchasing the product. The owner responded very fast and very helpfull. Overall the code is excellent and works very good. 5/5 stars!`,
   },
   {
     name: _mock.fullName(6),
-    postedDate: _mock.time(6),
+    postedDate: _lastActivity[6]!,
     ratingNumber: _mock.number.rating(6),
     avatarUrl: _mock.image.avatar(6),
     content: `CEO of Codealy.io here. We’ve built a developer assessment platform that makes sense - tasks are based on git repositories and run in virtual machines. We automate the pain points - storing candidates code, running it and sharing test results with the whole team, remotely. Bought this template as we need to provide an awesome dashboard for our early customers. I am super happy with purchase. The code is just as good as the design. Thanks!`,

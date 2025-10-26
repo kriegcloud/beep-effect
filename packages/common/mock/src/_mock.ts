@@ -1,4 +1,4 @@
-import { fSub } from "@beep/utils/format-time";
+import { _lastActivity } from "@beep/mock/_time";
 import {
   _ages,
   _booleans,
@@ -33,7 +33,7 @@ import {
 
 export const _mock = {
   id: (index: number) => _id[index]!,
-  time: (index: number) => fSub({ days: index, hours: index }),
+  time: (index: number) => _lastActivity[index]!,
   boolean: (index: number) => _booleans[index]!,
   role: (index: number) => _roles[index]!,
   // Text

@@ -66,37 +66,37 @@ export function AccountSecurity() {
           flexDirection: "column",
         }}
       >
-        <form.AppField
-          name={"oldPassword"}
-          children={(field) => (
-            <field.Text
-              type={showPassword.value ? "text" : "password"}
-              label={"Old password"}
-              slotProps={{
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={showPassword.onToggle} edge="end">
-                        <Iconify icon={showPassword.value ? "solar:eye-bold" : "solar:eye-closed-bold"} />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
-          )}
-        />
+        <form.AppForm>
+          <form.AppField
+            name={"oldPassword"}
+            children={(field) => (
+              <field.Text
+                type={showPassword.value ? "text" : "password"}
+                label={"Old password"}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={showPassword.onToggle} edge="end">
+                          <Iconify icon={showPassword.value ? "solar:eye-bold" : "solar:eye-closed-bold"} />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
+            )}
+          />
 
-        <PasswordFieldsGroup
-          form={form}
-          fields={{
-            password: "newPassword",
-            passwordConfirm: "passwordConfirm",
-          }}
-        />
-        <form.Submit variant={"contained"} sx={{ ml: "auto" }}>
-          Save changes
-        </form.Submit>
+          <PasswordFieldsGroup
+            form={form}
+            fields={{
+              password: "newPassword",
+              passwordConfirm: "passwordConfirm",
+            }}
+          />
+          <form.Submit variant={"contained"} />
+        </form.AppForm>
       </Card>
     </Form>
   );

@@ -1,3 +1,4 @@
+import { _lastActivity } from "@beep/mock/_time";
 import { _mock } from "./_mock";
 import { _fileNames, _tags } from "./assets";
 
@@ -75,8 +76,8 @@ export const _folders = FOLDERS.map((name, index) => ({
   tags: _tags.slice(0, 5),
   size: GB / ((index + 1) * 10),
   totalFiles: (index + 1) * 100,
-  createdAt: _mock.time(index),
-  modifiedAt: _mock.time(index),
+  createdAt: _lastActivity[index]!,
+  modifiedAt: _lastActivity[index]!,
   isFavorited: _mock.boolean(index + 1),
 }));
 
@@ -87,8 +88,8 @@ export const _files = _fileNames.map((name, index) => ({
   shared: shared(index),
   tags: _tags.slice(0, 5),
   size: GB / ((index + 1) * 500),
-  createdAt: _mock.time(index),
-  modifiedAt: _mock.time(index),
+  createdAt: _lastActivity[index]!,
+  modifiedAt: _lastActivity[index]!,
   type: `${name.split(".").pop()}`,
   isFavorited: _mock.boolean(index + 1),
 }));

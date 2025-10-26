@@ -1,3 +1,4 @@
+import { _lastActivity } from "@beep/mock/_time";
 import { _mock } from "./_mock";
 import { _tags } from "./assets";
 
@@ -84,7 +85,7 @@ export const _tourGuides = Array.from({ length: 12 }, (_, index) => ({
 export const TRAVEL_IMAGES = Array.from({ length: 16 }, (_, index) => _mock.image.travel(index));
 
 export const _tours = Array.from({ length: 12 }, (_, index) => {
-  const available = { startDate: _mock.time(index + 1), endDate: _mock.time(index) };
+  const available = { startDate: _lastActivity[index + 1]!, endDate: _lastActivity[index]! };
 
   const publish = index % 3 ? "published" : "draft";
 
@@ -114,7 +115,7 @@ export const _tours = Array.from({ length: 12 }, (_, index) => {
     id: _mock.id(index),
     tags: _tags.slice(0, 5),
     name: _mock.tourName(index),
-    createdAt: _mock.time(index),
+    createdAt: _lastActivity[index]!,
     durations: "4 days 3 nights",
     price: _mock.number.price(index),
     destination: _mock.countryNames(index),

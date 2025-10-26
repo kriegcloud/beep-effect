@@ -2,7 +2,7 @@
 import { useGetSession } from "@beep/iam-sdk/clients/session";
 // import {client} from "@beep/iam-sdk/adapters/better-auth/client";
 import { paths } from "@beep/shared-domain";
-import { useRouter } from "@beep/ui/hooks";
+import { useIsClient, useRouter } from "@beep/ui/hooks";
 import { SplashScreen } from "@beep/ui/progress/loading-screen/splash-screen";
 import { AuthAdapterProvider } from "@beep/ui/providers";
 import { Result } from "@effect-atom/atom-react";
@@ -23,6 +23,11 @@ type AuthGuardContentProps = AuthGuardProps & {
 
 const AuthGuardContent: React.FC<AuthGuardContentProps> = ({ children, router, ...props }) => {
   const { sessionResult } = useGetSession();
+  const isClient = useIsClient();
+
+  if (!isClient) {
+    return <SplashScreen />;
+  }
 
   return (
     <>

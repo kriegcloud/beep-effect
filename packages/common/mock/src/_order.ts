@@ -1,3 +1,4 @@
+import { _lastActivity } from "@beep/mock/_time";
 import { _mock } from "./_mock";
 
 // ----------------------------------------------------------------------
@@ -44,23 +45,23 @@ export const _orders = Array.from({ length: 20 }, (_, index) => {
   const delivery = { shipBy: "DHL", speedy: "Standard", trackingNumber: "SPX037739199373" };
 
   const history = {
-    orderTime: _mock.time(1),
-    paymentTime: _mock.time(2),
-    deliveryTime: _mock.time(3),
-    completionTime: _mock.time(4),
+    orderTime: _lastActivity[1]!,
+    paymentTime: _lastActivity[2]!,
+    deliveryTime: _lastActivity[3]!,
+    completionTime: _lastActivity[4]!,
     timeline: [
-      { title: "Delivery successful", time: _mock.time(1) },
-      { title: "Transporting to [2]", time: _mock.time(2) },
-      { title: "Transporting to [1]", time: _mock.time(3) },
-      { title: "The shipping unit has picked up the goods", time: _mock.time(4) },
-      { title: "Order has been created", time: _mock.time(5) },
+      { title: "Delivery successful", time: _lastActivity[1]! },
+      { title: "Transporting to [2]", time: _lastActivity[2]! },
+      { title: "Transporting to [1]", time: _lastActivity[3]! },
+      { title: "The shipping unit has picked up the goods", time: _lastActivity[4]! },
+      { title: "Order has been created", time: _lastActivity[5]! },
     ],
   };
 
   return {
     id: _mock.id(index),
     orderNumber: `#601${index}`,
-    createdAt: _mock.time(index),
+    createdAt: _lastActivity[index]!,
     taxes,
     items,
     history,

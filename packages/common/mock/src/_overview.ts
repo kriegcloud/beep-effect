@@ -1,3 +1,4 @@
+import { _lastActivity } from "@beep/mock/_time";
 import { today } from "@beep/utils/format-time";
 import { _mock } from "./_mock";
 
@@ -64,7 +65,7 @@ export const _analyticTasks = Array.from({ length: 5 }, (_, index) => ({
 
 export const _analyticPosts = Array.from({ length: 5 }, (_, index) => ({
   id: _mock.id(index),
-  postedAt: _mock.time(index),
+  postedAt: _lastActivity[index]!,
   title: _mock.postTitle(index),
   coverUrl: _mock.image.cover(index),
   description: _mock.sentence(index),
@@ -83,7 +84,7 @@ export const _analyticOrderTimeline = Array.from({ length: 5 }, (_, index) => {
     id: _mock.id(index),
     title,
     type: `order${index + 1}`,
-    time: _mock.time(index),
+    time: _lastActivity[index]!,
   };
 });
 
@@ -201,7 +202,7 @@ export const _bankingRecentTransitions = [
     type: "Income",
     message: "Receive money from",
     category: "Annette black",
-    date: _mock.time(2),
+    date: _lastActivity[2]!,
     status: "progress",
     amount: _mock.number.price(2),
   },
@@ -212,7 +213,7 @@ export const _bankingRecentTransitions = [
     type: "Expenses",
     message: "Payment for",
     category: "Courtney henry",
-    date: _mock.time(3),
+    date: _lastActivity[3]!,
     status: "completed",
     amount: _mock.number.price(3),
   },
@@ -223,7 +224,7 @@ export const _bankingRecentTransitions = [
     type: "Receive",
     message: "Payment for",
     category: "Theresa webb",
-    date: _mock.time(4),
+    date: _lastActivity[4]!,
     status: "failed",
     amount: _mock.number.price(4),
   },
@@ -234,7 +235,7 @@ export const _bankingRecentTransitions = [
     type: "Expenses",
     message: "Payment for",
     category: "Fast food",
-    date: _mock.time(5),
+    date: _lastActivity[5]!,
     status: "completed",
     amount: _mock.number.price(5),
   },
@@ -245,7 +246,7 @@ export const _bankingRecentTransitions = [
     type: "Expenses",
     message: "Payment for",
     category: "Fitness",
-    date: _mock.time(6),
+    date: _lastActivity[6]!,
     status: "progress",
     amount: _mock.number.price(6),
   },
@@ -273,8 +274,8 @@ export const _bookings = Array.from({ length: 5 }, (_, index) => {
     destination,
     status,
     customer,
-    checkIn: _mock.time(index),
-    checkOut: _mock.time(index),
+    checkIn: _lastActivity[index]!,
+    checkOut: _lastActivity[index]!,
   };
 });
 
@@ -287,7 +288,7 @@ export const _bookingsOverview = Array.from({ length: 3 }, (_, index) => ({
 export const _bookingReview = Array.from({ length: 5 }, (_, index) => ({
   id: _mock.id(index),
   name: _mock.fullName(index),
-  postedAt: _mock.time(index),
+  postedAt: _lastActivity[index]!,
   rating: _mock.number.rating(index),
   avatarUrl: _mock.image.avatar(index),
   description: _mock.description(index),
@@ -297,7 +298,7 @@ export const _bookingReview = Array.from({ length: 5 }, (_, index) => ({
 export const _bookingNew = Array.from({ length: 8 }, (_, index) => ({
   guests: "3-5",
   id: _mock.id(index),
-  bookedAt: _mock.time(index),
+  bookedAt: _lastActivity[index]!,
   duration: "3 days 2 nights",
   isHot: _mock.boolean(index),
   name: _mock.fullName(index),

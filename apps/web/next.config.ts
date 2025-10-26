@@ -186,6 +186,7 @@ const nextConfig = {
   },
   outputFileTracingRoot: path.join(__dirname, "../../"),
   experimental: {
+    mcpServer: true,
     optimizePackageImports: optimizeImports,
     turbopackFileSystemCacheForDev: true,
   },

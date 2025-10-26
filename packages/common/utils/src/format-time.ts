@@ -23,9 +23,8 @@ export const formatPatterns = {
 };
 
 const isValidDate = (date: DatePickerFormat) => date !== null && date !== undefined && dayjs(date).isValid();
-
 export function today(template?: undefined | string): string {
-  return dayjs(new Date()).startOf("day").format(template);
+  return dayjs(new Date(Date.now())).startOf("day").format(template);
 }
 
 export function fDateTime(date: DatePickerFormat, template?: undefined | string): string {
