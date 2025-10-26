@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@beep/ui/utils";
+import { cn } from "@beep/ui-core/utils";
 import * as SheetPrimitive from "@radix-ui/react-dialog";
 import { XIcon } from "lucide-react";
 import type * as React from "react";

@@ -1,4 +1,4 @@
-import { cn } from "@beep/ui/utils";
+import { cn } from "@beep/ui-core/utils";
 import type * as React from "react";
 
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {

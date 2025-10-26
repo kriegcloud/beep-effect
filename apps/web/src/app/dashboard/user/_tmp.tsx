@@ -1,6 +1,6 @@
 "use client";
 import { paths } from "@beep/shared-domain";
-import { useRouter, useSearchParams } from "@beep/ui/hooks";
+import { usePathname, useRouter, useSearchParams } from "@beep/ui/hooks";
 import { RouterLink } from "@beep/ui/routing";
 import Button from "@mui/material/Button";
 import * as F from "effect/Function";
@@ -11,6 +11,7 @@ import { AccountDialog } from "@/features/account/account-dialog";
 export const TmpView = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const pathname = usePathname();
 
   const isDialogOpen = React.useMemo(
     () => F.pipe(O.fromNullable(searchParams.get("settingsTab")), O.isSome),
@@ -22,10 +23,10 @@ export const TmpView = () => {
     nextParams.delete("settingsTab");
 
     const nextSearch = nextParams.toString();
-    const nextHref = nextSearch === "" ? paths.dashboard.user.root : paths.dashboard.user.accountSettings(nextSearch);
+    const nextHref = nextSearch === "" ? pathname : `${pathname}?${nextSearch}`;
 
     router.replace(nextHref);
-  }, [router, searchParams]);
+  }, [router, searchParams, pathname]);
 
   return (
     <>

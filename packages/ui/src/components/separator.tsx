@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@beep/ui/utils";
+import { cn } from "@beep/ui-core/utils";
 import * as SeparatorPrimitive from "@radix-ui/react-separator";
 import type * as React from "react";
 

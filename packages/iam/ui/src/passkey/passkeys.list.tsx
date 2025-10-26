@@ -12,7 +12,6 @@ import List from "@mui/material/List";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";
-import React from "react";
 
 type Props = {
   readonly passkeys: ReadonlyArray<PasskeyView.Type>;
@@ -50,25 +49,34 @@ export const PasskeysList = ({ passkeys }: Props) => {
       })
     );
 
-  return A.match(passkeys, {
-    onEmpty: () => <PasskeysEmpty onAdd={() => setPasskeyDialogOpen(true)} />,
-    onNonEmpty: (passkeys) => (
-      <List>
-        {A.map(passkeys, (passkey) => (
-          <React.Fragment key={passkey.id}>
-            <PasskeyForm passkeyDialogOpen={passkeyDialogOpen} setPasskeyDialogOpen={setPasskeyDialogOpen} />
-            <PasskeyItem
-              key={passkey.id}
-              passkey={passkey}
-              onUpdate={(passkey) => {
-                setCurrentPasskey(passkey);
-                setPasskeyDialogOpen(true);
-              }}
-              onDelete={async (passkey) => handleDelete(passkey)}
-            />
-          </React.Fragment>
-        ))}
-      </List>
-    ),
-  });
+  return (
+    <>
+      <PasskeyForm passkeyDialogOpen={passkeyDialogOpen} setPasskeyDialogOpen={setPasskeyDialogOpen} />
+      {A.match(passkeys, {
+        onEmpty: () => (
+          <PasskeysEmpty
+            onAdd={() => {
+              console.log("on add");
+              setPasskeyDialogOpen(true);
+            }}
+          />
+        ),
+        onNonEmpty: (passkeys) => (
+          <List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
+            {A.map(passkeys, (passkey) => (
+              <PasskeyItem
+                key={passkey.id}
+                passkey={passkey}
+                onUpdate={(passkey) => {
+                  setCurrentPasskey(passkey);
+                  setPasskeyDialogOpen(true);
+                }}
+                onDelete={async (passkey) => handleDelete(passkey)}
+              />
+            ))}
+          </List>
+        ),
+      })}
+    </>
+  );
 };

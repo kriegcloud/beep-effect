@@ -26,7 +26,6 @@ export function AccountBillingHistory({ invoices, sx, ...other }: Props) {
   return (
     <Card sx={sx} {...other}>
       <CardHeader title="Invoice history" />
-
       <Box
         sx={{
           px: 3,

@@ -169,7 +169,9 @@ export const userRelations = d.relations(user, ({ many }) => ({
   wallets: many(walletAddress),
   // Authentication-related relationships
   accounts: many(account),
-  sessions: many(session),
+  sessions: many(session, {
+    relationName: "userSessions",
+  }),
   passkeys: many(passkey),
   oauthApplications: many(oauthApplication),
   impersonatedSessions: many(session, {

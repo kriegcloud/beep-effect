@@ -1,9 +1,9 @@
 import { IamEntityIds, type SharedEntityIds } from "@beep/shared-domain";
-import { OrgTable, user } from "@beep/shared-tables";
+import { Table, user } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 
-export const passkey = OrgTable.make(IamEntityIds.PasskeyId)(
+export const passkey = Table.make(IamEntityIds.PasskeyId)(
   {
     name: pg.text("name").notNull(),
     publicKey: pg.text("public_key").notNull(),

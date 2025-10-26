@@ -1,5 +1,5 @@
 {
-  "id": "0584e7c5-10d2-4831-aca9-e7736fb031c3",
+  "id": "1ce08226-51ea-494b-b2fc-0e7cc052f058",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -2665,12 +2665,6 @@
           "primaryKey": true,
           "notNull": true
         },
-        "organization_id": {
-          "name": "organization_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -2778,15 +2772,6 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "passkey_organization_id_organization_id_fk": {
-          "name": "passkey_organization_id_organization_id_fk",
-          "tableFrom": "passkey",
-          "tableTo": "organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
         "passkey_user_id_user_id_fk": {
           "name": "passkey_user_id_user_id_fk",
           "tableFrom": "passkey",

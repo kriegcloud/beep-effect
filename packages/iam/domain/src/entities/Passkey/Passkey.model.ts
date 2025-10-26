@@ -63,7 +63,6 @@ export class Model extends M.Class<Model>(`PasskeyModel`)(
         description: "Authenticator Attestation GUID (AAGUID)",
       })
     ),
-    organizationId: SharedEntityIds.OrganizationId,
   }),
   {
     title: "Passkey Model",

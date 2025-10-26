@@ -8,7 +8,8 @@ export type PasskeyPlugin = Effect.Effect.Success<PasskeyPluginEffect>;
 export const passkeyPlugin: PasskeyPluginEffect = Effect.gen(function* () {
   const config = yield* IamConfig;
   return passkey({
-    rpID: config.app.domain,
+    // rpID: config.app.domain,
+    rpID: "localhost",
     rpName: `${config.app.name} Auth`,
   } satisfies PasskeyOptions);
 });

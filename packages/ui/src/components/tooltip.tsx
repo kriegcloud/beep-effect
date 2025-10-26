@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@beep/ui/utils";
+import { cn } from "@beep/ui-core/utils";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import type * as React from "react";
 

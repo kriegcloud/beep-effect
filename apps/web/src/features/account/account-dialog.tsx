@@ -1,4 +1,3 @@
-import { paths } from "@beep/shared-domain";
 import { Iconify } from "@beep/ui/atoms/iconify/iconify";
 import { useSearchParams } from "@beep/ui/hooks";
 import { SimpleBar } from "@beep/ui/molecules";
@@ -10,13 +9,14 @@ import Dialog from "@mui/material/Dialog";
 import IconButton from "@mui/material/IconButton";
 import Slide from "@mui/material/Slide";
 import Tab from "@mui/material/Tab";
-import Tabs from "@mui/material/Tabs";
+import Tabs, { tabsClasses } from "@mui/material/Tabs";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import type { TransitionProps } from "@mui/material/transitions";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
+import { usePathname } from "next/navigation";
 import React from "react";
 import {
   AccountBillingView,
@@ -42,40 +42,40 @@ type AccountTabItem = {
   readonly render: () => React.ReactNode;
 };
 
-const NAV_ITEMS: ReadonlyArray<AccountTabItem> = [
+const NAV_ITEMS = (pathname: string): ReadonlyArray<AccountTabItem> => [
   {
     slug: "general",
     label: "General",
     icon: <Iconify width={24} icon="solar:user-id-bold" />,
-    href: paths.dashboard.user.accountSettings("general"),
+    href: `${pathname}?settingsTab=general`,
     render: () => <AccountGeneralView />,
   },
   {
     slug: "billing",
     label: "Billing",
     icon: <Iconify width={24} icon="solar:bill-list-bold" />,
-    href: paths.dashboard.user.accountSettings("billing"),
+    href: `${pathname}?settingsTab=billing`,
     render: () => <AccountBillingView />,
   },
   {
     slug: "notifications",
     label: "Notifications",
     icon: <Iconify width={24} icon="solar:bell-bing-bold" />,
-    href: paths.dashboard.user.accountSettings("notifications"),
+    href: `${pathname}?settingsTab=notifications`,
     render: () => <AccountNotificationsView />,
   },
   {
-    slug: "socials",
-    label: "Social links",
+    slug: "connections",
+    label: "Connections",
     icon: <Iconify width={24} icon="solar:share-bold" />,
-    href: paths.dashboard.user.accountSettings("socials"),
+    href: `${pathname}?settingsTab=connections`,
     render: () => <AccountSocialsView />,
   },
   {
     slug: "security",
     label: "Security",
     icon: <Iconify width={24} icon="ic:round-vpn-key" />,
-    href: paths.dashboard.user.accountSettings("security"),
+    href: `${pathname}?settingsTab=security`,
     render: () => <AccountSecurityView />,
   },
 ];
@@ -113,30 +113,31 @@ function a11yProps(slug: string) {
   };
 }
 
-const DEFAULT_TAB_SLUG = F.pipe(
-  NAV_ITEMS,
-  A.head,
-  O.map((item) => item.slug),
-  O.getOrElse(() => "general")
-);
+const DEFAULT_TAB_SLUG = (pathname: string) =>
+  F.pipe(
+    NAV_ITEMS(pathname),
+    A.head,
+    O.map((item) => item.slug),
+    O.getOrElse(() => "general")
+  );
 
 const NAV_PANEL_WIDTH = 256;
 
-function AccountTabs() {
+function AccountTabs({ pathname }: { readonly pathname: string }) {
   const searchParams = useSearchParams();
-  const [value, setValue] = React.useState(DEFAULT_TAB_SLUG);
+  const [value, setValue] = React.useState(DEFAULT_TAB_SLUG(pathname));
 
   React.useEffect(() => {
     const nextValue = F.pipe(
       O.fromNullable(searchParams.get("settingsTab")),
       O.flatMap((candidate) =>
         F.pipe(
-          NAV_ITEMS,
+          NAV_ITEMS(pathname),
           A.findFirst((tab) => tab.slug === candidate),
           O.map(() => candidate)
         )
       ),
-      O.getOrElse(() => DEFAULT_TAB_SLUG)
+      O.getOrElse(() => DEFAULT_TAB_SLUG(pathname))
     );
 
     setValue((current) => (current === nextValue ? current : nextValue));
@@ -148,7 +149,10 @@ function AccountTabs() {
 
   const breakpoints = useBreakpoints();
   const isMobile = breakpoints.down("md");
+  const isXs = breakpoints.down("xs");
   const tabIconPosition = isMobile ? "top" : "start";
+
+  const navItems = React.useMemo(() => NAV_ITEMS(pathname), [pathname]);
 
   return (
     <Box
@@ -178,22 +182,53 @@ function AccountTabs() {
       >
         <Tabs
           orientation={isMobile ? "horizontal" : "vertical"}
-          variant={breakpoints.currentBreakpoint === "xs" ? "scrollable" : "standard"}
+          scrollButtons
+          allowScrollButtonsMobile
           value={value}
           onChange={handleChange}
           aria-label="Account settings sections"
-          scrollButtons="auto"
+          variant={"fullWidth"}
           textColor="primary"
           indicatorColor="primary"
           sx={{
+            width: "100%",
+            px: 0,
             height: { xs: "auto", md: "100%" },
+            [`& .${tabsClasses.flexContainer}`]: {
+              gap: 0,
+              ...(isMobile
+                ? {
+                    width: "100%",
+                    justifyContent: isXs ? "flex-start" : "center",
+                  }
+                : {}),
+            },
+            ...(isMobile
+              ? {
+                  [`& .${tabsClasses.scroller}`]: {
+                    width: "100%",
+                  },
+                }
+              : {}),
             "& .MuiTabs-indicator": {
-              left: 0,
-              width: 4,
+              ...(isMobile
+                ? {
+                    bottom: 0,
+                    height: 4,
+                    borderRadius: 0,
+                  }
+                : {
+                    left: 0,
+                    width: 4,
+                  }),
             },
             "& .MuiTab-root": {
               alignItems: "center",
               paddingLeft: {
+                xs: 0,
+                md: 2,
+              },
+              paddingRight: {
                 xs: 0,
                 md: 2,
               },
@@ -202,16 +237,46 @@ function AccountTabs() {
                 md: "flex-start",
               },
               minHeight: 56,
+              ...(isMobile && !isXs
+                ? {
+                    flex: 1,
+                    minWidth: 0,
+                    maxWidth: "none",
+                  }
+                : {}),
+              ...(isXs
+                ? {
+                    minWidth: 128,
+                  }
+                : {}),
             },
           }}
         >
           {F.pipe(
-            NAV_ITEMS,
+            navItems,
             A.map((tab) => (
               <Tab
                 component={RouterLink}
                 key={tab.slug}
-                label={tab.label}
+                label={
+                  <Typography
+                    sx={{
+                      display: {
+                        md: "block",
+                        sm: "block",
+                        xs: "none",
+                      },
+                      maxWidth: "100%",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                    variant={"body2"}
+                    noWrap
+                  >
+                    {tab.label}
+                  </Typography>
+                }
                 icon={tab.icon}
                 value={tab.slug}
                 href={tab.href}
@@ -259,7 +324,6 @@ function AccountTabs() {
                       color: theme.palette.primary.main,
                     },
                   },
-                  typography: "body2",
                 })}
               />
             ))
@@ -278,7 +342,7 @@ function AccountTabs() {
       >
         <SimpleBar sx={{ height: "100%" }}>
           {F.pipe(
-            NAV_ITEMS,
+            navItems,
             A.map((tab) => (
               <TabPanel key={tab.slug} value={tab.slug} activeValue={value}>
                 {tab.render()}
@@ -296,6 +360,7 @@ type AccountDialogProps = {
   readonly onClose: () => void;
 };
 export const AccountDialog = (props: AccountDialogProps) => {
+  const pathname = usePathname();
   return (
     <Dialog
       open={props.open}
@@ -309,8 +374,6 @@ export const AccountDialog = (props: AccountDialogProps) => {
       slotProps={{
         paper: {
           sx: {
-            height: { xs: "100dvh", md: 680 },
-            maxHeight: { xs: "100dvh", md: 720 },
             display: "flex",
             flexDirection: "column",
             overflowX: "hidden",
@@ -328,7 +391,7 @@ export const AccountDialog = (props: AccountDialogProps) => {
           </Typography>
         </Toolbar>
       </AppBar>
-      <AccountTabs />
+      <AccountTabs pathname={pathname} />
     </Dialog>
   );
 };

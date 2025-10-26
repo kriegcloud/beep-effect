@@ -2,7 +2,7 @@
 * TAILWIND
 *************************************** */
 @layer theme, base, mui, components, utilities;
-@import 'tailwindcss';
+@import "tailwindcss";
 /** **************************************
 * shadcn
 *************************************** */
@@ -14,21 +14,22 @@
 /** **************************************
 * Fonts: app
 *************************************** */
-@import '@fontsource-variable/public-sans';
+@import "@fontsource-variable/public-sans";
 
-@import '@fontsource/barlow/400.css';
-@import '@fontsource/barlow/500.css';
-@import '@fontsource/barlow/600.css';
-@import '@fontsource/barlow/700.css';
-@import '@fontsource/barlow/800.css';
+@import "@fontsource/barlow/400.css";
+@import "@fontsource/barlow/500.css";
+@import "@fontsource/barlow/600.css";
+@import "@fontsource/barlow/700.css";
+@import "@fontsource/barlow/800.css";
 
 /** **************************************
 * Fonts: options
 *************************************** */
-@import '@fontsource-variable/dm-sans';
-@import '@fontsource-variable/inter';
-@import '@fontsource-variable/nunito-sans';
-
+@import "@fontsource-variable/dm-sans";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/nunito-sans";
+/*---break--- */
+@custom-variant dark (&:is(.dark *));
 
 /** **************************************
 * BlockNote: options
@@ -58,19 +59,18 @@ ul {
   padding: 0;
   list-style-type: none;
 }
-input[type='number'] {
+input[type="number"] {
   -moz-appearance: textfield;
   appearance: none;
 }
-input[type='number']::-webkit-outer-spin-button {
+input[type="number"]::-webkit-outer-spin-button {
   margin: 0;
   -webkit-appearance: none;
 }
-input[type='number']::-webkit-inner-spin-button {
+input[type="number"]::-webkit-inner-spin-button {
   margin: 0;
   -webkit-appearance: none;
 }
-
 
 /** **************************************
 * SimpleBar
@@ -144,7 +144,7 @@ input[type='number']::-webkit-inner-spin-button {
 
 .simplebar-content:before,
 .simplebar-content:after {
-  content: ' ';
+  content: " ";
   display: table;
 }
 
@@ -231,7 +231,7 @@ input[type='number']::-webkit-inner-spin-button {
 
 .simplebar-scrollbar:before {
   position: absolute;
-  content: '';
+  content: "";
   background: black;
   border-radius: 7px;
   left: 2px;
@@ -274,7 +274,7 @@ input[type='number']::-webkit-inner-spin-button {
 }
 
 /* Rtl support */
-[data-simplebar-direction='rtl'] .simplebar-track.simplebar-vertical {
+[data-simplebar-direction="rtl"] .simplebar-track.simplebar-vertical {
   right: auto;
   left: 0;
 }
@@ -387,7 +387,9 @@ input[type='number']::-webkit-inner-spin-button {
   --color-secondary: rgb(var(--mui-palette-secondary-mainChannel));
   --color-secondary-light: rgb(var(--mui-palette-secondary-lightChannel));
   --color-secondary-dark: rgb(var(--mui-palette-secondary-darkChannel));
-  --color-secondary-contrast: rgb(var(--mui-palette-secondary-contrastTextChannel));
+  --color-secondary-contrast: rgb(
+    var(--mui-palette-secondary-contrastTextChannel)
+  );
 
   /* Material UI status colors */
   --color-info: rgb(var(--mui-palette-info-mainChannel));
@@ -492,7 +494,9 @@ input[type='number']::-webkit-inner-spin-button {
 
   /* LinearProgress */
   --color-LinearProgress-primary: var(--mui-palette-LinearProgress-primaryBg);
-  --color-LinearProgress-secondary: var(--mui-palette-LinearProgress-secondaryBg);
+  --color-LinearProgress-secondary: var(
+    --mui-palette-LinearProgress-secondaryBg
+  );
   --color-LinearProgress-error: var(--mui-palette-LinearProgress-errorBg);
   --color-LinearProgress-info: var(--mui-palette-LinearProgress-infoBg);
   --color-LinearProgress-success: var(--mui-palette-LinearProgress-successBg);
@@ -514,7 +518,9 @@ input[type='number']::-webkit-inner-spin-button {
   --color-SnackbarContent-text: var(--mui-palette-SnackbarContent-color);
 
   /* SpeedDialAction */
-  --color-SpeedDialAction-fabHover: var(--mui-palette-SpeedDialAction-fabHoverBg);
+  --color-SpeedDialAction-fabHover: var(
+    --mui-palette-SpeedDialAction-fabHoverBg
+  );
 
   /* StepConnector & StepContent */
   --color-StepConnector-border: var(--mui-palette-StepConnector-border);
@@ -522,13 +528,23 @@ input[type='number']::-webkit-inner-spin-button {
 
   /* Switch */
   --color-Switch-default: var(--mui-palette-Switch-defaultColor);
-  --color-Switch-defaultDisabled: var(--mui-palette-Switch-defaultDisabledColor);
-  --color-Switch-primaryDisabled: var(--mui-palette-Switch-primaryDisabledColor);
-  --color-Switch-secondaryDisabled: var(--mui-palette-Switch-secondaryDisabledColor);
+  --color-Switch-defaultDisabled: var(
+    --mui-palette-Switch-defaultDisabledColor
+  );
+  --color-Switch-primaryDisabled: var(
+    --mui-palette-Switch-primaryDisabledColor
+  );
+  --color-Switch-secondaryDisabled: var(
+    --mui-palette-Switch-secondaryDisabledColor
+  );
   --color-Switch-errorDisabled: var(--mui-palette-Switch-errorDisabledColor);
   --color-Switch-infoDisabled: var(--mui-palette-Switch-infoDisabledColor);
-  --color-Switch-successDisabled: var(--mui-palette-Switch-successDisabledColor);
-  --color-Switch-warningDisabled: var(--mui-palette-Switch-warningDisabledColor);
+  --color-Switch-successDisabled: var(
+    --mui-palette-Switch-successDisabledColor
+  );
+  --color-Switch-warningDisabled: var(
+    --mui-palette-Switch-warningDisabledColor
+  );
 
   /* TableCell */
   --color-TableCell-border: var(--mui-palette-TableCell-border);
@@ -594,6 +610,14 @@ input[type='number']::-webkit-inner-spin-button {
   --overlay-22: var(--mui-overlays-22);
   --overlay-23: var(--mui-overlays-23);
   --overlay-24: var(--mui-overlays-24);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
 }
 
 /* Material UI base styles */
@@ -632,18 +656,19 @@ input[type='number']::-webkit-inner-spin-button {
 
 /* Material UI typography utilities */
 @utility typography-* {
-  font: --value(--font- *);
+  font: --value(--font-*);
 }
 
 /* Material UI overlay utilities */
 @utility overlay-* {
-  background-image: --value(--overlay- *);
+  background-image: --value(--overlay-*);
 }
+
 
 /* Material UI elevation utilities */
 @utility elevation-* {
-  background-image: --value(--overlay- *);
-  box-shadow: --value(--shadow- *);
+  background-image: --value(--overlay-*);
+  box-shadow: --value(--shadow-*);
 }
 /* Apex Charts */
 .apexcharts-canvas {
@@ -735,7 +760,8 @@ input[type='number']::-webkit-inner-spin-button {
   --bn-border-radius: 4px;
 
   /* Extract font family from MUI font variable */
-  --bn-font-family: var(--mui-font-family-body1,
+  --bn-font-family: var(
+    --mui-font-family-body1,
     "Public Sans Variable",
     -apple-system,
     BlinkMacSystemFont,
@@ -743,7 +769,8 @@ input[type='number']::-webkit-inner-spin-button {
     "Roboto",
     "Helvetica Neue",
     Arial,
-    sans-serif);
+    sans-serif
+  );
 }
 
 /* Dark mode adjustments */
@@ -800,3 +827,35 @@ input[type='number']::-webkit-inner-spin-button {
     outline-offset: -2px;
   }
 }
+/*---break--- */
+:root {
+  --sidebar: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+/*---break--- */
+.dark {
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+/*---break--- */
+/*@layer base {*/
+/*  * {*/
+/*    @apply border-border outline-ring/50;*/
+/*  }*/
+/*  body {*/
+/*    @apply bg-background text-foreground;*/
+/*  }*/
+/*}*/
+
