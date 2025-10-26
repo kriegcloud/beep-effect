@@ -11,6 +11,7 @@ import Divider from "@mui/material/Divider";
 import Link from "@mui/material/Link";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
+import * as A from "effect/Array";
 import type { IUserAccountBillingHistory } from "./types";
 
 // ----------------------------------------------------------------------
@@ -35,7 +36,7 @@ export function AccountBillingHistory({ invoices, sx, ...other }: Props) {
           flexDirection: "column",
         }}
       >
-        {(showMore.value ? invoices : invoices.slice(0, 8)).map((invoice) => (
+        {A.map(showMore.value ? invoices : invoices.slice(0, 8), (invoice) => (
           <Box key={invoice.id} sx={{ display: "flex", alignItems: "center" }}>
             <ListItemText
               primary={invoice.invoiceNumber}

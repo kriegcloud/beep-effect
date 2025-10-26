@@ -1,24 +1,23 @@
 import { clientEnv } from "@beep/core-env/client";
-
 import { WorkerClient } from "@beep/runtime-client/worker/worker-client";
+import { Toaster } from "@beep/ui/services/toaster.service";
 import { WebSdk } from "@effect/opentelemetry";
 import { FetchHttpClient } from "@effect/platform";
 import type { HttpClient } from "@effect/platform/HttpClient";
 import type * as KeyValueStore from "@effect/platform/KeyValueStore";
 import { BrowserKeyValueStore } from "@effect/platform-browser";
+import { Registry } from "@effect-atom/atom-react";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-proto";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
 import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
-
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as LogLevel from "effect/LogLevel";
 import type * as ManagedRuntime from "effect/ManagedRuntime";
-
 import { NetworkMonitor } from "../common/network-monitor";
 
 // ============================================================================
@@ -76,11 +75,12 @@ export const WorkerClientLive = WorkerClient.Default;
 // Runtime assembly
 // ============================================================================
 
-type ClientRuntimeServices = HttpClient | NetworkMonitor | WorkerClient | KeyValueStore.KeyValueStore;
+type ClientRuntimeServices = HttpClient | Toaster | NetworkMonitor | WorkerClient | KeyValueStore.KeyValueStore;
 
 export type ClientRuntimeLayer = Layer.Layer<ClientRuntimeServices, never, never>;
 
 export const clientRuntimeLayer = Layer.mergeAll(
+  Layer.provideMerge(Toaster.Default, Registry.layer),
   HttpClientLive,
   ObservabilityLive,
   NetworkMonitorLive,

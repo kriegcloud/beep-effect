@@ -498,7 +498,7 @@ export const paths = PathBuilder.collection({
         billing: userAccount("billing"),
         notifications: userAccount("notifications"),
         socials: userAccount("socials"),
-        changePassword: userAccount("change-password"),
+        security: userAccount("security"),
       },
       edit: (id: SharedEntityIds.UserId.Type) => user.child(id)("edit"),
     },

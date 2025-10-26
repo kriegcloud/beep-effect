@@ -8,9 +8,9 @@ import Dialog from "@mui/material/Dialog";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import * as A from "effect/Array";
 import { useCallback, useState } from "react";
 import type { IPaymentCard } from "../types";
-
 import { PaymentCardItem } from "./payment-card-item";
 
 // ----------------------------------------------------------------------
@@ -60,7 +60,7 @@ export function PaymentCardListDialog({
   const renderList = () => (
     <Scrollbar sx={{ p: 3, maxHeight: 480 }}>
       <Box sx={{ gap: 3, display: "flex", flexDirection: "column" }}>
-        {dataFiltered.map((card) => (
+        {A.map(dataFiltered, (card) => (
           <PaymentCardItem
             key={card.id}
             card={card}
@@ -128,7 +128,7 @@ type ApplyFilterProps = {
 function applyFilter({ inputData, query }: ApplyFilterProps) {
   if (!query) return inputData;
 
-  return inputData.filter(({ cardNumber }) =>
-    [cardNumber].some((field) => field?.toLowerCase().includes(query.toLowerCase()))
+  return A.filter(inputData, ({ cardNumber }) =>
+    A.some([cardNumber], (field) => field?.toLowerCase().includes(query.toLowerCase()))
   );
 }

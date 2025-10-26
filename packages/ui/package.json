@@ -103,6 +103,12 @@
       "require": "./build/cjs/hooks/*",
       "default": "./src/hooks/*.ts"
     },
+    "./services/*": {
+      "import": "./src/services/*.ts",
+      "types": "./build/dts/services/*",
+      "require": "./build/cjs/services/*",
+      "default": "./src/services/*.ts"
+    },
     "./icons/*": {
       "import": "./build/esm/icons/*",
       "types": "./build/dts/icons/*",
@@ -264,9 +270,15 @@
     "rehype-raw": "catalog:",
     "rehype-highlight": "catalog:",
     "remark-gfm": "catalog:",
-    "react-markdown": "catalog:"
+    "react-markdown": "catalog:",
+    "class-variance-authority": "catalog:",
+    "@radix-ui/react-toast": "catalog:",
+    "@zip.js/zip.js": "catalog:"
   },
   "devDependencies": {
+    "@zip.js/zip.js": "catalog:",
+    "class-variance-authority": "catalog:",
+    "@radix-ui/react-toast": "catalog:",
     "turndown": "catalog:",
     "rehype-raw": "catalog:",
     "rehype-highlight": "catalog:",

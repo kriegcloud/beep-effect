@@ -9,6 +9,9 @@ import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
 import { useCallback, useState } from "react";
 import { AddressListDialog } from "./address";
 import { PaymentCardListDialog } from "./payment/payment-card-list-dialog";
@@ -31,8 +34,14 @@ export function AccountBillingPlan({ cardList, addressBook, plans }: Props) {
 
   const openCards = useBoolean();
 
-  const primaryCard = cardList.find((card) => card.primary) || null;
-  const primaryAddress = addressBook.find((address) => address.primary) || null;
+  const primaryCard = F.pipe(
+    A.findFirst(cardList, (card) => Boolean(card.primary)),
+    O.getOrNull
+  );
+  const primaryAddress = F.pipe(
+    A.findFirst(addressBook, (address) => Boolean(address.primary)),
+    O.getOrNull
+  );
 
   const [selectedPlan, setSelectedPlan] = useState("");
   const [selectedCard, setSelectedCard] = useState<IPaymentCard | null>(primaryCard);
@@ -40,7 +49,11 @@ export function AccountBillingPlan({ cardList, addressBook, plans }: Props) {
 
   const handleSelectPlan = useCallback(
     (newValue: string) => {
-      const currentPlan = plans.find((plan) => plan.primary);
+      const currentPlan = F.pipe(
+        plans,
+        A.findFirst((plan) => plan.primary),
+        O.getOrNull
+      );
       if (currentPlan?.subscription !== newValue) {
         setSelectedPlan(newValue);
       }
@@ -57,7 +70,7 @@ export function AccountBillingPlan({ cardList, addressBook, plans }: Props) {
   }, []);
 
   const renderPlans = () =>
-    plans.map((plan) => (
+    A.map(plans, (plan) => (
       <Grid key={plan.subscription} size={{ xs: 12, md: 4 }}>
         <Paper
           variant="outlined"
@@ -124,43 +137,46 @@ export function AccountBillingPlan({ cardList, addressBook, plans }: Props) {
         flexDirection: "column",
       }}
     >
-      {[
-        {
-          name: "Plan",
-          content: (
-            <Box component="span" sx={{ textTransform: "capitalize" }}>
-              {selectedPlan}
-            </Box>
-          ),
-        },
-        {
-          name: "Billing name",
-          content: (
-            <ButtonBase disableRipple onClick={openAddress.onTrue} sx={{ gap: 1, typography: "subtitle2" }}>
-              {selectedAddress?.name}
-              <Iconify width={16} icon="eva:arrow-ios-downward-fill" />
-            </ButtonBase>
-          ),
-        },
-        { name: "Billing address", content: selectedAddress?.fullAddress },
-        { name: "Billing phone number", content: selectedAddress?.phoneNumber },
-        {
-          name: "Payment method",
-          content: (
-            <ButtonBase disableRipple onClick={openAddress.onTrue} sx={{ gap: 1, typography: "subtitle2" }}>
-              {selectedCard?.cardNumber}
-              <Iconify width={16} icon="eva:arrow-ios-downward-fill" />
-            </ButtonBase>
-          ),
-        },
-      ].map((item) => (
-        <Grid key={item.name} container spacing={{ xs: 0.5, md: 2 }}>
-          <Grid sx={{ color: "text.secondary" }} size={{ xs: 12, md: 4 }}>
-            {item.name}
+      {A.map(
+        [
+          {
+            name: "Plan",
+            content: (
+              <Box component="span" sx={{ textTransform: "capitalize" }}>
+                {selectedPlan}
+              </Box>
+            ),
+          },
+          {
+            name: "Billing name",
+            content: (
+              <ButtonBase disableRipple onClick={openAddress.onTrue} sx={{ gap: 1, typography: "subtitle2" }}>
+                {selectedAddress?.name}
+                <Iconify width={16} icon="eva:arrow-ios-downward-fill" />
+              </ButtonBase>
+            ),
+          },
+          { name: "Billing address", content: selectedAddress?.fullAddress },
+          { name: "Billing phone number", content: selectedAddress?.phoneNumber },
+          {
+            name: "Payment method",
+            content: (
+              <ButtonBase disableRipple onClick={openAddress.onTrue} sx={{ gap: 1, typography: "subtitle2" }}>
+                {selectedCard?.cardNumber}
+                <Iconify width={16} icon="eva:arrow-ios-downward-fill" />
+              </ButtonBase>
+            ),
+          },
+        ],
+        (item) => (
+          <Grid key={item.name} container spacing={{ xs: 0.5, md: 2 }}>
+            <Grid sx={{ color: "text.secondary" }} size={{ xs: 12, md: 4 }}>
+              {item.name}
+            </Grid>
+            <Grid size={{ xs: 12, md: 8 }}>{item.content || "-"}</Grid>
           </Grid>
-          <Grid size={{ xs: 12, md: 8 }}>{item.content || "-"}</Grid>
-        </Grid>
-      ))}
+        )
+      )}
     </Box>
   );
 

@@ -9,6 +9,7 @@ import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Stack from "@mui/material/Stack";
+import * as A from "effect/Array";
 import { useCallback, useState } from "react";
 import { AddressCreateForm, AddressItem } from "./address";
 import type { IAddressItem } from "./types";
@@ -101,7 +102,7 @@ export function AccountBillingAddress({ addressBook, sx, ...other }: Props) {
         />
 
         <Stack spacing={2.5} sx={{ p: 3 }}>
-          {addressBook.map((address) => (
+          {A.map(addressBook, (address) => (
             <AddressItem
               variant="outlined"
               key={address.id}

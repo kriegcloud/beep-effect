@@ -10,8 +10,8 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import * as A from "effect/Array";
 import { useCallback, useState } from "react";
-
 import { PaymentCardCreateForm } from "./payment-card-create-form";
 
 // ----------------------------------------------------------------------
@@ -19,13 +19,13 @@ import { PaymentCardCreateForm } from "./payment-card-create-form";
 const PAYMENT_OPTIONS = [
   { label: "Paypal", value: "paypal" },
   { label: "Credit / debit", value: "creditcard" },
-];
+] as const;
 
 const CARD_OPTIONS = [
   { value: "visa1", label: "**** **** **** 1212 - Jimmy Holland" },
   { value: "visa2", label: "**** **** **** 2424 - Shawn Stokes" },
   { value: "mastercard", label: "**** **** **** 4545 - Cole Armstrong" },
-];
+] as const;
 
 // ----------------------------------------------------------------------
 
@@ -63,7 +63,7 @@ export function PaymentMethods({ sx, ...other }: BoxProps) {
         </Typography>
 
         <Box sx={{ gap: 3, display: "flex", flexDirection: "column" }}>
-          {PAYMENT_OPTIONS.map((option) => {
+          {A.map(PAYMENT_OPTIONS, (option) => {
             const isSelected = method === option.value;
 
             return (
@@ -146,7 +146,7 @@ function OptionItem({ option, onOpen, selected, isCredit, sx, ...other }: Option
       {isCredit && (
         <Box sx={{ px: 3 }}>
           <TextField select fullWidth label="Card" slotProps={{ select: { native: true } }}>
-            {CARD_OPTIONS.map((card) => (
+            {A.map(CARD_OPTIONS, (card) => (
               <option key={card.value} value={card.value}>
                 {card.label}
               </option>

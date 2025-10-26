@@ -9,6 +9,7 @@ import { CustomBreadcrumbs, RouterLink } from "@beep/ui/routing";
 import { removeLastSlash } from "@beep/ui-core/utils";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
+import * as A from "effect/Array";
 
 // ----------------------------------------------------------------------
 
@@ -36,7 +37,7 @@ const NAV_ITEMS = [
   {
     label: "Security",
     icon: <Iconify width={24} icon="ic:round-vpn-key" />,
-    href: paths.dashboard.user.account.changePassword,
+    href: paths.dashboard.user.account.security,
   },
 ];
 
@@ -58,7 +59,7 @@ export function AccountLayout({ children, ...other }: DashboardContentProps) {
       />
 
       <Tabs value={removeLastSlash(pathname)} sx={{ mb: { xs: 3, md: 5 } }}>
-        {NAV_ITEMS.map((tab) => (
+        {A.map(NAV_ITEMS, (tab) => (
           <Tab
             component={RouterLink}
             key={tab.href}

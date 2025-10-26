@@ -37,7 +37,7 @@ export declare namespace ChangePasswordPayload {
 
 // ----------------------------------------------------------------------
 
-export function AccountChangePassword() {
+export function AccountSecurity() {
   const showPassword = useBoolean();
 
   const form = useAppForm(

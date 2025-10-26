@@ -68,7 +68,7 @@ export function AccountNotifications({ sx, ...other }: CardProps) {
   const getSelected = (
     selectedItems: ReadonlyArray<typeof NotificationSelectionKit.Schema.Type>,
     item: typeof NotificationSelectionKit.Schema.Type
-  ) => (selectedItems.includes(item) ? selectedItems.filter((value) => value !== item) : [...selectedItems, item]);
+  ) => (selectedItems.includes(item) ? A.filter(selectedItems, (value) => value !== item) : [...selectedItems, item]);
 
   return (
     <Form onSubmit={form.handleSubmit}>
@@ -111,7 +111,7 @@ export function AccountNotifications({ sx, ...other }: CardProps) {
                 <form.Field name={"selected"} mode={"array"}>
                   {(field) => (
                     <>
-                      {notification.items.map((item) => (
+                      {A.map(notification.items, (item) => (
                         <FormControlLabel
                           key={item.id}
                           label={item.label}

@@ -8,15 +8,15 @@ import CardHeader from "@mui/material/CardHeader";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
+import * as A from "effect/Array";
 import { PaymentCardCreateForm } from "./payment/payment-card-create-form";
-
 import { PaymentCardItem } from "./payment/payment-card-item";
 import type { IPaymentCard } from "./types";
 
 // ----------------------------------------------------------------------
 
 type Props = CardProps & {
-  cards: ReadonlyArray<IPaymentCard>;
+  readonly cards: ReadonlyArray<IPaymentCard>;
 };
 
 export function AccountBillingPayment({ cards, sx, ...other }: Props) {
@@ -65,7 +65,7 @@ export function AccountBillingPayment({ cards, sx, ...other }: Props) {
             gridTemplateColumns: { xs: "repeat(1, 1fr)", md: "repeat(2, 1fr)" },
           }}
         >
-          {cards.map((card) => (
+          {A.map(cards, (card) => (
             <PaymentCardItem key={card.id} card={card} />
           ))}
         </Box>

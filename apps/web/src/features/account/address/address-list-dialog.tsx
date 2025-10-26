@@ -9,6 +9,7 @@ import Dialog from "@mui/material/Dialog";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import * as A from "effect/Array";
 import { useCallback, useState } from "react";
 import type { IAddressItem } from "../types";
 
@@ -56,7 +57,7 @@ export function AddressListDialog({
   const renderList = () => (
     <Scrollbar sx={{ p: 0.5, maxHeight: 480 }}>
       <Box sx={{ gap: 0.5, display: "flex", flexDirection: "column" }}>
-        {dataFiltered.map((address) => (
+        {A.map(dataFiltered, (address) => (
           <ButtonBase
             key={address.id}
             onClick={() => handleSelectAddress(address)}
@@ -145,7 +146,9 @@ function applyFilter({ inputData, query }: ApplyFilterProps) {
     return inputData;
   }
 
-  return inputData.filter(({ name, company, fullAddress, phoneNumber }) =>
-    [name, company, fullAddress, phoneNumber].some((field) => field?.toLowerCase().includes(query.toLowerCase()))
+  return A.filter(inputData, ({ name, company, fullAddress, phoneNumber }) =>
+    A.some([name, company, fullAddress, phoneNumber], (field) =>
+      Boolean(field?.toLowerCase().includes(query.toLowerCase()))
+    )
   );
 }

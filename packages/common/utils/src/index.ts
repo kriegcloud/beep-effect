@@ -1,3 +1,5 @@
+export * from "@beep/utils/array-buffer-to-blob";
+export * from "@beep/utils/array-buffer-to-uint8-array";
 export * from "@beep/utils/assertions";
 export { ArrayUtils, ObjectUtils, RecordUtils, StrUtils, StructUtils } from "@beep/utils/data";
 export * from "@beep/utils/equality";
@@ -10,4 +12,5 @@ export * from "@beep/utils/object/path";
 export * from "@beep/utils/sync.utils";
 export * from "@beep/utils/timing";
 export * from "@beep/utils/transformations";
+export * from "@beep/utils/uint8-array-to-array-buffer";
 export * from "./const";
