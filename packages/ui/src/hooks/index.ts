@@ -7,6 +7,7 @@ export * from "./use-client-rect";
 export { useCookies } from "./use-cookies";
 export * from "./use-count-down";
 export * from "./use-debounced-callback";
+export * from "./use-did-mount";
 export * from "./use-hash";
 export * from "./use-hash-scroll-into-view";
 export * from "./use-image-dimensions";

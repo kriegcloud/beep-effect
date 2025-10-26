@@ -13,6 +13,7 @@ export {
   setCookie,
 } from "./cookies";
 export { createCtx } from "./createCtx";
+export * from "./createHandlerSetter";
 export * from "./css-variables";
 export * from "./cssVarRgba";
 export {
@@ -38,16 +39,22 @@ export {
   fToNow,
   today,
 } from "./format-time";
+export * from "./geolocationUtils";
+export * from "./isApiSupported";
+export * from "./isClient";
+export * from "./isDevelopment";
 export {
   getStorage,
   localStorageAvailable,
   removeStorage,
   setStorage,
 } from "./localStorage";
+export * from "./noop";
 export { hasKeys } from "./object";
 export * from "./refs";
 export * from "./right-to-left";
 export * from "./store";
+export * from "./swipeUtils";
 export {
   type InputValue,
   transformValue,

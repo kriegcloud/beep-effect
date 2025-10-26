@@ -6,12 +6,17 @@ import * as S from "effect/Schema";
 
 import { IamError } from "../../errors";
 
-export class PasskeyView extends BS.Class<PasskeyView>("PasskeyView")(Passkey.Model.select.pick("id", "name"), {
-  schemaId: Symbol.for("@beep/iam-sdk/clients/passkey/PasskeyView"),
-  identifier: "PasskeyView",
-  title: "Passkey View",
-  description: "Represents a passkey credential managed by Better Auth.",
-}) {}
+export class PasskeyView extends BS.Class<PasskeyView>("PasskeyView")(
+  BS.mergeFields(Passkey.Model.select.pick("id").fields, {
+    name: BS.NameAttribute,
+  }),
+  {
+    schemaId: Symbol.for("@beep/iam-sdk/clients/passkey/PasskeyView"),
+    identifier: "PasskeyView",
+    title: "Passkey View",
+    description: "Represents a passkey credential managed by Better Auth.",
+  }
+) {}
 
 export declare namespace PasskeyView {
   export type Type = S.Schema.Type<typeof PasskeyView>;
