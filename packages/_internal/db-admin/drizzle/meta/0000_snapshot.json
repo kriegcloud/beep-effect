@@ -1,5 +1,5 @@
 {
-  "id": "547acccb-c720-4e79-83b7-02e0ab1afbf6",
+  "id": "0584e7c5-10d2-4831-aca9-e7736fb031c3",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -2724,7 +2724,7 @@
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "public_key": {
           "name": "public_key",
@@ -4374,7 +4374,7 @@
     "public.member_role_enum": {
       "name": "member_role_enum",
       "schema": "public",
-      "values": ["admin", "member", "viewer", "owner"]
+      "values": ["admin", "member", "owner"]
     },
     "public.member_status_enum": {
       "name": "member_status_enum",

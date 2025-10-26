@@ -1,13 +1,7 @@
 "use client";
 import { clientRuntimeLayer } from "@beep/runtime-client/services/runtime/live-layer";
 import { WorkerClient } from "@beep/runtime-client/worker/worker-client";
-import {
-  Atom,
-  Result,
-  useAtom,
-  useAtomMount,
-
-} from "@effect-atom/atom-react";
+import { Atom, Result, useAtom, useAtomMount } from "@effect-atom/atom-react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";

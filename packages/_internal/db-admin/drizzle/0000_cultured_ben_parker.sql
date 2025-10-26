@@ -5,7 +5,7 @@ CREATE TYPE "public"."user_gender_enum" AS ENUM('male', 'female');--> statement-
 CREATE TYPE "public"."user_role_enum" AS ENUM('admin', 'user');--> statement-breakpoint
 CREATE TYPE "public"."device_code_status_enum" AS ENUM('pending', 'approved', 'denied');--> statement-breakpoint
 CREATE TYPE "public"."invitation_status_enum" AS ENUM('pending', 'rejected', 'cancelled', 'accepted');--> statement-breakpoint
-CREATE TYPE "public"."member_role_enum" AS ENUM('admin', 'member', 'viewer', 'owner');--> statement-breakpoint
+CREATE TYPE "public"."member_role_enum" AS ENUM('admin', 'member', 'owner');--> statement-breakpoint
 CREATE TYPE "public"."member_status_enum" AS ENUM('active', 'inactive', 'offline', 'suspended', 'deleted', 'invited');--> statement-breakpoint
 CREATE TABLE "organization" (
 	"id" text NOT NULL,
@@ -333,7 +333,7 @@ CREATE TABLE "passkey" (
 	"deleted_by" text,
 	"version" integer DEFAULT 1 NOT NULL,
 	"source" text,
-	"name" text,
+	"name" text NOT NULL,
 	"public_key" text NOT NULL,
 	"user_id" text NOT NULL,
 	"credential_i_d" text NOT NULL,
