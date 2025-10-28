@@ -1,13 +1,11 @@
-import type {InvertKeyValue, ValueOf} from "./util-types";
-import {BS} from "@beep/schema";
-import * as S from "effect/Schema";
-
-import * as Match from "effect/Match";
+import { BS } from "@beep/schema";
 import * as F from "effect/Function";
+import * as Match from "effect/Match";
+import * as S from "effect/Schema";
+import type { InvertKeyValue, ValueOf } from "./util-types";
+
 // reference: https://www.jsonrpc.org/specification
-const {
-  Enum
-} = BS.stringLiteralKit(
+const { Enum } = BS.stringLiteralKit(
   "PARSE_ERROR",
   "BAD_REQUEST",
   "INTERNAL_SERVER_ERROR",
@@ -62,9 +60,7 @@ export const TRPC_ERROR_CODES_BY_KEY = {
   CLIENT_CLOSED_REQUEST: -32099, // 499
 } as const;
 
-export const TRPC_ERROR_CODES_BY_NUMBER: InvertKeyValue<
-  typeof TRPC_ERROR_CODES_BY_KEY
-> = {
+export const TRPC_ERROR_CODES_BY_NUMBER: InvertKeyValue<typeof TRPC_ERROR_CODES_BY_KEY> = {
   [-32700]: Enum.PARSE_ERROR,
   [-32600]: Enum.BAD_REQUEST,
   [-32603]: Enum.INTERNAL_SERVER_ERROR,
@@ -118,19 +114,19 @@ export const TRPCErrorCodeFromKey = S.transformLiterals(
   [Enum.UNSUPPORTED_MEDIA_TYPE, -32015], // 415
   [Enum.UNPROCESSABLE_CONTENT, -32022], // 422
   [Enum.TOO_MANY_REQUESTS, -32029], // 429
-  [Enum.CLIENT_CLOSED_REQUEST, -32099], // 499
+  [Enum.CLIENT_CLOSED_REQUEST, -32099] // 499
 );
 export type TRPC_ERROR_CODE_NUMBER = ValueOf<typeof TRPC_ERROR_CODES_BY_KEY>;
 export type TRPC_ERROR_CODE_KEY = keyof typeof TRPC_ERROR_CODES_BY_KEY;
 
-
 const errorUnionMemberFields = F.flow(
-  (code: TRPC_ERROR_CODE_KEY) => ({
-    code: BS.toOptionalWithDefault(S.Literal(code))(code),
-    cause: S.optional(S.Defect),
-    message: S.optional(S.String),
-    codeNumber: BS.toOptionalWithDefault(S.Literal(TRPC_ERROR_CODES_BY_KEY[code]))(TRPC_ERROR_CODES_BY_KEY[code])
-  } as const)
+  (code: TRPC_ERROR_CODE_KEY) =>
+    ({
+      code: BS.toOptionalWithDefault(S.Literal(code))(code),
+      cause: S.optional(S.Defect),
+      message: S.optional(S.String),
+      codeNumber: BS.toOptionalWithDefault(S.Literal(TRPC_ERROR_CODES_BY_KEY[code]))(TRPC_ERROR_CODES_BY_KEY[code]),
+    }) as const
 );
 
 export class TRPCParseError extends S.TaggedError<TRPCParseError>("@org/TRPCParseError")(
@@ -178,35 +174,31 @@ export class TRPCConflictError extends S.TaggedError<TRPCConflictError>("@org/TR
   errorUnionMemberFields(Enum.CONFLICT)
 ) {}
 
-export class TRPCPreconditionFailedError extends S.TaggedError<TRPCPreconditionFailedError>("@org/TRPCPreconditionFailedError")(
-  Enum.PRECONDITION_FAILED,
-  errorUnionMemberFields(Enum.PRECONDITION_FAILED)
-) {}
+export class TRPCPreconditionFailedError extends S.TaggedError<TRPCPreconditionFailedError>(
+  "@org/TRPCPreconditionFailedError"
+)(Enum.PRECONDITION_FAILED, errorUnionMemberFields(Enum.PRECONDITION_FAILED)) {}
 
 export class TRPCPayloadTooLargeError extends S.TaggedError<TRPCPayloadTooLargeError>("@org/TRPCPayloadTooLargeError")(
   Enum.PAYLOAD_TOO_LARGE,
   errorUnionMemberFields(Enum.PAYLOAD_TOO_LARGE)
 ) {}
 
-export class TRPCUnsupportedMediaTypeError extends S.TaggedError<TRPCUnsupportedMediaTypeError>("@org/TRPCUnsupportedMediaTypeError")(
-  Enum.UNSUPPORTED_MEDIA_TYPE,
-  errorUnionMemberFields(Enum.UNSUPPORTED_MEDIA_TYPE)
-) {}
+export class TRPCUnsupportedMediaTypeError extends S.TaggedError<TRPCUnsupportedMediaTypeError>(
+  "@org/TRPCUnsupportedMediaTypeError"
+)(Enum.UNSUPPORTED_MEDIA_TYPE, errorUnionMemberFields(Enum.UNSUPPORTED_MEDIA_TYPE)) {}
 
-export class TRPCUnprocessableContentError extends S.TaggedError<TRPCUnprocessableContentError>("@org/TRPCUnprocessableContentError")(
-  Enum.UNPROCESSABLE_CONTENT,
-  errorUnionMemberFields(Enum.UNPROCESSABLE_CONTENT)
-) {}
+export class TRPCUnprocessableContentError extends S.TaggedError<TRPCUnprocessableContentError>(
+  "@org/TRPCUnprocessableContentError"
+)(Enum.UNPROCESSABLE_CONTENT, errorUnionMemberFields(Enum.UNPROCESSABLE_CONTENT)) {}
 
 export class TRPCTooManyRequestsError extends S.TaggedError<TRPCTooManyRequestsError>("@org/TRPCTooManyRequestsError")(
   Enum.TOO_MANY_REQUESTS,
   errorUnionMemberFields(Enum.TOO_MANY_REQUESTS)
 ) {}
 
-export class TRPCClientClosedRequestError extends S.TaggedError<TRPCClientClosedRequestError>("@org/TRPCClientClosedRequestError")(
-  Enum.CLIENT_CLOSED_REQUEST,
-  errorUnionMemberFields(Enum.CLIENT_CLOSED_REQUEST)
-) {}
+export class TRPCClientClosedRequestError extends S.TaggedError<TRPCClientClosedRequestError>(
+  "@org/TRPCClientClosedRequestError"
+)(Enum.CLIENT_CLOSED_REQUEST, errorUnionMemberFields(Enum.CLIENT_CLOSED_REQUEST)) {}
 
 export class TRPCNotImplementedError extends S.TaggedError<TRPCNotImplementedError>("@org/TRPCNotImplementedError")(
   Enum.NOT_IMPLEMENTED,
@@ -218,10 +210,9 @@ export class TRPCBadGatewayError extends S.TaggedError<TRPCBadGatewayError>("@or
   errorUnionMemberFields(Enum.BAD_GATEWAY)
 ) {}
 
-export class TRPCServiceUnavailableError extends S.TaggedError<TRPCServiceUnavailableError>("@org/TRPCServiceUnavailableError")(
-  Enum.SERVICE_UNAVAILABLE,
-  errorUnionMemberFields(Enum.SERVICE_UNAVAILABLE)
-) {}
+export class TRPCServiceUnavailableError extends S.TaggedError<TRPCServiceUnavailableError>(
+  "@org/TRPCServiceUnavailableError"
+)(Enum.SERVICE_UNAVAILABLE, errorUnionMemberFields(Enum.SERVICE_UNAVAILABLE)) {}
 
 export class TRPCGatewayTimeoutError extends S.TaggedError<TRPCGatewayTimeoutError>("@org/TRPCGatewayTimeoutError")(
   Enum.GATEWAY_TIMEOUT,
@@ -249,11 +240,5 @@ export class DiscriminatedTRPCError extends S.Union(
   TRPCServiceUnavailableError,
   TRPCGatewayTimeoutError
 ) {
-  static readonly match = Match.type<typeof DiscriminatedTRPCError.Type>
+  static readonly match = Match.type<typeof DiscriminatedTRPCError.Type>;
 }
-
-
-
-
-
-

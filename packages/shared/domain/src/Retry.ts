@@ -1,6 +1,6 @@
-import * as Schedule from "effect/Schedule";
-import type * as Duration from "effect/Duration";
 import * as Data from "effect/Data";
+import type * as Duration from "effect/Duration";
+import * as Schedule from "effect/Schedule";
 
 /**
  * Configuration options for exponential backoff retry strategy
@@ -36,8 +36,7 @@ export type ExponentialBackOffOptions = Readonly<{
    * @default 3
    */
   maxRetries?: undefined | number;
-}>
-
+}>;
 
 /**
  * Default configuration for exponential backoff retry strategy
@@ -48,7 +47,7 @@ const defaultExponentialBackoffOptions = Data.struct({
   delay: 100,
   growthFactor: 2.0,
   jitter: true,
-  maxRetries: 3
+  maxRetries: 3,
 } as const satisfies ExponentialBackOffOptions);
 
 /**
@@ -70,12 +69,11 @@ const defaultExponentialBackoffOptions = Data.struct({
 const makeExponentialBackoffPolicy = (
   options: undefined | ExponentialBackOffOptions
 ): Schedule.Schedule<[Duration.Duration, number]> => {
-  const opts = {...defaultExponentialBackoffOptions, ...options} as const;
+  const opts = { ...defaultExponentialBackoffOptions, ...options } as const;
 
-  return Schedule.intersect(
-    Schedule.exponential(opts.delay, opts.growthFactor),
-    Schedule.recurs(opts.maxRetries)
-  ).pipe((policy) => (opts.jitter ? Schedule.jittered(policy) : policy));
+  return Schedule.intersect(Schedule.exponential(opts.delay, opts.growthFactor), Schedule.recurs(opts.maxRetries)).pipe(
+    (policy) => (opts.jitter ? Schedule.jittered(policy) : policy)
+  );
 };
 
 /**
@@ -83,9 +81,7 @@ const makeExponentialBackoffPolicy = (
  *
  * Provide a pre-configured retry policy with standard exponential backoff settings
  */
-const defaultExponentialBackoffPolicy = makeExponentialBackoffPolicy(
-  defaultExponentialBackoffOptions
-);
+const defaultExponentialBackoffPolicy = makeExponentialBackoffPolicy(defaultExponentialBackoffOptions);
 
 /**
  * Retry utility with exponential backoff policy generation
@@ -117,4 +113,4 @@ export const Retry = Data.struct({
    * Default no retry policy
    */
   noRetryPolicy: Schedule.stop,
-} as const)
+} as const);

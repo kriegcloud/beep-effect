@@ -34,14 +34,14 @@ export type CallMetadata = Readonly<{
    * Source code of the argument list.
    */
   A?: undefined | string[];
-}>
+}>;
 
 export type InvariantFn = (condition: unknown, message?: string, meta?: CallMetadata) => asserts condition;
 
 export const invariant: InvariantFn = (
   condition: unknown,
   message?: string,
-  meta?: CallMetadata,
+  meta?: CallMetadata
 ): asserts condition => {
   if (condition) {
     return;
@@ -75,7 +75,7 @@ export const invariant: InvariantFn = (
 };
 
 export class InvariantViolation extends Data.TaggedError("InvariantViolation")<{
-  readonly message: string
+  readonly message: string;
 }> {
   constructor(message: string) {
     super({
@@ -86,15 +86,17 @@ export class InvariantViolation extends Data.TaggedError("InvariantViolation")<{
   }
 }
 
-const getRelativeFilename = (filename: string) => F.pipe(
-  filename,
-  Str.match(/.+\/(packages\/.+\/.+)/),
-  O.match({
-    onNone: () => filename,
-    onSome: (match) => F.pipe(
-      match[1],
-      O.fromNullable,
-      O.getOrElse(() => filename)
-    )
-  })
-);
+const getRelativeFilename = (filename: string) =>
+  F.pipe(
+    filename,
+    Str.match(/.+\/(packages\/.+\/.+)/),
+    O.match({
+      onNone: () => filename,
+      onSome: (match) =>
+        F.pipe(
+          match[1],
+          O.fromNullable,
+          O.getOrElse(() => filename)
+        ),
+    })
+  );
