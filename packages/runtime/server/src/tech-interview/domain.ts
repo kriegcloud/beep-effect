@@ -1,5 +1,5 @@
 import * as S from "effect/Schema";
-import {makeEntityId} from "@/app/tech-interview/utils";
+import {makeEntityId} from "./utils";
 import * as M from "@effect/sql/Model";
 
 export class TodoId extends makeEntityId("TodoId", {
