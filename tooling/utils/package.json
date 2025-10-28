@@ -25,9 +25,9 @@
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo .tmp-FsUtils-tests",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
+    "lint:circular": "bunx madge -c .",
     "test": "bun test",
-    "coverage": "bun test --coverage",
-    "lint:circular": "bunx madge -c ."
+    "coverage": "bun test --coverage"
   },
   "peerDependencies": {
     "@effect/platform": "catalog:",

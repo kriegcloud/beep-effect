@@ -16,7 +16,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as LogLevel from "effect/LogLevel";
-import type * as ManagedRuntime from "effect/ManagedRuntime";
+import * as ManagedRuntime from "effect/ManagedRuntime";
 import { WorkerClient } from "../../worker/worker-client";
 import { NetworkMonitor } from "../common/network-monitor";
 
@@ -87,6 +87,10 @@ export const clientRuntimeLayer = Layer.mergeAll(
   WorkerClientLive,
   BrowserKeyValueStore.layerLocalStorage
 ).pipe(Layer.provide(LogLevelLive));
+
+export const clientRuntime = ManagedRuntime.make(clientRuntimeLayer);
+
+clientRuntime.runPromise(Effect.void);
 
 // ============================================================================
 // Runtime helpers
