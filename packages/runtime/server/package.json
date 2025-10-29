@@ -32,7 +32,7 @@
     "lint:fix": "biome check . --write",
     "lint:circular": "bunx madge -c .",
     "dotenvx": "dotenvx run -f ../../../.env --",
-    "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx tsx ./src/tech-interview/run.ts"
+    "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx tsx ./src/tech-interview/with-rate-limiter.ts"
   },
   "peerDependencies": {
     "@effect/sql": "catalog:",
@@ -100,7 +100,6 @@
     "uuid": "catalog:"
   },
   "devDependencies": {
-    "@effect/platform-node": "^0.98.4",
     "@types/bun": "catalog:",
     "tsx": "catalog:",
     "@beep/types": "workspace:^",

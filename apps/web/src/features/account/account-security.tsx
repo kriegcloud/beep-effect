@@ -1,3 +1,4 @@
+import { PasskeysView } from "@beep/iam-ui/passkey/passkeys.view";
 import { BS } from "@beep/schema";
 import { Iconify } from "@beep/ui/atoms";
 import { Form, formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
@@ -7,6 +8,7 @@ import { toast } from "@beep/ui/molecules";
 import Card from "@mui/material/Card";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
+import Stack from "@mui/material/Stack";
 import * as Equal from "effect/Equal";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
@@ -57,47 +59,50 @@ export function AccountSecurity() {
   );
 
   return (
-    <Form onSubmit={form.handleSubmit}>
-      <Card
-        sx={{
-          p: 3,
-          gap: 3,
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <form.AppForm>
-          <form.AppField
-            name={"oldPassword"}
-            children={(field) => (
-              <field.Text
-                type={showPassword.value ? "text" : "password"}
-                label={"Old password"}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton onClick={showPassword.onToggle} edge="end">
-                          <Iconify icon={showPassword.value ? "solar:eye-bold" : "solar:eye-closed-bold"} />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-            )}
-          />
+    <Stack spacing={4}>
+      <Form onSubmit={form.handleSubmit}>
+        <Card
+          sx={{
+            p: 3,
+            gap: 3,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <form.AppForm>
+            <form.AppField
+              name={"oldPassword"}
+              children={(field) => (
+                <field.Text
+                  type={showPassword.value ? "text" : "password"}
+                  label={"Old password"}
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={showPassword.onToggle} edge="end">
+                            <Iconify icon={showPassword.value ? "solar:eye-bold" : "solar:eye-closed-bold"} />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+              )}
+            />
 
-          <PasswordFieldsGroup
-            form={form}
-            fields={{
-              password: "newPassword",
-              passwordConfirm: "passwordConfirm",
-            }}
-          />
-          <form.Submit variant={"contained"} />
-        </form.AppForm>
-      </Card>
-    </Form>
+            <PasswordFieldsGroup
+              form={form}
+              fields={{
+                password: "newPassword",
+                passwordConfirm: "passwordConfirm",
+              }}
+            />
+            <form.Submit variant={"contained"} />
+          </form.AppForm>
+        </Card>
+      </Form>
+      <PasskeysView />
+    </Stack>
   );
 }

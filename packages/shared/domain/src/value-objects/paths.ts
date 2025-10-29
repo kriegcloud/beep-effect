@@ -1,4 +1,4 @@
-import { PathBuilder } from "@beep/constants/paths/utils";
+import { PathBuilder } from "@beep/shared-domain/factories";
 import * as F from "effect/Function";
 import type { IamEntityIds, SharedEntityIds } from "../entity-ids";
 

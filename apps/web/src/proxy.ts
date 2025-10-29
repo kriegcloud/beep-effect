@@ -47,6 +47,9 @@ const matchesPrefix = (pathname: string, prefixes: ReadonlyArray<string>) =>
 export async function proxy(request: NextRequest) {
   const csp = serverEnv.security.csp;
   const { pathname } = request.nextUrl;
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("Content-Security-Policy", csp);
+  requestHeaders.set("x-url", request.url);
 
   const isAuthRoute = matchesExact(pathname, AUTH_ROUTES);
   const isPrivateRoute = matchesPrefix(pathname, PRIVATE_PREFIXES);
@@ -55,9 +58,6 @@ export async function proxy(request: NextRequest) {
   const isPublicRoute = isDeclaredPublicRoute || isImplicitPublicRoute;
 
   if (isPublicRoute && !isAuthRoute) {
-    const requestHeaders = new Headers(request.headers);
-    requestHeaders.set("Content-Security-Policy", csp);
-
     const response = NextResponse.next({
       request: {
         headers: requestHeaders,
@@ -85,9 +85,6 @@ export async function proxy(request: NextRequest) {
     }
     return withCsp(NextResponse.redirect(signInUrl), csp);
   }
-
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("Content-Security-Policy", csp);
 
   const response = NextResponse.next({
     request: {

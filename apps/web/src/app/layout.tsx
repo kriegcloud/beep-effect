@@ -8,11 +8,14 @@ import "dayjs/locale/vi";
 import "dayjs/locale/fr";
 import "dayjs/locale/zh-cn";
 import "dayjs/locale/ar-sa";
+import { AccountSettingsTabSearchParamValue } from "@beep/iam-domain";
 import { KaServices } from "@beep/runtime-client";
 import { runServerPromise } from "@beep/runtime-server";
 import { RegistryProvider } from "@effect-atom/atom-react";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import Script from "next/script";
 import { getAppConfig } from "@/app-config";
 import { GlobalProviders } from "@/GlobalProviders";
@@ -24,23 +27,34 @@ class NonceError extends Data.TaggedError("NonceError")<{
   readonly message: string;
 }> {}
 
-const getNonce = Effect.gen(function* () {
+const getHeaderData = Effect.gen(function* () {
   const headers = yield* Effect.tryPromise({
     try: async () => await nextHeaders(),
     catch: (e) => new NonceError({ cause: e, message: "Failed to get ReadonlyHeaders from next/headers" }),
   });
 
-  const nonce = headers.get("x-nonce") || undefined;
-  if (!nonce) {
-    return undefined;
+  const nonceOption = O.fromNullable(headers.get("x-nonce"));
+  const urlString = O.fromNullable(headers.get("x-url"));
+
+  if (O.isNone(urlString)) {
+    return { nonceOption, settingsTabParamOption: O.none<AccountSettingsTabSearchParamValue.Type>() };
   }
-  return nonce;
+  const url = new URL(urlString.value);
+  const searchParams = url.searchParams;
+  const settingsTabParamOption = S.decodeUnknownOption(AccountSettingsTabSearchParamValue)(
+    searchParams.get("settingsTab")
+  );
+
+  return { nonceOption, settingsTabParamOption };
 }).pipe(
   Effect.withSpan("getNonce"),
-  Effect.orElseSucceed(() => undefined)
+  Effect.orElseSucceed(() => ({
+    nonceOption: O.none<string>(),
+    settingsTabParamOption: O.none<AccountSettingsTabSearchParamValue.Type>(),
+  }))
 );
 
-const getInitialProps = Effect.all([getNonce, getAppConfig]).pipe(Effect.withSpan("getInitialProps"));
+const getInitialProps = Effect.all([getHeaderData, getAppConfig]).pipe(Effect.withSpan("getInitialProps"));
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -63,13 +77,17 @@ type RootLayoutProps = {
 };
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-  const [nonce, appConfig] = await runServerPromise(getInitialProps, "RootLayout.getInitialProps");
+  const [headerData, appConfig] = await runServerPromise(getInitialProps, "RootLayout.getInitialProps");
 
   return (
     <html lang={appConfig.lang ?? "en"} dir={appConfig.dir} suppressHydrationWarning>
-      <Script src="https://www.googletagmanager.com/gtag/js" strategy="afterInteractive" nonce={nonce} />
+      <Script
+        src="https://www.googletagmanager.com/gtag/js"
+        strategy="afterInteractive"
+        nonce={O.getOrUndefined(headerData.nonceOption)}
+      />
       <body>
-        <GlobalProviders appConfig={appConfig} nonce={nonce}>
+        <GlobalProviders appConfig={appConfig} headerData={headerData}>
           <RegistryProvider>
             <KaServices />
             {children}

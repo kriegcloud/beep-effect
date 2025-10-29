@@ -11,6 +11,7 @@ import Box from "@mui/material/Box";
 import { iconButtonClasses } from "@mui/material/IconButton";
 import type { Breakpoint } from "@mui/material/styles";
 import { useTheme } from "@mui/material/styles";
+import { Iconify } from "../../atoms";
 import { AccountDrawer } from "../components/account-drawer";
 import { ContactsPopover } from "../components/contacts-popover";
 import { LanguagePopover } from "../components/language-popover";
@@ -21,7 +22,6 @@ import { SettingsButton } from "../components/settings-button";
 import { WorkspacesPopover } from "../components/workspaces-popover";
 import type { HeaderSectionProps, LayoutSectionProps, MainSectionProps } from "../core";
 import { HeaderSection, LayoutSection, layoutClasses, MainSection } from "../core";
-import { _account } from "../nav-config-account";
 import { navData as dashboardNavData } from "../nav-config-dashboard";
 import { _workspaces } from "../nav-config-workspace";
 import { VerticalDivider } from "./content";
@@ -33,17 +33,25 @@ import { NavVertical } from "./nav-vertical";
 type LayoutBaseProps = Pick<LayoutSectionProps, "sx" | "children" | "cssVars">;
 
 export type DashboardLayoutProps = LayoutBaseProps & {
-  layoutQuery?: Breakpoint;
-  slotProps?: {
-    header?: HeaderSectionProps;
-    nav?: {
-      data?: NavSectionProps["data"];
+  readonly layoutQuery?: Breakpoint;
+  readonly onClickAccountSettings: () => void;
+  readonly slotProps?: {
+    readonly header?: HeaderSectionProps;
+    readonly nav?: {
+      readonly data?: NavSectionProps["data"];
     };
-    main?: MainSectionProps;
+    readonly main?: MainSectionProps;
   };
 };
 
-export function DashboardLayout({ sx, cssVars, children, slotProps, layoutQuery = "lg" }: DashboardLayoutProps) {
+export function DashboardLayout({
+  onClickAccountSettings,
+  sx,
+  cssVars,
+  children,
+  slotProps,
+  layoutQuery = "lg",
+}: DashboardLayoutProps) {
   const theme = useTheme();
 
   const {
@@ -165,7 +173,42 @@ export function DashboardLayout({ sx, cssVars, children, slotProps, layoutQuery 
           <SettingsButton />
 
           {/** @slot Account drawer */}
-          <AccountDrawer data={_account} />
+          <AccountDrawer
+            data={[
+              {
+                label: "Home",
+                href: "/",
+                icon: <Iconify icon="solar:home-angle-bold-duotone" />,
+              },
+              {
+                label: "Profile",
+                href: "#",
+                icon: <Iconify icon="custom:profile-duotone" />,
+              },
+              {
+                label: "Projects",
+                href: "#",
+                icon: <Iconify icon="solar:notes-bold-duotone" />,
+                info: "3",
+              },
+              {
+                label: "Subscription",
+                href: "#",
+                icon: <Iconify icon="custom:invoice-duotone" />,
+              },
+              {
+                label: "Security",
+                href: "#",
+                icon: <Iconify icon="solar:shield-keyhole-bold-duotone" />,
+              },
+              {
+                label: "Account settings",
+                href: "#",
+                onClick: () => onClickAccountSettings(),
+                icon: <Iconify icon="solar:settings-bold-duotone" />,
+              },
+            ]}
+          />
         </Box>
       ),
     };

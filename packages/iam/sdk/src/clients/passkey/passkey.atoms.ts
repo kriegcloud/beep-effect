@@ -14,7 +14,7 @@ import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 
-const remoteAtom = iamAtomRuntime.atom(PasskeyImplementations.PasskeyList);
+const remoteAtom = iamAtomRuntime.atom(PasskeyImplementations.PasskeyList).pipe(Atom.withReactivity(["passkeys"]));
 
 type Action = Data.TaggedEnum<{
   Update: { readonly passkey: PasskeyView.Type };
@@ -69,7 +69,10 @@ export const updatePasskeyAtom = iamAtomRuntime.fn(
         onSome: (e: { message: string }) => e.message,
       }),
     })
-  )
+  ),
+  {
+    reactivityKeys: ["passkeys"],
+  }
 );
 
 export const deletePasskeyAtom = iamAtomRuntime.fn(
@@ -92,7 +95,10 @@ export const deletePasskeyAtom = iamAtomRuntime.fn(
         onSome: (e: { message: string }) => e.message,
       }),
     })
-  )
+  ),
+  {
+    reactivityKeys: ["passkeys"],
+  }
 );
 
 export const addPasskeyAtom = iamAtomRuntime.fn(
@@ -118,7 +124,10 @@ export const addPasskeyAtom = iamAtomRuntime.fn(
         onSome: (e: { message: string }) => e.message,
       }),
     })
-  )
+  ),
+  {
+    reactivityKeys: ["passkeys"],
+  }
 );
 
 export const editingPasskeyAtom = Atom.make<PasskeyView.Type | undefined>(undefined);

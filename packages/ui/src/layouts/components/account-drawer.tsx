@@ -21,11 +21,12 @@ import { UpgradeBlock } from "./nav-upgrade";
 import { SignOutButton } from "./sign-out-button";
 
 export type AccountDrawerProps = IconButtonProps & {
-  data?: {
-    label: string;
-    href: string;
-    icon?: React.ReactNode;
-    info?: React.ReactNode;
+  readonly data?: {
+    readonly label: string;
+    readonly href: string;
+    readonly icon?: React.ReactNode;
+    readonly info?: React.ReactNode;
+    readonly onClick?: () => void;
   }[];
 };
 
@@ -75,7 +76,7 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
               href={option.label === "Home" ? rootHref : option.href}
               color="inherit"
               underline="none"
-              onClick={onClose}
+              onClick={option.onClick ?? onClose}
               sx={{
                 p: 1,
                 width: 1,

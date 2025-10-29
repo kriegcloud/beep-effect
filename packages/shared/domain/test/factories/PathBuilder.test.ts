@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { PathBuilder } from "@beep/constants/paths/utils";
+import { PathBuilder } from "@beep/shared-domain/factories/path-builder";
 
 describe("PathBuilder", () => {
   it("allows query strings in generated paths", () => {

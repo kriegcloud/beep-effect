@@ -26,8 +26,6 @@
     "execute": "bun run dotenvx -- bunx tsx ./execute.ts"
   },
   "dependencies": {
-    "@effect/platform-node": "^0.98.4",
-    "@trpc/server": "^11.7.1",
     "turndown": "catalog:",
     "rehype-raw": "catalog:",
     "rehype-highlight": "catalog:",

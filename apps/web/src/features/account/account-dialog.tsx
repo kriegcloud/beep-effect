@@ -1,8 +1,7 @@
+import type { AccountSettingsTabSearchParamValue } from "@beep/iam-domain";
 import { Iconify } from "@beep/ui/atoms/iconify/iconify";
-import { useSearchParams } from "@beep/ui/hooks";
 import { SimpleBar } from "@beep/ui/molecules";
 import { useBreakpoints } from "@beep/ui/providers/break-points.provider";
-import { RouterLink } from "@beep/ui/routing";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Dialog from "@mui/material/Dialog";
@@ -16,7 +15,6 @@ import type { TransitionProps } from "@mui/material/transitions";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
-import { usePathname } from "next/navigation";
 import React from "react";
 import {
   AccountBillingView,
@@ -35,50 +33,51 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />;
 });
 type AccountTabItem = {
-  readonly slug: string;
+  readonly slug: AccountSettingsTabSearchParamValue.Type;
   readonly label: string;
   readonly icon: React.ReactElement;
-  readonly href: string;
+  readonly onClick: () => void;
   readonly render: () => React.ReactNode;
 };
 
-const NAV_ITEMS = (pathname: string): ReadonlyArray<AccountTabItem> => [
-  {
-    slug: "general",
-    label: "General",
-    icon: <Iconify width={24} icon="solar:user-id-bold" />,
-    href: `${pathname}?settingsTab=general`,
-    render: () => <AccountGeneralView />,
-  },
-  {
-    slug: "billing",
-    label: "Billing",
-    icon: <Iconify width={24} icon="solar:bill-list-bold" />,
-    href: `${pathname}?settingsTab=billing`,
-    render: () => <AccountBillingView />,
-  },
-  {
-    slug: "notifications",
-    label: "Notifications",
-    icon: <Iconify width={24} icon="solar:bell-bing-bold" />,
-    href: `${pathname}?settingsTab=notifications`,
-    render: () => <AccountNotificationsView />,
-  },
-  {
-    slug: "connections",
-    label: "Connections",
-    icon: <Iconify width={24} icon="solar:share-bold" />,
-    href: `${pathname}?settingsTab=connections`,
-    render: () => <AccountSocialsView />,
-  },
-  {
-    slug: "security",
-    label: "Security",
-    icon: <Iconify width={24} icon="ic:round-vpn-key" />,
-    href: `${pathname}?settingsTab=security`,
-    render: () => <AccountSecurityView />,
-  },
-];
+const NAV_ITEMS = (handleTab: (tab: AccountSettingsTabSearchParamValue.Type) => void): ReadonlyArray<AccountTabItem> =>
+  [
+    {
+      slug: "general",
+      label: "General",
+      icon: <Iconify width={24} icon="solar:user-id-bold" />,
+      onClick: () => handleTab("general"),
+      render: () => <AccountGeneralView />,
+    },
+    {
+      slug: "billing",
+      label: "Billing",
+      icon: <Iconify width={24} icon="solar:bill-list-bold" />,
+      onClick: () => handleTab("billing"),
+      render: () => <AccountBillingView />,
+    },
+    {
+      slug: "notifications",
+      label: "Notifications",
+      icon: <Iconify width={24} icon="solar:bell-bing-bold" />,
+      onClick: () => handleTab("notifications"),
+      render: () => <AccountNotificationsView />,
+    },
+    {
+      slug: "connections",
+      label: "Connections",
+      icon: <Iconify width={24} icon="solar:share-bold" />,
+      onClick: () => handleTab("connections"),
+      render: () => <AccountSocialsView />,
+    },
+    {
+      slug: "security",
+      label: "Security",
+      icon: <Iconify width={24} icon="ic:round-vpn-key" />,
+      onClick: () => handleTab("security"),
+      render: () => <AccountSecurityView />,
+    },
+  ] as const;
 
 interface TabPanelProps {
   readonly children: React.ReactNode;
@@ -113,46 +112,21 @@ function a11yProps(slug: string) {
   };
 }
 
-const DEFAULT_TAB_SLUG = (pathname: string) =>
-  F.pipe(
-    NAV_ITEMS(pathname),
-    A.head,
-    O.map((item) => item.slug),
-    O.getOrElse(() => "general")
-  );
-
 const NAV_PANEL_WIDTH = 256;
 
-function AccountTabs({ pathname }: { readonly pathname: string }) {
-  const searchParams = useSearchParams();
-  const [value, setValue] = React.useState(DEFAULT_TAB_SLUG(pathname));
-
-  React.useEffect(() => {
-    const nextValue = F.pipe(
-      O.fromNullable(searchParams.get("settingsTab")),
-      O.flatMap((candidate) =>
-        F.pipe(
-          NAV_ITEMS(pathname),
-          A.findFirst((tab) => tab.slug === candidate),
-          O.map(() => candidate)
-        )
-      ),
-      O.getOrElse(() => DEFAULT_TAB_SLUG(pathname))
-    );
-
-    setValue((current) => (current === nextValue ? current : nextValue));
-  }, [searchParams]);
-
-  const handleChange = (_event: React.SyntheticEvent, newValue: string) => {
-    setValue(newValue);
-  };
-
+function AccountTabs({
+  handleTab,
+  currentTab,
+}: {
+  readonly handleTab: (currentTab: AccountSettingsTabSearchParamValue.Type) => void;
+  readonly currentTab: AccountSettingsTabSearchParamValue.Type;
+}) {
   const breakpoints = useBreakpoints();
   const isMobile = breakpoints.down("md");
   const isXs = breakpoints.down("xs");
   const tabIconPosition = isMobile ? "top" : "start";
 
-  const navItems = React.useMemo(() => NAV_ITEMS(pathname), [pathname]);
+  const navItems = React.useMemo(() => NAV_ITEMS(handleTab), [handleTab]);
 
   return (
     <Box
@@ -184,8 +158,7 @@ function AccountTabs({ pathname }: { readonly pathname: string }) {
           orientation={isMobile ? "horizontal" : "vertical"}
           scrollButtons
           allowScrollButtonsMobile
-          value={value}
-          onChange={handleChange}
+          value={currentTab}
           aria-label="Account settings sections"
           variant={"fullWidth"}
           textColor="primary"
@@ -256,8 +229,8 @@ function AccountTabs({ pathname }: { readonly pathname: string }) {
             navItems,
             A.map((tab) => (
               <Tab
-                component={RouterLink}
                 key={tab.slug}
+                onClick={tab.onClick}
                 label={
                   <Typography
                     sx={{
@@ -279,7 +252,6 @@ function AccountTabs({ pathname }: { readonly pathname: string }) {
                 }
                 icon={tab.icon}
                 value={tab.slug}
-                href={tab.href}
                 iconPosition={tabIconPosition}
                 {...a11yProps(tab.slug)}
                 sx={(theme) => ({
@@ -344,7 +316,7 @@ function AccountTabs({ pathname }: { readonly pathname: string }) {
           {F.pipe(
             navItems,
             A.map((tab) => (
-              <TabPanel key={tab.slug} value={tab.slug} activeValue={value}>
+              <TabPanel key={tab.slug} value={tab.slug} activeValue={currentTab}>
                 {tab.render()}
               </TabPanel>
             ))
@@ -356,14 +328,14 @@ function AccountTabs({ pathname }: { readonly pathname: string }) {
 }
 
 type AccountDialogProps = {
-  readonly open: boolean;
   readonly onClose: () => void;
+  readonly handleTab: (tab: AccountSettingsTabSearchParamValue.Type) => void;
+  readonly currentTab: O.Option<AccountSettingsTabSearchParamValue.Type>;
 };
 export const AccountDialog = (props: AccountDialogProps) => {
-  const pathname = usePathname();
   return (
     <Dialog
-      open={props.open}
+      open={O.isSome(props.currentTab)}
       onClose={props.onClose}
       maxWidth={"md"}
       fullWidth={true}
@@ -391,7 +363,9 @@ export const AccountDialog = (props: AccountDialogProps) => {
           </Typography>
         </Toolbar>
       </AppBar>
-      <AccountTabs pathname={pathname} />
+      {O.isSome(props.currentTab) ? (
+        <AccountTabs currentTab={props.currentTab.value} handleTab={props.handleTab} />
+      ) : null}
     </Dialog>
   );
 };

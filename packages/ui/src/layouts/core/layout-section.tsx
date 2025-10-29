@@ -9,12 +9,12 @@ import { layoutClasses } from "./classes";
 import { layoutSectionVars } from "./css-vars";
 
 export type LayoutSectionProps = React.ComponentProps<"div"> & {
-  sx?: SxProps<Theme>;
-  cssVars?: CSSObject;
-  children?: React.ReactNode;
-  footerSection?: React.ReactNode;
-  headerSection?: React.ReactNode;
-  sidebarSection?: React.ReactNode;
+  readonly sx?: SxProps<Theme>;
+  readonly cssVars?: CSSObject;
+  readonly children?: React.ReactNode;
+  readonly footerSection?: React.ReactNode;
+  readonly headerSection?: React.ReactNode;
+  readonly sidebarSection?: React.ReactNode;
 };
 
 export function LayoutSection({

@@ -12,19 +12,19 @@ import { styled } from "@mui/material/styles";
 import { layoutClasses } from "./classes";
 
 export type HeaderSectionProps = AppBarProps & {
-  layoutQuery?: Breakpoint;
-  disableOffset?: boolean;
-  disableElevation?: boolean;
-  slots?: {
-    leftArea?: React.ReactNode;
-    rightArea?: React.ReactNode;
-    topArea?: React.ReactNode;
-    centerArea?: React.ReactNode;
-    bottomArea?: React.ReactNode;
+  readonly layoutQuery?: Breakpoint;
+  readonly disableOffset?: boolean;
+  readonly disableElevation?: boolean;
+  readonly slots?: {
+    readonly leftArea?: React.ReactNode;
+    readonly rightArea?: React.ReactNode;
+    readonly topArea?: React.ReactNode;
+    readonly centerArea?: React.ReactNode;
+    readonly bottomArea?: React.ReactNode;
   };
-  slotProps?: {
-    container?: ContainerProps;
-    centerArea?: React.ComponentProps<"div"> & { sx?: SxProps<Theme> };
+  readonly slotProps?: {
+    readonly container?: ContainerProps;
+    readonly centerArea?: React.ComponentProps<"div"> & { sx?: SxProps<Theme> };
   };
 };
 

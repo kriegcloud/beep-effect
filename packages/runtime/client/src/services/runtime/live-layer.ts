@@ -90,8 +90,6 @@ export const clientRuntimeLayer = Layer.mergeAll(
 
 export const clientRuntime = ManagedRuntime.make(clientRuntimeLayer);
 
-clientRuntime.runPromise(Effect.void);
-
 // ============================================================================
 // Runtime helpers
 // ============================================================================
