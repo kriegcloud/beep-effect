@@ -51,13 +51,16 @@ export declare namespace JsonLiteral {
  * @since 0.1.0
  * @category JSON
  */
-export const Json = S.suspend(
+export class Json extends S.suspend(
   (): S.Schema<Json.Type> => S.Union(JsonLiteral, S.Array(Json), S.Record({ key: S.String, value: Json }))
 ).annotations({
   identifier: "Json",
   title: "Json",
   description: "A Valid JSON",
-});
+}) {
+  static readonly decodeSync = S.decodeSync(Json);
+  static readonly encodeSync = S.encodeSync(Json);
+}
 export declare namespace Json {
   export type Type = JsonLiteral.Type | { [key: string]: Type } | Type[] | ReadonlyArray<Type>;
 

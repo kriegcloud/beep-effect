@@ -1,3 +1,4 @@
+export type * from "./char.types.ts";
 export type * from "./common.types.js";
 export type * as FnTypes from "./fn.types.js";
 export type * as LiteralTypes from "./literal.types.js";

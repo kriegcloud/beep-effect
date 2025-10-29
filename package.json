@@ -312,9 +312,34 @@
     "recharts": "^3.3.0",
     "vaul": "^1.1.2",
     "@phosphor-icons/react": "^2.1.10",
-    "@radix-ui/react-accordion": "^1.2.12"
+    "@radix-ui/react-accordion": "^1.2.12",
+    "react-qr-code": "^2.0.18",
+    "ua-parser-js": "^2.0.6",
+    "@types/react-google-recaptcha": "^2.1.9",
+    "@radix-ui/react-use-callback-ref": "^1.1.1",
+    "@radix-ui/react-use-layout-effect": "^1.1.1"
   },
   "dependenciesCatalog": [
+    {
+      "name": "react-qr-code",
+      "version": "^2.0.18"
+    },
+    {
+      "name": "ua-parser-js",
+      "version": "^2.0.6"
+    },
+    {
+      "name": "@types/react-google-recaptcha",
+      "version": "^2.1.9"
+    },
+    {
+      "name": "@radix-ui/react-use-callback-ref",
+      "version": "^1.1.1"
+    },
+    {
+      "name": "@radix-ui/react-use-layout-effect",
+      "version": "^1.1.1"
+    },
     {
       "name": "@radix-ui/react-accordion",
       "version": "^1.2.12"

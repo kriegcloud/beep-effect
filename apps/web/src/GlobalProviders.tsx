@@ -19,31 +19,23 @@ import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import * as O from "effect/Option";
 import type React from "react";
 import type { AppConfig } from "@/app-config";
+import { settingsDialogAtom } from "@/global.atoms";
 import RecaptchaProvider from "./recaptcha-provider.client";
 
 type GlobalProviders = {
-  children: React.ReactNode;
-  headerData: {
-    readonly nonceOption: O.Option<string>;
-    readonly settingsTabParamOption: O.Option<AccountSettingsTabSearchParamValue.Type>;
-  };
-  appConfig: AppConfig;
+  readonly children: React.ReactNode;
+  readonly appConfig: AppConfig;
 };
 
-export function GlobalProviders({ children, appConfig, headerData }: GlobalProviders) {
-  const { nonceOption } = headerData;
-
-  const nonce = O.getOrUndefined(nonceOption);
-
+export function GlobalProviders({ children, appConfig }: GlobalProviders) {
   const registry = Registry.make({
-    initialValues: [],
+    initialValues: [[settingsDialogAtom.remoteAtom, O.none<AccountSettingsTabSearchParamValue.Type>()]],
   });
 
   return (
     <BeepProvider>
       <RegistryContext.Provider value={registry}>
         <InitColorSchemeScript
-          nonce={nonce}
           modeStorageKey={themeConfig.modeStorageKey}
           attribute={themeConfig.cssVariables.colorSchemeSelector}
           defaultMode={themeConfig.defaultMode}
@@ -51,7 +43,7 @@ export function GlobalProviders({ children, appConfig, headerData }: GlobalProvi
         <I18nProvider lang={appConfig.i18nLang}>
           <SettingsProvider cookieSettings={appConfig.cookieSettings} defaultSettings={defaultSettings}>
             <LocalizationProvider>
-              <AppRouterCacheProvider options={{ key: "css", enableCssLayer: true, nonce }}>
+              <AppRouterCacheProvider options={{ key: "css", enableCssLayer: true }}>
                 <ThemeProvider modeStorageKey={themeConfig.modeStorageKey} defaultMode={themeConfig.defaultMode}>
                   <BreakpointsProvider>
                     <ConfirmProvider>

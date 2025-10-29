@@ -38,6 +38,28 @@ export declare namespace CustomURL {
   export type Encoded = typeof CustomURL.Encoded;
 }
 
+export class URLFromString extends S.instanceOf(URL)
+  .pipe(
+    S.filter((a) => Either.try(() => new URL(a)).pipe(Either.isRight)),
+    S.annotations({
+      arbitrary: () => (fc) => fc.constant(null).map(() => new URL(faker.internet.url())),
+    }),
+    S.brand("URLFromString")
+  )
+  .annotations({
+    schemaId: Symbol.for("@beep/schema/custom/Url.schema/URLFromString"),
+    identifier: "URLFromString",
+    description: "A URL from a string.",
+    title: "URL From String",
+    jsonSchema: { type: "string", format: "url" },
+  }) {}
+
+export declare namespace URLFromString {
+  /** URL string type (branded). */
+  export type Type = typeof URLFromString.Type;
+  export type Encoded = typeof URLFromString.Encoded;
+}
+
 export class Url extends S.Trimmed.pipe(
   S.nonEmptyString({ message: () => "Must be a non-empty trimmed string" }),
   S.filter((a) => Either.try(() => new URL(a).toString()).pipe(Either.isRight)),
@@ -109,6 +131,6 @@ export class URLString extends S.Union(HttpUrl, HttpsUrl).annotations({
 
 export declare namespace UrlString {
   /** URL string type (branded). */
-  export type Type = typeof URLString.Type;
+  export type Type = HttpUrl.Type | HttpsUrl.Type;
   export type Encoded = typeof URLString.Encoded;
 }
