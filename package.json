@@ -131,9 +131,6 @@
     "@fontsource-variable/public-sans": "5.2.7",
     "@fontsource/barlow": "5.2.8",
     "@iconify/react": "6.0.2",
-    "@jsonforms/core": "3.6.0",
-    "@jsonforms/material-renderers": "3.6.0",
-    "@jsonforms/react": "3.6.0",
     "@mui/lab": "7.0.1-beta.18",
     "@mui/material": "7.3.4",
     "@mui/material-nextjs": "7.3.3",
@@ -164,7 +161,6 @@
     "@rocicorp/zero": "^0.24.3000000000",
     "@simplewebauthn/server": "^13.2.2",
     "@standard-schema/spec": "^1.0.0",
-    "@statelyai/inspect": "^0.4.0",
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4.1.16",
     "@tanstack/react-form": "^1.23.8",
@@ -185,7 +181,6 @@
     "@turbo/gen": "2.6.0",
     "@types/autosuggest-highlight": "^3.2.3",
     "@types/bun": "^1.3.1",
-    "@types/json-logic-js": "2.0.8",
     "@types/lodash": "4.17.20",
     "@types/node": "24.9.2",
     "@types/nprogress": "0.2.3",
@@ -193,8 +188,6 @@
     "@types/react-dom": "19.2.2",
     "@xstate/react": "6.0.0",
     "accept-language": "3.0.20",
-    "ajv": "8.17.1",
-    "ajv-formats": "3.0.1",
     "autoprefixer": "10.4.21",
     "autosuggest-highlight": "^3.3.4",
     "babel-plugin-annotate-pure-calls": "0.5.0",
@@ -224,7 +217,6 @@
     "i18next-browser-languagedetector": "8.2.0",
     "i18next-resources-to-backend": "1.2.1",
     "jose": "6.1.0",
-    "json-logic-js": "2.0.5",
     "lint-staged": "16.2.6",
     "lowlight": "3.3.0",
     "madge": "8.0.0",
@@ -311,7 +303,6 @@
     "react-resizable-panels": "^3.0.6",
     "recharts": "^3.3.0",
     "vaul": "^1.1.2",
-    "@phosphor-icons/react": "^2.1.10",
     "@radix-ui/react-accordion": "^1.2.12",
     "react-qr-code": "^2.0.18",
     "ua-parser-js": "^2.0.6",
@@ -372,10 +363,6 @@
     {
       "name": "@radix-ui/react-accordion",
       "version": "^1.2.12"
-    },
-    {
-      "name": "@phosphor-icons/react",
-      "version": "^2.1.10"
     },
     {
       "name": "@radix-ui/react-alert-dialog",
@@ -718,18 +705,6 @@
       "version": "6.0.2"
     },
     {
-      "name": "@jsonforms/core",
-      "version": "3.6.0"
-    },
-    {
-      "name": "@jsonforms/material-renderers",
-      "version": "3.6.0"
-    },
-    {
-      "name": "@jsonforms/react",
-      "version": "3.6.0"
-    },
-    {
       "name": "@mui/lab",
       "version": "7.0.1-beta.18"
     },
@@ -850,10 +825,6 @@
       "version": "1.0.0"
     },
     {
-      "name": "@statelyai/inspect",
-      "version": "0.4.0"
-    },
-    {
       "name": "@svgr/webpack",
       "version": "8.1.0"
     },
@@ -938,10 +909,6 @@
       "version": "^1.2.23"
     },
     {
-      "name": "@types/json-logic-js",
-      "version": "2.0.8"
-    },
-    {
       "name": "@types/node",
       "version": "24.7.0"
     },
@@ -964,14 +931,6 @@
     {
       "name": "accept-language",
       "version": "3.0.20"
-    },
-    {
-      "name": "ajv",
-      "version": "8.17.1"
-    },
-    {
-      "name": "ajv-formats",
-      "version": "3.0.1"
     },
     {
       "name": "autoprefixer",
@@ -1088,10 +1047,6 @@
     {
       "name": "jose",
       "version": "6.1.0"
-    },
-    {
-      "name": "json-logic-js",
-      "version": "2.0.5"
     },
     {
       "name": "lint-staged",
