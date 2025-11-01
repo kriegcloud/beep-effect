@@ -5,8 +5,7 @@ import * as F from "effect/Function";
 import * as O from "effect/Option";
 import type * as Pretty from "effect/Pretty";
 import * as AST from "effect/SchemaAST";
-// todo delete this. Creates a tight coupling between rule layer and schema layer
-export const SymbolAnnotationId = Symbol.for("@beep/rules/SymbolAnnotationId");
+
 export const LabelAnnotationId = Symbol.for("@beep/schema/annotations/LabelAnnotation");
 export const BSFieldName = Symbol.for("@beep/schema/fieldName");
 export const BSCustomField = Symbol.for("@beep/schema/customField");
@@ -146,7 +145,6 @@ export type RelationConfig = {
 declare module "effect/Schema" {
   namespace Annotations {
     interface GenericSchema<A> extends Schema<A> {
-      [SymbolAnnotationId]?: string;
       [LabelAnnotationId]?: string;
       [BSFieldName]?: string;
       [BSCustomField]?: boolean;
@@ -205,7 +203,6 @@ export type DefaultAnnotations<A, TypeParameters extends ReadonlyArray<UnsafeTyp
   readonly parseIssueTitle?: AST.ParseIssueTitleAnnotation;
   readonly parseOptions?: AST.ParseOptions;
   readonly decodingFallback?: AST.DecodingFallbackAnnotation<A>;
-  readonly [SymbolAnnotationId]?: string;
 };
 
 export const getUnderlyingType = (ast: AST.AST): "string" | "number" | "boolean" | "unknown" => {

@@ -24,15 +24,6 @@
       "path": "packages/common/mock/tsconfig.build.json"
     },
     {
-      "path": "packages/common/rules/tsconfig.build.json"
-    },
-    {
-      "path": "packages/common/logos/tsconfig.build.json"
-    },
-    {
-      "path": "packages/common/rete/tsconfig.build.json"
-    },
-    {
       "path": "packages/shared/domain/tsconfig.build.json"
     },
     {
@@ -85,9 +76,6 @@
     },
     {
       "path": "packages/runtime/server/tsconfig.build.json"
-    },
-    {
-      "path": "packages/runtime/shared/tsconfig.build.json"
     },
     {
       "path": "packages/runtime/client/tsconfig.build.json"

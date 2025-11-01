@@ -118,33 +118,6 @@
       "@beep/mock/test/*": [
         "./packages/common/mock/test/*"
       ],
-      "@beep/rules": [
-        "./packages/common/rules/src/index"
-      ],
-      "@beep/rules/*": [
-        "./packages/common/rules/src/*"
-      ],
-      "@beep/rules/test/*": [
-        "./packages/common/rules/test/*"
-      ],
-      "@beep/logos": [
-        "./packages/common/logos/src/index"
-      ],
-      "@beep/logos/*": [
-        "./packages/common/logos/src/*"
-      ],
-      "@beep/logos/test/*": [
-        "./packages/common/logos/test/*"
-      ],
-      "@beep/rete": [
-        "./packages/common/rete/src/index"
-      ],
-      "@beep/rete/*": [
-        "./packages/common/rete/src/*"
-      ],
-      "@beep/rete/test/*": [
-        "./packages/common/rete/test/*"
-      ],
       "@beep/shared-domain": [
         "./packages/shared/domain/src/index"
       ],
@@ -300,15 +273,6 @@
       ],
       "@beep/runtime-server/test/*": [
         "./packages/runtime/server/test/*"
-      ],
-      "@beep/runtime-shared": [
-        "./packages/runtime/shared/src/index"
-      ],
-      "@beep/runtime-shared/*": [
-        "./packages/runtime/shared/src/*"
-      ],
-      "@beep/runtime-shared/test/*": [
-        "./packages/runtime/shared/test/*"
       ],
       "@beep/runtime-client": [
         "./packages/runtime/client/src/index"

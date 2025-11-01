@@ -30,15 +30,6 @@
       "path": "../../common/errors/tsconfig.build.json"
     },
     {
-      "path": "../../common/rules/tsconfig.build.json"
-    },
-    {
-      "path": "../../common/logos/tsconfig.build.json"
-    },
-    {
-      "path": "../../common/rete/tsconfig.build.json"
-    },
-    {
       "path": "../../shared/domain/tsconfig.build.json"
     },
     {

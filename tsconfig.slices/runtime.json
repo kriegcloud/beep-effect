@@ -2,7 +2,6 @@
   "files": [],
   "references": [
     { "path": "../packages/runtime/server" },
-    { "path": "../packages/runtime/client" },
-    { "path": "../packages/runtime/shared" }
+    { "path": "../packages/runtime/client" }
   ]
 }

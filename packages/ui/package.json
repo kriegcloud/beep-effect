@@ -56,12 +56,6 @@
       "require": "./build/cjs/assets/*",
       "default": "./build/src/assets/*"
     },
-    "./styled/*": {
-      "import": "./build/esm/styled/*",
-      "types": "./build/dts/styled/*",
-      "require": "./build/cjs/styled/*",
-      "default": "./build/src/styled/*"
-    },
     "./atoms/*": {
       "import": "./build/esm/atoms/*",
       "types": "./build/dts/atoms/*",
@@ -181,12 +175,6 @@
       "types": "./build/dts/settings/*",
       "require": "./build/cjs/settings/*",
       "default": "./src/settings/*.ts"
-    },
-    "./settings-v2/*": {
-      "import": "./src/settings-v2/*.ts",
-      "types": "./build/dts/settings-v2/*",
-      "require": "./build/cjs/settings-v2/*",
-      "default": "./src/settings-v2/*.ts"
     },
     "./theme/*": {
       "import": "./build/esm/theme/*",

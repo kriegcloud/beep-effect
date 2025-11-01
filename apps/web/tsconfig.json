@@ -56,12 +56,6 @@
       "@beep/errors/server": ["../../packages/common/errors/src/server"],
       "@beep/mock": ["../../packages/common/mock/src/index"],
       "@beep/mock/*": ["../../packages/common/mock/src/*"],
-      "@beep/rules": ["../../packages/common/rules/src/index"],
-      "@beep/rules/*": ["../../packages/common/rules/src/*"],
-      "@beep/logos": ["../../packages/common/logos/src/index"],
-      "@beep/logos/*": ["../../packages/common/logos/src/*"],
-      "@beep/rete": ["../../packages/common/rete/src/index"],
-      "@beep/rete/*": ["../../packages/common/rete/src/*"],
       "@beep/shared-domain": ["../../packages/shared/domain/src/index"],
       "@beep/shared-domain/*": ["../../packages/shared/domain/src/*"],
       "@beep/shared-tables": ["../../packages/shared/tables/src/index"],
@@ -97,9 +91,7 @@
       "@beep/runtime-server": ["../../packages/runtime/server/src/index"],
       "@beep/runtime-server/*": ["../../packages/runtime/server/src/*"],
       "@beep/runtime-client": ["../../packages/runtime/client/src/index"],
-      "@beep/runtime-client/*": ["../../packages/runtime/client/src/*"],
-      "@beep/runtime-shared": ["../../packages/runtime/shared/src/index"],
-      "@beep/runtime-shared/*": ["../../packages/runtime/shared/src/*"]
+      "@beep/runtime-client/*": ["../../packages/runtime/client/src/*"]
     },
     "plugins": [
       {
@@ -130,16 +122,7 @@
       "path": "../../packages/common/errors/tsconfig.build.json"
     },
     {
-      "path": "../../packages/common/rules/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/common/logos/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/common/mock/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/common/rete/tsconfig.build.json"
     },
     {
       "path": "../../packages/shared/domain/tsconfig.build.json"
@@ -197,9 +180,6 @@
     },
     {
       "path": "../../packages/runtime/client/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/runtime/shared/tsconfig.build.json"
     }
   ],
   "include": [

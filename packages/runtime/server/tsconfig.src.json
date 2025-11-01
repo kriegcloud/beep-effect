@@ -22,15 +22,6 @@
       "path": "../../common/errors"
     },
     {
-      "path": "../../common/rules"
-    },
-    {
-      "path": "../../common/logos"
-    },
-    {
-      "path": "../../common/rete"
-    },
-    {
       "path": "../../shared/domain"
     },
     {

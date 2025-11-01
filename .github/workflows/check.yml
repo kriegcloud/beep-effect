@@ -56,6 +56,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         uses: ./.github/actions/setup
-      - run: bunx turbo run test --filter=@beep/rete && sleep 5 && bunx turbo run test --filter='!./packages/common/rete'
+      - run: bunx turbo run test
         env:
           NODE_OPTIONS: --max_old_space_size=8192
