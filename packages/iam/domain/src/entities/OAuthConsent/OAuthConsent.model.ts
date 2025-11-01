@@ -1,6 +1,7 @@
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 export const OAuthConsentModelSchemaId = Symbol.for("@beep/iam-domain/OAuthConsentModel");
@@ -40,4 +41,6 @@ export class Model extends M.Class<Model>(`OAuthConsentModel`)(
     description: "OAuth Consent model representing user consent for OAuth applications.",
     schemaId: OAuthConsentModelSchemaId,
   }
-) {}
+) {
+  static readonly utils = modelKit(Model);
+}

@@ -10,7 +10,7 @@ import * as S from "effect/Schema";
 const MetadataSchema = S.optional(
   S.NullOr(
     S.Record({
-      key: S.String,
+      key: S.NonEmptyTrimmedString,
       value: S.Any,
     })
   )

@@ -1,6 +1,7 @@
 import { BS } from "@beep/schema";
 import { IamEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -38,4 +39,6 @@ export class Model extends M.Class<Model>(`RateLimitModel`)(
     description: "Rate limit model for tracking API usage and rate limiting.",
     schemaId: RateLimitModelSchemaId,
   }
-) {}
+) {
+  static readonly utils = modelKit(Model);
+}

@@ -129,7 +129,7 @@ export class URLString extends S.Union(HttpUrl, HttpsUrl).annotations({
   static readonly is = S.is(URLString);
 }
 
-export declare namespace UrlString {
+export declare namespace URLString {
   /** URL string type (branded). */
   export type Type = HttpUrl.Type | HttpsUrl.Type;
   export type Encoded = typeof URLString.Encoded;

@@ -2,6 +2,7 @@ export type * from "./char.types.ts";
 export type * from "./common.types.js";
 export type * as FnTypes from "./fn.types.js";
 export type * as LiteralTypes from "./literal.types.js";
+export type * as ModelTypes from "./model.types.js";
 export type * as MutTypes from "./mut.types.js";
 export type * as Or from "./or.types.js";
 export type * as RecordTypes from "./record.types.js";

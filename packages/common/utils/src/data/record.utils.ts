@@ -5,6 +5,7 @@ import * as HashSet from "effect/HashSet";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Struct from "effect/Struct";
+
 export const recordKeys = <T extends UnsafeTypes.UnsafeReadonlyRecord>(
   record: RecordTypes.NonEmptyRecordWithStringKeys<T>
 ): A.NonEmptyReadonlyArray<keyof T> => {

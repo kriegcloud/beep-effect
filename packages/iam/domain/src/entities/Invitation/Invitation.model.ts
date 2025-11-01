@@ -1,6 +1,7 @@
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 import { InvitationStatus, InvitationStatusEnum } from "./schemas";
@@ -58,4 +59,6 @@ export class Model extends M.Class<Model>(`InvitationModel`)(
     description: "Invitation model representing organization and team invitations.",
     schemaId: InvitationModelSchemaId,
   }
-) {}
+) {
+  static readonly utils = modelKit(Model);
+}

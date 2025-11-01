@@ -1,6 +1,7 @@
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -69,4 +70,6 @@ export class Model extends M.Class<Model>(`PasskeyModel`)(
     description: "Passkey model representing WebAuthn credentials for passwordless authentication.",
     schemaId: PasskeyModelSchemaId,
   }
-) {}
+) {
+  static readonly utils = modelKit(Model);
+}

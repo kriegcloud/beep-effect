@@ -1,7 +1,7 @@
 export * from "@beep/utils/array-buffer-to-blob";
 export * from "@beep/utils/array-buffer-to-uint8-array";
 export * from "@beep/utils/assertions";
-export { ArrayUtils, ObjectUtils, RecordUtils, StrUtils, StructUtils } from "@beep/utils/data";
+export { ArrayUtils, ModelUtils, ObjectUtils, RecordUtils, StrUtils, StructUtils } from "@beep/utils/data";
 export * from "@beep/utils/equality";
 // export * from "./errors";
 export * from "@beep/utils/factories";

@@ -1,6 +1,7 @@
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -83,4 +84,6 @@ export class Model extends M.Class<Model>(`AccountModel`)(
     description: "Account model representing external OAuth provider accounts linked to users.",
     schemaId: AccountModelSchemaId,
   }
-) {}
+) {
+  static readonly utils = modelKit(Model);
+}

@@ -1,6 +1,7 @@
 import { BS } from "@beep/schema";
 import { Slug, Url } from "@beep/schema/custom";
 import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 import { SharedEntityIds } from "../../entity-ids";
@@ -66,4 +67,6 @@ export class Model extends M.Class<Model>(`OrganizationModel`)(
     description: "Organization model representing organizations.",
     schemaId: OrganizationModelSchemaId,
   }
-) {}
+) {
+  static readonly utils = modelKit(Model);
+}

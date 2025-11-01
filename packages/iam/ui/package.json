@@ -30,7 +30,7 @@
     "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "lint:circular": "bunx madge -c .",
+    "lint:circular": "bunx madge -c ./src",
     "dotenvx": "dotenvx run -f ../../../.env --",
     "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx tsx ./src/execute.ts"
   },
@@ -57,9 +57,23 @@
     "react-dom": "catalog:",
     "@mui/material": "catalog:",
     "better-auth": "catalog:",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "@noble/hashes": "catalog:",
+    "@hcaptcha/react-hcaptcha": "catalog:",
+    "@marsidev/react-turnstile": "catalog:",
+    "@wojtekmaj/react-recaptcha-v3": "catalog:",
+    "react-google-recaptcha": "catalog:",
+    "ua-parser-js": "catalog:"
   },
-  "devDependencies": {
+  "dependencies": {
+    "ua-parser-js": "catalog:",
+    "@beep/iam-infra": "workspace:^",
+    "@types/react-google-recaptcha": "catalog:",
+    "@hcaptcha/react-hcaptcha": "catalog:",
+    "@marsidev/react-turnstile": "catalog:",
+    "@wojtekmaj/react-recaptcha-v3": "catalog:",
+    "react-google-recaptcha": "catalog:",
+    "@noble/hashes": "catalog:",
     "@types/bun": "catalog:",
     "@beep/types": "workspace:^",
     "@types/react": "catalog:",

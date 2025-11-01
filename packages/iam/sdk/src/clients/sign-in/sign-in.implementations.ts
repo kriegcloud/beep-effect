@@ -1,6 +1,6 @@
 import { client } from "@beep/iam-sdk/adapters";
 import { MetadataFactory, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
-import { SignInContractKit } from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
+import { SignInContractKit, type SignInOAuth2Payload } from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
 import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
@@ -19,6 +19,7 @@ const SignInUsernameMetadata = metadataFactory.make("username");
 const SignInPhoneNumberMetadata = metadataFactory.make("phoneNumber");
 const SignInOneTapMetadata = metadataFactory.make("oneTap");
 const SignInPasskeyMetadata = metadataFactory.make("passkey");
+const SignInOAuth2Metadata = metadataFactory.make("oauth2");
 
 // =====================================================================================================================
 // Sign In Social Handler
@@ -170,6 +171,24 @@ const SignInPasskeyHandler = Effect.fn("SignInPasskey")(function* () {
     }
   );
 });
+
+// =====================================================================================================================
+// Sign In OAuth 2 Handler
+// =====================================================================================================================
+const SignInOAuth2Handler = Effect.fn("SignInOAuth2Handler")(function* (payload: SignInOAuth2Payload.Type) {
+  const continuation = makeFailureContinuation({
+    contract: "SignInOAuth2",
+    metadata: SignInOAuth2Metadata,
+  });
+  const result = yield* continuation.run((handlers) =>
+    client.signIn.oauth2({
+      ...payload,
+      fetchOptions: withFetchOptions(handlers),
+    })
+  );
+
+  yield* continuation.raiseResult(result);
+});
 // =====================================================================================================================
 // Sign In Implementations Service
 // =====================================================================================================================
@@ -180,4 +199,5 @@ export const SignInImplementations = SignInContractKit.of({
   SignInUsername: SignInUsernameHandler,
   SignInPasskey: SignInPasskeyHandler,
   SignInOneTap: SignInOneTapHandler,
+  SignInOAuth2: SignInOAuth2Handler,
 });

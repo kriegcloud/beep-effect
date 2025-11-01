@@ -10,6 +10,7 @@ export * from "./use-debounced-callback";
 export * from "./use-did-mount";
 export * from "./use-hash";
 export * from "./use-hash-scroll-into-view";
+export * from "./use-hydrated";
 export * from "./use-image-dimensions";
 export { useIsClient } from "./use-is-client";
 export * from "./use-is-pwa";

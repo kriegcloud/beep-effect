@@ -1,6 +1,7 @@
 import { BS } from "@beep/schema";
 import { IamEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -34,4 +35,6 @@ export class Model extends M.Class<Model>(`VerificationModel`)(
     description: "Verification model representing email verification codes and tokens.",
     schemaId: VerificationModelSchemaId,
   }
-) {}
+) {
+  static readonly utils = modelKit(Model);
+}

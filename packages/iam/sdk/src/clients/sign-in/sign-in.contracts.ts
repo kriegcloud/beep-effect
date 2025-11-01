@@ -159,6 +159,33 @@ export const SignInOneTapContract = Contract.make("SignInOneTap", {
   failure: S.instanceOf(IamError),
   success: S.Void,
 });
+
+// =====================================================================================================================
+// Signin OAuth 2
+// =====================================================================================================================
+export class SignInOAuth2Payload extends BS.Class<SignInOAuth2Payload>(
+  "@beep/iam-sdk/clients/sign-in/SignInOAuth2Payload"
+)({
+  providerId: AuthProviderNameValue,
+  callbackURL: S.optional(BS.URLString),
+  errorCallbackURL: S.optional(BS.URLString),
+  newUserCallbackURL: S.optional(BS.URLString),
+  disableRedirect: S.optional(S.Boolean),
+  requestSignUp: S.optional(S.Boolean),
+}) {}
+
+export declare namespace SignInOAuth2Payload {
+  export type Type = S.Schema.Type<typeof SignInOAuth2Payload>;
+  export type Encoded = S.Schema.Encoded<typeof SignInOAuth2Payload>;
+}
+
+export const SignInOAuth2Contract = Contract.make("SignInOAuth2", {
+  description: "Signs the user in using an OAuth 2 provider.",
+  parameters: SignInOAuth2Payload.fields,
+  failure: S.instanceOf(IamError),
+  success: S.Void,
+});
+
 // =====================================================================================================================
 // SignIn Contract Set
 // =====================================================================================================================
@@ -168,5 +195,6 @@ export const SignInContractKit = ContractKit.make(
   SignInUsernameContract,
   SignInPhoneNumberContract,
   SignInPasskeyContract,
-  SignInOneTapContract
+  SignInOneTapContract,
+  SignInOAuth2Contract
 );

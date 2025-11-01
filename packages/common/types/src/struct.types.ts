@@ -5,7 +5,7 @@ import type * as StringTypes from "./string.types.js";
 import type { NonEmptyString } from "./string.types.js";
 import type * as UnsafeTypes from "./unsafe.types.js";
 export type StructFieldsWithStringKeys = {
-  readonly [x: StringTypes.NonEmptyString<string>]: S.Struct.Field;
+  readonly [x: StringTypes.NonEmptyString]: S.Struct.Field;
 };
 
 export type NonEmptyStructFields<T extends StructFieldsWithStringKeys> = keyof T extends string

@@ -1,5 +1,6 @@
 import { BS } from "@beep/schema";
 import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 import { SharedEntityIds } from "../../entity-ids";
@@ -41,4 +42,6 @@ export class Model extends M.Class<Model>(`TeamModel`)(
     description: "Team model representing teams within organizations.",
     schemaId: TeamModelSchemaId,
   }
-) {}
+) {
+  static readonly utils = modelKit(Model);
+}

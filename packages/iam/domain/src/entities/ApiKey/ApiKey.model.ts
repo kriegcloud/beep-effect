@@ -1,6 +1,7 @@
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
 import { PolicyRecord } from "@beep/shared-domain/Policy";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
@@ -155,4 +156,6 @@ export class Model extends M.Class<Model>(`ApikeyModel`)(
     description: "API Key model representing user API keys with rate limiting and security features.",
     schemaId: ApikeyModelSchemaId,
   }
-) {}
+) {
+  static readonly utils = modelKit(Model);
+}

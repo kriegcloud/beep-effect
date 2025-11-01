@@ -41,3 +41,17 @@ export const accountViewPaths = {
       settingsTab: tab,
     }),
 } as const;
+
+export type AccountViewPaths = typeof accountViewPaths;
+
+// Organization-scoped views
+export const organizationViewPaths = {
+  /** @default "settings" */
+  SETTINGS: "settings",
+  /** @default "members" */
+  MEMBERS: "members",
+  /** @default "api-keys" */
+  API_KEYS: "api-keys",
+};
+
+export type OrganizationViewPaths = typeof organizationViewPaths;

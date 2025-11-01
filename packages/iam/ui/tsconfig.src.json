@@ -13,6 +13,9 @@
       "path": "../sdk"
     },
     {
+      "path": "../infra"
+    },
+    {
       "path": "../domain"
     },
     {

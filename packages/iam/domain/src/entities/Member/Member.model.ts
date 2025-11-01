@@ -1,6 +1,7 @@
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
 import { PolicyRecord } from "@beep/shared-domain/Policy";
 import * as M from "@effect/sql/Model";
 import { MemberRole, MemberRoleEnum, MemberStatus } from "./schemas";
@@ -36,4 +37,6 @@ export class Model extends M.Class<Model>(`MemberModel`)(
       `Member model representing user membership in organizations.\n` + `Maps to the \`member\` table in the database.`,
     schemaId: Symbol.for("@beep/iam-domain/entities/MemberModel"),
   }
-) {}
+) {
+  static readonly utils = modelKit(Model);
+}

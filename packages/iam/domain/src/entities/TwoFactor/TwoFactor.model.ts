@@ -1,5 +1,6 @@
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -35,4 +36,6 @@ export class Model extends M.Class<Model>(`TwoFactorModel`)(
     description: "TwoFactor model representing two-factor authentication settings.",
     schemaId: TwoFactorModelSchemaId,
   }
-) {}
+) {
+  static readonly utils = modelKit(Model);
+}

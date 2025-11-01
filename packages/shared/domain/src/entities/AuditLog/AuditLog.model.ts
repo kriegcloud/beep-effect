@@ -1,11 +1,12 @@
 import { BS } from "@beep/schema";
+import { makeFields } from "@beep/shared-domain/common";
+import { AnyEntityId } from "@beep/shared-domain/entity-ids/any-entity-id";
+import * as IamEntityIds from "@beep/shared-domain/entity-ids/iam";
+import * as SharedEntityIds from "@beep/shared-domain/entity-ids/shared";
+import { AnyTableName } from "@beep/shared-domain/entity-ids/table-names";
+import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-import { makeFields } from "../../common";
-import { AnyEntityId } from "../../entity-ids/any-entity-id";
-import * as IamEntityIds from "../../entity-ids/iam";
-import * as SharedEntityIds from "../../entity-ids/shared";
-import { AnyTableName } from "../../entity-ids/table-names";
 
 export class Model extends M.Class<Model>(`AuditLogModel`)(
   makeFields(SharedEntityIds.AuditLogId, {
@@ -28,4 +29,6 @@ export class Model extends M.Class<Model>(`AuditLogModel`)(
     metadataJson: BS.FieldOptionOmittable(BS.Json),
     metadata: BS.FieldOptionOmittable(BS.Json),
   })
-) {}
+) {
+  static readonly utils = modelKit(Model);
+}

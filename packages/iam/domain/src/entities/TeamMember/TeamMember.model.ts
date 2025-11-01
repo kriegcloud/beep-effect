@@ -1,5 +1,6 @@
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 
 export const TeamMemberModelSchemaId = Symbol.for("@beep/iam-domain/TeamMemberModel");
@@ -26,4 +27,6 @@ export class Model extends M.Class<Model>(`TeamMemberModel`)(
     description: "Team Member model representing user membership in teams.",
     schemaId: TeamMemberModelSchemaId,
   }
-) {}
+) {
+  static readonly utils = modelKit(Model);
+}

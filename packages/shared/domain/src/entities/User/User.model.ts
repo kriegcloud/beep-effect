@@ -1,5 +1,6 @@
 import { BS } from "@beep/schema";
 import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 import { SharedEntityIds } from "../../entity-ids";
@@ -116,4 +117,6 @@ export class Model extends M.Class<Model>(`UserModel`)(
     description: "User model representing application users with authentication and profile data.",
     schemaId: Symbol.for("@beep/iam-domain/UserModel"),
   }
-) {}
+) {
+  static readonly utils = modelKit(Model);
+}

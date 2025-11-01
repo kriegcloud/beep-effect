@@ -18,6 +18,9 @@
   },
   "references": [
     {
+      "path": "../infra/tsconfig.build.json"
+    },
+    {
       "path": "../../ui/tsconfig.build.json"
     },
     {
