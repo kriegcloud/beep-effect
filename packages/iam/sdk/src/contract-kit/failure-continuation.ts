@@ -4,8 +4,8 @@ import * as Effect from "effect/Effect";
 export interface FailureContinuationContext {
   readonly contract: string;
   readonly metadata: () => Readonly<{
-    readonly plugin: string;
-    readonly method: string;
+    readonly plugin?: string;
+    readonly method?: string;
   }>;
 }
 

@@ -9,6 +9,7 @@ export interface IamErrorMetadata {
   readonly statusText?: string;
   readonly plugin?: string;
   readonly method?: string;
+  readonly domain?: string;
   readonly authCause?: unknown;
 }
 

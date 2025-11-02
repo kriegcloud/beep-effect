@@ -26,6 +26,7 @@
  *
  * @since 1.0.0
  */
+
 import type { UnsafeTypes } from "@beep/types";
 import * as Context from "effect/Context";
 import type * as Effect from "effect/Effect";
@@ -38,7 +39,7 @@ import * as Predicate from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
 import type { Covariant } from "effect/Types";
-import type * as ContractError from "./ContractError";
+
 // =============================================================================
 // Type Ids
 // =============================================================================
@@ -456,14 +457,30 @@ export const isProviderDefined = (u: unknown): u is ProviderDefined<string, Unsa
 // =============================================================================
 // Utility Types
 // =============================================================================
-
+/**
+ * A type which represents any `Contract` with no requirements or context in the third generic <A, E, R = never>.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export interface AnyNoContext  extends Pipeable {
+  readonly id: string;
+  readonly name: string;
+  readonly description?: string | undefined;
+  readonly parametersSchema: AnyStructSchema;
+  readonly successSchema: S.Schema.AnyNoContext;
+  readonly failureSchema: S.Schema.AnyNoContext;
+  readonly failureMode: FailureMode;
+  readonly annotations: Context.Context<never>;
+}
 /**
  * A type which represents any `Contract`.
  *
  * @since 1.0.0
  * @category Utility Types
  */
-export interface Any extends Pipeable {
+
+export interface AnyReturnMode extends Pipeable {
   readonly [TypeId]: {
     readonly _Requirements: Covariant<UnsafeTypes.UnsafeAny>;
   };
@@ -473,23 +490,26 @@ export interface Any extends Pipeable {
   readonly parametersSchema: AnyStructSchema;
   readonly successSchema: S.Schema.Any;
   readonly failureSchema: S.Schema.All;
-  readonly failureMode: FailureMode;
+  readonly failureMode: "return";
+  readonly annotations: Context.Context<never>;
+}
+export interface AnyErrorMode extends Pipeable {
+  readonly [TypeId]: {
+    readonly _Requirements: Covariant<UnsafeTypes.UnsafeAny>;
+  };
+  readonly id: string;
+  readonly name: string;
+  readonly description?: string | undefined;
+  readonly parametersSchema: AnyStructSchema;
+  readonly successSchema: S.Schema.Any;
+  readonly failureSchema: S.Schema.All;
+  readonly failureMode: "error";
   readonly annotations: Context.Context<never>;
 }
 
-/**
- * A type which represents any provider-defined `Contract`.
- *
- * @since 1.0.0
- * @category Utility Types
- */
-export interface AnyProviderDefined extends Any {
-  readonly args: UnsafeTypes.UnsafeAny;
-  readonly argsSchema: AnyStructSchema;
-  readonly requiresImplementation: boolean;
-  readonly providerName: string;
-  readonly decodeResult: (result: unknown) => Effect.Effect<UnsafeTypes.UnsafeAny, ContractError.ContractError>;
-}
+export type Any = AnyErrorMode | AnyReturnMode;
+
+
 
 /**
  * @since 1.0.0
@@ -505,6 +525,8 @@ export interface AnyStructSchema extends Pipeable {
   readonly fields: S.Struct.Fields;
   readonly annotations: UnsafeTypes.UnsafeAny;
 }
+
+
 
 /**
  * @since 1.0.0
