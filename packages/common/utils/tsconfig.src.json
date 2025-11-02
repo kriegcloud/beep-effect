@@ -15,7 +15,7 @@
   "compilerOptions": {
     "types": ["bun", "node"],
     "outDir": "build/src",
-    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+
     "rootDir": "src",
     "moduleResolution": "bundler",
     "incremental": true,

@@ -5,6 +5,7 @@ import { FetchHttpClient } from "@effect/platform";
 import type { HttpClient } from "@effect/platform/HttpClient";
 import type * as KeyValueStore from "@effect/platform/KeyValueStore";
 import { BrowserKeyValueStore } from "@effect/platform-browser";
+import * as Geolocation from "@effect/platform-browser/Geolocation";
 import { Registry } from "@effect-atom/atom-react";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-proto";
@@ -12,6 +13,7 @@ import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
 import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
+import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
@@ -20,12 +22,15 @@ import * as ManagedRuntime from "effect/ManagedRuntime";
 import { WorkerClient } from "../../worker/worker-client";
 import { NetworkMonitor } from "../common/network-monitor";
 
+const configProvider = ConfigProvider.fromJson(process.env);
 // ============================================================================
 // Environment constants
 // ============================================================================
 
 const isDevEnvironment = clientEnv.env === "dev";
 const serviceName = `${clientEnv.appName}-client`;
+
+export const GeoLocationLive = clientEnv.enableGeoTracking ? Geolocation.layer : Layer.empty;
 
 // ============================================================================
 // Observability
@@ -85,8 +90,9 @@ export const clientRuntimeLayer = Layer.mergeAll(
   ObservabilityLive,
   NetworkMonitorLive,
   WorkerClientLive,
-  BrowserKeyValueStore.layerLocalStorage
-).pipe(Layer.provide(LogLevelLive));
+  BrowserKeyValueStore.layerLocalStorage,
+  GeoLocationLive
+).pipe(Layer.provide(LogLevelLive), Layer.provideMerge(Layer.setConfigProvider(configProvider)));
 
 export const clientRuntime = ManagedRuntime.make(clientRuntimeLayer);
 

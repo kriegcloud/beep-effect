@@ -53,30 +53,31 @@
     "@beep/*": "Needed to force PNPM to install local packages"
   },
   "devDependencies": {
-    "@types/bun": "^1.3.1",
     "@babel/cli": "catalog:",
     "@babel/core": "catalog:",
     "@babel/plugin-transform-export-namespace-from": "catalog:",
     "@babel/plugin-transform-modules-commonjs": "catalog:",
+    "@beep/testkit": "workspace:^",
     "@beep/tooling-utils": "workspace:^",
     "@better-auth/core": "^1.3.34",
     "@biomejs/biome": "catalog:",
     "@dotenvx/dotenvx": "catalog:",
-    "@effect/platform-bun": "^0.81.1",
-    "@effect/language-service": "catalog:",
+    "@effect/platform-bun": "catalog:",
+    "@types/bun": "catalog:",
     "@types/node": "catalog:",
     "babel-plugin-annotate-pure-calls": "catalog:",
-    "bun-types": "^1.3.1",
+    "babel-plugin-transform-next-use-client": "catalog:",
+    "bun-types": "catalog:",
     "husky": "catalog:",
     "lint-staged": "catalog:",
     "madge": "catalog:",
     "prettier": "catalog:",
+    "sharp": "catalog:",
+    "sharp-ico": "catalog:",
     "syncpack": "catalog:",
     "tsx": "catalog:",
     "turbo": "catalog:",
-    "typescript": "catalog:",
-    "babel-plugin-transform-next-use-client": "catalog:",
-    "@beep/testkit": "workspace:^"
+    "typescript": "catalog:"
   },
   "lint-staged": {
     "*": [
@@ -90,55 +91,54 @@
     "@effect/sql-drizzle": "^0.45.0",
     "@babel/preset-react": "^7.28.5",
     "@next/bundle-analyzer": "^16.0.1",
-    "@babel/cli": "7.28.3",
-    "@babel/core": "7.28.5",
-    "@babel/plugin-transform-export-namespace-from": "7.27.1",
-    "@babel/plugin-transform-modules-commonjs": "7.27.1",
+    "@babel/cli": "^7.28.3",
+    "@babel/core": "^7.28.5",
+    "@babel/plugin-transform-export-namespace-from": "^7.27.1",
+    "@babel/plugin-transform-modules-commonjs": "^7.27.1",
     "@better-auth/core": "^1.3.34",
-    "@better-auth/stripe": "1.3.34",
+    "@better-auth/stripe": "^1.3.34",
     "@better-auth/utils": "^0.3.0",
-    "@biomejs/biome": "2.3.2",
-    "@dotenvx/dotenvx": "1.51.0",
-    "@dub/better-auth": "0.0.6",
-    "@effect-atom/atom-react": "0.3.4",
+    "@biomejs/biome": "^2.3.2",
+    "@dotenvx/dotenvx": "^1.51.0",
+    "@dub/better-auth": "^0.0.6",
+    "@effect-atom/atom-react": "^0.3.4",
     "@effect-aws/client-s3": "^1.10.3",
     "@effect-aws/s3": "^0.2.3",
-    "@effect/ai": "0.31.1",
-    "@effect/ai-anthropic": "0.21.1",
+    "@effect/ai": "^0.31.1",
+    "@effect/ai-anthropic": "^0.21.1",
     "@effect/cli": "^0.71.0",
-    "@effect/ai-openai": "0.34.0",
+    "@effect/ai-openai": "^0.34.0",
     "@effect/cluster": "^0.50.6",
-    "@effect/experimental": "0.56.0",
-    "@effect/language-service": "0.53.1",
+    "@effect/experimental": "^0.56.0",
     "@effect/opentelemetry": "^0.58.0",
-    "@effect/platform": "0.92.1",
-    "@effect/platform-browser": "0.72.0",
+    "@effect/platform": "^0.92.1",
+    "@effect/platform-browser": "^0.72.0",
     "@effect/platform-bun": "^0.81.1",
-    "@effect/rpc": "0.71.1",
-    "@effect/sql": "0.46.0",
-    "@effect/sql-pg": "0.47.0",
+    "@effect/rpc": "^0.71.1",
+    "@effect/sql": "^0.46.0",
+    "@effect/sql-pg": "^0.47.0",
     "bun-types": "^1.3.1",
     "@types/copyfiles": "^2.4.4",
     "@effect/workflow": "^0.11.5",
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
-    "@emotion/cache": "11.14.0",
-    "@emotion/react": "11.14.0",
-    "@faker-js/faker": "10.1.0",
-    "@fontsource-variable/dm-sans": "5.2.8",
-    "@fontsource-variable/inter": "5.2.8",
-    "@fontsource-variable/nunito-sans": "5.2.7",
-    "@fontsource-variable/public-sans": "5.2.7",
-    "@fontsource/barlow": "5.2.8",
-    "@iconify/react": "6.0.2",
-    "@mui/lab": "7.0.1-beta.18",
-    "@mui/material": "7.3.4",
-    "@mui/material-nextjs": "7.3.3",
-    "@mui/stylis-plugin-rtl": "7.3.3",
-    "@mui/system": "7.3.3",
-    "@mui/x-data-grid": "8.16.0",
-    "@mui/x-date-pickers": "8.16.0",
-    "@mui/x-tree-view": "8.16.0",
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@faker-js/faker": "^10.1.0",
+    "@fontsource-variable/dm-sans": "^5.2.8",
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource-variable/nunito-sans": "^5.2.7",
+    "@fontsource-variable/public-sans": "^5.2.7",
+    "@fontsource/barlow": "^5.2.8",
+    "@iconify/react": "^6.0.2",
+    "@mui/lab": "^7.0.1-beta.18",
+    "@mui/material": "^7.3.4",
+    "@mui/material-nextjs": "^7.3.3",
+    "@mui/stylis-plugin-rtl": "^7.3.3",
+    "@mui/system": "^7.3.3",
+    "@mui/x-data-grid": "^8.16.0",
+    "@mui/x-date-pickers": "^8.16.0",
+    "@mui/x-tree-view": "^8.16.0",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/context-async-hooks": "^2.2.0",
     "@opentelemetry/exporter-logs-otlp-http": "^0.207.0",
@@ -167,43 +167,43 @@
     "@tanstack/react-table": "^8.21.3",
     "@testcontainers/postgresql": "^11.7.2",
     "@tiptap/core": "^3.10.1",
-    "@tiptap/extension-code-block": "3.10.1",
-    "@tiptap/extension-code-block-lowlight": "3.10.1",
-    "@tiptap/extension-heading": "3.10.1",
-    "@tiptap/extension-image": "3.10.1",
-    "@tiptap/extension-link": "3.10.1",
-    "@tiptap/extension-placeholder": "3.10.1",
-    "@tiptap/extension-text-align": "3.10.1",
-    "@tiptap/extension-underline": "3.10.1",
-    "@tiptap/pm": "3.10.1",
-    "@tiptap/react": "3.10.1",
-    "@tiptap/starter-kit": "3.10.1",
-    "@turbo/gen": "2.6.0",
+    "@tiptap/extension-code-block": "^3.10.1",
+    "@tiptap/extension-code-block-lowlight": "^3.10.1",
+    "@tiptap/extension-heading": "^3.10.1",
+    "@tiptap/extension-image": "^3.10.1",
+    "@tiptap/extension-link": "^3.10.1",
+    "@tiptap/extension-placeholder": "^3.10.1",
+    "@tiptap/extension-text-align": "^3.10.1",
+    "@tiptap/extension-underline": "^3.10.1",
+    "@tiptap/pm": "^3.10.1",
+    "@tiptap/react": "^3.10.1",
+    "@tiptap/starter-kit": "^3.10.1",
+    "@turbo/gen": "^2.6.0",
     "@types/autosuggest-highlight": "^3.2.3",
     "@types/bun": "^1.3.1",
-    "@types/lodash": "4.17.20",
-    "@types/node": "24.9.2",
-    "@types/nprogress": "0.2.3",
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.2",
-    "@xstate/react": "6.0.0",
-    "accept-language": "3.0.20",
-    "autoprefixer": "10.4.21",
+    "@types/lodash": "^4.17.20",
+    "@types/node": "^24.9.2",
+    "@types/nprogress": "^0.2.3",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@xstate/react": "^6.0.0",
+    "accept-language": "^3.0.20",
+    "autoprefixer": "^10.4.21",
     "autosuggest-highlight": "^3.3.4",
-    "babel-plugin-annotate-pure-calls": "0.5.0",
-    "babel-plugin-transform-next-use-client": "1.1.1",
-    "better-auth": "1.3.34",
+    "babel-plugin-annotate-pure-calls": "^0.5.0",
+    "babel-plugin-transform-next-use-client": "^1.1.1",
+    "better-auth": "^1.3.34",
     "better-auth-localization": "^2.2.1",
     "better-call": "^1.0.24",
-    "class-variance-authority": "0.7.1",
-    "clsx": "2.1.1",
-    "copyfiles": "2.4.1",
-    "dayjs": "1.11.19",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "copyfiles": "^2.4.1",
+    "dayjs": "^1.11.19",
     "drizzle-kit": "^0.31.6",
     "drizzle-orm": "^0.44.7",
     "drizzle-zero": "^0.15.2",
-    "dub": "0.68.0",
-    "effect": "3.18.4",
+    "dub": "^0.68.0",
+    "effect": "^3.18.4",
     "embla-carousel": "^8.6.0",
     "embla-carousel-auto-height": "^8.6.0",
     "embla-carousel-auto-scroll": "^8.6.0",
@@ -211,51 +211,51 @@
     "embla-carousel-fade": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "exifreader": "^4.32.0",
-    "framer-motion": "12.23.24",
-    "husky": "9.1.7",
-    "i18next": "25.6.0",
-    "i18next-browser-languagedetector": "8.2.0",
-    "i18next-resources-to-backend": "1.2.1",
-    "jose": "6.1.0",
-    "lint-staged": "16.2.6",
-    "lowlight": "3.3.0",
-    "madge": "8.0.0",
-    "motion": "12.23.24",
-    "mui-one-time-password-input": "5.0.0",
-    "mutative": "1.3.0",
-    "next": "16.0.2-canary.3",
-    "nprogress": "0.2.0",
+    "framer-motion": "^12.23.24",
+    "husky": "^9.1.7",
+    "i18next": "^25.6.0",
+    "i18next-browser-languagedetector": "^8.2.0",
+    "i18next-resources-to-backend": "^1.2.1",
+    "jose": "^6.1.0",
+    "lint-staged": "^16.2.6",
+    "lowlight": "^3.3.0",
+    "madge": "^8.0.0",
+    "motion": "^12.23.24",
+    "mui-one-time-password-input": "^5.0.0",
+    "mutative": "^1.3.0",
+    "next": "^16.0.2-canary.4",
+    "nprogress": "^0.2.0",
     "nuqs": "^2.7.2",
     "picocolors": "^1.1.1",
-    "postcss": "8.5.6",
+    "postcss": "^8.5.6",
     "postgres": "^3.4.7",
-    "prettier": "3.6.2",
-    "randexp-ts": "1.0.5",
-    "react": "19.2.0",
+    "prettier": "^3.6.2",
+    "randexp-ts": "^1.0.5",
+    "react": "^19.2.0",
     "react-apexcharts": "^1.8.0",
-    "react-dom": "19.2.0",
-    "react-dropzone": "14.3.8",
+    "react-dom": "^19.2.0",
+    "react-dropzone": "^14.3.8",
     "react-google-recaptcha-v3": "^1.11.0",
-    "react-i18next": "16.2.3",
-    "react-phone-number-input": "3.4.13",
-    "resend": "6.4.0",
-    "sonner": "2.0.7",
-    "stripe": "19.2.0",
-    "stylis": "4.3.6",
-    "stylis-plugin-rtl": "2.1.1",
-    "syncpack": "14.0.0-alpha.23",
-    "tailwind-merge": "3.3.1",
-    "tailwindcss": "4.1.16",
-    "tailwindcss-animate": "1.0.7",
+    "react-i18next": "^16.2.3",
+    "react-phone-number-input": "^3.4.13",
+    "resend": "^6.4.0",
+    "sonner": "^2.0.7",
+    "stripe": "^19.2.0",
+    "stylis": "^4.3.6",
+    "stylis-plugin-rtl": "^2.1.1",
+    "syncpack": "^14.0.0-alpha.23",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss": "^4.1.16",
+    "tailwindcss-animate": "^1.0.7",
     "testcontainers": "^11.7.2",
-    "tsx": "4.20.6",
-    "turbo": "2.6.0",
-    "tw-animate-css": "1.4.0",
-    "type-fest": "5.1.0",
-    "typescript": "5.9.3",
-    "uuid": "13.0.0",
-    "xstate": "5.23.0",
-    "zod": "4.1.12",
+    "tsx": "^4.20.6",
+    "turbo": "^2.6.0",
+    "tw-animate-css": "^1.4.0",
+    "type-fest": "^5.1.0",
+    "typescript": "~5.9.3",
+    "uuid": "^13.0.0",
+    "xstate": "^5.23.0",
+    "zod": "^4.1.12",
     "@better-auth/sso": "^1.3.34",
     "turndown": "^7.2.2",
     "@types/turndown": "^5.0.6",
@@ -263,7 +263,7 @@
     "rehype-highlight": "^7.0.2",
     "remark-gfm": "^4.0.1",
     "react-markdown": "^10.1.0",
-    "babel-plugin-react-compiler": "^1.0.0",
+    "babel-plugin-react-compiler": "^19.1.0-rc.3",
     "@better-fetch/fetch": "^1.1.18",
     "@radix-ui/react-toast": "^1.2.15",
     "@zip.js/zip.js": "^2.8.8",
@@ -313,9 +313,149 @@
     "@hcaptcha/react-hcaptcha": "^1.14.0",
     "@marsidev/react-turnstile": "^1.3.1",
     "@wojtekmaj/react-recaptcha-v3": "^0.1.4",
-    "react-google-recaptcha": "^3.1.0"
+    "react-google-recaptcha": "^3.1.0",
+    "@effect/platform-node": "^0.98.4",
+    "vite": "^7.1.12",
+    "vite-plugin-pwa": "^1.1.0",
+    "workbox-core": "^7.3.0",
+    "workbox-window": "^7.3.0",
+    "@vitejs/plugin-react": "^5.1.0",
+    "@vite-pwa/assets-generator": "^1.0.2",
+    "@tailwindcss/typography": "^0.5.19",
+    "@tailwindcss/vite": "^4.1.16",
+    "@tanstack/router-devtools": "^1.134.9",
+    "@tanstack/router-plugin": "^1.134.9",
+    "react-router-dom": "^7.9.5",
+    "@tanstack/react-router": "^1.134.9",
+    "@tanstack/react-virtual": "^3.13.12",
+    "@hookform/resolvers": "^5.2.2",
+    "react-hook-form": "^7.66.0",
+    "concurrently": "^9.2.1",
+    "sharp": "^0.34.4",
+    "sharp-ico": "^0.1.5",
+    "@effect/sql-sqlite-node": "^0.47.0",
+    "@effect/vitest": "^0.26.0",
+    "@effect/sql-sqlite-bun": "^0.47.0",
+    "@number-flow/react": "^0.5.10",
+    "@phosphor-icons/react": "^2.1.10"
   },
   "dependenciesCatalog": [
+    {
+      "name": "@effect/sql-sqlite-node",
+      "version": "^0.47.0"
+    },
+    {
+      "name": "@effect/vitest",
+      "version": "^0.26.0"
+    },
+    {
+      "name": "@effect/sql-sqlite-bun",
+      "version": "^0.47.0"
+    },
+    {
+      "name": "@number-flow/react",
+      "version": "^0.5.10"
+    },
+    {
+      "name": "@phosphor-icons/react",
+      "version": "^2.1.10"
+    },
+    {
+      "name": "sharp",
+      "version": "^0.34.4"
+    },
+    {
+      "name": "sharp-ico",
+      "version": "^0.1.5"
+    },
+    {
+      "name": "react-hook-form",
+      "version": "^7.66.0"
+    },
+    {
+      "name": "@hookform/resolvers",
+      "version": "^5.2.2"
+    },
+    {
+      "name": "concurrently",
+      "version": "^9.2.1"
+    },
+    {
+      "name": "@vite-pwa/assets-generator",
+      "version": "^1.0.2"
+    },
+    {
+      "name": "@tailwindcss/typography",
+      "version": "^0.5.19"
+    },
+    {
+      "name": "@tailwindcss/vite",
+      "version": "^4.1.16"
+    },
+    {
+      "name": "@tanstack/router-devtools",
+      "version": "^1.134.4"
+    },
+    {
+      "name": "@tanstack/router-plugin",
+      "version": "^1.134.6"
+    },
+    {
+      "name": "react-router-dom",
+      "version": "^7.9.5"
+    },
+    {
+      "name": "@tanstack/react-router",
+      "version": "^1.134.4"
+    },
+    {
+      "name": "@tanstack/react-virtual",
+      "version": "^3.13.12"
+    },
+    {
+      "name": "@vitejs/plugin-react",
+      "version": "^5.1.0"
+    },
+    {
+      "name": "@vite-pwa/assets-generator",
+      "version": "^1.0.2"
+    },
+    {
+      "name": "@tailwindcss/typography",
+      "version": "^0.5.19"
+    },
+    {
+      "name": "@tailwindcss/vite",
+      "version": "^4.1.16"
+    },
+    {
+      "name": "@tanstack/router-devtools",
+      "version": "^1.134.4"
+    },
+    {
+      "name": "@tanstack/router-plugin",
+      "version": "^1.134.6"
+    },
+    {
+      "name": "vite",
+      "version": "^7.1.12"
+    },
+    {
+      "name": "vite-plugin-pwa",
+      "version": "^1.1.0"
+    },
+    {
+      "name": "workbox-core",
+      "version": "^7.3.0"
+    },
+    {
+      "name": "workbox-window",
+      "version": "^7.3.0"
+    },
+    {
+      "name": "@effect/platform-node",
+      "version": "^0.98.4"
+    },
     {
       "name": "@types/react-google-recaptcha",
       "version": "^2.1.9"
@@ -542,19 +682,19 @@
     },
     {
       "name": "@babel/cli",
-      "version": "7.28.3"
+      "version": "^7.28.3"
     },
     {
       "name": "@babel/core",
-      "version": "7.28.4"
+      "version": "^7.28.4"
     },
     {
       "name": "@babel/plugin-transform-export-namespace-from",
-      "version": "7.27.1"
+      "version": "^7.27.1"
     },
     {
       "name": "@babel/plugin-transform-modules-commonjs",
-      "version": "7.27.1"
+      "version": "^7.27.1"
     },
     {
       "name": "@better-auth/core",
@@ -562,7 +702,7 @@
     },
     {
       "name": "@better-auth/stripe",
-      "version": "1.3.27"
+      "version": "^1.3.27"
     },
     {
       "name": "@better-auth/utils",
@@ -570,19 +710,19 @@
     },
     {
       "name": "@biomejs/biome",
-      "version": "2.2.5"
+      "version": "^2.2.5"
     },
     {
       "name": "@dotenvx/dotenvx",
-      "version": "1.51.0"
+      "version": "^1.51.0"
     },
     {
       "name": "@dub/better-auth",
-      "version": "0.0.6"
+      "version": "^0.0.6"
     },
     {
       "name": "@effect-atom/atom-react",
-      "version": "0.3.0"
+      "version": "^0.3.0"
     },
     {
       "name": "@effect-aws/client-s3",
@@ -594,11 +734,11 @@
     },
     {
       "name": "@effect/ai",
-      "version": "0.31.0"
+      "version": "^0.31.0"
     },
     {
       "name": "@effect/ai-anthropic",
-      "version": "0.21.0"
+      "version": "^0.21.0"
     },
     {
       "name": "@effect/cli",
@@ -606,7 +746,7 @@
     },
     {
       "name": "@effect/ai-openai",
-      "version": "0.34.0"
+      "version": "^0.34.0"
     },
     {
       "name": "@effect/cluster",
@@ -614,11 +754,7 @@
     },
     {
       "name": "@effect/experimental",
-      "version": "0.56.0"
-    },
-    {
-      "name": "@effect/language-service",
-      "version": "0.43.2"
+      "version": "^0.56.0"
     },
     {
       "name": "@effect/opentelemetry",
@@ -626,11 +762,11 @@
     },
     {
       "name": "@effect/platform",
-      "version": "0.92.1"
+      "version": "^0.92.1"
     },
     {
       "name": "@effect/platform-browser",
-      "version": "0.72.0"
+      "version": "^0.72.0"
     },
     {
       "name": "@effect/platform-bun",
@@ -638,15 +774,15 @@
     },
     {
       "name": "@effect/rpc",
-      "version": "0.71.0"
+      "version": "^0.71.0"
     },
     {
       "name": "@effect/sql",
-      "version": "0.46.0"
+      "version": "^0.46.0"
     },
     {
       "name": "@effect/sql-pg",
-      "version": "0.47.0"
+      "version": "^0.47.0"
     },
     {
       "name": "bun-types",
@@ -670,71 +806,71 @@
     },
     {
       "name": "@emotion/cache",
-      "version": "11.14.0"
+      "version": "^11.14.0"
     },
     {
       "name": "@emotion/react",
-      "version": "11.14.0"
+      "version": "^11.14.0"
     },
     {
       "name": "@faker-js/faker",
-      "version": "10.0.0"
+      "version": "^10.0.0"
     },
     {
       "name": "@fontsource-variable/dm-sans",
-      "version": "5.2.8"
+      "version": "^5.2.8"
     },
     {
       "name": "@fontsource-variable/inter",
-      "version": "5.2.8"
+      "version": "^5.2.8"
     },
     {
       "name": "@fontsource-variable/nunito-sans",
-      "version": "5.2.7"
+      "version": "^5.2.7"
     },
     {
       "name": "@fontsource-variable/public-sans",
-      "version": "5.2.7"
+      "version": "^5.2.7"
     },
     {
       "name": "@fontsource/barlow",
-      "version": "5.2.8"
+      "version": "^5.2.8"
     },
     {
       "name": "@iconify/react",
-      "version": "6.0.2"
+      "version": "^6.0.2"
     },
     {
       "name": "@mui/lab",
-      "version": "7.0.1-beta.18"
+      "version": "^7.0.1-beta.18"
     },
     {
       "name": "@mui/material",
-      "version": "7.3.4"
+      "version": "^7.3.4"
     },
     {
       "name": "@mui/material-nextjs",
-      "version": "7.3.3"
+      "version": "^7.3.3"
     },
     {
       "name": "@mui/stylis-plugin-rtl",
-      "version": "7.3.3"
+      "version": "^7.3.3"
     },
     {
       "name": "@mui/system",
-      "version": "7.3.3"
+      "version": "^7.3.3"
     },
     {
       "name": "@mui/x-data-grid",
-      "version": "8.13.1"
+      "version": "^8.13.1"
     },
     {
       "name": "@mui/x-date-pickers",
-      "version": "8.12.0"
+      "version": "^8.12.0"
     },
     {
       "name": "@mui/x-tree-view",
-      "version": "8.13.1"
+      "version": "^8.13.1"
     },
     {
       "name": "@opentelemetry/api",
@@ -806,11 +942,11 @@
     },
     {
       "name": "@react-email/components",
-      "version": "0.5.6"
+      "version": "^0.5.6"
     },
     {
       "name": "@react-email/render",
-      "version": "1.3.2"
+      "version": "^1.3.2"
     },
     {
       "name": "@rocicorp/zero",
@@ -818,31 +954,31 @@
     },
     {
       "name": "@simplewebauthn/server",
-      "version": "13.2.2"
+      "version": "^13.2.2"
     },
     {
       "name": "@standard-schema/spec",
-      "version": "1.0.0"
+      "version": "^1.0.0"
     },
     {
       "name": "@svgr/webpack",
-      "version": "8.1.0"
+      "version": "^8.1.0"
     },
     {
       "name": "@tailwindcss/postcss",
-      "version": "4.1.14"
+      "version": "^4.1.14"
     },
     {
       "name": "@tanstack/react-form",
-      "version": "1.23.4"
+      "version": "^1.23.4"
     },
     {
       "name": "@tanstack/react-table",
-      "version": "8.21.3"
+      "version": "^8.21.3"
     },
     {
       "name": "@testcontainers/postgresql",
-      "version": "11.7.1"
+      "version": "^11.7.1"
     },
     {
       "name": "@testing-library/dom",
@@ -850,55 +986,55 @@
     },
     {
       "name": "@tiptap/core",
-      "version": "3.6.5"
+      "version": "^3.6.5"
     },
     {
       "name": "@tiptap/extension-code-block",
-      "version": "3.6.5"
+      "version": "^3.6.5"
     },
     {
       "name": "@tiptap/extension-code-block-lowlight",
-      "version": "3.6.5"
+      "version": "^3.6.5"
     },
     {
       "name": "@tiptap/extension-heading",
-      "version": "3.6.5"
+      "version": "^3.6.5"
     },
     {
       "name": "@tiptap/extension-image",
-      "version": "3.6.5"
+      "version": "^3.6.5"
     },
     {
       "name": "@tiptap/extension-link",
-      "version": "3.6.5"
+      "version": "^3.6.5"
     },
     {
       "name": "@tiptap/extension-placeholder",
-      "version": "3.6.5"
+      "version": "^3.6.5"
     },
     {
       "name": "@tiptap/extension-text-align",
-      "version": "3.6.5"
+      "version": "^3.6.5"
     },
     {
       "name": "@tiptap/extension-underline",
-      "version": "3.6.5"
+      "version": "^3.6.5"
     },
     {
       "name": "@tiptap/pm",
-      "version": "3.6.5"
+      "version": "^3.6.5"
     },
     {
       "name": "@tiptap/react",
-      "version": "3.6.5"
+      "version": "^3.6.5"
     },
     {
       "name": "@tiptap/starter-kit",
-      "version": "3.6.5"
+      "version": "^3.6.5"
     },
     {
       "name": "@turbo/gen",
-      "version": "2.5.8"
+      "version": "^2.5.8"
     },
     {
       "name": "@types/autosuggest-highlight",
@@ -910,31 +1046,31 @@
     },
     {
       "name": "@types/node",
-      "version": "24.7.0"
+      "version": "^24.7.0"
     },
     {
       "name": "@types/nprogress",
-      "version": "0.2.3"
+      "version": "^0.2.3"
     },
     {
       "name": "@types/react",
-      "version": "19.2.2"
+      "version": "^19.2.2"
     },
     {
       "name": "@types/react-dom",
-      "version": "19.2.1"
+      "version": "^19.2.1"
     },
     {
       "name": "@xstate/react",
-      "version": "6.0.0"
+      "version": "^6.0.0"
     },
     {
       "name": "accept-language",
-      "version": "3.0.20"
+      "version": "^3.0.20"
     },
     {
       "name": "autoprefixer",
-      "version": "10.4.21"
+      "version": "^10.4.21"
     },
     {
       "name": "autosuggest-highlight",
@@ -942,15 +1078,15 @@
     },
     {
       "name": "babel-plugin-annotate-pure-calls",
-      "version": "0.5.0"
+      "version": "^0.5.0"
     },
     {
       "name": "babel-plugin-transform-next-use-client",
-      "version": "1.1.1"
+      "version": "^1.1.1"
     },
     {
       "name": "better-auth",
-      "version": "1.3.27"
+      "version": "^1.3.27"
     },
     {
       "name": "better-auth-localization",
@@ -962,19 +1098,19 @@
     },
     {
       "name": "class-variance-authority",
-      "version": "0.7.1"
+      "version": "^0.7.1"
     },
     {
       "name": "clsx",
-      "version": "2.1.1"
+      "version": "^2.1.1"
     },
     {
       "name": "copyfiles",
-      "version": "2.4.1"
+      "version": "^2.4.1"
     },
     {
       "name": "dayjs",
-      "version": "1.11.18"
+      "version": "^1.11.18"
     },
     {
       "name": "drizzle-kit",
@@ -990,11 +1126,11 @@
     },
     {
       "name": "dub",
-      "version": "0.67.0"
+      "version": "^0.67.0"
     },
     {
       "name": "effect",
-      "version": "3.18.4"
+      "version": "^3.18.4"
     },
     {
       "name": "embla-carousel",
@@ -1026,59 +1162,59 @@
     },
     {
       "name": "framer-motion",
-      "version": "12.23.22"
+      "version": "^12.23.22"
     },
     {
       "name": "husky",
-      "version": "9.1.7"
+      "version": "^9.1.7"
     },
     {
       "name": "i18next",
-      "version": "25.5.3"
+      "version": "^25.5.3"
     },
     {
       "name": "i18next-browser-languagedetector",
-      "version": "8.2.0"
+      "version": "^8.2.0"
     },
     {
       "name": "i18next-resources-to-backend",
-      "version": "1.2.1"
+      "version": "^1.2.1"
     },
     {
       "name": "jose",
-      "version": "6.1.0"
+      "version": "^6.1.0"
     },
     {
       "name": "lint-staged",
-      "version": "16.2.3"
+      "version": "^16.2.3"
     },
     {
       "name": "lowlight",
-      "version": "3.3.0"
+      "version": "^3.3.0"
     },
     {
       "name": "madge",
-      "version": "8.0.0"
+      "version": "^8.0.0"
     },
     {
       "name": "motion",
-      "version": "12.23.22"
+      "version": "^12.23.22"
     },
     {
       "name": "mui-one-time-password-input",
-      "version": "5.0.0"
+      "version": "^5.0.0"
     },
     {
       "name": "mutative",
-      "version": "1.3.0"
+      "version": "^1.3.0"
     },
     {
       "name": "next",
-      "version": "16.0.0-canary.4"
+      "version": "^16.0.0-canary.4"
     },
     {
       "name": "nprogress",
-      "version": "0.2.0"
+      "version": "^0.2.0"
     },
     {
       "name": "nuqs",
@@ -1090,7 +1226,7 @@
     },
     {
       "name": "postcss",
-      "version": "8.5.6"
+      "version": "^8.5.6"
     },
     {
       "name": "postgres",
@@ -1098,15 +1234,15 @@
     },
     {
       "name": "prettier",
-      "version": "3.6.2"
+      "version": "^3.6.2"
     },
     {
       "name": "randexp-ts",
-      "version": "1.0.5"
+      "version": "^1.0.5"
     },
     {
       "name": "react",
-      "version": "19.2.0"
+      "version": "^19.2.0"
     },
     {
       "name": "react-apexcharts",
@@ -1114,11 +1250,11 @@
     },
     {
       "name": "react-dom",
-      "version": "19.2.0"
+      "version": "^19.2.0"
     },
     {
       "name": "react-dropzone",
-      "version": "14.3.8"
+      "version": "^14.3.8"
     },
     {
       "name": "react-google-recaptcha-v3",
@@ -1126,47 +1262,47 @@
     },
     {
       "name": "react-i18next",
-      "version": "16.0.0"
+      "version": "^16.0.0"
     },
     {
       "name": "react-phone-number-input",
-      "version": "3.4.12"
+      "version": "^3.4.12"
     },
     {
       "name": "resend",
-      "version": "6.1.2"
+      "version": "^6.1.2"
     },
     {
       "name": "sonner",
-      "version": "2.0.7"
+      "version": "^2.0.7"
     },
     {
       "name": "stripe",
-      "version": "19.1.0"
+      "version": "^19.1.0"
     },
     {
       "name": "stylis",
-      "version": "4.3.6"
+      "version": "^4.3.6"
     },
     {
       "name": "stylis-plugin-rtl",
-      "version": "2.1.1"
+      "version": "^2.1.1"
     },
     {
       "name": "syncpack",
-      "version": "14.0.0-alpha.23"
+      "version": "^14.0.0-alpha.23"
     },
     {
       "name": "tailwind-merge",
-      "version": "3.3.1"
+      "version": "^3.3.1"
     },
     {
       "name": "tailwindcss",
-      "version": "4.1.14"
+      "version": "^4.1.14"
     },
     {
       "name": "tailwindcss-animate",
-      "version": "1.0.7"
+      "version": "^1.0.7"
     },
     {
       "name": "testcontainers",
@@ -1174,35 +1310,35 @@
     },
     {
       "name": "tsx",
-      "version": "4.20.6"
+      "version": "^4.20.6"
     },
     {
       "name": "turbo",
-      "version": "2.5.8"
+      "version": "^2.5.8"
     },
     {
       "name": "tw-animate-css",
-      "version": "1.4.0"
+      "version": "^1.4.0"
     },
     {
       "name": "type-fest",
-      "version": "5.0.1"
+      "version": "^5.0.1"
     },
     {
       "name": "typescript",
-      "version": "5.9.3"
+      "version": "^5.9.3"
     },
     {
       "name": "uuid",
-      "version": "13.0.0"
+      "version": "^13.0.0"
     },
     {
       "name": "xstate",
-      "version": "5.22.1"
+      "version": "^5.22.1"
     },
     {
       "name": "zod",
-      "version": "4.1.12"
+      "version": "^4.1.12"
     }
   ]
 }

@@ -258,6 +258,7 @@ export const ServerConfig = Config.all({
       csp: Csp.Config("CSP").pipe(Config.map(Csp.toHeader)),
     })
   ),
+  isVite: Config.boolean("IS_VITE").pipe(Config.withDefault(false)),
   ai: Config.nested("AI")(
     Config.all({
       openai: Config.nested("OPENAI")(

@@ -12,7 +12,7 @@ import {
   OrganizationCreatePayload,
   OrganizationCreateRoleContract,
   OrganizationDeleteContract,
-  OrganizationDeletePayload,
+  type OrganizationDeletePayload,
   OrganizationDeleteRoleContract,
   OrganizationGetActiveMemberContract,
   OrganizationGetActiveMemberRoleContract,
@@ -268,10 +268,11 @@ const OrganizationDeleteHandler = Effect.fn("OrganizationDeleteHandler")(
       metadata: OrganizationDeleteMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationDeletePayload)(payload);
-
     const result = yield* continuation.run((handlers) =>
-      client.organization.delete(addFetchOptions(handlers, encoded))
+      client.organization.delete({
+        organizationId: payload.id,
+        fetchOptions: withFetchOptions(handlers),
+      })
     );
 
     yield* continuation.raiseResult(result);

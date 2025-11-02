@@ -27,6 +27,7 @@ const ClientEnvSchema = S.Struct({
   authUrl: BS.Url,
   authPath: BS.URLPath,
   googleClientId: S.String,
+  enableGeoTracking: S.BooleanFromString,
 });
 
 declare namespace ClientEnvSchema {
@@ -51,6 +52,7 @@ export const clientEnv = F.pipe(
     authUrl: process.env.NEXT_PUBLIC_AUTH_URL,
     authPath: process.env.NEXT_PUBLIC_AUTH_PATH,
     googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+    enableGeoTracking: process.env.NEXT_PUBLIC_ENABLE_GEO_TRACKING,
   } satisfies Record<keyof ClientEnvSchema.Encoded, unknown>,
   S.decodeUnknownEither(ClientEnvSchema),
   Either.getOrElse((parseIssue) => {

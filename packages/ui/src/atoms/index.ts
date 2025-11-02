@@ -1,3 +1,4 @@
+export * from "./base-image";
 export * from "./file-thumbnail";
 export { Iconify, type IconifyProps, iconifyClasses } from "./iconify";
 export * from "./image";

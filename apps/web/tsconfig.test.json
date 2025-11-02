@@ -80,7 +80,7 @@
   ],
   "compilerOptions": {
     "types": ["node", "bun"],
-    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+
     "rootDir": "test",
     "resolveJsonModule": true,
     "noEmit": true,

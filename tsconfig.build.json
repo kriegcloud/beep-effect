@@ -90,6 +90,12 @@
       "path": "apps/web/tsconfig.json"
     },
     {
+      "path": "apps/start-client/tsconfig.json"
+    },
+    {
+      "path": "apps/bunnings-server/tsconfig.json"
+    },
+    {
       "path": "packages/_internal/db-admin/tsconfig.build.json"
     },
     {

@@ -234,4 +234,11 @@ declare module "@mui/material" {
   interface InputBasePropsSizeOverrides {
     large: true;
   }
+  interface PaperPropsVariantOverrides {
+    default: true;
+  }
+
+  interface PaperOwnProps {
+    background?: 1 | 2 | 3 | 4 | 5;
+  }
 }

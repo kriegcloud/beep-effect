@@ -51,32 +51,7 @@ const deviceVerify = device.child("verify");
 const deviceStatus = device.child("status");
 const account = (id: IamEntityIds.AccountId.Type) => PathBuilder.createRoot("/account").child(id);
 const dashboard = PathBuilder.createRoot("/dashboard");
-const dashboardBilling = dashboard.child("billing");
-const dashboardBillingSubscribe = dashboardBilling.child("subscribe");
-const dashboardBillingPortal = dashboardBilling.child("portal");
-const dashboardBillingSuccess = dashboardBilling.child("success");
-const dashboardBillingCancel = dashboardBilling.child("cancel");
-const dashboardBillingHistory = dashboardBilling.child("history");
-const dashboardSecurity = dashboard.child("security");
-const dashboardSecuritySessions = dashboardSecurity.child("sessions");
-const dashboardSecurityDevices = dashboardSecurity.child("devices");
-const dashboardSecurityPasskeys = dashboardSecurity.child("passkeys");
-const dashboardSecurityTwoFactor = dashboardSecurity.child("two-factor");
-const dashboardSecurityRecovery = dashboardSecurity.child("recovery-codes");
-const dashboardSecurityJwt = dashboardSecurity.child("jwt");
-const dashboardApiKeys = dashboard.child("api-keys");
-const dashboardApiKeysCreate = dashboardApiKeys.child("new");
-const dashboardApiKey = (keyId: string) => dashboardApiKeys.child(keyId);
-const dashboardAdmin = dashboard.child("admin");
-const dashboardAdminUsers = dashboardAdmin.child("users");
-const dashboardAdminUser = (id: SharedEntityIds.UserId.Type) => dashboardAdminUsers.child(id);
-const dashboardAdminSso = dashboardAdmin.child("sso");
-const dashboardAdminSsoProvider = (providerId: string) => dashboardAdminSso.child(providerId);
-const dashboardAdminOidc = dashboardAdmin.child("oidc");
-const dashboardAdminOidcClient = (clientId: string) => dashboardAdminOidc.child(clientId);
-const dashboardAdminPermissions = dashboardAdmin.child("permissions");
-const dashboardAdminOauthClients = dashboardAdmin.child("oauth-clients");
-const dashboardAdminOauthClient = (clientId: string) => dashboardAdminOauthClients.child(clientId);
+
 const user = dashboard.child("user");
 const userDialog = (settingsTab: string) =>
   PathBuilder.dynamicQueries(user.root)({
@@ -85,23 +60,6 @@ const userDialog = (settingsTab: string) =>
 const userAccount = user.child("account");
 const fileManager = dashboard.child("file-manager");
 const organization = (id: SharedEntityIds.OrganizationId.Type) => PathBuilder.createRoot("/organizations").child(id);
-const oauth2 = PathBuilder.createRoot("/oauth2");
-const oauth2Authorize = oauth2.child("authorize");
-const oauth2Consent = oauth2.child("consent");
-const oauth2Register = oauth2.child("register");
-const oauth2Userinfo = oauth2.child("userinfo");
-const oauth2Clients = oauth2.child("clients");
-const oauth2Client = (clientId: string) => oauth2Clients.child(clientId);
-const apiRoot = PathBuilder.createRoot("/api");
-const apiAuth = apiRoot.child("auth");
-const apiAuthDevice = apiAuth.child("device");
-const apiOauth2 = apiRoot.child("oauth2");
-const apiOauth2Authorize = apiOauth2.child("authorize");
-const apiOauth2Token = apiOauth2.child("token");
-const apiOauth2Userinfo = apiOauth2.child("userinfo");
-const apiOauth2Register = apiOauth2.child("register");
-const apiOauth2Client = apiOauth2.child("client");
-const apiOauth2ClientId = (clientId: string) => apiOauth2Client.child(clientId);
 
 type AuthSignInMethod = "anonymous" | "email" | "oauth" | "oneTap" | "otp" | "passkey" | "totp" | "username";
 
@@ -506,138 +464,6 @@ export const paths = PathBuilder.collection({
         security: userAccount("security"),
       },
       edit: (id: SharedEntityIds.UserId.Type) => user.child(id)("edit"),
-    },
-    security: {
-      root: dashboardSecurity.root,
-      sessions: dashboardSecuritySessions.root,
-      devices: dashboardSecurityDevices.root,
-      passkeys: dashboardSecurityPasskeys.root,
-      twoFactor: dashboardSecurityTwoFactor.root,
-      recoveryCodes: dashboardSecurityRecovery.root,
-      jwt: dashboardSecurityJwt.root,
-    },
-    billing: {
-      root: dashboardBilling.root,
-      subscribe: dashboardBillingSubscribe.root,
-      portal: dashboardBillingPortal.root,
-      success: dashboardBillingSuccess.root,
-      cancel: dashboardBillingCancel.root,
-      history: dashboardBillingHistory.root,
-    },
-    apiKeys: {
-      root: dashboardApiKeys.root,
-      create: dashboardApiKeysCreate.root,
-      detail: F.flow(
-        dashboardApiKey,
-        (apiKey) =>
-          ({
-            root: apiKey.root,
-            edit: apiKey("edit"),
-            rotate: apiKey("rotate"),
-          }) as const
-      ),
-    },
-    admin: {
-      root: dashboardAdmin.root,
-      permissions: dashboardAdminPermissions.root,
-      users: {
-        root: dashboardAdminUsers.root,
-        create: dashboardAdminUsers("create"),
-        detail: F.flow(
-          dashboardAdminUser,
-          (adminUser) =>
-            ({
-              root: adminUser.root,
-              edit: adminUser("edit"),
-              sessions: adminUser("sessions"),
-              impersonate: adminUser("impersonate"),
-              revokeSession: adminUser("revoke-session"),
-              revokeSessions: adminUser("revoke-sessions"),
-              ban: adminUser("ban"),
-              unban: adminUser("unban"),
-              permissions: adminUser("permissions"),
-            }) as const
-        ),
-      },
-      sso: {
-        root: dashboardAdminSso.root,
-        create: dashboardAdminSso("new"),
-        provider: F.flow(
-          dashboardAdminSsoProvider,
-          (provider) =>
-            ({
-              root: provider.root,
-              settings: provider("settings"),
-              delete: provider("delete"),
-            }) as const
-        ),
-      },
-      oidc: {
-        root: dashboardAdminOidc.root,
-        register: dashboardAdminOidc("register"),
-        client: F.flow(
-          dashboardAdminOidcClient,
-          (client) =>
-            ({
-              root: client.root,
-              edit: client("edit"),
-              secrets: client("secrets"),
-            }) as const
-        ),
-      },
-      oauthClients: {
-        root: dashboardAdminOauthClients.root,
-        client: F.flow(
-          dashboardAdminOauthClient,
-          (client) =>
-            ({
-              root: client.root,
-              revoke: client("revoke"),
-            }) as const
-        ),
-      },
-    },
-  },
-  oauth2: {
-    root: oauth2.root,
-    authorize: oauth2Authorize.root,
-    consent: oauth2Consent.root,
-    register: oauth2Register.root,
-    userinfo: oauth2Userinfo.root,
-    clients: {
-      root: oauth2Clients.root,
-      client: F.flow(
-        oauth2Client,
-        (client) =>
-          ({
-            root: client.root,
-            edit: client("edit"),
-            secrets: client("secrets"),
-          }) as const
-      ),
-    },
-  },
-  api: {
-    root: apiRoot.root,
-    auth: {
-      root: apiAuth.root,
-      device: {
-        root: apiAuthDevice.root,
-      },
-    },
-    oauth2: {
-      root: apiOauth2.root,
-      authorize: apiOauth2Authorize.root,
-      token: apiOauth2Token.root,
-      userinfo: apiOauth2Userinfo.root,
-      register: apiOauth2Register.root,
-      client: F.flow(
-        apiOauth2ClientId,
-        (client) =>
-          ({
-            root: client.root,
-          }) as const
-      ),
     },
   },
 } as const);

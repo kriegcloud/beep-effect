@@ -17,10 +17,11 @@ export const authViewPaths = PathBuilder.collection({
 
 export const AccountSettingsTabKit = BS.stringLiteralKit(
   "general",
-  "security",
   "billing",
   "notifications",
-  "connections"
+  "connections",
+  "security",
+  "localization"
 );
 
 export class AccountSettingsTabSearchParamValue extends AccountSettingsTabKit.Schema.annotations({
@@ -28,7 +29,10 @@ export class AccountSettingsTabSearchParamValue extends AccountSettingsTabKit.Sc
   identifier: "AccountSettingsTabSearchParamValue",
   title: "Account Settings Tab Search Param",
   description: "Search param for account settings tab",
-}) {}
+}) {
+  static readonly Options = AccountSettingsTabKit.Options;
+  static readonly Enum = AccountSettingsTabKit.Enum;
+}
 
 export declare namespace AccountSettingsTabSearchParamValue {
   export type Type = typeof AccountSettingsTabSearchParamValue.Type;

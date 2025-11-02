@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+
+    // Use incremental builds with project references.
+    "incremental": true,
+    "composite": true,
+
+    // Target modern JavaScript (ES2022+) whilst staying closely compatible with the Node.js module system.
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleDetection": "force", // Treat every non-declaration file as a module.
+    "esModuleInterop": false, // Do not fiddle with import/export statements
+    "verbatimModuleSyntax": true, // Only transform/eliminate type-only import/export statements.
+    "allowJs": false, // If you touch this, a puppy dies.
+    "rewriteRelativeImportExtensions": true, // Rewrite `.ts` imports to `.js` at build time.
+    "erasableSyntaxOnly": true, // Allows to run directly with node and type removal
+
+    // React/Vite specific
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "moduleResolution": "NodeNext",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+
+    // Emit source- & declaration maps.
+    "declarationMap": true,
+    "sourceMap": true,
+
+    // Opt-in to stricter type checking and correctness guard rails. The more the merrier.
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // Path aliases
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["./src/shared/*"],
+      "@client/*": ["./src/client/*"],
+      "@server/*": ["./src/server/*"]
+    },
+
+    // Miscellaneoaus
+    "skipLibCheck": true, // Skip type checking of third party libraries.
+    "noErrorTruncation": true, // Do not truncate error messages.
+    "types": ["vite/client"],
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "transform": "@effect/language-service/transform",
+        "namespaceImportPackages": ["effect", "@effect/*"]
+      }
+    ]
+  },
+  "include": ["src"]
+}

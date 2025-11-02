@@ -12,7 +12,7 @@
   "compilerOptions": {
     "types": ["bun", "node"],
     "outDir": "build/src",
-    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+
     "rootDir": "src",
     "rewriteRelativeImportExtensions": true,
     "erasableSyntaxOnly": true,

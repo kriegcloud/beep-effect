@@ -10,7 +10,7 @@
   "compilerOptions": {
     "types": ["bun", "node"],
     "outDir": "build/src",
-    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+
     "rootDir": "src",
     "module": "ESNext",
     "isolatedModules": false,

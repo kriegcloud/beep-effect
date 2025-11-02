@@ -7,6 +7,7 @@ import * as Anonymous from "./anonymous";
 import * as ApiKey from "./api-key";
 import * as Bearer from "./bearer";
 import * as Captcha from "./captcha";
+import * as Cookies from "./cookies";
 import * as CustomSession from "./custom-session";
 import * as DeviceAuthorization from "./device-authorization";
 import * as DubAnalytics from "./dub-analytics";
@@ -17,7 +18,6 @@ import * as LastLoginMethod from "./last-login-method";
 import * as Localization from "./localization";
 import * as Mcp from "./mcp";
 import * as MultiSession from "./multi-session";
-import * as NextCookies from "./next-cookies";
 import * as OAuthProxyPlugin from "./oauth-proxy";
 import * as OidcProvider from "./oidc-provider";
 import * as OneTap from "./one-tap";
@@ -31,7 +31,6 @@ import * as SSO from "./sso";
 import * as Stripe from "./stripe";
 import * as TwoFactor from "./two-factor";
 import * as Username from "./username";
-
 export type Plugins = Array<
   | Admin.AdminPlugin
   | Anonymous.AnonymousPlugin
@@ -47,7 +46,6 @@ export type Plugins = Array<
   | LastLoginMethod.LastLoginMethodPlugin
   | Mcp.McpPlugin
   | MultiSession.MultiSessionPlugin
-  | NextCookies.NextCookiesPlugin
   | OneTap.OneTapPlugin
   | OidcProvider.OIDCProviderPlugin
   | OpenApi.OpenApiPlugin
@@ -62,6 +60,7 @@ export type Plugins = Array<
   | TwoFactor.TwoFactorPlugin
   | Username.UsernamePlugin
   | Localization.LocalizationPlugin
+  | Cookies.CookiesPlugin
 >;
 const allPluginsArray = [
   Admin.adminPlugin,
@@ -75,11 +74,11 @@ const allPluginsArray = [
   GenericOAuth.genericOAuthPlugin,
   HaveIBeenPwned.haveIBeenPwnedPlugin,
   Jwt.jwtPlugin,
+  Cookies.cookiesPlugin,
   LastLoginMethod.lastLoginMethodPlugin,
   Localization.localizationPlugin,
   Mcp.mcpPlugin,
   MultiSession.multiSessionPlugin,
-  NextCookies.nextCookiesPlugin,
   OAuthProxyPlugin.oauthProxyPlugin,
   OidcProvider.oidcProviderPlugin,
   OneTap.oneTapPlugin,

@@ -22,8 +22,7 @@
     "lint:fix": "biome check . --write",
     "check": "tsc --noEmit",
     "dotenvx": "dotenvx run -f ../../.env --",
-    "lint:circular": "bunx madge -c .",
-    "execute": "bun run dotenvx -- bunx tsx ./execute.ts"
+    "lint:circular": "bunx madge -c ."
   },
   "dependencies": {
     "turndown": "catalog:",
@@ -202,6 +201,10 @@
     "@types/react": "catalog:",
     "@types/autosuggest-highlight": "catalog:",
     "@types/react-dom": "catalog:",
+    "tailwindcss": "catalog:",
+    "@types/lodash": "catalog:",
+    "@types/nprogress": "catalog:",
+    "@types/turndown": "catalog:",
     "@opentelemetry/api": "catalog:",
     "@opentelemetry/exporter-trace-otlp-http": "catalog:",
     "@opentelemetry/sdk-trace-base": "catalog:",
@@ -210,14 +213,10 @@
     "@opentelemetry/sdk-metrics": "catalog:",
     "@opentelemetry/sdk-logs": "catalog:",
     "@opentelemetry/exporter-logs-otlp-http": "catalog:",
-    "tailwindcss": "catalog:",
     "@turbo/gen": "catalog:",
-    "@types/lodash": "catalog:",
-    "@types/nprogress": "catalog:",
     "babel-plugin-transform-next-use-client": "catalog:",
     "copyfiles": "catalog:",
     "@babel/preset-react": "catalog:",
-    "@next/bundle-analyzer": "catalog:",
-    "@types/turndown": "catalog:"
+    "@next/bundle-analyzer": "catalog:"
   }
 }

@@ -27,7 +27,6 @@ import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
-import { headers as nextHeaders } from "next/headers";
 import { AuthEmailService, SendResetPasswordEmailPayload, SendVerificationEmailPayload } from "./AuthEmail.service";
 import { type CommonExtraFields, commonExtraFields } from "./internal";
 import { AllPlugins } from "./plugins";
@@ -315,55 +314,17 @@ export class AuthServiceError extends Data.TaggedError("AuthServiceError")<{
 
 const authServiceEffect: Effect.Effect<
   {
-    readonly auth: () => Auth;
-    readonly getSession: () => Effect.Effect<Session, AuthServiceError, never>;
-    readonly listSessions: () => Effect.Effect<Session[], AuthServiceError, never>;
-    readonly getHeadersEffect: () => Effect.Effect<ReadonlyHeaders, AuthServiceError, never>;
+    readonly auth: Auth;
   },
   SqlError | ConfigError,
   AuthEmailService | IamDb.IamDb | IamConfig
 > = Effect.gen(function* () {
   const authOptions = yield* AuthOptions;
-  const auth = betterAuth(authOptions);
 
-  const runtime = yield* Effect.runtime();
-  const runPromise = Runtime.runPromise(runtime);
-  const getHeadersEffect = Effect.tryPromise({
-    try: async (): Promise<ReadonlyHeaders> => await nextHeaders(),
-    catch: (e) =>
-      new AuthServiceError({
-        cause: e,
-        message: "Failed to get headers",
-      }),
-  }).pipe(Effect.tapError(Effect.logError), Effect.withSpan(`AuthService.getHeadersEffect`));
-  const getHeaders: () => Promise<ReadonlyHeaders> = () =>
-    getHeadersEffect.pipe(Effect.withSpan("AuthService.getHeaders"), runPromise);
-
-  const getSession: () => Effect.Effect<Session, AuthServiceError, never> = () =>
-    Effect.tryPromise({
-      try: async (): Promise<Session> => await auth.api.getSession({ headers: await getHeaders() }),
-      catch: (e) =>
-        new AuthServiceError({
-          cause: e,
-          message: "Failed to get session",
-        }),
-    }).pipe(Effect.tapError(Effect.logError), Effect.withSpan(`AuthService.getSession`));
-
-  const listSessions: () => Effect.Effect<Session[], AuthServiceError, never> = () =>
-    Effect.tryPromise({
-      try: async () => await auth.api.listSessions({ headers: await getHeaders() }),
-      catch: (e) =>
-        new AuthServiceError({
-          cause: e,
-          message: "Failed to list sessions",
-        }),
-    }).pipe(Effect.tapError(Effect.logError), Effect.withSpan(`AuthService.listSessions`));
+  const auth = betterAuth<Opts>(authOptions);
 
   return yield* Effect.succeed({
-    auth: () => auth,
-    getSession,
-    listSessions,
-    getHeadersEffect: () => getHeadersEffect,
+    auth,
   });
 });
 

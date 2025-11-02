@@ -45,11 +45,6 @@
     "module": "esnext",
     "incremental": true,
     "removeComments": false,
-    "plugins": [
-      {
-        "name": "@effect/language-service"
-      }
-    ],
     "paths": {
       "*": ["./*"],
       "@beep/types": [

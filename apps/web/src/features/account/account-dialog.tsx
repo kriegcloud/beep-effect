@@ -1,4 +1,4 @@
-import type { AccountSettingsTabSearchParamValue } from "@beep/iam-domain";
+import { AccountSettingsTabSearchParamValue } from "@beep/iam-domain";
 import { Iconify } from "@beep/ui/atoms/iconify/iconify";
 import { SimpleBar } from "@beep/ui/molecules";
 import { useBreakpoints } from "@beep/ui/providers/break-points.provider";
@@ -16,13 +16,10 @@ import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import React from "react";
-import {
-  AccountBillingView,
-  AccountGeneralView,
-  AccountNotificationsView,
-  AccountSecurityView,
-  AccountSocialsView,
-} from "@/features/account/view";
+import { GeneralTabPanel } from "@/features/account/general/GeneralTabPanel";
+import { LocalizationTabPanel } from "@/features/account/localization/LocalizationTabPanel";
+import { SecurityTabPanel } from "@/features/account/security/SecurityTabPanel";
+import { AccountBillingView, AccountNotificationsView, AccountSocialsView } from "@/features/account/view";
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -43,39 +40,46 @@ type AccountTabItem = {
 const NAV_ITEMS = (handleTab: (tab: AccountSettingsTabSearchParamValue.Type) => void): ReadonlyArray<AccountTabItem> =>
   [
     {
-      slug: "general",
+      slug: AccountSettingsTabSearchParamValue.Enum.general,
       label: "General",
       icon: <Iconify width={24} icon="solar:user-id-bold" />,
-      onClick: () => handleTab("general"),
-      render: () => <AccountGeneralView />,
+      onClick: () => handleTab(AccountSettingsTabSearchParamValue.Enum.general),
+      render: () => <GeneralTabPanel />,
     },
     {
-      slug: "billing",
+      slug: AccountSettingsTabSearchParamValue.Enum.billing,
       label: "Billing",
       icon: <Iconify width={24} icon="solar:bill-list-bold" />,
-      onClick: () => handleTab("billing"),
+      onClick: () => handleTab(AccountSettingsTabSearchParamValue.Enum.billing),
       render: () => <AccountBillingView />,
     },
     {
-      slug: "notifications",
+      slug: AccountSettingsTabSearchParamValue.Enum.notifications,
       label: "Notifications",
       icon: <Iconify width={24} icon="solar:bell-bing-bold" />,
-      onClick: () => handleTab("notifications"),
+      onClick: () => handleTab(AccountSettingsTabSearchParamValue.Enum.notifications),
       render: () => <AccountNotificationsView />,
     },
     {
-      slug: "connections",
+      slug: AccountSettingsTabSearchParamValue.Enum.connections,
       label: "Connections",
       icon: <Iconify width={24} icon="solar:share-bold" />,
-      onClick: () => handleTab("connections"),
+      onClick: () => handleTab(AccountSettingsTabSearchParamValue.Enum.connections),
       render: () => <AccountSocialsView />,
     },
     {
-      slug: "security",
+      slug: AccountSettingsTabSearchParamValue.Enum.security,
       label: "Security",
       icon: <Iconify width={24} icon="ic:round-vpn-key" />,
-      onClick: () => handleTab("security"),
-      render: () => <AccountSecurityView />,
+      onClick: () => handleTab(AccountSettingsTabSearchParamValue.Enum.security),
+      render: () => <SecurityTabPanel />,
+    },
+    {
+      slug: AccountSettingsTabSearchParamValue.Enum.localization,
+      label: "Localization",
+      icon: <Iconify width={24} icon={"material-symbols:public"} />,
+      onClick: () => handleTab(AccountSettingsTabSearchParamValue.Enum.localization),
+      render: () => <LocalizationTabPanel />,
     },
   ] as const;
 

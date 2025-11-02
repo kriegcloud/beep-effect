@@ -28,7 +28,6 @@
     "removeComments": false,
     "types": ["node", "bun"],
     "outDir": "build/src",
-    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "jsx": "preserve",
     "module": "ESNext",
     "target": "ES2022",
@@ -96,9 +95,6 @@
     "plugins": [
       {
         "name": "next"
-      },
-      {
-        "name": "@effect/language-service"
       }
     ]
   },

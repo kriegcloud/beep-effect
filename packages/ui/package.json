@@ -239,7 +239,7 @@
     "react-dropzone": "catalog:",
     "react-i18next": "catalog:",
     "react-phone-number-input": "catalog:",
-    "sonner": "^2.0.7",
+    "sonner": "catalog:",
     "stylis": "catalog:",
     "stylis-plugin-rtl": "catalog:",
     "zod": "catalog:",

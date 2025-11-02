@@ -20,7 +20,7 @@
   ],
   "compilerOptions": {
     "types": ["bun", "node"],
-    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+
     "rootDir": "test",
     "noEmit": true
   }
