@@ -23,6 +23,9 @@
         {
       "path": "packages/common/mock/tsconfig.build.json"
     },
+            {
+      "path": "packages/common/contract/tsconfig.build.json"
+    },
     {
       "path": "packages/shared/domain/tsconfig.build.json"
     },

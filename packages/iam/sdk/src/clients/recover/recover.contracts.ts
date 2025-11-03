@@ -1,4 +1,4 @@
-import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/contract";
 import { BS } from "@beep/schema";
 import { paths } from "@beep/shared-domain";
 import * as Equal from "effect/Equal";
@@ -32,7 +32,7 @@ export declare namespace ResetPasswordPayload {
 
 export const ResetPasswordContract = Contract.make("ResetPassword", {
   description: "Resets a user's password using the provided token.",
-  parameters: ResetPasswordPayloadFields,
+  payload: ResetPasswordPayloadFields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });
@@ -60,7 +60,7 @@ export declare namespace RequestResetPasswordPayload {
 
 export const RequestResetPasswordContract = Contract.make("RequestResetPassword", {
   description: "Requests a password reset email for a user.",
-  parameters: RequestResetPasswordPayload.fields,
+  payload: RequestResetPasswordPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });

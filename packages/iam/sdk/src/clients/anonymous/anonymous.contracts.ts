@@ -1,4 +1,4 @@
-import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/contract";
 import { BS } from "@beep/schema";
 import { User } from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
@@ -24,7 +24,7 @@ export declare namespace AnonymousSignInSuccess {
 
 export const AnonymousSignInContract = Contract.make("AnonymousSignIn", {
   description: "Signs the current visitor in as an anonymous user.",
-  parameters: {},
+  payload: {},
   failure: S.instanceOf(IamError),
   success: S.NullOr(AnonymousSignInSuccess),
 });

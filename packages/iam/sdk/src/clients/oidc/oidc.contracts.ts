@@ -1,4 +1,4 @@
-import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/contract";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
@@ -343,42 +343,42 @@ export declare namespace OAuth2ClientSuccess {
 
 export const OAuth2AuthorizeContract = Contract.make("OAuth2Authorize", {
   description: "Handles OAuth2/OIDC authorization requests.",
-  parameters: OAuth2AuthorizePayload.fields,
+  payload: OAuth2AuthorizePayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Union(ResponseSchema, OAuth2AuthorizeResponseSchema),
 });
 
 export const OAuth2ConsentContract = Contract.make("OAuth2Consent", {
   description: "Processes the end-user consent decision.",
-  parameters: OAuth2ConsentPayload.fields,
+  payload: OAuth2ConsentPayload.fields,
   failure: S.instanceOf(IamError),
   success: OAuth2ConsentSuccess,
 });
 
 export const OAuth2TokenContract = Contract.make("OAuth2Token", {
   description: "Performs OAuth2 token exchanges.",
-  parameters: OAuth2TokenPayload.fields,
+  payload: OAuth2TokenPayload.fields,
   failure: S.instanceOf(IamError),
   success: OAuth2TokenSuccess,
 });
 
 export const OAuth2UserInfoContract = Contract.make("OAuth2UserInfo", {
   description: "Retrieves OpenID Connect user info claims.",
-  parameters: {},
+  payload: {},
   failure: S.instanceOf(IamError),
   success: OAuth2UserInfoSuccess,
 });
 
 export const OAuth2RegisterContract = Contract.make("OAuth2Register", {
   description: "Registers an OAuth2 client using dynamic registration.",
-  parameters: OAuth2RegisterPayload.fields,
+  payload: OAuth2RegisterPayload.fields,
   failure: S.instanceOf(IamError),
   success: OAuth2RegisterSuccess,
 });
 
 export const OAuth2ClientContract = Contract.make("OAuth2Client", {
   description: "Fetches metadata for a registered OAuth2 client.",
-  parameters: OAuth2ClientPayload.fields,
+  payload: OAuth2ClientPayload.fields,
   failure: S.instanceOf(IamError),
   success: OAuth2ClientSuccess,
 });

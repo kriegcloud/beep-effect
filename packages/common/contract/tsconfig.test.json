@@ -1,0 +1,27 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": ["test"],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../types"
+    },
+    {
+      "path": "../utils"
+    },
+    {
+      "path": "../schema"
+    },
+    {
+      "path": "../invariant"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node", "bun"],
+
+    "rootDir": "test",
+    "noEmit": true
+  }
+}

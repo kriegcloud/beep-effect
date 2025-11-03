@@ -1,5 +1,5 @@
 import { Session } from "@beep/iam-domain/entities";
-import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/contract";
 import { IamError } from "@beep/iam-sdk/errors";
 import { BS } from "@beep/schema";
 import { SharedEntityIds } from "@beep/shared-domain";
@@ -98,7 +98,7 @@ export declare namespace AdminUserSuccess {
 
 export const AdminSetRoleContract = Contract.make("AdminSetRole", {
   description: "Assigns one or more roles to a user via the Better Auth admin plugin.",
-  parameters: AdminSetRolePayload.fields,
+  payload: AdminSetRolePayload.fields,
   success: AdminUserSuccess,
   failure: S.instanceOf(IamError),
 });
@@ -121,7 +121,7 @@ export declare namespace AdminGetUserPayload {
 
 export const AdminGetUserContract = Contract.make("AdminGetUser", {
   description: "Retrieves a user record using the Better Auth admin endpoint.",
-  parameters: AdminGetUserPayload.fields,
+  payload: AdminGetUserPayload.fields,
   success: AdminUserSuccess,
   failure: S.instanceOf(IamError),
 });
@@ -148,7 +148,7 @@ export declare namespace AdminCreateUserPayload {
 
 export const AdminCreateUserContract = Contract.make("AdminCreateUser", {
   description: "Creates a credentialed user using the Better Auth admin API.",
-  parameters: AdminCreateUserPayload.fields,
+  payload: AdminCreateUserPayload.fields,
   success: AdminUserSuccess,
   failure: S.instanceOf(IamError),
 });
@@ -172,7 +172,7 @@ export declare namespace AdminUpdateUserPayload {
 
 export const AdminUpdateUserContract = Contract.make("AdminUpdateUser", {
   description: "Updates user attributes through the Better Auth admin API.",
-  parameters: AdminUpdateUserPayload.fields,
+  payload: AdminUpdateUserPayload.fields,
   success: AdminUserSuccess,
   failure: S.instanceOf(IamError),
 });
@@ -230,7 +230,7 @@ export declare namespace AdminListUsersSuccess {
 
 export const AdminListUsersContract = Contract.make("AdminListUsers", {
   description: "Lists users with pagination, filtering and search controls.",
-  parameters: AdminListUsersPayload.fields,
+  payload: AdminListUsersPayload.fields,
   success: AdminListUsersSuccess,
   failure: S.instanceOf(IamError),
 });
@@ -269,7 +269,7 @@ export declare namespace AdminListUserSessionsSuccess {
 
 export const AdminListUserSessionsContract = Contract.make("AdminListUserSessions", {
   description: "Lists active Better Auth sessions for the provided user identifier.",
-  parameters: AdminListUserSessionsPayload.fields,
+  payload: AdminListUserSessionsPayload.fields,
   success: AdminListUserSessionsSuccess,
   failure: S.instanceOf(IamError),
 });
@@ -292,7 +292,7 @@ export declare namespace AdminUnbanUserPayload {
 
 export const AdminUnbanUserContract = Contract.make("AdminUnbanUser", {
   description: "Removes ban metadata and re-enables a user account.",
-  parameters: AdminUnbanUserPayload.fields,
+  payload: AdminUnbanUserPayload.fields,
   success: AdminUserSuccess,
   failure: S.instanceOf(IamError),
 });
@@ -317,7 +317,7 @@ export declare namespace AdminBanUserPayload {
 
 export const AdminBanUserContract = Contract.make("AdminBanUser", {
   description: "Bans a user, optionally specifying a reason and expiry window.",
-  parameters: AdminBanUserPayload.fields,
+  payload: AdminBanUserPayload.fields,
   success: AdminUserSuccess,
   failure: S.instanceOf(IamError),
 });
@@ -357,7 +357,7 @@ export declare namespace AdminSessionBundleSuccess {
 
 export const AdminImpersonateUserContract = Contract.make("AdminImpersonateUser", {
   description: "Starts an impersonation session for the provided user identifier.",
-  parameters: AdminImpersonateUserPayload.fields,
+  payload: AdminImpersonateUserPayload.fields,
   success: AdminSessionBundleSuccess,
   failure: S.instanceOf(IamError),
 });
@@ -371,7 +371,7 @@ export declare namespace AdminStopImpersonatingPayload {
 
 export const AdminStopImpersonatingContract = Contract.make("AdminStopImpersonating", {
   description: "Restores the original admin session after impersonation ends.",
-  parameters: AdminStopImpersonatingPayload.fields,
+  payload: AdminStopImpersonatingPayload.fields,
   success: AdminSessionBundleSuccess,
   failure: S.instanceOf(IamError),
 });
@@ -412,7 +412,7 @@ export declare namespace AdminBooleanSuccess {
 
 export const AdminRevokeUserSessionContract = Contract.make("AdminRevokeUserSession", {
   description: "Revokes a single session token for a user.",
-  parameters: AdminRevokeUserSessionPayload.fields,
+  payload: AdminRevokeUserSessionPayload.fields,
   success: AdminBooleanSuccess,
   failure: S.instanceOf(IamError),
 });
@@ -437,7 +437,7 @@ export declare namespace AdminRevokeUserSessionsPayload {
 
 export const AdminRevokeUserSessionsContract = Contract.make("AdminRevokeUserSessions", {
   description: "Revokes all sessions associated with a user.",
-  parameters: AdminRevokeUserSessionsPayload.fields,
+  payload: AdminRevokeUserSessionsPayload.fields,
   success: AdminBooleanSuccess,
   failure: S.instanceOf(IamError),
 });
@@ -460,7 +460,7 @@ export declare namespace AdminRemoveUserPayload {
 
 export const AdminRemoveUserContract = Contract.make("AdminRemoveUser", {
   description: "Removes a user and cascading state using Better Auth admin API.",
-  parameters: AdminRemoveUserPayload.fields,
+  payload: AdminRemoveUserPayload.fields,
   success: AdminBooleanSuccess,
   failure: S.instanceOf(IamError),
 });
@@ -500,7 +500,7 @@ export declare namespace AdminSetUserPasswordSuccess {
 
 export const AdminSetUserPasswordContract = Contract.make("AdminSetUserPassword", {
   description: "Replaces a user's password via the Better Auth admin endpoint.",
-  parameters: AdminSetUserPasswordPayload.fields,
+  payload: AdminSetUserPasswordPayload.fields,
   success: AdminSetUserPasswordSuccess,
   failure: S.instanceOf(IamError),
 });
@@ -543,7 +543,7 @@ export declare namespace AdminHasPermissionSuccess {
 
 export const AdminHasPermissionContract = Contract.make("AdminHasPermission", {
   description: "Checks whether a role or user satisfies the provided permissions.",
-  parameters: AdminHasPermissionPayload.fields,
+  payload: AdminHasPermissionPayload.fields,
   success: AdminHasPermissionSuccess,
   failure: S.instanceOf(IamError),
 });

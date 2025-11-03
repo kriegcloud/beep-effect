@@ -1,4 +1,4 @@
-import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/contract";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
@@ -173,35 +173,35 @@ export declare namespace DeviceAuthorizationDecisionSuccess {
 
 export const DeviceAuthorizationCodeContract = Contract.make("DeviceAuthorizationCode", {
   description: "Starts the OAuth2 device authorization flow.",
-  parameters: DeviceAuthorizationCodePayload.fields,
+  payload: DeviceAuthorizationCodePayload.fields,
   failure: S.instanceOf(IamError),
   success: DeviceAuthorizationCodeSuccess,
 });
 
 export const DeviceAuthorizationTokenContract = Contract.make("DeviceAuthorizationToken", {
   description: "Exchanges an approved device code for access tokens.",
-  parameters: DeviceAuthorizationTokenPayload.fields,
+  payload: DeviceAuthorizationTokenPayload.fields,
   failure: S.instanceOf(IamError),
   success: DeviceAuthorizationTokenSuccess,
 });
 
 export const DeviceAuthorizationStatusContract = Contract.make("DeviceAuthorizationStatus", {
   description: "Retrieves the current status of a device authorization request.",
-  parameters: DeviceAuthorizationStatusPayload.fields,
+  payload: DeviceAuthorizationStatusPayload.fields,
   failure: S.instanceOf(IamError),
   success: DeviceAuthorizationStatusSuccess,
 });
 
 export const DeviceAuthorizationApproveContract = Contract.make("DeviceAuthorizationApprove", {
   description: "Approves a pending device authorization request.",
-  parameters: DeviceAuthorizationDecisionPayload.fields,
+  payload: DeviceAuthorizationDecisionPayload.fields,
   failure: S.instanceOf(IamError),
   success: DeviceAuthorizationDecisionSuccess,
 });
 
 export const DeviceAuthorizationDenyContract = Contract.make("DeviceAuthorizationDeny", {
   description: "Denies a pending device authorization request.",
-  parameters: DeviceAuthorizationDecisionPayload.fields,
+  payload: DeviceAuthorizationDecisionPayload.fields,
   failure: S.instanceOf(IamError),
   success: DeviceAuthorizationDecisionSuccess,
 });

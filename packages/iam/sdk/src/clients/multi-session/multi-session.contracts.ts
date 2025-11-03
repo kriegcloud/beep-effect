@@ -1,5 +1,5 @@
 import { Session } from "@beep/iam-domain/entities";
-import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/contract";
 import { BS } from "@beep/schema";
 import { User } from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
@@ -101,21 +101,21 @@ export declare namespace MultiSessionRevokeSuccess {
 
 export const MultiSessionListContract = Contract.make("MultiSessionList", {
   description: "Lists device sessions available to the signed-in user.",
-  parameters: {},
+  payload: {},
   failure: S.instanceOf(IamError),
   success: S.mutable(S.Array(MultiSessionDeviceRecord)),
 });
 
 export const MultiSessionSetActiveContract = Contract.make("MultiSessionSetActive", {
   description: "Switches the active session token to another device session.",
-  parameters: MultiSessionTokenPayload.fields,
+  payload: MultiSessionTokenPayload.fields,
   failure: S.instanceOf(IamError),
   success: MultiSessionDeviceRecord,
 });
 
 export const MultiSessionRevokeContract = Contract.make("MultiSessionRevoke", {
   description: "Revokes a specific device session for the current user.",
-  parameters: MultiSessionTokenPayload.fields,
+  payload: MultiSessionTokenPayload.fields,
   failure: S.instanceOf(IamError),
   success: MultiSessionRevokeSuccess,
 });

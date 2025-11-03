@@ -65,7 +65,7 @@ const userOrganizationsAtom = Object.assign(
 
 export const updateUserOrganizationAtom = atomRuntime.fn(
   Effect.fnUntraced(
-    function* (payload: typeof OrganizationUpdateContract.parametersSchema.Type) {
+    function* (payload: typeof OrganizationUpdateContract.payloadSchema.Type) {
       const registry = yield* Registry.AtomRegistry;
       const updateResult = yield* OrganizationImplementations.OrganizationUpdate(payload);
       registry.set(userOrganizationsAtom, Action.Update(updateResult));
@@ -89,7 +89,7 @@ export const updateUserOrganizationAtom = atomRuntime.fn(
 
 export const deleteUserOrganizationAtom = atomRuntime.fn(
   Effect.fnUntraced(
-    function* (payload: typeof OrganizationDeleteContract.parametersSchema.Type) {
+    function* (payload: typeof OrganizationDeleteContract.payloadSchema.Type) {
       const registry = yield* Registry.AtomRegistry;
       const deleteResult = yield* OrganizationImplementations.OrganizationDelete(payload);
       registry.set(userOrganizationsAtom, Action.Del(deleteResult));
@@ -113,7 +113,7 @@ export const deleteUserOrganizationAtom = atomRuntime.fn(
 
 export const createUserOrganizationAtom = atomRuntime.fn(
   Effect.fnUntraced(
-    function* (payload: typeof OrganizationCreateContract.parametersSchema.Type) {
+    function* (payload: typeof OrganizationCreateContract.payloadSchema.Type) {
       const registry = yield* Registry.AtomRegistry;
       const createResult = yield* OrganizationImplementations.OrganizationCreate(payload);
       registry.set(userOrganizationsAtom, Action.Create(createResult));

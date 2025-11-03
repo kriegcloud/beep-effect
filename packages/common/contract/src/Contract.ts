@@ -8,7 +8,7 @@
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
  * import * as S from "effect/Schema"
  *
  * // Define a contract invoked when the user submits a one-time code
@@ -48,7 +48,7 @@ import type {Covariant} from "effect/Types";
  * @since 1.0.0
  * @category Type Ids
  */
-export const TypeId = "~@beep/iam-sdk/Contract";
+export const TypeId = "~@beep/contract/Contract";
 
 /**
  * Type-level representation of the user-defined contract identifier.
@@ -64,7 +64,7 @@ export type TypeId = typeof TypeId;
  * @since 1.0.0
  * @category Type Ids
  */
-export const ProviderDefinedTypeId = "~@beep/iam-sdk/Contract/ProviderDefined";
+export const ProviderDefinedTypeId = "~@beep/contract/Contract/ProviderDefined";
 
 /**
  * Type-level representation of the provider-defined contract identifier.
@@ -87,7 +87,7 @@ export type ProviderDefinedTypeId = typeof ProviderDefinedTypeId;
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
  * import * as S from "effect/Schema"
  *
  * const StartPasswordReset = Contract.make("StartPasswordReset", {
@@ -252,7 +252,7 @@ export interface Contract<
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
  * import * as S from "effect/Schema"
  *
  * const HostedPasswordReset = Contract.providerDefined({
@@ -374,7 +374,7 @@ export declare namespace Contract {
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
  * import * as S from "effect/Schema"
  *
  * const SignInEmail = Contract.make("SignInEmail", {
@@ -418,7 +418,7 @@ export const isUserDefined = (u: unknown): u is Contract<string, UnsafeTypes.Uns
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
  * import * as S from "effect/Schema"
  *
  * const SignInEmail = Contract.make("SignInEmail", {
@@ -815,7 +815,7 @@ const userDefinedProto = <
   }
 > => {
   const self = Object.assign(Object.create(Proto), options);
-  self.id = `@beep/iam-sdk/Contract/${options.name}`;
+  self.id = `@beep/contract/Contract/${options.name}`;
   return self;
 };
 
@@ -861,7 +861,7 @@ const constEmptyStruct = S.Struct({});
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
  * import * as S from "effect/Schema"
  *
  * const StartEmailVerification = Contract.make("StartEmailVerification", {
@@ -955,7 +955,7 @@ export const make = <
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
  * import * as S from "effect/Schema"
  *
  * const HostedMagicLink = Contract.providerDefined({
@@ -1071,7 +1071,7 @@ export const providerDefined =
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
  * import * as S from "effect/Schema"
  *
  * // Define a tagged request for verifying a pending invitation
@@ -1119,7 +1119,7 @@ export const fromTaggedRequest = <S extends AnyTaggedRequestSchema>(schema: S): 
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
  *
  * const myContract = Contract.make("example", {
  *   description: "This is an example contract"
@@ -1176,7 +1176,7 @@ export const getDescriptionFromSchemaAst = (ast: AST.AST): string | undefined =>
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
  * import * as S from "effect/Schema"
  *
  * const completeProfile = Contract.make("complete_profile", {
@@ -1246,7 +1246,7 @@ export const getJsonSchemaFromSchemaAst = (ast: AST.AST): JsonSchema.JsonSchema7
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
  *
  * const myContract = Contract.make("start_password_reset")
  *   .annotate(Contract.Title, "Start Password Reset")
@@ -1255,7 +1255,7 @@ export const getJsonSchemaFromSchemaAst = (ast: AST.AST): JsonSchema.JsonSchema7
  * @since 1.0.0
  * @category Annotations
  */
-export class Title extends Context.Tag("@beep/iam-sdk/Contract/Title")<Title, string>() {
+export class Title extends Context.Tag("@beep/contract/Contract/Title")<Title, string>() {
 }
 
 /**
@@ -1263,7 +1263,7 @@ export class Title extends Context.Tag("@beep/iam-sdk/Contract/Title")<Title, st
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
  *
  * const myContract = Contract.make("start_password_reset")
  *   .annotate(Contract.Domain, "Organizations")
@@ -1272,7 +1272,7 @@ export class Title extends Context.Tag("@beep/iam-sdk/Contract/Title")<Title, st
  * @since 1.0.0
  * @category Annotations
  */
-export class Domain extends Context.Tag("@beep/iam-sdk/Contract/Domain")<Domain, string>() {
+export class Domain extends Context.Tag("@beep/contract/Contract/Domain")<Domain, string>() {
 }
 
 /**
@@ -1280,7 +1280,7 @@ export class Domain extends Context.Tag("@beep/iam-sdk/Contract/Domain")<Domain,
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
  *
  * const myContract = Contract.make("start_password_reset")
  *   .annotate(Contract.Method, "signIn")
@@ -1289,7 +1289,7 @@ export class Domain extends Context.Tag("@beep/iam-sdk/Contract/Domain")<Domain,
  * @since 1.0.0
  * @category Annotations
  */
-export class Method extends Context.Tag("@beep/iam-sdk/Contract/Method")<Method, string>() {
+export class Method extends Context.Tag("@beep/contract/Contract/Method")<Method, string>() {
 }
 
 /**
@@ -1297,7 +1297,7 @@ export class Method extends Context.Tag("@beep/iam-sdk/Contract/Method")<Method,
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
  *
  * const readOnlyContract = Contract.make("get_user_info")
  *   .annotate(Contract.Readonly, true)
@@ -1306,7 +1306,7 @@ export class Method extends Context.Tag("@beep/iam-sdk/Contract/Method")<Method,
  * @since 1.0.0
  * @category Annotations
  */
-export class Readonly extends Context.Reference<Readonly>()("@beep/iam-sdk/Contract/Readonly", {
+export class Readonly extends Context.Reference<Readonly>()("@beep/contract/Contract/Readonly", {
   defaultValue: F.constFalse,
 }) {
 }

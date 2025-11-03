@@ -1,9 +1,8 @@
 {
   "files": [],
 
-
-   "references": [
-         {
+  "references": [
+    {
       "path": "./tsconfig.app.json"
     },
     {
@@ -14,6 +13,9 @@
     },
     {
       "path": "../../packages/common/invariant/tsconfig.build.json"
+    },
+        {
+      "path": "../../packages/common/contract/tsconfig.build.json"
     },
     {
       "path": "../../packages/common/utils/tsconfig.build.json"
@@ -91,15 +93,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@shared/*": [
-        "./src/shared/*"
-      ],
-      "@client/*": [
-        "./src/client/*"
-      ],
-      "@server/*": [
-        "./src/server/*"
-      ]
+      "@shared/*": ["./src/shared/*"],
+      "@client/*": ["./src/client/*"],
+      "@server/*": ["./src/server/*"]
     }
   }
 }

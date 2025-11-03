@@ -47,7 +47,7 @@ import {
   OrganizationUpdateMemberRolePayload,
   OrganizationUpdatePayload,
 } from "@beep/iam-sdk/clients/organization/organization.contracts";
-import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
+import { makeFailureContinuation } from "@beep/iam-sdk/clients/_internal";
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";

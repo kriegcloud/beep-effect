@@ -1,7 +1,11 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "include": ["src"],
-  "exclude": ["build"],
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "build"
+  ],
   "references": [
     {
       "path": "../../common/types"
@@ -20,6 +24,9 @@
     },
     {
       "path": "../../common/mock"
+    },
+    {
+      "path": "../../common/contract"
     },
     {
       "path": "../../common/errors"
@@ -53,14 +60,20 @@
     }
   ],
   "compilerOptions": {
-    "types": ["node", "bun"],
+    "types": [
+      "node",
+      "bun"
+    ],
     "outDir": "build/src",
-
     "rootDir": "src",
     "jsx": "react-jsx",
     "module": "ESNext",
     "target": "ES2022",
-    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2024",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,

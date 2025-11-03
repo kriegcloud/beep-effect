@@ -18,6 +18,7 @@
     "lint:circular": "bunx madge -c ."
   },
   "dependencies": {
+    "@beep/contract": "workspace:^",
     "@beep/mock": "workspace:^",
     "@beep/constants": "workspace:^",
     "@beep/core-db": "workspace:^",

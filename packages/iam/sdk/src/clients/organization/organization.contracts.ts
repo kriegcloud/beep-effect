@@ -1,5 +1,5 @@
 import { Invitation, Member, Organization, OrganizationRole } from "@beep/iam-domain/entities";
-import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/contract";
 import { IamError } from "@beep/iam-sdk/errors";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
@@ -823,161 +823,161 @@ export declare namespace OrganizationRoleListPayload {
 
 export const OrganizationCreateContract = Contract.make("OrganizationCreate", {
   description: "Creates a new organization.",
-  parameters: OrganizationCreatePayload.fields,
+  payload: OrganizationCreatePayload.fields,
   failure: S.instanceOf(IamError),
   success: OrganizationCreateSuccess,
 });
 
 export const OrganizationCheckSlugContract = Contract.make("OrganizationCheckSlug", {
   description: "Checks whether an organization slug is available.",
-  parameters: OrganizationCheckSlugPayload.fields,
+  payload: OrganizationCheckSlugPayload.fields,
   failure: S.instanceOf(IamError),
   success: OrganizationCheckSlugSuccess,
 });
 
 export const OrganizationListContract = Contract.make("OrganizationList", {
   description: "Lists organizations the current user belongs to.",
-  parameters: {},
+  payload: {},
   failure: S.instanceOf(IamError),
   success: S.Array(OrganizationView),
 });
 
 export const OrganizationSetActiveContract = Contract.make("OrganizationSetActive", {
   description: "Sets or unsets the active organization for the current session.",
-  parameters: OrganizationSetActivePayload.fields,
+  payload: OrganizationSetActivePayload.fields,
   failure: S.instanceOf(IamError),
   success: S.NullOr(OrganizationView),
 });
 
 export const OrganizationGetFullContract = Contract.make("OrganizationGetFull", {
   description: "Retrieves a fully populated organization including members and invitations.",
-  parameters: OrganizationGetFullPayload.fields,
+  payload: OrganizationGetFullPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.NullOr(OrganizationFullView),
 });
 
 export const OrganizationUpdateContract = Contract.make("OrganizationUpdate", {
   description: "Updates mutable organization attributes.",
-  parameters: OrganizationUpdatePayload.fields,
+  payload: OrganizationUpdatePayload.fields,
   failure: S.instanceOf(IamError),
   success: OrganizationView,
 });
 
 export const OrganizationDeleteContract = Contract.make("OrganizationDelete", {
   description: "Deletes an organization by identifier.",
-  parameters: OrganizationDeletePayload.fields,
+  payload: OrganizationDeletePayload.fields,
   failure: S.instanceOf(IamError),
   success: OrganizationView,
 });
 
 export const AcceptInvitationContract = Contract.make("AcceptInvitation", {
   description: "Accepts an organization invitation.",
-  parameters: AcceptInvitationPayload.fields,
+  payload: AcceptInvitationPayload.fields,
   failure: S.instanceOf(IamError),
   success: AcceptInvitationSuccess,
 });
 
 export const OrganizationInviteMemberContract = Contract.make("OrganizationInviteMember", {
   description: "Invites a user to join an organization.",
-  parameters: OrganizationInviteMemberPayload.fields,
+  payload: OrganizationInviteMemberPayload.fields,
   failure: S.instanceOf(IamError),
   success: OrganizationInvitationView,
 });
 
 export const OrganizationCancelInvitationContract = Contract.make("OrganizationCancelInvitation", {
   description: "Cancels a pending invitation before it is accepted.",
-  parameters: OrganizationCancelInvitationPayload.fields,
+  payload: OrganizationCancelInvitationPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.NullOr(OrganizationInvitationView),
 });
 
 export const OrganizationRejectInvitationContract = Contract.make("OrganizationRejectInvitation", {
   description: "Rejects an organization invitation as the invitee.",
-  parameters: OrganizationRejectInvitationPayload.fields,
+  payload: OrganizationRejectInvitationPayload.fields,
   failure: S.instanceOf(IamError),
   success: OrganizationRejectInvitationSuccess,
 });
 
 export const OrganizationListInvitationsContract = Contract.make("OrganizationListInvitations", {
   description: "Lists pending invitations for an organization.",
-  parameters: OrganizationListInvitationsPayload.fields,
+  payload: OrganizationListInvitationsPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Array(OrganizationInvitationView),
 });
 
 export const OrganizationListUserInvitationsContract = Contract.make("OrganizationListUserInvitations", {
   description: "Lists invitations addressed to the current or specified user email.",
-  parameters: OrganizationListUserInvitationsPayload.fields,
+  payload: OrganizationListUserInvitationsPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Array(OrganizationInvitationView),
 });
 
 export const OrganizationGetInvitationContract = Contract.make("OrganizationGetInvitation", {
   description: "Retrieves an invitation with enriched organization context.",
-  parameters: OrganizationGetInvitationPayload.fields,
+  payload: OrganizationGetInvitationPayload.fields,
   failure: S.instanceOf(IamError),
   success: OrganizationInvitationDetailView,
 });
 
 export const OrganizationListMembersContract = Contract.make("OrganizationListMembers", {
   description: "Lists organization members with pagination and sorting.",
-  parameters: OrganizationListMembersPayload.fields,
+  payload: OrganizationListMembersPayload.fields,
   failure: S.instanceOf(IamError),
   success: OrganizationListMembersSuccess,
 });
 
 export const OrganizationRemoveMemberContract = Contract.make("OrganizationRemoveMember", {
   description: "Removes a member by identifier or email.",
-  parameters: OrganizationRemoveMemberPayload.fields,
+  payload: OrganizationRemoveMemberPayload.fields,
   failure: S.instanceOf(IamError),
   success: OrganizationRemoveMemberSuccess,
 });
 
 export const OrganizationUpdateMemberRoleContract = Contract.make("OrganizationUpdateMemberRole", {
   description: "Updates the role assignments for a member.",
-  parameters: OrganizationUpdateMemberRolePayload.fields,
+  payload: OrganizationUpdateMemberRolePayload.fields,
   failure: S.instanceOf(IamError),
   success: OrganizationUpdateMemberRoleSuccess,
 });
 
 export const OrganizationGetActiveMemberContract = Contract.make("OrganizationGetActiveMember", {
   description: "Retrieves the member record tied to the active organization.",
-  parameters: {},
+  payload: {},
   failure: S.instanceOf(IamError),
   success: OrganizationMemberView,
 });
 
 export const OrganizationGetActiveMemberRoleContract = Contract.make("OrganizationGetActiveMemberRole", {
   description: "Retrieves the role string for the active member.",
-  parameters: OrganizationGetActiveMemberRolePayload.fields,
+  payload: OrganizationGetActiveMemberRolePayload.fields,
   failure: S.instanceOf(IamError),
   success: OrganizationGetActiveMemberRoleSuccess,
 });
 
 export const OrganizationLeaveContract = Contract.make("OrganizationLeave", {
   description: "Removes the current user from the specified organization.",
-  parameters: OrganizationLeavePayload.fields,
+  payload: OrganizationLeavePayload.fields,
   failure: S.instanceOf(IamError),
   success: OrganizationMemberView,
 });
 
 export const OrganizationCreateRoleContract = Contract.make("OrganizationCreateRole", {
   description: "Creates a dynamic access-control role for an organization.",
-  parameters: OrganizationRoleCreatePayload.fields,
+  payload: OrganizationRoleCreatePayload.fields,
   failure: S.instanceOf(IamError),
   success: OrganizationRoleCreateSuccess,
 });
 
 export const OrganizationDeleteRoleContract = Contract.make("OrganizationDeleteRole", {
   description: "Deletes a dynamic access-control role from an organization.",
-  parameters: OrganizationRoleDeletePayload.fields,
+  payload: OrganizationRoleDeletePayload.fields,
   failure: S.instanceOf(IamError),
   success: OrganizationRoleDeleteSuccess,
 });
 
 export const OrganizationListRolesContract = Contract.make("OrganizationListRoles", {
   description: "Lists all dynamic access-control roles for the active organization.",
-  parameters: OrganizationRoleListPayload.fields,
+  payload: OrganizationRoleListPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Array(OrganizationRoleView),
 });

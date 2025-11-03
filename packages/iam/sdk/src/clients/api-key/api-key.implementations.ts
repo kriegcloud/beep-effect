@@ -12,7 +12,7 @@ import {
   ApiKeyUpdateContract,
   ApiKeyUpdatePayload,
 } from "@beep/iam-sdk/clients/api-key/api-key.contracts";
-import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
+import { makeFailureContinuation } from "@beep/iam-sdk/clients/_internal";
 import { IamError } from "@beep/iam-sdk/errors";
 import { PolicyRecord } from "@beep/shared-domain/Policy";
 import * as Effect from "effect/Effect";

@@ -55,6 +55,8 @@
       "@beep/errors/server": ["../../packages/common/errors/src/server"],
       "@beep/mock": ["../../packages/common/mock/src/index"],
       "@beep/mock/*": ["../../packages/common/mock/src/*"],
+      "@beep/contract": ["../../packages/common/contract/src/index"],
+      "@beep/contract/*": ["../../packages/common/mock/src/*"],
       "@beep/shared-domain": ["../../packages/shared/domain/src/index"],
       "@beep/shared-domain/*": ["../../packages/shared/domain/src/*"],
       "@beep/shared-tables": ["../../packages/shared/tables/src/index"],
@@ -119,6 +121,9 @@
     },
     {
       "path": "../../packages/common/mock/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/contract/tsconfig.build.json"
     },
     {
       "path": "../../packages/shared/domain/tsconfig.build.json"

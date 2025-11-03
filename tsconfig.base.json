@@ -46,7 +46,9 @@
     "incremental": true,
     "removeComments": false,
     "paths": {
-      "*": ["./*"],
+      "*": [
+        "./*"
+      ],
       "@beep/types": [
         "./packages/common/types/src/index"
       ],
@@ -112,6 +114,15 @@
       ],
       "@beep/mock/test/*": [
         "./packages/common/mock/test/*"
+      ],
+      "@beep/contract": [
+        "./packages/common/contract/src/index"
+      ],
+      "@beep/contract/*": [
+        "./packages/common/contract/src/*"
+      ],
+      "@beep/contract/test/*": [
+        "./packages/common/contract/test/*"
       ],
       "@beep/shared-domain": [
         "./packages/shared/domain/src/index"

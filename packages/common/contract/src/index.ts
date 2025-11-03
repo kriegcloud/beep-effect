@@ -16,7 +16,7 @@
  *
  * @example
  * ```ts
- * import { IamError } from "@beep/iam-sdk";
+ * import { IamError } from "@beep/contract";
  * import * as Effect from "effect/Effect";
  * import * as Match from "effect/Match";
  *
@@ -41,7 +41,7 @@
  *
  * @example
  * ```ts
- * import { IamError } from "@beep/iam-sdk"
+ * import { IamError } from "@beep/contract"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option";
  *
@@ -83,7 +83,7 @@
  *
  * @example
  * ```ts
- * import { Contract } from "@beep/iam-sdk"
+ * import { Contract } from "@beep/contract"
  * import * as S from "effect/Schema";
  *
  * // Define a simple calculator tool
@@ -108,7 +108,7 @@ export * as ContractError from "./ContractError";
  *
  * @example
  * ```ts
- * import { ContractKit, Contract } from "@beep/iam-sdk"
+ * import { ContractKit, Contract } from "@beep/contract"
  * import * as Effect from "effect/Effect";
  * import * as S from "effect/Schema";
  *
@@ -140,4 +140,3 @@ export * as ContractError from "./ContractError";
  * @since 1.0.0
  */
 export * as ContractKit from "./ContractKit";
-

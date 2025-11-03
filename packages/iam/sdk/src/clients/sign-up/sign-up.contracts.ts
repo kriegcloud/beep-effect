@@ -1,4 +1,4 @@
-import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/contract";
 import { BS } from "@beep/schema";
 import { paths } from "@beep/shared-domain";
 import * as SharedEntities from "@beep/shared-domain/entities";
@@ -91,7 +91,7 @@ export declare namespace SignUpEmailPayload {
 
 export const SignUpEmailContract = Contract.make("SignUpEmail", {
   description: "Signs up a new user using email credentials.",
-  parameters: SignUpEmailPayload.fields,
+  payload: SignUpEmailPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Union(S.TaggedStruct("Success", {}), S.TaggedStruct("Failure", {})),
 });

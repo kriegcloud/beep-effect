@@ -31,7 +31,8 @@
     "coverage": "bun test --coverage",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "lint:circular": "bunx madge -c ."
+    "lint:circular": "bunx madge -c .",
+    "execute": "bun run dotenvx -- bunx tsx --tsconfig ./tsconfig.src.json ./src/execute.ts"
   },
   "peerDependencies": {
     "mutative": "catalog:",
@@ -57,6 +58,7 @@
     "@beep/core-env": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/iam-domain": "workspace:^",
+    "@beep/contract": "workspace:^",
     "@better-fetch/fetch": "catalog:"
   },
   "devDependencies": {

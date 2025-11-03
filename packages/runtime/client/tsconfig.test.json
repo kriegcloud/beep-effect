@@ -17,6 +17,9 @@
     {
       "path": "../../common/mock"
     },
+        {
+      "path": "../../common/contract"
+    },
     {
       "path": "../../common/constants"
     },

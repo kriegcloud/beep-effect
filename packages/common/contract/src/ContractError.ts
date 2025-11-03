@@ -15,7 +15,7 @@ import * as S from "effect/Schema";
  * @since 1.0.0
  * @category Type Ids
  */
-export const TypeId = Symbol.for("@beep/iam-sdk/contract-kit/ContractError");
+export const TypeId = Symbol.for("@beep/contract/contract-kit/ContractError");
 
 /**
  * Type-level representation of the IAM error identifier.
@@ -33,7 +33,7 @@ export type TypeId = typeof TypeId;
  *
  * @example
  * ```ts
- * import { ContractError } from "@beep/iam-sdk"
+ * import { ContractError } from "@beep/contract"
  *
  * const someError = new Error("generic error")
  * const iamError = new ContractError.UnknownError({
@@ -111,7 +111,7 @@ export declare namespace HttpRequestErrorReason {
  *
  * @example
  * ```ts
- * import { ContractError } from "@beep/iam-sdk"
+ * import { ContractError } from "@beep/contract"
  * import { Effect } from "effect"
  *
  * const handleNetworkError = Effect.gen(function* () {
@@ -137,7 +137,7 @@ export declare namespace HttpRequestErrorReason {
  * @since 1.0.0
  * @category Errors
  */
-export class HttpRequestError extends S.TaggedError<HttpRequestError>("@beep/iam-sdk/ContractError/HttpRequestError")(
+export class HttpRequestError extends S.TaggedError<HttpRequestError>("@beep/contract/ContractError/HttpRequestError")(
   "HttpRequestError",
   {
     module: S.String,
@@ -148,7 +148,7 @@ export class HttpRequestError extends S.TaggedError<HttpRequestError>("@beep/iam
     cause: S.optional(S.Defect),
   },
   {
-    schemaId: Symbol.for("@beep/iam-sdk/ContractError/HttpRequestError"),
+    schemaId: Symbol.for("@beep/contract/ContractError/HttpRequestError"),
     identifier: "HttpRequestError",
     title: "HTTP Request Error",
     description: "Error that occurs during HTTP request processing.",
@@ -164,7 +164,7 @@ export class HttpRequestError extends S.TaggedError<HttpRequestError>("@beep/iam
    *
    * @example
    * ```ts
-   * import { ContractError } from "@beep/iam-sdk"
+   * import { ContractError } from "@beep/contract"
    * import { HttpClientError } from "@effect/platform"
    * import * as O from "effect/Option"
    *
@@ -245,7 +245,7 @@ export class HttpRequestError extends S.TaggedError<HttpRequestError>("@beep/iam
  *
  * @example
  * ```ts
- * import { ContractError } from "@beep/iam-sdk"
+ * import { ContractError } from "@beep/contract"
  *
  * const responseDetails: typeof ContractError.HttpResponseDetails.Type = {
  *   status: 429,
@@ -266,7 +266,7 @@ export class HttpResponseDetails extends BS.Class<HttpResponseDetails>("HttpResp
     headers: S.Record({ key: S.String, value: S.String }),
   },
   {
-    schemaId: Symbol.for("@beep/iam-sdk/ContractError/HttpResponseDetails"),
+    schemaId: Symbol.for("@beep/contract/ContractError/HttpResponseDetails"),
     identifier: "HttpResponseDetails",
     title: "HTTP Response Details",
     description: "Details about an HTTP response that caused an error.",
@@ -281,7 +281,7 @@ export declare namespace HttpResponseDetails {
 export const HttpResponseErrorReasonKit = BS.stringLiteralKit("StatusCode", "Decode", "EmptyBody");
 
 export class HttpResponseErrorReason extends HttpResponseErrorReasonKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/iam-sdk/ContractError/HttpResponseErrorReason"),
+  schemaId: Symbol.for("@beep/contract/ContractError/HttpResponseErrorReason"),
   identifier: "HttpResponseErrorReason",
   title: "HTTP Response Error Reason",
   description: "Reason for an HTTP response error.",
@@ -304,7 +304,7 @@ export declare namespace HttpResponseErrorReason {
  *
  * @example
  * ```ts
- * import { ContractError } from "@beep/iam-sdk"
+ * import { ContractError } from "@beep/contract"
  * import * as O from "effect"
  *
  * const responseError = new ContractError.HttpResponseError({
@@ -333,7 +333,7 @@ export declare namespace HttpResponseErrorReason {
  * @category Errors
  */
 export class HttpResponseError extends S.TaggedError<HttpResponseError>(
-  "@beep/iam-sdk/ContractError/HttpResponseError"
+  "@beep/contract/ContractError/HttpResponseError"
 )(
   "HttpResponseError",
   {
@@ -346,7 +346,7 @@ export class HttpResponseError extends S.TaggedError<HttpResponseError>(
     description: S.optional(S.String),
   },
   {
-    schemaId: Symbol.for("@beep/iam-sdk/ContractError/HttpResponseError"),
+    schemaId: Symbol.for("@beep/contract/ContractError/HttpResponseError"),
     identifier: "HttpResponseError",
     title: "HTTP Response Error",
     description: "Error that occurs during HTTP response processing.",
@@ -362,7 +362,7 @@ export class HttpResponseError extends S.TaggedError<HttpResponseError>(
    *
    * @example
    * ```ts
-   * import { ContractError } from "@beep/iam-sdk"
+   * import { ContractError } from "@beep/contract"
    * import { Headers, HttpClientError } from "@effect/platform"
    * import * as O from "effect/Option"
    *
@@ -485,7 +485,7 @@ export class HttpResponseError extends S.TaggedError<HttpResponseError>(
  *
  * @example
  * ```ts
- * import { ContractError } from "@beep/iam-sdk"
+ * import { ContractError } from "@beep/contract"
  * import * as Effect from "effect/Effect"
  *
  * const validateInput = (data: unknown) =>
@@ -508,7 +508,7 @@ export class HttpResponseError extends S.TaggedError<HttpResponseError>(
  * @since 1.0.0
  * @category Errors
  */
-export class MalformedInput extends S.TaggedError<MalformedInput>("@beep/iam-sdk/ContractError/MalformedInput")(
+export class MalformedInput extends S.TaggedError<MalformedInput>("@beep/contract/ContractError/MalformedInput")(
   "MalformedInput",
   {
     module: S.String,
@@ -517,7 +517,7 @@ export class MalformedInput extends S.TaggedError<MalformedInput>("@beep/iam-sdk
     cause: S.optional(S.Defect),
   },
   {
-    schemaId: Symbol.for("@beep/iam-sdk/ContractError/MalformedInput"),
+    schemaId: Symbol.for("@beep/contract/ContractError/MalformedInput"),
     identifier: "MalformedInput",
     title: "Malformed Input Error",
     description: "Error thrown when input data doesn't match the expected format or schema.",
@@ -541,7 +541,7 @@ export class MalformedInput extends S.TaggedError<MalformedInput>("@beep/iam-sdk
  *
  * @example
  * ```ts
- * import { ContractError } from "@beep/iam-sdk"
+ * import { ContractError } from "@beep/contract"
  * import * as S from "effect/Schema";
  * import * as Effect from "effect/Effect"
  *
@@ -573,7 +573,7 @@ export class MalformedInput extends S.TaggedError<MalformedInput>("@beep/iam-sdk
  * @since 1.0.0
  * @category Errors
  */
-export class MalformedOutput extends S.TaggedError<MalformedOutput>("@beep/iam-sdk/ContractError/MalformedOutput")(
+export class MalformedOutput extends S.TaggedError<MalformedOutput>("@beep/contract/ContractError/MalformedOutput")(
   "MalformedOutput",
   {
     module: S.optional(S.String),
@@ -583,7 +583,7 @@ export class MalformedOutput extends S.TaggedError<MalformedOutput>("@beep/iam-s
     cause: S.optional(S.Defect),
   },
   {
-    schemaId: Symbol.for("@beep/iam-sdk/ContractError/MalformedOutput"),
+    schemaId: Symbol.for("@beep/contract/ContractError/MalformedOutput"),
     identifier: "MalformedOutput",
     title: "Malformed Output Error",
     description: "Error thrown when output data can't be parsed or validated.",
@@ -599,7 +599,7 @@ export class MalformedOutput extends S.TaggedError<MalformedOutput>("@beep/iam-s
    *
    * @example
    * ```ts
-   * import { ContractError } from "@beep/iam-sdk";
+   * import { ContractError } from "@beep/contract";
    * import * as Effect from "effect/Effect";
    * import * as S from "effect/Schema"
    *
@@ -652,7 +652,7 @@ export class MalformedOutput extends S.TaggedError<MalformedOutput>("@beep/iam-s
  *
  * @example
  * ```ts
- * import { ContractError } from "@beep/iam-sdk"
+ * import { ContractError } from "@beep/contract"
  * import * as Effect from "effect/Effect"
  *
  * const riskyOperation = () => {
@@ -681,7 +681,7 @@ export class MalformedOutput extends S.TaggedError<MalformedOutput>("@beep/iam-s
  * @since 1.0.0
  * @category Errors
  */
-export class UnknownError extends S.TaggedError<UnknownError>("@beep/iam-sdk/UnknownError")(
+export class UnknownError extends S.TaggedError<UnknownError>("@beep/contract/UnknownError")(
   "UnknownError",
   {
     module: S.String,
@@ -690,7 +690,7 @@ export class UnknownError extends S.TaggedError<UnknownError>("@beep/iam-sdk/Unk
     cause: S.optional(S.Defect),
   },
   {
-    schemaId: Symbol.for("@beep/iam-sdk/UnknownError"),
+    schemaId: Symbol.for("@beep/contract/UnknownError"),
     identifier: "UnknownError",
     title: "Unknown Error",
     description: "Catch-all error for unexpected runtime errors in AI operations.",
@@ -725,7 +725,7 @@ export class UnknownError extends S.TaggedError<UnknownError>("@beep/iam-sdk/Unk
  *
  * @example
  * ```ts
- * import { ContractError } from "@beep/iam-sdk"
+ * import { ContractError } from "@beep/contract"
  * import * as S from "effect/Schema";
  * import * as Effect from "effect/Effect";
  *
@@ -756,7 +756,7 @@ export class ContractError extends S.Union(
   MalformedOutput,
   UnknownError
 ).annotations({
-  schemaId: Symbol.for("@beep/iam-sdk/contract-kit/ContractError"),
+  schemaId: Symbol.for("@beep/contract/contract-kit/ContractError"),
   identifier: "ContractError",
   title: "Contract Error",
   description: "Union type representing all possible AI operation errors.",
@@ -771,7 +771,7 @@ export declare namespace ContractError {
    *
    * @example
    * ```ts
-   * import { ContractError } from "@beep/iam-sdk"
+   * import { ContractError } from "@beep/contract"
    * import * as Effect from "effect/Effect";
    * import * as Match from "effect/Match";
    * const handleAnyContractError = Match.type<ContractError.ContractError>().pipe(

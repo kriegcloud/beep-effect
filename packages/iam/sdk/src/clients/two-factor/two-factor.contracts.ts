@@ -1,4 +1,4 @@
-import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/contract";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
@@ -18,7 +18,7 @@ export declare namespace SendOtpPayload {
 
 export const SendOtpContract = Contract.make("SendOtp", {
   description: "Sends a one-time password to the user.",
-  parameters: SendOtpPayload.fields,
+  payload: SendOtpPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });
@@ -43,7 +43,7 @@ export declare namespace VerifyOtpPayload {
 
 export const VerifyOtpContract = Contract.make("VerifyOtp", {
   description: "Verifies an OTP provided by the user.",
-  parameters: VerifyOtpPayload.fields,
+  payload: VerifyOtpPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });
@@ -70,7 +70,7 @@ export declare namespace VerifyTotpPayload {
 
 export const VerifyTotpContract = Contract.make("VerifyTotp", {
   description: "Verifies a TOTP provided by the user.",
-  parameters: VerifyTotpPayload.fields,
+  payload: VerifyTotpPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });

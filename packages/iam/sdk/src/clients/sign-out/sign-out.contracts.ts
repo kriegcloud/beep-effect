@@ -1,4 +1,4 @@
-import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/contract";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
@@ -26,7 +26,7 @@ export declare namespace SignOutPayload {
 
 export const SignOutContract = Contract.make("SignOut", {
   description: "Signs the current user out of their active session.",
-  parameters: SignOutPayload.fields,
+  payload: SignOutPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });

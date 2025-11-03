@@ -1,10 +1,10 @@
-import {IamError} from "@beep/iam-sdk/errors";
-import type {UnsafeTypes} from "@beep/types";
-import type {BetterFetchOption} from "@better-fetch/fetch";
+import { IamError } from "@beep/iam-sdk/errors";
+import type { UnsafeTypes } from "@beep/types";
+import type { BetterFetchOption } from "@better-fetch/fetch";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import type {FailureContinuationHandlers} from "../../contract-kit";
+import type { FailureContinuationHandlers } from "./failure-continuation";
 
 export class MetadataFactory extends Data.Class<{
   readonly plugin: string;
@@ -15,7 +15,7 @@ export class MetadataFactory extends Data.Class<{
   };
 
   constructor(plugin: string) {
-    super({plugin});
+    super({ plugin });
     this.make = (method: string) => () => ({
       plugin: this.plugin,
       method,
@@ -31,9 +31,9 @@ export const makeMetadata = (method: string) => () =>
 
 export const mapOnError =
   (handlers: FailureContinuationHandlers) =>
-    (error: unknown): void => {
-      handlers.onError({error});
-    };
+  (error: unknown): void => {
+    handlers.onError({ error });
+  };
 
 export const withFetchOptions = (
   handlers: FailureContinuationHandlers,
@@ -41,14 +41,14 @@ export const withFetchOptions = (
 ) =>
   handlers.signal
     ? {
-      onError: mapOnError(handlers),
-      signal: handlers.signal,
-      ...extra,
-    }
+        onError: mapOnError(handlers),
+        signal: handlers.signal,
+        ...extra,
+      }
     : {
-      onError: mapOnError(handlers),
-      ...extra,
-    };
+        onError: mapOnError(handlers),
+        ...extra,
+      };
 
 export const addFetchOptions = <A extends Record<string, unknown>>(
   handlers: FailureContinuationHandlers,

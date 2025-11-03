@@ -1,5 +1,5 @@
 import { AuthProviderNameValue } from "@beep/constants";
-import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/contract";
 import { BS } from "@beep/schema";
 import { User } from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
@@ -29,7 +29,7 @@ export declare namespace SignInEmailPayload {
 
 export const SignInEmailContract = Contract.make("SignInEmail", {
   description: "Signs the user in using email",
-  parameters: SignInEmailPayload.fields,
+  payload: SignInEmailPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });
@@ -56,7 +56,7 @@ export declare namespace SignInSocialPayload {
 
 export const SignInSocialContract = Contract.make("SignInSocial", {
   description: "Contract for signing in a user with a social auth provider.",
-  parameters: SignInSocialPayload.fields,
+  payload: SignInSocialPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });
@@ -86,7 +86,7 @@ export declare namespace SignInUsernamePayload {
 
 export const SignInUsernameContract = Contract.make("SignInUsername", {
   description: "Signs the user in using their username.",
-  parameters: SignInUsernamePayload.fields,
+  payload: SignInUsernamePayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });
@@ -115,7 +115,7 @@ export declare namespace SignInPhoneNumberPayload {
 
 export const SignInPhoneNumberContract = Contract.make("SignInPhoneNumber", {
   description: "Signs the user in using their phone number.",
-  parameters: SignInPhoneNumberPayload.fields,
+  payload: SignInPhoneNumberPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });
@@ -140,7 +140,7 @@ export declare namespace SignInPasskeyPayload {
 
 export const SignInPasskeyContract = Contract.make("SignInPasskey", {
   description: "Signs the user in using a passkey.",
-  parameters: SignInPasskeyPayload.fields,
+  payload: SignInPasskeyPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });
@@ -155,7 +155,7 @@ export declare namespace SignInOneTapPayload {
 }
 export const SignInOneTapContract = Contract.make("SignInOneTap", {
   description: "Signs the user in using a one tap.",
-  parameters: SignInOneTapPayload.fields,
+  payload: SignInOneTapPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });
@@ -181,7 +181,7 @@ export declare namespace SignInOAuth2Payload {
 
 export const SignInOAuth2Contract = Contract.make("SignInOAuth2", {
   description: "Signs the user in using an OAuth 2 provider.",
-  parameters: SignInOAuth2Payload.fields,
+  payload: SignInOAuth2Payload.fields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });

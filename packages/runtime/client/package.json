@@ -49,6 +49,7 @@
     "@beep/iam-tables": "workspace:^",
     "@beep/files-domain": "workspace:^",
     "@beep/files-tables": "workspace:^",
+    "@beep/contract": "workspace:^",
     "@opentelemetry/exporter-trace-otlp-http": "catalog:",
     "@opentelemetry/sdk-trace-base": "catalog:",
     "@opentelemetry/sdk-trace-node": "catalog:",

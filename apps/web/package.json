@@ -43,6 +43,7 @@
     "@beep/iam-domain": "workspace:^",
     "@beep/iam-infra": "workspace:^",
     "@beep/iam-sdk": "workspace:^",
+    "@beep/contract": "workspace:^",
     "@beep/iam-tables": "workspace:^",
     "@beep/iam-ui": "workspace:^",
     "@beep/invariant": "workspace:^",

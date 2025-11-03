@@ -1,5 +1,5 @@
 import { Passkey } from "@beep/iam-domain/entities";
-import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/contract";
 import { IamError } from "@beep/iam-sdk/errors";
 import { BS } from "@beep/schema";
 import { IamEntityIds } from "@beep/shared-domain";
@@ -43,14 +43,14 @@ export declare namespace PasskeyAddPayload {
 
 export const PasskeyAddContract = Contract.make("PasskeyAdd", {
   description: "Registers a new passkey credential for the authenticated user.",
-  parameters: PasskeyAddPayload.fields,
+  payload: PasskeyAddPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });
 
 export const PasskeyListContract = Contract.make("PasskeyList", {
   description: "Lists passkeys that belong to the authenticated user.",
-  parameters: {},
+  payload: {},
   failure: S.instanceOf(IamError),
   success: S.mutable(S.Array(PasskeyView)),
 });
@@ -74,7 +74,7 @@ export declare namespace PasskeyDeletePayload {
 
 export const PasskeyDeleteContract = Contract.make("PasskeyDelete", {
   description: "Deletes a passkey credential by identifier.",
-  parameters: PasskeyDeletePayload.fields,
+  payload: PasskeyDeletePayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Null,
 });
@@ -116,7 +116,7 @@ export declare namespace PasskeyUpdateSuccess {
 
 export const PasskeyUpdateContract = Contract.make("PasskeyUpdate", {
   description: "Updates the metadata of a passkey credential.",
-  parameters: PasskeyUpdatePayload.fields,
+  payload: PasskeyUpdatePayload.fields,
   failure: S.instanceOf(IamError),
   success: PasskeyUpdateSuccess,
 });

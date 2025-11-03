@@ -1,18 +1,15 @@
-import {client} from "@beep/iam-sdk/adapters";
-import {MetadataFactory, withFetchOptions} from "@beep/iam-sdk/clients/_internal";
+import { client } from "@beep/iam-sdk/adapters";
+import { MetadataFactory, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   SignInContractKit,
   type SignInOAuth2Payload,
-  SignInSocialContract, SignInUsernameContract
+  type SignInSocialContract,
+  type SignInUsernameContract,
 } from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
-import {makeFailureContinuation} from "@beep/iam-sdk/contract-kit";
+import { makeFailureContinuation } from "@beep/iam-sdk/clients/_internal";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
-import type {
-  SignInEmailPayload,
-  SignInPhoneNumberPayload,
-} from "./sign-in.contracts";
-import {Handler} from "../_internal";
+import type { SignInEmailPayload, SignInPhoneNumberPayload } from "./sign-in.contracts";
 
 const metadataFactory = new MetadataFactory("sign-in");
 
@@ -27,30 +24,25 @@ const SignInOAuth2Metadata = metadataFactory.make("oauth2");
 // =====================================================================================================================
 // Sign In Social Handler
 // =====================================================================================================================
-const SignInSocialHandler = Handler.make({
-   metadata: {
-     domain: "sign-in",
-     method: "social"
-   },
-  contract: SignInSocialContract,
-  effect: (payload) => Effect.gen(function* () {
-    const continuation = makeFailureContinuation({
-      contract: "SignInSocial",
-      metadata: SignInSocialMetadata,
-    });
-    yield* Effect.flatMap(
-      continuation.run((handlers) =>
-        client.signIn.social(
-          {
-            provider: payload.provider,
-            callbackURL: payload.callbackURL,
-          },
-          withFetchOptions(handlers)
-        )
-      ),
-      continuation.raiseResult
-    );
-  })
+const SignInSocialHandler = Effect.fn("SignInSocialHandler")(function* (
+  payload: typeof SignInSocialContract.payloadSchema.Type
+) {
+  const continuation = makeFailureContinuation({
+    contract: "SignInSocial",
+    metadata: SignInSocialMetadata,
+  });
+  yield* Effect.flatMap(
+    continuation.run((handlers) =>
+      client.signIn.social(
+        {
+          provider: payload.provider,
+          callbackURL: payload.callbackURL,
+        },
+        withFetchOptions(handlers)
+      )
+    ),
+    continuation.raiseResult
+  );
 });
 // =====================================================================================================================
 // Sign In Email Handler
@@ -83,8 +75,10 @@ const SignInEmailHandler = Effect.fn("SignInEmailHandler")(function* (payload: S
 // =====================================================================================================================
 // Sign In Username Handler
 // =====================================================================================================================
-const SignInUsernameHandler = Effect.fn("SignInUsernameHandler")(function* (payload: typeof SignInUsernameContract.parametersSchema.Type) {
-  const {username, password, rememberMe, captchaResponse, callbackURL} = payload;
+const SignInUsernameHandler = Effect.fn("SignInUsernameHandler")(function* (
+  payload: typeof SignInUsernameContract.payloadSchema.Type
+) {
+  const { username, password, rememberMe, captchaResponse, callbackURL } = payload;
 
   const continuation = makeFailureContinuation({
     contract: "SignInUsername",

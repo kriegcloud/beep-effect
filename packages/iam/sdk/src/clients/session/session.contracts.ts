@@ -1,6 +1,6 @@
 "use client";
 import { Session } from "@beep/iam-domain/entities";
-import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/contract";
 import { IamError } from "@beep/iam-sdk/errors";
 import { BS } from "@beep/schema";
 import { User } from "@beep/shared-domain/entities";
@@ -77,7 +77,7 @@ export declare namespace GetSessionSuccess {
 
 export const GetSessionContract = Contract.make("GetSession", {
   description: "Retrieves the current session.",
-  parameters: {},
+  payload: {},
   failure: S.instanceOf(IamError),
   success: GetSessionSuccess,
 });
@@ -99,7 +99,7 @@ export declare namespace ListSessionsSuccess {
 
 export const ListSessionsContract = Contract.make("ListSessions", {
   description: "Lists all sessions for the current user.",
-  parameters: {},
+  payload: {},
   failure: S.instanceOf(IamError),
   success: ListSessionsSuccess,
 });
@@ -118,7 +118,7 @@ export declare namespace RevokeSessionPayload {
 
 export const RevokeSessionContract = Contract.make("RevokeSession", {
   description: "Revokes a session for the current user.",
-  parameters: RevokeSessionPayload.fields,
+  payload: RevokeSessionPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });
@@ -128,7 +128,7 @@ export const RevokeSessionContract = Contract.make("RevokeSession", {
 // =====================================================================================================================
 export const RevokeOtherSessionsContract = Contract.make("RevokeOtherSessions", {
   description: "All user sessions except for the users current session.",
-  parameters: {},
+  payload: {},
   failure: S.instanceOf(IamError),
   success: S.Void,
 });
@@ -138,7 +138,7 @@ export const RevokeOtherSessionsContract = Contract.make("RevokeOtherSessions", 
 // =====================================================================================================================
 export const RevokeSessionsContract = Contract.make("RevokeSessions", {
   description: "Revokes all user sessions",
-  parameters: {},
+  payload: {},
   failure: S.instanceOf(IamError),
   success: S.Void,
 });

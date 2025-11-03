@@ -1,6 +1,8 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "include": ["test"],
+  "include": [
+    "test"
+  ],
   "references": [
     {
       "path": "tsconfig.src.json"
@@ -24,6 +26,9 @@
       "path": "../../common/errors"
     },
     {
+      "path": "../../common/contract"
+    },
+    {
       "path": "../../common/constants"
     },
     {
@@ -43,8 +48,10 @@
     }
   ],
   "compilerOptions": {
-    "types": ["node", "bun"],
-
+    "types": [
+      "node",
+      "bun"
+    ],
     "rootDir": "test",
     "noEmit": true
   }

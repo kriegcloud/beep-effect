@@ -4,8 +4,8 @@
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
- * import * as ContractKit from "@beep/iam-sdk/contract-kit/ContractKit"
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
+ * import * as ContractKit from "@beep/contract/contract-kit/ContractKit"
  * import * as Effect from "effect/Effect"
  * import * as S from "effect/Schema"
  *
@@ -57,7 +57,7 @@ import * as Struct from "effect/Struct";
  * @since 1.0.0
  * @category Type Ids
  */
-export const TypeId = "~@beep/iam-sdk/ContractKit";
+export const TypeId = "~@beep/contract/ContractKit";
 
 /**
  * Type-level representation of the contractKit identifier.
@@ -72,8 +72,8 @@ export type TypeId = typeof TypeId;
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
- * import * as ContractKit from "@beep/iam-sdk/contract-kit/ContractKit"
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
+ * import * as ContractKit from "@beep/contract/contract-kit/ContractKit"
  * import * as Effect from "effect/Effect"
  * import * as S from "effect/Schema"
  *
@@ -358,7 +358,7 @@ const Proto = {
   },
   toJSON(this: ContractKit<UnsafeTypes.UnsafeAny>): unknown {
     return {
-      _id: "@beep/iam-sdk/ContractKit",
+      _id: "@beep/contract/ContractKit",
       contracts: Array.from(Object.values(this.contracts)).map((contract) => (contract as Contract.Any).name),
     };
   },
@@ -402,8 +402,8 @@ export const empty: ContractKit<{}> = makeProto({});
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
- * import * as ContractKit from "@beep/iam-sdk/contract-kit/ContractKit"
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
+ * import * as ContractKit from "@beep/contract/contract-kit/ContractKit"
  * import * as S from "effect/Schema"
  *
  * const SignInEmail = Contract.make("SignInEmail", {
@@ -467,8 +467,8 @@ export type MergedContracts<ContractKits extends ReadonlyArray<Any>> = SimplifyR
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
- * import * as ContractKit from "@beep/iam-sdk/contract-kit/ContractKit"
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
+ * import * as ContractKit from "@beep/contract/contract-kit/ContractKit"
  *
  * const signInKit = ContractKit.make(
  *   Contract.make("SignInEmail"),
@@ -486,8 +486,8 @@ export type MergedContracts<ContractKits extends ReadonlyArray<Any>> = SimplifyR
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/iam-sdk/contract-kit/Contract"
- * import * as ContractKit from "@beep/iam-sdk/contract-kit/ContractKit"
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
+ * import * as ContractKit from "@beep/contract/contract-kit/ContractKit"
  *
  * // Incremental contractKit building
  * const baseKit = ContractKit.make(Contract.make("SignOut"))

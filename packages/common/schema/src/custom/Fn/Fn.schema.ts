@@ -16,11 +16,11 @@ export class Fn<const IA, const IE, const OA, const OE> extends Data.TaggedClass
     readonly input: S.Schema<IA, IE, never>;
     readonly output: S.Schema<OA, OE, never>;
   }) {
-    class BaseFn extends S.declare((i: unknown): i is (i: IA) => OA => F.isFunction(i) && i.length >= 1).annotations({
+    const BaseFn = S.declare((i: unknown): i is (i: IA) => OA => F.isFunction(i) && i.length >= 1).annotations({
       identifier: "ValidatedFunction",
       title: "ValidatedFunction",
       description: "Wraps a function to validate inputs/outputs at call time",
-    }) {}
+    })
 
     super({ Schema: BaseFn });
     this.implement = (fnUnknown: (i: S.Schema.Type<S.Schema<IA, IE>>) => S.Schema.Type<S.Schema<OA, OE>>) => {

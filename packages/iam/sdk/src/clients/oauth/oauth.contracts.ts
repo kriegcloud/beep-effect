@@ -1,6 +1,6 @@
 import { AuthProviderNameValue } from "@beep/constants";
 import { Account } from "@beep/iam-domain/entities";
-import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/contract";
 import { BS } from "@beep/schema";
 import { IamEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
@@ -27,7 +27,7 @@ export declare namespace OAuthRegisterPayload {
 
 export const OAuthRegisterContract = Contract.make("OAuthRegister", {
   description: "Registers a new OAuth2 application.",
-  parameters: OAuthRegisterPayload.fields,
+  payload: OAuthRegisterPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.Void,
 });
@@ -72,7 +72,7 @@ export declare namespace LinkSocialSuccess {
 
 export const LinkSocialContract = Contract.make("LinkSocial", {
   description: "Links a users account to a social provider.",
-  parameters: LinkSocialPayload.fields,
+  payload: LinkSocialPayload.fields,
   failure: S.instanceOf(IamError),
   success: S.NullOr(LinkSocialSuccess),
 });
@@ -121,7 +121,7 @@ export declare namespace GetAccessTokenSuccess {
 
 export const GetAccessTokenContract = Contract.make("GetAccessToken", {
   description: "Gets an access token for a social provider.",
-  parameters: GetAccessTokenPayload.fields,
+  payload: GetAccessTokenPayload.fields,
   failure: S.instanceOf(IamError),
   success: GetAccessTokenSuccess,
 });
@@ -166,7 +166,7 @@ export declare namespace GetAccountInfoSuccess {
 
 export const GetAccountInfoContract = Contract.make("GetAccountInfo", {
   description: "Gets an account info for a social provider.",
-  parameters: GetAccountInfoPayload.fields,
+  payload: GetAccountInfoPayload.fields,
   failure: S.instanceOf(IamError),
   success: GetAccountInfoSuccess,
 });
@@ -216,7 +216,7 @@ export declare namespace RequestAdditionalScopesSuccess {
 
 export const RequestAdditionalScopesContract = Contract.make("RequestAdditionalScopes", {
   description: "Requests additional scopes for a social provider.",
-  parameters: RequestAdditionalScopesPayload.fields,
+  payload: RequestAdditionalScopesPayload.fields,
   failure: S.instanceOf(IamError),
   success: RequestAdditionalScopesSuccess,
 });

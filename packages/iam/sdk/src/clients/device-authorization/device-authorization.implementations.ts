@@ -12,7 +12,7 @@ import {
   DeviceAuthorizationTokenContract,
   type DeviceAuthorizationTokenPayload,
 } from "@beep/iam-sdk/clients/device-authorization/device-authorization.contracts";
-import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
+import { makeFailureContinuation } from "@beep/iam-sdk/clients/_internal";
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";

@@ -1,5 +1,5 @@
 import { ApiKey } from "@beep/iam-domain/entities";
-import { Contract, ContractKit } from "@beep/iam-sdk/contract-kit";
+import { Contract, ContractKit } from "@beep/contract";
 import { BS } from "@beep/schema";
 import { IamEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
@@ -198,35 +198,35 @@ export declare namespace ApiKeyGetPayload {
 
 export const ApiKeyCreateContract = Contract.make("ApiKeyCreate", {
   description: "Creates a new API key with optional metadata and rate limit controls.",
-  parameters: ApiKeyCreatePayload.fields,
+  payload: ApiKeyCreatePayload.fields,
   failure: S.instanceOf(IamError),
   success: ApiKeyCreateSuccess,
 });
 
 export const ApiKeyGetContract = Contract.make("ApiKeyGet", {
   description: "Retrieves an API key owned by the authenticated user.",
-  parameters: ApiKeyGetPayload.fields,
+  payload: ApiKeyGetPayload.fields,
   failure: S.instanceOf(IamError),
   success: ApiKeyView,
 });
 
 export const ApiKeyUpdateContract = Contract.make("ApiKeyUpdate", {
   description: "Updates attributes of an existing API key.",
-  parameters: ApiKeyUpdatePayload.fields,
+  payload: ApiKeyUpdatePayload.fields,
   failure: S.instanceOf(IamError),
   success: ApiKeyView,
 });
 
 export const ApiKeyDeleteContract = Contract.make("ApiKeyDelete", {
   description: "Deletes an API key by identifier.",
-  parameters: ApiKeyDeletePayload.fields,
+  payload: ApiKeyDeletePayload.fields,
   failure: S.instanceOf(IamError),
   success: ApiKeyDeleteSuccess,
 });
 
 export const ApiKeyListContract = Contract.make("ApiKeyList", {
   description: "Lists all API keys for the authenticated user.",
-  parameters: {},
+  payload: {},
   failure: S.instanceOf(IamError),
   success: S.Array(ApiKeyView),
 });

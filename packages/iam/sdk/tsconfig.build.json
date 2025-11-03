@@ -39,6 +39,9 @@
       "path": "../../common/constants/tsconfig.build.json"
     },
     {
+      "path": "../../common/contract/tsconfig.build.json"
+    },
+    {
       "path": "../../core/env/tsconfig.build.json"
     },
     {

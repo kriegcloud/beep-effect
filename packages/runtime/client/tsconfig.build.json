@@ -21,9 +21,6 @@
       "path": "../../common/types/tsconfig.build.json"
     },
     {
-      "path": "../../common/mock/tsconfig.build.json"
-    },
-    {
       "path": "../../common/invariant/tsconfig.build.json"
     },
     {
@@ -37,6 +34,12 @@
     },
     {
       "path": "../../common/errors/tsconfig.build.json"
+    },
+        {
+      "path": "../../common/contract/tsconfig.build.json"
+    },
+        {
+      "path": "../../common/mock/tsconfig.build.json"
     },
     {
       "path": "../../shared/domain/tsconfig.build.json"

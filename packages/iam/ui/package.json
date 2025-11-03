@@ -91,6 +91,7 @@
     "@beep/constants": "workspace:^",
     "@beep/mock": "workspace:^",
     "@beep/errors": "workspace:^",
+    "@beep/contract": "workspace:^",
     "@beep/runtime-client": "workspace:^",
     "react-google-recaptcha-v3": "catalog:",
     "@beep/shared-domain": "workspace:^",

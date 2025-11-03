@@ -41,7 +41,7 @@
       "@shared/*": ["./src/shared/*"],
       "@client/*": ["./src/client/*"],
       "@server/*": ["./src/server/*"],
-       "@beep/types": ["../../packages/common/types/src/index"],
+      "@beep/types": ["../../packages/common/types/src/index"],
       "@beep/types/*": ["../../packages/common/types/src/*"],
       "@beep/invariant": ["../../packages/common/invariant/src/index"],
       "@beep/invariant/*": ["../../packages/common/invariant/src/*"],
@@ -56,6 +56,8 @@
       "@beep/errors/server": ["../../packages/common/errors/src/server"],
       "@beep/mock": ["../../packages/common/mock/src/index"],
       "@beep/mock/*": ["../../packages/common/mock/src/*"],
+      "@beep/contract": ["../../packages/common/contract/src/index"],
+      "@beep/contract/*": ["../../packages/common/contract/src/*"],
       "@beep/shared-domain": ["../../packages/shared/domain/src/index"],
       "@beep/shared-domain/*": ["../../packages/shared/domain/src/*"],
       "@beep/shared-tables": ["../../packages/shared/tables/src/index"],
@@ -106,6 +108,5 @@
       }
     ]
   },
-  "include": ["src"],
-
+  "include": ["src"]
 }

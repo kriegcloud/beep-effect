@@ -1,7 +1,7 @@
 import { client } from "@beep/iam-sdk/adapters";
 import { MetadataFactory, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import { SignUpContractKit } from "@beep/iam-sdk/clients/sign-up/sign-up.contracts";
-import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
+import { makeFailureContinuation } from "@beep/iam-sdk/clients/_internal";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import type { SignUpEmailPayload } from "./sign-up.contracts";

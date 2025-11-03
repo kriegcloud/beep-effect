@@ -7,7 +7,7 @@ import {
   MultiSessionSetActiveContract,
   type MultiSessionTokenPayload,
 } from "@beep/iam-sdk/clients/multi-session/multi-session.contracts";
-import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
+import { makeFailureContinuation } from "@beep/iam-sdk/clients/_internal";
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";

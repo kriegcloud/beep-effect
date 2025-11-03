@@ -1,7 +1,7 @@
 import { client } from "@beep/iam-sdk/adapters";
 import { MetadataFactory, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import { RecoverContractKit } from "@beep/iam-sdk/clients/recover/recover.contracts";
-import { makeFailureContinuation } from "@beep/iam-sdk/contract-kit";
+import { makeFailureContinuation } from "@beep/iam-sdk/clients/_internal";
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
