@@ -6,8 +6,8 @@ import { cn } from "@beep/ui-core/utils";
 // import { useForm } from "react-hook-form"
 // import * as z from "zod"
 import * as S from "effect/Schema";
-// import { zodResolver } from "@hookform/resolvers/zod"
-import { type ReactNode, useContext, useMemo } from "react";
+import type { ReactNode } from "react";
+import { useContext, useMemo } from "react";
 import type { AuthLocalization } from "../../../lib/auth-localization";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { getLocalizedError } from "../../../lib/utils";
@@ -16,8 +16,8 @@ import type { FieldType } from "../../../types/additional-fields";
 
 // import {Input} from "@beep/ui/components/input";
 import { Skeleton } from "@beep/ui/components/skeleton";
-// import {Textarea} from "@beep/ui/components/textarea";
-import { SettingsCard, type SettingsCardClassNames } from "../shared/settings-card";
+import type { SettingsCardClassNames } from "../shared/settings-card";
+import { SettingsCard } from "../shared/settings-card";
 
 export interface UpdateFieldCardProps {
   className?: string;

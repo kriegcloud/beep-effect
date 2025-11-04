@@ -6,7 +6,8 @@ import * as Data from "effect/Data";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
 import postgres from "postgres";
-import { PostgresErrorEnum, type PostgresErrorType, PostgresErrorTypeEnum } from "./postgres/postgres-error.enum";
+import type { PostgresErrorType } from "./postgres/postgres-error.enum";
+import { PostgresErrorEnum, PostgresErrorTypeEnum } from "./postgres/postgres-error.enum";
 export const DbErrorCause = S.instanceOf(postgres.PostgresError);
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;

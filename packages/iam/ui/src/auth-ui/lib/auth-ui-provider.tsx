@@ -24,7 +24,8 @@ import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import React from "react";
-import { type AuthLocalization, authLocalization } from "../lib/auth-localization";
+import type { AuthLocalization } from "../lib/auth-localization";
+import { authLocalization } from "../lib/auth-localization";
 import type { AuthViewPaths } from "./view-paths";
 import { accountViewPaths, authViewPaths, organizationViewPaths } from "./view-paths";
 

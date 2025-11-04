@@ -1,11 +1,11 @@
 import { Iconify } from "@beep/ui/atoms";
+import type { DialogProps } from "@mui/material";
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
-  type DialogProps,
   DialogTitle,
   dialogClasses,
   IconButton,

@@ -1,7 +1,8 @@
 "use client";
 
 import { cssVarRgba } from "@beep/ui-core/utils";
-import { Box, CircularProgress, Stack, type StackOwnProps } from "@mui/material";
+import type { StackOwnProps } from "@mui/material";
+import { Box, CircularProgress, Stack } from "@mui/material";
 
 export const PageLoader = (props: StackOwnProps) => {
   return (

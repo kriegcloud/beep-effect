@@ -1,9 +1,6 @@
 import { usePasskeyCRUD } from "@beep/iam-sdk/clients/passkey/passkey.atoms";
-import {
-  PasskeyAddPayload,
-  PasskeyUpdatePayload,
-  type PasskeyView,
-} from "@beep/iam-sdk/clients/passkey/passkey.contracts";
+import type { PasskeyView } from "@beep/iam-sdk/clients/passkey/passkey.contracts";
+import { PasskeyAddPayload, PasskeyUpdatePayload } from "@beep/iam-sdk/clients/passkey/passkey.contracts";
 import { IamEntityIds } from "@beep/shared-domain";
 import { formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
 import * as S from "effect/Schema";

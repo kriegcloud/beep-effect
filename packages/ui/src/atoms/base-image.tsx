@@ -1,7 +1,8 @@
 "use client";
 
 import { useThemeMode } from "@beep/ui/hooks";
-import { type SxProps, styled, type Theme } from "@mui/material/styles";
+import type { SxProps, Theme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import NextImage, { type ImageProps as NextImageProps, type StaticImageData } from "next/image";
 
 export interface ThemeAwareImageSource {

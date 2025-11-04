@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, expectTypeOf, it, vi } from "bun:test";
-import { formatSize, type IecBitUnit, type IecByteUnit, type SiBitUnit, type SiByteUnit } from "../../src/utils";
+import type { IecBitUnit, IecByteUnit, SiBitUnit, SiByteUnit } from "../../src/utils";
+import { formatSize } from "../../src/utils";
 
 /** Useful unit catalogs for parsing/assertions in tests */
 const SI_BYTE_UNITS = ["B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"] as const;

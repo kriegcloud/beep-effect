@@ -24,7 +24,7 @@ export function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
       transition={{ type: "spring", visualDuration: 0.3, bounce: 0 }}
       className="mb-2"
     >
-      <div className="flex items-center gap-3 p-3 bg-neutral-900/50 border border-neutral-800 rounded hover:border-neutral-700">
+      <div className="flex items-center gap-3 rounded border border-neutral-800 bg-neutral-900/50 p-3 hover:border-neutral-700">
         <button type="button" onClick={() => onToggle(todo.id)} className="group relative h-5 w-5 shrink-0">
           <motion.div
             animate={{
@@ -88,7 +88,7 @@ export function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           transition={{ type: "spring", visualDuration: 0.15, bounce: 0.3 }}
-          className="rounded px-3 py-1 text-xs font-medium text-neutral-500 hover:bg-neutral-800 hover:text-red-400"
+          className="rounded px-3 py-1 font-medium text-neutral-500 text-xs hover:bg-neutral-800 hover:text-red-400"
         >
           Delete
         </motion.button>

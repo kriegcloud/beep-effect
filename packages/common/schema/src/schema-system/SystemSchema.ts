@@ -1,4 +1,5 @@
-import { BSUIConfig, type FieldConfig } from "@beep/schema/annotations/default";
+import type { FieldConfig } from "@beep/schema/annotations/default";
+import { BSUIConfig } from "@beep/schema/annotations/default";
 import { JsonStringToArray, JsonStringToStringArray, TimestampToIsoString } from "@beep/schema/custom";
 import { CustomFieldSchema } from "@beep/schema/schema-system/CustomFieldSchema";
 import { Schema } from "effect";

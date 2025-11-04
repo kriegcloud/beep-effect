@@ -1,5 +1,11 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { decodeResult, MetadataFactory, requireData, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import {
+  decodeResult,
+  MetadataFactory,
+  makeFailureContinuation,
+  requireData,
+  withFetchOptions,
+} from "@beep/iam-sdk/clients/_internal";
 import type {
   AdminBanUserPayload,
   AdminCreateUserPayload,
@@ -36,7 +42,6 @@ import {
   AdminUnbanUserContract,
   AdminUpdateUserContract,
 } from "@beep/iam-sdk/clients/admin/admin.contracts";
-import { makeFailureContinuation } from "@beep/iam-sdk/clients/_internal";
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";

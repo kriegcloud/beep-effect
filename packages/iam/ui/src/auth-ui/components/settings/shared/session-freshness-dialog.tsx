@@ -8,7 +8,8 @@ import {
   DialogTitle,
 } from "@beep/ui/components/dialog";
 import { cn } from "@beep/ui-core/utils";
-import { type ComponentProps, useContext } from "react";
+import type { ComponentProps } from "react";
+import { useContext } from "react";
 import type { AuthLocalization } from "../../../lib/auth-localization";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import type { SettingsCardClassNames } from "./settings-card";

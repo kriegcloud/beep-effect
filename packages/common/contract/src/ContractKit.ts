@@ -44,13 +44,14 @@ import { BaseProto as InspectableProto } from "effect/Inspectable";
 import * as Layer from "effect/Layer";
 import type { ParseError } from "effect/ParseResult";
 import * as ParseResult from "effect/ParseResult";
-import { type Pipeable, pipeArguments } from "effect/Pipeable";
+import type { Pipeable } from "effect/Pipeable";
+import { pipeArguments } from "effect/Pipeable";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type * as Scope from "effect/Scope";
+import * as Struct from "effect/Struct";
 import * as Contract from "./Contract";
 import * as ContractError from "./ContractError";
-import * as Struct from "effect/Struct";
 /**
  * Unique identifier for contractKit instances.
  *
@@ -237,7 +238,7 @@ const Proto = {
       const contextMap = new Map<string, unknown>();
       for (const [name, implementation] of Struct.entries(implementations)) {
         const contract = this.contracts[name]!;
-        contextMap.set(contract.id, {implementation, context})
+        contextMap.set(contract.id, { implementation, context });
       }
       return Context.unsafeMake(contextMap);
     });

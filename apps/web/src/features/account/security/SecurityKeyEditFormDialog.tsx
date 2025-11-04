@@ -4,6 +4,7 @@ import {
   // useAppForm,
   // formOptionsWithSubmitEffect
 } from "@beep/ui/form";
+import type { SxProps } from "@mui/material";
 import {
   Button,
   Dialog,
@@ -14,7 +15,6 @@ import {
   dialogClasses,
   IconButton,
   Stack,
-  type SxProps,
   Typography,
 } from "@mui/material";
 import { useState } from "react";

@@ -1,5 +1,5 @@
-import { Passkey } from "@beep/iam-domain/entities";
 import { Contract, ContractKit } from "@beep/contract";
+import { Passkey } from "@beep/iam-domain/entities";
 import { IamError } from "@beep/iam-sdk/errors";
 import { BS } from "@beep/schema";
 import { IamEntityIds } from "@beep/shared-domain";

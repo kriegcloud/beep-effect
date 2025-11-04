@@ -14,7 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@beep/ui-core/utils";
 import type { Member } from "better-auth/plugins/organization";
 import { Loader2 } from "lucide-react";
-import { type ComponentProps, useContext, useMemo, useState } from "react";
+import type { ComponentProps } from "react";
+import { useContext, useMemo, useState } from "react";
 import type { AuthLocalization } from "../../lib/auth-localization";
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { getLocalizedError } from "../../lib/utils";

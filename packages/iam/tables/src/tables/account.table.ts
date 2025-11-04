@@ -1,4 +1,5 @@
-import { IamEntityIds, type SharedEntityIds } from "@beep/shared-domain/entity-ids";
+import type { SharedEntityIds } from "@beep/shared-domain/entity-ids";
+import { IamEntityIds } from "@beep/shared-domain/entity-ids";
 import { user } from "@beep/shared-tables/schema";
 import { Table } from "@beep/shared-tables/Table";
 import * as d from "drizzle-orm";

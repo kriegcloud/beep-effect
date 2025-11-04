@@ -1,7 +1,8 @@
 "use client";
 
 import Box, { type BoxProps } from "@mui/material/Box";
-import { alpha, keyframes, styled, type Theme } from "@mui/material/styles";
+import type { Theme } from "@mui/material/styles";
+import { alpha, keyframes, styled } from "@mui/material/styles";
 import type { PropsWithChildren } from "react";
 
 const backdropFadeIn = keyframes`

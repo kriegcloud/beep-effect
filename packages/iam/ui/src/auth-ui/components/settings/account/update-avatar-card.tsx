@@ -10,7 +10,8 @@ import {
 } from "@beep/ui/components/dropdown-menu";
 import { cn } from "@beep/ui-core/utils";
 import { Trash2Icon, UploadCloudIcon } from "lucide-react";
-import { type ComponentProps, useContext, useRef, useState } from "react";
+import type { ComponentProps } from "react";
+import { useContext, useRef, useState } from "react";
 import type { AuthLocalization } from "../../../lib/auth-localization";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { fileToBase64, resizeAndCropImage } from "../../../lib/image-utils";

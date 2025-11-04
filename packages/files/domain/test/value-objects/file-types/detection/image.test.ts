@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { type DetectedFileInfo, fileTypeChecker } from "../../../../src/value-objects";
+import type { DetectedFileInfo } from "../../../../src/value-objects";
+import { fileTypeChecker } from "../../../../src/value-objects";
 
 describe("detectFile", () => {
   it("should detect the file type of an Array<number> as a avif file", () => {

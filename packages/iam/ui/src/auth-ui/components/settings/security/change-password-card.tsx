@@ -17,8 +17,8 @@ import {
   //  getPasswordSchema
 } from "../../../lib/utils";
 import type { PasswordValidation } from "../../../types/password-validation";
-// import {PasswordInput} from "../../password-input";
-import { SettingsCard, type SettingsCardClassNames } from "../shared/settings-card";
+import type { SettingsCardClassNames } from "../shared/settings-card";
+import { SettingsCard } from "../shared/settings-card";
 import { InputFieldSkeleton } from "../skeletons/input-field-skeleton";
 
 export interface ChangePasswordCardProps {

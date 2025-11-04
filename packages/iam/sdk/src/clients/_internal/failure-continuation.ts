@@ -1,4 +1,5 @@
-import { IamError, type IamErrorMetadata } from "@beep/iam-sdk/errors";
+import type { IamErrorMetadata } from "@beep/iam-sdk/errors";
+import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 
 export interface FailureContinuationContext {

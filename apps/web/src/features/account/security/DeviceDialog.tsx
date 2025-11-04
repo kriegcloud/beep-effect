@@ -1,4 +1,5 @@
 import { BaseImage, Iconify } from "@beep/ui/atoms";
+import type { SxProps } from "@mui/material";
 import {
   Button,
   Chip,
@@ -8,7 +9,6 @@ import {
   dialogClasses,
   IconButton,
   Stack,
-  type SxProps,
   Typography,
 } from "@mui/material";
 import dayjs from "dayjs";

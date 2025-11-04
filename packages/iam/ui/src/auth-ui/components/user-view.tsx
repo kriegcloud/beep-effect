@@ -7,7 +7,8 @@ import { useContext, useMemo } from "react";
 import type { AuthLocalization } from "../lib/auth-localization";
 import { AuthUIContext } from "../lib/auth-ui-provider";
 import type { Profile } from "../types/profile";
-import { UserAvatar, type UserAvatarClassNames } from "./user-avatar";
+import type { UserAvatarClassNames } from "./user-avatar";
+import { UserAvatar } from "./user-avatar";
 export interface UserViewClassNames {
   base?: string;
   avatar?: UserAvatarClassNames;

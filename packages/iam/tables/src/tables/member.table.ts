@@ -1,5 +1,6 @@
 import { Member } from "@beep/iam-domain/entities";
-import { IamEntityIds, type SharedEntityIds } from "@beep/shared-domain";
+import type { SharedEntityIds } from "@beep/shared-domain";
+import { IamEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 

@@ -1,4 +1,5 @@
-import { type ReactElement, useCallback, useEffect, useRef, useState } from "react";
+import type { ReactElement } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { calculateBarData, draw } from "./utils";
 
 export interface Props {

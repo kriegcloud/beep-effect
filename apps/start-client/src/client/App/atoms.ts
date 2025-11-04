@@ -1,4 +1,5 @@
-import { Atom, type Result } from "@effect-atom/atom-react";
+import type { Result } from "@effect-atom/atom-react";
+import { Atom } from "@effect-atom/atom-react";
 import * as Effect from "effect/Effect";
 
 export const installPromptAtom: Atom.Atom<Result.Result<() => Promise<void>, never>> = Atom.make((get) =>

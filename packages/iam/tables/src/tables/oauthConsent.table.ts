@@ -1,4 +1,5 @@
-import { IamEntityIds, type SharedEntityIds } from "@beep/shared-domain";
+import type { SharedEntityIds } from "@beep/shared-domain";
+import { IamEntityIds } from "@beep/shared-domain";
 import { OrgTable, user } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 export const oauthConsent = OrgTable.make(IamEntityIds.OAuthConsentId)({

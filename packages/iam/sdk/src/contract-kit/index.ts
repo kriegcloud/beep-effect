@@ -140,4 +140,3 @@ export * as ContractError from "./ContractError";
  * @since 1.0.0
  */
 export * as ContractKit from "./ContractKit";
-

@@ -1,11 +1,10 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { MetadataFactory, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   SendEmailVerificationContract,
   VerifyContractKit,
   VerifyEmailContract,
 } from "@beep/iam-sdk/clients/verify/verify.contracts";
-import { makeFailureContinuation } from "@beep/iam-sdk/clients/_internal";
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";

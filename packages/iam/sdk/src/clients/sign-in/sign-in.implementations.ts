@@ -1,12 +1,11 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { MetadataFactory, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
-import {
-  SignInContractKit,
-  type SignInOAuth2Payload,
-  type SignInSocialContract,
-  type SignInUsernameContract,
+import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import type {
+  SignInOAuth2Payload,
+  SignInSocialContract,
+  SignInUsernameContract,
 } from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
-import { makeFailureContinuation } from "@beep/iam-sdk/clients/_internal";
+import { SignInContractKit } from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import type { SignInEmailPayload, SignInPhoneNumberPayload } from "./sign-in.contracts";

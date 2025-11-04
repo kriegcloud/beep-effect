@@ -1,13 +1,12 @@
 "use client";
 import { client } from "@beep/iam-sdk/adapters";
-import { MetadataFactory, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import type { RevokeSessionPayload } from "@beep/iam-sdk/clients/session/session.contracts";
 import {
   GetSessionSuccess,
   ListSessionsSuccess,
   SessionContractKit,
 } from "@beep/iam-sdk/clients/session/session.contracts";
-import { makeFailureContinuation } from "@beep/iam-sdk/clients/_internal";
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";

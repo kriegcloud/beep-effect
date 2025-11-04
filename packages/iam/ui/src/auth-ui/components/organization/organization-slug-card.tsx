@@ -13,7 +13,8 @@ import { useContext, useMemo } from "react";
 import { useCurrentOrganization } from "../../hooks/use-current-organization";
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { getLocalizedError } from "../../lib/utils";
-import { SettingsCard, type SettingsCardProps } from "../settings/shared/settings-card";
+import type { SettingsCardProps } from "../settings/shared/settings-card";
+import { SettingsCard } from "../settings/shared/settings-card";
 
 export interface OrganizationSlugCardProps extends SettingsCardProps {
   slug?: string;

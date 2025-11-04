@@ -1,20 +1,21 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { MetadataFactory, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import type {
+  OAuth2AuthorizePayload,
+  OAuth2ClientPayload,
+  OAuth2ConsentPayload,
+  OAuth2RegisterPayload,
+  OAuth2TokenPayload,
+} from "@beep/iam-sdk/clients/oidc/oidc.contracts";
 import {
   OAuth2AuthorizeContract,
-  type OAuth2AuthorizePayload,
   OAuth2ClientContract,
-  type OAuth2ClientPayload,
   OAuth2ConsentContract,
-  type OAuth2ConsentPayload,
   OAuth2RegisterContract,
-  type OAuth2RegisterPayload,
   OAuth2TokenContract,
-  type OAuth2TokenPayload,
   OAuth2UserInfoContract,
   OidcContractKit,
 } from "@beep/iam-sdk/clients/oidc/oidc.contracts";
-import { makeFailureContinuation } from "@beep/iam-sdk/clients/_internal";
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";

@@ -1,4 +1,5 @@
-import { Paper, type PaperProps } from "@mui/material";
+import type { PaperProps } from "@mui/material";
+import { Paper } from "@mui/material";
 import type { Dispatch, PropsWithChildren, SetStateAction } from "react";
 
 interface InfoCardProps extends PaperProps {

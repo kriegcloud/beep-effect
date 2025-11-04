@@ -17,7 +17,8 @@ import { cn } from "@beep/ui-core/utils";
 import * as S from "effect/Schema";
 // import type { Organization } from "better-auth/plugins/organization"
 import { Loader2 } from "lucide-react";
-import { type ComponentProps, useContext } from "react";
+import type { ComponentProps } from "react";
+import { useContext } from "react";
 import type { AuthLocalization } from "../../../lib/auth-localization";
 // import { useForm } from "react-hook-form"
 // import { useTranslate } from "@beep/ui/i18n";

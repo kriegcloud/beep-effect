@@ -1,4 +1,5 @@
-import { Link, type SvgIconProps, typographyClasses } from "@mui/material";
+import type { SvgIconProps } from "@mui/material";
+import { Link, typographyClasses } from "@mui/material";
 
 export interface LogoProps extends SvgIconProps {
   showName?: boolean;

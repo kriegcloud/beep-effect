@@ -1,15 +1,8 @@
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
-import React, {
-  type ForwardedRef,
-  type ForwardRefExoticComponent,
-  forwardRef,
-  type RefAttributes,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from "react";
+import type React from "react";
+import type { ForwardedRef, ForwardRefExoticComponent, RefAttributes } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import type { DataPoint } from "./types";
 import { calculateBarData, draw } from "./utils";
 

@@ -1,4 +1,5 @@
-import { Iconify, type IconifyProps } from "@beep/ui/atoms";
+import type { IconifyProps } from "@beep/ui/atoms";
+import { Iconify } from "@beep/ui/atoms";
 import { TabPanel } from "@mui/lab";
 import { IconButton, Stack, Typography } from "@mui/material";
 import type { PropsWithChildren, ReactElement } from "react";

@@ -11,23 +11,16 @@ import {
 import { useIsHydrated } from "@beep/ui/hooks";
 import { cn } from "@beep/ui-core/utils";
 import { ChevronsUpDown, LogInIcon, LogOutIcon, PlusCircleIcon, SettingsIcon, UserRoundPlus } from "lucide-react";
-import {
-  type ComponentProps,
-  Fragment,
-  type ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import type { ComponentProps, ReactNode } from "react";
+import { Fragment, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { AuthLocalization } from "../lib/auth-localization";
 import { AuthUIContext } from "../lib/auth-ui-provider";
 import { getLocalizedError } from "../lib/utils";
 import type { AnyAuthClient } from "../types/any-auth-client";
-import { UserAvatar, type UserAvatarClassNames } from "./user-avatar";
-import { UserView, type UserViewClassNames } from "./user-view";
+import type { UserAvatarClassNames } from "./user-avatar";
+import { UserAvatar } from "./user-avatar";
+import type { UserViewClassNames } from "./user-view";
+import { UserView } from "./user-view";
 
 export interface UserButtonClassNames {
   base?: string;

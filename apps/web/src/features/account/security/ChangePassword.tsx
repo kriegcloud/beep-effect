@@ -18,7 +18,7 @@ const ChangePassword = () => {
   // } = methods;
 
   const onSubmit = (data: any) => {
-    console.log(data);
+    // console.log(data);
     setOpen(false);
     // enqueueSnackbar('Updated successfully!', { variant: 'success', autoHideDuration: 3000 });
   };

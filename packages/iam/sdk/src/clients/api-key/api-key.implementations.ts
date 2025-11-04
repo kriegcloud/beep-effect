@@ -1,18 +1,16 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { MetadataFactory, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import type { ApiKeyDeletePayload, ApiKeyGetPayload } from "@beep/iam-sdk/clients/api-key/api-key.contracts";
 import {
   ApiKeyContractKit,
   ApiKeyCreateContract,
   ApiKeyCreatePayload,
   ApiKeyDeleteContract,
-  type ApiKeyDeletePayload,
   ApiKeyGetContract,
-  type ApiKeyGetPayload,
   ApiKeyListContract,
   ApiKeyUpdateContract,
   ApiKeyUpdatePayload,
 } from "@beep/iam-sdk/clients/api-key/api-key.contracts";
-import { makeFailureContinuation } from "@beep/iam-sdk/clients/_internal";
 import { IamError } from "@beep/iam-sdk/errors";
 import { PolicyRecord } from "@beep/shared-domain/Policy";
 import * as Effect from "effect/Effect";

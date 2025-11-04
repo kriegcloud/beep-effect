@@ -2,8 +2,8 @@
 import Box from "@mui/material/Box";
 import { useFieldContext } from "../form";
 import { HelperText } from "./components";
-import type { FilesUploadType, UploadProps } from "./upload";
-import { type FileUploadType, UploadAvatar } from "./upload";
+import type { FilesUploadType, FileUploadType, UploadProps } from "./upload";
+import { UploadAvatar } from "./upload";
 
 function UploadAvatarField({ slotProps, ...other }: UploadProps) {
   const field = useFieldContext<FileUploadType | FilesUploadType | undefined>();

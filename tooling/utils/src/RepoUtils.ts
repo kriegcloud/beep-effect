@@ -8,7 +8,8 @@ import * as Effect from "effect/Effect";
 import type * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import type { FsUtils } from "./FsUtils";
-import { findRepoRoot, type GetWorkSpaceDir, getWorkspaceDir, resolveWorkspaceDirs } from "./repo";
+import type { GetWorkSpaceDir } from "./repo";
+import { findRepoRoot, getWorkspaceDir, resolveWorkspaceDirs } from "./repo";
 
 interface IRepoUtilsEffect {
   readonly REPOSITORY_ROOT: string;

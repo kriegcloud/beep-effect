@@ -1,6 +1,7 @@
 import { describe } from "bun:test";
 import { __iconifyCliTestExports } from "@beep/repo-scripts/iconify/cli";
-import { IconifyClient, IconifyClientError, type IconifyClientService } from "@beep/repo-scripts/iconify/client";
+import type { IconifyClientService } from "@beep/repo-scripts/iconify/client";
+import { IconifyClient, IconifyClientError } from "@beep/repo-scripts/iconify/client";
 import { assertTrue, scoped, strictEqual } from "@beep/testkit";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";

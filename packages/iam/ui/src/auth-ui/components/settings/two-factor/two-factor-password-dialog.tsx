@@ -14,7 +14,8 @@ import { Form, makeFormOptions, useAppForm } from "@beep/ui/form";
 import { cn } from "@beep/ui-core/utils";
 import * as S from "effect/Schema";
 import { Loader2 } from "lucide-react";
-import { type ComponentProps, useContext, useState } from "react";
+import type { ComponentProps } from "react";
+import { useContext, useState } from "react";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { getLocalizedError } from "../../../lib/utils";
 

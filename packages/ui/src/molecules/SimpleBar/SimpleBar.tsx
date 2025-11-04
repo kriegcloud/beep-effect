@@ -1,5 +1,6 @@
 import type { UnsafeTypes } from "@beep/types";
-import { Box, type BoxProps } from "@mui/material";
+import type { BoxProps } from "@mui/material";
+import { Box } from "@mui/material";
 import type { ReactNode } from "react";
 import * as React from "react";
 import * as Core from "./core";

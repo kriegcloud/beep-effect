@@ -6,21 +6,31 @@
       "**",
       "!**/*.css",
       "!**/.tsup",
-      "!**/dist",
-      "!**/.turbo",
-      "!**/public",
-      "!**/build",
-      "!**/.next",
+      "!**/.turbo/**",
+      "!!**/public/**",
+      "!!**/build/**",
+      "!!**/.next/**",
       "!.tsbuildinfo",
       "!**/__snapshots__",
-      "!./package.json"
+      "!./package.json",
+      "!!**/vendor/**",
+      "!!**/certificates/**",
+      "!!**/generated/**",
+      "!!**/node_modules/**",
+      "!!**/out/**",
+      "!!**/*.gen.*",
+      "!!**/.cache/**",
+      "!!**/build/**",
+      "!!**/bun.lock",
+      "!!**/dist/**"
     ]
   },
   "json": {
     "formatter": {
       "indentStyle": "space",
       "indentWidth": 2,
-      "trailingCommas": "none"
+      "trailingCommas": "none",
+      "lineWidth": 80
     },
     "parser": {
       "allowComments": true
@@ -63,7 +73,6 @@
         "useKeyWithClickEvents": "off",
         "noStaticElementInteractions": "off"
       },
-
       "complexity": {
         "noBannedTypes": "off",
         "noUselessConstructor": "off",
@@ -86,7 +95,6 @@
           "level": "error",
           "fix": "none",
           "options": {
-
           }
         },
         "noUnusedVariables": "off",

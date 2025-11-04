@@ -7,7 +7,8 @@ import type { Organization } from "better-auth/plugins/organization";
 import { useContext } from "react";
 import type { AuthLocalization } from "../../lib/auth-localization";
 import { AuthUIContext } from "../../lib/auth-ui-provider";
-import { OrganizationLogo, type OrganizationLogoClassNames } from "./organization-logo";
+import type { OrganizationLogoClassNames } from "./organization-logo";
+import { OrganizationLogo } from "./organization-logo";
 
 export interface OrganizationViewClassNames {
   base?: string;

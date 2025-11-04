@@ -12,15 +12,18 @@ import {
 import { cn } from "@beep/ui-core/utils";
 import type { Organization } from "better-auth/plugins/organization";
 import { ChevronsUpDown, LogInIcon, PlusCircleIcon, SettingsIcon } from "lucide-react";
-import { type ComponentProps, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import type { ComponentProps, ReactNode } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useCurrentOrganization } from "../../hooks/use-current-organization";
 import type { AuthLocalization } from "../../lib/auth-localization";
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { getLocalizedError } from "../../lib/utils";
-import { UserAvatar, type UserAvatarClassNames } from "../user-avatar";
+import type { UserAvatarClassNames } from "../user-avatar";
+import { UserAvatar } from "../user-avatar";
 import type { UserViewClassNames } from "../user-view";
 import { CreateOrganizationDialog } from "./create-organization-dialog";
-import { OrganizationCellView, type OrganizationViewClassNames } from "./organization-cell-view";
+import type { OrganizationViewClassNames } from "./organization-cell-view";
+import { OrganizationCellView } from "./organization-cell-view";
 import { OrganizationLogo } from "./organization-logo";
 import { PersonalAccountView } from "./personal-account-view";
 

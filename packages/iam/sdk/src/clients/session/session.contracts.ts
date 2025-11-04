@@ -1,6 +1,6 @@
 "use client";
-import { Session } from "@beep/iam-domain/entities";
 import { Contract, ContractKit } from "@beep/contract";
+import { Session } from "@beep/iam-domain/entities";
 import { IamError } from "@beep/iam-sdk/errors";
 import { BS } from "@beep/schema";
 import { User } from "@beep/shared-domain/entities";

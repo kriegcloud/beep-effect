@@ -15,7 +15,8 @@ import { cn } from "@beep/ui-core/utils";
 import * as S from "effect/Schema";
 import { useCurrentOrganization } from "../../hooks/use-current-organization";
 import { AuthUIContext } from "../../lib/auth-ui-provider";
-import { SettingsCard, type SettingsCardProps } from "../settings/shared/settings-card";
+import type { SettingsCardProps } from "../settings/shared/settings-card";
+import { SettingsCard } from "../settings/shared/settings-card";
 
 export interface OrganizationNameCardProps extends SettingsCardProps {
   slug?: string;

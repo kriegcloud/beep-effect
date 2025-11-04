@@ -11,7 +11,8 @@ import {
 } from "@beep/ui/components/dialog";
 import { cn } from "@beep/ui-core/utils";
 import { CheckIcon, CopyIcon } from "lucide-react";
-import { type ComponentProps, useContext, useState } from "react";
+import type { ComponentProps } from "react";
+import { useContext, useState } from "react";
 import type { AuthLocalization } from "../../../lib/auth-localization";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import type { SettingsCardClassNames } from "../shared/settings-card";

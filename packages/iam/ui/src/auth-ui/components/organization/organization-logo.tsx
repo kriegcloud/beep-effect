@@ -6,7 +6,8 @@ import { Skeleton } from "@beep/ui/components/skeleton";
 import { cn } from "@beep/ui-core/utils";
 import type { Organization } from "better-auth/plugins/organization";
 import { BuildingIcon } from "lucide-react";
-import { type ComponentProps, useContext, useMemo } from "react";
+import type { ComponentProps } from "react";
+import { useContext, useMemo } from "react";
 import type { AuthLocalization } from "../../lib/auth-localization";
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 

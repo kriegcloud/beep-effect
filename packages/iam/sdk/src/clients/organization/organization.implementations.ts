@@ -1,5 +1,12 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { addFetchOptions, compact, makeMetadata, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import {
+  addFetchOptions,
+  compact,
+  makeFailureContinuation,
+  makeMetadata,
+  withFetchOptions,
+} from "@beep/iam-sdk/clients/_internal";
+import type { OrganizationDeletePayload } from "@beep/iam-sdk/clients/organization/organization.contracts";
 import {
   AcceptInvitationContract,
   AcceptInvitationPayload,
@@ -12,7 +19,6 @@ import {
   OrganizationCreatePayload,
   OrganizationCreateRoleContract,
   OrganizationDeleteContract,
-  type OrganizationDeletePayload,
   OrganizationDeleteRoleContract,
   OrganizationGetActiveMemberContract,
   OrganizationGetActiveMemberRoleContract,
@@ -47,7 +53,6 @@ import {
   OrganizationUpdateMemberRolePayload,
   OrganizationUpdatePayload,
 } from "@beep/iam-sdk/clients/organization/organization.contracts";
-import { makeFailureContinuation } from "@beep/iam-sdk/clients/_internal";
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";

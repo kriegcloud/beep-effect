@@ -7,7 +7,8 @@ import { makeRunClientPromise, urlSearchParamSSR, useRuntime } from "@beep/runti
 import { paths } from "@beep/shared-domain";
 import { useRouter } from "@beep/ui/hooks";
 import { DashboardLayout } from "@beep/ui/layouts";
-import { type Atom, useAtom } from "@effect-atom/atom-react";
+import type { Atom } from "@effect-atom/atom-react";
+import { useAtom } from "@effect-atom/atom-react";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import React from "react";

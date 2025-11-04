@@ -21,8 +21,12 @@ import {
   // Trash2Icon,
   // UploadCloudIcon
 } from "lucide-react";
+import type {
+  ComponentProps,
+  // useRef,
+  // useState
+} from "react";
 import {
-  type ComponentProps,
   useContext,
   useMemo,
   // useRef,

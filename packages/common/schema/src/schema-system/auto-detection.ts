@@ -1,4 +1,5 @@
-import { type FieldConfig, getUnderlyingType } from "@beep/schema/annotations/default";
+import type { FieldConfig } from "@beep/schema/annotations/default";
+import { getUnderlyingType } from "@beep/schema/annotations/default";
 import { extractLiteralOptions, hasEmailPattern } from "@beep/schema/schema-system/introspection";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";

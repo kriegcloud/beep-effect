@@ -9,8 +9,8 @@
 // import { useRuntime } from "@beep/runtime-client";
 export const AcceptInvitationView = () => {
   return (
-    <div className="min-h-[80vh] flex items-center justify-center">
-      <div className="absolute pointer-events-none inset-0 flex items-center justify-center dark:bg-black bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
+    <div className="flex min-h-[80vh] items-center justify-center">
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] dark:bg-black" />
       {/*{invitation ? (*/}
       {/*	<Card className="w-full max-w-md">*/}
       {/*		<CardHeader>*/}

@@ -23,7 +23,7 @@ function TodoStat({ value, className, label }: TodoStatProps) {
           trend={(oldValue, value) => Math.sign(Math.abs(value) - Math.abs(oldValue))}
         />
       </div>
-      <div className="font-mono text-xs font-bold text-neutral-400">{label}</div>
+      <div className="font-bold font-mono text-neutral-400 text-xs">{label}</div>
     </div>
   );
 }
@@ -38,7 +38,7 @@ export function TodoStats({ todos }: TodoStatsProps) {
     : { total: 0, completed: 0, remaining: 0 };
 
   return (
-    <div className="flex items-center gap-6 py-2 px-4 text-2xl font-semibold">
+    <div className="flex items-center gap-6 px-4 py-2 font-semibold text-2xl">
       <TodoStat value={stats.total} label="ALL" />
       <TodoStat value={stats.remaining} className="text-blue-500" label="OPEN" />
       <TodoStat value={stats.completed} className="text-emerald-500" label="DONE" />

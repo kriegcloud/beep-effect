@@ -1,4 +1,5 @@
-import { type PaperProps, paperClasses } from "@mui/material/Paper";
+import type { PaperProps } from "@mui/material/Paper";
+import { paperClasses } from "@mui/material/Paper";
 import type { Components, Theme } from "@mui/material/styles";
 import * as A from "effect/Array";
 import * as F from "effect/Function";

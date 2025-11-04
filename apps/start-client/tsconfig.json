@@ -14,7 +14,7 @@
     {
       "path": "../../packages/common/invariant/tsconfig.build.json"
     },
-        {
+    {
       "path": "../../packages/common/contract/tsconfig.build.json"
     },
     {

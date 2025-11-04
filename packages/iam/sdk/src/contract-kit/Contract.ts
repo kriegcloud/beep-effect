@@ -26,18 +26,18 @@
  *
  * @since 1.0.0
  */
-import type {UnsafeTypes} from "@beep/types";
+import type { UnsafeTypes } from "@beep/types";
 import * as Context from "effect/Context";
-import * as Effect from "effect/Effect";
+import type * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as JsonSchema from "effect/JSONSchema";
 import * as O from "effect/Option";
-import type {Pipeable} from "effect/Pipeable";
-import {pipeArguments} from "effect/Pipeable";
+import type { Pipeable } from "effect/Pipeable";
+import { pipeArguments } from "effect/Pipeable";
 import * as Predicate from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
-import type {Covariant} from "effect/Types";
+import type { Covariant } from "effect/Types";
 // =============================================================================
 // Type Ids
 // =============================================================================
@@ -197,7 +197,6 @@ export interface Contract<
     Requirements
   >;
 
-
   /**
    * Set the schema to use to validate the result of a contract call when successful.
    */
@@ -239,7 +238,6 @@ export interface Contract<
    * Add many annotations to the contract.
    */
   annotateContext<I>(context: Context.Context<I>): Contract<Name, Config, Requirements>;
-
 }
 
 /**
@@ -288,15 +286,15 @@ export interface ProviderDefined<
   },
   RequiresImplementation extends boolean = false,
 > extends Contract<
-  Name,
-  {
-    readonly payload: Config["payload"];
-    readonly success: Config["success"];
-    readonly failure: Config["failure"];
-    readonly failureMode: Config["failureMode"];
-  }
->,
-  Contract.ProviderDefinedProto {
+      Name,
+      {
+        readonly payload: Config["payload"];
+        readonly success: Config["success"];
+        readonly failure: Config["failure"];
+        readonly failureMode: Config["failureMode"];
+      }
+    >,
+    Contract.ProviderDefinedProto {
   /**
    * The arguments passed to the provider-defined contract.
    */
@@ -476,7 +474,6 @@ export interface Any extends Pipeable {
   readonly successSchema: S.Schema.AnyNoContext;
   readonly failureSchema: S.Schema.AnyNoContext;
   readonly annotations: Context.Context<never>;
-
 }
 
 /**
@@ -519,8 +516,7 @@ export interface FromTaggedRequest<S extends AnyTaggedRequestSchema>
       readonly failure: S["failure"];
       readonly failureMode: "error";
     }
-  > {
-}
+  > {}
 
 /**
  * A utility type to extract the `Name` type from an `Contract`.
@@ -625,19 +621,15 @@ export type Result<T> = T extends Contract<infer _Name, infer _Config, infer _Re
   ? Success<T> | Failure<T>
   : never;
 
-export type ResultErrorMode<T> =
-  T extends Contract<infer _Name, infer _Config, infer _Requirements>
-    ? { readonly _tag: "error", readonly value: Success<T> }
-    : never;
+export type ResultErrorMode<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? { readonly _tag: "error"; readonly value: Success<T> }
+  : never;
 
-export type ResultReturnMode<T> =
-  T extends Contract<infer _Name, infer _Config, infer _Requirements>
-    ? { readonly _tag: "return", readonly value: Success<T> }
-    : never;
+export type ResultReturnMode<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? { readonly _tag: "return"; readonly value: Success<T> }
+  : never;
 
-export type ResultDiscriminated<T> =
-  | ResultErrorMode<T>
-  | ResultReturnMode<T>;
+export type ResultDiscriminated<T> = ResultErrorMode<T> | ResultReturnMode<T>;
 
 /**
  * A utility type to extract the encoded type of the contract call result whether
@@ -732,25 +724,24 @@ export type ImplementationsFor<Contracts extends Record<string, Any>> = {
  * @category Utility Types
  */
 export type RequiresImplementation<Contract extends Any> = Contract extends ProviderDefined<
-    infer _Name,
-    infer _Config,
-    infer _RequiresImplementation
-  >
+  infer _Name,
+  infer _Config,
+  infer _RequiresImplementation
+>
   ? _RequiresImplementation
   : true;
-
 
 // =============================================================================
 // Constructors
 // =============================================================================
 
 const Proto = {
-  [TypeId]: {_Requirements: F.identity},
+  [TypeId]: { _Requirements: F.identity },
   pipe() {
     return pipeArguments(this, arguments);
   },
   addDependency(this: Any) {
-    return userDefinedProto({...this});
+    return userDefinedProto({ ...this });
   },
   setPayload(this: Any, payloadSchema: S.Struct<UnsafeTypes.UnsafeAny> | S.Struct.Fields) {
     return userDefinedProto({
@@ -1016,51 +1007,51 @@ export const providerDefined =
      */
     readonly failure?: Failure | undefined;
   }) =>
-    <Mode extends FailureMode | undefined = undefined>(
-      args: RequiresImplementation extends true
-        ? S.Simplify<
+  <Mode extends FailureMode | undefined = undefined>(
+    args: RequiresImplementation extends true
+      ? S.Simplify<
           S.Struct.Encoded<Args> & {
-          /**
-           * The strategy used for handling errors returned from contract call implementation
-           * execution.
-           *
-           * If set to `"error"` (the default), errors that occur during contract call implementation
-           * execution will be returned in the error channel of the calling effect.
-           *
-           * If set to `"return"`, errors that occur during contract call implementation execution
-           * will be captured and returned as part of the contract call result.
-           */
-          readonly failureMode?: Mode;
-        }
+            /**
+             * The strategy used for handling errors returned from contract call implementation
+             * execution.
+             *
+             * If set to `"error"` (the default), errors that occur during contract call implementation
+             * execution will be returned in the error channel of the calling effect.
+             *
+             * If set to `"return"`, errors that occur during contract call implementation execution
+             * will be captured and returned as part of the contract call result.
+             */
+            readonly failureMode?: Mode;
+          }
         >
-        : S.Simplify<S.Struct.Encoded<Args>>
-    ): ProviderDefined<
-      Name,
-      {
-        readonly args: S.Struct<Args>;
-        readonly payload: S.Struct<Payload>;
-        readonly success: Success;
-        readonly failure: Failure;
-        readonly failureMode: Mode extends undefined ? "error" : Mode;
-      },
-      RequiresImplementation
-    > => {
-      const failureMode = "failureMode" in args ? args.failureMode : undefined;
-      const successSchema = options?.success ?? S.Void;
-      const failureSchema = options?.failure ?? S.Never;
-      return providerDefinedProto({
-        id: options.id,
-        name: options.contractKitName,
-        providerName: options.providerName,
-        args,
-        argsSchema: S.Struct(options.args as UnsafeTypes.UnsafeAny),
-        requiresImplementation: options.requiresImplementation ?? false,
-        payloadSchema: options?.payload ? S.Struct(options?.payload as UnsafeTypes.UnsafeAny) : constEmptyStruct,
-        successSchema,
-        failureSchema,
-        failureMode: failureMode ?? "error",
-      }) as UnsafeTypes.UnsafeAny;
-    };
+      : S.Simplify<S.Struct.Encoded<Args>>
+  ): ProviderDefined<
+    Name,
+    {
+      readonly args: S.Struct<Args>;
+      readonly payload: S.Struct<Payload>;
+      readonly success: Success;
+      readonly failure: Failure;
+      readonly failureMode: Mode extends undefined ? "error" : Mode;
+    },
+    RequiresImplementation
+  > => {
+    const failureMode = "failureMode" in args ? args.failureMode : undefined;
+    const successSchema = options?.success ?? S.Void;
+    const failureSchema = options?.failure ?? S.Never;
+    return providerDefinedProto({
+      id: options.id,
+      name: options.contractKitName,
+      providerName: options.providerName,
+      args,
+      argsSchema: S.Struct(options.args as UnsafeTypes.UnsafeAny),
+      requiresImplementation: options.requiresImplementation ?? false,
+      payloadSchema: options?.payload ? S.Struct(options?.payload as UnsafeTypes.UnsafeAny) : constEmptyStruct,
+      successSchema,
+      failureSchema,
+      failureMode: failureMode ?? "error",
+    }) as UnsafeTypes.UnsafeAny;
+  };
 
 /**
  * Creates a Contract from a S.TaggedRequest.
@@ -1160,9 +1151,9 @@ export const getDescriptionFromSchemaAst = (ast: AST.AST): string | undefined =>
   const annotations =
     ast._tag === "Transformation"
       ? {
-        ...ast.to.annotations,
-        ...ast.annotations,
-      }
+          ...ast.to.annotations,
+          ...ast.annotations,
+        }
       : ast.annotations;
   return AST.DescriptionAnnotationId in annotations ? (annotations[AST.DescriptionAnnotationId] as string) : undefined;
 };
@@ -1255,8 +1246,7 @@ export const getJsonSchemaFromSchemaAst = (ast: AST.AST): JsonSchema.JsonSchema7
  * @since 1.0.0
  * @category Annotations
  */
-export class Title extends Context.Tag("@beep/iam-sdk/Contract/Title")<Title, string>() {
-}
+export class Title extends Context.Tag("@beep/iam-sdk/Contract/Title")<Title, string>() {}
 
 /**
  * Annotation for providing a human-readable title for contracts.
@@ -1272,8 +1262,7 @@ export class Title extends Context.Tag("@beep/iam-sdk/Contract/Title")<Title, st
  * @since 1.0.0
  * @category Annotations
  */
-export class Domain extends Context.Tag("@beep/iam-sdk/Contract/Domain")<Domain, string>() {
-}
+export class Domain extends Context.Tag("@beep/iam-sdk/Contract/Domain")<Domain, string>() {}
 
 /**
  * Annotation for providing a human-readable title for contracts.
@@ -1289,8 +1278,7 @@ export class Domain extends Context.Tag("@beep/iam-sdk/Contract/Domain")<Domain,
  * @since 1.0.0
  * @category Annotations
  */
-export class Method extends Context.Tag("@beep/iam-sdk/Contract/Method")<Method, string>() {
-}
+export class Method extends Context.Tag("@beep/iam-sdk/Contract/Method")<Method, string>() {}
 
 /**
  * Annotation indicating whether a contract only reads data without making changes.
@@ -1308,8 +1296,7 @@ export class Method extends Context.Tag("@beep/iam-sdk/Contract/Method")<Method,
  */
 export class Readonly extends Context.Reference<Readonly>()("@beep/iam-sdk/Contract/Readonly", {
   defaultValue: F.constFalse,
-}) {
-}
+}) {}
 
 const suspectProtoRx = /"__proto__"\s*:/;
 const suspectConstructorRx = /"constructor"\s*:/;
@@ -1370,7 +1357,7 @@ function filter(obj: UnsafeTypes.UnsafeAny) {
  */
 export const unsafeSecureJsonParse = (text: string): unknown => {
   // Performance optimization, see https://github.com/fastify/secure-json-parse/pull/90
-  const {stackTraceLimit} = Error;
+  const { stackTraceLimit } = Error;
   Error.stackTraceLimit = 0;
   try {
     return _parse(text);
@@ -1378,7 +1365,3 @@ export const unsafeSecureJsonParse = (text: string): unknown => {
     Error.stackTraceLimit = stackTraceLimit;
   }
 };
-
-
-
-

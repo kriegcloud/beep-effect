@@ -32,7 +32,7 @@ export const PasskeysEmpty = ({ onAdd, className }: PasskeysEmptyProps) => {
             Add passkey
           </Button>
         )}
-        <div className={"text-xs text-muted-foreground"}>
+        <div className={"text-muted-foreground text-xs"}>
           We&apos;ll prompt you to choose a device credential. Come back here anytime to manage your passkeys.
         </div>
       </EmptyContent>

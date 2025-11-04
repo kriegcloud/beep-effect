@@ -2,14 +2,13 @@
 // import { Language } from 'types/accounts';
 import { Iconify } from "@beep/ui/atoms";
 import { SimpleBar } from "@beep/ui/molecules/SimpleBar";
-// import { useFormContext, useWatch } from 'react-hook-form';
+import type { DialogProps } from "@mui/material";
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
-  type DialogProps,
   DialogTitle,
   dialogClasses,
   IconButton,
@@ -18,7 +17,8 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import { type ChangeEvent, useState } from "react";
+import type { ChangeEvent } from "react";
+import { useState } from "react";
 import { languages } from "@/features/account/localization/data";
 // import { LanguageRegionFormValues } from './LanguageRegionTabPanel';
 import type { Language } from "@/features/account/localization/types";

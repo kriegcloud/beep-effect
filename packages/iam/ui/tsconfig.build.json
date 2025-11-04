@@ -35,7 +35,7 @@
     {
       "path": "../../common/mock/tsconfig.build.json"
     },
-        {
+    {
       "path": "../../common/contract/tsconfig.build.json"
     },
     {

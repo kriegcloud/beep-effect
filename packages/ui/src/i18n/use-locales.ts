@@ -2,7 +2,8 @@
 import { useRouter } from "@beep/ui/hooks";
 import { toast } from "@beep/ui/molecules";
 import { useSettingsContext } from "@beep/ui/settings";
-import { fallbackLang, type SupportedLangValue } from "@beep/ui-core/i18n/constants";
+import type { SupportedLangValue } from "@beep/ui-core/i18n/constants";
+import { fallbackLang } from "@beep/ui-core/i18n/constants";
 import { getCurrentLang } from "@beep/ui-core/i18n/locales-config";
 import dayjs from "dayjs";
 import type { Namespace } from "i18next";

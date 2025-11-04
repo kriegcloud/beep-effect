@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import * as S from "effect/Schema";
-import { type Paths, validateWithSchema } from "../../src/form/makeFormOptions";
+import type { Paths } from "../../src/form/makeFormOptions";
+import { validateWithSchema } from "../../src/form/makeFormOptions";
 
 const SimpleSchema = S.Struct({
   name: S.String,

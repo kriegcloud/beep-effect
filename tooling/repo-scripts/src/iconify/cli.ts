@@ -36,7 +36,8 @@ import {
   searchIcons,
 } from "./api";
 import { IconifyClientConfigLive, IconifyClientLive } from "./client";
-import { ICONIFY_REGISTRY_PATH, type IconRegistryAddition, mergeRegistryContent, mergeRegistryFile } from "./registry";
+import type { IconRegistryAddition } from "./registry";
+import { ICONIFY_REGISTRY_PATH, mergeRegistryContent, mergeRegistryFile } from "./registry";
 
 // BadArgument | NoSuchFileError | SystemError
 const DEFAULT_SEARCH_LIMIT = 20;

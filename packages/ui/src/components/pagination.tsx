@@ -1,4 +1,5 @@
-import { type Button, buttonVariants } from "@beep/ui/components/button";
+import type { Button } from "@beep/ui/components/button";
+import { buttonVariants } from "@beep/ui/components/button";
 import { cn } from "@beep/ui-core/utils";
 import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from "lucide-react";
 import type * as React from "react";

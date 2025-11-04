@@ -1,6 +1,6 @@
 import { AuthProviderNameValue } from "@beep/constants";
-import { Account } from "@beep/iam-domain/entities";
 import { Contract, ContractKit } from "@beep/contract";
+import { Account } from "@beep/iam-domain/entities";
 import { BS } from "@beep/schema";
 import { IamEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";

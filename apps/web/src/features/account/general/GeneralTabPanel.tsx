@@ -20,7 +20,7 @@ export const GeneralTabPanel = () => {
         image: "",
       },
       onSubmit: async (value) => {
-        console.log(value);
+        // console.log(value);
       },
     })
   );

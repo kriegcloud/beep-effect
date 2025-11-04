@@ -16,12 +16,12 @@ export function TodoList({ todos, onToggle, onDelete }: TodoListProps) {
     <div>
       {Result.match(todos, {
         onInitial: () => (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-neutral-500 text-center py-8">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-8 text-center text-neutral-500">
             Loading...
           </motion.div>
         ),
         onFailure: (error) => (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-center py-8">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-8 text-center text-red-400">
             Error: {String(error.cause)}
           </motion.div>
         ),
@@ -32,7 +32,7 @@ export function TodoList({ todos, onToggle, onDelete }: TodoListProps) {
                 initial={{ opacity: 0, filter: "blur(4px)" }}
                 animate={{ opacity: 1, filter: "blur(0px)" }}
                 transition={{ type: "spring", visualDuration: 0.3, bounce: 0 }}
-                className="text-neutral-500 text-center py-8"
+                className="py-8 text-center text-neutral-500"
               >
                 No todos yet. Add one above!
               </motion.div>

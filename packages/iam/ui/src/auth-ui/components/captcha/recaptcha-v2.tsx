@@ -2,7 +2,8 @@ import { useTranslate } from "@beep/ui/i18n";
 import { cn } from "@beep/ui-core/utils";
 import { useTheme } from "@mui/material/styles";
 import * as Redacted from "effect/Redacted";
-import { type RefObject, useContext, useEffect } from "react";
+import type { RefObject } from "react";
+import { useContext, useEffect } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 export function RecaptchaV2({ ref }: { ref: RefObject<ReCAPTCHA | null> }) {

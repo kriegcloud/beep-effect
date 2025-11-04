@@ -35,10 +35,10 @@ export function TodoResults() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 p-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-semibold text-neutral-100">Todo App</h1>
+    <div className="min-h-screen bg-neutral-950 p-8 text-neutral-100">
+      <div className="mx-auto max-w-2xl">
+        <div className="mb-8 flex items-center justify-between">
+          <h1 className="font-semibold text-3xl text-neutral-100">Todo App</h1>
           <TodoStats todos={useAtomValue(todosAtom)} />
         </div>
         <AddTodoForm onAdd={handleAddTodo} />

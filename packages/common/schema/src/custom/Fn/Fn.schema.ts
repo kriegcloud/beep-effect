@@ -20,7 +20,7 @@ export class Fn<const IA, const IE, const OA, const OE> extends Data.TaggedClass
       identifier: "ValidatedFunction",
       title: "ValidatedFunction",
       description: "Wraps a function to validate inputs/outputs at call time",
-    })
+    });
 
     super({ Schema: BaseFn });
     this.implement = (fnUnknown: (i: S.Schema.Type<S.Schema<IA, IE>>) => S.Schema.Type<S.Schema<OA, OE>>) => {

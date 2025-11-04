@@ -21,7 +21,7 @@ export function Toaster() {
             {description && <ToastDescription className="text-[--sl-color-text]">{description}</ToastDescription>}
           </div>
           {action}
-          <ToastClose className="bg-transparent text-[--sl-color-white] cursor-pointer" />
+          <ToastClose className="cursor-pointer bg-transparent text-[--sl-color-white]" />
         </Toast>
       ))}
       <ToastViewport />

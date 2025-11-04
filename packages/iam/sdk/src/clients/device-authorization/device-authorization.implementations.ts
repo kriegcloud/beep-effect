@@ -1,18 +1,19 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { MetadataFactory, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import type {
+  DeviceAuthorizationCodePayload,
+  DeviceAuthorizationDecisionPayload,
+  DeviceAuthorizationStatusPayload,
+  DeviceAuthorizationTokenPayload,
+} from "@beep/iam-sdk/clients/device-authorization/device-authorization.contracts";
 import {
   DeviceAuthorizationApproveContract,
   DeviceAuthorizationCodeContract,
-  type DeviceAuthorizationCodePayload,
   DeviceAuthorizationContractKit,
-  type DeviceAuthorizationDecisionPayload,
   DeviceAuthorizationDenyContract,
   DeviceAuthorizationStatusContract,
-  type DeviceAuthorizationStatusPayload,
   DeviceAuthorizationTokenContract,
-  type DeviceAuthorizationTokenPayload,
 } from "@beep/iam-sdk/clients/device-authorization/device-authorization.contracts";
-import { makeFailureContinuation } from "@beep/iam-sdk/clients/_internal";
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";

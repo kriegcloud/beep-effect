@@ -1,8 +1,8 @@
+import type { ListItemProps } from "@mui/material";
 import {
   Checkbox,
   ListItem,
   ListItemButton,
-  type ListItemProps,
   ListItemText,
   listItemSecondaryActionClasses,
   Typography,

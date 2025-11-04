@@ -12,16 +12,14 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
-import {
-  type ExportDeclaration,
-  type ImportDeclaration,
-  type ImportEqualsDeclaration,
-  type ImportTypeNode,
-  Project,
-  type SourceFile,
-  SyntaxKind,
-  Node as TsNode,
+import type {
+  ExportDeclaration,
+  ImportDeclaration,
+  ImportEqualsDeclaration,
+  ImportTypeNode,
+  SourceFile,
 } from "ts-morph";
+import { Project, SyntaxKind, Node as TsNode } from "ts-morph";
 
 export type ScriptOptions = {
   readonly checkMode: boolean;

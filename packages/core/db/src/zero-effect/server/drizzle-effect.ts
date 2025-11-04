@@ -68,7 +68,8 @@ import type { DBConnection, DBTransaction, Row } from "@rocicorp/zero/pg";
 import { PushProcessor, ZQLDatabase } from "@rocicorp/zero/pg";
 import type { PgRemoteDatabase } from "drizzle-orm/pg-proxy";
 import { Context, Effect, Layer, Runtime } from "effect";
-import { type CustomMutatorEfDefs, convertEffectMutatorsToPromise } from "../client";
+import type { CustomMutatorEfDefs } from "../client";
+import { convertEffectMutatorsToPromise } from "../client";
 import { ZeroMutationProcessingError } from "../shared/errors";
 
 /**

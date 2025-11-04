@@ -3,7 +3,8 @@ import { useTranslate } from "@beep/ui/i18n";
 import { useTheme } from "@mui/material/styles";
 import { GoogleReCaptchaProvider, useGoogleReCaptcha } from "@wojtekmaj/react-recaptcha-v3";
 import * as Redacted from "effect/Redacted";
-import { type ReactNode, useEffect } from "react";
+import type { ReactNode } from "react";
+import { useEffect } from "react";
 import type { CaptchaOptions } from "../../types";
 
 export function RecaptchaV3({ children, captcha }: { children: ReactNode; captcha?: CaptchaOptions }) {

@@ -5,7 +5,8 @@ import { Input } from "@beep/ui/components/input";
 
 import { cn } from "@beep/ui-core/utils";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { type ComponentProps, useState } from "react";
+import type { ComponentProps } from "react";
+import { useState } from "react";
 
 export function PasswordInput({
   className,

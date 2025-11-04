@@ -4364,7 +4364,14 @@
     "public.member_status_enum": {
       "name": "member_status_enum",
       "schema": "public",
-      "values": ["active", "inactive", "offline", "suspended", "deleted", "invited"]
+      "values": [
+        "active",
+        "inactive",
+        "offline",
+        "suspended",
+        "deleted",
+        "invited"
+      ]
     }
   },
   "schemas": {},

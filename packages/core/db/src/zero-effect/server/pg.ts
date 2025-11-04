@@ -9,7 +9,8 @@ import type { CustomMutatorDefs, ReadonlyJSONObject, Schema } from "@rocicorp/ze
 import type { DBConnection, DBTransaction, Row } from "@rocicorp/zero/pg";
 import { PushProcessor, ZQLDatabase } from "@rocicorp/zero/pg";
 import { Context, Effect, Layer, Runtime } from "effect";
-import { type CustomMutatorEfDefs, convertEffectMutatorsToPromise } from "../client";
+import type { CustomMutatorEfDefs } from "../client";
+import { convertEffectMutatorsToPromise } from "../client";
 import { ZeroMutationProcessingError } from "../shared/errors";
 
 export * from "../client";

@@ -1,4 +1,5 @@
-import { BSUIConfig, type FieldConfig } from "@beep/schema/annotations/default";
+import type { FieldConfig } from "@beep/schema/annotations/default";
+import { BSUIConfig } from "@beep/schema/annotations/default";
 import { IsoStringToTimestamp, TimestampToIsoString } from "@beep/schema/custom/dates";
 import { BaseIdentifiedEntity, BaseSystemFields } from "@beep/schema/schema-system/SystemSchema";
 import * as A from "effect/Array";

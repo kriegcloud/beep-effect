@@ -9,7 +9,8 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Str from "effect/String";
-import { type PackageTarget, processPackage, type ScriptOptions } from "../src/utils/enforce-js-import-suffix/engine";
+import type { PackageTarget, ScriptOptions } from "../src/utils/enforce-js-import-suffix/engine";
+import { processPackage } from "../src/utils/enforce-js-import-suffix/engine";
 
 const TestLayer = Layer.mergeAll(FsUtilsLive, BunFileSystem.layer, BunPath.layerPosix);
 

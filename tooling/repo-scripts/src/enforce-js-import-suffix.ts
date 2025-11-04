@@ -14,13 +14,12 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Str from "effect/String";
+import type { PackageResult, ScriptOptions } from "./utils/enforce-js-import-suffix/engine";
 import {
   buildPackageChoices,
   defaultSelectedPackages,
   loadPackageTargets,
-  type PackageResult,
   processPackage,
-  type ScriptOptions,
 } from "./utils/enforce-js-import-suffix/engine";
 
 const commandHandler = Effect.gen(function* () {

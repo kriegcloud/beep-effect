@@ -2,7 +2,8 @@
 //   DeviceAuthorizationOptions
 // } from "./plugin-options";
 
-import { type DeviceAuthorizationOptions, deviceAuthorization } from "better-auth/plugins/device-authorization";
+import type { DeviceAuthorizationOptions } from "better-auth/plugins/device-authorization";
+import { deviceAuthorization } from "better-auth/plugins/device-authorization";
 import * as Effect from "effect/Effect";
 
 export type DeviceAuthorizationPluginEffect = Effect.Effect<ReturnType<typeof deviceAuthorization>, never, never>;

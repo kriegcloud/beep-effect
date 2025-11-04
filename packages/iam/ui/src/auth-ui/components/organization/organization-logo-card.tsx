@@ -11,7 +11,8 @@ import {
 import { cn } from "@beep/ui-core/utils";
 import type { Organization } from "better-auth/plugins/organization";
 import { Trash2Icon, UploadCloudIcon } from "lucide-react";
-import { type ComponentProps, useContext, useMemo, useRef, useState } from "react";
+import type { ComponentProps } from "react";
+import { useContext, useMemo, useRef, useState } from "react";
 // import * as O from "effect/Option";
 // import { BS } from "@beep/schema";
 import { useCurrentOrganization } from "../../hooks/use-current-organization";

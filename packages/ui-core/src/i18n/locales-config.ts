@@ -3,7 +3,8 @@ import * as F from "effect/Function";
 import * as O from "effect/Option";
 import type { InitOptions } from "i18next";
 import resourcesToBackend from "i18next-resources-to-backend";
-import { allLanguages, defaultNS, fallbackLang, type LangOption, SupportedLangValue } from "./constants";
+import type { LangOption } from "./constants";
+import { allLanguages, defaultNS, fallbackLang, SupportedLangValue } from "./constants";
 export const i18nResourceLoader = resourcesToBackend(
   (lang: SupportedLangValue.Type, namespace: string) => import(`./langs/${lang}/${namespace}.json`)
 );

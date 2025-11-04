@@ -1,5 +1,7 @@
-import { Iconify, type IconifyProps } from "@beep/ui/atoms/iconify";
-import { Box, Stack, type SxProps, Typography } from "@mui/material";
+import type { IconifyProps } from "@beep/ui/atoms/iconify";
+import { Iconify } from "@beep/ui/atoms/iconify";
+import type { SxProps } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import type { PropsWithChildren, ReactElement } from "react";
 
 interface AccountTabPanelSectionProps {

@@ -1,7 +1,7 @@
 import type { UnsafeTypes } from "@beep/types";
 import { cssVarRgba, rgbaFromChannel } from "@beep/ui-core/utils";
-import type { ButtonProps } from "@mui/material/Button";
-import { type ButtonClasses, buttonClasses } from "@mui/material/Button";
+import type { ButtonClasses, ButtonProps } from "@mui/material/Button";
+import { buttonClasses } from "@mui/material/Button";
 import type { Components, ComponentsVariants, CSSObject, Theme } from "@mui/material/styles";
 import * as Str from "effect/String";
 import { colorKeys } from "../palette";

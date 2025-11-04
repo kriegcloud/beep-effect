@@ -1,5 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { MetadataFactory, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   PasskeyAddContract,
   PasskeyAddPayload,
@@ -10,7 +10,6 @@ import {
   PasskeyUpdateContract,
   PasskeyUpdatePayload,
 } from "@beep/iam-sdk/clients/passkey/passkey.contracts";
-import { makeFailureContinuation } from "@beep/iam-sdk/clients/_internal";
 import { IamError } from "@beep/iam-sdk/errors";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";

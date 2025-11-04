@@ -43,11 +43,11 @@ export function TodoFilter() {
   return (
     <div
       ref={containerRef}
-      className="relative flex gap-1 mb-6 p-1 bg-neutral-900 border border-neutral-700 rounded-lg"
+      className="relative mb-6 flex gap-1 rounded-lg border border-neutral-700 bg-neutral-900 p-1"
     >
       {/* Sliding background indicator */}
       <motion.div
-        className="absolute top-1 bottom-1 bg-blue-600 rounded-md"
+        className="absolute top-1 bottom-1 rounded-md bg-blue-600"
         initial={false}
         animate={{
           left: indicatorStyle.left,
@@ -69,7 +69,7 @@ export function TodoFilter() {
             }}
             type="button"
             onClick={() => setFilter(f.value)}
-            className={`relative flex-1 px-4 py-2 rounded-md font-mono text-xs font-bold uppercase tracking-widest transition-colors ${
+            className={`relative flex-1 rounded-md px-4 py-2 font-bold font-mono text-xs uppercase tracking-widest transition-colors ${
               isActive ? "text-white" : "text-neutral-400 hover:text-neutral-300"
             }`}
           >

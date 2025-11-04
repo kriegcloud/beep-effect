@@ -28,7 +28,8 @@ import * as Redacted from "effect/Redacted";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import { AuthEmailService, SendResetPasswordEmailPayload, SendVerificationEmailPayload } from "./AuthEmail.service";
-import { type CommonExtraFields, commonExtraFields } from "./internal";
+import type { CommonExtraFields } from "./internal";
+import { commonExtraFields } from "./internal";
 import { AllPlugins } from "./plugins";
 import type { Plugins } from "./plugins/plugins";
 
