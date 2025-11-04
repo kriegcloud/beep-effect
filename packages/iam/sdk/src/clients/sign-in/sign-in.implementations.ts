@@ -1,18 +1,13 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
-import type {
-  SignInOAuth2Payload,
-  SignInSocialContract,
-  SignInUsernameContract,
-} from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
-import { SignInContractKit } from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
+import { Handler, MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import type { SignInOAuth2Payload, SignInUsernameContract } from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
+import { SignInContractKit, SignInSocialContract } from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import type { SignInEmailPayload, SignInPhoneNumberPayload } from "./sign-in.contracts";
 
 const metadataFactory = new MetadataFactory("sign-in");
 
-const SignInSocialMetadata = metadataFactory.make("social");
 const SignInEmailMetadata = metadataFactory.make("email");
 const SignInUsernameMetadata = metadataFactory.make("username");
 const SignInPhoneNumberMetadata = metadataFactory.make("phoneNumber");
@@ -23,26 +18,15 @@ const SignInOAuth2Metadata = metadataFactory.make("oauth2");
 // =====================================================================================================================
 // Sign In Social Handler
 // =====================================================================================================================
-const SignInSocialHandler = Effect.fn("SignInSocialHandler")(function* (
-  payload: typeof SignInSocialContract.payloadSchema.Type
-) {
-  const continuation = makeFailureContinuation({
-    contract: "SignInSocial",
-    metadata: SignInSocialMetadata,
-  });
-  yield* Effect.flatMap(
-    continuation.run((handlers) =>
-      client.signIn.social(
-        {
-          provider: payload.provider,
-          callbackURL: payload.callbackURL,
-        },
-        withFetchOptions(handlers)
-      )
-    ),
-    continuation.raiseResult
-  );
+const SignInSocialHandler = Handler.make({
+  contract: SignInSocialContract,
+  metadata: metadataFactory.make("social"),
+  effect: (payload, continuation) =>
+    continuation
+      .run((handlers) => client.signIn.social(payload, withFetchOptions(handlers)))
+      .pipe(Effect.flatMap(continuation.raiseResult)),
 });
+
 // =====================================================================================================================
 // Sign In Email Handler
 // =====================================================================================================================
