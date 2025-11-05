@@ -18,11 +18,13 @@ import { useCallback, useState } from "react";
 import type { NavItemData } from "../layout/nav-config-components";
 
 type NavSearchProps = {
-  sx?: SxProps<Theme>;
-  navData?: {
-    title: string;
-    items: NavItemData[];
-  }[];
+  readonly sx?: SxProps<Theme> | undefined;
+  readonly navData?:
+    | {
+        readonly title: string;
+        readonly items: NavItemData[];
+      }[]
+    | undefined;
 };
 
 export function NavSearch({ navData = [], sx }: NavSearchProps) {
@@ -74,8 +76,8 @@ export function NavSearch({ navData = [], sx }: NavSearchProps) {
       popupIcon={null}
       options={options}
       value={selectedItem as NavItemData}
-      onChange={(event, newValue) => handleChange(newValue)}
-      onInputChange={(event, newValue) => setSearchQuery(newValue)}
+      onChange={(_event, newValue) => handleChange(newValue)}
+      onInputChange={(_event, newValue) => setSearchQuery(newValue)}
       getOptionLabel={(option) => option.name}
       noOptionsText={<SearchNotFound query={searchQuery} />}
       isOptionEqualToValue={(option, value) => option.name === value.name}

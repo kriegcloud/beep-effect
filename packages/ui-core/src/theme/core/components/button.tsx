@@ -179,20 +179,20 @@ shapes.forEach((shape) => {
 });
 declare module "@mui/material/Button" {
   interface ButtonPropsVariantOverrides {
-    soft: true;
-    dashed: true;
+    readonly soft: true;
+    readonly dashed: true;
   }
 
   interface ButtonPropsColorOverrides {
-    neutral: true;
+    readonly neutral: true;
   }
 
   interface ButtonClasses {
-    outlinedNeutral: true;
+    readonly outlinedNeutral: true;
   }
 
   interface ButtonOwnProps {
-    shape?: "square" | "circle";
+    readonly shape?: "square" | "circle" | undefined;
   }
 }
 

@@ -8,9 +8,9 @@ interface TodoStatsProps {
 }
 
 interface TodoStatProps {
-  value: number;
-  className?: string;
-  label: string;
+  readonly value: number;
+  readonly className?: string | undefined;
+  readonly label: string;
 }
 
 function TodoStat({ value, className, label }: TodoStatProps) {

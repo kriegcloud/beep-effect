@@ -24,7 +24,7 @@ Last updated: 2025-08-17
   - Store [answers](cci:1://file:///home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/form-system/runtime/xstateAdapter.ts:144:14-151:15) in machine context; persist current step’s answers on NEXT.
 - API changes
   - Events: `RESET`, `LOAD_SNAPSHOT { snapshot }`.
-  - [buildMachine(def, evaluate, actors?, options?: { snapshot? })](cci:1://file:///home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/form-system/runtime/xstateAdapter.ts:47:0-194:1).
+  - [buildMachine(def, evaluate, actors?, options?: { snapshot? } | undefined)](cci:1://file:///home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/form-system/runtime/xstateAdapter.ts:47:0-194:1).
   - Machine context shape: `{ history: string[]; external: Record<string, unknown>; answers: Record<string, unknown> }`.
   - Snapshot shape: `{ value: string; context: { history, external, answers } }`.
 - Acceptance criteria

@@ -4,9 +4,9 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
 type FormHeadProps = BoxProps & {
-  icon?: React.ReactNode;
-  title: React.ReactNode;
-  description?: React.ReactNode;
+  readonly icon?: React.ReactNode | undefined;
+  readonly title: React.ReactNode;
+  readonly description?: React.ReactNode | undefined;
 };
 
 export function FormHead({ sx, icon, title, description, ...other }: FormHeadProps) {

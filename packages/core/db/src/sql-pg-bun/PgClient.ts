@@ -315,7 +315,10 @@ export const layer = (config: PgClientConfig): Layer.Layer<PgClient | Client.Sql
  * @category constructor
  * @since 1.0.0
  */
-export const makeCompiler = (transform?: (_: string) => string, transformJson = true): Statement.Compiler => {
+export const makeCompiler = (
+  transform?: ((_: string) => string) | undefined,
+  transformJson = true
+): Statement.Compiler => {
   const transformValue = transformJson && transform ? Statement.defaultTransforms(transform).value : undefined;
 
   return Statement.makeCompiler<PgCustom>({

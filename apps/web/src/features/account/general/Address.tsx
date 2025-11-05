@@ -34,7 +34,7 @@ export interface AddressFormValues {
   city: string;
   street: string;
   zip: string;
-  visibility?: "only_me" | "followers_only" | "everyone";
+  visibility?: "only_me" | "followers_only" | "everyone" | undefined;
 }
 
 // const addressSchema = yup.object().shape({

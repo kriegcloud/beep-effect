@@ -112,7 +112,7 @@ const makeTestConsole = (logsRef: Ref.Ref<ReadonlyArray<string>>): Console.Conso
     dir: noOp<[any, any]>(),
     dirxml: noOp<ReadonlyArray<any>>(),
     error: noOp<ReadonlyArray<any>>(),
-    group: noOp<[{ readonly label?: string; readonly collapsed?: boolean } | undefined]>(),
+    group: noOp<[{ readonly label?: string | undefined; readonly collapsed?: boolean | undefined } | undefined]>(),
     groupEnd: Effect.void,
     info: noOp<ReadonlyArray<any>>(),
     log: (...args: ReadonlyArray<any>) => record(args),

@@ -4,9 +4,9 @@ import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 
 type FormSocialsProps = BoxProps & {
-  signInWithGoogle?: () => void;
-  singInWithGithub?: () => void;
-  signInWithTwitter?: () => void;
+  readonly signInWithGoogle?: (() => void) | undefined;
+  readonly singInWithGithub?: (() => void) | undefined;
+  readonly signInWithTwitter?: (() => void) | undefined;
 };
 
 export function FormSocials({ sx, signInWithGoogle, singInWithGithub, signInWithTwitter, ...other }: FormSocialsProps) {

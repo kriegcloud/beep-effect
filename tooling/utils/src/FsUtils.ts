@@ -13,17 +13,17 @@ import * as Glob from "glob";
 
 type Glob = (
   pattern: string | string[],
-  options?: Glob.GlobOptions
+  options?: Glob.GlobOptions | undefined
 ) => Effect.Effect<Array<string>, DomainError, never>;
 type GlobFiles = (
   pattern: string | string[],
-  options?: Glob.GlobOptions
+  options?: Glob.GlobOptions | undefined
 ) => Effect.Effect<Array<string>, DomainError, never>;
 type ModifyFile = (path: string, f: (s: string, path: string) => string) => Effect.Effect<void, DomainError, never>;
 type ModifyGlob = (
   pattern: string | Array<string>,
   f: (s: string, path: string) => string,
-  options?: Glob.GlobOptions
+  options?: Glob.GlobOptions | undefined
 ) => Effect.Effect<void, DomainError, never>;
 type RmAndCopy = (from: string, to: string) => Effect.Effect<void, DomainError, never>;
 type CopyIfExists = (from: string, to: string) => Effect.Effect<void, DomainError, never>;
@@ -72,7 +72,10 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
    * @returns Effect that resolves to all matches
    */
 
-  const glob: Glob = Effect.fn("FsUtils.glob")(function* (pattern: string | Array<string>, options?: Glob.GlobOptions) {
+  const glob: Glob = Effect.fn("FsUtils.glob")(function* (
+    pattern: string | Array<string>,
+    options?: Glob.GlobOptions | undefined
+  ) {
     return yield* Effect.tryPromise({
       try: () => Glob.glob(pattern as UnsafeTypes.UnsafeAny, options as UnsafeTypes.UnsafeAny),
       catch: (e) =>
@@ -130,7 +133,7 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
   const modifyGlob: ModifyGlob = Effect.fn("FsUtils.modifyGlob")(function* (
     pattern: string | Array<string>,
     f: (s: string, path: string) => string,
-    options?: Glob.GlobOptions
+    options?: Glob.GlobOptions | undefined
   ) {
     return yield* globFiles(pattern, options).pipe(
       Effect.flatMap((paths) =>

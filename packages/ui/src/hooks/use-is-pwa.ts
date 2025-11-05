@@ -9,7 +9,7 @@ export const useIsPWA = () => {
 
   return (
     F.pipe(
-      (window.navigator as { standalone?: boolean | undefined }).standalone,
+      (window.navigator as { readonly standalone?: boolean | undefined }).standalone,
       O.fromNullable,
       O.getOrElse(() => false)
     ) ||

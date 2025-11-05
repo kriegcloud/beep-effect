@@ -6,8 +6,8 @@ import { debounce } from "./debounce";
 type AnyFunction = (this: unknown, ...args: readonly unknown[]) => unknown;
 
 export interface ThrottleOptions {
-  readonly leading?: boolean;
-  readonly trailing?: boolean;
+  readonly leading?: boolean | undefined;
+  readonly trailing?: boolean | undefined;
 }
 
 export const throttle = <T extends AnyFunction>(

@@ -10,9 +10,9 @@ export interface DebouncedFunc<T extends AnyFunction> {
 }
 
 export interface DebounceOptions {
-  readonly leading?: boolean;
-  readonly trailing?: boolean;
-  readonly maxWait?: Duration.DurationInput;
+  readonly leading?: boolean | undefined;
+  readonly trailing?: boolean | undefined;
+  readonly maxWait?: Duration.DurationInput | undefined;
 }
 
 const defaultNow = () => Date.now();

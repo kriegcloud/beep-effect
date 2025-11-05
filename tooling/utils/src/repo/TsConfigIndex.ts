@@ -28,7 +28,7 @@ export const collectTsConfigPaths = Effect.gen(function* () {
 
   const rootTsConfigPath = path_.join(repoRoot, "tsconfig.json");
   const rootBuildTsConfigPath = path_.join(repoRoot, "tsconfig.build.json");
-  const rootBaseTsConfigPath = path_.join(repoRoot, "tsconfig.base.json");
+  const rootBaseTsConfigPath = path_.join(repoRoot, "tsconfig.base.jsonc");
 
   for (const rootTsConfig of [rootTsConfigPath, rootBuildTsConfigPath, rootBaseTsConfigPath]) {
     const exists = yield* fs.exists(rootTsConfig);

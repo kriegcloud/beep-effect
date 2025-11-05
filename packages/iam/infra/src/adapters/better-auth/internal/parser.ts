@@ -25,13 +25,13 @@ const ISO_DATE_REGEX = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d
 
 type ParseOptions = {
   /** Throw errors instead of returning the original value */
-  strict?: boolean;
+  readonly strict?: boolean | undefined;
   /** Log warnings when suspicious patterns are detected */
-  warnings?: boolean;
+  readonly warnings?: boolean | undefined;
   /** Custom reviver function */
-  reviver?: (key: string, value: UnsafeTypes.UnsafeAny) => UnsafeTypes.UnsafeAny;
+  readonly reviver?: ((key: string, value: UnsafeTypes.UnsafeAny) => UnsafeTypes.UnsafeAny) | undefined;
   /** Automatically convert ISO date strings to Date objects */
-  parseDates?: boolean;
+  readonly parseDates?: boolean | undefined;
 };
 
 function isValidDate(date: Date): boolean {

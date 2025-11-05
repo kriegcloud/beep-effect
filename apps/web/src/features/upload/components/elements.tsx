@@ -11,9 +11,9 @@ export const componentBoxStyles: SxProps<Theme> = {
 };
 
 type FormActionsProps = BoxProps & {
-  loading?: boolean;
-  disabled?: boolean;
-  onReset: () => void;
+  readonly loading?: boolean | undefined;
+  readonly disabled?: boolean | undefined;
+  readonly onReset: () => void;
 };
 
 export function FormActions({ sx, disabled, onReset, loading, ...other }: FormActionsProps) {
@@ -64,8 +64,8 @@ export function FormGrid({ sx, children, ...other }: BoxProps) {
 }
 
 type FieldContainerProps = BoxProps & {
-  label?: string;
-  children: React.ReactNode;
+  readonly label?: string | undefined;
+  readonly children: React.ReactNode;
 };
 
 export function FieldContainer({ sx, children, label = "RHFTextField" }: FieldContainerProps) {

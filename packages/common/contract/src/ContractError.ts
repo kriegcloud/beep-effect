@@ -202,7 +202,7 @@ export class HttpRequestError extends S.TaggedError<HttpRequestError>("@beep/con
       },
     });
 
-  get message(): string {
+  override get message(): string {
     const methodAndUrl = `${this.request.method} ${this.request.url}` as const;
 
     let baseMessage = this.description
@@ -416,7 +416,7 @@ export class HttpResponseError extends S.TaggedError<HttpResponseError>(
     );
   };
 
-  get message(): string {
+  override get message(): string {
     const methodUrlStatus = `${this.response.status} ${this.request.method} ${this.request.url}` as const;
 
     let baseMessage = this.description
@@ -629,7 +629,7 @@ export class MalformedOutput extends S.TaggedError<MalformedOutput>("@beep/contr
   }: {
     readonly module: string;
     readonly method: string;
-    readonly description?: string;
+    readonly description?: string | undefined;
     readonly error: ParseError;
   }): MalformedOutput {
     return new MalformedOutput({
@@ -704,7 +704,7 @@ export class UnknownError extends S.TaggedError<UnknownError>("@beep/contract/Un
   /**
    * @since 1.0.0
    */
-  get message(): string {
+  override get message(): string {
     const moduleMethod = `${this.module}.${this.method}`;
     return P.isUndefined(this.description)
       ? `${moduleMethod}: An error occurred`

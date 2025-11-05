@@ -198,9 +198,7 @@ const ItemCaptionText = styled("span", { shouldForwardProp })<StyledState>(({ th
 /**
  * @slot info
  */
-const ItemInfo = styled("span", { shouldForwardProp })<StyledState>(({ theme }) => ({
-  ...navItemStyles.info,
-}));
+const ItemInfo = styled("span", { shouldForwardProp })<StyledState>(navItemStyles.info);
 
 /**
  * @slot arrow

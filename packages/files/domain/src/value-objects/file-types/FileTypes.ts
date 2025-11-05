@@ -1106,7 +1106,10 @@ export class FileTypes extends Data.TaggedClass("FileTypes") {
  *
  * @returns {boolean} True if found a signature of type 'aac' in file content, otherwise false
  */
-export function isAAC(file: Array<number> | ArrayBuffer | Uint8Array, options?: FileValidatorOptions): boolean {
+export function isAAC(
+  file: Array<number> | ArrayBuffer | Uint8Array,
+  options?: FileValidatorOptions | undefined
+): boolean {
   const fileChunk: Array<number> = getFileChunk(file);
   const iaAac = FileTypes.checkByFileType(fileChunk, "aac");
 
@@ -1222,7 +1225,10 @@ export function isRAR(file: Array<number> | ArrayBuffer | Uint8Array): boolean {
  *
  * @returns {boolean} True if found a signature of type 'zip' in file content, otherwise false
  */
-export function isZIP(file: Array<number> | ArrayBuffer | Uint8Array, options?: ZipValidatorOptions): boolean {
+export function isZIP(
+  file: Array<number> | ArrayBuffer | Uint8Array,
+  options?: ZipValidatorOptions | undefined
+): boolean {
   const fileChunk: Array<number> = getFileChunk(file, options?.chunkSize || 64);
   return FileTypes.checkByFileType(fileChunk, "zip");
 }
@@ -1678,7 +1684,10 @@ export function isMOV(file: Array<number> | ArrayBuffer | Uint8Array): boolean {
  *
  * @returns {boolean} True if found a signature of type 'mp4' in file content, otherwise false
  */
-export function isMP4(file: Array<number> | ArrayBuffer | Uint8Array, options?: FileValidatorOptions): boolean {
+export function isMP4(
+  file: Array<number> | ArrayBuffer | Uint8Array,
+  options?: FileValidatorOptions | undefined
+): boolean {
   const fileChunk: Array<number> = getFileChunk(file);
   const isMp4 = FileTypes.checkByFileType(fileChunk, "mp4");
 
@@ -1743,7 +1752,7 @@ export function isWEBM(file: Array<number> | ArrayBuffer | Uint8Array): boolean 
 export function validateFileType(
   file: Array<number> | ArrayBuffer | Uint8Array,
   types: Array<string>,
-  options?: ValidateFileTypeOptions
+  options?: ValidateFileTypeOptions | undefined
 ): boolean {
   let typeExtensions: Array<string> = [];
   const uniqueTypes = [

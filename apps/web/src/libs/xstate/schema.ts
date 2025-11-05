@@ -3,20 +3,20 @@ import * as S from "effect/Schema";
 // Define interfaces for recursive schemas
 export interface ICompoundStateNode extends S.Schema.Type<typeof BaseStateNode> {
   readonly type: "compound";
-  readonly entry?: ReadonlyArray<S.Schema.Type<typeof ActionObject>>;
-  readonly exit?: ReadonlyArray<S.Schema.Type<typeof ActionObject>>;
-  readonly initial?: S.Schema.Type<typeof InitialTransitionObject>;
-  readonly invoke?: ReadonlyArray<S.Schema.Type<typeof InvokeObject>>;
-  readonly on?: S.Schema.Type<typeof TransitionsObject>;
+  readonly entry?: ReadonlyArray<S.Schema.Type<typeof ActionObject>> | undefined;
+  readonly exit?: ReadonlyArray<S.Schema.Type<typeof ActionObject>> | undefined;
+  readonly initial?: S.Schema.Type<typeof InitialTransitionObject> | undefined;
+  readonly invoke?: ReadonlyArray<S.Schema.Type<typeof InvokeObject>> | undefined;
+  readonly on?: S.Schema.Type<typeof TransitionsObject> | undefined;
   readonly states: Record<string, IStateNode>; // Recursive reference
 }
 
 export interface IParallelStateNode extends S.Schema.Type<typeof BaseStateNode> {
   readonly type: "parallel";
-  readonly entry?: ReadonlyArray<S.Schema.Type<typeof ActionObject>>;
-  readonly exit?: ReadonlyArray<S.Schema.Type<typeof ActionObject>>;
-  readonly invoke?: ReadonlyArray<S.Schema.Type<typeof InvokeObject>>;
-  readonly on?: S.Schema.Type<typeof TransitionsObject>;
+  readonly entry?: ReadonlyArray<S.Schema.Type<typeof ActionObject>> | undefined;
+  readonly exit?: ReadonlyArray<S.Schema.Type<typeof ActionObject>> | undefined;
+  readonly invoke?: ReadonlyArray<S.Schema.Type<typeof InvokeObject>> | undefined;
+  readonly on?: S.Schema.Type<typeof TransitionsObject> | undefined;
   readonly states: Record<string, IStateNode>; // Recursive reference
 }
 

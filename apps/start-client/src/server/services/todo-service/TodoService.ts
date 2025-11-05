@@ -18,7 +18,7 @@ const handleSqlError = <A, E>(effect: Effect.Effect<A, SqlError>): Effect.Effect
   effect.pipe(
     Effect.catchTag("SqlError", (error) =>
       UnknownTodoServiceError.make({
-        message: (error as { message?: string }).message ?? "Database operation failed",
+        message: (error as { message?: string | undefined }).message ?? "Database operation failed",
       })
     )
   );

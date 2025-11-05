@@ -33,12 +33,12 @@ export class PgContainerError extends Data.TaggedError("PgContainerError")<{
 
 export class PgContainerUnsupported extends Data.TaggedError("PgContainerUnsupported")<{
   readonly message: string;
-  readonly cause?: unknown;
+  readonly cause?: unknown | undefined;
 }> {}
 
 export type PgContainerPreflightResult =
   | { readonly type: "ready" }
-  | { readonly type: "skip"; readonly reason: string; readonly cause?: unknown };
+  | { readonly type: "skip"; readonly reason: string; readonly cause?: unknown | undefined };
 
 const EXPLICIT_SKIP_ENV_VARS = ["BEEP_SKIP_PG_CONTAINER_TESTS", "SKIP_DOCKER_TESTS", "TESTCONTAINERS_DISABLED"];
 

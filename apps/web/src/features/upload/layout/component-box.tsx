@@ -4,7 +4,7 @@ import { styled } from "@mui/material/styles";
 import type React from "react";
 
 type ComponentBoxProps = React.ComponentProps<typeof ComponentBoxRoot> & {
-  title?: string;
+  readonly title?: string | undefined;
 };
 
 export function ComponentBox({ title, sx, children, ...other }: ComponentBoxProps) {

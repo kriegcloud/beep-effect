@@ -4,7 +4,7 @@ import { memo } from "react";
 
 import { BackgroundShape } from "./background-shape";
 
-type SvgProps = SvgIconProps & { hideBackground?: boolean };
+type SvgProps = SvgIconProps & { readonly hideBackground?: boolean | undefined };
 
 function UploadIllustration({ hideBackground, sx, ...other }: SvgProps) {
   return (

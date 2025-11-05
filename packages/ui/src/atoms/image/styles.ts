@@ -19,7 +19,7 @@ const sharedStyles: CSSObject = {
 
 export const ImageRoot = styled("span", {
   shouldForwardProp: (prop: string) => !["effect", "sx"].includes(prop),
-})<{ effect?: EffectsType }>(({ effect }) => ({
+})<{ readonly effect?: EffectsType | undefined }>(({ effect }) => ({
   maxWidth: "100%",
   overflow: "hidden",
   position: "relative",
@@ -51,12 +51,12 @@ export const ImagePlaceholder = styled("span")({
 });
 
 export type EffectsType = {
-  duration?: number;
-  disabled?: boolean;
-  style?: "blur" | "black-and-white" | "opacity";
+  readonly duration?: number | undefined;
+  readonly disabled?: boolean | undefined;
+  readonly style?: "blur" | "black-and-white" | "opacity" | undefined;
 };
 
-const getEffectStyles = (effect?: EffectsType) => {
+const getEffectStyles = (effect?: EffectsType | undefined) => {
   const { style, duration } = effect ?? {};
 
   const transition =

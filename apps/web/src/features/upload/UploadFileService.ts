@@ -17,7 +17,7 @@ export class UploadFileService extends Effect.Service<UploadFileService>()("Uplo
       config,
     }: {
       readonly file: File;
-      readonly config?: PipelineConfig;
+      readonly config?: PipelineConfig | undefined;
     }) {
       const eff = Effect.gen(function* () {
         const validated = yield* validateFile({ file, config });
@@ -40,7 +40,7 @@ export class UploadFileService extends Effect.Service<UploadFileService>()("Uplo
       config,
     }: {
       readonly files: ReadonlyArray<File>;
-      readonly config?: PipelineConfig;
+      readonly config?: PipelineConfig | undefined;
     }) {
       const effects = files.map((file) => processFile({ file, config }));
       const result = yield* accumulateEffectsAndReport(effects, {

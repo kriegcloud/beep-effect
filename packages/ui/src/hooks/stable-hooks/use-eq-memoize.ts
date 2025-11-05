@@ -8,7 +8,7 @@ import type { StableHookOptions } from "./types";
 export const useEqMemoize = <A extends ReadonlyArray<unknown>>(
   value: A,
   eq: Equivalence.Equivalence<A>,
-  options?: StableHookOptions
+  options?: StableHookOptions | undefined
 ) => {
   const ref = React.useRef<A>(null);
   const [signal, setSignal] = React.useState(0);

@@ -26,20 +26,22 @@ type AspectRatioType =
   | string;
 
 export type ImageProps = React.ComponentProps<typeof ImageRoot> & {
-  src?: string;
-  alt?: string;
-  delayTime?: number;
-  onLoad?: () => void;
-  effect?: EffectsType;
-  visibleByDefault?: boolean;
-  disablePlaceholder?: boolean;
-  viewportOptions?: UseInViewOptions;
-  ratio?: AspectRatioType | Partial<Record<Breakpoint, AspectRatioType>>;
-  slotProps?: {
-    img?: Omit<React.ComponentProps<typeof ImageImg>, "src" | "alt">;
-    overlay?: React.ComponentProps<typeof ImageOverlay>;
-    placeholder?: React.ComponentProps<typeof ImagePlaceholder>;
-  };
+  readonly src?: string | undefined;
+  readonly alt?: string | undefined;
+  readonly delayTime?: number | undefined;
+  readonly onLoad?: (() => void) | undefined;
+  readonly effect?: EffectsType | undefined;
+  readonly visibleByDefault?: boolean | undefined;
+  readonly disablePlaceholder?: boolean | undefined;
+  readonly viewportOptions?: UseInViewOptions | undefined;
+  readonly ratio?: AspectRatioType | Partial<Record<Breakpoint, AspectRatioType>> | undefined;
+  readonly slotProps?:
+    | {
+        readonly img?: Omit<React.ComponentProps<typeof ImageImg>, "src" | "alt"> | undefined;
+        readonly overlay?: React.ComponentProps<typeof ImageOverlay> | undefined;
+        readonly placeholder?: React.ComponentProps<typeof ImagePlaceholder> | undefined;
+      }
+    | undefined;
 };
 
 const DEFAULT_DELAY = 0;

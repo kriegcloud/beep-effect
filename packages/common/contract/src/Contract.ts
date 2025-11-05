@@ -881,39 +881,41 @@ export const make = <
    * The unique name identifier for this contract.
    */
   name: Name,
-  options?: {
-    /**
-     * An optional description explaining what the contract does.
-     */
-    readonly description?: string | undefined;
-    /**
-     * Schema defining the payload this contract accepts.
-     */
-    readonly payload?: Payload | undefined;
-    /**
-     * Schema for successful contract execution results.
-     */
-    readonly success?: Success | undefined;
-    /**
-     * Schema for contract execution failures.
-     */
-    readonly failure?: Failure | undefined;
-    /**
-     * The strategy used for handling errors returned from contract call implementation
-     * execution.
-     *
-     * If set to `"error"` (the default), errors that occur during contract call implementation
-     * execution will be returned in the error channel of the calling effect.
-     *
-     * If set to `"return"`, errors that occur during contract call implementation execution
-     * will be captured and returned as part of the contract call result.
-     */
-    readonly failureMode?: Mode;
-    /**
-     * Service dependencies required by the contract implementation.
-     */
-    readonly dependencies?: Dependencies | undefined;
-  }
+  options?:
+    | {
+        /**
+         * An optional description explaining what the contract does.
+         */
+        readonly description?: string | undefined;
+        /**
+         * Schema defining the payload this contract accepts.
+         */
+        readonly payload?: Payload | undefined;
+        /**
+         * Schema for successful contract execution results.
+         */
+        readonly success?: Success | undefined;
+        /**
+         * Schema for contract execution failures.
+         */
+        readonly failure?: Failure | undefined;
+        /**
+         * The strategy used for handling errors returned from contract call implementation
+         * execution.
+         *
+         * If set to `"error"` (the default), errors that occur during contract call implementation
+         * execution will be returned in the error channel of the calling effect.
+         *
+         * If set to `"return"`, errors that occur during contract call implementation execution
+         * will be captured and returned as part of the contract call result.
+         */
+        readonly failureMode?: Mode | undefined;
+        /**
+         * Service dependencies required by the contract implementation.
+         */
+        readonly dependencies?: Dependencies | undefined;
+      }
+    | undefined
 ): Contract<
   Name,
   {
@@ -1021,7 +1023,7 @@ export const providerDefined =
              * If set to `"return"`, errors that occur during contract call implementation execution
              * will be captured and returned as part of the contract call result.
              */
-            readonly failureMode?: Mode;
+            readonly failureMode?: Mode | undefined;
           }
         >
       : S.Simplify<S.Struct.Encoded<Args>>

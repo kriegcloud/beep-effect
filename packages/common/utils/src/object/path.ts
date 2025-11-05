@@ -34,7 +34,7 @@ const normalizePath = (path: string | ReadonlyArray<PropertyKey>): ReadonlyArray
 export const getPath = <T, D = undefined>(
   value: T,
   path: string | ReadonlyArray<PropertyKey>,
-  defaultValue?: D
+  defaultValue?: D | undefined
 ): T | D | undefined =>
   F.pipe(
     normalizePath(path),

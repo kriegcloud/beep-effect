@@ -116,7 +116,7 @@ type ServerRuntimeEnv = Layer.Layer.Success<typeof AppLive>;
 export const runServerPromise = <A, E>(
   effect: Effect.Effect<A, E, ServerRuntimeEnv>,
   spanName = "serverRuntime.runPromise",
-  options?: Parameters<typeof serverRuntime.runPromise>[1]
+  options?: Parameters<typeof serverRuntime.runPromise>[1] | undefined
 ) => serverRuntime.runPromise(Effect.withSpan(effect, spanName), options);
 
 /**
@@ -125,7 +125,9 @@ export const runServerPromise = <A, E>(
 export const runServerPromiseExit = <A, E>(
   effect: Effect.Effect<A, E, ServerRuntimeEnv>,
   spanName = "serverRuntime.runPromiseExit",
-  options?: {
-    readonly signal?: AbortSignal | undefined;
-  }
+  options?:
+    | {
+        readonly signal?: AbortSignal | undefined;
+      }
+    | undefined
 ) => serverRuntime.runPromiseExit(Effect.withSpan(effect, spanName), options);

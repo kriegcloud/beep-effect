@@ -79,12 +79,12 @@ const program = Effect.gen(function* () {
   // 1) Generate/refresh central alias path mappings in root tsconfig.base.json
   //    (also updates package tsconfig.json files). Useful for IDE speed.
   steps.push([
-    "Update path mappings in tsconfig.base.json",
+    "Update path mappings in tsconfig.base.jsonc",
     [
       "--configName",
       "tsconfig.json",
       "--rootConfigName",
-      "tsconfig.base.json",
+      "tsconfig.base.jsonc",
       "--createPathMappings",
       ...(checkMode ? ["--check"] : []),
     ],

@@ -3,17 +3,17 @@ import { ArrayUtils, StrUtils } from "@beep/utils";
 // import { CONFIG } from "@/global-config";
 
 type CreateNavItemProps = {
-  name: string;
-  packageType?: string;
-  iconPrefix: "ic" | "ic-extra";
-  category: "foundation" | "mui" | "extra";
+  readonly name: string;
+  readonly packageType?: string | undefined;
+  readonly iconPrefix: "ic" | "ic-extra";
+  readonly category: "foundation" | "mui" | "extra";
 };
 
 export type NavItemData = {
-  name: string;
-  icon: string;
-  href: string;
-  packageType?: string;
+  readonly name: string;
+  readonly icon: string;
+  readonly href: string;
+  readonly packageType?: string | undefined;
 };
 
 const createNavItem = ({ category, name, iconPrefix, packageType }: CreateNavItemProps) => ({

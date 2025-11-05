@@ -37,11 +37,10 @@ const MuiPaper: Components<Theme>["MuiPaper"] = {
   variants: [
     {
       props: { variant: "default" },
-      style: ({ theme }) => ({
+      style: {
         border: "none",
-        outline: `1px solid ${theme.vars.palette.divider}`,
         borderRadius: 0,
-      }),
+      },
     },
     ...backgroundVariants,
   ],
@@ -55,15 +54,15 @@ const MuiPaper: Components<Theme>["MuiPaper"] = {
     elevation: ({ theme }) => ({
       backgroundColor: theme.vars.palette.background.menu,
       backgroundImage: "none",
-      borderWidth: 0,
-      borderStyle: "solid",
-      borderColor: theme.vars.palette.menuDivider,
-      ...theme.applyStyles("dark", {
-        borderWidth: 1,
-      }),
+      // borderWidth: 0,
+      // borderStyle: "solid",
+      // borderColor: theme.vars.palette.menuDivider,
+      // ...theme.applyStyles("dark", {
+      //   borderWidth: 1,
+      // }),
     }),
     rounded: {
-      borderRadius: 8,
+      // borderRadius: ,
     },
     root: {
       backgroundImage: "none",

@@ -26,7 +26,7 @@ import { InfoCardAttribute } from "../common/InfoCardAttribute";
 
 export interface BirthdayFormValues {
   birthDate: string;
-  visibility?: "only_me" | "followers_only" | "everyone";
+  visibility?: "only_me" | "followers_only" | "everyone" | undefined;
 }
 
 const Birthday = () => {

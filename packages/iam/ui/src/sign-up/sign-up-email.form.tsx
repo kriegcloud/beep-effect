@@ -20,10 +20,10 @@ type Props = {
       firstName: string;
     } | null>
   >;
-  executeRecaptcha: (action?: string) => Promise<string>;
+  executeRecaptcha: (action?: string | undefined) => Promise<string>;
 };
 
-export const SignUpEmailForm: React.FC<Props> = ({ setVerificationNotice, executeRecaptcha }) => {
+export const SignUpEmailForm: React.FC<Props> = ({ executeRecaptcha }) => {
   const runtime = useRuntime();
   const runClientPromise = makeRunClientPromise(runtime);
   const { signUpEmail } = useSignUpEmail();

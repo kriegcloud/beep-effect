@@ -3,8 +3,8 @@ import ListItemButton, { listItemButtonClasses } from "@mui/material/ListItemBut
 import type { SxProps, Theme } from "@mui/material/styles";
 
 export type NavItemProps = ListItemButtonProps & {
-  isActive: boolean;
-  href?: string;
+  readonly isActive: boolean;
+  readonly href?: string | undefined;
 };
 
 export function NavItem({ children, isActive, sx, ...other }: NavItemProps) {

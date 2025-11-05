@@ -4,8 +4,8 @@ import Link from "next/link";
 import type { MouseEvent } from "react";
 
 interface LinkBehaviorProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
-  href: string;
-  ref?: React.Ref<HTMLAnchorElement>;
+  readonly href: string;
+  readonly ref?: React.Ref<HTMLAnchorElement> | undefined;
 }
 
 export const LinkBehavior = ({ ref, href, onClick, ...props }: LinkBehaviorProps) => {

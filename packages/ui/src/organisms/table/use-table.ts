@@ -90,7 +90,7 @@ export function useTable(props?: UseTableProps): UseTableReturn {
     setSelected([]);
   }, []);
 
-  const onChangePage = useCallback((event: unknown, newPage: number) => {
+  const onChangePage = useCallback((_event: unknown, newPage: number) => {
     setPage(newPage);
   }, []);
 

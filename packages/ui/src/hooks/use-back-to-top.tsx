@@ -33,7 +33,7 @@ export type UseBackToTopReturn = {
   setIsVisible: Dispatch<SetStateAction<boolean>>;
 };
 
-export function useBackToTop(defaultValue: string | number, isDebounce?: boolean): UseBackToTopReturn {
+export function useBackToTop(defaultValue: string | number, isDebounce?: boolean | undefined): UseBackToTopReturn {
   const [isVisible, setIsVisible] = useState<boolean>(false);
 
   const parseValue = parseValueInput(defaultValue);

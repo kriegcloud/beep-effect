@@ -11,7 +11,7 @@ export const ICONIFY_REGISTRY_PATH = "packages/ui-core/src/constants/iconify/ico
 export interface IconRegistryAddition {
   readonly name: string;
   readonly body: string;
-  readonly setLabel?: string;
+  readonly setLabel?: string | undefined;
 }
 
 export interface MergeRegistryContentResult {
@@ -23,7 +23,7 @@ export interface MergeRegistryContentResult {
 
 export interface MergeRegistryFileOptions {
   readonly additions: ReadonlyArray<IconRegistryAddition>;
-  readonly path?: string;
+  readonly path?: string | undefined;
 }
 
 type Segment = CommentSegment | EntrySegment | RawSegment;
@@ -31,7 +31,7 @@ type Segment = CommentSegment | EntrySegment | RawSegment;
 interface CommentSegment {
   readonly kind: "comment";
   readonly lines: ReadonlyArray<string>;
-  readonly label?: string;
+  readonly label?: string | undefined;
 }
 
 interface EntrySegment {

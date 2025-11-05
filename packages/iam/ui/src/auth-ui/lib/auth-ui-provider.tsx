@@ -56,7 +56,7 @@ export type AuthUIContextType = {
   /**
    * Additional fields for users
    */
-  readonly additionalFields?: AdditionalFields;
+  readonly additionalFields?: AdditionalFields | undefined;
   /**
    * API Key plugin configuration
    */

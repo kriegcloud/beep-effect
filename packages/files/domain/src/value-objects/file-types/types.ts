@@ -1,25 +1,25 @@
 export interface FileValidatorOptions {
-  excludeSimilarTypes?: boolean;
+  readonly excludeSimilarTypes?: boolean | undefined;
 }
 
 /**
  * Options used to pass to izZip function.
  */
 export interface ZipValidatorOptions {
-  chunkSize?: number;
+  readonly chunkSize?: number | undefined;
 }
 
 /**
  * Options used to pass to validate file type function.
  */
 export interface ValidateFileTypeOptions {
-  chunkSize?: number;
-  excludeSimilarTypes?: boolean;
+  readonly chunkSize?: number | undefined;
+  readonly excludeSimilarTypes?: boolean | undefined;
 }
 
 /**
  * Options used to pass to detect file function.
  */
 export interface DetectFileOptions {
-  chunkSize?: number;
+  readonly chunkSize?: number | undefined;
 }

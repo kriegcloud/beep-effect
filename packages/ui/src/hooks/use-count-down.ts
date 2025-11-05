@@ -14,7 +14,7 @@ export const useCountdown = () => {
     timerRef.current = null;
   };
 
-  const startTimer = (seconds: number, onComplete?: () => void) => {
+  const startTimer = (seconds: number, onComplete?: (() => void) | undefined) => {
     if (timerRef.current) {
       stopTimer();
     }

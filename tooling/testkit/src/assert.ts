@@ -28,7 +28,7 @@ export function fail(message: string): never {
  *
  * @since 0.21.0
  */
-export function deepStrictEqual<A>(actual: A, expected: A, _message?: string, ..._: Array<never>) {
+export function deepStrictEqual<A>(actual: A, expected: A, _message?: string | undefined, ..._: Array<never>) {
   expect(actual).toEqual(expected);
 }
 
@@ -37,7 +37,7 @@ export function deepStrictEqual<A>(actual: A, expected: A, _message?: string, ..
  *
  * @since 0.21.0
  */
-export function notDeepStrictEqual<A>(actual: A, expected: A, _message?: string, ..._: Array<never>) {
+export function notDeepStrictEqual<A>(actual: A, expected: A, _message?: string | undefined, ..._: Array<never>) {
   expect(actual).not.toEqual(expected);
 }
 
@@ -46,7 +46,7 @@ export function notDeepStrictEqual<A>(actual: A, expected: A, _message?: string,
  *
  * @since 0.21.0
  */
-export function strictEqual<A>(actual: A, expected: A, _message?: string, ..._: Array<never>) {
+export function strictEqual<A>(actual: A, expected: A, _message?: string | undefined, ..._: Array<never>) {
   expect(actual).toBe(expected);
 }
 
@@ -55,7 +55,7 @@ export function strictEqual<A>(actual: A, expected: A, _message?: string, ..._: 
  *
  * @since 0.21.0
  */
-export function assertEquals<A>(actual: A, expected: A, message?: string, ..._: Array<never>) {
+export function assertEquals<A>(actual: A, expected: A, message?: string | undefined, ..._: Array<never>) {
   if (!Equal.equals(actual, expected)) {
     deepStrictEqual(actual, expected, message); // show diff
     fail(message ?? "Expected values to be Equal.equals");
@@ -67,7 +67,7 @@ export function assertEquals<A>(actual: A, expected: A, message?: string, ..._: 
  *
  * @since 0.21.0
  */
-export function doesNotThrow(thunk: () => void, _message?: string, ..._: Array<never>) {
+export function doesNotThrow(thunk: () => void, _message?: string | undefined, ..._: Array<never>) {
   expect(thunk).not.toThrow();
 }
 
@@ -83,7 +83,7 @@ export function doesNotThrow(thunk: () => void, _message?: string, ..._: Array<n
 export function assertInstanceOf<C extends abstract new (...args: any) => any>(
   value: unknown,
   constructor: C,
-  _message?: string,
+  _message?: string | undefined,
   ..._: Array<never>
 ): asserts value is InstanceType<C> {
   expect(value).toBeInstanceOf(constructor);
@@ -94,7 +94,7 @@ export function assertInstanceOf<C extends abstract new (...args: any) => any>(
  *
  * @since 0.21.0
  */
-export function assertTrue(self: unknown, message?: string, ..._: Array<never>): asserts self {
+export function assertTrue(self: unknown, message?: string | undefined, ..._: Array<never>): asserts self {
   strictEqual(self, true, message);
 }
 
@@ -103,7 +103,7 @@ export function assertTrue(self: unknown, message?: string, ..._: Array<never>):
  *
  * @since 0.21.0
  */
-export function assertFalse(self: boolean, message?: string, ..._: Array<never>) {
+export function assertFalse(self: boolean, message?: string | undefined, ..._: Array<never>) {
   strictEqual(self, false, message);
 }
 
@@ -136,7 +136,7 @@ export function assertMatch(actual: string, regexp: RegExp, ..._: Array<never>) 
  *
  * @since 0.21.0
  */
-export function throws(thunk: () => void, error?: Error | ((u: unknown) => undefined), ..._: Array<never>) {
+export function throws(thunk: () => void, error?: Error | ((u: unknown) => undefined) | undefined, ..._: Array<never>) {
   try {
     thunk();
     fail("Expected to throw an error");
@@ -158,7 +158,7 @@ export function throws(thunk: () => void, error?: Error | ((u: unknown) => undef
  */
 export async function throwsAsync(
   thunk: () => Promise<void>,
-  error?: Error | ((u: unknown) => undefined),
+  error?: Error | ((u: unknown) => undefined) | undefined,
   ..._: Array<never>
 ) {
   try {

@@ -3,10 +3,10 @@ import { useCurrentOrganization } from "../hooks/use-current-organization";
 import type { AuthHooks, OrganizationOptionsContext } from "../types";
 
 interface OrganizationRefetcherProps {
-  hooks: AuthHooks;
-  organizationOptions?: OrganizationOptionsContext;
-  navigate: (href: string) => void;
-  redirectTo: string;
+  readonly hooks: AuthHooks;
+  readonly organizationOptions?: OrganizationOptionsContext | undefined;
+  readonly navigate: (href: string) => void;
+  readonly redirectTo: string;
 }
 
 export const OrganizationRefetcher = ({

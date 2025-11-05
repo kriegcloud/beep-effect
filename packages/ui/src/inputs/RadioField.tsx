@@ -11,13 +11,15 @@ import type React from "react";
 import type { DefaultOmit } from "./Field";
 
 export type RadioProps = Omit<FormControlLabelProps, "control" | "label"> & {
-  helperText?: React.ReactNode;
-  label?: string;
-  slotProps?: {
-    wrapper?: BoxProps;
-    switch?: DefaultOmit<MuiRadioProps>;
-    helperText?: FormHelperTextProps;
-  };
+  readonly helperText?: React.ReactNode | undefined;
+  readonly label?: string | undefined;
+  readonly slotProps?:
+    | {
+        readonly wrapper?: BoxProps | undefined;
+        readonly switch?: DefaultOmit<MuiRadioProps> | undefined;
+        readonly helperText?: FormHelperTextProps | undefined;
+      }
+    | undefined;
 };
 
 function RadioField({ name, helperText, label, slotProps, sx, ...other }: RadioProps) {

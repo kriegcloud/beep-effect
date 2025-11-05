@@ -2,10 +2,10 @@ import { cn } from "@client/lib/utils.js";
 import { Star, StarHalf } from "lucide-react";
 
 interface StarRatingProps {
-  rating: number;
-  maxRating?: number;
-  className?: string;
-  size?: "sm" | "md";
+  readonly rating: number;
+  readonly maxRating?: number | undefined;
+  readonly className?: string | undefined;
+  readonly size?: "sm" | "md" | undefined;
 }
 
 export function StarRating({ rating, maxRating = 5, className, size = "md" }: StarRatingProps) {

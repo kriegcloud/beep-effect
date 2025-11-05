@@ -10,7 +10,7 @@ export const useThemeMode = () => {
   const isDark = mode === "system" ? systemMode === "dark" : mode === "dark";
 
   const setThemeMode = useCallback(
-    (themeMode?: ThemeMode.Type) => {
+    (themeMode?: ThemeMode.Type | undefined) => {
       setMode(themeMode ?? (isDark ? "light" : "dark"));
     },
     [setMode, systemMode, mode]

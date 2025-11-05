@@ -10,11 +10,13 @@ import { useFieldContext } from "../form";
 import { HelperText } from "./components";
 
 export type RatingProps = DefaultOmit<MuiRatingProps> & {
-  helperText?: React.ReactNode;
-  slotProps?: {
-    wrapper?: BoxProps;
-    helperText?: FormHelperTextProps;
-  };
+  readonly helperText?: React.ReactNode | undefined;
+  readonly slotProps?:
+    | {
+        readonly wrapper?: BoxProps | undefined;
+        readonly helperText?: FormHelperTextProps | undefined;
+      }
+    | undefined;
 };
 
 function RatingField({ helperText, slotProps, ...other }: RatingProps) {

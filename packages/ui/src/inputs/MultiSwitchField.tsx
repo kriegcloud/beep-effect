@@ -17,18 +17,20 @@ import { useFieldContext } from "../form";
 import { HelperText } from "./components";
 
 type MultiSwitchProps = FormGroupProps & {
-  label?: string;
-  helperText?: React.ReactNode;
-  options: A.NonEmptyReadonlyArray<{
+  readonly label?: string | undefined;
+  readonly helperText?: React.ReactNode | undefined;
+  readonly options: A.NonEmptyReadonlyArray<{
     readonly label: string;
     readonly value: string;
   }>;
-  slotProps?: {
-    wrapper?: FormControlProps;
-    switch: DefaultOmit<SwitchProps>;
-    formLabel?: FormLabelProps;
-    helperText?: FormHelperTextProps;
-  };
+  readonly slotProps?:
+    | {
+        readonly wrapper?: FormControlProps | undefined;
+        readonly switch: DefaultOmit<SwitchProps>;
+        readonly formLabel?: FormLabelProps | undefined;
+        readonly helperText?: FormHelperTextProps | undefined;
+      }
+    | undefined;
 };
 
 function MultiSwitchField({ label, options, helperText, slotProps, ...other }: MultiSwitchProps) {

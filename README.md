@@ -28,7 +28,7 @@ Vertical Slice Architecture with a hexagonal/clean flavor:
 - Cross-slice sharing only through shared/common modules
 
 Source of truth for rules and boundaries:
-- [tsconfig.base.json](tsconfig.base.json) → authoritative path aliases and module boundaries
+- [tsconfig.base.json](tsconfig.base.jsonc) → authoritative path aliases and module boundaries
 - [turbo.json](turbo.json) → task graph and pipeline conventions
 - [docs/patterns/](docs/patterns/) → Effect patterns and project conventions
 - [docs/PRODUCTION_CHECKLIST.md](docs/PRODUCTION_CHECKLIST.md) → production posture, logging defaults
@@ -41,7 +41,7 @@ Source of truth for rules and boundaries:
   - Cross-cutting: `shared/*`, `common/*`, `core/*`, `ui/*`
 - `tooling/*` — repo scripts, config, testkit
 
-Authoritative module boundaries via [tsconfig.base.json](tsconfig.base.json) path aliases (e.g., `@beep/iam-domain`, `@beep/files-services`, `@beep/shared-*`, `@/*` for `apps/web`).
+Authoritative module boundaries via [tsconfig.base.json](tsconfig.base.jsonc) path aliases (e.g., `@beep/iam-domain`, `@beep/files-services`, `@beep/shared-*`, `@/*` for `apps/web`).
 
 ## Tech stack
 
@@ -111,7 +111,7 @@ Bring services up with `bun run db:up`.
 - `S/tables` → DB schema/table definitions.
 - `S/ui` and app surfaces live in `apps/*` (e.g., Next.js in `apps/web`).
 
-Path aliases in [tsconfig.base.json](tsconfig.base.json) are the single source of truth for module boundaries (e.g., `@beep/iam-*`, `@beep/files-*`, `@beep/shared-*`, `@/*`).
+Path aliases in [tsconfig.base.json](tsconfig.base.jsonc) are the single source of truth for module boundaries (e.g., `@beep/iam-*`, `@beep/files-*`, `@beep/shared-*`, `@/*`).
 
 ## Slices today
 

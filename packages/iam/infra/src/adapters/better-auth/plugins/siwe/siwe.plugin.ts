@@ -11,7 +11,7 @@ export const siwePlugin: SIWEPluginEffect = Effect.gen(function* () {
     getNonce: async () => {
       return "beep";
     },
-    verifyMessage: async (args) => {
+    verifyMessage: async (_args) => {
       return false;
     },
   });

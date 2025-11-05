@@ -25,7 +25,7 @@ export class SnakeTag extends S.NonEmptyString.pipe(
     - Cannot contain trailing or leading underscores
   `,
 }) {
-  static readonly make = <const T extends string>(tag: SnakeTag.Literal<T>): SnakeTag.Literal<T> => {
+  static override readonly make = <const T extends string>(tag: SnakeTag.Literal<T>): SnakeTag.Literal<T> => {
     invariant(S.is(SnakeTag)(tag), "Must be a valid SnakeTag", {
       file: "@beep/schema/custom/String.schema.ts",
       line: 28,

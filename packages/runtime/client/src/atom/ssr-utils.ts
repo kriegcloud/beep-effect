@@ -6,7 +6,7 @@ import * as Struct from "effect/Struct";
 
 declare global {
   interface Window {
-    __ATOM_NEXT_HYDRATED__?: boolean;
+    __ATOM_NEXT_HYDRATED__?: boolean | undefined;
   }
 }
 
@@ -154,7 +154,7 @@ export const renderAtomsStatic = (
  * @category SSR
  */
 export const createServerRegistry = (
-  initialData?: Record<string, UnsafeTypes.UnsafeAny>,
+  initialData?: Record<string, UnsafeTypes.UnsafeAny> | undefined,
   options: SSROptions = {}
 ): Registry.Registry => {
   const registry = createSSRRegistry(options);

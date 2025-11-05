@@ -46,7 +46,7 @@ export function PasskeysCard({ className, classNames, localization }: PasskeysCa
       defaultValues: {},
       validator: "onSubmit",
     }),
-    onSubmit: async ({ value }) => {
+    onSubmit: async () => {
       // If session isn't fresh, show the freshness dialog
       if (!isFresh) {
         setShowFreshnessDialog(true);

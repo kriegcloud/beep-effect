@@ -4,9 +4,9 @@ import type { LinkProps } from "@mui/material/Link";
 import Link from "@mui/material/Link";
 
 type FormReturnLinkProps = LinkProps & {
-  href: string;
-  icon?: React.ReactNode;
-  label?: React.ReactNode;
+  readonly href: string;
+  readonly icon?: React.ReactNode | undefined;
+  readonly label?: React.ReactNode | undefined;
 };
 
 export function FormReturnLink({ sx, href, label, icon, children, ...other }: FormReturnLinkProps) {

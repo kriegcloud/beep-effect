@@ -103,7 +103,7 @@ declare module "@mui/material/styles" {
   }
 
   interface ThemeOptions {
-    customShadows?: Partial<CustomShadows>;
+    customShadows?: Partial<CustomShadows> | undefined;
   }
 
   interface ThemeVars {
@@ -239,6 +239,6 @@ declare module "@mui/material" {
   }
 
   interface PaperOwnProps {
-    background?: 1 | 2 | 3 | 4 | 5;
+    background?: 1 | 2 | 3 | 4 | 5 | undefined;
   }
 }

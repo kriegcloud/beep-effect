@@ -4,35 +4,35 @@ import * as P from "effect/Predicate";
 import { BetterAuthError } from "./adapters";
 
 export interface IamErrorMetadata {
-  readonly code?: string;
-  readonly status?: number;
-  readonly statusText?: string;
-  readonly plugin?: string;
-  readonly method?: string;
-  readonly domain?: string;
-  readonly authCause?: unknown;
+  readonly code?: string | undefined;
+  readonly status?: number | undefined;
+  readonly statusText?: string | undefined;
+  readonly plugin?: string | undefined;
+  readonly method?: string | undefined;
+  readonly domain?: string | undefined;
+  readonly authCause?: unknown | undefined;
 }
 
 export class IamError extends Data.TaggedError("IamError")<{
   readonly customMessage: string;
   readonly cause: unknown;
-  readonly code?: string;
-  readonly status?: number;
-  readonly statusText?: string;
-  readonly plugin?: string;
-  readonly method?: string;
-  readonly authCause?: unknown;
+  readonly code?: string | undefined;
+  readonly status?: number | undefined;
+  readonly statusText?: string | undefined;
+  readonly plugin?: string | undefined;
+  readonly method?: string | undefined;
+  readonly authCause?: unknown | undefined;
 }> {
-  readonly code?: string;
-  readonly status?: number;
-  readonly statusText?: string;
-  readonly plugin?: string;
-  readonly method?: string;
-  readonly authCause?: unknown;
+  override readonly code?: string | undefined;
+  override readonly status?: number | undefined;
+  override readonly statusText?: string | undefined;
+  override readonly plugin?: string | undefined;
+  override readonly method?: string | undefined;
+  override readonly authCause?: unknown | undefined;
 
   constructor(
-    readonly cause: unknown,
-    readonly customMessage: string,
+    override readonly cause: unknown,
+    override readonly customMessage: string,
     readonly metadata: IamErrorMetadata = {}
   ) {
     const normalizedMessage = customMessage ?? "Unknown Error has occurred";
@@ -65,7 +65,7 @@ export class IamError extends Data.TaggedError("IamError")<{
     return new IamError(cause, customMessage, metadata);
   };
 
-  get message() {
+  override get message() {
     return this.customMessage ?? "Unknown Error has occurred";
   }
 }

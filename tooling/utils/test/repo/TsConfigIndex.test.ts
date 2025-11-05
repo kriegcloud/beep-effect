@@ -27,7 +27,7 @@ describe("Repo/TsConfigIndex.collectTsConfigPaths", () => {
         deepStrictEqual(arr.length >= 3, true);
         deepStrictEqual(arr[0].endsWith(path_.join("tsconfig.json")), true);
         deepStrictEqual(arr[1]!.endsWith(path_.join("tsconfig.build.json")), true);
-        deepStrictEqual(arr[2]!.endsWith(path_.join("tsconfig.base.json")), true);
+        deepStrictEqual(arr[2]!.endsWith(path_.join("tsconfig.base.jsonc")), true);
       }
 
       const utils = HashMap.get(map, "@beep/tooling-utils");

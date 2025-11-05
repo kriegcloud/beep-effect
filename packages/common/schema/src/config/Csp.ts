@@ -401,7 +401,7 @@ export class Csp extends CSPFromString.annotations({
   /** Provides a preconfigured schema config entry for reuse in configuration modules. */
   static readonly Config = (name: string) => S.Config(name, CSPFromString);
 
-  static readonly toString = (csp: Csp.Type) => String(csp);
+  static override readonly toString = (csp: Csp.Type) => String(csp);
 
   static readonly toHeader = (csp: CSPFromString.Type) => toHeader(csp.directives);
 }

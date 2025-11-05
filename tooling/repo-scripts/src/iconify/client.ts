@@ -68,11 +68,11 @@ export class IconifyClientError extends S.TaggedError<IconifyClientError>("Iconi
 
 export interface IconifyRequest {
   readonly path: string;
-  readonly method?: string;
-  readonly searchParams?: ReadonlyArray<readonly [string, string]>;
-  readonly headers?: ReadonlyArray<readonly [string, string]>;
-  readonly body?: BodyInit | null;
-  readonly signal?: AbortSignal | null;
+  readonly method?: string | undefined;
+  readonly searchParams?: ReadonlyArray<readonly [string, string]> | undefined;
+  readonly headers?: ReadonlyArray<readonly [string, string]> | undefined;
+  readonly body?: BodyInit | null | undefined;
+  readonly signal?: AbortSignal | null | undefined;
 }
 
 export interface IconifyClientService {

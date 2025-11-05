@@ -17,25 +17,25 @@ export type ExponentialBackOffOptions = Readonly<{
    * Initial delay between retry attempts
    * @default 100
    */
-  delay: Duration.DurationInput;
+  readonly delay: Duration.DurationInput;
 
   /**
    * Factor by which the delay increases exponentially
    * @default 2.0
    */
-  growthFactor?: undefined | number;
+  readonly growthFactor?: undefined | number;
 
   /**
    * Whether to add randomness to the retry delay to prevent thundering herd problem
    * @default true
    */
-  jitter?: undefined | boolean;
+  readonly jitter?: undefined | boolean;
 
   /**
    * Maximum number of retry attempts
    * @default 3
    */
-  maxRetries?: undefined | number;
+  readonly maxRetries?: undefined | number;
 }>;
 
 /**

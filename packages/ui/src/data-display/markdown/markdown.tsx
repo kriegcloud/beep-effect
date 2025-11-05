@@ -163,9 +163,9 @@ class BlobToDataUrlError extends Data.TaggedError("BlobToDataUrlError")<{
   readonly cause: unknown;
   readonly message: string;
 }> {
-  readonly _tag = "BlobToDataUrlError";
+  override readonly _tag = "BlobToDataUrlError";
 
-  constructor(readonly cause: unknown) {
+  constructor(override readonly cause: unknown) {
     super({
       cause,
       message: "Failed to convert Blob to a data URL",

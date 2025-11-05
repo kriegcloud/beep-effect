@@ -83,7 +83,7 @@ export namespace CaseTransform {
                 ? `${S}s`
                 : `${Base}${Consonant}ies`
               : // Words ending in s, x, z, ch, sh
-                S extends `${infer Base}s` | `${infer Base}x` | `${infer Base}z` | `${infer Base}ch` | `${infer Base}sh`
+                S extends `${string}s` | `${string}x` | `${string}z` | `${string}ch` | `${string}sh`
                 ? `${S}es`
                 : // Words ending in 'f' or 'fe'
                   S extends `${infer Base}f`

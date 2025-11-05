@@ -6,10 +6,10 @@ export type LabelColor = "default" | "primary" | "secondary" | "info" | "success
 export type LabelVariant = "filled" | "outlined" | "soft" | "inverted";
 
 export interface LabelProps extends React.ComponentProps<"span"> {
-  sx?: SxProps<Theme>;
-  disabled?: boolean | undefined;
-  color?: LabelColor | undefined;
-  variant?: LabelVariant | undefined;
-  endIcon?: React.ReactNode | undefined;
-  startIcon?: React.ReactNode | undefined;
+  readonly sx?: SxProps<Theme> | undefined;
+  readonly disabled?: boolean | undefined;
+  readonly color?: LabelColor | undefined;
+  readonly variant?: LabelVariant | undefined;
+  readonly endIcon?: React.ReactNode | undefined;
+  readonly startIcon?: React.ReactNode | undefined;
 }

@@ -32,7 +32,7 @@ export type UseTabsReturn = {
 export function useTabs(defaultValue: string): UseTabsReturn {
   const [value, setValue] = useState(defaultValue);
 
-  const onChange = useCallback((event: SyntheticEvent, newValue: string) => {
+  const onChange = useCallback((_event: SyntheticEvent, newValue: string) => {
     setValue(newValue);
   }, []);
 

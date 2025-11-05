@@ -201,7 +201,7 @@ const ItemTitle = styled("span", { shouldForwardProp })<StyledState>(({ active, 
 /**
  * @slot caption icon
  */
-const ItemCaptionIcon = styled(Iconify, { shouldForwardProp })<StyledState>(({ theme }) => ({
+const ItemCaptionIcon = styled(Iconify, { shouldForwardProp })<StyledState>({
   ...navItemStyles.captionIcon,
   color: "var(--nav-item-caption-color)",
   variants: [
@@ -210,14 +210,12 @@ const ItemCaptionIcon = styled(Iconify, { shouldForwardProp })<StyledState>(({ t
       style: { top: 11, left: 6, position: "absolute" },
     },
   ],
-}));
+});
 
 /**
  * @slot info
  */
-const ItemInfo = styled("span", { shouldForwardProp })<StyledState>(({ theme }) => ({
-  ...navItemStyles.info,
-}));
+const ItemInfo = styled("span", { shouldForwardProp })<StyledState>(navItemStyles.info);
 
 /**
  * @slot arrow

@@ -105,9 +105,9 @@ export const fetchCollectionDetail = (prefix: string) =>
 
 export interface SearchIconsOptions {
   readonly query: string;
-  readonly limit?: number;
-  readonly start?: number;
-  readonly prefix?: string;
+  readonly limit?: number | undefined;
+  readonly start?: number | undefined;
+  readonly prefix?: string | undefined;
 }
 
 export const searchIcons = ({ query, limit, start, prefix }: SearchIconsOptions) =>

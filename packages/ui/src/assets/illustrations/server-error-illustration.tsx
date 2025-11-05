@@ -4,7 +4,7 @@ import SvgIcon from "@mui/material/SvgIcon";
 import { memo } from "react";
 import { BackgroundShape } from "./background-shape";
 
-type SvgProps = SvgIconProps & { hideBackground?: boolean };
+type SvgProps = SvgIconProps & { readonly hideBackground?: boolean | undefined };
 
 function ServerErrorIllustration({ hideBackground, sx, ...other }: SvgProps) {
   const renderCharacterImage = () => (

@@ -114,14 +114,14 @@ export const runClientPromise = <A, E>(
   runtime: LiveManagedRuntime,
   effect: Effect.Effect<A, E, ClientRuntimeEnv>,
   spanName = "clientRuntime.runPromise",
-  options?: RunPromiseOptions
+  options?: RunPromiseOptions | undefined
 ) => runtime.runPromise(Effect.withSpan(effect, spanName), options);
 
 /**
  * Returns a helper function bound to a specific runtime for repeated invocations.
  */
 export const makeRunClientPromise =
-  (runtime: LiveManagedRuntime, spanName = "clientRuntime.runPromise", options?: RunPromiseOptions) =>
+  (runtime: LiveManagedRuntime, spanName = "clientRuntime.runPromise", options?: RunPromiseOptions | undefined) =>
   <A, E>(effect: Effect.Effect<A, E, ClientRuntimeEnv>) =>
     runClientPromise(runtime, effect, spanName, options);
 
@@ -132,13 +132,17 @@ export const runClientPromiseExit = <A, E>(
   runtime: LiveManagedRuntime,
   effect: Effect.Effect<A, E, ClientRuntimeEnv>,
   spanName = "clientRuntime.runPromiseExit",
-  options?: RunPromiseExitOptions
+  options?: RunPromiseExitOptions | undefined
 ) => runtime.runPromiseExit(Effect.withSpan(effect, spanName), options);
 
 /**
  * Returns a helper function that captures Exit values from Effects run in the client runtime.
  */
 export const makeRunClientPromiseExit =
-  (runtime: LiveManagedRuntime, spanName = "clientRuntime.runPromiseExit", options?: RunPromiseExitOptions) =>
+  (
+    runtime: LiveManagedRuntime,
+    spanName = "clientRuntime.runPromiseExit",
+    options?: RunPromiseExitOptions | undefined
+  ) =>
   <A, E>(effect: Effect.Effect<A, E, ClientRuntimeEnv>) =>
     runClientPromiseExit(runtime, effect, spanName, options);

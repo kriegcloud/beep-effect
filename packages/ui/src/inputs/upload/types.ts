@@ -8,22 +8,24 @@ export type FileUploadType = File | string | null;
 export type FilesUploadType = (File | string)[];
 
 export type UploadProps = DropzoneOptions & {
-  error?: boolean;
-  loading?: boolean;
-  className?: string;
-  sx?: SxProps<Theme>;
-  hideFilesRejected?: boolean;
-  helperText?: React.ReactNode;
-  placeholder?: React.ReactNode;
-  previewOrientation?: PreviewOrientation;
-  value?: FileUploadType | FilesUploadType;
-  onDelete?: () => void;
-  onUpload?: () => void;
-  onRemoveAll?: () => void;
-  onRemove?: (file: File | string) => void;
-  slotProps?: {
-    wrapper?: React.ComponentProps<typeof UploadWrapper>;
-    multiPreview?: Partial<MultiFilePreviewProps>;
-    rejectedFiles?: React.ComponentProps<typeof RejectedFiles>;
-  };
+  readonly error?: boolean | undefined;
+  readonly loading?: boolean | undefined;
+  readonly className?: string | undefined;
+  readonly sx?: SxProps<Theme> | undefined;
+  readonly hideFilesRejected?: boolean | undefined;
+  readonly helperText?: React.ReactNode | undefined;
+  readonly placeholder?: React.ReactNode | undefined;
+  readonly previewOrientation?: PreviewOrientation | undefined;
+  readonly value?: FileUploadType | FilesUploadType | undefined;
+  readonly onDelete?: (() => void) | undefined;
+  readonly onUpload?: (() => void) | undefined;
+  readonly onRemoveAll?: (() => void) | undefined;
+  readonly onRemove?: ((file: File | string) => void) | undefined;
+  readonly slotProps?:
+    | {
+        readonly wrapper?: React.ComponentProps<typeof UploadWrapper> | undefined;
+        readonly multiPreview?: Partial<MultiFilePreviewProps> | undefined;
+        readonly rejectedFiles?: React.ComponentProps<typeof RejectedFiles> | undefined;
+      }
+    | undefined;
 };

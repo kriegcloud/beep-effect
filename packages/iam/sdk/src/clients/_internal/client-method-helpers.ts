@@ -37,7 +37,7 @@ export const mapOnError =
 
 export const withFetchOptions = (
   handlers: FailureContinuationHandlers,
-  extra?: Omit<BetterFetchOption, "onError" | "signal">
+  extra?: Omit<BetterFetchOption, "onError" | "signal"> | undefined
 ) =>
   handlers.signal
     ? {
@@ -53,7 +53,7 @@ export const withFetchOptions = (
 export const addFetchOptions = <A extends Record<string, unknown>>(
   handlers: FailureContinuationHandlers,
   body: A,
-  extra?: Omit<BetterFetchOption, "onError" | "signal">
+  extra?: Omit<BetterFetchOption, "onError" | "signal"> | undefined
 ) => ({
   ...body,
   fetchOptions: withFetchOptions(handlers, extra),

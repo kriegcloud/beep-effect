@@ -23,7 +23,7 @@ export const getLocalizedError = ({ error, localization }: GetLocalizedErrorPara
   return error?.message || localization?.REQUEST_FAILED || "Request failed";
 };
 
-export function getViewByPath<T extends object>(viewPaths: T, path?: string) {
+export function getViewByPath<T extends object>(viewPaths: T, path?: string | undefined) {
   for (const key in viewPaths) {
     if (viewPaths[key] === path) {
       return key;

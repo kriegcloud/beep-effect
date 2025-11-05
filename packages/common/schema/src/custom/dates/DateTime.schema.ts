@@ -53,7 +53,7 @@ export const DateFromAllAcceptable = S.transformOrFail(AllAcceptableDateInputs, 
       try: () => (DateTime.isDateTime(i) ? DateTime.toDate(i) : S.decodeSync(S.ValidDateFromSelf)(i)),
       catch: () => new ParseResult.Type(ast, i, "Invalid date"),
     }),
-  encode: (i, _, ast) => ParseResult.succeed(i),
+  encode: (i, _) => ParseResult.succeed(i),
 }).annotations({
   jsonSchema: {
     type: "string",
@@ -71,7 +71,7 @@ export const DateTimeUtcFromAllAcceptable = S.transformOrFail(
   DateTimeUtcByInstant,
   {
     strict: false,
-    decode: (i, _, ast) =>
+    decode: (i, _) =>
       ParseResult.try({
         try: () => {
           if (DateTime.isDateTime(i)) {

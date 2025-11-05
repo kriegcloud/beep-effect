@@ -33,8 +33,8 @@ export type UseClientRectReturn<T extends HTMLElement = HTMLElement> = DOMRectVa
   };
 
 export function useClientRect<T extends HTMLElement = HTMLElement>(
-  inputRef?: RefObject<T | null>,
-  eventType?: string
+  inputRef?: RefObject<T | null> | undefined,
+  eventType?: string | undefined
 ): UseClientRectReturn<T> {
   const localRef = useRef<T>(null);
   const elementRef = (inputRef || localRef) as RefObject<T>;

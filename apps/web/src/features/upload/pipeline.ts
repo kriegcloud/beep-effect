@@ -28,7 +28,7 @@ export const validateFile = Effect.fn("upload.validateFile")(function* ({
   config,
 }: {
   readonly file: File;
-  readonly config?: PipelineConfig;
+  readonly config?: PipelineConfig | undefined;
 }) {
   const formattedSize = formatSize(file.size);
   // Size check (friendly message using BS.formatSize)
@@ -121,7 +121,7 @@ export const extractBasicMetadata = Effect.fn("upload.extractBasicMetadata")(fun
   detected,
 }: {
   readonly file: File;
-  readonly detected?: DetectedFileInfo.Type;
+  readonly detected?: DetectedFileInfo.Type | undefined;
 }) {
   // Build attributes and validate at runtime using effect/Schema
   const wrp = file.webkitRelativePath;
@@ -170,7 +170,7 @@ export const extractExifMetadata = Effect.fn("upload.extractExifMetadata")(funct
   detected,
 }: {
   readonly file: File;
-  readonly detected?: DetectedFileInfo.Type;
+  readonly detected?: DetectedFileInfo.Type | undefined;
 }) {
   // Simple guard: skip if not an image by MIME (prefer detected mime when available)
   const candidateMime = detected?.mimeType ?? file.type;

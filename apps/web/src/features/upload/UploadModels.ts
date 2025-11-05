@@ -8,21 +8,21 @@ import type * as Errors from "./errors";
  **************/
 
 export interface PipelineConfig {
-  readonly maxSizeBytes?: number; // e.g., 3_145_728
-  readonly allowedMime?: ReadonlyArray<string>; // e.g., ['image/jpeg', 'image/png']
-  readonly chunkSize?: number; // default 64
-  readonly excludeSimilarTypes?: boolean; // if helpers support it
+  readonly maxSizeBytes?: number | undefined; // e.g., 3_145_728
+  readonly allowedMime?: ReadonlyArray<string> | undefined; // e.g., ['image/jpeg', 'image/png']
+  readonly chunkSize?: number | undefined; // default 64
+  readonly excludeSimilarTypes?: boolean | undefined; // if helpers support it
 }
 
 // Step outputs
 export interface ValidateFileOutput {
-  readonly detected?: DetectedFileInfo.Type;
+  readonly detected?: DetectedFileInfo.Type | undefined;
   readonly formattedSize: string;
 }
 
 export interface BasicMetadataOutput {
   readonly attributes: FileAttributes.Type;
-  readonly detected?: DetectedFileInfo.Type;
+  readonly detected?: DetectedFileInfo.Type | undefined;
 }
 
 export type ExifMetadataOutput = typeof ExifMetadata.Type | undefined;

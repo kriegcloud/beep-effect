@@ -26,13 +26,13 @@ import { useCallback, useState } from "react";
  */
 
 export type UseSetStateReturn<T> = {
-  state: T;
-  resetState: (defaultState?: T) => void;
-  setState: (updateState: T | Partial<T>) => void;
-  setField: (name: keyof T, updateValue: T[keyof T]) => void;
+  readonly state: T;
+  readonly resetState: (defaultState?: T | undefined) => void;
+  readonly setState: (updateState: T | Partial<T>) => void;
+  readonly setField: (name: keyof T, updateValue: T[keyof T]) => void;
 };
 
-export function useSetState<T>(initialState?: T): UseSetStateReturn<T> {
+export function useSetState<T>(initialState?: T | undefined): UseSetStateReturn<T> {
   const [state, setState] = useState<T | undefined>(initialState);
 
   const updateState = useCallback((newState: T | Partial<T>) => {
@@ -47,7 +47,7 @@ export function useSetState<T>(initialState?: T): UseSetStateReturn<T> {
   );
 
   const resetState = useCallback(
-    (defaultState?: T) => {
+    (defaultState?: T | undefined) => {
       setState(defaultState ?? initialState);
     },
     [initialState]

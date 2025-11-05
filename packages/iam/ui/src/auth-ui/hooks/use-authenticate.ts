@@ -9,7 +9,9 @@ interface AuthenticateOptions<TAuthClient extends AnyAuthClient> {
   readonly enabled?: boolean | undefined;
 }
 
-export function useAuthenticate<TAuthClient extends AnyAuthClient>(options?: AuthenticateOptions<TAuthClient>) {
+export function useAuthenticate<TAuthClient extends AnyAuthClient>(
+  options?: AuthenticateOptions<TAuthClient> | undefined
+) {
   type Session = TAuthClient["$Infer"]["Session"]["session"];
   type User = TAuthClient["$Infer"]["Session"]["user"];
 

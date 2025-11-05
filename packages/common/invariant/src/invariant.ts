@@ -45,7 +45,7 @@ type InvariantApi = InvariantFn & {
   /**
    * Exhaustiveness helper. Call in the "impossible" branch.
    */
-  unreachable: <T>(_x: never, message: InvariantMessage, meta: CallMetadata.Type) => never;
+  unreachable: (_x: never, message: InvariantMessage, meta: CallMetadata.Type) => never;
 
   /**
    * Non-null / non-undefined assertion helper with narrowing.
@@ -99,7 +99,7 @@ export const invariant: InvariantApi = ((
 
 // -- Helpers -----------------------------------------------------------------
 
-invariant.unreachable = <T>(_x: never, message: InvariantMessage, meta: CallMetadata.Type): never => {
+invariant.unreachable = (_x: never, message: InvariantMessage, meta: CallMetadata.Type): never => {
   invariant(false, message, meta);
   // Satisfy `never` for control flow analyzers (unreachable)
   throw new Error("unreachable");

@@ -55,14 +55,14 @@ export type AllExtensions = FileExtension | FileFormat | "folder";
 export type FileInput = string | null;
 
 export type FileMetaData = {
-  key?: string;
-  name: string;
-  type: string;
-  size: number;
-  path?: string;
-  lastModified?: number;
-  lastModifiedDate?: Date;
-  format?: FileFormat | "unknown";
+  readonly key?: string | undefined;
+  readonly name: string;
+  readonly type: string;
+  readonly size: number;
+  readonly path?: string | undefined;
+  readonly lastModified?: number | undefined;
+  readonly lastModifiedDate?: Date | undefined;
+  readonly format?: FileFormat | "unknown" | undefined;
 };
 
 const ALL_EXTENSIONS = new Set<AllExtensions>([
@@ -87,7 +87,7 @@ const isSupportedExtension = (ext: string): ext is AllExtensions => ALL_EXTENSIO
  * @example getFileName('https://site.com/docs/file.pdf?v=1') => 'file.pdf'
  * @example getFileName('/path/to/file%20name.txt') => 'file name.txt'
  */
-export function getFileName(input?: FileInput): string {
+export function getFileName(input?: FileInput | undefined): string {
   if (!input?.trim()) return "";
 
   try {
@@ -105,7 +105,7 @@ export function getFileName(input?: FileInput): string {
  * @example getFileExtension('image/jpeg') => 'jpeg'
  * @example getFileExtension('mp3') => 'mp3'
  */
-export function getFileExtension(input?: FileInput): AllExtensions | "unknown" {
+export function getFileExtension(input?: FileInput | undefined): AllExtensions | "unknown" {
   if (!input?.trim()) return "unknown";
 
   const cleanInput = input.trim().toLowerCase();
@@ -134,7 +134,7 @@ export function getFileExtension(input?: FileInput): AllExtensions | "unknown" {
  * @example detectFileFormat('docx') => 'word'
  * @example detectFileFormat('audio/mp3') => 'audio'
  */
-export function detectFileFormat(input?: FileInput): FileFormat | "unknown" {
+export function detectFileFormat(input?: FileInput | undefined): FileFormat | "unknown" {
   const ext = getFileExtension(input);
   return EXTENSION_TO_FORMAT[ext]! ?? ext;
 }
@@ -145,7 +145,7 @@ export function detectFileFormat(input?: FileInput): FileFormat | "unknown" {
  * @example getFileIcon('file.pdf') => '/assets/icons/files/ic-pdf.svg'
  * @example getFileIcon('image.png') => '/assets/icons/files/ic-img.svg'
  */
-export function getFileIcon(input?: FileInput): string {
+export function getFileIcon(input?: FileInput | undefined): string {
   const format = detectFileFormat(input);
   const iconName = FILE_ICONS[format] || FILE_ICONS.unknown;
 
@@ -158,7 +158,7 @@ export function getFileIcon(input?: FileInput): string {
  * @example getFileMeta(fileObj)
  * @example getFileMeta('/path/to/file.png')
  */
-export function getFileMeta(file?: File | string | null): FileMetaData {
+export function getFileMeta(file?: File | string | null | undefined): FileMetaData {
   if (file instanceof File) {
     const formatFromMime = detectFileFormat(file.type);
     const formatFromName = detectFileFormat(file.name);
@@ -171,7 +171,7 @@ export function getFileMeta(file?: File | string | null): FileMetaData {
       lastModified: file.lastModified,
       lastModifiedDate: new Date(file.lastModified),
       format: formatFromMime !== "unknown" ? formatFromMime : formatFromName,
-      path: (file as File & { path?: string }).path ?? file.webkitRelativePath,
+      path: (file as File & { readonly path?: string | undefined }).path ?? file.webkitRelativePath,
     };
   }
 

@@ -8,7 +8,7 @@ import { useEffect, useRef } from "react";
 /**
  * Returns a callback setter for a function to be performed when the component did mount.
  */
-export const useDidMount = <TCallback extends UnsafeTypes.UnsafeFn = Noop>(callback?: TCallback) => {
+export const useDidMount = <TCallback extends UnsafeTypes.UnsafeFn = Noop>(callback?: TCallback | undefined) => {
   const mountRef = useRef(false);
   const [handler, setHandler] = createHandlerSetter<undefined>(callback);
 

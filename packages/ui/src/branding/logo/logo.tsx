@@ -5,7 +5,7 @@ export interface LogoProps extends SvgIconProps {
   showName?: boolean;
 }
 
-export const Logo = ({ sx, viewBox = "0 0 1200 1200", showName = true, ...rest }: LogoProps) => {
+export const Logo = ({ viewBox = "0 0 1200 1200" }: LogoProps) => {
   return (
     <Link
       href={"/"}

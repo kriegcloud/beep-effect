@@ -3,10 +3,14 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import type { NextConfig } from "next";
 
-type BundleAnalyzerFactory = (options?: {
-  enabled?: boolean | string;
-  openAnalyzer?: boolean;
-}) => (config: NextConfig) => NextConfig;
+type BundleAnalyzerFactory = (
+  options?:
+    | {
+        readonly enabled?: boolean | string | undefined;
+        readonly openAnalyzer?: boolean | undefined;
+      }
+    | undefined
+) => (config: NextConfig) => NextConfig;
 
 type WithBundleAnalyzerConfig = Parameters<BundleAnalyzerFactory>[0];
 

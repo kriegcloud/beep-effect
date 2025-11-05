@@ -14,8 +14,8 @@ void i18next
   .init({ ...i18nOptions(), detection: { caches: ["cookie"] } });
 
 type I18nProviderProps = {
-  lang?: SupportedLangValue.Type;
-  children: React.ReactNode;
+  readonly lang?: SupportedLangValue.Type | undefined;
+  readonly children: React.ReactNode;
 };
 
 export function I18nProvider({ lang, children }: I18nProviderProps) {

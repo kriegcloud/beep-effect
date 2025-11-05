@@ -15,7 +15,7 @@ export type IPaymentCard = {
 };
 
 export type IAddressItem = {
-  readonly id?: string;
+  readonly id?: string | undefined;
   readonly name: string;
   readonly company?: string | undefined;
   readonly primary?: boolean | undefined;

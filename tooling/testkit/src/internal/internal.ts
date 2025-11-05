@@ -38,7 +38,7 @@ export const addEqualityTesters = () => {
   // Bun's expect doesn't have addEqualityTesters like bun:test
 };
 
-const testOptions = (timeout?: number | { timeout?: number }) =>
+const testOptions = (timeout?: number | { readonly timeout?: number | undefined } | undefined) =>
   typeof timeout === "number" ? { timeout } : (timeout ?? {});
 
 const makeTester = <R>(mapEffect: <A, E>(self: Effect.Effect<A, E, R>) => Effect.Effect<A, E, never>) => {
@@ -51,32 +51,34 @@ const makeTester = <R>(mapEffect: <A, E>(self: Effect.Effect<A, E, R>) => Effect
         runTest
       );
 
-  const f = (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) =>
+  const f = (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any | undefined) =>
     it(name, run(self), testOptions(timeout));
 
-  const skip = (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) =>
+  const skip = (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any | undefined) =>
     it.skip(name, run(self), testOptions(timeout));
 
   const skipIf =
-    (condition: unknown) => (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) =>
+    (condition: unknown) =>
+    (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any | undefined) =>
       condition ? skip(name, self, timeout) : f(name, self, timeout);
 
   const runIf =
-    (condition: unknown) => (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) =>
+    (condition: unknown) =>
+    (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any | undefined) =>
       condition ? f(name, self, timeout) : skip(name, self, timeout);
 
-  const only = (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) =>
+  const only = (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any | undefined) =>
     it.only(name, run(self), testOptions(timeout));
 
   const each =
     (cases: ReadonlyArray<any>) =>
-    (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) => {
+    (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any | undefined) => {
       cases.forEach((testCase, index) => {
         it(`${name} [${index}]`, () => run(self)(testCase), testOptions(timeout));
       });
     };
 
-  const fails = (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) =>
+  const fails = (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any | undefined) =>
     it(
       name,
       async () => {
@@ -95,7 +97,7 @@ const makeTester = <R>(mapEffect: <A, E>(self: Effect.Effect<A, E, R>) => Effect
     name: string,
     _arbitraries: any,
     self: (...args: Array<any>) => Effect.Effect<any, any, R>,
-    timeout?: any
+    timeout?: any | undefined
   ) => {
     // For now, just run the test once with empty properties
     return it(name, run(self), testOptions(timeout));
@@ -104,18 +106,25 @@ const makeTester = <R>(mapEffect: <A, E>(self: Effect.Effect<A, E, R>) => Effect
   return Object.assign(f, { each, fails, only, prop, runIf, skip, skipIf });
 };
 
-export const prop = (name: string, _arbitraries: any, self: (properties: any, ctx: any) => void, timeout?: any) => {
+export const prop = (
+  name: string,
+  _arbitraries: any,
+  self: (properties: any, ctx: any) => void,
+  timeout?: any | undefined
+) => {
   // Simplified prop without FastCheck for now
   return it(name, () => self({}, {}), testOptions(timeout));
 };
 
 export const layer = <R, E>(
   layer_: Layer.Layer<R, E>,
-  options?: {
-    readonly memoMap?: Layer.MemoMap;
-    readonly timeout?: Duration.DurationInput;
-    readonly excludeTestServices?: boolean;
-  }
+  options?:
+    | {
+        readonly memoMap?: Layer.MemoMap | undefined;
+        readonly timeout?: Duration.DurationInput | undefined;
+        readonly excludeTestServices?: boolean | undefined;
+      }
+    | undefined
 ) => {
   return (...args: [name: string, f: (it: any) => void] | [f: (it: any) => void]) => {
     const excludeTestServices = options?.excludeTestServices ?? false;
@@ -137,7 +146,10 @@ export const layer = <R, E>(
         Effect.flatMap(runtimeEffect, (runtime) => effect.pipe(Effect.provide(runtime)))
       ),
       flakyTest,
-      layer: (nestedLayer: Layer.Layer<any, any, R>, options?: { readonly timeout?: Duration.DurationInput }) => {
+      layer: (
+        nestedLayer: Layer.Layer<any, any, R>,
+        options?: { readonly timeout?: Duration.DurationInput | undefined } | undefined
+      ) => {
         return layer(Layer.provideMerge(nestedLayer, withTestEnv), {
           ...options,
           excludeTestServices,

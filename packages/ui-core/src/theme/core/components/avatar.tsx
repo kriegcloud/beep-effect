@@ -12,7 +12,7 @@ import { colorKeys } from "../palette";
  */
 export type AvatarGroupExtendVariant = { compact: true };
 export type AvatarExtendColor = {
-  color?: PaletteColorKey | "default" | "inherit";
+  readonly color?: PaletteColorKey | "default" | "inherit" | undefined;
 };
 
 type AvatarVariants = ComponentsVariants<Theme>["MuiAvatar"];
@@ -21,7 +21,10 @@ type AvatarGroupVariants = ComponentsVariants<Theme>["MuiAvatarGroup"];
 const baseColors = ["default", "inherit"] as const;
 const allColors = [...baseColors, ...colorKeys.palette] as const;
 
-export function getAvatarColor(inputValue?: string, fallback: AvatarExtendColor["color"] = "default"): string {
+export function getAvatarColor(
+  inputValue?: string | undefined,
+  fallback: AvatarExtendColor["color"] = "default"
+): string {
   if (!inputValue?.trim()) {
     return fallback;
   }

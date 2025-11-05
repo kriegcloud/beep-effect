@@ -19,9 +19,11 @@ export namespace Table {
       (defaultColumns: DefaultColumns<TableName, Brand>) =>
       <TColumnsMap extends Omit<Record<string, pg.PgColumnBuilderBase>, keyof DefaultColumns<TableName, Brand>>>(
         columns: TColumnsMap,
-        extraConfig?: (
-          self: BuildExtraConfigColumns<TableName, TColumnsMap & DefaultColumns<TableName, Brand>, "pg">
-        ) => PgTableExtraConfigValue[]
+        extraConfig?:
+          | ((
+              self: BuildExtraConfigColumns<TableName, TColumnsMap & DefaultColumns<TableName, Brand>, "pg">
+            ) => PgTableExtraConfigValue[])
+          | undefined
       ) => {
         const cols = {
           ...defaultColumns,

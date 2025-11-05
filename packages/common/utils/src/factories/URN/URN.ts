@@ -10,7 +10,7 @@ export type IdSymbol = typeof IdSymbol;
  * - Leaf nodes are `IdSymbol` (places where you can mint identifiers).
  */
 export type Config = {
-  readonly [K in Segment<string>]?: Config | IdSymbol;
+  readonly [K in Segment<string>]?: Config | IdSymbol | undefined;
 };
 
 /**

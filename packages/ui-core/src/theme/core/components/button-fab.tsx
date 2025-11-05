@@ -48,7 +48,7 @@ const DIMENSIONS: Record<string, CSSObject> = {
   },
 };
 
-function isVariant<T extends string>(allowed: readonly T[], variant?: string): variant is T {
+function isVariant<T extends string>(allowed: readonly T[], variant?: string | undefined): variant is T {
   return !!variant && allowed.includes(variant as T);
 }
 

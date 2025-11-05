@@ -96,7 +96,7 @@ type Policy<E = never, R = never> = Effect.Effect<void, BeepError.Forbidden | E,
  */
 export const policy = <E, R>(
   predicate: (user: CurrentUser["Type"]) => Effect.Effect<boolean, E, R>,
-  message?: string
+  message?: string | undefined
 ): Policy<E, R> =>
   Effect.flatMap(CurrentUser, (user) =>
     Effect.flatMap(predicate(user), (result) =>

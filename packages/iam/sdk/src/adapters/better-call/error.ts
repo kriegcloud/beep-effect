@@ -189,9 +189,9 @@ class InternalAPIError extends Error {
     public status: keyof typeof _statusCode | Status = "INTERNAL_SERVER_ERROR",
     public body:
       | ({
-          message?: string;
-          code?: string;
-          cause?: unknown;
+          readonly message?: string | undefined;
+          readonly code?: string | undefined;
+          readonly cause?: unknown | undefined;
         } & Record<string, any>)
       | undefined = undefined,
     public headers: HeadersInit = {},

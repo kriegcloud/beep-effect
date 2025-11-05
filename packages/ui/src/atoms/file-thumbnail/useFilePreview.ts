@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 
 export type UseFilePreviewReturn = {
-  previewUrl: string;
-  setPreviewUrl: React.Dispatch<React.SetStateAction<string>>;
+  readonly previewUrl: string;
+  readonly setPreviewUrl: React.Dispatch<React.SetStateAction<string>>;
 };
 
-export function useFilePreview(file?: File | string | null): UseFilePreviewReturn {
+export function useFilePreview(file?: File | string | null | undefined): UseFilePreviewReturn {
   const objectUrlRef = useRef<string>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
 

@@ -4,7 +4,7 @@ import type * as pg from "drizzle-orm/pg-core";
 import type { PgTimestampBuilderInitial } from "drizzle-orm/pg-core";
 
 export type DefaultColumns<TableName extends string, Brand extends string> = {
-  id: EntityId.PublicId<TableName, Brand>;
+  id: EntityId.PublicId<TableName>;
   _rowId: EntityId.PrivateId<Brand>;
   createdAt: HasRuntimeDefault<HasDefault<NotNull<PgTimestampBuilderInitial<"created_at">>>>;
   updatedAt: HasDefault<NotNull<pg.PgTimestampBuilderInitial<"updated_at">>>;

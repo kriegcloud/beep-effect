@@ -7,7 +7,7 @@
     "dev": "concurrently \"vite\" \"bun --watch src/server/main.ts\"",
     "dev:client": "vite",
     "dev:server": "bun --watch src/server/main.ts",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "prepare": "effect-language-service patch",
     "clean": "rm -rf node_modules .next out dist build .turbo .tsbuildinfo",
@@ -70,7 +70,7 @@
     "@effect/platform": "catalog:",
     "@effect/platform-browser": "catalog:",
     "@effect/platform-bun": "catalog:",
-    "@effect/rpc": "catalog:",
+    "@effect/rpc": "^0.72.0",
     "@effect/sql": "catalog:",
     "@effect/sql-sqlite-bun": "catalog:",
     "@number-flow/react": "catalog:",
@@ -106,7 +106,7 @@
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
-    "typescript": "~5.9.3",
+    "typescript": "catalog:",
     "vite": "catalog:"
   }
 }

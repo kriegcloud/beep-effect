@@ -1,6 +1,9 @@
 {
-  "extends": "./tsconfig.base.json",
+  "extends": "./tsconfig.base.jsonc",
   "include": [],
+  "compilerOptions": {
+    "stripInternal": true
+  },
   "references": [
     {
       "path": "packages/common/types/tsconfig.build.json"

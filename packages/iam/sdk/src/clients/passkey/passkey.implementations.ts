@@ -160,3 +160,8 @@ export const PasskeyImplementations = PasskeyContractKit.of({
   PasskeyDelete: PasskeyDeleteHandler,
   PasskeyUpdate: PasskeyUpdateHandler,
 });
+
+export class PasskeysRepo extends Effect.Service<PasskeysRepo>()("@beep/iam-sdk/clients/PasskeysRepo", {
+  accessors: true,
+  sync: () => PasskeyImplementations,
+}) {}

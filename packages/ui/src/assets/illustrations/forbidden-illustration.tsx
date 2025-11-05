@@ -4,7 +4,7 @@ import type { SvgIconProps } from "@mui/material/SvgIcon";
 import SvgIcon from "@mui/material/SvgIcon";
 import { memo } from "react";
 
-type SvgProps = SvgIconProps & { hideBackground?: boolean };
+type SvgProps = SvgIconProps & { readonly hideBackground?: boolean | undefined };
 
 function ForbiddenIllustration({ hideBackground, sx, ...other }: SvgProps) {
   const renderCharacterImage = () => (

@@ -3,9 +3,9 @@ import { useMemo } from "react";
 import type { AuthHooks, OrganizationOptionsContext } from "../types";
 
 export function useCurrentOrganization(
-  { slug: slugProp }: { slug?: string } = {},
-  hooks?: AuthHooks,
-  organizationOptions?: OrganizationOptionsContext
+  { slug: slugProp }: { readonly slug?: string | undefined } = {},
+  hooks?: AuthHooks | undefined,
+  organizationOptions?: OrganizationOptionsContext | undefined
 ) {
   // If hooks not provided, this will fail - caller must provide them
   if (!hooks) {

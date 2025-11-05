@@ -31,20 +31,20 @@ import { useCallback, useEffect, useMemo, useState } from "react";
  */
 
 export type UseLocalStorageOptions = {
-  initializeWithValue?: boolean;
+  readonly initializeWithValue?: boolean | undefined;
 };
 
 export type UseLocalStorageReturn<T> = {
-  state: T;
-  resetState: (defaultState?: T) => void;
-  setState: (updateState: T | Partial<T>) => void;
-  setField: (name: keyof T, updateValue: T[keyof T]) => void;
+  readonly state: T;
+  readonly resetState: (defaultState?: T | undefined) => void;
+  readonly setState: (updateState: T | Partial<T>) => void;
+  readonly setField: (name: keyof T, updateValue: T[keyof T]) => void;
 };
 
 export function useLocalStorage<T>(
   key: string,
-  initialState?: T,
-  options?: UseLocalStorageOptions
+  initialState?: T | undefined,
+  options?: UseLocalStorageOptions | undefined
 ): UseLocalStorageReturn<T> {
   const { initializeWithValue = true } = options ?? {};
   const isObjectState = initialState && typeof initialState === "object";
@@ -91,7 +91,7 @@ export function useLocalStorage<T>(
   );
 
   const resetState = useCallback(
-    (defaultState?: T) => {
+    (defaultState?: T | undefined) => {
       setState(defaultState ?? initialState);
       removeStorage(key);
     },

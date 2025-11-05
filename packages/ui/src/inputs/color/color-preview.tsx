@@ -5,16 +5,16 @@ import type React from "react";
 import { colorPreviewClasses } from "./classes";
 
 export type ColorPreviewSlotProps = {
-  item?: React.ComponentProps<typeof ItemRoot>;
-  label?: React.ComponentProps<typeof ItemLabel>;
+  readonly item?: React.ComponentProps<typeof ItemRoot> | undefined;
+  readonly label?: React.ComponentProps<typeof ItemLabel> | undefined;
 };
 
 export type ColorPreviewProps = React.ComponentProps<typeof ColorPreviewRoot> & {
-  limit?: number;
-  size?: number;
-  gap?: number;
-  colors: string[];
-  slotProps?: ColorPreviewSlotProps;
+  readonly limit?: number | undefined;
+  readonly size?: number | undefined;
+  readonly gap?: number | undefined;
+  readonly colors: string[];
+  readonly slotProps?: ColorPreviewSlotProps | undefined;
 };
 
 export function ColorPreview({

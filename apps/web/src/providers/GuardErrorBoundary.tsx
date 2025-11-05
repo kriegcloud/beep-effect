@@ -4,7 +4,7 @@ import React from "react";
 
 type GuardErrorBoundaryProps = {
   readonly fallback: (params: { reset: () => void }) => React.ReactNode;
-  readonly onReset?: () => void;
+  readonly onReset?: (() => void) | undefined;
   readonly children: React.ReactNode;
 };
 
@@ -13,13 +13,13 @@ type GuardErrorBoundaryState = {
 };
 
 export class GuardErrorBoundary extends React.Component<GuardErrorBoundaryProps, GuardErrorBoundaryState> {
-  public state: GuardErrorBoundaryState = { hasError: false };
+  public override state: GuardErrorBoundaryState = { hasError: false };
 
   public static getDerivedStateFromError(): GuardErrorBoundaryState {
     return { hasError: true };
   }
 
-  public componentDidCatch(error: unknown, errorInfo: React.ErrorInfo): void {
+  public override componentDidCatch(error: unknown, errorInfo: React.ErrorInfo): void {
     console.error("GuardErrorBoundary caught an error", error, errorInfo);
   }
 

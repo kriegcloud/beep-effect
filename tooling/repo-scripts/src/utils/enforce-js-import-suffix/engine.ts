@@ -506,7 +506,8 @@ export const defaultSelectedPackages = (repoRoot: string, path_: Path.Path) =>
     const fsUtils = yield* FsUtils;
     const packageJsonPath = path_.join(repoRoot, "tooling", "repo-scripts", "package.json");
     const raw = yield* fsUtils.readJson(packageJsonPath);
-    const dependenciesRecord = (raw as { readonly dependencies?: Record<string, string> }).dependencies ?? {};
+    const dependenciesRecord =
+      (raw as { readonly dependencies?: Record<string, string> | undefined }).dependencies ?? {};
     const entries = R.toEntries(dependenciesRecord);
     const workspaceDependencies = F.pipe(
       entries,

@@ -15,12 +15,14 @@ export type AutocompleteBaseProps = Omit<
 >;
 
 export type AutocompleteProps = AutocompleteBaseProps & {
-  label?: string;
-  placeholder?: string;
-  helperText?: React.ReactNode;
-  slotProps?: AutocompleteBaseProps["slotProps"] & {
-    textfield?: TextFieldProps;
-  };
+  readonly label?: string | undefined;
+  readonly placeholder?: string | undefined;
+  readonly helperText?: React.ReactNode | undefined;
+  readonly slotProps?:
+    | (AutocompleteBaseProps["slotProps"] & {
+        readonly textfield?: TextFieldProps | undefined;
+      })
+    | undefined;
 };
 
 function AutocompleteField({ label, slotProps, helperText, placeholder, ...other }: DefaultOmit<AutocompleteProps>) {

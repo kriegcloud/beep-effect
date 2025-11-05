@@ -4,7 +4,7 @@ import type React from "react";
 import { useFormContext } from "./useAppForm";
 
 export type SubmitButtonProps = React.ComponentProps<typeof Button> & {
-  children?: React.ReactNode;
+  readonly children?: React.ReactNode | undefined;
 };
 
 const SubmitButton: React.FC<SubmitButtonProps> = (props) => {

@@ -184,7 +184,7 @@ export type BuildOptions = {
    *
    * @default false
    */
-  widenLeavesToString?: boolean;
+  readonly widenLeavesToString?: boolean | undefined;
 };
 
 /**
@@ -213,7 +213,7 @@ export type BuildOptions = {
 export function pathObjFromPaths<
   const A extends readonly string[],
   const Opt extends BuildOptions | undefined = undefined,
->(paths: A, options?: Opt): PathObjectFrom<A, Opt extends { widenLeavesToString: true } ? true : false> {
+>(paths: A, options?: Opt | undefined): PathObjectFrom<A, Opt extends { widenLeavesToString: true } ? true : false> {
   const widen = options?.widenLeavesToString === true;
 
   const root: Record<string, unknown> = {};

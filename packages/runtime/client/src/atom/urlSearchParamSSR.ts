@@ -29,9 +29,11 @@ function updateSearchParams() {
 
 export const urlSearchParamSSR = <A = never, I extends string = never>(
   name: string,
-  options?: {
-    readonly schema?: S.Schema<A, I>;
-  }
+  options?:
+    | {
+        readonly schema?: S.Schema<A, I> | undefined;
+      }
+    | undefined
 ): Atom.Writable<[A] extends [never] ? string : O.Option<A>> => {
   const decode = options?.schema && S.decodeEither(options.schema);
   const encode = options?.schema && S.encodeEither(options.schema);

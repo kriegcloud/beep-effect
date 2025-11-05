@@ -38,7 +38,7 @@ export const PasskeysList = ({ passkeys }: Props) => {
         return yield* Effect.sync(() =>
           Match.value(confirmResult).pipe(
             Match.when({ reason: "confirm" }, () => {
-              deletePasskey({ id: passkey.id });
+              deletePasskey(passkey);
               setPasskeyDialogOpen(false);
             }),
             Match.orElse(() => {

@@ -42,9 +42,11 @@ export namespace OrgTable {
         >,
       >(
         columns: TColumnsMap,
-        extraConfig?: (
-          self: BuildExtraConfigColumns<TableName, TColumnsMap & OrgTableDefaultColumns<TableName, Brand>, "pg">
-        ) => PgTableExtraConfigValue[]
+        extraConfig?:
+          | ((
+              self: BuildExtraConfigColumns<TableName, TColumnsMap & OrgTableDefaultColumns<TableName, Brand>, "pg">
+            ) => PgTableExtraConfigValue[])
+          | undefined
       ) => {
         const cols = {
           ...defaultColumns,

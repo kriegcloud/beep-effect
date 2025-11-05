@@ -12,12 +12,14 @@ import { useStore } from "@tanstack/react-form";
 import type React from "react";
 
 export type SwitchProps = Omit<FormControlLabelProps, "control"> & {
-  helperText?: React.ReactNode;
-  slotProps?: {
-    wrapper?: BoxProps;
-    switch?: DefaultOmit<MuiSwitchProps>;
-    helperText?: FormHelperTextProps;
-  };
+  readonly helperText?: React.ReactNode | undefined;
+  readonly slotProps?:
+    | {
+        readonly wrapper?: BoxProps | undefined;
+        readonly switch?: DefaultOmit<MuiSwitchProps> | undefined;
+        readonly helperText?: FormHelperTextProps | undefined;
+      }
+    | undefined;
 };
 
 function Switch({ helperText, label, slotProps, sx, ...other }: SwitchProps) {

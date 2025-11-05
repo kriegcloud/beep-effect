@@ -12,12 +12,14 @@ import { useStore } from "@tanstack/react-form";
 import type React from "react";
 
 type CheckboxProps = Omit<FormControlLabelProps, "control"> & {
-  helperText?: React.ReactNode;
-  slotProps?: {
-    wrapper?: BoxProps;
-    checkbox?: DefaultOmit<MuiCheckboxProps>;
-    helperText?: FormHelperTextProps;
-  };
+  readonly helperText?: React.ReactNode | undefined;
+  readonly slotProps?:
+    | {
+        readonly wrapper?: BoxProps | undefined;
+        readonly checkbox?: DefaultOmit<MuiCheckboxProps> | undefined;
+        readonly helperText?: FormHelperTextProps | undefined;
+      }
+    | undefined;
 };
 
 function CheckboxField({ sx, name, label, slotProps, helperText, ...other }: CheckboxProps) {

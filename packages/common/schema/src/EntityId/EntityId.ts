@@ -23,20 +23,20 @@ export type SchemaType<TableName extends string> =
 export type Type<TableName extends string> = S.Schema.Type<SchemaType<TableName>>;
 export type Encoded<TableName extends string> = S.Schema.Encoded<SchemaType<TableName>>;
 
-type Annotations<TableName extends string, Brand extends string> = DefaultAnnotations<Type<TableName>>;
+type Annotations<TableName extends string> = DefaultAnnotations<Type<TableName>>;
 
 export class Factory<const TableName extends string, const Brand extends string> extends Data.TaggedClass("EntityId")<
   Config<Brand, TableName>
 > {
-  readonly Schema: (annotations: Annotations<TableName, Brand>) => SchemaType<TableName>;
+  readonly Schema: (annotations: Annotations<TableName>) => SchemaType<TableName>;
 
   constructor(
-    readonly tableName: SnakeTag.Literal<TableName>,
-    readonly brand: Brand
+    override readonly tableName: SnakeTag.Literal<TableName>,
+    override readonly brand: Brand
   ) {
     const create = () => F.pipe(tableName, Str.concat("__"), Str.concat(UUIDLiteralEncoded.create()));
     super({ tableName, brand });
-    this.Schema = (annotations: Annotations<TableName, Brand>) =>
+    this.Schema = (annotations: Annotations<TableName>) =>
       S.TemplateLiteral(S.Literal(tableName), "__", UUIDLiteralEncoded).annotations({
         ...annotations,
         identifier: Str.endsWith("Id")(brand) ? brand : `${brand}Id`,
@@ -48,7 +48,7 @@ export class Factory<const TableName extends string, const Brand extends string>
   }
 }
 
-export type PublicId<TableName extends string, Brand extends string> = HasRuntimeDefault<
+export type PublicId<TableName extends string> = HasRuntimeDefault<
   HasDefault<
     $Type<
       NotNull<pg.PgTextBuilderInitial<"id", [string, ...string[]]>>,
@@ -68,7 +68,7 @@ export type EntityIdSchemaInstance<TableName extends string, Brand extends strin
   readonly tableName: SnakeTag.Literal<TableName>;
   readonly brand: Brand;
   readonly is: (u: unknown) => u is Type<TableName>;
-  readonly publicId: () => PublicId<TableName, Brand>;
+  readonly publicId: () => PublicId<TableName>;
   readonly privateId: () => PrivateId<Brand>;
   readonly privateIdColumnNameSql: "_row_id";
   readonly privateIdColumnName: "_rowId";
@@ -127,8 +127,8 @@ export const make = <const TableName extends string, const Brand extends string>
   const privateId = pg.serial("_row_id").notNull().primaryKey().$type<B.Branded<number, Brand>>();
 
   class WithStatics extends schema {
-    [TypeId] = variance;
-    static [TypeId] = variance;
+    override [TypeId] = variance;
+    static override [TypeId] = variance;
     static readonly create = create;
     static readonly tableName = tableName;
     static readonly brand = brand;

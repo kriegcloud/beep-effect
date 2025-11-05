@@ -112,11 +112,11 @@ type SelectRefineArg<TTable extends Drizzle.Table, Col extends keyof Columns<TTa
         >);
 
 type InsertRefine<TTable extends Drizzle.Table> = {
-  [K in keyof Columns<TTable>]?: InsertRefineArg<TTable, K>;
+  [K in keyof Columns<TTable>]?: InsertRefineArg<TTable, K> | undefined;
 };
 
 type SelectRefine<TTable extends Drizzle.Table> = {
-  [K in keyof Columns<TTable>]?: SelectRefineArg<TTable, K>;
+  [K in keyof Columns<TTable>]?: SelectRefineArg<TTable, K> | undefined;
 };
 
 type GetSchemaForType<TColumn extends Drizzle.Column> = TColumn["_"]["dataType"] extends infer TDataType
@@ -260,11 +260,13 @@ type BuildSelectSchema<TTable extends Drizzle.Table, TRefine extends InsertRefin
 
 export function createInsertSchema<TTable extends Drizzle.Table, TRefine extends InsertRefine<TTable>>(
   table: TTable,
-  refine?: {
-    [K in keyof TRefine]: K extends keyof TTable["_"]["columns"]
-      ? TRefine[K]
-      : Drizzle.DrizzleTypeError<`Column '${K & string}' does not exist in table '${TTable["_"]["name"]}'`>;
-  }
+  refine?:
+    | {
+        [K in keyof TRefine]: K extends keyof TTable["_"]["columns"]
+          ? TRefine[K]
+          : Drizzle.DrizzleTypeError<`Column '${K & string}' does not exist in table '${TTable["_"]["name"]}'`>;
+      }
+    | undefined
 ): BuildInsertSchema<TTable, Drizzle.Equal<TRefine, InsertRefine<TTable>> extends true ? {} : TRefine> {
   const columns = Drizzle.getTableColumns(table);
   const columnEntries = Object.entries(columns);
@@ -304,11 +306,13 @@ export function createInsertSchema<TTable extends Drizzle.Table, TRefine extends
 
 export function createSelectSchema<TTable extends Drizzle.Table, TRefine extends SelectRefine<TTable>>(
   table: TTable,
-  refine?: {
-    [K in keyof TRefine]: K extends keyof TTable["_"]["columns"]
-      ? TRefine[K]
-      : Drizzle.DrizzleTypeError<`Column '${K & string}' does not exist in table '${TTable["_"]["name"]}'`>;
-  }
+  refine?:
+    | {
+        [K in keyof TRefine]: K extends keyof TTable["_"]["columns"]
+          ? TRefine[K]
+          : Drizzle.DrizzleTypeError<`Column '${K & string}' does not exist in table '${TTable["_"]["name"]}'`>;
+      }
+    | undefined
 ): BuildSelectSchema<TTable, Drizzle.Equal<TRefine, SelectRefine<TTable>> extends true ? {} : TRefine> {
   const columns = Drizzle.getTableColumns(table);
   const columnEntries = Object.entries(columns);

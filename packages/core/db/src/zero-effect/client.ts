@@ -11,12 +11,14 @@ import {
 } from "./shared/errors";
 
 export type CustomMutatorEfDefs<TSchema extends ZeroSchema, R = unknown> = {
-  [TableName in keyof TSchema["tables"]]?: {
-    [MutatorName: string]: (
-      tx: EffectTransaction<TSchema>,
-      ...args: ReadonlyArray<UnsafeTypes.UnsafeAny>
-    ) => Effect.Effect<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, R>;
-  };
+  [TableName in keyof TSchema["tables"]]?:
+    | {
+        [MutatorName: string]: (
+          tx: EffectTransaction<TSchema>,
+          ...args: ReadonlyArray<UnsafeTypes.UnsafeAny>
+        ) => Effect.Effect<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, R>;
+      }
+    | undefined;
 };
 
 type SchemaCRUD<S extends ZeroSchema> = {

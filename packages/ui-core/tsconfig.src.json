@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../tsconfig.base.jsonc",
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
@@ -31,9 +31,7 @@
   "compilerOptions": {
     "types": ["node", "bun"],
     "outDir": "build/src",
-
     "rootDir": "src",
-
     "jsx": "react-jsx",
     "module": "ESNext",
     "target": "ES2022",

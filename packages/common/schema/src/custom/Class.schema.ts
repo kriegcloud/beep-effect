@@ -633,7 +633,7 @@ const makeClass = <Fields extends S.Struct.Fields>({
       });
     }
 
-    static toString() {
+    static override toString() {
       return `(${String(encodedSide)} <-> ${identifier})`;
     }
 

@@ -15,8 +15,8 @@ import React from "react";
 import { withFieldGroup } from "../useAppForm";
 
 type PasswordFields = {
-  password: string;
-  passwordConfirm: string;
+  readonly password: string;
+  readonly passwordConfirm: string;
 };
 
 const defaultValues: PasswordFields = {
@@ -25,14 +25,14 @@ const defaultValues: PasswordFields = {
 };
 
 type CheckPasswordOptions = {
-  minLength?: number;
-  allowedSpecialChar?: string;
+  readonly minLength?: number | undefined;
+  readonly allowedSpecialChar?: string | undefined;
 };
 
 type PasswordsComplexityPass = {
-  pass: boolean;
-  message: string;
-  key?: string;
+  readonly pass: boolean;
+  readonly message: string;
+  readonly key?: string | undefined;
 };
 
 type ComplexityKeys = "minLength" | "lowerCase" | "upperCase" | "number";
@@ -42,42 +42,42 @@ type DefaultErrorOption = Record<ComplexityKeys, PasswordsComplexityPass>;
 type ErrorOption = DefaultErrorOption & Record<"specialCharacters", PasswordsComplexityPass>;
 
 type Check = {
-  pass: boolean;
-  key: keyof ErrorOption;
+  readonly pass: boolean;
+  readonly key: keyof ErrorOption;
 };
 
 type PasswordCheckListResult = {
-  validationMessages: PasswordsComplexityPass[];
-  allChecksPassed: boolean;
+  readonly validationMessages: PasswordsComplexityPass[];
+  readonly allChecksPassed: boolean;
 };
 
 type ValidationMessages = {
-  minLength: string;
-  lowerCase: string;
-  upperCase: string;
-  number: string;
-  specialCharacters: string;
+  readonly minLength: string;
+  readonly lowerCase: string;
+  readonly upperCase: string;
+  readonly number: string;
+  readonly specialCharacters: string;
 };
 
 export type PasswordChecklistProps = {
   /**
    * class name for the input field
    */
-  className?: string;
+  readonly className?: string | undefined;
   /**
    * custom options for password validation
    */
-  options?: CheckPasswordOptions;
+  readonly options?: CheckPasswordOptions | undefined;
   /**
    * custom validation messages for each password validation
    */
-  validationMessages?: ValidationMessages;
+  readonly validationMessages?: ValidationMessages | undefined;
 };
 
 export const validatePasswordChecklist = (
   password: string,
-  messages?: ValidationMessages,
-  options?: CheckPasswordOptions
+  messages?: ValidationMessages | undefined,
+  options?: CheckPasswordOptions | undefined
 ): PasswordCheckListResult => {
   // -------------- default options -------------- //
   const passwordMinLength = options?.minLength || 8;

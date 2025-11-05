@@ -14,7 +14,7 @@ import { getFileChunk } from "./utils";
  */
 export function detectFile(
   file: Array<number> | ArrayBuffer | Uint8Array,
-  options?: DetectFileOptions
+  options?: DetectFileOptions | undefined
 ): DetectedFileInfo | undefined {
   if (options && Object.prototype.hasOwnProperty.call(options, "chunkSize") && (options?.chunkSize ?? 0) <= 0)
     throw new RangeError("chunkSize must be bigger than zero");

@@ -4,9 +4,9 @@ import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 
 type FormResendCodeProps = BoxProps & {
-  value?: number;
-  disabled?: boolean;
-  onResendCode?: () => void;
+  readonly value?: number | undefined;
+  readonly disabled?: boolean | undefined;
+  readonly onResendCode?: (() => void) | undefined;
 };
 
 export function FormResendCode({ value, disabled, onResendCode, sx, ...other }: FormResendCodeProps) {

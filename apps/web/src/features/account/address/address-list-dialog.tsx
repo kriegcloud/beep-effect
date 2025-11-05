@@ -16,9 +16,9 @@ import type { IAddressItem } from "../types";
 // ----------------------------------------------------------------------
 
 type Props = Omit<DialogProps, "onSelect"> & {
-  readonly title?: string;
+  readonly title?: string | undefined;
   readonly list: ReadonlyArray<IAddressItem>;
-  readonly action?: React.ReactNode;
+  readonly action?: React.ReactNode | undefined;
   readonly onClose: () => void;
   readonly selected: (selectedId: string) => boolean;
   readonly onSelect: (address: IAddressItem | null) => void;

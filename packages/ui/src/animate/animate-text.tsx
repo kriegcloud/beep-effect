@@ -33,11 +33,11 @@ const srOnlyStyles: SxProps<Theme> = {
 };
 
 export type AnimateTextProps = TypographyProps & {
-  variants?: Variants;
-  repeatDelayMs?: number;
-  textContent: string | string[];
-  once?: UseInViewOptions["once"];
-  amount?: UseInViewOptions["amount"];
+  readonly variants?: Variants | undefined;
+  readonly repeatDelayMs?: number | undefined;
+  readonly textContent: string | string[];
+  readonly once?: UseInViewOptions["once"] | undefined;
+  readonly amount?: UseInViewOptions["amount"] | undefined;
 };
 
 export function AnimateText({

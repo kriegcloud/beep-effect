@@ -99,7 +99,10 @@ export function formatCausePretty(cause: Cause.Cause<unknown>, enableColors = tr
   return colored === pretty ? `\u001b[31m${pretty}\u001b[39m` : colored;
 }
 
-export function extractPrimaryError(cause: Cause.Cause<unknown>): { error?: Error; message: string } {
+export function extractPrimaryError(cause: Cause.Cause<unknown>): {
+  readonly error?: Error | undefined;
+  readonly message: string;
+} {
   const failOpt = Cause.failureOption(cause);
   if (O.isSome(failOpt)) {
     const val = failOpt.value;
@@ -114,20 +117,20 @@ export function extractPrimaryError(cause: Cause.Cause<unknown>): { error?: Erro
 }
 
 export interface CauseHeadingOptions {
-  readonly colors?: boolean;
-  readonly date?: Date;
-  readonly levelLabel?: string;
-  readonly fiberName?: string;
-  readonly spansText?: string;
-  readonly service?: string;
-  readonly environment?: string;
-  readonly requestId?: string;
-  readonly correlationId?: string;
-  readonly userId?: string;
-  readonly hostname?: string;
-  readonly pid?: number | string;
-  readonly nodeVersion?: string;
-  readonly includeCodeFrame?: boolean;
+  readonly colors?: boolean | undefined;
+  readonly date?: Date | undefined;
+  readonly levelLabel?: string | undefined;
+  readonly fiberName?: string | undefined;
+  readonly spansText?: string | undefined;
+  readonly service?: string | undefined;
+  readonly environment?: string | undefined;
+  readonly requestId?: string | undefined;
+  readonly correlationId?: string | undefined;
+  readonly userId?: string | undefined;
+  readonly hostname?: string | undefined;
+  readonly pid?: number | string | undefined;
+  readonly nodeVersion?: string | undefined;
+  readonly includeCodeFrame?: boolean | undefined;
 }
 
 /**
@@ -150,15 +153,19 @@ export const withRootSpan =
  * Instrument an effect with span, optional annotations, and optional metrics.
  */
 export interface SpanMetricsConfig {
-  readonly successCounter?: Metric.Metric.Counter<number>;
-  readonly errorCounter?: Metric.Metric.Counter<number>;
-  readonly durationHistogram?: Metric.Metric.Histogram<number>;
+  readonly successCounter?: Metric.Metric.Counter<number> | undefined;
+  readonly errorCounter?: Metric.Metric.Counter<number> | undefined;
+  readonly durationHistogram?: Metric.Metric.Histogram<number> | undefined;
   /** How to record the duration value into the histogram (default: millis). */
-  readonly durationUnit?: "millis" | "seconds";
+  readonly durationUnit?: "millis" | "seconds" | undefined;
 }
 
 export const withSpanAndMetrics =
-  (spanLabel: string, metrics?: SpanMetricsConfig, annotations?: Readonly<Record<string, unknown>>) =>
+  (
+    spanLabel: string,
+    metrics?: SpanMetricsConfig | undefined,
+    annotations?: Readonly<Record<string, unknown>> | undefined
+  ) =>
   <A, E, R>(self: Effect.Effect<A, E, R>) =>
     Effect.gen(function* () {
       const start = yield* Clock.currentTimeMillis;
@@ -223,15 +230,15 @@ export interface AccumulateResult<A, E> {
 }
 
 export interface AccumulateOptions {
-  readonly concurrency?: number | "unbounded";
-  readonly spanLabel?: string;
-  readonly annotations?: Readonly<Record<string, string>>;
-  readonly colors?: boolean;
+  readonly concurrency?: number | "unbounded" | undefined;
+  readonly spanLabel?: string | undefined;
+  readonly annotations?: Readonly<Record<string, string>> | undefined;
+  readonly colors?: boolean | undefined;
 }
 
 export const accumulateEffects = <A, E, R>(
   effects: ReadonlyArray<Effect.Effect<A, E, R>>,
-  options?: { readonly concurrency?: number | "unbounded" }
+  options?: { readonly concurrency?: number | "unbounded" | undefined }
 ): Effect.Effect<AccumulateResult<A, E>, never, R> =>
   Effect.gen(function* () {
     const [errs, oks] = yield* Effect.partition(effects, (eff) => Effect.sandbox(eff), {

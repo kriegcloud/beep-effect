@@ -165,7 +165,12 @@ class DecodedImageData implements ImageData {
   readonly width: number;
   readonly height: number;
 
-  constructor(params: { data: ImageDataArray; width: number; height: number; colorSpace?: PredefinedColorSpace }) {
+  constructor(params: {
+    data: ImageDataArray;
+    width: number;
+    height: number;
+    colorSpace?: PredefinedColorSpace | undefined;
+  }) {
     this.data = params.data;
     this.width = params.width;
     this.height = params.height;

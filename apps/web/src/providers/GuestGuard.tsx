@@ -11,8 +11,8 @@ import { GuardErrorBoundary } from "@/providers/GuardErrorBoundary";
 import { GuardErrorFallback } from "@/providers/GuardErrorFallback";
 
 type GuestGuardProps = React.PropsWithChildren<{
-  readonly redirectTo?: string;
-  readonly pendingFallback?: React.ReactNode;
+  readonly redirectTo?: string | undefined;
+  readonly pendingFallback?: React.ReactNode | undefined;
 }>;
 
 type GuestGuardContentProps = GuestGuardProps & {

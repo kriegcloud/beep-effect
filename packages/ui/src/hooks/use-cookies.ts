@@ -30,17 +30,21 @@ import { useCallback, useEffect, useMemo, useState } from "react";
  * );
  */
 export type UseCookiesOptions = CookieOptions & {
-  initializeWithValue?: boolean;
+  readonly initializeWithValue?: boolean | undefined;
 };
 
 export type UseCookiesReturn<T> = {
-  state: T;
-  resetState: (defaultState?: T) => void;
-  setState: (updateState: T | Partial<T>) => void;
-  setField: (name: keyof T, updateValue: T[keyof T]) => void;
+  readonly state: T;
+  readonly resetState: (defaultState?: T | undefined) => void;
+  readonly setState: (updateState: T | Partial<T>) => void;
+  readonly setField: (name: keyof T, updateValue: T[keyof T]) => void;
 };
 
-export function useCookies<T>(key: string, initialState?: T, options?: UseCookiesOptions): UseCookiesReturn<T> {
+export function useCookies<T>(
+  key: string,
+  initialState?: T | undefined,
+  options?: UseCookiesOptions | undefined
+): UseCookiesReturn<T> {
   const { initializeWithValue = true, ...cookieOptions } = options ?? {};
   const isObjectState = initialState && typeof initialState === "object";
 
@@ -89,7 +93,7 @@ export function useCookies<T>(key: string, initialState?: T, options?: UseCookie
   );
 
   const resetState = useCallback(
-    (defaultState?: T) => {
+    (defaultState?: T | undefined) => {
       setState(defaultState ?? initialState);
       removeCookie(key);
     },

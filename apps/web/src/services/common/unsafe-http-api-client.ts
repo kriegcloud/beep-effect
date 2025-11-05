@@ -157,14 +157,18 @@ export declare namespace UnsafeClient {
 const makeUnsafeClientInternal = <ApiId extends string, Groups extends HttpApiGroup.HttpApiGroup.Any, ApiError, ApiR>(
   api: HttpApi.HttpApi<ApiId, Groups, ApiError, ApiR>,
   options: {
-    readonly predicate?: Predicate.Predicate<{
-      readonly endpoint: HttpApiEndpoint.HttpApiEndpoint.AnyWithProps;
-      readonly group: HttpApiGroup.HttpApiGroup.AnyWithProps;
-    }>;
-    readonly onGroup?: (options: {
-      readonly group: HttpApiGroup.HttpApiGroup.AnyWithProps;
-      readonly mergedAnnotations: Context.Context<never>;
-    }) => void;
+    readonly predicate?:
+      | Predicate.Predicate<{
+          readonly endpoint: HttpApiEndpoint.HttpApiEndpoint.AnyWithProps;
+          readonly group: HttpApiGroup.HttpApiGroup.AnyWithProps;
+        }>
+      | undefined;
+    readonly onGroup?:
+      | ((options: {
+          readonly group: HttpApiGroup.HttpApiGroup.AnyWithProps;
+          readonly mergedAnnotations: Context.Context<never>;
+        }) => void)
+      | undefined;
     readonly onEndpoint: (options: {
       readonly group: HttpApiGroup.HttpApiGroup.AnyWithProps;
       readonly endpoint: HttpApiEndpoint.HttpApiEndpoint<string, HttpMethod.HttpMethod>;
@@ -208,12 +212,16 @@ const makeUnsafeClientInternal = <ApiId extends string, Groups extends HttpApiGr
         );
         const encodeHeaders = endpoint.headersSchema.pipe(Option.map(Schema.encodeUnknown));
         const encodeUrlParams = endpoint.urlParamsSchema.pipe(Option.map(Schema.encodeUnknown));
-        const endpointFn = (request?: {
-          readonly path?: UnsafeTypes.UnsafeAny;
-          readonly urlParams?: UnsafeTypes.UnsafeAny;
-          readonly payload?: UnsafeTypes.UnsafeAny;
-          readonly headers?: UnsafeTypes.UnsafeAny;
-        }) =>
+        const endpointFn = (
+          request?:
+            | {
+                readonly path?: UnsafeTypes.UnsafeAny | undefined;
+                readonly urlParams?: UnsafeTypes.UnsafeAny | undefined;
+                readonly payload?: UnsafeTypes.UnsafeAny | undefined;
+                readonly headers?: UnsafeTypes.UnsafeAny | undefined;
+              }
+            | undefined
+        ) =>
           Effect.gen(function* () {
             let url = endpoint.path;
             if (request?.path) {
@@ -262,10 +270,12 @@ const makeUnsafeClientInternal = <ApiId extends string, Groups extends HttpApiGr
 
 export const make = <ApiId extends string, Groups extends HttpApiGroup.HttpApiGroup.Any, ApiError, ApiR>(
   api: HttpApi.HttpApi<ApiId, Groups, ApiError, ApiR>,
-  options?: {
-    readonly transformClient?: ((client: HttpClient.HttpClient) => HttpClient.HttpClient) | undefined;
-    readonly baseUrl?: URL | string | undefined;
-  }
+  options?:
+    | {
+        readonly transformClient?: ((client: HttpClient.HttpClient) => HttpClient.HttpClient) | undefined;
+        readonly baseUrl?: URL | string | undefined;
+      }
+    | undefined
 ): Effect.Effect<
   Simplify<UnsafeClient<Groups, ApiError>>,
   never,

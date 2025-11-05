@@ -9,14 +9,14 @@ import type React from "react";
 type Action = {
   readonly label: string;
   readonly onClick: () => void;
-  readonly variant?: "contained" | "outlined" | "text";
+  readonly variant?: "contained" | "outlined" | "text" | undefined;
 };
 
 type GuardErrorFallbackProps = {
   readonly title: string;
   readonly description: string;
   readonly primaryAction: Action;
-  readonly secondaryAction?: Action;
+  readonly secondaryAction?: Action | undefined;
 };
 
 export const GuardErrorFallback: React.FC<GuardErrorFallbackProps> = ({

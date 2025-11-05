@@ -16,12 +16,12 @@ const isPostgresErrorInstance = S.is(DbErrorCause);
 
 const isPostgresErrorLike = (value: unknown): value is { readonly name: string; readonly code: string } =>
   isPlainObject(value) &&
-  (value as { readonly name?: unknown }).name === "PostgresError" &&
-  typeof (value as { readonly code?: unknown }).code === "string";
+  (value as { readonly name?: unknown | undefined }).name === "PostgresError" &&
+  typeof (value as { readonly code?: unknown | undefined }).code === "string";
 
 const isSqlErrorInstance = S.is(S.instanceOf(SqlError));
 
-const isSqlErrorLike = (value: unknown): value is { readonly cause?: unknown } =>
+const isSqlErrorLike = (value: unknown): value is { readonly cause?: unknown | undefined } =>
   isSqlErrorInstance(value) || (isPlainObject(value) && value._tag === "SqlError" && "cause" in value);
 
 const isDbErrorLike = (value: unknown): value is { readonly cause: unknown } =>
@@ -122,31 +122,31 @@ const extractPostgresError = (value: unknown): postgres.PostgresError | null => 
 };
 
 class PostgresError extends Data.Error<{
-  name: "PostgresError";
-  severity_local: string;
-  severity: string;
-  code: string;
-  position: string;
-  file: string;
-  line: string;
-  routine: string;
+  readonly name: "PostgresError";
+  readonly severity_local: string;
+  readonly severity: string;
+  readonly code: string;
+  readonly position: string;
+  readonly file: string;
+  readonly line: string;
+  readonly routine: string;
 
-  detail?: string | undefined;
-  hint?: string | undefined;
-  internal_position?: string | undefined;
-  internal_query?: string | undefined;
-  where?: string | undefined;
-  schema_name?: string | undefined;
-  table_name?: string | undefined;
-  column_name?: string | undefined;
-  data?: string | undefined;
-  type_name?: string | undefined;
-  constraint_name?: string | undefined;
+  readonly detail?: string | undefined;
+  readonly hint?: string | undefined;
+  readonly internal_position?: string | undefined;
+  readonly internal_query?: string | undefined;
+  readonly where?: string | undefined;
+  readonly schema_name?: string | undefined;
+  readonly table_name?: string | undefined;
+  readonly column_name?: string | undefined;
+  readonly data?: string | undefined;
+  readonly type_name?: string | undefined;
+  readonly constraint_name?: string | undefined;
 
   /** Only set when debug is enabled */
-  query: string;
+  readonly query: string;
   /** Only set when debug is enabled */
-  parameters: UnsafeTypes.UnsafeAny[];
+  readonly parameters: UnsafeTypes.UnsafeAny[];
 }> {}
 
 export class DbError extends Data.TaggedError("DbError")<{

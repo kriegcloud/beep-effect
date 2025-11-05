@@ -32,25 +32,25 @@ import {
 // Re-export shared helpers
 export * from "./shared";
 export interface CauseHeadingOptions {
-  readonly colors?: boolean;
-  readonly date?: Date;
-  readonly levelLabel?: string;
-  readonly fiberName?: string;
-  readonly spansText?: string;
-  readonly service?: string;
-  readonly environment?: string;
-  readonly requestId?: string;
-  readonly correlationId?: string;
-  readonly userId?: string;
-  readonly hostname?: string;
-  readonly pid?: number | string;
-  readonly nodeVersion?: string;
-  readonly includeCodeFrame?: boolean;
+  readonly colors?: boolean | undefined;
+  readonly date?: Date | undefined;
+  readonly levelLabel?: string | undefined;
+  readonly fiberName?: string | undefined;
+  readonly spansText?: string | undefined;
+  readonly service?: string | undefined;
+  readonly environment?: string | undefined;
+  readonly requestId?: string | undefined;
+  readonly correlationId?: string | undefined;
+  readonly userId?: string | undefined;
+  readonly hostname?: string | undefined;
+  readonly pid?: number | string | undefined;
+  readonly nodeVersion?: string | undefined;
+  readonly includeCodeFrame?: boolean | undefined;
 }
 /**
  * Build a pretty console logger Layer (server-only).
  */
-export function makePrettyConsoleLoggerLayer(cfg?: Partial<PrettyLoggerConfig>): Layer.Layer<never> {
+export function makePrettyConsoleLoggerLayer(cfg?: Partial<PrettyLoggerConfig> | undefined): Layer.Layer<never> {
   const logger = makePrettyConsoleLogger(cfg);
   return Logger.replace(Logger.defaultLogger, logger);
 }
@@ -58,7 +58,7 @@ export function makePrettyConsoleLoggerLayer(cfg?: Partial<PrettyLoggerConfig>):
 /**
  * Wrap an Effect with pretty logging and minimum log level (server-only).
  */
-export function withPrettyLogging(cfg?: Partial<PrettyLoggerConfig>) {
+export function withPrettyLogging(cfg?: Partial<PrettyLoggerConfig> | undefined) {
   return <A, E, R>(self: Effect.Effect<A, E, R>) =>
     self.pipe(
       Logger.withMinimumLogLevel(cfg?.level ?? defaultConfig.level),
@@ -69,8 +69,10 @@ export function withPrettyLogging(cfg?: Partial<PrettyLoggerConfig>) {
 /**
  * Run an Effect with pretty logging and return Exit (server-only convenience).
  */
-export const runWithPrettyLogsExit = <A, E, R>(eff: Effect.Effect<A, E, R>, cfg?: Partial<PrettyLoggerConfig>) =>
-  Effect.exit(eff).pipe(withPrettyLogging(cfg));
+export const runWithPrettyLogsExit = <A, E, R>(
+  eff: Effect.Effect<A, E, R>,
+  cfg?: Partial<PrettyLoggerConfig> | undefined
+) => Effect.exit(eff).pipe(withPrettyLogging(cfg));
 
 // =========================
 // Stack parsing & fancy error headers
@@ -88,7 +90,9 @@ function normalizeFsPath(p: string): string {
 function parseTopFrameFromStack(
   stack: string,
   repoRoot: string
-): { file: string; line: number; col: number; func?: string } | undefined {
+):
+  | { readonly file: string; readonly line: number; readonly col: number; readonly func?: string | undefined }
+  | undefined {
   if (!stack) return undefined;
   const normRoot = normalizeFsPath(Path.resolve(repoRoot));
   const lines = stack.split("\n");
@@ -120,13 +124,7 @@ function parseTopFrameFromStack(
   return undefined;
 }
 
-function renderCodeFrame(
-  file: string,
-  line: number,
-  col: number,
-  enableColors: boolean,
-  context = 2
-): string | undefined {
+function renderCodeFrame(file: string, line: number, enableColors: boolean, context = 2): string | undefined {
   try {
     const content = FS.readFileSync(file, "utf8");
     const lines = content.split(/\r?\n/);
@@ -200,8 +198,7 @@ export function formatCauseHeading(cause: Cause.Cause<unknown>, options: boolean
   const border = enableColors
     ? color.magenta("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     : "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
-  const codeFrame =
-    opts.includeCodeFrame !== false ? renderCodeFrame(frame.file, frame.line, frame.col, enableColors) : undefined;
+  const codeFrame = opts.includeCodeFrame !== false ? renderCodeFrame(frame.file, frame.line, enableColors) : undefined;
   const lines = [
     `┏${border}`,
     `┃ 🗂 Path: ${code(rel)}`,
@@ -234,7 +231,7 @@ export function formatCauseHeading(cause: Cause.Cause<unknown>, options: boolean
   return lines.join("\n");
 }
 
-export function makePrettyConsoleLogger(cfg?: Partial<PrettyLoggerConfig>): Logger.Logger<unknown, void> {
+export function makePrettyConsoleLogger(cfg?: Partial<PrettyLoggerConfig> | undefined): Logger.Logger<unknown, void> {
   const config: PrettyLoggerConfig = { ...defaultConfig, ...cfg };
 
   return Logger.make((options) => {
@@ -337,7 +334,7 @@ export const readEnvLoggerConfig = Effect.gen(function* () {
   return { format, level };
 });
 
-const loggerForFormat = (format: LogFormat.Type, prettyOverrides?: Partial<PrettyLoggerConfig>) => {
+const loggerForFormat = (format: LogFormat.Type, prettyOverrides?: Partial<PrettyLoggerConfig> | undefined) => {
   return Match.value(format).pipe(
     Match.when("pretty", () => makePrettyConsoleLogger(prettyOverrides)),
     Match.when("logFmt", () => Logger.withLeveledConsole(Logger.logfmtLogger)),
@@ -349,7 +346,7 @@ const loggerForFormat = (format: LogFormat.Type, prettyOverrides?: Partial<Prett
 /**
  * Build a logger layer from environment variables.
  */
-export const makeEnvLoggerLayerFromEnv = (prettyOverrides?: Partial<PrettyLoggerConfig>) =>
+export const makeEnvLoggerLayerFromEnv = (prettyOverrides?: Partial<PrettyLoggerConfig> | undefined) =>
   Effect.gen(function* () {
     const { format } = yield* readEnvLoggerConfig;
     const logger = loggerForFormat(format, prettyOverrides);
@@ -360,7 +357,7 @@ export const makeEnvLoggerLayerFromEnv = (prettyOverrides?: Partial<PrettyLogger
  * Apply the environment-derived logger and minimum level to an Effect.
  */
 export const withEnvLogging =
-  (prettyOverrides?: Partial<PrettyLoggerConfig>) =>
+  (prettyOverrides?: Partial<PrettyLoggerConfig> | undefined) =>
   <A, E, R>(self: Effect.Effect<A, E, R>) =>
     Effect.gen(function* () {
       const { level } = yield* readEnvLoggerConfig;
@@ -374,7 +371,7 @@ export const withEnvLogging =
 
 export const accumulateEffectsAndReport = <A, E, R>(
   effects: ReadonlyArray<Effect.Effect<A, E, R>>,
-  options?: AccumulateOptions
+  options?: AccumulateOptions | undefined
 ): Effect.Effect<AccumulateResult<A, E>, never, R> =>
   Effect.gen(function* () {
     const now = yield* DateTime.now;

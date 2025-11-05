@@ -10,12 +10,14 @@ import { useFieldContext } from "../form";
 import { HelperText } from "./components";
 
 export type SliderProps = DefaultOmit<MuiSliderProps> & {
-  label: string;
-  helperText?: React.ReactNode;
-  slotProps?: {
-    wrapper?: BoxProps;
-    helperText?: FormHelperTextProps;
-  };
+  readonly label: string;
+  readonly helperText?: React.ReactNode | undefined;
+  readonly slotProps?:
+    | {
+        readonly wrapper?: BoxProps | undefined;
+        readonly helperText?: FormHelperTextProps | undefined;
+      }
+    | undefined;
 };
 
 function Slider({ helperText, slotProps, ...other }: SliderProps) {

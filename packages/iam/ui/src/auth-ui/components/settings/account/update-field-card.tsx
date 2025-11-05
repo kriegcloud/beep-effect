@@ -20,19 +20,19 @@ import type { SettingsCardClassNames } from "../shared/settings-card";
 import { SettingsCard } from "../shared/settings-card";
 
 export interface UpdateFieldCardProps {
-  className?: string;
-  classNames?: SettingsCardClassNames;
-  description?: ReactNode;
-  instructions?: ReactNode;
-  localization?: Partial<AuthLocalization>;
-  name: string;
-  placeholder?: string;
-  required?: boolean;
-  label?: ReactNode;
-  type?: FieldType;
-  multiline?: boolean;
-  value?: unknown;
-  validate?: (value: string) => boolean | Promise<boolean>;
+  readonly className?: string | undefined;
+  readonly classNames?: SettingsCardClassNames | undefined;
+  readonly description?: ReactNode | undefined;
+  readonly instructions?: ReactNode | undefined;
+  readonly localization?: Partial<AuthLocalization> | undefined;
+  readonly name: string;
+  readonly placeholder?: string | undefined;
+  readonly required?: boolean | undefined;
+  readonly label?: ReactNode | undefined;
+  readonly type?: FieldType | undefined;
+  readonly multiline?: boolean | undefined;
+  readonly value?: unknown | undefined;
+  readonly validate?: ((value: string) => boolean | Promise<boolean>) | undefined;
 }
 
 export function UpdateFieldCard({
@@ -42,11 +42,11 @@ export function UpdateFieldCard({
   instructions,
   localization: localizationProp,
   name,
-  placeholder,
-  required,
+  placeholder: _placeholder,
+  required: _required,
   label,
   type,
-  multiline,
+  multiline: _multiline,
   value,
   validate,
 }: UpdateFieldCardProps) {

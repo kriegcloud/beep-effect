@@ -6,7 +6,7 @@ import { useFieldContext } from "../form";
 import { ColorPicker } from "./color";
 import { HelperText } from "./components";
 export type ColorFieldProps = DefaultOmit<React.ComponentProps<typeof ColorPicker>> & {
-  helperText?: string;
+  readonly helperText?: string | undefined;
 };
 const ColorField = (props: ColorFieldProps) => {
   const field = useFieldContext<string | Array<string>>();

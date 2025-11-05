@@ -28,7 +28,7 @@ export const UploadMetrics = {
 
 export type UploadAnnotation = Readonly<Record<string, unknown>>;
 
-export const makeFileAnnotations = (file: File, extra?: UploadAnnotation): UploadAnnotation => ({
+export const makeFileAnnotations = (file: File, extra?: UploadAnnotation | undefined): UploadAnnotation => ({
   service: "upload",
   fileName: file.name,
   fileType: file.type,
@@ -37,7 +37,7 @@ export const makeFileAnnotations = (file: File, extra?: UploadAnnotation): Uploa
 });
 
 export const instrumentProcessFile =
-  (annotations?: UploadAnnotation) =>
+  (annotations?: UploadAnnotation | undefined) =>
   <A, E, R>(self: Effect.Effect<A, E, R>) =>
     self.pipe(
       withLogContext({ service: "upload", ...annotations }),
@@ -55,7 +55,7 @@ export const instrumentProcessFile =
     );
 
 // Lightweight logging helpers (level-specific)
-export const logInfo = (message: string, annotations?: UploadAnnotation) =>
+export const logInfo = (message: string, annotations?: UploadAnnotation | undefined) =>
   Effect.logInfo(message).pipe(Effect.annotateLogs(annotations ?? {}));
-export const logWarning = (message: string, annotations?: UploadAnnotation) =>
+export const logWarning = (message: string, annotations?: UploadAnnotation | undefined) =>
   Effect.logWarning(message).pipe(Effect.annotateLogs(annotations ?? {}));

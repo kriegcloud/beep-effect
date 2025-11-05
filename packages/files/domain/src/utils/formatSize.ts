@@ -79,35 +79,35 @@ export interface PrettyBytesOptions {
    * Common for memory amounts; avoid for file sizes shown to end users.
    * @default false
    */
-  readonly binary?: boolean;
+  readonly binary?: boolean | undefined;
 
   /**
    * Minimum fraction digits to display. If neither `minimumFractionDigits` nor
    * `maximumFractionDigits` are set, the default is rounding to 3 significant digits.
    */
-  readonly minimumFractionDigits?: number;
+  readonly minimumFractionDigits?: number | undefined;
 
   /**
    * Maximum fraction digits to display. If neither `minimumFractionDigits` nor
    * `maximumFractionDigits` are set, the default is rounding to 3 significant digits.
    */
-  readonly maximumFractionDigits?: number;
+  readonly maximumFractionDigits?: number | undefined;
 
   /**
    * Put a space between the number and unit.
    * @default true
    */
-  readonly space?: boolean;
+  readonly space?: boolean | undefined;
 }
 
 /** Resolve `bits` with default `false`. */
-type ResolveBits<O> = O extends { bits?: infer B } ? (B extends boolean ? B : false) : false;
+type ResolveBits<O> = O extends { bits?: infer B | undefined } ? (B extends boolean ? B : false) : false;
 
 /** Resolve `binary` with default `false`. */
-type ResolveBinary<O> = O extends { binary?: infer B } ? (B extends boolean ? B : false) : false;
+type ResolveBinary<O> = O extends { binary?: infer B | undefined } ? (B extends boolean ? B : false) : false;
 
 /** Resolve `space` with default `true`. */
-type ResolveSpace<O> = O extends { space?: infer S } ? (S extends boolean ? S : true) : true;
+type ResolveSpace<O> = O extends { space?: infer S | undefined } ? (S extends boolean ? S : true) : true;
 
 /** Pick the unit family based on options. */
 type UnitFor<Bits extends boolean, Binary extends boolean> = Bits extends true
@@ -144,7 +144,7 @@ export type PrettyBytesString<O extends PrettyBytesOptions | undefined> =
 const toLocaleStr = (
   value: number,
   locale: PrettyBytesOptions["locale"],
-  options?: Intl.NumberFormatOptions
+  options?: Intl.NumberFormatOptions | undefined
 ): string => {
   if (typeof locale === "string" || Array.isArray(locale)) {
     return value.toLocaleString(locale as UnsafeTypes.UnsafeAny, options);
@@ -208,7 +208,7 @@ const divide = (n: number | bigint, divisor: number): number => {
  */
 export function formatSize<O extends PrettyBytesOptions | undefined = undefined>(
   value: number | bigint,
-  options?: O
+  options?: O | undefined
 ): PrettyBytesString<O> {
   if (typeof value !== "bigint" && !Number.isFinite(value)) {
     // Keep the original error semantics

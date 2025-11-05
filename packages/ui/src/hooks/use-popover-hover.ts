@@ -42,7 +42,7 @@ type UsePopoverHoverReturn<T extends HTMLElement = HTMLElement> = {
 };
 
 export function usePopoverHover<T extends HTMLElement = HTMLElement>(
-  inputRef?: RefObject<T | null>
+  inputRef?: RefObject<T | null> | undefined
 ): UsePopoverHoverReturn<T> {
   const localRef = useRef<T>(null);
   const elementRef = (inputRef || localRef) as RefObject<T>;

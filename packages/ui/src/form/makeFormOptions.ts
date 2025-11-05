@@ -71,7 +71,7 @@ export const validateWithSchema =
     );
 
 export type HandledValidatorKey = "onSubmit" | "onChange" | "onBlur";
-export type MakeFormOptionsReturn<SchemaA, SchemaI extends Record<PropertyKey, UnsafeTypes.UnsafeAny>> = FormOptions<
+export type MakeFormOptionsReturn<SchemaI extends Record<PropertyKey, UnsafeTypes.UnsafeAny>> = FormOptions<
   SchemaI,
   undefined,
   SchemaValidatorFn<SchemaI>,
@@ -93,7 +93,7 @@ export const makeFormOptions = <
   schema: S.Schema<SchemaA, SchemaI>;
   defaultValues: SchemaI;
   validator: ValidatorKey;
-}): MakeFormOptionsReturn<SchemaA, SchemaI> => {
+}): MakeFormOptionsReturn<SchemaI> => {
   const specificValidatorFn = validateWithSchema(opts.schema);
 
   const validators = Match.value(opts.validator satisfies HandledValidatorKey).pipe(

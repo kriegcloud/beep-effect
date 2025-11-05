@@ -9,20 +9,20 @@ import { useCallback } from "react";
 import { colorPickerClasses } from "./classes";
 
 export type ColorPickerSlotProps = {
-  item?: React.ComponentProps<typeof ItemRoot>;
-  itemContainer?: React.ComponentProps<typeof ItemContainer>;
-  icon?: React.ComponentProps<typeof ItemIcon>;
+  readonly item?: React.ComponentProps<typeof ItemRoot> | undefined;
+  readonly itemContainer?: React.ComponentProps<typeof ItemContainer> | undefined;
+  readonly icon?: React.ComponentProps<typeof ItemIcon> | undefined;
 };
 
 export type ColorPickerProps = Omit<React.ComponentProps<"ul">, "onChange"> & {
-  sx?: SxProps<Theme>;
-  size?: number;
-  options: A.NonEmptyReadonlyArray<string>;
-  limit?: "auto" | number;
-  value: string | string[];
-  variant?: "circular" | "rounded" | "square";
-  onChange: (value: string | string[]) => void;
-  slotProps?: ColorPickerSlotProps;
+  readonly sx?: SxProps<Theme> | undefined;
+  readonly size?: number | undefined;
+  readonly options: A.NonEmptyReadonlyArray<string>;
+  readonly limit?: "auto" | number | undefined;
+  readonly value: string | string[];
+  readonly variant?: "circular" | "rounded" | "square" | undefined;
+  readonly onChange: (value: string | string[]) => void;
+  readonly slotProps?: ColorPickerSlotProps | undefined;
 };
 
 export function ColorPicker({

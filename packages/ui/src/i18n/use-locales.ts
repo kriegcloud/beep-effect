@@ -10,7 +10,7 @@ import type { Namespace } from "i18next";
 import { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-export function useTranslate(namespace?: Namespace) {
+export function useTranslate(namespace?: Namespace | undefined) {
   const router = useRouter();
   const settings = useSettingsContext();
 

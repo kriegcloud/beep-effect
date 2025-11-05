@@ -8,7 +8,7 @@ export class IntFromStr extends S.transformOrFail(S.String, S.Int, {
       try: () => S.decodeSync(S.Int)(Number.parseInt(i, -10)),
       catch: () => new ParseResult.Type(ast, i, "Invalid int from string"),
     }),
-  encode: (i, _, ast) => ParseResult.succeed(String(i)),
+  encode: (i, _) => ParseResult.succeed(String(i)),
 }).annotations({
   schemaId: Symbol.for("@beep/schema/transformations/IntFromStr"),
   identifier: "IntFromStr",

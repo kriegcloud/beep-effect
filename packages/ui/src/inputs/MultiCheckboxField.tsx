@@ -16,17 +16,17 @@ import { useFieldContext } from "../form";
 import { HelperText } from "./components";
 
 type MultiCheckboxProps = FormGroupProps & {
-  label?: string;
-  helperText?: React.ReactNode;
-  options: A.NonEmptyReadonlyArray<{
+  readonly label?: string | undefined;
+  readonly helperText?: React.ReactNode | undefined;
+  readonly options: A.NonEmptyReadonlyArray<{
     readonly label: string;
     readonly value: string;
   }>;
-  slotProps?: {
-    wrapper?: FormControlProps;
-    checkbox?: DefaultOmit<CheckboxProps>;
-    formLabel?: FormLabelProps;
-    helperText?: FormHelperTextProps;
+  readonly slotProps?: {
+    readonly wrapper?: FormControlProps | undefined;
+    readonly checkbox?: DefaultOmit<CheckboxProps> | undefined;
+    readonly formLabel?: FormLabelProps | undefined;
+    readonly helperText?: FormHelperTextProps | undefined;
   };
 };
 

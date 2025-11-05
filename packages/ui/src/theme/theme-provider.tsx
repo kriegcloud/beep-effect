@@ -9,7 +9,7 @@ import type { ThemeProviderProps as MuiThemeProviderProps } from "@mui/material/
 import { ThemeProvider as ThemeVarsProvider } from "@mui/material/styles";
 import { useSettingsContext } from "../settings";
 export type ThemeProviderProps = Partial<MuiThemeProviderProps> & {
-  themeOverrides?: undefined | ThemeOptions;
+  readonly themeOverrides?: undefined | ThemeOptions;
 };
 
 export function ThemeProvider({ themeOverrides, children, ...other }: ThemeProviderProps) {

@@ -5,8 +5,8 @@ import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTi
 import Button from "@mui/material/Button";
 
 type PasskeysEmptyProps = {
-  readonly onAdd?: () => void;
-  readonly className?: string;
+  readonly onAdd?: (() => void) | undefined;
+  readonly className?: string | undefined;
 };
 
 export const PasskeysEmpty = ({ onAdd, className }: PasskeysEmptyProps) => {

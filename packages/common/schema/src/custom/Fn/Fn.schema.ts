@@ -34,7 +34,7 @@ export class Fn<const IA, const IE, const OA, const OE> extends Data.TaggedClass
     };
   }
 
-  static readonly make = <IA, IE, OA, OE>(params: {
+  static readonly make = <IA, IE, OA>(params: {
     readonly input: S.Schema<IA, IE, never>;
     readonly output: S.Schema<OA, OA, never>;
   }) => new Fn(params);

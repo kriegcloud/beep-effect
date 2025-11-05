@@ -12,14 +12,16 @@ import { useFieldContext } from "../form";
 import { HelperText } from "./components";
 
 export interface OTPFieldProps extends Omit<DefaultOmit<MuiOtpInputProps>, "sx"> {
-  maxSize?: number;
-  placeholder?: string;
-  helperText?: React.ReactNode;
-  slotProps?: {
-    wrapper?: BoxProps;
-    helperText?: FormHelperTextProps;
-    textfield?: DefaultOmit<MuiOtpInputProps["TextFieldsProps"]>;
-  };
+  readonly maxSize?: number | undefined;
+  readonly placeholder?: string | undefined;
+  readonly helperText?: React.ReactNode | undefined;
+  readonly slotProps?:
+    | {
+        readonly wrapper?: BoxProps | undefined;
+        readonly helperText?: FormHelperTextProps | undefined;
+        readonly textfield?: DefaultOmit<MuiOtpInputProps["TextFieldsProps"]> | undefined;
+      }
+    | undefined;
 }
 
 function OTPField({ slotProps, helperText, maxSize = 56, placeholder = "-", ...other }: OTPFieldProps) {

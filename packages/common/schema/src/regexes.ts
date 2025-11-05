@@ -120,14 +120,18 @@ function timeSource(args: { precision?: number | null | undefined }) {
     : `${hhmm}(?::[0-5]\\d(?:\\.\\d+)?)?`;
 }
 export function time(args: {
-  precision?: number | null;
-  // local?: boolean;
+  precision?: number | null | undefined;
+  // local?: boolean | undefined;
 }) {
   return new RegExp(`^${timeSource(args)}$`);
 }
 
 // Adapted from https://stackoverflow.com/a/3143231
-export function datetime(args: { precision?: number | null; offset?: boolean; local?: boolean }) {
+export function datetime(args: {
+  readonly precision?: number | null | undefined;
+  readonly offset?: boolean | undefined;
+  readonly local?: boolean | undefined;
+}) {
   const time = timeSource({ precision: args.precision });
   const opts = ["Z"];
   if (args.local) opts.push("");
@@ -138,7 +142,9 @@ export function datetime(args: { precision?: number | null; offset?: boolean; lo
   return new RegExp(`^${dateSource}T(?:${timeRegex})$`);
 }
 
-export const string = (params?: { minimum?: number | undefined; maximum?: number | undefined }) => {
+export const string = (
+  params?: { readonly minimum?: number | undefined; readonly maximum?: number | undefined } | undefined
+) => {
   const regex = params ? `[\\s\\S]{${params?.minimum ?? 0},${params?.maximum ?? ""}}` : `[\\s\\S]*`;
   return new RegExp(`^${regex}$`);
 };

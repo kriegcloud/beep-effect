@@ -17,12 +17,12 @@ import {
 } from "@react-email/components";
 
 interface BetterAuthInviteUserEmailProps {
-  email?: string;
-  invitedByUsername?: string;
-  invitedByEmail?: string;
-  teamName?: string;
-  teamImage?: string;
-  inviteLink?: string;
+  readonly email?: string | undefined;
+  readonly invitedByUsername?: string | undefined;
+  readonly invitedByEmail?: string | undefined;
+  readonly teamName?: string | undefined;
+  readonly teamImage?: string | undefined;
+  readonly inviteLink?: string | undefined;
 }
 
 export const InviteUserEmail = ({

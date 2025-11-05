@@ -12,9 +12,11 @@ function UploadField({
   helperText,
   ...other
 }: UploadProps & {
-  slotProps?: {
-    wrapper?: BoxProps;
-  };
+  readonly slotProps?:
+    | {
+        readonly wrapper?: BoxProps | undefined;
+      }
+    | undefined;
 }) {
   const field = useFieldContext<UnsafeTypes.UnsafeAny>();
   const uploadProps = {

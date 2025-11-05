@@ -18,7 +18,7 @@ interface DeviceDialogProps {
   open: boolean;
   handleDialogClose: () => void;
   loggedInDevice: LoggedInDevice;
-  sx?: SxProps;
+  sx?: SxProps | undefined;
 }
 const DeviceDialog = (props: DeviceDialogProps) => {
   const { open, handleDialogClose, loggedInDevice, sx } = props;

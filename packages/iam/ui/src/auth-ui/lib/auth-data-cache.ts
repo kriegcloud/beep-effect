@@ -31,7 +31,7 @@ class AuthDataCache {
     }
   }
 
-  clear(key?: string) {
+  clear(key?: string | undefined) {
     if (key) {
       this.cache.delete(key);
       this.inFlightRequests.delete(key);

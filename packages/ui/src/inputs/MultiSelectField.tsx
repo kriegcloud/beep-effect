@@ -21,22 +21,24 @@ import { useFieldContext } from "../form";
 import { HelperText } from "./components";
 
 type MultiSelectProps = FormControlProps & {
-  label?: string;
-  chip?: boolean;
-  checkbox?: boolean;
-  placeholder?: string;
-  helperText?: React.ReactNode;
-  options: A.NonEmptyReadonlyArray<{
+  readonly label?: string | undefined;
+  readonly chip?: boolean | undefined;
+  readonly checkbox?: boolean | undefined;
+  readonly placeholder?: string | undefined;
+  readonly helperText?: React.ReactNode | undefined;
+  readonly options: A.NonEmptyReadonlyArray<{
     readonly label: string;
     readonly value: string;
   }>;
-  slotProps?: {
-    chip?: ChipProps;
-    select?: DefaultOmit<SelectProps>;
-    checkbox?: CheckboxProps;
-    inputLabel?: InputLabelProps;
-    helperText?: FormHelperTextProps;
-  };
+  readonly slotProps?:
+    | {
+        readonly chip?: ChipProps | undefined;
+        readonly select?: DefaultOmit<SelectProps> | undefined;
+        readonly checkbox?: CheckboxProps | undefined;
+        readonly inputLabel?: InputLabelProps | undefined;
+        readonly helperText?: FormHelperTextProps | undefined;
+      }
+    | undefined;
 };
 
 function MultiSelect({

@@ -1,7 +1,7 @@
 {
   "$schema": "http://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "tsBuildInfoFile": "../../node_modules/start-client/.tmp/tsconfig.app.tsbuildinfo",
 
     // Use incremental builds with project references.
     "incremental": true,
@@ -96,7 +96,7 @@
       "@beep/runtime-client/*": ["../../packages/runtime/client/src/*"]
     },
 
-    // Miscellaneoaus
+    // Miscellaneous
     "skipLibCheck": true, // Skip type checking of third party libraries.
     "noErrorTruncation": true, // Do not truncate error messages.
     "types": ["vite/client"],

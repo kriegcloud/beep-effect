@@ -30,13 +30,13 @@ export type AutocompleteBaseProps = Omit<
 >;
 
 export type CountrySelectProps = AutocompleteBaseProps & {
-  label?: string;
-  error?: boolean;
-  placeholder?: string;
-  hiddenLabel?: boolean;
-  getValue?: "label" | "code";
-  helperText?: React.ReactNode;
-  variant?: TextFieldProps["variant"];
+  readonly label?: string | undefined;
+  readonly error?: boolean | undefined;
+  readonly placeholder?: string | undefined;
+  readonly hiddenLabel?: boolean | undefined;
+  readonly getValue?: "label" | "code" | undefined;
+  readonly helperText?: React.ReactNode | undefined;
+  readonly variant?: TextFieldProps["variant"] | undefined;
 };
 
 export function CountrySelect({

@@ -2,17 +2,17 @@ import type { TooltipProps } from "@mui/material/Tooltip";
 import type { DownloadButton, RemoveButton, ThumbnailImage, ThumbnailRoot } from "./styles";
 
 export type FileThumbnailProps = React.ComponentProps<typeof ThumbnailRoot> & {
-  tooltip?: boolean;
-  showImage?: boolean;
-  previewUrl?: string;
-  file?: File | string | null;
-  onDownload?: () => void;
-  onRemove?: () => void;
-  slotProps?: {
-    tooltip?: TooltipProps;
-    img?: React.ComponentProps<typeof ThumbnailImage>;
-    icon?: React.ComponentProps<typeof ThumbnailImage>;
-    removeBtn?: React.ComponentProps<typeof RemoveButton>;
-    downloadBtn?: React.ComponentProps<typeof DownloadButton>;
+  readonly tooltip?: boolean | undefined;
+  readonly showImage?: boolean | undefined;
+  readonly previewUrl?: string | undefined;
+  readonly file?: File | string | null | undefined;
+  readonly onDownload?: (() => void) | undefined;
+  readonly onRemove?: (() => void) | undefined;
+  readonly slotProps?: {
+    readonly tooltip?: TooltipProps | undefined;
+    readonly img?: React.ComponentProps<typeof ThumbnailImage> | undefined;
+    readonly icon?: React.ComponentProps<typeof ThumbnailImage> | undefined;
+    readonly removeBtn?: React.ComponentProps<typeof RemoveButton> | undefined;
+    readonly downloadBtn?: React.ComponentProps<typeof DownloadButton> | undefined;
   };
 };

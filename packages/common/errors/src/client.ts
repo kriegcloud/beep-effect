@@ -14,7 +14,7 @@ export const withEnvLogging = <A, E, R>(self: Effect.Effect<A, E, R>) => self;
 
 export const accumulateEffectsAndReport = <A, E, R>(
   effects: ReadonlyArray<Effect.Effect<A, E, R>>,
-  options?: AccumulateOptions
+  options?: AccumulateOptions | undefined
 ): Effect.Effect<AccumulateResult<A, E>, never, R> =>
   Effect.gen(function* () {
     const res = yield* accumulateEffects(effects, { concurrency: options?.concurrency });

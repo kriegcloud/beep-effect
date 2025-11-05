@@ -112,7 +112,7 @@ const program = Effect.gen(function* () {
     command: Command.Command,
     description: string,
     commandPreview: string,
-    options?: { readonly allowedExitCodes?: ReadonlyArray<number> }
+    options?: { readonly allowedExitCodes?: ReadonlyArray<number> | undefined } | undefined
   ) =>
     Effect.gen(function* () {
       yield* Console.log(renderStagePanel(description, commandPreview));

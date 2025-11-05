@@ -2,8 +2,8 @@ import Divider from "@mui/material/Divider";
 import type { SxProps, Theme } from "@mui/material/styles";
 
 type FormDividerProps = {
-  sx?: SxProps<Theme>;
-  label?: React.ReactNode;
+  readonly sx?: SxProps<Theme> | undefined;
+  readonly label?: React.ReactNode | undefined;
 };
 
 export function FormDivider({ sx, label = "OR" }: FormDividerProps) {

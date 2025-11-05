@@ -34,8 +34,8 @@ export class ResendError extends Data.TaggedError("ResendError")<{
   readonly input: unknown;
 }> {
   constructor(
-    readonly error: ResendErrorResponse,
-    readonly input: unknown
+    override readonly error: ResendErrorResponse,
+    override readonly input: unknown
   ) {
     super({ error, input });
   }
@@ -46,7 +46,7 @@ export class UnknownResendError extends Data.TaggedError("UnknownResendError")<{
   readonly input: unknown;
 }> {}
 
-export const matchResendError = <ErrorCodeKey extends string>(error: unknown, input: unknown) => {
+export const matchResendError = (error: unknown, input: unknown) => {
   if (S.is(ResendErrorSchema)(error)) {
     return Match.value(error).pipe(
       Match.discriminators("name")({

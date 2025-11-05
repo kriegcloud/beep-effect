@@ -16,9 +16,9 @@ import { PaymentCardItem } from "./payment-card-item";
 // ----------------------------------------------------------------------
 
 type Props = Omit<DialogProps, "onSelect"> & {
-  readonly title?: string;
+  readonly title?: string | undefined;
   readonly list: ReadonlyArray<IPaymentCard>;
-  readonly action?: React.ReactNode;
+  readonly action?: React.ReactNode | undefined;
   readonly onClose: () => void;
   readonly selected: (selectedId: string) => boolean;
   readonly onSelect: (card: IPaymentCard | null) => void;

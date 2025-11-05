@@ -15,15 +15,17 @@ import { useFieldContext } from "../form";
 import { HelperText } from "./components";
 
 export type RadioGroupFieldProps = DefaultOmit<RadioGroupProps> & {
-  label?: string;
-  options: { label: string; value: string }[];
-  helperText?: React.ReactNode;
-  slotProps?: {
-    wrapper?: FormControlProps;
-    radio?: RadioProps;
-    formLabel?: FormLabelProps;
-    helperText?: FormHelperTextProps;
-  };
+  readonly label?: string | undefined;
+  readonly options: { label: string; value: string }[];
+  readonly helperText?: React.ReactNode | undefined;
+  readonly slotProps?:
+    | {
+        readonly wrapper?: FormControlProps | undefined;
+        readonly radio?: RadioProps | undefined;
+        readonly formLabel?: FormLabelProps | undefined;
+        readonly helperText?: FormHelperTextProps | undefined;
+      }
+    | undefined;
 };
 
 function RadioGroupField({ sx, label, options, helperText, slotProps, ...other }: RadioGroupFieldProps) {
