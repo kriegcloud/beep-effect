@@ -10,7 +10,7 @@ export function useChart(updatedOptions?: ChartOptions): ChartOptions {
 
   const baseOptions = baseChartOptions(theme) ?? {};
 
-  return ObjectUtils.deepMerge(baseOptions, updatedOptions ?? {});
+  return ObjectUtils.deepMerge(baseOptions, updatedOptions ?? {}) as ChartOptions;
 }
 
 const baseChartOptions = (theme: Theme): ChartOptions => {
@@ -46,7 +46,7 @@ const baseChartOptions = (theme: Theme): ChartOptions => {
         animateGradually: { enabled: true, delay: 120 },
         dynamicAnimation: { enabled: true, speed: 360 },
       },
-    },
+    } as ChartOptions["chart"],
 
     /** **************************************
      * Colors
@@ -211,7 +211,7 @@ const baseChartOptions = (theme: Theme): ChartOptions => {
        * https://apexcharts.com/docs/options/plotoptions/heatmap/
        */
       heatmap: { distributed: true },
-    },
+    } as ChartOptions["plotOptions"],
 
     /** **************************************
      * Responsive
@@ -229,5 +229,5 @@ const baseChartOptions = (theme: Theme): ChartOptions => {
         options: { plotOptions: { bar: { columnWidth: "60%" } } },
       },
     ],
-  };
+  } as ChartOptions;
 };

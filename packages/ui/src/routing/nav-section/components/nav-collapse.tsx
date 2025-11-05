@@ -5,7 +5,7 @@ import { navSectionClasses } from "../styles";
 
 export const NavCollapse = styled(Collapse, {
   shouldForwardProp: (prop: string) => !["depth", "sx"].includes(prop),
-})<{ depth?: number }>(({ depth }) => {
+})<{ depth?: number | undefined }>(({ depth }) => {
   return {
     ...(depth && {
       ...(depth + 1 !== 1 && {

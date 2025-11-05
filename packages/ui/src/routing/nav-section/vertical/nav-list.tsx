@@ -40,7 +40,7 @@ export function NavList({ data, depth, render, slotProps, checkPermissions, enab
       // state
       open={open}
       active={isActive}
-      disabled={data.disabled}
+      disabled={Boolean(data.disabled)}
       // options
       depth={depth}
       render={render}

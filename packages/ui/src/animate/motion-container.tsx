@@ -11,7 +11,7 @@ export type MotionContainerProps = BoxProps &
     action?: boolean;
   };
 
-export function MotionContainer({ sx, animate, children, action = false, ...other }: MotionContainerProps) {
+export function MotionContainer({ sx = {}, animate, children, action = false, ...other }: MotionContainerProps) {
   return (
     <Box
       component={m.div}

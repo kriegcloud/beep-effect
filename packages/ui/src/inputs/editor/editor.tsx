@@ -131,7 +131,7 @@ export function Editor({
           disabled={!editable}
           fullScreen={fullScreen}
           className={mergeClasses([editorClasses.root, className])}
-          sx={sx}
+          sx={sx ?? {}}
         >
           <Toolbar
             editor={editor}

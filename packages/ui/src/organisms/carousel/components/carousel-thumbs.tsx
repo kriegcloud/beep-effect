@@ -17,7 +17,7 @@ export function CarouselThumbs({ sx, options, children, slotProps, className, ..
         const reactChild = child as React.ReactElement<{ key?: React.Key }>;
 
         return (
-          <CarouselSlide key={reactChild.key} options={{ ...options, slideSpacing }} sx={slotProps?.slide}>
+          <CarouselSlide key={reactChild.key} options={{ ...options, slideSpacing }} sx={slotProps?.slide ?? {}}>
             {child}
           </CarouselSlide>
         );
@@ -30,14 +30,14 @@ export function CarouselThumbs({ sx, options, children, slotProps, className, ..
       axis={axis}
       enableMask={!slotProps?.disableMask}
       className={mergeClasses([carouselClasses.thumbs.root, className])}
-      sx={sx}
+      sx={sx ?? {}}
       {...other}
     >
       <ThumbsContainer
         axis={axis}
         slideSpacing={slideSpacing}
         className={carouselClasses.thumbs.container}
-        sx={slotProps?.container}
+        sx={slotProps?.container ?? {}}
       >
         {renderChildren()}
       </ThumbsContainer>

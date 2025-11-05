@@ -41,7 +41,7 @@ const LargeLabel = styled("span")(({ theme }) => ({
 
 export function LargeBlock({ sx, title, tooltip, children, canReset, onReset, ...other }: LargeBlockProps) {
   return (
-    <LargeBlockRoot sx={sx} {...other}>
+    <LargeBlockRoot sx={sx ?? {}} {...other}>
       <LargeLabel>
         {canReset && (
           <ButtonBase disableRipple onClick={onReset} sx={{ ml: -0.5, mr: 0.5 }}>
@@ -103,8 +103,8 @@ const SmallLabel = styled(ButtonBase, {
 
 export function SmallBlock({ label, canReset, onReset, sx, children, ...other }: SmallBlockProps) {
   return (
-    <SmallBlockRoot sx={sx} {...other}>
-      <SmallLabel disableRipple canReset={canReset} onClick={canReset ? onReset : undefined}>
+    <SmallBlockRoot sx={sx ?? {}} {...other}>
+      <SmallLabel disableRipple canReset={Boolean(canReset)} onClick={canReset ? onReset : undefined}>
         {canReset && <Iconify width={14} icon="solar:restart-bold" />}
         {label}
       </SmallLabel>

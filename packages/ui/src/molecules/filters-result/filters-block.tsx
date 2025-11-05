@@ -4,10 +4,10 @@ import { styled } from "@mui/material/styles";
 import type React from "react";
 
 export type FilterBlockProps = React.ComponentProps<"div"> & {
-  label: string;
-  isShow: boolean;
-  sx?: SxProps<Theme>;
-  children: React.ReactNode;
+  readonly label: string;
+  readonly isShow: boolean;
+  readonly sx?: SxProps<Theme> | undefined;
+  readonly children: React.ReactNode;
 };
 
 export function FiltersBlock({ label, children, isShow, sx, ...other }: FilterBlockProps) {
@@ -16,7 +16,7 @@ export function FiltersBlock({ label, children, isShow, sx, ...other }: FilterBl
   }
 
   return (
-    <BlockRoot sx={sx} {...other}>
+    <BlockRoot sx={sx ?? {}} {...other}>
       <BlockLabel>{label}</BlockLabel>
       <BlockContent>{children}</BlockContent>
     </BlockRoot>

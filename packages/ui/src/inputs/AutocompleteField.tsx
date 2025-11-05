@@ -45,13 +45,13 @@ function AutocompleteField({ label, slotProps, helperText, placeholder, ...other
       id={field.name}
       defaultValue={field.state.value}
       onChange={(_, newValue) => field.handleChange(newValue)}
-      onBlur={field.handleBlur}
+      {...(field.handleBlur ? { onBlur: field.handleBlur } : {})}
       renderInput={(params) => (
         <TextField
-          {...params}
-          {...textfield}
-          label={label}
-          placeholder={placeholder}
+          {...(params as React.ComponentProps<typeof TextField>)}
+          {...(textfield as React.ComponentProps<typeof TextField>)}
+          {...(label ? { label } : {})}
+          {...(placeholder ? { placeholder } : {})}
           error={isError}
           helperText={error ?? helperText}
           slotProps={{

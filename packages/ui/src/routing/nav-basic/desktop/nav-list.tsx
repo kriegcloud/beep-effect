@@ -46,7 +46,7 @@ export function NavList({ data, depth, render, cssVars, slotProps, enabledRootRe
       // state
       active={isActive}
       open={open}
-      disabled={data.disabled}
+      disabled={Boolean(data.disabled)}
       // options
       depth={depth}
       render={render}
@@ -93,7 +93,7 @@ export function NavList({ data, depth, render, cssVars, slotProps, enabledRootRe
           },
         }}
       >
-        <NavDropdownPaper className={navBasicClasses.dropdown.paper} sx={slotProps?.dropdown?.paper}>
+        <NavDropdownPaper className={navBasicClasses.dropdown.paper} sx={slotProps?.dropdown?.paper ?? {}}>
           <NavSubList
             data={data.children}
             depth={depth}
@@ -107,7 +107,7 @@ export function NavList({ data, depth, render, cssVars, slotProps, enabledRootRe
     );
 
   return (
-    <NavLi disabled={data.disabled}>
+    <NavLi disabled={Boolean(data.disabled)}>
       {renderNavItem()}
       {renderDropdown()}
     </NavLi>

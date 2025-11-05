@@ -4,7 +4,6 @@ import { mergeRefs } from "@beep/ui-core/utils";
 import { listClasses } from "@mui/material/List";
 import { menuItemClasses } from "@mui/material/MenuItem";
 import Popover from "@mui/material/Popover";
-import type { SxProps, Theme } from "@mui/material/styles";
 import { useTheme } from "@mui/material/styles";
 import { useRef } from "react";
 import { useElementRect } from "./hooks";
@@ -36,7 +35,7 @@ export function CustomPopover({ open, onClose, children, anchorEl, slotProps, ..
 
   const isArrowVisible = !arrowProps?.hide && !!paperRect && !!anchorRect;
 
-  const paperStyles: SxProps<Theme> = {
+  const paperStyles = {
     ...getPaperOffsetStyles(arrowPlacement, paperOffset, isRtl),
     overflow: "inherit",
     [`& .${listClasses.root}`]: { minWidth: 140 },
@@ -47,7 +46,7 @@ export function CustomPopover({ open, onClose, children, anchorEl, slotProps, ..
     <Popover
       aria-hidden={!open}
       open={!!open}
-      anchorEl={anchorEl}
+      {...(anchorEl ? { anchorEl } : {})}
       onClose={onClose}
       anchorOrigin={anchorOrigin}
       transformOrigin={transformOrigin}
@@ -67,7 +66,7 @@ export function CustomPopover({ open, onClose, children, anchorEl, slotProps, ..
           placement={arrowPlacement}
           paperRect={paperRect}
           anchorRect={anchorRect}
-          sx={arrowProps?.sx}
+          sx={arrowProps?.sx ?? {}}
         />
       )}
 

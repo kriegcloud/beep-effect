@@ -308,7 +308,7 @@ export const palette: SchemesRecord<ColorSystemOptions["palette"]> = {
     vibrant: vibrantDark,
     dividerLight,
   },
-};
+} as SchemesRecord<ColorSystemOptions["palette"]>;
 
 export const colorKeys: {
   palette: PaletteColorKey[];

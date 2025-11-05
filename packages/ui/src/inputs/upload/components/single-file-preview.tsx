@@ -8,7 +8,7 @@ import { uploadClasses } from "../classes";
 import type { FileUploadType } from "../types";
 
 export type SingleFilePreviewProps = React.ComponentProps<typeof PreviewRoot> & {
-  file: FileUploadType;
+  readonly file: FileUploadType;
 };
 
 export function SingleFilePreview({ sx, file, className, ...other }: SingleFilePreviewProps) {
@@ -16,7 +16,7 @@ export function SingleFilePreview({ sx, file, className, ...other }: SingleFileP
   const { previewUrl } = useFilePreview(file);
 
   return (
-    <PreviewRoot className={mergeClasses([uploadClasses.preview.single, className])} sx={sx} {...other}>
+    <PreviewRoot className={mergeClasses([uploadClasses.preview.single, className])} sx={sx ?? {}} {...other}>
       {previewUrl && <PreviewImage alt={fileMeta.name} src={previewUrl} />}
     </PreviewRoot>
   );

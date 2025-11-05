@@ -2,7 +2,7 @@ import { usePathname } from "@beep/ui/hooks";
 import { isEqualPath, mergeClasses } from "@beep/ui-core/utils";
 import ListSubheader from "@mui/material/ListSubheader";
 import type { SxProps, Theme } from "@mui/material/styles";
-import { styled } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
 import { componentLayoutClasses } from "./classes";
 import { NavItem } from "./component-nav-item";
 import { NavSearch } from "./component-search";
@@ -41,28 +41,29 @@ const NavLi = styled("li")({
 
 // ----------------------------------------------------------------------
 
-type PrimaryNavProps = NavRootProps & {
-  readonly navData?: ReadonlyArray<{
-    readonly title: string;
-    readonly items: ReadonlyArray<NavItemData>;
-  }>;
+export type PrimaryNavProps = NavRootProps & {
+  readonly navData?:
+    | ReadonlyArray<{
+        readonly title: string;
+        readonly items: ReadonlyArray<NavItemData>;
+      }>
+    | undefined;
 };
 
 export function PrimaryNav({ sx, navData, className, ...other }: PrimaryNavProps) {
+  const theme = useTheme();
   return (
-    <NavRoot className={mergeClasses([componentLayoutClasses.primaryNav, className])} sx={sx} {...other}>
+    <NavRoot className={mergeClasses([componentLayoutClasses.primaryNav, className])} sx={sx ?? {}} {...other}>
       <NavSearch navData={navData} sx={{ mb: 4 }} />
 
       <NavSection>
         <NavUl
-          sx={[
-            (theme) => ({
-              ...theme.mixins.hideScrollY,
-              "--arrow-size": "7px",
-              "--arrow-offset-left": "-14px",
-              gap: "var(--primary-nav-list-gap)",
-            }),
-          ]}
+          sx={{
+            ...theme.mixins.hideScrollY,
+            "--arrow-size": "7px",
+            "--arrow-offset-left": "-14px",
+            gap: "var(--primary-nav-list-gap)",
+          }}
         >
           {navData?.map((section) => (
             <PrimaryNavList key={section.title} subheader={section.title} items={section.items} />
@@ -152,7 +153,7 @@ type SecondaryNavProps = NavRootProps & {
 
 export function SecondaryNav({ sx, navData, className, onClickItem, activeItem, ...other }: SecondaryNavProps) {
   return (
-    <NavRoot className={mergeClasses([componentLayoutClasses.secondaryNav, className])} sx={sx} {...other}>
+    <NavRoot className={mergeClasses([componentLayoutClasses.secondaryNav, className])} sx={sx ?? {}} {...other}>
       <NavSection>
         <NavUl sx={{ gap: "var(--secondary-nav-item-gap)" }}>
           <NavLi sx={{ mb: 1, typography: "overline" }}>On this page</NavLi>

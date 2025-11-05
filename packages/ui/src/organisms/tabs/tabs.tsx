@@ -7,14 +7,14 @@ import type React from "react";
 import { useIsClient } from "../../hooks";
 
 type CustomTabsSlotProps = TabsProps["slotProps"] & {
-  tab?: { sx?: SxProps<Theme> | undefined } | undefined;
-  list?: { sx?: SxProps<Theme> | undefined } | undefined;
-  indicator?: { sx?: SxProps<Theme> | undefined } | undefined;
-  indicatorContent?: React.ComponentProps<typeof IndicatorContent> | undefined;
+  readonly tab?: { readonly sx?: SxProps<Theme> | undefined } | undefined;
+  readonly list?: { readonly sx?: SxProps<Theme> | undefined } | undefined;
+  readonly indicator?: { readonly sx?: SxProps<Theme> | undefined } | undefined;
+  readonly indicatorContent?: React.ComponentProps<typeof IndicatorContent> | undefined;
 };
 
 export type CustomTabsProps = TabsProps & {
-  slotProps?: CustomTabsSlotProps | undefined;
+  readonly slotProps?: CustomTabsSlotProps | undefined;
 };
 
 const customTabsStyles: Record<string, SxProps<Theme>> = {

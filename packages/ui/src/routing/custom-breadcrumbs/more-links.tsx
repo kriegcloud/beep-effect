@@ -8,7 +8,7 @@ export type MoreLinksProps = React.ComponentProps<typeof MoreLinksRoot> & {
 
 export function MoreLinks({ links, sx, ...other }: MoreLinksProps) {
   return (
-    <MoreLinksRoot sx={sx} {...other}>
+    <MoreLinksRoot sx={sx ?? {}} {...other}>
       {links?.map((href) => (
         <li key={href}>
           <Link href={href} variant="body2" target="_blank" rel="noopener">

@@ -7,7 +7,7 @@ import { UploadArea } from "./styles";
 
 export function UploadBox({ sx, error, disabled, className, placeholder, ...dropzoneOptions }: UploadProps) {
   const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
-    disabled,
+    disabled: Boolean(disabled),
     ...dropzoneOptions,
   });
 
@@ -21,7 +21,7 @@ export function UploadBox({ sx, error, disabled, className, placeholder, ...drop
         [uploadClasses.state.disabled]: disabled,
         [uploadClasses.state.error]: hasError,
       })}
-      sx={sx}
+      sx={sx ?? {}}
     >
       <input {...getInputProps()} />
       {placeholder ?? <Iconify icon="eva:cloud-upload-fill" width={28} />}

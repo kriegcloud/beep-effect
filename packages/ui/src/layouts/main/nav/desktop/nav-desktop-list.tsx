@@ -58,7 +58,7 @@ export function NavList({ data, sx, ...other }: NavListProps) {
     );
 
   return (
-    <NavLi sx={sx} {...other}>
+    <NavLi sx={sx ?? {}} {...other}>
       {renderNavItem()}
       {renderDropdown()}
     </NavLi>

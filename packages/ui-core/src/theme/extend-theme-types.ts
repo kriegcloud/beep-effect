@@ -1,4 +1,3 @@
-import type { DeepPartial } from "@beep/types";
 import type { AvatarExtendColor, AvatarGroupExtendVariant } from "@beep/ui-core/theme/core/components/avatar";
 import type { BadgeExtendVariant } from "@beep/ui-core/theme/core/components/badge";
 import type {
@@ -67,7 +66,7 @@ declare module "@mui/material/styles" {
     neutral: PaletteColor;
   }
 
-  interface PaletteOptions extends DeepPartial<PaletteExtend> {}
+  interface PaletteOptions extends Partial<PaletteExtend> {}
 
   /**
    * ➤➤ Typography (https://mui.com/customization/typography/)
@@ -103,7 +102,7 @@ declare module "@mui/material/styles" {
   }
 
   interface ThemeOptions {
-    customShadows?: Partial<CustomShadows>;
+    customShadows?: Partial<CustomShadows> | undefined;
   }
 
   interface ThemeVars {
@@ -239,6 +238,6 @@ declare module "@mui/material" {
   }
 
   interface PaperOwnProps {
-    background?: 1 | 2 | 3 | 4 | 5;
+    background?: 1 | 2 | 3 | 4 | 5 | undefined;
   }
 }

@@ -5,8 +5,8 @@ import IconButton from "@mui/material/IconButton";
 import { m } from "framer-motion";
 
 export type AccountButtonProps = IconButtonProps & {
-  photoURL: string;
-  displayName: string;
+  readonly photoURL: string;
+  readonly displayName: string;
 };
 
 export function AccountButton({ photoURL, displayName, sx, ...other }: AccountButtonProps) {

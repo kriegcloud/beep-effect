@@ -5,20 +5,22 @@ import { NavSectionMini, NavSectionVertical } from "@beep/ui/routing";
 import { mergeClasses, rgbaFromChannel } from "@beep/ui-core/utils";
 import Box from "@mui/material/Box";
 import type { Breakpoint } from "@mui/material/styles";
-import { styled } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
 import { NavToggleButton } from "../components/nav-toggle-button";
 import { NavUpgrade } from "../components/nav-upgrade";
 import { layoutClasses } from "../core";
 
 export type NavVerticalProps = React.ComponentProps<"div"> &
   NavSectionProps & {
-    isNavMini: boolean;
-    layoutQuery?: Breakpoint;
-    onToggleNav: () => void;
-    slots?: {
-      topArea?: React.ReactNode;
-      bottomArea?: React.ReactNode;
-    };
+    readonly isNavMini: boolean;
+    readonly layoutQuery?: Breakpoint | undefined;
+    readonly onToggleNav: () => void;
+    readonly slots?:
+      | {
+          readonly topArea?: React.ReactNode | undefined;
+          readonly bottomArea?: React.ReactNode | undefined;
+        }
+      | undefined;
   };
 
 export function NavVertical({
@@ -33,6 +35,7 @@ export function NavVertical({
   layoutQuery = "md",
   ...other
 }: NavVerticalProps) {
+  const theme = useTheme();
   const renderNavVertical = () => (
     <>
       {slots?.topArea ?? (
@@ -66,15 +69,13 @@ export function NavVertical({
         data={data}
         cssVars={cssVars}
         checkPermissions={checkPermissions}
-        sx={[
-          (theme) => ({
-            ...theme.mixins.hideScrollY,
-            pb: 2,
-            px: 0.5,
-            flex: "1 1 auto",
-            overflowY: "auto",
-          }),
-        ]}
+        sx={{
+          ...theme.mixins.hideScrollY,
+          pb: 2,
+          px: 0.5,
+          flex: "1 1 auto",
+          overflowY: "auto",
+        }}
       />
 
       {slots?.bottomArea}
@@ -86,8 +87,8 @@ export function NavVertical({
       isNavMini={isNavMini}
       layoutQuery={layoutQuery}
       className={mergeClasses([layoutClasses.nav.root, layoutClasses.nav.vertical, className])}
-      sx={sx}
-      {...other}
+      sx={sx as Exclude<React.ComponentProps<typeof NavRoot>["sx"], undefined>}
+      {...(other as Omit<React.ComponentProps<typeof NavRoot>, "isNavMini" | "layoutQuery" | "className" | "sx">)}
     >
       <NavToggleButton
         isNavMini={isNavMini}

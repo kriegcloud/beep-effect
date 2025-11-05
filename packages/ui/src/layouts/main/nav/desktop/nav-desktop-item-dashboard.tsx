@@ -8,7 +8,7 @@ import Link from "@mui/material/Link";
 import { m } from "framer-motion";
 
 type NavItemDashboardProps = BoxProps & {
-  path: string;
+  readonly path: string;
 };
 
 export function NavItemDashboard({ path, sx, ...other }: NavItemDashboardProps) {

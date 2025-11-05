@@ -36,8 +36,12 @@ declare module "@mui/material/styles" {
   }
 }
 export type MixinsExtend = {
-  hideScrollX: CSSObject;
-  hideScrollY: CSSObject;
+  hideScrollX: {
+    [K in keyof CSSObject]: Exclude<CSSObject[K], undefined>;
+  };
+  hideScrollY: {
+    [K in keyof CSSObject]: Exclude<CSSObject[K], undefined>;
+  };
   bgBlur: typeof bgBlur;
   maxLine: typeof maxLine;
   bgGradient: typeof bgGradient;

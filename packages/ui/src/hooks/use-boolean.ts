@@ -22,11 +22,11 @@ import { useCallback, useState } from "react";
  */
 
 export type UseBooleanReturn = {
-  value: boolean;
-  onTrue: () => void;
-  onFalse: () => void;
-  onToggle: () => void;
-  setValue: Dispatch<SetStateAction<boolean>>;
+  readonly value: boolean;
+  readonly onTrue: () => void;
+  readonly onFalse: () => void;
+  readonly onToggle: () => void;
+  readonly setValue: Dispatch<SetStateAction<boolean>>;
 };
 
 export function useBoolean(defaultValue = false): UseBooleanReturn {

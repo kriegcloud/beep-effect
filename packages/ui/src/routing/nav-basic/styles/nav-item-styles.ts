@@ -1,14 +1,14 @@
 import type { CSSObject, Theme } from "@mui/material/styles";
 
 type NavItemStyles = {
-  icon: CSSObject;
-  info: CSSObject;
-  texts: CSSObject;
-  disabled: CSSObject;
-  captionIcon: CSSObject;
-  title: (theme: Theme) => CSSObject;
-  arrow: (theme: Theme) => CSSObject;
-  captionText: (theme: Theme) => CSSObject;
+  readonly icon: CSSObject;
+  readonly info: CSSObject;
+  readonly texts: CSSObject;
+  readonly disabled: CSSObject;
+  readonly captionIcon: CSSObject;
+  readonly title: (theme: Theme) => CSSObject;
+  readonly arrow: (theme: Theme) => CSSObject;
+  readonly captionText: (theme: Theme) => CSSObject;
 };
 
 export const navItemStyles: NavItemStyles = {

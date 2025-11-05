@@ -4,6 +4,7 @@ import { RouterLink } from "@beep/ui/routing";
 import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { BoxProps } from "@mui/material/Box";
 import Box from "@mui/material/Box";
+import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import { m } from "framer-motion";
 import type { NavItemData } from "./nav-config-components";
@@ -11,10 +12,11 @@ import type { NavItemData } from "./nav-config-components";
 // ----------------------------------------------------------------------
 
 type ComponentCardProps = BoxProps<"a"> & {
-  item: NavItemData;
+  readonly item: NavItemData;
 };
 
 export function ComponentCard({ item, sx, ...other }: ComponentCardProps) {
+  const theme = useTheme();
   return (
     <Box
       component={RouterLink}
@@ -48,8 +50,8 @@ export function ComponentCard({ item, sx, ...other }: ComponentCardProps) {
       )}
 
       <Box
-        sx={[
-          (theme) => ({
+        sx={
+          {
             overflow: "hidden",
             bgcolor: rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.06),
             transition: theme.transitions.create("background-color", {
@@ -62,8 +64,13 @@ export function ComponentCard({ item, sx, ...other }: ComponentCardProps) {
             ...theme.applyStyles("dark", {
               bgcolor: rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.04),
             }),
-          }),
-        ]}
+          } as {
+            [K in keyof React.ComponentProps<typeof Box<"a">>["sx"]]: Exclude<
+              React.ComponentProps<typeof Box<"a">>["sx"][K],
+              undefined
+            >;
+          }
+        }
       >
         <m.div whileTap={varTap(0.98)} whileHover={varHover()} transition={transitionTap()}>
           <Image alt={item.name} src={item.icon} ratio="1/1" disablePlaceholder />

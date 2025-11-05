@@ -159,7 +159,9 @@ const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService | I
     },
     socialProviders: A.reduce(
       config.oauth.authProviderNames,
-      {} as BetterAuthOptions["socialProviders"],
+      {} as {
+        [K in keyof BetterAuthOptions["socialProviders"]]: Exclude<BetterAuthOptions["socialProviders"][K], undefined>;
+      },
       (acc, provider) => ({
         ...acc,
         ...F.pipe(config.oauth.provider[provider], (providerParams) =>
@@ -181,8 +183,6 @@ const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService | I
             const program = Effect.gen(function* () {
               const now = yield* DateTime.now.pipe(Effect.flatMap((now) => Effect.succeed(DateTime.toDate(now))));
               const commonFieldValues = {
-                updateAt: now,
-                createdAt: now,
                 createdBy: user.id,
                 source: "auto_created",
               };

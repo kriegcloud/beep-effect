@@ -14,7 +14,7 @@ export const useAddPasskeyForm = ({ onDone }: UsePasskeyAddFormProps) => {
   const { addPasskey } = usePasskeyCRUD();
   const form = useAppForm(
     formOptionsWithSubmitEffect({
-      schema: PasskeyAddPayload,
+      schema: PasskeyAddPayload.pipe(S.pick("name")),
       defaultValues: {
         name: "",
       },

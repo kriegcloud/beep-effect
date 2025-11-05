@@ -6,7 +6,7 @@ import type React from "react";
 import { flagIconClasses } from "./classes";
 
 export type FlagIconProps = React.ComponentProps<typeof FlagRoot> & {
-  code?: string | undefined;
+  readonly code?: string | undefined;
 };
 
 export function FlagIcon({ code, className, sx, ...other }: FlagIconProps) {

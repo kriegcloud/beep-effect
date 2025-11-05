@@ -4,9 +4,9 @@ import FormHelperText from "@mui/material/FormHelperText";
 import type React from "react";
 
 export type HelperTextProps = FormHelperTextProps & {
-  errorMessage?: string;
-  disableGutters?: boolean;
-  helperText?: React.ReactNode;
+  readonly errorMessage?: string | undefined;
+  readonly disableGutters?: boolean | undefined;
+  readonly helperText?: React.ReactNode | undefined;
 };
 
 export function HelperText({ sx, helperText, errorMessage, disableGutters, ...other }: HelperTextProps) {

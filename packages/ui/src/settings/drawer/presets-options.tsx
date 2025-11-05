@@ -6,10 +6,10 @@ import { alpha as hexAlpha } from "@mui/material/styles";
 import { OptionButton } from "./styles";
 
 export type PresetsOptionsProps = BoxProps & {
-  icon: React.ReactNode;
-  value: SettingsState["primaryColor"];
-  options: { name: SettingsState["primaryColor"]; value: string }[];
-  onChangeOption: (newOption: SettingsState["primaryColor"]) => void;
+  readonly icon: React.ReactNode;
+  readonly value: SettingsState["primaryColor"];
+  readonly options: { readonly name: SettingsState["primaryColor"]; readonly value: string }[];
+  readonly onChangeOption: (newOption: SettingsState["primaryColor"]) => void;
 };
 
 export function PresetsOptions({ sx, icon, value, options, onChangeOption, ...other }: PresetsOptionsProps) {

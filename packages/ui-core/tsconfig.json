@@ -2,6 +2,9 @@
   "extends": "../../tsconfig.base.jsonc",
   "include": [],
   "exclude": ["src/**/*.test.ts"],
+  "compilerOptions": {
+    "skipLibCheck": true
+  },
   "references": [
     {
       "path": "tsconfig.src.json"

@@ -33,15 +33,19 @@ import { NavVertical } from "./nav-vertical";
 type LayoutBaseProps = Pick<LayoutSectionProps, "sx" | "children" | "cssVars">;
 
 export type DashboardLayoutProps = LayoutBaseProps & {
-  readonly layoutQuery?: Breakpoint;
+  readonly layoutQuery?: Breakpoint | undefined;
   readonly onClickAccountSettings: () => void;
-  readonly slotProps?: {
-    readonly header?: HeaderSectionProps;
-    readonly nav?: {
-      readonly data?: NavSectionProps["data"];
-    };
-    readonly main?: MainSectionProps;
-  };
+  readonly slotProps?:
+    | {
+        readonly header?: HeaderSectionProps | undefined;
+        readonly nav?:
+          | {
+              readonly data?: NavSectionProps["data"] | undefined;
+            }
+          | undefined;
+        readonly main?: MainSectionProps | undefined;
+      }
+    | undefined;
 };
 
 export function DashboardLayout({
@@ -102,7 +106,9 @@ export function DashboardLayout({
         <NavHorizontal
           data={navData}
           layoutQuery={layoutQuery}
-          cssVars={navVars.section}
+          {...(navVars.section
+            ? { cssVars: navVars.section as React.ComponentProps<typeof NavHorizontal>["cssVars"] }
+            : {})}
           checkPermissions={canDisplayItemByRole}
         />
       ) : null,
@@ -121,7 +127,7 @@ export function DashboardLayout({
             data={navData}
             open={open}
             onClose={onClose}
-            cssVars={navVars.section}
+            cssVars={navVars.section as React.ComponentProps<typeof NavMobile>["cssVars"]}
             checkPermissions={canDisplayItemByRole}
           />
 
@@ -218,9 +224,13 @@ export function DashboardLayout({
         layoutQuery={layoutQuery}
         disableElevation={isNavVertical}
         {...slotProps?.header}
-        slots={{ ...headerSlots, ...slotProps?.header?.slots }}
-        slotProps={ObjectUtils.deepMerge(headerSlotProps, slotProps?.header?.slotProps ?? {})}
-        sx={slotProps?.header?.sx}
+        slots={{ ...headerSlots, ...slotProps?.header?.slots } as React.ComponentProps<typeof HeaderSection>["slots"]}
+        slotProps={
+          ObjectUtils.deepMerge(headerSlotProps, slotProps?.header?.slotProps ?? {}) as React.ComponentProps<
+            typeof HeaderSection
+          >["slotProps"]
+        }
+        sx={slotProps?.header?.sx ?? {}}
       />
     );
   };
@@ -230,7 +240,7 @@ export function DashboardLayout({
       data={navData}
       isNavMini={isNavMini}
       layoutQuery={layoutQuery}
-      cssVars={navVars.section}
+      cssVars={navVars.section as React.ComponentProps<typeof NavVertical>["cssVars"]}
       checkPermissions={canDisplayItemByRole}
       onToggleNav={() => settings.setField("navLayout", settings.state.navLayout === "vertical" ? "mini" : "vertical")}
     />

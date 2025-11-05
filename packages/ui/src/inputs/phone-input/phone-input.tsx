@@ -96,7 +96,7 @@ export function PhoneInput({
       selectedCountry={activeCountry}
       onSearchCountry={handleSearchCountry}
       onSelectedCountry={handleSelectedCountry}
-      disabled={isCountryLocked}
+      disabled={Boolean(isCountryLocked)}
       sx={{
         pl: variant === "standard" ? 0 : 1.5,
         ...(variant === "standard" && hasLabel && { mt: size === "small" ? "16px" : "20px" }),
@@ -110,9 +110,9 @@ export function PhoneInput({
 
   const renderInput = () => {
     const textFieldProps: Omit<TextFieldProps, "value" | "onChange"> = {
-      size,
+      ...(size ? { size } : {}),
       label,
-      variant,
+      ...(variant ? { variant } : {}),
       fullWidth,
       hiddenLabel: !label,
       placeholder: placeholder ?? "Enter phone number",
@@ -134,8 +134,8 @@ export function PhoneInput({
       value: normalizedValue,
       onChange: handleChangeInput,
       inputComponent: CustomInput,
-      ...(isCountryLocked ? { country: activeCountry } : { defaultCountry: activeCountry }),
-    };
+      ...(isCountryLocked && activeCountry ? { country: activeCountry } : { defaultCountry: activeCountry }),
+    } as PhoneInputProps;
 
     return <PhoneNumberInput {...textFieldProps} {...phoneInputProps} {...other} />;
   };
@@ -171,7 +171,7 @@ export function PhoneInput({
 // ----------------------------------------------------------------------
 
 function CustomInput({ ref, ...other }: TextFieldProps) {
-  return <TextField inputRef={ref} {...other} />;
+  return <TextField {...(ref ? { ref } : {})} {...other} />;
 }
 
 // ----------------------------------------------------------------------

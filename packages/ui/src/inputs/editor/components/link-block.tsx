@@ -10,7 +10,7 @@ import type { EditorToolbarProps } from "../types";
 import { ToolbarItem } from "./toolbar-item";
 
 type LinkBlockProps = Pick<EditorToolbarProps, "editor"> & {
-  icons?: Record<"link" | "unsetLink", React.ReactNode>;
+  readonly icons?: Record<"link" | "unsetLink", React.ReactNode> | undefined;
 };
 
 export function LinkBlock({ editor, icons }: LinkBlockProps) {

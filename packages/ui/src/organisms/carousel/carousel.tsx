@@ -19,7 +19,7 @@ export function Carousel({ sx, carousel, children, slotProps, className, ...othe
         const reactChild = child as React.ReactElement<{ key?: React.Key }>;
 
         return (
-          <CarouselSlide key={reactChild.key} options={carousel.options} sx={slotProps?.slide}>
+          <CarouselSlide key={reactChild.key} options={carousel.options ?? {}} sx={slotProps?.slide ?? {}}>
             {child}
           </CarouselSlide>
         );
@@ -29,7 +29,7 @@ export function Carousel({ sx, carousel, children, slotProps, className, ...othe
 
   return (
     <CarouselRoot
-      sx={sx}
+      sx={sx ?? {}}
       ref={mainRef}
       axis={axis}
       className={mergeClasses([carouselClasses.root, className])}

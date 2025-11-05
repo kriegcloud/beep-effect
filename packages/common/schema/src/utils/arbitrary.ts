@@ -7,8 +7,8 @@ import * as Match from "effect/Match";
 import * as S from "effect/Schema";
 
 type ArbParamsBase = {
-  qty?: number;
-  flat?: boolean;
+  qty?: number | undefined;
+  flat?: boolean | undefined;
 };
 
 type BoundArbitrary<A, I, R> = ArbParamsBase & {

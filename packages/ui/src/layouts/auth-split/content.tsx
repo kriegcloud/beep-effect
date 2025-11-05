@@ -9,7 +9,7 @@ import { layoutClasses } from "../core";
 
 // ----------------------------------------------------------------------
 
-export type AuthSplitContentProps = BoxProps & { layoutQuery?: Breakpoint };
+export type AuthSplitContentProps = BoxProps & { readonly layoutQuery?: Breakpoint | undefined };
 
 export function AuthSplitContent({ sx, children, className, layoutQuery = "md", ...other }: AuthSplitContentProps) {
   return (

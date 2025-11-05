@@ -23,8 +23,8 @@ export function NavItem({
   const navItem = createNavItem({ path, hasChild, externalLink });
 
   const ownerState: StyledState = {
-    open,
-    active,
+    open: Boolean(open),
+    active: Boolean(active),
     variant: !subItem ? "rootItem" : "subItem",
   };
 

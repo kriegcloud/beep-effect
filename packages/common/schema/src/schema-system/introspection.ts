@@ -267,7 +267,9 @@ export const extractAST = (schema: AST.AST | AST.PropertySignature): AST.AST => 
 /**
  * Extracts entity information from a schema, including entity name and tag
  */
-export const extractEntityInfo = (schema: S.Schema.AnyNoContext): { entityName: string; entityTag?: string } => {
+export const extractEntityInfo = (
+  schema: S.Schema.AnyNoContext
+): { entityName: string; entityTag?: string | undefined } => {
   // Get entity annotation if present
   const entityAnnotation = F.pipe(extractEntityName(schema), O.getOrUndefined);
 

@@ -23,7 +23,7 @@
     "sourceMap": true,
     // Opt-in to stricter type checking and correctness guard rails. The more the merrier.
     "strict": true,
-    "exactOptionalPropertyTypes": false,
+    "exactOptionalPropertyTypes": true,
     // todo make true
     "noUnusedLocals": true,
     "noImplicitOverride": true,

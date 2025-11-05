@@ -30,58 +30,64 @@ export type CarouselDotButtonsProps = BoxProps<"ul"> &
  * Prev & next buttons
  */
 export type UseCarouselArrowsReturn = {
-  disablePrev: boolean;
-  disableNext: boolean;
-  onClickPrev: () => void;
-  onClickNext: () => void;
+  readonly disablePrev: boolean;
+  readonly disableNext: boolean;
+  readonly onClickPrev: () => void;
+  readonly onClickNext: () => void;
 };
 
 export type CarouselArrowButtonProps = ButtonBaseProps & {
-  svgSize?: number;
-  variant: "prev" | "next";
-  svgIcon?: React.ReactNode;
-  options?: CarouselArrowButtonsProps["options"];
+  readonly svgSize?: number | undefined;
+  readonly variant: "prev" | "next";
+  readonly svgIcon?: React.ReactNode | undefined;
+  readonly options?: CarouselArrowButtonsProps["options"] | undefined;
 };
 
 export type CarouselArrowButtonsProps = React.ComponentProps<"div"> &
   UseCarouselArrowsReturn & {
-    sx?: SxProps<Theme>;
-    totalSlides?: number;
-    selectedIndex?: number;
-    options?: Partial<CarouselOptions>;
-    slotProps?: {
-      prevBtn?: Pick<CarouselArrowButtonProps, "svgIcon" | "svgSize"> & {
-        sx?: SxProps<Theme>;
-      };
-      nextBtn?: Pick<CarouselArrowButtonProps, "svgIcon" | "svgSize"> & {
-        sx?: SxProps<Theme>;
-      };
-    };
+    readonly sx?: SxProps<Theme> | undefined;
+    readonly totalSlides?: number | undefined;
+    readonly selectedIndex?: number | undefined;
+    readonly options?: Partial<CarouselOptions> | undefined;
+    readonly slotProps?:
+      | {
+          readonly prevBtn?:
+            | (Pick<CarouselArrowButtonProps, "svgIcon" | "svgSize"> & {
+                readonly sx?: SxProps<Theme> | undefined;
+              })
+            | undefined;
+          readonly nextBtn?:
+            | (Pick<CarouselArrowButtonProps, "svgIcon" | "svgSize"> & {
+                readonly sx?: SxProps<Theme> | undefined;
+              })
+            | undefined;
+        }
+      | undefined;
   };
 
 /**
  * Thumbs
  */
 export type UseCarouselThumbsReturn = {
-  selectedIndex: number;
-  thumbsApi?: EmblaCarouselType;
-  thumbsRef: UseEmblaCarouselType[0];
-  onClickThumb: (index: number) => void;
+  readonly selectedIndex: number;
+  readonly thumbsApi?: EmblaCarouselType | undefined;
+  readonly thumbsRef: UseEmblaCarouselType[0];
+  readonly onClickThumb: (index: number) => void;
 };
 
 export type CarouselThumbProps = ButtonBaseProps & {
-  src: string;
-  index: number;
-  selected: boolean;
+  readonly src: string;
+  readonly index: number;
+  readonly selected: boolean;
 };
 
 export type CarouselThumbsProps = React.ComponentProps<"div"> & {
-  options?: Partial<CarouselOptions>;
-  sx?: SxProps<Theme>;
-  slotProps?: {
-    slide?: SxProps<Theme>;
-    container?: SxProps<Theme>;
-    disableMask?: boolean;
+  readonly options?: Partial<CarouselOptions>;
+  readonly sx?: SxProps<Theme> | undefined;
+  readonly slotProps?: {
+    readonly slide?: SxProps<Theme> | undefined;
+    readonly container?: SxProps<Theme> | undefined;
+    readonly disableMask?: boolean | undefined;
   };
 };
 

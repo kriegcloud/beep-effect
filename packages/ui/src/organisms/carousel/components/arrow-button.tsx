@@ -41,12 +41,12 @@ export function ArrowButton({
 
   return (
     <ArrowButtonRoot
-      axis={options?.axis}
-      direction={options?.direction}
+      {...(options?.axis ? { axis: options.axis } : { axis: "x" })}
+      {...(options?.direction ? { direction: options.direction } : { direction: "ltr" })}
       aria-label={isPrev ? "Prev button" : "Next button"}
       className={mergeClasses([carouselClasses.arrows[isPrev ? "prev" : "next"], className])}
-      sx={sx}
-      {...other}
+      sx={sx ?? {}}
+      {...(other as React.ComponentProps<typeof ArrowButtonRoot>)}
     >
       <SvgIcon className={carouselClasses.arrows.svg} sx={{ width: svgSize, height: svgSize }}>
         {svgContent}

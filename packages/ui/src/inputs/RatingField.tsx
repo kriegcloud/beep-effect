@@ -39,7 +39,7 @@ function RatingField({ helperText, slotProps, ...other }: RatingProps) {
       <MuiRating
         id={field.name}
         name={field.name}
-        value={field.state.value}
+        {...(field.state.value ? { value: field.state.value } : {})}
         onBlur={field.handleBlur}
         onChange={(_, newValue) => field.handleChange(Number(newValue))}
         {...other}

@@ -8,6 +8,6 @@ export type ChartProps = React.ComponentProps<"div"> &
   Pick<ApexProps, "type" | "series" | "options"> & {
     sx?: SxProps<Theme>;
     slotProps?: {
-      loading?: SxProps<Theme>;
+      loading?: SxProps<Theme> | undefined;
     };
   };

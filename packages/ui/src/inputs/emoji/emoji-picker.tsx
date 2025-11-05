@@ -9,8 +9,8 @@ import React, { type JSX } from "react";
 type PickerProps = React.ComponentProps<typeof Picker>;
 
 interface EmojiPickerProps extends PickerProps {
-  handleEmojiSelect?: (emoji: string) => void;
-  actionButtonEle?: JSX.Element;
+  readonly handleEmojiSelect?: ((emoji: string) => void) | undefined;
+  readonly actionButtonEle?: JSX.Element | undefined;
 }
 
 export const EmojiPicker = ({ handleEmojiSelect, actionButtonEle, ...rest }: EmojiPickerProps) => {

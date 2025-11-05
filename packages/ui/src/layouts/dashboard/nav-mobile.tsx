@@ -11,12 +11,14 @@ import { NavUpgrade } from "../components/nav-upgrade";
 import { layoutClasses } from "../core";
 
 type NavMobileProps = NavSectionProps & {
-  open: boolean;
-  onClose: () => void;
-  slots?: {
-    topArea?: React.ReactNode;
-    bottomArea?: React.ReactNode;
-  };
+  readonly open: boolean;
+  readonly onClose: () => void;
+  readonly slots?:
+    | {
+        readonly topArea?: React.ReactNode | undefined;
+        readonly bottomArea?: React.ReactNode | undefined;
+      }
+    | undefined;
 };
 
 export function NavMobile({ sx, data, open, slots, onClose, className, checkPermissions, ...other }: NavMobileProps) {

@@ -12,12 +12,14 @@ import type { NavMainProps } from "../types";
 import { NavList } from "./nav-mobile-list";
 
 export type NavMobileProps = NavMainProps & {
-  open: boolean;
-  onClose: () => void;
-  slots?: {
-    topArea?: React.ReactNode;
-    bottomArea?: React.ReactNode;
-  };
+  readonly open: boolean;
+  readonly onClose: () => void;
+  readonly slots?:
+    | {
+        readonly topArea?: React.ReactNode | undefined;
+        readonly bottomArea?: React.ReactNode | undefined;
+      }
+    | undefined;
 };
 
 export function NavMobile({ data, open, onClose, slots, sx }: NavMobileProps) {

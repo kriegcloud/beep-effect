@@ -436,11 +436,13 @@ const extendFields = (a: S.Struct.Fields, b: S.Struct.Fields): S.Struct.Fields =
  * @since 3.10.0
  */
 export const TaggedClass =
-  <Self = never>(identifier?: string) =>
+  <Self = never>(identifier?: string | undefined) =>
   <Tag extends string, Fields extends S.Struct.Fields>(
     tag: Tag,
     fieldsOr: Fields | HasFields<Fields>,
-    annotations?: ClassAnnotations<Self, Types.Simplify<S.Struct.Type<{ readonly _tag: S.tag<Tag> } & Fields>>>
+    annotations?:
+      | ClassAnnotations<Self, Types.Simplify<S.Struct.Type<{ readonly _tag: S.tag<Tag> } & Fields>>>
+      | undefined
   ): [Self] extends [never]
     ? MissingSelfGeneric<"TaggedClass", `"Tag", `>
     : TaggedClass<Self, Tag, { readonly _tag: S.tag<Tag> } & Fields> => {
@@ -455,7 +457,7 @@ export const TaggedClass =
       fields: taggedFields,
       Base: Data.Class,
       annotations: {
-        identifier: identifier,
+        ...(identifier ? { identifier } : {}),
         ...annotations,
       },
     }) {

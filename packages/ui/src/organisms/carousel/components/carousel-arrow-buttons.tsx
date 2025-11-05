@@ -27,7 +27,7 @@ export function CarouselArrowBasicButtons({
   ...other
 }: CarouselArrowButtonsProps) {
   return (
-    <BasicButtonsRoot className={mergeClasses([carouselClasses.arrows.root, className])} sx={sx} {...other}>
+    <BasicButtonsRoot className={mergeClasses([carouselClasses.arrows.root, className])} sx={sx ?? {}} {...other}>
       <ArrowButton
         variant="prev"
         options={options}
@@ -35,7 +35,7 @@ export function CarouselArrowBasicButtons({
         onClick={onClickPrev}
         svgIcon={slotProps?.prevBtn?.svgIcon}
         svgSize={slotProps?.prevBtn?.svgSize}
-        sx={slotProps?.prevBtn?.sx}
+        sx={slotProps?.prevBtn?.sx ?? {}}
       />
 
       <ArrowButton
@@ -45,7 +45,7 @@ export function CarouselArrowBasicButtons({
         onClick={onClickNext}
         svgIcon={slotProps?.nextBtn?.svgIcon}
         svgSize={slotProps?.nextBtn?.svgSize}
-        sx={slotProps?.nextBtn?.sx}
+        sx={slotProps?.nextBtn?.sx ?? {}}
       />
     </BasicButtonsRoot>
   );
@@ -151,7 +151,7 @@ export function CarouselArrowNumberButtons({
   ...other
 }: CarouselArrowButtonsProps) {
   return (
-    <NumberButtonsRoot className={mergeClasses([carouselClasses.arrows.root, className])} sx={sx} {...other}>
+    <NumberButtonsRoot className={mergeClasses([carouselClasses.arrows.root, className])} sx={sx ?? {}} {...other}>
       <ArrowButton
         variant="prev"
         options={options}
@@ -159,7 +159,7 @@ export function CarouselArrowNumberButtons({
         onClick={onClickPrev}
         svgIcon={slotProps?.prevBtn?.svgIcon}
         svgSize={slotProps?.prevBtn?.svgSize ?? 16}
-        sx={slotProps?.prevBtn?.sx}
+        sx={slotProps?.prevBtn?.sx ?? {}}
       />
 
       <span className={carouselClasses.arrows.label}>
@@ -173,7 +173,7 @@ export function CarouselArrowNumberButtons({
         onClick={onClickNext}
         svgIcon={slotProps?.nextBtn?.svgIcon}
         svgSize={slotProps?.nextBtn?.svgSize ?? 16}
-        sx={slotProps?.nextBtn?.sx}
+        sx={slotProps?.nextBtn?.sx ?? {}}
       />
     </NumberButtonsRoot>
   );

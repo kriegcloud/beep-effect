@@ -1,5 +1,4 @@
 "use client";
-
 import { mergeClasses } from "@beep/ui-core/utils";
 import { styled } from "@mui/material/styles";
 import { carouselClasses } from "../classes";
@@ -12,7 +11,7 @@ export function CarouselSlide({ sx, options, children, className, ...other }: Ca
   return (
     <CarouselSlideRoot
       axis={options?.axis ?? "x"}
-      slideSpacing={options?.slideSpacing}
+      {...(options?.slideSpacing ? { slideSpacing: options.slideSpacing } : {})}
       className={mergeClasses([carouselClasses.slide.root, className])}
       sx={[{ flex: slideSize }, ...(Array.isArray(sx) ? sx : [sx])]}
       {...other}

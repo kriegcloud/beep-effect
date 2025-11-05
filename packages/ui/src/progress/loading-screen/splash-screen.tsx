@@ -9,11 +9,11 @@ import { Fragment } from "react";
 import { AnimateLogoZoom } from "../../animate";
 
 export type SplashScreenProps = React.ComponentProps<"div"> & {
-  portal?: boolean | undefined;
-  sx?: SxProps<Theme> | undefined;
-  slotProps?:
+  readonly portal?: boolean | undefined;
+  readonly sx?: SxProps<Theme> | undefined;
+  readonly slotProps?:
     | {
-        wrapper?: React.ComponentProps<typeof LoadingWrapper> | undefined;
+        readonly wrapper?: React.ComponentProps<typeof LoadingWrapper> | undefined;
       }
     | undefined;
 };

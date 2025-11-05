@@ -90,9 +90,9 @@ export const makeFormOptions = <
   SchemaI extends Record<PropertyKey, UnsafeTypes.UnsafeAny>,
   ValidatorKey extends HandledValidatorKey,
 >(opts: {
-  schema: S.Schema<SchemaA, SchemaI>;
-  defaultValues: SchemaI;
-  validator: ValidatorKey;
+  readonly schema: S.Schema<SchemaA, SchemaI>;
+  readonly defaultValues: SchemaI;
+  readonly validator: ValidatorKey;
 }): MakeFormOptionsReturn<SchemaI> => {
   const specificValidatorFn = validateWithSchema(opts.schema);
 

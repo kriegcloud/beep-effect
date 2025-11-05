@@ -66,7 +66,7 @@ export type FooterProps = React.ComponentProps<typeof FooterRoot>;
 
 export function Footer({ sx, layoutQuery = "md", ...other }: FooterProps & { layoutQuery?: Breakpoint }) {
   return (
-    <FooterRoot sx={sx} {...other}>
+    <FooterRoot sx={sx ?? {}} {...other}>
       <Divider />
 
       <Container

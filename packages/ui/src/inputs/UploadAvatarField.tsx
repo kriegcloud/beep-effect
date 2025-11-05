@@ -14,8 +14,17 @@ function UploadAvatarField({ slotProps, ...other }: UploadProps) {
     field.handleChange(value);
   };
 
+  const boxSlotPropsWrapper = slotProps?.wrapper ?? {};
+  const ref = boxSlotPropsWrapper.ref ? { ref: boxSlotPropsWrapper.ref } : {};
   return (
-    <Box {...slotProps?.wrapper}>
+    <Box
+      {...ref}
+      {...(slotProps?.wrapper
+        ? {
+            ...(slotProps.wrapper.ref ? { ref: slotProps.wrapper.ref } : {}),
+          }
+        : {})}
+    >
       <UploadAvatar
         value={field.state.value}
         error={!!field.form.state.errorMap.onSubmit?.[field.name]}

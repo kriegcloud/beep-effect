@@ -19,7 +19,6 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { Effect, Layer, Redacted } from "effect";
 import * as Data from "effect/Data";
-import * as DateTime from "effect/DateTime";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -219,15 +218,12 @@ export class PgContainer extends Effect.Service<PgContainer>()("PgContainer", {
       const db = yield* PgDrizzle.make<typeof Schema>({
         schema: Schema,
       });
-      const now = yield* DateTime.now;
       const mockedUser = Entities.User.Model.insert.make({
         email: BS.Email.make("test@example.com"),
         name: "beep",
         emailVerified: false,
         gender: "male",
         image: O.some(faker.image.avatar()),
-        createdAt: now,
-        updatedAt: now,
       });
 
       const encoded = yield* S.encode(Entities.User.Model.insert)(mockedUser);

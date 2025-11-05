@@ -38,7 +38,7 @@ export function NavList({ data, depth, render, slotProps, enabledRootRedirect }:
       // state
       open={open}
       active={isActive}
-      disabled={data.disabled}
+      disabled={Boolean(data.disabled)}
       // options
       depth={depth}
       render={render}
@@ -67,7 +67,7 @@ export function NavList({ data, depth, render, slotProps, enabledRootRedirect }:
 
   return (
     <NavLi
-      disabled={data.disabled}
+      disabled={Boolean(data.disabled)}
       sx={{
         ...(!!data.children && {
           [`& .${navBasicClasses.li}`]: {

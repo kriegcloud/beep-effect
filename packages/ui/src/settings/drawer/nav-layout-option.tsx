@@ -6,12 +6,12 @@ import Box from "@mui/material/Box";
 import { OptionButton } from "./styles";
 
 export type NavLayoutOptionProps = BoxProps & {
-  value: SettingsState["navLayout"];
-  options: {
-    value: SettingsState["navLayout"];
-    icon: React.ReactNode;
+  readonly value: SettingsState["navLayout"];
+  readonly options: {
+    readonly value: SettingsState["navLayout"];
+    readonly icon: React.ReactNode;
   }[];
-  onChangeOption: (newOption: SettingsState["navLayout"]) => void;
+  readonly onChangeOption: (newOption: SettingsState["navLayout"]) => void;
 };
 
 export function NavLayoutOptions({ sx, value, options, onChangeOption, ...other }: NavLayoutOptionProps) {

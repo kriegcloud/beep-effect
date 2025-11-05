@@ -12,20 +12,24 @@ import { styled } from "@mui/material/styles";
 import { layoutClasses } from "./classes";
 
 export type HeaderSectionProps = AppBarProps & {
-  readonly layoutQuery?: Breakpoint;
-  readonly disableOffset?: boolean;
-  readonly disableElevation?: boolean;
-  readonly slots?: {
-    readonly leftArea?: React.ReactNode;
-    readonly rightArea?: React.ReactNode;
-    readonly topArea?: React.ReactNode;
-    readonly centerArea?: React.ReactNode;
-    readonly bottomArea?: React.ReactNode;
-  };
-  readonly slotProps?: {
-    readonly container?: ContainerProps;
-    readonly centerArea?: React.ComponentProps<"div"> & { sx?: SxProps<Theme> };
-  };
+  readonly layoutQuery?: Breakpoint | undefined;
+  readonly disableOffset?: boolean | undefined;
+  readonly disableElevation?: boolean | undefined;
+  readonly slots?:
+    | {
+        readonly leftArea?: React.ReactNode | undefined;
+        readonly rightArea?: React.ReactNode | undefined;
+        readonly topArea?: React.ReactNode | undefined;
+        readonly centerArea?: React.ReactNode | undefined;
+        readonly bottomArea?: React.ReactNode | undefined;
+      }
+    | undefined;
+  readonly slotProps?:
+    | {
+        readonly container?: ContainerProps | undefined;
+        readonly centerArea?: React.ComponentProps<"div"> & { sx?: SxProps<Theme> };
+      }
+    | undefined;
 };
 
 export function HeaderSection({

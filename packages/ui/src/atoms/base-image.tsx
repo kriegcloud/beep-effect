@@ -30,5 +30,5 @@ export const BaseImage = ({ src, alt = "", sx, ...props }: ThemeAwareImageProps)
     imageSrc = isDark ? themedSrc.dark : themedSrc.light;
   }
 
-  return <StyledNextImage src={imageSrc} alt={alt} sx={sx} {...props} />;
+  return <StyledNextImage src={imageSrc} alt={alt} sx={sx ?? {}} {...props} />;
 };

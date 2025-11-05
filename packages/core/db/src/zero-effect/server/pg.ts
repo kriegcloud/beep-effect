@@ -3,7 +3,7 @@
  */
 
 import type { UnsafeTypes } from "@beep/types";
-import type { Primitive } from "@effect/sql/Statement";
+import type { PrimitiveKind } from "@effect/sql/Statement";
 import { PgClient } from "@effect/sql-pg";
 import type { CustomMutatorDefs, ReadonlyJSONObject, Schema } from "@rocicorp/zero";
 import type { DBConnection, DBTransaction, Row } from "@rocicorp/zero/pg";
@@ -53,7 +53,7 @@ class EffectPgTransaction<R = never> implements DBTransaction<PgClient.PgClient>
   }
 
   query(sql: string, params: Array<unknown>): Promise<Iterable<Row>> {
-    const queryEffect = this.wrappedTransaction.unsafe(sql, params as Array<Primitive>);
+    const queryEffect = this.wrappedTransaction.unsafe(sql, params as Array<PrimitiveKind>);
     return Runtime.runPromise(this.#runtime)(queryEffect) as Promise<Iterable<Row>>;
   }
 }

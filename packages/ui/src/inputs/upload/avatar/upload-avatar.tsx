@@ -22,7 +22,7 @@ export function UploadAvatar({
   ...dropzoneOptions
 }: UploadProps) {
   const { getRootProps, getInputProps, isDragActive, isDragReject, fileRejections } = useDropzone({
-    disabled,
+    disabled: Boolean(disabled),
     multiple: false,
     accept: { "image/*": [] },
     ...dropzoneOptions,
@@ -60,7 +60,7 @@ export function UploadAvatar({
           [uploadClasses.state.error]: hasError,
           [uploadClasses.state.hasFile]: hasSelectedFile,
         })}
-        sx={sx}
+        sx={sx ?? {}}
       >
         <input {...getInputProps()} />
         <UploadContent>

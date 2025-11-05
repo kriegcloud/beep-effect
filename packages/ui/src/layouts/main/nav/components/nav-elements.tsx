@@ -5,7 +5,7 @@ import { styled } from "@mui/material/styles";
 export const Nav = styled("nav")``;
 
 type NavLiProps = React.ComponentProps<"li"> & {
-  disabled?: boolean;
+  readonly disabled?: boolean | undefined;
 };
 
 export const NavLi = styled(

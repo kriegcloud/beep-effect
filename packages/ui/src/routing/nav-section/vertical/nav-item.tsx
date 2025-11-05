@@ -42,7 +42,7 @@ export function NavItem({
   const ownerState: StyledState = {
     open,
     active,
-    disabled,
+    disabled: Boolean(disabled),
     variant: navItem.rootItem ? "rootItem" : "subItem",
   };
 
@@ -56,24 +56,24 @@ export function NavItem({
         [navSectionClasses.state.active]: active,
         [navSectionClasses.state.disabled]: disabled,
       })}
-      sx={slotProps?.sx}
+      sx={slotProps?.sx ?? {}}
       {...other}
     >
       {icon && (
-        <ItemIcon {...ownerState} className={navSectionClasses.item.icon} sx={slotProps?.icon}>
+        <ItemIcon {...ownerState} className={navSectionClasses.item.icon} sx={slotProps?.icon ?? {}}>
           {navItem.renderIcon}
         </ItemIcon>
       )}
 
       {title && (
-        <ItemTexts {...ownerState} className={navSectionClasses.item.texts} sx={slotProps?.texts}>
-          <ItemTitle {...ownerState} className={navSectionClasses.item.title} sx={slotProps?.title}>
+        <ItemTexts {...ownerState} className={navSectionClasses.item.texts} sx={slotProps?.texts ?? {}}>
+          <ItemTitle {...ownerState} className={navSectionClasses.item.title} sx={slotProps?.title ?? {}}>
             {title}
           </ItemTitle>
 
           {caption && (
             <Tooltip title={caption} placement="top-start">
-              <ItemCaptionText {...ownerState} className={navSectionClasses.item.caption} sx={slotProps?.caption}>
+              <ItemCaptionText {...ownerState} className={navSectionClasses.item.caption} sx={slotProps?.caption ?? {}}>
                 {caption}
               </ItemCaptionText>
             </Tooltip>
@@ -82,7 +82,7 @@ export function NavItem({
       )}
 
       {info && (
-        <ItemInfo {...ownerState} className={navSectionClasses.item.info} sx={slotProps?.info}>
+        <ItemInfo {...ownerState} className={navSectionClasses.item.info} sx={slotProps?.info ?? {}}>
           {navItem.renderInfo}
         </ItemInfo>
       )}
@@ -92,7 +92,7 @@ export function NavItem({
           {...ownerState}
           icon={open ? "eva:arrow-ios-downward-fill" : "eva:arrow-ios-forward-fill"}
           className={navSectionClasses.item.arrow}
-          sx={slotProps?.arrow}
+          sx={slotProps?.arrow ?? {}}
         />
       )}
     </ItemRoot>

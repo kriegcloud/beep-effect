@@ -34,10 +34,10 @@ export function NavSectionVertical({
             key={group.subheader ?? group.items[0]?.title}
             subheader={group.subheader}
             items={group.items}
-            render={render}
-            slotProps={slotProps}
+            {...(render ? { render: render } : {})}
+            slotProps={slotProps ?? {}}
             checkPermissions={checkPermissions}
-            enabledRootRedirect={enabledRootRedirect}
+            enabledRootRedirect={Boolean(enabledRootRedirect)}
           />
         ))}
       </NavUl>
@@ -72,7 +72,7 @@ function Group({ items, render, subheader, slotProps, checkPermissions, enabledR
             data-title={subheader}
             open={groupOpen.value}
             onClick={groupOpen.onToggle}
-            sx={slotProps?.subheader}
+            sx={slotProps?.subheader ?? {}}
           >
             {subheader}
           </NavSubheader>

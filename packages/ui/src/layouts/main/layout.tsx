@@ -22,15 +22,19 @@ import type { NavMainProps } from "./nav/types";
 type LayoutBaseProps = Pick<LayoutSectionProps, "sx" | "children" | "cssVars">;
 
 export type MainLayoutProps = LayoutBaseProps & {
-  layoutQuery?: Breakpoint;
-  slotProps?: {
-    header?: HeaderSectionProps;
-    nav?: {
-      data?: NavMainProps["data"];
-    };
-    main?: MainSectionProps;
-    footer?: FooterProps;
-  };
+  readonly layoutQuery?: Breakpoint | undefined;
+  readonly slotProps?:
+    | {
+        readonly header?: HeaderSectionProps | undefined;
+        readonly nav?:
+          | {
+              readonly data?: NavMainProps["data"] | undefined;
+            }
+          | undefined;
+        readonly main?: MainSectionProps | undefined;
+        readonly footer?: FooterProps | undefined;
+      }
+    | undefined;
 };
 
 export function MainLayout({ sx, cssVars, children, slotProps, layoutQuery = "md" }: MainLayoutProps) {
@@ -114,16 +118,16 @@ export function MainLayout({ sx, cssVars, children, slotProps, layoutQuery = "md
         {...slotProps?.header}
         slots={{ ...headerSlots, ...slotProps?.header?.slots }}
         slotProps={slotProps?.header?.slotProps}
-        sx={slotProps?.header?.sx}
+        sx={slotProps?.header?.sx ?? {}}
       />
     );
   };
 
   const renderFooter = () =>
     isHomePage ? (
-      <HomeFooter sx={slotProps?.footer?.sx} />
+      <HomeFooter sx={slotProps?.footer?.sx ?? {}} />
     ) : (
-      <Footer sx={slotProps?.footer?.sx} layoutQuery={layoutQuery} />
+      <Footer sx={slotProps?.footer?.sx ?? {}} layoutQuery={layoutQuery} />
     );
 
   const renderMain = () => <MainSection {...slotProps?.main}>{children}</MainSection>;

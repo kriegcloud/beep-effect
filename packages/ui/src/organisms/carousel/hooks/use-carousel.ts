@@ -66,5 +66,5 @@ export function useCarousel(options?: CarouselOptions, plugins?: EmblaPluginType
     progress,
     autoplay,
     autoScroll,
-  };
+  } as UseCarouselReturn;
 }

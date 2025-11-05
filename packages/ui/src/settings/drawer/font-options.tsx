@@ -8,10 +8,10 @@ import Slider, { sliderClasses } from "@mui/material/Slider";
 import { OptionButton } from "./styles";
 
 export type FontFamilyOptionsProps = BoxProps & {
-  options: string[];
-  icon: React.ReactNode;
-  value: SettingsState["fontFamily"];
-  onChangeOption: (newOption: string) => void;
+  readonly options: string[];
+  readonly icon: React.ReactNode;
+  readonly value: SettingsState["fontFamily"];
+  readonly onChangeOption: (newOption: string) => void;
 };
 
 export function FontFamilyOptions({ sx, icon, value, options, onChangeOption, ...other }: FontFamilyOptionsProps) {

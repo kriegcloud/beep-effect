@@ -9,16 +9,18 @@ import Typography from "@mui/material/Typography";
 // ----------------------------------------------------------------------
 
 export type AuthSplitSectionProps = BoxProps & {
-  title?: string;
-  method?: string;
-  imgUrl?: string;
-  subtitle?: string;
-  layoutQuery?: Breakpoint;
-  methods?: {
-    path: string;
-    icon: string;
-    label: string;
-  }[];
+  readonly title?: string | undefined;
+  readonly method?: string | undefined;
+  readonly imgUrl?: string | undefined;
+  readonly subtitle?: string | undefined;
+  readonly layoutQuery?: Breakpoint | undefined;
+  readonly methods?:
+    | {
+        readonly path: string;
+        readonly icon: string;
+        readonly label: string;
+      }[]
+    | undefined;
 };
 
 export function AuthSplitSection({

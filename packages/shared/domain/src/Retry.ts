@@ -71,9 +71,10 @@ const makeExponentialBackoffPolicy = (
 ): Schedule.Schedule<[Duration.Duration, number]> => {
   const opts = { ...defaultExponentialBackoffOptions, ...options } as const;
 
-  return Schedule.intersect(Schedule.exponential(opts.delay, opts.growthFactor), Schedule.recurs(opts.maxRetries)).pipe(
-    (policy) => (opts.jitter ? Schedule.jittered(policy) : policy)
-  );
+  return Schedule.intersect(
+    Schedule.exponential(opts.delay, opts.growthFactor),
+    Schedule.recurs(opts.maxRetries ?? defaultExponentialBackoffOptions.maxRetries)
+  ).pipe((policy) => (opts.jitter ? Schedule.jittered(policy) : policy));
 };
 
 /**

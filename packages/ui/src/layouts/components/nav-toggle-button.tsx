@@ -5,7 +5,7 @@ import type { IconButtonProps } from "@mui/material/IconButton";
 import IconButton from "@mui/material/IconButton";
 
 export type NavToggleButtonProps = IconButtonProps & {
-  isNavMini: boolean;
+  readonly isNavMini: boolean;
 };
 
 export function NavToggleButton({ isNavMini, sx, ...other }: NavToggleButtonProps) {

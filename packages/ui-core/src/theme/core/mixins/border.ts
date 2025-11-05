@@ -15,11 +15,11 @@ import type { CSSObject } from "@mui/material/styles";
  */
 
 export type BorderGradientProps = {
-  color?: string;
-  padding?: string;
+  color?: string | undefined;
+  padding?: string | undefined;
 };
 
-export function borderGradient(props?: BorderGradientProps): CSSObject {
+export function borderGradient(props?: BorderGradientProps | undefined): CSSObject {
   const { color, padding = "2px" } = props ?? {};
 
   return {

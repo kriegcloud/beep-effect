@@ -24,9 +24,9 @@ import { useCallback, useState } from "react";
  */
 
 export type UseTabsReturn = {
-  value: string;
-  setValue: Dispatch<SetStateAction<string>>;
-  onChange: (event: SyntheticEvent, newValue: string) => void;
+  readonly value: string;
+  readonly setValue: Dispatch<SetStateAction<string>>;
+  readonly onChange: (event: SyntheticEvent, newValue: string) => void;
 };
 
 export function useTabs(defaultValue: string): UseTabsReturn {

@@ -36,6 +36,9 @@
       "path": "../domain"
     },
     {
+      "path": "../infra"
+    },
+    {
       "path": "../../ui"
     },
     {
@@ -48,6 +51,7 @@
 
     "rootDir": "src",
     "moduleResolution": "bundler",
+    "exactOptionalPropertyTypes": false,
     "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true

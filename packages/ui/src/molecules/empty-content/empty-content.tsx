@@ -10,17 +10,19 @@ import Typography from "@mui/material/Typography";
 import type React from "react";
 
 export type EmptyContentProps = React.ComponentProps<"div"> & {
-  title?: string;
-  imgUrl?: string;
-  filled?: boolean;
-  sx?: SxProps<Theme>;
-  description?: string;
-  action?: React.ReactNode;
-  slotProps?: {
-    img?: BoxProps<"img">;
-    title?: TypographyProps;
-    description?: TypographyProps;
-  };
+  readonly title?: string | undefined;
+  readonly imgUrl?: string | undefined;
+  readonly filled?: boolean | undefined;
+  readonly sx?: SxProps<Theme> | undefined;
+  readonly description?: string | undefined;
+  readonly action?: React.ReactNode | undefined;
+  readonly slotProps?:
+    | {
+        readonly img?: BoxProps<"img"> | undefined;
+        readonly title?: TypographyProps | undefined;
+        readonly description?: TypographyProps | undefined;
+      }
+    | undefined;
 };
 
 export function EmptyContent({
@@ -34,7 +36,7 @@ export function EmptyContent({
   ...other
 }: EmptyContentProps) {
   return (
-    <ContentRoot filled={filled} sx={sx} {...other}>
+    <ContentRoot filled={filled} sx={sx ?? {}} {...other}>
       <Box
         component="img"
         alt="Empty content"

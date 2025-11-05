@@ -13,7 +13,7 @@ import { primaryColorPresets } from "./color-presets";
  * @returns Updated theme options with applied settings.
  */
 
-export function applySettingsToTheme(theme: ThemeOptions, settingsState?: SettingsState): ThemeOptions {
+export function applySettingsToTheme(theme: ThemeOptions, settingsState?: SettingsState | undefined): ThemeOptions {
   const { direction, fontFamily, contrast = "default", primaryColor = "default" } = settingsState ?? {};
 
   const isDefaultContrast = contrast === "default";
@@ -67,7 +67,7 @@ export function applySettingsToTheme(theme: ThemeOptions, settingsState?: Settin
     };
 
     return {
-      ...handleCurrentSchema(currentScheme),
+      ...(currentScheme ? handleCurrentSchema(currentScheme as CurrentSchemeType) : {}),
       palette: updatedPalette,
       customShadows: updatedCustomShadows,
     };
@@ -84,5 +84,5 @@ export function applySettingsToTheme(theme: ThemeOptions, settingsState?: Settin
       ...theme.typography,
       fontFamily: setFont(fontFamily),
     },
-  };
+  } as ThemeOptions;
 }

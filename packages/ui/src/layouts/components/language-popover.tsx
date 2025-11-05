@@ -14,11 +14,13 @@ import { m } from "framer-motion";
 import { useCallback } from "react";
 
 export type LanguagePopoverProps = IconButtonProps & {
-  data?: {
-    value: string;
-    label: string;
-    countryCode: string;
-  }[];
+  readonly data?:
+    | {
+        readonly value: string;
+        readonly label: string;
+        readonly countryCode: string;
+      }[]
+    | undefined;
 };
 
 export function LanguagePopover({ data = [], sx, ...other }: LanguagePopoverProps) {

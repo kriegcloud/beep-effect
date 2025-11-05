@@ -32,7 +32,9 @@ export function TablePaginationCustom({
       {onChangeDense && (
         <FormControlLabel
           label="Dense"
-          control={<Switch checked={dense} onChange={onChangeDense} slotProps={{ input: { id: "dense-switch" } }} />}
+          control={
+            <Switch checked={Boolean(dense)} onChange={onChangeDense} slotProps={{ input: { id: "dense-switch" } }} />
+          }
           sx={{
             pl: 2,
             py: 1.5,

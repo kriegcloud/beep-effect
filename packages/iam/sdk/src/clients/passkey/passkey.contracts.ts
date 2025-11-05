@@ -24,7 +24,8 @@ export declare namespace PasskeyView {
 
 export class PasskeyAddPayload extends BS.Class<PasskeyAddPayload>("PasskeyAddPayload")(
   S.Struct({
-    ...Passkey.Model.insert.pick("name", "id").fields,
+    ...Passkey.Model.insert.pick("name").fields,
+    id: IamEntityIds.PasskeyId,
     authenticatorAttachment: S.optional(S.Literal("platform", "cross-platform")),
     useAutoRegister: S.optional(S.Boolean),
   }),

@@ -23,21 +23,25 @@ import { allComponents } from "./nav-config-components";
 // ----------------------------------------------------------------------
 
 type ComponentLayoutProps = React.ComponentProps<typeof LayoutRoot> & {
-  offsetValue?: number;
-  queryClassName?: string;
-  containerProps?: ContainerProps;
-  sectionData?: {
-    name: string;
-    description?: CardHeaderProps["subheader"];
-    action?: CardHeaderProps["action"];
-    component: React.ReactNode;
-  }[];
-  heroProps?: CustomBreadcrumbsProps & {
-    overrideContent?: React.ReactNode;
-    additionalContent?: React.ReactNode;
-    topNode?: React.ReactNode;
-    bottomNode?: React.ReactNode;
-  };
+  readonly offsetValue?: number | undefined;
+  readonly queryClassName?: string | undefined;
+  readonly containerProps?: ContainerProps | undefined;
+  readonly sectionData?:
+    | {
+        readonly name: string;
+        readonly description?: CardHeaderProps["subheader"] | undefined;
+        readonly action?: CardHeaderProps["action"] | undefined;
+        readonly component: React.ReactNode;
+      }[]
+    | undefined;
+  readonly heroProps?:
+    | (CustomBreadcrumbsProps & {
+        readonly overrideContent?: React.ReactNode | undefined;
+        readonly additionalContent?: React.ReactNode | undefined;
+        readonly topNode?: React.ReactNode | undefined;
+        readonly bottomNode?: React.ReactNode | undefined;
+      })
+    | undefined;
 };
 
 const OFFSET_TOP = 120;
@@ -91,7 +95,7 @@ export function ComponentLayout({
     );
 
   const renderHero = () => (
-    <LayoutHero sx={heroProps?.sx}>
+    <LayoutHero sx={heroProps?.sx ?? {}}>
       <Container>
         {heroProps?.overrideContent ?? (
           <>

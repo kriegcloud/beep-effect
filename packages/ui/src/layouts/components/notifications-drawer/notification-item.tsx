@@ -12,14 +12,14 @@ import { useEffect, useState } from "react";
 import { notificationIcons } from "./icons";
 
 export type NotificationItemProps = {
-  notification: {
-    id: string;
-    type: string;
-    title: string;
-    category: string;
-    isUnread: boolean;
-    avatarUrl: string | null;
-    createdAt: string | number | null;
+  readonly notification: {
+    readonly id: string;
+    readonly type: string;
+    readonly title: string;
+    readonly category: string;
+    readonly isUnread: boolean;
+    readonly avatarUrl: string | null;
+    readonly createdAt: string | number | null;
   };
 };
 

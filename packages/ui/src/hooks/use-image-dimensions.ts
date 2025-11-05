@@ -1,8 +1,8 @@
 import React from "react";
 
 interface Dimensions {
-  width: number;
-  height: number;
+  readonly width: number;
+  readonly height: number;
 }
 
 export const useImageDimensions = (defaultMaxWidth: number) => {

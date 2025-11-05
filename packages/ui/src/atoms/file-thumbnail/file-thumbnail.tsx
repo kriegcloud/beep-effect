@@ -67,7 +67,7 @@ export function FileThumbnail({
   );
 
   const renderContent = () => (
-    <ThumbnailRoot className={mergeClasses([fileThumbnailClasses.root, className])} sx={sx} {...other}>
+    <ThumbnailRoot className={mergeClasses([fileThumbnailClasses.root, className])} sx={sx ?? {}} {...other}>
       {canShowImage ? renderImage() : renderIcon()}
       {renderActions()}
     </ThumbnailRoot>

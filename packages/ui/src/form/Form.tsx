@@ -4,9 +4,9 @@ import Typography from "@mui/material/Typography";
 import type * as React from "react";
 
 type FormHeadProps = BoxProps & {
-  icon?: React.ReactNode | undefined;
-  title: React.ReactNode | undefined;
-  description?: React.ReactNode | undefined;
+  readonly icon?: React.ReactNode | undefined;
+  readonly title: React.ReactNode | undefined;
+  readonly description?: React.ReactNode | undefined;
 };
 
 export const FormHead: React.FC<FormHeadProps> = ({ children, sx, icon, title, description, ...props }) => {

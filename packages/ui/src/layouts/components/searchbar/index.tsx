@@ -26,7 +26,7 @@ import { ResultItem } from "./result-item";
 import { applyFilter, flattenNavSections } from "./utils";
 
 export type SearchbarProps = BoxProps & {
-  data?: NavSectionProps["data"];
+  readonly data?: NavSectionProps["data"] | undefined;
 };
 
 const breakpoint: Breakpoint = "sm";
@@ -123,7 +123,7 @@ export function Searchbar({ data: navItems = [], sx, ...other }: SearchbarProps)
           cursor: "inherit",
           bgcolor: "common.white",
           fontSize: theme.typography.pxToRem(12),
-          boxShadow: theme.vars.customShadows.z1,
+          ...(theme.vars.customShadows.z1 ? { boxShadow: theme.vars.customShadows.z1 } : {}),
           display: { xs: "none", [breakpoint]: "inline-flex" },
         }}
       >

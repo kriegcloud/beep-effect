@@ -12,24 +12,24 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
  */
 
 type ScrollElValue = {
-  scrollWidth: number;
-  scrollHeight: number;
+  readonly scrollWidth: number;
+  readonly scrollHeight: number;
 };
 
 type DOMRectValue = {
-  top: number;
-  right: number;
-  bottom: number;
-  left: number;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+  readonly top: number;
+  readonly right: number;
+  readonly bottom: number;
+  readonly left: number;
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
 };
 
 export type UseClientRectReturn<T extends HTMLElement = HTMLElement> = DOMRectValue &
   ScrollElValue & {
-    elementRef: RefObject<T>;
+    readonly elementRef: RefObject<T>;
   };
 
 export function useClientRect<T extends HTMLElement = HTMLElement>(

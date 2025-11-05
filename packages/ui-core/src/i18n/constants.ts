@@ -336,7 +336,7 @@ export type LangOption = {
   countryCode: CountryCodeValue.Type;
   adapterLocale?: string;
   numberFormat: { code: string; currency: CurrencyCodeValue.Type };
-  systemValue?: { components: Components<Theme> };
+  systemValue: { components: Components<Theme> };
 };
 
 export const allLanguages = A.make(
@@ -347,7 +347,8 @@ export const allLanguages = A.make(
     adapterLocale: "en",
     numberFormat: { code: "en-US", currency: CurrencyCodeValue.Enum.USD },
     systemValue: {
-      components: { ...enUSDate.components, ...enUSDataGrid.components },
+      components: { ...enUSDate.components, ...enUSDataGrid.components } as typeof enUSDataGrid.components &
+        typeof enUSDataGrid.components,
     },
   },
   {
@@ -357,7 +358,8 @@ export const allLanguages = A.make(
     adapterLocale: "fr",
     numberFormat: { code: "fr-FR", currency: CurrencyCodeValue.Enum.EUR },
     systemValue: {
-      components: { ...frFRDate.components, ...frFRDataGrid.components },
+      components: { ...frFRDate.components, ...frFRDataGrid.components } as typeof frFRDate.components &
+        typeof frFRDataGrid.components,
     },
   },
   {
@@ -367,7 +369,8 @@ export const allLanguages = A.make(
     adapterLocale: "zh",
     numberFormat: { code: "zh-CN", currency: CurrencyCodeValue.Enum.CNY },
     systemValue: {
-      components: { ...zhCNDate.components, ...zhCNDataGrid.components },
+      components: { ...zhCNDate.components, ...zhCNDataGrid.components } as typeof zhCNDate.components &
+        typeof zhCNDataGrid.components,
     },
   },
   {
@@ -377,7 +380,7 @@ export const allLanguages = A.make(
     adapterLocale: "ar",
     numberFormat: { code: "ar-SD", currency: CurrencyCodeValue.Enum.SAR },
     systemValue: {
-      components: { ...arSDDataGrid.components },
+      components: arSDDataGrid.components,
     },
   }
 );

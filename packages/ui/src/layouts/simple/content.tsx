@@ -7,7 +7,7 @@ import type { Breakpoint } from "@mui/material/styles";
 
 import { layoutClasses } from "../core";
 
-export type SimpleCompactContentProps = BoxProps & { layoutQuery?: Breakpoint };
+export type SimpleCompactContentProps = BoxProps & { readonly layoutQuery?: Breakpoint | undefined };
 
 export function SimpleCompactContent({
   sx,

@@ -31,7 +31,7 @@ export namespace BunTest {
   export type Test<R> = <A, E>(
     name: string,
     self: TestFunction<A, E, R, [any]>,
-    timeout?: number | { readonly timeout?: number | undefined } | undefined
+    timeout?: number | { timeout?: number }
   ) => void;
 
   /**
@@ -51,17 +51,13 @@ export namespace BunTest {
     only: BunTest.Test<R>;
     each: <T>(
       cases: ReadonlyArray<T>
-    ) => <A, E>(
-      name: string,
-      self: TestFunction<A, E, R, Array<T>>,
-      timeout?: number | { readonly timeout?: number | undefined } | undefined
-    ) => void;
+    ) => <A, E>(name: string, self: TestFunction<A, E, R, Array<T>>, timeout?: number | { timeout?: number }) => void;
     fails: BunTest.Test<R>;
     prop: <const Arbs extends Arbitraries, A, E>(
       name: string,
       arbitraries: Arbs,
       self: TestFunction<A, E, R, [any, any]>,
-      timeout?: number | { readonly timeout?: number | undefined; readonly fastCheck?: any | undefined }
+      timeout?: number | { timeout?: number; fastCheck?: any }
     ) => void;
   }
 
@@ -72,18 +68,16 @@ export namespace BunTest {
     readonly effect: BunTest.Tester<TestServices.TestServices>;
     readonly flakyTest: <A, E, R>(
       self: Effect.Effect<A, E, R>,
-      timeout?: Duration.DurationInput | undefined
+      timeout?: Duration.DurationInput
     ) => Effect.Effect<A, never, R>;
     readonly scoped: BunTest.Tester<TestServices.TestServices | Scope.Scope>;
     readonly live: BunTest.Tester<never>;
     readonly scopedLive: BunTest.Tester<Scope.Scope>;
     readonly layer: <R, E>(
       layer: Layer.Layer<R, E>,
-      options?:
-        | {
-            readonly timeout?: Duration.DurationInput | undefined;
-          }
-        | undefined
+      options?: {
+        readonly timeout?: Duration.DurationInput;
+      }
     ) => {
       (f: (it: any) => void): void;
       (name: string, f: (it: any) => void): void;
@@ -92,7 +86,7 @@ export namespace BunTest {
       name: string,
       arbitraries: Arbs,
       self: (properties: any, ctx: any) => void,
-      timeout?: number | { readonly timeout?: number | undefined; readonly fastCheck?: any | undefined } | undefined
+      timeout?: number | { timeout?: number; fastCheck?: any }
     ) => void;
   }
 }
@@ -130,13 +124,11 @@ export const scopedLive: BunTest.Tester<Scope.Scope> = internal.scopedLive;
  */
 export const layer: <R, E>(
   layer_: Layer.Layer<R, E>,
-  options?:
-    | {
-        readonly memoMap?: Layer.MemoMap | undefined;
-        readonly timeout?: Duration.DurationInput | undefined;
-        readonly excludeTestServices?: boolean | undefined;
-      }
-    | undefined
+  options?: {
+    readonly memoMap?: Layer.MemoMap;
+    readonly timeout?: Duration.DurationInput;
+    readonly excludeTestServices?: boolean;
+  }
 ) => {
   (f: (it: any) => void): void;
   (name: string, f: (it: any) => void): void;
@@ -147,7 +139,7 @@ export const layer: <R, E>(
  */
 export const flakyTest: <A, E, R>(
   self: Effect.Effect<A, E, R>,
-  timeout?: Duration.DurationInput | undefined
+  timeout?: Duration.DurationInput
 ) => Effect.Effect<A, never, R> = internal.flakyTest;
 
 /**

@@ -58,7 +58,7 @@ export function CarouselDotButtons({
                 [carouselClasses.dots.itemSelected]: isSelected,
               })}
               onClick={() => onClickDot(index)}
-              sx={slotProps?.dot?.sx}
+              sx={slotProps?.dot?.sx ?? {}}
             >
               {variant === "number" && index + 1}
             </DotItem>

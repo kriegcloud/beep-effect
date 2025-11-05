@@ -27,7 +27,7 @@ export function NavItem({
     externalLink,
   });
 
-  const ownerState: StyledState = { open, active };
+  const ownerState: StyledState = { open: Boolean(open), active: Boolean(active) };
 
   return (
     <ItemRoot

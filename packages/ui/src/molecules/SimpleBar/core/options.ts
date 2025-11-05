@@ -17,7 +17,20 @@ interface Options {
   autoHide: boolean;
 }
 
-export interface SimpleBarOptions extends Partial<Options> {}
+interface PartialOptions {
+  forceVisible?: boolean | Axis | undefined;
+  clickOnTrack?: boolean | undefined;
+  scrollbarMinSize?: number | undefined;
+  scrollbarMaxSize?: number | undefined;
+  classNames?: Partial<ClassNames> | undefined;
+  ariaLabel?: string | undefined;
+  tabIndex?: number | undefined;
+  scrollableNode?: HTMLElement | null | undefined;
+  contentNode?: HTMLElement | null | undefined;
+  autoHide?: boolean | undefined;
+}
+
+export interface SimpleBarOptions extends PartialOptions {}
 
 type ClassNames = {
   contentEl: string;
@@ -121,6 +134,7 @@ export class SimpleBarCore {
     scrollbarMaxSize: 0,
     ariaLabel: "scrollable content",
     tabIndex: 0,
+
     classNames: {
       contentEl: "simplebar-content",
       contentWrapper: "simplebar-content-wrapper",
@@ -146,9 +160,9 @@ export class SimpleBarCore {
     autoHide: true,
   };
 
-  constructor(element: HTMLElement, options: Partial<Options> = {}) {
+  constructor(element: HTMLElement, options: PartialOptions = {}) {
     this.el = element;
-    this.options = { ...SimpleBarCore.defaultOptions, ...options };
+    this.options = { ...SimpleBarCore.defaultOptions, ...options } as Options;
     this.classNames = {
       ...SimpleBarCore.defaultOptions.classNames,
       ...options.classNames,

@@ -2,7 +2,6 @@ import { invariant } from "@beep/invariant";
 import type { DefaultAnnotations } from "@beep/schema/annotations";
 import { SnakeTag, UUIDLiteralEncoded } from "@beep/schema/custom";
 import { variance } from "@beep/schema/variance";
-import * as M from "@effect/sql/Model";
 import type { $Type, HasDefault, HasRuntimeDefault, IsPrimaryKey, NotNull } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import type * as B from "effect/Brand";
@@ -82,7 +81,7 @@ export type EntityIdSchemaInstance<TableName extends string, Brand extends strin
       default: () => Type<TableName>;
     }
   >;
-  readonly modelRowIdSchema: M.Generated<S.brand<S.refine<number, typeof S.NonNegative>, Brand>>;
+  readonly modelRowIdSchema: S.brand<S.refine<number, typeof S.NonNegative>, Brand>;
   readonly make: (input: string) => Type<TableName>;
 };
 
@@ -104,7 +103,7 @@ export const make = <const TableName extends string, const Brand extends string>
   const factory = new Factory<TableName, Brand>(tableName, brand);
 
   const privateSchema = S.NonNegativeInt.pipe(S.brand(brand));
-  const modelRowIdSchema = M.Generated(privateSchema);
+  const modelRowIdSchema = privateSchema;
 
   const schema = factory.Schema({
     ...annotations,

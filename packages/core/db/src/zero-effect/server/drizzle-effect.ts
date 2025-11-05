@@ -61,7 +61,7 @@
  */
 import type { UnsafeTypes } from "@beep/types";
 import * as SqlClient from "@effect/sql/SqlClient";
-import type { Primitive } from "@effect/sql/Statement";
+import type { PrimitiveKind } from "@effect/sql/Statement";
 import * as Pg from "@effect/sql-drizzle/Pg";
 import type { CustomMutatorDefs, ReadonlyJSONObject, Schema } from "@rocicorp/zero";
 import type { DBConnection, DBTransaction, Row } from "@rocicorp/zero/pg";
@@ -143,7 +143,7 @@ export class EffectDrizzleConnection<R = never> implements DBConnection<PgRemote
    * @returns Promise resolving to iterable query results
    */
   async query(sql: string, params: Array<unknown>): Promise<Iterable<Row>> {
-    const queryEffect = this.#sqlClient.unsafe(sql, params as Array<Primitive>);
+    const queryEffect = this.#sqlClient.unsafe(sql, params as Array<PrimitiveKind>);
     return Runtime.runPromise(this.#runtime)(queryEffect) as Promise<Iterable<Row>>;
   }
 
@@ -251,7 +251,7 @@ class EffectDrizzleTransaction<R = never> implements DBTransaction<PgRemoteDatab
    * @returns Promise resolving to iterable query results
    */
   async query(sql: string, params: Array<unknown>): Promise<Iterable<Row>> {
-    const queryEffect = this.#sqlClient.unsafe(sql, params as Array<Primitive>);
+    const queryEffect = this.#sqlClient.unsafe(sql, params as Array<PrimitiveKind>);
     return Runtime.runPromise(this.#runtime)(queryEffect) as Promise<Iterable<Row>>;
   }
 }

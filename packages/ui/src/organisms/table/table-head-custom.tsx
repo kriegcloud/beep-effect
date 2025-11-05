@@ -48,7 +48,7 @@ export function TableHeadCustom({
   onSelectAllRows,
 }: TableHeadCustomProps) {
   return (
-    <TableHead sx={sx}>
+    <TableHead sx={sx ?? {}}>
       <TableRow>
         {onSelectAllRows && (
           <TableCell padding="checkbox">
@@ -70,20 +70,23 @@ export function TableHeadCustom({
           <TableCell
             key={headCell.id}
             align={headCell.align || "left"}
-            sortDirection={orderBy === headCell.id ? order : false}
-            sx={[{ width: headCell.width }, ...(Array.isArray(headCell.sx) ? headCell.sx : [headCell.sx])]}
+            sortDirection={orderBy === headCell.id && order ? order : "asc"}
+            sx={[
+              { width: headCell.width ?? "auto" },
+              ...(Array.isArray(headCell.sx) ? headCell.sx : [headCell.sx ?? {}]),
+            ]}
           >
             {onSort ? (
               <TableSortLabel
                 hideSortIcon
                 active={orderBy === headCell.id}
-                direction={orderBy === headCell.id ? order : "asc"}
+                direction={orderBy === headCell.id && order ? order : "asc"}
                 onClick={() => onSort(headCell.id)}
               >
                 {headCell.label}
 
                 {orderBy === headCell.id ? (
-                  <Box component="span" sx={visuallyHidden}>
+                  <Box component="span" sx={(visuallyHidden as SxProps<Theme>) ?? {}}>
                     {order === "desc" ? "sorted descending" : "sorted ascending"}
                   </Box>
                 ) : null}

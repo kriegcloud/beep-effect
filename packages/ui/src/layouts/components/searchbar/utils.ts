@@ -1,15 +1,15 @@
 import type { NavSectionProps } from "@beep/ui/routing";
 
 export type NavItem = {
-  title: string;
-  path: string;
-  children?: NavItem[];
+  readonly title: string;
+  readonly path: string;
+  readonly children?: NavItem[] | undefined;
 };
 
 export type OutputItem = {
-  title: string;
-  path: string;
-  group: string;
+  readonly title: string;
+  readonly path: string;
+  readonly group: string;
 };
 
 const flattenNavItems = (navItems: NavItem[], parentGroup?: string): OutputItem[] => {

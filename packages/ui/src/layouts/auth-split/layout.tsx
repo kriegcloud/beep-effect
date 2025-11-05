@@ -22,13 +22,15 @@ import { AuthSplitSection } from "./section";
 type LayoutBaseProps = Pick<LayoutSectionProps, "sx" | "children" | "cssVars">;
 
 export type AuthSplitLayoutProps = LayoutBaseProps & {
-  layoutQuery?: Breakpoint;
-  slotProps?: {
-    header?: HeaderSectionProps;
-    main?: MainSectionProps;
-    section?: AuthSplitSectionProps;
-    content?: AuthSplitContentProps;
-  };
+  readonly layoutQuery?: Breakpoint | undefined;
+  readonly slotProps?:
+    | {
+        readonly header?: HeaderSectionProps | undefined;
+        readonly main?: MainSectionProps | undefined;
+        readonly section?: AuthSplitSectionProps | undefined;
+        readonly content?: AuthSplitContentProps | undefined;
+      }
+    | undefined;
 };
 
 export function AuthSplitLayout({ sx, cssVars, children, slotProps, layoutQuery = "md" }: AuthSplitLayoutProps) {
@@ -68,13 +70,22 @@ export function AuthSplitLayout({ sx, cssVars, children, slotProps, layoutQuery 
       ),
     };
 
+    const { container, centerArea, ...headerSectionSlotProps } = ObjectUtils.deepMerge(
+      headerSlotProps,
+      slotProps?.header?.slotProps ?? {}
+    );
+    const headerSectionSlotPropsContainer = container ? { container } : {};
     return (
       <HeaderSection
         disableElevation
         layoutQuery={layoutQuery}
         {...slotProps?.header}
         slots={{ ...headerSlots, ...slotProps?.header?.slots }}
-        slotProps={ObjectUtils.deepMerge(headerSlotProps, slotProps?.header?.slotProps ?? {})}
+        slotProps={{
+          ...headerSectionSlotProps,
+          ...headerSectionSlotPropsContainer,
+          ...(centerArea ? { centerArea } : {}),
+        }}
         sx={[
           { position: { [layoutQuery]: "fixed" } },
           ...(Array.isArray(slotProps?.header?.sx) ? slotProps.header.sx : [slotProps?.header?.sx]),
@@ -127,7 +138,7 @@ export function AuthSplitLayout({ sx, cssVars, children, slotProps, layoutQuery 
        * @Styles
        *************************************** */
       cssVars={{ "--layout-auth-content-width": "420px", ...cssVars }}
-      sx={sx}
+      sx={sx ?? {}}
     >
       {renderMain()}
     </LayoutSection>

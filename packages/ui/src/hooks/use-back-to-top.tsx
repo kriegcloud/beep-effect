@@ -28,9 +28,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
  */
 
 export type UseBackToTopReturn = {
-  isVisible: boolean;
-  onBackToTop: () => void;
-  setIsVisible: Dispatch<SetStateAction<boolean>>;
+  readonly isVisible: boolean;
+  readonly onBackToTop: () => void;
+  readonly setIsVisible: Dispatch<SetStateAction<boolean>>;
 };
 
 export function useBackToTop(defaultValue: string | number, isDebounce?: boolean | undefined): UseBackToTopReturn {

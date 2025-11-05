@@ -42,7 +42,7 @@ export function NavItem({
   const ownerState: StyledState = {
     open,
     active,
-    disabled,
+    disabled: Boolean(disabled),
     variant: navItem.rootItem ? "rootItem" : "subItem",
   };
 
@@ -56,17 +56,17 @@ export function NavItem({
         [navSectionClasses.state.active]: active,
         [navSectionClasses.state.disabled]: disabled,
       })}
-      sx={slotProps?.sx}
+      sx={slotProps?.sx ?? {}}
       {...other}
     >
       {icon && (
-        <ItemIcon {...ownerState} className={navSectionClasses.item.icon} sx={slotProps?.icon}>
+        <ItemIcon {...ownerState} className={navSectionClasses.item.icon} sx={slotProps?.icon ?? {}}>
           {navItem.renderIcon}
         </ItemIcon>
       )}
 
       {title && (
-        <ItemTitle {...ownerState} className={navSectionClasses.item.title} sx={slotProps?.title}>
+        <ItemTitle {...ownerState} className={navSectionClasses.item.title} sx={slotProps?.title ?? {}}>
           {title}
         </ItemTitle>
       )}
@@ -77,13 +77,13 @@ export function NavItem({
             {...ownerState}
             icon="eva:info-outline"
             className={navSectionClasses.item.caption}
-            sx={slotProps?.caption}
+            sx={slotProps?.caption ?? {}}
           />
         </Tooltip>
       )}
 
       {info && (
-        <ItemInfo {...ownerState} className={navSectionClasses.item.info} sx={slotProps?.info}>
+        <ItemInfo {...ownerState} className={navSectionClasses.item.info} sx={slotProps?.info ?? {}}>
           {navItem.renderInfo}
         </ItemInfo>
       )}
@@ -93,7 +93,7 @@ export function NavItem({
           {...ownerState}
           icon={navItem.subItem ? "eva:arrow-ios-forward-fill" : "eva:arrow-ios-downward-fill"}
           className={navSectionClasses.item.arrow}
-          sx={slotProps?.arrow}
+          sx={slotProps?.arrow ?? {}}
         />
       )}
     </ItemRoot>

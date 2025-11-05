@@ -77,7 +77,7 @@ export function CustomBreadcrumbs({
   const renderMoreLinks = () => <MoreLinks links={moreLinks} {...slotProps?.moreLinks} />;
 
   return (
-    <BreadcrumbsRoot sx={sx} {...other}>
+    <BreadcrumbsRoot sx={sx ?? {}} {...other}>
       <BreadcrumbsContainer {...slotProps?.container}>
         <BreadcrumbsContent {...slotProps?.content}>
           {(heading || backHref) && renderHeading()}

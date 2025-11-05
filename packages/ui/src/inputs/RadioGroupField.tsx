@@ -64,7 +64,7 @@ function RadioGroupField({ sx, label, options, helperText, slotProps, ...other }
         onChange={(e) => field.handleChange(e.target.value)}
         onBlur={field.handleBlur}
         aria-labelledby={labelledby}
-        sx={sx}
+        sx={sx ?? {}}
         {...other}
       >
         {options.map((option) => (

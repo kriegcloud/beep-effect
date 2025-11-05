@@ -33,12 +33,12 @@ import { useCallback, useRef, useState } from "react";
  */
 
 type UsePopoverHoverReturn<T extends HTMLElement = HTMLElement> = {
-  open: boolean;
-  anchorEl: T | null;
-  onOpen: () => void;
-  onClose: () => void;
-  elementRef: RefObject<T>;
-  setOpen: Dispatch<SetStateAction<boolean>>;
+  readonly open: boolean;
+  readonly anchorEl: T | null;
+  readonly onOpen: () => void;
+  readonly onClose: () => void;
+  readonly elementRef: RefObject<T>;
+  readonly setOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 export function usePopoverHover<T extends HTMLElement = HTMLElement>(

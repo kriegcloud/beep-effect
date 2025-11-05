@@ -5,25 +5,27 @@ import type { SxProps, Theme } from "@mui/material/styles";
  * Item
  */
 export type NavItemStateProps = {
-  open?: boolean;
-  active?: boolean;
+  readonly open?: boolean | undefined;
+  readonly active?: boolean | undefined;
 };
 
 export type NavItemOptionsProps = {
-  subItem?: boolean;
-  hasChild?: boolean;
-  externalLink?: boolean;
+  readonly subItem?: boolean | undefined;
+  readonly hasChild?: boolean | undefined;
+  readonly externalLink?: boolean | undefined;
 };
 
 export type NavItemDataProps = {
-  path: string;
-  title: string;
-  icon?: string | React.ReactNode;
-  deepMatch?: boolean;
-  children?: {
-    subheader: string;
-    items: { title: string; path: string }[];
-  }[];
+  readonly path: string;
+  readonly title: string;
+  readonly icon?: string | React.ReactNode | undefined;
+  readonly deepMatch?: boolean | undefined;
+  readonly children?:
+    | {
+        readonly subheader: string;
+        readonly items: { readonly title: string; readonly path: string }[];
+      }[]
+    | undefined;
 };
 
 export type NavItemProps = ButtonBaseProps & NavItemDataProps & NavItemStateProps & NavItemOptionsProps;
@@ -32,20 +34,20 @@ export type NavItemProps = ButtonBaseProps & NavItemDataProps & NavItemStateProp
  * List
  */
 export type NavListProps = React.ComponentProps<"li"> & {
-  sx?: SxProps<Theme>;
-  data: NavItemDataProps;
+  readonly sx?: SxProps<Theme>;
+  readonly data: NavItemDataProps;
 };
 
 export type NavSubListProps = React.ComponentProps<"li"> & {
-  sx?: SxProps<Theme>;
-  subheader: string;
-  data: NavItemDataProps[];
+  readonly sx?: SxProps<Theme>;
+  readonly subheader: string;
+  readonly data: NavItemDataProps[];
 };
 
 /**
  * Main
  */
 export type NavMainProps = {
-  sx?: SxProps<Theme>;
-  data: NavItemDataProps[];
+  readonly sx?: SxProps<Theme>;
+  readonly data: NavItemDataProps[];
 };

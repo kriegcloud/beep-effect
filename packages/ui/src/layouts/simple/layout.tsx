@@ -14,11 +14,11 @@ import { SimpleCompactContent } from "./content";
 type LayoutBaseProps = Pick<LayoutSectionProps, "sx" | "children" | "cssVars">;
 
 export type SimpleLayoutProps = LayoutBaseProps & {
-  layoutQuery?: Breakpoint;
-  slotProps?: {
-    header?: HeaderSectionProps;
-    main?: MainSectionProps;
-    content?: SimpleCompactContentProps & { compact?: boolean };
+  readonly layoutQuery?: Breakpoint | undefined;
+  readonly slotProps?: {
+    readonly header?: HeaderSectionProps | undefined;
+    readonly main?: MainSectionProps | undefined;
+    readonly content?: (SimpleCompactContentProps & { readonly compact?: boolean | undefined }) | undefined;
   };
 };
 
@@ -55,7 +55,7 @@ export function SimpleLayout({ sx, cssVars, children, slotProps, layoutQuery = "
         {...slotProps?.header}
         slots={{ ...headerSlots, ...slotProps?.header?.slots }}
         slotProps={RecordUtils.merge(headerSlotProps, slotProps?.header?.slotProps ?? {})}
-        sx={slotProps?.header?.sx}
+        sx={slotProps?.header?.sx ?? {}}
       />
     );
   };

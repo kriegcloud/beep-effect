@@ -11,10 +11,10 @@ import type { ChartProps } from "./types";
 const LazyChart = lazy(() => import("react-apexcharts"));
 
 export function Chart({ sx, type, series, slotProps, className, options = {}, ...other }: ChartProps) {
-  const renderFallback = () => <ChartLoading type={type} sx={slotProps?.loading} />;
+  const renderFallback = () => <ChartLoading type={type ?? "line"} sx={slotProps?.loading ?? {}} />;
 
   return (
-    <ChartRoot dir="ltr" className={mergeClasses([chartClasses.root, className])} sx={sx} {...other}>
+    <ChartRoot dir="ltr" className={mergeClasses([chartClasses.root, className])} sx={sx ?? {}} {...other}>
       <NoSsr fallback={renderFallback()}>
         <Suspense fallback={renderFallback()}>
           <LazyChart type={type} series={series} options={options} width="100%" height="100%" />

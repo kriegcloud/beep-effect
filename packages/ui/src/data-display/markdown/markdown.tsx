@@ -34,7 +34,7 @@ export function Markdown({ sx, children, className, components, rehypePlugins, .
   const allRehypePlugins = useMemo(() => [...defaultRehypePlugins, ...(rehypePlugins ?? [])], [rehypePlugins]);
 
   return (
-    <MarkdownRoot className={mergeClasses([markdownClasses.root, className])} sx={sx}>
+    <MarkdownRoot className={mergeClasses([markdownClasses.root, className])} sx={sx ?? {}}>
       <ReactMarkdown
         components={{ ...defaultComponents, ...components }}
         rehypePlugins={allRehypePlugins}
@@ -65,14 +65,19 @@ const defaultRehypePlugins: NonNullable<Options["rehypePlugins"]> = [
  * (e.g., node: _n) to prevent rendering it as [object Object] in the DOM.
  *************************************** */
 const defaultComponents: NonNullable<Options["components"]> = {
-  img: (props) => <MarkdownImage {...props} />,
+  img: (props) => <MarkdownImage {...(props as Options)} />,
   a: ({ href = "", children, node: _n, ...other }) => {
     const linkProps = isExternalLink(href)
       ? { target: "_blank", rel: "noopener noreferrer" }
       : { component: RouterLink };
 
     return (
-      <Link {...linkProps} href={href} className={markdownClasses.content.link} {...other}>
+      <Link
+        {...(linkProps as React.ComponentProps<typeof Link>)}
+        href={href}
+        className={markdownClasses.content.link}
+        {...(other as React.ComponentProps<typeof Link>)}
+      >
         {children}
       </Link>
     );

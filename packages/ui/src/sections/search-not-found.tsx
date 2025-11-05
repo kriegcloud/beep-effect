@@ -7,12 +7,14 @@ import type { TypographyProps } from "@mui/material/Typography";
 import Typography from "@mui/material/Typography";
 
 type SearchNotFoundProps = BoxProps & {
-  query?: string;
-  sx?: SxProps<Theme>;
-  slotProps?: {
-    title?: TypographyProps;
-    description?: TypographyProps;
-  };
+  readonly query?: string | undefined;
+  readonly sx?: SxProps<Theme> | undefined;
+  readonly slotProps?:
+    | {
+        readonly title?: TypographyProps | undefined;
+        readonly description?: TypographyProps | undefined;
+      }
+    | undefined;
 };
 
 export function SearchNotFound({ query, sx, slotProps, ...other }: SearchNotFoundProps) {

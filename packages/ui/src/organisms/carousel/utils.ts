@@ -1,4 +1,7 @@
 import type { Breakpoint } from "@mui/material/styles";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as Struct from "effect/Struct";
 import type { CarouselOptions } from "./types";
 
 type ObjectValue = {
@@ -9,11 +12,14 @@ type InputValue = CarouselOptions["slidesToShow"];
 
 export function getSlideSize(slidesToShow: InputValue): InputValue {
   if (slidesToShow && typeof slidesToShow === "object") {
-    return Object.keys(slidesToShow).reduce<ObjectValue>((acc, key) => {
-      const sizeByKey = slidesToShow[key as Breakpoint];
-      acc[key] = getValue(sizeByKey);
-      return acc;
-    }, {});
+    return F.pipe(
+      Struct.keys(slidesToShow),
+      A.reduce({} as ObjectValue, (acc, key) => {
+        const sizeByKey = slidesToShow[key as Breakpoint];
+        acc[key] = getValue(sizeByKey);
+        return acc;
+      })
+    );
   }
 
   return getValue(slidesToShow);

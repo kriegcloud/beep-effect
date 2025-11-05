@@ -13,7 +13,7 @@ import dayjs from "dayjs";
 import { useTranslate } from "./use-locales";
 
 type Props = {
-  children: React.ReactNode;
+  readonly children: React.ReactNode;
 };
 
 export function LocalizationProvider({ children }: Props) {

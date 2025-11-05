@@ -6,7 +6,7 @@ import type { EditorToolbarItemProps } from "../types";
 
 export function ToolbarItem({ sx, icon, label, active, disabled, ...other }: EditorToolbarItemProps) {
   return (
-    <ItemRoot active={active} disabled={disabled} sx={sx} {...other}>
+    <ItemRoot active={active} disabled={Boolean(disabled)} sx={sx ?? {}} {...other}>
       {icon && <SvgIcon sx={{ fontSize: 18 }}>{icon}</SvgIcon>}
       {label && label}
     </ItemRoot>

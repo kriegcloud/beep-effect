@@ -17,12 +17,14 @@ import Typography from "@mui/material/Typography";
 import { useCallback, useState } from "react";
 
 export type WorkspacesPopoverProps = ButtonBaseProps & {
-  data?: {
-    id: string;
-    name: string;
-    logo: string;
-    plan: string;
-  }[];
+  readonly data?:
+    | {
+        readonly id: string;
+        readonly name: string;
+        readonly logo: string;
+        readonly plan: string;
+      }[]
+    | undefined;
 };
 
 export function WorkspacesPopover({ data = [], sx, ...other }: WorkspacesPopoverProps) {

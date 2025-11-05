@@ -1,4 +1,5 @@
 import acceptLanguage from "accept-language";
+import * as A from "effect/Array";
 import type { i18n } from "i18next";
 import { createInstance } from "i18next";
 import { cookies, headers } from "next/headers";
@@ -63,7 +64,11 @@ export const getServerTranslations = cache(async (namespace = defaultNS, options
   const i18nextInstance = await initServerI18next(lang, namespace);
 
   return {
-    t: i18nextInstance.getFixedT(lang, Array.isArray(namespace) ? namespace[0] : namespace, options?.keyPrefix),
+    t: i18nextInstance.getFixedT(
+      lang,
+      Array.isArray(namespace) && A.isNonEmptyArray(namespace) ? namespace[0] : namespace,
+      options?.keyPrefix ? options.keyPrefix : undefined
+    ),
     i18n: i18nextInstance,
   };
 });

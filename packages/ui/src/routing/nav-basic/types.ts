@@ -1,55 +1,57 @@
 import type { ButtonBaseProps } from "@mui/material/ButtonBase";
-import type { CSSObject, SxProps, Theme } from "@mui/material/styles";
+import type { SxProps, Theme } from "@mui/material/styles";
 
 /**
  * Item
  */
 export type NavItemRenderProps = {
-  navIcon?: Record<string, React.ReactNode>;
-  navInfo?: (val: string) => Record<string, React.ReactElement>;
+  readonly navIcon?: Record<string, React.ReactNode> | undefined;
+  readonly navInfo?: ((val: string) => Record<string, React.ReactElement>) | undefined;
 };
 
 export type NavItemStateProps = {
-  open?: boolean;
-  active?: boolean;
-  disabled?: boolean;
+  readonly open?: boolean | undefined;
+  readonly active?: boolean | undefined;
+  readonly disabled?: boolean | undefined;
 };
 
 export type NavItemSlotProps = {
-  sx?: SxProps<Theme>;
-  icon?: SxProps<Theme>;
-  texts?: SxProps<Theme>;
-  title?: SxProps<Theme>;
-  caption?: SxProps<Theme>;
-  info?: SxProps<Theme>;
-  arrow?: SxProps<Theme>;
+  readonly sx?: SxProps<Theme> | undefined;
+  readonly icon?: SxProps<Theme> | undefined;
+  readonly texts?: SxProps<Theme> | undefined;
+  readonly title?: SxProps<Theme> | undefined;
+  readonly caption?: SxProps<Theme> | undefined;
+  readonly info?: SxProps<Theme> | undefined;
+  readonly arrow?: SxProps<Theme> | undefined;
 };
 
 export type NavSlotProps = {
-  rootItem?: NavItemSlotProps;
-  subItem?: NavItemSlotProps;
-  dropdown?: {
-    paper?: SxProps<Theme>;
-  };
+  readonly rootItem?: NavItemSlotProps | undefined;
+  readonly subItem?: NavItemSlotProps | undefined;
+  readonly dropdown?:
+    | {
+        readonly paper?: SxProps<Theme> | undefined;
+      }
+    | undefined;
 };
 
 export type NavItemOptionsProps = {
-  depth?: number;
-  hasChild?: boolean;
-  externalLink?: boolean;
-  enabledRootRedirect?: boolean;
-  render?: NavItemRenderProps;
-  slotProps?: NavItemSlotProps;
+  readonly depth?: number | undefined;
+  readonly hasChild?: boolean | undefined;
+  readonly externalLink?: boolean | undefined;
+  readonly enabledRootRedirect?: boolean | undefined;
+  readonly render?: NavItemRenderProps | undefined;
+  readonly slotProps?: NavItemSlotProps | undefined;
 };
 
 export type NavItemDataProps = Pick<NavItemStateProps, "disabled"> & {
-  path: string;
-  title: string;
-  caption?: string;
-  children?: NavItemDataProps[];
-  icon?: string | React.ReactNode;
-  info?: string[] | React.ReactNode;
-  deepMatch?: boolean;
+  readonly path: string;
+  readonly title: string;
+  readonly caption?: string | undefined;
+  readonly children?: NavItemDataProps[] | undefined;
+  readonly icon?: string | React.ReactNode | undefined;
+  readonly info?: string[] | React.ReactNode | undefined;
+  readonly deepMatch?: boolean | undefined;
 };
 
 export type NavItemProps = ButtonBaseProps & NavItemDataProps & NavItemStateProps & NavItemOptionsProps;
@@ -58,13 +60,13 @@ export type NavItemProps = ButtonBaseProps & NavItemDataProps & NavItemStateProp
  * List
  */
 export type NavListProps = Pick<NavItemProps, "render" | "depth" | "enabledRootRedirect"> & {
-  cssVars?: CSSObject;
-  data: NavItemDataProps;
-  slotProps?: NavSlotProps;
+  readonly cssVars?: SxProps<Theme> | undefined;
+  readonly data: NavItemDataProps;
+  readonly slotProps?: NavSlotProps | undefined;
 };
 
 export type NavSubListProps = Omit<NavListProps, "data"> & {
-  data: NavItemDataProps[];
+  readonly data: NavItemDataProps[];
 };
 
 /**
@@ -72,6 +74,6 @@ export type NavSubListProps = Omit<NavListProps, "data"> & {
  */
 export type NavBasicProps = React.ComponentProps<"nav"> &
   Omit<NavListProps, "data" | "depth"> & {
-    sx?: SxProps<Theme>;
-    data: NavItemDataProps[];
+    readonly sx?: SxProps<Theme> | undefined;
+    readonly data: NavItemDataProps[];
   };

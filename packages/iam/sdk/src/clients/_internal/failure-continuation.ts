@@ -5,8 +5,8 @@ import * as Effect from "effect/Effect";
 export interface FailureContinuationContext {
   readonly contract: string;
   readonly metadata: () => Readonly<{
-    readonly plugin?: string | undefined;
-    readonly method?: string | undefined;
+    plugin?: string | undefined;
+    method?: string | undefined;
   }>;
 }
 

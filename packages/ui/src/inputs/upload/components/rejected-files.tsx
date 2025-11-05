@@ -7,12 +7,12 @@ import type { FileRejection } from "react-dropzone";
 import { uploadClasses } from "../classes";
 
 export type RejectedFilesProps = React.ComponentProps<typeof RejectedList> & {
-  files?: readonly FileRejection[];
+  readonly files?: readonly FileRejection[] | undefined;
 };
 
 export function RejectedFiles({ files = [], sx, className, ...other }: RejectedFilesProps) {
   return (
-    <RejectedList className={mergeClasses([uploadClasses.rejected, className])} sx={sx} {...other}>
+    <RejectedList className={mergeClasses([uploadClasses.rejected, className])} sx={sx ?? {}} {...other}>
       {files.map(({ file, errors }) => {
         const fileMeta = getFileMeta(file);
 

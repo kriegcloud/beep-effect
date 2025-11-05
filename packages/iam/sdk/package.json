@@ -58,6 +58,7 @@
     "@beep/core-env": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/iam-domain": "workspace:^",
+    "@beep/iam-infra": "workspace:^",
     "@beep/contract": "workspace:^",
     "@better-fetch/fetch": "catalog:"
   },

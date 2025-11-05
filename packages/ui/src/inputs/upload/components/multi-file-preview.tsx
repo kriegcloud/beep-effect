@@ -12,11 +12,11 @@ export type PreviewOrientation = "horizontal" | "vertical";
 
 export type MultiFilePreviewProps = React.ComponentProps<typeof PreviewList> &
   Pick<UploadProps, "onRemove"> & {
-    files: FilesUploadType;
-    startNode?: React.ReactNode;
-    endNode?: React.ReactNode;
-    orientation?: PreviewOrientation;
-    thumbnail?: Omit<FileThumbnailProps, "file">;
+    readonly files: FilesUploadType;
+    readonly startNode?: React.ReactNode | undefined;
+    readonly endNode?: React.ReactNode | undefined;
+    readonly orientation?: PreviewOrientation | undefined;
+    readonly thumbnail?: Omit<FileThumbnailProps, "file"> | undefined;
   };
 
 export function MultiFilePreview({
@@ -92,7 +92,7 @@ export function MultiFilePreview({
     <PreviewList
       orientation={orientation}
       className={mergeClasses([uploadClasses.preview.multi, className])}
-      sx={sx}
+      sx={sx ?? {}}
       {...other}
     >
       {startNode && <SlotNode orientation={orientation}>{startNode}</SlotNode>}

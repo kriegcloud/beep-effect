@@ -127,7 +127,7 @@ export function NotificationsDrawer({ data = [], sx, ...other }: NotificationsDr
         transition={transitionTap()}
         aria-label="Notifications button"
         onClick={onOpen}
-        sx={sx}
+        sx={sx ?? {}}
         {...other}
       >
         <Badge badgeContent={totalUnRead} color="error">

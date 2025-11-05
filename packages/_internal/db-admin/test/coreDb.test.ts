@@ -5,7 +5,6 @@ import * as IamRepos from "@beep/iam-infra/adapters/repositories";
 import * as BS from "@beep/schema/schema";
 import { assertTrue, layer } from "@beep/testkit";
 import { faker } from "@faker-js/faker";
-import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import { PgContainer, pgContainerPreflight } from "./pg-container";
@@ -21,14 +20,11 @@ if (preflight.type === "skip") {
       Effect.gen(function* () {
         const userRepo = yield* IamRepos.UserRepo;
 
-        const now = yield* DateTime.now;
         const mockedUser = Entities.User.Model.insert.make({
           email: BS.Email.make(`test1-${crypto.randomUUID()}@example.com`),
           name: "beep",
           gender: "male",
           emailVerified: false,
-          createdAt: now,
-          updatedAt: now,
           image: O.some(faker.image.avatar()),
         });
 

@@ -12,7 +12,7 @@ export function CarouselThumb({ sx, src, index, selected, className, ...other }:
     <ThumbRoot
       selected={selected}
       className={mergeClasses([carouselClasses.thumbs.item, className])}
-      sx={sx}
+      sx={sx ?? {}}
       {...other}
     >
       <img alt={`carousel-thumb-${index}`} src={src} className={carouselClasses.thumbs.image} />

@@ -1,5 +1,9 @@
 import type { Theme } from "@mui/material";
 import type { Components } from "@mui/material/styles";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as P from "effect/Predicate";
+import * as Struct from "effect/Struct";
 import Link from "next/link";
 import type { MouseEvent } from "react";
 
@@ -14,11 +18,52 @@ export const LinkBehavior = ({ ref, href, onClick, ...props }: LinkBehaviorProps
     onClick?.(event);
   };
 
-  return <Link ref={ref} {...props} href={href || "/"} onClick={handleClick} passHref />;
+  return (
+    <Link
+      {...(ref ? { ref: ref } : {})}
+      {...F.pipe(
+        props,
+        Struct.entries,
+        A.filter(([_k, v]) => P.isNullable(v)),
+        A.reduce(
+          {} as {
+            [K in keyof typeof props]: Exclude<(typeof props)[K], undefined | null>;
+          },
+          (acc, [k, v]) => ({
+            ...acc,
+            [k]: v,
+          })
+        )
+      )}
+      href={href || "/"}
+      onClick={handleClick}
+      passHref
+    />
+  );
 };
 
 export const HashLinkBehavior = ({ ref, href, ...props }: LinkBehaviorProps) => {
-  return <Link ref={ref} {...props} href={href} passHref />;
+  return (
+    <Link
+      {...(ref ? { ref: ref } : {})}
+      {...F.pipe(
+        props,
+        Struct.entries,
+        A.filter(([_k, v]) => P.isNullable(v)),
+        A.reduce(
+          {} as {
+            [K in keyof typeof props]: Exclude<(typeof props)[K], undefined | null>;
+          },
+          (acc, [k, v]) => ({
+            ...acc,
+            [k]: v,
+          })
+        )
+      )}
+      href={href}
+      passHref
+    />
+  );
 };
 
 const MuiLink: Components<Omit<Theme, "components">>["MuiLink"] = {

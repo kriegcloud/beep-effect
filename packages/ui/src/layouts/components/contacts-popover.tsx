@@ -23,17 +23,19 @@ import { useEffect, useState } from "react";
 // ----------------------------------------------------------------------
 
 export type ContactsPopoverProps = IconButtonProps & {
-  data?: {
-    id: string;
-    role: string;
-    name: string;
-    email: string;
-    status: string;
-    address: string;
-    avatarUrl: string;
-    phoneNumber: string;
-    lastActivity: string;
-  }[];
+  readonly data?:
+    | {
+        readonly id: string;
+        readonly role: string;
+        readonly name: string;
+        readonly email: string;
+        readonly status: string;
+        readonly address: string;
+        readonly avatarUrl: string;
+        readonly phoneNumber: string;
+        readonly lastActivity: string;
+      }[]
+    | undefined;
 };
 
 type Contact = NonNullable<ContactsPopoverProps["data"]>[number];
@@ -85,7 +87,7 @@ export function ContactsPopover({ data = [], sx, ...other }: ContactsPopoverProp
             contactsWithRelativeLastActivity,
             A.map((contact) => (
               <MenuItem key={contact.id} sx={{ p: 1 }}>
-                <Badge variant={contact.status as BadgeProps["variant"]} badgeContent=" ">
+                <Badge variant={contact.status as Exclude<BadgeProps["variant"], undefined>} badgeContent=" ">
                   <Avatar alt={contact.name} src={contact.avatarUrl} />
                 </Badge>
 

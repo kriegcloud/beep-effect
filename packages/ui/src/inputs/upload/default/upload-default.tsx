@@ -34,7 +34,7 @@ export function Upload({
 }: UploadProps) {
   const { getRootProps, getInputProps, isDragActive, isDragReject, fileRejections } = useDropzone({
     multiple,
-    disabled,
+    disabled: Boolean(disabled),
     ...dropzoneOptions,
   });
 
@@ -110,7 +110,7 @@ export function Upload({
           [uploadClasses.state.disabled]: disabled,
           [uploadClasses.state.error]: hasError,
         })}
-        sx={sx}
+        sx={sx ?? {}}
       >
         <input {...getInputProps()} />
         {isSingleFileSelected ? renderSingleFilePreview() : renderPlaceholder()}

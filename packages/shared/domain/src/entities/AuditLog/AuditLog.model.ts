@@ -14,20 +14,20 @@ export class Model extends M.Class<Model>(`AuditLogModel`)(
     entityKind: AnyTableName,
     entityId: AnyEntityId,
     action: S.String,
-    userSessionId: BS.FieldOptionOmittable(IamEntityIds.SessionId),
+    userSessionId: M.FieldOption(IamEntityIds.SessionId),
     userId: SharedEntityIds.UserId,
     userEmail: M.Sensitive(
       BS.Email.annotations({
         description: "The user's email address",
       })
     ),
-    userIp: BS.FieldOptionOmittable(BS.IP),
-    oldValues: BS.FieldOptionOmittable(BS.Json),
-    oldValuesJson: BS.FieldOptionOmittable(BS.Json),
-    newValues: BS.FieldOptionOmittable(BS.Json),
-    newValuesJson: BS.FieldOptionOmittable(BS.Json),
-    metadataJson: BS.FieldOptionOmittable(BS.Json),
-    metadata: BS.FieldOptionOmittable(BS.Json),
+    userIp: M.FieldOption(BS.IP),
+    oldValues: M.FieldOption(BS.Json),
+    oldValuesJson: M.FieldOption(BS.Json),
+    newValues: M.FieldOption(BS.Json),
+    newValuesJson: M.FieldOption(BS.Json),
+    metadataJson: M.FieldOption(BS.Json),
+    metadata: M.FieldOption(BS.Json),
   })
 ) {
   static readonly utils = modelKit(Model);

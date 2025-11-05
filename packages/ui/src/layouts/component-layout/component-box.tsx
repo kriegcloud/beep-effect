@@ -5,14 +5,14 @@ import { styled } from "@mui/material/styles";
 // ----------------------------------------------------------------------
 
 type ComponentBoxProps = React.ComponentProps<typeof Root> & {
-  title?: string;
+  readonly title?: string | undefined;
 };
 
 export function ComponentBox({ sx, title, children, ...other }: ComponentBoxProps) {
   return (
     <Root>
       {title && <Title>{title}</Title>}
-      <Content sx={sx} {...other}>
+      <Content sx={sx ?? {}} {...other}>
         {children}
       </Content>
     </Root>

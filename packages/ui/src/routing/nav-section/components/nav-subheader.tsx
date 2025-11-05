@@ -5,7 +5,7 @@ import { styled } from "@mui/material/styles";
 import { Iconify, iconifyClasses } from "../../../atoms";
 import { navSectionClasses } from "../styles";
 
-export type NavSubheaderProps = ListSubheaderProps & { open?: boolean };
+export type NavSubheaderProps = ListSubheaderProps & { open?: boolean | undefined };
 
 export const NavSubheader = styled(({ open, children, className, ...other }: NavSubheaderProps) => (
   <ListSubheader

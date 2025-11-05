@@ -2,10 +2,36 @@ import type { UnsafeTypes } from "@beep/types";
 import { cssVarRgba, rgbaFromChannel } from "@beep/ui-core/utils";
 import type { ButtonClasses, ButtonProps } from "@mui/material/Button";
 import { buttonClasses } from "@mui/material/Button";
-import type { Components, ComponentsVariants, CSSObject, Theme } from "@mui/material/styles";
+
+import type {
+  Components,
+  ComponentsPropsList,
+  ComponentsVariants,
+  CSSObject,
+  Interpolation,
+  Theme,
+} from "@mui/material/styles";
+
 import * as Str from "effect/String";
 import { colorKeys } from "../palette";
 import { LinkBehavior } from "./link";
+export type OverridesStyleRules<
+  ClassKey extends string = string,
+  ComponentName = keyof ComponentsPropsList,
+  Theme = unknown,
+> = Record<
+  ClassKey,
+  Interpolation<
+    (ComponentName extends keyof ComponentsPropsList
+      ? ComponentsPropsList[ComponentName] &
+          Record<string, unknown> & {
+            ownerState: ComponentsPropsList[ComponentName] & Record<string, unknown>;
+          }
+      : {}) & {
+      theme: Theme;
+    } & Record<string, unknown>
+  >
+>;
 /**
  * TypeScript extension for MUI theme augmentation.
  * @to {@link file://./../../extend-theme-types.d.ts}
@@ -139,9 +165,9 @@ const softVariants = [
 ] satisfies ButtonVariants;
 export type PaletteColorKey = (typeof colorKeys.palette)[number];
 const btnColors: PaletteColorKey[] = ["primary", "secondary", "info", "success", "warning", "error"];
-const btnCustomVariants: ComponentsVariants<Theme>["MuiButton"] = btnColors.map((color) => ({
+const btnCustomVariants = btnColors.map((color) => ({
   props: { variant: "soft", color: color as ButtonProps["color"] },
-  style: (style) => {
+  style: (style: any) => {
     const theme = style.theme as Theme;
 
     return {
@@ -167,7 +193,7 @@ shapes.forEach((shape) => {
       props: {
         shape: shape as ButtonProps["shape"],
         size: size as ButtonProps["size"],
-      },
+      } as (typeof btnShapeVariants)[number]["props"],
       style: {
         height: sizes[size],
         minWidth: sizes[size],
@@ -312,8 +338,8 @@ const MuiButton: Components<Theme>["MuiButton"] = {
         ...softVariants,
         ...sizeVariants,
         ...disabledVariants,
-        ...btnCustomVariants,
         ...btnShapeVariants,
+        ...btnCustomVariants,
       ],
     }),
     sizeLarge: {

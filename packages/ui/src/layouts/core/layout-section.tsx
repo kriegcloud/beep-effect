@@ -9,12 +9,12 @@ import { layoutClasses } from "./classes";
 import { layoutSectionVars } from "./css-vars";
 
 export type LayoutSectionProps = React.ComponentProps<"div"> & {
-  readonly sx?: SxProps<Theme>;
-  readonly cssVars?: CSSObject;
-  readonly children?: React.ReactNode;
-  readonly footerSection?: React.ReactNode;
-  readonly headerSection?: React.ReactNode;
-  readonly sidebarSection?: React.ReactNode;
+  readonly sx?: SxProps<Theme> | undefined;
+  readonly cssVars?: CSSObject | undefined;
+  readonly children?: React.ReactNode | undefined;
+  readonly footerSection?: React.ReactNode | undefined;
+  readonly headerSection?: React.ReactNode | undefined;
+  readonly sidebarSection?: React.ReactNode | undefined;
 };
 
 export function LayoutSection({
@@ -39,7 +39,7 @@ export function LayoutSection({
     <>
       {inputGlobalStyles}
 
-      <LayoutRoot id="root__layout" className={mergeClasses([layoutClasses.root, className])} sx={sx} {...other}>
+      <LayoutRoot id="root__layout" className={mergeClasses([layoutClasses.root, className])} sx={sx ?? {}} {...other}>
         {sidebarSection ? (
           <>
             {sidebarSection}

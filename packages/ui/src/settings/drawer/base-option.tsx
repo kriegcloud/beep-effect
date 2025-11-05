@@ -18,7 +18,7 @@ export type BaseOptionProps = Omit<ButtonBaseProps, "action"> & {
 
 export function BaseOption({ sx, icon, label, action, tooltip, selected, onChangeOption, ...other }: BaseOptionProps) {
   return (
-    <ItemRoot disableRipple selected={selected} onClick={onChangeOption} sx={sx} {...other}>
+    <ItemRoot disableRipple selected={selected} onClick={onChangeOption} sx={sx ?? {}} {...other}>
       <TopContainer>
         {icon}
         {action ?? <Switch name={label} size="small" color="default" checked={selected} sx={{ mr: -0.75 }} />}

@@ -18,12 +18,14 @@ import { SignOutButton } from "./sign-out-button";
 // ----------------------------------------------------------------------
 
 export type AccountPopoverProps = IconButtonProps & {
-  data?: {
-    label: string;
-    href: string;
-    icon?: React.ReactNode;
-    info?: React.ReactNode;
-  }[];
+  readonly data?:
+    | {
+        readonly label: string;
+        readonly href: string;
+        readonly icon?: React.ReactNode | undefined;
+        readonly info?: React.ReactNode | undefined;
+      }[]
+    | undefined;
 };
 
 export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps) {
@@ -106,7 +108,7 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
 
   return (
     <>
-      <AccountButton onClick={onOpen} photoURL={user?.image ?? ""} displayName={user?.name} sx={sx} {...other} />
+      <AccountButton onClick={onOpen} photoURL={user?.image ?? ""} displayName={user?.name} sx={sx ?? {}} {...other} />
 
       {renderMenuActions()}
     </>

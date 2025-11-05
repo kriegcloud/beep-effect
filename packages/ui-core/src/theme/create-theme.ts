@@ -29,7 +29,7 @@ export const baseTheme: ThemeOptions = {
       customShadows: customShadows.dark,
       opacity,
     },
-  },
+  } as ThemeOptions["colorSchemes"],
   mixins,
   components,
   typography,
@@ -37,9 +37,9 @@ export const baseTheme: ThemeOptions = {
   direction: themeConfig.direction,
   unstable_sxConfig: sxConfig,
   cssVariables: themeConfig.cssVariables,
-};
+} as ThemeOptions;
 
-type CreateThemeProps = {
+export type CreateThemeProps = {
   settingsState?: SettingsState;
   themeOverrides?: ThemeOptions;
   localeComponents?: { components?: Components<Theme> };

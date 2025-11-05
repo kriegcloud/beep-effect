@@ -9,14 +9,14 @@ import type React from "react";
 export const chipProps: ChipProps = { size: "small", variant: "soft" };
 
 export type FiltersResultProps = React.ComponentProps<"div"> & {
-  totalResults: number;
-  onReset?: () => void;
-  sx?: SxProps<Theme>;
+  readonly totalResults: number;
+  readonly onReset?: (() => void) | undefined;
+  readonly sx?: SxProps<Theme> | undefined;
 };
 
 export function FiltersResult({ sx, onReset, children, totalResults, ...other }: FiltersResultProps) {
   return (
-    <ResultRoot sx={sx} {...other}>
+    <ResultRoot sx={sx ?? {}} {...other}>
       <ResultLabel>
         <strong>{totalResults}</strong>
         <span> results found</span>

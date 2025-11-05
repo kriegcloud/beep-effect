@@ -6,7 +6,7 @@ import { navBasicClasses } from "../styles";
 
 export const NavCollapse = styled(Collapse, {
   shouldForwardProp: (prop: string) => !["depth", "sx"].includes(prop),
-})<{ depth?: number }>(({ depth, theme }) => {
+})<{ readonly depth?: number | undefined }>(({ depth, theme }) => {
   const verticalLineStyles: CSSObject = {
     top: 0,
     left: 0,

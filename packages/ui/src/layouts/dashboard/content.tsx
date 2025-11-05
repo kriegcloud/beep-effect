@@ -9,8 +9,8 @@ import { styled } from "@mui/material/styles";
 import { layoutClasses } from "../core";
 
 export type DashboardContentProps = ContainerProps & {
-  layoutQuery?: Breakpoint;
-  disablePadding?: boolean;
+  readonly layoutQuery?: Breakpoint | undefined;
+  readonly disablePadding?: boolean | undefined;
 };
 
 export function DashboardContent({

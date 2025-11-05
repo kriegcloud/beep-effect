@@ -4,9 +4,9 @@ import * as S from "effect/Schema";
 import { makeFormOptions } from "./makeFormOptions";
 
 type Params<SchemaA, SchemaI extends Record<PropertyKey, UnsafeTypes.UnsafeAny>> = {
-  schema: S.Schema<SchemaA, SchemaI>;
-  onSubmit: (value: SchemaA) => Promise<void>;
-  defaultValues: SchemaI;
+  readonly schema: S.Schema<SchemaA, SchemaI>;
+  readonly onSubmit: (value: SchemaA) => Promise<void>;
+  readonly defaultValues: SchemaI;
 };
 
 type FormOptionsWithSubmitEffect = <const A, const I extends Record<PropertyKey, UnsafeTypes.UnsafeAny>>(

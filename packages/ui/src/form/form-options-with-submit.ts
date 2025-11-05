@@ -7,9 +7,9 @@ import * as S from "effect/Schema";
 import { makeFormOptions } from "./makeFormOptions";
 
 type Params<SchemaA, SchemaI extends Record<PropertyKey, UnsafeTypes.UnsafeAny>> = {
-  schema: S.Schema<SchemaA, SchemaI>;
-  onSubmit: (values: Effect.Effect<SchemaA, ParseError, never>) => Promise<void>;
-  defaultValues: SchemaI;
+  readonly schema: S.Schema<SchemaA, SchemaI>;
+  readonly onSubmit: (values: Effect.Effect<SchemaA, ParseError, never>) => Promise<void>;
+  readonly defaultValues: SchemaI;
 };
 
 export const formOptionsWithSubmit = <const A, const I extends Record<PropertyKey, UnsafeTypes.UnsafeAny>>({

@@ -31,7 +31,7 @@ export function ColorPreview({
   const remainingColorCount = colors.length - limit;
 
   return (
-    <ColorPreviewRoot className={mergeClasses([colorPreviewClasses.root, className])} sx={sx} {...other}>
+    <ColorPreviewRoot className={mergeClasses([colorPreviewClasses.root, className])} sx={sx ?? {}} {...other}>
       {colorsRange.map((color, index) => (
         <ItemRoot
           key={color + index}

@@ -4,12 +4,12 @@ import { RouterLink } from "../../RouterLink";
 import type { NavItemDataProps, NavItemOptionsProps } from "../types";
 
 type CreateNavItemReturn = {
-  subItem: boolean;
-  rootItem: boolean;
-  subDeepItem: boolean;
-  baseProps: Record<string, UnsafeTypes.UnsafeAny>;
-  renderIcon: React.ReactNode;
-  renderInfo: React.ReactNode;
+  readonly subItem: boolean;
+  readonly rootItem: boolean;
+  readonly subDeepItem: boolean;
+  readonly baseProps: Record<string, UnsafeTypes.UnsafeAny>;
+  readonly renderIcon: React.ReactNode;
+  readonly renderInfo: React.ReactNode;
 };
 
 type CreateNavItemProps = Pick<NavItemDataProps, "path" | "icon" | "info"> & Omit<NavItemOptionsProps, "slotProps">;

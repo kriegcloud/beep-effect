@@ -66,7 +66,7 @@ export type ChannelPalette<T extends ColorPalette> = T & {
 };
 
 export function createPaletteChannel<T extends ColorPalette>(hexPalette: T): ChannelPalette<T> {
-  const channelPalette: Record<string, string | undefined> = {};
+  const channelPalette: Record<string, string> = {};
 
   Object.entries(hexPalette).forEach(([key, value]) => {
     if (value) {

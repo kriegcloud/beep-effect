@@ -73,7 +73,7 @@ export function CountryListPopover({
   const renderButton = () => (
     <ButtonBase
       disableRipple
-      disabled={disabled}
+      disabled={Boolean(disabled)}
       id={btnId}
       aria-haspopup="true"
       aria-controls={open ? menuId : undefined}

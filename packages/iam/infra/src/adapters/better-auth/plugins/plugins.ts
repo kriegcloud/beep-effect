@@ -33,7 +33,6 @@ import * as TwoFactor from "./two-factor";
 import * as Username from "./username";
 export type Plugins = Array<
   | Admin.AdminPlugin
-  | Anonymous.AnonymousPlugin
   | ApiKey.ApiKeyPlugin
   | Bearer.BearerPlugin
   | Captcha.CaptchaPlugin
@@ -61,6 +60,7 @@ export type Plugins = Array<
   | Username.UsernamePlugin
   | Localization.LocalizationPlugin
   | Cookies.CookiesPlugin
+  | Anonymous.AnonymousPlugin
 >;
 const allPluginsArray = [
   Admin.adminPlugin,

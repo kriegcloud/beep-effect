@@ -41,7 +41,7 @@ export function NavItem({
   const ownerState: StyledState = {
     open,
     active,
-    disabled,
+    disabled: Boolean(disabled),
     variant: navItem.rootItem ? "rootItem" : "subItem",
   };
 
@@ -56,23 +56,23 @@ export function NavItem({
         [navBasicClasses.state.active]: active,
         [navBasicClasses.state.disabled]: disabled,
       })}
-      sx={slotProps?.sx}
+      sx={slotProps?.sx ?? {}}
       {...other}
     >
       {icon && (
-        <ItemIcon {...ownerState} className={navBasicClasses.item.icon} sx={slotProps?.icon}>
+        <ItemIcon {...ownerState} className={navBasicClasses.item.icon} sx={slotProps?.icon ?? {}}>
           {navItem.renderIcon}
         </ItemIcon>
       )}
 
       {title && (
-        <ItemTexts {...ownerState} className={navBasicClasses.item.texts} sx={slotProps?.texts}>
-          <ItemTitle {...ownerState} className={navBasicClasses.item.title} sx={slotProps?.title}>
+        <ItemTexts {...ownerState} className={navBasicClasses.item.texts} sx={slotProps?.texts ?? {}}>
+          <ItemTitle {...ownerState} className={navBasicClasses.item.title} sx={slotProps?.title ?? {}}>
             {title}
           </ItemTitle>
 
           {caption && navItem.subItem && (
-            <ItemCaptionText {...ownerState} className={navBasicClasses.item.caption} sx={slotProps?.caption}>
+            <ItemCaptionText {...ownerState} className={navBasicClasses.item.caption} sx={slotProps?.caption ?? {}}>
               {caption}
             </ItemCaptionText>
           )}
@@ -80,7 +80,7 @@ export function NavItem({
       )}
 
       {info && (
-        <ItemInfo {...ownerState} className={navBasicClasses.item.info} sx={slotProps?.info}>
+        <ItemInfo {...ownerState} className={navBasicClasses.item.info} sx={slotProps?.info ?? {}}>
           {navItem.renderInfo}
         </ItemInfo>
       )}
@@ -90,7 +90,7 @@ export function NavItem({
           {...ownerState}
           icon={navItem.subItem ? "eva:arrow-ios-forward-fill" : "eva:arrow-ios-downward-fill"}
           className={navBasicClasses.item.arrow}
-          sx={slotProps?.arrow}
+          sx={slotProps?.arrow ?? {}}
         />
       )}
     </ItemRoot>

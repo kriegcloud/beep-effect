@@ -1,12 +1,12 @@
 import type { SupportedLocale } from "@beep/ui-core/settings/schema";
 
 export interface SupportedLanguage {
-  label: string;
-  shortLabel: string;
-  icon: string;
-  locale: SupportedLocale.Type;
-  currency: string;
-  currencySymbol: string;
+  readonly label: string;
+  readonly shortLabel: string;
+  readonly icon: string;
+  readonly locale: SupportedLocale.Type;
+  readonly currency: string;
+  readonly currencySymbol: string;
 }
 export const languages: SupportedLanguage[] = [
   {

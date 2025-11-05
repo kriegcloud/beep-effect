@@ -111,12 +111,12 @@ export function CountrySelect({
       };
 
       if (multiple) {
-        return <TextField {...baseField} />;
+        return <TextField {...(baseField as React.ComponentProps<typeof TextField>)} />;
       }
 
       return (
         <TextField
-          {...baseField}
+          {...(baseField as React.ComponentProps<typeof TextField>)}
           slotProps={{
             input: {
               ...params.InputProps,
@@ -187,13 +187,13 @@ export function CountrySelect({
   return (
     <Autocomplete
       id={`${id}-country-select`}
-      multiple={multiple}
+      multiple={Boolean(multiple)}
       options={options}
       autoHighlight={!multiple}
-      disableCloseOnSelect={multiple}
+      disableCloseOnSelect={Boolean(multiple)}
       renderOption={renderOption}
       renderInput={renderInput}
-      renderTags={multiple ? renderTags : undefined}
+      {...(multiple ? { renderTags } : {})}
       getOptionLabel={getOptionLabel}
       {...other}
     />

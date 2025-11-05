@@ -19,11 +19,13 @@ import type { NavItemData } from "./nav-config-components";
 // ----------------------------------------------------------------------
 
 type NavSearchProps = {
-  readonly sx?: SxProps<Theme>;
-  readonly navData?: ReadonlyArray<{
-    title: string;
-    items: ReadonlyArray<NavItemData>;
-  }>;
+  readonly sx?: SxProps<Theme> | undefined;
+  readonly navData?:
+    | ReadonlyArray<{
+        readonly title: string;
+        readonly items: ReadonlyArray<NavItemData>;
+      }>
+    | undefined;
 };
 
 const paperStyles: SxProps<Theme> = {
@@ -69,7 +71,7 @@ export function NavSearch({ navData = [], sx }: NavSearchProps) {
 
   return (
     <Autocomplete
-      sx={sx}
+      sx={sx ?? {}}
       autoHighlight
       disableClearable
       popupIcon={null}
@@ -83,7 +85,7 @@ export function NavSearch({ navData = [], sx }: NavSearchProps) {
       slotProps={{ paper: { sx: paperStyles } }}
       renderInput={(params) => (
         <TextField
-          {...params}
+          {...(params as React.ComponentProps<typeof TextField>)}
           hiddenLabel
           size="small"
           variant="filled"
