@@ -18,7 +18,7 @@ export class FileInfo extends S.Class<FileInfo>("FileInfo")(
   }
 ) {}
 
-export namespace FileInfo {
+export declare namespace FileInfo {
   export type Type = S.Schema.Type<typeof FileInfo>;
   export type Encoded = S.Schema.Encoded<typeof FileInfo>;
 }
@@ -38,7 +38,7 @@ export class DetectedFileInfo extends S.Class<DetectedFileInfo>("DetectedFileInf
   }
 ) {}
 
-export namespace DetectedFileInfo {
+export declare namespace DetectedFileInfo {
   export type Type = S.Schema.Type<typeof DetectedFileInfo>;
   export type Encoded = S.Schema.Encoded<typeof DetectedFileInfo>;
 }

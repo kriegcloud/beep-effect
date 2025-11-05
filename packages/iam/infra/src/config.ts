@@ -33,7 +33,7 @@ export class IamConfig extends Context.Tag("@beep/iam-infra/IamConfig")<IamConfi
   }
 }
 
-export namespace IamConfig {
+export declare namespace IamConfig {
   export interface Service {
     readonly app: {
       readonly env: typeof serverEnv.app.env;

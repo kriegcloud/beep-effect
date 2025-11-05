@@ -7,19 +7,21 @@ import type {
 } from "@beep/iam-sdk/clients/passkey/passkey.contracts";
 import { PasskeyImplementations } from "@beep/iam-sdk/clients/passkey/passkey.implementations";
 import { iamAtomRuntime } from "@beep/iam-sdk/clients/runtime";
+
 import { withToast } from "@beep/ui/common";
 import { Atom, Registry, Result, useAtomSet, useAtomValue } from "@effect-atom/atom-react";
 import * as A from "effect/Array";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import { IamImplementations } from "../implementations";
 
-const remoteAtom = iamAtomRuntime.atom(PasskeyImplementations.PasskeyList).pipe(Atom.withReactivity(["passkeys"]));
+const remoteAtom = iamAtomRuntime.atom(IamImplementations.PasskeyList).pipe(Atom.withReactivity(["passkeys"]));
 
 type Action = Data.TaggedEnum<{
-  Update: { readonly passkey: PasskeyView.Type };
-  Del: { readonly id: PasskeyView.Type["id"] };
-  Add: { readonly passkey: PasskeyView.Type };
+  Update: { readonly passkey: PasskeyView };
+  Del: { readonly id: PasskeyView["id"] };
+  Add: { readonly passkey: PasskeyView };
 }>;
 
 const Action = Data.taggedEnum<Action>();
@@ -130,7 +132,7 @@ export const addPasskeyAtom = iamAtomRuntime.fn(
   }
 );
 
-export const editingPasskeyAtom = Atom.make<PasskeyView.Type | undefined>(undefined);
+export const editingPasskeyAtom = Atom.make<PasskeyView | undefined>(undefined);
 
 export const usePasskeyCRUD = () => {
   const passkeysResult = useAtomValue(passkeysAtom);

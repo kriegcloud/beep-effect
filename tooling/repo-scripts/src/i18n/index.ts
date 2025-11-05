@@ -1,1 +1,1 @@
-export * from "./cldr";
+export * from "./cldr.js";

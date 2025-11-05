@@ -9,7 +9,7 @@ export class SubscriptionPlanValue extends SubscriptionPlanValueKit.Schema.annot
   description: "Possible subscription plan values.",
 }) {}
 
-export namespace SubscriptionPlanValue {
+export declare namespace SubscriptionPlanValue {
   export type Type = S.Schema.Type<typeof SubscriptionPlanValue>;
   export type Encoded = S.Schema.Type<typeof SubscriptionPlanValue>;
 }

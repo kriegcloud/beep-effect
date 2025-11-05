@@ -204,7 +204,7 @@ Tasks:
 3. Contracts (`packages/iam/sdk/src/clients/passkey/passkey.contracts.ts`):
    - Derive payloads/views from `Passkey.Model.select/insert/update` via `.pick(...).fields`; do not hand-roll DTOs.
    - Reuse JSON helpers or redacted wrappers wired through the domain model.
-   - Register each schema with `ContractKit.make` and export namespace types.
+   - Register each schema with `ContractKit.make` and export declare namespace types.
 4. Implementations (`packages/iam/sdk/src/clients/passkey/passkey.implementations.ts`):
    - Use `Effect.fn`, `makeFailureContinuation`, and helper utilities from `@beep/iam-sdk/clients/_internal` (`MetadataFactory`, `withFetchOptions`, `addFetchOptions`, `requireData`, `decodeResult`, `compact`).
    - Encode payloads before calling Better Auth, map WebAuthn secrets with `Redacted.value`, and wrap `ParseError` via `Effect.fail(IamError.match(...))`.

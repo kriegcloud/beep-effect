@@ -20,7 +20,7 @@ export class FileAttributes extends BS.Class<FileAttributes>("FileAttributes")(
   }
 ) {}
 
-export namespace FileAttributes {
+export declare namespace FileAttributes {
   export type Type = S.Schema.Type<typeof FileAttributes>;
   export type Encoded = S.Schema.Encoded<typeof FileAttributes>;
 }

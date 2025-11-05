@@ -1,4 +1,4 @@
-import { DomainError } from "@beep/tooling-utils/repo/Errors";
+import { DomainError } from "@beep/tooling-utils/repo/Errors.js";
 import type { UnsafeTypes } from "@beep/types";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
@@ -256,6 +256,7 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
             onTrue: () => Effect.succeed(path),
             onFalse: () =>
               new DomainError({
+                cause: {},
                 message: `Path ${path} does not exist`,
               }),
           })

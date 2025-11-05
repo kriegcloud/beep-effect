@@ -18,7 +18,7 @@ export class OrganizationType extends organizationTypeKit.Schema.annotations({
   static readonly Enum = organizationTypeKit.Enum;
 }
 
-export namespace OrganizationType {
+export declare namespace OrganizationType {
   export type Type = S.Schema.Type<typeof OrganizationType>;
   export type Encoded = S.Schema.Encoded<typeof OrganizationType>;
 }

@@ -12,8 +12,8 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import { TreeFormatter } from "effect/ParseResult";
 import * as S from "effect/Schema";
-import { AssetPaths } from "./utils";
-import { convertDirectoryToNextgen } from "./utils/convert-to-nextgen";
+import { convertDirectoryToNextgen } from "./utils/convert-to-nextgen.js";
+import { AssetPaths } from "./utils/index.js";
 
 /**
  * Recursively collect all files under a directory.
@@ -39,6 +39,7 @@ const program = Effect.gen(function* () {
 
   if (!(yield* fs.exists(publicDir))) {
     return yield* new DomainError({
+      cause: {},
       message: `publicDir: ${publicDir} does not exist in file system`,
     });
   }
@@ -54,6 +55,7 @@ const program = Effect.gen(function* () {
 
   if (!(yield* fs.exists(assetPathsFile))) {
     return yield* new DomainError({
+      cause: {},
       message: `assetPathsFile: ${assetPathsFile} does not exist in file system`,
     });
   }

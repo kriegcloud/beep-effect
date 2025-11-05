@@ -10,7 +10,7 @@ export const i18nResourceLoader = resourcesToBackend(
   (lang: SupportedLangValue.Type, namespace: string) => import(`./langs/${lang}/${namespace}.json`)
 );
 
-export const i18nOptions = (lang?: SupportedLangValue.Type, namespace = defaultNS): InitOptions => ({
+export const i18nOptions = (lang?: SupportedLangValue.Type | undefined, namespace = defaultNS): InitOptions => ({
   supportedLngs: SupportedLangValue.Options,
   fallbackLng: fallbackLang,
   lng: lang ?? fallbackLang,
@@ -19,7 +19,7 @@ export const i18nOptions = (lang?: SupportedLangValue.Type, namespace = defaultN
   ns: namespace,
 });
 
-export function getCurrentLang(lang?: SupportedLangValue.Type): LangOption {
+export function getCurrentLang(lang?: SupportedLangValue.Type | undefined): LangOption {
   const fallbackLang = F.pipe(
     allLanguages,
     A.findFirst((l) => l.value === SupportedLangValue.Enum.en),

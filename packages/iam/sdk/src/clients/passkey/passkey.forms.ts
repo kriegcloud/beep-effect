@@ -34,7 +34,7 @@ export const useAddPasskeyForm = ({ onDone }: UsePasskeyAddFormProps) => {
 };
 
 type UsePasskeyUpdateFormProps = PasskeyFormPropsBase & {
-  readonly defaultValues: PasskeyView.Type;
+  readonly defaultValues: PasskeyView;
 };
 
 export const useUpdatePasskeyForm = ({ defaultValues, onDone }: UsePasskeyUpdateFormProps) => {

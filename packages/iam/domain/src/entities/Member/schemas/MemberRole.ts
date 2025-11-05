@@ -15,7 +15,7 @@ export class MemberRole extends MemberRoleKit.Schema.annotations({
   static readonly Options = MemberRoleOptions;
 }
 
-export namespace MemberRole {
+export declare namespace MemberRole {
   export type Type = S.Schema.Type<typeof MemberRole>;
   export type Encoded = S.Schema.Encoded<typeof MemberRole>;
 }

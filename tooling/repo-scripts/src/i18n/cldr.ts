@@ -46,6 +46,7 @@ export const fetchAvailableCLDRLocales: Effect.Effect<
 
   if (!response.ok) {
     return yield* new DomainError({
+      cause: response,
       message: F.pipe(
         "Unexpected response while fetching CLDR available locales (status " as const,
         Str.concat(String(response.status)),

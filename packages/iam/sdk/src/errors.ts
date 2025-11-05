@@ -30,11 +30,7 @@ export class IamError extends Data.TaggedError("IamError")<{
   override readonly method?: string | undefined;
   override readonly authCause?: unknown | undefined;
 
-  constructor(
-    override readonly cause: unknown,
-    override readonly customMessage: string,
-    readonly metadata: IamErrorMetadata = {}
-  ) {
+  constructor(cause: unknown, customMessage: string, metadata: IamErrorMetadata = {}) {
     const normalizedMessage = customMessage ?? "Unknown Error has occurred";
     super({
       customMessage: normalizedMessage,

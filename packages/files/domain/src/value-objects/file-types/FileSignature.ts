@@ -15,7 +15,7 @@ export class FileSignature extends S.Class<FileSignature>("FileSignature")(
   }
 ) {}
 
-export namespace FileSignature {
+export declare namespace FileSignature {
   export type Type = S.Schema.Type<typeof FileSignature>;
   export type Encoded = S.Schema.Encoded<typeof FileSignature>;
 }

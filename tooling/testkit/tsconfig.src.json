@@ -7,7 +7,10 @@
     "outDir": "build/src",
 
     "rootDir": "src",
-    "moduleResolution": "bundler",
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "moduleDetection": "force",
     "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true

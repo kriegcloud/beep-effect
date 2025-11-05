@@ -1,4 +1,4 @@
-import { Json } from "@beep/tooling-utils/schemas/Json";
+import { Json } from "@beep/tooling-utils/schemas/Json.js";
 import * as S from "effect/Schema";
 
 const License = S.Union(

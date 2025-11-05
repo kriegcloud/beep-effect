@@ -8,10 +8,10 @@ import { FsUtils } from "@beep/tooling-utils/FsUtils";
 import { DomainError } from "@beep/tooling-utils/repo";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
-import encodeAvif, { init as initAvifEncode } from "@jsquash/avif/encode";
-import decodeJpeg, { init as initJpegDecode } from "@jsquash/jpeg/decode";
-import decodePng, { init as initPngDecode } from "@jsquash/png/decode";
-import decodeWebp, { init as initWebpDecode } from "@jsquash/webp/decode";
+import encodeAvif, { init as initAvifEncode } from "@jsquash/avif/encode.js";
+import decodeJpeg, { init as initJpegDecode } from "@jsquash/jpeg/decode.js";
+import decodePng, { init as initPngDecode } from "@jsquash/png/decode.js";
+import decodeWebp, { init as initWebpDecode } from "@jsquash/webp/decode.js";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -20,7 +20,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { NextgenConvertableExtensionKit } from "./asset-path.schema";
+import { NextgenConvertableExtensionKit } from "./asset-path.schema.js";
 
 const repoScriptsDir = nodePath.resolve(nodePath.dirname(fileURLToPath(import.meta.url)), "../../");
 const moduleRequire = createRequire(import.meta.url);
@@ -114,6 +114,7 @@ export const collectConvertableFiles = Effect.fn("collectConvertableFiles")(func
         O.getOrThrowWith(
           () =>
             new DomainError({
+              cause: {},
               message: `Invalid path: ${path}`,
             })
         ),
@@ -201,6 +202,7 @@ const isPredefinedColorSpace = (input: unknown): input is PredefinedColorSpace =
 const toDecodedImage = (file: Convertable, value: unknown): ImageData => {
   if (!P.isRecord(value)) {
     throw new DomainError({
+      cause: {},
       message: `Decoder produced invalid result for ${file.path}`,
     });
   }
@@ -210,6 +212,7 @@ const toDecodedImage = (file: Convertable, value: unknown): ImageData => {
 
   if (typeof rawWidth !== "number" || typeof rawHeight !== "number") {
     throw new DomainError({
+      cause: {},
       message: `Decoder returned image without dimensions for ${file.path}`,
     });
   }
@@ -217,6 +220,7 @@ const toDecodedImage = (file: Convertable, value: unknown): ImageData => {
   const pixelData = value.data;
   if (!pixelData) {
     throw new DomainError({
+      cause: {},
       message: `Decoder returned image without pixel data for ${file.path}`,
     });
   }
@@ -233,6 +237,7 @@ const toDecodedImage = (file: Convertable, value: unknown): ImageData => {
 
   if (!view) {
     throw new DomainError({
+      cause: {},
       message: `Decoder returned unsupported pixel buffer for ${file.path}`,
     });
   }
@@ -320,6 +325,7 @@ const decodeImage = (file: Convertable, buffer: ArrayBuffer) =>
       decoded == null
         ? Effect.fail(
             new DomainError({
+              cause: {},
               message: `Decoder returned empty result for ${file.path}`,
             })
           )
@@ -354,6 +360,7 @@ const convertFile = (file: Convertable, publicDir: string) =>
     const relative = path.relative(publicDir, file.path);
     if (relative.startsWith("..")) {
       return yield* new DomainError({
+        cause: {},
         message: `Source file ${file.path} is outside public directory ${publicDir}`,
       });
     }

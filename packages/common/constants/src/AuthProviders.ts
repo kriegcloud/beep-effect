@@ -42,14 +42,14 @@ export class AuthProviderNameValue extends AuthProviderNameValueKit.Schema.annot
     );
 }
 
-export namespace AuthProviderNameValue {
+export declare namespace AuthProviderNameValue {
   export type Type = S.Schema.Type<typeof AuthProviderNameValue>;
   export type Encoded = S.Schema.Type<typeof AuthProviderNameValue>;
 }
 
 export class TaggedAuthProviderNameValue extends AuthProviderNameValueKit.toTagged("name").Union {}
 
-export namespace TaggedAuthProviderNameValue {
+export declare namespace TaggedAuthProviderNameValue {
   export type Type = S.Schema.Type<typeof TaggedAuthProviderNameValue>;
   export type Encoded = S.Schema.Type<typeof TaggedAuthProviderNameValue>;
 }

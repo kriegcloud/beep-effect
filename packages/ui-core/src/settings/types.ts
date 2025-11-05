@@ -3,39 +3,39 @@ import type { ThemeColorPreset } from "@beep/ui-core/theme/with-settings";
 import type { SxProps, Theme } from "@mui/material/styles";
 
 export type SettingsState = {
-  version: string;
-  fontSize: number;
-  fontFamily: string;
-  compactLayout: boolean;
-  contrast: "default" | "high";
-  primaryColor: ThemeColorPreset;
-  mode: ThemeConfig["defaultMode"];
-  navColor: "integrate" | "apparent";
-  direction: ThemeConfig["direction"];
-  navLayout: "vertical" | "horizontal" | "mini";
+  readonly version: string;
+  readonly fontSize: number;
+  readonly fontFamily: string;
+  readonly compactLayout: boolean;
+  readonly contrast: "default" | "high";
+  readonly primaryColor: ThemeColorPreset;
+  readonly mode: ThemeConfig["defaultMode"];
+  readonly navColor: "integrate" | "apparent";
+  readonly direction: ThemeConfig["direction"];
+  readonly navLayout: "vertical" | "horizontal" | "mini";
 };
 
 export type SettingsContextValue = {
-  state: SettingsState;
-  isDarkMode: boolean;
-  canReset: boolean;
-  onReset: () => void;
-  setState: (updateValue: Partial<SettingsState>) => void;
-  setField: (name: keyof SettingsState, updateValue: SettingsState[keyof SettingsState]) => void;
+  readonly state: SettingsState;
+  readonly isDarkMode: boolean;
+  readonly canReset: boolean;
+  readonly onReset: () => void;
+  readonly setState: (updateValue: Partial<SettingsState>) => void;
+  readonly setField: (name: keyof SettingsState, updateValue: SettingsState[keyof SettingsState]) => void;
   // Drawer
-  openDrawer: boolean;
-  onCloseDrawer: () => void;
-  onToggleDrawer: () => void;
+  readonly openDrawer: boolean;
+  readonly onCloseDrawer: () => void;
+  readonly onToggleDrawer: () => void;
 };
 
 export type SettingsProviderProps = {
-  cookieSettings?: SettingsState;
-  defaultSettings: SettingsState;
-  children: React.ReactNode;
-  storageKey?: string;
+  readonly cookieSettings?: SettingsState | undefined;
+  readonly defaultSettings: SettingsState;
+  readonly children: React.ReactNode;
+  readonly storageKey?: string | undefined;
 };
 
 export type SettingsDrawerProps = {
-  sx?: SxProps<Theme>;
-  defaultSettings: SettingsState;
+  readonly sx?: SxProps<Theme> | undefined;
+  readonly defaultSettings: SettingsState;
 };

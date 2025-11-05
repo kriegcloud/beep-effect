@@ -165,3 +165,20 @@ export class PasskeysRepo extends Effect.Service<PasskeysRepo>()("@beep/iam-sdk/
   accessors: true,
   sync: () => PasskeyImplementations,
 }) {}
+
+export const passkeysLayer = PasskeyContractKit.toLayer(PasskeyImplementations);
+
+export class PasskeysService extends Effect.Service<PasskeysService>()("@beep/iam-sdk/clients/PasskeysService", {
+  accessors: true,
+  dependencies: [passkeysLayer],
+  effect: Effect.gen(function* () {
+    const kit = yield* PasskeyContractKit;
+
+    return yield* Effect.succeed({
+      PasskeyList: kit.handle("PasskeyList"),
+      PasskeyAdd: kit.handle("PasskeyAdd"),
+      PasskeyDelete: kit.handle("PasskeyDelete"),
+      PasskeyUpdate: kit.handle("PasskeyUpdate"),
+    });
+  }),
+}) {}

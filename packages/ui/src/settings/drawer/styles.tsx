@@ -7,10 +7,10 @@ import { styled } from "@mui/material/styles";
 import Tooltip from "@mui/material/Tooltip";
 
 type LargeBlockProps = React.ComponentProps<typeof LargeBlockRoot> & {
-  title: string;
-  tooltip?: string;
-  canReset?: boolean;
-  onReset?: () => void;
+  readonly title: string;
+  readonly tooltip?: string | undefined;
+  readonly canReset?: boolean | undefined;
+  readonly onReset?: (() => void) | undefined;
 };
 
 const LargeBlockRoot = styled("div")(({ theme }) => ({
@@ -75,7 +75,7 @@ const SmallBlockRoot = styled("div")(({ theme }) => ({
 
 const SmallLabel = styled(ButtonBase, {
   shouldForwardProp: (prop: string) => !["canReset", "sx"].includes(prop),
-})<{ canReset?: boolean }>(({ theme }) => ({
+})<{ readonly canReset?: boolean | undefined }>(({ theme }) => ({
   cursor: "default",
   lineHeight: "16px",
   pointerEvent: "none",
@@ -114,7 +114,7 @@ export function SmallBlock({ label, canReset, onReset, sx, children, ...other }:
 }
 
 export type OptionButtonProps = ButtonBaseProps & {
-  selected?: boolean;
+  readonly selected?: boolean | undefined;
 };
 
 export function OptionButton({ selected, sx, children, ...other }: OptionButtonProps) {

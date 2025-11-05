@@ -8,7 +8,6 @@
 
     "rootDir": "src",
     "rewriteRelativeImportExtensions": true,
-    "erasableSyntaxOnly": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "isolatedDeclarations": true,

@@ -29,10 +29,7 @@ export class Factory<const TableName extends string, const Brand extends string>
 > {
   readonly Schema: (annotations: Annotations<TableName>) => SchemaType<TableName>;
 
-  constructor(
-    override readonly tableName: SnakeTag.Literal<TableName>,
-    override readonly brand: Brand
-  ) {
+  constructor({ tableName, brand }: Config<Brand, TableName>) {
     const create = () => F.pipe(tableName, Str.concat("__"), Str.concat(UUIDLiteralEncoded.create()));
     super({ tableName, brand });
     this.Schema = (annotations: Annotations<TableName>) =>
@@ -100,7 +97,7 @@ export const make = <const TableName extends string, const Brand extends string>
     line: 91,
     args: [tableName],
   });
-  const factory = new Factory<TableName, Brand>(tableName, brand);
+  const factory = new Factory<TableName, Brand>({ tableName, brand });
 
   const privateSchema = S.NonNegativeInt.pipe(S.brand(brand));
   const modelRowIdSchema = privateSchema;
@@ -157,5 +154,3 @@ export const make = <const TableName extends string, const Brand extends string>
   // hide the fact it extends SchemaClass
   return WithStatics;
 };
-
-export const getEntityId = <TableName extends string>(entityId: Type<TableName>) => F.pipe(entityId);

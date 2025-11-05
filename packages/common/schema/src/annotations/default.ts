@@ -15,7 +15,6 @@ export const BSEdge = Symbol.for("@beep/schema/edge");
 export const BSFolder = Symbol.for("@beep/schema/folder");
 export const BSSkipEntity = Symbol.for("@beep/schema/skipEntity");
 export const BSTransformer = Symbol.for("@beep/schema/transformer");
-export const BSPartialTransformer = Symbol.for("@beep/schema/partialTransformer");
 
 // Predicate to filter out entities that have data we don't want to sync.
 export const BSFilterFn = Symbol.for("@beep/schema/filterFn");

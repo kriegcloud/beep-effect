@@ -14,7 +14,7 @@ export interface Toast extends ToastProps {
 
 export const toastsAtom = Atom.make(A.empty<Toast>());
 
-export class Toaster extends Effect.Service<Toaster>()("app/Toaster", {
+export class ToasterService extends Effect.Service<ToasterService>()("app/Toaster", {
   scoped: Effect.gen(function* () {
     const counter = yield* Ref.make(0);
     const removeQueue = yield* Queue.unbounded<string>();

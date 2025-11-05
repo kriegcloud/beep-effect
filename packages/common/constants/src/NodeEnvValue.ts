@@ -9,7 +9,7 @@ export class NodeEnvValue extends NodeEnvValueKit.Schema.annotations({
   description: "Node Env Value. Can be `test`, `development` or `production`",
 }) {}
 
-export namespace NodeEnvValue {
+export declare namespace NodeEnvValue {
   export type Type = typeof NodeEnvValue.Type;
   export type Encoded = typeof NodeEnvValue.Encoded;
 }

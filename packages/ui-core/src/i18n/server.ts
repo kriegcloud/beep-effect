@@ -56,7 +56,7 @@ export async function initServerI18next(lang: SupportedLangValue.Type, namespace
 }
 
 type Options = Record<string, unknown> & {
-  keyPrefix?: string;
+  readonly keyPrefix?: string | undefined;
 };
 
 export const getServerTranslations = cache(async (namespace = defaultNS, options: Options = {}) => {

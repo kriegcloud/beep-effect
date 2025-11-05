@@ -152,7 +152,10 @@ class MapKeyImpl<out K> implements MapKey<K> {
   public readonly [MapKeyTypeId]: MapKeyTypeId = MapKeyTypeId;
   public previous: MapKey<K> | undefined = undefined;
   public next: MapKey<K> | undefined = undefined;
-  constructor(public readonly current: K) {}
+  public current: K;
+  constructor(current: K) {
+    this.current = current;
+  }
   public [Hash.symbol](): number {
     return Hash.hash(this.current);
   }
@@ -279,11 +282,11 @@ class ManualCacheImpl<in out Key, in out Value> implements ManualCache<Key, Valu
   };
 
   public readonly cacheState: ManualCacheState<Key, Value>;
-
-  constructor(
-    public readonly capacity: number,
-    public readonly timeToLive: Duration.Duration
-  ) {
+  public readonly capacity: number;
+  public readonly timeToLive: Duration.Duration;
+  constructor(capacity: number, timeToLive: Duration.Duration) {
+    this.capacity = capacity;
+    this.timeToLive = timeToLive;
     this.cacheState = initialManualCacheState();
   }
 

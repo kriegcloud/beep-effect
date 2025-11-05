@@ -63,7 +63,7 @@ export class IconifyClientError extends S.TaggedError<IconifyClientError>("Iconi
   status: S.optional(S.Number),
   retryAfterMillis: S.optional(S.Number),
   attempt: S.optional(S.Number),
-  cause: S.optional(S.Unknown),
+  cause: S.optional(S.Defect),
 }) {}
 
 export interface IconifyRequest {

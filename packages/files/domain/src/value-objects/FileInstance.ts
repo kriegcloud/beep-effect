@@ -7,7 +7,7 @@ export class FileInstance extends S.declare((i: unknown): i is File => i instanc
   description: "Base file instance schema",
 }) {}
 
-export namespace FileInstance {
+export declare namespace FileInstance {
   export type Type = S.Schema.Type<typeof FileInstance>;
   export type Encoded = S.Schema.Encoded<typeof FileInstance>;
 }

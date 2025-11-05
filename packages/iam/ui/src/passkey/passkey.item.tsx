@@ -7,9 +7,9 @@ import ListItemText from "@mui/material/ListItemText";
 import Stack from "@mui/material/Stack";
 
 type Props = {
-  readonly passkey: PasskeyView.Type;
-  readonly onUpdate: (passkey: PasskeyView.Type) => void;
-  readonly onDelete: (passkey: PasskeyView.Type) => Promise<void>;
+  readonly passkey: PasskeyView;
+  readonly onUpdate: (passkey: PasskeyView) => void;
+  readonly onDelete: (passkey: PasskeyView) => Promise<void>;
 };
 
 export const PasskeyItem = ({ passkey, onUpdate, onDelete }: Props) => {

@@ -23,7 +23,7 @@ export class UserGender extends UserGenderKit.Schema.annotations({
   }));
 }
 
-export namespace UserGender {
+export declare namespace UserGender {
   export type Type = S.Schema.Type<typeof UserGender>;
   export type Encoded = S.Schema.Encoded<typeof UserGender>;
 }

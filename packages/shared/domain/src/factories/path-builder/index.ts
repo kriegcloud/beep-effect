@@ -1,2 +1,2 @@
-export * from "./path-builder";
+export * from "./PathBuilder";
 export type * from "./types";

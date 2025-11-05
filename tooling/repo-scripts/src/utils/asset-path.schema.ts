@@ -93,7 +93,7 @@ export const AssetPath = S.String.pipe(
   })
 );
 
-export namespace AssetPath {
+export declare namespace AssetPath {
   export type Type = typeof AssetPath.Type;
   export type Encoded = typeof AssetPath.Encoded;
 }
@@ -248,7 +248,7 @@ export const AssetPaths = S.Array(AssetPath).pipe(
   })
 );
 
-export namespace AssetPaths {
+export declare namespace AssetPaths {
   export type Type = typeof AssetPaths.Type;
   export type Encoded = typeof AssetPaths.Encoded;
 }

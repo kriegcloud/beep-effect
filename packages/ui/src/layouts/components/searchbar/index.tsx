@@ -2,9 +2,9 @@
 
 import { Iconify, Label } from "@beep/ui/atoms";
 import { useBoolean } from "@beep/ui/hooks";
+import { SearchNotFound } from "@beep/ui/messages";
 import { Scrollbar } from "@beep/ui/molecules";
 import type { NavSectionProps } from "@beep/ui/routing";
-import { SearchNotFound } from "@beep/ui/sections";
 import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { BoxProps } from "@mui/material/Box";
 

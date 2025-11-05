@@ -783,7 +783,7 @@ export const ExpandedTags = BS.Struct({
   description: "High-level structure compatible with ExifReader's expanded output across multiple containers.",
 });
 
-export namespace ExpandedTags {
+export declare namespace ExpandedTags {
   export type Type = S.Schema.Type<typeof ExpandedTags>;
   export type Encoded = S.Schema.Encoded<typeof ExpandedTags>;
 }

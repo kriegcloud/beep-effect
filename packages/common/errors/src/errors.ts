@@ -14,7 +14,7 @@ export class UnrecoverableError extends S.TaggedError<UnrecoverableError>()(
   HttpApiSchema.annotations({ status: 500 })
 ) {}
 
-export namespace UnrecoverableError {
+export declare namespace UnrecoverableError {
   export type Type = S.Schema.Type<typeof UnrecoverableError>;
   export type Encoded = S.Schema.Encoded<typeof UnrecoverableError>;
 }
@@ -26,7 +26,7 @@ export class NotFoundError extends S.TaggedError<NotFoundError>()(
   HttpApiSchema.annotations({ status: 404 })
 ) {}
 
-export namespace NotFoundError {
+export declare namespace NotFoundError {
   export type Type = S.Schema.Type<typeof NotFoundError>;
   export type Encoded = S.Schema.Encoded<typeof NotFoundError>;
 }
@@ -37,7 +37,7 @@ export class UniqueViolationError extends S.TaggedError<UniqueViolationError>()(
   HttpApiSchema.annotations({ status: 409 })
 ) {}
 
-export namespace UniqueViolationError {
+export declare namespace UniqueViolationError {
   export type Type = S.Schema.Type<typeof UniqueViolationError>;
   export type Encoded = S.Schema.Encoded<typeof UniqueViolationError>;
 }
@@ -49,7 +49,7 @@ export class DatabaseError extends S.TaggedError<DatabaseError>()(
   HttpApiSchema.annotations({ status: 500 })
 ) {}
 
-export namespace DatabaseError {
+export declare namespace DatabaseError {
   export type Type = S.Schema.Type<typeof DatabaseError>;
   export type Encoded = S.Schema.Encoded<typeof DatabaseError>;
 }
@@ -60,7 +60,7 @@ export class TransactionError extends S.TaggedError<TransactionError>()(
   HttpApiSchema.annotations({ status: 500 })
 ) {}
 
-export namespace TransactionError {
+export declare namespace TransactionError {
   export type Type = S.Schema.Type<typeof TransactionError>;
   export type Encoded = S.Schema.Encoded<typeof TransactionError>;
 }
@@ -71,7 +71,7 @@ export class ConnectionError extends S.TaggedError<ConnectionError>()(
   HttpApiSchema.annotations({ status: 500 })
 ) {}
 
-export namespace ConnectionError {
+export declare namespace ConnectionError {
   export type Type = S.Schema.Type<typeof ConnectionError>;
   export type Encoded = S.Schema.Encoded<typeof ConnectionError>;
 }
@@ -82,7 +82,7 @@ export class ParseError extends S.TaggedError<ParseError>()(
   HttpApiSchema.annotations({ status: 400 })
 ) {}
 
-export namespace ParseError {
+export declare namespace ParseError {
   export type Type = S.Schema.Type<typeof ParseError>;
   export type Encoded = S.Schema.Encoded<typeof ParseError>;
 }
@@ -98,7 +98,7 @@ export class Unauthorized extends S.TaggedError<Unauthorized>("Unauthorized")(
   })
 ) {}
 
-export namespace Unauthorized {
+export declare namespace Unauthorized {
   export type Type = S.Schema.Type<typeof Unauthorized>;
   export type Encoded = S.Schema.Encoded<typeof Unauthorized>;
 }
@@ -114,13 +114,13 @@ export class Forbidden extends S.TaggedError<Forbidden>("Forbidden")(
   })
 ) {}
 
-export namespace Forbidden {
+export declare namespace Forbidden {
   export type Type = S.Schema.Type<typeof Forbidden>;
   export type Encoded = S.Schema.Encoded<typeof Forbidden>;
 }
 
 export class UnknownError extends S.TaggedError<UnknownError>()("UnknownError", {
-  cause: S.Unknown,
+  cause: S.Defect,
   customMessage: S.optional(S.String),
 }) {
   override get message() {

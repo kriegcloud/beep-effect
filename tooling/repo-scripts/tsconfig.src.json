@@ -25,7 +25,11 @@
   "compilerOptions": {
     "types": ["node", "bun"],
     "outDir": "build/src",
-
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "moduleDetection": "force",
+    "allowSyntheticDefaultImports": true,
     "rootDir": "src"
   }
 }

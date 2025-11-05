@@ -28,7 +28,7 @@ export class NewUser extends BS.Class<NewUser>("NewUser")(
     });
 }
 
-export namespace NewUser {
+export declare namespace NewUser {
   export type Type = S.Schema.Type<typeof NewUser>;
   export type Encoded = S.Schema.Encoded<typeof NewUser>;
 }

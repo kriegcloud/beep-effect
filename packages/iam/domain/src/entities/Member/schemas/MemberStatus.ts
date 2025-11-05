@@ -15,7 +15,7 @@ export class MemberStatus extends MemberStatusKit.Schema.annotations({
   static readonly Options = MemberStatusOptions;
 }
 
-export namespace MemberStatus {
+export declare namespace MemberStatus {
   export type Type = S.Schema.Type<typeof MemberStatus>;
   export type Encoded = S.Schema.Encoded<typeof MemberStatus>;
 }

@@ -24,7 +24,7 @@ import { useFieldContext } from "../form";
 
 type Value = string;
 
-export type AutocompleteBaseProps = Omit<
+type AutocompleteBaseProps = Omit<
   AutocompleteProps<UnsafeTypes.UnsafeAny, boolean, boolean, boolean>,
   "options" | "renderOption" | "renderInput" | "renderTags" | "getOptionLabel"
 >;

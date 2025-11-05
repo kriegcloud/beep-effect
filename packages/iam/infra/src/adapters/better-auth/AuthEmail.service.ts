@@ -12,7 +12,7 @@ export class SendVerificationEmailPayload extends S.Class<SendVerificationEmailP
   }
 ) {}
 
-export namespace SendVerificationEmailPayload {
+export declare namespace SendVerificationEmailPayload {
   export type Type = S.Schema.Type<typeof SendVerificationEmailPayload>;
   export type Encoded = S.Schema.Encoded<typeof SendVerificationEmailPayload>;
 }
@@ -22,7 +22,7 @@ export class SendOTPEmailPayload extends S.Class<SendOTPEmailPayload>("SendOTPEm
   otp: S.Redacted(S.String),
 }) {}
 
-export namespace SendOTPEmailPayload {
+export declare namespace SendOTPEmailPayload {
   export type Type = S.Schema.Type<typeof SendOTPEmailPayload>;
   export type Encoded = S.Schema.Encoded<typeof SendOTPEmailPayload>;
 }
@@ -35,7 +35,7 @@ export class SendResetPasswordEmailPayload extends S.Class<SendResetPasswordEmai
   email: BS.Email,
 }) {}
 
-export namespace SendResetPasswordEmailPayload {
+export declare namespace SendResetPasswordEmailPayload {
   export type Type = S.Schema.Type<typeof SendResetPasswordEmailPayload>;
   export type Encoded = S.Schema.Encoded<typeof SendResetPasswordEmailPayload>;
 }
@@ -47,7 +47,7 @@ export class InvitationEmailPayload extends S.Class<InvitationEmailPayload>("Inv
   teamName: S.String,
 }) {}
 
-export namespace InvitationEmailPayload {
+export declare namespace InvitationEmailPayload {
   export type Type = S.Schema.Type<typeof InvitationEmailPayload>;
   export type Encoded = S.Schema.Encoded<typeof InvitationEmailPayload>;
 }

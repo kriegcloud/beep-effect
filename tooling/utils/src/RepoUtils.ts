@@ -1,4 +1,4 @@
-import { DomainError } from "@beep/tooling-utils/repo/Errors";
+import { DomainError } from "@beep/tooling-utils/repo/Errors.js";
 import type * as FileSystem from "@effect/platform/FileSystem";
 import type * as Path from "@effect/platform/Path";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
@@ -7,9 +7,9 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import type * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
-import type { FsUtils } from "./FsUtils";
-import type { GetWorkSpaceDir } from "./repo";
-import { findRepoRoot, getWorkspaceDir, resolveWorkspaceDirs } from "./repo";
+import type { FsUtils } from "./FsUtils.js";
+import type { GetWorkSpaceDir } from "./repo/index.js";
+import { findRepoRoot, getWorkspaceDir, resolveWorkspaceDirs } from "./repo/index.js";
 
 interface IRepoUtilsEffect {
   readonly REPOSITORY_ROOT: string;

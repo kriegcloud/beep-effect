@@ -9,7 +9,7 @@ export class PAGINATION_LIMIT extends S.Literal(100).annotations({
   static readonly Value = 100;
 }
 
-export namespace PAGINATION_LIMIT {
+export declare namespace PAGINATION_LIMIT {
   export type Type = S.Schema.Type<typeof PAGINATION_LIMIT>;
   export type Encoded = S.Schema.Encoded<typeof PAGINATION_LIMIT>;
 }

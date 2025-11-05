@@ -53,7 +53,7 @@ export type UpperChar =
   | "Y"
   | "Z";
 
-export namespace CaseTransform {
+export declare namespace CaseTransform {
   export type SnakeToPascal<S extends string> = S extends `${infer Head}_${infer Tail}`
     ? `${Capitalize<Head>}${SnakeToPascal<Capitalize<Tail>>}`
     : Capitalize<S>;

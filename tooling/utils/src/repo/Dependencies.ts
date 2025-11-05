@@ -1,10 +1,16 @@
-import { FsUtils } from "@beep/tooling-utils/FsUtils";
+import { FsUtils } from "@beep/tooling-utils/FsUtils.js";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashSet from "effect/HashSet";
 import * as S from "effect/Schema";
-import { Dependencies as DepsSchema, NpmDepTuple, PackageJson, RepoDepMapValue, WorkspaceDepTuple } from "../schemas";
+import {
+  Dependencies as DepsSchema,
+  NpmDepTuple,
+  PackageJson,
+  RepoDepMapValue,
+  WorkspaceDepTuple,
+} from "../schemas/index.js";
 
 /**
  * Extract typed sets of workspace and npm dependencies from a package.json.

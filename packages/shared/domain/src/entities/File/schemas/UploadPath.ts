@@ -46,7 +46,7 @@ export class ShardPrefixEncoded extends S.String.annotations({
   examples: ["a1", "f3", "00", "ff", "2b"],
 }) {}
 
-export namespace ShardPrefixEncoded {
+export declare namespace ShardPrefixEncoded {
   export type Type = S.Schema.Type<typeof ShardPrefixEncoded>;
   export type Encoded = S.Schema.Encoded<typeof ShardPrefixEncoded>;
 }
@@ -82,7 +82,7 @@ export class ShardPrefixDecoded extends S.NonEmptyTrimmedString.pipe(
   ],
 }) {}
 
-export namespace ShardPrefixDecoded {
+export declare namespace ShardPrefixDecoded {
   export type Type = S.Schema.Type<typeof ShardPrefixDecoded>;
   export type Encoded = S.Schema.Encoded<typeof ShardPrefixDecoded>;
 }
@@ -153,7 +153,7 @@ export class ShardPrefix extends S.transformOrFail(ShardPrefixEncoded, ShardPref
   };
 }
 
-export namespace ShardPrefix {
+export declare namespace ShardPrefix {
   export type Type = S.Schema.Type<typeof ShardPrefix>;
   export type Encoded = S.Schema.Encoded<typeof ShardPrefix>;
 }
@@ -234,7 +234,7 @@ export class UploadPathEncoded extends S.TemplateLiteral(...UploadPathParts).ann
     "Complete S3 object key as a string following the standardized upload path format: /{env}/tenants/{shard}/{orgType}/{orgId}/{entityKind}/{entityId}/{attribute}/{year}/{month}/{fileId}.{ext}",
 }) {}
 
-export namespace UploadPathEncoded {
+export declare namespace UploadPathEncoded {
   export type Type = S.Schema.Type<typeof UploadPathEncoded>;
   export type Encoded = S.Schema.Encoded<typeof UploadPathEncoded>;
 }
@@ -273,7 +273,7 @@ export const UploadPathParser = S.TemplateLiteralParser(...UploadPathParts).anno
     "Bidirectional parser for upload path strings. Converts between string paths and typed component arrays, validating each segment according to its schema definition.",
 });
 
-export namespace UploadPathParser {
+export declare namespace UploadPathParser {
   export type Type = S.Schema.Type<typeof UploadPathParser>;
   export type Encoded = S.Schema.Encoded<typeof UploadPathParser>;
 }
@@ -332,7 +332,7 @@ export const UploadPathDecoded = BS.Struct({
   ],
 });
 
-export namespace UploadPathDecoded {
+export declare namespace UploadPathDecoded {
   export type Type = S.Schema.Type<typeof UploadPathDecoded>;
   export type Encoded = S.Schema.Encoded<typeof UploadPathDecoded>;
 }
@@ -492,7 +492,7 @@ export class UploadPath extends S.transformOrFail(UploadPathDecoded, UploadPathE
   ].join("\n- "),
 }) {}
 
-export namespace UploadPath {
+export declare namespace UploadPath {
   export type Type = S.Schema.Type<typeof UploadPath>;
   export type Encoded = S.Schema.Encoded<typeof UploadPath>;
 }

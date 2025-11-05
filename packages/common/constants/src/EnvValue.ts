@@ -11,7 +11,7 @@ export class EnvValue extends EnvValueKit.Schema.annotations({
   static readonly Enum = EnvValueKit.Enum;
 }
 
-export namespace EnvValue {
+export declare namespace EnvValue {
   export type Type = typeof EnvValue.Type;
   export type Encoded = typeof EnvValue.Encoded;
 }

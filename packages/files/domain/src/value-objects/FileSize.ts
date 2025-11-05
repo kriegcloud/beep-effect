@@ -18,7 +18,7 @@ export class ByteUnit extends ByteUnitKit.Schema.annotations({
   static readonly Enum = ByteUnitKit.Enum;
 }
 
-export namespace ByteUnit {
+export declare namespace ByteUnit {
   export type Type = S.Schema.Type<typeof ByteUnit>;
   export type Encoded = S.Schema.Encoded<typeof ByteUnit>;
 }
@@ -40,7 +40,7 @@ export class BiByteUnit extends BiByteUnitKit.Schema.annotations({
   static readonly Enum = BiByteUnitKit.Enum;
 }
 
-export namespace BiByteUnit {
+export declare namespace BiByteUnit {
   export type Type = S.Schema.Type<typeof BiByteUnit>;
   export type Encoded = S.Schema.Encoded<typeof BiByteUnit>;
 }
@@ -62,7 +62,7 @@ export class BitUnit extends BitUnitKit.Schema.annotations({
   static readonly Enum = BitUnitKit.Enum;
 }
 
-export namespace BitUnit {
+export declare namespace BitUnit {
   export type Type = S.Schema.Type<typeof BitUnit>;
   export type Encoded = S.Schema.Encoded<typeof BitUnit>;
 }
@@ -94,7 +94,7 @@ export class BiBitUnit extends BiBitUnitKit.Schema.annotations({
   static readonly Enum = BiBitUnitKit.Enum;
 }
 
-export namespace BiBitUnit {
+export declare namespace BiBitUnit {
   export type Type = S.Schema.Type<typeof BiBitUnit>;
   export type Encoded = S.Schema.Encoded<typeof BiBitUnit>;
 }

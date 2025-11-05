@@ -1,9 +1,10 @@
-import { FsUtils } from "@beep/tooling-utils/FsUtils";
-import { DomainError } from "@beep/tooling-utils/repo/Errors";
-import { findRepoRoot } from "@beep/tooling-utils/repo/Root";
-import { PackageJson, RootPackageJson } from "@beep/tooling-utils/schemas";
+import { FsUtils } from "@beep/tooling-utils/FsUtils.js";
+import { DomainError } from "@beep/tooling-utils/repo/Errors.js";
+import { findRepoRoot } from "@beep/tooling-utils/repo/Root.js";
+import { PackageJson, RootPackageJson } from "@beep/tooling-utils/schemas/index.js";
 import type * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
+import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
@@ -76,6 +77,7 @@ export const getWorkspaceDir: GetWorkSpaceDir = Effect.fn("getWorkspaceDir")(fun
       onNone: () =>
         Effect.fail(
           new DomainError({
+            cause: new Cause.NoSuchElementException(),
             message: `[getWorkspaceDir] Workspace ${workspace} not found`,
           })
         ),

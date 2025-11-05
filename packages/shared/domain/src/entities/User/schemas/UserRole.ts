@@ -19,7 +19,7 @@ export class UserRole extends UserRoleKit.Schema.annotations({
   static readonly Enum = UserRoleKit.Enum;
 }
 
-export namespace UserRole {
+export declare namespace UserRole {
   export type Type = S.Schema.Type<typeof UserRole>;
   export type Encoded = S.Schema.Encoded<typeof UserRole>;
 }

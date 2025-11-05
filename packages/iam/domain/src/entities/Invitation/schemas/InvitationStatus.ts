@@ -16,7 +16,7 @@ export class InvitationStatus extends InvitationStatusKit.Schema.annotations({
   description: "The status of the invitation",
 }) {}
 
-export namespace InvitationStatus {
+export declare namespace InvitationStatus {
   export type Type = S.Schema.Type<typeof InvitationStatus>;
   export type Encoded = S.Schema.Encoded<typeof InvitationStatus>;
 }

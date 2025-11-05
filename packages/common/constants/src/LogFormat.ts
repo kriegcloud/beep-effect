@@ -12,7 +12,7 @@ export class LogFormat extends LogFormatKit.Schema.annotations({
   static readonly Enum = LogFormatKit.Enum;
 }
 
-export namespace LogFormat {
+export declare namespace LogFormat {
   export type Type = S.Schema.Type<typeof LogFormat>;
   export type Encoded = S.Schema.Type<typeof LogFormat>;
 }
@@ -26,7 +26,7 @@ export class LogFormatTagged extends LogFormatTaggedKit.Union.annotations({
   description: "Log format tagged.",
 }) {}
 
-export namespace LogFormatTagged {
+export declare namespace LogFormatTagged {
   export type Type = S.Schema.Type<typeof LogFormatTagged>;
   export type Encoded = S.Schema.Type<typeof LogFormatTagged>;
 }

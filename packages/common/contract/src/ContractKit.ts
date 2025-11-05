@@ -52,6 +52,7 @@ import type * as Scope from "effect/Scope";
 import * as Struct from "effect/Struct";
 import * as Contract from "./Contract";
 import * as ContractError from "./ContractError";
+
 /**
  * Unique identifier for contractKit instances.
  *
@@ -210,7 +211,8 @@ export interface WithImplementation<in out Contracts extends Record<string, Cont
     /**
      * The name of the contract to execute.
      */
-    name: Name,
+    name: Name
+  ) => (
     /**
      * Payload to pass to the contract implementation.
      */
@@ -286,71 +288,69 @@ const Proto = {
         }
         return schemas;
       };
-      const handle = Effect.fn("ContractKit.handle", { captureStackTrace: false })(function* (
-        name: string,
-        params: unknown
-      ) {
-        yield* Effect.annotateCurrentSpan({ contract: name, payload: params });
-        const contract = contracts[name];
-        if (P.isUndefined(contract)) {
-          const contractNames = Object.keys(contracts).join(",");
-          return yield* new ContractError.MalformedOutput({
-            module: "ContractKit",
-            method: `${name}.handle`,
-            description: `Failed to find contract with name '${name}' in contractKit - available contracts: ${contractNames}`,
-          });
-        }
-        const schemas = getSchemas(contract);
-        const decodedParams = yield* Effect.mapError(
-          schemas.decodePayload(params),
-          (cause) =>
-            new ContractError.MalformedOutput({
+      const handle = (name: string) =>
+        Effect.fn("ContractKit.handle", { captureStackTrace: false })(function* (params: unknown) {
+          yield* Effect.annotateCurrentSpan({ contract: name, payload: params });
+          const contract = contracts[name];
+          if (P.isUndefined(contract)) {
+            const contractNames = Object.keys(contracts).join(",");
+            return yield* new ContractError.MalformedOutput({
               module: "ContractKit",
               method: `${name}.handle`,
-              description: `Failed to decode contract call payload for contract '${name}' from:\n'${JSON.stringify(
-                params,
-                undefined,
-                2
-              )}'`,
-              cause,
-            })
-        );
-        const { isFailure, result } = yield* schemas.implementation(decodedParams).pipe(
-          Effect.map((result) => ({ result, isFailure: false })),
-          Effect.catchAll((error) =>
-            // If the contract implementation failed, check the contract's failure mode to
-            // determine how the result should be returned to the end user
-            contract.failureMode === "error" ? Effect.fail(error) : Effect.succeed({ result: error, isFailure: true })
-          ),
-          Effect.tap(({ result }) => schemas.validateResult(result)),
-          Effect.mapInputContext((input) => Context.merge(schemas.context, input)),
-          Effect.mapError((cause) =>
-            ParseResult.isParseError(cause)
-              ? new ContractError.MalformedInput({
-                  module: "ContractKit",
-                  method: `${name}.handle`,
-                  description: `Failed to validate contract call result for contract '${name}'`,
-                  cause,
-                })
-              : cause
-          )
-        );
-        const encodedResult = yield* Effect.mapError(
-          schemas.encodeResult(result),
-          (cause) =>
-            new ContractError.MalformedInput({
-              module: "ContractKit",
-              method: `${name}.handle`,
-              description: `Failed to encode contract call result for contract '${name}'`,
-              cause,
-            })
-        );
-        return {
-          isFailure,
-          result,
-          encodedResult,
-        } satisfies Contract.ImplementationResult<UnsafeTypes.UnsafeAny>;
-      });
+              description: `Failed to find contract with name '${name}' in contractKit - available contracts: ${contractNames}`,
+            });
+          }
+          const schemas = getSchemas(contract);
+          const decodedParams = yield* Effect.mapError(
+            schemas.decodePayload(params),
+            (cause) =>
+              new ContractError.MalformedOutput({
+                module: "ContractKit",
+                method: `${name}.handle`,
+                description: `Failed to decode contract call payload for contract '${name}' from:\n'${JSON.stringify(
+                  params,
+                  undefined,
+                  2
+                )}'`,
+                cause,
+              })
+          );
+          const { isFailure, result } = yield* schemas.implementation(decodedParams).pipe(
+            Effect.map((result) => ({ result, isFailure: false })),
+            Effect.catchAll((error) =>
+              // If the contract implementation failed, check the contract's failure mode to
+              // determine how the result should be returned to the end user
+              contract.failureMode === "error" ? Effect.fail(error) : Effect.succeed({ result: error, isFailure: true })
+            ),
+            Effect.tap(({ result }) => schemas.validateResult(result)),
+            Effect.mapInputContext((input) => Context.merge(schemas.context, input)),
+            Effect.mapError((cause) =>
+              ParseResult.isParseError(cause)
+                ? new ContractError.MalformedInput({
+                    module: "ContractKit",
+                    method: `${name}.handle`,
+                    description: `Failed to validate contract call result for contract '${name}'`,
+                    cause,
+                  })
+                : cause
+            )
+          );
+          const encodedResult = yield* Effect.mapError(
+            schemas.encodeResult(result),
+            (cause) =>
+              new ContractError.MalformedInput({
+                module: "ContractKit",
+                method: `${name}.handle`,
+                description: `Failed to encode contract call result for contract '${name}'`,
+                cause,
+              })
+          );
+          return {
+            isFailure,
+            result,
+            encodedResult,
+          } satisfies Contract.ImplementationResult<UnsafeTypes.UnsafeAny>;
+        });
       return {
         contracts,
         handle,

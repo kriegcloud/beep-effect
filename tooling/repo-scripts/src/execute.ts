@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { generateLocalesContent } from "@beep/repo-scripts/i18n";
+import { generateLocalesContent } from "@beep/repo-scripts/i18n/index.js";
 import { FsUtilsLive } from "@beep/tooling-utils/FsUtils";
 import { RepoUtilsLive } from "@beep/tooling-utils/RepoUtils";
 import * as FetchHttpClient from "@effect/platform/FetchHttpClient";

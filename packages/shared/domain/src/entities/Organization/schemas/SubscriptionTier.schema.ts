@@ -12,7 +12,7 @@ export class SubscriptionTier extends kit.Schema {
   static readonly Enum = kit.Enum;
 }
 
-export namespace SubscriptionTier {
+export declare namespace SubscriptionTier {
   export type Type = S.Schema.Type<typeof SubscriptionTier>;
   export type Encoded = S.Schema.Encoded<typeof SubscriptionTier>;
 }

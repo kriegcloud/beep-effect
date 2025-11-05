@@ -1,4 +1,4 @@
-import { buildRepoDependencyIndex } from "@beep/tooling-utils/repo/DependencyIndex";
+import { buildRepoDependencyIndex } from "@beep/tooling-utils/repo/DependencyIndex.js";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";

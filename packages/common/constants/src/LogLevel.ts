@@ -13,7 +13,7 @@ export class LogLevel extends LogLevelKit.Schema.annotations({
   static readonly Enum = LogLevelKit.Enum;
 }
 
-export namespace LogLevel {
+export declare namespace LogLevel {
   export type Type = S.Schema.Type<typeof LogLevel>;
   export type Encoded = S.Schema.Type<typeof LogLevel>;
 }

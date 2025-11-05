@@ -17,11 +17,6 @@ export class PasskeyView extends BS.Class<PasskeyView>("PasskeyView")(
   }
 ) {}
 
-export declare namespace PasskeyView {
-  export type Type = S.Schema.Type<typeof PasskeyView>;
-  export type Encoded = S.Schema.Encoded<typeof PasskeyView>;
-}
-
 export class PasskeyAddPayload extends BS.Class<PasskeyAddPayload>("PasskeyAddPayload")(
   S.Struct({
     ...Passkey.Model.insert.pick("name").fields,
@@ -54,6 +49,7 @@ export const PasskeyListContract = Contract.make("PasskeyList", {
   payload: {},
   failure: S.instanceOf(IamError),
   success: S.mutable(S.Array(PasskeyView)),
+  failureMode: "error" as const,
 });
 
 export class PasskeyDeletePayload extends BS.Class<PasskeyDeletePayload>("PasskeyDeletePayload")(

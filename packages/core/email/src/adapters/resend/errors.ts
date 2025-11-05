@@ -33,10 +33,7 @@ export class ResendError extends Data.TaggedError("ResendError")<{
   readonly error: ResendErrorResponse;
   readonly input: unknown;
 }> {
-  constructor(
-    override readonly error: ResendErrorResponse,
-    override readonly input: unknown
-  ) {
+  constructor(error: ResendErrorResponse, input: unknown) {
     super({ error, input });
   }
 }

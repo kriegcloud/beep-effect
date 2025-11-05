@@ -34,10 +34,10 @@ import {
   IconifyApiError,
   normalizeIconLookups,
   searchIcons,
-} from "./api";
-import { IconifyClientConfigLive, IconifyClientLive } from "./client";
-import type { IconRegistryAddition } from "./registry";
-import { ICONIFY_REGISTRY_PATH, mergeRegistryContent, mergeRegistryFile } from "./registry";
+} from "./api.js";
+import { IconifyClientConfigLive, IconifyClientLive } from "./client.js";
+import type { IconRegistryAddition } from "./registry.js";
+import { ICONIFY_REGISTRY_PATH, mergeRegistryContent, mergeRegistryFile } from "./registry.js";
 
 // BadArgument | NoSuchFileError | SystemError
 const DEFAULT_SEARCH_LIMIT = 20;

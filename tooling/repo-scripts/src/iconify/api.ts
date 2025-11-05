@@ -8,7 +8,7 @@ import type { ParseError } from "effect/ParseResult";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { IconifyClient } from "./client";
+import { IconifyClient } from "./client.js";
 import type {
   IconifyCollectionDetail,
   IconifyCollectionMetadata,
@@ -17,14 +17,14 @@ import type {
   IconifyIconSet,
   IconifyKeywordsResponse,
   IconifySearchResponse,
-} from "./schema";
+} from "./schema.js";
 import {
   IconifyCollectionDetailSchema,
   IconifyCollectionsResponseSchema,
   IconifyIconSetSchema,
   IconifyKeywordsResponseSchema,
   IconifySearchResponseSchema,
-} from "./schema";
+} from "./schema.js";
 
 export class IconifyApiError extends S.TaggedError<IconifyApiError>("IconifyApiError")("IconifyApiError", {
   message: S.String,

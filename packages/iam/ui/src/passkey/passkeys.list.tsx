@@ -14,7 +14,7 @@ import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";
 
 type Props = {
-  readonly passkeys: ReadonlyArray<PasskeyView.Type>;
+  readonly passkeys: ReadonlyArray<PasskeyView>;
 };
 
 export const PasskeysList = ({ passkeys }: Props) => {
@@ -25,7 +25,7 @@ export const PasskeysList = ({ passkeys }: Props) => {
   const runtime = useRuntime();
   const runDelete = makeRunClientPromise(runtime, "passkey.delete");
 
-  const handleDelete = async (passkey: PasskeyView.Type) =>
+  const handleDelete = async (passkey: PasskeyView) =>
     runDelete(
       Effect.gen(function* () {
         const confirmResult = yield* Effect.tryPromise(() =>

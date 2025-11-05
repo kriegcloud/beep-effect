@@ -22,7 +22,6 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "rewriteRelativeImportExtensions": true,
-    "erasableSyntaxOnly": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "isolatedDeclarations": true,

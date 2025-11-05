@@ -20,7 +20,7 @@ export class FilesConfig extends Context.Tag("@beep/files-infra/FilesConfig")<Fi
   }
 }
 
-export namespace FilesConfig {
+export declare namespace FilesConfig {
   export interface Service {
     readonly aws: {
       readonly s3: {

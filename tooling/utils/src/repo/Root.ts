@@ -1,10 +1,10 @@
-import { NoSuchFileError } from "@beep/tooling-utils/repo/Errors";
+import { NoSuchFileError } from "@beep/tooling-utils/repo/Errors.js";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as Effect from "effect/Effect";
 
 /**
- * Find the repository root by walking upward from this module's directory.
+ * Find the repository root by walking upward from the current working directory.
  *
  * A directory is considered the repo root if it contains either a `.git`
  * directory or a Bun workspace marker (`bun.lock`).
@@ -16,8 +16,7 @@ export const findRepoRoot = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
-  const currentDir = yield* path.fromFileUrl(new URL(import.meta.url));
-  let current = path.dirname(currentDir);
+  let current = process.cwd();
 
   while (true) {
     const hasGit = yield* fs.exists(path.join(current, ".git"));
@@ -34,7 +33,7 @@ export const findRepoRoot = Effect.gen(function* () {
 
   return yield* Effect.fail(
     new NoSuchFileError({
-      path: currentDir,
+      path: process.cwd(),
       message: "[findRepoRoot] Could not find repo root",
     })
   );

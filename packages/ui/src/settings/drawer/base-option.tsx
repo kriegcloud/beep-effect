@@ -8,12 +8,12 @@ import { styled } from "@mui/material/styles";
 import Tooltip from "@mui/material/Tooltip";
 
 export type BaseOptionProps = Omit<ButtonBaseProps, "action"> & {
-  label: string;
-  tooltip?: string;
-  selected: boolean;
-  icon: React.ReactNode;
-  action?: React.ReactNode;
-  onChangeOption: () => void;
+  readonly label: string;
+  readonly tooltip?: string | undefined;
+  readonly selected: boolean;
+  readonly icon: React.ReactNode;
+  readonly action?: React.ReactNode | undefined;
+  readonly onChangeOption: () => void;
 };
 
 export function BaseOption({ sx, icon, label, action, tooltip, selected, onChangeOption, ...other }: BaseOptionProps) {

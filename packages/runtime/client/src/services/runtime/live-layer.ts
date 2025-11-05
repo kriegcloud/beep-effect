@@ -1,5 +1,5 @@
 import { clientEnv } from "@beep/core-env/client";
-import { Toaster } from "@beep/ui/services/toaster.service";
+import { ToasterService } from "@beep/ui/services/toaster.service";
 import { WebSdk } from "@effect/opentelemetry";
 import { FetchHttpClient } from "@effect/platform";
 import type { HttpClient } from "@effect/platform/HttpClient";
@@ -80,12 +80,12 @@ export const WorkerClientLive = WorkerClient.Default;
 // Runtime assembly
 // ============================================================================
 
-type ClientRuntimeServices = HttpClient | Toaster | NetworkMonitor | WorkerClient | KeyValueStore.KeyValueStore;
+type ClientRuntimeServices = HttpClient | ToasterService | NetworkMonitor | WorkerClient | KeyValueStore.KeyValueStore;
 
 export type ClientRuntimeLayer = Layer.Layer<ClientRuntimeServices, never, never>;
 
 export const clientRuntimeLayer = Layer.mergeAll(
-  Layer.provideMerge(Toaster.Default, Registry.layer),
+  Layer.provideMerge(ToasterService.Default, Registry.layer),
   HttpClientLive,
   ObservabilityLive,
   NetworkMonitorLive,

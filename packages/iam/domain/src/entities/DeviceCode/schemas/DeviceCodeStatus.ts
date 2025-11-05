@@ -10,7 +10,7 @@ export class DeviceCodeStatus extends DeviceCodeStatusKit.Schema {
   static readonly Enum = DeviceCodeStatusKit.Enum;
 }
 
-export namespace DeviceCodeStatus {
+export declare namespace DeviceCodeStatus {
   export type Type = S.Schema.Type<typeof DeviceCodeStatus>;
   export type Encoded = S.Schema.Encoded<typeof DeviceCodeStatus>;
 }

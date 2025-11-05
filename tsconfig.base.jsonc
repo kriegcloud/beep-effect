@@ -9,7 +9,7 @@
     //todo "module": "NodeNext",
     "moduleDetection": "force",
     // Treat every non-declaration file as a module.
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     // Do not fiddle with import/export statements
     "verbatimModuleSyntax": true,
     // Only transform/eliminate type-only import/export statements.
@@ -17,14 +17,14 @@
     // If you touch this, a puppy dies.
     "rewriteRelativeImportExtensions": true,
     // Rewrite `.ts` imports to `.js` at build time.
-    // todo "erasableSyntaxOnly": true, // Allows to run directly with node and type removal
+    "erasableSyntaxOnly": true,
+    // Allows to run directly with node and type removal
     // Emit source- & declaration maps.
     "declarationMap": true,
     "sourceMap": true,
     // Opt-in to stricter type checking and correctness guard rails. The more the merrier.
     "strict": true,
     "exactOptionalPropertyTypes": true,
-    // todo make true
     "noUnusedLocals": true,
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true,
@@ -34,6 +34,7 @@
     "noErrorTruncation": true,
     // Do not truncate error messages.
     "types": [],
+    "lib": ["es2022", "DOM", "DOM.Iterable"],
     // Disable automatic loading of `@types/*` packages.
     "downlevelIteration": true,
     "resolveJsonModule": true,

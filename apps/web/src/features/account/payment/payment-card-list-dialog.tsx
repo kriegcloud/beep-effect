@@ -1,6 +1,6 @@
 import { Iconify } from "@beep/ui/atoms";
+import { SearchNotFound } from "@beep/ui/messages";
 import { Scrollbar } from "@beep/ui/molecules";
-import { SearchNotFound } from "@beep/ui/sections";
 
 import Box from "@mui/material/Box";
 import type { DialogProps } from "@mui/material/Dialog";

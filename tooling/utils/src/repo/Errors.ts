@@ -9,7 +9,7 @@ import * as S from "effect/Schema";
  */
 export class NoSuchFileError extends S.TaggedError<NoSuchFileError>("NoSuchFileError")("NoSuchFileError", {
   path: S.String,
-  message: S.optional(S.String),
+  message: S.optionalWith(S.String, { exact: true, default: () => "Path does not exist" }),
 }) {}
 
 /**
@@ -23,7 +23,7 @@ export class NoSuchFileError extends S.TaggedError<NoSuchFileError>("NoSuchFileE
  */
 export class DomainError extends S.TaggedError<DomainError>("DomainError")("DomainError", {
   message: S.String,
-  cause: S.optional(S.Unknown),
+  cause: S.Defect,
 }) {
   static readonly is = S.is(DomainError);
 
@@ -48,17 +48,3 @@ export class DomainError extends S.TaggedError<DomainError>("DomainError")("Doma
 
   static readonly mapError = Effect.mapError(DomainError.selfOrMap);
 }
-
-/**
- * Error raised when a package.json that is required cannot be located.
- *
- * @property message - Human-friendly details.
- * @property cause - Underlying cause.
- */
-export class PackageJsonNotFound extends S.TaggedError<PackageJsonNotFound>("PackageJsonNotFound")(
-  "PackageJsonNotFound",
-  {
-    message: S.String,
-    cause: S.Any,
-  }
-) {}
