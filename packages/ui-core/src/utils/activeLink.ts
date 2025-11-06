@@ -22,7 +22,7 @@ import { hasParams, isExternalLink, removeLastSlash, removeParams } from "./url"
  * isActiveLink('/dashboard/user', '#section');                      // false (hash link)
  * isActiveLink('/dashboard/user', 'https://example.com');           // false (external link)
  */
-export const isActiveLink = (currentPathname: string, targetPath: string, deep = true): boolean => {
+export const isActiveLink: (currentPathname: string, targetPath: string, deep: boolean) => boolean = (currentPathname: string, targetPath: string, deep = true): boolean => {
   if (!currentPathname || !targetPath) {
     console.warn("isActiveLink: pathname or itemPath is empty!");
     return false;

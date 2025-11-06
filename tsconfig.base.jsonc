@@ -34,7 +34,7 @@
     "noErrorTruncation": true,
     // Do not truncate error messages.
     "types": [],
-    "lib": ["es2022", "DOM", "DOM.Iterable"],
+    "lib": ["es2022", "DOM", "DOM.Iterable", "ESNext"],
     // Disable automatic loading of `@types/*` packages.
     "downlevelIteration": true,
     "resolveJsonModule": true,
@@ -42,7 +42,9 @@
     "preserveWatchOutput": true,
     "inlineSources": false,
     "emitDecoratorMetadata": true,
+    "pretty": true,
     "experimentalDecorators": true,
+    "isolatedModules": true,
     "moduleResolution": "bundler",
     "skipDefaultLibCheck": true,
     "forceConsistentCasingInFileNames": true,

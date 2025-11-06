@@ -1,4 +1,4 @@
-export const getItemFromStore = (key: string, defaultValue?: string | boolean, store?: Storage) => {
+export const getItemFromStore = (key: string, defaultValue?: string | boolean | undefined, store?: Storage | undefined) => {
   if (typeof window !== "undefined") {
     store = store || window.localStorage;
     try {

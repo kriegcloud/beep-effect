@@ -19,6 +19,7 @@
     "types": ["node", "bun"],
     "outDir": "build/src",
 
+    "isolatedDeclarations": false,
     "rootDir": "src",
     "moduleResolution": "bundler",
     "incremental": true,

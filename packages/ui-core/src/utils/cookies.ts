@@ -4,11 +4,11 @@ import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 
 export type CookieOptions = {
-  secure?: boolean;
-  daysUntilExpiration?: number;
-  sameSite?: "Strict" | "Lax" | "None";
-  domain?: string;
-  path?: string;
+  readonly secure?: boolean | undefined;
+  readonly daysUntilExpiration?: number | undefined;
+  readonly sameSite?: "Strict" | "Lax" | "None" | undefined;
+  readonly domain?: string | undefined;
+  readonly path?: string | undefined;
 };
 
 // Internal: feature-detect CookieStore API safely across environments (e.g. SSR)

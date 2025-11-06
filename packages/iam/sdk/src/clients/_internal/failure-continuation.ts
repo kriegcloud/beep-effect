@@ -66,6 +66,7 @@ export const makeFailureContinuation = (
           controller.abort();
         }
         resume(result);
+
       };
 
       const handlers: FailureContinuationHandlers = controller
