@@ -30,6 +30,7 @@
     "noFallthroughCasesInSwitch": true,
     // Miscellaneous
     "skipLibCheck": true,
+    "noEmit": false,
     // Skip type checking of third party libraries.
     "noErrorTruncation": true,
     // Do not truncate error messages.

@@ -1,6 +1,6 @@
+import * as F from "effect/Function";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
-import * as F from "effect/Function";
 /**
  * Converts a hex color to RGB channels.
  *
@@ -45,7 +45,7 @@ export function createPaletteChannel<T extends ColorPalette>(hexPalette: T): Cha
     }
   });
 
-  return {...hexPalette, ...channelPalette} as ChannelPalette<T>;
+  return { ...hexPalette, ...channelPalette } as ChannelPalette<T>;
 }
 
 /**
@@ -65,12 +65,12 @@ export function createPaletteChannel<T extends ColorPalette>(hexPalette: T): Cha
  */
 function validateOpacity(opacity: string | number, color: string): string {
   const isCSSVar = (val: string) => Str.includes("var(--")(val);
-  const isPercentage = (val: string) => F.pipe(val, Str.trim, Str.endsWith("%"))
+  const isPercentage = (val: string) => F.pipe(val, Str.trim, Str.endsWith("%"));
 
   const errors = {
     invalid: `[Alpha]: Invalid opacity "${opacity}" for ${color}.`,
     range: "Must be a number between 0 and 1 (e.g., 0.48).",
-    format: "Must be a percentage (e.g., \"48%\") or CSS variable (e.g., \"var(--opacity)\").",
+    format: 'Must be a percentage (e.g., "48%") or CSS variable (e.g., "var(--opacity)").',
   };
 
   if (typeof opacity === "string") {
@@ -114,13 +114,9 @@ export function rgbaFromChannel(color: string, opacity: string | number = 1): st
     throw new Error("[Alpha]: Color is undefined or empty!");
   }
 
-
   const isUnsupported = P.or(
     P.or(Str.startsWith("#"), Str.startsWith("rgb")),
-    P.or(
-      Str.startsWith("rgba"),
-      P.and(P.not(Str.includes("var")), Str.includes("Channel"))
-    )
+    P.or(Str.startsWith("rgba"), P.and(P.not(Str.includes("var")), Str.includes("Channel")))
   )(color);
   // color.startsWith("#") ||
   // color.startsWith("rgb") ||
@@ -132,12 +128,12 @@ export function rgbaFromChannel(color: string, opacity: string | number = 1): st
       [
         `[Alpha]: Unsupported color format "${color}"`,
         "✅ Supported formats:",
-        "- RGB channels: \"0 184 217\"",
-        "- CSS variables with \"Channel\" prefix: \"var(--palette-common-blackChannel, #000000)\"",
+        '- RGB channels: "0 184 217"',
+        '- CSS variables with "Channel" prefix: "var(--palette-common-blackChannel, #000000)"',
         "❌ Unsupported formats:",
-        "- Hex: \"#00B8D9\"",
-        "- RGB: \"rgb(0, 184, 217)\"",
-        "- RGBA: \"rgba(0, 184, 217, 1)\"",
+        '- Hex: "#00B8D9"',
+        '- RGB: "rgb(0, 184, 217)"',
+        '- RGBA: "rgba(0, 184, 217, 1)"',
       ].join("\n")
     );
   }

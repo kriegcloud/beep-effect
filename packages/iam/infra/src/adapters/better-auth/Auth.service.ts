@@ -1,4 +1,3 @@
-import type { AuthProviderNameValue } from "@beep/constants";
 import * as IamEntities from "@beep/iam-domain/entities";
 import * as Member from "@beep/iam-domain/entities/Member";
 import { IamConfig } from "@beep/iam-infra/config";
@@ -8,14 +7,11 @@ import { BS } from "@beep/schema";
 import { IamEntityIds, paths, SharedEntityIds } from "@beep/shared-domain";
 import * as Organization from "@beep/shared-domain/entities/Organization";
 import type { UnsafeTypes } from "@beep/types";
-import type { SqlError } from "@effect/sql/SqlError";
 import type { BetterAuthOptions } from "better-auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import * as d from "drizzle-orm";
 import * as A from "effect/Array";
-import type { ConfigError } from "effect/ConfigError";
-import * as Data from "effect/Data";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -28,56 +24,11 @@ import * as Redacted from "effect/Redacted";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import { AuthEmailService, SendResetPasswordEmailPayload, SendVerificationEmailPayload } from "./AuthEmail.service";
-import type { CommonExtraFields } from "./internal";
 import { commonExtraFields } from "./internal";
 import { AllPlugins } from "./plugins";
-import type { Plugins } from "./plugins/plugins";
+import type { AuthOptionsEffect, AuthServiceEffect, Opts } from "./types";
 
-export type ReadonlyHeaders = Headers & {
-  /** @deprecated Method unavailable on `ReadonlyHeaders`. Read more: https://nextjs.org/docs/app/api-reference/functions/headers */
-  append(...args: UnsafeTypes.UnsafeAny[]): void;
-  /** @deprecated Method unavailable on `ReadonlyHeaders`. Read more: https://nextjs.org/docs/app/api-reference/functions/headers */
-  set(...args: UnsafeTypes.UnsafeAny[]): void;
-  /** @deprecated Method unavailable on `ReadonlyHeaders`. Read more: https://nextjs.org/docs/app/api-reference/functions/headers */
-  delete(...args: UnsafeTypes.UnsafeAny[]): void;
-};
-type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "user"> & {
-  account: {
-    additionalFields: CommonExtraFields;
-    accountLinking: {
-      enabled: boolean;
-      allowDifferentEmails: boolean;
-      trustedProviders: AuthProviderNameValue.Type[];
-    };
-    encryptOAuthTokens: boolean;
-  };
-  session: {
-    modelName: typeof IamEntityIds.SessionId.tableName;
-    additionalFields: CommonExtraFields;
-    cookieCache: {
-      enabled: true;
-      maxAge: number;
-    };
-    expiresIn: number;
-    updateAge: number;
-  };
-  plugins: Plugins;
-  user: {
-    modelName: typeof SharedEntityIds.UserId.tableName;
-    additionalFields: CommonExtraFields & {
-      gender: {
-        type: "string";
-        required: true;
-      };
-      secondaryEmailAddress: {
-        type: "string";
-        required: false;
-      };
-    };
-  };
-};
-
-const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService | IamConfig> = Effect.gen(function* () {
+const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
   const { db, drizzle } = yield* IamDb.IamDb;
   const { sendResetPassword, sendVerification } = yield* AuthEmailService;
   const plugins = yield* AllPlugins;
@@ -303,30 +254,14 @@ const AuthOptions: Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService | I
   return opts;
 });
 
-export type Auth = ReturnType<typeof betterAuth<Opts>>;
-export type $Infer = Auth["$Infer"];
-export type Session = $Infer["Session"];
-export type User = $Infer["User"];
-
-export class AuthServiceError extends Data.TaggedError("AuthServiceError")<{
-  readonly cause: unknown;
-  readonly message: string;
-}> {}
-
-const authServiceEffect: Effect.Effect<
-  {
-    readonly auth: Auth;
-  },
-  SqlError | ConfigError,
-  AuthEmailService | IamDb.IamDb | IamConfig
-> = Effect.gen(function* () {
+const authServiceEffect: AuthServiceEffect = Effect.gen(function* () {
   const authOptions = yield* AuthOptions;
 
   const auth = betterAuth<Opts>(authOptions);
 
-  return yield* Effect.succeed({
+  return {
     auth,
-  });
+  } as const;
 });
 
 export class AuthService extends Effect.Service<AuthService>()("AuthService", {

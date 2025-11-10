@@ -5,6 +5,7 @@ export type * as LiteralTypes from "./literal.types.js";
 export type * as ModelTypes from "./model.types.js";
 export type * as MutTypes from "./mut.types.js";
 export type * as Or from "./or.types.js";
+export type * as PromiseTypes from "./promise.types.js";
 export type * as RecordTypes from "./record.types.js";
 export type * as SchemaTypes from "./schema.types.js";
 export type * as StringTypes from "./string.types.js";

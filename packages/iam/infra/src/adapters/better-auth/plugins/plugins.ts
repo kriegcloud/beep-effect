@@ -13,7 +13,7 @@ import * as DeviceAuthorization from "./device-authorization";
 import * as DubAnalytics from "./dub-analytics";
 import * as GenericOAuth from "./generic-oauth";
 import * as HaveIBeenPwned from "./have-i-been-pwned";
-import * as Jwt from "./jwt";
+// import * as Jwt from "./jwt";
 import * as LastLoginMethod from "./last-login-method";
 import * as Localization from "./localization";
 import * as Mcp from "./mcp";
@@ -41,7 +41,7 @@ export type Plugins = Array<
   | DubAnalytics.DubAnalyticsPlugin
   | GenericOAuth.GenericOAuthPlugin
   | HaveIBeenPwned.HaveIBeenPwnedPlugin
-  | Jwt.JwtPlugin
+  // | Jwt.JwtPlugin
   | LastLoginMethod.LastLoginMethodPlugin
   | Mcp.McpPlugin
   | MultiSession.MultiSessionPlugin
@@ -73,7 +73,7 @@ const allPluginsArray = [
   DubAnalytics.dubAnalyticsPlugin,
   GenericOAuth.genericOAuthPlugin,
   HaveIBeenPwned.haveIBeenPwnedPlugin,
-  Jwt.jwtPlugin,
+  // Jwt.jwtPlugin,
   Cookies.cookiesPlugin,
   LastLoginMethod.lastLoginMethodPlugin,
   Localization.localizationPlugin,

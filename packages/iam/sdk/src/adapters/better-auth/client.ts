@@ -7,7 +7,7 @@ import {
   customSessionClient,
   deviceAuthorizationClient,
   genericOAuthClient,
-  jwtClient,
+  // jwtClient,
   lastLoginMethodClient,
   multiSessionClient,
   oidcClient,
@@ -29,10 +29,10 @@ export const client = createAuthClient({
   plugins: [
     adminClient(),
     anonymousClient(),
+    // jwtClient,
     apiKeyClient(),
     customSessionClient(),
     genericOAuthClient(),
-    jwtClient(),
     multiSessionClient(),
     oidcClient(),
     oneTapClient({
