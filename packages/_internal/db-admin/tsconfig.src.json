@@ -42,6 +42,15 @@
     {
       "path": "../../iam/tables"
     },
+        {
+      "path": "../../tasks/domain"
+    },
+    {
+      "path": "../../tasks/ui"
+    },
+    {
+      "path": "../../tasks/tables"
+    },
     {
       "path": "../../files/infra"
     },

@@ -1,6 +1,7 @@
 import * as S from "effect/Schema";
 import * as IamEntityIds from "./iam";
 import { OrganizationId, TeamId, UserId } from "./shared";
+import * as TaskEntityIds from "./tasks";
 
 export class AnyEntityId extends S.Union(
   IamEntityIds.AccountId,
@@ -23,7 +24,8 @@ export class AnyEntityId extends S.Union(
   IamEntityIds.DeviceCodeId,
   OrganizationId,
   TeamId,
-  UserId
+  UserId,
+  TaskEntityIds.TodoId
 ).annotations({
   schemaId: Symbol.for("@beep/shared/domain/EntityIds/AnyEntityId"),
   description: "Any entity id",

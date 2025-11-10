@@ -3,9 +3,11 @@ import { ResendService } from "@beep/core-email";
 import { serverEnv } from "@beep/core-env/server";
 import { makePrettyConsoleLoggerLayer } from "@beep/errors/server";
 import { FilesRepos } from "@beep/files-infra";
+import { TasksRepos } from "@beep/tasks-infra";
 import { FilesDb } from "@beep/files-infra/db";
 import { AuthEmailService, AuthService, IamConfig, IamRepos } from "@beep/iam-infra";
 import { IamDb } from "@beep/iam-infra/db";
+import { TasksDb } from "@beep/tasks-infra/db";
 import { DevTools } from "@effect/experimental";
 import { NodeSdk } from "@effect/opentelemetry";
 import { BunSocket } from "@effect/platform-bun";
@@ -72,10 +74,10 @@ export const ObservabilityLive = Layer.mergeAll(LoggerLive, TelemetryLive, DevTo
 // ============================================================================
 
 /** Combines infra-specific repositories required by the server runtime. */
-export const SliceRepositoriesLive = Layer.mergeAll(IamRepos.layer, FilesRepos.layer);
+export const SliceRepositoriesLive = Layer.mergeAll(IamRepos.layer, FilesRepos.layer, TasksRepos.layer);
 
 /** Establishes connections to the databases used by the runtime. */
-export const SliceDatabasesLive = Layer.mergeAll(IamDb.IamDb.Live, FilesDb.FilesDb.Live);
+export const SliceDatabasesLive = Layer.mergeAll(IamDb.IamDb.Live, FilesDb.FilesDb.Live, TasksDb.TasksDb.Live);
 
 /** Provides database connections to the common database layer. */
 export const DatabaseInfrastructureLive = Layer.provideMerge(SliceDatabasesLive, Db.Live);

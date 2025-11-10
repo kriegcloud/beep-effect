@@ -280,6 +280,53 @@
       "@beep/files-ui/test/*": [
         "./packages/files/ui/test/*"
       ],
+
+      "@beep/tasks-domain": [
+        "./packages/tasks/domain/src/index"
+      ],
+      "@beep/tasks-domain/*": [
+        "./packages/tasks/domain/src/*"
+      ],
+      "@beep/tasks-domain/test/*": [
+        "./packages/tasks/domain/test/*"
+      ],
+      "@beep/tasks-tables": [
+        "./packages/tasks/tables/src/index"
+      ],
+      "@beep/tasks-tables/*": [
+        "./packages/tasks/tables/src/*"
+      ],
+      "@beep/tasks-tables/test/*": [
+        "./packages/tasks/tables/test/*"
+      ],
+      "@beep/tasks-infra": [
+        "./packages/tasks/infra/src/index"
+      ],
+      "@beep/tasks-infra/*": [
+        "./packages/tasks/infra/src/*"
+      ],
+      "@beep/tasks-infra/test/*": [
+        "./packages/tasks/infra/test/*"
+      ],
+      "@beep/tasks-sdk": [
+        "./packages/tasks/sdk/src/index"
+      ],
+      "@beep/tasks-sdk/*": [
+        "./packages/tasks/sdk/src/*"
+      ],
+      "@beep/tasks-sdk/test/*": [
+        "./packages/tasks/sdk/test/*"
+      ],
+      "@beep/tasks-ui": [
+        "./packages/tasks/ui/src/index"
+      ],
+      "@beep/tasks-ui/*": [
+        "./packages/tasks/ui/src/*"
+      ],
+      "@beep/tasks-ui/test/*": [
+        "./packages/tasks/ui/test/*"
+      ],
+
       "@beep/runtime-server": [
         "./packages/runtime/server/src/index"
       ],

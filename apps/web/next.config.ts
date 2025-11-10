@@ -1,14 +1,14 @@
 import fs from "node:fs";
-import { createRequire } from "node:module";
+import {createRequire} from "node:module";
 import path from "node:path";
-import type { NextConfig } from "next";
+import type {NextConfig} from "next";
 
 type BundleAnalyzerFactory = (
   options?:
     | {
-        readonly enabled?: boolean | string | undefined;
-        readonly openAnalyzer?: boolean | undefined;
-      }
+    readonly enabled?: boolean | string | undefined;
+    readonly openAnalyzer?: boolean | undefined;
+  }
     | undefined
 ) => (config: NextConfig) => NextConfig;
 
@@ -57,34 +57,39 @@ const securityHeaders = [
 ];
 
 const candidateTranspilePackages = [
-  // "@beep/types",
-  // "@beep/invariant",
-  // "@beep/utils",
-  // "@beep/schema",
-  // "@beep/constants",
-  // "@beep/errors",
-  // "@beep/shared-domain",
-  // "@beep/shared-tables",
-  // "@beep/core-env",
-  // "@beep/core-email",
-  // "@beep/core-db",
+  "@beep/types",
+  "@beep/invariant",
+  "@beep/utils",
+  "@beep/schema",
+  "@beep/constants",
+  "@beep/errors",
+  "@beep/shared-domain",
+  "@beep/shared-tables",
+  "@beep/core-env",
+  "@beep/core-email",
+  "@beep/core-db",
   "@beep/ui",
   "@beep/ui-core",
-  // "@beep/iam-domain",
-  // "@beep/iam-tables",
-  // "@beep/iam-infra",
-  // "@beep/iam-sdk",
-  // "@beep/iam-ui",
-  // "@beep/files-domain",
-  // "@beep/files-tables",
-  // "@beep/files-infra",
-  // "@beep/files-sdk",
-  // "@beep/files-ui",
+  "@beep/iam-domain",
+  "@beep/iam-tables",
+  "@beep/iam-infra",
+  "@beep/iam-sdk",
+  "@beep/iam-ui",
+  "@beep/files-domain",
+  "@beep/files-tables",
+  "@beep/files-infra",
+  "@beep/files-sdk",
+  "@beep/files-ui",
+  "@beep/tasks-domain",
+  "@beep/tasks-tables",
+  "@beep/tasks-infra",
+  "@beep/tasks-sdk",
+  "@beep/tasks-ui",
 ];
 
 const resolvePackageJson = (pkgName: string) => {
   try {
-    return require.resolve(`${pkgName}/package.json`, { paths: [__dirname] });
+    return require.resolve(`${pkgName}/package.json`, {paths: [__dirname]});
   } catch {
     return null;
   }

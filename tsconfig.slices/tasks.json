@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "../packages/tasks/domain" },
+    { "path": "../packages/tasks/tables" },
+    { "path": "../packages/tasks/infra" },
+    { "path": "../packages/tasks/sdk" },
+    { "path": "../packages/tasks/ui" }
+  ]
+}

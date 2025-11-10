@@ -2,10 +2,12 @@ import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
 import { IamTableNames } from "./IamTableNames";
 import { SharedTableNames } from "./SharedTableNames";
+import { TaskTableNames} from "@beep/shared-domain/entity-ids/TaskTableNames";
 
 export const AnyTableNameKit = BS.stringLiteralKit(
   ...IamTableNames.IamTableNameKit.Options,
-  ...SharedTableNames.SharedTableNameKit.Options
+  ...SharedTableNames.SharedTableNameKit.Options,
+  ...TaskTableNames.TaskTableNameKit.Options
 );
 
 export class AnyTableName extends AnyTableNameKit.Schema.annotations({
@@ -24,4 +26,4 @@ export declare namespace AnyTableName {
   export type Encoded = S.Schema.Encoded<typeof AnyTableName>;
 }
 
-export { SharedTableNames, IamTableNames };
+export { SharedTableNames, IamTableNames, TaskTableNames };

@@ -1,0 +1,78 @@
+{
+  "name": "@beep/tasks-ui",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "The ui layer for the tasks context",
+  "publishConfig": {
+    "access": "restricted",
+    "directory": "build"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/tasks/ui"
+  },
+  "scripts": {
+    "dev": "bun run dotenvx -- bunx tsc -b tsconfig.build.json --watch",
+    "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps ",
+    "build-annotate": "babel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "bun test",
+    "coverage": "bun test --coverage",
+    "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "lint:circular": "bunx madge -c ."
+  },
+  "peerDependencies": {
+    "@beep/ui": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+        "@beep/tasks-domain": "workspace:^",
+    "@beep/tasks-sdk": "workspace:^",
+    "@beep/core-env": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/errors": "workspace:^",
+    "@beep/constants": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@beep/types": "workspace:^",
+    "babel-plugin-transform-next-use-client": "catalog:",
+    "@babel/preset-react": "catalog:",
+    "@beep/ui": "workspace:^",
+    "@beep/tasks-domain": "workspace:^",
+    "@beep/tasks-sdk": "workspace:^",
+    "@beep/ui-core": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/core-env": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/errors": "workspace:^",
+    "@beep/constants": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "effect": "catalog:"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}

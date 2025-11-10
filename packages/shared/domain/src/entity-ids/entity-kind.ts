@@ -1,10 +1,11 @@
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
-import { IamTableNames, SharedTableNames } from "./table-names";
+import { IamTableNames, SharedTableNames, TaskTableNames } from "./table-names";
 
 export const EntityKindKit = BS.stringLiteralKit(
   ...IamTableNames.IamTableNameKit.Options,
-  ...SharedTableNames.SharedTableNameKit.Options
+  ...SharedTableNames.SharedTableNameKit.Options,
+  ...TaskTableNames.TaskTableNameKit.Options
 );
 
 export class EntityKind extends EntityKindKit.Schema.annotations({

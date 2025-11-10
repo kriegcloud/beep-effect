@@ -1,6 +1,8 @@
 {
   "extends": "./tsconfig.src.json",
-  "include": ["drizzle.config.ts"],
+  "include": [
+    "drizzle.config.ts"
+  ],
   "references": [
     {
       "path": "../../common/types"
@@ -42,6 +44,15 @@
       "path": "../../iam/tables"
     },
     {
+      "path": "../../tasks/domain"
+    },
+    {
+      "path": "../../tasks/ui"
+    },
+    {
+      "path": "../../tasks/tables"
+    },
+    {
       "path": "../../ui"
     },
     {
@@ -55,7 +66,10 @@
     }
   ],
   "compilerOptions": {
-    "types": ["node", "bun"],
+    "types": [
+      "node",
+      "bun"
+    ],
     "rootDir": ".",
     "outDir": "build"
   }

@@ -79,6 +79,18 @@
       "@beep/iam-sdk/*": ["../../packages/iam/sdk/src/*"],
       "@beep/iam-ui": ["../../packages/iam/ui/src/index"],
       "@beep/iam-ui/*": ["../../packages/iam/ui/src/*"],
+
+      "@beep/tasks-domain": ["../../packages/tasks/domain/src/index"],
+      "@beep/tasks-domain/*": ["../../packages/tasks/domain/src/*"],
+      "@beep/tasks-tables": ["../../packages/tasks/tables/src/index"],
+      "@beep/tasks-tables/*": ["../../packages/tasks/tables/src/*"],
+      "@beep/tasks-infra": ["../../packages/tasks/infra/src/index"],
+      "@beep/tasks-infra/*": ["../../packages/tasks/infra/src/*"],
+      "@beep/tasks-sdk": ["../../packages/tasks/sdk/src/index"],
+      "@beep/tasks-sdk/*": ["../../packages/tasks/sdk/src/*"],
+      "@beep/tasks-ui": ["../../packages/tasks/ui/src/index"],
+      "@beep/tasks-ui/*": ["../../packages/tasks/ui/src/*"],
+
       "@beep/files-domain": ["../../packages/files/domain/src/index"],
       "@beep/files-domain/*": ["../../packages/files/domain/src/*"],
       "@beep/files-tables": ["../../packages/files/tables/src/index"],
@@ -155,6 +167,23 @@
     {
       "path": "../../packages/iam/tables/tsconfig.build.json"
     },
+
+    {
+      "path": "../../packages/tasks/sdk/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/tasks/infra/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/tasks/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/tasks/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/tasks/tables/tsconfig.build.json"
+    },
+
     {
       "path": "../../packages/ui/tsconfig.build.json"
     },

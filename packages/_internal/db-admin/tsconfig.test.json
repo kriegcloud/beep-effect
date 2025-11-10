@@ -1,6 +1,8 @@
 {
   "extends": "../../../tsconfig.base.jsonc",
-  "include": ["test"],
+  "include": [
+    "test"
+  ],
   "references": [
     {
       "path": "tsconfig.src.json"
@@ -48,6 +50,15 @@
       "path": "../../iam/tables/tsconfig.build.json"
     },
     {
+      "path": "../../tasks/domain"
+    },
+    {
+      "path": "../../tasks/ui"
+    },
+    {
+      "path": "../../tasks/tables"
+    },
+    {
       "path": "../../files/infra/tsconfig.build.json"
     },
     {
@@ -58,7 +69,10 @@
     }
   ],
   "compilerOptions": {
-    "types": ["node", "bun"],
+    "types": [
+      "node",
+      "bun"
+    ],
     "tsBuildInfoFile": "./build/tsconfig.test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true
