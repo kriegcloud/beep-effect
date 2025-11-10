@@ -1,7 +1,7 @@
-import {BS} from "@beep/schema";
-import {TaskEntityIds, SharedEntityIds} from "@beep/shared-domain";
-import {makeFields} from "@beep/shared-domain/common";
-import {modelKit} from "@beep/shared-domain/factories";
+import { BS } from "@beep/schema";
+import { SharedEntityIds, TaskEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -28,8 +28,7 @@ export class Model extends M.Class<Model>(`TodoModel`)(
     }),
     completed: BS.BoolWithDefault(false).annotations({
       description: "Whether the todo is completed",
-    })
-
+    }),
   })
 ) {
   static readonly utils = modelKit(Model);

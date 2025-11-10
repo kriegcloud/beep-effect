@@ -1,8 +1,7 @@
+import { Todo } from "@beep/tasks-domain/entities";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcGroup from "@effect/rpc/RpcGroup";
-import * as S from "effect/Schema"
-import { Todo } from "@beep/tasks-domain/entities";
-
+import * as S from "effect/Schema";
 
 export const TodoRpc = RpcGroup.make(
   Rpc.make("add", {
@@ -10,6 +9,6 @@ export const TodoRpc = RpcGroup.make(
     success: Todo.Model,
   }),
   Rpc.make("list", {
-    success: S.Array(Todo.Model)
+    success: S.Array(Todo.Model),
   })
 );

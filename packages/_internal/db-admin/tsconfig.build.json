@@ -1,10 +1,7 @@
 {
   "extends": "./tsconfig.src.json",
   "compilerOptions": {
-    "types": [
-      "node",
-      "bun"
-    ],
+    "types": ["node", "bun"],
     "outDir": "build/esm",
     "declarationDir": "build/dts",
     "stripInternal": true,

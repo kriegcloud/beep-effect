@@ -1,14 +1,14 @@
 import fs from "node:fs";
-import {createRequire} from "node:module";
+import { createRequire } from "node:module";
 import path from "node:path";
-import type {NextConfig} from "next";
+import type { NextConfig } from "next";
 
 type BundleAnalyzerFactory = (
   options?:
     | {
-    readonly enabled?: boolean | string | undefined;
-    readonly openAnalyzer?: boolean | undefined;
-  }
+        readonly enabled?: boolean | string | undefined;
+        readonly openAnalyzer?: boolean | undefined;
+      }
     | undefined
 ) => (config: NextConfig) => NextConfig;
 
@@ -89,7 +89,7 @@ const candidateTranspilePackages = [
 
 const resolvePackageJson = (pkgName: string) => {
   try {
-    return require.resolve(`${pkgName}/package.json`, {paths: [__dirname]});
+    return require.resolve(`${pkgName}/package.json`, { paths: [__dirname] });
   } catch {
     return null;
   }

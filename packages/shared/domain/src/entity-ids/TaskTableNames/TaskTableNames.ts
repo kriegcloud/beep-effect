@@ -1,9 +1,7 @@
 import { BS } from "@beep/schema";
-import type * as S from "effect/Schema";
 import { TodoId } from "@beep/shared-domain/entity-ids/tasks";
-export const TaskTableNameKit = BS.stringLiteralKit(
-  TodoId.tableName
-);
+import type * as S from "effect/Schema";
+export const TaskTableNameKit = BS.stringLiteralKit(TodoId.tableName);
 
 export class TaskTableName extends TaskTableNameKit.Schema.annotations({
   schemaId: Symbol.for("@beep/shared/domain/EntityIds/tasks/TaskTableName"),
