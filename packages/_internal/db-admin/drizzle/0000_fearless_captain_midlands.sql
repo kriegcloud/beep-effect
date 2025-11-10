@@ -530,6 +530,26 @@ CREATE TABLE "file" (
 	CONSTRAINT "file_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
+CREATE TABLE "todo" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone NOT NULL,
+	"updated_at" timestamp with time zone NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text,
+	"updated_by" text,
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"title" text NOT NULL,
+	"description" text,
+	"completed" boolean DEFAULT false NOT NULL,
+	"author" text NOT NULL,
+	"team" text,
+	CONSTRAINT "todo_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
 ALTER TABLE "organization" ADD CONSTRAINT "organization_owner_user_id_user_id_fk" FOREIGN KEY ("owner_user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "team" ADD CONSTRAINT "team_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
@@ -562,6 +582,9 @@ ALTER TABLE "two_factor" ADD CONSTRAINT "two_factor_organization_id_organization
 ALTER TABLE "two_factor" ADD CONSTRAINT "two_factor_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "wallet_address" ADD CONSTRAINT "wallet_address_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "file" ADD CONSTRAINT "file_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "todo" ADD CONSTRAINT "todo_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "todo" ADD CONSTRAINT "todo_author_user_id_fk" FOREIGN KEY ("author") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "todo" ADD CONSTRAINT "todo_team_team_id_fk" FOREIGN KEY ("team") REFERENCES "public"."team"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 CREATE INDEX "organization_name_idx" ON "organization" USING btree ("name");--> statement-breakpoint
 CREATE INDEX "organization_slug_idx" ON "organization" USING btree ("slug");--> statement-breakpoint
 CREATE INDEX "organization_type_idx" ON "organization" USING btree ("type");--> statement-breakpoint
@@ -615,4 +638,5 @@ CREATE INDEX "verification_identifier_idx" ON "verification" USING btree ("ident
 CREATE INDEX "verification_identifier_value_idx" ON "verification" USING btree ("identifier","value");--> statement-breakpoint
 CREATE INDEX "verification_expires_at_idx" ON "verification" USING btree ("expires_at");--> statement-breakpoint
 CREATE INDEX "verification_active_idx" ON "verification" USING btree ("identifier","expires_at");--> statement-breakpoint
-CREATE UNIQUE INDEX "wallet_address_user_chain_id_unique_idx" ON "wallet_address" USING btree ("user_id","address","chain_id");
+CREATE UNIQUE INDEX "wallet_address_user_chain_id_unique_idx" ON "wallet_address" USING btree ("user_id","address","chain_id");--> statement-breakpoint
+CREATE INDEX "todo_title_idx" ON "todo" USING btree ("title");

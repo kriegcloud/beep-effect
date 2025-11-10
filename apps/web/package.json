@@ -45,13 +45,11 @@
     "@beep/iam-sdk": "workspace:^",
     "@beep/iam-tables": "workspace:^",
     "@beep/iam-ui": "workspace:^",
-
     "@beep/tasks-domain": "workspace:^",
     "@beep/tasks-infra": "workspace:^",
     "@beep/tasks-sdk": "workspace:^",
     "@beep/tasks-tables": "workspace:^",
     "@beep/tasks-ui": "workspace:^",
-
     "@beep/contract": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@beep/runtime-client": "workspace:^",

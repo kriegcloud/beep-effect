@@ -31,7 +31,7 @@
     "circular": "madge --circular src/server.ts"
   },
   "dependencies": {
-     "@beep/mock": "workspace:^",
+    "@beep/mock": "workspace:^",
     "@beep/constants": "workspace:^",
     "@beep/core-db": "workspace:^",
     "@beep/core-email": "workspace:^",
@@ -43,11 +43,9 @@
     "@beep/iam-domain": "workspace:^",
     "@beep/iam-infra": "workspace:^",
     "@beep/iam-tables": "workspace:^",
-
     "@beep/tasks-domain": "workspace:^",
     "@beep/tasks-infra": "workspace:^",
     "@beep/tasks-tables": "workspace:^",
-
     "@beep/contract": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@beep/runtime-server": "workspace:^",
