@@ -1,0 +1,147 @@
+import {makeAtomRuntime} from "@beep/runtime-client/services/runtime/make-atom-runtime";
+import {withToast} from "@beep/ui/common";
+import {Atom, Registry, Result, useAtomSet, useAtomValue} from "@effect-atom/atom-react";
+import * as A from "effect/Array";
+import * as Data from "effect/Data";
+import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
+import {PasskeyService} from "@beep/iam-sdk/clients/passkey-v2/passkey.service";
+import { type PasskeyView} from "@beep/iam-sdk";
+import {
+  PasskeyAddContract,
+  PasskeyRemoveContract,
+  PasskeyUpdateContract
+} from "@beep/iam-sdk/clients/passkey-v2/passkey.contracts";
+
+const passkeyRuntime = makeAtomRuntime(
+  PasskeyService.Live
+);
+
+type Action = Data.TaggedEnum<{
+  Update: { readonly passkey: PasskeyView };
+  Remove: { readonly passkey: PasskeyView };
+  Add: { readonly passkey: PasskeyView };
+}>;
+
+const Action = Data.taggedEnum<Action>();
+
+const remoteAtom = passkeyRuntime.atom(
+  Effect.gen(function* () {
+    const {list} = yield* PasskeyService;
+
+    return yield* list();
+  })
+).pipe(Atom.withReactivity(["passkeys"]));
+
+
+export const passkeysAtom = Object.assign(
+  Atom.writable(
+    (get: Atom.Context) => get(remoteAtom),
+    (ctx, action: Action) => {
+      const result = ctx.get(passkeysAtom);
+      if (!Result.isSuccess(result)) return;
+
+      const update = Action.$match(action, {
+        Remove: (payload) => A.filter(result.value, (passkey) => passkey.id === payload.passkey.id),
+        Update: ({passkey}) => {
+          const existing = result.value.find((p) => p.id === passkey.id);
+          if (existing) return A.map(result.value, (p) => (p.id === passkey.id ? passkey : p));
+          return result.value;
+        },
+        Add: ({passkey}) => A.prepend(result.value, passkey),
+      });
+
+      ctx.setSelf(Result.success(update));
+    }
+  ),
+  {
+    remote: remoteAtom,
+  }
+);
+
+export const updatePasskeyAtom = passkeyRuntime.fn(
+  Effect.fnUntraced(function* (payload: typeof PasskeyUpdateContract.payloadSchema.Type) {
+    const {update} = yield* PasskeyService;
+    const registry = yield* Registry.AtomRegistry;
+
+    yield* update(payload);
+
+    registry.set(
+      passkeysAtom,
+      Action.Update(payload)
+    );
+  }, withToast({
+    onWaiting: "Updating passkey",
+    onSuccess: "Passkey updated successfully",
+    onFailure: O.match({
+      onNone: () => "Failed to update passkey.",
+      onSome: (e: { message: string }) => e.message,
+    }),
+  })),
+  {
+    reactivityKeys: ["passkeys"],
+  }
+);
+
+export const removePasskeyAtom = passkeyRuntime.fn(
+  Effect.fn(function* (payload: typeof PasskeyRemoveContract.payloadSchema.Type) {
+    const {remove} = yield* PasskeyService;
+    const registry = yield* Registry.AtomRegistry;
+    yield* remove(payload);
+
+    registry.set(
+      passkeysAtom,
+      Action.Remove(payload)
+    );
+  }, withToast({
+    onWaiting: "Deleting passkey",
+    onSuccess: "Passkey deleted successfully",
+    onFailure: O.match({
+      onNone: () => "Failed to delete passkey.",
+      onSome: (e: { message: string }) => e.message,
+    }),
+  })),
+  {
+    reactivityKeys: ["passkeys"],
+  }
+);
+
+export const addPasskeyAtom = passkeyRuntime.fn(
+  (payload: typeof PasskeyAddContract.payloadSchema.Type) => Effect.gen(function* () {
+    const {add} = yield* PasskeyService;
+
+    yield* add(payload);
+
+    const registry = yield* Registry.AtomRegistry;
+
+    registry.set(
+      passkeysAtom,
+      Action.Add({
+        passkey: payload,
+      })
+    );
+  }),
+  {
+    reactivityKeys: ["passkeys"],
+  }
+);
+
+export const editingPasskeyAtom = Atom.make<PasskeyView | undefined>(undefined);
+
+export const usePasskeyCRUD = () => {
+  const passkeysResult = useAtomValue(passkeysAtom);
+  const addPasskey = useAtomSet(addPasskeyAtom, {
+    mode: "promise" as const,
+  });
+  const deletePasskey = useAtomSet(removePasskeyAtom);
+  const updatePasskey = useAtomSet(updatePasskeyAtom, {
+    mode: "promise" as const,
+  });
+
+  return {
+    passkeysResult,
+    addPasskey,
+    deletePasskey,
+    updatePasskey,
+  };
+};

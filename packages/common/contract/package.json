@@ -35,12 +35,16 @@
   },
   "peerDependencies": {
     "effect": "catalog:",
-    "@beep/schema": "workspace:^"
+    "@beep/schema": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "@beep/utils": "workspace:^"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
     "effect": "catalog:",
     "@beep/schema": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "@beep/utils": "workspace:^",
     "@beep/types": "workspace:^"
   },
   "effect": {

@@ -337,9 +337,14 @@
     "@effect/vitest": "^0.27.0",
     "@effect/sql-sqlite-bun": "^0.49.0",
     "@number-flow/react": "^0.5.10",
-    "@phosphor-icons/react": "^2.1.10"
+    "@phosphor-icons/react": "^2.1.10",
+    "fast-check": "^4.3.0"
   },
   "dependenciesCatalog": [
+    {
+      "name": "fast-check",
+      "version": "^4.3.0"
+    },
     {
       "name": "@effect/sql-sqlite-node",
       "version": "^0.47.0"

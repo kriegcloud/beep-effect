@@ -32,11 +32,10 @@
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "lint:circular": "bunx madge -c .",
-    "execute": "bun run dotenvx -- bunx tsx --tsconfig ./tsconfig.src.json ./src/execute.ts"
+    "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' tsx ./src/execute.ts"
   },
   "peerDependencies": {
     "mutative": "catalog:",
-    "@beep/runtime-client": "workspace:^",
     "@effect-atom/atom-react": "catalog:",
     "@better-auth/stripe": "catalog:",
     "better-auth": "catalog:",
@@ -47,9 +46,11 @@
     "@dub/better-auth": "catalog:",
     "better-call": "catalog:",
     "jose": "catalog:",
+    "next": "catalog:",
+    "@better-fetch/fetch": "catalog:",
+    "@beep/runtime-client": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/invariant": "workspace:^",
-    "next": "catalog:",
     "@beep/schema": "workspace:^",
     "@beep/errors": "workspace:^",
     "@beep/constants": "workspace:^",
@@ -59,13 +60,11 @@
     "@beep/shared-domain": "workspace:^",
     "@beep/iam-domain": "workspace:^",
     "@beep/iam-infra": "workspace:^",
-    "@beep/contract": "workspace:^",
-    "@better-fetch/fetch": "catalog:"
+    "@beep/contract": "workspace:^"
   },
   "devDependencies": {
     "@better-fetch/fetch": "catalog:",
     "mutative": "catalog:",
-    "@beep/runtime-client": "workspace:^",
     "@effect-atom/atom-react": "catalog:",
     "@better-auth/stripe": "catalog:",
     "better-auth": "catalog:",
@@ -76,9 +75,12 @@
     "@dub/better-auth": "catalog:",
     "better-call": "catalog:",
     "jose": "catalog:",
+    "next": "catalog:",
+    "@types/bun": "catalog:",
+    "@beep/types": "workspace:^",
+    "@beep/runtime-client": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/invariant": "workspace:^",
-    "next": "catalog:",
     "@beep/schema": "workspace:^",
     "@beep/errors": "workspace:^",
     "@beep/constants": "workspace:^",
@@ -87,8 +89,8 @@
     "@beep/core-env": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/iam-domain": "workspace:^",
-    "@types/bun": "catalog:",
-    "@beep/types": "workspace:^"
+    "@beep/iam-infra": "workspace:^",
+    "@beep/contract": "workspace:^"
   },
   "effect": {
     "generateExports": {
