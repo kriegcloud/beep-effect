@@ -77,7 +77,7 @@ export const PasskeyRemoveContract = Contract.make("PasskeyRemove", {
 
 export class PasskeyUpdatePayload extends BS.Class<PasskeyUpdatePayload>("PasskeyUpdatePayload")(
   {
-    passkey: PasskeyView
+    passkey: PasskeyView,
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/passkey/PasskeyUpdatePayload"),

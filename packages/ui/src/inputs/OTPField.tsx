@@ -24,7 +24,7 @@ export interface OTPFieldProps extends Omit<DefaultOmit<MuiOtpInputProps>, "sx">
     | undefined;
 }
 
-function OTPField({ slotProps, helperText, maxSize = 56, placeholder = "-", ...other }: OTPFieldProps) {
+function OTPField({ slotProps, helperText, maxSize = 56, placeholder = "-" }: OTPFieldProps) {
   const field = useFieldContext<string>();
   const { error, isError } = useStore(field.form.store, (state) =>
     F.pipe(
@@ -65,7 +65,6 @@ function OTPField({ slotProps, helperText, maxSize = 56, placeholder = "-", ...o
           error: isError,
           ...slotProps?.textfield,
         }}
-        {...other}
       />
 
       <HelperText {...slotProps?.helperText} errorMessage={error} helperText={helperText} />
