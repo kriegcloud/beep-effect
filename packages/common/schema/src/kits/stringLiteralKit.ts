@@ -170,7 +170,7 @@ export function stringLiteralKit<
   const Mapping extends readonly [Literals[number], string][],
 >(
   ...args: Literals[number] extends StringTypes.NonEmptyString<Literals[number]>
-    ? [...literals: Literals, options: { enumMapping: ValidMapping<Literals, Mapping> }]
+    ? [...literals: Literals, options: { readonly enumMapping: ValidMapping<Literals, Mapping> }]
     : never
 ): {
   Schema: S.Literal<[...Literals]>;
@@ -222,7 +222,7 @@ export function stringLiteralKit<
   const Mapping extends readonly [Literals[number], string][],
 >(
   ...args: Literals[number] extends StringTypes.NonEmptyString<Literals[number]>
-    ? Literals | [...Literals, { enumMapping?: Mapping }]
+    ? Literals | [...Literals, { readonly enumMapping?: Mapping }]
     : never
 ): {
   Schema: S.Literal<[...Literals]>;
@@ -276,7 +276,7 @@ export function stringLiteralKit<
     args[args.length - 1] !== null;
 
   const literals = (hasOptions ? args.slice(0, -1) : args) as Literals;
-  const options = hasOptions ? (args[args.length - 1] as { enumMapping?: Mapping }) : undefined;
+  const options = hasOptions ? (args[args.length - 1] as { readonly enumMapping?: Mapping }) : undefined;
 
   /** Build a Schema.Union of S.Structs tagged by the given discriminator */
   // Build a Schema.Union and a keyed members map for the given discriminator

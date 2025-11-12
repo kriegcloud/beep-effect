@@ -27,9 +27,10 @@
  * @since 1.0.0
  */
 
-import {BS} from "@beep/schema";
-import type {UnsafeTypes} from "@beep/types";
-import {makeAssertsReturn} from "@beep/utils";
+import { BS } from "@beep/schema";
+import type { UnsafeTypes } from "@beep/types";
+import { makeAssertsReturn } from "@beep/utils";
+import { reverseRecord } from "@beep/utils/data/record.utils";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
@@ -41,14 +42,13 @@ import * as F from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
-import type {Pipeable} from "effect/Pipeable";
-import {pipeArguments} from "effect/Pipeable";
+import type { Pipeable } from "effect/Pipeable";
+import { pipeArguments } from "effect/Pipeable";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
-import type {Covariant} from "effect/Types";
+import type { Covariant } from "effect/Types";
 import * as ContractError from "./ContractError";
-import {reverseRecord} from "@beep/utils/data/record.utils";
 
 // =============================================================================
 // Type Ids
@@ -640,15 +640,15 @@ export interface ProviderDefined<
   },
   RequiresImplementation extends boolean = false,
 > extends Contract<
-  Name,
-  {
-    readonly payload: Config["payload"];
-    readonly success: Config["success"];
-    readonly failure: Config["failure"];
-    readonly failureMode: Config["failureMode"];
-  }
->,
-  Contract.ProviderDefinedProto {
+      Name,
+      {
+        readonly payload: Config["payload"];
+        readonly success: Config["success"];
+        readonly failure: Config["failure"];
+        readonly failureMode: Config["failureMode"];
+      }
+    >,
+    Contract.ProviderDefinedProto {
   /**
    * The arguments passed to the provider-defined contract.
    */
@@ -698,33 +698,33 @@ export class FailureMode extends FailureModeKit.Schema.annotations({
   static readonly Options = FailureModeKit.Options;
   static readonly $match =
     <C extends Any, E1, E2, R1, R2>(result: Result<C>) =>
-      (
-        contract: Any,
-        cases: {
-          onErrorMode: (result: Failure<C>) => Effect.Effect<
-            {
-              readonly _tag: "success";
-              readonly value: Success<C>;
-            },
-            E1,
-            R1
-          >;
-          onReturnMode: (result: Result<C>) => Effect.Effect<
-            | { readonly _tag: "failure"; readonly value: Failure<C> }
-            | {
+    (
+      contract: Any,
+      cases: {
+        onErrorMode: (result: Failure<C>) => Effect.Effect<
+          {
             readonly _tag: "success";
             readonly value: Success<C>;
           },
-            E2,
-            R2
-          >;
-        }
-      ) =>
-        Match.value(contract.failureMode).pipe(
-          Match.when(FailureMode.Enum.error, () => cases.onErrorMode(result)),
-          Match.when(FailureMode.Enum.return, () => cases.onReturnMode(result)),
-          Match.exhaustive
-        );
+          E1,
+          R1
+        >;
+        onReturnMode: (result: Result<C>) => Effect.Effect<
+          | { readonly _tag: "failure"; readonly value: Failure<C> }
+          | {
+              readonly _tag: "success";
+              readonly value: Success<C>;
+            },
+          E2,
+          R2
+        >;
+      }
+    ) =>
+      Match.value(contract.failureMode).pipe(
+        Match.when(FailureMode.Enum.error, () => cases.onErrorMode(result)),
+        Match.when(FailureMode.Enum.return, () => cases.onReturnMode(result)),
+        Match.exhaustive
+      );
 
   /**
    * Experimental helper that projects an implementation result into a discriminated
@@ -907,8 +907,7 @@ export interface FromTaggedRequest<S extends AnyTaggedRequestSchema>
       readonly failure: S["failure"];
       readonly failureMode: typeof FailureMode.Enum.error;
     }
-  > {
-}
+  > {}
 
 /**
  * A utility type to extract the `Name` type from an `Contract`.
@@ -1065,23 +1064,23 @@ export type ResultEncoded<T> = T extends Contract<infer _Name, infer _Config, in
  */
 export type HandleOutcome<T extends Any> =
   | {
-  readonly mode: typeof FailureMode.Enum.error;
-  readonly _tag: "success";
-  readonly result: Success<T>;
-  readonly encodedResult: SuccessEncoded<T>;
-}
+      readonly mode: typeof FailureMode.Enum.error;
+      readonly _tag: "success";
+      readonly result: Success<T>;
+      readonly encodedResult: SuccessEncoded<T>;
+    }
   | {
-  readonly mode: typeof FailureMode.Enum.return;
-  readonly _tag: "success";
-  readonly result: Success<T>;
-  readonly encodedResult: SuccessEncoded<T>;
-}
+      readonly mode: typeof FailureMode.Enum.return;
+      readonly _tag: "success";
+      readonly result: Success<T>;
+      readonly encodedResult: SuccessEncoded<T>;
+    }
   | {
-  readonly mode: typeof FailureMode.Enum.return;
-  readonly _tag: "failure";
-  readonly result: Failure<T>;
-  readonly encodedResult: FailureEncoded<T>;
-};
+      readonly mode: typeof FailureMode.Enum.return;
+      readonly _tag: "failure";
+      readonly result: Failure<T>;
+      readonly encodedResult: FailureEncoded<T>;
+    };
 export declare namespace HandleOutcome {
   export type Success<C extends Any> = Extract<HandleOutcome<C>, { readonly _tag: "success" }>;
   export type Failure<C extends Any> = Extract<HandleOutcome<C>, { readonly _tag: "failure" }>;
@@ -1169,10 +1168,10 @@ export type ImplementationsFor<Contracts extends Record<string, Any>> = {
  * @category Utility Types
  */
 export type RequiresImplementation<Contract extends Any> = Contract extends ProviderDefined<
-    infer _Name,
-    infer _Config,
-    infer _RequiresImplementation
-  >
+  infer _Name,
+  infer _Config,
+  infer _RequiresImplementation
+>
   ? _RequiresImplementation
   : true;
 
@@ -1181,7 +1180,7 @@ export type RequiresImplementation<Contract extends Any> = Contract extends Prov
 // =============================================================================
 
 const Proto = {
-  [TypeId]: {_Requirements: F.identity},
+  [TypeId]: { _Requirements: F.identity },
   pipe() {
     return pipeArguments(this, arguments);
   },
@@ -1189,7 +1188,7 @@ const Proto = {
     return implement(this, options)(handler);
   },
   addDependency(this: Any) {
-    return userDefinedProto({...this});
+    return userDefinedProto({ ...this });
   },
   setPayload(this: Any, payloadSchema: S.Struct<UnsafeTypes.UnsafeAny> | S.Struct.Fields) {
     return userDefinedProto({
@@ -1621,8 +1620,7 @@ export const fromTaggedRequest = <S extends AnyTaggedRequestSchema>(schema: S): 
  * @since 1.0.0
  * @category Annotations
  */
-export class Title extends Context.Tag("@beep/contract/Contract/Title")<Title, string>() {
-}
+export class Title extends Context.Tag("@beep/contract/Contract/Title")<Title, string>() {}
 
 /**
  * Annotation for providing a human-readable title for contracts.
@@ -1638,8 +1636,7 @@ export class Title extends Context.Tag("@beep/contract/Contract/Title")<Title, s
  * @since 1.0.0
  * @category Annotations
  */
-export class Domain extends Context.Tag("@beep/contract/Contract/Domain")<Domain, string>() {
-}
+export class Domain extends Context.Tag("@beep/contract/Contract/Domain")<Domain, string>() {}
 
 /**
  * Annotation for providing a human-readable title for contracts.
@@ -1655,8 +1652,7 @@ export class Domain extends Context.Tag("@beep/contract/Contract/Domain")<Domain
  * @since 1.0.0
  * @category Annotations
  */
-export class Method extends Context.Tag("@beep/contract/Contract/Method")<Method, string>() {
-}
+export class Method extends Context.Tag("@beep/contract/Contract/Method")<Method, string>() {}
 
 export interface ImplementationContext<C extends Any> {
   readonly contract: C;
@@ -1683,30 +1679,30 @@ export interface ImplementOptions<C extends Any> {
 
 export const implement =
   <const C extends Any>(contract: C, options: ImplementOptions<C> = {}) =>
-    <Handler extends ImplementationHandler<C>>(handler: Handler): ImplementationFunction<C> => {
-      const context: ImplementationContext<C> = {
-        contract,
-        annotations: contract.annotations,
-      };
-      const onSuccessOpt = O.fromNullable(options.onSuccess);
-      const onFailureOpt = O.fromNullable(options.onFailure);
-      return Effect.fn(`${contract.name}.implementation`, {captureStackTrace: false})(function* (payload: Payload<C>) {
-        yield* Effect.annotateCurrentSpan({
-          contract: contract.name,
-          failureMode: contract.failureMode,
-        });
-        let effect = handler(payload, context);
-        if (O.isSome(onSuccessOpt)) {
-          const onSuccess = onSuccessOpt.value;
-          effect = Effect.tap(effect, (success) => onSuccess(success, context));
-        }
-        if (O.isSome(onFailureOpt)) {
-          const onFailure = onFailureOpt.value;
-          effect = Effect.tapError(effect, (failure) => onFailure(failure, context));
-        }
-        return yield* effect;
-      });
+  <Handler extends ImplementationHandler<C>>(handler: Handler): ImplementationFunction<C> => {
+    const context: ImplementationContext<C> = {
+      contract,
+      annotations: contract.annotations,
     };
+    const onSuccessOpt = O.fromNullable(options.onSuccess);
+    const onFailureOpt = O.fromNullable(options.onFailure);
+    return Effect.fn(`${contract.name}.implementation`, { captureStackTrace: false })(function* (payload: Payload<C>) {
+      yield* Effect.annotateCurrentSpan({
+        contract: contract.name,
+        failureMode: contract.failureMode,
+      });
+      let effect = handler(payload, context);
+      if (O.isSome(onSuccessOpt)) {
+        const onSuccess = onSuccessOpt.value;
+        effect = Effect.tap(effect, (success) => onSuccess(success, context));
+      }
+      if (O.isSome(onFailureOpt)) {
+        const onFailure = onFailureOpt.value;
+        effect = Effect.tapError(effect, (failure) => onFailure(failure, context));
+      }
+      return yield* effect;
+    });
+  };
 
 export interface LiftOptions<C extends Any> {
   readonly method: (payload: Payload<C>) => Effect.Effect<ImplementationResult<C>, Failure<C>, Requirements<C>>;
@@ -1725,7 +1721,7 @@ export interface LiftedContract<C extends Any> {
 }
 
 export const lift = <const C extends Any>(contract: C, options: LiftOptions<C>): LiftedContract<C> => {
-  const {method, onFailure, onSuccess, onDefect} = options;
+  const { method, onFailure, onSuccess, onDefect } = options;
 
   const annotateOutcome = (outcome: HandleOutcome<C>) =>
     Match.value(outcome).pipe(
@@ -1797,7 +1793,7 @@ export const lift = <const C extends Any>(contract: C, options: LiftOptions<C>):
   return {
     result: liftedResult,
     success: liftedSuccess,
-  };
+  } as const;
 };
 
 export interface HandleOutcomeHandlers<C extends Any, R = void, E = never, Env = never> {
@@ -1807,78 +1803,69 @@ export interface HandleOutcomeHandlers<C extends Any, R = void, E = never, Env =
 
 export const handleOutcome =
   <const C extends Any>(_contract: C) =>
-    <R, E, Env>(handlers: HandleOutcomeHandlers<C, R, E, Env>) =>
-      (outcome: HandleOutcome<C>): Effect.Effect<R, E, Env> =>
-        Match.value(outcome).pipe(
-          Match.discriminatorsExhaustive("mode")({
-            error: (result) =>
-              Match.value(result).pipe(
-                Match.tagsExhaustive({
-                  success: (successOutcome) => handlers.onSuccess(successOutcome),
-                })
+  <R, E, Env>(handlers: HandleOutcomeHandlers<C, R, E, Env>) =>
+  (outcome: HandleOutcome<C>): Effect.Effect<R, E, Env> =>
+    Match.value(outcome).pipe(
+      Match.discriminatorsExhaustive("mode")({
+        error: (result) =>
+          Match.value(result).pipe(
+            Match.tagsExhaustive({
+              success: (successOutcome) => handlers.onSuccess(successOutcome),
+            })
+          ),
+        return: (result) =>
+          Match.value(result).pipe(
+            Match.tagsExhaustive({
+              success: (successOutcome) => handlers.onSuccess(successOutcome),
+              failure: (failureOutcome) => handlers.onFailure(failureOutcome),
+            })
+          ),
+      })
+    );
+
+export const getAnnotations = <Ctx extends Any["annotations"]>(self: Ctx) =>
+  Effect.gen(function* () {
+    const getCtx = (id: ContextAnnotationTag.Type) =>
+      Match.value(id).pipe(
+        Match.when(ContextAnnotationTag.Enum.Title, () => Title),
+        Match.when(ContextAnnotationTag.Enum.Domain, () => Domain),
+        Match.when(ContextAnnotationTag.Enum.Method, () => Method),
+        Match.exhaustive
+      );
+
+    return yield* F.pipe(
+      Effect.all(
+        A.map(ContextAnnotationTag.Options, (id) => Effect.succeed([id, getCtx(id)] as const)),
+        { concurrency: "unbounded" }
+      ),
+      Effect.map(
+        A.reduce(
+          {} as {
+            readonly [Id in keyof typeof ContextAnnotationTag.Enum]: string;
+          },
+          (acc, [id]) =>
+            ({
+              ...acc,
+              [ContextAnnotationTag.ReverseEnum[id]]: Match.value(id).pipe(
+                Match.when(ContextAnnotationTag.Enum.Title, () => F.pipe(Context.getOption(self, Title), O.getOrThrow)),
+                Match.when(ContextAnnotationTag.Enum.Domain, () =>
+                  F.pipe(Context.getOption(self, Domain), O.getOrThrow)
+                ),
+                Match.when(ContextAnnotationTag.Enum.Method, () =>
+                  F.pipe(Context.getOption(self, Domain), O.getOrThrow)
+                ),
+                Match.exhaustive
               ),
-            return: (result) =>
-              Match.value(result).pipe(
-                Match.tagsExhaustive({
-                  success: (successOutcome) => handlers.onSuccess(successOutcome),
-                  failure: (failureOutcome) => handlers.onFailure(failureOutcome),
-                })
-              ),
-          })
-        );
+            }) as const
+        )
+      )
+    );
+  });
 
-
-export const getAnnotations = <Ctx extends Any["annotations"]>(
-  self: Ctx
-) => Effect.gen(function* () {
-  const c = (id: ContextAnnotationTag.Type) => Match.value(id).pipe(
-    Match.when(ContextAnnotationTag.Enum.Title, () => Title),
-    Match.when(ContextAnnotationTag.Enum.Domain, () => Domain),
-    Match.when(ContextAnnotationTag.Enum.Method, () => Method),
-    Match.exhaustive,
-  );
-
-  return yield* F.pipe(
-    Effect.all(A.map(ContextAnnotationTag.Options, (id) => Effect.succeed([id, c(id)] as const)), {concurrency: "unbounded"}),
-    Effect.map(A.reduce({} as {
-        readonly [Id in keyof typeof ContextAnnotationTag.Enum]: string
-      }, (acc, [id]) => ({
-        ...acc,
-        [ContextAnnotationTag.ReverseEnum[id]]: Match.value(id).pipe(
-          Match.when(ContextAnnotationTag.Enum.Title, () => F.pipe(
-            Context.getOption(
-              self,
-              Title,
-            ),
-            O.getOrThrow,
-          )),
-          Match.when(ContextAnnotationTag.Enum.Domain, () => F.pipe(
-            Context.getOption(
-              self,
-              Domain,
-            ),
-            O.getOrThrow,
-          )),
-          Match.when(ContextAnnotationTag.Enum.Method, () => F.pipe(
-            Context.getOption(
-              self,
-              Domain,
-            ),
-            O.getOrThrow,
-          )),
-          Match.exhaustive,
-        ),
-      } as const))
-    ));
-});
-
-export const getAnnotation = <Ctx extends Any["annotations"]>(
-  self: Ctx
-) => (mappedKey: keyof typeof ContextAnnotationTag.Enum): Effect.Effect<string, never, never> =>
-  Effect.flatMap(getAnnotations(self), (annotations) => Effect.succeed(
-    annotations[mappedKey]
-  ));
-
+export const getAnnotation =
+  <Ctx extends Any["annotations"]>(self: Ctx) =>
+  (mappedKey: keyof typeof ContextAnnotationTag.Enum): Effect.Effect<string, never, never> =>
+    Effect.flatMap(getAnnotations(self), (annotations) => Effect.succeed(annotations[mappedKey]));
 
 export const ContextAnnotationTagKit = BS.stringLiteralKit(
   "@beep/contract/Contract/Title",
@@ -1889,7 +1876,7 @@ export const ContextAnnotationTagKit = BS.stringLiteralKit(
       ["@beep/contract/Contract/Title", "Title"],
       ["@beep/contract/Contract/Domain", "Domain"],
       ["@beep/contract/Contract/Method", "Method"],
-    ]
+    ],
   }
 );
 
@@ -1897,7 +1884,7 @@ export class ContextAnnotationTag extends ContextAnnotationTagKit.Schema.annotat
   schemaId: Symbol.for("@beep/contract/ContextAnnotationTag"),
   identifier: "ContextAnnotationTag",
   title: "Context Annotation Tag",
-  description: "One of the possible keys for Context Annotations within `@beep/contract/Contract.ts`"
+  description: "One of the possible keys for Context Annotations within `@beep/contract/Contract.ts`",
 }) {
   static readonly Options = ContextAnnotationTagKit.Options;
   static readonly Enum = ContextAnnotationTagKit.Enum;
@@ -1910,36 +1897,47 @@ export class ContextAnnotationTag extends ContextAnnotationTagKit.Schema.annotat
     ContextAnnotationTag.Discriminated.Union,
     {
       strict: true,
-      decode: (i) => Match.value(i).pipe(
-        Match.when(ContextAnnotationTag.Enum.Title, () => Data.struct({
-          id: ContextAnnotationTag.Enum.Title,
-        } as const)),
-        Match.when(ContextAnnotationTag.Enum.Domain, () => Data.struct({
-          id: ContextAnnotationTag.Enum.Method,
-        } as const)),
-        Match.when(ContextAnnotationTag.Enum.Method, () => Data.struct({
-          id: ContextAnnotationTag.Enum.Method,
-        } as const)),
-        Match.exhaustive,
-      ),
+      decode: (i) =>
+        Match.value(i).pipe(
+          Match.when(ContextAnnotationTag.Enum.Title, () =>
+            Data.struct({
+              id: ContextAnnotationTag.Enum.Title,
+            } as const)
+          ),
+          Match.when(ContextAnnotationTag.Enum.Domain, () =>
+            Data.struct({
+              id: ContextAnnotationTag.Enum.Method,
+            } as const)
+          ),
+          Match.when(ContextAnnotationTag.Enum.Method, () =>
+            Data.struct({
+              id: ContextAnnotationTag.Enum.Method,
+            } as const)
+          ),
+          Match.exhaustive
+        ),
       encode: ContextAnnotationTag.assertReturn,
     }
   );
   static readonly transformDiscriminated = S.decode(ContextAnnotationTag.toDiscriminated);
 
-  static readonly getOption = <Ctx extends Context.Context<never>>(self: Ctx) => (id: ContextAnnotationTag.Type) => ContextAnnotationTag.transformDiscriminated(id).pipe(
-    Effect.flatMap((ctxLiteral) => Match.value(ctxLiteral).pipe(
-      Match.discriminatorsExhaustive("id")({
-        [ContextAnnotationTag.Enum.Title]: () => Context.getOption(self, Title),
-        [ContextAnnotationTag.Enum.Domain]: () => Context.getOption(self, Domain),
-        [ContextAnnotationTag.Enum.Method]: () => Context.getOption(self, Method),
-      })
-    ))
-  );
+  static readonly getOption =
+    <Ctx extends Context.Context<never>>(self: Ctx) =>
+    (id: ContextAnnotationTag.Type) =>
+      ContextAnnotationTag.transformDiscriminated(id).pipe(
+        Effect.flatMap((ctxLiteral) =>
+          Match.value(ctxLiteral).pipe(
+            Match.discriminatorsExhaustive("id")({
+              [ContextAnnotationTag.Enum.Title]: () => Context.getOption(self, Title),
+              [ContextAnnotationTag.Enum.Domain]: () => Context.getOption(self, Domain),
+              [ContextAnnotationTag.Enum.Method]: () => Context.getOption(self, Method),
+            })
+          )
+        )
+      );
 }
 
 export declare namespace ContextAnnotationTag {
-  export type Type = typeof ContextAnnotationTag.Type
-  export type Encoded = typeof ContextAnnotationTag.Encoded
-
+  export type Type = typeof ContextAnnotationTag.Type;
+  export type Encoded = typeof ContextAnnotationTag.Encoded;
 }

@@ -1,4 +1,5 @@
 import { Contract, ContractKit } from "@beep/contract";
+import { getAnnotation } from "@beep/contract/Contract";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
@@ -7,7 +8,6 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Random from "effect/Random";
 import * as S from "effect/Schema";
-import {getAnnotation} from "@beep/contract/Contract";
 export class ListError extends S.TaggedError<ListError>("@beep/ListError")("ListError", {
   message: S.String,
 }) {}
@@ -115,36 +115,20 @@ export const handleLogOutcome = Contract.handleOutcome(LogContract)({
 });
 
 const program = Effect.gen(function* () {
-  // const { list, log, listWithOutcome, logWithOutcome } = yield* MyService;
-  //
-  // const deterministicList = yield* list({
-  //   name: "beep",
-  //   qty: 5,
-  // });
-  //
-  // yield* Console.log(`deterministicList: ${JSON.stringify(deterministicList)}`);
-  // yield* log({ value: deterministicList });
-  //
-  // yield* Effect.matchEffect(list({ name: "fail", qty: 2 }), {
-  //   onFailure: (failure) => Console.warn(`Expected list failure: ${failure.message}`),
-  //   onSuccess: (success) => Console.log(`Unexpected success: ${JSON.stringify(success)}`),
-  // });
-  const header = `-------- ANNOTATIONS --------\n`
-  const annotations = yield* Contract.getAnnotations(ListContract.annotations)
-  yield* Console.log(header, JSON.stringify(annotations, null, 2), `\n`, Array.from({length: header.length}).map(() => "-").join(""), `\n`)
-
-  // const outcome = yield* listWithOutcome({
-  //   name: "boop",
-  //   qty: 3,
-  // });
-  // yield* handleListOutcome(outcome);
-  //
-  // const logOutcome = yield* logWithOutcome({ value: "fail" });
-  // yield* handleLogOutcome(logOutcome);
-  const titleAnnotation = yield* getAnnotation(ListContract.annotations)("Title")
+  const header = `-------- ANNOTATIONS --------\n`;
+  const annotations = yield* Contract.getAnnotations(ListContract.annotations);
   yield* Console.log(
-    titleAnnotation
-  )
-})
+    header,
+    JSON.stringify(annotations, null, 2),
+    `\n`,
+    Array.from({ length: header.length })
+      .map(() => "-")
+      .join(""),
+    `\n`
+  );
+
+  const titleAnnotation = yield* getAnnotation(ListContract.annotations)("Title");
+  yield* Console.log(titleAnnotation);
+});
 
 BunRuntime.runMain(program.pipe(Effect.provide(MyService.Default)));
