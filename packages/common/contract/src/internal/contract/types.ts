@@ -1,0 +1,985 @@
+// =============================================================================
+// Models
+// =============================================================================
+import type { ProviderDefinedTypeId, TypeId } from "@beep/contract/ContractConstants";
+import type { UnsafeTypes } from "@beep/types";
+import type * as Context from "effect/Context";
+import type * as Effect from "effect/Effect";
+import type * as Either from "effect/Either";
+import type * as O from "effect/Option";
+import type { Pipeable } from "effect/Pipeable";
+import * as S from "effect/Schema";
+import type * as AST from "effect/SchemaAST";
+import type { Covariant } from "effect/Types";
+import type { ContractError } from "../contract-error";
+import type { FailureContinuation, FailureContinuationOptions } from "./continuation";
+import type { FailureMode } from "./schemas";
+/**
+ * A user-defined contract that identity clients can call to perform an action.
+ *
+ * Contracts describe the contract between an auth surface (web, mobile, CLI) and
+ * the runtime that fulfills the operation. Each contract declares schemas for
+ * payload, success results, and failure results to keep validation explicit.
+ *
+ * @example
+ * ```ts
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
+ * import * as S from "effect/Schema"
+ *
+ * const StartPasswordReset = Contract.make("StartPasswordReset", {
+ *   description: "Issues a reset token when a user asks to reset their password",
+ *   payload: {
+ *     email: S.String
+ *   },
+ *   success: S.Struct({
+ *     tokenId: S.String
+ *   })
+ * })
+ * ```
+ *
+ * @since 1.0.0
+ * @category Models
+ */
+export interface Contract<
+  Name extends string,
+  Config extends {
+    readonly payload: AnyStructSchema;
+    readonly success: S.Schema.Any;
+    readonly failure: S.Schema.All;
+    readonly failureMode: FailureMode.Type;
+  },
+  Requirements = never,
+> extends Contract.Variance<Requirements> {
+  /**
+   * The contract identifier which is used to uniquely identify the contract.
+   */
+  readonly id: string;
+
+  /**
+   * The name of the contract.
+   */
+  readonly name: Name;
+
+  /**
+   * The optional description of the contract.
+   */
+  readonly description?: string | undefined;
+
+  /**
+   * The strategy used for handling errors returned from contract call implementation
+   * execution.
+   *
+   * If set to `"error"` (the default), errors that occur during contract call
+   * implementation execution will be returned in the error channel of the calling
+   * effect.
+   *
+   * If set to `"return"`, errors that occur during contract call implementation execution
+   * will be captured and returned as part of the contract call result.
+   */
+  readonly failureMode: FailureMode.Type;
+
+  /**
+   * A `Schema` representing the payload that a contract must be called with.
+   */
+  readonly payloadSchema: Config["payload"];
+
+  /**
+   * A `Schema` representing the value that a contract must return when called if
+   * the contract call is successful.
+   */
+  readonly successSchema: Config["success"];
+
+  /**
+   * A `Schema` representing the value that a contract must return when called if
+   * it fails.
+   */
+  readonly failureSchema: Config["failure"];
+
+  /**
+   * A `Context` object containing contract annotations which can store metadata
+   * about the contract.
+   */
+  readonly annotations: Context.Context<never>;
+
+  /**
+   * Schema helpers for decoding / encoding payloads.
+   */
+  decodePayload(
+    value: PayloadEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    PayloadSchema<Contract<Name, Config, Requirements>>["Type"],
+    never,
+    PayloadContext<Contract<Name, Config, Requirements>>
+  >;
+
+  encodePayload(
+    value: Payload<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    PayloadSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    never,
+    PayloadContext<Contract<Name, Config, Requirements>>
+  >;
+
+  decodeUnknownPayload(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    PayloadSchema<Contract<Name, Config, Requirements>>["Type"],
+    never,
+    PayloadContext<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeUnknownPayload(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    PayloadSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    never,
+    PayloadContext<Contract<Name, Config, Requirements>>
+  >;
+
+  decodePayloadOption(
+    value: PayloadEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<PayloadSchema<Contract<Name, Config, Requirements>>["Type"]>;
+
+  encodePayloadOption(
+    value: Payload<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<PayloadSchema<Contract<Name, Config, Requirements>>["Encoded"]>;
+
+  decodeUnknownPayloadOption(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<PayloadSchema<Contract<Name, Config, Requirements>>["Type"]>;
+
+  encodeUnknownPayloadOption(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<PayloadSchema<Contract<Name, Config, Requirements>>["Encoded"]>;
+
+  decodePayloadEither(
+    value: PayloadEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    PayloadSchema<Contract<Name, Config, Requirements>>["Type"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  encodePayloadEither(
+    value: Payload<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    PayloadSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  decodeUnknownPayloadEither(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    PayloadSchema<Contract<Name, Config, Requirements>>["Type"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeUnknownPayloadEither(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    PayloadSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  isPayload(
+    value: unknown,
+    options?: undefined | AST.ParseOptions | number
+  ): value is PayloadSchema<Contract<Name, Config, Requirements>>["Type"];
+
+  /**
+   * Schema helpers for decoding / encoding successes.
+   */
+  decodeSuccess(
+    value: SuccessEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Type"],
+    never,
+    SuccessContext<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeSuccess(
+    value: Success<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    never,
+    SuccessContext<Contract<Name, Config, Requirements>>
+  >;
+
+  decodeUnknownSuccess(
+    value: unknown,
+    options?: AST.ParseOptions
+  ): Effect.Effect<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Type"],
+    never,
+    SuccessContext<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeUnknownSuccess(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    never,
+    SuccessContext<Contract<Name, Config, Requirements>>
+  >;
+
+  decodeSuccessOption(
+    value: SuccessEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Type"]>;
+
+  encodeSuccessOption(
+    value: Success<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"]>;
+
+  decodeUnknownSuccessOption(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Type"]>;
+
+  encodeUnknownSuccessOption(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"]>;
+
+  decodeSuccessEither(
+    value: SuccessEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Type"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeSuccessEither(
+    value: Success<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  decodeUnknownSuccessEither(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Type"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeUnknownSuccessEither(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  isSuccess(
+    value: unknown,
+    options?: undefined | AST.ParseOptions | number
+  ): value is Success<SuccessSchema<Contract<Name, Config, Requirements>>["Type"]>;
+
+  decodeOption(
+    value: SuccessEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Type"]>;
+
+  encodeOption(
+    value: Success<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"]>;
+
+  decodeUnknownOption(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Type"]>;
+
+  encodeUnknownOption(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"]>;
+
+  decodeEither(
+    value: SuccessEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Type"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeEither(
+    value: Success<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  decodeUnknownEither(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Type"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeUnknownEither(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  /**
+   * Schema helpers for decoding / encoding failures.
+   */
+  decodeFailure(
+    value: FailureEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    Failure<Contract<Name, Config, Requirements>>,
+    Failure<Contract<Name, Config, Requirements>>,
+    FailureContext<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeFailure(
+    value: Failure<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    FailureEncoded<Contract<Name, Config, Requirements>>,
+    Failure<Contract<Name, Config, Requirements>>,
+    FailureContext<Contract<Name, Config, Requirements>>
+  >;
+
+  decodeUnknownFailure(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    Failure<Contract<Name, Config, Requirements>>,
+    Failure<Contract<Name, Config, Requirements>>,
+    FailureContext<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeUnknownFailure(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    FailureEncoded<Contract<Name, Config, Requirements>>,
+    Failure<Contract<Name, Config, Requirements>>,
+    FailureContext<Contract<Name, Config, Requirements>>
+  >;
+
+  decodeFailureOption(
+    value: FailureEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<Failure<Contract<Name, Config, Requirements>>>;
+
+  encodeFailureOption(
+    value: Failure<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<FailureEncoded<Contract<Name, Config, Requirements>>>;
+
+  decodeUnknownFailureOption(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<Failure<Contract<Name, Config, Requirements>>>;
+
+  encodeUnknownFailureOption(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<FailureEncoded<Contract<Name, Config, Requirements>>>;
+
+  decodeFailureEither(
+    value: FailureEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<Failure<Contract<Name, Config, Requirements>>, Failure<Contract<Name, Config, Requirements>>>;
+
+  encodeFailureEither(
+    value: Failure<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<FailureEncoded<Contract<Name, Config, Requirements>>, Failure<Contract<Name, Config, Requirements>>>;
+
+  decodeUnknownFailureEither(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<Failure<Contract<Name, Config, Requirements>>, Failure<Contract<Name, Config, Requirements>>>;
+
+  encodeUnknownFailureEither(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<FailureEncoded<Contract<Name, Config, Requirements>>, Failure<Contract<Name, Config, Requirements>>>;
+
+  isFailure(
+    value: unknown,
+    options?: undefined | AST.ParseOptions | number
+  ): value is Failure<Contract<Name, Config, Requirements>>;
+
+  /**
+   * Helper for creating strongly-typed implementations tied to this contract.
+   */
+  implement(
+    handler: Contract<Name, Config, Requirements> extends Any
+      ? ImplementationHandler<Contract<Name, Config, Requirements>>
+      : never,
+    options?:
+      | (Contract<Name, Config, Requirements> extends Any
+          ? ImplementOptions<Contract<Name, Config, Requirements>>
+          : never)
+      | undefined
+  ): Contract<Name, Config, Requirements> extends Any
+    ? ImplementationFunction<Contract<Name, Config, Requirements>>
+    : never;
+
+  /**
+   * Adds a _request-level_ dependency which must be provided before the contract
+   * call implementation can be executed.
+   *
+   * This can be useful when the auth client must supply per-request data (for
+   * example, tenant context or trace metadata) rather than capturing it when the
+   * contract implementation layer is created.
+   */
+  addDependency<Identifier, Service>(
+    tag: Context.Tag<Identifier, Service>
+  ): Contract<Name, Config, Identifier | Requirements>;
+
+  /**
+   * Set the schema to use to validate the result of a tool call when successful.
+   */
+  setPayload<PayloadSchema extends S.Struct<UnsafeTypes.UnsafeAny> | S.Struct.Fields>(
+    schema: PayloadSchema
+  ): Contract<
+    Name,
+    {
+      readonly payload: PayloadSchema extends S.Struct<infer _>
+        ? PayloadSchema
+        : PayloadSchema extends S.Struct.Fields
+          ? S.Struct<PayloadSchema>
+          : never;
+      readonly success: Config["success"];
+      readonly failure: Config["failure"];
+      readonly failureMode: Config["failureMode"];
+    },
+    Requirements
+  >;
+
+  /**
+   * Set the schema to use to validate the result of a contract call when successful.
+   */
+  setSuccess<SuccessSchema extends S.Schema.Any>(
+    schema: SuccessSchema
+  ): Contract<
+    Name,
+    {
+      readonly payload: Config["payload"];
+      readonly success: SuccessSchema;
+      readonly failure: Config["failure"];
+      readonly failureMode: Config["failureMode"];
+    },
+    Requirements
+  >;
+
+  /**
+   * Set the schema to use to validate the result of a contract call when it fails.
+   */
+  setFailure<FailureSchema extends S.Schema.All>(
+    schema: FailureSchema
+  ): Contract<
+    Name,
+    {
+      readonly payload: Config["payload"];
+      readonly success: Config["success"];
+      readonly failure: FailureSchema;
+      readonly failureMode: Config["failureMode"];
+    },
+    Requirements
+  >;
+
+  /**
+   * Add an annotation to the contract.
+   */
+  annotate<I, S>(tag: Context.Tag<I, S>, value: S): Contract<Name, Config, Requirements>;
+
+  /**
+   * Add many annotations to the contract.
+   */
+  annotateContext<I>(context: Context.Context<I>): Contract<Name, Config, Requirements>;
+
+  /**
+   * Creates a failure continuation pre-configured with this contract's metadata.
+   */
+  continuation<Failure = ContractError.UnknownError, Extra extends Record<string, unknown> = Record<string, unknown>>(
+    options?: FailureContinuationOptions<Contract<Name, Config, Requirements>, Failure, Extra>
+  ): FailureContinuation<Failure, Extra>;
+}
+
+/**
+ * A provider-defined contract wraps functionality that ships with an external
+ * auth provider (for example, Better Auth hosted screens or third-party social
+ * sign-in callbacks).
+ *
+ * These contracts are triggered by the provider and optionally require an
+ * application-defined implementation to post-process the provider output.
+ *
+ * @example
+ * ```ts
+ * import * as Contract from "@beep/contract/contract-kit/Contract"
+ * import * as S from "effect/Schema"
+ *
+ * const HostedPasswordReset = Contract.providerDefined({
+ *   id: "betterauth.reset_password",
+ *   contractKitName: "HostedPasswordReset",
+ *   providerName: "reset_password",
+ *   args: {
+ *     redirectUri: S.String
+ *   },
+ *   success: S.Struct({
+ *     status: S.Literal("redirected")
+ *   })
+ * })
+ * ```
+ *
+ * @since 1.0.0
+ * @category Models
+ */
+export interface ProviderDefined<
+  Name extends string,
+  Config extends {
+    readonly args: AnyStructSchema;
+    readonly payload: AnyStructSchema;
+    readonly success: S.Schema.Any;
+    readonly failure: S.Schema.All;
+    readonly failureMode: FailureMode.Type;
+  } = {
+    readonly args: S.Struct<{}>;
+    readonly payload: S.Struct<{}>;
+    readonly success: typeof S.Void;
+    readonly failure: typeof S.Never;
+    readonly failureMode: typeof FailureMode.Enum.error;
+  },
+  RequiresImplementation extends boolean = false,
+> extends Contract<
+      Name,
+      {
+        readonly payload: Config["payload"];
+        readonly success: Config["success"];
+        readonly failure: Config["failure"];
+        readonly failureMode: Config["failureMode"];
+      }
+    >,
+    Contract.ProviderDefinedProto {
+  /**
+   * The arguments passed to the provider-defined contract.
+   */
+  readonly args: Config["args"]["Encoded"];
+
+  /**
+   * A `Schema` representing the arguments provided by the end-user which will
+   * be used to configure the behavior of the provider-defined contract.
+   */
+  readonly argsSchema: Config["args"];
+
+  /**
+   * Name of the contract as recognized by the external auth provider.
+   */
+  readonly providerName: string;
+
+  /**
+   * If set to `true`, this provider-defined contract requires a user-defined
+   * implementation when converting the `ContractKit` containing this contract
+   * into a `Layer`.
+   */
+  readonly requiresImplementation: RequiresImplementation;
+}
+
+/**
+ * @since 1.0.0
+ */
+export declare namespace Contract {
+  /**
+   * @since 1.0.0
+   * @category Models
+   */
+  export interface Variance<out Requirements> extends Pipeable {
+    readonly [TypeId]: VarianceStruct<Requirements>;
+  }
+
+  /**
+   * @since 1.0.0
+   * @category Models
+   */
+  export interface VarianceStruct<out Requirements> {
+    readonly _Requirements: Covariant<Requirements>;
+  }
+
+  /**
+   * @since 1.0.0
+   * @category Models
+   */
+  export interface ProviderDefinedProto {
+    readonly [ProviderDefinedTypeId]: ProviderDefinedTypeId;
+  }
+}
+
+// =============================================================================
+// Utility Types
+// =============================================================================
+
+/**
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export interface AnyStructSchema extends Pipeable {
+  readonly [S.TypeId]: UnsafeTypes.UnsafeAny;
+  readonly make: UnsafeTypes.UnsafeAny;
+  readonly Type: UnsafeTypes.UnsafeAny;
+  readonly Encoded: UnsafeTypes.UnsafeAny;
+  readonly Context: UnsafeTypes.UnsafeAny;
+  readonly ast: AST.AST;
+  readonly fields: S.Struct.Fields;
+  readonly annotations: UnsafeTypes.UnsafeAny;
+}
+
+/**
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export interface AnyTaggedRequestSchema extends AnyStructSchema {
+  readonly _tag: string;
+  readonly success: S.Schema.Any;
+  readonly failure: S.Schema.All;
+}
+
+export interface Any extends Pipeable {
+  readonly [TypeId]: {
+    readonly _Requirements: Covariant<UnsafeTypes.UnsafeAny>;
+  };
+  readonly id: string;
+  readonly name: string;
+  readonly description?: string | undefined;
+  readonly payloadSchema: AnyStructSchema;
+  readonly successSchema: S.Schema.Any;
+  readonly failureSchema: S.Schema.All;
+  readonly failureMode: FailureMode.Type;
+  readonly annotations: Context.Context<never>;
+}
+
+/**
+ * A utility type to convert a `Schema.TaggedRequest` into an `Contract`.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export interface FromTaggedRequest<S extends AnyTaggedRequestSchema>
+  extends Contract<
+    S["_tag"],
+    {
+      readonly payload: S;
+      readonly success: S["success"];
+      readonly failure: S["failure"];
+      readonly failureMode: typeof FailureMode.Enum.error;
+    }
+  > {}
+
+/**
+ * A utility type to extract the `Name` type from an `Contract`.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type Name<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements> ? _Name : never;
+
+/**
+ * A utility type to extract the type of the contract call payload.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type Payload<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? S.Struct.Type<_Config["payload"]["fields"]>
+  : never;
+
+/**
+ * A utility type to extract the encoded type of the contract call payload.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type PayloadEncoded<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? S.Schema.Encoded<_Config["payload"]>
+  : never;
+
+/**
+ * A utility type to extract the schema for the payload which an `Contract`
+ * must be called with.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type PayloadSchema<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? _Config["payload"]
+  : never;
+
+/**
+ * A utility type to extract the type of the contract call result when it succeeds.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type Success<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? S.Schema.Type<_Config["success"]>
+  : never;
+
+/**
+ * A utility type to extract the encoded type of the contract call result when
+ * it succeeds.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type SuccessEncoded<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? S.Schema.Encoded<_Config["success"]>
+  : never;
+
+/**
+ * A utility type to extract the schema for the return type of a contract call when
+ * the contract call succeeds.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type SuccessSchema<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? _Config["success"]
+  : never;
+
+/**
+ * A utility type to extract the type of the contract call result when it fails.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type Failure<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? S.Schema.Type<_Config["failure"]>
+  : never;
+
+export type FailureSchema<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? _Config["failure"]
+  : never;
+/**
+ * A utility type to extract the encoded type of the contract call result when
+ * it fails.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type FailureEncoded<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? S.Schema.Encoded<_Config["failure"]>
+  : never;
+
+/**
+ * Extracts the parse context required by the payload schema.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type PayloadContext<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? S.Schema.Context<_Config["payload"]>
+  : never;
+
+/**
+ * Extracts the parse context required by the success schema.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type SuccessContext<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? S.Schema.Context<_Config["success"]>
+  : never;
+
+/**
+ * Extracts the parse context required by the failure schema.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type FailureContext<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? S.Schema.Context<_Config["failure"]>
+  : never;
+
+/**
+ * A utility type to extract the type of the contract call result whether it
+ * succeeds or fails.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type Result<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? Success<T> | Failure<T>
+  : never;
+/**
+ * A utility type to extract the encoded type of the contract call result whether
+ * it succeeds or fails.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type ResultEncoded<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? SuccessEncoded<T> | FailureEncoded<T>
+  : never;
+
+/**
+ * Discriminated runtime view of a contract invocation result that
+ * preserves the configured failure mode along with the encoded payload.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type HandleOutcome<T extends Any> =
+  | {
+      readonly mode: typeof FailureMode.Enum.error;
+      readonly _tag: "success";
+      readonly result: Success<T>;
+      readonly encodedResult: SuccessEncoded<T>;
+    }
+  | {
+      readonly mode: typeof FailureMode.Enum.return;
+      readonly _tag: "success";
+      readonly result: Success<T>;
+      readonly encodedResult: SuccessEncoded<T>;
+    }
+  | {
+      readonly mode: typeof FailureMode.Enum.return;
+      readonly _tag: "failure";
+      readonly result: Failure<T>;
+      readonly encodedResult: FailureEncoded<T>;
+    };
+export declare namespace HandleOutcome {
+  export type Success<C extends Any> = Extract<HandleOutcome<C>, { readonly _tag: "success" }>;
+  export type Failure<C extends Any> = Extract<HandleOutcome<C>, { readonly _tag: "failure" }>;
+}
+
+/**
+ * A utility type to extract the requirements of an `Contract`.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type Requirements<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? _Config["payload"]["Context"] | _Config["success"]["Context"] | _Config["failure"]["Context"] | _Requirements
+  : never;
+
+/**
+ * Represents an `Contract` that has been implemented within the application.
+ *
+ * @since 1.0.0
+ * @category Models
+ */
+export interface Implementation<Name extends string> {
+  readonly _: unique symbol;
+  readonly name: Name;
+  readonly context: Context.Context<never>;
+  readonly implementation: (
+    params: UnsafeTypes.UnsafeAny
+  ) => Effect.Effect<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>;
+}
+
+/**
+ * Represents the result of calling the implementation for a particular `Contract`.
+ *
+ * @since 1.0.0
+ * @category Models
+ */
+export interface ImplementationResult<Contract extends Any> {
+  /**
+   * Whether the result of executing the contract call implementation was an error or not.
+   */
+  readonly isFailure: boolean;
+  /**
+   * The result of executing the implementation for a particular contract.
+   */
+  readonly result: Result<Contract>;
+  /**
+   * The pre-encoded contract call result of executing the implementation for a particular
+   * contract as a JSON-serializable value. The encoded result can be forwarded to
+   * clients, stored for auditing, or chained into subsequent contract calls.
+   */
+  readonly encodedResult: unknown;
+}
+
+/**
+ * A utility type which represents the possible errors that can be raised by
+ * a contract call's implementation.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type ImplementationError<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? _Config["failureMode"] extends typeof FailureMode.Enum.error
+    ? _Config["failure"]["Type"]
+    : never
+  : never;
+
+/**
+ * A utility type to create a union of `Implementation` types for all contracts in a
+ * record.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type ImplementationsFor<Contracts extends Record<string, Any>> = {
+  [Name in keyof Contracts]: RequiresImplementation<Contracts[Name]> extends true
+    ? Implementation<Contracts[Name]["name"]>
+    : never;
+}[keyof Contracts];
+
+/**
+ * A utility type to determine if the specified contract requires a user-defined
+ * implementation to be implemented.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type RequiresImplementation<Contract extends Any> = Contract extends ProviderDefined<
+  infer _Name,
+  infer _Config,
+  infer _RequiresImplementation
+>
+  ? _RequiresImplementation
+  : true;
+
+export interface ImplementationContext<C extends Any> {
+  readonly contract: C;
+  readonly annotations: Context.Context<never>;
+}
+
+export type ImplementationHandler<C extends Any> = (
+  payload: Payload<C>,
+  context: ImplementationContext<C>
+) => Effect.Effect<Success<C>, Failure<C>, Requirements<C>>;
+
+export type ImplementationFunction<C extends Any> = (
+  payload: Payload<C>
+) => Effect.Effect<Success<C>, Failure<C>, Requirements<C>>;
+
+export interface ImplementOptions<C extends Any> {
+  readonly onSuccess?:
+    | undefined
+    | ((success: Success<C>, context: ImplementationContext<C>) => Effect.Effect<void, never, never>);
+  readonly onFailure?:
+    | undefined
+    | ((failure: Failure<C>, context: ImplementationContext<C>) => Effect.Effect<void, never, never>);
+}

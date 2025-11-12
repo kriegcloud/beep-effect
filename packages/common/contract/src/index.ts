@@ -99,8 +99,8 @@
  *
  * @since 1.0.0
  */
-export * as Contract from "./Contract";
-export * as ContractError from "./ContractError";
+export * from "./Contract";
+export * from "./ContractError";
 /**
  * The `ContractKit` module allows for creating and implementing a collection of
  * `Contract`s which can be used to enhance the capabilities of a large language
@@ -139,4 +139,4 @@ export * as ContractError from "./ContractError";
  *
  * @since 1.0.0
  */
-export * as ContractKit from "./ContractKit";
+export * from "./ContractKit";
