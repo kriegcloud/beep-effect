@@ -1,94 +1,71 @@
 import { client } from "@beep/iam-sdk/adapters";
-import {
-  addFetchOptions,
-  compact,
-  makeFailureContinuation,
-  makeMetadata,
-  withFetchOptions,
-} from "@beep/iam-sdk/clients/_internal";
-import type { OrganizationDeletePayload } from "@beep/iam-sdk/clients/organization/organization.contracts";
+import { addFetchOptions, compact, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { MetadataFactory } from "@beep/iam-sdk/clients/_internal/client-method-helpers";
+
 import {
   AcceptInvitationContract,
-  AcceptInvitationPayload,
   OrganizationCancelInvitationContract,
-  OrganizationCancelInvitationPayload,
   OrganizationCheckSlugContract,
-  OrganizationCheckSlugPayload,
   OrganizationContractKit,
   OrganizationCreateContract,
-  OrganizationCreatePayload,
   OrganizationCreateRoleContract,
   OrganizationDeleteContract,
   OrganizationDeleteRoleContract,
   OrganizationGetActiveMemberContract,
   OrganizationGetActiveMemberRoleContract,
-  OrganizationGetActiveMemberRolePayload,
   OrganizationGetFullContract,
-  OrganizationGetFullPayload,
   OrganizationGetInvitationContract,
-  OrganizationGetInvitationPayload,
   OrganizationInviteMemberContract,
-  OrganizationInviteMemberPayload,
   OrganizationLeaveContract,
-  OrganizationLeavePayload,
   OrganizationListContract,
   OrganizationListInvitationsContract,
-  OrganizationListInvitationsPayload,
   OrganizationListMembersContract,
-  OrganizationListMembersPayload,
   OrganizationListRolesContract,
   OrganizationListUserInvitationsContract,
-  OrganizationListUserInvitationsPayload,
   OrganizationRejectInvitationContract,
-  OrganizationRejectInvitationPayload,
   OrganizationRemoveMemberContract,
-  OrganizationRemoveMemberPayload,
-  OrganizationRoleCreatePayload,
-  OrganizationRoleDeletePayload,
-  OrganizationRoleListPayload,
   OrganizationSetActiveContract,
-  OrganizationSetActivePayload,
   OrganizationUpdateContract,
   OrganizationUpdateMemberRoleContract,
-  OrganizationUpdateMemberRolePayload,
-  OrganizationUpdatePayload,
 } from "@beep/iam-sdk/clients/organization/organization.contracts";
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
+import * as Struct from "effect/Struct";
 
-const OrganizationCreateMetadata = makeMetadata("create");
-const OrganizationCheckSlugMetadata = makeMetadata("checkSlug");
-const OrganizationListMetadata = makeMetadata("list");
-const OrganizationSetActiveMetadata = makeMetadata("setActive");
-const OrganizationGetFullMetadata = makeMetadata("getFullOrganization");
-const OrganizationUpdateMetadata = makeMetadata("update");
-const OrganizationDeleteMetadata = makeMetadata("delete");
-const AcceptInvitationMetadata = makeMetadata("acceptInvitation");
-const OrganizationInviteMemberMetadata = makeMetadata("inviteMember");
-const OrganizationCancelInvitationMetadata = makeMetadata("cancelInvitation");
-const OrganizationRejectInvitationMetadata = makeMetadata("rejectInvitation");
-const OrganizationListInvitationsMetadata = makeMetadata("listInvitations");
-const OrganizationListUserInvitationsMetadata = makeMetadata("listUserInvitations");
-const OrganizationGetInvitationMetadata = makeMetadata("getInvitation");
-const OrganizationListMembersMetadata = makeMetadata("listMembers");
-const OrganizationRemoveMemberMetadata = makeMetadata("removeMember");
-const OrganizationUpdateMemberRoleMetadata = makeMetadata("updateMemberRole");
-const OrganizationGetActiveMemberMetadata = makeMetadata("getActiveMember");
-const OrganizationGetActiveMemberRoleMetadata = makeMetadata("getActiveMemberRole");
-const OrganizationLeaveMetadata = makeMetadata("leave");
-const OrganizationCreateRoleMetadata = makeMetadata("createRole");
-const OrganizationDeleteRoleMetadata = makeMetadata("deleteRole");
-const OrganizationListRolesMetadata = makeMetadata("listRoles");
+const metaDataFactory = new MetadataFactory("organization");
 
-const OrganizationCreateHandler = Effect.fn("OrganizationCreateHandler")(
-  function* (payload: OrganizationCreatePayload.Type) {
+const OrganizationCreateMetadata = metaDataFactory.make("create");
+const OrganizationCheckSlugMetadata = metaDataFactory.make("checkSlug");
+const OrganizationListMetadata = metaDataFactory.make("list");
+const OrganizationSetActiveMetadata = metaDataFactory.make("setActive");
+const OrganizationGetFullMetadata = metaDataFactory.make("getFullOrganization");
+const OrganizationUpdateMetadata = metaDataFactory.make("update");
+const OrganizationDeleteMetadata = metaDataFactory.make("delete");
+const AcceptInvitationMetadata = metaDataFactory.make("acceptInvitation");
+const OrganizationInviteMemberMetadata = metaDataFactory.make("inviteMember");
+const OrganizationCancelInvitationMetadata = metaDataFactory.make("cancelInvitation");
+const OrganizationRejectInvitationMetadata = metaDataFactory.make("rejectInvitation");
+const OrganizationListInvitationsMetadata = metaDataFactory.make("listInvitations");
+const OrganizationListUserInvitationsMetadata = metaDataFactory.make("listUserInvitations");
+const OrganizationGetInvitationMetadata = metaDataFactory.make("getInvitation");
+const OrganizationListMembersMetadata = metaDataFactory.make("listMembers");
+const OrganizationRemoveMemberMetadata = metaDataFactory.make("removeMember");
+const OrganizationUpdateMemberRoleMetadata = metaDataFactory.make("updateMemberRole");
+const OrganizationGetActiveMemberMetadata = metaDataFactory.make("getActiveMember");
+const OrganizationGetActiveMemberRoleMetadata = metaDataFactory.make("getActiveMemberRole");
+const OrganizationLeaveMetadata = metaDataFactory.make("leave");
+const OrganizationCreateRoleMetadata = metaDataFactory.make("createRole");
+const OrganizationDeleteRoleMetadata = metaDataFactory.make("deleteRole");
+const OrganizationListRolesMetadata = metaDataFactory.make("listRoles");
+
+const OrganizationCreateHandler = OrganizationCreateContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationCreate",
+      contract: OrganizationCreateContract.name,
       metadata: OrganizationCreateMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationCreatePayload)(payload);
+    const encoded = yield* OrganizationCreateContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
       client.organization.create(
@@ -103,32 +80,29 @@ const OrganizationCreateHandler = Effect.fn("OrganizationCreateHandler")(
     yield* continuation.raiseResult(result);
 
     if (!result.data) {
-      return yield* Effect.fail(
-        new IamError({}, "OrganizationCreateHandler returned no payload from Better Auth", OrganizationCreateMetadata())
+      return yield* new IamError(
+        {},
+        "OrganizationCreateHandler returned no payload from Better Auth",
+        OrganizationCreateMetadata()
       );
     }
 
-    const data = result.data;
-
-    const decoded = yield* S.decodeUnknown(OrganizationCreateContract.successSchema)(data);
+    const decoded = yield* OrganizationCreateContract.decodeUnknownSuccess(result.data);
 
     client.$store.notify("$sessionSignal");
 
     return decoded;
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationCreateMetadata())),
   })
 );
 
-const OrganizationCheckSlugHandler = Effect.fn("OrganizationCheckSlugHandler")(
-  function* (payload: OrganizationCheckSlugPayload.Type) {
+const OrganizationCheckSlugHandler = OrganizationCheckSlugContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationCheckSlug",
+      contract: OrganizationCheckSlugContract.name,
       metadata: OrganizationCheckSlugMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationCheckSlugPayload)(payload);
+    const encoded = yield* OrganizationCheckSlugContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
       client.organization.checkSlug(addFetchOptions(handlers, encoded))
@@ -148,17 +122,14 @@ const OrganizationCheckSlugHandler = Effect.fn("OrganizationCheckSlugHandler")(
 
     const data = result.data;
 
-    return yield* S.decodeUnknown(OrganizationCheckSlugContract.successSchema)(data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationCheckSlugMetadata())),
+    return yield* OrganizationCheckSlugContract.decodeUnknownSuccess(data);
   })
 );
 
-const OrganizationListHandler = Effect.fn("OrganizationListHandler")(
-  function* () {
+const OrganizationListHandler = OrganizationListContract.implement(
+  Effect.fn(function* () {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationList",
+      contract: OrganizationListContract.name,
       metadata: OrganizationListMetadata,
     });
 
@@ -176,21 +147,18 @@ const OrganizationListHandler = Effect.fn("OrganizationListHandler")(
 
     const data = result.data;
 
-    return yield* S.decodeUnknown(OrganizationListContract.successSchema)(data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationListMetadata())),
+    return yield* OrganizationListContract.decodeUnknownSuccess(data);
   })
 );
 
-const OrganizationSetActiveHandler = Effect.fn("OrganizationSetActiveHandler")(
-  function* (payload: OrganizationSetActivePayload.Type) {
+const OrganizationSetActiveHandler = OrganizationSetActiveContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationSetActive",
+      contract: OrganizationSetActiveContract.name,
       metadata: OrganizationSetActiveMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationSetActivePayload)(payload);
+    const encoded = yield* OrganizationSetActiveContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
       client.organization.setActive(addFetchOptions(handlers, encoded))
@@ -198,51 +166,45 @@ const OrganizationSetActiveHandler = Effect.fn("OrganizationSetActiveHandler")(
 
     yield* continuation.raiseResult(result);
 
-    const decoded = yield* S.decodeUnknown(OrganizationSetActiveContract.successSchema)(result.data ?? null);
+    const decoded = yield* OrganizationSetActiveContract.decodeUnknownSuccess(result.data ?? null);
 
     client.$store.notify("$sessionSignal");
 
     return decoded;
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationSetActiveMetadata())),
   })
 );
 
-const OrganizationGetFullHandler = Effect.fn("OrganizationGetFullHandler")(
-  function* (payload: OrganizationGetFullPayload.Type) {
+const OrganizationGetFullHandler = OrganizationGetFullContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationGetFull",
+      contract: OrganizationGetFullContract.name,
       metadata: OrganizationGetFullMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationGetFullPayload)(payload);
+    const encoded = yield* OrganizationGetFullContract.encodePayload(payload);
     const query = compact(encoded);
 
     const result = yield* continuation.run((handlers) =>
       client.organization.getFullOrganization(
-        Object.keys(query).length > 0 ? { query } : undefined,
+        Struct.keys(query).length > 0 ? { query } : undefined,
         withFetchOptions(handlers)
       )
     );
 
     yield* continuation.raiseResult(result);
 
-    return yield* S.decodeUnknown(OrganizationGetFullContract.successSchema)(result.data ?? null);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationGetFullMetadata())),
+    return yield* OrganizationGetFullContract.decodeUnknownSuccess(result.data ?? null);
   })
 );
 
-const OrganizationUpdateHandler = Effect.fn("OrganizationUpdateHandler")(
-  function* (payload: OrganizationUpdatePayload.Type) {
+const OrganizationUpdateHandler = OrganizationUpdateContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationUpdate",
+      contract: OrganizationUpdateContract.name,
       metadata: OrganizationUpdateMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationUpdatePayload)(payload);
+    const encoded = yield* OrganizationUpdateContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
       client.organization.update(
@@ -259,17 +221,14 @@ const OrganizationUpdateHandler = Effect.fn("OrganizationUpdateHandler")(
 
     yield* continuation.raiseResult(result);
 
-    return yield* S.decodeUnknown(OrganizationUpdateContract.successSchema)(result.data ?? null);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationUpdateMetadata())),
+    return yield* OrganizationUpdateContract.decodeUnknownSuccess(result.data ?? null);
   })
 );
 
-const OrganizationDeleteHandler = Effect.fn("OrganizationDeleteHandler")(
-  function* (payload: OrganizationDeletePayload.Type) {
+const OrganizationDeleteHandler = OrganizationDeleteContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationDelete",
+      contract: OrganizationDeleteContract.name,
       metadata: OrganizationDeleteMetadata,
     });
 
@@ -290,25 +249,22 @@ const OrganizationDeleteHandler = Effect.fn("OrganizationDeleteHandler")(
 
     const data = result.data;
 
-    const decoded = yield* S.decodeUnknown(OrganizationDeleteContract.successSchema)(data);
+    const decoded = yield* OrganizationDeleteContract.decodeUnknownSuccess(data);
 
     client.$store.notify("$sessionSignal");
 
     return decoded;
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationDeleteMetadata())),
   })
 );
 
-const AcceptInvitationHandler = Effect.fn("AcceptInvitationHandler")(
-  function* (payload: AcceptInvitationPayload.Type) {
+const AcceptInvitationHandler = AcceptInvitationContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "AcceptInvitation",
+      contract: AcceptInvitationContract.name,
       metadata: AcceptInvitationMetadata,
     });
 
-    const encoded = yield* S.encode(AcceptInvitationPayload)(payload);
+    const encoded = yield* AcceptInvitationContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
       client.organization.acceptInvitation(addFetchOptions(handlers, encoded))
@@ -324,25 +280,22 @@ const AcceptInvitationHandler = Effect.fn("AcceptInvitationHandler")(
 
     const data = result.data;
 
-    const decoded = yield* S.decodeUnknown(AcceptInvitationContract.successSchema)(data);
+    const decoded = yield* AcceptInvitationContract.decodeUnknownSuccess(data);
 
     client.$store.notify("$sessionSignal");
 
     return decoded;
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, AcceptInvitationMetadata())),
   })
 );
 
-const OrganizationInviteMemberHandler = Effect.fn("OrganizationInviteMemberHandler")(
-  function* (payload: OrganizationInviteMemberPayload.Type) {
+const OrganizationInviteMemberHandler = OrganizationInviteMemberContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationInviteMember",
+      contract: OrganizationInviteMemberContract.name,
       metadata: OrganizationInviteMemberMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationInviteMemberPayload)(payload);
+    const encoded = yield* OrganizationInviteMemberContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
       client.organization.inviteMember(
@@ -367,21 +320,18 @@ const OrganizationInviteMemberHandler = Effect.fn("OrganizationInviteMemberHandl
 
     const data = result.data;
 
-    return yield* S.decodeUnknown(OrganizationInviteMemberContract.successSchema)(data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationInviteMemberMetadata())),
+    return yield* OrganizationInviteMemberContract.decodeUnknownSuccess(data);
   })
 );
 
-const OrganizationCancelInvitationHandler = Effect.fn("OrganizationCancelInvitationHandler")(
-  function* (payload: OrganizationCancelInvitationPayload.Type) {
+const OrganizationCancelInvitationHandler = OrganizationCancelInvitationContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationCancelInvitation",
+      contract: OrganizationCancelInvitationContract.name,
       metadata: OrganizationCancelInvitationMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationCancelInvitationPayload)(payload);
+    const encoded = yield* OrganizationCancelInvitationContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
       client.organization.cancelInvitation(addFetchOptions(handlers, encoded))
@@ -389,21 +339,18 @@ const OrganizationCancelInvitationHandler = Effect.fn("OrganizationCancelInvitat
 
     yield* continuation.raiseResult(result);
 
-    return yield* S.decodeUnknown(OrganizationCancelInvitationContract.successSchema)(result.data ?? null);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationCancelInvitationMetadata())),
+    return yield* OrganizationCancelInvitationContract.decodeUnknownSuccess(result.data ?? null);
   })
 );
 
-const OrganizationRejectInvitationHandler = Effect.fn("OrganizationRejectInvitationHandler")(
-  function* (payload: OrganizationRejectInvitationPayload.Type) {
+const OrganizationRejectInvitationHandler = OrganizationRejectInvitationContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationRejectInvitation",
+      contract: OrganizationRejectInvitationContract.name,
       metadata: OrganizationRejectInvitationMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationRejectInvitationPayload)(payload);
+    const encoded = yield* OrganizationRejectInvitationContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
       client.organization.rejectInvitation(addFetchOptions(handlers, encoded))
@@ -421,21 +368,18 @@ const OrganizationRejectInvitationHandler = Effect.fn("OrganizationRejectInvitat
 
     const data = result.data;
 
-    return yield* S.decodeUnknown(OrganizationRejectInvitationContract.successSchema)(data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationRejectInvitationMetadata())),
+    return yield* OrganizationRejectInvitationContract.decodeUnknownSuccess(data);
   })
 );
 
-const OrganizationListInvitationsHandler = Effect.fn("OrganizationListInvitationsHandler")(
-  function* (payload: OrganizationListInvitationsPayload.Type) {
+const OrganizationListInvitationsHandler = OrganizationListInvitationsContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationListInvitations",
+      contract: OrganizationListInvitationsContract.name,
       metadata: OrganizationListInvitationsMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationListInvitationsPayload)(payload);
+    const encoded = yield* OrganizationListInvitationsContract.encodePayload(payload);
     const query = compact(encoded);
 
     const result = yield* continuation.run((handlers) =>
@@ -457,21 +401,18 @@ const OrganizationListInvitationsHandler = Effect.fn("OrganizationListInvitation
 
     const data = result.data;
 
-    return yield* S.decodeUnknown(OrganizationListInvitationsContract.successSchema)(data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationListInvitationsMetadata())),
+    return yield* OrganizationListInvitationsContract.decodeUnknownSuccess(data);
   })
 );
 
-const OrganizationListUserInvitationsHandler = Effect.fn("OrganizationListUserInvitationsHandler")(
-  function* (payload: OrganizationListUserInvitationsPayload.Type) {
+const OrganizationListUserInvitationsHandler = OrganizationListUserInvitationsContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationListUserInvitations",
+      contract: OrganizationListUserInvitationsContract.name,
       metadata: OrganizationListUserInvitationsMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationListUserInvitationsPayload)(payload);
+    const encoded = yield* OrganizationListUserInvitationsContract.encodePayload(payload);
     const query = compact(encoded);
 
     const result = yield* continuation.run((handlers) =>
@@ -495,21 +436,18 @@ const OrganizationListUserInvitationsHandler = Effect.fn("OrganizationListUserIn
 
     const data = result.data;
 
-    return yield* S.decodeUnknown(OrganizationListUserInvitationsContract.successSchema)(data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationListUserInvitationsMetadata())),
+    return yield* OrganizationListUserInvitationsContract.decodeUnknownSuccess(data);
   })
 );
 
-const OrganizationGetInvitationHandler = Effect.fn("OrganizationGetInvitationHandler")(
-  function* (payload: OrganizationGetInvitationPayload.Type) {
+const OrganizationGetInvitationHandler = OrganizationGetInvitationContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationGetInvitation",
+      contract: OrganizationGetInvitationContract.name,
       metadata: OrganizationGetInvitationMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationGetInvitationPayload)(payload);
+    const encoded = yield* OrganizationGetInvitationContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
       client.organization.getInvitation({ query: encoded }, withFetchOptions(handlers))
@@ -529,21 +467,18 @@ const OrganizationGetInvitationHandler = Effect.fn("OrganizationGetInvitationHan
 
     const data = result.data;
 
-    return yield* S.decodeUnknown(OrganizationGetInvitationContract.successSchema)(data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationGetInvitationMetadata())),
+    return yield* OrganizationGetInvitationContract.decodeUnknownSuccess(data);
   })
 );
 
-const OrganizationListMembersHandler = Effect.fn("OrganizationListMembersHandler")(
-  function* (payload: OrganizationListMembersPayload.Type) {
+const OrganizationListMembersHandler = OrganizationListMembersContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationListMembers",
+      contract: OrganizationListMembersContract.name,
       metadata: OrganizationListMembersMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationListMembersPayload)(payload);
+    const encoded = yield* OrganizationListMembersContract.encodePayload(payload);
     const query = compact(encoded);
 
     const result = yield* continuation.run((handlers) =>
@@ -564,21 +499,18 @@ const OrganizationListMembersHandler = Effect.fn("OrganizationListMembersHandler
 
     const data = result.data;
 
-    return yield* S.decodeUnknown(OrganizationListMembersContract.successSchema)(data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationListMembersMetadata())),
+    return yield* OrganizationListMembersContract.decodeUnknownSuccess(data);
   })
 );
 
-const OrganizationRemoveMemberHandler = Effect.fn("OrganizationRemoveMemberHandler")(
-  function* (payload: OrganizationRemoveMemberPayload.Type) {
+const OrganizationRemoveMemberHandler = OrganizationRemoveMemberContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationRemoveMember",
+      contract: OrganizationRemoveMemberContract.name,
       metadata: OrganizationRemoveMemberMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationRemoveMemberPayload)(payload);
+    const encoded = yield* OrganizationRemoveMemberContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
       client.organization.removeMember(addFetchOptions(handlers, encoded))
@@ -598,21 +530,18 @@ const OrganizationRemoveMemberHandler = Effect.fn("OrganizationRemoveMemberHandl
 
     const data = result.data;
 
-    return yield* S.decodeUnknown(OrganizationRemoveMemberContract.successSchema)(data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationRemoveMemberMetadata())),
+    return yield* OrganizationRemoveMemberContract.decodeUnknownSuccess(data);
   })
 );
 
-const OrganizationUpdateMemberRoleHandler = Effect.fn("OrganizationUpdateMemberRoleHandler")(
-  function* (payload: OrganizationUpdateMemberRolePayload.Type) {
+const OrganizationUpdateMemberRoleHandler = OrganizationUpdateMemberRoleContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationUpdateMemberRole",
+      contract: OrganizationUpdateMemberRoleContract.name,
       metadata: OrganizationUpdateMemberRoleMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationUpdateMemberRolePayload)(payload);
+    const encoded = yield* OrganizationUpdateMemberRoleContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
       client.organization.updateMemberRole(addFetchOptions(handlers, encoded))
@@ -632,17 +561,14 @@ const OrganizationUpdateMemberRoleHandler = Effect.fn("OrganizationUpdateMemberR
 
     const data = result.data;
 
-    return yield* S.decodeUnknown(OrganizationUpdateMemberRoleContract.successSchema)(data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationUpdateMemberRoleMetadata())),
+    return yield* OrganizationUpdateMemberRoleContract.decodeUnknownSuccess(data);
   })
 );
 
-const OrganizationGetActiveMemberHandler = Effect.fn("OrganizationGetActiveMemberHandler")(
-  function* () {
+const OrganizationGetActiveMemberHandler = OrganizationGetActiveMemberContract.implement(
+  Effect.fn(function* () {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationGetActiveMember",
+      contract: OrganizationGetActiveMemberContract.name,
       metadata: OrganizationGetActiveMemberMetadata,
     });
 
@@ -664,21 +590,18 @@ const OrganizationGetActiveMemberHandler = Effect.fn("OrganizationGetActiveMembe
 
     const data = result.data;
 
-    return yield* S.decodeUnknown(OrganizationGetActiveMemberContract.successSchema)(data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationGetActiveMemberMetadata())),
+    return yield* OrganizationGetActiveMemberContract.decodeUnknownSuccess(data);
   })
 );
 
-const OrganizationGetActiveMemberRoleHandler = Effect.fn("OrganizationGetActiveMemberRoleHandler")(
-  function* (payload: OrganizationGetActiveMemberRolePayload.Type) {
+const OrganizationGetActiveMemberRoleHandler = OrganizationGetActiveMemberRoleContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationGetActiveMemberRole",
+      contract: OrganizationGetActiveMemberRoleContract.name,
       metadata: OrganizationGetActiveMemberRoleMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationGetActiveMemberRolePayload)(payload);
+    const encoded = yield* OrganizationGetActiveMemberRoleContract.encodePayload(payload);
     const query = compact(encoded);
 
     const result = yield* continuation.run((handlers) =>
@@ -702,21 +625,18 @@ const OrganizationGetActiveMemberRoleHandler = Effect.fn("OrganizationGetActiveM
 
     const data = result.data;
 
-    return yield* S.decodeUnknown(OrganizationGetActiveMemberRoleContract.successSchema)(data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationGetActiveMemberRoleMetadata())),
+    return yield* OrganizationGetActiveMemberRoleContract.decodeUnknownSuccess(data);
   })
 );
 
-const OrganizationLeaveHandler = Effect.fn("OrganizationLeaveHandler")(
-  function* (payload: OrganizationLeavePayload.Type) {
+const OrganizationLeaveHandler = OrganizationLeaveContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationLeave",
+      contract: OrganizationLeaveContract.name,
       metadata: OrganizationLeaveMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationLeavePayload)(payload);
+    const encoded = yield* OrganizationLeaveContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) => client.organization.leave(addFetchOptions(handlers, encoded)));
 
@@ -729,25 +649,22 @@ const OrganizationLeaveHandler = Effect.fn("OrganizationLeaveHandler")(
     }
     const data = result.data;
 
-    const decoded = yield* S.decodeUnknown(OrganizationLeaveContract.successSchema)(data);
+    const decoded = yield* OrganizationLeaveContract.decodeUnknownSuccess(data);
 
     client.$store.notify("$sessionSignal");
 
     return decoded;
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationLeaveMetadata())),
   })
 );
 
-const OrganizationCreateRoleHandler = Effect.fn("OrganizationCreateRoleHandler")(
-  function* (payload: OrganizationRoleCreatePayload.Type) {
+const OrganizationCreateRoleHandler = OrganizationCreateRoleContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationCreateRole",
+      contract: OrganizationCreateRoleContract.name,
       metadata: OrganizationCreateRoleMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationRoleCreatePayload)(payload);
+    const encoded = yield* OrganizationCreateRoleContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
       client.organization.createRole(addFetchOptions(handlers, encoded))
@@ -766,21 +683,18 @@ const OrganizationCreateRoleHandler = Effect.fn("OrganizationCreateRoleHandler")
     }
     const data = result.data;
 
-    return yield* S.decodeUnknown(OrganizationCreateRoleContract.successSchema)(data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationCreateRoleMetadata())),
+    return yield* OrganizationCreateRoleContract.decodeUnknownSuccess(data);
   })
 );
 
-const OrganizationDeleteRoleHandler = Effect.fn("OrganizationDeleteRoleHandler")(
-  function* (payload: OrganizationRoleDeletePayload.Type) {
+const OrganizationDeleteRoleHandler = OrganizationDeleteRoleContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationDeleteRole",
+      contract: OrganizationDeleteRoleContract.name,
       metadata: OrganizationDeleteRoleMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationRoleDeletePayload)(payload);
+    const encoded = yield* OrganizationDeleteRoleContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
       client.organization.deleteRole(addFetchOptions(handlers, encoded))
@@ -800,21 +714,18 @@ const OrganizationDeleteRoleHandler = Effect.fn("OrganizationDeleteRoleHandler")
 
     const data = result.data;
 
-    return yield* S.decodeUnknown(OrganizationDeleteRoleContract.successSchema)(data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationDeleteRoleMetadata())),
+    return yield* OrganizationDeleteRoleContract.decodeUnknownSuccess(data);
   })
 );
 
-const OrganizationListRolesHandler = Effect.fn("OrganizationListRolesHandler")(
-  function* (payload: OrganizationRoleListPayload.Type) {
+const OrganizationListRolesHandler = OrganizationListRolesContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OrganizationListRoles",
+      contract: OrganizationListRolesContract.name,
       metadata: OrganizationListRolesMetadata,
     });
 
-    const encoded = yield* S.encode(OrganizationRoleListPayload)(payload);
+    const encoded = yield* OrganizationListRolesContract.encodePayload(payload);
     const query = compact(encoded);
 
     const result = yield* continuation.run((handlers) =>
@@ -834,10 +745,7 @@ const OrganizationListRolesHandler = Effect.fn("OrganizationListRolesHandler")(
     }
     const data = result.data;
 
-    return yield* S.decodeUnknown(OrganizationListRolesContract.successSchema)(data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OrganizationListRolesMetadata())),
+    return yield* OrganizationListRolesContract.decodeUnknownSuccess(data);
   })
 );
 

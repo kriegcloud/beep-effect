@@ -8,7 +8,7 @@ import { IamError } from "../../errors";
 // =====================================================================================================================
 // SIGN IN EMAIL CONTRACT
 // =====================================================================================================================
-export class SignInEmailPayload extends BS.Class<SignInEmailPayload>("SignInEmailPayload")(
+export class SignInEmailPayload extends S.Class<SignInEmailPayload>("SignInEmailPayload")(
   {
     email: User.Model.insert.fields.email,
     password: BS.Password,
@@ -30,14 +30,17 @@ export declare namespace SignInEmailPayload {
 export const SignInEmailContract = Contract.make("SignInEmail", {
   description: "Signs the user in using email",
   payload: SignInEmailPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Void,
-});
+})
+  .annotate(Contract.Title, "Sign In Email Contract")
+  .annotate(Contract.Domain, "SignIn")
+  .annotate(Contract.Method, "signInEmail");
 
 // =====================================================================================================================
 // SIGN IN SOCIAL CONTRACT
 // =====================================================================================================================
-export class SignInSocialPayload extends BS.Class<SignInSocialPayload>("SignInSocialPayload")(
+export class SignInSocialPayload extends S.Class<SignInSocialPayload>("SignInSocialPayload")(
   {
     provider: AuthProviderNameValue,
     callbackURL: S.optional(BS.URLString),
@@ -57,14 +60,17 @@ export declare namespace SignInSocialPayload {
 export const SignInSocialContract = Contract.make("SignInSocial", {
   description: "Contract for signing in a user with a social auth provider.",
   payload: SignInSocialPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Void,
-});
+})
+  .annotate(Contract.Title, "Sign In Social Contract")
+  .annotate(Contract.Domain, "SignIn")
+  .annotate(Contract.Method, "signInSocial");
 
 // =====================================================================================================================
 // SIGN IN USERNAME CONTRACT
 // =====================================================================================================================
-export class SignInUsernamePayload extends BS.Class<SignInUsernamePayload>("SignInUsernamePayload")(
+export class SignInUsernamePayload extends S.Class<SignInUsernamePayload>("SignInUsernamePayload")(
   {
     username: S.NonEmptyTrimmedString,
     password: BS.Password,
@@ -87,14 +93,17 @@ export declare namespace SignInUsernamePayload {
 export const SignInUsernameContract = Contract.make("SignInUsername", {
   description: "Signs the user in using their username.",
   payload: SignInUsernamePayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Void,
-});
+})
+  .annotate(Contract.Title, "Sign In Username Contract")
+  .annotate(Contract.Domain, "SignIn")
+  .annotate(Contract.Method, "signInUsername");
 
 // =====================================================================================================================
 // SIGN IN PHONE NUMBER CONTRACT
 // =====================================================================================================================
-export class SignInPhoneNumberPayload extends BS.Class<SignInPhoneNumberPayload>("SignInPhoneNumberPayload")(
+export class SignInPhoneNumberPayload extends S.Class<SignInPhoneNumberPayload>("SignInPhoneNumberPayload")(
   {
     phoneNumber: BS.Phone,
     password: BS.Password,
@@ -116,14 +125,17 @@ export declare namespace SignInPhoneNumberPayload {
 export const SignInPhoneNumberContract = Contract.make("SignInPhoneNumber", {
   description: "Signs the user in using their phone number.",
   payload: SignInPhoneNumberPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Void,
-});
+})
+  .annotate(Contract.Title, "Sign In Phone Number Contract")
+  .annotate(Contract.Domain, "SignIn")
+  .annotate(Contract.Method, "signInPhoneNumber");
 
 // =====================================================================================================================
 // SIGN IN PASSKEY CONTRACT
 // =====================================================================================================================
-export class SignInPasskeyPayload extends BS.Class<SignInPasskeyPayload>("SignInPasskeyPayload")(
+export class SignInPasskeyPayload extends S.Class<SignInPasskeyPayload>("SignInPasskeyPayload")(
   {},
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/SignInPasskeyPayload"),
@@ -141,9 +153,12 @@ export declare namespace SignInPasskeyPayload {
 export const SignInPasskeyContract = Contract.make("SignInPasskey", {
   description: "Signs the user in using a passkey.",
   payload: SignInPasskeyPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Void,
-});
+})
+  .annotate(Contract.Title, "Sign In Passkey Contract")
+  .annotate(Contract.Domain, "SignIn")
+  .annotate(Contract.Method, "signInPasskey");
 
 // =====================================================================================================================
 // Signin OneTap
@@ -156,14 +171,17 @@ export declare namespace SignInOneTapPayload {
 export const SignInOneTapContract = Contract.make("SignInOneTap", {
   description: "Signs the user in using a one tap.",
   payload: SignInOneTapPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Void,
-});
+})
+  .annotate(Contract.Title, "Sign In One Tap Contract")
+  .annotate(Contract.Domain, "SignIn")
+  .annotate(Contract.Method, "signInOneTap");
 
 // =====================================================================================================================
 // Signin OAuth 2
 // =====================================================================================================================
-export class SignInOAuth2Payload extends BS.Class<SignInOAuth2Payload>(
+export class SignInOAuth2Payload extends S.Class<SignInOAuth2Payload>(
   "@beep/iam-sdk/clients/sign-in/SignInOAuth2Payload"
 )({
   providerId: AuthProviderNameValue,
@@ -182,9 +200,12 @@ export declare namespace SignInOAuth2Payload {
 export const SignInOAuth2Contract = Contract.make("SignInOAuth2", {
   description: "Signs the user in using an OAuth 2 provider.",
   payload: SignInOAuth2Payload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Void,
-});
+})
+  .annotate(Contract.Title, "Sign In OAuth 2 Contract")
+  .annotate(Contract.Domain, "SignIn")
+  .annotate(Contract.Method, "signInOAuth2");
 
 // =====================================================================================================================
 // SignIn Contract Set

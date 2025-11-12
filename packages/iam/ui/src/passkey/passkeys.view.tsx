@@ -1,5 +1,5 @@
 "use client";
-import { usePasskeyCRUD } from "@beep/iam-sdk";
+import { usePasskeyCRUD } from "@beep/iam-sdk/clients/passkey";
 import { PasskeysFallback } from "@beep/iam-ui/passkey/passkeys.fallback";
 import { PasskeysList } from "@beep/iam-ui/passkey/passkeys.list";
 import { PasskeysSkeleton } from "@beep/iam-ui/passkey/passkeys.skeleton";

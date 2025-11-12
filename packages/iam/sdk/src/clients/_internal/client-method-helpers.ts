@@ -1,33 +1,36 @@
 import { IamError } from "@beep/iam-sdk/errors";
 import type { UnsafeTypes } from "@beep/types";
 import type { BetterFetchOption } from "@better-fetch/fetch";
+import * as A from "effect/Array";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
+import * as Struct from "effect/Struct";
 import type { FailureContinuationHandlers } from "./failure-continuation";
 
-export class MetadataFactory extends Data.Class<{
-  readonly plugin: string;
-}> {
-  readonly make: (method: string) => () => {
-    readonly plugin: string;
-    readonly method: string;
-  };
+type Metadata = {
+  readonly domain: string;
+  readonly method: string;
+  readonly extra?: R.ReadonlyRecord<string, UnsafeTypes.UnsafeAny> | undefined;
+};
 
-  constructor(plugin: string) {
-    super({ plugin });
-    this.make = (method: string) => () => ({
-      plugin: this.plugin,
+export class MetadataFactory extends Data.Class<Pick<Metadata, "domain" | "extra">> {
+  readonly make: (method: Metadata["method"], extra?: Metadata["extra"]) => () => Metadata;
+
+  constructor(domain: Metadata["domain"], extra?: Metadata["extra"]) {
+    super({ domain, extra });
+    this.make = (method: Metadata["method"], extra?: Metadata["extra"]) => () => ({
+      domain: this.domain,
       method,
+      extra: {
+        ...this.extra,
+        ...extra,
+      },
     });
   }
 }
-
-export const makeMetadata = (method: string) => () =>
-  ({
-    plugin: "organization",
-    method,
-  }) as const;
 
 export const mapOnError =
   (handlers: FailureContinuationHandlers) =>
@@ -39,16 +42,21 @@ export const withFetchOptions = (
   handlers: FailureContinuationHandlers,
   extra?: Omit<BetterFetchOption, "onError" | "signal"> | undefined
 ) =>
-  handlers.signal
-    ? {
+  F.pipe(
+    O.fromNullable(handlers.signal),
+    O.match({
+      onNone: () =>
+        ({
+          onError: mapOnError(handlers),
+          ...extra,
+        }) as const,
+      onSome: (signal) => ({
         onError: mapOnError(handlers),
-        signal: handlers.signal,
+        signal,
         ...extra,
-      }
-    : {
-        onError: mapOnError(handlers),
-        ...extra,
-      };
+      }),
+    })
+  );
 
 export const addFetchOptions = <A extends Record<string, unknown>>(
   handlers: FailureContinuationHandlers,
@@ -60,27 +68,21 @@ export const addFetchOptions = <A extends Record<string, unknown>>(
 });
 
 export const compact = <A extends Record<string, unknown>>(input: A) =>
-  Object.fromEntries(Object.entries(input).filter(([, value]) => value !== undefined)) as Partial<A>;
+  F.pipe(
+    Struct.entries(input),
+    A.filter(([_, value]) => value !== undefined),
+    R.fromEntries
+  ) as Partial<A>;
 
 export const requireData = <T>(
   data: T,
   handlerName: string,
-  metadata: { readonly plugin: string; readonly method: string }
+  metadata: Pick<Metadata, "domain" | "method">
 ): Effect.Effect<T, IamError> =>
-  data == null
-    ? Effect.fail(new IamError({}, `${handlerName} returned no payload from Better Auth`, metadata))
-    : Effect.succeed(data);
-
-export const decodeResult = <Schema extends S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, never>>(
-  schema: Schema,
-  handlerName: string,
-  data: unknown
-): Effect.Effect<S.Schema.Type<Schema>, never, never> =>
-  Effect.orDieWith(
-    Effect.try({
-      try: () => S.decodeUnknownSync(schema)(data),
-      catch: (error) => error,
-    }),
-    (error) =>
-      new Error(`${handlerName} failed to parse response: ${error instanceof Error ? error.message : String(error)}`)
+  F.pipe(
+    O.fromNullable(data),
+    O.match({
+      onNone: () => Effect.fail(new IamError({}, `${handlerName} returned no payload from Better Auth`, metadata)),
+      onSome: Effect.succeed,
+    })
   );

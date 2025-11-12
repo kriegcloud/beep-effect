@@ -1,15 +1,12 @@
 import { client } from "@beep/iam-sdk/adapters";
 import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
-import type { ApiKeyDeletePayload, ApiKeyGetPayload } from "@beep/iam-sdk/clients/api-key/api-key.contracts";
 import {
   ApiKeyContractKit,
   ApiKeyCreateContract,
-  ApiKeyCreatePayload,
   ApiKeyDeleteContract,
   ApiKeyGetContract,
   ApiKeyListContract,
   ApiKeyUpdateContract,
-  ApiKeyUpdatePayload,
 } from "@beep/iam-sdk/clients/api-key/api-key.contracts";
 import { IamError } from "@beep/iam-sdk/errors";
 import { PolicyRecord } from "@beep/shared-domain/Policy";
@@ -38,56 +35,58 @@ const encodePermissions = F.flow(
   })
 );
 
-const ApiKeyCreateHandler = Effect.fn("ApiKeyCreateHandler")(
-  function* (payload: ApiKeyCreatePayload.Type) {
-    const continuation = makeFailureContinuation({
-      contract: "ApiKeyCreate",
-      metadata: ApiKeyCreateMetadata,
-    });
+const ApiKeyCreateHandler = ApiKeyCreateContract.implement(
+  Effect.fn(
+    function* (payload) {
+      const continuation = makeFailureContinuation({
+        contract: ApiKeyCreateContract.name,
+        metadata: ApiKeyCreateMetadata,
+      });
 
-    const encoded = yield* S.encode(ApiKeyCreatePayload)(payload);
+      const encoded = yield* ApiKeyCreateContract.encodePayload(payload);
 
-    const permissionsEncoded = yield* encodePermissions(encoded.permissions);
+      const permissionsEncoded = yield* encodePermissions(encoded.permissions);
 
-    const result = yield* continuation.run((handlers) =>
-      client.apiKey.create({
-        name: encoded.name ?? undefined,
-        expiresIn: encoded.expiresIn,
-        userId: encoded.userId,
-        prefix: encoded.prefix ?? undefined,
-        remaining: encoded.remaining,
-        metadata: encoded.metadata,
-        refillAmount: encoded.refillAmount ?? undefined,
-        refillInterval: encoded.refillInterval ?? undefined,
-        rateLimitTimeWindow: encoded.rateLimitTimeWindow,
-        rateLimitMax: encoded.rateLimitMax,
-        rateLimitEnabled: encoded.rateLimitEnabled,
-        permissions: permissionsEncoded,
-        fetchOptions: withFetchOptions(handlers),
-      })
-    );
-
-    yield* continuation.raiseResult(result);
-
-    if (result.data == null) {
-      return yield* new IamError(
-        {},
-        "ApiKeyCreateHandler returned no payload from Better Auth",
-        ApiKeyCreateMetadata()
+      const result = yield* continuation.run((handlers) =>
+        client.apiKey.create({
+          name: encoded.name ?? undefined,
+          expiresIn: encoded.expiresIn,
+          userId: encoded.userId,
+          prefix: encoded.prefix ?? undefined,
+          remaining: encoded.remaining,
+          metadata: encoded.metadata,
+          refillAmount: encoded.refillAmount ?? undefined,
+          refillInterval: encoded.refillInterval ?? undefined,
+          rateLimitTimeWindow: encoded.rateLimitTimeWindow,
+          rateLimitMax: encoded.rateLimitMax,
+          rateLimitEnabled: encoded.rateLimitEnabled,
+          permissions: permissionsEncoded,
+          fetchOptions: withFetchOptions(handlers),
+        })
       );
-    }
 
-    return yield* S.decodeUnknown(ApiKeyCreateContract.successSchema)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyCreateMetadata())),
-  })
+      yield* continuation.raiseResult(result);
+
+      if (result.data == null) {
+        return yield* new IamError(
+          {},
+          "ApiKeyCreateHandler returned no payload from Better Auth",
+          ApiKeyCreateMetadata()
+        );
+      }
+
+      return yield* ApiKeyCreateContract.decodeUnknownSuccess(result.data);
+    },
+    Effect.catchTags({
+      ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyCreateMetadata())),
+    })
+  )
 );
 
-const ApiKeyGetHandler = Effect.fn("ApiKeyGetHandler")(
-  function* (payload: ApiKeyGetPayload.Type) {
+const ApiKeyGetHandler = ApiKeyGetContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "ApiKeyGet",
+      contract: ApiKeyGetContract.name,
       metadata: ApiKeyGetMetadata,
     });
 
@@ -108,64 +107,63 @@ const ApiKeyGetHandler = Effect.fn("ApiKeyGetHandler")(
       return yield* new IamError({}, "ApiKeyGetHandler returned no payload from Better Auth", ApiKeyGetMetadata());
     }
 
-    return yield* S.decodeUnknown(ApiKeyGetContract.successSchema)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyGetMetadata())),
+    return yield* ApiKeyGetContract.decodeUnknownSuccess(result.data);
   })
 );
 
-const ApiKeyUpdateHandler = Effect.fn("ApiKeyUpdateHandler")(
-  function* (payload: ApiKeyUpdatePayload.Type) {
-    const continuation = makeFailureContinuation({
-      contract: "ApiKeyUpdate",
-      metadata: ApiKeyUpdateMetadata,
-    });
+const ApiKeyUpdateHandler = ApiKeyUpdateContract.implement(
+  Effect.fn(
+    function* (payload) {
+      const continuation = makeFailureContinuation({
+        contract: ApiKeyUpdateContract.name,
+        metadata: ApiKeyUpdateMetadata,
+      });
 
-    const encoded = yield* S.encode(ApiKeyUpdatePayload)(payload);
+      const encoded = yield* ApiKeyUpdateContract.encodePayload(payload);
 
-    const permissionsEncoded = yield* encodePermissions(encoded.permissions);
+      const permissionsEncoded = yield* encodePermissions(encoded.permissions);
 
-    const result = yield* continuation.run((handlers) =>
-      client.apiKey.update({
-        keyId: encoded.keyId,
-        userId: encoded.userId,
-        name: encoded.name ?? undefined,
-        enabled: encoded.enabled,
-        remaining: encoded.remaining ?? undefined,
-        refillAmount: encoded.refillAmount ?? undefined,
-        refillInterval: encoded.refillInterval ?? undefined,
-        metadata: encoded.metadata,
-        expiresIn: encoded.expiresIn,
-        rateLimitEnabled: encoded.rateLimitEnabled,
-        rateLimitTimeWindow: encoded.rateLimitTimeWindow,
-        rateLimitMax: encoded.rateLimitMax,
-        permissions: permissionsEncoded,
-        fetchOptions: withFetchOptions(handlers),
-      })
-    );
-
-    yield* continuation.raiseResult(result);
-
-    if (result.data == null) {
-      return yield* new IamError(
-        {},
-        "ApiKeyUpdateHandler returned no payload from Better Auth",
-        ApiKeyUpdateMetadata()
+      const result = yield* continuation.run((handlers) =>
+        client.apiKey.update({
+          keyId: encoded.keyId,
+          userId: encoded.userId,
+          name: encoded.name ?? undefined,
+          enabled: encoded.enabled,
+          remaining: encoded.remaining ?? undefined,
+          refillAmount: encoded.refillAmount ?? undefined,
+          refillInterval: encoded.refillInterval ?? undefined,
+          metadata: encoded.metadata,
+          expiresIn: encoded.expiresIn,
+          rateLimitEnabled: encoded.rateLimitEnabled,
+          rateLimitTimeWindow: encoded.rateLimitTimeWindow,
+          rateLimitMax: encoded.rateLimitMax,
+          permissions: permissionsEncoded,
+          fetchOptions: withFetchOptions(handlers),
+        })
       );
-    }
 
-    return yield* S.decodeUnknown(ApiKeyUpdateContract.successSchema)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyUpdateMetadata())),
-  })
+      yield* continuation.raiseResult(result);
+
+      if (result.data == null) {
+        return yield* new IamError(
+          {},
+          "ApiKeyUpdateHandler returned no payload from Better Auth",
+          ApiKeyUpdateMetadata()
+        );
+      }
+
+      return yield* ApiKeyUpdateContract.decodeUnknownSuccess(result.data);
+    },
+    Effect.catchTags({
+      ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyUpdateMetadata())),
+    })
+  )
 );
 
-const ApiKeyDeleteHandler = Effect.fn("ApiKeyDeleteHandler")(
-  function* (payload: ApiKeyDeletePayload.Type) {
+const ApiKeyDeleteHandler = ApiKeyDeleteContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "ApiKeyDelete",
+      contract: ApiKeyDeleteContract.name,
       metadata: ApiKeyDeleteMetadata,
     });
 
@@ -186,17 +184,14 @@ const ApiKeyDeleteHandler = Effect.fn("ApiKeyDeleteHandler")(
       );
     }
 
-    return yield* S.decodeUnknown(ApiKeyDeleteContract.successSchema)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyDeleteMetadata())),
+    return yield* ApiKeyDeleteContract.decodeUnknownSuccess(result.data);
   })
 );
 
-const ApiKeyListHandler = Effect.fn("ApiKeyListHandler")(
-  function* () {
+const ApiKeyListHandler = ApiKeyListContract.implement(
+  Effect.fn(function* () {
     const continuation = makeFailureContinuation({
-      contract: "ApiKeyList",
+      contract: ApiKeyListContract.name,
       metadata: ApiKeyListMetadata,
     });
 
@@ -208,10 +203,7 @@ const ApiKeyListHandler = Effect.fn("ApiKeyListHandler")(
       return yield* new IamError({}, "ApiKeyListHandler returned no payload from Better Auth", ApiKeyListMetadata());
     }
 
-    return yield* S.decodeUnknown(ApiKeyListContract.successSchema)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyListMetadata())),
+    return yield* ApiKeyListContract.decodeUnknownSuccess(result.data);
   })
 );
 

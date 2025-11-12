@@ -5,7 +5,7 @@ import { BS } from "@beep/schema";
 import { IamEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 
-export class PasskeyView extends BS.Class<PasskeyView>("PasskeyView")(
+export class PasskeyView extends S.Class<PasskeyView>("PasskeyView")(
   BS.mergeFields(Passkey.Model.select.pick("id").fields, {
     name: BS.NameAttribute,
   }),
@@ -17,7 +17,7 @@ export class PasskeyView extends BS.Class<PasskeyView>("PasskeyView")(
   }
 ) {}
 
-export class PasskeyAddPayload extends BS.Class<PasskeyAddPayload>("PasskeyAddPayload")(
+export class PasskeyAddPayload extends S.Class<PasskeyAddPayload>("PasskeyAddPayload")(
   S.Struct({
     ...Passkey.Model.insert.pick("name").fields,
     id: IamEntityIds.PasskeyId,
@@ -37,49 +37,56 @@ export declare namespace PasskeyAddPayload {
   export type Encoded = S.Schema.Encoded<typeof PasskeyAddPayload>;
 }
 
-export const PasskeyAddContract = Contract.make("PasskeyAdd", {
+export const PasskeyAddContract = Contract.make("add", {
   description: "Registers a new passkey credential for the authenticated user.",
   payload: PasskeyAddPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Void,
-});
+})
+  .annotate(Contract.Title, "Passkey Add Contract")
+  .annotate(Contract.Domain, "Passkey")
+  .annotate(Contract.Method, "add");
 
-export const PasskeyListContract = Contract.make("PasskeyList", {
+export const PasskeyListContract = Contract.make("list", {
   description: "Lists passkeys that belong to the authenticated user.",
   payload: {},
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.mutable(S.Array(PasskeyView)),
-  failureMode: "error" as const,
-});
+})
+  .annotate(Contract.Title, "Passkey List Contract")
+  .annotate(Contract.Domain, "Passkey")
+  .annotate(Contract.Method, "list");
 
-export class PasskeyDeletePayload extends BS.Class<PasskeyDeletePayload>("PasskeyDeletePayload")(
+export class PasskeyRemovePayload extends S.Class<PasskeyRemovePayload>("PasskeyRemovePayload")(
   {
-    id: IamEntityIds.PasskeyId,
+    passkey: PasskeyView,
   },
   {
-    schemaId: Symbol.for("@beep/iam-sdk/clients/passkey/PasskeyDeletePayload"),
-    identifier: "PasskeyDeletePayload",
+    schemaId: Symbol.for("@beep/iam-sdk/clients/passkey/PasskeyRemovePayload"),
+    identifier: "PasskeyRemovePayload",
     title: "Passkey Delete Payload",
     description: "Payload describing the passkey credential to delete.",
   }
 ) {}
 
-export declare namespace PasskeyDeletePayload {
-  export type Type = S.Schema.Type<typeof PasskeyDeletePayload>;
-  export type Encoded = S.Schema.Encoded<typeof PasskeyDeletePayload>;
+export declare namespace PasskeyRemovePayload {
+  export type Type = S.Schema.Type<typeof PasskeyRemovePayload>;
+  export type Encoded = S.Schema.Encoded<typeof PasskeyRemovePayload>;
 }
 
-export const PasskeyDeleteContract = Contract.make("PasskeyDelete", {
+export const PasskeyRemoveContract = Contract.make("remove", {
   description: "Deletes a passkey credential by identifier.",
-  payload: PasskeyDeletePayload.fields,
-  failure: S.instanceOf(IamError),
+  payload: PasskeyRemovePayload.fields,
+  failure: IamError,
   success: S.Null,
-});
+})
+  .annotate(Contract.Title, "Passkey Remove Contract")
+  .annotate(Contract.Domain, "Passkey")
+  .annotate(Contract.Method, "remove");
 
-export class PasskeyUpdatePayload extends BS.Class<PasskeyUpdatePayload>("PasskeyUpdatePayload")(
+export class PasskeyUpdatePayload extends S.Class<PasskeyUpdatePayload>("PasskeyUpdatePayload")(
   {
-    id: IamEntityIds.PasskeyId,
-    name: S.NonEmptyTrimmedString,
+    passkey: PasskeyView,
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/passkey/PasskeyUpdatePayload"),
@@ -94,7 +101,7 @@ export declare namespace PasskeyUpdatePayload {
   export type Encoded = S.Schema.Encoded<typeof PasskeyUpdatePayload>;
 }
 
-export class PasskeyUpdateSuccess extends BS.Class<PasskeyUpdateSuccess>("PasskeyUpdateSuccess")(
+export class PasskeyUpdateSuccess extends S.Class<PasskeyUpdateSuccess>("PasskeyUpdateSuccess")(
   S.Struct({
     passkey: PasskeyView,
   }),
@@ -111,16 +118,19 @@ export declare namespace PasskeyUpdateSuccess {
   export type Encoded = S.Schema.Encoded<typeof PasskeyUpdateSuccess>;
 }
 
-export const PasskeyUpdateContract = Contract.make("PasskeyUpdate", {
+export const PasskeyUpdateContract = Contract.make("update", {
   description: "Updates the metadata of a passkey credential.",
   payload: PasskeyUpdatePayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: PasskeyUpdateSuccess,
-});
+})
+  .annotate(Contract.Title, "Passkey Update Contract")
+  .annotate(Contract.Domain, "Passkey")
+  .annotate(Contract.Method, "update");
 
 export const PasskeyContractKit = ContractKit.make(
   PasskeyAddContract,
   PasskeyListContract,
-  PasskeyDeleteContract,
+  PasskeyRemoveContract,
   PasskeyUpdateContract
 );

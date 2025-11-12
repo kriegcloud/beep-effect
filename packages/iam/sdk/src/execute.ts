@@ -1,5 +1,7 @@
 import { Contract, ContractKit } from "@beep/contract";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as A from "effect/Array";
+import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -10,64 +12,136 @@ export class ListError extends S.TaggedError<ListError>("@beep/ListError")("List
   message: S.String,
 }) {}
 
-const MyListContract = Contract.make("List", {
-  description: "List the payload.name",
+const LogContract = Contract.make("log", {
+  description: "Log the payload.value property to the console",
+  payload: {
+    value: S.Any,
+  },
+  failure: ListError,
+  success: S.Void,
+  failureMode: "return",
+})
+  .annotate(Contract.Title, "Log")
+  .annotate(Contract.Domain, "Demo")
+  .annotate(Contract.Method, "logValue");
+const ListContract = Contract.make("list", {
+  description: "List the payload.name payload.qty times.",
   payload: {
     name: S.String,
     qty: S.NonNegativeInt,
   },
   failure: ListError,
   success: S.Array(S.String),
-  failureMode: "error",
+  failureMode: "error", // specifies that the contract's implementation should not return failures as a value and filter out the success channel by yielding `if (contractResult.isFailure) Effect.fail(contractResult.result)` turnging `Effect.Effect<Result<C>, Failure<C>, Requirements<C>>` into `Effect.Effect<Success<C>, Failure<C>, Requirements<C>>`
 })
   .annotate(Contract.Title, "List")
-  .annotate(Contract.Domain, "MyList")
-  .annotate(Contract.Method, "List");
+  .annotate(Contract.Domain, "Demo")
+  .annotate(Contract.Method, "list");
 
-const MyContracts = ContractKit.make(MyListContract);
+const MyContractKit = ContractKit.make(ListContract, LogContract);
 
-const listFn = Effect.fn(function* (payload: typeof MyListContract.payloadSchema.Type) {
-  const shouldFail = yield* Random.nextBoolean;
-  const list = Array.from({ length: payload.qty }, () => payload.name).map((n, i) => `${n}:${i}`);
-  if (shouldFail) {
-    return yield* new ListError({
-      message: "Failed to list items",
-    });
-  }
+const listFn = ListContract.implement((payload) =>
+  Effect.gen(function* () {
+    const shouldFail = yield* Random.nextBoolean;
+    if (shouldFail || payload.name === "fail") {
+      return yield* new ListError({
+        message: `Failed to list items for ${payload.name}`,
+      });
+    }
+    return A.makeBy(payload.qty, (index) => `${payload.name}:${index}`);
+  })
+);
 
-  return list;
+const logFn = LogContract.implement((payload) =>
+  Effect.gen(function* () {
+    if (payload.value === "fail") {
+      return yield* new ListError({ message: "Failed to log payload" });
+    }
+    yield* Console.log(String(payload.value));
+  })
+);
+
+//
+const Implementations = MyContractKit.of({
+  list: listFn,
+  log: logFn,
 });
 
-const Implementations = MyContracts.of({
-  List: listFn,
-});
-
-const layer = MyContracts.toLayer(Implementations);
+const layer = MyContractKit.toLayer(Implementations);
 
 export class MyService extends Effect.Service<MyService>()("MyService", {
   dependencies: [layer],
   accessors: true,
   effect: Effect.gen(function* () {
-    const kit = yield* MyContracts;
-
-    const list = kit.handle("List");
-
+    const baseHandlers = yield* MyContractKit.liftService({
+      hooks: {
+        onSuccess: ({ name }) => Effect.log(`${String(name)} completed successfully`),
+        onFailure: ({ name, failure }) => Effect.logWarning(`${String(name)} failed: ${failure.message}`),
+        onDefect: ({ name, cause }) =>
+          Effect.logError(`Defect while executing ${String(name)}: ${Cause.pretty(cause)}`),
+      },
+    });
+    const resultHandlers = yield* MyContractKit.liftService({ mode: "result" });
     return {
-      list,
+      list: baseHandlers.list,
+      log: baseHandlers.log,
+      listWithOutcome: resultHandlers.list,
+      logWithOutcome: resultHandlers.log,
     };
   }),
 }) {
   static readonly Live = MyService.Default.pipe(Layer.provide(layer));
 }
 
-const program = Effect.gen(function* () {
-  const myService = yield* MyService;
-
-  const r = yield* myService.list({
-    name: "beep",
-    qty: 10,
-  });
-  yield* Console.log(r);
+const handleListOutcome = Contract.handleOutcome(ListContract)({
+  onSuccess: (success) =>
+    Console.log(
+      `[failureMode=${success.mode}] Listed ${success.result.length} items -> encoded: ${JSON.stringify(
+        success.encodedResult
+      )}`
+    ),
+  onFailure: (failure) =>
+    Console.warn(
+      `[failureMode=${failure.mode}] Failure encountered: ${failure.result.message} (encoded: ${JSON.stringify(
+        failure.encodedResult
+      )})`
+    ),
 });
+
+const handleLogOutcome = Contract.handleOutcome(LogContract)({
+  onSuccess: (success) => Console.log(`[log success] encoded result: ${JSON.stringify(success.encodedResult)}`),
+  onFailure: (failure) =>
+    Console.warn(`[log failure] ${failure.result.message} (encoded: ${JSON.stringify(failure.encodedResult)})`),
+});
+
+const program = Effect.gen(function* () {
+  const { list, log, listWithOutcome, logWithOutcome } = yield* MyService;
+
+  const deterministicList = yield* list({
+    name: "beep",
+    qty: 5,
+  });
+
+  yield* Console.log(`deterministicList: ${JSON.stringify(deterministicList)}`);
+  yield* log({ value: deterministicList });
+
+  yield* Effect.matchEffect(list({ name: "fail", qty: 2 }), {
+    onFailure: (failure) => Console.warn(`Expected list failure: ${failure.message}`),
+    onSuccess: (success) => Console.log(`Unexpected success: ${JSON.stringify(success)}`),
+  });
+
+  const outcome = yield* listWithOutcome({
+    name: "boop",
+    qty: 3,
+  });
+  yield* handleListOutcome(outcome);
+
+  const logOutcome = yield* logWithOutcome({ value: "fail" });
+  yield* handleLogOutcome(logOutcome);
+}).pipe(
+  Effect.catchTags({
+    UnknownError: (e) => Effect.dieMessage(`Crashed with unknown error: ${e}`),
+  })
+);
 
 BunRuntime.runMain(program.pipe(Effect.provide(MyService.Default)));

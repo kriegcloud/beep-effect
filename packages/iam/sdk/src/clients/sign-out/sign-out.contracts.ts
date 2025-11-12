@@ -5,7 +5,7 @@ import { IamError } from "../../errors";
 // =====================================================================================================================
 // Sign Out Contract
 // =====================================================================================================================
-export class SignOutPayload extends BS.Class<SignOutPayload>("SignOutPayload")(
+export class SignOutPayload extends S.Class<SignOutPayload>("SignOutPayload")(
   {
     onSuccess: new BS.Fn({
       input: S.Undefined,
@@ -27,9 +27,12 @@ export declare namespace SignOutPayload {
 export const SignOutContract = Contract.make("SignOut", {
   description: "Signs the current user out of their active session.",
   payload: SignOutPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Void,
-});
+})
+  .annotate(Contract.Title, "Sign Out Contract")
+  .annotate(Contract.Domain, "Sign Out")
+  .annotate(Contract.Method, "signOut");
 // =====================================================================================================================
 // Sign Out Contract Set
 // =====================================================================================================================

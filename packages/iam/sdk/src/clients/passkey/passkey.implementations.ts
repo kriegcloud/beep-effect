@@ -1,184 +1,124 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import {
+  addFetchOptions,
+  MetadataFactory,
+  makeFailureContinuation,
+  withFetchOptions,
+} from "@beep/iam-sdk/clients/_internal";
 import {
   PasskeyAddContract,
-  PasskeyAddPayload,
   PasskeyContractKit,
-  PasskeyDeleteContract,
-  PasskeyDeletePayload,
   PasskeyListContract,
+  PasskeyRemoveContract,
   PasskeyUpdateContract,
-  PasskeyUpdatePayload,
 } from "@beep/iam-sdk/clients/passkey/passkey.contracts";
 import { IamError } from "@beep/iam-sdk/errors";
-import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
+import * as F from "effect/Function";
 
 const metadataFactory = new MetadataFactory("passkey");
 
-const PasskeyAddMetadata = metadataFactory.make("addPasskey");
-const PasskeyListMetadata = metadataFactory.make("listUserPasskeys");
-const PasskeyDeleteMetadata = metadataFactory.make("deletePasskey");
-const PasskeyUpdateMetadata = metadataFactory.make("updatePasskey");
-
-const PasskeyAddHandler = Effect.fn("PasskeyAddHandler")(
-  function* (payload: PasskeyAddPayload.Type) {
-    const continuation = makeFailureContinuation(
+const PasskeyListHandler = PasskeyListContract.implement(() =>
+  F.pipe(
+    makeFailureContinuation(
       {
-        contract: "PasskeyAdd",
-        metadata: PasskeyAddMetadata,
+        contract: PasskeyListContract.name,
+        metadata: metadataFactory.make("listUserPasskeys"),
       },
       {
         supportsAbort: true,
       }
-    );
-
-    const encoded = yield* S.encode(PasskeyAddPayload)(payload);
-
-    const result = yield* continuation.run((handlers) =>
-      client.passkey.addPasskey(
-        {
-          name: encoded.name ?? undefined,
-          authenticatorAttachment: encoded.authenticatorAttachment ?? undefined,
-          useAutoRegister: encoded.useAutoRegister ?? undefined,
-          fetchOptions: withFetchOptions(handlers),
-        },
-        withFetchOptions(handlers)
-      )
-    );
-
-    if (result && typeof result === "object" && "error" in result) {
-      yield* continuation.raiseResult(result);
-    }
-
-    return yield* S.decodeUnknown(PasskeyAddContract.successSchema)(undefined);
-  },
-  Effect.catchTags({ ParseError: (error) => Effect.fail(IamError.match(error, PasskeyAddMetadata())) })
+    ),
+    (continuation) =>
+      continuation
+        .run((handlers) => client.passkey.listUserPasskeys(undefined, withFetchOptions(handlers)))
+        .pipe(Effect.flatMap(PasskeyListContract.decodeUnknownSuccess))
+  )
 );
 
-const PasskeyListHandler = Effect.fn("PasskeyListHandler")(
-  function* () {
-    const continuation = makeFailureContinuation(
-      {
-        contract: "PasskeyList",
-        metadata: PasskeyListMetadata,
-      },
-      {
-        supportsAbort: true,
-      }
-    );
-
-    const result = yield* continuation.run((handlers) =>
-      client.passkey.listUserPasskeys(undefined, withFetchOptions(handlers))
-    );
-
-    if (result.data == null) {
-      return yield* Effect.fail(
-        new IamError({}, "PasskeyListHandler returned no payload from Better Auth", PasskeyListMetadata())
-      );
-    }
-
-    yield* continuation.raiseResult(result);
-
-    return yield* S.decodeUnknown(PasskeyListContract.successSchema)(
-      A.map(result.data, (passkey) => ({
-        id: passkey.id,
-        name: passkey.name,
-      }))
-    );
-  },
-  Effect.catchTags({ ParseError: (error) => Effect.fail(IamError.match(error, PasskeyListMetadata())) })
-);
-
-const PasskeyDeleteHandler = Effect.fn("PasskeyDeleteHandler")(
-  function* (payload: PasskeyDeletePayload.Type) {
+const PasskeyRemoveHandler = PasskeyRemoveContract.implement((payload) =>
+  Effect.gen(function* () {
     const continuation = makeFailureContinuation({
-      contract: "PasskeyDelete",
-      metadata: PasskeyDeleteMetadata,
+      contract: PasskeyRemoveContract.name,
+      metadata: metadataFactory.make("deletePasskey"),
     });
-
-    const encoded = yield* S.encode(PasskeyDeletePayload)(payload);
 
     const result = yield* continuation.run((handlers) =>
       client.passkey.deletePasskey(
-        {
-          id: encoded.id,
-        },
-        withFetchOptions(handlers)
+        addFetchOptions(handlers, {
+          id: payload.passkey.id,
+        })
       )
     );
 
     yield* continuation.raiseResult(result);
 
-    return yield* S.decodeUnknown(PasskeyDeleteContract.successSchema)(result.data);
-  },
-  Effect.catchTags({ ParseError: (error) => Effect.fail(IamError.match(error, PasskeyDeleteMetadata())) })
+    return yield* PasskeyRemoveContract.decodeSuccess(result.data);
+  })
 );
 
-const PasskeyUpdateHandler = Effect.fn("PasskeyUpdateHandler")(
-  function* (payload: PasskeyUpdatePayload.Type) {
+const PasskeyUpdateHandler = PasskeyUpdateContract.implement((payload) =>
+  Effect.gen(function* () {
+    const metadata = metadataFactory.make("updatePasskey");
     const continuation = makeFailureContinuation({
-      contract: "PasskeyUpdate",
-      metadata: PasskeyUpdateMetadata,
+      contract: PasskeyRemoveContract.name,
+      metadata: metadata,
     });
-
-    const encoded = yield* S.encode(PasskeyUpdatePayload)(payload);
-    const { id, name } = encoded;
-    if (name == null) {
-      return yield* new IamError({}, "PasskeyUpdateHandler received no name to apply", PasskeyUpdateMetadata());
-    }
 
     const result = yield* continuation.run((handlers) =>
       client.passkey.updatePasskey(
-        {
-          id,
-          name,
-        },
-        withFetchOptions(handlers)
+        addFetchOptions(handlers, {
+          id: payload.passkey.id,
+          name: payload.passkey.name,
+        })
       )
     );
 
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError(
-        {},
-        "PasskeyUpdateHandler returned no payload from Better Auth",
-        PasskeyUpdateMetadata()
-      );
+      return yield* new IamError({}, "PasskeyUpdateHandler returned no payload from Better Auth", metadata());
     }
 
-    return yield* S.decodeUnknown(PasskeyUpdateContract.successSchema)(result.data);
-  },
-  Effect.catchTags({ ParseError: (error) => Effect.fail(IamError.match(error, PasskeyUpdateMetadata())) })
+    return yield* PasskeyUpdateContract.decodeUnknownSuccess(result.data);
+  })
 );
 
-export const PasskeyImplementations = PasskeyContractKit.of({
-  PasskeyAdd: PasskeyAddHandler,
-  PasskeyList: PasskeyListHandler,
-  PasskeyDelete: PasskeyDeleteHandler,
-  PasskeyUpdate: PasskeyUpdateHandler,
+const PasskeyAddHandler = PasskeyAddContract.implement((payload) =>
+  Effect.gen(function* () {
+    const metadata = metadataFactory.make("addPasskey");
+    const continuation = makeFailureContinuation(
+      {
+        contract: PasskeyAddContract.name,
+        metadata,
+      },
+      {
+        supportsAbort: true,
+      }
+    );
+
+    const result = yield* continuation.run((handlers) =>
+      client.passkey.addPasskey(
+        addFetchOptions(handlers, {
+          name: payload.name ?? undefined,
+          authenticatorAttachment: payload.authenticatorAttachment ?? undefined,
+          useAutoRegister: payload.useAutoRegister ?? undefined,
+        })
+      )
+    );
+
+    if (result?.data == null) {
+      return yield* new IamError({}, "PasskeyAddHandler returned no payload from Better Auth", metadata());
+    }
+    yield* continuation.raiseResult(result);
+
+    return yield* PasskeyAddContract.decodeUnknownSuccess(result?.data);
+  })
+);
+
+export const passkeyLayer = PasskeyContractKit.toLayer({
+  add: PasskeyAddHandler,
+  list: PasskeyListHandler,
+  remove: PasskeyRemoveHandler,
+  update: PasskeyUpdateHandler,
 });
-
-export class PasskeysRepo extends Effect.Service<PasskeysRepo>()("@beep/iam-sdk/clients/PasskeysRepo", {
-  accessors: true,
-  sync: () => PasskeyImplementations,
-}) {}
-
-export const passkeysLayer = PasskeyContractKit.toLayer(PasskeyImplementations);
-
-export class PasskeysService extends Effect.Service<PasskeysService>()("@beep/iam-sdk/clients/PasskeysService", {
-  accessors: true,
-  dependencies: [passkeysLayer],
-  effect: Effect.gen(function* () {
-    const kit = yield* PasskeyContractKit;
-
-    return yield* Effect.succeed({
-      PasskeyList: kit.handle("PasskeyList"),
-      PasskeyAdd: kit.handle("PasskeyAdd"),
-      PasskeyDelete: kit.handle("PasskeyDelete"),
-      PasskeyUpdate: kit.handle("PasskeyUpdate"),
-    });
-  }),
-}) {}

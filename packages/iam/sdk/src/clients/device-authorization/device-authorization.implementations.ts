@@ -1,11 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
 import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
-import type {
-  DeviceAuthorizationCodePayload,
-  DeviceAuthorizationDecisionPayload,
-  DeviceAuthorizationStatusPayload,
-  DeviceAuthorizationTokenPayload,
-} from "@beep/iam-sdk/clients/device-authorization/device-authorization.contracts";
 import {
   DeviceAuthorizationApproveContract,
   DeviceAuthorizationCodeContract,
@@ -16,7 +10,6 @@ import {
 } from "@beep/iam-sdk/clients/device-authorization/device-authorization.contracts";
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
 
 const metadataFactory = new MetadataFactory("device-authorization");
 
@@ -30,8 +23,8 @@ const DeviceAuthorizationApproveMetadata = metadataFactory.make("approve");
 
 const DeviceAuthorizationDenyMetadata = metadataFactory.make("deny");
 
-const DeviceAuthorizationCodeHandler = Effect.fn("DeviceAuthorizationCodeHandler")(
-  function* (payload: DeviceAuthorizationCodePayload.Type) {
+const DeviceAuthorizationCodeHandler = DeviceAuthorizationCodeContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
       contract: "DeviceAuthorizationCode",
       metadata: DeviceAuthorizationCodeMetadata,
@@ -55,17 +48,14 @@ const DeviceAuthorizationCodeHandler = Effect.fn("DeviceAuthorizationCodeHandler
       );
     }
 
-    return yield* S.decodeUnknown(DeviceAuthorizationCodeContract.successSchema)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationCodeMetadata())),
+    return yield* DeviceAuthorizationCodeContract.decodeUnknownSuccess(result.data);
   })
 );
 
-const DeviceAuthorizationTokenHandler = Effect.fn("DeviceAuthorizationTokenHandler")(
-  function* (payload: DeviceAuthorizationTokenPayload.Type) {
+const DeviceAuthorizationTokenHandler = DeviceAuthorizationTokenContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "DeviceAuthorizationToken",
+      contract: DeviceAuthorizationTokenContract.name,
       metadata: DeviceAuthorizationTokenMetadata,
     });
 
@@ -88,17 +78,14 @@ const DeviceAuthorizationTokenHandler = Effect.fn("DeviceAuthorizationTokenHandl
       );
     }
 
-    return yield* S.decodeUnknown(DeviceAuthorizationTokenContract.successSchema)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationTokenMetadata())),
+    return yield* DeviceAuthorizationTokenContract.decodeUnknownSuccess(result.data);
   })
 );
 
-const DeviceAuthorizationStatusHandler = Effect.fn("DeviceAuthorizationStatusHandler")(
-  function* (payload: DeviceAuthorizationStatusPayload.Type) {
+const DeviceAuthorizationStatusHandler = DeviceAuthorizationStatusContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "DeviceAuthorizationStatus",
+      contract: DeviceAuthorizationStatusContract.name,
       metadata: DeviceAuthorizationStatusMetadata,
     });
 
@@ -121,17 +108,14 @@ const DeviceAuthorizationStatusHandler = Effect.fn("DeviceAuthorizationStatusHan
       );
     }
 
-    return yield* S.decodeUnknown(DeviceAuthorizationStatusContract.successSchema)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationStatusMetadata())),
+    return yield* DeviceAuthorizationStatusContract.decodeUnknownSuccess(result.data);
   })
 );
 
-const DeviceAuthorizationApproveHandler = Effect.fn("DeviceAuthorizationApproveHandler")(
-  function* (payload: DeviceAuthorizationDecisionPayload.Type) {
+const DeviceAuthorizationApproveHandler = DeviceAuthorizationApproveContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "DeviceAuthorizationApprove",
+      contract: DeviceAuthorizationApproveContract.name,
       metadata: DeviceAuthorizationApproveMetadata,
     });
 
@@ -152,17 +136,14 @@ const DeviceAuthorizationApproveHandler = Effect.fn("DeviceAuthorizationApproveH
       );
     }
 
-    return yield* S.decodeUnknown(DeviceAuthorizationApproveContract.successSchema)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationApproveMetadata())),
+    return yield* DeviceAuthorizationApproveContract.decodeUnknownSuccess(result.data);
   })
 );
 
-const DeviceAuthorizationDenyHandler = Effect.fn("DeviceAuthorizationDenyHandler")(
-  function* (payload: DeviceAuthorizationDecisionPayload.Type) {
+const DeviceAuthorizationDenyHandler = DeviceAuthorizationDenyContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "DeviceAuthorizationDeny",
+      contract: DeviceAuthorizationDenyContract.name,
       metadata: DeviceAuthorizationDenyMetadata,
     });
 
@@ -183,10 +164,7 @@ const DeviceAuthorizationDenyHandler = Effect.fn("DeviceAuthorizationDenyHandler
       );
     }
 
-    return yield* S.decodeUnknown(DeviceAuthorizationDenyContract.successSchema)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, DeviceAuthorizationDenyMetadata())),
+    return yield* DeviceAuthorizationDenyContract.decodeUnknownSuccess(result.data);
   })
 );
 

@@ -6,4 +6,3 @@ export {
   type FailureContinuationOptions,
   makeFailureContinuation,
 } from "./failure-continuation";
-export * as Handler from "./handler";

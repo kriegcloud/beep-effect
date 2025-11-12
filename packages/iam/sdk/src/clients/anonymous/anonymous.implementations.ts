@@ -3,15 +3,14 @@ import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@bee
 import { AnonymousContractKit, AnonymousSignInContract } from "@beep/iam-sdk/clients/anonymous/anonymous.contracts";
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
 
 const metadataFactory = new MetadataFactory("signIn");
 const AnonymousSignInMetadata = metadataFactory.make("anonymous");
 
-const AnonymousSignInHandler = Effect.fn("AnonymousSignInHandler")(
-  function* () {
+const AnonymousSignInHandler = AnonymousSignInContract.implement(
+  Effect.fn(function* () {
     const continuation = makeFailureContinuation({
-      contract: "AnonymousSignIn",
+      contract: AnonymousSignInContract.name,
       metadata: AnonymousSignInMetadata,
     });
 
@@ -31,10 +30,7 @@ const AnonymousSignInHandler = Effect.fn("AnonymousSignInHandler")(
       );
     }
 
-    return yield* S.decodeUnknown(AnonymousSignInContract.successSchema)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, AnonymousSignInMetadata())),
+    return yield* AnonymousSignInContract.decodeUnknownSuccess(result.data);
   })
 );
 

@@ -1,10 +1,17 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { Handler, MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
-import type { SignInOAuth2Payload, SignInUsernameContract } from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
-import { SignInContractKit, SignInSocialContract } from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
+import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import {
+  SignInContractKit,
+  SignInEmailContract,
+  SignInOAuth2Contract,
+  SignInOneTapContract,
+  SignInPasskeyContract,
+  SignInPhoneNumberContract,
+  SignInSocialContract,
+  SignInUsernameContract,
+} from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
-import type { SignInEmailPayload, SignInPhoneNumberPayload } from "./sign-in.contracts";
 
 const metadataFactory = new MetadataFactory("sign-in");
 
@@ -18,92 +25,38 @@ const SignInOAuth2Metadata = metadataFactory.make("oauth2");
 // =====================================================================================================================
 // Sign In Social Handler
 // =====================================================================================================================
-const SignInSocialHandler = Handler.make({
-  contract: SignInSocialContract,
-  metadata: metadataFactory.make("social"),
-  effect: (payload, continuation) =>
-    continuation
-      .run((handlers) => client.signIn.social(payload, withFetchOptions(handlers)))
-      .pipe(Effect.flatMap(continuation.raiseResult)),
-});
+
+const SignInSocialHandler = SignInSocialContract.implement(
+  Effect.fn(function* (payload) {
+    const continuation = makeFailureContinuation(
+      {
+        contract: SignInSocialContract.name,
+        metadata: metadataFactory.make("social"),
+      },
+      {
+        supportsAbort: true,
+      }
+    );
+
+    const result = yield* continuation.run((handlers) => client.signIn.social(payload, withFetchOptions(handlers)));
+
+    yield* continuation.raiseResult(result);
+  })
+);
 
 // =====================================================================================================================
 // Sign In Email Handler
 // =====================================================================================================================
-const SignInEmailHandler = Effect.fn("SignInEmailHandler")(function* (payload: SignInEmailPayload.Type) {
-  const continuation = makeFailureContinuation({
-    contract: "SignInEmail",
-    metadata: SignInEmailMetadata,
-  });
+const SignInEmailHandler = SignInEmailContract.implement(
+  Effect.fn(function* (payload) {
+    const continuation = makeFailureContinuation({
+      contract: SignInEmailContract.name,
+      metadata: SignInEmailMetadata,
+    });
 
-  const result = yield* continuation.run((handlers) =>
-    client.signIn.email({
-      email: Redacted.value(payload.email),
-      password: Redacted.value(payload.password),
-      rememberMe: payload.rememberMe,
-      fetchOptions: withFetchOptions(handlers, {
-        headers: {
-          "x-captcha-response": Redacted.value(payload.captchaResponse),
-        },
-      }),
-    })
-  );
-
-  yield* continuation.raiseResult(result);
-
-  if (result.error == null) {
-    client.$store.notify("$sessionSignal");
-  }
-});
-// =====================================================================================================================
-// Sign In Username Handler
-// =====================================================================================================================
-const SignInUsernameHandler = Effect.fn("SignInUsernameHandler")(function* (
-  payload: typeof SignInUsernameContract.payloadSchema.Type
-) {
-  const { username, password, rememberMe, captchaResponse, callbackURL } = payload;
-
-  const continuation = makeFailureContinuation({
-    contract: "SignInUsername",
-    metadata: SignInUsernameMetadata,
-  });
-  yield* Effect.flatMap(
-    continuation.run((handlers) =>
-      client.signIn.username({
-        username: username,
-        password: Redacted.value(password),
-        rememberMe: rememberMe,
-        callbackURL: callbackURL,
-        fetchOptions: withFetchOptions(handlers, {
-          headers: {
-            "x-captcha-response": Redacted.value(captchaResponse),
-          },
-        }),
-      })
-    ),
-    (result) => {
-      if (result.error == null) {
-        client.$store.notify("$sessionSignal");
-      }
-      return continuation.raiseResult(result);
-    }
-  );
-});
-
-// =====================================================================================================================
-// Sign In Phone Number Handler
-// =====================================================================================================================
-const SignInPhoneNumberHandler = Effect.fn("SignInPhoneNumberHandler")(function* (
-  payload: SignInPhoneNumberPayload.Type
-) {
-  const continuation = makeFailureContinuation({
-    contract: "SignInPhoneNumber",
-    metadata: SignInPhoneNumberMetadata,
-  });
-  yield* Effect.flatMap(
-    continuation.run((handlers) =>
-      client.signIn.phoneNumber({
-        phoneNumber: Redacted.value(payload.phoneNumber),
+    const result = yield* continuation.run((handlers) =>
+      client.signIn.email({
+        email: Redacted.value(payload.email),
         password: Redacted.value(payload.password),
         rememberMe: payload.rememberMe,
         fetchOptions: withFetchOptions(handlers, {
@@ -112,70 +65,143 @@ const SignInPhoneNumberHandler = Effect.fn("SignInPhoneNumberHandler")(function*
           },
         }),
       })
-    ),
-    (result) => {
-      if (result.error == null) {
-        client.$store.notify("$sessionSignal");
-      }
-      return continuation.raiseResult(result);
+    );
+
+    yield* continuation.raiseResult(result);
+
+    if (result.error == null) {
+      client.$store.notify("$sessionSignal");
     }
-  );
-});
+  })
+);
+
+// =====================================================================================================================
+// Sign In Username Handler
+// =====================================================================================================================
+const SignInUsernameHandler = SignInUsernameContract.implement(
+  Effect.fn(function* (payload) {
+    const { username, password, rememberMe, captchaResponse, callbackURL } = payload;
+
+    const continuation = makeFailureContinuation({
+      contract: SignInUsernameContract.name,
+      metadata: SignInUsernameMetadata,
+    });
+    yield* Effect.flatMap(
+      continuation.run((handlers) =>
+        client.signIn.username({
+          username: username,
+          password: Redacted.value(password),
+          rememberMe: rememberMe,
+          callbackURL: callbackURL,
+          fetchOptions: withFetchOptions(handlers, {
+            headers: {
+              "x-captcha-response": Redacted.value(captchaResponse),
+            },
+          }),
+        })
+      ),
+      (result) => {
+        if (result.error == null) {
+          client.$store.notify("$sessionSignal");
+        }
+        return continuation.raiseResult(result);
+      }
+    );
+  })
+);
+
+// =====================================================================================================================
+// Sign In Phone Number Handler
+// =====================================================================================================================
+const SignInPhoneNumberHandler = SignInPhoneNumberContract.implement(
+  Effect.fn(function* (payload) {
+    const continuation = makeFailureContinuation({
+      contract: SignInPhoneNumberContract.name,
+      metadata: SignInPhoneNumberMetadata,
+    });
+    yield* Effect.flatMap(
+      continuation.run((handlers) =>
+        client.signIn.phoneNumber({
+          phoneNumber: Redacted.value(payload.phoneNumber),
+          password: Redacted.value(payload.password),
+          rememberMe: payload.rememberMe,
+          fetchOptions: withFetchOptions(handlers, {
+            headers: {
+              "x-captcha-response": Redacted.value(payload.captchaResponse),
+            },
+          }),
+        })
+      ),
+      (result) => {
+        if (result.error == null) {
+          client.$store.notify("$sessionSignal");
+        }
+        return continuation.raiseResult(result);
+      }
+    );
+  })
+);
 // =====================================================================================================================
 // Sign In One Tap Handler
 // =====================================================================================================================
-const SignInOneTapHandler = Effect.fn("SignInOneTapHandler")(function* () {
-  const continuation = makeFailureContinuation({
-    contract: "SignInOneTap",
-    metadata: SignInOneTapMetadata,
-  });
-  yield* continuation.run((handlers) =>
-    client.oneTap({
-      fetchOptions: withFetchOptions(handlers),
-    })
-  );
-});
+const SignInOneTapHandler = SignInOneTapContract.implement(
+  Effect.fn(function* () {
+    const continuation = makeFailureContinuation({
+      contract: SignInOneTapContract.name,
+      metadata: SignInOneTapMetadata,
+    });
+    yield* continuation.run((handlers) =>
+      client.oneTap({
+        fetchOptions: withFetchOptions(handlers),
+      })
+    );
+  })
+);
 // =====================================================================================================================
 // Sign In Passkey Handler
 // =====================================================================================================================
-const SignInPasskeyHandler = Effect.fn("SignInPasskey")(function* () {
-  const continuation = makeFailureContinuation({
-    contract: "SignInPasskey",
-    metadata: SignInPasskeyMetadata,
-  });
+const SignInPasskeyHandler = SignInPasskeyContract.implement(
+  Effect.fn(function* () {
+    const continuation = makeFailureContinuation({
+      contract: SignInPasskeyContract.name,
+      metadata: SignInPasskeyMetadata,
+    });
 
-  yield* Effect.flatMap(
-    continuation.run((handlers) =>
-      client.signIn.passkey({
-        fetchOptions: withFetchOptions(handlers),
-      })
-    ),
-    (result) => {
-      if (result.error == null) {
-        client.$store.notify("$sessionSignal");
+    yield* Effect.flatMap(
+      continuation.run((handlers) =>
+        client.signIn.passkey({
+          fetchOptions: withFetchOptions(handlers),
+        })
+      ),
+      (result) => {
+        if (result.error == null) {
+          client.$store.notify("$sessionSignal");
+        }
+        return continuation.raiseResult(result);
       }
-      return continuation.raiseResult(result);
-    }
-  );
-});
+    );
+  })
+);
 
 // =====================================================================================================================
 // Sign In OAuth 2 Handler
 // =====================================================================================================================
-const SignInOAuth2Handler = Effect.fn("SignInOAuth2Handler")(function* (payload: SignInOAuth2Payload.Type) {
-  const continuation = makeFailureContinuation({
-    contract: "SignInOAuth2",
-    metadata: SignInOAuth2Metadata,
-  });
-  const result = yield* continuation.run((handlers) =>
-    client.signIn.oauth2({
-      ...payload,
-      fetchOptions: withFetchOptions(handlers),
-    })
-  );
+const SignInOAuth2Handler = SignInOAuth2Contract.implement(
+  Effect.fn(function* (payload) {
+    const continuation = makeFailureContinuation({
+      contract: SignInOAuth2Contract.name,
+      metadata: SignInOAuth2Metadata,
+    });
+    const result = yield* continuation.run((handlers) =>
+      client.signIn.oauth2({
+        ...payload,
+        fetchOptions: withFetchOptions(handlers),
+      })
+    );
 
-  yield* continuation.raiseResult(result);
-});
+    yield* continuation.raiseResult(result);
+  })
+);
 // =====================================================================================================================
 // Sign In Implementations Service
 // =====================================================================================================================

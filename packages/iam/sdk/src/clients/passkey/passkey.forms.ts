@@ -41,14 +41,16 @@ export const useUpdatePasskeyForm = ({ defaultValues, onDone }: UsePasskeyUpdate
   const { updatePasskey } = usePasskeyCRUD();
   const form = useAppForm(
     formOptionsWithSubmitEffect({
-      schema: PasskeyUpdatePayload.pipe(S.pick("name")),
+      schema: PasskeyUpdatePayload.fields.passkey.pipe(S.pick("name")),
       defaultValues: {
         name: defaultValues.name,
       },
       onSubmit: async (value) => {
         await updatePasskey({
-          name: value.name,
-          id: defaultValues.id,
+          passkey: {
+            name: value.name,
+            id: defaultValues.id,
+          },
         });
         onDone(form.reset);
       },

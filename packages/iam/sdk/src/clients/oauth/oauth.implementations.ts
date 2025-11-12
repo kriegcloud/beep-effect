@@ -1,22 +1,15 @@
 import { client } from "@beep/iam-sdk/adapters";
 import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
-import type {
-  GetAccessTokenPayload,
-  GetAccountInfoPayload,
-  LinkSocialPayload,
-  RequestAdditionalScopesPayload,
-} from "@beep/iam-sdk/clients/oauth/oauth.contracts";
 import {
-  GetAccessTokenSuccess,
-  GetAccountInfoSuccess,
+  GetAccessTokenContract,
+  GetAccountInfoContract,
   LinkSocialContract,
   OAuthContractKit,
-  RequestAdditionalScopesSuccess,
+  OAuthRegisterContract,
+  RequestAdditionalScopesContract,
 } from "@beep/iam-sdk/clients/oauth/oauth.contracts";
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
-import { OAuthRegisterPayload } from "./oauth.contracts";
 
 const metadataFactory = new MetadataFactory("oauth2");
 
@@ -29,33 +22,33 @@ const RequestAdditionalScopesMetadata = metadataFactory.make("requestAdditionalS
 // =====================================================================================================================
 // OAuth Register Handler
 // =====================================================================================================================
-const OAuthRegisterHandler = Effect.fn("OAuthRegisterHandler")(function* (payload: OAuthRegisterPayload.Type) {
-  const continuation = makeFailureContinuation({
-    contract: "OAuthRegisterContract",
-    metadata: OAuthRegisterMetadata,
-  });
+const OAuthRegisterHandler = OAuthRegisterContract.implement(
+  Effect.fn(function* (payload) {
+    const continuation = makeFailureContinuation({
+      contract: OAuthRegisterContract.name,
+      metadata: OAuthRegisterMetadata,
+    });
 
-  const encoded = yield* S.encode(OAuthRegisterPayload)(payload).pipe(
-    Effect.catchTag("ParseError", (error) => Effect.fail(IamError.match(error, OAuthRegisterMetadata())))
-  );
+    const encoded = yield* OAuthRegisterContract.encodePayload(payload);
 
-  const result = yield* continuation.run((handlers) =>
-    client.oauth2.register({
-      ...encoded,
-      fetchOptions: withFetchOptions(handlers),
-    })
-  );
+    const result = yield* continuation.run((handlers) =>
+      client.oauth2.register({
+        ...encoded,
+        fetchOptions: withFetchOptions(handlers),
+      })
+    );
 
-  yield* continuation.raiseResult(result);
-});
+    yield* continuation.raiseResult(result);
+  })
+);
 
 // =====================================================================================================================
 // Link Social Handler
 // =====================================================================================================================
-const LinkSocialHandler = Effect.fn("LinkSocial")(
-  function* (payload: LinkSocialPayload.Type) {
+const LinkSocialHandler = LinkSocialContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "LinkSocial",
+      contract: LinkSocialContract.name,
       metadata: LinkSocialMetadata,
     });
 
@@ -68,19 +61,16 @@ const LinkSocialHandler = Effect.fn("LinkSocial")(
 
     yield* continuation.raiseResult(result);
 
-    return yield* S.decode(LinkSocialContract.successSchema)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, LinkSocialMetadata())),
+    return yield* LinkSocialContract.decodeUnknownSuccess(result.data);
   })
 );
 // =====================================================================================================================
 // Get Access Token Handler
 // =====================================================================================================================
-const GetAccessTokenHandler = Effect.fn("GetAccessTokenHandler")(
-  function* (payload: GetAccessTokenPayload.Type) {
+const GetAccessTokenHandler = GetAccessTokenContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "GetAccessToken",
+      contract: GetAccessTokenContract.name,
       metadata: GetAccessTokenMetadata,
     });
 
@@ -98,20 +88,17 @@ const GetAccessTokenHandler = Effect.fn("GetAccessTokenHandler")(
       return yield* new IamError({}, "GetAccessTokenResult returned null");
     }
 
-    return yield* S.decode(GetAccessTokenSuccess)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, GetAccessTokenMetadata())),
+    return yield* GetAccessTokenContract.decodeUnknownSuccess(result.data);
   })
 );
 
 // =====================================================================================================================
 // Get Account Info Handler
 // =====================================================================================================================
-const GetAccountInfoHandler = Effect.fn("GetAccountInfoHandler")(
-  function* (payload: GetAccountInfoPayload.Type) {
+const GetAccountInfoHandler = GetAccountInfoContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "GetAccountInfo",
+      contract: GetAccountInfoContract.name,
       metadata: GetAccountInfoMetadata,
     });
 
@@ -124,20 +111,17 @@ const GetAccountInfoHandler = Effect.fn("GetAccountInfoHandler")(
 
     yield* continuation.raiseResult(result);
 
-    return yield* S.decodeUnknown(GetAccountInfoSuccess)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, GetAccountInfoMetadata())),
+    return yield* GetAccountInfoContract.decodeUnknownSuccess(result.data);
   })
 );
 
 // =====================================================================================================================
 // Request Additional Scopes Handler
 // =====================================================================================================================
-const RequestAdditionalScopesHandler = Effect.fn("RequestAdditionalScopesHandler")(
-  function* (payload: RequestAdditionalScopesPayload.Type) {
+const RequestAdditionalScopesHandler = RequestAdditionalScopesContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "RequestAdditionalScopes",
+      contract: RequestAdditionalScopesContract.name,
       metadata: RequestAdditionalScopesMetadata,
     });
 
@@ -151,10 +135,7 @@ const RequestAdditionalScopesHandler = Effect.fn("RequestAdditionalScopesHandler
 
     yield* continuation.raiseResult(result);
 
-    return yield* S.decodeUnknown(RequestAdditionalScopesSuccess)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, RequestAdditionalScopesMetadata())),
+    return yield* RequestAdditionalScopesContract.decodeUnknownSuccess(result.data);
   })
 );
 

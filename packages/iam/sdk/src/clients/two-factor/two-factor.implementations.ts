@@ -1,62 +1,68 @@
 import { client } from "@beep/iam-sdk/adapters";
 import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
-import { TwoFactorContractKit } from "@beep/iam-sdk/clients/two-factor/two-factor.contracts";
+import {
+  SendOtpContract,
+  TwoFactorContractKit,
+  VerifyOtpContract,
+  VerifyTotpContract,
+} from "@beep/iam-sdk/clients/two-factor/two-factor.contracts";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
-import type { VerifyOtpPayload, VerifyTotpPayload } from "./two-factor.contracts";
 
 const metadataFactory = new MetadataFactory("two-factor");
 
-const SendOtpMetadata = metadataFactory.make("sendOtp");
-const VerifyOtpMetadata = metadataFactory.make("verifyOtp");
-const VerifyTotpMetadata = metadataFactory.make("verifyTotp");
+const SendOtpHandler = SendOtpContract.implement(
+  Effect.fn(function* () {
+    const continuation = makeFailureContinuation({
+      contract: SendOtpContract.name,
+      metadata: metadataFactory.make("sendOtp"),
+    });
 
-const SendOtpHandler = Effect.fn("SendOtpContract")(function* () {
-  const continuation = makeFailureContinuation({
-    contract: "SendOtpContract",
-    metadata: SendOtpMetadata,
-  });
+    const result = yield* continuation.run((handlers) =>
+      client.twoFactor.sendOtp({
+        fetchOptions: withFetchOptions(handlers),
+      })
+    );
 
-  const result = yield* continuation.run((handlers) =>
-    client.twoFactor.sendOtp({
-      fetchOptions: withFetchOptions(handlers),
-    })
-  );
+    yield* continuation.raiseResult(result);
+  })
+);
 
-  yield* continuation.raiseResult(result);
-});
+const VerifyOtpHandler = VerifyOtpContract.implement(
+  Effect.fn(function* (payload) {
+    const continuation = makeFailureContinuation({
+      contract: VerifyOtpContract.name,
+      metadata: metadataFactory.make("verifyOtp"),
+    });
 
-const VerifyOtpHandler = Effect.fn("VerifyOtpHandler")(function* (payload: VerifyOtpPayload.Type) {
-  const continuation = makeFailureContinuation({
-    contract: "VerifyOtpContract",
-    metadata: VerifyOtpMetadata,
-  });
+    const result = yield* continuation.run((handlers) =>
+      client.twoFactor.verifyOtp({
+        code: Redacted.value(payload.code),
+        fetchOptions: withFetchOptions(handlers),
+      })
+    );
 
-  const result = yield* continuation.run((handlers) =>
-    client.twoFactor.verifyOtp({
-      code: Redacted.value(payload.code),
-      fetchOptions: withFetchOptions(handlers),
-    })
-  );
+    yield* continuation.raiseResult(result);
+  })
+);
 
-  yield* continuation.raiseResult(result);
-});
+const VerifyTotpHandler = VerifyTotpContract.implement(
+  Effect.fn(function* (payload) {
+    const continuation = makeFailureContinuation({
+      contract: VerifyTotpContract.name,
+      metadata: metadataFactory.make("verifyTotp"),
+    });
 
-const VerifyTotpHandler = Effect.fn("VerifyTotpHandler")(function* (payload: VerifyTotpPayload.Type) {
-  const continuation = makeFailureContinuation({
-    contract: "VerifyTotpContract",
-    metadata: VerifyTotpMetadata,
-  });
+    const result = yield* continuation.run((handlers) =>
+      client.twoFactor.verifyTotp({
+        code: Redacted.value(payload.code),
+        fetchOptions: withFetchOptions(handlers),
+      })
+    );
 
-  const result = yield* continuation.run((handlers) =>
-    client.twoFactor.verifyTotp({
-      code: Redacted.value(payload.code),
-      fetchOptions: withFetchOptions(handlers),
-    })
-  );
-
-  yield* continuation.raiseResult(result);
-});
+    yield* continuation.raiseResult(result);
+  })
+);
 
 export const TwoFactorImplementations = TwoFactorContractKit.of({
   SendOtp: SendOtpHandler,

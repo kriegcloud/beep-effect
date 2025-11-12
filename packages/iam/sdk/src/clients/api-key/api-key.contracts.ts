@@ -5,7 +5,7 @@ import { IamEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
 
-export class ApiKeyView extends BS.Class<ApiKeyView>("ApiKeyView")(
+export class ApiKeyView extends S.Class<ApiKeyView>("ApiKeyView")(
   ApiKey.Model.select.pick(
     "id",
     "name",
@@ -42,7 +42,7 @@ export declare namespace ApiKeyView {
   export type Encoded = S.Schema.Encoded<typeof ApiKeyView>;
 }
 
-export class ApiKeyCreateSuccess extends BS.Class<ApiKeyCreateSuccess>("ApiKeyCreateSuccess")(
+export class ApiKeyCreateSuccess extends S.Class<ApiKeyCreateSuccess>("ApiKeyCreateSuccess")(
   S.Struct({
     key: S.Redacted(S.String),
     ...ApiKey.Model.select.pick(
@@ -82,7 +82,7 @@ export declare namespace ApiKeyCreateSuccess {
   export type Encoded = S.Schema.Encoded<typeof ApiKeyCreateSuccess>;
 }
 
-export class ApiKeyDeleteSuccess extends BS.Class<ApiKeyDeleteSuccess>("ApiKeyDeleteSuccess")(
+export class ApiKeyDeleteSuccess extends S.Class<ApiKeyDeleteSuccess>("ApiKeyDeleteSuccess")(
   {
     success: S.Boolean,
   },
@@ -99,7 +99,7 @@ export declare namespace ApiKeyDeleteSuccess {
   export type Encoded = S.Schema.Encoded<typeof ApiKeyDeleteSuccess>;
 }
 
-export class ApiKeyCreatePayload extends BS.Class<ApiKeyCreatePayload>("ApiKeyCreatePayload")(
+export class ApiKeyCreatePayload extends S.Class<ApiKeyCreatePayload>("ApiKeyCreatePayload")(
   S.Struct({
     ...ApiKey.Model.insert.pick(
       "name",
@@ -130,7 +130,7 @@ export declare namespace ApiKeyCreatePayload {
   export type Encoded = S.Schema.Encoded<typeof ApiKeyCreatePayload>;
 }
 
-export class ApiKeyUpdatePayload extends BS.Class<ApiKeyUpdatePayload>("ApiKeyUpdatePayload")(
+export class ApiKeyUpdatePayload extends S.Class<ApiKeyUpdatePayload>("ApiKeyUpdatePayload")(
   S.Struct({
     keyId: IamEntityIds.ApiKeyId,
     ...ApiKey.Model.update.pick(
@@ -162,7 +162,7 @@ export declare namespace ApiKeyUpdatePayload {
   export type Encoded = S.Schema.Encoded<typeof ApiKeyUpdatePayload>;
 }
 
-export class ApiKeyDeletePayload extends BS.Class<ApiKeyDeletePayload>("ApiKeyDeletePayload")(
+export class ApiKeyDeletePayload extends S.Class<ApiKeyDeletePayload>("ApiKeyDeletePayload")(
   {
     keyId: IamEntityIds.ApiKeyId,
   },
@@ -179,7 +179,7 @@ export declare namespace ApiKeyDeletePayload {
   export type Encoded = S.Schema.Encoded<typeof ApiKeyDeletePayload>;
 }
 
-export class ApiKeyGetPayload extends BS.Class<ApiKeyGetPayload>("ApiKeyGetPayload")(
+export class ApiKeyGetPayload extends S.Class<ApiKeyGetPayload>("ApiKeyGetPayload")(
   {
     id: IamEntityIds.ApiKeyId,
   },
@@ -199,37 +199,52 @@ export declare namespace ApiKeyGetPayload {
 export const ApiKeyCreateContract = Contract.make("ApiKeyCreate", {
   description: "Creates a new API key with optional metadata and rate limit controls.",
   payload: ApiKeyCreatePayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: ApiKeyCreateSuccess,
-});
+})
+  .annotate(Contract.Title, "API Key Create Contract")
+  .annotate(Contract.Domain, "API Key")
+  .annotate(Contract.Method, "create");
 
 export const ApiKeyGetContract = Contract.make("ApiKeyGet", {
   description: "Retrieves an API key owned by the authenticated user.",
   payload: ApiKeyGetPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: ApiKeyView,
-});
+})
+  .annotate(Contract.Title, "API Key Get Contract")
+  .annotate(Contract.Domain, "API Key")
+  .annotate(Contract.Method, "get");
 
 export const ApiKeyUpdateContract = Contract.make("ApiKeyUpdate", {
   description: "Updates attributes of an existing API key.",
   payload: ApiKeyUpdatePayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: ApiKeyView,
-});
+})
+  .annotate(Contract.Title, "API Key Update Contract")
+  .annotate(Contract.Domain, "API Key")
+  .annotate(Contract.Method, "update");
 
 export const ApiKeyDeleteContract = Contract.make("ApiKeyDelete", {
   description: "Deletes an API key by identifier.",
   payload: ApiKeyDeletePayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: ApiKeyDeleteSuccess,
-});
+})
+  .annotate(Contract.Title, "API Key Delete Contract")
+  .annotate(Contract.Domain, "API Key")
+  .annotate(Contract.Method, "delete");
 
 export const ApiKeyListContract = Contract.make("ApiKeyList", {
   description: "Lists all API keys for the authenticated user.",
   payload: {},
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Array(ApiKeyView),
-});
+})
+  .annotate(Contract.Title, "API Key List Contract")
+  .annotate(Contract.Domain, "API Key")
+  .annotate(Contract.Method, "list");
 
 export const ApiKeyContractKit = ContractKit.make(
   ApiKeyCreateContract,

@@ -1,5 +1,4 @@
 import { Contract, ContractKit } from "@beep/contract";
-import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
 // =====================================================================================================================
@@ -19,13 +18,16 @@ export declare namespace SendOtpPayload {
 export const SendOtpContract = Contract.make("SendOtp", {
   description: "Sends a one-time password to the user.",
   payload: SendOtpPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Void,
-});
+})
+  .annotate(Contract.Title, "Send OTP")
+  .annotate(Contract.Domain, "two-factor")
+  .annotate(Contract.Method, "sendOtp");
 // =====================================================================================================================
 // Verify OTP Contract
 // =====================================================================================================================
-export class VerifyOtpPayload extends BS.Class<VerifyOtpPayload>("VerifyOtpPayload")(
+export class VerifyOtpPayload extends S.Class<VerifyOtpPayload>("VerifyOtpPayload")(
   {
     code: S.Redacted(S.String),
   },
@@ -44,15 +46,18 @@ export declare namespace VerifyOtpPayload {
 export const VerifyOtpContract = Contract.make("VerifyOtp", {
   description: "Verifies an OTP provided by the user.",
   payload: VerifyOtpPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Void,
-});
+})
+  .annotate(Contract.Title, "Verify OTP")
+  .annotate(Contract.Domain, "two-factor")
+  .annotate(Contract.Method, "verifyOtp");
 
 // =====================================================================================================================
 // Verify TOTP Contract
 // =====================================================================================================================
 
-export class VerifyTotpPayload extends BS.Class<VerifyTotpPayload>("VerifyTotpPayload")(
+export class VerifyTotpPayload extends S.Class<VerifyTotpPayload>("VerifyTotpPayload")(
   {
     code: S.Redacted(S.String),
   },
@@ -71,9 +76,12 @@ export declare namespace VerifyTotpPayload {
 export const VerifyTotpContract = Contract.make("VerifyTotp", {
   description: "Verifies a TOTP provided by the user.",
   payload: VerifyTotpPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Void,
-});
+})
+  .annotate(Contract.Title, "Verify TOTP")
+  .annotate(Contract.Domain, "two-factor")
+  .annotate(Contract.Method, "verifyTotp");
 
 // =====================================================================================================================
 // Two Factor Contract Set
