@@ -21,7 +21,7 @@ const OrganizationViewFields = {
   metadata: MetadataSchema,
 } as const;
 
-export class OrganizationView extends BS.Class<OrganizationView>("OrganizationView")(S.Struct(OrganizationViewFields), {
+export class OrganizationView extends S.Class<OrganizationView>("OrganizationView")(S.Struct(OrganizationViewFields), {
   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationView"),
   identifier: "OrganizationView",
   title: "Organization Summary",
@@ -35,7 +35,7 @@ export declare namespace OrganizationView {
 
 const MemberCoreFields = Member.Model.select.pick("id", "organizationId", "userId", "role", "createdAt").fields;
 
-export class OrganizationMemberView extends BS.Class<OrganizationMemberView>("OrganizationMemberView")(
+export class OrganizationMemberView extends S.Class<OrganizationMemberView>("OrganizationMemberView")(
   S.Struct({
     ...MemberCoreFields,
   }),
@@ -52,7 +52,7 @@ export declare namespace OrganizationMemberView {
   export type Encoded = S.Schema.Encoded<typeof OrganizationMemberView>;
 }
 
-export class OrganizationMemberUserView extends BS.Class<OrganizationMemberUserView>("OrganizationMemberUserView")(
+export class OrganizationMemberUserView extends S.Class<OrganizationMemberUserView>("OrganizationMemberUserView")(
   S.Struct({
     ...User.Model.select.pick("id", "name", "email", "image").fields,
   }),
@@ -74,7 +74,7 @@ const OrganizationMemberWithUserFields = {
   user: OrganizationMemberUserView,
 } as const;
 
-export class OrganizationMemberWithUserView extends BS.Class<OrganizationMemberWithUserView>(
+export class OrganizationMemberWithUserView extends S.Class<OrganizationMemberWithUserView>(
   "OrganizationMemberWithUserView"
 )(S.Struct(OrganizationMemberWithUserFields), {
   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationMemberWithUserView"),
@@ -99,7 +99,7 @@ const OrganizationInvitationFields = Invitation.Model.select.pick(
   "expiresAt"
 ).fields;
 
-export class OrganizationInvitationView extends BS.Class<OrganizationInvitationView>("OrganizationInvitationView")(
+export class OrganizationInvitationView extends S.Class<OrganizationInvitationView>("OrganizationInvitationView")(
   S.Struct(OrganizationInvitationFields),
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationInvitationView"),
@@ -121,7 +121,7 @@ const OrganizationInvitationDetailFields = {
   inviterEmail: S.String,
 } as const;
 
-export class OrganizationInvitationDetailView extends BS.Class<OrganizationInvitationDetailView>(
+export class OrganizationInvitationDetailView extends S.Class<OrganizationInvitationDetailView>(
   "OrganizationInvitationDetailView"
 )(S.Struct(OrganizationInvitationDetailFields), {
   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationInvitationDetailView"),
@@ -135,14 +135,7 @@ export declare namespace OrganizationInvitationDetailView {
   export type Encoded = S.Schema.Encoded<typeof OrganizationInvitationDetailView>;
 }
 
-// const OrganizationCreatePayloadFields = {
-//   ...Organization.Model.select.pick("id", "name", "slug", "logo").fields,
-//   metadata: MetadataSchema,
-//   userId: S.optional(SharedEntityIds.UserId),
-//   keepCurrentActiveOrganization: S.optional(S.Boolean),
-// } as const;
-
-export class OrganizationCreatePayload extends BS.Class<OrganizationCreatePayload>("OrganizationCreatePayload")(
+export class OrganizationCreatePayload extends S.Class<OrganizationCreatePayload>("OrganizationCreatePayload")(
   S.Struct(OrganizationView.fields),
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationCreatePayload"),
@@ -156,13 +149,8 @@ export declare namespace OrganizationCreatePayload {
   export type Type = S.Schema.Type<typeof OrganizationCreatePayload>;
   export type Encoded = S.Schema.Encoded<typeof OrganizationCreatePayload>;
 }
-//
-// const OrganizationCreateSuccessFields = {
-//   ...OrganizationViewFields,
-//   // members: S.Array(OrganizationMemberView),
-// } as const;
 
-export class OrganizationCreateSuccess extends BS.Class<OrganizationCreateSuccess>("OrganizationCreateSuccess")(
+export class OrganizationCreateSuccess extends S.Class<OrganizationCreateSuccess>("OrganizationCreateSuccess")(
   OrganizationView.fields,
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationCreateSuccess"),
@@ -181,14 +169,15 @@ const OrganizationCheckSlugPayloadFields = {
   slug: Organization.Model.select.pick("slug").fields.slug,
 } as const;
 
-export class OrganizationCheckSlugPayload extends BS.Class<OrganizationCheckSlugPayload>(
-  "OrganizationCheckSlugPayload"
-)(OrganizationCheckSlugPayloadFields, {
-  schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationCheckSlugPayload"),
-  identifier: "OrganizationCheckSlugPayload",
-  title: "Organization Check Slug Payload",
-  description: "Payload for checking organization slug availability.",
-}) {}
+export class OrganizationCheckSlugPayload extends S.Class<OrganizationCheckSlugPayload>("OrganizationCheckSlugPayload")(
+  OrganizationCheckSlugPayloadFields,
+  {
+    schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationCheckSlugPayload"),
+    identifier: "OrganizationCheckSlugPayload",
+    title: "Organization Check Slug Payload",
+    description: "Payload for checking organization slug availability.",
+  }
+) {}
 
 export declare namespace OrganizationCheckSlugPayload {
   export type Type = S.Schema.Type<typeof OrganizationCheckSlugPayload>;
@@ -199,14 +188,15 @@ const OrganizationCheckSlugSuccessFields = {
   status: S.Boolean,
 } as const;
 
-export class OrganizationCheckSlugSuccess extends BS.Class<OrganizationCheckSlugSuccess>(
-  "OrganizationCheckSlugSuccess"
-)(OrganizationCheckSlugSuccessFields, {
-  schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationCheckSlugSuccess"),
-  identifier: "OrganizationCheckSlugSuccess",
-  title: "Organization Check Slug Success",
-  description: "Response indicating slug availability.",
-}) {}
+export class OrganizationCheckSlugSuccess extends S.Class<OrganizationCheckSlugSuccess>("OrganizationCheckSlugSuccess")(
+  OrganizationCheckSlugSuccessFields,
+  {
+    schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationCheckSlugSuccess"),
+    identifier: "OrganizationCheckSlugSuccess",
+    title: "Organization Check Slug Success",
+    description: "Response indicating slug availability.",
+  }
+) {}
 
 export declare namespace OrganizationCheckSlugSuccess {
   export type Type = S.Schema.Type<typeof OrganizationCheckSlugSuccess>;
@@ -218,14 +208,15 @@ const OrganizationSetActivePayloadFields = {
   organizationSlug: S.optional(S.String),
 } as const;
 
-export class OrganizationSetActivePayload extends BS.Class<OrganizationSetActivePayload>(
-  "OrganizationSetActivePayload"
-)(S.Struct(OrganizationSetActivePayloadFields), {
-  schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationSetActivePayload"),
-  identifier: "OrganizationSetActivePayload",
-  title: "Organization Set Active Payload",
-  description: "Payload for setting or clearing the active organization.",
-}) {}
+export class OrganizationSetActivePayload extends S.Class<OrganizationSetActivePayload>("OrganizationSetActivePayload")(
+  S.Struct(OrganizationSetActivePayloadFields),
+  {
+    schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationSetActivePayload"),
+    identifier: "OrganizationSetActivePayload",
+    title: "Organization Set Active Payload",
+    description: "Payload for setting or clearing the active organization.",
+  }
+) {}
 
 export declare namespace OrganizationSetActivePayload {
   export type Type = S.Schema.Type<typeof OrganizationSetActivePayload>;
@@ -238,7 +229,7 @@ const OrganizationGetFullPayloadFields = {
   membersLimit: S.optional(S.Number),
 } as const;
 
-export class OrganizationGetFullPayload extends BS.Class<OrganizationGetFullPayload>("OrganizationGetFullPayload")(
+export class OrganizationGetFullPayload extends S.Class<OrganizationGetFullPayload>("OrganizationGetFullPayload")(
   S.Struct(OrganizationGetFullPayloadFields),
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationGetFullPayload"),
@@ -261,7 +252,7 @@ const OrganizationTeamFields = {
   updatedAt: S.optional(BS.DateTimeFromDate()),
 } as const;
 
-export class OrganizationTeamView extends BS.Class<OrganizationTeamView>("OrganizationTeamView")(
+export class OrganizationTeamView extends S.Class<OrganizationTeamView>("OrganizationTeamView")(
   S.Struct(OrganizationTeamFields),
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationTeamView"),
@@ -283,7 +274,7 @@ const OrganizationFullFields = {
   teams: S.optional(S.Array(OrganizationTeamView)),
 } as const;
 
-export class OrganizationFullView extends BS.Class<OrganizationFullView>("OrganizationFullView")(
+export class OrganizationFullView extends S.Class<OrganizationFullView>("OrganizationFullView")(
   S.Struct(OrganizationFullFields),
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationFullView"),
@@ -303,7 +294,7 @@ const OrganizationUpdateDataFields = {
   metadata: MetadataSchema,
 } as const;
 
-export class OrganizationUpdateData extends BS.Class<OrganizationUpdateData>("OrganizationUpdateData")(
+export class OrganizationUpdateData extends S.Class<OrganizationUpdateData>("OrganizationUpdateData")(
   S.Struct(OrganizationUpdateDataFields),
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationUpdateData"),
@@ -323,7 +314,7 @@ const OrganizationUpdatePayloadFields = {
   data: OrganizationView,
 } as const;
 
-export class OrganizationUpdatePayload extends BS.Class<OrganizationUpdatePayload>("OrganizationUpdatePayload")(
+export class OrganizationUpdatePayload extends S.Class<OrganizationUpdatePayload>("OrganizationUpdatePayload")(
   S.Struct(OrganizationUpdatePayloadFields),
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationUpdatePayload"),
@@ -342,7 +333,7 @@ export declare namespace OrganizationUpdatePayload {
 //   organizationId: SharedEntityIds.OrganizationId,
 // } as const;
 
-export class OrganizationDeletePayload extends BS.Class<OrganizationDeletePayload>("OrganizationDeletePayload")(
+export class OrganizationDeletePayload extends S.Class<OrganizationDeletePayload>("OrganizationDeletePayload")(
   OrganizationView.fields,
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationDeletePayload"),
@@ -361,7 +352,7 @@ const AcceptInvitationPayloadFields = {
   invitationId: IamEntityIds.InvitationId,
 } as const;
 
-export class AcceptInvitationPayload extends BS.Class<AcceptInvitationPayload>("AcceptInvitationPayload")(
+export class AcceptInvitationPayload extends S.Class<AcceptInvitationPayload>("AcceptInvitationPayload")(
   AcceptInvitationPayloadFields,
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/organization/AcceptInvitationPayload"),
@@ -380,7 +371,7 @@ const AcceptInvitationSuccessFields = {
   member: OrganizationMemberView,
 } as const;
 
-export class AcceptInvitationSuccess extends BS.Class<AcceptInvitationSuccess>("AcceptInvitationSuccess")(
+export class AcceptInvitationSuccess extends S.Class<AcceptInvitationSuccess>("AcceptInvitationSuccess")(
   S.Struct(AcceptInvitationSuccessFields),
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/organization/AcceptInvitationSuccess"),
@@ -406,7 +397,7 @@ const OrganizationInviteMemberPayloadFields = {
   teamId: S.optional(TeamIdentifierSchema),
 } as const;
 
-export class OrganizationInviteMemberPayload extends BS.Class<OrganizationInviteMemberPayload>(
+export class OrganizationInviteMemberPayload extends S.Class<OrganizationInviteMemberPayload>(
   "OrganizationInviteMemberPayload"
 )(S.Struct(OrganizationInviteMemberPayloadFields), {
   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationInviteMemberPayload"),
@@ -424,7 +415,7 @@ const OrganizationCancelInvitationPayloadFields = {
   invitationId: IamEntityIds.InvitationId,
 } as const;
 
-export class OrganizationCancelInvitationPayload extends BS.Class<OrganizationCancelInvitationPayload>(
+export class OrganizationCancelInvitationPayload extends S.Class<OrganizationCancelInvitationPayload>(
   "OrganizationCancelInvitationPayload"
 )(OrganizationCancelInvitationPayloadFields, {
   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationCancelInvitationPayload"),
@@ -442,7 +433,7 @@ const OrganizationRejectInvitationPayloadFields = {
   invitationId: IamEntityIds.InvitationId,
 } as const;
 
-export class OrganizationRejectInvitationPayload extends BS.Class<OrganizationRejectInvitationPayload>(
+export class OrganizationRejectInvitationPayload extends S.Class<OrganizationRejectInvitationPayload>(
   "OrganizationRejectInvitationPayload"
 )(OrganizationRejectInvitationPayloadFields, {
   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationRejectInvitationPayload"),
@@ -456,7 +447,7 @@ export declare namespace OrganizationRejectInvitationPayload {
   export type Encoded = S.Schema.Encoded<typeof OrganizationRejectInvitationPayload>;
 }
 
-export class OrganizationRejectInvitationSuccess extends BS.Class<OrganizationRejectInvitationSuccess>(
+export class OrganizationRejectInvitationSuccess extends S.Class<OrganizationRejectInvitationSuccess>(
   "OrganizationRejectInvitationSuccess"
 )(
   S.Struct({
@@ -480,7 +471,7 @@ const OrganizationListInvitationsPayloadFields = {
   organizationId: S.optional(SharedEntityIds.OrganizationId),
 } as const;
 
-export class OrganizationListInvitationsPayload extends BS.Class<OrganizationListInvitationsPayload>(
+export class OrganizationListInvitationsPayload extends S.Class<OrganizationListInvitationsPayload>(
   "OrganizationListInvitationsPayload"
 )(S.Struct(OrganizationListInvitationsPayloadFields), {
   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationListInvitationsPayload"),
@@ -498,7 +489,7 @@ const OrganizationListUserInvitationsPayloadFields = {
   email: S.optional(Invitation.Model.select.pick("email").fields.email),
 } as const;
 
-export class OrganizationListUserInvitationsPayload extends BS.Class<OrganizationListUserInvitationsPayload>(
+export class OrganizationListUserInvitationsPayload extends S.Class<OrganizationListUserInvitationsPayload>(
   "OrganizationListUserInvitationsPayload"
 )(S.Struct(OrganizationListUserInvitationsPayloadFields), {
   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationListUserInvitationsPayload"),
@@ -516,7 +507,7 @@ const OrganizationGetInvitationPayloadFields = {
   id: IamEntityIds.InvitationId,
 } as const;
 
-export class OrganizationGetInvitationPayload extends BS.Class<OrganizationGetInvitationPayload>(
+export class OrganizationGetInvitationPayload extends S.Class<OrganizationGetInvitationPayload>(
   "OrganizationGetInvitationPayload"
 )(OrganizationGetInvitationPayloadFields, {
   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationGetInvitationPayload"),
@@ -542,7 +533,7 @@ const OrganizationListMembersPayloadFields = {
   organizationId: S.optional(SharedEntityIds.OrganizationId),
 } as const;
 
-export class OrganizationListMembersPayload extends BS.Class<OrganizationListMembersPayload>(
+export class OrganizationListMembersPayload extends S.Class<OrganizationListMembersPayload>(
   "OrganizationListMembersPayload"
 )(S.Struct(OrganizationListMembersPayloadFields), {
   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationListMembersPayload"),
@@ -561,7 +552,7 @@ const OrganizationListMembersSuccessFields = {
   total: S.Number,
 } as const;
 
-export class OrganizationListMembersSuccess extends BS.Class<OrganizationListMembersSuccess>(
+export class OrganizationListMembersSuccess extends S.Class<OrganizationListMembersSuccess>(
   "OrganizationListMembersSuccess"
 )(S.Struct(OrganizationListMembersSuccessFields), {
   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationListMembersSuccess"),
@@ -580,7 +571,7 @@ const OrganizationRemoveMemberPayloadFields = {
   organizationId: S.optional(SharedEntityIds.OrganizationId),
 } as const;
 
-export class OrganizationRemoveMemberPayload extends BS.Class<OrganizationRemoveMemberPayload>(
+export class OrganizationRemoveMemberPayload extends S.Class<OrganizationRemoveMemberPayload>(
   "OrganizationRemoveMemberPayload"
 )(S.Struct(OrganizationRemoveMemberPayloadFields), {
   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationRemoveMemberPayload"),
@@ -594,7 +585,7 @@ export declare namespace OrganizationRemoveMemberPayload {
   export type Encoded = S.Schema.Encoded<typeof OrganizationRemoveMemberPayload>;
 }
 
-export class OrganizationRemoveMemberSuccess extends BS.Class<OrganizationRemoveMemberSuccess>(
+export class OrganizationRemoveMemberSuccess extends S.Class<OrganizationRemoveMemberSuccess>(
   "OrganizationRemoveMemberSuccess"
 )(
   S.Struct({
@@ -619,7 +610,7 @@ const OrganizationUpdateMemberRolePayloadFields = {
   organizationId: S.optional(SharedEntityIds.OrganizationId),
 } as const;
 
-export class OrganizationUpdateMemberRolePayload extends BS.Class<OrganizationUpdateMemberRolePayload>(
+export class OrganizationUpdateMemberRolePayload extends S.Class<OrganizationUpdateMemberRolePayload>(
   "OrganizationUpdateMemberRolePayload"
 )(S.Struct(OrganizationUpdateMemberRolePayloadFields), {
   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationUpdateMemberRolePayload"),
@@ -633,7 +624,7 @@ export declare namespace OrganizationUpdateMemberRolePayload {
   export type Encoded = S.Schema.Encoded<typeof OrganizationUpdateMemberRolePayload>;
 }
 
-export class OrganizationUpdateMemberRoleSuccess extends BS.Class<OrganizationUpdateMemberRoleSuccess>(
+export class OrganizationUpdateMemberRoleSuccess extends S.Class<OrganizationUpdateMemberRoleSuccess>(
   "OrganizationUpdateMemberRoleSuccess"
 )(
   S.Struct({
@@ -657,7 +648,7 @@ const OrganizationGetActiveMemberRolePayloadFields = {
   organizationId: S.optional(SharedEntityIds.OrganizationId),
 } as const;
 
-export class OrganizationGetActiveMemberRolePayload extends BS.Class<OrganizationGetActiveMemberRolePayload>(
+export class OrganizationGetActiveMemberRolePayload extends S.Class<OrganizationGetActiveMemberRolePayload>(
   "OrganizationGetActiveMemberRolePayload"
 )(S.Struct(OrganizationGetActiveMemberRolePayloadFields), {
   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationGetActiveMemberRolePayload"),
@@ -671,7 +662,7 @@ export declare namespace OrganizationGetActiveMemberRolePayload {
   export type Encoded = S.Schema.Encoded<typeof OrganizationGetActiveMemberRolePayload>;
 }
 
-export class OrganizationGetActiveMemberRoleSuccess extends BS.Class<OrganizationGetActiveMemberRoleSuccess>(
+export class OrganizationGetActiveMemberRoleSuccess extends S.Class<OrganizationGetActiveMemberRoleSuccess>(
   "OrganizationGetActiveMemberRoleSuccess"
 )(
   S.Struct({
@@ -694,7 +685,7 @@ const OrganizationLeavePayloadFields = {
   organizationId: SharedEntityIds.OrganizationId,
 } as const;
 
-export class OrganizationLeavePayload extends BS.Class<OrganizationLeavePayload>("OrganizationLeavePayload")(
+export class OrganizationLeavePayload extends S.Class<OrganizationLeavePayload>("OrganizationLeavePayload")(
   OrganizationLeavePayloadFields,
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationLeavePayload"),
@@ -713,7 +704,7 @@ const OrganizationRoleViewFields = {
   ...OrganizationRole.Model.select.pick("id", "organizationId", "role", "permission", "createdAt", "updatedAt").fields,
 } as const;
 
-export class OrganizationRoleView extends BS.Class<OrganizationRoleView>("OrganizationRoleView")(
+export class OrganizationRoleView extends S.Class<OrganizationRoleView>("OrganizationRoleView")(
   S.Struct(OrganizationRoleViewFields),
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationRoleView"),
@@ -734,7 +725,7 @@ const OrganizationRoleCreatePayloadFields = {
   permission: PolicyRecord,
 } as const;
 
-export class OrganizationRoleCreatePayload extends BS.Class<OrganizationRoleCreatePayload>(
+export class OrganizationRoleCreatePayload extends S.Class<OrganizationRoleCreatePayload>(
   "OrganizationRoleCreatePayload"
 )(S.Struct(OrganizationRoleCreatePayloadFields), {
   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationRoleCreatePayload"),
@@ -754,7 +745,7 @@ const OrganizationRoleCreateSuccessFields = {
   statements: PolicyRecord,
 } as const;
 
-export class OrganizationRoleCreateSuccess extends BS.Class<OrganizationRoleCreateSuccess>(
+export class OrganizationRoleCreateSuccess extends S.Class<OrganizationRoleCreateSuccess>(
   "OrganizationRoleCreateSuccess"
 )(S.Struct(OrganizationRoleCreateSuccessFields), {
   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationRoleCreateSuccess"),
@@ -774,7 +765,7 @@ const OrganizationRoleIdentifierFields = {
   roleName: S.optional(S.String),
 } as const;
 
-export class OrganizationRoleDeletePayload extends BS.Class<OrganizationRoleDeletePayload>(
+export class OrganizationRoleDeletePayload extends S.Class<OrganizationRoleDeletePayload>(
   "OrganizationRoleDeletePayload"
 )(S.Struct(OrganizationRoleIdentifierFields), {
   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationRoleDeletePayload"),
@@ -788,7 +779,7 @@ export declare namespace OrganizationRoleDeletePayload {
   export type Encoded = S.Schema.Encoded<typeof OrganizationRoleDeletePayload>;
 }
 
-export class OrganizationRoleDeleteSuccess extends BS.Class<OrganizationRoleDeleteSuccess>(
+export class OrganizationRoleDeleteSuccess extends S.Class<OrganizationRoleDeleteSuccess>(
   "OrganizationRoleDeleteSuccess"
 )(S.Struct({ success: S.Boolean }), {
   schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationRoleDeleteSuccess"),
@@ -806,7 +797,7 @@ const OrganizationRoleListPayloadFields = {
   organizationId: S.optional(SharedEntityIds.OrganizationId),
 } as const;
 
-export class OrganizationRoleListPayload extends BS.Class<OrganizationRoleListPayload>("OrganizationRoleListPayload")(
+export class OrganizationRoleListPayload extends S.Class<OrganizationRoleListPayload>("OrganizationRoleListPayload")(
   S.Struct(OrganizationRoleListPayloadFields),
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/organization/OrganizationRoleListPayload"),
@@ -824,163 +815,232 @@ export declare namespace OrganizationRoleListPayload {
 export const OrganizationCreateContract = Contract.make("OrganizationCreate", {
   description: "Creates a new organization.",
   payload: OrganizationCreatePayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OrganizationCreateSuccess,
-});
+})
+  .annotate(Contract.Title, "Organization Create Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "create");
 
 export const OrganizationCheckSlugContract = Contract.make("OrganizationCheckSlug", {
   description: "Checks whether an organization slug is available.",
   payload: OrganizationCheckSlugPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OrganizationCheckSlugSuccess,
-});
+})
+  .annotate(Contract.Title, "Organization Check Slug Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "checkSlug");
 
 export const OrganizationListContract = Contract.make("OrganizationList", {
   description: "Lists organizations the current user belongs to.",
   payload: {},
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Array(OrganizationView),
-});
+})
+  .annotate(Contract.Title, "Organization List Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "list");
 
 export const OrganizationSetActiveContract = Contract.make("OrganizationSetActive", {
   description: "Sets or unsets the active organization for the current session.",
   payload: OrganizationSetActivePayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.NullOr(OrganizationView),
-});
+})
+  .annotate(Contract.Title, "Organization Set Active Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "setActive");
 
 export const OrganizationGetFullContract = Contract.make("OrganizationGetFull", {
   description: "Retrieves a fully populated organization including members and invitations.",
   payload: OrganizationGetFullPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.NullOr(OrganizationFullView),
-});
+})
+  .annotate(Contract.Title, "Organization Get Full Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "getFull");
 
 export const OrganizationUpdateContract = Contract.make("OrganizationUpdate", {
   description: "Updates mutable organization attributes.",
   payload: OrganizationUpdatePayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OrganizationView,
-});
+})
+  .annotate(Contract.Title, "Organization Update Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "update");
 
 export const OrganizationDeleteContract = Contract.make("OrganizationDelete", {
   description: "Deletes an organization by identifier.",
   payload: OrganizationDeletePayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OrganizationView,
-});
+})
+  .annotate(Contract.Title, "Organization Delete Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "delete");
 
 export const AcceptInvitationContract = Contract.make("AcceptInvitation", {
   description: "Accepts an organization invitation.",
   payload: AcceptInvitationPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: AcceptInvitationSuccess,
-});
+})
+  .annotate(Contract.Title, "Accept Invitation Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "acceptInvitation");
 
 export const OrganizationInviteMemberContract = Contract.make("OrganizationInviteMember", {
   description: "Invites a user to join an organization.",
   payload: OrganizationInviteMemberPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OrganizationInvitationView,
-});
+})
+  .annotate(Contract.Title, "Organization Invite Member Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "inviteMember");
 
 export const OrganizationCancelInvitationContract = Contract.make("OrganizationCancelInvitation", {
   description: "Cancels a pending invitation before it is accepted.",
   payload: OrganizationCancelInvitationPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.NullOr(OrganizationInvitationView),
-});
+})
+  .annotate(Contract.Title, "Organization Cancel Invitation Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "cancelInvitation");
 
 export const OrganizationRejectInvitationContract = Contract.make("OrganizationRejectInvitation", {
   description: "Rejects an organization invitation as the invitee.",
   payload: OrganizationRejectInvitationPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OrganizationRejectInvitationSuccess,
-});
+})
+  .annotate(Contract.Title, "Organization Reject Invitation Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "rejectInvitation");
 
 export const OrganizationListInvitationsContract = Contract.make("OrganizationListInvitations", {
   description: "Lists pending invitations for an organization.",
   payload: OrganizationListInvitationsPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Array(OrganizationInvitationView),
-});
+})
+  .annotate(Contract.Title, "Organization List Invitations Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "listInvitations");
 
 export const OrganizationListUserInvitationsContract = Contract.make("OrganizationListUserInvitations", {
   description: "Lists invitations addressed to the current or specified user email.",
   payload: OrganizationListUserInvitationsPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Array(OrganizationInvitationView),
-});
+})
+  .annotate(Contract.Title, "Organization List User Invitations Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "listUserInvitations");
 
 export const OrganizationGetInvitationContract = Contract.make("OrganizationGetInvitation", {
   description: "Retrieves an invitation with enriched organization context.",
   payload: OrganizationGetInvitationPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OrganizationInvitationDetailView,
-});
+})
+  .annotate(Contract.Title, "Organization Get Invitation Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "getInvitation");
 
 export const OrganizationListMembersContract = Contract.make("OrganizationListMembers", {
   description: "Lists organization members with pagination and sorting.",
   payload: OrganizationListMembersPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OrganizationListMembersSuccess,
-});
+})
+  .annotate(Contract.Title, "Organization List Members Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "listMembers");
 
 export const OrganizationRemoveMemberContract = Contract.make("OrganizationRemoveMember", {
   description: "Removes a member by identifier or email.",
   payload: OrganizationRemoveMemberPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OrganizationRemoveMemberSuccess,
-});
+})
+  .annotate(Contract.Title, "Organization Remove Member Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "removeMember");
 
 export const OrganizationUpdateMemberRoleContract = Contract.make("OrganizationUpdateMemberRole", {
   description: "Updates the role assignments for a member.",
   payload: OrganizationUpdateMemberRolePayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OrganizationUpdateMemberRoleSuccess,
-});
+})
+  .annotate(Contract.Title, "Organization Update Member Role Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "updateMemberRole");
 
 export const OrganizationGetActiveMemberContract = Contract.make("OrganizationGetActiveMember", {
   description: "Retrieves the member record tied to the active organization.",
   payload: {},
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OrganizationMemberView,
-});
+})
+  .annotate(Contract.Title, "Organization Get Active Member Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "getActiveMember");
 
 export const OrganizationGetActiveMemberRoleContract = Contract.make("OrganizationGetActiveMemberRole", {
   description: "Retrieves the role string for the active member.",
   payload: OrganizationGetActiveMemberRolePayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OrganizationGetActiveMemberRoleSuccess,
-});
+})
+  .annotate(Contract.Title, "Organization Get Active Member Role Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "getActiveMemberRole");
 
 export const OrganizationLeaveContract = Contract.make("OrganizationLeave", {
   description: "Removes the current user from the specified organization.",
   payload: OrganizationLeavePayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OrganizationMemberView,
-});
+})
+  .annotate(Contract.Title, "Organization Leave Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "leave");
 
 export const OrganizationCreateRoleContract = Contract.make("OrganizationCreateRole", {
   description: "Creates a dynamic access-control role for an organization.",
   payload: OrganizationRoleCreatePayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OrganizationRoleCreateSuccess,
-});
+})
+  .annotate(Contract.Title, "Organization Create Role Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "createRole");
 
 export const OrganizationDeleteRoleContract = Contract.make("OrganizationDeleteRole", {
   description: "Deletes a dynamic access-control role from an organization.",
   payload: OrganizationRoleDeletePayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OrganizationRoleDeleteSuccess,
-});
+})
+  .annotate(Contract.Title, "Organization Delete Role Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "deleteRole");
 
 export const OrganizationListRolesContract = Contract.make("OrganizationListRoles", {
   description: "Lists all dynamic access-control roles for the active organization.",
   payload: OrganizationRoleListPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Array(OrganizationRoleView),
-});
+})
+  .annotate(Contract.Title, "Organization List Roles Contract")
+  .annotate(Contract.Domain, "Organizations")
+  .annotate(Contract.Method, "listRoles");
 
 export const OrganizationContractKit = ContractKit.make(
   OrganizationCreateContract,

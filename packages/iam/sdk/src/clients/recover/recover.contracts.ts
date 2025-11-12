@@ -33,15 +33,18 @@ export declare namespace ResetPasswordPayload {
 export const ResetPasswordContract = Contract.make("ResetPassword", {
   description: "Resets a user's password using the provided token.",
   payload: ResetPasswordPayloadFields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Void,
-});
+})
+  .annotate(Contract.Title, "Reset Password Contract")
+  .annotate(Contract.Domain, "ResetPassword")
+  .annotate(Contract.Method, "resetPassword");
 
 // =====================================================================================================================
 // Request Reset Password Contract
 // =====================================================================================================================
 
-export class RequestResetPasswordPayload extends BS.Class<RequestResetPasswordPayload>("RequestResetPasswordPayload")(
+export class RequestResetPasswordPayload extends S.Class<RequestResetPasswordPayload>("RequestResetPasswordPayload")(
   {
     email: BS.Email,
     redirectTo: BS.StringWithDefault(paths.auth.requestResetPassword),
@@ -61,9 +64,12 @@ export declare namespace RequestResetPasswordPayload {
 export const RequestResetPasswordContract = Contract.make("RequestResetPassword", {
   description: "Requests a password reset email for a user.",
   payload: RequestResetPasswordPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Void,
-});
+})
+  .annotate(Contract.Title, "Request Reset Password Contract")
+  .annotate(Contract.Domain, "RequestResetPassword")
+  .annotate(Contract.Method, "requestResetPassword");
 // =====================================================================================================================
 // Recover Contract Set
 // =====================================================================================================================

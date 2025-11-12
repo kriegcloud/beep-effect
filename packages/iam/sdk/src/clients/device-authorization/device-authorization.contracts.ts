@@ -1,9 +1,8 @@
 import { Contract, ContractKit } from "@beep/contract";
-import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
 
-export class DeviceAuthorizationCodePayload extends BS.Class<DeviceAuthorizationCodePayload>(
+export class DeviceAuthorizationCodePayload extends S.Class<DeviceAuthorizationCodePayload>(
   "DeviceAuthorizationCodePayload"
 )(
   {
@@ -23,7 +22,7 @@ export declare namespace DeviceAuthorizationCodePayload {
   export type Encoded = S.Schema.Encoded<typeof DeviceAuthorizationCodePayload>;
 }
 
-export class DeviceAuthorizationCodeSuccess extends BS.Class<DeviceAuthorizationCodeSuccess>(
+export class DeviceAuthorizationCodeSuccess extends S.Class<DeviceAuthorizationCodeSuccess>(
   "DeviceAuthorizationCodeSuccess"
 )(
   {
@@ -47,7 +46,7 @@ export declare namespace DeviceAuthorizationCodeSuccess {
   export type Encoded = S.Schema.Encoded<typeof DeviceAuthorizationCodeSuccess>;
 }
 
-export class DeviceAuthorizationTokenPayload extends BS.Class<DeviceAuthorizationTokenPayload>(
+export class DeviceAuthorizationTokenPayload extends S.Class<DeviceAuthorizationTokenPayload>(
   "DeviceAuthorizationTokenPayload"
 )(
   {
@@ -68,7 +67,7 @@ export declare namespace DeviceAuthorizationTokenPayload {
   export type Encoded = S.Schema.Encoded<typeof DeviceAuthorizationTokenPayload>;
 }
 
-export class DeviceAuthorizationTokenSuccess extends BS.Class<DeviceAuthorizationTokenSuccess>(
+export class DeviceAuthorizationTokenSuccess extends S.Class<DeviceAuthorizationTokenSuccess>(
   "DeviceAuthorizationTokenSuccess"
 )(
   {
@@ -92,7 +91,7 @@ export declare namespace DeviceAuthorizationTokenSuccess {
   export type Encoded = S.Schema.Encoded<typeof DeviceAuthorizationTokenSuccess>;
 }
 
-export class DeviceAuthorizationStatusPayload extends BS.Class<DeviceAuthorizationStatusPayload>(
+export class DeviceAuthorizationStatusPayload extends S.Class<DeviceAuthorizationStatusPayload>(
   "DeviceAuthorizationStatusPayload"
 )(
   {
@@ -113,7 +112,7 @@ export declare namespace DeviceAuthorizationStatusPayload {
 
 export const DeviceAuthorizationStatusEnum = S.Literal("pending", "approved", "denied");
 
-export class DeviceAuthorizationStatusSuccess extends BS.Class<DeviceAuthorizationStatusSuccess>(
+export class DeviceAuthorizationStatusSuccess extends S.Class<DeviceAuthorizationStatusSuccess>(
   "DeviceAuthorizationStatusSuccess"
 )(
   {
@@ -133,7 +132,7 @@ export declare namespace DeviceAuthorizationStatusSuccess {
   export type Encoded = S.Schema.Encoded<typeof DeviceAuthorizationStatusSuccess>;
 }
 
-export class DeviceAuthorizationDecisionPayload extends BS.Class<DeviceAuthorizationDecisionPayload>(
+export class DeviceAuthorizationDecisionPayload extends S.Class<DeviceAuthorizationDecisionPayload>(
   "DeviceAuthorizationDecisionPayload"
 )(
   {
@@ -152,7 +151,7 @@ export declare namespace DeviceAuthorizationDecisionPayload {
   export type Encoded = S.Schema.Encoded<typeof DeviceAuthorizationDecisionPayload>;
 }
 
-export class DeviceAuthorizationDecisionSuccess extends BS.Class<DeviceAuthorizationDecisionSuccess>(
+export class DeviceAuthorizationDecisionSuccess extends S.Class<DeviceAuthorizationDecisionSuccess>(
   "DeviceAuthorizationDecisionSuccess"
 )(
   {
@@ -174,37 +173,52 @@ export declare namespace DeviceAuthorizationDecisionSuccess {
 export const DeviceAuthorizationCodeContract = Contract.make("DeviceAuthorizationCode", {
   description: "Starts the OAuth2 device authorization flow.",
   payload: DeviceAuthorizationCodePayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: DeviceAuthorizationCodeSuccess,
-});
+})
+  .annotate(Contract.Title, "Device Authorization Code Contract")
+  .annotate(Contract.Domain, "DeviceAuthorization")
+  .annotate(Contract.Method, "code");
 
 export const DeviceAuthorizationTokenContract = Contract.make("DeviceAuthorizationToken", {
   description: "Exchanges an approved device code for access tokens.",
   payload: DeviceAuthorizationTokenPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: DeviceAuthorizationTokenSuccess,
-});
+})
+  .annotate(Contract.Title, "Device Authorization Token Contract")
+  .annotate(Contract.Domain, "DeviceAuthorization")
+  .annotate(Contract.Method, "token");
 
 export const DeviceAuthorizationStatusContract = Contract.make("DeviceAuthorizationStatus", {
   description: "Retrieves the current status of a device authorization request.",
   payload: DeviceAuthorizationStatusPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: DeviceAuthorizationStatusSuccess,
-});
+})
+  .annotate(Contract.Title, "Device Authorization Status Contract")
+  .annotate(Contract.Domain, "DeviceAuthorization")
+  .annotate(Contract.Method, "status");
 
 export const DeviceAuthorizationApproveContract = Contract.make("DeviceAuthorizationApprove", {
   description: "Approves a pending device authorization request.",
   payload: DeviceAuthorizationDecisionPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: DeviceAuthorizationDecisionSuccess,
-});
+})
+  .annotate(Contract.Title, "Device Authorization Approve Contract")
+  .annotate(Contract.Domain, "DeviceAuthorization")
+  .annotate(Contract.Method, "approve");
 
 export const DeviceAuthorizationDenyContract = Contract.make("DeviceAuthorizationDeny", {
   description: "Denies a pending device authorization request.",
   payload: DeviceAuthorizationDecisionPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: DeviceAuthorizationDecisionSuccess,
-});
+})
+  .annotate(Contract.Title, "Device Authorization Deny Contract")
+  .annotate(Contract.Domain, "DeviceAuthorization")
+  .annotate(Contract.Method, "deny");
 
 export const DeviceAuthorizationContractKit = ContractKit.make(
   DeviceAuthorizationCodeContract,

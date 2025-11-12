@@ -1,49 +1,41 @@
 import { BeepError } from "@beep/errors/client";
-import * as Data from "effect/Data";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import { BetterAuthError } from "./adapters";
 
-export interface IamErrorMetadata {
-  readonly code?: string | undefined;
-  readonly status?: number | undefined;
-  readonly statusText?: string | undefined;
-  readonly plugin?: string | undefined;
-  readonly method?: string | undefined;
-  readonly domain?: string | undefined;
-  readonly authCause?: unknown | undefined;
-}
+export class IamErrorMetadata extends S.Class<IamErrorMetadata>("@beep/iam-sdk/errors/IamErrorMetadata")({
+  code: S.optional(S.String),
+  status: S.optional(S.Number),
+  statusText: S.optional(S.String),
+  plugin: S.optional(S.String),
+  method: S.optional(S.String),
+  domain: S.optional(S.String),
+  authCause: S.optional(S.Unknown),
+}) {}
 
-export class IamError extends Data.TaggedError("IamError")<{
-  readonly customMessage: string;
-  readonly cause: unknown;
-  readonly code?: string | undefined;
-  readonly status?: number | undefined;
-  readonly statusText?: string | undefined;
-  readonly plugin?: string | undefined;
-  readonly method?: string | undefined;
-  readonly authCause?: unknown | undefined;
-}> {
-  override readonly code?: string | undefined;
-  override readonly status?: number | undefined;
-  override readonly statusText?: string | undefined;
-  override readonly plugin?: string | undefined;
-  override readonly method?: string | undefined;
-  override readonly authCause?: unknown | undefined;
-
+export class IamError extends S.TaggedError<IamError>("@beep/iam-sdk/errors/IamError")("IamError", {
+  customMessage: S.String,
+  cause: S.Unknown,
+  code: S.optional(S.String),
+  status: S.optional(S.Number),
+  statusText: S.optional(S.String),
+  plugin: S.optional(S.String),
+  method: S.optional(S.String),
+  authCause: S.optional(S.Unknown),
+}) {
   constructor(cause: unknown, customMessage: string, metadata: IamErrorMetadata = {}) {
     const normalizedMessage = customMessage ?? "Unknown Error has occurred";
     super({
       customMessage: normalizedMessage,
       cause,
       ...metadata,
+      code: metadata.code,
+      status: metadata.status,
+      statusText: metadata.statusText,
+      plugin: metadata.plugin,
+      method: metadata.method,
+      authCause: metadata.authCause,
     });
-
-    this.code = metadata.code;
-    this.status = metadata.status;
-    this.statusText = metadata.statusText;
-    this.plugin = metadata.plugin;
-    this.method = metadata.method;
-    this.authCause = metadata.authCause;
   }
 
   static readonly match = (error: unknown, metadata: IamErrorMetadata = {}) => {

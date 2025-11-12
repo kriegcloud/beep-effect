@@ -35,22 +35,27 @@
  */
 
 import type { UnsafeTypes } from "@beep/types";
+import type * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { CommitPrototype } from "effect/Effectable";
+import * as F from "effect/Function";
 import { identity } from "effect/Function";
 import type { Inspectable } from "effect/Inspectable";
 import { BaseProto as InspectableProto } from "effect/Inspectable";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import type { ParseError } from "effect/ParseResult";
 import * as ParseResult from "effect/ParseResult";
 import type { Pipeable } from "effect/Pipeable";
 import { pipeArguments } from "effect/Pipeable";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import type * as Scope from "effect/Scope";
 import * as Struct from "effect/Struct";
 import * as Contract from "./Contract";
+import { FailureMode } from "./Contract";
 import * as ContractError from "./ContractError";
 
 /**
@@ -138,6 +143,14 @@ export interface ContractKit<in out Contracts extends Record<string, Contract.An
      */
     build: Implementations | Effect.Effect<Implementations, EX, RX>
   ): Layer.Layer<Contract.ImplementationsFor<Contracts>, EX, Exclude<RX, Scope.Scope>>;
+
+  /**
+   * Builds lifted handlers for every contract in the kit. Each handler defaults to
+   * returning only the `Success` channel and failing when a `Failure` is produced.
+   */
+  liftService<Mode extends LiftServiceMode = "success">(
+    options?: LiftServiceOptions<Contracts, Mode>
+  ): Effect.Effect<LiftedService<Contracts, Mode>, never, Contract.ImplementationsFor<Contracts>>;
 }
 
 /**
@@ -190,6 +203,69 @@ export type ImplementationsFrom<Contracts extends Record<string, Contract.Any>> 
 };
 
 /**
+ * Determines whether lifted service methods should expose only successes or
+ * the discriminated {@link Contract["HandleOutcome"]}.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type LiftServiceMode = "success" | "result";
+
+/**
+ * Options for building lifted service handlers from a contract kit.
+ *
+ * @since 1.0.0
+ * @category Models
+ */
+export interface LiftServiceOptions<
+  Contracts extends Record<string, Contract.Any>,
+  Mode extends LiftServiceMode = "success",
+> {
+  readonly mode?: Mode;
+  readonly hooks?: LiftServiceHooks<Contracts>;
+}
+
+/**
+ * Hook definitions invoked while the lifted handlers run.
+ *
+ * @since 1.0.0
+ * @category Models
+ */
+export interface LiftServiceHooks<Contracts extends Record<string, Contract.Any>> {
+  readonly onFailure?: <Name extends keyof Contracts>(args: {
+    readonly name: Name;
+    readonly contract: Contracts[Name];
+    readonly failure: Contract.Failure<Contracts[Name]>;
+  }) => Effect.Effect<void, never, never>;
+  readonly onSuccess?: <Name extends keyof Contracts>(args: {
+    readonly name: Name;
+    readonly contract: Contracts[Name];
+    readonly success: Contract.Success<Contracts[Name]>;
+  }) => Effect.Effect<void, never, never>;
+  readonly onDefect?: <Name extends keyof Contracts>(args: {
+    readonly name: Name;
+    readonly contract: Contracts[Name];
+    readonly cause: Cause.Cause<unknown>;
+  }) => Effect.Effect<void, never, never>;
+}
+
+/**
+ * Shape of the lifted service map returned by {@link ContractKit.liftService}.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type LiftedService<Contracts extends Record<string, Contract.Any>, Mode extends LiftServiceMode = "success"> = {
+  readonly [Name in keyof Contracts]: (
+    payload: Contract.Payload<Contracts[Name]>
+  ) => Effect.Effect<
+    Mode extends "result" ? Contract.HandleOutcome<Contracts[Name]> : Contract.Success<Contracts[Name]>,
+    Contract.Failure<Contracts[Name]> | ContractError.UnknownError,
+    Contract.Requirements<Contracts[Name]>
+  >;
+};
+
+/**
  * A contractKit instance with registered implementations ready for contract execution.
  *
  * @since 1.0.0
@@ -223,11 +299,56 @@ export interface WithImplementation<in out Contracts extends Record<string, Cont
     Contract.Requirements<Contracts[Name]>
   >;
 }
+const liftService = function <Contracts extends Record<string, Contract.Any>, Mode extends LiftServiceMode = "success">(
+  this: ContractKit<Contracts>,
+  options?: LiftServiceOptions<Contracts, Mode>
+): Effect.Effect<LiftedService<Contracts, Mode>, never, Contract.ImplementationsFor<Contracts>> {
+  const mode = (options?.mode ?? "success") as Mode;
+  const hooksOpt = O.fromNullable(options?.hooks).pipe(
+    O.map((hooks) => ({
+      onFailure: O.fromNullable(hooks.onFailure),
+      onSuccess: O.fromNullable(hooks.onSuccess),
+      onDefect: O.fromNullable(hooks.onDefect),
+    }))
+  );
+  return Effect.gen(this, function* () {
+    const { contracts, handle } = yield* this;
+    const lifted = {} as LiftedService<Contracts, Mode>;
+    const names = Struct.keys(contracts) as ReadonlyArray<keyof Contracts>;
+    for (const name of names) {
+      const contract = contracts[name]!;
 
+      const liftedContract = Contract.lift(contract, {
+        method: handle(name),
+        ...F.pipe(
+          hooksOpt,
+          O.match({
+            onNone: () => R.empty(),
+            onSome: ({ onFailure, onSuccess, onDefect }) => ({
+              ...(O.isSome(onFailure)
+                ? { onFailure: (failure) => onFailure.value({ name, contract, failure }) }
+                : R.empty()),
+              ...(O.isSome(onSuccess)
+                ? { onSuccess: (success) => onSuccess.value({ name, contract, success }) }
+                : R.empty()),
+              ...(O.isSome(onDefect) ? { onDefect: (cause) => onDefect.value({ name, contract, cause }) } : R.empty()),
+            }),
+          })
+        ),
+      } as const);
+
+      (lifted as Record<keyof Contracts, unknown>)[name] = (
+        mode === "result" ? liftedContract.result : liftedContract.success
+      ) as LiftedService<Contracts, Mode>[typeof name];
+    }
+    return lifted;
+  });
+};
 const Proto = {
   ...CommitPrototype,
   ...InspectableProto,
   of: identity,
+  liftService,
   toContext(
     this: ContractKit<Record<string, Contract.Any>>,
     build:
@@ -293,7 +414,7 @@ const Proto = {
           yield* Effect.annotateCurrentSpan({ contract: name, payload: params });
           const contract = contracts[name];
           if (P.isUndefined(contract)) {
-            const contractNames = Object.keys(contracts).join(",");
+            const contractNames = Struct.keys(contracts).join(",");
             return yield* new ContractError.MalformedOutput({
               module: "ContractKit",
               method: `${name}.handle`,
@@ -320,7 +441,9 @@ const Proto = {
             Effect.catchAll((error) =>
               // If the contract implementation failed, check the contract's failure mode to
               // determine how the result should be returned to the end user
-              contract.failureMode === "error" ? Effect.fail(error) : Effect.succeed({ result: error, isFailure: true })
+              contract.failureMode === FailureMode.Enum.error
+                ? Effect.fail(error)
+                : Effect.succeed({ result: error, isFailure: true })
             ),
             Effect.tap(({ result }) => schemas.validateResult(result)),
             Effect.mapInputContext((input) => Context.merge(schemas.context, input)),
@@ -361,7 +484,7 @@ const Proto = {
     return {
       _id: "@beep/contract/ContractKit",
       contracts: Array.from(Object.values(this.contracts)).map((contract) => (contract as Contract.Any).name),
-    };
+    } as const;
   },
   pipe() {
     return pipeArguments(this, arguments);
@@ -510,7 +633,7 @@ export const merge = <const ContractKits extends ReadonlyArray<Any>>(
 ): ContractKit<MergedContracts<ContractKits>> => {
   const contracts = {} as Record<string, UnsafeTypes.UnsafeAny>;
   for (const contractKit of contractKits) {
-    for (const [name, contract] of Object.entries(contractKit.contracts)) {
+    for (const [name, contract] of Struct.entries(contractKit.contracts)) {
       contracts[name] = contract;
     }
   }

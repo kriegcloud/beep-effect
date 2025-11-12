@@ -34,9 +34,8 @@
     "execute": "bun run dotenvx -- bunx tsx --tsconfig ./tsconfig.src.json ./src/execute.ts",
     "lint:circular": "bunx madge -c ."
   },
-  "dependencies": {
+  "peerDependencies": {
     "effect": "catalog:",
-    "@beep/types": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@beep/utils": "workspace:^",
     "@faker-js/faker": "catalog:",
@@ -50,6 +49,19 @@
     "randexp-ts": "catalog:"
   },
   "devDependencies": {
+    "@beep/types": "workspace:^",
+    "effect": "catalog:",
+    "@beep/invariant": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@faker-js/faker": "catalog:",
+    "@standard-schema/spec": "catalog:",
+    "@effect/sql": "catalog:",
+    "drizzle-orm": "catalog:",
+    "@effect/experimental": "catalog:",
+    "mutative": "catalog:",
+    "zod": "catalog:",
+    "uuid": "catalog:",
+    "randexp-ts": "catalog:",
     "type-fest": "catalog:",
     "@beep/testkit": "workspace:^",
     "@types/bun": "catalog:"

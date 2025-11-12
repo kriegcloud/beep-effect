@@ -26,18 +26,25 @@
  *
  * @since 1.0.0
  */
+import { BS } from "@beep/schema";
 import type { UnsafeTypes } from "@beep/types";
+import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
-import type * as Effect from "effect/Effect";
+import * as Effect from "effect/Effect";
+import type * as Either from "effect/Either";
+import * as Exit from "effect/Exit";
 import * as F from "effect/Function";
 import * as JsonSchema from "effect/JSONSchema";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import type { Pipeable } from "effect/Pipeable";
 import { pipeArguments } from "effect/Pipeable";
 import * as Predicate from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
+import * as Struct from "effect/Struct";
 import type { Covariant } from "effect/Types";
+import * as ContractError from "./ContractError";
 // =============================================================================
 // Type Ids
 // =============================================================================
@@ -110,7 +117,7 @@ export interface Contract<
     readonly payload: AnyStructSchema;
     readonly success: S.Schema.Any;
     readonly failure: S.Schema.All;
-    readonly failureMode: FailureMode;
+    readonly failureMode: FailureMode.Type;
   },
   Requirements = never,
 > extends Contract.Variance<Requirements> {
@@ -140,7 +147,7 @@ export interface Contract<
    * If set to `"return"`, errors that occur during contract call implementation execution
    * will be captured and returned as part of the contract call result.
    */
-  readonly failureMode: FailureMode;
+  readonly failureMode: FailureMode.Type;
 
   /**
    * A `Schema` representing the payload that a contract must be called with.
@@ -166,6 +173,348 @@ export interface Contract<
   readonly annotations: Context.Context<never>;
 
   /**
+   * Schema helpers for decoding / encoding payloads.
+   */
+  decodePayload(
+    value: PayloadEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    PayloadSchema<Contract<Name, Config, Requirements>>["Type"],
+    never,
+    PayloadContext<Contract<Name, Config, Requirements>>
+  >;
+
+  encodePayload(
+    value: Payload<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    PayloadSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    never,
+    PayloadContext<Contract<Name, Config, Requirements>>
+  >;
+
+  decodeUnknownPayload(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    PayloadSchema<Contract<Name, Config, Requirements>>["Type"],
+    never,
+    PayloadContext<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeUnknownPayload(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    PayloadSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    never,
+    PayloadContext<Contract<Name, Config, Requirements>>
+  >;
+
+  decodePayloadOption(
+    value: PayloadEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<PayloadSchema<Contract<Name, Config, Requirements>>["Type"]>;
+
+  encodePayloadOption(
+    value: Payload<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<PayloadSchema<Contract<Name, Config, Requirements>>["Encoded"]>;
+
+  decodeUnknownPayloadOption(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<PayloadSchema<Contract<Name, Config, Requirements>>["Type"]>;
+
+  encodeUnknownPayloadOption(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<PayloadSchema<Contract<Name, Config, Requirements>>["Encoded"]>;
+
+  decodePayloadEither(
+    value: PayloadEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    PayloadSchema<Contract<Name, Config, Requirements>>["Type"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  encodePayloadEither(
+    value: Payload<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    PayloadSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  decodeUnknownPayloadEither(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    PayloadSchema<Contract<Name, Config, Requirements>>["Type"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeUnknownPayloadEither(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    PayloadSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  isPayload(
+    value: unknown,
+    options?: undefined | AST.ParseOptions | number
+  ): value is PayloadSchema<Contract<Name, Config, Requirements>>["Type"];
+
+  /**
+   * Schema helpers for decoding / encoding successes.
+   */
+  decodeSuccess(
+    value: SuccessEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Type"],
+    never,
+    SuccessContext<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeSuccess(
+    value: Success<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    never,
+    SuccessContext<Contract<Name, Config, Requirements>>
+  >;
+
+  decodeUnknownSuccess(
+    value: unknown,
+    options?: AST.ParseOptions
+  ): Effect.Effect<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Type"],
+    never,
+    SuccessContext<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeUnknownSuccess(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    never,
+    SuccessContext<Contract<Name, Config, Requirements>>
+  >;
+
+  decodeSuccessOption(
+    value: SuccessEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Type"]>;
+
+  encodeSuccessOption(
+    value: Success<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"]>;
+
+  decodeUnknownSuccessOption(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Type"]>;
+
+  encodeUnknownSuccessOption(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"]>;
+
+  decodeSuccessEither(
+    value: SuccessEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Type"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeSuccessEither(
+    value: Success<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  decodeUnknownSuccessEither(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Type"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeUnknownSuccessEither(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  isSuccess(
+    value: unknown,
+    options?: undefined | AST.ParseOptions | number
+  ): value is Success<SuccessSchema<Contract<Name, Config, Requirements>>["Type"]>;
+
+  decodeOption(
+    value: SuccessEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Type"]>;
+
+  encodeOption(
+    value: Success<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"]>;
+
+  decodeUnknownOption(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Type"]>;
+
+  encodeUnknownOption(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"]>;
+
+  decodeEither(
+    value: SuccessEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Type"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeEither(
+    value: Success<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  decodeUnknownEither(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Type"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeUnknownEither(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<
+    SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"],
+    Failure<Contract<Name, Config, Requirements>>
+  >;
+
+  /**
+   * Schema helpers for decoding / encoding failures.
+   */
+  decodeFailure(
+    value: FailureEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    Failure<Contract<Name, Config, Requirements>>,
+    Failure<Contract<Name, Config, Requirements>>,
+    FailureContext<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeFailure(
+    value: Failure<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    FailureEncoded<Contract<Name, Config, Requirements>>,
+    Failure<Contract<Name, Config, Requirements>>,
+    FailureContext<Contract<Name, Config, Requirements>>
+  >;
+
+  decodeUnknownFailure(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    Failure<Contract<Name, Config, Requirements>>,
+    Failure<Contract<Name, Config, Requirements>>,
+    FailureContext<Contract<Name, Config, Requirements>>
+  >;
+
+  encodeUnknownFailure(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Effect.Effect<
+    FailureEncoded<Contract<Name, Config, Requirements>>,
+    Failure<Contract<Name, Config, Requirements>>,
+    FailureContext<Contract<Name, Config, Requirements>>
+  >;
+
+  decodeFailureOption(
+    value: FailureEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<Failure<Contract<Name, Config, Requirements>>>;
+
+  encodeFailureOption(
+    value: Failure<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<FailureEncoded<Contract<Name, Config, Requirements>>>;
+
+  decodeUnknownFailureOption(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<Failure<Contract<Name, Config, Requirements>>>;
+
+  encodeUnknownFailureOption(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): O.Option<FailureEncoded<Contract<Name, Config, Requirements>>>;
+
+  decodeFailureEither(
+    value: FailureEncoded<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<Failure<Contract<Name, Config, Requirements>>, Failure<Contract<Name, Config, Requirements>>>;
+
+  encodeFailureEither(
+    value: Failure<Contract<Name, Config, Requirements>>,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<FailureEncoded<Contract<Name, Config, Requirements>>, Failure<Contract<Name, Config, Requirements>>>;
+
+  decodeUnknownFailureEither(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<Failure<Contract<Name, Config, Requirements>>, Failure<Contract<Name, Config, Requirements>>>;
+
+  encodeUnknownFailureEither(
+    value: unknown,
+    options?: undefined | AST.ParseOptions
+  ): Either.Either<FailureEncoded<Contract<Name, Config, Requirements>>, Failure<Contract<Name, Config, Requirements>>>;
+
+  isFailure(
+    value: unknown,
+    options?: undefined | AST.ParseOptions | number
+  ): value is Failure<Contract<Name, Config, Requirements>>;
+
+  /**
+   * Helper for creating strongly-typed implementations tied to this contract.
+   */
+  implement(
+    handler: Contract<Name, Config, Requirements> extends Any
+      ? ImplementationHandler<Contract<Name, Config, Requirements>>
+      : never,
+    options?: Contract<Name, Config, Requirements> extends Any
+      ? ImplementOptions<Contract<Name, Config, Requirements>> | undefined
+      : never
+  ): Contract<Name, Config, Requirements> extends Any
+    ? ImplementationFunction<Contract<Name, Config, Requirements>>
+    : never;
+
+  /**
    * Adds a _request-level_ dependency which must be provided before the contract
    * call implementation can be executed.
    *
@@ -178,7 +527,7 @@ export interface Contract<
   ): Contract<Name, Config, Identifier | Requirements>;
 
   /**
-   * Set the schema to use to validate the result of a contract call when successful.
+   * Set the schema to use to validate the result of a tool call when successful.
    */
   setPayload<PayloadSchema extends S.Struct<UnsafeTypes.UnsafeAny> | S.Struct.Fields>(
     schema: PayloadSchema
@@ -216,7 +565,7 @@ export interface Contract<
   /**
    * Set the schema to use to validate the result of a contract call when it fails.
    */
-  setFailure<FailureSchema extends S.Schema.Any>(
+  setFailure<FailureSchema extends S.Schema.All>(
     schema: FailureSchema
   ): Contract<
     Name,
@@ -276,13 +625,13 @@ export interface ProviderDefined<
     readonly payload: AnyStructSchema;
     readonly success: S.Schema.Any;
     readonly failure: S.Schema.All;
-    readonly failureMode: FailureMode;
+    readonly failureMode: FailureMode.Type;
   } = {
     readonly args: S.Struct<{}>;
     readonly payload: S.Struct<{}>;
     readonly success: typeof S.Void;
     readonly failure: typeof S.Never;
-    readonly failureMode: "error";
+    readonly failureMode: typeof FailureMode.Enum.error;
   },
   RequiresImplementation extends boolean = false,
 > extends Contract<
@@ -332,7 +681,91 @@ export interface ProviderDefined<
  * @since 1.0.0
  * @category Models
  */
-export type FailureMode = "error" | "return";
+export const FailureModeKit = BS.stringLiteralKit("error", "return");
+
+export class FailureMode extends FailureModeKit.Schema.annotations({
+  schemaId: Symbol.for("@beep/contract/Contract/FailureMode"),
+  identifier: "FailureMode",
+  title: "Failure Mode",
+  description: "The strategy used for handling errors returned from contract call implementation execution.",
+}) {
+  static readonly Enum = FailureModeKit.Enum;
+  static readonly Options = FailureModeKit.Options;
+  static readonly $match =
+    <C extends Any, E1, E2, R1, R2>(result: Result<C>) =>
+    (
+      contract: Any,
+      cases: {
+        onErrorMode: (result: Failure<C>) => Effect.Effect<
+          {
+            readonly _tag: "success";
+            readonly value: Success<C>;
+          },
+          E1,
+          R1
+        >;
+        onReturnMode: (result: Result<C>) => Effect.Effect<
+          | { readonly _tag: "failure"; readonly value: Failure<C> }
+          | {
+              readonly _tag: "success";
+              readonly value: Success<C>;
+            },
+          E2,
+          R2
+        >;
+      }
+    ) =>
+      Match.value(contract.failureMode).pipe(
+        Match.when(FailureMode.Enum.error, () => cases.onErrorMode(result)),
+        Match.when(FailureMode.Enum.return, () => cases.onReturnMode(result)),
+        Match.exhaustive
+      );
+
+  /**
+   * Experimental helper that projects an implementation result into a discriminated
+   * {@link HandleOutcome} using the configured failure mode.
+   *
+   * @since 1.0.0
+   */
+  static readonly matchOutcome = <C extends Any>(contract: C, input: FailureMode.MatchInput<C>): HandleOutcome<C> =>
+    makeHandleOutcome(contract, input);
+}
+
+export declare namespace FailureMode {
+  export type Type = typeof FailureMode.Type;
+  export type Encoded = typeof FailureMode.Encoded;
+
+  export interface MatchInput<C extends Any> {
+    readonly isFailure: boolean;
+    readonly result: Result<C>;
+    readonly encodedResult: ResultEncoded<C>;
+  }
+
+  export type ErrorOutcome<C extends Any> = Extract<HandleOutcome<C>, { readonly mode: typeof FailureMode.Enum.error }>;
+  export type ReturnOutcome<C extends Any> = Extract<
+    HandleOutcome<C>,
+    {
+      readonly mode: typeof FailureMode.Enum.return;
+    }
+  >;
+}
+
+const makeHandleOutcome = <C extends Any>(contract: C, input: FailureMode.MatchInput<C>): HandleOutcome<C> => {
+  if (input.isFailure) {
+    return {
+      mode: FailureMode.Enum.return,
+      _tag: "failure",
+      result: input.result as Failure<C>,
+      encodedResult: input.encodedResult as FailureEncoded<C>,
+    };
+  }
+  return {
+    mode: contract.failureMode === "return" ? FailureMode.Enum.return : FailureMode.Enum.error,
+    _tag: "success",
+    result: input.result as Success<C>,
+    encodedResult: input.encodedResult as SuccessEncoded<C>,
+  };
+};
 
 /**
  * @since 1.0.0
@@ -461,19 +894,12 @@ export const isProviderDefined = (u: unknown): u is ProviderDefined<string, Unsa
  * @since 1.0.0
  * @category Utility Types
  */
-
-export interface Any extends Pipeable {
-  readonly failureMode: FailureMode;
-  readonly [TypeId]: {
-    readonly _Requirements: Covariant<UnsafeTypes.UnsafeAny>;
-  };
-  readonly id: string;
-  readonly name: string;
-  readonly description?: string | undefined;
-  readonly payloadSchema: AnyStructSchema;
-  readonly successSchema: S.Schema.AnyNoContext;
-  readonly failureSchema: S.Schema.AnyNoContext;
-  readonly annotations: Context.Context<never>;
+export interface AnyProviderDefined extends Any {
+  readonly args: UnsafeTypes.UnsafeAny;
+  readonly argsSchema: AnyStructSchema;
+  readonly requiresHandler: boolean;
+  readonly providerName: string;
+  readonly decodeResult: (result: unknown) => Effect.Effect<UnsafeTypes.UnsafeAny, ContractError.ContractError>;
 }
 
 /**
@@ -501,8 +927,22 @@ export interface AnyTaggedRequestSchema extends AnyStructSchema {
   readonly failure: S.Schema.All;
 }
 
+export interface Any extends Pipeable {
+  readonly [TypeId]: {
+    readonly _Requirements: Covariant<UnsafeTypes.UnsafeAny>;
+  };
+  readonly id: string;
+  readonly name: string;
+  readonly description?: string | undefined;
+  readonly payloadSchema: AnyStructSchema;
+  readonly successSchema: S.Schema.Any;
+  readonly failureSchema: S.Schema.All;
+  readonly failureMode: FailureMode.Type;
+  readonly annotations: Context.Context<never>;
+}
+
 /**
- * A utility type to convert a `S.TaggedRequest` into an `Contract`.
+ * A utility type to convert a `Schema.TaggedRequest` into an `Contract`.
  *
  * @since 1.0.0
  * @category Utility Types
@@ -514,7 +954,7 @@ export interface FromTaggedRequest<S extends AnyTaggedRequestSchema>
       readonly payload: S;
       readonly success: S["success"];
       readonly failure: S["failure"];
-      readonly failureMode: "error";
+      readonly failureMode: typeof FailureMode.Enum.error;
     }
   > {}
 
@@ -599,6 +1039,9 @@ export type Failure<T> = T extends Contract<infer _Name, infer _Config, infer _R
   ? S.Schema.Type<_Config["failure"]>
   : never;
 
+export type FailureSchema<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? _Config["failure"]
+  : never;
 /**
  * A utility type to extract the encoded type of the contract call result when
  * it fails.
@@ -611,6 +1054,36 @@ export type FailureEncoded<T> = T extends Contract<infer _Name, infer _Config, i
   : never;
 
 /**
+ * Extracts the parse context required by the payload schema.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type PayloadContext<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? S.Schema.Context<_Config["payload"]>
+  : never;
+
+/**
+ * Extracts the parse context required by the success schema.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type SuccessContext<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? S.Schema.Context<_Config["success"]>
+  : never;
+
+/**
+ * Extracts the parse context required by the failure schema.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type FailureContext<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? S.Schema.Context<_Config["failure"]>
+  : never;
+
+/**
  * A utility type to extract the type of the contract call result whether it
  * succeeds or fails.
  *
@@ -620,17 +1093,6 @@ export type FailureEncoded<T> = T extends Contract<infer _Name, infer _Config, i
 export type Result<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
   ? Success<T> | Failure<T>
   : never;
-
-export type ResultErrorMode<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? { readonly _tag: "error"; readonly value: Success<T> }
-  : never;
-
-export type ResultReturnMode<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? { readonly _tag: "return"; readonly value: Success<T> }
-  : never;
-
-export type ResultDiscriminated<T> = ResultErrorMode<T> | ResultReturnMode<T>;
-
 /**
  * A utility type to extract the encoded type of the contract call result whether
  * it succeeds or fails.
@@ -641,6 +1103,37 @@ export type ResultDiscriminated<T> = ResultErrorMode<T> | ResultReturnMode<T>;
 export type ResultEncoded<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
   ? SuccessEncoded<T> | FailureEncoded<T>
   : never;
+
+/**
+ * Discriminated runtime view of a contract invocation result that
+ * preserves the configured failure mode along with the encoded payload.
+ *
+ * @since 1.0.0
+ * @category Utility Types
+ */
+export type HandleOutcome<T extends Any> =
+  | {
+      readonly mode: typeof FailureMode.Enum.error;
+      readonly _tag: "success";
+      readonly result: Success<T>;
+      readonly encodedResult: SuccessEncoded<T>;
+    }
+  | {
+      readonly mode: typeof FailureMode.Enum.return;
+      readonly _tag: "success";
+      readonly result: Success<T>;
+      readonly encodedResult: SuccessEncoded<T>;
+    }
+  | {
+      readonly mode: typeof FailureMode.Enum.return;
+      readonly _tag: "failure";
+      readonly result: Failure<T>;
+      readonly encodedResult: FailureEncoded<T>;
+    };
+export declare namespace HandleOutcome {
+  export type Success<C extends Any> = Extract<HandleOutcome<C>, { readonly _tag: "success" }>;
+  export type Failure<C extends Any> = Extract<HandleOutcome<C>, { readonly _tag: "failure" }>;
+}
 
 /**
  * A utility type to extract the requirements of an `Contract`.
@@ -698,7 +1191,7 @@ export interface ImplementationResult<Contract extends Any> {
  * @category Utility Types
  */
 export type ImplementationError<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? _Config["failureMode"] extends "error"
+  ? _Config["failureMode"] extends typeof FailureMode.Enum.error
     ? _Config["failure"]["Type"]
     : never
   : never;
@@ -740,6 +1233,9 @@ const Proto = {
   pipe() {
     return pipeArguments(this, arguments);
   },
+  implement(this: Any, handler: ImplementationHandler<Any>, options?: ImplementOptions<Any>) {
+    return implement(this, options)(handler);
+  },
   addDependency(this: Any) {
     return userDefinedProto({ ...this });
   },
@@ -775,6 +1271,210 @@ const Proto = {
       annotations: Context.merge(this.annotations, context),
     });
   },
+  decodePayload(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    return Effect.flatMap(
+      S.decode(this.payloadSchema)(value as never, options),
+      Effect.catchAll((e) => Effect.die(e))
+    );
+  },
+  encodePayload(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    return Effect.flatMap(
+      S.encode(this.payloadSchema)(value as never, options),
+      Effect.catchAll((e) => Effect.die(e))
+    );
+  },
+  decodeUnknownPayload(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    return Effect.flatMap(
+      S.decodeUnknown(this.payloadSchema)(value, options),
+      Effect.catchAll((e) => Effect.die(e))
+    );
+  },
+  encodeUnknownPayload(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    return Effect.flatMap(
+      S.encodeUnknown(this.payloadSchema)(value, options),
+      Effect.catchAll((e) => Effect.die(e))
+    );
+  },
+  decodePayloadOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    return S.decodeOption(S.typeSchema(this.payloadSchema))(value as never, options);
+  },
+  encodePayloadOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    return S.encodeOption(S.encodedBoundSchema(this.payloadSchema))(value as never, options);
+  },
+  decodeUnknownPayloadOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    return S.decodeUnknownOption(S.typeSchema(this.payloadSchema))(value, options);
+  },
+  encodeUnknownPayloadOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    return S.encodeUnknownOption(S.encodedBoundSchema(this.payloadSchema))(value, options);
+  },
+  decodePayloadEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    return S.decodeEither(S.typeSchema(this.payloadSchema))(value as never, options);
+  },
+  encodePayloadEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    return S.encodeEither(S.encodedBoundSchema(this.payloadSchema))(value as never, options);
+  },
+  decodeUnknownPayloadEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    return S.decodeUnknownEither(S.typeSchema(this.payloadSchema))(value, options);
+  },
+  encodeUnknownPayloadEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    return S.encodeUnknownEither(S.encodedBoundSchema(this.payloadSchema))(value, options);
+  },
+  isPayload(this: Any, value: unknown, options?: undefined | AST.ParseOptions | number) {
+    return S.is(this.payloadSchema)(value, options);
+  },
+  decodeSuccess(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    return Effect.flatMap(
+      S.decode(this.successSchema)(value as never, options),
+      Effect.catchAll((e) => Effect.die(e))
+    );
+  },
+  encodeSuccess(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    return Effect.flatMap(
+      S.encode(this.successSchema)(value as never, options),
+      Effect.catchAll((e) => Effect.die(e))
+    );
+  },
+  decodeUnknownSuccess(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const successSchema = this.successSchema;
+    return Effect.flatMap(
+      S.decodeUnknown(successSchema)(value, options),
+      Effect.catchAll((e) => Effect.die(e))
+    );
+  },
+  encodeUnknownSuccess(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    return Effect.flatMap(
+      S.encodeUnknown(this.successSchema)(value, options),
+      Effect.catchAll((e) => Effect.die(e))
+    );
+  },
+  decodeSuccessOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.successSchema);
+    return S.decodeOption(schema)(value as never, options);
+  },
+  encodeSuccessOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.successSchema);
+    return S.encodeOption(schema)(value as never, options);
+  },
+  decodeUnknownSuccessOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.successSchema);
+    return S.decodeUnknownOption(schema)(value, options);
+  },
+  encodeUnknownSuccessOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.successSchema);
+    return S.encodeUnknownOption(schema)(value, options);
+  },
+  decodeSuccessEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.successSchema);
+    return S.decodeEither(schema)(value as never, options);
+  },
+  encodeSuccessEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.successSchema);
+    return S.encodeEither(schema)(value as never, options);
+  },
+  decodeUnknownSuccessEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.successSchema);
+    return S.decodeUnknownEither(schema)(value, options);
+  },
+  encodeUnknownSuccessEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.successSchema);
+    return S.encodeUnknownEither(schema)(value, options);
+  },
+  isSuccess(this: Any, value: unknown, options?: undefined | AST.ParseOptions | number) {
+    const schema = toSchemaAnyNoContext(this.successSchema);
+    return S.is(schema)(value, options);
+  },
+  decodeOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.successSchema);
+    return S.decodeOption(schema)(value as never, options);
+  },
+  encodeOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.successSchema);
+    return S.encodeOption(schema)(value as never, options);
+  },
+  decodeUnknownOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.successSchema);
+    return S.decodeUnknownOption(schema)(value, options);
+  },
+  encodeUnknownOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.successSchema);
+    return S.encodeUnknownOption(schema)(value, options);
+  },
+  decodeEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.successSchema);
+    return S.decodeEither(schema)(value as never, options);
+  },
+  encodeEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.successSchema);
+    return S.encodeEither(schema)(value as never, options);
+  },
+  decodeUnknownEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.successSchema);
+    return S.decodeUnknownEither(schema)(value, options);
+  },
+  encodeUnknownEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.successSchema);
+    return S.encodeUnknownEither(schema)(value, options);
+  },
+  decodeFailure(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    return Effect.flatMap(
+      S.decode(toSchemaAnyNoContext(this.failureSchema))(value as never, options),
+      Effect.catchAll(Effect.die)
+    );
+  },
+  encodeFailure(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    return Effect.flatMap(
+      S.encode(toSchemaAnyNoContext(this.failureSchema))(value as never, options),
+      Effect.catchAll(Effect.die)
+    );
+  },
+  decodeUnknownFailure(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    return Effect.flatMap(
+      S.decodeUnknown(toSchemaAnyNoContext(this.failureSchema))(value, options),
+      Effect.catchAll(Effect.die)
+    );
+  },
+  encodeUnknownFailure(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    return Effect.flatMap(
+      S.encodeUnknown(toSchemaAnyNoContext(this.failureSchema))(value, options),
+      Effect.catchAll(Effect.die)
+    );
+  },
+  decodeFailureOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.failureSchema);
+    return S.decodeOption(schema)(value as never, options);
+  },
+  encodeFailureOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.failureSchema);
+    return S.encodeOption(schema)(value as never, options);
+  },
+  decodeUnknownFailureOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.failureSchema);
+    return S.decodeUnknownOption(schema)(value, options);
+  },
+  encodeUnknownFailureOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.failureSchema);
+    return S.encodeUnknownOption(schema)(value, options);
+  },
+  decodeFailureEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.failureSchema);
+    return S.decodeEither(schema)(value as never, options);
+  },
+  encodeFailureEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.failureSchema);
+    return S.encodeEither(schema)(value as never, options);
+  },
+  decodeUnknownFailureEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.failureSchema);
+    return S.decodeUnknownEither(schema)(value, options);
+  },
+  encodeUnknownFailureEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
+    const schema = toSchemaAnyNoContext(this.failureSchema);
+    return S.encodeUnknownEither(schema)(value, options);
+  },
+  isFailure(this: Any, value: unknown, options?: undefined | AST.ParseOptions | number) {
+    const schema = toSchemaAnyNoContext(this.failureSchema);
+    return S.is(schema)(value, options);
+  },
 };
 
 const ProviderDefinedProto = {
@@ -787,7 +1487,7 @@ const userDefinedProto = <
   Payload extends AnyStructSchema,
   Success extends S.Schema.Any,
   Failure extends S.Schema.All,
-  Mode extends FailureMode,
+  Mode extends FailureMode.Type,
 >(options: {
   readonly name: Name;
   readonly description?: string | undefined;
@@ -816,19 +1516,19 @@ const providerDefinedProto = <
   Payload extends AnyStructSchema,
   Success extends S.Schema.Any,
   Failure extends S.Schema.All,
-  RequiresImplementation extends boolean,
-  Mode extends FailureMode,
+  RequiresHandler extends boolean,
+  Mode extends FailureMode.Type,
 >(options: {
   readonly id: string;
   readonly name: Name;
   readonly providerName: string;
   readonly args: Args["Encoded"];
   readonly argsSchema: Args;
-  readonly requiresImplementation: RequiresImplementation;
+  readonly requiresHandler: RequiresHandler;
   readonly payloadSchema: Payload;
   readonly successSchema: Success;
   readonly failureSchema: Failure;
-  readonly failureMode: FailureMode;
+  readonly failureMode: FailureMode.Type;
 }): ProviderDefined<
   Name,
   {
@@ -838,10 +1538,15 @@ const providerDefinedProto = <
     readonly failure: Failure;
     readonly failureMode: Mode;
   },
-  RequiresImplementation
+  RequiresHandler
 > => Object.assign(Object.create(ProviderDefinedProto), options);
 
 const constEmptyStruct = S.Struct({});
+
+const toSchemaAnyNoContext = <Schema extends S.Schema.All>(
+  schema: Schema
+): S.Schema<S.Schema.Type<Schema>, S.Schema.Encoded<Schema>, never> =>
+  S.asSchema(schema) as S.Schema<S.Schema.Type<Schema>, S.Schema.Encoded<Schema>, never>;
 
 /**
  * Creates a user-defined contract with the specified name and configuration.
@@ -874,55 +1579,53 @@ export const make = <
   Payload extends S.Struct.Fields = {},
   Success extends S.Schema.Any = typeof S.Void,
   Failure extends S.Schema.All = typeof S.Never,
-  Mode extends FailureMode | undefined = undefined,
+  Mode extends FailureMode.Type | undefined = undefined,
   Dependencies extends Array<Context.Tag<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>> = [],
 >(
   /**
-   * The unique name identifier for this contract.
+   * The unique name identifier for this tool.
    */
   name: Name,
-  options?:
-    | {
-        /**
-         * An optional description explaining what the contract does.
-         */
-        readonly description?: string | undefined;
-        /**
-         * Schema defining the payload this contract accepts.
-         */
-        readonly payload?: Payload | undefined;
-        /**
-         * Schema for successful contract execution results.
-         */
-        readonly success?: Success | undefined;
-        /**
-         * Schema for contract execution failures.
-         */
-        readonly failure?: Failure | undefined;
-        /**
-         * The strategy used for handling errors returned from contract call implementation
-         * execution.
-         *
-         * If set to `"error"` (the default), errors that occur during contract call implementation
-         * execution will be returned in the error channel of the calling effect.
-         *
-         * If set to `"return"`, errors that occur during contract call implementation execution
-         * will be captured and returned as part of the contract call result.
-         */
-        readonly failureMode?: Mode | undefined;
-        /**
-         * Service dependencies required by the contract implementation.
-         */
-        readonly dependencies?: Dependencies | undefined;
-      }
-    | undefined
+  options?: {
+    /**
+     * An optional description explaining what the tool does.
+     */
+    readonly description?: string | undefined;
+    /**
+     * Schema defining the payload this tool accepts.
+     */
+    readonly payload?: Payload | undefined;
+    /**
+     * Schema for successful tool execution results.
+     */
+    readonly success?: Success | undefined;
+    /**
+     * Schema for tool execution failures.
+     */
+    readonly failure?: Failure | undefined;
+    /**
+     * The strategy used for handling errors returned from tool call handler
+     * execution.
+     *
+     * If set to `"error"` (the default), errors that occur during tool call handler
+     * execution will be returned in the error channel of the calling effect.
+     *
+     * If set to `"return"`, errors that occur during tool call handler execution
+     * will be captured and returned as part of the tool call result.
+     */
+    readonly failureMode?: Mode;
+    /**
+     * Service dependencies required by the tool handler.
+     */
+    readonly dependencies?: Dependencies | undefined;
+  }
 ): Contract<
   Name,
   {
     readonly payload: S.Struct<Payload>;
     readonly success: Success;
     readonly failure: Failure;
-    readonly failureMode: Mode extends undefined ? "error" : Mode;
+    readonly failureMode: Mode extends undefined ? typeof FailureMode.Enum.error : Mode;
   },
   Context.Tag.Identifier<Dependencies[number]>
 > => {
@@ -934,7 +1637,7 @@ export const make = <
     payloadSchema: options?.payload ? S.Struct(options?.payload as UnsafeTypes.UnsafeAny) : constEmptyStruct,
     successSchema,
     failureSchema,
-    failureMode: options?.failureMode ?? "error",
+    failureMode: options?.failureMode ?? FailureMode.Enum.error,
     annotations: Context.empty(),
   }) as UnsafeTypes.UnsafeAny;
 };
@@ -974,18 +1677,18 @@ export const providerDefined =
     Payload extends S.Struct.Fields = {},
     Success extends S.Schema.Any = typeof S.Void,
     Failure extends S.Schema.All = typeof S.Never,
-    RequiresImplementation extends boolean = false,
+    RequiresHandler extends boolean = false,
   >(options: {
     /**
-     * Unique identifier following format `<provider>.<contract-name>`.
+     * Unique identifier following format `<provider>.<tool-name>`.
      */
     readonly id: `${string}.${string}`;
     /**
-     * Name used by the ContractKit to identify this contract.
+     * Name used by the Toolkit to identify this tool.
      */
-    readonly contractKitName: Name;
+    readonly toolkitName: Name;
     /**
-     * Name of the contract as recognized by the auth provider.
+     * Name of the tool as recognized by the AI provider.
      */
     readonly providerName: string;
     /**
@@ -993,37 +1696,37 @@ export const providerDefined =
      */
     readonly args: Args;
     /**
-     * Whether this contract requires a custom implementation implementation.
+     * Whether this tool requires a custom handler implementation.
      */
-    readonly requiresImplementation?: RequiresImplementation | undefined;
+    readonly requiresHandler?: RequiresHandler | undefined;
     /**
-     * Schema for payload the provider sends when calling the contract.
+     * Schema for payload the provider sends when calling the tool.
      */
     readonly payload?: Payload | undefined;
     /**
-     * Schema for successful contract execution results.
+     * Schema for successful tool execution results.
      */
     readonly success?: Success | undefined;
     /**
-     * Schema for failed contract execution results.
+     * Schema for failed tool execution results.
      */
     readonly failure?: Failure | undefined;
   }) =>
-  <Mode extends FailureMode | undefined = undefined>(
-    args: RequiresImplementation extends true
+  <Mode extends FailureMode.Type | undefined = undefined>(
+    args: RequiresHandler extends true
       ? S.Simplify<
           S.Struct.Encoded<Args> & {
             /**
-             * The strategy used for handling errors returned from contract call implementation
+             * The strategy used for handling errors returned from tool call handler
              * execution.
              *
-             * If set to `"error"` (the default), errors that occur during contract call implementation
+             * If set to `"error"` (the default), errors that occur during tool call handler
              * execution will be returned in the error channel of the calling effect.
              *
-             * If set to `"return"`, errors that occur during contract call implementation execution
-             * will be captured and returned as part of the contract call result.
+             * If set to `"return"`, errors that occur during tool call handler execution
+             * will be captured and returned as part of the tool call result.
              */
-            readonly failureMode?: Mode | undefined;
+            readonly failureMode?: Mode;
           }
         >
       : S.Simplify<S.Struct.Encoded<Args>>
@@ -1034,24 +1737,24 @@ export const providerDefined =
       readonly payload: S.Struct<Payload>;
       readonly success: Success;
       readonly failure: Failure;
-      readonly failureMode: Mode extends undefined ? "error" : Mode;
+      readonly failureMode: Mode extends undefined ? typeof FailureMode.Enum.error : Mode;
     },
-    RequiresImplementation
+    RequiresHandler
   > => {
     const failureMode = "failureMode" in args ? args.failureMode : undefined;
     const successSchema = options?.success ?? S.Void;
     const failureSchema = options?.failure ?? S.Never;
     return providerDefinedProto({
       id: options.id,
-      name: options.contractKitName,
+      name: options.toolkitName,
       providerName: options.providerName,
       args,
       argsSchema: S.Struct(options.args as UnsafeTypes.UnsafeAny),
-      requiresImplementation: options.requiresImplementation ?? false,
+      requiresHandler: options.requiresHandler ?? false,
       payloadSchema: options?.payload ? S.Struct(options?.payload as UnsafeTypes.UnsafeAny) : constEmptyStruct,
       successSchema,
       failureSchema,
-      failureMode: failureMode ?? "error",
+      failureMode: failureMode ?? FailureMode.Enum.error,
     }) as UnsafeTypes.UnsafeAny;
   };
 
@@ -1096,54 +1799,13 @@ export const fromTaggedRequest = <S extends AnyTaggedRequestSchema>(schema: S): 
     payloadSchema: schema,
     successSchema: schema.success,
     failureSchema: schema.failure,
-    failureMode: "error",
+    failureMode: FailureMode.Enum.error,
     annotations: Context.empty(),
   }) as UnsafeTypes.UnsafeAny;
 
 // =============================================================================
 // Utilities
 // =============================================================================
-
-/**
- * Extracts the description from a contract's metadata.
- *
- * Returns the contract's description if explicitly set, otherwise attempts to
- * extract it from the parameter schema's AST annotations.
- *
- * @example
- * ```ts
- * import * as Contract from "@beep/contract/contract-kit/Contract"
- *
- * const myContract = Contract.make("example", {
- *   description: "This is an example contract"
- * })
- *
- * const description = Contract.getDescription(myContract)
- * console.log(description) // "This is an example contract"
- * ```
- *
- * @since 1.0.0
- * @category Utilities
- */
-export const getDescription = <
-  Name extends string,
-  Config extends {
-    readonly payload: AnyStructSchema;
-    readonly success: S.Schema.Any;
-    readonly failure: S.Schema.All;
-    readonly failureMode: FailureMode;
-  },
->(
-  /**
-   * The contract to get the description from.
-   */
-  contract: Contract<Name, Config>
-): string | undefined => {
-  if (Predicate.isNotUndefined(contract.description)) {
-    return contract.description;
-  }
-  return getDescriptionFromSchemaAst(contract.payloadSchema.ast);
-};
 
 /**
  * @since 1.0.0
@@ -1159,52 +1821,6 @@ export const getDescriptionFromSchemaAst = (ast: AST.AST): string | undefined =>
       : ast.annotations;
   return AST.DescriptionAnnotationId in annotations ? (annotations[AST.DescriptionAnnotationId] as string) : undefined;
 };
-
-/**
- * Generates a JSON Schema for a contract.
- *
- * This function creates a JSON Schema representation that can be shared with
- * clients or documentation generators to describe the payload a contract
- * expects.
- *
- * @example
- * ```ts
- * import * as Contract from "@beep/contract/contract-kit/Contract"
- * import * as S from "effect/Schema"
- *
- * const completeProfile = Contract.make("complete_profile", {
- *   payload: {
- *     displayName: S.String,
- *     timezone: S.optional(S.String)
- *   }
- * })
- *
- * const jsonSchema = Contract.getJsonSchema(completeProfile)
- * console.log(jsonSchema)
- * // {
- * //   type: "object",
- * //   properties: {
- * //     displayName: { type: "string" },
- * //     timezone: { type: "string" }
- * //   },
- * //   required: ["displayName"]
- * // }
- * ```
- *
- * @since 1.0.0
- * @category Utilities
- */
-export const getJsonSchema = <
-  Name extends string,
-  Config extends {
-    readonly payload: AnyStructSchema;
-    readonly success: S.Schema.Any;
-    readonly failure: S.Schema.All;
-    readonly failureMode: FailureMode;
-  },
->(
-  contract: Contract<Name, Config>
-): JsonSchema.JsonSchema7 => getJsonSchemaFromSchemaAst(contract.payloadSchema.ast);
 
 /**
  * @since 1.0.0
@@ -1225,7 +1841,7 @@ export const getJsonSchemaFromSchemaAst = (ast: AST.AST): JsonSchema.JsonSchema7
     definitions: $defs,
     topLevelReferenceStrategy: "skip",
   });
-  if (Object.keys($defs).length === 0) return schema;
+  if (Struct.keys($defs).length === 0) return schema;
   (schema as UnsafeTypes.UnsafeAny).$defs = $defs;
   return schema;
 };
@@ -1367,3 +1983,172 @@ export const unsafeSecureJsonParse = (text: string): unknown => {
     Error.stackTraceLimit = stackTraceLimit;
   }
 };
+
+export interface ImplementationContext<C extends Any> {
+  readonly contract: C;
+  readonly annotations: Context.Context<never>;
+}
+
+export type ImplementationHandler<C extends Any> = (
+  payload: Payload<C>,
+  context: ImplementationContext<C>
+) => Effect.Effect<Success<C>, Failure<C>, Requirements<C>>;
+
+export type ImplementationFunction<C extends Any> = (
+  payload: Payload<C>
+) => Effect.Effect<Success<C>, Failure<C>, Requirements<C>>;
+
+export interface ImplementOptions<C extends Any> {
+  readonly onSuccess?:
+    | undefined
+    | ((success: Success<C>, context: ImplementationContext<C>) => Effect.Effect<void, never, never>);
+  readonly onFailure?:
+    | undefined
+    | ((failure: Failure<C>, context: ImplementationContext<C>) => Effect.Effect<void, never, never>);
+}
+
+export const implement =
+  <const C extends Any>(contract: C, options: ImplementOptions<C> = {}) =>
+  <Handler extends ImplementationHandler<C>>(handler: Handler): ImplementationFunction<C> => {
+    const context: ImplementationContext<C> = {
+      contract,
+      annotations: contract.annotations,
+    };
+    const onSuccessOpt = O.fromNullable(options.onSuccess);
+    const onFailureOpt = O.fromNullable(options.onFailure);
+    return Effect.fn(`${contract.name}.implementation`, { captureStackTrace: false })(function* (payload: Payload<C>) {
+      yield* Effect.annotateCurrentSpan({
+        contract: contract.name,
+        failureMode: contract.failureMode,
+      });
+      let effect = handler(payload, context);
+      if (O.isSome(onSuccessOpt)) {
+        const onSuccess = onSuccessOpt.value;
+        effect = Effect.tap(effect, (success) => onSuccess(success, context));
+      }
+      if (O.isSome(onFailureOpt)) {
+        const onFailure = onFailureOpt.value;
+        effect = Effect.tapError(effect, (failure) => onFailure(failure, context));
+      }
+      return yield* effect;
+    });
+  };
+
+export interface LiftOptions<C extends Any> {
+  readonly method: (payload: Payload<C>) => Effect.Effect<ImplementationResult<C>, Failure<C>, Requirements<C>>;
+  readonly onFailure?: undefined | ((failure: Failure<C>) => Effect.Effect<void, never, never>);
+  readonly onSuccess?: undefined | ((success: Success<C>) => Effect.Effect<void, never, never>);
+  readonly onDefect?: undefined | ((cause: Cause.Cause<unknown>) => Effect.Effect<void, never, never>);
+}
+
+export interface LiftedContract<C extends Any> {
+  readonly result: (
+    payload: Payload<C>
+  ) => Effect.Effect<HandleOutcome<C>, Failure<C> | ContractError.UnknownError, Requirements<C>>;
+  readonly success: (
+    payload: Payload<C>
+  ) => Effect.Effect<Success<C>, Failure<C> | ContractError.UnknownError, Requirements<C>>;
+}
+
+export const lift = <const C extends Any>(contract: C, options: LiftOptions<C>): LiftedContract<C> => {
+  const { method, onFailure, onSuccess, onDefect } = options;
+
+  const annotateOutcome = (outcome: HandleOutcome<C>) =>
+    Match.value(outcome).pipe(
+      Match.tagsExhaustive({
+        success: (successOutcome) =>
+          onSuccess
+            ? Effect.flatMap(onSuccess(successOutcome.result), () => Effect.succeed(successOutcome))
+            : Effect.succeed(successOutcome),
+        failure: (failureOutcome) =>
+          onFailure
+            ? Effect.flatMap(onFailure(failureOutcome.result), () => Effect.succeed(failureOutcome))
+            : Effect.succeed(failureOutcome),
+      })
+    );
+
+  const defectToUnknown = (cause: Cause.Cause<unknown>) =>
+    Effect.gen(function* () {
+      if (onDefect) {
+        yield* onDefect(cause);
+      }
+      return yield* Effect.fail(
+        new ContractError.UnknownError({
+          module: contract.name,
+          method: contract.name,
+          description: "Contract implementation raised an unexpected defect.",
+          cause: Cause.squash(cause),
+        })
+      );
+    });
+
+  const toOutcome = (implResult: ImplementationResult<C>) =>
+    annotateOutcome(
+      FailureMode.matchOutcome(contract, {
+        isFailure: implResult.isFailure,
+        result: implResult.result,
+        encodedResult: implResult.encodedResult as ResultEncoded<C>,
+      })
+    );
+
+  const liftedResult = (payload: Payload<C>) =>
+    Effect.gen(function* () {
+      const exit = yield* Effect.exit(method(payload));
+      return yield* Exit.matchEffect(exit, {
+        onFailure: (cause) =>
+          O.match(Cause.failureOption(cause), {
+            onNone: () => defectToUnknown(cause),
+            onSome: (failure) =>
+              Effect.gen(function* () {
+                if (onFailure) {
+                  yield* onFailure(failure);
+                }
+                return yield* Effect.fail(failure);
+              }),
+          }),
+        onSuccess: (implResult) => toOutcome(implResult),
+      });
+    });
+
+  const liftedSuccess = (payload: Payload<C>) =>
+    Effect.flatMap(liftedResult(payload), (outcome) =>
+      Match.value(outcome).pipe(
+        Match.tagsExhaustive({
+          success: (successOutcome) => Effect.succeed(successOutcome.result),
+          failure: (failureOutcome) => Effect.fail(failureOutcome.result),
+        })
+      )
+    );
+
+  return {
+    result: liftedResult,
+    success: liftedSuccess,
+  };
+};
+
+export interface HandleOutcomeHandlers<C extends Any, R = void, E = never, Env = never> {
+  readonly onSuccess: (success: HandleOutcome.Success<C>) => Effect.Effect<R, E, Env>;
+  readonly onFailure: (failure: HandleOutcome.Failure<C>) => Effect.Effect<R, E, Env>;
+}
+
+export const handleOutcome =
+  <const C extends Any>(_contract: C) =>
+  <R, E, Env>(handlers: HandleOutcomeHandlers<C, R, E, Env>) =>
+  (outcome: HandleOutcome<C>): Effect.Effect<R, E, Env> =>
+    Match.value(outcome).pipe(
+      Match.discriminatorsExhaustive("mode")({
+        error: (result) =>
+          Match.value(result).pipe(
+            Match.tagsExhaustive({
+              success: (successOutcome) => handlers.onSuccess(successOutcome),
+            })
+          ),
+        return: (result) =>
+          Match.value(result).pipe(
+            Match.tagsExhaustive({
+              success: (successOutcome) => handlers.onSuccess(successOutcome),
+              failure: (failureOutcome) => handlers.onFailure(failureOutcome),
+            })
+          ),
+      })
+    );

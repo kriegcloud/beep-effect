@@ -8,7 +8,7 @@ import { IamError } from "../../errors";
 // =====================================================================================================================
 // OAuth Register Contract
 // =====================================================================================================================
-export class OAuthRegisterPayload extends BS.Class<OAuthRegisterPayload>("OAuthRegisterPayload")(
+export class OAuthRegisterPayload extends S.Class<OAuthRegisterPayload>("OAuthRegisterPayload")(
   {
     client_name: S.NonEmptyTrimmedString,
     redirect_uris: S.mutable(S.Array(BS.Url)),
@@ -28,14 +28,17 @@ export declare namespace OAuthRegisterPayload {
 export const OAuthRegisterContract = Contract.make("OAuthRegister", {
   description: "Registers a new OAuth2 application.",
   payload: OAuthRegisterPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Void,
-});
+})
+  .annotate(Contract.Title, "OAuth Register Contract")
+  .annotate(Contract.Domain, "OAuth")
+  .annotate(Contract.Method, "register");
 
 // =====================================================================================================================
 // Link Social Contract
 // =====================================================================================================================
-export class LinkSocialPayload extends BS.Class<LinkSocialPayload>("LinkSocialPayload")(
+export class LinkSocialPayload extends S.Class<LinkSocialPayload>("LinkSocialPayload")(
   {
     provider: AuthProviderNameValue,
   },
@@ -52,7 +55,7 @@ export declare namespace LinkSocialPayload {
   export type Encoded = S.Schema.Encoded<typeof LinkSocialPayload>;
 }
 
-export class LinkSocialSuccess extends BS.Class<LinkSocialSuccess>("LinkSocialSuccess")(
+export class LinkSocialSuccess extends S.Class<LinkSocialSuccess>("LinkSocialSuccess")(
   {
     url: BS.Url,
     redirect: S.Boolean,
@@ -73,15 +76,18 @@ export declare namespace LinkSocialSuccess {
 export const LinkSocialContract = Contract.make("LinkSocial", {
   description: "Links a users account to a social provider.",
   payload: LinkSocialPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.NullOr(LinkSocialSuccess),
-});
+})
+  .annotate(Contract.Title, "Link Social Contract")
+  .annotate(Contract.Domain, "OAuth")
+  .annotate(Contract.Method, "linkSocial");
 
 // =====================================================================================================================
 // Get Access Token Contract
 // =====================================================================================================================
 
-export class GetAccessTokenPayload extends BS.Class<GetAccessTokenPayload>("GetAccessTokenPayload")(
+export class GetAccessTokenPayload extends S.Class<GetAccessTokenPayload>("GetAccessTokenPayload")(
   {
     providerId: AuthProviderNameValue,
     accountId: Account.Model.select.fields.id,
@@ -99,7 +105,7 @@ export declare namespace GetAccessTokenPayload {
   export type Encoded = S.Schema.Encoded<typeof GetAccessTokenPayload>;
 }
 
-export class GetAccessTokenSuccess extends BS.Class<GetAccessTokenSuccess>("GetAccessTokenSuccess")(
+export class GetAccessTokenSuccess extends S.Class<GetAccessTokenSuccess>("GetAccessTokenSuccess")(
   {
     accessToken: S.Redacted(S.String),
     accessTokenExpiresAt: S.UndefinedOr(S.DateFromSelf),
@@ -122,14 +128,17 @@ export declare namespace GetAccessTokenSuccess {
 export const GetAccessTokenContract = Contract.make("GetAccessToken", {
   description: "Gets an access token for a social provider.",
   payload: GetAccessTokenPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: GetAccessTokenSuccess,
-});
+})
+  .annotate(Contract.Title, "Get Access Token Contract")
+  .annotate(Contract.Domain, "OAuth")
+  .annotate(Contract.Method, "getAccessToken");
 
 // =====================================================================================================================
 // Get Account Info Contract
 // =====================================================================================================================
-export class GetAccountInfoPayload extends BS.Class<GetAccountInfoPayload>("GetAccountInfoPayload")(
+export class GetAccountInfoPayload extends S.Class<GetAccountInfoPayload>("GetAccountInfoPayload")(
   {
     accountId: IamEntityIds.AccountId,
   },
@@ -146,7 +155,7 @@ export declare namespace GetAccountInfoPayload {
   export type Encoded = S.Schema.Encoded<typeof GetAccountInfoPayload>;
 }
 
-export class GetAccountInfoSuccess extends BS.Class<GetAccountInfoSuccess>("GetAccountInfoSuccess")(
+export class GetAccountInfoSuccess extends S.Class<GetAccountInfoSuccess>("GetAccountInfoSuccess")(
   {
     user: S.Record({ key: S.String, value: S.Unknown }),
     data: S.Record({ key: S.String, value: S.Unknown }),
@@ -167,14 +176,17 @@ export declare namespace GetAccountInfoSuccess {
 export const GetAccountInfoContract = Contract.make("GetAccountInfo", {
   description: "Gets an account info for a social provider.",
   payload: GetAccountInfoPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: GetAccountInfoSuccess,
-});
+})
+  .annotate(Contract.Title, "Get Account Info Contract")
+  .annotate(Contract.Domain, "OAuth")
+  .annotate(Contract.Method, "getAccountInfo");
 
 // =====================================================================================================================
 // Request Additional Scopes Contract
 // =====================================================================================================================
-export class RequestAdditionalScopesPayload extends BS.Class<RequestAdditionalScopesPayload>(
+export class RequestAdditionalScopesPayload extends S.Class<RequestAdditionalScopesPayload>(
   "RequestAdditionalScopesPayload"
 )(
   {
@@ -194,7 +206,7 @@ export declare namespace RequestAdditionalScopesPayload {
   export type Encoded = S.Schema.Encoded<typeof RequestAdditionalScopesPayload>;
 }
 
-export class RequestAdditionalScopesSuccess extends BS.Class<RequestAdditionalScopesSuccess>(
+export class RequestAdditionalScopesSuccess extends S.Class<RequestAdditionalScopesSuccess>(
   "RequestAdditionalScopesSuccess"
 )(
   {
@@ -217,9 +229,12 @@ export declare namespace RequestAdditionalScopesSuccess {
 export const RequestAdditionalScopesContract = Contract.make("RequestAdditionalScopes", {
   description: "Requests additional scopes for a social provider.",
   payload: RequestAdditionalScopesPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: RequestAdditionalScopesSuccess,
-});
+})
+  .annotate(Contract.Title, "Request Additional Scopes Contract")
+  .annotate(Contract.Domain, "OAuth")
+  .annotate(Contract.Method, "requestAdditionalScopes");
 
 // =====================================================================================================================
 // OAuth Contract Set

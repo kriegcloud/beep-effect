@@ -1,30 +1,38 @@
-"use client";
+import type { PasskeyView } from "@beep/iam-sdk";
 import type {
-  PasskeyAddPayload,
-  PasskeyDeletePayload,
-  PasskeyUpdatePayload,
-  PasskeyView,
+  PasskeyAddContract,
+  PasskeyRemoveContract,
+  PasskeyUpdateContract,
 } from "@beep/iam-sdk/clients/passkey/passkey.contracts";
-import { PasskeyImplementations } from "@beep/iam-sdk/clients/passkey/passkey.implementations";
-import { iamAtomRuntime } from "@beep/iam-sdk/clients/runtime";
-
+import { PasskeyService } from "@beep/iam-sdk/clients/passkey/passkey.service";
+import { makeAtomRuntime } from "@beep/runtime-client/services/runtime/make-atom-runtime";
 import { withToast } from "@beep/ui/common";
 import { Atom, Registry, Result, useAtomSet, useAtomValue } from "@effect-atom/atom-react";
 import * as A from "effect/Array";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import { IamImplementations } from "../implementations";
 
-const remoteAtom = iamAtomRuntime.atom(IamImplementations.PasskeyList).pipe(Atom.withReactivity(["passkeys"]));
+const passkeyRuntime = makeAtomRuntime(PasskeyService.Live);
+type ActionPayload = { readonly passkey: PasskeyView };
 
 type Action = Data.TaggedEnum<{
-  Update: { readonly passkey: PasskeyView };
-  Del: { readonly id: PasskeyView["id"] };
-  Add: { readonly passkey: PasskeyView };
+  Update: ActionPayload;
+  Remove: ActionPayload;
+  Add: ActionPayload;
 }>;
 
 const Action = Data.taggedEnum<Action>();
+
+const remoteAtom = passkeyRuntime
+  .atom(
+    Effect.gen(function* () {
+      const { list } = yield* PasskeyService;
+
+      return yield* list({});
+    })
+  )
+  .pipe(Atom.withReactivity(["passkeys"]));
 
 export const passkeysAtom = Object.assign(
   Atom.writable(
@@ -34,7 +42,7 @@ export const passkeysAtom = Object.assign(
       if (!Result.isSuccess(result)) return;
 
       const update = Action.$match(action, {
-        Del: ({ id }) => A.filter(result.value, (passkey) => passkey.id === id),
+        Remove: ({ passkey }) => A.filter(result.value, (p) => p.id === passkey.id),
         Update: ({ passkey }) => {
           const existing = result.value.find((p) => p.id === passkey.id);
           if (existing) return A.map(result.value, (p) => (p.id === passkey.id ? passkey : p));
@@ -51,17 +59,15 @@ export const passkeysAtom = Object.assign(
   }
 );
 
-export const updatePasskeyAtom = iamAtomRuntime.fn(
+export const updatePasskeyAtom = passkeyRuntime.fn(
   Effect.fnUntraced(
-    function* (payload: PasskeyUpdatePayload.Type) {
+    function* (payload: typeof PasskeyUpdateContract.payloadSchema.Type) {
+      const { update } = yield* PasskeyService;
       const registry = yield* Registry.AtomRegistry;
-      const updateResult = yield* PasskeyImplementations.PasskeyUpdate(payload);
-      registry.set(
-        passkeysAtom,
-        Action.Update({
-          passkey: updateResult.passkey,
-        })
-      );
+
+      yield* update(payload);
+
+      registry.set(passkeysAtom, Action.Update(payload));
     },
     withToast({
       onWaiting: "Updating passkey",
@@ -77,24 +83,21 @@ export const updatePasskeyAtom = iamAtomRuntime.fn(
   }
 );
 
-export const deletePasskeyAtom = iamAtomRuntime.fn(
-  Effect.fnUntraced(
-    function* (payload: PasskeyDeletePayload.Type) {
+export const removePasskeyAtom = passkeyRuntime.fn(
+  Effect.fn(
+    function* (payload: typeof PasskeyRemoveContract.payloadSchema.Type) {
+      const { remove } = yield* PasskeyService;
       const registry = yield* Registry.AtomRegistry;
-      yield* PasskeyImplementations.PasskeyDelete(payload);
-      registry.set(
-        passkeysAtom,
-        Action.Del({
-          id: payload.id,
-        })
-      );
+      yield* remove(payload);
+
+      registry.set(passkeysAtom, Action.Remove(payload));
     },
     withToast({
       onWaiting: "Deleting passkey",
       onSuccess: "Passkey deleted successfully",
       onFailure: O.match({
         onNone: () => "Failed to delete passkey.",
-        onSome: (e: { message: string }) => e.message,
+        onSome: (e) => e.message,
       }),
     })
   ),
@@ -103,30 +106,22 @@ export const deletePasskeyAtom = iamAtomRuntime.fn(
   }
 );
 
-export const addPasskeyAtom = iamAtomRuntime.fn(
-  Effect.fnUntraced(
-    function* (payload: PasskeyAddPayload.Type) {
+export const addPasskeyAtom = passkeyRuntime.fn(
+  (payload: typeof PasskeyAddContract.payloadSchema.Type) =>
+    Effect.gen(function* () {
+      const { add } = yield* PasskeyService;
+
+      yield* add(payload);
+
       const registry = yield* Registry.AtomRegistry;
-      yield* PasskeyImplementations.PasskeyAdd(payload);
+
       registry.set(
         passkeysAtom,
         Action.Add({
-          passkey: {
-            id: payload.id,
-            name: payload.name,
-          },
+          passkey: payload,
         })
       );
-    },
-    withToast({
-      onWaiting: "Registering passkey",
-      onSuccess: "Passkey registered successfully",
-      onFailure: O.match({
-        onNone: () => "Failed to register passkey.",
-        onSome: (e: { message: string }) => e.message,
-      }),
-    })
-  ),
+    }),
   {
     reactivityKeys: ["passkeys"],
   }
@@ -139,7 +134,7 @@ export const usePasskeyCRUD = () => {
   const addPasskey = useAtomSet(addPasskeyAtom, {
     mode: "promise" as const,
   });
-  const deletePasskey = useAtomSet(deletePasskeyAtom);
+  const deletePasskey = useAtomSet(removePasskeyAtom);
   const updatePasskey = useAtomSet(updatePasskeyAtom, {
     mode: "promise" as const,
   });

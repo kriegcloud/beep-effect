@@ -1,29 +1,10 @@
 import { client } from "@beep/iam-sdk/adapters";
 import {
-  decodeResult,
   MetadataFactory,
   makeFailureContinuation,
   requireData,
   withFetchOptions,
 } from "@beep/iam-sdk/clients/_internal";
-import type {
-  AdminBanUserPayload,
-  AdminCreateUserPayload,
-  AdminGetUserPayload,
-  AdminHasPermissionPayload,
-  AdminImpersonateUserPayload,
-  AdminListUserSessionsPayload,
-  AdminListUsersPayload,
-  AdminRemoveUserPayload,
-  AdminRevokeUserSessionPayload,
-  AdminRevokeUserSessionsPayload,
-  AdminSessionBundleSuccess,
-  AdminSetRolePayload,
-  AdminSetUserPasswordPayload,
-  AdminUnbanUserPayload,
-  AdminUpdateUserPayload,
-  AdminUserSuccess,
-} from "@beep/iam-sdk/clients/admin/admin.contracts";
 import {
   AdminBanUserContract,
   AdminContractKit,
@@ -63,12 +44,10 @@ const AdminRevokeUserSessionMetadata = metadataFactory.make("revokeUserSession")
 const AdminRevokeUserSessionsMetadata = metadataFactory.make("revokeUserSessions");
 const AdminHasPermissionMetadata = metadataFactory.make("hasPermission");
 
-const AdminSetRoleHandler: (
-  payload: AdminSetRolePayload.Type
-) => Effect.Effect<AdminUserSuccess.Type, InstanceType<typeof IamError>, never> = Effect.fn("AdminSetRoleHandler")(
-  function* (payload: AdminSetRolePayload.Type) {
+const AdminSetRoleHandler = AdminSetRoleContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "AdminSetRole",
+      contract: AdminSetRoleContract.name,
       metadata: AdminSetRoleMetadata,
     });
 
@@ -93,16 +72,14 @@ const AdminSetRoleHandler: (
         ? raw
         : { user: raw };
 
-    return yield* decodeResult(AdminSetRoleContract.successSchema, "AdminSetRoleHandler", normalized);
-  }
+    return yield* AdminSetRoleContract.decodeUnknownSuccess(normalized);
+  })
 );
 
-const AdminGetUserHandler: (
-  payload: AdminGetUserPayload.Type
-) => Effect.Effect<AdminUserSuccess.Type, InstanceType<typeof IamError>, never> = Effect.fn("AdminGetUserHandler")(
-  function* (payload: AdminGetUserPayload.Type) {
+const AdminGetUserHandler = AdminGetUserContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "AdminGetUser",
+      contract: AdminGetUserContract.name,
       metadata: AdminGetUserMetadata,
     });
 
@@ -127,16 +104,14 @@ const AdminGetUserHandler: (
         ? raw
         : { user: raw };
 
-    return yield* decodeResult(AdminGetUserContract.successSchema, "AdminGetUserHandler", normalized);
-  }
+    return yield* AdminGetUserContract.decodeUnknownSuccess(normalized);
+  })
 );
 
-const AdminCreateUserHandler: (
-  payload: AdminCreateUserPayload.Type
-) => Effect.Effect<AdminUserSuccess.Type, InstanceType<typeof IamError>, never> = Effect.fn("AdminCreateUserHandler")(
-  function* (payload: AdminCreateUserPayload.Type) {
+const AdminCreateUserHandler = AdminCreateUserContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "AdminCreateUser",
+      contract: AdminCreateUserContract.name,
       metadata: AdminCreateUserMetadata,
     });
 
@@ -165,360 +140,374 @@ const AdminCreateUserHandler: (
         ? raw
         : { user: raw };
 
-    return yield* decodeResult(AdminCreateUserContract.successSchema, "AdminCreateUserHandler", normalized);
-  }
+    return yield* AdminCreateUserContract.decodeUnknownSuccess(normalized);
+  })
 );
 
-const AdminUpdateUserHandler = Effect.fn("AdminUpdateUserHandler")(function* (payload: AdminUpdateUserPayload.Type) {
-  const continuation = makeFailureContinuation({
-    contract: "AdminUpdateUser",
-    metadata: AdminUpdateUserMetadata,
-  });
+const AdminUpdateUserHandler = AdminUpdateUserContract.implement(
+  Effect.fn(function* (payload) {
+    const continuation = makeFailureContinuation({
+      contract: AdminUpdateUserContract.name,
+      metadata: AdminUpdateUserMetadata,
+    });
 
-  const result = yield* continuation.run((handlers) => {
-    const fetchOptions = withFetchOptions(handlers);
-    const request = {
-      userId: payload.userId,
-      data: payload.data,
-      fetchOptions,
-    } satisfies Parameters<typeof client.admin.updateUser>[0];
+    const result = yield* continuation.run((handlers) => {
+      const fetchOptions = withFetchOptions(handlers);
+      const request = {
+        userId: payload.userId,
+        data: payload.data,
+        fetchOptions,
+      } satisfies Parameters<typeof client.admin.updateUser>[0];
 
-    return client.admin.updateUser(request);
-  });
+      return client.admin.updateUser(request);
+    });
 
-  yield* continuation.raiseResult(result);
+    yield* continuation.raiseResult(result);
 
-  const raw = yield* requireData(result.data, "AdminUpdateUserHandler", AdminUpdateUserMetadata());
+    const raw = yield* requireData(result.data, "AdminUpdateUserHandler", AdminUpdateUserMetadata());
 
-  const normalized =
-    typeof raw === "object" && raw !== null && Object.prototype.hasOwnProperty.call(raw, "user") ? raw : { user: raw };
+    const normalized =
+      typeof raw === "object" && raw !== null && Object.prototype.hasOwnProperty.call(raw, "user")
+        ? raw
+        : { user: raw };
 
-  return yield* decodeResult(AdminUpdateUserContract.successSchema, "AdminUpdateUserHandler", normalized);
-});
+    return yield* AdminUpdateUserContract.decodeUnknownSuccess(normalized);
+  })
+);
 
-const AdminListUsersHandler = Effect.fn("AdminListUsersHandler")(function* (payload: AdminListUsersPayload.Type) {
-  const continuation = makeFailureContinuation({
-    contract: "AdminListUsers",
-    metadata: AdminListUsersMetadata,
-  });
+const AdminListUsersHandler = AdminListUsersContract.implement(
+  Effect.fn(function* (payload) {
+    const continuation = makeFailureContinuation({
+      contract: AdminListUsersContract.name,
+      metadata: AdminListUsersMetadata,
+    });
 
-  const result = yield* continuation.run((handlers) => {
-    const fetchOptions = withFetchOptions(handlers);
-    const request = {
-      query: {
-        ...(payload.searchValue === undefined ? {} : { searchValue: payload.searchValue }),
-        ...(payload.searchField === undefined ? {} : { searchField: payload.searchField }),
-        ...(payload.searchOperator === undefined ? {} : { searchOperator: payload.searchOperator }),
-        ...(payload.limit === undefined ? {} : { limit: payload.limit }),
-        ...(payload.offset === undefined ? {} : { offset: payload.offset }),
-        ...(payload.sortBy === undefined ? {} : { sortBy: payload.sortBy }),
-        ...(payload.sortDirection === undefined ? {} : { sortDirection: payload.sortDirection }),
-        ...(payload.filterField === undefined ? {} : { filterField: payload.filterField }),
-        ...(payload.filterValue === undefined ? {} : { filterValue: payload.filterValue }),
-        ...(payload.filterOperator === undefined ? {} : { filterOperator: payload.filterOperator }),
-      },
-      fetchOptions,
-    } satisfies Parameters<typeof client.admin.listUsers>[0];
+    const result = yield* continuation.run((handlers) => {
+      const fetchOptions = withFetchOptions(handlers);
+      const request = {
+        query: {
+          ...(payload.searchValue === undefined ? {} : { searchValue: payload.searchValue }),
+          ...(payload.searchField === undefined ? {} : { searchField: payload.searchField }),
+          ...(payload.searchOperator === undefined ? {} : { searchOperator: payload.searchOperator }),
+          ...(payload.limit === undefined ? {} : { limit: payload.limit }),
+          ...(payload.offset === undefined ? {} : { offset: payload.offset }),
+          ...(payload.sortBy === undefined ? {} : { sortBy: payload.sortBy }),
+          ...(payload.sortDirection === undefined ? {} : { sortDirection: payload.sortDirection }),
+          ...(payload.filterField === undefined ? {} : { filterField: payload.filterField }),
+          ...(payload.filterValue === undefined ? {} : { filterValue: payload.filterValue }),
+          ...(payload.filterOperator === undefined ? {} : { filterOperator: payload.filterOperator }),
+        },
+        fetchOptions,
+      } satisfies Parameters<typeof client.admin.listUsers>[0];
 
-    return client.admin.listUsers(request);
-  });
+      return client.admin.listUsers(request);
+    });
 
-  yield* continuation.raiseResult(result);
+    yield* continuation.raiseResult(result);
 
-  const raw = yield* requireData(result.data, "AdminListUsersHandler", AdminListUsersMetadata());
+    const raw = yield* requireData(result.data, "AdminListUsersHandler", AdminListUsersMetadata());
 
-  return yield* decodeResult(AdminListUsersContract.successSchema, "AdminListUsersHandler", raw);
-});
+    return yield* AdminListUsersContract.decodeUnknownSuccess(raw);
+  })
+);
 
-const AdminListUserSessionsHandler = Effect.fn("AdminListUserSessionsHandler")(function* (
-  payload: AdminListUserSessionsPayload.Type
-) {
-  const continuation = makeFailureContinuation({
-    contract: "AdminListUserSessions",
-    metadata: AdminListUserSessionsMetadata,
-  });
+const AdminListUserSessionsHandler = AdminListUserSessionsContract.implement(
+  Effect.fn(function* (payload) {
+    const continuation = makeFailureContinuation({
+      contract: AdminListUserSessionsContract.name,
+      metadata: AdminListUserSessionsMetadata,
+    });
 
-  const result = yield* continuation.run((handlers) => {
-    const request = {
-      userId: payload.userId,
-      fetchOptions: withFetchOptions(handlers),
-    } satisfies Parameters<typeof client.admin.listUserSessions>[0];
+    const result = yield* continuation.run((handlers) => {
+      const request = {
+        userId: payload.userId,
+        fetchOptions: withFetchOptions(handlers),
+      } satisfies Parameters<typeof client.admin.listUserSessions>[0];
 
-    return client.admin.listUserSessions(request);
-  });
+      return client.admin.listUserSessions(request);
+    });
 
-  yield* continuation.raiseResult(result);
+    yield* continuation.raiseResult(result);
 
-  const raw = yield* requireData(result.data, "AdminListUserSessionsHandler", AdminListUserSessionsMetadata());
+    const raw = yield* requireData(result.data, "AdminListUserSessionsHandler", AdminListUserSessionsMetadata());
 
-  return yield* decodeResult(AdminListUserSessionsContract.successSchema, "AdminListUserSessionsHandler", raw);
-});
+    return yield* AdminListUserSessionsContract.decodeUnknownSuccess(raw);
+  })
+);
 
-const AdminUnbanUserHandler = Effect.fn("AdminUnbanUserHandler")(function* (payload: AdminUnbanUserPayload.Type) {
-  const continuation = makeFailureContinuation({
-    contract: "AdminUnbanUser",
-    metadata: AdminUnbanUserMetadata,
-  });
+const AdminUnbanUserHandler = AdminUnbanUserContract.implement(
+  Effect.fn(function* (payload) {
+    const continuation = makeFailureContinuation({
+      contract: AdminUnbanUserContract.name,
+      metadata: AdminUnbanUserMetadata,
+    });
 
-  const result = yield* continuation.run((handlers) =>
-    client.admin.unbanUser({
-      userId: payload.userId,
-      fetchOptions: withFetchOptions(handlers),
-    })
-  );
-
-  yield* continuation.raiseResult(result);
-
-  const raw = yield* requireData(result.data, "AdminUnbanUserHandler", AdminUnbanUserMetadata());
-
-  const normalized =
-    typeof raw === "object" && raw !== null && Object.prototype.hasOwnProperty.call(raw, "user") ? raw : { user: raw };
-
-  return yield* decodeResult(AdminUnbanUserContract.successSchema, "AdminUnbanUserHandler", normalized);
-});
-
-const AdminBanUserHandler = Effect.fn("AdminBanUserHandler")(function* (payload: AdminBanUserPayload.Type) {
-  const continuation = makeFailureContinuation({
-    contract: "AdminBanUser",
-    metadata: AdminBanUserMetadata,
-  });
-
-  const result = yield* continuation.run((handlers) =>
-    client.admin.banUser({
-      userId: payload.userId,
-      ...(payload.banReason === undefined ? {} : { banReason: payload.banReason }),
-      ...(payload.banExpiresIn === undefined ? {} : { banExpiresIn: payload.banExpiresIn }),
-      fetchOptions: withFetchOptions(handlers),
-    })
-  );
-
-  yield* continuation.raiseResult(result);
-
-  const raw = yield* requireData(result.data, "AdminBanUserHandler", AdminBanUserMetadata());
-
-  const normalized =
-    typeof raw === "object" && raw !== null && Object.prototype.hasOwnProperty.call(raw, "user") ? raw : { user: raw };
-
-  return yield* decodeResult(AdminBanUserContract.successSchema, "AdminBanUserHandler", normalized);
-});
-
-const AdminImpersonateUserHandler = Effect.fn("AdminImpersonateUserHandler")(function* (
-  payload: AdminImpersonateUserPayload.Type
-) {
-  const continuation = makeFailureContinuation({
-    contract: "AdminImpersonateUser",
-    metadata: AdminImpersonateUserMetadata,
-  });
-
-  const result = yield* continuation.run((handlers) =>
-    client.admin.impersonateUser({
-      userId: payload.userId,
-      fetchOptions: withFetchOptions(handlers),
-    })
-  );
-
-  yield* continuation.raiseResult(result);
-
-  if (result.error == null) {
-    client.$store.notify("$sessionSignal");
-  }
-
-  const raw = yield* requireData(result.data, "AdminImpersonateUserHandler", AdminImpersonateUserMetadata());
-
-  if (
-    typeof raw !== "object" ||
-    raw === null ||
-    !Object.prototype.hasOwnProperty.call(raw, "session") ||
-    !Object.prototype.hasOwnProperty.call(raw, "user")
-  ) {
-    return yield* Effect.fail(
-      new IamError(
-        raw,
-        "AdminImpersonateUserHandler received malformed payload from Better Auth",
-        AdminImpersonateUserMetadata()
-      )
+    const result = yield* continuation.run((handlers) =>
+      client.admin.unbanUser({
+        userId: payload.userId,
+        fetchOptions: withFetchOptions(handlers),
+      })
     );
-  }
 
-  return yield* decodeResult(AdminImpersonateUserContract.successSchema, "AdminImpersonateUserHandler", raw);
-});
+    yield* continuation.raiseResult(result);
 
-const AdminStopImpersonatingHandler: (
-  payload: unknown
-) => Effect.Effect<AdminSessionBundleSuccess.Type, InstanceType<typeof IamError>, never> = Effect.fn(
-  "AdminStopImpersonatingHandler"
-)(function* (_payload: unknown) {
-  const continuation = makeFailureContinuation({
-    contract: "AdminStopImpersonating",
-    metadata: AdminStopImpersonatingMetadata,
-  });
+    const raw = yield* requireData(result.data, "AdminUnbanUserHandler", AdminUnbanUserMetadata());
 
-  const result = yield* continuation.run((handlers) =>
-    client.admin.stopImpersonating({
-      fetchOptions: withFetchOptions(handlers),
-    })
-  );
+    const normalized =
+      typeof raw === "object" && raw !== null && Object.prototype.hasOwnProperty.call(raw, "user")
+        ? raw
+        : { user: raw };
 
-  yield* continuation.raiseResult(result);
+    return yield* AdminUnbanUserContract.decodeUnknownSuccess(normalized);
+  })
+);
 
-  if (result.error == null) {
-    client.$store.notify("$sessionSignal");
-  }
+const AdminBanUserHandler = AdminBanUserContract.implement(
+  Effect.fn(function* (payload) {
+    const continuation = makeFailureContinuation({
+      contract: AdminBanUserContract.name,
+      metadata: AdminBanUserMetadata,
+    });
 
-  const raw = yield* requireData(result.data, "AdminStopImpersonatingHandler", AdminStopImpersonatingMetadata());
-
-  if (
-    typeof raw !== "object" ||
-    raw === null ||
-    !Object.prototype.hasOwnProperty.call(raw, "session") ||
-    !Object.prototype.hasOwnProperty.call(raw, "user")
-  ) {
-    return yield* Effect.fail(
-      new IamError(
-        raw,
-        "AdminStopImpersonatingHandler received malformed payload from Better Auth",
-        AdminStopImpersonatingMetadata()
-      )
+    const result = yield* continuation.run((handlers) =>
+      client.admin.banUser({
+        userId: payload.userId,
+        ...(payload.banReason === undefined ? {} : { banReason: payload.banReason }),
+        ...(payload.banExpiresIn === undefined ? {} : { banExpiresIn: payload.banExpiresIn }),
+        fetchOptions: withFetchOptions(handlers),
+      })
     );
-  }
 
-  return yield* decodeResult(AdminStopImpersonatingContract.successSchema, "AdminStopImpersonatingHandler", raw);
-});
+    yield* continuation.raiseResult(result);
 
-const AdminRevokeUserSessionHandler = Effect.fn("AdminRevokeUserSessionHandler")(function* (
-  payload: AdminRevokeUserSessionPayload.Type
-) {
-  const continuation = makeFailureContinuation({
-    contract: "AdminRevokeUserSession",
-    metadata: AdminRevokeUserSessionMetadata,
-  });
+    const raw = yield* requireData(result.data, "AdminBanUserHandler", AdminBanUserMetadata());
 
-  const result = yield* continuation.run((handlers) =>
-    client.admin.revokeUserSession({
-      sessionToken: payload.sessionToken,
-      fetchOptions: withFetchOptions(handlers),
-    })
-  );
+    const normalized =
+      typeof raw === "object" && raw !== null && Object.prototype.hasOwnProperty.call(raw, "user")
+        ? raw
+        : { user: raw };
 
-  yield* continuation.raiseResult(result);
+    return yield* AdminBanUserContract.decodeUnknownSuccess(normalized);
+  })
+);
 
-  const raw = yield* requireData(result.data, "AdminRevokeUserSessionHandler", AdminRevokeUserSessionMetadata());
+const AdminImpersonateUserHandler = AdminImpersonateUserContract.implement(
+  Effect.fn(function* (payload) {
+    const continuation = makeFailureContinuation({
+      contract: AdminImpersonateUserContract.name,
+      metadata: AdminImpersonateUserMetadata,
+    });
 
-  return yield* decodeResult(AdminRevokeUserSessionContract.successSchema, "AdminRevokeUserSessionHandler", raw);
-});
-
-const AdminRevokeUserSessionsHandler = Effect.fn("AdminRevokeUserSessionsHandler")(function* (
-  payload: AdminRevokeUserSessionsPayload.Type
-) {
-  const continuation = makeFailureContinuation({
-    contract: "AdminRevokeUserSessions",
-    metadata: AdminRevokeUserSessionsMetadata,
-  });
-
-  const result = yield* continuation.run((handlers) =>
-    client.admin.revokeUserSessions({
-      userId: payload.userId,
-      fetchOptions: withFetchOptions(handlers),
-    })
-  );
-
-  yield* continuation.raiseResult(result);
-
-  const raw = yield* requireData(result.data, "AdminRevokeUserSessionsHandler", AdminRevokeUserSessionsMetadata());
-
-  return yield* decodeResult(AdminRevokeUserSessionsContract.successSchema, "AdminRevokeUserSessionsHandler", raw);
-});
-
-const AdminRemoveUserHandler = Effect.fn("AdminRemoveUserHandler")(function* (payload: AdminRemoveUserPayload.Type) {
-  const continuation = makeFailureContinuation({
-    contract: "AdminRemoveUser",
-    metadata: AdminRemoveUserMetadata,
-  });
-
-  const result = yield* continuation.run((handlers) =>
-    client.admin.removeUser({
-      userId: payload.userId,
-      fetchOptions: withFetchOptions(handlers),
-    })
-  );
-
-  yield* continuation.raiseResult(result);
-
-  const raw = yield* requireData(result.data, "AdminRemoveUserHandler", AdminRemoveUserMetadata());
-
-  return yield* decodeResult(AdminRemoveUserContract.successSchema, "AdminRemoveUserHandler", raw);
-});
-
-const AdminSetUserPasswordHandler = Effect.fn("AdminSetUserPasswordHandler")(function* (
-  payload: AdminSetUserPasswordPayload.Type
-) {
-  const continuation = makeFailureContinuation({
-    contract: "AdminSetUserPassword",
-    metadata: AdminSetUserPasswordMetadata,
-  });
-
-  const result = yield* continuation.run((handlers) =>
-    client.admin.setUserPassword({
-      userId: payload.userId,
-      newPassword: Redacted.value(payload.newPassword),
-      fetchOptions: withFetchOptions(handlers),
-    })
-  );
-
-  yield* continuation.raiseResult(result);
-
-  const raw = yield* requireData(result.data, "AdminSetUserPasswordHandler", AdminSetUserPasswordMetadata());
-
-  return yield* decodeResult(AdminSetUserPasswordContract.successSchema, "AdminSetUserPasswordHandler", raw);
-});
-
-const AdminHasPermissionHandler = Effect.fn("AdminHasPermissionHandler")(function* (
-  payload: AdminHasPermissionPayload.Type
-) {
-  const continuation = makeFailureContinuation({
-    contract: "AdminHasPermission",
-    metadata: AdminHasPermissionMetadata,
-  });
-
-  if (
-    (payload.permission !== undefined && payload.permissions !== undefined) ||
-    (payload.permission === undefined && payload.permissions === undefined)
-  ) {
-    return yield* Effect.fail(
-      new IamError(
-        payload,
-        "AdminHasPermissionHandler requires exactly one of permission or permissions",
-        AdminHasPermissionMetadata()
-      )
+    const result = yield* continuation.run((handlers) =>
+      client.admin.impersonateUser({
+        userId: payload.userId,
+        fetchOptions: withFetchOptions(handlers),
+      })
     );
-  }
 
-  const result = yield* continuation.run((handlers) => {
-    const body =
-      payload.permission !== undefined
-        ? {
-            permission: payload.permission,
-          }
-        : {
-            permissions: payload.permissions,
-          };
+    yield* continuation.raiseResult(result);
 
-    const request = {
-      ...body,
-      ...(payload.userId === undefined ? {} : { userId: payload.userId }),
-      ...(payload.role === undefined ? {} : { role: payload.role }),
-      fetchOptions: withFetchOptions(handlers),
-    } satisfies Parameters<typeof client.admin.hasPermission>[0];
+    if (result.error == null) {
+      client.$store.notify("$sessionSignal");
+    }
 
-    return client.admin.hasPermission(request);
-  });
+    const raw = yield* requireData(result.data, "AdminImpersonateUserHandler", AdminImpersonateUserMetadata());
 
-  yield* continuation.raiseResult(result);
+    if (
+      typeof raw !== "object" ||
+      raw === null ||
+      !Object.prototype.hasOwnProperty.call(raw, "session") ||
+      !Object.prototype.hasOwnProperty.call(raw, "user")
+    ) {
+      return yield* Effect.fail(
+        new IamError(
+          raw,
+          "AdminImpersonateUserHandler received malformed payload from Better Auth",
+          AdminImpersonateUserMetadata()
+        )
+      );
+    }
 
-  const raw = yield* requireData(result.data, "AdminHasPermissionHandler", AdminHasPermissionMetadata());
+    return yield* AdminImpersonateUserContract.decodeUnknownSuccess(raw);
+  })
+);
 
-  return yield* decodeResult(AdminHasPermissionContract.successSchema, "AdminHasPermissionHandler", raw);
-});
+const AdminStopImpersonatingHandler = AdminStopImpersonatingContract.implement(
+  Effect.fn(function* () {
+    const continuation = makeFailureContinuation({
+      contract: AdminStopImpersonatingContract.name,
+      metadata: AdminStopImpersonatingMetadata,
+    });
+
+    const result = yield* continuation.run((handlers) =>
+      client.admin.stopImpersonating({
+        fetchOptions: withFetchOptions(handlers),
+      })
+    );
+
+    yield* continuation.raiseResult(result);
+
+    if (result.error == null) {
+      client.$store.notify("$sessionSignal");
+    }
+
+    const raw = yield* requireData(result.data, "AdminStopImpersonatingHandler", AdminStopImpersonatingMetadata());
+
+    if (
+      typeof raw !== "object" ||
+      raw === null ||
+      !Object.prototype.hasOwnProperty.call(raw, "session") ||
+      !Object.prototype.hasOwnProperty.call(raw, "user")
+    ) {
+      return yield* Effect.fail(
+        new IamError(
+          raw,
+          "AdminStopImpersonatingHandler received malformed payload from Better Auth",
+          AdminStopImpersonatingMetadata()
+        )
+      );
+    }
+
+    return yield* AdminStopImpersonatingContract.decodeUnknownSuccess(raw);
+  })
+);
+
+const AdminRevokeUserSessionHandler = AdminRevokeUserSessionContract.implement(
+  Effect.fn(function* (payload) {
+    const continuation = makeFailureContinuation({
+      contract: AdminRevokeUserSessionContract.name,
+      metadata: AdminRevokeUserSessionMetadata,
+    });
+
+    const result = yield* continuation.run((handlers) =>
+      client.admin.revokeUserSession({
+        sessionToken: payload.sessionToken,
+        fetchOptions: withFetchOptions(handlers),
+      })
+    );
+
+    yield* continuation.raiseResult(result);
+
+    const raw = yield* requireData(result.data, "AdminRevokeUserSessionHandler", AdminRevokeUserSessionMetadata());
+
+    return yield* AdminRevokeUserSessionContract.decodeUnknownSuccess(raw);
+  })
+);
+
+const AdminRevokeUserSessionsHandler = AdminRevokeUserSessionsContract.implement(
+  Effect.fn(function* (payload) {
+    const continuation = makeFailureContinuation({
+      contract: AdminRevokeUserSessionsContract.name,
+      metadata: AdminRevokeUserSessionsMetadata,
+    });
+
+    const result = yield* continuation.run((handlers) =>
+      client.admin.revokeUserSessions({
+        userId: payload.userId,
+        fetchOptions: withFetchOptions(handlers),
+      })
+    );
+
+    yield* continuation.raiseResult(result);
+
+    const raw = yield* requireData(result.data, "AdminRevokeUserSessionsHandler", AdminRevokeUserSessionsMetadata());
+
+    return yield* AdminRevokeUserSessionsContract.decodeUnknownSuccess(raw);
+  })
+);
+
+const AdminRemoveUserHandler = AdminRemoveUserContract.implement(
+  Effect.fn(function* (payload) {
+    const continuation = makeFailureContinuation({
+      contract: AdminRemoveUserContract.name,
+      metadata: AdminRemoveUserMetadata,
+    });
+
+    const result = yield* continuation.run((handlers) =>
+      client.admin.removeUser({
+        userId: payload.userId,
+        fetchOptions: withFetchOptions(handlers),
+      })
+    );
+
+    yield* continuation.raiseResult(result);
+
+    const raw = yield* requireData(result.data, "AdminRemoveUserHandler", AdminRemoveUserMetadata());
+
+    return yield* AdminRemoveUserContract.decodeUnknownSuccess(raw);
+  })
+);
+
+const AdminSetUserPasswordHandler = AdminSetUserPasswordContract.implement(
+  Effect.fn(function* (payload) {
+    const continuation = makeFailureContinuation({
+      contract: AdminSetUserPasswordContract.name,
+      metadata: AdminSetUserPasswordMetadata,
+    });
+
+    const result = yield* continuation.run((handlers) =>
+      client.admin.setUserPassword({
+        userId: payload.userId,
+        newPassword: Redacted.value(payload.newPassword),
+        fetchOptions: withFetchOptions(handlers),
+      })
+    );
+
+    yield* continuation.raiseResult(result);
+
+    const raw = yield* requireData(result.data, "AdminSetUserPasswordHandler", AdminSetUserPasswordMetadata());
+
+    return yield* AdminSetUserPasswordContract.decodeUnknownSuccess(raw);
+  })
+);
+
+const AdminHasPermissionHandler = AdminHasPermissionContract.implement(
+  Effect.fn(function* (payload) {
+    const continuation = makeFailureContinuation({
+      contract: AdminHasPermissionContract.name,
+      metadata: AdminHasPermissionMetadata,
+    });
+
+    if (
+      (payload.permission !== undefined && payload.permissions !== undefined) ||
+      (payload.permission === undefined && payload.permissions === undefined)
+    ) {
+      return yield* Effect.fail(
+        new IamError(
+          payload,
+          "AdminHasPermissionHandler requires exactly one of permission or permissions",
+          AdminHasPermissionMetadata()
+        )
+      );
+    }
+
+    const result = yield* continuation.run((handlers) => {
+      const body =
+        payload.permission !== undefined
+          ? {
+              permission: payload.permission,
+            }
+          : {
+              permissions: payload.permissions,
+            };
+
+      const request = {
+        ...body,
+        ...(payload.userId === undefined ? {} : { userId: payload.userId }),
+        ...(payload.role === undefined ? {} : { role: payload.role }),
+        fetchOptions: withFetchOptions(handlers),
+      } satisfies Parameters<typeof client.admin.hasPermission>[0];
+
+      return client.admin.hasPermission(request);
+    });
+
+    yield* continuation.raiseResult(result);
+
+    const raw = yield* requireData(result.data, "AdminHasPermissionHandler", AdminHasPermissionMetadata());
+
+    return yield* AdminHasPermissionContract.decodeUnknownSuccess(raw);
+  })
+);
 
 export const AdminImplementations = AdminContractKit.of({
   // type error

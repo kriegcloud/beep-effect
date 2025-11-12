@@ -35,7 +35,7 @@ export const makeFailureContinuation = (
   const computeMetadata = (): IamErrorMetadata => {
     const metadata = ctx.metadata();
     return {
-      plugin: metadata.plugin,
+      domain: metadata.plugin,
       method: metadata.method,
     };
   };
@@ -46,7 +46,7 @@ export const makeFailureContinuation = (
     effect.pipe(
       Effect.annotateLogs({
         contract: ctx.contract,
-        plugin: metadata.plugin,
+        domain: metadata.plugin,
         method: metadata.method,
       })
     );

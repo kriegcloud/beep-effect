@@ -2,7 +2,6 @@
 import { Contract, ContractKit } from "@beep/contract";
 import { Session } from "@beep/iam-domain/entities";
 import { IamError } from "@beep/iam-sdk/errors";
-import { BS } from "@beep/schema";
 import { User } from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
 
@@ -10,7 +9,7 @@ import * as S from "effect/Schema";
 // GetSession
 // =====================================================================================================================
 
-export class GetSessionSuccess extends BS.Class<GetSessionSuccess>("GetSessionSuccess")(
+export class GetSessionSuccess extends S.Class<GetSessionSuccess>("GetSessionSuccess")(
   {
     session: Session.Model.select.pick(
       "activeOrganizationId",
@@ -78,9 +77,12 @@ export declare namespace GetSessionSuccess {
 export const GetSessionContract = Contract.make("GetSession", {
   description: "Retrieves the current session.",
   payload: {},
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: GetSessionSuccess,
-});
+})
+  .annotate(Contract.Title, "Get Session Contract")
+  .annotate(Contract.Domain, "Session")
+  .annotate(Contract.Method, "getSession");
 
 // =====================================================================================================================
 // ListSessions
@@ -100,14 +102,17 @@ export declare namespace ListSessionsSuccess {
 export const ListSessionsContract = Contract.make("ListSessions", {
   description: "Lists all sessions for the current user.",
   payload: {},
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: ListSessionsSuccess,
-});
+})
+  .annotate(Contract.Title, "List Sessions Contract")
+  .annotate(Contract.Domain, "Session")
+  .annotate(Contract.Method, "listSessions");
 
 // =====================================================================================================================
 // RevokeSession
 // =====================================================================================================================
-export class RevokeSessionPayload extends BS.Class<RevokeSessionPayload>("RevokeSessionPayload")(
+export class RevokeSessionPayload extends S.Class<RevokeSessionPayload>("RevokeSessionPayload")(
   Session.Model.select.pick("token")
 ) {}
 
@@ -119,9 +124,12 @@ export declare namespace RevokeSessionPayload {
 export const RevokeSessionContract = Contract.make("RevokeSession", {
   description: "Revokes a session for the current user.",
   payload: RevokeSessionPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Void,
-});
+})
+  .annotate(Contract.Title, "Revoke Session Contract")
+  .annotate(Contract.Domain, "Session")
+  .annotate(Contract.Method, "revokeSession");
 
 // =====================================================================================================================
 // RevokeOtherSessions
@@ -129,9 +137,12 @@ export const RevokeSessionContract = Contract.make("RevokeSession", {
 export const RevokeOtherSessionsContract = Contract.make("RevokeOtherSessions", {
   description: "All user sessions except for the users current session.",
   payload: {},
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Void,
-});
+})
+  .annotate(Contract.Title, "Revoke Other Sessions Contract")
+  .annotate(Contract.Domain, "Session")
+  .annotate(Contract.Method, "revokeOtherSessions");
 
 // =====================================================================================================================
 // RevokeSessions
@@ -139,9 +150,12 @@ export const RevokeOtherSessionsContract = Contract.make("RevokeOtherSessions", 
 export const RevokeSessionsContract = Contract.make("RevokeSessions", {
   description: "Revokes all user sessions",
   payload: {},
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Void,
-});
+})
+  .annotate(Contract.Title, "Revoke Sessions Contract")
+  .annotate(Contract.Domain, "Session")
+  .annotate(Contract.Method, "revokeSessions");
 // =====================================================================================================================
 // Session Contract Set
 // =====================================================================================================================

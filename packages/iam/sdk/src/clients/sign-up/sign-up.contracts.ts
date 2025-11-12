@@ -73,7 +73,7 @@ export declare namespace SignUpValue {
   export type Encoded = S.Schema.Encoded<typeof SignUpValue>;
 }
 
-export class SignUpEmailPayload extends BS.Class<SignUpEmailPayload>("SignUpEmailPayload")(
+export class SignUpEmailPayload extends S.Class<SignUpEmailPayload>("SignUpEmailPayload")(
   {
     value: SignUpValue,
   },
@@ -92,9 +92,12 @@ export declare namespace SignUpEmailPayload {
 export const SignUpEmailContract = Contract.make("SignUpEmail", {
   description: "Signs up a new user using email credentials.",
   payload: SignUpEmailPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Union(S.TaggedStruct("Success", {}), S.TaggedStruct("Failure", {})),
-});
+})
+  .annotate(Contract.Title, "Sign Up Email")
+  .annotate(Contract.Domain, "sign-up")
+  .annotate(Contract.Method, "signUpEmail");
 
 // =====================================================================================================================
 // Sign Up Contract Set

@@ -1,10 +1,9 @@
 import { Contract, ContractKit } from "@beep/contract";
 import { Session } from "@beep/iam-domain/entities";
-import { BS } from "@beep/schema";
 import { User } from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
-export class MultiSessionSessionView extends BS.Class<MultiSessionSessionView>("MultiSessionSessionView")(
+export class MultiSessionSessionView extends S.Class<MultiSessionSessionView>("MultiSessionSessionView")(
   Session.Model.select.pick(
     "id",
     "token",
@@ -32,7 +31,7 @@ export declare namespace MultiSessionSessionView {
   export type Encoded = S.Schema.Encoded<typeof MultiSessionSessionView>;
 }
 
-export class MultiSessionUserView extends BS.Class<MultiSessionUserView>("MultiSessionUserView")(
+export class MultiSessionUserView extends S.Class<MultiSessionUserView>("MultiSessionUserView")(
   User.Model.select.pick("id", "email", "emailVerified", "name", "image", "createdAt", "updatedAt"),
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/multi-session/MultiSessionUserView"),
@@ -47,7 +46,7 @@ export declare namespace MultiSessionUserView {
   export type Encoded = S.Schema.Encoded<typeof MultiSessionUserView>;
 }
 
-export class MultiSessionDeviceRecord extends BS.Class<MultiSessionDeviceRecord>("MultiSessionDeviceRecord")(
+export class MultiSessionDeviceRecord extends S.Class<MultiSessionDeviceRecord>("MultiSessionDeviceRecord")(
   {
     session: MultiSessionSessionView,
     user: MultiSessionUserView,
@@ -65,7 +64,7 @@ export declare namespace MultiSessionDeviceRecord {
   export type Encoded = S.Schema.Encoded<typeof MultiSessionDeviceRecord>;
 }
 
-export class MultiSessionTokenPayload extends BS.Class<MultiSessionTokenPayload>("MultiSessionTokenPayload")(
+export class MultiSessionTokenPayload extends S.Class<MultiSessionTokenPayload>("MultiSessionTokenPayload")(
   {
     sessionToken: S.Redacted(S.String),
   },
@@ -82,7 +81,7 @@ export declare namespace MultiSessionTokenPayload {
   export type Encoded = S.Schema.Encoded<typeof MultiSessionTokenPayload>;
 }
 
-export class MultiSessionRevokeSuccess extends BS.Class<MultiSessionRevokeSuccess>("MultiSessionRevokeSuccess")(
+export class MultiSessionRevokeSuccess extends S.Class<MultiSessionRevokeSuccess>("MultiSessionRevokeSuccess")(
   {
     status: S.Boolean,
   },
@@ -102,23 +101,32 @@ export declare namespace MultiSessionRevokeSuccess {
 export const MultiSessionListContract = Contract.make("MultiSessionList", {
   description: "Lists device sessions available to the signed-in user.",
   payload: {},
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.mutable(S.Array(MultiSessionDeviceRecord)),
-});
+})
+  .annotate(Contract.Title, "Multi-Session List Contract")
+  .annotate(Contract.Domain, "Multi-Session")
+  .annotate(Contract.Method, "list");
 
 export const MultiSessionSetActiveContract = Contract.make("MultiSessionSetActive", {
   description: "Switches the active session token to another device session.",
   payload: MultiSessionTokenPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: MultiSessionDeviceRecord,
-});
+})
+  .annotate(Contract.Title, "Multi-Session Set Active Contract")
+  .annotate(Contract.Domain, "Multi-Session")
+  .annotate(Contract.Method, "setActive");
 
 export const MultiSessionRevokeContract = Contract.make("MultiSessionRevoke", {
   description: "Revokes a specific device session for the current user.",
   payload: MultiSessionTokenPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: MultiSessionRevokeSuccess,
-});
+})
+  .annotate(Contract.Title, "Multi-Session Revoke Contract")
+  .annotate(Contract.Domain, "Multi-Session")
+  .annotate(Contract.Method, "revoke");
 
 export const MultiSessionContractKit = ContractKit.make(
   MultiSessionListContract,

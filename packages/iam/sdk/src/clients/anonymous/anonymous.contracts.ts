@@ -1,10 +1,9 @@
 import { Contract, ContractKit } from "@beep/contract";
-import { BS } from "@beep/schema";
+import { IamError } from "@beep/iam-sdk/errors";
 import { User } from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
-import { IamError } from "../../errors";
 
-export class AnonymousSignInSuccess extends BS.Class<AnonymousSignInSuccess>("AnonymousSignInSuccess")(
+export class AnonymousSignInSuccess extends S.Class<AnonymousSignInSuccess>("AnonymousSignInSuccess")(
   {
     token: S.String,
     user: User.Model,
@@ -25,8 +24,11 @@ export declare namespace AnonymousSignInSuccess {
 export const AnonymousSignInContract = Contract.make("AnonymousSignIn", {
   description: "Signs the current visitor in as an anonymous user.",
   payload: {},
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.NullOr(AnonymousSignInSuccess),
-});
+})
+  .annotate(Contract.Title, "Anonymous Sign-In")
+  .annotate(Contract.Domain, "anonymous")
+  .annotate(Contract.Method, "signIn");
 
 export const AnonymousContractKit = ContractKit.make(AnonymousSignInContract);

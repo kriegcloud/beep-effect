@@ -6,7 +6,7 @@ import { IamError } from "../../errors";
 // =====================================================================================================================
 // Send Verify Phone Contract
 // =====================================================================================================================
-export class VerifyPhonePayload extends BS.Class<VerifyPhonePayload>("VerifyPhonePayload")(
+export class VerifyPhonePayload extends S.Class<VerifyPhonePayload>("VerifyPhonePayload")(
   {
     phoneNumber: BS.Phone,
     code: S.Redacted(S.NonEmptyTrimmedString),
@@ -27,7 +27,7 @@ export declare namespace VerifyPhonePayload {
 export const VerifyPhoneContract = Contract.make("VerifyPhone", {
   description: "Sends a phone verification request.",
   payload: VerifyPhonePayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Void,
 });
 
@@ -79,7 +79,7 @@ export type SendEmailVerificationErrorCode = S.Schema.Type<typeof SendEmailVerif
 export const SendEmailVerificationContract = Contract.make("SendEmailVerification", {
   description: "Sends an email verification link to the user.",
   payload: SendEmailVerificationPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: SendEmailVerificationSuccess,
 });
 
@@ -145,7 +145,7 @@ export type VerifyEmailErrorCode = S.Schema.Type<typeof VerifyEmailErrorCode>;
 export const VerifyEmailContract = Contract.make("VerifyEmail", {
   description: "Verifies a user's email via a token.",
   payload: VerifyEmailPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: VerifyEmailSuccess,
 });
 

@@ -83,7 +83,7 @@ export declare namespace OAuth2AuthorizeCodeChallengeMethod {
   export type Encoded = typeof OAuth2AuthorizeCodeChallengeMethod.Encoded;
 }
 
-export class OAuth2AuthorizePayload extends BS.Class<OAuth2AuthorizePayload>("OAuth2AuthorizePayload")(
+export class OAuth2AuthorizePayload extends S.Class<OAuth2AuthorizePayload>("OAuth2AuthorizePayload")(
   {
     response_type: OAuth2AuthorizeResponseType,
     client_id: S.String,
@@ -114,7 +114,7 @@ export declare namespace OAuth2AuthorizePayload {
   export type Encoded = S.Schema.Encoded<typeof OAuth2AuthorizePayload>;
 }
 
-export class OAuth2ConsentPayload extends BS.Class<OAuth2ConsentPayload>("OAuth2ConsentPayload")(
+export class OAuth2ConsentPayload extends S.Class<OAuth2ConsentPayload>("OAuth2ConsentPayload")(
   {
     accept: S.Boolean,
     consent_code: S.optional(S.NullOr(S.String)),
@@ -132,7 +132,7 @@ export declare namespace OAuth2ConsentPayload {
   export type Encoded = S.Schema.Encoded<typeof OAuth2ConsentPayload>;
 }
 
-export class OAuth2ConsentSuccess extends BS.Class<OAuth2ConsentSuccess>("OAuth2ConsentSuccess")(
+export class OAuth2ConsentSuccess extends S.Class<OAuth2ConsentSuccess>("OAuth2ConsentSuccess")(
   {
     redirectURI: BS.URLString,
   },
@@ -149,7 +149,7 @@ export declare namespace OAuth2ConsentSuccess {
   export type Encoded = S.Schema.Encoded<typeof OAuth2ConsentSuccess>;
 }
 
-export class OAuth2TokenPayload extends BS.Class<OAuth2TokenPayload>("OAuth2TokenPayload")(
+export class OAuth2TokenPayload extends S.Class<OAuth2TokenPayload>("OAuth2TokenPayload")(
   {
     grant_type: S.String,
     code: S.optional(S.String),
@@ -176,7 +176,7 @@ export declare namespace OAuth2TokenPayload {
   export type Encoded = S.Schema.Encoded<typeof OAuth2TokenPayload>;
 }
 
-export class OAuth2TokenSuccess extends BS.Class<OAuth2TokenSuccess>("OAuth2TokenSuccess")(
+export class OAuth2TokenSuccess extends S.Class<OAuth2TokenSuccess>("OAuth2TokenSuccess")(
   {
     access_token: S.Redacted(S.String),
     token_type: S.String,
@@ -198,7 +198,7 @@ export declare namespace OAuth2TokenSuccess {
   export type Encoded = S.Schema.Encoded<typeof OAuth2TokenSuccess>;
 }
 
-export class OAuth2UserInfoSuccess extends BS.Class<OAuth2UserInfoSuccess>("OAuth2UserInfoSuccess")(
+export class OAuth2UserInfoSuccess extends S.Class<OAuth2UserInfoSuccess>("OAuth2UserInfoSuccess")(
   {
     sub: S.String,
     email: S.optional(S.String),
@@ -235,7 +235,7 @@ const GrantTypeSchema = S.Literal(
 
 const ResponseTypeSchema = S.Literal("code", "token");
 
-export class OAuth2RegisterPayload extends BS.Class<OAuth2RegisterPayload>("OAuth2RegisterPayload")(
+export class OAuth2RegisterPayload extends S.Class<OAuth2RegisterPayload>("OAuth2RegisterPayload")(
   {
     redirect_uris: S.mutable(S.NonEmptyArray(BS.URLString)),
     token_endpoint_auth_method: S.optional(TokenEndpointAuthMethod),
@@ -268,7 +268,7 @@ export declare namespace OAuth2RegisterPayload {
   export type Encoded = S.Schema.Encoded<typeof OAuth2RegisterPayload>;
 }
 
-export class OAuth2RegisterSuccess extends BS.Class<OAuth2RegisterSuccess>("OAuth2RegisterSuccess")(
+export class OAuth2RegisterSuccess extends S.Class<OAuth2RegisterSuccess>("OAuth2RegisterSuccess")(
   {
     client_id: S.String,
     client_secret: S.optional(S.Redacted(S.String)),
@@ -305,7 +305,7 @@ export declare namespace OAuth2RegisterSuccess {
   export type Encoded = S.Schema.Encoded<typeof OAuth2RegisterSuccess>;
 }
 
-export class OAuth2ClientPayload extends BS.Class<OAuth2ClientPayload>("OAuth2ClientPayload")(
+export class OAuth2ClientPayload extends S.Class<OAuth2ClientPayload>("OAuth2ClientPayload")(
   {
     id: S.String,
   },
@@ -322,7 +322,7 @@ export declare namespace OAuth2ClientPayload {
   export type Encoded = S.Schema.Encoded<typeof OAuth2ClientPayload>;
 }
 
-export class OAuth2ClientSuccess extends BS.Class<OAuth2ClientSuccess>("OAuth2ClientSuccess")(
+export class OAuth2ClientSuccess extends S.Class<OAuth2ClientSuccess>("OAuth2ClientSuccess")(
   {
     clientId: S.String,
     name: S.String,
@@ -344,44 +344,62 @@ export declare namespace OAuth2ClientSuccess {
 export const OAuth2AuthorizeContract = Contract.make("OAuth2Authorize", {
   description: "Handles OAuth2/OIDC authorization requests.",
   payload: OAuth2AuthorizePayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: S.Union(ResponseSchema, OAuth2AuthorizeResponseSchema),
-});
+})
+  .annotate(Contract.Title, "OAuth2 Authorize Contract")
+  .annotate(Contract.Domain, "oidc")
+  .annotate(Contract.Method, "authorize");
 
 export const OAuth2ConsentContract = Contract.make("OAuth2Consent", {
   description: "Processes the end-user consent decision.",
   payload: OAuth2ConsentPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OAuth2ConsentSuccess,
-});
+})
+  .annotate(Contract.Title, "OAuth2 Consent Contract")
+  .annotate(Contract.Domain, "oidc")
+  .annotate(Contract.Method, "consent");
 
 export const OAuth2TokenContract = Contract.make("OAuth2Token", {
   description: "Performs OAuth2 token exchanges.",
   payload: OAuth2TokenPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OAuth2TokenSuccess,
-});
+})
+  .annotate(Contract.Title, "OAuth2 Token Contract")
+  .annotate(Contract.Domain, "oidc")
+  .annotate(Contract.Method, "token");
 
 export const OAuth2UserInfoContract = Contract.make("OAuth2UserInfo", {
   description: "Retrieves OpenID Connect user info claims.",
   payload: {},
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OAuth2UserInfoSuccess,
-});
+})
+  .annotate(Contract.Title, "OAuth2 User Info Contract")
+  .annotate(Contract.Domain, "oidc")
+  .annotate(Contract.Method, "userinfo");
 
 export const OAuth2RegisterContract = Contract.make("OAuth2Register", {
   description: "Registers an OAuth2 client using dynamic registration.",
   payload: OAuth2RegisterPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OAuth2RegisterSuccess,
-});
+})
+  .annotate(Contract.Title, "OAuth2 Register Contract")
+  .annotate(Contract.Domain, "oidc")
+  .annotate(Contract.Method, "register");
 
 export const OAuth2ClientContract = Contract.make("OAuth2Client", {
   description: "Fetches metadata for a registered OAuth2 client.",
   payload: OAuth2ClientPayload.fields,
-  failure: S.instanceOf(IamError),
+  failure: IamError,
   success: OAuth2ClientSuccess,
-});
+})
+  .annotate(Contract.Title, "OAuth2 Client Contract")
+  .annotate(Contract.Domain, "oidc")
+  .annotate(Contract.Method, "client");
 
 export const OidcContractKit = ContractKit.make(
   OAuth2AuthorizeContract,

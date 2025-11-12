@@ -1,4 +1,3 @@
-// export { iam, iamContracts, iamImplementations } from "./iam.client";
 export * from "./anonymous";
 export * from "./api-key";
 export * from "./device-authorization";

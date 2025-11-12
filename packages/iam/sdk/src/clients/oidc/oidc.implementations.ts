@@ -1,12 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
 import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
-import type {
-  OAuth2AuthorizePayload,
-  OAuth2ClientPayload,
-  OAuth2ConsentPayload,
-  OAuth2RegisterPayload,
-  OAuth2TokenPayload,
-} from "@beep/iam-sdk/clients/oidc/oidc.contracts";
 import {
   OAuth2AuthorizeContract,
   OAuth2ClientContract,
@@ -18,7 +11,6 @@ import {
 } from "@beep/iam-sdk/clients/oidc/oidc.contracts";
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
 
 const metadataFactory = new MetadataFactory("oidc");
 
@@ -29,10 +21,10 @@ const OAuth2UserInfoMetadata = metadataFactory.make("userinfo");
 const OAuth2RegisterMetadata = metadataFactory.make("register");
 const OAuth2ClientMetadata = metadataFactory.make("client");
 
-const OAuth2AuthorizeHandler = Effect.fn("OAuth2AuthorizeHandler")(
-  function* (payload: OAuth2AuthorizePayload.Type) {
+const OAuth2AuthorizeHandler = OAuth2AuthorizeContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OAuth2Authorize",
+      contract: OAuth2AuthorizeContract.name,
       metadata: OAuth2AuthorizeMetadata,
     });
 
@@ -48,23 +40,21 @@ const OAuth2AuthorizeHandler = Effect.fn("OAuth2AuthorizeHandler")(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "OAuth2AuthorizeHandler returned no payload from Better Auth", {
-        plugin: "oidc-provider",
-        method: "authorize",
-      });
+      return yield* new IamError(
+        {},
+        "OAuth2AuthorizeHandler returned no payload from Better Auth",
+        OAuth2AuthorizeMetadata()
+      );
     }
 
-    return yield* S.decodeUnknown(OAuth2AuthorizeContract.successSchema)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OAuth2AuthorizeMetadata())),
+    return yield* OAuth2AuthorizeContract.decodeUnknownSuccess(result.data);
   })
 );
 
-const OAuth2ConsentHandler = Effect.fn("OAuth2ConsentHandler")(
-  function* (payload: OAuth2ConsentPayload.Type) {
+const OAuth2ConsentHandler = OAuth2ConsentContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OAuth2Consent",
+      contract: OAuth2ConsentContract.name,
       metadata: OAuth2ConsentMetadata,
     });
 
@@ -86,17 +76,14 @@ const OAuth2ConsentHandler = Effect.fn("OAuth2ConsentHandler")(
       );
     }
 
-    return yield* S.decodeUnknown(OAuth2ConsentContract.successSchema)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OAuth2ConsentMetadata())),
+    return yield* OAuth2ConsentContract.decodeUnknownSuccess(result.data);
   })
 );
 
-const OAuth2TokenHandler = Effect.fn("OAuth2TokenHandler")(
-  function* (payload: OAuth2TokenPayload.Type) {
+const OAuth2TokenHandler = OAuth2TokenContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OAuth2Token",
+      contract: OAuth2TokenContract.name,
       metadata: OAuth2TokenMetadata,
     });
 
@@ -110,23 +97,17 @@ const OAuth2TokenHandler = Effect.fn("OAuth2TokenHandler")(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "OAuth2TokenHandler returned no payload from Better Auth", {
-        plugin: "oidc-provider",
-        method: "token",
-      });
+      return yield* new IamError({}, "OAuth2TokenHandler returned no payload from Better Auth", OAuth2TokenMetadata());
     }
 
-    return yield* S.decodeUnknown(OAuth2TokenContract.successSchema)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OAuth2TokenMetadata())),
+    return yield* OAuth2TokenContract.decodeUnknownSuccess(result.data);
   })
 );
 
-const OAuth2UserInfoHandler = Effect.fn("OAuth2UserInfoHandler")(
-  function* () {
+const OAuth2UserInfoHandler = OAuth2UserInfoContract.implement(
+  Effect.fn(function* () {
     const continuation = makeFailureContinuation({
-      contract: "OAuth2UserInfo",
+      contract: OAuth2UserInfoContract.name,
       metadata: OAuth2UserInfoMetadata,
     });
 
@@ -139,23 +120,21 @@ const OAuth2UserInfoHandler = Effect.fn("OAuth2UserInfoHandler")(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "OAuth2UserInfoHandler returned no payload from Better Auth", {
-        plugin: "oidc-provider",
-        method: "userinfo",
-      });
+      return yield* new IamError(
+        {},
+        "OAuth2UserInfoHandler returned no payload from Better Auth",
+        OAuth2UserInfoMetadata()
+      );
     }
 
-    return yield* S.decodeUnknown(OAuth2UserInfoContract.successSchema)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OAuth2UserInfoMetadata())),
+    return yield* OAuth2UserInfoContract.decodeUnknownSuccess(result.data);
   })
 );
 
-const OAuth2RegisterHandler = Effect.fn("OAuth2RegisterHandler")(
-  function* (payload: OAuth2RegisterPayload.Type) {
+const OAuth2RegisterHandler = OAuth2RegisterContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OAuth2Register",
+      contract: OAuth2RegisterContract.name,
       metadata: OAuth2RegisterMetadata,
     });
 
@@ -176,17 +155,14 @@ const OAuth2RegisterHandler = Effect.fn("OAuth2RegisterHandler")(
       );
     }
 
-    return yield* S.decodeUnknown(OAuth2RegisterContract.successSchema)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OAuth2RegisterMetadata())),
+    return yield* OAuth2RegisterContract.decodeUnknownSuccess(result.data);
   })
 );
 
-const OAuth2ClientHandler = Effect.fn("OAuth2ClientHandler")(
-  function* (payload: OAuth2ClientPayload.Type) {
+const OAuth2ClientHandler = OAuth2ClientContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "OAuth2Client",
+      contract: OAuth2ClientContract.name,
       metadata: OAuth2ClientMetadata,
     });
 
@@ -202,16 +178,14 @@ const OAuth2ClientHandler = Effect.fn("OAuth2ClientHandler")(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "OAuth2ClientHandler returned no payload from Better Auth", {
-        plugin: "oidc-provider",
-        method: "client",
-      });
+      return yield* new IamError(
+        {},
+        "OAuth2ClientHandler returned no payload from Better Auth",
+        OAuth2ClientMetadata()
+      );
     }
 
-    return yield* S.decodeUnknown(OAuth2ClientContract.successSchema)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, OAuth2ClientMetadata())),
+    return yield* OAuth2ClientContract.decodeUnknownSuccess(result.data);
   })
 );
 

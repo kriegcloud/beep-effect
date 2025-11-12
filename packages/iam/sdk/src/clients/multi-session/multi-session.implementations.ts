@@ -1,6 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
 import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
-import type { MultiSessionTokenPayload } from "@beep/iam-sdk/clients/multi-session/multi-session.contracts";
 import {
   MultiSessionContractKit,
   MultiSessionListContract,
@@ -10,7 +9,6 @@ import {
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
-import * as S from "effect/Schema";
 
 const metadataFactory = new MetadataFactory("multiSession");
 
@@ -20,10 +18,10 @@ const MultiSessionSetActiveMetadata = metadataFactory.make("setActive");
 
 const MultiSessionRevokeMetadata = metadataFactory.make("revoke");
 
-const MultiSessionListHandler = Effect.fn("MultiSessionListHandler")(
-  function* () {
+const MultiSessionListHandler = MultiSessionListContract.implement(
+  Effect.fn(function* () {
     const continuation = makeFailureContinuation({
-      contract: "MultiSessionList",
+      contract: MultiSessionListContract.name,
       metadata: MultiSessionListMetadata,
     });
 
@@ -35,22 +33,19 @@ const MultiSessionListHandler = Effect.fn("MultiSessionListHandler")(
 
     if (result.data == null) {
       return yield* new IamError({}, "MultiSessionListHandler returned no payload from Better Auth", {
-        plugin: "multiSession",
+        domain: "multiSession",
         method: "listDeviceSessions",
       });
     }
 
-    return yield* S.decodeUnknown(MultiSessionListContract.successSchema)(result.data);
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, MultiSessionListMetadata())),
+    return yield* MultiSessionListContract.decodeUnknownSuccess(result.data);
   })
 );
 
-const MultiSessionSetActiveHandler = Effect.fn("MultiSessionSetActiveHandler")(
-  function* (payload: MultiSessionTokenPayload.Type) {
+const MultiSessionSetActiveHandler = MultiSessionSetActiveContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
-      contract: "MultiSessionSetActive",
+      contract: MultiSessionSetActiveContract.name,
       metadata: MultiSessionSetActiveMetadata,
     });
 
@@ -67,24 +62,21 @@ const MultiSessionSetActiveHandler = Effect.fn("MultiSessionSetActiveHandler")(
 
     if (result.data == null) {
       return yield* new IamError({}, "MultiSessionSetActiveHandler returned no payload from Better Auth", {
-        plugin: "multiSession",
+        domain: "multiSession",
         method: "setActive",
       });
     }
 
-    const decoded = yield* S.decodeUnknown(MultiSessionSetActiveContract.successSchema)(result.data);
+    const decoded = yield* MultiSessionSetActiveContract.decodeUnknownSuccess(result.data);
 
     client.$store.notify("$sessionSignal");
 
     return decoded;
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, MultiSessionSetActiveMetadata())),
   })
 );
 
-const MultiSessionRevokeHandler = Effect.fn("MultiSessionRevokeHandler")(
-  function* (payload: MultiSessionTokenPayload.Type) {
+const MultiSessionRevokeHandler = MultiSessionRevokeContract.implement(
+  Effect.fn(function* (payload) {
     const continuation = makeFailureContinuation({
       contract: "MultiSessionRevoke",
       metadata: MultiSessionRevokeMetadata,
@@ -103,19 +95,16 @@ const MultiSessionRevokeHandler = Effect.fn("MultiSessionRevokeHandler")(
 
     if (result.data == null) {
       return yield* new IamError({}, "MultiSessionRevokeHandler returned no payload from Better Auth", {
-        plugin: "multiSession",
+        domain: "multiSession",
         method: "revoke",
       });
     }
 
-    const decoded = yield* S.decodeUnknown(MultiSessionRevokeContract.successSchema)(result.data);
+    const decoded = yield* MultiSessionRevokeContract.decodeUnknownSuccess(result.data);
 
     client.$store.notify("$sessionSignal");
 
     return decoded;
-  },
-  Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, MultiSessionRevokeMetadata())),
   })
 );
 
