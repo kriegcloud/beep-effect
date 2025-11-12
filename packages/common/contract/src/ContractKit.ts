@@ -33,7 +33,7 @@
  *
  * @since 1.0.0
  */
-
+import { BS } from "@beep/schema";
 import type { UnsafeTypes } from "@beep/types";
 import type * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
@@ -148,7 +148,7 @@ export interface ContractKit<in out Contracts extends Record<string, Contract.An
    * Builds lifted handlers for every contract in the kit. Each handler defaults to
    * returning only the `Success` channel and failing when a `Failure` is produced.
    */
-  liftService<Mode extends LiftServiceMode = "success">(
+  liftService<Mode extends LiftServiceMode.Type = typeof LiftServiceMode.Enum.success>(
     options?: LiftServiceOptions<Contracts, Mode>
   ): Effect.Effect<LiftedService<Contracts, Mode>, never, Contract.ImplementationsFor<Contracts>>;
 }
@@ -201,6 +201,12 @@ export type ImplementationsFrom<Contracts extends Record<string, Contract.Any>> 
     Contract.Requirements<Contracts[Name]>
   >;
 };
+export const LiftServiceModeKit = BS.stringLiteralKit("success", "result");
+
+export class LiftServiceMode extends LiftServiceModeKit.Schema {
+  static readonly Options = LiftServiceModeKit.Options;
+  static readonly Enum = LiftServiceModeKit.Enum;
+}
 
 /**
  * Determines whether lifted service methods should expose only successes or
@@ -209,7 +215,10 @@ export type ImplementationsFrom<Contracts extends Record<string, Contract.Any>> 
  * @since 1.0.0
  * @category Utility Types
  */
-export type LiftServiceMode = "success" | "result";
+export declare namespace LiftServiceMode {
+  export type Type = typeof LiftServiceMode.Type;
+  export type Encoded = typeof LiftServiceMode.Encoded;
+}
 
 /**
  * Options for building lifted service handlers from a contract kit.
@@ -219,7 +228,7 @@ export type LiftServiceMode = "success" | "result";
  */
 export interface LiftServiceOptions<
   Contracts extends Record<string, Contract.Any>,
-  Mode extends LiftServiceMode = "success",
+  Mode extends LiftServiceMode.Type = typeof LiftServiceMode.Enum.success,
 > {
   readonly mode?: Mode;
   readonly hooks?: LiftServiceHooks<Contracts>;
@@ -255,11 +264,16 @@ export interface LiftServiceHooks<Contracts extends Record<string, Contract.Any>
  * @since 1.0.0
  * @category Utility Types
  */
-export type LiftedService<Contracts extends Record<string, Contract.Any>, Mode extends LiftServiceMode = "success"> = {
+export type LiftedService<
+  Contracts extends Record<string, Contract.Any>,
+  Mode extends LiftServiceMode.Type = typeof LiftServiceMode.Enum.success,
+> = {
   readonly [Name in keyof Contracts]: (
     payload: Contract.Payload<Contracts[Name]>
   ) => Effect.Effect<
-    Mode extends "result" ? Contract.HandleOutcome<Contracts[Name]> : Contract.Success<Contracts[Name]>,
+    Mode extends typeof LiftServiceMode.Enum.result
+      ? Contract.HandleOutcome<Contracts[Name]>
+      : Contract.Success<Contracts[Name]>,
     Contract.Failure<Contracts[Name]> | ContractError.UnknownError,
     Contract.Requirements<Contracts[Name]>
   >;
@@ -299,11 +313,15 @@ export interface WithImplementation<in out Contracts extends Record<string, Cont
     Contract.Requirements<Contracts[Name]>
   >;
 }
-const liftService = function <Contracts extends Record<string, Contract.Any>, Mode extends LiftServiceMode = "success">(
+
+const liftService = function <
+  Contracts extends Record<string, Contract.Any>,
+  Mode extends LiftServiceMode.Type = typeof LiftServiceMode.Enum.success,
+>(
   this: ContractKit<Contracts>,
   options?: LiftServiceOptions<Contracts, Mode>
 ): Effect.Effect<LiftedService<Contracts, Mode>, never, Contract.ImplementationsFor<Contracts>> {
-  const mode = (options?.mode ?? "success") as Mode;
+  const mode = (options?.mode ?? LiftServiceMode.Enum.success) as Mode;
   const hooksOpt = O.fromNullable(options?.hooks).pipe(
     O.map((hooks) => ({
       onFailure: O.fromNullable(hooks.onFailure),
@@ -338,7 +356,7 @@ const liftService = function <Contracts extends Record<string, Contract.Any>, Mo
       } as const);
 
       (lifted as Record<keyof Contracts, unknown>)[name] = (
-        mode === "result" ? liftedContract.result : liftedContract.success
+        mode === LiftServiceMode.Enum.result ? liftedContract.result : liftedContract.success
       ) as LiftedService<Contracts, Mode>[typeof name];
     }
     return lifted;

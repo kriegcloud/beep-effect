@@ -26,25 +26,30 @@
  *
  * @since 1.0.0
  */
-import { BS } from "@beep/schema";
-import type { UnsafeTypes } from "@beep/types";
+
+import {BS} from "@beep/schema";
+import type {UnsafeTypes} from "@beep/types";
+import {makeAssertsReturn} from "@beep/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
+import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import type * as Either from "effect/Either";
 import * as Exit from "effect/Exit";
 import * as F from "effect/Function";
-import * as JsonSchema from "effect/JSONSchema";
+import * as HashSet from "effect/HashSet";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
-import type { Pipeable } from "effect/Pipeable";
-import { pipeArguments } from "effect/Pipeable";
-import * as Predicate from "effect/Predicate";
+import type {Pipeable} from "effect/Pipeable";
+import {pipeArguments} from "effect/Pipeable";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
-import * as Struct from "effect/Struct";
-import type { Covariant } from "effect/Types";
+import type {Covariant} from "effect/Types";
 import * as ContractError from "./ContractError";
+import {reverseRecord} from "@beep/utils/data/record.utils";
+
 // =============================================================================
 // Type Ids
 // =============================================================================
@@ -635,15 +640,15 @@ export interface ProviderDefined<
   },
   RequiresImplementation extends boolean = false,
 > extends Contract<
-      Name,
-      {
-        readonly payload: Config["payload"];
-        readonly success: Config["success"];
-        readonly failure: Config["failure"];
-        readonly failureMode: Config["failureMode"];
-      }
-    >,
-    Contract.ProviderDefinedProto {
+  Name,
+  {
+    readonly payload: Config["payload"];
+    readonly success: Config["success"];
+    readonly failure: Config["failure"];
+    readonly failureMode: Config["failureMode"];
+  }
+>,
+  Contract.ProviderDefinedProto {
   /**
    * The arguments passed to the provider-defined contract.
    */
@@ -693,33 +698,33 @@ export class FailureMode extends FailureModeKit.Schema.annotations({
   static readonly Options = FailureModeKit.Options;
   static readonly $match =
     <C extends Any, E1, E2, R1, R2>(result: Result<C>) =>
-    (
-      contract: Any,
-      cases: {
-        onErrorMode: (result: Failure<C>) => Effect.Effect<
-          {
-            readonly _tag: "success";
-            readonly value: Success<C>;
-          },
-          E1,
-          R1
-        >;
-        onReturnMode: (result: Result<C>) => Effect.Effect<
-          | { readonly _tag: "failure"; readonly value: Failure<C> }
-          | {
+      (
+        contract: Any,
+        cases: {
+          onErrorMode: (result: Failure<C>) => Effect.Effect<
+            {
               readonly _tag: "success";
               readonly value: Success<C>;
             },
-          E2,
-          R2
-        >;
-      }
-    ) =>
-      Match.value(contract.failureMode).pipe(
-        Match.when(FailureMode.Enum.error, () => cases.onErrorMode(result)),
-        Match.when(FailureMode.Enum.return, () => cases.onReturnMode(result)),
-        Match.exhaustive
-      );
+            E1,
+            R1
+          >;
+          onReturnMode: (result: Result<C>) => Effect.Effect<
+            | { readonly _tag: "failure"; readonly value: Failure<C> }
+            | {
+            readonly _tag: "success";
+            readonly value: Success<C>;
+          },
+            E2,
+            R2
+          >;
+        }
+      ) =>
+        Match.value(contract.failureMode).pipe(
+          Match.when(FailureMode.Enum.error, () => cases.onErrorMode(result)),
+          Match.when(FailureMode.Enum.return, () => cases.onReturnMode(result)),
+          Match.exhaustive
+        );
 
   /**
    * Experimental helper that projects an implementation result into a discriminated
@@ -801,47 +806,6 @@ export declare namespace Contract {
 // =============================================================================
 
 /**
- * Type guard to check if a value is a user-defined contract.
- *
- * @example
- * ```ts
- * import * as Contract from "@beep/contract/contract-kit/Contract"
- * import * as S from "effect/Schema"
- *
- * const SignInEmail = Contract.make("SignInEmail", {
- *   description: "Authenticates a user with email and password",
- *   payload: {
- *     email: S.String,
- *     password: S.String
- *   },
- *   success: S.Struct({
- *     sessionToken: S.String
- *   })
- * })
- *
- * const HostedPasswordReset = Contract.providerDefined({
- *   id: "betterauth.reset_password",
- *   contractKitName: "HostedPasswordReset",
- *   providerName: "reset_password",
- *   args: {
- *     redirectUri: S.String
- *   },
- *   success: S.Struct({
- *     status: S.Literal("redirected")
- *   })
- * })
- *
- * console.log(Contract.isUserDefined(SignInEmail))           // true
- * console.log(Contract.isUserDefined(HostedPasswordReset))   // false
- * ```
- *
- * @since 1.0.0
- * @category Guards
- */
-export const isUserDefined = (u: unknown): u is Contract<string, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny> =>
-  Predicate.hasProperty(u, TypeId) && !isProviderDefined(u);
-
-/**
  * Type guard to check if a value is a provider-defined contract.
  *
  * @param u - The value to check
@@ -883,24 +847,11 @@ export const isUserDefined = (u: unknown): u is Contract<string, UnsafeTypes.Uns
  * @category Guards
  */
 export const isProviderDefined = (u: unknown): u is ProviderDefined<string, UnsafeTypes.UnsafeAny> =>
-  Predicate.hasProperty(u, ProviderDefinedTypeId);
+  P.hasProperty(u, ProviderDefinedTypeId);
 
 // =============================================================================
 // Utility Types
 // =============================================================================
-/**
- * A type which represents any `Contract`.
- *
- * @since 1.0.0
- * @category Utility Types
- */
-export interface AnyProviderDefined extends Any {
-  readonly args: UnsafeTypes.UnsafeAny;
-  readonly argsSchema: AnyStructSchema;
-  readonly requiresHandler: boolean;
-  readonly providerName: string;
-  readonly decodeResult: (result: unknown) => Effect.Effect<UnsafeTypes.UnsafeAny, ContractError.ContractError>;
-}
 
 /**
  * @since 1.0.0
@@ -956,7 +907,8 @@ export interface FromTaggedRequest<S extends AnyTaggedRequestSchema>
       readonly failure: S["failure"];
       readonly failureMode: typeof FailureMode.Enum.error;
     }
-  > {}
+  > {
+}
 
 /**
  * A utility type to extract the `Name` type from an `Contract`.
@@ -1113,23 +1065,23 @@ export type ResultEncoded<T> = T extends Contract<infer _Name, infer _Config, in
  */
 export type HandleOutcome<T extends Any> =
   | {
-      readonly mode: typeof FailureMode.Enum.error;
-      readonly _tag: "success";
-      readonly result: Success<T>;
-      readonly encodedResult: SuccessEncoded<T>;
-    }
+  readonly mode: typeof FailureMode.Enum.error;
+  readonly _tag: "success";
+  readonly result: Success<T>;
+  readonly encodedResult: SuccessEncoded<T>;
+}
   | {
-      readonly mode: typeof FailureMode.Enum.return;
-      readonly _tag: "success";
-      readonly result: Success<T>;
-      readonly encodedResult: SuccessEncoded<T>;
-    }
+  readonly mode: typeof FailureMode.Enum.return;
+  readonly _tag: "success";
+  readonly result: Success<T>;
+  readonly encodedResult: SuccessEncoded<T>;
+}
   | {
-      readonly mode: typeof FailureMode.Enum.return;
-      readonly _tag: "failure";
-      readonly result: Failure<T>;
-      readonly encodedResult: FailureEncoded<T>;
-    };
+  readonly mode: typeof FailureMode.Enum.return;
+  readonly _tag: "failure";
+  readonly result: Failure<T>;
+  readonly encodedResult: FailureEncoded<T>;
+};
 export declare namespace HandleOutcome {
   export type Success<C extends Any> = Extract<HandleOutcome<C>, { readonly _tag: "success" }>;
   export type Failure<C extends Any> = Extract<HandleOutcome<C>, { readonly _tag: "failure" }>;
@@ -1217,10 +1169,10 @@ export type ImplementationsFor<Contracts extends Record<string, Any>> = {
  * @category Utility Types
  */
 export type RequiresImplementation<Contract extends Any> = Contract extends ProviderDefined<
-  infer _Name,
-  infer _Config,
-  infer _RequiresImplementation
->
+    infer _Name,
+    infer _Config,
+    infer _RequiresImplementation
+  >
   ? _RequiresImplementation
   : true;
 
@@ -1229,7 +1181,7 @@ export type RequiresImplementation<Contract extends Any> = Contract extends Prov
 // =============================================================================
 
 const Proto = {
-  [TypeId]: { _Requirements: F.identity },
+  [TypeId]: {_Requirements: F.identity},
   pipe() {
     return pipeArguments(this, arguments);
   },
@@ -1237,7 +1189,7 @@ const Proto = {
     return implement(this, options)(handler);
   },
   addDependency(this: Any) {
-    return userDefinedProto({ ...this });
+    return userDefinedProto({...this});
   },
   setPayload(this: Any, payloadSchema: S.Struct<UnsafeTypes.UnsafeAny> | S.Struct.Fields) {
     return userDefinedProto({
@@ -1477,11 +1429,6 @@ const Proto = {
   },
 };
 
-const ProviderDefinedProto = {
-  ...Proto,
-  [ProviderDefinedTypeId]: ProviderDefinedTypeId,
-};
-
 const userDefinedProto = <
   const Name extends string,
   Payload extends AnyStructSchema,
@@ -1509,37 +1456,6 @@ const userDefinedProto = <
   self.id = `@beep/contract/Contract/${options.name}`;
   return self;
 };
-
-const providerDefinedProto = <
-  const Name extends string,
-  Args extends AnyStructSchema,
-  Payload extends AnyStructSchema,
-  Success extends S.Schema.Any,
-  Failure extends S.Schema.All,
-  RequiresHandler extends boolean,
-  Mode extends FailureMode.Type,
->(options: {
-  readonly id: string;
-  readonly name: Name;
-  readonly providerName: string;
-  readonly args: Args["Encoded"];
-  readonly argsSchema: Args;
-  readonly requiresHandler: RequiresHandler;
-  readonly payloadSchema: Payload;
-  readonly successSchema: Success;
-  readonly failureSchema: Failure;
-  readonly failureMode: FailureMode.Type;
-}): ProviderDefined<
-  Name,
-  {
-    readonly args: Args;
-    readonly payload: Payload;
-    readonly success: Success;
-    readonly failure: Failure;
-    readonly failureMode: Mode;
-  },
-  RequiresHandler
-> => Object.assign(Object.create(ProviderDefinedProto), options);
 
 const constEmptyStruct = S.Struct({});
 
@@ -1643,122 +1559,6 @@ export const make = <
 };
 
 /**
- * Creates a provider-defined contract that delegates to functionality supplied
- * by an auth provider.
- *
- * The provider triggers these contracts, but your runtime can still validate the
- * payload, enforce failure handling, and merge in application-specific logic.
- *
- * @example
- * ```ts
- * import * as Contract from "@beep/contract/contract-kit/Contract"
- * import * as S from "effect/Schema"
- *
- * const HostedMagicLink = Contract.providerDefined({
- *   id: "betterauth.magic_link",
- *   contractKitName: "HostedMagicLink",
- *   providerName: "magic_link",
- *   args: {
- *     redirectUri: S.String
- *   },
- *   success: S.Struct({
- *     verificationUrl: S.String
- *   })
- * })
- * ```
- *
- * @since 1.0.0
- * @category Constructors
- */
-export const providerDefined =
-  <
-    const Name extends string,
-    Args extends S.Struct.Fields = {},
-    Payload extends S.Struct.Fields = {},
-    Success extends S.Schema.Any = typeof S.Void,
-    Failure extends S.Schema.All = typeof S.Never,
-    RequiresHandler extends boolean = false,
-  >(options: {
-    /**
-     * Unique identifier following format `<provider>.<tool-name>`.
-     */
-    readonly id: `${string}.${string}`;
-    /**
-     * Name used by the Toolkit to identify this tool.
-     */
-    readonly toolkitName: Name;
-    /**
-     * Name of the tool as recognized by the AI provider.
-     */
-    readonly providerName: string;
-    /**
-     * Schema for user-provided configuration arguments.
-     */
-    readonly args: Args;
-    /**
-     * Whether this tool requires a custom handler implementation.
-     */
-    readonly requiresHandler?: RequiresHandler | undefined;
-    /**
-     * Schema for payload the provider sends when calling the tool.
-     */
-    readonly payload?: Payload | undefined;
-    /**
-     * Schema for successful tool execution results.
-     */
-    readonly success?: Success | undefined;
-    /**
-     * Schema for failed tool execution results.
-     */
-    readonly failure?: Failure | undefined;
-  }) =>
-  <Mode extends FailureMode.Type | undefined = undefined>(
-    args: RequiresHandler extends true
-      ? S.Simplify<
-          S.Struct.Encoded<Args> & {
-            /**
-             * The strategy used for handling errors returned from tool call handler
-             * execution.
-             *
-             * If set to `"error"` (the default), errors that occur during tool call handler
-             * execution will be returned in the error channel of the calling effect.
-             *
-             * If set to `"return"`, errors that occur during tool call handler execution
-             * will be captured and returned as part of the tool call result.
-             */
-            readonly failureMode?: Mode;
-          }
-        >
-      : S.Simplify<S.Struct.Encoded<Args>>
-  ): ProviderDefined<
-    Name,
-    {
-      readonly args: S.Struct<Args>;
-      readonly payload: S.Struct<Payload>;
-      readonly success: Success;
-      readonly failure: Failure;
-      readonly failureMode: Mode extends undefined ? typeof FailureMode.Enum.error : Mode;
-    },
-    RequiresHandler
-  > => {
-    const failureMode = "failureMode" in args ? args.failureMode : undefined;
-    const successSchema = options?.success ?? S.Void;
-    const failureSchema = options?.failure ?? S.Never;
-    return providerDefinedProto({
-      id: options.id,
-      name: options.toolkitName,
-      providerName: options.providerName,
-      args,
-      argsSchema: S.Struct(options.args as UnsafeTypes.UnsafeAny),
-      requiresHandler: options.requiresHandler ?? false,
-      payloadSchema: options?.payload ? S.Struct(options?.payload as UnsafeTypes.UnsafeAny) : constEmptyStruct,
-      successSchema,
-      failureSchema,
-      failureMode: failureMode ?? FailureMode.Enum.error,
-    }) as UnsafeTypes.UnsafeAny;
-  };
-
-/**
  * Creates a Contract from a S.TaggedRequest.
  *
  * This utility function converts Effect's TaggedRequest schemas into Contract
@@ -1804,49 +1604,6 @@ export const fromTaggedRequest = <S extends AnyTaggedRequestSchema>(schema: S): 
   }) as UnsafeTypes.UnsafeAny;
 
 // =============================================================================
-// Utilities
-// =============================================================================
-
-/**
- * @since 1.0.0
- * @category Utilities
- */
-export const getDescriptionFromSchemaAst = (ast: AST.AST): string | undefined => {
-  const annotations =
-    ast._tag === "Transformation"
-      ? {
-          ...ast.to.annotations,
-          ...ast.annotations,
-        }
-      : ast.annotations;
-  return AST.DescriptionAnnotationId in annotations ? (annotations[AST.DescriptionAnnotationId] as string) : undefined;
-};
-
-/**
- * @since 1.0.0
- * @category Utilities
- */
-export const getJsonSchemaFromSchemaAst = (ast: AST.AST): JsonSchema.JsonSchema7 => {
-  const props = AST.getPropertySignatures(ast);
-  if (props.length === 0) {
-    return {
-      type: "object",
-      properties: {},
-      required: [],
-      additionalProperties: false,
-    };
-  }
-  const $defs = {};
-  const schema = JsonSchema.fromAST(ast, {
-    definitions: $defs,
-    topLevelReferenceStrategy: "skip",
-  });
-  if (Struct.keys($defs).length === 0) return schema;
-  (schema as UnsafeTypes.UnsafeAny).$defs = $defs;
-  return schema;
-};
-
-// =============================================================================
 // Annotations
 // =============================================================================
 
@@ -1864,7 +1621,8 @@ export const getJsonSchemaFromSchemaAst = (ast: AST.AST): JsonSchema.JsonSchema7
  * @since 1.0.0
  * @category Annotations
  */
-export class Title extends Context.Tag("@beep/contract/Contract/Title")<Title, string>() {}
+export class Title extends Context.Tag("@beep/contract/Contract/Title")<Title, string>() {
+}
 
 /**
  * Annotation for providing a human-readable title for contracts.
@@ -1880,7 +1638,8 @@ export class Title extends Context.Tag("@beep/contract/Contract/Title")<Title, s
  * @since 1.0.0
  * @category Annotations
  */
-export class Domain extends Context.Tag("@beep/contract/Contract/Domain")<Domain, string>() {}
+export class Domain extends Context.Tag("@beep/contract/Contract/Domain")<Domain, string>() {
+}
 
 /**
  * Annotation for providing a human-readable title for contracts.
@@ -1896,93 +1655,8 @@ export class Domain extends Context.Tag("@beep/contract/Contract/Domain")<Domain
  * @since 1.0.0
  * @category Annotations
  */
-export class Method extends Context.Tag("@beep/contract/Contract/Method")<Method, string>() {}
-
-/**
- * Annotation indicating whether a contract only reads data without making changes.
- *
- * @example
- * ```ts
- * import * as Contract from "@beep/contract/contract-kit/Contract"
- *
- * const readOnlyContract = Contract.make("get_user_info")
- *   .annotate(Contract.Readonly, true)
- * ```
- *
- * @since 1.0.0
- * @category Annotations
- */
-export class Readonly extends Context.Reference<Readonly>()("@beep/contract/Contract/Readonly", {
-  defaultValue: F.constFalse,
-}) {}
-
-const suspectProtoRx = /"__proto__"\s*:/;
-const suspectConstructorRx = /"constructor"\s*:/;
-
-function _parse(text: string) {
-  // Parse normally
-  const obj = JSON.parse(text);
-
-  // Ignore null and non-objects
-  if (obj === null || typeof obj !== "object") {
-    return obj;
-  }
-
-  if (!suspectProtoRx.test(text) && !suspectConstructorRx.test(text)) {
-    return obj;
-  }
-
-  // Scan result for proto keys
-  return filter(obj);
+export class Method extends Context.Tag("@beep/contract/Contract/Method")<Method, string>() {
 }
-
-function filter(obj: UnsafeTypes.UnsafeAny) {
-  let next = [obj];
-
-  while (next.length) {
-    const nodes = next;
-    next = [];
-
-    for (const node of nodes) {
-      if (Object.prototype.hasOwnProperty.call(node, "__proto__")) {
-        throw new SyntaxError("Object contains forbidden prototype property");
-      }
-
-      if (
-        Object.prototype.hasOwnProperty.call(node, "constructor") &&
-        Object.prototype.hasOwnProperty.call(node.constructor, "prototype")
-      ) {
-        throw new SyntaxError("Object contains forbidden prototype property");
-      }
-
-      for (const key in node) {
-        const value = node[key];
-        if (value && typeof value === "object") {
-          next.push(value);
-        }
-      }
-    }
-  }
-  return obj;
-}
-
-/**
- * **Unsafe**: This function will throw an error if an insecure property is
- * found in the parsed JSON or if the provided JSON text is not parseable.
- *
- * @since 1.0.0
- * @category Utilities
- */
-export const unsafeSecureJsonParse = (text: string): unknown => {
-  // Performance optimization, see https://github.com/fastify/secure-json-parse/pull/90
-  const { stackTraceLimit } = Error;
-  Error.stackTraceLimit = 0;
-  try {
-    return _parse(text);
-  } finally {
-    Error.stackTraceLimit = stackTraceLimit;
-  }
-};
 
 export interface ImplementationContext<C extends Any> {
   readonly contract: C;
@@ -2009,30 +1683,30 @@ export interface ImplementOptions<C extends Any> {
 
 export const implement =
   <const C extends Any>(contract: C, options: ImplementOptions<C> = {}) =>
-  <Handler extends ImplementationHandler<C>>(handler: Handler): ImplementationFunction<C> => {
-    const context: ImplementationContext<C> = {
-      contract,
-      annotations: contract.annotations,
-    };
-    const onSuccessOpt = O.fromNullable(options.onSuccess);
-    const onFailureOpt = O.fromNullable(options.onFailure);
-    return Effect.fn(`${contract.name}.implementation`, { captureStackTrace: false })(function* (payload: Payload<C>) {
-      yield* Effect.annotateCurrentSpan({
-        contract: contract.name,
-        failureMode: contract.failureMode,
+    <Handler extends ImplementationHandler<C>>(handler: Handler): ImplementationFunction<C> => {
+      const context: ImplementationContext<C> = {
+        contract,
+        annotations: contract.annotations,
+      };
+      const onSuccessOpt = O.fromNullable(options.onSuccess);
+      const onFailureOpt = O.fromNullable(options.onFailure);
+      return Effect.fn(`${contract.name}.implementation`, {captureStackTrace: false})(function* (payload: Payload<C>) {
+        yield* Effect.annotateCurrentSpan({
+          contract: contract.name,
+          failureMode: contract.failureMode,
+        });
+        let effect = handler(payload, context);
+        if (O.isSome(onSuccessOpt)) {
+          const onSuccess = onSuccessOpt.value;
+          effect = Effect.tap(effect, (success) => onSuccess(success, context));
+        }
+        if (O.isSome(onFailureOpt)) {
+          const onFailure = onFailureOpt.value;
+          effect = Effect.tapError(effect, (failure) => onFailure(failure, context));
+        }
+        return yield* effect;
       });
-      let effect = handler(payload, context);
-      if (O.isSome(onSuccessOpt)) {
-        const onSuccess = onSuccessOpt.value;
-        effect = Effect.tap(effect, (success) => onSuccess(success, context));
-      }
-      if (O.isSome(onFailureOpt)) {
-        const onFailure = onFailureOpt.value;
-        effect = Effect.tapError(effect, (failure) => onFailure(failure, context));
-      }
-      return yield* effect;
-    });
-  };
+    };
 
 export interface LiftOptions<C extends Any> {
   readonly method: (payload: Payload<C>) => Effect.Effect<ImplementationResult<C>, Failure<C>, Requirements<C>>;
@@ -2051,7 +1725,7 @@ export interface LiftedContract<C extends Any> {
 }
 
 export const lift = <const C extends Any>(contract: C, options: LiftOptions<C>): LiftedContract<C> => {
-  const { method, onFailure, onSuccess, onDefect } = options;
+  const {method, onFailure, onSuccess, onDefect} = options;
 
   const annotateOutcome = (outcome: HandleOutcome<C>) =>
     Match.value(outcome).pipe(
@@ -2133,22 +1807,139 @@ export interface HandleOutcomeHandlers<C extends Any, R = void, E = never, Env =
 
 export const handleOutcome =
   <const C extends Any>(_contract: C) =>
-  <R, E, Env>(handlers: HandleOutcomeHandlers<C, R, E, Env>) =>
-  (outcome: HandleOutcome<C>): Effect.Effect<R, E, Env> =>
-    Match.value(outcome).pipe(
-      Match.discriminatorsExhaustive("mode")({
-        error: (result) =>
-          Match.value(result).pipe(
-            Match.tagsExhaustive({
-              success: (successOutcome) => handlers.onSuccess(successOutcome),
-            })
-          ),
-        return: (result) =>
-          Match.value(result).pipe(
-            Match.tagsExhaustive({
-              success: (successOutcome) => handlers.onSuccess(successOutcome),
-              failure: (failureOutcome) => handlers.onFailure(failureOutcome),
-            })
-          ),
+    <R, E, Env>(handlers: HandleOutcomeHandlers<C, R, E, Env>) =>
+      (outcome: HandleOutcome<C>): Effect.Effect<R, E, Env> =>
+        Match.value(outcome).pipe(
+          Match.discriminatorsExhaustive("mode")({
+            error: (result) =>
+              Match.value(result).pipe(
+                Match.tagsExhaustive({
+                  success: (successOutcome) => handlers.onSuccess(successOutcome),
+                })
+              ),
+            return: (result) =>
+              Match.value(result).pipe(
+                Match.tagsExhaustive({
+                  success: (successOutcome) => handlers.onSuccess(successOutcome),
+                  failure: (failureOutcome) => handlers.onFailure(failureOutcome),
+                })
+              ),
+          })
+        );
+
+
+export const getAnnotations = <Ctx extends Any["annotations"]>(
+  self: Ctx
+) => Effect.gen(function* () {
+  const c = (id: ContextAnnotationTag.Type) => Match.value(id).pipe(
+    Match.when(ContextAnnotationTag.Enum.Title, () => Title),
+    Match.when(ContextAnnotationTag.Enum.Domain, () => Domain),
+    Match.when(ContextAnnotationTag.Enum.Method, () => Method),
+    Match.exhaustive,
+  );
+
+  return yield* F.pipe(
+    Effect.all(A.map(ContextAnnotationTag.Options, (id) => Effect.succeed([id, c(id)] as const)), {concurrency: "unbounded"}),
+    Effect.map(A.reduce({} as {
+        readonly [Id in keyof typeof ContextAnnotationTag.Enum]: string
+      }, (acc, [id]) => ({
+        ...acc,
+        [ContextAnnotationTag.ReverseEnum[id]]: Match.value(id).pipe(
+          Match.when(ContextAnnotationTag.Enum.Title, () => F.pipe(
+            Context.getOption(
+              self,
+              Title,
+            ),
+            O.getOrThrow,
+          )),
+          Match.when(ContextAnnotationTag.Enum.Domain, () => F.pipe(
+            Context.getOption(
+              self,
+              Domain,
+            ),
+            O.getOrThrow,
+          )),
+          Match.when(ContextAnnotationTag.Enum.Method, () => F.pipe(
+            Context.getOption(
+              self,
+              Domain,
+            ),
+            O.getOrThrow,
+          )),
+          Match.exhaustive,
+        ),
+      } as const))
+    ));
+});
+
+export const getAnnotation = <Ctx extends Any["annotations"]>(
+  self: Ctx
+) => (mappedKey: keyof typeof ContextAnnotationTag.Enum): Effect.Effect<string, never, never> =>
+  Effect.flatMap(getAnnotations(self), (annotations) => Effect.succeed(
+    annotations[mappedKey]
+  ));
+
+
+export const ContextAnnotationTagKit = BS.stringLiteralKit(
+  "@beep/contract/Contract/Title",
+  "@beep/contract/Contract/Domain",
+  "@beep/contract/Contract/Method",
+  {
+    enumMapping: [
+      ["@beep/contract/Contract/Title", "Title"],
+      ["@beep/contract/Contract/Domain", "Domain"],
+      ["@beep/contract/Contract/Method", "Method"],
+    ]
+  }
+);
+
+export class ContextAnnotationTag extends ContextAnnotationTagKit.Schema.annotations({
+  schemaId: Symbol.for("@beep/contract/ContextAnnotationTag"),
+  identifier: "ContextAnnotationTag",
+  title: "Context Annotation Tag",
+  description: "One of the possible keys for Context Annotations within `@beep/contract/Contract.ts`"
+}) {
+  static readonly Options = ContextAnnotationTagKit.Options;
+  static readonly Enum = ContextAnnotationTagKit.Enum;
+  static readonly ReverseEnum = reverseRecord(ContextAnnotationTagKit.Enum);
+  static readonly Discriminated = ContextAnnotationTagKit.toTagged("id");
+  static readonly HashSet = HashSet.make(ContextAnnotationTagKit.Options);
+  static readonly assertReturn = makeAssertsReturn(ContextAnnotationTag);
+  private static readonly toDiscriminated = S.transform(
+    ContextAnnotationTag,
+    ContextAnnotationTag.Discriminated.Union,
+    {
+      strict: true,
+      decode: (i) => Match.value(i).pipe(
+        Match.when(ContextAnnotationTag.Enum.Title, () => Data.struct({
+          id: ContextAnnotationTag.Enum.Title,
+        } as const)),
+        Match.when(ContextAnnotationTag.Enum.Domain, () => Data.struct({
+          id: ContextAnnotationTag.Enum.Method,
+        } as const)),
+        Match.when(ContextAnnotationTag.Enum.Method, () => Data.struct({
+          id: ContextAnnotationTag.Enum.Method,
+        } as const)),
+        Match.exhaustive,
+      ),
+      encode: ContextAnnotationTag.assertReturn,
+    }
+  );
+  static readonly transformDiscriminated = S.decode(ContextAnnotationTag.toDiscriminated);
+
+  static readonly getOption = <Ctx extends Context.Context<never>>(self: Ctx) => (id: ContextAnnotationTag.Type) => ContextAnnotationTag.transformDiscriminated(id).pipe(
+    Effect.flatMap((ctxLiteral) => Match.value(ctxLiteral).pipe(
+      Match.discriminatorsExhaustive("id")({
+        [ContextAnnotationTag.Enum.Title]: () => Context.getOption(self, Title),
+        [ContextAnnotationTag.Enum.Domain]: () => Context.getOption(self, Domain),
+        [ContextAnnotationTag.Enum.Method]: () => Context.getOption(self, Method),
       })
-    );
+    ))
+  );
+}
+
+export declare namespace ContextAnnotationTag {
+  export type Type = typeof ContextAnnotationTag.Type
+  export type Encoded = typeof ContextAnnotationTag.Encoded
+
+}
