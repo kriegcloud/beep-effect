@@ -7,7 +7,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Random from "effect/Random";
 import * as S from "effect/Schema";
-
+import {getAnnotation} from "@beep/contract/Contract";
 export class ListError extends S.TaggedError<ListError>("@beep/ListError")("ListError", {
   message: S.String,
 }) {}
@@ -93,7 +93,7 @@ export class MyService extends Effect.Service<MyService>()("MyService", {
   static readonly Live = MyService.Default.pipe(Layer.provide(layer));
 }
 
-const handleListOutcome = Contract.handleOutcome(ListContract)({
+export const handleListOutcome = Contract.handleOutcome(ListContract)({
   onSuccess: (success) =>
     Console.log(
       `[failureMode=${success.mode}] Listed ${success.result.length} items -> encoded: ${JSON.stringify(
@@ -108,40 +108,43 @@ const handleListOutcome = Contract.handleOutcome(ListContract)({
     ),
 });
 
-const handleLogOutcome = Contract.handleOutcome(LogContract)({
+export const handleLogOutcome = Contract.handleOutcome(LogContract)({
   onSuccess: (success) => Console.log(`[log success] encoded result: ${JSON.stringify(success.encodedResult)}`),
   onFailure: (failure) =>
     Console.warn(`[log failure] ${failure.result.message} (encoded: ${JSON.stringify(failure.encodedResult)})`),
 });
 
 const program = Effect.gen(function* () {
-  const { list, log, listWithOutcome, logWithOutcome } = yield* MyService;
+  // const { list, log, listWithOutcome, logWithOutcome } = yield* MyService;
+  //
+  // const deterministicList = yield* list({
+  //   name: "beep",
+  //   qty: 5,
+  // });
+  //
+  // yield* Console.log(`deterministicList: ${JSON.stringify(deterministicList)}`);
+  // yield* log({ value: deterministicList });
+  //
+  // yield* Effect.matchEffect(list({ name: "fail", qty: 2 }), {
+  //   onFailure: (failure) => Console.warn(`Expected list failure: ${failure.message}`),
+  //   onSuccess: (success) => Console.log(`Unexpected success: ${JSON.stringify(success)}`),
+  // });
+  const header = `-------- ANNOTATIONS --------\n`
+  const annotations = yield* Contract.getAnnotations(ListContract.annotations)
+  yield* Console.log(header, JSON.stringify(annotations, null, 2), `\n`, Array.from({length: header.length}).map(() => "-").join(""), `\n`)
 
-  const deterministicList = yield* list({
-    name: "beep",
-    qty: 5,
-  });
-
-  yield* Console.log(`deterministicList: ${JSON.stringify(deterministicList)}`);
-  yield* log({ value: deterministicList });
-
-  yield* Effect.matchEffect(list({ name: "fail", qty: 2 }), {
-    onFailure: (failure) => Console.warn(`Expected list failure: ${failure.message}`),
-    onSuccess: (success) => Console.log(`Unexpected success: ${JSON.stringify(success)}`),
-  });
-
-  const outcome = yield* listWithOutcome({
-    name: "boop",
-    qty: 3,
-  });
-  yield* handleListOutcome(outcome);
-
-  const logOutcome = yield* logWithOutcome({ value: "fail" });
-  yield* handleLogOutcome(logOutcome);
-}).pipe(
-  Effect.catchTags({
-    UnknownError: (e) => Effect.dieMessage(`Crashed with unknown error: ${e}`),
-  })
-);
+  // const outcome = yield* listWithOutcome({
+  //   name: "boop",
+  //   qty: 3,
+  // });
+  // yield* handleListOutcome(outcome);
+  //
+  // const logOutcome = yield* logWithOutcome({ value: "fail" });
+  // yield* handleLogOutcome(logOutcome);
+  const titleAnnotation = yield* getAnnotation(ListContract.annotations)("Title")
+  yield* Console.log(
+    titleAnnotation
+  )
+})
 
 BunRuntime.runMain(program.pipe(Effect.provide(MyService.Default)));

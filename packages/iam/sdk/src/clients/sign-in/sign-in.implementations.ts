@@ -214,3 +214,8 @@ export const SignInImplementations = SignInContractKit.of({
   SignInOneTap: SignInOneTapHandler,
   SignInOAuth2: SignInOAuth2Handler,
 });
+
+// =====================================================================================================================
+// Sign In Layer
+// =====================================================================================================================
+export const signInLayer = SignInContractKit.toLayer(SignInImplementations);
