@@ -20,11 +20,11 @@ export const NotificationSelectionKit = BS.stringLiteralKit(
   "application_blog"
 );
 
-export class NotificationSelectionPayload extends BS.Class<NotificationSelectionPayload>(
-  "NotificationSelectionPayload"
-)({
-  selected: S.Array(NotificationSelectionKit.Schema),
-}) {}
+export class NotificationSelectionPayload extends S.Class<NotificationSelectionPayload>("NotificationSelectionPayload")(
+  {
+    selected: S.Array(NotificationSelectionKit.Schema),
+  }
+) {}
 
 // ----------------------------------------------------------------------
 

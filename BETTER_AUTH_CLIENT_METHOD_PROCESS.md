@@ -54,7 +54,7 @@ Document the Better Auth plugin + method identifier (example: plugin `signIn`, m
 2. Record which fields come from `Model.select`, `Model.insert`, and `Model.update`. When JSON data is modelled through `Model.JsonFromString` (see the ApiKey permissions example), note the wrapper type so the contract mirrors its encoding.
 3. If the domain model is missing the fields required by the SDK, stop and log the gap in `BETTER_AUTH_CLIENT_AND_METHODS_LIST.md` plus the relevant cluster notes so the orchestrator can schedule model updates before contracts move forward.
 
-Mirror the ApiKey slice (`packages/iam/sdk/src/clients/api-key/api-key.contracts.ts`, `packages/iam/domain/src/entities/ApiKey/ApiKey.model.ts`) to understand how selectors (`Model.select.pick`, `.fields`) flow into `BS.Class`.
+Mirror the ApiKey slice (`packages/iam/sdk/src/clients/api-key/api-key.contracts.ts`, `packages/iam/domain/src/entities/ApiKey/ApiKey.model.ts`) to understand how selectors (`Model.select.pick`, `.fields`) flow into `S.Class`.
 
 ---
 
@@ -63,7 +63,7 @@ Mirror the ApiKey slice (`packages/iam/sdk/src/clients/api-key/api-key.contracts
 1. Locate the client folder → `jetbrains__find_files_by_name_keyword {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","nameKeyword":"<feature>.contracts.ts"}`
 2. Derive payload/success schemas from the domain model selectors gathered in Step 2:
    - Use `Model.select.pick(...).fields`, `Model.insert.pick(...).fields`, or `Model.update.pick(...).fields` to avoid re-declaring properties.
-   - Spread selector fields inside `BS.Class` structures, adding only the extra literals Better Auth expects (for example, additional redacted secrets or duration wrappers).
+   - Spread selector fields inside `S.Class` structures, adding only the extra literals Better Auth expects (for example, additional redacted secrets or duration wrappers).
    - Reuse JSON helpers such as `Model.JsonFromString` or `Model.Json` to stay in sync with the domain encoding.
    - Provide `namespace` types (`Type`, `Encoded`) for every schema.
 3. Create the contract:
@@ -164,7 +164,7 @@ prefer raising a new `IamError` with the appropriate plugin/method metadata inst
 
 - [ ] Gather Better Auth docs (`context7__get-library-docs`) and OpenAPI snippet.
 - [ ] Load the matching domain `Model` and confirm which selectors (`select/insert/update`) back the contract fields.
-- [ ] Add payload/success schemas using `BS.Class` + namespaces.
+- [ ] Add payload/success schemas using `S.Class` + namespaces.
 - [ ] Create `Contract.make` with `failure: S.instanceOf(IamError)`.
 - [ ] Register schemas in the feature `ContractKit`.
 - [ ] Implement `Effect.fn` handler using `makeFailureContinuation`.

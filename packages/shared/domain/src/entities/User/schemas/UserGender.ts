@@ -5,7 +5,7 @@ export const UserGenderKit = BS.stringLiteralKit("male", "female");
 
 export const UserGenderEnum = UserGenderKit.Enum;
 
-export const makeUserGenderPgEnum = UserGenderKit.toPgEnum;
+export const makeUserGenderPgEnum = BS.toPgEnum(UserGenderKit);
 
 export const UserGenderOptions = UserGenderKit.Options;
 

@@ -37,14 +37,14 @@ import * as AST from "effect/SchemaAST";
 import type { ContractError } from "../contract-error";
 import * as _internal from "../utils";
 import { TypeId } from "./constants";
-import type { FailureContinuationOptions } from "./continuation";
+
 import { failureContinuation } from "./continuation";
-import { FailureMode } from "./schemas";
 import type {
   Any,
   AnyStructSchema,
   AnyTaggedRequestSchema,
   Contract,
+  FailureContinuationOptions,
   FromTaggedRequest,
   ImplementationContext,
   ImplementationFunction,
@@ -52,6 +52,7 @@ import type {
   ImplementOptions,
   Payload,
 } from "./types";
+import { FailureMode } from "./types";
 
 // =============================================================================
 // Constructors
@@ -130,30 +131,6 @@ const Proto = {
       Effect.catchAll((e) => Effect.die(e))
     );
   },
-  decodePayloadOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    return S.decodeOption(S.typeSchema(this.payloadSchema))(value, options);
-  },
-  encodePayloadOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    return S.encodeOption(S.encodedBoundSchema(this.payloadSchema))(value, options);
-  },
-  decodeUnknownPayloadOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    return S.decodeUnknownOption(S.typeSchema(this.payloadSchema))(value, options);
-  },
-  encodeUnknownPayloadOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    return S.encodeUnknownOption(S.encodedBoundSchema(this.payloadSchema))(value, options);
-  },
-  decodePayloadEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    return S.decodeEither(S.typeSchema(this.payloadSchema))(value, options);
-  },
-  encodePayloadEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    return S.encodeEither(S.encodedBoundSchema(this.payloadSchema))(value, options);
-  },
-  decodeUnknownPayloadEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    return S.decodeUnknownEither(S.typeSchema(this.payloadSchema))(value, options);
-  },
-  encodeUnknownPayloadEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    return S.encodeUnknownEither(S.encodedBoundSchema(this.payloadSchema))(value, options);
-  },
   isPayload(this: Any, value: unknown, options?: undefined | AST.ParseOptions | number) {
     return S.is(this.payloadSchema)(value, options);
   },
@@ -182,73 +159,8 @@ const Proto = {
       Effect.catchAll((e) => Effect.die(e))
     );
   },
-  decodeSuccessOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.successSchema);
-    return S.decodeOption(schema)(value, options);
-  },
-  encodeSuccessOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.successSchema);
-    return S.encodeOption(schema)(value, options);
-  },
-  decodeUnknownSuccessOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.successSchema);
-    return S.decodeUnknownOption(schema)(value, options);
-  },
-  encodeUnknownSuccessOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.successSchema);
-    return S.encodeUnknownOption(schema)(value, options);
-  },
-  decodeSuccessEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.successSchema);
-    return S.decodeEither(schema)(value, options);
-  },
-  encodeSuccessEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.successSchema);
-    return S.encodeEither(schema)(value, options);
-  },
-  decodeUnknownSuccessEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.successSchema);
-    return S.decodeUnknownEither(schema)(value, options);
-  },
-  encodeUnknownSuccessEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.successSchema);
-    return S.encodeUnknownEither(schema)(value, options);
-  },
   isSuccess(this: Any, value: unknown, options?: undefined | AST.ParseOptions | number) {
-    const schema = _internal.toSchemaAnyNoContext(this.successSchema);
-    return S.is(schema)(value, options);
-  },
-  decodeOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.successSchema);
-    return S.decodeOption(schema)(value, options);
-  },
-  encodeOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.successSchema);
-    return S.encodeOption(schema)(value, options);
-  },
-  decodeUnknownOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.successSchema);
-    return S.decodeUnknownOption(schema)(value, options);
-  },
-  encodeUnknownOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.successSchema);
-    return S.encodeUnknownOption(schema)(value, options);
-  },
-  decodeEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.successSchema);
-    return S.decodeEither(schema)(value, options);
-  },
-  encodeEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.successSchema);
-    return S.encodeEither(schema)(value, options);
-  },
-  decodeUnknownEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.successSchema);
-    return S.decodeUnknownEither(schema)(value, options);
-  },
-  encodeUnknownEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.successSchema);
-    return S.encodeUnknownEither(schema)(value, options);
+    return S.is(this.successSchema)(value, options);
   },
   decodeFailure(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
     return Effect.flatMap(
@@ -273,38 +185,6 @@ const Proto = {
       S.encodeUnknown(_internal.toSchemaAnyNoContext(this.failureSchema))(value, options),
       Effect.catchAll(Effect.die)
     );
-  },
-  decodeFailureOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.failureSchema);
-    return S.decodeOption(schema)(value, options);
-  },
-  encodeFailureOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.failureSchema);
-    return S.encodeOption(schema)(value, options);
-  },
-  decodeUnknownFailureOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.failureSchema);
-    return S.decodeUnknownOption(schema)(value, options);
-  },
-  encodeUnknownFailureOption(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.failureSchema);
-    return S.encodeUnknownOption(schema)(value, options);
-  },
-  decodeFailureEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.failureSchema);
-    return S.decodeEither(schema)(value, options);
-  },
-  encodeFailureEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.failureSchema);
-    return S.encodeEither(schema)(value, options);
-  },
-  decodeUnknownFailureEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.failureSchema);
-    return S.decodeUnknownEither(schema)(value, options);
-  },
-  encodeUnknownFailureEither(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
-    const schema = _internal.toSchemaAnyNoContext(this.failureSchema);
-    return S.encodeUnknownEither(schema)(value, options);
   },
   isFailure(this: Any, value: unknown, options?: undefined | AST.ParseOptions | number) {
     const schema = _internal.toSchemaAnyNoContext(this.failureSchema);
@@ -490,12 +370,15 @@ export const implement =
     };
     const onSuccessOpt = O.fromNullable(options.onSuccess);
     const onFailureOpt = O.fromNullable(options.onFailure);
+
+    const continuation = failureContinuation(contract);
+
     return Effect.fn(`${contract.name}.implementation`, { captureStackTrace: false })(function* (payload: Payload<C>) {
       yield* Effect.annotateCurrentSpan({
         contract: contract.name,
         failureMode: contract.failureMode,
       });
-      let effect = handler(payload, context);
+      let effect = handler(payload, context, continuation);
       if (O.isSome(onSuccessOpt)) {
         const onSuccess = onSuccessOpt.value;
         effect = Effect.tap(effect, (success) => onSuccess(success, context));
@@ -512,5 +395,4 @@ export * from "./annotations";
 export * from "./constants";
 export * from "./continuation";
 export * from "./lift";
-export * from "./schemas";
 export * from "./types";

@@ -2,7 +2,7 @@ import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
 export const organizationTypeKit = BS.stringLiteralKit("individual", "team", "enterprise");
 
-export const makeOrganizationTypePgEnum = organizationTypeKit.toPgEnum;
+export const makeOrganizationTypePgEnum = BS.toPgEnum(organizationTypeKit);
 
 export const OrganizationTypeEnum = organizationTypeKit.Enum;
 

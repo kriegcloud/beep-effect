@@ -101,3 +101,7 @@ export class Domain extends Context.Tag(ContextAnnotationTag.Enum.Domain)<Domain
  * @category Annotations
  */
 export class Method extends Context.Tag(ContextAnnotationTag.Enum.Method)<Method, string>() {}
+
+export type ContractAnnotationTag = Title | Method | Domain | SupportsAbort;
+
+export type ContractAnnotationCtx = Context.Context<ContractAnnotationTag>;

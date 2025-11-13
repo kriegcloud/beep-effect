@@ -3,7 +3,7 @@ import type * as S from "effect/Schema";
 
 const DeviceCodeStatusKit = BS.stringLiteralKit("pending", "approved", "denied");
 
-export const makeDeviceCodeStatusPgEnum = DeviceCodeStatusKit.toPgEnum;
+export const makeDeviceCodeStatusPgEnum = BS.toPgEnum(DeviceCodeStatusKit);
 
 export class DeviceCodeStatus extends DeviceCodeStatusKit.Schema {
   static readonly Options = DeviceCodeStatusKit.Options;

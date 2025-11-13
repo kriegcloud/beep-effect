@@ -3,7 +3,7 @@ import type * as S from "effect/Schema";
 export const MemberRoleKit = BS.stringLiteralKit("admin", "member", "owner");
 export const MemberRoleEnum = MemberRoleKit.Enum;
 export const MemberRoleOptions = MemberRoleKit.Options;
-export const makeMemberRolePgEnum = MemberRoleKit.toPgEnum;
+export const makeMemberRolePgEnum = BS.toPgEnum(MemberRoleKit);
 
 export class MemberRole extends MemberRoleKit.Schema.annotations({
   schemaId: Symbol.for("@beep/iam-domain/MemberRole"),

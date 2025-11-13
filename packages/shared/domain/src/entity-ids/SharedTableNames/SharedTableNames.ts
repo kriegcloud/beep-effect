@@ -19,7 +19,6 @@ export class SharedTableName extends SharedTableNameKit.Schema.annotations({
   static readonly Tagged = SharedTableNameKit.toTagged("tableName");
   static readonly Enum = SharedTableNameKit.Enum;
   static readonly Options = SharedTableNameKit.Options;
-  static readonly is = SharedTableNameKit.is;
 }
 
 export declare namespace SharedTableName {

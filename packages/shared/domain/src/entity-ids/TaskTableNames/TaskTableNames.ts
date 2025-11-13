@@ -12,7 +12,6 @@ export class TaskTableName extends TaskTableNameKit.Schema.annotations({
   static readonly Tagged = TaskTableNameKit.toTagged("tableName");
   static readonly Enum = TaskTableNameKit.Enum;
   static readonly Options = TaskTableNameKit.Options;
-  static readonly is = TaskTableNameKit.is;
 }
 
 export declare namespace TaskTableName {

@@ -4,7 +4,6 @@ import * as Exit from "effect/Exit";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import { ContractError } from "../contract-error";
-import { FailureMode } from "./schemas";
 import type {
   Any,
   Failure,
@@ -15,6 +14,7 @@ import type {
   ResultEncoded,
   Success,
 } from "./types";
+import { FailureMode } from "./types";
 
 export interface LiftOptions<C extends Any> {
   readonly method: (payload: Payload<C>) => Effect.Effect<ImplementationResult<C>, Failure<C>, Requirements<C>>;

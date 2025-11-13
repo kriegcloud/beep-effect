@@ -260,7 +260,7 @@ export class HttpRequestError extends S.TaggedError<HttpRequestError>("@beep/con
  * @since 1.0.0
  * @category Schemas
  */
-export class HttpResponseDetails extends BS.Class<HttpResponseDetails>("HttpResponseDetails")(
+export class HttpResponseDetails extends S.Class<HttpResponseDetails>("HttpResponseDetails")(
   {
     status: S.Number,
     headers: S.Record({ key: S.String, value: S.String }),

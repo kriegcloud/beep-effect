@@ -17,7 +17,6 @@ export class EntityKind extends EntityKindKit.Schema.annotations({
   static readonly Tagged = EntityKindKit.toTagged("__entityKind");
   static readonly Options = EntityKindKit.Options;
   static readonly Enum = EntityKindKit.Enum;
-  static readonly is = EntityKindKit.is;
 }
 
 export declare namespace EntityKind {

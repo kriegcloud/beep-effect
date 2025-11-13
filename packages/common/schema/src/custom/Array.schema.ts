@@ -1,5 +1,6 @@
+import type * as A from "effect/Array";
 import * as S from "effect/Schema";
-
+import * as Str from "effect/String";
 export class ArrayOfNumbers extends S.Array(S.Number).annotations({
   schemaId: Symbol.for("@beep/schema/custom/ArrayOfNumbers"),
   identifier: "ArrayOfNumbers",
@@ -18,7 +19,7 @@ export const arrayToCommaSeparatedString = <A extends string | number | boolean>
   literalSchema: S.Schema<A, A, never>
 ) =>
   S.transform(S.String, S.Array(literalSchema), {
-    decode: (str) => str.split(",") as Array<A>,
+    decode: (str) => Str.split(",")(str) as A.NonEmptyArray<A>,
     encode: (array) => array.join(","),
     strict: true,
   });

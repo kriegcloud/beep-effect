@@ -26,14 +26,13 @@ If you need additional docs, keep using the `effect-docs` MCP interface (list/se
 ## What’s Been Built
 
 1. **Contract-level ergonomics**
-   - `Contract.implement` now exists both as a namespace helper and as an instance method, enforcing Effect-style handler generation.
-   - `Contract.handleOutcome` and `FailureMode.$match` expose discriminated helpers for success/failure handling.
-   - `contract.metadata(...)` + annotation helpers derive `Title/Domain/Method` without duplicating boilerplate.
-   - `contract.continuation(options?)` wraps the shared `failureContinuation` helper, exposing `.run` (with optional `surfaceDefect`) and `.raiseResult`.
-   - Schema encode/decode helpers (`contract.decodeSuccess`, `contract.decodeUnknownSuccess`, etc.) were added to the prototype, using Effect schema projections internally.
+   - In **`packages/common/contract/src/internal/contract/contract.ts`** the `Contract.implement` helpers exist in both namespace and prototype form, enforcing Effect-style handler generation.
+   - **`packages/common/contract/src/internal/contract/continuation.ts`** houses `Contract.handleOutcome`, `FailureMode.$match`, and the `contract.continuation(options?)` helper that wraps `failureContinuation`.
+   - Metadata + annotation helpers now live in **`packages/common/contract/src/internal/contract/annotations.ts`**, letting you derive `Title/Domain/Method` without duplicating boilerplate.
+   - Schema encode/decode helpers (`contract.decodeSuccess`, `contract.decodeUnknownSuccess`, etc.) are defined in **`packages/common/contract/src/internal/contract/schemas.ts`** using Effect schema projections.
 
 2. **ContractKit APIs**
-   - `ContractKit.liftService` materializes accessor-style services, honoring hooks for `onSuccess`, `onFailure`, and `onDefect`.
+   - `ContractKit.liftService` (implemented in **`packages/common/contract/src/internal/contract-kit/lift.ts`**) materializes accessor-style services, honoring hooks for `onSuccess`, `onFailure`, and `onDefect`.
    - Lifted services can emit either pure success results or discriminated `Result` envelopes depending on `{ mode: "result" }`.
 
 3. **SDK Adoption**
@@ -74,8 +73,8 @@ const impl = ListContract.implement(
    - Explore function overloads or options to detect handler arity.
    - Consider `Contract.implement(contract, { continuation?: … })(handler)` vs. auto-injection.
 
-2. **Prototype in `Contract.ts`**
-   - Update `implement(...)` logic to construct a continuation once per handler, wiring metadata overrides from `ImplementOptions`.
+2. **Prototype in `packages/common/contract/src/internal/contract/contract.ts`**
+   - Update the core `implement(...)` logic (and supporting types in `types.ts` / `continuation.ts`) to construct a continuation once per handler, wiring metadata overrides from `ImplementOptions`.
    - Guarantee the handler receives `(payload, context)` where context includes `continuation` and possibly `metadata`.
 
 3. **Refactor consumers**
@@ -91,8 +90,12 @@ Document every significant inspection with literal tool call references, mirrori
 
 ## Key Files To Keep Handy
 
-- `packages/common/contract/src/Contract.ts`
-- `packages/common/contract/src/ContractKit.ts`
+- `packages/common/contract/src/internal/contract/contract.ts`
+- `packages/common/contract/src/internal/contract/continuation.ts`
+- `packages/common/contract/src/internal/contract/lift.ts`
+- `packages/common/contract/src/internal/contract/schemas.ts`
+- `packages/common/contract/src/internal/contract/annotations.ts`
+- `packages/common/contract/src/internal/contract-kit/index.ts`
 - `packages/iam/sdk/src/execute.ts`
 - `packages/iam/sdk/src/clients/passkey/passkey.implementations.ts`
 - `CONTRACT_LIFTING_OVERVIEW.md`

@@ -14,7 +14,7 @@ Follow the [`BETTER_AUTH_CLIENT_METHOD_PROCESS.md`](BETTER_AUTH_CLIENT_METHOD_PR
    - `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/domain/src/entities/<Entity>/<Entity>.model.ts"}` or  
      `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/shared/domain/src/entities/<Entity>/<Entity>.model.ts"}`
    - Confirm which selectors (`Model.select/insert/update`) power the payloads and note any missing fields that require orchestrator follow-up.
-3. **Author / update contracts** using `BS.Class` schemas and register them with the appropriate `ContractKit`.
+3. **Author / update contracts** using `S.Class` schemas and register them with the appropriate `ContractKit`.
 4. **Implement handlers** with `makeFailureContinuation`, `Effect.fn`, and `client.<plugin>.<method>`; remember to `client.$store.notify("$sessionSignal")` when sessions mutate.
 5. **Export everything** via the feature `index.ts`, encode/decode payloads with the same contract schema that the domain model defined, and run `bun run build --filter=@beep/iam-sdk` (plus targeted lint/tests when appropriate). `ParseError` handlers must call `Effect.fail(IamError.match(...))` instead of `Effect.dieMessage`.
 6. **Mark progress** by checking off the corresponding items in this file once code, model alignment, and verification are complete.

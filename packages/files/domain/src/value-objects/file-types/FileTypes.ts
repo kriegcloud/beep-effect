@@ -1,4 +1,3 @@
-import { BS } from "@beep/schema";
 import * as Data from "effect/Data";
 import type { DetectedFileInfo } from "./FileInfo";
 import { FileInfo } from "./FileInfo";
@@ -886,7 +885,7 @@ export class AudioTypes extends Data.TaggedClass("AudioTypes") {
 }
 
 export const FILE_TYPES_REQUIRED_ADDITIONAL_CHECK = [
-  ...(BS.FileExtensionKit.pick("m4v", "flv", "mp4", "mkv", "webm", "avif", "heic") as ReadonlyArray<string>),
+  ...(["m4v", "flv", "mp4", "mkv", "webm", "avif", "heic"] as ReadonlyArray<string>),
 ];
 
 /**

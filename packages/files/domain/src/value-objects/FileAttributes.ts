@@ -1,7 +1,7 @@
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 
-export class FileAttributes extends BS.Class<FileAttributes>("FileAttributes")(
+export class FileAttributes extends S.Class<FileAttributes>("FileAttributes")(
   {
     size: S.NonNegativeInt,
     type: BS.MimeType,

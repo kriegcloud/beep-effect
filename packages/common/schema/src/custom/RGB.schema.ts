@@ -1,4 +1,3 @@
-import { TaggedClass } from "@beep/schema/custom/Class.schema";
 import { HexColor } from "@beep/schema/custom/Hex.schema";
 import { IntFromStr } from "@beep/schema/custom/Transformations.schema";
 import { destructiveTransform } from "@beep/schema/extended-schemas";
@@ -19,7 +18,7 @@ export class RGBNumberPart extends S.Number.pipe(S.greaterThanOrEqualTo(0), S.le
   description: "RGB Number Part",
 }) {}
 
-export class TaggedRGBNumberPart extends TaggedClass<TaggedRGBNumberPart>("TaggedRGBNumberPart")(
+export class TaggedRGBNumberPart extends S.TaggedClass<TaggedRGBNumberPart>("TaggedRGBNumberPart")(
   "RGBNumberPart",
   {
     value: RGBNumberPart,
@@ -56,7 +55,7 @@ export class RGBPercentPart extends S.String.pipe(
   description: "RGB Percent Part. (0-100%)",
 }) {}
 
-export class TaggedRGBPercentPart extends TaggedClass<TaggedRGBPercentPart>("TaggedRGBPercentPart")(
+export class TaggedRGBPercentPart extends S.TaggedClass<TaggedRGBPercentPart>("TaggedRGBPercentPart")(
   "RGBPercentPart",
   {
     value: RGBPercentPart,

@@ -1,6 +1,6 @@
 import { stringLiteralKit } from "@beep/schema/kits";
 
-export const { Options, Schema, Enum, Mock, JSONSchema, Pretty, Equivalence } = stringLiteralKit(
+export const { Options, Schema, Enum } = stringLiteralKit(
   "AC",
   "AD",
   "AE",

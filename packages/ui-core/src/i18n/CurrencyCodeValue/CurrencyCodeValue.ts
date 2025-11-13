@@ -480,8 +480,6 @@ export const Currency = {
   ZWL: "Zimbabwean dollar",
 } as const;
 export type Currency = (typeof Currency)[keyof typeof Currency];
-export const { Options, Enum, Mock, JSONSchema, Pretty, Equivalence, Schema } = stringLiteralKit(
-  ...RecordUtils.recordKeys(Currency)
-);
+export const { Options, Enum, Schema } = stringLiteralKit(...RecordUtils.recordKeys(Currency));
 
 export type Type = typeof Schema.Type;

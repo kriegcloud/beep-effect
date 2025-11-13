@@ -1,86 +1,23 @@
-import type { Any, HandleOutcome } from "@beep/contract/ContractTypes";
 import { noOp } from "@beep/utils/noOps";
 import * as Bool from "effect/Boolean";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
-import type * as Either from "effect/Either";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import { ContractError } from "../contract-error";
-import { Domain, Method, Title } from "./contract";
-
-export interface FailureContinuationHandlers {
-  readonly signal?: AbortSignal | undefined;
-  readonly onError: (context: { readonly error: unknown }) => void;
-}
-
-export interface FailureContinuationContext<
-  C extends Any,
-  Extra extends Record<string, unknown> = Record<string, unknown>,
-> {
-  readonly contract: C;
-  readonly metadata: Metadata<Extra>;
-}
-
-export interface FailureContinuationOptions<
-  C extends Any,
-  Failure = ContractError.UnknownError,
-  Extra extends Record<string, unknown> = Record<string, unknown>,
-> {
-  readonly supportsAbort?: boolean | undefined;
-  readonly normalizeError?: ((error: unknown, context: FailureContinuationContext<C, Extra>) => Failure) | undefined;
-  readonly metadata?: MetadataOptions<Extra> | undefined;
-}
-
-export interface FailureContinuation<
-  Failure = ContractError.UnknownError,
-  Extra extends Record<string, unknown> = Record<string, unknown>,
-> {
-  readonly metadata: Metadata<Extra>;
-  readonly run: FailureContinuation.Runner<Failure>;
-  readonly raiseResult: (result: { readonly error: unknown | null | undefined }) => Effect.Effect<void, never, never>;
-}
-
-export declare namespace FailureContinuation {
-  export interface RunOptions {
-    readonly surfaceDefect?: boolean;
-  }
-
-  export interface Runner<Failure> {
-    <A>(register: (handlers: FailureContinuationHandlers) => Promise<A>): Effect.Effect<A, never, never>;
-
-    <A>(
-      register: (handlers: FailureContinuationHandlers) => Promise<A>,
-      options: { readonly surfaceDefect: true }
-    ): Effect.Effect<Either.Either<A, Failure>, never, never>;
-  }
-}
-
-export interface Metadata<Extra extends Record<string, unknown> = Record<string, unknown>> {
-  readonly id: string;
-  readonly name: string;
-  readonly description?: string | undefined;
-  readonly title?: string | undefined;
-  readonly domain?: string | undefined;
-  readonly method?: string | undefined;
-  readonly extra?: Extra | undefined;
-}
-
-export interface MetadataOptions<Extra extends Record<string, unknown> = Record<string, unknown>> {
-  readonly overrides?: {
-    readonly title?: string | undefined;
-    readonly domain?: string | undefined;
-    readonly method?: string | undefined;
-    readonly description?: string | undefined;
-  };
-  readonly extra?: Extra | undefined;
-}
-
-export interface HandleOutcomeHandlers<C extends Any, R = void, E = never, Env = never> {
-  readonly onSuccess: (success: HandleOutcome.Success<C>) => Effect.Effect<R, E, Env>;
-  readonly onFailure: (failure: HandleOutcome.Failure<C>) => Effect.Effect<R, E, Env>;
-}
+import { Domain, Method, SupportsAbort, Title } from "./annotations";
+import type {
+  Any,
+  FailureContinuation,
+  FailureContinuationContext,
+  FailureContinuationHandlers,
+  FailureContinuationOptions,
+  HandleOutcome,
+  HandleOutcomeHandlers,
+  Metadata,
+  MetadataOptions,
+} from "./types";
 
 export const handleOutcome =
   <const C extends Any>(_contract: C) =>
@@ -116,6 +53,7 @@ export const metadata = <const C extends Any, Extra extends Record<string, unkno
   const title = getAnnotationValue(contract.annotations, Title);
   const domain = getAnnotationValue(contract.annotations, Domain);
   const method = getAnnotationValue(contract.annotations, Method);
+  const supportsAbort = Context.getOption(contract.annotations, SupportsAbort).pipe(O.getOrElse(() => false));
   const overrides = options?.overrides;
   const description = overrides?.description ?? contract.description;
   const resolvedTitle = overrides?.title ?? title;
@@ -125,6 +63,7 @@ export const metadata = <const C extends Any, Extra extends Record<string, unkno
   return {
     id: contract.id,
     name: contract.name,
+    supportsAbort,
     ...(description !== undefined ? { description } : {}),
     ...(resolvedTitle !== undefined ? { title: resolvedTitle } : {}),
     ...(resolvedDomain !== undefined ? { domain: resolvedDomain } : {}),
@@ -138,7 +77,6 @@ export function failureContinuation<
   Failure = ContractError.UnknownError,
   Extra extends Record<string, unknown> = Record<string, unknown>,
 >(contract: C, options?: FailureContinuationOptions<C, Failure, Extra>): FailureContinuation<Failure, Extra> {
-  const supportsAbort = options?.supportsAbort ?? false;
   const computedMetadata = metadata(contract, options?.metadata);
   const context: FailureContinuationContext<C, Extra> = {
     contract,
@@ -170,7 +108,7 @@ export function failureContinuation<
     options?: FailureContinuation.RunOptions
   ) => {
     const effect = Effect.async<A, Failure>((resume) => {
-      const controller = Bool.match(supportsAbort && P.isNotNullable(AbortController), {
+      const controller = Bool.match(computedMetadata.supportsAbort && P.isNotNullable(AbortController), {
         onTrue: () => new AbortController(),
         onFalse: () => undefined,
       });
@@ -225,12 +163,11 @@ export function failureContinuation<
   };
   const run = runImpl as FailureContinuation.Runner<Failure>;
 
-  const raiseResult: FailureContinuation<Failure, Extra>["raiseResult"] = (result) => {
-    if (result.error == null) {
-      return Effect.void;
-    }
-    return Effect.die(toFailure(result.error));
-  };
+  const raiseResult: FailureContinuation<Failure, Extra>["raiseResult"] = (result) =>
+    Bool.match(P.isNullable(result.error), {
+      onTrue: () => Effect.void,
+      onFalse: () => Effect.die(toFailure(result.error)),
+    });
 
   return {
     metadata: computedMetadata,

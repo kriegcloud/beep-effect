@@ -60,7 +60,7 @@ cluster but keeps reviewers in the loop.
    - Paste key payloads/response structures into the agent’s working context.
 
 3. **Contract Authoring (see SOP §2)**  
-   - Create/extend `BS.Class` schemas with namespaces.  
+   - Create/extend `S.Class` schemas with namespaces.  
    - Define `Contract.make` entries (`failure: S.instanceOf(IamError)`).  
    - Append to the appropriate `ContractKit`.  
    - Export via the feature `index.ts`.

@@ -3,7 +3,7 @@ import type * as S from "effect/Schema";
 
 const kit = BS.stringLiteralKit("active", "canceled");
 
-export const makeSubscriptionStatusPgEnum = kit.toPgEnum;
+export const makeSubscriptionStatusPgEnum = BS.toPgEnum(kit);
 export const SubscriptionStatusEnum = kit.Enum;
 export const SubscriptionStatusOptions = kit.Options;
 

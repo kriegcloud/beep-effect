@@ -1,4 +1,4 @@
-import { Class, URLString } from "@beep/schema/custom";
+import { URLString } from "@beep/schema/custom";
 import { HttpHeaders } from "@beep/schema/http/HttpHeaders";
 import { HttpMethod } from "@beep/schema/http/HttpMethod";
 import * as S from "effect/Schema";
@@ -26,7 +26,7 @@ import * as S from "effect/Schema";
  * @since 1.0.0
  * @category Schemas
  */
-export class HttpRequestDetails extends Class<HttpRequestDetails>("HttpRequestDetails")(
+export class HttpRequestDetails extends S.Class<HttpRequestDetails>("HttpRequestDetails")(
   {
     method: HttpMethod,
     url: URLString,

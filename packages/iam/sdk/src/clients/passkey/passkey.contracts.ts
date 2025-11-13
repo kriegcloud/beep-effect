@@ -45,7 +45,8 @@ export const PasskeyAddContract = Contract.make("add", {
 })
   .annotate(Contract.Title, "Passkey Add Contract")
   .annotate(Contract.Domain, "Passkey")
-  .annotate(Contract.Method, "add");
+  .annotate(Contract.Method, "add")
+  .annotate(Contract.SupportsAbort, true);
 
 export const PasskeyListContract = Contract.make("list", {
   description: "Lists passkeys that belong to the authenticated user.",
@@ -55,7 +56,8 @@ export const PasskeyListContract = Contract.make("list", {
 })
   .annotate(Contract.Title, "Passkey List Contract")
   .annotate(Contract.Domain, "Passkey")
-  .annotate(Contract.Method, "list");
+  .annotate(Contract.Method, "listUserPasskeys")
+  .annotate(Contract.SupportsAbort, true);
 
 export class PasskeyRemovePayload extends S.Class<PasskeyRemovePayload>("PasskeyRemovePayload")(
   {
@@ -82,7 +84,8 @@ export const PasskeyRemoveContract = Contract.make("remove", {
 })
   .annotate(Contract.Title, "Passkey Remove Contract")
   .annotate(Contract.Domain, "Passkey")
-  .annotate(Contract.Method, "remove");
+  .annotate(Contract.Method, "remove")
+  .annotate(Contract.SupportsAbort, true);
 
 export class PasskeyUpdatePayload extends S.Class<PasskeyUpdatePayload>("PasskeyUpdatePayload")(
   {
@@ -126,7 +129,8 @@ export const PasskeyUpdateContract = Contract.make("update", {
 })
   .annotate(Contract.Title, "Passkey Update Contract")
   .annotate(Contract.Domain, "Passkey")
-  .annotate(Contract.Method, "update");
+  .annotate(Contract.Method, "update")
+  .annotate(Contract.SupportsAbort, true);
 
 export const PasskeyContractKit = ContractKit.make(
   PasskeyAddContract,

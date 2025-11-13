@@ -35,6 +35,8 @@
  */
 import { BS } from "@beep/schema";
 import type { UnsafeTypes } from "@beep/types";
+import { noOp } from "@beep/utils/noOps";
+import * as A from "effect/Array";
 import type * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -55,7 +57,7 @@ import * as S from "effect/Schema";
 import type * as Scope from "effect/Scope";
 import * as Struct from "effect/Struct";
 import { Contract } from "../contract";
-import { FailureMode } from "../contract/schemas";
+import { FailureMode } from "../contract/types";
 import { ContractError } from "../contract-error";
 
 /**
@@ -341,15 +343,15 @@ const liftService = function <
         ...F.pipe(
           hooksOpt,
           O.match({
-            onNone: () => R.empty(),
+            onNone: noOp,
             onSome: ({ onFailure, onSuccess, onDefect }) => ({
               ...(O.isSome(onFailure)
                 ? { onFailure: (failure) => onFailure.value({ name, contract, failure }) }
-                : R.empty()),
+                : noOp()),
               ...(O.isSome(onSuccess)
                 ? { onSuccess: (success) => onSuccess.value({ name, contract, success }) }
-                : R.empty()),
-              ...(O.isSome(onDefect) ? { onDefect: (cause) => onDefect.value({ name, contract, cause }) } : R.empty()),
+                : noOp()),
+              ...(O.isSome(onDefect) ? { onDefect: (cause) => onDefect.value({ name, contract, cause }) } : noOp()),
             }),
           })
         ),
@@ -432,7 +434,7 @@ const Proto = {
           yield* Effect.annotateCurrentSpan({ contract: name, payload: params });
           const contract = contracts[name];
           if (P.isUndefined(contract)) {
-            const contractNames = Struct.keys(contracts).join(",");
+            const contractNames = A.join(",")(Struct.keys(contracts));
             return yield* new ContractError.MalformedOutput({
               module: "ContractKit",
               method: `${name}.handle`,
@@ -501,7 +503,7 @@ const Proto = {
   toJSON(this: ContractKit<UnsafeTypes.UnsafeAny>): unknown {
     return {
       _id: "@beep/contract/ContractKit",
-      contracts: Array.from(Object.values(this.contracts)).map((contract) => (contract as Contract.Any).name),
+      contracts: A.map((contract) => (contract as Contract.Any).name)(Array.from(R.values(this.contracts))),
     } as const;
   },
   pipe() {
@@ -510,7 +512,7 @@ const Proto = {
 };
 
 const makeProto = <Contracts extends Record<string, Contract.Any>>(contracts: Contracts): ContractKit<Contracts> =>
-  Object.assign(() => {}, Proto, { contracts }) as UnsafeTypes.UnsafeAny;
+  Object.assign(noOp, Proto, { contracts }) as UnsafeTypes.UnsafeAny;
 
 const resolveInput = <Contracts extends ReadonlyArray<Contract.Any>>(
   ...contracts: Contracts

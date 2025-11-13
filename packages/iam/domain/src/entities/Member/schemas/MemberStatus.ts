@@ -3,7 +3,7 @@ import type * as S from "effect/Schema";
 export const MemberStatusKit = BS.stringLiteralKit("active", "inactive", "offline", "suspended", "deleted", "invited");
 export const MemberStatusEnum = MemberStatusKit.Enum;
 export const MemberStatusOptions = MemberStatusKit.Options;
-export const makeMemberStatusPgEnum = MemberStatusKit.toPgEnum;
+export const makeMemberStatusPgEnum = BS.toPgEnum(MemberStatusKit);
 
 export class MemberStatus extends MemberStatusKit.Schema.annotations({
   schemaId: Symbol.for("@beep/iam-domain/MemberStatus"),

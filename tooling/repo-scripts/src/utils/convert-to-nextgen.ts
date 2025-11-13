@@ -105,7 +105,7 @@ export const collectConvertableFiles = Effect.fn("collectConvertableFiles")(func
         O.fromNullable,
         O.match({
           onNone: () => false,
-          onSome: NextgenConvertableExtensionKit.is,
+          onSome: S.is(NextgenConvertableExtensionKit.Schema),
         })
       );
     }),

@@ -1,19 +1,118 @@
 // =============================================================================
 // Models
 // =============================================================================
-import type { ProviderDefinedTypeId, TypeId } from "@beep/contract/ContractConstants";
+
+import { BS } from "@beep/schema";
 import type { UnsafeTypes } from "@beep/types";
 import type * as Context from "effect/Context";
 import type * as Effect from "effect/Effect";
 import type * as Either from "effect/Either";
-import type * as O from "effect/Option";
+import * as Match from "effect/Match";
 import type { Pipeable } from "effect/Pipeable";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
 import type { Covariant } from "effect/Types";
 import type { ContractError } from "../contract-error";
-import type { FailureContinuation, FailureContinuationOptions } from "./continuation";
-import type { FailureMode } from "./schemas";
+import type { ProviderDefinedTypeId, TypeId } from "./constants";
+
+/**
+ * The strategy used for handling errors returned from contract call implementation
+ * execution.
+ *
+ * If set to `"error"` (the default), errors that occur during contract call implementation
+ * execution will be returned in the error channel of the calling effect.
+ *
+ * If set to `"return"`, errors that occur during contract call implementation execution
+ * will be captured and returned as part of the contract call result.
+ *
+ * @since 1.0.0
+ * @category Models
+ */
+export const FailureModeKit = BS.stringLiteralKit("error", "return");
+
+const makeHandleOutcome = <C extends Any>(contract: C, input: FailureMode.MatchInput<C>): HandleOutcome<C> => {
+  if (input.isFailure) {
+    return {
+      mode: FailureMode.Enum.return,
+      _tag: "failure",
+      result: input.result as Failure<C>,
+      encodedResult: input.encodedResult as FailureEncoded<C>,
+    };
+  }
+  return {
+    mode: contract.failureMode === "return" ? FailureMode.Enum.return : FailureMode.Enum.error,
+    _tag: "success",
+    result: input.result as Success<C>,
+    encodedResult: input.encodedResult as SuccessEncoded<C>,
+  };
+};
+
+export class FailureMode extends FailureModeKit.Schema.annotations({
+  schemaId: Symbol.for("@beep/contract/Contract/FailureMode"),
+  identifier: "FailureMode",
+  title: "Failure Mode",
+  description: "The strategy used for handling errors returned from contract call implementation execution.",
+}) {
+  static readonly Enum = FailureModeKit.Enum;
+  static readonly Options = FailureModeKit.Options;
+  static readonly $match =
+    <C extends Any, E1, E2, R1, R2>(result: Result<C>) =>
+    (
+      contract: Any,
+      cases: {
+        onErrorMode: (result: Failure<C>) => Effect.Effect<
+          {
+            readonly _tag: "success";
+            readonly value: Success<C>;
+          },
+          E1,
+          R1
+        >;
+        onReturnMode: (result: Result<C>) => Effect.Effect<
+          | { readonly _tag: "failure"; readonly value: Failure<C> }
+          | {
+              readonly _tag: "success";
+              readonly value: Success<C>;
+            },
+          E2,
+          R2
+        >;
+      }
+    ) =>
+      Match.value(contract.failureMode).pipe(
+        Match.when(FailureMode.Enum.error, () => cases.onErrorMode(result)),
+        Match.when(FailureMode.Enum.return, () => cases.onReturnMode(result)),
+        Match.exhaustive
+      );
+
+  /**
+   * Experimental helper that projects an implementation result into a discriminated
+   * {@link HandleOutcome} using the configured failure mode.
+   *
+   * @since 1.0.0
+   */
+  static readonly matchOutcome = <C extends Any>(contract: C, input: FailureMode.MatchInput<C>): HandleOutcome<C> =>
+    makeHandleOutcome(contract, input);
+}
+
+export declare namespace FailureMode {
+  export type Type = typeof FailureMode.Type;
+  export type Encoded = typeof FailureMode.Encoded;
+
+  export interface MatchInput<C extends Any> {
+    readonly isFailure: boolean;
+    readonly result: Result<C>;
+    readonly encodedResult: ResultEncoded<C>;
+  }
+
+  export type ErrorOutcome<C extends Any> = Extract<HandleOutcome<C>, { readonly mode: typeof FailureMode.Enum.error }>;
+  export type ReturnOutcome<C extends Any> = Extract<
+    HandleOutcome<C>,
+    {
+      readonly mode: typeof FailureMode.Enum.return;
+    }
+  >;
+}
 /**
  * A user-defined contract that identity clients can call to perform an action.
  *
@@ -140,58 +239,6 @@ export interface Contract<
     PayloadContext<Contract<Name, Config, Requirements>>
   >;
 
-  decodePayloadOption(
-    value: PayloadEncoded<Contract<Name, Config, Requirements>>,
-    options?: undefined | AST.ParseOptions
-  ): O.Option<PayloadSchema<Contract<Name, Config, Requirements>>["Type"]>;
-
-  encodePayloadOption(
-    value: Payload<Contract<Name, Config, Requirements>>,
-    options?: undefined | AST.ParseOptions
-  ): O.Option<PayloadSchema<Contract<Name, Config, Requirements>>["Encoded"]>;
-
-  decodeUnknownPayloadOption(
-    value: unknown,
-    options?: undefined | AST.ParseOptions
-  ): O.Option<PayloadSchema<Contract<Name, Config, Requirements>>["Type"]>;
-
-  encodeUnknownPayloadOption(
-    value: unknown,
-    options?: undefined | AST.ParseOptions
-  ): O.Option<PayloadSchema<Contract<Name, Config, Requirements>>["Encoded"]>;
-
-  decodePayloadEither(
-    value: PayloadEncoded<Contract<Name, Config, Requirements>>,
-    options?: undefined | AST.ParseOptions
-  ): Either.Either<
-    PayloadSchema<Contract<Name, Config, Requirements>>["Type"],
-    Failure<Contract<Name, Config, Requirements>>
-  >;
-
-  encodePayloadEither(
-    value: Payload<Contract<Name, Config, Requirements>>,
-    options?: undefined | AST.ParseOptions
-  ): Either.Either<
-    PayloadSchema<Contract<Name, Config, Requirements>>["Encoded"],
-    Failure<Contract<Name, Config, Requirements>>
-  >;
-
-  decodeUnknownPayloadEither(
-    value: unknown,
-    options?: undefined | AST.ParseOptions
-  ): Either.Either<
-    PayloadSchema<Contract<Name, Config, Requirements>>["Type"],
-    Failure<Contract<Name, Config, Requirements>>
-  >;
-
-  encodeUnknownPayloadEither(
-    value: unknown,
-    options?: undefined | AST.ParseOptions
-  ): Either.Either<
-    PayloadSchema<Contract<Name, Config, Requirements>>["Encoded"],
-    Failure<Contract<Name, Config, Requirements>>
-  >;
-
   isPayload(
     value: unknown,
     options?: undefined | AST.ParseOptions | number
@@ -236,114 +283,10 @@ export interface Contract<
     SuccessContext<Contract<Name, Config, Requirements>>
   >;
 
-  decodeSuccessOption(
-    value: SuccessEncoded<Contract<Name, Config, Requirements>>,
-    options?: undefined | AST.ParseOptions
-  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Type"]>;
-
-  encodeSuccessOption(
-    value: Success<Contract<Name, Config, Requirements>>,
-    options?: undefined | AST.ParseOptions
-  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"]>;
-
-  decodeUnknownSuccessOption(
-    value: unknown,
-    options?: undefined | AST.ParseOptions
-  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Type"]>;
-
-  encodeUnknownSuccessOption(
-    value: unknown,
-    options?: undefined | AST.ParseOptions
-  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"]>;
-
-  decodeSuccessEither(
-    value: SuccessEncoded<Contract<Name, Config, Requirements>>,
-    options?: undefined | AST.ParseOptions
-  ): Either.Either<
-    SuccessSchema<Contract<Name, Config, Requirements>>["Type"],
-    Failure<Contract<Name, Config, Requirements>>
-  >;
-
-  encodeSuccessEither(
-    value: Success<Contract<Name, Config, Requirements>>,
-    options?: undefined | AST.ParseOptions
-  ): Either.Either<
-    SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"],
-    Failure<Contract<Name, Config, Requirements>>
-  >;
-
-  decodeUnknownSuccessEither(
-    value: unknown,
-    options?: undefined | AST.ParseOptions
-  ): Either.Either<
-    SuccessSchema<Contract<Name, Config, Requirements>>["Type"],
-    Failure<Contract<Name, Config, Requirements>>
-  >;
-
-  encodeUnknownSuccessEither(
-    value: unknown,
-    options?: undefined | AST.ParseOptions
-  ): Either.Either<
-    SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"],
-    Failure<Contract<Name, Config, Requirements>>
-  >;
-
   isSuccess(
     value: unknown,
     options?: undefined | AST.ParseOptions | number
   ): value is Success<SuccessSchema<Contract<Name, Config, Requirements>>["Type"]>;
-
-  decodeOption(
-    value: SuccessEncoded<Contract<Name, Config, Requirements>>,
-    options?: undefined | AST.ParseOptions
-  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Type"]>;
-
-  encodeOption(
-    value: Success<Contract<Name, Config, Requirements>>,
-    options?: undefined | AST.ParseOptions
-  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"]>;
-
-  decodeUnknownOption(
-    value: unknown,
-    options?: undefined | AST.ParseOptions
-  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Type"]>;
-
-  encodeUnknownOption(
-    value: unknown,
-    options?: undefined | AST.ParseOptions
-  ): O.Option<SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"]>;
-
-  decodeEither(
-    value: SuccessEncoded<Contract<Name, Config, Requirements>>,
-    options?: undefined | AST.ParseOptions
-  ): Either.Either<
-    SuccessSchema<Contract<Name, Config, Requirements>>["Type"],
-    Failure<Contract<Name, Config, Requirements>>
-  >;
-
-  encodeEither(
-    value: Success<Contract<Name, Config, Requirements>>,
-    options?: undefined | AST.ParseOptions
-  ): Either.Either<
-    SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"],
-    Failure<Contract<Name, Config, Requirements>>
-  >;
-
-  decodeUnknownEither(
-    value: unknown,
-    options?: undefined | AST.ParseOptions
-  ): Either.Either<
-    SuccessSchema<Contract<Name, Config, Requirements>>["Type"],
-    Failure<Contract<Name, Config, Requirements>>
-  >;
-
-  encodeUnknownEither(
-    value: unknown,
-    options?: undefined | AST.ParseOptions
-  ): Either.Either<
-    SuccessSchema<Contract<Name, Config, Requirements>>["Encoded"],
-    Failure<Contract<Name, Config, Requirements>>
-  >;
 
   /**
    * Schema helpers for decoding / encoding failures.
@@ -383,46 +326,6 @@ export interface Contract<
     Failure<Contract<Name, Config, Requirements>>,
     FailureContext<Contract<Name, Config, Requirements>>
   >;
-
-  decodeFailureOption(
-    value: FailureEncoded<Contract<Name, Config, Requirements>>,
-    options?: undefined | AST.ParseOptions
-  ): O.Option<Failure<Contract<Name, Config, Requirements>>>;
-
-  encodeFailureOption(
-    value: Failure<Contract<Name, Config, Requirements>>,
-    options?: undefined | AST.ParseOptions
-  ): O.Option<FailureEncoded<Contract<Name, Config, Requirements>>>;
-
-  decodeUnknownFailureOption(
-    value: unknown,
-    options?: undefined | AST.ParseOptions
-  ): O.Option<Failure<Contract<Name, Config, Requirements>>>;
-
-  encodeUnknownFailureOption(
-    value: unknown,
-    options?: undefined | AST.ParseOptions
-  ): O.Option<FailureEncoded<Contract<Name, Config, Requirements>>>;
-
-  decodeFailureEither(
-    value: FailureEncoded<Contract<Name, Config, Requirements>>,
-    options?: undefined | AST.ParseOptions
-  ): Either.Either<Failure<Contract<Name, Config, Requirements>>, Failure<Contract<Name, Config, Requirements>>>;
-
-  encodeFailureEither(
-    value: Failure<Contract<Name, Config, Requirements>>,
-    options?: undefined | AST.ParseOptions
-  ): Either.Either<FailureEncoded<Contract<Name, Config, Requirements>>, Failure<Contract<Name, Config, Requirements>>>;
-
-  decodeUnknownFailureEither(
-    value: unknown,
-    options?: undefined | AST.ParseOptions
-  ): Either.Either<Failure<Contract<Name, Config, Requirements>>, Failure<Contract<Name, Config, Requirements>>>;
-
-  encodeUnknownFailureEither(
-    value: unknown,
-    options?: undefined | AST.ParseOptions
-  ): Either.Either<FailureEncoded<Contract<Name, Config, Requirements>>, Failure<Contract<Name, Config, Requirements>>>;
 
   isFailure(
     value: unknown,
@@ -968,7 +871,8 @@ export interface ImplementationContext<C extends Any> {
 
 export type ImplementationHandler<C extends Any> = (
   payload: Payload<C>,
-  context: ImplementationContext<C>
+  context: ImplementationContext<C>,
+  continuation: FailureContinuation
 ) => Effect.Effect<Success<C>, Failure<C>, Requirements<C>>;
 
 export type ImplementationFunction<C extends Any> = (
@@ -982,4 +886,76 @@ export interface ImplementOptions<C extends Any> {
   readonly onFailure?:
     | undefined
     | ((failure: Failure<C>, context: ImplementationContext<C>) => Effect.Effect<void, never, never>);
+}
+export interface Metadata<Extra extends Record<string, unknown> = Record<string, unknown>> {
+  readonly id: string;
+  readonly name: string;
+  readonly supportsAbort: boolean;
+  readonly description?: string | undefined;
+  readonly title?: string | undefined;
+  readonly domain?: string | undefined;
+  readonly method?: string | undefined;
+  readonly extra?: Extra | undefined;
+}
+
+export interface MetadataOptions<Extra extends Record<string, unknown> = Record<string, unknown>> {
+  readonly overrides?: {
+    readonly title?: string | undefined;
+    readonly domain?: string | undefined;
+    readonly method?: string | undefined;
+    readonly description?: string | undefined;
+  };
+  readonly extra?: Extra | undefined;
+}
+
+export interface HandleOutcomeHandlers<C extends Any, R = void, E = never, Env = never> {
+  readonly onSuccess: (success: HandleOutcome.Success<C>) => Effect.Effect<R, E, Env>;
+  readonly onFailure: (failure: HandleOutcome.Failure<C>) => Effect.Effect<R, E, Env>;
+}
+
+export interface FailureContinuationHandlers {
+  readonly signal?: AbortSignal | undefined;
+  readonly onError: (context: { readonly error: unknown }) => void;
+}
+
+export interface FailureContinuationContext<
+  C extends Any,
+  Extra extends Record<string, unknown> = Record<string, unknown>,
+> {
+  readonly contract: C;
+  readonly metadata: Metadata<Extra>;
+}
+
+export interface FailureContinuationOptions<
+  C extends Any,
+  Failure = ContractError.UnknownError,
+  Extra extends Record<string, unknown> = Record<string, unknown>,
+> {
+  readonly supportsAbort?: boolean | undefined;
+  readonly normalizeError?: ((error: unknown, context: FailureContinuationContext<C, Extra>) => Failure) | undefined;
+  readonly metadata?: MetadataOptions<Extra> | undefined;
+}
+
+export interface FailureContinuation<
+  Failure = ContractError.UnknownError,
+  Extra extends Record<string, unknown> = Record<string, unknown>,
+> {
+  readonly metadata: Metadata<Extra>;
+  readonly run: FailureContinuation.Runner<Failure>;
+  readonly raiseResult: (result: { readonly error: unknown | null | undefined }) => Effect.Effect<void, never, never>;
+}
+
+export declare namespace FailureContinuation {
+  export interface RunOptions {
+    readonly surfaceDefect?: boolean;
+  }
+
+  export interface Runner<Failure> {
+    <A>(register: (handlers: FailureContinuationHandlers) => Promise<A>): Effect.Effect<A, never, never>;
+
+    <A>(
+      register: (handlers: FailureContinuationHandlers) => Promise<A>,
+      options: { readonly surfaceDefect: true }
+    ): Effect.Effect<Either.Either<A, Failure>, never, never>;
+  }
 }

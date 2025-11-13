@@ -53,7 +53,6 @@ export class IamTableName extends IamTableNameKit.Schema.annotations({
   static readonly Tagged = IamTableNameKit.toTagged("tableName");
   static readonly Enum = IamTableNameKit.Enum;
   static readonly Options = IamTableNameKit.Options;
-  static readonly is = IamTableNameKit.is;
 }
 
 export declare namespace IamTableName {

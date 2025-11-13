@@ -5,7 +5,7 @@ export const UserRoleKit = BS.stringLiteralKit("admin", "user");
 
 export const UserRoleEnum = UserRoleKit.Enum;
 
-export const makeUserRolePgEnum = UserRoleKit.toPgEnum;
+export const makeUserRolePgEnum = BS.toPgEnum(UserRoleKit);
 
 export const UserRoleOptions = UserRoleKit.Options;
 

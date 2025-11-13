@@ -3,7 +3,7 @@ import type * as S from "effect/Schema";
 
 export const InvitationStatusKit = BS.stringLiteralKit("pending", "rejected", "cancelled", "accepted");
 
-export const makeInvitationStatusPgEnum = InvitationStatusKit.toPgEnum;
+export const makeInvitationStatusPgEnum = BS.toPgEnum(InvitationStatusKit);
 
 export const InvitationStatusEnum = InvitationStatusKit.Enum;
 

@@ -5,6 +5,7 @@ import { toast } from "@beep/ui/molecules";
 import Card from "@mui/material/Card";
 import InputAdornment from "@mui/material/InputAdornment";
 import * as A from "effect/Array";
+import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
 import type { ISocialLink } from "./types";
 
@@ -12,7 +13,7 @@ type Props = {
   readonly socialLinks: ISocialLink;
 };
 
-export class AccountSocialsPayload extends BS.Class<AccountSocialsPayload>("AccountSocialsPayload")({
+export class AccountSocialsPayload extends S.Class<AccountSocialsPayload>("AccountSocialsPayload")({
   facebook: BS.Url,
   instagram: BS.Url,
   linkedin: BS.Url,

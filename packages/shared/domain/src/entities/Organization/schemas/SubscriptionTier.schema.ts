@@ -3,7 +3,7 @@ import type * as S from "effect/Schema";
 
 const kit = BS.stringLiteralKit("free", "plus", "pro", "enterprise");
 
-export const makeSubscriptionTierPgEnum = kit.toPgEnum;
+export const makeSubscriptionTierPgEnum = BS.toPgEnum(kit);
 export const SubscriptionTierEnum = kit.Enum;
 export const SubscriptionTierOptions = kit.Options;
 

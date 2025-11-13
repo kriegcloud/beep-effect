@@ -8,7 +8,6 @@
 export * from "@beep/schema/custom/Array.schema";
 export * from "@beep/schema/custom/ArrayBuffer.schema";
 export * from "@beep/schema/custom/Bool.schema";
-export * from "@beep/schema/custom/Class.schema";
 export * from "@beep/schema/custom/CurrencyCode.schema";
 export * from "@beep/schema/custom/Domain.schema";
 export * from "@beep/schema/custom/Duration.schema";

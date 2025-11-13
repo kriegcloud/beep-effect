@@ -1,5 +1,6 @@
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 // Schema-based edge direction transformation
 const EdgeDirectionInput = S.Struct({
@@ -25,7 +26,7 @@ export const EdgeDirectionSchema = S.transformOrFail(EdgeDirectionInput, EdgeDir
     }
 
     const alphaRange = (id: string) => {
-      const c = id[0]!.toLowerCase();
+      const c = Str.toLowerCase(id[0]!);
       return c >= "a" && c <= "m" ? "A-M" : "N-Z";
     };
 

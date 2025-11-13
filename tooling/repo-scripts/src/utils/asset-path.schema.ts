@@ -1,7 +1,8 @@
 import { removeExt, toJsAccessor } from "@beep/constants/paths/utils/public-paths-to-record";
 import { BS } from "@beep/schema";
-
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const SupportedFileExtensionKit = BS.stringLiteralKit(
   "gif",
@@ -22,8 +23,6 @@ const SupportedFileExtensionKit = BS.stringLiteralKit(
 
 export const NextgenConvertableExtensionKit = SupportedFileExtensionKit.derive("jpg", "jpeg", "png", "webp");
 
-export const SupportedFileExtensionSet = new Set([...SupportedFileExtensionKit.Options]);
-
 const jsIdentifierStartRegex = /^[a-z_$]/;
 const jsPropertyAccessorRegex = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 const kebabCaseFileBaseRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -32,11 +31,11 @@ const reservedObjectKeys = new Set(["__proto__", "prototype", "constructor"]);
 
 // Schema enforcing the expected invariants for generated public asset paths.
 export const AssetPath = S.String.pipe(
-  S.filter((value) => value.startsWith("/") || "Asset path must start with '/'"),
-  S.filter((value) => value === value.toLowerCase() || "Asset path must be lower case"),
-  S.filter((value) => !value.includes("//") || "Asset path cannot contain consecutive '/' characters"),
+  S.filter((value) => Str.startsWith("/")(value) || "Asset path must start with '/'"),
+  S.filter((value) => value === Str.toLowerCase(value) || "Asset path must be lower case"),
+  S.filter((value) => !A.contains("//")(value) || "Asset path cannot contain consecutive '/' characters"),
   S.filter((value) => {
-    const segments = value.slice(1).split("/");
+    const segments = Str.split("/")(Str.slice(1)(value));
     if (segments.some((segment) => segment.length === 0)) {
       return "Asset path segments cannot be empty";
     }
@@ -87,7 +86,7 @@ export const AssetPath = S.String.pipe(
       return `Asset file name generates reserved JS accessor "${accessorCandidate}"`;
     }
     return (
-      SupportedFileExtensionKit.is(extension) ||
+      S.is(SupportedFileExtensionKit.Schema)(extension) ||
       `Unsupported asset extension ".${extension}". Supported extensions: ${SupportedFileExtensionKit.Options.join(", ")}`
     );
   })
