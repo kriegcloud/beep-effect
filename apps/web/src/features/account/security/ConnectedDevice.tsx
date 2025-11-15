@@ -1,6 +1,6 @@
 import { Iconify } from "@beep/ui/atoms";
 import { Stack, Typography } from "@mui/material";
-import dayjs from "dayjs";
+import * as DateTime from "effect/DateTime";
 import { useState } from "react";
 import type { ConnectedInDevice } from "@/features/account/security/types";
 import { InfoCard } from "../common/InfoCard";
@@ -31,7 +31,11 @@ const ConnectedDevice = ({ connectedDevice }: ConnectedDeviceProps) => {
               {used
                 ? currentlyUsed
                   ? "Currently Used"
-                  : `Last used at ${dayjs(lastUsedDate).format("MMM DD, h:mm a")}`
+                  : `Last used at ${DateTime.format({
+                      locale: "en-US",
+                      dateStyle: "long",
+                      timeStyle: "short",
+                    })(DateTime.unsafeFromDate(lastUsedDate))}`
                 : "Not yet Used"}
             </Typography>
           </Stack>

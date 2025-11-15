@@ -1,4 +1,3 @@
-export * from "./anonymous";
 export * from "./api-key";
 export * from "./device-authorization";
 export * from "./multi-session";

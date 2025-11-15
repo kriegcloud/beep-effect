@@ -53,12 +53,12 @@ export const DateTimeFromDate = (annotations?: Annotations<S.Schema.Type<typeof 
  */
 export interface FieldOptionOmittable<S extends S.Schema.Any>
   extends VariantSchema.Field<{
-    readonly select: S.OptionFromNullOr<S>;
-    readonly insert: S.optionalWith<S.OptionFromNullOr<S>, { default: () => O.Option<S.Schema.Type<S>> }>;
-    readonly update: S.optionalWith<S.OptionFromNullOr<S>, { default: () => O.Option<S.Schema.Type<S>> }>;
-    readonly json: S.OptionFromNullOr<S>;
-    readonly jsonCreate: S.optionalWith<S.OptionFromNullOr<S>, { default: () => O.Option<S.Schema.Type<S>> }>;
-    readonly jsonUpdate: S.optionalWith<S.OptionFromNullOr<S>, { default: () => O.Option<S.Schema.Type<S>> }>;
+    readonly select: S.OptionFromNullishOr<S>;
+    readonly insert: S.optionalWith<S.OptionFromNullishOr<S>, { default: () => O.Option<S.Schema.Type<S>> }>;
+    readonly update: S.optionalWith<S.OptionFromNullishOr<S>, { default: () => O.Option<S.Schema.Type<S>> }>;
+    readonly json: S.OptionFromNullishOr<S>;
+    readonly jsonCreate: S.optionalWith<S.OptionFromNullishOr<S>, { default: () => O.Option<S.Schema.Type<S>> }>;
+    readonly jsonUpdate: S.optionalWith<S.OptionFromNullishOr<S>, { default: () => O.Option<S.Schema.Type<S>> }>;
   }> {}
 
 /**
@@ -77,12 +77,12 @@ export interface FieldOptionOmittable<S extends S.Schema.Any>
  */
 export const FieldOptionOmittable = <S extends S.Schema.Any>(schema: S): FieldOptionOmittable<S> =>
   Field({
-    select: S.OptionFromNullOr(schema),
-    insert: S.optionalWith(S.OptionFromNullOr(schema), { default: () => O.none() }),
-    update: S.optionalWith(S.OptionFromNullOr(schema), { default: () => O.none<S.Schema.Type<S>>() }),
-    json: S.OptionFromNullOr(schema),
-    jsonCreate: S.optionalWith(S.OptionFromNullOr(schema), { default: () => O.none<S.Schema.Type<S>>() }),
-    jsonUpdate: S.optionalWith(S.OptionFromNullOr(schema), { default: () => O.none<S.Schema.Type<S>>() }),
+    select: S.OptionFromNullishOr(schema, null),
+    insert: S.optionalWith(S.OptionFromNullishOr(schema, null), { default: () => O.none() }),
+    update: S.optionalWith(S.OptionFromNullishOr(schema, null), { default: () => O.none<S.Schema.Type<S>>() }),
+    json: S.OptionFromNullishOr(schema, null),
+    jsonCreate: S.optionalWith(S.OptionFromNullishOr(schema, null), { default: () => O.none<S.Schema.Type<S>>() }),
+    jsonUpdate: S.optionalWith(S.OptionFromNullishOr(schema, null), { default: () => O.none<S.Schema.Type<S>>() }),
   });
 
 export const DateTimeInsertFromDateOmittable = (
@@ -159,28 +159,28 @@ export const DateTimeUpdateFromDateOmittable = (
  */
 export interface FieldSensitiveOptionOmittable<S extends S.Schema.Any>
   extends VariantSchema.Field<{
-    readonly select: S.OptionFromNullOr<S.Redacted<S>>;
+    readonly select: S.OptionFromNullishOr<S.Redacted<S>>;
     readonly insert: S.optionalWith<
-      S.OptionFromNullOr<S.Redacted<S>>,
+      S.OptionFromNullishOr<S.Redacted<S>>,
       {
         default: () => O.Option<Redacted.Redacted<S.Schema.Type<S>>>;
       }
     >;
     readonly update: S.optionalWith<
-      S.OptionFromNullOr<S.Redacted<S>>,
+      S.OptionFromNullishOr<S.Redacted<S>>,
       {
         default: () => O.Option<Redacted.Redacted<S.Schema.Type<S>>>;
       }
     >;
-    readonly json: S.OptionFromNullOr<S.Redacted<S>>;
+    readonly json: S.OptionFromNullishOr<S.Redacted<S>>;
     readonly jsonCreate: S.optionalWith<
-      S.OptionFromNullOr<S.Redacted<S>>,
+      S.OptionFromNullishOr<S.Redacted<S>>,
       {
         default: () => O.Option<Redacted.Redacted<S.Schema.Type<S>>>;
       }
     >;
     readonly jsonUpdate: S.optionalWith<
-      S.OptionFromNullOr<S.Redacted<S>>,
+      S.OptionFromNullishOr<S.Redacted<S>>,
       {
         default: () => O.Option<Redacted.Redacted<S.Schema.Type<S>>>;
       }
@@ -203,12 +203,12 @@ export interface FieldSensitiveOptionOmittable<S extends S.Schema.Any>
  */
 export const FieldSensitiveOptionOmittable = <S extends S.Schema.Any>(schema: S): FieldSensitiveOptionOmittable<S> =>
   Field({
-    select: S.OptionFromNullOr(S.Redacted(schema)),
-    insert: S.optionalWith(S.OptionFromNullOr(S.Redacted(schema)), { default: () => O.none() }),
-    update: S.optionalWith(S.OptionFromNullOr(S.Redacted(schema)), { default: () => O.none() }),
-    json: S.OptionFromNullOr(S.Redacted(schema)),
-    jsonCreate: S.optionalWith(S.OptionFromNullOr(S.Redacted(schema)), { default: () => O.none() }),
-    jsonUpdate: S.optionalWith(S.OptionFromNullOr(S.Redacted(schema)), { default: () => O.none() }),
+    select: S.OptionFromNullishOr(S.Redacted(schema), null),
+    insert: S.optionalWith(S.OptionFromNullishOr(S.Redacted(schema), null), { default: () => O.none() }),
+    update: S.optionalWith(S.OptionFromNullishOr(S.Redacted(schema), null), { default: () => O.none() }),
+    json: S.OptionFromNullishOr(S.Redacted(schema), null),
+    jsonCreate: S.optionalWith(S.OptionFromNullishOr(S.Redacted(schema), null), { default: () => O.none() }),
+    jsonUpdate: S.optionalWith(S.OptionFromNullishOr(S.Redacted(schema), null), { default: () => O.none() }),
   });
 
 /**

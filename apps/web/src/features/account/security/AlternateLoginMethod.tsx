@@ -23,42 +23,10 @@ const qrCode = {
   code: "3412 1234 6355 1234",
 };
 
-// interface RegSecurityKeyFormValues {
-//   currentSecurityKey: string;
-//   newSecurityKey: string;
-//   confirmSecurityKey: string;
-// }
-
-// const regSecurityKeySchema = yup.object().shape({
-//   currentSecurityKey: yup.string().required('Current security key is required'),
-//   newSecurityKey: yup
-//     .string()
-//     .required('New security key is required')
-//     .min(4, 'Security key PIN must be at least 4 characters.'),
-//   confirmSecurityKey: yup
-//     .string()
-//     .oneOf([yup.ref('newSecurityKey')], 'Security keys must match')
-//     .required('Confirm security key is required'),
-// });
-
 const AlternateLoginMethod = () => {
   const [open, setOpen] = useState(false);
-  // const methods = useForm<RegSecurityKeyFormValues>({
-  //   resolver: yupResolver(regSecurityKeySchema),
-  // });
-  // const { enqueueSnackbar } = useSnackbar();
-  // const {
-  //   register,
-  //   formState: { errors },
-  // } = methods;
 
   const upSm = useMediaQuery<Theme>((theme) => theme.breakpoints.up("sm"));
-
-  // const onSubmit: SubmitHandler<RegSecurityKeyFormValues> = (data) => {
-  //   console.log(data);
-  //   setOpen(false);
-  //   // enqueueSnackbar('Updated successfully!', { variant: 'success', autoHideDuration: 3000 });
-  // };
 
   return (
     <Form>
@@ -148,29 +116,7 @@ const AlternateLoginMethod = () => {
           maxWidth: 463,
         }}
       >
-        <Stack direction="column" spacing={1} px={0.125} pb={0.125}>
-          {/*<PasswordTextField*/}
-          {/*  placeholder="Current security key PIN"*/}
-          {/*  label="Current security key PIN"*/}
-          {/*  error={!!errors.currentSecurityKey}*/}
-          {/*  helperText={errors.currentSecurityKey?.message}*/}
-          {/*  {...register('currentSecurityKey')}*/}
-          {/*/>*/}
-          {/*<PasswordTextField*/}
-          {/*  placeholder="New security key PIN"*/}
-          {/*  label="New security key PIN"*/}
-          {/*  error={!!errors.newSecurityKey}*/}
-          {/*  helperText={errors.newSecurityKey?.message}*/}
-          {/*  {...register('newSecurityKey')}*/}
-          {/*/>*/}
-          {/*<PasswordTextField*/}
-          {/*  placeholder="Confirm security key PIN"*/}
-          {/*  label="Confirm security key PIN"*/}
-          {/*  error={!!errors.confirmSecurityKey}*/}
-          {/*  helperText={errors.confirmSecurityKey?.message}*/}
-          {/*  {...register('confirmSecurityKey')}*/}
-          {/*/>*/}
-        </Stack>
+        <Stack direction="column" spacing={1} px={0.125} pb={0.125}></Stack>
       </AccountFormDialog>
     </Form>
   );

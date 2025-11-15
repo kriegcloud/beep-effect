@@ -70,7 +70,17 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
     },
     session: {
       modelName: IamEntityIds.SessionId.tableName,
-      additionalFields: commonExtraFields,
+      additionalFields: {
+        ...commonExtraFields,
+        activeTeamId: {
+          type: "string",
+          required: false,
+        },
+        activeOrganizationId: {
+          type: "string",
+          required: true,
+        },
+      },
       cookieCache: {
         enabled: true,
         maxAge: Duration.days(30).pipe(Duration.toSeconds),
@@ -231,8 +241,40 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
           type: "string",
           required: true,
         },
-        secondaryEmailAddress: {
+        secondaryEmail: {
           type: "string",
+          required: false,
+        },
+        stripeCustomerId: {
+          type: "string",
+          required: false,
+        },
+        lastLoginMethod: {
+          type: "string",
+          required: false,
+        },
+        role: {
+          type: "string",
+          required: false,
+        },
+        isAnonymous: {
+          type: "boolean",
+          required: true,
+        },
+        twoFactorEnabled: {
+          type: "boolean",
+          required: true,
+        },
+        phoneNumberVerified: {
+          type: "boolean",
+          required: true,
+        },
+        banned: {
+          type: "boolean",
+          required: true,
+        },
+        banExpires: {
+          type: "date",
           required: false,
         },
         ...commonExtraFields,

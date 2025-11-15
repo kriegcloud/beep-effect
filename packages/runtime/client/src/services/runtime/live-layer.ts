@@ -41,13 +41,11 @@ export const GeoLocationLive = clientEnv.enableGeoTracking ? Geolocation.layer :
  */
 export const TelemetryLive = WebSdk.layer(() => ({
   resource: { serviceName },
-  spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({ url: process.env.NEXT_PUBLIC_OTLP_LOG_EXPORTER_URL! })),
-  logRecordProcessor: new BatchLogRecordProcessor(
-    new OTLPLogExporter({ url: process.env.NEXT_PUBLIC_OTLP_LOG_EXPORTER_URL! })
-  ),
+  spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({ url: clientEnv.otlpTraceExporterUrl })),
+  logRecordProcessor: new BatchLogRecordProcessor(new OTLPLogExporter({ url: clientEnv.otlpLogExporterUrl })),
   metricReader: new PeriodicExportingMetricReader({
     exporter: new OTLPMetricExporter({
-      url: process.env.NEXT_PUBLIC_OTLP_LOG_EXPORTER_URL!,
+      url: clientEnv.otlpMetricExporterUrl,
     }),
   }),
 })).pipe(Layer.provideMerge(FetchHttpClient.layer));

@@ -1,6 +1,6 @@
+import { invariant } from "@beep/invariant";
 import { BS } from "@beep/schema";
-import type * as S from "effect/Schema";
-
+import * as S from "effect/Schema";
 export const UserRoleKit = BS.stringLiteralKit("admin", "user");
 
 export const UserRoleEnum = UserRoleKit.Enum;
@@ -17,6 +17,15 @@ export class UserRole extends UserRoleKit.Schema.annotations({
 }) {
   static readonly Options = UserRoleKit.Options;
   static readonly Enum = UserRoleKit.Enum;
+  static readonly make = (role: string) => {
+    invariant(S.is(UserRole)(role), "not a valid user role!", {
+      line: 21,
+      file: "./packages/shared/domain/src/entities/User/schemas/UserRole.ts",
+      args: [role],
+    });
+
+    return role;
+  };
 }
 
 export declare namespace UserRole {

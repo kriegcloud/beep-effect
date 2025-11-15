@@ -1,6 +1,7 @@
 import { client } from "@beep/iam-sdk/adapters";
 import { withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
+  AnonymousSignInContract,
   SignInContractKit,
   SignInEmailContract,
   SignInOAuth2Contract,
@@ -12,6 +13,7 @@ import {
 } from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
+import { IamError } from "../../errors";
 
 // =====================================================================================================================
 // Sign In Social Handler
@@ -156,6 +158,29 @@ const SignInOAuth2Handler = SignInOAuth2Contract.implement(
     yield* continuation.raiseResult(result);
   })
 );
+
+const AnonymousSignInHandler = AnonymousSignInContract.implement(
+  Effect.fn(function* (_, { continuation }) {
+    const result = yield* continuation.run((handlers) =>
+      client.signIn.anonymous({
+        fetchOptions: withFetchOptions(handlers),
+      })
+    );
+
+    yield* continuation.raiseResult(result);
+
+    if (result.data == null) {
+      return yield* new IamError(
+        {},
+        "AnonymousSignInHandler returned no payload from Better Auth",
+        continuation.metadata
+      );
+    }
+
+    return yield* AnonymousSignInContract.decodeUnknownSuccess(result.data);
+  })
+);
+
 // =====================================================================================================================
 // Sign In Implementations Service
 // =====================================================================================================================
@@ -167,6 +192,7 @@ export const SignInImplementations = SignInContractKit.of({
   SignInPasskey: SignInPasskeyHandler,
   SignInOneTap: SignInOneTapHandler,
   SignInOAuth2: SignInOAuth2Handler,
+  AnonymousSignIn: AnonymousSignInHandler,
 });
 
 // =====================================================================================================================

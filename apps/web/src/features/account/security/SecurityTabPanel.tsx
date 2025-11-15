@@ -5,15 +5,12 @@
 // //  formOptionsWithSubmitEffect
 // } from "@beep/ui/form";
 import { Button, Divider, Link, Stack, Typography } from "@mui/material";
-// import { useSnackbar } from 'notistack';
-// import { toast } from "@beep/ui/molecules";
 import { AccountTabPanelSection } from "../common/AccountTabPanelSection";
 import AlternateLoginMethod from "./AlternateLoginMethod";
 import ChangePassword from "./ChangePassword";
 import ConnectedDevice from "./ConnectedDevice";
 import { connectedDevices, loggedInDevices } from "./data";
 import LoggedDevice from "./LoggedDevice";
-// import LoginAlerts from './LoginAlerts';
 import TwoFactorAuthOTP from "./TwoFactorAuthOTP";
 
 export interface TwoFAOtpLoginAlertFormValues {
@@ -23,22 +20,6 @@ export interface TwoFAOtpLoginAlertFormValues {
 }
 
 export const SecurityTabPanel = () => {
-  // const methods = useForm<TwoFAOtpLoginAlertFormValues>({
-  //   defaultValues: {
-  //     otpMethod: 'send_text',
-  //     email_alert: true,
-  //     text_message_alert: false,
-  //   },
-  // });
-  // const { enqueueSnackbar } = useSnackbar();
-
-  // const { handleSubmit, reset } = methods;
-
-  // const onSubmit: SubmitHandler<TwoFAOtpLoginAlertFormValues> = (data) => {
-  //   console.log(data);
-  //   enqueueSnackbar('Updated successfully!', { variant: 'success', autoHideDuration: 3000 });
-  // };
-
   return (
     <>
       <Stack direction="column" divider={<Divider />} spacing={5} mt={2}>

@@ -48,7 +48,7 @@ export const PasskeyAddContract = Contract.make("add", {
   .annotate(Contract.Method, "add")
   .annotate(Contract.SupportsAbort, true);
 
-export const PasskeyListContract = Contract.make("list", {
+export const PasskeyListContract = Contract.make("listUserPasskeys", {
   description: "Lists passkeys that belong to the authenticated user.",
   payload: {},
   failure: IamError,

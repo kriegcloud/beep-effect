@@ -3,7 +3,6 @@
  * utilities for running promise-based operations. This module also houses the
  * shared `handleOutcome` helper used when consuming lifted contracts.
  */
-import { noOp } from "@beep/utils/noOps";
 import * as Bool from "effect/Boolean";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -145,7 +144,7 @@ export function failureContinuation<
 
       const complete = (result: Effect.Effect<A, Failure>): void =>
         Bool.match(settled, {
-          onTrue: noOp,
+          onTrue: () => {},
           onFalse: () => {
             settled = true;
             if (controller && !controller.signal.aborted) {
@@ -176,12 +175,12 @@ export function failureContinuation<
 
       return O.fromNullable(controller).pipe(
         O.match({
-          onNone: () => Effect.succeed(noOp()),
+          onNone: () => Effect.succeed({}),
           onSome: (controller) =>
             Effect.sync(() =>
               Bool.match(!controller.signal.aborted, {
                 onTrue: () => controller.abort(),
-                onFalse: noOp,
+                onFalse: () => {},
               })
             ),
         })

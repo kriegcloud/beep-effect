@@ -9,6 +9,7 @@ import type { IamConfig } from "../../config";
 import type { AuthEmailService } from "./AuthEmail.service";
 import type { CommonExtraFields } from "./internal";
 import type { Plugins } from "./plugins/plugins";
+
 export type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "user"> & {
   readonly account: {
     readonly additionalFields: CommonExtraFields;
@@ -21,7 +22,16 @@ export type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "
   };
   readonly session: {
     readonly modelName: typeof IamEntityIds.SessionId.tableName;
-    readonly additionalFields: CommonExtraFields;
+    readonly additionalFields: CommonExtraFields & {
+      readonly activeTeamId: {
+        readonly type: "string";
+        readonly required: false;
+      };
+      readonly activeOrganizationId: {
+        readonly type: "string";
+        readonly required: true;
+      };
+    };
     readonly cookieCache: {
       readonly enabled: true;
       readonly maxAge: number;
@@ -37,10 +47,42 @@ export type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "
         type: "string";
         required: true;
       };
-      secondaryEmailAddress: {
+      secondaryEmail: {
         type: "string";
         required: false;
       };
+      stripeCustomerId: {
+        type: "string",
+        required: false,
+      }
+      role: {
+        type: "string",
+        required: false,
+      }
+      isAnonymous: {
+        type: "boolean",
+        required: true,
+      }
+      twoFactorEnabled: {
+        type: "boolean",
+        required: true,
+      }
+      phoneNumberVerified: {
+        type: "boolean",
+        required: true
+      },
+      banned: {
+        type: "boolean",
+        required: true,
+      }
+      banExpires: {
+        type: "date",
+        required: false,
+      }
+      lastLoginMethod: {
+        type: "string",
+        required: false,
+      }
     };
   };
 };

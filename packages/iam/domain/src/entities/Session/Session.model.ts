@@ -48,11 +48,9 @@ export class Model extends M.Class<Model>(`SessionModel`)(
     }),
 
     /** Currently active organization for this session */
-    activeOrganizationId: BS.FieldOptionOmittable(
-      SharedEntityIds.OrganizationId.annotations({
-        description: "ID of the currently active organization",
-      })
-    ),
+    activeOrganizationId: SharedEntityIds.OrganizationId.annotations({
+      description: "ID of the currently active organization",
+    }),
 
     /** Currently active team for this session */
     activeTeamId: BS.FieldOptionOmittable(

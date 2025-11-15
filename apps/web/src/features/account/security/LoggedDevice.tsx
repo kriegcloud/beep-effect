@@ -1,7 +1,7 @@
 import { BaseImage, Iconify } from "@beep/ui/atoms";
 import type { Theme } from "@mui/material";
 import { Chip, Stack, Typography, useMediaQuery } from "@mui/material";
-import dayjs from "dayjs";
+import * as DateTime from "effect/DateTime";
 import { useState } from "react";
 import type { LoggedInDevice } from "@/features/account/security/types";
 import { InfoCard } from "../common/InfoCard";
@@ -34,8 +34,16 @@ const LoggedDevice = ({ loggedInDevice }: LoggedDeviceProps) => {
             {downSm && currentlyLoggedIn && <Chip label="Currently logged in" color="info" sx={{ mb: 1 }} />}
             <Typography variant="subtitle2" sx={{ fontWeight: 400 }}>
               {currentlyLoggedIn
-                ? `Today at ${dayjs(lastLoggedTime).format("h:mm a")}`
-                : `Last logged in at ${dayjs(lastLoggedTime).format("MMM DD, h:mm a")}`}
+                ? `Today at ${DateTime.format({
+                    locale: "en-US",
+                    dateStyle: "long",
+                    timeStyle: "short",
+                  })(DateTime.unsafeFromDate(lastLoggedTime))}`
+                : `Last logged in at ${DateTime.format({
+                    locale: "en-US",
+                    dateStyle: "long",
+                    timeStyle: "short",
+                  })(DateTime.unsafeFromDate(lastLoggedTime))}`}
             </Typography>
           </Stack>
         </Stack>

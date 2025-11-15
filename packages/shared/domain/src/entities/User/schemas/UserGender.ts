@@ -1,5 +1,6 @@
+import { invariant } from "@beep/invariant";
 import { BS } from "@beep/schema";
-import type * as S from "effect/Schema";
+import * as S from "effect/Schema";
 
 export const UserGenderKit = BS.stringLiteralKit("male", "female");
 
@@ -21,6 +22,15 @@ export class UserGender extends UserGenderKit.Schema.annotations({
     label: option,
     value: option,
   }));
+  static readonly make = (gender: string) => {
+    invariant(S.is(UserGender)(gender), "not a valid user gender!", {
+      line: 27,
+      file: "./packages/shared/domain/src/entities/User/schemas/UserGender.ts",
+      args: [gender],
+    });
+
+    return gender;
+  };
 }
 
 export declare namespace UserGender {

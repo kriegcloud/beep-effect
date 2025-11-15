@@ -20,6 +20,7 @@ export const session = Table.make(IamEntityIds.SessionId)(
       .references(() => user.id, { onDelete: "set null", onUpdate: "cascade" }),
     activeOrganizationId: pg
       .text("active_organization_id")
+      .notNull()
       .$type<typeof SharedEntityIds.OrganizationId.Type>()
       .references(() => organization.id, {
         onDelete: "set null",

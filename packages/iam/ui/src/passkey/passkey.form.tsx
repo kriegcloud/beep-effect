@@ -53,7 +53,7 @@ const PasskeyDialog: React.FC<
       }}
     >
       <DialogTitle sx={{ minHeight: 76 }}>
-        {passkeyDialogOpen && <> {currentEditingPasskey?.id ? "Edit" : "Add"} passkey</>}
+        {passkeyDialogOpen && <> {currentEditingPasskey?.id ? "Update" : "Add"} passkey</>}
       </DialogTitle>
       {children}
     </Dialog>
@@ -126,7 +126,7 @@ export const PasskeyForm = ({ passkeyDialogOpen, setPasskeyDialogOpen }: Passkey
                   Cancel
                 </Button>
                 <form.AppForm>
-                  <form.Submit variant={"contained"}>Create</form.Submit>
+                  <form.Submit variant={"contained"}>Update</form.Submit>
                 </form.AppForm>
               </DialogActions>
             </Form>

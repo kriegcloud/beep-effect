@@ -80,6 +80,7 @@ export type EntityIdSchemaInstance<TableName extends string, Brand extends strin
   >;
   readonly modelRowIdSchema: S.brand<S.refine<number, typeof S.NonNegative>, Brand>;
   readonly make: (input: string) => Type<TableName>;
+  readonly makePrivateId: (input: number) => B.Branded<number, Brand>;
 };
 
 export const make = <const TableName extends string, const Brand extends string>(
@@ -143,6 +144,14 @@ export const make = <const TableName extends string, const Brand extends string>
     static readonly modelRowIdSchema = modelRowIdSchema;
     static readonly make = (input: string) => {
       invariant(S.is(schema)(input), `Invalid id for ${tableName}: ${input}`, {
+        file: "./packages/common/schema/EntityId.ts",
+        line: 134,
+        args: [input],
+      });
+      return input;
+    };
+    static readonly makePrivateId = (input: number) => {
+      invariant(S.is(privateSchema)(input), `Invalid private id for ${tableName}: ${input}`, {
         file: "./packages/common/schema/EntityId.ts",
         line: 134,
         args: [input],

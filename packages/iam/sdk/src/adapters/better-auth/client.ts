@@ -1,4 +1,5 @@
 import { clientEnv } from "@beep/core-env/client";
+import type { Auth } from "@beep/iam-infra";
 import { stripeClient } from "@better-auth/stripe/client";
 import {
   adminClient,
@@ -7,6 +8,7 @@ import {
   customSessionClient,
   deviceAuthorizationClient,
   genericOAuthClient,
+  inferAdditionalFields,
   jwtClient,
   lastLoginMethodClient,
   multiSessionClient,
@@ -22,11 +24,11 @@ import {
   usernameClient,
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
-
 export const client = createAuthClient({
   baseURL: clientEnv.authUrl,
   basePath: clientEnv.authPath,
   plugins: [
+    inferAdditionalFields<Auth>(),
     adminClient(),
     anonymousClient(),
     jwtClient(),

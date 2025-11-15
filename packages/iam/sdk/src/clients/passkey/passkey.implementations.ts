@@ -1,4 +1,3 @@
-import type { Contract } from "@beep/contract";
 import { client } from "@beep/iam-sdk/adapters";
 import { addFetchOptions, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
@@ -8,58 +7,55 @@ import {
   PasskeyRemoveContract,
   PasskeyUpdateContract,
 } from "@beep/iam-sdk/clients/passkey/passkey.contracts";
-import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
 
-const PASSKEY_DOMAIN = "passkey" as const;
+const PasskeyListHandler = PasskeyListContract.implement(
+  Effect.fn(function* (_, { continuation }) {
+    const result = yield* continuation.run((handlers) =>
+      client.passkey.listUserPasskeys(undefined, withFetchOptions(handlers))
+    );
+    yield* continuation.raiseResult(result);
 
-const toIamMetadata = (metadata: Contract.Metadata): Parameters<typeof IamError.match>[1] => ({
-  domain: metadata.domain ?? PASSKEY_DOMAIN,
-  method: metadata.method ?? PASSKEY_DOMAIN,
-  plugin: metadata.domain ?? PASSKEY_DOMAIN,
-});
-
-const PasskeyListHandler = PasskeyListContract.implement((_payload, { continuation }) =>
-  continuation
-    .run((handlers) => client.passkey.listUserPasskeys(undefined, withFetchOptions(handlers)))
-    .pipe(Effect.flatMap(PasskeyListContract.decodeUnknownSuccess))
+    return yield* PasskeyListContract.decodeUnknownSuccess(result.data);
+  })
 );
 
-const PasskeyRemoveHandler = PasskeyRemoveContract.implement((payload, { continuation }) =>
-  F.pipe(
-    continuation.run((handlers) =>
+const PasskeyRemoveHandler = PasskeyRemoveContract.implement(
+  Effect.fn(function* (payload, { continuation }) {
+    const result = yield* continuation.run((handlers) =>
       client.passkey.deletePasskey(
         addFetchOptions(handlers, {
           id: payload.passkey.id,
         })
       )
-    ),
-    Effect.flatMap((result) =>
-      Effect.flatMap(continuation.raiseResult(result), () => PasskeyRemoveContract.decodeSuccess(result.data))
-    )
-  )
+    );
+
+    yield* continuation.raiseResult(result);
+
+    return yield* PasskeyRemoveContract.decodeSuccess(result.data);
+  })
 );
 
-const PasskeyUpdateHandler = PasskeyUpdateContract.implement((payload, { continuation }) =>
-  F.pipe(
-    continuation.run((handlers) =>
+const PasskeyUpdateHandler = PasskeyUpdateContract.implement(
+  Effect.fn(function* (payload, { continuation }) {
+    const result = yield* continuation.run((handlers) =>
       client.passkey.updatePasskey(
         addFetchOptions(handlers, {
           id: payload.passkey.id,
           name: payload.passkey.name,
         })
       )
-    ),
-    Effect.flatMap((result) =>
-      Effect.flatMap(continuation.raiseResult(result), () => PasskeyUpdateContract.decodeUnknownSuccess(result.data))
-    )
-  )
+    );
+
+    yield* continuation.raiseResult(result);
+
+    return yield* PasskeyUpdateContract.decodeUnknownSuccess(result.data);
+  })
 );
 
-const PasskeyAddHandler = PasskeyAddContract.implement((payload, { continuation }) =>
-  Effect.gen(function* () {
-    const result = yield* continuation.run((handlers) =>
+const PasskeyAddHandler = PasskeyAddContract.implement(
+  Effect.fn(function* (payload, { continuation }) {
+    yield* continuation.run((handlers) =>
       client.passkey.addPasskey(
         addFetchOptions(handlers, {
           name: payload.name ?? undefined,
@@ -68,23 +64,12 @@ const PasskeyAddHandler = PasskeyAddContract.implement((payload, { continuation 
         })
       )
     );
-
-    if (result?.data == null) {
-      return yield* new IamError(
-        {},
-        "PasskeyAddHandler returned no payload from Better Auth",
-        toIamMetadata(continuation.metadata)
-      );
-    }
-    yield* continuation.raiseResult(result);
-
-    return yield* PasskeyAddContract.decodeUnknownSuccess(result.data);
   })
 );
 
 export const passkeyLayer = PasskeyContractKit.toLayer({
   add: PasskeyAddHandler,
-  list: PasskeyListHandler,
+  listUserPasskeys: PasskeyListHandler,
   remove: PasskeyRemoveHandler,
   update: PasskeyUpdateHandler,
 });

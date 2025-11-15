@@ -12,6 +12,10 @@ const SignUpEmailHandler = SignUpEmailContract.implement(
     const result = yield* continuation.run((handlers) =>
       client.signUp.email({
         ...rest,
+        banned: false,
+        isAnonymous: false,
+        phoneNumberVerified: false,
+        twoFactorEnabled: false,
         fetchOptions: withFetchOptions(handlers, {
           headers: {
             "x-captcha-response": Redacted.value(captchaResponse),

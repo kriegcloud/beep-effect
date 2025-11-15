@@ -1,9 +1,5 @@
 import { Iconify } from "@beep/ui/atoms";
-import {
-  Form,
-  // useAppForm,
-  // formOptionsWithSubmitEffect
-} from "@beep/ui/form";
+import { Form } from "@beep/ui/form";
 import type { SxProps } from "@mui/material";
 import {
   Button,
@@ -18,7 +14,6 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-// import PasswordTextField from 'components/common/PasswordTextField';
 import type { ConnectedInDevice, LoggedInDevice } from "@/features/account/security/types";
 
 interface SecurityKeyEditFormDialogProps {
@@ -27,44 +22,10 @@ interface SecurityKeyEditFormDialogProps {
   readonly device?: LoggedInDevice | ConnectedInDevice | undefined;
   readonly sx?: SxProps | undefined;
 }
-//
-// interface SecurityKeyFormValues {
-//   currentSecurityKey: string;
-//   newSecurityKey: string;
-//   confirmSecurityKey: string;
-// }
-
-// const securityKeySchema = yup.object().shape({
-//   currentSecurityKey: yup.string().required('Current security key PIN is required'),
-//   newSecurityKey: yup
-//     .string()
-//     .required('New security key PIN is required')
-//     .min(4, 'Security key PIN must be at least 4 characters.'),
-//   confirmSecurityKey: yup
-//     .string()
-//     .oneOf([yup.ref('newSecurityKey')], 'Security key PINs must match')
-//     .required('Please confirm your security key PIN'),
-// });
 
 const SecurityKeyEditFormDialog = (props: SecurityKeyEditFormDialogProps) => {
   const { open, handleDialogClose, sx } = props;
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  // const methods = useForm<SecurityKeyFormValues>({
-  //   resolver: yupResolver(securityKeySchema),
-  // });
-  // const { enqueueSnackbar } = useSnackbar();
-  // const {
-  //   register,
-  //   handleSubmit,
-  //   formState: { errors },
-  //   reset,
-  // } = methods;
-
-  // const onSubmit: SubmitHandler<SecurityKeyFormValues> = (data) => {
-  //   console.log(data);
-  //   handleDialogClose();
-  //   enqueueSnackbar('Updated successfully!', { variant: 'success', autoHideDuration: 3000 });
-  // };
 
   return (
     <Form>
@@ -72,7 +33,6 @@ const SecurityKeyEditFormDialog = (props: SecurityKeyEditFormDialogProps) => {
         open={open}
         onClose={handleDialogClose}
         component="form"
-        // onSubmit={handleSubmit(onSubmit)}
         sx={{
           [`& .${dialogClasses.paper}`]: {
             maxWidth: 463,
@@ -101,29 +61,7 @@ const SecurityKeyEditFormDialog = (props: SecurityKeyEditFormDialogProps) => {
             Enter your security key PIN for this device to proceed securely. You also have the option to remove this
             connection.
           </DialogContentText>
-          <Stack direction="column" spacing={1} pb={0.125}>
-            {/*<PasswordTextField*/}
-            {/*  placeholder="Current security key PIN"*/}
-            {/*  label="Current security key PIN"*/}
-            {/*  error={!!errors.currentSecurityKey}*/}
-            {/*  helperText={errors.currentSecurityKey?.message}*/}
-            {/*  {...register('currentSecurityKey')}*/}
-            {/*/>*/}
-            {/*<PasswordTextField*/}
-            {/*  placeholder="New security key PIN"*/}
-            {/*  label="New security key PIN"*/}
-            {/*  error={!!errors.newSecurityKey}*/}
-            {/*  helperText={errors.newSecurityKey?.message}*/}
-            {/*  {...register('newSecurityKey')}*/}
-            {/*/>*/}
-            {/*<PasswordTextField*/}
-            {/*  placeholder="Confirm security key PIN"*/}
-            {/*  label="Confirm security key PIN"*/}
-            {/*  error={!!errors.confirmSecurityKey}*/}
-            {/*  helperText={errors.confirmSecurityKey?.message}*/}
-            {/*  {...register('confirmSecurityKey')}*/}
-            {/*/>*/}
-          </Stack>
+          <Stack direction="column" spacing={1} pb={0.125}></Stack>
         </DialogContent>
         <DialogActions
           sx={{

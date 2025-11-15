@@ -11,7 +11,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import dayjs from "dayjs";
+import * as DateTime from "effect/DateTime";
 import type { LoggedInDevice } from "@/features/account/security/types";
 
 interface DeviceDialogProps {
@@ -57,16 +57,17 @@ const DeviceDialog = (props: DeviceDialogProps) => {
           <Stack direction="column" spacing={1}>
             {loggedInDevice.currentlyLoggedIn ? (
               <Typography variant="subtitle2" sx={{ fontWeight: 400, color: "text.secondary" }}>
-                First logged in at {dayjs(loggedInDevice.firstLoggedTime).format("MMM DD, h:mm a")}
+                First logged in at {DateTime.formatIso(DateTime.unsafeFromDate(loggedInDevice.firstLoggedTime))}
               </Typography>
             ) : (
               <Typography variant="subtitle2">
-                Last logged in at {dayjs(loggedInDevice.lastLoggedTime).format("MMM DD, h:mm a")}
+                Last logged in at {DateTime.formatIso(DateTime.unsafeFromDate(loggedInDevice.lastLoggedTime))}
               </Typography>
             )}
             {loggedInDevice.currentlyLoggedIn ? (
               <Typography variant="subtitle2" sx={{ fontWeight: 400 }}>
-                Recent activity in Bangladesh in the last {loggedInDevice.lastLoggedTime.toISOString()}
+                Recent activity in Bangladesh in the last{" "}
+                {DateTime.formatIso(DateTime.unsafeFromDate(loggedInDevice.lastLoggedTime))}
               </Typography>
             ) : (
               <Stack direction={"row"}>

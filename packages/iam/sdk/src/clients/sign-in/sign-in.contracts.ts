@@ -208,6 +208,34 @@ export const SignInOAuth2Contract = Contract.make("SignInOAuth2", {
   .annotate(Contract.Domain, "SignIn")
   .annotate(Contract.Method, "signInOAuth2");
 
+export class AnonymousSignInSuccess extends S.Class<AnonymousSignInSuccess>("AnonymousSignInSuccess")(
+  {
+    token: S.String,
+    user: User.Model,
+  },
+  {
+    schemaId: Symbol.for("@beep/iam-sdk/clients/anonymous/AnonymousSignInSuccess"),
+    identifier: "AnonymousSignInSuccess",
+    title: "Anonymous Sign-In Success",
+    description: "Payload returned when the anonymous sign-in succeeds.",
+  }
+) {}
+
+export declare namespace AnonymousSignInSuccess {
+  export type Type = S.Schema.Type<typeof AnonymousSignInSuccess>;
+  export type Encoded = S.Schema.Encoded<typeof AnonymousSignInSuccess>;
+}
+
+export const AnonymousSignInContract = Contract.make("AnonymousSignIn", {
+  description: "Signs the current visitor in as an anonymous user.",
+  payload: {},
+  failure: IamError,
+  success: S.NullOr(AnonymousSignInSuccess),
+})
+  .annotate(Contract.Title, "Anonymous Sign-In")
+  .annotate(Contract.Domain, "anonymous")
+  .annotate(Contract.Method, "signIn");
+
 // =====================================================================================================================
 // SignIn Contract Set
 // =====================================================================================================================
@@ -218,5 +246,6 @@ export const SignInContractKit = ContractKit.make(
   SignInPhoneNumberContract,
   SignInPasskeyContract,
   SignInOneTapContract,
-  SignInOAuth2Contract
+  SignInOAuth2Contract,
+  AnonymousSignInContract
 );

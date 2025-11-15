@@ -18,7 +18,6 @@
  */
 import { BS } from "@beep/schema";
 import type { UnsafeTypes } from "@beep/types";
-import { noOp } from "@beep/utils/noOps";
 import * as A from "effect/Array";
 import type * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
@@ -326,15 +325,11 @@ const liftService = function <
         ...F.pipe(
           hooksOpt,
           O.match({
-            onNone: noOp,
+            onNone: () => ({}),
             onSome: ({ onFailure, onSuccess, onDefect }) => ({
-              ...(O.isSome(onFailure)
-                ? { onFailure: (failure) => onFailure.value({ name, contract, failure }) }
-                : noOp()),
-              ...(O.isSome(onSuccess)
-                ? { onSuccess: (success) => onSuccess.value({ name, contract, success }) }
-                : noOp()),
-              ...(O.isSome(onDefect) ? { onDefect: (cause) => onDefect.value({ name, contract, cause }) } : noOp()),
+              ...(O.isSome(onFailure) ? { onFailure: (failure) => onFailure.value({ name, contract, failure }) } : {}),
+              ...(O.isSome(onSuccess) ? { onSuccess: (success) => onSuccess.value({ name, contract, success }) } : {}),
+              ...(O.isSome(onDefect) ? { onDefect: (cause) => onDefect.value({ name, contract, cause }) } : {}),
             }),
           })
         ),
@@ -426,7 +421,7 @@ const Proto = {
           }
           const schemas = getSchemas(contract);
           const decodedParams = yield* Effect.mapError(
-            schemas.decodePayload(params),
+            schemas?.decodePayload(params),
             (cause) =>
               new ContractError.MalformedOutput({
                 module: "ContractKit",
@@ -439,7 +434,7 @@ const Proto = {
                 cause,
               })
           );
-          const { isFailure, result } = yield* schemas.implementation(decodedParams).pipe(
+          const { isFailure, result } = yield* schemas?.implementation(decodedParams).pipe(
             Effect.map((result) => ({ result, isFailure: false })),
             Effect.catchAll((error) =>
               // If the contract implementation failed, check the contract's failure mode to
@@ -495,7 +490,7 @@ const Proto = {
 };
 
 const makeProto = <Contracts extends Record<string, Contract.Any>>(contracts: Contracts): ContractKit<Contracts> =>
-  Object.assign(noOp, Proto, { contracts }) as UnsafeTypes.UnsafeAny;
+  Object.assign({}, Proto, { contracts }) as UnsafeTypes.UnsafeAny;
 
 const resolveInput = <Contracts extends ReadonlyArray<Contract.Any>>(
   ...contracts: Contracts
