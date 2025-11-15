@@ -117,3 +117,5 @@ export const OAuthImplementations = OAuthContractKit.of({
   GetAccountInfo: GetAccountInfoHandler,
   RequestAdditionalScopes: RequestAdditionalScopesHandler,
 });
+
+export const oAuthLayer = OAuthContractKit.toLayer(OAuthImplementations);

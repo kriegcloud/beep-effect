@@ -179,16 +179,16 @@
         "./packages/core/db/test/*"
       ],
       "@beep/ui-core/*": [
-        "./packages/ui-core/src/*"
+        "./packages/ui/core/src/*"
       ],
       "@beep/ui-core/test/*": [
-        "./packages/ui-core/test/*"
+        "./packages/ui/core/test/*"
       ],
       "@beep/ui/*": [
-        "./packages/ui/src/*"
+        "./packages/ui/ui/src/*"
       ],
       "@beep/ui/test/*": [
-        "./packages/ui/test/*"
+        "./packages/ui/ui/test/*"
       ],
       "@beep/iam-domain": [
         "./packages/iam/domain/src/index"

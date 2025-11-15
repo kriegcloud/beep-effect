@@ -49,10 +49,10 @@
       "path": "../../tasks/tables"
     },
     {
-      "path": "../../ui"
+      "path": "../../ui/ui"
     },
     {
-      "path": "../../ui-core"
+      "path": "../../ui/core"
     },
     {
       "path": "../../files/domain"

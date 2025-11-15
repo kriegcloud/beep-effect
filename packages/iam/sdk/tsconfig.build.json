@@ -14,13 +14,13 @@
       "path": "../../common/types/tsconfig.build.json"
     },
     {
-      "path": "../../ui/tsconfig.build.json"
+      "path": "../../ui/ui/tsconfig.build.json"
     },
     {
       "path": "../../runtime/client/tsconfig.build.json"
     },
     {
-      "path": "../../ui-core/tsconfig.build.json"
+      "path": "../../ui/core/tsconfig.build.json"
     },
     {
       "path": "../../common/utils/tsconfig.build.json"

@@ -4,10 +4,10 @@
   "exclude": ["build"],
   "references": [
     {
-      "path": "../../ui"
+      "path": "../../ui/ui"
     },
     {
-      "path": "../../ui-core"
+      "path": "../../ui/core"
     },
     {
       "path": "../sdk"

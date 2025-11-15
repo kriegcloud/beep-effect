@@ -1,33 +1,15 @@
 "use client";
-import { RecoverImplementations, ResetPasswordPayload } from "@beep/iam-sdk/clients";
-import { iamAtomRuntime } from "@beep/iam-sdk/clients/runtime";
+import { useResetPasswordForm } from "@beep/iam-sdk/clients/recover";
 import { paths } from "@beep/shared-domain";
-import { withToast } from "@beep/ui/common";
-import { Form, formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
+import { Form } from "@beep/ui/form";
 import { PasswordFieldsGroup } from "@beep/ui/form/groups";
 import { useRouter, useSearchParams } from "@beep/ui/hooks";
 import { SplashScreen } from "@beep/ui/progress";
-import { useAtom } from "@effect-atom/atom-react";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import React from "react";
 
-const resetPasswordAtom = iamAtomRuntime.fn(
-  F.flow(
-    RecoverImplementations.ResetPassword,
-    withToast({
-      onWaiting: "Resetting password",
-      onSuccess: "Password reset successfully",
-      onFailure: O.match({
-        onNone: () => "Password reset failed",
-        onSome: (error) => error.message,
-      }),
-    })
-  )
-);
-
 export const ResetPasswordForm = () => {
-  const [, resetPassword] = useAtom(resetPasswordAtom);
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = O.fromNullable(searchParams.get("token"));
@@ -46,17 +28,7 @@ export const ResetPasswordForm = () => {
   if (!token) {
     return <SplashScreen />;
   }
-
-  const form = useAppForm(
-    formOptionsWithSubmitEffect({
-      schema: ResetPasswordPayload,
-      defaultValues: {
-        newPassword: "",
-        passwordConfirm: "",
-      },
-      onSubmit: async (value) => resetPassword(value),
-    })
-  );
+  const { form } = useResetPasswordForm();
   return (
     <Form onSubmit={form.handleSubmit}>
       <form.AppForm>

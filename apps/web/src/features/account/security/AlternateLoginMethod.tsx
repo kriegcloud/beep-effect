@@ -116,7 +116,7 @@ const AlternateLoginMethod = () => {
           maxWidth: 463,
         }}
       >
-        <Stack direction="column" spacing={1} px={0.125} pb={0.125}></Stack>
+        <Stack direction="column" spacing={1} px={0.125} pb={0.125} />
       </AccountFormDialog>
     </Form>
   );

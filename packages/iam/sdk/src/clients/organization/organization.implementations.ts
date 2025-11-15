@@ -599,3 +599,5 @@ export const OrganizationImplementations = OrganizationContractKit.of({
   OrganizationDeleteRole: OrganizationDeleteRoleHandler,
   OrganizationListRoles: OrganizationListRolesHandler,
 });
+
+export const organizationLayer = OrganizationContractKit.toLayer(OrganizationImplementations);

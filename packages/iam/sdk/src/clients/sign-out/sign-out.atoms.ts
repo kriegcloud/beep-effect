@@ -1,14 +1,17 @@
 "use client";
-import { iamAtomRuntime } from "@beep/iam-sdk/clients/runtime";
+
+import { makeAtomRuntime } from "@beep/runtime-client/services/runtime/make-atom-runtime";
 import { withToast } from "@beep/ui/common";
 import { useAtom } from "@effect-atom/atom-react";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
-import { SignOutImplementations } from "./sign-out.implementations";
+import { SignOutService } from "./sign-out.service";
 
-export const signOutAtom = iamAtomRuntime.fn(
+const signOutRuntime = makeAtomRuntime(SignOutService.Live);
+
+export const signOutAtom = signOutRuntime.fn(
   F.flow(
-    SignOutImplementations.SignOut,
+    SignOutService.SignOut,
     withToast({
       onWaiting: "Signing out",
       onSuccess: "Signed out successfully",

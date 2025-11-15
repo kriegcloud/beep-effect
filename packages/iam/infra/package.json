@@ -87,11 +87,11 @@
     "@beep/iam-domain": "workspace:^",
     "@beep/iam-tables": "workspace:^",
     "better-auth-localization": "catalog:",
-    "@beep/ui": "workspace:^",
     "@better-auth/stripe": "catalog:",
     "@dub/better-auth": "catalog:",
     "better-auth": "catalog:",
-    "@better-auth/utils": "catalog:"
+    "@better-auth/utils": "catalog:",
+    "@beep/ui-core": "workspace:^"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

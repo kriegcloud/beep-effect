@@ -42,13 +42,12 @@
       "path": "../../common/errors"
     },
     {
-      "path": "../../ui"
+      "path": "../../ui/core"
     }
   ],
   "compilerOptions": {
     "types": ["node", "bun"],
     "outDir": "build/src",
-
     "rootDir": "src",
     "moduleResolution": "bundler",
     "incremental": true,

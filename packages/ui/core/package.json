@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",
-    "directory": "packages/ui-core"
+    "directory": "packages/ui/core"
   },
   "scripts": {
     "codegen": "build-utils prepare-v2",

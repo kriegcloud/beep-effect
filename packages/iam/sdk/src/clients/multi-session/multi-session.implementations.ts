@@ -93,3 +93,5 @@ export const MultiSessionImplementations = MultiSessionContractKit.of({
   MultiSessionSetActive: MultiSessionSetActiveHandler,
   MultiSessionRevoke: MultiSessionRevokeHandler,
 });
+
+export const multiSessionLayer = MultiSessionContractKit.toLayer(MultiSessionImplementations);

@@ -1,14 +1,16 @@
 "use client";
-import { iamAtomRuntime } from "@beep/iam-sdk/clients/runtime";
+import { makeAtomRuntime } from "@beep/runtime-client/services/runtime/make-atom-runtime";
 import { withToast } from "@beep/ui/common";
 import { useAtom } from "@effect-atom/atom-react";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
-import { VerifyImplementations } from "./verify.implementations";
+import { VerifyService } from "./verify.service";
 
-const verifyPhoneAtom = iamAtomRuntime.fn(
+const verifyRuntime = makeAtomRuntime(VerifyService.Live);
+
+const verifyPhoneAtom = verifyRuntime.fn(
   F.flow(
-    VerifyImplementations.VerifyPhone,
+    VerifyService.VerifyPhone,
     withToast({
       onWaiting: "Verifying phone",
       onSuccess: "Phone verified.",
@@ -28,9 +30,9 @@ export const useVerifyPhone = () => {
   };
 };
 
-export const sendEmailVerificationAtom = iamAtomRuntime.fn(
+export const sendEmailVerificationAtom = verifyRuntime.fn(
   F.flow(
-    VerifyImplementations.SendEmailVerification,
+    VerifyService.SendEmailVerification,
     withToast({
       onWaiting: "Sending verification email.",
       onSuccess: "Verification email sent.",
@@ -50,9 +52,9 @@ export const useSendEmailVerification = () => {
   };
 };
 
-export const verifyEmailAtom = iamAtomRuntime.fn(
+export const verifyEmailAtom = verifyRuntime.fn(
   F.flow(
-    VerifyImplementations.VerifyEmail,
+    VerifyService.VerifyEmail,
     withToast({
       onWaiting: "Verifying email.",
       onSuccess: "Email verified.",

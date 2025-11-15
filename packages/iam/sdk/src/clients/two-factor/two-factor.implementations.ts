@@ -52,3 +52,5 @@ export const TwoFactorImplementations = TwoFactorContractKit.of({
   VerifyOtp: VerifyOtpHandler,
   VerifyTotp: VerifyTotpHandler,
 });
+
+export const twoFactorLayer = TwoFactorContractKit.toLayer(TwoFactorImplementations);

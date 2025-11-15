@@ -72,10 +72,10 @@
       "path": "../../packages/tasks/tables/tsconfig.build.json"
     },
     {
-      "path": "../../packages/ui/tsconfig.build.json"
+      "path": "../../packages/ui/ui/tsconfig.build.json"
     },
     {
-      "path": "../../packages/ui-core/tsconfig.build.json"
+      "path": "../../packages/ui/core/tsconfig.build.json"
     },
     {
       "path": "../../packages/files/sdk/tsconfig.build.json"
@@ -129,8 +129,8 @@
       "@beep/core-email/*": ["../../packages/core/email/src/*"],
       "@beep/core-db": ["../../packages/core/db/src/index"],
       "@beep/core-db/*": ["../../packages/core/db/src/*"],
-      "@beep/ui/*": ["../../packages/ui/src/*"],
-      "@beep/ui-core/*": ["../../packages/ui-core/src/*"],
+      "@beep/ui/*": ["../../packages/ui/ui/src/*"],
+      "@beep/ui-core/*": ["../../packages/ui/core/src/*"],
       "@beep/iam-domain": ["../../packages/iam/domain/src/index"],
       "@beep/iam-domain/*": ["../../packages/iam/domain/src/*"],
       "@beep/iam-tables": ["../../packages/iam/tables/src/index"],

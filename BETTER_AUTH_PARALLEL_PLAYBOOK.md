@@ -53,7 +53,7 @@ cluster but keeps reviewers in the loop.
      ```json
      {"tool":"context7__resolve-library-id","args":{"libraryName":"better-auth"}}
      {"tool":"context7__get-library-docs","args":{"context7CompatibleLibraryID":"/better-auth/better-auth","topic":"<topic>","tokens":800}}
-    {"tool":"jetbrains__search_in_files_by_text","args":{"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/<api path>\"","maxUsageCount":3,"timeout":120000,"useRegex":false}}
+     {"tool":"jetbrains__search_in_files_by_text","args":{"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect2","searchText":"\"/<api path>\"","fileMask":"better-auth-api-spec.json","maxUsageCount":3,"timeout":120000}}
      ```
 
    - The `jetbrains__search_in_files_by_text` call returns just the relevant snippet from the large OpenAPI JSON—no custom scripts needed.
@@ -66,15 +66,15 @@ cluster but keeps reviewers in the loop.
    - Export via the feature `index.ts`.
 
 4. **Implementation (see SOP §3)**  
-   - Use `Effect.fn` wrappers and `makeFailureContinuation`.  
-   - Import helper utilities from `@beep/iam-sdk/clients/_internal` (`MetadataFactory`, `withFetchOptions`, `addFetchOptions`, `requireData`, `decodeResult`, `compact`) instead of reimplementing fetch plumbing or null guards.  
-   - Pass `handlers.signal` and `handlers.onError` correctly.  
-   - Notify `$sessionSignal` when the call mutates session state.  
-   - Decode success payloads with `S.decodeUnknown` (unless `S.Void`).
+   - Wrap handlers with `ContractName.implement(Effect.fn(function* (payload, { continuation }) { ... }))`.  
+   - Encode payloads via `ContractName.encodePayload`, call Better Auth through `continuation.run`, raise results, guard `null` with `requireData`, and decode via `ContractName.decodeUnknownSuccess`.  
+   - Import helper utilities from `@beep/iam-sdk/clients/_internal` (`withFetchOptions`, `addFetchOptions`, `requireData`, `compact`) instead of reimplementing fetch plumbing or null guards.  
+   - Pass `handlers.signal`/`handlers.onError` correctly and notify `$sessionSignal` when the call mutates session state.  
+   - Use `Redacted.value` for secrets before transport.
 
 5. **Verification**  
-   - Run `bun run build --filter=@beep/iam-sdk`.  
-   - If UI/runtime touched: recommend `bun run lint --filter=@beep/iam-ui` or targeted tests.  
+   - Run `PATH="$HOME/.bun/bin:$PATH" bun run build --filter=@beep/iam-sdk`.  
+   - If UI/runtime touched: recommend `PATH="$HOME/.bun/bin:$PATH" bun run lint --filter=@beep/iam-ui` or targeted tests.  
    - Document all commands run + results in the PR summary.
 
 6. **Checklist Update & Handoff**  
@@ -90,8 +90,8 @@ cluster but keeps reviewers in the loop.
 - Require cross-cluster reviews. Example: admin agent reviews API key work for consistent telemetry metadata.
 - During review, check:
   - Contract namespace exports
-  - `makeFailureContinuation` metadata strings (must match plugin + method)
-  - Usage of the `_internal` helper utilities (`MetadataFactory`, `withFetchOptions`, `addFetchOptions`, `requireData`, `decodeResult`, `compact`) instead of ad-hoc implementations
+  - `ContractName.implement` handlers encode/decode via the same schemas and log `continuation.metadata` correctly
+  - Usage of the `_internal` helper utilities (`withFetchOptions`, `addFetchOptions`, `requireData`, `compact`) instead of ad-hoc implementations
   - Use of `Redacted.value` for secrets
   - Session notifications
   - Updated exports in `index.ts` files
@@ -110,9 +110,9 @@ You are GPT-5 Codex. Your cluster: <CLUSTER_NAME> (methods: <METHOD_LIST>).
 2. Pull Better Auth docs and OpenAPI snippets for each method:
    - context7__resolve-library-id {"libraryName":"better-auth"}
    - context7__get-library-docs {"context7CompatibleLibraryID":"/better-auth/better-auth","topic":"<topic>","tokens":800}
-   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/<api path>\"","maxUsageCount":20}
+   - jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect2","searchText":"\"/<api path>\"","fileMask":"better-auth-api-spec.json","maxUsageCount":20,"timeout":120000}
 3. Implement missing contracts + handlers following the SOP.
-4. Run `bun run build --filter=@beep/iam-sdk` and report the result.
+4. Run `PATH="$HOME/.bun/bin:$PATH" bun run build --filter=@beep/iam-sdk` and report the result.
 5. Update the checklist items you completed (one agent edits the file at a time).
 ```
 
@@ -132,12 +132,12 @@ Do not modify implementations yet; just confirm contracts match the docs.
 ```text
 Target contract: <ContractName>
 1. Open `packages/iam/sdk/src/clients/<feature>/<feature>.implementations.ts`.
-2. Add an `Effect.fn` handler using `makeFailureContinuation` with correct metadata { plugin: "<plugin>", method: "<method>" }.
-3. Map payload fields, wrap secrets with `Redacted.value`, and pass `handlers.onError` + optional `handlers.signal`.
-4. Decode success payloads with `S.decodeUnknown` if result schema is not `S.Void`.
-5. Call `client.$store.notify("$sessionSignal")` when the method mutates session state.
+2. Implement `ContractName.implement(Effect.fn(function* (payload, { continuation }) { ... }))`.
+3. Encode the payload via `ContractName.encodePayload`, call Better Auth with `_internal` helpers (`withFetchOptions` / `addFetchOptions`), and `yield* continuation.raiseResult(result)`.
+4. Guard unexpected `null` responses with `requireData` and return `yield* ContractName.decodeUnknownSuccess(data)`.
+5. Wrap secrets with `Redacted.value`, pass `handlers.signal` when provided, and notify `client.$store.notify("$sessionSignal")` when sessions mutate.
 6. Register the handler in `ContractKit.of`.
-7. Run `bun run build --filter=@beep/iam-sdk` and share the output.
+7. Run `PATH="$HOME/.bun/bin:$PATH" bun run build --filter=@beep/iam-sdk` and share the output.
 ```
 
 ### D. Review Prompt
@@ -145,10 +145,10 @@ Target contract: <ContractName>
 ```text
 Review scope: <PR or Branch Name>
 1. Cross-check new/updated contracts against Better Auth docs.
-2. Verify implementation handlers use `makeFailureContinuation`, `Redacted.value`, and session notifications correctly.
+2. Verify implementation handlers use `ContractName.implement`, `_internal` helpers, `Redacted.value`, and session notifications correctly.
 3. Ensure exports in `index.ts` files are updated.
 4. Confirm `BETTER_AUTH_CLIENT_AND_METHODS_LIST.md` entries match the implementation work.
-5. Run or request `bun run build --filter=@beep/iam-sdk`; flag any missing verification.
+5. Run or request `PATH="$HOME/.bun/bin:$PATH" bun run build --filter=@beep/iam-sdk`; flag any missing verification.
 Provide actionable feedback or approve if all checks pass.
 ```
 

@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.base.jsonc",
+  "extends": "../../../tsconfig.base.jsonc",
   "include": [],
   "exclude": ["src/**/*.test.ts"],
   "references": [
@@ -9,8 +9,8 @@
   ],
   "compilerOptions": {
     "paths": {
-      "@beep/ui/*": ["../../packages/ui/src/*"],
-      "@beep/ui/test/*": ["../../packages/ui/test/*"]
+      "@beep/ui/*": ["./src/*"],
+      "@beep/ui/test/*": ["./test/*"]
     }
   }
 }

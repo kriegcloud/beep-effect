@@ -52,37 +52,37 @@ export type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "
         required: false;
       };
       stripeCustomerId: {
-        type: "string",
-        required: false,
-      }
+        type: "string";
+        required: false;
+      };
       role: {
-        type: "string",
-        required: false,
-      }
+        type: "string";
+        required: false;
+      };
       isAnonymous: {
-        type: "boolean",
-        required: true,
-      }
+        type: "boolean";
+        required: true;
+      };
       twoFactorEnabled: {
-        type: "boolean",
-        required: true,
-      }
+        type: "boolean";
+        required: true;
+      };
       phoneNumberVerified: {
-        type: "boolean",
-        required: true
-      },
+        type: "boolean";
+        required: true;
+      };
       banned: {
-        type: "boolean",
-        required: true,
-      }
+        type: "boolean";
+        required: true;
+      };
       banExpires: {
-        type: "date",
-        required: false,
-      }
+        type: "date";
+        required: false;
+      };
       lastLoginMethod: {
-        type: "string",
-        required: false,
-      }
+        type: "string";
+        required: false;
+      };
     };
   };
 };

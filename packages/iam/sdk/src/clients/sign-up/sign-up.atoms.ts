@@ -1,10 +1,12 @@
 "use client";
-import { iamAtomRuntime } from "@beep/iam-sdk/clients/runtime";
+import { makeAtomRuntime } from "@beep/runtime-client/services/runtime/make-atom-runtime";
 import { withToast } from "@beep/ui/common";
 import { useAtom } from "@effect-atom/atom-react";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
-import { SignUpImplementations } from "./sign-up.implementations";
+import { SignUpService } from "./sign-up.service";
+
+const signUpRuntime = makeAtomRuntime(SignUpService.Live);
 
 const signUpToastOptions = {
   onWaiting: "Signing up",
@@ -15,7 +17,7 @@ const signUpToastOptions = {
   }),
 } as const;
 
-const signUpEmailAtom = iamAtomRuntime.fn(F.flow(SignUpImplementations.SignUpEmail, withToast(signUpToastOptions)));
+const signUpEmailAtom = signUpRuntime.fn(F.flow(SignUpService.SignUpEmail, withToast(signUpToastOptions)));
 export const useSignUpEmail = () => {
   const [signUpResult, signUpEmail] = useAtom(signUpEmailAtom);
   return {

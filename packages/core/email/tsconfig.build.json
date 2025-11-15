@@ -29,7 +29,10 @@
       "path": "../env/tsconfig.build.json"
     },
     {
-      "path": "../../ui/tsconfig.build.json"
+      "path": "../../ui/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../ui/core/tsconfig.build.json"
     }
   ]
 }

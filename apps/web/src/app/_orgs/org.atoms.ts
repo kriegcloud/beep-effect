@@ -1,18 +1,16 @@
-import type { OrganizationCreateContract, OrganizationDeleteContract, OrganizationUpdateContract } from "@beep/iam-sdk";
-import { OrganizationImplementations, OrganizationListContract } from "@beep/iam-sdk";
-import { iamAtomRuntime } from "@beep/iam-sdk/clients/runtime";
-import { clientRuntimeLayer } from "@beep/runtime-client";
+import {
+  type OrganizationCreateContract,
+  type OrganizationDeleteContract,
+  OrganizationListContract,
+  OrganizationService,
+  type OrganizationUpdateContract,
+} from "@beep/iam-sdk";
+import { makeAtomRuntime } from "@beep/runtime-client/services/runtime/make-atom-runtime";
 import { withToast } from "@beep/ui/common/with-toast";
 import { Atom, Registry, Result } from "@effect-atom/atom-react";
-import { Array as A, Data, Effect, Layer, Option as O } from "effect";
+import { Array as A, Data, Effect, Option as O } from "effect";
 
-export const makeAtomRuntime = Atom.context({
-  memoMap: Atom.defaultMemoMap,
-});
-
-makeAtomRuntime.addGlobalLayer(clientRuntimeLayer);
-
-const atomRuntime = makeAtomRuntime(Layer.empty);
+const organizationRuntime = makeAtomRuntime(OrganizationService.Live);
 
 type Action = Data.TaggedEnum<{
   Update: typeof OrganizationUpdateContract.successSchema.Type;
@@ -22,16 +20,23 @@ type Action = Data.TaggedEnum<{
 
 const Action = Data.taggedEnum<Action>();
 
-export const remoteUserOrganizationsAtom = iamAtomRuntime.atom(OrganizationImplementations.OrganizationList).pipe(
-  Atom.serializable({
-    key: "userOrganizations",
-    schema: Result.Schema({
-      success: OrganizationListContract.successSchema,
-      error: OrganizationListContract.failureSchema,
+export const remoteUserOrganizationsAtom = organizationRuntime
+  .atom(
+    Effect.gen(function* () {
+      const service = yield* OrganizationService;
+      return yield* service.OrganizationList({});
+    }).pipe(Effect.catchTag("UnknownError", (e) => Effect.die(e)))
+  )
+  .pipe(
+    Atom.serializable({
+      key: "userOrganizations",
+      schema: Result.Schema({
+        success: OrganizationListContract.successSchema,
+        error: OrganizationListContract.failureSchema,
+      }),
     }),
-  }),
-  Atom.withReactivity(["userOrganizations"])
-);
+    Atom.withReactivity(["userOrganizations"])
+  );
 
 const userOrganizationsAtom = Object.assign(
   Atom.writable(
@@ -58,11 +63,12 @@ const userOrganizationsAtom = Object.assign(
   } as const
 );
 
-export const updateUserOrganizationAtom = atomRuntime.fn(
+export const updateUserOrganizationAtom = organizationRuntime.fn(
   Effect.fnUntraced(
     function* (payload: typeof OrganizationUpdateContract.payloadSchema.Type) {
+      const service = yield* OrganizationService;
       const registry = yield* Registry.AtomRegistry;
-      const updateResult = yield* OrganizationImplementations.OrganizationUpdate(payload);
+      const updateResult = yield* service.OrganizationUpdate(payload);
       registry.set(userOrganizationsAtom, Action.Update(updateResult));
     },
     (effect, { data: { name } }) =>
@@ -82,11 +88,12 @@ export const updateUserOrganizationAtom = atomRuntime.fn(
   }
 );
 
-export const deleteUserOrganizationAtom = atomRuntime.fn(
+export const deleteUserOrganizationAtom = organizationRuntime.fn(
   Effect.fnUntraced(
     function* (payload: typeof OrganizationDeleteContract.payloadSchema.Type) {
+      const service = yield* OrganizationService;
       const registry = yield* Registry.AtomRegistry;
-      const deleteResult = yield* OrganizationImplementations.OrganizationDelete(payload);
+      const deleteResult = yield* service.OrganizationDelete(payload);
       registry.set(userOrganizationsAtom, Action.Del(deleteResult));
     },
     (effect, { name }) =>
@@ -106,11 +113,12 @@ export const deleteUserOrganizationAtom = atomRuntime.fn(
   }
 );
 
-export const createUserOrganizationAtom = atomRuntime.fn(
+export const createUserOrganizationAtom = organizationRuntime.fn(
   Effect.fnUntraced(
     function* (payload: typeof OrganizationCreateContract.payloadSchema.Type) {
+      const service = yield* OrganizationService;
       const registry = yield* Registry.AtomRegistry;
-      const createResult = yield* OrganizationImplementations.OrganizationCreate(payload);
+      const createResult = yield* service.OrganizationCreate(payload);
       registry.set(userOrganizationsAtom, Action.Create(createResult));
     },
     (effect, { name }) =>

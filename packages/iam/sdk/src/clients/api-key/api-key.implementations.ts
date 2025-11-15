@@ -173,3 +173,5 @@ export const ApiKeyImplementations = ApiKeyContractKit.of({
   ApiKeyDelete: ApiKeyDeleteHandler,
   ApiKeyList: ApiKeyListHandler,
 });
+
+export const apiKeyLayer = ApiKeyContractKit.toLayer(ApiKeyImplementations);

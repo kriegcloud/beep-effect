@@ -78,3 +78,5 @@ export const VerifyImplementations = VerifyContractKit.of({
   SendEmailVerification: SendEmailVerificationHandler,
   VerifyEmail: VerifyEmailHandler,
 });
+
+export const verifyLayer = VerifyContractKit.toLayer(VerifyImplementations);

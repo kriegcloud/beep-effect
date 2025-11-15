@@ -51,7 +51,7 @@
       "path": "../../common/errors/tsconfig.build.json"
     },
     {
-      "path": "../../ui/tsconfig.build.json"
+      "path": "../../ui/core/tsconfig.build.json"
     }
   ]
 }

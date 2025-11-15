@@ -10,10 +10,10 @@
       "path": "../sdk"
     },
     {
-      "path": "../../ui"
+      "path": "../../ui/ui"
     },
     {
-      "path": "../../ui-core"
+      "path": "../../ui/core"
     },
     {
       "path": "../../shared/domain"

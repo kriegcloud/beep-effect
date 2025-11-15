@@ -37,3 +37,5 @@ const SignUpEmailHandler = SignUpEmailContract.implement(
 export const SignUpImplementations = SignUpContractKit.of({
   SignUpEmail: SignUpEmailHandler,
 });
+
+export const signUpLayer = SignUpContractKit.toLayer(SignUpImplementations);

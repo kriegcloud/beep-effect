@@ -1,27 +1,30 @@
 {
-  "extends": "../../tsconfig.base.jsonc",
+  "extends": "../../../tsconfig.base.jsonc",
   "include": ["test"],
   "references": [
     {
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../common/types"
+      "path": "../../common/types"
     },
     {
-      "path": "../common/invariant"
+      "path": "../../common/invariant"
     },
     {
-      "path": "../common/utils"
+      "path": "../../common/utils"
     },
     {
-      "path": "../common/schema"
+      "path": "../../common/schema"
     },
     {
-      "path": "../common/constants"
+      "path": "../../common/constants"
     },
     {
-      "path": "../shared/domain"
+      "path": "../../shared/domain"
+    },
+    {
+      "path": "../core"
     }
   ],
   "compilerOptions": {

@@ -154,3 +154,5 @@ export const OidcImplementations = OidcContractKit.of({
   OAuth2Register: OAuth2RegisterHandler,
   OAuth2Client: OAuth2ClientHandler,
 });
+
+export const oidcLayer = OidcContractKit.toLayer(OidcImplementations);

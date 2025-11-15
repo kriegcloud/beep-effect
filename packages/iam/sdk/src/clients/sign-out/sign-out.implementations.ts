@@ -25,3 +25,5 @@ const SignOutHandler = SignOutContract.implement(
 export const SignOutImplementations = SignOutContractKit.of({
   SignOut: SignOutHandler,
 });
+
+export const signOutLayer = SignOutContractKit.toLayer(SignOutImplementations);

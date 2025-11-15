@@ -13,16 +13,12 @@ session stays context-efficient and follows established patterns under `packages
   bun --version || (echo 'export BUN_INSTALL="$HOME/.bun"' >> ~/.zshrc && echo 'export PATH="$BUN_INSTALL/bin:$PATH"' >> ~/.zshrc && exec $SHELL && bun --version)
   ```
 - If Bun was just added to `PATH`, reopen your shell or prefix commands with `export PATH=$HOME/.bun/bin:$PATH;`.
-- Inspect SDK guardrails → `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/sdk/AGENTS.md"}`
-- Review Better Auth wiring →  
-  `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/infra/src/adapters/better-auth/Auth.service.ts"}`  
-  `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/infra/src/adapters/better-auth/plugins/plugins.ts"}`  
-  `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/sdk/src/adapters/better-auth/client.ts"}`
-- Confirm contract utilities →  
-  `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/sdk/src/contract-kit/Contract.ts"}`  
-  `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/sdk/src/contract-kit/ContractKit.ts"}`  
-  `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/sdk/src/contract-kit/failure-continuation.ts"}`  
-  `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/sdk/src/errors.ts"}`
+- Inspect SDK guardrails → `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect2","pathInProject":"packages/iam/sdk/AGENTS.md"}`
+- Review Better Auth wiring → `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect2","pathInProject":"packages/iam/sdk/src/adapters/better-auth/client.ts"}`
+- Confirm contract utilities (lives in `packages/common/contract`) →  
+  `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect2","pathInProject":"packages/common/contract/src/internal/contract/contract.ts"}`  
+  `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect2","pathInProject":"packages/common/contract/src/internal/contract-kit/contract-kit.ts"}`  
+  `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect2","pathInProject":"packages/iam/sdk/src/errors.ts"}`
 
 Respect everything in `AGENTS.md` (namespace imports, no native array/string helpers, Effect-first patterns).
 
@@ -34,11 +30,10 @@ Respect everything in `AGENTS.md` (namespace imports, no native array/string hel
 2. Pull focused docs for the method you are implementing (adjust `topic`) →  
    `context7__get-library-docs {"context7CompatibleLibraryID":"/better-auth/better-auth","topic":"client.<plugin-or-scope>","tokens":800}`
 3. Cross-check the local OpenAPI export for payload/response contracts →  
-   `jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/auth.<method-path>\"","maxUsageCount":5}`
-   - Tip: set `maxUsageCount` to a small number (1–5) and, if needed, add `timeout`:  
-     `{"projectPath":"/home/.../beep-effect","pathInProject":"better-auth-api-spec.json","searchText":"\"/sign-in/email\"","maxUsageCount":3,"timeout":120000}`
+   `jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect2","searchText":"\"/auth.<method-path>\"","fileMask":"better-auth-api-spec.json","maxUsageCount":5,"timeout":120000}`
+   - Tip: keep `maxUsageCount` between 1–5 to stay context-efficient; adjust `searchText` (for example `"\"/sign-in/email\""`).
    - This returns just the relevant snippet from the large JSON file—no custom scripts required.
-4. When Effect APIs are unclear, search official docs → `effect_docs__effect_docs_search {"query":"makeFailureContinuation"}`
+4. When Effect APIs are unclear, search official docs → `effect_docs__effect_docs_search {"query":"Effect.fn"}` (or whichever Effect helper you’re using)
 
 Document the Better Auth plugin + method identifier (example: plugin `signIn`, method `email`) for later metadata.
 
@@ -47,10 +42,10 @@ Document the Better Auth plugin + method identifier (example: plugin `signIn`, m
 ## 2. Inspect the domain model before drafting schemas
 
 1. Locate the authoritative domain model for the method →  
-   `jetbrains__find_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","directoryToSearch":"packages","caseSensitive":false,"maxUsageCount":5,"searchText":"class Model extends M.Class<","fileMask":"*Model.ts"}`  
-   Narrow the result (for example `ApiKey`) with →  
-   `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/domain/src/entities/<Entity>/<Entity>.model.ts"}` or  
-   `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/shared/domain/src/entities/<Entity>/<Entity>.model.ts"}`
+   `jetbrains__find_files_by_name_keyword {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect2","nameKeyword":"<Entity>","fileCountLimit":20}` (or use `jetbrains__search_in_files_by_text {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect2","searchText":"class <Entity>","directoryToSearch":"packages"}`)  
+   Then open the concrete model with →  
+   `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect2","pathInProject":"packages/iam/domain/src/entities/<Entity>/<Entity>.model.ts"}` or  
+   `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect2","pathInProject":"packages/shared/domain/src/entities/<Entity>/<Entity>.model.ts"}`
 2. Record which fields come from `Model.select`, `Model.insert`, and `Model.update`. When JSON data is modelled through `Model.JsonFromString` (see the ApiKey permissions example), note the wrapper type so the contract mirrors its encoding.
 3. If the domain model is missing the fields required by the SDK, stop and log the gap in `BETTER_AUTH_CLIENT_AND_METHODS_LIST.md` plus the relevant cluster notes so the orchestrator can schedule model updates before contracts move forward.
 
@@ -60,7 +55,7 @@ Mirror the ApiKey slice (`packages/iam/sdk/src/clients/api-key/api-key.contracts
 
 ## 3. Author the contract schema (`*.contracts.ts`)
 
-1. Locate the client folder → `jetbrains__find_files_by_name_keyword {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","nameKeyword":"<feature>.contracts.ts"}`
+1. Locate the client folder → `jetbrains__find_files_by_name_keyword {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect2","nameKeyword":"<feature>.contracts.ts"}`
 2. Derive payload/success schemas from the domain model selectors gathered in Step 2:
    - Use `Model.select.pick(...).fields`, `Model.insert.pick(...).fields`, or `Model.update.pick(...).fields` to avoid re-declaring properties.
    - Spread selector fields inside `S.Class` structures, adding only the extra literals Better Auth expects (for example, additional redacted secrets or duration wrappers).
@@ -79,60 +74,48 @@ Use `jetbrains__reformat_file` when the schema file needs formatting consistency
 ## 4. Implement the handler (`*.implementations.ts`)
 
 1. Open the sibling implementation file →  
-   `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/sdk/src/clients/<feature>/<feature>.implementations.ts"}`
+   `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect2","pathInProject":"packages/iam/sdk/src/clients/<feature>/<feature>.implementations.ts"}`
 2. Import and reuse the shared helpers from `@beep/iam-sdk/clients/_internal`:
-   - `MetadataFactory` — build `() => ({ plugin, method })` factories once per file and pass them to `makeFailureContinuation`.
    - `withFetchOptions` / `addFetchOptions` — attach `handlers.onError` + `handlers.signal` to Better Auth calls (and merge extra headers when needed).
    - `requireData` — fail fast with a tagged `IamError` when Better Auth returns `null`/`undefined`.
-   - `decodeResult` — synchronously decode responses with the contract success schema and surface helpful parser errors.
    - `compact` — strip `undefined` entries from encoded query objects before passing them to adapters.
+   Pair them with `Contract.encodePayload` / `Contract.decodeUnknownSuccess` so inputs/outputs always flow through the same schema used by the contract.
 3. Create an Effect handler using those helpers:
    ```ts
-   import {
-     MetadataFactory,
-     addFetchOptions,
-     decodeResult,
-     requireData,
-     withFetchOptions,
-   } from "@beep/iam-sdk/clients/_internal";
+   import { addFetchOptions, requireData, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+   import * as Redacted from "effect/Redacted";
 
-   const metadataFactory = new MetadataFactory("<plugin>");
-   const FooMetadata = metadataFactory.make("<method>");
+   const FooHandler = FooContract.implement(
+     Effect.fn(function* (payload, { continuation }) {
+       const encoded = yield* FooContract.encodePayload(payload);
 
-   const FooHandler = Effect.fn("FooHandler")(function* (payload: FooPayload.Type) {
-     const continuation = makeFailureContinuation({
-       contract: "Foo",
-       metadata: FooMetadata,
-     }, { supportsAbort: true /* when Better Auth accepts AbortSignal */ });
+       const result = yield* continuation.run((handlers) =>
+         client.<plugin>.<method>(
+           addFetchOptions(handlers, {
+             ...encoded,
+             secret: Redacted.value(encoded.secret),
+           })
+         )
+       );
 
-     const encodedPayload = yield* S.encodeUnknown(FooPayload)(payload);
+       yield* continuation.raiseResult(result);
 
-     const result = yield* continuation.run((handlers) =>
-       client.<plugin>.<method>(
-         addFetchOptions(handlers, {
-           // spread encoded payload fields, wrap secrets with Redacted.value
-           ...encodedPayload,
-         })
-       )
-     );
+       if (result.error == null && mutatesSession) {
+         client.$store.notify("$sessionSignal");
+       }
 
-     yield* continuation.raiseResult(result);
+       const data = yield* requireData(result.data, "FooHandler", continuation.metadata);
 
-     if (result.error == null && mutatesSession) {
-       client.$store.notify("$sessionSignal");
-     }
-
-     const data = yield* requireData(result.data, "FooHandler", FooMetadata());
-
-     return yield* decodeResult(FooSuccess, "FooHandler", data);
-   }, Effect.catchTags({
-     ParseError: (error) => Effect.fail(IamError.match(error, FooMetadata())),
-   }));
+       return yield* FooContract.decodeUnknownSuccess(data);
+     }, Effect.catchTags({
+       ParseError: (error) => Effect.fail(IamError.match(error, continuation.metadata)),
+     }))
+   );
    ```
    - Use `Redacted.value` for secrets/tokens.
-   - Encode outbound payloads with the contract schema (for example `S.encodeUnknown(FooPayload)(payload)`) before handing them to Better Auth.
-   - Prefer `addFetchOptions` for body/JSON payloads and `withFetchOptions` for methods that accept separate `fetchOptions`.
-   - Convert `ParseError` through `Effect.fail(IamError.match(error, metadata))` so failures remain typed.
+   - Encode outbound payloads with `FooContract.encodePayload` before handing them to Better Auth.
+   - Prefer `addFetchOptions` for body/JSON payloads and `withFetchOptions` when Better Auth accepts a `fetchOptions` argument separately.
+   - Convert `ParseError` through `Effect.fail(IamError.match(error, continuation.metadata))` so failures remain typed.
 4. Register the handler inside `ContractKit.of({ ... })`.
 
 If the response is `S.Void`, omit the decode/return block. Wrap additional parsing failures with `Effect.catchTags`
@@ -144,7 +127,7 @@ prefer raising a new `IamError` with the appropriate plugin/method metadata inst
 ## 5. Wire exports and shared indexes
 
 1. Ensure the domain `index.ts` re-exports the contracts + implementations:
-   `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"packages/iam/sdk/src/clients/<feature>/index.ts"}`
+   `jetbrains__get_file_text_by_path {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect2","pathInProject":"packages/iam/sdk/src/clients/<feature>/index.ts"}`
 2. Confirm `packages/iam/sdk/src/clients/index.ts` exposes the feature when needed.
 3. Update any runtime or UI references listed in
    [`BETTER_AUTH_CLIENT_AND_METHODS_LIST.md`](BETTER_AUTH_CLIENT_AND_METHODS_LIST.md) if the contract name changes.
@@ -153,8 +136,8 @@ prefer raising a new `IamError` with the appropriate plugin/method metadata inst
 
 ## 6. Verification and quality gates
 
-- Type check the SDK workspace → `jetbrains__execute_terminal_command {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","command":"bun run build --filter=@beep/iam-sdk","reuseExistingTerminalWindow":true}`
-- Run lint (Biome) when schemas or implementations change → `jetbrains__execute_terminal_command {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","command":"bun run lint --filter=@beep/iam-sdk","reuseExistingTerminalWindow":true}`
+- Type check the SDK workspace → `jetbrains__execute_terminal_command {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect2","command":"PATH=\"$HOME/.bun/bin:$PATH\" bun run build --filter=@beep/iam-sdk","reuseExistingTerminalWindow":true}`
+- Run lint (Biome) when schemas or implementations change → `jetbrains__execute_terminal_command {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect2","command":"PATH=\"$HOME/.bun/bin:$PATH\" bun run lint --filter=@beep/iam-sdk","reuseExistingTerminalWindow":true}`
 - If you touched runtime exports, suggest running `bun run build --filter=apps/web` to the user for downstream safety.
 - Update the progress checklist in `BETTER_AUTH_CLIENT_AND_METHODS_LIST.md` after adding a contract or handler.
 
@@ -167,8 +150,8 @@ prefer raising a new `IamError` with the appropriate plugin/method metadata inst
 - [ ] Add payload/success schemas using `S.Class` + namespaces.
 - [ ] Create `Contract.make` with `failure: S.instanceOf(IamError)`.
 - [ ] Register schemas in the feature `ContractKit`.
-- [ ] Implement `Effect.fn` handler using `makeFailureContinuation`.
-- [ ] Import helper utilities from `@beep/iam-sdk/clients/_internal` (`MetadataFactory`, `withFetchOptions`, `addFetchOptions`, `requireData`, `decodeResult`, `compact`) instead of reimplementing per-method plumbing.
+- [ ] Implement `Effect.fn` handler via `ContractName.implement` and the provided `continuation`.
+- [ ] Import helper utilities from `@beep/iam-sdk/clients/_internal` (`withFetchOptions`, `addFetchOptions`, `requireData`, `compact`) instead of reimplementing per-method plumbing.
 - [ ] Encode outbound payloads and decode inbound data with the contract schemas (`S.encodeUnknown`, `S.decodeUnknown`).
 - [ ] Convert `ParseError` into `Effect.fail(IamError.match(...))` instead of letting defects escape.
 - [ ] Notify `$store` on session mutations and decode successful responses.

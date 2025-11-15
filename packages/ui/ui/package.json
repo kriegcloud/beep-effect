@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",
-    "directory": "packages/ui"
+    "directory": "packages/ui/ui"
   },
   "scripts": {
     "copy-css": "copyfiles -f src/styles/globals.css build/src && copyfiles -f src/styles/globals.css build/esm && copyfiles -f src/styles/globals.css build/cjs",

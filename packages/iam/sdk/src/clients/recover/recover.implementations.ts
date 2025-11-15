@@ -60,3 +60,5 @@ export const RecoverImplementations = RecoverContractKit.of({
   ResetPassword: ResetPasswordHandler,
   RequestResetPassword: RequestPasswordResetHandler,
 });
+
+export const recoverLayer = RecoverContractKit.toLayer(RecoverImplementations);

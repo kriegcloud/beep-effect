@@ -1,7 +1,7 @@
 {
   "files": [],
   "references": [
-    { "path": "../packages/ui" },
-    { "path": "../packages/ui-core" }
+    { "path": "../packages/ui/ui" },
+    { "path": "../packages/ui/core" }
   ]
 }

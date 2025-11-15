@@ -430,3 +430,5 @@ export const AdminImplementations = AdminContractKit.of({
   AdminSetUserPassword: AdminSetUserPasswordHandler,
   AdminHasPermission: AdminHasPermissionHandler,
 });
+
+export const adminLayer = AdminContractKit.toLayer(AdminImplementations);

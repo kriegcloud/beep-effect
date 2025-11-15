@@ -1,10 +1,12 @@
 "use client";
-import { iamAtomRuntime } from "@beep/iam-sdk/clients/runtime";
+import { makeAtomRuntime } from "@beep/runtime-client/services/runtime/make-atom-runtime";
 import { withToast } from "@beep/ui/common";
 import { useAtom } from "@effect-atom/atom-react";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
-import { SignInImplementations } from "./sign-in.implementations";
+import { SignInService } from "./sign-in.service";
+
+const signInRuntime = makeAtomRuntime(SignInService.Live);
 
 const signInToastOptions = {
   onWaiting: "Signing in",
@@ -15,9 +17,7 @@ const signInToastOptions = {
   }),
 };
 
-export const signInPasskeyAtom = iamAtomRuntime.fn(
-  F.flow(SignInImplementations.SignInPasskey, withToast(signInToastOptions))
-);
+export const signInPasskeyAtom = signInRuntime.fn(F.flow(SignInService.SignInPasskey, withToast(signInToastOptions)));
 export const useSignInPasskey = () => {
   const [signInPasskeyResult, signInPasskey] = useAtom(signInPasskeyAtom);
   return {
@@ -26,9 +26,7 @@ export const useSignInPasskey = () => {
   };
 };
 
-export const signInSocialAtom = iamAtomRuntime.fn(
-  F.flow(SignInImplementations.SignInSocial, withToast(signInToastOptions))
-);
+export const signInSocialAtom = signInRuntime.fn(F.flow(SignInService.SignInSocial, withToast(signInToastOptions)));
 export const useSignInSocial = () => {
   const [signInSocialResult, signInSocial] = useAtom(signInSocialAtom);
   return {
@@ -37,9 +35,7 @@ export const useSignInSocial = () => {
   };
 };
 
-export const signInEmailAtom = iamAtomRuntime.fn(
-  F.flow(SignInImplementations.SignInEmail, withToast(signInToastOptions))
-);
+export const signInEmailAtom = signInRuntime.fn(F.flow(SignInService.SignInEmail, withToast(signInToastOptions)));
 export const useSignInEmail = () => {
   const [signInEmailResult, signInEmail] = useAtom(signInEmailAtom);
   return {
@@ -48,8 +44,8 @@ export const useSignInEmail = () => {
   };
 };
 
-export const signInPhoneNumberAtom = iamAtomRuntime.fn(
-  F.flow(SignInImplementations.SignInPhoneNumber, withToast(signInToastOptions))
+export const signInPhoneNumberAtom = signInRuntime.fn(
+  F.flow(SignInService.SignInPhoneNumber, withToast(signInToastOptions))
 );
 export const useSignInPhoneNumber = () => {
   const [signInPhoneNumberResult, signInPhoneNumber] = useAtom(signInPhoneNumberAtom);
@@ -59,9 +55,7 @@ export const useSignInPhoneNumber = () => {
   };
 };
 
-export const signInUsernameAtom = iamAtomRuntime.fn(
-  F.flow(SignInImplementations.SignInUsername, withToast(signInToastOptions))
-);
+export const signInUsernameAtom = signInRuntime.fn(F.flow(SignInService.SignInUsername, withToast(signInToastOptions)));
 export const useSignInUsername = () => {
   const [signInUsernameResult, signInUsername] = useAtom(signInUsernameAtom);
   return {
@@ -70,9 +64,7 @@ export const useSignInUsername = () => {
   };
 };
 
-export const signInOneTapAtom = iamAtomRuntime.fn(
-  F.flow(SignInImplementations.SignInOneTap, withToast(signInToastOptions))
-);
+export const signInOneTapAtom = signInRuntime.fn(F.flow(SignInService.SignInOneTap, withToast(signInToastOptions)));
 export const useSignInOneTap = () => {
   const [signInOneTapResult, signInOneTap] = useAtom(signInOneTapAtom);
   return {

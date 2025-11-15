@@ -40,7 +40,7 @@ const ChangePassword = () => {
             maxWidth: 463,
           }}
         >
-          <Stack direction="column" spacing={1} pb={0.125}></Stack>
+          <Stack direction="column" spacing={1} pb={0.125} />
         </AccountFormDialog>
       </Stack>
     </Form>

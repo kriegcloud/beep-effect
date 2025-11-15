@@ -18,7 +18,10 @@
       "path": "../env"
     },
     {
-      "path": "../../ui"
+      "path": "../../ui/ui"
+    },
+    {
+      "path": "../../ui/core"
     }
   ],
   "compilerOptions": {

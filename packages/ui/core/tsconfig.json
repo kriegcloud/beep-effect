@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.base.jsonc",
+  "extends": "../../../tsconfig.base.jsonc",
   "include": [],
   "exclude": ["src/**/*.test.ts"],
   "compilerOptions": {

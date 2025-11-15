@@ -40,7 +40,7 @@ const Birthday = () => {
           maxWidth: 463,
         }}
       >
-        <Stack direction={{ xs: "column" }} spacing={1}></Stack>
+        <Stack direction={{ xs: "column" }} spacing={1} />
       </AccountFormDialog>
     </Form>
   );

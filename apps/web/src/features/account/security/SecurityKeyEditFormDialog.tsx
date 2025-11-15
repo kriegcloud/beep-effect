@@ -61,7 +61,7 @@ const SecurityKeyEditFormDialog = (props: SecurityKeyEditFormDialogProps) => {
             Enter your security key PIN for this device to proceed securely. You also have the option to remove this
             connection.
           </DialogContentText>
-          <Stack direction="column" spacing={1} pb={0.125}></Stack>
+          <Stack direction="column" spacing={1} pb={0.125} />
         </DialogContent>
         <DialogActions
           sx={{

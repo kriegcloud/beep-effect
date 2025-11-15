@@ -39,6 +39,7 @@
     "@beep/errors": "workspace:^",
     "effect": "catalog:",
     "@beep/ui": "workspace:^",
+    "@beep/ui-core": "workspace:^",
     "@react-email/components": "catalog:",
     "@react-email/render": "catalog:",
     "react": "catalog:",

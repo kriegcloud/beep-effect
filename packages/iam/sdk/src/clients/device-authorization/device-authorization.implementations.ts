@@ -138,3 +138,5 @@ export const DeviceAuthorizationImplementations = DeviceAuthorizationContractKit
   DeviceAuthorizationApprove: DeviceAuthorizationApproveHandler,
   DeviceAuthorizationDeny: DeviceAuthorizationDenyHandler,
 });
+
+export const deviceAuthorizationLayer = DeviceAuthorizationContractKit.toLayer(DeviceAuthorizationImplementations);
