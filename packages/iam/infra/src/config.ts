@@ -9,7 +9,9 @@ export class IamConfig extends Context.Tag("@beep/iam-infra/IamConfig")<IamConfi
         env: env.app.env,
         name: env.app.name,
         domain: env.app.domain,
+        baseUrl: env.app.baseUrl,
         clientUrl: env.app.clientUrl,
+        projectProductionUrl: env.app.projectProductionUrl,
         authUrl: env.app.authUrl,
         logLevel: env.app.logLevel,
         logFormat: env.app.logFormat,
@@ -39,7 +41,9 @@ export declare namespace IamConfig {
       readonly env: typeof serverEnv.app.env;
       readonly name: typeof serverEnv.app.name;
       readonly domain: typeof serverEnv.app.domain;
+      readonly baseUrl: typeof serverEnv.app.baseUrl;
       readonly clientUrl: typeof serverEnv.app.clientUrl;
+      readonly projectProductionUrl: typeof serverEnv.app.projectProductionUrl;
       readonly authUrl: typeof serverEnv.app.authUrl;
       readonly logLevel: typeof serverEnv.app.logLevel;
       readonly logFormat: typeof serverEnv.app.logFormat;

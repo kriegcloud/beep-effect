@@ -45,7 +45,6 @@ export const GetSessionHandler = GetSessionContract.implement(
         _rowId: user._rowId,
         name: user.name,
         email: user.email,
-        secondaryEmail: user.secondaryEmail,
         emailVerified: user.emailVerified,
         image: user.image,
         role: user.role,

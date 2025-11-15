@@ -2,7 +2,7 @@
 
 import { makeAtomRuntime } from "@beep/runtime-client/services/runtime/make-atom-runtime";
 import { withToast } from "@beep/ui/common";
-import { useAtom } from "@effect-atom/atom-react";
+import { useAtomSet } from "@effect-atom/atom-react";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import { SignOutService } from "./sign-out.service";
@@ -23,9 +23,10 @@ export const signOutAtom = signOutRuntime.fn(
   )
 );
 export const useSignOut = () => {
-  const [signOutResult, signOut] = useAtom(signOutAtom);
+  const signOut = useAtomSet(signOutAtom, {
+    mode: "promise" as const
+  });
   return {
-    signOutResult,
     signOut,
   };
 };

@@ -9,7 +9,6 @@ export const user = Table.make(SharedEntityIds.UserId)(
   {
     name: pg.text("name").notNull(),
     email: pg.text("email").notNull().unique(),
-    secondaryEmail: pg.text("secondary_email").unique(),
     emailVerified: pg.boolean("email_verified").default(false).notNull(),
     image: pg.text("image"),
     role: userRolePgEnum("role").notNull().default(SharedEntities.User.UserRole.Enum.user),

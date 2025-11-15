@@ -3,7 +3,8 @@ import { mergeClasses } from "@beep/ui-core/utils";
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import { useDropzone } from "react-dropzone";
-
+import * as S from "effect/Schema";
+import { BS } from "@beep/schema";
 import { uploadClasses } from "../classes";
 import { RejectedFiles } from "../components/rejected-files";
 import type { UploadProps } from "../types";
@@ -28,7 +29,7 @@ export function UploadAvatar({
     ...dropzoneOptions,
   });
 
-  const file = !Array.isArray(value) ? value : null;
+  const file = !Array.isArray(value) ? value : S.is(BS.Url)(value) ? value : null;
   const hasSelectedFile = !!file;
   const hasError = isDragReject || !!error;
   const showFilesRejected = !hideFilesRejected && fileRejections.length > 0;

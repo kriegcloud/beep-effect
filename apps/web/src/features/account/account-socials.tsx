@@ -62,6 +62,7 @@ export function AccountSocials({ socialLinks }: Props) {
                         {social === "facebook" && <Iconify width={24} icon="socials:facebook" />}
                         {social === "instagram" && <Iconify width={24} icon="socials:instagram" />}
                         {social === "linkedin" && <Iconify width={24} icon="socials:linkedin" />}
+
                       </InputAdornment>
                     ),
                   },

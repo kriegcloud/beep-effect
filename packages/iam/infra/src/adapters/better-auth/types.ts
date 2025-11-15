@@ -41,15 +41,18 @@ export type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "
   };
   plugins: Plugins;
   user: {
+    changeEmail: {
+      enabled: true,
+      sendChangeEmailVerification: (params: {
+        newEmail: string,
+        url: string
+      }) => Promise<void>
+    },
     modelName: typeof SharedEntityIds.UserId.tableName;
     additionalFields: CommonExtraFields & {
       gender: {
         type: "string";
         required: true;
-      };
-      secondaryEmail: {
-        type: "string";
-        required: false;
       };
       stripeCustomerId: {
         type: "string";

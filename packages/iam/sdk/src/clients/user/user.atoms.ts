@@ -114,3 +114,31 @@ export const useUpdatePhoneNumber = () => {
     updatePhoneNumber,
   };
 };
+
+
+export const changeEmailAtom = userRuntime.fn(
+  F.flow(
+    UserService.ChangeEmail,
+    withToast({
+      onWaiting: "Changing email...",
+      onSuccess: "Email changed successfully",
+      onFailure: O.match({
+        onNone: () => "An unknown error occurred!",
+        onSome: (error) => error.message,
+      }),
+    })
+  ),
+  {
+    reactivityKeys: ["session"],
+  }
+)
+
+export const useChangeEmail = () => {
+  const changeEmail = useAtomSet(changeEmailAtom, {
+    mode: "promise" as const,
+  });
+
+  return {
+    changeEmail
+  }
+}

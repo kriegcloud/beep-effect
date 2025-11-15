@@ -5,11 +5,11 @@ import * as Effect from "effect/Effect";
 import { SignOutContract } from "./sign-out.contracts";
 
 const SignOutHandler = SignOutContract.implement(
-  Effect.fn(function* (payload, { continuation }) {
+  Effect.fn(function* ({ onSuccess }, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.signOut({
         fetchOptions: withFetchOptions(handlers, {
-          onSuccess: () => payload.onSuccess(undefined),
+          onSuccess: () => onSuccess()
         }),
       })
     );

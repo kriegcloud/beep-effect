@@ -3,7 +3,7 @@ import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-import { SharedEntityIds } from "../../entity-ids";
+import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import { UserGender, UserRole } from "./schemas";
 
 /**
@@ -21,13 +21,6 @@ export class Model extends M.Class<Model>(`UserModel`)(
     email: BS.Email.annotations({
       description: "The user's email address",
     }),
-
-    /** User's secondary email address (unique) */
-    secondaryEmail: BS.FieldOptionOmittable(
-      BS.Email.annotations({
-        description: "The user's secondary email address",
-      })
-    ),
 
     /** Whether the user's email has been verified */
     emailVerified: BS.BoolWithDefault(false),

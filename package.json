@@ -216,7 +216,7 @@
     "i18next": "^25.6.2",
     "i18next-browser-languagedetector": "^8.2.0",
     "i18next-resources-to-backend": "^1.2.1",
-    "jose": "^6.1.1",
+    "jose": "^6.1.2",
     "lint-staged": "^16.2.6",
     "lowlight": "^3.3.0",
     "madge": "^8.0.0",

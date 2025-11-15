@@ -1,49 +1,31 @@
-import { BS } from "@beep/schema";
 import { Iconify } from "@beep/ui/atoms";
-import { formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
 import { Stack, Typography } from "@mui/material";
-import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
-import * as S from "effect/Schema";
 import { useState } from "react";
 import { useAccountSettings } from "@/features/account/account-settings-provider";
-import { InfoCard } from "../common/InfoCard";
-import { InfoCardAttribute } from "../common/InfoCardAttribute";
+import { InfoCard } from "@/features/account/common/InfoCard";
+import { InfoCardAttribute } from "@/features/account/common/InfoCardAttribute";
+import {useChangeEmailForm} from "@beep/iam-sdk/clients/user";
 
 const Email = () => {
   const [open, setOpen] = useState(false);
   const { userInfo } = useAccountSettings();
 
-  const primaryEmail = Redacted.value(userInfo.email);
-  const secondaryEmail = userInfo.secondaryEmail.pipe(
-    O.match({
-      onNone: () => "",
-      onSome: (secondaryEmail) => Redacted.value(secondaryEmail),
-    })
-  );
+  const email = Redacted.value(userInfo.email);
 
-  const form = useAppForm(
-    formOptionsWithSubmitEffect({
-      schema: S.Struct({
-        primaryEmail: BS.Email,
-        secondaryEmail: BS.Email,
-      }),
-      defaultValues: {
-        primaryEmail,
-        secondaryEmail,
-      },
-      onSubmit: async (value) => {
-        console.log(value);
-      },
-    })
-  );
+  const {form} = useChangeEmailForm({
+    userInfo,
+    onSuccess: () => {
+      setOpen(false)
+      form.reset()
+    }
+  })
 
   return (
     <>
       <InfoCard setOpen={setOpen} sx={{ mb: 2 }}>
         <Stack direction="column" spacing={{ xs: 2, sm: 1 }}>
-          <InfoCardAttribute label="Primary Email" value={primaryEmail} />
-          <InfoCardAttribute label="Secondary Email" value={secondaryEmail} />
+          <InfoCardAttribute label="Primary Email" value={email} />
         </Stack>
         <Iconify icon="material-symbols-light:edit-outline" width={20} />
       </InfoCard>
@@ -61,14 +43,9 @@ const Email = () => {
         >
           <Stack direction="column" spacing={1} p={0.125}>
             <form.AppField
-              name="primaryEmail"
-              children={(field) => <field.Text label={"Primary Email"} type={"email"} fullWidth={true} />}
+              name="newEmail"
+              children={(field) => <field.Text label={"New Email"} type={"email"} fullWidth={true} />}
             />
-            <form.AppField
-              name="secondaryEmail"
-              children={(field) => <field.Text label={"Secondary Email"} type={"email"} fullWidth={true} />}
-            />
-            s
           </Stack>
         </form.FormDialog>
       </form.AppForm>

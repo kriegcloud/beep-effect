@@ -18,7 +18,7 @@ import * as LastLoginMethod from "./last-login-method";
 import * as Localization from "./localization";
 import * as Mcp from "./mcp";
 import * as MultiSession from "./multi-session";
-import * as OAuthProxyPlugin from "./oauth-proxy";
+// import * as OAuthProxyPlugin from "./oauth-proxy";
 import * as OidcProvider from "./oidc-provider";
 import * as OneTap from "./one-tap";
 import * as OneTimeToken from "./one-time-token";
@@ -49,7 +49,7 @@ export type Plugins = Array<
   | OidcProvider.OIDCProviderPlugin
   | OpenApi.OpenApiPlugin
   | OneTimeToken.OneTimeTokenPlugin
-  | OAuthProxyPlugin.OauthProxyPlugin
+  // | OAuthProxyPlugin.OauthProxyPlugin
   | Organization.OrganizationPlugin
   | PhoneNumber.PhoneNumberPlugin
   | Passkey.PasskeyPlugin
@@ -79,7 +79,7 @@ const allPluginsArray = [
   Localization.localizationPlugin,
   Mcp.mcpPlugin,
   MultiSession.multiSessionPlugin,
-  OAuthProxyPlugin.oauthProxyPlugin,
+  // OAuthProxyPlugin.oauthProxyPlugin,
   OidcProvider.oidcProviderPlugin,
   OneTap.oneTapPlugin,
   OneTimeToken.oneTimeTokenPlugin,

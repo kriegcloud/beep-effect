@@ -17,6 +17,18 @@ export declare namespace SendVerificationEmailPayload {
   export type Encoded = S.Schema.Encoded<typeof SendVerificationEmailPayload>;
 }
 
+export class SendChangeEmailVerificationPayload extends S.Class<SendChangeEmailVerificationPayload>("SendChangeEmailVerificationPayload")(
+  {
+    email: BS.Email,
+    url: BS.Url,
+  }
+) {}
+
+export declare namespace SendChangeEmailVerificationPayload {
+  export type Type = S.Schema.Type<typeof SendChangeEmailVerificationPayload>;
+  export type Encoded = S.Schema.Encoded<typeof SendChangeEmailVerificationPayload>;
+}
+
 export class SendOTPEmailPayload extends S.Class<SendOTPEmailPayload>("SendOTPEmailPayload")({
   email: BS.Email,
   otp: S.Redacted(S.String),
@@ -58,6 +70,17 @@ export class AuthEmailService extends Effect.Service<AuthEmailService>()("AuthEm
   effect: Effect.flatMap(ResendService, ({ send }) =>
     Effect.gen(function* () {
       const { email: emailEnv } = yield* IamConfig;
+
+      const sendChangeEmailVerification = Effect.fn("sendChangeEmailVerification")(function* (
+        params: SendChangeEmailVerificationPayload.Type
+      ) {
+        yield* send({
+          from: Redacted.value(emailEnv.from),
+          to: Redacted.value(params.email),
+          subject: "Verify your email",
+          html: `<a href="${params.url.toString()}">Verify your email</a>`,
+        });
+      })
 
       const sendVerification = Effect.fn("sendVerification")(
         function* (params: SendVerificationEmailPayload.Type) {
@@ -147,6 +170,7 @@ export class AuthEmailService extends Effect.Service<AuthEmailService>()("AuthEm
         sendResetPassword,
         sendInvitation,
         sendOTP,
+        sendChangeEmailVerification,
       };
     })
   ),

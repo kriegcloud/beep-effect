@@ -5,13 +5,11 @@ import Typography from "@mui/material/Typography";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { useAccountSettings } from "@/features/account/account-settings-provider";
-import { AccountTabPanelSection } from "../common/AccountTabPanelSection";
-// import Address from "./Address";
-import Birthday from "./Birthday";
-import Email from "./Email";
-import Identity from "./Identity";
-import Phone from "./Phone";
-import UserName from "./UserName";
+import { AccountTabPanelSection } from "@/features/account/common/AccountTabPanelSection";
+import Email from "@/features/account/general/Email";
+import Identity from "@/features/account/general/Identity";
+import Phone from "@/features/account/general/Phone";
+import UserName from "@/features/account/general/UserName";
 export const GeneralTabPanel = () => {
   const { userInfo } = useAccountSettings();
   const form = useAppForm(
@@ -72,22 +70,6 @@ export const GeneralTabPanel = () => {
             <UserName />
           </Stack>
         </AccountTabPanelSection>
-
-        <AccountTabPanelSection
-          title="Birthday"
-          subtitle="Adjust your date of birth to ensure it’s accurate in your account. Visibility of your birthday can also be controlled here."
-          icon="material-symbols:cake-outline"
-        >
-          <Birthday />
-        </AccountTabPanelSection>
-
-        {/*<AccountTabPanelSection*/}
-        {/*  title="Address"*/}
-        {/*  subtitle="You can edit your address and control who can see it."*/}
-        {/*  icon="material-symbols:location-on-outline"*/}
-        {/*>*/}
-        {/*  <Address />*/}
-        {/*</AccountTabPanelSection>*/}
 
         <AccountTabPanelSection
           title="Phone"

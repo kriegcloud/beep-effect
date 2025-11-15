@@ -43,7 +43,6 @@ export const SignInEmailContract = Contract.make("SignInEmail", {
 export class SignInSocialPayload extends S.Class<SignInSocialPayload>("SignInSocialPayload")(
   {
     provider: AuthProviderNameValue,
-    callbackURL: S.optional(BS.URLString),
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/SignInSocialPayload"),

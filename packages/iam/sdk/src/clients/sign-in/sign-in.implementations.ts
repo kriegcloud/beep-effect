@@ -1,5 +1,5 @@
-import { client } from "@beep/iam-sdk/adapters";
-import { withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import {client} from "@beep/iam-sdk/adapters";
+import {withFetchOptions} from "@beep/iam-sdk/clients/_internal";
 import {
   AnonymousSignInContract,
   SignInContractKit,
@@ -13,14 +13,14 @@ import {
 } from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
-import { IamError } from "../../errors";
+import {IamError} from "../../errors";
 
 // =====================================================================================================================
 // Sign In Social Handler
 // =====================================================================================================================
 
 const SignInSocialHandler = SignInSocialContract.implement(
-  Effect.fn(function* (payload, { continuation }) {
+  Effect.fn(function* (payload, {continuation}) {
     const result = yield* continuation.run((handlers) => client.signIn.social(payload, withFetchOptions(handlers)));
 
     yield* continuation.raiseResult(result);
@@ -31,7 +31,7 @@ const SignInSocialHandler = SignInSocialContract.implement(
 // Sign In Email Handler
 // =====================================================================================================================
 const SignInEmailHandler = SignInEmailContract.implement(
-  Effect.fn(function* (payload, { continuation }) {
+  Effect.fn(function* (payload, {continuation}) {
     const result = yield* continuation.run((handlers) =>
       client.signIn.email({
         email: Redacted.value(payload.email),
@@ -57,8 +57,8 @@ const SignInEmailHandler = SignInEmailContract.implement(
 // Sign In Username Handler
 // =====================================================================================================================
 const SignInUsernameHandler = SignInUsernameContract.implement(
-  Effect.fn(function* (payload, { continuation }) {
-    const { username, password, rememberMe, captchaResponse, callbackURL } = payload;
+  Effect.fn(function* (payload, {continuation}) {
+    const {username, password, rememberMe, captchaResponse, callbackURL} = payload;
     yield* Effect.flatMap(
       continuation.run((handlers) =>
         client.signIn.username({
@@ -87,7 +87,7 @@ const SignInUsernameHandler = SignInUsernameContract.implement(
 // Sign In Phone Number Handler
 // =====================================================================================================================
 const SignInPhoneNumberHandler = SignInPhoneNumberContract.implement(
-  Effect.fn(function* (payload, { continuation }) {
+  Effect.fn(function* (payload, {continuation}) {
     yield* Effect.flatMap(
       continuation.run((handlers) =>
         client.signIn.phoneNumber({
@@ -114,7 +114,7 @@ const SignInPhoneNumberHandler = SignInPhoneNumberContract.implement(
 // Sign In One Tap Handler
 // =====================================================================================================================
 const SignInOneTapHandler = SignInOneTapContract.implement(
-  Effect.fn(function* (_, { continuation }) {
+  Effect.fn(function* (_, {continuation}) {
     yield* continuation.run((handlers) =>
       client.oneTap({
         fetchOptions: withFetchOptions(handlers),
@@ -126,7 +126,7 @@ const SignInOneTapHandler = SignInOneTapContract.implement(
 // Sign In Passkey Handler
 // =====================================================================================================================
 const SignInPasskeyHandler = SignInPasskeyContract.implement(
-  Effect.fn(function* (_, { continuation }) {
+  Effect.fn(function* (_, {continuation}) {
     yield* Effect.flatMap(
       continuation.run((handlers) =>
         client.signIn.passkey({
@@ -147,7 +147,7 @@ const SignInPasskeyHandler = SignInPasskeyContract.implement(
 // Sign In OAuth 2 Handler
 // =====================================================================================================================
 const SignInOAuth2Handler = SignInOAuth2Contract.implement(
-  Effect.fn(function* (payload, { continuation }) {
+  Effect.fn(function* (payload, {continuation}) {
     const result = yield* continuation.run((handlers) =>
       client.signIn.oauth2({
         ...payload,
@@ -160,7 +160,7 @@ const SignInOAuth2Handler = SignInOAuth2Contract.implement(
 );
 
 const AnonymousSignInHandler = AnonymousSignInContract.implement(
-  Effect.fn(function* (_, { continuation }) {
+  Effect.fn(function* (_, {continuation}) {
     const result = yield* continuation.run((handlers) =>
       client.signIn.anonymous({
         fetchOptions: withFetchOptions(handlers),

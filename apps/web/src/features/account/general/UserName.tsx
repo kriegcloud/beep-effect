@@ -4,8 +4,8 @@ import { Stack } from "@mui/material";
 import * as O from "effect/Option";
 import { useState } from "react";
 import { useAccountSettings } from "@/features/account/account-settings-provider";
-import { InfoCard } from "../common/InfoCard";
-import { InfoCardAttribute } from "../common/InfoCardAttribute";
+import { InfoCard } from "@/features/account/common/InfoCard";
+import { InfoCardAttribute } from "@/features/account/common/InfoCardAttribute";
 
 const UserName = () => {
   const { userInfo } = useAccountSettings();
