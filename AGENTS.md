@@ -45,6 +45,7 @@ React 19), `apps/server` (Effect Platform runtime), and `apps/mcp` (MCP tooling)
 - `packages/common/invariant/AGENTS.md` — assertion contract, tagged error schema cues, and debugger notes for `@beep/invariant`.
 - `packages/common/errors/AGENTS.md` — logging & telemetry playbook for `@beep/errors`, including env-driven logger layers, accumulation helpers, and span/metric instrumentation recipes.
 - `packages/common/constants/AGENTS.md` — schema-backed enums, locale + asset generators, and path-builder safety guidelines tailored for `@beep/constants` consumers across env loaders and UI manifests.
+- `packages/common/contract/AGENTS.md` — Effect-first contract runtime reference covering `Contract`, `ContractKit`, `ContractError`, continuations, and lift service ergonomics.
 - `packages/core/env/AGENTS.md` — server/client env loaders, redacted secret guardrails, and usage snapshots that anchor runtime telemetry and auth surfaces.
 - `packages/core/email/AGENTS.md` — Resend service wiring, React Email rendering safeguards, and authentication flow recipes tying IAM payloads to transport.
 - `packages/shared/domain/AGENTS.md` — shared-kernel reference for entity ids/models, ManualCache, policy combinators, and PathBuilder-powered routing recipes used across IAM and Files slices.

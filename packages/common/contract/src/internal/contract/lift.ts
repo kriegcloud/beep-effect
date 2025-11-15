@@ -1,3 +1,8 @@
+/**
+ * Helpers that transform raw contract implementations into higher-level
+ * services. `lift` powers `ContractKit.liftService`, guaranteeing that defect
+ * handling and telemetry hooks are consistently applied.
+ */
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -16,6 +21,11 @@ import type {
 } from "./types";
 import { FailureMode } from "./types";
 
+/**
+ * Options passed to {@link lift}. The `method` field is typically the result of
+ * calling `Contract.implement`, while the optional hooks are invoked whenever
+ * the lifted contract succeeds, fails, or defects.
+ */
 export interface LiftOptions<C extends Any> {
   readonly method: (payload: Payload<C>) => Effect.Effect<ImplementationResult<C>, Failure<C>, Requirements<C>>;
   readonly onFailure?: undefined | ((failure: Failure<C>) => Effect.Effect<void, never, never>);
@@ -23,6 +33,11 @@ export interface LiftOptions<C extends Any> {
   readonly onDefect?: undefined | ((cause: Cause.Cause<unknown>) => Effect.Effect<void, never, never>);
 }
 
+/**
+ * Result of lifting a contract. `result` returns a {@link HandleOutcome} while
+ * `success` narrows down to the happy-path value for callers who want the
+ * original contract semantics.
+ */
 export interface LiftedContract<C extends Any> {
   readonly result: (
     payload: Payload<C>
@@ -32,6 +47,16 @@ export interface LiftedContract<C extends Any> {
   ) => Effect.Effect<Success<C>, Failure<C> | ContractError.UnknownError, Requirements<C>>;
 }
 
+/**
+ * Converts a raw implementation into a stable service API that encodes failure
+ * modes, defects, and optional instrumentation hooks.
+ *
+ * @example
+ * ```ts
+ * const lifted = lift(MyContract, { method: MyContractImplementation });
+ * const result = await Effect.runPromise(lifted.success({ ...payload }));
+ * ```
+ */
 export const lift = <const C extends Any>(contract: C, options: LiftOptions<C>): LiftedContract<C> => {
   const { method, onFailure, onSuccess, onDefect } = options;
 

@@ -1,3 +1,8 @@
+/**
+ * Continuation helpers combine contract metadata with transport-agnostic
+ * utilities for running promise-based operations. This module also houses the
+ * shared `handleOutcome` helper used when consuming lifted contracts.
+ */
 import { noOp } from "@beep/utils/noOps";
 import * as Bool from "effect/Boolean";
 import * as Context from "effect/Context";
@@ -19,6 +24,13 @@ import type {
   MetadataOptions,
 } from "./types";
 
+/**
+ * Creates an effect that runs the appropriate handler based on whether a
+ * contract outcome produced a success or failure. Helpful when rendering
+ * discriminated results.
+ *
+ * @param _contract
+ */
 export const handleOutcome =
   <const C extends Any>(_contract: C) =>
   <R, E, Env>(handlers: HandleOutcomeHandlers<C, R, E, Env>) =>
@@ -46,6 +58,14 @@ const getAnnotationValue = <A extends Context.Tag<any, string>>(
   tag: A
 ): string | undefined => O.getOrUndefined(Context.getOption(annotations, tag));
 
+/**
+ * Computes metadata for a contract by reading annotations and optional
+ * overrides. Metadata objects are attached to continuations and surfaced in
+ * error loggers.
+ *
+ * @param contract - Contract to inspect.
+ * @param options - Optional overrides and arbitrary `extra` fields.
+ */
 export const metadata = <const C extends Any, Extra extends Record<string, unknown> = Record<string, unknown>>(
   contract: C,
   options?: MetadataOptions<Extra> | undefined
@@ -72,6 +92,15 @@ export const metadata = <const C extends Any, Extra extends Record<string, unkno
   } as Metadata<Extra>;
 };
 
+/**
+ * Constructs a `FailureContinuation` for the provided contract. Continuations
+ * wrap promise-based transports and provide helpers for raising results into
+ * the Effect error channel. Set `supportsAbort` to receive abort signals and
+ * `normalizeError` to translate foreign errors into domain-specific failures.
+ *
+ * When `run` is invoked with `{ surfaceDefect: true }` it returns an `Either`
+ * that preserves defect information instead of rethrowing it.
+ */
 export function failureContinuation<
   const C extends Any,
   Failure = ContractError.UnknownError,
@@ -159,7 +188,7 @@ export function failureContinuation<
       );
     });
 
-    return options?.surfaceDefect ? Effect.either(effect).pipe : effect.pipe(Effect.catchAll((e) => Effect.die(e)));
+    return options?.surfaceDefect ? Effect.either(effect) : effect.pipe(Effect.catchAll((e) => Effect.die(e)));
   };
   const run = runImpl as FailureContinuation.Runner<Failure>;
 

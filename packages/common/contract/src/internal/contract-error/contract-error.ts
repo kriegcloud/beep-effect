@@ -1,3 +1,8 @@
+/**
+ * Canonical error taxonomy shared by all contracts. The hierarchy covers
+ * request failures, response failures, malformed payloads, and unknown errors,
+ * ensuring logs and telemetry stay consistent across runtimes.
+ */
 import { BS } from "@beep/schema";
 import { HttpRequestDetails } from "@beep/schema/http";
 import type { UnsafeTypes } from "@beep/types";
@@ -10,7 +15,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 /**
- * Unique identifier for IAM errors.
+ * Unique identifier for contract errors.
  *
  * @since 1.0.0
  * @category Type Ids
@@ -18,7 +23,7 @@ import * as S from "effect/Schema";
 export const TypeId = Symbol.for("@beep/contract/contract-kit/ContractError");
 
 /**
- * Type-level representation of the IAM error identifier.
+ * Type-level representation of the contract error identifier.
  *
  * @since 1.0.0
  * @category Type Ids
@@ -26,7 +31,7 @@ export const TypeId = Symbol.for("@beep/contract/contract-kit/ContractError");
 export type TypeId = typeof TypeId;
 
 /**
- * Type guard to check if a value is an IAM error.
+ * Type guard to check if a value is a contract error.
  *
  * @param u - The value to check
  * @returns `true` if the value is an `ContractError`, `false` otherwise
@@ -36,13 +41,13 @@ export type TypeId = typeof TypeId;
  * import { ContractError } from "@beep/contract"
  *
  * const someError = new Error("generic error")
- * const iamError = new ContractError.UnknownError({
- *   module: "Test",
- *   method: "example"
+ * const contractError = new ContractError.UnknownError({
+ *   module: "widgets",
+ *   method: "list"
  * })
  *
  * console.log(ContractError.isContractError(someError)) // false
- * console.log(ContractError.isContractError(aiError))   // true
+ * console.log(ContractError.isContractError(contractError))   // true
  * ```
  *
  * @since 1.0.0
@@ -88,7 +93,7 @@ const getStatusCodeSuggestion = (statusCode: number): string => {
 export const HttpRequestErrorReasonKit = BS.stringLiteralKit("Transport", "Encode", "InvalidUrl");
 
 export class HttpRequestErrorReason extends HttpRequestErrorReasonKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/iam/ContractError/HttpRequestErrorReason"),
+  schemaId: Symbol.for("@beep/contract/ContractError/HttpRequestErrorReason"),
   identifier: "HttpRequestErrorReason",
   title: "HTTP Request Error Reason",
   description: "Reason for an HTTP request error.",
@@ -111,27 +116,27 @@ export declare namespace HttpRequestErrorReason {
  *
  * @example
  * ```ts
- * import { ContractError } from "@beep/contract"
- * import { Effect } from "effect"
+ * import { ContractError } from "@beep/contract";
+ * import * as Effect from "effect/Effect";
  *
  * const handleNetworkError = Effect.gen(function* () {
  *   const error = new ContractError.HttpRequestError({
- *     module: "OpenAI",
- *     method: "createCompletion",
+ *     module: "reporting",
+ *     method: "createSummary",
  *     reason: "Transport",
  *     request: {
  *       method: "POST",
- *       url: BS.URLString.make("https://api.openai.com/v1/completions"),
+ *       url: BS.URLString.make("https://api.example.com/reports"),
  *       urlParams: [],
- *       hash: Option.none(),
+ *       hash: undefined,
  *       headers: { "Content-Type": "application/json" }
  *     },
  *     description: "Connection timeout after 30 seconds"
- *   })
+ *   });
  *
- *   console.log(error.message)
- *   // "Transport: Connection timeout after 30 seconds (POST https://api.openai.com/v1/completions)"
- * })
+ *   console.log(error.message);
+ *   // "Transport: Connection timeout after 30 seconds (POST https://api.example.com/reports)"
+ * });
  * ```
  *
  * @since 1.0.0
@@ -170,11 +175,11 @@ export class HttpRequestError extends S.TaggedError<HttpRequestError>("@beep/con
    *
    * declare const platformError: HttpClientError.RequestError
    *
-   * const iamError = ContractError.HttpRequestError.fromRequestError({
-   *   module: "ChatGPT",
+   * const contractError = ContractError.HttpRequestError.fromRequestError({
+   *   module: "messaging",
    *   method: "sendMessage",
-   *   error: platformError
-   * })
+   *   error: platformError,
+   * });
    * ```
    *
    * @since 1.0.0
@@ -304,29 +309,29 @@ export declare namespace HttpResponseErrorReason {
  *
  * @example
  * ```ts
- * import { ContractError } from "@beep/contract"
- * import * as O from "effect"
+ * import { ContractError } from "@beep/contract";
+ * import * as Effect from "effect/Effect";
  *
  * const responseError = new ContractError.HttpResponseError({
- *   module: "OpenAI",
- *   method: "createCompletion",
+ *   module: "analytics",
+ *   method: "createReport",
  *   reason: "StatusCode",
  *   request: {
  *     method: "POST",
- *     url: BS.URLString.make("https://api.openai.com/v1/completions",
+ *     url: BS.URLString.make("https://api.example.com/reports"),
  *     urlParams: [],
- *     hash: O.none(),
- *     headers: { "Content-Type": "application/json" }
+ *     hash: undefined,
+ *     headers: { "Content-Type": "application/json" },
  *   },
  *   response: {
  *     status: 429,
- *     headers: { "X-RateLimit-Remaining": "0" }
+ *     headers: { "X-RateLimit-Remaining": "0" },
  *   },
- *   description: "Rate limit exceeded"
- * })
+ *   description: "Rate limit exceeded",
+ * });
  *
  * console.log(responseError.message)
- * // "StatusCode: Rate limit exceeded (429 POST https://api.openai.com/v1/completions)"
+ * // "StatusCode: Rate limit exceeded (429 POST https://api.example.com/reports)"
  * ```
  *
  * @since 1.0.0
@@ -362,17 +367,16 @@ export class HttpResponseError extends S.TaggedError<HttpResponseError>(
    *
    * @example
    * ```ts
-   * import { ContractError } from "@beep/contract"
-   * import { Headers, HttpClientError } from "@effect/platform"
-   * import * as O from "effect/Option"
+   * import { ContractError } from "@beep/contract";
+   * import { HttpClientError } from "@effect/platform";
    *
    * declare const platformError: HttpClientError.ResponseError
    *
-   * const iamError = ContractError.HttpResponseError.fromResponseError({
-   *   module: "OpenAI",
+   * const contractError = ContractError.HttpResponseError.fromResponseError({
+   *   module: "analytics",
    *   method: "completion",
-   *   error: platformError
-   * })
+   *   error: platformError,
+   * });
    * ```
    *
    * @since 1.0.0

@@ -1,34 +1,17 @@
 /**
- * The `ContractKit` module groups related auth contracts into a cohesive bundle
- * that can be implemented once and shared across clients.
+ * `ContractKit` groups related contracts into bundles that can be implemented
+ * together, converted into Layers, or lifted into services.
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/contract/contract-kit/Contract"
- * import * as ContractKit from "@beep/contract/contract-kit/ContractKit"
- * import * as Effect from "effect/Effect"
- * import * as S from "effect/Schema"
+ * const FetchReports = Contract.make("FetchReports", { ... });
+ * const PublishReport = Contract.make("PublishReport", { ... });
  *
- * const StartPasswordReset = Contract.make("StartPasswordReset", {
- *   description: "Issues a reset token for a pending user",
- *   payload: { email: S.String },
- *   success: S.Struct({ tokenId: S.String })
- * })
- *
- * const VerifyMfaCode = Contract.make("VerifyMfaCode", {
- *   description: "Validates a one-time passcode",
- *   payload: { userId: S.String, code: S.String },
- *   success: S.Struct({ sessionToken: S.String })
- * })
- *
- * const AuthContracts = ContractKit.make(StartPasswordReset, VerifyMfaCode)
- *
- * const layer = AuthContracts.toLayer({
- *   StartPasswordReset: ({ email }) =>
- *     Effect.succeed({ tokenId: `token-${email}` }),
- *   VerifyMfaCode: ({ userId, code }) =>
- *     Effect.succeed({ sessionToken: `${userId}:${code}` })
- * })
+ * const ReportsKit = ContractKit.make(FetchReports, PublishReport);
+ * const layer = ReportsKit.toLayer({
+ *   FetchReports: () => Effect.succeed([{ id: "r-1" }]),
+ *   PublishReport: ({ id }) => Effect.succeed({ id }),
+ * });
  * ```
  *
  * @since 1.0.0
@@ -77,7 +60,7 @@ export const TypeId = "~@beep/contract/ContractKit";
 export type TypeId = typeof TypeId;
 
 /**
- * Represents a collection of auth contracts that are deployed together.
+ * Represents a collection of contracts that are deployed together.
  *
  * @example
  * ```ts
@@ -98,12 +81,12 @@ export type TypeId = typeof TypeId;
  *   success: S.Struct({ sessionToken: S.String })
  * })
  *
- * const Kit = ContractKit.make(SignInEmail, RefreshSession)
+ * const Kit = ContractKit.make(SignInEmail, RefreshSession);
  *
  * const implementations = Kit.toLayer({
  *   SignInEmail: ({ email }) => Effect.succeed({ sessionToken: email }),
  *   RefreshSession: ({ refreshToken }) => Effect.succeed({ sessionToken: refreshToken })
- * })
+ * });
  * ```
  *
  * @since 1.0.0

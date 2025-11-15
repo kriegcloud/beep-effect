@@ -54,6 +54,7 @@ through runtime helpers, while adapters keep raw Better Auth usage isolated to t
 - `effect_docs__effect_docs_search` — `{"query":"AbortController signal Effect"}`
 - `effect_docs__get_effect_doc` — `{"documentId":10386}` (covers `Effect.annotateLogs`)
 - `effect_docs__effect_docs_search` — `{"query":"Redacted value"}` for sanitising credentials before transport
+- `packages/common/contract/AGENTS.md` — canonical reference for the underlying `Contract`/`ContractKit` runtime (read before altering continuations or lift helpers surfaced here).
 
 ## Authoring Guardrails
 

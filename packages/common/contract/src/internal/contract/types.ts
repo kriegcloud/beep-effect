@@ -1,7 +1,11 @@
+/**
+ * Shared type definitions for the contract runtime. These interfaces power both
+ * the public `Contract` API and internal helpers such as continuations and lift
+ * services.
+ */
 // =============================================================================
 // Models
 // =============================================================================
-
 import { BS } from "@beep/schema";
 import type { UnsafeTypes } from "@beep/types";
 import type * as Context from "effect/Context";
@@ -115,26 +119,24 @@ export declare namespace FailureMode {
 }
 
 /**
- * A user-defined contract that identity clients can call to perform an action.
+ * A user-defined contract that clients can invoke to perform an effectful
+ * action.
  *
- * Contracts describe the contract between an auth surface (web, mobile, CLI) and
- * the runtime that fulfills the operation. Each contract declares schemas for
- * payload, success results, and failure results to keep validation explicit.
+ * Contracts describe the agreement between any caller (web, mobile, CLI, worker)
+ * and the runtime that fulfills the operation. Each contract declares schemas
+ * for payload, success results, and failure results to keep validation explicit
+ * and transport-friendly.
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/contract/contract-kit/Contract"
- * import * as S from "effect/Schema"
+ * import * as Contract from "@beep/contract/contract-kit/Contract";
+ * import * as S from "effect/Schema";
  *
- * const StartPasswordReset = Contract.make("StartPasswordReset", {
- *   description: "Issues a reset token when a user asks to reset their password",
- *   payload: {
- *     email: S.String
- *   },
- *   success: S.Struct({
- *     tokenId: S.String
- *   })
- * })
+ * const ListWidgets = Contract.make("ListWidgets", {
+ *   description: "Emit the widgets visible to the current tenant",
+ *   payload: { tenantId: S.String },
+ *   success: S.Array(S.Struct({ id: S.String, name: S.String })),
+ * });
  * ```
  *
  * @since 1.0.0
@@ -568,6 +570,12 @@ export interface AnyTaggedRequestSchema extends AnyStructSchema {
   readonly failure: S.Schema.All;
 }
 
+/**
+ * Structural representation of any contract. Primarily used internally when we
+ * need to work with heterogeneous collections.
+ *
+ * @since 1.0.0
+ */
 export interface Any extends Pipeable {
   readonly [TypeId]: {
     readonly _Requirements: Covariant<UnsafeTypes.UnsafeAny>;
@@ -865,11 +873,24 @@ export type RequiresImplementation<Contract extends Any> = Contract extends Prov
   ? _RequiresImplementation
   : true;
 
+/**
+ * Runtime context passed to contract implementations. Contains the concrete
+ * contract reference plus resolved annotations for the current call.
+ *
+ * @since 1.0.0
+ */
 export interface ImplementationContext<C extends Any> {
   readonly contract: C;
   readonly annotations: Context.Context<never>;
 }
 
+/**
+ * Signature for user-provided contract implementations. The handler receives
+ * the decoded payload, metadata context, and a continuation helper that can
+ * bridge asynchronous transports.
+ *
+ * @since 1.0.0
+ */
 export type ImplementationHandler<C extends Any> = (
   payload: Payload<C>,
   opts: {
@@ -878,10 +899,24 @@ export type ImplementationHandler<C extends Any> = (
   }
 ) => Effect.Effect<Success<C>, Failure<C>, Requirements<C>>;
 
+/**
+ * Curried function produced by `Contract.implement`. Accepts just the payload
+ * and returns the effect whose success/failure channels align with the contract
+ * definition.
+ *
+ * @since 1.0.0
+ */
 export type ImplementationFunction<C extends Any> = (
   payload: Payload<C>
 ) => Effect.Effect<Success<C>, Failure<C>, Requirements<C>>;
 
+/**
+ * Hooks available when implementing a contract. Useful for logging,
+ * instrumentation, or storing additional metadata whenever an implementation
+ * succeeds or fails.
+ *
+ * @since 1.0.0
+ */
 export interface ImplementOptions<C extends Any> {
   readonly onSuccess?:
     | undefined
@@ -891,6 +926,12 @@ export interface ImplementOptions<C extends Any> {
     | ((failure: Failure<C>, context: ImplementationContext<C>) => Effect.Effect<void, never, never>);
 }
 
+/**
+ * Human-readable metadata extracted from contract annotations. Extra fields can
+ * be attached by callers (for example correlation IDs or tenant info).
+ *
+ * @since 1.0.0
+ */
 export interface Metadata<Extra extends Record<string, unknown> = Record<string, unknown>> {
   readonly id: string;
   readonly name: string;
@@ -902,6 +943,12 @@ export interface Metadata<Extra extends Record<string, unknown> = Record<string,
   readonly extra?: Extra | undefined;
 }
 
+/**
+ * Options for computing metadata. Allows overriding annotation-derived fields
+ * and attaching additional structured data.
+ *
+ * @since 1.0.0
+ */
 export interface MetadataOptions<Extra extends Record<string, unknown> = Record<string, unknown>> {
   readonly overrides?: {
     readonly title?: string | undefined;
@@ -912,16 +959,35 @@ export interface MetadataOptions<Extra extends Record<string, unknown> = Record<
   readonly extra?: Extra | undefined;
 }
 
+/**
+ * Handler set passed to `Contract.handleOutcome`. Consumers provide branching
+ * logic for success/failure cases without re-implementing pattern matches.
+ *
+ * @since 1.0.0
+ */
 export interface HandleOutcomeHandlers<C extends Any, R = void, E = never, Env = never> {
   readonly onSuccess: (success: HandleOutcome.Success<C>) => Effect.Effect<R, E, Env>;
   readonly onFailure: (failure: HandleOutcome.Failure<C>) => Effect.Effect<R, E, Env>;
 }
 
+/**
+ * Handlers exposed to continuation register functions. Implementations can use
+ * `signal` to wire abort support and `onError` to report transport-level
+ * failures back into the Effect pipeline.
+ *
+ * @since 1.0.0
+ */
 export interface FailureContinuationHandlers {
   readonly signal?: AbortSignal | undefined;
   readonly onError: (context: { readonly error: unknown }) => void;
 }
 
+/**
+ * Context passed to error normalizers. Carries the originating contract plus the
+ * derived metadata payload.
+ *
+ * @since 1.0.0
+ */
 export interface FailureContinuationContext<
   C extends Any,
   Extra extends Record<string, unknown> = Record<string, unknown>,
@@ -930,6 +996,12 @@ export interface FailureContinuationContext<
   readonly metadata: Metadata<Extra>;
 }
 
+/**
+ * Options used when constructing a continuation. Callers can opt into abort
+ * signals, customize error normalization, or override metadata.
+ *
+ * @since 1.0.0
+ */
 export interface FailureContinuationOptions<
   C extends Any,
   Failure = ContractError.UnknownError,
@@ -940,6 +1012,13 @@ export interface FailureContinuationOptions<
   readonly metadata?: MetadataOptions<Extra> | undefined;
 }
 
+/**
+ * Helper returned by `Contract.continuation`. Provides metadata plus helpers for
+ * running promise-based transports and raising encoded results back into the
+ * Effect channel.
+ *
+ * @since 1.0.0
+ */
 export interface FailureContinuation<
   Failure = ContractError.UnknownError,
   Extra extends Record<string, unknown> = Record<string, unknown>,
@@ -950,10 +1029,22 @@ export interface FailureContinuation<
 }
 
 export declare namespace FailureContinuation {
+  /**
+   * Options for `FailureContinuation.run`. Setting `surfaceDefect` returns an
+   * `Either` so callers can inspect transport errors without throwing defects.
+   *
+   * @since 1.0.0
+   */
   export interface RunOptions {
     readonly surfaceDefect?: boolean;
   }
 
+  /**
+   * Runner signature produced by `FailureContinuation`. Accepts a callback that
+   * receives continuation handlers and must return a `Promise`.
+   *
+   * @since 1.0.0
+   */
   export interface Runner<Failure> {
     <A>(register: (handlers: FailureContinuationHandlers) => Promise<A>): Effect.Effect<A, never, never>;
 

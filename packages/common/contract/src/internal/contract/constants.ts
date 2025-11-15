@@ -1,9 +1,13 @@
-// =============================================================================
-// Type Ids
-// =============================================================================
+/**
+ * Constants shared across the contract runtime.
+ *
+ * @since 1.0.0
+ */
 
 /**
- * Unique identifier for user-defined contracts.
+ * Unique identifier for user-defined contracts. This is useful when building
+ * diagnostics or serialization helpers that need to tag values originating from
+ * application-authored contracts.
  *
  * @since 1.0.0
  * @category Type Ids
@@ -19,7 +23,9 @@ export const TypeId = "~@beep/contract/Contract";
 export type TypeId = typeof TypeId;
 
 /**
- * Unique identifier for provider-defined contracts.
+ * Unique identifier for provider-defined contracts. Framework code can inspect
+ * this tag to enforce that certain helpers are only called with contracts that
+ * originate from infrastructure code instead of user code.
  *
  * @since 1.0.0
  * @category Type Ids

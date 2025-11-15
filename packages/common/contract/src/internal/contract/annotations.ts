@@ -1,3 +1,8 @@
+/**
+ * Annotation tags shared by the contract runtime. Annotations let contracts
+ * carry human-readable metadata (title, domain, method) alongside behavior so
+ * runtimes can log, trace, or restrict access without additional wiring.
+ */
 import { BS } from "@beep/schema";
 import * as Context from "effect/Context";
 import * as F from "effect/Function";
@@ -37,14 +42,13 @@ export declare namespace ContextAnnotationTag {
 // =============================================================================
 
 /**
- * Annotation for providing a human-readable title for contracts.
+ * Annotation describing how a contract should be labeled in diagnostics or user
+ * interfaces.
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/contract/contract-kit/Contract"
- *
- * const myContract = Contract.make("start_password_reset")
- *   .annotate(Contract.Title, "Start Password Reset")
+ * const FetchReport = Contract.make("FetchReport", { ... })
+ *   .annotate(Contract.Title, "Fetch quarterly report");
  * ```
  *
  * @since 1.0.0
@@ -53,14 +57,14 @@ export declare namespace ContextAnnotationTag {
 export class Title extends Context.Tag(ContextAnnotationTag.Enum.Title)<Title, string>() {}
 
 /**
- * Annotation indicating whether a tool only reads data without making changes.
+ * Flag indicating whether the contract implementation honors abort signals for
+ * long-running operations. Effect runtimes can use this to opt-in to passing an
+ * `AbortSignal` when invoking continuations.
  *
  * @example
  * ```ts
- * import { Tool } from "@effect/ai"
- *
- * const readOnlyTool = Tool.make("get_user_info")
- *   .annotate(Tool.Readonly, true)
+ * const StreamUpdates = Contract.make("StreamUpdates", { ... })
+ *   .annotate(Contract.SupportsAbort, true);
  * ```
  *
  * @since 1.0.0
@@ -71,14 +75,13 @@ export class SupportsAbort extends Context.Reference<SupportsAbort>()("@beep/con
 }) {}
 
 /**
- * Annotation for providing a human-readable title for contracts.
+ * Annotation describing the logical domain or bounded context for the contract.
+ * Useful for grouping logs or deriving documentation sections.
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/contract/contract-kit/Contract"
- *
- * const myContract = Contract.make("start_password_reset")
- *   .annotate(Contract.Domain, "Organizations")
+ * const InviteUser = Contract.make("InviteUser", { ... })
+ *   .annotate(Contract.Domain, "collaboration");
  * ```
  *
  * @since 1.0.0
@@ -87,14 +90,14 @@ export class SupportsAbort extends Context.Reference<SupportsAbort>()("@beep/con
 export class Domain extends Context.Tag(ContextAnnotationTag.Enum.Domain)<Domain, string>() {}
 
 /**
- * Annotation for providing a human-readable title for contracts.
+ * Annotation identifying the method or action name exposed by the contract.
+ * This typically aligns with the runtime method invoked when fulfilling
+ * requests, making it easier to correlate telemetry with implementation code.
  *
  * @example
  * ```ts
- * import * as Contract from "@beep/contract/contract-kit/Contract"
- *
- * const myContract = Contract.make("start_password_reset")
- *   .annotate(Contract.Method, "signIn")
+ * const InviteUser = Contract.make("InviteUser", { ... })
+ *   .annotate(Contract.Method, "invitations.invite");
  * ```
  *
  * @since 1.0.0
