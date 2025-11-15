@@ -78,7 +78,7 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
         },
         activeOrganizationId: {
           type: "string",
-          required: true,
+          required: false,
         },
       },
       cookieCache: {
@@ -259,19 +259,19 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
         },
         isAnonymous: {
           type: "boolean",
-          required: true,
+          required: false,
         },
         twoFactorEnabled: {
           type: "boolean",
-          required: true,
+          required: false,
         },
         phoneNumberVerified: {
           type: "boolean",
-          required: true,
+          required: false,
         },
         banned: {
           type: "boolean",
-          required: true,
+          required: false,
         },
         banExpires: {
           type: "date",

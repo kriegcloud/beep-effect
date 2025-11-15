@@ -1,75 +1,66 @@
+import { useUpdateUsernameForm } from "@beep/iam-sdk/clients/user";
 import { Iconify } from "@beep/ui/atoms";
-import { Form } from "@beep/ui/form";
-
 import { Stack } from "@mui/material";
+import * as O from "effect/Option";
 import { useState } from "react";
-import { AccountFormDialog } from "../common/AccountFormDialog";
+import { useAccountSettings } from "@/features/account/account-settings-provider";
 import { InfoCard } from "../common/InfoCard";
 import { InfoCardAttribute } from "../common/InfoCardAttribute";
 
 const UserName = () => {
-  // const { personalInfo } = useAccounts();
-  //   const { enqueueSnackbar } = useSnackbar();
+  const { userInfo } = useAccountSettings();
   const [open, setOpen] = useState(false);
 
-  // const [currentUserName, setCurrentUserName] = useState<string>(personalInfo.userName);
-  // const methods = useForm<UserNameFormValues>({
-  //   defaultValues: {
-  //     userName: currentUserName,
-  //   },
-  //   resolver: yupResolver(userNameSchema),
-  // });
-  // const {
-  //   register,
-  //   getValues,
-  //   reset,
-  //   formState: { errors },
-  // } = methods;
-  //
-  // const onSubmit: SubmitHandler<UserNameFormValues> = (data) => {
-  //   console.log(data);
-  //   const updatedData = getValues();
-  //   setCurrentUserName(updatedData.userName);
-  //   setOpen(false);
-  //   enqueueSnackbar('Updated successfully!', { variant: 'success', autoHideDuration: 3000 });
-  // };
-  //
-  // const handleDiscard = () => {
-  //   reset({ userName: currentUserName });
-  //   setOpen(false);
-  // };
+  const username = userInfo.username.pipe(
+    O.match({
+      onNone: () => "",
+      onSome: (username) => username,
+    })
+  );
+  const displayUsername = userInfo.displayUsername.pipe(
+    O.match({
+      onNone: () => "",
+      onSome: (displayUsername) => displayUsername,
+    })
+  );
+  const { form } = useUpdateUsernameForm({
+    userInfo,
+    onSuccess: () => {
+      setOpen(false);
+      form.reset();
+    },
+  });
 
   return (
-    <Form>
+    <>
       <InfoCard setOpen={setOpen}>
         <Stack direction="column" spacing={{ xs: 2, sm: 1 }} justifyContent="center">
-          <InfoCardAttribute label="User Name" value={"BeepHole69!"} />
+          <InfoCardAttribute label="User Name" value={username} />
+          <InfoCardAttribute label="Display Username" value={displayUsername} />
         </Stack>
         <Iconify icon="material-symbols-light:edit-outline" width={20} />
       </InfoCard>
-      <AccountFormDialog
-        title="User Name"
-        subtitle="Update your username. This change will apply to your account and be visible to others in your interactions."
-        open={open}
-        onSubmit={() => {}}
-        handleDialogClose={() => setOpen(false)}
-        handleDiscard={() => {}}
-        sx={{
-          maxWidth: 463,
-        }}
-      >
-        <Stack direction="column" spacing={1} p={0.125}>
-          {/*<TextField*/}
-          {/*  placeholder="User Name"*/}
-          {/*  label="User Name"*/}
-          {/*  error={!!errors.userName}*/}
-          {/*  helperText={errors.userName?.message}*/}
-          {/*  fullWidth*/}
-          {/*  {...register('userName')}*/}
-          {/*/>*/}
-        </Stack>
-      </AccountFormDialog>
-    </Form>
+      <form.AppForm>
+        <form.FormDialog
+          title="User Name"
+          subtitle="Update your username. This change will apply to your account and be visible to others in your interactions."
+          open={open}
+          handleDialogClose={() => setOpen(false)}
+          handleDiscard={() => {
+            form.reset();
+            setOpen(false);
+          }}
+          sx={{
+            maxWidth: 463,
+          }}
+        >
+          <Stack direction="column" spacing={1} p={0.125}>
+            <form.AppField name={"username"} children={(field) => <field.Text label={"Username"} />} />
+            <form.AppField name={"displayUsername"} children={(field) => <field.Text label={"Display Username"} />} />
+          </Stack>
+        </form.FormDialog>
+      </form.AppForm>
+    </>
   );
 };
 

@@ -11,11 +11,10 @@ const SignUpEmailHandler = SignUpEmailContract.implement(
 
     const result = yield* continuation.run((handlers) =>
       client.signUp.email({
-        ...rest,
-        banned: false,
-        isAnonymous: false,
-        phoneNumberVerified: false,
-        twoFactorEnabled: false,
+        email: rest.email,
+        password: rest.password,
+        name: `${rest.firstName} ${rest.lastName}`,
+        gender: rest.gender,
         fetchOptions: withFetchOptions(handlers, {
           headers: {
             "x-captcha-response": Redacted.value(captchaResponse),
@@ -37,5 +36,3 @@ const SignUpEmailHandler = SignUpEmailContract.implement(
 export const SignUpImplementations = SignUpContractKit.of({
   SignUpEmail: SignUpEmailHandler,
 });
-
-export const signUpLayer = SignUpContractKit.toLayer(SignUpImplementations);

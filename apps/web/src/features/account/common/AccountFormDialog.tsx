@@ -23,8 +23,6 @@ interface AccountFormDialogProps extends DialogProps {
 export const AccountFormDialog = (props: AccountFormDialogProps) => {
   const { open, handleDialogClose, title, subtitle, handleDiscard, handleRemove, children, sx } = props;
 
-  // const { handleSubmit, reset,  } = useFormContext();
-
   return (
     <Dialog
       open={open}

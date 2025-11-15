@@ -29,7 +29,7 @@ export type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "
       };
       readonly activeOrganizationId: {
         readonly type: "string";
-        readonly required: true;
+        readonly required: false;
       };
     };
     readonly cookieCache: {
@@ -61,19 +61,19 @@ export type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "
       };
       isAnonymous: {
         type: "boolean";
-        required: true;
+        required: false;
       };
       twoFactorEnabled: {
         type: "boolean";
-        required: true;
+        required: false;
       };
       phoneNumberVerified: {
         type: "boolean";
-        required: true;
+        required: false;
       };
       banned: {
         type: "boolean";
-        required: true;
+        required: false;
       };
       banExpires: {
         type: "date";

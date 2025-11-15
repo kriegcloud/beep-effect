@@ -1,5 +1,6 @@
 import { useStore } from "@tanstack/react-form";
 import * as F from "effect/Function";
+import type { E164Number } from "libphonenumber-js/core";
 import type { Value } from "react-phone-number-input";
 import { useFieldContext } from "../form";
 import type { PhoneInputProps } from "./phone-input";
@@ -25,9 +26,9 @@ function PhoneField({ name, helperText, ...other }: PhoneFieldProps) {
     <PhoneInput
       name={field.name}
       id={field.name}
-      value={field.state.value}
+      value={field.state.value ?? ""}
       onBlur={field.handleBlur}
-      onChange={(i) => i && field.handleChange(i)}
+      onChange={(inputValue) => field.handleChange(inputValue ?? ("" as E164Number))}
       fullWidth
       error={!!error}
       helperText={error?.message ?? helperText}

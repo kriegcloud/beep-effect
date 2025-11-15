@@ -9,6 +9,7 @@ import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
 import React from "react";
+import { AccountSettingsProvider } from "@/features/account/account-settings-provider";
 import { GuardErrorBoundary } from "@/providers/GuardErrorBoundary";
 import { GuardErrorFallback } from "@/providers/GuardErrorFallback";
 
@@ -27,6 +28,8 @@ const AuthGuardContent: React.FC<AuthGuardContentProps> = ({ children, router, .
   if (!isClient) {
     return <SplashScreen />;
   }
+
+  console.log(JSON.stringify(sessionResult, null, 2));
 
   return (
     <>
@@ -66,7 +69,7 @@ const AuthGuardContent: React.FC<AuthGuardContentProps> = ({ children, router, .
               },
             }}
           >
-            {children}
+            <AccountSettingsProvider userInfo={user}>{children}</AccountSettingsProvider>
           </AuthAdapterProvider>
         ))
         .render()}

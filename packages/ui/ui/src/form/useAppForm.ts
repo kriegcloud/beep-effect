@@ -3,7 +3,7 @@ import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import React from "react";
 
 const Submit = React.lazy(() => import("@beep/ui/form/SubmitButton"));
-
+const FormDialog = React.lazy(() => import("@beep/ui/form/FormDialog"));
 const Autocomplete = React.lazy(() => import("@beep/ui/inputs/AutocompleteField"));
 const Checkbox = React.lazy(() => import("@beep/ui/inputs/CheckboxField"));
 const Country = React.lazy(() => import("@beep/ui/inputs/CountryField"));
@@ -57,6 +57,7 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
   },
   formComponents: {
     Submit,
+    FormDialog,
   },
   fieldContext,
   formContext,

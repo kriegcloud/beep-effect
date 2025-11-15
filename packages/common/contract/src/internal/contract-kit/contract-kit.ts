@@ -383,6 +383,7 @@ const Proto = {
           readonly implementation: (
             params: UnsafeTypes.UnsafeAny
           ) => Effect.Effect<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>;
+          readonly guardPayload: (u: unknown) => u is Contract.Payload<UnsafeTypes.UnsafeAny>;
           readonly decodePayload: (u: unknown) => Effect.Effect<Contract.Payload<UnsafeTypes.UnsafeAny>, ParseError>;
           readonly validateResult: (u: unknown) => Effect.Effect<unknown, ParseError>;
           readonly encodeResult: (u: unknown) => Effect.Effect<unknown, ParseError>;
@@ -392,6 +393,9 @@ const Proto = {
         let schemas = schemasCache.get(contract);
         if (P.isUndefined(schemas)) {
           const implementation = context.unsafeMap.get(contract.id)! as Contract.Implementation<UnsafeTypes.UnsafeAny>;
+          const guardPayload = S.is(contract.payloadSchema) as (
+            u: unknown
+          ) => u is Contract.Payload<UnsafeTypes.UnsafeAny> as UnsafeTypes.UnsafeAny;
           const decodePayload = S.decodeUnknown(contract.payloadSchema) as UnsafeTypes.UnsafeAny;
           const resultSchema = S.Union(contract.successSchema, contract.failureSchema);
           const validateResult = S.validate(resultSchema) as UnsafeTypes.UnsafeAny;
@@ -399,6 +403,7 @@ const Proto = {
           schemas = {
             context: implementation.context,
             implementation: implementation.implementation,
+            guardPayload,
             decodePayload,
             validateResult,
             encodeResult,
@@ -408,8 +413,8 @@ const Proto = {
         return schemas;
       };
       const handle = (name: string) =>
-        Effect.fn("ContractKit.handle", { captureStackTrace: false })(function* (params: unknown) {
-          yield* Effect.annotateCurrentSpan({ contract: name, payload: params });
+        Effect.fn("ContractKit.handle", { captureStackTrace: false })(function* (payload: unknown) {
+          yield* Effect.annotateCurrentSpan({ contract: name, payload: payload });
           const contract = contracts[name];
           if (P.isUndefined(contract)) {
             const contractNames = A.join(",")(Struct.keys(contracts));
@@ -420,21 +425,21 @@ const Proto = {
             });
           }
           const schemas = getSchemas(contract);
-          const decodedParams = yield* Effect.mapError(
-            schemas?.decodePayload(params),
-            (cause) =>
-              new ContractError.MalformedOutput({
-                module: "ContractKit",
-                method: `${name}.handle`,
-                description: `Failed to decode contract call payload for contract '${name}' from:\n'${JSON.stringify(
-                  params,
-                  undefined,
-                  2
-                )}'`,
-                cause,
-              })
-          );
-          const { isFailure, result } = yield* schemas?.implementation(decodedParams).pipe(
+          const decodePayloadFailure = (cause: unknown) =>
+            new ContractError.MalformedOutput({
+              module: "ContractKit",
+              method: `${name}.handle`,
+              description: `Failed to decode contract call payload for contract '${name}' from:\n'${JSON.stringify(
+                payload,
+                undefined,
+                2
+              )}'`,
+              cause,
+            });
+          const decodedPayload = schemas?.guardPayload(payload)
+            ? (payload as Contract.Payload<UnsafeTypes.UnsafeAny>)
+            : yield* Effect.mapError(schemas?.decodePayload(payload), decodePayloadFailure);
+          const { isFailure, result } = yield* schemas?.implementation(decodedPayload).pipe(
             Effect.map((result) => ({ result, isFailure: false })),
             Effect.catchAll((error) =>
               // If the contract implementation failed, check the contract's failure mode to

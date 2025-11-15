@@ -18,6 +18,40 @@ export const UpdateUserInformationContract = Contract.make("UpdateUserInformatio
   .annotate(Contract.Domain, "User")
   .annotate(Contract.Method, "updateUser");
 
+export const UpdateUserIdentityContract = Contract.make("UpdateUserIdentity", {
+  description: "Updates user information.",
+  payload: {
+    ...User.Model.update.pick("gender").fields,
+    firstName: S.String,
+    lastName: S.String,
+  },
+  failure: IamError,
+  success: S.Void,
+})
+  .annotate(Contract.Title, "Update User Identity Contract")
+  .annotate(Contract.Domain, "User")
+  .annotate(Contract.Method, "updateUser");
+
+export const UpdateUsernameContract = Contract.make("UpdateUsername", {
+  description: "Updates user information.",
+  payload: User.Model.update.pick("username", "displayUsername").fields,
+  failure: IamError,
+  success: S.Void,
+})
+  .annotate(Contract.Title, "Update Username Contract")
+  .annotate(Contract.Domain, "User")
+  .annotate(Contract.Method, "updateUser");
+
+export const UpdatePhoneNumberContract = Contract.make("UpdatePhoneNumber", {
+  description: "Updates user phone number.",
+  payload: User.Model.update.pick("phoneNumber").fields,
+  failure: IamError,
+  success: S.Void,
+})
+  .annotate(Contract.Title, "Update Phone Number Contract")
+  .annotate(Contract.Domain, "User")
+  .annotate(Contract.Method, "updateUser");
+
 export class ChangeEmailPayload extends S.Class<ChangeEmailPayload>("@beep/iam-sdk/clients/user/ChangeEmailPayload")({
   newEmail: User.Model.update.fields.email,
   callbackURL: S.optional(BS.URLString),
@@ -36,8 +70,8 @@ export const ChangeEmailContract = Contract.make("ChangeEmail", {
 export class ChangePasswordPayload extends S.Class<ChangePasswordPayload>(
   "@beep/iam-sdk/clients/user/ChangePasswordPayload"
 )({
-  newPassword: BS.Password,
-  confirmNewPassword: BS.Password,
+  password: BS.Password,
+  passwordConfirm: BS.Password,
   currentPassword: BS.Password,
   revokeOtherSessions: BS.BoolWithDefault(false),
 }) {}
@@ -53,7 +87,10 @@ export const ChangePasswordContract = Contract.make("ChangePassword", {
   .annotate(Contract.Method, "changePassword");
 
 export const UserContractKit = ContractKit.make(
+  UpdatePhoneNumberContract,
+  UpdateUsernameContract,
   UpdateUserInformationContract,
   ChangeEmailContract,
-  ChangePasswordContract
+  ChangePasswordContract,
+  UpdateUserIdentityContract
 );

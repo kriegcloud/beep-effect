@@ -207,7 +207,7 @@ export interface Contract<
    * Schema helpers for decoding / encoding payloads.
    */
   decodePayload(
-    value: PayloadEncoded<Contract<Name, Config, Requirements>>,
+    value: Payload<Contract<Name, Config, Requirements>>,
     options?: undefined | AST.ParseOptions
   ): Effect.Effect<
     PayloadSchema<Contract<Name, Config, Requirements>>["Type"],

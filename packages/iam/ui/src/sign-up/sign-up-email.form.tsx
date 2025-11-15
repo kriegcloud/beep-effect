@@ -1,5 +1,5 @@
 "use client";
-import { SignUpValue } from "@beep/iam-sdk/clients";
+import { SignUpEmailContract } from "@beep/iam-sdk/clients";
 import { useSignUpEmail } from "@beep/iam-sdk/clients/sign-up";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { paths } from "@beep/shared-domain";
@@ -30,7 +30,7 @@ export const SignUpEmailForm: React.FC<Props> = ({ executeRecaptcha }) => {
 
   const form = useAppForm(
     formOptionsWithSubmitEffect({
-      schema: SignUpValue,
+      schema: SignUpEmailContract.payloadSchema.fields.value,
       defaultValues: {
         email: "",
         password: "",

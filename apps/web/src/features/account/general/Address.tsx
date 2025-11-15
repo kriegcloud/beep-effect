@@ -28,15 +28,6 @@ import { AccountFormDialog } from "../common/AccountFormDialog";
 import { InfoCard } from "../common/InfoCard";
 import { InfoCardAttribute } from "../common/InfoCardAttribute";
 
-export interface AddressFormValues {
-  country: string;
-  state: string;
-  city: string;
-  street: string;
-  zip: string;
-  visibility?: "only_me" | "followers_only" | "everyone" | undefined;
-}
-
 // const addressSchema = yup.object().shape({
 //   country: yup.string().required('Country name is required'),
 //   state: yup.string().required('State name is required'),

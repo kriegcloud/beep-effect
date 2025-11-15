@@ -28,6 +28,7 @@ export function CountryListPopover({
   ...other
 }: CountryListProps) {
   const { open, onClose, onOpen, anchorEl } = usePopover();
+  const dialogContainer = anchorEl ? anchorEl.closest("[role='dialog']") : null;
 
   const dataFiltered = useMemo(
     () =>
@@ -152,6 +153,8 @@ export function CountryListPopover({
       aria-labelledby={btnId}
       open={open}
       anchorEl={anchorEl}
+      disablePortal={Boolean(dialogContainer)}
+      container={dialogContainer ?? undefined}
       onClose={() => {
         onClose();
         onSearchCountry("");

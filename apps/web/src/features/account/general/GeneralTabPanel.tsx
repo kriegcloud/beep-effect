@@ -2,25 +2,33 @@ import { Form, formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
 import { fData } from "@beep/ui-core/utils/format-number";
 import { Divider, Stack } from "@mui/material";
 import Typography from "@mui/material/Typography";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { useAccountSettings } from "@/features/account/account-settings-provider";
 import { AccountTabPanelSection } from "../common/AccountTabPanelSection";
-import Address from "./Address";
+// import Address from "./Address";
 import Birthday from "./Birthday";
 import Email from "./Email";
-import Names from "./Names";
+import Identity from "./Identity";
 import Phone from "./Phone";
 import UserName from "./UserName";
 export const GeneralTabPanel = () => {
+  const { userInfo } = useAccountSettings();
   const form = useAppForm(
     formOptionsWithSubmitEffect({
       schema: S.Struct({
         image: S.String,
       }),
       defaultValues: {
-        image: "",
+        image: userInfo.image.pipe(
+          O.match({
+            onNone: () => "",
+            onSome: (img) => img,
+          })
+        ),
       },
       onSubmit: async (value) => {
-        // console.log(value);
+        console.log(value);
       },
     })
   );
@@ -60,7 +68,7 @@ export const GeneralTabPanel = () => {
           icon="material-symbols:badge-outline"
         >
           <Stack direction="column" spacing={1}>
-            <Names />
+            <Identity />
             <UserName />
           </Stack>
         </AccountTabPanelSection>
@@ -73,13 +81,13 @@ export const GeneralTabPanel = () => {
           <Birthday />
         </AccountTabPanelSection>
 
-        <AccountTabPanelSection
-          title="Address"
-          subtitle="You can edit your address and control who can see it."
-          icon="material-symbols:location-on-outline"
-        >
-          <Address />
-        </AccountTabPanelSection>
+        {/*<AccountTabPanelSection*/}
+        {/*  title="Address"*/}
+        {/*  subtitle="You can edit your address and control who can see it."*/}
+        {/*  icon="material-symbols:location-on-outline"*/}
+        {/*>*/}
+        {/*  <Address />*/}
+        {/*</AccountTabPanelSection>*/}
 
         <AccountTabPanelSection
           title="Phone"

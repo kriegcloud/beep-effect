@@ -9,7 +9,7 @@ import { inputBaseClasses } from "@mui/material/InputBase";
 import { useTheme } from "@mui/material/styles";
 import type { TextFieldProps } from "@mui/material/TextField";
 import TextField from "@mui/material/TextField";
-import { useCallback, useMemo, useState } from "react";
+import { forwardRef, useCallback, useMemo, useState } from "react";
 import PhoneNumberInput, { parsePhoneNumber } from "react-phone-number-input/input";
 import { CountryListPopover } from "./list-popover";
 import type { PhoneCountry, PhoneInputProps, PhoneValue } from "./types";
@@ -38,17 +38,19 @@ export function PhoneInput({
   const normalizedValue = value ? value.trim().replace(/[\s-]+/g, "") : undefined;
 
   const [searchCountry, setSearchCountry] = useState("");
+  const lockedCountry = country ?? undefined;
+
   const [selectedCountry, setSelectedCountry] = useState<PhoneCountry | undefined>(
-    parseCountryFromPhone(normalizedValue) ?? country ?? defaultCountry
+    parseCountryFromPhone(normalizedValue) ?? lockedCountry ?? defaultCountry
   );
 
   const hasLabel = !!label;
-  const isCountryLocked = !!country;
+  const isCountryLocked = !!lockedCountry;
 
   const activeCountry = useMemo(() => {
     const parsedCountry = parseCountryFromPhone(normalizedValue);
-    return parsedCountry ?? country ?? selectedCountry ?? defaultCountry;
-  }, [country, selectedCountry, normalizedValue, defaultCountry]);
+    return parsedCountry ?? lockedCountry ?? selectedCountry;
+  }, [lockedCountry, selectedCountry, normalizedValue]);
 
   const debouncedChange = useMemo(
     () =>
@@ -134,7 +136,7 @@ export function PhoneInput({
       value: normalizedValue,
       onChange: handleChangeInput,
       inputComponent: CustomInput,
-      ...(isCountryLocked && activeCountry ? { country: activeCountry } : { defaultCountry: activeCountry }),
+      ...(activeCountry ? { country: activeCountry } : defaultCountry ? { defaultCountry } : {}),
     } as PhoneInputProps;
 
     return <PhoneNumberInput {...textFieldProps} {...phoneInputProps} {...other} />;
@@ -170,9 +172,9 @@ export function PhoneInput({
 
 // ----------------------------------------------------------------------
 
-function CustomInput({ ref, ...other }: TextFieldProps) {
-  return <TextField {...(ref ? { ref } : {})} {...other} />;
-}
+const CustomInput = forwardRef<HTMLInputElement, TextFieldProps>(function CustomInput(props, ref) {
+  return <TextField {...props} inputRef={ref} />;
+});
 
 // ----------------------------------------------------------------------
 
