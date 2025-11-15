@@ -103,8 +103,8 @@ export const AdminSetRoleContract = Contract.make("AdminSetRole", {
   failure: IamError,
 })
   .annotate(Contract.Title, "Set Role")
-  .annotate(Contract.Domain, "admin")
-  .annotate(Contract.Method, "setRole");
+  .annotate(Contract.Domain, "Admin")
+  .annotate(Contract.Method, "admin.setRole");
 
 export class AdminGetUserPayload extends S.Class<AdminGetUserPayload>("AdminGetUserPayload")(
   {
@@ -129,8 +129,8 @@ export const AdminGetUserContract = Contract.make("AdminGetUser", {
   failure: IamError,
 })
   .annotate(Contract.Title, "Get User")
-  .annotate(Contract.Domain, "admin")
-  .annotate(Contract.Method, "getUser");
+  .annotate(Contract.Domain, "Admin")
+  .annotate(Contract.Method, "admin.getUser");
 
 export class AdminCreateUserPayload extends S.Class<AdminCreateUserPayload>("AdminCreateUserPayload")(
   {
@@ -159,8 +159,8 @@ export const AdminCreateUserContract = Contract.make("AdminCreateUser", {
   failure: IamError,
 })
   .annotate(Contract.Title, "Create User")
-  .annotate(Contract.Domain, "admin")
-  .annotate(Contract.Method, "createUser");
+  .annotate(Contract.Domain, "Admin")
+  .annotate(Contract.Method, "admin.createUser");
 
 export class AdminUpdateUserPayload extends S.Class<AdminUpdateUserPayload>("AdminUpdateUserPayload")(
   {
@@ -186,8 +186,8 @@ export const AdminUpdateUserContract = Contract.make("AdminUpdateUser", {
   failure: IamError,
 })
   .annotate(Contract.Title, "Update User")
-  .annotate(Contract.Domain, "admin")
-  .annotate(Contract.Method, "updateUser");
+  .annotate(Contract.Domain, "Admin")
+  .annotate(Contract.Method, "admin.updateUser");
 
 const SearchField = S.Literal("email", "name");
 const SearchOperator = S.Literal("contains", "starts_with", "ends_with");
@@ -247,8 +247,8 @@ export const AdminListUsersContract = Contract.make("AdminListUsers", {
   failure: IamError,
 })
   .annotate(Contract.Title, "List Users")
-  .annotate(Contract.Domain, "admin")
-  .annotate(Contract.Method, "listUsers");
+  .annotate(Contract.Domain, "Admin")
+  .annotate(Contract.Method, "admin.listUsers");
 
 export class AdminListUserSessionsPayload extends S.Class<AdminListUserSessionsPayload>("AdminListUserSessionsPayload")(
   {
@@ -289,8 +289,8 @@ export const AdminListUserSessionsContract = Contract.make("AdminListUserSession
   failure: IamError,
 })
   .annotate(Contract.Title, "List User Sessions")
-  .annotate(Contract.Domain, "admin")
-  .annotate(Contract.Method, "listUserSessions");
+  .annotate(Contract.Domain, "Admin")
+  .annotate(Contract.Method, "admin.listUserSessions");
 
 export class AdminUnbanUserPayload extends S.Class<AdminUnbanUserPayload>("AdminUnbanUserPayload")(
   {
@@ -315,8 +315,8 @@ export const AdminUnbanUserContract = Contract.make("AdminUnbanUser", {
   failure: IamError,
 })
   .annotate(Contract.Title, "Unban User")
-  .annotate(Contract.Domain, "admin")
-  .annotate(Contract.Method, "unbanUser");
+  .annotate(Contract.Domain, "Admin")
+  .annotate(Contract.Method, "admin.unbanUser");
 
 export class AdminBanUserPayload extends S.Class<AdminBanUserPayload>("AdminBanUserPayload")(
   {
@@ -343,8 +343,8 @@ export const AdminBanUserContract = Contract.make("AdminBanUser", {
   failure: IamError,
 })
   .annotate(Contract.Title, "Ban User")
-  .annotate(Contract.Domain, "admin")
-  .annotate(Contract.Method, "banUser");
+  .annotate(Contract.Domain, "Admin")
+  .annotate(Contract.Method, "admin.banUser");
 
 export class AdminImpersonateUserPayload extends S.Class<AdminImpersonateUserPayload>("AdminImpersonateUserPayload")(
   {
@@ -386,8 +386,8 @@ export const AdminImpersonateUserContract = Contract.make("AdminImpersonateUser"
   failure: IamError,
 })
   .annotate(Contract.Title, "Impersonate User")
-  .annotate(Contract.Domain, "admin")
-  .annotate(Contract.Method, "impersonateUser");
+  .annotate(Contract.Domain, "Admin")
+  .annotate(Contract.Method, "admin.impersonateUser");
 
 export const AdminStopImpersonatingPayload = S.Struct({});
 
@@ -403,8 +403,8 @@ export const AdminStopImpersonatingContract = Contract.make("AdminStopImpersonat
   failure: IamError,
 })
   .annotate(Contract.Title, "Stop Impersonating")
-  .annotate(Contract.Domain, "admin")
-  .annotate(Contract.Method, "stopImpersonating");
+  .annotate(Contract.Domain, "Admin")
+  .annotate(Contract.Method, "admin.stopImpersonating");
 
 export class AdminRevokeUserSessionPayload extends S.Class<AdminRevokeUserSessionPayload>(
   "AdminRevokeUserSessionPayload"
@@ -447,8 +447,8 @@ export const AdminRevokeUserSessionContract = Contract.make("AdminRevokeUserSess
   failure: IamError,
 })
   .annotate(Contract.Title, "Revoke User Session")
-  .annotate(Contract.Domain, "admin")
-  .annotate(Contract.Method, "revokeUserSession");
+  .annotate(Contract.Domain, "Admin")
+  .annotate(Contract.Method, "admin.revokeUserSession");
 
 export class AdminRevokeUserSessionsPayload extends S.Class<AdminRevokeUserSessionsPayload>(
   "AdminRevokeUserSessionsPayload"
@@ -475,8 +475,8 @@ export const AdminRevokeUserSessionsContract = Contract.make("AdminRevokeUserSes
   failure: IamError,
 })
   .annotate(Contract.Title, "Revoke User Sessions")
-  .annotate(Contract.Domain, "admin")
-  .annotate(Contract.Method, "revokeUserSessions");
+  .annotate(Contract.Domain, "Admin")
+  .annotate(Contract.Method, "admin.revokeUserSessions");
 
 export class AdminRemoveUserPayload extends S.Class<AdminRemoveUserPayload>("AdminRemoveUserPayload")(
   {
@@ -501,8 +501,8 @@ export const AdminRemoveUserContract = Contract.make("AdminRemoveUser", {
   failure: IamError,
 })
   .annotate(Contract.Title, "Remove User")
-  .annotate(Contract.Domain, "admin")
-  .annotate(Contract.Method, "removeUser");
+  .annotate(Contract.Domain, "Admin")
+  .annotate(Contract.Method, "admin.removeUser");
 
 export class AdminSetUserPasswordPayload extends S.Class<AdminSetUserPasswordPayload>("AdminSetUserPasswordPayload")(
   {
@@ -544,8 +544,8 @@ export const AdminSetUserPasswordContract = Contract.make("AdminSetUserPassword"
   failure: IamError,
 })
   .annotate(Contract.Title, "Set User Password")
-  .annotate(Contract.Domain, "admin")
-  .annotate(Contract.Method, "setUserPassword");
+  .annotate(Contract.Domain, "Admin")
+  .annotate(Contract.Method, "admin.setUserPassword");
 
 export class AdminHasPermissionPayload extends S.Class<AdminHasPermissionPayload>("AdminHasPermissionPayload")(
   {
@@ -590,8 +590,8 @@ export const AdminHasPermissionContract = Contract.make("AdminHasPermission", {
   failure: IamError,
 })
   .annotate(Contract.Title, "Has Permission")
-  .annotate(Contract.Domain, "admin")
-  .annotate(Contract.Method, "hasPermission");
+  .annotate(Contract.Domain, "Admin")
+  .annotate(Contract.Method, "admin.hasPermission");
 
 export const AdminContractKit = ContractKit.make(
   AdminSetRoleContract,

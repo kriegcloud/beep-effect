@@ -45,12 +45,7 @@ const AdminRevokeUserSessionsMetadata = metadataFactory.make("revokeUserSessions
 const AdminHasPermissionMetadata = metadataFactory.make("hasPermission");
 
 const AdminSetRoleHandler = AdminSetRoleContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: AdminSetRoleContract.name,
-      metadata: AdminSetRoleMetadata,
-    });
-
+  Effect.fn(function* (payload, _ctx, continuation) {
     const result = yield* continuation.run((handlers) => {
       const fetchOptions = withFetchOptions(handlers);
       const role = typeof payload.role === "string" ? payload.role : [...payload.role];
