@@ -1,5 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   ApiKeyContractKit,
   ApiKeyCreateContract,
@@ -15,18 +15,6 @@ import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
-const metadataFactory = new MetadataFactory("api-key");
-
-const ApiKeyCreateMetadata = metadataFactory.make("create");
-
-const ApiKeyGetMetadata = metadataFactory.make("get");
-
-const ApiKeyUpdateMetadata = metadataFactory.make("update");
-
-const ApiKeyDeleteMetadata = metadataFactory.make("delete");
-
-const ApiKeyListMetadata = metadataFactory.make("list");
-
 const encodePermissions = F.flow(
   (permissions: string | null | undefined) => O.fromNullable(permissions),
   O.match({
@@ -37,12 +25,7 @@ const encodePermissions = F.flow(
 
 const ApiKeyCreateHandler = ApiKeyCreateContract.implement(
   Effect.fn(
-    function* (payload) {
-      const continuation = makeFailureContinuation({
-        contract: ApiKeyCreateContract.name,
-        metadata: ApiKeyCreateMetadata,
-      });
-
+    function* (payload, { continuation }) {
       const encoded = yield* ApiKeyCreateContract.encodePayload(payload);
 
       const permissionsEncoded = yield* encodePermissions(encoded.permissions);
@@ -71,25 +54,20 @@ const ApiKeyCreateHandler = ApiKeyCreateContract.implement(
         return yield* new IamError(
           {},
           "ApiKeyCreateHandler returned no payload from Better Auth",
-          ApiKeyCreateMetadata()
+          continuation.metadata
         );
       }
 
       return yield* ApiKeyCreateContract.decodeUnknownSuccess(result.data);
     },
     Effect.catchTags({
-      ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyCreateMetadata())),
+      ParseError: (error) => Effect.fail(IamError.match(error)),
     })
   )
 );
 
 const ApiKeyGetHandler = ApiKeyGetContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: ApiKeyGetContract.name,
-      metadata: ApiKeyGetMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.apiKey.get(
         {
@@ -104,7 +82,7 @@ const ApiKeyGetHandler = ApiKeyGetContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "ApiKeyGetHandler returned no payload from Better Auth", ApiKeyGetMetadata());
+      return yield* new IamError({}, "ApiKeyGetHandler returned no payload from Better Auth", continuation.metadata);
     }
 
     return yield* ApiKeyGetContract.decodeUnknownSuccess(result.data);
@@ -113,12 +91,7 @@ const ApiKeyGetHandler = ApiKeyGetContract.implement(
 
 const ApiKeyUpdateHandler = ApiKeyUpdateContract.implement(
   Effect.fn(
-    function* (payload) {
-      const continuation = makeFailureContinuation({
-        contract: ApiKeyUpdateContract.name,
-        metadata: ApiKeyUpdateMetadata,
-      });
-
+    function* (payload, { continuation }) {
       const encoded = yield* ApiKeyUpdateContract.encodePayload(payload);
 
       const permissionsEncoded = yield* encodePermissions(encoded.permissions);
@@ -148,25 +121,20 @@ const ApiKeyUpdateHandler = ApiKeyUpdateContract.implement(
         return yield* new IamError(
           {},
           "ApiKeyUpdateHandler returned no payload from Better Auth",
-          ApiKeyUpdateMetadata()
+          continuation.metadata
         );
       }
 
       return yield* ApiKeyUpdateContract.decodeUnknownSuccess(result.data);
     },
     Effect.catchTags({
-      ParseError: (error) => Effect.fail(IamError.match(error, ApiKeyUpdateMetadata())),
+      ParseError: (error) => Effect.fail(IamError.match(error)),
     })
   )
 );
 
 const ApiKeyDeleteHandler = ApiKeyDeleteContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: ApiKeyDeleteContract.name,
-      metadata: ApiKeyDeleteMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.apiKey.delete({
         keyId: payload.keyId,
@@ -177,11 +145,7 @@ const ApiKeyDeleteHandler = ApiKeyDeleteContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError(
-        {},
-        "ApiKeyDeleteHandler returned no payload from Better Auth",
-        ApiKeyDeleteMetadata()
-      );
+      return yield* new IamError({}, "ApiKeyDeleteHandler returned no payload from Better Auth", continuation.metadata);
     }
 
     return yield* ApiKeyDeleteContract.decodeUnknownSuccess(result.data);
@@ -189,18 +153,13 @@ const ApiKeyDeleteHandler = ApiKeyDeleteContract.implement(
 );
 
 const ApiKeyListHandler = ApiKeyListContract.implement(
-  Effect.fn(function* () {
-    const continuation = makeFailureContinuation({
-      contract: ApiKeyListContract.name,
-      metadata: ApiKeyListMetadata,
-    });
-
+  Effect.fn(function* (_, { continuation }) {
     const result = yield* continuation.run((handlers) => client.apiKey.list(undefined, withFetchOptions(handlers)));
 
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "ApiKeyListHandler returned no payload from Better Auth", ApiKeyListMetadata());
+      return yield* new IamError({}, "ApiKeyListHandler returned no payload from Better Auth", continuation.metadata);
     }
 
     return yield* ApiKeyListContract.decodeUnknownSuccess(result.data);

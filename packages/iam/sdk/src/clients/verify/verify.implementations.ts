@@ -1,5 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   SendEmailVerificationContract,
   VerifyContractKit,
@@ -10,15 +10,8 @@ import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 
-const metadataFactory = new MetadataFactory("verification");
-
 const SendEmailVerificationHandler = SendEmailVerificationContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: SendEmailVerificationContract.name,
-      metadata: metadataFactory.make("sendVerificationEmail"),
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.sendVerificationEmail({
         email: Redacted.value(payload.email),
@@ -36,13 +29,7 @@ const SendEmailVerificationHandler = SendEmailVerificationContract.implement(
 );
 
 const VerifyEmailHandler = VerifyEmailContract.implement(
-  Effect.fn(function* (payload) {
-    const metadata = metadataFactory.make("verifyEmail");
-    const continuation = makeFailureContinuation({
-      contract: VerifyEmailContract.name,
-      metadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.verifyEmail(
         {
@@ -62,7 +49,7 @@ const VerifyEmailHandler = VerifyEmailContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "VerifyEmailHandler returned no payload from Better Auth", metadata());
+      return yield* new IamError({}, "VerifyEmailHandler returned no payload from Better Auth", continuation.metadata);
     }
 
     return yield* VerifyEmailContract.decodeUnknownSuccess(result.data);
@@ -70,12 +57,8 @@ const VerifyEmailHandler = VerifyEmailContract.implement(
 );
 
 const VerifyPhoneHandler = VerifyPhoneContract.implement(
-  Effect.fn(function* (payload) {
+  Effect.fn(function* (payload, { continuation }) {
     const { phoneNumber, code, updatePhoneNumber } = payload;
-    const continuation = makeFailureContinuation({
-      contract: VerifyPhoneContract.name,
-      metadata: metadataFactory.make("verifyPhone"),
-    });
 
     const result = yield* continuation.run((handlers) =>
       client.phoneNumber.verify({

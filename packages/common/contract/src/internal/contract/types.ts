@@ -113,6 +113,7 @@ export declare namespace FailureMode {
     }
   >;
 }
+
 /**
  * A user-defined contract that identity clients can call to perform an action.
  *
@@ -871,8 +872,10 @@ export interface ImplementationContext<C extends Any> {
 
 export type ImplementationHandler<C extends Any> = (
   payload: Payload<C>,
-  context: ImplementationContext<C>,
-  continuation: FailureContinuation
+  opts: {
+    readonly context: ImplementationContext<C>;
+    readonly continuation: FailureContinuation;
+  }
 ) => Effect.Effect<Success<C>, Failure<C>, Requirements<C>>;
 
 export type ImplementationFunction<C extends Any> = (
@@ -887,6 +890,7 @@ export interface ImplementOptions<C extends Any> {
     | undefined
     | ((failure: Failure<C>, context: ImplementationContext<C>) => Effect.Effect<void, never, never>);
 }
+
 export interface Metadata<Extra extends Record<string, unknown> = Record<string, unknown>> {
   readonly id: string;
   readonly name: string;

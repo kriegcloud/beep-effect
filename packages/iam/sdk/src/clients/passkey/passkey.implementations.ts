@@ -20,13 +20,13 @@ const toIamMetadata = (metadata: Contract.Metadata): Parameters<typeof IamError.
   plugin: metadata.domain ?? PASSKEY_DOMAIN,
 });
 
-const PasskeyListHandler = PasskeyListContract.implement((_payload, _ctx, continuation) =>
+const PasskeyListHandler = PasskeyListContract.implement((_payload, { continuation }) =>
   continuation
     .run((handlers) => client.passkey.listUserPasskeys(undefined, withFetchOptions(handlers)))
     .pipe(Effect.flatMap(PasskeyListContract.decodeUnknownSuccess))
 );
 
-const PasskeyRemoveHandler = PasskeyRemoveContract.implement((payload, _ctx, continuation) =>
+const PasskeyRemoveHandler = PasskeyRemoveContract.implement((payload, { continuation }) =>
   F.pipe(
     continuation.run((handlers) =>
       client.passkey.deletePasskey(
@@ -41,7 +41,7 @@ const PasskeyRemoveHandler = PasskeyRemoveContract.implement((payload, _ctx, con
   )
 );
 
-const PasskeyUpdateHandler = PasskeyUpdateContract.implement((payload, _ctx, continuation) =>
+const PasskeyUpdateHandler = PasskeyUpdateContract.implement((payload, { continuation }) =>
   F.pipe(
     continuation.run((handlers) =>
       client.passkey.updatePasskey(
@@ -57,7 +57,7 @@ const PasskeyUpdateHandler = PasskeyUpdateContract.implement((payload, _ctx, con
   )
 );
 
-const PasskeyAddHandler = PasskeyAddContract.implement((payload, _ctx, continuation) =>
+const PasskeyAddHandler = PasskeyAddContract.implement((payload, { continuation }) =>
   Effect.gen(function* () {
     const result = yield* continuation.run((handlers) =>
       client.passkey.addPasskey(

@@ -68,12 +68,10 @@ const logFn = LogContract.implement((payload) =>
         },
       },
       normalizeError: (error, ctx) =>
-        error instanceof ListError
-          ? error
-          : new ListError({
-              message: `Unexpected logging failure while running ${ctx.metadata.method}`,
-              cause: error instanceof Error ? error : new Error(String(error)),
-            }),
+        new ListError({
+          message: `Unexpected logging failure while running ${ctx.metadata.method}`,
+          cause: error instanceof Error ? error : new Error(String(error)),
+        }),
     });
 
     const shouldReturnFailure = yield* Random.nextBoolean;
@@ -119,7 +117,7 @@ const logFn = LogContract.implement((payload) =>
     const surfaced = yield* continuation.run(async () => response, { surfaceDefect: true });
 
     if (Either.isLeft(surfaced)) {
-      yield* Console.warn(`[log continuation] surfaced failure: ${surfaced.left.message}`);
+      yield* Console.warn(`[log continuation] surfaced failure: ${surfaced.left}`);
     } else {
       yield* Console.log(`[log continuation] surfaced success envelope: ${JSON.stringify(surfaced.right)}`);
     }
@@ -196,12 +194,10 @@ const continuationDemo = Effect.gen(function* () {
       },
     },
     normalizeError: (error) =>
-      error instanceof ListError
-        ? error
-        : new ListError({
-            message: "Continuation demo normalized an unexpected error",
-            cause: error instanceof Error ? error : new Error(String(error)),
-          }),
+      new ListError({
+        message: "Continuation demo normalized an unexpected error",
+        cause: error instanceof Error ? error : new Error(String(error)),
+      }),
   });
 
   const asyncResult = yield* continuation.run(

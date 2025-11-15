@@ -1,5 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   SignInContractKit,
   SignInEmailContract,
@@ -13,31 +13,12 @@ import {
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 
-const metadataFactory = new MetadataFactory("sign-in");
-
-const SignInEmailMetadata = metadataFactory.make("email");
-const SignInUsernameMetadata = metadataFactory.make("username");
-const SignInPhoneNumberMetadata = metadataFactory.make("phoneNumber");
-const SignInOneTapMetadata = metadataFactory.make("oneTap");
-const SignInPasskeyMetadata = metadataFactory.make("passkey");
-const SignInOAuth2Metadata = metadataFactory.make("oauth2");
-
 // =====================================================================================================================
 // Sign In Social Handler
 // =====================================================================================================================
 
 const SignInSocialHandler = SignInSocialContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation(
-      {
-        contract: SignInSocialContract.name,
-        metadata: metadataFactory.make("social"),
-      },
-      {
-        supportsAbort: true,
-      }
-    );
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) => client.signIn.social(payload, withFetchOptions(handlers)));
 
     yield* continuation.raiseResult(result);
@@ -48,12 +29,7 @@ const SignInSocialHandler = SignInSocialContract.implement(
 // Sign In Email Handler
 // =====================================================================================================================
 const SignInEmailHandler = SignInEmailContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: SignInEmailContract.name,
-      metadata: SignInEmailMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.signIn.email({
         email: Redacted.value(payload.email),
@@ -79,13 +55,8 @@ const SignInEmailHandler = SignInEmailContract.implement(
 // Sign In Username Handler
 // =====================================================================================================================
 const SignInUsernameHandler = SignInUsernameContract.implement(
-  Effect.fn(function* (payload) {
+  Effect.fn(function* (payload, { continuation }) {
     const { username, password, rememberMe, captchaResponse, callbackURL } = payload;
-
-    const continuation = makeFailureContinuation({
-      contract: SignInUsernameContract.name,
-      metadata: SignInUsernameMetadata,
-    });
     yield* Effect.flatMap(
       continuation.run((handlers) =>
         client.signIn.username({
@@ -114,11 +85,7 @@ const SignInUsernameHandler = SignInUsernameContract.implement(
 // Sign In Phone Number Handler
 // =====================================================================================================================
 const SignInPhoneNumberHandler = SignInPhoneNumberContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: SignInPhoneNumberContract.name,
-      metadata: SignInPhoneNumberMetadata,
-    });
+  Effect.fn(function* (payload, { continuation }) {
     yield* Effect.flatMap(
       continuation.run((handlers) =>
         client.signIn.phoneNumber({
@@ -145,11 +112,7 @@ const SignInPhoneNumberHandler = SignInPhoneNumberContract.implement(
 // Sign In One Tap Handler
 // =====================================================================================================================
 const SignInOneTapHandler = SignInOneTapContract.implement(
-  Effect.fn(function* () {
-    const continuation = makeFailureContinuation({
-      contract: SignInOneTapContract.name,
-      metadata: SignInOneTapMetadata,
-    });
+  Effect.fn(function* (_, { continuation }) {
     yield* continuation.run((handlers) =>
       client.oneTap({
         fetchOptions: withFetchOptions(handlers),
@@ -161,12 +124,7 @@ const SignInOneTapHandler = SignInOneTapContract.implement(
 // Sign In Passkey Handler
 // =====================================================================================================================
 const SignInPasskeyHandler = SignInPasskeyContract.implement(
-  Effect.fn(function* () {
-    const continuation = makeFailureContinuation({
-      contract: SignInPasskeyContract.name,
-      metadata: SignInPasskeyMetadata,
-    });
-
+  Effect.fn(function* (_, { continuation }) {
     yield* Effect.flatMap(
       continuation.run((handlers) =>
         client.signIn.passkey({
@@ -187,11 +145,7 @@ const SignInPasskeyHandler = SignInPasskeyContract.implement(
 // Sign In OAuth 2 Handler
 // =====================================================================================================================
 const SignInOAuth2Handler = SignInOAuth2Contract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: SignInOAuth2Contract.name,
-      metadata: SignInOAuth2Metadata,
-    });
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.signIn.oauth2({
         ...payload,

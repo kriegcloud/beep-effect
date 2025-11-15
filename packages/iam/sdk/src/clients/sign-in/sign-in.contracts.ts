@@ -65,7 +65,8 @@ export const SignInSocialContract = Contract.make("SignInSocial", {
 })
   .annotate(Contract.Title, "Sign In Social Contract")
   .annotate(Contract.Domain, "SignIn")
-  .annotate(Contract.Method, "signInSocial");
+  .annotate(Contract.Method, "signInSocial")
+  .annotate(Contract.SupportsAbort, true);
 
 // =====================================================================================================================
 // SIGN IN USERNAME CONTRACT

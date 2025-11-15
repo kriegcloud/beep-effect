@@ -378,7 +378,10 @@ export const implement =
         contract: contract.name,
         failureMode: contract.failureMode,
       });
-      let effect = handler(payload, context, continuation);
+      let effect = handler(payload, {
+        context,
+        continuation,
+      });
       if (O.isSome(onSuccessOpt)) {
         const onSuccess = onSuccessOpt.value;
         effect = Effect.tap(effect, (success) => onSuccess(success, context));

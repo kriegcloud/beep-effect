@@ -1,5 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   OAuth2AuthorizeContract,
   OAuth2ClientContract,
@@ -12,22 +12,8 @@ import {
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 
-const metadataFactory = new MetadataFactory("oidc");
-
-const OAuth2AuthorizeMetadata = metadataFactory.make("authorize");
-const OAuth2ConsentMetadata = metadataFactory.make("consent");
-const OAuth2TokenMetadata = metadataFactory.make("token");
-const OAuth2UserInfoMetadata = metadataFactory.make("userinfo");
-const OAuth2RegisterMetadata = metadataFactory.make("register");
-const OAuth2ClientMetadata = metadataFactory.make("client");
-
 const OAuth2AuthorizeHandler = OAuth2AuthorizeContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OAuth2AuthorizeContract.name,
-      metadata: OAuth2AuthorizeMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.oauth2.authorize({
         query: {
@@ -43,7 +29,7 @@ const OAuth2AuthorizeHandler = OAuth2AuthorizeContract.implement(
       return yield* new IamError(
         {},
         "OAuth2AuthorizeHandler returned no payload from Better Auth",
-        OAuth2AuthorizeMetadata()
+        continuation.metadata
       );
     }
 
@@ -52,12 +38,7 @@ const OAuth2AuthorizeHandler = OAuth2AuthorizeContract.implement(
 );
 
 const OAuth2ConsentHandler = OAuth2ConsentContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OAuth2ConsentContract.name,
-      metadata: OAuth2ConsentMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.oauth2.consent({
         accept: payload.accept,
@@ -72,7 +53,7 @@ const OAuth2ConsentHandler = OAuth2ConsentContract.implement(
       return yield* new IamError(
         {},
         "OAuth2ConsentHandler returned no payload from Better Auth",
-        OAuth2ConsentMetadata()
+        continuation.metadata
       );
     }
 
@@ -81,12 +62,7 @@ const OAuth2ConsentHandler = OAuth2ConsentContract.implement(
 );
 
 const OAuth2TokenHandler = OAuth2TokenContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OAuth2TokenContract.name,
-      metadata: OAuth2TokenMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.oauth2.token({
         ...payload,
@@ -97,7 +73,7 @@ const OAuth2TokenHandler = OAuth2TokenContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "OAuth2TokenHandler returned no payload from Better Auth", OAuth2TokenMetadata());
+      return yield* new IamError({}, "OAuth2TokenHandler returned no payload from Better Auth", continuation.metadata);
     }
 
     return yield* OAuth2TokenContract.decodeUnknownSuccess(result.data);
@@ -105,12 +81,7 @@ const OAuth2TokenHandler = OAuth2TokenContract.implement(
 );
 
 const OAuth2UserInfoHandler = OAuth2UserInfoContract.implement(
-  Effect.fn(function* () {
-    const continuation = makeFailureContinuation({
-      contract: OAuth2UserInfoContract.name,
-      metadata: OAuth2UserInfoMetadata,
-    });
-
+  Effect.fn(function* (_, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.oauth2.userinfo({
         fetchOptions: withFetchOptions(handlers),
@@ -123,7 +94,7 @@ const OAuth2UserInfoHandler = OAuth2UserInfoContract.implement(
       return yield* new IamError(
         {},
         "OAuth2UserInfoHandler returned no payload from Better Auth",
-        OAuth2UserInfoMetadata()
+        continuation.metadata
       );
     }
 
@@ -132,12 +103,7 @@ const OAuth2UserInfoHandler = OAuth2UserInfoContract.implement(
 );
 
 const OAuth2RegisterHandler = OAuth2RegisterContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OAuth2RegisterContract.name,
-      metadata: OAuth2RegisterMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.oauth2.register({
         ...payload,
@@ -151,7 +117,7 @@ const OAuth2RegisterHandler = OAuth2RegisterContract.implement(
       return yield* new IamError(
         {},
         "OAuth2RegisterHandler returned no payload from Better Auth",
-        OAuth2RegisterMetadata()
+        continuation.metadata
       );
     }
 
@@ -160,12 +126,7 @@ const OAuth2RegisterHandler = OAuth2RegisterContract.implement(
 );
 
 const OAuth2ClientHandler = OAuth2ClientContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OAuth2ClientContract.name,
-      metadata: OAuth2ClientMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.oauth2.client[":id"]({
         query: {
@@ -178,11 +139,7 @@ const OAuth2ClientHandler = OAuth2ClientContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError(
-        {},
-        "OAuth2ClientHandler returned no payload from Better Auth",
-        OAuth2ClientMetadata()
-      );
+      return yield* new IamError({}, "OAuth2ClientHandler returned no payload from Better Auth", continuation.metadata);
     }
 
     return yield* OAuth2ClientContract.decodeUnknownSuccess(result.data);

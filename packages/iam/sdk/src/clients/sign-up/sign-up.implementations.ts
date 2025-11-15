@@ -1,18 +1,11 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import { SignUpContractKit, SignUpEmailContract } from "@beep/iam-sdk/clients/sign-up/sign-up.contracts";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 
-const metadataFactory = new MetadataFactory("sign-up");
-
 const SignUpEmailHandler = SignUpEmailContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: SignUpEmailContract.name,
-      metadata: metadataFactory.make("email"),
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const { value } = payload;
     const { captchaResponse, ...rest } = value;
 

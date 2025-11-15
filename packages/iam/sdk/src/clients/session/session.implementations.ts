@@ -1,6 +1,6 @@
 "use client";
 import { client } from "@beep/iam-sdk/adapters";
-import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   GetSessionContract,
   ListSessionsContract,
@@ -11,23 +11,11 @@ import {
 } from "@beep/iam-sdk/clients/session/session.contracts";
 import * as Effect from "effect/Effect";
 
-const metadataFactory = new MetadataFactory("session");
-
-const GetSessionMetadata = metadataFactory.make("getSession");
-const ListSessionsMetadata = metadataFactory.make("listSessions");
-const RevokeSessionMetadata = metadataFactory.make("revokeSession");
-const RevokeOtherSessionsMetadata = metadataFactory.make("revokeOtherSessions");
-const RevokeSessionsMetadata = metadataFactory.make("revokeSessions");
 // =====================================================================================================================
 // Get Session Handler
 // =====================================================================================================================
 const GetSessionHandler = GetSessionContract.implement(
-  Effect.fn("GetSessionHandler")(function* () {
-    const continuation = makeFailureContinuation({
-      contract: GetSessionContract.name,
-      metadata: GetSessionMetadata,
-    });
-
+  Effect.fn("GetSessionHandler")(function* (_, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.getSession({
         fetchOptions: withFetchOptions(handlers),
@@ -42,12 +30,7 @@ const GetSessionHandler = GetSessionContract.implement(
 // List Sessions Handler
 // =====================================================================================================================
 const ListSessionsHandler = ListSessionsContract.implement(
-  Effect.fn(function* () {
-    const continuation = makeFailureContinuation({
-      contract: ListSessionsContract.name,
-      metadata: ListSessionsMetadata,
-    });
-
+  Effect.fn(function* (_, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.listSessions({
         fetchOptions: withFetchOptions(handlers),
@@ -66,12 +49,7 @@ const ListSessionsHandler = ListSessionsContract.implement(
 // Revoke Session Handler
 // =====================================================================================================================
 const RevokeSessionHandler = RevokeSessionContract.implement(
-  Effect.fn("RevokeSessionHandler")(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: RevokeSessionContract.name,
-      metadata: RevokeSessionMetadata,
-    });
-
+  Effect.fn("RevokeSessionHandler")(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.revokeSession({
         token: payload.token,
@@ -86,12 +64,7 @@ const RevokeSessionHandler = RevokeSessionContract.implement(
 // Revoke Other Sessions Handler
 // =====================================================================================================================
 const RevokeOtherSessionsHandler = RevokeOtherSessionsContract.implement(
-  Effect.fn("RevokeOtherSessionsHandler")(function* () {
-    const continuation = makeFailureContinuation({
-      contract: RevokeOtherSessionsContract.name,
-      metadata: RevokeOtherSessionsMetadata,
-    });
-
+  Effect.fn("RevokeOtherSessionsHandler")(function* (_, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.revokeOtherSessions({
         fetchOptions: withFetchOptions(handlers),
@@ -105,12 +78,7 @@ const RevokeOtherSessionsHandler = RevokeOtherSessionsContract.implement(
 // Revoke Sessions Handler
 // =====================================================================================================================
 const RevokeSessionsHandler = RevokeSessionsContract.implement(
-  Effect.fn("RevokeSessionsHandler")(function* () {
-    const continuation = makeFailureContinuation({
-      contract: RevokeSessionsContract.name,
-      metadata: RevokeSessionsMetadata,
-    });
-
+  Effect.fn("RevokeSessionsHandler")(function* (_, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.revokeSessions({
         fetchOptions: withFetchOptions(handlers),

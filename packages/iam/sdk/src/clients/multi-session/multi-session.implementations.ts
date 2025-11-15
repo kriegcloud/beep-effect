@@ -1,5 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   MultiSessionContractKit,
   MultiSessionListContract,
@@ -10,21 +10,8 @@ import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 
-const metadataFactory = new MetadataFactory("multiSession");
-
-const MultiSessionListMetadata = metadataFactory.make("listDeviceSessions");
-
-const MultiSessionSetActiveMetadata = metadataFactory.make("setActive");
-
-const MultiSessionRevokeMetadata = metadataFactory.make("revoke");
-
 const MultiSessionListHandler = MultiSessionListContract.implement(
-  Effect.fn(function* () {
-    const continuation = makeFailureContinuation({
-      contract: MultiSessionListContract.name,
-      metadata: MultiSessionListMetadata,
-    });
-
+  Effect.fn(function* (_, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.multiSession.listDeviceSessions(undefined, withFetchOptions(handlers))
     );
@@ -32,10 +19,11 @@ const MultiSessionListHandler = MultiSessionListContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "MultiSessionListHandler returned no payload from Better Auth", {
-        domain: "multiSession",
-        method: "listDeviceSessions",
-      });
+      return yield* new IamError(
+        {},
+        "MultiSessionListHandler returned no payload from Better Auth",
+        continuation.metadata
+      );
     }
 
     return yield* MultiSessionListContract.decodeUnknownSuccess(result.data);
@@ -43,12 +31,7 @@ const MultiSessionListHandler = MultiSessionListContract.implement(
 );
 
 const MultiSessionSetActiveHandler = MultiSessionSetActiveContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: MultiSessionSetActiveContract.name,
-      metadata: MultiSessionSetActiveMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.multiSession.setActive(
         {
@@ -61,10 +44,11 @@ const MultiSessionSetActiveHandler = MultiSessionSetActiveContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "MultiSessionSetActiveHandler returned no payload from Better Auth", {
-        domain: "multiSession",
-        method: "setActive",
-      });
+      return yield* new IamError(
+        {},
+        "MultiSessionSetActiveHandler returned no payload from Better Auth",
+        continuation.metadata
+      );
     }
 
     const decoded = yield* MultiSessionSetActiveContract.decodeUnknownSuccess(result.data);
@@ -76,12 +60,7 @@ const MultiSessionSetActiveHandler = MultiSessionSetActiveContract.implement(
 );
 
 const MultiSessionRevokeHandler = MultiSessionRevokeContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: "MultiSessionRevoke",
-      metadata: MultiSessionRevokeMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.multiSession.revoke(
         {
@@ -94,10 +73,11 @@ const MultiSessionRevokeHandler = MultiSessionRevokeContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "MultiSessionRevokeHandler returned no payload from Better Auth", {
-        domain: "multiSession",
-        method: "revoke",
-      });
+      return yield* new IamError(
+        {},
+        "MultiSessionRevokeHandler returned no payload from Better Auth",
+        continuation.metadata
+      );
     }
 
     const decoded = yield* MultiSessionRevokeContract.decodeUnknownSuccess(result.data);

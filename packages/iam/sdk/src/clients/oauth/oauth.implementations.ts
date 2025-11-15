@@ -1,5 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   GetAccessTokenContract,
   GetAccountInfoContract,
@@ -11,24 +11,11 @@ import {
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 
-const metadataFactory = new MetadataFactory("oauth2");
-
-const OAuthRegisterMetadata = metadataFactory.make("register");
-const LinkSocialMetadata = metadataFactory.make("linkSocial");
-const GetAccessTokenMetadata = metadataFactory.make("getAccessToken");
-const GetAccountInfoMetadata = metadataFactory.make("getAccountInfo");
-const RequestAdditionalScopesMetadata = metadataFactory.make("requestAdditionalScopes");
-
 // =====================================================================================================================
 // OAuth Register Handler
 // =====================================================================================================================
 const OAuthRegisterHandler = OAuthRegisterContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OAuthRegisterContract.name,
-      metadata: OAuthRegisterMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OAuthRegisterContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
@@ -46,12 +33,7 @@ const OAuthRegisterHandler = OAuthRegisterContract.implement(
 // Link Social Handler
 // =====================================================================================================================
 const LinkSocialHandler = LinkSocialContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: LinkSocialContract.name,
-      metadata: LinkSocialMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.linkSocial({
         provider: payload.provider,
@@ -68,12 +50,7 @@ const LinkSocialHandler = LinkSocialContract.implement(
 // Get Access Token Handler
 // =====================================================================================================================
 const GetAccessTokenHandler = GetAccessTokenContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: GetAccessTokenContract.name,
-      metadata: GetAccessTokenMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.getAccessToken({
         providerId: payload.providerId,
@@ -85,7 +62,7 @@ const GetAccessTokenHandler = GetAccessTokenContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data === null) {
-      return yield* new IamError({}, "GetAccessTokenResult returned null");
+      return yield* new IamError({}, "GetAccessTokenResult returned null", continuation.metadata);
     }
 
     return yield* GetAccessTokenContract.decodeUnknownSuccess(result.data);
@@ -96,12 +73,7 @@ const GetAccessTokenHandler = GetAccessTokenContract.implement(
 // Get Account Info Handler
 // =====================================================================================================================
 const GetAccountInfoHandler = GetAccountInfoContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: GetAccountInfoContract.name,
-      metadata: GetAccountInfoMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.accountInfo({
         accountId: payload.accountId,
@@ -119,12 +91,7 @@ const GetAccountInfoHandler = GetAccountInfoContract.implement(
 // Request Additional Scopes Handler
 // =====================================================================================================================
 const RequestAdditionalScopesHandler = RequestAdditionalScopesContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: RequestAdditionalScopesContract.name,
-      metadata: RequestAdditionalScopesMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.linkSocial({
         provider: payload.provider,

@@ -1,7 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { addFetchOptions, compact, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
-import { MetadataFactory } from "@beep/iam-sdk/clients/_internal/client-method-helpers";
-
+import { addFetchOptions, compact, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   AcceptInvitationContract,
   OrganizationCancelInvitationContract,
@@ -32,39 +30,8 @@ import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as Struct from "effect/Struct";
 
-const metaDataFactory = new MetadataFactory("organization");
-
-const OrganizationCreateMetadata = metaDataFactory.make("create");
-const OrganizationCheckSlugMetadata = metaDataFactory.make("checkSlug");
-const OrganizationListMetadata = metaDataFactory.make("list");
-const OrganizationSetActiveMetadata = metaDataFactory.make("setActive");
-const OrganizationGetFullMetadata = metaDataFactory.make("getFullOrganization");
-const OrganizationUpdateMetadata = metaDataFactory.make("update");
-const OrganizationDeleteMetadata = metaDataFactory.make("delete");
-const AcceptInvitationMetadata = metaDataFactory.make("acceptInvitation");
-const OrganizationInviteMemberMetadata = metaDataFactory.make("inviteMember");
-const OrganizationCancelInvitationMetadata = metaDataFactory.make("cancelInvitation");
-const OrganizationRejectInvitationMetadata = metaDataFactory.make("rejectInvitation");
-const OrganizationListInvitationsMetadata = metaDataFactory.make("listInvitations");
-const OrganizationListUserInvitationsMetadata = metaDataFactory.make("listUserInvitations");
-const OrganizationGetInvitationMetadata = metaDataFactory.make("getInvitation");
-const OrganizationListMembersMetadata = metaDataFactory.make("listMembers");
-const OrganizationRemoveMemberMetadata = metaDataFactory.make("removeMember");
-const OrganizationUpdateMemberRoleMetadata = metaDataFactory.make("updateMemberRole");
-const OrganizationGetActiveMemberMetadata = metaDataFactory.make("getActiveMember");
-const OrganizationGetActiveMemberRoleMetadata = metaDataFactory.make("getActiveMemberRole");
-const OrganizationLeaveMetadata = metaDataFactory.make("leave");
-const OrganizationCreateRoleMetadata = metaDataFactory.make("createRole");
-const OrganizationDeleteRoleMetadata = metaDataFactory.make("deleteRole");
-const OrganizationListRolesMetadata = metaDataFactory.make("listRoles");
-
 const OrganizationCreateHandler = OrganizationCreateContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationCreateContract.name,
-      metadata: OrganizationCreateMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OrganizationCreateContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
@@ -83,7 +50,7 @@ const OrganizationCreateHandler = OrganizationCreateContract.implement(
       return yield* new IamError(
         {},
         "OrganizationCreateHandler returned no payload from Better Auth",
-        OrganizationCreateMetadata()
+        continuation.metadata
       );
     }
 
@@ -96,12 +63,7 @@ const OrganizationCreateHandler = OrganizationCreateContract.implement(
 );
 
 const OrganizationCheckSlugHandler = OrganizationCheckSlugContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationCheckSlugContract.name,
-      metadata: OrganizationCheckSlugMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OrganizationCheckSlugContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
@@ -112,11 +74,7 @@ const OrganizationCheckSlugHandler = OrganizationCheckSlugContract.implement(
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError(
-          {},
-          "OrganizationCheckSlugHandler returned no payload from Better Auth",
-          OrganizationCheckSlugMetadata()
-        )
+        new IamError({}, "OrganizationCheckSlugHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
 
@@ -127,12 +85,7 @@ const OrganizationCheckSlugHandler = OrganizationCheckSlugContract.implement(
 );
 
 const OrganizationListHandler = OrganizationListContract.implement(
-  Effect.fn(function* () {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationListContract.name,
-      metadata: OrganizationListMetadata,
-    });
-
+  Effect.fn(function* (_, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.organization.list(undefined, withFetchOptions(handlers))
     );
@@ -141,7 +94,7 @@ const OrganizationListHandler = OrganizationListContract.implement(
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError({}, "OrganizationListHandler returned no payload from Better Auth", OrganizationListMetadata())
+        new IamError({}, "OrganizationListHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
 
@@ -152,12 +105,7 @@ const OrganizationListHandler = OrganizationListContract.implement(
 );
 
 const OrganizationSetActiveHandler = OrganizationSetActiveContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationSetActiveContract.name,
-      metadata: OrganizationSetActiveMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OrganizationSetActiveContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
@@ -175,12 +123,7 @@ const OrganizationSetActiveHandler = OrganizationSetActiveContract.implement(
 );
 
 const OrganizationGetFullHandler = OrganizationGetFullContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationGetFullContract.name,
-      metadata: OrganizationGetFullMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OrganizationGetFullContract.encodePayload(payload);
     const query = compact(encoded);
 
@@ -198,12 +141,7 @@ const OrganizationGetFullHandler = OrganizationGetFullContract.implement(
 );
 
 const OrganizationUpdateHandler = OrganizationUpdateContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationUpdateContract.name,
-      metadata: OrganizationUpdateMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OrganizationUpdateContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
@@ -226,12 +164,7 @@ const OrganizationUpdateHandler = OrganizationUpdateContract.implement(
 );
 
 const OrganizationDeleteHandler = OrganizationDeleteContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationDeleteContract.name,
-      metadata: OrganizationDeleteMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.organization.delete({
         organizationId: payload.id,
@@ -243,7 +176,7 @@ const OrganizationDeleteHandler = OrganizationDeleteContract.implement(
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError({}, "OrganizationDeleteHandler returned no payload from Better Auth", OrganizationDeleteMetadata())
+        new IamError({}, "OrganizationDeleteHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
 
@@ -258,12 +191,7 @@ const OrganizationDeleteHandler = OrganizationDeleteContract.implement(
 );
 
 const AcceptInvitationHandler = AcceptInvitationContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: AcceptInvitationContract.name,
-      metadata: AcceptInvitationMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* AcceptInvitationContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
@@ -274,7 +202,7 @@ const AcceptInvitationHandler = AcceptInvitationContract.implement(
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError({}, "AcceptInvitationHandler returned no payload from Better Auth", AcceptInvitationMetadata())
+        new IamError({}, "AcceptInvitationHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
 
@@ -289,12 +217,7 @@ const AcceptInvitationHandler = AcceptInvitationContract.implement(
 );
 
 const OrganizationInviteMemberHandler = OrganizationInviteMemberContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationInviteMemberContract.name,
-      metadata: OrganizationInviteMemberMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OrganizationInviteMemberContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
@@ -310,11 +233,7 @@ const OrganizationInviteMemberHandler = OrganizationInviteMemberContract.impleme
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError(
-          {},
-          "OrganizationInviteMemberHandler returned no payload from Better Auth",
-          OrganizationInviteMemberMetadata()
-        )
+        new IamError({}, "OrganizationInviteMemberHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
 
@@ -325,12 +244,7 @@ const OrganizationInviteMemberHandler = OrganizationInviteMemberContract.impleme
 );
 
 const OrganizationCancelInvitationHandler = OrganizationCancelInvitationContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationCancelInvitationContract.name,
-      metadata: OrganizationCancelInvitationMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OrganizationCancelInvitationContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
@@ -344,12 +258,7 @@ const OrganizationCancelInvitationHandler = OrganizationCancelInvitationContract
 );
 
 const OrganizationRejectInvitationHandler = OrganizationRejectInvitationContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationRejectInvitationContract.name,
-      metadata: OrganizationRejectInvitationMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OrganizationRejectInvitationContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
@@ -362,7 +271,7 @@ const OrganizationRejectInvitationHandler = OrganizationRejectInvitationContract
       return yield* new IamError(
         {},
         "OrganizationRejectInvitationHandler returned no payload from Better Auth",
-        OrganizationRejectInvitationMetadata()
+        continuation.metadata
       );
     }
 
@@ -373,18 +282,13 @@ const OrganizationRejectInvitationHandler = OrganizationRejectInvitationContract
 );
 
 const OrganizationListInvitationsHandler = OrganizationListInvitationsContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationListInvitationsContract.name,
-      metadata: OrganizationListInvitationsMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OrganizationListInvitationsContract.encodePayload(payload);
     const query = compact(encoded);
 
     const result = yield* continuation.run((handlers) =>
       client.organization.listInvitations(
-        Object.keys(query).length > 0 ? { query } : undefined,
+        Struct.keys(query).length > 0 ? { query } : undefined,
         withFetchOptions(handlers)
       )
     );
@@ -395,7 +299,7 @@ const OrganizationListInvitationsHandler = OrganizationListInvitationsContract.i
       return yield* new IamError(
         {},
         "OrganizationListInvitationsHandler returned no payload from Better Auth",
-        OrganizationListInvitationsMetadata()
+        continuation.metadata
       );
     }
 
@@ -406,18 +310,13 @@ const OrganizationListInvitationsHandler = OrganizationListInvitationsContract.i
 );
 
 const OrganizationListUserInvitationsHandler = OrganizationListUserInvitationsContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationListUserInvitationsContract.name,
-      metadata: OrganizationListUserInvitationsMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OrganizationListUserInvitationsContract.encodePayload(payload);
     const query = compact(encoded);
 
     const result = yield* continuation.run((handlers) =>
       client.organization.listUserInvitations(
-        Object.keys(query).length > 0 ? { query } : undefined,
+        Struct.keys(query).length > 0 ? { query } : undefined,
         withFetchOptions(handlers)
       )
     );
@@ -429,7 +328,7 @@ const OrganizationListUserInvitationsHandler = OrganizationListUserInvitationsCo
         new IamError(
           {},
           "OrganizationListUserInvitationsHandler returned no payload from Better Auth",
-          OrganizationListUserInvitationsMetadata()
+          continuation.metadata
         )
       );
     }
@@ -441,12 +340,7 @@ const OrganizationListUserInvitationsHandler = OrganizationListUserInvitationsCo
 );
 
 const OrganizationGetInvitationHandler = OrganizationGetInvitationContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationGetInvitationContract.name,
-      metadata: OrganizationGetInvitationMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OrganizationGetInvitationContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
@@ -457,11 +351,7 @@ const OrganizationGetInvitationHandler = OrganizationGetInvitationContract.imple
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError(
-          {},
-          "OrganizationGetInvitationHandler returned no payload from Better Auth",
-          OrganizationGetInvitationMetadata()
-        )
+        new IamError({}, "OrganizationGetInvitationHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
 
@@ -472,28 +362,19 @@ const OrganizationGetInvitationHandler = OrganizationGetInvitationContract.imple
 );
 
 const OrganizationListMembersHandler = OrganizationListMembersContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationListMembersContract.name,
-      metadata: OrganizationListMembersMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OrganizationListMembersContract.encodePayload(payload);
     const query = compact(encoded);
 
     const result = yield* continuation.run((handlers) =>
-      client.organization.listMembers(Object.keys(query).length > 0 ? { query } : undefined, withFetchOptions(handlers))
+      client.organization.listMembers(Struct.keys(query).length > 0 ? { query } : undefined, withFetchOptions(handlers))
     );
 
     yield* continuation.raiseResult(result);
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError(
-          {},
-          "OrganizationListMembersHandler returned no payload from Better Auth",
-          OrganizationListMembersMetadata()
-        )
+        new IamError({}, "OrganizationListMembersHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
 
@@ -504,12 +385,7 @@ const OrganizationListMembersHandler = OrganizationListMembersContract.implement
 );
 
 const OrganizationRemoveMemberHandler = OrganizationRemoveMemberContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationRemoveMemberContract.name,
-      metadata: OrganizationRemoveMemberMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OrganizationRemoveMemberContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
@@ -520,11 +396,7 @@ const OrganizationRemoveMemberHandler = OrganizationRemoveMemberContract.impleme
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError(
-          {},
-          "OrganizationRemoveMemberHandler returned no payload from Better Auth",
-          OrganizationRemoveMemberMetadata()
-        )
+        new IamError({}, "OrganizationRemoveMemberHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
 
@@ -535,12 +407,7 @@ const OrganizationRemoveMemberHandler = OrganizationRemoveMemberContract.impleme
 );
 
 const OrganizationUpdateMemberRoleHandler = OrganizationUpdateMemberRoleContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationUpdateMemberRoleContract.name,
-      metadata: OrganizationUpdateMemberRoleMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OrganizationUpdateMemberRoleContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
@@ -554,7 +421,7 @@ const OrganizationUpdateMemberRoleHandler = OrganizationUpdateMemberRoleContract
         new IamError(
           {},
           "OrganizationUpdateMemberRoleHandler returned no payload from Better Auth",
-          OrganizationUpdateMemberRoleMetadata()
+          continuation.metadata
         )
       );
     }
@@ -566,12 +433,7 @@ const OrganizationUpdateMemberRoleHandler = OrganizationUpdateMemberRoleContract
 );
 
 const OrganizationGetActiveMemberHandler = OrganizationGetActiveMemberContract.implement(
-  Effect.fn(function* () {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationGetActiveMemberContract.name,
-      metadata: OrganizationGetActiveMemberMetadata,
-    });
-
+  Effect.fn(function* (_, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.organization.getActiveMember(undefined, withFetchOptions(handlers))
     );
@@ -583,7 +445,7 @@ const OrganizationGetActiveMemberHandler = OrganizationGetActiveMemberContract.i
         new IamError(
           {},
           "OrganizationGetActiveMemberHandler returned no payload from Better Auth",
-          OrganizationGetActiveMemberMetadata()
+          continuation.metadata
         )
       );
     }
@@ -595,18 +457,13 @@ const OrganizationGetActiveMemberHandler = OrganizationGetActiveMemberContract.i
 );
 
 const OrganizationGetActiveMemberRoleHandler = OrganizationGetActiveMemberRoleContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationGetActiveMemberRoleContract.name,
-      metadata: OrganizationGetActiveMemberRoleMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OrganizationGetActiveMemberRoleContract.encodePayload(payload);
     const query = compact(encoded);
 
     const result = yield* continuation.run((handlers) =>
       client.organization.getActiveMemberRole(
-        Object.keys(query).length > 0 ? { query } : undefined,
+        Struct.keys(query).length > 0 ? { query } : undefined,
         withFetchOptions(handlers)
       )
     );
@@ -618,7 +475,7 @@ const OrganizationGetActiveMemberRoleHandler = OrganizationGetActiveMemberRoleCo
         new IamError(
           {},
           "OrganizationGetActiveMemberRoleHandler returned no payload from Better Auth",
-          OrganizationGetActiveMemberRoleMetadata()
+          continuation.metadata
         )
       );
     }
@@ -630,12 +487,7 @@ const OrganizationGetActiveMemberRoleHandler = OrganizationGetActiveMemberRoleCo
 );
 
 const OrganizationLeaveHandler = OrganizationLeaveContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationLeaveContract.name,
-      metadata: OrganizationLeaveMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OrganizationLeaveContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) => client.organization.leave(addFetchOptions(handlers, encoded)));
@@ -644,7 +496,7 @@ const OrganizationLeaveHandler = OrganizationLeaveContract.implement(
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError({}, "OrganizationLeaveHandler returned no payload from Better Auth", OrganizationLeaveMetadata())
+        new IamError({}, "OrganizationLeaveHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
     const data = result.data;
@@ -658,12 +510,7 @@ const OrganizationLeaveHandler = OrganizationLeaveContract.implement(
 );
 
 const OrganizationCreateRoleHandler = OrganizationCreateRoleContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationCreateRoleContract.name,
-      metadata: OrganizationCreateRoleMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OrganizationCreateRoleContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
@@ -674,11 +521,7 @@ const OrganizationCreateRoleHandler = OrganizationCreateRoleContract.implement(
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError(
-          {},
-          "OrganizationCreateRoleHandler returned no payload from Better Auth",
-          OrganizationCreateRoleMetadata()
-        )
+        new IamError({}, "OrganizationCreateRoleHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
     const data = result.data;
@@ -688,12 +531,7 @@ const OrganizationCreateRoleHandler = OrganizationCreateRoleContract.implement(
 );
 
 const OrganizationDeleteRoleHandler = OrganizationDeleteRoleContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationDeleteRoleContract.name,
-      metadata: OrganizationDeleteRoleMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OrganizationDeleteRoleContract.encodePayload(payload);
 
     const result = yield* continuation.run((handlers) =>
@@ -704,11 +542,7 @@ const OrganizationDeleteRoleHandler = OrganizationDeleteRoleContract.implement(
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError(
-          {},
-          "OrganizationDeleteRoleHandler returned no payload from Better Auth",
-          OrganizationDeleteRoleMetadata()
-        )
+        new IamError({}, "OrganizationDeleteRoleHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
 
@@ -719,28 +553,19 @@ const OrganizationDeleteRoleHandler = OrganizationDeleteRoleContract.implement(
 );
 
 const OrganizationListRolesHandler = OrganizationListRolesContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: OrganizationListRolesContract.name,
-      metadata: OrganizationListRolesMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* OrganizationListRolesContract.encodePayload(payload);
     const query = compact(encoded);
 
     const result = yield* continuation.run((handlers) =>
-      client.organization.listRoles(Object.keys(query).length > 0 ? { query } : undefined, withFetchOptions(handlers))
+      client.organization.listRoles(Struct.keys(query).length > 0 ? { query } : undefined, withFetchOptions(handlers))
     );
 
     yield* continuation.raiseResult(result);
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError(
-          {},
-          "OrganizationListRolesHandler returned no payload from Better Auth",
-          OrganizationListRolesMetadata()
-        )
+        new IamError({}, "OrganizationListRolesHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
     const data = result.data;

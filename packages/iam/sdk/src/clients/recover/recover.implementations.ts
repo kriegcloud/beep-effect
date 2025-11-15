@@ -1,5 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   RecoverContractKit,
   RequestResetPasswordContract,
@@ -9,18 +9,8 @@ import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 
-const metadataFactory = new MetadataFactory("recover");
-
-const ResetPasswordMetadata = metadataFactory.make("resetPassword");
-const RequestResetPasswordMetadata = metadataFactory.make("requestResetPassword");
-
 const ResetPasswordHandler = ResetPasswordContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: ResetPasswordContract.name,
-      metadata: ResetPasswordMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const token = new URLSearchParams(window.location.search).get("token");
     const tokenOption = O.fromNullable(token);
 
@@ -32,7 +22,7 @@ const ResetPasswordHandler = ResetPasswordContract.implement(
             resource: "reset-password-token",
           },
           "No token found",
-          ResetPasswordMetadata()
+          continuation.metadata
         )
       );
     }
@@ -52,12 +42,7 @@ const ResetPasswordHandler = ResetPasswordContract.implement(
 );
 
 const RequestPasswordResetHandler = RequestResetPasswordContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: RequestResetPasswordContract.name,
-      metadata: RequestResetPasswordMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const encoded = yield* RequestResetPasswordContract.encodeUnknownPayload(payload);
 
     const result = yield* continuation.run((handlers) =>

@@ -1,5 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { MetadataFactory, makeFailureContinuation, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   DeviceAuthorizationApproveContract,
   DeviceAuthorizationCodeContract,
@@ -11,25 +11,8 @@ import {
 import { IamError } from "@beep/iam-sdk/errors";
 import * as Effect from "effect/Effect";
 
-const metadataFactory = new MetadataFactory("device-authorization");
-
-const DeviceAuthorizationCodeMetadata = metadataFactory.make("code");
-
-const DeviceAuthorizationTokenMetadata = metadataFactory.make("token");
-
-const DeviceAuthorizationStatusMetadata = metadataFactory.make("status");
-
-const DeviceAuthorizationApproveMetadata = metadataFactory.make("approve");
-
-const DeviceAuthorizationDenyMetadata = metadataFactory.make("deny");
-
 const DeviceAuthorizationCodeHandler = DeviceAuthorizationCodeContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: "DeviceAuthorizationCode",
-      metadata: DeviceAuthorizationCodeMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.device.code({
         client_id: payload.client_id,
@@ -44,7 +27,7 @@ const DeviceAuthorizationCodeHandler = DeviceAuthorizationCodeContract.implement
       return yield* new IamError(
         {},
         "DeviceAuthorizationCodeHandler returned no payload from Better Auth",
-        DeviceAuthorizationCodeMetadata()
+        continuation.metadata
       );
     }
 
@@ -53,12 +36,7 @@ const DeviceAuthorizationCodeHandler = DeviceAuthorizationCodeContract.implement
 );
 
 const DeviceAuthorizationTokenHandler = DeviceAuthorizationTokenContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: DeviceAuthorizationTokenContract.name,
-      metadata: DeviceAuthorizationTokenMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.device.token({
         grant_type: payload.grant_type,
@@ -74,7 +52,7 @@ const DeviceAuthorizationTokenHandler = DeviceAuthorizationTokenContract.impleme
       return yield* new IamError(
         {},
         "DeviceAuthorizationTokenHandler returned no payload from Better Auth",
-        DeviceAuthorizationTokenMetadata()
+        continuation.metadata
       );
     }
 
@@ -83,12 +61,7 @@ const DeviceAuthorizationTokenHandler = DeviceAuthorizationTokenContract.impleme
 );
 
 const DeviceAuthorizationStatusHandler = DeviceAuthorizationStatusContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: DeviceAuthorizationStatusContract.name,
-      metadata: DeviceAuthorizationStatusMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.device({
         query: {
@@ -104,7 +77,7 @@ const DeviceAuthorizationStatusHandler = DeviceAuthorizationStatusContract.imple
       return yield* new IamError(
         {},
         "DeviceAuthorizationStatusHandler returned no payload from Better Auth",
-        DeviceAuthorizationStatusMetadata()
+        continuation.metadata
       );
     }
 
@@ -113,12 +86,7 @@ const DeviceAuthorizationStatusHandler = DeviceAuthorizationStatusContract.imple
 );
 
 const DeviceAuthorizationApproveHandler = DeviceAuthorizationApproveContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: DeviceAuthorizationApproveContract.name,
-      metadata: DeviceAuthorizationApproveMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.device.approve({
         userCode: payload.userCode,
@@ -132,7 +100,7 @@ const DeviceAuthorizationApproveHandler = DeviceAuthorizationApproveContract.imp
       return yield* new IamError(
         {},
         "DeviceAuthorizationApproveHandler returned no payload from Better Auth",
-        DeviceAuthorizationApproveMetadata()
+        continuation.metadata
       );
     }
 
@@ -141,12 +109,7 @@ const DeviceAuthorizationApproveHandler = DeviceAuthorizationApproveContract.imp
 );
 
 const DeviceAuthorizationDenyHandler = DeviceAuthorizationDenyContract.implement(
-  Effect.fn(function* (payload) {
-    const continuation = makeFailureContinuation({
-      contract: DeviceAuthorizationDenyContract.name,
-      metadata: DeviceAuthorizationDenyMetadata,
-    });
-
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.device.deny({
         userCode: payload.userCode,
@@ -160,7 +123,7 @@ const DeviceAuthorizationDenyHandler = DeviceAuthorizationDenyContract.implement
       return yield* new IamError(
         {},
         "DeviceAuthorizationDenyHandler returned no payload from Better Auth",
-        DeviceAuthorizationDenyMetadata()
+        continuation.metadata
       );
     }
 
