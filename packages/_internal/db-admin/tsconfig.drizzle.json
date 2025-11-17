@@ -3,6 +3,12 @@
   "include": ["drizzle.config.ts"],
   "references": [
     {
+      "path": "../../../tooling/utils"
+    },
+    {
+      "path": "../../../tooling/testkit"
+    },
+    {
       "path": "../../common/types"
     },
     {

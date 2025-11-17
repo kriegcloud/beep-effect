@@ -1,5 +1,5 @@
-import type {User} from "@beep/shared-domain/entities";
-import {formOptionsWithSubmitEffect, useAppForm} from "@beep/ui/form";
+import type { User } from "@beep/shared-domain/entities";
+import { formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
 import * as Equal from "effect/Equal";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
@@ -11,7 +11,7 @@ import {
   useChangePassword,
   useUpdatePhoneNumber,
   useUpdateUserIdentity,
-  useUpdateUsername
+  useUpdateUsername,
 } from "./user.atoms";
 import {
   ChangeEmailContract,
@@ -26,13 +26,13 @@ type Props = {
 };
 
 export const useChangePasswordForm = (props: Props) => {
-  const {changePassword} = useChangePassword();
+  const { changePassword } = useChangePassword();
 
   const form = useAppForm(
     formOptionsWithSubmitEffect({
       schema: ChangePasswordContract.payloadSchema.pipe(
         S.filter(
-          ({password, passwordConfirm}) => Equal.equals(Redacted.value(password), Redacted.value(passwordConfirm)),
+          ({ password, passwordConfirm }) => Equal.equals(Redacted.value(password), Redacted.value(passwordConfirm)),
           {
             message: () => "Passwords do not match!",
           }
@@ -61,8 +61,8 @@ type UpdateUserProps = {
   readonly onSuccess?: (() => void) | undefined;
 };
 
-export const useUpdateUserIdentityForm = ({userInfo, onSuccess}: UpdateUserProps) => {
-  const {updateUser} = useUpdateUserIdentity();
+export const useUpdateUserIdentityForm = ({ userInfo, onSuccess }: UpdateUserProps) => {
+  const { updateUser } = useUpdateUserIdentity();
   const form = useAppForm(
     formOptionsWithSubmitEffect({
       schema: UpdateUserIdentityContract.payloadSchema,
@@ -103,8 +103,8 @@ type UpdateUsernameProps = {
   readonly userInfo: User.Model;
 };
 
-export const useUpdateUsernameForm = ({userInfo, onSuccess}: UpdateUsernameProps) => {
-  const {updateUsername} = useUpdateUsername();
+export const useUpdateUsernameForm = ({ userInfo, onSuccess }: UpdateUsernameProps) => {
+  const { updateUsername } = useUpdateUsername();
 
   const form = useAppForm(
     formOptionsWithSubmitEffect({
@@ -140,8 +140,8 @@ type UpdatePhoneNumberFormProps = {
   readonly onSuccess?: (() => void) | undefined;
 };
 
-export const useUpdatePhoneNumberForm = ({userInfo, onSuccess}: UpdatePhoneNumberFormProps) => {
-  const {updatePhoneNumber} = useUpdatePhoneNumber();
+export const useUpdatePhoneNumberForm = ({ userInfo, onSuccess }: UpdatePhoneNumberFormProps) => {
+  const { updatePhoneNumber } = useUpdatePhoneNumber();
 
   const form = useAppForm(
     formOptionsWithSubmitEffect({
@@ -166,32 +166,28 @@ export const useUpdatePhoneNumberForm = ({userInfo, onSuccess}: UpdatePhoneNumbe
   };
 };
 
-
 type UseChangeEmailFormProps = {
-  readonly userInfo: User.Model,
-  readonly onSuccess?: (() => void) | undefined
-}
+  readonly userInfo: User.Model;
+  readonly onSuccess?: (() => void) | undefined;
+};
 
-export const useChangeEmailForm = ({
-                                     userInfo,
-                                     onSuccess
-                                   }: UseChangeEmailFormProps) => {
-  const {changeEmail} = useChangeEmail();
+export const useChangeEmailForm = ({ userInfo, onSuccess }: UseChangeEmailFormProps) => {
+  const { changeEmail } = useChangeEmail();
 
   const form = useAppForm(
     formOptionsWithSubmitEffect({
       schema: ChangeEmailContract.payloadSchema,
       defaultValues: {
-        newEmail: Redacted.value(userInfo.email)
+        newEmail: Redacted.value(userInfo.email),
       },
       onSubmit: async (value) => {
         await changeEmail(value);
-        onSuccess?.()
-      }
+        onSuccess?.();
+      },
     })
-  )
+  );
 
   return {
-    form
-  }
+    form,
+  };
 };

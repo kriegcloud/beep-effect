@@ -17,7 +17,6 @@
   ],
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
-    "clean": "rm -rf node_modules .next out dist build .turbo .tsbuildinfo",
     "lint": "biome check .",
     "test": "bun test",
     "lint:fix": "biome check . --write",

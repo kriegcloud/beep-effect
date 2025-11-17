@@ -115,7 +115,6 @@ export const useUpdatePhoneNumber = () => {
   };
 };
 
-
 export const changeEmailAtom = userRuntime.fn(
   F.flow(
     UserService.ChangeEmail,
@@ -131,7 +130,7 @@ export const changeEmailAtom = userRuntime.fn(
   {
     reactivityKeys: ["session"],
   }
-)
+);
 
 export const useChangeEmail = () => {
   const changeEmail = useAtomSet(changeEmailAtom, {
@@ -139,6 +138,6 @@ export const useChangeEmail = () => {
   });
 
   return {
-    changeEmail
-  }
-}
+    changeEmail,
+  };
+};

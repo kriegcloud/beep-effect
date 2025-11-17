@@ -85,6 +85,56 @@ export const FieldOptionOmittable = <S extends S.Schema.Any>(schema: S): FieldOp
     jsonUpdate: S.optionalWith(S.OptionFromNullishOr(schema, null), { default: () => O.none<S.Schema.Type<S>>() }),
   });
 
+/**
+ * Make a field an Option for all variants, and omittable on write variants.
+ *
+ * Behavior by variant:
+ * - select, json: required key; value is Option decoded from `S | null`
+ * - insert, update, jsonCreate, jsonUpdate: key is omittable; when present, value is Option decoded from `S | null`
+ *
+ * Use this when a column may be null/absent but clients shouldn't be forced
+ * to send the key on create/update requests.
+ * - On update/jsonUpdate: missing key means "do not modify this field".
+ * - On insert/jsonCreate: missing key lets defaults or DB behavior apply.
+ * @since 1.0.0
+ * @category optional
+ */
+export interface FieldOmittableWithDefault<S extends S.Schema.Any>
+  extends VariantSchema.Field<{
+    readonly select: S;
+    readonly insert: S.optionalWith<S, { default: () => S.Schema.Type<S> }>;
+    readonly update: S.optionalWith<S, { default: () => S.Schema.Type<S> }>;
+    readonly json: S;
+    readonly jsonCreate: S.optionalWith<S, { default: () => S.Schema.Type<S> }>;
+    readonly jsonUpdate: S.optionalWith<S, { default: () => S.Schema.Type<S> }>;
+  }> {}
+
+/**
+ * Make a field an Option for all variants, and omittable on write variants.
+ *
+ * Behavior by variant:
+ * - select, json: required key; value is Option decoded from `S | null`
+ * - insert, update, jsonCreate, jsonUpdate: key is omittable; when present, value is Option decoded from `S | null`
+ *
+ * Use this when a column may be null/absent but clients shouldn't be forced
+ * to send the key on create/update requests.
+ * - On update/jsonUpdate: missing key means "do not modify this field".
+ * - On insert/jsonCreate: missing key lets defaults or DB behavior apply.
+ * @since 1.0.0
+ * @category optional
+ */
+export const FieldOmittableWithDefault =
+  <S extends S.Schema.Any>(schema: S) =>
+  (defaultValue: () => S.Schema.Type<S>): FieldOmittableWithDefault<S> =>
+    Field({
+      select: schema,
+      insert: S.optionalWith(schema, { default: defaultValue }),
+      update: S.optionalWith(schema, { default: defaultValue }),
+      json: schema,
+      jsonCreate: S.optionalWith(schema, { default: defaultValue }),
+      jsonUpdate: S.optionalWith(schema, { default: defaultValue }),
+    });
+
 export const DateTimeInsertFromDateOmittable = (
   annotations?: Annotations<S.Schema.Type<typeof M.DateTimeFromDate>> | undefined
 ) =>

@@ -1,9 +1,9 @@
 import { BS } from "@beep/schema";
 import { makeFields } from "@beep/shared-domain/common";
+import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import { UserGender, UserRole } from "./schemas";
 
 /**

@@ -1,8 +1,8 @@
-import { extractWorkspaceDependencies } from "@beep/tooling-utils/repo/Dependencies.js";
-import { mapWorkspaceToPackageJsonPath } from "@beep/tooling-utils/repo/PackageJsonMap.js";
-import { findRepoRoot } from "@beep/tooling-utils/repo/Root.js";
-import type { RepoDepMapValue } from "@beep/tooling-utils/schemas/index.js";
-import { WorkspacePkgKey } from "@beep/tooling-utils/schemas/index.js";
+import { extractWorkspaceDependencies } from "@beep/tooling-utils/repo/Dependencies";
+import { mapWorkspaceToPackageJsonPath } from "@beep/tooling-utils/repo/PackageJsonMap";
+import { findRepoRoot } from "@beep/tooling-utils/repo/Root";
+import type { RepoDepMapValue } from "@beep/tooling-utils/schemas";
+import { WorkspacePkgKey } from "@beep/tooling-utils/schemas";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as A from "effect/Array";

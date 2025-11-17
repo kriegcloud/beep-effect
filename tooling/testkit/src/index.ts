@@ -8,13 +8,13 @@ import type * as Layer from "effect/Layer";
 import type * as Schema from "effect/Schema";
 import type * as Scope from "effect/Scope";
 import type * as TestServices from "effect/TestServices";
-import * as internal from "./internal/internal.js";
+import * as internal from "./internal/internal";
 
 /**
  * @since 1.0.0
  */
 export * from "bun:test";
-export * from "./assert.js";
+export * from "./assert";
 
 /**
  * @since 1.0.0

@@ -30,8 +30,8 @@ export const auditColumns = {
 export type AuditColumns = typeof auditColumns;
 
 export const userTrackingColumns = {
-  createdBy: BS.FieldOptionOmittable(S.String),
-  updatedBy: BS.FieldOptionOmittable(S.String),
+  createdBy: BS.FieldOmittableWithDefault(S.NullOr(S.String))(() => "app"),
+  updatedBy: BS.FieldOmittableWithDefault(S.NullOr(S.String))(() => "app"),
   deletedBy: BS.FieldOptionOmittable(S.String),
 } as const;
 export type UserTrackingColumns = typeof userTrackingColumns;
@@ -53,7 +53,7 @@ export const makeFields = <const TableName extends string, const Brand extends s
   a: A
 ) => {
   const idFields = {
-    id: M.Generated(entityId.modelIdSchema),
+    id: S.optionalWith(entityId, { default: () => entityId.create() }),
     _rowId: M.Generated(entityId.modelRowIdSchema),
   } as const;
   const defaultFields = {

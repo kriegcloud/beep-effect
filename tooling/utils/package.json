@@ -22,7 +22,6 @@
     "build": "tsc -b tsconfig.build.json",
     "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
     "check": "tsc -b tsconfig.json",
-    "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo .tmp-FsUtils-tests",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "lint:circular": "bunx madge -c .",
@@ -37,8 +36,7 @@
     "@effect/cluster": "catalog:"
   },
   "devDependencies": {
-    "@types/bun": "catalog:",
-    "@beep/types": "workspace:^"
+    "@types/bun": "catalog:"
   },
   "effect": {
     "generateExports": {

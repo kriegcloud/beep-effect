@@ -8,7 +8,7 @@ import { IamError } from "../../errors";
 export const SignOutContract = Contract.make("SignOut", {
   description: "Signs the current user out of their active session.",
   payload: {
-    onSuccess: S.Any
+    onSuccess: S.Any,
   },
   failure: IamError,
   success: S.Void,

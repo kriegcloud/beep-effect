@@ -23,7 +23,6 @@
     "check": "tsc -b tsconfig.json",
     "test": "bun run dotenvx -- bunx bun test",
     "dotenvx": "dotenvx run -f ../../../.env --",
-    "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "coverage": "bun test --coverage",
     "db:generate": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx drizzle-kit generate",
     "db:migrate": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx drizzle-kit migrate",
@@ -33,7 +32,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "lint:circular": "bunx madge -c .",
-    "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx tsx ./src/execute1.ts"
+    "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_ENV=development NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx tsx ./src/scratch.ts"
   },
   "dependencies": {
     "drizzle-zero": "catalog:",
@@ -73,7 +72,9 @@
     "tsx": "catalog:",
     "@beep/core-env": "workspace:^",
     "@effect/platform": "catalog:",
-    "postgres": "catalog:"
+    "postgres": "catalog:",
+    "@beep/tooling-utils": "workspace:^",
+    "@beep/testkit": "workspace:^"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

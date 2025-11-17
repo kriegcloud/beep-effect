@@ -2,20 +2,12 @@
   "extends": "../../tsconfig.base.jsonc",
   "include": ["src"],
   "exclude": [],
-  "references": [
-    {
-      "path": "../../packages/common/types"
-    }
-  ],
+  "references": [],
   "compilerOptions": {
-    "types": ["bun", "node"],
+    "types": ["node", "bun"],
     "outDir": "build/src",
     "rootDir": "src",
-    "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "moduleDetection": "force",
-    "isolatedModules": true,
+    "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true

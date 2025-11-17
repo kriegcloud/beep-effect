@@ -1,5 +1,4 @@
-import { DomainError } from "@beep/tooling-utils/repo/Errors.js";
-import type { UnsafeTypes } from "@beep/types";
+import { DomainError } from "@beep/tooling-utils/repo/Errors";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
@@ -77,7 +76,7 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
     options?: Glob.GlobOptions | undefined
   ) {
     return yield* Effect.tryPromise({
-      try: () => Glob.glob(pattern as UnsafeTypes.UnsafeAny, options as UnsafeTypes.UnsafeAny),
+      try: () => Glob.glob(pattern as any, options as any),
       catch: (e) =>
         new DomainError({
           message: `glob failed: ${e}`,

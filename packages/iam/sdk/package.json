@@ -27,7 +27,6 @@
     "check": "tsc -b tsconfig.json",
     "test": "bun run dotenvx -- bunx bun test",
     "dotenvx": "dotenvx run -f ../../../.env --",
-    "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "coverage": "bun test --coverage",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",

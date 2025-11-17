@@ -4,6 +4,7 @@ import type * as M from "@effect/sql/Model";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as SqlSchema from "@effect/sql/SqlSchema";
 import * as A from "effect/Array";
+import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import type * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -72,6 +73,13 @@ const makeBaseRepo = <
           NoSuchElementException: (e) => Effect.die(e),
           ParseError: (e) => Effect.die(e),
         }),
+        Effect.tapErrorCause((c) =>
+          Effect.gen(function* () {
+            yield* Effect.log("CAUSE: ", JSON.stringify(c, null, 2));
+            const failure = yield* Cause.failureOption(c);
+            yield* Effect.log("FAILURE: ", JSON.stringify(failure, null, 2));
+          })
+        ),
         Effect.mapError(DbError.match),
         Effect.withSpan(`${spanPrefix}.insert`, {
           captureStackTrace: false,

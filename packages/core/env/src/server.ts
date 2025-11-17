@@ -94,7 +94,6 @@ const AppConfig = Config.zipWith(
 );
 
 export const ServerConfig = Config.all({
-  nodeEnv: Config.literal("development", "production", "test")("NODE_ENV"),
   baseUrl: Config.nested("VERCEL")(
     Config.all({
       url: Config.option(S.Config("URL", DomainName)),

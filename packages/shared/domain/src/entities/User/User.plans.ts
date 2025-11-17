@@ -20,8 +20,8 @@ export class NewUser extends S.Class<NewUser>("NewUser")(
       emailVerified: false,
       phoneNumberVerified: false,
       banned: false,
-      createdBy: O.some("system"),
-      updatedBy: O.some("system"),
+      createdBy: "system",
+      updatedBy: "system",
       source: O.some("sign-up"),
     });
 }

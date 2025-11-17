@@ -22,7 +22,6 @@
     "build": "tsc -b tsconfig.build.json",
     "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
     "check": "tsc -b tsconfig.json",
-    "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "test": "bun test",
@@ -34,7 +33,8 @@
     "bootstrap": "tsx ./src/bootstrap.ts",
     "generate-public-paths": "bun run dotenvx -- bunx tsx src/generate-asset-paths.ts",
     "gen:locales": "bun run dotenvx -- bunx tsx src/generate-locales.ts",
-    "iconify": "bunx dotenvx run -f ../../.env -- bun run ./src/iconify/index.ts"
+    "iconify": "bunx dotenvx run -f ../../.env -- bun run ./src/iconify/index.ts",
+    "purge": "bun src/purge.ts"
   },
   "dependencies": {
     "@beep/utils": "workspace:^",

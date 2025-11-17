@@ -1,10 +1,10 @@
+import { BS } from "@beep/schema";
 import { getFileMeta, Iconify, useFilePreview } from "@beep/ui/atoms";
 import { mergeClasses } from "@beep/ui-core/utils";
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
-import { useDropzone } from "react-dropzone";
 import * as S from "effect/Schema";
-import { BS } from "@beep/schema";
+import { useDropzone } from "react-dropzone";
 import { uploadClasses } from "../classes";
 import { RejectedFiles } from "../components/rejected-files";
 import type { UploadProps } from "../types";

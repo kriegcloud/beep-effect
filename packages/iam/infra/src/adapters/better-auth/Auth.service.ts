@@ -1,15 +1,15 @@
 import * as IamEntities from "@beep/iam-domain/entities";
 import * as Member from "@beep/iam-domain/entities/Member";
-import {IamConfig} from "@beep/iam-infra/config";
-import {IamDb} from "@beep/iam-infra/db/Db";
-import {IamDbSchema} from "@beep/iam-tables";
-import {BS} from "@beep/schema";
-import {IamEntityIds, paths, SharedEntityIds} from "@beep/shared-domain";
+import { IamConfig } from "@beep/iam-infra/config";
+import { IamDb } from "@beep/iam-infra/db/Db";
+import { IamDbSchema } from "@beep/iam-tables";
+import { BS } from "@beep/schema";
+import { IamEntityIds, paths, SharedEntityIds } from "@beep/shared-domain";
 import * as Organization from "@beep/shared-domain/entities/Organization";
-import type {UnsafeTypes} from "@beep/types";
-import type {BetterAuthOptions} from "better-auth";
-import {betterAuth} from "better-auth";
-import {drizzleAdapter} from "better-auth/adapters/drizzle";
+import type { UnsafeTypes } from "@beep/types";
+import type { BetterAuthOptions } from "better-auth";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import * as d from "drizzle-orm";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
@@ -23,14 +23,14 @@ import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
-import {AuthEmailService, SendResetPasswordEmailPayload, SendVerificationEmailPayload} from "./AuthEmail.service";
-import {commonExtraFields} from "./internal";
-import {AllPlugins} from "./plugins";
-import type {AuthOptionsEffect, AuthServiceEffect, Opts} from "./types";
+import { AuthEmailService, SendResetPasswordEmailPayload, SendVerificationEmailPayload } from "./AuthEmail.service";
+import { commonExtraFields } from "./internal";
+import { AllPlugins } from "./plugins";
+import type { AuthOptionsEffect, AuthServiceEffect, Opts } from "./types";
 
 const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
-  const {db, drizzle} = yield* IamDb.IamDb;
-  const {sendResetPassword, sendVerification, sendChangeEmailVerification} = yield* AuthEmailService;
+  const { db, drizzle } = yield* IamDb.IamDb;
+  const { sendResetPassword, sendVerification, sendChangeEmailVerification } = yield* AuthEmailService;
   const plugins = yield* AllPlugins;
   const config = yield* IamConfig;
   const isDebug = P.or(Equal.equals(LogLevel.Debug), Equal.equals(LogLevel.All))(config.app.logLevel);
@@ -127,10 +127,12 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
         ...acc,
         ...F.pipe(config.oauth.provider[provider], (providerParams) =>
           O.isSome(providerParams.clientSecret) && O.isSome(providerParams.clientId)
-            ? {[provider]: {
-              clientId: Redacted.value(providerParams.clientId.value),
-              clientSecret: Redacted.value(providerParams.clientSecret.value)
-              }}
+            ? {
+                [provider]: {
+                  clientId: Redacted.value(providerParams.clientId.value),
+                  clientSecret: Redacted.value(providerParams.clientSecret.value),
+                },
+              }
             : {}
         ),
       })
@@ -240,14 +242,14 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
     user: {
       changeEmail: {
         enabled: true,
-        sendChangeEmailVerification: async ({newEmail, url}) => {
+        sendChangeEmailVerification: async ({ newEmail, url }) => {
           await runPromise(
             sendChangeEmailVerification({
               email: BS.Email.make(newEmail),
-              url: BS.Url.make(url)
+              url: BS.Url.make(url),
             })
           );
-        }
+        },
       },
       modelName: SharedEntityIds.UserId.tableName,
       additionalFields: {
@@ -319,5 +321,4 @@ const authServiceEffect: AuthServiceEffect = Effect.gen(function* () {
 export class AuthService extends Effect.Service<AuthService>()("AuthService", {
   dependencies: [AuthEmailService.DefaultWithoutDependencies, IamDb.IamDb.Live, IamConfig.Live],
   effect: authServiceEffect,
-}) {
-}
+}) {}

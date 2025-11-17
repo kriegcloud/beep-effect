@@ -19,10 +19,10 @@
     "./*": "./src/*.ts"
   },
   "scripts": {
-    "build": "tsc -b tsconfig.build.json",
+    "build": "bun run dotenvx tsc -b tsconfig.build.json",
+    "dotenvx": "dotenvx run -f ../../.env --",
     "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
     "check": "tsc -b tsconfig.json",
-    "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "lint:circular": "bunx madge -c .",
@@ -31,13 +31,29 @@
   },
   "dependencies": {
     "@effect/platform": "catalog:",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/sql-pg": "catalog:",
+    "@effect/sql-drizzle": "catalog:",
+    "@testcontainers/postgresql": "catalog:",
+    "@beep/tooling-utils": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "postgres": "catalog:"
   },
   "devDependencies": {
     "@effect/platform-bun": "catalog:",
     "@types/bun": "catalog:",
     "@testcontainers/postgresql": "catalog:",
-    "testcontainers": "catalog:"
+    "testcontainers": "catalog:",
+    "@effect/platform": "catalog:",
+    "effect": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/sql-pg": "catalog:",
+    "@effect/sql-drizzle": "catalog:",
+    "@beep/tooling-utils": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "postgres": "catalog:",
+    "pg": "catalog:"
   },
   "effect": {
     "generateExports": {

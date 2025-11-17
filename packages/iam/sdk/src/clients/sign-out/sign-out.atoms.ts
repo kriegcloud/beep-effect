@@ -24,7 +24,7 @@ export const signOutAtom = signOutRuntime.fn(
 );
 export const useSignOut = () => {
   const signOut = useAtomSet(signOutAtom, {
-    mode: "promise" as const
+    mode: "promise" as const,
   });
   return {
     signOut,

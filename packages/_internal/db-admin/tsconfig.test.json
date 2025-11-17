@@ -64,6 +64,12 @@
     },
     {
       "path": "../../files/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../../tooling/utils"
+    },
+    {
+      "path": "../../../tooling/testkit"
     }
   ],
   "compilerOptions": {

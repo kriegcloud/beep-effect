@@ -4,13 +4,12 @@
     "types": ["node", "bun"],
     "outDir": "build/esm",
     "declarationDir": "build/dts",
-    "stripInternal": true
+    "stripInternal": true,
+    "composite": true,
+    "declaration": true,
+    "sourceMap": true
   },
-  "references": [
-    {
-      "path": "../../packages/common/types/tsconfig.build.json"
-    }
-  ],
+  "references": [],
   "include": ["src/**/*.ts"],
   "exclude": []
 }

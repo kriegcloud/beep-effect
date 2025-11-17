@@ -1,3 +1,4 @@
+import { useChangeEmailForm } from "@beep/iam-sdk/clients/user";
 import { Iconify } from "@beep/ui/atoms";
 import { Stack, Typography } from "@mui/material";
 import * as Redacted from "effect/Redacted";
@@ -5,7 +6,6 @@ import { useState } from "react";
 import { useAccountSettings } from "@/features/account/account-settings-provider";
 import { InfoCard } from "@/features/account/common/InfoCard";
 import { InfoCardAttribute } from "@/features/account/common/InfoCardAttribute";
-import {useChangeEmailForm} from "@beep/iam-sdk/clients/user";
 
 const Email = () => {
   const [open, setOpen] = useState(false);
@@ -13,13 +13,13 @@ const Email = () => {
 
   const email = Redacted.value(userInfo.email);
 
-  const {form} = useChangeEmailForm({
+  const { form } = useChangeEmailForm({
     userInfo,
     onSuccess: () => {
-      setOpen(false)
-      form.reset()
-    }
-  })
+      setOpen(false);
+      form.reset();
+    },
+  });
 
   return (
     <>

@@ -9,7 +9,7 @@ const SignOutHandler = SignOutContract.implement(
     const result = yield* continuation.run((handlers) =>
       client.signOut({
         fetchOptions: withFetchOptions(handlers, {
-          onSuccess: () => onSuccess()
+          onSuccess: () => onSuccess(),
         }),
       })
     );

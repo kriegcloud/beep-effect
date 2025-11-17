@@ -17,12 +17,12 @@ export declare namespace SendVerificationEmailPayload {
   export type Encoded = S.Schema.Encoded<typeof SendVerificationEmailPayload>;
 }
 
-export class SendChangeEmailVerificationPayload extends S.Class<SendChangeEmailVerificationPayload>("SendChangeEmailVerificationPayload")(
-  {
-    email: BS.Email,
-    url: BS.Url,
-  }
-) {}
+export class SendChangeEmailVerificationPayload extends S.Class<SendChangeEmailVerificationPayload>(
+  "SendChangeEmailVerificationPayload"
+)({
+  email: BS.Email,
+  url: BS.Url,
+}) {}
 
 export declare namespace SendChangeEmailVerificationPayload {
   export type Type = S.Schema.Type<typeof SendChangeEmailVerificationPayload>;
@@ -80,7 +80,7 @@ export class AuthEmailService extends Effect.Service<AuthEmailService>()("AuthEm
           subject: "Verify your email",
           html: `<a href="${params.url.toString()}">Verify your email</a>`,
         });
-      })
+      });
 
       const sendVerification = Effect.fn("sendVerification")(
         function* (params: SendVerificationEmailPayload.Type) {

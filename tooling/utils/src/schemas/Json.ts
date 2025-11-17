@@ -1,5 +1,5 @@
-import type { JsonLiteralType } from "@beep/tooling-utils/schemas/JsonLiteral.js";
-import { JsonLiteral } from "@beep/tooling-utils/schemas/JsonLiteral.js";
+import type { JsonLiteralType } from "@beep/tooling-utils/schemas/JsonLiteral";
+import { JsonLiteral } from "@beep/tooling-utils/schemas/JsonLiteral";
 import * as S from "effect/Schema";
 
 /**

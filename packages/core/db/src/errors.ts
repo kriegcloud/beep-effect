@@ -198,6 +198,11 @@ export class DbError extends Data.TaggedError("DbError")<{
     }
     const postgresError = extractPostgresErrorFromSqlError(error);
 
+    if (error instanceof SqlError) {
+      console.log(JSON.stringify(error, null, 2));
+      console.log(error.message);
+    }
+
     if (!postgresError) {
       throw new Error(`Unknown error: ${error}`);
     }

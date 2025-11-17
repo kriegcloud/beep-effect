@@ -59,6 +59,12 @@
     },
     {
       "path": "../../files/tables"
+    },
+    {
+      "path": "../../../tooling/utils"
+    },
+    {
+      "path": "../../../tooling/testkit"
     }
   ],
   "compilerOptions": {

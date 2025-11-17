@@ -23,7 +23,6 @@
     "lint:fix": "biome check . --write",
     "test": "bun test",
     "coverage": "bun test --coverage",
-    "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "lint:circular": "bunx madge -c .",
     "execute": "bunx tsx --tsconfig ./tsconfig.src.json ./src/execute.ts"
   },

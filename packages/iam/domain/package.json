@@ -26,7 +26,6 @@
     "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
     "check": "tsc -b tsconfig.json",
     "test": "bun test",
-    "clean": "rm -rf .tsbuildinfo node_modules coverage .next out dist build .turbo",
     "coverage": "bun test --coverage",
     "lint": "biome check .",
     "execute": "bunx tsx --tsconfig ./tsconfig.src.json ./src/execute.ts",

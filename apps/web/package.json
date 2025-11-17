@@ -16,7 +16,6 @@
     "start": "bun run dotenvx -- next start",
     "build": "bun run dotenvx -- next build --turbopack",
     "build:turbo": "bun run dotenvx -- next build --turbopack",
-    "clean": "rm -rf node_modules .next out dist build .turbo .tsbuildinfo",
     "lint": "biome check .",
     "test": "bun test",
     "lint:fix": "biome check . --write",

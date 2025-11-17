@@ -4,9 +4,6 @@
   "references": [
     {
       "path": "tsconfig.src.json"
-    },
-    {
-      "path": "../../packages/common/types"
     }
   ],
   "compilerOptions": {

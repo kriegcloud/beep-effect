@@ -1,4 +1,4 @@
-import { NoSuchFileError } from "@beep/tooling-utils/repo/Errors.js";
+import { NoSuchFileError } from "@beep/tooling-utils/repo/Errors";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as Effect from "effect/Effect";

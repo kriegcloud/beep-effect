@@ -181,10 +181,7 @@
         "^test"
       ]
     },
-    "clean": {
-      "cache": false
-    },
-    "//#clean": {
+    "purge": {
       "cache": false
     },
     "ui-add": {
