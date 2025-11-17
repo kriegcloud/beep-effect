@@ -18,6 +18,9 @@
       "path": "../../common/invariant/tsconfig.build.json"
     },
     {
+      "path": "../../common/identity/tsconfig.build.json"
+    },
+    {
       "path": "../../common/utils/tsconfig.build.json"
     },
     {

@@ -37,12 +37,21 @@
     "@beep/utils": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@beep/shared-domain": "workspace:^",
+    "@beep/identity": "workspace:^",
     "@beep/files-domain": "workspace:^",
     "drizzle-orm": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
-    "@beep/types": "workspace:^"
+    "@beep/types": "workspace:^",
+    "@beep/shared-tables": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/files-domain": "workspace:^",
+    "drizzle-orm": "catalog:"
   },
   "effect": {
     "generateExports": {

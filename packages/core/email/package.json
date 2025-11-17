@@ -35,6 +35,7 @@
   "peerDependencies": {
     "@beep/core-env": "workspace:^",
     "@beep/constants": "workspace:^",
+    "@beep/identity": "workspace:^",
     "@beep/errors": "workspace:^",
     "effect": "catalog:",
     "@beep/ui": "workspace:^",
@@ -62,6 +63,7 @@
     "@beep/errors": "workspace:^",
     "effect": "catalog:",
     "@beep/ui": "workspace:^",
+    "@beep/identity": "workspace:^",
     "@react-email/components": "catalog:",
     "@react-email/render": "catalog:",
     "react": "catalog:",

@@ -10,25 +10,23 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Tuple from "effect/Tuple";
+import { CustomId } from "./_id";
 
-export class RGBNumberPart extends S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(255)).annotations({
-  schemaId: Symbol.for("@beep/schema/RGBNumberPart"),
-  identifier: "RGBNumberPart",
-  title: "RGB Number Part",
-  description: "RGB Number Part",
-}) {}
+const Id = CustomId.compose("rgb");
+export class RGBNumberPart extends S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(255)).annotations(
+  Id.annotations("RGBNumberPart", {
+    description: "RGB Number Part",
+  })
+) {}
 
 export class TaggedRGBNumberPart extends S.TaggedClass<TaggedRGBNumberPart>("TaggedRGBNumberPart")(
   "RGBNumberPart",
   {
     value: RGBNumberPart,
   },
-  {
-    schemaId: Symbol.for("@beep/schema/TaggedRGBNumberPart"),
-    identifier: "TaggedRGBNumberPart",
-    title: "Tagged RGB Number Part",
+  Id.annotations("TaggedRGBNumberPart", {
     description: "Tagged RGB Number Part",
-  }
+  })
 ) {}
 
 export declare namespace TaggedRGBNumberPart {
@@ -48,24 +46,20 @@ export class RGBPercentPart extends S.String.pipe(
       })
     )
   )
-).annotations({
-  schemaId: Symbol.for("@beep/schema/RGBPercentPart"),
-  identifier: "RGBPercentPart",
-  title: "RGB Percent Part",
-  description: "RGB Percent Part. (0-100%)",
-}) {}
+).annotations(
+  Id.annotations("RGBPercentPart", {
+    description: "RGB Percent Part. (0-100%)",
+  })
+) {}
 
 export class TaggedRGBPercentPart extends S.TaggedClass<TaggedRGBPercentPart>("TaggedRGBPercentPart")(
   "RGBPercentPart",
   {
     value: RGBPercentPart,
   },
-  {
-    schemaId: Symbol.for("@beep/schema/TaggedRGBPercentPart"),
-    identifier: "TaggedRGBPercentPart",
-    title: "Tagged RGB Percent Part",
+  Id.annotations("TaggedRGBPercentPart", {
     description: "Tagged RGB Percent Part",
-  }
+  })
 ) {}
 
 export declare namespace TaggedRGBPercentPart {
@@ -73,12 +67,11 @@ export declare namespace TaggedRGBPercentPart {
   export type Encoded = typeof TaggedRGBPercentPart.Encoded;
 }
 
-export class RGBPart extends S.Union(RGBPercentPart, RGBNumberPart).annotations({
-  schemaId: Symbol.for("@beep/schema/RGBPart"),
-  identifier: "RGBPart",
-  title: "RGB Part",
-  description: "RGB Part",
-}) {}
+export class RGBPart extends S.Union(RGBPercentPart, RGBNumberPart).annotations(
+  Id.annotations("RGBPart", {
+    description: "RGB Part",
+  })
+) {}
 
 export class DiscriminatedRGBPart extends S.Union(
   S.transform(RGBNumberPart, TaggedRGBNumberPart, {
@@ -91,12 +84,11 @@ export class DiscriminatedRGBPart extends S.Union(
     decode: (i) => ({ _tag: "RGBPercentPart" as const, value: i }) as const,
     encode: (i) => i.value,
   })
-).annotations({
-  schemaId: Symbol.for("@beep/schema/DiscriminatedRGBPart"),
-  identifier: "DiscriminatedRGBPart",
-  title: "Discriminated RGB Part",
-  description: "Discriminated RGB Part",
-}) {}
+).annotations(
+  Id.annotations("DiscriminatedRGBPart", {
+    description: "Discriminated RGB Part",
+  })
+) {}
 
 export declare namespace RGBPart {
   export type Type = typeof RGBPart.Type;
@@ -124,12 +116,11 @@ export declare namespace RGBLiteralValueEncoded {
 //
 // )
 
-export class RGBValuesTuple extends S.Tuple(RGBPart, RGBPart, RGBPart).annotations({
-  schemaId: Symbol.for("@beep/schema/RGBValuesTuple"),
-  identifier: "RGBValuesTuple",
-  title: "RGB Values Tuple",
-  description: "RGB Values Tuple",
-}) {}
+export class RGBValuesTuple extends S.Tuple(RGBPart, RGBPart, RGBPart).annotations(
+  Id.annotations("RGBValuesTuple", {
+    description: "RGB Values Tuple",
+  })
+) {}
 
 export declare namespace RGBValuesTuple {
   export type Type = typeof RGBValuesTuple.Type;
@@ -177,12 +168,11 @@ const isRGBLiteralValue = (i: unknown): i is `${RGBPart.Type} ${RGBPart.Type} ${
 
 export class RGBLiteralValue extends S.declare(isRGBLiteralValue)
   .pipe(S.brand("RGBLiteralValue"))
-  .annotations({
-    schemaId: Symbol.for("@beep/schema/RGBLiteralValue"),
-    identifier: "RGBLiteralValue",
-    title: "RGB Literal Value ",
-    description: "RGB Literal Value ",
-  }) {
+  .annotations(
+    Id.annotations("RGBLiteralValue", {
+      description: "RGB Literal Value ",
+    })
+  ) {
   static readonly toCssRGB = (i: RGBLiteralValue.Encoded): `rgb(${RGBPart.Type} ${RGBPart.Type} ${RGBPart.Type})` =>
     `rgb(${i})` as const;
 }
@@ -200,12 +190,11 @@ export class RGBLiteralValueFromString extends S.transformOrFail(S.NonEmptyTrimm
       catch: () => new ParseResult.Type(ast, i, "Invalid RGB literal value"),
     }),
   encode: (i) => ParseResult.succeed(i),
-}).annotations({
-  schemaId: Symbol.for("@beep/schema/RGBLiteralValueFromString"),
-  identifier: "RGBLiteralValueFromString",
-  title: "RGB Literal Value From String",
-  description: "RGB Literal Value From String",
-}) {}
+}).annotations(
+  Id.annotations("RGBLiteralValueFromString", {
+    description: "RGB Literal Value From String",
+  })
+) {}
 
 export declare namespace RGBLiteralValueFromString {
   export type Type = typeof RGBLiteralValueFromString.Type;
@@ -224,12 +213,11 @@ export class RGBLiteralValueFromTuple extends S.transformOrFail(RGBValuesTuple, 
       try: () => S.decodeUnknownSync(RGBValuesTuple)(Str.split(/\s+/)(Str.trim(i))),
       catch: () => new ParseResult.Type(ast, i, "Invalid RGB literal value from tuple"),
     }),
-}).annotations({
-  schemaId: Symbol.for("@beep/schema/RGBLiteralValueFromTuple"),
-  identifier: "RGBLiteralValueFromTuple",
-  title: "RGB Literal Value From Tuple",
-  description: "RGB Literal Value From Tuple",
-}) {}
+}).annotations(
+  Id.annotations("RGBLiteralValueFromTuple", {
+    description: "RGB Literal Value From Tuple",
+  })
+) {}
 
 export declare namespace RGBLiteralValueFromTuple {
   export type Type = typeof RGBLiteralValueFromTuple.Type;

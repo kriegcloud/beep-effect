@@ -1,7 +1,9 @@
 import * as regexes from "@beep/schema/regexes";
 import type * as B from "effect/Brand";
 import * as S from "effect/Schema";
+import { CustomId } from "./_id";
 
+const Id = CustomId.compose("ip");
 /**
  * @spec Non-empty, trimmed, branded `"IP"` string that matches IPv4/IPv6.
  * IP address schema (IPv4 or IPv6) and helpers.
@@ -25,12 +27,12 @@ import * as S from "effect/Schema";
 export const IPv4 = S.NonEmptyString.pipe(
   S.pattern(regexes.ipv4, { message: () => "Must be a valid IPv4 address" }),
   S.brand("IPv4")
-).annotations({
-  identifier: "IPv4",
-  title: "IPv4",
-  description: "A valid IP address IPv4",
-  arbitrary: () => (fc) => fc.oneof(fc.ipV4(), fc.ipV4Extended()).map((_) => _ as B.Branded<string, "IPv4">),
-});
+).annotations(
+  Id.annotations("IPv4", {
+    description: "A valid IP address IPv4",
+    arbitrary: () => (fc) => fc.oneof(fc.ipV4(), fc.ipV4Extended()).map((_) => _ as B.Branded<string, "IPv4">),
+  })
+);
 
 export declare namespace IPv4 {
   export type Type = S.Schema.Type<typeof IPv4>;
@@ -40,24 +42,24 @@ export declare namespace IPv4 {
 export const IPv6 = S.NonEmptyString.pipe(
   S.pattern(regexes.ipv6, { message: () => "Must be a valid IPv6 address" }),
   S.brand("IPv6")
-).annotations({
-  identifier: "IPv6",
-  title: "IPv6",
-  description: "A valid IP address IPv6",
-  arbitrary: () => (fc) => fc.ipV6().map((_) => _ as B.Branded<string, "IPv6">),
-});
+).annotations(
+  Id.annotations("IPv6", {
+    description: "A valid IP address IPv6",
+    arbitrary: () => (fc) => fc.ipV6().map((_) => _ as B.Branded<string, "IPv6">),
+  })
+);
 
 export declare namespace IPv6 {
   export type Type = S.Schema.Type<typeof IPv6>;
   export type Encoded = S.Schema.Encoded<typeof IPv6>;
 }
 
-export const IP = S.Union(IPv4, IPv6).annotations({
-  identifier: "IP",
-  title: "IP",
-  description: "A valid IP address (IPv4 or IPv6)",
-  arbitrary: () => (fc) => fc.oneof(fc.ipV4(), fc.ipV6()).map((_) => (S.is(IPv4)(_) ? IPv4.make(_) : IPv6.make(_))),
-});
+export const IP = S.Union(IPv4, IPv6).annotations(
+  Id.annotations("IP", {
+    description: "A valid IP address (IPv4 or IPv6)",
+    arbitrary: () => (fc) => fc.oneof(fc.ipV4(), fc.ipV6()).map((_) => (S.is(IPv4)(_) ? IPv4.make(_) : IPv6.make(_))),
+  })
+);
 
 export declare namespace IP {
   /** IP value type. */

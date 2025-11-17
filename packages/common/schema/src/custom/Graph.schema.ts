@@ -1,17 +1,27 @@
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { CustomId } from "./_id";
 
+const Id = CustomId.compose("graph");
 // Schema-based edge direction transformation
 const EdgeDirectionInput = S.Struct({
   idA: S.String,
   idB: S.String,
-});
+}).annotations(
+  Id.annotations("EdgeDirectionInput", {
+    description: "Input schema for edge direction transformation",
+  })
+);
 
 const EdgeDirectionOutput = S.Struct({
   source: S.String,
   target: S.String,
-});
+}).annotations(
+  Id.annotations("EdgeDirectionOutput", {
+    description: "Output schema for edge direction transformation",
+  })
+);
 
 export const EdgeDirectionSchema = S.transformOrFail(EdgeDirectionInput, EdgeDirectionOutput, {
   decode: ({ idA, idB }, _options, ast) => {
@@ -44,4 +54,8 @@ export const EdgeDirectionSchema = S.transformOrFail(EdgeDirectionInput, EdgeDir
   },
   encode: ({ source, target }) => ParseResult.succeed({ idA: source, idB: target }),
   strict: true,
-});
+}).annotations(
+  Id.annotations("EdgeDirectionSchema", {
+    description: "Schema-based edge direction transformation",
+  })
+);

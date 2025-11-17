@@ -25,6 +25,7 @@
     "@beep/core-env": "workspace:^",
     "@beep/errors": "workspace:^",
     "@beep/files-domain": "workspace:^",
+    "@beep/identity": "workspace:^",
     "@beep/files-infra": "workspace:^",
     "@beep/files-sdk": "workspace:^",
     "@beep/files-tables": "workspace:^",

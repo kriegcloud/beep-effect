@@ -34,7 +34,9 @@
     "generate-public-paths": "bun run dotenvx -- bunx tsx src/generate-asset-paths.ts",
     "gen:locales": "bun run dotenvx -- bunx tsx src/generate-locales.ts",
     "iconify": "bunx dotenvx run -f ../../.env -- bun run ./src/iconify/index.ts",
-    "purge": "bun src/purge.ts"
+    "purge": "bun src/purge.ts",
+    "docs:lint": "bunx tsx ./src/run-docs-lint.ts",
+    "docs:lint:file": "bunx tsx ./src/run-docs-lint.ts --file"
   },
   "dependencies": {
     "@beep/utils": "workspace:^",

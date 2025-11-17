@@ -1,7 +1,39 @@
+/**
+ * Debounce implementation backing `Utils.debounce`, ensuring docs capture the
+ * available options and return signature through the namespace.
+ *
+ * @example
+ * import type * as FooTypes from "@beep/types/common.types";
+ * import * as Utils from "@beep/utils";
+ *
+ * const timingDebounceLogger = Utils.debounce(() => {}, 200);
+ * timingDebounceLogger();
+ * const timingDebouncePending: FooTypes.Prettify<boolean> = timingDebounceLogger.pending();
+ * void timingDebouncePending;
+ *
+ * @category Documentation/Modules
+ * @since 0.1.0
+ */
 import * as Duration from "effect/Duration";
 
 type AnyFunction = (this: unknown, ...args: readonly unknown[]) => unknown;
 
+/**
+ * Runtime type for functions returned by `debounce`.
+ *
+ * @example
+ * import type { DebouncedFunc } from "@beep/utils/timing/debounce";
+ * import { debounce } from "@beep/utils/timing/debounce";
+ *
+ * const timingDebounceHandler = function (this: unknown, ...args: ReadonlyArray<unknown>) {
+ *   void args;
+ * };
+ * const fn: DebouncedFunc<typeof timingDebounceHandler> = debounce(timingDebounceHandler, 200);
+ * void fn.pending();
+ *
+ * @category Timing/Debounce
+ * @since 0.1.0
+ */
 export interface DebouncedFunc<T extends AnyFunction> {
   (...args: Parameters<T>): ReturnType<T>;
   cancel(): void;
@@ -9,6 +41,17 @@ export interface DebouncedFunc<T extends AnyFunction> {
   pending(): boolean;
 }
 
+/**
+ * Options controlling when the debounced function fires.
+ *
+ * @example
+ * import type { DebounceOptions } from "@beep/utils/timing/debounce";
+ *
+ * const options: DebounceOptions = { leading: true };
+ *
+ * @category Timing/Debounce
+ * @since 0.1.0
+ */
 export interface DebounceOptions {
   readonly leading?: boolean | undefined;
   readonly trailing?: boolean | undefined;
@@ -25,6 +68,18 @@ const cancelTimer = (id: ReturnType<typeof setTimeout> | undefined) => {
   }
 };
 
+/**
+ * Creates a debounced version of a function that delays invocation until after
+ * a wait period passes (optional leading/trailing behavior).
+ *
+ * @example
+ * import { debounce } from "@beep/utils/timing/debounce";
+ *
+ * const onResize = debounce(() => console.log("resize"), 200);
+ *
+ * @category Timing/Debounce
+ * @since 0.1.0
+ */
 export const debounce = <T extends AnyFunction>(
   func: T,
   wait: Duration.DurationInput = 0,

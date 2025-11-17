@@ -8,19 +8,21 @@ import * as Effect from "effect/Effect";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { CustomId } from "./_id";
 
+const Id = CustomId.compose("json");
 /**
  * JSON literal values (primitives accepted by JSON).
  *
  * @since 0.1.0
  * @category JSON
  */
-export const JsonLiteral = S.Union(S.String, S.Number, S.Boolean, S.Null).annotations({
-  identifier: "JsonLiteral",
-  title: "JSON literal",
-  description: "JSON literal values (primitives accepted by JSON)",
-  arbitrary: () => (fc) => fc.oneof(fc.string(), fc.float(), fc.integer(), fc.boolean(), fc.constant(null)),
-});
+export const JsonLiteral = S.Union(S.String, S.Number, S.Boolean, S.Null).annotations(
+  Id.annotations("JsonLiteral", {
+    description: "JSON literal values (primitives accepted by JSON)",
+    arbitrary: () => (fc) => fc.oneof(fc.string(), fc.float(), fc.integer(), fc.boolean(), fc.constant(null)),
+  })
+);
 export declare namespace JsonLiteral {
   export type Type = typeof JsonLiteral.Type;
   export type Encoded = typeof JsonLiteral.Encoded;
@@ -53,11 +55,11 @@ export declare namespace JsonLiteral {
  */
 export class Json extends S.suspend(
   (): S.Schema<Json.Type> => S.Union(JsonLiteral, S.Array(Json), S.Record({ key: S.String, value: Json }))
-).annotations({
-  identifier: "Json",
-  title: "Json",
-  description: "A Valid JSON",
-}) {
+).annotations(
+  Id.annotations("Json", {
+    description: "A Valid JSON",
+  })
+) {
   static readonly decodeSync = S.decodeSync(Json);
   static readonly encodeSync = S.encodeSync(Json);
 }
@@ -90,12 +92,12 @@ export const equalsJson: (a: Json.Type, b: Json.Type) => boolean = S.equivalence
 /**
  * https://www.ietf.org/archive/id/draft-goessner-dispatch-jsonpath-00.html
  */
-export class JsonPath extends S.String.pipe(S.pattern(path_regex), S.brand("JsonPath")).annotations({
-  identifier: "JsonPath",
-  title: "JSON path",
-  description: "JSON path to a property",
-  arbitrary: () => (fc) => fc.constantFrom(null).map(() => faker.database.column() as B.Branded<string, "JsonPath">),
-}) {
+export class JsonPath extends S.String.pipe(S.pattern(path_regex), S.brand("JsonPath")).annotations(
+  Id.annotations("JsonPath", {
+    description: "JSON path to a property",
+    arbitrary: () => (fc) => fc.constantFrom(null).map(() => faker.database.column() as B.Branded<string, "JsonPath">),
+  })
+) {
   static readonly is = (value: unknown): value is JsonPath.Type => O.isSome(S.validateOption(JsonPath)(value));
   /**
    * Creates a JsonPath from an array of path segments.
@@ -152,6 +154,10 @@ export class JsonProp extends S.NonEmptyString.pipe(
   S.pattern(prop_regex, {
     message: () => "Property name must contain only letters, numbers, and underscores",
   })
+).annotations(
+  Id.annotations("JsonProp", {
+    description: "Property name must contain only letters, numbers, and underscores",
+  })
 ) {
   static readonly is = (value: unknown): value is JsonProp.Type => O.isSome(S.validateOption(JsonProp)(value));
 }
@@ -194,7 +200,11 @@ export const JsonStringToStringArray = S.transformOrFail(S.Union(S.String, S.Arr
     }),
   encode: (array) => Effect.succeed(JSON.stringify(array)),
   strict: true,
-});
+}).annotations(
+  Id.annotations("JsonStringToStringArray", {
+    description: "Schema transformer that converts JSON string or Array<string> to Array<string> and vice versa.",
+  })
+);
 
 /**
  * Generic JSON string to array transformer that handles both JSON strings and arrays.
@@ -238,4 +248,8 @@ export const JsonStringToArray = <A>(itemSchema: S.Schema<A, UnsafeTypes.UnsafeA
       }),
     encode: (array) => Effect.succeed(JSON.stringify(array)),
     strict: true,
-  });
+  }).annotations(
+    Id.annotations("JsonStringToArray", {
+      description: "Schema transformer that converts JSON string or Array<string> to Array<string> and vice versa.",
+    })
+  );

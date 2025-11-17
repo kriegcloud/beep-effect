@@ -1,5 +1,8 @@
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+import { CustomId } from "./_id";
+
+const Id = CustomId.compose("password");
 export class EncodedPassword extends S.NonEmptyString.pipe(
   S.minLength(8, {
     message: () => "Password must be at least 8 characters long!",
@@ -19,16 +22,19 @@ export class EncodedPassword extends S.NonEmptyString.pipe(
   S.pattern(/[!@#$%^&*(),.?":{}|<>\\[\]/`~;'_+=-]/, {
     message: () => "Password must contain at least one special character!",
   })
+).annotations(
+  Id.annotations("EncodedPassword", {
+    description: "Encoded password schema",
+  })
 ) {}
 
 export class PasswordBase extends EncodedPassword.pipe(S.brand("Password")) {}
 
-export class Password extends S.Redacted(PasswordBase).annotations({
-  schemaId: Symbol.for("@beep/schema/custom/Password"),
-  identifier: "Password",
-  description: "Redacted Password Schema",
-  title: "Password",
-}) {
+export class Password extends S.Redacted(PasswordBase).annotations(
+  Id.annotations("Password", {
+    description: "Redacted Password Schema",
+  })
+) {
   static readonly make = (v: string): Password.Type => Redacted.make(PasswordBase.make(v));
 }
 

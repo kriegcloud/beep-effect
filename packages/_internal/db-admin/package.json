@@ -40,6 +40,7 @@
     "@beep/invariant": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/identity": "workspace:^",
     "@beep/constants": "workspace:^",
     "@beep/errors": "workspace:^",
     "@beep/shared-domain": "workspace:^",

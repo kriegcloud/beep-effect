@@ -1,0 +1,85 @@
+{
+  "name": "@beep/schema-v2",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "A library for `effect/Schema` stuff",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/schema-v2",
+  "publishConfig": {
+    "access": "restricted",
+    "directory": "build"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/common/schema"
+  },
+  "scripts": {
+    "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
+    "dev": "tsc -b tsconfig.build.json --watch",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "bun test",
+    "coverage": "bun test --coverage",
+    "docgen": "bunx docgen",
+    "lint": "biome check .",
+    "dotenvx": "dotenvx run -f ../../../.env --",
+    "lint:fix": "biome check . --write",
+    "execute": "bun run dotenvx -- bunx tsx --tsconfig ./tsconfig.src.json ./src/execute.ts",
+    "lint:circular": "bunx madge -c ."
+  },
+  "peerDependencies": {
+    "effect": "catalog:",
+    "@beep/invariant": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@faker-js/faker": "catalog:",
+    "@standard-schema/spec": "catalog:",
+    "@effect/sql": "catalog:",
+    "drizzle-orm": "catalog:",
+    "@effect/experimental": "catalog:",
+    "mutative": "catalog:",
+    "zod": "catalog:",
+    "uuid": "catalog:",
+    "randexp-ts": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/docgen": "catalog:",
+    "@beep/types": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "effect": "catalog:",
+    "@beep/invariant": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@faker-js/faker": "catalog:",
+    "@standard-schema/spec": "catalog:",
+    "@effect/sql": "catalog:",
+    "drizzle-orm": "catalog:",
+    "@effect/experimental": "catalog:",
+    "mutative": "catalog:",
+    "zod": "catalog:",
+    "uuid": "catalog:",
+    "randexp-ts": "catalog:",
+    "type-fest": "catalog:",
+    "@beep/testkit": "workspace:^",
+    "@types/bun": "catalog:"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}

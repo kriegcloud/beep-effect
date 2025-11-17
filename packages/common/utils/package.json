@@ -4,6 +4,7 @@
   "type": "module",
   "license": "MIT",
   "description": "A library for common utility functions",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/utils",
   "publishConfig": {
     "access": "restricted",
     "directory": "build"
@@ -21,6 +22,7 @@
   "scripts": {
     "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
     "dev": "tsc -b tsconfig.build.json --watch",
+    "docgen": "bunx docgen",
     "build-esm": "tsc -b tsconfig.build.json",
     "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
     "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
@@ -46,6 +48,7 @@
     "@beep/testkit": "workspace:^",
     "@beep/types": "workspace:^",
     "@types/bun": "catalog:",
+    "@effect/docgen": "catalog:",
     "tsx": "catalog:"
   },
   "effect": {

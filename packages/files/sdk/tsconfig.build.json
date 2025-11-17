@@ -2,7 +2,6 @@
   "extends": "./tsconfig.src.json",
   "compilerOptions": {
     "types": ["node", "bun"],
-
     "outDir": "build/esm",
     "declarationDir": "build/dts",
     "jsx": "react-jsx",
@@ -22,6 +21,9 @@
     },
     {
       "path": "../../core/env/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/identity/tsconfig.build.json"
     },
     {
       "path": "../../common/schema/tsconfig.build.json"

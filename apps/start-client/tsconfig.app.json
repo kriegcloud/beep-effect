@@ -22,7 +22,7 @@
     "jsx": "react-jsx",
     "moduleResolution": "NodeNext",
     "allowImportingTsExtensions": true,
-    "noEmit": true,
+    "noEmit": false,
 
     // Emit source- & declaration maps.
     "declarationMap": true,

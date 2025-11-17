@@ -3,44 +3,46 @@ import * as F from "effect/Function";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { Id } from "./_id";
 
-export const DateTimeUtcByInstantSchemaId = Symbol.for("@beep/schema/custom/DateTimeUtcByInstant");
-
-const DateTimeUtcByInstant = S.DateTimeUtcFromSelf.annotations({
-  equivalence: () => (a: DateTime.Utc, b: DateTime.Utc) =>
-    DateTime.toDate(a).getTime() === DateTime.toDate(b).getTime(),
-  jsonSchema: {
-    type: "string",
-    format: "date-time",
-  },
-  schemaId: DateTimeUtcByInstantSchemaId,
-});
-
-export const AllAcceptableDateInputsSchemaId = Symbol.for("@beep/schema/custom/AllAcceptableDateInputs");
+const DateTimeUtcByInstant = S.DateTimeUtcFromSelf.annotations(
+  Id.annotations("DateTimeUtcByInstant", {
+    equivalence: () => (a: DateTime.Utc, b: DateTime.Utc) =>
+      DateTime.toDate(a).getTime() === DateTime.toDate(b).getTime(),
+    jsonSchema: {
+      type: "string",
+      format: "date-time",
+    },
+  })
+);
 
 export const AllAcceptableDateInputs = S.Union(
-  S.DateFromSelf.annotations({
-    jsonSchema: {
-      type: "string",
-      format: "date-time",
-    },
-  }),
-  S.DateFromString.annotations({
-    jsonSchema: {
-      type: "string",
-      format: "date-time",
-    },
-  }),
-  S.DateFromNumber.annotations({
-    jsonSchema: {
-      type: "number",
-      format: "timestamp",
-    },
-  }),
+  S.DateFromSelf.annotations(
+    Id.annotations("AllAcceptableDateInputs/DateFromSelf", {
+      jsonSchema: {
+        type: "string",
+        format: "date-time",
+      },
+    })
+  ),
+  S.DateFromString.annotations(
+    Id.annotations("AllAcceptableDateInputs/DateFromString", {
+      jsonSchema: {
+        type: "string",
+        format: "date-time",
+      },
+    })
+  ),
+  S.DateFromNumber.annotations(
+    Id.annotations("AllAcceptableDateInputs/DateFromNumber", {
+      jsonSchema: {
+        type: "number",
+        format: "timestamp",
+      },
+    })
+  ),
   DateTimeUtcByInstant
-).annotations({
-  schemaId: AllAcceptableDateInputsSchemaId,
-});
+).annotations(Id.annotations("AllAcceptableDateInputs", {}));
 export declare namespace AllAcceptableDateInputs {
   export type Type = typeof AllAcceptableDateInputs.Type;
   export type Encoded = typeof AllAcceptableDateInputs.Encoded;
@@ -54,12 +56,14 @@ export const DateFromAllAcceptable = S.transformOrFail(AllAcceptableDateInputs, 
       catch: () => new ParseResult.Type(ast, i, "Invalid date"),
     }),
   encode: (i, _) => ParseResult.succeed(i),
-}).annotations({
-  jsonSchema: {
-    type: "string",
-    format: "date-time",
-  },
-});
+}).annotations(
+  Id.annotations("DateFromAllAcceptable", {
+    jsonSchema: {
+      type: "string",
+      format: "date-time",
+    },
+  })
+);
 
 export declare namespace DateFromAllAcceptable {
   export type Type = typeof DateFromAllAcceptable.Type;
@@ -85,12 +89,14 @@ export const DateTimeUtcFromAllAcceptable = S.transformOrFail(
     encode: (i, _, ast) =>
       ParseResult.fail(new ParseResult.Forbidden(ast, i, "Encoding dates back to plain text is forbidden.")),
   }
-).annotations({
-  jsonSchema: {
-    type: "string",
-    format: "date-time",
-  },
-});
+).annotations(
+  Id.annotations("DateTimeUtcFromAllAcceptable", {
+    jsonSchema: {
+      type: "string",
+      format: "date-time",
+    },
+  })
+);
 
 export declare namespace DateTimeUtcFromAllAcceptable {
   export type Type = typeof DateTimeUtcFromAllAcceptable.Type;
@@ -104,4 +110,4 @@ export const IsoStringToTimestamp = S.transform(S.Union(S.String, S.Number), S.N
   decode: (input: string | number) => new Date(input).getTime(),
   encode: normalizeIsoString,
   strict: true,
-});
+}).annotations(Id.annotations("ISOStringToTimestamp", {}));

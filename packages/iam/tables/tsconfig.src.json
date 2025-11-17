@@ -15,6 +15,9 @@
       "path": "../../common/utils"
     },
     {
+      "path": "../../common/identity"
+    },
+    {
       "path": "../../common/invariant"
     },
     {

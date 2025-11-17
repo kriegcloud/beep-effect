@@ -1,5 +1,7 @@
+import { Id } from "@beep/schema/custom/location/_id";
 import type * as S from "effect/Schema";
 import { stringLiteralKit } from "../../kits";
+
 export const CountryCodeKit = stringLiteralKit(
   "AF",
   "AL",
@@ -253,12 +255,11 @@ export const CountryCodeKit = stringLiteralKit(
   "XK"
 );
 
-export class CountryCode extends CountryCodeKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/custom/location/CountryCode"),
-  identifier: "CountryCode",
-  title: "Country Code",
-  description: "A valid ISO 3166-1 alpha-2 country code",
-}) {
+export class CountryCode extends CountryCodeKit.Schema.annotations(
+  Id.annotations("CountryCode", {
+    description: "A valid ISO 3166-1 alpha-2 country code",
+  })
+) {
   static readonly Options = CountryCodeKit.Options;
   static readonly Enum = CountryCodeKit.Enum;
 }

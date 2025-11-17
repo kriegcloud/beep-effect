@@ -1,6 +1,6 @@
 import * as S from "effect/Schema";
 import { stringLiteralKit } from "../../kits";
-
+import { Id } from "./_id";
 export const CountryNameKit = stringLiteralKit(
   "Afghanistan",
   "Albania",
@@ -254,12 +254,11 @@ export const CountryNameKit = stringLiteralKit(
   "Kosovo"
 );
 
-export class CountryName extends CountryNameKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/custom/location/CountryFromCode/CountryName"),
-  identifier: "CountryName",
-  title: "Country Name",
-  description: "Represents a country name",
-}) {
+export class CountryName extends CountryNameKit.Schema.annotations(
+  Id.annotations("CountryName", {
+    description: "Represents a country name",
+  })
+) {
   static readonly Options = CountryNameKit.Options;
   static readonly Enum = CountryNameKit.Enum;
 }
@@ -520,6 +519,10 @@ export class CountryFromCode extends S.transformLiterals(
   ["SX", "Sint Maarten (Dutch part)"],
   ["SS", "South Sudan"],
   ["XK", "Kosovo"]
+).annotations(
+  Id.annotations("CountryFromCode", {
+    description: "Represents a country name",
+  })
 ) {}
 
 export declare namespace CountryFromCode {

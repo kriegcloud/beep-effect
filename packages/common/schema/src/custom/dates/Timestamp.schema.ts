@@ -1,5 +1,6 @@
 import { Regex } from "@beep/schema/custom/Regex.schema";
 import * as S from "effect/Schema";
+import { Id } from "./_id";
 
 /**
  * Schema transformer that converts timestamp (number) or ISO string to ISO string and vice versa.
@@ -16,4 +17,8 @@ import * as S from "effect/Schema";
 export const TimestampToIsoString = S.transform(S.Union(S.Number, S.String), S.String, {
   decode: (input) => new Date(input).toISOString().replace(Regex.make(/\.\d{3}Z$/), "Z"),
   encode: (isoString) => new Date(isoString).toISOString().replace(Regex.make(/\.\d{3}Z$/), "Z"),
-});
+}).annotations(
+  Id.annotations("TimestampToIsoString", {
+    description: "Schema transformer that converts timestamp (number) or ISO string to ISO string and vice versa.",
+  })
+);

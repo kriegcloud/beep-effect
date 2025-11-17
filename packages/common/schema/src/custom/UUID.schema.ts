@@ -1,7 +1,9 @@
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import { v4 as uuid } from "uuid";
+import { CustomId } from "./_id";
 
+const Id = CustomId.compose("custom");
 export const BrandedUUID = <const Brand extends string>(brand: Brand) => S.UUID.pipe(S.brand(brand));
 // todo should be check for length on these string but `S.TemplateLiteral` doesn't support it yet.
 export class UUIDLiteralEncoded extends S.TemplateLiteral(
@@ -14,12 +16,11 @@ export class UUIDLiteralEncoded extends S.TemplateLiteral(
   S.String,
   "-",
   S.String
-).annotations({
-  schemaId: Symbol.for("@beep/schema/custom/UUIDLiteralEncoded"),
-  identifier: "UUIDLiteralEncoded",
-  title: "UUID Literal Encoded",
-  description: "UUID Literal Encoded",
-}) {
+).annotations(
+  Id.annotations("UUIDLiteralEncoded", {
+    description: "UUID Literal Encoded",
+  })
+) {
   static readonly create = (): UUIDLiteralEncoded.Type => uuid() as `${string}-${string}-${string}-${string}-${string}`;
 }
 
@@ -40,7 +41,11 @@ export class UUIDLiteral extends S.transformOrFail(UUIDLiteralEncoded, S.UUID, {
       try: () => S.decodeUnknownSync(UUIDLiteralEncoded)(i),
       catch: () => new ParseResult.Type(ast, i, "Invalid UUID"),
     }),
-}) {
+}).annotations(
+  Id.annotations("UUIDLiteral", {
+    description: "UUID Literal",
+  })
+) {
   static readonly create: () => UUIDLiteral.Type = () => UUIDLiteralEncoded.create();
 }
 

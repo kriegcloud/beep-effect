@@ -1,3 +1,21 @@
+/**
+ * Implements the `Utils.ArrayUtils.orderBy` helper that powers stable sorting
+ * over arbitrary iteratees and direction tokens exposed through the namespace.
+ *
+ * @example
+ * import type * as FooTypes from "@beep/types/common.types";
+ * import * as Utils from "@beep/utils";
+ *
+ * const orderByModuleItems: FooTypes.Prettify<Array<{ priority: number }>> = [
+ *   { priority: 3 },
+ *   { priority: 1 },
+ * ];
+ * const orderByModuleSorted = Utils.ArrayUtils.orderBy(orderByModuleItems, ["priority"], ["asc"]);
+ * void orderByModuleSorted;
+ *
+ * @category Documentation/Modules
+ * @since 0.1.0
+ */
 import { getNestedValue } from "@beep/utils/data/string.utils";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
@@ -5,10 +23,49 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Str from "effect/String";
 
+/**
+ * Supported direction tokens for `orderBy` comparisons.
+ *
+ * @example
+ * import type { OrderDirection } from "@beep/utils/data/array.utils/order-by";
+ *
+ * const dir: OrderDirection = "asc";
+ *
+ * @category Data/Array
+ * @since 0.1.0
+ */
 export type OrderDirection = "asc" | "desc";
 
+/**
+ * Defines how to read a value from each collection entry—either via accessor
+ * function or a string path consumed by `getNestedValue`.
+ *
+ * @example
+ * import type { OrderIteratee } from "@beep/utils/data/array.utils/order-by";
+ *
+ * const iteratee: OrderIteratee<{ id: number }> = "id";
+ *
+ * @category Data/Array
+ * @since 0.1.0
+ */
 export type OrderIteratee<T> = ((item: T) => unknown) | string;
 
+/**
+ * Orders a collection by one or more iteratees while keeping undefined/null
+ * values stable at the end.
+ *
+ * @example
+ * import { ArrayUtils } from "@beep/utils";
+ *
+ * const sorted = ArrayUtils.orderBy(
+ *   [{ name: "b" }, { name: "a" }],
+ *   ["name"],
+ *   ["asc"]
+ * );
+ *
+ * @category Data/Array
+ * @since 0.1.0
+ */
 export const orderBy = <T>(
   collection: ReadonlyArray<T>,
   iteratees: ReadonlyArray<OrderIteratee<T>>,

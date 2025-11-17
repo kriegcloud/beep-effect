@@ -1,3 +1,20 @@
+/**
+ * Implementation backing `Utils.ObjectUtils.deepMerge`, detailing how the
+ * helper defends against unsafe properties and preserves literal inference.
+ *
+ * @example
+ * import type * as FooTypes from "@beep/types/common.types";
+ * import * as Utils from "@beep/utils";
+ *
+ * const objectUtilsModuleBase: FooTypes.Prettify<{ theme: { mode: string } }> = { theme: { mode: "light" } };
+ * const objectUtilsModuleMerged = Utils.ObjectUtils.deepMerge(objectUtilsModuleBase, {
+ *   theme: { accent: "blue" },
+ * });
+ * void objectUtilsModuleMerged;
+ *
+ * @category Documentation/Modules
+ * @since 0.1.0
+ */
 import { isUnsafeProperty } from "@beep/utils/guards";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
@@ -48,6 +65,18 @@ type DeepMergeAll<Target, Sources extends ReadonlyArray<object>> = Sources exten
     : Target
   : Target;
 
+/**
+ * Result type produced by `deepMerge`, preserving literal structure when
+ * merging a target with one or more sources.
+ *
+ * @example
+ * import type { DeepMergeResult } from "@beep/utils/data/object.utils/deep-merge";
+ *
+ * type Output = DeepMergeResult<{ a: number }, [{ b: string }]>;
+ *
+ * @category Data/Object
+ * @since 0.1.0
+ */
 export type DeepMergeResult<Target extends object, Sources extends ReadonlyArray<object>> = Simplify<
   DeepMergeAll<Target, Sources>
 >;
@@ -146,10 +175,20 @@ const cloneTarget = (target: PlainRecord): PlainRecord =>
   );
 
 /**
- * Deeply merges objects and arrays without mutating the inputs.
- * - `undefined` values in sources do not overwrite defined target values.
- * - Arrays are merged by index, preserving the behavior of the previous external helper.
- * - Plain objects are merged recursively.
+ * Deeply merges objects and arrays without mutating inputs, skipping unsafe
+ * properties and `undefined` source values.
+ *
+ * Arrays merge by index, plain objects merge recursively, and primitives from
+ * later sources overwrite earlier ones.
+ *
+ * @example
+ * import { ObjectUtils } from "@beep/utils";
+ *
+ * const result = ObjectUtils.deepMerge({ a: { x: 1 } }, { a: { y: 2 } });
+ * // { a: { x: 1, y: 2 } }
+ *
+ * @category Data/Object
+ * @since 0.1.0
  */
 export function deepMerge<Target extends object, const Sources extends ReadonlyArray<object>>(
   target: Target,

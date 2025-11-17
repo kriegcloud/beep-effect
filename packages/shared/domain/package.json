@@ -42,6 +42,7 @@
     "@beep/errors": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@effect/experimental": "catalog:",
+    "@beep/identity": "workspace:^",
     "drizzle-orm": "catalog:",
     "mutative": "catalog:"
   },
@@ -54,6 +55,7 @@
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/constants": "workspace:^",
+    "@beep/identity": "workspace:^",
     "@beep/errors": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@effect/experimental": "catalog:",

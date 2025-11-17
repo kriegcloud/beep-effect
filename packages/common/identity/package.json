@@ -1,0 +1,66 @@
+{
+  "name": "@beep/identity",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/identity",
+  "description": "A package which exports an identity builder for managing unique symbols and identifiers throughout the repo.",
+  "publishConfig": {
+    "access": "restricted",
+    "directory": "build"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/common/identity"
+  },
+  "scripts": {
+    "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
+    "dev": "tsc -b tsconfig.build.json --watch",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "bun test",
+    "coverage": "bun test --coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "lint:circular": "bunx madge -c .",
+    "execute": "bunx tsx --tsconfig ./tsconfig.src.json ./src/execute.ts",
+    "docgen": "bunx docgen"
+  },
+  "peerDependencies": {
+    "dayjs": "catalog:",
+    "effect": "catalog:",
+    "@beep/invariant": "workspace:^",
+    "@faker-js/faker": "catalog:",
+    "mutative": "catalog:",
+    "next": "catalog:"
+  },
+  "devDependencies": {
+    "dayjs": "catalog:",
+    "type-fest": "catalog:",
+    "@beep/testkit": "workspace:^",
+    "@effect/docgen": "catalog:",
+    "@beep/types": "workspace:^",
+    "@types/bun": "catalog:",
+    "tsx": "catalog:"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}

@@ -4,13 +4,15 @@ import type * as B from "effect/Brand";
 import * as F from "effect/Function";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+import { CustomId } from "./_id";
 
-export const UnsafePhone = S.NonEmptyTrimmedString.pipe(S.pattern(regexes.e164), S.brand("Phone")).annotations({
-  identifier: "Phone",
-  title: "Phone",
-  description: "A valid phone number",
-  arbitrary: () => (fc) => fc.constant(null).map(() => faker.phone.number() as B.Branded<string, "Phone">),
-});
+const Id = CustomId.compose("phone");
+export const UnsafePhone = S.NonEmptyTrimmedString.pipe(S.pattern(regexes.e164), S.brand("Phone")).annotations(
+  Id.annotations("Phone", {
+    description: "A valid phone number",
+    arbitrary: () => (fc) => fc.constant(null).map(() => faker.phone.number() as B.Branded<string, "Phone">),
+  })
+);
 
 /**
  * Phone number schema and helpers.
@@ -39,7 +41,11 @@ export const UnsafePhone = S.NonEmptyTrimmedString.pipe(S.pattern(regexes.e164),
  * @since 0.1.0
  * @category Phone
  */
-export class Phone extends S.Redacted(UnsafePhone) {
+export class Phone extends S.Redacted(UnsafePhone).annotations(
+  Id.annotations("Phone", {
+    description: "A valid phone number",
+  })
+) {
   static readonly make = F.flow((i: string) => UnsafePhone.make(i), Redacted.make);
 }
 

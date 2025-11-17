@@ -2,6 +2,7 @@ import { stringLiteralKit } from "@beep/schema/kits";
 import * as Match from "effect/Match";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
+import { Id } from "./_id";
 export const MonthStringKit = stringLiteralKit(
   "january",
   "february",
@@ -17,12 +18,11 @@ export const MonthStringKit = stringLiteralKit(
   "december"
 );
 
-export class MonthString extends MonthStringKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/custom/dates/MonthString"),
-  identifier: "MonthString",
-  title: "Month String",
-  description: "Month of the year as a string",
-}) {
+export class MonthString extends MonthStringKit.Schema.annotations(
+  Id.annotations("MonthString", {
+    description: "Month of the year as a string",
+  })
+) {
   static readonly Enum = MonthStringKit.Enum;
   static readonly Options = MonthStringKit.Options;
 }
@@ -49,12 +49,11 @@ export const MonthNumberKit = stringLiteralKit("01", "02", "03", "04", "05", "06
   ],
 });
 
-export class MonthNumber extends MonthNumberKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/custom/dates/MonthNumber"),
-  identifier: "MonthNumber",
-  title: "Month Number",
-  description: "Month of the year as a number",
-}) {
+export class MonthNumber extends MonthNumberKit.Schema.annotations(
+  Id.annotations("MonthNumber", {
+    description: "Month of the year as a number",
+  })
+) {
   static readonly Enum = MonthNumberKit.Enum;
   static readonly Options = MonthNumberKit.Options;
 }
@@ -72,12 +71,11 @@ export class MonthInt extends S.transformOrFail(S.Int, MonthInts, {
       catch: () => new ParseResult.Type(ast, i, "Invalid month int"),
     }),
   encode: (i) => ParseResult.succeed(i),
-}).annotations({
-  schemaId: Symbol.for("@beep/schema/custom/dates/MonthInt"),
-  identifier: "MonthInt",
-  title: "Month Int",
-  description: "Month of the year as an integer",
-}) {}
+}).annotations(
+  Id.annotations("MonthInt", {
+    description: "Month of the year as an integer",
+  })
+) {}
 
 export declare namespace MonthInt {
   export type Type = S.Schema.Type<typeof MonthInt>;
@@ -120,12 +118,11 @@ export class MonthNumberFromMonthInt extends S.transform(MonthInt, MonthNumber, 
   strict: true,
   decode: (i) => monthIntToNumber(i),
   encode: (s) => monthNumberToInt(s),
-}).annotations({
-  schemaId: Symbol.for("@beep/schema/custom/dates/MonthNumberFromMonthInt"),
-  identifier: "MonthNumberFromMonthInt",
-  title: "Month Number From Month Int",
-  description: "Month of the year as a number from a month int",
-}) {}
+}).annotations(
+  Id.annotations("MonthNumberFromMonthInt", {
+    description: "Month of the year as a number from a month int",
+  })
+) {}
 
 export declare namespace MonthNumberFromMonthInt {
   export type Type = S.Schema.Type<typeof MonthNumberFromMonthInt>;

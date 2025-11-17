@@ -16,6 +16,9 @@
       "path": "../infra"
     },
     {
+      "path": "../../common/identity"
+    },
+    {
       "path": "../domain"
     },
     {

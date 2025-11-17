@@ -1,3 +1,18 @@
+/**
+ * Backing logic for `Utils.RecordUtils`, covering deterministic key/value
+ * extraction and guarded merging for dictionary-like structures.
+ *
+ * @example
+ * import type * as FooTypes from "@beep/types/common.types";
+ * import * as Utils from "@beep/utils";
+ *
+ * const recordUtilsModuleRecord: FooTypes.Prettify<{ en: string; es: string }> = { en: "English", es: "Español" };
+ * const recordUtilsModuleValues = Utils.RecordUtils.recordStringValues(recordUtilsModuleRecord);
+ * void recordUtilsModuleValues;
+ *
+ * @category Documentation/Modules
+ * @since 0.1.0
+ */
 import type { RecordTypes, StringTypes, UnsafeTypes } from "@beep/types";
 import { isUnsafeProperty } from "@beep/utils/guards";
 import type * as A from "effect/Array";
@@ -6,6 +21,19 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Struct from "effect/Struct";
 
+/**
+ * Returns a deterministic non-empty array of keys from a record while
+ * deduplicating via `HashSet` to guard against prototype pollution.
+ *
+ * @example
+ * import { RecordUtils } from "@beep/utils";
+ *
+ * const keys = RecordUtils.recordKeys({ a: 1, b: 2 } as const);
+ * // ["a", "b"]
+ *
+ * @category Data/Record
+ * @since 0.1.0
+ */
 export const recordKeys = <T extends UnsafeTypes.UnsafeReadonlyRecord>(
   record: RecordTypes.NonEmptyRecordWithStringKeys<T>
 ): A.NonEmptyReadonlyArray<keyof T> => {
@@ -13,6 +41,19 @@ export const recordKeys = <T extends UnsafeTypes.UnsafeReadonlyRecord>(
   return HashSet.values(set) as unknown as A.NonEmptyReadonlyArray<keyof T>;
 };
 
+/**
+ * Extracts values from a record whose keys and values are strings, returning a
+ * non-empty readonly array typed to the record's literal values.
+ *
+ * @example
+ * import { RecordUtils } from "@beep/utils";
+ *
+ * const values = RecordUtils.recordStringValues({ json: "application/json" } as const);
+ * // ["application/json"]
+ *
+ * @category Data/Record
+ * @since 0.1.0
+ */
 export const recordStringValues = <R extends RecordTypes.RecordStringKeyValueString>(
   r: RecordTypes.NonEmptyRecordStringKeyValues<R>
 ) => {
@@ -21,6 +62,19 @@ export const recordStringValues = <R extends RecordTypes.RecordStringKeyValueStr
   >;
 };
 
+/**
+ * Swaps keys and values in a record whose keys and values are both non-empty
+ * strings, returning a new object typed with the reversed mapping.
+ *
+ * @example
+ * import { RecordUtils } from "@beep/utils";
+ *
+ * const locales = RecordUtils.reverseRecord({ en: "English", es: "Español" });
+ * // { English: "en", Español: "es" }
+ *
+ * @category Data/Record
+ * @since 0.1.0
+ */
 export const reverseRecord = <
   T extends R.ReadonlyRecord<keyof T & StringTypes.NonEmptyString, StringTypes.NonEmptyString>,
 >(
@@ -29,44 +83,20 @@ export const reverseRecord = <
   Object.fromEntries(Object.entries(obj).map(([key, value]) => [value, key] as const));
 
 /**
- * Merges the properties of the source object into the target object.
+ * Deeply merges two plain objects or arrays, mutating the target while
+ * protecting against unsafe property names via `isUnsafeProperty`.
  *
- * This function performs a deep merge, meaning nested objects and arrays are merged recursively.
- * If a property in the source object is an array or an object and the corresponding property in the target object is also an array or object, they will be merged.
- * If a property in the source object is undefined, it will not overwrite a defined property in the target object.
- *
- * Note that this function mutates the target object.
- *
- * @param {T} target - The target object into which the source object properties will be merged. This object is modified in place.
- * @param {S} source - The source object whose properties will be merged into the target object.
- * @returns {T & S} The updated target object with properties from the source object merged in.
- *
- * @template T - Type of the target object.
- * @template S - Type of the source object.
+ * Arrays and objects are merged recursively; primitive values from the source
+ * overwrite target values unless the source is `undefined`.
  *
  * @example
- * const target = { a: 1, b: { x: 1, y: 2 } };
- * const source = { b: { y: 3, z: 4 }, c: 5 };
+ * import { RecordUtils } from "@beep/utils";
  *
- * const result = merge(target, source);
- * console.log(result);
- * // Output: { a: 1, b: { x: 1, y: 3, z: 4 }, c: 5 }
+ * const merged = RecordUtils.merge({ a: { x: 1 } }, { a: { y: 2 } });
+ * // { a: { x: 1, y: 2 } }
  *
- * @example
- * const target = { a: [1, 2], b: { x: 1 } };
- * const source = { a: [3], b: { y: 2 } };
- *
- * const result = merge(target, source);
- * console.log(result);
- * // Output: { a: [3, 2], b: { x: 1, y: 2 } }
- *
- * @example
- * const target = { a: null };
- * const source = { a: [1, 2, 3] };
- *
- * const result = merge(target, source);
- * console.log(result);
- * // Output: { a: [1, 2, 3] }
+ * @category Data/Record
+ * @since 0.1.0
  */
 export function merge<
   T extends Record<PropertyKey, UnsafeTypes.UnsafeAny>,

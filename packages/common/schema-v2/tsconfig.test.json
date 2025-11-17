@@ -1,0 +1,30 @@
+{
+  "extends": "../../../tsconfig.base.jsonc",
+  "include": ["test"],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../types"
+    },
+    {
+      "path": "../invariant"
+    },
+    {
+      "path": "../utils"
+    },
+    {
+      "path": "../identity"
+    },
+    {
+      "path": "../../../tooling/testkit"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["bun", "node"],
+    "tsBuildInfoFile": "./build/tsconfig.test.tsbuildinfo",
+    "rootDir": "test",
+    "noEmit": true
+  }
+}

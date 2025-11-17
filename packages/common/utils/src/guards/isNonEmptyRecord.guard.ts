@@ -1,3 +1,18 @@
+/**
+ * Guard implementations for non-empty records with string keys, powering the
+ * `Utils.isNonEmptyRecordWithNonEmptyStringKeys` namespace export.
+ *
+ * @example
+ * import type * as FooTypes from "@beep/types/common.types";
+ * import * as Utils from "@beep/utils";
+ *
+ * const guardsRecordValue: FooTypes.Prettify<{ foo: number }> = { foo: 1 };
+ * const guardsRecordResult = Utils.isNonEmptyRecordWithNonEmptyStringKeys(guardsRecordValue);
+ * void guardsRecordResult;
+ *
+ * @category Documentation/Modules
+ * @since 0.1.0
+ */
 import type { StringTypes } from "@beep/types";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -17,6 +32,18 @@ const RecordStringKeysSchema = S.Record({
   value: S.Unknown,
 });
 
+/**
+ * Runtime guard for records that ensures they are non-empty and have
+ * non-empty string keys.
+ *
+ * @example
+ * import { isNonEmptyRecordWithNonEmptyStringKeys } from "@beep/utils/guards/isNonEmptyRecord.guard";
+ *
+ * isNonEmptyRecordWithNonEmptyStringKeys({ foo: 1 });
+ *
+ * @category Guards/Record
+ * @since 0.1.0
+ */
 export const isNonEmptyRecordWithNonEmptyStringKeys = <K extends StringTypes.NonEmptyString, A>(
   i: ReadonlyRecord<K, A>
 ): i is NonEmptyReadonlyRecord<K, A> => {

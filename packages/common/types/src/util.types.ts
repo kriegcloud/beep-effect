@@ -1,3 +1,17 @@
+/**
+ * General-purpose helper types for working with non-empty strings and struct maps.
+ *
+ * @example
+ * import type * as UtilTypes from "@beep/types/util.types";
+ * import * as S from "effect/Schema";
+ *
+ * type Fields = UtilTypes.NonEmptyStructFieldMap<{ id: S.Struct.Field }>;
+ * let example!: Fields;
+ * void example;
+ *
+ * @category Types/Utility
+ * @since 0.1.0
+ */
 import type * as A from "effect/Array";
 import type * as S from "effect/Schema";
 
@@ -22,9 +36,14 @@ type HasEmptyKey<T> = "" extends StringKeys<T> ? true : false;
  * A string literal that is not the empty string.
  *
  * @example
- * type A = NonEmptyStringLiteral<"foo">     // "foo"
- * type B = NonEmptyStringLiteral<"">        // never
- * type C = NonEmptyStringLiteral<string>    // string  (cannot be proven non-empty at runtime)
+ * import type * as UtilTypes from "@beep/types/util.types";
+ *
+ * type A = UtilTypes.NonEmptyStringLiteral<"foo">;
+ * let example!: A;
+ * void example;
+ *
+ * @category Types/Utility
+ * @since 0.1.0
  */
 export type NonEmptyStringLiteral<S extends string> = S extends "" ? never : S;
 
@@ -35,6 +54,16 @@ export type NonEmptyStringLiteral<S extends string> = S extends "" ? never : S;
 /**
  * Readonly dictionary with string keys and value type `V`.
  * Alias for readability when expressing intent (vs `Readonly<Record<string, V>>`).
+ *
+ * @example
+ * import type * as UtilTypes from "@beep/types/util.types";
+ *
+ * type Headers = UtilTypes.ReadonlyStringMap<number>;
+ * let example!: Headers;
+ * void example;
+ *
+ * @category Types/Utility
+ * @since 0.1.0
  */
 export type ReadonlyStringMap<V = unknown> = Readonly<Record<string, V>>;
 
@@ -46,9 +75,14 @@ export type ReadonlyStringMap<V = unknown> = Readonly<Record<string, V>>;
  * Note: “non-empty” is provable only when `keyof T` is a *finite* union (e.g., object literals).
  *
  * @example
- * type A = NonEmptyReadonlyStringKeyRecord<{a: 1}> // { a: 1 }
- * type B = NonEmptyReadonlyStringKeyRecord<{}>     // never
- * type C = NonEmptyReadonlyStringKeyRecord<Record<string, number>> // T (cannot prove emptiness)
+ * import type * as UtilTypes from "@beep/types/util.types";
+ *
+ * type Safe = UtilTypes.NonEmptyReadonlyStringKeyRecord<{ a: 1 }>;
+ * let example!: Safe;
+ * void example;
+ *
+ * @category Types/Utility
+ * @since 0.1.0
  */
 export type NonEmptyReadonlyStringKeyRecord<T extends Readonly<Record<string, unknown>>> = IsNever<
   StringKeys<T>
@@ -60,6 +94,16 @@ export type NonEmptyReadonlyStringKeyRecord<T extends Readonly<Record<string, un
 
 /**
  * A readonly `string -> string` map (alias, documents intent).
+ *
+ * @example
+ * import type * as UtilTypes from "@beep/types/util.types";
+ *
+ * type Params = UtilTypes.ReadonlyStringToStringMap;
+ * let example!: Params;
+ * void example;
+ *
+ * @category Types/Utility
+ * @since 0.1.0
  */
 export type ReadonlyStringToStringMap = ReadonlyStringMap<string>;
 
@@ -70,10 +114,14 @@ export type ReadonlyStringToStringMap = ReadonlyStringMap<string>;
  *  - and all values are non-empty string literals when known at compile time.
  *
  * @example
- * type A = NonEmptyStringToStringMap<{"x": "y"}>      // {"x": "y"}
- * type B = NonEmptyStringToStringMap<{"": "y"}>       // never (empty key)
- * type C = NonEmptyStringToStringMap<{"x": ""}>       // never (empty value)
- * type D = NonEmptyStringToStringMap<Record<string, string>> // T (values not provably empty/non-empty)
+ * import type * as UtilTypes from "@beep/types/util.types";
+ *
+ * type Valid = UtilTypes.NonEmptyStringToStringMap<{ x: "y" }>;
+ * let example!: Valid;
+ * void example;
+ *
+ * @category Types/Utility
+ * @since 0.1.0
  */
 export type NonEmptyStringToStringMap<T extends ReadonlyStringToStringMap> =
   NonEmptyReadonlyStringKeyRecord<T> extends never
@@ -87,7 +135,14 @@ export type NonEmptyStringToStringMap<T extends ReadonlyStringToStringMap> =
  * Useful when you’ve already established the record is non-empty at the type level.
  *
  * @example
- * type Vals = ValuesNonEmptyArray<{a: 1; b: 2}> // readonly [1 | 2, ...(1 | 2)[]]
+ * import type * as UtilTypes from "@beep/types/util.types";
+ *
+ * type Vals = UtilTypes.ValuesNonEmptyArray<{ a: 1; b: 2 }>;
+ * let example!: Vals;
+ * void example;
+ *
+ * @category Types/Utility
+ * @since 0.1.0
  */
 export type ValuesNonEmptyArray<T extends Readonly<Record<string, unknown>>> = readonly [
   T[StringKeys<T>],
@@ -100,6 +155,16 @@ export type ValuesNonEmptyArray<T extends Readonly<Record<string, unknown>>> = r
 
 /**
  * A map from string keys to `S.Struct.Field`, matching Effect Schema’s struct definition shape.
+ *
+ * @example
+ * import type * as UtilTypes from "@beep/types/util.types";
+ * import * as S from "effect/Schema";
+ *
+ * const fields: UtilTypes.StructFieldMap = { id: S.String };
+ * void fields;
+ *
+ * @category Types/Utility
+ * @since 0.1.0
  */
 export type StructFieldMap = Readonly<Record<string, S.Struct.Field>>;
 
@@ -107,11 +172,20 @@ export type StructFieldMap = Readonly<Record<string, S.Struct.Field>>;
  * A `StructFieldMap` that is non-empty and has no empty-string key.
  *
  * @example
+ * import type * as UtilTypes from "@beep/types/util.types";
  * import * as S from "effect/Schema";
+ *
  * const fields = {
- *   id: S.string,
- *   name: S.string
- * } satisfies NonEmptyStructFieldMap; // OK
+ *   id: S.String,
+ *   name: S.String,
+ * } satisfies UtilTypes.NonEmptyStructFieldMap<{
+ *   readonly id: S.Struct.Field;
+ *   readonly name: S.Struct.Field;
+ * }>;
+ * void fields;
+ *
+ * @category Types/Utility
+ * @since 0.1.0
  */
 export type NonEmptyStructFieldMap<T extends StructFieldMap> = NonEmptyReadonlyStringKeyRecord<T>;
 
@@ -120,8 +194,15 @@ export type NonEmptyStructFieldMap<T extends StructFieldMap> = NonEmptyReadonlyS
  * Mirrors `A.NonEmptyReadonlyArray` from Effect.
  *
  * @example
- * type Keys = NonEmptyStructFieldKeyList<{id: S.Struct.Field; name: S.Struct.Field}>
- * // => A.NonEmptyReadonlyArray<"id" | "name">
+ * import type * as UtilTypes from "@beep/types/util.types";
+ * import * as S from "effect/Schema";
+ *
+ * type Keys = UtilTypes.NonEmptyStructFieldKeyList<{ id: S.Struct.Field; name: S.Struct.Field }>;
+ * let example!: Keys;
+ * void example;
+ *
+ * @category Types/Utility
+ * @since 0.1.0
  */
 export type NonEmptyStructFieldKeyList<T extends StructFieldMap> = T extends NonEmptyStructFieldMap<T>
   ? A.NonEmptyReadonlyArray<StringKeys<T>>

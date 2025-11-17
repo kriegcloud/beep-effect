@@ -1,7 +1,9 @@
 import * as regexes from "@beep/schema/regexes";
 import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
+import { CustomId } from "./_id";
 
+const Id = CustomId.compose("domain");
 export class DomainLabel extends S.Lowercase.pipe(
   S.maxLength(63, {
     message: () => "Domain Label cannot be longer than 63 characters.",
@@ -10,13 +12,12 @@ export class DomainLabel extends S.Lowercase.pipe(
   S.pattern(regexes.domain_label, {
     message: () => `Domain Label must match the regex ${regexes.domain_label.source}`,
   })
-).annotations({
-  schemaId: Symbol.for("@beep/schema/custom/DomainLabel"),
-  identifier: "DomainLabel",
-  title: "Domain Label",
-  description: "A valid domain label",
-  arbitrary: () => (fc) => fc.constantFrom(null).map(() => faker.internet.domainWord()),
-}) {}
+).annotations(
+  Id.annotations("DomainLabel", {
+    description: "A valid domain label",
+    arbitrary: () => (fc) => fc.constantFrom(null).map(() => faker.internet.domainWord()),
+  })
+) {}
 
 export declare namespace DomainLabel {
   export type Type = S.Schema.Type<typeof DomainLabel>;
@@ -31,13 +32,12 @@ export class TopLevelDomain extends S.Lowercase.pipe(
   S.pattern(regexes.top_level_domain, {
     message: () => `Top Level Domain must match the regex ${regexes.top_level_domain.source}`,
   })
-).annotations({
-  schemaId: Symbol.for("@beep/schema/custom/TopLevelDomain"),
-  identifier: "TopLevelDomain",
-  title: "Top Level Domain",
-  description: "A valid top level domain",
-  arbitrary: () => (fc) => fc.constantFrom(null).map(() => faker.internet.domainSuffix()),
-}) {}
+).annotations(
+  Id.annotations("TopLevelDomain", {
+    description: "A valid top level domain",
+    arbitrary: () => (fc) => fc.constantFrom(null).map(() => faker.internet.domainSuffix()),
+  })
+) {}
 
 export declare namespace TopLevelDomain {
   export type Type = S.Schema.Type<typeof TopLevelDomain>;
@@ -58,10 +58,9 @@ export class DomainName extends S.String.pipe(
   S.pattern(regexes.domain, {
     message: () => `Domain Name must match the regex ${regexes.domain.source}`,
   })
-).annotations({
-  schemaId: Symbol.for("@beep/schema/custom/DomainName"),
-  identifier: "DomainName",
-  title: "Domain Name",
-  description: "A valid domain name",
-  arbitrary: () => (fc) => fc.constantFrom(null).map(() => faker.internet.domainName()),
-}) {}
+).annotations(
+  Id.annotations("DomainName", {
+    description: "A valid domain name",
+    arbitrary: () => (fc) => fc.constantFrom(null).map(() => faker.internet.domainName()),
+  })
+) {}

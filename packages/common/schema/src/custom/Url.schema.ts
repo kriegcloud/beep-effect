@@ -1,7 +1,9 @@
 import { faker } from "@faker-js/faker";
 import * as Either from "effect/Either";
 import * as S from "effect/Schema";
+import { CustomId } from "./_id";
 
+const Id = CustomId.compose("custom");
 /**
  * URL string schema (http/https).
  *
@@ -24,13 +26,12 @@ export class CustomURL extends S.instanceOf(URL)
     }),
     S.brand("CustomURL")
   )
-  .annotations({
-    schemaId: Symbol.for("@beep/schema/custom/CustomURL"),
-    identifier: "CustomURL",
-    description: "A URL",
-    title: "URL",
-    jsonSchema: { type: "string", format: "url" },
-  }) {}
+  .annotations(
+    Id.annotations("CustomURL", {
+      description: "A URL",
+      jsonSchema: { type: "string", format: "url" },
+    })
+  ) {}
 
 export declare namespace CustomURL {
   /** URL string type (branded). */
@@ -46,13 +47,12 @@ export class URLFromString extends S.instanceOf(URL)
     }),
     S.brand("URLFromString")
   )
-  .annotations({
-    schemaId: Symbol.for("@beep/schema/custom/Url.schema/URLFromString"),
-    identifier: "URLFromString",
-    description: "A URL from a string.",
-    title: "URL From String",
-    jsonSchema: { type: "string", format: "url" },
-  }) {}
+  .annotations(
+    Id.annotations("URLFromString", {
+      description: "A URL from a string.",
+      jsonSchema: { type: "string", format: "url" },
+    })
+  ) {}
 
 export declare namespace URLFromString {
   /** URL string type (branded). */
@@ -64,13 +64,12 @@ export class Url extends S.Trimmed.pipe(
   S.nonEmptyString({ message: () => "Must be a non-empty trimmed string" }),
   S.filter((a) => Either.try(() => new URL(a).toString()).pipe(Either.isRight)),
   S.brand("Url")
-).annotations({
-  schemaId: Symbol.for("@beep/schema/custom/Url"),
-  identifier: "Url",
-  description: "A URL string",
-  title: "URL String",
-  jsonSchema: { type: "string", format: "url" },
-}) {}
+).annotations(
+  Id.annotations("Url", {
+    description: "A URL string",
+    jsonSchema: { type: "string", format: "url" },
+  })
+) {}
 
 export declare namespace Url {
   /** URL string type (branded). */
@@ -84,13 +83,12 @@ export class HttpsUrl extends S.TemplateLiteral("https://", S.String)
     S.nonEmptyString({ message: () => "Must be a non-empty trimmed string" }),
     S.filter((a) => Either.try(() => new URL(a).toString()).pipe(Either.isRight))
   )
-  .annotations({
-    schemaId: Symbol.for("@beep/schema/custom/HttpsUrl"),
-    identifier: "HttpsUrl",
-    description: "An https URL",
-    title: "Https URL",
-    jsonSchema: { type: "string", format: "url" },
-  }) {}
+  .annotations(
+    Id.annotations("HttpsUrl", {
+      description: "An https URL",
+      jsonSchema: { type: "string", format: "url" },
+    })
+  ) {}
 
 export declare namespace HttpsUrl {
   /** URL string type (branded). */
@@ -104,13 +102,12 @@ export class HttpUrl extends S.TemplateLiteral("http://", S.String)
     S.nonEmptyString({ message: () => "Must be a non-empty trimmed string" }),
     S.filter((a) => Either.try(() => new URL(a).toString()).pipe(Either.isRight))
   )
-  .annotations({
-    schemaId: Symbol.for("@beep/schema/custom/HttpUrl"),
-    identifier: "HttpUrl",
-    description: "An http URL",
-    title: "Http URL",
-    jsonSchema: { type: "string", format: "url" },
-  }) {}
+  .annotations(
+    Id.annotations("HttpUrl", {
+      description: "An http URL",
+      jsonSchema: { type: "string", format: "url" },
+    })
+  ) {}
 
 export declare namespace HttpUrl {
   /** URL string type (branded). */
@@ -118,13 +115,12 @@ export declare namespace HttpUrl {
   export type Encoded = typeof HttpUrl.Encoded;
 }
 
-export class URLString extends S.Union(HttpUrl, HttpsUrl).annotations({
-  schemaId: Symbol.for("@beep/schema/custom/Url"),
-  identifier: "Url",
-  description: "An http or https URL",
-  title: "Url",
-  jsonSchema: { type: "string", format: "url" },
-}) {
+export class URLString extends S.Union(HttpUrl, HttpsUrl).annotations(
+  Id.annotations("UrlString", {
+    description: "An http or https URL",
+    jsonSchema: { type: "string", format: "url" },
+  })
+) {
   static readonly make = S.decodeUnknownSync(URLString);
   static readonly is = S.is(URLString);
 }

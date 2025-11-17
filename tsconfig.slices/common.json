@@ -5,6 +5,8 @@
     { "path": "../packages/common/invariant" },
     { "path": "../packages/common/utils" },
     { "path": "../packages/common/schema" },
+    { "path": "../packages/common/schema-v2" },
+    { "path": "../packages/common/identity" },
     { "path": "../packages/common/constants" },
     { "path": "../packages/common/errors" },
     { "path": "../packages/common/mock" },

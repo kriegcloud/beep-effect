@@ -31,6 +31,9 @@
     },
     {
       "path": "../domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/identity/tsconfig.build.json"
     }
   ]
 }

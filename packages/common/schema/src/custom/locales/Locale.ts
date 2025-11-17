@@ -1,15 +1,14 @@
 import { stringLiteralKit } from "@beep/schema/kits";
 import type * as S from "effect/Schema";
+import { CustomId } from "../_id";
 import { ALL_LOCALES } from "./ALL_LOCALES.generated";
-
 export const LocaleKit = stringLiteralKit(...ALL_LOCALES);
 
-export class Locale extends LocaleKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/locales/Locale"),
-  identifier: "Locale",
-  title: "Locale",
-  description: "Represents a locale",
-}) {
+export class Locale extends LocaleKit.Schema.annotations(
+  CustomId.annotations("Locale", {
+    description: "Represents a locale",
+  })
+) {
   static readonly Options = LocaleKit.Options;
   static readonly Enum = LocaleKit.Enum;
 }

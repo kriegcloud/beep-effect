@@ -1,11 +1,12 @@
 import * as S from "effect/Schema";
+import { CustomId } from "./_id";
 
-export class ArrBuffer extends S.instanceOf(ArrayBuffer).annotations({
-  schemaId: Symbol.for("@beep/schema/custom/ArrayBuffer"),
-  identifier: "ArrayBuffer",
-  title: "Array Buffer",
-  description: "An Array Buffer",
-}) {
+const Id = CustomId.compose("arrayBuffer");
+export class ArrBuffer extends S.instanceOf(ArrayBuffer).annotations(
+  Id.annotations("ArrayBuffer", {
+    description: "An Array Buffer",
+  })
+) {
   static readonly is = S.is(this);
 }
 

@@ -18,6 +18,9 @@
       "path": "../../ui/core"
     },
     {
+      "path": "../../common/identity"
+    },
+    {
       "path": "../../shared/domain"
     },
     {

@@ -3,7 +3,9 @@ import type * as B from "effect/Brand";
 import * as F from "effect/Function";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+import { CustomId } from "./_id";
 
+const Id = CustomId.compose("email");
 /**
  * RFC-5322–ish pragmatic validator for "local@domain.tld".
  * We rely on lowercase + trim + non-empty checks around this pattern.
@@ -15,15 +17,20 @@ export const EmailEncoded = S.Lowercase.pipe(
     message: () => "Email is required!",
   }),
   S.pattern(regexes.email)
+).annotations(
+  Id.annotations("EmailEncoded", {
+    description:
+      'RFC-5322–ish pragmatic validator for "local@domain.tld". We rely on lowercase + trim + non-empty checks around this pattern.',
+  })
 );
-export const EmailBase = EmailEncoded.pipe(S.brand("Email")).annotations({
-  jsonSchema: { format: "email", type: "string" },
-  arbitrary: () => (fc) => fc.emailAddress().map((_) => _ as B.Branded<string, "Email">),
-  title: "Email",
-  message: () => "Email must be a valid email address!",
-  description: "A valid email address",
-  identifier: "Email",
-});
+export const EmailBase = EmailEncoded.pipe(S.brand("Email")).annotations(
+  Id.annotations("EmailBase", {
+    jsonSchema: { format: "email", type: "string" },
+    arbitrary: () => (fc) => fc.emailAddress().map((_) => _ as B.Branded<string, "Email">),
+    message: () => "Email must be a valid email address!",
+    description: "A valid email address",
+  })
+);
 
 export declare namespace EmailBase {
   export type Type = S.Schema.Type<typeof EmailBase>;
@@ -41,7 +48,12 @@ export declare namespace EmailBase {
  * @since 0.1.0
  * @category Email
  */
-export class Email extends S.Redacted(EmailBase) {
+export class Email extends S.Redacted(EmailBase).annotations(
+  Id.annotations("Email", {
+    description:
+      'Email address schema and helpers.\n- lowercased\n- trimmed and non-empty\n- matches `REGEX`\n- branded as "Email"\n## Why Redacted?\nEmail values are wrapped with `Redacted` to avoid accidental logging / printing\nof PII at runtime. Use `Redacted.value(email)` if you must access the inner string.',
+  })
+) {
   /* create a redacted email value */
   static readonly make = F.flow((i: string) => EmailBase.make(i), Redacted.make);
 

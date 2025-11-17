@@ -1,6 +1,8 @@
 import { stringLiteralKit } from "@beep/schema/kits";
 import type * as S from "effect/Schema";
+import { CustomId } from "./_id";
 
+const Id = CustomId.compose("currencyCode");
 export const CurrencyCodeKit = stringLiteralKit(
   "AC",
   "AD",
@@ -249,12 +251,11 @@ export const CurrencyCodeKit = stringLiteralKit(
   "ZW"
 );
 
-export class CurrencyCode extends CurrencyCodeKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/custom/CurrencyCode"),
-  identifier: "CurrencyCode",
-  title: "Currency Code",
-  description: "Represents a currency code",
-}) {
+export class CurrencyCode extends CurrencyCodeKit.Schema.annotations(
+  Id.annotations("CurrencyCode", {
+    description: "Represents a currency code",
+  })
+) {
   static readonly Options = CurrencyCodeKit.Options;
   static readonly Enum = CurrencyCodeKit.Enum;
 }

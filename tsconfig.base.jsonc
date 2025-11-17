@@ -94,6 +94,15 @@
       "@beep/schema/test/*": [
         "./packages/common/schema/test/*"
       ],
+      "@beep/schema-v2": [
+        "./packages/common/schema-v2/src/index"
+      ],
+      "@beep/schema-v2/*": [
+        "./packages/common/schema-v2/src/*"
+      ],
+      "@beep/schema-v2/test/*": [
+        "./packages/common/schema-v2/test/*"
+      ],
       "@beep/constants": [
         "./packages/common/constants/src/index"
       ],
@@ -102,6 +111,15 @@
       ],
       "@beep/constants/test/*": [
         "./packages/common/constants/test/*"
+      ],
+       "@beep/identity": [
+        "./packages/common/identity/src/index"
+      ],
+      "@beep/identity/*": [
+        "./packages/common/identity/src/*"
+      ],
+      "@beep/identity/test/*": [
+        "./packages/common/identity/test/*"
       ],
       "@beep/errors/client": [
         "./packages/common/errors/src/client"

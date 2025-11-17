@@ -1,5 +1,8 @@
 import { stringLiteralKit } from "@beep/schema/kits";
 import type * as S from "effect/Schema";
+import { CustomId } from "./_id";
+
+const Id = CustomId.compose("fileExtension");
 //----------------------------------------------------------------------------------------------------------------------
 // APPLICATION EXTENSIONS
 //----------------------------------------------------------------------------------------------------------------------
@@ -38,12 +41,11 @@ export const ApplicationExtensionKit = stringLiteralKit(
   "ttf"
 );
 
-export class ApplicationExtension extends ApplicationExtensionKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/custom/FileExtension/ApplicationExtension"),
-  identifier: "ApplicationExtension",
-  title: "Application Extension",
-  description: "Application Mime type file extension literals",
-}) {
+export class ApplicationExtension extends ApplicationExtensionKit.Schema.annotations(
+  Id.annotations("ApplicationExtension", {
+    description: "Application Mime type file extension literals",
+  })
+) {
   static readonly Options = ApplicationExtensionKit.Options;
   static readonly Enum = ApplicationExtensionKit.Enum;
 }
@@ -71,12 +73,11 @@ export const AudioExtensionKit = stringLiteralKit(
   "aiff"
 );
 
-export class AudioExtension extends AudioExtensionKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/custom/FileExtension/AudioExtension"),
-  identifier: "AudioExtension",
-  title: "Audio Extension",
-  description: "Audio Mime type file extensions",
-}) {
+export class AudioExtension extends AudioExtensionKit.Schema.annotations(
+  Id.annotations("AudioExtension", {
+    description: "Audio Mime type file extensions",
+  })
+) {
   static readonly Options = AudioExtensionKit.Options;
   static readonly Enum = AudioExtensionKit.Enum;
 }
@@ -91,12 +92,11 @@ export declare namespace AudioExtension {
 //----------------------------------------------------------------------------------------------------------------------
 export const FontExtensionKit = stringLiteralKit("ttf", "otf", "woff", "woff2");
 
-export class FontExtension extends FontExtensionKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/custom/FileExtension/FontExtension"),
-  identifier: "FontExtension",
-  title: "Font Extension",
-  description: "Font Mime type file extensions",
-}) {
+export class FontExtension extends FontExtensionKit.Schema.annotations(
+  Id.annotations("FontExtension", {
+    description: "Font Mime type file extensions",
+  })
+) {
   static readonly Options = FontExtensionKit.Options;
   static readonly Enum = FontExtensionKit.Enum;
 }
@@ -135,12 +135,11 @@ export const ImageExtensionKit = stringLiteralKit(
   "tiff"
 );
 
-export class ImageExtension extends ImageExtensionKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/custom/FileExtension/ImageExtension"),
-  identifier: "ImageExtension",
-  title: "Image Extension",
-  description: "Image Mime type file extensions",
-}) {
+export class ImageExtension extends ImageExtensionKit.Schema.annotations(
+  Id.annotations("ImageExtension", {
+    description: "Image Mime type file extensions",
+  })
+) {
   static readonly Options = ImageExtensionKit.Options;
   static readonly Enum = ImageExtensionKit.Enum;
 }
@@ -155,12 +154,11 @@ export declare namespace ImageExtension {
 //----------------------------------------------------------------------------------------------------------------------
 export const TextExtensionKit = stringLiteralKit("html", "txt", "css", "js", "mjs", "xml", "csv", "md", "yaml");
 
-export class TextExtension extends TextExtensionKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/custom/FileExtension/TextExtension"),
-  identifier: "TextExtension",
-  title: "Text Extension",
-  description: "Text Mime type file extensions",
-}) {
+export class TextExtension extends TextExtensionKit.Schema.annotations(
+  Id.annotations("TextExtension", {
+    description: "Text Mime type file extensions",
+  })
+) {
   static readonly Options = TextExtensionKit.Options;
   static readonly Enum = TextExtensionKit.Enum;
 }
@@ -188,12 +186,11 @@ export const VideoExtensionKit = stringLiteralKit(
   "flv"
 );
 
-export class VideoExtension extends VideoExtensionKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/custom/FileExtension/VideoExtension"),
-  identifier: "VideoExtension",
-  title: "Video Extension",
-  description: "Video Mime type file extensions",
-}) {
+export class VideoExtension extends VideoExtensionKit.Schema.annotations(
+  Id.annotations("VideoExtension", {
+    description: "Video Mime type file extensions",
+  })
+) {
   static readonly Options = VideoExtensionKit.Options;
   static readonly Enum = VideoExtensionKit.Enum;
 }
@@ -216,12 +213,11 @@ export const FileExtensionKit = stringLiteralKit(
   ...VideoExtension.Options
 );
 
-export class FileExtension extends FileExtensionKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/custom/FileExtension/FileExtension"),
-  identifier: "FileExtension",
-  title: "File Extension",
-  description: "All file extensions",
-}) {}
+export class FileExtension extends FileExtensionKit.Schema.annotations(
+  Id.annotations("FileExtension", {
+    description: "All file extensions",
+  })
+) {}
 
 export declare namespace FileExtension {
   export type Type = S.Schema.Type<typeof FileExtension>;

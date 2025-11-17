@@ -20,6 +20,9 @@
       "path": "../../runtime/client/tsconfig.build.json"
     },
     {
+      "path": "../../common/identity/tsconfig.build.json"
+    },
+    {
       "path": "../../ui/core/tsconfig.build.json"
     },
     {

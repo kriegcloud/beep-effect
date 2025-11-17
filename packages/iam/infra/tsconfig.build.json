@@ -18,6 +18,9 @@
       "path": "../domain/tsconfig.build.json"
     },
     {
+      "path": "../../common/identity/tsconfig.build.json"
+    },
+    {
       "path": "../../core/db/tsconfig.build.json"
     },
     {

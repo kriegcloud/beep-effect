@@ -1,3 +1,20 @@
+/**
+ * Object path utilities exported via `@beep/utils`, covering safe get/set flows
+ * that guard against forbidden prototype keys.
+ *
+ * @example
+ * import type * as FooTypes from "@beep/types/common.types";
+ * import * as Utils from "@beep/utils";
+ *
+ * const objectPathRecord: FooTypes.Prettify<{ profile: { name: string } }> = {
+ *   profile: { name: "Ada" },
+ * };
+ * const objectPathName = Utils.getPath(objectPathRecord, "profile.name");
+ * void objectPathName;
+ *
+ * @category Documentation/Modules
+ * @since 0.1.0
+ */
 import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
@@ -31,6 +48,18 @@ const normalizePath = (path: string | ReadonlyArray<PropertyKey>): ReadonlyArray
   );
 };
 
+/**
+ * Safely reads a nested property from an object using dot/bracket notation with
+ * support for numeric indices.
+ *
+ * @example
+ * import { getPath } from "@beep/utils/object/path";
+ *
+ * getPath({ user: { name: "Ada" } }, "user.name");
+ *
+ * @category Object/Path
+ * @since 0.1.0
+ */
 export const getPath = <T, D = undefined>(
   value: T,
   path: string | ReadonlyArray<PropertyKey>,
@@ -74,6 +103,19 @@ const ensureContainer = (
   return container;
 };
 
+/**
+ * Creates nested objects/arrays as needed and sets a value at the provided
+ * path, returning the mutated root object.
+ *
+ * @example
+ * import { setPath } from "@beep/utils/object/path";
+ *
+ * const obj = {};
+ * setPath(obj, "user.profile.name", "Ada");
+ *
+ * @category Object/Path
+ * @since 0.1.0
+ */
 export const setPath = (
   target: UnsafeTypes.UnsafeAny,
   path: string | ReadonlyArray<PropertyKey>,

@@ -13,6 +13,9 @@
     },
     {
       "path": "../../shared/domain"
+    },
+    {
+      "path": "../../common/identity"
     }
   ],
   "compilerOptions": {

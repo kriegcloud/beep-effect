@@ -18,6 +18,9 @@
       "path": "../../core/email"
     },
     {
+      "path": "../../common/identity"
+    },
+    {
       "path": "../../shared/tables"
     },
     {

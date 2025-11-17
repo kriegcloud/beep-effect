@@ -1,0 +1,39 @@
+{
+  "$schema": "../../../node_modules/@effect/docgen/schema.json",
+  "srcDir": "src",
+  "outDir": "docs",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/invariant/src/",
+  "exclude": [],
+  "parseCompilerOptions": {
+    "baseUrl": ".",
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "Bundler",
+    "module": "ES2022",
+    "target": "ES2022",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "paths": {
+      "@beep/invariant": ["./src/index.ts"],
+      "@beep/invariant/*": ["./src/*"]
+    }
+  },
+  "examplesCompilerOptions": {
+    "baseUrl": ".",
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "Bundler",
+    "module": "ES2022",
+    "target": "ES2022",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "paths": {
+      "@beep/invariant": ["./src/index.ts"],
+      "@beep/invariant/*": ["./src/*"]
+    }
+  }
+}

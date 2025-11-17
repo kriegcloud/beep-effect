@@ -1,6 +1,9 @@
 import { stringLiteralKit } from "@beep/schema/kits";
 import { RecordUtils } from "@beep/utils";
 import type * as S from "effect/Schema";
+import { CustomId } from "./_id";
+
+const Id = CustomId.compose("mime_type");
 //----------------------------------------------------------------------------------------------------------------------
 // APPLICATION MIME TYPES
 //----------------------------------------------------------------------------------------------------------------------
@@ -78,12 +81,11 @@ export const ApplicationMimeTypeKit = stringLiteralKit(
   }
 );
 
-export class ApplicationMimeType extends ApplicationMimeTypeKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/custom/file/extensions/ApplicationMimeType"),
-  identifier: "ApplicationMimeType",
-  title: "Application mime type",
-  description: "Application mime type file extensions",
-}) {
+export class ApplicationMimeType extends ApplicationMimeTypeKit.Schema.annotations(
+  Id.annotations("ApplicationMimeType", {
+    description: "Application mime type file extensions",
+  })
+) {
   static readonly Options = ApplicationMimeTypeKit.Options;
   static readonly Enum = ApplicationMimeTypeKit.Enum;
 }
@@ -126,12 +128,11 @@ export const AudioMimeTypeKit = stringLiteralKit(...RecordUtils.recordStringValu
   ] as const,
 });
 
-export class AudioMimeType extends AudioMimeTypeKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/custom/file/extensions/AudioMimeType"),
-  identifier: "AudioMimeType",
-  title: "Audio mime type",
-  description: "Audio mime type file extensions",
-}) {
+export class AudioMimeType extends AudioMimeTypeKit.Schema.annotations(
+  Id.annotations("AudioMimeType", {
+    description: "Audio mime type file extensions",
+  })
+) {
   static readonly Options = AudioMimeTypeKit.Options;
   static readonly Enum = AudioMimeTypeKit.Enum;
 }
@@ -160,12 +161,11 @@ export const FontMimeTypeKit = stringLiteralKit(...RecordUtils.recordStringValue
   ],
 });
 
-export class FontMimeType extends FontMimeTypeKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/custom/file/extensions/FontMimeType"),
-  identifier: "FontMimeType",
-  title: "Font mime type",
-  description: "Font mime type file extensions",
-}) {
+export class FontMimeType extends FontMimeTypeKit.Schema.annotations(
+  Id.annotations("FontMimeType", {
+    description: "Font mime type file extensions",
+  })
+) {
   static readonly Options = FontMimeTypeKit.Options;
   static readonly Enum = FontMimeTypeKit.Enum;
 }
@@ -230,12 +230,11 @@ export const ImageMimeTypeKit = stringLiteralKit(...RecordUtils.recordStringValu
   ],
 });
 
-export class ImageMimeType extends ImageMimeTypeKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/custom/file/extensions/ImageMimeType"),
-  identifier: "ImageMimeType",
-  title: "Image mime type",
-  description: "Image mime type file extensions",
-}) {
+export class ImageMimeType extends ImageMimeTypeKit.Schema.annotations(
+  Id.annotations("ImageMimeType", {
+    description: "Image mime type file extensions",
+  })
+) {
   static readonly Options = ImageMimeTypeKit.Options;
   static readonly Enum = ImageMimeTypeKit.Enum;
 }
@@ -272,12 +271,11 @@ export const TextMimeTypeKit = stringLiteralKit(...RecordUtils.recordStringValue
   ],
 });
 
-export class TextMimeType extends TextMimeTypeKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/custom/file/extensions/TextMimeType"),
-  identifier: "TextMimeType",
-  title: "Text mime type",
-  description: "Text mime type file extensions",
-}) {
+export class TextMimeType extends TextMimeTypeKit.Schema.annotations(
+  Id.annotations("TextMimeType", {
+    description: "Text mime type file extensions",
+  })
+) {
   static readonly Options = TextMimeTypeKit.Options;
   static readonly Enum = TextMimeTypeKit.Enum;
 }
@@ -320,12 +318,11 @@ export const VideoMimeTypeKit = stringLiteralKit(...RecordUtils.recordStringValu
   ],
 });
 
-export class VideoMimeType extends VideoMimeTypeKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/custom/file/extensions/VideoMimeType"),
-  identifier: "VideoMimeType",
-  title: "Video mime type",
-  description: "Video mime type file extensions",
-}) {
+export class VideoMimeType extends VideoMimeTypeKit.Schema.annotations(
+  Id.annotations("VideoMimeType", {
+    description: "Video mime type file extensions",
+  })
+) {
   static readonly Options = VideoMimeTypeKit.Options;
   static readonly Enum = VideoMimeTypeKit.Enum;
 }
@@ -447,12 +444,11 @@ export const MimeTypeKit = stringLiteralKit(
   }
 );
 
-export class MimeType extends MimeTypeKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/schema/custom/file/extensions/MimeType"),
-  identifier: "MimeType",
-  title: "Mime type",
-  description: "All supported mime types",
-}) {
+export class MimeType extends MimeTypeKit.Schema.annotations(
+  Id.annotations("MimeType", {
+    description: "All supported mime types",
+  })
+) {
   static readonly Options = MimeTypeKit.Options;
   static readonly Enum = MimeTypeKit.Enum;
 }

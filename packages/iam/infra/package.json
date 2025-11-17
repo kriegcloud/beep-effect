@@ -31,10 +31,11 @@
     "lint:fix": "biome check . --write",
     "lint:circular": "bunx madge -c ."
   },
-  "dependencies": {
+  "peerDependencies": {
     "@effect/sql": "catalog:",
     "@effect/sql-pg": "catalog:",
     "@better-auth/sso": "catalog:",
+    "@beep/identity": "workspace:^",
     "@effect/sql-drizzle": "catalog:",
     "@effect/experimental": "catalog:",
     "@effect/workflow": "catalog:",

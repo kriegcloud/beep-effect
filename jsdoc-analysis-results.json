@@ -1,0 +1,16 @@
+{
+  "scope": "utils",
+  "root": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/utils",
+  "pattern": "src/**/*.ts",
+  "includeInternal": false,
+  "filesScanned": 13,
+  "exportsChecked": 40,
+  "missingCount": 0,
+  "missingByTag": {
+    "category": 0,
+    "example": 0,
+    "since": 0
+  },
+  "items": [],
+  "generatedAt": "2025-11-17T18:05:05.696Z"
+}

@@ -1,3 +1,18 @@
+/**
+ * String transformation helpers that surface as `Utils.StrUtils`, powering
+ * deterministic formatting, template interpolation, and normalization flows.
+ *
+ * @example
+ * import type * as FooTypes from "@beep/types/common.types";
+ * import * as Utils from "@beep/utils";
+ *
+ * const strUtilsName: FooTypes.Prettify<{ fullName: string }> = { fullName: "Ada Lovelace" };
+ * const strUtilsInitials = Utils.StrUtils.getNameInitials(strUtilsName.fullName);
+ * void strUtilsInitials;
+ *
+ * @category Documentation/Modules
+ * @since 0.1.0
+ */
 import type { StringTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
@@ -8,14 +23,20 @@ import * as Str from "effect/String";
 import * as ArrayUtils from "./array.utils";
 
 /**
- * Generates initials from a given name.
+ * Produces up to two initials for a given person name, falling back to `"?"` when
+ * there are no usable characters.
  *
- * @param {string | null | undefined} name - The name to generate initials from.
- * @returns {string} The initials (up to 2 characters) derived from the name, or "?" if the input is null, undefined, or empty.
+ * Handles multi‑word names, ignores repeated whitespace, and gracefully handles
+ * nullish inputs so UI components can show a consistent placeholder.
+ *
  * @example
- * getNameInitials("John Doe") // Returns "JD"
- * getNameInitials("Alice") // Returns "A"
- * getNameInitials(null) // Returns "?"
+ * import { StrUtils } from "@beep/utils";
+ *
+ * const initials = StrUtils.getNameInitials("Jane Q Doe");
+ * // "JQ"
+ *
+ * @category Data/String
+ * @since 0.1.0
  */
 export const getNameInitials = (name: string | null | undefined): string => {
   return F.pipe(
@@ -47,7 +68,32 @@ export const getNameInitials = (name: string | null | undefined): string => {
  * normalizeString("Café") // Returns "cafe"
  * normalizeString("Größe") // Returns "grosse"
  */
+/**
+ * Signature for utilities that turn arbitrary user input into normalized search
+ * strings (lowercase, stripped diacritics, sane replacements).
+ *
+ * @example
+ * import type { NormalizeString } from "@beep/utils/data/string.utils";
+ *
+ * const normalize: NormalizeString = (value) => value;
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export type NormalizeString = (str: string) => string;
+/**
+ * Normalizes user provided text by removing diacritics, folding ligatures, and
+ * lower‑casing so lookups or comparisons stay deterministic.
+ *
+ * @example
+ * import { StrUtils } from "@beep/utils";
+ *
+ * const normalized = StrUtils.normalizeString("Größe");
+ * // "grosse"
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export const normalizeString: NormalizeString = F.flow(
   Str.normalize("NFKD"),
   Str.replace(/[\u0300-\u036f]/g, ""), // Remove combining diacritical marks
@@ -57,6 +103,19 @@ export const normalizeString: NormalizeString = F.flow(
   Str.replace(/ß/g, "ss")
 );
 
+/**
+ * Converts any identifier style (camelCase, PascalCase, snake_case, spaced)
+ * into kebab‑case.
+ *
+ * @example
+ * import { StrUtils } from "@beep/utils";
+ *
+ * StrUtils.kebabCase("PrimaryButton");
+ * // "primary-button"
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export const kebabCase = (value: string): string =>
   F.pipe(value, Str.trim, (trimmed) =>
     Str.isEmpty(trimmed)
@@ -74,46 +133,54 @@ export const kebabCase = (value: string): string =>
   );
 
 /**
- * Formats the message by replacing double newlines with a space and removing asterisks around words.
+ * Function signature for helpers that remove lightweight markdown cues from a
+ * message body.
  *
- * @param {string} message - The message to format.
- * @returns {string} The formatted message.
  * @example
- * stripMessageFormatting("Hello\\n\\nWorld") // Returns "Hello World"
- * stripMessageFormatting("*Hello* World") // Returns "Hello World"
+ * import type { StripMessageFormatting } from "@beep/utils/data/string.utils";
+ *
+ * const formatter: StripMessageFormatting = (text) => text;
+ *
+ * @category Data/String
+ * @since 0.1.0
  */
 export type StripMessageFormatting = (message: string) => string;
+/**
+ * Removes double newlines and simple asterisk emphasis cues so notifications
+ * can be rendered as plain text.
+ *
+ * @example
+ * import { StrUtils } from "@beep/utils";
+ *
+ * const cleaned = StrUtils.stripMessageFormatting("*Hello*\n\nWorld");
+ * // "Hello World"
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export const stripMessageFormatting: StripMessageFormatting = F.flow(
   Str.replace(/\\n\\n/g, " "),
   Str.replace(/\*(.*?)\*/g, "$1")
 );
 
 /**
- * Interpolates variables in a template string using handlebars-style syntax.
- * Replaces patterns like {{variable.path}} with actual values from the provided data object.
- * Supports nested object access and array indexing with bracket notation (e.g., {{items.[0].name}}).
+ * Replaces `{{path.to.value}}` placeholders in a template string using data
+ * pulled via `getNestedValue`, including array access like `items.[0].name`.
  *
- * @param {string} template - The template string containing variable placeholders in {{variable}} format.
- * @param {Record<string, unknown>} data - The data object containing values to interpolate.
- * @returns {string} The template string with variables replaced by their corresponding values.
+ * Useful for email/snackbar copy where runtime data must be woven into
+ * pre-authored text.
  *
  * @example
- * const data = {
- *   user: { name: "John" },
- *   items: [{ product: { name: "Widget" } }],
- *   total: 99.99
- * };
- * interpolateTemplate("Hello {{user.name}}, your {{items.[0].product.name}} costs ${{total}}", data)
- * // Returns "Hello John, your Widget costs $99.99"
+ * import { StrUtils } from "@beep/utils";
  *
- * @example
- * interpolateTemplate("Welcome {{user.firstName}}!", { user: { firstName: "Alice" } })
- * // Returns "Welcome Alice!"
+ * const body = StrUtils.interpolateTemplate(
+ *   "Hello {{user.name}}, your {{items.[0].product.name}} costs ${{total}}",
+ *   { user: { name: "Ari" }, items: [{ product: { name: "Widget" } }], total: 42 }
+ * );
+ * // "Hello Ari, your Widget costs $42"
  *
- * @example
- * // Variables not found in data are left unchanged
- * interpolateTemplate("Hello {{unknown.var}}", {})
- * // Returns "Hello {{unknown.var}}"
+ * @category Data/String
+ * @since 0.1.0
  */
 export const interpolateTemplate = (template: string, data: Record<string, unknown>): string => {
   return template.replace(/\{\{([^}]+)}}/g, (match, variablePath: string) => {
@@ -124,18 +191,21 @@ export const interpolateTemplate = (template: string, data: Record<string, unkno
 };
 
 /**
- * Safely extracts a nested value from an object using a dot-notation path.
- * Supports array indexing with bracket notation (e.g., "items.[0].name").
- *
- * @param {Record<string, unknown>} obj - The object to extract the value from.
- * @param {string} path - The dot-notation path to the desired value (e.g., "user.profile.name" or "items.[0].id").
- * @returns {unknown} The value at the specified path, or undefined if not found.
+ * Safely extracts nested values from complex objects or arrays using dot/bracket
+ * notation such as `items.[0].product.name`, returning `undefined` instead of
+ * throwing when any segment is missing.
  *
  * @example
- * const data = { user: { profile: { name: "John" } }, items: [{ id: 1 }] };
- * getNestedValue(data, "user.profile.name") // Returns "John"
- * getNestedValue(data, "items.[0].id") // Returns 1
- * getNestedValue(data, "nonexistent.path") // Returns undefined
+ * import { StrUtils } from "@beep/utils";
+ *
+ * const name = StrUtils.getNestedValue(
+ *   { user: { profile: { name: "Grey" } }, items: [{ id: 1 }] },
+ *   "user.profile.name"
+ * );
+ * // "Grey"
+ *
+ * @category Data/String
+ * @since 0.1.0
  */
 export const getNestedValue = (obj: Record<string, unknown>, path: string): unknown => {
   const parts = path.split(".");
@@ -160,26 +230,105 @@ export const getNestedValue = (obj: Record<string, unknown>, path: string): unkn
   return current;
 };
 
+/**
+ * Nominal helper representing string literal unions constrained to non-empty
+ * values, allowing template literal helpers to infer strongly typed suffixes
+ * and prefixes.
+ *
+ * @example
+ * import type { LiteralValue } from "@beep/utils/data/string.utils";
+ *
+ * const status: LiteralValue = "active";
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export type LiteralValue = StringTypes.NonEmptyString;
 
+/**
+ * Curried type describing helpers that append a compile-time suffix to literal
+ * strings, keeping template literal inference intact.
+ *
+ * @example
+ * import type { ApplySuffix } from "@beep/utils/data/string.utils";
+ *
+ * const appendId: ApplySuffix = (suffix) => (value) => `${value}${suffix}`;
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export type ApplySuffix = <const Suffix extends LiteralValue, const Prefix extends LiteralValue>(
   suffix: Suffix
 ) => (prefix: Prefix) => `${Prefix}${Suffix}`;
 
+/**
+ * Builds a strongly typed suffixing function so literal unions keep their
+ * template literal information.
+ *
+ * @example
+ * import { StrUtils } from "@beep/utils";
+ *
+ * const withId = StrUtils.applySuffix("Id");
+ * const result = withId("organization");
+ * // "organizationId"
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export const applySuffix: ApplySuffix =
   <const Suffix extends LiteralValue, const Prefix extends LiteralValue>(suffix: Suffix) =>
   (prefix: Prefix) =>
     `${prefix}${suffix}`;
 
+/**
+ * Signature for helpers that prepend compile-time prefixes to literal strings
+ * while preserving template literal inference.
+ *
+ * @example
+ * import type { ApplyPrefix } from "@beep/utils/data/string.utils";
+ *
+ * const makePrefix: ApplyPrefix = (prefix) => (value) => `${prefix}${value}`;
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export type ApplyPrefix = <const Prefix extends LiteralValue, const Suffix extends LiteralValue>(
   prefix: Prefix
 ) => (suffix: Suffix) => `${Prefix}${Suffix}`;
 
+/**
+ * Builds a typed prefixing function used anywhere entity/table helpers need to
+ * add namespaces or property tags.
+ *
+ * @example
+ * import { StrUtils } from "@beep/utils";
+ *
+ * const addBeep = StrUtils.applyPrefix("beep_");
+ * const key = addBeep("tenant");
+ * // "beep_tenant"
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export const applyPrefix: ApplyPrefix =
   <const Prefix extends LiteralValue, const Suffix extends LiteralValue>(prefix: Prefix) =>
   (suffix: Suffix) =>
     `${prefix}${suffix}`;
 
+/**
+ * Produces helpers that map a prefix across a non-empty array (or variadic
+ * tuple) of literal strings, preserving the literal union type of each entry.
+ *
+ * @example
+ * import { StrUtils } from "@beep/utils";
+ *
+ * const addScope = StrUtils.mapApplyPrefix("beep.");
+ * const result = addScope("users", "tenants");
+ * // ["beep.users", "beep.tenants"]
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export function mapApplyPrefix<const Prefix extends LiteralValue>(
   prefix: Prefix
 ): {
@@ -222,6 +371,20 @@ export function mapApplyPrefix<const Prefix extends LiteralValue>(
   };
 }
 
+/**
+ * Maps a suffix across non-empty literal arrays or tuples, maintaining precise
+ * template literal output types for each entry.
+ *
+ * @example
+ * import { StrUtils } from "@beep/utils";
+ *
+ * const addId = StrUtils.mapApplySuffix("Id");
+ * const keys = addId("organization", "team");
+ * // ["organizationId", "teamId"]
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export function mapApplySuffix<const Suffix extends StringTypes.NonEmptyString>(
   suffix: Suffix
 ): {
@@ -264,8 +427,33 @@ export function mapApplySuffix<const Suffix extends StringTypes.NonEmptyString>(
   };
 }
 
+/**
+ * Type for helpers that convert numeric literals into string literal types so
+ * template literal operations can stay narrow.
+ *
+ * @example
+ * import type { StrLiteralFromNum } from "@beep/utils/data/string.utils";
+ *
+ * const toLiteral: StrLiteralFromNum = (value) => `${value}`;
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export type StrLiteralFromNum = <T extends number>(value: T) => `${T}`;
 
+/**
+ * Converts numeric literals to string literal types so downstream template
+ * literal helpers keep precise unions.
+ *
+ * @example
+ * import { StrUtils } from "@beep/utils";
+ *
+ * const literal = StrUtils.strLiteralFromNum(42);
+ * // "42"
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export const strLiteralFromNum: StrLiteralFromNum = <T extends number>(value: T) => `${value}` as const;
 
 const irregularPlurals: Record<string, string> = {
@@ -282,6 +470,20 @@ const irregularSingulars = F.pipe(
   Record.fromEntries
 );
 
+/**
+ * Converts English singular nouns into plural form, covering irregular cases
+ * (person -> people) plus consonant + `y`, `f`/`fe`, and consonant + `o`
+ * endings.
+ *
+ * @example
+ * import { StrUtils } from "@beep/utils";
+ *
+ * StrUtils.pluralize("address");
+ * // "addresses"
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export function pluralize(word: string): string {
   // Handle empty strings
   if (Str.isEmpty(word)) return word;
@@ -330,6 +532,20 @@ export function pluralize(word: string): string {
   return `${word}s`;
 }
 
+/**
+ * Converts plural nouns back to their singular form using the inverse logic of
+ * `pluralize`, handling irregular dictionaries along with `ies`, `ves`, and
+ * `es` endings.
+ *
+ * @example
+ * import { StrUtils } from "@beep/utils";
+ *
+ * StrUtils.singularize("companies");
+ * // "company"
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export function singularize(word: string): string {
   // Handle empty strings
   if (!word) return word;
@@ -417,44 +633,154 @@ function preserveCase(original: string, transformed: string): string {
 }
 
 /**
- * Converts table name to entity name (people -> Person, addresses -> Address)
+ * Function signature for helpers that convert plural table names into
+ * singularized PascalCase entity names (e.g., `people` -> `Person`).
+ *
+ * @example
+ * import type { MkEntityName } from "@beep/utils/data/string.utils";
+ *
+ * const fn: MkEntityName = (table) => table;
+ *
+ * @category Data/String
+ * @since 0.1.0
  */
 export type MkEntityName = (tableName: string) => string;
+/**
+ * Converts table names into singularized PascalCase entity names.
+ *
+ * @example
+ * import { StrUtils } from "@beep/utils";
+ *
+ * StrUtils.mkEntityName("phone_numbers");
+ * // "PhoneNumber"
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export const mkEntityName: MkEntityName = F.flow(Str.snakeToPascal, singularize);
 
 /**
- * Converts entity name to table name (Person -> people, Address -> addresses)
+ * Signature describing helpers that turn singular PascalCase entity names into
+ * plural snake_case table names.
+ *
+ * @example
+ * import type { MkTableName } from "@beep/utils/data/string.utils";
+ *
+ * const fn: MkTableName = (name) => name;
+ *
+ * @category Data/String
+ * @since 0.1.0
  */
 export type MkTableName = (entityName: string) => string;
+/**
+ * Converts entity names into pluralized snake_case table names.
+ *
+ * @example
+ * import { StrUtils } from "@beep/utils";
+ *
+ * StrUtils.mkTableName("PhoneNumber");
+ * // "phone_numbers"
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export const mkTableName: MkTableName = F.flow(Str.pascalToSnake, pluralize);
 
 /**
- * Converts entity name to Zero schema table name (Person -> people, PhoneNumber -> phoneNumbers)
+ * Function signature for helpers that build camelCase plural table names used
+ * by Zero schema conventions.
+ *
+ * @example
+ * import type { MkZeroTableName } from "@beep/utils/data/string.utils";
+ *
+ * const fn: MkZeroTableName = (entity) => entity;
+ *
+ * @category Data/String
+ * @since 0.1.0
  */
 export type MkZeroTableName = (entityName: string) => string;
+/**
+ * Converts PascalCase entities into camelCase plural table names for Zero
+ * schema compatibility.
+ *
+ * @example
+ * import { StrUtils } from "@beep/utils";
+ *
+ * StrUtils.mkZeroTableName("PhoneNumber");
+ * // "phoneNumbers"
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export const mkZeroTableName: MkZeroTableName = F.flow(Str.uncapitalize, pluralize);
 
 /**
- * Converts table name to entity type for IDs (people -> person, phone_numbers -> phonenumber)
+ * Signature for helpers that create lowercase entity identifiers suitable for
+ * ID suffixes (e.g., `people` -> `person`).
+ *
+ * @example
+ * import type { MkEntityType } from "@beep/utils/data/string.utils";
+ *
+ * const fn: MkEntityType = (table) => table;
+ *
+ * @category Data/String
+ * @since 0.1.0
  */
 export type MkEntityType = (tableName: string) => string;
+/**
+ * Converts plural table names into lowercase entity types used when composing
+ * ID labels.
+ *
+ * @example
+ * import { StrUtils } from "@beep/utils";
+ *
+ * StrUtils.mkEntityType("phone_numbers");
+ * // "phonenumber"
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export const mkEntityType: MkEntityType = F.flow(Str.snakeToPascal, Str.toLowerCase, singularize);
 
 /**
- * Converts entity name to standardized URL parameter name (Person -> personId, PhoneNumber -> phoneNumberId)
+ * Signature for helpers that generate camelCase URL parameter names from
+ * entity names (e.g., `Organization` -> `organizationId`).
+ *
+ * @example
+ * import type { MkUrlParamName } from "@beep/utils/data/string.utils";
+ *
+ * const fn: MkUrlParamName = (entity) => entity;
+ *
+ * @category Data/String
+ * @since 0.1.0
  */
 export type MkUrlParamName = (entityName: string) => string;
+/**
+ * Converts entity names into canonical camelCase URL parameter keys.
+ *
+ * @example
+ * import { StrUtils } from "@beep/utils";
+ *
+ * StrUtils.mkUrlParamName("Organization");
+ * // "organizationId"
+ *
+ * @category Data/String
+ * @since 0.1.0
+ */
 export const mkUrlParamName: MkUrlParamName = F.flow(Str.uncapitalize, Str.concat("Id"));
 
 /**
- * Formats a field name into a human-readable label using Effect-TS String utilities
- * Handles snake_case, kebab-case, camelCase, PascalCase, and mixed formats
- * Examples:
- * - "first_name" -> "First Name"
- * - "firstName" -> "First Name"
- * - "FirstName" -> "First Name"
- * - "first-name" -> "First Name"
- * - "phoneNumber2" -> "Phone Number 2"
+ * Converts identifiers in camel, Pascal, snake, kebab, or spaced casing into
+ * a human readable label with whitespace and capitalization preserved.
+ *
+ * @example
+ * import { StrUtils } from "@beep/utils";
+ *
+ * StrUtils.formatLabel("phoneNumber2");
+ * // "Phone Number 2"
+ *
+ * @category Data/String
+ * @since 0.1.0
  */
 export const formatLabel = (fieldName: string): string =>
   F.pipe(

@@ -1,11 +1,12 @@
 import * as S from "effect/Schema";
+import { CustomId } from "./_id";
 
-export class Uint8Arr extends S.instanceOf(Uint8Array).annotations({
-  schemaId: Symbol.for("@beep/schema/custom/Uint8Arr"),
-  identifier: "Uint8Arr",
-  title: "Uint8Array",
-  description: "A Uint8Array",
-}) {
+const Id = CustomId.compose("custom");
+export class Uint8Arr extends S.instanceOf(Uint8Array).annotations(
+  Id.annotations("Uint8Arr", {
+    description: "A Uint8Array",
+  })
+) {
   static readonly is = S.is(this);
 }
 

@@ -13,6 +13,9 @@
     },
     {
       "path": "../../../tooling/testkit"
+    },
+    {
+      "path": "../identity"
     }
   ],
   "compilerOptions": {

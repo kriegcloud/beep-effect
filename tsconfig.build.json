@@ -18,15 +18,21 @@
       "path": "packages/common/schema/tsconfig.build.json"
     },
     {
+      "path": "packages/common/schema-v2/tsconfig.build.json"
+    },
+    {
       "path": "packages/common/constants/tsconfig.build.json"
+    },
+        {
+      "path": "packages/common/identity/tsconfig.build.json"
     },
     {
       "path": "packages/common/errors/tsconfig.build.json"
     },
-        {
+    {
       "path": "packages/common/mock/tsconfig.build.json"
     },
-            {
+    {
       "path": "packages/common/contract/tsconfig.build.json"
     },
     {
@@ -80,8 +86,7 @@
     {
       "path": "packages/files/infra/tsconfig.build.json"
     },
-
-        {
+    {
       "path": "packages/tasks/sdk/tsconfig.build.json"
     },
     {
@@ -96,7 +101,6 @@
     {
       "path": "packages/tasks/infra/tsconfig.build.json"
     },
-
     {
       "path": "packages/runtime/server/tsconfig.build.json"
     },

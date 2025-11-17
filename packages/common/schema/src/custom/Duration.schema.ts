@@ -1,27 +1,55 @@
 import { Duration } from "effect";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
+import { CustomId } from "./_id";
 
-const DurationValueMillis = S.TaggedStruct("Millis", { millis: S.NonNegativeInt });
-const DurationValueNanos = S.TaggedStruct("Nanos", { nanos: S.String });
-const DurationValueInfinity = S.TaggedStruct("Infinity", {});
-const DurationValue = S.Union(DurationValueMillis, DurationValueNanos, DurationValueInfinity).annotations({
-  identifier: "DurationValue",
-  description: "an JSON-compatible tagged union to be decoded into a Duration",
-});
+const Id = CustomId.compose("duration");
+const DurationValueMillis = S.TaggedStruct("Millis", { millis: S.NonNegativeInt }).annotations(
+  Id.annotations("DurationValueMillis", {
+    description: "an JSON-compatible tagged union to be decoded into a Duration",
+  })
+);
+const DurationValueNanos = S.TaggedStruct("Nanos", { nanos: S.String }).annotations(
+  Id.annotations("DurationValueNanos", {
+    description: "an JSON-compatible tagged union to be decoded into a Duration",
+  })
+);
+const DurationValueInfinity = S.TaggedStruct("Infinity", {}).annotations(
+  Id.annotations("DurationValueInfinity", {
+    description: "an JSON-compatible tagged union to be decoded into a Duration",
+  })
+);
+const DurationValue = S.Union(DurationValueMillis, DurationValueNanos, DurationValueInfinity).annotations(
+  Id.annotations("DurationValue", {
+    description: "an JSON-compatible tagged union to be decoded into a Duration",
+  })
+);
 
 const FiniteHRTime = S.Tuple(
   S.element(S.NonNegativeInt).annotations({ title: "seconds" }),
   S.element(S.NonNegativeInt).annotations({ title: "nanos" })
-).annotations({ identifier: "FiniteHRTime" });
+).annotations(
+  Id.annotations("FiniteHRTime", {
+    description: "a tuple of seconds and nanos to be decoded into a Duration",
+  })
+);
 
-const InfiniteHRTime = S.Tuple(S.Literal(-1), S.Literal(0)).annotations({ identifier: "InfiniteHRTime" });
+const InfiniteHRTime = S.Tuple(S.Literal(-1), S.Literal(0)).annotations(
+  Id.annotations("InfiniteHRTime", {
+    description: "a tuple of seconds and nanos to be decoded into a Duration",
+  })
+);
 
-const HRTime: S.Schema<readonly [seconds: number, nanos: number]> = S.Union(FiniteHRTime, InfiniteHRTime).annotations({
-  identifier: "HRTime",
-  description: "a tuple of seconds and nanos to be decoded into a Duration",
-});
-export const DurationFromSelfInput = S.Union(DurationValue, HRTime);
+const HRTime: S.Schema<readonly [seconds: number, nanos: number]> = S.Union(FiniteHRTime, InfiniteHRTime).annotations(
+  Id.annotations("HRTime", {
+    description: "a tuple of seconds and nanos to be decoded into a Duration",
+  })
+);
+export const DurationFromSelfInput = S.Union(DurationValue, HRTime).annotations(
+  Id.annotations("DurationFromSelfInput", {
+    description: "a union of DurationValue and HRTime to be decoded into a Duration",
+  })
+);
 
 export const TaggedDurationInputUnion = S.Union(
   S.transformOrFail(
@@ -179,6 +207,10 @@ export const TaggedDurationInputUnion = S.Union(
         }),
     }
   )
+).annotations(
+  Id.annotations("TaggedDurationInputUnion", {
+    description: "a union of DurationValue and HRTime to be decoded into a Duration",
+  })
 );
 
 export declare namespace TaggedDurationInputUnion {
@@ -196,12 +228,11 @@ export class DurationFromSeconds extends S.transform(
     encode: (a) => Duration.toSeconds(a),
     strict: true,
   }
-).annotations({
-  schemaId: Symbol.for("@beep/schema/custom/Duration/DurationFromSeconds"),
-  identifier: "DurationFromSeconds",
-  title: "Duration from seconds",
-  description: "a non-negative number of seconds to be decoded into a Duration",
-}) {}
+).annotations(
+  Id.annotations("DurationFromSeconds", {
+    description: "a non-negative number of seconds to be decoded into a Duration",
+  })
+) {}
 
 export declare namespace DurationFromSeconds {
   export type Type = typeof DurationFromSeconds.Type;

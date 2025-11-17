@@ -181,6 +181,75 @@
         "^test"
       ]
     },
+    "docgen": {
+      "cache": false,
+      "dependsOn": [
+        "^docgen"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/common/utils/docgen.json",
+        "packages/common/utils/src/**",
+        "packages/common/types/docgen.json",
+        "packages/common/types/src/**",
+        "packages/common/invariant/docgen.json",
+        "packages/common/invariant/src/**",
+        "packages/common/identity/docgen.json",
+        "packages/common/identity/src/**"
+      ],
+      "outputs": [
+        "packages/common/utils/docs/**",
+        "packages/common/types/docs/**",
+        "packages/common/invariant/docs/**",
+        "packages/common/identity/docs/**"
+
+      ]
+    },
+    "docs:lint": {
+      "cache": false,
+      "dependsOn": [
+        "^docs:lint"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/common/utils/src/**",
+        "packages/common/identity/src/**",
+        "packages/common/types/src/**",
+        "packages/common/invariant/src/**",
+        "tooling/repo-scripts/src/**"
+      ],
+      "outputs": [
+        "jsdoc-analysis-results.json"
+      ]
+    },
+    "docs:lint:file": {
+      "cache": false,
+      "dependsOn": [
+        "^docs:lint:file"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$"
+      ]
+    },
+    "docs:site": {
+      "cache": false,
+      "dependsOn": [
+        "docgen"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/common/utils/docs/**",
+        "packages/common/identity/docs/**",
+        "packages/common/types/docs/**",
+        "packages/common/invariant/docs/**"
+      ],
+      "outputs": [
+        "docs/utils/**",
+        "docs/types/**",
+        "docs/invariant/**",
+        "docs/identity/**"
+      ]
+    },
     "purge": {
       "cache": false
     },

@@ -18,6 +18,9 @@
       "path": "../../core/env"
     },
     {
+      "path": "../../common/identity"
+    },
+    {
       "path": "../../core/email"
     },
     {

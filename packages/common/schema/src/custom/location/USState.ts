@@ -1,6 +1,6 @@
 import { stringLiteralKit } from "@beep/schema/kits";
 import * as S from "effect/Schema";
-
+import { Id } from "./_id";
 export const USStateCodeKit = stringLiteralKit(
   "AL",
   "AK",
@@ -60,12 +60,11 @@ export const USStateCodeKit = stringLiteralKit(
   "MP"
 );
 
-export class USStateCode extends USStateCodeKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/constants/USState/USStateCode"),
-  identifier: "USStateCode",
-  title: "US State Code",
-  description: "A valid US state abbreviation",
-}) {
+export class USStateCode extends USStateCodeKit.Schema.annotations(
+  Id.annotations("USStateCode", {
+    description: "A valid US state abbreviation",
+  })
+) {
   static readonly Options = USStateCodeKit.Options;
   static readonly Enum = USStateCodeKit.Enum;
 }
@@ -134,12 +133,11 @@ export const USStateNameKit = stringLiteralKit(
   "Northern Mariana Islands"
 );
 
-export class USStateName extends USStateNameKit.Schema.annotations({
-  schemaId: Symbol.for("@beep/constants/USState/USStateName"),
-  identifier: "USStateName",
-  title: "US State Name",
-  description: "A valid US state name",
-}) {
+export class USStateName extends USStateNameKit.Schema.annotations(
+  Id.annotations("USStateName", {
+    description: "A valid US state name",
+  })
+) {
   static readonly Options = USStateNameKit.Options;
   static readonly Enum = USStateNameKit.Enum;
 }
@@ -206,12 +204,11 @@ export class USStateNameFromCode extends S.transformLiterals(
   [USStateCode.Enum.VI, USStateName.Enum["Virgin Islands"]],
   [USStateCode.Enum.AS, USStateName.Enum["American Samoa"]],
   [USStateCode.Enum.MP, USStateName.Enum["Northern Mariana Islands"]]
-).annotations({
-  schemaId: Symbol.for("@beep/schema/custom/location/USState/USStateNameFromCode"),
-  identifier: "USStateNameFromCode",
-  title: "US State Name From Code",
-  description: "Represents a US state name from its code",
-}) {}
+).annotations(
+  Id.annotations("USStateNameFromCode", {
+    description: "Represents a US state name from its code",
+  })
+) {}
 
 export declare namespace USStateNameFromCode {
   export type Type = S.Schema.Type<typeof USStateNameFromCode>;

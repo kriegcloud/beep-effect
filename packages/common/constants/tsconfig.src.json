@@ -13,12 +13,14 @@
     },
     {
       "path": "../invariant"
+    },
+    {
+      "path": "../identity"
     }
   ],
   "compilerOptions": {
     "types": ["node", "bun"],
     "outDir": "build/src",
-
     "isolatedDeclarations": false,
     "rootDir": "src",
     "moduleResolution": "bundler",

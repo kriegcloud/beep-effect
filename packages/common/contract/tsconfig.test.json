@@ -16,6 +16,9 @@
     },
     {
       "path": "../invariant"
+    },
+    {
+      "path": "../identity"
     }
   ],
   "compilerOptions": {

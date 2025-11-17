@@ -39,6 +39,7 @@
     "@effect/cluster": "catalog:",
     "@effect/workflow": "catalog:",
     "@beep/invariant": "workspace:^",
+    "@beep/identity": "workspace:^",
     "uuid": "catalog:"
   },
   "devDependencies": {
@@ -49,6 +50,7 @@
     "@effect/cluster": "catalog:",
     "@effect/workflow": "catalog:",
     "@beep/invariant": "workspace:^",
+    "@beep/identity": "workspace:^",
     "uuid": "catalog:",
     "@beep/types": "workspace:^"
   },

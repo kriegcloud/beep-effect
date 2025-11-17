@@ -3,7 +3,9 @@ import type { StringTypes } from "@beep/types";
 import type * as A from "effect/Array";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
+import { CustomId } from "./_id";
 
+const Id = CustomId.compose("literal");
 export function LiteralDefaults<const Literals extends A.NonEmptyReadonlyArray<AST.LiteralValue>>(
   ...literals: Literals
 ) {
@@ -16,9 +18,11 @@ export function LiteralDefaults<const Literals extends A.NonEmptyReadonlyArray<A
           constructor: () => defaultValue,
         })
       )
-      .annotations({
-        default: defaultValue,
-      });
+      .annotations(
+        Id.annotations("LiteralDefaults", {
+          default: defaultValue,
+        })
+      );
   };
 }
 
@@ -45,7 +49,12 @@ export const LiteralWithDefault = <const Literal extends StringTypes.NonEmptyStr
         decoding: () => value,
       })
     )
-    .annotations(annotations ?? {});
+    .annotations(
+      Id.annotations("LiteralWithDefault", {
+        ...annotations,
+        default: value,
+      })
+    );
 
 export declare namespace LiteralWithDefault {
   export type Schema<Literal extends string> = S.PropertySignature<

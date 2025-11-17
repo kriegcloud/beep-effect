@@ -39,6 +39,7 @@
     "@beep/utils": "workspace:^",
     "@beep/errors": "workspace:^",
     "@beep/constants": "workspace:^",
+    "@beep/identity": "workspace:^",
     "@beep/invariant": "workspace:^",
     "effect": "catalog:"
   },
@@ -52,6 +53,7 @@
     "@beep/shared-domain": "workspace:^",
     "@beep/core-env": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/identity": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/errors": "workspace:^",
     "@beep/constants": "workspace:^",

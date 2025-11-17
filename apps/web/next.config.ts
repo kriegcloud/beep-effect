@@ -70,6 +70,7 @@ const candidateTranspilePackages = [
   "@beep/core-db",
   "@beep/ui",
   "@beep/ui-core",
+  "@beep/identity",
   "@beep/iam-domain",
   "@beep/iam-tables",
   "@beep/iam-infra",

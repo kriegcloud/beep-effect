@@ -315,7 +315,7 @@ const replaced = F.pipe(str, Str.replace(/old/g, "new"));
     - Prefer: `F.pipe(obj, Record.values)` instead of `Object.values(obj)`
     - Prefer: `F.pipe(obj, Struct.entries)` instead of `Object.entries(obj)`
     - Prefer: `F.pipe(obj, Record.map((value) => transform(value)))` instead of manual object iteration
-    -
+    - Prefer: `F.pipe(obj, Record.set("prop", "propValue"))` instead of object.assign
     - Use Effect's Record utilities for all object manipulation and transformation
 - **Use Effect's collection utilities instead of native JavaScript collections**
     - **HashMap instead of Map**: Prefer `HashMap.empty()`, `HashMap.set()`, `HashMap.get()`, `HashMap.fromIterable()`

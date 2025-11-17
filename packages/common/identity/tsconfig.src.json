@@ -1,0 +1,30 @@
+{
+  "extends": "../../../tsconfig.base.jsonc",
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../types"
+    },
+    {
+      "path": "../invariant"
+    },
+    {
+      "path": "../../../tooling/testkit"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["bun", "node"],
+    "outDir": "build/src",
+
+    "rootDir": "src",
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "rewriteRelativeImportExtensions": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "isolatedDeclarations": true,
+    "skipDefaultLibCheck": true
+  }
+}

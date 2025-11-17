@@ -18,6 +18,9 @@
       "path": "../../common/constants/tsconfig.build.json"
     },
     {
+      "path": "../../common/identity/tsconfig.build.json"
+    },
+    {
       "path": "../../shared/domain/tsconfig.build.json"
     }
   ]

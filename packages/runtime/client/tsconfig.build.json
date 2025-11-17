@@ -27,6 +27,9 @@
       "path": "../../common/utils/tsconfig.build.json"
     },
     {
+      "path": "../../common/identity/tsconfig.build.json"
+    },
+    {
       "path": "../../common/schema/tsconfig.build.json"
     },
     {

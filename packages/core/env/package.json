@@ -37,6 +37,14 @@
     "effect": "catalog:",
     "@beep/schema": "workspace:^",
     "@beep/constants": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/shared-domain": "workspace:^"
+  },
+  "dev": {
+    "effect": "catalog:",
+    "@beep/schema": "workspace:^",
+    "@beep/constants": "workspace:^",
+    "@beep/identity": "workspace:^",
     "@beep/shared-domain": "workspace:^"
   },
   "effect": {

@@ -1,3 +1,19 @@
+/**
+ * Deep equality implementation powering `Utils.deepEqual`, covering arrays,
+ * buffers, maps, sets, and typed arrays with cycle detection.
+ *
+ * @example
+ * import type * as FooTypes from "@beep/types/common.types";
+ * import * as Utils from "@beep/utils";
+ *
+ * const equalityModuleLeft: FooTypes.Prettify<{ items: Array<number> }> = { items: [1, 2] };
+ * const equalityModuleRight: FooTypes.Prettify<{ items: Array<number> }> = { items: [1, 2] };
+ * const equalityModuleMatches = Utils.deepEqual(equalityModuleLeft, equalityModuleRight);
+ * void equalityModuleMatches;
+ *
+ * @category Documentation/Modules
+ * @since 0.1.0
+ */
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
@@ -187,4 +203,18 @@ const baseEqual = (value: unknown, other: unknown, stack: Stack): boolean => {
   return equalByTag(value, other, tagValue, stack, baseEqual);
 };
 
+/**
+ * Performs a deep structural equality comparison between two values,
+ * supporting arrays, objects, typed arrays, dates, maps, sets, and
+ * ArrayBuffers.
+ *
+ * @example
+ * import { deepEqual } from "@beep/utils/equality/deepEqual";
+ *
+ * deepEqual({ a: [1, 2] }, { a: [1, 2] });
+ * // true
+ *
+ * @category Equality/Core
+ * @since 0.1.0
+ */
 export const deepEqual = (value: unknown, other: unknown): boolean => baseEqual(value, other, new WeakMap());

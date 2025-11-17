@@ -1,3 +1,4 @@
+import { Id } from "@beep/schema/annotations/_id";
 import type { UnsafeTypes } from "@beep/types";
 import type * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
@@ -6,23 +7,23 @@ import * as O from "effect/Option";
 import type * as Pretty from "effect/Pretty";
 import * as AST from "effect/SchemaAST";
 
-export const LabelAnnotationId = Symbol.for("@beep/schema/annotations/LabelAnnotation");
-export const BSFieldName = Symbol.for("@beep/schema/fieldName");
-export const BSCustomField = Symbol.for("@beep/schema/customField");
-export const BSSkipField = Symbol.for("@beep/schema/skipField");
-export const BSEntity = Symbol.for("@beep/schema/entity");
-export const BSEdge = Symbol.for("@beep/schema/edge");
-export const BSFolder = Symbol.for("@beep/schema/folder");
-export const BSSkipEntity = Symbol.for("@beep/schema/skipEntity");
-export const BSTransformer = Symbol.for("@beep/schema/transformer");
+export const LabelAnnotationId = Id.compose("LabelAnnotation").symbol();
+export const BSFieldName = Id.compose("fieldName").symbol();
+export const BSCustomField = Id.compose("customField").symbol();
+export const BSSkipField = Id.compose("skipField").symbol();
+export const BSEntity = Id.compose("entity").symbol();
+export const BSEdge = Id.compose("edge").symbol();
+export const BSFolder = Id.compose("folder").symbol();
+export const BSSkipEntity = Id.compose("skipEntity").symbol();
+export const BSTransformer = Id.compose("transformer").symbol();
 
 // Predicate to filter out entities that have data we don't want to sync.
-export const BSFilterFn = Symbol.for("@beep/schema/filterFn");
-export const BSFolderType = Symbol.for("@beep/schema/folderType");
-export const BSTable = Symbol.for("@beep/schema/table");
-export const BSUIConfig = Symbol.for("@beep/schema/uiConfig");
-export const BSRelations = Symbol.for("@beep/schema/relations");
-export const BSForeignKey = Symbol.for("@beep/schema/foreignKey");
+export const BSFilterFn = Id.compose("filterFn").symbol();
+export const BSFolderType = Id.compose("folderType").symbol();
+export const BSTable = Id.compose("table").symbol();
+export const BSUIConfig = Id.compose("uiConfig").symbol();
+export const BSRelations = Id.compose("relations").symbol();
+export const BSForeignKey = Id.compose("foreignKey").symbol();
 
 export type BSEdgeAnnotation = {
   relationshipType: string;

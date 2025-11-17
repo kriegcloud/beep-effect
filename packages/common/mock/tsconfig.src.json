@@ -16,6 +16,9 @@
     },
     {
       "path": "../constants"
+    },
+    {
+      "path": "../identity"
     }
   ],
   "compilerOptions": {
