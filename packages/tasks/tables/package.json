@@ -42,6 +42,7 @@
     "drizzle-orm": "catalog:"
   },
   "devDependencies": {
+    "@effect/docgen": "catalog:",
     "@types/bun": "catalog:",
     "@beep/types": "workspace:^",
     "@beep/shared-tables": "workspace:^",

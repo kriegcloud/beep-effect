@@ -52,6 +52,7 @@
     "resend": "catalog:"
   },
   "devDependencies": {
+    "@effect/docgen": "catalog:",
     "@types/bun": "catalog:",
     "@beep/types": "workspace:^",
     "@types/react": "catalog:",

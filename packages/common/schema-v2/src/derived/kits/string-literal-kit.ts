@@ -12,13 +12,13 @@
  * @since 0.1.0
  */
 
-import type {TaggedUnion} from "@beep/schema-v2/core/generics/tagged-union";
-import {TaggedUnion as TaggedUnionFactory} from "@beep/schema-v2/core/generics/tagged-union";
-import {Id} from "@beep/schema-v2/derived/kits/_id";
-import type {StringTypes, UnsafeTypes} from "@beep/types";
-import {enumFromStringArray} from "@beep/utils";
-import type {CreateEnumType, ValidMapping} from "@beep/utils/data/tuple.utils";
-import {makeMappedEnum} from "@beep/utils/data/tuple.utils";
+import type { TaggedUnion } from "@beep/schema-v2/core/generics/tagged-union";
+import { TaggedUnion as TaggedUnionFactory } from "@beep/schema-v2/core/generics/tagged-union";
+import { Id } from "@beep/schema-v2/derived/kits/_id";
+import type { StringTypes, UnsafeTypes } from "@beep/types";
+import { enumFromStringArray } from "@beep/utils";
+import type { CreateEnumType, ValidMapping } from "@beep/utils/data/tuple.utils";
+import { makeMappedEnum } from "@beep/utils/data/tuple.utils";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
@@ -64,17 +64,15 @@ const buildMembersMap = <
   const tupleArray = tuple as unknown as ReadonlyArray<S.Struct<UnsafeTypes.UnsafeAny>>;
   const entries = F.pipe(
     values,
-    A.reduce(
-      [] as ReadonlyArray<readonly [string, S.Struct<UnsafeTypes.UnsafeAny>]>,
-      (acc, literal, index) =>
-        F.pipe(
-          tupleArray,
-          A.get(index),
-          O.match({
-            onNone: () => acc,
-            onSome: (member) => A.append(acc, [literal, member] as const),
-          })
-        )
+    A.reduce([] as ReadonlyArray<readonly [string, S.Struct<UnsafeTypes.UnsafeAny>]>, (acc, literal, index) =>
+      F.pipe(
+        tupleArray,
+        A.get(index),
+        O.match({
+          onNone: () => acc,
+          onSome: (member) => A.append(acc, [literal, member] as const),
+        })
+      )
     )
   );
   return R.fromEntries(entries) as TaggedMembersMap<Literals, D>;
@@ -297,19 +295,23 @@ export function stringLiteralKit<
   const Enum: EnumType =
     options?.enumMapping !== undefined ? enumFactory(...options.enumMapping).Enum : enumFromStringArray(...literals);
 
-  const Schema = S.Literal(...literals).annotations(Id.annotations("StringLiteralKitLiteral", {
-    arbitrary: () => (fc) => fc.constantFrom(...literals),
-    description: "Literal schema produced by stringLiteralKit",
-  }));
+  const Schema = S.Literal(...literals).annotations(
+    Id.annotations("StringLiteralKitLiteral", {
+      arbitrary: () => (fc) => fc.constantFrom(...literals),
+      description: "Literal schema produced by stringLiteralKit",
+    })
+  );
   return {
     Schema: Schema,
     Options: literals,
     Enum,
     derive: <Keys extends A.NonEmptyReadonlyArray<Literals[number]>>(...keys: Keys) => {
-      const Schema = S.Literal(...keys).annotations(Id.annotations("StringLiteralKitLiteral", {
-        description: "Literal schema produced by stringLiteralKit",
-        arbitrary: () => (fc) => fc.constantFrom(...keys),
-      }));
+      const Schema = S.Literal(...keys).annotations(
+        Id.annotations("StringLiteralKitLiteral", {
+          description: "Literal schema produced by stringLiteralKit",
+          arbitrary: () => (fc) => fc.constantFrom(...keys),
+        })
+      );
 
       const toTagged = <D extends StringTypes.NonEmptyString>(discriminator: StringTypes.NonEmptyString<D>) => {
         const memberTuple = F.pipe(

@@ -94,6 +94,7 @@
     "@beep/ui-core": "workspace:^"
   },
   "devDependencies": {
+    "@effect/docgen": "catalog:",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

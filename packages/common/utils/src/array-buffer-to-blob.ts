@@ -16,7 +16,7 @@
  * @since 0.1.0
  */
 type ArrayBufferToBlob = (buffer: ArrayBuffer) => Blob;
-/** 
+/**
  * Converts an `ArrayBuffer` into a `Blob`, useful for constructing file-like
  * objects in browser contexts.
  *

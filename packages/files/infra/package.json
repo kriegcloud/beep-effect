@@ -59,6 +59,7 @@
     "@beep/errors": "workspace:^"
   },
   "devDependencies": {
+    "@effect/docgen": "catalog:",
     "@types/bun": "catalog:",
     "@beep/types": "workspace:^",
     "@effect/sql": "catalog:",

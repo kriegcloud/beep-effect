@@ -1,15 +1,12 @@
 /**
- * Placeholder namespace for schema identity helpers (EntityId factories, columns, etc.).
- *
- * Maintains a stable import path while the schema-v2 migration finishes wiring identity helpers.
+ * EntityId namespace exposing UUID utilities and branded helpers.
  *
  * @example
- * import type * as SchemaIdentity from "@beep/schema-v2/identity";
+ * import * as Identity from "@beep/schema-v2/identity";
  *
- * type IdentitySurface = SchemaIdentity.Placeholder;
+ * const TenantUUID = Identity.EntityId.BrandedUUID("TenantUUID");
  *
  * @category Surface/Identity
  * @since 0.1.0
- * @internal
  */
-export type Placeholder = never;
+export * as EntityId from "./entity-id";

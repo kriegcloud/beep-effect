@@ -40,7 +40,8 @@
     "@beep/identity": "workspace:^",
     "@beep/shared-domain": "workspace:^"
   },
-  "dev": {
+  "devDependencies": {
+    "@effect/docgen": "catalog:",
     "effect": "catalog:",
     "@beep/schema": "workspace:^",
     "@beep/constants": "workspace:^",

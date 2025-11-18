@@ -12,8 +12,9 @@
  * @category Primitives/Number
  * @since 0.1.0
  */
-import * as ParseResult from "effect/ParseResult";
+
 import { Id } from "@beep/schema-v2/primitives/number/_id";
+import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 
 /**

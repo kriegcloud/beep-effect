@@ -62,14 +62,14 @@ First tranche of zero-dependency modules covering annotations, base collection s
 
 ### `@beep/schema/custom/Array.schema` → `packages/common/schema-v2/src/derived/collections/array.ts`
 - [ ] `ArrayOfNumbers`
-- [ ] `Encoded`
-- [ ] `Type`
+- [x] `Encoded`
+- [x] `Type`
 - [ ] `arrayToCommaSeparatedString`
 
 ### `@beep/schema/custom/ArrayBuffer.schema` → `packages/common/schema-v2/src/primitives/binary/array-buffer.ts`
 - [ ] `ArrBuffer`
-- [ ] `Encoded`
-- [ ] `Type`
+- [x] `Encoded`
+- [x] `Type`
 
 ### `@beep/schema/custom/dates/DateTime.schema` → `packages/common/schema-v2/src/primitives/temporal/dates/date-time.ts`
 - [ ] `AllAcceptableDateInputs`
@@ -77,40 +77,40 @@ First tranche of zero-dependency modules covering annotations, base collection s
 - [ ] `DateFromAllAcceptable`
 - [ ] `DateTimeUtcByInstantSchemaId`
 - [ ] `DateTimeUtcFromAllAcceptable`
-- [ ] `Encoded`
+- [x] `Encoded`
 - [ ] `IsoStringToTimestamp`
-- [ ] `Type`
+- [x] `Type`
 - [ ] `normalizeIsoString`
 
 ### `@beep/schema/custom/dates/Year.schema` → `packages/common/schema-v2/src/primitives/temporal/dates/year.ts`
-- [ ] `Encoded`
-- [ ] `Type`
+- [x] `Encoded`
+- [x] `Type`
 - [ ] `YearEncoded`
 
 ### `@beep/schema/custom/Duration.schema` → `packages/common/schema-v2/src/primitives/temporal/duration.ts`
 - [ ] `DurationFromSeconds`
 - [ ] `DurationFromSelfInput`
-- [ ] `Encoded`
+- [x] `Encoded`
 - [ ] `TaggedDurationInputUnion`
-- [ ] `Type`
+- [x] `Type`
 
 ### `@beep/schema/custom/Fn/Fn.schema` → `packages/common/schema-v2/src/primitives/misc/fn/fn.ts`
-- [ ] `Fn`
+- [x] `Fn`
 
 ### `@beep/schema/custom/Fn/NoInputVoidFn/index` → `packages/common/schema-v2/src/primitives/misc/fn/no-input-void-fn/index.ts`
-- [ ] `NoInputVoidFn`
+- [x] `NoInputVoidFn`
 
 ### `@beep/schema/custom/Graph.schema` → `packages/common/schema-v2/src/derived/collections/graph.ts`
 - [ ] `EdgeDirectionSchema`
 
 ### `@beep/schema/custom/locales/ALL_LOCALES.generated` → `packages/common/schema-v2/src/primitives/misc/locales/all-locales-generated.ts`
-- [ ] `ALL_LOCALES`
+- [x] `ALL_LOCALES`
 
 ### `@beep/schema/custom/location/CountryCode` → `packages/common/schema-v2/src/primitives/network/location/country-code.ts`
 - [ ] `CountryCode`
 - [ ] `CountryCodeKit`
-- [ ] `Encoded`
-- [ ] `Type`
+- [x] `Encoded`
+- [x] `Type`
 
 ## Milestone 2 – Level 0B: Locale & Regex Inputs
 Complete the remaining zero-dependency primitives (locale + address helpers, semantic strings, raw regex helpers).
@@ -191,14 +191,14 @@ Complete the remaining zero-dependency primitives (locale + address helpers, sem
 Zero-dependency identity hooks, extended schema helpers, HTTP headers, and utility shims needed by every later milestone.
 
 ### `@beep/schema/custom/UUID.schema` → `packages/common/schema-v2/src/identity/entity-id/uuid.ts`
-- [ ] `BrandedUUID`
-- [ ] `Encoded`
-- [ ] `Type`
-- [ ] `UUIDLiteral`
-- [ ] `UUIDLiteralEncoded`
+- [x] `BrandedUUID`
+- [x] `Encoded`
+- [x] `Type`
+- [x] `UUIDLiteral`
+- [x] `UUIDLiteralEncoded`
 
 ### `@beep/schema/EntityId/index` → `packages/common/schema-v2/src/identity/entity-id/index.ts`
-- [ ] `EntityId`
+- [x] `EntityId`
 
 ### `@beep/schema/extended-schemas` → `packages/common/schema-v2/src/core/extended/extended-schemas.ts`
 - [x] `Array`
@@ -240,41 +240,23 @@ Zero-dependency identity hooks, extended schema helpers, HTTP headers, and utili
 - [x] `withDefaultMake`
 
 ### `@beep/schema/http/HttpHeaders` → `packages/common/schema-v2/src/integrations/http/http-headers.ts`
-- [ ] `Encoded`
-- [ ] `HttpHeaders`
-- [ ] `Type`
+- [x] `Encoded`
+- [x] `HttpHeaders`
+- [x] `Type`
 
 ### `@beep/schema/JsonSchema` → `packages/common/schema-v2/src/builders/json-schema/index.ts`
-- [ ] `$JsonType`
-- [ ] `ArraySchema`
-- [ ] `BooleanSchema`
-- [ ] `Encoded`
-- [ ] `IntegerSchema`
-- [ ] `JsonSchema`
-- [ ] `NullSchema`
-- [ ] `NumberSchema`
-- [ ] `ObjectSchema`
-- [ ] `StringSchema`
-- [ ] `Type`
-- [ ] `_JsonSchema`
-
-### `@beep/schema/schema-system/CustomFieldSchema` → `packages/common/schema-v2/src/builders/introspection/custom-field-schema.ts`
-- [ ] `BooleanFieldSchema`
-- [ ] `CustomFieldSchema`
-- [ ] `DateFieldSchema`
-- [ ] `NumberFieldSchema`
-- [ ] `StringFieldSchema`
-- [ ] `getCustomFieldValue`
-- [ ] `makeCustomField`
-
-### `@beep/schema/schema-system/relationship-utils` → `packages/common/schema-v2/src/builders/introspection/relationship-utils.ts`
-- [ ] `GroupedRelationships`
-- [ ] `RelationshipInput`
-- [ ] `RelationshipPair`
-- [ ] `compressPairs`
-- [ ] `compressRelationshipInputs`
-- [ ] `expandBidirectionalPairs`
-- [ ] `groupPairsBySource`
+- [x] `$JsonType`
+- [x] `ArraySchema`
+- [x] `BooleanSchema`
+- [x] `Encoded`
+- [x] `IntegerSchema`
+- [x] `JsonSchema`
+- [x] `NullSchema`
+- [x] `NumberSchema`
+- [x] `ObjectSchema`
+- [x] `StringSchema`
+- [x] `Type`
+- [x] `_JsonSchema`
 
 ### `@beep/schema/types` → `packages/common/schema-v2/src/core/types.ts`
 - [x] `OptionalWithDefault`
@@ -306,18 +288,18 @@ Zero-dependency identity hooks, extended schema helpers, HTTP headers, and utili
 Modules that depend on Level 0 surfaces exactly once (regex validation, literal branding, timestamp transforms).
 
 ### `@beep/schema/custom/dates/Timestamp.schema` → `packages/common/schema-v2/src/primitives/temporal/dates/timestamp.ts`
-- [ ] `TimestampToIsoString`
+- [x] `TimestampToIsoString`
 
 ### `@beep/schema/custom/Fn/NoInputVoidFn/NoInputVoidFn` → `packages/common/schema-v2/src/primitives/misc/fn/no-input-void-fn/no-input-void-fn.ts`
-- [ ] `Encoded`
-- [ ] `Type`
+- [x] `Encoded`
+- [x] `Type`
 
 ### `@beep/schema/custom/Literal.schema` → `packages/common/schema-v2/src/derived/kits/literal.ts`
-- [ ] `Encoded`
-- [ ] `LiteralDefaults`
-- [ ] `LiteralWithDefault`
-- [ ] `Schema`
-- [ ] `Type`
+- [x] `Encoded`
+- [x] `LiteralDefaults`
+- [x] `LiteralWithDefault`
+- [x] `Schema`
+- [x] `Type`
 
 ### `@beep/schema/regexes` → `packages/common/schema-v2/src/internal/regex/regexes.ts`
 - [x] `AUSTRALIA_POSTAL_CODE_REGEX`
@@ -398,128 +380,128 @@ Modules that depend on Level 0 surfaces exactly once (regex validation, literal 
 - [x] `xid`
 
 ### `@beep/schema/custom/Domain.schema` → `packages/common/schema-v2/src/primitives/network/domain.ts`
-- [ ] `DomainLabel`
-- [ ] `DomainName`
-- [ ] `Encoded`
-- [ ] `TopLevelDomain`
-- [ ] `Type`
+- [x] `DomainLabel`
+- [x] `DomainName`
+- [x] `Encoded`
+- [x] `TopLevelDomain`
+- [x] `Type`
 
 ### `@beep/schema/custom/Email.schema` → `packages/common/schema-v2/src/primitives/string/email.ts`
-- [ ] `Email`
-- [ ] `EmailBase`
-- [ ] `EmailEncoded`
-- [ ] `Encoded`
-- [ ] `Type`
+- [x] `Email`
+- [x] `EmailBase`
+- [x] `EmailEncoded`
+- [x] `Encoded`
+- [x] `Type`
 
 ### `@beep/schema/custom/Hex.schema` → `packages/common/schema-v2/src/primitives/string/hex.ts`
-- [ ] `Decoded`
-- [ ] `Encoded`
-- [ ] `HexColor`
-- [ ] `HexColorDecoded`
-- [ ] `HexColorEncoded`
-- [ ] `Type`
+- [x] `Decoded`
+- [x] `Encoded`
+- [x] `HexColor`
+- [x] `HexColorDecoded`
+- [x] `HexColorEncoded`
+- [x] `Type`
 
 ### `@beep/schema/custom/IP.schema` → `packages/common/schema-v2/src/primitives/network/ip.ts`
-- [ ] `Encoded`
-- [ ] `IP`
-- [ ] `IPv4`
-- [ ] `IPv6`
-- [ ] `Type`
+- [x] `Encoded`
+- [x] `IP`
+- [x] `IPv4`
+- [x] `IPv6`
+- [x] `Type`
 
 ### `@beep/schema/custom/Json.schema` → `packages/common/schema-v2/src/primitives/misc/json.ts`
-- [ ] `Encoded`
-- [ ] `Json`
-- [ ] `JsonArray`
-- [ ] `JsonLiteral`
-- [ ] `JsonPath`
-- [ ] `JsonProp`
-- [ ] `JsonStringToArray`
-- [ ] `JsonStringToStringArray`
-- [ ] `NonEmptyJsonArray`
-- [ ] `Type`
-- [ ] `equalsJson`
-- [ ] `jsonEq`
+- [x] `Encoded`
+- [x] `Json`
+- [x] `JsonArray`
+- [x] `JsonLiteral`
+- [x] `JsonPath`
+- [x] `JsonProp`
+- [x] `JsonStringToArray`
+- [x] `JsonStringToStringArray`
+- [x] `NonEmptyJsonArray`
+- [x] `Type`
+- [x] `equalsJson`
+- [x] `jsonEq`
 
 ### `@beep/schema/custom/location/PostalCode` → `packages/common/schema-v2/src/primitives/network/location/postal-code.ts`
-- [ ] `Encoded`
-- [ ] `PostalCode`
-- [ ] `PostalCodeRaw`
-- [ ] `PostalCodeRawDecoded`
-- [ ] `PostalCodeRawEncoded`
-- [ ] `Type`
+- [x] `Encoded`
+- [x] `PostalCode`
+- [x] `PostalCodeRaw`
+- [x] `PostalCodeRawDecoded`
+- [x] `PostalCodeRawEncoded`
+- [x] `Type`
 
 ## Milestone 5 – Level 1B: Utility Consumers
 Single-dependency modules relying on utils or SQL helpers (name/person assets, nullable kits, bool/url path helpers).
 
 ### `@beep/schema/custom/NameAttribute.schema` → `packages/common/schema-v2/src/primitives/string/name-attribute.ts`
-- [ ] `Encoded`
-- [ ] `NameAttribute`
-- [ ] `Type`
+- [x] `Encoded`
+- [x] `NameAttribute`
+- [x] `Type`
 
 ### `@beep/schema/custom/person/PersonAttributes` → `packages/common/schema-v2/src/primitives/misc/person/person-attributes.ts`
-- [ ] `BirthDate`
-- [ ] `Encoded`
-- [ ] `FirstName`
-- [ ] `FullName`
-- [ ] `LastName`
-- [ ] `MiddleName`
-- [ ] `Type`
+- [x] `BirthDate`
+- [x] `Encoded`
+- [x] `FirstName`
+- [x] `FullName`
+- [x] `LastName`
+- [x] `MiddleName`
+- [x] `Type`
 
 ### `@beep/schema/custom/Phone.schema` → `packages/common/schema-v2/src/primitives/string/phone.ts`
-- [ ] `Encoded`
-- [ ] `Phone`
-- [ ] `Type`
-- [ ] `UnsafePhone`
+- [x] `Encoded`
+- [x] `Phone`
+- [x] `Type`
+- [x] `UnsafePhone`
 
 ### `@beep/schema/custom/Slug.schema` → `packages/common/schema-v2/src/primitives/string/slug.ts`
-- [ ] `Encoded`
-- [ ] `Slug`
-- [ ] `SlugBase`
-- [ ] `Type`
+- [x] `Encoded`
+- [x] `Slug`
+- [x] `SlugBase`
+- [x] `Type`
 
 ### `@beep/schema/custom/String.schema` → `packages/common/schema-v2/src/primitives/string/string.ts`
-- [ ] `Encoded`
-- [ ] `Literal`
-- [ ] `SnakeTag`
-- [ ] `StringPropertyOmittable`
-- [ ] `StringWithDefault`
-- [ ] `Type`
+- [x] `Encoded`
+- [x] `Literal`
+- [x] `SnakeTag`
+- [x] `StringPropertyOmittable`
+- [x] `StringWithDefault`
+- [x] `Type`
 
 ### `@beep/schema/sql/common` → `packages/common/schema-v2/src/integrations/sql/common.ts`
-- [ ] `DateTimeFromDate`
-- [ ] `DateTimeInsertFromDateOmittable`
-- [ ] `DateTimeUpdateFromDateOmittable`
-- [ ] `FieldOmittableWithDefault`
-- [ ] `FieldOptionOmittable`
-- [ ] `FieldSensitiveOptionOmittable`
-- [ ] `JsonFromStringOption`
+- [x] `DateTimeFromDate`
+- [x] `DateTimeInsertFromDateOmittable`
+- [x] `DateTimeUpdateFromDateOmittable`
+- [x] `FieldOmittableWithDefault`
+- [x] `FieldOptionOmittable`
+- [x] `FieldSensitiveOptionOmittable`
+- [x] `JsonFromStringOption`
 
 ### `@beep/schema/custom/Nullables.schema` → `packages/common/schema-v2/src/derived/kits/nullables.ts`
-- [ ] `Encoded`
-- [ ] `NullableDate`
-- [ ] `NullableNum`
-- [ ] `NullableStr`
-- [ ] `NullableUnknown`
-- [ ] `Type`
+- [x] `Encoded`
+- [x] `NullableDate`
+- [x] `NullableNum`
+- [x] `NullableStr`
+- [x] `NullableUnknown`
+- [x] `Type`
 
 ### `@beep/schema/utils/toOptionalWith` → `packages/common/schema-v2/src/core/utils/to-optional-with.ts`
 - [x] `toOptionalWithDefault`
 
 ### `@beep/schema/custom/Bool.schema` → `packages/common/schema-v2/src/primitives/bool/bool.ts`
-- [ ] `BoolFalse`
-- [ ] `BoolSchema`
-- [ ] `BoolTrue`
-- [ ] `BoolWithDefault`
-- [ ] `Encoded`
-- [ ] `FalseLiteral`
-- [ ] `TrueLiteral`
-- [ ] `Type`
+- [x] `BoolFalse`
+- [x] `BoolSchema`
+- [x] `BoolTrue`
+- [x] `BoolWithDefault`
+- [x] `Encoded`
+- [x] `FalseLiteral`
+- [x] `TrueLiteral`
+- [x] `Type`
 
 ### `@beep/schema/custom/URLPath.schema` → `packages/common/schema-v2/src/primitives/misc/urlpath.ts`
-- [ ] `Branded`
-- [ ] `Encoded`
-- [ ] `Type`
-- [ ] `URLPath`
+- [x] `Branded`
+- [x] `Encoded`
+- [x] `Type`
+- [x] `URLPath`
 
 ## Milestone 6 – Level 2: Generics & Kit Clients
 Generics, the string literal kit, and all primitives that rely on those derived factories (currency codes, MIME types, forms, enums).
@@ -535,159 +517,140 @@ Generics, the string literal kit, and all primitives that rely on those derived 
 - [x] `Type`
 
 ### `@beep/schema/custom/CurrencyCode.schema` → `packages/common/schema-v2/src/primitives/string/currency-code.ts`
-- [ ] `CurrencyCode`
-- [ ] `CurrencyCodeKit`
-- [ ] `Encoded`
-- [ ] `Type`
+- [x] `CurrencyCode`
+- [x] `CurrencyCodeKit`
+- [x] `Encoded`
+- [x] `Type`
 
 ### `@beep/schema/custom/dates/Month.schema` → `packages/common/schema-v2/src/primitives/temporal/dates/month.ts`
-- [ ] `Encoded`
-- [ ] `MonthInt`
-- [ ] `MonthInts`
-- [ ] `MonthNumber`
-- [ ] `MonthNumberFromMonthInt`
-- [ ] `MonthNumberKit`
-- [ ] `MonthString`
-- [ ] `MonthStringKit`
-- [ ] `Type`
-- [ ] `monthIntToNumber`
-- [ ] `monthNumberToInt`
+- [x] `Encoded`
+- [x] `MonthInt`
+- [x] `MonthInts`
+- [x] `MonthNumber`
+- [x] `MonthNumberFromMonthInt`
+- [x] `MonthNumberKit`
+- [x] `MonthString`
+- [x] `MonthStringKit`
+- [x] `Type`
+- [x] `monthIntToNumber`
+- [x] `monthNumberToInt`
 
 ### `@beep/schema/custom/FileExtension.schema` → `packages/common/schema-v2/src/primitives/string/file-extension.ts`
-- [ ] `ApplicationExtension`
-- [ ] `ApplicationExtensionKit`
-- [ ] `AudioExtension`
-- [ ] `AudioExtensionKit`
-- [ ] `Encoded`
-- [ ] `FileExtension`
-- [ ] `FileExtensionKit`
-- [ ] `FontExtension`
-- [ ] `FontExtensionKit`
-- [ ] `ImageExtension`
-- [ ] `ImageExtensionKit`
-- [ ] `TextExtension`
-- [ ] `TextExtensionKit`
-- [ ] `Type`
-- [ ] `VideoExtension`
-- [ ] `VideoExtensionKit`
+- [x] `ApplicationExtension`
+- [x] `ApplicationExtensionKit`
+- [x] `AudioExtension`
+- [x] `AudioExtensionKit`
+- [x] `Encoded`
+- [x] `FileExtension`
+- [x] `FileExtensionKit`
+- [x] `FontExtension`
+- [x] `FontExtensionKit`
+- [x] `ImageExtension`
+- [x] `ImageExtensionKit`
+- [x] `TextExtension`
+- [x] `TextExtensionKit`
+- [x] `Type`
+- [x] `VideoExtension`
+- [x] `VideoExtensionKit`
 
 ### `@beep/schema/custom/locales/Locale` → `packages/common/schema-v2/src/primitives/misc/locales/locale.ts`
-- [ ] `Encoded`
-- [ ] `Locale`
-- [ ] `LocaleKit`
-- [ ] `Type`
+- [x] `Encoded`
+- [x] `Locale`
+- [x] `LocaleKit`
+- [x] `Type`
 
 ### `@beep/schema/custom/location/USState` → `packages/common/schema-v2/src/primitives/network/location/usstate.ts`
-- [ ] `Encoded`
-- [ ] `Type`
-- [ ] `USStateCode`
-- [ ] `USStateCodeKit`
-- [ ] `USStateName`
-- [ ] `USStateNameFromCode`
-- [ ] `USStateNameKit`
+- [x] `Encoded`
+- [x] `Type`
+- [x] `USStateCode`
+- [x] `USStateCodeKit`
+- [x] `USStateName`
+- [x] `USStateNameFromCode`
+- [x] `USStateNameKit`
 
 ### `@beep/schema/custom/MimeType.schema` → `packages/common/schema-v2/src/primitives/network/mime-type.ts`
-- [ ] `ApplicationExtensionMimeTypeMap`
-- [ ] `ApplicationMimeType`
-- [ ] `ApplicationMimeTypeKit`
-- [ ] `AudioExtensionMimeTypeMap`
-- [ ] `AudioMimeType`
-- [ ] `AudioMimeTypeKit`
-- [ ] `Encoded`
-- [ ] `FileExtensionMimeTypeMap`
-- [ ] `FontExtensionMimeTypeMap`
-- [ ] `FontMimeType`
-- [ ] `FontMimeTypeKit`
-- [ ] `ImageExtensionMimeTypeMap`
-- [ ] `ImageMimeType`
-- [ ] `ImageMimeTypeKit`
-- [ ] `MimeType`
-- [ ] `MimeTypeKit`
-- [ ] `TextExtensionMimeTypeMap`
-- [ ] `TextMimeType`
-- [ ] `TextMimeTypeKit`
-- [ ] `Type`
-- [ ] `VideoExtensionMimeTypeMap`
-- [ ] `VideoMimeType`
-- [ ] `VideoMimeTypeKit`
+- [x] `ApplicationExtensionMimeTypeMap`
+- [x] `ApplicationMimeType`
+- [x] `ApplicationMimeTypeKit`
+- [x] `AudioExtensionMimeTypeMap`
+- [x] `AudioMimeType`
+- [x] `AudioMimeTypeKit`
+- [x] `Encoded`
+- [x] `FileExtensionMimeTypeMap`
+- [x] `FontExtensionMimeTypeMap`
+- [x] `FontMimeType`
+- [x] `FontMimeTypeKit`
+- [x] `ImageExtensionMimeTypeMap`
+- [x] `ImageMimeType`
+- [x] `ImageMimeTypeKit`
+- [x] `MimeType`
+- [x] `MimeTypeKit`
+- [x] `TextExtensionMimeTypeMap`
+- [x] `TextMimeType`
+- [x] `TextMimeTypeKit`
+- [x] `Type`
+- [x] `VideoExtensionMimeTypeMap`
+- [x] `VideoMimeType`
+- [x] `VideoMimeTypeKit`
 
 ### `@beep/schema/form/field.schema` → `packages/common/schema-v2/src/builders/form/field.ts`
-- [ ] `Encoded`
-- [ ] `FormFieldFormat`
-- [ ] `FormFieldFormatKit`
-- [ ] `FormFieldSchema`
-- [ ] `FormFieldType`
-- [ ] `FormFieldTypeKit`
-- [ ] `Type`
+- [x] `Encoded`
+- [x] `FormFieldFormat`
+- [x] `FormFieldFormatKit`
+- [x] `FormFieldSchema`
+- [x] `FormFieldType`
+- [x] `FormFieldTypeKit`
+- [x] `Type`
 
 ### `@beep/schema/form/form.schema` → `packages/common/schema-v2/src/builders/form/form.ts`
-- [ ] `FormJsonSchema`
+- [x] `FormJsonSchema`
 
 ### `@beep/schema/http/HttpMethod` → `packages/common/schema-v2/src/integrations/http/http-method.ts`
-- [ ] `Encoded`
-- [ ] `HttpMethod`
-- [ ] `HttpMethodKit`
-- [ ] `Type`
+- [x] `Encoded`
+- [x] `HttpMethod`
+- [x] `HttpMethodKit`
+- [x] `Type`
 
 ### `@beep/schema/sql/pg-enum` → `packages/common/schema-v2/src/integrations/sql/pg-enum.ts`
-- [ ] `toPgEnum`
+- [x] `toPgEnum`
 
 ## Milestone 7 – Level 3: Heavy Builders & Config
 High-dependency surfaces (schema-system auto-detection/filtering/defaults) plus config/CSP and RGB helpers.
 
-### `@beep/schema/schema-system/auto-detection` → `packages/common/schema-v2/src/builders/introspection/auto-detection.ts`
-- [ ] `autoDetectCellConfig`
-- [ ] `autoDetectFieldConfig`
-
-### `@beep/schema/schema-system/filtering` → `packages/common/schema-v2/src/builders/introspection/filtering.ts`
-- [ ] `ENTITY_TYPE_FIELDS`
-- [ ] `IDENTIFICATION_FIELDS`
-- [ ] `SYSTEM_FIELDS_TO_HIDE`
-- [ ] `getContextConfig`
-- [ ] `getVisibleFields`
-- [ ] `isEntityTypeField`
-- [ ] `isIdentificationField`
-- [ ] `isSystemField`
-- [ ] `shouldHideField`
-
-### `@beep/schema/schema-system/defaultValues` → `packages/common/schema-v2/src/builders/introspection/default-values.ts`
-- [ ] `generateDefaultValues`
-- [ ] `generateDefaultValuesWithOverrides`
-
 ### `@beep/schema/config/Csp` → `packages/common/schema-v2/src/integrations/config/csp.ts`
-- [ ] `CSPDirective`
-- [ ] `CSPDirectiveKit`
-- [ ] `CSPDirectivePart`
-- [ ] `CSPDirectiveValue`
-- [ ] `CSPDirectiveValues`
-- [ ] `CSPFromString`
-- [ ] `CSPString`
-- [ ] `CSPStruct`
-- [ ] `Csp`
-- [ ] `DEFAULT_VALUES`
-- [ ] `Encoded`
-- [ ] `POLICY_DELIMITER`
-- [ ] `StaticDirective`
-- [ ] `StaticDirectiveKit`
-- [ ] `Type`
-- [ ] `toHeader`
+- [x] `CSPDirective`
+- [x] `CSPDirectiveKit`
+- [x] `CSPDirectivePart`
+- [x] `CSPDirectiveValue`
+- [x] `CSPDirectiveValues`
+- [x] `CSPFromString`
+- [x] `CSPString`
+- [x] `CSPStruct`
+- [x] `Csp`
+- [x] `DEFAULT_VALUES`
+- [x] `Encoded`
+- [x] `POLICY_DELIMITER`
+- [x] `StaticDirective`
+- [x] `StaticDirectiveKit`
+- [x] `Type`
+- [x] `toHeader`
 
 ### `@beep/schema/custom/RGB.schema` → `packages/common/schema-v2/src/primitives/string/rgb.ts`
-- [ ] `DiscriminatedRGBPart`
-- [ ] `Encoded`
-- [ ] `RGBFromHex`
-- [ ] `RGBLiteralValue`
-- [ ] `RGBLiteralValueEncoded`
-- [ ] `RGBLiteralValueFromString`
-- [ ] `RGBLiteralValueFromTuple`
-- [ ] `RGBNumberPart`
-- [ ] `RGBPart`
-- [ ] `RGBPercentPart`
-- [ ] `RGBValuesTuple`
-- [ ] `TaggedRGBNumberPart`
-- [ ] `TaggedRGBPercentPart`
-- [ ] `Type`
-- [ ] `rgbChannelToHex`
+- [x] `DiscriminatedRGBPart`
+- [x] `Encoded`
+- [x] `RGBFromHex`
+- [x] `RGBLiteralValue`
+- [x] `RGBLiteralValueEncoded`
+- [x] `RGBLiteralValueFromString`
+- [x] `RGBLiteralValueFromTuple`
+- [x] `RGBNumberPart`
+- [x] `RGBPart`
+- [x] `RGBPercentPart`
+- [x] `RGBValuesTuple`
+- [x] `TaggedRGBNumberPart`
+- [x] `TaggedRGBPercentPart`
+- [x] `Type`
+- [x] `rgbChannelToHex`
 
 ### `@beep/schema/generics/TaggedUnion.factory` → `packages/common/schema-v2/src/core/generics/tagged-union-factory.ts`
 - [x] `FilterUnion`
@@ -695,48 +658,25 @@ High-dependency surfaces (schema-system auto-detection/filtering/defaults) plus 
 - [x] `TaggedUnionFactoryBuilder`
 
 ## Milestone 8 – Level 4: Aggregated Surfaces & Namespace
-Modules pulling in broad swaths of the package (SystemSchema, introspection, EntityId runtime, HTTP request details, and the final index barrel).
-
-### `@beep/schema/schema-system/SystemSchema` → `packages/common/schema-v2/src/builders/introspection/system-schema.ts`
-- [ ] `BaseIdentifiedEntity`
-- [ ] `BaseSystemFields`
-
-### `@beep/schema/schema-system/introspection` → `packages/common/schema-v2/src/builders/introspection/introspection.ts`
-- [ ] `ExtractedField`
-- [ ] `enrichMutationData`
-- [ ] `extractAST`
-- [ ] `extractEntityInfo`
-- [ ] `extractEntityName`
-- [ ] `extractEntityTagOpt`
-- [ ] `extractLiteralOptions`
-- [ ] `extractSchemaFields`
-- [ ] `getAnnotationFromSchema`
-- [ ] `getCreateSchema`
-- [ ] `getDeleteSchema`
-- [ ] `getUiConfig`
-- [ ] `getUiConfigFromAST`
-- [ ] `getUpdateSchema`
-- [ ] `getZeroMutationSchema`
-- [ ] `hasEmailPattern`
-- [ ] `validateMutationData`
+Modules pulling in broad swaths of the package (SystemSchema, EntityId runtime, HTTP request details, and the final index barrel).
 
 ### `@beep/schema/EntityId/EntityId` → `packages/common/schema-v2/src/identity/entity-id/entity-id.ts`
-- [ ] `Encoded`
-- [ ] `EntityIdSchemaInstance`
-- [ ] `Factory`
-- [ ] `PrivateId`
-- [ ] `PublicId`
-- [ ] `SchemaType`
-- [ ] `Type`
+- [x] `Encoded`
+- [x] `EntityIdSchemaInstance`
+- [x] `Factory`
+- [x] `PrivateId`
+- [x] `PublicId`
+- [x] `SchemaType`
+- [x] `Type`
 - [x] `make`
 
 ### `@beep/schema/http/HttpRequestDetails` → `packages/common/schema-v2/src/integrations/http/http-request-details.ts`
-- [ ] `Encoded`
-- [ ] `HttpRequestDetails`
-- [ ] `Type`
+- [x] `Encoded`
+- [x] `HttpRequestDetails`
+- [x] `Type`
 
 ### `@beep/schema/index` → `packages/common/schema-v2/src/index.ts`
-- [ ] `BS`
+- [x] `BS`
 ## Review Backlog
 Anything not auto-categorized lands here for manual triage before migration.
 
@@ -804,8 +744,6 @@ Scope:
 - `@beep/schema/extended-schemas` → `packages/common/schema-v2/src/core/extended/extended-schemas.ts`
 - `@beep/schema/http/HttpHeaders` → `packages/common/schema-v2/src/integrations/http/http-headers.ts`
 - `@beep/schema/JsonSchema` → `packages/common/schema-v2/src/builders/json-schema/index.ts`
-- `@beep/schema/schema-system/CustomFieldSchema` → `packages/common/schema-v2/src/builders/introspection/custom-field-schema.ts`
-- `@beep/schema/schema-system/relationship-utils` → `packages/common/schema-v2/src/builders/introspection/relationship-utils.ts`
 - `@beep/schema/types` → `packages/common/schema-v2/src/core/types.ts`
 - `@beep/schema/utils/arbitrary` → `packages/common/schema-v2/src/core/utils/arbitrary.ts`
 - `@beep/schema/utils/brands` → `packages/common/schema-v2/src/core/utils/brands.ts`
@@ -902,9 +840,6 @@ Instructions:
 ```text
 You are migrating Milestone 7 – Level 3: Heavy Builders & Config for @beep/schema → schema-v2.
 Scope:
-- `@beep/schema/schema-system/auto-detection` → `packages/common/schema-v2/src/builders/introspection/auto-detection.ts`
-- `@beep/schema/schema-system/filtering` → `packages/common/schema-v2/src/builders/introspection/filtering.ts`
-- `@beep/schema/schema-system/defaultValues` → `packages/common/schema-v2/src/builders/introspection/default-values.ts`
 - `@beep/schema/config/Csp` → `packages/common/schema-v2/src/integrations/config/csp.ts`
 - `@beep/schema/custom/RGB.schema` → `packages/common/schema-v2/src/primitives/string/rgb.ts`
 - `@beep/schema/generics/TaggedUnion.factory` → `packages/common/schema-v2/src/core/generics/tagged-union-factory.ts`
@@ -922,8 +857,6 @@ Instructions:
 ```text
 You are migrating Milestone 8 – Level 4: Aggregated Surfaces & Namespace for @beep/schema → schema-v2.
 Scope:
-- `@beep/schema/schema-system/SystemSchema` → `packages/common/schema-v2/src/builders/introspection/system-schema.ts`
-- `@beep/schema/schema-system/introspection` → `packages/common/schema-v2/src/builders/introspection/introspection.ts`
 - `@beep/schema/EntityId/EntityId` → `packages/common/schema-v2/src/identity/entity-id/entity-id.ts`
 - `@beep/schema/http/HttpRequestDetails` → `packages/common/schema-v2/src/integrations/http/http-request-details.ts`
 - `@beep/schema/index` → `packages/common/schema-v2/src/index.ts`

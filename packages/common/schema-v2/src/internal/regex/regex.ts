@@ -14,7 +14,7 @@ import { Id } from "./_id";
  *
  * const safeRegex = Regex.make(/[a-z]+/);
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -38,7 +38,7 @@ export const Regex = S.instanceOf(RegExp)
  *
  * const pattern: Regex.Type = Regex.make(/foo/);
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -51,7 +51,7 @@ export declare namespace Regex {
    *
    * let pattern: Regex.Type;
    *
-   * @category Core/Regex
+   * @category Regex
    * @since 0.1.0
    * @internal
    */
@@ -64,7 +64,7 @@ export declare namespace Regex {
    *
    * const encoded: Regex.Encoded = /foo/;
    *
-   * @category Core/Regex
+   * @category Regex
    * @since 0.1.0
    * @internal
    */
@@ -79,7 +79,7 @@ export declare namespace Regex {
  *
  * const compiled = RegexFromString.make("[a-z]+");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -107,7 +107,7 @@ export class RegexFromString extends S.NonEmptyTrimmedString.pipe(
    *
    * const regex = RegexFromString.make("\\\\d+");
    *
-   * @category Core/Regex
+   * @category Regex
    * @since 0.1.0
    * @internal
    */
@@ -122,7 +122,7 @@ export class RegexFromString extends S.NonEmptyTrimmedString.pipe(
  *
  * const compiled: RegexFromString.Type = RegexFromString.make("\\\\d+");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -135,7 +135,7 @@ export declare namespace RegexFromString {
    *
    * let compiled: RegexFromString.Type;
    *
-   * @category Core/Regex
+   * @category Regex
    * @since 0.1.0
    * @internal
    */
@@ -148,7 +148,7 @@ export declare namespace RegexFromString {
    *
    * const literal: RegexFromString.Encoded = "/foo/";
    *
-   * @category Core/Regex
+   * @category Regex
    * @since 0.1.0
    * @internal
    */

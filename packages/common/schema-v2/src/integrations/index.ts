@@ -1,15 +1,25 @@
 /**
- * Placeholder namespace for integration helpers (HTTP, SQL, config bridges).
- *
- * Keeps the namespace importable until integration builders move over from legacy schema modules.
+ * HTTP integration namespace (headers, methods, request metadata, etc.).
  *
  * @example
- * import type * as SchemaIntegrations from "@beep/schema-v2/integrations";
+ * import * as Http from "@beep/schema-v2/integrations/http";
  *
- * type IntegrationSurface = SchemaIntegrations.Placeholder;
+ * const Headers = Http.HttpHeaders;
  *
  * @category Surface/Integrations
  * @since 0.1.0
- * @internal
  */
-export type Placeholder = never;
+
+/**
+ * Configuration integration schemas (e.g., CSP helpers).
+ *
+ * @example
+ * import * as Config from "@beep/schema-v2/integrations/config";
+ *
+ * const header = Config.Csp.toHeader(Config.Csp.fromString("default-src 'self';"));
+ *
+ * @category Surface/Integrations
+ * @since 0.1.0
+ */
+export * as Config from "./config";
+export * as Http from "./http";

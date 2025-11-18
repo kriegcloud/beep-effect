@@ -40,6 +40,9 @@ export const Email = ...
 - `@since` reflects the version introduced in schema-v2 (start with `0.1.0`).
 - `@example` should compile/run (docgen can type-check/run via ts-node).
 - Use `@internal` for helpers living under `src/internal/**`.
+- **Type exports count too.** `export type`, `export interface`, and `export namespace` blocks require the same
+  documentation contract (`@category`, `@since`, `@example`). If a type alias mirrors an already documented value,
+  point its `@example` at a focused snippet demonstrating its usage.
 
 ## Schema Identity Helpers
 

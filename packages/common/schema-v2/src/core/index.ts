@@ -42,7 +42,7 @@ export * as Generics from "./generics";
  * @category Core
  * @since 0.1.0
  */
-export * from "./types";
+export type * from "./types";
 /**
  * Miscellaneous schema utilities (arbitraries, brands, defaults).
  *

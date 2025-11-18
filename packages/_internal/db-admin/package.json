@@ -78,6 +78,7 @@
     "@beep/testkit": "workspace:^"
   },
   "devDependencies": {
+    "@effect/docgen": "catalog:",
     "@types/bun": "catalog:",
     "@beep/types": "workspace:^"
   },

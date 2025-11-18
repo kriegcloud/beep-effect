@@ -18,7 +18,7 @@
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
 
-/** 
+/**
  * Typed assertion signature used by schema helpers.
  *
  * @example

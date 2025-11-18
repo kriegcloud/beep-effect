@@ -12,7 +12,7 @@
         "@beep/testkit": "workspace:^",
         "@beep/tooling-utils": "workspace:^",
         "@better-auth/core": "^1.3.34",
-        "@biomejs/biome": "^2.3.5",
+        "@biomejs/biome": "^2.3.6",
         "@dotenvx/dotenvx": "^1.51.1",
         "@effect/platform-bun": "^0.82.0",
         "@types/bun": "^1.3.2",
@@ -462,6 +462,7 @@
       },
       "devDependencies": {
         "@beep/types": "workspace:^",
+        "@effect/docgen": "catalog:",
         "@types/bun": "catalog:",
       },
     },
@@ -475,6 +476,7 @@
         "@beep/types": "workspace:^",
         "@beep/utils": "workspace:^",
         "@effect/cluster": "catalog:",
+        "@effect/docgen": "catalog:",
         "@effect/workflow": "catalog:",
         "@types/bun": "catalog:",
         "effect": "catalog:",
@@ -500,6 +502,7 @@
         "@beep/schema": "workspace:^",
         "@beep/types": "workspace:^",
         "@beep/utils": "workspace:^",
+        "@effect/docgen": "catalog:",
         "@types/bun": "catalog:",
         "effect": "catalog:",
       },
@@ -522,6 +525,7 @@
         "@beep/types": "workspace:^",
         "@beep/utils": "workspace:^",
         "@effect/cluster": "catalog:",
+        "@effect/docgen": "catalog:",
         "@effect/platform": "catalog:",
         "@effect/workflow": "catalog:",
         "@types/bun": "catalog:",
@@ -587,6 +591,7 @@
         "@beep/types": "workspace:^",
         "@beep/utils": "workspace:^",
         "@effect/cluster": "catalog:",
+        "@effect/docgen": "catalog:",
         "@effect/platform": "catalog:",
         "@effect/workflow": "catalog:",
         "@types/bun": "catalog:",
@@ -731,6 +736,7 @@
         "@beep/schema": "workspace:^",
         "@beep/types": "workspace:^",
         "@beep/utils": "workspace:^",
+        "@effect/docgen": "catalog:",
         "@effect/experimental": "catalog:",
         "@effect/platform": "catalog:",
         "@effect/sql": "catalog:",
@@ -775,6 +781,7 @@
         "@beep/identity": "workspace:^",
         "@beep/types": "workspace:^",
         "@beep/ui": "workspace:^",
+        "@effect/docgen": "catalog:",
         "@mui/material": "catalog:",
         "@react-email/components": "catalog:",
         "@react-email/render": "catalog:",
@@ -815,6 +822,14 @@
     "packages/core/env": {
       "name": "@beep/core-env",
       "version": "0.0.0",
+      "devDependencies": {
+        "@beep/constants": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/shared-domain": "workspace:^",
+        "@effect/docgen": "catalog:",
+        "effect": "catalog:",
+      },
       "peerDependencies": {
         "@beep/constants": "workspace:^",
         "@beep/identity": "workspace:^",
@@ -834,6 +849,7 @@
         "@beep/shared-domain": "workspace:^",
         "@beep/types": "workspace:^",
         "@beep/utils": "workspace:^",
+        "@effect/docgen": "catalog:",
         "@effect/sql": "catalog:",
         "@types/bun": "catalog:",
         "effect": "catalog:",
@@ -871,6 +887,7 @@
         "@effect-aws/client-s3": "catalog:",
         "@effect-aws/s3": "catalog:",
         "@effect/cluster": "catalog:",
+        "@effect/docgen": "catalog:",
         "@effect/experimental": "catalog:",
         "@effect/platform": "catalog:",
         "@effect/platform-bun": "catalog:",
@@ -927,6 +944,7 @@
         "@beep/shared-domain": "workspace:^",
         "@beep/types": "workspace:^",
         "@beep/utils": "workspace:^",
+        "@effect/docgen": "catalog:",
         "@types/bun": "catalog:",
         "babel-plugin-transform-next-use-client": "catalog:",
         "effect": "catalog:",
@@ -957,6 +975,7 @@
         "@beep/shared-tables": "workspace:^",
         "@beep/types": "workspace:^",
         "@beep/utils": "workspace:^",
+        "@effect/docgen": "catalog:",
         "@types/bun": "catalog:",
         "drizzle-orm": "catalog:",
       },
@@ -987,6 +1006,7 @@
         "@beep/ui": "workspace:^",
         "@beep/ui-core": "workspace:^",
         "@beep/utils": "workspace:^",
+        "@effect/docgen": "catalog:",
         "@types/bun": "catalog:",
         "babel-plugin-transform-next-use-client": "catalog:",
         "effect": "catalog:",
@@ -1015,6 +1035,7 @@
         "@beep/shared-domain": "workspace:^",
         "@beep/types": "workspace:^",
         "@beep/utils": "workspace:^",
+        "@effect/docgen": "catalog:",
         "@effect/experimental": "catalog:",
         "@effect/sql": "catalog:",
         "@types/bun": "catalog:",
@@ -1060,6 +1081,7 @@
         "@better-auth/utils": "catalog:",
         "@dub/better-auth": "catalog:",
         "@effect/cluster": "catalog:",
+        "@effect/docgen": "catalog:",
         "@effect/experimental": "catalog:",
         "@effect/opentelemetry": "catalog:",
         "@effect/platform": "catalog:",
@@ -1190,6 +1212,7 @@
         "@better-fetch/fetch": "catalog:",
         "@dub/better-auth": "catalog:",
         "@effect-atom/atom-react": "catalog:",
+        "@effect/docgen": "catalog:",
         "@types/bun": "catalog:",
         "better-auth": "catalog:",
         "better-call": "catalog:",
@@ -1243,6 +1266,7 @@
         "@beep/shared-tables": "workspace:^",
         "@beep/types": "workspace:^",
         "@beep/utils": "workspace:^",
+        "@effect/docgen": "catalog:",
         "@effect/experimental": "catalog:",
         "@effect/sql": "catalog:",
         "@types/bun": "catalog:",
@@ -1367,6 +1391,7 @@
         "@beep/ui-core": "workspace:^",
         "@beep/utils": "workspace:^",
         "@effect-atom/atom-react": "catalog:",
+        "@effect/docgen": "catalog:",
         "@effect/experimental": "catalog:",
         "@effect/opentelemetry": "catalog:",
         "@effect/platform": "catalog:",
@@ -1476,6 +1501,7 @@
         "@better-auth/stripe": "catalog:",
         "@dub/better-auth": "catalog:",
         "@effect/cluster": "catalog:",
+        "@effect/docgen": "catalog:",
         "@effect/experimental": "catalog:",
         "@effect/opentelemetry": "catalog:",
         "@effect/platform": "catalog:",
@@ -1598,6 +1624,7 @@
         "@beep/schema": "workspace:^",
         "@beep/types": "workspace:^",
         "@beep/utils": "workspace:^",
+        "@effect/docgen": "catalog:",
         "@effect/experimental": "catalog:",
         "@effect/platform": "catalog:",
         "@effect/sql": "catalog:",
@@ -1631,6 +1658,7 @@
         "@beep/shared-domain": "workspace:^",
         "@beep/types": "workspace:^",
         "@beep/utils": "workspace:^",
+        "@effect/docgen": "catalog:",
         "@effect/experimental": "catalog:",
         "@effect/sql": "catalog:",
         "@types/bun": "catalog:",
@@ -1662,6 +1690,7 @@
         "@beep/shared-domain": "workspace:^",
         "@beep/types": "workspace:^",
         "@beep/utils": "workspace:^",
+        "@effect/docgen": "catalog:",
         "@effect/experimental": "catalog:",
         "@effect/sql": "catalog:",
         "@types/bun": "catalog:",
@@ -1703,6 +1732,7 @@
         "@effect-aws/client-s3": "catalog:",
         "@effect-aws/s3": "catalog:",
         "@effect/cluster": "catalog:",
+        "@effect/docgen": "catalog:",
         "@effect/experimental": "catalog:",
         "@effect/platform": "catalog:",
         "@effect/platform-bun": "catalog:",
@@ -1759,6 +1789,7 @@
         "@beep/tasks-infra": "workspace:^",
         "@beep/types": "workspace:^",
         "@beep/utils": "workspace:^",
+        "@effect/docgen": "catalog:",
         "@types/bun": "catalog:",
         "babel-plugin-transform-next-use-client": "catalog:",
         "effect": "catalog:",
@@ -1789,6 +1820,7 @@
         "@beep/tasks-domain": "workspace:^",
         "@beep/types": "workspace:^",
         "@beep/utils": "workspace:^",
+        "@effect/docgen": "catalog:",
         "@types/bun": "catalog:",
         "drizzle-orm": "catalog:",
       },
@@ -1821,6 +1853,7 @@
         "@beep/ui": "workspace:^",
         "@beep/ui-core": "workspace:^",
         "@beep/utils": "workspace:^",
+        "@effect/docgen": "catalog:",
         "@types/bun": "catalog:",
         "babel-plugin-transform-next-use-client": "catalog:",
         "effect": "catalog:",
@@ -1852,6 +1885,7 @@
         "@beep/shared-domain": "workspace:^",
         "@beep/types": "workspace:^",
         "@beep/utils": "workspace:^",
+        "@effect/docgen": "catalog:",
         "@effect/platform-browser": "catalog:",
         "@emotion/cache": "catalog:",
         "@emotion/react": "catalog:",
@@ -1928,6 +1962,7 @@
         "@beep/ui-core": "workspace:^",
         "@beep/utils": "workspace:^",
         "@effect-atom/atom-react": "catalog:",
+        "@effect/docgen": "catalog:",
         "@emoji-mart/data": "catalog:",
         "@emoji-mart/react": "catalog:",
         "@emotion/cache": "catalog:",
@@ -2262,16 +2297,16 @@
     "@effect/cli": "^0.72.1",
     "@effect/cluster": "^0.52.10",
     "@effect/docgen": "^0.5.2",
-    "@effect/experimental": "^0.57.1",
+    "@effect/experimental": "^0.57.2",
     "@effect/opentelemetry": "^0.59.1",
-    "@effect/platform": "^0.93.2",
+    "@effect/platform": "^0.93.3",
     "@effect/platform-browser": "^0.73.0",
     "@effect/platform-bun": "^0.83.0",
     "@effect/platform-node": "^0.100.0",
     "@effect/rpc": "^0.72.1",
     "@effect/sql": "^0.48.0",
     "@effect/sql-drizzle": "^0.47.0",
-    "@effect/sql-pg": "^0.49.5",
+    "@effect/sql-pg": "^0.49.6",
     "@effect/sql-sqlite-bun": "^0.49.0",
     "@effect/sql-sqlite-node": "^0.49.0",
     "@effect/vitest": "^0.27.0",
@@ -2411,7 +2446,7 @@
     "dayjs": "^1.11.19",
     "drizzle-kit": "^0.31.7",
     "drizzle-orm": "^0.44.7",
-    "drizzle-zero": "^0.16.1",
+    "drizzle-zero": "^0.16.2",
     "dub": "^0.68.0",
     "effect": "^3.19.4",
     "embla-carousel": "^8.6.0",
@@ -2436,7 +2471,7 @@
     "motion": "^12.23.24",
     "mui-one-time-password-input": "^5.0.0",
     "mutative": "^1.3.0",
-    "next": "^16.0.2-canary.21",
+    "next": "^16.0.2-canary.23",
     "next-themes": "^0.4.6",
     "nprogress": "^0.2.0",
     "nuqs": "^2.8.0",
@@ -2454,7 +2489,7 @@
     "react-dropzone": "^14.3.8",
     "react-google-recaptcha": "^3.1.0",
     "react-google-recaptcha-v3": "^1.11.0",
-    "react-hook-form": "^7.66.0",
+    "react-hook-form": "^7.66.1",
     "react-i18next": "^16.3.3",
     "react-markdown": "^10.1.0",
     "react-phone-number-input": "^3.4.13",
@@ -2895,23 +2930,23 @@
 
     "@better-fetch/fetch": ["@better-fetch/fetch@1.1.18", "", {}, "sha512-rEFOE1MYIsBmoMJtQbl32PGHHXuG2hDxvEd7rUHE0vCBoFQVSDqaVs9hkZEtHCxRoY+CljXKFCOuJ8uxqw1LcA=="],
 
-    "@biomejs/biome": ["@biomejs/biome@2.3.5", "", { "optionalDependencies": { "@biomejs/cli-darwin-arm64": "2.3.5", "@biomejs/cli-darwin-x64": "2.3.5", "@biomejs/cli-linux-arm64": "2.3.5", "@biomejs/cli-linux-arm64-musl": "2.3.5", "@biomejs/cli-linux-x64": "2.3.5", "@biomejs/cli-linux-x64-musl": "2.3.5", "@biomejs/cli-win32-arm64": "2.3.5", "@biomejs/cli-win32-x64": "2.3.5" }, "bin": { "biome": "bin/biome" } }, "sha512-HvLhNlIlBIbAV77VysRIBEwp55oM/QAjQEin74QQX9Xb259/XP/D5AGGnZMOyF1el4zcvlNYYR3AyTMUV3ILhg=="],
+    "@biomejs/biome": ["@biomejs/biome@2.3.6", "", { "optionalDependencies": { "@biomejs/cli-darwin-arm64": "2.3.6", "@biomejs/cli-darwin-x64": "2.3.6", "@biomejs/cli-linux-arm64": "2.3.6", "@biomejs/cli-linux-arm64-musl": "2.3.6", "@biomejs/cli-linux-x64": "2.3.6", "@biomejs/cli-linux-x64-musl": "2.3.6", "@biomejs/cli-win32-arm64": "2.3.6", "@biomejs/cli-win32-x64": "2.3.6" }, "bin": { "biome": "bin/biome" } }, "sha512-oqUhWyU6tae0MFsr/7iLe++QWRg+6jtUhlx9/0GmCWDYFFrK366sBLamNM7D9Y+c7YSynUFKr8lpEp1r6Sk7eA=="],
 
-    "@biomejs/cli-darwin-arm64": ["@biomejs/cli-darwin-arm64@2.3.5", "", { "os": "darwin", "cpu": "arm64" }, "sha512-fLdTur8cJU33HxHUUsii3GLx/TR0BsfQx8FkeqIiW33cGMtUD56fAtrh+2Fx1uhiCsVZlFh6iLKUU3pniZREQw=="],
+    "@biomejs/cli-darwin-arm64": ["@biomejs/cli-darwin-arm64@2.3.6", "", { "os": "darwin", "cpu": "arm64" }, "sha512-P4JWE5d8UayBxYe197QJwyW4ZHp0B+zvRIGCusOm1WbxmlhpAQA1zEqQuunHgSIzvyEEp4TVxiKGXNFZPg7r9Q=="],
 
-    "@biomejs/cli-darwin-x64": ["@biomejs/cli-darwin-x64@2.3.5", "", { "os": "darwin", "cpu": "x64" }, "sha512-qpT8XDqeUlzrOW8zb4k3tjhT7rmvVRumhi2657I2aGcY4B+Ft5fNwDdZGACzn8zj7/K1fdWjgwYE3i2mSZ+vOA=="],
+    "@biomejs/cli-darwin-x64": ["@biomejs/cli-darwin-x64@2.3.6", "", { "os": "darwin", "cpu": "x64" }, "sha512-I4rTebj+F/L9K93IU7yTFs8nQ6EhaCOivxduRha4w4WEZK80yoZ8OAdR1F33m4yJ/NfUuTUbP/Wjs+vKjlCoWA=="],
 
-    "@biomejs/cli-linux-arm64": ["@biomejs/cli-linux-arm64@2.3.5", "", { "os": "linux", "cpu": "arm64" }, "sha512-u/pybjTBPGBHB66ku4pK1gj+Dxgx7/+Z0jAriZISPX1ocTO8aHh8x8e7Kb1rB4Ms0nA/SzjtNOVJ4exVavQBCw=="],
+    "@biomejs/cli-linux-arm64": ["@biomejs/cli-linux-arm64@2.3.6", "", { "os": "linux", "cpu": "arm64" }, "sha512-JjYy83eVBnvuINZiqyFO7xx72v8Srh4hsgaacSBCjC22DwM6+ZvnX1/fj8/SBiLuUOfZ8YhU2pfq2Dzakeyg1A=="],
 
-    "@biomejs/cli-linux-arm64-musl": ["@biomejs/cli-linux-arm64-musl@2.3.5", "", { "os": "linux", "cpu": "arm64" }, "sha512-eGUG7+hcLgGnMNl1KHVZUYxahYAhC462jF/wQolqu4qso2MSk32Q+QrpN7eN4jAHAg7FUMIo897muIhK4hXhqg=="],
+    "@biomejs/cli-linux-arm64-musl": ["@biomejs/cli-linux-arm64-musl@2.3.6", "", { "os": "linux", "cpu": "arm64" }, "sha512-oK1NpIXIixbJ/4Tcx40cwiieqah6rRUtMGOHDeK2ToT7yUFVEvXUGRKqH0O4hqZ9tW8TcXNZKfgRH6xrsjVtGg=="],
 
-    "@biomejs/cli-linux-x64": ["@biomejs/cli-linux-x64@2.3.5", "", { "os": "linux", "cpu": "x64" }, "sha512-XrIVi9YAW6ye0CGQ+yax0gLfx+BFOtKaNX74n+xHWla6Cl6huUmcKNO7HPx7BiKnJUzrxXY1qYlm7xMvi08X4g=="],
+    "@biomejs/cli-linux-x64": ["@biomejs/cli-linux-x64@2.3.6", "", { "os": "linux", "cpu": "x64" }, "sha512-ZjPXzy5yN9wusIoX+8Zp4p6cL8r0NzJCXg/4r1KLVveIPXd2jKVlqZ6ZyzEq385WwU3OX5KOwQYLQsOc788waQ=="],
 
-    "@biomejs/cli-linux-x64-musl": ["@biomejs/cli-linux-x64-musl@2.3.5", "", { "os": "linux", "cpu": "x64" }, "sha512-awVuycTPpVTH/+WDVnEEYSf6nbCBHf/4wB3lquwT7puhNg8R4XvonWNZzUsfHZrCkjkLhFH/vCZK5jHatD9FEg=="],
+    "@biomejs/cli-linux-x64-musl": ["@biomejs/cli-linux-x64-musl@2.3.6", "", { "os": "linux", "cpu": "x64" }, "sha512-QvxB8GHQeaO4FCtwJpJjCgJkbHBbWxRHUxQlod+xeaYE6gtJdSkYkuxdKAQUZEOIsec+PeaDAhW9xjzYbwmOFA=="],
 
-    "@biomejs/cli-win32-arm64": ["@biomejs/cli-win32-arm64@2.3.5", "", { "os": "win32", "cpu": "arm64" }, "sha512-DlBiMlBZZ9eIq4H7RimDSGsYcOtfOIfZOaI5CqsWiSlbTfqbPVfWtCf92wNzx8GNMbu1s7/g3ZZESr6+GwM/SA=="],
+    "@biomejs/cli-win32-arm64": ["@biomejs/cli-win32-arm64@2.3.6", "", { "os": "win32", "cpu": "arm64" }, "sha512-YM7hLHpwjdt8R7+O2zS1Vo2cKgqEeptiXB1tWW1rgjN5LlpZovBVKtg7zfwfRrFx3i08aNZThYpTcowpTlczug=="],
 
-    "@biomejs/cli-win32-x64": ["@biomejs/cli-win32-x64@2.3.5", "", { "os": "win32", "cpu": "x64" }, "sha512-nUmR8gb6yvrKhtRgzwo/gDimPwnO5a4sCydf8ZS2kHIJhEmSmk+STsusr1LHTuM//wXppBawvSQi2xFXJCdgKQ=="],
+    "@biomejs/cli-win32-x64": ["@biomejs/cli-win32-x64@2.3.6", "", { "os": "win32", "cpu": "x64" }, "sha512-psgNEYgMAobY5h+QHRBVR9xvg2KocFuBKm6axZWB/aD12NWhQjiVFQUjV6wMXhlH4iT0Q9c3yK5JFRiDC/rzHA=="],
 
     "@canvas/image-data": ["@canvas/image-data@1.1.0", "", {}, "sha512-QdObRRjRbcXGmM1tmJ+MrHcaz1MftF2+W7YI+MsphnsCrmtyfS0d5qJbk0MeSbUeyM/jCb0hmnkXPsy026L7dA=="],
 
@@ -2961,7 +2996,7 @@
 
     "@effect/docgen": ["@effect/docgen@0.5.2", "", { "dependencies": { "@effect/markdown-toc": "^0.1.0", "doctrine": "^3.0.0", "glob": "^10.3.12", "prettier": "^3.2.5" }, "peerDependencies": { "tsx": "^4.1.0", "typescript": "^5.2.2" }, "bin": { "docgen": "bin.cjs" } }, "sha512-gqBxAhp58R18vT5+ORobWRQ/2MaF5vH0k1zggSct54J41k8TKF5mYIW1qG5tkOVCejet+8K5MKsWK3gzIkaoMw=="],
 
-    "@effect/experimental": ["@effect/experimental@0.57.1", "", { "dependencies": { "uuid": "^11.0.3" }, "peerDependencies": { "@effect/platform": "^0.93.1", "effect": "^3.19.3", "ioredis": "^5", "lmdb": "^3" }, "optionalPeers": ["ioredis", "lmdb"] }, "sha512-18UIT64L0F0Kd6MO+bJAIcHhZGiuNeTpiM0GwMwe206r+rmFdIB6v/fd4BIOkfYJ1EFxvm/lt4wRjTtSn+6kfw=="],
+    "@effect/experimental": ["@effect/experimental@0.57.2", "", { "dependencies": { "uuid": "^11.0.3" }, "peerDependencies": { "@effect/platform": "^0.93.3", "effect": "^3.19.4", "ioredis": "^5", "lmdb": "^3" }, "optionalPeers": ["ioredis", "lmdb"] }, "sha512-yKPLrPvODVc1CT1x9h4HGpebwZiCifDXPq2YZOVQELZ5vDYdDZb7CbfhuXNCjuPUUiHshe4/8Cfc9dFt0Y21gA=="],
 
     "@effect/language-service": ["@effect/language-service@0.51.1", "", { "bin": { "effect-language-service": "cli.js" } }, "sha512-JdKKw7EP5Na9ZdvQgs3rHBsrWAvvMh99yAaB0jgX7kKEkx0L8mdIndxtOqc3DrZ/H6qJxCLSjxa873Z5TEecVg=="],
 
@@ -2969,7 +3004,7 @@
 
     "@effect/opentelemetry": ["@effect/opentelemetry@0.59.1", "", { "peerDependencies": { "@effect/platform": "^0.93.1", "@opentelemetry/api": "^1.9", "@opentelemetry/resources": "^2.0.0", "@opentelemetry/sdk-logs": "^0.203.0", "@opentelemetry/sdk-metrics": "^2.0.0", "@opentelemetry/sdk-trace-base": "^2.0.0", "@opentelemetry/sdk-trace-node": "^2.0.0", "@opentelemetry/sdk-trace-web": "^2.0.0", "@opentelemetry/semantic-conventions": "^1.33.0", "effect": "^3.19.3" }, "optionalPeers": ["@opentelemetry/api", "@opentelemetry/resources", "@opentelemetry/sdk-logs", "@opentelemetry/sdk-metrics", "@opentelemetry/sdk-trace-base", "@opentelemetry/sdk-trace-node", "@opentelemetry/sdk-trace-web"] }, "sha512-mG+duN2KLJR6lDwuxEyoZqe5/4aSVnK50MoY87AC/u3hQGiSHxP7tZIORUghKd6JEEODJb4zP8eo7wmW7EGTuw=="],
 
-    "@effect/platform": ["@effect/platform@0.93.2", "", { "dependencies": { "find-my-way-ts": "^0.1.6", "msgpackr": "^1.11.4", "multipasta": "^0.2.7" }, "peerDependencies": { "effect": "^3.19.3" } }, "sha512-IFWF2xuz37tZbyEsf3hwBlcYYqbqJho+ZM871CG92lWJSjcTgvmjCy77qnV0QhTWVdh9BMs12QKzQCMlqz4cJQ=="],
+    "@effect/platform": ["@effect/platform@0.93.3", "", { "dependencies": { "find-my-way-ts": "^0.1.6", "msgpackr": "^1.11.4", "multipasta": "^0.2.7" }, "peerDependencies": { "effect": "^3.19.4" } }, "sha512-s88zctkeXba24Mjy7MEFMuam1p5sXmsG7uQjPIDE6EiC+2IFUQd8976TtangiU0e8qu0SALpjIH1P1QyC7/1og=="],
 
     "@effect/platform-browser": ["@effect/platform-browser@0.73.0", "", { "dependencies": { "multipasta": "^0.2.7" }, "peerDependencies": { "@effect/platform": "^0.93.0", "effect": "^3.19.0" } }, "sha512-G/LWu+roBHtjb9JEpCYe47XG0oB2xlUIp7fBQznDPYYMksqtrusEdtVtAWfPhO21aNvVmv7+agonisxK2vGaCQ=="],
 
@@ -2989,7 +3024,7 @@
 
     "@effect/sql-drizzle": ["@effect/sql-drizzle@0.47.0", "", { "peerDependencies": { "@effect/sql": "^0.48.0", "drizzle-orm": ">=0.43.1 <0.50", "effect": "^3.19.0" } }, "sha512-GKyWgfyu9MBNw+pKi+qHmo1JDf9ri/lpzPn/sue2h7B1GAZaiZTQL8Ygp19Y5+K4kndd/p/GPk2gBbo3s80iCw=="],
 
-    "@effect/sql-pg": ["@effect/sql-pg@0.49.5", "", { "dependencies": { "pg": "^8.16.3", "pg-connection-string": "2.9.1", "pg-cursor": "^2.15.3", "pg-pool": "^3.10.1", "pg-types": "^4.1.0" }, "peerDependencies": { "@effect/experimental": "^0.57.1", "@effect/platform": "^0.93.1", "@effect/sql": "^0.48.0", "effect": "^3.19.3" } }, "sha512-/+q9jSSvI6M1zskDeVd6h4CjxjeDylEXWmqcac9Gy06KaNa6MeoUC1MI3dFcExVZzOZjojg3bEH+X4EfCzDeZg=="],
+    "@effect/sql-pg": ["@effect/sql-pg@0.49.6", "", { "dependencies": { "pg": "^8.16.3", "pg-connection-string": "2.9.1", "pg-cursor": "^2.15.3", "pg-pool": "^3.10.1", "pg-types": "^4.1.0" }, "peerDependencies": { "@effect/experimental": "^0.57.2", "@effect/platform": "^0.93.3", "@effect/sql": "^0.48.0", "effect": "^3.19.4" } }, "sha512-T+o4qpORF2QB9yeKqV7eCrkjnqfWLMlWpFA0halcpHhSKc5NdJ4HNLfVKKHj0C8LTcXysmVulUcNNISEj7QdoA=="],
 
     "@effect/sql-sqlite-bun": ["@effect/sql-sqlite-bun@0.49.0", "", { "peerDependencies": { "@effect/experimental": "^0.57.0", "@effect/platform": "^0.93.0", "@effect/sql": "^0.48.0", "effect": "^3.19.0" } }, "sha512-UjBvhDNYq1Rfgn5uQ+y0ALsef7T4Xt987U637RsPQb/KKL+jtqgl++HmLCNAuviJ663cXQiDHOBH2TxzjCMvEg=="],
 
@@ -4741,7 +4776,7 @@
 
     "drizzle-orm": ["drizzle-orm@0.44.7", "", { "peerDependencies": { "@aws-sdk/client-rds-data": ">=3", "@cloudflare/workers-types": ">=4", "@electric-sql/pglite": ">=0.2.0", "@libsql/client": ">=0.10.0", "@libsql/client-wasm": ">=0.10.0", "@neondatabase/serverless": ">=0.10.0", "@op-engineering/op-sqlite": ">=2", "@opentelemetry/api": "^1.4.1", "@planetscale/database": ">=1.13", "@prisma/client": "*", "@tidbcloud/serverless": "*", "@types/better-sqlite3": "*", "@types/pg": "*", "@types/sql.js": "*", "@upstash/redis": ">=1.34.7", "@vercel/postgres": ">=0.8.0", "@xata.io/client": "*", "better-sqlite3": ">=7", "bun-types": "*", "expo-sqlite": ">=14.0.0", "gel": ">=2", "knex": "*", "kysely": "*", "mysql2": ">=2", "pg": ">=8", "postgres": ">=3", "sql.js": ">=1", "sqlite3": ">=5" }, "optionalPeers": ["@aws-sdk/client-rds-data", "@cloudflare/workers-types", "@electric-sql/pglite", "@libsql/client", "@libsql/client-wasm", "@neondatabase/serverless", "@op-engineering/op-sqlite", "@opentelemetry/api", "@planetscale/database", "@prisma/client", "@tidbcloud/serverless", "@types/better-sqlite3", "@types/pg", "@types/sql.js", "@upstash/redis", "@vercel/postgres", "@xata.io/client", "better-sqlite3", "bun-types", "expo-sqlite", "gel", "knex", "kysely", "mysql2", "pg", "postgres", "sql.js", "sqlite3"] }, "sha512-quIpnYznjU9lHshEOAYLoZ9s3jweleHlZIAWR/jX9gAWNg/JhQ1wj0KGRf7/Zm+obRrYd9GjPVJg790QY9N5AQ=="],
 
-    "drizzle-zero": ["drizzle-zero@0.16.1", "", { "dependencies": { "camelcase": "^8.0.0", "commander": "^14.0.1", "jsonc-parser": "^3.3.1", "pluralize": "^8.0.0", "ts-morph": "^27.0.2" }, "peerDependencies": { "@rocicorp/zero": ">=0.22.2025081301", "@types/pg": "", "drizzle-orm": ">=0.36.0", "pg": "", "postgres": "", "prettier": ">=3.0.0" }, "optionalPeers": ["@types/pg", "pg", "postgres", "prettier"], "bin": { "drizzle-zero": "dist/cli/index.js" } }, "sha512-seUMn6Yn4SiCJ2JKdAAJCIR8a9wmda49n9USd+pJn/lHuyUYGJbNYHQ2ofvyWDujx7oj6RnsCGGpxTgjIqFt5w=="],
+    "drizzle-zero": ["drizzle-zero@0.16.2", "", { "dependencies": { "camelcase": "^8.0.0", "commander": "^14.0.1", "jsonc-parser": "^3.3.1", "pluralize": "^8.0.0", "ts-morph": "^27.0.2" }, "peerDependencies": { "@rocicorp/zero": ">=0.22.2025081301", "@types/pg": "", "drizzle-orm": ">=0.36.0", "pg": "", "postgres": "", "prettier": ">=3.0.0" }, "optionalPeers": ["@types/pg", "pg", "postgres", "prettier"], "bin": { "drizzle-zero": "dist/cli/index.js" } }, "sha512-ptXezLUIqGmEai4o6DabHk9DHNdko3vmKCSiWRSmBxysxCUhJSSPV4YQM9b4tN95vvcvzjgfDPzbWvDeu6bzog=="],
 
     "dub": ["dub@0.68.0", "", { "dependencies": { "zod": "^3.25.0 || ^4.0.0" } }, "sha512-YoRYHu/P3mojiqYE+SuA1H3HbWJLpHJugkXpKDH8kqoeAPmoBNkN5TMLHp+VxYp0OUTOMiAHA1pua+RTMeK8xg=="],
 
@@ -5857,7 +5892,7 @@
 
     "react-google-recaptcha-v3": ["react-google-recaptcha-v3@1.11.0", "", { "dependencies": { "hoist-non-react-statics": "^3.3.2" }, "peerDependencies": { "react": "^16.3 || ^17.0 || ^18.0 || ^19.0", "react-dom": "^17.0 || ^18.0 || ^19.0" } }, "sha512-kLQqpz/77m8+trpBwzqcxNtvWZYoZ/YO6Vm2cVTHW8hs80BWUfDpC7RDwuAvpswwtSYApWfaSpIDFWAIBNIYxQ=="],
 
-    "react-hook-form": ["react-hook-form@7.66.0", "", { "peerDependencies": { "react": "^16.8.0 || ^17 || ^18 || ^19" } }, "sha512-xXBqsWGKrY46ZqaHDo+ZUYiMUgi8suYu5kdrS20EG8KiL7VRQitEbNjm+UcrDYrNi1YLyfpmAeGjCZYXLT9YBw=="],
+    "react-hook-form": ["react-hook-form@7.66.1", "", { "peerDependencies": { "react": "^16.8.0 || ^17 || ^18 || ^19" } }, "sha512-2KnjpgG2Rhbi+CIiIBQQ9Df6sMGH5ExNyFl4Hw9qO7pIqMBR8Bvu9RQyjl3JM4vehzCh9soiNUM/xYMswb2EiA=="],
 
     "react-i18next": ["react-i18next@16.3.3", "", { "dependencies": { "@babel/runtime": "^7.27.6", "html-parse-stringify": "^3.0.1", "use-sync-external-store": "^1.6.0" }, "peerDependencies": { "i18next": ">= 25.6.2", "react": ">= 16.8.0", "typescript": "^5" }, "optionalPeers": ["typescript"] }, "sha512-IaY2W+ueVd/fe7H6Wj2S4bTuLNChnajFUlZFfCTrTHWzGcOrUHlVzW55oXRSl+J51U8Onn6EvIhQ+Bar9FUcjw=="],
 
@@ -6589,8 +6624,6 @@
 
     "@beep/server/@effect/platform-bun": ["@effect/platform-bun@0.83.0", "", { "dependencies": { "@effect/platform-node-shared": "^0.53.0", "multipasta": "^0.2.7" }, "peerDependencies": { "@effect/cluster": "^0.52.0", "@effect/platform": "^0.93.0", "@effect/rpc": "^0.72.1", "@effect/sql": "^0.48.0", "effect": "^3.19.0" } }, "sha512-cjE4b0TRva/BXKDzYEB12h32AO0nidk6qN99j8IIOivfFlTUsuI2o36wKg8zxiMV6tdeylXIORxTD+Zvvz1XkQ=="],
 
-    "@beep/start-client/@biomejs/biome": ["@biomejs/biome@2.3.6", "", { "optionalDependencies": { "@biomejs/cli-darwin-arm64": "2.3.6", "@biomejs/cli-darwin-x64": "2.3.6", "@biomejs/cli-linux-arm64": "2.3.6", "@biomejs/cli-linux-arm64-musl": "2.3.6", "@biomejs/cli-linux-x64": "2.3.6", "@biomejs/cli-linux-x64-musl": "2.3.6", "@biomejs/cli-win32-arm64": "2.3.6", "@biomejs/cli-win32-x64": "2.3.6" }, "bin": { "biome": "bin/biome" } }, "sha512-oqUhWyU6tae0MFsr/7iLe++QWRg+6jtUhlx9/0GmCWDYFFrK366sBLamNM7D9Y+c7YSynUFKr8lpEp1r6Sk7eA=="],
-
     "@beep/start-client/@effect/platform-bun": ["@effect/platform-bun@0.83.0", "", { "dependencies": { "@effect/platform-node-shared": "^0.53.0", "multipasta": "^0.2.7" }, "peerDependencies": { "@effect/cluster": "^0.52.0", "@effect/platform": "^0.93.0", "@effect/rpc": "^0.72.1", "@effect/sql": "^0.48.0", "effect": "^3.19.0" } }, "sha512-cjE4b0TRva/BXKDzYEB12h32AO0nidk6qN99j8IIOivfFlTUsuI2o36wKg8zxiMV6tdeylXIORxTD+Zvvz1XkQ=="],
 
     "@beep/tasks-infra/@effect/platform-bun": ["@effect/platform-bun@0.83.0", "", { "dependencies": { "@effect/platform-node-shared": "^0.53.0", "multipasta": "^0.2.7" }, "peerDependencies": { "@effect/cluster": "^0.52.0", "@effect/platform": "^0.93.0", "@effect/rpc": "^0.72.1", "@effect/sql": "^0.48.0", "effect": "^3.19.0" } }, "sha512-cjE4b0TRva/BXKDzYEB12h32AO0nidk6qN99j8IIOivfFlTUsuI2o36wKg8zxiMV6tdeylXIORxTD+Zvvz1XkQ=="],
@@ -7186,22 +7219,6 @@
     "@beep/runtime-server/@effect/platform-bun/@effect/platform-node-shared": ["@effect/platform-node-shared@0.53.0", "", { "dependencies": { "@parcel/watcher": "^2.5.1", "multipasta": "^0.2.7", "ws": "^8.18.2" }, "peerDependencies": { "@effect/cluster": "^0.52.0", "@effect/platform": "^0.93.0", "@effect/rpc": "^0.72.1", "@effect/sql": "^0.48.0", "effect": "^3.19.0" } }, "sha512-xqhYyUYotVUJi7Tqd/iM+tqEoNm6fVowcPm9naxKZCa6WPD6TnRfaogxjkB3yNBnPY63Ya/sIkfkeZXA3MwF3w=="],
 
     "@beep/server/@effect/platform-bun/@effect/platform-node-shared": ["@effect/platform-node-shared@0.53.0", "", { "dependencies": { "@parcel/watcher": "^2.5.1", "multipasta": "^0.2.7", "ws": "^8.18.2" }, "peerDependencies": { "@effect/cluster": "^0.52.0", "@effect/platform": "^0.93.0", "@effect/rpc": "^0.72.1", "@effect/sql": "^0.48.0", "effect": "^3.19.0" } }, "sha512-xqhYyUYotVUJi7Tqd/iM+tqEoNm6fVowcPm9naxKZCa6WPD6TnRfaogxjkB3yNBnPY63Ya/sIkfkeZXA3MwF3w=="],
-
-    "@beep/start-client/@biomejs/biome/@biomejs/cli-darwin-arm64": ["@biomejs/cli-darwin-arm64@2.3.6", "", { "os": "darwin", "cpu": "arm64" }, "sha512-P4JWE5d8UayBxYe197QJwyW4ZHp0B+zvRIGCusOm1WbxmlhpAQA1zEqQuunHgSIzvyEEp4TVxiKGXNFZPg7r9Q=="],
-
-    "@beep/start-client/@biomejs/biome/@biomejs/cli-darwin-x64": ["@biomejs/cli-darwin-x64@2.3.6", "", { "os": "darwin", "cpu": "x64" }, "sha512-I4rTebj+F/L9K93IU7yTFs8nQ6EhaCOivxduRha4w4WEZK80yoZ8OAdR1F33m4yJ/NfUuTUbP/Wjs+vKjlCoWA=="],
-
-    "@beep/start-client/@biomejs/biome/@biomejs/cli-linux-arm64": ["@biomejs/cli-linux-arm64@2.3.6", "", { "os": "linux", "cpu": "arm64" }, "sha512-JjYy83eVBnvuINZiqyFO7xx72v8Srh4hsgaacSBCjC22DwM6+ZvnX1/fj8/SBiLuUOfZ8YhU2pfq2Dzakeyg1A=="],
-
-    "@beep/start-client/@biomejs/biome/@biomejs/cli-linux-arm64-musl": ["@biomejs/cli-linux-arm64-musl@2.3.6", "", { "os": "linux", "cpu": "arm64" }, "sha512-oK1NpIXIixbJ/4Tcx40cwiieqah6rRUtMGOHDeK2ToT7yUFVEvXUGRKqH0O4hqZ9tW8TcXNZKfgRH6xrsjVtGg=="],
-
-    "@beep/start-client/@biomejs/biome/@biomejs/cli-linux-x64": ["@biomejs/cli-linux-x64@2.3.6", "", { "os": "linux", "cpu": "x64" }, "sha512-ZjPXzy5yN9wusIoX+8Zp4p6cL8r0NzJCXg/4r1KLVveIPXd2jKVlqZ6ZyzEq385WwU3OX5KOwQYLQsOc788waQ=="],
-
-    "@beep/start-client/@biomejs/biome/@biomejs/cli-linux-x64-musl": ["@biomejs/cli-linux-x64-musl@2.3.6", "", { "os": "linux", "cpu": "x64" }, "sha512-QvxB8GHQeaO4FCtwJpJjCgJkbHBbWxRHUxQlod+xeaYE6gtJdSkYkuxdKAQUZEOIsec+PeaDAhW9xjzYbwmOFA=="],
-
-    "@beep/start-client/@biomejs/biome/@biomejs/cli-win32-arm64": ["@biomejs/cli-win32-arm64@2.3.6", "", { "os": "win32", "cpu": "arm64" }, "sha512-YM7hLHpwjdt8R7+O2zS1Vo2cKgqEeptiXB1tWW1rgjN5LlpZovBVKtg7zfwfRrFx3i08aNZThYpTcowpTlczug=="],
-
-    "@beep/start-client/@biomejs/biome/@biomejs/cli-win32-x64": ["@biomejs/cli-win32-x64@2.3.6", "", { "os": "win32", "cpu": "x64" }, "sha512-psgNEYgMAobY5h+QHRBVR9xvg2KocFuBKm6axZWB/aD12NWhQjiVFQUjV6wMXhlH4iT0Q9c3yK5JFRiDC/rzHA=="],
 
     "@beep/start-client/@effect/platform-bun/@effect/platform-node-shared": ["@effect/platform-node-shared@0.53.0", "", { "dependencies": { "@parcel/watcher": "^2.5.1", "multipasta": "^0.2.7", "ws": "^8.18.2" }, "peerDependencies": { "@effect/cluster": "^0.52.0", "@effect/platform": "^0.93.0", "@effect/rpc": "^0.72.1", "@effect/sql": "^0.48.0", "effect": "^3.19.0" } }, "sha512-xqhYyUYotVUJi7Tqd/iM+tqEoNm6fVowcPm9naxKZCa6WPD6TnRfaogxjkB3yNBnPY63Ya/sIkfkeZXA3MwF3w=="],
 

@@ -17,7 +17,7 @@
  * @since 0.1.0
  */
 type ArrayBufferToUint8Array = (buffer: ArrayBuffer) => Uint8Array;
-/** 
+/**
  * Wraps an `ArrayBuffer` with a `Uint8Array` view.
  *
  * @example

@@ -11,10 +11,11 @@
  * @category Core/Generics
  * @since 0.1.0
  */
+
+import { Struct } from "@beep/schema-v2/core/extended/extended-schemas";
+import type { OptionalWithDefault } from "@beep/schema-v2/core/types";
 import type { StructTypes, UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
-import { Struct } from "../extended/extended-schemas";
-import type { OptionalWithDefault } from "../types";
 import { Id } from "./_id";
 
 /**

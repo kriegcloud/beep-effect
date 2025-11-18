@@ -12,15 +12,16 @@
  * @category Core/Generics
  * @since 0.1.0
  */
+
+import type { DefaultAnnotations } from "@beep/schema-v2/core/annotations/default";
+import { mergeFields } from "@beep/schema-v2/core/utils/merge-fields";
 import type { StringTypes, StructTypes, UnsafeTypes } from "@beep/types";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Data from "effect/Data";
 import * as FC from "effect/FastCheck";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
-import type { DefaultAnnotations } from "../annotations/default";
 import type { OptionalWithDefault } from "../types";
-import { mergeFields } from "../utils/merge-fields";
 import { TaggedUnion } from "./tagged-union";
 
 interface TaggedUnionFactoryBuilderSpec<

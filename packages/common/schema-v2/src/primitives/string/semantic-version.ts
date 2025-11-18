@@ -12,8 +12,9 @@
  * @category Primitives/String
  * @since 0.1.0
  */
-import type * as B from "effect/Brand";
+
 import { Id } from "@beep/schema-v2/primitives/string/_id";
+import type * as B from "effect/Brand";
 import * as S from "effect/Schema";
 
 /**

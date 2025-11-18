@@ -17,6 +17,7 @@
 import type { StringTypes, UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
+
 type EnumEntry = readonly [StringTypes.NonEmptyString, StringTypes.NonEmptyString];
 type ValidateEnumMapping<
   Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>,

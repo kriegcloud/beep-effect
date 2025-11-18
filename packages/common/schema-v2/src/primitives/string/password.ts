@@ -12,8 +12,9 @@
  * @category Primitives/String
  * @since 0.1.0
  */
-import * as Redacted from "effect/Redacted";
+
 import { Id } from "@beep/schema-v2/primitives/string/_id";
+import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 
 /**

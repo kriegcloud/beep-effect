@@ -12,10 +12,11 @@
  * @category Core/Generics
  * @since 0.1.0
  */
+
+import type { DefaultAnnotations } from "@beep/schema-v2/core/annotations/default";
+import { Struct } from "@beep/schema-v2/core/extended/extended-schemas";
 import type { StringTypes, StructTypes } from "@beep/types";
 import * as S from "effect/Schema";
-import type { DefaultAnnotations } from "../annotations/default";
-import { Struct } from "../extended/extended-schemas";
 import { Id } from "./_id";
 
 /**

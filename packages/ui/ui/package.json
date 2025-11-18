@@ -298,6 +298,7 @@
     "vaul": "catalog:"
   },
   "devDependencies": {
+    "@effect/docgen": "catalog:",
     "@zip.js/zip.js": "catalog:",
     "class-variance-authority": "catalog:",
     "@radix-ui/react-toast": "catalog:",

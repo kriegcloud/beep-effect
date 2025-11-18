@@ -12,8 +12,9 @@
  * @category Primitives/Network
  * @since 0.1.0
  */
-import { faker } from "@faker-js/faker";
+
 import { Id } from "@beep/schema-v2/primitives/network/_id";
+import { faker } from "@faker-js/faker";
 import * as Either from "effect/Either";
 import * as S from "effect/Schema";
 

@@ -1,7 +1,7 @@
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 
-import { Regex } from "./regex";
+import { Regex, RegexFromString } from "./regex";
 
 /**
  * Validates canonical CUID identifiers (case-insensitive `c` prefix with at least 8 characters).
@@ -11,7 +11,7 @@ import { Regex } from "./regex";
  *
  * cuid.test("ck3a0f1a0000000000000000");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -25,7 +25,7 @@ export const cuid = Regex.make(/^[cC][^\s-]{8,}$/);
  *
  * cuid2.test("j2x1h3d5");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -39,7 +39,7 @@ export const cuid2 = Regex.make(/^[0-9a-z]+$/);
  *
  * ulid.test("01HZXAP0Y51Q2E2R9A5D1ZJ8KX");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -53,7 +53,7 @@ export const ulid = Regex.make(/^[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$/);
  *
  * xid.test("01ab23cd45ef67gh89ij");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -67,7 +67,7 @@ export const xid = Regex.make(/^[0-9a-vA-V]{20}$/);
  *
  * ksuid.test("0ujsswThIGTUYm2K8FjOOfXtY1K");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -81,7 +81,7 @@ export const ksuid = Regex.make(/^[A-Za-z0-9]{27}$/);
  *
  * nanoid.test("V1StGXR8_Z5jdHi6B-myT");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -95,7 +95,7 @@ export const nanoid = Regex.make(/^[a-zA-Z0-9_-]{21}$/);
  *
  * duration.test("P2DT3H");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -111,7 +111,7 @@ export const duration = Regex.make(
  *
  * extendedDuration.test("+P1Y-2M3DT-4H5M+6.5S");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -127,7 +127,7 @@ export const extendedDuration = Regex.make(
  *
  * guid.test("123e4567-e89b-12d3-a456-426614174000");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -142,7 +142,7 @@ export const guid = Regex.make(/^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[
  *
  * uuid().test("123e4567-e89b-12d3-a456-426614174000");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -162,7 +162,7 @@ export const uuid = (version?: number | undefined) => {
  *
  * uuid4.test("123e4567-e89b-42d3-a456-426614174000");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -176,7 +176,7 @@ export const uuid4 = /*@__PURE__*/ uuid(4);
  *
  * uuid6.test("a987fbc9-4bed-6b5c-af10-1f6b90a1e2dc");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -190,7 +190,7 @@ export const uuid6 = /*@__PURE__*/ uuid(6);
  *
  * uuid7.test("01890fdd-6240-7cc2-b9c6-fb8b6e4c2d0c");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -204,7 +204,7 @@ export const uuid7 = /*@__PURE__*/ uuid(7);
  *
  * email.test("ops@example.com");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -220,7 +220,7 @@ export const email = Regex.make(
  *
  * html5Email.test("user.name+demo@example.dev");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -236,7 +236,7 @@ export const html5Email = Regex.make(
  *
  * rfc5322Email.test("\"display\"@example.io");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -252,7 +252,7 @@ export const rfc5322Email = Regex.make(
  *
  * unicodeEmail.test("jöhn@example.de");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -266,7 +266,7 @@ export const unicodeEmail = Regex.make(/^[^\s@"]{1,64}@[^\s@]{1,255}$/u);
  *
  * idnEmail.test("oki@example.東京");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -279,7 +279,7 @@ export const idnEmail = Regex.make(/^[^\s@"]{1,64}@[^\s@]{1,255}$/u);
  *
  * browserEmail.test("crew@example.ai");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -297,7 +297,7 @@ const _emoji: string = `^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$`;
  *
  * emoji().test("😀");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -313,7 +313,7 @@ export function emoji() {
  *
  * ipv4.test("192.168.0.1");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -329,7 +329,7 @@ export const ipv4 = Regex.make(
  *
  * ipv6.test("2001:0db8::1");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -345,7 +345,7 @@ export const ipv6 = Regex.make(
  *
  * cidrv4.test("10.0.0.0/8");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -361,7 +361,7 @@ export const cidrv4 = Regex.make(
  *
  * cidrv6.test("2001:db8::/32");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -377,7 +377,7 @@ export const cidrv6 = Regex.make(
  *
  * base64.test("Zg==");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -391,7 +391,7 @@ export const base64 = Regex.make(/^$|^(?:[0-9a-zA-Z+/]{4})*(?:(?:[0-9a-zA-Z+/]{2
  *
  * base64url.test("Zg");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -405,7 +405,7 @@ export const base64url = Regex.make(/^[A-Za-z0-9_-]*$/);
  *
  * hostname.test("api.example.io");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -421,7 +421,7 @@ export const hostname = Regex.make(
  *
  * domain.test("example.com");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -435,7 +435,7 @@ export const domain = Regex.make(/^([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])
  *
  * domain_label.test("sub-domain");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -449,7 +449,7 @@ export const domain_label = Regex.make(/^(?!-)[A-Za-z0-9-]{1,63}(?<!-)$/);
  *
  * top_level_domain.test("io");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -463,7 +463,7 @@ export const top_level_domain = Regex.make(/^[A-Za-z]{2,63}$/);
  *
  * e164.test("+12025550123");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -478,7 +478,7 @@ const dateSource = `(?:(?:dd[2468][048]|dd[13579][26]|dd0[48]|[02468][048]00|[13
  *
  * date.test("2024-12-31");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -504,7 +504,7 @@ function timeSource(args: { precision?: number | null | undefined }) {
  *
  * time({ precision: 0 }).test("23:59:59");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -520,7 +520,7 @@ export function time(args: { precision?: number | null | undefined }) {
  *
  * datetime({ precision: 3, offset: true }).test("2024-06-20T12:34:56.789+02:00");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -550,7 +550,7 @@ export function datetime(args: {
  *
  * string({ minimum: 3, maximum: 5 }).test("team");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -569,7 +569,7 @@ export const string = (
  *
  * bigint.test("42n");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -583,7 +583,7 @@ export const bigint = Regex.make(/^\d+n?$/);
  *
  * integer.test("9001");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -597,7 +597,7 @@ export const integer = Regex.make(/^\d+$/);
  *
  * number.test("-3.14");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -611,7 +611,7 @@ export const number = Regex.make(/^-?\d+(?:\.\d+)?/i);
  *
  * boolean.test("TRUE");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -626,7 +626,7 @@ const _null = /null/i;
  *
  * nullRegex.test("NULL");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -640,7 +640,7 @@ const _undefined = /undefined/i;
  *
  * undefinedRegex.test("undefined");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -654,7 +654,7 @@ export { _undefined as undefined };
  *
  * lowercase.test("effect-only");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -668,7 +668,7 @@ export const lowercase = Regex.make(/^[^A-Z]*$/);
  *
  * uppercase.test("LOUD");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -682,11 +682,12 @@ export const uppercase = Regex.make(/^[^a-z]*$/);
  *
  * hex.test("deadBEEF");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
 export const hex = Regex.make(/^[0-9a-fA-F]*$/);
+
 function fixedBase64(bodyLength: number, padding: "" | "=" | "==") {
   return new RegExp(`^[A-Za-z0-9+/]{${bodyLength}}${padding}$`);
 }
@@ -703,7 +704,7 @@ function fixedBase64url(length: number) {
  *
  * md5_hex.test("5eb63bbbe01eeed093cb22bb8f5acdc3");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -717,7 +718,7 @@ export const md5_hex = Regex.make(/^[0-9a-fA-F]{32}$/);
  *
  * md5_base64.test("XrY7u+Ae7tCTyyK7j1rNww==");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -731,7 +732,7 @@ export const md5_base64 = /*@__PURE__*/ fixedBase64(22, "==");
  *
  * md5_base64url.test("XrY7u-Ae7tCTyyK7j1rNww");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -745,7 +746,7 @@ export const md5_base64url = /*@__PURE__*/ fixedBase64url(22);
  *
  * sha1_hex.test("2aae6c35c94fcfb415dbe95f408b9ce91ee846ed");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -759,7 +760,7 @@ export const sha1_hex = Regex.make(/^[0-9a-fA-F]{40}$/);
  *
  * sha1_base64.test("Kq5sNclPz7QV2+lfQIuc6R7oRu0=");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -773,7 +774,7 @@ export const sha1_base64 = /*@__PURE__*/ fixedBase64(27, "=");
  *
  * sha1_base64url.test("Kq5sNclPz7QV2-lfQIuc6R7oRu0");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -787,7 +788,7 @@ export const sha1_base64url = /*@__PURE__*/ fixedBase64url(27);
  *
  * sha256_hex.test("b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -801,7 +802,7 @@ export const sha256_hex = Regex.make(/^[0-9a-fA-F]{64}$/);
  *
  * sha256_base64.test("uU0nuZNNPgilLlLX2n2r+sSE7+N6U4DukIj3rOLvzek=");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -815,7 +816,7 @@ export const sha256_base64 = /*@__PURE__*/ fixedBase64(43, "=");
  *
  * sha256_base64url.test("uU0nuZNNPgilLlLX2n2r-sSE7-N6U4DukIj3rOLvzek");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -829,7 +830,7 @@ export const sha256_base64url = /*@__PURE__*/ fixedBase64url(43);
  *
  * sha384_hex.test("fdbd8e75a67f29f701a4e040385e2e23986303ea10239211af907fcbb83578b3e417cb71ce646efd0819dd8c088de1bd");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -843,7 +844,7 @@ export const sha384_hex = Regex.make(/^[0-9a-fA-F]{96}$/);
  *
  * sha384_base64.test("/b2OdaZ/KfcBpOBAOF4uI5hjA+oQI5IRr5B/y7g1eLPkF8txzmRu/QgZ3YwIjeG9");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -857,7 +858,7 @@ export const sha384_base64 = /*@__PURE__*/ fixedBase64(64, "");
  *
  * sha384_base64url.test("_b2OdaZ_KfcBpOBAOF4uI5hjA-oQI5IRr5B_y7g1eLPkF8txzmRu_QgZ3YwIjeG9");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -871,7 +872,7 @@ export const sha384_base64url = /*@__PURE__*/ fixedBase64url(64);
  *
  * sha512_hex.test("309ecc489c12d6eb4cc40f50c902f2b4d0ed77ee511a7c7a9bcd3ca86d4cd86f989dd35bc5ff499670da34255b45b0cfd830e81f605dcf7dc5542e93ae9cd76f");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -885,7 +886,7 @@ export const sha512_hex = Regex.make(/^[0-9a-fA-F]{128}$/);
  *
  * sha512_base64.test("MJ7MSJwS1utMxA9QyQLytNDtd+5RGnx6m808qG1M2G+YndNbxf9JlnDaNCVbRbDP2DDoH2Bdz33FVC6TrpzXbw==");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -899,7 +900,7 @@ export const sha512_base64 = /*@__PURE__*/ fixedBase64(86, "==");
  *
  * sha512_base64url.test("MJ7MSJwS1utMxA9QyQLytNDtd-5RGnx6m808qG1M2G-YndNbxf9JlnDaNCVbRbDP2DDoH2Bdz33FVC6TrpzXbw");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -912,7 +913,7 @@ export const sha512_base64url = /*@__PURE__*/ fixedBase64url(86);
  *
  * path_regex.test("payload.items[0].value");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -926,7 +927,7 @@ export const path_regex = Regex.make(/^($|[a-zA-Z_$][\w$]*(?:\.[a-zA-Z_$][\w$]*|
  *
  * prop_regex.test("username");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -940,7 +941,7 @@ export const prop_regex = Regex.make(/^\w+$/);
  *
  * slug.test("schema-v2-roadmap");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -954,7 +955,7 @@ export const slug = Regex.make(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
  *
  * snakeCaseTagRegex.test("core_foundations");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -968,7 +969,7 @@ export const snakeCaseTagRegex = Regex.make(/^[a-z]+(?:_[a-z]+)*$/);
  *
  * rfc_3987_url_regex.test("https://example.com/path?query=1#hash");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -983,7 +984,7 @@ export const rfc_3987_url_regex = Regex.make(
  *
  * rfc3339DateTime.test("2023-08-15T23:59:60Z");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -998,7 +999,7 @@ export const rfc3339DateTime =
  *
  * css_hex_color_regex.test("#ff00ff");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -1012,7 +1013,7 @@ export const css_hex_color_regex = Regex.make(/^#(?:[A-F0-9]{3,4}|[A-F0-9]{6}(?:
  *
  * rgb_number_part_regex.test("-12.5");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -1026,7 +1027,7 @@ export const rgb_number_part_regex = Regex.make(/^[+-]?(?:\d+\.?\d*|\.\d+)$/);
  *
  * NO_ASCII_CTRL.test("Printable text only");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -1040,7 +1041,7 @@ export const NO_ASCII_CTRL = Regex.make(/^[^\x00-\x1F\x7F]+$/);
  *
  * US_POSTAL_CODE_REGEX.test("94105-1234");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -1054,7 +1055,7 @@ export const US_POSTAL_CODE_REGEX = Regex.make(/^\d{5}(-\d{4})?$/);
  *
  * CANADA_POSTAL_CODE_REGEX.test("K1A 0B1");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -1068,7 +1069,7 @@ export const CANADA_POSTAL_CODE_REGEX = Regex.make(/^[A-Z]\d[A-Z][ ]?\d[A-Z]\d$/
  *
  * GREAT_BRITAIN_POSTAL_CODE_REGEX.test("SW1A 1AA");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -1082,7 +1083,7 @@ export const GREAT_BRITAIN_POSTAL_CODE_REGEX = Regex.make(/^(GIR 0AA|[A-Z]{1,2}\
  *
  * GERMANY_POSTAL_CODE_REGEX.test("10115");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -1096,7 +1097,7 @@ export const GERMANY_POSTAL_CODE_REGEX = Regex.make(/^\d{5}$/);
  *
  * FRANCE_POSTAL_CODE_REGEX.test("75008");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -1110,7 +1111,7 @@ export const FRANCE_POSTAL_CODE_REGEX = Regex.make(/^\d{5}$/);
  *
  * NETHERLANDS_POSTAL_CODE_REGEX.test("1234 AB");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -1124,7 +1125,7 @@ export const NETHERLANDS_POSTAL_CODE_REGEX = Regex.make(/^\d{4}[ ]?[A-Z]{2}$/);
  *
  * AUSTRALIA_POSTAL_CODE_REGEX.test("3000");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -1138,7 +1139,7 @@ export const AUSTRALIA_POSTAL_CODE_REGEX = Regex.make(/^\d{4}$/);
  *
  * BRAZIL_POSTAL_CODE_REGEX.test("01001-000");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -1152,7 +1153,7 @@ export const BRAZIL_POSTAL_CODE_REGEX = Regex.make(/^\d{5}-?\d{3}$/);
  *
  * IRELAND_POSTAL_CODE_REGEX.test("D02 X285");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -1166,7 +1167,7 @@ export const IRELAND_POSTAL_CODE_REGEX = Regex.make(/^[A-Z0-9]{3}[ ]?[A-Z0-9]{4}
  *
  * POSTAL_CODE_REGEX.CANADA.test("K1A 0B1");
  *
- * @category Core/Regex
+ * @category Regex
  * @since 0.1.0
  * @internal
  */
@@ -1181,3 +1182,185 @@ export const POSTAL_CODE_REGEX = {
   BRAZIL: BRAZIL_POSTAL_CODE_REGEX,
   IRELAND: IRELAND_POSTAL_CODE_REGEX,
 } as const;
+
+/**
+ * @description
+ * Matches a complete Next.js-style pathname beginning with `/`, followed by zero or
+ * more path segments, an optional final segment, and an optional query string.
+ *
+ * This pattern enforces:
+ * - A leading `/`
+ * - Segments composed only of `[\w\-.]` (letters, digits, underscore, hyphen, dot)
+ * - Optional trailing filename or empty segment
+ * - Optional query beginning with `?` whose characters comply with RFC3986 "safe" sets,
+ *   including unreserved characters, sub-delimiters, `:`, `@`, `/`, `?`, and `%`.
+ *
+ * This is the primary validation rule for the {@link URLPath} schema and mirrors
+ * the constraints applied by Next.js routing, static file serving, and API routes.
+ *
+ * @example
+ * import { URL_PATH_WITH_OPTIONAL_RFC3986_QUERY_REGEXP } from "@beep/schema-v2/internal/regex/regexes";
+ * console.log(URL_PATH_WITH_OPTIONAL_RFC3986_QUERY_REGEXP.test("/_next/static/chunks/app.js?version=1.2.3&debug=true"))
+ *
+ * @category Regex
+ * @since 0.1.0
+ * @internal
+ */
+export const URL_PATH_WITH_OPTIONAL_RFC3986_QUERY_REGEXP = Regex.make(
+  /^\/(?:[\w\-.]+\/)*(?:[\w\-.]*)?(?:\?[A-Za-z0-9\-._~!$&'()*+,;=:@/?%]*)?$/
+);
+
+/**
+ * @description
+ * Matches a single path segment composed of characters typically allowed within
+ * URL pathname components — alphanumerics, underscore, hyphen, and dot.
+ *
+ * This pattern intentionally excludes `/` to ensure it only validates one segment.
+ *
+ * Used by the URLPath arbitrary generator to fabricate realistic and safe path
+ * components that align with Next.js conventions for folder names, route groups,
+ * and static asset directories.
+ *
+ * @example
+ * import { URL_PATH_SEGMENT_SAFE_CHARS_REGEXP } from "@beep/schema-v2/internal/regex/regexes";
+ * console.log(URL_PATH_SEGMENT_SAFE_CHARS_REGEXP.test("dashboard-v1_alpha.file"))
+ *
+ * @category Regex
+ * @since 0.1.0
+ * @internal
+ */
+export const URL_PATH_SEGMENT_SAFE_CHARS_REGEXP = Regex.make(/^[\w\-.]+$/);
+
+/**
+ * @description
+ * Matches a simple filename where the base name is composed of alphanumerics,
+ * underscore, and hyphen, followed by a dot and a word-character file extension.
+ *
+ * Examples include: `page.tsx`, `index.js`, `ic-lock.svg`, `favicon.ico`.
+ *
+ * This is used during arbitrary generation to produce realistic static assets
+ * and route files that commonly occur in Next.js applications.
+ *
+ * @example
+ * import {URL_PATH_FILENAME_WITH_EXTENSION_REGEXP } from "@beep/schema-v2/internal/regex/regexes";
+ * console.log(URL_PATH_FILENAME_WITH_EXTENSION_REGEXP.test("index.js"))
+ *
+ * @category Regex
+ * @since 0.1.0
+ * @internal
+ */
+export const URL_PATH_FILENAME_WITH_EXTENSION_REGEXP = Regex.make(/^[\w-]+\.\w+$/);
+
+/**
+ * @description
+ * Matches a query parameter key token using only alphanumerics, underscore, or
+ * hyphen. These characters are universally safe for query keys and help avoid
+ * characters requiring URL-encoding or reserved syntax issues.
+ *
+ * Examples: `token`, `user_id`, `page-idx`.
+ *
+ * Used in arbitrary generation when synthesizing query parameter objects for
+ * the {@link URLPath} schema.
+ *
+ * @example
+ * import {URL_QUERY_PARAM_KEY_TOKEN_REGEXP } from "@beep/schema-v2/internal/regex/regexes";
+ * console.log(URL_QUERY_PARAM_KEY_TOKEN_REGEXP.test("user_id"))
+ *
+ * @category Regex
+ * @since 0.1.0
+ * @internal
+ */
+export const URL_QUERY_PARAM_KEY_TOKEN_REGEXP = Regex.make(/^[A-Za-z0-9_-]+$/);
+
+/**
+ * @description
+ * Matches a query parameter value made from RFC3986 "safe" characters: unreserved
+ * characters (letters, digits, `-._~`), sub-delimiters (`!$&'()*+,;=`), plus `:`,
+ * `@`, `/`, `?`, and `%` for percent-encoded sequences.
+ *
+ * This character class corresponds closely to what browsers and Next.js accept
+ * without requiring additional percent-encoding, making it suitable for generating
+ * realistic and robust query parameter values.
+ *
+ * Examples: `abc123`, `user%40example.com`, `file-path/data?debug=true`.
+ *
+ * @example
+ * import {URL_QUERY_PARAM_VALUE_RFC3986_SAFE_REGEXP } from "@beep/schema-v2/internal/regex/regexes";
+ * console.log(URL_QUERY_PARAM_VALUE_RFC3986_SAFE_REGEXP.test("user%40example.com"))
+ *
+ * @category Regex
+ * @since 0.1.0
+ * @internal
+ */
+export const URL_QUERY_PARAM_VALUE_RFC3986_SAFE_REGEXP = Regex.make(/^[A-Za-z0-9\-._~!$&'()*+,;=:@/?%]+$/);
+
+/**
+ * @description
+ * Matches a string of one or more whitespace characters.
+ *
+ * @example
+ * import {ASCII_WHITESPACE_CHARS } from "@beep/schema-v2/internal/regex/regexes";
+ * Regexp(`[${ASCII_WHITESPACE_CHARS}]+`)
+ *
+ * @category Regex
+ * @since 0.1.0
+ * @internal
+ */
+export const ASCII_WHITESPACE_CHARS = "\t\n\f\r " as const;
+
+/**
+ * @description
+ * Matches a string of one or more whitespace characters.
+ *
+ * @example
+ * import {ASCII_WHITESPACE } from "@beep/schema-v2/internal/regex/regexes";
+ * console.log(ASCII_WHITESPACE.test("\n\t\r\f"))
+ *
+ * @category Regex
+ * @since 0.1.0
+ * @internal
+ */
+export const ASCII_WHITESPACE = RegexFromString.make(`[${ASCII_WHITESPACE_CHARS}]+`);
+
+/**
+ * @description
+ * Matches a string of one or more whitespace characters.
+ *
+ * @example
+ * import {ASCII_WHITESPACE_AT_START } from "@beep/schema-v2/internal/regex/regexes";
+ * console.log(ASCII_WHITESPACE_AT_START.test("\n\t\r\f"))
+ *
+ * @category Regex
+ * @since 0.1.0
+ * @internal
+ */
+export const ASCII_WHITESPACE_AT_START = RegexFromString.make(`^[${ASCII_WHITESPACE_CHARS}]+`);
+
+/**
+ * @description
+ * Matches a string of one or more whitespace characters.
+ *
+ * @example
+ * import {ASCII_WHITESPACE_AT_END } from "@beep/schema-v2/internal/regex/regexes";
+ * console.log(ASCII_WHITESPACE_AT_END.test("\n\t\r\f"))
+ *
+ * @category Regex
+ * @since 0.1.0
+ * @internal
+ */
+export const ASCII_WHITESPACE_AT_END = RegexFromString.make(`[${ASCII_WHITESPACE_CHARS}]+$`);
+
+/**
+ * An ASCII code point is a code point in the range U+0000 NULL to
+ * U+007F DELETE, inclusive." See <https://infra.spec.whatwg.org/#ascii-string>.
+ * deno-lint-ignore no-control-regex
+ *
+ * @example
+ * import {ASCII } from "@beep/schema-v2/internal/regex/regexes";
+ * console.log(ASCII.test("\x00\x7f"))
+ *
+ * @category Regex
+ * @since 0.1.0
+ * @internal
+ */
+export const ASCII = Regex.make(/^[\x00-\x7f]*$/);

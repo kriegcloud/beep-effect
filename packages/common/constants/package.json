@@ -43,6 +43,7 @@
     "uuid": "catalog:"
   },
   "devDependencies": {
+    "@effect/docgen": "catalog:",
     "@types/bun": "catalog:",
     "effect": "catalog:",
     "@beep/schema": "workspace:^",

@@ -51,6 +51,7 @@
     "drizzle-zero": "catalog:"
   },
   "devDependencies": {
+    "@effect/docgen": "catalog:",
     "@beep/types": "workspace:^",
     "@types/bun": "catalog:",
     "@testcontainers/postgresql": "catalog:",

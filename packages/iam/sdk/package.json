@@ -63,6 +63,7 @@
     "@beep/contract": "workspace:^"
   },
   "devDependencies": {
+    "@effect/docgen": "catalog:",
     "@better-fetch/fetch": "catalog:",
     "mutative": "catalog:",
     "@effect-atom/atom-react": "catalog:",
