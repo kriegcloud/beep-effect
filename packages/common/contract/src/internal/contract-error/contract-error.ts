@@ -90,15 +90,12 @@ const getStatusCodeSuggestion = (statusCode: number): string => {
 // Http Request Error
 // =====================================================================================================================
 
-
-
 export class HttpRequestErrorReason extends BS.StringLiteralKit("Transport", "Encode", "InvalidUrl").annotations({
   schemaId: Symbol.for("@beep/contract/ContractError/HttpRequestErrorReason"),
   identifier: "HttpRequestErrorReason",
   title: "HTTP Request Error Reason",
   description: "Reason for an HTTP request error.",
-}) {
-}
+}) {}
 
 export declare namespace HttpRequestErrorReason {
   export type Type = typeof HttpRequestErrorReason.Type;
@@ -286,8 +283,7 @@ export class HttpResponseErrorReason extends BS.StringLiteralKit("StatusCode", "
   identifier: "HttpResponseErrorReason",
   title: "HTTP Response Error Reason",
   description: "Reason for an HTTP response error.",
-}) {
-}
+}) {}
 
 export declare namespace HttpResponseErrorReason {
   export type Type = typeof HttpRequestErrorReason.Type;

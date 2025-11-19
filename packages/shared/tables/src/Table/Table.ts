@@ -1,4 +1,4 @@
-import type { EntityId } from "@beep/schema/EntityId";
+import type { EntityId } from "@beep/schema/identity";
 import type { DefaultColumns } from "@beep/shared-tables/Columns";
 import type { BuildColumns, BuildExtraConfigColumns } from "drizzle-orm";
 import type { PgTableExtraConfigValue } from "drizzle-orm/pg-core";

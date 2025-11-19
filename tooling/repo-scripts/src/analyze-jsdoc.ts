@@ -25,7 +25,7 @@ const DEFAULT_SCOPE = "schema" as const;
 const SCOPE_PATHS: Record<string, string> = {
   invariant: "packages/common/invariant",
   // schema: "packages/common/schema",
-  "schema": "packages/common/schema",
+  schema: "packages/common/schema",
   identity: "packages/common/identity",
   types: "packages/common/types",
   utils: "packages/common/utils",

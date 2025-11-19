@@ -14,6 +14,7 @@
 export * from "./builders";
 export * from "./core";
 export * from "./derived";
+export { StringLiteralKit } from "./derived/kits/string-literal-kit";
 export * from "./identity";
 export * from "./integrations";
 export * from "./primitives";

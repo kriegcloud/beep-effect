@@ -25,8 +25,7 @@ export class ContextAnnotationTag extends BS.StringLiteralKit(
   identifier: "ContextAnnotationTag",
   title: "Context Annotation Tag",
   description: "One of the possible keys for Context Annotations within `@beep/contract/Contract.ts`",
-}) {
-}
+}) {}
 
 export declare namespace ContextAnnotationTag {
   export type Type = typeof ContextAnnotationTag.Type;

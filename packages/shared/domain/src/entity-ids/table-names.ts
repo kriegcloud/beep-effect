@@ -1,9 +1,8 @@
-import {BS} from "@beep/schema";
-import {TaskTableNames} from "@beep/shared-domain/entity-ids/TaskTableNames";
+import { BS } from "@beep/schema";
+import { TaskTableNames } from "@beep/shared-domain/entity-ids/TaskTableNames";
 import type * as S from "effect/Schema";
-import {IamTableNames} from "./IamTableNames";
-import {SharedTableNames} from "./SharedTableNames";
-
+import { IamTableNames } from "./IamTableNames";
+import { SharedTableNames } from "./SharedTableNames";
 
 export class AnyTableName extends BS.StringLiteralKit(
   ...IamTableNames.IamTableName.Options,
@@ -23,4 +22,4 @@ export declare namespace AnyTableName {
   export type Encoded = S.Schema.Encoded<typeof AnyTableName>;
 }
 
-export {SharedTableNames, IamTableNames, TaskTableNames};
+export { SharedTableNames, IamTableNames, TaskTableNames };

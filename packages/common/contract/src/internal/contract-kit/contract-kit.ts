@@ -186,8 +186,7 @@ export type ImplementationsFrom<Contracts extends Record<string, Contract.Any>> 
   >;
 };
 
-export class LiftServiceMode extends BS.StringLiteralKit("success", "result") {
-}
+export class LiftServiceMode extends BS.StringLiteralKit("success", "result") {}
 
 /**
  * Determines whether lifted service methods should expose only successes or

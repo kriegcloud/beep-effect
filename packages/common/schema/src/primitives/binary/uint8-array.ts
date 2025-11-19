@@ -12,8 +12,9 @@
  * @category Primitives/Binary
  * @since 0.1.0
  */
-import { Id } from "@beep/schema/primitives/binary/_id";
+
 import * as S from "effect/Schema";
+import { Id } from "./_id";
 
 /**
  * Schema for branded `Uint8Array` values.

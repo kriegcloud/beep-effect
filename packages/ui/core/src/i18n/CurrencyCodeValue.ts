@@ -1,5 +1,5 @@
-import {StringLiteralKit} from "@beep/schema/derived";
-import {RecordUtils} from "@beep/utils/data";
+import { StringLiteralKit } from "@beep/schema/derived";
+import { RecordUtils } from "@beep/utils/data";
 
 /**
  * @standard ISO 4217
@@ -481,8 +481,7 @@ export const Currency = {
 } as const;
 export type Currency = (typeof Currency)[keyof typeof Currency];
 
-export class CurrencyCodeValue extends StringLiteralKit(...RecordUtils.recordKeys(Currency)) {
-}
+export class CurrencyCodeValue extends StringLiteralKit(...RecordUtils.recordKeys(Currency)) {}
 
 export declare namespace CurrencyCodeValue {
   export type Type = typeof CurrencyCodeValue.Type;

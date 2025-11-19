@@ -18,7 +18,6 @@ import { Id } from "@beep/schema/primitives/geo/_id";
 import * as S from "effect/Schema";
 import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
 
-
 /**
  * Schema representing canonical ISO 3166 country names.
  *
@@ -288,9 +287,7 @@ export class CountryName extends StringLiteralKit(
   Id.annotations("country-from-code/CountryName", {
     description: "Represents a country name",
   })
-) {
-
-}
+) {}
 
 /**
  * Namespace exposing helper types for the `CountryName` schema.

@@ -15,9 +15,9 @@
       "path": "../../common/identity"
     },
     {
-      "path": "../../env"
+      "path": "../../core/env"
     },
-        {
+    {
       "path": "../core"
     }
   ],

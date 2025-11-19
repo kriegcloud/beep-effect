@@ -45,7 +45,7 @@ const PACKAGE_TARGETS: Record<string, PackageTarget> = {
     slug: "utils",
     navOrder: 4,
   },
-  "schema": {
+  schema: {
     workspacePath: "packages/common/schema",
     docsFolder: "docs/modules",
     slug: "schema",

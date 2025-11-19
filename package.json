@@ -41,7 +41,7 @@
     "bootstrap": "bunx tsx ./tooling/repo-scripts/src/bootstrap.ts",
     "start": "bun run dotenvx -- bunx turbo run start",
     "update-lockfile": "bun pm update",
-    "dotenvx": "bunx dotenvx run -f .env --",
+    "dotenvx": "bunx @dotenvx/dotenvx run -f .env --",
     "lint:deps": "bunx syncpack lint --dependency-types='catalog' --dependencies='!{@tanstack/react-form}'",
     "lint:deps:fix": "bunx syncpack fix --dependency-types=catalog --dependencies='!{@tanstack/react-form}'",
     "deps:update": "bunx syncpack update --target=latest --dependency-types=catalog --dependencies='!{@tanstack/react-form}'",

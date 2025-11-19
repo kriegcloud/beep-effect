@@ -12,13 +12,13 @@
  * @since 0.1.0
  */
 
-import type {TaggedUnion} from "@beep/schema/core/generics/tagged-union";
-import {TaggedUnion as TaggedUnionFactory} from "@beep/schema/core/generics/tagged-union";
-import {Id} from "@beep/schema/derived/kits/_id";
-import type {StringTypes, UnsafeTypes} from "@beep/types";
-import {enumFromStringArray} from "@beep/utils";
-import type {CreateEnumType, ValidMapping} from "@beep/utils/data/tuple.utils";
-import {makeMappedEnum} from "@beep/utils/data/tuple.utils";
+import type { TaggedUnion } from "@beep/schema/core/generics/tagged-union";
+import { TaggedUnion as TaggedUnionFactory } from "@beep/schema/core/generics/tagged-union";
+import { Id } from "@beep/schema/derived/kits/_id";
+import type { StringTypes, UnsafeTypes } from "@beep/types";
+import { enumFromStringArray } from "@beep/utils";
+import type { CreateEnumType, ValidMapping } from "@beep/utils/data/tuple.utils";
+import { makeMappedEnum } from "@beep/utils/data/tuple.utils";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
@@ -30,9 +30,11 @@ import type * as Types from "effect/Types";
 
 type LiteralsType = A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>;
 
-type LiteralsSubset<Literals extends LiteralsType> = A.NonEmptyReadonlyArray<Literals[number]>
+type LiteralsSubset<Literals extends LiteralsType> = A.NonEmptyReadonlyArray<Literals[number]>;
 
-type MappingType<Literals extends LiteralsType> = A.NonEmptyReadonlyArray<[Literals[number], StringTypes.NonEmptyString]>
+type MappingType<Literals extends LiteralsType> = A.NonEmptyReadonlyArray<
+  [Literals[number], StringTypes.NonEmptyString]
+>;
 
 type TaggedMembers<Literals extends LiteralsType, D extends string> = {
   readonly [I in keyof Literals]: TaggedUnion.Schema<D, Literals[I] & string, {}>;
@@ -58,15 +60,11 @@ type TaggedMembersMap<Literals extends LiteralsType, D extends string> = {
  * @since 0.1.0
  * @category Derived/Kits
  */
-type TaggedUnion<
-  Literals extends LiteralsType,
-  D extends StringTypes.NonEmptyString,
-> = S.Union<TaggedMembers<Literals, D>>;
+type TaggedUnion<Literals extends LiteralsType, D extends StringTypes.NonEmptyString> = S.Union<
+  TaggedMembers<Literals, D>
+>;
 
-type TaggedMembersResult<
-  Literals extends LiteralsType,
-  D extends StringTypes.NonEmptyString,
-> = {
+type TaggedMembersResult<Literals extends LiteralsType, D extends StringTypes.NonEmptyString> = {
   readonly Union: TaggedUnion<Literals, D>;
   readonly Members: TaggedMembersMap<Literals, D>;
 };
@@ -79,17 +77,12 @@ type DerivedLiteralKit<Literals extends LiteralsType> = {
   ) => TaggedMembersResult<Literals, D>;
 };
 
-type DerivedLiteralKitSchema<Literals extends LiteralsType> = DerivedLiteralKit<Literals> & S.Literal<[...Literals]>
+type DerivedLiteralKitSchema<Literals extends LiteralsType> = DerivedLiteralKit<Literals> & S.Literal<[...Literals]>;
 
-type LiteralKitShape<
-  Literals extends LiteralsType,
-  EnumType,
-> = S.Literal<[...Literals]> & {
+type LiteralKitShape<Literals extends LiteralsType, EnumType> = S.Literal<[...Literals]> & {
   readonly Options: Literals;
   readonly Enum: EnumType;
-  readonly derive: <Keys extends LiteralsSubset<Literals>>(
-    ...keys: Keys
-  ) => DerivedLiteralKit<Keys>;
+  readonly derive: <Keys extends LiteralsSubset<Literals>>(...keys: Keys) => DerivedLiteralKit<Keys>;
   readonly toTagged: <D extends StringTypes.NonEmptyString>(
     discriminator: StringTypes.NonEmptyString<D>
   ) => TaggedMembersResult<Literals, D>;
@@ -116,17 +109,13 @@ type LiteralKitEnum<
 export type LiteralKit<
   Literals extends LiteralsType,
   Mapping extends MappingType<Literals> | undefined,
-> = LiteralKitShape<Literals, LiteralKitEnum<Literals, Mapping>>
+> = LiteralKitShape<Literals, LiteralKitEnum<Literals, Mapping>>;
 
-export interface ILiteralKit<
-  Literals extends LiteralsType,
-  Mapping extends MappingType<Literals> | undefined,
-> extends S.AnnotableClass<ILiteralKit<Literals, Mapping>, Literals[number]> {
+export interface ILiteralKit<Literals extends LiteralsType, Mapping extends MappingType<Literals> | undefined>
+  extends S.AnnotableClass<ILiteralKit<Literals, Mapping>, Literals[number]> {
   readonly Options: Literals;
   readonly Enum: LiteralKitEnum<Literals, Mapping>;
-  readonly derive: <Keys extends LiteralsSubset<Literals>>(
-    ...keys: Keys
-  ) => DerivedLiteralKit<Keys>;
+  readonly derive: <Keys extends LiteralsSubset<Literals>>(...keys: Keys) => DerivedLiteralKit<Keys>;
   readonly toTagged: <D extends StringTypes.NonEmptyString>(
     discriminator: StringTypes.NonEmptyString<D>
   ) => TaggedMembersResult<Literals, D>;
@@ -173,24 +162,21 @@ const buildMembersMap = <
  *
  * @since 0.1.0
  * @category Derived/Kits
- * @internal
  */
 const makeTaggedStruct = <D extends string, L extends string>(discriminator: D, lit: L) =>
   TaggedUnionFactory(discriminator)(lit, {});
 export const isMembers = <A>(as: ReadonlyArray<A>): as is AST.Members<A> => as.length > 1;
 export const mapMembers = <A, B>(members: AST.Members<A>, f: (a: A) => B): AST.Members<B> => A.map(members, f) as any;
 
-function getDefaultLiteralAST<Literals extends A.NonEmptyReadonlyArray<AST.LiteralValue>>(
-  literals: Literals
-): AST.AST {
+function getDefaultLiteralAST<Literals extends A.NonEmptyReadonlyArray<AST.LiteralValue>>(literals: Literals): AST.AST {
   return isMembers(literals)
     ? AST.Union.make(mapMembers(literals, (literal) => new AST.Literal(literal)))
     : new AST.Literal(literals[0]);
 }
 
 interface AllAnnotations<A, TypeParameters extends ReadonlyArray<any>>
-  extends S.Annotations.Schema<A, TypeParameters>, S.PropertySignature.Annotations<A> {
-}
+  extends S.Annotations.Schema<A, TypeParameters>,
+    S.PropertySignature.Annotations<A> {}
 
 const builtInAnnotations = {
   schemaId: AST.SchemaIdAnnotationId,
@@ -210,7 +196,7 @@ const builtInAnnotations = {
   batching: AST.BatchingAnnotationId,
   parseIssueTitle: AST.ParseIssueTitleAnnotationId,
   parseOptions: AST.ParseOptionsAnnotationId,
-  decodingFallback: AST.DecodingFallbackAnnotationId
+  decodingFallback: AST.DecodingFallbackAnnotationId,
 };
 
 const toASTAnnotations = <A, TypeParameters extends ReadonlyArray<any>>(
@@ -219,7 +205,7 @@ const toASTAnnotations = <A, TypeParameters extends ReadonlyArray<any>>(
   if (!annotations) {
     return {};
   }
-  const out: Types.Mutable<AST.Annotations> = {...annotations};
+  const out: Types.Mutable<AST.Annotations> = { ...annotations };
 
   for (const key in builtInAnnotations) {
     if (key in annotations) {
@@ -234,7 +220,6 @@ const toASTAnnotations = <A, TypeParameters extends ReadonlyArray<any>>(
 
 const mergeSchemaAnnotations = <A>(ast: AST.AST, annotations: S.Annotations.Schema<A>): AST.AST =>
   AST.annotations(ast, toASTAnnotations(annotations));
-
 
 /**
  * Factory for creating string literal kits with custom enum mapping.
@@ -266,13 +251,12 @@ export function makeLiteralKit<
 >(
   literals: Literals,
   enumMapping: ValidMapping<Literals, Mapping> | undefined,
-  ast?: AST.AST | undefined,
+  ast?: AST.AST | undefined
 ): ILiteralKit<Literals, Mapping>;
 
 /**
  * Implementation of string literal kit factory.
  *
- * @internal
  */
 export function makeLiteralKit<
   const Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>,
@@ -280,12 +264,11 @@ export function makeLiteralKit<
 >(
   literals: Literals,
   enumMapping?: ValidMapping<Literals, Mapping> | undefined,
-  ast: AST.AST = getDefaultLiteralAST(literals),
+  ast: AST.AST = getDefaultLiteralAST(literals)
 ): ILiteralKit<Literals, ValidMapping<Literals, Mapping> | undefined> {
   /**
    * Build a Schema.Union of S.Structs tagged by the given discriminator.
    *
-   * @internal
    */
   const toTagged = <D extends StringTypes.NonEmptyString>(
     discriminator: StringTypes.NonEmptyString<D>
@@ -313,12 +296,15 @@ export function makeLiteralKit<
   const enumFactory = makeMappedEnum(...literals);
   type EnumType = CreateEnumType<Literals, ValidMapping<Literals, Mapping> | undefined>;
   const mappingOpt = O.fromNullable(enumMapping);
-  const Enum: EnumType =
-    O.isSome(mappingOpt) ? enumFactory(...mappingOpt.value as ValidMapping<Literals, Mapping>).Enum : enumFromStringArray(...literals);
+  const Enum: EnumType = O.isSome(mappingOpt)
+    ? enumFactory(...(mappingOpt.value as ValidMapping<Literals, Mapping>)).Enum
+    : enumFromStringArray(...literals);
 
   return class WithStatics extends S.make<Literals[number]>(ast) {
     static override annotations(annotations: S.Annotations.Schema<Literals[number]>): ILiteralKit<Literals, Mapping> {
-      return enumMapping ? makeLiteralKit(this.Options, enumMapping, mergeSchemaAnnotations(this.ast, annotations)) : makeLiteralKit(this.Options, undefined, mergeSchemaAnnotations(this.ast, annotations));
+      return enumMapping
+        ? makeLiteralKit(this.Options, enumMapping, mergeSchemaAnnotations(this.ast, annotations))
+        : makeLiteralKit(this.Options, undefined, mergeSchemaAnnotations(this.ast, annotations));
     }
     static Options = literals;
     static Enum = Enum;
@@ -367,7 +353,7 @@ export function makeLiteralKit<
 
 export function StringLiteralKit<Literals extends LiteralsType>(
   ...literals: Literals[number] extends StringTypes.NonEmptyString<Literals[number]> ? Literals : never
-): ILiteralKit<Literals, undefined>
+): ILiteralKit<Literals, undefined>;
 export function StringLiteralKit<
   const Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>,
   const Mapping extends A.NonEmptyReadonlyArray<[Literals[number], StringTypes.NonEmptyString]>,
@@ -375,7 +361,7 @@ export function StringLiteralKit<
   ...args: Literals[number] extends StringTypes.NonEmptyString<Literals[number]>
     ? [...literals: Literals, options: { readonly enumMapping: ValidMapping<Literals, Mapping> }]
     : never
-): ILiteralKit<Literals, Mapping>
+): ILiteralKit<Literals, Mapping>;
 export function StringLiteralKit<
   const Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>,
   const Mapping extends A.NonEmptyReadonlyArray<[Literals[number], StringTypes.NonEmptyString]>,
@@ -403,7 +389,7 @@ export function StringLiteralKit<
   return O.fromNullable(options).pipe(
     O.match({
       onNone: () => makeLiteralKit(literals, undefined),
-      onSome: (opts) => makeLiteralKit(literals, opts.enumMapping)
+      onSome: (opts) => makeLiteralKit(literals, opts.enumMapping),
     })
-  )
+  );
 }

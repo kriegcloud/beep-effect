@@ -28,12 +28,19 @@ import { Id } from "./_id";
  * @category Builders/Form
  * @since 0.1.0
  */
-export class FormFieldType extends StringLiteralKit("object", "string", "number", "integer", "boolean", "array", "null").annotations(
+export class FormFieldType extends StringLiteralKit(
+  "object",
+  "string",
+  "number",
+  "integer",
+  "boolean",
+  "array",
+  "null"
+).annotations(
   Id.annotations("FormFieldType", {
     description: "JSON Schema field type literal.",
   })
-) {
-}
+) {}
 
 /**
  * Helper namespace for {@link FormFieldType}.
@@ -102,8 +109,7 @@ export class FormFieldFormat extends StringLiteralKit("email", "date", "time", "
   Id.annotations("FormFieldFormat", {
     description: "JSON Schema field format literal.",
   })
-) {
-}
+) {}
 
 /**
  * Helper namespace for {@link FormFieldFormat}.

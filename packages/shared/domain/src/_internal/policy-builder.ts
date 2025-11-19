@@ -4,14 +4,12 @@ import type * as A from "effect/Array";
 import * as Data from "effect/Data";
 import * as S from "effect/Schema";
 
-
 export class PermissionAction extends BS.StringLiteralKit("read", "manage", "delete").annotations({
   schemaId: Symbol.for("@beep/shared-domain/_internal/policy/PermissionAction"),
   identifier: "PermissionAction",
   title: "Permission Action",
   description: "A value for a permission action",
-}) {
-}
+}) {}
 
 export declare namespace PermissionAction {
   export type Type = S.Schema.Type<typeof PermissionAction>;

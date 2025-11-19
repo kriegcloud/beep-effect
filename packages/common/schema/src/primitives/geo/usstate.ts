@@ -91,8 +91,7 @@ export class USStateCode extends StringLiteralKit(
   Id.annotations("USStateCode", {
     description: "A valid US state or territory abbreviation.",
   })
-) {
-}
+) {}
 
 /**
  * Helper namespace exposing types for {@link USStateCode}.
@@ -131,7 +130,6 @@ export declare namespace USStateCode {
    */
   export type Encoded = S.Schema.Encoded<typeof USStateCode>;
 }
-
 
 /**
  * Schema validating US state/territory names.
@@ -206,8 +204,7 @@ export class USStateName extends StringLiteralKit(
   Id.annotations("USStateName", {
     description: "A valid US state or territory name.",
   })
-) {
-}
+) {}
 
 /**
  * Namespace exposing helper types for {@link USStateName}.

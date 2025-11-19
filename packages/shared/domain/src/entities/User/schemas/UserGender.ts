@@ -1,7 +1,6 @@
-import {invariant} from "@beep/invariant";
-import {BS} from "@beep/schema";
+import { invariant } from "@beep/invariant";
+import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
-
 
 export class UserGender extends BS.StringLiteralKit("male", "female").annotations({
   schemaId: Symbol.for("@beep/iam-domain/User/UserGender"),
@@ -9,7 +8,6 @@ export class UserGender extends BS.StringLiteralKit("male", "female").annotation
   title: "User Gender",
   description: "The user's role in the system",
 }) {
-
   static readonly DropDownOptions = UserGender.Options.map((option) => ({
     label: option,
     value: option,
@@ -26,7 +24,6 @@ export class UserGender extends BS.StringLiteralKit("male", "female").annotation
 }
 
 export const UserGenderEnum = UserGender.Enum;
-
 
 export const UserGenderOptions = UserGender.Options;
 export const makeUserGenderPgEnum = BS.toPgEnum(UserGender);

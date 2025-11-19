@@ -12,6 +12,6 @@ import { BeepId, SchemaId } from "@beep/identity";
  *
  * @category Integrations/Sql
  * @since 0.1.0
- * @internal
+ *
  */
 export const Id = BeepId.from(`${SchemaId.string()}/integrations/sql`);

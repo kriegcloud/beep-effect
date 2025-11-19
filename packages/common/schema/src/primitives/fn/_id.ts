@@ -12,6 +12,6 @@ import { BeepId, SchemaId } from "@beep/identity";
  *
  * @category Primitives/Fn
  * @since 0.1.0
- * @internal
+ *
  */
 export const Id = BeepId.from(`${SchemaId.string()}/primitives/fn`);

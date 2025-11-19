@@ -57,7 +57,7 @@ export function mergeFields<const A extends Fields, const B extends Fields>(a: A
  *
  * @category Core/Utils
  * @since 0.1.0
- * @internal
+ *
  */
 export function mergeFields<const A extends Fields, const B extends Fields>(a: A, b?: B) {
   if (b === undefined) {

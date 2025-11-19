@@ -2,7 +2,6 @@ import { BS } from "@beep/schema";
 import { TodoId } from "@beep/shared-domain/entity-ids/tasks";
 import type * as S from "effect/Schema";
 
-
 export class TaskTableName extends BS.StringLiteralKit(TodoId.tableName).annotations({
   schemaId: Symbol.for("@beep/shared/domain/EntityIds/tasks/TaskTableName"),
   description: "The set of table_names for entities within the tasks bounded context",

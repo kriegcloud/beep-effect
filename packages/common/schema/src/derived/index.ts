@@ -10,6 +10,6 @@
  *
  * @category Surface/Derived
  * @since 0.1.0
- * @internal
+ *
  */
 export * from "./kits";

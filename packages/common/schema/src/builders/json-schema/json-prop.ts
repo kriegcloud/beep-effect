@@ -11,10 +11,10 @@
  * @since 0.1.0
  */
 
-import {prop_regex} from "@beep/schema/internal/regex/regexes";
+import { prop_regex } from "@beep/schema/internal/regex/regexes";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import {Id} from "./internal";
+import { Id } from "./internal";
 
 /**
  * Branded schema for JSON property names used in JsonSchema helpers.

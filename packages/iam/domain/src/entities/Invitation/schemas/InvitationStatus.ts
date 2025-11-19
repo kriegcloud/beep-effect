@@ -1,7 +1,6 @@
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
 
-
 export class InvitationStatus extends BS.StringLiteralKit("pending", "rejected", "cancelled", "accepted").annotations({
   schemaId: Symbol.for("@beep/iam-domain/Invitation/schemas/InvitationStatus"),
   identifier: "InvitationStatus",

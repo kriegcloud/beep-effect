@@ -12,6 +12,6 @@ import { BeepId, SchemaId } from "@beep/identity";
  *
  * @category Primitives/Temporal/Dates
  * @since 0.1.0
- * @internal
+ *
  */
 export const Id = BeepId.from(`${SchemaId.string()}/primitives/temporal/dates`);

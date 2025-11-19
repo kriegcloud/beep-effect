@@ -13,8 +13,6 @@ import { CountryCodeValue } from "./CountryCodeValue";
 import { CurrencyCodeValue } from "./CurrencyCodeValue";
 import { SupportedLangValue } from "./SupportedLangValue";
 
-
-
 export class AdapterLocale extends BS.StringLiteralKit(
   "default",
   "pt-BR",
@@ -42,9 +40,7 @@ export class AdapterLocale extends BS.StringLiteralKit(
   "fa-IR",
   "ru-RU",
   "mr-MR"
-) {
-
-}
+) {}
 
 export class LangValueToAdapterLocale extends S.transformLiterals(
   ["en", "default"],

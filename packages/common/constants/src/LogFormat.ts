@@ -1,14 +1,12 @@
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
 
-
 export class LogFormat extends BS.StringLiteralKit("pretty", "json", "logFmt", "structured").annotations({
   schemaId: Symbol.for("@beep/constants/LogFormat"),
   identifier: "LogFormat",
   title: "Log Format",
   description: "Log format.",
-}) {
-}
+}) {}
 
 export declare namespace LogFormat {
   export type Type = S.Schema.Type<typeof LogFormat>;

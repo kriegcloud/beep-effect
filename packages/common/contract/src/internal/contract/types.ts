@@ -33,7 +33,6 @@ import type { ProviderDefinedTypeId, TypeId } from "./constants";
  * @category Models
  */
 
-
 const makeHandleOutcome = <C extends Any>(contract: C, input: FailureMode.MatchInput<C>): HandleOutcome<C> => {
   if (input.isFailure) {
     return {
@@ -51,40 +50,40 @@ const makeHandleOutcome = <C extends Any>(contract: C, input: FailureMode.MatchI
   };
 };
 export const $match =
-    <C extends Any, E1, E2, R1, R2>(result: Result<C>) =>
-    (
-      contract: Any,
-      cases: {
-        onErrorMode: (result: Failure<C>) => Effect.Effect<
-          {
+  <C extends Any, E1, E2, R1, R2>(result: Result<C>) =>
+  (
+    contract: Any,
+    cases: {
+      onErrorMode: (result: Failure<C>) => Effect.Effect<
+        {
+          readonly _tag: "success";
+          readonly value: Success<C>;
+        },
+        E1,
+        R1
+      >;
+      onReturnMode: (result: Result<C>) => Effect.Effect<
+        | { readonly _tag: "failure"; readonly value: Failure<C> }
+        | {
             readonly _tag: "success";
             readonly value: Success<C>;
           },
-          E1,
-          R1
-        >;
-        onReturnMode: (result: Result<C>) => Effect.Effect<
-          | { readonly _tag: "failure"; readonly value: Failure<C> }
-          | {
-              readonly _tag: "success";
-              readonly value: Success<C>;
-            },
-          E2,
-          R2
-        >;
-      }
-    ) =>
-      Match.value(contract.failureMode).pipe(
-        Match.when(FailureMode.Enum.error, () => cases.onErrorMode(result)),
-        Match.when(FailureMode.Enum.return, () => cases.onReturnMode(result)),
-        Match.exhaustive
-      );
-export const FailureMode = BS.StringLiteralKit("error", "return")
+        E2,
+        R2
+      >;
+    }
+  ) =>
+    Match.value(contract.failureMode).pipe(
+      Match.when(FailureMode.Enum.error, () => cases.onErrorMode(result)),
+      Match.when(FailureMode.Enum.return, () => cases.onReturnMode(result)),
+      Match.exhaustive
+    );
+export const FailureMode = BS.StringLiteralKit("error", "return");
 
 export const matchOutcome = <C extends Any>(contract: C, input: FailureMode.MatchInput<C>): HandleOutcome<C> =>
-    makeHandleOutcome(contract, input);
+  makeHandleOutcome(contract, input);
 export declare namespace FailureMode {
-  export type Type = S.Schema.Type<typeof FailureMode>
+  export type Type = S.Schema.Type<typeof FailureMode>;
   export type Encoded = S.Schema.Encoded<typeof FailureMode>;
 
   export interface MatchInput<C extends Any> {

@@ -16,7 +16,7 @@ import { Id } from "./_id";
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const Regex = S.instanceOf(RegExp)
   .pipe(S.brand("Regex"))
@@ -40,7 +40,7 @@ export const Regex = S.instanceOf(RegExp)
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export declare namespace Regex {
   /**
@@ -53,7 +53,7 @@ export declare namespace Regex {
    *
    * @category Regex
    * @since 0.1.0
-   * @internal
+   *
    */
   export type Type = typeof Regex.Type;
   /**
@@ -66,7 +66,7 @@ export declare namespace Regex {
    *
    * @category Regex
    * @since 0.1.0
-   * @internal
+   *
    */
   export type Encoded = typeof Regex.Encoded;
 }
@@ -81,7 +81,7 @@ export declare namespace Regex {
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export class RegexFromString extends S.NonEmptyTrimmedString.pipe(
   S.transformOrFail(Regex, {
@@ -109,7 +109,7 @@ export class RegexFromString extends S.NonEmptyTrimmedString.pipe(
    *
    * @category Regex
    * @since 0.1.0
-   * @internal
+   *
    */
   static readonly make = (value: string) => S.decodeSync(RegexFromString)(value);
 }
@@ -124,7 +124,7 @@ export class RegexFromString extends S.NonEmptyTrimmedString.pipe(
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export declare namespace RegexFromString {
   /**
@@ -137,7 +137,7 @@ export declare namespace RegexFromString {
    *
    * @category Regex
    * @since 0.1.0
-   * @internal
+   *
    */
   export type Type = typeof RegexFromString.Type;
   /**
@@ -150,7 +150,7 @@ export declare namespace RegexFromString {
    *
    * @category Regex
    * @since 0.1.0
-   * @internal
+   *
    */
   export type Encoded = typeof RegexFromString.Encoded;
 }

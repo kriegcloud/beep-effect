@@ -21,7 +21,7 @@ export * from "./annotations";
  * const batchedStruct = Core.Extended.Struct({ id: Schema.String });
  */
 export * as Extended from "./extended";
-export * from "./extended"
+export * from "./extended";
 /**
  * Higher-level schema factories for tagged unions and structs.
  *
@@ -33,7 +33,7 @@ export * from "./extended"
  * const Tagged = Core.Generics.TaggedStruct("Person", { id: Schema.String })();
  */
 export * as Generics from "./generics";
-export * from "./generics"
+export * from "./generics";
 /**
  * Scalar helper types exported at the top-level core namespace.
  *
@@ -70,4 +70,3 @@ export * from "./utils";
  * @since 0.1.0
  */
 export * from "./variance";
-

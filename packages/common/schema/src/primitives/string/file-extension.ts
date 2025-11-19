@@ -16,7 +16,6 @@ import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
 import type * as S from "effect/Schema";
 import { Id } from "./_id";
 
-
 /**
  * Schema representing supported application extensions.
  *
@@ -62,10 +61,7 @@ export class ApplicationExtension extends StringLiteralKit(
   "stl",
   "pcap",
   "ttf"
-).pipe(
-
-) {
-}
+).pipe() {}
 
 /**
  * Namespace exposing helper types for {@link ApplicationExtension}.
@@ -94,7 +90,6 @@ export declare namespace ApplicationExtension {
    */
   export type Encoded = S.Schema.Encoded<typeof ApplicationExtension>;
 }
-
 
 /**
  * Schema validating supported audio extensions.
@@ -125,8 +120,7 @@ export class AudioExtension extends StringLiteralKit(
   Id.annotations("AudioExtension", {
     description: "Audio MIME-type file extensions.",
   })
-) {
-}
+) {}
 
 /**
  * Namespace exposing helper types for {@link AudioExtension}.
@@ -195,8 +189,7 @@ export class FontExtension extends StringLiteralKit("ttf", "otf", "woff", "woff2
   Id.annotations("FontExtension", {
     description: "Font MIME-type file extensions.",
   })
-) {
-}
+) {}
 
 /**
  * Helper types for {@link FontExtension}.
@@ -313,9 +306,7 @@ export class ImageExtension extends StringLiteralKit(
   Id.annotations("ImageExtension", {
     description: "Image MIME-type file extensions.",
   })
-) {
-
-}
+) {}
 
 /**
  * Helper types for {@link ImageExtension}.
@@ -380,12 +371,21 @@ export const TextExtensionKit = StringLiteralKit("html", "txt", "css", "js", "mj
  * @category Primitives/String
  * @since 0.1.0
  */
-export class TextExtension extends StringLiteralKit("html", "txt", "css", "js", "mjs", "xml", "csv", "md", "yaml").annotations(
+export class TextExtension extends StringLiteralKit(
+  "html",
+  "txt",
+  "css",
+  "js",
+  "mjs",
+  "xml",
+  "csv",
+  "md",
+  "yaml"
+).annotations(
   Id.annotations("TextExtension", {
     description: "Text MIME-type file extensions.",
   })
-) {
-}
+) {}
 
 /**
  * Helper namespace for {@link TextExtension}.
@@ -453,8 +453,7 @@ export class VideoExtension extends StringLiteralKit(
   Id.annotations("VideoExtension", {
     description: "Video MIME-type file extensions.",
   })
-) {
-}
+) {}
 
 /**
  * Helper types for {@link VideoExtension}.
@@ -505,7 +504,6 @@ export declare namespace VideoExtension {
  * @category Primitives/String
  * @since 0.1.0
  */
-
 
 /**
  * Schema validating any supported file extension literal.

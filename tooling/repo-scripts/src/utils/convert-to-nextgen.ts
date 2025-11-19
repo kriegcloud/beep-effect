@@ -105,7 +105,7 @@ export const collectConvertableFiles = Effect.fn("collectConvertableFiles")(func
         O.fromNullable,
         O.match({
           onNone: () => false,
-          onSome: S.is(NextgenConvertableExtensionKit.Schema),
+          onSome: S.is(NextgenConvertableExtensionKit),
         })
       );
     }),
@@ -118,7 +118,7 @@ export const collectConvertableFiles = Effect.fn("collectConvertableFiles")(func
               message: `Invalid path: ${path}`,
             })
         ),
-        S.decodeUnknownSync(NextgenConvertableExtensionKit.Schema)
+        S.decodeUnknownSync(NextgenConvertableExtensionKit)
       );
 
       return {

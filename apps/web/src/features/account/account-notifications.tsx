@@ -66,8 +66,8 @@ export function AccountNotifications({ sx, ...other }: CardProps) {
   );
 
   const getSelected = (
-    selectedItems: ReadonlyArray<typeof NotificationSelection.Schema.Type>,
-    item: typeof NotificationSelection.Schema.Type
+    selectedItems: ReadonlyArray<typeof NotificationSelection.Type>,
+    item: typeof NotificationSelection.Type
   ) => (selectedItems.includes(item) ? A.filter(selectedItems, (value) => value !== item) : [...selectedItems, item]);
 
   return (

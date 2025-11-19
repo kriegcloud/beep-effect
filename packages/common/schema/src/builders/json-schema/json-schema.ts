@@ -14,18 +14,17 @@
  * @since 0.1.0
  */
 
-
-import {LiteralDefaults} from "@beep/schema/primitives/string/literal";
-import type {Or, UnsafeTypes} from "@beep/types";
+import { $JsonType } from "@beep/schema/builders/json-schema/json-type";
+import { LiteralDefaults } from "@beep/schema/primitives/string/literal";
+import type { Or, UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
-import type {JsonProp} from "./json-prop";
 import * as S from "effect/Schema";
 import * as StructRecord from "effect/Struct";
-import {Struct as ExtendedStruct} from "../../core/extended/extended-schemas";
-import {RegexFromString} from "../../internal/regex/regex";
-import {Id} from "./internal";
-import {$JsonType} from "@beep/schema/builders/json-schema/json-type";
+import { Struct as ExtendedStruct } from "../../core/extended/extended-schemas";
+import { RegexFromString } from "../../internal/regex/regex";
+import { Id } from "./internal";
+import type { JsonProp } from "./json-prop";
 
 /**
  * Recursive helper type representing either a JSON Schema definition or a boolean shorthand.
@@ -535,7 +534,7 @@ const JsonSchemaStruct = ExtendedStruct(
       description: "Declares a dynamic anchor name that $dynamicRef can resolve to at runtime.",
       documentation: "https://json-schema.org/draft/2020-12/json-schema-core#section-8.2.3.2",
     }),
-    $vocabulary: S.optional(S.Record({key: S.String, value: S.Boolean})).annotations({
+    $vocabulary: S.optional(S.Record({ key: S.String, value: S.Boolean })).annotations({
       title: "Vocabulary ($vocabulary)",
       description: "Declares vocabularies (keyword sets) available in this meta‑schema.",
       documentation: "https://json-schema.org/draft/2020-12/json-schema-core#section-8.1.2",
@@ -735,7 +734,7 @@ const JsonSchemaStruct = ExtendedStruct(
       description: "Property names that must be present in the object.",
       documentation: "https://json-schema.org/understanding-json-schema/reference/object#required-properties",
     }),
-    dependentRequired: S.optional(S.Record({key: S.NonEmptyString, value: S.Array(S.String)})).annotations({
+    dependentRequired: S.optional(S.Record({ key: S.NonEmptyString, value: S.Array(S.String) })).annotations({
       title: "dependentRequired",
       description: "Property dependencies: when a property is present, these other properties are also required.",
       documentation: "https://json-schema.org/understanding-json-schema/reference/conditionals#dependentRequired",
@@ -992,8 +991,7 @@ export class ObjectSchema extends ExtendedStruct({
   Id.JsonSchema.annotations("ObjectSchema", {
     description: "Convenience helper for JSON Schema documents describing objects.",
   })
-) {
-}
+) {}
 
 /**
  * Namespace exposing runtime and encoded types for {@link ObjectSchema}.
@@ -1055,8 +1053,7 @@ export class ArraySchema extends ExtendedStruct({
   Id.JsonSchema.annotations("ArraySchema", {
     description: "Convenience helper for JSON Schema documents describing arrays.",
   })
-) {
-}
+) {}
 
 /**
  * Namespace exposing runtime and encoded types for {@link ArraySchema}.
@@ -1118,8 +1115,7 @@ export class StringSchema extends ExtendedStruct({
   Id.JsonSchema.annotations("StringSchema", {
     description: "Convenience helper for JSON Schema documents describing strings.",
   })
-) {
-}
+) {}
 
 /**
  * Namespace exposing runtime and encoded types for {@link StringSchema}.
@@ -1181,8 +1177,7 @@ export class NumberSchema extends ExtendedStruct({
   Id.JsonSchema.annotations("NumberSchema", {
     description: "Convenience helper for JSON Schema documents describing numbers.",
   })
-) {
-}
+) {}
 
 /**
  * Namespace exposing runtime and encoded types for {@link NumberSchema}.
@@ -1244,8 +1239,7 @@ export class IntegerSchema extends ExtendedStruct({
   Id.JsonSchema.annotations("IntegerSchema", {
     description: "Convenience helper for JSON Schema documents describing integers.",
   })
-) {
-}
+) {}
 
 /**
  * Namespace exposing runtime and encoded types for {@link IntegerSchema}.
@@ -1307,8 +1301,7 @@ export class BooleanSchema extends ExtendedStruct({
   Id.JsonSchema.annotations("BooleanSchema", {
     description: "Convenience helper for JSON Schema documents describing booleans.",
   })
-) {
-}
+) {}
 
 /**
  * Namespace exposing runtime and encoded types for {@link BooleanSchema}.
@@ -1370,8 +1363,7 @@ export class NullSchema extends ExtendedStruct({
   Id.JsonSchema.annotations("NullSchema", {
     description: "Convenience helper for JSON Schema documents describing null values.",
   })
-) {
-}
+) {}
 
 /**
  * Namespace exposing runtime and encoded types for {@link NullSchema}.

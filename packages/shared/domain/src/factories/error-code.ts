@@ -1,5 +1,4 @@
 import { invariant } from "@beep/invariant";
-import { Regex } from "@beep/schema/primitives";
 import type { UpperLetter } from "@beep/types";
 import * as S from "effect/Schema";
 
@@ -22,7 +21,7 @@ class ErrorCodeFormat extends S.NonEmptyTrimmedString.pipe(
   S.uppercased({
     message: () => "Error Code Must be an uppercased alpha char.",
   }),
-  S.pattern(Regex.make(/^[A-Z]+(?:_[A-Z]+)*$/), {
+  S.pattern(/^[A-Z]+(?:_[A-Z]+)*$/, {
     message: () => "must be in snake case format",
   }),
   S.minLength(1, {

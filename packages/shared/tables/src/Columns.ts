@@ -1,4 +1,4 @@
-import type { EntityId } from "@beep/schema/EntityId";
+import type { EntityId } from "@beep/schema/identity";
 import type { HasDefault, HasRuntimeDefault, NotNull } from "drizzle-orm";
 import type * as pg from "drizzle-orm/pg-core";
 import type { PgTimestampBuilderInitial } from "drizzle-orm/pg-core";

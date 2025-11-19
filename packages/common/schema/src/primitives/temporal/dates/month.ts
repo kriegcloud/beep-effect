@@ -47,8 +47,7 @@ export class MonthString extends StringLiteralKit(
   Id.annotations("MonthString", {
     description: "Month of the year as a string.",
   })
-) {
-}
+) {}
 
 /**
  * Namespace exposing helper types for {@link MonthString}.
@@ -78,8 +77,6 @@ export declare namespace MonthString {
   export type Encoded = S.Schema.Encoded<typeof MonthString>;
 }
 
-
-
 /**
  * Schema validating zero-padded month numbers (`"01"` ... `"12"`).
  *
@@ -92,27 +89,40 @@ export declare namespace MonthString {
  * @category Primitives/Temporal/Dates
  * @since 0.1.0
  */
-export class MonthNumber extends StringLiteralKit("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", {
-  enumMapping: [
-    ["01", "january"],
-    ["02", "february"],
-    ["03", "march"],
-    ["04", "april"],
-    ["05", "may"],
-    ["06", "june"],
-    ["07", "july"],
-    ["08", "august"],
-    ["09", "september"],
-    ["10", "october"],
-    ["11", "november"],
-    ["12", "december"],
-  ],
-}).annotations(
+export class MonthNumber extends StringLiteralKit(
+  "01",
+  "02",
+  "03",
+  "04",
+  "05",
+  "06",
+  "07",
+  "08",
+  "09",
+  "10",
+  "11",
+  "12",
+  {
+    enumMapping: [
+      ["01", "january"],
+      ["02", "february"],
+      ["03", "march"],
+      ["04", "april"],
+      ["05", "may"],
+      ["06", "june"],
+      ["07", "july"],
+      ["08", "august"],
+      ["09", "september"],
+      ["10", "october"],
+      ["11", "november"],
+      ["12", "december"],
+    ],
+  }
+).annotations(
   Id.annotations("MonthNumber", {
     description: "Month of the year as a zero-padded number.",
   })
-) {
-}
+) {}
 
 /**
  * Namespace exposing helper types for {@link MonthNumber}.

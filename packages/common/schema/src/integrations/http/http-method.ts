@@ -28,12 +28,19 @@ import { Id } from "./_id";
  * @category Integrations/Http
  * @since 0.1.0
  */
-export class HttpMethod extends StringLiteralKit("GET", "POST", "PATCH", "PUT", "DELETE", "HEAD", "OPTIONS").annotations(
+export class HttpMethod extends StringLiteralKit(
+  "GET",
+  "POST",
+  "PATCH",
+  "PUT",
+  "DELETE",
+  "HEAD",
+  "OPTIONS"
+).annotations(
   Id.annotations("HttpMethod", {
     description: "The HTTP verb used by a request.",
   })
-) {
-}
+) {}
 
 /**
  * Namespace exposing helper types for {@link HttpMethod}.

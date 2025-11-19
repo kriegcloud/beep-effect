@@ -1,6 +1,5 @@
-import { StringLiteralKit } from "@beep/schema/derived";
+import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
 import type * as S from "effect/Schema";
-
 
 export class SubscriptionPlanValue extends StringLiteralKit("basic", "pro", "enterprise").annotations({
   schemaId: Symbol.for("@beep/constants/SubscriptionPlanValue"),

@@ -65,7 +65,7 @@ export declare namespace ShardPrefixEncoded {
  * @example ShardPrefixDecoded branded strings: "a1", "F3", "00", "ff"
  */
 export class ShardPrefixDecoded extends S.NonEmptyTrimmedString.pipe(
-  S.pattern(BS.Regex.make(/^[0-9a-f]{2}$/i)),
+  S.pattern(/^[0-9a-f]{2}$/i),
   S.brand("ShardPrefixDecoded")
 ).annotations({
   schemaId: Symbol.for("@beep/shared-domain/File/schemas/FilePath/ShardPrefixDecoded"),
@@ -73,13 +73,6 @@ export class ShardPrefixDecoded extends S.NonEmptyTrimmedString.pipe(
   title: "Shard Prefix Decoded",
   description:
     "Validated two-character hexadecimal shard prefix with branded type safety. Ensures proper format (exactly 2 hex characters) for consistent S3 load distribution.",
-  examples: [
-    BS.makeBranded("a1"),
-    BS.makeBranded("F3"),
-    BS.makeBranded("00"),
-    BS.makeBranded("ff"),
-    BS.makeBranded("2B"),
-  ],
 }) {}
 
 export declare namespace ShardPrefixDecoded {
@@ -200,9 +193,9 @@ const UploadPathParts = [
   "/",
   S.String, // Entity attribute (avatar, logo, document, etc.)
   "/",
-  BS.YearEncoded, // 4-digit year (auto-generated from current time)
+  S.Number, // 4-digit year (auto-generated from current time)
   "/",
-  BS.MonthNumber, // 2-digit zero-padded month (auto-generated)
+  S.Literal("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"), // 2-digit zero-padded month (auto-generated)
   "/",
   S.encodedSchema(SharedEntityIds.FileId), // File UUID
   ".",
@@ -303,7 +296,7 @@ export declare namespace UploadPathParser {
  * };
  * ```
  */
-export const UploadPathDecoded = BS.Struct({
+export const UploadPathDecoded = S.Struct({
   env: EnvValue, // Environment: dev, staging, prod
   fileId: SharedEntityIds.FileId, // Unique file identifier
   organizationType: Organization.OrganizationType, // Organization classification

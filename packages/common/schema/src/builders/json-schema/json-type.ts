@@ -22,13 +22,12 @@ export class $JsonType extends StringLiteralKit(
   "integer"
 ).annotations(
   Id.JsonType.annotations("$JsonType", {
-    description: "The possible json types as string literals"
+    description: "The possible json types as string literals",
   })
-) {
-}
+) {}
 
 export declare namespace $JsonType {
-   /**
+  /**
    * Runtime union corresponding to {@link $JsonType}.
    *
    * @example
@@ -53,5 +52,4 @@ export declare namespace $JsonType {
    * @since 0.1.0
    */
   export type Encoded = typeof $JsonType.Encoded;
-
 }

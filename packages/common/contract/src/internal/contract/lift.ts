@@ -8,12 +8,13 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
-import {ContractError} from "../contract-error";
+import { ContractError } from "../contract-error";
 import {
   type Any,
   type Failure,
   type HandleOutcome,
-  type ImplementationResult, matchOutcome,
+  type ImplementationResult,
+  matchOutcome,
   type Payload,
   type Requirements,
   type ResultEncoded,
@@ -57,7 +58,7 @@ export interface LiftedContract<C extends Any> {
  * ```
  */
 export const lift = <const C extends Any>(contract: C, options: LiftOptions<C>): LiftedContract<C> => {
-  const {method, onFailure, onSuccess, onDefect} = options;
+  const { method, onFailure, onSuccess, onDefect } = options;
 
   const annotateOutcome = (outcome: HandleOutcome<C>) =>
     Match.value(outcome).pipe(

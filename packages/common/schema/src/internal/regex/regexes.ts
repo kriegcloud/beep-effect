@@ -13,7 +13,7 @@ import { Regex, RegexFromString } from "./regex";
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const cuid = Regex.make(/^[cC][^\s-]{8,}$/);
 
@@ -27,7 +27,7 @@ export const cuid = Regex.make(/^[cC][^\s-]{8,}$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const cuid2 = Regex.make(/^[0-9a-z]+$/);
 
@@ -41,7 +41,7 @@ export const cuid2 = Regex.make(/^[0-9a-z]+$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const ulid = Regex.make(/^[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$/);
 
@@ -55,7 +55,7 @@ export const ulid = Regex.make(/^[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const xid = Regex.make(/^[0-9a-vA-V]{20}$/);
 
@@ -69,7 +69,7 @@ export const xid = Regex.make(/^[0-9a-vA-V]{20}$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const ksuid = Regex.make(/^[A-Za-z0-9]{27}$/);
 
@@ -83,7 +83,7 @@ export const ksuid = Regex.make(/^[A-Za-z0-9]{27}$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const nanoid = Regex.make(/^[a-zA-Z0-9_-]{21}$/);
 
@@ -97,7 +97,7 @@ export const nanoid = Regex.make(/^[a-zA-Z0-9_-]{21}$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const duration = Regex.make(
   /^P(?:(\d+W)|(?!.*W)(?=\d|T\d)(\d+Y)?(\d+M)?(\d+D)?(T(?=\d)(\d+H)?(\d+M)?(\d+([.,]\d+)?S)?)?)$/
@@ -113,7 +113,7 @@ export const duration = Regex.make(
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const extendedDuration = Regex.make(
   /^[-+]?P(?!$)(?:[-+]?\d+Y|[-+]?\d+[.,]\d+Y$)?(?:[-+]?\d+M|[-+]?\d+[.,]\d+M$)?(?:[-+]?\d+W|[-+]?\d+[.,]\d+W$)?(?:[-+]?\d+D|[-+]?\d+[.,]\d+D$)?(?:T(?=[\d+-])(?:[-+]?\d+H|[-+]?\d+[.,]\d+H$)?(?:[-+]?\d+M|[-+]?\d+[.,]\d+M$)?(?:[-+]?\d+(?:[.,]\d+)?S)?)??$/
@@ -129,7 +129,7 @@ export const extendedDuration = Regex.make(
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const guid = Regex.make(/^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$/);
 
@@ -144,7 +144,7 @@ export const guid = Regex.make(/^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const uuid = (version?: number | undefined) => {
   if (!version)
@@ -164,7 +164,7 @@ export const uuid = (version?: number | undefined) => {
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const uuid4 = /*@__PURE__*/ uuid(4);
 
@@ -178,7 +178,7 @@ export const uuid4 = /*@__PURE__*/ uuid(4);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const uuid6 = /*@__PURE__*/ uuid(6);
 
@@ -192,7 +192,7 @@ export const uuid6 = /*@__PURE__*/ uuid(6);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const uuid7 = /*@__PURE__*/ uuid(7);
 
@@ -206,7 +206,7 @@ export const uuid7 = /*@__PURE__*/ uuid(7);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const email = Regex.make(
   /^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9-]*\.)+[A-Za-z]{2,}$/
@@ -222,7 +222,7 @@ export const email = Regex.make(
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const html5Email = Regex.make(
   /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
@@ -238,7 +238,7 @@ export const html5Email = Regex.make(
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const rfc5322Email = Regex.make(
   /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -254,7 +254,7 @@ export const rfc5322Email = Regex.make(
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const unicodeEmail = Regex.make(/^[^\s@"]{1,64}@[^\s@]{1,255}$/u);
 
@@ -268,7 +268,7 @@ export const unicodeEmail = Regex.make(/^[^\s@"]{1,64}@[^\s@]{1,255}$/u);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const idnEmail = Regex.make(/^[^\s@"]{1,64}@[^\s@]{1,255}$/u);
 /**
@@ -281,7 +281,7 @@ export const idnEmail = Regex.make(/^[^\s@"]{1,64}@[^\s@]{1,255}$/u);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const browserEmail = Regex.make(
   /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
@@ -299,7 +299,7 @@ const _emoji: string = `^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$`;
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export function emoji() {
   return new RegExp(_emoji, "u");
@@ -315,7 +315,7 @@ export function emoji() {
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const ipv4 = Regex.make(
   /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/
@@ -331,7 +331,7 @@ export const ipv4 = Regex.make(
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const ipv6 = Regex.make(
   /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::|([0-9a-fA-F]{1,4})?::([0-9a-fA-F]{1,4}:?){0,6})$/
@@ -347,7 +347,7 @@ export const ipv6 = Regex.make(
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const cidrv4 = Regex.make(
   /^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/([0-9]|[1-2][0-9]|3[0-2])$/
@@ -363,7 +363,7 @@ export const cidrv4 = Regex.make(
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const cidrv6 = Regex.make(
   /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::|([0-9a-fA-F]{1,4})?::([0-9a-fA-F]{1,4}:?){0,6})\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/
@@ -379,7 +379,7 @@ export const cidrv6 = Regex.make(
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const base64 = Regex.make(/^$|^(?:[0-9a-zA-Z+/]{4})*(?:(?:[0-9a-zA-Z+/]{2}==)|(?:[0-9a-zA-Z+/]{3}=))?$/);
 
@@ -393,7 +393,7 @@ export const base64 = Regex.make(/^$|^(?:[0-9a-zA-Z+/]{4})*(?:(?:[0-9a-zA-Z+/]{2
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const base64url = Regex.make(/^[A-Za-z0-9_-]*$/);
 
@@ -407,7 +407,7 @@ export const base64url = Regex.make(/^[A-Za-z0-9_-]*$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const hostname = Regex.make(
   /^(?=.{1,253}\.?$)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[-0-9a-zA-Z]{0,61}[0-9a-zA-Z])?)*\.?$/
@@ -423,7 +423,7 @@ export const hostname = Regex.make(
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const domain = Regex.make(/^([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/);
 
@@ -437,7 +437,7 @@ export const domain = Regex.make(/^([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const domain_label = Regex.make(/^(?!-)[A-Za-z0-9-]{1,63}(?<!-)$/);
 
@@ -451,7 +451,7 @@ export const domain_label = Regex.make(/^(?!-)[A-Za-z0-9-]{1,63}(?<!-)$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const top_level_domain = Regex.make(/^[A-Za-z]{2,63}$/);
 
@@ -465,7 +465,7 @@ export const top_level_domain = Regex.make(/^[A-Za-z]{2,63}$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const e164 = Regex.make(/^\+(?:[0-9]){6,14}[0-9]$/);
 const dateSource = `(?:(?:dd[2468][048]|dd[13579][26]|dd0[48]|[02468][048]00|[13579][26]00)-02-29|d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]d|30)|(?:02)-(?:0[1-9]|1d|2[0-8])))`;
@@ -480,7 +480,7 @@ const dateSource = `(?:(?:dd[2468][048]|dd[13579][26]|dd0[48]|[02468][048]00|[13
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const date = /*@__PURE__*/ new RegExp(`^${dateSource}$`);
 
@@ -506,7 +506,7 @@ function timeSource(args: { precision?: number | null | undefined }) {
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export function time(args: { precision?: number | null | undefined }) {
   return new RegExp(`^${timeSource(args)}$`);
@@ -522,7 +522,7 @@ export function time(args: { precision?: number | null | undefined }) {
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export function datetime(args: {
   readonly precision?: number | null | undefined;
@@ -552,7 +552,7 @@ export function datetime(args: {
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const string = (
   params?: { readonly minimum?: number | undefined; readonly maximum?: number | undefined } | undefined
@@ -571,7 +571,7 @@ export const string = (
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const bigint = Regex.make(/^\d+n?$/);
 
@@ -585,7 +585,7 @@ export const bigint = Regex.make(/^\d+n?$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const integer = Regex.make(/^\d+$/);
 
@@ -599,7 +599,7 @@ export const integer = Regex.make(/^\d+$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const number = Regex.make(/^-?\d+(?:\.\d+)?/i);
 
@@ -613,7 +613,7 @@ export const number = Regex.make(/^-?\d+(?:\.\d+)?/i);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const boolean = Regex.make(/true|false/i);
 
@@ -628,7 +628,7 @@ const _null = /null/i;
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export { _null as null };
 const _undefined = /undefined/i;
@@ -642,7 +642,7 @@ const _undefined = /undefined/i;
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export { _undefined as undefined };
 
@@ -656,7 +656,7 @@ export { _undefined as undefined };
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const lowercase = Regex.make(/^[^A-Z]*$/);
 
@@ -670,7 +670,7 @@ export const lowercase = Regex.make(/^[^A-Z]*$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const uppercase = Regex.make(/^[^a-z]*$/);
 
@@ -684,7 +684,7 @@ export const uppercase = Regex.make(/^[^a-z]*$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const hex = Regex.make(/^[0-9a-fA-F]*$/);
 
@@ -706,7 +706,7 @@ function fixedBase64url(length: number) {
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const md5_hex = Regex.make(/^[0-9a-fA-F]{32}$/);
 
@@ -720,7 +720,7 @@ export const md5_hex = Regex.make(/^[0-9a-fA-F]{32}$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const md5_base64 = /*@__PURE__*/ fixedBase64(22, "==");
 
@@ -734,7 +734,7 @@ export const md5_base64 = /*@__PURE__*/ fixedBase64(22, "==");
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const md5_base64url = /*@__PURE__*/ fixedBase64url(22);
 
@@ -748,7 +748,7 @@ export const md5_base64url = /*@__PURE__*/ fixedBase64url(22);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const sha1_hex = Regex.make(/^[0-9a-fA-F]{40}$/);
 
@@ -762,7 +762,7 @@ export const sha1_hex = Regex.make(/^[0-9a-fA-F]{40}$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const sha1_base64 = /*@__PURE__*/ fixedBase64(27, "=");
 
@@ -776,7 +776,7 @@ export const sha1_base64 = /*@__PURE__*/ fixedBase64(27, "=");
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const sha1_base64url = /*@__PURE__*/ fixedBase64url(27);
 
@@ -790,7 +790,7 @@ export const sha1_base64url = /*@__PURE__*/ fixedBase64url(27);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const sha256_hex = Regex.make(/^[0-9a-fA-F]{64}$/);
 
@@ -804,7 +804,7 @@ export const sha256_hex = Regex.make(/^[0-9a-fA-F]{64}$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const sha256_base64 = /*@__PURE__*/ fixedBase64(43, "=");
 
@@ -818,7 +818,7 @@ export const sha256_base64 = /*@__PURE__*/ fixedBase64(43, "=");
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const sha256_base64url = /*@__PURE__*/ fixedBase64url(43);
 
@@ -832,7 +832,7 @@ export const sha256_base64url = /*@__PURE__*/ fixedBase64url(43);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const sha384_hex = Regex.make(/^[0-9a-fA-F]{96}$/);
 
@@ -846,7 +846,7 @@ export const sha384_hex = Regex.make(/^[0-9a-fA-F]{96}$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const sha384_base64 = /*@__PURE__*/ fixedBase64(64, "");
 
@@ -860,7 +860,7 @@ export const sha384_base64 = /*@__PURE__*/ fixedBase64(64, "");
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const sha384_base64url = /*@__PURE__*/ fixedBase64url(64);
 
@@ -874,7 +874,7 @@ export const sha384_base64url = /*@__PURE__*/ fixedBase64url(64);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const sha512_hex = Regex.make(/^[0-9a-fA-F]{128}$/);
 
@@ -888,7 +888,7 @@ export const sha512_hex = Regex.make(/^[0-9a-fA-F]{128}$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const sha512_base64 = /*@__PURE__*/ fixedBase64(86, "==");
 
@@ -902,7 +902,7 @@ export const sha512_base64 = /*@__PURE__*/ fixedBase64(86, "==");
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const sha512_base64url = /*@__PURE__*/ fixedBase64url(86);
 /**
@@ -915,7 +915,7 @@ export const sha512_base64url = /*@__PURE__*/ fixedBase64url(86);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const path_regex = Regex.make(/^($|[a-zA-Z_$][\w$]*(?:\.[a-zA-Z_$][\w$]*|\[\d+].?)*$)/);
 
@@ -929,7 +929,7 @@ export const path_regex = Regex.make(/^($|[a-zA-Z_$][\w$]*(?:\.[a-zA-Z_$][\w$]*|
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const prop_regex = Regex.make(/^\w+$/);
 
@@ -943,7 +943,7 @@ export const prop_regex = Regex.make(/^\w+$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const slug = Regex.make(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 
@@ -957,7 +957,7 @@ export const slug = Regex.make(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const snakeCaseTagRegex = Regex.make(/^[a-z]+(?:_[a-z]+)*$/);
 
@@ -971,7 +971,7 @@ export const snakeCaseTagRegex = Regex.make(/^[a-z]+(?:_[a-z]+)*$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const rfc_3987_url_regex = Regex.make(
   /^[a-z](?:[-a-z0-9+.])*:(?:\/\/(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9._~!$&'()*+,;=:\xA0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[\uD800-\uD83E\uD840-\uD87E\uD880-\uD8BE\uD8C0-\uD8FE\uD900-\uD93E\uD940-\uD97E\uD980-\uD9BE\uD9C0-\uD9FE\uDA00-\uDA3E\uDA40-\uDA7E\uDA80-\uDABE\uDAC0-\uDAFE\uDB00-\uDB3E\uDB44-\uDB7E][\uDC00-\uDFFF]|[\uD83F\uD87F\uD8BF\uD8FF\uD93F\uD97F\uD9BF\uD9FF\uDA3F\uDA7F\uDABF\uDAFF\uDB3F\uDB7F][\uDC00-\uDFFD])*@)?(?:\[(?:(?:(?:[0-9a-f]{1,4}:){6}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|::(?:[0-9a-f]{1,4}:){5}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|(?:[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:){4}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|(?:[0-9a-f]{1,4}:[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:){3}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|(?:(?:[0-9a-f]{1,4}:){0,2}[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:){2}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|(?:(?:[0-9a-f]{1,4}:){0,3}[0-9a-f]{1,4})?::[0-9a-f]{1,4}:(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|(?:(?:[0-9a-f]{1,4}:){0,4}[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|(?:(?:[0-9a-f]{1,4}:){0,5}[0-9a-f]{1,4})?::[0-9a-f]{1,4}|(?:(?:[0-9a-f]{1,4}:){0,6}[0-9a-f]{1,4})?::)|v[0-9a-f]+[-a-z0-9._~!$&'()*+,;=:]+)\]|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}|(?:%[0-9a-f][0-9a-f]|[-a-z0-9._~!$&'()*+,;=@\xA0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[\uD800-\uD83E\uD840-\uD87E\uD880-\uD8BE\uD8C0-\uD8FE\uD900-\uD93E\uD940-\uD97E\uD980-\uD9BE\uD9C0-\uD9FE\uDA00-\uDA3E\uDA40-\uDA7E\uDA80-\uDABE\uDAC0-\uDAFE\uDB00-\uDB3E\uDB44-\uDB7E][\uDC00-\uDFFF]|[\uD83F\uD87F\uD8BF\uD8FF\uD93F\uD97F\uD9BF\uD9FF\uDA3F\uDA7F\uDABF\uDAFF\uDB3F\uDB7F][\uDC00-\uDFFD])*)(?::[0-9]*)?(?:\/(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9._~!$&'()*+,;=:@\xA0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[\uD800-\uD83E\uD840-\uD87E\uD880-\uD8BE\uD8C0-\uD8FE\uD900-\uD93E\uD940-\uD97E\uD980-\uD9BE\uD9C0-\uD9FE\uDA00-\uDA3E\uDA40-\uDA7E\uDA80-\uDABE\uDAC0-\uDAFE\uDB00-\uDB3E\uDB44-\uDB7E][\uDC00-\uDFFF]|[\uD83F\uD87F\uD8BF\uD8FF\uD93F\uD97F\uD9BF\uD9FF\uDA3F\uDA7F\uDABF\uDAFF\uDB3F\uDB7F][\uDC00-\uDFFD]))*)*|\/(?:(?:(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9._~!$&'()*+,;=:@\xA0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[\uD800-\uD83E\uD840-\uD87E\uD880-\uD8BE\uD8C0-\uD8FE\uD900-\uD93E\uD940-\uD97E\uD980-\uD9BE\uD9C0-\uD9FE\uDA00-\uDA3E\uDA40-\uDA7E\uDA80-\uDABE\uDAC0-\uDAFE\uDB00-\uDB3E\uDB44-\uDB7E][\uDC00-\uDFFF]|[\uD83F\uD87F\uD8BF\uD8FF\uD93F\uD97F\uD9BF\uD9FF\uDA3F\uDA7F\uDABF\uDAFF\uDB3F\uDB7F][\uDC00-\uDFFD]))+)(?:\/(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9._~!$&'()*+,;=:@\xA0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[\uD800-\uD83E\uD840-\uD87E\uD880-\uD8BE\uD8C0-\uD8FE\uD900-\uD93E\uD940-\uD97E\uD980-\uD9BE\uD9C0-\uD9FE\uDA00-\uDA3E\uDA40-\uDA7E\uDA80-\uDABE\uDAC0-\uDAFE\uDB00-\uDB3E\uDB44-\uDB7E][\uDC00-\uDFFF]|[\uD83F\uD87F\uD8BF\uD8FF\uD93F\uD97F\uD9BF\uD9FF\uDA3F\uDA7F\uDABF\uDAFF\uDB3F\uDB7F][\uDC00-\uDFFD]))*)*)?|(?:(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9._~!$&'()*+,;=:@\xA0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[\uD800-\uD83E\uD840-\uD87E\uD880-\uD8BE\uD8C0-\uD8FE\uD900-\uD93E\uD940-\uD97E\uD980-\uD9BE\uD9C0-\uD9FE\uDA00-\uDA3E\uDA40-\uDA7E\uDA80-\uDABE\uDAC0-\uDAFE\uDB00-\uDB3E\uDB44-\uDB7E][\uDC00-\uDFFF]|[\uD83F\uD87F\uD8BF\uD8FF\uD93F\uD97F\uD9BF\uD9FF\uDA3F\uDA7F\uDABF\uDAFF\uDB3F\uDB7F][\uDC00-\uDFFD]))+)(?:\/(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9._~!$&'()*+,;=:@\xA0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[\uD800-\uD83E\uD840-\uD87E\uD880-\uD8BE\uD8C0-\uD8FE\uD900-\uD93E\uD940-\uD97E\uD980-\uD9BE\uD9C0-\uD9FE\uDA00-\uDA3E\uDA40-\uDA7E\uDA80-\uDABE\uDAC0-\uDAFE\uDB00-\uDB3E\uDB44-\uDB7E][\uDC00-\uDFFF]|[\uD83F\uD87F\uD8BF\uD8FF\uD93F\uD97F\uD9BF\uD9FF\uDA3F\uDA7F\uDABF\uDAFF\uDB3F\uDB7F][\uDC00-\uDFFD]))*)*|(?!(?:%[0-9a-f][0-9a-f]|[-a-z0-9._~!$&'()*+,;=:@\xA0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[\uD800-\uD83E\uD840-\uD87E\uD880-\uD8BE\uD8C0-\uD8FE\uD900-\uD93E\uD940-\uD97E\uD980-\uD9BE\uD9C0-\uD9FE\uDA00-\uDA3E\uDA40-\uDA7E\uDA80-\uDABE\uDAC0-\uDAFE\uDB00-\uDB3E\uDB44-\uDB7E][\uDC00-\uDFFF]|[\uD83F\uD87F\uD8BF\uD8FF\uD93F\uD97F\uD9BF\uD9FF\uDA3F\uDA7F\uDABF\uDAFF\uDB3F\uDB7F][\uDC00-\uDFFD])))(?:\?(?:%[0-9a-f][0-9a-f]|[-a-z0-9._~!$&'()*+,;=:@/?\xA0-\uD7FF\uE000-\uFDCF\uFDF0-\uFFEF]|[\uD800-\uD83E\uD840-\uD87E\uD880-\uD8BE\uD8C0-\uD8FE\uD900-\uD93E\uD940-\uD97E\uD980-\uD9BE\uD9C0-\uD9FE\uDA00-\uDA3E\uDA40-\uDA7E\uDA80-\uDABE\uDAC0-\uDAFE\uDB00-\uDB3E\uDB44-\uDB7E\uDB80-\uDBBE\uDBC0-\uDBFE][\uDC00-\uDFFF]|[\uD83F\uD87F\uD8BF\uD8FF\uD93F\uD97F\uD9BF\uD9FF\uDA3F\uDA7F\uDABF\uDAFF\uDB3F\uDB7F\uDBBF\uDBFF][\uDC00-\uDFFD])*)?(?:#(?:%[0-9a-f][0-9a-f]|[-a-z0-9._~!$&'()*+,;=:@/?\xA0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[\uD800-\uD83E\uD840-\uD87E\uD880-\uD8BE\uD8C0-\uD8FE\uD900-\uD93E\uD940-\uD97E\uD980-\uD9BE\uD9C0-\uD9FE\uDA00-\uDA3E\uDA40-\uDA7E\uDA80-\uDABE\uDAC0-\uDAFE\uDB00-\uDB3E\uDB44-\uDB7E][\uDC00-\uDFFF]|[\uD83F\uD87F\uD8BF\uD8FF\uD93F\uD97F\uD9BF\uD9FF\uDA3F\uDA7F\uDABF\uDAFF\uDB3F\uDB7F][\uDC00-\uDFFD])*)?$/
@@ -986,7 +986,7 @@ export const rfc_3987_url_regex = Regex.make(
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const rfc3339DateTime =
   /^(?<date>(?!0000)\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01]))T(?<time>(?:[01]\d|2[0-3]):[0-5]\d:(?:[0-5]\d|60))(?:\.(?<frac>\d{1,9}))?(?<zone>Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/;
@@ -1001,7 +1001,7 @@ export const rfc3339DateTime =
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const css_hex_color_regex = Regex.make(/^#(?:[A-F0-9]{3,4}|[A-F0-9]{6}(?:[A-F0-9]{2})?)$/i);
 
@@ -1015,7 +1015,7 @@ export const css_hex_color_regex = Regex.make(/^#(?:[A-F0-9]{3,4}|[A-F0-9]{6}(?:
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const rgb_number_part_regex = Regex.make(/^[+-]?(?:\d+\.?\d*|\.\d+)$/);
 
@@ -1029,7 +1029,7 @@ export const rgb_number_part_regex = Regex.make(/^[+-]?(?:\d+\.?\d*|\.\d+)$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const NO_ASCII_CTRL = Regex.make(/^[^\x00-\x1F\x7F]+$/);
 
@@ -1043,7 +1043,7 @@ export const NO_ASCII_CTRL = Regex.make(/^[^\x00-\x1F\x7F]+$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const US_POSTAL_CODE_REGEX = Regex.make(/^\d{5}(-\d{4})?$/);
 
@@ -1057,7 +1057,7 @@ export const US_POSTAL_CODE_REGEX = Regex.make(/^\d{5}(-\d{4})?$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const CANADA_POSTAL_CODE_REGEX = Regex.make(/^[A-Z]\d[A-Z][ ]?\d[A-Z]\d$/);
 
@@ -1071,7 +1071,7 @@ export const CANADA_POSTAL_CODE_REGEX = Regex.make(/^[A-Z]\d[A-Z][ ]?\d[A-Z]\d$/
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const GREAT_BRITAIN_POSTAL_CODE_REGEX = Regex.make(/^(GIR 0AA|[A-Z]{1,2}\d[A-Z\d]?[ ]?\d[A-Z]{2})$/);
 
@@ -1085,7 +1085,7 @@ export const GREAT_BRITAIN_POSTAL_CODE_REGEX = Regex.make(/^(GIR 0AA|[A-Z]{1,2}\
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const GERMANY_POSTAL_CODE_REGEX = Regex.make(/^\d{5}$/);
 
@@ -1099,7 +1099,7 @@ export const GERMANY_POSTAL_CODE_REGEX = Regex.make(/^\d{5}$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const FRANCE_POSTAL_CODE_REGEX = Regex.make(/^\d{5}$/);
 
@@ -1113,7 +1113,7 @@ export const FRANCE_POSTAL_CODE_REGEX = Regex.make(/^\d{5}$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const NETHERLANDS_POSTAL_CODE_REGEX = Regex.make(/^\d{4}[ ]?[A-Z]{2}$/);
 
@@ -1127,7 +1127,7 @@ export const NETHERLANDS_POSTAL_CODE_REGEX = Regex.make(/^\d{4}[ ]?[A-Z]{2}$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const AUSTRALIA_POSTAL_CODE_REGEX = Regex.make(/^\d{4}$/);
 
@@ -1141,7 +1141,7 @@ export const AUSTRALIA_POSTAL_CODE_REGEX = Regex.make(/^\d{4}$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const BRAZIL_POSTAL_CODE_REGEX = Regex.make(/^\d{5}-?\d{3}$/);
 
@@ -1155,7 +1155,7 @@ export const BRAZIL_POSTAL_CODE_REGEX = Regex.make(/^\d{5}-?\d{3}$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const IRELAND_POSTAL_CODE_REGEX = Regex.make(/^[A-Z0-9]{3}[ ]?[A-Z0-9]{4}$/);
 
@@ -1169,7 +1169,7 @@ export const IRELAND_POSTAL_CODE_REGEX = Regex.make(/^[A-Z0-9]{3}[ ]?[A-Z0-9]{4}
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const POSTAL_CODE_REGEX = {
   US: US_POSTAL_CODE_REGEX,
@@ -1204,7 +1204,7 @@ export const POSTAL_CODE_REGEX = {
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const URL_PATH_WITH_OPTIONAL_RFC3986_QUERY_REGEXP = Regex.make(
   /^\/(?:[\w\-.]+\/)*(?:[\w\-.]*)?(?:\?[A-Za-z0-9\-._~!$&'()*+,;=:@/?%]*)?$/
@@ -1227,7 +1227,7 @@ export const URL_PATH_WITH_OPTIONAL_RFC3986_QUERY_REGEXP = Regex.make(
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const URL_PATH_SEGMENT_SAFE_CHARS_REGEXP = Regex.make(/^[\w\-.]+$/);
 
@@ -1247,7 +1247,7 @@ export const URL_PATH_SEGMENT_SAFE_CHARS_REGEXP = Regex.make(/^[\w\-.]+$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const URL_PATH_FILENAME_WITH_EXTENSION_REGEXP = Regex.make(/^[\w-]+\.\w+$/);
 
@@ -1268,7 +1268,7 @@ export const URL_PATH_FILENAME_WITH_EXTENSION_REGEXP = Regex.make(/^[\w-]+\.\w+$
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const URL_QUERY_PARAM_KEY_TOKEN_REGEXP = Regex.make(/^[A-Za-z0-9_-]+$/);
 
@@ -1290,7 +1290,7 @@ export const URL_QUERY_PARAM_KEY_TOKEN_REGEXP = Regex.make(/^[A-Za-z0-9_-]+$/);
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const URL_QUERY_PARAM_VALUE_RFC3986_SAFE_REGEXP = Regex.make(/^[A-Za-z0-9\-._~!$&'()*+,;=:@/?%]+$/);
 
@@ -1304,7 +1304,7 @@ export const URL_QUERY_PARAM_VALUE_RFC3986_SAFE_REGEXP = Regex.make(/^[A-Za-z0-9
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const ASCII_WHITESPACE_CHARS = "\t\n\f\r " as const;
 
@@ -1318,7 +1318,7 @@ export const ASCII_WHITESPACE_CHARS = "\t\n\f\r " as const;
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const ASCII_WHITESPACE = RegexFromString.make(`[${ASCII_WHITESPACE_CHARS}]+`);
 
@@ -1332,7 +1332,7 @@ export const ASCII_WHITESPACE = RegexFromString.make(`[${ASCII_WHITESPACE_CHARS}
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const ASCII_WHITESPACE_AT_START = RegexFromString.make(`^[${ASCII_WHITESPACE_CHARS}]+`);
 
@@ -1346,7 +1346,7 @@ export const ASCII_WHITESPACE_AT_START = RegexFromString.make(`^[${ASCII_WHITESP
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const ASCII_WHITESPACE_AT_END = RegexFromString.make(`[${ASCII_WHITESPACE_CHARS}]+$`);
 
@@ -1361,6 +1361,6 @@ export const ASCII_WHITESPACE_AT_END = RegexFromString.make(`[${ASCII_WHITESPACE
  *
  * @category Regex
  * @since 0.1.0
- * @internal
+ *
  */
 export const ASCII = Regex.make(/^[\x00-\x7f]*$/);

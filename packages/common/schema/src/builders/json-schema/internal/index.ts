@@ -1,1 +1,1 @@
-export * from "./_id"
+export * from "./_id";

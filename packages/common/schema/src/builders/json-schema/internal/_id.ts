@@ -12,12 +12,12 @@ import { BeepId, SchemaId } from "@beep/identity";
  *
  * @category Builders/JsonSchema
  * @since 0.1.0
- * @internal
+ *
  */
-const module = `${SchemaId.string()}/builders/json-schema` as const
+const module = `${SchemaId.string()}/builders/json-schema` as const;
 
 export const Id = {
   JsonProp: BeepId.from(`${module}/json-prop`),
   JsonSchema: BeepId.from(`${module}/json-prop`),
-  JsonType: BeepId.from(`${module}/json-type`)
+  JsonType: BeepId.from(`${module}/json-type`),
 } as const;

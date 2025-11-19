@@ -2,8 +2,6 @@ import { BS } from "@beep/schema";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 
-
-
 export class HorizontalDirection extends BS.StringLiteralKit("right", "left").annotations({
   schemaId: Symbol.for("@beep/ui-core/utils/swipeUtils/HorizontalDirection"),
   title: "Horizontal Direction",
@@ -28,8 +26,6 @@ export declare namespace VerticalDirection {
   export type Encoded = typeof VerticalDirection.Encoded;
 }
 
-
-
 export class SwipeDirection extends BS.StringLiteralKit(
   ...HorizontalDirection.Options,
   ...VerticalDirection.Options
@@ -38,9 +34,7 @@ export class SwipeDirection extends BS.StringLiteralKit(
   title: "Swipe Direction",
   identifier: "SwipeDirection",
   description: "Direction of the swipe",
-}) {
-
-}
+}) {}
 
 export declare namespace SwipeDirection {
   export type Type = typeof SwipeDirection.Type;

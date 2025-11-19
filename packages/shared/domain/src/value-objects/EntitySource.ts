@@ -13,8 +13,7 @@ export class EntitySource extends BS.StringLiteralKit(
   identifier: "EntitySource",
   title: "Entity Source",
   description: "Source of an entity",
-}) {
-}
+}) {}
 
 export declare namespace EntitySource {
   export type Type = typeof EntitySource.Type;

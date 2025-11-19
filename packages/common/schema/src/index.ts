@@ -8,4 +8,6 @@
  *
  * const { primitives } = SchemaV2.BS;
  */
-export * as BS from "./schema";
+import * as SchemaNamespace from "./schema";
+
+export { SchemaNamespace as BS };

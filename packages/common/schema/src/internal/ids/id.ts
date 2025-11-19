@@ -1,8 +1,8 @@
 import { BeepId, SchemaId } from "@beep/identity";
 
-const baseId = `${SchemaId.identifier}` as const
+const baseId = `${SchemaId.identifier}` as const;
 
-const primitiveBase = `${baseId}/primitives` as const
+const primitiveBase = `${baseId}/primitives` as const;
 
 export const Id = {
   primitives: {
@@ -20,4 +20,4 @@ export const Id = {
     StringId: BeepId.from(`${primitiveBase}/string`),
     TemporalId: BeepId.from(`${primitiveBase}/temporal`),
   },
-}
+};

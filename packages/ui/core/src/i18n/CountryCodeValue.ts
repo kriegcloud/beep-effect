@@ -249,6 +249,6 @@ export class CountryCodeValue extends StringLiteralKit(
 ) {}
 
 export declare namespace CountryCodeValue {
-  export type Type = typeof CountryCodeValue.Type
-  export type Encoded = typeof CountryCodeValue.Encoded
+  export type Type = typeof CountryCodeValue.Type;
+  export type Encoded = typeof CountryCodeValue.Encoded;
 }

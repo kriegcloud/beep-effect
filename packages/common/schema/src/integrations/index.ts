@@ -21,6 +21,6 @@
  * @category Surface/Integrations
  * @since 0.1.0
  */
-export * from "./config"
+export * from "./config";
 export * from "./http";
 export * from "./sql";

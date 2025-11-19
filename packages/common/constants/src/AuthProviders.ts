@@ -4,8 +4,6 @@ import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
 
-
-
 export class AuthProviderNameValue extends BS.StringLiteralKit(
   "github",
   "google",

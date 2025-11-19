@@ -1,6 +1,5 @@
-
-import * as S from "effect/Schema";
 import { BeepId, SchemaId } from "@beep/identity";
+import * as S from "effect/Schema";
 
 const Id = BeepId.from(SchemaId.identifier).compose("primitives/array-buffer");
 export class ArrBuffer extends S.instanceOf(ArrayBuffer).annotations(

@@ -1,7 +1,7 @@
+import { BeepId, SchemaId } from "@beep/identity";
 import type * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { BeepId, SchemaId } from "@beep/identity";
 
 const Id = BeepId.from(SchemaId.identifier).compose("primitives/array");
 export class ArrayOfNumbers extends S.Array(S.Number).annotations(

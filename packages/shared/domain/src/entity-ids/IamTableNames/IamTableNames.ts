@@ -22,8 +22,6 @@ import {
   WalletAddressId,
 } from "../iam";
 
-
-
 export class IamTableName extends BS.StringLiteralKit(
   AccountId.tableName,
   ApiKeyId.tableName,

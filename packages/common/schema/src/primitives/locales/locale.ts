@@ -18,7 +18,6 @@ import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
 import { Id } from "./_id";
 import { ALL_LOCALES } from "./all-locales-generated";
 
-
 /**
  * Schema enforcing BCP 47 locale identifiers.
  *
@@ -37,8 +36,7 @@ export class Locale extends StringLiteralKit(...ALL_LOCALES).annotations(
   Id.annotations("Locale", {
     description: "Represents a BCP 47 locale identifier.",
   })
-) {
-}
+) {}
 
 /**
  * Namespace exposing helper types for {@link Locale}.

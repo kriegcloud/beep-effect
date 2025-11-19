@@ -46,12 +46,12 @@ export const withDefaultConstructor: <A, I, R>(
 ) => (self: S.Schema<A, I, R>) => S.PropertySignature<":", A, never, ":", I, true, R> = (makeDefault) => (self) =>
   S.propertySignature(self).pipe(S.withConstructorDefault(makeDefault));
 
-/** @internal */
+/**  */
 export function Struct<Fields extends S.Struct.Fields, const Records extends S.IndexSignature.NonEmptyRecords>(
   fields: Fields,
   ...records: Records
 ): S.TypeLiteral<Fields, Records>;
-/** @internal */
+/**  */
 export function Struct<Fields extends S.Struct.Fields>(fields: Fields): S.Struct<Fields>;
 /**
  * Equivalent to `Schema.Struct` but enables batching annotations for improved concurrency.
@@ -79,7 +79,7 @@ export function Struct<Fields extends S.Struct.Fields, const Records extends S.I
   );
 }
 
-/** @internal */
+/**  */
 export declare namespace Struct {
   export type Fields = S.Struct.Fields;
   export type Type<F extends Fields> = S.Struct.Type<F>;
@@ -88,12 +88,12 @@ export declare namespace Struct {
   export type Constructor<F extends Fields> = S.Struct.Constructor<F>;
 }
 
-/** @internal */
+/**  */
 export function Tuple<const Elements extends S.TupleType.Elements, Rest extends A.NonEmptyReadonlyArray<S.Schema.Any>>(
   elements: Elements,
   ...rest: Rest
 ): S.TupleType<Elements, Rest>;
-/** @internal */
+/**  */
 export function Tuple<Elements extends S.TupleType.Elements>(...elements: Elements): S.Tuple<Elements>;
 /**
  * Tuple helper that automatically applies batching annotations.

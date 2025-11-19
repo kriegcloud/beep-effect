@@ -10,11 +10,15 @@
  *
  * @category Surface/Primitives
  * @since 0.1.0
- * @internal
+ *
  */
-export * from "./binary";
+
+export * from "./array";
+export * from "./array-buffer";
+export * from "./binary/uint8-array";
 export * from "./bool";
 export * from "./content-types";
+export * from "./duration";
 export * from "./fn";
 export * from "./geo";
 export * from "./json";
@@ -26,5 +30,3 @@ export * from "./regex";
 export * from "./string";
 export * from "./temporal";
 export * from "./url";
-export * from "./array";
-export * from "./array-buffer";

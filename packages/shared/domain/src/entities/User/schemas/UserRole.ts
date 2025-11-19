@@ -2,9 +2,6 @@ import { invariant } from "@beep/invariant";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 
-
-
-
 export class UserRole extends BS.StringLiteralKit("admin", "user").annotations({
   schemaId: Symbol.for("@beep/iam-domain/User/UserRole"),
   identifier: "UserRole",

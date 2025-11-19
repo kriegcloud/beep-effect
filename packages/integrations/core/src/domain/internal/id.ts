@@ -1,3 +1,3 @@
-import * as Identity from "@beep/identity"
+import * as Identity from "@beep/identity";
 
-export const DomainId = Identity.IntegrationsCoreId.compose("domain")
+export const DomainId = Identity.IntegrationsCoreId.compose("domain");

@@ -277,8 +277,7 @@ export class CurrencyCode extends StringLiteralKit(
   Id.annotations("CurrencyCode", {
     description: "Represents an ISO 4217 currency code.",
   })
-) {
-}
+) {}
 
 /**
  * Namespace exposing helper types for {@link CurrencyCode}.

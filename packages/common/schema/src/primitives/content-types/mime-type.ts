@@ -67,8 +67,6 @@ export const ApplicationExtensionMimeTypeMap = {
   ttf: "application/x-font-ttf",
 } as const;
 
-
-
 /**
  * Schema validating application MIME type strings.
  *
@@ -122,8 +120,7 @@ export class ApplicationMimeType extends StringLiteralKit(
   Id.annotations("ApplicationMimeType", {
     description: "Application MIME types.",
   })
-) {
-}
+) {}
 
 /**
  * Helper namespace for {@link ApplicationMimeType}.
@@ -191,7 +188,6 @@ export const AudioExtensionMimeTypeMap = {
   aiff: "audio/aiff",
 } as const;
 
-
 /**
  * Schema validating audio MIME types.
  *
@@ -222,8 +218,7 @@ export class AudioMimeType extends StringLiteralKit(...RecordUtils.recordStringV
   Id.annotations("AudioMimeType", {
     description: "Audio MIME types.",
   })
-) {
-}
+) {}
 
 /**
  * Helper namespace for {@link AudioMimeType}.
@@ -284,7 +279,6 @@ export const FontExtensionMimeTypeMap = {
   woff2: "font/woff2",
 } as const;
 
-
 /**
  * Schema validating font MIME types.
  *
@@ -308,9 +302,7 @@ export class FontMimeType extends StringLiteralKit(...RecordUtils.recordStringVa
   Id.annotations("FontMimeType", {
     description: "Font MIME types.",
   })
-) {
-
-}
+) {}
 
 /**
  * Helper namespace for {@link FontMimeType}.
@@ -468,9 +460,7 @@ export class ImageMimeType extends StringLiteralKit(...RecordUtils.recordStringV
   Id.annotations("ImageMimeType", {
     description: "Image MIME types.",
   })
-) {
-
-}
+) {}
 
 /**
  * Helper namespace for {@link ImageMimeType}.
@@ -535,7 +525,6 @@ export const TextExtensionMimeTypeMap = {
   yaml: "text/yaml",
 } as const;
 
-
 /**
  * Schema validating text MIME types.
  *
@@ -563,8 +552,7 @@ export class TextMimeType extends StringLiteralKit(...RecordUtils.recordStringVa
   Id.annotations("TextMimeType", {
     description: "Text MIME types.",
   })
-) {
-}
+) {}
 
 /**
  * Helper namespace for {@link TextMimeType}.
@@ -632,7 +620,6 @@ export const VideoExtensionMimeTypeMap = {
   swf: "application/x-shockwave-flash",
 } as const;
 
-
 /**
  * Schema validating video MIME types.
  *
@@ -663,8 +650,7 @@ export class VideoMimeType extends StringLiteralKit(...RecordUtils.recordStringV
   Id.annotations("VideoMimeType", {
     description: "Video MIME types.",
   })
-) {
-}
+) {}
 
 /**
  * Helper namespace for {@link VideoMimeType}.
@@ -726,8 +712,6 @@ export const FileExtensionMimeTypeMap = {
   ...FontExtensionMimeTypeMap,
   ...TextExtensionMimeTypeMap,
 } as const;
-
-
 
 /**
  * Schema validating any MIME type tracked by the repository.
@@ -843,8 +827,7 @@ export class MimeType extends StringLiteralKit(
   Id.annotations("MimeType", {
     description: "All supported MIME types.",
   })
-) {
-}
+) {}
 
 /**
  * Helper namespace for {@link MimeType}.

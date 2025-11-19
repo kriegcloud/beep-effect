@@ -15,8 +15,6 @@ export const authViewPaths = PathBuilder.collection({
   acceptInvitation: authPaths.child("accept-invitation"),
 });
 
-
-
 export class AccountSettingsTabSearchParamValue extends BS.StringLiteralKit(
   "general",
   "billing",
@@ -29,9 +27,7 @@ export class AccountSettingsTabSearchParamValue extends BS.StringLiteralKit(
   identifier: "AccountSettingsTabSearchParamValue",
   title: "Account Settings Tab Search Param",
   description: "Search param for account settings tab",
-}) {
-
-}
+}) {}
 
 export declare namespace AccountSettingsTabSearchParamValue {
   export type Type = typeof AccountSettingsTabSearchParamValue.Type;

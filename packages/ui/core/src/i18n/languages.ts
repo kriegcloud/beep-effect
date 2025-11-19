@@ -1,15 +1,19 @@
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
 
-
-export class SupportedLocale extends BS.StringLiteralKit("en-US", "fr-FR", "bn-BD", "zh-CN", "hi-IN", "ar-SA").annotations({
+export class SupportedLocale extends BS.StringLiteralKit(
+  "en-US",
+  "fr-FR",
+  "bn-BD",
+  "zh-CN",
+  "hi-IN",
+  "ar-SA"
+).annotations({
   schemaId: Symbol.for("@beep/ui-core/settings/SupportedLocale"),
   identifier: "SupportedLocale",
   title: "Supported Locale",
   description: "The users supported locale.",
-}) {
-
-}
+}) {}
 
 export declare namespace SupportedLocale {
   export type Type = S.Schema.Type<typeof SupportedLocale>;

@@ -68,7 +68,6 @@ const VALUE_DELIMITER = "," as const;
  * @since 0.1.0
  */
 
-
 const CSPDirective = StringLiteralKit(
   "default-src",
   "base-uri",
@@ -159,7 +158,6 @@ export declare namespace CSPDirectivePart {
    */
   export type Encoded = typeof CSPDirectivePart.Encoded;
 }
-
 
 const StaticDirective = StringLiteralKit(
   `'self'`,
