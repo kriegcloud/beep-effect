@@ -35,7 +35,12 @@
     "noErrorTruncation": true,
     // Do not truncate error messages.
     "types": [],
-    "lib": ["es2022", "DOM", "DOM.Iterable", "ESNext"],
+    "lib": [
+      "es2022",
+      "DOM",
+      "DOM.Iterable",
+      "ESNext"
+    ],
     // Disable automatic loading of `@types/*` packages.
     "downlevelIteration": true,
     "resolveJsonModule": true,
@@ -112,7 +117,7 @@
       "@beep/constants/test/*": [
         "./packages/common/constants/test/*"
       ],
-       "@beep/identity": [
+      "@beep/identity": [
         "./packages/common/identity/src/index"
       ],
       "@beep/identity/*": [
@@ -141,6 +146,24 @@
       ],
       "@beep/mock/test/*": [
         "./packages/common/mock/test/*"
+      ],
+      "@beep/google": [
+        "./packages/integrations/google/src/index"
+      ],
+      "@beep/google/*": [
+        "./packages/integrations/google/src/*"
+      ],
+      "@beep/google/test/*": [
+        "./packages/integrations/google/test/*"
+      ],
+      "@beep/thefront": [
+        "./packages/integrations/thefront/src/index"
+      ],
+      "@beep/thefront/*": [
+        "./packages/integrations/thefront/src/*"
+      ],
+      "@beep/thefront/test/*": [
+        "./packages/integrations/thefront/test/*"
       ],
       "@beep/contract": [
         "./packages/common/contract/src/index"
@@ -298,7 +321,6 @@
       "@beep/files-ui/test/*": [
         "./packages/files/ui/test/*"
       ],
-
       "@beep/tasks-domain": [
         "./packages/tasks/domain/src/index"
       ],
@@ -344,7 +366,6 @@
       "@beep/tasks-ui/test/*": [
         "./packages/tasks/ui/test/*"
       ],
-
       "@beep/runtime-server": [
         "./packages/runtime/server/src/index"
       ],

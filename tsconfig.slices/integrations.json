@@ -1,0 +1,7 @@
+{
+  "files": [],
+  "references": [
+    { "path": "../packages/integrations/google" },
+    { "path": "../packages/integrations/thefront" }
+  ]
+}

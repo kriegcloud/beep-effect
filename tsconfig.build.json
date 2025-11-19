@@ -8,6 +8,12 @@
     {
       "path": "packages/common/types/tsconfig.build.json"
     },
+      {
+      "path": "packages/integrations/google/tsconfig.build.json"
+    },
+          {
+      "path": "packages/integrations/thefront/tsconfig.build.json"
+    },
     {
       "path": "packages/common/invariant/tsconfig.build.json"
     },
