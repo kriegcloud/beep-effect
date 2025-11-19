@@ -165,6 +165,15 @@
       "@beep/thefront/test/*": [
         "./packages/integrations/thefront/test/*"
       ],
+      "@beep/integrations-core": [
+        "./packages/integrations/core/src/index"
+      ],
+      "@beep/integrations-core/*": [
+        "./packages/integrations/core/src/*"
+      ],
+      "@beep/integrations-core/test/*": [
+        "./packages/integrations/core/test/*"
+      ],
       "@beep/contract": [
         "./packages/common/contract/src/index"
       ],
@@ -404,6 +413,15 @@
       ],
       "@beep/tooling-utils/test/*": [
         "./tooling/utils/test/*"
+      ],
+      "@beep/repo-cli": [
+        "./tooling/cli/src/index"
+      ],
+      "@beep/repo-cli/*": [
+        "./tooling/cli/src/*"
+      ],
+      "@beep/repo-cli/test/*": [
+        "./tooling/cli/test/*"
       ],
       "@beep/repo-scripts": [
         "./tooling/repo-scripts/src/index"
