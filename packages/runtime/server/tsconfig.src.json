@@ -57,6 +57,17 @@
     {
       "path": "../../tasks/infra"
     },
+    
+        {
+      "path": "../../comms/domain"
+    },
+    {
+      "path": "../../comms/tables"
+    },
+    {
+      "path": "../../comms/infra"
+    },
+    
     {
       "path": "../../files/infra"
     },

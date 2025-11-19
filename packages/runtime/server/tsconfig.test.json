@@ -1,6 +1,8 @@
 {
   "extends": "../../../tsconfig.base.jsonc",
-  "include": ["test"],
+  "include": [
+    "test"
+  ],
   "references": [
     {
       "path": "../../common/types"
@@ -57,6 +59,15 @@
       "path": "../../tasks/infra"
     },
     {
+      "path": "../../comms/domain"
+    },
+    {
+      "path": "../../comms/tables"
+    },
+    {
+      "path": "../../comms/infra"
+    },
+    {
       "path": "../../files/infra"
     },
     {
@@ -67,7 +78,10 @@
     }
   ],
   "compilerOptions": {
-    "types": ["node", "bun"],
+    "types": [
+      "node",
+      "bun"
+    ],
     "tsBuildInfoFile": "./build/tsconfig.test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true

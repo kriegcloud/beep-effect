@@ -91,6 +91,17 @@
       "@beep/tasks-ui": ["../../packages/tasks/ui/src/index"],
       "@beep/tasks-ui/*": ["../../packages/tasks/ui/src/*"],
 
+            "@beep/comms-domain": ["../../packages/comms/domain/src/index"],
+      "@beep/comms-domain/*": ["../../packages/comms/domain/src/*"],
+      "@beep/comms-tables": ["../../packages/comms/tables/src/index"],
+      "@beep/comms-tables/*": ["../../packages/comms/tables/src/*"],
+      "@beep/comms-infra": ["../../packages/comms/infra/src/index"],
+      "@beep/comms-infra/*": ["../../packages/comms/infra/src/*"],
+      "@beep/comms-sdk": ["../../packages/comms/sdk/src/index"],
+      "@beep/comms-sdk/*": ["../../packages/comms/sdk/src/*"],
+      "@beep/comms-ui": ["../../packages/comms/ui/src/index"],
+      "@beep/comms-ui/*": ["../../packages/comms/ui/src/*"],
+
       "@beep/files-domain": ["../../packages/files/domain/src/index"],
       "@beep/files-domain/*": ["../../packages/files/domain/src/*"],
       "@beep/files-tables": ["../../packages/files/tables/src/index"],
@@ -185,6 +196,22 @@
     },
     {
       "path": "../../packages/tasks/tables/tsconfig.build.json"
+    },
+
+     {
+      "path": "../../packages/comms/sdk/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/comms/infra/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/comms/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/comms/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/comms/tables/tsconfig.build.json"
     },
 
     {

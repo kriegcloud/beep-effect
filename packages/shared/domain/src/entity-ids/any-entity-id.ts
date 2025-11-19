@@ -2,7 +2,7 @@ import * as S from "effect/Schema";
 import * as IamEntityIds from "./iam";
 import { OrganizationId, SessionId, TeamId, UserId } from "./shared";
 import * as TaskEntityIds from "./tasks";
-
+import * as CommsEntityIds from "./comms";
 export class AnyEntityId extends S.Union(
   IamEntityIds.AccountId,
   IamEntityIds.ApiKeyId,
@@ -21,6 +21,7 @@ export class AnyEntityId extends S.Union(
   IamEntityIds.WalletAddressId,
   IamEntityIds.OrganizationRoleId,
   IamEntityIds.DeviceCodeId,
+  CommsEntityIds.EmailTemplateId,
   OrganizationId,
   TeamId,
   UserId,

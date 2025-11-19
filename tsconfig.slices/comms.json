@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "../packages/comms/domain" },
+    { "path": "../packages/comms/tables" },
+    { "path": "../packages/comms/infra" },
+    { "path": "../packages/comms/sdk" },
+    { "path": "../packages/comms/ui" }
+  ]
+}

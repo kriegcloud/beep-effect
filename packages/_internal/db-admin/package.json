@@ -55,6 +55,10 @@
     "@beep/tasks-domain": "workspace:^",
     "@beep/tasks-tables": "workspace:^",
     "@beep/tasks-infra": "workspace:^",
+
+    "@beep/comms-domain": "workspace:^",
+    "@beep/comms-tables": "workspace:^",
+    "@beep/comms-infra": "workspace:^",
     "@effect/platform-bun": "catalog:",
     "@effect/sql-pg": "catalog:",
     "@faker-js/faker": "catalog:",

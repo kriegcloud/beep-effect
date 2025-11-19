@@ -59,6 +59,17 @@
     {
       "path": "../../tasks/tables"
     },
+
+        {
+      "path": "../../comms/domain"
+    },
+    {
+      "path": "../../comms/ui"
+    },
+    {
+      "path": "../../comms/tables"
+    },
+
     {
       "path": "../../files/infra/tsconfig.build.json"
     },

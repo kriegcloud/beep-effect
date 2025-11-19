@@ -1,0 +1,2 @@
+
+export * from "./EmailTemplate.model";

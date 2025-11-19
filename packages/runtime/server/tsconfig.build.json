@@ -65,6 +65,17 @@
     {
       "path": "../../tasks/infra/tsconfig.build.json"
     },
+    
+        {
+      "path": "../../comms/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../comms/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../comms/infra/tsconfig.build.json"
+    },
+    
     {
       "path": "../../files/infra/tsconfig.build.json"
     },

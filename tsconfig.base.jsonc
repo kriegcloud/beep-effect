@@ -366,6 +366,53 @@
       "@beep/tasks-ui/test/*": [
         "./packages/tasks/ui/test/*"
       ],
+      
+      "@beep/comms-domain": [
+        "./packages/comms/domain/src/index"
+      ],
+      "@beep/comms-domain/*": [
+        "./packages/comms/domain/src/*"
+      ],
+      "@beep/comms-domain/test/*": [
+        "./packages/comms/domain/test/*"
+      ],
+      "@beep/comms-tables": [
+        "./packages/comms/tables/src/index"
+      ],
+      "@beep/comms-tables/*": [
+        "./packages/comms/tables/src/*"
+      ],
+      "@beep/comms-tables/test/*": [
+        "./packages/comms/tables/test/*"
+      ],
+      "@beep/comms-infra": [
+        "./packages/comms/infra/src/index"
+      ],
+      "@beep/comms-infra/*": [
+        "./packages/comms/infra/src/*"
+      ],
+      "@beep/comms-infra/test/*": [
+        "./packages/comms/infra/test/*"
+      ],
+      "@beep/comms-sdk": [
+        "./packages/comms/sdk/src/index"
+      ],
+      "@beep/comms-sdk/*": [
+        "./packages/comms/sdk/src/*"
+      ],
+      "@beep/comms-sdk/test/*": [
+        "./packages/comms/sdk/test/*"
+      ],
+      "@beep/comms-ui": [
+        "./packages/comms/ui/src/index"
+      ],
+      "@beep/comms-ui/*": [
+        "./packages/comms/ui/src/*"
+      ],
+      "@beep/comms-ui/test/*": [
+        "./packages/comms/ui/test/*"
+      ],
+      
       "@beep/runtime-server": [
         "./packages/runtime/server/src/index"
       ],

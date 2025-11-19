@@ -1,5 +1,5 @@
 import { Repo } from "@beep/core-db/Repo";
-import { SharedEntityIds } from "@beep/shared-domain";
+import { TaskEntityIds } from "@beep/shared-domain";
 import { Todo } from "@beep/tasks-domain/entities";
 import { dependencies } from "@beep/tasks-infra/adapters/repos/_common";
 import { TasksDb } from "@beep/tasks-infra/db";
@@ -9,7 +9,7 @@ export class TodoRepo extends Effect.Service<TodoRepo>()("@beep/tasks-infra/adap
   dependencies,
   accessors: true,
   effect: Repo.make(
-    SharedEntityIds.FileId,
+    TaskEntityIds.TodoId,
     Todo.Model,
     Effect.gen(function* () {
       yield* TasksDb.TasksDb;
