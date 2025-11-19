@@ -22,7 +22,9 @@ import {
   WalletAddressId,
 } from "../iam";
 
-export const IamTableNameKit = BS.stringLiteralKit(
+
+
+export class IamTableName extends BS.StringLiteralKit(
   AccountId.tableName,
   ApiKeyId.tableName,
   InvitationId.tableName,
@@ -42,17 +44,13 @@ export const IamTableNameKit = BS.stringLiteralKit(
   WalletAddressId.tableName,
   OrganizationRoleId.tableName,
   DeviceCodeId.tableName
-);
-
-export class IamTableName extends IamTableNameKit.Schema.annotations({
+).annotations({
   schemaId: Symbol.for("@beep/shared/domain/EntityIds/iam/IamTableName"),
   description: "The set of table_names for entityIds within the iam domain slice",
   identifier: "IamTableName",
   title: "Iam Table Name",
 }) {
-  static readonly Tagged = IamTableNameKit.toTagged("tableName");
-  static readonly Enum = IamTableNameKit.Enum;
-  static readonly Options = IamTableNameKit.Options;
+  static readonly Tagged = IamTableName.toTagged("tableName");
 }
 
 export declare namespace IamTableName {

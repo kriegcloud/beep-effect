@@ -4,7 +4,9 @@ import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
 
-export const AuthProviderNameValueKit = BS.stringLiteralKit(
+
+
+export class AuthProviderNameValue extends BS.StringLiteralKit(
   "github",
   "google",
   "linkedin",
@@ -12,16 +14,12 @@ export const AuthProviderNameValueKit = BS.stringLiteralKit(
   "discord"
   // "facebook",
   // "microsoft",
-);
-
-export class AuthProviderNameValue extends AuthProviderNameValueKit.Schema.annotations({
+).annotations({
   schemaId: Symbol.for("@beep/constants/AuthProviderNameValue"),
   identifier: "AuthProviderNameValue",
   title: "Auth Provider Name Value",
   description: "One of the supported social authentication providers.",
-  examples: AuthProviderNameValueKit.Options,
 }) {
-  static readonly Options = AuthProviderNameValueKit.Options;
   static readonly filter = (supportedAuthProviders: A.NonEmptyReadonlyArray<AuthProviderNameValue.Type>) =>
     F.pipe(
       AuthProviderNameValue.Options,
@@ -47,7 +45,7 @@ export declare namespace AuthProviderNameValue {
   export type Encoded = S.Schema.Type<typeof AuthProviderNameValue>;
 }
 
-export class TaggedAuthProviderNameValue extends AuthProviderNameValueKit.toTagged("name").Union {}
+export class TaggedAuthProviderNameValue extends AuthProviderNameValue.toTagged("name").Union {}
 
 export declare namespace TaggedAuthProviderNameValue {
   export type Type = S.Schema.Type<typeof TaggedAuthProviderNameValue>;

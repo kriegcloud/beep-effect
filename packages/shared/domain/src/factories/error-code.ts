@@ -1,5 +1,5 @@
 import { invariant } from "@beep/invariant";
-import { Regex } from "@beep/schema/custom";
+import { Regex } from "@beep/schema/primitives";
 import type { UpperLetter } from "@beep/types";
 import * as S from "effect/Schema";
 

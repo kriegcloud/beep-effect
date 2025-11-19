@@ -1,19 +1,18 @@
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
-export const MemberStatusKit = BS.stringLiteralKit("active", "inactive", "offline", "suspended", "deleted", "invited");
-export const MemberStatusEnum = MemberStatusKit.Enum;
-export const MemberStatusOptions = MemberStatusKit.Options;
-export const makeMemberStatusPgEnum = BS.toPgEnum(MemberStatusKit);
 
-export class MemberStatus extends MemberStatusKit.Schema.annotations({
+
+export class MemberStatus extends BS.StringLiteralKit("active", "inactive", "offline", "suspended", "deleted", "invited").annotations({
   schemaId: Symbol.for("@beep/iam-domain/MemberStatus"),
   description: "The status of the member in the organization",
   title: "Member Status",
   identifier: "MemberStatus",
 }) {
-  static readonly Enum = MemberStatusEnum;
-  static readonly Options = MemberStatusOptions;
+
 }
+export const MemberStatusEnum = MemberStatus.Enum;
+export const MemberStatusOptions = MemberStatus.Options;
+export const makeMemberStatusPgEnum = BS.toPgEnum(MemberStatus);
 
 export declare namespace MemberStatus {
   export type Type = S.Schema.Type<typeof MemberStatus>;

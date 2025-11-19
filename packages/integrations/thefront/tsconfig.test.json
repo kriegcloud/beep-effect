@@ -1,6 +1,8 @@
 {
   "extends": "../../../tsconfig.base.jsonc",
-  "include": ["test"],
+  "include": [
+    "test"
+  ],
   "references": [
     {
       "path": "tsconfig.src.json"
@@ -12,23 +14,23 @@
       "path": "../../common/constants"
     },
     {
-      "path": "../../common/identity"
-    },
-    {
       "path": "../../common/errors"
     },
     {
-      "path": "../env"
+      "path": "../../common/identity"
     },
     {
-      "path": "../../ui/ui"
+      "path": "../../core/env"
     },
     {
-      "path": "../../ui/core"
+      "path": "../core"
     }
   ],
   "compilerOptions": {
-    "types": ["node", "bun"],
+    "types": [
+      "node",
+      "bun"
+    ],
     "tsBuildInfoFile": "./build/tsconfig.test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true

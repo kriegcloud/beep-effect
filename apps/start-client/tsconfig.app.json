@@ -7,8 +7,8 @@
     "incremental": true,
     "composite": true,
 
-    // Target modern JavaScript (ES2022+) whilst staying closely compatible with the Node.js module system.
-    "target": "ES2022",
+    // Target modern JavaScript (ES2023+) whilst staying closely compatible with the Node.js module system.
+    "target": "ES2023",
     "module": "NodeNext",
     "moduleDetection": "force", // Treat every non-declaration file as a module.
     "esModuleInterop": false, // Do not fiddle with import/export statements
@@ -18,7 +18,7 @@
     "erasableSyntaxOnly": true, // Allows to run directly with node and type removal
 
     // React/Vite specific
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
     "moduleResolution": "NodeNext",
     "allowImportingTsExtensions": true,

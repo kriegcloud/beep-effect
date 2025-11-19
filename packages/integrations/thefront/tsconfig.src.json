@@ -1,6 +1,8 @@
 {
   "extends": "../../../tsconfig.base.jsonc",
-  "include": ["src"],
+  "include": [
+    "src"
+  ],
   "references": [
     {
       "path": "../../common/types"
@@ -15,25 +17,27 @@
       "path": "../../common/identity"
     },
     {
-      "path": "../env"
+      "path": "../../core/env"
     },
     {
-      "path": "../../ui/ui"
-    },
-    {
-      "path": "../../ui/core"
+      "path": "../core"
     }
   ],
   "compilerOptions": {
-    "types": ["node", "bun"],
+    "types": [
+      "node",
+      "bun"
+    ],
     "outDir": "build/src",
-
     "rootDir": "src",
-
     "jsx": "react-jsx",
     "module": "ESNext",
-    "target": "ES2022",
-    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "target": "ES2023",
+    "lib": [
+      "ES2024",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,

@@ -3,16 +3,14 @@ import type { StringTypes } from "@beep/types";
 import type * as A from "effect/Array";
 import * as Data from "effect/Data";
 import * as S from "effect/Schema";
-export const PermissionActionKit = BS.stringLiteralKit("read", "manage", "delete");
 
-export class PermissionAction extends PermissionActionKit.Schema.annotations({
+
+export class PermissionAction extends BS.StringLiteralKit("read", "manage", "delete").annotations({
   schemaId: Symbol.for("@beep/shared-domain/_internal/policy/PermissionAction"),
   identifier: "PermissionAction",
   title: "Permission Action",
   description: "A value for a permission action",
 }) {
-  static readonly Options = PermissionActionKit.Options;
-  static readonly Enum = PermissionActionKit.Enum;
 }
 
 export declare namespace PermissionAction {

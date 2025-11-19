@@ -1,6 +1,6 @@
 import { BS } from "@beep/schema";
 
-export const EntitySourceKit = BS.stringLiteralKit(
+export class EntitySource extends BS.StringLiteralKit(
   "auto_created",
   "user",
   "agent",
@@ -8,16 +8,12 @@ export const EntitySourceKit = BS.stringLiteralKit(
   "third_party",
   "api",
   "script"
-);
-
-export class EntitySource extends EntitySourceKit.Schema.annotations({
+).annotations({
   schemaId: Symbol.for("@beep/shared-domain/value-objects/EntitySource"),
   identifier: "EntitySource",
   title: "Entity Source",
   description: "Source of an entity",
 }) {
-  static readonly Options = EntitySourceKit.Options;
-  static readonly Enum = EntitySourceKit.Enum;
 }
 
 export declare namespace EntitySource {

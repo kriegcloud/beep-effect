@@ -9,7 +9,6 @@
     "dev:server": "bun --watch src/server/main.ts",
     "build": "vite build",
     "preview": "vite preview",
-    "prepare": "effect-language-service patch --dir ../../node_modules/typescript",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "check": "tsc -b --noEmit",

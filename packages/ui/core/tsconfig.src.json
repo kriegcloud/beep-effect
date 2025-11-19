@@ -37,7 +37,7 @@
     "rootDir": "src",
     "jsx": "react-jsx",
     "module": "ESNext",
-    "target": "ES2022",
+    "target": "ES2023",
     "lib": ["ES2024", "DOM", "DOM.Iterable"],
     "moduleResolution": "bundler",
     "incremental": true,

@@ -4,7 +4,7 @@ import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const SupportedFileExtensionKit = BS.stringLiteralKit(
+const SupportedFileExtensionKit = BS.StringLiteralKit(
   "gif",
   "ico",
   "jpeg",
@@ -86,7 +86,7 @@ export const AssetPath = S.String.pipe(
       return `Asset file name generates reserved JS accessor "${accessorCandidate}"`;
     }
     return (
-      S.is(SupportedFileExtensionKit.Schema)(extension) ||
+      S.is(SupportedFileExtensionKit)(extension) ||
       `Unsupported asset extension ".${extension}". Supported extensions: ${SupportedFileExtensionKit.Options.join(", ")}`
     );
   })

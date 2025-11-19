@@ -12,19 +12,16 @@
       "path": "../../common/constants"
     },
     {
-      "path": "../../common/identity"
-    },
-    {
       "path": "../../common/errors"
     },
     {
-      "path": "../env"
+      "path": "../../common/identity"
     },
     {
-      "path": "../../ui/ui"
+      "path": "../../core/env"
     },
-    {
-      "path": "../../ui/core"
+        {
+      "path": "../core"
     }
   ],
   "compilerOptions": {

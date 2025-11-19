@@ -15,10 +15,10 @@
       "path": "../../../tooling/testkit/tsconfig.build.json"
     },
     {
-      "path": "../identity/tsconfig.build.json"
+      "path": "../types/tsconfig.build.json"
     },
     {
-      "path": "../types/tsconfig.build.json"
+      "path": "../identity/tsconfig.build.json"
     },
     {
       "path": "../invariant/tsconfig.build.json"

@@ -3,8 +3,8 @@
     // Use incremental builds with project references.
     "incremental": true,
     "composite": true,
-    // Target modern JavaScript (ES2022+) whilst staying closely compatible with the Node.js module system.
-    "target": "ES2022",
+    // Target modern JavaScript (ES2023+) whilst staying closely compatible with the Node.js module system.
+    "target": "ES2023",
     "module": "ESNext",
     //todo "module": "NodeNext",
     "moduleDetection": "force",
@@ -36,7 +36,7 @@
     // Do not truncate error messages.
     "types": [],
     "lib": [
-      "es2022",
+      "ES2023",
       "DOM",
       "DOM.Iterable",
       "ESNext"
@@ -98,15 +98,6 @@
       ],
       "@beep/schema/test/*": [
         "./packages/common/schema/test/*"
-      ],
-      "@beep/schema-v2": [
-        "./packages/common/schema-v2/src/index"
-      ],
-      "@beep/schema-v2/*": [
-        "./packages/common/schema-v2/src/*"
-      ],
-      "@beep/schema-v2/test/*": [
-        "./packages/common/schema-v2/test/*"
       ],
       "@beep/constants": [
         "./packages/common/constants/src/index"

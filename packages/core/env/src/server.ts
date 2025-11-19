@@ -1,8 +1,6 @@
 import { AuthProviderNameValue, EnvValue, LogFormat } from "@beep/constants";
-import { Csp } from "@beep/schema/config/Csp";
-import { DomainName } from "@beep/schema/custom/Domain.schema";
-import { Email } from "@beep/schema/custom/Email.schema";
-import { Url } from "@beep/schema/custom/Url.schema";
+import { Csp } from "@beep/schema/integrations";
+import { DomainName, Email, Url } from "@beep/schema/primitives";
 import { SharedEntityIds } from "@beep/shared-domain";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";

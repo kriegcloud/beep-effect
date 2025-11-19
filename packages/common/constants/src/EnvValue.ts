@@ -1,14 +1,12 @@
 import { BS } from "@beep/schema";
-export const EnvValueKit = BS.stringLiteralKit("dev", "staging", "prod");
 
-export class EnvValue extends EnvValueKit.Schema.annotations({
+
+export class EnvValue extends BS.StringLiteralKit("dev", "staging", "prod").annotations({
   schemaId: Symbol.for("@beep/constants/EnvValue"),
   identifier: "EnvValue",
   title: "Env Value",
   description: "Env value",
 }) {
-  static readonly Options = EnvValueKit.Options;
-  static readonly Enum = EnvValueKit.Enum;
 }
 
 export declare namespace EnvValue {

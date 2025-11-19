@@ -1,14 +1,13 @@
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
 
-const DeviceCodeStatusKit = BS.stringLiteralKit("pending", "approved", "denied");
 
-export const makeDeviceCodeStatusPgEnum = BS.toPgEnum(DeviceCodeStatusKit);
 
-export class DeviceCodeStatus extends DeviceCodeStatusKit.Schema {
-  static readonly Options = DeviceCodeStatusKit.Options;
-  static readonly Enum = DeviceCodeStatusKit.Enum;
+
+export class DeviceCodeStatus extends BS.StringLiteralKit("pending", "approved", "denied") {
+
 }
+export const makeDeviceCodeStatusPgEnum = BS.toPgEnum(DeviceCodeStatus);
 
 export declare namespace DeviceCodeStatus {
   export type Type = S.Schema.Type<typeof DeviceCodeStatus>;

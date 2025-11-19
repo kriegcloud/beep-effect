@@ -2,9 +2,9 @@ import { BS } from "@beep/schema";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 
-const HorizontalDirectionKit = BS.stringLiteralKit("right", "left");
 
-export class HorizontalDirection extends HorizontalDirectionKit.Schema.annotations({
+
+export class HorizontalDirection extends BS.StringLiteralKit("right", "left").annotations({
   schemaId: Symbol.for("@beep/ui-core/utils/swipeUtils/HorizontalDirection"),
   title: "Horizontal Direction",
   identifier: "HorizontalDirection",
@@ -16,9 +16,7 @@ export declare namespace HorizontalDirection {
   export type Encoded = typeof HorizontalDirection.Encoded;
 }
 
-const VerticalDirectionKit = BS.stringLiteralKit("up", "down");
-
-export class VerticalDirection extends VerticalDirectionKit.Schema.annotations({
+export class VerticalDirection extends BS.StringLiteralKit("up", "down").annotations({
   schemaId: Symbol.for("@beep/ui-core/utils/swipeUtils/VerticalDirection"),
   title: "Vertical Direction",
   identifier: "VerticalDirection",
@@ -30,19 +28,18 @@ export declare namespace VerticalDirection {
   export type Encoded = typeof VerticalDirection.Encoded;
 }
 
-export const SwipeDirectionKit = BS.stringLiteralKit(
-  ...HorizontalDirectionKit.Options,
-  ...VerticalDirectionKit.Options
-);
 
-export class SwipeDirection extends SwipeDirectionKit.Schema.annotations({
+
+export class SwipeDirection extends BS.StringLiteralKit(
+  ...HorizontalDirection.Options,
+  ...VerticalDirection.Options
+).annotations({
   schemaId: Symbol.for("@beep/ui-core/utils/swipeUtils/SwipeDirection"),
   title: "Swipe Direction",
   identifier: "SwipeDirection",
   description: "Direction of the swipe",
 }) {
-  static readonly Options = SwipeDirectionKit.Options;
-  static readonly Enum = SwipeDirectionKit.Enum;
+
 }
 
 export declare namespace SwipeDirection {

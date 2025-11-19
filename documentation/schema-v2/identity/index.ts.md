@@ -1,7 +1,7 @@
 ---
 title: identity/index.ts
 nav_order: 4
-parent: "@beep/schema-v2"
+parent: "@beep/schema"
 ---
 
 ## index overview

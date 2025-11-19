@@ -12,10 +12,10 @@
       "path": "../utils"
     },
     {
-      "path": "../../../tooling/testkit"
+      "path": "../identity"
     },
     {
-      "path": "../identity"
+      "path": "../../../tooling/testkit"
     }
   ],
   "compilerOptions": {

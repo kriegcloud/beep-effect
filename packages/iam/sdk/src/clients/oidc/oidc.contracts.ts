@@ -15,16 +15,14 @@ const OAuth2AuthorizeResponseSchema = S.Struct({
   description: "Redirect directive for OAuth2 authorization requests.",
 });
 
-export const OAuth2AuthorizeResponseTypeKit = BS.stringLiteralKit("code", "token");
 
-export class OAuth2AuthorizeResponseType extends OAuth2AuthorizeResponseTypeKit.Schema.annotations({
+
+export class OAuth2AuthorizeResponseType extends BS.StringLiteralKit("code", "token").annotations({
   schemaId: Symbol.for("@beep/iam-sdk/clients/oidc/OAuth2AuthorizeResponseType"),
   identifier: "OAuth2AuthorizeResponseType",
   title: "OAuth2 Authorize Response Type",
   description: "Response type for OAuth2 authorization requests.",
 }) {
-  static readonly Options = OAuth2AuthorizeResponseTypeKit.Options;
-  static readonly Enum = OAuth2AuthorizeResponseTypeKit.Enum;
 }
 
 export declare namespace OAuth2AuthorizeResponseType {
@@ -32,16 +30,13 @@ export declare namespace OAuth2AuthorizeResponseType {
   export type Encoded = typeof OAuth2AuthorizeResponseType.Encoded;
 }
 
-export const OAuth2AuthorizePromptKit = BS.stringLiteralKit("none", "consent", "login", "select_account");
 
-export class OAuth2AuthorizePrompt extends OAuth2AuthorizePromptKit.Schema.annotations({
+export class OAuth2AuthorizePrompt extends BS.StringLiteralKit("none", "consent", "login", "select_account").annotations({
   schemaId: Symbol.for("@beep/iam-sdk/clients/oidc/OAuth2AuthorizePrompt"),
   identifier: "OAuth2AuthorizePrompt",
   title: "OAuth2 Authorize Prompt",
   description: "Prompt parameter for OAuth2 authorization requests.",
 }) {
-  static readonly Options = OAuth2AuthorizePromptKit.Options;
-  static readonly Enum = OAuth2AuthorizePromptKit.Enum;
 }
 
 export declare namespace OAuthAuthorizePrompt {
@@ -49,16 +44,13 @@ export declare namespace OAuthAuthorizePrompt {
   export type Encoded = typeof OAuth2AuthorizePrompt.Encoded;
 }
 
-export const OAuth2AuthorizeDisplayKit = BS.stringLiteralKit("page", "popup", "touch", "wap");
 
-export class OAuth2AuthorizeDisplay extends OAuth2AuthorizeDisplayKit.Schema.annotations({
+export class OAuth2AuthorizeDisplay extends BS.StringLiteralKit("page", "popup", "touch", "wap").annotations({
   schemaId: Symbol.for("@beep/iam-sdk/clients/oidc/OAuth2AuthorizeDisplay"),
   identifier: "OAuth2AuthorizeDisplay",
   title: "OAuth2 Authorize Display",
   description: "Display parameter for OAuth2 authorization requests.",
 }) {
-  static readonly Options = OAuth2AuthorizeDisplayKit.Options;
-  static readonly Enum = OAuth2AuthorizeDisplayKit.Enum;
 }
 
 export declare namespace OAuth2AuthorizeDisplay {
@@ -66,16 +58,14 @@ export declare namespace OAuth2AuthorizeDisplay {
   export type Encoded = typeof OAuth2AuthorizeDisplay.Encoded;
 }
 
-export const OAuth2AuthorizeCodeChallengeMethodKit = BS.stringLiteralKit("plain", "S256");
 
-export class OAuth2AuthorizeCodeChallengeMethod extends OAuth2AuthorizeCodeChallengeMethodKit.Schema.annotations({
+
+export class OAuth2AuthorizeCodeChallengeMethod extends BS.StringLiteralKit("plain", "S256").annotations({
   schemaId: Symbol.for("@beep/iam-sdk/clients/oidc/OAuth2AuthorizeCodeChallengeMethod"),
   identifier: "OAuth2AuthorizeCodeChallengeMethod",
   title: "OAuth2 Authorize Code Challenge Method",
   description: "Code challenge method for OAuth2 authorization requests.",
 }) {
-  static readonly Options = OAuth2AuthorizeCodeChallengeMethodKit.Options;
-  static readonly Enum = OAuth2AuthorizeCodeChallengeMethodKit.Enum;
 }
 
 export declare namespace OAuth2AuthorizeCodeChallengeMethod {

@@ -7,7 +7,7 @@ import { BS } from "@beep/schema";
 import * as Context from "effect/Context";
 import * as F from "effect/Function";
 
-export const ContextAnnotationTagKit = BS.stringLiteralKit(
+export class ContextAnnotationTag extends BS.StringLiteralKit(
   "@beep/contract/Contract/Title",
   "@beep/contract/Contract/Domain",
   "@beep/contract/Contract/Method",
@@ -20,16 +20,12 @@ export const ContextAnnotationTagKit = BS.stringLiteralKit(
       ["@beep/contract/Contract/Method", "Method"],
     ],
   }
-);
-
-export class ContextAnnotationTag extends ContextAnnotationTagKit.Schema.annotations({
+).annotations({
   schemaId: Symbol.for("@beep/contract/ContextAnnotationTag"),
   identifier: "ContextAnnotationTag",
   title: "Context Annotation Tag",
   description: "One of the possible keys for Context Annotations within `@beep/contract/Contract.ts`",
 }) {
-  static readonly Options = ContextAnnotationTagKit.Options;
-  static readonly Enum = ContextAnnotationTagKit.Enum;
 }
 
 export declare namespace ContextAnnotationTag {

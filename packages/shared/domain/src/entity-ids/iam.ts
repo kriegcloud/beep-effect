@@ -1,4 +1,4 @@
-import { EntityId } from "@beep/schema/EntityId";
+import { EntityId } from "@beep/schema/identity";
 import type * as S from "effect/Schema";
 
 export const AccountId = EntityId.make("account", {

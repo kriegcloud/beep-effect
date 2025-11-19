@@ -1,5 +1,5 @@
 import { BS } from "@beep/schema";
-import type { EntityId } from "@beep/schema/EntityId";
+import type { EntityId } from "@beep/schema/identity";
 import type { Field } from "@effect/experimental/VariantSchema";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";

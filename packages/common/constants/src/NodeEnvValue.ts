@@ -1,8 +1,8 @@
 import { BS } from "@beep/schema";
 
-const NodeEnvValueKit = BS.stringLiteralKit("test", "development", "production");
 
-export class NodeEnvValue extends NodeEnvValueKit.Schema.annotations({
+
+export class NodeEnvValue extends BS.StringLiteralKit("test", "development", "production").annotations({
   schemaId: Symbol.for("@beep/constants/NodeEnvValue"),
   identifier: "NodeEnvValue",
   title: "Node Env Value",

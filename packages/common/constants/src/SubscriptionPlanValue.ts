@@ -1,8 +1,8 @@
-import { BS } from "@beep/schema";
+import { StringLiteralKit } from "@beep/schema/derived";
 import type * as S from "effect/Schema";
-export const SubscriptionPlanValueKit = BS.stringLiteralKit("basic", "pro", "enterprise");
 
-export class SubscriptionPlanValue extends SubscriptionPlanValueKit.Schema.annotations({
+
+export class SubscriptionPlanValue extends StringLiteralKit("basic", "pro", "enterprise").annotations({
   schemaId: Symbol.for("@beep/constants/SubscriptionPlanValue"),
   identifier: "SubscriptionPlanValue",
   title: "Subscription Plan Value",
@@ -11,5 +11,5 @@ export class SubscriptionPlanValue extends SubscriptionPlanValueKit.Schema.annot
 
 export declare namespace SubscriptionPlanValue {
   export type Type = S.Schema.Type<typeof SubscriptionPlanValue>;
-  export type Encoded = S.Schema.Type<typeof SubscriptionPlanValue>;
+  export type Encoded = S.Schema.Encoded<typeof SubscriptionPlanValue>;
 }

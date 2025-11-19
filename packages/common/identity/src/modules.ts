@@ -388,3 +388,55 @@ export const StartClientId: IdentityComposer<"@beep/start-client"> = BeepId.modu
  * @since 0.1.0
  */
 export const ServerId: IdentityComposer<"@beep/server"> = BeepId.module("server");
+
+/**
+ * Identity composer for the `@beep/integrations-core` runtime entrypoint.
+ *
+ * @example
+ * import * as Identity from "@beep/identity";
+ *
+ * const integrationsCoreBootstrapId = Identity.IntegrationsCoreId.make("bootstrap");
+ *
+ * @category Identity/Modules
+ * @since 0.1.0
+ */
+export const IntegrationsCoreId: IdentityComposer<"@beep/integrations-core"> = BeepId.module("integrations-core");
+
+/**
+ * Identity composer for the `@beep/google` runtime entrypoint.
+ *
+ * @example
+ * import * as Identity from "@beep/identity";
+ *
+ * const googleBootstrapId = Identity.GoogleId.make("bootstrap");
+ *
+ * @category Identity/Modules
+ * @since 0.1.0
+ */
+export const GoogleId: IdentityComposer<"@beep/google"> = BeepId.module("google");
+
+/**
+ * Identity composer for the `@beep/thefront` runtime entrypoint.
+ *
+ * @example
+ * import * as Identity from "@beep/identity";
+ *
+ * const thefrontId = Identity.TheFrontId.make("bootstrap");
+ *
+ * @category Identity/Modules
+ * @since 0.1.0
+ */
+export const TheFrontId: IdentityComposer<"@beep/thefront"> = BeepId.module("thefront");
+
+/**
+ * Identity composer for the `@beep/thefront` runtime entrypoint.
+ *
+ * @example
+ * import * as Identity from "@beep/identity";
+ *
+ * const AICoreId = Identity.AICoreId.make("bootstrap");
+ *
+ * @category Identity/Modules
+ * @since 0.1.0
+ */
+export const AICoreId: IdentityComposer<"@beep/thefront"> = BeepId.module("thefront");

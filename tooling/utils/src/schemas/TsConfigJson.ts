@@ -28,7 +28,7 @@ const ModuleKind = S.Literal(
   "es6",
   "es2015",
   "es2020",
-  "es2022",
+  "ES2023",
   "esnext",
   "node16",
   "node18",
@@ -48,7 +48,7 @@ const Target = stringEnumCI(
   "es2019",
   "es2020",
   "es2021",
-  "es2022",
+  "ES2023",
   "esnext"
 );
 

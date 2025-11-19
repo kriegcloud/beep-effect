@@ -1,22 +1,22 @@
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
-export const organizationTypeKit = BS.stringLiteralKit("individual", "team", "enterprise");
 
-export const makeOrganizationTypePgEnum = BS.toPgEnum(organizationTypeKit);
 
-export const OrganizationTypeEnum = organizationTypeKit.Enum;
 
-export const OrganizationTypeOptions = organizationTypeKit.Options;
 
-export class OrganizationType extends organizationTypeKit.Schema.annotations({
+export class OrganizationType extends BS.StringLiteralKit("individual", "team", "enterprise").annotations({
   schemaId: Symbol.for("@beep/shared-domain/Organization/schemas/OrganizationType"),
   identifier: "OrganizationType",
   title: "Organization Type",
   description: "The type of organization (individual, team, enterprise)",
 }) {
-  static readonly Options = organizationTypeKit.Options;
-  static readonly Enum = organizationTypeKit.Enum;
 }
+
+export const makeOrganizationTypePgEnum = BS.toPgEnum(OrganizationType);
+
+export const OrganizationTypeEnum = OrganizationType.Enum;
+
+export const OrganizationTypeOptions = OrganizationType.Options;
 
 export declare namespace OrganizationType {
   export type Type = S.Schema.Type<typeof OrganizationType>;

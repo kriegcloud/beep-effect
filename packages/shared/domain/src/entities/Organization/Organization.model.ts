@@ -1,5 +1,5 @@
 import { BS } from "@beep/schema";
-import { Slug, Url } from "@beep/schema/custom";
+import { Slug, Url } from "@beep/schema/primitives";
 import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";

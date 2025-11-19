@@ -33,48 +33,20 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
-    "@beep/core-env": "workspace:^",
     "@beep/constants": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/errors": "workspace:^",
-    "effect": "catalog:",
-    "@beep/ui": "workspace:^",
-    "@beep/ui-core": "workspace:^",
-    "@react-email/components": "catalog:",
-    "@react-email/render": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:",
-    "@mui/material": "catalog:",
-    "tailwind-merge": "catalog:",
-    "clsx": "catalog:",
-    "tailwindcss-animate": "catalog:",
-    "tw-animate-css": "catalog:",
-    "resend": "catalog:"
+    "effect": "catalog:"
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",
     "@types/bun": "catalog:",
     "@beep/types": "workspace:^",
-    "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
-    "@tailwindcss/postcss": "catalog:",
-    "tailwindcss": "catalog:",
     "@beep/core-env": "workspace:^",
     "@beep/constants": "workspace:^",
     "@beep/errors": "workspace:^",
     "effect": "catalog:",
-    "@beep/ui": "workspace:^",
-    "@beep/identity": "workspace:^",
-    "@react-email/components": "catalog:",
-    "@react-email/render": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:",
-    "@mui/material": "catalog:",
-    "tailwind-merge": "catalog:",
-    "clsx": "catalog:",
-    "tailwindcss-animate": "catalog:",
-    "tw-animate-css": "catalog:",
-    "resend": "catalog:"
+    "@beep/identity": "workspace:^"
   },
   "effect": {
     "generateExports": {
