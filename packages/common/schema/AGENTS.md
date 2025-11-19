@@ -36,6 +36,10 @@
 - **Effect-first collections**: never introduce native array/string/object helpers; always route through `F.pipe` with `A.*`, `Str.*`, `Struct.*`, `Record.*`. Legacy occurrences exist—treat them as debt and avoid expanding them.
 - **Purity**: schemas must stay side-effect free. No network, DB, logging, timers, or platform-specific APIs. Compute-only helpers only.
 - **Annotations**: supply `title`, `identifier`, `description`, and when relevant `jsonSchema`, `pretty`, and `arbitrary` metadata so downstream form builders and docs stay rich.
+- **Identity-powered annotations**: every folder in schema exposes a local `_id.ts` that wraps `@beep/identity`. Import
+  `Id` from that file (e.g. `import { Id } from "./_id";`) and call `Id.annotations("SchemaName", metadata)` or
+  `Id.compose("sub-scope")` to generate deterministic identifiers. Avoid free-form `Symbol.for` or handwritten strings;
+  the `_id.ts` helpers already encode the correct namespace segment.
 - **Entity IDs**: enforce snake_case table names and brand suffixes ending with `Id`. Prefer `EntityId.make("entity_name", { brand: "EntityNameId", annotations })`; validate via provided invariants instead of custom brand logic.
 - **Layer boundaries**: do not import slice-specific code (`@beep/iam-*`, `@beep/files-*`). Rely on shared foundations (`@beep/types`, `@beep/utils`, `@beep/invariant`, Effect stdlib).
 - **Testing stance**: new schemas should be accompanied by Vitest cases that cover decode/encode symmetry, annotation expectations, and failure modes. Property-based sampling is encouraged where kits expose FastCheck helpers.

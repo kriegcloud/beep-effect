@@ -185,12 +185,8 @@ export type ImplementationsFrom<Contracts extends Record<string, Contract.Any>> 
     Contract.Requirements<Contracts[Name]>
   >;
 };
-export const LiftServiceModeKit = BS.stringLiteralKit("success", "result");
 
-export class LiftServiceMode extends LiftServiceModeKit.Schema {
-  static readonly Options = LiftServiceModeKit.Options;
-  static readonly Enum = LiftServiceModeKit.Enum;
-}
+export class LiftServiceMode extends BS.StringLiteralKit("success", "result") {}
 
 /**
  * Determines whether lifted service methods should expose only successes or

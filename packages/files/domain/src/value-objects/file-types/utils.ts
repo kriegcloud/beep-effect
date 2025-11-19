@@ -1,4 +1,4 @@
-import { BS } from "@beep/schema";
+import { ArrayOfNumbers, ArrBuffer, Uint8Arr } from "@beep/schema/primitives";
 import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
@@ -22,7 +22,7 @@ export function getFileChunk(
 ): Array<number> {
   const fileToCheck: ReadonlyArray<number> | Uint8Array = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
   let chunk: Array<number> = [];
-  if (P.or(P.and(A.isArray, BS.ArrayOfNumbers.is), P.or(BS.ArrBuffer.is, BS.Uint8Arr.is))(file)) {
+  if (P.or(P.and(A.isArray, ArrayOfNumbers.is), P.or(ArrBuffer.is, Uint8Arr.is))(file)) {
     chunk = Array.from(fileToCheck.slice(0, fileChunkLength));
   } else {
     throw new TypeError(

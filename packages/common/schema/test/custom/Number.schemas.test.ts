@@ -1,5 +1,5 @@
 import { expect } from "bun:test";
-import { StringOrNumberToNumber } from "@beep/schema/custom";
+import { StringOrNumberToNumber } from "@beep/schema/primitives";
 import { effect } from "@beep/testkit";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";

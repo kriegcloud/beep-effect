@@ -1,7 +1,7 @@
 ---
 title: derived/index.ts
 nav_order: 3
-parent: "@beep/schema-v2"
+parent: "@beep/schema"
 ---
 
 ## index overview

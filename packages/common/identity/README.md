@@ -34,4 +34,4 @@ const symbol = userRepoId.symbol(); // Symbol.for("@beep/iam-infra/adapters/repo
   continues chaining.
 - Use `BeepId.from("@beep/contract/contract-kit")` to continue an existing namespace.
 - All exports carry full JSDoc blocks with summary, category, examples, and `@since 0.1.0`
-  tags per the shared documentation strategy (`packages/common/schema-v2/DOCUMENTATION_STRATEGY.md`).
+  tags per the shared documentation strategy (`packages/common/schema/DOCUMENTATION_STRATEGY.md`).

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { BS } from "@beep/schema";
-import { CSPFromString, CSPString } from "@beep/schema/config";
+import { CSPFromString, CSPString } from "@beep/schema/integrations";
 import { deepStrictEqual } from "@beep/testkit";
 import * as S from "effect/Schema";
 

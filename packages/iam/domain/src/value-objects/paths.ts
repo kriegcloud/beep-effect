@@ -15,24 +15,19 @@ export const authViewPaths = PathBuilder.collection({
   acceptInvitation: authPaths.child("accept-invitation"),
 });
 
-export const AccountSettingsTabKit = BS.stringLiteralKit(
+export class AccountSettingsTabSearchParamValue extends BS.StringLiteralKit(
   "general",
   "billing",
   "notifications",
   "connections",
   "security",
   "localization"
-);
-
-export class AccountSettingsTabSearchParamValue extends AccountSettingsTabKit.Schema.annotations({
+).annotations({
   schemaId: Symbol.for("@beep/iam-domain/value-objects/paths/AccountSettingsTabSearchParamValue"),
   identifier: "AccountSettingsTabSearchParamValue",
   title: "Account Settings Tab Search Param",
   description: "Search param for account settings tab",
-}) {
-  static readonly Options = AccountSettingsTabKit.Options;
-  static readonly Enum = AccountSettingsTabKit.Enum;
-}
+}) {}
 
 export declare namespace AccountSettingsTabSearchParamValue {
   export type Type = typeof AccountSettingsTabSearchParamValue.Type;

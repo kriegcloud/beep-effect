@@ -3,8 +3,8 @@
     // Use incremental builds with project references.
     "incremental": true,
     "composite": true,
-    // Target modern JavaScript (ES2022+) whilst staying closely compatible with the Node.js module system.
-    "target": "ES2022",
+    // Target modern JavaScript (ES2023+) whilst staying closely compatible with the Node.js module system.
+    "target": "ES2023",
     "module": "ESNext",
     //todo "module": "NodeNext",
     "moduleDetection": "force",
@@ -35,7 +35,12 @@
     "noErrorTruncation": true,
     // Do not truncate error messages.
     "types": [],
-    "lib": ["es2022", "DOM", "DOM.Iterable", "ESNext"],
+    "lib": [
+      "ES2023",
+      "DOM",
+      "DOM.Iterable",
+      "ESNext"
+    ],
     // Disable automatic loading of `@types/*` packages.
     "downlevelIteration": true,
     "resolveJsonModule": true,
@@ -94,15 +99,6 @@
       "@beep/schema/test/*": [
         "./packages/common/schema/test/*"
       ],
-      "@beep/schema-v2": [
-        "./packages/common/schema-v2/src/index"
-      ],
-      "@beep/schema-v2/*": [
-        "./packages/common/schema-v2/src/*"
-      ],
-      "@beep/schema-v2/test/*": [
-        "./packages/common/schema-v2/test/*"
-      ],
       "@beep/constants": [
         "./packages/common/constants/src/index"
       ],
@@ -112,7 +108,7 @@
       "@beep/constants/test/*": [
         "./packages/common/constants/test/*"
       ],
-       "@beep/identity": [
+      "@beep/identity": [
         "./packages/common/identity/src/index"
       ],
       "@beep/identity/*": [
@@ -141,6 +137,33 @@
       ],
       "@beep/mock/test/*": [
         "./packages/common/mock/test/*"
+      ],
+      "@beep/google": [
+        "./packages/integrations/google/src/index"
+      ],
+      "@beep/google/*": [
+        "./packages/integrations/google/src/*"
+      ],
+      "@beep/google/test/*": [
+        "./packages/integrations/google/test/*"
+      ],
+      "@beep/thefront": [
+        "./packages/integrations/thefront/src/index"
+      ],
+      "@beep/thefront/*": [
+        "./packages/integrations/thefront/src/*"
+      ],
+      "@beep/thefront/test/*": [
+        "./packages/integrations/thefront/test/*"
+      ],
+      "@beep/integrations-core": [
+        "./packages/integrations/core/src/index"
+      ],
+      "@beep/integrations-core/*": [
+        "./packages/integrations/core/src/*"
+      ],
+      "@beep/integrations-core/test/*": [
+        "./packages/integrations/core/test/*"
       ],
       "@beep/contract": [
         "./packages/common/contract/src/index"
@@ -298,7 +321,6 @@
       "@beep/files-ui/test/*": [
         "./packages/files/ui/test/*"
       ],
-
       "@beep/tasks-domain": [
         "./packages/tasks/domain/src/index"
       ],
@@ -344,7 +366,6 @@
       "@beep/tasks-ui/test/*": [
         "./packages/tasks/ui/test/*"
       ],
-
       "@beep/runtime-server": [
         "./packages/runtime/server/src/index"
       ],
@@ -383,6 +404,15 @@
       ],
       "@beep/tooling-utils/test/*": [
         "./tooling/utils/test/*"
+      ],
+      "@beep/repo-cli": [
+        "./tooling/cli/src/index"
+      ],
+      "@beep/repo-cli/*": [
+        "./tooling/cli/src/*"
+      ],
+      "@beep/repo-cli/test/*": [
+        "./tooling/cli/test/*"
       ],
       "@beep/repo-scripts": [
         "./tooling/repo-scripts/src/index"

@@ -20,12 +20,12 @@ import * as Glob from "glob";
 import color from "picocolors";
 import ts from "typescript";
 
-const DEFAULT_SCOPE = "schema-v2" as const;
+const DEFAULT_SCOPE = "schema" as const;
 
 const SCOPE_PATHS: Record<string, string> = {
   invariant: "packages/common/invariant",
   // schema: "packages/common/schema",
-  "schema-v2": "packages/common/schema-v2",
+  schema: "packages/common/schema",
   identity: "packages/common/identity",
   types: "packages/common/types",
   utils: "packages/common/utils",

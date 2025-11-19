@@ -4,6 +4,7 @@
     { "path": "../tooling/utils" },
     { "path": "../tooling/repo-config" },
     { "path": "../tooling/repo-scripts" },
-    { "path": "../tooling/testkit" }
+    { "path": "../tooling/testkit" },
+    { "path": "../tooling/cli" }
   ]
 }

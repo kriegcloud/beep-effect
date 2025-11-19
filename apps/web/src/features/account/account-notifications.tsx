@@ -11,7 +11,7 @@ import Switch from "@mui/material/Switch";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 
-export const NotificationSelectionKit = BS.stringLiteralKit(
+export const NotificationSelection = BS.StringLiteralKit(
   "activity_comments",
   "activity_answers",
   "activityFollows",
@@ -22,7 +22,7 @@ export const NotificationSelectionKit = BS.stringLiteralKit(
 
 export class NotificationSelectionPayload extends S.Class<NotificationSelectionPayload>("NotificationSelectionPayload")(
   {
-    selected: S.Array(NotificationSelectionKit.Schema),
+    selected: S.Array(NotificationSelection),
   }
 ) {}
 
@@ -66,8 +66,8 @@ export function AccountNotifications({ sx, ...other }: CardProps) {
   );
 
   const getSelected = (
-    selectedItems: ReadonlyArray<typeof NotificationSelectionKit.Schema.Type>,
-    item: typeof NotificationSelectionKit.Schema.Type
+    selectedItems: ReadonlyArray<typeof NotificationSelection.Type>,
+    item: typeof NotificationSelection.Type
   ) => (selectedItems.includes(item) ? A.filter(selectedItems, (value) => value !== item) : [...selectedItems, item]);
 
   return (

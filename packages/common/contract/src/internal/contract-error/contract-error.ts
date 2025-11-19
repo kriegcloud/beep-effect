@@ -4,7 +4,7 @@
  * ensuring logs and telemetry stay consistent across runtimes.
  */
 import { BS } from "@beep/schema";
-import { HttpRequestDetails } from "@beep/schema/http";
+import { HttpRequestDetails } from "@beep/schema/integrations";
 import type { UnsafeTypes } from "@beep/types";
 import type * as HttpClientError from "@effect/platform/HttpClientError";
 import * as Effect from "effect/Effect";
@@ -90,17 +90,12 @@ const getStatusCodeSuggestion = (statusCode: number): string => {
 // Http Request Error
 // =====================================================================================================================
 
-export const HttpRequestErrorReasonKit = BS.stringLiteralKit("Transport", "Encode", "InvalidUrl");
-
-export class HttpRequestErrorReason extends HttpRequestErrorReasonKit.Schema.annotations({
+export class HttpRequestErrorReason extends BS.StringLiteralKit("Transport", "Encode", "InvalidUrl").annotations({
   schemaId: Symbol.for("@beep/contract/ContractError/HttpRequestErrorReason"),
   identifier: "HttpRequestErrorReason",
   title: "HTTP Request Error Reason",
   description: "Reason for an HTTP request error.",
-}) {
-  static readonly Options = HttpRequestErrorReasonKit.Options;
-  static readonly Enum = HttpRequestErrorReasonKit.Enum;
-}
+}) {}
 
 export declare namespace HttpRequestErrorReason {
   export type Type = typeof HttpRequestErrorReason.Type;
@@ -283,17 +278,12 @@ export declare namespace HttpResponseDetails {
   export type Encoded = S.Schema.Encoded<typeof HttpResponseDetails>;
 }
 
-export const HttpResponseErrorReasonKit = BS.stringLiteralKit("StatusCode", "Decode", "EmptyBody");
-
-export class HttpResponseErrorReason extends HttpResponseErrorReasonKit.Schema.annotations({
+export class HttpResponseErrorReason extends BS.StringLiteralKit("StatusCode", "Decode", "EmptyBody").annotations({
   schemaId: Symbol.for("@beep/contract/ContractError/HttpResponseErrorReason"),
   identifier: "HttpResponseErrorReason",
   title: "HTTP Response Error Reason",
   description: "Reason for an HTTP response error.",
-}) {
-  static readonly Options = HttpResponseErrorReasonKit.Options;
-  static readonly Enum = HttpResponseErrorReasonKit.Enum;
-}
+}) {}
 
 export declare namespace HttpResponseErrorReason {
   export type Type = typeof HttpRequestErrorReason.Type;

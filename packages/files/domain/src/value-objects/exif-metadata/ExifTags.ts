@@ -1,9 +1,8 @@
 import { BS } from "@beep/schema";
-
 import * as S from "effect/Schema";
 
 // Base tag types
-const NumberFileTag = BS.Struct({
+const NumberFileTag = S.Struct({
   description: S.String,
   value: S.Number,
 }).annotations({
@@ -13,7 +12,7 @@ const NumberFileTag = BS.Struct({
   description: "EXIF tag with a numeric value and a human-readable description.",
 });
 
-const NumberArrayFileTag = BS.Struct({
+const NumberArrayFileTag = S.Struct({
   description: S.String,
   value: S.Array(S.Number),
 }).annotations({
@@ -23,7 +22,7 @@ const NumberArrayFileTag = BS.Struct({
   description: "EXIF tag with an array of numbers (e.g., resolutions, coordinates).",
 });
 
-const NumberArray2DFileTag = BS.Struct({
+const NumberArray2DFileTag = S.Struct({
   description: S.String,
   value: S.Union(S.Array(S.Number), S.Array(S.Array(S.Number))),
 }).annotations({
@@ -41,7 +40,7 @@ const NumberArray2DFileTag = BS.Struct({
  * - `value`: the strongly-typed payload for this tag (e.g., number, string, tuple)
  */
 const makeTypedTag = <A, I, R>(schema: S.Schema<A, I, R>) =>
-  BS.Struct({
+  S.Struct({
     id: S.Number,
     description: S.Union(S.String, S.Number),
     value: schema,
@@ -78,7 +77,7 @@ const StringTag = makeTypedTag(S.String).annotations({
   description: "Typed EXIF tag with string value.",
 });
 
-const ValueTag = BS.Struct({
+const ValueTag = S.Struct({
   description: S.String,
   value: S.Union(S.String, S.Number),
 }).annotations({
@@ -89,7 +88,7 @@ const ValueTag = BS.Struct({
 });
 
 // File types
-const FileTypeTag = BS.Struct({
+const FileTypeTag = S.Struct({
   value: S.Literal("tiff", "jpeg", "png", "heic", "avif", "webp", "gif"),
   description: S.Literal("TIFF", "JPEG", "PNG", "HEIC", "AVIF", "WebP", "GIF"),
 }).annotations({
@@ -99,7 +98,7 @@ const FileTypeTag = BS.Struct({
   description: "File container/codec identification reported by the reader.",
 });
 
-const FileTags = BS.Struct({
+const FileTags = S.Struct({
   fileType: S.optional(S.Union(FileTypeTag, S.Literal("TIFF", "JPEG", "PNG", "HEIC", "AVIF", "WebP", "GIF"))).pipe(
     S.fromKey("FileType")
   ),
@@ -116,7 +115,7 @@ const FileTags = BS.Struct({
 });
 
 // JFIF tags
-const JfifResolutionUnitTag = BS.Struct({
+const JfifResolutionUnitTag = S.Struct({
   value: S.Number,
   description: S.Literal("None", "inches", "cm", "Unknown"),
 }).annotations({
@@ -126,7 +125,7 @@ const JfifResolutionUnitTag = BS.Struct({
   description: "Resolution unit for JFIF (e.g., inches for DPI, centimeters for DPCM).",
 });
 
-const JfifThumbnailTag = BS.Struct({
+const JfifThumbnailTag = S.Struct({
   value: S.Union(S.instanceOf(ArrayBuffer), S.instanceOf(SharedArrayBuffer), S.instanceOf(Buffer)),
   description: S.Literal("<24-bit RGB pixel data>"),
 }).annotations({
@@ -136,7 +135,7 @@ const JfifThumbnailTag = BS.Struct({
   description: "Embedded JFIF thumbnail or raw RGB pixel data from the container.",
 });
 
-const JfifTags = BS.Struct({
+const JfifTags = S.Struct({
   jfifVersion: S.optional(NumberFileTag).pipe(S.fromKey("JFIF Version")),
   resolutionUnit: S.optional(JfifResolutionUnitTag).pipe(S.fromKey("Resolution Unit")),
   xResolution: S.optional(NumberFileTag).pipe(S.fromKey("XResolution")),
@@ -152,27 +151,27 @@ const JfifTags = BS.Struct({
 });
 
 // PNG tags
-const PngColorTypeTag = BS.Struct({
+const PngColorTypeTag = S.Struct({
   value: S.Number,
   description: S.Literal("Grayscale", "RGB", "Palette", "Grayscale with Alpha", "RGB with Alpha", "Unknown"),
 });
 
-const PngCompressionTag = BS.Struct({
+const PngCompressionTag = S.Struct({
   value: S.Number,
   description: S.Literal("Deflate/Inflate", "Unknown"),
 });
 
-const PngFilterTag = BS.Struct({
+const PngFilterTag = S.Struct({
   value: S.Number,
   description: S.Literal("Adaptive", "Unknown"),
 });
 
-const PngInterlaceTag = BS.Struct({
+const PngInterlaceTag = S.Struct({
   value: S.Number,
   description: S.Literal("Noninterlaced", "Adam7 Interlace", "Unknown"),
 });
 
-const PngFileTags = BS.Struct({
+const PngFileTags = S.Struct({
   imageWidth: S.optional(NumberFileTag).pipe(S.fromKey("Image Width")),
   imageHeight: S.optional(NumberFileTag).pipe(S.fromKey("Image Height")),
   bitDepth: S.optional(NumberFileTag).pipe(S.fromKey("Bit Depth")),
@@ -187,12 +186,12 @@ const PngFileTags = BS.Struct({
   description: "IHDR-level PNG properties: dimensions, bit depth, color type, compression, filter, and interlace.",
 });
 
-const PngPixelUnitsTag = BS.Struct({
+const PngPixelUnitsTag = S.Struct({
   value: S.Number,
   description: S.Literal("meters", "Unknown"),
 });
 
-const PngPhysTags = BS.Struct({
+const PngPhysTags = S.Struct({
   pixelsPerUnitX: S.optional(NumberFileTag).pipe(S.fromKey("Pixels Per Unit X")),
   pixelsPerUnitY: S.optional(NumberFileTag).pipe(S.fromKey("Pixels Per Unit Y")),
   pixelUnits: S.optional(PngPixelUnitsTag).pipe(S.fromKey("Pixel Units")),
@@ -204,7 +203,7 @@ const PngPhysTags = BS.Struct({
   description: "pHYs chunk-derived physical pixel density and units.",
 });
 // NumberArrayFileTag | undefined' i
-const PngTag = BS.Struct({
+const PngTag = S.Struct({
   description: S.String,
   value: S.Union(S.String, S.Number),
 }).annotations({
@@ -214,7 +213,7 @@ const PngTag = BS.Struct({
   description: "Generic PNG tag with a textual description and a string or numeric value.",
 });
 
-const PngTags = BS.Struct(
+const PngTags = S.Struct(
   {
     ...PngFileTags.fields,
     ...PngPhysTags.fields,
@@ -227,7 +226,7 @@ const PngTags = BS.Struct(
   description: "Aggregate PNG metadata combining IHDR/pHYs fields and arbitrary tag map.",
 });
 
-const PngTextTag = BS.Struct({
+const PngTextTag = S.Struct({
   description: S.String,
   value: S.String,
 }).annotations({
@@ -245,22 +244,22 @@ const PngTextTags = S.Record({ key: S.String, value: PngTextTag }).annotations({
 });
 
 // RIFF tags
-const RiffAlphaTag = BS.Struct({
+const RiffAlphaTag = S.Struct({
   value: S.Literal(0, 1),
   description: S.Literal("No", "Yes"),
 });
 
-const RiffAnimationTag = BS.Struct({
+const RiffAnimationTag = S.Struct({
   value: S.Literal(0, 1),
   description: S.Literal("No", "Yes"),
 });
 
-const RiffImageDimensionTag = BS.Struct({
+const RiffImageDimensionTag = S.Struct({
   value: S.Number,
   description: S.String,
 });
 
-const RiffTags = BS.Struct({
+const RiffTags = S.Struct({
   alpha: S.optional(RiffAlphaTag).pipe(S.fromKey("Alpha")),
   animation: S.optional(RiffAnimationTag).pipe(S.fromKey("Animation")),
   imageWidth: S.optional(RiffImageDimensionTag).pipe(S.fromKey("ImageWidth")),
@@ -273,27 +272,27 @@ const RiffTags = BS.Struct({
 });
 
 // GIF tags
-const GifVersionTag = BS.Struct({
+const GifVersionTag = S.Struct({
   value: S.Literal("87a", "89a"),
   description: S.Literal("87a", "89a"),
 });
 
-const GifBooleanTag = BS.Struct({
+const GifBooleanTag = S.Struct({
   value: S.Literal(0, 1),
   description: S.Literal("No", "Yes"),
 });
 
-const GifDimensionTag = BS.Struct({
+const GifDimensionTag = S.Struct({
   value: S.Number,
   description: S.String,
 });
 
-const GifBitsTag = BS.Struct({
+const GifBitsTag = S.Struct({
   value: S.Literal(1, 2, 3, 4, 5, 6, 7, 8),
   description: S.String,
 });
 
-const GifTags = BS.Struct({
+const GifTags = S.Struct({
   gifVersion: GifVersionTag.pipe(S.propertySignature, S.fromKey("GIF Version")),
   imageWidth: S.optional(GifDimensionTag).pipe(S.fromKey("Image Width")),
   imageHeight: S.optional(GifDimensionTag).pipe(S.fromKey("Image Height")),
@@ -316,7 +315,7 @@ export interface IXmpTag {
   description: string;
 }
 
-const XmpTag = BS.Struct({
+const XmpTag = S.Struct({
   value: S.Union(
     S.String,
     S.Array(S.suspend((): S.Schema<IXmpTag> => XmpTag)),
@@ -340,7 +339,7 @@ const XmpTags = S.Record({ key: S.String, value: XmpTag }).annotations({
 });
 
 // GPS tags
-const GpsTags = BS.Struct({
+const GpsTags = S.Struct({
   Latitude: S.optional(S.Number),
   Longitude: S.optional(S.Number),
   Altitude: S.optional(S.Number),
@@ -352,17 +351,17 @@ const GpsTags = BS.Struct({
 });
 
 // MPF Image tags
-const MPFImageFlags = BS.Struct({
+const MPFImageFlags = S.Struct({
   value: S.Array(S.Number),
   description: S.String,
 });
 
-const MPFImageDescriptionTag = BS.Struct({
+const MPFImageDescriptionTag = S.Struct({
   value: S.Number,
   description: S.String,
 });
 
-const MPFImageTags = BS.Struct({
+const MPFImageTags = S.Struct({
   ImageFlags: MPFImageFlags,
   ImageFormat: MPFImageDescriptionTag,
   ImageType: MPFImageDescriptionTag,
@@ -380,7 +379,7 @@ const MPFImageTags = BS.Struct({
 });
 
 // Photoshop tags
-const PhotoshopTags = BS.Struct({
+const PhotoshopTags = S.Struct({
   PathInformation: S.optional(StringTag),
   ClippingPathName: S.optional(StringTag),
 }).annotations({
@@ -391,12 +390,12 @@ const PhotoshopTags = BS.Struct({
 });
 
 // Canon tags
-const CanonAutoRotateTag = BS.Struct({
+const CanonAutoRotateTag = S.Struct({
   value: S.Number,
   description: S.Literal("None", "Rotate 90 CW", "Rotate 180", "Rotate 270 CW", "Unknown"),
 });
 
-const CanonTags = BS.Struct({
+const CanonTags = S.Struct({
   AutoRotate: S.optional(CanonAutoRotateTag),
 }).annotations({
   schemaId: Symbol.for("@beep/files-domain/value-objects/exif-metadata/ExifTags/CanonTags"),
@@ -406,17 +405,17 @@ const CanonTags = BS.Struct({
 });
 
 // Pentax tags
-const PentaxVersionTag = BS.Struct({
+const PentaxVersionTag = S.Struct({
   value: S.Array(S.Number),
   description: S.String,
 });
 
-const PentaxModelIdTag = BS.Struct({
+const PentaxModelIdTag = S.Struct({
   value: S.Number,
   description: S.String,
 });
 
-const PentaxOrientationTag = BS.Struct({
+const PentaxOrientationTag = S.Struct({
   value: S.Number,
   description: S.Literal(
     "Horizontal (normal)",
@@ -429,12 +428,12 @@ const PentaxOrientationTag = BS.Struct({
   ),
 });
 
-const PentaxAngleTag = BS.Struct({
+const PentaxAngleTag = S.Struct({
   value: S.Number,
   description: S.String,
 });
 
-const PentaxTags = BS.Struct({
+const PentaxTags = S.Struct({
   PentaxVersion: S.optional(PentaxVersionTag),
   PentaxModelID: S.optional(PentaxModelIdTag),
   Orientation: S.optional(PentaxOrientationTag),
@@ -448,12 +447,12 @@ const PentaxTags = BS.Struct({
 });
 
 // Composite tags
-const CompositeValueTag = BS.Struct({
+const CompositeValueTag = S.Struct({
   value: S.Number,
   description: S.String,
 });
 
-const CompositeTags = BS.Struct({
+const CompositeTags = S.Struct({
   FocalLength35efl: S.optional(CompositeValueTag),
   ScaleFactorTo35mmEquivalent: S.optional(CompositeValueTag),
   FieldOfView: S.optional(CompositeValueTag),
@@ -465,7 +464,7 @@ const CompositeTags = BS.Struct({
 });
 
 // Thumbnail tags
-const ThumbnailTags = BS.Struct({
+const ThumbnailTags = S.Struct({
   type: S.Literal("image/jpeg"),
   image: S.Union(S.instanceOf(ArrayBuffer), S.instanceOf(SharedArrayBuffer), S.instanceOf(Buffer)),
   base64: S.optional(S.String),
@@ -500,7 +499,7 @@ const IccTags = S.Record({ key: S.String, value: ValueTag }).annotations({
 });
 
 // Main EXIF tags
-export const ExifTags = BS.Struct({
+export const ExifTags = S.Struct({
   // Interoperability tags
   interoperabilityIndex: S.optional(StringArrayTag).pipe(S.fromKey("InteroperabilityIndex")),
 
@@ -743,7 +742,7 @@ export const ExifTags = BS.Struct({
 });
 
 // Main expanded tags structure
-export const ExpandedTags = BS.Struct({
+export const ExpandedTags = S.Struct({
   file: S.optional(FileTags),
   jfif: S.optional(JfifTags),
   pngFile: S.optional(PngFileTags),
@@ -754,7 +753,7 @@ export const ExpandedTags = BS.Struct({
   xmp: S.optional(
     S.Union(
       BS.Json,
-      BS.Struct(
+      S.Struct(
         {
           _raw: S.String,
         },
@@ -770,7 +769,7 @@ export const ExpandedTags = BS.Struct({
   gps: S.optional(GpsTags),
   photoshop: S.optional(PhotoshopTags),
   makerNotes: S.optional(
-    BS.Struct({
+    S.Struct({
       ...CanonTags.fields,
       ...PentaxTags.fields,
     })
@@ -788,7 +787,7 @@ export declare namespace ExpandedTags {
   export type Encoded = S.Schema.Encoded<typeof ExpandedTags>;
 }
 // Combined tags type
-export const Tags = BS.Struct({
+export const Tags = S.Struct({
   ...XmpTags.fields,
   ...IccTags.fields,
   ...PngTags.fields,

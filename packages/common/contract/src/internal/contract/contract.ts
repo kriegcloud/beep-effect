@@ -354,7 +354,7 @@ export const make = <
     readonly payload: S.Struct<Payload>;
     readonly success: Success;
     readonly failure: Failure;
-    readonly failureMode: Mode extends undefined ? typeof FailureMode.Enum.error : Mode;
+    readonly failureMode: Mode extends undefined ? "error" : Mode;
   },
   Context.Tag.Identifier<Dependencies[number]>
 > => {

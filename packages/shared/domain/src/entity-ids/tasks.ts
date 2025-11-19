@@ -1,4 +1,4 @@
-import { EntityId } from "@beep/schema/EntityId";
+import { EntityId } from "@beep/schema/identity";
 
 export const TodoId = EntityId.make("todo", {
   brand: "TodoId",

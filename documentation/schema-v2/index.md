@@ -1,6 +1,6 @@
 ---
-title: "@beep/schema-v2"
+title: "@beep/schema"
 has_children: true
-permalink: /docs/schema-v2
+permalink: /docs/schema
 nav_order: 2
 ---

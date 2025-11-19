@@ -36,7 +36,8 @@
     "@effect/cluster": "catalog:"
   },
   "devDependencies": {
-    "@types/bun": "catalog:"
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
   },
   "effect": {
     "generateExports": {

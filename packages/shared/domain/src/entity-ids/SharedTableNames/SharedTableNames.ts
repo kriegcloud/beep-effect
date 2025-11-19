@@ -2,23 +2,19 @@ import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
 import { AuditLogId, FileId, OrganizationId, TeamId, UserId } from "../shared";
 
-export const SharedTableNameKit = BS.stringLiteralKit(
+export class SharedTableName extends BS.StringLiteralKit(
   FileId.tableName,
   TeamId.tableName,
   OrganizationId.tableName,
   UserId.tableName,
   AuditLogId.tableName
-);
-
-export class SharedTableName extends SharedTableNameKit.Schema.annotations({
+).annotations({
   schemaId: Symbol.for("@beep/shared/domain/EntityIds/iam/SharedTableName"),
   description: "The set of table_names for entityIds within the shared-kernel",
   identifier: "SharedTableName",
   title: "Shared Table Name",
 }) {
-  static readonly Tagged = SharedTableNameKit.toTagged("tableName");
-  static readonly Enum = SharedTableNameKit.Enum;
-  static readonly Options = SharedTableNameKit.Options;
+  static readonly Tagged = SharedTableName.toTagged("tableName");
 }
 
 export declare namespace SharedTableName {

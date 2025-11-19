@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import { stringLiteralKit } from "@beep/schema/kits/stringLiteralKit";
+import { StringLiteralKit } from "@beep/schema/derived";
 
 describe("stringLiteralKit with pick and omit", () => {
   it("maps literals to custom enum keys when enumMapping is provided", () => {
-    const Kit = stringLiteralKit("beep", "hole", {
+    const Kit = StringLiteralKit("beep", "hole", {
       enumMapping: [
         ["beep", "BEEP"],
         ["hole", "HOLE"],

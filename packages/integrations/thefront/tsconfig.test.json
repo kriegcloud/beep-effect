@@ -1,0 +1,33 @@
+{
+  "extends": "../../../tsconfig.base.jsonc",
+  "include": ["test"],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../common/types"
+    },
+    {
+      "path": "../../common/constants"
+    },
+    {
+      "path": "../../common/errors"
+    },
+    {
+      "path": "../../common/identity"
+    },
+    {
+      "path": "../../core/env"
+    },
+    {
+      "path": "../core"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node", "bun"],
+    "tsBuildInfoFile": "./build/tsconfig.test.tsbuildinfo",
+    "rootDir": "test",
+    "noEmit": true
+  }
+}

@@ -13,7 +13,7 @@ import { CountryCodeValue } from "./CountryCodeValue";
 import { CurrencyCodeValue } from "./CurrencyCodeValue";
 import { SupportedLangValue } from "./SupportedLangValue";
 
-export const AdapterLocaleKit = BS.stringLiteralKit(
+export class AdapterLocale extends BS.StringLiteralKit(
   "default",
   "pt-BR",
   "pt-PT",
@@ -40,12 +40,7 @@ export const AdapterLocaleKit = BS.stringLiteralKit(
   "fa-IR",
   "ru-RU",
   "mr-MR"
-);
-
-export class AdapterLocale extends AdapterLocaleKit.Schema {
-  static readonly Options = AdapterLocaleKit.Options;
-  static readonly Enum = AdapterLocaleKit.Enum;
-}
+) {}
 
 export class LangValueToAdapterLocale extends S.transformLiterals(
   ["en", "default"],

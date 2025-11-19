@@ -1,4 +1,4 @@
-import type { EntityId } from "@beep/schema/EntityId";
+import type { EntityId } from "@beep/schema/identity";
 import type { UnsafeTypes } from "@beep/types";
 import type * as M from "@effect/sql/Model";
 import * as SqlClient from "@effect/sql/SqlClient";

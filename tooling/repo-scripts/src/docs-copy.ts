@@ -45,10 +45,10 @@ const PACKAGE_TARGETS: Record<string, PackageTarget> = {
     slug: "utils",
     navOrder: 4,
   },
-  "schema-v2": {
-    workspacePath: "packages/common/schema-v2",
+  schema: {
+    workspacePath: "packages/common/schema",
     docsFolder: "docs/modules",
-    slug: "schema-v2",
+    slug: "schema",
     navOrder: 5,
   },
   // invariant: {
@@ -124,7 +124,7 @@ const getRequestedSlug = (): Effect.Effect<string, DomainError> =>
       return slug;
     }
     return yield* new DomainError({
-      message: "Docs target argument is required (e.g., `schema-v2`).",
+      message: "Docs target argument is required (e.g., `schema`).",
       cause: {},
     });
   });
