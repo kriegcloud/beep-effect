@@ -1,6 +1,7 @@
+import { useSendEmailVerification } from "@beep/iam-sdk";
 import { useChangeEmailForm } from "@beep/iam-sdk/clients/user";
 import { Iconify } from "@beep/ui/atoms";
-import { Stack, Typography } from "@mui/material";
+import { Alert, Button, Stack, Typography } from "@mui/material";
 import * as Redacted from "effect/Redacted";
 import { useState } from "react";
 import { useAccountSettings } from "@/features/account/account-settings-provider";
@@ -10,8 +11,15 @@ import { InfoCardAttribute } from "@/features/account/common/InfoCardAttribute";
 const Email = () => {
   const [open, setOpen] = useState(false);
   const { userInfo } = useAccountSettings();
-
+  const { sendEmailVerification } = useSendEmailVerification();
   const email = Redacted.value(userInfo.email);
+  const isEmailVerified = userInfo.emailVerified;
+
+  const handleResendVerification = () => {
+    void sendEmailVerification({
+      email,
+    });
+  };
 
   const { form } = useChangeEmailForm({
     userInfo,
@@ -50,9 +58,26 @@ const Email = () => {
         </form.FormDialog>
       </form.AppForm>
 
+      <Alert
+        severity={isEmailVerified ? "success" : "warning"}
+        variant="outlined"
+        sx={{ my: 2 }}
+        action={
+          isEmailVerified ? undefined : (
+            <Button color="inherit" size="small" onClick={handleResendVerification}>
+              Resend link
+            </Button>
+          )
+        }
+      >
+        {isEmailVerified
+          ? "Your primary email is verified. You're all set."
+          : "Verify your primary email to unlock the full account experience."}
+      </Alert>
+
       <Stack spacing={1} direction={"row"} sx={{ color: "info.main" }}>
-        <Iconify icon="material-symbols:info" sx={{ fontSize: 24 }} />
-        <Typography variant="body2">
+        <Iconify icon={"material-symbols:info"} sx={{ fontSize: 24 }} />
+        <Typography variant={"body2"}>
           Your alternate email will be used to gain access to your account if you ever have issues with logging in with
           your primary email.
         </Typography>

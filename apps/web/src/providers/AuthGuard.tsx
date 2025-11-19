@@ -29,8 +29,6 @@ const AuthGuardContent: React.FC<AuthGuardContentProps> = ({ children, router, .
     return <SplashScreen />;
   }
 
-  console.log(JSON.stringify(sessionResult, null, 2));
-
   return (
     <>
       {Result.builder(sessionResult)

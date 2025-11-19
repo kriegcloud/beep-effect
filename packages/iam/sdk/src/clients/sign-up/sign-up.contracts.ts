@@ -4,7 +4,6 @@ import { paths } from "@beep/shared-domain";
 import * as SharedEntities from "@beep/shared-domain/entities";
 import * as F from "effect/Function";
 import * as ParseResult from "effect/ParseResult";
-import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
@@ -14,15 +13,15 @@ import { IamError } from "../../errors";
 // Sign Up Email Contract
 // =====================================================================================================================
 const SignUpFrom = S.Struct({
-  email: BS.Email,
+  email: BS.EmailBase,
   rememberMe: BS.BoolWithDefault(false),
   redirectTo: BS.StringWithDefault(paths.dashboard.root),
   gender: SharedEntities.User.Model.insert.fields.gender,
-  password: BS.Password,
-  passwordConfirm: BS.Password,
+  password: BS.PasswordBase,
+  passwordConfirm: BS.PasswordBase,
   firstName: S.NonEmptyTrimmedString,
   lastName: S.NonEmptyTrimmedString,
-  captchaResponse: S.Redacted(S.String),
+  captchaResponse: S.String,
 });
 
 const SignUpTo = S.Struct({
@@ -30,12 +29,12 @@ const SignUpTo = S.Struct({
   rememberMe: BS.BoolWithDefault(false),
   callbackURL: BS.StringWithDefault(paths.dashboard.root),
   gender: SharedEntities.User.Model.insert.fields.gender,
-  password: S.encodedSchema(BS.Password),
-  passwordConfirm: S.encodedSchema(BS.Password),
+  password: BS.PasswordBase,
+  passwordConfirm: BS.PasswordBase,
   firstName: S.NonEmptyTrimmedString,
   lastName: S.NonEmptyTrimmedString,
   name: S.NonEmptyTrimmedString,
-  captchaResponse: S.Redacted(S.String),
+  captchaResponse: S.String,
 });
 
 export class SignUpValue extends S.transformOrFail(SignUpFrom, SignUpTo, {
@@ -48,12 +47,12 @@ export class SignUpValue extends S.transformOrFail(SignUpFrom, SignUpTo, {
           firstName: value.firstName,
           lastName: value.lastName,
           gender: value.gender,
-          email: Redacted.value(value.email),
-          password: Redacted.value(value.password),
-          passwordConfirm: Redacted.value(value.passwordConfirm),
+          email: value.email,
+          password: value.password,
+          passwordConfirm: value.passwordConfirm,
           redirectTo: value.redirectTo,
           rememberMe,
-          captchaResponse: Redacted.value(value.captchaResponse),
+          captchaResponse: value.captchaResponse,
           name,
         } as const;
       },

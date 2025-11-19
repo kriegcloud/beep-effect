@@ -1,16 +1,17 @@
 "use client";
 import { assetPaths } from "@beep/constants";
 import { AccountSettingsTabSearchParamValue } from "@beep/iam-domain";
+import { getSessionAtom } from "@beep/iam-sdk";
+import { client } from "@beep/iam-sdk/adapters/better-auth";
 import { useSignOut } from "@beep/iam-sdk/clients/sign-out";
 import { _contacts, _notifications } from "@beep/mock";
 import { makeRunClientPromise, urlSearchParamSSR, useRuntime } from "@beep/runtime-client";
-import { paths } from "@beep/shared-domain";
-import { useRouter } from "@beep/ui/hooks";
 import { DashboardLayout } from "@beep/ui/layouts";
 import type { Atom } from "@effect-atom/atom-react";
-import { useAtom } from "@effect-atom/atom-react";
+import { useAtom, useAtomRefresh } from "@effect-atom/atom-react";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import React from "react";
 import { AccountDialog } from "@/features/account/account-dialog";
 import { AuthGuard } from "@/providers/AuthGuard";
@@ -22,9 +23,25 @@ const settingsDialogAtom: Atom.Writable<O.Option<AccountSettingsTabSearchParamVa
   }
 );
 
+const sessionRefreshAtom: Atom.Writable<O.Option<"true">> = urlSearchParamSSR("refreshSession", {
+  schema: S.Literal("true"),
+});
+
 const useSettingsDialog = () => {
   const [currentTab, setCurrentTab] = useAtom(settingsDialogAtom);
+  const refreshSession = useAtomRefresh(getSessionAtom);
 
+  const { refetch } = client.useSession();
+
+  const [shouldRefreshSession, setShouldRefreshSession] = useAtom(sessionRefreshAtom);
+
+  React.useEffect(() => {
+    if (shouldRefreshSession) {
+      refetch();
+      refreshSession();
+      setShouldRefreshSession(O.none());
+    }
+  }, [shouldRefreshSession, setShouldRefreshSession, refreshSession]);
   const handleClose = () => setCurrentTab(O.none());
 
   const handleTab = (tabValue: AccountSettingsTabSearchParamValue.Type) => setCurrentTab(O.some(tabValue));
@@ -91,7 +108,6 @@ const switchOrg = async () => {
 };
 
 export function LayoutClient({ children }: Props) {
-  const router = useRouter();
   const runtime = useRuntime();
   const { signOut } = useSignOut();
   const runSwitchAccount = makeRunClientPromise(runtime, "iam.account.switchAccount");
@@ -103,14 +119,7 @@ export function LayoutClient({ children }: Props) {
       <AuthGuard
         switchAccount={() => runSwitchAccount(Effect.tryPromise(switchAccount))}
         switchOrganization={() => runSwitchOrg(Effect.tryPromise(switchOrg))}
-        signOut={async () => {
-          await signOut({
-            onSuccess: () => {
-              router.refresh();
-              void router.push(paths.auth.signIn);
-            },
-          });
-        }}
+        signOut={signOut}
         userOrgs={TEMP_MOCKED_DATA.userOrgs}
         userAccounts={TEMP_MOCKED_DATA.userAccounts}
         notifications={TEMP_MOCKED_DATA.notifications}

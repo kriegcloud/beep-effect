@@ -163,6 +163,10 @@ const Proto = {
   decodeUnknownPayload(this: Any, value: unknown, options?: undefined | AST.ParseOptions) {
     return Effect.catchAll(S.decodeUnknown(this.payloadSchema)(value, options), (e) => Effect.die(e));
   },
+
+  makePayload(this: Any, value: any) {
+    return this.payloadSchema.make(value);
+  },
   /**
    * Encodes an unknown payload by first validating it against the schema.
    */
@@ -363,7 +367,7 @@ export const make = <
   return userDefinedProto({
     name,
     description: options?.description,
-    payloadSchema: options?.payload ? S.Struct(options?.payload as UnsafeTypes.UnsafeAny) : _internal.constEmptyStruct,
+    payloadSchema: options?.payload ? S.Struct(options?.payload) : _internal.constEmptyStruct,
     successSchema,
     failureSchema,
     failureMode: options?.failureMode ?? FailureMode.Enum.error,
@@ -439,7 +443,8 @@ export const implement =
           contract: contract.name,
           failureMode: contract.failureMode,
         });
-        let effect = handler(payload, {
+        const encoded = yield* S.encode(contract.payloadSchema)(payload);
+        let effect = handler(encoded, {
           context,
           continuation,
         });
@@ -454,6 +459,7 @@ export const implement =
         return yield* effect;
       },
       Effect.tapError((e) => Effect.logError(e)),
+      Effect.catchTag("ParseError", (e) => Effect.die(e)),
       (effect, n) =>
         Effect.annotateLogs({
           contractName: contract.name,

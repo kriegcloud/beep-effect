@@ -131,19 +131,6 @@ export declare namespace RateLimitId {
   export type Encoded = S.Schema.Encoded<typeof RateLimitId>;
 }
 
-export declare namespace SessionId {
-  export type Type = S.Schema.Type<typeof SessionId>;
-  export type Encoded = S.Schema.Encoded<typeof SessionId>;
-}
-
-export const SessionId = EntityId.make("session", {
-  brand: "SessionId",
-  annotations: {
-    schemaId: Symbol.for("@beep/shared/domain/EntityIds/iam/SessionId"),
-    description: "A unique identifier for a session",
-  },
-});
-
 export declare namespace SsoProviderId {
   export type Type = S.Schema.Type<typeof SsoProviderId>;
   export type Encoded = S.Schema.Encoded<typeof SsoProviderId>;

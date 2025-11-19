@@ -7,15 +7,17 @@ import {
   VerifyPhoneContract,
 } from "@beep/iam-sdk/clients/verify/verify.contracts";
 import { IamError } from "@beep/iam-sdk/errors";
+import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 
 const SendEmailVerificationHandler = SendEmailVerificationContract.implement(
   Effect.fn(function* (payload, { continuation }) {
+    yield* Console.log("PAYLOAD", JSON.stringify(payload, null, 2));
     const result = yield* continuation.run((handlers) =>
       client.sendVerificationEmail({
-        email: Redacted.value(payload.email),
-        ...(payload.callbackURL === undefined ? {} : { callbackURL: payload.callbackURL }),
+        email: payload.email,
+        callbackURL: payload.callbackURL,
         fetchOptions: withFetchOptions(handlers),
       })
     );

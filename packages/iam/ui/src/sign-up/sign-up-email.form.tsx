@@ -9,7 +9,6 @@ import { PasswordFieldsGroup } from "@beep/ui/form/groups";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import * as Effect from "effect/Effect";
-import * as Redacted from "effect/Redacted";
 import type React from "react";
 import { toast } from "sonner";
 
@@ -59,7 +58,7 @@ export const SignUpEmailForm: React.FC<Props> = ({ executeRecaptcha }) => {
             return yield* Effect.fail(new Error("No Captcha Token."));
           }
 
-          return Redacted.make(token);
+          return token;
         });
 
         const token = await runClientPromise(program);

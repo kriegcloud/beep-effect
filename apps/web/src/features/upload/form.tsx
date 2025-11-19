@@ -44,12 +44,11 @@ export function OtherDemo() {
         return { successes, errors };
       });
 
-      const result = await runClientPromise(
+      await runClientPromise(
         runtime,
         program.pipe(withEnvLogging, Effect.provide(UploadFileService.Default)),
         "upload.form.submit"
       );
-      console.log(result);
     },
   });
 

@@ -13,7 +13,6 @@
  */
 import * as regexes from "@beep/schema/internal/regex/regexes";
 import type * as B from "effect/Brand";
-import * as F from "effect/Function";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import { Id } from "./_id";
@@ -157,7 +156,7 @@ export class Email extends S.Redacted(EmailBase).annotations(
   })
 ) {
   /** Creates a redacted email value. */
-  static readonly make = F.flow((value: string) => EmailBase.make(value), Redacted.make);
+  static readonly make = S.decodeSync(Email);
 
   /** Extracts the underlying branded string from a redacted email. */
   static readonly value = (email: Redacted.Redacted<B.Branded<string, "Email">>) => Redacted.value(email);

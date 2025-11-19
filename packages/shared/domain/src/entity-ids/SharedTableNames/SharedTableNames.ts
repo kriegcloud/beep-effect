@@ -1,12 +1,13 @@
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
-import { AuditLogId, FileId, OrganizationId, TeamId, UserId } from "../shared";
+import { AuditLogId, FileId, OrganizationId, SessionId, TeamId, UserId } from "../shared";
 
 export class SharedTableName extends BS.StringLiteralKit(
   FileId.tableName,
   TeamId.tableName,
   OrganizationId.tableName,
   UserId.tableName,
+  SessionId.tableName,
   AuditLogId.tableName
 ).annotations({
   schemaId: Symbol.for("@beep/shared/domain/EntityIds/iam/SharedTableName"),

@@ -1,4 +1,5 @@
 import { EntityId } from "@beep/schema/identity";
+import type * as S from "effect/Schema";
 //----------------------------------------------------------------------------------------------------------------------
 // Shared ENTITY IDS
 //----------------------------------------------------------------------------------------------------------------------
@@ -65,3 +66,16 @@ export declare namespace UserId {
   export type Type = typeof UserId.Type;
   export type Encoded = typeof UserId.Encoded;
 }
+
+export declare namespace SessionId {
+  export type Type = S.Schema.Type<typeof SessionId>;
+  export type Encoded = S.Schema.Encoded<typeof SessionId>;
+}
+
+export const SessionId = EntityId.make("session", {
+  brand: "SessionId",
+  annotations: {
+    schemaId: Symbol.for("@beep/shared/domain/EntityIds/iam/SessionId"),
+    description: "A unique identifier for a session",
+  },
+});

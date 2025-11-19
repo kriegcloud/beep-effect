@@ -16,7 +16,7 @@
 - Package scripts (`package.json`) — build, lint, type, and test orchestration wired to Bun/TS.
 
 ## Usage Snapshots
-- `packages/iam/tables/src/tables/session.table.ts:5` uses `Table.make(IamEntityIds.SessionId)` to define session storage with shared audit columns and org/team references.
+- `packages/iam/tables/src/tables/session.table.ts:5` uses `Table.make(SharedEntityIds.SessionId)` to define session storage with shared audit columns and org/team references.
 - `packages/iam/tables/src/tables/member.table.ts:8` calls `OrgTable.make(IamEntityIds.MemberId)` so memberships inherit `organizationId` cascade semantics.
 - `packages/iam/tables/src/relations.ts:1` imports `@beep/shared-tables/schema` to compose Drizzle relations against the shared `organization`, `team`, and `user` tables.
 - `packages/shared/tables/src/_check.ts:5` enforces Drizzle `organization` definitions stay in lock-step with `@beep/shared-domain/entities`.

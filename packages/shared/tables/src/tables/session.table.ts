@@ -1,9 +1,13 @@
-import type { SharedEntityIds } from "@beep/shared-domain";
-import { IamEntityIds } from "@beep/shared-domain";
-import { organization, Table, team, user } from "@beep/shared-tables";
+import { SharedEntityIds } from "@beep/shared-domain";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-export const session = Table.make(IamEntityIds.SessionId)(
+import { Table } from "../Table";
+// import { organization, Table, team, user } from "../index";
+import { organization } from "./organization.table";
+import { team } from "./team.table";
+import { user } from "./user.table";
+
+export const session = Table.make(SharedEntityIds.SessionId)(
   {
     expiresAt: pg.timestamp("expires_at").notNull(),
     token: pg.text("token").notNull().unique(),

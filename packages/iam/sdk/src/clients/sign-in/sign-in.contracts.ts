@@ -10,10 +10,10 @@ import { IamError } from "../../errors";
 // =====================================================================================================================
 export class SignInEmailPayload extends S.Class<SignInEmailPayload>("SignInEmailPayload")(
   {
-    email: User.Model.insert.fields.email,
-    password: BS.Password,
+    email: BS.EmailBase,
+    password: BS.PasswordBase,
     rememberMe: BS.BoolWithDefault(false),
-    captchaResponse: S.Redacted(S.String),
+    captchaResponse: S.String,
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/SignInEmailPayload"),
@@ -73,9 +73,9 @@ export const SignInSocialContract = Contract.make("SignInSocial", {
 export class SignInUsernamePayload extends S.Class<SignInUsernamePayload>("SignInUsernamePayload")(
   {
     username: S.NonEmptyTrimmedString,
-    password: BS.Password,
+    password: BS.PasswordBase,
     rememberMe: BS.BoolWithDefault(false),
-    captchaResponse: S.Redacted(S.String),
+    captchaResponse: S.String,
     callbackURL: S.optional(BS.URLString),
   },
   {
@@ -105,10 +105,10 @@ export const SignInUsernameContract = Contract.make("SignInUsername", {
 // =====================================================================================================================
 export class SignInPhoneNumberPayload extends S.Class<SignInPhoneNumberPayload>("SignInPhoneNumberPayload")(
   {
-    phoneNumber: BS.Phone,
-    password: BS.Password,
+    phoneNumber: BS.UnsafePhone,
+    password: BS.PasswordBase,
     rememberMe: BS.BoolWithDefault(false),
-    captchaResponse: S.Redacted(S.String),
+    captchaResponse: S.String,
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/SignInPhoneNumberPayload"),

@@ -137,6 +137,7 @@ export const sessionRelations = d.relations(session, ({ one }) => ({
   user: one(user, {
     fields: [session.userId],
     references: [user.id],
+    relationName: "sessions",
   }),
   activeOrganization: one(organization, {
     fields: [session.activeOrganizationId],
@@ -163,16 +164,22 @@ export const userRelations = d.relations(user, ({ many }) => ({
   }),
   ownedOrganizations: many(organization),
   teamMemberships: many(teamMember),
+  sessions: many(session, {
+    relationName: "sessions",
+  }),
   invitationsSent: many(member, {
     relationName: "invitedByUser",
   }),
-  wallets: many(walletAddress),
-  // Authentication-related relationships
-  accounts: many(account),
-  sessions: many(session, {
-    relationName: "userSessions",
+  wallets: many(walletAddress, {
+    relationName: "wallets",
   }),
-  passkeys: many(passkey),
+  // Authentication-related relationships
+  accounts: many(account, {
+    relationName: "accounts",
+  }),
+  passkeys: many(passkey, {
+    relationName: "passkeys",
+  }),
   oauthApplications: many(oauthApplication),
   impersonatedSessions: many(session, {
     relationName: "impersonatedSessions",
@@ -196,6 +203,7 @@ export const walletAddressRelations = d.relations(walletAddress, ({ one }) => ({
   user: one(user, {
     fields: [walletAddress.userId],
     references: [user.id],
+    relationName: "wallets",
   }),
 }));
 

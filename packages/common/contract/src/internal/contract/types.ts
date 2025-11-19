@@ -216,6 +216,10 @@ export interface Contract<
     PayloadContext<Contract<Name, Config, Requirements>>
   >;
 
+  makePayload(
+    value: PayloadEncoded<Contract<Name, Config, Requirements>>
+  ): Payload<Contract<Name, Config, Requirements>>;
+
   encodeUnknownPayload(
     value: unknown,
     options?: undefined | AST.ParseOptions

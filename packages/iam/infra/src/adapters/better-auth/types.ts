@@ -1,6 +1,6 @@
 import type { AuthProviderNameValue } from "@beep/constants";
 import type { IamDb } from "@beep/iam-infra/db/Db";
-import type { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import type { SharedEntityIds } from "@beep/shared-domain";
 import type { SqlError } from "@effect/sql/SqlError";
 import type { BetterAuthOptions, betterAuth } from "better-auth";
 import type { ConfigError } from "effect/ConfigError";
@@ -21,7 +21,7 @@ export type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "
     readonly encryptOAuthTokens: boolean;
   };
   readonly session: {
-    readonly modelName: typeof IamEntityIds.SessionId.tableName;
+    readonly modelName: typeof SharedEntityIds.SessionId.tableName;
     readonly additionalFields: CommonExtraFields & {
       readonly activeTeamId: {
         readonly type: "string";
@@ -33,11 +33,12 @@ export type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "
       };
     };
     readonly cookieCache: {
-      readonly enabled: true;
+      readonly enabled: false;
       readonly maxAge: number;
     };
     readonly expiresIn: number;
     readonly updateAge: number;
+    readonly freshAge: number;
   };
   plugins: Plugins;
   user: {

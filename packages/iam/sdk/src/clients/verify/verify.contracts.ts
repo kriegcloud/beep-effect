@@ -1,5 +1,7 @@
 import { Contract, ContractKit } from "@beep/contract";
+import { clientEnv } from "@beep/core-env/client";
 import { BS } from "@beep/schema";
+import { paths } from "@beep/shared-domain";
 import * as SharedEntities from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
@@ -37,8 +39,13 @@ export const VerifyPhoneContract = Contract.make("VerifyPhone", {
 
 export class SendEmailVerificationPayload extends S.Class<SendEmailVerificationPayload>("SendEmailVerificationPayload")(
   {
-    email: BS.Email,
-    callbackURL: S.optional(BS.URLString),
+    email: BS.EmailBase,
+    callbackURL: S.optional(S.UndefinedOr(BS.URLString)).pipe(
+      S.withDefaults({
+        decoding: () => BS.URLString.make(`${clientEnv.appUrl}${paths.dashboard.root}?refreshSession=true`),
+        constructor: () => BS.URLString.make(`${clientEnv.appUrl}${paths.dashboard.root}?refreshSession=true`),
+      })
+    ),
   },
   {
     schemaId: Symbol.for("@beep/iam-sdk/clients/SendEmailVerificationPayload"),

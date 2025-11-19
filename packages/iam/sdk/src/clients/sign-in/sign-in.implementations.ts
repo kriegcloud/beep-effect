@@ -12,7 +12,7 @@ import {
   SignInUsernameContract,
 } from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
 import * as Effect from "effect/Effect";
-import * as Redacted from "effect/Redacted";
+
 import { IamError } from "../../errors";
 
 // =====================================================================================================================
@@ -34,12 +34,12 @@ const SignInEmailHandler = SignInEmailContract.implement(
   Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.signIn.email({
-        email: Redacted.value(payload.email),
-        password: Redacted.value(payload.password),
+        email: payload.email,
+        password: payload.password,
         rememberMe: payload.rememberMe,
         fetchOptions: withFetchOptions(handlers, {
           headers: {
-            "x-captcha-response": Redacted.value(payload.captchaResponse),
+            "x-captcha-response": payload.captchaResponse,
           },
         }),
       })
@@ -63,12 +63,12 @@ const SignInUsernameHandler = SignInUsernameContract.implement(
       continuation.run((handlers) =>
         client.signIn.username({
           username: username,
-          password: Redacted.value(password),
+          password: password,
           rememberMe: rememberMe,
           callbackURL: callbackURL,
           fetchOptions: withFetchOptions(handlers, {
             headers: {
-              "x-captcha-response": Redacted.value(captchaResponse),
+              "x-captcha-response": captchaResponse,
             },
           }),
         })
@@ -91,12 +91,12 @@ const SignInPhoneNumberHandler = SignInPhoneNumberContract.implement(
     yield* Effect.flatMap(
       continuation.run((handlers) =>
         client.signIn.phoneNumber({
-          phoneNumber: Redacted.value(payload.phoneNumber),
-          password: Redacted.value(payload.password),
+          phoneNumber: payload.phoneNumber,
+          password: payload.password,
           rememberMe: payload.rememberMe,
           fetchOptions: withFetchOptions(handlers, {
             headers: {
-              "x-captcha-response": Redacted.value(payload.captchaResponse),
+              "x-captcha-response": payload.captchaResponse,
             },
           }),
         })

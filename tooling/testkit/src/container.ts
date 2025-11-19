@@ -9,6 +9,7 @@ import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { identity } from "effect";
+import * as ConfigProvider from "effect/ConfigProvider";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
@@ -41,7 +42,7 @@ const setupDocker = Effect.gen(function* () {
   const path = yield* Path.Path;
   const container = yield* Effect.tryPromise({
     try: () =>
-      new PostgreSqlContainer("ghcr.io/fboulnois/pg_uuidv7:1.6.0")
+      new PostgreSqlContainer("postgres:alpine")
         .withEnvironment({
           POSTGRES_USER: POSTGRES_USER,
           POSTGRES_PASSWORD: POSTGRES_PASSWORD,
@@ -203,12 +204,15 @@ const ApplySchemaDump = Layer.effectDiscard(
 const PgClientTest = Layer.unwrapEffect(
   Effect.gen(function* () {
     const { container } = yield* PgContainer;
+    const configProvider = ConfigProvider.fromJson({
+      DB_PG_URL: container.getConnectionUri(),
+    });
     return PgClient.layer({
       url: Redacted.make(container.getConnectionUri()),
       ssl: false,
       transformQueryNames: Str.camelToSnake,
       transformResultNames: Str.snakeToCamel,
-    });
+    }).pipe(Layer.provideMerge(Layer.setConfigProvider(configProvider)));
   })
 ).pipe(Layer.provide(PgContainer.Default), Layer.orDie);
 

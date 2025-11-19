@@ -2,7 +2,6 @@ import { client } from "@beep/iam-sdk/adapters";
 import { withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import { SignUpContractKit, SignUpEmailContract } from "@beep/iam-sdk/clients/sign-up/sign-up.contracts";
 import * as Effect from "effect/Effect";
-import * as Redacted from "effect/Redacted";
 
 const SignUpEmailHandler = SignUpEmailContract.implement(
   Effect.fn(function* (payload, { continuation }) {
@@ -17,7 +16,7 @@ const SignUpEmailHandler = SignUpEmailContract.implement(
         gender: rest.gender,
         fetchOptions: withFetchOptions(handlers, {
           headers: {
-            "x-captcha-response": Redacted.value(captchaResponse),
+            "x-captcha-response": captchaResponse,
           },
         }),
       })

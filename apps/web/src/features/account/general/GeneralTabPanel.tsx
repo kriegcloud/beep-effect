@@ -25,8 +25,8 @@ export const GeneralTabPanel = () => {
           })
         ),
       },
-      onSubmit: async (value) => {
-        console.log(value);
+      onSubmit: async (_) => {
+        // console.log(value);
       },
     })
   );

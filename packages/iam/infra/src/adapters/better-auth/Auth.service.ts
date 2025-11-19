@@ -4,7 +4,7 @@ import { IamConfig } from "@beep/iam-infra/config";
 import { IamDb } from "@beep/iam-infra/db/Db";
 import { IamDbSchema } from "@beep/iam-tables";
 import { BS } from "@beep/schema";
-import { IamEntityIds, paths, SharedEntityIds } from "@beep/shared-domain";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as Organization from "@beep/shared-domain/entities/Organization";
 import type { UnsafeTypes } from "@beep/types";
 import type { BetterAuthOptions } from "better-auth";
@@ -69,7 +69,7 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
       encryptOAuthTokens: true,
     },
     session: {
-      modelName: IamEntityIds.SessionId.tableName,
+      modelName: SharedEntityIds.SessionId.tableName,
       additionalFields: {
         ...commonExtraFields,
         activeTeamId: {
@@ -82,11 +82,12 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
         },
       },
       cookieCache: {
-        enabled: true,
+        enabled: false,
         maxAge: Duration.days(30).pipe(Duration.toSeconds),
       },
       expiresIn: Duration.days(30).pipe(Duration.toSeconds),
       updateAge: Duration.days(1).pipe(Duration.toSeconds),
+      freshAge: Duration.minutes(1).pipe(Duration.toSeconds),
     },
     emailVerification: {
       sendOnSignUp: true,
@@ -95,9 +96,7 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
           Effect.flatMap(
             S.decode(SendVerificationEmailPayload)({
               email: params.user.email,
-              url: BS.Url.make(
-                `${config.app.clientUrl}${paths.auth.verification.email.verify(params.token)}`
-              ).toString(),
+              url: params.url,
             }),
             sendVerification
           ).pipe(Effect.withSpan("AuthService.emailVerification.sendVerificationEmail"))

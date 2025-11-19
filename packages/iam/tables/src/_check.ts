@@ -11,7 +11,6 @@ import type {
   OrganizationRole,
   Passkey,
   RateLimit,
-  Session,
   SsoProvider,
   Subscription,
   TeamMember,
@@ -96,10 +95,6 @@ export const _rateLimitSelect: typeof RateLimit.Model.select.Encoded = {} as Inf
 export const _checkInsertRateLimit: typeof RateLimit.Model.insert.Encoded = {} as InferInsertModel<
   typeof tables.rateLimit
 >;
-
-export const _sessionSelect: typeof Session.Model.select.Encoded = {} as InferSelectModel<typeof tables.session>;
-
-export const _checkInsertSession: typeof Session.Model.insert.Encoded = {} as InferInsertModel<typeof tables.session>;
 
 export const _ssoProviderSelect: typeof SsoProvider.Model.select.Encoded = {} as InferSelectModel<
   typeof tables.ssoProvider

@@ -1,6 +1,6 @@
 import { BS } from "@beep/schema";
-import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
+import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
@@ -12,7 +12,7 @@ export const SessionModelSchemaId = Symbol.for("@beep/iam-domain/SessionModel");
  * Maps to the `session` table in the database.
  */
 export class Model extends M.Class<Model>(`SessionModel`)(
-  makeFields(IamEntityIds.SessionId, {
+  makeFields(SharedEntityIds.SessionId, {
     /** When this session expires */
     expiresAt: BS.DateTimeFromDate({
       description: "When this session expires",

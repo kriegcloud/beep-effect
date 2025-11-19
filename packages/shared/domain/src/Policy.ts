@@ -1,8 +1,10 @@
 import { BeepError } from "@beep/errors/shared";
+import type { Session, User } from "@beep/shared-domain/entities";
 import * as HttpApiMiddleware from "@effect/platform/HttpApiMiddleware";
 import type { NonEmptyReadonlyArray } from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import type * as S from "effect/Schema";
 import * as Schema from "effect/Schema";
 import * as internal from "./_internal/policy";
 import { PermissionAction, PolicyBuilder } from "./_internal/policy-builder";
@@ -47,7 +49,7 @@ const Permissions = internal.makePermissions({
   [IamEntityIds.OrganizationRoleId.tableName]: commonPermissions,
   [IamEntityIds.PasskeyId.tableName]: commonPermissions,
   [IamEntityIds.RateLimitId.tableName]: commonPermissions,
-  [IamEntityIds.SessionId.tableName]: commonPermissions,
+  [SharedEntityIds.SessionId.tableName]: commonPermissions,
   [IamEntityIds.SsoProviderId.tableName]: commonPermissions,
   [IamEntityIds.SubscriptionId.tableName]: commonPermissions,
   [IamEntityIds.TeamMemberId.tableName]: commonPermissions,
@@ -66,18 +68,25 @@ export type Permission = typeof Permission.Type;
 // Authentication Middleware
 // ==========================================
 
+export class AuthContext extends Context.Tag("AuthContext")<
+  AuthContext,
+  {
+    readonly user: typeof User.Model.select.Type;
+    readonly session: typeof Session.Model.select.Type;
+  }
+>() {}
+
 export class CurrentUser extends Context.Tag("CurrentUser")<
   CurrentUser,
   {
-    readonly sessionId: IamEntityIds.SessionId.Type;
-    readonly userId: SharedEntityIds.UserId.Type;
+    readonly user: S.Schema.Type<typeof User.Model>;
     readonly permissions: Set<Permission>;
   }
 >() {}
 
 export class UserAuthMiddleware extends HttpApiMiddleware.Tag<UserAuthMiddleware>()("UserAuthMiddleware", {
   failure: BeepError.Unauthorized,
-  provides: CurrentUser,
+  provides: AuthContext,
 }) {}
 
 // ==========================================

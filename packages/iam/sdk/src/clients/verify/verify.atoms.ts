@@ -1,9 +1,13 @@
 "use client";
+import type { Contract } from "@beep/contract";
 import { makeAtomRuntime } from "@beep/runtime-client/services/runtime/make-atom-runtime";
 import { withToast } from "@beep/ui/common";
-import { useAtom } from "@effect-atom/atom-react";
+import { useAtomSet } from "@effect-atom/atom-react";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
+
+import { SendEmailVerificationContract } from "./verify.contracts";
 import { VerifyService } from "./verify.service";
 
 const verifyRuntime = makeAtomRuntime(VerifyService.Live);
@@ -22,10 +26,9 @@ const verifyPhoneAtom = verifyRuntime.fn(
   )
 );
 export const useVerifyPhone = () => {
-  const [verifyPhoneResult, verifyPhone] = useAtom(verifyPhoneAtom);
+  const verifyPhone = useAtomSet(verifyPhoneAtom);
 
   return {
-    verifyPhoneResult,
     verifyPhone,
   };
 };
@@ -44,11 +47,14 @@ export const sendEmailVerificationAtom = verifyRuntime.fn(
   )
 );
 export const useSendEmailVerification = () => {
-  const [sendEmailVerificationResult, sendEmailVerification] = useAtom(sendEmailVerificationAtom);
+  const sendEmailVerification = useAtomSet(sendEmailVerificationAtom);
+
+  const handleSendEmailVerification = (payload: Contract.PayloadEncoded<typeof SendEmailVerificationContract>) => {
+    sendEmailVerification(S.decodeUnknownSync(SendEmailVerificationContract.payloadSchema)(payload));
+  };
 
   return {
-    sendEmailVerificationResult,
-    sendEmailVerification,
+    sendEmailVerification: handleSendEmailVerification,
   };
 };
 
@@ -66,10 +72,9 @@ export const verifyEmailAtom = verifyRuntime.fn(
   )
 );
 export const useVerifyEmail = () => {
-  const [verifyEmailResult, verifyEmail] = useAtom(verifyEmailAtom);
+  const verifyEmail = useAtomSet(verifyEmailAtom);
 
   return {
-    verifyEmailResult,
     verifyEmail,
   };
 };

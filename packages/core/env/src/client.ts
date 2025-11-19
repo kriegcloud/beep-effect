@@ -39,6 +39,7 @@ export const clientEnv = F.pipe(
   {
     env: process.env.NEXT_PUBLIC_ENV,
     appName: process.env.NEXT_PUBLIC_APP_NAME,
+
     appDomain: process.env.NEXT_PUBLIC_APP_DOMAIN,
     authProviderNames: process.env.NEXT_PUBLIC_AUTH_PROVIDER_NAMES,
     appUrl: process.env.NEXT_PUBLIC_APP_URL,

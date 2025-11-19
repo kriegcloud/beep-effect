@@ -1,7 +1,6 @@
 import { BS } from "@beep/schema";
 import { makeFields } from "@beep/shared-domain/common";
 import { AnyEntityId } from "@beep/shared-domain/entity-ids/any-entity-id";
-import * as IamEntityIds from "@beep/shared-domain/entity-ids/iam";
 import * as SharedEntityIds from "@beep/shared-domain/entity-ids/shared";
 import { AnyTableName } from "@beep/shared-domain/entity-ids/table-names";
 import { modelKit } from "@beep/shared-domain/factories";
@@ -14,7 +13,7 @@ export class Model extends M.Class<Model>(`AuditLogModel`)(
     entityKind: AnyTableName,
     entityId: AnyEntityId,
     action: S.String,
-    userSessionId: M.FieldOption(IamEntityIds.SessionId),
+    userSessionId: M.FieldOption(SharedEntityIds.SessionId),
     userId: SharedEntityIds.UserId,
     userEmail: M.Sensitive(
       BS.Email.annotations({

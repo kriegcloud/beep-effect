@@ -1,6 +1,6 @@
 import * as S from "effect/Schema";
 import * as IamEntityIds from "./iam";
-import { OrganizationId, TeamId, UserId } from "./shared";
+import { OrganizationId, SessionId, TeamId, UserId } from "./shared";
 import * as TaskEntityIds from "./tasks";
 
 export class AnyEntityId extends S.Union(
@@ -12,7 +12,6 @@ export class AnyEntityId extends S.Union(
   IamEntityIds.OAuthAccessTokenId,
   IamEntityIds.OAuthConsentId,
   IamEntityIds.PasskeyId,
-  IamEntityIds.SessionId,
   IamEntityIds.SsoProviderId,
   IamEntityIds.SubscriptionId,
   IamEntityIds.SubscriptionId,
@@ -25,6 +24,7 @@ export class AnyEntityId extends S.Union(
   OrganizationId,
   TeamId,
   UserId,
+  SessionId,
   TaskEntityIds.TodoId
 ).annotations({
   schemaId: Symbol.for("@beep/shared/domain/EntityIds/AnyEntityId"),

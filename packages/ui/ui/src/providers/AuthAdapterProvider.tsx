@@ -55,7 +55,7 @@ type Workspace = {
 };
 
 type AuthAdapterProviderCtx = {
-  readonly signOut: () => Promise<void>;
+  readonly signOut: () => void;
   readonly switchAccount: () => Promise<void>;
   readonly switchOrganization: () => Promise<void>;
   readonly userOrgs: ReadonlyArray<Org>;
