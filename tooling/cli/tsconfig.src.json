@@ -6,10 +6,10 @@
       "path": "../utils"
     },
     {
-      "path": "../../packages/common/types"
+      "path": "../../packages/common/identity"
     },
     {
-      "path": "../../packages/common/constants"
+      "path": "../../packages/common/types"
     },
     {
       "path": "../../packages/common/utils"

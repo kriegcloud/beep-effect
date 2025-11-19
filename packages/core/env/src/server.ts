@@ -187,6 +187,11 @@ export const ServerConfig = Config.all({
       ),
     })
   ),
+  alchemy: Config.nested("ALCHEMY")(
+    Config.all({
+      password: Config.redacted("PASSWORD"),
+    })
+  ),
   marketing: Config.nested("MARKETING")(
     Config.all({
       dub: Config.nested("DUB")(

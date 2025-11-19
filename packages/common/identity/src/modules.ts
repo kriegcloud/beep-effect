@@ -440,3 +440,16 @@ export const TheFrontId: IdentityComposer<"@beep/thefront"> = BeepId.module("the
  * @since 0.1.0
  */
 export const AICoreId: IdentityComposer<"@beep/thefront"> = BeepId.module("thefront");
+
+/**
+ * Identity composer for the `@beep/thefront` runtime entrypoint.
+ *
+ * @example
+ * import * as Identity from "@beep/identity";
+ *
+ * const AICoreId = Identity.AICoreId.make("bootstrap");
+ *
+ * @category Identity/Modules
+ * @since 0.1.0
+ */
+export const ToolingUtilsId: IdentityComposer<"@beep/tooling-utils"> = BeepId.module("tooling-utils");

@@ -16,6 +16,7 @@
     }
   },
   "scripts": {
+    "init:env": "bun run tooling/cli/src/index.ts env",
     "purge": "bun run --cwd tooling/repo-scripts purge --",
     "build": "bunx turbo run build",
     "build:turbo": "bun run dotenvx -- bunx turbo run build:turbo",
@@ -79,7 +80,8 @@
     "syncpack": "^14.0.0-alpha.27",
     "tsx": "^4.20.6",
     "turbo": "^2.6.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "alchemy": "^0.77.5"
   },
   "lint-staged": {
     "*": [
@@ -226,7 +228,7 @@
     "motion": "^12.23.24",
     "mui-one-time-password-input": "^5.0.0",
     "mutative": "^1.3.0",
-    "next": "^16.0.2-canary.24",
+    "next": "^16.0.2-canary.25",
     "nprogress": "^0.2.0",
     "nuqs": "^2.8.0",
     "picocolors": "^1.1.1",
@@ -239,9 +241,9 @@
     "react-dom": "^19.2.0",
     "react-dropzone": "^14.3.8",
     "react-google-recaptcha-v3": "^1.11.0",
-    "react-i18next": "^16.3.4",
+    "react-i18next": "^16.3.5",
     "react-phone-number-input": "^3.4.14",
-    "resend": "^6.5.1",
+    "resend": "^6.5.2",
     "sonner": "^2.0.7",
     "stripe": "^20.0.0",
     "stylis": "^4.3.6",
@@ -326,10 +328,10 @@
     "@vite-pwa/assets-generator": "^1.0.2",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.1.17",
-    "@tanstack/router-devtools": "^1.136.14",
-    "@tanstack/router-plugin": "^1.136.14",
+    "@tanstack/router-devtools": "^1.136.17",
+    "@tanstack/router-plugin": "^1.136.17",
     "react-router-dom": "^7.9.6",
-    "@tanstack/react-router": "^1.136.14",
+    "@tanstack/react-router": "^1.136.17",
     "@tanstack/react-virtual": "^3.13.12",
     "@hookform/resolvers": "^5.2.2",
     "react-hook-form": "^7.66.1",
@@ -342,9 +344,14 @@
     "@number-flow/react": "^0.5.10",
     "@phosphor-icons/react": "^2.1.10",
     "fast-check": "^4.3.0",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "alchemy": "^0.77.5"
   },
   "dependenciesCatalog": [
+    {
+      "name": "alchemy",
+      "version": "^0.77.5"
+    },
     {
       "name": "pg",
       "version": "^8.16.3"

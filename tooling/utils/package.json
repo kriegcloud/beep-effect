@@ -26,18 +26,29 @@
     "lint:fix": "biome check . --write",
     "lint:circular": "bunx madge -c .",
     "test": "bun test",
+    "execute": "bun run src/execute.ts",
     "coverage": "bun test --coverage"
   },
-  "peerDependencies": {
+  "dependencies": {
     "@effect/platform": "catalog:",
     "@effect/platform-bun": "catalog:",
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/invariant": "workspace:^",
     "effect": "catalog:",
     "glob": "^11.0.3",
     "@effect/cluster": "catalog:"
   },
   "devDependencies": {
+    "@beep/types": "workspace:^",
     "@types/bun": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@effect/platform": "catalog:",
+    "@effect/platform-bun": "catalog:",
+    "effect": "catalog:",
+    "glob": "^11.0.3",
+    "@effect/cluster": "catalog:"
   },
   "effect": {
     "generateExports": {

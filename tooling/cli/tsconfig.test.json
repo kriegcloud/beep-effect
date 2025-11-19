@@ -6,10 +6,10 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../../packages/common/types"
+      "path": "../../packages/common/identity"
     },
     {
-      "path": "../../packages/common/constants"
+      "path": "../../packages/common/types"
     },
     {
       "path": "../../packages/common/utils"
@@ -19,6 +19,9 @@
     },
     {
       "path": "../../packages/common/schema"
+    },
+    {
+      "path": "../utils"
     }
   ],
   "compilerOptions": {

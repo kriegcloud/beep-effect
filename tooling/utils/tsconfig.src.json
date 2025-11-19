@@ -2,7 +2,23 @@
   "extends": "../../tsconfig.base.jsonc",
   "include": ["src"],
   "exclude": [],
-  "references": [],
+  "references": [
+    {
+      "path": "../../packages/common/identity"
+    },
+    {
+      "path": "../../packages/common/types"
+    },
+    {
+      "path": "../../packages/common/utils"
+    },
+    {
+      "path": "../../packages/common/invariant"
+    },
+    {
+      "path": "../../packages/common/schema"
+    }
+  ],
   "compilerOptions": {
     "types": ["node", "bun"],
     "outDir": "build/src",

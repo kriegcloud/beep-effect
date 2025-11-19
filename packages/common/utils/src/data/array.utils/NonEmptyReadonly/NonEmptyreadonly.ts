@@ -15,6 +15,8 @@
  * @category Documentation/Modules
  * @since 0.1.0
  */
+
+import { invariant } from "@beep/invariant";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
@@ -92,3 +94,44 @@ export const mapWith: MapWith = F.dual<
     return [mappedHead, ...mappedTail] as const;
   }
 );
+
+/**
+ * @category filtering
+ * @since 2.0.0
+ */
+export const filter: {
+  /**
+   * @category filtering
+   * @since 2.0.0
+   */
+  <A, B extends A>(refinement: (a: NoInfer<A>, i: number) => a is B): (self: Iterable<A>) => A.NonEmptyReadonlyArray<B>;
+  /**
+   * @category filtering
+   * @since 2.0.0
+   */
+  <A>(predicate: (a: NoInfer<A>, i: number) => boolean): (self: Iterable<A>) => A.NonEmptyReadonlyArray<A>;
+  /**
+   * @category filtering
+   * @since 2.0.0
+   */
+  <A, B extends A>(self: Iterable<A>, refinement: (a: A, i: number) => a is B): A.NonEmptyReadonlyArray<B>;
+  /**
+   * @category filtering
+   * @since 2.0.0
+   */
+  <A>(self: Iterable<A>, predicate: (a: A, i: number) => boolean): A.NonEmptyReadonlyArray<A>;
+} = F.dual(2, <A>(self: Iterable<A>, predicate: (a: A, i: number) => boolean): A.NonEmptyReadonlyArray<A> => {
+  const as = A.fromIterable(self);
+  const out: Array<A> = [];
+  for (let i = 0; i < as.length; i++) {
+    if (predicate(as[i]!, i)) {
+      out.push(as[i]!);
+    }
+  }
+  invariant(A.isNonEmptyArray(out), "filtered array must be non-empty", {
+    file: "@beep/utils/data/array.utils/NonEmptyReadonly/NonEmptyreadonly.ts",
+    line: 134,
+    args: [out],
+  });
+  return out;
+});

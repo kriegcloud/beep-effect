@@ -17,7 +17,7 @@ scratchpad/*
 .env.keys
 # Client
 stats.html
-
+.env.tmp
 .aider*
 
 # Turborepo

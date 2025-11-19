@@ -9,11 +9,7 @@
     "declaration": true,
     "sourceMap": true
   },
-  "references": [
-    {
-      "path": "../utils/tsconfig.build.json"
-    }
-  ],
+  "references": [],
   "include": ["src/**/*.ts"],
   "exclude": []
 }

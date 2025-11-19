@@ -14,7 +14,7 @@
     "dev": "NODE_OPTIONS='--inspect=9231' bun run dotenvx -- next dev --turbopack",
     "dev:https": "bun run dotenvx -- bunx next dev --turbopack --experimental-https",
     "start": "bun run dotenvx -- next start",
-    "build": "next build --turbopack",
+    "build": "dotenvx next build --turbopack",
     "build:turbo": "next build --turbopack",
     "lint": "biome check .",
     "test": "bun test",

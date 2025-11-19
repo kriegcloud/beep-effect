@@ -4,9 +4,6 @@
   "references": [
     {
       "path": "tsconfig.src.json"
-    },
-    {
-      "path": ["../utils"]
     }
   ],
   "compilerOptions": {

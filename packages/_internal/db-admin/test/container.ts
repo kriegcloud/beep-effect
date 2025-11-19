@@ -1,5 +1,4 @@
-import { FsUtilsLive } from "@beep/tooling-utils/FsUtils";
-import { DomainError, NoSuchFileError, resolveWorkspaceDirs } from "@beep/tooling-utils/repo";
+import { fileURLToPath } from "node:url";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as BunContext from "@effect/platform-bun/BunContext";
@@ -12,22 +11,45 @@ import { identity } from "effect";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
-import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
+import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import postgres from "postgres";
 import { Wait } from "testcontainers";
-
 export class PgContainerError extends Data.TaggedError("PgContainerError")<{
   readonly message: string;
   readonly cause: unknown;
 }> {}
 
-export class PgContainerUnsupported extends Data.TaggedError("PgContainerUnsupported")<{
-  readonly message: string;
-  readonly cause?: unknown | undefined;
-}> {}
+export class DomainError extends S.TaggedError<DomainError>("DomainError")("DomainError", {
+  message: S.String,
+  cause: S.Defect,
+}) {
+  static readonly is = S.is(DomainError);
+
+  static readonly selfOrMap = (e: unknown) => {
+    if (DomainError.is(e)) {
+      return e;
+    }
+
+    if (e instanceof Error) {
+      return new DomainError({
+        message: e.message,
+        cause: e,
+      });
+    }
+
+    return new DomainError({
+      cause: e,
+      message:
+        P.or(P.isObject, P.isRecord)(e) && P.hasProperty("message")(e) && P.isString(e.message) ? e.message : String(e),
+    });
+  };
+
+  static readonly mapError = Effect.mapError(DomainError.selfOrMap);
+}
 
 const POSTGRES_USER = "test";
 const POSTGRES_PASSWORD = "test";
@@ -40,6 +62,11 @@ const setupDocker = Effect.gen(function* () {
   // https://github.com/fboulnois/pg_uuidv7
 
   const path = yield* Path.Path;
+
+  const currentPath = fileURLToPath(import.meta.url);
+
+  const migrationPath = path.join(currentPath, "../drizzle");
+
   const container = yield* Effect.tryPromise({
     try: () =>
       new PostgreSqlContainer("postgres:alpine")
@@ -73,9 +100,6 @@ const setupDocker = Effect.gen(function* () {
       }),
   });
 
-  const workspaceMap = yield* resolveWorkspaceDirs;
-  const adminPath = yield* HashMap.get("@beep/db-admin")(workspaceMap);
-  const migrationPath = path.join(adminPath, "drizzle");
   yield* Effect.logInfo(`Migration path: ${migrationPath}`);
 
   yield* Effect.tryPromise({
@@ -99,7 +123,7 @@ const setupDocker = Effect.gen(function* () {
   yield* Effect.logInfo(`Database is ready.`);
 
   return { container, db, confirmDatabaseReady, client };
-}).pipe(Effect.provide([BunContext.layer, FsUtilsLive]));
+}).pipe(Effect.provide([BunContext.layer]));
 
 export class PgContainer extends Effect.Service<PgContainer>()("PgContainer", {
   scoped: Effect.acquireRelease(setupDocker, ({ container }) => Effect.promise(() => container.stop())),
@@ -163,19 +187,17 @@ const ApplySchemaDump = Layer.effectDiscard(
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
-    const workspaceMap = yield* resolveWorkspaceDirs;
+
     const { container } = yield* PgContainer;
 
-    const adminPath = yield* HashMap.get("@beep/db-admin")(workspaceMap);
-
-    const migrationsFolder = path.join(adminPath, "drizzle");
+    const migrationsFolder = path.join(fileURLToPath(import.meta.url), "../drizzle");
     yield* Effect.logInfo(`Migration path: ${migrationsFolder}`);
     if (!(yield* fs.exists(migrationsFolder))) {
       yield* new DomainError({
         message: "Migrations directory not found",
-        cause: new NoSuchFileError({
+        cause: {
           path: migrationsFolder,
-        }),
+        },
       });
     }
     const client = postgres(container.getConnectionUri());
@@ -199,7 +221,7 @@ const ApplySchemaDump = Layer.effectDiscard(
         }),
     });
   })
-).pipe(Layer.provide([BunContext.layer, FsUtilsLive, PgContainer.Default]), Layer.orDie);
+).pipe(Layer.provide([BunContext.layer, PgContainer.Default]), Layer.orDie);
 
 const PgClientTest = Layer.unwrapEffect(
   Effect.gen(function* () {

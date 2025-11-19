@@ -36,7 +36,6 @@
     "@effect/sql-pg": "catalog:",
     "@effect/sql-drizzle": "catalog:",
     "@testcontainers/postgresql": "catalog:",
-    "@beep/tooling-utils": "workspace:*",
     "drizzle-orm": "catalog:",
     "postgres": "catalog:"
   },
@@ -50,7 +49,6 @@
     "@effect/sql": "catalog:",
     "@effect/sql-pg": "catalog:",
     "@effect/sql-drizzle": "catalog:",
-    "@beep/tooling-utils": "workspace:*",
     "drizzle-orm": "catalog:",
     "postgres": "catalog:",
     "pg": "catalog:"

@@ -16,7 +16,7 @@ import type { TaggedUnion } from "@beep/schema/core/generics/tagged-union";
 import { TaggedUnion as TaggedUnionFactory } from "@beep/schema/core/generics/tagged-union";
 import { Id } from "@beep/schema/derived/kits/_id";
 import type { StringTypes, UnsafeTypes } from "@beep/types";
-import { enumFromStringArray } from "@beep/utils";
+import { ArrayUtils, enumFromStringArray } from "@beep/utils";
 import type { CreateEnumType, ValidMapping } from "@beep/utils/data/tuple.utils";
 import { makeMappedEnum } from "@beep/utils/data/tuple.utils";
 import * as A from "effect/Array";
@@ -25,7 +25,6 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
-
 import type * as Types from "effect/Types";
 
 type LiteralsType = A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>;
@@ -69,24 +68,25 @@ type TaggedMembersResult<Literals extends LiteralsType, D extends StringTypes.No
   readonly Members: TaggedMembersMap<Literals, D>;
 };
 
+type PickOptions<Literals extends LiteralsType> = <const Keys extends LiteralsSubset<Literals>>(
+  ...keys: Keys
+) => LiteralsSubset<Keys>;
+
+type OmitOptions<Literals extends LiteralsType> = <const Keys extends LiteralsSubset<Literals>>(
+  ...keys: Keys
+) => A.NonEmptyReadonlyArray<Exclude<Literals[number], Keys[number]>>;
+
 type DerivedLiteralKit<Literals extends LiteralsType> = {
   readonly Options: Literals;
   readonly Enum: CreateEnumType<Literals, undefined>;
+  readonly omitOptions: OmitOptions<Literals>;
+  readonly pickOptions: PickOptions<Literals>;
   readonly toTagged: <D extends StringTypes.NonEmptyString>(
     discriminator: StringTypes.NonEmptyString<D>
   ) => TaggedMembersResult<Literals, D>;
 };
 
 type DerivedLiteralKitSchema<Literals extends LiteralsType> = DerivedLiteralKit<Literals> & S.Literal<[...Literals]>;
-
-type LiteralKitShape<Literals extends LiteralsType, EnumType> = S.Literal<[...Literals]> & {
-  readonly Options: Literals;
-  readonly Enum: EnumType;
-  readonly derive: <Keys extends LiteralsSubset<Literals>>(...keys: Keys) => DerivedLiteralKit<Keys>;
-  readonly toTagged: <D extends StringTypes.NonEmptyString>(
-    discriminator: StringTypes.NonEmptyString<D>
-  ) => TaggedMembersResult<Literals, D>;
-};
 
 type LiteralKitEnum<
   Literals extends LiteralsType,
@@ -106,15 +106,12 @@ type LiteralKitEnum<
  * @since 0.1.0
  * @category Derived/Kits
  */
-export type LiteralKit<
-  Literals extends LiteralsType,
-  Mapping extends MappingType<Literals> | undefined,
-> = LiteralKitShape<Literals, LiteralKitEnum<Literals, Mapping>>;
-
 export interface ILiteralKit<Literals extends LiteralsType, Mapping extends MappingType<Literals> | undefined>
   extends S.AnnotableClass<ILiteralKit<Literals, Mapping>, Literals[number]> {
   readonly Options: Literals;
   readonly Enum: LiteralKitEnum<Literals, Mapping>;
+  readonly omitOptions: OmitOptions<Literals>;
+  readonly pickOptions: PickOptions<Literals>;
   readonly derive: <Keys extends LiteralsSubset<Literals>>(...keys: Keys) => DerivedLiteralKit<Keys>;
   readonly toTagged: <D extends StringTypes.NonEmptyString>(
     discriminator: StringTypes.NonEmptyString<D>
@@ -277,11 +274,11 @@ export function makeLiteralKit<
     const memberTuple = F.pipe(
       literals,
       A.map((lit) => makeTaggedStruct(discriminator, lit))
-    ) as unknown as TaggedMembers<Literals, D>;
+    ) as TaggedMembers<Literals, D>;
 
     // The union schema constructed from the tuple of members
     const Union = S.Union(
-      ...(memberTuple as unknown as [
+      ...(memberTuple as [
         S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>,
         ...S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>[],
       ])
@@ -295,10 +292,28 @@ export function makeLiteralKit<
 
   const enumFactory = makeMappedEnum(...literals);
   type EnumType = CreateEnumType<Literals, ValidMapping<Literals, Mapping> | undefined>;
-  const mappingOpt = O.fromNullable(enumMapping);
-  const Enum: EnumType = O.isSome(mappingOpt)
-    ? enumFactory(...(mappingOpt.value as ValidMapping<Literals, Mapping>)).Enum
-    : enumFromStringArray(...literals);
+  const Enum: EnumType = F.pipe(
+    enumMapping,
+    O.fromNullable,
+    O.match({
+      onNone: () => enumFromStringArray(...literals),
+      onSome: (mapping) => enumFactory(...(mapping as ValidMapping<Literals, Mapping>)).Enum,
+    })
+  );
+
+  const pickOptions = <Keys extends LiteralsSubset<Literals>>(...keys: Keys): A.NonEmptyReadonlyArray<Keys[number]> =>
+    F.pipe(
+      literals,
+      ArrayUtils.NonEmptyReadonly.filter((lit) => A.contains(keys, lit))
+    );
+
+  const omitOptions = <Keys extends LiteralsSubset<Literals>>(
+    ...keys: Keys
+  ): A.NonEmptyReadonlyArray<Exclude<Literals[number], Keys[number]>> =>
+    F.pipe(
+      literals,
+      ArrayUtils.NonEmptyReadonly.filter((lit) => !A.contains(keys, lit))
+    ) as unknown as A.NonEmptyReadonlyArray<Exclude<Literals[number], Keys[number]>>;
 
   return class WithStatics extends S.make<Literals[number]>(ast) {
     static override annotations(annotations: S.Annotations.Schema<Literals[number]>): ILiteralKit<Literals, Mapping> {
@@ -306,6 +321,9 @@ export function makeLiteralKit<
         ? makeLiteralKit(this.Options, enumMapping, mergeSchemaAnnotations(this.ast, annotations))
         : makeLiteralKit(this.Options, undefined, mergeSchemaAnnotations(this.ast, annotations));
     }
+
+    static omitOptions = omitOptions;
+    static pickOptions = pickOptions;
     static Options = literals;
     static Enum = Enum;
     static derive = <Keys extends A.NonEmptyReadonlyArray<Literals[number]>>(
@@ -324,10 +342,10 @@ export function makeLiteralKit<
         const memberTuple = F.pipe(
           keys,
           A.map((lit) => makeTaggedStruct(discriminator, lit))
-        ) as unknown as TaggedMembers<Keys, D>;
+        ) as TaggedMembers<Keys, D>;
 
         const Union = S.Union(
-          ...(memberTuple as unknown as [
+          ...(memberTuple as [
             S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>,
             ...S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>[],
           ])
@@ -339,10 +357,28 @@ export function makeLiteralKit<
         };
       };
 
+      const pickOptions = <KeysDerived extends LiteralsSubset<Keys>>(
+        ...keysDerived: KeysDerived
+      ): A.NonEmptyReadonlyArray<KeysDerived[number]> =>
+        F.pipe(
+          keys,
+          ArrayUtils.NonEmptyReadonly.filter((lit) => A.contains(keysDerived, lit))
+        );
+
+      const omitOptions = <KeysDerived extends LiteralsSubset<Keys>>(
+        ...keysDerived: KeysDerived
+      ): A.NonEmptyReadonlyArray<Exclude<Keys[number], KeysDerived[number]>> =>
+        F.pipe(
+          keys,
+          ArrayUtils.NonEmptyReadonly.filter((lit) => !A.contains(keysDerived, lit))
+        ) as unknown as A.NonEmptyReadonlyArray<Exclude<Keys[number], KeysDerived[number]>>;
+
       class WithStaticsDerived extends Schema {
         static readonly Options = keys;
         static readonly Enum = enumFromStringArray(...keys);
         static readonly toTagged = toTagged;
+        static readonly omitOptions = omitOptions;
+        static readonly pickOptions = pickOptions;
       }
 
       return WithStaticsDerived;
