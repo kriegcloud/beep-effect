@@ -78,7 +78,6 @@
       "path": "../../comms/tables/tsconfig.build.json"
     },
 
-
     {
       "path": "../../files/infra/tsconfig.build.json"
     },

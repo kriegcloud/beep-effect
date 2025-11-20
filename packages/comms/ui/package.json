@@ -33,6 +33,7 @@
   },
   "peerDependencies": {
     "@beep/ui": "workspace:^",
+    "@beep/ui-core": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/comms-domain": "workspace:^",
     "@beep/comms-sdk": "workspace:^",

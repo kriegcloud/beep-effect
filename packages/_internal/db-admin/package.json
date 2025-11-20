@@ -55,7 +55,6 @@
     "@beep/tasks-domain": "workspace:^",
     "@beep/tasks-tables": "workspace:^",
     "@beep/tasks-infra": "workspace:^",
-
     "@beep/comms-domain": "workspace:^",
     "@beep/comms-tables": "workspace:^",
     "@beep/comms-infra": "workspace:^",

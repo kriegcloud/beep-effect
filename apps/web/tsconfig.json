@@ -91,7 +91,7 @@
       "@beep/tasks-ui": ["../../packages/tasks/ui/src/index"],
       "@beep/tasks-ui/*": ["../../packages/tasks/ui/src/*"],
 
-            "@beep/comms-domain": ["../../packages/comms/domain/src/index"],
+      "@beep/comms-domain": ["../../packages/comms/domain/src/index"],
       "@beep/comms-domain/*": ["../../packages/comms/domain/src/*"],
       "@beep/comms-tables": ["../../packages/comms/tables/src/index"],
       "@beep/comms-tables/*": ["../../packages/comms/tables/src/*"],
@@ -198,7 +198,7 @@
       "path": "../../packages/tasks/tables/tsconfig.build.json"
     },
 
-     {
+    {
       "path": "../../packages/comms/sdk/tsconfig.build.json"
     },
     {

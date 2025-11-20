@@ -1,5 +1,5 @@
 import * as d from "drizzle-orm";
-import { organization, team, emailTemplate, user } from "./tables";
+import { emailTemplate, organization, team, user } from "./tables";
 
 export const emailTemplateRelations = d.relations(emailTemplate, ({ one }) => ({
   user: one(user, {

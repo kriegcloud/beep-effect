@@ -51,7 +51,7 @@ const deviceVerify = device.child("verify");
 const deviceStatus = device.child("status");
 const account = (id: IamEntityIds.AccountId.Type) => PathBuilder.createRoot("/account").child(id);
 const dashboard = PathBuilder.createRoot("/dashboard");
-
+const mailDashboard = dashboard.child("mail");
 const user = dashboard.child("user");
 const userDialog = (settingsTab: string) =>
   PathBuilder.dynamicQueries(user.root)({
@@ -464,6 +464,9 @@ export const paths = PathBuilder.collection({
         security: userAccount("security"),
       },
       edit: (id: SharedEntityIds.UserId.Type) => user.child(id)("edit"),
+    },
+    mail: {
+      root: mailDashboard.root,
     },
   },
 } as const);

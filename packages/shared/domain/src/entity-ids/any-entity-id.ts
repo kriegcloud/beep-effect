@@ -1,8 +1,8 @@
 import * as S from "effect/Schema";
+import * as CommsEntityIds from "./comms";
 import * as IamEntityIds from "./iam";
 import { OrganizationId, SessionId, TeamId, UserId } from "./shared";
 import * as TaskEntityIds from "./tasks";
-import * as CommsEntityIds from "./comms";
 export class AnyEntityId extends S.Union(
   IamEntityIds.AccountId,
   IamEntityIds.ApiKeyId,

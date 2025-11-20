@@ -50,7 +50,7 @@
     "@beep/tasks-sdk": "workspace:^",
     "@beep/tasks-tables": "workspace:^",
     "@beep/tasks-ui": "workspace:^",
-        "@beep/comms-domain": "workspace:^",
+    "@beep/comms-domain": "workspace:^",
     "@beep/comms-infra": "workspace:^",
     "@beep/comms-sdk": "workspace:^",
     "@beep/comms-tables": "workspace:^",

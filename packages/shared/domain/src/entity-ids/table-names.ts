@@ -1,9 +1,9 @@
 import { BS } from "@beep/schema";
+import * as CommsTableNames from "@beep/shared-domain/entity-ids/CommsTableNames";
 import { TaskTableNames } from "@beep/shared-domain/entity-ids/TaskTableNames";
 import type * as S from "effect/Schema";
 import { IamTableNames } from "./IamTableNames";
 import { SharedTableNames } from "./SharedTableNames";
-import * as CommsTableNames from "@beep/shared-domain/entity-ids/CommsTableNames";
 
 export class AnyTableName extends BS.StringLiteralKit(
   ...IamTableNames.IamTableName.Options,

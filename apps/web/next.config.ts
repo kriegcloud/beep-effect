@@ -86,7 +86,7 @@ const candidateTranspilePackages = [
   "@beep/tasks-infra",
   "@beep/tasks-sdk",
   "@beep/tasks-ui",
-    "@beep/comms-domain",
+  "@beep/comms-domain",
   "@beep/comms-tables",
   "@beep/comms-infra",
   "@beep/comms-sdk",

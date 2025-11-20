@@ -1,3 +1,5 @@
+import { CommsRepos } from "@beep/comms-infra";
+import { CommsDb } from "@beep/comms-infra/db";
 import { Db } from "@beep/core-db";
 import { ResendService } from "@beep/core-email";
 import { serverEnv } from "@beep/core-env/server";
@@ -8,8 +10,6 @@ import { AuthEmailService, AuthService, IamConfig, IamRepos } from "@beep/iam-in
 import { IamDb } from "@beep/iam-infra/db";
 import { TasksRepos } from "@beep/tasks-infra";
 import { TasksDb } from "@beep/tasks-infra/db";
-import { CommsDb } from "@beep/comms-infra/db";
-import { CommsRepos} from "@beep/comms-infra";
 import { DevTools } from "@effect/experimental";
 import { NodeSdk } from "@effect/opentelemetry";
 import { BunSocket } from "@effect/platform-bun";
@@ -76,10 +76,20 @@ export const ObservabilityLive = Layer.mergeAll(LoggerLive, TelemetryLive, DevTo
 // ============================================================================
 
 /** Combines infra-specific repositories required by the server runtime. */
-export const SliceRepositoriesLive = Layer.mergeAll(IamRepos.layer, FilesRepos.layer, TasksRepos.layer, CommsRepos.layer);
+export const SliceRepositoriesLive = Layer.mergeAll(
+  IamRepos.layer,
+  FilesRepos.layer,
+  TasksRepos.layer,
+  CommsRepos.layer
+);
 
 /** Establishes connections to the databases used by the runtime. */
-export const SliceDatabasesLive = Layer.mergeAll(IamDb.IamDb.Live, FilesDb.FilesDb.Live, TasksDb.TasksDb.Live, CommsDb.CommsDb.Live);
+export const SliceDatabasesLive = Layer.mergeAll(
+  IamDb.IamDb.Live,
+  FilesDb.FilesDb.Live,
+  TasksDb.TasksDb.Live,
+  CommsDb.CommsDb.Live
+);
 
 /** Provides database connections to the common database layer. */
 export const DatabaseInfrastructureLive = Layer.provideMerge(SliceDatabasesLive, Db.Live);

@@ -38,6 +38,7 @@
     "@beep/invariant": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/constants": "workspace:^",
+    "@beep/mock": "workspace:^",
     "@beep/identity": "workspace:^",
     "drizzle-orm": "catalog:",
     "effect": "catalog:",
@@ -46,6 +47,7 @@
     "mutative": "catalog:"
   },
   "devDependencies": {
+    "@beep/mock": "workspace:^",
     "@effect/docgen": "catalog:",
     "@types/bun": "catalog:",
     "@beep/types": "workspace:^",

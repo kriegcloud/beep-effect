@@ -72,7 +72,7 @@
       "path": "../../packages/tasks/tables/tsconfig.build.json"
     },
 
-        {
+    {
       "path": "../../packages/comms/sdk/tsconfig.build.json"
     },
     {

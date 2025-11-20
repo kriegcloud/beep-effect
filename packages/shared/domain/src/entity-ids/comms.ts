@@ -7,3 +7,8 @@ export const EmailTemplateId = EntityId.make("email_template", {
     description: "A unique identifier for an EmailTemplate entity",
   },
 });
+
+export declare namespace EmailTemplateId {
+  export type Type = typeof EmailTemplateId.Type;
+  export type Encoded = typeof EmailTemplateId.Encoded;
+}
