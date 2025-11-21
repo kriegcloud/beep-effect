@@ -4,7 +4,6 @@ import { paths } from "@beep/shared-domain";
 import { withToast } from "@beep/ui/common";
 import { useAtomSet } from "@effect-atom/atom-react";
 import * as F from "effect/Function";
-import * as O from "effect/Option";
 import { useRouter } from "next/navigation";
 import { SignOutService } from "./sign-out.service";
 
@@ -16,10 +15,7 @@ export const signOutAtom = signOutRuntime.fn(
     withToast({
       onWaiting: "Signing out",
       onSuccess: "Signed out successfully",
-      onFailure: O.match({
-        onNone: () => "Failed with unknown error.",
-        onSome: (e) => e.message,
-      }),
+      onFailure: (e) => e.message,
     })
   )
 );

@@ -1,4 +1,5 @@
-import { BeepId, SchemaId } from "@beep/identity";
+import { BeepId } from "@beep/identity/BeepId";
+import { SchemaId } from "@beep/identity/modules";
 
 /**
  * Identity helper for temporal date primitives (timestamp, year, date-time, etc.).

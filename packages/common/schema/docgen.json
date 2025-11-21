@@ -28,7 +28,9 @@
       "@beep/types": ["../types/src/index.ts"],
       "@beep/types/*": ["../types/src/*"],
       "@beep/utils": ["../utils/src/index.ts"],
-      "@beep/utils/*": ["../utils/src/*"]
+      "@beep/utils/*": ["../utils/src/*"],
+      "@beep/invariant": ["../invariant/src/index.ts"],
+      "@beep/invariant/*": ["../invariant/src/*"]
     }
   },
   "examplesCompilerOptions": {

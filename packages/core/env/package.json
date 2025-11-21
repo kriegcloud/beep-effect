@@ -5,8 +5,10 @@
   "license": "MIT",
   "description": "The application core's library for environment variables",
   "publishConfig": {
-    "access": "restricted",
-    "directory": "build"
+    "access": "public",
+    "provenance": true,
+    "directory": "dist",
+    "linkDirectory": false
   },
   "exports": {
     "./server": "./src/server.ts",

@@ -1,4 +1,5 @@
-import { BeepId, SchemaId } from "@beep/identity";
+import { BeepId } from "@beep/identity/BeepId";
+import { SchemaId } from "@beep/identity/modules";
 
 /**
  * Identity helper for person-centric primitive schemas (first name, last name, birth date, etc.).

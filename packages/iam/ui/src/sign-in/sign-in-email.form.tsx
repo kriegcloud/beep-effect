@@ -1,33 +1,20 @@
 "use client";
-import { SignInEmailPayload } from "@beep/iam-sdk/clients";
-import { useSignInEmail } from "@beep/iam-sdk/clients/sign-in";
+import { useSignInEmailForm } from "@beep/iam-sdk/clients";
+import { useCaptcha } from "@beep/iam-ui/_common";
 import { paths } from "@beep/shared-domain";
 import { Iconify } from "@beep/ui/atoms";
-import { Form, formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
+import { Form } from "@beep/ui/form";
 import { useBoolean } from "@beep/ui/hooks";
 import { RouterLink } from "@beep/ui/routing";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import Link from "@mui/material/Link";
-import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 export const SignInEmailForm = () => {
   const showPassword = useBoolean();
-  const { executeRecaptcha } = useGoogleReCaptcha();
-  const { signInEmail } = useSignInEmail();
-  const form = useAppForm(
-    formOptionsWithSubmitEffect({
-      schema: SignInEmailPayload,
-      defaultValues: {
-        email: "",
-        password: "",
-        captchaResponse: "",
-        rememberMe: false,
-      },
-      onSubmit: async (value) => signInEmail(value),
-    })
-  );
+  const { executeCaptcha } = useCaptcha();
+  const { form } = useSignInEmailForm({ executeCaptcha: async () => await executeCaptcha(paths.auth.signIn) });
 
   return (
     <Form
@@ -36,18 +23,7 @@ export const SignInEmailForm = () => {
         display: "flex",
         flexDirection: "column",
       }}
-      onSubmit={async (e) => {
-        e.preventDefault();
-        if (!executeRecaptcha) {
-          console.error("execute Recaptcha is not available");
-          return;
-        }
-
-        const token = await executeRecaptcha("signin_form");
-
-        form.setFieldValue("captchaResponse", token);
-        return form.handleSubmit();
-      }}
+      onSubmit={form.handleSubmit}
     >
       <form.AppField
         name={"email"}

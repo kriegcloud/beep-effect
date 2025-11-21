@@ -1,26 +1,35 @@
 import { AuthProviderNameValue } from "@beep/constants";
 import { Contract, ContractKit } from "@beep/contract";
+import { SignInClientId } from "@beep/iam-sdk/clients/_internal";
 import { BS } from "@beep/schema";
 import { User } from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
 
+const Id = SignInClientId.compose("sign-in.contracts");
+const defaultFormValuesCommon = {
+  password: "",
+  rememberMe: false,
+  captchaResponse: "",
+} as const;
+
 // =====================================================================================================================
 // SIGN IN EMAIL CONTRACT
 // =====================================================================================================================
-export class SignInEmailPayload extends S.Class<SignInEmailPayload>("SignInEmailPayload")(
-  {
-    email: BS.EmailBase,
-    password: BS.PasswordBase,
-    rememberMe: BS.BoolWithDefault(false),
-    captchaResponse: S.String,
-  },
-  {
-    schemaId: Symbol.for("@beep/iam-sdk/clients/SignInEmailPayload"),
-    identifier: "SignInEmailPayload",
+export const SignInEmailPayload = S.Struct({
+  email: BS.EmailBase,
+  password: BS.PasswordBase,
+  rememberMe: BS.BoolWithDefault(false),
+  captchaResponse: S.String,
+}).annotations(
+  Id.annotations("SignInEmailPayload", {
     description: "Payload for signing in with email and password",
-  }
-) {}
+    [BS.DefaultFormValuesAnnotationId]: {
+      email: "",
+      ...defaultFormValuesCommon,
+    },
+  })
+);
 
 export declare namespace SignInEmailPayload {
   export type Type = S.Schema.Type<typeof SignInEmailPayload>;
@@ -29,10 +38,10 @@ export declare namespace SignInEmailPayload {
 
 export const SignInEmailContract = Contract.make("SignInEmail", {
   description: "Signs the user in using email",
-  payload: SignInEmailPayload.fields,
   failure: IamError,
   success: S.Void,
 })
+  .setPayload(SignInEmailPayload)
   .annotate(Contract.Title, "Sign In Email Contract")
   .annotate(Contract.Domain, "SignIn")
   .annotate(Contract.Method, "signInEmail");
@@ -40,16 +49,13 @@ export const SignInEmailContract = Contract.make("SignInEmail", {
 // =====================================================================================================================
 // SIGN IN SOCIAL CONTRACT
 // =====================================================================================================================
-export class SignInSocialPayload extends S.Class<SignInSocialPayload>("SignInSocialPayload")(
-  {
-    provider: AuthProviderNameValue,
-  },
-  {
-    schemaId: Symbol.for("@beep/iam-sdk/clients/SignInSocialPayload"),
-    identifier: "SignInSocialPayload",
+export const SignInSocialPayload = S.Struct({
+  provider: AuthProviderNameValue,
+}).annotations(
+  Id.annotations("SignInSocialPayload", {
     description: "Payload for signing in with a supported social provider",
-  }
-) {}
+  })
+);
 
 export declare namespace SignInSocialPayload {
   export type Type = S.Schema.Type<typeof SignInSocialPayload>;
@@ -58,10 +64,10 @@ export declare namespace SignInSocialPayload {
 
 export const SignInSocialContract = Contract.make("SignInSocial", {
   description: "Contract for signing in a user with a social auth provider.",
-  payload: SignInSocialPayload.fields,
   failure: IamError,
   success: S.Void,
 })
+  .setPayload(SignInSocialPayload)
   .annotate(Contract.Title, "Sign In Social Contract")
   .annotate(Contract.Domain, "SignIn")
   .annotate(Contract.Method, "signInSocial")
@@ -70,21 +76,21 @@ export const SignInSocialContract = Contract.make("SignInSocial", {
 // =====================================================================================================================
 // SIGN IN USERNAME CONTRACT
 // =====================================================================================================================
-export class SignInUsernamePayload extends S.Class<SignInUsernamePayload>("SignInUsernamePayload")(
-  {
-    username: S.NonEmptyTrimmedString,
-    password: BS.PasswordBase,
-    rememberMe: BS.BoolWithDefault(false),
-    captchaResponse: S.String,
-    callbackURL: S.optional(BS.URLString),
-  },
-  {
-    schemaId: Symbol.for("@beep/iam-sdk/clients/SignInUsernamePayload"),
-    identifier: "SignInUsernamePayload",
+export const SignInUsernamePayload = S.Struct({
+  username: S.NonEmptyTrimmedString,
+  password: BS.PasswordBase,
+  rememberMe: BS.BoolWithDefault(false),
+  captchaResponse: S.String,
+  callbackURL: S.optional(BS.URLString),
+}).annotations(
+  Id.annotations("SignInUsernamePayload", {
     description: "Payload for signing in with username and password",
-  }
-) {}
-
+    [BS.DefaultFormValuesAnnotationId]: {
+      username: "",
+      ...defaultFormValuesCommon,
+    },
+  })
+);
 export declare namespace SignInUsernamePayload {
   export type Type = S.Schema.Type<typeof SignInUsernamePayload>;
   export type Encoded = S.Schema.Encoded<typeof SignInUsernamePayload>;
@@ -103,19 +109,20 @@ export const SignInUsernameContract = Contract.make("SignInUsername", {
 // =====================================================================================================================
 // SIGN IN PHONE NUMBER CONTRACT
 // =====================================================================================================================
-export class SignInPhoneNumberPayload extends S.Class<SignInPhoneNumberPayload>("SignInPhoneNumberPayload")(
-  {
-    phoneNumber: BS.UnsafePhone,
-    password: BS.PasswordBase,
-    rememberMe: BS.BoolWithDefault(false),
-    captchaResponse: S.String,
-  },
-  {
-    schemaId: Symbol.for("@beep/iam-sdk/clients/SignInPhoneNumberPayload"),
-    identifier: "SignInPhoneNumberPayload",
+export const SignInPhoneNumberPayload = S.Struct({
+  phoneNumber: BS.UnsafePhone,
+  password: BS.PasswordBase,
+  rememberMe: BS.BoolWithDefault(false),
+  captchaResponse: S.String,
+}).annotations(
+  Id.annotations("SignInPhoneNumberPayload", {
     description: "Payload for signing in with a phone number and password",
-  }
-) {}
+    [BS.DefaultFormValuesAnnotationId]: {
+      phoneNumber: "",
+      ...defaultFormValuesCommon,
+    },
+  })
+);
 
 export declare namespace SignInPhoneNumberPayload {
   export type Type = S.Schema.Type<typeof SignInPhoneNumberPayload>;
@@ -132,27 +139,8 @@ export const SignInPhoneNumberContract = Contract.make("SignInPhoneNumber", {
   .annotate(Contract.Domain, "SignIn")
   .annotate(Contract.Method, "signInPhoneNumber");
 
-// =====================================================================================================================
-// SIGN IN PASSKEY CONTRACT
-// =====================================================================================================================
-export class SignInPasskeyPayload extends S.Class<SignInPasskeyPayload>("SignInPasskeyPayload")(
-  {},
-  {
-    schemaId: Symbol.for("@beep/iam-sdk/clients/SignInPasskeyPayload"),
-    identifier: "SignInPasskeyPayload",
-    description: "Payload for signing in with a passkey",
-    title: "Sign in with passkey",
-  }
-) {}
-
-export declare namespace SignInPasskeyPayload {
-  export type Type = S.Schema.Type<typeof SignInPasskeyPayload>;
-  export type Encoded = S.Schema.Encoded<typeof SignInPasskeyPayload>;
-}
-
 export const SignInPasskeyContract = Contract.make("SignInPasskey", {
   description: "Signs the user in using a passkey.",
-  payload: SignInPasskeyPayload.fields,
   failure: IamError,
   success: S.Void,
 })
@@ -163,14 +151,9 @@ export const SignInPasskeyContract = Contract.make("SignInPasskey", {
 // =====================================================================================================================
 // Signin OneTap
 // =====================================================================================================================
-export const SignInOneTapPayload = S.Struct({});
-export declare namespace SignInOneTapPayload {
-  export type Type = S.Schema.Type<typeof SignInOneTapPayload>;
-  export type Encoded = S.Schema.Encoded<typeof SignInOneTapPayload>;
-}
+
 export const SignInOneTapContract = Contract.make("SignInOneTap", {
   description: "Signs the user in using a one tap.",
-  payload: SignInOneTapPayload.fields,
   failure: IamError,
   success: S.Void,
 })
@@ -181,16 +164,18 @@ export const SignInOneTapContract = Contract.make("SignInOneTap", {
 // =====================================================================================================================
 // Signin OAuth 2
 // =====================================================================================================================
-export class SignInOAuth2Payload extends S.Class<SignInOAuth2Payload>(
-  "@beep/iam-sdk/clients/sign-in/SignInOAuth2Payload"
-)({
+export const SignInOAuth2Payload = S.Struct({
   providerId: AuthProviderNameValue,
   callbackURL: S.optional(BS.URLString),
   errorCallbackURL: S.optional(BS.URLString),
   newUserCallbackURL: S.optional(BS.URLString),
   disableRedirect: S.optional(S.Boolean),
   requestSignUp: S.optional(S.Boolean),
-}) {}
+}).annotations(
+  Id.annotations("SignInOAuth2Payload", {
+    description: "Payload for signing in with an OAuth 2 provider",
+  })
+);
 
 export declare namespace SignInOAuth2Payload {
   export type Type = S.Schema.Type<typeof SignInOAuth2Payload>;
@@ -212,12 +197,7 @@ export class AnonymousSignInSuccess extends S.Class<AnonymousSignInSuccess>("Ano
     token: S.String,
     user: User.Model,
   },
-  {
-    schemaId: Symbol.for("@beep/iam-sdk/clients/anonymous/AnonymousSignInSuccess"),
-    identifier: "AnonymousSignInSuccess",
-    title: "Anonymous Sign-In Success",
-    description: "Payload returned when the anonymous sign-in succeeds.",
-  }
+  Id.annotations("AnonymousSignInSuccess", { description: "Payload returned when the anonymous sign-in succeeds." })
 ) {}
 
 export declare namespace AnonymousSignInSuccess {

@@ -193,7 +193,7 @@ const ApplySchemaDump = Layer.effectDiscard(
     const migrationsFolder = path.join(fileURLToPath(import.meta.url), "../drizzle");
     yield* Effect.logInfo(`Migration path: ${migrationsFolder}`);
     if (!(yield* fs.exists(migrationsFolder))) {
-      yield* new DomainError({
+      return yield* new DomainError({
         message: "Migrations directory not found",
         cause: {
           path: migrationsFolder,

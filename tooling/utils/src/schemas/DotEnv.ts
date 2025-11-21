@@ -1,4 +1,4 @@
-import { ToolingUtilsId } from "@beep/identity";
+import { ToolingUtilsId } from "@beep/identity/modules";
 import { NoSuchFileError } from "@beep/tooling-utils/repo/Errors";
 import { findRepoRoot } from "@beep/tooling-utils/repo/Root";
 import * as FileSystem from "@effect/platform/FileSystem";

@@ -1,4 +1,4 @@
-import { BeepId } from "../src";
+import { BeepId } from "../src/BeepId";
 
 const schemaId = BeepId.module("schema");
 

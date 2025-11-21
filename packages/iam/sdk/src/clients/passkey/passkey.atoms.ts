@@ -1,4 +1,5 @@
 import type { PasskeyView } from "@beep/iam-sdk";
+import { atomPromise, withReactivityKeys } from "@beep/iam-sdk/clients/_internal";
 import type {
   PasskeyAddContract,
   PasskeyRemoveContract,
@@ -11,7 +12,6 @@ import { Atom, Registry, Result, useAtomSet, useAtomValue } from "@effect-atom/a
 import * as A from "effect/Array";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
-import * as O from "effect/Option";
 
 const passkeyRuntime = makeAtomRuntime(PasskeyService.Live);
 type ActionPayload = { readonly passkey: PasskeyView };
@@ -72,15 +72,10 @@ export const updatePasskeyAtom = passkeyRuntime.fn(
     withToast({
       onWaiting: "Updating passkey",
       onSuccess: "Passkey updated successfully",
-      onFailure: O.match({
-        onNone: () => "Failed to update passkey.",
-        onSome: (e: { message: string }) => e.message,
-      }),
+      onFailure: (e) => e.message,
     })
   ),
-  {
-    reactivityKeys: ["passkeys"],
-  }
+  withReactivityKeys("passkeys")
 );
 
 export const removePasskeyAtom = passkeyRuntime.fn(
@@ -95,15 +90,10 @@ export const removePasskeyAtom = passkeyRuntime.fn(
     withToast({
       onWaiting: "Deleting passkey",
       onSuccess: "Passkey deleted successfully",
-      onFailure: O.match({
-        onNone: () => "Failed to delete passkey.",
-        onSome: (e) => e.message,
-      }),
+      onFailure: (e) => e.message,
     })
   ),
-  {
-    reactivityKeys: ["passkeys"],
-  }
+  withReactivityKeys("passkeys")
 );
 
 export const addPasskeyAtom = passkeyRuntime.fn(
@@ -122,22 +112,16 @@ export const addPasskeyAtom = passkeyRuntime.fn(
         })
       );
     }),
-  {
-    reactivityKeys: ["passkeys"],
-  }
+  withReactivityKeys("passkeys")
 );
 
 export const editingPasskeyAtom = Atom.make<PasskeyView | undefined>(undefined);
 
 export const usePasskeyCRUD = () => {
   const passkeysResult = useAtomValue(passkeysAtom);
-  const addPasskey = useAtomSet(addPasskeyAtom, {
-    mode: "promise" as const,
-  });
+  const addPasskey = useAtomSet(addPasskeyAtom, atomPromise);
   const deletePasskey = useAtomSet(removePasskeyAtom);
-  const updatePasskey = useAtomSet(updatePasskeyAtom, {
-    mode: "promise" as const,
-  });
+  const updatePasskey = useAtomSet(updatePasskeyAtom, atomPromise);
 
   return {
     passkeysResult,

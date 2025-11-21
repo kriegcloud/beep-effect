@@ -1,4 +1,5 @@
-import { BeepId, SchemaId } from "@beep/identity";
+import { BeepId } from "@beep/identity/BeepId";
+import { SchemaId } from "@beep/identity/modules";
 import type * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";

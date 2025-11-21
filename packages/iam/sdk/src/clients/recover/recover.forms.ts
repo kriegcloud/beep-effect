@@ -1,14 +1,14 @@
 import { formOptionsWithSubmitEffect } from "@beep/ui/form";
 import { useAppForm } from "@beep/ui/form/useAppForm";
 import { useRecover } from "./recover.atoms";
-import { RequestResetPasswordContract, ResetPasswordContract } from "./recover.contracts";
+import { RequestResetPasswordContract, ResetPasswordPayload } from "./recover.contracts";
 
 export const useResetPasswordForm = () => {
   const { resetPassword } = useRecover();
 
   const form = useAppForm(
     formOptionsWithSubmitEffect({
-      schema: ResetPasswordContract.payloadSchema,
+      schema: ResetPasswordPayload,
       defaultValues: {
         newPassword: "",
         passwordConfirm: "",

@@ -19,7 +19,7 @@ const MultiSessionListHandler = MultiSessionListContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError(
+      return yield* IamError.new(
         {},
         "MultiSessionListHandler returned no payload from Better Auth",
         continuation.metadata
@@ -44,7 +44,7 @@ const MultiSessionSetActiveHandler = MultiSessionSetActiveContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError(
+      return yield* IamError.new(
         {},
         "MultiSessionSetActiveHandler returned no payload from Better Auth",
         continuation.metadata
@@ -73,7 +73,7 @@ const MultiSessionRevokeHandler = MultiSessionRevokeContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError(
+      return yield* IamError.new(
         {},
         "MultiSessionRevokeHandler returned no payload from Better Auth",
         continuation.metadata

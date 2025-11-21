@@ -9,14 +9,18 @@
     "**/.turbo/**",
     "**/.next/**",
     "**/.output/**",
-    "**/.expo/**"
+    "**/.expo/**",
+    "**/node_modules/**",
+    "**/.*/"
   ],
   "compilerOptions": {
     "types": [
       "node",
       "bun"
     ],
-    "disableSourceOfProjectReferenceRedirect": true
+    "disableSourceOfProjectReferenceRedirect": true,
+    "disableReferencedProjectLoad": true,
+    "disableSolutionSearching": true
   },
   "references": [
     { "path": "tsconfig.slices/common.json" },

@@ -21,7 +21,6 @@ export const UpdateUserInformationContract = Contract.make("UpdateUserInformatio
 export const UpdateUserIdentityContract = Contract.make("UpdateUserIdentity", {
   description: "Updates user information.",
   payload: {
-    ...User.Model.update.pick("gender").fields,
     firstName: S.String,
     lastName: S.String,
   },

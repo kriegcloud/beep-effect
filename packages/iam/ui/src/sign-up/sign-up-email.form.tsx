@@ -1,85 +1,17 @@
 "use client";
-import { SignUpEmailContract } from "@beep/iam-sdk/clients";
-import { useSignUpEmail } from "@beep/iam-sdk/clients/sign-up";
-import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
+import { useSignUpEmailForm } from "@beep/iam-sdk/clients";
+import { RecaptchaBadge, useCaptcha } from "@beep/iam-ui/_common";
 import { paths } from "@beep/shared-domain";
-import * as SharedEntities from "@beep/shared-domain/entities";
-import { Form, formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
+import { Form } from "@beep/ui/form";
 import { PasswordFieldsGroup } from "@beep/ui/form/groups";
 import Box from "@mui/material/Box";
-import Stack from "@mui/material/Stack";
-import * as Effect from "effect/Effect";
-import type React from "react";
-import { toast } from "sonner";
+export const SignUpEmailForm = () => {
+  const { executeCaptcha } = useCaptcha();
 
-type Props = {
-  setVerificationNotice: React.Dispatch<
-    React.SetStateAction<{
-      redirectPath: string;
-      firstName: string;
-    } | null>
-  >;
-  executeRecaptcha: (action?: string | undefined) => Promise<string>;
-};
+  const { form } = useSignUpEmailForm({
+    executeRecaptcha: async () => executeCaptcha(paths.auth.signUp),
+  });
 
-export const SignUpEmailForm: React.FC<Props> = ({ executeRecaptcha }) => {
-  const runtime = useRuntime();
-  const runClientPromise = makeRunClientPromise(runtime);
-  const { signUpEmail } = useSignUpEmail();
-
-  const form = useAppForm(
-    formOptionsWithSubmitEffect({
-      schema: SignUpEmailContract.payloadSchema.fields.value,
-      defaultValues: {
-        email: "",
-        password: "",
-        passwordConfirm: "",
-        gender: SharedEntities.User.UserGenderEnum.male,
-        firstName: "",
-        captchaResponse: "",
-        lastName: "",
-        rememberMe: false,
-      },
-      onSubmit: async (value) => {
-        const program = Effect.gen(function* () {
-          if (!executeRecaptcha) {
-            return yield* Effect.fail(new Error("executeRecaptcha is not defined"));
-          }
-          const token = yield* Effect.tryPromise({
-            try: () => executeRecaptcha("contact_form"),
-            catch: (error) => {
-              console.error("Failed to execute ReCAPTCHA", error);
-              toast.error("Verification timed out. Please try again.");
-              return Effect.fail(error);
-            },
-          });
-
-          if (!token) {
-            return yield* Effect.fail(new Error("No Captcha Token."));
-          }
-
-          return token;
-        });
-
-        const token = await runClientPromise(program);
-
-        return signUpEmail({
-          value: {
-            name: `${value.firstName} ${value.lastName}`,
-            callbackURL: paths.dashboard.root,
-            email: value.email,
-            password: value.password,
-            passwordConfirm: value.passwordConfirm,
-            gender: value.gender,
-            firstName: value.firstName,
-            lastName: value.lastName,
-            rememberMe: value.rememberMe,
-            captchaResponse: token,
-          },
-        });
-      },
-    })
-  );
   return (
     <Form onSubmit={form.handleSubmit}>
       <form.AppForm>
@@ -95,7 +27,6 @@ export const SignUpEmailForm: React.FC<Props> = ({ executeRecaptcha }) => {
             <form.AppField name={"lastName"} children={(field) => <field.Text label={"lastName"} />} />
           </Box>
           <form.AppField name={"email"} children={(field) => <field.Text label={"Email"} type={"email"} />} />
-
           <PasswordFieldsGroup
             form={form}
             fields={{
@@ -103,14 +34,7 @@ export const SignUpEmailForm: React.FC<Props> = ({ executeRecaptcha }) => {
               passwordConfirm: "passwordConfirm",
             }}
           />
-          <Stack direction={"row"} spacing={2}>
-            <form.AppField
-              name={"gender"}
-              children={(field) => (
-                <field.RadioGroup options={SharedEntities.User.UserGender.DropDownOptions} label={"Gender"} row />
-              )}
-            />
-          </Stack>
+          <RecaptchaBadge />
           <form.Submit variant={"contained"} />
         </Box>
       </form.AppForm>

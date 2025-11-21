@@ -4,7 +4,6 @@ import { makeAtomRuntime } from "@beep/runtime-client/services/runtime/make-atom
 import { withToast } from "@beep/ui/common";
 import { useAtomSet } from "@effect-atom/atom-react";
 import * as F from "effect/Function";
-import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 import { SendEmailVerificationContract } from "./verify.contracts";
@@ -18,10 +17,7 @@ const verifyPhoneAtom = verifyRuntime.fn(
     withToast({
       onWaiting: "Verifying phone",
       onSuccess: "Phone verified.",
-      onFailure: O.match({
-        onNone: () => "Failed with unknown error.",
-        onSome: (e) => e.message,
-      }),
+      onFailure: (e) => e.message,
     })
   )
 );
@@ -39,10 +35,7 @@ export const sendEmailVerificationAtom = verifyRuntime.fn(
     withToast({
       onWaiting: "Sending verification email.",
       onSuccess: "Verification email sent.",
-      onFailure: O.match({
-        onNone: () => "Failed with unknown error.",
-        onSome: (e) => e.message,
-      }),
+      onFailure: (e) => e.message,
     })
   )
 );
@@ -64,10 +57,7 @@ export const verifyEmailAtom = verifyRuntime.fn(
     withToast({
       onWaiting: "Verifying email.",
       onSuccess: "Email verified.",
-      onFailure: O.match({
-        onNone: () => "Failed with unknown error.",
-        onSome: (e) => e.message,
-      }),
+      onFailure: (e) => e.message,
     })
   )
 );

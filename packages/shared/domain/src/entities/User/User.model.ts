@@ -4,7 +4,7 @@ import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-import { UserGender, UserRole } from "./schemas";
+import { UserRole } from "./schemas";
 
 /**
  * User model representing application users with authentication and profile data.
@@ -35,10 +35,6 @@ export class Model extends M.Class<Model>(`UserModel`)(
     /** User's role in the system */
     role: BS.toOptionalWithDefault(UserRole)(UserRole.Enum.user).annotations({
       description: "The user's role in the system",
-    }),
-    /* The user's gender */
-    gender: BS.toOptionalWithDefault(UserGender)(UserGender.Enum.male).annotations({
-      description: "The user's gender",
     }),
 
     /** Whether the user is banned */

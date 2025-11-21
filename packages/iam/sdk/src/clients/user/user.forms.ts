@@ -83,7 +83,6 @@ export const useUpdateUserIdentityForm = ({ userInfo, onSuccess }: UpdateUserPro
                 onSome: (lastName) => lastName,
               })
             ),
-            gender: userInfo.gender,
           }) as const
       ),
       onSubmit: async (value) => {

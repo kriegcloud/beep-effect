@@ -1,4 +1,5 @@
-import { BeepId, SchemaId } from "@beep/identity";
+import { BeepId } from "@beep/identity/BeepId";
+import { SchemaId } from "@beep/identity/modules";
 import * as S from "effect/Schema";
 
 const Id = BeepId.from(SchemaId.identifier).compose("primitives/array-buffer");

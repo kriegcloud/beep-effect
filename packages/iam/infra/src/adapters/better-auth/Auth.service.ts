@@ -82,7 +82,7 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
         },
       },
       cookieCache: {
-        enabled: false,
+        enabled: true,
         maxAge: Duration.days(30).pipe(Duration.toSeconds),
       },
       expiresIn: Duration.days(30).pipe(Duration.toSeconds),
@@ -252,10 +252,6 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
       },
       modelName: SharedEntityIds.UserId.tableName,
       additionalFields: {
-        gender: {
-          type: "string",
-          required: true,
-        },
         stripeCustomerId: {
           type: "string",
           required: false,

@@ -1,5 +1,4 @@
 import { useUpdateUserIdentityForm } from "@beep/iam-sdk/clients/user";
-import { UserGender } from "@beep/shared-domain/entities/User";
 import { Iconify } from "@beep/ui/atoms";
 import { Stack } from "@mui/material";
 import * as F from "effect/Function";
@@ -43,7 +42,6 @@ const Identity = () => {
         <Stack direction="column" spacing={{ xs: 2, sm: 1 }}>
           <InfoCardAttribute label="First Name" value={firstName} />
           <InfoCardAttribute label="Last Name" value={lastName} />
-          <InfoCardAttribute label={"Gender"} value={userInfo.gender} />
         </Stack>
         <Iconify icon="material-symbols-light:edit-outline" width={20} />
       </InfoCard>
@@ -64,12 +62,6 @@ const Identity = () => {
               name={"lastName"}
               children={(field) => <field.Text label={"Last Name"} fullWidth={true} />}
             />
-            <Stack direction={"row"} spacing={2}>
-              <form.AppField
-                name={"gender"}
-                children={(field) => <field.RadioGroup options={UserGender.DropDownOptions} label={"Gender"} row />}
-              />
-            </Stack>
           </Stack>
         </form.FormDialog>
       </form.AppForm>

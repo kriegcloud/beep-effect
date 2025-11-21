@@ -5,8 +5,10 @@
   "license": "MIT",
   "description": "A library for system wide errors & error utilities",
   "publishConfig": {
-    "access": "restricted",
-    "directory": "build"
+    "access": "public",
+    "provenance": true,
+    "directory": "dist",
+    "linkDirectory": false
   },
   "repository": {
     "type": "git",
@@ -14,23 +16,17 @@
     "directory": "packages/common/mock"
   },
   "exports": {
-    ".": {
-      "browser": "./src/client.ts",
-      "node": "./src/server.ts",
-      "default": "./src/server.ts"
-    },
-    "./server": "./src/server.ts",
-    "./client": "./src/client.ts",
-    "./shared": "./src/shared.ts",
+    ".": "./src/index.ts",
     "./package.json": "./package.json",
     "./*": "./src/*.ts"
   },
   "scripts": {
-    "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
-    "dev": "tsc -b tsconfig.build.json --watch",
+    "codegen": "build-utils prepare-v3",
+    "build": "bun run build-esm && bun run build-annotate && bun run build-cjs && build-utils pack-v3",
     "build-esm": "tsc -b tsconfig.build.json",
     "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
     "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "dev": "tsc -b tsconfig.build.json --watch",
     "check": "tsc -b tsconfig.json",
     "test": "bun run dotenvx -- bunx bun test",
     "coverage": "bun test --coverage",

@@ -1,5 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { withCaptchaHeaders, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   AnonymousSignInContract,
   SignInContractKit,
@@ -37,11 +37,7 @@ const SignInEmailHandler = SignInEmailContract.implement(
         email: payload.email,
         password: payload.password,
         rememberMe: payload.rememberMe,
-        fetchOptions: withFetchOptions(handlers, {
-          headers: {
-            "x-captcha-response": payload.captchaResponse,
-          },
-        }),
+        fetchOptions: withFetchOptions(handlers, withCaptchaHeaders(payload.captchaResponse)),
       })
     );
 
@@ -66,11 +62,7 @@ const SignInUsernameHandler = SignInUsernameContract.implement(
           password: password,
           rememberMe: rememberMe,
           callbackURL: callbackURL,
-          fetchOptions: withFetchOptions(handlers, {
-            headers: {
-              "x-captcha-response": captchaResponse,
-            },
-          }),
+          fetchOptions: withFetchOptions(handlers, withCaptchaHeaders(captchaResponse)),
         })
       ),
       (result) => {
@@ -94,11 +86,7 @@ const SignInPhoneNumberHandler = SignInPhoneNumberContract.implement(
           phoneNumber: payload.phoneNumber,
           password: payload.password,
           rememberMe: payload.rememberMe,
-          fetchOptions: withFetchOptions(handlers, {
-            headers: {
-              "x-captcha-response": payload.captchaResponse,
-            },
-          }),
+          fetchOptions: withFetchOptions(handlers, withCaptchaHeaders(payload.captchaResponse)),
         })
       ),
       (result) => {
@@ -170,10 +158,8 @@ const AnonymousSignInHandler = AnonymousSignInContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError(
-        {},
-        "AnonymousSignInHandler returned no payload from Better Auth",
-        continuation.metadata
+      return yield* Effect.fail(
+        IamError.new({}, "AnonymousSignInHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
 

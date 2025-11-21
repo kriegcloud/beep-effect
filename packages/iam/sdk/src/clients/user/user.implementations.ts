@@ -68,7 +68,6 @@ const UpdateUserIdentityHandler = UpdateUserIdentityContract.implement(
     const result = yield* continuation.run((handlers) =>
       client.updateUser({
         name: `${payload.firstName} ${payload.lastName}`,
-        gender: payload.gender,
         fetchOptions: withFetchOptions(handlers),
       })
     );

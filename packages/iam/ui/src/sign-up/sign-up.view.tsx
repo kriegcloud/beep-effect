@@ -1,19 +1,11 @@
 "use client";
-import { AuthCallback, useSignInSocial } from "@beep/iam-sdk";
+import { useSignInSocial } from "@beep/iam-sdk";
 import { paths } from "@beep/shared-domain";
 import { varFade } from "@beep/ui/animate";
-import { useBoolean, useRouter } from "@beep/ui/hooks";
-import { EmailInboxIcon } from "@beep/ui/icons";
-import { SplashScreen } from "@beep/ui/progress/loading-screen/splash-screen";
 import { RouterLink } from "@beep/ui/routing";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
-import Stack from "@mui/material/Stack";
 import { AnimatePresence, m } from "framer-motion";
-import { useSearchParams } from "next/navigation";
-import { useState } from "react";
-import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import { FormDivider, FormHead, Terms } from "../_components";
 import { SignUpEmailForm } from "./sign-up-email.form";
 import { SignUpSocial } from "./sign-up-social";
@@ -22,93 +14,37 @@ const signUpTransitionVariants = varFade("inUp", { distance: 64 });
 
 export const SignUpView = () => {
   const { signInSocial } = useSignInSocial();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const callbackURL = AuthCallback.getURL(searchParams);
-  const signInHref =
-    callbackURL === AuthCallback.defaultTarget
-      ? paths.auth.signIn
-      : `${paths.auth.signIn}?${AuthCallback.paramName}=${encodeURIComponent(callbackURL)}`;
-  const { executeRecaptcha } = useGoogleReCaptcha();
-  const { value: isLoading, setValue: setIsLoading } = useBoolean();
-  const [verificationNotice, setVerificationNotice] = useState<{
-    redirectPath: string;
-    firstName: string;
-  } | null>(null);
-
-  if (isLoading || !executeRecaptcha) {
-    return <SplashScreen />;
-  }
 
   return (
     <AnimatePresence mode={"wait"} initial={false}>
-      {verificationNotice ? (
-        <Box
-          key={"verification-notice"}
-          component={m.div}
-          variants={signUpTransitionVariants}
-          initial={"initial"}
-          animate={"animate"}
-          exit={"exit"}
-          sx={{ width: 1 }}
-        >
-          <Stack
-            spacing={3}
-            sx={{ textAlign: { xs: "center", md: "left" }, alignItems: { xs: "center", md: "flex-start" } }}
-          >
-            <FormHead
-              icon={<EmailInboxIcon />}
-              title={"Check your inbox"}
-              description={
-                <>
-                  Thanks {verificationNotice.firstName}! We just sent a verification email to the address you provided.
-                  You can verify whenever it suits you—skip for now and start exploring.
-                </>
-              }
-            />
-            <Button
-              variant={"contained"}
-              color={"primary"}
-              fullWidth
-              onClick={() => {
-                setIsLoading(true);
-                void router.push(verificationNotice.redirectPath);
-              }}
-            >
-              Skip for now.
-            </Button>
-          </Stack>
+      <Box
+        key={"sign-up-form"}
+        component={m.div}
+        variants={signUpTransitionVariants}
+        initial={"initial"}
+        animate={"animate"}
+        exit={"exit"}
+        sx={{ width: 1 }}
+      >
+        <FormHead
+          title={"Get Started"}
+          description={
+            <>
+              {`Already have an account? `}
+              <Link component={RouterLink} href={paths.auth.signIn} variant={"subtitle2"}>
+                Sign in
+              </Link>
+            </>
+          }
+          sx={{ textAlign: { xs: "center", md: "left" } }}
+        />
+        <SignUpEmailForm />
+        <Terms />
+        <Box sx={{ gap: 2, display: "flex", flexDirection: "column" }}>
+          <FormDivider />
+          <SignUpSocial signUp={async (provider) => signInSocial({ provider })} />
         </Box>
-      ) : (
-        <Box
-          key={"sign-up-form"}
-          component={m.div}
-          variants={signUpTransitionVariants}
-          initial={"initial"}
-          animate={"animate"}
-          exit={"exit"}
-          sx={{ width: 1 }}
-        >
-          <FormHead
-            title={"Get Started"}
-            description={
-              <>
-                {`Already have an account? `}
-                <Link component={RouterLink} href={signInHref} variant={"subtitle2"}>
-                  Sign in
-                </Link>
-              </>
-            }
-            sx={{ textAlign: { xs: "center", md: "left" } }}
-          />
-          <SignUpEmailForm executeRecaptcha={executeRecaptcha} setVerificationNotice={setVerificationNotice} />
-          <Terms />
-          <Box sx={{ gap: 2, display: "flex", flexDirection: "column" }}>
-            <FormDivider />
-            <SignUpSocial signUp={async (provider) => signInSocial({ provider })} />
-          </Box>
-        </Box>
-      )}
+      </Box>
     </AnimatePresence>
   );
 };

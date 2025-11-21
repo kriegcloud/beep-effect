@@ -1,4 +1,4 @@
-import { BeepId } from "@beep/identity";
+import { BeepId } from "@beep/identity/BeepId";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 

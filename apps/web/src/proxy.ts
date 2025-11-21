@@ -30,7 +30,6 @@ const PRIVATE_PREFIXES = [
   paths.organizations.root,
   "/dashboard/account-management",
   paths.fileManager.root,
-
   paths.admin.root,
 ] as const;
 

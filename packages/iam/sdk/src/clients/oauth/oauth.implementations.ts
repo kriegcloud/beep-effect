@@ -62,7 +62,7 @@ const GetAccessTokenHandler = GetAccessTokenContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data === null) {
-      return yield* new IamError({}, "GetAccessTokenResult returned null", continuation.metadata);
+      return yield* IamError.new({}, "GetAccessTokenResult returned null", continuation.metadata);
     }
 
     return yield* GetAccessTokenContract.decodeUnknownSuccess(result.data);

@@ -33,7 +33,7 @@ export type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "
       };
     };
     readonly cookieCache: {
-      readonly enabled: false;
+      readonly enabled: true;
       readonly maxAge: number;
     };
     readonly expiresIn: number;
@@ -48,10 +48,6 @@ export type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "
     };
     modelName: typeof SharedEntityIds.UserId.tableName;
     additionalFields: CommonExtraFields & {
-      gender: {
-        type: "string";
-        required: true;
-      };
       stripeCustomerId: {
         type: "string";
         required: false;

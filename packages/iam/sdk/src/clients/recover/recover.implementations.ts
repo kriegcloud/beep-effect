@@ -1,5 +1,5 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { addFetchOptions, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import {
   RecoverContractKit,
   RequestResetPasswordContract,
@@ -16,7 +16,7 @@ const ResetPasswordHandler = ResetPasswordContract.implement(
 
     if (O.isNone(tokenOption)) {
       return yield* Effect.fail(
-        new IamError(
+        IamError.new(
           {
             id: "reset-password-token",
             resource: "reset-password-token",
@@ -46,10 +46,7 @@ const RequestPasswordResetHandler = RequestResetPasswordContract.implement(
     const encoded = yield* RequestResetPasswordContract.encodeUnknownPayload(payload);
 
     const result = yield* continuation.run((handlers) =>
-      client.requestPasswordReset({
-        ...encoded,
-        fetchOptions: withFetchOptions(handlers),
-      })
+      client.requestPasswordReset(addFetchOptions(handlers, encoded))
     );
 
     yield* continuation.raiseResult(result);

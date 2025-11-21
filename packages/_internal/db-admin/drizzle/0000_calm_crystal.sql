@@ -1,7 +1,6 @@
 CREATE TYPE "public"."organization_type_enum" AS ENUM('individual', 'team', 'enterprise');--> statement-breakpoint
 CREATE TYPE "public"."subscription_status_enum" AS ENUM('active', 'canceled');--> statement-breakpoint
 CREATE TYPE "public"."subscription_tier_enum" AS ENUM('free', 'plus', 'pro', 'enterprise');--> statement-breakpoint
-CREATE TYPE "public"."user_gender_enum" AS ENUM('male', 'female');--> statement-breakpoint
 CREATE TYPE "public"."user_role_enum" AS ENUM('admin', 'user');--> statement-breakpoint
 CREATE TYPE "public"."device_code_status_enum" AS ENUM('pending', 'approved', 'denied');--> statement-breakpoint
 CREATE TYPE "public"."invitation_status_enum" AS ENUM('pending', 'rejected', 'cancelled', 'accepted');--> statement-breakpoint
@@ -32,30 +31,6 @@ CREATE TABLE "organization" (
 	"subscription_status" "subscription_status_enum" DEFAULT 'active' NOT NULL,
 	CONSTRAINT "organization_id_unique" UNIQUE("id"),
 	CONSTRAINT "organization_slug_unique" UNIQUE("slug")
-);
---> statement-breakpoint
-CREATE TABLE "session" (
-	"id" text NOT NULL,
-	"_row_id" serial PRIMARY KEY NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"deleted_at" timestamp with time zone,
-	"created_by" text DEFAULT 'app',
-	"updated_by" text DEFAULT 'app',
-	"deleted_by" text,
-	"version" integer DEFAULT 1 NOT NULL,
-	"source" text,
-	"expires_at" timestamp NOT NULL,
-	"token" text NOT NULL,
-	"ip_address" text,
-	"user_agent" text,
-	"user_id" text NOT NULL,
-	"impersonated_by" text,
-	"active_organization_id" text NOT NULL,
-	"active_team_id" text,
-	CONSTRAINT "session_id_unique" UNIQUE("id"),
-	CONSTRAINT "session_token_unique" UNIQUE("token"),
-	CONSTRAINT "session_expires_after_created_check" CHECK ("session"."expires_at" > "session"."created_at")
 );
 --> statement-breakpoint
 CREATE TABLE "team" (
@@ -95,7 +70,6 @@ CREATE TABLE "user" (
 	"email_verified" boolean DEFAULT false NOT NULL,
 	"image" text,
 	"role" "user_role_enum" DEFAULT 'user' NOT NULL,
-	"gender" "user_gender_enum" DEFAULT 'male' NOT NULL,
 	"banned" boolean DEFAULT false NOT NULL,
 	"ban_reason" text,
 	"ban_expires" timestamp,
@@ -111,6 +85,55 @@ CREATE TABLE "user" (
 	CONSTRAINT "user_email_unique" UNIQUE("email"),
 	CONSTRAINT "user_phone_number_unique" UNIQUE("phone_number"),
 	CONSTRAINT "user_username_unique" UNIQUE("username")
+);
+--> statement-breakpoint
+CREATE TABLE "email_template" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"user_id" text NOT NULL,
+	"name" text NOT NULL,
+	"subject" text,
+	"body" text,
+	"to" text,
+	"cc" text,
+	"bcc" text,
+	"team_id" text,
+	CONSTRAINT "email_template_id_unique" UNIQUE("id"),
+	CONSTRAINT "comms_email_template_user_id_name_unique" UNIQUE("user_id","name"),
+	CONSTRAINT "comms_email_template_team_id_name_unique" UNIQUE("team_id","name")
+);
+--> statement-breakpoint
+CREATE TABLE "session" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"expires_at" timestamp NOT NULL,
+	"token" text NOT NULL,
+	"ip_address" text,
+	"user_agent" text,
+	"user_id" text NOT NULL,
+	"impersonated_by" text,
+	"active_organization_id" text NOT NULL,
+	"active_team_id" text,
+	CONSTRAINT "session_id_unique" UNIQUE("id"),
+	CONSTRAINT "session_token_unique" UNIQUE("token"),
+	CONSTRAINT "session_expires_after_created_check" CHECK ("session"."expires_at" > "session"."created_at")
 );
 --> statement-breakpoint
 CREATE TABLE "account" (
@@ -549,11 +572,14 @@ CREATE TABLE "todo" (
 );
 --> statement-breakpoint
 ALTER TABLE "organization" ADD CONSTRAINT "organization_owner_user_id_user_id_fk" FOREIGN KEY ("owner_user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "team" ADD CONSTRAINT "team_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "email_template" ADD CONSTRAINT "email_template_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "email_template" ADD CONSTRAINT "email_template_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "email_template" ADD CONSTRAINT "email_template_team_id_team_id_fk" FOREIGN KEY ("team_id") REFERENCES "public"."team"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_impersonated_by_user_id_fk" FOREIGN KEY ("impersonated_by") REFERENCES "public"."user"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_active_organization_id_organization_id_fk" FOREIGN KEY ("active_organization_id") REFERENCES "public"."organization"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_active_team_id_team_id_fk" FOREIGN KEY ("active_team_id") REFERENCES "public"."team"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "team" ADD CONSTRAINT "team_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "apikey" ADD CONSTRAINT "apikey_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "apikey" ADD CONSTRAINT "apikey_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -589,14 +615,6 @@ CREATE INDEX "organization_type_idx" ON "organization" USING btree ("type");--> 
 CREATE INDEX "organization_owner_idx" ON "organization" USING btree ("owner_user_id");--> statement-breakpoint
 CREATE INDEX "organization_personal_idx" ON "organization" USING btree ("is_personal") WHERE "organization"."is_personal" = true;--> statement-breakpoint
 CREATE INDEX "organization_subscription_idx" ON "organization" USING btree ("subscription_tier","subscription_status");--> statement-breakpoint
-CREATE INDEX "session_token_idx" ON "session" USING btree ("token");--> statement-breakpoint
-CREATE INDEX "session_user_id_idx" ON "session" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "session_expires_at_idx" ON "session" USING btree ("expires_at");--> statement-breakpoint
-CREATE INDEX "session_user_expires_idx" ON "session" USING btree ("user_id","expires_at");--> statement-breakpoint
-CREATE INDEX "session_active_org_idx" ON "session" USING btree ("active_organization_id");--> statement-breakpoint
-CREATE INDEX "session_active_team_idx" ON "session" USING btree ("active_team_id");--> statement-breakpoint
-CREATE INDEX "session_impersonated_by_idx" ON "session" USING btree ("impersonated_by");--> statement-breakpoint
-CREATE INDEX "session_user_org_active_idx" ON "session" USING btree ("user_id","active_organization_id","expires_at");--> statement-breakpoint
 CREATE INDEX "team_organization_id_idx" ON "team" USING btree ("organization_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "team_org_name_unique_idx" ON "team" USING btree ("organization_id","name");--> statement-breakpoint
 CREATE INDEX "team_name_idx" ON "team" USING btree ("name");--> statement-breakpoint
@@ -605,6 +623,15 @@ CREATE INDEX "user_active_idx" ON "user" USING btree ("id","email_verified") WHE
 CREATE INDEX "user_role_idx" ON "user" USING btree ("role") WHERE "user"."role" IS NOT NULL;--> statement-breakpoint
 CREATE INDEX "user_banned_expires_idx" ON "user" USING btree ("ban_expires") WHERE "user"."banned" = true AND "user"."ban_expires" IS NOT NULL;--> statement-breakpoint
 CREATE INDEX "user_2fa_enabled_idx" ON "user" USING btree ("two_factor_enabled") WHERE "user"."two_factor_enabled" = true;--> statement-breakpoint
+CREATE INDEX "idx_comms_email_template_user_id" ON "email_template" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "session_token_idx" ON "session" USING btree ("token");--> statement-breakpoint
+CREATE INDEX "session_user_id_idx" ON "session" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "session_expires_at_idx" ON "session" USING btree ("expires_at");--> statement-breakpoint
+CREATE INDEX "session_user_expires_idx" ON "session" USING btree ("user_id","expires_at");--> statement-breakpoint
+CREATE INDEX "session_active_org_idx" ON "session" USING btree ("active_organization_id");--> statement-breakpoint
+CREATE INDEX "session_active_team_idx" ON "session" USING btree ("active_team_id");--> statement-breakpoint
+CREATE INDEX "session_impersonated_by_idx" ON "session" USING btree ("impersonated_by");--> statement-breakpoint
+CREATE INDEX "session_user_org_active_idx" ON "session" USING btree ("user_id","active_organization_id","expires_at");--> statement-breakpoint
 CREATE INDEX "account_user_id_idx" ON "account" USING btree ("user_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "account_provider_account_unique_idx" ON "account" USING btree ("provider_id","account_id");--> statement-breakpoint
 CREATE INDEX "account_provider_id_idx" ON "account" USING btree ("provider_id");--> statement-breakpoint

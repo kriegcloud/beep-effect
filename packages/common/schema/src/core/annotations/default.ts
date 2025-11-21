@@ -12,12 +12,18 @@
  * @category Core/Annotations
  * @since 0.1.0
  */
+
+import {
+  type DefaultFormValuesAnnotation,
+  DefaultFormValuesAnnotationId,
+} from "@beep/schema/core/annotations/default-form-values-annotations";
 import type { UnsafeTypes } from "@beep/types";
 import type * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import type * as Pretty from "effect/Pretty";
+import type * as R from "effect/Record";
 import * as AST from "effect/SchemaAST";
 import { Id } from "./_id";
 
@@ -60,6 +66,10 @@ declare module "effect/Schema" {
         targetEntityTag: string;
       };
       [BSFilterFn]?: (entity: A) => boolean;
+    }
+
+    interface Form<A extends R.ReadonlyRecord<string | symbol, UnsafeTypes.UnsafeAny>> extends AST.Annotations {
+      [DefaultFormValuesAnnotationId]?: DefaultFormValuesAnnotation<A>;
     }
   }
 }

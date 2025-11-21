@@ -26,7 +26,7 @@ const OAuth2AuthorizeHandler = OAuth2AuthorizeContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError(
+      return yield* IamError.new(
         {},
         "OAuth2AuthorizeHandler returned no payload from Better Auth",
         continuation.metadata
@@ -50,7 +50,7 @@ const OAuth2ConsentHandler = OAuth2ConsentContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError(
+      return yield* IamError.new(
         {},
         "OAuth2ConsentHandler returned no payload from Better Auth",
         continuation.metadata
@@ -73,7 +73,7 @@ const OAuth2TokenHandler = OAuth2TokenContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "OAuth2TokenHandler returned no payload from Better Auth", continuation.metadata);
+      return yield* IamError.new({}, "OAuth2TokenHandler returned no payload from Better Auth", continuation.metadata);
     }
 
     return yield* OAuth2TokenContract.decodeUnknownSuccess(result.data);
@@ -91,7 +91,7 @@ const OAuth2UserInfoHandler = OAuth2UserInfoContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError(
+      return yield* IamError.new(
         {},
         "OAuth2UserInfoHandler returned no payload from Better Auth",
         continuation.metadata
@@ -114,7 +114,7 @@ const OAuth2RegisterHandler = OAuth2RegisterContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError(
+      return yield* IamError.new(
         {},
         "OAuth2RegisterHandler returned no payload from Better Auth",
         continuation.metadata
@@ -139,7 +139,7 @@ const OAuth2ClientHandler = OAuth2ClientContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "OAuth2ClientHandler returned no payload from Better Auth", continuation.metadata);
+      return yield* IamError.new({}, "OAuth2ClientHandler returned no payload from Better Auth", continuation.metadata);
     }
 
     return yield* OAuth2ClientContract.decodeUnknownSuccess(result.data);

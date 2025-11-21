@@ -1,25 +1,25 @@
 import { Contract, ContractKit } from "@beep/contract";
 import { clientEnv } from "@beep/core-env/client";
+import { VerifyClientId } from "@beep/iam-sdk/clients/_internal";
 import { BS } from "@beep/schema";
 import { paths } from "@beep/shared-domain";
 import * as SharedEntities from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
+
 // =====================================================================================================================
 // Send Verify Phone Contract
 // =====================================================================================================================
-export class VerifyPhonePayload extends S.Class<VerifyPhonePayload>("VerifyPhonePayload")(
-  {
-    phoneNumber: BS.Phone,
-    code: S.Redacted(S.NonEmptyTrimmedString),
-    updatePhoneNumber: BS.BoolWithDefault(true),
-  },
-  {
-    schemaId: Symbol.for("@beep/iam-sdk/clients/VerifyPhonePayload"),
-    identifier: "VerifyPhonePayload",
+const Id = VerifyClientId.compose("verify.contracts");
+export const VerifyPhonePayload = S.Struct({
+  phoneNumber: BS.Phone,
+  code: S.Redacted(S.NonEmptyTrimmedString),
+  updatePhoneNumber: BS.BoolWithDefault(true),
+}).annotations(
+  Id.annotations("VerifyPhonePayload", {
     description: "Payload for verifying a user's phone number.",
-  }
-) {}
+  })
+);
 
 export declare namespace VerifyPhonePayload {
   export type Type = S.Schema.Type<typeof VerifyPhonePayload>;
@@ -28,10 +28,9 @@ export declare namespace VerifyPhonePayload {
 
 export const VerifyPhoneContract = Contract.make("VerifyPhone", {
   description: "Sends a phone verification request.",
-  payload: VerifyPhonePayload.fields,
   failure: IamError,
   success: S.Void,
-});
+}).setPayload(VerifyPhonePayload);
 
 // =====================================================================================================================
 // Send Email Verification Contract

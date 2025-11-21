@@ -23,9 +23,9 @@ export class IamError extends S.TaggedError<IamError>("@beep/iam-sdk/errors/IamE
   method: S.optional(S.String),
   authCause: S.optional(S.Unknown),
 }) {
-  constructor(cause: unknown, customMessage: string, metadata: IamErrorMetadata = {}) {
+  static readonly new = (cause: unknown, customMessage: string, metadata: IamErrorMetadata = {}) => {
     const normalizedMessage = customMessage ?? "Unknown Error has occurred";
-    super({
+    return new IamError({
       customMessage: normalizedMessage,
       cause,
       ...metadata,
@@ -36,11 +36,11 @@ export class IamError extends S.TaggedError<IamError>("@beep/iam-sdk/errors/IamE
       method: metadata.method,
       authCause: metadata.authCause,
     });
-  }
+  };
 
   static readonly match = (error: unknown, metadata: IamErrorMetadata = {}) => {
     if (error instanceof BetterAuthError) {
-      return new IamError(error.cause, error.message, metadata);
+      return IamError.new(error.cause, error.message, metadata);
     }
 
     const customMessage =
@@ -50,7 +50,7 @@ export class IamError extends S.TaggedError<IamError>("@beep/iam-sdk/errors/IamE
       customMessage,
     });
 
-    return new IamError(cause, customMessage, metadata);
+    return IamError.new(cause, customMessage, metadata);
   };
 
   override get message() {

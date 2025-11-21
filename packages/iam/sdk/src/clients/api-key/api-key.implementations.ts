@@ -51,7 +51,7 @@ const ApiKeyCreateHandler = ApiKeyCreateContract.implement(
       yield* continuation.raiseResult(result);
 
       if (result.data == null) {
-        return yield* new IamError(
+        return yield* IamError.new(
           {},
           "ApiKeyCreateHandler returned no payload from Better Auth",
           continuation.metadata
@@ -82,7 +82,7 @@ const ApiKeyGetHandler = ApiKeyGetContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "ApiKeyGetHandler returned no payload from Better Auth", continuation.metadata);
+      return yield* IamError.new({}, "ApiKeyGetHandler returned no payload from Better Auth", continuation.metadata);
     }
 
     return yield* ApiKeyGetContract.decodeUnknownSuccess(result.data);
@@ -118,7 +118,7 @@ const ApiKeyUpdateHandler = ApiKeyUpdateContract.implement(
       yield* continuation.raiseResult(result);
 
       if (result.data == null) {
-        return yield* new IamError(
+        return yield* IamError.new(
           {},
           "ApiKeyUpdateHandler returned no payload from Better Auth",
           continuation.metadata
@@ -145,7 +145,7 @@ const ApiKeyDeleteHandler = ApiKeyDeleteContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "ApiKeyDeleteHandler returned no payload from Better Auth", continuation.metadata);
+      return yield* IamError.new({}, "ApiKeyDeleteHandler returned no payload from Better Auth", continuation.metadata);
     }
 
     return yield* ApiKeyDeleteContract.decodeUnknownSuccess(result.data);
@@ -159,7 +159,7 @@ const ApiKeyListHandler = ApiKeyListContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "ApiKeyListHandler returned no payload from Better Auth", continuation.metadata);
+      return yield* IamError.new({}, "ApiKeyListHandler returned no payload from Better Auth", continuation.metadata);
     }
 
     return yield* ApiKeyListContract.decodeUnknownSuccess(result.data);

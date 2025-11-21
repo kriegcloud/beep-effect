@@ -28,7 +28,7 @@ export const GetSessionHandler = GetSessionContract.implement(
         })
       );
       if (P.isNullable(result.data)) {
-        return yield* new IamError("GetSessionHandler", "Session not found", continuation.metadata);
+        return yield* IamError.new("GetSessionHandler", "Session not found", continuation.metadata);
       }
 
       const { user, session } = result.data;
@@ -48,7 +48,6 @@ export const GetSessionHandler = GetSessionContract.implement(
         emailVerified: user.emailVerified,
         image: user.image,
         role: user.role,
-        gender: user.gender,
         banned: user.banned,
         banExpires: user.banExpires,
         isAnonymous: user.isAnonymous,
@@ -90,7 +89,7 @@ export const GetSessionHandler = GetSessionContract.implement(
         session: sessionDecoded,
       });
     },
-    Effect.catchTag("ParseError", (e) => new IamError(e, e.message))
+    Effect.catchTag("ParseError", (e) => IamError.new(e, e.message))
   )
 );
 // =====================================================================================================================

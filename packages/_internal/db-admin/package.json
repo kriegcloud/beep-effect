@@ -6,8 +6,10 @@
   "description": "A library for migrations, seeds & db admin",
   "private": false,
   "publishConfig": {
-    "access": "restricted",
-    "directory": "build"
+    "access": "public",
+    "provenance": true,
+    "directory": "dist",
+    "linkDirectory": false
   },
   "repository": {
     "type": "git",

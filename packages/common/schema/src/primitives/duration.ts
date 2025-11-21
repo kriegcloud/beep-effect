@@ -1,4 +1,4 @@
-import { SchemaId } from "@beep/identity";
+import { SchemaId } from "@beep/identity/modules";
 import { Duration } from "effect";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";

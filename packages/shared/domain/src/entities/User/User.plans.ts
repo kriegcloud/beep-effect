@@ -2,7 +2,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Model } from "./User.model";
 export class NewUser extends S.Class<NewUser>("NewUser")(
-  Model.insert.pick("email", "name", "username", "phoneNumber", "gender", "displayUsername"),
+  Model.insert.pick("email", "name", "username", "phoneNumber", "displayUsername"),
   {
     schemaId: Symbol.for("@beep/iam-domain/User/NewUser"),
     title: "New User",
@@ -15,7 +15,6 @@ export class NewUser extends S.Class<NewUser>("NewUser")(
       name: input.name,
       username: input.username,
       phoneNumber: input.phoneNumber,
-      gender: input.gender,
       displayUsername: input.displayUsername,
       emailVerified: false,
       phoneNumberVerified: false,

@@ -5,8 +5,10 @@
   "license": "MIT",
   "description": "The ui layer for the iam context",
   "publishConfig": {
-    "access": "restricted",
-    "directory": "build"
+    "access": "public",
+    "provenance": true,
+    "directory": "dist",
+    "linkDirectory": false
   },
   "exports": {
     ".": "./src/index.ts",

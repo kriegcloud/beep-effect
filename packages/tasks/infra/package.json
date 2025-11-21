@@ -5,8 +5,10 @@
   "license": "MIT",
   "description": "The package which contains the infra layer for the tasks slice",
   "publishConfig": {
-    "access": "restricted",
-    "directory": "build"
+    "access": "public",
+    "provenance": true,
+    "directory": "dist",
+    "linkDirectory": false
   },
   "exports": {
     ".": "./src/index.ts",

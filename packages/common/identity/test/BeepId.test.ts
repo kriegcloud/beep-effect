@@ -2,8 +2,8 @@ import { describe, expect, expectTypeOf, it } from "bun:test";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
-import type { IdentityString, Segment } from "../src";
-import { BeepId } from "../src";
+import { BeepId } from "../src/BeepId";
+import type { IdentityString, Segment } from "../src/types";
 
 describe("BeepId", () => {
   it("composes schema identifiers", () => {

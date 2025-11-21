@@ -73,9 +73,6 @@
           "displayUsername": {
             "type": "string"
           },
-          "gender": {
-            "type": "string"
-          },
           "secondaryEmailAddress": {
             "type": "string"
           },

@@ -1,4 +1,5 @@
-import { BeepId, SchemaId } from "@beep/identity";
+import { BeepId } from "@beep/identity/BeepId";
+import { SchemaId } from "@beep/identity/modules";
 
 const baseId = `${SchemaId.identifier}` as const;
 

@@ -10,8 +10,10 @@
     "directory": "tooling/repo-scripts"
   },
   "publishConfig": {
-    "access": "restricted",
-    "directory": "build"
+    "access": "public",
+    "provenance": true,
+    "directory": "dist",
+    "linkDirectory": false
   },
   "exports": {
     ".": "./src/index.ts",
@@ -39,6 +41,8 @@
     "docs:lint:file": "bunx tsx ./src/run-docs-lint.ts --file"
   },
   "dependencies": {
+    "jscodeshift": "^17.1.2",
+    "ast-types": "catalog:",
     "@beep/utils": "workspace:^",
     "@beep/constants": "workspace:^",
     "@beep/invariant": "workspace:^",
@@ -61,6 +65,7 @@
     "typescript": "catalog:"
   },
   "devDependencies": {
+    "@types/jscodeshift": "^17.3.0",
     "@types/bun": "catalog:",
     "typescript": "catalog:",
     "@beep/types": "workspace:^"

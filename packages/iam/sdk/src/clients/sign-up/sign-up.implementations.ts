@@ -1,24 +1,18 @@
 import { client } from "@beep/iam-sdk/adapters";
-import { withFetchOptions } from "@beep/iam-sdk/clients/_internal";
+import { withCaptchaHeaders, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import { SignUpContractKit, SignUpEmailContract } from "@beep/iam-sdk/clients/sign-up/sign-up.contracts";
 import * as Effect from "effect/Effect";
 
 const SignUpEmailHandler = SignUpEmailContract.implement(
   Effect.fn(function* (payload, { continuation }) {
-    const { value } = payload;
-    const { captchaResponse, ...rest } = value;
+    const { captchaResponse, ...rest } = payload;
 
     const result = yield* continuation.run((handlers) =>
       client.signUp.email({
         email: rest.email,
         password: rest.password,
         name: `${rest.firstName} ${rest.lastName}`,
-        gender: rest.gender,
-        fetchOptions: withFetchOptions(handlers, {
-          headers: {
-            "x-captcha-response": captchaResponse,
-          },
-        }),
+        fetchOptions: withFetchOptions(handlers, withCaptchaHeaders(captchaResponse)),
       })
     );
 
@@ -27,11 +21,11 @@ const SignUpEmailHandler = SignUpEmailContract.implement(
     if (result.error == null) {
       client.$store.notify("$sessionSignal");
     }
-
-    return result.error ? ({ _tag: "Failure" } as const) : ({ _tag: "Success" } as const);
   })
 );
 
 export const SignUpImplementations = SignUpContractKit.of({
   SignUpEmail: SignUpEmailHandler,
 });
+
+export const signUpLayer = SignUpContractKit.toLayer(SignUpImplementations);

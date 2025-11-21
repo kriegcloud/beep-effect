@@ -4,7 +4,18 @@
   "name": "@beep/root",
   "packageManager": "bun@1.3.2",
   "workspaces": [
-    "packages/**",
+    "packages/ai/*",
+    "packages/common/*",
+    "packages/comms/*",
+    "packages/core/*",
+    "packages/files/*",
+    "packages/iam/*",
+    "packages/integrations/*",
+    "packages/_internal/*",
+    "packages/runtime/*",
+    "packages/shared/*",
+    "packages/tasks/*",
+    "packages/ui/*",
     "apps/*",
     "tooling/*"
   ],
@@ -50,12 +61,16 @@
     "gen:secrets": "bun run dotenvx -- bunx tsx ./tooling/repo-scripts/src/generate-env-secrets.ts",
     "gen:beep-paths": "bun run dotenvx -- bunx tsx ./tooling/repo-scripts/src/generate-asset-paths.ts",
     "iconify": "bun run --cwd tooling/repo-scripts iconify",
-    "ui-add": "turbo run ui-add"
+    "ui-add": "turbo run ui-add",
+    "prepare": "effect-language-service patch"
   },
   "resolutions#": {
     "@beep/*": "Needed to force PNPM to install local packages"
   },
   "devDependencies": {
+    "@effect/build-utils": "catalog:",
+    "@effect/docgen": "^0.5.2",
+    "@effect/language-service": "^0.56.0",
     "@babel/cli": "^7.28.3",
     "@babel/core": "^7.28.5",
     "@babel/plugin-transform-export-namespace-from": "^7.27.1",
@@ -113,7 +128,7 @@
     "@effect/cli": "^0.72.1",
     "@effect/docgen": "^0.5.2",
     "@effect/ai-openai": "^0.35.0",
-    "@effect/cluster": "^0.53.1",
+    "@effect/cluster": "^0.53.2",
     "@effect/experimental": "^0.57.4",
     "@effect/opentelemetry": "^0.59.1",
     "@effect/platform": "^0.93.3",
@@ -208,7 +223,7 @@
     "drizzle-orm": "^0.44.7",
     "drizzle-zero": "^0.16.2",
     "dub": "^0.68.0",
-    "effect": "^3.19.5",
+    "effect": "^3.19.6",
     "embla-carousel": "^8.6.0",
     "embla-carousel-auto-height": "^8.6.0",
     "embla-carousel-auto-scroll": "^8.6.0",
@@ -228,7 +243,7 @@
     "motion": "^12.23.24",
     "mui-one-time-password-input": "^5.0.0",
     "mutative": "^1.3.0",
-    "next": "^16.0.2-canary.26",
+    "next": "^16.0.2-canary.27",
     "nprogress": "^0.2.0",
     "nuqs": "^2.8.0",
     "picocolors": "^1.1.1",
@@ -328,10 +343,10 @@
     "@vite-pwa/assets-generator": "^1.0.2",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.1.17",
-    "@tanstack/router-devtools": "^1.136.18",
-    "@tanstack/router-plugin": "^1.136.18",
+    "@tanstack/router-devtools": "^1.139.0",
+    "@tanstack/router-plugin": "^1.139.0",
     "react-router-dom": "^7.9.6",
-    "@tanstack/react-router": "^1.136.18",
+    "@tanstack/react-router": "^1.139.0",
     "@tanstack/react-virtual": "^3.13.12",
     "@hookform/resolvers": "^5.2.2",
     "react-hook-form": "^7.66.1",
@@ -345,9 +360,19 @@
     "@phosphor-icons/react": "^2.1.10",
     "fast-check": "^4.3.0",
     "pg": "^8.16.3",
-    "alchemy": "^0.78.0"
+    "alchemy": "^0.78.0",
+    "@effect/build-utils": "^0.8.9",
+    "ast-types": "^0.16.1"
   },
   "dependenciesCatalog": [
+    {
+      "name": "ast-types",
+      "version": "^0.14.2"
+    },
+    {
+      "name": "@effect/build-utils",
+      "version": "^0.8.9"
+    },
     {
       "name": "alchemy",
       "version": "^0.77.5"

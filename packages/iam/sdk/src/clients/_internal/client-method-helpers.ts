@@ -1,5 +1,6 @@
 import type { Contract } from "@beep/contract";
 import { IamError } from "@beep/iam-sdk/errors";
+import type { StringTypes } from "@beep/types";
 import type { BetterFetchOption } from "@better-fetch/fetch";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -13,6 +14,12 @@ export const mapOnError =
   (error: unknown): void => {
     handlers.onError({ error });
   };
+
+export const withCaptchaHeaders = (captchaResponse: string) => ({
+  headers: {
+    "x-captcha-response": captchaResponse,
+  },
+});
 
 export const withFetchOptions = (
   handlers: Contract.FailureContinuationHandlers,
@@ -58,7 +65,15 @@ export const requireData = <T>(
   F.pipe(
     O.fromNullable(data),
     O.match({
-      onNone: () => Effect.fail(new IamError({}, `${handlerName} returned no payload from Better Auth`, metadata)),
+      onNone: () => Effect.fail(IamError.new({}, `${handlerName} returned no payload from Better Auth`, metadata)),
       onSome: Effect.succeed,
     })
   );
+
+export const atomPromise = { mode: "promise" } as const;
+
+export const withReactivityKeys = <Keys extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>>(
+  ...keys: Keys
+) => ({
+  reactivityKeys: keys,
+});

@@ -253,7 +253,7 @@ const AdminImpersonateUserHandler = AdminImpersonateUserContract.implement(
       !Object.prototype.hasOwnProperty.call(raw, "user")
     ) {
       return yield* Effect.fail(
-        new IamError(
+        IamError.new(
           raw,
           "AdminImpersonateUserHandler received malformed payload from Better Auth",
           continuation.metadata
@@ -288,7 +288,7 @@ const AdminStopImpersonatingHandler = AdminStopImpersonatingContract.implement(
       !Object.prototype.hasOwnProperty.call(raw, "user")
     ) {
       return yield* Effect.fail(
-        new IamError(
+        IamError.new(
           raw,
           "AdminStopImpersonatingHandler received malformed payload from Better Auth",
           continuation.metadata
@@ -376,7 +376,7 @@ const AdminHasPermissionHandler = AdminHasPermissionContract.implement(
       (payload.permission === undefined && payload.permissions === undefined)
     ) {
       return yield* Effect.fail(
-        new IamError(
+        IamError.new(
           payload,
           "AdminHasPermissionHandler requires exactly one of permission or permissions",
           continuation.metadata

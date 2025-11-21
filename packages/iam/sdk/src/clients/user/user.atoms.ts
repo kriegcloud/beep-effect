@@ -3,7 +3,6 @@ import { makeAtomRuntime } from "@beep/runtime-client/services/runtime/make-atom
 import { withToast } from "@beep/ui/common/with-toast";
 import { useAtomSet } from "@effect-atom/atom-react";
 import * as F from "effect/Function";
-import * as O from "effect/Option";
 
 export const userRuntime = makeAtomRuntime(UserService.Live);
 
@@ -13,10 +12,7 @@ export const changePasswordAtom = userRuntime.fn(
     withToast({
       onWaiting: "Changing password...",
       onSuccess: "Password changed successfully",
-      onFailure: O.match({
-        onNone: () => "An unknown error occurred!",
-        onSome: (error) => error.message,
-      }),
+      onFailure: (e) => e.message,
     })
   ),
   {
@@ -40,10 +36,7 @@ const updateUserIdentityAtom = userRuntime.fn(
     withToast({
       onWaiting: "Updating user...",
       onSuccess: "User updated successfully",
-      onFailure: O.match({
-        onNone: () => "An unknown error occurred!",
-        onSome: (error) => error.message,
-      }),
+      onFailure: (e) => e.message,
     })
   ),
   {
@@ -67,10 +60,7 @@ const updateUsernameAtom = userRuntime.fn(
     withToast({
       onWaiting: "Updating username...",
       onSuccess: "User updated successfully",
-      onFailure: O.match({
-        onNone: () => "An unknown error occurred!",
-        onSome: (error) => error.message,
-      }),
+      onFailure: (e) => e.message,
     })
   ),
   {
@@ -94,10 +84,7 @@ const updatePhoneNumberAtom = userRuntime.fn(
     withToast({
       onWaiting: "Updating phone number...",
       onSuccess: "Phone number updated successfully",
-      onFailure: O.match({
-        onNone: () => "An unknown error occurred!",
-        onSome: (error) => error.message,
-      }),
+      onFailure: (e) => e.message,
     })
   ),
   {
@@ -121,10 +108,7 @@ export const changeEmailAtom = userRuntime.fn(
     withToast({
       onWaiting: "Changing email...",
       onSuccess: "Email changed successfully",
-      onFailure: O.match({
-        onNone: () => "An unknown error occurred!",
-        onSome: (error) => error.message,
-      }),
+      onFailure: (e) => e.message,
     })
   ),
   {

@@ -1,28 +1,26 @@
 "use client";
-
+import { SignUpService } from "@beep/iam-sdk/clients/sign-up/sign-up.service";
 import { makeAtomRuntime } from "@beep/runtime-client/services/runtime/make-atom-runtime";
 import { withToast } from "@beep/ui/common";
-import { useAtom } from "@effect-atom/atom-react";
+import { useAtomSet } from "@effect-atom/atom-react";
 import * as F from "effect/Function";
-import * as Layer from "effect/Layer";
-import * as O from "effect/Option";
-import { SignUpImplementations } from "./sign-up.implementations";
 
-const signUpRuntime = makeAtomRuntime(Layer.empty);
-const signUpToastOptions = {
-  onWaiting: "Signing up",
-  onSuccess: "Signed up successfully",
-  onFailure: O.match({
-    onNone: () => "Failed with unknown error.",
-    onSome: (e: { message: string }) => e.message,
-  }),
-} as const;
+const signUpRuntime = makeAtomRuntime(SignUpService.Live);
 
-const signUpEmailAtom = signUpRuntime.fn(F.flow(SignUpImplementations.SignUpEmail, withToast(signUpToastOptions)));
+const signUpEmailAtom = signUpRuntime.fn(
+  F.flow(
+    SignUpService.SignUpEmail,
+    withToast({
+      onWaiting: "Signing up",
+      onSuccess: "Signed up successfully",
+      onFailure: (e) => e.message,
+    })
+  )
+);
+
 export const useSignUpEmail = () => {
-  const [signUpResult, signUpEmail] = useAtom(signUpEmailAtom);
+  const signUpEmail = useAtomSet(signUpEmailAtom);
   return {
-    signUpResult,
     signUpEmail,
   };
 };

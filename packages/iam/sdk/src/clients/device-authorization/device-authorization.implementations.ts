@@ -24,7 +24,7 @@ const DeviceAuthorizationCodeHandler = DeviceAuthorizationCodeContract.implement
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError(
+      return yield* IamError.new(
         {},
         "DeviceAuthorizationCodeHandler returned no payload from Better Auth",
         continuation.metadata
@@ -49,7 +49,7 @@ const DeviceAuthorizationTokenHandler = DeviceAuthorizationTokenContract.impleme
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError(
+      return yield* IamError.new(
         {},
         "DeviceAuthorizationTokenHandler returned no payload from Better Auth",
         continuation.metadata
@@ -74,7 +74,7 @@ const DeviceAuthorizationStatusHandler = DeviceAuthorizationStatusContract.imple
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError(
+      return yield* IamError.new(
         {},
         "DeviceAuthorizationStatusHandler returned no payload from Better Auth",
         continuation.metadata
@@ -97,7 +97,7 @@ const DeviceAuthorizationApproveHandler = DeviceAuthorizationApproveContract.imp
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError(
+      return yield* IamError.new(
         {},
         "DeviceAuthorizationApproveHandler returned no payload from Better Auth",
         continuation.metadata
@@ -120,7 +120,7 @@ const DeviceAuthorizationDenyHandler = DeviceAuthorizationDenyContract.implement
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError(
+      return yield* IamError.new(
         {},
         "DeviceAuthorizationDenyHandler returned no payload from Better Auth",
         continuation.metadata

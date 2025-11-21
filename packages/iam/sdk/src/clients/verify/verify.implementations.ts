@@ -51,7 +51,7 @@ const VerifyEmailHandler = VerifyEmailContract.implement(
     yield* continuation.raiseResult(result);
 
     if (result.data == null) {
-      return yield* new IamError({}, "VerifyEmailHandler returned no payload from Better Auth", continuation.metadata);
+      return yield* IamError.new({}, "VerifyEmailHandler returned no payload from Better Auth", continuation.metadata);
     }
 
     return yield* VerifyEmailContract.decodeUnknownSuccess(result.data);

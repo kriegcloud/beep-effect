@@ -47,7 +47,7 @@ const OrganizationCreateHandler = OrganizationCreateContract.implement(
     yield* continuation.raiseResult(result);
 
     if (!result.data) {
-      return yield* new IamError(
+      return yield* IamError.new(
         {},
         "OrganizationCreateHandler returned no payload from Better Auth",
         continuation.metadata
@@ -74,7 +74,7 @@ const OrganizationCheckSlugHandler = OrganizationCheckSlugContract.implement(
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError({}, "OrganizationCheckSlugHandler returned no payload from Better Auth", continuation.metadata)
+        IamError.new({}, "OrganizationCheckSlugHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
 
@@ -94,7 +94,7 @@ const OrganizationListHandler = OrganizationListContract.implement(
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError({}, "OrganizationListHandler returned no payload from Better Auth", continuation.metadata)
+        IamError.new({}, "OrganizationListHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
 
@@ -176,7 +176,7 @@ const OrganizationDeleteHandler = OrganizationDeleteContract.implement(
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError({}, "OrganizationDeleteHandler returned no payload from Better Auth", continuation.metadata)
+        IamError.new({}, "OrganizationDeleteHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
 
@@ -202,7 +202,7 @@ const AcceptInvitationHandler = AcceptInvitationContract.implement(
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError({}, "AcceptInvitationHandler returned no payload from Better Auth", continuation.metadata)
+        IamError.new({}, "AcceptInvitationHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
 
@@ -233,7 +233,7 @@ const OrganizationInviteMemberHandler = OrganizationInviteMemberContract.impleme
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError({}, "OrganizationInviteMemberHandler returned no payload from Better Auth", continuation.metadata)
+        IamError.new({}, "OrganizationInviteMemberHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
 
@@ -268,7 +268,7 @@ const OrganizationRejectInvitationHandler = OrganizationRejectInvitationContract
     yield* continuation.raiseResult(result);
 
     if (!result.data) {
-      return yield* new IamError(
+      return yield* IamError.new(
         {},
         "OrganizationRejectInvitationHandler returned no payload from Better Auth",
         continuation.metadata
@@ -296,7 +296,7 @@ const OrganizationListInvitationsHandler = OrganizationListInvitationsContract.i
     yield* continuation.raiseResult(result);
 
     if (!result.data) {
-      return yield* new IamError(
+      return yield* IamError.new(
         {},
         "OrganizationListInvitationsHandler returned no payload from Better Auth",
         continuation.metadata
@@ -325,7 +325,7 @@ const OrganizationListUserInvitationsHandler = OrganizationListUserInvitationsCo
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError(
+        IamError.new(
           {},
           "OrganizationListUserInvitationsHandler returned no payload from Better Auth",
           continuation.metadata
@@ -351,7 +351,7 @@ const OrganizationGetInvitationHandler = OrganizationGetInvitationContract.imple
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError({}, "OrganizationGetInvitationHandler returned no payload from Better Auth", continuation.metadata)
+        IamError.new({}, "OrganizationGetInvitationHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
 
@@ -374,7 +374,7 @@ const OrganizationListMembersHandler = OrganizationListMembersContract.implement
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError({}, "OrganizationListMembersHandler returned no payload from Better Auth", continuation.metadata)
+        IamError.new({}, "OrganizationListMembersHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
 
@@ -396,7 +396,7 @@ const OrganizationRemoveMemberHandler = OrganizationRemoveMemberContract.impleme
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError({}, "OrganizationRemoveMemberHandler returned no payload from Better Auth", continuation.metadata)
+        IamError.new({}, "OrganizationRemoveMemberHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
 
@@ -418,7 +418,7 @@ const OrganizationUpdateMemberRoleHandler = OrganizationUpdateMemberRoleContract
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError(
+        IamError.new(
           {},
           "OrganizationUpdateMemberRoleHandler returned no payload from Better Auth",
           continuation.metadata
@@ -442,7 +442,7 @@ const OrganizationGetActiveMemberHandler = OrganizationGetActiveMemberContract.i
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError(
+        IamError.new(
           {},
           "OrganizationGetActiveMemberHandler returned no payload from Better Auth",
           continuation.metadata
@@ -472,7 +472,7 @@ const OrganizationGetActiveMemberRoleHandler = OrganizationGetActiveMemberRoleCo
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError(
+        IamError.new(
           {},
           "OrganizationGetActiveMemberRoleHandler returned no payload from Better Auth",
           continuation.metadata
@@ -496,7 +496,7 @@ const OrganizationLeaveHandler = OrganizationLeaveContract.implement(
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError({}, "OrganizationLeaveHandler returned no payload from Better Auth", continuation.metadata)
+        IamError.new({}, "OrganizationLeaveHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
     const data = result.data;
@@ -521,7 +521,7 @@ const OrganizationCreateRoleHandler = OrganizationCreateRoleContract.implement(
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError({}, "OrganizationCreateRoleHandler returned no payload from Better Auth", continuation.metadata)
+        IamError.new({}, "OrganizationCreateRoleHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
     const data = result.data;
@@ -542,7 +542,7 @@ const OrganizationDeleteRoleHandler = OrganizationDeleteRoleContract.implement(
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError({}, "OrganizationDeleteRoleHandler returned no payload from Better Auth", continuation.metadata)
+        IamError.new({}, "OrganizationDeleteRoleHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
 
@@ -565,7 +565,7 @@ const OrganizationListRolesHandler = OrganizationListRolesContract.implement(
 
     if (!result.data) {
       return yield* Effect.fail(
-        new IamError({}, "OrganizationListRolesHandler returned no payload from Better Auth", continuation.metadata)
+        IamError.new({}, "OrganizationListRolesHandler returned no payload from Better Auth", continuation.metadata)
       );
     }
     const data = result.data;
