@@ -93,7 +93,7 @@
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",
-    "@types/bun": "catalog:",
+
     "@beep/types": "workspace:^",
     "@types/lodash": "catalog:",
     "@types/node": "catalog:",

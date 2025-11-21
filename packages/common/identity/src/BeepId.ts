@@ -2,7 +2,7 @@
  * Concrete implementation for namespace-safe identity string and symbol creation.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/BeepId";
  *
  * const runtimeLayerId = Identity.BeepId.module("runtime-server").compose("layers").make("Managed");
  *
@@ -142,7 +142,7 @@ type BaseFactory = <Value extends StringTypes.NonEmptyString>(value: Value) => I
  * Identity builder entry points for `@beep/*` namespaces.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/BeepId";
  *
  * const schemaId = Identity.BeepId.module("schema");
  * const payloadId = schemaId.compose("annotations").make("PasskeyAddPayload");

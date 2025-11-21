@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",
-    "@types/bun": "catalog:",
+
     "@beep/types": "workspace:^",
     "babel-plugin-transform-next-use-client": "catalog:",
     "@babel/preset-react": "catalog:",

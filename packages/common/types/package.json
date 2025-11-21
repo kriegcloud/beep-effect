@@ -35,17 +35,17 @@
     "coverage": "bun test --coverage",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "lint:circular": "bunx madge -c ."
+    "lint:circular": "bunx madge -c .",
+    "docgen": "bunx docgen"
   },
   "peerDependencies": {
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "@effect/experimental": "catalog:"
   },
   "devDependencies": {
+    "@effect/experimental": "catalog:",
     "@effect/build-utils": "catalog:",
-    "@beep/testkit": "workspace:^",
-    "@effect/docgen": "catalog:",
-    "effect": "catalog:",
-    "@types/bun": "catalog:"
+    "effect": "catalog:"
   },
   "effect": {
     "generateExports": {

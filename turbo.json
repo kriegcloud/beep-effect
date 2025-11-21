@@ -132,6 +132,13 @@
         "$TURBO_DEFAULT$"
       ]
     },
+    "knip": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "knip.config.ts"
+      ]
+    },
     "check": {
       "dependsOn": [
         "^build",

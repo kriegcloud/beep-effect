@@ -39,8 +39,7 @@
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@types/bun": "catalog:",
-    "@effect/docgen": "catalog:",
+
     "effect": "catalog:"
   },
   "effect": {

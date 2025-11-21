@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",
-    "@types/bun": "catalog:",
+
     "@beep/types": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/schema": "workspace:^",

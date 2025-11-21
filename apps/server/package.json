@@ -82,8 +82,6 @@
   },
   "devDependencies": {
     "@beep/types": "workspace:^",
-    "@types/bun": "catalog:",
-    "madge": "catalog:",
-    "tsx": "catalog:"
+    "madge": "catalog:"
   }
 }

@@ -34,6 +34,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "lint:circular": "bunx madge -c .",
+    "knip": "bunx knip --config=../../../knip.config.ts --workspace packages/_internal/db-admin",
     "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_ENV=development NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx tsx ./src/scratch.ts"
   },
   "dependencies": {
@@ -75,7 +76,7 @@
     "drizzle-kit": "catalog:",
     "drizzle-orm": "catalog:",
     "effect": "catalog:",
-    "tsx": "catalog:",
+
     "@beep/core-env": "workspace:^",
     "@effect/platform": "catalog:",
     "postgres": "catalog:",
@@ -84,7 +85,7 @@
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",
-    "@types/bun": "catalog:",
+
     "@beep/types": "workspace:^"
   },
   "effect": {

@@ -2,7 +2,7 @@
  * Canonical identity composers for every `@beep/*` workspace namespace.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const schemaTenantId = Identity.SchemaId.compose("entities").make("Tenant");
  *
@@ -16,7 +16,7 @@ import type { IdentityComposer } from "./types";
  * Identity composer for the `@beep/schema` namespace.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const schemaAnnotationsId = Identity.SchemaId.make("annotations");
  *
@@ -29,7 +29,7 @@ export const SchemaId: IdentityComposer<"@beep/schema"> = BeepId.module("schema"
  * Identity composer for the `@beep/errors` namespace.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const errorsAuthId = Identity.ErrorsId.make("AuthError");
  *
@@ -42,7 +42,7 @@ export const ErrorsId: IdentityComposer<"@beep/errors"> = BeepId.module("errors"
  * Identity composer for the `@beep/constants` namespace.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const currencyConstantId = Identity.ConstantsId.make("Currencies");
  *
@@ -55,7 +55,7 @@ export const ConstantsId: IdentityComposer<"@beep/constants"> = BeepId.module("c
  * Identity composer for repo-wide mock fixtures under `@beep/mock`.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const mockFixturesId = Identity.MockId.make("users");
  *
@@ -68,7 +68,7 @@ export const MockId: IdentityComposer<"@beep/mock"> = BeepId.module("mock");
  * Identity composer for contract definitions under `@beep/contract`.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const registerContractId = Identity.ContractId.compose("iam").make("register");
  *
@@ -81,7 +81,7 @@ export const ContractId: IdentityComposer<"@beep/contract"> = BeepId.module("con
  * Identity composer for shared domain entities (`@beep/shared-domain`).
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const sharedDomainEntityId = Identity.SharedDomainId.compose("entities").make("Tenant");
  *
@@ -94,7 +94,7 @@ export const SharedDomainId: IdentityComposer<"@beep/shared-domain"> = BeepId.mo
  * Identity composer for database infrastructure under `@beep/core-db`.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const userRepoId = Identity.CoreDbId.compose("repos").make("UserRepo");
  *
@@ -107,7 +107,7 @@ export const CoreDbId: IdentityComposer<"@beep/core-db"> = BeepId.module("core-d
  * Identity composer for configuration helpers under `@beep/core-env`.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const envLoaderId = Identity.CoreEnvId.make("server");
  *
@@ -120,7 +120,7 @@ export const CoreEnvId: IdentityComposer<"@beep/core-env"> = BeepId.module("core
  * Identity composer for core email utilities under `@beep/core-email`.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const emailTemplateId = Identity.CoreEmailId.make("verifyEmail");
  *
@@ -133,7 +133,7 @@ export const CoreEmailId: IdentityComposer<"@beep/core-email"> = BeepId.module("
  * Identity composer for design system primitives under `@beep/core-ui`.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const primitiveId = Identity.CoreUiId.make("Accordion");
  *
@@ -146,7 +146,7 @@ export const CoreUiId: IdentityComposer<"@beep/core-ui"> = BeepId.module("core-u
  * Identity composer for shared UI components in `@beep/ui`.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const uiComponentId = Identity.UiId.make("Avatar");
  *
@@ -159,7 +159,7 @@ export const UiId: IdentityComposer<"@beep/ui"> = BeepId.module("ui");
  * Identity composer for IAM domain models under `@beep/iam-domain`.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const iamDomainEntityId = Identity.IamDomainId.compose("entities").make("Account");
  *
@@ -172,7 +172,7 @@ export const IamDomainId: IdentityComposer<"@beep/iam-domain"> = BeepId.module("
  * Identity composer for IAM infrastructure (`@beep/iam-infra`).
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const iamInfraRepoId = Identity.IamInfraId.compose("repos").make("OrganizationRepo");
  *
@@ -185,7 +185,7 @@ export const IamInfraId: IdentityComposer<"@beep/iam-infra"> = BeepId.module("ia
  * Identity composer for IAM SDK helpers under `@beep/iam-sdk`.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const iamSdkFlowId = Identity.IamSdkId.make("AuthCallback");
  *
@@ -198,7 +198,7 @@ export const IamSdkId: IdentityComposer<"@beep/iam-sdk"> = BeepId.module("iam-sd
  * Identity composer for IAM UI flows under `@beep/iam-ui`.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const iamUiScreenId = Identity.IamUiId.make("VerifyEmail");
  *
@@ -211,7 +211,7 @@ export const IamUiId: IdentityComposer<"@beep/iam-ui"> = BeepId.module("iam-ui")
  * Identity composer for Files domain value objects under `@beep/files-domain`.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const filesDomainValueId = Identity.FilesDomainId.compose("entities").make("Upload");
  *
@@ -224,7 +224,7 @@ export const FilesDomainId: IdentityComposer<"@beep/files-domain"> = BeepId.modu
  * Identity composer for Files infrastructure layers under `@beep/files-infra`.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const filesInfraServiceId = Identity.FilesInfraId.compose("services").make("Storage");
  *
@@ -237,7 +237,7 @@ export const FilesInfraId: IdentityComposer<"@beep/files-infra"> = BeepId.module
  * Identity composer for Files SDK helpers under `@beep/files-sdk`.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const filesSdkClientId = Identity.FilesSdkId.make("UploadClient");
  *
@@ -250,7 +250,7 @@ export const FilesSdkId: IdentityComposer<"@beep/files-sdk"> = BeepId.module("fi
  * Identity composer for Files UI components under `@beep/files-ui`.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const filesUiWidgetId = Identity.FilesUiId.make("Uploader");
  *
@@ -263,7 +263,7 @@ export const FilesUiId: IdentityComposer<"@beep/files-ui"> = BeepId.module("file
  * Identity composer for Tasks domain models (`@beep/tasks-domain`).
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const tasksDomainModelId = Identity.TasksDomainId.make("Inbox");
  *
@@ -276,7 +276,7 @@ export const TasksDomainId: IdentityComposer<"@beep/tasks-domain"> = BeepId.modu
  * Identity composer for Tasks infrastructure layers (`@beep/tasks-infra`).
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const tasksInfraLayerId = Identity.TasksInfraId.make("QueueWorker");
  *
@@ -289,7 +289,7 @@ export const TasksInfraId: IdentityComposer<"@beep/tasks-infra"> = BeepId.module
  * Identity composer for Tasks SDK helpers (`@beep/tasks-sdk`).
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const tasksSdkFlowId = Identity.TasksSdkId.make("CreateTask");
  *
@@ -302,7 +302,7 @@ export const TasksSdkId: IdentityComposer<"@beep/tasks-sdk"> = BeepId.module("ta
  * Identity composer for Tasks UI components (`@beep/tasks-ui`).
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const tasksUiComponentId = Identity.TasksUiId.make("Board");
  *
@@ -315,7 +315,7 @@ export const TasksUiId: IdentityComposer<"@beep/tasks-ui"> = BeepId.module("task
  * Identity composer for runtime server layers (`@beep/runtime-server`).
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const runtimeServerLayerId = Identity.RuntimeServerId.make("ManagedRuntime");
  *
@@ -328,7 +328,7 @@ export const RuntimeServerId: IdentityComposer<"@beep/runtime-server"> = BeepId.
  * Identity composer for runtime client layers (`@beep/runtime-client`).
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const runtimeClientLayerId = Identity.RuntimeClientId.make("HydrationLayer");
  *
@@ -341,7 +341,7 @@ export const RuntimeClientId: IdentityComposer<"@beep/runtime-client"> = BeepId.
  * Identity composer for admin database tooling (`@beep/db-admin`).
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const dbAdminJobId = Identity.DbAdminId.make("drizzleSync");
  *
@@ -354,7 +354,7 @@ export const DbAdminId: IdentityComposer<"@beep/db-admin"> = BeepId.module("db-a
  * Identity composer for Next.js application code (`@beep/web`).
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const webFeatureId = Identity.WebId.make("Dashboard");
  *
@@ -367,7 +367,7 @@ export const WebId: IdentityComposer<"@beep/web"> = BeepId.module("web");
  * Identity composer for the bootstrap client (`@beep/start-client`).
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const startClientRuntimeId = Identity.StartClientId.make("bootstrap");
  *
@@ -380,7 +380,7 @@ export const StartClientId: IdentityComposer<"@beep/start-client"> = BeepId.modu
  * Identity composer for the `@beep/server` runtime entrypoint.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const serverBootstrapId = Identity.ServerId.make("bootstrap");
  *
@@ -393,7 +393,7 @@ export const ServerId: IdentityComposer<"@beep/server"> = BeepId.module("server"
  * Identity composer for the `@beep/integrations-core` runtime entrypoint.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const integrationsCoreBootstrapId = Identity.IntegrationsCoreId.make("bootstrap");
  *
@@ -406,7 +406,7 @@ export const IntegrationsCoreId: IdentityComposer<"@beep/integrations-core"> = B
  * Identity composer for the `@beep/google` runtime entrypoint.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const googleBootstrapId = Identity.GoogleId.make("bootstrap");
  *
@@ -419,7 +419,7 @@ export const GoogleId: IdentityComposer<"@beep/google"> = BeepId.module("google"
  * Identity composer for the `@beep/thefront` runtime entrypoint.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const thefrontId = Identity.TheFrontId.make("bootstrap");
  *
@@ -432,7 +432,7 @@ export const TheFrontId: IdentityComposer<"@beep/thefront"> = BeepId.module("the
  * Identity composer for the `@beep/thefront` runtime entrypoint.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const AICoreId = Identity.AICoreId.make("bootstrap");
  *
@@ -445,7 +445,7 @@ export const AICoreId: IdentityComposer<"@beep/thefront"> = BeepId.module("thefr
  * Identity composer for the `@beep/thefront` runtime entrypoint.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import * as Identity from "@beep/identity/modules";
  *
  * const AICoreId = Identity.AICoreId.make("bootstrap");
  *

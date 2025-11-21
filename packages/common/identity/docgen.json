@@ -4,10 +4,7 @@
   "outDir": "docs",
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/identity/src/",
   "exclude": [
-    "src/internal/**/*.ts",
-    "src/experimental/contract/**/*.ts",
-    "src/index.ts",
-    "src/**/_id.ts"
+
   ],
   "parseCompilerOptions": {
     "baseUrl": ".",
@@ -15,7 +12,7 @@
     "strict": true,
     "skipLibCheck": true,
     "moduleResolution": "Bundler",
-    "module": "ES2023",
+    "module": "ESNext",
     "target": "ES2023",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "allowImportingTsExtensions": true,
@@ -33,7 +30,7 @@
     "strict": true,
     "skipLibCheck": true,
     "moduleResolution": "Bundler",
-    "module": "ES2023",
+    "module": "ESNext",
     "target": "ES2023",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "allowImportingTsExtensions": true,

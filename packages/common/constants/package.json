@@ -48,7 +48,7 @@
   "devDependencies": {
     "@effect/build-utils": "catalog:",
     "@effect/docgen": "catalog:",
-    "@types/bun": "catalog:",
+
     "effect": "catalog:",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",

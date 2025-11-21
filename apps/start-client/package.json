@@ -94,7 +94,7 @@
     "@tanstack/router-plugin": "catalog:",
     "@vite-pwa/assets-generator": "catalog:",
     "tailwindcss": "catalog:",
-    "tsx": "catalog:",
+
     "tw-animate-css": "catalog:",
     "vite-plugin-pwa": "catalog:",
     "workbox-core": "catalog:",
@@ -103,7 +103,6 @@
     "@beep/types": "workspace:^",
     "@effect/sql-sqlite-node": "catalog:",
     "@effect/vitest": "catalog:",
-    "@types/bun": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

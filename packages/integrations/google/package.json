@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",
-    "@types/bun": "catalog:",
+
     "@beep/types": "workspace:^",
     "@beep/core-env": "workspace:^",
     "@beep/constants": "workspace:^",
