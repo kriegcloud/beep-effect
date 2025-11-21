@@ -8,7 +8,7 @@
 
 ## Surface Overview (`src/`)
 - `BeepId.ts` — core builder with `module`, `from`, `compose`, `make`, `.symbol()`, `.annotations()`, segment validation, and automatic title derivation.
-- `modules.ts` — pre-baked composers per workspace (`SchemaId`, `ErrorsId`, `CoreDbId`, `IamInfraId`, `FilesDomainId`, etc.); treat this as the source of truth for namespace coverage.
+- `packages.ts` — pre-baked composers per workspace (`SchemaId`, `ErrorsId`, `CoreDbId`, `IamInfraId`, `FilesDomainId`, etc.); treat this as the source of truth for namespace coverage.
 - `types.ts` — branded identity types, segment tuple utilities, annotation result helpers, and `IdentityComposer` interface definition.
 - `index.ts` — barrels public exports (`BeepId`, all module composers, types).
 

@@ -13,7 +13,7 @@ import { BeepId } from "@beep/identity/BeepId";
 const DomainId = BeepId.package("domain");
 
 // Sub-module for annotations helpers
-const EntitiesId = schemaId.compose("entities");
+const EntitiesId = DomainId.compose("entities");
 
 // Service identifiers + TypeId
 const {
