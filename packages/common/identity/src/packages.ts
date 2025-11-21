@@ -23,7 +23,7 @@ import type { IdentityComposer } from "./types";
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const SchemaId: IdentityComposer<"@beep/schema"> = BeepId.module("schema");
+export const SchemaId: IdentityComposer<"@beep/schema"> = BeepId.package("schema");
 
 /**
  * Identity composer for the `@beep/errors` namespace.
@@ -36,7 +36,7 @@ export const SchemaId: IdentityComposer<"@beep/schema"> = BeepId.module("schema"
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const ErrorsId: IdentityComposer<"@beep/errors"> = BeepId.module("errors");
+export const ErrorsId: IdentityComposer<"@beep/errors"> = BeepId.package("errors");
 
 /**
  * Identity composer for the `@beep/constants` namespace.
@@ -49,7 +49,7 @@ export const ErrorsId: IdentityComposer<"@beep/errors"> = BeepId.module("errors"
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const ConstantsId: IdentityComposer<"@beep/constants"> = BeepId.module("constants");
+export const ConstantsId: IdentityComposer<"@beep/constants"> = BeepId.package("constants");
 
 /**
  * Identity composer for repo-wide mock fixtures under `@beep/mock`.
@@ -62,7 +62,7 @@ export const ConstantsId: IdentityComposer<"@beep/constants"> = BeepId.module("c
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const MockId: IdentityComposer<"@beep/mock"> = BeepId.module("mock");
+export const MockId: IdentityComposer<"@beep/mock"> = BeepId.package("mock");
 
 /**
  * Identity composer for contract definitions under `@beep/contract`.
@@ -75,7 +75,7 @@ export const MockId: IdentityComposer<"@beep/mock"> = BeepId.module("mock");
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const ContractId: IdentityComposer<"@beep/contract"> = BeepId.module("contract");
+export const ContractId: IdentityComposer<"@beep/contract"> = BeepId.package("contract");
 
 /**
  * Identity composer for shared domain entities (`@beep/shared-domain`).
@@ -88,7 +88,7 @@ export const ContractId: IdentityComposer<"@beep/contract"> = BeepId.module("con
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const SharedDomainId: IdentityComposer<"@beep/shared-domain"> = BeepId.module("shared-domain");
+export const SharedDomainId: IdentityComposer<"@beep/shared-domain"> = BeepId.package("shared-domain");
 
 /**
  * Identity composer for database infrastructure under `@beep/core-db`.
@@ -101,7 +101,7 @@ export const SharedDomainId: IdentityComposer<"@beep/shared-domain"> = BeepId.mo
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const CoreDbId: IdentityComposer<"@beep/core-db"> = BeepId.module("core-db");
+export const CoreDbId: IdentityComposer<"@beep/core-db"> = BeepId.package("core-db");
 
 /**
  * Identity composer for configuration helpers under `@beep/core-env`.
@@ -114,7 +114,7 @@ export const CoreDbId: IdentityComposer<"@beep/core-db"> = BeepId.module("core-d
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const CoreEnvId: IdentityComposer<"@beep/core-env"> = BeepId.module("core-env");
+export const CoreEnvId: IdentityComposer<"@beep/core-env"> = BeepId.package("core-env");
 
 /**
  * Identity composer for core email utilities under `@beep/core-email`.
@@ -127,7 +127,7 @@ export const CoreEnvId: IdentityComposer<"@beep/core-env"> = BeepId.module("core
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const CoreEmailId: IdentityComposer<"@beep/core-email"> = BeepId.module("core-email");
+export const CoreEmailId: IdentityComposer<"@beep/core-email"> = BeepId.package("core-email");
 
 /**
  * Identity composer for design system primitives under `@beep/core-ui`.
@@ -140,7 +140,7 @@ export const CoreEmailId: IdentityComposer<"@beep/core-email"> = BeepId.module("
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const CoreUiId: IdentityComposer<"@beep/core-ui"> = BeepId.module("core-ui");
+export const CoreUiId: IdentityComposer<"@beep/core-ui"> = BeepId.package("core-ui");
 
 /**
  * Identity composer for shared UI components in `@beep/ui`.
@@ -153,7 +153,7 @@ export const CoreUiId: IdentityComposer<"@beep/core-ui"> = BeepId.module("core-u
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const UiId: IdentityComposer<"@beep/ui"> = BeepId.module("ui");
+export const UiId: IdentityComposer<"@beep/ui"> = BeepId.package("ui");
 
 /**
  * Identity composer for IAM domain models under `@beep/iam-domain`.
@@ -166,7 +166,7 @@ export const UiId: IdentityComposer<"@beep/ui"> = BeepId.module("ui");
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const IamDomainId: IdentityComposer<"@beep/iam-domain"> = BeepId.module("iam-domain");
+export const IamDomainId: IdentityComposer<"@beep/iam-domain"> = BeepId.package("iam-domain");
 
 /**
  * Identity composer for IAM infrastructure (`@beep/iam-infra`).
@@ -179,7 +179,7 @@ export const IamDomainId: IdentityComposer<"@beep/iam-domain"> = BeepId.module("
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const IamInfraId: IdentityComposer<"@beep/iam-infra"> = BeepId.module("iam-infra");
+export const IamInfraId: IdentityComposer<"@beep/iam-infra"> = BeepId.package("iam-infra");
 
 /**
  * Identity composer for IAM SDK helpers under `@beep/iam-sdk`.
@@ -192,7 +192,7 @@ export const IamInfraId: IdentityComposer<"@beep/iam-infra"> = BeepId.module("ia
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const IamSdkId: IdentityComposer<"@beep/iam-sdk"> = BeepId.module("iam-sdk");
+export const IamSdkId: IdentityComposer<"@beep/iam-sdk"> = BeepId.package("iam-sdk");
 
 /**
  * Identity composer for IAM UI flows under `@beep/iam-ui`.
@@ -205,7 +205,7 @@ export const IamSdkId: IdentityComposer<"@beep/iam-sdk"> = BeepId.module("iam-sd
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const IamUiId: IdentityComposer<"@beep/iam-ui"> = BeepId.module("iam-ui");
+export const IamUiId: IdentityComposer<"@beep/iam-ui"> = BeepId.package("iam-ui");
 
 /**
  * Identity composer for Files domain value objects under `@beep/files-domain`.
@@ -218,7 +218,7 @@ export const IamUiId: IdentityComposer<"@beep/iam-ui"> = BeepId.module("iam-ui")
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const FilesDomainId: IdentityComposer<"@beep/files-domain"> = BeepId.module("files-domain");
+export const FilesDomainId: IdentityComposer<"@beep/files-domain"> = BeepId.package("files-domain");
 
 /**
  * Identity composer for Files infrastructure layers under `@beep/files-infra`.
@@ -231,7 +231,7 @@ export const FilesDomainId: IdentityComposer<"@beep/files-domain"> = BeepId.modu
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const FilesInfraId: IdentityComposer<"@beep/files-infra"> = BeepId.module("files-infra");
+export const FilesInfraId: IdentityComposer<"@beep/files-infra"> = BeepId.package("files-infra");
 
 /**
  * Identity composer for Files SDK helpers under `@beep/files-sdk`.
@@ -244,7 +244,7 @@ export const FilesInfraId: IdentityComposer<"@beep/files-infra"> = BeepId.module
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const FilesSdkId: IdentityComposer<"@beep/files-sdk"> = BeepId.module("files-sdk");
+export const FilesSdkId: IdentityComposer<"@beep/files-sdk"> = BeepId.package("files-sdk");
 
 /**
  * Identity composer for Files UI components under `@beep/files-ui`.
@@ -257,7 +257,7 @@ export const FilesSdkId: IdentityComposer<"@beep/files-sdk"> = BeepId.module("fi
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const FilesUiId: IdentityComposer<"@beep/files-ui"> = BeepId.module("files-ui");
+export const FilesUiId: IdentityComposer<"@beep/files-ui"> = BeepId.package("files-ui");
 
 /**
  * Identity composer for Tasks domain models (`@beep/tasks-domain`).
@@ -270,7 +270,7 @@ export const FilesUiId: IdentityComposer<"@beep/files-ui"> = BeepId.module("file
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const TasksDomainId: IdentityComposer<"@beep/tasks-domain"> = BeepId.module("tasks-domain");
+export const TasksDomainId: IdentityComposer<"@beep/tasks-domain"> = BeepId.package("tasks-domain");
 
 /**
  * Identity composer for Tasks infrastructure layers (`@beep/tasks-infra`).
@@ -283,7 +283,7 @@ export const TasksDomainId: IdentityComposer<"@beep/tasks-domain"> = BeepId.modu
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const TasksInfraId: IdentityComposer<"@beep/tasks-infra"> = BeepId.module("tasks-infra");
+export const TasksInfraId: IdentityComposer<"@beep/tasks-infra"> = BeepId.package("tasks-infra");
 
 /**
  * Identity composer for Tasks SDK helpers (`@beep/tasks-sdk`).
@@ -296,7 +296,7 @@ export const TasksInfraId: IdentityComposer<"@beep/tasks-infra"> = BeepId.module
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const TasksSdkId: IdentityComposer<"@beep/tasks-sdk"> = BeepId.module("tasks-sdk");
+export const TasksSdkId: IdentityComposer<"@beep/tasks-sdk"> = BeepId.package("tasks-sdk");
 
 /**
  * Identity composer for Tasks UI components (`@beep/tasks-ui`).
@@ -309,7 +309,7 @@ export const TasksSdkId: IdentityComposer<"@beep/tasks-sdk"> = BeepId.module("ta
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const TasksUiId: IdentityComposer<"@beep/tasks-ui"> = BeepId.module("tasks-ui");
+export const TasksUiId: IdentityComposer<"@beep/tasks-ui"> = BeepId.package("tasks-ui");
 
 /**
  * Identity composer for runtime server layers (`@beep/runtime-server`).
@@ -322,7 +322,7 @@ export const TasksUiId: IdentityComposer<"@beep/tasks-ui"> = BeepId.module("task
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const RuntimeServerId: IdentityComposer<"@beep/runtime-server"> = BeepId.module("runtime-server");
+export const RuntimeServerId: IdentityComposer<"@beep/runtime-server"> = BeepId.package("runtime-server");
 
 /**
  * Identity composer for runtime client layers (`@beep/runtime-client`).
@@ -335,7 +335,7 @@ export const RuntimeServerId: IdentityComposer<"@beep/runtime-server"> = BeepId.
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const RuntimeClientId: IdentityComposer<"@beep/runtime-client"> = BeepId.module("runtime-client");
+export const RuntimeClientId: IdentityComposer<"@beep/runtime-client"> = BeepId.package("runtime-client");
 
 /**
  * Identity composer for admin database tooling (`@beep/db-admin`).
@@ -348,7 +348,7 @@ export const RuntimeClientId: IdentityComposer<"@beep/runtime-client"> = BeepId.
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const DbAdminId: IdentityComposer<"@beep/db-admin"> = BeepId.module("db-admin");
+export const DbAdminId: IdentityComposer<"@beep/db-admin"> = BeepId.package("db-admin");
 
 /**
  * Identity composer for Next.js application code (`@beep/web`).
@@ -361,7 +361,7 @@ export const DbAdminId: IdentityComposer<"@beep/db-admin"> = BeepId.module("db-a
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const WebId: IdentityComposer<"@beep/web"> = BeepId.module("web");
+export const WebId: IdentityComposer<"@beep/web"> = BeepId.package("web");
 
 /**
  * Identity composer for the bootstrap client (`@beep/start-client`).
@@ -374,7 +374,7 @@ export const WebId: IdentityComposer<"@beep/web"> = BeepId.module("web");
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const StartClientId: IdentityComposer<"@beep/start-client"> = BeepId.module("start-client");
+export const StartClientId: IdentityComposer<"@beep/start-client"> = BeepId.package("start-client");
 
 /**
  * Identity composer for the `@beep/server` runtime entrypoint.
@@ -387,7 +387,7 @@ export const StartClientId: IdentityComposer<"@beep/start-client"> = BeepId.modu
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const ServerId: IdentityComposer<"@beep/server"> = BeepId.module("server");
+export const ServerId: IdentityComposer<"@beep/server"> = BeepId.package("server");
 
 /**
  * Identity composer for the `@beep/integrations-core` runtime entrypoint.
@@ -400,7 +400,7 @@ export const ServerId: IdentityComposer<"@beep/server"> = BeepId.module("server"
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const IntegrationsCoreId: IdentityComposer<"@beep/integrations-core"> = BeepId.module("integrations-core");
+export const IntegrationsCoreId: IdentityComposer<"@beep/integrations-core"> = BeepId.package("integrations-core");
 
 /**
  * Identity composer for the `@beep/google` runtime entrypoint.
@@ -413,7 +413,7 @@ export const IntegrationsCoreId: IdentityComposer<"@beep/integrations-core"> = B
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const GoogleId: IdentityComposer<"@beep/google"> = BeepId.module("google");
+export const GoogleId: IdentityComposer<"@beep/google"> = BeepId.package("google");
 
 /**
  * Identity composer for the `@beep/thefront` runtime entrypoint.
@@ -426,7 +426,7 @@ export const GoogleId: IdentityComposer<"@beep/google"> = BeepId.module("google"
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const TheFrontId: IdentityComposer<"@beep/thefront"> = BeepId.module("thefront");
+export const TheFrontId: IdentityComposer<"@beep/thefront"> = BeepId.package("thefront");
 
 /**
  * Identity composer for the `@beep/thefront` runtime entrypoint.
@@ -439,7 +439,7 @@ export const TheFrontId: IdentityComposer<"@beep/thefront"> = BeepId.module("the
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const AICoreId: IdentityComposer<"@beep/thefront"> = BeepId.module("thefront");
+export const AICoreId: IdentityComposer<"@beep/thefront"> = BeepId.package("thefront");
 
 /**
  * Identity composer for the `@beep/thefront` runtime entrypoint.
@@ -452,4 +452,17 @@ export const AICoreId: IdentityComposer<"@beep/thefront"> = BeepId.module("thefr
  * @category Identity/Modules
  * @since 0.1.0
  */
-export const ToolingUtilsId: IdentityComposer<"@beep/tooling-utils"> = BeepId.module("tooling-utils");
+export const ToolingUtilsId: IdentityComposer<"@beep/tooling-utils"> = BeepId.package("tooling-utils");
+
+/**
+ * Identity composer for the `@beep/thefront` runtime entrypoint.
+ *
+ * @example
+ * import * as Identity from "@beep/identity/modules";
+ *
+ * const AICoreId = Identity.AICoreId.make("bootstrap");
+ *
+ * @category Identity/Modules
+ * @since 0.1.0
+ */
+export const EventId: IdentityComposer<"@beep/event"> = BeepId.package("event");

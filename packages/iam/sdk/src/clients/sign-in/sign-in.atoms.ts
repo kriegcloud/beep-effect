@@ -16,6 +16,7 @@ const signInToastOptions = {
 } as const;
 
 export const signInPasskeyAtom = signInRuntime.fn(F.flow(SignInService.SignInPasskey, withToast(signInToastOptions)));
+
 export const useSignInPasskey = () => {
   const signInPasskey = useAtomSet(signInPasskeyAtom);
   return {
@@ -58,6 +59,7 @@ export const useSignInUsername = () => {
 };
 
 export const signInOneTapAtom = signInRuntime.fn(F.flow(SignInService.SignInOneTap, withToast(signInToastOptions)));
+
 export const useSignInOneTap = () => {
   const signInOneTap = useAtomSet(signInOneTapAtom);
   return {

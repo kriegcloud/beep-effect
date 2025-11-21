@@ -98,7 +98,7 @@ export type SchemaAnnotationExtras<A> = Schema.Annotations.GenericSchema<A>;
  *
  * @example
  * import type * as Identity from "@beep/identity/types";
- * import * as Modules from "@beep/identity/modules";
+ * import * as Packages from "@beep/identity/packages";
  *
  * const extras: Identity.SchemaAnnotationExtras<{ readonly version: 1 }> = {};
  *
@@ -106,7 +106,7 @@ export type SchemaAnnotationExtras<A> = Schema.Annotations.GenericSchema<A>;
  *   "@beep/schema/annotations/PasskeyAddPayload",
  *   "PasskeyAddPayload",
  *   { readonly version: 1 }
- * > = Modules.SchemaId.compose("annotations").annotations("PasskeyAddPayload", extras);
+ * > = Packages.SchemaId.compose("annotations").annotations("PasskeyAddPayload", extras);
  *
  * @category Identity/Annotations
  * @since 0.1.0
@@ -117,7 +117,7 @@ export type IdentityAnnotationResult<Value extends string, Identifier extends st
 > &
   SchemaAnnotationExtras<SchemaType>;
 
-type InvalidCollectionChar =
+type InvalidModuleChar =
   | "/"
   | "\\\\"
   | "."
@@ -162,20 +162,20 @@ type PascalCaseValue<Value extends string> = Value extends `${infer Head}-${infe
     ? `${PascalCaseWord<Head>}${PascalCaseValue<Tail>}`
     : PascalCaseWord<Value>;
 
-export type CollectionSegmentValue<S extends StringTypes.NonEmptyString> = S extends `${Digit}${string}`
+export type ModuleSegmentValue<S extends StringTypes.NonEmptyString> = S extends `${Digit}${string}`
   ? never
   : S extends `-${string}`
     ? never
     : S extends `_${string}`
       ? never
-      : S extends `${string}${InvalidCollectionChar}${string}`
+      : S extends `${string}${InvalidModuleChar}${string}`
         ? never
         : SegmentValue<S>;
 
-export type CollectionAccessor<S extends StringTypes.NonEmptyString> =
-  `${PascalCaseValue<CollectionSegmentValue<S>>}Id`;
+export type ModuleAccessor<S extends StringTypes.NonEmptyString> =
+  `${PascalCaseValue<ModuleSegmentValue<S>>}Id`;
 
-export type CollectionRecord<
+export type ModuleRecord<
   Value extends string,
   Segments extends ReadonlyArray<StringTypes.NonEmptyString>,
 > = Segments extends readonly [
@@ -183,8 +183,8 @@ export type CollectionRecord<
   ...infer Tail extends ReadonlyArray<StringTypes.NonEmptyString>,
 ]
   ? {
-      readonly [Key in CollectionAccessor<Head>]: IdentityComposer<`${Value}/${CollectionSegmentValue<Head>}`>;
-    } & CollectionRecord<Value, Tail>
+      readonly [Key in ModuleAccessor<Head>]: IdentityComposer<`${Value}/${ModuleSegmentValue<Head>}`>;
+    } & ModuleRecord<Value, Tail>
   : {};
 
 /**
@@ -194,7 +194,7 @@ export type CollectionRecord<
  * import type * as Identity from "@beep/identity/types";
  * import * as BeepId from "@beep/identity/BeepId";
  *
- * const schemaComposer: Identity.IdentityComposer<"@beep/schema"> = BeepId.BeepId.module("schema");
+ * const schemaComposer: Identity.IdentityComposer<"@beep/schema"> = BeepId.BeepId.package("schema");
  * const payloadId = schemaComposer.compose("annotations").make("PasskeyAddPayload");
  *
  * @category Identity/Builder
@@ -215,12 +215,12 @@ export interface IdentityComposer<Value extends string> {
     identifier: SegmentValue<Next>,
     extras?: SchemaAnnotationExtras<SchemaType>
   ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
-  collection<
+  module<
     const Segments extends readonly [
-      CollectionSegmentValue<StringTypes.NonEmptyString>,
-      ...CollectionSegmentValue<StringTypes.NonEmptyString>[],
+      ModuleSegmentValue<StringTypes.NonEmptyString>,
+      ...ModuleSegmentValue<StringTypes.NonEmptyString>[],
     ],
-  >(...segments: Segments): CollectionRecord<Value, Segments>;
+  >(...segments: Segments): ModuleRecord<Value, Segments>;
 }
 
 /**
@@ -243,27 +243,27 @@ type JoinSegments<Parts extends readonly [string, ...string[]]> = Parts extends 
     : never;
 
 /**
- * Final literal computed from the tuple passed to `BeepId.module`.
+ * Final literal computed from the tuple passed to `BeepId.package`.
  *
  * @example
  * import type * as Identity from "@beep/identity/types";
  *
- * type SchemaAnnotations = Identity.ModulePath<["schema", "annotations"]>;
+ * type SchemaAnnotations = Identity.PackagePath<["schema", "annotations"]>;
  *
  * @category Identity/Types
  * @since 0.1.0
  */
-export type ModulePath<Segments extends SegmentTuple> = `@beep/${JoinSegments<Segments>}`;
+export type PackagePath<Segments extends SegmentTuple> = `@beep/${JoinSegments<Segments>}`;
 
 /**
  * Base annotation object for schema/service descriptors.
  *
  * @example
  * import type * as Identity from "@beep/identity/types";
- * import * as Modules from "@beep/identity/modules";
+ * import * as Packages from "@beep/identity/packages";
  *
  * const annotation: Identity.IdentityAnnotation<"@beep/schema/Example", "Example"> = {
- *   ...Modules.SchemaId.annotations("Example"),
+ *   ...Packages.SchemaId.annotations("Example"),
  * };
  *
  * @category Identity/Annotations

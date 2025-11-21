@@ -1,4 +1,4 @@
-import { IamSdkId } from "@beep/identity/modules";
+import { IamSdkId } from "@beep/identity/packages";
 
 export const {
   AdminId,
@@ -20,7 +20,7 @@ export const {
   TwoFactorId,
   UserId,
   VerifyId,
-} = IamSdkId.compose("clients").collection(
+} = IamSdkId.compose("clients").module(
   "admin",
   "api-key",
   "device-authorization",

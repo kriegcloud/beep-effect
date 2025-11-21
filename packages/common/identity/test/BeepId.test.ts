@@ -7,7 +7,7 @@ import type { IdentityComposer, IdentityString, Segment } from "../src/types";
 
 describe("BeepId", () => {
   it("composes schema identifiers", () => {
-    const schemaId = BeepId.module("schema");
+    const schemaId = BeepId.package("schema");
     const annotationsId = schemaId.compose("annotations");
     const payloadId = annotationsId.make("PasskeyAddPayload");
 
@@ -21,7 +21,7 @@ describe("BeepId", () => {
   });
 
   it("builds multi-segment namespaces", () => {
-    const repoNamespace = BeepId.module("iam-infra", "adapters", "repos");
+    const repoNamespace = BeepId.package("iam-infra", "adapters", "repos");
     const userRepo = repoNamespace.make("UserRepo");
 
     expect(userRepo).toBe(
@@ -40,7 +40,7 @@ describe("BeepId", () => {
   });
 
   it("throws when a segment starts or ends with a slash", () => {
-    const schemaId = BeepId.module("schema");
+    const schemaId = BeepId.package("schema");
 
     expect(() => schemaId.compose("/annotations" as unknown as Segment)).toThrow(
       'Identity segments cannot start with "/".'
@@ -51,7 +51,7 @@ describe("BeepId", () => {
   });
 
   it("supports nested namespace segments", () => {
-    const schemaId = BeepId.module("schema");
+    const schemaId = BeepId.package("schema");
     const customDates = schemaId.compose("custom/dates");
     const full = customDates.make("DateTime");
 
@@ -68,7 +68,7 @@ describe("BeepId", () => {
   });
 
   it("creates annotation helpers with optional extras", () => {
-    const schemaId = BeepId.module("schema");
+    const schemaId = BeepId.package("schema");
     const base = schemaId.annotations("MySchema");
     const extended = schemaId.annotations<string>("MySchema", { description: "Custom" });
 
@@ -86,7 +86,7 @@ describe("BeepId", () => {
   });
 
   it("applies annotations to effect schema", () => {
-    const schemaId = BeepId.module("schema");
+    const schemaId = BeepId.package("schema");
     const annotation = schemaId.annotations<string>("MySchema", { description: "Custom" });
 
     const schema = S.String.annotations(annotation);
@@ -100,26 +100,26 @@ describe("BeepId", () => {
     expect(description).toStrictEqual(O.some("Custom"));
   });
 
-  it("builds collections with PascalCase accessors", () => {
-    const clients = BeepId.module("iam-sdk").compose("clients").collection("admin", "api-key", "passkey");
+  it("builds modules with PascalCase accessors", () => {
+    const clients = BeepId.package("iam-sdk").compose("clients").module("Admin", "api-key", "passkey");
 
     const { AdminId, ApiKeyId, PasskeyId } = clients;
 
-    expect(AdminId.string()).toBe("@beep/iam-sdk/clients/admin" as IdentityString<"@beep/iam-sdk/clients/admin">);
+    expect(AdminId.string()).toBe("@beep/iam-sdk/clients/Admin" as IdentityString<"@beep/iam-sdk/clients/Admin">);
     expect(ApiKeyId.string()).toBe("@beep/iam-sdk/clients/api-key" as IdentityString<"@beep/iam-sdk/clients/api-key">);
     expect(PasskeyId.string()).toBe("@beep/iam-sdk/clients/passkey" as IdentityString<"@beep/iam-sdk/clients/passkey">);
-    expectTypeOf(AdminId).toMatchTypeOf<IdentityComposer<"@beep/iam-sdk/clients/admin">>();
+    expectTypeOf(AdminId).toMatchTypeOf<IdentityComposer<"@beep/iam-sdk/clients/Admin">>();
     expectTypeOf(ApiKeyId).toMatchTypeOf<IdentityComposer<"@beep/iam-sdk/clients/api-key">>();
   });
 
-  it("rejects collection segments that cannot produce valid accessors", () => {
-    const schemaId = BeepId.module("schema");
+  it("rejects module segments that cannot produce valid accessors", () => {
+    const schemaId = BeepId.package("schema");
 
-    expect(() => schemaId.collection("1invalid")).toThrow(
-      "Collection segments must start with an alphabetic character to create valid accessors."
+    expect(() => schemaId.module("1invalid")).toThrow(
+      "Module segments must start with an alphabetic character to create valid accessors."
     );
-    expect(() => schemaId.collection("ann@tations" as Segment)).toThrow(
-      "Collection segments must contain only alphanumeric characters, hyphens, or underscores."
+    expect(() => schemaId.module("ann@tations" as Segment)).toThrow(
+      "Module segments must contain only alphanumeric characters, hyphens, or underscores."
     );
   });
 });

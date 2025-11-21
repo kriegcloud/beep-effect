@@ -1,0 +1,66 @@
+{
+  "name": "@beep/event",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "A library for defining domain events",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "directory": "dist",
+    "linkDirectory": false
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/common/event"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "codegen": "build-utils prepare-v3",
+    "build": "bun run build-esm && bun run build-annotate && bun run build-cjs && build-utils pack-v3",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "dev": "tsc -b tsconfig.build.json --watch",
+    "check": "tsc -b tsconfig.json",
+    "test": "bun test",
+    "coverage": "bun test --coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "execute": "tsx ./src/execute.ts",
+    "lint:circular": "bunx madge -c ."
+  },
+  "peerDependencies": {
+    "effect": "catalog:",
+    "@beep/schema": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/identity": "workspace:^"
+  },
+  "devDependencies": {
+    "@effect/docgen": "catalog:",
+    "effect": "catalog:",
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/types": "workspace:^"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}

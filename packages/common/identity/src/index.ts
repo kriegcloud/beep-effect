@@ -4,7 +4,7 @@
  * @example
  * import * as Identity from "@beep/identity/BeepId";
  *
- * const runtimeLayerId = Identity.BeepId.module("runtime-server").compose("layers").make("Managed");
+ * const runtimeLayerId = Identity.BeepId.package("runtime-server").compose("layers").make("Managed");
  *
  * @category Identity/Builder
  * @since 0.1.0
@@ -22,7 +22,7 @@ export * as BeepId from "./BeepId.js";
  * @category Identity/Modules
  * @since 0.1.0
  */
-export * as modules from "./modules.js";
+export * as modules from "./packages";
 
 /**
  * Type helpers for the `@beep/identity` builders and schema annotations.

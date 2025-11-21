@@ -6,7 +6,7 @@
  * @category Primitives/Temporal
  * @since 0.1.0
  */
-import { SchemaId } from "@beep/identity/modules";
+import { SchemaId } from "@beep/identity/packages";
 import { Duration } from "effect";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";

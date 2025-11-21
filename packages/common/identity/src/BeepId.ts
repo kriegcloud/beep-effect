@@ -4,7 +4,7 @@
  * @example
  * import * as Identity from "@beep/identity/BeepId";
  *
- * const runtimeLayerId = Identity.BeepId.module("runtime-server").compose("layers").make("Managed");
+ * const runtimeLayerId = Identity.BeepId.package("runtime-server").compose("layers").make("Managed");
  *
  * @category Identity/Builder
  * @since 0.1.0
@@ -16,14 +16,14 @@ import * as R from "effect/Record";
 import * as Str from "effect/String";
 
 import type {
-  CollectionRecord,
-  CollectionSegmentValue,
+  ModuleRecord,
+  ModuleSegmentValue,
   IdentityAnnotation,
   IdentityAnnotationResult,
   IdentityComposer,
   IdentityString,
   IdentitySymbol,
-  ModulePath,
+  PackagePath,
   SchemaAnnotationExtras,
   SegmentTuple,
   SegmentValue,
@@ -51,12 +51,12 @@ const toTitle = (identifier: string): string =>
     A.join(" ")
   );
 
-const invalidCollectionSegmentPattern = /[^A-Za-z0-9_-]/;
+const invalidModuleSegmentPattern = /[^A-Za-z0-9_-]/;
 const leadingAlphaPattern = /^[A-Za-z]/;
 
 const toPascalIdentifier = (segment: string): string => F.pipe(segment, toTitle, Str.replace(/\s+/g, ""));
 
-const toCollectionKey = (segment: string): string => `${toPascalIdentifier(segment)}Id`;
+const toModuleKey = (segment: string): string => `${toPascalIdentifier(segment)}Id`;
 
 const ensureSegment = <Value extends string>(segment: Value): Value => {
   if (!Str.isString(segment)) {
@@ -125,40 +125,40 @@ const createComposer: <Value extends string>(value: Value) => IdentityComposer<V
         SchemaType
       >;
     }) as IdentityComposer<Value>["annotations"],
-    collection<
+    module<
       const Segments extends readonly [
-        CollectionSegmentValue<StringTypes.NonEmptyString>,
-        ...CollectionSegmentValue<StringTypes.NonEmptyString>[],
+        ModuleSegmentValue<StringTypes.NonEmptyString>,
+        ...ModuleSegmentValue<StringTypes.NonEmptyString>[],
       ],
     >(...segments: Segments) {
       const entries = F.pipe(
         segments,
         A.map((segment) => {
           const ensured = ensureSegment(segment);
-          if (invalidCollectionSegmentPattern.test(ensured)) {
-            throw new Error("Collection segments must contain only alphanumeric characters, hyphens, or underscores.");
+          if (invalidModuleSegmentPattern.test(ensured)) {
+            throw new Error("Module segments must contain only alphanumeric characters, hyphens, or underscores.");
           }
           if (!leadingAlphaPattern.test(ensured)) {
-            throw new Error("Collection segments must start with an alphabetic character to create valid accessors.");
+            throw new Error("Module segments must start with an alphabetic character to create valid accessors.");
           }
-          const composed = `${value}/${ensured}` as `${Value}/${CollectionSegmentValue<StringTypes.NonEmptyString>}`;
+          const composed = `${value}/${ensured}` as `${Value}/${ModuleSegmentValue<StringTypes.NonEmptyString>}`;
           const composer = createComposer(composed);
-          return [toCollectionKey(ensured), composer] as const;
+          return [toModuleKey(ensured), composer] as const;
         })
       );
 
-      return R.fromEntries(entries) as CollectionRecord<Value, Segments>;
+      return R.fromEntries(entries) as ModuleRecord<Value, Segments>;
     },
   } satisfies IdentityComposer<Value>;
 };
 
-const makeModule: <const Segments extends SegmentTuple>(
+const makePackage: <const Segments extends SegmentTuple>(
   ...segments: Segments
-) => IdentityComposer<ModulePath<Segments>> = <const Segments extends SegmentTuple>(...segments: Segments) => {
+) => IdentityComposer<PackagePath<Segments>> = <const Segments extends SegmentTuple>(...segments: Segments) => {
   const sanitizedSegments = F.pipe(segments, A.map(ensureSegment));
   const namespaced = F.pipe(sanitizedSegments, A.prepend(BEEP_NAMESPACE));
   const value = joinSegments(namespaced);
-  return createComposer(value) as IdentityComposer<ModulePath<Segments>>;
+  return createComposer(value) as IdentityComposer<PackagePath<Segments>>;
 };
 
 const fromBase: <Value extends StringTypes.NonEmptyString>(value: Value) => IdentityComposer<Value> = <
@@ -167,9 +167,9 @@ const fromBase: <Value extends StringTypes.NonEmptyString>(value: Value) => Iden
   value: Value
 ) => createComposer(ensureBase(value));
 
-type ModuleFactory = <const Segments extends SegmentTuple>(
+type PackageFactory = <const Segments extends SegmentTuple>(
   ...segments: Segments
-) => IdentityComposer<ModulePath<Segments>>;
+) => IdentityComposer<PackagePath<Segments>>;
 type BaseFactory = <Value extends StringTypes.NonEmptyString>(value: Value) => IdentityComposer<Value>;
 
 /**
@@ -178,19 +178,19 @@ type BaseFactory = <Value extends StringTypes.NonEmptyString>(value: Value) => I
  * @example
  * import * as Identity from "@beep/identity/BeepId";
  *
- * const schemaId = Identity.BeepId.module("schema");
+ * const schemaId = Identity.BeepId.package("schema");
  * const payloadId = schemaId.compose("annotations").make("PasskeyAddPayload");
  *
  * @category Identity/Builder
  * @since 0.1.0
  */
 export const BeepId: {
-  readonly module: ModuleFactory;
+  readonly package: PackageFactory;
   readonly from: BaseFactory;
 } = {
-  module: makeModule,
+  package: makePackage,
   from: fromBase,
 } satisfies {
-  readonly module: ModuleFactory;
+  readonly package: PackageFactory;
   readonly from: BaseFactory;
 };

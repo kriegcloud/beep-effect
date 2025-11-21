@@ -54,7 +54,7 @@ const ExternalId = Identity.BeepId.from("@beep/integrations-core").compose("clie
 - `bun run test --filter @beep/identity` — Vitest suite covering builder invariants and branded types.
 
 ## Contributor Checklist
-- [ ] New composers reflect real workspace names and call `BeepId.module` (or `.from`) with validated segments.
+- [ ] New composers reflect real workspace names and call `BeepId.package` (or `.from`) with validated segments.
 - [ ] No native array/string helpers; all transformations flow through Effect modules and `F.pipe`.
 - [ ] Brands (`IdentityString`, `IdentitySymbol`) are maintained through exports and tests assert on branded types/symbol descriptions.
 - [ ] JSDoc added/updated for new exports with examples and categories.

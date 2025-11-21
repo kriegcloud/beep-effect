@@ -26,6 +26,9 @@
     {
       "path": "packages/common/schema/tsconfig.build.json"
     },
+        {
+      "path": "packages/common/event/tsconfig.build.json"
+    },
     {
       "path": "packages/common/constants/tsconfig.build.json"
     },

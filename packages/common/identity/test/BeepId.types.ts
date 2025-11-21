@@ -1,6 +1,6 @@
 import { BeepId } from "../src/BeepId";
 
-const schemaId = BeepId.module("schema");
+const schemaId = BeepId.package("schema");
 
 // Valid nested segment
 schemaId.compose("custom/dates");

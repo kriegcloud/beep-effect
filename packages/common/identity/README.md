@@ -7,24 +7,25 @@ creation.
 ## Usage
 
 ```ts
-import { BeepId } from "@beep/identity";
+import { BeepId } from "@beep/identity/BeepId";
 
 // Root namespace for everything under `@beep/schema`
-const schemaId = BeepId.module("schema");
+const DomainId = BeepId.package("domain");
 
 // Sub-module for annotations helpers
-const annotationsId = schemaId.compose("annotations");
-
-// Annotation helper: schemaId symbol + identifier + automatic title (+ extras)
-const annotation = annotationsId.annotations<string>("MySchema", {
-  description: "Example schema.",
-});
-export class MySchema extends S.String.annotations(annotation) {}
+const EntitiesId = schemaId.compose("entities");
 
 // Service identifiers + TypeId
-const userRepoId = BeepId.module("iam-infra", "adapters", "repos");
-const descriptor = userRepoId.make("UserRepo"); // "@beep/iam-infra/adapters/repos/UserRepo"
-const symbol = userRepoId.symbol(); // Symbol.for("@beep/iam-infra/adapters/repos")
+const {
+  UserId,
+  TeamId,
+  ProjectId
+} = EntitiesId.module("User", "Team", "Project");
+const annotations = DomainEntityId.annotations("UserModel", {
+  description: "User model.",
+}); // "@beep/iam-infra/adapters/repos/UserRepo"
+export class MySchema extends S.String.annotations(annotations) {}
+const symbol = DomainEntityId.symbol(); // Symbol.for("@beep/domain/entities/")
 ```
 
 ## Notes
