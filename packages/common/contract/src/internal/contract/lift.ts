@@ -9,17 +9,17 @@ import * as Exit from "effect/Exit";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import { ContractError } from "../contract-error";
-import {
-  type Any,
-  type Failure,
-  type HandleOutcome,
-  type ImplementationResult,
-  matchOutcome,
-  type Payload,
-  type Requirements,
-  type ResultEncoded,
-  type Success,
+import type {
+  Any,
+  Failure,
+  HandleOutcome,
+  ImplementationResult,
+  Payload,
+  Requirements,
+  ResultEncoded,
+  Success,
 } from "./types";
+import { FailureMode } from "./types";
 
 /**
  * Options passed to {@link lift}. The `method` field is typically the result of
@@ -91,7 +91,7 @@ export const lift = <const C extends Any>(contract: C, options: LiftOptions<C>):
 
   const toOutcome = (implResult: ImplementationResult<C>) =>
     annotateOutcome(
-      matchOutcome(contract, {
+      FailureMode.matchOutcome(contract, {
         isFailure: implResult.isFailure,
         result: implResult.result,
         encodedResult: implResult.encodedResult as ResultEncoded<C>,

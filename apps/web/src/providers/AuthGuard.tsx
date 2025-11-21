@@ -35,41 +35,43 @@ const AuthGuardContent: React.FC<AuthGuardContentProps> = ({ children, router, .
         .onInitial(() => <SplashScreen />)
         .onDefect(() => <div>an error occurred</div>)
         .onErrorTag("IamError", () => <div>a failure occurred</div>)
-        .onSuccess(({ session, user }) => (
-          <AuthAdapterProvider
-            {...props}
-            session={{
-              ...session,
-              user: {
-                ...user,
-                email: Redacted.value(user.email),
-                phoneNumber: F.pipe(
-                  user.phoneNumber,
-                  O.match({
-                    onNone: () => null,
-                    onSome: (pn) => Redacted.value(pn),
-                  })
-                ),
-                username: F.pipe(
-                  user.username,
-                  O.match({
-                    onNone: () => null,
-                    onSome: (username) => username,
-                  })
-                ),
-                image: F.pipe(
-                  user.image,
-                  O.match({
-                    onNone: () => null,
-                    onSome: (image) => image,
-                  })
-                ),
-              },
-            }}
-          >
-            <AccountSettingsProvider userInfo={user}>{children}</AccountSettingsProvider>
-          </AuthAdapterProvider>
-        ))
+        .onSuccess(({ session, user }) => {
+          return (
+            <AuthAdapterProvider
+              {...props}
+              session={{
+                ...session,
+                user: {
+                  ...user,
+                  email: Redacted.value(user.email),
+                  phoneNumber: F.pipe(
+                    user.phoneNumber,
+                    O.match({
+                      onNone: () => null,
+                      onSome: (pn) => Redacted.value(pn),
+                    })
+                  ),
+                  username: F.pipe(
+                    user.username,
+                    O.match({
+                      onNone: () => null,
+                      onSome: (username) => username,
+                    })
+                  ),
+                  image: F.pipe(
+                    user.image,
+                    O.match({
+                      onNone: () => null,
+                      onSome: (image) => image,
+                    })
+                  ),
+                },
+              }}
+            >
+              <AccountSettingsProvider userInfo={user}>{children}</AccountSettingsProvider>
+            </AuthAdapterProvider>
+          );
+        })
         .render()}
     </>
   );

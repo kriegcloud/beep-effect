@@ -11,7 +11,8 @@
  * @category Derived/Kits
  * @since 0.1.0
  */
-import { DateTimeFromDate } from "@beep/schema/integrations/sql/common";
+
+import { DateTimeUtcFromAllAcceptable } from "@beep/schema/primitives";
 import * as S from "effect/Schema";
 import { Id } from "./_id";
 
@@ -126,7 +127,7 @@ export declare namespace NullableNum {
 }
 
 /**
- * Nullable DateTime schema using {@link DateTimeFromDate} as the base.
+ * Nullable DateTime schema using {@link DateTimeUtcFromAllAcceptable} as the base.
  *
  * @example
  * import { NullableDate } from "@beep/schema/derived/kits/nullables";
@@ -136,7 +137,7 @@ export declare namespace NullableNum {
  * @category Derived/Kits
  * @since 0.1.0
  */
-export class NullableDate extends S.NullOr(DateTimeFromDate()).annotations(
+export class NullableDate extends S.NullOr(DateTimeUtcFromAllAcceptable).annotations(
   Id.annotations("nullables/NullableDate", {
     description: "A nullable Date represented as TIMESTAMPTZ | null.",
   })

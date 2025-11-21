@@ -381,9 +381,6 @@ const Proto = {
           ) => Effect.Effect<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>;
           readonly guardPayload: (u: unknown) => u is Contract.Payload<UnsafeTypes.UnsafeAny>;
           readonly decodePayload: (u: unknown) => Effect.Effect<Contract.Payload<UnsafeTypes.UnsafeAny>, ParseError>;
-          readonly encodePayload: (
-            u: unknown
-          ) => Effect.Effect<Contract.PayloadEncoded<UnsafeTypes.UnsafeAny>, ParseError>;
           readonly validateResult: (u: unknown) => Effect.Effect<unknown, ParseError>;
           readonly encodeResult: (u: unknown) => Effect.Effect<unknown, ParseError>;
         }
@@ -395,10 +392,7 @@ const Proto = {
           const guardPayload = S.is(contract.payloadSchema) as (
             u: unknown
           ) => u is Contract.Payload<UnsafeTypes.UnsafeAny> as UnsafeTypes.UnsafeAny;
-          const decodePayload = S.decodeUnknown(contract.payloadSchema, {
-            onExcessProperty: "ignore",
-          }) as UnsafeTypes.UnsafeAny;
-          const encodePayload = S.encodeUnknown(contract.payloadSchema) as UnsafeTypes.UnsafeAny;
+          const decodePayload = S.decodeUnknown(contract.payloadSchema) as UnsafeTypes.UnsafeAny;
           const resultSchema = S.Union(contract.successSchema, contract.failureSchema);
           const validateResult = S.validate(resultSchema) as UnsafeTypes.UnsafeAny;
           const encodeResult = S.encodeUnknown(resultSchema) as UnsafeTypes.UnsafeAny;
@@ -408,7 +402,6 @@ const Proto = {
             guardPayload,
             decodePayload,
             validateResult,
-            encodePayload,
             encodeResult,
           };
           schemasCache.set(contract, schemas);
@@ -439,11 +432,9 @@ const Proto = {
               )}'`,
               cause,
             });
-
           const decodedPayload = schemas?.guardPayload(payload)
             ? (payload as Contract.Payload<UnsafeTypes.UnsafeAny>)
             : yield* Effect.mapError(schemas?.decodePayload(payload), decodePayloadFailure);
-
           const { isFailure, result } = yield* schemas?.implementation(decodedPayload).pipe(
             Effect.map((result) => ({ result, isFailure: false })),
             Effect.catchAll((error) =>

@@ -1,10 +1,10 @@
 import { useSignInEmail } from "@beep/iam-sdk";
 import { formOptionsWithDefaults, useAppForm } from "@beep/ui/form";
-import * as Redacted from "effect/Redacted";
+import type * as Redacted from "effect/Redacted";
 import { SignInEmailContract } from "./sign-in.contracts";
 
 type Props = {
-  readonly executeCaptcha: () => Promise<Redacted.Redacted<string>>;
+  readonly executeCaptcha: () => Promise<Redacted.Redacted>;
 };
 
 export const useSignInEmailForm = ({ executeCaptcha }: Props) => {
@@ -16,7 +16,7 @@ export const useSignInEmailForm = ({ executeCaptcha }: Props) => {
         const captchaResponse = await executeCaptcha();
         await signInEmail({
           ...value,
-          captchaResponse: Redacted.value(captchaResponse),
+          captchaResponse: captchaResponse,
         });
       },
     })

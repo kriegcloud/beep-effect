@@ -51,7 +51,7 @@ export class Model extends M.Class<Model>(`UserModel`)(
 
     /** When the ban expires */
     banExpires: BS.FieldOptionOmittable(
-      BS.DateTimeFromDate({
+      BS.DateTimeUtcFromAllAcceptable.annotations({
         description: "When the user's ban expires",
       })
     ),

@@ -3,7 +3,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
 import { BeepId } from "../src/BeepId";
-import type { IdentityString, Segment } from "../src/types";
+import type { IdentityComposer, IdentityString, Segment } from "../src/types";
 
 describe("BeepId", () => {
   it("composes schema identifiers", () => {
@@ -98,5 +98,28 @@ describe("BeepId", () => {
     expect(identifier).toStrictEqual(O.some("MySchema"));
     expect(schemaSymbol).toStrictEqual(O.some(annotation.schemaId));
     expect(description).toStrictEqual(O.some("Custom"));
+  });
+
+  it("builds collections with PascalCase accessors", () => {
+    const clients = BeepId.module("iam-sdk").compose("clients").collection("admin", "api-key", "passkey");
+
+    const { AdminId, ApiKeyId, PasskeyId } = clients;
+
+    expect(AdminId.string()).toBe("@beep/iam-sdk/clients/admin" as IdentityString<"@beep/iam-sdk/clients/admin">);
+    expect(ApiKeyId.string()).toBe("@beep/iam-sdk/clients/api-key" as IdentityString<"@beep/iam-sdk/clients/api-key">);
+    expect(PasskeyId.string()).toBe("@beep/iam-sdk/clients/passkey" as IdentityString<"@beep/iam-sdk/clients/passkey">);
+    expectTypeOf(AdminId).toMatchTypeOf<IdentityComposer<"@beep/iam-sdk/clients/admin">>();
+    expectTypeOf(ApiKeyId).toMatchTypeOf<IdentityComposer<"@beep/iam-sdk/clients/api-key">>();
+  });
+
+  it("rejects collection segments that cannot produce valid accessors", () => {
+    const schemaId = BeepId.module("schema");
+
+    expect(() => schemaId.collection("1invalid")).toThrow(
+      "Collection segments must start with an alphabetic character to create valid accessors."
+    );
+    expect(() => schemaId.collection("ann@tations" as Segment)).toThrow(
+      "Collection segments must contain only alphanumeric characters, hyphens, or underscores."
+    );
   });
 });

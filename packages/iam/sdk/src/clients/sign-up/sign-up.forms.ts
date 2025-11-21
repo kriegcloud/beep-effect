@@ -1,6 +1,6 @@
 import { useSignUpEmail } from "@beep/iam-sdk";
 import { formOptionsWithDefaults, useAppForm } from "@beep/ui/form";
-import * as Redacted from "effect/Redacted";
+import type * as Redacted from "effect/Redacted";
 import { SignUpEmailContract } from "./sign-up.contracts";
 
 type Props = {
@@ -17,7 +17,7 @@ export const useSignUpEmailForm = ({ executeRecaptcha }: Props) => {
         const captchaRedacted = await executeRecaptcha();
         signUpEmail({
           ...value,
-          captchaResponse: Redacted.value(captchaRedacted),
+          captchaResponse: captchaRedacted,
         });
       },
     })

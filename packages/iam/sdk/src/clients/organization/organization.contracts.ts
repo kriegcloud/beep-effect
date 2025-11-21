@@ -248,8 +248,8 @@ const OrganizationTeamFields = {
   id: SharedEntityIds.TeamId,
   organizationId: SharedEntityIds.OrganizationId,
   name: S.String,
-  createdAt: BS.DateTimeFromDate(),
-  updatedAt: S.optional(BS.DateTimeFromDate()),
+  createdAt: BS.DateTimeUtcFromAllAcceptable,
+  updatedAt: S.optional(BS.DateTimeUtcFromAllAcceptable),
 } as const;
 
 export class OrganizationTeamView extends S.Class<OrganizationTeamView>("OrganizationTeamView")(

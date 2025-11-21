@@ -19,7 +19,7 @@ export class Model extends M.Class<Model>(`MemberModel`)(
       description: "The member's role within the organization",
     }),
     lastActiveAt: BS.FieldOptionOmittable(
-      BS.DateTimeFromDate({
+      BS.DateTimeUtcFromAllAcceptable.annotations({
         description: "The last time the user was active.",
       })
     ),

@@ -24,15 +24,7 @@ type Action = Data.TaggedEnum<{
 
 const Action = Data.taggedEnum<Action>();
 
-const remoteAtom = passkeyRuntime
-  .atom(
-    Effect.gen(function* () {
-      const { listUserPasskeys } = yield* PasskeyService;
-
-      return yield* listUserPasskeys({});
-    })
-  )
-  .pipe(Atom.withReactivity(["passkeys"]));
+const remoteAtom = passkeyRuntime.atom(PasskeyService.listUserPasskeys({})).pipe(Atom.withReactivity(["passkeys"]));
 
 export const passkeysAtom = Object.assign(
   Atom.writable(

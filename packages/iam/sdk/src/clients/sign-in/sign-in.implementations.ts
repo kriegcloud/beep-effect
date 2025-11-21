@@ -12,7 +12,7 @@ import {
   SignInUsernameContract,
 } from "@beep/iam-sdk/clients/sign-in/sign-in.contracts";
 import * as Effect from "effect/Effect";
-
+import * as Redacted from "effect/Redacted";
 import { IamError } from "../../errors";
 
 // =====================================================================================================================
@@ -34,10 +34,10 @@ const SignInEmailHandler = SignInEmailContract.implement(
   Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.signIn.email({
-        email: payload.email,
-        password: payload.password,
+        email: Redacted.value(payload.email),
+        password: Redacted.value(payload.password),
         rememberMe: payload.rememberMe,
-        fetchOptions: withFetchOptions(handlers, withCaptchaHeaders(payload.captchaResponse)),
+        fetchOptions: withFetchOptions(handlers, withCaptchaHeaders(Redacted.value(payload.captchaResponse))),
       })
     );
 
@@ -59,10 +59,10 @@ const SignInUsernameHandler = SignInUsernameContract.implement(
       continuation.run((handlers) =>
         client.signIn.username({
           username: username,
-          password: password,
+          password: Redacted.value(password),
           rememberMe: rememberMe,
           callbackURL: callbackURL,
-          fetchOptions: withFetchOptions(handlers, withCaptchaHeaders(captchaResponse)),
+          fetchOptions: withFetchOptions(handlers, withCaptchaHeaders(Redacted.value(captchaResponse))),
         })
       ),
       (result) => {
@@ -83,10 +83,10 @@ const SignInPhoneNumberHandler = SignInPhoneNumberContract.implement(
     yield* Effect.flatMap(
       continuation.run((handlers) =>
         client.signIn.phoneNumber({
-          phoneNumber: payload.phoneNumber,
-          password: payload.password,
+          phoneNumber: Redacted.value(payload.phoneNumber),
+          password: Redacted.value(payload.password),
           rememberMe: payload.rememberMe,
-          fetchOptions: withFetchOptions(handlers, withCaptchaHeaders(payload.captchaResponse)),
+          fetchOptions: withFetchOptions(handlers, withCaptchaHeaders(Redacted.value(payload.captchaResponse))),
         })
       ),
       (result) => {

@@ -117,6 +117,76 @@ export type IdentityAnnotationResult<Value extends string, Identifier extends st
 > &
   SchemaAnnotationExtras<SchemaType>;
 
+type InvalidCollectionChar =
+  | "/"
+  | "\\\\"
+  | "."
+  | ":"
+  | ";"
+  | ","
+  | "'"
+  | '"'
+  | "["
+  | "]"
+  | "{"
+  | "}"
+  | "("
+  | ")"
+  | "@"
+  | "#"
+  | "$"
+  | "%"
+  | "^"
+  | "&"
+  | "*"
+  | "+"
+  | "="
+  | "!"
+  | "~"
+  | "|"
+  | "?"
+  | "<"
+  | ">"
+  | " "
+  | "\t"
+  | "\n"
+  | "\r";
+
+type Digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+
+type PascalCaseWord<Word extends string> = Word extends "" ? "" : Capitalize<Lowercase<Word>>;
+
+type PascalCaseValue<Value extends string> = Value extends `${infer Head}-${infer Tail}`
+  ? `${PascalCaseWord<Head>}${PascalCaseValue<Tail>}`
+  : Value extends `${infer Head}_${infer Tail}`
+    ? `${PascalCaseWord<Head>}${PascalCaseValue<Tail>}`
+    : PascalCaseWord<Value>;
+
+export type CollectionSegmentValue<S extends StringTypes.NonEmptyString> = S extends `${Digit}${string}`
+  ? never
+  : S extends `-${string}`
+    ? never
+    : S extends `_${string}`
+      ? never
+      : S extends `${string}${InvalidCollectionChar}${string}`
+        ? never
+        : SegmentValue<S>;
+
+export type CollectionAccessor<S extends StringTypes.NonEmptyString> =
+  `${PascalCaseValue<CollectionSegmentValue<S>>}Id`;
+
+export type CollectionRecord<
+  Value extends string,
+  Segments extends ReadonlyArray<StringTypes.NonEmptyString>,
+> = Segments extends readonly [
+  infer Head extends StringTypes.NonEmptyString,
+  ...infer Tail extends ReadonlyArray<StringTypes.NonEmptyString>,
+]
+  ? {
+      readonly [Key in CollectionAccessor<Head>]: IdentityComposer<`${Value}/${CollectionSegmentValue<Head>}`>;
+    } & CollectionRecord<Value, Tail>
+  : {};
+
 /**
  * Immutable builder returned by `BeepId` that keeps literal identity values intact.
  *
@@ -145,6 +215,12 @@ export interface IdentityComposer<Value extends string> {
     identifier: SegmentValue<Next>,
     extras?: SchemaAnnotationExtras<SchemaType>
   ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
+  collection<
+    const Segments extends readonly [
+      CollectionSegmentValue<StringTypes.NonEmptyString>,
+      ...CollectionSegmentValue<StringTypes.NonEmptyString>[],
+    ],
+  >(...segments: Segments): CollectionRecord<Value, Segments>;
 }
 
 /**

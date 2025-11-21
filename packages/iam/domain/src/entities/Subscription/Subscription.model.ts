@@ -32,14 +32,14 @@ export class Model extends M.Class<Model>(`SubscriptionModel`)(
 
     /** When the current period starts */
     periodStart: BS.FieldOptionOmittable(
-      BS.DateTimeFromDate({
+      BS.DateTimeUtcFromAllAcceptable.annotations({
         description: "Start of the current billing period",
       })
     ),
 
     /** When the current period ends */
     periodEnd: BS.FieldOptionOmittable(
-      BS.DateTimeFromDate({
+      BS.DateTimeUtcFromAllAcceptable.annotations({
         description: "End of the current billing period",
       })
     ),

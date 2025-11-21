@@ -15,7 +15,9 @@
  * @since 0.1.0
  */
 import * as DateTime from "effect/DateTime";
+import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
+import * as O from "effect/Option";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -191,20 +193,27 @@ export const DateTimeUtcFromAllAcceptable = S.transformOrFail(
   S.Union(DateFromAllAcceptable, DateTimeUtcByInstant),
   DateTimeUtcByInstant,
   {
-    decode: (input, _) =>
-      ParseResult.try({
-        catch: () => new ParseResult.Type(S.DateTimeUtc.ast, input, "Invalid date"),
-        try: () => {
-          if (DateTime.isDateTime(input)) {
-            return DateTime.toUtc(input);
-          }
-          const date = S.decodeSync(S.ValidDateFromSelf)(input);
-          return DateTime.unsafeFromDate(date);
-        },
+    decode: (input, _options, ast) =>
+      Effect.gen(function* () {
+        if (DateTime.isDateTime(input)) {
+          return DateTime.toUtc(input);
+        }
+        const date = yield* F.pipe(
+          S.decodeUnknown(S.ValidDateFromSelf)(input),
+          Effect.mapError(() => new ParseResult.Type(ast, input, "Invalid date"))
+        );
+        return yield* F.pipe(
+          date,
+          DateTime.make,
+          O.map(DateTime.toUtc),
+          O.match({
+            onNone: () => Effect.fail(new ParseResult.Type(ast, input, "Invalid date")),
+            onSome: Effect.succeed,
+          })
+        );
       }),
-    encode: (input, _, ast) =>
-      ParseResult.fail(new ParseResult.Forbidden(ast, input, "Encoding dates back to plain text is forbidden.")),
-    strict: false,
+    encode: (input) => Effect.succeed(DateTime.toDateUtc(input)),
+    strict: true,
   }
 ).annotations(
   Id.annotations("dates/DateTimeUtcFromAllAcceptable", {

@@ -29,7 +29,6 @@ export declare namespace GetSessionSuccess {
 
 export const GetSessionContract = Contract.make("GetSession", {
   description: "Retrieves the current session.",
-  payload: {},
   failure: IamError,
   success: GetSessionSuccess,
 })

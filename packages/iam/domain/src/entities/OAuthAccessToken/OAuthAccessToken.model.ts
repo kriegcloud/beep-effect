@@ -27,14 +27,14 @@ export class Model extends M.Class<Model>(`OAuthAccessTokenModel`)(
 
     /** When the access token expires */
     accessTokenExpiresAt: BS.FieldOptionOmittable(
-      BS.DateTimeFromDate({
+      BS.DateTimeUtcFromAllAcceptable.annotations({
         description: "When the access token expires",
       })
     ),
 
     /** When the refresh token expires */
     refreshTokenExpiresAt: BS.FieldOptionOmittable(
-      BS.DateTimeFromDate({
+      BS.DateTimeUtcFromAllAcceptable.annotations({
         description: "When the refresh token expires",
       })
     ),

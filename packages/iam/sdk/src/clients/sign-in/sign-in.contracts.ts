@@ -1,12 +1,12 @@
 import { AuthProviderNameValue } from "@beep/constants";
 import { Contract, ContractKit } from "@beep/contract";
-import { SignInClientId } from "@beep/iam-sdk/clients/_internal";
+import { SignInId } from "@beep/iam-sdk/clients/_internal";
 import { BS } from "@beep/schema";
 import { User } from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
 
-const Id = SignInClientId.compose("sign-in.contracts");
+const Id = SignInId.compose("sign-in.contracts");
 const defaultFormValuesCommon = {
   password: "",
   rememberMe: false,
@@ -17,10 +17,10 @@ const defaultFormValuesCommon = {
 // SIGN IN EMAIL CONTRACT
 // =====================================================================================================================
 export const SignInEmailPayload = S.Struct({
-  email: BS.EmailBase,
-  password: BS.PasswordBase,
+  email: BS.Email,
+  password: BS.Password,
   rememberMe: BS.BoolWithDefault(false),
-  captchaResponse: S.String,
+  captchaResponse: S.Redacted(S.String),
 }).annotations(
   Id.annotations("SignInEmailPayload", {
     description: "Payload for signing in with email and password",
@@ -78,9 +78,9 @@ export const SignInSocialContract = Contract.make("SignInSocial", {
 // =====================================================================================================================
 export const SignInUsernamePayload = S.Struct({
   username: S.NonEmptyTrimmedString,
-  password: BS.PasswordBase,
+  password: BS.Password,
   rememberMe: BS.BoolWithDefault(false),
-  captchaResponse: S.String,
+  captchaResponse: S.Redacted(S.String),
   callbackURL: S.optional(BS.URLString),
 }).annotations(
   Id.annotations("SignInUsernamePayload", {
@@ -110,10 +110,10 @@ export const SignInUsernameContract = Contract.make("SignInUsername", {
 // SIGN IN PHONE NUMBER CONTRACT
 // =====================================================================================================================
 export const SignInPhoneNumberPayload = S.Struct({
-  phoneNumber: BS.UnsafePhone,
-  password: BS.PasswordBase,
+  phoneNumber: BS.Phone,
+  password: BS.Password,
   rememberMe: BS.BoolWithDefault(false),
-  captchaResponse: S.String,
+  captchaResponse: S.Redacted(S.String),
 }).annotations(
   Id.annotations("SignInPhoneNumberPayload", {
     description: "Payload for signing in with a phone number and password",

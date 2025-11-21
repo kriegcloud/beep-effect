@@ -1,5 +1,5 @@
 import { Contract, ContractKit } from "@beep/contract";
-import { SignUpClientId } from "@beep/iam-sdk/clients/_internal";
+import { SignUpId } from "@beep/iam-sdk/clients/_internal";
 import { BS } from "@beep/schema";
 import { paths } from "@beep/shared-domain";
 import * as S from "effect/Schema";
@@ -8,17 +8,17 @@ import { IamError } from "../../errors";
 // =====================================================================================================================
 // Sign Up Email Contract
 // =====================================================================================================================
-const Id = SignUpClientId.compose("sign-up.contracts");
+const Id = SignUpId.compose("sign-up.contracts");
 
 export const SignUpEmailPayload = S.Struct({
-  email: BS.EmailBase,
+  email: BS.Email,
   rememberMe: BS.BoolWithDefault(false),
   redirectTo: BS.StringWithDefault(paths.dashboard.root),
-  password: BS.PasswordBase,
-  passwordConfirm: BS.PasswordBase,
+  password: BS.Password,
+  passwordConfirm: BS.Password,
   firstName: S.NonEmptyTrimmedString,
   lastName: S.NonEmptyTrimmedString,
-  captchaResponse: S.String,
+  captchaResponse: S.Redacted(S.String),
 }).annotations(
   Id.annotations("SignUpEmailPayload", {
     description: "Payload for signing up a new user via email.",

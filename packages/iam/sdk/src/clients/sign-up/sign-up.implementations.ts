@@ -2,6 +2,7 @@ import { client } from "@beep/iam-sdk/adapters";
 import { withCaptchaHeaders, withFetchOptions } from "@beep/iam-sdk/clients/_internal";
 import { SignUpContractKit, SignUpEmailContract } from "@beep/iam-sdk/clients/sign-up/sign-up.contracts";
 import * as Effect from "effect/Effect";
+import * as Redacted from "effect/Redacted";
 
 const SignUpEmailHandler = SignUpEmailContract.implement(
   Effect.fn(function* (payload, { continuation }) {
@@ -9,10 +10,10 @@ const SignUpEmailHandler = SignUpEmailContract.implement(
 
     const result = yield* continuation.run((handlers) =>
       client.signUp.email({
-        email: rest.email,
-        password: rest.password,
+        email: Redacted.value(rest.email),
+        password: Redacted.value(rest.password),
         name: `${rest.firstName} ${rest.lastName}`,
-        fetchOptions: withFetchOptions(handlers, withCaptchaHeaders(captchaResponse)),
+        fetchOptions: withFetchOptions(handlers, withCaptchaHeaders(Redacted.value(captchaResponse))),
       })
     );
 

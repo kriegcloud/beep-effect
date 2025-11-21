@@ -72,6 +72,18 @@ export const DateTimeFromDate = (annotations?: Annotations<S.Schema.Type<typeof 
   );
 };
 
+export const DateTimeAllEncoded = S.Union(
+  S.DateFromString,
+  S.DateFromSelf,
+  S.Date,
+  S.DateFromNumber,
+  S.ValidDateFromSelf,
+  S.DateTimeUtc,
+  S.DateTimeUtcFromDate,
+  S.DateTimeUtcFromNumber,
+  S.DateTimeUtcFromSelf
+);
+
 /**
  * Variant definition for nullable Option fields where create/update payloads can omit the key.
  *

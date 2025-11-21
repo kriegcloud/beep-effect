@@ -19,11 +19,11 @@ export class Model extends M.Class<Model>(`DeviceCodeModel`)(
 
     userId: BS.FieldOptionOmittable(SharedEntityIds.UserId),
     deviceCode: M.Sensitive(S.NonEmptyTrimmedString),
-    expiresAt: BS.DateTimeFromDate(),
+    expiresAt: BS.DateTimeUtcFromAllAcceptable,
 
     status: BS.toOptionalWithDefault(DeviceCodeStatus)(DeviceCodeStatus.Enum.pending),
 
-    lastPolledAt: BS.FieldOptionOmittable(BS.DateTimeFromDate()),
+    lastPolledAt: BS.FieldOptionOmittable(BS.DateTimeUtcFromAllAcceptable),
     pollingInterval: BS.FieldOptionOmittable(S.NonNegativeInt),
     clientId: BS.FieldOptionOmittable(S.NonEmptyTrimmedString),
     scope: BS.FieldOptionOmittable(S.NonEmptyTrimmedString),

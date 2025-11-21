@@ -43,7 +43,7 @@ export class Model extends M.Class<Model>(`InvitationModel`)(
     }),
 
     /** When the invitation expires */
-    expiresAt: BS.DateTimeFromDate({
+    expiresAt: BS.DateTimeUtcFromAllAcceptable.annotations({
       description: "When this invitation expires",
     }),
 

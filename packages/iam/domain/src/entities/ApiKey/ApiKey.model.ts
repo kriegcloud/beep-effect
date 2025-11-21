@@ -64,7 +64,7 @@ export class Model extends M.Class<Model>(`ApikeyModel`)(
 
     /** When the rate limit was last refilled */
     lastRefillAt: BS.FieldOptionOmittable(
-      BS.DateTimeFromDate({
+      BS.DateTimeUtcFromAllAcceptable.annotations({
         description: "When the rate limit was last refilled",
       })
     ),
@@ -124,14 +124,14 @@ export class Model extends M.Class<Model>(`ApikeyModel`)(
 
     /** When the last request was made */
     lastRequest: BS.FieldOptionOmittable(
-      BS.DateTimeFromDate({
+      BS.DateTimeUtcFromAllAcceptable.annotations({
         description: "When the last request was made with this key",
       })
     ),
 
     /** When the API key expires */
     expiresAt: BS.FieldOptionOmittable(
-      BS.DateTimeFromDate({
+      BS.DateTimeUtcFromAllAcceptable.annotations({
         description: "When this API key expires",
       })
     ),

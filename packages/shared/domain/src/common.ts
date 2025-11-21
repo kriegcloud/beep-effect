@@ -11,21 +11,9 @@ import * as S from "effect/Schema";
  * - deletedAt: Optional field for soft delete functionality defaults to null is Option on select variants
  */
 export const auditColumns = {
-  createdAt: M.Generated(
-    BS.DateTimeFromDate({
-      description: "The date and time the record was created",
-    })
-  ),
-  updatedAt: M.Generated(
-    BS.DateTimeFromDate({
-      description: "The date and time the record was last updated",
-    })
-  ),
-  deletedAt: BS.FieldOptionOmittable(
-    BS.DateTimeFromDate({
-      description: "If not null, the date and time the record was deleted",
-    })
-  ),
+  createdAt: M.Generated(BS.DateTimeUtcFromAllAcceptable),
+  updatedAt: M.Generated(BS.DateTimeUtcFromAllAcceptable),
+  deletedAt: BS.FieldOptionOmittable(BS.DateTimeUtcFromAllAcceptable),
 } as const;
 export type AuditColumns = typeof auditColumns;
 

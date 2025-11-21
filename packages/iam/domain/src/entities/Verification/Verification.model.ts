@@ -25,7 +25,7 @@ export class Model extends M.Class<Model>(`VerificationModel`)(
 
     /** When the verification expires */
     expiresAt: BS.FieldOptionOmittable(
-      BS.DateTimeFromDate({
+      BS.DateTimeUtcFromAllAcceptable.annotations({
         description: "When this verification code expires",
       })
     ),

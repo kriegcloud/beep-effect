@@ -12,9 +12,12 @@
 import type { StringTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
+import * as R from "effect/Record";
 import * as Str from "effect/String";
 
 import type {
+  CollectionRecord,
+  CollectionSegmentValue,
   IdentityAnnotation,
   IdentityAnnotationResult,
   IdentityComposer,
@@ -47,6 +50,13 @@ const toTitle = (identifier: string): string =>
     A.map((segment) => F.pipe(segment, Str.toLowerCase, Str.capitalize)),
     A.join(" ")
   );
+
+const invalidCollectionSegmentPattern = /[^A-Za-z0-9_-]/;
+const leadingAlphaPattern = /^[A-Za-z]/;
+
+const toPascalIdentifier = (segment: string): string => F.pipe(segment, toTitle, Str.replace(/\s+/g, ""));
+
+const toCollectionKey = (segment: string): string => `${toPascalIdentifier(segment)}Id`;
 
 const ensureSegment = <Value extends string>(segment: Value): Value => {
   if (!Str.isString(segment)) {
@@ -115,6 +125,30 @@ const createComposer: <Value extends string>(value: Value) => IdentityComposer<V
         SchemaType
       >;
     }) as IdentityComposer<Value>["annotations"],
+    collection<
+      const Segments extends readonly [
+        CollectionSegmentValue<StringTypes.NonEmptyString>,
+        ...CollectionSegmentValue<StringTypes.NonEmptyString>[],
+      ],
+    >(...segments: Segments) {
+      const entries = F.pipe(
+        segments,
+        A.map((segment) => {
+          const ensured = ensureSegment(segment);
+          if (invalidCollectionSegmentPattern.test(ensured)) {
+            throw new Error("Collection segments must contain only alphanumeric characters, hyphens, or underscores.");
+          }
+          if (!leadingAlphaPattern.test(ensured)) {
+            throw new Error("Collection segments must start with an alphabetic character to create valid accessors.");
+          }
+          const composed = `${value}/${ensured}` as `${Value}/${CollectionSegmentValue<StringTypes.NonEmptyString>}`;
+          const composer = createComposer(composed);
+          return [toCollectionKey(ensured), composer] as const;
+        })
+      );
+
+      return R.fromEntries(entries) as CollectionRecord<Value, Segments>;
+    },
   } satisfies IdentityComposer<Value>;
 };
 

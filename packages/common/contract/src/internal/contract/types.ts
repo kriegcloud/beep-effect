@@ -49,42 +49,56 @@ const makeHandleOutcome = <C extends Any>(contract: C, input: FailureMode.MatchI
     encodedResult: input.encodedResult as SuccessEncoded<C>,
   };
 };
-export const $match =
-  <C extends Any, E1, E2, R1, R2>(result: Result<C>) =>
-  (
-    contract: Any,
-    cases: {
-      onErrorMode: (result: Failure<C>) => Effect.Effect<
-        {
-          readonly _tag: "success";
-          readonly value: Success<C>;
-        },
-        E1,
-        R1
-      >;
-      onReturnMode: (result: Result<C>) => Effect.Effect<
-        | { readonly _tag: "failure"; readonly value: Failure<C> }
-        | {
+
+export class FailureMode extends BS.StringLiteralKit("error", "return").annotations({
+  schemaId: Symbol.for("@beep/contract/Contract/FailureMode"),
+  identifier: "FailureMode",
+  title: "Failure Mode",
+  description: "The strategy used for handling errors returned from contract call implementation execution.",
+}) {
+  static readonly $match =
+    <C extends Any, E1, E2, R1, R2>(result: Result<C>) =>
+    (
+      contract: Any,
+      cases: {
+        onErrorMode: (result: Failure<C>) => Effect.Effect<
+          {
             readonly _tag: "success";
             readonly value: Success<C>;
           },
-        E2,
-        R2
-      >;
-    }
-  ) =>
-    Match.value(contract.failureMode).pipe(
-      Match.when(FailureMode.Enum.error, () => cases.onErrorMode(result)),
-      Match.when(FailureMode.Enum.return, () => cases.onReturnMode(result)),
-      Match.exhaustive
-    );
-export const FailureMode = BS.StringLiteralKit("error", "return");
+          E1,
+          R1
+        >;
+        onReturnMode: (result: Result<C>) => Effect.Effect<
+          | { readonly _tag: "failure"; readonly value: Failure<C> }
+          | {
+              readonly _tag: "success";
+              readonly value: Success<C>;
+            },
+          E2,
+          R2
+        >;
+      }
+    ) =>
+      Match.value(contract.failureMode).pipe(
+        Match.when(FailureMode.Enum.error, () => cases.onErrorMode(result)),
+        Match.when(FailureMode.Enum.return, () => cases.onReturnMode(result)),
+        Match.exhaustive
+      );
 
-export const matchOutcome = <C extends Any>(contract: C, input: FailureMode.MatchInput<C>): HandleOutcome<C> =>
-  makeHandleOutcome(contract, input);
+  /**
+   * Experimental helper that projects an implementation result into a discriminated
+   * {@link HandleOutcome} using the configured failure mode.
+   *
+   * @since 1.0.0
+   */
+  static readonly matchOutcome = <C extends Any>(contract: C, input: FailureMode.MatchInput<C>): HandleOutcome<C> =>
+    makeHandleOutcome(contract, input);
+}
+
 export declare namespace FailureMode {
-  export type Type = S.Schema.Type<typeof FailureMode>;
-  export type Encoded = S.Schema.Encoded<typeof FailureMode>;
+  export type Type = typeof FailureMode.Type;
+  export type Encoded = typeof FailureMode.Encoded;
 
   export interface MatchInput<C extends Any> {
     readonly isFailure: boolean;
@@ -92,11 +106,11 @@ export declare namespace FailureMode {
     readonly encodedResult: ResultEncoded<C>;
   }
 
-  export type ErrorOutcome<C extends Any> = Extract<HandleOutcome<C>, { readonly mode: "error" }>;
+  export type ErrorOutcome<C extends Any> = Extract<HandleOutcome<C>, { readonly mode: typeof FailureMode.Enum.error }>;
   export type ReturnOutcome<C extends Any> = Extract<
     HandleOutcome<C>,
     {
-      readonly mode: "return";
+      readonly mode: typeof FailureMode.Enum.return;
     }
   >;
 }
@@ -215,10 +229,6 @@ export interface Contract<
     never,
     PayloadContext<Contract<Name, Config, Requirements>>
   >;
-
-  makePayload(
-    value: PayloadEncoded<Contract<Name, Config, Requirements>>
-  ): Payload<Contract<Name, Config, Requirements>>;
 
   encodeUnknownPayload(
     value: unknown,
@@ -462,7 +472,7 @@ export interface ProviderDefined<
     readonly payload: S.Struct<{}>;
     readonly success: typeof S.Void;
     readonly failure: typeof S.Never;
-    readonly failureMode: "error";
+    readonly failureMode: typeof FailureMode.Enum.error;
   },
   RequiresImplementation extends boolean = false,
 > extends Contract<
@@ -590,7 +600,7 @@ export interface FromTaggedRequest<S extends AnyTaggedRequestSchema>
       readonly payload: S;
       readonly success: S["success"];
       readonly failure: S["failure"];
-      readonly failureMode: "error";
+      readonly failureMode: typeof FailureMode.Enum.error;
     }
   > {}
 
@@ -749,19 +759,19 @@ export type ResultEncoded<T> = T extends Contract<infer _Name, infer _Config, in
  */
 export type HandleOutcome<T extends Any> =
   | {
-      readonly mode: "error";
+      readonly mode: typeof FailureMode.Enum.error;
       readonly _tag: "success";
       readonly result: Success<T>;
       readonly encodedResult: SuccessEncoded<T>;
     }
   | {
-      readonly mode: "return";
+      readonly mode: typeof FailureMode.Enum.return;
       readonly _tag: "success";
       readonly result: Success<T>;
       readonly encodedResult: SuccessEncoded<T>;
     }
   | {
-      readonly mode: "return";
+      readonly mode: typeof FailureMode.Enum.return;
       readonly _tag: "failure";
       readonly result: Failure<T>;
       readonly encodedResult: FailureEncoded<T>;
@@ -827,7 +837,7 @@ export interface ImplementationResult<Contract extends Any> {
  * @category Utility Types
  */
 export type ImplementationError<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? _Config["failureMode"] extends "error"
+  ? _Config["failureMode"] extends typeof FailureMode.Enum.error
     ? _Config["failure"]["Type"]
     : never
   : never;

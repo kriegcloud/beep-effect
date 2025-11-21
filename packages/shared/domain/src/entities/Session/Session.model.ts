@@ -14,7 +14,7 @@ export const SessionModelSchemaId = Symbol.for("@beep/iam-domain/SessionModel");
 export class Model extends M.Class<Model>(`SessionModel`)(
   makeFields(SharedEntityIds.SessionId, {
     /** When this session expires */
-    expiresAt: BS.DateTimeFromDate({
+    expiresAt: BS.DateTimeUtcFromAllAcceptable.annotations({
       description: "When this session expires",
     }),
 

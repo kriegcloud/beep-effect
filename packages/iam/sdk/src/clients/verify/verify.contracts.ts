@@ -1,6 +1,6 @@
 import { Contract, ContractKit } from "@beep/contract";
 import { clientEnv } from "@beep/core-env/client";
-import { VerifyClientId } from "@beep/iam-sdk/clients/_internal";
+import { VerifyId } from "@beep/iam-sdk/clients/_internal";
 import { BS } from "@beep/schema";
 import { paths } from "@beep/shared-domain";
 import * as SharedEntities from "@beep/shared-domain/entities";
@@ -10,7 +10,7 @@ import { IamError } from "../../errors";
 // =====================================================================================================================
 // Send Verify Phone Contract
 // =====================================================================================================================
-const Id = VerifyClientId.compose("verify.contracts");
+const Id = VerifyId.compose("verify.contracts");
 export const VerifyPhonePayload = S.Struct({
   phoneNumber: BS.Phone,
   code: S.Redacted(S.NonEmptyTrimmedString),
@@ -123,8 +123,8 @@ const VerifyEmailUser = S.Struct({
   name: SharedEntities.User.Model.select.fields.name,
   image: S.NullOr(BS.URLString),
   emailVerified: SharedEntities.User.Model.select.fields.emailVerified,
-  createdAt: BS.DateTimeFromDate(),
-  updatedAt: BS.DateTimeFromDate(),
+  createdAt: BS.DateTimeUtcFromAllAcceptable,
+  updatedAt: BS.DateTimeUtcFromAllAcceptable,
 });
 
 export class VerifyEmailSuccess extends S.Class<VerifyEmailSuccess>("VerifyEmailSuccess")(
