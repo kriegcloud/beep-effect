@@ -4,9 +4,9 @@
  * @category Surface
  * @since 0.1.0
  * @example
- * import * as SchemaV2 from "@beep/schema";
+ * import { BS } from "@beep/schema";
  *
- * const { primitives } = SchemaV2.BS;
+ * const emailSchema = BS.Email;
  */
 import * as SchemaNamespace from "./schema";
 

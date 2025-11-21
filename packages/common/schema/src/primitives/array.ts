@@ -1,3 +1,11 @@
+/**
+ * Array schemas and helpers for comma-delimited payloads.
+ *
+ * Provides branded numeric arrays and transforms for string <-> array conversions.
+ *
+ * @category Primitives/Array
+ * @since 0.1.0
+ */
 import { BeepId } from "@beep/identity/BeepId";
 import { SchemaId } from "@beep/identity/modules";
 import type * as A from "effect/Array";
@@ -5,6 +13,12 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 const Id = BeepId.from(SchemaId.identifier).compose("primitives/array");
+/**
+ * Schema for arrays of numbers with identity annotations.
+ *
+ * @category Primitives/Array
+ * @since 0.1.0
+ */
 export class ArrayOfNumbers extends S.Array(S.Number).annotations(
   Id.annotations("ArrayOfNumbers", {
     description: "Array of numbers",
@@ -13,11 +27,35 @@ export class ArrayOfNumbers extends S.Array(S.Number).annotations(
   static readonly is = S.is(this);
 }
 
+/**
+ * Namespace describing the encoded and decoded types for {@link ArrayOfNumbers}.
+ *
+ * @category Primitives/Array
+ * @since 0.1.0
+ */
 export declare namespace ArrayOfNumbers {
+  /**
+   * Runtime type for {@link ArrayOfNumbers}.
+   *
+   * @category Primitives/Array
+   * @since 0.1.0
+   */
   export type Type = S.Schema.Type<typeof ArrayOfNumbers>;
+  /**
+   * Encoded type for {@link ArrayOfNumbers}.
+   *
+   * @category Primitives/Array
+   * @since 0.1.0
+   */
   export type Encoded = S.Schema.Encoded<typeof ArrayOfNumbers>;
 }
 
+/**
+ * Transforms between comma-delimited strings and literal arrays.
+ *
+ * @category Primitives/Array
+ * @since 0.1.0
+ */
 export const arrayToCommaSeparatedString = <A extends string | number | boolean>(
   literalSchema: S.Schema<A, A, never>
 ) =>

@@ -1,3 +1,22 @@
+/**
+ * Shared, environment-safe logging helpers and Beep error taxonomy utilities.
+ *
+ * @example
+ * import * as Effect from "effect/Effect";
+ * import { withLogContext, withRootSpan } from "@beep/errors/shared";
+ *
+ * const program = Effect.gen(function* () {
+ *   yield* Effect.logInfo("hello");
+ * });
+ *
+ * export const run = program.pipe(
+ *   withLogContext({ service: "demo" }),
+ *   withRootSpan("demo.run")
+ * );
+ *
+ * @category Documentation/Modules
+ * @since 0.1.0
+ */
 import type { LogLevel as LogLevelSchema } from "@beep/constants";
 import * as Cause from "effect/Cause";
 import * as Chunk from "effect/Chunk";
@@ -17,8 +36,10 @@ import color from "picocolors";
  * Pretty, colored console logger helpers + small telemetry helpers for Effect (shared/client-safe core).
  *
  * Node/server-specific features (env, FS, OS, process) are intentionally excluded here.
+ *
+ * @category Documentation/Config
+ * @since 0.1.0
  */
-
 export interface PrettyLoggerConfig {
   readonly level: LogLevel.LogLevel;
   readonly colors: boolean;
@@ -33,6 +54,12 @@ export interface PrettyLoggerConfig {
   readonly includeCausePretty: boolean;
 }
 
+/**
+ * Default pretty logger configuration.
+ *
+ * @category Documentation/Config
+ * @since 0.1.0
+ */
 export const defaultConfig: PrettyLoggerConfig = {
   level: LogLevel.All,
   colors: true,
@@ -45,6 +72,12 @@ export const defaultConfig: PrettyLoggerConfig = {
 
 const identity = (s: string) => s;
 
+/**
+ * Colorizes log levels when enabled.
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
+ */
 export function colorForLevel(level: LogLevel.LogLevel, enabled: boolean) {
   if (!enabled) return identity;
   const ord = level.ordinal;
@@ -56,6 +89,12 @@ export function colorForLevel(level: LogLevel.LogLevel, enabled: boolean) {
   return color.gray; // Trace and below
 }
 
+/**
+ * Normalizes messages into strings for logging.
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
+ */
 export function formatMessage(message: unknown): string {
   if (typeof message === "string") return message;
   if (message instanceof Error) return `${message.name}: ${message.message}`;
@@ -66,6 +105,12 @@ export function formatMessage(message: unknown): string {
   }
 }
 
+/**
+ * Renders annotations into a log-friendly string.
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
+ */
 export function formatAnnotations(ann: HashMap.HashMap<string, unknown>, enableColors: boolean): string {
   const parts: string[] = [];
   for (const [k, v] of HashMap.entries(ann)) {
@@ -76,12 +121,24 @@ export function formatAnnotations(ann: HashMap.HashMap<string, unknown>, enableC
   return parts.join(" ");
 }
 
+/**
+ * Formats spans relative to a timestamp.
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
+ */
 export function formatSpans(nowMs: number, spans: List.List<LogSpan.LogSpan>, enableColors: boolean): string {
   const rendered = List.toArray(spans).map((s) => LogSpan.render(nowMs)(s));
   const spanTxt = rendered.join(" ");
   return enableColors ? color.dim(spanTxt) : spanTxt;
 }
 
+/**
+ * Determines whether to print a cause alongside a log line.
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
+ */
 export function shouldPrintCause(
   level: LogLevel.LogLevel,
   cause: Cause.Cause<unknown>,
@@ -92,6 +149,12 @@ export function shouldPrintCause(
   return level.ordinal >= LogLevel.Warning.ordinal;
 }
 
+/**
+ * Pretty-prints a cause with optional color.
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
+ */
 export function formatCausePretty(cause: Cause.Cause<unknown>, enableColors = true): string {
   const pretty = Cause.isEmpty(cause) ? "" : Cause.pretty(cause);
   if (!enableColors || !pretty) return pretty;
@@ -99,6 +162,12 @@ export function formatCausePretty(cause: Cause.Cause<unknown>, enableColors = tr
   return colored === pretty ? `\u001b[31m${pretty}\u001b[39m` : colored;
 }
 
+/**
+ * Extracts the primary error/value from a cause.
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
+ */
 export function extractPrimaryError(cause: Cause.Cause<unknown>): {
   readonly error?: Error | undefined;
   readonly message: string;
@@ -116,6 +185,12 @@ export function extractPrimaryError(cause: Cause.Cause<unknown>): {
   return { message: "Unknown error" };
 }
 
+/**
+ * Formatting options for rendered cause headings.
+ *
+ * @category Documentation/Config
+ * @since 0.1.0
+ */
 export interface CauseHeadingOptions {
   readonly colors?: boolean | undefined;
   readonly date?: Date | undefined;
@@ -135,6 +210,9 @@ export interface CauseHeadingOptions {
 
 /**
  * Helper to annotate logs with a stable set of fields for a component/service.
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
  */
 export const withLogContext =
   (annotations: Readonly<Record<string, unknown>>) =>
@@ -143,6 +221,9 @@ export const withLogContext =
 
 /**
  * Helper to add a root span around an operation.
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
  */
 export const withRootSpan =
   (label: string) =>
@@ -150,7 +231,10 @@ export const withRootSpan =
     self.pipe(Effect.withLogSpan(label));
 
 /**
- * Instrument an effect with span, optional annotations, and optional metrics.
+ * Metrics configuration for span instrumentation.
+ *
+ * @category Documentation/Config
+ * @since 0.1.0
  */
 export interface SpanMetricsConfig {
   readonly successCounter?: Metric.Metric.Counter<number> | undefined;
@@ -160,6 +244,12 @@ export interface SpanMetricsConfig {
   readonly durationUnit?: "millis" | "seconds" | undefined;
 }
 
+/**
+ * Instrument an effect with span, optional annotations, and optional metrics.
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
+ */
 export const withSpanAndMetrics =
   (
     spanLabel: string,
@@ -196,6 +286,9 @@ export const withSpanAndMetrics =
 
 /**
  * Convenience: log a cause pretty-printed (independent helper).
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
  */
 export const logCausePretty = (cause: Cause.Cause<unknown>, colors = true) =>
   Effect.sync(() => {
@@ -206,6 +299,12 @@ export const logCausePretty = (cause: Cause.Cause<unknown>, colors = true) =>
 // =========================
 // Environment-driven config (shared parse only)
 // =========================
+/**
+ * Parse a log level literal into a LogLevel value.
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
+ */
 export const parseLevel = (raw: LogLevelSchema.Type): LogLevel.LogLevel => {
   return Match.value(raw).pipe(
     Match.when("All", () => LogLevel.All),
@@ -224,11 +323,23 @@ export const parseLevel = (raw: LogLevelSchema.Type): LogLevel.LogLevel => {
 // Accumulation helpers (pure/shared)
 // =========================
 
+/**
+ * Aggregated successes/errors from a batch of effects.
+ *
+ * @category Documentation/Results
+ * @since 0.1.0
+ */
 export interface AccumulateResult<A, E> {
   readonly successes: ReadonlyArray<A>;
   readonly errors: ReadonlyArray<Cause.Cause<E>>;
 }
 
+/**
+ * Options for concurrent accumulation helpers.
+ *
+ * @category Documentation/Config
+ * @since 0.1.0
+ */
 export interface AccumulateOptions {
   readonly concurrency?: number | "unbounded" | undefined;
   readonly spanLabel?: string | undefined;
@@ -236,6 +347,12 @@ export interface AccumulateOptions {
   readonly colors?: boolean | undefined;
 }
 
+/**
+ * Partition a collection of effects into successes and errors.
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
+ */
 export const accumulateEffects = <A, E, R>(
   effects: ReadonlyArray<Effect.Effect<A, E, R>>,
   options?: { readonly concurrency?: number | "unbounded" | undefined }
@@ -247,4 +364,10 @@ export const accumulateEffects = <A, E, R>(
     return { successes: oks, errors: errs };
   });
 
+/**
+ * Re-export tagged errors namespace.
+ *
+ * @category Documentation/Reexports
+ * @since 0.1.0
+ */
 export * as BeepError from "./errors";

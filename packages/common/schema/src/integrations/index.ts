@@ -23,4 +23,10 @@
  */
 export * from "./config";
 export * from "./http";
+/**
+ * SQL integration schemas (column transformers, helpers).
+ *
+ * @category Surface/Integrations
+ * @since 0.1.0
+ */
 export * from "./sql";

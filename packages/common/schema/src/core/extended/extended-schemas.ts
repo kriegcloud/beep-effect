@@ -46,12 +46,22 @@ export const withDefaultConstructor: <A, I, R>(
 ) => (self: S.Schema<A, I, R>) => S.PropertySignature<":", A, never, ":", I, true, R> = (makeDefault) => (self) =>
   S.propertySignature(self).pipe(S.withConstructorDefault(makeDefault));
 
-/**  */
+/**
+ * Struct overload that preserves index signatures while enabling batching annotations.
+ *
+ * @category Core/Extended
+ * @since 0.1.0
+ */
 export function Struct<Fields extends S.Struct.Fields, const Records extends S.IndexSignature.NonEmptyRecords>(
   fields: Fields,
   ...records: Records
 ): S.TypeLiteral<Fields, Records>;
-/**  */
+/**
+ * Struct overload for field-only schemas with batching annotations.
+ *
+ * @category Core/Extended
+ * @since 0.1.0
+ */
 export function Struct<Fields extends S.Struct.Fields>(fields: Fields): S.Struct<Fields>;
 /**
  * Equivalent to `Schema.Struct` but enables batching annotations for improved concurrency.
@@ -79,21 +89,66 @@ export function Struct<Fields extends S.Struct.Fields, const Records extends S.I
   );
 }
 
-/**  */
+/**
+ * Namespace for {@link Struct} helper types.
+ *
+ * @category Core/Extended
+ * @since 0.1.0
+ */
 export declare namespace Struct {
+  /**
+   * Alias for the fields accepted by {@link Struct}.
+   *
+   * @category Core/Extended
+   * @since 0.1.0
+   */
   export type Fields = S.Struct.Fields;
+  /**
+   * Runtime type for {@link Struct}.
+   *
+   * @category Core/Extended
+   * @since 0.1.0
+   */
   export type Type<F extends Fields> = S.Struct.Type<F>;
+  /**
+   * Encoded type for {@link Struct}.
+   *
+   * @category Core/Extended
+   * @since 0.1.0
+   */
   export type Encoded<F extends Fields> = S.Struct.Encoded<F>;
+  /**
+   * Context type for {@link Struct}.
+   *
+   * @category Core/Extended
+   * @since 0.1.0
+   */
   export type Context<F extends Fields> = S.Struct.Context<F>;
+  /**
+   * Constructor type for {@link Struct}.
+   *
+   * @category Core/Extended
+   * @since 0.1.0
+   */
   export type Constructor<F extends Fields> = S.Struct.Constructor<F>;
 }
 
-/**  */
+/**
+ * Tuple overload that captures rest schemas with batching annotations.
+ *
+ * @category Core/Extended
+ * @since 0.1.0
+ */
 export function Tuple<const Elements extends S.TupleType.Elements, Rest extends A.NonEmptyReadonlyArray<S.Schema.Any>>(
   elements: Elements,
   ...rest: Rest
 ): S.TupleType<Elements, Rest>;
-/**  */
+/**
+ * Tuple overload for fixed element sequences with batching annotations.
+ *
+ * @category Core/Extended
+ * @since 0.1.0
+ */
 export function Tuple<Elements extends S.TupleType.Elements>(...elements: Elements): S.Tuple<Elements>;
 /**
  * Tuple helper that automatically applies batching annotations.

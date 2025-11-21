@@ -34,25 +34,14 @@
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "lint:circular": "bunx madge -c .",
-    "execute": "bunx tsx --tsconfig ./tsconfig.src.json ./src/execute.ts"
+    "execute": "bunx tsx --tsconfig ./tsconfig.src.json ./src/execute.ts",
+    "docgen": "bunx docgen"
   },
   "peerDependencies": {
-    "dayjs": "catalog:",
-    "effect": "catalog:",
-    "@beep/invariant": "workspace:^",
-    "@faker-js/faker": "catalog:",
-    "mutative": "catalog:",
-    "next": "catalog:"
+    "effect": "catalog:"
   },
   "devDependencies": {
-    "@effect/build-utils": "catalog:",
-    "dayjs": "catalog:",
-    "type-fest": "catalog:",
-    "@beep/testkit": "workspace:^",
-    "@effect/docgen": "catalog:",
-    "@beep/types": "workspace:^",
-    "@types/bun": "catalog:",
-    "tsx": "catalog:"
+    "effect": "catalog:"
   },
   "effect": {
     "generateExports": {

@@ -43,7 +43,6 @@
   },
   "devDependencies": {
     "@effect/platform-bun": "catalog:",
-    "@types/bun": "catalog:",
     "@testcontainers/postgresql": "catalog:",
     "testcontainers": "catalog:",
     "@effect/platform": "catalog:",

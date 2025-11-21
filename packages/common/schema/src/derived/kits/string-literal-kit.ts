@@ -99,9 +99,9 @@ type LiteralKitEnum<
  * Captures the shape of the kit returned by `stringLiteralKit` including optional enum mapping.
  *
  * @example
- * import type { LiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
+ * import type { ILiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
  *
- * type StatusKit = LiteralKit<readonly ["pending", "active"], undefined>;
+ * type StatusKit = ILiteralKit<readonly ["pending", "active"], undefined>;
  *
  * @since 0.1.0
  * @category Derived/Kits
@@ -162,7 +162,19 @@ const buildMembersMap = <
  */
 const makeTaggedStruct = <D extends string, L extends string>(discriminator: D, lit: L) =>
   TaggedUnionFactory(discriminator)(lit, {});
+/**
+ * Checks whether the provided array of literals constitutes multiple members.
+ *
+ * @category Derived/Kits
+ * @since 0.1.0
+ */
 export const isMembers = <A>(as: ReadonlyArray<A>): as is AST.Members<A> => as.length > 1;
+/**
+ * Maps members using the provided function while preserving member metadata.
+ *
+ * @category Derived/Kits
+ * @since 0.1.0
+ */
 export const mapMembers = <A, B>(members: AST.Members<A>, f: (a: A) => B): AST.Members<B> => A.map(members, f) as any;
 
 function getDefaultLiteralAST<Literals extends A.NonEmptyReadonlyArray<AST.LiteralValue>>(literals: Literals): AST.AST {
@@ -387,6 +399,14 @@ export function makeLiteralKit<
   };
 }
 
+/**
+ * Factory for creating string literal kits with optional enum mappings.
+ *
+ * Provides `Schema`, `Options`, `Enum`, `derive`, and `toTagged` helpers for literal unions.
+ *
+ * @category Derived/Kits
+ * @since 0.1.0
+ */
 export function StringLiteralKit<Literals extends LiteralsType>(
   ...literals: Literals[number] extends StringTypes.NonEmptyString<Literals[number]> ? Literals : never
 ): ILiteralKit<Literals, undefined>;

@@ -23,8 +23,8 @@ import ts from "typescript";
 const DEFAULT_SCOPE = "schema" as const;
 
 const SCOPE_PATHS: Record<string, string> = {
+  errors: "packages/common/errors",
   invariant: "packages/common/invariant",
-  // schema: "packages/common/schema",
   schema: "packages/common/schema",
   identity: "packages/common/identity",
   types: "packages/common/types",

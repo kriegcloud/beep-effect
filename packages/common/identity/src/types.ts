@@ -2,7 +2,7 @@
  * Type helpers for the `@beep/identity` builders and schema annotations.
  *
  * @example
- * import type * as Identity from "@beep/identity";
+ * import type * as Identity from "@beep/identity/types";
  *
  * type SchemaSymbol = Identity.IdentitySymbol<"@beep/schema/entities/Tenant">;
  *
@@ -20,7 +20,7 @@ import type * as AST from "effect/SchemaAST";
  * while still allowing dynamic `string` segments when necessary.
  *
  * @example
- * import type * as Identity from "@beep/identity";
+ * import type * as Identity from "@beep/identity/types";
  *
  * type SchemaSegment = Identity.Segment<"schema">;
  *
@@ -41,7 +41,7 @@ export type SegmentValue<S extends StringTypes.NonEmptyString> = S extends `/${s
  * Shorthand alias for `SegmentValue` so builders can stay ergonomic.
  *
  * @example
- * import type * as Identity from "@beep/identity";
+ * import type * as Identity from "@beep/identity/types";
  *
  * type SchemaSegment = Identity.Segment<"schema">;
  *
@@ -54,7 +54,7 @@ export type Segment<S extends StringTypes.NonEmptyString = StringTypes.NonEmptyS
  * Branded string that marks the value as an identity while preserving the literal.
  *
  * @example
- * import type * as Identity from "@beep/identity";
+ * import type * as Identity from "@beep/identity/types";
  *
  * type PasskeyId = Identity.IdentityString<"@beep/iam-sdk/clients/passkey">;
  *
@@ -69,7 +69,7 @@ export type IdentityString<Value extends string> = Value & {
  * Symbol returned by the identity builder to keep TypeId/service tokens stable.
  *
  * @example
- * import type * as Identity from "@beep/identity";
+ * import type * as Identity from "@beep/identity/types";
  *
  * type RepoSymbol = Identity.IdentitySymbol<"@beep/iam-infra/repos/UserRepo">;
  *
@@ -84,7 +84,7 @@ export type IdentitySymbol<Value extends string> = symbol & {
  * Additional JSON Schema annotations that can be merged into identity metadata.
  *
  * @example
- * import type * as Identity from "@beep/identity";
+ * import type * as Identity from "@beep/identity/types";
  *
  * const extras: Identity.SchemaAnnotationExtras<{ readonly example: true }> = {};
  *
@@ -97,7 +97,8 @@ export type SchemaAnnotationExtras<A> = Schema.Annotations.GenericSchema<A>;
  * Identity annotations enriched with schema extras returned by `BeepId.annotations`.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import type * as Identity from "@beep/identity/types";
+ * import * as Modules from "@beep/identity/modules";
  *
  * const extras: Identity.SchemaAnnotationExtras<{ readonly version: 1 }> = {};
  *
@@ -105,7 +106,7 @@ export type SchemaAnnotationExtras<A> = Schema.Annotations.GenericSchema<A>;
  *   "@beep/schema/annotations/PasskeyAddPayload",
  *   "PasskeyAddPayload",
  *   { readonly version: 1 }
- * > = Identity.SchemaId.compose("annotations").annotations("PasskeyAddPayload", extras);
+ * > = Modules.SchemaId.compose("annotations").annotations("PasskeyAddPayload", extras);
  *
  * @category Identity/Annotations
  * @since 0.1.0
@@ -120,9 +121,10 @@ export type IdentityAnnotationResult<Value extends string, Identifier extends st
  * Immutable builder returned by `BeepId` that keeps literal identity values intact.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import type * as Identity from "@beep/identity/types";
+ * import * as BeepId from "@beep/identity/BeepId";
  *
- * const schemaComposer: Identity.IdentityComposer<"@beep/schema"> = Identity.BeepId.module("schema");
+ * const schemaComposer: Identity.IdentityComposer<"@beep/schema"> = BeepId.BeepId.module("schema");
  * const payloadId = schemaComposer.compose("annotations").make("PasskeyAddPayload");
  *
  * @category Identity/Builder
@@ -149,7 +151,7 @@ export interface IdentityComposer<Value extends string> {
  * Tuple of namespace segments (`["schema", "annotations"]`).
  *
  * @example
- * import type * as Identity from "@beep/identity";
+ * import type * as Identity from "@beep/identity/types";
  *
  * type SchemaPath = Identity.SegmentTuple;
  *
@@ -168,7 +170,7 @@ type JoinSegments<Parts extends readonly [string, ...string[]]> = Parts extends 
  * Final literal computed from the tuple passed to `BeepId.module`.
  *
  * @example
- * import type * as Identity from "@beep/identity";
+ * import type * as Identity from "@beep/identity/types";
  *
  * type SchemaAnnotations = Identity.ModulePath<["schema", "annotations"]>;
  *
@@ -181,10 +183,11 @@ export type ModulePath<Segments extends SegmentTuple> = `@beep/${JoinSegments<Se
  * Base annotation object for schema/service descriptors.
  *
  * @example
- * import * as Identity from "@beep/identity";
+ * import type * as Identity from "@beep/identity/types";
+ * import * as Modules from "@beep/identity/modules";
  *
  * const annotation: Identity.IdentityAnnotation<"@beep/schema/Example", "Example"> = {
- *   ...Identity.BeepId.module("schema").annotations("Example"),
+ *   ...Modules.SchemaId.annotations("Example"),
  * };
  *
  * @category Identity/Annotations

@@ -42,7 +42,6 @@
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",
-    "@types/bun": "catalog:",
     "@beep/types": "workspace:^",
     "@beep/constants": "workspace:^",
     "@beep/errors": "workspace:^",

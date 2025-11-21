@@ -51,18 +51,12 @@ const PACKAGE_TARGETS: Record<string, PackageTarget> = {
     slug: "schema",
     navOrder: 5,
   },
-  // invariant: {
-  //   workspacePath: "packages/common/invariant",
-  //   docsFolder: "docs/modules",
-  //   slug: "invariant",
-  //   navOrder: 3,
-  // },
-  // utils: {
-  //   workspacePath: "packages/common/utils",
-  //   docsFolder: "docs",
-  //   slug: "utils",
-  //   navOrder: 4,
-  // },
+  errors: {
+    workspacePath: "packages/common/errors",
+    docsFolder: "docs/modules",
+    slug: "errors",
+    navOrder: 6,
+  },
 };
 
 const program = Effect.gen(function* () {

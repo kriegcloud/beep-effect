@@ -309,7 +309,6 @@
     "react-markdown": "catalog:",
     "@types/turndown": "catalog:",
     "@beep/ui-core": "workspace:^",
-    "@types/bun": "catalog:",
     "@beep/types": "workspace:^",
     "@tailwindcss/postcss": "catalog:",
     "tailwindcss": "catalog:",
