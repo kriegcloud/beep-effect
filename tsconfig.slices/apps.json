@@ -1,17 +1,20 @@
 {
   "files": [],
+  "compilerOptions": {
+    "tsBuildInfoFile": "../.turbo/tsbuildinfo/apps.tsbuildinfo"
+  },
   "references": [
     {
-      "path": "../apps/server"
+      "path": "../apps/server/tsconfig.build.json"
     },
     {
-      "path": "../apps/mcp"
+      "path": "../apps/mcp/tsconfig.build.json"
     },
     {
-      "path": "../apps/web/tsconfig.json"
+      "path": "../apps/web/tsconfig.build.json"
     },
     {
-      "path": "../apps/start-client/tsconfig.json"
+      "path": "../apps/start-client/tsconfig.build.json"
     }
   ]
 }

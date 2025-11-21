@@ -12,9 +12,5 @@
     "declaration": true,
     "sourceMap": true
   },
-  "references": [
-    {
-      "path": "../../../tooling/testkit/tsconfig.build.json"
-    }
-  ]
+  "references": []
 }

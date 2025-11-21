@@ -71,7 +71,6 @@
     {
       "path": "../../packages/tasks/tables/tsconfig.build.json"
     },
-
     {
       "path": "../../packages/comms/sdk/tsconfig.build.json"
     },
@@ -87,7 +86,6 @@
     {
       "path": "../../packages/comms/tables/tsconfig.build.json"
     },
-
     {
       "path": "../../packages/ui/ui/tsconfig.build.json"
     },
@@ -117,7 +115,7 @@
     "types": ["node", "bun"],
     "rootDir": "test",
     "resolveJsonModule": true,
-    "noEmit": true,
+    "noEmit": false,
     "paths": {
       "*": ["./*"],
       "@/*": ["./src/*"],
@@ -172,6 +170,7 @@
       "@beep/runtime-server/*": ["../../packages/runtime/server/src/*"],
       "@beep/runtime-client": ["../../packages/runtime/client/src/index"],
       "@beep/runtime-client/*": ["../../packages/runtime/client/src/*"]
-    }
+    },
+    "outDir": "build/test"
   }
 }

@@ -2,24 +2,12 @@
   "extends": "../../../tsconfig.base.jsonc",
   "include": ["src"],
   "references": [
-    {
-      "path": "../types"
-    },
-    {
-      "path": "../schema"
-    },
-    {
-      "path": "../utils"
-    },
-    {
-      "path": "../invariant"
-    },
-    {
-      "path": "../constants"
-    },
-    {
-      "path": "../identity"
-    }
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../schema/tsconfig.build.json" },
+    { "path": "../utils/tsconfig.build.json" },
+    { "path": "../invariant/tsconfig.build.json" },
+    { "path": "../constants/tsconfig.build.json" },
+    { "path": "../identity/tsconfig.build.json" }
   ],
   "compilerOptions": {
     "types": ["node", "bun"],

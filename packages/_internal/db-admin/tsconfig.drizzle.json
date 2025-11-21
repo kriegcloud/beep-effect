@@ -2,12 +2,8 @@
   "extends": "./tsconfig.src.json",
   "include": ["drizzle.config.ts"],
   "references": [
-    {
-      "path": "../../../tooling/utils"
-    },
-    {
-      "path": "../../../tooling/testkit"
-    },
+    { "path": "../../../tooling/utils" },
+    { "path": "../../../tooling/testkit/tsconfig.build.json" },
     {
       "path": "../../common/types"
     },

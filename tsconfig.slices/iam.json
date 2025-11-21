@@ -1,10 +1,13 @@
 {
   "files": [],
+  "compilerOptions": {
+    "tsBuildInfoFile": "../.turbo/tsbuildinfo/iam.tsbuildinfo"
+  },
   "references": [
-    { "path": "../packages/iam/domain" },
-    { "path": "../packages/iam/tables" },
-    { "path": "../packages/iam/infra" },
-    { "path": "../packages/iam/sdk" },
-    { "path": "../packages/iam/ui" }
+    { "path": "../packages/iam/domain/tsconfig.build.json" },
+    { "path": "../packages/iam/tables/tsconfig.build.json" },
+    { "path": "../packages/iam/infra/tsconfig.build.json" },
+    { "path": "../packages/iam/sdk/tsconfig.build.json" },
+    { "path": "../packages/iam/ui/tsconfig.build.json" }
   ]
 }

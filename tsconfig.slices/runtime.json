@@ -1,7 +1,10 @@
 {
   "files": [],
+  "compilerOptions": {
+    "tsBuildInfoFile": "../.turbo/tsbuildinfo/runtime.tsbuildinfo"
+  },
   "references": [
-    { "path": "../packages/runtime/server" },
-    { "path": "../packages/runtime/client" }
+    { "path": "../packages/runtime/server/tsconfig.build.json" },
+    { "path": "../packages/runtime/client/tsconfig.build.json" }
   ]
 }

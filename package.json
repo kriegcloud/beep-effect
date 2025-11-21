@@ -128,7 +128,7 @@
     "@effect/cli": "^0.72.1",
     "@effect/docgen": "^0.5.2",
     "@effect/ai-openai": "^0.35.0",
-    "@effect/cluster": "^0.53.2",
+    "@effect/cluster": "^0.53.3",
     "@effect/experimental": "^0.57.4",
     "@effect/opentelemetry": "^0.59.1",
     "@effect/platform": "^0.93.3",
