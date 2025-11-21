@@ -55,6 +55,7 @@
     "types": ["node", "bun"],
     "rootDir": "test",
     "tsBuildInfoFile": "./build/tsconfig.test.tsbuildinfo",
-    "noEmit": true
+    "noEmit": false,
+    "outDir": "build/test"
   }
 }

@@ -1,10 +1,10 @@
 {
   "files": [],
   "references": [
-    { "path": "../packages/comms/domain" },
-    { "path": "../packages/comms/tables" },
-    { "path": "../packages/comms/infra" },
-    { "path": "../packages/comms/sdk" },
-    { "path": "../packages/comms/ui" }
+    { "path": "../packages/comms/domain/tsconfig.build.json" },
+    { "path": "../packages/comms/tables/tsconfig.build.json" },
+    { "path": "../packages/comms/infra/tsconfig.build.json" },
+    { "path": "../packages/comms/sdk/tsconfig.build.json" },
+    { "path": "../packages/comms/ui/tsconfig.build.json" }
   ]
 }

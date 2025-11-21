@@ -1,14 +1,7 @@
 {
   "extends": "../../../tsconfig.base.jsonc",
   "include": ["src"],
-  "references": [
-    {
-      "path": "tsconfig.build.json"
-    },
-    {
-      "path": "../../../tooling/testkit"
-    }
-  ],
+  "references": [],
   "compilerOptions": {
     "types": ["bun", "node"],
     "outDir": "build/src",

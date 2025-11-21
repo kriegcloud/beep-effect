@@ -18,7 +18,7 @@
       "path": "../../common/schema/tsconfig.build.json"
     },
     {
-      "path": "../../common/identity"
+      "path": "../../common/identity/tsconfig.build.json"
     },
     {
       "path": "../../common/constants/tsconfig.build.json"
@@ -51,25 +51,23 @@
       "path": "../../iam/tables/tsconfig.build.json"
     },
     {
-      "path": "../../tasks/domain"
+      "path": "../../tasks/domain/tsconfig.build.json"
     },
     {
-      "path": "../../tasks/ui"
+      "path": "../../tasks/ui/tsconfig.build.json"
     },
     {
-      "path": "../../tasks/tables"
-    },
-
-    {
-      "path": "../../comms/domain"
+      "path": "../../tasks/tables/tsconfig.build.json"
     },
     {
-      "path": "../../comms/ui"
+      "path": "../../comms/domain/tsconfig.build.json"
     },
     {
-      "path": "../../comms/tables"
+      "path": "../../comms/ui/tsconfig.build.json"
     },
-
+    {
+      "path": "../../comms/tables/tsconfig.build.json"
+    },
     {
       "path": "../../files/infra/tsconfig.build.json"
     },
@@ -83,13 +81,14 @@
       "path": "../../../tooling/utils"
     },
     {
-      "path": "../../../tooling/testkit"
+      "path": "../../../tooling/testkit/tsconfig.build.json"
     }
   ],
   "compilerOptions": {
     "types": ["node", "bun"],
     "tsBuildInfoFile": "./build/tsconfig.test.tsbuildinfo",
     "rootDir": "test",
-    "noEmit": true
+    "noEmit": false,
+    "outDir": "build/test"
   }
 }

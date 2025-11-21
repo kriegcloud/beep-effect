@@ -6,25 +6,26 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../types"
+      "path": "../types/tsconfig.build.json"
     },
     {
-      "path": "../invariant"
+      "path": "../invariant/tsconfig.build.json"
     },
     {
-      "path": "../utils"
+      "path": "../utils/tsconfig.build.json"
     },
     {
-      "path": "../identity"
+      "path": "../identity/tsconfig.build.json"
     },
     {
-      "path": "../../../tooling/testkit"
+      "path": "../../../tooling/testkit/tsconfig.build.json"
     }
   ],
   "compilerOptions": {
     "types": ["bun", "node"],
     "tsBuildInfoFile": "./build/tsconfig.test.tsbuildinfo",
     "rootDir": "test",
-    "noEmit": true
+    "noEmit": false,
+    "outDir": "build/test"
   }
 }

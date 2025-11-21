@@ -2,15 +2,8 @@
   "extends": "../../../tsconfig.base.jsonc",
   "include": ["src"],
   "references": [
-    {
-      "path": "../types"
-    },
-    {
-      "path": "../invariant"
-    },
-    {
-      "path": "../../../tooling/testkit"
-    }
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../invariant/tsconfig.build.json" }
   ],
   "compilerOptions": {
     "types": ["bun", "node"],

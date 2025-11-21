@@ -1,10 +1,10 @@
 {
   "files": [],
   "references": [
-    { "path": "../packages/tasks/domain" },
-    { "path": "../packages/tasks/tables" },
-    { "path": "../packages/tasks/infra" },
-    { "path": "../packages/tasks/sdk" },
-    { "path": "../packages/tasks/ui" }
+    { "path": "../packages/tasks/domain/tsconfig.build.json" },
+    { "path": "../packages/tasks/tables/tsconfig.build.json" },
+    { "path": "../packages/tasks/infra/tsconfig.build.json" },
+    { "path": "../packages/tasks/sdk/tsconfig.build.json" },
+    { "path": "../packages/tasks/ui/tsconfig.build.json" }
   ]
 }

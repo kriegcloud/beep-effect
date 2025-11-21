@@ -1,6 +1,6 @@
 {
   "files": [],
   "references": [
-    { "path": "../packages/_internal/db-admin" }
+    { "path": "../packages/_internal/db-admin/tsconfig.build.json" }
   ]
 }

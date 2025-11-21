@@ -1,11 +1,15 @@
 {
   "extends": "../../tsconfig.base.jsonc",
   "include": ["src/**/*.test.ts"],
-  "references": [{ "path": "tsconfig.src.json" }],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    }
+  ],
   "compilerOptions": {
     "types": ["node", "bun"],
-
     "rootDir": "src",
-    "noEmit": true
+    "noEmit": false,
+    "outDir": "build/test"
   }
 }

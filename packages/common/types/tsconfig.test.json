@@ -6,13 +6,14 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../../../tooling/testkit"
+      "path": "../../../tooling/testkit/tsconfig.build.json"
     }
   ],
   "compilerOptions": {
     "types": ["bun", "node"],
     "tsBuildInfoFile": "./build/tsconfig.test.tsbuildinfo",
     "rootDir": "test",
-    "noEmit": true
+    "noEmit": false,
+    "outDir": "build/test"
   }
 }

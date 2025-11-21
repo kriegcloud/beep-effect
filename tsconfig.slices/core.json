@@ -1,8 +1,8 @@
 {
   "files": [],
   "references": [
-    { "path": "../packages/core/env" },
-    { "path": "../packages/core/email" },
-    { "path": "../packages/core/db" }
+    { "path": "../packages/core/env/tsconfig.build.json" },
+    { "path": "../packages/core/email/tsconfig.build.json" },
+    { "path": "../packages/core/db/tsconfig.build.json" }
   ]
 }
