@@ -172,8 +172,7 @@ export type ModuleSegmentValue<S extends StringTypes.NonEmptyString> = S extends
         ? never
         : SegmentValue<S>;
 
-export type ModuleAccessor<S extends StringTypes.NonEmptyString> =
-  `${PascalCaseValue<ModuleSegmentValue<S>>}Id`;
+export type ModuleAccessor<S extends StringTypes.NonEmptyString> = `${PascalCaseValue<ModuleSegmentValue<S>>}Id`;
 
 export type ModuleRecord<
   Value extends string,

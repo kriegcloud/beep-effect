@@ -16,13 +16,13 @@ import * as R from "effect/Record";
 import * as Str from "effect/String";
 
 import type {
-  ModuleRecord,
-  ModuleSegmentValue,
   IdentityAnnotation,
   IdentityAnnotationResult,
   IdentityComposer,
   IdentityString,
   IdentitySymbol,
+  ModuleRecord,
+  ModuleSegmentValue,
   PackagePath,
   SchemaAnnotationExtras,
   SegmentTuple,
