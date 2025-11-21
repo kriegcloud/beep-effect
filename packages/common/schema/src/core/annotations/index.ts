@@ -13,6 +13,12 @@
  * @since 0.1.0
  */
 export * from "./default";
+/**
+ * Re-exports annotations used to seed default form values.
+ *
+ * @category Core/Annotations
+ * @since 0.1.0
+ */
 export * from "./default-form-values-annotations";
 /**
  * Example annotation helpers for docs re-export.

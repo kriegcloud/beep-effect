@@ -80,7 +80,6 @@
     "better-call": "catalog:",
     "jose": "catalog:",
     "next": "catalog:",
-
     "@beep/types": "workspace:^",
     "@beep/runtime-client": "workspace:^",
     "@beep/utils": "workspace:^",

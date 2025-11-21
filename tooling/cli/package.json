@@ -64,7 +64,6 @@
     "@effect/cluster": "catalog:"
   },
   "devDependencies": {
-
     "@beep/types": "workspace:^",
     "@beep/constants": "workspace:^",
     "@beep/schema": "workspace:^",

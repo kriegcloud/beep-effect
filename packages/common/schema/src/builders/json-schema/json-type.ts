@@ -1,3 +1,9 @@
+/**
+ * JSON Schema `type` keyword schemas.
+ *
+ * @category Builders/JsonSchema
+ * @since 0.1.0
+ */
 import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
 import { Id } from "./internal";
 
@@ -26,6 +32,12 @@ export class $JsonType extends StringLiteralKit(
   })
 ) {}
 
+/**
+ * Namespace describing the encoded and decoded types for {@link $JsonType}.
+ *
+ * @category Builders/JsonSchema
+ * @since 0.1.0
+ */
 export declare namespace $JsonType {
   /**
    * Runtime union corresponding to {@link $JsonType}.

@@ -106,8 +106,6 @@
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",
-
-
     "@beep/types": "workspace:^",
     "@effect/sql": "catalog:",
     "@effect/sql-pg": "catalog:",

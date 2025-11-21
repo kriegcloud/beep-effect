@@ -51,7 +51,6 @@
   "devDependencies": {
     "@beep/mock": "workspace:^",
     "@effect/docgen": "catalog:",
-
     "@beep/types": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/schema": "workspace:^",

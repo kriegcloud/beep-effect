@@ -50,7 +50,6 @@
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",
-
     "@beep/types": "workspace:^",
     "effect": "catalog:",
     "@effect/sql": "catalog:",

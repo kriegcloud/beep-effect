@@ -55,7 +55,6 @@
   "devDependencies": {
     "@effect/docgen": "catalog:",
     "@beep/types": "workspace:^",
-
     "@testcontainers/postgresql": "catalog:",
     "@beep/identity": "workspace:^",
     "testcontainers": "catalog:",

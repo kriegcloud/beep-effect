@@ -4,7 +4,7 @@
  * @example
  * import * as Builders from "@beep/schema/builders";
  * import * as S from "effect/Schema";
- * const decoded = S.decodeSync(Builders.JsonSchema.JsonProp)("some-prop");
+ * const decoded = S.decodeSync(Builders.JsonSchema.JsonProp)("some_prop");
  *
  * @category Surface/Builders
  * @since 0.1.0

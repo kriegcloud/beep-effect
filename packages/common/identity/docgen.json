@@ -3,9 +3,7 @@
   "srcDir": "src",
   "outDir": "docs",
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/identity/src/",
-  "exclude": [
-
-  ],
+  "exclude": [],
   "parseCompilerOptions": {
     "baseUrl": ".",
     "noEmit": true,

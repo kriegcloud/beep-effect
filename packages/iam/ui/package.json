@@ -77,11 +77,9 @@
     "@wojtekmaj/react-recaptcha-v3": "catalog:",
     "react-google-recaptcha": "catalog:",
     "@noble/hashes": "catalog:",
-
     "@beep/types": "workspace:^",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-
     "@tanstack/react-form": "catalog:",
     "@beep/ui": "workspace:^",
     "@beep/ui-core": "workspace:^",

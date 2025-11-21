@@ -94,7 +94,6 @@
     "@tanstack/router-plugin": "catalog:",
     "@vite-pwa/assets-generator": "catalog:",
     "tailwindcss": "catalog:",
-
     "tw-animate-css": "catalog:",
     "vite-plugin-pwa": "catalog:",
     "workbox-core": "catalog:",

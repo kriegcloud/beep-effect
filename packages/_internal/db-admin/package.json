@@ -76,7 +76,6 @@
     "drizzle-kit": "catalog:",
     "drizzle-orm": "catalog:",
     "effect": "catalog:",
-
     "@beep/core-env": "workspace:^",
     "@effect/platform": "catalog:",
     "postgres": "catalog:",
@@ -85,7 +84,6 @@
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",
-
     "@beep/types": "workspace:^"
   },
   "effect": {

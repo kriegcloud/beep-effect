@@ -4,6 +4,7 @@
   "type": "module",
   "license": "MIT",
   "description": "A library for system wide errors & error utilities",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/errors",
   "publishConfig": {
     "access": "public",
     "provenance": true,
@@ -33,6 +34,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "lint:circular": "bunx madge -c .",
+    "docgen": "bunx docgen",
     "dotenvx": "dotenvx run -f ../../../.env --"
   },
   "peerDependencies": {
@@ -50,7 +52,6 @@
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",
-
     "@beep/types": "workspace:^",
     "effect": "catalog:",
     "@effect/platform": "catalog:",

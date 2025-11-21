@@ -190,9 +190,7 @@
     },
     "docgen": {
       "cache": false,
-      "dependsOn": [
-        "^docgen"
-      ],
+      "dependsOn": [],
       "inputs": [
         "$TURBO_DEFAULT$",
         "packages/common/utils/docgen.json",
@@ -202,13 +200,16 @@
         "packages/common/invariant/docgen.json",
         "packages/common/invariant/src/**",
         "packages/common/identity/docgen.json",
-        "packages/common/identity/src/**"
+        "packages/common/identity/src/**",
+        "packages/common/errors/docgen.json",
+        "packages/common/errors/src/**"
       ],
       "outputs": [
         "packages/common/utils/docs/**",
         "packages/common/types/docs/**",
         "packages/common/invariant/docs/**",
-        "packages/common/identity/docs/**"
+        "packages/common/identity/docs/**",
+        "packages/common/errors/docs/**"
 
       ]
     },

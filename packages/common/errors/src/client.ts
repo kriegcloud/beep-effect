@@ -1,17 +1,57 @@
+/**
+ * Client-safe entry point for `@beep/errors` (no Node APIs).
+ *
+ * @example
+ * import * as Effect from "effect/Effect";
+ * import { accumulateEffectsAndReport } from "@beep/errors/client";
+ *
+ * const effects = [Effect.succeed("ok")];
+ * export const run = accumulateEffectsAndReport(effects, { spanLabel: "example" });
+ *
+ * @category Documentation/Modules
+ * @since 0.1.0
+ */
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import type { AccumulateOptions, AccumulateResult } from "./shared";
 import { accumulateEffects } from "./shared";
 
-// Re-export shared, Node-free helpers
+/**
+ * Re-export shared helpers for client bundles.
+ *
+ * @example
+ * import * as Effect from "effect/Effect";
+ * import { withLogContext } from "@beep/errors/shared";
+ * import { withEnvLogging } from "@beep/errors/client";
+ *
+ * const clientSharedExample = withEnvLogging(
+ *   Effect.succeed("ok").pipe(withLogContext({ service: "demo" }))
+ * );
+ * void clientSharedExample;
+ *
+ * @category Documentation/Reexports
+ * @since 0.1.0
+ */
 export * from "./shared";
 
 // =========================
 // Client-specific wrappers
 // =========================
 
+/**
+ * Client-safe noop for env-driven logging hooks.
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
+ */
 export const withEnvLogging = <A, E, R>(self: Effect.Effect<A, E, R>) => self;
 
+/**
+ * Accumulate successes/errors with client-safe reporting.
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
+ */
 export const accumulateEffectsAndReport = <A, E, R>(
   effects: ReadonlyArray<Effect.Effect<A, E, R>>,
   options?: AccumulateOptions | undefined

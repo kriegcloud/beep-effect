@@ -1,1 +1,1 @@
-export * from "@beep/constants/_generated/asset-paths";
+export * from "./asset-paths";

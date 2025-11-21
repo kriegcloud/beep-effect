@@ -1,3 +1,19 @@
+/**
+ * Server-only entry point for pretty logging layers and accumulation helpers.
+ *
+ * @example
+ * import * as Effect from "effect/Effect";
+ * import { makePrettyConsoleLoggerLayer, withEnvLogging } from "@beep/errors/server";
+ *
+ * const program = Effect.logInfo("boot");
+ * export const run = program.pipe(
+ *   withEnvLogging(),
+ *   Effect.provide(makePrettyConsoleLoggerLayer({ includeCausePretty: true }))
+ * );
+ *
+ * @category Documentation/Modules
+ * @since 0.1.0
+ */
 import * as FS from "node:fs";
 import * as OS from "node:os";
 import * as Path from "node:path";
@@ -29,8 +45,19 @@ import {
   shouldPrintCause,
 } from "./shared";
 
-// Re-export shared helpers
+/**
+ * Re-export shared helpers for server entry.
+ *
+ * @category Documentation/Reexports
+ * @since 0.1.0
+ */
 export * from "./shared";
+/**
+ * Formatting options for pretty cause headings (server-only).
+ *
+ * @category Documentation/Config
+ * @since 0.1.0
+ */
 export interface CauseHeadingOptions {
   readonly colors?: boolean | undefined;
   readonly date?: Date | undefined;
@@ -49,6 +76,9 @@ export interface CauseHeadingOptions {
 }
 /**
  * Build a pretty console logger Layer (server-only).
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
  */
 export function makePrettyConsoleLoggerLayer(cfg?: Partial<PrettyLoggerConfig> | undefined): Layer.Layer<never> {
   const logger = makePrettyConsoleLogger(cfg);
@@ -57,6 +87,9 @@ export function makePrettyConsoleLoggerLayer(cfg?: Partial<PrettyLoggerConfig> |
 
 /**
  * Wrap an Effect with pretty logging and minimum log level (server-only).
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
  */
 export function withPrettyLogging(cfg?: Partial<PrettyLoggerConfig> | undefined) {
   return <A, E, R>(self: Effect.Effect<A, E, R>) =>
@@ -68,6 +101,9 @@ export function withPrettyLogging(cfg?: Partial<PrettyLoggerConfig> | undefined)
 
 /**
  * Run an Effect with pretty logging and return Exit (server-only convenience).
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
  */
 export const runWithPrettyLogsExit = <A, E, R>(
   eff: Effect.Effect<A, E, R>,
@@ -177,6 +213,12 @@ function inferFunctionName(file: string, line: number): string | undefined {
   }
 }
 
+/**
+ * Render a formatted heading for a Cause (optionally with code frames).
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
+ */
 export function formatCauseHeading(cause: Cause.Cause<unknown>, options: boolean | CauseHeadingOptions = true): string {
   if (Cause.isEmpty(cause)) return "";
   const opts = typeof options === "boolean" ? ({ colors: options } as CauseHeadingOptions) : (options ?? {});
@@ -231,6 +273,12 @@ export function formatCauseHeading(cause: Cause.Cause<unknown>, options: boolean
   return lines.join("\n");
 }
 
+/**
+ * Build a pretty console logger instance (server-only).
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
+ */
 export function makePrettyConsoleLogger(cfg?: Partial<PrettyLoggerConfig> | undefined): Logger.Logger<unknown, void> {
   const config: PrettyLoggerConfig = { ...defaultConfig, ...cfg };
 
@@ -309,6 +357,9 @@ export function makePrettyConsoleLogger(cfg?: Partial<PrettyLoggerConfig> | unde
 
 /**
  * Reads APP_LOG_FORMAT and APP_LOG_LEVEL with env-sensitive defaults.
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
  */
 export const readEnvLoggerConfig = Effect.gen(function* () {
   const appEnv = process.env.APP_ENV ?? process.env.NODE_ENV ?? process.env.NEXT_PUBLIC_ENV;
@@ -345,6 +396,9 @@ const loggerForFormat = (format: LogFormat.Type, prettyOverrides?: Partial<Prett
 
 /**
  * Build a logger layer from environment variables.
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
  */
 export const makeEnvLoggerLayerFromEnv = (prettyOverrides?: Partial<PrettyLoggerConfig> | undefined) =>
   Effect.gen(function* () {
@@ -355,6 +409,9 @@ export const makeEnvLoggerLayerFromEnv = (prettyOverrides?: Partial<PrettyLogger
 
 /**
  * Apply the environment-derived logger and minimum level to an Effect.
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
  */
 export const withEnvLogging =
   (prettyOverrides?: Partial<PrettyLoggerConfig> | undefined) =>
@@ -369,6 +426,12 @@ export const withEnvLogging =
 // Accumulation helpers (server variant)
 // =========================
 
+/**
+ * Accumulate effects and log/report errors (server variant).
+ *
+ * @category Documentation/Functions
+ * @since 0.1.0
+ */
 export const accumulateEffectsAndReport = <A, E, R>(
   effects: ReadonlyArray<Effect.Effect<A, E, R>>,
   options?: AccumulateOptions | undefined

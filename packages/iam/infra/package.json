@@ -97,7 +97,6 @@
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",
-
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@beep/types": "workspace:^",

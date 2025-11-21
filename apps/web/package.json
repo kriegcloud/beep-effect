@@ -206,7 +206,6 @@
     "vaul": "catalog:"
   },
   "devDependencies": {
-
     "@beep/types": "workspace:^",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
