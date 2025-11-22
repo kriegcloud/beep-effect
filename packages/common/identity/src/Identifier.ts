@@ -195,12 +195,7 @@ const createComposer = <const Value extends StringTypes.NonEmptyString>(value: V
     const composed = `${value}/${segment}` as `${Value}/${ModuleSegmentValue<StringTypes.NonEmptyString>}`;
     return toIdentityString(composed);
   }) as TaggedComposer<Value>;
-
-  // Attempt to assign to const or readonly variable
-  // TS2540: Cannot assign to value because it is a read-only property.
   tag.value = identityValue;
-  // Attempt to assign to const or readonly variable
-  // TS2540: Cannot assign to identifier because it is a read-only property.
   tag.identifier = identityValue;
   tag.string = () => identityValue;
   tag.symbol = () => toIdentitySymbol(value);

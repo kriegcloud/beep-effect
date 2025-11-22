@@ -203,7 +203,9 @@
     "react-day-picker": "catalog:",
     "react-resizable-panels": "catalog:",
     "recharts": "catalog:",
-    "vaul": "catalog:"
+    "vaul": "catalog:",
+    "@tanstack/react-devtools": "catalog:",
+    "@tanstack/react-form-devtools": "catalog:"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",

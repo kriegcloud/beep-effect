@@ -368,9 +368,19 @@
     "@effect/build-utils": "^0.8.9",
     "ast-types": "^0.16.1",
     "@better-auth/passkey": "^1.4.0",
-    "@better-auth/scim": "^1.4.0"
+    "@better-auth/scim": "^1.4.0",
+    "@tanstack/react-devtools": "^0.8.1",
+    "@tanstack/react-form-devtools": "^0.2.1"
   },
   "dependenciesCatalog": [
+    {
+      "name": "@tanstack/react-devtools",
+      "version": "^0.8.1"
+    },
+    {
+      "name": "@tanstack/react-form-devtools",
+      "version": "^0.2.1"
+    },
     {
       "name": "@better-auth/scim",
       "version": "^1.4.0"

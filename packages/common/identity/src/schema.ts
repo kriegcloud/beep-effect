@@ -47,7 +47,6 @@ export const BaseSegment = S.String.pipe(
   }),
   S.brand("BaseSegment")
 );
-export type BaseSegmentType = S.Schema.Type<typeof BaseSegment>;
 
 // Tagged errors
 export class InvalidSegmentError extends S.TaggedError<InvalidSegmentError>("InvalidSegmentError")(

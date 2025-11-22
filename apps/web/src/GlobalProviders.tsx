@@ -21,6 +21,7 @@ import * as O from "effect/Option";
 import type React from "react";
 import type { AppConfig } from "@/app-config";
 import { settingsDialogAtom } from "@/global.atoms";
+import { TanstackDevToolsProvider } from "./libs/tanstack-form";
 
 type GlobalProviders = {
   readonly children: React.ReactNode;
@@ -40,28 +41,30 @@ export function GlobalProviders({ children, appConfig }: GlobalProviders) {
           attribute={themeConfig.cssVariables.colorSchemeSelector}
           defaultMode={themeConfig.defaultMode}
         />
-        <I18nProvider lang={appConfig.i18nLang}>
-          <SettingsProvider cookieSettings={appConfig.cookieSettings} defaultSettings={defaultSettings}>
-            <LocalizationProvider>
-              <AppRouterCacheProvider options={{ key: "css", enableCssLayer: true }}>
-                <ThemeProvider modeStorageKey={themeConfig.modeStorageKey} defaultMode={themeConfig.defaultMode}>
-                  <BreakpointsProvider>
-                    <ConfirmProvider>
-                      <IamProvider>
-                        <MotionLazy>
-                          <Snackbar />
-                          <ProgressBar />
-                          <SettingsDrawer defaultSettings={defaultSettings} />
-                          {children}
-                        </MotionLazy>
-                      </IamProvider>
-                    </ConfirmProvider>
-                  </BreakpointsProvider>
-                </ThemeProvider>
-              </AppRouterCacheProvider>
-            </LocalizationProvider>
-          </SettingsProvider>
-        </I18nProvider>
+        <TanstackDevToolsProvider>
+          <I18nProvider lang={appConfig.i18nLang}>
+            <SettingsProvider cookieSettings={appConfig.cookieSettings} defaultSettings={defaultSettings}>
+              <LocalizationProvider>
+                <AppRouterCacheProvider options={{ key: "css", enableCssLayer: true }}>
+                  <ThemeProvider modeStorageKey={themeConfig.modeStorageKey} defaultMode={themeConfig.defaultMode}>
+                    <BreakpointsProvider>
+                      <ConfirmProvider>
+                        <IamProvider>
+                          <MotionLazy>
+                            <Snackbar />
+                            <ProgressBar />
+                            <SettingsDrawer defaultSettings={defaultSettings} />
+                            {children}
+                          </MotionLazy>
+                        </IamProvider>
+                      </ConfirmProvider>
+                    </BreakpointsProvider>
+                  </ThemeProvider>
+                </AppRouterCacheProvider>
+              </LocalizationProvider>
+            </SettingsProvider>
+          </I18nProvider>
+        </TanstackDevToolsProvider>
       </RegistryContext.Provider>
     </BeepProvider>
   );
