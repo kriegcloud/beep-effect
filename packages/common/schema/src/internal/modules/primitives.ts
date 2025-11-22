@@ -1,0 +1,37 @@
+import { $PrimitivesId } from "@beep/schema/internal/modules/modules";
+
+export const {
+  $BinaryId,
+  $BoolId,
+  $ContentTypeId,
+  $FnId,
+  $GeoId,
+  $JsonId,
+  $LocalesId,
+  $NetworkId,
+  $NumberId,
+  $PersonId,
+  $StringId,
+  $TemporalId,
+  $UrlId,
+  $ArrayId,
+  $ArrayBufferId,
+  $DurationId,
+} = $PrimitivesId.compose(
+  "binary",
+  "bool",
+  "content-type",
+  "fn",
+  "geo",
+  "json",
+  "locales",
+  "network",
+  "number",
+  "person",
+  "string",
+  "temporal",
+  "url",
+  "array",
+  "array-buffer",
+  "duration"
+);

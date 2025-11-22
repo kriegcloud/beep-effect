@@ -13,11 +13,13 @@
  * @category Identity/EntityId
  * @since 0.1.0
  */
+
+import { $IdentityId } from "@beep/schema/internal/modules/modules";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import { v4 as uuid } from "uuid";
-import { Id } from "./_id";
 
+const { $UuidId } = $IdentityId.compose("uuid");
 /**
  * Factory that brands RFC4122 UUID strings with a concrete identifier tag.
  *
@@ -48,7 +50,7 @@ const UUIDLiteralEncodedBase = S.TemplateLiteral(
   "-",
   S.String
 ).annotations(
-  Id.annotations("UUIDLiteralEncoded", {
+  $UuidId.annotations("UUIDLiteralEncoded", {
     identifier: "UUIDLiteralEncoded",
     title: "UUID Literal (Encoded)",
     description: "Template literal schema describing an RFC4122 UUID string.",
@@ -118,7 +120,7 @@ const UUIDLiteralBase = S.transformOrFail(UUIDLiteralEncoded, S.UUID, {
       catch: () => new ParseResult.Type(ast, input, "Invalid UUID"),
     }),
 }).annotations(
-  Id.annotations("UUIDLiteral", {
+  $UuidId.annotations("UUIDLiteral", {
     identifier: "UUIDLiteral",
     title: "UUID Literal",
     description: "Transform schema that bridges `S.UUID` with literal encodings.",

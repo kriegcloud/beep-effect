@@ -18,11 +18,13 @@
  * @since 0.1.0
  */
 
+import { $TemporalId } from "@beep/schema/internal";
 import { Regex } from "@beep/schema/internal/regex/regex";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { Id } from "./_id";
+
+const { $TimestampId: Id } = $TemporalId.compose("timestamp");
 
 const stripMilliseconds = (value: string): string => F.pipe(value, Str.replace(Regex.make(/\.\d{3}Z$/), "Z"));
 

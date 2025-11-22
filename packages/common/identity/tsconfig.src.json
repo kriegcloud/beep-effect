@@ -17,7 +17,7 @@
     "rewriteRelativeImportExtensions": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
-    "isolatedDeclarations": true,
+    "isolatedDeclarations": false,
     "skipDefaultLibCheck": true
   }
 }

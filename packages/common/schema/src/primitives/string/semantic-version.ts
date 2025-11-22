@@ -13,10 +13,11 @@
  * @since 0.1.0
  */
 
-import { Id } from "@beep/schema/primitives/string/_id";
+import { $StringId } from "@beep/schema/internal";
 import type * as B from "effect/Brand";
 import * as S from "effect/Schema";
 
+const { $SemanticVersionId: Id } = $StringId.compose("semantic-version");
 /**
  * Semantic version schema using template literal composition.
  *

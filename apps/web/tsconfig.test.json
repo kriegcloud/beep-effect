@@ -115,7 +115,7 @@
     "types": ["node", "bun"],
     "rootDir": "test",
     "resolveJsonModule": true,
-    "noEmit": false,
+    "noEmit": true,
     "paths": {
       "*": ["./*"],
       "@/*": ["./src/*"],

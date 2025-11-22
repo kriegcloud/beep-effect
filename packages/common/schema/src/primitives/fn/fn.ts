@@ -18,11 +18,13 @@
  * @category Primitives/Fn
  * @since 0.1.0
  */
+
+import { $FnId } from "@beep/schema/internal";
 import * as Data from "effect/Data";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
-import { Id } from "./_id";
 
+const Id = $FnId;
 /**
  * Schema-powered function wrapper enforcing validation at call boundaries.
  *

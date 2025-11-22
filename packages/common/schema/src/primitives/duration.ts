@@ -6,12 +6,13 @@
  * @category Primitives/Temporal
  * @since 0.1.0
  */
-import { SchemaId } from "@beep/identity/packages";
+
+import { $DurationId } from "@beep/schema/internal";
 import { Duration } from "effect";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 
-const Id = SchemaId.compose("custom/duration");
+const Id = $DurationId;
 
 const DurationValueMillis = S.TaggedStruct("Millis", { millis: S.NonNegativeInt }).annotations(
   Id.annotations("DurationValueMillis", {

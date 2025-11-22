@@ -13,6 +13,7 @@
  */
 
 import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
+import { $ConfigId } from "@beep/schema/internal";
 import { RegexFromString } from "@beep/schema/internal/regex/regex";
 import { Url } from "@beep/schema/primitives/network/url";
 import * as A from "effect/Array";
@@ -25,7 +26,8 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
-import { Id } from "./_id";
+
+const { $CspId: Id } = $ConfigId.compose("csp");
 
 /**
  * Single-character delimiter that terminates each directive in a CSP policy string.

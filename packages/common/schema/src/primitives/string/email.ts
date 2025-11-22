@@ -11,11 +11,14 @@
  * @category Primitives/String
  * @since 0.1.0
  */
+
+import { $StringId } from "@beep/schema/internal";
 import * as regexes from "@beep/schema/internal/regex/regexes";
 import type * as B from "effect/Brand";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-import { Id } from "./_id";
+
+const { $EmailId: Id } = $StringId.compose("email");
 
 /**
  * Lowercased, trimmed, non-empty email string schema used on the encoded side.

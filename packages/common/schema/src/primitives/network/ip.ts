@@ -12,10 +12,13 @@
  * @category Primitives/Network
  * @since 0.1.0
  */
+
+import { $NetworkId } from "@beep/schema/internal";
 import * as regexes from "@beep/schema/internal/regex/regexes";
 import type * as B from "effect/Brand";
 import * as S from "effect/Schema";
-import { Id } from "./_id";
+
+const { $IpId: Id } = $NetworkId.compose("ip");
 
 /**
  * IPv4 schema that ensures dotted quad notation with valid octets.

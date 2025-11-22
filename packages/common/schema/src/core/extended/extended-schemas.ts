@@ -12,6 +12,8 @@
  * @category Core/Extended
  * @since 0.1.0
  */
+
+import { $ExtendedId } from "@beep/schema/internal";
 import type { StructTypes, UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -27,8 +29,8 @@ import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
 import * as Str from "effect/String";
 import * as _Struct from "effect/Struct";
-import { Id } from "./_id";
 
+const { $ExtendedSchemasId: Id } = $ExtendedId.compose("extended-schemas");
 /**
  * Wraps a schema in a property signature that injects constructor defaults.
  *

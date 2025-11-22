@@ -14,9 +14,11 @@
  * @since 0.1.0
  */
 
-import { Id } from "@beep/schema/primitives/geo/_id";
+import { $GeoId } from "@beep/schema/internal";
 import * as S from "effect/Schema";
 import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
+
+const { $CountryFromCodeId: Id } = $GeoId.compose("country-from-code");
 
 /**
  * Schema representing canonical ISO 3166 country names.

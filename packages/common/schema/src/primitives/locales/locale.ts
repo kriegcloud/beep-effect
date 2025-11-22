@@ -13,11 +13,12 @@
  * @since 0.1.0
  */
 
+import { $LocalesId } from "@beep/schema/internal";
 import type * as S from "effect/Schema";
 import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
-import { Id } from "./_id";
 import { ALL_LOCALES } from "./all-locales-generated";
 
+const { $LocaleId: Id } = $LocalesId.compose("locale");
 /**
  * Schema enforcing BCP 47 locale identifiers.
  *

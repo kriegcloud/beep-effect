@@ -13,8 +13,10 @@
  * @since 0.1.0
  */
 
+import { $BinaryId } from "@beep/schema/internal";
 import * as S from "effect/Schema";
-import { Id } from "./_id";
+
+const { $Uint8ArrayId: Id } = $BinaryId.compose("uint8-array");
 
 /**
  * Schema for branded `Uint8Array` values.

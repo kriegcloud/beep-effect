@@ -13,12 +13,13 @@
  * @since 0.1.0
  */
 import type { DefaultAnnotations } from "@beep/schema/core/annotations/default";
+import { $KitsId } from "@beep/schema/internal";
 import type { StringTypes } from "@beep/types";
 import type * as A from "effect/Array";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
-import { Id } from "./_id";
 
+const { $LiteralId: Id } = $KitsId.compose("literal");
 /**
  * Builds literal schemas that automatically inject provided defaults.
  *

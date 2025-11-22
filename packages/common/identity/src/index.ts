@@ -9,7 +9,8 @@
  * @category Identity/Builder
  * @since 0.1.0
  */
-export * as BeepId from "./BeepId.js";
+
+export * as Identifier from "./Identifier.js";
 
 /**
  * Canonical identity composers for every `@beep/*` workspace namespace.

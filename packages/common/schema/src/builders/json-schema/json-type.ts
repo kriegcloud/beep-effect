@@ -5,8 +5,10 @@
  * @since 0.1.0
  */
 import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
-import { Id } from "./internal";
 
+import { $JsonSchemaId } from "../../internal";
+
+const { $JsonTypeId } = $JsonSchemaId.compose("json-type");
 /**
  * Enumerates JSON Schema `type` keywords.
  *
@@ -27,7 +29,7 @@ export class $JsonType extends StringLiteralKit(
   "null",
   "integer"
 ).annotations(
-  Id.JsonType.annotations("$JsonType", {
+  $JsonTypeId.annotations("$JsonType", {
     description: "The possible json types as string literals",
   })
 ) {}

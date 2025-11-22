@@ -14,11 +14,13 @@
  */
 import { invariant } from "@beep/invariant";
 import { toOptionalWithDefault } from "@beep/schema/core/utils/to-optional-with";
+import { $StringId } from "@beep/schema/internal";
 import * as regexes from "@beep/schema/internal/regex/regexes";
 import type { TagTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
-import { Id } from "./_id";
+
+const Id = $StringId;
 
 /**
  * Snake-case tag schema used for identifiers like `team_alpha`.

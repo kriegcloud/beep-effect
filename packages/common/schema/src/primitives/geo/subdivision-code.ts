@@ -12,9 +12,11 @@
  * @category Primitives/Network/Location
  * @since 0.1.0
  */
-import { Id } from "@beep/schema/primitives/geo/_id";
+
+import { $GeoId } from "@beep/schema/internal";
 import * as S from "effect/Schema";
 
+const { $SubdivisionCodeId: Id } = $GeoId.compose("subdivision-code");
 /**
  * ISO 3166-2 subdivision code schema (e.g., US-CA, CA-ON, GB-ENG, CN-11).
  *

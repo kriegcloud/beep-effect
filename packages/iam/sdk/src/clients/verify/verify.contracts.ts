@@ -1,6 +1,6 @@
 import { Contract, ContractKit } from "@beep/contract";
 import { clientEnv } from "@beep/core-env/client";
-import { VerifyId } from "@beep/iam-sdk/clients/_internal";
+import { $VerifyId } from "@beep/iam-sdk/clients/_internal";
 import { BS } from "@beep/schema";
 import { paths } from "@beep/shared-domain";
 import * as SharedEntities from "@beep/shared-domain/entities";
@@ -10,7 +10,7 @@ import { IamError } from "../../errors";
 // =====================================================================================================================
 // Send Verify Phone Contract
 // =====================================================================================================================
-const Id = VerifyId.compose("verify.contracts");
+const { $VerifyContractsId: Id } = $VerifyId.compose("verify-contracts");
 export const VerifyPhonePayload = S.Struct({
   phoneNumber: BS.Phone,
   code: S.Redacted(S.NonEmptyTrimmedString),

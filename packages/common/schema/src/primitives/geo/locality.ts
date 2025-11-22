@@ -13,11 +13,12 @@
  * @since 0.1.0
  */
 
-import { Id } from "@beep/schema/primitives/geo/_id";
+import { $GeoId } from "@beep/schema/internal";
 import { faker } from "@faker-js/faker";
 import type * as B from "effect/Brand";
 import * as S from "effect/Schema";
 
+const { $LocalityId: Id } = $GeoId.compose("locality");
 /**
  * Human locality / city name schema with lenient character support.
  *

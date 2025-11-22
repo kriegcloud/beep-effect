@@ -1,12 +1,12 @@
 import { AuthProviderNameValue } from "@beep/constants";
 import { Contract, ContractKit } from "@beep/contract";
-import { SignInId } from "@beep/iam-sdk/clients/_internal";
+import { $SignInId } from "@beep/iam-sdk/clients/_internal";
 import { BS } from "@beep/schema";
 import { User } from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
 
-const Id = SignInId.compose("sign-in.contracts");
+const { $SignInContractsId: Id } = $SignInId.compose("sign-in-contracts");
 const defaultFormValuesCommon = {
   password: "",
   rememberMe: false,

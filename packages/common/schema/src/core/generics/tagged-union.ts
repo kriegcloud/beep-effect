@@ -14,10 +14,11 @@
 
 import { Struct } from "@beep/schema/core/extended/extended-schemas";
 import type { OptionalWithDefault } from "@beep/schema/core/types";
+import { $GenericsId } from "@beep/schema/internal";
 import type { StructTypes, UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
-import { Id } from "./_id";
 
+const { $TaggedUnionId: Id } = $GenericsId.compose("tagged-union");
 /**
  * Namespace bundling tagged union schema and runtime helper types.
  *

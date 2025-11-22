@@ -17,6 +17,7 @@ import {
   type DefaultFormValuesAnnotation,
   DefaultFormValuesAnnotationId,
 } from "@beep/schema/core/annotations/default-form-values-annotations";
+import { $AnnotationsId } from "@beep/schema/internal";
 import type { UnsafeTypes } from "@beep/types";
 import type * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
@@ -25,8 +26,8 @@ import * as O from "effect/Option";
 import type * as Pretty from "effect/Pretty";
 import type * as R from "effect/Record";
 import * as AST from "effect/SchemaAST";
-import { Id } from "./_id";
 
+const { $DefaultId } = $AnnotationsId.compose("default");
 declare module "effect/Schema" {
   namespace Annotations {
     interface GenericSchema<A> extends Schema<A> {
@@ -86,7 +87,7 @@ declare module "effect/Schema" {
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const LabelAnnotationId = Id.compose("LabelAnnotation").symbol();
+export const LabelAnnotationId = Symbol.for($DefaultId`LabelAnnotation`);
 
 /**
  * Annotation symbol identifying canonical BS field names.
@@ -100,7 +101,7 @@ export const LabelAnnotationId = Id.compose("LabelAnnotation").symbol();
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSFieldName = Id.compose("fieldName").symbol();
+export const BSFieldName = Symbol.for($DefaultId`fieldName`);
 
 /**
  * Annotation symbol toggling bespoke UI control rendering.
@@ -114,7 +115,7 @@ export const BSFieldName = Id.compose("fieldName").symbol();
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSCustomField = Id.compose("customField").symbol();
+export const BSCustomField = Symbol.for($DefaultId`customField`);
 
 /**
  * Annotation symbol that omits a schema field from generated forms.
@@ -128,7 +129,7 @@ export const BSCustomField = Id.compose("customField").symbol();
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSSkipField = Id.compose("skipField").symbol();
+export const BSSkipField = Symbol.for($DefaultId`skipField`);
 
 /**
  * Annotation symbol pointing to the entity schema for a field.
@@ -142,7 +143,7 @@ export const BSSkipField = Id.compose("skipField").symbol();
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSEntity = Id.compose("entity").symbol();
+export const BSEntity = Symbol.for($DefaultId`entity`);
 
 /**
  * Annotation symbol describing edge metadata for graph relationships.
@@ -158,7 +159,7 @@ export const BSEntity = Id.compose("entity").symbol();
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSEdge = Id.compose("edge").symbol();
+export const BSEdge = Symbol.for($DefaultId`edge`);
 
 /**
  * Annotation symbol describing folder metadata for grouping entities.
@@ -172,7 +173,7 @@ export const BSEdge = Id.compose("edge").symbol();
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSFolder = Id.compose("folder").symbol();
+export const BSFolder = Symbol.for($DefaultId`folder`);
 
 /**
  * Annotation symbol toggling whether an entity should be omitted from sync flows.
@@ -186,7 +187,7 @@ export const BSFolder = Id.compose("folder").symbol();
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSSkipEntity = Id.compose("skipEntity").symbol();
+export const BSSkipEntity = Symbol.for($DefaultId`skipEntity`);
 
 /**
  * Annotation symbol carrying transformation hints for runtime processing.
@@ -200,7 +201,7 @@ export const BSSkipEntity = Id.compose("skipEntity").symbol();
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSTransformer = Id.compose("transformer").symbol();
+export const BSTransformer = Symbol.for($DefaultId`transformer`);
 
 /**
  * Annotation symbol for predicate filters that decide whether an entity syncs.
@@ -216,7 +217,7 @@ export const BSTransformer = Id.compose("transformer").symbol();
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSFilterFn = Id.compose("filterFn").symbol();
+export const BSFilterFn = Symbol.for($DefaultId`filterFn`);
 
 /**
  * Annotation symbol for tagging folders with semantic folder types.
@@ -230,7 +231,7 @@ export const BSFilterFn = Id.compose("filterFn").symbol();
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSFolderType = Id.compose("folderType").symbol();
+export const BSFolderType = Symbol.for($DefaultId`folderType`);
 
 /**
  * Annotation symbol for mapping schema fields to backing database tables.
@@ -244,7 +245,7 @@ export const BSFolderType = Id.compose("folderType").symbol();
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSTable = Id.compose("table").symbol();
+export const BSTable = Symbol.for($DefaultId`table`);
 
 /**
  * Annotation symbol for attaching UI metadata (forms, tables, navigation) to schemas.
@@ -260,7 +261,7 @@ export const BSTable = Id.compose("table").symbol();
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSUIConfig = Id.compose("uiConfig").symbol();
+export const BSUIConfig = Symbol.for($DefaultId`uiConfig`);
 
 /**
  * Annotation symbol describing relation metadata for entity schemas.
@@ -276,7 +277,7 @@ export const BSUIConfig = Id.compose("uiConfig").symbol();
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSRelations = Id.compose("relations").symbol();
+export const BSRelations = Symbol.for($DefaultId`relations`);
 
 /**
  * Annotation symbol describing a foreign key target for a field.
@@ -292,7 +293,7 @@ export const BSRelations = Id.compose("relations").symbol();
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSForeignKey = Id.compose("foreignKey").symbol();
+export const BSForeignKey = Symbol.for($DefaultId`foreignKey`);
 
 /**
  * Edge metadata encoding a relationship type and target entity tag.

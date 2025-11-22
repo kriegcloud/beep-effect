@@ -7,7 +7,7 @@ creation.
 ## Usage
 
 ```ts
-import { BeepId } from "@beep/identity/BeepId";
+
 
 // Root namespace for everything under `@beep/schema`
 const DomainId = BeepId.package("domain");

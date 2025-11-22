@@ -13,10 +13,11 @@
  * @since 0.1.0
  */
 
-import { Id } from "@beep/schema/primitives/string/_id";
+import { $StringId } from "@beep/schema/internal";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 
+const { $PasswordId: Id } = $StringId.compose("password");
 /**
  * Schema that validates encoded password strings before redaction.
  *

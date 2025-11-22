@@ -1,4 +1,4 @@
-import { ToolingUtilsId } from "@beep/identity/packages";
+import { $ToolingUtilsId } from "@beep/identity/packages";
 import { NoSuchFileError } from "@beep/tooling-utils/repo/Errors";
 import { findRepoRoot } from "@beep/tooling-utils/repo/Root";
 import * as FileSystem from "@effect/platform/FileSystem";
@@ -16,7 +16,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { EnvironmentVariableName } from "./EnvironmentVariable";
 
-const Id = ToolingUtilsId.compose("schemas/DotEnv");
+const { $DotenvId: Id } = $ToolingUtilsId.compose("DotEnv");
 export const DotEnvEncoded = S.NonEmptyString.annotations(
   Id.annotations("DotEnvEncoded", {
     description: "The encoded side of the repositories .env file",
@@ -164,7 +164,7 @@ const serializeEnv = (map: HashMap.HashMap<EnvironmentVariableName.Type, string>
   );
 };
 
-export class DotEnv extends S.Class<DotEnv>(Id.compose("DotEnv").identifier)({
+export class DotEnv extends S.Class<DotEnv>(Id`DotEnv`)({
   env: S.transformOrFail(DotEnvEncoded, DotEnvDecoded, {
     strict: true,
     decode: (env, _, ast, __) =>

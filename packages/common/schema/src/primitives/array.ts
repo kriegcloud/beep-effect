@@ -6,13 +6,13 @@
  * @category Primitives/Array
  * @since 0.1.0
  */
-import { BeepId } from "@beep/identity/BeepId";
-import { SchemaId } from "@beep/identity/packages";
+
+import { $ArrayId } from "@beep/schema/internal";
 import type * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const Id = BeepId.from(SchemaId.identifier).compose("primitives/array");
+const Id = $ArrayId;
 /**
  * Schema for arrays of numbers with identity annotations.
  *

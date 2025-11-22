@@ -23,6 +23,7 @@
 import { invariant } from "@beep/invariant";
 import type { DefaultAnnotations } from "@beep/schema/core/annotations/default";
 import { variance } from "@beep/schema/core/variance";
+import { $IdentityId } from "@beep/schema/internal/modules/modules";
 import { SnakeTag } from "@beep/schema/primitives/string/string";
 import type { $Type, HasDefault, HasRuntimeDefault, IsPrimaryKey, NotNull } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
@@ -34,9 +35,10 @@ import * as F from "effect/Function";
 import * as S from "effect/Schema";
 import { TypeId } from "effect/Schema";
 import * as Str from "effect/String";
-import { Id } from "./_id";
+
 import { UUIDLiteralEncoded } from "./uuid";
 
+const { $EntityIdId } = $IdentityId.compose("entity-id");
 type Config<Brand extends string, TableName extends string> = {
   readonly tableName: SnakeTag.Literal<TableName>;
   readonly brand: Brand;
@@ -139,7 +141,7 @@ export class Factory<const TableName extends string, const Brand extends string>
       return S.TemplateLiteral(S.Literal(tableName), "__", UUIDLiteralEncoded)
         .annotations(annotations)
         .annotations(
-          Id.annotations("EntityIdSchema", {
+          $EntityIdId.annotations("EntityIdSchema", {
             identifier,
             title,
             description,

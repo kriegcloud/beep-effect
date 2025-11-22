@@ -11,10 +11,13 @@
  * @category Primitives/String
  * @since 0.1.0
  */
+
+import { $StringId } from "@beep/schema/internal";
 import * as regexes from "@beep/schema/internal/regex/regexes";
 import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
-import { Id } from "./_id";
+
+const { $NameAttributeId: Id } = $StringId.compose("name-attribute");
 
 /**
  * Name attribute schema limiting values to trimmed, printable text between 1 and 200 characters.

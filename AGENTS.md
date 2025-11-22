@@ -67,6 +67,16 @@ React 19), `apps/server` (Effect Platform runtime), and `apps/mcp` (MCP tooling)
 
 ## Development Commands
 
+- **Bun availability (do this first)** Ensure Bun is installed and on PATH before running any repo scripts. `bun --version` must return `1.3.0`. If not, instruct the user to run:
+
+  ```bash
+  echo 'export BUN_INSTALL="$HOME/.bun"' >> ~/.zshrc
+  echo 'export PATH="$BUN_INSTALL/bin:$PATH"' >> ~/.zshrc
+  exec $SHELL
+  bun --version
+  ```
+
+  Re-run `bun --version` afterward to confirm the shell picked up the PATH change before invoking any `bun run ...` commands.
 - **Preferred Invocation** Always use root scripts (wired with `dotenvx`). Example: `bun run dev`, `bun run build`,
   `bun run lint`. If a task needs a one-off CLI, prefer `bunx <binary>`.
 - **Essential Scripts**

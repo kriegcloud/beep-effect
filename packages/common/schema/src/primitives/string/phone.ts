@@ -11,13 +11,16 @@
  * @category Primitives/String
  * @since 0.1.0
  */
+
+import { $StringId } from "@beep/schema/internal";
 import * as regexes from "@beep/schema/internal/regex/regexes";
 import { faker } from "@faker-js/faker";
 import type * as B from "effect/Brand";
 import * as F from "effect/Function";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-import { Id } from "./_id";
+
+const { $PhoneId: Id } = $StringId.compose("phone");
 
 /**
  * Raw branded phone schema that validates E.164 compatible strings.

@@ -13,8 +13,10 @@
  * @since 0.1.0
  */
 import { toOptionalWithDefault } from "@beep/schema/core/utils/to-optional-with";
+import { $BoolId } from "@beep/schema/internal";
 import * as S from "effect/Schema";
-import { Id } from "./_id";
+
+const Id = $BoolId;
 
 /**
  * Property signature representing an optional boolean with write omittability.

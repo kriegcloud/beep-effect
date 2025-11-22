@@ -1,5 +1,5 @@
 import { Contract, ContractKit } from "@beep/contract";
-import { SignUpId } from "@beep/iam-sdk/clients/_internal";
+import { $SignUpId } from "@beep/iam-sdk/clients/_internal";
 import { BS } from "@beep/schema";
 import { paths } from "@beep/shared-domain";
 import * as S from "effect/Schema";
@@ -8,7 +8,7 @@ import { IamError } from "../../errors";
 // =====================================================================================================================
 // Sign Up Email Contract
 // =====================================================================================================================
-const Id = SignUpId.compose("sign-up.contracts");
+const { $SignUpContractsId: Id } = $SignUpId.compose("sign-up-contracts");
 
 export const SignUpEmailPayload = S.Struct({
   email: BS.Email,

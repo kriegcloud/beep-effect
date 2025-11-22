@@ -6,8 +6,11 @@
  * @category Primitives/Temporal
  * @since 0.1.0
  */
+
+import { $TemporalId } from "@beep/schema/internal";
 import * as S from "effect/Schema";
-import { Id } from "./_id";
+
+const { $YearId: Id } = $TemporalId.compose("year");
 /**
  * Number-encoded year schema.
  *

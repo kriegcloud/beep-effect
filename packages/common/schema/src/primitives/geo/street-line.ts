@@ -13,10 +13,11 @@
  * @since 0.1.0
  */
 
-import { Id } from "@beep/schema/primitives/geo/_id";
+import { $GeoId } from "@beep/schema/internal";
 import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
 
+const { $StreetLineId: Id } = $GeoId.compose("street-line");
 /**
  * Street line schema with trimmed non-empty string constraints.
  *

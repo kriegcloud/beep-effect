@@ -12,9 +12,11 @@
  * @category Integrations/Sql
  * @since 0.1.0
  */
-import { Id } from "@beep/schema/integrations/sql/_id";
+
+import { $SqlId } from "@beep/schema/internal";
 import * as S from "effect/Schema";
 
+const { $PgSerialId: Id } = $SqlId.compose("pg-serial");
 /**
  * PostgreSQL SERIAL (auto-incrementing integer primary key).
  *

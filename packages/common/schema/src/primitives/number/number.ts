@@ -13,10 +13,11 @@
  * @since 0.1.0
  */
 
-import { Id } from "@beep/schema/primitives/number/_id";
+import { $NumberId } from "@beep/schema/internal";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 
+const { $NumberId: Id } = $NumberId.compose("number");
 /**
  * Schema transformer that converts string or number input to number output.
  *

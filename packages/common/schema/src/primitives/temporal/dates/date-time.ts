@@ -14,6 +14,8 @@
  * @category Primitives/Temporal/Dates
  * @since 0.1.0
  */
+
+import { $TemporalId } from "@beep/schema/internal";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -21,7 +23,8 @@ import * as O from "effect/Option";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { Id } from "./_id";
+
+const { $DateTimeId: Id } = $TemporalId.compose("date-time");
 
 const DateTimeUtcByInstant = S.DateTimeUtcFromSelf.annotations(
   Id.annotations("dates/DateTimeUtcByInstant", {

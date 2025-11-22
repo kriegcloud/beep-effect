@@ -13,10 +13,12 @@
  * @since 0.1.0
  */
 import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
+import { $TemporalId } from "@beep/schema/internal";
 import * as Match from "effect/Match";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
-import { Id } from "./_id";
+
+const { $MonthId: Id } = $TemporalId.compose("month");
 
 /**
  * Schema validating lowercase month strings.

@@ -11,10 +11,13 @@
  * @category Primitives/Network
  * @since 0.1.0
  */
+
+import { $NetworkId } from "@beep/schema/internal";
 import * as regexes from "@beep/schema/internal/regex/regexes";
 import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
-import { Id } from "./_id";
+
+const { $DomainId: Id } = $NetworkId.compose("domain");
 
 /**
  * Schema ensuring a domain label (the segments between dots) is valid.

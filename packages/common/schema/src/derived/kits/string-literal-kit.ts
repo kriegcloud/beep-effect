@@ -14,7 +14,7 @@
 
 import type { TaggedUnion } from "@beep/schema/core/generics/tagged-union";
 import { TaggedUnion as TaggedUnionFactory } from "@beep/schema/core/generics/tagged-union";
-import { Id } from "@beep/schema/derived/kits/_id";
+import { $KitsId } from "@beep/schema/internal";
 import type { StringTypes, UnsafeTypes } from "@beep/types";
 import { ArrayUtils, enumFromStringArray } from "@beep/utils";
 import type { CreateEnumType, ValidMapping } from "@beep/utils/data/tuple.utils";
@@ -27,6 +27,7 @@ import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
 import type * as Types from "effect/Types";
 
+const { $StringLiteralKitId: Id } = $KitsId.compose("string-literal-kit");
 type LiteralsType = A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>;
 
 type LiteralsSubset<Literals extends LiteralsType> = A.NonEmptyReadonlyArray<Literals[number]>;

@@ -14,6 +14,7 @@
  */
 
 import { invariant } from "@beep/invariant";
+import { $JsonId } from "@beep/schema/internal";
 import type { UnsafeTypes } from "@beep/types";
 import { faker } from "@faker-js/faker";
 import * as A from "effect/Array";
@@ -23,8 +24,8 @@ import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { path_regex, prop_regex } from "../../internal/regex/regexes";
-import { Id } from "./_id";
 
+const Id = $JsonId;
 /**
  * JSON literal schema accepting primitive values.
  *

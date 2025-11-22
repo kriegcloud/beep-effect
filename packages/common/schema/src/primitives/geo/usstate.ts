@@ -14,9 +14,11 @@
  * @since 0.1.0
  */
 
+import { $GeoId } from "@beep/schema/internal";
 import * as S from "effect/Schema";
 import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
-import { Id } from "./_id";
+
+const { $UsstateId: Id } = $GeoId.compose("usstate");
 
 /**
  * Schema validating US state/territory abbreviations.

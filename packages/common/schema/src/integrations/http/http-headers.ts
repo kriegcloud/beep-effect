@@ -11,8 +11,11 @@
  * @category Integrations/Http
  * @since 0.1.0
  */
+
+import { $HttpId } from "@beep/schema/internal";
 import * as S from "effect/Schema";
-import { Id } from "./_id";
+
+const { $HttpHeadersId: Id } = $HttpId.compose("http-headers");
 
 /**
  * Schema describing a map of HTTP header key/value pairs.

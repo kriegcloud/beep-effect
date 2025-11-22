@@ -13,11 +13,12 @@
  * @since 0.1.0
  */
 
-import { Id } from "@beep/schema/primitives/network/_id";
+import { $NetworkId } from "@beep/schema/internal";
 import { faker } from "@faker-js/faker";
 import * as Either from "effect/Either";
-
 import * as S from "effect/Schema";
+
+const { $UrlId: Id } = $NetworkId.compose("url");
 /**
  * URL string schema (http/https).
  *

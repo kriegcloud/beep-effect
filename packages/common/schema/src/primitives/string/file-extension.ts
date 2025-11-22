@@ -13,8 +13,10 @@
  * @since 0.1.0
  */
 import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
+import { $StringId } from "@beep/schema/internal";
 import type * as S from "effect/Schema";
-import { Id } from "./_id";
+
+const { $FileExtensionId: Id } = $StringId.compose("file-extension");
 
 /**
  * Schema representing supported application extensions.
@@ -61,7 +63,7 @@ export class ApplicationExtension extends StringLiteralKit(
   "stl",
   "pcap",
   "ttf"
-).pipe() {}
+) {}
 
 /**
  * Namespace exposing helper types for {@link ApplicationExtension}.

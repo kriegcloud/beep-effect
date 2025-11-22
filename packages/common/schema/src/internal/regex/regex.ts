@@ -1,10 +1,12 @@
+import { $RegexId } from "@beep/schema/internal";
 import * as Arbitrary from "effect/Arbitrary";
 import type * as B from "effect/Brand";
 import * as FC from "effect/FastCheck";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import RandExp from "randexp-ts";
-import { Id } from "./_id";
+
+const { $RegexId: Id } = $RegexId.compose("regex");
 
 /**
  * Branded schema for `RegExp` instances with arbitraries for documentation examples.

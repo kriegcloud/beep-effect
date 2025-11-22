@@ -223,38 +223,6 @@ export interface IdentityComposer<Value extends string> {
 }
 
 /**
- * Tuple of namespace segments (`["schema", "annotations"]`).
- *
- * @example
- * import type * as Identity from "@beep/identity/types";
- *
- * type SchemaPath = Identity.SegmentTuple;
- *
- * @category Identity/Types
- * @since 0.1.0
- */
-export type SegmentTuple = readonly [Segment, ...Segment[]];
-
-type JoinSegments<Parts extends readonly [string, ...string[]]> = Parts extends readonly [infer Head extends string]
-  ? Head
-  : Parts extends readonly [infer Head extends string, ...infer Tail extends readonly [string, ...string[]]]
-    ? `${Head}/${JoinSegments<Tail>}`
-    : never;
-
-/**
- * Final literal computed from the tuple passed to `BeepId.package`.
- *
- * @example
- * import type * as Identity from "@beep/identity/types";
- *
- * type SchemaAnnotations = Identity.PackagePath<["schema", "annotations"]>;
- *
- * @category Identity/Types
- * @since 0.1.0
- */
-export type PackagePath<Segments extends SegmentTuple> = `@beep/${JoinSegments<Segments>}`;
-
-/**
  * Base annotation object for schema/service descriptors.
  *
  * @example

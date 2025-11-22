@@ -14,9 +14,11 @@
  * @since 0.1.0
  */
 import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
+import { $ContentTypeId } from "@beep/schema/internal";
 import { RecordUtils } from "@beep/utils";
 import type * as S from "effect/Schema";
-import { Id } from "./_id";
+
+const { $MimeTypeId: Id } = $ContentTypeId.compose("mime-type");
 //----------------------------------------------------------------------------------------------------------------------
 // APPLICATION MIME TYPES
 //----------------------------------------------------------------------------------------------------------------------

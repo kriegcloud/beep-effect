@@ -13,7 +13,7 @@
     "types": ["bun", "node"],
     "tsBuildInfoFile": "./build/tsconfig.test.tsbuildinfo",
     "rootDir": "test",
-    "noEmit": false,
+    "noEmit": true,
     "outDir": "build/test"
   }
 }

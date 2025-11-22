@@ -12,10 +12,12 @@
  * @since 0.1.0
  */
 
+import { $PersonId } from "@beep/schema/internal";
 import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
 import { NameAttribute } from "../string/name-attribute";
-import { Id } from "./_id";
+
+const { $PersonAttributesId: Id } = $PersonId.compose("person-attributes");
 
 const MAX_AGE = 130;
 const MILLIS_PER_YEAR = 365 * 24 * 60 * 60 * 1000;

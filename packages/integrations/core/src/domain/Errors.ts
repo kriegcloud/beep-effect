@@ -1,7 +1,7 @@
+import { $IntegrationsCoreId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-import { DomainId } from "./internal";
 
-const Id = DomainId.compose("errors");
+const { $ErrorsId: Id } = $IntegrationsCoreId.compose("errors");
 
 const commonFields = {
   cause: S.Defect,
@@ -9,9 +9,7 @@ const commonFields = {
   metadata: S.optional(S.Record({ key: S.String, value: S.Any })),
 } as const;
 
-export class GoogleIntegrationError extends S.TaggedError<GoogleIntegrationError>(
-  Id.compose("GoogleIntegrationError").identifier
-)(
+export class GoogleIntegrationError extends S.TaggedError<GoogleIntegrationError>(Id`GoogleIntegrationError`)(
   "GoogleIntegrationError",
   commonFields,
   Id.annotations("GoogleIntegrationError", {
@@ -19,9 +17,7 @@ export class GoogleIntegrationError extends S.TaggedError<GoogleIntegrationError
   })
 ) {}
 
-export class TheFrontIntegrationError extends S.TaggedError<TheFrontIntegrationError>(
-  Id.compose("TheFrontIntegrationError").identifier
-)(
+export class TheFrontIntegrationError extends S.TaggedError<TheFrontIntegrationError>(Id`TheFrontIntegrationError`)(
   "TheFrontIntegrationError",
   commonFields,
   Id.annotations("TheFrontIntegrationError", {
@@ -29,9 +25,7 @@ export class TheFrontIntegrationError extends S.TaggedError<TheFrontIntegrationE
   })
 ) {}
 
-export class UnknownIntegrationError extends S.TaggedError<UnknownIntegrationError>(
-  Id.compose("UnknownIntegrationError").identifier
-)(
+export class UnknownIntegrationError extends S.TaggedError<UnknownIntegrationError>(Id`UnknownIntegrationError`)(
   "UnknownIntegration",
   commonFields,
   Id.annotations("UnknownIntegrationError", {

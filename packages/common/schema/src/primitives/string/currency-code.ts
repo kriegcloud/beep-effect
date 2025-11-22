@@ -12,8 +12,10 @@
  * @since 0.1.0
  */
 import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
+import { $StringId } from "@beep/schema/internal";
 import type * as S from "effect/Schema";
-import { Id } from "./_id";
+
+const { $CurrencyCodeId: Id } = $StringId.compose("currency-code");
 
 /**
  * Schema validating ISO currency codes.

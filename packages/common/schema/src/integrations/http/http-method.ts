@@ -13,9 +13,10 @@
  * @since 0.1.0
  */
 import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
+import { $HttpId } from "@beep/schema/internal";
 import type * as S from "effect/Schema";
-import { Id } from "./_id";
 
+const { $HttpMethodId: Id } = $HttpId.compose("http-method");
 /**
  * Schema validating HTTP request methods.
  *

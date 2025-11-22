@@ -11,12 +11,15 @@
  * @category Primitives/String
  * @since 0.1.0
  */
+
+import { $StringId } from "@beep/schema/internal";
 import * as regexes from "@beep/schema/internal/regex/regexes";
 import { faker } from "@faker-js/faker";
 import * as A from "effect/Array";
 import type * as B from "effect/Brand";
 import * as S from "effect/Schema";
-import { Id } from "./_id";
+
+const { $SlugId: Id } = $StringId.compose("slug");
 
 const exampleSlugs = A.make("hello-world", "hello-world-2", "hello-world-3");
 

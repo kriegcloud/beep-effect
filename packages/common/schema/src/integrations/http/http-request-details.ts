@@ -20,12 +20,14 @@
  * @category Integrations/Http
  * @since 0.1.0
  */
+
+import { $HttpId } from "@beep/schema/internal";
 import * as S from "effect/Schema";
 import { URLString } from "../../primitives/network/url";
-import { Id } from "./_id";
 import { HttpHeaders } from "./http-headers";
 import { HttpMethod } from "./http-method";
 
+const { $HttpRequestDetailsId: Id } = $HttpId.compose("http-request-details");
 const UrlParamEntry = S.Tuple(S.String, S.String).annotations(
   Id.annotations("HttpRequestDetailsUrlParam", {
     identifier: "HttpRequestDetailsUrlParam",

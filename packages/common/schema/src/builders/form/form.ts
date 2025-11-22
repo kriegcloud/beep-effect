@@ -14,8 +14,8 @@
  * @since 0.1.0
  */
 
+import { $FormId } from "@beep/schema/internal";
 import * as S from "effect/Schema";
-import { Id } from "./_id";
 import { FormFieldSchema } from "./field";
 
 /**
@@ -57,7 +57,7 @@ export const FormJsonSchema = S.parseJson(
     ),
   })
 ).annotations(
-  Id.annotations("FormJsonSchema", {
+  $FormId.annotations("FormJsonSchema", {
     description: "JSON Schema validator used by the form builder.",
   })
 );
