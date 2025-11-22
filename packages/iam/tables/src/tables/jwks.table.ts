@@ -5,4 +5,5 @@ import * as pg from "drizzle-orm/pg-core";
 export const jwks = Table.make(IamEntityIds.JwksId)({
   publicKey: pg.text("public_key").notNull(),
   privateKey: pg.text("private_key").notNull(),
+  expiresAt: pg.timestamp("expires_at"),
 });

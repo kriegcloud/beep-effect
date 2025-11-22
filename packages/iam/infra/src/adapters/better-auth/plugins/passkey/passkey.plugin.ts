@@ -1,6 +1,6 @@
 import { IamConfig } from "@beep/iam-infra/config";
-import type { PasskeyOptions } from "better-auth/plugins/passkey";
-import { passkey } from "better-auth/plugins/passkey";
+import type { PasskeyOptions } from "@better-auth/passkey";
+import { passkey } from "@better-auth/passkey";
 import * as Effect from "effect/Effect";
 
 export type PasskeyPluginEffect = Effect.Effect<ReturnType<typeof passkey>, never, IamConfig>;

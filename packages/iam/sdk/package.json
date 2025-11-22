@@ -62,9 +62,13 @@
     "@beep/shared-domain": "workspace:^",
     "@beep/iam-domain": "workspace:^",
     "@beep/iam-infra": "workspace:^",
-    "@beep/contract": "workspace:^"
+    "@beep/contract": "workspace:^",
+    "@better-auth/passkey": "catalog:",
+    "@better-auth/sso": "catalog:"
   },
   "devDependencies": {
+    "@better-auth/passkey": "catalog:",
+    "@better-auth/sso": "catalog:",
     "@effect/docgen": "catalog:",
     "@better-fetch/fetch": "catalog:",
     "mutative": "catalog:",

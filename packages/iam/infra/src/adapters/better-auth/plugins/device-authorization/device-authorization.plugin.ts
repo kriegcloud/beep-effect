@@ -1,8 +1,3 @@
-// import type {
-//   DeviceAuthorizationOptions
-// } from "./plugin-options";
-
-import type { DeviceAuthorizationOptions } from "better-auth/plugins/device-authorization";
 import { deviceAuthorization } from "better-auth/plugins/device-authorization";
 import * as Effect from "effect/Effect";
 
@@ -15,5 +10,5 @@ export const deviceAuthorizationPlugin: DeviceAuthorizationPluginEffect = Effect
     interval: "5s",
     deviceCodeLength: 40,
     userCodeLength: 8,
-  } satisfies DeviceAuthorizationOptions)
+  })
 );

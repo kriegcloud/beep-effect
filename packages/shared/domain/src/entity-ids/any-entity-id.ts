@@ -21,6 +21,7 @@ export class AnyEntityId extends S.Union(
   IamEntityIds.WalletAddressId,
   IamEntityIds.OrganizationRoleId,
   IamEntityIds.DeviceCodeId,
+  IamEntityIds.ScimProviderId,
   CommsEntityIds.EmailTemplateId,
   OrganizationId,
   TeamId,

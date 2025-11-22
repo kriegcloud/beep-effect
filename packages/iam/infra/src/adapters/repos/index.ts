@@ -11,6 +11,7 @@ export * from "./Organization.repo";
 export * from "./OrganizationRole.repo";
 export * from "./Passkey.repo";
 export * from "./RateLimit.repo";
+export * from "./ScimProvider.repo";
 export * from "./Session.repo";
 export * from "./SsoProvider.repo";
 export * from "./Subscription.repo";

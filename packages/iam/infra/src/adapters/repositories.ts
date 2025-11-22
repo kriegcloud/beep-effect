@@ -16,6 +16,7 @@ import {
   OrganizationRoleRepo,
   PasskeyRepo,
   RateLimitRepo,
+  ScimProviderRepo,
   SessionRepo,
   SsoProviderRepo,
   SubscriptionRepo,
@@ -49,7 +50,8 @@ export type IamRepos =
   | VerificationRepo
   | WalletAddressRepo
   | OrganizationRepo
-  | TeamRepo;
+  | TeamRepo
+  | ScimProviderRepo;
 
 export const layer: Layer.Layer<IamRepos, SqlError | ConfigError, SqlClient> = Layer.mergeAll(
   AccountRepo.Default,
@@ -73,7 +75,8 @@ export const layer: Layer.Layer<IamRepos, SqlError | ConfigError, SqlClient> = L
   VerificationRepo.Default,
   WalletAddressRepo.Default,
   OrganizationRepo.Default,
-  TeamRepo.Default
+  TeamRepo.Default,
+  ScimProviderRepo.Default
 ) satisfies Layer.Layer<IamRepos, SqlError | ConfigError, SqlClient>;
 
 export * from "./repos";

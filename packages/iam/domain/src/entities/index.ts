@@ -12,6 +12,7 @@ export * as OAuthConsent from "./OAuthConsent";
 export * as OrganizationRole from "./OrganizationRole";
 export * as Passkey from "./Passkey";
 export * as RateLimit from "./RateLimit";
+export * as ScimProvider from "./ScimProvider";
 export * as SsoProvider from "./SsoProvider";
 export * as Subscription from "./Subscription";
 export * as TeamMember from "./TeamMember";

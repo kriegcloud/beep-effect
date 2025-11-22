@@ -14,6 +14,7 @@ export * from "./oauthConsent.table";
 export * from "./organizationRole.table";
 export * from "./passkey.table";
 export * from "./rateLimit.table";
+export * from "./scimProvider.table";
 export * from "./ssoProvider.table";
 export * from "./subscription.table";
 export * from "./teamMember.table";

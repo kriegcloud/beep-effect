@@ -93,9 +93,13 @@
     "@dub/better-auth": "catalog:",
     "better-auth": "catalog:",
     "@better-auth/utils": "catalog:",
-    "@beep/ui-core": "workspace:^"
+    "@beep/ui-core": "workspace:^",
+    "@better-auth/passkey": "catalog:",
+    "@better-auth/scim": "catalog:"
   },
   "devDependencies": {
+    "@better-auth/scim": "catalog:",
+    "@better-auth/passkey": "catalog:",
     "@effect/docgen": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

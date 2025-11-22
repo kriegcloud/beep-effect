@@ -255,6 +255,7 @@ CREATE TABLE "jwks" (
 	"source" text,
 	"public_key" text NOT NULL,
 	"private_key" text NOT NULL,
+	"expires_at" timestamp,
 	CONSTRAINT "jwks_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
@@ -521,6 +522,25 @@ CREATE TABLE "wallet_address" (
 	"chain_id" integer NOT NULL,
 	"is_primary" boolean DEFAULT false NOT NULL,
 	CONSTRAINT "wallet_address_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "scim_provider" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"provider_id" text NOT NULL,
+	"scim_token" text NOT NULL,
+	"organization_id" text,
+	CONSTRAINT "scim_provider_id_unique" UNIQUE("id"),
+	CONSTRAINT "scim_provider_provider_id_unique" UNIQUE("provider_id"),
+	CONSTRAINT "scim_provider_scim_token_unique" UNIQUE("scim_token")
 );
 --> statement-breakpoint
 CREATE TABLE "file" (

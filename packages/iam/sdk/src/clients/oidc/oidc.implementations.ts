@@ -6,7 +6,6 @@ import {
   OAuth2ConsentContract,
   OAuth2RegisterContract,
   OAuth2TokenContract,
-  OAuth2UserInfoContract,
   OidcContractKit,
 } from "@beep/iam-sdk/clients/oidc/oidc.contracts";
 import { IamError } from "@beep/iam-sdk/errors";
@@ -64,8 +63,8 @@ const OAuth2ConsentHandler = OAuth2ConsentContract.implement(
 const OAuth2TokenHandler = OAuth2TokenContract.implement(
   Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
-      client.oauth2.token({
-        ...payload,
+      client.oauth2.authorize({
+        query: payload,
         fetchOptions: withFetchOptions(handlers),
       })
     );
@@ -77,28 +76,6 @@ const OAuth2TokenHandler = OAuth2TokenContract.implement(
     }
 
     return yield* OAuth2TokenContract.decodeUnknownSuccess(result.data);
-  })
-);
-
-const OAuth2UserInfoHandler = OAuth2UserInfoContract.implement(
-  Effect.fn(function* (_, { continuation }) {
-    const result = yield* continuation.run((handlers) =>
-      client.oauth2.userinfo({
-        fetchOptions: withFetchOptions(handlers),
-      })
-    );
-
-    yield* continuation.raiseResult(result);
-
-    if (result.data == null) {
-      return yield* IamError.new(
-        {},
-        "OAuth2UserInfoHandler returned no payload from Better Auth",
-        continuation.metadata
-      );
-    }
-
-    return yield* OAuth2UserInfoContract.decodeUnknownSuccess(result.data);
   })
 );
 
@@ -150,7 +127,6 @@ export const OidcImplementations = OidcContractKit.of({
   OAuth2Authorize: OAuth2AuthorizeHandler,
   OAuth2Consent: OAuth2ConsentHandler,
   OAuth2Token: OAuth2TokenHandler,
-  OAuth2UserInfo: OAuth2UserInfoHandler,
   OAuth2Register: OAuth2RegisterHandler,
   OAuth2Client: OAuth2ClientHandler,
 });

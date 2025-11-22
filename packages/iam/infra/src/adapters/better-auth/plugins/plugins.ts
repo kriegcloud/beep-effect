@@ -13,12 +13,12 @@ import * as DeviceAuthorization from "./device-authorization";
 import * as DubAnalytics from "./dub-analytics";
 import * as GenericOAuth from "./generic-oauth";
 import * as HaveIBeenPwned from "./have-i-been-pwned";
-// import * as Jwt from "./jwt";
+import * as Jwt from "./jwt";
 import * as LastLoginMethod from "./last-login-method";
 import * as Localization from "./localization";
 import * as Mcp from "./mcp";
 import * as MultiSession from "./multi-session";
-// import * as OAuthProxyPlugin from "./oauth-proxy";
+import * as OAuthProxyPlugin from "./oauth-proxy";
 import * as OidcProvider from "./oidc-provider";
 import * as OneTap from "./one-tap";
 import * as OneTimeToken from "./one-time-token";
@@ -26,11 +26,13 @@ import * as OpenApi from "./open-api";
 import * as Organization from "./organization";
 import * as Passkey from "./passkey";
 import * as PhoneNumber from "./phone-number";
+import * as SCIM from "./scim";
 import * as SIWE from "./siwe";
 import * as SSO from "./sso";
 import * as Stripe from "./stripe";
 import * as TwoFactor from "./two-factor";
 import * as Username from "./username";
+
 export type Plugins = Array<
   | Admin.AdminPlugin
   | ApiKey.ApiKeyPlugin
@@ -41,7 +43,8 @@ export type Plugins = Array<
   | DubAnalytics.DubAnalyticsPlugin
   | GenericOAuth.GenericOAuthPlugin
   | HaveIBeenPwned.HaveIBeenPwnedPlugin
-  // | Jwt.JwtPlugin
+  | SCIM.SCIMPlugin
+  | Jwt.JwtPlugin
   | LastLoginMethod.LastLoginMethodPlugin
   | Mcp.McpPlugin
   | MultiSession.MultiSessionPlugin
@@ -49,7 +52,7 @@ export type Plugins = Array<
   | OidcProvider.OIDCProviderPlugin
   | OpenApi.OpenApiPlugin
   | OneTimeToken.OneTimeTokenPlugin
-  // | OAuthProxyPlugin.OauthProxyPlugin
+  | OAuthProxyPlugin.OauthProxyPlugin
   | Organization.OrganizationPlugin
   | PhoneNumber.PhoneNumberPlugin
   | Passkey.PasskeyPlugin
@@ -72,14 +75,15 @@ const allPluginsArray = [
   DeviceAuthorization.deviceAuthorizationPlugin,
   DubAnalytics.dubAnalyticsPlugin,
   GenericOAuth.genericOAuthPlugin,
+  SCIM.scimPlugin,
   HaveIBeenPwned.haveIBeenPwnedPlugin,
-  // Jwt.jwtPlugin,
+  Jwt.jwtPlugin,
   Cookies.cookiesPlugin,
   LastLoginMethod.lastLoginMethodPlugin,
   Localization.localizationPlugin,
   Mcp.mcpPlugin,
   MultiSession.multiSessionPlugin,
-  // OAuthProxyPlugin.oauthProxyPlugin,
+  OAuthProxyPlugin.oauthProxyPlugin,
   OidcProvider.oidcProviderPlugin,
   OneTap.oneTapPlugin,
   OneTimeToken.oneTimeTokenPlugin,
@@ -94,9 +98,9 @@ const allPluginsArray = [
   Username.usernamePlugin,
 ];
 
-// export type Plugins = Effect.Effect.Success<(typeof AllPluginsArray)[number]>;
-
-export const AllPlugins: Effect.Effect<Plugins, never, IamDb.IamDb | AuthEmailService | IamConfig> = Effect.flatMap(
-  Effect.all(allPluginsArray),
-  Effect.succeed
+export const AllPlugins: Effect.Effect<Plugins, never, IamDb.IamDb | AuthEmailService | IamConfig> = Effect.all(
+  allPluginsArray,
+  {
+    concurrency: allPluginsArray.length,
+  }
 ).pipe(Effect.catchAll((e) => Effect.dieMessage(`Failed to initialize AllPlugins due to: ${e}`)));

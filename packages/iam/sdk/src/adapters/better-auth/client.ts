@@ -1,5 +1,7 @@
 import { clientEnv } from "@beep/core-env/client";
 import type { Auth } from "@beep/iam-infra";
+import { passkeyClient } from "@better-auth/passkey/client";
+import { ssoClient } from "@better-auth/sso/client";
 import { stripeClient } from "@better-auth/stripe/client";
 import {
   adminClient,
@@ -9,17 +11,15 @@ import {
   deviceAuthorizationClient,
   genericOAuthClient,
   inferAdditionalFields,
-  // jwtClient,
+  jwtClient,
   lastLoginMethodClient,
   multiSessionClient,
   oidcClient,
   oneTapClient,
   oneTimeTokenClient,
   organizationClient,
-  passkeyClient,
   phoneNumberClient,
   siweClient,
-  ssoClient,
   twoFactorClient,
   usernameClient,
 } from "better-auth/client/plugins";
@@ -31,7 +31,7 @@ export const client = createAuthClient({
     inferAdditionalFields<Auth>(),
     adminClient(),
     anonymousClient(),
-    // jwtClient(),
+    jwtClient(),
     apiKeyClient(),
     customSessionClient(),
     genericOAuthClient(),

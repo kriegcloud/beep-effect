@@ -76,7 +76,9 @@ const GetAccountInfoHandler = GetAccountInfoContract.implement(
   Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.accountInfo({
-        accountId: payload.accountId,
+        query: {
+          accountId: payload.accountId,
+        },
         fetchOptions: withFetchOptions(handlers),
       })
     );

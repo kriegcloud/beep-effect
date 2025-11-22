@@ -14,6 +14,19 @@ export declare namespace AccountId {
   export type Encoded = S.Schema.Encoded<typeof AccountId>;
 }
 
+export const ScimProviderId = EntityId.make("scim_provider", {
+  brand: "ScimProviderId",
+  annotations: {
+    description: "A unique identifier for an ScimProvider",
+    schemaId: Symbol.for("@beep/shared/domain/EntityIds/iam/ScimProviderId"),
+  },
+});
+
+export declare namespace ScimProviderId {
+  export type Type = S.Schema.Type<typeof ScimProviderId>;
+  export type Encoded = S.Schema.Encoded<typeof ScimProviderId>;
+}
+
 export const ApiKeyId = EntityId.make("apikey", {
   brand: "ApiKeyId",
   annotations: {

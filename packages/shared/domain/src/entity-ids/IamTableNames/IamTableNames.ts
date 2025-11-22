@@ -13,6 +13,7 @@ import {
   OrganizationRoleId,
   PasskeyId,
   RateLimitId,
+  ScimProviderId,
   SsoProviderId,
   SubscriptionId,
   TeamMemberId,
@@ -39,7 +40,8 @@ export class IamTableName extends BS.StringLiteralKit(
   VerificationId.tableName,
   WalletAddressId.tableName,
   OrganizationRoleId.tableName,
-  DeviceCodeId.tableName
+  DeviceCodeId.tableName,
+  ScimProviderId.tableName
 ).annotations({
   schemaId: Symbol.for("@beep/shared/domain/EntityIds/iam/IamTableName"),
   description: "The set of table_names for entityIds within the iam domain slice",

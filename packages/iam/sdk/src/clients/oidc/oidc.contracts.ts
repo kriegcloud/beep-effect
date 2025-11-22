@@ -356,16 +356,6 @@ export const OAuth2TokenContract = Contract.make("OAuth2Token", {
   .annotate(Contract.Domain, "oidc")
   .annotate(Contract.Method, "token");
 
-export const OAuth2UserInfoContract = Contract.make("OAuth2UserInfo", {
-  description: "Retrieves OpenID Connect user info claims.",
-  payload: {},
-  failure: IamError,
-  success: OAuth2UserInfoSuccess,
-})
-  .annotate(Contract.Title, "OAuth2 User Info Contract")
-  .annotate(Contract.Domain, "oidc")
-  .annotate(Contract.Method, "userinfo");
-
 export const OAuth2RegisterContract = Contract.make("OAuth2Register", {
   description: "Registers an OAuth2 client using dynamic registration.",
   payload: OAuth2RegisterPayload.fields,
@@ -390,7 +380,6 @@ export const OidcContractKit = ContractKit.make(
   OAuth2AuthorizeContract,
   OAuth2ConsentContract,
   OAuth2TokenContract,
-  OAuth2UserInfoContract,
   OAuth2RegisterContract,
   OAuth2ClientContract
 );
