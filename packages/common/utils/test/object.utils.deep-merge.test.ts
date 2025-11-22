@@ -86,3 +86,24 @@ effect("deepMerge ignores unsafe prototype keys", () =>
     expect((result as Record<string, unknown>).__proto__).not.toHaveProperty("polluted");
   })
 );
+
+effect("deepMerge clones missing array/object branches instead of mutating sources", () =>
+  Effect.gen(function* () {
+    const resultFromArray = deepMerge({ list: [] }, { list: [{ id: 1 }] });
+    const resultFromObject = deepMerge({ info: {} }, { info: { flag: true } });
+
+    expect(resultFromArray).toEqual({ list: [{ id: 1 }] });
+    expect(resultFromObject).toEqual({ info: { flag: true } });
+  })
+);
+
+effect("deepMerge keeps target slot when source array entry is undefined", () =>
+  Effect.gen(function* () {
+    const merged = deepMerge({ items: [{ id: 1 }] }, { items: [undefined] });
+    const mergedWithExtra = deepMerge({ items: [{ id: 1 }] }, { items: [undefined, { id: 2 }] });
+
+    expect(merged).toEqual({ items: [{ id: 1 }] });
+    // @ts-expect-error
+    expect(mergedWithExtra).toEqual({ items: [{ id: 1 }, { id: 2 }] });
+  })
+);

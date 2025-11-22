@@ -21,8 +21,8 @@
     "allowImportingTsExtensions": true,
     "rewriteRelativeImportExtensions": true,
     "paths": {
-      "@beep/constants": ["./src/index.ts"],
-      "@beep/constants/*": ["./src/*"],
+      "@beep/contract": ["./src/index.ts"],
+      "@beep/contract/*": ["./src/*"],
       "@beep/identity": ["../identity/src/index.ts"],
       "@beep/identity/*": ["../identity/src/*"],
       "@beep/invariant": ["../invariant/src/index.ts"],

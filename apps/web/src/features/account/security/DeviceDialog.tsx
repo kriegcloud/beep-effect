@@ -12,13 +12,13 @@ import {
   Typography,
 } from "@mui/material";
 import * as DateTime from "effect/DateTime";
-import type { LoggedInDevice } from "@/features/account/security/types";
+import type { LoggedInDevice } from "./types.ts";
 
 interface DeviceDialogProps {
-  open: boolean;
-  handleDialogClose: () => void;
-  loggedInDevice: LoggedInDevice;
-  sx?: SxProps | undefined;
+  readonly open: boolean;
+  readonly handleDialogClose: () => void;
+  readonly loggedInDevice: LoggedInDevice;
+  readonly sx?: SxProps | undefined;
 }
 const DeviceDialog = (props: DeviceDialogProps) => {
   const { open, handleDialogClose, loggedInDevice, sx } = props;

@@ -16,7 +16,7 @@ import * as HaveIBeenPwned from "./have-i-been-pwned";
 import * as Jwt from "./jwt";
 import * as LastLoginMethod from "./last-login-method";
 import * as Localization from "./localization";
-import * as Mcp from "./mcp";
+// import * as Mcp from "./mcp";
 import * as MultiSession from "./multi-session";
 import * as OAuthProxyPlugin from "./oauth-proxy";
 import * as OidcProvider from "./oidc-provider";
@@ -46,7 +46,7 @@ export type Plugins = Array<
   | SCIM.SCIMPlugin
   | Jwt.JwtPlugin
   | LastLoginMethod.LastLoginMethodPlugin
-  | Mcp.McpPlugin
+  // | Mcp.McpPlugin
   | MultiSession.MultiSessionPlugin
   | OneTap.OneTapPlugin
   | OidcProvider.OIDCProviderPlugin
@@ -81,7 +81,7 @@ const allPluginsArray = [
   Cookies.cookiesPlugin,
   LastLoginMethod.lastLoginMethodPlugin,
   Localization.localizationPlugin,
-  Mcp.mcpPlugin,
+  // Mcp.mcpPlugin,
   MultiSession.multiSessionPlugin,
   OAuthProxyPlugin.oauthProxyPlugin,
   OidcProvider.oidcProviderPlugin,

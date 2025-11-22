@@ -20,7 +20,6 @@ import { invariant } from "@beep/invariant";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
-
 /**
  * Creates a `NonEmptyReadonlyArray` literal either from an existing array or a
  * variadic list of values without losing tuple inference.
@@ -135,3 +134,23 @@ export const filter: {
   });
   return out;
 });
+
+export const from = <T>(iterable: Iterable<T> | A.NonEmptyReadonlyArray<T>): A.NonEmptyReadonlyArray<T> => {
+  const array = A.fromIterable(iterable);
+  invariant(A.isNonEmptyArray(array), "array must be non-empty", {
+    file: "@beep/utils/data/array.utils/NonEmptyReadonly/NonEmptyreadonly.ts",
+    line: 141,
+    args: [array],
+  });
+  return array;
+};
+
+export const fromIterable = <A>(collection: Iterable<A>): A.NonEmptyReadonlyArray<A> => {
+  const array = A.fromIterable(collection);
+  invariant(A.isNonEmptyArray(array), "array must be non-empty", {
+    file: "@beep/utils/data/array.utils/NonEmptyReadonly/NonEmptyreadonly.ts",
+    line: 141,
+    args: [array],
+  });
+  return array;
+};

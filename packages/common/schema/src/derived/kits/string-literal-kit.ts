@@ -409,23 +409,19 @@ export function makeLiteralKit<
  * @since 0.1.0
  */
 export function StringLiteralKit<Literals extends LiteralsType>(
-  ...literals: Literals[number] extends StringTypes.NonEmptyString<Literals[number]> ? Literals : never
+  ...literals: Literals
 ): ILiteralKit<Literals, undefined>;
 export function StringLiteralKit<
   const Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>,
   const Mapping extends A.NonEmptyReadonlyArray<[Literals[number], StringTypes.NonEmptyString]>,
 >(
-  ...args: Literals[number] extends StringTypes.NonEmptyString<Literals[number]>
-    ? [...literals: Literals, options: { readonly enumMapping: ValidMapping<Literals, Mapping> }]
-    : never
+  ...args: [...literals: Literals, options: { readonly enumMapping: ValidMapping<Literals, Mapping> }]
 ): ILiteralKit<Literals, Mapping>;
 export function StringLiteralKit<
   const Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>,
   const Mapping extends A.NonEmptyReadonlyArray<[Literals[number], StringTypes.NonEmptyString]>,
 >(
-  ...args: Literals[number] extends StringTypes.NonEmptyString<Literals[number]>
-    ? Literals | [...Literals, { readonly enumMapping?: ValidMapping<Literals, Mapping> }]
-    : never
+  ...args: Literals | [...Literals, { readonly enumMapping?: ValidMapping<Literals, Mapping> }]
 ): S.SchemaClass<Literals[number]> | S.Never {
   // Determine if last argument is options
   const argsLength = F.pipe(args as readonly unknown[], A.length);

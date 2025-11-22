@@ -7,7 +7,7 @@ import { InfoCard } from "../common/InfoCard";
 import SecurityKeyEditFormDialog from "./SecurityKeyEditFormDialog";
 
 interface ConnectedDeviceProps {
-  connectedDevice: ConnectedInDevice;
+  readonly connectedDevice: ConnectedInDevice;
 }
 
 const ConnectedDevice = ({ connectedDevice }: ConnectedDeviceProps) => {

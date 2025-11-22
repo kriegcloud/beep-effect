@@ -21,7 +21,7 @@ export interface LoggedInDevice {
   readonly lastLoggedTime: Date;
   readonly browsersAppsServices?:
     | ReadonlyArray<{
-        icon: string | StaticImageData;
+        readonly icon: string | StaticImageData;
         readonly name: string;
       }>
     | undefined;

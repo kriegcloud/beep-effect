@@ -23,8 +23,6 @@
  * import * as Utils from "@beep/utils";
  * import * as S from "effect/Schema";
  *
- * const arrayUtilsExportEnsure = Utils.ArrayUtils.assertReturnNonEmpty(S.String);
- * const arrayUtilsExportValues = arrayUtilsExportEnsure(["foo"]);
  * void arrayUtilsExportValues;
  *
  * @category Documentation/Reexports

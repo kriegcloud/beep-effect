@@ -1,23 +1,11 @@
-// import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
-// import {
-//   Form,
-// //  useAppForm,
-// //  formOptionsWithSubmitEffect
-// } from "@beep/ui/form";
-import { Button, Divider, Link, Stack, Typography } from "@mui/material";
-import { AccountTabPanelSection } from "../common/AccountTabPanelSection";
+import { Divider, Link, Stack, Typography } from "@mui/material";
+import { AccountTabPanelSection } from "@/features/account/common";
 import AlternateLoginMethod from "./AlternateLoginMethod";
 import ChangePassword from "./ChangePassword";
 import ConnectedDevice from "./ConnectedDevice";
 import { connectedDevices, loggedInDevices } from "./data";
 import LoggedDevice from "./LoggedDevice";
 import TwoFactorAuthOTP from "./TwoFactorAuthOTP";
-
-export interface TwoFAOtpLoginAlertFormValues {
-  otpMethod: "send_text" | "send_email";
-  email_alert: boolean;
-  text_message_alert: boolean;
-}
 
 export const SecurityTabPanel = () => {
   return (
@@ -85,23 +73,6 @@ export const SecurityTabPanel = () => {
           icon="material-symbols:notifications-outline-rounded"
         >
           {/*<LoginAlerts />*/}
-          <Stack justifyContent="flex-end" spacing={1}>
-            <Button
-              variant="soft"
-              color="neutral"
-              onClick={() => {
-                // reset()
-              }}
-            >
-              Discard
-            </Button>
-            <Button
-              variant="contained"
-              //  onClick={handleSubmit(onSubmit)}
-            >
-              Confirm
-            </Button>
-          </Stack>
         </AccountTabPanelSection>
       </Stack>
     </>

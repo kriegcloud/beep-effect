@@ -44,24 +44,6 @@ export * from "@beep/utils/array-buffer-to-blob";
 export * from "@beep/utils/array-buffer-to-uint8-array";
 
 /**
- * Re-exports assertion factories for namespace consumers.
- *
- * @example
- * import * as Utils from "@beep/utils";
- * import * as S from "effect/Schema";
- *
- * const indexAssertSchema = S.Struct({ id: S.String });
- * const indexAssertFn: (value: { id: string }) => asserts value is { id: string } =
- *   Utils.makeAssertsFn(indexAssertSchema);
- * const indexAssertValue = { id: "tenant_123" };
- * indexAssertFn(indexAssertValue);
- *
- * @category Documentation/Reexports
- * @since 0.1.0
- */
-export * from "@beep/utils/assertions";
-
-/**
  * Exposes array utilities via the namespace wrapper.
  *
  * @example

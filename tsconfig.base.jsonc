@@ -4,7 +4,7 @@
     "incremental": true,
     "composite": true,
     // Target modern JavaScript (ES2023+) whilst staying closely compatible with the Node.js module system.
-    "target": "ES2023",
+    "target": "ES2022",
     "module": "ESNext",
     //todo "module": "NodeNext",
     "moduleDetection": "force",
@@ -25,10 +25,10 @@
     // Opt-in to stricter type checking and correctness guard rails. The more the merrier.
     "strict": true,
     "exactOptionalPropertyTypes": true,
+    "allowImportingTsExtensions": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noImplicitOverride": true,
-
     "noFallthroughCasesInSwitch": true,
     "allowUnusedLabels": false,
     // Miscellaneous
@@ -42,10 +42,17 @@
       {
         "name": "@effect/language-service",
         "transform": "@effect/language-service/transform",
-        "namespaceImportPackages": ["effect", "@effect/*"]
+        "namespaceImportPackages": [
+          "effect",
+          "@effect/*"
+        ]
       }
     ],
-    "lib": ["ES2023", "DOM", "DOM.Iterable", "ESNext"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
     // Disable automatic loading of `@types/*` packages.
     "downlevelIteration": true,
     "resolveJsonModule": true,
@@ -66,145 +73,441 @@
     "strictNullChecks": true,
     "noUnusedParameters": true,
     "paths": {
-      "*": ["./*"],
-      "@beep/types": ["./packages/common/types/src/index"],
-      "@beep/types/*": ["./packages/common/types/src/*"],
-      "@beep/types/test/*": ["./packages/common/types/test/*"],
-      "@beep/invariant": ["./packages/common/invariant/src/index"],
-      "@beep/invariant/*": ["./packages/common/invariant/src/*"],
-      "@beep/invariant/test/*": ["./packages/common/invariant/test/*"],
-      "@beep/utils": ["./packages/common/utils/src/index"],
-      "@beep/utils/*": ["./packages/common/utils/src/*"],
-      "@beep/utils/test/*": ["./packages/common/utils/test/*"],
-      "@beep/schema": ["./packages/common/schema/src/index"],
-      "@beep/schema/*": ["./packages/common/schema/src/*"],
-      "@beep/schema/test/*": ["./packages/common/schema/test/*"],
-      "@beep/constants": ["./packages/common/constants/src/index"],
-      "@beep/constants/*": ["./packages/common/constants/src/*"],
-      "@beep/constants/test/*": ["./packages/common/constants/test/*"],
-      "@beep/identity": ["./packages/common/identity/src/index"],
-      "@beep/identity/*": ["./packages/common/identity/src/*"],
-      "@beep/identity/test/*": ["./packages/common/identity/test/*"],
-      "@beep/errors/client": ["./packages/common/errors/src/client"],
-      "@beep/errors/shared": ["./packages/common/errors/src/shared"],
-      "@beep/errors/server": ["./packages/common/errors/src/server"],
-      "@beep/errors/test/*": ["./packages/common/errors/test/*"],
-      "@beep/mock": ["./packages/common/mock/src/index"],
-      "@beep/mock/*": ["./packages/common/mock/src/*"],
-      "@beep/mock/test/*": ["./packages/common/mock/test/*"],
-      "@beep/google": ["./packages/integrations/google/src/index"],
-      "@beep/google/*": ["./packages/integrations/google/src/*"],
-      "@beep/google/test/*": ["./packages/integrations/google/test/*"],
-      "@beep/thefront": ["./packages/integrations/thefront/src/index"],
-      "@beep/thefront/*": ["./packages/integrations/thefront/src/*"],
-      "@beep/thefront/test/*": ["./packages/integrations/thefront/test/*"],
-      "@beep/integrations-core": ["./packages/integrations/core/src/index"],
-      "@beep/integrations-core/*": ["./packages/integrations/core/src/*"],
-      "@beep/integrations-core/test/*": ["./packages/integrations/core/test/*"],
-      "@beep/contract": ["./packages/common/contract/src/index"],
-      "@beep/contract/*": ["./packages/common/contract/src/*"],
-      "@beep/contract/test/*": ["./packages/common/contract/test/*"],
-      "@beep/shared-domain": ["./packages/shared/domain/src/index"],
-      "@beep/shared-domain/*": ["./packages/shared/domain/src/*"],
-      "@beep/shared-domain/test/*": ["./packages/shared/domain/test/*"],
-      "@beep/shared-tables": ["./packages/shared/tables/src/index"],
-      "@beep/shared-tables/*": ["./packages/shared/tables/src/*"],
-      "@beep/shared-tables/test/*": ["./packages/shared/tables/test/*"],
-      "@beep/core-env/client": ["./packages/core/env/src/client"],
-      "@beep/core-env/server": ["./packages/core/env/src/server"],
-      "@beep/core-env/test/*": ["./packages/core/env/test/*"],
-      "@beep/core-email": ["./packages/core/email/src/index"],
-      "@beep/core-email/*": ["./packages/core/email/src/*"],
-      "@beep/core-email/test/*": ["./packages/core/email/test/*"],
-      "@beep/core-db": ["./packages/core/db/src/index"],
-      "@beep/core-db/*": ["./packages/core/db/src/*"],
-      "@beep/core-db/test/*": ["./packages/core/db/test/*"],
-      "@beep/ui-core/*": ["./packages/ui/core/src/*"],
-      "@beep/ui-core/test/*": ["./packages/ui/core/test/*"],
-      "@beep/ui/*": ["./packages/ui/ui/src/*"],
-      "@beep/ui/test/*": ["./packages/ui/ui/test/*"],
-      "@beep/iam-domain": ["./packages/iam/domain/src/index"],
-      "@beep/iam-domain/*": ["./packages/iam/domain/src/*"],
-      "@beep/iam-domain/test/*": ["./packages/iam/domain/test/*"],
-      "@beep/iam-tables": ["./packages/iam/tables/src/index"],
-      "@beep/iam-tables/*": ["./packages/iam/tables/src/*"],
-      "@beep/iam-tables/test/*": ["./packages/iam/tables/test/*"],
-      "@beep/iam-infra": ["./packages/iam/infra/src/index"],
-      "@beep/iam-infra/*": ["./packages/iam/infra/src/*"],
-      "@beep/iam-infra/test/*": ["./packages/iam/infra/test/*"],
-      "@beep/iam-sdk": ["./packages/iam/sdk/src/index"],
-      "@beep/iam-sdk/*": ["./packages/iam/sdk/src/*"],
-      "@beep/iam-sdk/test/*": ["./packages/iam/sdk/test/*"],
-      "@beep/iam-ui": ["./packages/iam/ui/src/index"],
-      "@beep/iam-ui/*": ["./packages/iam/ui/src/*"],
-      "@beep/iam-ui/test/*": ["./packages/iam/ui/test/*"],
-      "@beep/files-domain": ["./packages/files/domain/src/index"],
-      "@beep/files-domain/*": ["./packages/files/domain/src/*"],
-      "@beep/files-domain/test/*": ["./packages/files/domain/test/*"],
-      "@beep/files-tables": ["./packages/files/tables/src/index"],
-      "@beep/files-tables/*": ["./packages/files/tables/src/*"],
-      "@beep/files-tables/test/*": ["./packages/files/tables/test/*"],
-      "@beep/files-infra": ["./packages/files/infra/src/index"],
-      "@beep/files-infra/*": ["./packages/files/infra/src/*"],
-      "@beep/files-infra/test/*": ["./packages/files/infra/test/*"],
-      "@beep/files-sdk": ["./packages/files/sdk/src/index"],
-      "@beep/files-sdk/*": ["./packages/files/sdk/src/*"],
-      "@beep/files-sdk/test/*": ["./packages/files/sdk/test/*"],
-      "@beep/files-ui": ["./packages/files/ui/src/index"],
-      "@beep/files-ui/*": ["./packages/files/ui/src/*"],
-      "@beep/files-ui/test/*": ["./packages/files/ui/test/*"],
-      "@beep/tasks-domain": ["./packages/tasks/domain/src/index"],
-      "@beep/tasks-domain/*": ["./packages/tasks/domain/src/*"],
-      "@beep/tasks-domain/test/*": ["./packages/tasks/domain/test/*"],
-      "@beep/tasks-tables": ["./packages/tasks/tables/src/index"],
-      "@beep/tasks-tables/*": ["./packages/tasks/tables/src/*"],
-      "@beep/tasks-tables/test/*": ["./packages/tasks/tables/test/*"],
-      "@beep/tasks-infra": ["./packages/tasks/infra/src/index"],
-      "@beep/tasks-infra/*": ["./packages/tasks/infra/src/*"],
-      "@beep/tasks-infra/test/*": ["./packages/tasks/infra/test/*"],
-      "@beep/tasks-sdk": ["./packages/tasks/sdk/src/index"],
-      "@beep/tasks-sdk/*": ["./packages/tasks/sdk/src/*"],
-      "@beep/tasks-sdk/test/*": ["./packages/tasks/sdk/test/*"],
-      "@beep/tasks-ui": ["./packages/tasks/ui/src/index"],
-      "@beep/tasks-ui/*": ["./packages/tasks/ui/src/*"],
-      "@beep/tasks-ui/test/*": ["./packages/tasks/ui/test/*"],
-      "@beep/comms-domain": ["./packages/comms/domain/src/index"],
-      "@beep/comms-domain/*": ["./packages/comms/domain/src/*"],
-      "@beep/comms-domain/test/*": ["./packages/comms/domain/test/*"],
-      "@beep/comms-tables": ["./packages/comms/tables/src/index"],
-      "@beep/comms-tables/*": ["./packages/comms/tables/src/*"],
-      "@beep/comms-tables/test/*": ["./packages/comms/tables/test/*"],
-      "@beep/comms-infra": ["./packages/comms/infra/src/index"],
-      "@beep/comms-infra/*": ["./packages/comms/infra/src/*"],
-      "@beep/comms-infra/test/*": ["./packages/comms/infra/test/*"],
-      "@beep/comms-sdk": ["./packages/comms/sdk/src/index"],
-      "@beep/comms-sdk/*": ["./packages/comms/sdk/src/*"],
-      "@beep/comms-sdk/test/*": ["./packages/comms/sdk/test/*"],
-      "@beep/comms-ui": ["./packages/comms/ui/src/index"],
-      "@beep/comms-ui/*": ["./packages/comms/ui/src/*"],
-      "@beep/comms-ui/test/*": ["./packages/comms/ui/test/*"],
-      "@beep/runtime-server": ["./packages/runtime/server/src/index"],
-      "@beep/runtime-server/*": ["./packages/runtime/server/src/*"],
-      "@beep/runtime-server/test/*": ["./packages/runtime/server/test/*"],
-      "@beep/runtime-client": ["./packages/runtime/client/src/index"],
-      "@beep/runtime-client/*": ["./packages/runtime/client/src/*"],
-      "@beep/runtime-client/test/*": ["./packages/runtime/client/test/*"],
-      "@/*": ["./apps/web/src/*"],
-      "@beep/db-admin": ["./packages/_internal/db-admin/src/index"],
-      "@beep/db-admin/*": ["./packages/_internal/db-admin/src/*"],
-      "@beep/db-admin/test/*": ["./packages/_internal/db-admin/test/*"],
-      "@beep/tooling-utils": ["./tooling/utils/src/index"],
-      "@beep/tooling-utils/*": ["./tooling/utils/src/*"],
-      "@beep/tooling-utils/test/*": ["./tooling/utils/test/*"],
-      "@beep/repo-cli": ["./tooling/cli/src/index"],
-      "@beep/repo-cli/*": ["./tooling/cli/src/*"],
-      "@beep/repo-cli/test/*": ["./tooling/cli/test/*"],
-      "@beep/repo-scripts": ["./tooling/repo-scripts/src/index"],
-      "@beep/repo-scripts/*": ["./tooling/repo-scripts/src/*"],
-      "@beep/repo-scripts/test/*": ["./tooling/repo-scripts/test/*"],
-      "@beep/testkit": ["./tooling/testkit/src/index"],
-      "@beep/testkit/*": ["./tooling/testkit/src/*"],
-      "@beep/testkit/test/*": ["./tooling/testkit/test/*"]
+      "*": [
+        "./*"
+      ],
+      "@beep/types": [
+        "./packages/common/types/src/index"
+      ],
+      "@beep/types/*": [
+        "./packages/common/types/src/*"
+      ],
+      "@beep/types/test/*": [
+        "./packages/common/types/test/*"
+      ],
+      "@beep/invariant": [
+        "./packages/common/invariant/src/index"
+      ],
+      "@beep/invariant/*": [
+        "./packages/common/invariant/src/*"
+      ],
+      "@beep/invariant/test/*": [
+        "./packages/common/invariant/test/*"
+      ],
+      "@beep/utils": [
+        "./packages/common/utils/src/index"
+      ],
+      "@beep/utils/*": [
+        "./packages/common/utils/src/*"
+      ],
+      "@beep/utils/test/*": [
+        "./packages/common/utils/test/*"
+      ],
+      "@beep/schema": [
+        "./packages/common/schema/src/index"
+      ],
+      "@beep/schema/*": [
+        "./packages/common/schema/src/*"
+      ],
+      "@beep/schema/test/*": [
+        "./packages/common/schema/test/*"
+      ],
+      "@beep/constants": [
+        "./packages/common/constants/src/index"
+      ],
+      "@beep/constants/*": [
+        "./packages/common/constants/src/*"
+      ],
+      "@beep/constants/test/*": [
+        "./packages/common/constants/test/*"
+      ],
+      "@beep/identity": [
+        "./packages/common/identity/src/index"
+      ],
+      "@beep/identity/*": [
+        "./packages/common/identity/src/*"
+      ],
+      "@beep/identity/test/*": [
+        "./packages/common/identity/test/*"
+      ],
+      "@beep/errors/client": [
+        "./packages/common/errors/src/client"
+      ],
+      "@beep/errors/shared": [
+        "./packages/common/errors/src/shared"
+      ],
+      "@beep/errors/server": [
+        "./packages/common/errors/src/server"
+      ],
+      "@beep/errors/test/*": [
+        "./packages/common/errors/test/*"
+      ],
+      "@beep/mock": [
+        "./packages/common/mock/src/index"
+      ],
+      "@beep/mock/*": [
+        "./packages/common/mock/src/*"
+      ],
+      "@beep/mock/test/*": [
+        "./packages/common/mock/test/*"
+      ],
+      "@beep/google": [
+        "./packages/integrations/google/src/index"
+      ],
+      "@beep/google/*": [
+        "./packages/integrations/google/src/*"
+      ],
+      "@beep/google/test/*": [
+        "./packages/integrations/google/test/*"
+      ],
+      "@beep/thefront": [
+        "./packages/integrations/thefront/src/index"
+      ],
+      "@beep/thefront/*": [
+        "./packages/integrations/thefront/src/*"
+      ],
+      "@beep/thefront/test/*": [
+        "./packages/integrations/thefront/test/*"
+      ],
+      "@beep/integrations-core": [
+        "./packages/integrations/core/src/index"
+      ],
+      "@beep/integrations-core/*": [
+        "./packages/integrations/core/src/*"
+      ],
+      "@beep/integrations-core/test/*": [
+        "./packages/integrations/core/test/*"
+      ],
+      "@beep/contract": [
+        "./packages/common/contract/src/index"
+      ],
+      "@beep/contract/*": [
+        "./packages/common/contract/src/*"
+      ],
+      "@beep/contract/test/*": [
+        "./packages/common/contract/test/*"
+      ],
+      "@beep/event": [
+        "./packages/common/event/src/index"
+      ],
+      "@beep/event/*": [
+        "./packages/common/event/src/*"
+      ],
+      "@beep/event/test/*": [
+        "./packages/common/event/test/*"
+      ],
+      "@beep/graph": [
+        "./packages/common/graph/src/index"
+      ],
+      "@beep/graph/*": [
+        "./packages/common/graph/src/*"
+      ],
+      "@beep/graph/test/*": [
+        "./packages/common/graph/test/*"
+      ],
+      "@beep/shared-domain": [
+        "./packages/shared/domain/src/index"
+      ],
+      "@beep/shared-domain/*": [
+        "./packages/shared/domain/src/*"
+      ],
+      "@beep/shared-domain/test/*": [
+        "./packages/shared/domain/test/*"
+      ],
+      "@beep/shared-tables": [
+        "./packages/shared/tables/src/index"
+      ],
+      "@beep/shared-tables/*": [
+        "./packages/shared/tables/src/*"
+      ],
+      "@beep/shared-tables/test/*": [
+        "./packages/shared/tables/test/*"
+      ],
+      "@beep/core-env/client": [
+        "./packages/core/env/src/client"
+      ],
+      "@beep/core-env/server": [
+        "./packages/core/env/src/server"
+      ],
+      "@beep/core-env/test/*": [
+        "./packages/core/env/test/*"
+      ],
+      "@beep/core-email": [
+        "./packages/core/email/src/index"
+      ],
+      "@beep/core-email/*": [
+        "./packages/core/email/src/*"
+      ],
+      "@beep/core-email/test/*": [
+        "./packages/core/email/test/*"
+      ],
+      "@beep/core-db": [
+        "./packages/core/db/src/index"
+      ],
+      "@beep/core-db/*": [
+        "./packages/core/db/src/*"
+      ],
+      "@beep/core-db/test/*": [
+        "./packages/core/db/test/*"
+      ],
+      "@beep/ui-core/*": [
+        "./packages/ui/core/src/*"
+      ],
+      "@beep/ui-core/test/*": [
+        "./packages/ui/core/test/*"
+      ],
+      "@beep/ui/*": [
+        "./packages/ui/ui/src/*"
+      ],
+      "@beep/ui/test/*": [
+        "./packages/ui/ui/test/*"
+      ],
+      "@beep/iam-domain": [
+        "./packages/iam/domain/src/index"
+      ],
+      "@beep/iam-domain/*": [
+        "./packages/iam/domain/src/*"
+      ],
+      "@beep/iam-domain/test/*": [
+        "./packages/iam/domain/test/*"
+      ],
+      "@beep/iam-tables": [
+        "./packages/iam/tables/src/index"
+      ],
+      "@beep/iam-tables/*": [
+        "./packages/iam/tables/src/*"
+      ],
+      "@beep/iam-tables/test/*": [
+        "./packages/iam/tables/test/*"
+      ],
+      "@beep/iam-infra": [
+        "./packages/iam/infra/src/index"
+      ],
+      "@beep/iam-infra/*": [
+        "./packages/iam/infra/src/*"
+      ],
+      "@beep/iam-infra/test/*": [
+        "./packages/iam/infra/test/*"
+      ],
+      "@beep/iam-sdk": [
+        "./packages/iam/sdk/src/index"
+      ],
+      "@beep/iam-sdk/*": [
+        "./packages/iam/sdk/src/*"
+      ],
+      "@beep/iam-sdk/test/*": [
+        "./packages/iam/sdk/test/*"
+      ],
+      "@beep/iam-ui": [
+        "./packages/iam/ui/src/index"
+      ],
+      "@beep/iam-ui/*": [
+        "./packages/iam/ui/src/*"
+      ],
+      "@beep/iam-ui/test/*": [
+        "./packages/iam/ui/test/*"
+      ],
+      "@beep/files-domain": [
+        "./packages/files/domain/src/index"
+      ],
+      "@beep/files-domain/*": [
+        "./packages/files/domain/src/*"
+      ],
+      "@beep/files-domain/test/*": [
+        "./packages/files/domain/test/*"
+      ],
+      "@beep/files-tables": [
+        "./packages/files/tables/src/index"
+      ],
+      "@beep/files-tables/*": [
+        "./packages/files/tables/src/*"
+      ],
+      "@beep/files-tables/test/*": [
+        "./packages/files/tables/test/*"
+      ],
+      "@beep/files-infra": [
+        "./packages/files/infra/src/index"
+      ],
+      "@beep/files-infra/*": [
+        "./packages/files/infra/src/*"
+      ],
+      "@beep/files-infra/test/*": [
+        "./packages/files/infra/test/*"
+      ],
+      "@beep/files-sdk": [
+        "./packages/files/sdk/src/index"
+      ],
+      "@beep/files-sdk/*": [
+        "./packages/files/sdk/src/*"
+      ],
+      "@beep/files-sdk/test/*": [
+        "./packages/files/sdk/test/*"
+      ],
+      "@beep/files-ui": [
+        "./packages/files/ui/src/index"
+      ],
+      "@beep/files-ui/*": [
+        "./packages/files/ui/src/*"
+      ],
+      "@beep/files-ui/test/*": [
+        "./packages/files/ui/test/*"
+      ],
+      "@beep/tasks-domain": [
+        "./packages/tasks/domain/src/index"
+      ],
+      "@beep/tasks-domain/*": [
+        "./packages/tasks/domain/src/*"
+      ],
+      "@beep/tasks-domain/test/*": [
+        "./packages/tasks/domain/test/*"
+      ],
+      "@beep/tasks-tables": [
+        "./packages/tasks/tables/src/index"
+      ],
+      "@beep/tasks-tables/*": [
+        "./packages/tasks/tables/src/*"
+      ],
+      "@beep/tasks-tables/test/*": [
+        "./packages/tasks/tables/test/*"
+      ],
+      "@beep/tasks-infra": [
+        "./packages/tasks/infra/src/index"
+      ],
+      "@beep/tasks-infra/*": [
+        "./packages/tasks/infra/src/*"
+      ],
+      "@beep/tasks-infra/test/*": [
+        "./packages/tasks/infra/test/*"
+      ],
+      "@beep/tasks-sdk": [
+        "./packages/tasks/sdk/src/index"
+      ],
+      "@beep/tasks-sdk/*": [
+        "./packages/tasks/sdk/src/*"
+      ],
+      "@beep/tasks-sdk/test/*": [
+        "./packages/tasks/sdk/test/*"
+      ],
+      "@beep/tasks-ui": [
+        "./packages/tasks/ui/src/index"
+      ],
+      "@beep/tasks-ui/*": [
+        "./packages/tasks/ui/src/*"
+      ],
+      "@beep/tasks-ui/test/*": [
+        "./packages/tasks/ui/test/*"
+      ],
+      "@beep/comms-domain": [
+        "./packages/comms/domain/src/index"
+      ],
+      "@beep/comms-domain/*": [
+        "./packages/comms/domain/src/*"
+      ],
+      "@beep/comms-domain/test/*": [
+        "./packages/comms/domain/test/*"
+      ],
+      "@beep/comms-tables": [
+        "./packages/comms/tables/src/index"
+      ],
+      "@beep/comms-tables/*": [
+        "./packages/comms/tables/src/*"
+      ],
+      "@beep/comms-tables/test/*": [
+        "./packages/comms/tables/test/*"
+      ],
+      "@beep/comms-infra": [
+        "./packages/comms/infra/src/index"
+      ],
+      "@beep/comms-infra/*": [
+        "./packages/comms/infra/src/*"
+      ],
+      "@beep/comms-infra/test/*": [
+        "./packages/comms/infra/test/*"
+      ],
+      "@beep/comms-sdk": [
+        "./packages/comms/sdk/src/index"
+      ],
+      "@beep/comms-sdk/*": [
+        "./packages/comms/sdk/src/*"
+      ],
+      "@beep/comms-sdk/test/*": [
+        "./packages/comms/sdk/test/*"
+      ],
+      "@beep/comms-ui": [
+        "./packages/comms/ui/src/index"
+      ],
+      "@beep/comms-ui/*": [
+        "./packages/comms/ui/src/*"
+      ],
+      "@beep/comms-ui/test/*": [
+        "./packages/comms/ui/test/*"
+      ],
+      "@beep/runtime-server": [
+        "./packages/runtime/server/src/index"
+      ],
+      "@beep/runtime-server/*": [
+        "./packages/runtime/server/src/*"
+      ],
+      "@beep/runtime-server/test/*": [
+        "./packages/runtime/server/test/*"
+      ],
+      "@beep/runtime-client": [
+        "./packages/runtime/client/src/index"
+      ],
+      "@beep/runtime-client/*": [
+        "./packages/runtime/client/src/*"
+      ],
+      "@beep/runtime-client/test/*": [
+        "./packages/runtime/client/test/*"
+      ],
+      "@/*": [
+        "./apps/web/src/*"
+      ],
+      "@beep/db-admin": [
+        "./packages/_internal/db-admin/src/index"
+      ],
+      "@beep/db-admin/*": [
+        "./packages/_internal/db-admin/src/*"
+      ],
+      "@beep/db-admin/test/*": [
+        "./packages/_internal/db-admin/test/*"
+      ],
+      "@beep/tooling-utils": [
+        "./tooling/utils/src/index"
+      ],
+      "@beep/tooling-utils/*": [
+        "./tooling/utils/src/*"
+      ],
+      "@beep/tooling-utils/test/*": [
+        "./tooling/utils/test/*"
+      ],
+      "@beep/repo-cli": [
+        "./tooling/cli/src/index"
+      ],
+      "@beep/repo-cli/*": [
+        "./tooling/cli/src/*"
+      ],
+      "@beep/repo-cli/test/*": [
+        "./tooling/cli/test/*"
+      ],
+      "@beep/repo-scripts": [
+        "./tooling/repo-scripts/src/index"
+      ],
+      "@beep/repo-scripts/*": [
+        "./tooling/repo-scripts/src/*"
+      ],
+      "@beep/repo-scripts/test/*": [
+        "./tooling/repo-scripts/test/*"
+      ],
+      "@beep/testkit": [
+        "./tooling/testkit/src/index"
+      ],
+      "@beep/testkit/*": [
+        "./tooling/testkit/src/*"
+      ],
+      "@beep/testkit/test/*": [
+        "./tooling/testkit/test/*"
+      ]
     }
   }
 }

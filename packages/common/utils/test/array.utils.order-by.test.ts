@@ -155,3 +155,94 @@ effect("orderBy does not mutate the original input array", () =>
     expect(first).toBe("a");
   })
 );
+
+effect("orderBy covers compareUnknown branches for various scalar types", () =>
+  Effect.gen(function* () {
+    const data = [
+      { id: "nan", value: Number.NaN },
+      { id: "one", value: 1 },
+      { id: "zero", value: 0 },
+      { id: "undef", value: undefined },
+      { id: "null", value: null },
+    ] as const;
+
+    const sorted = orderBy(data, [(item) => item.value], ["asc"]);
+    const ids = F.pipe(
+      sorted,
+      A.map((item) => item.id)
+    );
+
+    expect(ids).toEqual(["zero", "one", "nan", "undef", "null"]);
+  })
+);
+
+effect("orderBy compares booleans, bigints, dates, symbols, arrays, and objects", () =>
+  Effect.gen(function* () {
+    const bools = [
+      { id: "true", value: true },
+      { id: "false", value: false },
+    ] as const;
+    const bigints = [
+      { id: "small", value: 1n },
+      { id: "large", value: 2n },
+    ] as const;
+    const dates = [
+      { id: "early", value: new Date("2023-12-31T00:00:00.000Z") },
+      { id: "later", value: new Date("2024-01-02T00:00:00.000Z") },
+    ] as const;
+    const symbols = [
+      { id: "a", value: Symbol("a") },
+      { id: "b", value: Symbol("b") },
+    ] as const;
+    const arrays = [
+      { id: "small", value: [1, 2] },
+      { id: "large", value: [1, 3] },
+    ] as const;
+    const objects = [
+      { id: "a", value: { a: 1 } },
+      { id: "b", value: { a: 2 } },
+    ] as const;
+    const strings = [
+      { id: "a", value: "alpha" },
+      { id: "b", value: "beta" },
+    ] as const;
+
+    expect(orderBy(bools, [(item) => item.value], ["DESC"])).toEqual([
+      { id: "true", value: true },
+      { id: "false", value: false },
+    ]);
+    expect(orderBy(bigints, [(item) => item.value], ["DESC"])).toEqual([
+      { id: "large", value: 2n },
+      { id: "small", value: 1n },
+    ]);
+    expect(orderBy(dates, [(item) => item.value], ["DESC"])).toEqual([
+      { id: "later", value: new Date("2024-01-02T00:00:00.000Z") },
+      { id: "early", value: new Date("2023-12-31T00:00:00.000Z") },
+    ]);
+    expect(orderBy(symbols, [(item) => item.value], ["DESC"])[0]?.id).toBe("b");
+    expect(orderBy(arrays, [(item) => item.value], ["DESC"])[0]?.id).toBe("large");
+    expect(orderBy(objects, [(item) => item.value], ["DESC"])[0]?.id).toBe("b");
+    expect(orderBy(strings, [(item) => item.value], ["DESC"])).toEqual([
+      { id: "b", value: "beta" },
+      { id: "a", value: "alpha" },
+    ]);
+  })
+);
+
+effect("orderBy treats NaN as equal and sorts numbers ahead of nullish values", () =>
+  Effect.gen(function* () {
+    const input = [{ value: Number.NaN }, { value: 3 }, { value: Number.NaN }, { value: 2 }, { value: null }];
+    const sorted = orderBy(input, ["value"]);
+    const values = F.pipe(
+      sorted,
+      A.map((item) => item.value)
+    );
+
+    const leadingNumbers = F.pipe(values, A.take(2));
+
+    expect(leadingNumbers).toEqual([2, 3]);
+    expect(Number.isNaN(values[2])).toBe(true);
+    expect(Number.isNaN(values[3])).toBe(true);
+    expect(values[4]).toBeNull();
+  })
+);
