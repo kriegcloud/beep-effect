@@ -388,6 +388,53 @@
       "@beep/tasks-ui/test/*": [
         "./packages/tasks/ui/test/*"
       ],
+      
+       "@beep/party-domain": [
+        "./packages/party/domain/src/index"
+      ],
+      "@beep/party-domain/*": [
+        "./packages/party/domain/src/*"
+      ],
+      "@beep/party-domain/test/*": [
+        "./packages/party/domain/test/*"
+      ],
+      "@beep/party-tables": [
+        "./packages/party/tables/src/index"
+      ],
+      "@beep/party-tables/*": [
+        "./packages/party/tables/src/*"
+      ],
+      "@beep/party-tables/test/*": [
+        "./packages/party/tables/test/*"
+      ],
+      "@beep/party-infra": [
+        "./packages/party/infra/src/index"
+      ],
+      "@beep/party-infra/*": [
+        "./packages/party/infra/src/*"
+      ],
+      "@beep/party-infra/test/*": [
+        "./packages/party/infra/test/*"
+      ],
+      "@beep/party-sdk": [
+        "./packages/party/sdk/src/index"
+      ],
+      "@beep/party-sdk/*": [
+        "./packages/party/sdk/src/*"
+      ],
+      "@beep/party-sdk/test/*": [
+        "./packages/party/sdk/test/*"
+      ],
+      "@beep/party-ui": [
+        "./packages/party/ui/src/index"
+      ],
+      "@beep/party-ui/*": [
+        "./packages/party/ui/src/*"
+      ],
+      "@beep/party-ui/test/*": [
+        "./packages/party/ui/test/*"
+      ],
+      
       "@beep/comms-domain": [
         "./packages/comms/domain/src/index"
       ],

@@ -49,7 +49,6 @@
     "jose": "catalog:",
     "next": "catalog:",
     "@better-fetch/fetch": "catalog:",
-    "@beep/runtime-client": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/invariant": "workspace:^",

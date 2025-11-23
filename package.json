@@ -16,6 +16,7 @@
     "packages/shared/*",
     "packages/tasks/*",
     "packages/ui/*",
+    "packages/party/*",
     "apps/*",
     "tooling/*"
   ],

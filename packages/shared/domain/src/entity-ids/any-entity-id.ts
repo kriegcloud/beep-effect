@@ -1,6 +1,7 @@
 import * as S from "effect/Schema";
 import * as CommsEntityIds from "./comms";
 import * as IamEntityIds from "./iam";
+import * as PartyEntityIds from "./party";
 import { OrganizationId, SessionId, TeamId, UserId } from "./shared";
 import * as TaskEntityIds from "./tasks";
 export class AnyEntityId extends S.Union(
@@ -23,6 +24,7 @@ export class AnyEntityId extends S.Union(
   IamEntityIds.DeviceCodeId,
   IamEntityIds.ScimProviderId,
   CommsEntityIds.EmailTemplateId,
+  PartyEntityIds.PartyId,
   OrganizationId,
   TeamId,
   UserId,

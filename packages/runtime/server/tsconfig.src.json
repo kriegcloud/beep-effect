@@ -69,6 +69,16 @@
     },
 
     {
+      "path": "../../party/domain"
+    },
+    {
+      "path": "../../party/tables"
+    },
+    {
+      "path": "../../party/infra"
+    },
+
+    {
       "path": "../../files/infra"
     },
     {

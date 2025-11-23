@@ -79,7 +79,6 @@
       "@beep/iam-sdk/*": ["../../packages/iam/sdk/src/*"],
       "@beep/iam-ui": ["../../packages/iam/ui/src/index"],
       "@beep/iam-ui/*": ["../../packages/iam/ui/src/*"],
-
       "@beep/tasks-domain": ["../../packages/tasks/domain/src/index"],
       "@beep/tasks-domain/*": ["../../packages/tasks/domain/src/*"],
       "@beep/tasks-tables": ["../../packages/tasks/tables/src/index"],
@@ -90,7 +89,6 @@
       "@beep/tasks-sdk/*": ["../../packages/tasks/sdk/src/*"],
       "@beep/tasks-ui": ["../../packages/tasks/ui/src/index"],
       "@beep/tasks-ui/*": ["../../packages/tasks/ui/src/*"],
-
       "@beep/comms-domain": ["../../packages/comms/domain/src/index"],
       "@beep/comms-domain/*": ["../../packages/comms/domain/src/*"],
       "@beep/comms-tables": ["../../packages/comms/tables/src/index"],
@@ -101,7 +99,16 @@
       "@beep/comms-sdk/*": ["../../packages/comms/sdk/src/*"],
       "@beep/comms-ui": ["../../packages/comms/ui/src/index"],
       "@beep/comms-ui/*": ["../../packages/comms/ui/src/*"],
-
+      "@beep/party-domain": ["../../packages/party/domain/src/index"],
+      "@beep/party-domain/*": ["../../packages/party/domain/src/*"],
+      "@beep/party-tables": ["../../packages/party/tables/src/index"],
+      "@beep/party-tables/*": ["../../packages/party/tables/src/*"],
+      "@beep/party-infra": ["../../packages/party/infra/src/index"],
+      "@beep/party-infra/*": ["../../packages/party/infra/src/*"],
+      "@beep/party-sdk": ["../../packages/party/sdk/src/index"],
+      "@beep/party-sdk/*": ["../../packages/party/sdk/src/*"],
+      "@beep/party-ui": ["../../packages/party/ui/src/index"],
+      "@beep/party-ui/*": ["../../packages/party/ui/src/*"],
       "@beep/files-domain": ["../../packages/files/domain/src/index"],
       "@beep/files-domain/*": ["../../packages/files/domain/src/*"],
       "@beep/files-tables": ["../../packages/files/tables/src/index"],
@@ -181,7 +188,6 @@
     {
       "path": "../../packages/iam/tables/tsconfig.build.json"
     },
-
     {
       "path": "../../packages/tasks/sdk/tsconfig.build.json"
     },
@@ -197,7 +203,6 @@
     {
       "path": "../../packages/tasks/tables/tsconfig.build.json"
     },
-
     {
       "path": "../../packages/comms/sdk/tsconfig.build.json"
     },
@@ -213,7 +218,6 @@
     {
       "path": "../../packages/comms/tables/tsconfig.build.json"
     },
-
     {
       "path": "../../packages/ui/ui/tsconfig.build.json"
     },

@@ -6,6 +6,7 @@ import { FilesDb } from "@beep/files-infra/db";
 import type { AuthEmailService, IamConfig } from "@beep/iam-infra";
 import { AuthService, IamRepos } from "@beep/iam-infra";
 import { IamDb } from "@beep/iam-infra/db";
+import { PartyDb } from "@beep/party-infra/db";
 import { TasksDb } from "@beep/tasks-infra/db";
 import type * as SqlClient from "@effect/sql/SqlClient";
 import type * as SqlError from "@effect/sql/SqlError";
@@ -13,7 +14,7 @@ import type * as ConfigError from "effect/ConfigError";
 import * as Layer from "effect/Layer";
 import * as CoreServices from "./CoreServices.ts";
 
-export type SliceDatabaseClients = IamDb.IamDb | FilesDb.FilesDb | TasksDb.TasksDb | CommsDb.CommsDb;
+export type SliceDatabaseClients = IamDb.IamDb | FilesDb.FilesDb | TasksDb.TasksDb | CommsDb.CommsDb | PartyDb.PartyDb;
 export type SliceDatabaseClientsLive = Layer.Layer<
   SliceDatabaseClients,
   ConfigError.ConfigError | SqlError.SqlError,
@@ -23,7 +24,8 @@ export const SliceDatabaseClientsLive: SliceDatabaseClientsLive = Layer.mergeAll
   IamDb.IamDb.Live,
   FilesDb.FilesDb.Live,
   TasksDb.TasksDb.Live,
-  CommsDb.CommsDb.Live
+  CommsDb.CommsDb.Live,
+  PartyDb.PartyDb.Live
 );
 
 type SliceRepositories = FilesRepos.FilesRepos | CommsRepos.CommsRepos | IamRepos.IamRepos;

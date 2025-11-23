@@ -54,7 +54,6 @@
     {
       "path": "../../tasks/tables"
     },
-
     {
       "path": "../../comms/domain"
     },
@@ -64,7 +63,15 @@
     {
       "path": "../../comms/infra"
     },
-
+    {
+      "path": "../../party/domain"
+    },
+    {
+      "path": "../../party/tables"
+    },
+    {
+      "path": "../../party/infra"
+    },
     {
       "path": "../../files/infra"
     },
@@ -74,15 +81,17 @@
     {
       "path": "../../files/tables"
     },
-    { "path": "../../../tooling/utils" },
-    { "path": "../../../tooling/testkit/tsconfig.build.json" }
+    {
+      "path": "../../../tooling/utils"
+    },
+    {
+      "path": "../../../tooling/testkit/tsconfig.build.json"
+    }
   ],
   "compilerOptions": {
     "types": ["node", "bun"],
     "outDir": "build/src",
-
     "rootDir": "src",
-
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,

@@ -1,6 +1,8 @@
 {
   "extends": "../../../tsconfig.base.jsonc",
-  "include": ["test"],
+  "include": [
+    "test"
+  ],
   "references": [
     {
       "path": "tsconfig.src.json"
@@ -10,9 +12,6 @@
     },
     {
       "path": "../../common/utils"
-    },
-    {
-      "path": "../../runtime/client"
     },
     {
       "path": "../../common/invariant"
@@ -52,7 +51,10 @@
     }
   ],
   "compilerOptions": {
-    "types": ["node", "bun"],
+    "types": [
+      "node",
+      "bun"
+    ],
     "rootDir": "test",
     "tsBuildInfoFile": "./build/tsconfig.test.tsbuildinfo",
     "noEmit": true,

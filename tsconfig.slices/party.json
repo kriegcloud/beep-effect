@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "../packages/party/domain/tsconfig.build.json" },
+    { "path": "../packages/party/tables/tsconfig.build.json" },
+    { "path": "../packages/party/infra/tsconfig.build.json" },
+    { "path": "../packages/party/sdk/tsconfig.build.json" },
+    { "path": "../packages/party/ui/tsconfig.build.json" }
+  ]
+}

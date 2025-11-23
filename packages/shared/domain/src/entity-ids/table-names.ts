@@ -3,12 +3,13 @@ import * as CommsTableNames from "@beep/shared-domain/entity-ids/CommsTableNames
 import { TaskTableNames } from "@beep/shared-domain/entity-ids/TaskTableNames";
 import type * as S from "effect/Schema";
 import { IamTableNames } from "./IamTableNames";
+import * as PartyTableNames from "./PartyTableNames.ts";
 import { SharedTableNames } from "./SharedTableNames";
-
 export class AnyTableName extends BS.StringLiteralKit(
   ...IamTableNames.IamTableName.Options,
   ...SharedTableNames.SharedTableName.Options,
   ...TaskTableNames.TaskTableName.Options,
+  ...PartyTableNames.PartyTableName.Options,
   ...CommsTableNames.CommsTableName.Options
 ).annotations({
   schemaId: Symbol.for("@beep/shared/domain/EntityIds/AnyTableName"),
@@ -24,4 +25,4 @@ export declare namespace AnyTableName {
   export type Encoded = S.Schema.Encoded<typeof AnyTableName>;
 }
 
-export { SharedTableNames, IamTableNames, TaskTableNames, CommsTableNames };
+export { SharedTableNames, IamTableNames, TaskTableNames, CommsTableNames, PartyTableNames };

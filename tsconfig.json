@@ -35,6 +35,7 @@
     { "path": "tsconfig.slices/apps.json" },
     { "path": "tsconfig.slices/internal.json" },
     { "path": "tsconfig.slices/tooling.json" },
-    { "path": "tsconfig.slices/integrations.json" }
+    { "path": "tsconfig.slices/integrations.json" },
+    { "path": "tsconfig.slices/party.json" }
   ]
 }

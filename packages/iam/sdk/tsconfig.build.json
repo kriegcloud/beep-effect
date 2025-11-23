@@ -17,9 +17,6 @@
       "path": "../../ui/ui/tsconfig.build.json"
     },
     {
-      "path": "../../runtime/client/tsconfig.build.json"
-    },
-    {
       "path": "../../common/identity/tsconfig.build.json"
     },
     {

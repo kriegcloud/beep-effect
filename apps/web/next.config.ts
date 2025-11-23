@@ -91,6 +91,11 @@ const candidateTranspilePackages = [
   "@beep/comms-infra",
   "@beep/comms-sdk",
   "@beep/comms-ui",
+  "@beep/party-domain",
+  "@beep/party-tables",
+  "@beep/party-infra",
+  "@beep/party-sdk",
+  "@beep/party-ui",
 ];
 
 const resolvePackageJson = (pkgName: string) => {

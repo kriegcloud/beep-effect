@@ -1,15 +1,14 @@
 {
   "extends": "../../../tsconfig.base.jsonc",
-  "include": ["src"],
+  "include": [
+    "src"
+  ],
   "references": [
     {
       "path": "../../common/types"
     },
     {
       "path": "../../common/utils"
-    },
-    {
-      "path": "../../runtime/client"
     },
     {
       "path": "../../common/invariant"
@@ -49,9 +48,11 @@
     }
   ],
   "compilerOptions": {
-    "types": ["node", "bun"],
+    "types": [
+      "node",
+      "bun"
+    ],
     "outDir": "build/src",
-
     "rootDir": "src",
     "moduleResolution": "bundler",
     "exactOptionalPropertyTypes": false,

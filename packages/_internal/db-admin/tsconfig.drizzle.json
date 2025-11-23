@@ -62,7 +62,15 @@
     {
       "path": "../../comms/infra"
     },
-
+    {
+      "path": "../../party/infra/tsconfig.build.json"
+    },
+    {
+      "path": "../../party/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../party/tables/tsconfig.build.json"
+    },
     {
       "path": "../../ui"
     },

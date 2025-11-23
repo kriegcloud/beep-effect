@@ -57,6 +57,15 @@
       "path": "../../tasks/infra"
     },
     {
+      "path": "../../party/domain"
+    },
+    {
+      "path": "../../party/tables"
+    },
+    {
+      "path": "../../party/infra"
+    },
+    {
       "path": "../../comms/domain"
     },
     {

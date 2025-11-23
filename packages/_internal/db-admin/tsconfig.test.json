@@ -78,6 +78,15 @@
       "path": "../../files/tables/tsconfig.build.json"
     },
     {
+      "path": "../../party/domain"
+    },
+    {
+      "path": "../../party/tables"
+    },
+    {
+      "path": "../../party/infra"
+    },
+    {
       "path": "../../../tooling/utils"
     },
     {
