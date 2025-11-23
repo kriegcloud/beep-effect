@@ -1,4 +1,4 @@
-import type { PasskeyView } from "@beep/iam-sdk/clients/passkey/passkey.contracts";
+import type { PasskeyDTO } from "@beep/iam-sdk/clients/passkey/passkey.contracts";
 import { Iconify } from "@beep/ui/atoms/iconify/iconify";
 import IconButton from "@mui/material/Button";
 import ListItem from "@mui/material/ListItem";
@@ -7,9 +7,9 @@ import ListItemText from "@mui/material/ListItemText";
 import Stack from "@mui/material/Stack";
 
 type Props = {
-  readonly passkey: PasskeyView;
-  readonly onUpdate: (passkey: PasskeyView) => void;
-  readonly onDelete: (passkey: PasskeyView) => Promise<void>;
+  readonly passkey: PasskeyDTO;
+  readonly onUpdate: (passkey: PasskeyDTO) => void;
+  readonly onDelete: (passkey: PasskeyDTO) => Promise<void>;
 };
 
 export const PasskeyItem = ({ passkey, onUpdate, onDelete }: Props) => {

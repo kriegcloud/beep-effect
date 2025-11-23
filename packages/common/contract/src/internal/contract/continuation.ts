@@ -197,9 +197,17 @@ export function failureContinuation<
       onFalse: () => Effect.die(toFailure(result.error)),
     });
 
+  const runRaise: FailureContinuation<Failure, Extra>["runRaise"] = (register) =>
+    run(register).pipe(Effect.tap(raiseResult));
+
+  const runVoid: FailureContinuation<Failure, Extra>["runVoid"] = (register) =>
+    run(register).pipe(Effect.tap(raiseResult), Effect.asVoid);
+
   return {
     metadata: computedMetadata,
     run,
+    runRaise,
+    runVoid,
     raiseResult,
   };
 }

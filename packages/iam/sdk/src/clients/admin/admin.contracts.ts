@@ -101,10 +101,7 @@ export const AdminSetRoleContract = Contract.make("AdminSetRole", {
   payload: AdminSetRolePayload.fields,
   success: AdminUserSuccess,
   failure: IamError,
-})
-  .annotate(Contract.Title, "Set Role")
-  .annotate(Contract.Domain, "Admin")
-  .annotate(Contract.Method, "admin.setRole");
+}).withAnnotations([Contract.Title, "Set Role"], [Contract.Domain, "Admin"], [Contract.Method, "admin.setRole"]);
 
 export class AdminGetUserPayload extends S.Class<AdminGetUserPayload>("AdminGetUserPayload")(
   {

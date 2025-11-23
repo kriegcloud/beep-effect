@@ -1,6 +1,6 @@
 "use client";
 import { editingPasskeyAtom, usePasskeyCRUD } from "@beep/iam-sdk";
-import type { PasskeyView } from "@beep/iam-sdk/clients/passkey/passkey.contracts";
+import type { PasskeyDTO } from "@beep/iam-sdk/clients/passkey/passkey.contracts";
 import { PasskeyForm } from "@beep/iam-ui/passkey/passkey.form";
 import { PasskeyItem } from "@beep/iam-ui/passkey/passkey.item";
 import { PasskeysEmpty } from "@beep/iam-ui/passkey/passkeys.empty";
@@ -14,7 +14,7 @@ import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";
 
 type Props = {
-  readonly passkeys: ReadonlyArray<PasskeyView>;
+  readonly passkeys: ReadonlyArray<PasskeyDTO>;
 };
 
 export const PasskeysList = ({ passkeys }: Props) => {
@@ -25,7 +25,7 @@ export const PasskeysList = ({ passkeys }: Props) => {
   const runtime = useRuntime();
   const runDelete = makeRunClientPromise(runtime, "passkey.delete");
 
-  const handleDelete = async (passkey: PasskeyView) =>
+  const handleDelete = async (passkey: PasskeyDTO) =>
     runDelete(
       Effect.gen(function* () {
         const confirmResult = yield* Effect.tryPromise(() =>

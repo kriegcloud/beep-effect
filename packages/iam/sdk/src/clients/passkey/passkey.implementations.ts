@@ -29,7 +29,6 @@ const PasskeyRemoveHandler = PasskeyRemoveContract.implement(
         })
       )
     );
-
     yield* continuation.raiseResult(result);
 
     return yield* PasskeyRemoveContract.decodeSuccess(result.data);
@@ -53,18 +52,16 @@ const PasskeyUpdateHandler = PasskeyUpdateContract.implement(
   })
 );
 
-const PasskeyAddHandler = PasskeyAddContract.implement(
-  Effect.fn(function* (payload, { continuation }) {
-    yield* continuation.run((handlers) =>
-      client.passkey.addPasskey(
-        addFetchOptions(handlers, {
-          name: payload.name ?? undefined,
-          authenticatorAttachment: payload.authenticatorAttachment ?? undefined,
-          useAutoRegister: payload.useAutoRegister ?? undefined,
-        })
-      )
-    );
-  })
+const PasskeyAddHandler = PasskeyAddContract.implement((payload, { continuation }) =>
+  continuation.run((handlers) =>
+    client.passkey.addPasskey(
+      addFetchOptions(handlers, {
+        name: payload.name ?? undefined,
+        authenticatorAttachment: payload.authenticatorAttachment ?? undefined,
+        useAutoRegister: payload.useAutoRegister ?? undefined,
+      })
+    )
+  )
 );
 
 export const passkeyLayer = PasskeyContractKit.toLayer({

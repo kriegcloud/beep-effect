@@ -38,6 +38,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import type * as Scope from "effect/Scope";
 import * as Struct from "effect/Struct";
+import { create } from "mutative";
 import { Contract } from "../contract";
 import { FailureMode } from "../contract/types";
 import { ContractError } from "../contract-error";
@@ -301,7 +302,7 @@ const liftService = function <
   this: ContractKit<Contracts>,
   options?: LiftServiceOptions<Contracts, Mode>
 ): Effect.Effect<LiftedService<Contracts, Mode>, never, Contract.ImplementationsFor<Contracts>> {
-  const mode = (options?.mode ?? LiftServiceMode.Enum.success) as Mode;
+  const mode = options?.mode ?? LiftServiceMode.Enum.success;
   const hooksOpt = O.fromNullable(options?.hooks).pipe(
     O.map((hooks) => ({
       onFailure: O.fromNullable(hooks.onFailure),
@@ -311,31 +312,55 @@ const liftService = function <
   );
   return Effect.gen(this, function* () {
     const { contracts, handle } = yield* this;
-    const lifted = {} as LiftedService<Contracts, Mode>;
-    const names = Struct.keys(contracts) as ReadonlyArray<keyof Contracts>;
-    for (const name of names) {
-      const contract = contracts[name]!;
+    type MutableLifted = {
+      -readonly [K in keyof Contracts]: LiftedService<Contracts, Mode>[K];
+    };
+    return F.pipe(
+      Struct.keys(contracts) as ReadonlyArray<keyof Contracts>,
+      A.reduce({} as LiftedService<Contracts, Mode>, (acc, name) => {
+        const contract = contracts[name]!;
+        const onFailure = O.flatMap(hooksOpt, (hooks) => hooks.onFailure);
+        const onSuccess = O.flatMap(hooksOpt, (hooks) => hooks.onSuccess);
+        const onDefect = O.flatMap(hooksOpt, (hooks) => hooks.onDefect);
 
-      const liftedContract = Contract.lift(contract, {
-        method: handle(name),
-        ...F.pipe(
-          hooksOpt,
-          O.match({
-            onNone: () => ({}),
-            onSome: ({ onFailure, onSuccess, onDefect }) => ({
-              ...(O.isSome(onFailure) ? { onFailure: (failure) => onFailure.value({ name, contract, failure }) } : {}),
-              ...(O.isSome(onSuccess) ? { onSuccess: (success) => onSuccess.value({ name, contract, success }) } : {}),
-              ...(O.isSome(onDefect) ? { onDefect: (cause) => onDefect.value({ name, contract, cause }) } : {}),
-            }),
-          })
-        ),
-      } as const);
+        const liftOptions = create(
+          {
+            method: handle(name),
+          } as {
+            readonly method: (
+              params: Contract.Payload<Contracts[typeof name]>
+            ) => Effect.Effect<
+              Contract.ImplementationResult<Contracts[typeof name]>,
+              Contract.Failure<Contracts[typeof name]>,
+              Contract.Requirements<Contracts[typeof name]>
+            >;
+            onFailure?: (failure: Contract.Failure<Contracts[typeof name]>) => Effect.Effect<void, never, never>;
+            onSuccess?: (success: Contract.Success<Contracts[typeof name]>) => Effect.Effect<void, never, never>;
+            onDefect?: (cause: Cause.Cause<unknown>) => Effect.Effect<void, never, never>;
+          },
+          (draft) => {
+            if (O.isSome(onFailure)) {
+              draft.onFailure = (failure) => onFailure.value({ name, contract, failure });
+            }
+            if (O.isSome(onSuccess)) {
+              draft.onSuccess = (success) => onSuccess.value({ name, contract, success });
+            }
+            if (O.isSome(onDefect)) {
+              draft.onDefect = (cause) => onDefect.value({ name, contract, cause });
+            }
+          }
+        );
 
-      (lifted as Record<keyof Contracts, unknown>)[name] = (
-        mode === LiftServiceMode.Enum.result ? liftedContract.result : liftedContract.success
-      ) as LiftedService<Contracts, Mode>[typeof name];
-    }
-    return lifted;
+        const liftedContract = Contract.lift(contract, liftOptions);
+
+        return create(acc as MutableLifted, (draft) => {
+          const mutableDraft = draft as Record<keyof Contracts, LiftedService<Contracts, Mode>[keyof Contracts]>;
+          mutableDraft[name] = (
+            mode === LiftServiceMode.Enum.result ? liftedContract.result : liftedContract.success
+          ) as LiftedService<Contracts, Mode>[typeof name];
+        }) as LiftedService<Contracts, Mode>;
+      })
+    );
   });
 };
 const Proto = {

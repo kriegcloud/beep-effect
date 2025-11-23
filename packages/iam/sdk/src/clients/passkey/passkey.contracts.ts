@@ -1,36 +1,49 @@
 import { Contract, ContractKit } from "@beep/contract";
 import { Passkey } from "@beep/iam-domain/entities";
+import { $PasskeyId } from "@beep/iam-sdk/clients/_internal";
 import { IamError } from "@beep/iam-sdk/errors";
 import { BS } from "@beep/schema";
 import { IamEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 
-export class PasskeyView extends S.Class<PasskeyView>("PasskeyView")(
+export class PasskeyDTO extends S.Class<PasskeyDTO>("PasskeyDTO")(
   BS.mergeFields(Passkey.Model.select.pick("id").fields, {
     name: BS.NameAttribute,
   }),
-  {
-    schemaId: Symbol.for("@beep/iam-sdk/clients/passkey/PasskeyView"),
-    identifier: "PasskeyView",
-    title: "Passkey View",
+  $PasskeyId.annotations("PasskeyDTO", {
     description: "Represents a passkey credential managed by Better Auth.",
-  }
+  })
 ) {}
 
 export class PasskeyAddPayload extends S.Class<PasskeyAddPayload>("PasskeyAddPayload")(
-  S.Struct({
+  {
     ...Passkey.Model.insert.pick("name").fields,
     id: IamEntityIds.PasskeyId,
     authenticatorAttachment: S.optional(S.Literal("platform", "cross-platform")),
     useAutoRegister: S.optional(S.Boolean),
-  }),
-  {
-    schemaId: Symbol.for("@beep/iam-sdk/clients/passkey/PasskeyAddPayload"),
-    identifier: "PasskeyAddPayload",
-    title: "Passkey Add Payload",
+  },
+  $PasskeyId.annotations("PasskeyAddPayload", {
     description: "Options for registering a new passkey credential.",
-  }
-) {}
+  })
+) {
+  static readonly toFormSchema = PasskeyAddPayload.pipe(S.pick("name")).annotations(
+    $PasskeyId.annotations("PasskeyAddFormPayload", {
+      description: "Options for registering a new passkey credential.",
+      [BS.DefaultFormValuesAnnotationId]: {
+        name: "",
+      },
+    })
+  );
+}
+
+export const PasskeyFormSchema = PasskeyAddPayload.pipe(S.pick("name")).annotations(
+  $PasskeyId.annotations("PasskeyAddFormPayload", {
+    description: "Options for registering a new passkey credential.",
+    [BS.DefaultFormValuesAnnotationId]: {
+      name: "",
+    },
+  })
+);
 
 export declare namespace PasskeyAddPayload {
   export type Type = S.Schema.Type<typeof PasskeyAddPayload>;
@@ -39,8 +52,8 @@ export declare namespace PasskeyAddPayload {
 
 export const PasskeyAddContract = Contract.make("add", {
   description: "Registers a new passkey credential for the authenticated user.",
-  payload: PasskeyAddPayload.fields,
   failure: IamError,
+  payload: PasskeyAddPayload,
   success: S.Void,
 })
   .annotate(Contract.Title, "Passkey Add Contract")
@@ -50,9 +63,8 @@ export const PasskeyAddContract = Contract.make("add", {
 
 export const PasskeyListContract = Contract.make("listUserPasskeys", {
   description: "Lists passkeys that belong to the authenticated user.",
-  payload: {},
   failure: IamError,
-  success: S.mutable(S.Array(PasskeyView)),
+  success: S.mutable(S.Array(PasskeyDTO)),
 })
   .annotate(Contract.Title, "Passkey List Contract")
   .annotate(Contract.Domain, "Passkey")
@@ -61,14 +73,11 @@ export const PasskeyListContract = Contract.make("listUserPasskeys", {
 
 export class PasskeyRemovePayload extends S.Class<PasskeyRemovePayload>("PasskeyRemovePayload")(
   {
-    passkey: PasskeyView,
+    passkey: PasskeyDTO,
   },
-  {
-    schemaId: Symbol.for("@beep/iam-sdk/clients/passkey/PasskeyRemovePayload"),
-    identifier: "PasskeyRemovePayload",
-    title: "Passkey Delete Payload",
+  $PasskeyId.annotations("PasskeyRemovePayload", {
     description: "Payload describing the passkey credential to delete.",
-  }
+  })
 ) {}
 
 export declare namespace PasskeyRemovePayload {
@@ -78,8 +87,8 @@ export declare namespace PasskeyRemovePayload {
 
 export const PasskeyRemoveContract = Contract.make("remove", {
   description: "Deletes a passkey credential by identifier.",
-  payload: PasskeyRemovePayload.fields,
   failure: IamError,
+  payload: PasskeyRemovePayload,
   success: S.Null,
 })
   .annotate(Contract.Title, "Passkey Remove Contract")
@@ -89,15 +98,17 @@ export const PasskeyRemoveContract = Contract.make("remove", {
 
 export class PasskeyUpdatePayload extends S.Class<PasskeyUpdatePayload>("PasskeyUpdatePayload")(
   {
-    passkey: PasskeyView,
+    passkey: PasskeyDTO,
   },
-  {
-    schemaId: Symbol.for("@beep/iam-sdk/clients/passkey/PasskeyUpdatePayload"),
-    identifier: "PasskeyUpdatePayload",
-    title: "Passkey Update Payload",
+  $PasskeyId.annotations("PasskeyUpdatePayload", {
     description: "Payload for updating a passkey credential.",
-  }
-) {}
+  })
+) {
+  static readonly toFormSchema = (defaultValues: Pick<PasskeyUpdatePayload.Type["passkey"], "name">) =>
+    PasskeyUpdatePayload.fields.passkey.pipe(S.pick("name")).annotations({
+      [BS.DefaultFormValuesAnnotationId]: defaultValues,
+    });
+}
 
 export declare namespace PasskeyUpdatePayload {
   export type Type = S.Schema.Type<typeof PasskeyUpdatePayload>;
@@ -106,14 +117,11 @@ export declare namespace PasskeyUpdatePayload {
 
 export class PasskeyUpdateSuccess extends S.Class<PasskeyUpdateSuccess>("PasskeyUpdateSuccess")(
   S.Struct({
-    passkey: PasskeyView,
+    passkey: PasskeyDTO,
   }),
-  {
-    schemaId: Symbol.for("@beep/iam-sdk/clients/passkey/PasskeyUpdateSuccess"),
-    identifier: "PasskeyUpdateSuccess",
-    title: "Passkey Update Success",
+  $PasskeyId.annotations("PasskeyUpdateSuccess", {
     description: "Response returned when a passkey credential is updated.",
-  }
+  })
 ) {}
 
 export declare namespace PasskeyUpdateSuccess {
@@ -123,7 +131,7 @@ export declare namespace PasskeyUpdateSuccess {
 
 export const PasskeyUpdateContract = Contract.make("update", {
   description: "Updates the metadata of a passkey credential.",
-  payload: PasskeyUpdatePayload.fields,
+  payload: PasskeyUpdatePayload,
   failure: IamError,
   success: PasskeyUpdateSuccess,
 })

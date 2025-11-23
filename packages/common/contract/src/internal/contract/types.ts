@@ -1,13 +1,6 @@
-/**
- * Shared type definitions for the contract runtime. These interfaces power both
- * the public `Contract` API and internal helpers such as continuations and lift
- * services.
- */
-// =============================================================================
-// Models
-// =============================================================================
 import { BS } from "@beep/schema";
 import type { UnsafeTypes } from "@beep/types";
+import type * as A from "effect/Array";
 import type * as Context from "effect/Context";
 import type * as Effect from "effect/Effect";
 import type * as Either from "effect/Either";
@@ -19,19 +12,31 @@ import type { Covariant } from "effect/Types";
 import type { ContractError } from "../contract-error";
 import type { ProviderDefinedTypeId, TypeId } from "./constants";
 
-/**
- * The strategy used for handling errors returned from contract call implementation
- * execution.
- *
- * If set to `"error"` (the default), errors that occur during contract call implementation
- * execution will be returned in the error channel of the calling effect.
- *
- * If set to `"return"`, errors that occur during contract call implementation execution
- * will be captured and returned as part of the contract call result.
- *
- * @since 1.0.0
- * @category Models
- */
+export declare namespace Contract {
+  /**
+   * @since 1.0.0
+   * @category Models
+   */
+  export interface Variance<out Requirements> extends Pipeable {
+    readonly [TypeId]: VarianceStruct<Requirements>;
+  }
+
+  /**
+   * @since 1.0.0
+   * @category Models
+   */
+  export interface VarianceStruct<out Requirements> {
+    readonly _Requirements: Covariant<Requirements>;
+  }
+
+  /**
+   * @since 1.0.0
+   * @category Models
+   */
+  export interface ProviderDefinedProto {
+    readonly [ProviderDefinedTypeId]: ProviderDefinedTypeId;
+  }
+}
 
 const makeHandleOutcome = <C extends Any>(contract: C, input: FailureMode.MatchInput<C>): HandleOutcome<C> => {
   if (input.isFailure) {
@@ -115,40 +120,42 @@ export declare namespace FailureMode {
   >;
 }
 
+export interface AnySchema extends Pipeable {
+  readonly [S.TypeId]: UnsafeTypes.UnsafeAny;
+  readonly Type: UnsafeTypes.UnsafeAny;
+  readonly Encoded: UnsafeTypes.UnsafeAny;
+  readonly Context: UnsafeTypes.UnsafeAny;
+  readonly make?: (
+    params: UnsafeTypes.UnsafeAny,
+    ...rest: ReadonlyArray<UnsafeTypes.UnsafeAny>
+  ) => UnsafeTypes.UnsafeAny;
+  readonly ast: AST.AST;
+  readonly annotations: UnsafeTypes.UnsafeAny;
+}
 /**
- * A user-defined contract that clients can invoke to perform an effectful
- * action.
- *
- * Contracts describe the agreement between any caller (web, mobile, CLI, worker)
- * and the runtime that fulfills the operation. Each contract declares schemas
- * for payload, success results, and failure results to keep validation explicit
- * and transport-friendly.
- *
- * @example
- * ```ts
- * import * as Contract from "@beep/contract/contract-kit/Contract";
- * import * as S from "effect/Schema";
- *
- * const ListWidgets = Contract.make("ListWidgets", {
- *   description: "Emit the widgets visible to the current tenant",
- *   payload: { tenantId: S.String },
- *   success: S.Array(S.Struct({ id: S.String, name: S.String })),
- * });
- * ```
+ * Represents an API endpoint. An API endpoint is mapped to a single route on
+ * the underlying `HttpRouter`.
  *
  * @since 1.0.0
- * @category Models
+ * @category models
  */
 export interface Contract<
-  Name extends string,
+  in out Name extends string,
   Config extends {
-    readonly payload: AnyStructSchema;
+    readonly payload: AnySchema;
+    readonly success: S.Schema.Any;
+    readonly failure: S.Schema.All;
+    readonly failureMode: FailureMode.Type;
+  } = {
+    readonly payload: AnySchema;
     readonly success: S.Schema.Any;
     readonly failure: S.Schema.All;
     readonly failureMode: FailureMode.Type;
   },
   Requirements = never,
-> extends Contract.Variance<Requirements> {
+> extends Pipeable,
+    Contract.Variance<Requirements> {
+  new (_: never): {};
   /**
    * The contract identifier which is used to uniquely identify the contract.
    */
@@ -199,7 +206,6 @@ export interface Contract<
    * about the contract.
    */
   readonly annotations: Context.Context<never>;
-
   /**
    * Schema helpers for decoding / encoding payloads.
    */
@@ -363,7 +369,7 @@ export interface Contract<
   /**
    * Set the schema to use to validate the result of a tool call when successful.
    */
-  setPayload<PayloadSchema extends S.Struct<UnsafeTypes.UnsafeAny> | S.Struct.Fields>(
+  setPayload<PayloadSchema extends S.Struct<UnsafeTypes.UnsafeAny> | S.Schema.Any | S.Struct.Fields>(
     schema: PayloadSchema
   ): Contract<
     Name,
@@ -372,7 +378,7 @@ export interface Contract<
         ? PayloadSchema
         : PayloadSchema extends S.Struct.Fields
           ? S.Struct<PayloadSchema>
-          : never;
+          : PayloadSchema;
       readonly success: Config["success"];
       readonly failure: Config["failure"];
       readonly failureMode: Config["failureMode"];
@@ -416,6 +422,15 @@ export interface Contract<
    * Add an annotation to the contract.
    */
   annotate<I, S>(tag: Context.Tag<I, S>, value: S): Contract<Name, Config, Requirements>;
+
+  /**
+   * Add many annotations to the contract.
+   */
+  withAnnotations<
+    const Annotations extends A.NonEmptyReadonlyArray<
+      readonly [Context.Tag<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>, UnsafeTypes.UnsafeAny]
+    >,
+  >(...annotations: Annotations): Contract<Name, Config, Requirements>;
 
   /**
    * Add many annotations to the contract.
@@ -580,7 +595,7 @@ export interface Any extends Pipeable {
   readonly id: string;
   readonly name: string;
   readonly description?: string | undefined;
-  readonly payloadSchema: AnyStructSchema;
+  readonly payloadSchema: AnySchema;
   readonly successSchema: S.Schema.Any;
   readonly failureSchema: S.Schema.All;
   readonly failureMode: FailureMode.Type;
@@ -618,9 +633,9 @@ export type Name<T> = T extends Contract<infer _Name, infer _Config, infer _Requ
  * @since 1.0.0
  * @category Utility Types
  */
-export type Payload<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? S.Struct.Type<_Config["payload"]["fields"]>
-  : never;
+// export type Payload<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
+//   ? S.Struct.Type<_Config["payload"]["fields"]>
+//   : never;
 
 /**
  * A utility type to extract the encoded type of the contract call payload.
@@ -707,6 +722,24 @@ export type FailureEncoded<T> = T extends Contract<infer _Name, infer _Config, i
  */
 export type PayloadContext<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
   ? S.Schema.Context<_Config["payload"]>
+  : never;
+
+/**
+ * @since 1.0.0
+ * @category models
+ */
+export type PayloadConstructor<R> = R extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? _Config["payload"] extends { readonly fields: S.Struct.Fields }
+    ? S.Simplify<S.Struct.Constructor<_Config["payload"]["fields"]>>
+    : _Config["payload"]["Type"]
+  : never;
+
+/**
+ * @since 1.0.0
+ * @category models
+ */
+export type Payload<R> = R extends Contract<infer _Name, infer _Config, infer _Requirements>
+  ? _Config["payload"]["Type"]
   : never;
 
 /**
@@ -1022,6 +1055,12 @@ export interface FailureContinuation<
 > {
   readonly metadata: Metadata<Extra>;
   readonly run: FailureContinuation.Runner<Failure>;
+  readonly runRaise: <A extends { readonly error: unknown | null | undefined }>(
+    register: (handlers: FailureContinuationHandlers) => Promise<A>
+  ) => Effect.Effect<A, never, never>;
+  readonly runVoid: <A extends { readonly error: unknown | null | undefined }>(
+    register: (handlers: FailureContinuationHandlers) => Promise<A>
+  ) => Effect.Effect<void, never, never>;
   readonly raiseResult: (result: { readonly error: unknown | null | undefined }) => Effect.Effect<void, never, never>;
 }
 

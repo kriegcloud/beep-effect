@@ -17,11 +17,12 @@ describe("Contract runtime", () => {
         payload: { id: S.String },
         success: S.Struct({ ok: S.Boolean }),
         failure: S.Struct({ reason: S.String }),
-      })
-        .annotate(Contract.Title, "Example Title")
-        .annotate(Contract.Domain, "contract-tests")
-        .annotate(Contract.Method, "example.run")
-        .annotate(Contract.SupportsAbort, true);
+      }).withAnnotations(
+        [Contract.Title, "Example Title"],
+        [Contract.Domain, "contract-tests"],
+        [Contract.Method, "example.run"],
+        [Contract.SupportsAbort, true]
+      );
 
       expect(contract.id).toBe("@beep/contract/Contract/Example");
       expect(contract.failureMode).toBe(Contract.FailureMode.Enum.error);
@@ -199,6 +200,63 @@ describe("Contract runtime", () => {
     })
   );
 
+  effect("continuation runRaise pipes raiseResult and returns value", () =>
+    Effect.gen(function* () {
+      const contract = Contract.make("RunRaise", {
+        payload: {},
+        success: S.Struct({ ok: S.String }),
+        failure: S.Struct({ reason: S.String }),
+      });
+
+      const continuation = contract.continuation();
+
+      const successResult = yield* continuation.runRaise(() =>
+        Promise.resolve({ error: null, data: { ok: "fine" } } as const)
+      );
+
+      expect(successResult.data.ok).toBe("fine");
+
+      const dieExit = yield* Effect.exit(
+        continuation.runRaise(() => Promise.resolve({ error: new Error("boom") } as const))
+      );
+
+      const died = Exit.match(dieExit, {
+        onSuccess: () => false,
+        onFailure: (cause) => Cause.isDie(cause),
+      });
+
+      expect(died).toBe(true);
+    })
+  );
+
+  effect("continuation runVoid pipes raiseResult and discards output", () =>
+    Effect.gen(function* () {
+      const contract = Contract.make("RunVoid", {
+        payload: {},
+        success: S.Struct({ ok: S.String }),
+        failure: S.Struct({ reason: S.String }),
+      });
+
+      const continuation = contract.continuation();
+
+      const successExit = yield* Effect.exit(
+        continuation.runVoid(() => Promise.resolve({ error: null, data: { ok: "fine" } } as const))
+      );
+      expect(Exit.isSuccess(successExit)).toBe(true);
+
+      const failureExit = yield* Effect.exit(
+        continuation.runVoid(() => Promise.resolve({ error: new Error("void failure") } as const))
+      );
+
+      const died = Exit.match(failureExit, {
+        onSuccess: () => false,
+        onFailure: (cause) => Cause.isDie(cause),
+      });
+
+      expect(died).toBe(true);
+    })
+  );
+
   effect("lift wraps implementations and hooks", () =>
     Effect.gen(function* () {
       let successHook = false;
@@ -264,12 +322,13 @@ describe("Contract runtime", () => {
     })
   );
 
-  effect("uses default empty payload schema", () =>
+  effect("uses default void payload schema", () =>
     Effect.gen(function* () {
       const noPayloadContract = Contract.make("NoPayload");
       const payload = {};
       const decoded = yield* noPayloadContract.decodeUnknownPayload(payload);
-      expect(decoded).toEqual({});
+      const isVoid = S.is(S.Void)(decoded);
+      expect(isVoid).toBeTrue();
     })
   );
 

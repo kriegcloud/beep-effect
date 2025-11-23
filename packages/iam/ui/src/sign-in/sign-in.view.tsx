@@ -30,7 +30,7 @@ export const SignInView = () => {
       <FormDivider />
       <Stack spacing={2}>
         <SignInSocial signIn={async (provider) => signInSocial({ provider })} />
-        <SignInPasskey onSubmit={async () => signInPasskey({})} />
+        <SignInPasskey onSubmit={async () => signInPasskey()} />
       </Stack>
     </>
   );

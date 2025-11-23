@@ -19,6 +19,7 @@
  * @since 1.0.0
  */
 import type { UnsafeTypes } from "@beep/types";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -29,11 +30,10 @@ import * as AST from "effect/SchemaAST";
 import type { ContractError } from "../contract-error";
 import * as _internal from "../utils";
 import { TypeId } from "./constants";
-
 import { failureContinuation } from "./continuation";
 import type {
   Any,
-  AnyStructSchema,
+  AnySchema,
   AnyTaggedRequestSchema,
   Contract,
   FailureContinuationOptions,
@@ -77,12 +77,14 @@ const Proto = {
    * @param payloadSchema - Either a schema instance or struct fields describing
    *   the new payload shape.
    */
-  setPayload(this: Any, payloadSchema: S.Struct<UnsafeTypes.UnsafeAny> | S.Struct.Fields) {
+  setPayload(this: Any, payloadSchema: S.Struct<UnsafeTypes.UnsafeAny> | S.Schema.Any | S.Struct.Fields) {
     return userDefinedProto({
       ...this,
       payloadSchema: S.isSchema(payloadSchema)
-        ? (payloadSchema as UnsafeTypes.UnsafeAny)
-        : S.Struct(payloadSchema as UnsafeTypes.UnsafeAny),
+        ? (payloadSchema as any)
+        : payloadSchema
+          ? S.Struct(payloadSchema as any)
+          : S.Void,
     });
   },
   /**
@@ -117,6 +119,24 @@ const Proto = {
     return userDefinedProto({
       ...this,
       annotations: Context.add(this.annotations, tag, value),
+    });
+  },
+
+  /**
+   * Attaches multiple annotations to the contract.
+   *
+   * @param annotations - Array of annotation tags and values to populate.
+   */
+  withAnnotations<Annotations extends A.NonEmptyReadonlyArray<readonly [Context.Tag<any, any>, any]>>(
+    this: Any,
+    ...annotations: Annotations
+  ) {
+    return userDefinedProto({
+      ...this,
+      annotations: F.pipe(
+        annotations,
+        A.reduce(this.annotations as Context.Context<never>, (acc, [tag, value]) => Context.add(acc, tag, value))
+      ),
     });
   },
   /**
@@ -249,7 +269,7 @@ const Proto = {
 
 const userDefinedProto = <
   const Name extends string,
-  Payload extends AnyStructSchema,
+  Payload extends AnySchema,
   Success extends S.Schema.Any,
   Failure extends S.Schema.All,
   Mode extends FailureMode.Type,
@@ -303,7 +323,7 @@ const userDefinedProto = <
  */
 export const make = <
   const Name extends string,
-  Payload extends S.Struct.Fields = {},
+  Payload extends S.Schema.Any | S.Struct.Fields = typeof S.Void,
   Success extends S.Schema.Any = typeof S.Void,
   Failure extends S.Schema.All = typeof S.Never,
   Mode extends FailureMode.Type | undefined = undefined,
@@ -350,20 +370,32 @@ export const make = <
     | undefined
 ): Contract<
   Name,
-  {
-    readonly payload: S.Struct<Payload>;
-    readonly success: Success;
-    readonly failure: Failure;
-    readonly failureMode: Mode extends undefined ? typeof FailureMode.Enum.error : Mode;
-  },
+  Payload extends S.Struct.Fields
+    ? {
+        readonly payload: S.Struct<Payload>;
+        readonly success: Success;
+        readonly failure: Failure;
+        readonly failureMode: Mode extends undefined ? typeof FailureMode.Enum.error : Mode;
+      }
+    : {
+        readonly payload: Payload;
+        readonly success: Success;
+        readonly failure: Failure;
+        readonly failureMode: Mode extends undefined ? typeof FailureMode.Enum.error : Mode;
+      },
   Context.Tag.Identifier<Dependencies[number]>
 > => {
   const successSchema = options?.success ?? S.Void;
   const failureSchema = options?.failure ?? S.Never;
+  const payloadSchema = S.isSchema(options?.payload)
+    ? (options?.payload as any)
+    : options?.payload
+      ? S.Struct(options?.payload as any)
+      : S.Void;
   return userDefinedProto({
     name,
     description: options?.description,
-    payloadSchema: options?.payload ? S.Struct(options?.payload as UnsafeTypes.UnsafeAny) : _internal.constEmptyStruct,
+    payloadSchema,
     successSchema,
     failureSchema,
     failureMode: options?.failureMode ?? FailureMode.Enum.error,

@@ -15,7 +15,7 @@ class IamClient extends AtomHttpApi.Tag<IamClient>()("IamClient", {
 }) {}
 export const sessionRuntime = makeAtomRuntime(SessionService.Live);
 
-export const getSessionAtom = sessionRuntime.atom(SessionService.GetSession({})).pipe(Atom.withReactivity(["session"]));
+export const getSessionAtom = sessionRuntime.atom(SessionService.GetSession()).pipe(Atom.withReactivity(["session"]));
 
 export const useGetSession = () => {
   const sessionResult = useAtomValue(getSessionAtom);

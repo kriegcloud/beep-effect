@@ -1,4 +1,5 @@
-import type { PasskeyView } from "@beep/iam-sdk";
+import type { Contract } from "@beep/contract";
+import type { PasskeyDTO } from "@beep/iam-sdk";
 import { atomPromise, withReactivityKeys } from "@beep/iam-sdk/clients/_internal";
 import type {
   PasskeyAddContract,
@@ -7,6 +8,7 @@ import type {
 } from "@beep/iam-sdk/clients/passkey/passkey.contracts";
 import { PasskeyService } from "@beep/iam-sdk/clients/passkey/passkey.service";
 import { makeAtomRuntime } from "@beep/runtime-client/services/runtime/make-atom-runtime";
+import { IamEntityIds } from "@beep/shared-domain";
 import { withToast } from "@beep/ui/common";
 import { Atom, Registry, Result, useAtomSet, useAtomValue } from "@effect-atom/atom-react";
 import * as A from "effect/Array";
@@ -14,7 +16,7 @@ import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 
 const passkeyRuntime = makeAtomRuntime(PasskeyService.Live);
-type ActionPayload = { readonly passkey: PasskeyView };
+type ActionPayload = { readonly passkey: PasskeyDTO };
 
 type Action = Data.TaggedEnum<{
   Update: ActionPayload;
@@ -24,7 +26,7 @@ type Action = Data.TaggedEnum<{
 
 const Action = Data.taggedEnum<Action>();
 
-const remoteAtom = passkeyRuntime.atom(PasskeyService.listUserPasskeys({})).pipe(Atom.withReactivity(["passkeys"]));
+const remoteAtom = passkeyRuntime.atom(PasskeyService.listUserPasskeys()).pipe(Atom.withReactivity(["passkeys"]));
 
 export const passkeysAtom = Object.assign(
   Atom.writable(
@@ -107,13 +109,19 @@ export const addPasskeyAtom = passkeyRuntime.fn(
   withReactivityKeys("passkeys")
 );
 
-export const editingPasskeyAtom = Atom.make<PasskeyView | undefined>(undefined);
+export const editingPasskeyAtom = Atom.make<PasskeyDTO | undefined>(undefined);
 
 export const usePasskeyCRUD = () => {
   const passkeysResult = useAtomValue(passkeysAtom);
-  const addPasskey = useAtomSet(addPasskeyAtom, atomPromise);
+  const _addPasskey = useAtomSet(addPasskeyAtom, atomPromise);
   const deletePasskey = useAtomSet(removePasskeyAtom);
   const updatePasskey = useAtomSet(updatePasskeyAtom, atomPromise);
+
+  const addPasskey = async (payload: Pick<Contract.Payload<typeof PasskeyAddContract>, "name">) =>
+    _addPasskey({
+      ...payload,
+      id: IamEntityIds.PasskeyId.create(),
+    });
 
   return {
     passkeysResult,
