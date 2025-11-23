@@ -5,12 +5,6 @@
 import * as S from "effect/Schema";
 
 /**
- * An empty struct schema reused anywhere a contract helper needs to express
- * “no configurable options” without allocating a new schema instance.
- */
-export const constEmptyStruct = S.Struct({});
-
-/**
  * Casts a schema to one whose context requirement is `never`. Many contract
  * helpers surface schemas to consumers who should not be forced to provide the
  * context parameter, so this helper centralizes the unsafe cast.

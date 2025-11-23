@@ -32,6 +32,9 @@
         {
       "path": "packages/common/identity/tsconfig.build.json"
     },
+            {
+      "path": "packages/common/markdown/tsconfig.build.json"
+    },
     {
       "path": "packages/common/errors/tsconfig.build.json"
     },

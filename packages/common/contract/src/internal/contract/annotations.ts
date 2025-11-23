@@ -12,12 +12,18 @@ export class ContextAnnotationTag extends BS.StringLiteralKit(
   "@beep/contract/Contract/Domain",
   "@beep/contract/Contract/Method",
   "@beep/contract/Contract/SupportsAbort",
+  "@beep/contract/Contract/Visibility",
+  "@beep/contract/Contract/RateLimitKey",
+  "@beep/contract/Contract/Audience",
   {
     enumMapping: [
       ["@beep/contract/Contract/SupportsAbort", "SupportsAbort"],
       ["@beep/contract/Contract/Title", "Title"],
       ["@beep/contract/Contract/Domain", "Domain"],
       ["@beep/contract/Contract/Method", "Method"],
+      ["@beep/contract/Contract/Visibility", "Visibility"],
+      ["@beep/contract/Contract/RateLimitKey", "RateLimitKey"],
+      ["@beep/contract/Contract/Audience", "Audience"],
     ],
   }
 ).annotations({
@@ -103,3 +109,51 @@ export class Method extends Context.Tag(ContextAnnotationTag.Enum.Method)<Method
 export type ContractAnnotationTag = Title | Method | Domain | SupportsAbort;
 
 export type ContractAnnotationCtx = Context.Context<ContractAnnotationTag>;
+
+/**
+ * Annotation indicating the visibility of the contract. This can be used to
+ * control access to the contract, such as restricting it to certain domains or
+ * bounding contexts.
+ *
+ * @example
+ * ```ts
+ * const InviteUser = Contract.make("InviteUser", { ... })
+ *   .annotate(Contract.Visibility, "private");
+ * ```
+ *
+ * @since 1.0.0
+ * @category Annotations
+ */
+export class Visibility extends Context.Tag(ContextAnnotationTag.Enum.Visibility)<Visibility, string>() {}
+
+/**
+ * Annotation indicating the rate limit key for the contract. This can be used
+ * to control the rate limiting of the contract, such as restricting it to
+ * certain domains or bounding contexts.
+ *
+ * @example
+ * ```ts
+ * const InviteUser = Contract.make("InviteUser", { ... })
+ *   .annotate(Contract.RateLimitKey, "invitations.invite");
+ * ```
+ *
+ * @since 1.0.0
+ * @category Annotations
+ */
+export class RateLimitKey extends Context.Tag(ContextAnnotationTag.Enum.RateLimitKey)<RateLimitKey, string>() {}
+
+/**
+ * Annotation indicating the audience for the contract. This can be used to
+ * control access to the contract, such as restricting it to certain domains or
+ * bounding contexts.
+ *
+ * @example
+ * ```ts
+ * const InviteUser = Contract.make("InviteUser", { ... })
+ *   .annotate(Contract.Audience, "internal");
+ * ```
+ *
+ * @since 1.0.0
+ * @category Annotations
+ */
+export class Audience extends Context.Tag(ContextAnnotationTag.Enum.Audience)<Audience, string>() {}

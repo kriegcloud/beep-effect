@@ -1,0 +1,23 @@
+{
+  "extends": "../../../tsconfig.base.jsonc",
+  "include": ["src"],
+  "references": [
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../invariant/tsconfig.build.json" }
+  ],
+  "compilerOptions": {
+    "types": ["bun", "node"],
+    "outDir": "build/src",
+
+    "rootDir": "src",
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "rewriteRelativeImportExtensions": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "isolatedDeclarations": false,
+    "skipDefaultLibCheck": true
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "../../../node_modules/@effect/docgen/schema.json",
+  "srcDir": "src",
+  "outDir": "docs",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/identity/src/",
+  "exclude": [],
+  "parseCompilerOptions": {
+    "baseUrl": ".",
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "Bundler",
+    "module": "ESNext",
+    "target": "ES2023",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "paths": {
+      "@beep/identity": ["./src/index.ts"],
+      "@beep/identity/*": ["./src/*"],
+      "@beep/types": ["../types/src/index.ts"],
+      "@beep/types/*": ["../types/src/*"]
+    }
+  },
+  "examplesCompilerOptions": {
+    "baseUrl": ".",
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "Bundler",
+    "module": "ESNext",
+    "target": "ES2023",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "paths": {
+      "@beep/markdown": ["./src/index.ts"],
+      "@beep/markdown/*": ["./src/*"],
+      "@beep/types": ["../types/src/index.ts"],
+      "@beep/types/*": ["../types/src/*"]
+    }
+  }
+}

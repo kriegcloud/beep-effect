@@ -490,6 +490,16 @@
         "effect": "catalog:",
       },
     },
+    "packages/common/markdown": {
+      "name": "@beep/markdown",
+      "version": "0.0.0",
+      "devDependencies": {
+        "effect": "catalog:",
+      },
+      "peerDependencies": {
+        "effect": "catalog:",
+      },
+    },
     "packages/common/mock": {
       "name": "@beep/mock",
       "version": "0.0.0",
@@ -3133,6 +3143,8 @@
     "@beep/integrations-core": ["@beep/integrations-core@workspace:packages/integrations/core"],
 
     "@beep/invariant": ["@beep/invariant@workspace:packages/common/invariant"],
+
+    "@beep/markdown": ["@beep/markdown@workspace:packages/common/markdown"],
 
     "@beep/mcp": ["@beep/mcp@workspace:apps/mcp"],
 

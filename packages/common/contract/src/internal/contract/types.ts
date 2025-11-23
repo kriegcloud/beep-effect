@@ -442,7 +442,14 @@ export interface Contract<
    */
   continuation<Failure = ContractError.UnknownError, Extra extends Record<string, unknown> = Record<string, unknown>>(
     options?: FailureContinuationOptions<Contract<Name, Config, Requirements>, Failure, Extra>
-  ): FailureContinuation<Failure, Extra>;
+  ): FailureContinuation<Contract<Name, Config, Requirements>, Failure, Extra>;
+
+  /**
+   * Projects an implementation result into a discriminated union using the configured failure mode.
+   */
+  toResult(
+    input: FailureMode.MatchInput<Contract<Name, Config, Requirements>>
+  ): Contract.ToResult<Contract<Name, Config, Requirements>>;
 }
 
 /**
@@ -551,6 +558,19 @@ export declare namespace Contract {
   export interface ProviderDefinedProto {
     readonly [ProviderDefinedTypeId]: ProviderDefinedTypeId;
   }
+
+  /**
+   * Discriminated result type produced by {@link Contract.toResult}.
+   */
+  export type ToResult<C extends Any> =
+    | {
+        readonly _tag: "success";
+        readonly value: Success<C>;
+      }
+    | {
+        readonly _tag: "failure";
+        readonly value: Failure<C>;
+      };
 }
 
 // =============================================================================
@@ -925,7 +945,7 @@ export type ImplementationHandler<C extends Any> = (
   payload: Payload<C>,
   opts: {
     readonly context: ImplementationContext<C>;
-    readonly continuation: FailureContinuation;
+    readonly continuation: FailureContinuation<C>;
   }
 ) => Effect.Effect<Success<C>, Failure<C>, Requirements<C>>;
 
@@ -954,6 +974,15 @@ export interface ImplementOptions<C extends Any> {
   readonly onFailure?:
     | undefined
     | ((failure: Failure<C>, context: ImplementationContext<C>) => Effect.Effect<void, never, never>);
+  readonly span?:
+    | undefined
+    | {
+        readonly useMetadataName?: boolean | undefined;
+        readonly includeMetadataExtra?: boolean | undefined;
+      };
+  readonly continuation?:
+    | FailureContinuationOptions<C, ContractError.UnknownError, Record<string, unknown>>
+    | undefined;
 }
 
 /**
@@ -1039,6 +1068,12 @@ export interface FailureContinuationOptions<
 > {
   readonly supportsAbort?: boolean | undefined;
   readonly normalizeError?: ((error: unknown, context: FailureContinuationContext<C, Extra>) => Failure) | undefined;
+  readonly decodeFailure?:
+    | {
+        readonly select?: ((error: unknown, context: FailureContinuationContext<C, Extra>) => unknown) | undefined;
+        readonly parseOptions?: AST.ParseOptions | undefined;
+      }
+    | undefined;
   readonly metadata?: MetadataOptions<Extra> | undefined;
 }
 
@@ -1050,6 +1085,7 @@ export interface FailureContinuationOptions<
  * @since 1.0.0
  */
 export interface FailureContinuation<
+  C extends Any,
   Failure = ContractError.UnknownError,
   Extra extends Record<string, unknown> = Record<string, unknown>,
 > {
@@ -1058,6 +1094,10 @@ export interface FailureContinuation<
   readonly runRaise: <A extends { readonly error: unknown | null | undefined }>(
     register: (handlers: FailureContinuationHandlers) => Promise<A>
   ) => Effect.Effect<A, never, never>;
+  readonly runDecode: <R extends { readonly error: unknown | null | undefined }>(
+    register: (handlers: FailureContinuationHandlers) => Promise<R>,
+    options?: FailureContinuation.RunDecodeOptions
+  ) => Effect.Effect<Success<C>, C["failureSchema"]["Type"], never>;
   readonly runVoid: <A extends { readonly error: unknown | null | undefined }>(
     register: (handlers: FailureContinuationHandlers) => Promise<A>
   ) => Effect.Effect<void, never, never>;
@@ -1065,6 +1105,11 @@ export interface FailureContinuation<
 }
 
 export declare namespace FailureContinuation {
+  export interface RunDecodeOptions {
+    readonly decodeFrom?: "data" | "result";
+    readonly parseOptions?: AST.ParseOptions | undefined;
+  }
+
   /**
    * Options for `FailureContinuation.run`. Setting `surfaceDefect` returns an
    * `Either` so callers can inspect transport errors without throwing defects.

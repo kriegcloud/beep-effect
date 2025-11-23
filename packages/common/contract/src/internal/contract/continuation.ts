@@ -9,7 +9,9 @@ import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import { ContractError } from "../contract-error";
+import * as _internal from "../utils";
 import { Domain, Method, SupportsAbort, Title } from "./annotations";
 import type {
   Any,
@@ -104,7 +106,7 @@ export function failureContinuation<
   const C extends Any,
   Failure = ContractError.UnknownError,
   Extra extends Record<string, unknown> = Record<string, unknown>,
->(contract: C, options?: FailureContinuationOptions<C, Failure, Extra>): FailureContinuation<Failure, Extra> {
+>(contract: C, options?: FailureContinuationOptions<C, Failure, Extra>): FailureContinuation<C, Failure, Extra> {
   const computedMetadata = metadata(contract, options?.metadata);
   const context: FailureContinuationContext<C, Extra> = {
     contract,
@@ -129,7 +131,22 @@ export function failureContinuation<
       ctx: FailureContinuationContext<C, Extra>
     ) => Failure);
 
-  const toFailure = (error: unknown): Failure => normalizeError(error, context);
+  const decodeFailureConfig = options?.decodeFailure;
+  const decodeFailure = decodeFailureConfig
+    ? S.decodeUnknownSync(_internal.toSchemaAnyNoContext(contract.failureSchema), decodeFailureConfig.parseOptions)
+    : undefined;
+
+  const toFailure = (error: unknown): Failure => {
+    if (decodeFailure) {
+      try {
+        const candidate = decodeFailureConfig?.select ? decodeFailureConfig.select(error, context) : error;
+        return decodeFailure(candidate) as Failure;
+      } catch {
+        // fall through to normalization when decoding is unavailable or fails
+      }
+    }
+    return normalizeError(error, context);
+  };
 
   const runImpl = <A>(
     register: (handlers: FailureContinuationHandlers) => Promise<A>,
@@ -191,22 +208,37 @@ export function failureContinuation<
   };
   const run = runImpl as FailureContinuation.Runner<Failure>;
 
-  const raiseResult: FailureContinuation<Failure, Extra>["raiseResult"] = (result) =>
+  const raiseResult: FailureContinuation<C, Failure, Extra>["raiseResult"] = (result) =>
     Bool.match(P.isNullable(result.error), {
       onTrue: () => Effect.void,
       onFalse: () => Effect.die(toFailure(result.error)),
     });
 
-  const runRaise: FailureContinuation<Failure, Extra>["runRaise"] = (register) =>
+  const runRaise: FailureContinuation<C, Failure, Extra>["runRaise"] = (register) =>
     run(register).pipe(Effect.tap(raiseResult));
 
-  const runVoid: FailureContinuation<Failure, Extra>["runVoid"] = (register) =>
+  const runDecode: FailureContinuation<C, Failure, Extra>["runDecode"] = (register, decodeOptions) => {
+    const decodeFrom = decodeOptions?.decodeFrom ?? "data";
+    const decodeSuccess = S.decodeUnknownSync(
+      _internal.toSchemaAnyNoContext(contract.successSchema),
+      decodeOptions?.parseOptions
+    );
+    return run(register).pipe(
+      Effect.tap(raiseResult),
+      Effect.map((result) =>
+        decodeSuccess(decodeFrom === "result" ? result : (result as { readonly data?: unknown }).data)
+      )
+    );
+  };
+
+  const runVoid: FailureContinuation<C, Failure, Extra>["runVoid"] = (register) =>
     run(register).pipe(Effect.tap(raiseResult), Effect.asVoid);
 
   return {
     metadata: computedMetadata,
     run,
     runRaise,
+    runDecode,
     runVoid,
     raiseResult,
   };

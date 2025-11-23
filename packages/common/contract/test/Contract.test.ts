@@ -6,7 +6,9 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
 import * as Exit from "effect/Exit";
+import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
+import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 
 describe("Contract runtime", () => {
@@ -254,6 +256,168 @@ describe("Contract runtime", () => {
       });
 
       expect(died).toBe(true);
+    })
+  );
+
+  effect("implement can set span name from metadata and attach extras", () =>
+    Effect.gen(function* () {
+      const spanRef = yield* Ref.make(
+        O.none<{ readonly name: string; readonly attributes: HashMap.HashMap<string, unknown> }>()
+      );
+
+      const contract = Contract.make("Telemetry", {
+        payload: {},
+        success: S.Void,
+        failure: S.Struct({ reason: S.String }),
+      })
+        .annotate(Contract.Domain, "auth")
+        .annotate(Contract.Method, "signIn");
+
+      const implementation = contract.implement(
+        () =>
+          Effect.gen(function* () {
+            const spanOpt = yield* Effect.option(Effect.currentSpan);
+            if (O.isSome(spanOpt)) {
+              yield* Ref.set(
+                spanRef,
+                O.some({
+                  name: spanOpt.value.name,
+                  attributes: HashMap.fromIterable(spanOpt.value.attributes),
+                })
+              );
+            }
+            return undefined;
+          }),
+        {
+          span: { useMetadataName: true, includeMetadataExtra: true },
+          continuation: { metadata: { extra: { attempt: 3 } } },
+        }
+      );
+
+      yield* implementation({});
+
+      const spanInfoOpt = yield* Ref.get(spanRef);
+      expect(O.isSome(spanInfoOpt)).toBe(true);
+      const spanInfo = O.getOrElse(() => {
+        throw new Error("missing span info");
+      })(spanInfoOpt);
+      expect(spanInfo.name).toBe("auth.signIn");
+      expect(O.getOrUndefined(HashMap.get(spanInfo.attributes, "contract"))).toBe(contract.name);
+      expect(O.getOrUndefined(HashMap.get(spanInfo.attributes, "failureMode"))).toBe(contract.failureMode);
+      expect(O.getOrUndefined(HashMap.get(spanInfo.attributes, "metadataExtra"))).toEqual({ attempt: 3 });
+    })
+  );
+
+  effect("continuation runDecode decodes data by default and supports decodeFrom result", () =>
+    Effect.gen(function* () {
+      const contract = Contract.make("RunDecode", {
+        payload: {},
+        success: S.Struct({ ok: S.String }),
+        failure: S.Struct({ reason: S.String }),
+      });
+
+      const continuation = contract.continuation();
+
+      const decodedFromData = (yield* continuation.runDecode(() =>
+        Promise.resolve({ error: null, data: { ok: "fine" } } as const)
+      )) as { ok: string };
+
+      expect(decodedFromData.ok).toBe("fine");
+
+      const decodedFromResult = (yield* continuation.runDecode(
+        () => Promise.resolve({ error: null, ok: "inline" } as const),
+        { decodeFrom: "result" }
+      )) as { ok: string };
+
+      expect(decodedFromResult.ok).toBe("inline");
+
+      const dieExit = yield* Effect.exit(
+        continuation.runDecode(() => Promise.resolve({ error: new Error("decode failure") } as const))
+      );
+
+      const died = Exit.match(dieExit, {
+        onSuccess: () => false,
+        onFailure: (cause) => Cause.isDie(cause),
+      });
+
+      expect(died).toBe(true);
+    })
+  );
+
+  effect("toResult projects outcomes using failure mode", () =>
+    Effect.gen(function* () {
+      const returnContract = Contract.make("ToResultReturn", {
+        payload: {},
+        success: S.Struct({ ok: S.Boolean }),
+        failure: S.Struct({ issue: S.String }),
+        failureMode: "return",
+      });
+
+      const failureProjection = returnContract.toResult({
+        isFailure: true,
+        result: { issue: "nope" },
+        encodedResult: { issue: "nope" },
+      });
+
+      if (failureProjection._tag === "failure") {
+        expect(failureProjection.value.issue).toBe("nope");
+      } else {
+        throw new Error("expected failure projection");
+      }
+
+      const errorContract = Contract.make("ToResultError", {
+        payload: {},
+        success: S.Struct({ ok: S.Number }),
+        failure: S.Struct({ issue: S.String }),
+      });
+
+      const successProjection = errorContract.toResult({
+        isFailure: false,
+        result: { ok: 1 },
+        encodedResult: { ok: 1 },
+      });
+
+      if (successProjection._tag === "success") {
+        expect(successProjection.value.ok).toBe(1);
+      } else {
+        throw new Error("expected success projection");
+      }
+    })
+  );
+
+  effect("continuation decodes transport failures when configured", () =>
+    Effect.gen(function* () {
+      const contract = Contract.make("DecodeFailure", {
+        payload: {},
+        success: S.Struct({ ok: S.Boolean }),
+        failure: S.Struct({ code: S.Number, message: S.String }),
+      });
+
+      const continuation = contract.continuation({
+        decodeFailure: {
+          select: (error) => (error as { readonly payload?: unknown }).payload,
+        },
+      });
+
+      const decodedFailureExit = yield* Effect.exit(
+        continuation.run(() => Promise.reject({ payload: { code: 500, message: "fail" } }))
+      );
+
+      const decodedFailure = Exit.match(decodedFailureExit, {
+        onSuccess: () => O.none(),
+        onFailure: (cause) => Cause.dieOption(cause),
+      });
+
+      expect(O.getOrUndefined(decodedFailure)).toEqual({ code: 500, message: "fail" });
+
+      const fallbackExit = yield* Effect.exit(continuation.run(() => Promise.reject(new Error("no decode"))));
+
+      const fallbackDie = Exit.match(fallbackExit, {
+        onSuccess: () => O.none(),
+        onFailure: (cause) => Cause.dieOption(cause),
+      });
+
+      expect(O.getOrUndefined(fallbackDie)).toBeInstanceOf(ContractError.UnknownError);
     })
   );
 

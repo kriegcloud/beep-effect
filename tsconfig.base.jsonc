@@ -130,6 +130,15 @@
       "@beep/identity/test/*": [
         "./packages/common/identity/test/*"
       ],
+      "@beep/markdown": [
+        "./packages/common/markdown/src/index"
+      ],
+      "@beep/markdown/*": [
+        "./packages/common/markdown/src/*"
+      ],
+      "@beep/markdown/test/*": [
+        "./packages/common/markdown/test/*"
+      ],
       "@beep/errors/client": [
         "./packages/common/errors/src/client"
       ],

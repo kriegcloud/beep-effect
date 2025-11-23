@@ -36,15 +36,6 @@ export class PasskeyAddPayload extends S.Class<PasskeyAddPayload>("PasskeyAddPay
   );
 }
 
-export const PasskeyFormSchema = PasskeyAddPayload.pipe(S.pick("name")).annotations(
-  $PasskeyId.annotations("PasskeyAddFormPayload", {
-    description: "Options for registering a new passkey credential.",
-    [BS.DefaultFormValuesAnnotationId]: {
-      name: "",
-    },
-  })
-);
-
 export declare namespace PasskeyAddPayload {
   export type Type = S.Schema.Type<typeof PasskeyAddPayload>;
   export type Encoded = S.Schema.Encoded<typeof PasskeyAddPayload>;

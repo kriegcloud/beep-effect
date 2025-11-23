@@ -7,53 +7,34 @@ import {
   PasskeyRemoveContract,
   PasskeyUpdateContract,
 } from "@beep/iam-sdk/clients/passkey/passkey.contracts";
-import * as Effect from "effect/Effect";
 
-const PasskeyListHandler = PasskeyListContract.implement(
-  Effect.fn(function* (_, { continuation }) {
-    const result = yield* continuation.run((handlers) =>
-      client.passkey.listUserPasskeys(undefined, withFetchOptions(handlers))
-    );
-    yield* continuation.raiseResult(result);
-
-    return yield* PasskeyListContract.decodeUnknownSuccess(result.data);
-  })
+const PasskeyListHandler = PasskeyListContract.implement((_, { continuation }) =>
+  continuation.runDecode((handlers) => client.passkey.listUserPasskeys(undefined, withFetchOptions(handlers)))
 );
 
-const PasskeyRemoveHandler = PasskeyRemoveContract.implement(
-  Effect.fn(function* (payload, { continuation }) {
-    const result = yield* continuation.run((handlers) =>
-      client.passkey.deletePasskey(
-        addFetchOptions(handlers, {
-          id: payload.passkey.id,
-        })
-      )
-    );
-    yield* continuation.raiseResult(result);
-
-    return yield* PasskeyRemoveContract.decodeSuccess(result.data);
-  })
+const PasskeyRemoveHandler = PasskeyRemoveContract.implement((payload, { continuation }) =>
+  continuation.runDecode((handlers) =>
+    client.passkey.deletePasskey(
+      addFetchOptions(handlers, {
+        id: payload.passkey.id,
+      })
+    )
+  )
 );
 
-const PasskeyUpdateHandler = PasskeyUpdateContract.implement(
-  Effect.fn(function* (payload, { continuation }) {
-    const result = yield* continuation.run((handlers) =>
-      client.passkey.updatePasskey(
-        addFetchOptions(handlers, {
-          id: payload.passkey.id,
-          name: payload.passkey.name,
-        })
-      )
-    );
-
-    yield* continuation.raiseResult(result);
-
-    return yield* PasskeyUpdateContract.decodeUnknownSuccess(result.data);
-  })
+const PasskeyUpdateHandler = PasskeyUpdateContract.implement((payload, { continuation }) =>
+  continuation.runDecode((handlers) =>
+    client.passkey.updatePasskey(
+      addFetchOptions(handlers, {
+        id: payload.passkey.id,
+        name: payload.passkey.name,
+      })
+    )
+  )
 );
 
 const PasskeyAddHandler = PasskeyAddContract.implement((payload, { continuation }) =>
-  continuation.run((handlers) =>
+  continuation.runVoid((handlers) =>
     client.passkey.addPasskey(
       addFetchOptions(handlers, {
         name: payload.name ?? undefined,

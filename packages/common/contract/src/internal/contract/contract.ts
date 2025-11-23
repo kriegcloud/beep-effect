@@ -81,9 +81,9 @@ const Proto = {
     return userDefinedProto({
       ...this,
       payloadSchema: S.isSchema(payloadSchema)
-        ? (payloadSchema as any)
+        ? (payloadSchema as UnsafeTypes.UnsafeAny)
         : payloadSchema
-          ? S.Struct(payloadSchema as any)
+          ? S.Struct(payloadSchema as UnsafeTypes.UnsafeAny)
           : S.Void,
     });
   },
@@ -127,10 +127,11 @@ const Proto = {
    *
    * @param annotations - Array of annotation tags and values to populate.
    */
-  withAnnotations<Annotations extends A.NonEmptyReadonlyArray<readonly [Context.Tag<any, any>, any]>>(
-    this: Any,
-    ...annotations: Annotations
-  ) {
+  withAnnotations<
+    Annotations extends A.NonEmptyReadonlyArray<
+      readonly [Context.Tag<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>, UnsafeTypes.UnsafeAny]
+    >,
+  >(this: Any, ...annotations: Annotations) {
     return userDefinedProto({
       ...this,
       annotations: F.pipe(
@@ -149,6 +150,15 @@ const Proto = {
       ...this,
       annotations: Context.merge(this.annotations, context),
     });
+  },
+  /**
+   * Projects an implementation result into a discriminated union using the configured failure mode.
+   */
+  toResult(this: Any, input: FailureMode.MatchInput<Any>) {
+    const outcome = FailureMode.matchOutcome(this, input);
+    return outcome._tag === "failure"
+      ? ({ _tag: "failure", value: outcome.result } as const)
+      : ({ _tag: "success", value: outcome.result } as const);
   },
   /**
    * Creates a continuation helper for this contract. Continuations centralize
@@ -388,9 +398,9 @@ export const make = <
   const successSchema = options?.success ?? S.Void;
   const failureSchema = options?.failure ?? S.Never;
   const payloadSchema = S.isSchema(options?.payload)
-    ? (options?.payload as any)
+    ? (options?.payload as UnsafeTypes.UnsafeAny)
     : options?.payload
-      ? S.Struct(options?.payload as any)
+      ? S.Struct(options?.payload as UnsafeTypes.UnsafeAny)
       : S.Void;
   return userDefinedProto({
     name,
@@ -463,14 +473,36 @@ export const implement =
     const onSuccessOpt = O.fromNullable(options.onSuccess);
     const onFailureOpt = O.fromNullable(options.onFailure);
 
-    const continuation = failureContinuation(contract);
+    const continuation = failureContinuation(contract, options.continuation);
+    const spanOptions = O.fromNullable(options.span);
+    const includeMetadataExtra = O.exists(spanOptions, (span) => span.includeMetadataExtra === true);
+    const spanAttributes: Record<string, unknown> = {
+      contract: contract.name,
+      failureMode: contract.failureMode,
+      ...(includeMetadataExtra && continuation.metadata.extra !== undefined
+        ? { metadataExtra: continuation.metadata.extra }
+        : {}),
+    };
+    const spanNameFromMetadata = F.pipe(
+      spanOptions,
+      O.flatMap((span) =>
+        span.useMetadataName === true
+          ? F.pipe(
+              O.fromNullable(continuation.metadata.domain),
+              O.flatMap((domain) =>
+                F.pipe(
+                  O.fromNullable(continuation.metadata.method),
+                  O.map((method) => `${domain}.${method}`)
+                )
+              )
+            )
+          : O.none()
+      )
+    );
 
     return Effect.fn(`${contract.name}.implementation`, { captureStackTrace: false })(
       function* (payload: Payload<C>) {
-        yield* Effect.annotateCurrentSpan({
-          contract: contract.name,
-          failureMode: contract.failureMode,
-        });
+        yield* Effect.annotateCurrentSpan(spanAttributes);
         let effect = handler(payload, {
           context,
           continuation,
@@ -482,6 +514,15 @@ export const implement =
         if (O.isSome(onFailureOpt)) {
           const onFailure = onFailureOpt.value;
           effect = Effect.tapError(effect, (failure) => onFailure(failure, context));
+        }
+        if (O.isSome(spanNameFromMetadata)) {
+          effect = Effect.withSpan(effect, spanNameFromMetadata.value, {
+            attributes: spanAttributes,
+          });
+        } else if (includeMetadataExtra && continuation.metadata.extra !== undefined) {
+          effect = Effect.withSpan(effect, contract.name, {
+            attributes: spanAttributes,
+          });
         }
         return yield* effect;
       },

@@ -1,0 +1,58 @@
+{
+  "name": "@beep/markdown",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/identity",
+  "description": "A markdown compiler for parsing markdown written in effect",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "directory": "dist",
+    "linkDirectory": false
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/common/markdown"
+  },
+  "scripts": {
+    "codegen": "build-utils prepare-v3",
+    "build": "bun run build-esm && bun run build-annotate && bun run build-cjs && build-utils pack-v3",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "dev": "tsc -b tsconfig.build.json --watch",
+    "check": "tsc -b tsconfig.json",
+    "test": "bun test",
+    "coverage": "bun test --coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "lint:circular": "bunx madge -c .",
+    "execute": "bunx tsx --tsconfig ./tsconfig.src.json ./src/execute.ts",
+    "docgen": "bunx docgen"
+  },
+  "peerDependencies": {
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "effect": "catalog:"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}
