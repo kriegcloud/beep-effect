@@ -7,6 +7,8 @@ import {
   PasskeyRemoveContract,
   PasskeyUpdateContract,
 } from "@beep/iam-sdk/clients/passkey/passkey.contracts";
+import { IamError } from "@beep/iam-sdk/errors";
+import * as Effect from "effect/Effect";
 
 const PasskeyListHandler = PasskeyListContract.implement((_, { continuation }) =>
   continuation.runDecode((handlers) => client.passkey.listUserPasskeys(undefined, withFetchOptions(handlers)))
@@ -33,16 +35,23 @@ const PasskeyUpdateHandler = PasskeyUpdateContract.implement((payload, { continu
   )
 );
 
-const PasskeyAddHandler = PasskeyAddContract.implement((payload, { continuation }) =>
-  continuation.runVoid((handlers) =>
-    client.passkey.addPasskey(
-      addFetchOptions(handlers, {
-        name: payload.name ?? undefined,
-        authenticatorAttachment: payload.authenticatorAttachment ?? undefined,
-        useAutoRegister: payload.useAutoRegister ?? undefined,
-      })
-    )
-  )
+const PasskeyAddHandler = PasskeyAddContract.implement(
+  Effect.fn(function* (payload, { continuation }) {
+    yield* Effect.log("PasskeyAddHandler payload: ", payload);
+    const result = yield* continuation.run((handlers) =>
+      client.passkey.addPasskey(
+        addFetchOptions(handlers, {
+          name: payload.name ?? undefined,
+          authenticatorAttachment: payload.authenticatorAttachment ?? undefined,
+          useAutoRegister: payload.useAutoRegister ?? undefined,
+        })
+      )
+    );
+    if (result.error) {
+      return yield* IamError.match(result.error);
+    }
+    yield* Effect.log("PasskeyAddHandler result: ", result);
+  })
 );
 
 export const passkeyLayer = PasskeyContractKit.toLayer({

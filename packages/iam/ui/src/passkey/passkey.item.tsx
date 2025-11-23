@@ -20,14 +20,20 @@ export const PasskeyItem = ({ passkey, onUpdate, onDelete }: Props) => {
           <IconButton
             sx={{ borderRadius: "50%", height: "36px", width: "36px" }}
             component={ListItemIcon}
-            onClick={() => onUpdate(passkey)}
+            onClick={(event) => {
+              event.currentTarget.blur();
+              onUpdate(passkey);
+            }}
           >
             <Iconify icon={"material-symbols:edit"} />
           </IconButton>
           <IconButton
             sx={{ borderRadius: "50%", height: "36px", width: "36px" }}
             component={ListItemIcon}
-            onClick={async () => onDelete(passkey)}
+            onClick={async (event) => {
+              event.currentTarget.blur();
+              await onDelete(passkey);
+            }}
           >
             <Iconify icon={"solar:trash-bin-trash-bold"} />
           </IconButton>

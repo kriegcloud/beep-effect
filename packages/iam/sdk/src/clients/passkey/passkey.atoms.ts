@@ -105,7 +105,13 @@ export const addPasskeyAtom = passkeyRuntime.fn(
           passkey: payload,
         })
       );
-    }),
+    }).pipe(
+      withToast({
+        onWaiting: "Adding passkey",
+        onSuccess: "Passkey added successfully",
+        onFailure: (e) => e.message,
+      })
+    ),
   withReactivityKeys("passkeys")
 );
 
@@ -117,11 +123,12 @@ export const usePasskeyCRUD = () => {
   const deletePasskey = useAtomSet(removePasskeyAtom);
   const updatePasskey = useAtomSet(updatePasskeyAtom, atomPromise);
 
-  const addPasskey = async (payload: Pick<Contract.Payload<typeof PasskeyAddContract>, "name">) =>
-    _addPasskey({
+  const addPasskey = async (payload: Pick<Contract.Payload<typeof PasskeyAddContract>, "name">) => {
+    await _addPasskey({
       ...payload,
       id: IamEntityIds.PasskeyId.create(),
     });
+  };
 
   return {
     passkeysResult,

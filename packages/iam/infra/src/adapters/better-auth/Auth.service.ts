@@ -87,7 +87,6 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
       },
       expiresIn: Duration.days(30).pipe(Duration.toSeconds),
       updateAge: Duration.days(1).pipe(Duration.toSeconds),
-      freshAge: Duration.minutes(1).pipe(Duration.toSeconds),
     },
     emailVerification: {
       sendOnSignUp: true,

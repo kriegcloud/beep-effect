@@ -23,13 +23,17 @@ export class SignInEmailPayload extends S.Class<SignInEmailPayload>("SignInEmail
     rememberMe: BS.BoolWithDefault(false),
     captchaResponse: S.Redacted(S.String),
   },
-  Id.annotations("SignInEmailPayload", {
-    description: "Payload for signing in with email and password",
-    [BS.DefaultFormValuesAnnotationId]: {
-      email: "",
-      ...defaultFormValuesCommon,
+  [
+    Id.annotations("SignInEmailPayload", {
+      description: "Payload for signing in with email and password",
+    }),
+    {
+      [BS.DefaultFormValuesAnnotationId]: {
+        email: "",
+        ...defaultFormValuesCommon,
+      },
     },
-  })
+  ]
 ) {}
 
 export declare namespace SignInEmailPayload {
@@ -40,9 +44,9 @@ export declare namespace SignInEmailPayload {
 export const SignInEmailContract = Contract.make("SignInEmail", {
   description: "Signs the user in using email",
   failure: IamError,
-  payload: SignInEmailPayload,
   success: S.Void,
 })
+  .setPayload(SignInEmailPayload)
   .annotate(Contract.Title, "Sign In Email Contract")
   .annotate(Contract.Domain, "SignIn")
   .annotate(Contract.Method, "signInEmail");

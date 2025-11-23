@@ -27,7 +27,10 @@ export const PasskeysEmpty = ({ onAdd, className }: PasskeysEmptyProps) => {
           <Button
             variant={"contained"}
             startIcon={<Iconify icon={"solar:add-square-bold-duotone"} width={20} />}
-            onClick={onAdd}
+            onClick={(event) => {
+              event.currentTarget.blur();
+              onAdd();
+            }}
           >
             Add passkey
           </Button>

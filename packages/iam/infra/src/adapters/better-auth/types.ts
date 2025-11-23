@@ -38,7 +38,6 @@ export type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "
     };
     readonly expiresIn: number;
     readonly updateAge: number;
-    readonly freshAge: number;
   };
   plugins: Plugins;
   user: {

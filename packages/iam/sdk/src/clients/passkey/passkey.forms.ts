@@ -1,10 +1,11 @@
 import { usePasskeyCRUD } from "@beep/iam-sdk/clients/passkey/passkey.atoms";
 import {
-  PasskeyAddContract,
+  PasskeyAddPayload,
   type PasskeyDTO,
   PasskeyUpdateContract,
 } from "@beep/iam-sdk/clients/passkey/passkey.contracts";
-import { formOptionsWithDefaults, useAppForm } from "@beep/ui/form";
+import { formOptionsWithDefaults, formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
+import * as S from "effect/Schema";
 
 type PasskeyFormPropsBase = {
   readonly onDone: (formReset: () => void) => void;
@@ -14,10 +15,16 @@ type UsePasskeyAddFormProps = PasskeyFormPropsBase;
 export const useAddPasskeyForm = ({ onDone }: UsePasskeyAddFormProps) => {
   const { addPasskey } = usePasskeyCRUD();
   const form = useAppForm(
-    formOptionsWithDefaults({
-      schema: PasskeyAddContract.payloadSchema.toFormSchema,
+    formOptionsWithSubmitEffect({
+      schema: PasskeyAddPayload.pipe(S.pick("name")),
+      defaultValues: {
+        name: "",
+      },
       onSubmit: async (value) => {
-        await addPasskey(value);
+        console.log("VALUE: ", value);
+        await addPasskey({
+          ...value,
+        });
         onDone(form.reset);
       },
     })

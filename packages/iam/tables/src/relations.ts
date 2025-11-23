@@ -103,6 +103,7 @@ export const ssoProviderRelations = d.relations(ssoProvider, ({ one }) => ({
 
 export const accountRelations = d.relations(account, ({ one }) => ({
   user: one(user, {
+    relationName: "accounts",
     fields: [account.userId],
     references: [user.id],
   }),

@@ -44,7 +44,7 @@ export declare namespace PasskeyAddPayload {
 export const PasskeyAddContract = Contract.make("add", {
   description: "Registers a new passkey credential for the authenticated user.",
   failure: IamError,
-  payload: PasskeyAddPayload,
+  payload: PasskeyAddPayload.fields,
   success: S.Void,
 })
   .annotate(Contract.Title, "Passkey Add Contract")

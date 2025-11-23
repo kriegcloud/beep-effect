@@ -1,3 +1,4 @@
+import { EnvValue } from "@beep/constants";
 import { IamConfig } from "@beep/iam-infra/config";
 import type { PasskeyOptions } from "@better-auth/passkey";
 import { passkey } from "@better-auth/passkey";
@@ -8,8 +9,7 @@ export type PasskeyPlugin = Effect.Effect.Success<PasskeyPluginEffect>;
 export const passkeyPlugin: PasskeyPluginEffect = Effect.gen(function* () {
   const config = yield* IamConfig;
   return passkey({
-    // rpID: config.app.domain,
-    rpID: "localhost",
+    rpID: config.app.env === EnvValue.Enum.dev ? "localhost" : config.app.domain,
     rpName: `${config.app.name} Auth`,
   } satisfies PasskeyOptions);
 });
