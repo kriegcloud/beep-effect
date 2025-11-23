@@ -54,11 +54,7 @@ const OrganizationCreateHandler = OrganizationCreateContract.implement(
       );
     }
 
-    const decoded = yield* OrganizationCreateContract.decodeUnknownSuccess(result.data);
-
-    client.$store.notify("$sessionSignal");
-
-    return decoded;
+    return yield* OrganizationCreateContract.decodeUnknownSuccess(result.data);
   })
 );
 

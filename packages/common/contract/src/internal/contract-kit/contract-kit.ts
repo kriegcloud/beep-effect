@@ -14,7 +14,7 @@
  * });
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 import { BS } from "@beep/schema";
 import type { UnsafeTypes } from "@beep/types";
@@ -45,7 +45,7 @@ import { ContractError } from "../contract-error";
 /**
  * Unique identifier for contractKit instances.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Type Ids
  */
 export const TypeId = "~@beep/contract/ContractKit";
@@ -53,7 +53,7 @@ export const TypeId = "~@beep/contract/ContractKit";
 /**
  * Type-level representation of the contractKit identifier.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Type Ids
  */
 export type TypeId = typeof TypeId;
@@ -88,7 +88,7 @@ export type TypeId = typeof TypeId;
  * });
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Models
  */
 export interface ContractKit<in out Contracts extends Record<string, Contract.Any>>
@@ -140,7 +140,7 @@ export interface ContractKit<in out Contracts extends Record<string, Contract.An
 /**
  * A utility type which structurally represents any contractKit instance.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export interface Any {
@@ -152,7 +152,7 @@ export interface Any {
  * A utility type which can be used to extract the contract definitions from a
  * contractKit.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type Contracts<T> = T extends ContractKit<infer Contracts> ? Contracts : never;
@@ -161,7 +161,7 @@ export type Contracts<T> = T extends ContractKit<infer Contracts> ? Contracts : 
  * A utility type which can transforms either a record or an array of contracts into
  * a record where keys are contract names and values are the contract instances.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type ContractsByName<Contracts> = Contracts extends Record<string, Contract.Any>
@@ -173,7 +173,7 @@ export type ContractsByName<Contracts> = Contracts extends Record<string, Contra
 /**
  * A utility type that maps contract names to their required implementation functions.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type ImplementationsFrom<Contracts extends Record<string, Contract.Any>> = {
@@ -192,7 +192,7 @@ export class LiftServiceMode extends BS.StringLiteralKit("success", "result") {}
  * Determines whether lifted service methods should expose only successes or
  * the discriminated {@link Contract["HandleOutcome"]}.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export declare namespace LiftServiceMode {
@@ -203,7 +203,7 @@ export declare namespace LiftServiceMode {
 /**
  * Options for building lifted service handlers from a contract kit.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Models
  */
 export interface LiftServiceOptions<
@@ -217,7 +217,7 @@ export interface LiftServiceOptions<
 /**
  * Hook definitions invoked while the lifted handlers run.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Models
  */
 export interface LiftServiceHooks<Contracts extends Record<string, Contract.Any>> {
@@ -241,7 +241,7 @@ export interface LiftServiceHooks<Contracts extends Record<string, Contract.Any>
 /**
  * Shape of the lifted service map returned by {@link ContractKit.liftService}.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type LiftedService<
@@ -262,7 +262,7 @@ export type LiftedService<
 /**
  * A contractKit instance with registered implementations ready for contract execution.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Models
  */
 export interface WithImplementation<in out Contracts extends Record<string, Contract.Any>> {
@@ -511,7 +511,7 @@ const resolveInput = <Contracts extends ReadonlyArray<Contract.Any>>(
  * Useful as a starting point for building contractKits or as a default value. Can
  * be extended using the merge function to add contracts.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Constructors
  */
 export const empty: ContractKit<{}> = makeProto({});
@@ -542,7 +542,7 @@ export const empty: ContractKit<{}> = makeProto({});
  * const contractKit = ContractKit.make(SignInEmail, VerifyInvite)
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Constructors
  */
 export const make = <Contracts extends ReadonlyArray<Contract.Any>>(
@@ -552,7 +552,7 @@ export const make = <Contracts extends ReadonlyArray<Contract.Any>>(
 /**
  * A utility type which simplifies a record type.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type SimplifyRecord<T> = { [K in keyof T]: T[K] } & {};
@@ -560,7 +560,7 @@ export type SimplifyRecord<T> = { [K in keyof T]: T[K] } & {};
 /**
  * A utility type which merges two records of contracts together.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type MergeRecords<U> = {
@@ -574,7 +574,7 @@ export type MergeRecords<U> = {
  * A utility type which merges the contract calls of two contractKits into a single
  * contractKit.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type MergedContracts<ContractKits extends ReadonlyArray<Any>> = SimplifyRecord<
@@ -621,7 +621,7 @@ export type MergedContracts<ContractKits extends ReadonlyArray<Any>> = SimplifyR
  * )
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Constructors
  */
 export const merge = <const ContractKits extends ReadonlyArray<Any>>(

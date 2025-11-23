@@ -187,24 +187,6 @@
       "@beep/contract/test/*": [
         "./packages/common/contract/test/*"
       ],
-      "@beep/event": [
-        "./packages/common/event/src/index"
-      ],
-      "@beep/event/*": [
-        "./packages/common/event/src/*"
-      ],
-      "@beep/event/test/*": [
-        "./packages/common/event/test/*"
-      ],
-      "@beep/graph": [
-        "./packages/common/graph/src/index"
-      ],
-      "@beep/graph/*": [
-        "./packages/common/graph/src/*"
-      ],
-      "@beep/graph/test/*": [
-        "./packages/common/graph/test/*"
-      ],
       "@beep/shared-domain": [
         "./packages/shared/domain/src/index"
       ],

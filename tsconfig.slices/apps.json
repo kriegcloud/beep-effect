@@ -12,9 +12,6 @@
     },
     {
       "path": "../apps/web/tsconfig.build.json"
-    },
-    {
-      "path": "../apps/start-client/tsconfig.build.json"
     }
   ]
 }

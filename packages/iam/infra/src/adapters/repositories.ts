@@ -53,7 +53,9 @@ export type IamRepos =
   | TeamRepo
   | ScimProviderRepo;
 
-export const layer: Layer.Layer<IamRepos, SqlError | ConfigError, SqlClient> = Layer.mergeAll(
+export type IamReposLive = Layer.Layer<IamRepos, SqlError | ConfigError, SqlClient>;
+
+export const layer: IamReposLive = Layer.mergeAll(
   AccountRepo.Default,
   ApiKeyRepo.Default,
   DeviceCodeRepo.Default,

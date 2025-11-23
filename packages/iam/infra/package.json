@@ -36,9 +36,9 @@
   "peerDependencies": {
     "@effect/sql": "catalog:",
     "@effect/sql-pg": "catalog:",
+    "@effect/sql-drizzle": "catalog:",
     "@better-auth/sso": "catalog:",
     "@beep/identity": "workspace:^",
-    "@effect/sql-drizzle": "catalog:",
     "@effect/experimental": "catalog:",
     "@effect/workflow": "catalog:",
     "@effect/platform-bun": "catalog:",

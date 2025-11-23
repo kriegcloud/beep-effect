@@ -96,6 +96,7 @@
     "stripe": "catalog:",
     "zod": "catalog:",
     "@better-auth/stripe": "catalog:",
+    "@better-auth/core": "catalog:",
     "better-call": "catalog:",
     "@dub/better-auth": "catalog:",
     "@simplewebauthn/server": "catalog:",
@@ -105,6 +106,7 @@
     "uuid": "catalog:"
   },
   "devDependencies": {
+    "@better-auth/core": "catalog:",
     "@effect/docgen": "catalog:",
     "@beep/types": "workspace:^",
     "@effect/sql": "catalog:",

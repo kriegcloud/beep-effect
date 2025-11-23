@@ -1,7 +1,7 @@
 # AGENTS.md — `@beep/mock`
 
 ## Purpose & Scope
-- Deterministic, client-safe fixtures for UI demos and dashboards across `apps/web`, `apps/start-client`, and slice UI packages.
+- Deterministic, client-safe fixtures for UI demos and dashboards across `apps/web`, and slice UI packages.
 - Pure data only: no I/O, env access, randomness, or domain/business logic. Keep consumable in browser and server runtimes.
 
 ## Surface Map (src/)

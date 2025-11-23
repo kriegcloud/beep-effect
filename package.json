@@ -118,8 +118,8 @@
     "@babel/core": "^7.28.5",
     "@babel/plugin-transform-export-namespace-from": "^7.27.1",
     "@babel/plugin-transform-modules-commonjs": "^7.27.1",
-    "@better-auth/core": "^1.4.0",
-    "@better-auth/stripe": "^1.4.0",
+    "@better-auth/core": "^1.4.1",
+    "@better-auth/stripe": "^1.4.1",
     "@better-auth/utils": "^0.3.0",
     "@biomejs/biome": "^2.3.7",
     "@dotenvx/dotenvx": "^1.51.1",
@@ -205,7 +205,7 @@
     "@turbo/gen": "^2.6.1",
     "@types/autosuggest-highlight": "^3.2.3",
     "@types/bun": "^1.3.3",
-    "@types/lodash": "^4.17.20",
+    "@types/lodash": "^4.17.21",
     "@types/node": "^24.10.1",
     "@types/nprogress": "^0.2.3",
     "@types/react": "^19.2.6",
@@ -216,7 +216,7 @@
     "autosuggest-highlight": "^3.3.4",
     "babel-plugin-annotate-pure-calls": "^0.5.0",
     "babel-plugin-transform-next-use-client": "^1.1.1",
-    "better-auth": "^1.4.0",
+    "better-auth": "^1.4.1",
     "better-auth-localization": "^2.2.2",
     "better-call": "^1.1.0",
     "class-variance-authority": "^0.7.1",
@@ -247,7 +247,7 @@
     "motion": "^12.23.24",
     "mui-one-time-password-input": "^5.0.0",
     "mutative": "^1.3.0",
-    "next": "^16.0.2-canary.30",
+    "next": "^16.0.2-canary.32",
     "nprogress": "^0.2.0",
     "nuqs": "^2.8.1",
     "picocolors": "^1.1.1",
@@ -280,7 +280,7 @@
     "uuid": "^13.0.0",
     "xstate": "^5.24.0",
     "zod": "^4.1.12",
-    "@better-auth/sso": "^1.4.0",
+    "@better-auth/sso": "^1.4.1",
     "turndown": "^7.2.2",
     "@types/turndown": "^5.0.6",
     "rehype-raw": "^7.0.0",
@@ -297,7 +297,7 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tooltip": "^1.2.8",
     "lucide-react": "^0.554.0",
-    "tone": "^15.3.7",
+    "tone": "^15.3.9",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.8",
     "@radix-ui/react-avatar": "^1.1.11",
@@ -325,7 +325,7 @@
     "next-themes": "^0.4.6",
     "react-day-picker": "^9.11.1",
     "react-resizable-panels": "^3.0.6",
-    "recharts": "^3.4.1",
+    "recharts": "^3.5.0",
     "vaul": "^1.1.2",
     "@radix-ui/react-accordion": "^1.2.12",
     "react-qr-code": "^2.0.18",
@@ -339,18 +339,13 @@
     "@wojtekmaj/react-recaptcha-v3": "^0.1.4",
     "react-google-recaptcha": "^3.1.0",
     "@effect/platform-node": "^0.101.1",
-    "vite": "^7.2.4",
-    "vite-plugin-pwa": "^1.1.0",
     "workbox-core": "^7.4.0",
     "workbox-window": "^7.4.0",
-    "@vitejs/plugin-react": "^5.1.1",
-    "@vite-pwa/assets-generator": "^1.0.2",
     "@tailwindcss/typography": "^0.5.19",
-    "@tailwindcss/vite": "^4.1.17",
-    "@tanstack/router-devtools": "^1.139.1",
-    "@tanstack/router-plugin": "^1.139.1",
+    "@tanstack/router-devtools": "^1.139.3",
+    "@tanstack/router-plugin": "^1.139.3",
     "react-router-dom": "^7.9.6",
-    "@tanstack/react-router": "^1.139.1",
+    "@tanstack/react-router": "^1.139.3",
     "@tanstack/react-virtual": "^3.13.12",
     "@hookform/resolvers": "^5.2.2",
     "react-hook-form": "^7.66.1",
@@ -358,7 +353,6 @@
     "sharp": "^0.34.5",
     "sharp-ico": "^0.1.5",
     "@effect/sql-sqlite-node": "^0.49.0",
-    "@effect/vitest": "^0.27.0",
     "@effect/sql-sqlite-bun": "^0.49.0",
     "@number-flow/react": "^0.5.10",
     "@phosphor-icons/react": "^2.1.10",
@@ -367,8 +361,8 @@
     "alchemy": "^0.78.0",
     "@effect/build-utils": "^0.8.9",
     "ast-types": "^0.16.1",
-    "@better-auth/passkey": "^1.4.0",
-    "@better-auth/scim": "^1.4.0",
+    "@better-auth/passkey": "^1.4.1",
+    "@better-auth/scim": "^1.4.1",
     "@tanstack/react-devtools": "^0.8.1",
     "@tanstack/react-form-devtools": "^0.2.1"
   },
@@ -414,10 +408,6 @@
       "version": "^0.47.0"
     },
     {
-      "name": "@effect/vitest",
-      "version": "^0.26.0"
-    },
-    {
       "name": "@effect/sql-sqlite-bun",
       "version": "^0.47.0"
     },
@@ -450,16 +440,8 @@
       "version": "^9.2.1"
     },
     {
-      "name": "@vite-pwa/assets-generator",
-      "version": "^1.0.2"
-    },
-    {
       "name": "@tailwindcss/typography",
       "version": "^0.5.19"
-    },
-    {
-      "name": "@tailwindcss/vite",
-      "version": "^4.1.16"
     },
     {
       "name": "@tanstack/router-devtools",
@@ -482,20 +464,8 @@
       "version": "^3.13.12"
     },
     {
-      "name": "@vitejs/plugin-react",
-      "version": "^5.1.0"
-    },
-    {
-      "name": "@vite-pwa/assets-generator",
-      "version": "^1.0.2"
-    },
-    {
       "name": "@tailwindcss/typography",
       "version": "^0.5.19"
-    },
-    {
-      "name": "@tailwindcss/vite",
-      "version": "^4.1.16"
     },
     {
       "name": "@tanstack/router-devtools",
@@ -504,14 +474,6 @@
     {
       "name": "@tanstack/router-plugin",
       "version": "^1.134.6"
-    },
-    {
-      "name": "vite",
-      "version": "^7.1.12"
-    },
-    {
-      "name": "vite-plugin-pwa",
-      "version": "^1.1.0"
     },
     {
       "name": "workbox-core",
@@ -1048,10 +1010,6 @@
     {
       "name": "@testcontainers/postgresql",
       "version": "^11.7.1"
-    },
-    {
-      "name": "@testing-library/dom",
-      "version": "^10.4.1"
     },
     {
       "name": "@tiptap/core",

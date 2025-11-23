@@ -41,12 +41,6 @@
     {
       "path": "packages/common/contract/tsconfig.build.json"
     },
-        {
-      "path": "packages/common/event/tsconfig.build.json"
-    },
-            {
-      "path": "packages/common/graph/tsconfig.build.json"
-    },
     {
       "path": "packages/shared/domain/tsconfig.build.json"
     },
@@ -144,9 +138,6 @@
     },
     {
       "path": "apps/web/tsconfig.json"
-    },
-    {
-      "path": "apps/start-client/tsconfig.json"
     },
     {
       "path": "apps/bunnings-server/tsconfig.json"

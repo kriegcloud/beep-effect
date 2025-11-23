@@ -70,23 +70,6 @@ const config = {
         "__tests__/**/*.{ts,tsx,js,jsx,mts,cts}"
       ]
     },
-    "apps/start-client": {
-      entry: [
-        "src/client/main.tsx",
-        "src/server/main.ts",
-        "src/client/sw.ts",
-        "vite.config.ts",
-        "vitest.config.ts",
-        "pwa-assets.config.ts"
-      ],
-      project: [
-        "src/**/*.{ts,tsx,js,jsx}",
-        "index.html",
-        "test/**/*.{ts,tsx,js,jsx,mts,cts}",
-        "src/**/*.{test,spec}.{ts,tsx,js,jsx,mts,cts}",
-        "__tests__/**/*.{ts,tsx,js,jsx,mts,cts}"
-      ]
-    },
     "packages/_internal/*": {
       entry: [
         "src/index.{ts,tsx}",
