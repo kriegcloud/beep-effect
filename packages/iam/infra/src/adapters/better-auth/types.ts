@@ -19,6 +19,7 @@ export type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "
       readonly trustedProviders: AuthProviderNameValue.Type[];
     };
     readonly encryptOAuthTokens: boolean;
+    readonly storeAccountCookie: boolean;
   };
   readonly session: {
     readonly modelName: typeof SharedEntityIds.SessionId.tableName;

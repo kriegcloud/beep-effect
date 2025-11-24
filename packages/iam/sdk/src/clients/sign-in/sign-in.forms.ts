@@ -1,5 +1,5 @@
-import { useSignInEmail } from "@beep/iam-sdk";
-import { formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
+import { useSignIn } from "@beep/iam-sdk";
+import { formOptionsWithDefaults, useAppForm } from "@beep/ui/form";
 import type * as Redacted from "effect/Redacted";
 import { SignInEmailContract } from "./sign-in.contracts";
 
@@ -8,16 +8,10 @@ type Props = {
 };
 
 export const useSignInEmailForm = ({ executeCaptcha }: Props) => {
-  const { signInEmail } = useSignInEmail();
+  const { signInEmail } = useSignIn();
   const form = useAppForm(
-    formOptionsWithSubmitEffect({
+    formOptionsWithDefaults({
       schema: SignInEmailContract.payloadSchema,
-      defaultValues: {
-        email: "",
-        password: "",
-        rememberMe: false,
-        captchaResponse: "",
-      },
       onSubmit: async (value) => {
         const captchaResponse = await executeCaptcha();
         await signInEmail({

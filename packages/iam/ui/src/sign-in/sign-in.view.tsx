@@ -1,5 +1,5 @@
 "use client";
-import { useSignInPasskey, useSignInSocial } from "@beep/iam-sdk/clients/sign-in";
+import { useSignIn } from "@beep/iam-sdk/clients/sign-in";
 import { paths } from "@beep/shared-domain";
 import { RouterLink } from "@beep/ui/routing";
 import Link from "@mui/material/Link";
@@ -10,8 +10,7 @@ import { SignInPasskey } from "./sign-in-passkey";
 import { SignInSocial } from "./sign-in-social";
 
 export const SignInView = () => {
-  const { signInPasskey } = useSignInPasskey();
-  const { signInSocial } = useSignInSocial();
+  const { signInPasskey, signInSocial } = useSignIn();
   return (
     <>
       <FormHead

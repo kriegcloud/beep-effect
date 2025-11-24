@@ -44,6 +44,9 @@
       "path": "../../core/env/tsconfig.build.json"
     },
     {
+      "path": "../../runtime/client/tsconfig.build.json"
+    },
+    {
       "path": "../../shared/domain/tsconfig.build.json"
     },
     {

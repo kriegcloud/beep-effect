@@ -1,5 +1,5 @@
 "use client";
-import { useSignInSocial } from "@beep/iam-sdk";
+import { useSignIn } from "@beep/iam-sdk";
 import { paths } from "@beep/shared-domain";
 import { varFade } from "@beep/ui/animate";
 import { RouterLink } from "@beep/ui/routing";
@@ -13,7 +13,7 @@ import { SignUpSocial } from "./sign-up-social";
 const signUpTransitionVariants = varFade("inUp", { distance: 64 });
 
 export const SignUpView = () => {
-  const { signInSocial } = useSignInSocial();
+  const { signInSocial } = useSignIn();
 
   return (
     <AnimatePresence mode={"wait"} initial={false}>

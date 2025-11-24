@@ -124,7 +124,7 @@
         "noShadowRestrictedNames": "off",
         "noAssignInExpressions": "off",
         "noArrayIndexKey": "off",
-        "noExplicitAny": "warn",
+        "noExplicitAny": "off",
         "useIterableCallbackReturn": "off",
         "noTemplateCurlyInString": "off",
         "noThenProperty": "off",

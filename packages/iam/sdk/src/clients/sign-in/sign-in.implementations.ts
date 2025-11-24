@@ -103,11 +103,16 @@ const SignInPhoneNumberHandler = SignInPhoneNumberContract.implement(
 // =====================================================================================================================
 const SignInOneTapHandler = SignInOneTapContract.implement(
   Effect.fn(function* (_, { continuation }) {
-    yield* continuation.run((handlers) =>
-      client.oneTap({
-        fetchOptions: withFetchOptions(handlers),
-      })
+    yield* continuation.runVoid((handlers) =>
+      client
+        .oneTap({
+          fetchOptions: withFetchOptions(handlers),
+        })
+        .then(() => ({ error: null }))
+        .catch((error) => ({ error }))
     );
+
+    client.$store.notify("$sessionSignal");
   })
 );
 // =====================================================================================================================

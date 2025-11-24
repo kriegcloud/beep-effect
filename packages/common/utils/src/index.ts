@@ -339,3 +339,4 @@ export * from "@beep/utils/uint8-array-to-array-buffer";
  * @since 0.1.0
  */
 export * from "./const";
+export * as TopoSort from "./topo-sort";

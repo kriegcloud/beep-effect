@@ -67,6 +67,7 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
         trustedProviders: config.oauth.authProviderNames,
       },
       encryptOAuthTokens: true,
+      storeAccountCookie: true,
     },
     session: {
       modelName: SharedEntityIds.SessionId.tableName,

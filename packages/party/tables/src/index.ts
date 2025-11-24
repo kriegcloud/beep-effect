@@ -1,1 +1,1 @@
-export * as TasksDbSchema from "./schema";
+export * as PartyDbSchema from "./schema";
