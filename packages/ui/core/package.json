@@ -81,7 +81,6 @@
     "@mui/x-date-pickers": "catalog:",
     "@mui/x-tree-view": "catalog:",
     "accept-language": "catalog:",
-    "dayjs": "catalog:",
     "@iconify/react": "catalog:",
     "i18next": "catalog:",
     "i18next-browser-languagedetector": "catalog:",
@@ -94,7 +93,6 @@
   "devDependencies": {
     "@effect/docgen": "catalog:",
     "@beep/types": "workspace:^",
-    "@types/lodash": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
@@ -121,7 +119,6 @@
     "@mui/x-date-pickers": "catalog:",
     "@mui/x-tree-view": "catalog:",
     "accept-language": "catalog:",
-    "dayjs": "catalog:",
     "i18next": "catalog:",
     "i18next-browser-languagedetector": "catalog:",
     "i18next-resources-to-backend": "catalog:",

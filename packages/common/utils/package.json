@@ -37,7 +37,6 @@
     "docgen": "bunx docgen"
   },
   "peerDependencies": {
-    "dayjs": "catalog:",
     "effect": "catalog:",
     "@beep/invariant": "workspace:^",
     "@faker-js/faker": "catalog:",
@@ -45,7 +44,6 @@
     "next": "catalog:"
   },
   "devDependencies": {
-    "dayjs": "catalog:",
     "@beep/testkit": "workspace:^",
     "@beep/types": "workspace:^"
   },

@@ -13,7 +13,6 @@ onlyBuiltDependencies = [
   "exifreader",
   "msgpackr-extract",
   "protobufjs",
-  "sharp",
   "ssh2"
 ]
 

@@ -1,16 +1,11 @@
 import "@beep/ui/globals.css";
-import { primary } from "@beep/ui-core/theme";
-import type { Metadata, Viewport } from "next";
-import type React from "react";
-import "dayjs/locale/en";
-import "dayjs/locale/vi";
-import "dayjs/locale/fr";
-import "dayjs/locale/zh-cn";
-import "dayjs/locale/ar-sa";
 import { KaServices } from "@beep/runtime-client";
 import { runServerPromise } from "@beep/runtime-server";
+import { primary } from "@beep/ui-core/theme";
 import { RegistryProvider } from "@effect-atom/atom-react";
 import * as Effect from "effect/Effect";
+import type { Metadata, Viewport } from "next";
+import type React from "react";
 import { getAppConfig } from "@/app-config";
 import { GlobalProviders } from "@/GlobalProviders";
 

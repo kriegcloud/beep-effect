@@ -5,7 +5,6 @@ import { useSettingsContext } from "@beep/ui/settings";
 import type { SupportedLangValue } from "@beep/ui-core/i18n/constants";
 import { fallbackLang } from "@beep/ui-core/i18n/constants";
 import { getCurrentLang } from "@beep/ui-core/i18n/locales-config";
-import dayjs from "dayjs";
 import type { Namespace } from "i18next";
 import { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -27,11 +26,6 @@ export function useTranslate(namespace?: Namespace | undefined) {
     [i18n, settings]
   );
 
-  const updateDayjsLocale = useCallback((lang: SupportedLangValue.Type) => {
-    const updatedLang = getCurrentLang(lang);
-    dayjs.locale(updatedLang.adapterLocale);
-  }, []);
-
   const handleChangeLang = useCallback(
     async (lang: SupportedLangValue.Type) => {
       try {
@@ -46,14 +40,13 @@ export function useTranslate(namespace?: Namespace | undefined) {
         await changeLangPromise;
 
         updateDirection(lang);
-        updateDayjsLocale(lang);
 
         router.refresh(); // only nextjs
       } catch (error) {
         console.error(error);
       }
     },
-    [i18n, router, tMessages, updateDayjsLocale, updateDirection]
+    [i18n, router, tMessages, updateDirection]
   );
 
   const handleResetLang = useCallback(() => {

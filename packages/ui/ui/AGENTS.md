@@ -6,7 +6,7 @@
 - Peer and dev dependencies are sourced from workspace catalogs; notable requirements:
   - Core: `react`, `react-dom`, `@mui/material`, `@emotion/*`, `@beep/ui-core`.
   - Styling: `tailwindcss`, `@tailwindcss/postcss`, `clsx`, `tailwind-merge`, `tw-animate-css`.
-  - UI stacks: `@tiptap/*`, `framer-motion`, `react-apexcharts`, `embla-carousel*`, `sonner`, `nprogress`.
+  - UI stacks: `framer-motion`, `sonner`, `nprogress`.
   - State/validation: `effect`, `@tanstack/react-form`, `zod`, `ajv`.
 - Downstream packages (e.g., `apps/web`) import these modules directly via workspace aliases; breaking surface exports will cascade into app runtimes.
 

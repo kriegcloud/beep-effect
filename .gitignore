@@ -19,7 +19,6 @@ scratchpad/*
 stats.html
 .env.tmp
 .aider*
-
 # Turborepo
 .turbo
 .vercel

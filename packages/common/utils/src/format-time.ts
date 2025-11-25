@@ -16,16 +16,14 @@
  * @category Documentation/Modules
  * @since 0.1.0
  */
-import type { Dayjs, OpUnitType } from "dayjs";
-import dayjs from "dayjs";
-import duration from "dayjs/plugin/duration";
-import relativeTime from "dayjs/plugin/relativeTime";
-
-dayjs.extend(duration);
-dayjs.extend(relativeTime);
-
+import * as A from "effect/Array";
+import * as DateTime from "effect/DateTime";
+import * as Duration from "effect/Duration";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 /**
- * Input union accepted by the date formatting helpers (`dayjs`, native dates,
+ * Input union accepted by the date formatting helpers (DateTime, native dates,
  * ISO strings, timestamps, or nullable values for safe guards).
  *
  * @example
@@ -36,10 +34,10 @@ dayjs.extend(relativeTime);
  * @category Formatting/Temporal
  * @since 0.1.0
  */
-export type DatePickerFormat = Dayjs | Date | string | number | null | undefined;
+export type DatePickerFormat = DateTime.DateTime | Date | string | number | null | undefined;
 
 /**
- * Commonly used Day.js format strings shared across formatting helpers.
+ * Commonly used format strings shared across formatting helpers.
  *
  * @example
  * import { formatPatterns } from "@beep/utils/format-time";
@@ -63,7 +61,55 @@ export const formatPatterns = {
   },
 };
 
-const isValidDate = (date: DatePickerFormat) => date !== null && date !== undefined && dayjs(date).isValid();
+/**
+ * Helper to convert various inputs to DateTime.DateTime
+ */
+const toDateTime = (date: DatePickerFormat): O.Option<DateTime.DateTime> => {
+  if (date === null || date === undefined) {
+    return O.none();
+  }
+  if (DateTime.isDateTime(date)) {
+    return O.some(date);
+  }
+  return DateTime.make(date);
+};
+
+const isValidDate = (date: DatePickerFormat): boolean => O.isSome(toDateTime(date));
+
+/**
+ * Format a DateTime using a custom format string
+ * Converts dayjs-style format tokens to Intl.DateTimeFormat options
+ */
+const formatWithTemplate = (dt: DateTime.DateTime, template: string): string => {
+  const parts = DateTime.toParts(dt);
+
+  const replacements = [
+    { token: "YYYY", value: String(parts.year) },
+    { token: "MMM", value: new Date(parts.year, parts.month - 1).toLocaleString("en", { month: "short" }) },
+    { token: "MM", value: F.pipe(String(parts.month), Str.padStart(2, "0")) },
+    { token: "DD", value: F.pipe(String(parts.day), Str.padStart(2, "0")) },
+    { token: "HH", value: F.pipe(String(parts.hours), Str.padStart(2, "0")) },
+    { token: "mm", value: F.pipe(String(parts.minutes), Str.padStart(2, "0")) },
+    { token: "ss", value: F.pipe(String(parts.seconds), Str.padStart(2, "0")) },
+    { token: "h", value: String(parts.hours % 12 || 12) },
+    { token: "a", value: parts.hours >= 12 ? "pm" : "am" },
+  ] as const;
+
+  const withPlaceholders = F.pipe(
+    replacements,
+    A.reduce(template, (acc, replacement, index) =>
+      F.pipe(acc, Str.replace(new RegExp(replacement.token, "g"), `__FMT_${index}__`))
+    )
+  );
+
+  return F.pipe(
+    replacements,
+    A.reduce(withPlaceholders, (acc, replacement, index) =>
+      F.pipe(acc, Str.replace(new RegExp(`__FMT_${index}__`, "g"), replacement.value))
+    )
+  );
+};
+
 /**
  * Returns the current day formatted with the provided template (defaults to
  * start of day in ISO format).
@@ -77,7 +123,9 @@ const isValidDate = (date: DatePickerFormat) => date !== null && date !== undefi
  * @since 0.1.0
  */
 export function today(template?: undefined | string): string {
-  return dayjs(new Date(Date.now())).startOf("day").format(template);
+  const now = DateTime.unsafeNow();
+  const startOfDay = DateTime.startOf(now, "day");
+  return template ? formatWithTemplate(startOfDay, template) : DateTime.formatIso(startOfDay);
 }
 
 /**
@@ -92,11 +140,11 @@ export function today(template?: undefined | string): string {
  * @since 0.1.0
  */
 export function fDateTime(date: DatePickerFormat, template?: undefined | string): string {
-  if (!isValidDate(date)) {
+  const dt = toDateTime(date);
+  if (O.isNone(dt)) {
     return "Invalid date";
   }
-
-  return dayjs(date).format(template ?? formatPatterns.dateTime);
+  return template ? formatWithTemplate(dt.value, template) : formatWithTemplate(dt.value, formatPatterns.dateTime);
 }
 
 /**
@@ -111,11 +159,11 @@ export function fDateTime(date: DatePickerFormat, template?: undefined | string)
  * @since 0.1.0
  */
 export function fDate(date: DatePickerFormat, template?: undefined | string): string {
-  if (!isValidDate(date)) {
+  const dt = toDateTime(date);
+  if (O.isNone(dt)) {
     return "Invalid date";
   }
-
-  return dayjs(date).format(template ?? formatPatterns.date);
+  return formatWithTemplate(dt.value, template ?? formatPatterns.date);
 }
 
 /**
@@ -130,11 +178,11 @@ export function fDate(date: DatePickerFormat, template?: undefined | string): st
  * @since 0.1.0
  */
 export function fTime(date: DatePickerFormat, template?: undefined | string): string {
-  if (!isValidDate(date)) {
+  const dt = toDateTime(date);
+  if (O.isNone(dt)) {
     return "Invalid date";
   }
-
-  return dayjs(date).format(template ?? formatPatterns.time);
+  return formatWithTemplate(dt.value, template ?? formatPatterns.time);
 }
 
 /**
@@ -149,11 +197,11 @@ export function fTime(date: DatePickerFormat, template?: undefined | string): st
  * @since 0.1.0
  */
 export function fTimestamp(date: DatePickerFormat): number | "Invalid date" {
-  if (!isValidDate(date)) {
+  const dt = toDateTime(date);
+  if (O.isNone(dt)) {
     return "Invalid date";
   }
-
-  return dayjs(date).valueOf();
+  return DateTime.toEpochMillis(dt.value);
 }
 
 /**
@@ -161,20 +209,40 @@ export function fTimestamp(date: DatePickerFormat): number | "Invalid date" {
  *
  * @example
  * import { fToNow } from "@beep/utils/format-time";
- * import dayjs from "dayjs";
  *
- * fToNow(dayjs().subtract(1, "hour"));
+ * fToNow(DateTime.unsafeNow());
  *
  * @category Formatting/Temporal
  * @since 0.1.0
  */
 export function fToNow(date: DatePickerFormat): string {
-  if (!isValidDate(date)) {
+  const dt = toDateTime(date);
+  if (O.isNone(dt)) {
     return "Invalid date";
   }
 
-  return dayjs(date).toNow(true);
+  const now = DateTime.unsafeNow();
+  const distance = DateTime.distance(now, dt.value);
+  const absDistance = Math.abs(distance);
+  const absDuration = Duration.millis(absDistance);
+
+  const seconds = Duration.toSeconds(absDuration);
+  const minutes = Duration.toMinutes(absDuration);
+  const hours = Duration.toHours(absDuration);
+  const days = Duration.toDays(absDuration);
+
+  if (seconds < 60) {
+    return `${Math.floor(seconds)} second${Math.floor(seconds) !== 1 ? "s" : ""}`;
+  }
+  if (minutes < 60) {
+    return `${Math.floor(minutes)} minute${Math.floor(minutes) !== 1 ? "s" : ""}`;
+  }
+  if (hours < 24) {
+    return `${Math.floor(hours)} hour${Math.floor(hours) !== 1 ? "s" : ""}`;
+  }
+  return `${Math.floor(days)} day${Math.floor(days) !== 1 ? "s" : ""}`;
 }
+
 /**
  * Checks whether an input date falls between two other dates (inclusive).
  *
@@ -191,24 +259,17 @@ export function fIsBetween(
   startDate: DatePickerFormat,
   endDate: DatePickerFormat
 ): boolean {
-  if (!isValidDate(inputDate) || !isValidDate(startDate) || !isValidDate(endDate)) {
+  const input = toDateTime(inputDate);
+  const start = toDateTime(startDate);
+  const end = toDateTime(endDate);
+
+  if (O.isNone(input) || O.isNone(start) || O.isNone(end)) {
     return false;
   }
 
-  const formattedInputDate = fTimestamp(inputDate);
-  const formattedStartDate = fTimestamp(startDate);
-  const formattedEndDate = fTimestamp(endDate);
-
-  if (
-    formattedInputDate === "Invalid date" ||
-    formattedStartDate === "Invalid date" ||
-    formattedEndDate === "Invalid date"
-  ) {
-    return false;
-  }
-
-  return formattedInputDate >= formattedStartDate && formattedInputDate <= formattedEndDate;
+  return DateTime.between(input.value, { minimum: start.value, maximum: end.value });
 }
+
 /**
  * Returns `true` when the first date is strictly after the second.
  *
@@ -221,12 +282,17 @@ export function fIsBetween(
  * @since 0.1.0
  */
 export function fIsAfter(startDate: DatePickerFormat, endDate: DatePickerFormat): boolean {
-  if (!isValidDate(startDate) || !isValidDate(endDate)) {
+  const start = toDateTime(startDate);
+  const end = toDateTime(endDate);
+
+  if (O.isNone(start) || O.isNone(end)) {
     return false;
   }
 
-  return dayjs(startDate).isAfter(endDate);
+  return DateTime.greaterThan(start.value, end.value);
 }
+
+type TimeUnit = "year" | "month" | "day" | "hour" | "minute" | "second";
 
 /**
  * Compares two dates for equality within the provided unit (defaults to year).
@@ -242,14 +308,57 @@ export function fIsAfter(startDate: DatePickerFormat, endDate: DatePickerFormat)
 export function fIsSame(
   startDate: DatePickerFormat,
   endDate: DatePickerFormat,
-  unitToCompare?: undefined | OpUnitType
+  unitToCompare?: undefined | TimeUnit
 ): boolean {
-  if (!isValidDate(startDate) || !isValidDate(endDate)) {
+  const start = toDateTime(startDate);
+  const end = toDateTime(endDate);
+
+  if (O.isNone(start) || O.isNone(end)) {
     return false;
   }
 
-  return dayjs(startDate).isSame(endDate, unitToCompare ?? "year");
+  const unit = unitToCompare ?? "year";
+  const startParts = DateTime.toParts(start.value);
+  const endParts = DateTime.toParts(end.value);
+
+  switch (unit) {
+    case "year":
+      return startParts.year === endParts.year;
+    case "month":
+      return startParts.year === endParts.year && startParts.month === endParts.month;
+    case "day":
+      return (
+        startParts.year === endParts.year && startParts.month === endParts.month && startParts.day === endParts.day
+      );
+    case "hour":
+      return (
+        startParts.year === endParts.year &&
+        startParts.month === endParts.month &&
+        startParts.day === endParts.day &&
+        startParts.hours === endParts.hours
+      );
+    case "minute":
+      return (
+        startParts.year === endParts.year &&
+        startParts.month === endParts.month &&
+        startParts.day === endParts.day &&
+        startParts.hours === endParts.hours &&
+        startParts.minutes === endParts.minutes
+      );
+    case "second":
+      return (
+        startParts.year === endParts.year &&
+        startParts.month === endParts.month &&
+        startParts.day === endParts.day &&
+        startParts.hours === endParts.hours &&
+        startParts.minutes === endParts.minutes &&
+        startParts.seconds === endParts.seconds
+      );
+    default:
+      return false;
+  }
 }
+
 /**
  * Formats a date range into a short human-friendly label.
  *
@@ -290,9 +399,9 @@ export function fDateRangeShortLabel(
 
   return label;
 }
+
 /**
- * Options passed to `fAdd`/`fSub` representing a duration to add/subtract via
- * Day.js.
+ * Options passed to `fAdd`/`fSub` representing a duration to add/subtract.
  *
  * @example
  * import type { DurationProps } from "@beep/utils/format-time";
@@ -311,7 +420,9 @@ export type DurationProps = {
   seconds?: undefined | number;
   milliseconds?: undefined | number;
 };
+
 type FAdd = (params: DurationProps) => string;
+
 /**
  * Adds a duration relative to now and returns the formatted timestamp.
  *
@@ -332,21 +443,21 @@ export const fAdd: FAdd = ({
   seconds = 0,
   milliseconds = 0,
 }: DurationProps) => {
-  return dayjs()
-    .add(
-      dayjs.duration({
-        years,
-        months,
-        days,
-        hours,
-        minutes,
-        seconds,
-        milliseconds,
-      })
-    )
-    .format();
+  const now = DateTime.unsafeNow();
+  const result = DateTime.add(now, {
+    years,
+    months,
+    days,
+    hours,
+    minutes,
+    seconds,
+    millis: milliseconds,
+  });
+  return DateTime.formatIso(result);
 };
+
 type FSub = (params: DurationProps) => string;
+
 /**
  * Subtracts a duration relative to now and returns the formatted timestamp.
  *
@@ -367,17 +478,15 @@ export const fSub: FSub = ({
   seconds = 0,
   milliseconds = 0,
 }: DurationProps) => {
-  return dayjs()
-    .subtract(
-      dayjs.duration({
-        years,
-        months,
-        days,
-        hours,
-        minutes,
-        seconds,
-        milliseconds,
-      })
-    )
-    .format();
+  const now = DateTime.unsafeNow();
+  const result = DateTime.subtract(now, {
+    years,
+    months,
+    days,
+    hours,
+    minutes,
+    seconds,
+    millis: milliseconds,
+  });
+  return DateTime.formatIso(result);
 };

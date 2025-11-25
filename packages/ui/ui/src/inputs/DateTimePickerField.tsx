@@ -4,8 +4,9 @@ import type { TextFieldProps } from "@mui/material/TextField";
 import type { MobileDateTimePickerProps } from "@mui/x-date-pickers/MobileDateTimePicker";
 import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
 import { useStore } from "@tanstack/react-form";
-import dayjs from "dayjs";
+import * as DateTime from "effect/DateTime";
 import * as F from "effect/Function";
+import * as Option from "effect/Option";
 import { useFieldContext } from "../form";
 
 function DateTimePickerField({ slotProps, ...other }: DefaultOmit<MobileDateTimePickerProps>) {
@@ -21,11 +22,20 @@ function DateTimePickerField({ slotProps, ...other }: DefaultOmit<MobileDateTime
         }) as const
     )
   );
+
+  // Convert string to Date for MUI
+  const dateValue = F.pipe(DateTime.make(field.state.value), Option.map(DateTime.toDate), Option.getOrNull);
+
   return (
     <MobileDateTimePicker
       name={field.name}
-      value={dayjs(field.state.value)}
-      onChange={(newValue) => field.handleChange(dayjs(newValue).format())}
+      value={dateValue}
+      onChange={(newValue) => {
+        if (newValue) {
+          const dt = DateTime.unsafeFromDate(newValue);
+          field.handleChange(DateTime.formatIso(dt));
+        }
+      }}
       format={formatPatterns.split.dateTime}
       slotProps={{
         textField: {

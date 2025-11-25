@@ -8,8 +8,17 @@ services:
       - redis_data:/data
   postgres:
     container_name: beep-db
-    image: postgres:16-alpine
-
+    image: postgres
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U postgres -d postgres'"]
+      interval: 1s
+      timeout: 60s
+      retries: 10
+    command:
+      - postgres
+      - -c
+      - wal_level=logical
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
@@ -18,7 +27,6 @@ services:
       - "${DB_PG_PORT:-5432}:${DB_PG_PORT:-5432}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
 
   grafana:
     image: grafana/otel-lgtm:0.11.10

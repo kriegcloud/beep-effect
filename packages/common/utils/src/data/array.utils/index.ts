@@ -57,3 +57,5 @@ export * as NonEmptyReadonly from "@beep/utils/data/array.utils/NonEmptyReadonly
  * @since 0.1.0
  */
 export * from "@beep/utils/data/array.utils/order-by";
+export * from "./collect";
+export * from "./with-default";

@@ -1,6 +1,5 @@
 "use client";
 import * as ManagedRuntime from "effect/ManagedRuntime";
-import { NuqsAdapter } from "nuqs/adapters/next/app";
 import React from "react";
 import type { LiveManagedRuntime } from "./services/runtime/live-layer";
 import { clientRuntimeLayer } from "./services/runtime/live-layer";
@@ -13,9 +12,5 @@ type BeepProviderProps = {
 export const BeepProvider: React.FC<BeepProviderProps> = ({ children }) => {
   const runtime: LiveManagedRuntime = React.useMemo(() => ManagedRuntime.make(clientRuntimeLayer), []);
 
-  return (
-    <RuntimeProvider runtime={runtime}>
-      <NuqsAdapter>{children}</NuqsAdapter>
-    </RuntimeProvider>
-  );
+  return <RuntimeProvider runtime={runtime}>{children}</RuntimeProvider>;
 };

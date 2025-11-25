@@ -87,17 +87,13 @@
     "@effect/platform-bun": "^0.83.0",
     "@types/bun": "^1.3.3",
     "@types/node": "^24.10.1",
-    "alchemy": "^0.77.5",
     "babel-plugin-annotate-pure-calls": "^0.5.0",
     "babel-plugin-transform-next-use-client": "^1.1.1",
-    "bun-types": "^1.3.3",
     "husky": "^9.1.7",
     "knip": "^5.70.1",
     "lint-staged": "^16.2.7",
     "madge": "^8.0.0",
     "prettier": "^3.6.2",
-    "sharp": "^0.34.5",
-    "sharp-ico": "^0.1.5",
     "syncpack": "^14.0.0-alpha.28",
     "tsx": "^4.20.6",
     "turbo": "^2.6.1",
@@ -114,7 +110,7 @@
   "catalog": {
     "@effect/sql-drizzle": "^0.47.0",
     "@babel/preset-react": "^7.28.5",
-    "@next/bundle-analyzer": "^16.0.3",
+    "@next/bundle-analyzer": "^16.0.4",
     "@babel/cli": "^7.28.3",
     "@babel/core": "^7.28.5",
     "@babel/plugin-transform-export-namespace-from": "^7.27.1",
@@ -143,7 +139,6 @@
     "@effect/sql": "^0.48.0",
     "@effect/sql-pg": "^0.49.6",
     "@effect/workflow": "^0.13.0",
-    "bun-types": "^1.3.3",
     "@types/copyfiles": "^2.4.4",
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
@@ -165,53 +160,29 @@
     "@mui/x-date-pickers": "^8.19.0",
     "@mui/x-tree-view": "^8.19.0",
     "@opentelemetry/api": "^1.9.0",
-    "@opentelemetry/context-async-hooks": "^2.2.0",
     "@opentelemetry/exporter-logs-otlp-http": "^0.208.0",
     "@opentelemetry/exporter-metrics-otlp-proto": "^0.208.0",
-    "@opentelemetry/exporter-prometheus": "^0.208.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.208.0",
-    "@opentelemetry/exporter-trace-otlp-proto": "^0.208.0",
-    "@opentelemetry/otlp-exporter-base": "^0.208.0",
-    "@opentelemetry/otlp-transformer": "^0.208.0",
-    "@opentelemetry/propagator-b3": "^2.2.0",
-    "@opentelemetry/resources": "^2.2.0",
     "@opentelemetry/sdk-logs": "^0.208.0",
     "@opentelemetry/sdk-metrics": "^2.2.0",
-    "@opentelemetry/sdk-node": "^0.208.0",
     "@opentelemetry/sdk-trace-base": "^2.2.0",
-    "@opentelemetry/sdk-trace-node": "^2.2.0",
     "@opentelemetry/sdk-trace-web": "^2.2.0",
     "@react-email/components": "^1.0.1",
     "@react-email/render": "^2.0.0",
-    "@rocicorp/zero": "^0.25.0",
+    "@rocicorp/zero": "^0.24.3000000000",
     "@simplewebauthn/server": "^13.2.2",
     "@standard-schema/spec": "^1.0.0",
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4.1.17",
-    "@tanstack/react-form": "^1.25.0",
-    "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-form": "^1.26.0",
     "@testcontainers/postgresql": "^11.8.1",
-    "@tiptap/core": "^3.11.0",
-    "@tiptap/extension-code-block": "^3.11.0",
-    "@tiptap/extension-code-block-lowlight": "^3.11.0",
-    "@tiptap/extension-heading": "^3.11.0",
-    "@tiptap/extension-image": "^3.11.0",
-    "@tiptap/extension-link": "^3.11.0",
-    "@tiptap/extension-placeholder": "^3.11.0",
-    "@tiptap/extension-text-align": "^3.11.0",
-    "@tiptap/extension-underline": "^3.11.0",
-    "@tiptap/pm": "^3.11.0",
-    "@tiptap/react": "^3.11.0",
-    "@tiptap/starter-kit": "^3.11.0",
     "@turbo/gen": "^2.6.1",
     "@types/autosuggest-highlight": "^3.2.3",
     "@types/bun": "^1.3.3",
-    "@types/lodash": "^4.17.21",
     "@types/node": "^24.10.1",
     "@types/nprogress": "^0.2.3",
-    "@types/react": "^19.2.6",
+    "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "@xstate/react": "^6.0.0",
     "accept-language": "^3.0.20",
     "autoprefixer": "^10.4.22",
     "autosuggest-highlight": "^3.3.4",
@@ -219,22 +190,14 @@
     "babel-plugin-transform-next-use-client": "^1.1.1",
     "better-auth": "^1.4.1",
     "better-auth-localization": "^2.2.2",
-    "better-call": "^1.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "copyfiles": "^2.4.1",
-    "dayjs": "^1.11.19",
     "drizzle-kit": "^0.31.7",
     "drizzle-orm": "^0.44.7",
     "drizzle-zero": "^0.16.2",
     "dub": "^0.68.0",
     "effect": "^3.19.6",
-    "embla-carousel": "^8.6.0",
-    "embla-carousel-auto-height": "^8.6.0",
-    "embla-carousel-auto-scroll": "^8.6.0",
-    "embla-carousel-autoplay": "^8.6.0",
-    "embla-carousel-fade": "^8.6.0",
-    "embla-carousel-react": "^8.6.0",
     "exifreader": "^4.32.0",
     "framer-motion": "^12.23.24",
     "husky": "^9.1.7",
@@ -243,24 +206,20 @@
     "i18next-resources-to-backend": "^1.2.1",
     "jose": "^6.1.2",
     "lint-staged": "^16.2.7",
-    "lowlight": "^3.3.0",
     "madge": "^8.0.0",
     "motion": "^12.23.24",
     "mui-one-time-password-input": "^5.0.0",
     "mutative": "^1.3.0",
-    "next": "^16.0.2-canary.33",
+    "next": "^16.1.0-canary.1",
     "nprogress": "^0.2.0",
-    "nuqs": "^2.8.1",
     "picocolors": "^1.1.1",
     "postcss": "^8.5.6",
     "postgres": "^3.4.7",
     "prettier": "^3.6.2",
     "randexp-ts": "^1.0.5",
     "react": "^19.2.0",
-    "react-apexcharts": "^1.8.0",
     "react-dom": "^19.2.0",
     "react-dropzone": "^14.3.8",
-    "react-google-recaptcha-v3": "^1.11.0",
     "react-i18next": "^16.3.5",
     "react-phone-number-input": "^3.4.14",
     "resend": "^6.5.2",
@@ -276,10 +235,8 @@
     "tsx": "^4.20.6",
     "turbo": "^2.6.1",
     "tw-animate-css": "^1.4.0",
-    "type-fest": "^5.2.0",
     "typescript": "^5.9.3",
     "uuid": "^13.0.0",
-    "xstate": "^5.24.0",
     "zod": "^4.1.13",
     "@better-auth/sso": "^1.4.1",
     "turndown": "^7.2.2",
@@ -292,13 +249,11 @@
     "@better-fetch/fetch": "^1.1.18",
     "@radix-ui/react-toast": "^1.2.15",
     "@zip.js/zip.js": "^2.8.11",
-    "prism-react-renderer": "^2.4.1",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-separator": "^1.1.8",
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tooltip": "^1.2.8",
     "lucide-react": "^0.554.0",
-    "tone": "^15.3.9",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.8",
     "@radix-ui/react-avatar": "^1.1.11",
@@ -326,46 +281,24 @@
     "next-themes": "^0.4.6",
     "react-day-picker": "^9.11.2",
     "react-resizable-panels": "^3.0.6",
-    "recharts": "^3.5.0",
     "vaul": "^1.1.2",
     "@radix-ui/react-accordion": "^1.2.12",
-    "react-qr-code": "^2.0.18",
-    "ua-parser-js": "^2.0.6",
-    "@types/react-google-recaptcha": "^2.1.9",
     "@radix-ui/react-use-callback-ref": "^1.1.1",
     "@radix-ui/react-use-layout-effect": "^1.1.1",
-    "@noble/hashes": "^2.0.1",
-    "@hcaptcha/react-hcaptcha": "^1.14.0",
-    "@marsidev/react-turnstile": "^1.3.1",
     "@wojtekmaj/react-recaptcha-v3": "^0.1.4",
-    "react-google-recaptcha": "^3.1.0",
     "@effect/platform-node": "^0.101.1",
-    "workbox-core": "^7.4.0",
-    "workbox-window": "^7.4.0",
     "@tailwindcss/typography": "^0.5.19",
-    "@tanstack/router-devtools": "^1.139.3",
-    "@tanstack/router-plugin": "^1.139.3",
     "react-router-dom": "^7.9.6",
-    "@tanstack/react-router": "^1.139.3",
-    "@tanstack/react-virtual": "^3.13.12",
-    "@hookform/resolvers": "^5.2.2",
-    "react-hook-form": "^7.66.1",
-    "concurrently": "^9.2.1",
-    "sharp": "^0.34.5",
-    "sharp-ico": "^0.1.5",
     "@effect/sql-sqlite-node": "^0.49.0",
     "@effect/sql-sqlite-bun": "^0.49.0",
-    "@number-flow/react": "^0.5.10",
-    "@phosphor-icons/react": "^2.1.10",
     "fast-check": "^4.3.0",
     "pg": "^8.16.3",
-    "alchemy": "^0.78.0",
     "@effect/build-utils": "^0.8.9",
     "ast-types": "^0.16.1",
     "@better-auth/passkey": "^1.4.1",
     "@better-auth/scim": "^1.4.1",
     "@tanstack/react-devtools": "^0.8.1",
-    "@tanstack/react-form-devtools": "^0.2.1"
+    "@tanstack/react-form-devtools": "^0.2.2"
   },
   "dependenciesCatalog": [
     {
@@ -393,10 +326,6 @@
       "version": "^0.8.9"
     },
     {
-      "name": "alchemy",
-      "version": "^0.77.5"
-    },
-    {
       "name": "pg",
       "version": "^8.16.3"
     },
@@ -413,84 +342,20 @@
       "version": "^0.47.0"
     },
     {
-      "name": "@number-flow/react",
-      "version": "^0.5.10"
-    },
-    {
-      "name": "@phosphor-icons/react",
-      "version": "^2.1.10"
-    },
-    {
-      "name": "sharp",
-      "version": "^0.34.4"
-    },
-    {
-      "name": "sharp-ico",
-      "version": "^0.1.5"
-    },
-    {
-      "name": "react-hook-form",
-      "version": "^7.66.0"
-    },
-    {
-      "name": "@hookform/resolvers",
-      "version": "^5.2.2"
-    },
-    {
-      "name": "concurrently",
-      "version": "^9.2.1"
-    },
-    {
       "name": "@tailwindcss/typography",
       "version": "^0.5.19"
-    },
-    {
-      "name": "@tanstack/router-devtools",
-      "version": "^1.134.4"
-    },
-    {
-      "name": "@tanstack/router-plugin",
-      "version": "^1.134.6"
     },
     {
       "name": "react-router-dom",
       "version": "^7.9.5"
     },
     {
-      "name": "@tanstack/react-router",
-      "version": "^1.134.4"
-    },
-    {
-      "name": "@tanstack/react-virtual",
-      "version": "^3.13.12"
-    },
-    {
       "name": "@tailwindcss/typography",
       "version": "^0.5.19"
     },
     {
-      "name": "@tanstack/router-devtools",
-      "version": "^1.134.4"
-    },
-    {
-      "name": "@tanstack/router-plugin",
-      "version": "^1.134.6"
-    },
-    {
-      "name": "workbox-core",
-      "version": "^7.3.0"
-    },
-    {
-      "name": "workbox-window",
-      "version": "^7.3.0"
-    },
-    {
       "name": "@effect/platform-node",
       "version": "^0.98.4"
-    },
-    {
-      "name": "@types/react-google-recaptcha",
-      "version": "^2.1.9"
     },
     {
       "name": "@hcaptcha/react-hcaptcha",
@@ -503,26 +368,6 @@
     {
       "name": "@wojtekmaj/react-recaptcha-v3",
       "version": "^0.1.4"
-    },
-    {
-      "name": "react-google-recaptcha",
-      "version": "^3.1.0"
-    },
-    {
-      "name": "@noble/hashes",
-      "version": "^2.0.1"
-    },
-    {
-      "name": "react-qr-code",
-      "version": "^2.0.18"
-    },
-    {
-      "name": "ua-parser-js",
-      "version": "^2.0.6"
-    },
-    {
-      "name": "@types/react-google-recaptcha",
-      "version": "^2.1.9"
     },
     {
       "name": "@radix-ui/react-use-callback-ref",
@@ -629,10 +474,6 @@
       "version": "^1.2.12"
     },
     {
-      "name": "tone",
-      "version": "^15.1.22"
-    },
-    {
       "name": "@radix-ui/react-dialog",
       "version": "^1.1.15"
     },
@@ -651,10 +492,6 @@
     {
       "name": "lucide-react",
       "version": "^0.548.0"
-    },
-    {
-      "name": "prism-react-renderer",
-      "version": "^2.4.1"
     },
     {
       "name": "@zip.js/zip.js",
@@ -817,10 +654,6 @@
       "version": "^0.47.0"
     },
     {
-      "name": "bun-types",
-      "version": "^1.2.23"
-    },
-    {
       "name": "@types/copyfiles",
       "version": "^2.4.4"
     },
@@ -909,10 +742,6 @@
       "version": "^1.9.0"
     },
     {
-      "name": "@opentelemetry/context-async-hooks",
-      "version": "^2.1.0"
-    },
-    {
       "name": "@opentelemetry/exporter-logs-otlp-http",
       "version": "^0.206.0"
     },
@@ -921,32 +750,8 @@
       "version": "^0.206.0"
     },
     {
-      "name": "@opentelemetry/exporter-prometheus",
-      "version": "^0.206.0"
-    },
-    {
       "name": "@opentelemetry/exporter-trace-otlp-http",
       "version": "^0.206.0"
-    },
-    {
-      "name": "@opentelemetry/exporter-trace-otlp-proto",
-      "version": "^0.206.0"
-    },
-    {
-      "name": "@opentelemetry/otlp-exporter-base",
-      "version": "^0.206.0"
-    },
-    {
-      "name": "@opentelemetry/otlp-transformer",
-      "version": "^0.206.0"
-    },
-    {
-      "name": "@opentelemetry/propagator-b3",
-      "version": "^2.1.0"
-    },
-    {
-      "name": "@opentelemetry/resources",
-      "version": "^2.1.0"
     },
     {
       "name": "@opentelemetry/sdk-logs",
@@ -957,15 +762,7 @@
       "version": "^2.1.0"
     },
     {
-      "name": "@opentelemetry/sdk-node",
-      "version": "^0.206.0"
-    },
-    {
       "name": "@opentelemetry/sdk-trace-base",
-      "version": "^2.1.0"
-    },
-    {
-      "name": "@opentelemetry/sdk-trace-node",
       "version": "^2.1.0"
     },
     {
@@ -982,7 +779,7 @@
     },
     {
       "name": "@rocicorp/zero",
-      "version": "^0.24.2025100802"
+      "version": "^0.24.3000000000"
     },
     {
       "name": "@simplewebauthn/server",
@@ -1005,60 +802,8 @@
       "version": "^1.23.4"
     },
     {
-      "name": "@tanstack/react-table",
-      "version": "^8.21.3"
-    },
-    {
       "name": "@testcontainers/postgresql",
       "version": "^11.7.1"
-    },
-    {
-      "name": "@tiptap/core",
-      "version": "^3.6.5"
-    },
-    {
-      "name": "@tiptap/extension-code-block",
-      "version": "^3.6.5"
-    },
-    {
-      "name": "@tiptap/extension-code-block-lowlight",
-      "version": "^3.6.5"
-    },
-    {
-      "name": "@tiptap/extension-heading",
-      "version": "^3.6.5"
-    },
-    {
-      "name": "@tiptap/extension-image",
-      "version": "^3.6.5"
-    },
-    {
-      "name": "@tiptap/extension-link",
-      "version": "^3.6.5"
-    },
-    {
-      "name": "@tiptap/extension-placeholder",
-      "version": "^3.6.5"
-    },
-    {
-      "name": "@tiptap/extension-text-align",
-      "version": "^3.6.5"
-    },
-    {
-      "name": "@tiptap/extension-underline",
-      "version": "^3.6.5"
-    },
-    {
-      "name": "@tiptap/pm",
-      "version": "^3.6.5"
-    },
-    {
-      "name": "@tiptap/react",
-      "version": "^3.6.5"
-    },
-    {
-      "name": "@tiptap/starter-kit",
-      "version": "^3.6.5"
     },
     {
       "name": "@turbo/gen",
@@ -1089,10 +834,6 @@
       "version": "^19.2.1"
     },
     {
-      "name": "@xstate/react",
-      "version": "^6.0.0"
-    },
-    {
       "name": "accept-language",
       "version": "^3.0.20"
     },
@@ -1121,10 +862,6 @@
       "version": "^2.1.8"
     },
     {
-      "name": "better-call",
-      "version": "^1.0.19"
-    },
-    {
       "name": "class-variance-authority",
       "version": "^0.7.1"
     },
@@ -1135,10 +872,6 @@
     {
       "name": "copyfiles",
       "version": "^2.4.1"
-    },
-    {
-      "name": "dayjs",
-      "version": "^1.11.18"
     },
     {
       "name": "drizzle-kit",
@@ -1159,30 +892,6 @@
     {
       "name": "effect",
       "version": "^3.18.4"
-    },
-    {
-      "name": "embla-carousel",
-      "version": "^8.6.0"
-    },
-    {
-      "name": "embla-carousel-auto-height",
-      "version": "^8.6.0"
-    },
-    {
-      "name": "embla-carousel-auto-scroll",
-      "version": "^8.6.0"
-    },
-    {
-      "name": "embla-carousel-autoplay",
-      "version": "^8.6.0"
-    },
-    {
-      "name": "embla-carousel-fade",
-      "version": "^8.6.0"
-    },
-    {
-      "name": "embla-carousel-react",
-      "version": "^8.6.0"
     },
     {
       "name": "exifreader",
@@ -1217,10 +926,6 @@
       "version": "^16.2.3"
     },
     {
-      "name": "lowlight",
-      "version": "^3.3.0"
-    },
-    {
       "name": "madge",
       "version": "^8.0.0"
     },
@@ -1243,10 +948,6 @@
     {
       "name": "nprogress",
       "version": "^0.2.0"
-    },
-    {
-      "name": "nuqs",
-      "version": "^2.7.1"
     },
     {
       "name": "picocolors",
@@ -1273,20 +974,12 @@
       "version": "^19.2.0"
     },
     {
-      "name": "react-apexcharts",
-      "version": "^1.7.0"
-    },
-    {
       "name": "react-dom",
       "version": "^19.2.0"
     },
     {
       "name": "react-dropzone",
       "version": "^14.3.8"
-    },
-    {
-      "name": "react-google-recaptcha-v3",
-      "version": "^1.11.0"
     },
     {
       "name": "react-i18next",
@@ -1349,20 +1042,12 @@
       "version": "^1.4.0"
     },
     {
-      "name": "type-fest",
-      "version": "^5.0.1"
-    },
-    {
       "name": "typescript",
       "version": "^5.9.3"
     },
     {
       "name": "uuid",
       "version": "^13.0.0"
-    },
-    {
-      "name": "xstate",
-      "version": "^5.22.1"
     },
     {
       "name": "zod",

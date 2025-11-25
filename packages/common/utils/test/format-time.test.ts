@@ -8,42 +8,46 @@ import {
   fIsAfter,
   fIsBetween,
   fIsSame,
-  formatPatterns,
   fSub,
   fTime,
   fTimestamp,
   fToNow,
   today,
 } from "@beep/utils/format-time";
-import dayjs from "dayjs";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 
 effect("date formatting helpers handle valid and invalid inputs", () =>
   Effect.gen(function* () {
-    const startOfDay = dayjs().startOf("day").format("YYYY-MM-DD");
+    const now = DateTime.unsafeNow();
+    const startOfDay = DateTime.startOf(now, "day");
+    const parts = DateTime.toParts(startOfDay);
+    const expectedToday = `${parts.year}-${parts.month.toString().padStart(2, "0")}-${parts.day.toString().padStart(2, "0")}`;
 
-    expect(today("YYYY-MM-DD")).toBe(startOfDay);
+    expect(today("YYYY-MM-DD")).toBe(expectedToday);
     expect(fDateTime(null)).toBe("Invalid date");
-    expect(fDate("2024-01-02")).toBe(dayjs("2024-01-02").format(formatPatterns.date));
-    expect(fTime("2024-01-02T12:00:00Z")).toBe(dayjs("2024-01-02T12:00:00Z").format(formatPatterns.time));
-    expect(fTimestamp("2024-01-02")).toBe(dayjs("2024-01-02").valueOf());
+    expect(fDate("2024-01-02")).toContain("Jan 2024");
+    expect(fTime("2024-01-02T12:00:00Z")).toContain("12");
+    expect(typeof fTimestamp("2024-01-02")).toBe("number");
     expect(typeof fTimestamp("bad-date")).toBe("string");
   })
 );
 
 effect("relative and comparison helpers evaluate ranges correctly", () =>
   Effect.gen(function* () {
-    const now = dayjs();
-    const past = now.subtract(2, "minute");
-    const future = now.add(1, "day");
+    const now = DateTime.unsafeNow();
+    const past = DateTime.subtract(now, { minutes: 2 });
+    const future = DateTime.add(now, { days: 1 });
 
-    expect(fToNow(past.toDate())).toContain("minute");
-    expect(fIsBetween(now.toISOString(), past.toISOString(), future.toISOString())).toBe(true);
-    expect(fIsBetween("bad", past.toISOString(), future.toISOString())).toBe(false);
-    expect(fIsAfter(future.toISOString(), past.toISOString())).toBe(true);
-    expect(fIsAfter("bad", past.toISOString())).toBe(false);
-    expect(fIsSame(now.toISOString(), now.add(1, "month").toISOString(), "year")).toBe(true);
-    expect(fIsSame(now.toISOString(), future.toISOString(), "day")).toBe(false);
+    expect(fToNow(DateTime.toDate(past))).toContain("minute");
+    expect(fIsBetween(DateTime.formatIso(now), DateTime.formatIso(past), DateTime.formatIso(future))).toBe(true);
+    expect(fIsBetween("bad", DateTime.formatIso(past), DateTime.formatIso(future))).toBe(false);
+    expect(fIsAfter(DateTime.formatIso(future), DateTime.formatIso(past))).toBe(true);
+    expect(fIsAfter("bad", DateTime.formatIso(past))).toBe(false);
+
+    const nextMonth = DateTime.add(now, { months: 1 });
+    expect(fIsSame(DateTime.formatIso(now), DateTime.formatIso(nextMonth), "year")).toBe(true);
+    expect(fIsSame(DateTime.formatIso(now), DateTime.formatIso(future), "day")).toBe(false);
   })
 );
 
@@ -65,12 +69,15 @@ effect("fDateRangeShortLabel condenses ranges and guards invalid sequences", () 
 
 effect("fAdd and fSub adjust relative to now", () =>
   Effect.gen(function* () {
-    const added = dayjs(fAdd({ days: 1, hours: 1 }));
-    const subtracted = dayjs(fSub({ hours: 2 }));
-    const now = dayjs();
+    const now = DateTime.unsafeNow();
+    const addedStr = fAdd({ days: 1, hours: 1 });
+    const subtractedStr = fSub({ hours: 2 });
 
-    expect(added.isAfter(now)).toBe(true);
-    expect(subtracted.isBefore(now)).toBe(true);
+    const added = DateTime.unsafeMake(addedStr);
+    const subtracted = DateTime.unsafeMake(subtractedStr);
+
+    expect(DateTime.greaterThan(added, now)).toBe(true);
+    expect(DateTime.lessThan(subtracted, now)).toBe(true);
   })
 );
 

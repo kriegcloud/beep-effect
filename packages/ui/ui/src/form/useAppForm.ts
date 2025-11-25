@@ -24,7 +24,6 @@ const Phone = React.lazy(() => import("@beep/ui/inputs/PhoneField"));
 const UploadAvatar = React.lazy(() => import("@beep/ui/inputs/UploadAvatarField"));
 const Upload = React.lazy(() => import("@beep/ui/inputs/UploadField"));
 const UploadBox = React.lazy(() => import("@beep/ui/inputs/UploadBoxField"));
-const Editor = React.lazy(() => import("@beep/ui/inputs/EditorField"));
 const Color = React.lazy(() => import("@beep/ui/inputs/ColorField"));
 const Emoji = React.lazy(() => import("@beep/ui/inputs/EmojiField"));
 export const { fieldContext, useFieldContext, formContext, useFormContext } = createFormHookContexts();
@@ -39,7 +38,6 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
     OTP,
     DateTimePicker,
     Autocomplete,
-    Editor,
     Checkbox,
     RadioGroup,
     Color,

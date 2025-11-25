@@ -4,7 +4,6 @@ export * from "./ColorField";
 export * from "./CountryField";
 export * from "./DatePickerField";
 export * from "./DateTimePickerField";
-export * from "./EditorField";
 export * from "./EmojiField";
 export * from "./Field";
 export * from "./MultiCheckboxField";

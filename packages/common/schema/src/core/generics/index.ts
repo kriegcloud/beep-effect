@@ -12,6 +12,8 @@
  * @category Core/Generics
  * @since 0.1.0
  */
+
+export * from "./tagged-class";
 export * from "./tagged-struct";
 /**
  * Tagged union helpers re-export.

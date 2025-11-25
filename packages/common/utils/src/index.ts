@@ -325,7 +325,7 @@ export * from "@beep/utils/transformations";
  * @since 0.1.0
  */
 export * from "@beep/utils/uint8-array-to-array-buffer";
-
+export * from "./coerce";
 /**
  * Re-exports literal-aware helpers from `const.ts`.
  *
