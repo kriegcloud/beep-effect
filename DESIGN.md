@@ -31,7 +31,10 @@ Reason: Domain models use M.Class pattern from @effect/sql/Model for database in
 
 ### Purpose
 
-The `knowledge-management` slice implements a Notion-style knowledge base shared across teams, with offline-capable, encrypted document editing. Realtime collaborative editing (CRDT/Yjs) is out of scope for the MVP; the MVP uses last-write-wins via Zero.
+The `knowledge-management` slice implements a Notion-style knowledge base shared across teams, with offline-capable, encrypted document editing.
+
+**Collaboration Model for MVP:**
+For the MVP, collaboration is achieved through multiple users accessing shared pages with Zero's last-write-wins synchronization. Real-time CRDT-style collaborative editing (Yjs) is **out of scope for MVP** and is only considered as a future enhancement. This means concurrent edits to the same page will result in last-write-wins behavior rather than character-level operational transformation.
 
 ### MVP Feature Set
 
@@ -158,6 +161,75 @@ The following technical constraints and design decisions define the MVP scope an
   - Order values are strings like "a0", "a0V", "a1" (not integers)
   - Prevents order conflicts during concurrent inserts
   - See Section 3.3 for block ordering details
+
+---
+
+### Implementation Scope (MVP)
+
+This section defines what should be implemented in the current MVP pass versus what is design-only for future consideration.
+
+**In-scope for this implementation pass:**
+- Domain models and tables for `KnowledgeSpace`, `KnowledgePage`, `KnowledgeBlock`, `PageLink`
+- Zero integration for local-first sync and optimistic updates
+- BlockNote editor in single-editor mode, serializing/encrypting JSON into `knowledge_block.encrypted_content`
+- Encryption service and org/space key management at the level described for MVP (space-level keys via HKDF)
+- Graph view built from `page_link` table (basic nodes + edges visualization)
+- SDK contracts and repositories needed to support the Core User Flows below
+- Basic access control policies (organization and team membership checks)
+- Database tables with soft-delete support and Zero tracking columns
+
+**Out-of-scope / future (design only in this doc):**
+- Real-time CRDT/Yjs collaboration (explicitly not MVP; see Section 5.5)
+- Files integration with `@beep/files-*` (see Section 10.2 - PROPOSED)
+- Audit logging / event bus (see Section 10.3 - PROPOSED)
+- Notifications / presence (see Section 10.4 - Future)
+- PostgreSQL RLS policies (see Section 7.3 - Future Enhancement)
+- Advanced graph analytics (clustering, traversal algorithms)
+- Any sections explicitly labeled as PROPOSED or Future
+
+### Core User Flows
+
+The following end-to-end user journeys define the MVP functionality that the implementation must support:
+
+1. **Create a space**
+   - User sets name, slug, description, and encryption option
+   - Space appears in the spaces list
+   - User can navigate to the space
+
+2. **Create and edit pages**
+   - User creates a page in a space with a title and content
+   - BlockNote editor allows rich text editing (headings, lists, code blocks)
+   - Page content is persisted to Zero → PostgreSQL as encrypted blocks
+   - User can re-open the page and see content restored
+
+3. **Hierarchical page organization**
+   - User creates subpages within a page (nested hierarchy)
+   - User can reorder pages in the tree using drag-and-drop
+   - Page hierarchy is maintained via `parentPageId` and `order` fields
+
+4. **Wiki-style links**
+   - User adds `[[Page Name]]` style links in page content
+   - System creates `page_link` entries automatically
+   - Backlinks panel shows pages that link to the current page
+   - Graph view visualizes page relationships
+
+5. **Offline editing and sync**
+   - User goes offline and edits existing pages
+   - Changes are stored in local IndexedDB cache
+   - User reconnects, and Zero syncs changes to server
+   - Last-write-wins behavior resolves any conflicts
+
+6. **Encrypted content**
+   - User loads an encrypted space
+   - System fetches/derives space encryption key
+   - Blocks are decrypted client-side using Web Crypto API
+   - Decrypted content renders in BlockNote editor
+   - User edits and saves → content is re-encrypted before sync
+
+7. **Access control**
+   - User can only view spaces they have access to (org/team membership)
+   - User can only edit pages in spaces where they have write permissions
+   - Zero auth filters enforce organization-level tenant isolation
 
 ---
 
@@ -311,19 +383,19 @@ All domain models follow consistent import patterns from the beep-effect2 monore
 // packages/knowledge-management/domain/src/entities/{Entity}/{Entity}.model.ts
 
 // Effect SQL Model for M.Class pattern
-import { Model as M } from "@effect/sql/Model";
+import * as M from "@effect/sql/Model";
 
 // Effect Schema for validation (aliased as S for brevity)
-import { Schema as S } from "effect";
+import * as S from "effect/Schema";
 
 // beep-effect Schema utilities (aliased as BS for "Beep Schema")
-import * as BS from "@beep/schema";
+import {BS} from "@beep/schema";
 
 // Shared domain utilities
 import { makeFields } from "@beep/shared-domain/common";
 
 // EntityIds from shared kernel
-import * as SharedEntityIds from "@beep/shared-domain/entity-ids";
+import {SharedEntityIds} from "@beep/shared-domain/entity-ids";
 import {
   KnowledgeSpaceId,
   KnowledgePageId,
@@ -331,9 +403,9 @@ import {
   PageLinkId
 } from "@beep/shared-domain/entity-ids/knowledge-management";
 
-// Schema kits for enums (created using stringLiteralKit)
-import { PageStatusKit } from "./schemas/PageStatus";
-import { BlockTypeKit } from "./schemas/BlockType";
+// Schema kits for enums (created using StringLiteralKit)
+import { PageStatus } from "./schemas/PageStatus";
+import { BlockType } from "./schemas/BlockType";
 // etc.
 ```
 
@@ -349,14 +421,14 @@ import * as pg from "drizzle-orm/pg-core";
 import { OrgTable } from "@beep/shared-tables";
 
 // beep-effect Schema utilities (for toPgEnum)
-import * as BS from "@beep/schema";
+import {BS} from "@beep/schema";
 
 // EntityIds
 import { KnowledgeSpaceId, KnowledgePageId } from "@beep/shared-domain/entity-ids/knowledge-management";
-import * as SharedEntityIds from "@beep/shared-domain/entity-ids";
+import {SharedEntityIds} from "@beep/shared-domain/entity-ids";
 
 // Domain schemas (for pg enums)
-import { PageStatusKit, BlockTypeKit } from "@beep/knowledge-management-domain/entities";
+import { PageStatus, BlockType } from "@beep/knowledge-management-domain/entities";
 ```
 
 **Standard Repository/Service Imports:**
@@ -368,7 +440,7 @@ import { Effect, Context, Layer } from "effect";
 import { SqlClient } from "@effect/sql";
 
 // Domain models
-import { KnowledgePage } from "@beep/knowledge-management-domain/entities/KnowledgePage";
+import { KnowledgePage } from "@beep/knowledge-management-domain/entities";
 
 // Tables
 import { knowledgePage } from "@beep/knowledge-management-tables";
@@ -382,11 +454,11 @@ import { PageNotFoundError, UnauthorizedError } from "@beep/knowledge-management
 ```typescript
 // packages/knowledge-management/sdk/src/contracts/{feature}.contracts.ts
 
-import { Schema as S } from "effect";
+import * as S from "effect/Schema";
 import { Contract } from "@beep/contract";
 
 // Domain models & schemas
-import { KnowledgePage } from "@beep/knowledge-management-domain/entities/KnowledgePage";
+import { KnowledgePage } from "@beep/knowledge-management-domain/entities";
 import { KnowledgePageId } from "@beep/shared-domain/entity-ids/knowledge-management";
 
 // Errors
@@ -410,9 +482,9 @@ import { PageNotFoundError, UnauthorizedError } from "@beep/knowledge-management
    - Example: `@beep/knowledge-management-domain` not `../../domain/src`
 
 4. **Schema Kit Pattern:**
-   - Enums are created using `stringLiteralKit` from `@beep/schema/kits`
-   - Imported as `*Kit` (e.g., `PageStatusKit`, `BlockTypeKit`, `LinkTypeKit`)
-   - Provides `.Schema`, `.Enum`, `.Options`, `.Guard`, etc.
+   - Enums are created using `StringLiteralKit` from `@beep/schema/derived/kits`
+   - Imported as `*` (e.g., `PageStatus`, `BlockType`, `LinkType`)
+   - Provides `.Enum`, `.Options` as static methods attached to the schema.
 
 5. **makeFields Helper:**
    - Imported from `@beep/shared-domain/common`
@@ -425,19 +497,19 @@ import { PageNotFoundError, UnauthorizedError } from "@beep/knowledge-management
 // packages/knowledge-management/domain/src/entities/KnowledgePage/KnowledgePage.model.ts
 
 // Effect libraries
-import { Model as M } from "@effect/sql/Model";
-import { Schema as S } from "effect";
+import * as M from "@effect/sql/Model";
+import * as S from "effect/Schema";
 
 // Beep utilities
-import * as BS from "@beep/schema";
+import {BS} from "@beep/schema";
 import { makeFields } from "@beep/shared-domain/common";
 
 // EntityIds
-import * as SharedEntityIds from "@beep/shared-domain/entity-ids";
+import {SharedEntityIds} from "@beep/shared-domain/entity-ids";
 import { KnowledgeSpaceId, KnowledgePageId } from "@beep/shared-domain/entity-ids/knowledge-management";
 
 // Local schemas
-import { PageStatusKit } from "./schemas/PageStatus";
+import { PageStatus } from "./schemas/PageStatus";
 
 export class Model extends M.Class<Model>(`KnowledgePageModel`)(
   makeFields(KnowledgePageId, {
@@ -446,7 +518,7 @@ export class Model extends M.Class<Model>(`KnowledgePageModel`)(
     parentPageId: BS.FieldOptionOmittable(KnowledgePageId),
     title: S.String.pipe(S.maxLength(500)),
     slug: S.String,
-    status: PageStatusKit.Schema,
+    status: PageStatus,
     order: S.Int,
     lastEditedAt: BS.DateTimeUtcFromAllAcceptable,
   })
@@ -538,7 +610,7 @@ export class Model extends M.Class<Model>(`KnowledgePageModel`)(
     parentPageId: BS.FieldOptionOmittable(KnowledgePageId),
     title: S.String.pipe(S.maxLength(500)), // Plaintext for search
     slug: S.String,
-    status: PageStatusKit.Schema, // 'draft' | 'published' | 'archived'
+    status: PageStatus, // 'draft' | 'published' | 'archived'
     order: S.Int, // For sibling ordering
     lastEditedBy: SharedEntityIds.UserId, // Domain-specific: tracks content editor (separate from audit updatedBy)
     lastEditedAt: BS.DateTimeUtcFromAllAcceptable, // Domain-specific: denormalized for queries
@@ -579,7 +651,7 @@ export class Model extends M.Class<Model>(`KnowledgeBlockModel`)(
     pageId: KnowledgePageId,
     parentBlockId: BS.FieldOptionOmittable(KnowledgeBlockId),
     organizationId: SharedEntityIds.OrganizationId,
-    type: BlockTypeKit.Schema, // 'paragraph' | 'heading' | 'code' | 'image' | ...
+    type: BlockType, // 'paragraph' | 'heading' | 'code' | 'image' | ...
     order: S.String, // Fractional indexing (text type for string keys like "a0", "a0V")
     encryptedContent: S.String, // Encrypted JSON blob (BlockNote content)
     contentHash: S.String, // SHA256 for deduplication/integrity
@@ -633,7 +705,7 @@ export class Model extends M.Class<Model>(`PageLinkModel`)(
     sourcePageId: KnowledgePageId,
     targetPageId: KnowledgePageId,
     organizationId: SharedEntityIds.OrganizationId,
-    linkType: LinkTypeKit.Schema, // 'explicit' | 'inline_reference' | 'block_embed'
+    linkType: LinkType, // 'explicit' | 'inline_reference' | 'block_embed'
     sourceBlockId: BS.FieldOptionOmittable(KnowledgeBlockId), // For inline refs
     contextSnippet: BS.FieldOptionOmittable(S.String), // 50 chars around link
     // Note: makeFields() automatically adds audit fields (createdAt, updatedAt, deletedAt, createdBy, updatedBy, deletedBy, version, source)
@@ -693,33 +765,33 @@ This section provides clear mappings showing which domain entities, tables, valu
 
 #### Table Definitions
 
-| Table            | File Path                                                                     | Package                            |
-|------------------|-------------------------------------------------------------------------------|------------------------------------|
-| knowledgeSpace   | packages/knowledge-management/tables/src/tables/knowledgeSpace.table.ts       | @beep/knowledge-management-tables  |
-| knowledgePage    | packages/knowledge-management/tables/src/tables/knowledgePage.table.ts        | @beep/knowledge-management-tables  |
-| knowledgeBlock   | packages/knowledge-management/tables/src/tables/knowledgeBlock.table.ts       | @beep/knowledge-management-tables  |
-| pageLink         | packages/knowledge-management/tables/src/tables/pageLink.table.ts             | @beep/knowledge-management-tables  |
-| relations        | packages/knowledge-management/tables/src/relations.ts                         | @beep/knowledge-management-tables  |
-| schema           | packages/knowledge-management/tables/src/schema.ts                            | @beep/knowledge-management-tables  |
-| _check (validation) | packages/knowledge-management/tables/src/_check.ts                         | @beep/knowledge-management-tables  |
+| Table               | File Path                                                               | Package                           |
+|---------------------|-------------------------------------------------------------------------|-----------------------------------|
+| knowledgeSpace      | packages/knowledge-management/tables/src/tables/knowledgeSpace.table.ts | @beep/knowledge-management-tables |
+| knowledgePage       | packages/knowledge-management/tables/src/tables/knowledgePage.table.ts  | @beep/knowledge-management-tables |
+| knowledgeBlock      | packages/knowledge-management/tables/src/tables/knowledgeBlock.table.ts | @beep/knowledge-management-tables |
+| pageLink            | packages/knowledge-management/tables/src/tables/pageLink.table.ts       | @beep/knowledge-management-tables |
+| relations           | packages/knowledge-management/tables/src/relations.ts                   | @beep/knowledge-management-tables |
+| schema              | packages/knowledge-management/tables/src/schema.ts                      | @beep/knowledge-management-tables |
+| _check (validation) | packages/knowledge-management/tables/src/_check.ts                      | @beep/knowledge-management-tables |
 
 #### Value Objects & Schema Kits
 
-| Value Object / Kit | File Path                                                                              | Package                           |
-|--------------------|----------------------------------------------------------------------------------------|-----------------------------------|
-| PageStatusKit      | packages/knowledge-management/domain/src/entities/KnowledgePage/schemas/PageStatus.ts  | @beep/knowledge-management-domain |
-| BlockTypeKit       | packages/knowledge-management/domain/src/entities/KnowledgeBlock/schemas/BlockType.ts  | @beep/knowledge-management-domain |
-| LinkTypeKit        | packages/knowledge-management/domain/src/entities/PageLink/schemas/LinkType.ts         | @beep/knowledge-management-domain |
-| BlockContent       | packages/knowledge-management/domain/src/value-objects/BlockContent.ts                 | @beep/knowledge-management-domain |
-| EncryptedPayload   | packages/knowledge-management/domain/src/value-objects/EncryptedPayload.ts             | @beep/knowledge-management-domain |
+| Value Object / Kit | File Path                                                                             | Package                           |
+|--------------------|---------------------------------------------------------------------------------------|-----------------------------------|
+| PageStatus         | packages/knowledge-management/domain/src/entities/KnowledgePage/schemas/PageStatus.ts | @beep/knowledge-management-domain |
+| BlockType          | packages/knowledge-management/domain/src/entities/KnowledgeBlock/schemas/BlockType.ts | @beep/knowledge-management-domain |
+| LinkType           | packages/knowledge-management/domain/src/entities/PageLink/schemas/LinkType.ts        | @beep/knowledge-management-domain |
+| BlockContent       | packages/knowledge-management/domain/src/value-objects/BlockContent.ts                | @beep/knowledge-management-domain |
+| EncryptedPayload   | packages/knowledge-management/domain/src/value-objects/EncryptedPayload.ts            | @beep/knowledge-management-domain |
 
 #### Error Definitions
 
-| Error Category      | File Path                                                         | Package                           |
-|---------------------|-------------------------------------------------------------------|-----------------------------------|
-| Page Errors         | packages/knowledge-management/domain/src/errors/page.errors.ts    | @beep/knowledge-management-domain |
-| Encryption Errors   | packages/knowledge-management/domain/src/errors/encryption.errors.ts | @beep/knowledge-management-domain |
-| General Errors      | packages/knowledge-management/domain/src/errors/index.ts          | @beep/knowledge-management-domain |
+| Error Category    | File Path                                                            | Package                           |
+|-------------------|----------------------------------------------------------------------|-----------------------------------|
+| Page Errors       | packages/knowledge-management/domain/src/errors/page.errors.ts       | @beep/knowledge-management-domain |
+| Encryption Errors | packages/knowledge-management/domain/src/errors/encryption.errors.ts | @beep/knowledge-management-domain |
+| General Errors    | packages/knowledge-management/domain/src/errors/index.ts             | @beep/knowledge-management-domain |
 
 #### EntityIds (Shared Kernel)
 
@@ -756,6 +828,8 @@ See `packages/shared/tables/src/common.ts` and `Columns.ts` for implementation.
 ---
 
 ### 4.2 Table Definitions
+
+> **Implementation Constraints Reference:** This section implements Implementation Constraints (6) PostgreSQL + Zero tracking, (7) Snake_case column names, and (8) Soft delete with `deleted_at`.
 
 <!-- MCP_DOC_REFERENCE
 For Drizzle ORM table definitions and column types:
@@ -834,9 +908,9 @@ import { KnowledgePageId, KnowledgeSpaceId } from "@beep/shared-domain/entity-id
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 import { knowledgeSpace } from "./knowledgeSpace.table";
-import { PageStatusKit } from "@beep/knowledge-management-domain/entities/KnowledgePage/schemas";
+import { PageStatus } from "@beep/knowledge-management-domain/entities/KnowledgePage/schemas";
 
-export const pageStatusPgEnum = BS.toPgEnum(PageStatusKit.Schema)("page_status_enum");
+export const pageStatusPgEnum = BS.toPgEnum(PageStatus)("page_status_enum");
 
 export const knowledgePage = OrgTable.make(KnowledgePageId)({
   spaceId: pg.text("space_id")...,
@@ -879,9 +953,9 @@ import { KnowledgeBlockId, KnowledgePageId } from "@beep/shared-domain/entity-id
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 import { knowledgePage } from "./knowledgePage.table";
-import { BlockTypeKit } from "@beep/knowledge-management-domain/entities/KnowledgeBlock/schemas";
+import { BlockType } from "@beep/knowledge-management-domain/entities/KnowledgeBlock/schemas";
 
-export const blockTypePgEnum = BS.toPgEnum(BlockTypeKit.Schema)("block_type_enum");
+export const blockTypePgEnum = BS.toPgEnum(BlockType)("block_type_enum");
 
 export const knowledgeBlock = OrgTable.make(KnowledgeBlockId)({
   pageId: pg
@@ -941,9 +1015,9 @@ import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 import { knowledgePage } from "./knowledgePage.table";
 import { knowledgeBlock } from "./knowledgeBlock.table";
-import { LinkTypeKit } from "@beep/knowledge-management-domain/entities/PageLink/schemas";
+import { LinkType } from "@beep/knowledge-management-domain/entities/PageLink/schemas";
 
-export const linkTypePgEnum = BS.toPgEnum(LinkTypeKit.Schema)("link_type_enum");
+export const linkTypePgEnum = BS.toPgEnum(LinkType)("link_type_enum");
 
 export const pageLink = OrgTable.make(PageLinkId)({
   sourcePageId: pg
@@ -1059,7 +1133,7 @@ Zero (`@rocicorp/zero`, already in dependencies per `package.json`) fronts Postg
 **Effect Implementation:**
 ```typescript
 // packages/knowledge-management-sdk/src/hooks/usePage.ts
-export const usePage = (pageId: KnowledgePageId) => {
+export const usePage = (pageId: KnowledgePageId.Type) => {
   const zero = useZeroClient();
 
   // Subscribe to local cache (Zero query)
@@ -1128,6 +1202,8 @@ const handleRename = async (newTitle: string) => {
 ---
 
 ### 5.4 BlockNote Editor Integration
+
+> **Implementation Constraints Reference:** This section implements Implementation Constraints (1) Zero-only sync (no Yjs), (2) BlockNote single-editor mode, and (4) Last-write-wins conflict resolution.
 
 <!-- MCP_DOC_REFERENCE
 For BlockNote editor integration:
@@ -1359,6 +1435,8 @@ Example call:
 
 ## 6. Encryption & Security
 
+> **Implementation Constraints Reference:** This section implements Implementation Constraints (3) Client-side encryption only and (5) Organization-level master keys.
+
 ### 6.1 Default-Encrypted Model
 
 **What is Encrypted:**
@@ -1378,10 +1456,10 @@ Example call:
 ```typescript
 // value-objects/EncryptedPayload.ts
 export interface EncryptedPayload {
-  iv: string;           // Base64-encoded initialization vector (96 bits)
-  ciphertext: string;   // Base64-encoded encrypted data
-  authTag: string;      // Base64-encoded GCM authentication tag (128 bits)
-  algorithm: "AES-GCM"; // Version string for future algorithm changes
+  readonly iv: string;           // Base64-encoded initialization vector (96 bits)
+  readonly ciphertext: string;   // Base64-encoded encrypted data
+  readonly authTag: string;      // Base64-encoded GCM authentication tag (128 bits)
+  readonly algorithm: "AES-GCM"; // Version string for future algorithm changes
 }
 ```
 
@@ -1434,6 +1512,9 @@ Alternative: Direct fetch from developer.mozilla.org/en-US/docs/Web/API/SubtleCr
 -->
 
 **On Write:**
+
+*Illustrative encryption implementation; adapt to actual Web Crypto API patterns and error handling.*
+
 ```typescript
 // packages/knowledge-management-infra/src/services/EncryptionService.ts
 const encryptBlock = (plaintext: string, spaceKey: CryptoKey): Effect.Effect<EncryptedPayload, EncryptionError> =>
@@ -1462,10 +1543,11 @@ const encryptBlock = (plaintext: string, spaceKey: CryptoKey): Effect.Effect<Enc
 
 **On Read:**
 ```typescript
+import * as Str from "effect/String";
 const decryptBlock = (payload: EncryptedPayload, spaceKey: CryptoKey): Effect.Effect<string, DecryptionError> =>
   Effect.gen(function* () {
-    const iv = Uint8Array.from(atob(payload.iv), c => c.charCodeAt(0));
-    const ciphertext = Uint8Array.from(atob(payload.ciphertext), c => c.charCodeAt(0));
+    const iv = Uint8Array.from(atob(payload.iv), (c) => Str.charCodeAt(0)(c));
+    const ciphertext = Uint8Array.from(atob(payload.ciphertext), (c) => Str.charCodeAt(0)(c));
 
     const plaintext = yield* Effect.tryPromise({
       try: () => crypto.subtle.decrypt(
@@ -1510,6 +1592,8 @@ const decryptBlock = (payload: EncryptedPayload, spaceKey: CryptoKey): Effect.Ef
 
 ## 7. Authentication & Access Control
 
+> **Implementation Constraints Reference:** This section implements Implementation Constraint (9) Effect-first architecture (policies as Effects).
+
 ### 7.1 IAM Integration
 
 **Dependencies:**
@@ -1551,31 +1635,31 @@ const zeroSchema = {
 ```
 
 **At Application Level (Effect Policies):**
+
+These policies are shown as plain Effect-returning functions. If the real codebase already has a Policy helper or abstraction, this example is intended to align with it conceptually, but does not define a new shared abstraction.
+
 ```typescript
 // packages/knowledge-management-domain/src/entities/KnowledgePage/KnowledgePage.policy.ts
-import { Policy } from "@beep/shared-domain/Policy";
+import { Effect } from "effect";
 
-export const canEditPage = Policy.make({
-  name: "CanEditKnowledgePage",
-  check: (user: User, page: KnowledgePage) =>
-    Effect.gen(function* () {
-      // Owner can always edit
-      if (page.createdBy === user.id) return true;
+export const canEditPage = (user: User, page: KnowledgePage) =>
+  Effect.gen(function* () {
+    // Owner can always edit
+    if (page.createdBy === user.id) return true;
 
-      // Check space permissions
-      const space = yield* getSpaceById(page.spaceId);
-      if (space.ownerId === user.id) return true;
+    // Check space permissions
+    const space = yield* getSpaceById(page.spaceId);
+    if (space.ownerId === user.id) return true;
 
-      // Check team membership
-      if (space.teamId) {
-        const isMember = yield* isTeamMember(user.id, space.teamId);
-        if (!isMember) return false;
-      }
+    // Check team membership
+    if (space.teamId) {
+      const isMember = yield* isTeamMember(user.id, space.teamId);
+      if (!isMember) return false;
+    }
 
-      // Check default permissions
-      return space.defaultPermissions.canWrite.includes("member");
-    }),
-});
+    // Check default permissions
+    return space.defaultPermissions.canWrite.includes("member");
+  });
 ```
 
 **At SDK Level (Contracts Enforce Policies):**
@@ -1640,17 +1724,19 @@ apps/web/src/app/knowledge/
 
 #### Editor (BlockNote Integration)
 
-```typescript
+*Example implementation sketch; adapt to actual project imports and helpers.*
+
+```tsx
 // Editor/BlockNoteEditor.tsx
 import { BlockNoteView } from "@blocknote/react";
 import { useBlockNote } from "@blocknote/core";
-
-export const KnowledgePageEditor = ({ pageId }: { pageId: KnowledgePageId }) => {
+import * as A from "effect/Array";
+export const KnowledgePageEditor = ({ pageId }: { readonly pageId: KnowledgePageId.Type }) => {
   const blocks = useBlocks(pageId); // Fetches from Zero
   const encryptionService = useEncryptionService();
 
   const editor = useBlockNote({
-    initialContent: blocks.map(decryptBlock),
+    initialContent: A.map(blocks, decryptBlock),
     onUpdate: async ({ editor }) => {
       // Serialize editor content to JSON
       const contentJson = JSON.stringify(editor.document);
@@ -1690,14 +1776,14 @@ Example call:
 2. mcp__context7__get-library-docs({ context7CompatibleLibraryID: "/mui/mui-x", topic: "tree view" })
 -->
 
-```typescript
+```tsx
 // PageTree/PageTreeView.tsx
 import { TreeView } from "@mui/x-tree-view";
 import { usePages } from "@beep/knowledge-management-sdk";
-
-export const PageTreeView = ({ spaceId }: { spaceId: KnowledgeSpaceId }) => {
+import { useRouter } from "next/navigation";
+export const PageTreeView = ({ spaceId }: { readonly spaceId: KnowledgeSpaceId.Type }) => {
   const pages = usePages(spaceId); // Zero query (reactive)
-
+  const router = useRouter();
   const tree = useMemo(() => buildTree(pages), [pages]);
 
   return (
@@ -1731,14 +1817,14 @@ Example call:
 2. mcp__context7__get-library-docs({ context7CompatibleLibraryID: "/vasturiano/react-force-graph", topic: "API reference" })
 -->
 
-```typescript
+```tsx
 // GraphView/GraphView.tsx
 import { ForceGraph2D } from "react-force-graph";
 import { useGraphData } from "@beep/knowledge-management-sdk";
-
-export const GraphView = ({ spaceId }: { spaceId: KnowledgeSpaceId }) => {
+import { useRouter } from "next/navigation";
+export const GraphView = ({ spaceId }: { readonly spaceId: KnowledgeSpaceId.Type }) => {
   const { nodes, links } = useGraphData(spaceId); // Queries page_link table
-
+  const router = useRouter();
   return (
     <ForceGraph2D
       graphData={{ nodes, links }}
@@ -1757,11 +1843,11 @@ export const GraphView = ({ spaceId }: { spaceId: KnowledgeSpaceId }) => {
 {
   nodes: [
     { id: "page_abc", title: "Getting Started", color: "#3b82f6" },
-    { id: "page_def", title: "Architecture", color: "#8b5cf6" },
+    { id: "page_def", title: "Architecture", color: "#8b5cf6" }
   ],
   links: [
-    { source: "page_abc", target: "page_def", weight: 3 },
-  ],
+    { source: "page_abc", target: "page_def", weight: 3 }
+  ]
 }
 ```
 
@@ -1777,11 +1863,11 @@ export const GraphView = ({ spaceId }: { spaceId: KnowledgeSpaceId }) => {
 
 ```typescript
 // packages/knowledge-management-ui/src/state/editorAtom.ts
-import { atom } from "@effect-atom/atom-react";
+import { Atom } from "@effect-atom/atom-react";
 
-export const activePageIdAtom = atom<KnowledgePageId | null>(null);
-export const editorModeAtom = atom<"view" | "edit">("view");
-export const selectedBlocksAtom = atom<Set<KnowledgeBlockId>>(new Set());
+export const activePageIdAtom = Atom.make<KnowledgePageId.Type | null>(null);
+export const editorModeAtom = Atom.make<"view" | "edit">("view");
+export const selectedBlocksAtom = Atom.make<Set<KnowledgeBlockId.Type>>(new Set());
 
 // Usage in component
 const [activePageId, setActivePageId] = useAtom(activePageIdAtom);
@@ -1796,12 +1882,14 @@ const [activePageId, setActivePageId] = useAtom(activePageIdAtom);
 
 ### 8.4 Zero Client Setup
 
-```typescript
+*Illustrative Zero client configuration; adapt to actual project setup and session management.*
+
+```tsx
 // apps/web/src/lib/zero.ts
 import { ZeroProvider } from "@rocicorp/zero/react";
 import { schema } from "@beep/knowledge-management-tables/schema";
 
-export const ZeroWrapper = ({ children }: { children: React.ReactNode }) => {
+export const ZeroWrapper = ({ children }: { readonly children: React.ReactNode }) => {
   const session = useSession(); // From IAM
 
   const zero = useMemo(() => createZero({
@@ -1830,11 +1918,11 @@ This section provides a comprehensive list of all SDK contracts with their full 
 **Location:** `packages/knowledge-management/sdk/src/contracts/space.contracts.ts`
 
 ```typescript
-import { Schema as S } from "effect";
+import * as S from "effect/Schema";
 import { Contract } from "@beep/contract";
-import { KnowledgeSpace } from "@beep/knowledge-management-domain/entities/KnowledgeSpace";
+import { KnowledgeSpace } from "@beep/knowledge-management-domain/entities";
 import { KnowledgeSpaceId } from "@beep/shared-domain/entity-ids/knowledge-management";
-import * as SharedEntityIds from "@beep/shared-domain/entity-ids";
+import {SharedEntityIds} from "@beep/shared-domain/entity-ids";
 import {
   SpaceNotFoundError,
   SpaceAlreadyExistsError,
@@ -1935,11 +2023,10 @@ export const listSpaces = Contract.make({
 **Location:** `packages/knowledge-management/sdk/src/contracts/page.contracts.ts`
 
 ```typescript
-import { Schema as S } from "effect";
+import * as S from "effect/Schema";
 import { Contract } from "@beep/contract";
-import { KnowledgePage } from "@beep/knowledge-management-domain/entities/KnowledgePage";
+import { KnowledgePage } from "@beep/knowledge-management-domain/entities";
 import { KnowledgePageId, KnowledgeSpaceId } from "@beep/shared-domain/entity-ids/knowledge-management";
-import { PageStatusKit } from "@beep/knowledge-management-domain/entities/KnowledgePage/schemas";
 import {
   PageNotFoundError,
   PageTitleTooLongError,
@@ -1954,7 +2041,7 @@ export const createPage = Contract.make({
     parentPageId: S.optional(KnowledgePageId),
     title: S.String.pipe(S.maxLength(500)),
     slug: S.String,
-    status: PageStatusKit.Schema,
+    status: KnowledgePage.PageStatus,
   }),
   success: S.Struct({
     page: KnowledgePage.Model.select,
@@ -1988,7 +2075,7 @@ export const updatePageContent = Contract.make({
     pageId: KnowledgePageId,
     blocks: S.Array(S.Struct({
       blockId: S.optional(KnowledgeBlockId),
-      type: BlockTypeKit.Schema,
+      type: KnowledgePage.BlockType,
       content: S.String, // BlockNote JSON
       order: S.String, // Fractional indexing
     })),
@@ -2052,7 +2139,7 @@ export const listPages = Contract.make({
   payload: S.Struct({
     spaceId: KnowledgeSpaceId,
     parentPageId: S.optional(KnowledgePageId), // Filter by parent
-    status: S.optional(PageStatusKit.Schema), // Filter by status
+    status: S.optional(PageStatus), // Filter by status
   }),
   success: S.Struct({
     pages: S.Array(KnowledgePage.Model.select),
@@ -2070,7 +2157,7 @@ export const listPages = Contract.make({
 **Location:** `packages/knowledge-management/sdk/src/contracts/graph.contracts.ts`
 
 ```typescript
-import { Schema as S } from "effect";
+import * as S from "effect/Schema";
 import { Contract } from "@beep/contract";
 import { KnowledgeSpaceId, KnowledgePageId } from "@beep/shared-domain/entity-ids/knowledge-management";
 import { UnauthorizedError } from "@beep/knowledge-management-domain/errors";
@@ -2106,7 +2193,7 @@ export const getBacklinks = Contract.make({
     backlinks: S.Array(S.Struct({
       sourcePageId: KnowledgePageId,
       sourcePageTitle: S.String,
-      linkType: LinkTypeKit.Schema,
+      linkType: KnowledgePage.LinkType,
       contextSnippet: S.optional(S.String),
     })),
   }),
@@ -2122,12 +2209,12 @@ export const getBacklinks = Contract.make({
 
 **Frontend Usage Example:**
 
-```typescript
+```tsx
 // apps/web/src/app/knowledge/[spaceId]/page.tsx
 import { createPage, listPages } from "@beep/knowledge-management-sdk/contracts/page.contracts";
 import { useContract } from "@beep/runtime-client"; // Effect-based contract runner
 
-export default function SpacePage({ params }: { params: { spaceId: string } }) {
+export default function SpacePage({ params }: { readonly params: { readonly spaceId: KnowledgeSpaceId.Type } }) {
   const createPageMutation = useContract(createPage);
   const { data: pages, isLoading } = useContractQuery(listPages, {
     spaceId: params.spaceId,
@@ -2230,7 +2317,7 @@ Reason: Repositories use @effect/sql/Model for type-safe database operations wit
 **Standard Structure:**
 ```typescript
 import { Effect, Context, Layer } from "effect";
-import { Model as M } from "@effect/sql/Model";
+import * as M from "@effect/sql/Model";
 import { SqlClient } from "@effect/sql";
 import { KnowledgeManagementDb } from "../db/Db";
 
@@ -2238,7 +2325,7 @@ export class EntityRepository extends Context.Tag("EntityRepository")<
   EntityRepository,
   {
     readonly create: (data: CreateData) => Effect.Effect<Entity, DbError, SqlClient.SqlClient>;
-    readonly findById: (id: EntityId) => Effect.Effect<Option.Option<Entity>, DbError, SqlClient.SqlClient>;
+    readonly findById: (id: EntityId) => Effect.Effect<O.Option<Entity>, DbError, SqlClient.SqlClient>;
     readonly update: (id: EntityId, data: UpdateData) => Effect.Effect<Entity, DbError, SqlClient.SqlClient>;
     readonly delete: (id: EntityId) => Effect.Effect<void, DbError, SqlClient.SqlClient>;
     // Domain-specific methods...
@@ -2318,37 +2405,40 @@ export const EntityRepositoryLive = Layer.effect(
 
 **Location:** `packages/knowledge-management/infra/src/repositories/KnowledgePageRepository.ts`
 
+*Illustrative repository implementation; align with existing repo patterns and actual project imports.*
+
 ```typescript
-import { Effect, Context, Layer, Option, Array as EffectArray } from "effect";
-import { Model as M } from "@effect/sql/Model";
+import { Effect, Context, Layer } from "effect";
+import * as M from "@effect/sql/Model";
 import { SqlClient, SqlError } from "@effect/sql";
 import * as S from "@effect/schema/Schema";
 import { KnowledgeManagementDb } from "../db/Db";
-import { KnowledgePage } from "@beep/knowledge-management-domain/entities/KnowledgePage";
+import { KnowledgePage } from "@beep/knowledge-management-domain/entities";
 import { KnowledgePageId, KnowledgeSpaceId } from "@beep/shared-domain/entity-ids/knowledge-management";
 import * as Errors from "@beep/knowledge-management-domain/errors";
-
+import * as A from "effect/Array";
+import * as O from "effect/Option";
 // Repository service definition
 export class KnowledgePageRepository extends Context.Tag("KnowledgePageRepository")<
   KnowledgePageRepository,
   {
     readonly create: (data: {
-      spaceId: KnowledgeSpaceId.Type;
-      parentPageId: Option.Option<KnowledgePageId.Type>;
-      title: string;
-      slug: string;
-      status: "draft" | "published" | "archived";
-      createdBy: string;
+      readonly spaceId: KnowledgeSpaceId.Type;
+      readonly parentPageId: O.Option<KnowledgePageId.Type>;
+      readonly title: string;
+      readonly slug: string;
+      readonly status: "draft" | "published" | "archived";
+      readonly createdBy: string;
     }) => Effect.Effect<KnowledgePage.Type, Errors.DbError | Errors.SlugConflictError, SqlClient.SqlClient>;
 
     readonly findById: (
       id: KnowledgePageId.Type
-    ) => Effect.Effect<Option.Option<KnowledgePage.Type>, Errors.DbError, SqlClient.SqlClient>;
+    ) => Effect.Effect<O.Option<KnowledgePage.Type>, Errors.DbError, SqlClient.SqlClient>;
 
     readonly findBySlug: (
       spaceId: KnowledgeSpaceId.Type,
       slug: string
-    ) => Effect.Effect<Option.Option<KnowledgePage.Type>, Errors.DbError, SqlClient.SqlClient>;
+    ) => Effect.Effect<O.Option<KnowledgePage.Type>, Errors.DbError, SqlClient.SqlClient>;
 
     readonly listBySpace: (
       spaceId: KnowledgeSpaceId.Type
@@ -2361,16 +2451,16 @@ export class KnowledgePageRepository extends Context.Tag("KnowledgePageRepositor
     readonly update: (
       id: KnowledgePageId.Type,
       data: Partial<{
-        title: string;
-        slug: string;
-        status: "draft" | "published" | "archived";
-        color: string;
+        readonly title: string;
+        readonly slug: string;
+        readonly status: "draft" | "published" | "archived";
+        readonly color: string;
       }>
     ) => Effect.Effect<KnowledgePage.Type, Errors.DbError | Errors.PageNotFoundError, SqlClient.SqlClient>;
 
     readonly movePage: (
       id: KnowledgePageId.Type,
-      newParentId: Option.Option<KnowledgePageId.Type>
+      newParentId: O.Option<KnowledgePageId.Type>
     ) => Effect.Effect<KnowledgePage.Type, Errors.DbError | Errors.CircularReferenceError, SqlClient.SqlClient>;
 
     readonly delete: (
@@ -2387,7 +2477,7 @@ export const KnowledgePageRepositoryLive = Layer.effect(
     const db = yield* KnowledgeManagementDb;
 
     // Helper: Check for slug conflicts
-    const checkSlugConflict = (spaceId: KnowledgeSpaceId.Type, slug: string, excludeId?: KnowledgePageId.Type) =>
+    const checkSlugConflict = (spaceId: KnowledgeSpaceId.Type, slug: string, excludeId?: KnowledgePageId.Type | undefined) =>
       Effect.gen(function* () {
         const existing = yield* sql<{ id: string }>`
           SELECT id FROM knowledge_page
@@ -2396,9 +2486,9 @@ export const KnowledgePageRepositoryLive = Layer.effect(
             AND deleted_at IS NULL
             ${excludeId ? sql`AND id != ${excludeId}` : sql``}
           LIMIT 1
-        `.pipe(Effect.map(EffectArray.head));
+        `.pipe(Effect.map(A.head));
 
-        if (Option.isSome(existing)) {
+        if (O.isSome(existing)) {
           yield* Effect.fail(new Errors.SlugConflictError({ slug }));
         }
       });
@@ -2418,7 +2508,7 @@ export const KnowledgePageRepositoryLive = Layer.effect(
           SELECT id FROM ancestors
         `;
 
-        const isCircular = ancestors.some((ancestor) => ancestor.id === pageId);
+        const isCircular = A.some(ancestors, (ancestor) => ancestor.id === pageId);
         if (isCircular) {
           yield* Effect.fail(new Errors.CircularReferenceError({ pageId, parentPageId: newParentId }));
         }
@@ -2434,9 +2524,9 @@ export const KnowledgePageRepositoryLive = Layer.effect(
           // Insert page
           const result = yield* sql`
             INSERT INTO knowledge_page ${sql.insert({
-              id: KnowledgePageId.make(),
+              id: KnowledgePageId.create(),
               space_id: data.spaceId,
-              parent_page_id: Option.getOrNull(data.parentPageId),
+              parent_page_id: O.getOrNull(data.parentPageId),
               title: data.title,
               slug: data.slug,
               status: data.status,
@@ -2447,8 +2537,8 @@ export const KnowledgePageRepositoryLive = Layer.effect(
             })}
             RETURNING *
           `.pipe(
-            Effect.flatMap(EffectArray.head),
-            Effect.flatMap(Option.match({
+            Effect.flatMap(A.head),
+            Effect.flatMap(O.match({
               onNone: () => Effect.fail(new Errors.DbError({ message: "Failed to create page" })),
               onSome: Effect.succeed,
             })),
@@ -2464,12 +2554,12 @@ export const KnowledgePageRepositoryLive = Layer.effect(
           SELECT * FROM knowledge_page
           WHERE id = ${id} AND deleted_at IS NULL
         `.pipe(
-          Effect.map(EffectArray.head),
+          Effect.map(A.head),
           Effect.flatMap(
-            Option.match({
-              onNone: () => Effect.succeed(Option.none()),
+            O.match({
+              onNone: () => Effect.succeed(O.none()),
               onSome: (row) =>
-                S.decodeUnknown(KnowledgePage.Model.select)(row).pipe(Effect.map(Option.some)),
+                S.decodeUnknown(KnowledgePage.Model.select)(row).pipe(Effect.map(O.some)),
             })
           )
         ),
@@ -2483,12 +2573,12 @@ export const KnowledgePageRepositoryLive = Layer.effect(
             AND deleted_at IS NULL
           LIMIT 1
         `.pipe(
-          Effect.map(EffectArray.head),
+          Effect.map(A.head),
           Effect.flatMap(
-            Option.match({
-              onNone: () => Effect.succeed(Option.none()),
+            O.match({
+              onNone: () => Effect.succeed(O.none()),
               onSome: (row) =>
-                S.decodeUnknown(KnowledgePage.Model.select)(row).pipe(Effect.map(Option.some)),
+                S.decodeUnknown(KnowledgePage.Model.select)(row).pipe(Effect.map(O.some)),
             })
           )
         ),
@@ -2500,7 +2590,7 @@ export const KnowledgePageRepositoryLive = Layer.effect(
           WHERE space_id = ${spaceId} AND deleted_at IS NULL
           ORDER BY created_at DESC
         `.pipe(
-          Effect.flatMap(EffectArray.traverse(S.decodeUnknown(KnowledgePage.Model.select)))
+          Effect.flatMap(A.traverse(S.decodeUnknown(KnowledgePage.Model.select)))
         ),
 
       // List child pages
@@ -2510,7 +2600,7 @@ export const KnowledgePageRepositoryLive = Layer.effect(
           WHERE parent_page_id = ${parentPageId} AND deleted_at IS NULL
           ORDER BY title ASC
         `.pipe(
-          Effect.flatMap(EffectArray.traverse(S.decodeUnknown(KnowledgePage.Model.select)))
+          Effect.flatMap(A.traverse(S.decodeUnknown(KnowledgePage.Model.select)))
         ),
 
       // Update page
@@ -2519,9 +2609,9 @@ export const KnowledgePageRepositoryLive = Layer.effect(
           // Check slug conflict if slug is being updated
           if (data.slug) {
             const existing = yield* sql`SELECT space_id FROM knowledge_page WHERE id = ${id}`.pipe(
-              Effect.map(EffectArray.head),
+              Effect.map(A.head),
               Effect.flatMap(
-                Option.match({
+                O.match({
                   onNone: () => Effect.fail(new Errors.PageNotFoundError({ pageId: id })),
                   onSome: Effect.succeed,
                 })
@@ -2539,9 +2629,9 @@ export const KnowledgePageRepositoryLive = Layer.effect(
             WHERE id = ${id} AND deleted_at IS NULL
             RETURNING *
           `.pipe(
-            Effect.flatMap(EffectArray.head),
+            Effect.flatMap(A.head),
             Effect.flatMap(
-              Option.match({
+              O.match({
                 onNone: () => Effect.fail(new Errors.PageNotFoundError({ pageId: id })),
                 onSome: Effect.succeed,
               })
@@ -2556,21 +2646,21 @@ export const KnowledgePageRepositoryLive = Layer.effect(
       movePage: (id, newParentId) =>
         Effect.gen(function* () {
           // Check for circular reference if newParentId is Some
-          if (Option.isSome(newParentId)) {
+          if (O.isSome(newParentId)) {
             yield* checkCircularReference(id, newParentId.value);
           }
 
           // Update parent_page_id
           const result = yield* sql`
             UPDATE knowledge_page
-            SET parent_page_id = ${Option.getOrNull(newParentId)},
+            SET parent_page_id = ${O.getOrNull(newParentId)},
                 updated_at = NOW()
             WHERE id = ${id} AND deleted_at IS NULL
             RETURNING *
           `.pipe(
-            Effect.flatMap(EffectArray.head),
+            Effect.flatMap(A.head),
             Effect.flatMap(
-              Option.match({
+              O.match({
                 onNone: () => Effect.fail(new Errors.PageNotFoundError({ pageId: id })),
                 onSome: Effect.succeed,
               })
@@ -2648,7 +2738,7 @@ export const createPageImpl = PageContracts.createPage.implement((payload) =>
 **Query for Graph Data:**
 ```typescript
 // packages/knowledge-management-infra/src/repositories/GraphRepository.ts
-export const getSpaceGraph = (spaceId: KnowledgeSpaceId) =>
+export const getSpaceGraph = (spaceId: KnowledgeSpaceId.Type) =>
   Effect.gen(function* () {
     const sql = yield* SqlClient.SqlClient;
 
@@ -2688,8 +2778,11 @@ export const getSpaceGraph = (spaceId: KnowledgeSpaceId) =>
 3. Graph component subscribes to `page_link` table → Re-renders graph
 
 **React Hook:**
+
+*Example hook implementation; adapt to actual Zero client API and project conventions.*
+
 ```typescript
-export const useGraphData = (spaceId: KnowledgeSpaceId) => {
+export const useGraphData = (spaceId: KnowledgeSpaceId.Type) => {
   const zero = useZeroClient();
 
   // Subscribe to page_link changes
@@ -2703,8 +2796,8 @@ export const useGraphData = (spaceId: KnowledgeSpaceId) => {
     .all();
 
   return useMemo(() => ({
-    nodes: pages.map(p => ({ id: p.id, title: p.title })),
-    links: links.map(l => ({ source: l.sourcePageId, target: l.targetPageId })),
+    nodes: A.map(pages, (p) => ({ id: p.id, title: p.title })),
+    links: A.map(links, (l) => ({ source: l.sourcePageId, target: l.targetPageId })),
   }), [pages, links]);
 };
 ```
@@ -2969,17 +3062,14 @@ The knowledge-management slice will integrate with the `@beep/files-*` slice to 
 
 ```typescript
 // packages/knowledge-management-domain/src/entities/KnowledgeBlock/schemas/BlockType.ts
-export const BlockTypeKit = stringLiteralKit({
-  literals: [
+export const BlockType = StringLiteralKit(
     "paragraph",
     "heading",
     "code",
     "image",      // <-- References FileId from @beep/files-domain
     "file_embed", // <-- Attachment downloads
     // ... other block types
-  ] as const,
-  annotations: { identifier: "BlockType" },
-});
+).annotations({ identifier: "BlockType" });
 ```
 
 **Image Block Content Structure:**
@@ -3088,11 +3178,11 @@ export const getFileUrl = Contract.make({
 
 **Usage in Knowledge Management:**
 
-```typescript
+```tsx
 // packages/knowledge-management-ui/src/components/Editor/ImageBlock.tsx
 import { getFileUrl } from "@beep/files-sdk/contracts/file.contracts";
 
-const ImageBlock = ({ fileId, caption }: { fileId: FileId; caption: string }) => {
+const ImageBlock = ({ fileId, caption }: { readonly fileId: FileId.Type; readonly caption: string }) => {
   const { data: fileData, isLoading } = useContractQuery(getFileUrl, { fileId });
 
   if (isLoading) return <Skeleton variant="rectangular" height={200} />;
@@ -3120,13 +3210,13 @@ The knowledge-management slice should emit audit events for sensitive operations
 
 ```typescript
 // packages/knowledge-management-domain/src/events/audit.events.ts
-import { Schema as S } from "effect";
+import * as S from "effect/Schema";
 import { KnowledgePageId, KnowledgeSpaceId } from "@beep/shared-domain/entity-ids/knowledge-management";
-import * as SharedEntityIds from "@beep/shared-domain/entity-ids";
+import {SharedEntityIds} from "@beep/shared-domain/entity-ids";
 
 export const PageViewedEvent = S.Struct({
   eventType: S.Literal("PageViewed"),
-  timestamp: S.Date,
+  timestamp: BS.DateTimeUtcFromAllAcceptable,
   userId: SharedEntityIds.UserId,
   organizationId: SharedEntityIds.OrganizationId,
   pageId: KnowledgePageId,
@@ -3140,7 +3230,7 @@ export const PageViewedEvent = S.Struct({
 
 export const PageEditedEvent = S.Struct({
   eventType: S.Literal("PageEdited"),
-  timestamp: S.Date,
+  timestamp: BS.DateTimeUtcFromAllAcceptable,
   userId: SharedEntityIds.UserId,
   organizationId: SharedEntityIds.OrganizationId,
   pageId: KnowledgePageId,
@@ -3154,7 +3244,7 @@ export const PageEditedEvent = S.Struct({
 
 export const PageDeletedEvent = S.Struct({
   eventType: S.Literal("PageDeleted"),
-  timestamp: S.Date,
+  timestamp: BS.DateTimeUtcFromAllAcceptable,
   userId: SharedEntityIds.UserId,
   organizationId: SharedEntityIds.OrganizationId,
   pageId: KnowledgePageId,
@@ -3165,7 +3255,7 @@ export const PageDeletedEvent = S.Struct({
 
 export const SpaceAccessGrantedEvent = S.Struct({
   eventType: S.Literal("SpaceAccessGranted"),
-  timestamp: S.Date,
+  timestamp: BS.DateTimeUtcFromAllAcceptable,
   grantedBy: SharedEntityIds.UserId,
   grantedTo: S.Union(SharedEntityIds.UserId, SharedEntityIds.TeamId),
   spaceId: KnowledgeSpaceId,
@@ -3199,9 +3289,11 @@ export class EventBus extends Context.Tag("EventBus")<
 // packages/knowledge-management-infra/src/contracts/page.contracts.impl.ts
 import { EventBus } from "@beep/shared-domain/events/EventBus";
 import { PageEditedEvent } from "@beep/knowledge-management-domain/events/audit.events";
-
+import * as DateTime from "effect/DateTime";
+import * as A from "effect/Array";
 export const updatePageContentImpl = PageContracts.updatePageContent.implement((payload) =>
   Effect.gen(function* () {
+    const now = yield* DateTime.now.pipe(DateTime.toUtc);
     const auth = yield* AuthService;
     const pageRepo = yield* KnowledgePageRepository;
     const eventBus = yield* EventBus;
@@ -3216,14 +3308,14 @@ export const updatePageContentImpl = PageContracts.updatePageContent.implement((
     yield* eventBus.publish(
       PageEditedEvent.make({
         eventType: "PageEdited",
-        timestamp: new Date(),
+        timestamp: now,
         userId: currentUser.id,
         organizationId: page.organizationId,
         pageId: payload.pageId,
         spaceId: page.spaceId,
         changesSummary: {
-          blocksAdded: payload.blocks.filter(b => !b.blockId).length,
-          blocksModified: payload.blocks.filter(b => b.blockId).length,
+          blocksAdded: A.filter(payload.blocks, (b) => !b.blockId).length,
+          blocksModified: A.filter(payload.blocks, (b) => b.blockId).length,
           blocksDeleted: 0, // Calculate from diff
         },
       })
@@ -3292,7 +3384,7 @@ import { Effect } from "effect";
 import { UserId } from "@beep/shared-domain/entity-ids";
 import { sendNotification } from "@beep/comms-sdk/contracts/notification.contracts";
 
-export const detectAndNotifyMentions = (blockContent: string, pageId: KnowledgePageId) =>
+export const detectAndNotifyMentions = (blockContent: string, pageId: KnowledgePageId.Type) =>
   Effect.gen(function* () {
     // Parse @mentions from BlockNote JSON content
     const mentions = extractMentions(blockContent); // e.g., ["@alice", "@bob"]
@@ -3351,7 +3443,7 @@ export const sharePageImpl = sharePage.implement((payload) =>
 
 ```typescript
 // Real-time presence updates (requires WebSocket integration)
-export const notifyPageEditStarted = (pageId: KnowledgePageId, userId: UserId) =>
+export const notifyPageEditStarted = (pageId: KnowledgePageId.Type, userId: UserId) =>
   Effect.gen(function* () {
     yield* broadcastPresence.run({
       channel: `page:${pageId}`,
