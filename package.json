@@ -98,7 +98,8 @@
     "syncpack": "^14.0.0-alpha.29",
     "tsx": "^4.20.6",
     "turbo": "^2.6.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "playwright": "^1.57.0"
   },
   "lint-staged": {
     "*": [
@@ -109,6 +110,7 @@
     ]
   },
   "catalog": {
+    "playwright": "^1.57.0",
     "@effect/sql-drizzle": "^0.47.0",
     "@babel/preset-react": "^7.28.5",
     "@next/bundle-analyzer": "^16.0.4",
@@ -302,6 +304,10 @@
     "@tanstack/react-form-devtools": "^0.2.2"
   },
   "dependenciesCatalog": [
+    {
+      "name": "playwright",
+      "version": "^1.57.0"
+    },
     {
       "name": "@tanstack/react-devtools",
       "version": "^0.8.1"

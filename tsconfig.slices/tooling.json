@@ -5,6 +5,7 @@
     { "path": "../tooling/repo-config" },
     { "path": "../tooling/repo-scripts" },
     { "path": "../tooling/testkit/tsconfig.build.json" },
+    { "path": "../tooling/scraper/tsconfig.build.json" },
     { "path": "../tooling/cli" }
   ]
 }

@@ -1,0 +1,35 @@
+{
+  "extends": "../../tsconfig.base.jsonc",
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../utils"
+    },
+    {
+      "path": "../../packages/common/identity"
+    },
+    {
+      "path": "../../packages/common/types"
+    },
+    {
+      "path": "../../packages/common/utils"
+    },
+    {
+      "path": "../../packages/common/invariant"
+    },
+    {
+      "path": "../../packages/common/schema"
+    }
+  ],
+  "exclude": [],
+  "compilerOptions": {
+    "types": ["node", "bun"],
+    "outDir": "build/src",
+    "target": "ES2023",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "moduleDetection": "force",
+    "allowSyntheticDefaultImports": true,
+    "rootDir": "src"
+  }
+}
