@@ -31,6 +31,15 @@
     { "path": "../../packages/comms/domain/tsconfig.build.json" },
     { "path": "../../packages/comms/ui/tsconfig.build.json" },
     { "path": "../../packages/comms/tables/tsconfig.build.json" },
+    { "path": "../../packages/knowledge-management/sdk/tsconfig.build.json" },
+    { "path": "../../packages/knowledge-management/infra/tsconfig.build.json" },
+    {
+      "path": "../../packages/knowledge-management/domain/tsconfig.build.json"
+    },
+    { "path": "../../packages/knowledge-management/ui/tsconfig.build.json" },
+    {
+      "path": "../../packages/knowledge-management/tables/tsconfig.build.json"
+    },
     { "path": "../../packages/party/sdk/tsconfig.build.json" },
     { "path": "../../packages/party/infra/tsconfig.build.json" },
     { "path": "../../packages/party/domain/tsconfig.build.json" },

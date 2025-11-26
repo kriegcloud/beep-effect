@@ -1,0 +1,15 @@
+import { KnowledgeManagementEntityIds } from "@beep/shared-domain";
+import { UserAuthMiddleware } from "@beep/shared-domain/Policy";
+import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
+import * as HttpApiGroup from "@effect/platform/HttpApiGroup";
+import { KnowledgePageNotFoundError } from "./KnowledgePage.errors.ts";
+import { Model } from "./KnowledgePage.model.ts";
+
+export class Contract extends HttpApiGroup.make("knowledgePage")
+  .middleware(UserAuthMiddleware)
+  .add(
+    HttpApiEndpoint.get("get", "/get/:id")
+      .setUrlParams(KnowledgeManagementEntityIds.KnowledgePageId)
+      .addError(KnowledgePageNotFoundError)
+      .addSuccess(Model)
+  ) {}

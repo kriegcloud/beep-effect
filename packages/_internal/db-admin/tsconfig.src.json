@@ -63,6 +63,17 @@
     {
       "path": "../../comms/infra"
     },
+
+    {
+      "path": "../../knowledge-management/domain"
+    },
+    {
+      "path": "../../knowledge-management/tables"
+    },
+    {
+      "path": "../../knowledge-management/infra"
+    },
+
     {
       "path": "../../party/domain"
     },

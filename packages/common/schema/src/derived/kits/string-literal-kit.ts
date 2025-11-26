@@ -78,6 +78,7 @@ type OmitOptions<Literals extends LiteralsType> = <const Keys extends LiteralsSu
 ) => A.NonEmptyReadonlyArray<Exclude<Literals[number], Keys[number]>>;
 
 type DerivedLiteralKit<Literals extends LiteralsType> = {
+  readonly Schema: S.Literal<[...Literals]>;
   readonly Options: Literals;
   readonly Enum: CreateEnumType<Literals, undefined>;
   readonly omitOptions: OmitOptions<Literals>;
@@ -87,7 +88,7 @@ type DerivedLiteralKit<Literals extends LiteralsType> = {
   ) => TaggedMembersResult<Literals, D>;
 };
 
-type DerivedLiteralKitSchema<Literals extends LiteralsType> = DerivedLiteralKit<Literals> & S.Literal<[...Literals]>;
+type DerivedLiteralKitSchema<Literals extends LiteralsType> = DerivedLiteralKit<Literals>;
 
 type LiteralKitEnum<
   Literals extends LiteralsType,
@@ -386,15 +387,14 @@ export function makeLiteralKit<
           ArrayUtils.NonEmptyReadonly.filter((lit) => !A.contains(keysDerived, lit))
         ) as unknown as A.NonEmptyReadonlyArray<Exclude<Keys[number], KeysDerived[number]>>;
 
-      class WithStaticsDerived extends Schema {
-        static readonly Options = keys;
-        static readonly Enum = enumFromStringArray(...keys);
-        static readonly toTagged = toTagged;
-        static readonly omitOptions = omitOptions;
-        static readonly pickOptions = pickOptions;
-      }
-
-      return WithStaticsDerived;
+      return {
+        Options: keys,
+        Enum: enumFromStringArray(...keys),
+        toTagged,
+        omitOptions,
+        pickOptions,
+        Schema,
+      };
     };
     static toTagged = toTagged;
   };

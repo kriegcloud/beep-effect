@@ -6,6 +6,7 @@ import { FilesDb } from "@beep/files-infra/db";
 import type { AuthEmailService, IamConfig } from "@beep/iam-infra";
 import { AuthService, IamRepos } from "@beep/iam-infra";
 import { IamDb } from "@beep/iam-infra/db";
+import { KnowledgeManagementDb, KnowledgeManagementRepos } from "@beep/knowledge-management-infra";
 import { PartyDb } from "@beep/party-infra/db";
 import { TasksDb } from "@beep/tasks-infra/db";
 import type * as SqlClient from "@effect/sql/SqlClient";
@@ -14,7 +15,13 @@ import type * as ConfigError from "effect/ConfigError";
 import * as Layer from "effect/Layer";
 import * as CoreServices from "./CoreServices.ts";
 
-export type SliceDatabaseClients = IamDb.IamDb | FilesDb.FilesDb | TasksDb.TasksDb | CommsDb.CommsDb | PartyDb.PartyDb;
+export type SliceDatabaseClients =
+  | KnowledgeManagementDb.KnowledgeManagementDb
+  | FilesDb.FilesDb
+  | TasksDb.TasksDb
+  | CommsDb.CommsDb
+  | PartyDb.PartyDb
+  | IamDb.IamDb;
 export type SliceDatabaseClientsLive = Layer.Layer<
   SliceDatabaseClients,
   ConfigError.ConfigError | SqlError.SqlError,
@@ -25,10 +32,15 @@ export const SliceDatabaseClientsLive: SliceDatabaseClientsLive = Layer.mergeAll
   FilesDb.FilesDb.Live,
   TasksDb.TasksDb.Live,
   CommsDb.CommsDb.Live,
-  PartyDb.PartyDb.Live
+  PartyDb.PartyDb.Live,
+  KnowledgeManagementDb.KnowledgeManagementDb.Live
 );
 
-type SliceRepositories = FilesRepos.FilesRepos | CommsRepos.CommsRepos | IamRepos.IamRepos;
+type SliceRepositories =
+  | FilesRepos.FilesRepos
+  | CommsRepos.CommsRepos
+  | IamRepos.IamRepos
+  | KnowledgeManagementRepos.KnowledgeManagementRepos;
 
 export type SliceReposLive = Layer.Layer<
   SliceRepositories,
@@ -36,7 +48,13 @@ export type SliceReposLive = Layer.Layer<
   SqlClient.SqlClient
 >;
 
-export const SliceReposLive: SliceReposLive = Layer.mergeAll(IamRepos.layer, FilesRepos.layer, CommsRepos.layer);
+export const SliceReposLive: SliceReposLive = Layer.mergeAll(
+  IamRepos.layer,
+  FilesRepos.layer,
+  CommsRepos.layer,
+  KnowledgeManagementRepos.layer,
+  IamRepos.layer
+);
 
 export type CoreSliceServices =
   | SqlClient.SqlClient

@@ -8,13 +8,13 @@
     {
       "path": "packages/common/types/tsconfig.build.json"
     },
-      {
+    {
       "path": "packages/integrations/google/tsconfig.build.json"
     },
-          {
+    {
       "path": "packages/integrations/thefront/tsconfig.build.json"
     },
-              {
+    {
       "path": "packages/integrations/core/tsconfig.build.json"
     },
     {
@@ -29,10 +29,10 @@
     {
       "path": "packages/common/constants/tsconfig.build.json"
     },
-        {
+    {
       "path": "packages/common/identity/tsconfig.build.json"
     },
-            {
+    {
       "path": "packages/common/markdown/tsconfig.build.json"
     },
     {
@@ -110,7 +110,6 @@
     {
       "path": "packages/tasks/infra/tsconfig.build.json"
     },
-    
     {
       "path": "packages/party/sdk/tsconfig.build.json"
     },
@@ -126,7 +125,6 @@
     {
       "path": "packages/party/infra/tsconfig.build.json"
     },
-    
     {
       "path": "packages/comms/sdk/tsconfig.build.json"
     },
@@ -142,7 +140,21 @@
     {
       "path": "packages/comms/infra/tsconfig.build.json"
     },
-    
+    {
+      "path": "packages/knowledge-management/sdk/tsconfig.build.json"
+    },
+    {
+      "path": "packages/knowledge-management/ui/tsconfig.build.json"
+    },
+    {
+      "path": "packages/knowledge-management/domain/tsconfig.build.json"
+    },
+    {
+      "path": "packages/knowledge-management/tables/tsconfig.build.json"
+    },
+    {
+      "path": "packages/knowledge-management/infra/tsconfig.build.json"
+    },
     {
       "path": "packages/runtime/server/tsconfig.build.json"
     },
@@ -173,7 +185,7 @@
     {
       "path": "tooling/repo-scripts/tsconfig.build.json"
     },
-     {
+    {
       "path": "tooling/cli/tsconfig.build.json"
     },
     {

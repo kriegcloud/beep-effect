@@ -6,7 +6,7 @@ import * as SqlSchema from "@effect/sql/SqlSchema";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
-import type * as O from "effect/Option";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { DbError } from "../errors";
@@ -236,10 +236,13 @@ export const make = <
 >(
   idSchema: EntityId.EntityIdSchemaInstance<TableName, Brand>,
   model: Model,
-  maker: Effect.Effect<TExtra, SE, SR>
+  maker?: Effect.Effect<TExtra, SE, SR> | undefined
 ) =>
   Effect.flatMap(
-    Effect.all([maker, makeBaseRepo(model, { idColumn: idSchema.privateIdColumnName, idSchema: idSchema })]),
+    Effect.all([
+      O.fromNullable(maker).pipe(O.getOrElse(() => Effect.succeed({}))),
+      makeBaseRepo(model, { idColumn: idSchema.publicIdColumnName, idSchema: idSchema }),
+    ]),
     ([extra, baseRepo]) =>
       Effect.succeed({
         ...extra,

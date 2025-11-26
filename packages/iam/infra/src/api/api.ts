@@ -1,3 +1,4 @@
+import { AllowedHeaders, AllowedHttpMethods } from "@beep/constants";
 import { Db } from "@beep/core-db";
 import { ResendService } from "@beep/core-email";
 import { serverEnv } from "@beep/core-env/server";
@@ -85,14 +86,14 @@ const UserAuthMiddlewareLive = Layer.effect(
 
 const RoutesLive = Layer.provideMerge(CurrentUserLive, ReposLive);
 const ScalarLayer = HttpApiScalar.layer({
-  path: "/api/iam/docs",
+  path: "/api/v1/iam/docs",
 });
 const ApiLive = HttpApiBuilder.api(Api).pipe(Layer.provide(RoutesLive), Layer.provide(UserAuthMiddlewareLive));
 
 const CorsLive = HttpApiBuilder.middlewareCors({
   allowedOrigins: [serverEnv.app.env === "dev" ? "*" : serverEnv.app.apiUrl.toString()],
-  allowedMethods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization", "B3", "traceparent"],
+  allowedMethods: AllowedHttpMethods.Options,
+  allowedHeaders: AllowedHeaders.Options,
   credentials: true,
 });
 

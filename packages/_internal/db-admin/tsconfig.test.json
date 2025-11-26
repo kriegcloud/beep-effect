@@ -60,6 +60,15 @@
       "path": "../../tasks/tables/tsconfig.build.json"
     },
     {
+      "path": "../../knowledge-management/domain"
+    },
+    {
+      "path": "../../knowledge-management/tables"
+    },
+    {
+      "path": "../../knowledge-management/infra"
+    },
+    {
       "path": "../../comms/domain/tsconfig.build.json"
     },
     {

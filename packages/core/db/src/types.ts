@@ -34,3 +34,7 @@ export type Transaction<TFullSchema extends Record<string, unknown>> = <T, E, R>
 export type MakeQuery<TFullSchema extends Record<string, unknown>> = <A, E, R, Input = never>(
   queryFn: (execute: ExecuteFn<TFullSchema>, input: Input) => Effect.Effect<A, E, R>
 ) => (...args: [Input] extends [never] ? [] : [input: Input]) => Effect.Effect<A, E, R>;
+
+export type MakeQueryTx<TFullSchema extends Record<string, unknown>> = <A, E, R, Input>(
+  queryFn: (execute: ExecuteFn<TFullSchema>, input: Input) => Effect.Effect<A, E, R>
+) => (...args: [Input] extends [never] ? [] : [input: Input]) => Effect.Effect<A, DbError | E, R>;

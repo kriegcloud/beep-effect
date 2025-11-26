@@ -6,6 +6,11 @@ CREATE TYPE "public"."device_code_status_enum" AS ENUM('pending', 'approved', 'd
 CREATE TYPE "public"."invitation_status_enum" AS ENUM('pending', 'rejected', 'cancelled', 'accepted');--> statement-breakpoint
 CREATE TYPE "public"."member_role_enum" AS ENUM('admin', 'member', 'owner');--> statement-breakpoint
 CREATE TYPE "public"."member_status_enum" AS ENUM('active', 'inactive', 'offline', 'suspended', 'deleted', 'invited');--> statement-breakpoint
+CREATE TYPE "public"."link_type_enum" AS ENUM('explicit', 'inline-reference', 'block_embed');--> statement-breakpoint
+CREATE TYPE "public"."contact_point_type_enum" AS ENUM('EMAIL', 'PHONE', 'ADDRESS', 'WEBSITE', 'SOCIAL', 'OTHER');--> statement-breakpoint
+CREATE TYPE "public"."party_type_enum" AS ENUM('PERSON', 'ORGANIZATION', 'GROUP', 'SYSTEM');--> statement-breakpoint
+CREATE TYPE "public"."party_group_type_enum" AS ENUM('PERSON', 'ORGANIZATION', 'GROUP', 'SYSTEM');--> statement-breakpoint
+CREATE TYPE "public"."party_organization_type_enum" AS ENUM('ADVISORY_FIRM', 'BUSINESS_CLIENT', 'CUSTODIAN', 'BANK', 'INSURER', 'SAAS_VENDOR', 'OTHER');--> statement-breakpoint
 CREATE TABLE "organization" (
 	"id" text NOT NULL,
 	"_row_id" serial PRIMARY KEY NOT NULL,
@@ -408,6 +413,25 @@ CREATE TABLE "rate_limit" (
 	CONSTRAINT "rate_limit_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
+CREATE TABLE "scim_provider" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"provider_id" text NOT NULL,
+	"scim_token" text NOT NULL,
+	"organization_id" text,
+	CONSTRAINT "scim_provider_id_unique" UNIQUE("id"),
+	CONSTRAINT "scim_provider_provider_id_unique" UNIQUE("provider_id"),
+	CONSTRAINT "scim_provider_scim_token_unique" UNIQUE("scim_token")
+);
+--> statement-breakpoint
 CREATE TABLE "sso_provider" (
 	"id" text NOT NULL,
 	"_row_id" serial PRIMARY KEY NOT NULL,
@@ -524,9 +548,10 @@ CREATE TABLE "wallet_address" (
 	CONSTRAINT "wallet_address_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
-CREATE TABLE "scim_provider" (
+CREATE TABLE "knowledge_block" (
 	"id" text NOT NULL,
 	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"deleted_at" timestamp with time zone,
@@ -535,12 +560,312 @@ CREATE TABLE "scim_provider" (
 	"deleted_by" text,
 	"version" integer DEFAULT 1 NOT NULL,
 	"source" text,
-	"provider_id" text NOT NULL,
-	"scim_token" text NOT NULL,
-	"organization_id" text,
-	CONSTRAINT "scim_provider_id_unique" UNIQUE("id"),
-	CONSTRAINT "scim_provider_provider_id_unique" UNIQUE("provider_id"),
-	CONSTRAINT "scim_provider_scim_token_unique" UNIQUE("scim_token")
+	"page_id" text NOT NULL,
+	"parent_block_id" text,
+	"type" "block_type_enum" NOT NULL,
+	"order" text NOT NULL,
+	"encrypted_content" text NOT NULL,
+	"content_hash" text NOT NULL,
+	"last_edited_by" text NOT NULL,
+	CONSTRAINT "knowledge_block_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "knowledge_page" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"space_id" text NOT NULL,
+	"parent_page_id" text,
+	"title" text NOT NULL,
+	"slug" text NOT NULL,
+	"status" "page_status_enum" NOT NULL,
+	"order" integer DEFAULT 0 NOT NULL,
+	"last_edited_at" timestamp with time zone NOT NULL,
+	CONSTRAINT "knowledge_page_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "knowledge_space" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"team_id" text,
+	"owner_id" text NOT NULL,
+	"name" text NOT NULL,
+	"slug" text NOT NULL,
+	"description" text,
+	"is_encrypted" boolean NOT NULL,
+	"encryption_key_id" text,
+	"default_permissions" jsonb NOT NULL,
+	CONSTRAINT "knowledge_space_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "page_link" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"source_page_id" text NOT NULL,
+	"target_page_id" text NOT NULL,
+	"link_type" "link_type_enum" NOT NULL,
+	"source_block_id" text,
+	"context_snippet" text,
+	CONSTRAINT "page_link_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "contact_point" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"type" "contact_point_type_enum" NOT NULL,
+	"value" text NOT NULL,
+	"usage" text,
+	CONSTRAINT "contact_point_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "party" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"type" "party_type_enum" NOT NULL,
+	"display_name" text NOT NULL,
+	CONSTRAINT "party_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "party_contact_point" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"party_id" text NOT NULL,
+	"contact_point_id" text NOT NULL,
+	"is_primary" boolean DEFAULT false NOT NULL,
+	CONSTRAINT "party_contact_point_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "party_group" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"party_id" text NOT NULL,
+	"type" "party_group_type_enum" NOT NULL,
+	"description" text,
+	CONSTRAINT "party_group_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "party_identifier" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"party_id" text NOT NULL,
+	"identifier_type_id" text NOT NULL,
+	"value" text NOT NULL,
+	CONSTRAINT "party_identifier_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "party_identifier_type" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"code" text NOT NULL,
+	"description" text,
+	"issuer_system" text,
+	CONSTRAINT "party_identifier_type_id_unique" UNIQUE("id"),
+	CONSTRAINT "party_identifier_type_code_unique" UNIQUE("code")
+);
+--> statement-breakpoint
+CREATE TABLE "party_organization" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"party_id" text NOT NULL,
+	"legal_name" text NOT NULL,
+	"organization_type" "party_organization_type_enum" NOT NULL,
+	"registration_number" text,
+	"tax_id_masked" text,
+	"industry" text,
+	CONSTRAINT "party_organization_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "party_relationship" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"from_party_id" text NOT NULL,
+	"to_party_id" text NOT NULL,
+	"relationship_type_id" text NOT NULL,
+	"from_role_type_id" uuid,
+	"to_role_type_id" text,
+	"valid_from" timestamp with time zone,
+	"valid_to" timestamp with time zone,
+	"priority" text,
+	"status" text,
+	"metadata" jsonb,
+	CONSTRAINT "party_relationship_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "party_relationship_type" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"code" text NOT NULL,
+	"description" text,
+	CONSTRAINT "party_relationship_type_id_unique" UNIQUE("id"),
+	CONSTRAINT "party_relationship_type_code_unique" UNIQUE("code")
+);
+--> statement-breakpoint
+CREATE TABLE "party_role" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"party_id" text NOT NULL,
+	"role_type_id" text NOT NULL,
+	"context_type" text NOT NULL,
+	"context_id" uuid NOT NULL,
+	"valid_from" timestamp with time zone,
+	"valid_to" timestamp with time zone,
+	CONSTRAINT "party_role_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "party_role_type" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"code" text NOT NULL,
+	"description" text,
+	CONSTRAINT "party_role_type_id_unique" UNIQUE("id"),
+	CONSTRAINT "party_role_type_code_unique" UNIQUE("code")
+);
+--> statement-breakpoint
+CREATE TABLE "person" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"party_id" text NOT NULL,
+	"given_name" text NOT NULL,
+	"family_name" text NOT NULL,
+	"preferred_name" text NOT NULL,
+	"date_of_birth" date NOT NULL,
+	"primary_job_title" text,
+	"display_name" text NOT NULL,
+	CONSTRAINT "person_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
 CREATE TABLE "file" (
@@ -625,6 +950,42 @@ ALTER TABLE "team_member" ADD CONSTRAINT "team_member_user_id_user_id_fk" FOREIG
 ALTER TABLE "two_factor" ADD CONSTRAINT "two_factor_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "two_factor" ADD CONSTRAINT "two_factor_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "wallet_address" ADD CONSTRAINT "wallet_address_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "knowledge_block" ADD CONSTRAINT "knowledge_block_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_block" ADD CONSTRAINT "knowledge_block_page_id_knowledge_page_id_fk" FOREIGN KEY ("page_id") REFERENCES "public"."knowledge_page"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "knowledge_block" ADD CONSTRAINT "knowledge_block_last_edited_by_user_id_fk" FOREIGN KEY ("last_edited_by") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "knowledge_page" ADD CONSTRAINT "knowledge_page_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_page" ADD CONSTRAINT "knowledge_page_space_id_knowledge_space_id_fk" FOREIGN KEY ("space_id") REFERENCES "public"."knowledge_space"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "knowledge_space" ADD CONSTRAINT "knowledge_space_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_space" ADD CONSTRAINT "knowledge_space_team_id_team_id_fk" FOREIGN KEY ("team_id") REFERENCES "public"."team"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "knowledge_space" ADD CONSTRAINT "knowledge_space_owner_id_user_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "page_link" ADD CONSTRAINT "page_link_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "page_link" ADD CONSTRAINT "page_link_source_page_id_knowledge_page_id_fk" FOREIGN KEY ("source_page_id") REFERENCES "public"."knowledge_page"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "page_link" ADD CONSTRAINT "page_link_target_page_id_knowledge_page_id_fk" FOREIGN KEY ("target_page_id") REFERENCES "public"."knowledge_page"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "page_link" ADD CONSTRAINT "page_link_source_block_id_knowledge_block_id_fk" FOREIGN KEY ("source_block_id") REFERENCES "public"."knowledge_block"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "contact_point" ADD CONSTRAINT "contact_point_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "party" ADD CONSTRAINT "party_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "party_contact_point" ADD CONSTRAINT "party_contact_point_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "party_contact_point" ADD CONSTRAINT "party_contact_point_party_id_party_id_fk" FOREIGN KEY ("party_id") REFERENCES "public"."party"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "party_contact_point" ADD CONSTRAINT "party_contact_point_contact_point_id_contact_point_id_fk" FOREIGN KEY ("contact_point_id") REFERENCES "public"."contact_point"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "party_group" ADD CONSTRAINT "party_group_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "party_group" ADD CONSTRAINT "party_group_party_id_party_id_fk" FOREIGN KEY ("party_id") REFERENCES "public"."party"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "party_identifier" ADD CONSTRAINT "party_identifier_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "party_identifier" ADD CONSTRAINT "party_identifier_party_id_party_id_fk" FOREIGN KEY ("party_id") REFERENCES "public"."party"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "party_identifier" ADD CONSTRAINT "party_identifier_identifier_type_id_party_identifier_type_id_fk" FOREIGN KEY ("identifier_type_id") REFERENCES "public"."party_identifier_type"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "party_identifier_type" ADD CONSTRAINT "party_identifier_type_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "party_organization" ADD CONSTRAINT "party_organization_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "party_relationship" ADD CONSTRAINT "party_relationship_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "party_relationship" ADD CONSTRAINT "party_relationship_from_party_id_party_id_fk" FOREIGN KEY ("from_party_id") REFERENCES "public"."party"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "party_relationship" ADD CONSTRAINT "party_relationship_to_party_id_party_id_fk" FOREIGN KEY ("to_party_id") REFERENCES "public"."party"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "party_relationship" ADD CONSTRAINT "party_relationship_relationship_type_id_party_relationship_type_id_fk" FOREIGN KEY ("relationship_type_id") REFERENCES "public"."party_relationship_type"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "party_relationship" ADD CONSTRAINT "party_relationship_from_role_type_id_party_role_type_id_fk" FOREIGN KEY ("from_role_type_id") REFERENCES "public"."party_role_type"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "party_relationship" ADD CONSTRAINT "party_relationship_to_role_type_id_party_role_type_id_fk" FOREIGN KEY ("to_role_type_id") REFERENCES "public"."party_role_type"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "party_relationship_type" ADD CONSTRAINT "party_relationship_type_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "party_role" ADD CONSTRAINT "party_role_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "party_role" ADD CONSTRAINT "party_role_party_id_party_id_fk" FOREIGN KEY ("party_id") REFERENCES "public"."party"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "party_role" ADD CONSTRAINT "party_role_role_type_id_party_role_type_id_fk" FOREIGN KEY ("role_type_id") REFERENCES "public"."party_role_type"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "party_role_type" ADD CONSTRAINT "party_role_type_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "person" ADD CONSTRAINT "person_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "file" ADD CONSTRAINT "file_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "todo" ADD CONSTRAINT "todo_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "todo" ADD CONSTRAINT "todo_author_user_id_fk" FOREIGN KEY ("author") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
@@ -684,4 +1045,18 @@ CREATE INDEX "verification_identifier_value_idx" ON "verification" USING btree (
 CREATE INDEX "verification_expires_at_idx" ON "verification" USING btree ("expires_at");--> statement-breakpoint
 CREATE INDEX "verification_active_idx" ON "verification" USING btree ("identifier","expires_at");--> statement-breakpoint
 CREATE UNIQUE INDEX "wallet_address_user_chain_id_unique_idx" ON "wallet_address" USING btree ("user_id","address","chain_id");--> statement-breakpoint
+CREATE INDEX "knowledge_block_page_idx" ON "knowledge_block" USING btree ("page_id");--> statement-breakpoint
+CREATE INDEX "knowledge_block_parent_idx" ON "knowledge_block" USING btree ("parent_block_id");--> statement-breakpoint
+CREATE INDEX "knowledge_block_order_idx" ON "knowledge_block" USING btree ("page_id","order");--> statement-breakpoint
+CREATE INDEX "knowledge_block_content_hash_idx" ON "knowledge_block" USING btree ("content_hash");--> statement-breakpoint
+CREATE UNIQUE INDEX "knowledge_page_space_slug_idx" ON "knowledge_page" USING btree ("space_id","slug");--> statement-breakpoint
+CREATE INDEX "knowledge_page_space_idx" ON "knowledge_page" USING btree ("space_id");--> statement-breakpoint
+CREATE INDEX "knowledge_page_parent_idx" ON "knowledge_page" USING btree ("parent_page_id");--> statement-breakpoint
+CREATE INDEX "knowledge_page_status_idx" ON "knowledge_page" USING btree ("status");--> statement-breakpoint
+CREATE UNIQUE INDEX "knowledge_space_org_slug_idx" ON "knowledge_space" USING btree ("organization_id","slug");--> statement-breakpoint
+CREATE INDEX "knowledge_space_owner_idx" ON "knowledge_space" USING btree ("owner_id");--> statement-breakpoint
+CREATE INDEX "page_link_source_idx" ON "page_link" USING btree ("source_page_id");--> statement-breakpoint
+CREATE INDEX "page_link_target_idx" ON "page_link" USING btree ("target_page_id");--> statement-breakpoint
+CREATE INDEX "page_link_type_idx" ON "page_link" USING btree ("link_type");--> statement-breakpoint
+CREATE UNIQUE INDEX "page_link_source_target_block_idx" ON "page_link" USING btree ("source_page_id","target_page_id","source_block_id");--> statement-breakpoint
 CREATE INDEX "todo_title_idx" ON "todo" USING btree ("title");

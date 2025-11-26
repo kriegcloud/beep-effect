@@ -77,6 +77,17 @@
     {
       "path": "../../comms/tables/tsconfig.build.json"
     },
+
+    {
+      "path": "../../knowledge-management/infra/tsconfig.build.json"
+    },
+    {
+      "path": "../../knowledge-management/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../knowledge-management/tables/tsconfig.build.json"
+    },
+
     {
       "path": "../../party/infra/tsconfig.build.json"
     },

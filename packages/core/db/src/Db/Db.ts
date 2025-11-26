@@ -109,6 +109,19 @@ export const make = <const TFullSchema extends Record<string, unknown>>(
     // const handleDbError = (error: unknown) => {
     //
     // }
+    const makeTxWrapper =
+      <TFullSchema extends Record<string, unknown>>(txClient: TransactionClient<TFullSchema>) =>
+      (fn: (client: TransactionClient<TFullSchema>) => Promise<UnsafeTypes.UnsafeAny>) =>
+        Effect.tryPromise({
+          try: () => fn(txClient),
+          catch: (cause) => {
+            const error = DbErrors.DbError.match(cause);
+            if (error !== null) {
+              return error;
+            }
+            throw cause;
+          },
+        });
 
     const transaction: Transaction<TFullSchema> = Effect.fn("Database.transaction")(
       <T, E, R>(txExecute: (tx: TransactionContextShape<TFullSchema>) => Effect.Effect<T, E, R>) =>
@@ -118,17 +131,7 @@ export const make = <const TFullSchema extends Record<string, unknown>>(
             Effect.async<T, DbErrors.DbError | E, R>((resume) => {
               drizzle
                 .transaction(async (tx: TransactionClient<TFullSchema>) => {
-                  const txWrapper = (fn: (client: TransactionClient<TFullSchema>) => Promise<UnsafeTypes.UnsafeAny>) =>
-                    Effect.tryPromise({
-                      try: () => fn(tx),
-                      catch: (cause) => {
-                        const error = DbErrors.DbError.match(cause);
-                        if (error !== null) {
-                          return error;
-                        }
-                        throw cause;
-                      },
-                    });
+                  const txWrapper = makeTxWrapper(tx);
 
                   const provided = Effect.provideService(TransactionContext, txWrapper)(txExecute(txWrapper));
 

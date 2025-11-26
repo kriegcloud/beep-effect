@@ -480,6 +480,53 @@
       "@beep/comms-ui/test/*": [
         "./packages/comms/ui/test/*"
       ],
+      
+       "@beep/knowledge-management-domain": [
+        "./packages/knowledge-management/domain/src/index"
+      ],
+      "@beep/knowledge-management-domain/*": [
+        "./packages/knowledge-management/domain/src/*"
+      ],
+      "@beep/knowledge-management-domain/test/*": [
+        "./packages/knowledge-management/domain/test/*"
+      ],
+      "@beep/knowledge-management-tables": [
+        "./packages/knowledge-management/tables/src/index"
+      ],
+      "@beep/knowledge-management-tables/*": [
+        "./packages/knowledge-management/tables/src/*"
+      ],
+      "@beep/knowledge-management-tables/test/*": [
+        "./packages/knowledge-management/tables/test/*"
+      ],
+      "@beep/knowledge-management-infra": [
+        "./packages/knowledge-management/infra/src/index"
+      ],
+      "@beep/knowledge-management-infra/*": [
+        "./packages/knowledge-management/infra/src/*"
+      ],
+      "@beep/knowledge-management-infra/test/*": [
+        "./packages/knowledge-management/infra/test/*"
+      ],
+      "@beep/knowledge-management-sdk": [
+        "./packages/knowledge-management/sdk/src/index"
+      ],
+      "@beep/knowledge-management-sdk/*": [
+        "./packages/knowledge-management/sdk/src/*"
+      ],
+      "@beep/knowledge-management-sdk/test/*": [
+        "./packages/knowledge-management/sdk/test/*"
+      ],
+      "@beep/knowledge-management-ui": [
+        "./packages/knowledge-management/ui/src/index"
+      ],
+      "@beep/knowledge-management-ui/*": [
+        "./packages/knowledge-management/ui/src/*"
+      ],
+      "@beep/knowledge-management-ui/test/*": [
+        "./packages/knowledge-management/ui/test/*"
+      ],
+      
       "@beep/runtime-server": [
         "./packages/runtime/server/src/index"
       ],

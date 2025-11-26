@@ -99,6 +99,38 @@
       "@beep/comms-sdk/*": ["../../packages/comms/sdk/src/*"],
       "@beep/comms-ui": ["../../packages/comms/ui/src/index"],
       "@beep/comms-ui/*": ["../../packages/comms/ui/src/*"],
+
+      "@beep/knowledge-management-domain": [
+        "../../packages/knowledge-management/domain/src/index"
+      ],
+      "@beep/knowledge-management-domain/*": [
+        "../../packages/knowledge-management/domain/src/*"
+      ],
+      "@beep/knowledge-management-tables": [
+        "../../packages/knowledge-management/tables/src/index"
+      ],
+      "@beep/knowledge-management-tables/*": [
+        "../../packages/knowledge-management/tables/src/*"
+      ],
+      "@beep/knowledge-management-infra": [
+        "../../packages/knowledge-management/infra/src/index"
+      ],
+      "@beep/knowledge-management-infra/*": [
+        "../../packages/knowledge-management/infra/src/*"
+      ],
+      "@beep/knowledge-management-sdk": [
+        "../../packages/knowledge-management/sdk/src/index"
+      ],
+      "@beep/knowledge-management-sdk/*": [
+        "../../packages/knowledge-management/sdk/src/*"
+      ],
+      "@beep/knowledge-management-ui": [
+        "../../packages/knowledge-management/ui/src/index"
+      ],
+      "@beep/knowledge-management-ui/*": [
+        "../../packages/knowledge-management/ui/src/*"
+      ],
+
       "@beep/party-domain": ["../../packages/party/domain/src/index"],
       "@beep/party-domain/*": ["../../packages/party/domain/src/*"],
       "@beep/party-tables": ["../../packages/party/tables/src/index"],
@@ -218,6 +250,23 @@
     {
       "path": "../../packages/comms/tables/tsconfig.build.json"
     },
+
+    {
+      "path": "../../packages/knowledge-management/sdk/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/knowledge-management/infra/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/knowledge-management/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/knowledge-management/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/knowledge-management/tables/tsconfig.build.json"
+    },
+
     {
       "path": "../../packages/ui/ui/tsconfig.build.json"
     },

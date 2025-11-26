@@ -66,13 +66,13 @@
       "path": "../../party/infra"
     },
     {
-      "path": "../../comms/domain"
+      "path": "../../knowledge-management/domain"
     },
     {
-      "path": "../../comms/tables"
+      "path": "../../knowledge-management/tables"
     },
     {
-      "path": "../../comms/infra"
+      "path": "../../knowledge-management/infra"
     },
     {
       "path": "../../files/infra"

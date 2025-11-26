@@ -495,34 +495,29 @@ import { PageNotFoundError, UnauthorizedError } from "@beep/knowledge-management
 
 ```typescript
 // packages/knowledge-management/domain/src/entities/KnowledgePage/KnowledgePage.model.ts
-
-// Effect libraries
+import { PageStatus } from "@beep/knowledge-management-domain/value-objects";
+import { BS } from "@beep/schema";
+import { KnowledgeManagementEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
-// Beep utilities
-import {BS} from "@beep/schema";
-import { makeFields } from "@beep/shared-domain/common";
-
-// EntityIds
-import {SharedEntityIds} from "@beep/shared-domain/entity-ids";
-import { KnowledgeSpaceId, KnowledgePageId } from "@beep/shared-domain/entity-ids/knowledge-management";
-
-// Local schemas
-import { PageStatus } from "./schemas/PageStatus";
-
 export class Model extends M.Class<Model>(`KnowledgePageModel`)(
-  makeFields(KnowledgePageId, {
-    spaceId: KnowledgeSpaceId,
+  makeFields(KnowledgeManagementEntityIds.KnowledgePageId, {
+    spaceId: KnowledgeManagementEntityIds.KnowledgeSpaceId,
     organizationId: SharedEntityIds.OrganizationId,
-    parentPageId: BS.FieldOptionOmittable(KnowledgePageId),
+    parentPageId: BS.FieldOptionOmittable(KnowledgeManagementEntityIds.KnowledgePageId),
     title: S.String.pipe(S.maxLength(500)),
     slug: S.String,
     status: PageStatus,
-    order: S.Int,
+    order: BS.toOptionalWithDefault(S.Int)(0),
     lastEditedAt: BS.DateTimeUtcFromAllAcceptable,
   })
-) {}
+) {
+  static readonly utils = modelKit(Model);
+}
+
 ```
 
 **Note on BS Namespace:**
@@ -557,8 +552,15 @@ KnowledgeSpaceId = EntityId.make("knowledge_space", { brand: "KnowledgeSpaceId" 
 **Domain Model Sketch:**
 ```typescript
 // packages/knowledge-management/domain/src/entities/KnowledgeSpace/KnowledgeSpace.model.ts
+import { BS } from "@beep/schema";
+import { KnowledgeManagementEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
+import * as M from "@effect/sql/Model";
+import * as S from "effect/Schema";
+
 export class Model extends M.Class<Model>(`KnowledgeSpaceModel`)(
-  makeFields(KnowledgeSpaceId, {
+  makeFields(KnowledgeManagementEntityIds.KnowledgeSpaceId, {
     organizationId: SharedEntityIds.OrganizationId,
     teamId: BS.FieldOptionOmittable(SharedEntityIds.TeamId),
     ownerId: SharedEntityIds.UserId,
@@ -571,9 +573,11 @@ export class Model extends M.Class<Model>(`KnowledgeSpaceModel`)(
       canRead: S.Array(S.String),
       canWrite: S.Array(S.String),
     }),
-    // Note: makeFields() automatically adds audit fields (createdAt, updatedAt, deletedAt, createdBy, updatedBy, deletedBy, version, source)
   })
-) {}
+) {
+  static readonly utils = modelKit(Model);
+}
+
 ```
 
 **Interaction with IAM:**
@@ -603,20 +607,29 @@ KnowledgePageId = EntityId.make("knowledge_page", { brand: "KnowledgePageId" })
 
 **Domain Model Sketch:**
 ```typescript
+import { PageStatus } from "@beep/knowledge-management-domain/value-objects";
+import { BS } from "@beep/schema";
+import { KnowledgeManagementEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
+import * as M from "@effect/sql/Model";
+import * as S from "effect/Schema";
+
 export class Model extends M.Class<Model>(`KnowledgePageModel`)(
-  makeFields(KnowledgePageId, {
-    spaceId: KnowledgeSpaceId,
+  makeFields(KnowledgeManagementEntityIds.KnowledgePageId, {
+    spaceId: KnowledgeManagementEntityIds.KnowledgeSpaceId,
     organizationId: SharedEntityIds.OrganizationId,
-    parentPageId: BS.FieldOptionOmittable(KnowledgePageId),
-    title: S.String.pipe(S.maxLength(500)), // Plaintext for search
+    parentPageId: BS.FieldOptionOmittable(KnowledgeManagementEntityIds.KnowledgePageId),
+    title: S.String.pipe(S.maxLength(500)),
     slug: S.String,
-    status: PageStatus, // 'draft' | 'published' | 'archived'
-    order: S.Int, // For sibling ordering
-    lastEditedBy: SharedEntityIds.UserId, // Domain-specific: tracks content editor (separate from audit updatedBy)
-    lastEditedAt: BS.DateTimeUtcFromAllAcceptable, // Domain-specific: denormalized for queries
-    // Note: makeFields() automatically adds audit fields (createdAt, updatedAt, deletedAt, createdBy, updatedBy, deletedBy, version, source)
+    status: PageStatus,
+    order: BS.toOptionalWithDefault(S.Int)(0),
+    lastEditedAt: BS.DateTimeUtcFromAllAcceptable,
   })
-) {}
+) {
+  static readonly utils = modelKit(Model);
+}
+
 ```
 
 **Why title is plaintext:**
@@ -646,19 +659,28 @@ KnowledgeBlockId = EntityId.make("knowledge_block", { brand: "KnowledgeBlockId" 
 
 **Domain Model Sketch:**
 ```typescript
+import { BlockType } from "@beep/knowledge-management-domain/value-objects";
+import { BS } from "@beep/schema";
+import { KnowledgeManagementEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
+import * as M from "@effect/sql/Model";
+import * as S from "effect/Schema";
 export class Model extends M.Class<Model>(`KnowledgeBlockModel`)(
-  makeFields(KnowledgeBlockId, {
-    pageId: KnowledgePageId,
-    parentBlockId: BS.FieldOptionOmittable(KnowledgeBlockId),
+  makeFields(KnowledgeManagementEntityIds.KnowledgeBlockId, {
+    pageId: KnowledgeManagementEntityIds.KnowledgePageId,
+    parentBlockId: BS.FieldOptionOmittable(KnowledgeManagementEntityIds.KnowledgeBlockId),
     organizationId: SharedEntityIds.OrganizationId,
     type: BlockType, // 'paragraph' | 'heading' | 'code' | 'image' | ...
     order: S.String, // Fractional indexing (text type for string keys like "a0", "a0V")
     encryptedContent: S.String, // Encrypted JSON blob (BlockNote content)
     contentHash: S.String, // SHA256 for deduplication/integrity
     lastEditedBy: SharedEntityIds.UserId, // Domain-specific: tracks content editor
-    // Note: makeFields() automatically adds audit fields (createdAt, updatedAt, deletedAt, createdBy, updatedBy, deletedBy, version, source)
   })
-) {}
+) {
+  static readonly utils = modelKit(Model);
+}
+
 ```
 
 **Key Design Choice: Fractional Indexing for `order`**
@@ -904,24 +926,37 @@ export const knowledgeSpace = OrgTable.make(KnowledgeSpaceId)({
 
 ```typescript
 // packages/knowledge-management/tables/src/tables/knowledgePage.table.ts
-import { KnowledgePageId, KnowledgeSpaceId } from "@beep/shared-domain/entity-ids";
+import { PageStatus } from "@beep/knowledge-management-domain/value-objects";
+import { BS } from "@beep/schema";
+import { KnowledgeManagementEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 import { knowledgeSpace } from "./knowledgeSpace.table";
-import { PageStatus } from "@beep/knowledge-management-domain/entities/KnowledgePage/schemas";
 
-export const pageStatusPgEnum = BS.toPgEnum(PageStatus)("page_status_enum");
+const pageStatusPgEnum = BS.toPgEnum(PageStatus)("page_status_enum");
 
-export const knowledgePage = OrgTable.make(KnowledgePageId)({
-  spaceId: pg.text("space_id")...,
-  parentPageId: pg.text("parent_page_id")...,
-  title: pg.varchar("title", { length: 500 }).notNull(),
-  slug: pg.text("slug").notNull(),
-  status: pageStatusPgEnum("status").notNull().default("draft"),
-  order: pg.integer("order").notNull().default(0),
-  lastEditedBy: pg.text("last_edited_by").notNull().references(() => user.id),
-  lastEditedAt: pg.timestamp("last_edited_at", { withTimezone: true }).notNull().defaultNow(),
-}, ...)
+export const knowledgePage = OrgTable.make(KnowledgeManagementEntityIds.KnowledgePageId)(
+  {
+    spaceId: pg
+      .text("space_id")
+      .notNull()
+      .references(() => knowledgeSpace.id, { onDelete: "cascade" })
+      .$type<KnowledgeManagementEntityIds.KnowledgeSpaceId.Type>(),
+    parentPageId: pg.text("parent_page_id").$type<KnowledgeManagementEntityIds.KnowledgePageId.Type>(),
+    title: pg.text("title").notNull(),
+    slug: pg.text("slug").notNull(),
+    status: pageStatusPgEnum("status").notNull(),
+    order: pg.integer("order").notNull().default(0),
+    lastEditedAt: pg.timestamp("last_edited_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [
+    pg.uniqueIndex("knowledge_page_space_slug_idx").on(t.spaceId, t.slug),
+    pg.index("knowledge_page_space_idx").on(t.spaceId),
+    pg.index("knowledge_page_parent_idx").on(t.parentPageId),
+    pg.index("knowledge_page_status_idx").on(t.status),
+  ]
+);
+
 ```
 
 **Custom Columns:**
@@ -949,39 +984,42 @@ export const knowledgePage = OrgTable.make(KnowledgePageId)({
 
 ```typescript
 // packages/knowledge-management/tables/src/tables/knowledgeBlock.table.ts
-import { KnowledgeBlockId, KnowledgePageId } from "@beep/shared-domain/entity-ids";
-import { OrgTable } from "@beep/shared-tables";
+import { BlockType } from "@beep/knowledge-management-domain/value-objects";
+import { BS } from "@beep/schema";
+import type { SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeManagementEntityIds } from "@beep/shared-domain";
+import { OrgTable, user } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 import { knowledgePage } from "./knowledgePage.table";
-import { BlockType } from "@beep/knowledge-management-domain/entities/KnowledgeBlock/schemas";
 
-export const blockTypePgEnum = BS.toPgEnum(BlockType)("block_type_enum");
+const blockTypePgEnum = BS.toPgEnum(BlockType)("block_type_enum");
 
-export const knowledgeBlock = OrgTable.make(KnowledgeBlockId)({
-  pageId: pg
-    .text("page_id")
-    .notNull()
-    .references(() => knowledgePage.id, { onDelete: "cascade" })
-    .$type<KnowledgePageId.Type>(),
-  parentBlockId: pg
-    .text("parent_block_id")
-    .references(() => knowledgeBlock.id, { onDelete: "cascade" }) // Self-reference
-    .$type<KnowledgeBlockId.Type>(),
-  type: blockTypePgEnum("type").notNull(),
-  order: pg.text("order").notNull(), // Fractional indexing returns strings like "a0", "a0V", "a1"
-  encryptedContent: pg.text("encrypted_content").notNull(), // Encrypted BlockNote JSON content
-  contentHash: pg.varchar("content_hash", { length: 64 }).notNull(), // SHA256 hex
-  lastEditedBy: pg
-    .text("last_edited_by")
-    .notNull()
-    .references(() => user.id)
-    .$type<SharedEntityIds.UserId.Type>(),
-}, (t) => [
-  pg.index("knowledge_block_page_idx").on(t.pageId),
-  pg.index("knowledge_block_parent_idx").on(t.parentBlockId),
-  pg.uniqueIndex("knowledge_block_page_order_idx").on(t.pageId, t.parentBlockId, t.order),
-  pg.index("knowledge_block_hash_idx").on(t.contentHash),
-]);
+export const knowledgeBlock = OrgTable.make(KnowledgeManagementEntityIds.KnowledgeBlockId)(
+  {
+    pageId: pg
+      .text("page_id")
+      .notNull()
+      .references(() => knowledgePage.id, { onDelete: "cascade" })
+      .$type<KnowledgeManagementEntityIds.KnowledgePageId.Type>(),
+    parentBlockId: pg.text("parent_block_id").$type<KnowledgeManagementEntityIds.KnowledgeBlockId.Type>(),
+    type: blockTypePgEnum("type").notNull(),
+    order: pg.text("order").notNull(), // Fractional indexing (text type for string keys like "a0", "a0V")
+    encryptedContent: pg.text("encrypted_content").notNull(), // Encrypted JSON blob (BlockNote content)
+    contentHash: pg.text("content_hash").notNull(), // SHA256 for deduplication/integrity
+    lastEditedBy: pg
+      .text("last_edited_by")
+      .notNull()
+      .references(() => user.id)
+      .$type<SharedEntityIds.UserId.Type>(),
+  },
+  (t) => [
+    pg.index("knowledge_block_page_idx").on(t.pageId),
+    pg.index("knowledge_block_parent_idx").on(t.parentBlockId),
+    pg.index("knowledge_block_order_idx").on(t.pageId, t.order),
+    pg.index("knowledge_block_content_hash_idx").on(t.contentHash),
+  ]
+);
+
 ```
 
 **Custom Columns:**
@@ -1010,37 +1048,43 @@ export const knowledgeBlock = OrgTable.make(KnowledgeBlockId)({
 
 ```typescript
 // packages/knowledge-management/tables/src/tables/pageLink.table.ts
-import { PageLinkId, KnowledgePageId, KnowledgeBlockId } from "@beep/shared-domain/entity-ids";
+import { LinkType } from "@beep/knowledge-management-domain/value-objects";
+import { BS } from "@beep/schema";
+import { KnowledgeManagementEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
-import { knowledgePage } from "./knowledgePage.table";
 import { knowledgeBlock } from "./knowledgeBlock.table";
-import { LinkType } from "@beep/knowledge-management-domain/entities/PageLink/schemas";
+import { knowledgePage } from "./knowledgePage.table";
 
 export const linkTypePgEnum = BS.toPgEnum(LinkType)("link_type_enum");
 
-export const pageLink = OrgTable.make(PageLinkId)({
-  sourcePageId: pg
-    .text("source_page_id")
-    .notNull()
-    .references(() => knowledgePage.id, { onDelete: "cascade" })
-    .$type<KnowledgePageId.Type>(),
-  targetPageId: pg
-    .text("target_page_id")
-    .notNull()
-    .references(() => knowledgePage.id, { onDelete: "cascade" })
-    .$type<KnowledgePageId.Type>(),
-  linkType: linkTypePgEnum("link_type").notNull(),
-  sourceBlockId: pg
-    .text("source_block_id")
-    .references(() => knowledgeBlock.id, { onDelete: "cascade" })
-    .$type<KnowledgeBlockId.Type>(),
-  contextSnippet: pg.varchar("context_snippet", { length: 100 }),
-}, (t) => [
-  pg.uniqueIndex("page_link_source_target_idx").on(t.sourcePageId, t.targetPageId, t.sourceBlockId),
-  pg.index("page_link_target_idx").on(t.targetPageId), // For backlinks
-  pg.index("page_link_source_idx").on(t.sourcePageId),
-]);
+export const pageLink = OrgTable.make(KnowledgeManagementEntityIds.PageLinkId)(
+  {
+    sourcePageId: pg
+      .text("source_page_id")
+      .notNull()
+      .references(() => knowledgePage.id, { onDelete: "cascade" })
+      .$type<KnowledgeManagementEntityIds.KnowledgePageId.Type>(),
+    targetPageId: pg
+      .text("target_page_id")
+      .notNull()
+      .references(() => knowledgePage.id, { onDelete: "cascade" })
+      .$type<KnowledgeManagementEntityIds.KnowledgePageId.Type>(),
+    linkType: linkTypePgEnum("link_type").notNull(),
+    sourceBlockId: pg
+      .text("source_block_id")
+      .references(() => knowledgeBlock.id, { onDelete: "cascade" })
+      .$type<KnowledgeManagementEntityIds.KnowledgeBlockId.Type>(),
+    contextSnippet: pg.text("context_snippet"), // 50 chars around link
+  },
+  (t) => [
+    pg.index("page_link_source_idx").on(t.sourcePageId),
+    pg.index("page_link_target_idx").on(t.targetPageId),
+    pg.index("page_link_type_idx").on(t.linkType),
+    pg.uniqueIndex("page_link_source_target_block_idx").on(t.sourcePageId, t.targetPageId, t.sourceBlockId),
+  ]
+);
+
 ```
 
 **Custom Columns:**
@@ -1061,22 +1105,51 @@ Following the `_check.ts` pattern from `packages/shared/tables/src/_check.ts` an
 
 ```typescript
 // packages/knowledge-management/tables/src/_check.ts
-import type { KnowledgePage, KnowledgeBlock, PageLink, KnowledgeSpace } from "@beep/knowledge-management-domain/entities";
+import type {
+  KnowledgeBlock,
+  KnowledgePage,
+  KnowledgeSpace,
+  PageLink,
+} from "@beep/knowledge-management-domain/entities";
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
-import * as tables from "./tables";
+import type * as tables from "./schema";
 
-// Compile-time checks: Drizzle schemas must match domain models
-export const _checkSelectPage: typeof KnowledgePage.Model.select.Encoded = {} as InferSelectModel<typeof tables.knowledgePage>;
-export const _checkInsertPage: typeof KnowledgePage.Model.insert.Encoded = {} as InferInsertModel<typeof tables.knowledgePage>;
+// KnowledgeSpace type checks
+export const _checkSelectKnowledgeSpace: typeof KnowledgeSpace.Model.select.Encoded = {} as InferSelectModel<
+  typeof tables.knowledgeSpace
+>;
 
-export const _checkSelectBlock: typeof KnowledgeBlock.Model.select.Encoded = {} as InferSelectModel<typeof tables.knowledgeBlock>;
-export const _checkInsertBlock: typeof KnowledgeBlock.Model.insert.Encoded = {} as InferInsertModel<typeof tables.knowledgeBlock>;
+export const _checkInsertKnowledgeSpace: typeof KnowledgeSpace.Model.insert.Encoded = {} as InferInsertModel<
+  typeof tables.knowledgeSpace
+>;
 
-export const _checkSelectLink: typeof PageLink.Model.select.Encoded = {} as InferSelectModel<typeof tables.pageLink>;
-export const _checkInsertLink: typeof PageLink.Model.insert.Encoded = {} as InferInsertModel<typeof tables.pageLink>;
+// KnowledgePage type checks
+export const _checkSelectKnowledgePage: typeof KnowledgePage.Model.select.Encoded = {} as InferSelectModel<
+  typeof tables.knowledgePage
+>;
 
-export const _checkSelectSpace: typeof KnowledgeSpace.Model.select.Encoded = {} as InferSelectModel<typeof tables.knowledgeSpace>;
-export const _checkInsertSpace: typeof KnowledgeSpace.Model.insert.Encoded = {} as InferInsertModel<typeof tables.knowledgeSpace>;
+export const _checkInsertKnowledgePage: typeof KnowledgePage.Model.insert.Encoded = {} as InferInsertModel<
+  typeof tables.knowledgePage
+>;
+
+// KnowledgeBlock type checks
+export const _checkSelectKnowledgeBlock: typeof KnowledgeBlock.Model.select.Encoded = {} as InferSelectModel<
+  typeof tables.knowledgeBlock
+>;
+
+export const _checkInsertKnowledgeBlock: typeof KnowledgeBlock.Model.insert.Encoded = {} as InferInsertModel<
+  typeof tables.knowledgeBlock
+>;
+
+// PageLink type checks
+export const _checkSelectPageLink: typeof PageLink.Model.select.Encoded = {} as InferSelectModel<
+  typeof tables.pageLink
+>;
+
+export const _checkInsertPageLink: typeof PageLink.Model.insert.Encoded = {} as InferInsertModel<
+  typeof tables.pageLink
+>;
+
 ```
 
 **How it works:**
@@ -1887,7 +1960,7 @@ const [activePageId, setActivePageId] = useAtom(activePageIdAtom);
 ```tsx
 // apps/web/src/lib/zero.ts
 import { ZeroProvider } from "@rocicorp/zero/react";
-import { schema } from "@beep/knowledge-management-tables/schema";
+import { KnowledgeManagementDbSchema } from "@beep/knowledge-management-tables/schema";
 
 export const ZeroWrapper = ({ children }: { readonly children: React.ReactNode }) => {
   const session = useSession(); // From IAM
@@ -1897,9 +1970,9 @@ export const ZeroWrapper = ({ children }: { readonly children: React.ReactNode }
     userID: session.user.id,
     auth: session.token,
     schema: {
-      knowledge_page: schema.knowledgePage,
-      knowledge_block: schema.knowledgeBlock,
-      page_link: schema.pageLink,
+      knowledge_page: KnowledgeManagementDbSchema.knowledgePage,
+      knowledge_block: KnowledgeManagementDbSchema.knowledgeBlock,
+      page_link: KnowledgeManagementDbSchema.pageLink,
     },
   }), [session]);
 
@@ -2316,36 +2389,37 @@ Reason: Repositories use @effect/sql/Model for type-safe database operations wit
 
 **Standard Structure:**
 ```typescript
-import { Effect, Context, Layer } from "effect";
-import * as M from "@effect/sql/Model";
-import { SqlClient } from "@effect/sql";
-import { KnowledgeManagementDb } from "../db/Db";
+import { Repo } from "@beep/core-db/Repo";
+import { Entities } from "@beep/knowledge-management-domain";
+import { dependencies } from "@beep/knowledge-management-infra/adapters/repos/_common";
+import { KnowledgeManagementDb } from "@beep/knowledge-management-infra/db";
+import { KnowledgeManagementEntityIds } from "@beep/shared-domain";
+import * as Effect from "effect/Effect";
 
-export class EntityRepository extends Context.Tag("EntityRepository")<
-  EntityRepository,
+export class KnowledgeBlockRepo extends Effect.Service<KnowledgeBlockRepo>()(
+  "@beep/knowledge-management-infra/adapters/repos/KnowledgeBlockRepo",
   {
-    readonly create: (data: CreateData) => Effect.Effect<Entity, DbError, SqlClient.SqlClient>;
-    readonly findById: (id: EntityId) => Effect.Effect<O.Option<Entity>, DbError, SqlClient.SqlClient>;
-    readonly update: (id: EntityId, data: UpdateData) => Effect.Effect<Entity, DbError, SqlClient.SqlClient>;
-    readonly delete: (id: EntityId) => Effect.Effect<void, DbError, SqlClient.SqlClient>;
-    // Domain-specific methods...
+    dependencies,
+    accessors: true,
+    effect: Repo.make(
+      KnowledgeManagementEntityIds.KnowledgeBlockId,
+      Entities.KnowledgeBlock.Model,
+      Effect.gen(function* () {
+        const {
+          makeQuery, // drizzle effect query builder 
+          db, // `@effect/sql-drizzle` client
+          execute, // drizzle effect wrapper,
+          transaction, // effect drizzle transaction wrapper,
+          drizzle, // raw drizzle client no effect wrapper,
+        } = yield* KnowledgeManagementDb.KnowledgeManagementDb;
+        
+
+        return {};
+      })
+    ),
   }
->() {}
+) {}
 
-export const EntityRepositoryLive = Layer.effect(
-  EntityRepository,
-  Effect.gen(function* () {
-    const sql = yield* SqlClient.SqlClient;
-    const db = yield* KnowledgeManagementDb;
-
-    return EntityRepository.of({
-      create: (data) => /* implementation */,
-      findById: (id) => /* implementation */,
-      update: (id, data) => /* implementation */,
-      delete: (id) => /* implementation */,
-    });
-  })
-);
 ```
 
 #### Repository Structure by Entity
@@ -2408,286 +2482,226 @@ export const EntityRepositoryLive = Layer.effect(
 *Illustrative repository implementation; align with existing repo patterns and actual project imports.*
 
 ```typescript
-import { Effect, Context, Layer } from "effect";
-import * as M from "@effect/sql/Model";
-import { SqlClient, SqlError } from "@effect/sql";
-import * as S from "@effect/schema/Schema";
-import { KnowledgeManagementDb } from "../db/Db";
-import { KnowledgePage } from "@beep/knowledge-management-domain/entities";
-import { KnowledgePageId, KnowledgeSpaceId } from "@beep/shared-domain/entity-ids/knowledge-management";
-import * as Errors from "@beep/knowledge-management-domain/errors";
+import {Repo} from "@beep/core-db/Repo";
+import {Entities} from "@beep/knowledge-management-domain";
+import {
+  KnowledgePageCircularReferenceError,
+  KnowledgePageNotFoundError,
+  KnowledgePageSlugConflictError
+} from "@beep/knowledge-management-domain/entities/KnowledgePage/KnowledgePage.errors.ts";
+import {dependencies} from "@beep/knowledge-management-infra/adapters/repos/_common";
+import {KnowledgeManagementDb} from "@beep/knowledge-management-infra/db";
+import {KnowledgeManagementDbSchema} from "@beep/knowledge-management-tables";
+import {KnowledgeManagementEntityIds} from "@beep/shared-domain";
+import * as SqlClient from "@effect/sql/SqlClient";
+import type * as SqlError from "@effect/sql/SqlError";
+import * as SqlSchema from "@effect/sql/SqlSchema";
+import * as d from "drizzle-orm";
 import * as A from "effect/Array";
+import * as Bool from "effect/Boolean";
+import type * as Cause from "effect/Cause";
+import * as DateTime from "effect/DateTime";
+import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
-// Repository service definition
-export class KnowledgePageRepository extends Context.Tag("KnowledgePageRepository")<
-  KnowledgePageRepository,
-  {
-    readonly create: (data: {
-      readonly spaceId: KnowledgeSpaceId.Type;
-      readonly parentPageId: O.Option<KnowledgePageId.Type>;
-      readonly title: string;
-      readonly slug: string;
-      readonly status: "draft" | "published" | "archived";
-      readonly createdBy: string;
-    }) => Effect.Effect<KnowledgePage.Type, Errors.DbError | Errors.SlugConflictError, SqlClient.SqlClient>;
+import type * as ParseResult from "effect/ParseResult";
+import * as S from "effect/Schema";
 
-    readonly findById: (
-      id: KnowledgePageId.Type
-    ) => Effect.Effect<O.Option<KnowledgePage.Type>, Errors.DbError, SqlClient.SqlClient>;
+type DeleteError = Cause.NoSuchElementException | ParseResult.ParseError | SqlError.SqlError;
 
-    readonly findBySlug: (
-      spaceId: KnowledgeSpaceId.Type,
-      slug: string
-    ) => Effect.Effect<O.Option<KnowledgePage.Type>, Errors.DbError, SqlClient.SqlClient>;
-
-    readonly listBySpace: (
-      spaceId: KnowledgeSpaceId.Type
-    ) => Effect.Effect<ReadonlyArray<KnowledgePage.Type>, Errors.DbError, SqlClient.SqlClient>;
-
-    readonly listChildren: (
-      parentPageId: KnowledgePageId.Type
-    ) => Effect.Effect<ReadonlyArray<KnowledgePage.Type>, Errors.DbError, SqlClient.SqlClient>;
-
-    readonly update: (
-      id: KnowledgePageId.Type,
-      data: Partial<{
-        readonly title: string;
-        readonly slug: string;
-        readonly status: "draft" | "published" | "archived";
-        readonly color: string;
-      }>
-    ) => Effect.Effect<KnowledgePage.Type, Errors.DbError | Errors.PageNotFoundError, SqlClient.SqlClient>;
-
-    readonly movePage: (
-      id: KnowledgePageId.Type,
-      newParentId: O.Option<KnowledgePageId.Type>
-    ) => Effect.Effect<KnowledgePage.Type, Errors.DbError | Errors.CircularReferenceError, SqlClient.SqlClient>;
-
-    readonly delete: (
-      id: KnowledgePageId.Type
-    ) => Effect.Effect<void, Errors.DbError | Errors.PageNotFoundError, SqlClient.SqlClient>;
-  }
->() {}
-
-// Repository implementation
-export const KnowledgePageRepositoryLive = Layer.effect(
-  KnowledgePageRepository,
-  Effect.gen(function* () {
-    const sql = yield* SqlClient.SqlClient;
-    const db = yield* KnowledgeManagementDb;
-
-    // Helper: Check for slug conflicts
-    const checkSlugConflict = (spaceId: KnowledgeSpaceId.Type, slug: string, excludeId?: KnowledgePageId.Type | undefined) =>
-      Effect.gen(function* () {
-        const existing = yield* sql<{ id: string }>`
-          SELECT id FROM knowledge_page
-          WHERE space_id = ${spaceId}
-            AND slug = ${slug}
-            AND deleted_at IS NULL
-            ${excludeId ? sql`AND id != ${excludeId}` : sql``}
-          LIMIT 1
-        `.pipe(Effect.map(A.head));
-
-        if (O.isSome(existing)) {
-          yield* Effect.fail(new Errors.SlugConflictError({ slug }));
-        }
-      });
-
-    // Helper: Check for circular references in tree
-    const checkCircularReference = (pageId: KnowledgePageId.Type, newParentId: KnowledgePageId.Type) =>
-      Effect.gen(function* () {
-        // Get all ancestors of newParentId
-        const ancestors = yield* sql<{ id: string }>`
-          WITH RECURSIVE ancestors AS (
-            SELECT id, parent_page_id FROM knowledge_page WHERE id = ${newParentId}
-            UNION ALL
-            SELECT p.id, p.parent_page_id
-            FROM knowledge_page p
-            INNER JOIN ancestors a ON p.id = a.parent_page_id
-          )
-          SELECT id FROM ancestors
-        `;
-
-        const isCircular = A.some(ancestors, (ancestor) => ancestor.id === pageId);
-        if (isCircular) {
-          yield* Effect.fail(new Errors.CircularReferenceError({ pageId, parentPageId: newParentId }));
-        }
-      });
-
-    return KnowledgePageRepository.of({
-      // Create new page
-      create: (data) =>
-        Effect.gen(function* () {
-          // Check for slug conflicts
-          yield* checkSlugConflict(data.spaceId, data.slug);
-
-          // Insert page
-          const result = yield* sql`
-            INSERT INTO knowledge_page ${sql.insert({
-              id: KnowledgePageId.create(),
-              space_id: data.spaceId,
-              parent_page_id: O.getOrNull(data.parentPageId),
-              title: data.title,
-              slug: data.slug,
-              status: data.status,
-              created_by: data.createdBy,
-              updated_by: data.createdBy,
-              created_at: new Date(),
-              updated_at: new Date(),
-            })}
-            RETURNING *
-          `.pipe(
-            Effect.flatMap(A.head),
-            Effect.flatMap(O.match({
-              onNone: () => Effect.fail(new Errors.DbError({ message: "Failed to create page" })),
-              onSome: Effect.succeed,
-            })),
-            Effect.flatMap(S.decodeUnknown(KnowledgePage.Model.select))
-          );
-
-          return result;
-        }),
-
-      // Find page by ID
-      findById: (id) =>
-        sql`
-          SELECT * FROM knowledge_page
-          WHERE id = ${id} AND deleted_at IS NULL
-        `.pipe(
-          Effect.map(A.head),
-          Effect.flatMap(
-            O.match({
-              onNone: () => Effect.succeed(O.none()),
-              onSome: (row) =>
-                S.decodeUnknown(KnowledgePage.Model.select)(row).pipe(Effect.map(O.some)),
-            })
-          )
-        ),
-
-      // Find page by slug within space
-      findBySlug: (spaceId, slug) =>
-        sql`
-          SELECT * FROM knowledge_page
-          WHERE space_id = ${spaceId}
-            AND slug = ${slug}
-            AND deleted_at IS NULL
-          LIMIT 1
-        `.pipe(
-          Effect.map(A.head),
-          Effect.flatMap(
-            O.match({
-              onNone: () => Effect.succeed(O.none()),
-              onSome: (row) =>
-                S.decodeUnknown(KnowledgePage.Model.select)(row).pipe(Effect.map(O.some)),
-            })
-          )
-        ),
-
-      // List all pages in space
-      listBySpace: (spaceId) =>
-        sql`
-          SELECT * FROM knowledge_page
-          WHERE space_id = ${spaceId} AND deleted_at IS NULL
-          ORDER BY created_at DESC
-        `.pipe(
-          Effect.flatMap(A.traverse(S.decodeUnknown(KnowledgePage.Model.select)))
-        ),
-
-      // List child pages
-      listChildren: (parentPageId) =>
-        sql`
-          SELECT * FROM knowledge_page
-          WHERE parent_page_id = ${parentPageId} AND deleted_at IS NULL
-          ORDER BY title ASC
-        `.pipe(
-          Effect.flatMap(A.traverse(S.decodeUnknown(KnowledgePage.Model.select)))
-        ),
-
-      // Update page
-      update: (id, data) =>
-        Effect.gen(function* () {
-          // Check slug conflict if slug is being updated
-          if (data.slug) {
-            const existing = yield* sql`SELECT space_id FROM knowledge_page WHERE id = ${id}`.pipe(
-              Effect.map(A.head),
-              Effect.flatMap(
-                O.match({
-                  onNone: () => Effect.fail(new Errors.PageNotFoundError({ pageId: id })),
-                  onSome: Effect.succeed,
-                })
-              )
-            );
-
-            yield* checkSlugConflict(existing.space_id as KnowledgeSpaceId.Type, data.slug, id);
-          }
-
-          // Update page
-          const result = yield* sql`
-            UPDATE knowledge_page
-            SET ${sql.update(data)},
-                updated_at = NOW()
-            WHERE id = ${id} AND deleted_at IS NULL
-            RETURNING *
-          `.pipe(
-            Effect.flatMap(A.head),
-            Effect.flatMap(
-              O.match({
-                onNone: () => Effect.fail(new Errors.PageNotFoundError({ pageId: id })),
-                onSome: Effect.succeed,
-              })
-            ),
-            Effect.flatMap(S.decodeUnknown(KnowledgePage.Model.select))
-          );
-
-          return result;
-        }),
-
-      // Move page to new parent
-      movePage: (id, newParentId) =>
-        Effect.gen(function* () {
-          // Check for circular reference if newParentId is Some
-          if (O.isSome(newParentId)) {
-            yield* checkCircularReference(id, newParentId.value);
-          }
-
-          // Update parent_page_id
-          const result = yield* sql`
-            UPDATE knowledge_page
-            SET parent_page_id = ${O.getOrNull(newParentId)},
-                updated_at = NOW()
-            WHERE id = ${id} AND deleted_at IS NULL
-            RETURNING *
-          `.pipe(
-            Effect.flatMap(A.head),
-            Effect.flatMap(
-              O.match({
-                onNone: () => Effect.fail(new Errors.PageNotFoundError({ pageId: id })),
-                onSome: Effect.succeed,
-              })
-            ),
-            Effect.flatMap(S.decodeUnknown(KnowledgePage.Model.select))
-          );
-
-          return result;
-        }),
-
-      // Soft-delete page
-      delete: (id) =>
-        sql`
-          UPDATE knowledge_page
-          SET deleted_at = NOW()
-          WHERE id = ${id} AND deleted_at IS NULL
-        `.pipe(
-          Effect.flatMap((result) => {
-            if (result.rowCount === 0) {
-              return Effect.fail(new Errors.PageNotFoundError({ pageId: id }));
-            }
-            return Effect.void;
-          })
-        ),
-    });
+const matchDeleteError = (args: {
+  readonly id: KnowledgeManagementEntityIds.KnowledgePageId.Type,
+}) => Match.type<DeleteError>().pipe(
+  Match.tagsExhaustive({
+    NoSuchElementException: () => new KnowledgePageNotFoundError({id: args.id}),
+    ParseError: Effect.die,
+    SqlError: Effect.die,
   })
 );
+
+export class KnowledgePageRepo extends Effect.Service<KnowledgePageRepo>()(
+  "@beep/knowledge-management-infra/adapters/repos/KnowledgePageRepo",
+  {
+    dependencies,
+    accessors: true,
+    effect: Effect.gen(function* () {
+      const now = F.pipe(
+        F.pipe(DateTime.now, Effect.map(DateTime.toDateUtc)),
+        F.constant
+      );
+      const bindDeletedAt = Effect.bind("deletedAt", now);
+      const sql = yield* SqlClient.SqlClient;
+      const {makeQuery} = yield* KnowledgeManagementDb.KnowledgeManagementDb;
+      const baseRepo = yield* Repo.make(
+        KnowledgeManagementEntityIds.KnowledgePageId,
+        Entities.KnowledgePage.Model,
+        Effect.succeed({})
+      );
+      const findBySlug = makeQuery((execute, params: {
+        readonly slug: string
+      }) => execute((client) => client.query.knowledgePage.findFirst({
+        where: (table, {eq}) => eq(table.slug, params.slug)
+      })).pipe(
+        Effect.flatMap(S.decodeUnknown(Entities.KnowledgePage.Model))
+      ));
+
+      const listBySpace = makeQuery((execute, params: {
+        readonly spaceId: KnowledgeManagementEntityIds.KnowledgeSpaceId.Type
+      }) => execute((client) => client.query.knowledgePage.findMany({
+        where: (table, {eq}) => eq(table.spaceId, params.spaceId)
+      })).pipe(
+        Effect.flatMap(S.decodeUnknown(S.Array(Entities.KnowledgePage.Model)))
+      ));
+
+      const listChildren = makeQuery((execute, params: {
+        readonly parentPageId: KnowledgeManagementEntityIds.KnowledgePageId.Type
+      }) => execute((client) => client.query.knowledgePage.findMany({
+        where: (table, {eq}) => eq(table.parentPageId, params.parentPageId)
+      })).pipe(
+        Effect.flatMap(S.decodeUnknown(S.Array(Entities.KnowledgePage.Model)))
+      ));
+
+
+      const CheckCircularReferenceRequest = S.Struct({
+        pageId: KnowledgeManagementEntityIds.KnowledgePageId,
+        newParentId: KnowledgeManagementEntityIds.KnowledgePageId,
+      });
+      type CheckCircularReferenceRequest = typeof CheckCircularReferenceRequest.Type;
+      const checkCircularReferenceSchema = SqlSchema.single({
+        Request: CheckCircularReferenceRequest,
+        Result: S.Array(S.Struct({
+          id: KnowledgeManagementEntityIds.KnowledgePageId,
+          parentPageId: KnowledgeManagementEntityIds.KnowledgePageId,
+        })),
+        execute: (request) => sql`
+            WITH RECURSIVE ancestors AS (SELECT id, parent_page_id
+                                         FROM knowledge_page
+                                         WHERE ${KnowledgeManagementDbSchema.knowledgePage.id} = ${request.newParentId}
+                                         UNION ALL
+                                         SELECT p.id, p.parent_page_id
+                                         FROM knowledge_page p
+                                                  INNER JOIN ancestors a ON p.id = a.parent_page_id)
+            SELECT id
+            FROM ancestors
+        `,
+      });
+
+      const checkCircularReference = F.flow(
+        (request: CheckCircularReferenceRequest) => F.pipe(
+          checkCircularReferenceSchema(request),
+          Effect.map(A.some((ancestor) => ancestor.id === request.pageId)),
+          Effect.map(Bool.match({
+            onTrue: () => new KnowledgePageCircularReferenceError({
+              pageId: request.pageId,
+              newParentId: request.newParentId
+            }),
+            onFalse: () => Effect.void,
+          }))
+        ),
+      );
+
+      const movePage = makeQuery((execute, params: {
+        readonly pageId: KnowledgeManagementEntityIds.KnowledgePageId.Type
+        readonly newParentId: KnowledgeManagementEntityIds.KnowledgePageId.Type
+      }) => Effect.gen(function* () {
+        yield* checkCircularReference({
+          pageId: params.pageId,
+          newParentId: params.newParentId,
+        });
+
+        return yield* execute((client) => client.update(KnowledgeManagementDbSchema.knowledgePage).set(
+          {
+            parentPageId: params.newParentId,
+          }
+        ).where(
+          d.eq(KnowledgeManagementDbSchema.knowledgePage.id, params.pageId)
+        ));
+      }));
+
+      const checkSlugConflict = makeQuery((execute, params: {
+        readonly spaceId: KnowledgeManagementEntityIds.KnowledgeSpaceId.Type,
+        readonly slug: string,
+        readonly excludeId?: KnowledgeManagementEntityIds.KnowledgePageId.Type
+      }) => execute((client) => client.query.knowledgePage.findFirst({
+        where: (_, {ne, eq, isNull, and}) => and(
+          eq(KnowledgeManagementDbSchema.knowledgePage.slug, params.slug),
+          isNull(KnowledgeManagementDbSchema.knowledgePage.deletedAt),
+          ...(params.excludeId ? [ne(KnowledgeManagementDbSchema.knowledgePage.id, params.excludeId)] : [])
+        )
+      })).pipe(
+        Effect.map(O.fromNullable),
+        Effect.map(O.match({
+          onNone: () => new KnowledgePageSlugConflictError({slug: params.slug}),
+          onSome: Effect.succeed,
+        })),
+      ));
+
+      const create = Effect.fn("KnowledgePageRepo.create")(function* (input: typeof Entities.KnowledgePage.Model.insert.Type) {
+        yield* checkSlugConflict({
+          spaceId: input.spaceId,
+          slug: input.slug,
+        });
+        return yield* baseRepo.insert(input);
+      });
+
+      const update = Effect.fn("KnowledgePageRepo.update")(function* (input: typeof Entities.KnowledgePage.Model.update.Type) {
+        if (input.slug) {
+          yield* checkSlugConflict({
+            spaceId: input.spaceId,
+            slug: input.slug,
+            excludeId: input.id,
+          });
+        }
+        return yield* baseRepo.update(input);
+      });
+
+      const DeleteRequest = S.Struct({
+        id: KnowledgeManagementEntityIds.KnowledgePageId,
+      });
+
+      const deleteSchema = SqlSchema.single({
+        Request: DeleteRequest,
+        Result: S.Void,
+        execute: (request) => F.pipe(
+          Effect.Do,
+          bindDeletedAt,
+          Effect.andThen(({deletedAt}) => sql`
+              UPDATE ${sql(KnowledgeManagementEntityIds.KnowledgePageId.tableName)}
+              SET deleted_at = ${deletedAt}
+              WHERE id = ${request.id}
+                AND deleted_at IS NULL
+          `)
+        )
+      });
+
+      const _delete = Effect.fn("KnowledgePageRepo.delete")(deleteSchema,
+        (effect, args) => F.pipe(
+          Effect.Do,
+          Effect.bind("attributes", () => Effect.succeed({arguments: args})),
+          Effect.map(({attributes}) =>
+            effect.pipe(
+            Effect.tap(Effect.annotateCurrentSpan(attributes)),
+            Effect.annotateLogs(attributes),
+            Effect.mapError(matchDeleteError(args))
+          ))
+        ),
+      );
+
+      return {
+        ...baseRepo,
+        delete: _delete,
+        create,
+        findBySlug,
+        listBySpace,
+        listChildren,
+        movePage,
+        update,
+      };
+    }),
+  }
+) {
+}
 ```
 
 **Key Implementation Details:**
@@ -3488,9 +3502,9 @@ export const notifyPageEditStarted = (pageId: KnowledgePageId.Type, userId: User
 ### Phase 1: Foundation (Weeks 1-3)
 
 **Milestone 1.1: Slice Skeleton**
-- [ ] Create package directories (`domain`, `tables`, `infra`, `sdk`, `ui`)
-- [ ] Add `package.json` files with workspace dependencies
-- [ ] Update `tsconfig.base.jsonc` path aliases:
+- [x] Create package directories (`domain`, `tables`, `infra`, `sdk`, `ui`)
+- [x] Add `package.json` files with workspace dependencies
+- [x] Update `tsconfig.base.jsonc` path aliases:
   ```json
   {
     "@beep/knowledge-management-domain": ["packages/knowledge-management/domain/src"],
