@@ -47,8 +47,8 @@ function DropdownMenuItem({
   variant = "default",
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Item> & {
-  inset?: boolean;
-  variant?: "default" | "destructive";
+  readonly inset?: boolean;
+  readonly variant?: "default" | "destructive";
 }) {
   return (
     <DropdownMenuPrimitive.Item
@@ -77,7 +77,7 @@ function DropdownMenuCheckboxItem({
         "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className
       )}
-      checked={Boolean(checked)}
+      {...(checked !== undefined ? { checked } : {})}
       {...props}
     >
       <span className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
@@ -123,7 +123,7 @@ function DropdownMenuLabel({
   inset,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Label> & {
-  inset?: boolean;
+  readonly inset?: boolean;
 }) {
   return (
     <DropdownMenuPrimitive.Label
@@ -165,7 +165,7 @@ function DropdownMenuSubTrigger({
   children,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.SubTrigger> & {
-  inset?: boolean;
+  readonly inset?: boolean;
 }) {
   return (
     <DropdownMenuPrimitive.SubTrigger

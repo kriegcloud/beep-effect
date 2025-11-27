@@ -8,24 +8,26 @@ import * as ToolbarPrimitive from "@radix-ui/react-toolbar";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { cva, type VariantProps } from "class-variance-authority";
 import { ChevronDown } from "lucide-react";
-import * as React from "react";
+import type { ComponentProps, ComponentPropsWithoutRef, ElementType, ReactNode } from "react";
+import { useEffect, useState } from "react";
 
-export function Toolbar({ className, ...props }: React.ComponentProps<typeof ToolbarPrimitive.Root>) {
+export function Toolbar({ className, ...props }: ComponentProps<typeof ToolbarPrimitive.Root>) {
   return <ToolbarPrimitive.Root className={cn("relative flex select-none items-center", className)} {...props} />;
 }
 
 export function ToolbarToggleGroup({
   className,
   ...props
-}: React.ComponentProps<typeof ToolbarPrimitive.ToolbarToggleGroup>) {
+  // Unresolved variable ToolbarToggleGroup
+}: ComponentProps<typeof ToolbarPrimitive.ToolbarToggleGroup>) {
   return <ToolbarPrimitive.ToolbarToggleGroup className={cn("flex items-center", className)} {...props} />;
 }
 
-export function ToolbarLink({ className, ...props }: React.ComponentProps<typeof ToolbarPrimitive.Link>) {
+export function ToolbarLink({ className, ...props }: ComponentProps<typeof ToolbarPrimitive.Link>) {
   return <ToolbarPrimitive.Link className={cn("font-medium underline underline-offset-4", className)} {...props} />;
 }
 
-export function ToolbarSeparator({ className, ...props }: React.ComponentProps<typeof ToolbarPrimitive.Separator>) {
+export function ToolbarSeparator({ className, ...props }: ComponentProps<typeof ToolbarPrimitive.Separator>) {
   return <ToolbarPrimitive.Separator className={cn("mx-2 my-1 w-px shrink-0 bg-border", className)} {...props} />;
 }
 
@@ -76,9 +78,9 @@ const dropdownArrowVariants = cva(
 );
 
 type ToolbarButtonProps = {
-  isDropdown?: boolean;
-  pressed?: boolean;
-} & Omit<React.ComponentPropsWithoutRef<typeof ToolbarToggleItem>, "asChild" | "value"> &
+  readonly isDropdown?: undefined | boolean;
+  readonly pressed?: undefined | boolean;
+} & Omit<ComponentPropsWithoutRef<typeof ToolbarToggleItem>, "asChild" | "value"> &
   VariantProps<typeof toolbarButtonVariants>;
 
 export const ToolbarButton = withTooltip(function ToolbarButton({
@@ -133,11 +135,11 @@ export const ToolbarButton = withTooltip(function ToolbarButton({
   );
 });
 
-export function ToolbarSplitButton({ className, ...props }: React.ComponentPropsWithoutRef<typeof ToolbarButton>) {
+export function ToolbarSplitButton({ className, ...props }: ComponentPropsWithoutRef<typeof ToolbarButton>) {
   return <ToolbarButton className={cn("group flex gap-0 px-0 hover:bg-transparent", className)} {...props} />;
 }
 
-type ToolbarSplitButtonPrimaryProps = Omit<React.ComponentPropsWithoutRef<typeof ToolbarToggleItem>, "value"> &
+type ToolbarSplitButtonPrimaryProps = Omit<ComponentPropsWithoutRef<typeof ToolbarToggleItem>, "value"> &
   VariantProps<typeof toolbarButtonVariants>;
 
 export function ToolbarSplitButtonPrimary({
@@ -170,7 +172,7 @@ export function ToolbarSplitButtonSecondary({
   size,
   variant,
   ...props
-}: React.ComponentPropsWithoutRef<"span"> & VariantProps<typeof dropdownArrowVariants>) {
+}: ComponentPropsWithoutRef<"span"> & VariantProps<typeof dropdownArrowVariants>) {
   return (
     <span
       className={cn(
@@ -195,11 +197,11 @@ export function ToolbarToggleItem({
   size = "sm",
   variant,
   ...props
-}: React.ComponentProps<typeof ToolbarPrimitive.ToggleItem> & VariantProps<typeof toolbarButtonVariants>) {
+}: ComponentProps<typeof ToolbarPrimitive.ToggleItem> & VariantProps<typeof toolbarButtonVariants>) {
   return <ToolbarPrimitive.ToggleItem className={cn(toolbarButtonVariants({ size, variant }), className)} {...props} />;
 }
 
-export function ToolbarGroup({ children, className }: React.ComponentProps<"div">) {
+export function ToolbarGroup({ children, className }: ComponentProps<"div">) {
   return (
     <div className={cn("group/toolbar-group", "relative hidden has-[button]:flex", className)}>
       <div className="flex items-center">{children}</div>
@@ -211,14 +213,14 @@ export function ToolbarGroup({ children, className }: React.ComponentProps<"div"
   );
 }
 
-type TooltipProps<T extends React.ElementType> = {
-  tooltip?: React.ReactNode;
-  tooltipContentProps?: Omit<React.ComponentPropsWithoutRef<typeof TooltipContent>, "children">;
-  tooltipProps?: Omit<React.ComponentPropsWithoutRef<typeof Tooltip>, "children">;
-  tooltipTriggerProps?: React.ComponentPropsWithoutRef<typeof TooltipTrigger>;
-} & React.ComponentProps<T>;
+type TooltipProps<T extends ElementType> = {
+  tooltip?: undefined | ReactNode;
+  tooltipContentProps?: undefined | Omit<ComponentPropsWithoutRef<typeof TooltipContent>, "children">;
+  tooltipProps?: undefined | Omit<ComponentPropsWithoutRef<typeof Tooltip>, "children">;
+  tooltipTriggerProps?: undefined | ComponentPropsWithoutRef<typeof TooltipTrigger>;
+} & ComponentProps<T>;
 
-function withTooltip<T extends React.ElementType>(Component: T) {
+function withTooltip<T extends ElementType>(Component: T) {
   return function ExtendComponent({
     tooltip,
     tooltipContentProps,
@@ -226,13 +228,13 @@ function withTooltip<T extends React.ElementType>(Component: T) {
     tooltipTriggerProps,
     ...props
   }: TooltipProps<T>) {
-    const [mounted, setMounted] = React.useState(false);
+    const [mounted, setMounted] = useState(false);
 
-    React.useEffect(() => {
+    useEffect(() => {
       setMounted(true);
     }, []);
 
-    const component = <Component {...(props as React.ComponentProps<T>)} />;
+    const component = <Component {...(props as ComponentProps<T>)} />;
 
     if (tooltip && mounted) {
       return (
@@ -256,7 +258,7 @@ function TooltipContent({
   // CHANGE
   sideOffset = 4,
   ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Content>) {
+}: ComponentProps<typeof TooltipPrimitive.Content>) {
   return (
     <TooltipPrimitive.Portal>
       <TooltipPrimitive.Content
@@ -281,7 +283,7 @@ export function ToolbarMenuGroup({
   className,
   label,
   ...props
-}: React.ComponentProps<typeof DropdownMenuRadioGroup> & { label?: string }) {
+}: ComponentProps<typeof DropdownMenuRadioGroup> & { readonly label?: undefined | string }) {
   return (
     <>
       <DropdownMenuSeparator

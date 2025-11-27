@@ -165,13 +165,7 @@
       "path": "apps/server/tsconfig.build.json"
     },
     {
-      "path": "apps/mcp/tsconfig.build.json"
-    },
-    {
       "path": "apps/web/tsconfig.json"
-    },
-    {
-      "path": "apps/bunnings-server/tsconfig.json"
     },
     {
       "path": "packages/_internal/db-admin/tsconfig.build.json"

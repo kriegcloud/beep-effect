@@ -35,15 +35,15 @@
     }
   ],
   "compilerOptions": {
-    "types": ["node", "bun"],
+    "types": ["node", "bun", "react"],
     "outDir": "build/src",
 
     "rootDir": "src",
 
-    "jsx": "react-jsx",
-    "module": "ESNext",
-    "target": "ES2023",
-    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "jsx": "preserve",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "target": "es2022",
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,

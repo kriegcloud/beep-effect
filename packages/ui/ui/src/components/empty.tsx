@@ -1,6 +1,7 @@
 import { cn } from "@beep/ui-core/utils";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
+import type React from "react";
 
 function Empty({ className, ...props }: React.ComponentProps<"div">) {
   return (

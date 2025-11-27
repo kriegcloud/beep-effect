@@ -30,7 +30,7 @@ export function FormActions({ sx, disabled, onReset, loading, ...other }: FormAc
       ]}
       {...other}
     >
-      <Button color="error" size="large" disabled={disabled} onClick={onReset}>
+      <Button color="error" size="large" disabled={Boolean(disabled)} onClick={onReset}>
         Reset
       </Button>
       <Button size="large" type="submit" variant="contained" loading={loading}>

@@ -21,7 +21,7 @@ export function Label({
     <LabelRoot
       color={color}
       variant={variant}
-      disabled={disabled}
+      disabled={Boolean(disabled)}
       className={mergeClasses([labelClasses.root, className])}
       {...(sx ? { sx } : {})}
       {...other}

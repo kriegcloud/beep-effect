@@ -26,7 +26,7 @@ function FieldLegend({
   className,
   variant = "legend",
   ...props
-}: React.ComponentProps<"legend"> & { variant?: "legend" | "label" }) {
+}: React.ComponentProps<"legend"> & { readonly variant?: undefined | "legend" | "label" }) {
   return (
     <legend
       data-slot="field-legend"
@@ -145,7 +145,7 @@ function FieldSeparator({
   className,
   ...props
 }: React.ComponentProps<"div"> & {
-  children?: React.ReactNode;
+  readonly children?: undefined | React.ReactNode;
 }) {
   return (
     <div
@@ -173,7 +173,7 @@ function FieldError({
   errors,
   ...props
 }: React.ComponentProps<"div"> & {
-  errors?: Array<{ message?: string } | undefined>;
+  readonly errors?: undefined | Array<{ readonly message?: undefined | string } | undefined>;
 }) {
   const content = useMemo(() => {
     if (children) {

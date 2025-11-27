@@ -42,7 +42,7 @@ function Item({
   size = "default",
   asChild = false,
   ...props
-}: React.ComponentProps<"div"> & VariantProps<typeof itemVariants> & { asChild?: boolean }) {
+}: React.ComponentProps<"div"> & VariantProps<typeof itemVariants> & { readonly asChild?: undefined | boolean }) {
   const Comp = asChild ? Slot : "div";
   return (
     <Comp
