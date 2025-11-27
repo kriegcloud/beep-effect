@@ -45,7 +45,7 @@ import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as S from "effect/Schema";
-import * as AST from "effect/SchemaAST";
+import type * as AST from "effect/SchemaAST";
 import type { IGenericLiteralKit } from "./literal-kit";
 import { makeGenericLiteralKit } from "./literal-kit";
 
@@ -176,20 +176,15 @@ export function makeMappedLiteralKit<const Pairs extends MappedPairs>(
   ) as any;
 
   // Build lookup maps
-  const decodeMap = new Map<Pairs[number][0], Pairs[number][1]>(
-    A.map(pairs, ([from, to]) => [from, to] as const)
-  );
-  const encodeMap = new Map<Pairs[number][1], Pairs[number][0]>(
-    A.map(pairs, ([from, to]) => [to, from] as const)
-  );
+  const decodeMap = new Map<Pairs[number][0], Pairs[number][1]>(A.map(pairs, ([from, to]) => [from, to] as const));
+  const encodeMap = new Map<Pairs[number][1], Pairs[number][0]>(A.map(pairs, ([from, to]) => [to, from] as const));
 
   // Build Effect HashMap from pairs
   const hashMap: HashMap.HashMap<Pairs[number][0], Pairs[number][1]> = HashMap.fromIterable(pairs);
 
   // Create the underlying transform schema
-  const baseSchema: ReturnType<typeof S.transformLiterals<AST.Members<readonly [AST.LiteralValue, AST.LiteralValue]>>> = S.transformLiterals(
-    ...(pairs as any)
-  );
+  const baseSchema: ReturnType<typeof S.transformLiterals<AST.Members<readonly [AST.LiteralValue, AST.LiteralValue]>>> =
+    S.transformLiterals(...(pairs as any));
 
   // Use provided AST or extract from base schema
   const schemaAST = ast ?? baseSchema.ast;
@@ -199,9 +194,7 @@ export function makeMappedLiteralKit<const Pairs extends MappedPairs>(
   const ToKit: ToLiteralKit<Pairs> = makeGenericLiteralKit(toLiterals) as unknown as ToLiteralKit<Pairs>;
 
   return class MappedLiteralKitClass extends S.make<Pairs[number][1], Pairs[number][0]>(schemaAST) {
-    static override annotations(
-      annotations: S.Annotations.Schema<Pairs[number][1]>
-    ): IMappedLiteralKit<Pairs> {
+    static override annotations(annotations: S.Annotations.Schema<Pairs[number][1]>): IMappedLiteralKit<Pairs> {
       return makeMappedLiteralKit(pairs, mergeSchemaAnnotations(this.ast, annotations));
     }
 
@@ -267,9 +260,7 @@ export function makeMappedLiteralKit<const Pairs extends MappedPairs>(
  * @category Derived/Kits
  * @since 0.1.0
  */
-export function MappedLiteralKit<const Pairs extends MappedPairs>(
-  ...pairs: Pairs
-): IMappedLiteralKit<Pairs> {
+export function MappedLiteralKit<const Pairs extends MappedPairs>(...pairs: Pairs): IMappedLiteralKit<Pairs> {
   return makeMappedLiteralKit(pairs).annotations(
     Id.annotations("MappedLiteralKit", {
       description: "Bidirectional literal mapping schema with From/To literal kits",

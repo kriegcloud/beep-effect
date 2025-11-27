@@ -158,7 +158,7 @@ describe("LiteralKit", () => {
     it("works as a schema", () => {
       expect(S.decodeSync(BigNumbers)(1n)).toBe(1n);
       expect(S.decodeSync(BigNumbers)(2n)).toBe(2n);
-       // @ts-expect-error - testing invalid input
+      // @ts-expect-error - testing invalid input
       expect(() => S.decodeSync(BigNumbers)(4n)).toThrow();
     });
   });

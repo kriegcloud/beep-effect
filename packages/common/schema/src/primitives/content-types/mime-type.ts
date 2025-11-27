@@ -32,21 +32,21 @@ import type * as S from "effect/Schema";
 
 // Re-export bidirectional mappings from extension-mime-mapping
 export {
+  AllExtensionToMimeMappings,
   ApplicationExtensionToMime,
   AudioExtensionToMime,
-  FontExtensionToMime,
-  ImageExtensionToMime,
-  TextExtensionToMime,
-  VideoExtensionToMime,
-  AllExtensionToMimeMappings,
   combinedDecodeMap,
   combinedEncodeMap,
   extensionToMime,
-  mimeToExtension,
+  FontExtensionToMime,
+  ImageExtensionToMime,
   isMappedExtension,
   isMappedMimeType,
   type MappedExtension,
   type MappedMimeType,
+  mimeToExtension,
+  TextExtensionToMime,
+  VideoExtensionToMime,
 } from "./extension-mime-mapping";
 
 const { $MimeTypeId: Id } = $ContentTypeId.compose("mime-type");

@@ -419,8 +419,7 @@ export const combinedEncodeMap: ReadonlyMap<MappedMimeType, MappedExtension> = n
  * @category Primitives/Network/Mime
  * @since 0.1.0
  */
-export const extensionToMime = (ext: MappedExtension): MappedMimeType | undefined =>
-  combinedDecodeMap.get(ext);
+export const extensionToMime = (ext: MappedExtension): MappedMimeType | undefined => combinedDecodeMap.get(ext);
 
 /**
  * Convert a MIME type to its corresponding file extension.
@@ -438,8 +437,7 @@ export const extensionToMime = (ext: MappedExtension): MappedMimeType | undefine
  * @category Primitives/Network/Mime
  * @since 0.1.0
  */
-export const mimeToExtension = (mime: MappedMimeType): MappedExtension | undefined =>
-  combinedEncodeMap.get(mime);
+export const mimeToExtension = (mime: MappedMimeType): MappedExtension | undefined => combinedEncodeMap.get(mime);
 
 /**
  * Check if a string is a mapped file extension.

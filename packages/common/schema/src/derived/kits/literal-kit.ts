@@ -22,16 +22,14 @@
  * @since 0.1.0
  */
 
+import { mergeSchemaAnnotations } from "@beep/schema/core/annotations/built-in-annotations";
 import { $KitsId } from "@beep/schema/internal";
 import * as A from "effect/Array";
+import * as Equal from "effect/Equal";
 import * as F from "effect/Function";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
-import * as Equal from "effect/Equal";
-import {
-  mergeSchemaAnnotations,
-} from "@beep/schema/core/annotations/built-in-annotations";
 
 const { $LiteralKitId: Id } = $KitsId.compose("literal-kit");
 
@@ -158,9 +156,6 @@ export interface IGenericLiteralKit<Literals extends LiteralsType>
 // AST Helpers
 // ===========================================================================
 
-
-
-
 /**
  * Checks whether the provided array of literals constitutes multiple members.
  */
@@ -190,7 +185,7 @@ function getDefaultLiteralAST<Literals extends LiteralsType>(literals: Literals)
  */
 function literalToKey<const L extends AST.LiteralValue>(literal: L) {
   if (literal === null) return "null";
-  if (Equal.equals(typeof literal)("boolean")) return literal ? "true" as const : "false" as const;
+  if (Equal.equals(typeof literal)("boolean")) return literal ? ("true" as const) : ("false" as const);
   if (Equal.equals(typeof literal)("bigint")) return `${literal}n` as const;
   if (Equal.equals(typeof literal)("number")) return `n${literal}` as const;
   return String(literal);
@@ -240,9 +235,7 @@ export function makeGenericLiteralKit<const Literals extends LiteralsType>(
   const Enum = buildEnum(literals);
   const is = buildIsGuards(literals);
 
-  const pickOptions = <Keys extends LiteralsSubset<Literals>>(
-    ...keys: Keys
-  ): A.NonEmptyReadonlyArray<Keys[number]> =>
+  const pickOptions = <Keys extends LiteralsSubset<Literals>>(...keys: Keys): A.NonEmptyReadonlyArray<Keys[number]> =>
     F.pipe(
       literals,
       A.filter((lit): lit is Keys[number] => A.contains(keys, lit))
@@ -272,8 +265,6 @@ export function makeGenericLiteralKit<const Literals extends LiteralsType>(
     static derive = derive;
   } as unknown as IGenericLiteralKit<Literals>;
 }
-
-
 
 // ============================================================================
 // Public API
@@ -318,9 +309,7 @@ export function makeGenericLiteralKit<const Literals extends LiteralsType>(
  * @category Derived/Kits
  * @since 0.1.0
  */
-export function LiteralKit<const Literals extends LiteralsType>(
-  ...literals: Literals
-): IGenericLiteralKit<Literals> {
+export function LiteralKit<const Literals extends LiteralsType>(...literals: Literals): IGenericLiteralKit<Literals> {
   return makeGenericLiteralKit(literals).annotations(
     Id.annotations("LiteralKit", {
       description: "Literal kit schema for any literal value type",

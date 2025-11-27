@@ -13,8 +13,7 @@ export class BigIntToSiSymbol extends MappedLiteralKit(
   [1e12, "T"],
   [1e15, "P"],
   [1e18, "E"]
-) {
-}
+) {}
 
 export declare namespace BigIntToSiSymbol {
   export type Type = typeof BigIntToSiSymbol.Type;
@@ -80,9 +79,7 @@ function formatNumber(num: number, digits = 1): FormattedNumber {
     return { value: num, formatted: "0", symbol: "", divisor: 1 };
   }
 
-  const formatted = (num / item.value)
-    .toFixed(digits)
-    .replace(TRAILING_ZEROS_RX, "$1") + item.symbol;
+  const formatted = (num / item.value).toFixed(digits).replace(TRAILING_ZEROS_RX, "$1") + item.symbol;
 
   return {
     value: num,
@@ -101,9 +98,7 @@ function parseFormattedNumber(formatted: string): number {
   if (formatted === "0") return 0;
 
   // Find matching SI symbol at end of string
-  const item = [...SI_LOOKUP]
-    .reverse()
-    .find((item) => item.symbol && formatted.endsWith(item.symbol));
+  const item = [...SI_LOOKUP].reverse().find((item) => item.symbol && formatted.endsWith(item.symbol));
 
   if (item) {
     const numPart = formatted.slice(0, -item.symbol.length);
@@ -151,15 +146,11 @@ const FormattedNumberStruct = S.Struct({
  * @since 0.1.0
  * @category Primitives/Number
  */
-export const FormatNumber: S.Schema<FormattedNumber, number> = S.transform(
-  S.Number,
-  FormattedNumberStruct,
-  {
-    strict: true,
-    decode: (num) => formatNumber(num),
-    encode: (formatted) => formatted.value,
-  }
-).annotations({
+export const FormatNumber: S.Schema<FormattedNumber, number> = S.transform(S.Number, FormattedNumberStruct, {
+  strict: true,
+  decode: (num) => formatNumber(num),
+  encode: (formatted) => formatted.value,
+}).annotations({
   identifier: "FormatNumber",
   title: "Formatted Number",
   description: "A number formatted with SI symbols (K, M, G, T, P, E)",
@@ -188,20 +179,18 @@ export const FormatNumber: S.Schema<FormattedNumber, number> = S.transform(
  * @since 0.1.0
  * @category Primitives/Number
  */
-export const FormatNumberFromString: S.Schema<FormattedNumber, string> =
-  S.transform(S.String, FormattedNumberStruct, {
-    strict: true,
-    decode: (str) => {
-      const value = parseFormattedNumber(str);
-      return formatNumber(value);
-    },
-    encode: (formatted) => formatted.formatted,
-  }).annotations({
-    identifier: "FormatNumberFromString",
-    title: "Formatted Number From String",
-    description:
-      "A formatted SI string (e.g., '1.5K') decoded to a FormattedNumber object",
-  });
+export const FormatNumberFromString: S.Schema<FormattedNumber, string> = S.transform(S.String, FormattedNumberStruct, {
+  strict: true,
+  decode: (str) => {
+    const value = parseFormattedNumber(str);
+    return formatNumber(value);
+  },
+  encode: (formatted) => formatted.formatted,
+}).annotations({
+  identifier: "FormatNumberFromString",
+  title: "Formatted Number From String",
+  description: "A formatted SI string (e.g., '1.5K') decoded to a FormattedNumber object",
+});
 
 export declare namespace FormatNumber {
   export type Type = FormattedNumber;

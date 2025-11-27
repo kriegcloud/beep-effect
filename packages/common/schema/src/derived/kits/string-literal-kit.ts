@@ -29,7 +29,6 @@ import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
 import type * as Types from "effect/Types";
 
-
 // const LiteralToAccessor =
 
 const { $StringLiteralKitId: Id } = $KitsId.compose("string-literal-kit");

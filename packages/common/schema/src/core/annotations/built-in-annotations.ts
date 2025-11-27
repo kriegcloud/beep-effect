@@ -1,5 +1,5 @@
+import type * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
-import * as S from "effect/Schema";
 export const builtInAnnotations = {
   schemaId: AST.SchemaIdAnnotationId,
   message: AST.MessageAnnotationId,

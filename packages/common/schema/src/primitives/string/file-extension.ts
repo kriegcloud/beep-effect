@@ -29,21 +29,21 @@ import type * as S from "effect/Schema";
 
 // Re-export bidirectional mappings from extension-mime-mapping
 export {
+  AllExtensionToMimeMappings,
   ApplicationExtensionToMime,
   AudioExtensionToMime,
-  FontExtensionToMime,
-  ImageExtensionToMime,
-  TextExtensionToMime,
-  VideoExtensionToMime,
-  AllExtensionToMimeMappings,
   combinedDecodeMap,
   combinedEncodeMap,
   extensionToMime,
-  mimeToExtension,
+  FontExtensionToMime,
+  ImageExtensionToMime,
   isMappedExtension,
   isMappedMimeType,
   type MappedExtension,
   type MappedMimeType,
+  mimeToExtension,
+  TextExtensionToMime,
+  VideoExtensionToMime,
 } from "@beep/schema/primitives/content-types/extension-mime-mapping";
 
 const { $FileExtensionId: Id } = $StringId.compose("file-extension");
