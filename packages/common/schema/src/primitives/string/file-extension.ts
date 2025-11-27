@@ -3,11 +3,22 @@
  *
  * Surfaces schemas and enums for application, audio, image, text, and video extensions.
  *
+ * For bidirectional extension↔MIME mappings with O(1) lookup, see:
+ * - {@link ApplicationExtensionToMime}, {@link AudioExtensionToMime}, etc.
+ * - {@link extensionToMime} and {@link mimeToExtension} helper functions
+ *
  * @example
  * import * as S from "effect/Schema";
  * import { FileExtension } from "@beep/schema/primitives/string/file-extension";
  *
  * const png = S.decodeSync(FileExtension)("png");
+ *
+ * @example
+ * // Bidirectional mapping with O(1) lookup
+ * import { ImageExtensionToMime, extensionToMime } from "@beep/schema/primitives/string/file-extension";
+ *
+ * ImageExtensionToMime.decodeMap.get("png");  // "image/png"
+ * extensionToMime("png");  // "image/png"
  *
  * @category Primitives/String
  * @since 0.1.0
@@ -15,6 +26,25 @@
 import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
 import { $StringId } from "@beep/schema/internal";
 import type * as S from "effect/Schema";
+
+// Re-export bidirectional mappings from extension-mime-mapping
+export {
+  ApplicationExtensionToMime,
+  AudioExtensionToMime,
+  FontExtensionToMime,
+  ImageExtensionToMime,
+  TextExtensionToMime,
+  VideoExtensionToMime,
+  AllExtensionToMimeMappings,
+  combinedDecodeMap,
+  combinedEncodeMap,
+  extensionToMime,
+  mimeToExtension,
+  isMappedExtension,
+  isMappedMimeType,
+  type MappedExtension,
+  type MappedMimeType,
+} from "@beep/schema/primitives/content-types/extension-mime-mapping";
 
 const { $FileExtensionId: Id } = $StringId.compose("file-extension");
 

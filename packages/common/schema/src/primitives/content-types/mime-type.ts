@@ -4,11 +4,23 @@
  * Exposes extension-to-MIME maps, literal kits, and schema classes so upload workflows, Content-Type guards,
  * and documentation flows can reuse the same canonical MIME values.
  *
+ * For bidirectional extension↔MIME mappings with O(1) lookup, see:
+ * - {@link ApplicationExtensionToMime}, {@link AudioExtensionToMime}, etc. from extension-mime-mapping.ts
+ * - {@link extensionToMime} and {@link mimeToExtension} helper functions
+ *
  * @example
  * import * as S from "effect/Schema";
  * import { ImageMimeType } from "@beep/schema/primitives/content-types/mime-type";
  *
  * const mime = S.decodeSync(ImageMimeType)("image/png");
+ *
+ * @example
+ * // Bidirectional mapping with O(1) lookup
+ * import { ImageExtensionToMime, extensionToMime, mimeToExtension } from "@beep/schema/primitives/content-types/mime-type";
+ *
+ * ImageExtensionToMime.decodeMap.get("png");  // "image/png"
+ * extensionToMime("png");  // "image/png"
+ * mimeToExtension("image/png");  // "png"
  *
  * @category Primitives/Network/Mime
  * @since 0.1.0
@@ -17,6 +29,25 @@ import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
 import { $ContentTypeId } from "@beep/schema/internal";
 import { RecordUtils } from "@beep/utils";
 import type * as S from "effect/Schema";
+
+// Re-export bidirectional mappings from extension-mime-mapping
+export {
+  ApplicationExtensionToMime,
+  AudioExtensionToMime,
+  FontExtensionToMime,
+  ImageExtensionToMime,
+  TextExtensionToMime,
+  VideoExtensionToMime,
+  AllExtensionToMimeMappings,
+  combinedDecodeMap,
+  combinedEncodeMap,
+  extensionToMime,
+  mimeToExtension,
+  isMappedExtension,
+  isMappedMimeType,
+  type MappedExtension,
+  type MappedMimeType,
+} from "./extension-mime-mapping";
 
 const { $MimeTypeId: Id } = $ContentTypeId.compose("mime-type");
 //----------------------------------------------------------------------------------------------------------------------

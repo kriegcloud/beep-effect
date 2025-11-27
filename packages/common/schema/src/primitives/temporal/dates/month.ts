@@ -12,9 +12,9 @@
  * @category Primitives/Temporal/Dates
  * @since 0.1.0
  */
+import { MappedLiteralKit } from "@beep/schema/derived/kits/mapped-literal-kit";
 import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
 import { $TemporalId } from "@beep/schema/internal";
-import * as Match from "effect/Match";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 
@@ -221,8 +221,145 @@ export declare namespace MonthInt {
    */
   export type Encoded = S.Schema.Encoded<typeof MonthInt>;
 }
+
 /**
- * Converts {@link MonthInt.Type} values to {@link MonthNumber.Enum} literals.
+ * Mapped literal kit for bidirectional int↔string month transformations.
+ *
+ * Provides static `From` (integer literals 1-12) and `To` (zero-padded strings "01"-"12") kits
+ * along with decode/encode maps for programmatic access.
+ *
+ * @example
+ * import { MonthIntToNumber } from "@beep/schema/primitives/temporal/dates/month";
+ *
+ * // Access literal kits
+ * MonthIntToNumber.From.Options  // => [1, 2, 3, ..., 12]
+ * MonthIntToNumber.To.Options    // => ["01", "02", ..., "12"]
+ *
+ * // Lookup maps
+ * MonthIntToNumber.decodeMap.get(1)   // => "01"
+ * MonthIntToNumber.encodeMap.get("01") // => 1
+ *
+ * @category Primitives/Temporal/Dates
+ * @since 0.1.0
+ */
+export const MonthIntToNumber = MappedLiteralKit(
+  [1, "01"] ,
+  [2, "02"] ,
+  [3, "03"] ,
+  [4, "04"] ,
+  [5, "05"] ,
+  [6, "06"] ,
+  [7, "07"] ,
+  [8, "08"] ,
+  [9, "09"] ,
+  [10, "10"],
+  [11, "11"],
+  [12, "12"]
+).annotations(
+  Id.annotations("MonthIntToNumber", {
+    description: "Bidirectional month integer to zero-padded string mapping.",
+  })
+);
+
+/**
+ * Namespace exposing helper types for {@link MonthIntToNumber}.
+ *
+ * @example
+ * import type { MonthIntToNumber } from "@beep/schema/primitives/temporal/dates/month";
+ *
+ * let monthNumber: MonthIntToNumber.Type;
+ *
+ * @category Primitives/Temporal/Dates
+ * @since 0.1.0
+ */
+export declare namespace MonthIntToNumber {
+  /**
+   * Runtime type of {@link MonthIntToNumber} (decoded value: zero-padded string).
+   *
+   * @category Primitives/Temporal/Dates
+   * @since 0.1.0
+   */
+  export type Type = S.Schema.Type<typeof MonthIntToNumber>;
+  /**
+   * Encoded representation of {@link MonthIntToNumber} (integer 1-12).
+   *
+   * @category Primitives/Temporal/Dates
+   * @since 0.1.0
+   */
+  export type Encoded = S.Schema.Encoded<typeof MonthIntToNumber>;
+}
+
+/**
+ * Mapped literal kit for bidirectional int↔string month transformations.
+ *
+ * Provides static `From` (integer literals 1-12) and `To` (zero-padded strings "01"-"12") kits
+ * along with decode/encode maps for programmatic access.
+ *
+ * @example
+ * import { MonthIntToName } from "@beep/schema/primitives/temporal/dates/month";
+ *
+ * // Access literal kits
+ * MonthIntToName.From.Options  // => [1, 2, 3, ..., 12]
+ * MonthIntToName.To.Options    // => ["January", "February", ..., "December"]
+ *
+ * // Lookup maps
+ * MonthIntToName.decodeMap.get(1)   // => "01"
+ * MonthIntToName.encodeMap.get("01") // => 1
+ *
+ * @category Primitives/Temporal/Dates
+ * @since 0.1.0
+ */
+export const MonthIntToName = MappedLiteralKit(
+  [1, "January"] ,
+  [2, "February"] ,
+  [3, "March"] ,
+  [4, "April"] ,
+  [5, "May"] ,
+  [6, "June"] ,
+  [7, "July"] ,
+  [8, "August"] ,
+  [9, "September"] ,
+  [10, "October"],
+  [11, "November"],
+  [12, "December"]
+).annotations(
+  Id.annotations("MonthIntToName", {
+    description: "Bidirectional month integer to zero-padded string mapping.",
+  })
+);
+
+/**
+ * Namespace exposing helper types for {@link MonthIntToName}.
+ *
+ * @example
+ * import type { MonthIntToName } from "@beep/schema/primitives/temporal/dates/month";
+ *
+ * let monthNumber: MonthIntToName.Type;
+ *
+ * @category Primitives/Temporal/Dates
+ * @since 0.1.0
+ */
+export declare namespace MonthIntToName {
+  /**
+   * Runtime type of {@link MonthIntToName} (decoded value: zero-padded string).
+   *
+   * @category Primitives/Temporal/Dates
+   * @since 0.1.0
+   */
+  export type Type = S.Schema.Type<typeof MonthIntToName>;
+  /**
+   * Encoded representation of {@link MonthIntToName} (integer 1-12).
+   *
+   * @category Primitives/Temporal/Dates
+   * @since 0.1.0
+   */
+  export type Encoded = S.Schema.Encoded<typeof MonthIntToName>;
+}
+
+/**
+ * Converts {@link MonthInt.Type} values to {@link MonthNumber.Type} literals.
+ *
+ * Uses the decode map from {@link MonthIntToNumber} for O(1) lookup.
  *
  * @example
  * import { monthIntToNumber } from "@beep/schema/primitives/temporal/dates/month";
@@ -233,24 +370,13 @@ export declare namespace MonthInt {
  * @category Primitives/Temporal/Dates
  * @since 0.1.0
  */
-export const monthIntToNumber = Match.type<MonthInt.Type>().pipe(
-  Match.when(1, () => MonthNumber.Enum.january),
-  Match.when(2, () => MonthNumber.Enum.february),
-  Match.when(3, () => MonthNumber.Enum.march),
-  Match.when(4, () => MonthNumber.Enum.april),
-  Match.when(5, () => MonthNumber.Enum.may),
-  Match.when(6, () => MonthNumber.Enum.june),
-  Match.when(7, () => MonthNumber.Enum.july),
-  Match.when(8, () => MonthNumber.Enum.august),
-  Match.when(9, () => MonthNumber.Enum.september),
-  Match.when(10, () => MonthNumber.Enum.october),
-  Match.when(11, () => MonthNumber.Enum.november),
-  Match.when(12, () => MonthNumber.Enum.december),
-  Match.exhaustive
-);
-// todo should use `S.transformLiteral` for this.
+export const monthIntToNumber = (i: MonthInt.Type): MonthNumber.Type =>
+  MonthIntToNumber.decodeMap.get(i) as MonthNumber.Type;
+
 /**
  * Converts zero-padded month literals back to integers.
+ *
+ * Uses the encode map from {@link MonthIntToNumber} for O(1) lookup.
  *
  * @example
  * import { monthNumberToInt } from "@beep/schema/primitives/temporal/dates/month";
@@ -261,21 +387,8 @@ export const monthIntToNumber = Match.type<MonthInt.Type>().pipe(
  * @category Primitives/Temporal/Dates
  * @since 0.1.0
  */
-export const monthNumberToInt = Match.type<MonthNumber.Type>().pipe(
-  Match.when("01", () => 1 as const),
-  Match.when("02", () => 2 as const),
-  Match.when("03", () => 3 as const),
-  Match.when("04", () => 4 as const),
-  Match.when("05", () => 5 as const),
-  Match.when("06", () => 6 as const),
-  Match.when("07", () => 7 as const),
-  Match.when("08", () => 8 as const),
-  Match.when("09", () => 9 as const),
-  Match.when("10", () => 10 as const),
-  Match.when("11", () => 11 as const),
-  Match.when("12", () => 12 as const),
-  Match.exhaustive
-);
+export const monthNumberToInt = (s: MonthNumber.Type): MonthInt.Type =>
+  MonthIntToNumber.encodeMap.get(s) as MonthInt.Type;
 
 /**
  * Schema that transforms {@link MonthInt} values into {@link MonthNumber} literals.
@@ -292,8 +405,8 @@ export const monthNumberToInt = Match.type<MonthNumber.Type>().pipe(
  */
 export class MonthNumberFromMonthInt extends S.transform(MonthInt, MonthNumber, {
   strict: true,
-  decode: (i) => monthIntToNumber(i),
-  encode: (s) => monthNumberToInt(s),
+  decode: monthIntToNumber,
+  encode: monthNumberToInt,
 }).annotations(
   Id.annotations("MonthNumberFromMonthInt", {
     description: "Transform month integers to zero-padded literals.",

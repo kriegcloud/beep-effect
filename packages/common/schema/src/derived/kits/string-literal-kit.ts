@@ -7,6 +7,8 @@
  * import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
  *
  * const StatusKit = StringLiteralKit("pending", "active");
+ * // StatusKit.is.pending(value) - type guard for "pending"
+ * // StatusKit.is.active(value) - type guard for "active"
  *
  * @category Derived/Kits
  * @since 0.1.0
@@ -26,6 +28,9 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
 import type * as Types from "effect/Types";
+
+
+// const LiteralToAccessor =
 
 const { $StringLiteralKitId: Id } = $KitsId.compose("string-literal-kit");
 type LiteralsType = A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>;
@@ -77,6 +82,18 @@ type OmitOptions<Literals extends LiteralsType> = <const Keys extends LiteralsSu
   ...keys: Keys
 ) => A.NonEmptyReadonlyArray<Exclude<Literals[number], Keys[number]>>;
 
+/**
+ * Type guard map: one guard per literal key.
+ *
+ * Maps each literal string to a type guard function that narrows `unknown` to that specific literal.
+ *
+ * @since 0.1.0
+ * @category Derived/Kits
+ */
+type IsGuards<Literals extends LiteralsType> = {
+  readonly [K in Literals[number] & string]: (i: unknown) => i is K;
+};
+
 type DerivedLiteralKit<Literals extends LiteralsType> = {
   readonly Schema: S.Literal<[...Literals]>;
   readonly Options: Literals;
@@ -112,6 +129,7 @@ export interface ILiteralKit<Literals extends LiteralsType, Mapping extends Mapp
   extends S.AnnotableClass<ILiteralKit<Literals, Mapping>, Literals[number]> {
   readonly Options: Literals;
   readonly Enum: LiteralKitEnum<Literals, Mapping>;
+  readonly is: IsGuards<Literals>;
   readonly omitOptions: OmitOptions<Literals>;
   readonly pickOptions: PickOptions<Literals>;
   readonly derive: <Keys extends LiteralsSubset<Literals>>(...keys: Keys) => DerivedLiteralKit<Keys>;
@@ -233,6 +251,23 @@ const mergeSchemaAnnotations = <A>(ast: AST.AST, annotations: S.Annotations.Sche
   AST.annotations(ast, toASTAnnotations(annotations));
 
 /**
+ * Builds a map of type guards for each literal value.
+ *
+ * @param literals - Array of literal strings to create guards for
+ * @returns An object with a type guard function for each literal
+ *
+ * @since 0.1.0
+ * @category Derived/Kits
+ */
+const buildIsGuards = <Literals extends LiteralsType>(literals: Literals): IsGuards<Literals> => {
+  const entries = F.pipe(
+    literals,
+    A.map((lit) => [lit, (i: unknown): i is typeof lit => i === lit] as const)
+  );
+  return R.fromEntries(entries) as IsGuards<Literals>;
+};
+
+/**
  * Factory for creating string literal kits with custom enum mapping.
  *
  * Extended overload that accepts an optional `enumMapping` configuration for custom enum key names.
@@ -340,6 +375,7 @@ export function makeLiteralKit<
     static pickOptions = pickOptions;
     static Options = literals;
     static Enum = Enum;
+    static is = buildIsGuards(literals);
     static derive = <Keys extends A.NonEmptyReadonlyArray<Literals[number]>>(
       ...keys: Keys
     ): DerivedLiteralKitSchema<Keys> => {
