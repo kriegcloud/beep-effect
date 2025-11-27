@@ -183,7 +183,10 @@ const nextConfig = {
         pathname: "/**",
       },
     ],
+    // Cost
+    unoptimized: true,
   },
+  serverExternalPackages: ["@node-rs/argon2"],
   async headers() {
     return [
       {

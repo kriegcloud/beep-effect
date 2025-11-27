@@ -1,5 +1,6 @@
 import { SharedEntityIds } from "@beep/shared-domain";
 import * as SharedEntities from "@beep/shared-domain/entities";
+import { User } from "@beep/shared-domain/entities";
 import { Table } from "@beep/shared-tables/Table";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
@@ -9,6 +10,7 @@ export const user = Table.make(SharedEntityIds.UserId)(
     name: pg.text("name").notNull(),
     email: pg.text("email").notNull().unique(),
     emailVerified: pg.boolean("email_verified").default(false).notNull(),
+    uploadLimit: pg.integer("upload_limit").notNull().default(User.USER_UPLOAD_LIMIT),
     image: pg.text("image"),
     role: userRolePgEnum("role").notNull().default(SharedEntities.User.UserRole.Enum.user),
     banned: pg.boolean("banned").notNull().default(false),

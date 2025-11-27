@@ -74,9 +74,8 @@ export type NonEmptyStructFields<T extends StructFieldsWithStringKeys> = keyof T
  * @category Types/Struct
  * @since 0.1.0
  */
-export type NonEmptyReadonlyStructFieldKeys<T extends StructFieldsWithStringKeys> = T extends NonEmptyStructFields<T>
-  ? A.NonEmptyReadonlyArray<keyof NonEmptyStructFields<T> & string>
-  : never;
+export type NonEmptyReadonlyStructFieldKeys<T extends StructFieldsWithStringKeys> =
+  T extends NonEmptyStructFields<T> ? A.NonEmptyReadonlyArray<keyof NonEmptyStructFields<T> & string> : never;
 
 /**
  * Non-empty readonly array of keys when given a non-empty record.

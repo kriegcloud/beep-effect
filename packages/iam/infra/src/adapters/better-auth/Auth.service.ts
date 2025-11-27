@@ -252,6 +252,10 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
       },
       modelName: SharedEntityIds.UserId.tableName,
       additionalFields: {
+        uploadLimit: {
+          type: "number",
+          required: false,
+        },
         stripeCustomerId: {
           type: "string",
           required: false,

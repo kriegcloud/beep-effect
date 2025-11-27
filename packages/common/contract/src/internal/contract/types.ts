@@ -663,9 +663,8 @@ export type Name<T> = T extends Contract<infer _Name, infer _Config, infer _Requ
  * @since 1.0.0
  * @category Utility Types
  */
-export type PayloadEncoded<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? S.Schema.Encoded<_Config["payload"]>
-  : never;
+export type PayloadEncoded<T> =
+  T extends Contract<infer _Name, infer _Config, infer _Requirements> ? S.Schema.Encoded<_Config["payload"]> : never;
 
 /**
  * A utility type to extract the schema for the payload which an `Contract`
@@ -674,9 +673,8 @@ export type PayloadEncoded<T> = T extends Contract<infer _Name, infer _Config, i
  * @since 1.0.0
  * @category Utility Types
  */
-export type PayloadSchema<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? _Config["payload"]
-  : never;
+export type PayloadSchema<T> =
+  T extends Contract<infer _Name, infer _Config, infer _Requirements> ? _Config["payload"] : never;
 
 /**
  * A utility type to extract the type of the contract call result when it succeeds.
@@ -684,9 +682,8 @@ export type PayloadSchema<T> = T extends Contract<infer _Name, infer _Config, in
  * @since 1.0.0
  * @category Utility Types
  */
-export type Success<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? S.Schema.Type<_Config["success"]>
-  : never;
+export type Success<T> =
+  T extends Contract<infer _Name, infer _Config, infer _Requirements> ? S.Schema.Type<_Config["success"]> : never;
 
 /**
  * A utility type to extract the encoded type of the contract call result when
@@ -695,9 +692,8 @@ export type Success<T> = T extends Contract<infer _Name, infer _Config, infer _R
  * @since 1.0.0
  * @category Utility Types
  */
-export type SuccessEncoded<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? S.Schema.Encoded<_Config["success"]>
-  : never;
+export type SuccessEncoded<T> =
+  T extends Contract<infer _Name, infer _Config, infer _Requirements> ? S.Schema.Encoded<_Config["success"]> : never;
 
 /**
  * A utility type to extract the schema for the return type of a contract call when
@@ -706,9 +702,8 @@ export type SuccessEncoded<T> = T extends Contract<infer _Name, infer _Config, i
  * @since 1.0.0
  * @category Utility Types
  */
-export type SuccessSchema<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? _Config["success"]
-  : never;
+export type SuccessSchema<T> =
+  T extends Contract<infer _Name, infer _Config, infer _Requirements> ? _Config["success"] : never;
 
 /**
  * A utility type to extract the type of the contract call result when it fails.
@@ -716,13 +711,11 @@ export type SuccessSchema<T> = T extends Contract<infer _Name, infer _Config, in
  * @since 1.0.0
  * @category Utility Types
  */
-export type Failure<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? S.Schema.Type<_Config["failure"]>
-  : never;
+export type Failure<T> =
+  T extends Contract<infer _Name, infer _Config, infer _Requirements> ? S.Schema.Type<_Config["failure"]> : never;
 
-export type FailureSchema<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? _Config["failure"]
-  : never;
+export type FailureSchema<T> =
+  T extends Contract<infer _Name, infer _Config, infer _Requirements> ? _Config["failure"] : never;
 /**
  * A utility type to extract the encoded type of the contract call result when
  * it fails.
@@ -730,9 +723,8 @@ export type FailureSchema<T> = T extends Contract<infer _Name, infer _Config, in
  * @since 1.0.0
  * @category Utility Types
  */
-export type FailureEncoded<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? S.Schema.Encoded<_Config["failure"]>
-  : never;
+export type FailureEncoded<T> =
+  T extends Contract<infer _Name, infer _Config, infer _Requirements> ? S.Schema.Encoded<_Config["failure"]> : never;
 
 /**
  * Extracts the parse context required by the payload schema.
@@ -740,27 +732,26 @@ export type FailureEncoded<T> = T extends Contract<infer _Name, infer _Config, i
  * @since 1.0.0
  * @category Utility Types
  */
-export type PayloadContext<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? S.Schema.Context<_Config["payload"]>
-  : never;
+export type PayloadContext<T> =
+  T extends Contract<infer _Name, infer _Config, infer _Requirements> ? S.Schema.Context<_Config["payload"]> : never;
 
 /**
  * @since 1.0.0
  * @category models
  */
-export type PayloadConstructor<R> = R extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? _Config["payload"] extends { readonly fields: S.Struct.Fields }
-    ? S.Simplify<S.Struct.Constructor<_Config["payload"]["fields"]>>
-    : _Config["payload"]["Type"]
-  : never;
+export type PayloadConstructor<R> =
+  R extends Contract<infer _Name, infer _Config, infer _Requirements>
+    ? _Config["payload"] extends { readonly fields: S.Struct.Fields }
+      ? S.Simplify<S.Struct.Constructor<_Config["payload"]["fields"]>>
+      : _Config["payload"]["Type"]
+    : never;
 
 /**
  * @since 1.0.0
  * @category models
  */
-export type Payload<R> = R extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? _Config["payload"]["Type"]
-  : never;
+export type Payload<R> =
+  R extends Contract<infer _Name, infer _Config, infer _Requirements> ? _Config["payload"]["Type"] : never;
 
 /**
  * Extracts the parse context required by the success schema.
@@ -768,9 +759,8 @@ export type Payload<R> = R extends Contract<infer _Name, infer _Config, infer _R
  * @since 1.0.0
  * @category Utility Types
  */
-export type SuccessContext<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? S.Schema.Context<_Config["success"]>
-  : never;
+export type SuccessContext<T> =
+  T extends Contract<infer _Name, infer _Config, infer _Requirements> ? S.Schema.Context<_Config["success"]> : never;
 
 /**
  * Extracts the parse context required by the failure schema.
@@ -778,9 +768,8 @@ export type SuccessContext<T> = T extends Contract<infer _Name, infer _Config, i
  * @since 1.0.0
  * @category Utility Types
  */
-export type FailureContext<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? S.Schema.Context<_Config["failure"]>
-  : never;
+export type FailureContext<T> =
+  T extends Contract<infer _Name, infer _Config, infer _Requirements> ? S.Schema.Context<_Config["failure"]> : never;
 
 /**
  * A utility type to extract the type of the contract call result whether it
@@ -789,9 +778,8 @@ export type FailureContext<T> = T extends Contract<infer _Name, infer _Config, i
  * @since 1.0.0
  * @category Utility Types
  */
-export type Result<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? Success<T> | Failure<T>
-  : never;
+export type Result<T> =
+  T extends Contract<infer _Name, infer _Config, infer _Requirements> ? Success<T> | Failure<T> : never;
 /**
  * A utility type to extract the encoded type of the contract call result whether
  * it succeeds or fails.
@@ -799,9 +787,8 @@ export type Result<T> = T extends Contract<infer _Name, infer _Config, infer _Re
  * @since 1.0.0
  * @category Utility Types
  */
-export type ResultEncoded<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? SuccessEncoded<T> | FailureEncoded<T>
-  : never;
+export type ResultEncoded<T> =
+  T extends Contract<infer _Name, infer _Config, infer _Requirements> ? SuccessEncoded<T> | FailureEncoded<T> : never;
 
 /**
  * Discriminated runtime view of a contract invocation result that
@@ -840,9 +827,10 @@ export declare namespace HandleOutcome {
  * @since 1.0.0
  * @category Utility Types
  */
-export type Requirements<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? _Config["payload"]["Context"] | _Config["success"]["Context"] | _Config["failure"]["Context"] | _Requirements
-  : never;
+export type Requirements<T> =
+  T extends Contract<infer _Name, infer _Config, infer _Requirements>
+    ? _Config["payload"]["Context"] | _Config["success"]["Context"] | _Config["failure"]["Context"] | _Requirements
+    : never;
 
 /**
  * Represents an `Contract` that has been implemented within the application.
@@ -889,11 +877,12 @@ export interface ImplementationResult<Contract extends Any> {
  * @since 1.0.0
  * @category Utility Types
  */
-export type ImplementationError<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
-  ? _Config["failureMode"] extends typeof FailureMode.Enum.error
-    ? _Config["failure"]["Type"]
-    : never
-  : never;
+export type ImplementationError<T> =
+  T extends Contract<infer _Name, infer _Config, infer _Requirements>
+    ? _Config["failureMode"] extends typeof FailureMode.Enum.error
+      ? _Config["failure"]["Type"]
+      : never
+    : never;
 
 /**
  * A utility type to create a union of `Implementation` types for all contracts in a
@@ -915,13 +904,10 @@ export type ImplementationsFor<Contracts extends Record<string, Any>> = {
  * @since 1.0.0
  * @category Utility Types
  */
-export type RequiresImplementation<Contract extends Any> = Contract extends ProviderDefined<
-  infer _Name,
-  infer _Config,
-  infer _RequiresImplementation
->
-  ? _RequiresImplementation
-  : true;
+export type RequiresImplementation<Contract extends Any> =
+  Contract extends ProviderDefined<infer _Name, infer _Config, infer _RequiresImplementation>
+    ? _RequiresImplementation
+    : true;
 
 /**
  * Runtime context passed to contract implementations. Contains the concrete

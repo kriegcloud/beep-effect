@@ -61,9 +61,8 @@ const toTitle = <const Title extends StringTypes.NonEmptyString>(identifier: Tit
     A.join(" ")
   );
 
-type ModulePascal<Segment extends StringTypes.NonEmptyString> = ModuleAccessor<Segment> extends `${infer Pascal}Id`
-  ? Pascal
-  : never;
+type ModulePascal<Segment extends StringTypes.NonEmptyString> =
+  ModuleAccessor<Segment> extends `${infer Pascal}Id` ? Pascal : never;
 
 const toPascalIdentifier = <const Segment extends StringTypes.NonEmptyString>(
   segment: Segment
@@ -296,9 +295,8 @@ type NormalizedBase<Base extends StringTypes.NonEmptyString> =
         ? Rest
         : Base;
 
-export type BaseIdentity<Base extends StringTypes.NonEmptyString> = NormalizedBase<Base> extends "beep"
-  ? typeof BEEP_NAMESPACE
-  : `${typeof BEEP_NAMESPACE}/${NormalizedBase<Base>}`;
+export type BaseIdentity<Base extends StringTypes.NonEmptyString> =
+  NormalizedBase<Base> extends "beep" ? typeof BEEP_NAMESPACE : `${typeof BEEP_NAMESPACE}/${NormalizedBase<Base>}`;
 
 export const __internal = {
   ensureSegment,

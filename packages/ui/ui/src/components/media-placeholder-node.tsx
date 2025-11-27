@@ -61,14 +61,16 @@ export const PlaceholderElement = withHOC(
     const { openFilePicker } = useFilePicker({
       accept: currentContent?.accept ?? ["*"],
       multiple: true,
-      onFilesSelected: ({ plainFiles: updatedFiles }) => {
-        const firstFile = updatedFiles[0];
+      onFilesSelected: (data: { readonly plainFiles?: File[] | undefined }) => {
+        const updatedFiles = data.plainFiles;
+        const firstFile = updatedFiles?.[0];
+        if (!firstFile) return;
         const restFiles = updatedFiles.slice(1);
 
         replaceCurrentPlaceholder(firstFile);
 
         if (restFiles.length > 0) {
-          editor.getTransforms(PlaceholderPlugin).insert.media(restFiles);
+          editor.getTransforms(PlaceholderPlugin).insert.media(restFiles as unknown as FileList);
         }
       },
     });
@@ -98,7 +100,7 @@ export const PlaceholderElement = withHOC(
           name: element.mediaType === KEYS.file ? uploadedFile.name : "",
           placeholderId: element.id as string,
           type: element.mediaType!,
-          url: uploadedFile.url,
+          url: uploadedFile.ufsUrl,
         };
 
         editor.tf.insertNodes(node, { at: path });
@@ -107,7 +109,6 @@ export const PlaceholderElement = withHOC(
       });
 
       api.placeholder.removeUploadingFile(element.id as string);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [uploadedFile, element.id]);
 
     // React dev mode will call React.useEffect twice
@@ -123,8 +124,6 @@ export const PlaceholderElement = withHOC(
       if (!currentFiles) return;
 
       replaceCurrentPlaceholder(currentFiles);
-
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isReplaced]);
 
     return (

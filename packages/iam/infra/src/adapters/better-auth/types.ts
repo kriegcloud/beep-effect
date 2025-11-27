@@ -48,6 +48,10 @@ export type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "
     };
     modelName: typeof SharedEntityIds.UserId.tableName;
     additionalFields: CommonExtraFields & {
+      uploadLimit: {
+        type: "number";
+        required: false;
+      };
       stripeCustomerId: {
         type: "string";
         required: false;

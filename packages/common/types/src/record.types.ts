@@ -169,9 +169,8 @@ export type ReadonlyRecordEntriesNonEmptyArray<T extends AnyRecord> = readonly [
  * @category Types/Records
  * @since 0.1.0
  */
-export type NonEmptyReadonlyRecordStringValues<R extends AnyRecord> = R extends NonEmptyRecordStringKeyValues<R>
-  ? A.NonEmptyReadonlyArray<R[keyof R]>
-  : never;
+export type NonEmptyReadonlyRecordStringValues<R extends AnyRecord> =
+  R extends NonEmptyRecordStringKeyValues<R> ? A.NonEmptyReadonlyArray<R[keyof R]> : never;
 
 /**
  * Reverses a record’s mapping, producing a new record where original values

@@ -84,13 +84,12 @@ export type ReadonlyStringMap<V = unknown> = Readonly<Record<string, V>>;
  * @category Types/Utility
  * @since 0.1.0
  */
-export type NonEmptyReadonlyStringKeyRecord<T extends Readonly<Record<string, unknown>>> = IsNever<
-  StringKeys<T>
-> extends true // no string keys at all
-  ? never
-  : HasEmptyKey<T> extends true // contains the empty string key
+export type NonEmptyReadonlyStringKeyRecord<T extends Readonly<Record<string, unknown>>> =
+  IsNever<StringKeys<T>> extends true // no string keys at all
     ? never
-    : T;
+    : HasEmptyKey<T> extends true // contains the empty string key
+      ? never
+      : T;
 
 /**
  * A readonly `string -> string` map (alias, documents intent).
@@ -204,6 +203,5 @@ export type NonEmptyStructFieldMap<T extends StructFieldMap> = NonEmptyReadonlyS
  * @category Types/Utility
  * @since 0.1.0
  */
-export type NonEmptyStructFieldKeyList<T extends StructFieldMap> = T extends NonEmptyStructFieldMap<T>
-  ? A.NonEmptyReadonlyArray<StringKeys<T>>
-  : never;
+export type NonEmptyStructFieldKeyList<T extends StructFieldMap> =
+  T extends NonEmptyStructFieldMap<T> ? A.NonEmptyReadonlyArray<StringKeys<T>> : never;

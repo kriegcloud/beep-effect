@@ -5,6 +5,7 @@ import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 import { UserRole } from "./schemas";
+import { USER_UPLOAD_LIMIT } from "./User.constants.ts";
 
 /**
  * User model representing application users with authentication and profile data.
@@ -31,6 +32,10 @@ export class Model extends M.Class<Model>(`UserModel`)(
         description: "URL to the user's profile image",
       })
     ),
+
+    uploadLimit: BS.toOptionalWithDefault(S.Int)(USER_UPLOAD_LIMIT).annotations({
+      description: "The maximum number of uploads allowed for the user.",
+    }),
 
     /** User's role in the system */
     role: BS.toOptionalWithDefault(UserRole)(UserRole.Enum.user).annotations({

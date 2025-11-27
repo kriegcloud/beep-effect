@@ -203,7 +203,6 @@ function ColorCustom({
     [customColor, customColors]
   );
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const updateCustomColorDebounced = React.useCallback(debounce(updateCustomColor, 100), [updateCustomColor]);
 
   return (

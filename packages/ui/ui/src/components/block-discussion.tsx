@@ -128,7 +128,6 @@ const BlockCommentContent = ({
     if (!activeNode) return null;
 
     return editor.api.toDOMNode(activeNode[0])!;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, activeSuggestion, activeCommentId, editor.api, suggestionNodes, draftCommentNode, commentNodes]);
 
   if (suggestionsCount + resolvedDiscussions.length === 0 && !draftCommentNode)

@@ -52,8 +52,5 @@ export type ModelStringKeyFields = {
  * @category Types/Model
  * @since 0.1.0
  */
-export type NonEmptyModelFields<Fields extends ModelStringKeyFields> = Fields extends NonNullable<unknown>
-  ? NonNullable<unknown> extends Fields
-    ? never
-    : Fields
-  : never;
+export type NonEmptyModelFields<Fields extends ModelStringKeyFields> =
+  Fields extends NonNullable<unknown> ? (NonNullable<unknown> extends Fields ? never : Fields) : never;

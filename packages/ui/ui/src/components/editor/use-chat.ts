@@ -194,7 +194,6 @@ export const useChat = () => {
 
   React.useEffect(() => {
     editor.setOption(AIChatPlugin, "chat", chat as any);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chat.status, chat.messages, chat.error]);
 
   return chat;

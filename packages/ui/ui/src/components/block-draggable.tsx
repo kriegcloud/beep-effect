@@ -97,14 +97,12 @@ function Draggable(props: PlateElementProps) {
     if (!isDragging) {
       resetPreview();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDragging]);
 
   React.useEffect(() => {
     if (isAboutToDrag) {
       previewRef.current?.classList.remove("opacity-0");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAboutToDrag]);
 
   const [dragButtonTop, setDragButtonTop] = React.useState(0);

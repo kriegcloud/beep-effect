@@ -165,11 +165,12 @@ export type Contracts<T> = T extends ContractKit<infer Contracts> ? Contracts : 
  * @since 0.1.0
  * @category Utility Types
  */
-export type ContractsByName<Contracts> = Contracts extends Record<string, Contract.Any>
-  ? { readonly [Name in keyof Contracts]: Contracts[Name] }
-  : Contracts extends ReadonlyArray<Contract.Any>
-    ? { readonly [Contract in Contracts[number] as Contract["name"]]: Contract }
-    : never;
+export type ContractsByName<Contracts> =
+  Contracts extends Record<string, Contract.Any>
+    ? { readonly [Name in keyof Contracts]: Contracts[Name] }
+    : Contracts extends ReadonlyArray<Contract.Any>
+      ? { readonly [Contract in Contracts[number] as Contract["name"]]: Contract }
+      : never;
 
 /**
  * A utility type that maps contract names to their required implementation functions.

@@ -90,9 +90,8 @@ export const wrapOptionNonEmpty =
       default: options.default,
     });
 
-export type InferArray<A extends ArrayWithDefault<ReadonlyArray<unknown>>> = A extends ArrayWithDefault<infer S>
-  ? S
-  : never;
+export type InferArray<A extends ArrayWithDefault<ReadonlyArray<unknown>>> =
+  A extends ArrayWithDefault<infer S> ? S : never;
 export type Infer<A extends ArrayWithDefault<ReadonlyArray<unknown>>> = A.ReadonlyArray.Infer<InferArray<A>>;
 
 export const toArray = <S extends ArrayWithDefault<ReadonlyArray<unknown>>>(a: S) => a.array as InferArray<S>;

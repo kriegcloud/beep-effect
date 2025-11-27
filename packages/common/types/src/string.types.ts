@@ -26,8 +26,5 @@ export type NonEmptyString<T extends string = string> = T extends "" ? never : T
  * @category Types/Strings
  * @since 0.1.0
  */
-export type LowercaseNonEmptyString<T extends string = string> = T extends NonEmptyString<T>
-  ? T extends Lowercase<T>
-    ? T
-    : never
-  : never;
+export type LowercaseNonEmptyString<T extends string = string> =
+  T extends NonEmptyString<T> ? (T extends Lowercase<T> ? T : never) : never;

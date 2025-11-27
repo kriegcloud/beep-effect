@@ -9,6 +9,7 @@ export * from "./use-copy-to-clipboard.ts";
 export * from "./use-count-down";
 export * from "./use-debounced-callback";
 export * from "./use-did-mount";
+export * from "./use-event-listener";
 export * from "./use-hash";
 export * from "./use-hash-scroll-into-view";
 export * from "./use-hydrated";

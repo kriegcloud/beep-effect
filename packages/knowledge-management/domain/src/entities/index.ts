@@ -1,3 +1,8 @@
+export * as Comment from "./Comment";
+export * as Discussion from "./Discussion";
+export * as Document from "./Document";
+export * as DocumentFile from "./DocumentFile";
+export * as DocumentVersion from "./DocumentVersion";
 export * as KnowledgeBlock from "./KnowledgeBlock";
 export * as KnowledgePage from "./KnowledgePage";
 export * as KnowledgeSpace from "./KnowledgeSpace";

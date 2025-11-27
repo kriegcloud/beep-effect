@@ -13,29 +13,31 @@ type Columns<TTable extends Drizzle.Table> = TTable["_"]["columns"] extends infe
   ? TColumns
   : never;
 
-type PropertySignatureEncoded<T> = T extends S.PropertySignature<
-  UnsafeTypes.UnsafeAny,
-  UnsafeTypes.UnsafeAny,
-  UnsafeTypes.UnsafeAny,
-  UnsafeTypes.UnsafeAny,
-  infer From,
-  UnsafeTypes.UnsafeAny,
-  UnsafeTypes.UnsafeAny
->
-  ? From
-  : never;
+type PropertySignatureEncoded<T> =
+  T extends S.PropertySignature<
+    UnsafeTypes.UnsafeAny,
+    UnsafeTypes.UnsafeAny,
+    UnsafeTypes.UnsafeAny,
+    UnsafeTypes.UnsafeAny,
+    infer From,
+    UnsafeTypes.UnsafeAny,
+    UnsafeTypes.UnsafeAny
+  >
+    ? From
+    : never;
 
-type PropertySignatureType<T> = T extends S.PropertySignature<
-  UnsafeTypes.UnsafeAny,
-  infer To,
-  UnsafeTypes.UnsafeAny,
-  UnsafeTypes.UnsafeAny,
-  UnsafeTypes.UnsafeAny,
-  UnsafeTypes.UnsafeAny,
-  UnsafeTypes.UnsafeAny
->
-  ? To
-  : never;
+type PropertySignatureType<T> =
+  T extends S.PropertySignature<
+    UnsafeTypes.UnsafeAny,
+    infer To,
+    UnsafeTypes.UnsafeAny,
+    UnsafeTypes.UnsafeAny,
+    UnsafeTypes.UnsafeAny,
+    UnsafeTypes.UnsafeAny,
+    UnsafeTypes.UnsafeAny
+  >
+    ? To
+    : never;
 
 type InsertRefineArg<TTable extends Drizzle.Table, Col extends keyof Columns<TTable>> =
   | S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>
@@ -179,17 +181,18 @@ type SelectColumnPropertySignatures<TTable extends Drizzle.Table> = {
   [K in keyof Columns<TTable>]: MapSelectColumnToPropertySignature<Columns<TTable>[K]>;
 };
 
-type PropertySignatureReplaceType<S, ReplaceWith> = S extends S.PropertySignature<
-  infer TokenType,
-  UnsafeTypes.UnsafeAny,
-  infer Name,
-  infer TokenEncoded,
-  infer Encoded,
-  infer HasDefault,
-  infer R
->
-  ? S.PropertySignature<TokenType, ReplaceWith, Name, TokenEncoded, Encoded, HasDefault, R>
-  : never;
+type PropertySignatureReplaceType<S, ReplaceWith> =
+  S extends S.PropertySignature<
+    infer TokenType,
+    UnsafeTypes.UnsafeAny,
+    infer Name,
+    infer TokenEncoded,
+    infer Encoded,
+    infer HasDefault,
+    infer R
+  >
+    ? S.PropertySignature<TokenType, ReplaceWith, Name, TokenEncoded, Encoded, HasDefault, R>
+    : never;
 
 type CarryOverNull<From, To> = null extends From ? To | null : To;
 type CarryOverUndefined<From, To> = undefined extends From ? To | undefined : To;
