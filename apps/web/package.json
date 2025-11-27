@@ -187,7 +187,11 @@
     "react-resizable-panels": "catalog:",
     "vaul": "catalog:",
     "@tanstack/react-devtools": "catalog:",
-    "@tanstack/react-form-devtools": "catalog:"
+    "@tanstack/react-form-devtools": "catalog:",
+    "platejs": "catalog:",
+    "@platejs/basic-nodes": "catalog:",
+    "@radix-ui/react-toolbar": "catalog:",
+    "tailwind-scrollbar-hide": "catalog:"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",

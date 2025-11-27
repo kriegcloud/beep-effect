@@ -33,5 +33,8 @@
     "settings": "@beep/ui/settings",
     "theme": "@beep/ui/theme",
     "styled": "@beep/ui/styled"
+  },
+  "registries": {
+    "@plate": "https://platejs.org/r/{name}.json"
   }
 }
