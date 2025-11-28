@@ -22,7 +22,7 @@ It exports runtime schema values (not just types), but they are intentionally pu
 - **No I/O or side effects**: no network, DB, file system, timers, logging, or env reads.
 - **No platform/framework dependencies**: avoid Node APIs, DOM/React/Next, `@effect/platform-*`, `@effect/sql-*` clients.
 - **No domain‑specific business rules**: domain policies belong in slice `domain` or `application` code.
-- **No cross‑slice imports**: do not depend on `@beep/iam-*`, `@beep/files-*`, etc.
+- **No cross‑slice imports**: do not depend on `@beep/iam-*`, `@beep/documents-*`, etc.
 
 Schemas here should be generic, reusable, and environment‑agnostic. If a schema depends on infrastructure or on a
 specific domain’s policies, keep it in the slice.
@@ -116,7 +116,7 @@ const jsonSchema = BS.toJsonSchema(Person); // using helpers in JsonSchema.ts
 - **`@beep/types`** — compile‑time only helpers used by schemas as needed.
 - **`@beep/utils`** — small pure runtime helpers (no validation responsibilities).
 - **`@beep/shared-tables`** — table builders (`Table`, `OrgTable`) that compose with `EntityId` for multi‑tenant models.
-- **`packages/files/*`** — dedicated slice for file business logic. This package only models file shapes.
+- **`packages/documents/*`** — dedicated slice for file business logic. This package only models file shapes.
 
 
 ## Testing

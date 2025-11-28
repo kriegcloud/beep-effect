@@ -1,5 +1,5 @@
+import type { DetectedFileInfo, ExifMetadata, FileAttributes } from "@beep/documents-domain/value-objects";
 import type { AccumulateResult } from "@beep/errors/client";
-import type { DetectedFileInfo, ExifMetadata, FileAttributes } from "@beep/files-domain/value-objects";
 import type * as Errors from "./errors";
 /**************
  * Upload pipeline shared models (scaffolding)

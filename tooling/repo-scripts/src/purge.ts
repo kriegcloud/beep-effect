@@ -23,7 +23,7 @@ const WORKSPACE_PATTERNS = [
   "packages/_internal/*/",
   "packages/common/*/",
   "packages/core/*/",
-  "packages/files/*/",
+  "packages/documents/*/",
   "packages/iam/*/",
   "packages/runtime/*/",
   "packages/shared/*/",

@@ -60,15 +60,6 @@
       "path": "../../tasks/tables/tsconfig.build.json"
     },
     {
-      "path": "../../knowledge-management/domain"
-    },
-    {
-      "path": "../../knowledge-management/tables"
-    },
-    {
-      "path": "../../knowledge-management/infra"
-    },
-    {
       "path": "../../comms/domain/tsconfig.build.json"
     },
     {
@@ -78,13 +69,13 @@
       "path": "../../comms/tables/tsconfig.build.json"
     },
     {
-      "path": "../../files/infra/tsconfig.build.json"
+      "path": "../../documents/infra/tsconfig.build.json"
     },
     {
-      "path": "../../files/domain/tsconfig.build.json"
+      "path": "../../documents/domain/tsconfig.build.json"
     },
     {
-      "path": "../../files/tables/tsconfig.build.json"
+      "path": "../../documents/tables/tsconfig.build.json"
     },
     {
       "path": "../../party/domain"

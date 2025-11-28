@@ -2,8 +2,8 @@ import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
 import {
   CommsTableNames,
+  DocumentsTableNames,
   IamTableNames,
-  KnowledgeManagementTableNames,
   PartyTableNames,
   SharedTableNames,
   TaskTableNames,
@@ -15,7 +15,7 @@ export class EntityKind extends BS.StringLiteralKit(
   ...TaskTableNames.TaskTableName.Options,
   ...CommsTableNames.CommsTableName.Options,
   ...PartyTableNames.PartyTableName.Options,
-  ...KnowledgeManagementTableNames.KnowledgeManagementTableName.Options
+  ...DocumentsTableNames.DocumentsTableName.Options
 ).annotations({
   schemaId: Symbol.for("@beep/shared-domain/EntityKind"),
   description: "The set of entity_kinds for entityIds within the shared-kernel",

@@ -74,10 +74,10 @@
       "path": "../../ui/core/tsconfig.build.json"
     },
     {
-      "path": "../../files/domain/tsconfig.build.json"
+      "path": "../../documents/domain/tsconfig.build.json"
     },
     {
-      "path": "../../files/tables/tsconfig.build.json"
+      "path": "../../documents/tables/tsconfig.build.json"
     }
   ]
 }

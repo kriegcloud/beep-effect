@@ -111,7 +111,7 @@ Instead of one God object that knows every table:
 
 Examples:
 - `packages/iam/infra/src/db/Db/Db.ts`
-- `packages/files/infra/src/db/Db/Db.ts`
+- `packages/documents/infra/src/db/Db/Db.ts`
 - `packages/tasks/infra/src/db/Db/Db.ts`
 
 ### Path Aliases (tsconfig.base.jsonc)
@@ -280,7 +280,7 @@ Stop and clean: `bun run nuke`
 
 ```bash
 bunx turbo run test --filter=@beep/iam-domain
-bunx turbo run check --filter=@beep/files-infra
+bunx turbo run check --filter=@beep/documents-infra
 ```
 
 ### Type Checking Workflow

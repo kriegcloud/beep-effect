@@ -57,10 +57,10 @@
       "path": "../../ui/core"
     },
     {
-      "path": "../../files/domain"
+      "path": "../../documents/domain"
     },
     {
-      "path": "../../files/tables"
+      "path": "../../documents/tables"
     }
   ],
   "compilerOptions": {

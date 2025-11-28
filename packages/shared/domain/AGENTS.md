@@ -1,7 +1,7 @@
 # @beep/shared-domain — AGENTS Guide
 
 ## Purpose & Fit
-- Defines the shared kernel for IAM and Files slices: branded entity ids, relational models, path/value objects, cache/policy primitives, and cross-slice constants consumed by `apps/*`, `packages/iam/*`, and `packages/files/*`.
+- Defines the shared kernel for IAM and Files slices: branded entity ids, relational models, path/value objects, cache/policy primitives, and cross-slice constants consumed by `apps/*`, `packages/iam/*`, and `packages/documents/*`.
 - Builds on the schema utilities in `@beep/common/schema` (`BS` helpers, `EntityId.make`) and path tooling from `@beep/constants`. Consumers should import from this package instead of duplicating schema logic.
 - Provides a central contract other slices rely on for data access (Drizzle models via `@effect/sql/Model`), routing (`paths` collection), authorization (`Policy`), and infra helpers (`ManualCache`). Keep exports stable and align changes with downstream expectations.
 

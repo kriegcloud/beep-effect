@@ -3,7 +3,7 @@
 ## Purpose & Fit
 - Provides the production-grade Effect runtime that powers server-side entry points, bundling observability, persistence, and IAM/files domain services defined in `packages/runtime/server/src/server-runtime.ts`.
 - Acts as the shared runtime for both API routes (`apps/web/src/app/api/*`) and any future Bun/Node hosts, encapsulating logging, tracing, repository hydration, and auth flows so apps do not hand-wire layers.
-- Anchors environment-sensitive behaviour via `@beep/core-env/server` (log level, OTLP endpoints) while deferring domain contracts to `@beep/iam-infra` and `@beep/files-infra`.
+- Anchors environment-sensitive behaviour via `@beep/core-env/server` (log level, OTLP endpoints) while deferring domain contracts to `@beep/iam-infra` and `@beep/documents-infra`.
 
 ## Surface Map
 - `TelemetryLive` — OTLP trace/log exporters, service name binding (`packages/runtime/server/src/server-runtime.ts:38`).

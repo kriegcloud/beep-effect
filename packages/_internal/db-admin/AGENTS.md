@@ -39,7 +39,7 @@
 - Migrations must be generated through `bun run db:generate` so the SQL and journal stay in sync; manual edits belong in `--custom` migrations committed alongside generated ones.
 - `PgContainer` assumes Docker is available; respect `pgContainerPreflight` skip reasons and guard your tests with the same pattern to keep CI stable (`packages/_internal/db-admin/test/pg-container.ts:91`).
 - The `db:reset` script references `src/scripts/ResetDatabase.ts`, which is not yet present—either add the implementation before wiring it into docs or remove the script to avoid dead references during onboarding.
-- When layering repositories, reuse slice Layers from `@beep/iam-infra` and `@beep/files-infra` instead of duplicating repository construction (see `packages/_internal/db-admin/test/pg-container.ts:234`).
+- When layering repositories, reuse slice Layers from `@beep/iam-infra` and `@beep/documents-infra` instead of duplicating repository construction (see `packages/_internal/db-admin/test/pg-container.ts:234`).
 - Coordinate with `packages/shared/tables/AGENTS.md` and `packages/core/db/AGENTS.md` so schema or repo guidance is not duplicated; link out rather than restating cross-slice rules.
 - Keep this package `_internal`—it must never be declared as a dependency of other workspaces. Consumers should pull schemas through their slice barrels or `@beep/core-db` layers instead.
 
@@ -47,7 +47,7 @@
 - **Merge the admin database Layer into a tooling runtime**
 ```ts
 import { AdminDb } from "@beep/db-admin/Db";
-import { FilesDb } from "@beep/files-infra/db";
+import { DocumentsDb } from "@beep/documents-infra/db";
 import { IamDb } from "@beep/iam-infra/db";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -56,7 +56,7 @@ import * as Layer from "effect/Layer";
 
 const ToolRuntime = Layer.mergeAll(
   AdminDb.AdminDb.Live,
-  FilesDb.FilesDb.Live,
+  DocumentsDb.DocumentsDb.Live,
   IamDb.IamDb.Live
 );
 

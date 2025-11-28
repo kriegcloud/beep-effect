@@ -78,12 +78,12 @@ To understand the existing codebase patterns, examine these files:
 
 ### Current Route/API Patterns
 - `packages/iam/infra/src/api/api.ts` - Auth middleware implementation
-- `packages/knowledge-management/infra/src/routes/KnowledgePage.router.ts` - Route handler pattern
-- `packages/knowledge-management/domain/src/entities/KnowledgePage/KnowledgePage.contract.ts` - HttpApi contract
+- `packages/documents/infra/src/routes/KnowledgePage.router.ts` - Route handler pattern
+- `packages/documents/domain/src/entities/KnowledgePage/KnowledgePage.contract.ts` - HttpApi contract
 
 ### Domain Model Examples
-- `packages/knowledge-management/domain/src/entities/Document/Document.model.ts`
-- `packages/knowledge-management/domain/src/entities/Discussion/Discussion.model.ts`
+- `packages/documents/domain/src/entities/Document/Document.model.ts`
+- `packages/documents/domain/src/entities/Discussion/Discussion.model.ts`
 
 ## Expected Output
 

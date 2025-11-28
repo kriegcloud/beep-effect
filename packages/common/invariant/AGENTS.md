@@ -42,7 +42,7 @@ import * as Effect from "effect/Effect";
 
 // Programmers' BUG guard with metadata
 invariant(false, () => "BUG: impossible branch", {
-  file: "packages/files/domain/src/SomeModule.ts",
+  file: "packages/documents/domain/src/SomeModule.ts",
   line: 42,
   args: [],
 });

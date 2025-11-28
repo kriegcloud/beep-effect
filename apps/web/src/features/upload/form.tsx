@@ -1,6 +1,6 @@
 "use client";
+import { FileInstance } from "@beep/documents-domain/value-objects";
 import { withEnvLogging } from "@beep/errors/client";
-import { FileInstance } from "@beep/files-domain/value-objects";
 import { runClientPromise, useRuntime } from "@beep/runtime-client";
 import { Form, makeFormOptions, useAppForm } from "@beep/ui/form";
 import Backdrop from "@mui/material/Backdrop";

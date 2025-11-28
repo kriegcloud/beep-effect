@@ -31,7 +31,7 @@ Implementation uses small Effect core modules: `effect/Function`, `effect/Option
 - **No platform/framework dependencies**: avoid Node APIs (fs/path/process), DOM/React/Next, `@effect/platform-*`, `@effect/sql-*`, etc.
   - Note: the implementation detects dev mode with a non‑fatal `typeof process !== 'undefined'` check and never depends on Node.
 - **No domain/business logic**: keep domain rules in your slice’s `domain` or `application` code.
-- **No cross‑slice imports**: do not depend on `@beep/iam-*`, `@beep/files-*`, etc.
+- **No cross‑slice imports**: do not depend on `@beep/iam-*`, `@beep/documents-*`, etc.
 
 
 ## How it fits the architecture

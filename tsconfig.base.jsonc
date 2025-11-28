@@ -4,7 +4,7 @@
     "incremental": true,
     "composite": true,
     // Target modern JavaScript (ES2023+) whilst staying closely compatible with the Node.js module system.
-    "target": "ES2022",
+    "target": "ES2023",
     "module": "ESNext",
     //todo "module": "NodeNext",
     "moduleDetection": "force",
@@ -49,7 +49,7 @@
       }
     ],
     "lib": [
-      "ES2022",
+      "ES2023",
       "DOM",
       "DOM.Iterable"
     ],
@@ -298,50 +298,50 @@
       "@beep/iam-ui/test/*": [
         "./packages/iam/ui/test/*"
       ],
-      "@beep/files-domain": [
-        "./packages/files/domain/src/index"
+      "@beep/documents-domain": [
+        "./packages/documents/domain/src/index"
       ],
-      "@beep/files-domain/*": [
-        "./packages/files/domain/src/*"
+      "@beep/documents-domain/*": [
+        "./packages/documents/domain/src/*"
       ],
-      "@beep/files-domain/test/*": [
-        "./packages/files/domain/test/*"
+      "@beep/documents-domain/test/*": [
+        "./packages/documents/domain/test/*"
       ],
-      "@beep/files-tables": [
-        "./packages/files/tables/src/index"
+      "@beep/documents-tables": [
+        "./packages/documents/tables/src/index"
       ],
-      "@beep/files-tables/*": [
-        "./packages/files/tables/src/*"
+      "@beep/documents-tables/*": [
+        "./packages/documents/tables/src/*"
       ],
-      "@beep/files-tables/test/*": [
-        "./packages/files/tables/test/*"
+      "@beep/documents-tables/test/*": [
+        "./packages/documents/tables/test/*"
       ],
-      "@beep/files-infra": [
-        "./packages/files/infra/src/index"
+      "@beep/documents-infra": [
+        "./packages/documents/infra/src/index"
       ],
-      "@beep/files-infra/*": [
-        "./packages/files/infra/src/*"
+      "@beep/documents-infra/*": [
+        "./packages/documents/infra/src/*"
       ],
-      "@beep/files-infra/test/*": [
-        "./packages/files/infra/test/*"
+      "@beep/documents-infra/test/*": [
+        "./packages/documents/infra/test/*"
       ],
-      "@beep/files-sdk": [
-        "./packages/files/sdk/src/index"
+      "@beep/documents-sdk": [
+        "./packages/documents/sdk/src/index"
       ],
-      "@beep/files-sdk/*": [
-        "./packages/files/sdk/src/*"
+      "@beep/documents-sdk/*": [
+        "./packages/documents/sdk/src/*"
       ],
-      "@beep/files-sdk/test/*": [
-        "./packages/files/sdk/test/*"
+      "@beep/documents-sdk/test/*": [
+        "./packages/documents/sdk/test/*"
       ],
-      "@beep/files-ui": [
-        "./packages/files/ui/src/index"
+      "@beep/documents-ui": [
+        "./packages/documents/ui/src/index"
       ],
-      "@beep/files-ui/*": [
-        "./packages/files/ui/src/*"
+      "@beep/documents-ui/*": [
+        "./packages/documents/ui/src/*"
       ],
-      "@beep/files-ui/test/*": [
-        "./packages/files/ui/test/*"
+      "@beep/documents-ui/test/*": [
+        "./packages/documents/ui/test/*"
       ],
       "@beep/tasks-domain": [
         "./packages/tasks/domain/src/index"
@@ -480,53 +480,6 @@
       "@beep/comms-ui/test/*": [
         "./packages/comms/ui/test/*"
       ],
-      
-       "@beep/knowledge-management-domain": [
-        "./packages/knowledge-management/domain/src/index"
-      ],
-      "@beep/knowledge-management-domain/*": [
-        "./packages/knowledge-management/domain/src/*"
-      ],
-      "@beep/knowledge-management-domain/test/*": [
-        "./packages/knowledge-management/domain/test/*"
-      ],
-      "@beep/knowledge-management-tables": [
-        "./packages/knowledge-management/tables/src/index"
-      ],
-      "@beep/knowledge-management-tables/*": [
-        "./packages/knowledge-management/tables/src/*"
-      ],
-      "@beep/knowledge-management-tables/test/*": [
-        "./packages/knowledge-management/tables/test/*"
-      ],
-      "@beep/knowledge-management-infra": [
-        "./packages/knowledge-management/infra/src/index"
-      ],
-      "@beep/knowledge-management-infra/*": [
-        "./packages/knowledge-management/infra/src/*"
-      ],
-      "@beep/knowledge-management-infra/test/*": [
-        "./packages/knowledge-management/infra/test/*"
-      ],
-      "@beep/knowledge-management-sdk": [
-        "./packages/knowledge-management/sdk/src/index"
-      ],
-      "@beep/knowledge-management-sdk/*": [
-        "./packages/knowledge-management/sdk/src/*"
-      ],
-      "@beep/knowledge-management-sdk/test/*": [
-        "./packages/knowledge-management/sdk/test/*"
-      ],
-      "@beep/knowledge-management-ui": [
-        "./packages/knowledge-management/ui/src/index"
-      ],
-      "@beep/knowledge-management-ui/*": [
-        "./packages/knowledge-management/ui/src/*"
-      ],
-      "@beep/knowledge-management-ui/test/*": [
-        "./packages/knowledge-management/ui/test/*"
-      ],
-      
       "@beep/runtime-server": [
         "./packages/runtime/server/src/index"
       ],
@@ -592,6 +545,9 @@
       ],
       "@beep/testkit/test/*": [
         "./tooling/testkit/test/*"
+      ],
+      "@beep/notes/*": [
+        "./apps/notes/src/*"
       ]
     }
   }

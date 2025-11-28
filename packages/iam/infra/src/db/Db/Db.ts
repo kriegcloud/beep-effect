@@ -11,6 +11,6 @@ const { serviceEffect } = Db.make(IamDbSchema);
 
 export type Layer = _Layer.Layer<IamDb, SqlError | ConfigError, SqlClient>;
 
-export class IamDb extends Context.Tag("@beep/files-infra/IamDb")<IamDb, Db.Db<typeof IamDbSchema>>() {
+export class IamDb extends Context.Tag("@beep/documents-infra/IamDb")<IamDb, Db.Db<typeof IamDbSchema>>() {
   static readonly Live = _Layer.scoped(this, serviceEffect.pipe(Effect.orDie));
 }

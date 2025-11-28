@@ -1,0 +1,29 @@
+"use client";
+
+import { BlockSelection } from "@beep/notes/registry/ui/block-selection";
+import { AIChatPlugin } from "@platejs/ai/react";
+import { BlockSelectionPlugin } from "@platejs/selection/react";
+import { getPluginTypes, isHotkey, KEYS } from "platejs";
+
+export const BlockSelectionKit = [
+  BlockSelectionPlugin.configure(({ editor }) => ({
+    options: {
+      enableContextMenu: true,
+      isSelectable: (element) => {
+        return !getPluginTypes(editor, [KEYS.column, KEYS.codeLine, KEYS.td]).includes(element.type);
+      },
+      onKeyDownSelecting: (editor, e) => {
+        if (isHotkey("mod+j")(e)) {
+          editor.getApi(AIChatPlugin).aiChat.show();
+        }
+      },
+    },
+    render: {
+      belowRootNodes: (props) => {
+        if (!props.attributes.className?.includes("slate-selectable")) return null;
+
+        return <BlockSelection {...(props as any)} />;
+      },
+    },
+  })),
+];

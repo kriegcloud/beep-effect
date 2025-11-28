@@ -1,7 +1,7 @@
 import * as S from "effect/Schema";
 import * as CommsEntityIds from "./comms";
+import * as DocumentsEntityIds from "./documents.ts";
 import * as IamEntityIds from "./iam";
-import * as KnowledgeManagementEntityIds from "./knowledge-management.ts";
 import * as PartyEntityIds from "./party";
 import { OrganizationId, SessionId, TeamId, UserId } from "./shared";
 import * as TaskEntityIds from "./tasks";
@@ -37,15 +37,15 @@ export class AnyEntityId extends S.Union(
   PartyEntityIds.PartyContactPointId,
   PartyEntityIds.PartyIdentifierTypeId,
   PartyEntityIds.PartyIdentifierId,
-  KnowledgeManagementEntityIds.KnowledgeBlockId,
-  KnowledgeManagementEntityIds.KnowledgePageId,
-  KnowledgeManagementEntityIds.KnowledgeSpaceId,
-  KnowledgeManagementEntityIds.PageLinkId,
-  KnowledgeManagementEntityIds.DocumentId,
-  KnowledgeManagementEntityIds.DocumentVersionId,
-  KnowledgeManagementEntityIds.DiscussionId,
-  KnowledgeManagementEntityIds.CommentId,
-  KnowledgeManagementEntityIds.DocumentFileId,
+  DocumentsEntityIds.KnowledgeBlockId,
+  DocumentsEntityIds.KnowledgePageId,
+  DocumentsEntityIds.KnowledgeSpaceId,
+  DocumentsEntityIds.PageLinkId,
+  DocumentsEntityIds.DocumentId,
+  DocumentsEntityIds.DocumentVersionId,
+  DocumentsEntityIds.DiscussionId,
+  DocumentsEntityIds.CommentId,
+  DocumentsEntityIds.DocumentFileId,
   OrganizationId,
   TeamId,
   UserId,

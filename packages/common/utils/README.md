@@ -20,7 +20,7 @@ Contents today include string helpers, record/struct helpers, small guards/gette
 - **No platform‑specific code**: avoid Node APIs (fs, path, process), DOM/React/Next, Web APIs, or `@effect/platform-*`/`@effect/sql-*`/`@effect/opentelemetry`.
 - **No logging** and no `process.env` reads; logging belongs in app/runtime wiring per `docs/PRODUCTION_CHECKLIST.md`.
 - **No domain‑specific logic**: keep business logic in the owning slice (`S/domain` or `S/application`).
-- **No cross‑slice imports**: do not depend on `@beep/iam-*`, `@beep/files-*`, etc.
+- **No cross‑slice imports**: do not depend on `@beep/iam-*`, `@beep/documents-*`, etc.
 - **No error definitions**: use `@beep/errors/*` once the split is complete (see `ERRORS_CLEANUP_PLAN.md`).
 
 If a helper requires an environment or service, it belongs in an adapter or a slice, not here.

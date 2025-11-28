@@ -1,12 +1,11 @@
 import { CommsRepos } from "@beep/comms-infra";
 import { CommsDb } from "@beep/comms-infra/db";
 import type { ResendService } from "@beep/core-email";
-import { FilesRepos } from "@beep/files-infra";
-import { FilesDb } from "@beep/files-infra/db";
+import { DocumentsRepos } from "@beep/documents-infra";
+import { DocumentsDb } from "@beep/documents-infra/db";
 import type { AuthEmailService, IamConfig } from "@beep/iam-infra";
 import { AuthService, IamRepos } from "@beep/iam-infra";
 import { IamDb } from "@beep/iam-infra/db";
-import { KnowledgeManagementDb, KnowledgeManagementRepos } from "@beep/knowledge-management-infra";
 import { PartyDb } from "@beep/party-infra/db";
 import { TasksDb } from "@beep/tasks-infra/db";
 import type * as SqlClient from "@effect/sql/SqlClient";
@@ -16,8 +15,7 @@ import * as Layer from "effect/Layer";
 import * as CoreServices from "./CoreServices.ts";
 
 export type SliceDatabaseClients =
-  | KnowledgeManagementDb.KnowledgeManagementDb
-  | FilesDb.FilesDb
+  | DocumentsDb.DocumentsDb
   | TasksDb.TasksDb
   | CommsDb.CommsDb
   | PartyDb.PartyDb
@@ -29,18 +27,13 @@ export type SliceDatabaseClientsLive = Layer.Layer<
 >;
 export const SliceDatabaseClientsLive: SliceDatabaseClientsLive = Layer.mergeAll(
   IamDb.IamDb.Live,
-  FilesDb.FilesDb.Live,
+  DocumentsDb.DocumentsDb.Live,
   TasksDb.TasksDb.Live,
   CommsDb.CommsDb.Live,
-  PartyDb.PartyDb.Live,
-  KnowledgeManagementDb.KnowledgeManagementDb.Live
+  PartyDb.PartyDb.Live
 );
 
-type SliceRepositories =
-  | FilesRepos.FilesRepos
-  | CommsRepos.CommsRepos
-  | IamRepos.IamRepos
-  | KnowledgeManagementRepos.KnowledgeManagementRepos;
+type SliceRepositories = DocumentsRepos.DocumentsRepos | CommsRepos.CommsRepos | IamRepos.IamRepos;
 
 export type SliceReposLive = Layer.Layer<
   SliceRepositories,
@@ -50,9 +43,8 @@ export type SliceReposLive = Layer.Layer<
 
 export const SliceReposLive: SliceReposLive = Layer.mergeAll(
   IamRepos.layer,
-  FilesRepos.layer,
+  DocumentsRepos.layer,
   CommsRepos.layer,
-  KnowledgeManagementRepos.layer,
   IamRepos.layer
 );
 

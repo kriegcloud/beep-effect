@@ -7,9 +7,8 @@
     "packages/ai/*",
     "packages/common/*",
     "packages/comms/*",
-    "packages/knowledge-management/*",
     "packages/core/*",
-    "packages/files/*",
+    "packages/documents/*",
     "packages/iam/*",
     "packages/integrations/*",
     "packages/_internal/*",
@@ -355,9 +354,24 @@
     "react-tweet": "^3.2.2",
     "remark-math": "^6.0.0",
     "uploadthing": "^7.7.4",
-    "use-file-picker": "^2.1.4"
+    "use-file-picker": "^2.1.4",
+    "cookies-next": "^6.1.1",
+    "jotai": "^2.15.1",
+    "jotai-x": "^2.3.3"
   },
   "dependenciesCatalog": [
+    {
+      "name": "jotai",
+      "version": "^2.15.1"
+    },
+    {
+      "name": "jotai-x",
+      "version": "^2.3.3"
+    },
+    {
+      "name": "cookies-next",
+      "version": "^6.1.1"
+    },
     {
       "name": "@platejs/basic-nodes",
       "version": "^52.0.1"

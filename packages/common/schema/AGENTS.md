@@ -31,7 +31,7 @@
 - Effect namespace imports only; never use native array/string/object helpers—route through `F.pipe` with `A.*`, `Str.*`, `Struct.*`, `Record.*`. Avoid `for`/`for...of` loops and native `Object.*`.
 - Keep schemas pure: no network/DB/filesystem/timers/logging or platform-specific APIs. Runtime values only.
 - Use `_id.ts` helpers for deterministic `Id.annotations(...)`; table names stay snake_case via `SnakeTag`, and brands must end in `Id` when calling `EntityId.make`.
-- Maintain the BS namespace: add new exports through `src/schema.ts` (and thus `src/index.ts`) rather than ad-hoc paths; keep slice boundaries intact (no `@beep/iam-*`, `@beep/files-*` imports).
+- Maintain the BS namespace: add new exports through `src/schema.ts` (and thus `src/index.ts`) rather than ad-hoc paths; keep slice boundaries intact (no `@beep/iam-*`, `@beep/documents-*` imports).
 - Provide rich annotations (`identifier`, `title`, `description`, `jsonSchema`, `arbitrary`, `pretty`) so builders, forms, and docs stay in sync.
 - SQL helpers should emit column builders/annotations only—never execute queries from this package.
 
@@ -90,7 +90,7 @@ const header = F.pipe(policy, Csp.Csp.toHeader);
 
 ## Contributor Checklist
 - Export new symbols through `src/schema.ts` so the BS namespace stays stable and consumable via `@beep/schema`.
-- Keep additions pure and slice-agnostic; no platform APIs or `@beep/iam-*`/`@beep/files-*` imports.
+- Keep additions pure and slice-agnostic; no platform APIs or `@beep/iam-*`/`@beep/documents-*` imports.
 - Use `_id.ts` helpers for identifiers; for table IDs prefer `EntityId.make` with `SnakeTag` and brands suffixed with `Id`.
 - Avoid native array/string/object operations in code and examples; prefer `F.pipe` with Effect collections and string utilities.
 - Add annotations, JSON Schema metadata, FastCheck arbitraries, and Vitest coverage (`test/**`) alongside new schemas or kits.

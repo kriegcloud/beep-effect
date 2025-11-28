@@ -19,9 +19,9 @@
     { "path": "../../packages/tasks/infra/tsconfig.build.json" },
     { "path": "../../packages/tasks/domain/tsconfig.build.json" },
     { "path": "../../packages/tasks/tables/tsconfig.build.json" },
-    { "path": "../../packages/files/infra/tsconfig.build.json" },
-    { "path": "../../packages/files/domain/tsconfig.build.json" },
-    { "path": "../../packages/files/tables/tsconfig.build.json" }
+    { "path": "../../packages/documents/infra/tsconfig.build.json" },
+    { "path": "../../packages/documents/domain/tsconfig.build.json" },
+    { "path": "../../packages/documents/tables/tsconfig.build.json" }
   ],
   "compilerOptions": {
     "types": ["node", "bun"],

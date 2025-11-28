@@ -1,7 +1,7 @@
 /**
  * Entity id factory that bridges snake_case table names with branded UUID literals.
  *
- * Provides runtime helpers used by IAM/files slices to mint deterministic identifiers, configure Drizzle columns,
+ * Provides runtime helpers used by IAM/documents slices to mint deterministic identifiers, configure Drizzle columns,
  * and annotate schemas with identity-aware metadata.
  *
  * @example

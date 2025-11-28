@@ -30,13 +30,12 @@
     { "path": "tsconfig.slices/core.json" },
     { "path": "tsconfig.slices/ui.json" },
     { "path": "tsconfig.slices/iam.json" },
-    { "path": "tsconfig.slices/files.json" },
+    { "path": "tsconfig.slices/documents.json"},
     { "path": "tsconfig.slices/runtime.json" },
     { "path": "tsconfig.slices/apps.json" },
     { "path": "tsconfig.slices/internal.json" },
     { "path": "tsconfig.slices/tooling.json" },
     { "path": "tsconfig.slices/integrations.json" },
-    { "path": "tsconfig.slices/party.json" },
-    { "path": "tsconfig.slices/knowledge-management.json" }
+    { "path": "tsconfig.slices/party.json" }
   ]
 }

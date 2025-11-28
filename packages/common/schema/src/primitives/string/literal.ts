@@ -181,3 +181,7 @@ export declare namespace LiteralWithDefault {
    */
   export type Encoded<Literal extends string> = S.Schema.Encoded<Schema<Literal>>;
 }
+
+export function SignleLiteralWithEncodedDefault<const Literal extends AST.LiteralValue>(literal: Literal) {
+  return LiteralDefaults(literal)(literal);
+}

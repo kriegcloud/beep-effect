@@ -99,38 +99,6 @@
       "@beep/comms-sdk/*": ["../../packages/comms/sdk/src/*"],
       "@beep/comms-ui": ["../../packages/comms/ui/src/index"],
       "@beep/comms-ui/*": ["../../packages/comms/ui/src/*"],
-
-      "@beep/knowledge-management-domain": [
-        "../../packages/knowledge-management/domain/src/index"
-      ],
-      "@beep/knowledge-management-domain/*": [
-        "../../packages/knowledge-management/domain/src/*"
-      ],
-      "@beep/knowledge-management-tables": [
-        "../../packages/knowledge-management/tables/src/index"
-      ],
-      "@beep/knowledge-management-tables/*": [
-        "../../packages/knowledge-management/tables/src/*"
-      ],
-      "@beep/knowledge-management-infra": [
-        "../../packages/knowledge-management/infra/src/index"
-      ],
-      "@beep/knowledge-management-infra/*": [
-        "../../packages/knowledge-management/infra/src/*"
-      ],
-      "@beep/knowledge-management-sdk": [
-        "../../packages/knowledge-management/sdk/src/index"
-      ],
-      "@beep/knowledge-management-sdk/*": [
-        "../../packages/knowledge-management/sdk/src/*"
-      ],
-      "@beep/knowledge-management-ui": [
-        "../../packages/knowledge-management/ui/src/index"
-      ],
-      "@beep/knowledge-management-ui/*": [
-        "../../packages/knowledge-management/ui/src/*"
-      ],
-
       "@beep/party-domain": ["../../packages/party/domain/src/index"],
       "@beep/party-domain/*": ["../../packages/party/domain/src/*"],
       "@beep/party-tables": ["../../packages/party/tables/src/index"],
@@ -141,16 +109,16 @@
       "@beep/party-sdk/*": ["../../packages/party/sdk/src/*"],
       "@beep/party-ui": ["../../packages/party/ui/src/index"],
       "@beep/party-ui/*": ["../../packages/party/ui/src/*"],
-      "@beep/files-domain": ["../../packages/files/domain/src/index"],
-      "@beep/files-domain/*": ["../../packages/files/domain/src/*"],
-      "@beep/files-tables": ["../../packages/files/tables/src/index"],
-      "@beep/files-tables/*": ["../../packages/files/tables/src/*"],
-      "@beep/files-infra": ["../../packages/files/infra/src/index"],
-      "@beep/files-infra/*": ["../../packages/files/infra/src/*"],
-      "@beep/files-sdk": ["../../packages/files/sdk/src/index"],
-      "@beep/files-sdk/*": ["../../packages/files/sdk/src/*"],
-      "@beep/files-ui": ["../../packages/files/ui/src/index"],
-      "@beep/files-ui/*": ["../../packages/files/ui/src/*"],
+      "@beep/documents-domain": ["../../packages/documents/domain/src/index"],
+      "@beep/documents-domain/*": ["../../packages/documents/domain/src/*"],
+      "@beep/documents-tables": ["../../packages/documents/tables/src/index"],
+      "@beep/documents-tables/*": ["../../packages/documents/tables/src/*"],
+      "@beep/documents-infra": ["../../packages/documents/infra/src/index"],
+      "@beep/documents-infra/*": ["../../packages/documents/infra/src/*"],
+      "@beep/documents-sdk": ["../../packages/documents/sdk/src/index"],
+      "@beep/documents-sdk/*": ["../../packages/documents/sdk/src/*"],
+      "@beep/documents-ui": ["../../packages/documents/ui/src/index"],
+      "@beep/documents-ui/*": ["../../packages/documents/ui/src/*"],
       "@beep/runtime-server": ["../../packages/runtime/server/src/index"],
       "@beep/runtime-server/*": ["../../packages/runtime/server/src/*"],
       "@beep/runtime-client": ["../../packages/runtime/client/src/index"],
@@ -250,23 +218,6 @@
     {
       "path": "../../packages/comms/tables/tsconfig.build.json"
     },
-
-    {
-      "path": "../../packages/knowledge-management/sdk/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/knowledge-management/infra/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/knowledge-management/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/knowledge-management/ui/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/knowledge-management/tables/tsconfig.build.json"
-    },
-
     {
       "path": "../../packages/ui/ui/tsconfig.build.json"
     },
@@ -274,19 +225,19 @@
       "path": "../../packages/ui/core/tsconfig.build.json"
     },
     {
-      "path": "../../packages/files/sdk/tsconfig.build.json"
+      "path": "../../packages/documents/sdk/tsconfig.build.json"
     },
     {
-      "path": "../../packages/files/ui/tsconfig.build.json"
+      "path": "../../packages/documents/ui/tsconfig.build.json"
     },
     {
-      "path": "../../packages/files/infra/tsconfig.build.json"
+      "path": "../../packages/documents/infra/tsconfig.build.json"
     },
     {
-      "path": "../../packages/files/domain/tsconfig.build.json"
+      "path": "../../packages/documents/domain/tsconfig.build.json"
     },
     {
-      "path": "../../packages/files/tables/tsconfig.build.json"
+      "path": "../../packages/documents/tables/tsconfig.build.json"
     },
     {
       "path": "../../packages/runtime/server/tsconfig.build.json"

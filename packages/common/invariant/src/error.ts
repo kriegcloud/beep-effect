@@ -37,7 +37,7 @@
  *   if (count <= 0) {
  *     throw new InvariantViolation({
  *       message: "count must be positive",
- *       file: "packages/files/domain/src/counters/Increment.ts",
+ *       file: "packages/documents/domain/src/counters/Increment.ts",
  *       line: 18,
  *       args: [count],
  *     });

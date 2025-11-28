@@ -42,7 +42,7 @@ Therefore, I proclaim—nay, I yell into the abyss—I’m making a codebase I c
 
 **Fix: slice-scoped clients**
 
-- [`Db.make`](https://github.com/kriegcloud/beep-effect/blob/main/packages/core/db/src/Db/Db.ts) builds per-slice Drizzle clients so TS only reasons about relevant tables. Examples: [IamDb](https://github.com/kriegcloud/beep-effect/blob/main/packages/iam/infra/src/db/Db/Db.ts), [FilesDb](https://github.com/kriegcloud/beep-effect/blob/main/packages/files/infra/src/db/Db/Db.ts), [TasksDb](https://github.com/kriegcloud/beep-effect/blob/main/packages/tasks/infra/src/db/Db/Db.ts).
+- [`Db.make`](https://github.com/kriegcloud/beep-effect/blob/main/packages/core/db/src/Db/Db.ts) builds per-slice Drizzle clients so TS only reasons about relevant tables. Examples: [IamDb](https://github.com/kriegcloud/beep-effect/blob/main/packages/iam/infra/src/db/Db/Db.ts), [DocumentsDb](https://github.com/kriegcloud/beep-effect/blob/main/packages/documents/infra/src/db/Db/Db.ts), [TasksDb](https://github.com/kriegcloud/beep-effect/blob/main/packages/tasks/infra/src/db/Db/Db.ts).
 - API surfaces (TRPC or `@effect/platform`) will be generated per slice too. God clients are cancelled.
 
 ---
@@ -189,7 +189,7 @@ If anyone whispers “over-engineered,” I will annotate their existence with `
 ### Roadmap-ish promises
 
 1. **Ship IAM to prod** — finish passkey flows, wire contract kits to live runtimes.
-2. **Files slice** — run `UploadPath` against real S3/R2 with quotas + lifecycle rules.
+2. **Documents slice** — run `UploadPath` against real S3/R2 with quotas + lifecycle rules.
 3. **Debug surfaces** — land Effect-powered observability (logs/traces/metrics) by default.
 4. **Starter kit mode** — turn this repo into a “press play” template for new ideas.
 5. **More trolling** — every new pattern gets documented with equal parts rigor and sarcasm.
@@ -200,7 +200,7 @@ If anyone whispers “over-engineered,” I will annotate their existence with `
 
 - Vertical-slice architecture with hexagonal flavor: domain → application → infra.
 - Cross-slice sharing only via `packages/shared/*`, `packages/common/*`, `packages/core/*`.
-- Path aliases in [`tsconfig.base.json`](tsconfig.base.jsonc) are the law (`@beep/iam-domain`, `@beep/files-services`, `@/*` for `apps/web`).
+- Path aliases in [`tsconfig.base.json`](tsconfig.base.jsonc) are the law (`@beep/iam-domain`, `@beep/documents-services`, `@/*` for `apps/web`).
 - Task graph orchestrated via [`turbo.json`](turbo.json).
 - Effect-first, dependency injection via Layers. No sneaky IO in domain code.
 
@@ -268,7 +268,7 @@ Imports must respect path aliases enforced in `tsconfig.base.json`.
 ## Current slices
 
 - **IAM (`packages/iam/*`)** — domain, application/services, infra, tables, UI, SDK.
-- **Files (`packages/files/*`)** — same layering, plus upload schemas/test harness.
+- **Documents (`packages/documents/*`)** — same layering, plus upload schemas/test harness.
 - **Shared foundations** — `packages/shared/*`, `packages/common/*`, `packages/core/*`.
 
 ## Applications

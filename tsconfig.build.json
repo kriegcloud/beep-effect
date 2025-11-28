@@ -81,19 +81,19 @@
       "path": "packages/ui/core/tsconfig.build.json"
     },
     {
-      "path": "packages/files/sdk/tsconfig.build.json"
+      "path": "packages/documents/sdk/tsconfig.build.json"
     },
     {
-      "path": "packages/files/ui/tsconfig.build.json"
+      "path": "packages/documents/ui/tsconfig.build.json"
     },
     {
-      "path": "packages/files/domain/tsconfig.build.json"
+      "path": "packages/documents/domain/tsconfig.build.json"
     },
     {
-      "path": "packages/files/tables/tsconfig.build.json"
+      "path": "packages/documents/tables/tsconfig.build.json"
     },
     {
-      "path": "packages/files/infra/tsconfig.build.json"
+      "path": "packages/documents/infra/tsconfig.build.json"
     },
     {
       "path": "packages/tasks/sdk/tsconfig.build.json"
@@ -139,21 +139,6 @@
     },
     {
       "path": "packages/comms/infra/tsconfig.build.json"
-    },
-    {
-      "path": "packages/knowledge-management/sdk/tsconfig.build.json"
-    },
-    {
-      "path": "packages/knowledge-management/ui/tsconfig.build.json"
-    },
-    {
-      "path": "packages/knowledge-management/domain/tsconfig.build.json"
-    },
-    {
-      "path": "packages/knowledge-management/tables/tsconfig.build.json"
-    },
-    {
-      "path": "packages/knowledge-management/infra/tsconfig.build.json"
     },
     {
       "path": "packages/runtime/server/tsconfig.build.json"

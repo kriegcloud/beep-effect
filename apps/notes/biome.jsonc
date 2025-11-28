@@ -1,0 +1,17 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
+  "extends": ["../../biome.jsonc"],
+  "files": {
+    "includes": [
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.js",
+      "**/*.jsx",
+      "!!**/src/generated",
+      "!!**/.contentlayer",
+      "!!**/.next",
+      "!!**/.next-admin",
+      "!!**/prisma/json-schema"
+    ]
+  }
+}

@@ -18,6 +18,7 @@ export { useIsClient } from "./use-is-client";
 export * from "./use-is-pwa";
 export { useIsomorphicLayoutEffect } from "./use-isomorphic-layout-effect";
 export { useLocalStorage } from "./use-local-storage";
+export * from "./use-mounted";
 export { useParams } from "./use-params";
 export { usePathname } from "./use-pathname";
 export { usePopover } from "./use-popover";

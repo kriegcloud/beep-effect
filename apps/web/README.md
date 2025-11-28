@@ -1,7 +1,7 @@
 # apps/web — Next.js App Router shell
 
 ## What this app does
-- Next.js 15 + React 19 front-end for every Beep slice (IAM, Files, Tasks, Comms) running on the App Router with the React Compiler and Turbopack.
+- Next.js 15 + React 19 front-end for every Beep slice (IAM, Documents, Tasks, Comms) running on the App Router with the React Compiler and Turbopack.
 - Bridges server/client Effect runtimes: `runServerPromise(getAppConfig)` in `src/app/layout.tsx` hydrates locale + settings, while `GlobalProviders` + `KaServices` mount the managed runtime, atom registry, theming, and UI plumbing.
 - UI stack is powered by `@beep/ui-core` and `@beep/ui` (MUI + Tailwind + shadcn + Radix) with global providers for i18n, settings, progress, snackbars, and reCAPTCHA.
 

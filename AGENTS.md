@@ -31,7 +31,7 @@ Configuration and guardrails for AI collaborators working in the `beep-effect` m
 
 `beep-effect` is a Bun-managed monorepo delivering a full-stack Effect application. It combines `apps/web` (Next.js 15 +
 React 19), `apps/server` (Effect Platform runtime), and `apps/mcp` (MCP tooling) atop vertical slices in
-`packages/iam/*`, `packages/files/*`, and shared foundations under `packages/shared/*`, `packages/core/*`, and
+`packages/iam/*`, `packages/documents/*`, and shared foundations under `packages/shared/*`, `packages/core/*`, and
 `packages/common/*`. Architecture details live in `README.md``, `docs/patterns/`, and
 `docs/PRODUCTION_CHECKLIST.md`.
 
@@ -48,12 +48,12 @@ React 19), `apps/server` (Effect Platform runtime), and `apps/mcp` (MCP tooling)
 - `packages/common/contract/AGENTS.md` — Effect-first contract runtime reference covering `Contract`, `ContractKit`, `ContractError`, continuations, and lift service ergonomics.
 - `packages/core/env/AGENTS.md` — server/client env loaders, redacted secret guardrails, and usage snapshots that anchor runtime telemetry and auth surfaces.
 - `packages/core/email/AGENTS.md` — Resend service wiring, React Email rendering safeguards, and authentication flow recipes tying IAM payloads to transport.
-- `packages/shared/domain/AGENTS.md` — shared-kernel reference for entity ids/models, ManualCache, policy combinators, and PathBuilder-powered routing recipes used across IAM and Files slices.
+- `packages/shared/domain/AGENTS.md` — shared-kernel reference for entity ids/models, ManualCache, policy combinators, and PathBuilder-powered routing recipes used across IAM and Documents slices.
 - `packages/shared/tables/AGENTS.md` — shared Postgres table factories, audit defaults, and multi-tenant recipes that keep IAM/files schemas aligned with domain entities.
 - `packages/core/db/AGENTS.md` — Postgres Layer orchestration, repo factories with `DbError` mapping, Bun SQL adapters, and Zero mutator bridging patterns for infrastructure slices.
 - `packages/_internal/db-admin/AGENTS.md` — migration warehouse outlining admin schema exports, Drizzle CLI workflows, and Pg Testcontainer harnesses for slice-wide validation.
-- `packages/files/domain/AGENTS.md` — files domain value-objects guide covering signature registries, EXIF schemas, size formatters, and Effect-first upload helpers.
-- `packages/files/infra/AGENTS.md` — Files slice infrastructure map covering `FilesDb`, repo layers, and S3 `StorageService` conventions for apps and test harnesses.
+- `packages/documents/domain/AGENTS.md` — files domain value-objects guide covering signature registries, EXIF schemas, size formatters, and Effect-first upload helpers.
+- `packages/documents/infra/AGENTS.md` — Documents slice infrastructure map covering `DocumentsDb`, repo layers, and S3 `StorageService` conventions for apps and test harnesses.
 - `packages/iam/tables/AGENTS.md` — IAM Drizzle schema reference covering tenant-aware tables, domain-driven enums, relations, and Better Auth adapter touchpoints.
 - `packages/iam/infra/AGENTS.md` — Better Auth service wiring, IAM repo bundle guardrails, and Layer assembly patterns tying `IamConfig` + `IamDb` into downstream runtimes.
 - `packages/iam/ui/AGENTS.md` — IAM React flow guide covering runtime runners, schema-backed forms, recaptcha, and social provider UX guardrails.
@@ -107,7 +107,7 @@ React 19), `apps/server` (Effect Platform runtime), and `apps/mcp` (MCP tooling)
 ## Architecture & Boundaries
 
 - **Vertical Slices** Follow the `domain -> application -> infra -> ui/sdk` layering inside `packages/iam/*` and
-  `packages/files/*`. Application ports live in `application`, adapters in `infra`, UI in `ui`/`apps/web`.
+  `packages/documents/*`. Application ports live in `application`, adapters in `infra`, UI in `ui`/`apps/web`.
 - **Shared Foundations**
     - `packages/shared/*` for cross-slice entities/tables.
     - `packages/common/*` for utilities, schemas, errors, invariants.
@@ -148,7 +148,7 @@ React 19), `apps/server` (Effect Platform runtime), and `apps/mcp` (MCP tooling)
 - **Migrations** Schema definitions reside in `packages/*/tables` and Drizzle SQL under `packages/_internal/db-admin`.
   After editing tables, regenerate types and apply migrations.
 - **File Pipeline** Shared file identities live in `packages/shared/domain`; slice-specific workflows in
-  `packages/files/*`. See `@prompt.md` for upload specs.
+  `packages/documents/*`. See `@prompt.md` for upload specs.
 - **Production Posture** Follow `docs/PRODUCTION_CHECKLIST.md` for logging levels, environment flags, and deployment
   readiness.
 

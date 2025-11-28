@@ -142,14 +142,14 @@ export function detectFileFormat(input?: FileInput | undefined): FileFormat | "u
 /**
  * Returns the corresponding icon URL based on the file format.
  *
- * @example getFileIcon('file.pdf') => '/assets/icons/files/ic-pdf.svg'
- * @example getFileIcon('image.png') => '/assets/icons/files/ic-img.svg'
+ * @example getFileIcon('file.pdf') => '/assets/icons/documents/ic-pdf.svg'
+ * @example getFileIcon('image.png') => '/assets/icons/documents/ic-img.svg'
  */
 export function getFileIcon(input?: FileInput | undefined): string {
   const format = detectFileFormat(input);
   const iconName = FILE_ICONS[format] || FILE_ICONS.unknown;
 
-  return `/assets/icons/files/${iconName}.svg`;
+  return `/assets/icons/documents/${iconName}.svg`;
 }
 
 /**

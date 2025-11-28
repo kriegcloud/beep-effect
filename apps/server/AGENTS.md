@@ -1,7 +1,7 @@
 # AGENTS.md — `apps/server`
 
 ## Purpose & Fit
-- Bun-hosted Effect shell for backend workloads (HTTP/RPC servers, cron, workers) that should reuse the shared runtime from `@beep/runtime-server` for observability, DB access, and IAM/files/task slice services.
+- Bun-hosted Effect shell for backend workloads (HTTP/RPC servers, cron, workers) that should reuse the shared runtime from `@beep/runtime-server` for observability, DB access, and IAM/documents/task slice services.
 - Aligns with the monorepo’s Effect-first posture: Layers supply all dependencies, `runServerPromise` wraps handlers with tracing spans, and environment comes from `@beep/core-env/server`.
 - Current code is a placeholder (`src/server.ts` exports `beep`). New work should wire actual hosts through the runtime helpers below rather than adding ad-hoc bootstraps.
 
@@ -12,7 +12,7 @@
 - Runtime dependencies live in `packages/runtime/server/src/server-runtime.ts`:
   - `serverRuntime`, `runServerPromise`, `runServerPromiseExit` for executing effects.
   - `ObservabilityLive` (logger, telemetry, devtools), `LogLevelLive` (env-driven log level).
-  - `CoreServicesLive`, `RepositoriesLive`, `DatabaseInfrastructureLive` for IAM/files/tasks/comms slices.
+  - `CoreServicesLive`, `RepositoriesLive`, `DatabaseInfrastructureLive` for IAM/documents/tasks/comms slices.
 
 ## How to Extend
 - **Use the runtime helpers**: wrap all entrypoints with `runServerPromise`/`runServerPromiseExit` so spans and logging remain consistent. Avoid bare `Effect.runPromise`.

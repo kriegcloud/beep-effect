@@ -88,7 +88,7 @@ Define a unified permission statement that works with both Effect policies and b
 // packages/shared/domain/src/access-control/statements.ts
 
 import { createAccessControl } from "better-auth/plugins/access";
-import { KnowledgeManagementEntityIds, IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { DocumentsEntityIds, IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 
 /**
  * Unified permission actions for all entities
@@ -111,15 +111,15 @@ export const accessControlStatement = {
   [IamEntityIds.InvitationId.tableName]: ["create", "cancel"] as const,
 
   // Knowledge Management entities
-  [KnowledgeManagementEntityIds.DocumentId.tableName]: PermissionActions,
-  [KnowledgeManagementEntityIds.DocumentVersionId.tableName]: ["read", "create"] as const,
-  [KnowledgeManagementEntityIds.DiscussionId.tableName]: PermissionActions,
-  [KnowledgeManagementEntityIds.CommentId.tableName]: PermissionActions,
-  [KnowledgeManagementEntityIds.DocumentFileId.tableName]: PermissionActions,
-  [KnowledgeManagementEntityIds.KnowledgePageId.tableName]: PermissionActions,
-  [KnowledgeManagementEntityIds.KnowledgeBlockId.tableName]: PermissionActions,
-  [KnowledgeManagementEntityIds.KnowledgeSpaceId.tableName]: PermissionActions,
-  [KnowledgeManagementEntityIds.PageLinkId.tableName]: ["read", "create", "delete"] as const,
+  [DocumentsEntityIds.DocumentId.tableName]: PermissionActions,
+  [DocumentsEntityIds.DocumentVersionId.tableName]: ["read", "create"] as const,
+  [DocumentsEntityIds.DiscussionId.tableName]: PermissionActions,
+  [DocumentsEntityIds.CommentId.tableName]: PermissionActions,
+  [DocumentsEntityIds.DocumentFileId.tableName]: PermissionActions,
+  [DocumentsEntityIds.KnowledgePageId.tableName]: PermissionActions,
+  [DocumentsEntityIds.KnowledgeBlockId.tableName]: PermissionActions,
+  [DocumentsEntityIds.KnowledgeSpaceId.tableName]: PermissionActions,
+  [DocumentsEntityIds.PageLinkId.tableName]: ["read", "create", "delete"] as const,
 } as const;
 
 export type AccessControlStatement = typeof accessControlStatement;
@@ -136,16 +136,16 @@ export const ac = createAccessControl(accessControlStatement);
 // packages/shared/domain/src/access-control/roles.ts
 
 import { ac } from "./statements";
-import { KnowledgeManagementEntityIds } from "@beep/shared-domain";
+import { DocumentsEntityIds } from "@beep/shared-domain";
 
-const km = KnowledgeManagementEntityIds;
+const km = DocumentsEntityIds;
 
 /**
- * Organization roles with knowledge-management permissions
+ * Organization roles with documents permissions
  */
 export const organizationRoles = {
   owner: ac.newRole({
-    // Full access to all knowledge-management entities
+    // Full access to all documents entities
     [km.DocumentId.tableName]: ["read", "create", "update", "delete", "manage"],
     [km.DocumentVersionId.tableName]: ["read", "create"],
     [km.DiscussionId.tableName]: ["read", "create", "update", "delete", "manage"],
@@ -286,13 +286,13 @@ const CurrentUserLive = Layer.effect(
 Each entity should have a co-located `.policy.ts` file:
 
 ```typescript
-// packages/knowledge-management/domain/src/entities/Document/Document.policy.ts
+// packages/documents/domain/src/entities/Document/Document.policy.ts
 
 import { permission, policy, all, any, withPolicy } from "@beep/shared-domain/Policy";
-import { KnowledgeManagementEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { DocumentsEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as Effect from "effect/Effect";
 
-const tableName = KnowledgeManagementEntityIds.DocumentId.tableName;
+const tableName = DocumentsEntityIds.DocumentId.tableName;
 
 /**
  * Permission-based policies for Document entity
@@ -366,9 +366,9 @@ export const canDeleteDocument = (doc: {
 ### 6. Policy Usage in Routes
 
 ```typescript
-// packages/knowledge-management/infra/src/routes/Document.router.ts
+// packages/documents/infra/src/routes/Document.router.ts
 
-import * as DocumentPolicy from "@beep/knowledge-management-domain/entities/Document/Document.policy";
+import * as DocumentPolicy from "@beep/documents-domain/entities/Document/Document.policy";
 import { withPolicy } from "@beep/shared-domain/Policy";
 
 export const DocumentRouterLive = HttpApiBuilder.group(
@@ -496,7 +496,7 @@ packages/
 │               ├── policy.ts          # Existing
 │               └── policy-builder.ts  # Existing
 │
-├── knowledge-management/
+├── documents/
 │   └── domain/
 │       └── src/
 │           └── entities/
@@ -562,7 +562,7 @@ packages/
 3. Update `UserAuthMiddleware` to populate permissions
 
 ### Phase 3: Entity Policies
-1. Create `.policy.ts` files for each knowledge-management entity
+1. Create `.policy.ts` files for each documents entity
 2. Define permission-based policies (`canRead`, `canCreate`, etc.)
 3. Define ownership and organization-scoped policies
 4. Define composite policies for common use cases

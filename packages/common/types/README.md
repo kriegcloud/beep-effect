@@ -31,7 +31,7 @@ Common modules in `src/` (exported via `index.ts`):
 - __No side effects__, I/O, or environment reads (no `process`, no globals, no dynamic imports).
 - __No framework/platform types__ that create coupling (no Node, DOM, React, Next types, etc.).
 - __No domain-specific types__ (keep those in the owning slice’s `domain` layer).
-- __No imports from other internal slices__ (e.g., do not depend on `@beep/iam-*`, `@beep/files-*`, etc.).
+- __No imports from other internal slices__ (e.g., do not depend on `@beep/iam-*`, `@beep/documents-*`, etc.).
 - __No schema/runtime validators__ (e.g., do not export `effect/Schema` values here—types only are fine).
 
 

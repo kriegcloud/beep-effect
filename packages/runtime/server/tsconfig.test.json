@@ -66,22 +66,13 @@
       "path": "../../party/infra"
     },
     {
-      "path": "../../knowledge-management/domain"
+      "path": "../../documents/infra"
     },
     {
-      "path": "../../knowledge-management/tables"
+      "path": "../../documents/domain"
     },
     {
-      "path": "../../knowledge-management/infra"
-    },
-    {
-      "path": "../../files/infra"
-    },
-    {
-      "path": "../../files/domain"
-    },
-    {
-      "path": "../../files/tables"
+      "path": "../../documents/tables"
     }
   ],
   "compilerOptions": {

@@ -2,7 +2,7 @@
 
 ## Purpose & Fit
 
-- Effect-first contract runtime powering all RPC-style interactions shared across slices (`@beep/iam-sdk` contracts, runtime services, and future files slices).
+- Effect-first contract runtime powering all RPC-style interactions shared across slices (`@beep/iam-sdk` contracts, runtime services, and future documents slices).
 - Publishes three public entry points (`Contract`, `ContractKit`, `ContractError`) that wrap the internal implementation and keep internal layout flexible.
 - Consumed anywhere we need typed payload schemas, runtime-independent error envelopes, continuations with abort awareness, or contract grouping/lifting helpers.
 

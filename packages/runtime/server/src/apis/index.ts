@@ -1,1 +1,1 @@
-export * from "./KnowledgeManagementApi.ts";
+export * from "./DocumentsApi.ts";

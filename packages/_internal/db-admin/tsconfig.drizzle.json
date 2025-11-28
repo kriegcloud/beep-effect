@@ -62,17 +62,6 @@
     {
       "path": "../../comms/infra"
     },
-
-    {
-      "path": "../../knowledge-management/domain"
-    },
-    {
-      "path": "../../knowledge-management/tables"
-    },
-    {
-      "path": "../../knowledge-management/infra"
-    },
-
     {
       "path": "../../party/infra/tsconfig.build.json"
     },
@@ -86,13 +75,13 @@
       "path": "../../ui"
     },
     {
-      "path": "../../files/infra"
+      "path": "../../documents/infra"
     },
     {
-      "path": "../../files/domain"
+      "path": "../../documents/domain"
     },
     {
-      "path": "../../files/tables"
+      "path": "../../documents/tables"
     }
   ],
   "compilerOptions": {

@@ -63,17 +63,6 @@
     {
       "path": "../../comms/infra"
     },
-
-    {
-      "path": "../../knowledge-management/domain"
-    },
-    {
-      "path": "../../knowledge-management/tables"
-    },
-    {
-      "path": "../../knowledge-management/infra"
-    },
-
     {
       "path": "../../party/domain"
     },
@@ -84,13 +73,13 @@
       "path": "../../party/infra"
     },
     {
-      "path": "../../files/infra"
+      "path": "../../documents/infra"
     },
     {
-      "path": "../../files/domain"
+      "path": "../../documents/domain"
     },
     {
-      "path": "../../files/tables"
+      "path": "../../documents/tables"
     },
     {
       "path": "../../../tooling/utils"
