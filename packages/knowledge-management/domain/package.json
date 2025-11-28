@@ -43,7 +43,9 @@
     "@beep/identity": "workspace:^",
     "effect": "catalog:",
     "@effect/sql": "catalog:",
-    "@effect/experimental": "catalog:"
+    "@effect/experimental": "catalog:",
+    "@effect/rpc": "catalog:",
+    "@effect/platform": "catalog:"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",
@@ -55,7 +57,9 @@
     "@beep/identity": "workspace:^",
     "effect": "catalog:",
     "@effect/sql": "catalog:",
-    "@effect/experimental": "catalog:"
+    "@effect/experimental": "catalog:",
+    "@effect/rpc": "catalog:",
+    "@effect/platform": "catalog:"
   },
   "effect": {
     "generateExports": {
