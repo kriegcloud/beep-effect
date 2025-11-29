@@ -38,9 +38,18 @@
     "@beep/constants": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/errors": "workspace:^",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "@effect/ai": "catalog:",
+    "@effect/ai-openrouter": "catalog:",
+    "@effect/ai-google": "catalog:",
+    "@effect/ai-amazon-bedrock": "catalog:"
   },
   "devDependencies": {
+    "@effect/ai-openrouter": "catalog:",
+    "@effect/ai-google": "catalog:",
+    "@effect/ai-amazon-bedrock": "catalog:",
+    "@effect/ai-openai": "catalog:",
+    "@effect/ai-anthropic": "catalog:",
     "@effect/docgen": "catalog:",
     "@beep/types": "workspace:^",
     "@beep/constants": "workspace:^",
