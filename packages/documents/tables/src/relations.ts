@@ -192,3 +192,32 @@ export const documentFileRelations = d.relations(documentFile, ({ one }) => ({
     references: [document.id],
   }),
 }));
+
+// User relations for documents slice
+export const documentsUserRelations = d.relations(user, ({ many }) => ({
+  documents: many(document),
+  documentVersions: many(documentVersion),
+  documentFiles: many(documentFile),
+  ownedKnowledgeSpaces: many(knowledgeSpace),
+  editedKnowledgeBlocks: many(knowledgeBlock),
+  discussions: many(discussion),
+  comments: many(comment),
+}));
+
+// Organization relations for documents slice
+export const documentsOrganizationRelations = d.relations(organization, ({ many }) => ({
+  documents: many(document),
+  documentVersions: many(documentVersion),
+  documentFiles: many(documentFile),
+  knowledgeSpaces: many(knowledgeSpace),
+  knowledgePages: many(knowledgePage),
+  knowledgeBlocks: many(knowledgeBlock),
+  pageLinks: many(pageLink),
+  discussions: many(discussion),
+  comments: many(comment),
+}));
+
+// Team relations for documents slice
+export const documentsTeamRelations = d.relations(team, ({ many }) => ({
+  knowledgeSpaces: many(knowledgeSpace),
+}));

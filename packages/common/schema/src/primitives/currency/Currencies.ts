@@ -1,4 +1,4 @@
-import { StringLiteralKit } from "@beep/schema/derived";
+import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
 import * as A from "effect/Array";
 import * as BigDecimal from "effect/BigDecimal";
 import * as F from "effect/Function";

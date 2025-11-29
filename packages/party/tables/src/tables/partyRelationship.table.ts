@@ -28,7 +28,7 @@ export const partyRelationship = OrgTable.make(PartyEntityIds.PartyRelationshipI
 
   // Optional: if you want to tie specific role types to each side:
   fromRoleTypeId: pg
-    .uuid("from_role_type_id")
+    .text("from_role_type_id")
     .references(() => partyRoleType.id, { onDelete: "set null" })
     .$type<PartyEntityIds.PartyRoleTypeId.Type>(),
   toRoleTypeId: pg

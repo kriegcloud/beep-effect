@@ -2,11 +2,11 @@ import { TextStyle } from "@beep/documents-domain/value-objects";
 import { BS } from "@beep/schema";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import { DocumentsEntityIds } from "@beep/shared-domain";
-import { OrgTable, user } from "@beep/shared-tables";
+import { bytea, OrgTable, user } from "@beep/shared-tables";
 import { sql } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 
-const textStylePgEnum = BS.toPgEnum(TextStyle)("text_style_enum");
+export const textStylePgEnum = BS.toPgEnum(TextStyle)("text_style_enum");
 
 export const document = OrgTable.make(DocumentsEntityIds.DocumentId)(
   {
@@ -20,7 +20,7 @@ export const document = OrgTable.make(DocumentsEntityIds.DocumentId)(
     title: pg.text("title"),
     content: pg.text("content"),
     contentRich: pg.jsonb("content_rich"),
-    yjsSnapshot: pg.text("yjs_snapshot"),
+    yjsSnapshot: bytea("yjs_snapshot"),
     coverImage: pg.text("cover_image"),
     icon: pg.text("icon"),
     isPublished: pg.boolean("is_published").notNull().default(false),

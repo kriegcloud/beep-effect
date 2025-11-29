@@ -57,7 +57,8 @@ const AppConfig = Config.zipWith(
     })
   ),
   (appConfig, vercelConfig) => {
-    const clientUrl = Url.make(`https://${appConfig.clientUrl}`);
+    // appConfig.clientUrl is already a URL from Config.url(), use it directly
+    const clientUrl = appConfig.clientUrl;
     const projectProductionUrl = F.pipe(
       vercelConfig.projectProductionUrl,
       O.match({
@@ -67,7 +68,7 @@ const AppConfig = Config.zipWith(
     );
     const baseUrl = O.all([vercelConfig.vercelUrl, vercelConfig.vercelEnv]).pipe(
       O.match({
-        onNone: () => Url.make(`http://${appConfig.clientUrl}`),
+        onNone: () => clientUrl,
         onSome: ([vercelUrl, vEnv]) =>
           vEnv === "production"
             ? projectProductionUrl

@@ -11,6 +11,7 @@ import {
   oauthConsent,
   organizationRole,
   passkey,
+  scimProvider,
   session,
   ssoProvider,
   subscription,
@@ -56,6 +57,7 @@ export const teamRelations = d.relations(team, ({ one, many }) => ({
     references: [organization.id],
   }),
   members: many(teamMember),
+  invitations: many(invitation),
 }));
 
 export const teamMemberRelations = d.relations(teamMember, ({ one }) => ({
@@ -67,12 +69,20 @@ export const teamMemberRelations = d.relations(teamMember, ({ one }) => ({
     fields: [teamMember.userId],
     references: [user.id],
   }),
+  organization: one(organization, {
+    fields: [teamMember.organizationId],
+    references: [organization.id],
+  }),
 }));
 
 export const oauthAccessTokenRelations = d.relations(oauthAccessToken, ({ one }) => ({
   user: one(user, {
     fields: [oauthAccessToken.userId],
     references: [user.id],
+  }),
+  organization: one(organization, {
+    fields: [oauthAccessToken.organizationId],
+    references: [organization.id],
   }),
 }));
 
@@ -81,12 +91,20 @@ export const oauthApplicationRelations = d.relations(oauthApplication, ({ one })
     fields: [oauthApplication.userId],
     references: [user.id],
   }),
+  organization: one(organization, {
+    fields: [oauthApplication.organizationId],
+    references: [organization.id],
+  }),
 }));
 
 export const oauthConsentRelations = d.relations(oauthConsent, ({ one }) => ({
   user: one(user, {
     fields: [oauthConsent.userId],
     references: [user.id],
+  }),
+  organization: one(organization, {
+    fields: [oauthConsent.organizationId],
+    references: [organization.id],
   }),
 }));
 
@@ -114,6 +132,10 @@ export const apiKeyRelations = d.relations(apiKey, ({ one }) => ({
     fields: [apiKey.userId],
     references: [user.id],
   }),
+  organization: one(organization, {
+    fields: [apiKey.organizationId],
+    references: [organization.id],
+  }),
 }));
 
 export const invitationRelations = d.relations(invitation, ({ one }) => ({
@@ -125,12 +147,17 @@ export const invitationRelations = d.relations(invitation, ({ one }) => ({
     fields: [invitation.inviterId],
     references: [user.id],
   }),
+  team: one(team, {
+    fields: [invitation.teamId],
+    references: [team.id],
+  }),
 }));
 
 export const passkeyRelations = d.relations(passkey, ({ one }) => ({
   user: one(user, {
     fields: [passkey.userId],
     references: [user.id],
+    relationName: "passkeys",
   }),
 }));
 
@@ -155,6 +182,10 @@ export const twoFactorRelations = d.relations(twoFactor, ({ one }) => ({
   user: one(user, {
     fields: [twoFactor.userId],
     references: [user.id],
+  }),
+  organization: one(organization, {
+    fields: [twoFactor.organizationId],
+    references: [organization.id],
   }),
 }));
 
@@ -185,6 +216,14 @@ export const userRelations = d.relations(user, ({ many }) => ({
   impersonatedSessions: many(session, {
     relationName: "impersonatedSessions",
   }),
+  // Additional relations
+  twoFactors: many(twoFactor),
+  deviceCodes: many(deviceCode),
+  oauthAccessTokens: many(oauthAccessToken),
+  ssoProviders: many(ssoProvider),
+  invitations: many(invitation),
+  oauthConsents: many(oauthConsent),
+  apiKeys: many(apiKey),
 }));
 
 export const organizationRelations = d.relations(organization, ({ many, one }) => ({
@@ -198,6 +237,18 @@ export const organizationRelations = d.relations(organization, ({ many, one }) =
   members: many(member),
   teams: many(team),
   subscriptions: many(subscription),
+
+  // Additional relations
+  twoFactors: many(twoFactor),
+  oauthAccessTokens: many(oauthAccessToken),
+  organizationRoles: many(organizationRole),
+  ssoProviders: many(ssoProvider),
+  oauthApplications: many(oauthApplication),
+  invitations: many(invitation),
+  oauthConsents: many(oauthConsent),
+  apiKeys: many(apiKey),
+  teamMembers: many(teamMember),
+  scimProviders: many(scimProvider),
 }));
 
 export const walletAddressRelations = d.relations(walletAddress, ({ one }) => ({
@@ -211,6 +262,13 @@ export const walletAddressRelations = d.relations(walletAddress, ({ one }) => ({
 export const organizationRoleRelations = d.relations(organizationRole, ({ one }) => ({
   organization: one(organization, {
     fields: [organizationRole.organizationId],
+    references: [organization.id],
+  }),
+}));
+
+export const scimProviderRelations = d.relations(scimProvider, ({ one }) => ({
+  organization: one(organization, {
+    fields: [scimProvider.organizationId],
     references: [organization.id],
   }),
 }));

@@ -20,5 +20,8 @@ export const comment = OrgTable.make(DocumentsEntityIds.CommentId)(
     contentRich: pg.jsonb("content_rich"),
     isEdited: pg.boolean("is_edited").notNull().default(false),
   },
-  (t) => [pg.index("comment_discussion_idx").on(t.discussionId), pg.index("comment_user_idx").on(t.userId)]
+  (t) => [
+    pg.index("comment_discussion_idx").on(t.discussionId),
+      pg.index("comment_user_idx").on(t.userId)
+  ]
 );

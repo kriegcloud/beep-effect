@@ -5,7 +5,7 @@ import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 import { knowledgeSpace } from "./knowledgeSpace.table";
 
-const pageStatusPgEnum = BS.toPgEnum(PageStatus)("page_status_enum");
+export const pageStatusPgEnum = BS.toPgEnum(PageStatus)("page_status_enum");
 
 export const knowledgePage = OrgTable.make(DocumentsEntityIds.KnowledgePageId)(
   {

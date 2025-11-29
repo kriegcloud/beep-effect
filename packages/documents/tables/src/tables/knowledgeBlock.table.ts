@@ -6,7 +6,7 @@ import { OrgTable, user } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 import { knowledgePage } from "./knowledgePage.table";
 
-const blockTypePgEnum = BS.toPgEnum(BlockType)("block_type_enum");
+export const blockTypePgEnum = BS.toPgEnum(BlockType)("block_type_enum");
 
 export const knowledgeBlock = OrgTable.make(DocumentsEntityIds.KnowledgeBlockId)(
   {
