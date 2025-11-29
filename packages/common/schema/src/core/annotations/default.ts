@@ -18,7 +18,7 @@ import {
   DefaultFormValuesAnnotationId,
 } from "@beep/schema/core/annotations/default-form-values-annotations";
 import { $AnnotationsId } from "@beep/schema/internal";
-import type { UnsafeTypes } from "@beep/types";
+import type { UnsafeTypes, StringTypes } from "@beep/types";
 import type * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
@@ -30,7 +30,9 @@ import * as AST from "effect/SchemaAST";
 const { $DefaultId } = $AnnotationsId.compose("default");
 declare module "effect/Schema" {
   namespace Annotations {
+
     interface GenericSchema<A> extends Schema<A> {
+      [ScopesAnnotationId]?: Scopes
       [LabelAnnotationId]?: string;
       [BSFieldName]?: string;
       [BSCustomField]?: boolean;
@@ -74,6 +76,9 @@ declare module "effect/Schema" {
     }
   }
 }
+export const ScopesAnnotationId = Symbol.for("@beep/core-env/scopes");
+
+export type Scopes = ReadonlyArray<StringTypes.NonEmptyString>
 
 /**
  * Annotation symbol used to attach human-readable labels to schemas.

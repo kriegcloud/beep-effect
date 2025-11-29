@@ -27,6 +27,7 @@ import { AuthEmailService, SendResetPasswordEmailPayload, SendVerificationEmailP
 import { commonExtraFields } from "./internal";
 import { AllPlugins } from "./plugins";
 import type { AuthOptionsEffect, AuthServiceEffect, Opts } from "./types";
+import { AuthProviderNameValue } from "@beep/constants";
 
 const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
   const { db, drizzle } = yield* IamDb.IamDb;
@@ -130,6 +131,7 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
                 [provider]: {
                   clientId: Redacted.value(providerParams.clientId.value),
                   clientSecret: Redacted.value(providerParams.clientSecret.value),
+                  ...AuthProviderNameValue.configMap[provider],
                 },
               }
             : {}

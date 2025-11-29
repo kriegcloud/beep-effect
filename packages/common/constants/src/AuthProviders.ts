@@ -1,5 +1,5 @@
-import { invariant } from "@beep/invariant";
-import { BS } from "@beep/schema";
+import {invariant} from "@beep/invariant";
+import {BS} from "@beep/schema";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
@@ -18,6 +18,40 @@ export class AuthProviderNameValue extends BS.StringLiteralKit(
   title: "Auth Provider Name Value",
   description: "One of the supported social authentication providers.",
 }) {
+
+  static readonly configMap = {
+    github: {
+      prompt: "consent",
+      accessType: "offline",
+      scope: []
+    },
+    linkedin: {
+      prompt: "consent",
+      accessType: "offline",
+      scope: []
+    },
+    twitter: {
+      prompt: "consent",
+      accessType: "offline",
+      scope: []
+    },
+    discord: {
+      prompt: "consent",
+      accessType: "offline",
+      scope: []
+    },
+    google: {
+      prompt: "consent",
+      accessType: "offline",
+      scope: [
+        "https://mail.google.com/",
+        "https://www.googleapis.com/auth/gmail.modify",
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/userinfo.email",
+      ]
+    }
+  } as const;
+
   static readonly filter = (supportedAuthProviders: A.NonEmptyReadonlyArray<AuthProviderNameValue.Type>) =>
     F.pipe(
       AuthProviderNameValue.Options,
@@ -43,7 +77,8 @@ export declare namespace AuthProviderNameValue {
   export type Encoded = S.Schema.Type<typeof AuthProviderNameValue>;
 }
 
-export class TaggedAuthProviderNameValue extends AuthProviderNameValue.toTagged("name").Union {}
+export class TaggedAuthProviderNameValue extends AuthProviderNameValue.toTagged("name").Union {
+}
 
 export declare namespace TaggedAuthProviderNameValue {
   export type Type = S.Schema.Type<typeof TaggedAuthProviderNameValue>;
