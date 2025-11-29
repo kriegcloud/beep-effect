@@ -15,6 +15,7 @@
  * @category Documentation/Modules
  * @since 0.1.0
  */
+import type { UnsafeTypes } from "@beep/types";
 import { isUnsafeProperty } from "@beep/utils/guards";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
@@ -26,8 +27,8 @@ type PlainRecord = Record<PropertyKey, unknown>;
 
 type Simplify<T> = { [K in keyof T]: T[K] } & {};
 
-type IsArray<T> = T extends ReadonlyArray<any> ? true : false;
-type IsFunction<T> = T extends (...args: ReadonlyArray<any>) => unknown ? true : false;
+type IsArray<T> = T extends ReadonlyArray<UnsafeTypes.UnsafeAny> ? true : false;
+type IsFunction<T> = T extends (...args: ReadonlyArray<UnsafeTypes.UnsafeAny>) => unknown ? true : false;
 type IsPlainObject<T> = T extends object
   ? IsArray<T> extends true
     ? false

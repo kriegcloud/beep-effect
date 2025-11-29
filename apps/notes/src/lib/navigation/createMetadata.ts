@@ -5,12 +5,12 @@ import { merge } from "lodash";
 import type { Metadata } from "next";
 
 type MetadataGenerator = {
-  description?: string;
-  generateImage?: boolean;
-  image?: string;
-  path?: string;
-  title?: string;
-  titlePrefix?: string;
+  description?: undefined | string;
+  generateImage?: undefined | boolean;
+  image?: undefined | string;
+  path?: undefined | string;
+  title?: undefined | string;
+  titlePrefix?: undefined | string;
 } & Omit<Metadata, "description" | "title">;
 
 export const createMetadata = ({

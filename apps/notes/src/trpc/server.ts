@@ -3,8 +3,11 @@ import { auth } from "@beep/notes/components/auth/rsc/auth";
 import type { AppRouter } from "@beep/notes/server/api/root";
 import { createCaller } from "@beep/notes/server/api/root";
 import { createTRPCContext } from "@beep/notes/server/api/trpc";
+import type { AuthUser } from "@beep/notes/server/auth/getAuthUser";
+import type { AuthSession } from "@beep/notes/server/auth/lucia";
 import { createQueryClient } from "@beep/notes/trpc/query-client";
 import { createHydrationHelpers } from "@trpc/react-query/rsc";
+import type { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import { cookies, headers } from "next/headers";
 import { cache } from "react";
 
@@ -17,12 +20,26 @@ const createContext = cache(async () => {
   heads.set("x-trpc-source", "rsc");
   const { session, user } = await auth();
 
-  return createTRPCContext({
-    cookies: process.env.NODE_ENV === "production" ? undefined : (await cookies()).getAll(),
+  const contextOpts: {
+    readonly headers: Headers;
+    readonly session: AuthSession | null;
+    readonly user: AuthUser | null;
+    readonly cookies?: undefined | RequestCookie[];
+  } = {
     headers: heads,
     session,
     user,
-  });
+  };
+
+  if (process.env.NODE_ENV !== "production") {
+    const cooks = (await cookies()).getAll();
+    return createTRPCContext({
+      ...contextOpts,
+      cookies: cooks,
+    });
+  }
+
+  return createTRPCContext(contextOpts);
 });
 
 const getQueryClient = cache(createQueryClient);

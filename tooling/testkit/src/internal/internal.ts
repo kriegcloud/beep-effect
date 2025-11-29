@@ -15,6 +15,7 @@ import * as Schedule from "effect/Schedule";
 import * as Scope from "effect/Scope";
 import * as TestEnvironment from "effect/TestContext";
 import type * as TestServices from "effect/TestServices";
+import type { UnsafeAny } from "./types";
 
 const runPromise = <E, A>(effect: Effect.Effect<A, E>) =>
   Effect.gen(function* () {
@@ -43,40 +44,59 @@ const testOptions = (timeout?: number | { timeout?: number }) =>
 
 const makeTester = <R>(mapEffect: <A, E>(self: Effect.Effect<A, E, R>) => Effect.Effect<A, E, never>) => {
   const run =
-    <A, E>(self: (...args: Array<any>) => Effect.Effect<A, E, R>) =>
-    (...args: Array<any>) =>
+    <A, E>(self: (...args: Array<UnsafeAny>) => Effect.Effect<A, E, R>) =>
+    (...args: Array<UnsafeAny>) =>
       pipe(
         Effect.suspend(() => self(...args)),
         mapEffect,
         runTest
       );
 
-  const f = (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) =>
-    it(name, run(self), testOptions(timeout));
+  const f = (
+    name: string,
+    self: (...args: Array<UnsafeAny>) => Effect.Effect<UnsafeAny, UnsafeAny, R>,
+    timeout?: UnsafeAny
+  ) => it(name, run(self), testOptions(timeout));
 
-  const skip = (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) =>
-    it.skip(name, run(self), testOptions(timeout));
+  const skip = (
+    name: string,
+    self: (...args: Array<UnsafeAny>) => Effect.Effect<UnsafeAny, UnsafeAny, R>,
+    timeout?: UnsafeAny
+  ) => it.skip(name, run(self), testOptions(timeout));
 
   const skipIf =
-    (condition: unknown) => (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) =>
+    (condition: unknown) =>
+    (name: string, self: (...args: Array<UnsafeAny>) => Effect.Effect<UnsafeAny, UnsafeAny, R>, timeout?: UnsafeAny) =>
       condition ? skip(name, self, timeout) : f(name, self, timeout);
 
   const runIf =
-    (condition: unknown) => (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) =>
+    (condition: unknown) =>
+    (name: string, self: (...args: Array<UnsafeAny>) => Effect.Effect<UnsafeAny, UnsafeAny, R>, timeout?: UnsafeAny) =>
       condition ? f(name, self, timeout) : skip(name, self, timeout);
 
-  const only = (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) =>
-    it.only(name, run(self), testOptions(timeout));
+  const only = (
+    name: string,
+    self: (...args: Array<UnsafeAny>) => Effect.Effect<UnsafeAny, UnsafeAny, R>,
+    timeout?: UnsafeAny
+  ) => it.only(name, run(self), testOptions(timeout));
 
   const each =
-    (cases: ReadonlyArray<any>) =>
-    (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) => {
+    (cases: ReadonlyArray<UnsafeAny>) =>
+    (
+      name: string,
+      self: (...args: Array<UnsafeAny>) => Effect.Effect<UnsafeAny, UnsafeAny, R>,
+      timeout?: UnsafeAny
+    ) => {
       cases.forEach((testCase, index) => {
         it(`${name} [${index}]`, () => run(self)(testCase), testOptions(timeout));
       });
     };
 
-  const fails = (name: string, self: (...args: Array<any>) => Effect.Effect<any, any, R>, timeout?: any) =>
+  const fails = (
+    name: string,
+    self: (...args: Array<UnsafeAny>) => Effect.Effect<UnsafeAny, UnsafeAny, R>,
+    timeout?: UnsafeAny
+  ) =>
     it(
       name,
       async () => {
@@ -93,9 +113,9 @@ const makeTester = <R>(mapEffect: <A, E>(self: Effect.Effect<A, E, R>) => Effect
   // Simplified prop without FastCheck for now
   const prop = (
     name: string,
-    _arbitraries: any,
-    self: (...args: Array<any>) => Effect.Effect<any, any, R>,
-    timeout?: any
+    _arbitraries: UnsafeAny,
+    self: (...args: Array<UnsafeAny>) => Effect.Effect<UnsafeAny, UnsafeAny, R>,
+    timeout?: UnsafeAny
   ) => {
     // For now, just run the test once with empty properties
     return it(name, run(self), testOptions(timeout));
@@ -104,7 +124,12 @@ const makeTester = <R>(mapEffect: <A, E>(self: Effect.Effect<A, E, R>) => Effect
   return Object.assign(f, { each, fails, only, prop, runIf, skip, skipIf });
 };
 
-export const prop = (name: string, _arbitraries: any, self: (properties: any, ctx: any) => void, timeout?: any) => {
+export const prop = (
+  name: string,
+  _arbitraries: UnsafeAny,
+  self: (properties: UnsafeAny, ctx: UnsafeAny) => void,
+  timeout?: UnsafeAny
+) => {
   // Simplified prop without FastCheck for now
   return it(name, () => self({}, {}), testOptions(timeout));
 };
@@ -117,7 +142,7 @@ export const layer = <R, E>(
     readonly excludeTestServices?: boolean;
   }
 ) => {
-  return (...args: [name: string, f: (it: any) => void] | [f: (it: any) => void]) => {
+  return (...args: [name: string, f: (it: UnsafeAny) => void] | [f: (it: UnsafeAny) => void]) => {
     const excludeTestServices = options?.excludeTestServices ?? false;
     const withTestEnv = excludeTestServices
       ? (layer_ as Layer.Layer<R | TestServices.TestServices, E>)
@@ -137,7 +162,10 @@ export const layer = <R, E>(
         Effect.flatMap(runtimeEffect, (runtime) => effect.pipe(Effect.provide(runtime)))
       ),
       flakyTest,
-      layer: (nestedLayer: Layer.Layer<any, any, R>, options?: { readonly timeout?: Duration.DurationInput }) => {
+      layer: (
+        nestedLayer: Layer.Layer<UnsafeAny, UnsafeAny, R>,
+        options?: { readonly timeout?: Duration.DurationInput }
+      ) => {
         return layer(Layer.provideMerge(nestedLayer, withTestEnv), {
           ...options,
           excludeTestServices,
@@ -192,4 +220,4 @@ export const makeMethods = () => ({
 
 export const { effect, live, scoped, scopedLive } = makeMethods();
 
-export const describeWrapped = (name: string, f: (it: any) => void) => describe(name, () => f(makeMethods()));
+export const describeWrapped = (name: string, f: (it: UnsafeAny) => void) => describe(name, () => f(makeMethods()));

@@ -3,7 +3,6 @@
 import { useSession } from "@beep/notes/components/auth/useSession";
 import { COVER_GRADIENTS } from "@beep/notes/components/cover/cover-popover";
 import { BaseEditorKit } from "@beep/notes/registry/components/editor/editor-base-kit";
-
 import type { MyMentionElement } from "@beep/notes/registry/components/editor/plate-types";
 import { insertInlineElement } from "@beep/notes/registry/components/editor/transforms";
 import { useDebounce } from "@beep/notes/registry/hooks/use-debounce";
@@ -22,6 +21,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@beep/notes/registry/ui/tooltip";
 import type { RouterDocumentItem, RouterUserItem } from "@beep/notes/server/api/types";
 import { useTRPC } from "@beep/notes/trpc/react";
+import type { UnsafeTypes } from "@beep/types";
 import { DatePlugin } from "@platejs/date/react";
 import { MentionPlugin } from "@platejs/mention/react";
 import { useQuery } from "@tanstack/react-query";
@@ -92,14 +92,15 @@ export function MentionInputElement(props: PlateElementProps) {
           <DocumentComboboxGroup
             onDocumentHover={(name) => setPlaceholder(name)}
             onDocumentSelect={(document) => {
-              editor.tf.insertNodes<MyMentionElement>({
+              const mentionData: UnsafeTypes.UnsafeAny = {
                 key: `/${document.id}`,
                 children: [{ text: "" }],
-                coverImage: document.coverImage ?? undefined,
-                icon: document.icon ?? undefined,
                 type: MentionPlugin.key,
                 value: document.title!,
-              });
+              };
+              if (document.coverImage) mentionData.coverImage = document.coverImage;
+              if (document.icon) mentionData.icon = document.icon;
+              editor.tf.insertNodes<MyMentionElement>(mentionData);
               editor.tf.move({ unit: "offset" });
             }}
             search={search}
@@ -131,7 +132,6 @@ interface PeopleComboboxGroupProps {
   onUserSelect: (user: RouterUserItem) => void;
 }
 
-// eslint-disable-next-line perfectionist/sort-modules
 function PeopleComboboxGroup({ search: searchRaw, onUserHover, onUserSelect }: PeopleComboboxGroupProps) {
   const [cursor, setCursor] = useState<string | undefined>();
   const [allUsers, setAllUsers] = useState<RouterUserItem[]>([]);
@@ -170,7 +170,7 @@ function PeopleComboboxGroup({ search: searchRaw, onUserHover, onUserSelect }: P
           user.name?.toLowerCase().includes(search.toLowerCase()) ||
           user.email?.toLowerCase().includes(search.toLowerCase())
       );
-      setAllUsers(filteredUsers);
+      setAllUsers(filteredUsers as UnsafeTypes.UnsafeAny);
     }
   }, [apiData, cursor, search, session]);
 
@@ -228,11 +228,10 @@ function PeopleComboboxGroup({ search: searchRaw, onUserHover, onUserSelect }: P
   );
 }
 
-// eslint-disable-next-line perfectionist/sort-modules
 interface DocumentComboboxGroupProps {
-  search: string;
-  onDocumentHover: (title: string) => void;
-  onDocumentSelect: (document: RouterDocumentItem) => void;
+  readonly search: string;
+  readonly onDocumentHover: (title: string) => void;
+  readonly onDocumentSelect: (document: RouterDocumentItem) => void;
 }
 
 function DocumentComboboxGroup({ search: searchRaw, onDocumentHover, onDocumentSelect }: DocumentComboboxGroupProps) {
@@ -269,7 +268,7 @@ function DocumentComboboxGroup({ search: searchRaw, onDocumentHover, onDocumentS
       }
     } else {
       const filteredDocs = mockMentionDocuments.filter((doc) => doc.title.toLowerCase().includes(search.toLowerCase()));
-      setAllDocuments(filteredDocs as any);
+      setAllDocuments(filteredDocs as UnsafeTypes.UnsafeAny);
     }
   }, [apiData, cursor, search, session]);
 
@@ -494,7 +493,7 @@ function DocumentMentionElement(
   );
 }
 
-function MentionHoverCardContent(props: { element: MyMentionElement }) {
+function MentionHoverCardContent(props: { readonly element: MyMentionElement }) {
   const editor = useEditorRef();
   const { element } = props;
   const isGradient = element.coverImage && element.coverImage in COVER_GRADIENTS;
@@ -540,7 +539,6 @@ function MentionHoverCardContent(props: { element: MyMentionElement }) {
         }
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [document]);
 
   const previewEditor = useEditorPreview((document?.contentRich as Value | undefined)?.slice(0, 2) ?? []);
@@ -569,7 +567,7 @@ function MentionHoverCardContent(props: { element: MyMentionElement }) {
 
 function UserMentionElement(
   props: PlateElementProps<MyMentionElement> & {
-    prefix?: string;
+    readonly prefix?: string;
   }
 ) {
   const { children } = props;
@@ -583,9 +581,9 @@ function UserMentionElement(
       className={cn(
         "inline-block cursor-pointer align-baseline font-medium text-primary/65",
         !readOnly && "cursor-pointer",
-        (element.children[0] as any).bold === true && "font-bold",
-        (element.children[0] as any).italic === true && "italic",
-        (element.children[0] as any).underline === true && "underline"
+        (element.children[0] as UnsafeTypes.UnsafeAny).bold === true && "font-bold",
+        (element.children[0] as UnsafeTypes.UnsafeAny).italic === true && "italic",
+        (element.children[0] as UnsafeTypes.UnsafeAny).underline === true && "underline"
       )}
       attributes={{
         ...props.attributes,

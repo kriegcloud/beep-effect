@@ -3,6 +3,7 @@
 import { CursorOverlayKit } from "@beep/notes/registry/components/editor/plugins/cursor-overlay-kit";
 import { MarkdownKit } from "@beep/notes/registry/components/editor/plugins/markdown-kit";
 import { AIMenu } from "@beep/notes/registry/ui/ai-menu";
+import { AIAnchorElement, AILeaf } from "@beep/notes/registry/ui/ai-node";
 import { withAIBatch } from "@platejs/ai";
 import {
   AIChatPlugin,
@@ -18,7 +19,6 @@ import { type PlateEditor, usePluginOption } from "platejs/react";
 import type React from "react";
 import { useEffect } from "react";
 import { useStickToBottom } from "use-stick-to-bottom";
-import { AIAnchorElement, AILeaf } from "@/registry/ui/ai-node";
 
 import { useChat } from "../use-chat";
 

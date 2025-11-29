@@ -72,7 +72,7 @@ function Draggable(props: PlateElementProps) {
   const { isAboutToDrag, isDragging, nodeRef, previewRef, handleRef } = useDraggable({
     element,
     onDropHandler: (_, { dragItem }) => {
-      const id = (dragItem as { id: string[] | string }).id;
+      const id = (dragItem as { readonly id: string[] | string }).id;
 
       if (blockSelectionApi) {
         blockSelectionApi.add(id);
@@ -99,14 +99,12 @@ function Draggable(props: PlateElementProps) {
     if (!isDragging) {
       resetPreview();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDragging]);
 
   React.useEffect(() => {
     if (isAboutToDrag) {
       previewRef.current?.classList.remove("opacity-0");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAboutToDrag]);
 
   const [dragButtonTop, setDragButtonTop] = React.useState(0);
@@ -366,7 +364,12 @@ const DraggableInsertHandle = () => {
   );
 };
 
-const triggerComboboxNextBlock = (editor: PlateEditor, triggerText: string, at?: Path, insertAbove = false) => {
+const triggerComboboxNextBlock = (
+  editor: PlateEditor,
+  triggerText: string,
+  at?: undefined | Path,
+  insertAbove = false
+) => {
   let _at: Path | undefined;
 
   if (at) {
@@ -374,11 +377,13 @@ const triggerComboboxNextBlock = (editor: PlateEditor, triggerText: string, at?:
     _at = insertAbove ? slicedPath : PathApi.next(slicedPath);
   }
 
-  editor.tf.insertNodes(editor.api.create.block(), {
-    at: _at,
-    select: true,
-  });
-  editor.tf.insertText(triggerText);
+  if (_at !== undefined) {
+    editor.tf.insertNodes(editor.api.create.block(), {
+      at: _at,
+      select: true,
+    });
+    editor.tf.insertText(triggerText);
+  }
 };
 
 const createDragPreviewElements = (editor: PlateEditor, blocks: TElement[]): HTMLElement[] => {
@@ -484,6 +489,8 @@ const calculatePreviewTop = (
   const child = editor.api.toDOMNode(element)!;
   const editable = editor.api.toDOMNode(editor)!;
   const firstSelectedChild = blocks[0];
+
+  if (!firstSelectedChild) return 0;
 
   const firstDomNode = editor.api.toDOMNode(firstSelectedChild)!;
   // Get editor's top padding

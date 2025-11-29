@@ -1,12 +1,12 @@
 import { EditorKit } from "@beep/notes/components/editor/editor-kit-app";
-
+import { useObjectVersion } from "@beep/notes/hooks/useObjectVersion";
+import { BaseEditorKit } from "@beep/notes/registry/components/editor/editor-base-kit";
+import { Editor } from "@beep/notes/registry/ui/editor";
+import type { UnsafeTypes } from "@beep/types";
 import { computeDiff } from "@platejs/diff";
 import { NodeApi, type Value } from "platejs";
 import { createPlateEditor, Plate, usePlateEditor } from "platejs/react";
 import { memo, useMemo, useState } from "react";
-import { useObjectVersion } from "@/hooks/useObjectVersion";
-import { BaseEditorKit } from "@/registry/components/editor/editor-base-kit";
-import { Editor } from "@/registry/ui/editor";
 
 import { useResetEditorOnChange } from "../utils";
 import { ChunkPlugin } from "./chunk-plugin";
@@ -14,7 +14,7 @@ import { collapseBlocksWithoutDiff } from "./collapseBlocksWithoutDiff";
 import { DiffPlugin, hasDiff, textsAreComparable } from "./diff-plugin";
 
 // Workaround to ignore ids in the diff
-const removeIds = (nodes: any[]): any[] => {
+const removeIds = (nodes: UnsafeTypes.UnsafeAny[]): UnsafeTypes.UnsafeAny[] => {
   return nodes.map((node) => {
     const { id, ...rest } = node;
 
@@ -27,9 +27,9 @@ const removeIds = (nodes: any[]): any[] => {
 };
 
 export interface DiffViewerProps {
-  current: Value;
-  previous: Value | null;
-  showDiff?: boolean;
+  readonly current: Value;
+  readonly previous: Value | null;
+  readonly showDiff?: undefined | boolean;
 }
 
 export const DiffPlate = memo(({ current = [], previous = [], showDiff }: DiffViewerProps) => {
@@ -80,7 +80,7 @@ export const DiffPlate = memo(({ current = [], previous = [], showDiff }: DiffVi
   useResetEditorOnChange(
     {
       editor: editor,
-      value: collapsedDiffValue as any,
+      value: collapsedDiffValue as UnsafeTypes.UnsafeAny,
     },
     [key]
   );

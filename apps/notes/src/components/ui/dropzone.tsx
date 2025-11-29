@@ -3,6 +3,7 @@
 import { cn } from "@beep/notes/lib/utils";
 import { Button } from "@beep/notes/registry/ui/button";
 import { Spinner } from "@beep/notes/registry/ui/spinner";
+import type { UnsafeTypes } from "@beep/types";
 import type React from "react";
 import { type DropzoneOptions, useDropzone } from "react-dropzone";
 
@@ -28,9 +29,9 @@ export function FileCard({
   onRemove,
   ...props
 }: React.ComponentProps<"div"> & {
-  name: string;
-  onRemove: () => void;
-  loading?: boolean;
+  readonly name: string;
+  readonly onRemove: () => void;
+  readonly loading?: undefined | boolean;
 }) {
   return (
     <div className="group relative inline-block text-sm">
@@ -95,10 +96,10 @@ export function Dropzone({
 }: React.ComponentProps<"div"> & {
   message: string;
   onDrop: DropzoneOptions["onDrop"];
-  classNameContent?: string;
-  dragActiveMessage?: string;
+  classNameContent?: undefined | string;
+  dragActiveMessage?: undefined | string;
 }) {
-  const { getInputProps, getRootProps, isDragActive } = useDropzone({
+  const dropzoneConfig: UnsafeTypes.UnsafeAny = {
     accept: {
       "application/json": [".json"],
       "application/pdf": [".pdf"],
@@ -108,8 +109,11 @@ export function Dropzone({
       "text/plain": [".txt"],
     },
     multiple: true,
-    onDrop: onDrop,
-  });
+  };
+  if (onDrop) {
+    dropzoneConfig.onDrop = onDrop;
+  }
+  const { getInputProps, getRootProps, isDragActive } = useDropzone(dropzoneConfig);
 
   return (
     <Card

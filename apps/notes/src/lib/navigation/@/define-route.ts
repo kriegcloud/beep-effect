@@ -1,11 +1,11 @@
-export const defineRoute = <Schema extends { params?: {}; search?: {} }>(path: string) => {
+export const defineRoute = <Schema extends { params?: undefined | {}; search?: undefined | {} }>(path: string) => {
   type Params = Schema["params"] extends Record<string, any> ? Required<Schema["params"]> : {};
   type Search =
     Schema["search"] extends Record<string, any>
       ? { search: Required<Schema["search"]> }
-      : { search?: Schema["search"] };
+      : { search?: undefined | Schema["search"] };
 
-  return (paramsSearch?: Params & Search) => {
+  return (paramsSearch?: undefined | (Params & Search)) => {
     const { search, ...params } = paramsSearch ?? {};
     let result = path;
 

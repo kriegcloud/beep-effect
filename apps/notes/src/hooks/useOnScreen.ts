@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
  * Checks if the given element is currently visible on the screen using
  * Intersection Observer.
  */
-export const useOnScreen = (ref: React.RefObject<HTMLDivElement | undefined>, options?: IntersectionObserverInit) => {
+export const useOnScreen = (
+  ref: React.RefObject<HTMLDivElement | undefined>,
+  options?: undefined | IntersectionObserverInit
+) => {
   const [isIntersecting, setIntersecting] = useState(false);
 
   useEffect(() => {
@@ -25,7 +28,6 @@ export const useOnScreen = (ref: React.RefObject<HTMLDivElement | undefined>, op
     return () => {
       observer.disconnect();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref.current]);
 
   return isIntersecting;

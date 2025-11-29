@@ -5,6 +5,7 @@ import { cn } from "@beep/notes/lib/utils";
 import { Editor, EditorContainer } from "@beep/notes/registry/ui/editor";
 import { TocSidebar } from "@beep/notes/registry/ui/toc-sidebar";
 import { useDocumentQueryOptions } from "@beep/notes/trpc/hooks/query-options";
+import type { UnsafeTypes } from "@beep/types";
 import { AIChatPlugin } from "@platejs/ai/react";
 import { YjsPlugin } from "@platejs/yjs/react";
 import { useQuery } from "@tanstack/react-query";
@@ -14,10 +15,10 @@ import { useMemo } from "react";
 import { TEXT_STYLE_ITEMS } from "../navbar/document-menu";
 import { Skeleton } from "../ui/skeleton";
 
-export const PlateEditor = ({ mode }: { mode?: "print" }) => {
+export const PlateEditor = ({ mode }: { mode?: undefined | "print" }) => {
   const queryOptions = useDocumentQueryOptions();
 
-  const contentRef = usePluginOption(AIChatPlugin, "contentRef") as any;
+  const contentRef = usePluginOption(AIChatPlugin, "contentRef") as UnsafeTypes.UnsafeAny;
 
   const { data: toc = true, isLoading } = useQuery({
     ...queryOptions,

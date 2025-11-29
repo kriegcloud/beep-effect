@@ -167,7 +167,7 @@ export type PaletteColorKey = (typeof colorKeys.palette)[number];
 const btnColors: PaletteColorKey[] = ["primary", "secondary", "info", "success", "warning", "error"];
 const btnCustomVariants = btnColors.map((color) => ({
   props: { variant: "soft", color: color as ButtonProps["color"] },
-  style: (style: any) => {
+  style: (style: UnsafeTypes.UnsafeAny) => {
     const theme = style.theme as Theme;
 
     return {

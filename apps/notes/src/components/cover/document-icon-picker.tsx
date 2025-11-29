@@ -12,8 +12,8 @@ import { useState } from "react";
 import { useAuthGuard } from "../auth/useAuthGuard";
 
 interface IconPickerProps {
-  children: React.ReactNode;
-  asChild?: boolean;
+  readonly children: React.ReactNode;
+  readonly asChild?: undefined | boolean;
 }
 
 export const DocumentIconPicker = ({ children }: IconPickerProps) => {
@@ -43,7 +43,6 @@ export const DocumentIconPicker = ({ children }: IconPickerProps) => {
   const onRemove = () => {
     updateDocument.mutate({
       id,
-      icon: null,
     });
     setOpen(false);
   };

@@ -1,20 +1,16 @@
-import { MainScreen } from "@beep/notes/components/screens/main-screen";
-import { StaticLayout } from "@beep/notes/components/screens/static-layout";
-import { routes } from "@beep/notes/lib/navigation/routes";
-import { LinkButton } from "@beep/notes/registry/ui/button";
+import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <StaticLayout>
-      <MainScreen>
-        <div className="space-y-4 pt-32 text-center">
-          <h2 className="font-heading text-6xl">404</h2>
-          <p className="text-subtle-foreground">Couldn't find this page</p>
-          <LinkButton variant="outline" href={routes.home()}>
-            Back to home
-          </LinkButton>
-        </div>
-      </MainScreen>
-    </StaticLayout>
+    <div className="flex h-screen flex-col items-center justify-center gap-4">
+      <h1 className="text-6xl font-bold">404</h1>
+      <p className="text-muted-foreground">Page not found</p>
+      <Link
+        href="/"
+        className="rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+      >
+        Back to home
+      </Link>
+    </div>
   );
 }

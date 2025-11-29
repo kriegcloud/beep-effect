@@ -1,5 +1,6 @@
 "use client";
 
+import type { UnsafeTypes } from "@beep/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@beep/ui/components/avatar";
 import { Button } from "@beep/ui/components/button";
 import { discussionPlugin, type TDiscussion } from "@beep/ui/components/editor/plugins/discussion-kit";
@@ -290,8 +291,8 @@ export const useResolveSuggestion = (suggestionNodes: NodeEntry<TElement | TSugg
 
       let newText = "";
       let text = "";
-      let properties: any = {};
-      let newProperties: any = {};
+      let properties: UnsafeTypes.UnsafeAny = {};
+      let newProperties: UnsafeTypes.UnsafeAny = {};
 
       // overlapping suggestion
       entries.forEach(([node]) => {

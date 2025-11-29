@@ -13,7 +13,7 @@ import { RangeApi, type SlateEditor } from "platejs";
  *   {content}
  *   </tools>
  */
-export const tag = (tag: string, content?: string | null) => {
+export const tag = (tag: string, content?: undefined | string | null) => {
   if (!content) return "";
 
   return [`<${tag}>`, content, `</${tag}>`].join("\n");
@@ -25,7 +25,7 @@ export const tag = (tag: string, content?: string | null) => {
  * @example
  *   <tools>{content}</tools>
  */
-export const inlineTag = (tag: string, content?: string | null) => {
+export const inlineTag = (tag: string, content?: undefined | string | null) => {
   if (!content) return "";
 
   return [`<${tag}>`, content, `</${tag}>`].join("");
@@ -47,18 +47,18 @@ export const list = (items: string[] | undefined) => {
 };
 
 export type StructuredPromptSections = {
-  backgroundData?: string;
-  examples?: string[] | string;
-  history?: string;
-  outputFormatting?: string;
-  prefilledResponse?: string;
-  question?: string;
-  rules?: string;
-  task?: string;
-  taskContext?: string;
-  thinking?: string;
-  tone?: string;
-  tools?: string;
+  backgroundData?: undefined | string;
+  examples?: undefined | string[] | string;
+  history?: undefined | string;
+  outputFormatting?: undefined | string;
+  prefilledResponse?: undefined | string;
+  question?: undefined | string;
+  rules?: undefined | string;
+  task?: undefined | string;
+  taskContext?: undefined | string;
+  thinking?: undefined | string;
+  tone?: undefined | string;
+  tools?: undefined | string;
 };
 
 /**
@@ -164,7 +164,10 @@ export function getTextFromMessage(message: UIMessage): string {
  * Format conversation history for prompts. Extracts text from messages and
  * formats as ROLE: text.
  */
-export function formatTextFromMessages(messages: ChatMessage[], options?: { limit?: number }): string {
+export function formatTextFromMessages(
+  messages: ChatMessage[],
+  options?: undefined | { limit?: undefined | number }
+): string {
   const historyMessages = options?.limit ? messages.slice(-options.limit) : messages;
 
   return historyMessages

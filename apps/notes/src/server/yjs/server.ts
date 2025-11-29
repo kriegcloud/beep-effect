@@ -33,7 +33,10 @@ const redisOptions: RedisOptions | undefined =
       }
     : undefined;
 
-const markReadOnly = (context: CollabContext, connectionConfig?: onAuthenticatePayload["connectionConfig"]) => {
+const markReadOnly = (
+  context: CollabContext,
+  connectionConfig?: undefined | onAuthenticatePayload["connectionConfig"]
+) => {
   context.readOnly = true;
 
   if (connectionConfig) {
@@ -172,7 +175,6 @@ collabServer
 
     console.log(`[collab] listening on ws://${hostForLog}:${addr.port}${YJS_PATH}`);
   })
-  // eslint-disable-next-line unicorn/prefer-top-level-await
   .catch((error) => {
     console.error("[collab] failed to start server", error);
 

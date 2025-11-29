@@ -30,7 +30,7 @@ const useTailwindContext = () => {
   return context;
 };
 
-export const TailwindProvider = ({ children }: { children: React.ReactNode }) => {
+export const TailwindProvider = ({ children }: { readonly children: React.ReactNode }) => {
   const mounted = useMounted();
   const isDesktop = useMediaQuery("(min-width: 768px)") || !mounted;
 

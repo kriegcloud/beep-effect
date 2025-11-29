@@ -1,14 +1,15 @@
+import type { UnsafeTypes } from "@beep/types";
 import { useRef } from "react";
 
 import { type ExternalToast, toast } from "sonner";
 
 export type UseNetworkToastOptions = {
-  data?: ExternalToast;
-  error?: React.ReactNode;
-  errorData?: ExternalToast;
-  loading?: React.ReactNode;
-  loadingData?: ExternalToast;
-  success?: React.ReactNode;
+  data?: undefined | ExternalToast;
+  error?: undefined | React.ReactNode;
+  errorData?: undefined | ExternalToast;
+  loading?: undefined | React.ReactNode;
+  loadingData?: undefined | ExternalToast;
+  success?: undefined | React.ReactNode;
 };
 
 export const useAsyncToasts = ({
@@ -28,10 +29,10 @@ export const useAsyncToasts = ({
         toastIdRef.current = null;
       }
     },
-    onError: ({ message }: { message?: string } = {}) => {
+    onError: ({ message }: { message?: undefined | string } = {}) => {
       const messageStr = message ? ` ${message}` : "";
 
-      toast.error(`${error as any}.${messageStr}`.trim(), {
+      toast.error(`${error as UnsafeTypes.UnsafeAny}.${messageStr}`.trim(), {
         id: toastIdRef.current!,
         duration: 2000,
         ...dataHook,
@@ -39,7 +40,7 @@ export const useAsyncToasts = ({
       });
     },
     onMutate: () => {
-      toastIdRef.current = toast.loading(loading as any, {
+      toastIdRef.current = toast.loading(loading as UnsafeTypes.UnsafeAny, {
         id: toastIdRef.current!,
         duration: 10_000,
         ...dataHook,
@@ -47,10 +48,10 @@ export const useAsyncToasts = ({
       });
     },
     onSuccess: (
-      // successData?: {
-      //   message?: React.ReactNode;
+      // successData?: undefined |  {
+      //   message?: undefined |  React.ReactNode;
       // } & ExternalToast
-      successData?: any
+      successData?: undefined | UnsafeTypes.UnsafeAny
     ) => {
       toast.success(successData?.message ?? success, {
         id: toastIdRef.current!,

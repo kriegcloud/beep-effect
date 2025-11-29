@@ -11,7 +11,7 @@ import {
   isMultiBlocks,
 } from "./utils";
 
-export function getChooseToolPrompt({ messages }: { messages: ChatMessage[] }) {
+export function getChooseToolPrompt({ messages }: { readonly messages: ChatMessage[] }) {
   return buildStructuredPrompt({
     examples: [
       // GENERATE

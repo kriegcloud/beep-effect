@@ -1,17 +1,18 @@
 "use client";
 
 import { useAuthUser } from "@beep/notes/components/auth/useAuthUser";
+import { useCurrentUser } from "@beep/notes/components/auth/useCurrentUser";
+import { templateList } from "@beep/notes/components/editor/utils/useTemplateDocument";
+import { Card, CardContent, CardHeader, CardTitle } from "@beep/notes/components/ui/card";
+import { Icons } from "@beep/notes/components/ui/icons";
+import { WithSkeleton } from "@beep/notes/components/ui/skeleton";
+import { UserAvatar } from "@beep/notes/components/user-avatar";
+import { routes } from "@beep/notes/lib/navigation/routes";
+import { useTRPC } from "@beep/notes/trpc/react";
+import type { UnsafeTypes } from "@beep/types";
 import { useQuery } from "@tanstack/react-query";
 import { ClockIcon, FileTextIcon } from "lucide-react";
 import Link from "next/link";
-import { useCurrentUser } from "@/components/auth/useCurrentUser";
-import { templateList } from "@/components/editor/utils/useTemplateDocument";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Icons } from "@/components/ui/icons";
-import { WithSkeleton } from "@/components/ui/skeleton";
-import { UserAvatar } from "@/components/user-avatar";
-import { routes } from "@/lib/navigation/routes";
-import { useTRPC } from "@/trpc/react";
 
 export function Home() {
   const user = useAuthUser();
@@ -28,7 +29,7 @@ export function Home() {
   let documents = data?.documents;
 
   if (!user) {
-    documents = templateList as any;
+    documents = templateList as UnsafeTypes.UnsafeAny;
   }
   if (isLoading && !documents) {
     documents = Array.from({ length: 9 }, (_, index) => ({
@@ -39,7 +40,7 @@ export function Home() {
       title: "Loading...",
       updatedAt: new Date(),
       value: null,
-    }));
+    })) as UnsafeTypes.UnsafeAny;
   }
   if (!documents?.length) {
     return (

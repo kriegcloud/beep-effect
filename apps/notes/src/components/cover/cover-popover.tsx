@@ -7,6 +7,7 @@ import { Input } from "@beep/notes/registry/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@beep/notes/registry/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@beep/notes/registry/ui/tabs";
 import { useUpdateDocumentMutation } from "@beep/notes/trpc/hooks/document-hooks";
+import type { UnsafeTypes } from "@beep/types";
 import type React from "react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -25,7 +26,7 @@ export const COVER_GRADIENTS = {
   twilight: "bg-linear-to-br from-indigo-500 via-purple-500 to-pink-500",
 };
 
-export function CoverPopover({ children }: { children: React.ReactNode }) {
+export function CoverPopover({ children }: { readonly children: React.ReactNode }) {
   const documentId = useDocumentId();
   const updateDocument = useUpdateDocumentMutation();
   const [open, setOpen] = useState(false);
@@ -51,7 +52,7 @@ export function CoverPopover({ children }: { children: React.ReactNode }) {
   const { openFilePicker } = useFilePicker({
     accept: ["image/*"],
     multiple: false,
-    onFilesSelected: (data: any) => {
+    onFilesSelected: (data: UnsafeTypes.UnsafeAny) => {
       if ("plainFiles" in data && data.plainFiles) {
         const file = data.plainFiles[0];
         if (file) {

@@ -1,12 +1,12 @@
 import { env } from "@beep/notes/env";
 
 export type DevUser = {
-  isAdmin?: boolean;
-  isSubscribed?: boolean;
-  isSuperAdmin?: boolean;
+  isAdmin?: undefined | boolean;
+  isSubscribed?: undefined | boolean;
+  isSuperAdmin?: undefined | boolean;
 };
 
-export const getDevUser = (devUserStr?: string) => {
+export const getDevUser = (devUserStr?: undefined | string) => {
   if (env.NODE_ENV === "production" || !devUserStr) return null;
 
   const devUser = JSON.parse(devUserStr);

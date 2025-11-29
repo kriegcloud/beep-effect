@@ -58,35 +58,51 @@ export function BlockMenu({
   store,
 }: Pick<MenuProps, "open" | "placement" | "store"> &
   Pick<MenuContentProps, "animateZoom" | "getAnchorRect"> & {
-    id?: string;
-    children?: React.ReactNode;
+    id?: undefined | string;
+    children?: undefined | React.ReactNode;
   }) {
   const editor = useEditorRef();
   const [open, setOpen] = React.useState(false);
 
-  return (
-    <Menu
-      open={openProp ?? open}
-      onOpenChange={(open) => {
-        setOpen(open);
+  const menuProps: Record<string, unknown> = {
+    open: openProp ?? open,
+    onOpenChange: (open: boolean) => {
+      setOpen(open);
 
-        if (!open) {
-          editor.getApi(BlockMenuPlugin).blockMenu.hide();
-        } else if (id) {
-          editor.getApi(BlockMenuPlugin).blockMenu.show(id);
-        }
-      }}
-      placement={placement}
-      store={store}
-      trigger={children ? <MenuTrigger>{children}</MenuTrigger> : undefined}
-    >
-      <MenuContent
-        animateZoom={animateZoom}
-        autoFocusOnHide={false}
-        getAnchorRect={getAnchorRect}
-        preventBodyScroll={!children}
-        portal
-      >
+      if (!open) {
+        editor.getApi(BlockMenuPlugin).blockMenu.hide();
+      } else if (id) {
+        editor.getApi(BlockMenuPlugin).blockMenu.show(id);
+      }
+    },
+  };
+
+  if (placement !== undefined) {
+    menuProps.placement = placement;
+  }
+  if (store !== undefined) {
+    menuProps.store = store;
+  }
+  if (children) {
+    menuProps.trigger = <MenuTrigger>{children}</MenuTrigger>;
+  }
+
+  const contentProps: Record<string, unknown> = {
+    autoFocusOnHide: false,
+    preventBodyScroll: !children,
+    portal: true,
+  };
+
+  if (animateZoom !== undefined) {
+    contentProps.animateZoom = animateZoom;
+  }
+  if (getAnchorRect !== undefined) {
+    contentProps.getAnchorRect = getAnchorRect;
+  }
+
+  return (
+    <Menu {...(menuProps as any)}>
+      <MenuContent {...(contentProps as any)}>
         <ComboboxContent>
           <BlockMenuInput
             onHide={() => {
@@ -182,7 +198,7 @@ export const blockMenuItems = {
     label: "Ask AI",
     shortcut: "⌘+J",
     value: "askAI",
-    onSelect: ({ editor }) => {
+    onSelect: ({ editor }: { editor: PlateEditor }) => {
       editor.getApi(AIChatPlugin).aiChat.show();
     },
   },
@@ -191,8 +207,9 @@ export const blockMenuItems = {
     keywords: ["alt"],
     label: "Caption",
     value: "caption",
-    onSelect: ({ editor }) => {
+    onSelect: ({ editor }: { editor: PlateEditor }) => {
       const firstBlock = editor.getApi(BlockSelectionPlugin).blockSelection.getNodes()[0];
+      if (!firstBlock) return;
       showCaption(editor, firstBlock[0] as TElement);
       editor.getApi(BlockSelectionPlugin).blockSelection.clear();
     },
@@ -209,7 +226,8 @@ export const blockMenuItems = {
         editor.getTransforms(commentPlugin).comment.setDraft();
         editor.tf.collapse();
         editor.setOption(commentPlugin, "activeId", getDraftCommentKey());
-        editor.setOption(commentPlugin, "commentingBlock", editor.selection?.focus.path.slice(0, 1) ?? null);
+        const focusPath = editor.selection?.focus.path.slice(0, 1);
+        editor.setOption(commentPlugin, "commentingBlock", focusPath ?? null);
       }, 0);
     },
   },
@@ -219,7 +237,7 @@ export const blockMenuItems = {
     label: "Delete",
     shortcut: "Del or Ctrl+D",
     value: "delete",
-    onSelect: ({ editor }) => {
+    onSelect: ({ editor }: { editor: PlateEditor }) => {
       editor.getTransforms(BlockSelectionPlugin).blockSelection.removeNodes();
     },
   },
@@ -230,10 +248,8 @@ export const blockMenuItems = {
     label: "Duplicate",
     shortcut: "⌘+D",
     value: "duplicate",
-    onSelect: ({ editor }) => {
-      editor
-        .getTransforms(BlockSelectionPlugin)
-        .blockSelection.duplicate(editor.getApi(BlockSelectionPlugin).blockSelection.getNodes());
+    onSelect: ({ editor }: { editor: PlateEditor }) => {
+      editor.getTransforms(BlockSelectionPlugin).blockSelection.duplicate();
 
       editor.getApi(BlockSelectionPlugin).blockSelection.focus();
     },
@@ -322,27 +338,38 @@ function BlockMenuItems() {
       {menuGroups.map((group, index) => (
         <MenuGroup key={index} label={group.label}>
           {group.items?.map((item: Action) => {
-            const menuItem = blockMenuItems[item.value!];
+            if (!item.value) return null;
+            const menuItem = blockMenuItems[item.value as keyof typeof blockMenuItems];
+            if (!menuItem) return null;
 
-            if (menuItem.component) {
+            if ("component" in menuItem && menuItem.component) {
               const ItemComponent = menuItem.component;
 
               return <ItemComponent key={item.value} />;
             }
 
-            return (
-              <MenuItem
-                key={item.value}
-                onClick={() => {
-                  menuItem.onSelect?.({ editor });
+            if ("onSelect" in menuItem) {
+              const hasShortcut = "shortcut" in menuItem;
+              const hasFocusEditor = "focusEditor" in menuItem;
 
-                  if (menuItem.focusEditor !== false) editor.tf.focus();
-                }}
-                label={menuItem.label}
-                icon={menuItem.icon}
-                shortcut={menuItem.shortcut}
-              />
-            );
+              return (
+                <MenuItem
+                  key={item.value}
+                  onClick={() => {
+                    menuItem.onSelect?.({ editor });
+
+                    if (!hasFocusEditor || menuItem.focusEditor !== false) {
+                      editor.tf.focus();
+                    }
+                  }}
+                  label={menuItem.label}
+                  icon={menuItem.icon}
+                  shortcut={hasShortcut ? menuItem.shortcut : undefined}
+                />
+              );
+            }
+
+            return null;
           })}
         </MenuGroup>
       ))}
@@ -382,15 +409,18 @@ function ColorMenuItem() {
     <>
       {menuGroups.map((menuGroup) => (
         <MenuGroup key={menuGroup.group} label={menuGroup.label}>
-          {menuGroup.items?.map((item, index) => (
-            <MenuItem
-              key={index}
-              checked={menuGroup.group === GROUP.COLOR ? color === item.value : background === item.value}
-              onClick={() => handleColorChange(menuGroup.group!, item.value!)}
-              label={item.label}
-              icon={<ColorIcon value={item.value!} group={menuGroup.group!} />}
-            />
-          ))}
+          {menuGroup.items?.map((item, index) => {
+            if (!item.value || !menuGroup.group) return null;
+            return (
+              <MenuItem
+                key={index}
+                checked={menuGroup.group === GROUP.COLOR ? color === item.value : background === item.value}
+                onClick={() => handleColorChange(menuGroup.group!, item.value!)}
+                label={item.label}
+                icon={<ColorIcon value={item.value} group={menuGroup.group} />}
+              />
+            );
+          })}
         </MenuGroup>
       ))}
     </>
@@ -422,18 +452,21 @@ function AlignMenuItem() {
 
   const content = (
     <>
-      {menuItems.map((item) => (
-        <MenuItem
-          key={item.value}
-          checked={value === item.value}
-          onClick={() => {
-            editor.getTransforms(BlockSelectionPlugin).blockSelection.setNodes({ align: item.value });
-            editor.tf.focus();
-          }}
-          label={item.label}
-          icon={item.icon}
-        />
-      ))}
+      {menuItems.map((item) => {
+        if (!item.value) return null;
+        return (
+          <MenuItem
+            key={item.value}
+            checked={value === item.value}
+            onClick={() => {
+              editor.getTransforms(BlockSelectionPlugin).blockSelection.setNodes({ align: item.value });
+              editor.tf.focus();
+            }}
+            label={item.label}
+            icon={item.icon}
+          />
+        );
+      })}
     </>
   );
 
@@ -476,19 +509,22 @@ function TurnIntoMenuItem() {
 
   const content = (
     <>
-      {menuItems.map((item) => (
-        <MenuItem
-          key={item.value}
-          checked={value === item.value}
-          onClick={() => handleTurnInto(item.value!)}
-          label={item.label}
-          icon={
-            <div className="flex size-5 items-center justify-center rounded-sm border border-foreground/15 bg-white p-0.5 text-subtle-foreground [&_svg]:size-3">
-              {item.icon}
-            </div>
-          }
-        />
-      ))}
+      {menuItems.map((item) => {
+        if (!item.value) return null;
+        return (
+          <MenuItem
+            key={item.value}
+            checked={value === item.value}
+            onClick={() => item.value && handleTurnInto(item.value)}
+            label={item.label}
+            icon={
+              <div className="flex size-5 items-center justify-center rounded-sm border border-foreground/15 bg-white p-0.5 text-subtle-foreground [&_svg]:size-3">
+                {item.icon}
+              </div>
+            }
+          />
+        );
+      })}
     </>
   );
 

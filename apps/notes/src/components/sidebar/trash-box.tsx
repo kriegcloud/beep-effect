@@ -14,6 +14,7 @@ import {
   CommandList,
 } from "@beep/notes/registry/ui/command";
 import { api, useTRPC } from "@beep/notes/trpc/react";
+import type { UnsafeTypes } from "@beep/types";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -68,7 +69,7 @@ export function TrashBox() {
     });
   };
 
-  const onRemove = (document: any) => {
+  const onRemove = (document: UnsafeTypes.UnsafeAny) => {
     const promise = deleteDocument.mutateAsync({ id: document.id });
 
     toast.promise(promise, {

@@ -1,10 +1,10 @@
 "use client";
 
-import { Cover } from "@/components/cover/cover";
-import { DocumentToolbar } from "@/components/cover/document-toolbar";
-import { PlateEditor } from "@/components/editor/plate-editor";
-import { useTemplateDocument } from "@/components/editor/utils/useTemplateDocument";
-import { LinkButton } from "@/registry/ui/button";
+import { Cover } from "@beep/notes/components/cover/cover";
+import { DocumentToolbar } from "@beep/notes/components/cover/document-toolbar";
+import { PlateEditor } from "@beep/notes/components/editor/plate-editor";
+import { useTemplateDocument } from "@beep/notes/components/editor/utils/useTemplateDocument";
+import { LinkButton } from "@beep/notes/registry/ui/button";
 
 export function PublicDocumentClient() {
   const template = useTemplateDocument();

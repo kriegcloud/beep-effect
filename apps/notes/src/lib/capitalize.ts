@@ -1,10 +1,10 @@
-export function capitalize(str?: string | null) {
+export function capitalize(str?: undefined | string | null) {
   if (!str || typeof str !== "string") return "";
 
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase().replace("_", " ");
 }
 
-export function toPascalCase(str?: string | null) {
+export function toPascalCase(str?: undefined | string | null) {
   if (!str || typeof str !== "string") return "";
 
   return str

@@ -12,8 +12,8 @@ import { Checkbox } from "./checkbox";
 const config: Record<
   string,
   {
-    Li: React.FC<PlateElementProps>;
-    Marker: React.FC<PlateElementProps>;
+    readonly Li: React.FC<PlateElementProps>;
+    readonly Marker: React.FC<PlateElementProps>;
   }
 > = {
   todo: {

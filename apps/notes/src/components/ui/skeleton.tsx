@@ -11,7 +11,7 @@ export const WithSkeleton = ({
   className,
   isLoading,
   ...props
-}: React.ComponentProps<"div"> & { isLoading: boolean }) => {
+}: React.ComponentProps<"div"> & { readonly isLoading: boolean }) => {
   return (
     <div className={cn("relative w-fit", className)} {...props}>
       {children}

@@ -182,18 +182,16 @@ const nextConfig = {
         hostname: "res.cloudinary.com",
         protocol: "https",
       },
-      {
-        protocol: "https",
-        hostname: `${process.env.NEXT_PUBLIC_STATIC_URL}`.replace("https://", ""),
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: process.env.NEXT_PUBLIC_STATIC_URL?.replace("https://", "") ?? "",
-        port: "",
-        pathname: "/**",
-      },
+      ...(process.env.NEXT_PUBLIC_STATIC_URL
+        ? [
+            {
+              protocol: "https" as const,
+              hostname: process.env.NEXT_PUBLIC_STATIC_URL.replace("https://", ""),
+              port: "",
+              pathname: "/**",
+            },
+          ]
+        : []),
     ],
     // Cost
     unoptimized: true,

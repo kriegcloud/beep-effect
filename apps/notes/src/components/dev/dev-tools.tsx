@@ -3,10 +3,11 @@
 import { useDevState } from "@beep/notes/components/dev/dev-provider";
 import { Label } from "@beep/notes/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@beep/notes/components/ui/select";
-import { Sheet, SheetContent, SheetTrigger } from "@beep/notes/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@beep/notes/components/ui/sheet";
 import { cn } from "@beep/notes/lib/utils";
 import { Button, type ButtonProps } from "@beep/notes/registry/ui/button";
 import { Input } from "@beep/notes/registry/ui/input";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
 
 export function DevTools({ children, className, ...props }: ButtonProps) {
@@ -29,6 +30,9 @@ export function DevTools({ children, className, ...props }: ButtonProps) {
       </SheetTrigger>
 
       <SheetContent className="pl-12" animate={false} side="bottom">
+        <VisuallyHidden>
+          <SheetTitle>Dev Tools</SheetTitle>
+        </VisuallyHidden>
         <div className="space-y-4">
           <div className="flex w-[100px] flex-col gap-2">
             <Label htmlFor="role">Role</Label>

@@ -396,13 +396,13 @@ export class HttpResponseError extends S.TaggedError<HttpResponseError>(
           reason: error.reason,
           request: {
             hash: error.request.hash,
-            headers: Inspectable.redact(error.request.headers) as any,
+            headers: Inspectable.redact(error.request.headers) as UnsafeTypes.UnsafeAny,
             method: error.request.method,
             url: BS.URLString.make(error.request.url),
             urlParams: error.request.urlParams,
           },
           response: {
-            headers: Inspectable.redact(error.response.headers) as any,
+            headers: Inspectable.redact(error.response.headers) as UnsafeTypes.UnsafeAny,
             status: error.response.status,
           },
           body: Inspectable.format(body),

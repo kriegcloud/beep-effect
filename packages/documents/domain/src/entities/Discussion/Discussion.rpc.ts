@@ -1,7 +1,9 @@
 import { DocumentsEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { User } from "@beep/shared-domain/entities";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcGroup from "@effect/rpc/RpcGroup";
 import * as S from "effect/Schema";
+import * as Comment from "../Comment";
 import * as Errors from "./Discussion.errors.ts";
 import { Model } from "./Discussion.model.ts";
 
@@ -13,24 +15,12 @@ const MAX_DOCUMENT_CONTENT_LENGTH = 1000;
  */
 export const DiscussionWithComments = S.Struct({
   ...Model.json.fields,
-  user: S.Struct({
-    id: SharedEntityIds.UserId,
-    name: S.NullOr(S.String),
-    profileImageUrl: S.NullOr(S.String),
-  }),
+  user: User.Model.select.pick("image", "name", "id", "_rowId"),
   comments: S.Array(
     S.Struct({
-      id: DocumentsEntityIds.CommentId,
-      contentRich: S.NullOr(S.Unknown),
-      createdAt: S.DateTimeUtc,
-      discussionId: DocumentsEntityIds.DiscussionId,
-      isEdited: S.Boolean,
-      updatedAt: S.DateTimeUtc,
-      user: S.Struct({
-        id: SharedEntityIds.UserId,
-        name: S.NullOr(S.String),
-        profileImageUrl: S.NullOr(S.String),
-      }),
+      user: User.Model.select.pick("image", "name", "id", "_rowId"),
+      ...Comment.Model.select.pick("id", "_rowId", "contentRich", "createdAt", "discussionId", "isEdited", "updatedAt")
+        .fields,
     })
   ),
 });

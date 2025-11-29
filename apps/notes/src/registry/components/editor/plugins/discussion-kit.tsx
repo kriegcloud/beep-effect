@@ -5,12 +5,12 @@ import type { TComment } from "@beep/notes/registry/ui/comment";
 import { createPlatePlugin } from "platejs/react";
 
 export interface TDiscussion {
-  id: string;
-  comments: TComment[];
-  createdAt: Date;
-  isResolved: boolean;
-  userId: string;
-  documentContent?: string;
+  readonly id: string;
+  readonly comments: TComment[];
+  readonly createdAt: Date;
+  readonly isResolved: boolean;
+  readonly userId: string;
+  readonly documentContent?: undefined | string;
 }
 
 const discussionsData: TDiscussion[] = [

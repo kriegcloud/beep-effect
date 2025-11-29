@@ -72,7 +72,7 @@ export function DropdownMenuSubTrigger({
   inset,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.SubTrigger> & {
-  inset?: boolean;
+  readonly inset?: undefined | boolean;
 }) {
   return (
     <DropdownMenuPrimitive.SubTrigger
@@ -111,7 +111,7 @@ export function DropdownMenuContent({
   portal,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Content> & {
-  portal?: boolean;
+  readonly portal?: undefined | boolean;
 }) {
   const content = (
     <DropdownMenuPrimitive.Content
@@ -169,7 +169,7 @@ export function DropdownMenuRadioItem({
   hideIcon,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.RadioItem> & {
-  hideIcon?: boolean;
+  readonly hideIcon?: undefined | boolean;
 }) {
   return (
     <DropdownMenuPrimitive.RadioItem
@@ -197,7 +197,7 @@ export function DropdownMenuLabel({
   inset,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Label> & {
-  inset?: boolean;
+  readonly inset?: undefined | boolean;
 }) {
   return <DropdownMenuPrimitive.Label className={cn(dropdownMenuLabelVariants({ inset }), className)} {...props} />;
 }

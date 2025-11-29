@@ -2,6 +2,7 @@ import { describe, expect } from "bun:test";
 import { ContractError } from "@beep/contract";
 import { BS } from "@beep/schema";
 import { effect } from "@beep/testkit";
+import type { UnsafeTypes } from "@beep/types";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -48,7 +49,7 @@ describe("ContractError taxonomy", () => {
           reason: "InvalidUrl",
           description: "bad url",
           request: { ...baseRequest, headers: { Authorization: "secret" } },
-        } as any,
+        } as UnsafeTypes.UnsafeAny,
       });
 
       expect(requestError).toBeInstanceOf(ContractError.HttpRequestError);
@@ -119,7 +120,7 @@ describe("ContractError taxonomy", () => {
       const parseError = Exit.match(parseExit, {
         onSuccess: () => undefined,
         onFailure: (cause) => O.getOrUndefined(Cause.failureOption(cause)),
-      }) as any;
+      }) as UnsafeTypes.UnsafeAny;
       const malformed = ContractError.MalformedOutput.fromParseError({
         module: "mod",
         method: "parse",

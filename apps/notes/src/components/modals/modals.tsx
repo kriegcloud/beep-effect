@@ -8,22 +8,27 @@ import { createPushModal } from "@beep/notes/components/modals/push-modal";
 import { useAppSet, useAppState, useAppValue } from "@beep/notes/components/providers/app-provider";
 import { AlertDialog } from "@beep/notes/components/ui/alert-dialog";
 import { useMounted } from "@beep/notes/registry/hooks/use-mounted";
+import type { UnsafeTypes } from "@beep/types";
 import { useEffect } from "react";
 
 import { ExportDialog } from "../navbar/export-dialog";
 import { ImportDialog } from "../navbar/import-dialog";
 import { SettingsModal } from "../settings/settings-modal";
+import { modalEmitter } from "./modal-controller";
 
-export const { ModalProvider, popAllModals, popModal, pushModal, useOnPushModal } = createPushModal({
+export { popAllModals, popModal, pushModal, replaceWithModal } from "./modal-controller";
+
+export const { ModalProvider, useOnPushModal } = createPushModal({
   modals: {
-    Confirm: { Component: ConfirmModal, Wrapper: AlertDialog as any },
-    Discard: { Component: DiscardModal, Wrapper: AlertDialog as any },
+    Confirm: { Component: ConfirmModal, Wrapper: AlertDialog as UnsafeTypes.UnsafeAny },
+    Discard: { Component: DiscardModal, Wrapper: AlertDialog as UnsafeTypes.UnsafeAny },
     Export: ExportDialog,
     Import: ImportDialog,
     Login: LoginModal,
     Settings: SettingsModal,
     VersionHistory: VersionHistoryModal,
   },
+  emitter: modalEmitter,
 });
 
 export const StaticModalProvider = () => {

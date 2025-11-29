@@ -1,9 +1,8 @@
 import { cn } from "@beep/notes/lib/utils";
+import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import type { LucideProps } from "lucide-react";
 import type React from "react";
-
-import type { IconProps } from "./icons";
 
 export const iconVariants = cva("", {
   defaultVariants: {
@@ -32,6 +31,17 @@ export const iconVariants = cva("", {
     },
   },
 });
+
+export type IconProps = {
+  /**
+   * All icons must be associated with an label, either next to the icon (using
+   * sr-only) or on an interactive parent element (using aria-label). The latter
+   * case is preferred (e.g. inside a button). If the icon does not add any new
+   * information, it can be safely hidden.
+   */
+  label?: undefined | string;
+} & LucideProps &
+  VariantProps<typeof iconVariants>;
 
 export type IconFC = React.FC<IconProps>;
 

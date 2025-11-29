@@ -1,5 +1,3 @@
-/* eslint-disable unicorn/import-style */
-/* eslint-disable unicorn/no-process-exit */
 // sync plate packages
 const { exec } = require("node:child_process");
 const fs = require("node:fs/promises");
@@ -122,5 +120,4 @@ async function main() {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
 main();

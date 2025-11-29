@@ -6,7 +6,7 @@ export const useAutoScroll = (
   {
     enabled = true,
   }: {
-    enabled?: boolean;
+    enabled?: undefined | boolean;
   } = {}
 ) => {
   // canScrollCheck after 100ms

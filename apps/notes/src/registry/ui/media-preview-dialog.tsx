@@ -83,14 +83,16 @@ export function ImagePreview() {
           <Button {...zoomInProps} disabled={zoomInDisabled} tooltip="Zoom in">
             <Plus className="size-4" />
           </Button>
-          <Button
-            onClick={() => {
-              void downloadFile(currentPreview!.url, currentPreview!.id!);
-            }}
-            tooltip="Download"
-          >
-            <CircleArrowDown className="size-4" />
-          </Button>
+          {currentPreview && (
+            <Button
+              onClick={() => {
+                void downloadFile(currentPreview.url, currentPreview.id ?? "download");
+              }}
+              tooltip="Download"
+            >
+              <CircleArrowDown className="size-4" />
+            </Button>
+          )}
           <Button {...closeProps} tooltip="Close">
             <Minimize2 className="size-4" />
           </Button>

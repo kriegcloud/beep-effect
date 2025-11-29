@@ -1,12 +1,14 @@
 "use client";
 
 import { Dialog } from "@beep/notes/registry/ui/dialog";
+import type { UnsafeTypes } from "@beep/types";
 
-import mitt, { type Handler } from "mitt";
+import type { Emitter, Handler } from "mitt";
+import mitt from "mitt";
 import type React from "react";
 import { Suspense, useEffect, useState } from "react";
 
-interface CreatePushModalOptions<T> {
+interface CreatePushModalOptions<T, TEmitter extends Emitter<EventHandlers<keyof T>> | undefined = undefined> {
   modals: {
     [key in keyof T]:
       | React.ComponentType<T[key]>
@@ -15,37 +17,41 @@ interface CreatePushModalOptions<T> {
           Wrapper: React.ComponentType<{
             children: React.ReactNode;
             open: boolean | undefined;
-            onOpenChange: ((open?: boolean) => void) | undefined;
-            defaultOpen?: boolean;
+            onOpenChange: ((open?: undefined | boolean) => void) | undefined;
+            defaultOpen?: undefined | boolean;
           }>;
         };
   };
+  emitter?: undefined | TEmitter;
 }
 
-export function createPushModal<T>({ modals }: CreatePushModalOptions<T>) {
+type EventHandlers<TModalKeys> = {
+  change: { name: TModalKeys; open: boolean; props: Record<string, unknown> };
+  pop: { name?: undefined | TModalKeys };
+  popAll: undefined;
+  push: {
+    name: TModalKeys;
+    props: Record<string, unknown>;
+  };
+  replace: {
+    name: TModalKeys;
+    props: Record<string, unknown>;
+  };
+};
+
+export function createPushModal<T, TEmitter extends Emitter<EventHandlers<keyof T>> | undefined = undefined>({
+  modals,
+  emitter: externalEmitter,
+}: CreatePushModalOptions<T, TEmitter>) {
   type Modals = typeof modals;
   type ModalKeys = keyof Modals;
-
-  type EventHandlers = {
-    change: { name: ModalKeys; open: boolean; props: Record<string, unknown> };
-    pop: { name?: ModalKeys };
-    popAll: undefined;
-    push: {
-      name: ModalKeys;
-      props: Record<string, unknown>;
-    };
-    replace: {
-      name: ModalKeys;
-      props: Record<string, unknown>;
-    };
-  };
 
   interface StateItem {
     key: string;
     name: ModalKeys;
     open: boolean;
     props: Record<string, unknown>;
-    closedAt?: number;
+    closedAt?: undefined | number;
   }
 
   const filterGarbage = (item: StateItem): boolean => {
@@ -56,7 +62,7 @@ export function createPushModal<T>({ modals }: CreatePushModalOptions<T>) {
     return Date.now() - item.closedAt < 300;
   };
 
-  const emitter = mitt<EventHandlers>();
+  const emitter = externalEmitter ?? mitt<EventHandlers<ModalKeys>>();
 
   function ModalProvider() {
     const [state, setState] = useState<StateItem[]>([]);
@@ -81,7 +87,7 @@ export function createPushModal<T>({ modals }: CreatePushModalOptions<T>) {
     }, [state]);
 
     useEffect(() => {
-      const pushHandler: Handler<EventHandlers["push"]> = ({ name, props }) => {
+      const pushHandler: Handler<EventHandlers<ModalKeys>["push"]> = ({ name, props }) => {
         emitter.emit("change", { name, open: true, props });
         setState((p) =>
           [
@@ -95,7 +101,7 @@ export function createPushModal<T>({ modals }: CreatePushModalOptions<T>) {
           ].filter(filterGarbage)
         );
       };
-      const replaceHandler: Handler<EventHandlers["replace"]> = ({ name, props }) => {
+      const replaceHandler: Handler<EventHandlers<ModalKeys>["replace"]> = ({ name, props }) => {
         setState((p) => {
           // find last item to replace
           const last = p.findLast((item) => item.open);
@@ -132,7 +138,7 @@ export function createPushModal<T>({ modals }: CreatePushModalOptions<T>) {
         });
       };
 
-      const popHandler: Handler<EventHandlers["pop"]> = ({ name }) => {
+      const popHandler: Handler<EventHandlers<ModalKeys>["pop"]> = ({ name }) => {
         setState((items) => {
           // Find last index
           const index =
@@ -154,7 +160,7 @@ export function createPushModal<T>({ modals }: CreatePushModalOptions<T>) {
         });
       };
 
-      const popAllHandler: Handler<EventHandlers["popAll"]> = () => {
+      const popAllHandler: Handler<EventHandlers<ModalKeys>["popAll"]> = () => {
         setState((items) => items.map((item) => ({ ...item, closedAt: Date.now(), open: false })));
       };
       emitter.on("push", pushHandler);
@@ -190,7 +196,7 @@ export function createPushModal<T>({ modals }: CreatePushModalOptions<T>) {
               }}
             >
               <Suspense>
-                <Component {...(item.props as any)} />
+                <Component {...(item.props as UnsafeTypes.UnsafeAny)} />
               </Suspense>
             </Root>
           );
@@ -227,7 +233,7 @@ export function createPushModal<T>({ modals }: CreatePushModalOptions<T>) {
     });
   };
 
-  const popModal = (name?: StateItem["name"]) =>
+  const popModal = (name?: undefined | StateItem["name"]) =>
     emitter.emit("pop", {
       name,
     });
@@ -249,14 +255,18 @@ export function createPushModal<T>({ modals }: CreatePushModalOptions<T>) {
 
   const popAllModals = () => emitter.emit("popAll");
 
-  type EventCallback<T extends ModalKeys> = (open: boolean, props: GetComponentProps<Modals[T]>, name?: T) => void;
+  type EventCallback<T extends ModalKeys> = (
+    open: boolean,
+    props: GetComponentProps<Modals[T]>,
+    name?: undefined | T
+  ) => void;
 
   const onPushModal = <T extends ModalKeys>(name: T | "*", callback: EventCallback<T>) => {
-    const fn: Handler<EventHandlers["change"]> = (payload) => {
+    const fn: Handler<EventHandlers<ModalKeys>["change"]> = (payload) => {
       if (payload.name === name) {
         callback(payload.open, payload.props as GetComponentProps<Modals[T]>, payload.name as T);
       } else if (name === "*") {
-        callback(payload.open, payload.props as any, payload.name as T);
+        callback(payload.open, payload.props as UnsafeTypes.UnsafeAny, payload.name as T);
       }
     };
     emitter.on("change", fn);

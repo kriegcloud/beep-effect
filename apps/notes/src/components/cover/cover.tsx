@@ -11,7 +11,12 @@ import { DocumentBanner } from "../navbar/document-banner";
 import { PublishedBanner } from "../navbar/published-banner";
 import { COVER_GRADIENTS, CoverPopover } from "./cover-popover";
 
-export function Cover({ preview }: { preview?: boolean; url?: string | null }) {
+export function Cover({
+  preview,
+}: {
+  readonly preview?: undefined | boolean;
+  readonly url?: undefined | string | null;
+}) {
   const queryOptions = useDocumentQueryOptions();
 
   const { data: coverImage } = useQuery({

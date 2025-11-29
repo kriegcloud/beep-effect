@@ -1,10 +1,10 @@
 import { isTemplateDocument } from "@beep/notes/components/editor/utils/useTemplateDocument";
 import { nid } from "@beep/notes/lib/nid";
 import { prisma } from "@beep/notes/server/db";
+import { exact } from "@beep/utils/struct";
 import { TRPCError } from "@trpc/server";
+import * as S from "effect/Schema";
 import { NodeApi } from "platejs";
-import { z } from "zod";
-
 import { protectedProcedure } from "../middlewares/procedures";
 import { ratelimitMiddleware } from "../middlewares/ratelimitMiddleware";
 import { createRouter } from "../trpc";
@@ -16,9 +16,11 @@ const MAX_ICON_LENGTH = 100;
 export const documentMutations = {
   archive: protectedProcedure
     .input(
-      z.object({
-        id: z.string(),
-      })
+      S.decodeUnknownSync(
+        S.Struct({
+          id: S.String,
+        })
+      )
     )
     .mutation(async ({ ctx, input }) => {
       await prisma.document.update({
@@ -35,11 +37,13 @@ export const documentMutations = {
   create: protectedProcedure
     .use(ratelimitMiddleware("document/create"))
     .input(
-      z.object({
-        contentRich: z.any().optional(),
-        parentDocumentId: z.string().optional(),
-        title: z.string().max(MAX_TITLE_LENGTH, "Title is too long").optional(),
-      })
+      S.decodeUnknownSync(
+        S.Struct({
+          contentRich: S.optional(S.Any),
+          parentDocumentId: S.optional(S.String),
+          title: S.optional(S.String.pipe(S.maxLength(MAX_TITLE_LENGTH))),
+        })
+      )
     )
     .mutation(async ({ ctx, input }) => {
       const content = input.contentRich
@@ -56,23 +60,28 @@ export const documentMutations = {
         });
       }
 
+      const createData = {
+        id: nid(),
+        contentRich: input.contentRich,
+        parentDocumentId: input.parentDocumentId ?? null,
+        userId: ctx.userId,
+        title: input.title,
+      };
+      if (input.title !== undefined) createData.title = input.title;
+
       return await prisma.document.create({
-        data: {
-          id: nid(),
-          contentRich: input.contentRich,
-          parentDocumentId: input.parentDocumentId ?? null,
-          title: input.title,
-          userId: ctx.userId,
-        },
+        data: createData,
         select: { id: true },
       });
     }),
 
   delete: protectedProcedure
     .input(
-      z.object({
-        id: z.string(),
-      })
+      S.decodeUnknownSync(
+        S.Struct({
+          id: S.String,
+        })
+      )
     )
     .mutation(async ({ ctx, input }) => {
       await prisma.document.delete({
@@ -85,9 +94,11 @@ export const documentMutations = {
 
   restore: protectedProcedure
     .input(
-      z.object({
-        id: z.string(),
-      })
+      S.decodeUnknownSync(
+        S.Struct({
+          id: S.String,
+        })
+      )
     )
     .mutation(async ({ ctx, input }) => {
       await prisma.document.update({
@@ -103,20 +114,22 @@ export const documentMutations = {
 
   update: protectedProcedure
     .input(
-      z.object({
-        id: z.string(),
-        content: z.string().max(MAX_CONTENT_LENGTH, "Content is too long").optional(),
-        contentRich: z.any().optional(),
-        coverImage: z.string().max(500).optional(),
-        fullWidth: z.boolean().optional(),
-        icon: z.string().max(MAX_ICON_LENGTH).nullish(),
-        isPublished: z.boolean().optional(),
-        lockPage: z.boolean().optional(),
-        smallText: z.boolean().optional(),
-        textStyle: z.enum(["DEFAULT", "SERIF", "MONO"]).optional(),
-        title: z.string().max(MAX_TITLE_LENGTH, "Title is too long").optional(),
-        toc: z.boolean().optional(),
-      })
+      S.decodeUnknownSync(
+        S.Struct({
+          id: S.String,
+          content: S.optional(S.String.pipe(S.maxLength(MAX_CONTENT_LENGTH))),
+          contentRich: S.optional(S.Any),
+          coverImage: S.optional(S.String.pipe(S.maxLength(500))),
+          fullWidth: S.optional(S.Boolean),
+          icon: S.optional(S.String.pipe(S.maxLength(MAX_ICON_LENGTH))),
+          isPublished: S.optional(S.Boolean),
+          lockPage: S.optional(S.Boolean),
+          smallText: S.optional(S.Boolean),
+          textStyle: S.optional(S.Literal("DEFAULT", "SERIF", "MONO")),
+          title: S.optional(S.String.pipe(S.maxLength(MAX_TITLE_LENGTH))),
+          toc: S.optional(S.Boolean),
+        })
+      )
     )
     .mutation(async ({ ctx, input }) => {
       const content = input.contentRich
@@ -133,20 +146,10 @@ export const documentMutations = {
         });
       }
 
+      const updateData = exact(input);
+
       await prisma.document.update({
-        data: {
-          content: input.content,
-          contentRich: input.contentRich,
-          coverImage: input.coverImage,
-          fullWidth: input.fullWidth,
-          icon: input.icon,
-          isPublished: input.isPublished,
-          lockPage: input.lockPage,
-          smallText: input.smallText,
-          textStyle: input.textStyle,
-          title: input.title,
-          toc: input.toc,
-        },
+        data: updateData,
         where: {
           id: input.id,
           userId: ctx.userId,
@@ -159,9 +162,11 @@ export const documentRouter = createRouter({
   ...documentMutations,
   document: protectedProcedure
     .input(
-      z.object({
-        id: z.string(),
-      })
+      S.decodeUnknownSync(
+        S.Struct({
+          id: S.String,
+        })
+      )
     )
     .query(async ({ ctx, input }) => {
       const document = await prisma.document.findUnique({
@@ -182,15 +187,16 @@ export const documentRouter = createRouter({
           toc: true,
           updatedAt: true,
         },
-        where: {
-          id: isTemplateDocument(input.id) ? undefined : input.id,
-          userId_templateId: isTemplateDocument(input.id)
-            ? {
+        where: isTemplateDocument(input.id)
+          ? {
+              userId_templateId: {
                 templateId: input.id,
                 userId: ctx.userId,
-              }
-            : undefined,
-        },
+              },
+            }
+          : {
+              id: input.id,
+            },
       });
 
       return {
@@ -200,18 +206,19 @@ export const documentRouter = createRouter({
 
   documents: protectedProcedure
     .input(
-      z.object({
-        cursor: z.string().optional(),
-        limit: z.number().min(1).max(100).optional(),
-        parentDocumentId: z.string().optional(),
-        search: z.string().optional(),
-      })
+      S.decodeUnknownSync(
+        S.Struct({
+          cursor: S.optional(S.String),
+          limit: S.optional(S.Number.pipe(S.greaterThan(1), S.lessThan(100))),
+          parentDocumentId: S.optional(S.String),
+          search: S.optional(S.String),
+        })
+      )
     )
     .query(async ({ ctx, input }) => {
       const { cursor, limit, parentDocumentId, search } = input;
 
-      const documents = await prisma.document.findMany({
-        cursor: cursor ? { id: cursor } : undefined,
+      const findManyOptions: any = {
         orderBy: {
           updatedAt: "desc",
         },
@@ -223,7 +230,6 @@ export const documentRouter = createRouter({
           title: true,
           updatedAt: true,
         },
-        take: limit ? limit + 1 : undefined,
         where: {
           isArchived: false,
           parentDocumentId: parentDocumentId ?? null,
@@ -237,7 +243,11 @@ export const documentRouter = createRouter({
               }
             : {}),
         },
-      });
+      };
+      if (cursor) findManyOptions.cursor = { id: cursor };
+      if (limit) findManyOptions.take = limit + 1;
+
+      const documents = await prisma.document.findMany(findManyOptions);
 
       let nextCursor: typeof cursor | undefined;
 
@@ -253,9 +263,11 @@ export const documentRouter = createRouter({
     }),
   trash: protectedProcedure
     .input(
-      z.object({
-        q: z.string().optional(),
-      })
+      S.decodeUnknownSync(
+        S.Struct({
+          q: S.String.pipe(S.optional),
+        })
+      )
     )
     .query(async ({ ctx, input }) => {
       const documents = await prisma.document.findMany({

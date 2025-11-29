@@ -1,7 +1,8 @@
 import { honoApp } from "@beep/notes/server/hono";
+import type { UnsafeTypes } from "@beep/types";
 import { handle } from "hono/vercel";
 
-const handleAny = handle as any;
+const handleAny = handle as UnsafeTypes.UnsafeAny;
 
 export const GET = handleAny(honoApp);
 

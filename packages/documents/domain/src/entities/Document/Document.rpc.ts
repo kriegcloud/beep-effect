@@ -2,7 +2,6 @@ import { DocumentsEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcGroup from "@effect/rpc/RpcGroup";
 import * as S from "effect/Schema";
-import { TextStyle } from "../../value-objects/TextStyle.ts";
 import * as Errors from "./Document.errors.ts";
 import { Model } from "./Document.model.ts";
 
@@ -10,9 +9,7 @@ import { Model } from "./Document.model.ts";
  * Search result schema for document search operations.
  */
 export const SearchResult = S.Struct({
-  id: DocumentsEntityIds.DocumentId,
-  title: S.NullOr(S.String),
-  content: S.NullOr(S.String),
+  ...Model.select.pick("id", "_rowId", "title", "content").fields,
   rank: S.Number,
 });
 
@@ -119,24 +116,25 @@ export class Rpcs extends RpcGroup.make(
    * Update Document - Update document content and settings.
    */
   Rpc.make("update", {
-    payload: {
-      id: DocumentsEntityIds.DocumentId,
-      // Content fields
-      title: S.optional(S.String.pipe(S.maxLength(256))),
-      content: S.optional(S.String.pipe(S.maxLength(1_000_000))),
-      contentRich: S.optional(S.Unknown),
-      yjsSnapshot: S.optional(S.Uint8ArrayFromBase64),
-      // Display settings
-      coverImage: S.optional(S.NullOr(S.String.pipe(S.maxLength(500)))),
-      icon: S.optional(S.NullOr(S.String.pipe(S.maxLength(100)))),
-      fullWidth: S.optional(S.Boolean),
-      smallText: S.optional(S.Boolean),
-      textStyle: S.optional(TextStyle),
-      toc: S.optional(S.Boolean),
-      // State flags
-      lockPage: S.optional(S.Boolean),
-      isPublished: S.optional(S.Boolean),
-    },
+    payload: Model.update,
+    // payload: {
+    //   id: DocumentsEntityIds.DocumentId,
+    //   // Content fields
+    //   title: S.optional(S.String.pipe(S.maxLength(256))),
+    //   content: S.optional(S.String.pipe(S.maxLength(1_000_000))),
+    //   contentRich: S.optional(S.Unknown),
+    //   yjsSnapshot: S.optional(S.Uint8ArrayFromBase64),
+    //   // Display settings
+    //   coverImage: S.optional(S.NullOr(S.String.pipe(S.maxLength(500)))),
+    //   icon: S.optional(S.NullOr(S.String.pipe(S.maxLength(100)))),
+    //   fullWidth: S.optional(S.Boolean),
+    //   smallText: S.optional(S.Boolean),
+    //   textStyle: S.optional(TextStyle),
+    //   toc: S.optional(S.Boolean),
+    //   // State flags
+    //   lockPage: S.optional(S.Boolean),
+    //   isPublished: S.optional(S.Boolean),
+    // },
     success: Model.json,
     error: Errors.Errors,
   }),

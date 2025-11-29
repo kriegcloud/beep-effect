@@ -51,11 +51,11 @@ Object.values(ratelimits).forEach((ratelimit) => {
 export type RatelimitKey = keyof typeof ratelimits;
 
 export type RatelimitOptions = {
-  limiters?: RatelimitConfig["limiter"][] | Record<string, RatelimitConfig["limiter"][]>;
-  message?: string;
-  prefix?: string;
+  limiters?: undefined | RatelimitConfig["limiter"][] | Record<string, RatelimitConfig["limiter"][]>;
+  message?: undefined | string;
+  prefix?: undefined | string;
 } & Omit<RatelimitConfig, "limiter" | "redis"> & {
-    limiter?: RatelimitConfig["limiter"];
+    limiter?: undefined | RatelimitConfig["limiter"];
   };
 
 export const getRatelimitResponse = async (
@@ -131,9 +131,9 @@ export const getUserRatelimit = async ({
   ip,
   user,
 }: {
-  user: { id: string; isAdmin?: boolean; isPro?: boolean } | null;
-  key?: RatelimitKey;
-  ip?: string | null;
+  user: { id: string; isAdmin?: undefined | boolean; isPro?: undefined | boolean } | null;
+  key?: undefined | RatelimitKey;
+  ip?: undefined | string | null;
 }) => {
   if (!user) {
     return getRatelimitResponse(key ?? "public", ip ?? "127.0.0.1", "public");

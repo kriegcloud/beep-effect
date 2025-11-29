@@ -8,7 +8,6 @@
       "dependsOn": ["^build"],
       "inputs": [
         "$TURBO_DEFAULT$",
-        "!.eslintrc.cjs",
         "!.env.example",
         ".env.production.local",
         ".env.local",

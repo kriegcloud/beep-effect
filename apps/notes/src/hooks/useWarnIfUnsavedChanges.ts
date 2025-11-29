@@ -4,7 +4,7 @@ import type { NavigateOptions } from "next/dist/shared/lib/app-router-context.sh
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-export const useWarnIfUnsavedChanges = (options: { enabled?: boolean; router?: boolean }) => {
+export const useWarnIfUnsavedChanges = (options: { enabled?: undefined | boolean; router?: undefined | boolean }) => {
   const router = useRouter();
 
   const handleAnchorClick = (e: MouseEvent) => {
@@ -73,7 +73,7 @@ export const useWarnIfUnsavedChanges = (options: { enabled?: boolean; router?: b
 
     const originalPush = router.push;
 
-    router.push = (url: string, opt?: NavigateOptions) => {
+    router.push = (url: string, opt?: undefined | NavigateOptions) => {
       if (options.enabled) {
         const confirmLeave = window.confirm("Changes you made may not be saved.");
 

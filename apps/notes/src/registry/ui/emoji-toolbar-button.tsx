@@ -28,10 +28,10 @@ export function EmojiPopover({
   isOpen,
   setIsOpen,
 }: {
-  children: ReactNode;
-  control: ReactNode;
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
+  readonly children: ReactNode;
+  readonly control: ReactNode;
+  readonly isOpen: boolean;
+  readonly setIsOpen: (open: boolean) => void;
 }) {
   return (
     <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
@@ -75,7 +75,7 @@ export function EmojiPicker({
       <EmojiPickerNavigation
         onClick={handleCategoryClick}
         emojiLibrary={emojiLibrary}
-        focusedCategory={focusedCategory}
+        {...(focusedCategory ? { focusedCategory } : {})}
         i18n={i18n}
         icons={icons}
       />
@@ -93,7 +93,7 @@ export function EmojiPicker({
         settings={settings}
         visibleCategories={visibleCategories}
       />
-      <EmojiPickerPreview emoji={emoji} hasFound={hasFound} i18n={i18n} isSearching={isSearching} />
+      <EmojiPickerPreview {...(emoji ? { emoji } : {})} hasFound={hasFound} i18n={i18n} isSearching={isSearching} />
     </div>
   );
 }
@@ -105,10 +105,10 @@ const EmojiButton = memo(
     onMouseOver,
     onSelect,
   }: {
-    emoji: Emoji;
-    index: number;
-    onMouseOver: (emoji?: Emoji) => void;
-    onSelect: (emoji: Emoji) => void;
+    readonly emoji: Emoji;
+    readonly index: number;
+    readonly onMouseOver: (emoji?: undefined | Emoji) => void;
+    readonly onSelect: (emoji: Emoji) => void;
   }) => {
     return (
       <button
@@ -116,7 +116,7 @@ const EmojiButton = memo(
         onClick={() => onSelect(emoji)}
         onMouseEnter={() => onMouseOver(emoji)}
         onMouseLeave={() => onMouseOver()}
-        aria-label={emoji.skins[0].native}
+        aria-label={emoji.skins[0]?.native}
         data-index={index}
         tabIndex={-1}
         type="button"
@@ -130,7 +130,7 @@ const EmojiButton = memo(
           }}
           data-emoji-set="native"
         >
-          {emoji.skins[0].native}
+          {emoji.skins[0]?.native}
         </span>
       </button>
     );
@@ -329,7 +329,7 @@ function EmojiPreview({ emoji }: Pick<UseEmojiPickerType, "emoji">) {
             '"Apple Color Emoji", "Segoe UI Emoji", NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", EmojiSymbols',
         }}
       >
-        {emoji?.skins[0].native}
+        {emoji?.skins[0]?.native}
       </div>
       <div className="overflow-hidden pl-2">
         <div className="truncate text-sm">{emoji?.name}</div>

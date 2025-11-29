@@ -12,7 +12,7 @@ import { BlockMenu } from "./block-menu";
 import { Button, type ButtonProps } from "./button";
 import { useContextMenu } from "./menu";
 
-export function BlockContextMenu({ children }: { children: React.ReactNode }) {
+export function BlockContextMenu({ children }: { readonly children: React.ReactNode }) {
   const { api, editor } = useEditorPlugin(BlockMenuPlugin);
   const anchorRect = usePluginOption(BlockMenuPlugin, "position");
   const openId = usePluginOption(BlockMenuPlugin, "openId");

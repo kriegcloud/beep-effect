@@ -90,7 +90,6 @@ export function useElementRect<T extends HTMLElement>(
     window.addEventListener("resize", updateRect, { passive: true });
     window.addEventListener("scroll", updateRect, { capture: true });
 
-    // eslint-disable-next-line consistent-return
     return () => {
       resizeObserver.disconnect();
       window.removeEventListener("resize", updateRect);

@@ -8,10 +8,17 @@ type SetStateActionWithReset<Value> = ((prev: Value) => Value | typeof RESET) | 
 export function atomWithStorage<Value>(
   key: string,
   initialValue: Value,
-  storage?: SyncStorage<Value>,
-  options?: {
-    getOnInit?: boolean;
-  }
+  storage?: undefined | SyncStorage<Value>,
+  options?:
+    | undefined
+    | {
+        getOnInit?: undefined | boolean;
+      }
 ): WritableAtom<Value, [SetStateActionWithReset<Value>], void> {
-  return _atomWithStorage(key, initialValue, storage, options);
+  // Build options conditionally to satisfy exactOptionalPropertyTypes
+  const opts: { getOnInit?: boolean } = {};
+  if (options?.getOnInit !== undefined) {
+    opts.getOnInit = options.getOnInit;
+  }
+  return _atomWithStorage(key, initialValue, storage, Object.keys(opts).length > 0 ? opts : undefined) as any;
 }

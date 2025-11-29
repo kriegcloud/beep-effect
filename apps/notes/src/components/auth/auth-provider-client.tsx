@@ -7,8 +7,8 @@ import { createAtomStore } from "jotai-x";
 import { useEffect } from "react";
 
 export type AuthStore = {
-  session: AuthSession | null;
-  user: AuthUser | null;
+  readonly session: AuthSession | null;
+  readonly user: AuthUser | null;
 };
 
 const initialState: Nullable<AuthStore> = {

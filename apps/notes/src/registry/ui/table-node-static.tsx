@@ -1,10 +1,8 @@
+import { cn } from "@beep/notes/lib/utils";
 import { BaseTablePlugin } from "@platejs/table";
-
 import type { TTableCellElement, TTableElement } from "platejs";
 import { SlateElement, type SlateElementProps } from "platejs/static";
 import type * as React from "react";
-
-import { cn } from "@/lib/utils";
 
 export function TableElementStatic(props: SlateElementProps<TTableElement>) {
   const { disableMarginLeft } = props.editor.getOptions(BaseTablePlugin);

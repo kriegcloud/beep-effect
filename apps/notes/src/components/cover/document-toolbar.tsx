@@ -15,7 +15,7 @@ import { useAuthGuard } from "../auth/useAuthGuard";
 import { getTemplateDocument } from "../editor/utils/useTemplateDocument";
 import { DocumentIconPicker } from "./document-icon-picker";
 
-export const DocumentToolbar = ({ preview }: { preview?: boolean }) => {
+export const DocumentToolbar = ({ preview }: { preview?: undefined | boolean }) => {
   const authGuard = useAuthGuard();
   const documentId = useDocumentId();
   const editor = useEditorRef();

@@ -1,6 +1,7 @@
 import { prisma } from "@beep/notes/server/db";
+import type { UnsafeTypes } from "@beep/types";
+import * as S from "effect/Schema";
 import { z } from "zod";
-
 import { protectedProcedure } from "../middlewares/procedures";
 import { createRouter } from "../trpc";
 
@@ -34,8 +35,8 @@ export const userRouter = createRouter({
     return user;
   }),
 
-  getUser: protectedProcedure.input(z.object({ id: z.string() })).query(async ({ input }) => {
-    const user = await prisma.user.findUnique({
+  getUser: protectedProcedure.input(S.decodeUnknownSync(S.Struct({ id: S.String }))).query(async ({ input }) => {
+    return await prisma.user.findUnique({
       select: {
         email: true,
         name: true,
@@ -43,29 +44,29 @@ export const userRouter = createRouter({
       },
       where: { id: input.id },
     });
-
-    return user;
   }),
 
   updateSettings: protectedProcedure
     .input(
       z.object({
-        email: z.string().email().max(MAX_EMAIL_LENGTH, "Email is too long").optional(),
+        email: z.email().max(MAX_EMAIL_LENGTH, "Email is too long").optional(),
         name: z.string().min(1, "Name is required").max(MAX_NAME_LENGTH, "Name is too long").trim().optional(),
         profileImageUrl: z
-          .string()
           .url("Invalid URL")
           .max(MAX_PROFILE_IMAGE_URL_LENGTH, "Profile image URL is too long")
           .optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const updatedUser = await prisma.user.update({
-        data: input,
+      const updateData: UnsafeTypes.UnsafeAny = {};
+      if (input.email !== undefined) updateData.email = input.email;
+      if (input.name !== undefined) updateData.name = input.name;
+      if (input.profileImageUrl !== undefined) updateData.profileImageUrl = input.profileImageUrl;
+
+      return await prisma.user.update({
+        data: updateData,
         where: { id: ctx.userId },
       });
-
-      return updatedUser;
     }),
 
   users: protectedProcedure
@@ -79,8 +80,7 @@ export const userRouter = createRouter({
     .query(async ({ input }) => {
       const { cursor, limit, search } = input;
 
-      const users = await prisma.user.findMany({
-        cursor: cursor ? { id: cursor } : undefined,
+      const findManyOptions: UnsafeTypes.UnsafeAny = {
         orderBy: { name: "asc" },
         select: {
           id: true,
@@ -89,15 +89,18 @@ export const userRouter = createRouter({
           profileImageUrl: true,
         },
         take: limit + 1,
-        where: search
-          ? {
-              OR: [
-                { name: { contains: search, mode: "insensitive" } },
-                { email: { contains: search, mode: "insensitive" } },
-              ],
-            }
-          : undefined,
-      });
+      };
+      if (cursor) findManyOptions.cursor = { id: cursor };
+      if (search) {
+        findManyOptions.where = {
+          OR: [
+            { name: { contains: search, mode: "insensitive" } },
+            { email: { contains: search, mode: "insensitive" } },
+          ],
+        };
+      }
+
+      const users = await prisma.user.findMany(findManyOptions);
 
       let nextCursor: typeof cursor | undefined;
 

@@ -1,13 +1,13 @@
+import { isAuth } from "@beep/notes/components/auth/rsc/auth";
+import { Cover } from "@beep/notes/components/cover/cover";
+import { DocumentToolbar } from "@beep/notes/components/cover/document-toolbar";
+import { PlateEditor } from "@beep/notes/components/editor/plate-editor";
+import { PrintPlate } from "@beep/notes/components/editor/plate-provider";
+import type { PageProps } from "@beep/notes/lib/navigation/next-types";
+import { HydrateClient, trpc } from "@beep/notes/trpc/server";
 import { redirect } from "next/navigation";
-import { isAuth } from "@/components/auth/rsc/auth";
-import { Cover } from "@/components/cover/cover";
-import { DocumentToolbar } from "@/components/cover/document-toolbar";
-import { PlateEditor } from "@/components/editor/plate-editor";
-import { PrintPlate } from "@/components/editor/plate-provider";
-import type { PageProps } from "@/lib/navigation/next-types";
-import { HydrateClient, trpc } from "@/trpc/server";
 
-export default async function PrintDocumentPage(props: PageProps<{ documentId: string }>) {
+export default async function PrintDocumentPage(props: PageProps<{ readonly documentId: string }>) {
   if (!(await isAuth())) return redirect("/");
 
   const { documentId } = await props.params;

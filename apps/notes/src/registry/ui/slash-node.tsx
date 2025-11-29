@@ -46,15 +46,15 @@ import {
 import { turnIntoItems } from "./turn-into-toolbar-button";
 
 type Group = {
-  group: string;
-  items: {
-    icon: React.ReactNode;
-    value: string;
-    onSelect: (editor: PlateEditor, value: string) => void;
-    description?: string;
-    focusEditor?: boolean;
-    keywords?: string[];
-    label?: string;
+  readonly group: string;
+  readonly items: {
+    readonly icon: React.ReactNode;
+    readonly value: string;
+    readonly onSelect: (editor: PlateEditor, value: string) => void;
+    readonly description?: undefined | string;
+    readonly focusEditor?: undefined | boolean;
+    readonly keywords?: undefined | string[];
+    readonly label?: undefined | string;
   }[];
 };
 
@@ -342,34 +342,37 @@ export function SlashInputElement(props: PlateElementProps) {
           {groups.map(({ group, items }) => (
             <InlineComboboxGroup key={group}>
               <InlineComboboxGroupLabel>{group}</InlineComboboxGroupLabel>
-              {items.map(({ description, focusEditor, icon, keywords, label, value, onSelect }) => (
-                <InlineComboboxItem
-                  key={value}
-                  value={value}
-                  onClick={() => onSelect(editor, value)}
-                  label={label}
-                  focusEditor={focusEditor}
-                  group={group}
-                  keywords={keywords}
-                >
-                  {description ? (
-                    <>
-                      <div className="flex size-11 items-center justify-center rounded border border-foreground/15 bg-white [&_svg]:size-5 [&_svg]:text-subtle-foreground">
-                        {icon}
-                      </div>
-                      <div className="ml-3 flex flex-1 flex-col truncate">
-                        <span>{label ?? value}</span>
-                        <span className="truncate text-xs text-muted-foreground">{description}</span>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="mr-2 text-subtle-foreground">{icon}</div>
-                      {label ?? value}
-                    </>
-                  )}
-                </InlineComboboxItem>
-              ))}
+              {items.map(({ description, focusEditor, icon, keywords, label, value, onSelect }) => {
+                const itemProps: Record<string, unknown> = {
+                  value,
+                  onClick: () => onSelect(editor, value),
+                  group,
+                };
+                if (label !== undefined) itemProps.label = label;
+                if (focusEditor !== undefined) itemProps.focusEditor = focusEditor;
+                if (keywords !== undefined) itemProps.keywords = keywords;
+
+                return (
+                  <InlineComboboxItem key={value} {...(itemProps as any)}>
+                    {description ? (
+                      <>
+                        <div className="flex size-11 items-center justify-center rounded border border-foreground/15 bg-white [&_svg]:size-5 [&_svg]:text-subtle-foreground">
+                          {icon}
+                        </div>
+                        <div className="ml-3 flex flex-1 flex-col truncate">
+                          <span>{label ?? value}</span>
+                          <span className="truncate text-xs text-muted-foreground">{description}</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="mr-2 text-subtle-foreground">{icon}</div>
+                        {label ?? value}
+                      </>
+                    )}
+                  </InlineComboboxItem>
+                );
+              })}
             </InlineComboboxGroup>
           ))}
         </InlineComboboxContent>

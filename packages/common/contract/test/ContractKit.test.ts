@@ -1,6 +1,7 @@
 import { describe, expect } from "bun:test";
 import { Contract, ContractError, ContractKit } from "@beep/contract";
 import { layer } from "@beep/testkit";
+import type { UnsafeTypes } from "@beep/types";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -50,7 +51,7 @@ describe("ContractKit", () => {
       it.effect("fails when payload validation fails", () =>
         Effect.gen(function* () {
           const withImpl = yield* EchoKit;
-          const exit = yield* Effect.exit(withImpl.handle("Echo")({ value: 123 as any }));
+          const exit = yield* Effect.exit(withImpl.handle("Echo")({ value: 123 as UnsafeTypes.UnsafeAny }));
           const failure = O.getOrUndefined(
             Exit.match(exit, {
               onSuccess: () => O.none(),
@@ -67,7 +68,7 @@ describe("ContractKit", () => {
       it.effect("reports missing contracts", () =>
         Effect.gen(function* () {
           const withImpl = yield* EchoKit;
-          const exit = yield* Effect.exit((withImpl.handle as any)("Missing")({ value: "x" }));
+          const exit = yield* Effect.exit((withImpl.handle as UnsafeTypes.UnsafeAny)("Missing")({ value: "x" }));
           const failure = O.getOrUndefined(
             Exit.match(exit, {
               onSuccess: () => O.none(),
@@ -101,7 +102,7 @@ describe("ContractKit", () => {
     );
   });
 
-  layer(EchoKit.toLayer({ Echo: () => Effect.succeed({ echoed: 123 as any }) }))(
+  layer(EchoKit.toLayer({ Echo: () => Effect.succeed({ echoed: 123 as UnsafeTypes.UnsafeAny }) }))(
     "malformed implementation outputs",
     (it) => {
       it.effect("fails validation when implementations return malformed results", () =>

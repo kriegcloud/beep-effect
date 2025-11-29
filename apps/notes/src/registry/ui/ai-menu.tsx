@@ -64,18 +64,25 @@ export function AIMenu() {
   React.useEffect(() => {
     if (streaming) {
       const anchor = api.aiChat.node({ anchor: true });
-      setTimeout(() => {
-        const anchorDom = editor.api.toDOMNode(anchor![0])!;
-        store.setAnchorElement(anchorDom);
-      }, 0);
+      if (anchor) {
+        setTimeout(() => {
+          const anchorDom = editor.api.toDOMNode(anchor[0]);
+          if (anchorDom) {
+            store.setAnchorElement(anchorDom);
+          }
+        }, 0);
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [streaming]);
+  }, [streaming, api.aiChat, editor.api, store]);
 
   useEditorChat({
     chat,
     onOpenBlockSelection: (blocks: NodeEntry[]) => {
-      show(editor.api.toDOMNode(blocks.at(-1)![0])!);
+      const lastBlock = blocks.at(-1);
+      if (lastBlock) {
+        const domNode = editor.api.toDOMNode(lastBlock[0]);
+        if (domNode) show(domNode);
+      }
     },
     onOpenChange: (open) => {
       if (!open) {
@@ -84,16 +91,24 @@ export function AIMenu() {
       }
     },
     onOpenCursor: () => {
-      const [ancestor] = editor.api.block({ highest: true })!;
+      const blockEntry = editor.api.block({ highest: true });
+      if (!blockEntry) return;
+      const [ancestor] = blockEntry;
 
       if (!editor.api.isAt({ end: true }) && !editor.api.isEmpty(ancestor)) {
         editor.getApi(BlockSelectionPlugin).blockSelection.set(ancestor.id as string);
       }
 
-      show(editor.api.toDOMNode(ancestor)!);
+      const domNode = editor.api.toDOMNode(ancestor);
+      if (domNode) show(domNode);
     },
     onOpenSelection: () => {
-      show(editor.api.toDOMNode(editor.api.blocks().at(-1)![0])!);
+      const blocks = editor.api.blocks();
+      const lastBlock = blocks.at(-1);
+      if (lastBlock) {
+        const domNode = editor.api.toDOMNode(lastBlock[0]);
+        if (domNode) show(domNode);
+      }
     },
   });
 
@@ -124,13 +139,15 @@ export function AIMenu() {
       // BUG
       setTimeout(() => {
         const block = editor.api.block({ at: anchorNode[1] });
-        const domNode = editor.api.toDOMNode(block![0]!)!;
-        store.setAnchorElement(domNode);
+        if (block) {
+          const domNode = editor.api.toDOMNode(block[0]);
+          if (domNode) {
+            store.setAnchorElement(domNode);
+          }
+        }
       }, 0);
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status]);
+  }, [status, toolName, mode, editor, store]);
 
   React.useEffect(() => {
     if (status === "ready") {
@@ -250,7 +267,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     shortcut: "Escape",
     value: "discard",
     onSelect: ({ editor }) => {
-      editor.getTransforms(AIPlugin).ai.undo();
+      editor.getTransforms(AIPlugin).ai?.undo();
       editor.getApi(AIChatPlugin).aiChat.hide();
     },
   },
@@ -421,33 +438,41 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
         const anchor = editor
           .getApi(BlockSelectionPlugin)
           .blockSelection.getNodes({ selectionFallback: true, sort: true })
-          .at(-1)!;
-        const anchorDom = editor.api.toDOMNode(anchor[0])!;
-        store.setAnchorElement(anchorDom);
+          .at(-1);
+        if (anchor) {
+          const anchorDom = editor.api.toDOMNode(anchor[0]);
+          if (anchorDom) {
+            store.setAnchorElement(anchorDom);
+          }
+        }
       }, 0);
     },
   },
 } satisfies Record<
   string,
   {
-    icon: React.ReactNode;
-    label: string;
-    value: string;
-    component?: React.ComponentType<{ menuState: EditorChatState }>;
-    filterItems?: boolean;
-    items?: { label: string; value: string }[];
-    shortcut?: string;
-    onSelect?: ({
-      aiEditor,
-      editor,
-      input,
-      store,
-    }: {
-      aiEditor: PlateEditor;
-      editor: PlateEditor;
-      input: string;
-      store: any;
-    }) => void;
+    readonly icon: React.ReactNode;
+    readonly label: string;
+    readonly value: string;
+    readonly component?:
+      | undefined
+      | React.ComponentType<{ readonly input: string; readonly menuState: EditorChatState }>;
+    readonly filterItems?: undefined | boolean;
+    readonly items?: undefined | { readonly label: string; readonly value: string }[];
+    readonly shortcut?: undefined | string;
+    readonly onSelect?:
+      | undefined
+      | (({
+          aiEditor,
+          editor,
+          input,
+          store,
+        }: {
+          readonly aiEditor: PlateEditor;
+          readonly editor: PlateEditor;
+          readonly input: string;
+          readonly store: any;
+        }) => void);
   }
 >;
 
@@ -483,7 +508,15 @@ const menuStateItems = {
   ],
 };
 
-function AIMenuItems({ input, setInput, store }: { input: string; store: any; setInput: (value: string) => void }) {
+function AIMenuItems({
+  input,
+  setInput,
+  store,
+}: {
+  readonly input: string;
+  readonly store: any;
+  readonly setInput: (value: string) => void;
+}) {
   const editor = useEditorRef();
   const [searchValue] = useComboboxValueState();
   const { messages } = usePluginOption(AIChatPlugin, "chat");
@@ -509,26 +542,32 @@ function AIMenuItems({ input, setInput, store }: { input: string; store: any; se
       {menuGroups.map((group, index) => (
         <MenuGroup key={index} label={group.label}>
           {group.items?.map((item: Action) => {
-            const menuItem = aiChatItems[item.value!];
+            if (!item.value) return null;
+            const menuItem = aiChatItems[item.value as keyof typeof aiChatItems];
+            if (!menuItem) return null;
 
-            if (menuItem.component) {
+            if ("component" in menuItem && menuItem.component) {
               const ItemComponent = menuItem.component;
 
               return <ItemComponent key={item.value} input={input} menuState={menuState} />;
             }
 
-            return (
-              <MenuItem
-                key={item.value}
-                onClick={() => {
-                  menuItem.onSelect?.({ aiEditor, editor, input, store });
-                  setInput("");
-                }}
-                label={menuItem.label}
-                icon={menuItem.icon}
-                shortcutEnter
-              />
-            );
+            if ("onSelect" in menuItem) {
+              return (
+                <MenuItem
+                  key={item.value}
+                  onClick={() => {
+                    menuItem.onSelect?.({ aiEditor: aiEditor as any, editor, input, store });
+                    setInput("");
+                  }}
+                  label={menuItem.label}
+                  icon={menuItem.icon}
+                  shortcutEnter
+                />
+              );
+            }
+
+            return null;
           })}
         </MenuGroup>
       ))}
@@ -536,7 +575,7 @@ function AIMenuItems({ input, setInput, store }: { input: string; store: any; se
   );
 }
 
-function TranslateMenuItems({ input, menuState }: { input: string; menuState: EditorChatState }) {
+function TranslateMenuItems({ input, menuState }: { readonly input: string; readonly menuState: EditorChatState }) {
   const editor = useEditorRef();
   const [searchValue] = useComboboxValueState();
 
@@ -589,7 +628,7 @@ function TranslateMenuItems({ input, menuState }: { input: string; menuState: Ed
   );
 }
 
-function AIMenuCombobox({ input, setInput }: { input: string; setInput: (value: string) => void }) {
+function AIMenuCombobox({ input, setInput }: { readonly input: string; readonly setInput: (value: string) => void }) {
   const { api } = useEditorPlugin(AIChatPlugin);
   const [, setValue] = useComboboxValueState();
 

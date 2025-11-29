@@ -1,5 +1,3 @@
-/* eslint-disable perfectionist/sort-objects */
-
 import { useDocumentId } from "@beep/notes/lib/navigation/routes";
 import { aiValue } from "@beep/notes/registry/examples/values/ai-value";
 import { blockMenuValue } from "@beep/notes/registry/examples/values/block-menu-value";
@@ -16,10 +14,10 @@ import { uploadValue } from "@beep/notes/registry/examples/values/upload-value";
 import type { Value } from "platejs";
 
 export interface TemplateDocument {
-  id: string;
-  icon: string | null;
-  title: string | null;
-  value: Value;
+  readonly id: string;
+  readonly icon: string | null;
+  readonly title: string | null;
+  readonly value: Value;
 }
 
 const templates: Record<string, TemplateDocument> = {

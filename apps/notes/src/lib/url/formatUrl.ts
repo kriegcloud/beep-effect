@@ -2,8 +2,8 @@ import { hasSpecialProtocol } from "./hasSpecialProtocol";
 import { trimProtocol } from "./trimProtocol";
 
 export type FormatUrlOptions = {
-  noPath?: boolean;
-  noProtocol?: boolean;
+  readonly noPath?: undefined | boolean;
+  readonly noProtocol?: undefined | boolean;
 };
 
 // Formats a URL to include the protocol if it doesn't already

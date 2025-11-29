@@ -1,3 +1,4 @@
+import type { UnsafeTypes } from "@beep/types";
 import { useEffect, useMemo, useRef } from "react";
 
 // https://github.com/xnimorz/use-debounce/blob/master/src/useDebouncedCallback.ts
@@ -7,12 +8,12 @@ export interface CallOptions {
    * Controls if the function should be invoked on the leading edge of the
    * timeout.
    */
-  leading?: boolean;
+  leading?: undefined | boolean;
   /**
    * Controls if the function should be invoked on the trailing edge of the
    * timeout.
    */
-  trailing?: boolean;
+  trailing?: undefined | boolean;
 }
 
 export interface ControlFunctions<ReturnT> {
@@ -29,7 +30,8 @@ export interface ControlFunctions<ReturnT> {
  * invocation. Note, that if there are no previous invocations you will get
  * undefined. You should check it in your code properly.
  */
-export interface DebouncedState<T extends (...args: any) => ReturnType<T>> extends ControlFunctions<ReturnType<T>> {
+export interface DebouncedState<T extends (...args: UnsafeTypes.UnsafeAny) => ReturnType<T>>
+  extends ControlFunctions<ReturnType<T>> {
   (...args: Parameters<T>): ReturnType<T> | undefined;
 }
 
@@ -38,12 +40,12 @@ export interface Options extends CallOptions {
    * If the setting is set to true, all debouncing and timers will happen on the
    * server side as well
    */
-  debounceOnServer?: boolean;
+  debounceOnServer?: undefined | boolean;
   /**
    * The maximum time the given function is allowed to be delayed before it's
    * invoked.
    */
-  maxWait?: number;
+  maxWait?: undefined | number;
 }
 
 /**
@@ -113,15 +115,15 @@ export interface Options extends CallOptions {
  * @param {boolean} [options.trailing=true] Default is `true`
  * @returns {Function} Returns the new debounced function.
  */
-export function useDebouncedCallback<T extends (...args: any) => ReturnType<T>>(
+export function useDebouncedCallback<T extends (...args: UnsafeTypes.UnsafeAny) => ReturnType<T>>(
   func: T,
-  wait?: number,
-  options?: Options
+  wait?: undefined | number,
+  options?: undefined | Options
 ): DebouncedState<T> {
-  const lastCallTime = useRef<any>(null);
+  const lastCallTime = useRef<UnsafeTypes.UnsafeAny>(null);
   const lastInvokeTime = useRef(0);
-  const timerId = useRef<any>(null);
-  const lastArgs = useRef<any>([]);
+  const timerId = useRef<UnsafeTypes.UnsafeAny>(null);
+  const lastArgs = useRef<UnsafeTypes.UnsafeAny>([]);
   const lastThis = useRef<unknown>(undefined);
   const result = useRef<ReturnType<T>>(undefined);
   const funcRef = useRef(func);
@@ -231,11 +233,12 @@ export function useDebouncedCallback<T extends (...args: any) => ReturnType<T>>(
 
       // Restart the timer
       startTimer(timerExpired, remainingWait);
+      return;
     };
 
-    const func: DebouncedState<T> = (...args: Parameters<T>): ReturnType<T> => {
+    const func: DebouncedState<T> = function (this: UnsafeTypes.UnsafeAny, ...args: Parameters<T>): ReturnType<T> {
       if (!isClientSize && !debounceOnServer) {
-        return undefined as any;
+        return undefined as UnsafeTypes.UnsafeAny;
       }
 
       const time = Date.now();
@@ -266,7 +269,7 @@ export function useDebouncedCallback<T extends (...args: any) => ReturnType<T>>(
         startTimer(timerExpired, wait);
       }
 
-      return result.current as any;
+      return result.current as UnsafeTypes.UnsafeAny;
     };
 
     func.cancel = () => {

@@ -60,7 +60,10 @@ export const TableElement = withHOC(TableProvider, function TableElement(props: 
                 size="none"
                 variant="ghost"
                 className="flex h-4 w-full grow items-center justify-center bg-muted"
-                onClick={() => tf.insert.tableRow({ at: editor.api.findPath(element) })}
+                onClick={() => {
+                  const path = editor.api.findPath(element);
+                  if (path) tf.insert.tableRow({ at: path });
+                }}
                 onMouseDown={(e) => e.preventDefault()}
                 tooltip="Add a new row"
                 tooltipContentProps={{ side: "bottom" }}
@@ -79,11 +82,10 @@ export const TableElement = withHOC(TableProvider, function TableElement(props: 
                 size="none"
                 variant="ghost"
                 className="flex h-full w-4 grow items-center justify-center bg-muted"
-                onClick={() =>
-                  tf.insert.tableColumn({
-                    at: editor.api.findPath(element),
-                  })
-                }
+                onClick={() => {
+                  const path = editor.api.findPath(element);
+                  if (path) tf.insert.tableColumn({ at: path });
+                }}
                 onMouseDown={(e) => e.preventDefault()}
                 tooltip="Add a new column"
                 tooltipContentProps={{ side: "bottom" }}
@@ -103,12 +105,13 @@ export const TableElement = withHOC(TableProvider, function TableElement(props: 
                 variant="ghost"
                 className="flex size-4 items-center justify-center rounded-full bg-muted"
                 onClick={() => {
-                  editor.tf.withoutNormalizing(() => {
-                    tf.insert.tableRow({ at: editor.api.findPath(element) });
-                    tf.insert.tableColumn({
-                      at: editor.api.findPath(element),
+                  const path = editor.api.findPath(element);
+                  if (path) {
+                    editor.tf.withoutNormalizing(() => {
+                      tf.insert.tableRow({ at: path });
+                      tf.insert.tableColumn({ at: path });
                     });
-                  });
+                  }
                 }}
                 onMouseDown={(e) => e.preventDefault()}
                 tooltip="Add a new row and column"
@@ -136,7 +139,7 @@ export function TableCellElement({
   isHeader,
   ...props
 }: PlateElementProps<TTableCellElement> & {
-  isHeader?: boolean;
+  isHeader?: undefined | boolean;
 }) {
   const { api } = useEditorPlugin(TablePlugin);
   const readOnly = useReadOnly();

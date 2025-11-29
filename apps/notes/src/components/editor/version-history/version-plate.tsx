@@ -7,8 +7,8 @@ export function VersionPlate({
   children,
   ...props
 }: React.PropsWithChildren<{
-  id: string;
-  value: Value;
+  readonly id: string;
+  readonly value: Value;
 }>) {
   const { id, value } = props;
 

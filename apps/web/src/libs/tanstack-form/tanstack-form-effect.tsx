@@ -15,7 +15,13 @@ import type { MakeFormOptionsReturn, SchemaValidatorFn } from "./tanstack-form";
 import { makeFormOptions } from "./tanstack-form";
 
 type ClientRuntimeEnv =
-  Parameters<ReturnType<typeof makeRunClientPromise>>[0] extends Effect.Effect<any, any, infer R> ? R : never;
+  Parameters<ReturnType<typeof makeRunClientPromise>>[0] extends Effect.Effect<
+    UnsafeTypes.UnsafeAny,
+    UnsafeTypes.UnsafeAny,
+    infer R
+  >
+    ? R
+    : never;
 
 type SubmitEffect<SchemaA, SubmitSuccess, SubmitError> = (
   values: SchemaA

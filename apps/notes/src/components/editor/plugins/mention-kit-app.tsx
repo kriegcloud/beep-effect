@@ -16,9 +16,7 @@ export const MentionKit = [
           if (element.type === KEYS.mention) {
             const mentionElement = element as unknown as MyMentionElement;
 
-            const isDocument = mentionElement.key!.startsWith("/");
-
-            return !!isDocument;
+            return Boolean(mentionElement.key?.startsWith("/"));
           }
 
           return isSelectable(element);

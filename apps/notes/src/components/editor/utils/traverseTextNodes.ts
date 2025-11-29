@@ -5,7 +5,7 @@ export function traverseTextNodes(
   callback: (node: Descendant, path: Path) => boolean | void,
   path: Path = []
   // from?: Point
-) {
+): boolean | void {
   for (const [index, childNode] of nodes.entries()) {
     const childPath = path.concat(index);
 
@@ -22,4 +22,5 @@ export function traverseTextNodes(
       return true;
     }
   }
+  return undefined;
 }

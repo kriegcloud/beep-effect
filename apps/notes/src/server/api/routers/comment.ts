@@ -1,9 +1,9 @@
 import { nid } from "@beep/notes/lib/nid";
 import { prisma } from "@beep/notes/server/db";
 import { TRPCError } from "@trpc/server";
+import * as S from "effect/Schema";
 import { NodeApi } from "platejs";
 import { z } from "zod";
-
 import { protectedProcedure } from "../middlewares/procedures";
 import { ratelimitMiddleware } from "../middlewares/ratelimitMiddleware";
 import { createRouter } from "../trpc";
@@ -15,10 +15,12 @@ export const commentMutations = {
   createComment: protectedProcedure
     .use(ratelimitMiddleware("comment/create"))
     .input(
-      z.object({
-        contentRich: z.array(z.any()).optional(),
-        discussionId: z.string(),
-      })
+      S.decodeUnknownSync(
+        S.Struct({
+          contentRich: S.Array(S.Any),
+          discussionId: S.String,
+        })
+      )
     )
     .mutation(async ({ ctx, input }) => {
       const content = input.contentRich
@@ -35,14 +37,17 @@ export const commentMutations = {
         });
       }
 
+      const createData: any = {
+        id: nid(),
+        content: content,
+        discussionId: input.discussionId,
+        userId: ctx.userId,
+      };
+      if (input.contentRich !== undefined) {
+        createData.contentRich = input.contentRich;
+      }
       return await prisma.comment.create({
-        data: {
-          id: nid(),
-          content: content,
-          contentRich: input.contentRich,
-          discussionId: input.discussionId,
-          userId: ctx.userId,
-        },
+        data: createData,
         select: { id: true },
       });
     }),
@@ -106,14 +111,17 @@ export const commentMutations = {
         select: { id: true },
       });
 
+      const commentData: any = {
+        id: nid(),
+        content,
+        discussionId: discussion.id,
+        userId: ctx.userId,
+      };
+      if (input.contentRich !== undefined) {
+        commentData.contentRich = input.contentRich;
+      }
       await prisma.comment.create({
-        data: {
-          id: nid(),
-          content,
-          contentRich: input.contentRich,
-          discussionId: discussion.id,
-          userId: ctx.userId,
-        },
+        data: commentData,
       });
 
       return discussion;
@@ -160,12 +168,13 @@ export const commentMutations = {
         });
       }
 
+      const updateData: any = {};
+      if (content !== undefined) updateData.content = content;
+      if (input.contentRich !== undefined) updateData.contentRich = input.contentRich;
+      if (input.isEdited !== undefined) updateData.isEdited = input.isEdited;
+
       return prisma.comment.update({
-        data: {
-          content,
-          contentRich: input.contentRich,
-          isEdited: input.isEdited,
-        },
+        data: updateData,
         where: { id: input.id },
       });
     }),

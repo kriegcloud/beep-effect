@@ -9,7 +9,7 @@ export const useAuthGuard = () => {
   const isIframe = useIsIframe();
 
   return useCallback(
-    (callback?: () => Promise<void> | void) => {
+    (callback?: undefined | (() => Promise<void> | void)) => {
       if (!user?.id) {
         if (isIframe) {
           window.open("https://app.todox.com/login", "_blank");

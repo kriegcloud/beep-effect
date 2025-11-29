@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@beep/notes/lib/utils";
-
+import { linkPlugin } from "@beep/notes/registry/components/editor/plugins/link-kit";
 import { AIChatPlugin } from "@platejs/ai/react";
 import {
   type FloatingToolbarState,
@@ -14,7 +14,6 @@ import {
 import { BlockSelectionPlugin } from "@platejs/selection/react";
 import { useComposedRef, useEditorRef, useEventEditorValue, usePluginOption } from "platejs/react";
 import type * as React from "react";
-import { linkPlugin } from "@/registry/components/editor/plugins/link-kit";
 
 import { Toolbar } from "./toolbar";
 
@@ -24,7 +23,7 @@ export function FloatingToolbar({
   state,
   ...props
 }: React.ComponentProps<typeof Toolbar> & {
-  state?: FloatingToolbarState;
+  readonly state?: undefined | FloatingToolbarState;
 }) {
   const editor = useEditorRef();
   const focusedEditorId = useEventEditorValue("focus");

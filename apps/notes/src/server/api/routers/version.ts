@@ -3,6 +3,8 @@
 import { getTemplateDocument } from "@beep/notes/components/editor/utils/useTemplateDocument";
 import { nid } from "@beep/notes/lib/nid";
 import { prisma } from "@beep/notes/server/db";
+import * as A from "effect/Array";
+import * as S from "effect/Schema";
 import { omit } from "lodash";
 import { NodeApi } from "platejs";
 import { z } from "zod";
@@ -15,9 +17,11 @@ const versionMutations = {
   createVersion: protectedProcedure
     .use(ratelimitMiddleware("version/create"))
     .input(
-      z.object({
-        documentId: z.string(),
-      })
+      S.decodeUnknownSync(
+        S.Struct({
+          documentId: S.String,
+        })
+      )
     )
     .mutation(async ({ ctx, input }) => {
       const document = await prisma.document.findUniqueOrThrow({
@@ -164,7 +168,7 @@ export const versionRouter = createRouter({
       });
 
       return {
-        versions: versions.map((version) => ({
+        versions: A.map(versions, (version) => ({
           ...omit(version, "User"),
           profileImageUrl: version.user.profileImageUrl,
           userId: version.user.id,

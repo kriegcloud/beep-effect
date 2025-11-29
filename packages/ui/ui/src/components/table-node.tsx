@@ -1,5 +1,6 @@
 "use client";
 
+import type { UnsafeTypes } from "@beep/types";
 import { Button } from "@beep/ui/components/button";
 import {
   DropdownMenu,
@@ -395,7 +396,7 @@ export function TableRowElement({ children, ...props }: PlateElementProps<TTable
   );
 }
 
-function RowDragHandle({ dragRef }: { readonly dragRef: React.Ref<any> }) {
+function RowDragHandle({ dragRef }: { readonly dragRef: React.Ref<UnsafeTypes.UnsafeAny> }) {
   const editor = useEditorRef();
   const element = useElement();
 
@@ -512,7 +513,7 @@ export function TableCellElement({
                 className={cn(
                   "absolute top-0 z-30 hidden h-full w-1 bg-ring",
                   "right-[-1.5px]",
-                  columnResizeVariants({ colIndex: colIndex as any })
+                  columnResizeVariants({ colIndex: colIndex as UnsafeTypes.UnsafeAny })
                 )}
               />
               {colIndex === 0 && (

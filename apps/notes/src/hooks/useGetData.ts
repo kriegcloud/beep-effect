@@ -11,7 +11,7 @@ export const getDate = (dateToFormat: Date | number) => {
  * Gets the formatted date based on the provided dateToFormat. If the
  * dateToFormat is not provided, the formatted date will be undefined.
  */
-export const useGetDate = (dateToFormat?: Date | number) => {
+export const useGetDate = (dateToFormat?: undefined | Date | number) => {
   const [selectedDateType, setSelectedDateType] = useState<Dates>("distance");
   const isDistance = selectedDateType === "distance";
 
@@ -24,6 +24,7 @@ export const useGetDate = (dateToFormat?: Date | number) => {
         }),
       };
     }
+    return;
   }, [dateToFormat]);
 
   const toggleDateType = useCallback(() => {

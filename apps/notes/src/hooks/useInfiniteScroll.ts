@@ -1,5 +1,6 @@
 import { useSession } from "@beep/notes/components/auth/useSession";
 import { useOnScreen } from "@beep/notes/hooks/useOnScreen";
+import type { UnsafeTypes } from "@beep/types";
 import { useEffect, useRef, useState } from "react";
 
 export const useInfiniteScroll = ({
@@ -10,13 +11,13 @@ export const useInfiniteScroll = ({
   isFetching,
   isPublic,
 }: {
-  fetchNextPage: any;
-  debug?: string;
-  hasFirstPage?: boolean;
-  hasNextPage?: boolean;
-  isFetched?: boolean;
-  isFetching?: boolean;
-  isPublic?: boolean;
+  readonly fetchNextPage: UnsafeTypes.UnsafeAny;
+  readonly debug?: undefined | string;
+  readonly hasFirstPage?: undefined | boolean;
+  readonly hasNextPage?: undefined | boolean;
+  readonly isFetched?: undefined | boolean;
+  readonly isFetching?: undefined | boolean;
+  readonly isPublic?: undefined | boolean;
 }) => {
   const session = useSession();
   const bottomRef = useRef<HTMLDivElement>(undefined);

@@ -1,14 +1,15 @@
 import { cn } from "@beep/notes/lib/utils";
+import type { UnsafeTypes } from "@beep/types";
 
 import { type PlateElementProps, type RenderNodeWrapper, useEditorPlugin } from "platejs/react";
 import React, { type HTMLAttributes, type ReactNode } from "react";
 
-import { ChunkPlugin, type ChunkPluginConfig } from "./chunk-plugin";
+import { CHUNK_PLUGIN_KEY, type ChunkPluginConfig } from "./chunk-types";
 
 export interface TChunkProps {
-  blockCount: number;
-  chunkIndex: number;
-  showExpandButton: boolean;
+  readonly blockCount: number;
+  readonly chunkIndex: number;
+  readonly showExpandButton: boolean;
 }
 
 export const BlockChunk: RenderNodeWrapper = (props) => {
@@ -21,7 +22,7 @@ export const BlockChunk: RenderNodeWrapper = (props) => {
 
 function BlockChunkContent(props: PlateElementProps) {
   const { children, element } = props;
-  const { getOptions } = useEditorPlugin<ChunkPluginConfig>(ChunkPlugin);
+  const { getOptions } = useEditorPlugin<ChunkPluginConfig>({ key: CHUNK_PLUGIN_KEY });
 
   const { blockCount, chunkIndex, showExpandButton } = element.chunkCollapsed as TChunkProps;
 
@@ -40,7 +41,6 @@ function BlockChunkContent(props: PlateElementProps) {
   );
 }
 
-// eslint-disable-next-line unicorn/prefer-set-has
 const mergeableProps: (keyof HTMLAttributes<HTMLElement>)[] = ["className"];
 
 const injectNodeProps = (children: ReactNode, props: HTMLAttributes<HTMLElement>) =>
@@ -50,7 +50,7 @@ const injectNodeProps = (children: ReactNode, props: HTMLAttributes<HTMLElement>
 
       Object.keys(props).forEach((key) => {
         const exists = attributes && key in attributes;
-        const mergeable = mergeableProps.includes(key as any);
+        const mergeable = mergeableProps.includes(key as UnsafeTypes.UnsafeAny);
 
         if (exists && !mergeable) {
           console.warn("injectNodeProps: Overwriting existing node prop", key);

@@ -1,12 +1,11 @@
 "use client";
 
+import { cn } from "@beep/notes/lib/utils";
 import { parseTwitterUrl, parseVideoUrl } from "@platejs/media";
 import { useMediaState } from "@platejs/media/react";
 import { ResizableProvider, useResizableValue } from "@platejs/resizable";
 import { PlateElement, type PlateElementProps, withHOC } from "platejs/react";
 import { Tweet } from "react-tweet";
-
-import { cn } from "@/lib/utils";
 
 import { Caption, CaptionTextarea } from "./caption";
 import { MediaToolbar } from "./media-toolbar";

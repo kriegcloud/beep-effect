@@ -32,7 +32,7 @@ export function useDiscussionsQueryOptions() {
   }) as UseDiscussionsQueryOptions;
 }
 
-type UseDocumentVersionsQueryOptions = ReturnType<UseTRPCReturnType["version"]["documentVersion"]["queryOptions"]>;
+type UseDocumentVersionsQueryOptions = ReturnType<UseTRPCReturnType["version"]["documentVersions"]["queryOptions"]>;
 export const useDocumentVersionsQueryOptions: () => UseDocumentVersionsQueryOptions = () => {
   const documentId = useDocumentId();
 

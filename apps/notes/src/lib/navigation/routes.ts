@@ -1,23 +1,27 @@
 import { defineRoute, useParseParams } from "./@";
 
-export type RouteSchemas = {
+export type RouteSchemas = Readonly<{
   document: {
     params: {
       documentId: string;
     };
   };
   home: {
-    search?: {
-      showId?: string;
-    };
+    search?:
+      | undefined
+      | {
+          showId?: undefined | string;
+        };
   };
   loginProvider: {
     params: {
       provider: "github";
     };
-    search?: {
-      callbackUrl?: string;
-    };
+    search?:
+      | undefined
+      | {
+          callbackUrl?: undefined | string;
+        };
   };
   preview: {
     params: {
@@ -29,7 +33,7 @@ export type RouteSchemas = {
       userId: string;
     };
   };
-};
+}>;
 
 export const routes = {
   document: defineRoute<RouteSchemas["document"]>("/[documentId]"),

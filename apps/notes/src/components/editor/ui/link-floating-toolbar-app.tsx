@@ -11,6 +11,7 @@ import { getCursorOverlayElement } from "@beep/notes/registry/ui/cursor-overlay"
 import { Input, inputVariants } from "@beep/notes/registry/ui/input";
 import { Popover, PopoverAnchor, PopoverContent } from "@beep/notes/registry/ui/popover";
 import { useTRPC } from "@beep/notes/trpc/react";
+import type { UnsafeTypes } from "@beep/types";
 import { unwrapLink, upsertLink, validateUrl } from "@platejs/link";
 import { CursorOverlayPlugin } from "@platejs/selection/react";
 import { useQuery } from "@tanstack/react-query";
@@ -67,7 +68,6 @@ export function LinkFloatingToolbar() {
       setOption("mode", null);
       setOption("anchorElement", null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aboveLink]);
 
   if (!open) return null;
@@ -107,7 +107,7 @@ export function LinkFloatingToolbar() {
 const InsertLinkCommand = ({ initialUrl }: { initialUrl: string }) => {
   const [query, setQuery] = React.useState(initialUrl);
 
-  const [searchDocuments, setSearchDocuments] = React.useState<any[]>([]);
+  const [searchDocuments, setSearchDocuments] = React.useState<UnsafeTypes.UnsafeAny[]>([]);
 
   const { editor } = useEditorPlugin(linkPlugin);
 
@@ -200,7 +200,7 @@ const EditLinkCommand = ({
   const [searching, setSearching] = React.useState(false);
   const [query, setQuery] = React.useState<string>("");
   const [text, setText] = React.useState<string>("");
-  const [searchDocuments, setSearchDocuments] = React.useState<any[]>([]);
+  const [searchDocuments, setSearchDocuments] = React.useState<UnsafeTypes.UnsafeAny[]>([]);
 
   const { editor, setOption } = useEditorPlugin(linkPlugin);
   const activeLinkId = usePluginOption(linkPlugin, "activeId");
@@ -267,7 +267,7 @@ const EditLinkCommand = ({
         selection: editor.selection,
       });
 
-      setOption("anchorElement", getCursorOverlayElement() as any);
+      setOption("anchorElement", getCursorOverlayElement() as UnsafeTypes.UnsafeAny);
     }, 0);
   };
 
@@ -407,7 +407,13 @@ const OutsideLinkCommandItem = ({ query }: { query: string }) => {
   );
 };
 
-const InternalLinkCommandItem = ({ document, onSelect }: { document: any; onSelect?: () => void }) => {
+const InternalLinkCommandItem = ({
+  document,
+  onSelect,
+}: {
+  document: UnsafeTypes.UnsafeAny;
+  onSelect?: () => void;
+}) => {
   const editor = useEditorRef();
 
   return (

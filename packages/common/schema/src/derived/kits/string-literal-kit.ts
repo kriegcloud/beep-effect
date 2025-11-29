@@ -194,7 +194,8 @@ export const isMembers = <A>(as: ReadonlyArray<A>): as is AST.Members<A> => as.l
  * @category Derived/Kits
  * @since 0.1.0
  */
-export const mapMembers = <A, B>(members: AST.Members<A>, f: (a: A) => B): AST.Members<B> => A.map(members, f) as any;
+export const mapMembers = <A, B>(members: AST.Members<A>, f: (a: A) => B): AST.Members<B> =>
+  A.map(members, f) as UnsafeTypes.UnsafeAny;
 
 function getDefaultLiteralAST<Literals extends A.NonEmptyReadonlyArray<AST.LiteralValue>>(literals: Literals): AST.AST {
   return isMembers(literals)
@@ -202,7 +203,7 @@ function getDefaultLiteralAST<Literals extends A.NonEmptyReadonlyArray<AST.Liter
     : new AST.Literal(literals[0]);
 }
 
-interface AllAnnotations<A, TypeParameters extends ReadonlyArray<any>>
+interface AllAnnotations<A, TypeParameters extends ReadonlyArray<UnsafeTypes.UnsafeAny>>
   extends S.Annotations.Schema<A, TypeParameters>,
     S.PropertySignature.Annotations<A> {}
 
@@ -227,7 +228,7 @@ const builtInAnnotations = {
   decodingFallback: AST.DecodingFallbackAnnotationId,
 };
 
-const toASTAnnotations = <A, TypeParameters extends ReadonlyArray<any>>(
+const toASTAnnotations = <A, TypeParameters extends ReadonlyArray<UnsafeTypes.UnsafeAny>>(
   annotations?: AllAnnotations<A, TypeParameters>
 ): AST.Annotations => {
   if (!annotations) {

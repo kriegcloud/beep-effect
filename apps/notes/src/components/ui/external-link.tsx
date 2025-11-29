@@ -1,6 +1,6 @@
 "use client";
 
-export function ExternalLink({ children, href }: { children: React.ReactNode; href: string }) {
+export function ExternalLink({ children, href }: { readonly children: React.ReactNode; readonly href: string }) {
   return (
     <a
       className="inline-flex flex-1 justify-center gap-1 leading-4 hover:underline"

@@ -9,6 +9,7 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Glob from "glob";
+import type { UnsafeAny } from "./types";
 
 type Glob = (
   pattern: string | string[],
@@ -30,7 +31,7 @@ type MkdirCached_ = (a: string) => Effect.Effect<void, DomainError, never>;
 type MkdirCached = (path: string) => Effect.Effect<void, DomainError, never>;
 type CopyGlobCached = (baseDir: string, pattern: string, to: string) => Effect.Effect<void, DomainError, never>;
 type RmAndMkdir = (path: string) => Effect.Effect<void, DomainError, never>;
-type ReadJson = (path: string) => Effect.Effect<any, DomainError, never>;
+type ReadJson = (path: string) => Effect.Effect<UnsafeAny, DomainError, never>;
 type WriteJson = (path: string, json: unknown) => Effect.Effect<void, DomainError, never>;
 type ExistsOrThrow = (path: string) => Effect.Effect<string, DomainError, never>;
 
@@ -76,7 +77,7 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
     options?: Glob.GlobOptions | undefined
   ) {
     return yield* Effect.tryPromise({
-      try: () => Glob.glob(pattern as any, options as any),
+      try: () => Glob.glob(pattern as UnsafeAny, options as UnsafeAny),
       catch: (e) =>
         new DomainError({
           message: `glob failed: ${e}`,

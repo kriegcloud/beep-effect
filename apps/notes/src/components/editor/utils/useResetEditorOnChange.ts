@@ -1,10 +1,15 @@
+import type { UnsafeTypes } from "@beep/types";
 import type { Value } from "platejs";
 import type { PlateEditor } from "platejs/react";
 import { useEffect } from "react";
 
 export function useResetEditorOnChange(
-  { id, editor, value }: { editor: PlateEditor; id?: string; value?: Value },
-  deps: any[]
+  {
+    id,
+    editor,
+    value,
+  }: { readonly editor: PlateEditor; readonly id?: undefined | string; readonly value?: undefined | Value },
+  deps: UnsafeTypes.UnsafeAny[]
 ) {
   useEffect(() => {
     if (value && value !== editor.children) {
@@ -19,6 +24,5 @@ export function useResetEditorOnChange(
       editor.history.redos = [];
       editor.operations = [];
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...deps]);
 }

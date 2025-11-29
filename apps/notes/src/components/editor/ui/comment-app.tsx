@@ -21,6 +21,7 @@ import {
 import { Editor, EditorContainer } from "@beep/notes/registry/ui/editor";
 import type { RouterCommentItem } from "@beep/notes/server/api/types";
 import { api, useTRPC } from "@beep/notes/trpc/react";
+import type { UnsafeTypes } from "@beep/types";
 import { getCommentKey, getDraftCommentKey } from "@platejs/comment";
 import { CommentPlugin, useCommentId } from "@platejs/comment/react";
 import { produce } from "immer";
@@ -29,14 +30,14 @@ import { Plate, useEditorPlugin, useEditorRef } from "platejs/react";
 import React, { useEffect, useMemo, useState } from "react";
 
 export function Comment(props: {
-  comment: RouterCommentItem;
-  discussionLength: number;
-  documentContent: string;
-  editingId: string | null;
-  index: number;
-  setEditingId: React.Dispatch<React.SetStateAction<string | null>>;
-  showDocumentContent?: boolean;
-  onEditorClick?: () => void;
+  readonly comment: RouterCommentItem;
+  readonly discussionLength: number;
+  readonly documentContent: string;
+  readonly editingId: string | null;
+  readonly index: number;
+  readonly setEditingId: React.Dispatch<React.SetStateAction<string | null>>;
+  readonly showDocumentContent?: undefined | boolean;
+  readonly onEditorClick?: undefined | (() => void);
 }) {
   const {
     comment,
@@ -53,7 +54,7 @@ export function Comment(props: {
   const trpc = useTRPC();
   const documentId = useDocumentId();
   const resolveDiscussion = api.comment.resolveDiscussion.useMutation({
-    onError(_, __, context: any) {
+    onError(_, __, context: UnsafeTypes.UnsafeAny) {
       if (context?.previousDiscussions) {
         trpc.comment.discussions.setData({ documentId }, context.previousDiscussions);
       }
@@ -87,7 +88,7 @@ export function Comment(props: {
   });
 
   const removeDiscussion = api.comment.removeDiscussion.useMutation({
-    onError(_, __, context: any) {
+    onError(_, __, context: UnsafeTypes.UnsafeAny) {
       if (context?.previousDiscussions) {
         trpc.comment.discussions.setData({ documentId }, context.previousDiscussions);
       }
@@ -118,7 +119,7 @@ export function Comment(props: {
   });
 
   const updateComment = api.comment.updateComment.useMutation({
-    onError(_, __, context: any) {
+    onError(_, __, context: UnsafeTypes.UnsafeAny) {
       if (context?.previousDiscussions) {
         trpc.comment.discussions.setData({ documentId }, context.previousDiscussions);
       }
@@ -148,7 +149,7 @@ export function Comment(props: {
           if (!comment) return;
 
           comment.isEdited = true;
-          comment.contentRich = input.contentRich as any;
+          comment.contentRich = input.contentRich as UnsafeTypes.UnsafeAny;
           comment.updatedAt = new Date();
         })
       );
@@ -309,19 +310,19 @@ export function Comment(props: {
 }
 
 function CommentMoreDropdown(props: {
-  comment: RouterCommentItem;
-  dropdownOpen: boolean;
-  setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setEditingId: React.Dispatch<React.SetStateAction<string | null>>;
-  onCloseAutoFocus?: () => void;
-  onRemoveComment?: () => void;
+  readonly comment: RouterCommentItem;
+  readonly dropdownOpen: boolean;
+  readonly setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  readonly setEditingId: React.Dispatch<React.SetStateAction<string | null>>;
+  readonly onCloseAutoFocus?: () => void;
+  readonly onRemoveComment?: () => void;
 }) {
   const { comment, dropdownOpen, setDropdownOpen, setEditingId, onCloseAutoFocus, onRemoveComment } = props;
 
   const trpc = useTRPC();
   const documentId = useDocumentId();
   const deleteComment = api.comment.deleteComment.useMutation({
-    onError(_, __, context: any) {
+    onError(_, __, context: UnsafeTypes.UnsafeAny) {
       if (context?.previousDiscussions) {
         trpc.comment.discussions.setData({ documentId }, context.previousDiscussions);
       }
@@ -418,18 +419,18 @@ export function CommentCreateForm({
   focusOnMount = false,
   isSuggesting,
 }: {
-  autoFocus?: boolean;
-  className?: string;
-  discussionId?: string;
-  focusOnMount?: boolean;
-  isSuggesting?: boolean;
+  readonly autoFocus?: boolean;
+  readonly className?: string;
+  readonly discussionId?: string;
+  readonly focusOnMount?: boolean;
+  readonly isSuggesting?: boolean;
 }) {
   const trpc = useTRPC();
   const current = useCurrentUser();
   const documentId = useDocumentId();
 
   const createComment = api.comment.createComment.useMutation({
-    onError(_, __, context: any) {
+    onError(_, __, context: UnsafeTypes.UnsafeAny) {
       if (context?.previousDiscussions) {
         trpc.comment.discussions.setData({ documentId }, context.previousDiscussions);
       }
@@ -454,7 +455,7 @@ export function CommentCreateForm({
             user: omitNil(current),
           });
 
-          comments?.push(newUserInfo as any);
+          comments?.push(newUserInfo as UnsafeTypes.UnsafeAny);
         })
       );
 
@@ -465,7 +466,7 @@ export function CommentCreateForm({
     },
   });
   const createDiscussionWithComment = api.comment.createDiscussionWithComment.useMutation({
-    onError(_, __, context: any) {
+    onError(_, __, context: UnsafeTypes.UnsafeAny) {
       if (context?.previousDiscussions) {
         trpc.comment.discussions.setData({ documentId }, context.previousDiscussions);
       }
@@ -490,7 +491,7 @@ export function CommentCreateForm({
 
   const [commentValue, setCommentValue] = React.useState<Value | undefined>();
   const commentContent = useMemo(
-    () => (commentValue ? NodeApi.string({ children: commentValue as any, type: "p" }) : ""),
+    () => (commentValue ? NodeApi.string({ children: commentValue as UnsafeTypes.UnsafeAny, type: "p" }) : ""),
     [commentValue]
   );
   const commentEditor = useCommentEditor({}, [resetKey]);
@@ -506,7 +507,7 @@ export function CommentCreateForm({
 
     if (discussionId) {
       createComment.mutate({
-        contentRich: commentValue as any,
+        contentRich: commentValue as UnsafeTypes.UnsafeAny,
         discussionId: discussionId,
       });
 
@@ -520,7 +521,7 @@ export function CommentCreateForm({
     const documentContent = commentsNodeEntry.map(([node]) => node.text).join("");
 
     const { id } = await createDiscussionWithComment.mutateAsync({
-      contentRich: commentValue as any,
+      contentRich: commentValue as UnsafeTypes.UnsafeAny,
       documentContent: documentContent,
       documentId,
     });
@@ -542,7 +543,7 @@ export function CommentCreateForm({
     const suggestionId = discussionId;
 
     await createDiscussionWithComment.mutateAsync({
-      contentRich: commentValue as any,
+      contentRich: commentValue as UnsafeTypes.UnsafeAny,
       discussionId: suggestionId,
       documentContent: "__suggestion__",
       documentId,

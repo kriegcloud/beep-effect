@@ -1,5 +1,6 @@
 "use client";
 
+import type { UnsafeTypes } from "@beep/types";
 import { Button } from "@beep/ui/components/button";
 import { Command, CommandGroup, CommandItem, CommandList } from "@beep/ui/components/command";
 import { commentPlugin } from "@beep/ui/components/editor/plugins/comment-kit";
@@ -118,7 +119,7 @@ export function AIMenu() {
     api.aiChat.stop();
 
     // remove when you implement the route /api/ai/command
-    (chat as any)._abortFakeStream();
+    (chat as UnsafeTypes.UnsafeAny)._abortFakeStream();
   });
 
   const isLoading = status === "streaming" || status === "submitted";
@@ -595,7 +596,7 @@ export function AILoadingBar() {
     api.aiChat.stop();
 
     // remove when you implement the route /api/ai/command
-    (chat as any)._abortFakeStream();
+    (chat as UnsafeTypes.UnsafeAny)._abortFakeStream();
   });
 
   if (isLoading && (mode === "insert" || toolName === "comment" || (toolName === "edit" && mode === "chat"))) {

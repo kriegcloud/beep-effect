@@ -40,7 +40,6 @@ export function FontColorToolbarButton(props: React.ComponentProps<typeof Dropdo
     const label = textColorItems.find((item) => item.value === color)!.label;
 
     localStorage.setItem("lastUsed", JSON.stringify({ key: KEYS.color, label, value: color }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onBackgroundChange = useCallback((background: string) => {
@@ -57,7 +56,6 @@ export function FontColorToolbarButton(props: React.ComponentProps<typeof Dropdo
         value: background,
       })
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onOpenChange = useCallback((open: boolean) => {
@@ -79,7 +77,6 @@ export function FontColorToolbarButton(props: React.ComponentProps<typeof Dropdo
     } else {
       onBackgroundChange(lastUsed.value);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastUsed]);
 
   return (
@@ -124,7 +121,11 @@ export function FontColorToolbarButton(props: React.ComponentProps<typeof Dropdo
 
           <DropdownMenuGroup>
             <DropdownMenuLabel>Text color</DropdownMenuLabel>
-            <DropdownMenuRadioGroup className="flex flex-col" value={color} onValueChange={onColorChange}>
+            <DropdownMenuRadioGroup
+              className="flex flex-col"
+              {...(color !== undefined ? { value: color } : {})}
+              onValueChange={onColorChange}
+            >
               {textColorItems.map(({ label, value: itemValue }) => (
                 <DropdownMenuRadioItem key={itemValue} className="min-w-[200px] gap-1.5" value={itemValue}>
                   <ColorIcon value={itemValue} group="color" />
@@ -138,7 +139,7 @@ export function FontColorToolbarButton(props: React.ComponentProps<typeof Dropdo
             <DropdownMenuLabel>Background color</DropdownMenuLabel>
             <DropdownMenuRadioGroup
               className="flex flex-col gap-0.5"
-              value={background}
+              {...(background !== undefined ? { value: background } : {})}
               onValueChange={onBackgroundChange}
             >
               {backgroundColorItems.map(({ label, value: itemValue }) => (
@@ -155,7 +156,7 @@ export function FontColorToolbarButton(props: React.ComponentProps<typeof Dropdo
   );
 }
 
-export function ColorIcon({ group, value }: { group: string; value: string }) {
+export function ColorIcon({ group, value }: { readonly group: string; readonly value: string }) {
   return (
     <div
       className="flex size-5 items-center justify-center rounded-sm border text-sm"
@@ -169,7 +170,7 @@ export function ColorIcon({ group, value }: { group: string; value: string }) {
   );
 }
 
-export const textColorItems: { label: string; value: string }[] = [
+export const textColorItems: { readonly label: string; readonly value: string }[] = [
   { label: "Default", value: "inherit" },
   { label: "Gray", value: "rgb(123, 122, 116)" },
   { label: "Brown", value: "rgb(162, 110, 83)" },
@@ -182,7 +183,7 @@ export const textColorItems: { label: string; value: string }[] = [
   { label: "Red", value: "rgb(190, 55, 55)" },
 ];
 
-export const backgroundColorItems: { label: string; value: string }[] = [
+export const backgroundColorItems: { readonly label: string; readonly value: string }[] = [
   { label: "Default background", value: "transparent" },
   { label: "Gray background", value: "rgb(241, 241, 239)" },
   { label: "Brown background", value: "rgb(235, 229, 220)" },

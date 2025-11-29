@@ -8,13 +8,15 @@ import type { DeepNullable } from "ts-essentials";
 import { Skeleton } from "./ui/skeleton";
 
 export interface UserAvatarProps extends React.ComponentProps<typeof Avatar> {
-  avatarClassName?: string;
-  isCurrent?: boolean;
-  loading?: boolean;
-  user?: DeepNullable<{
-    profileImageUrl?: string;
-    username?: string;
-  }>;
+  avatarClassName?: undefined | string;
+  isCurrent?: undefined | boolean;
+  loading?: undefined | boolean;
+  user?:
+    | undefined
+    | DeepNullable<{
+        profileImageUrl?: undefined | string;
+        username?: undefined | string;
+      }>;
 }
 
 export function UserAvatar({

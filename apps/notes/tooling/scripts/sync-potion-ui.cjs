@@ -53,7 +53,6 @@ applyReplacements(source, target)
   })
   .catch((error) => {
     console.error("Operation failed:", error);
-    // eslint-disable-next-line unicorn/no-process-exit
     process.exit(1);
   });
 
@@ -94,7 +93,6 @@ async function applyReplacements(sourcePath, targetPath) {
 
       // Read file content
       let content = await fs.readFile(targetFilePath, "utf8");
-      // eslint-disable-next-line unused-imports/no-unused-vars
       const originalContent = content;
 
       // Apply all replacement rules

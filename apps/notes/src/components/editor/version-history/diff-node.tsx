@@ -1,9 +1,10 @@
+import type { UnsafeTypes } from "@beep/types";
 import type { DiffOperation } from "@platejs/diff";
 import type { TText } from "platejs";
 
 import { PlateLeaf, type PlateLeafProps, type RenderNodeWrapper } from "platejs/react";
 
-import { describeUpdate } from "./diff-plugin";
+import { describeUpdate } from "./diff-utils";
 
 const diffOperationColors: Record<DiffOperation["type"], string> = {
   delete: "bg-red-200",
@@ -39,14 +40,14 @@ export const BlockDiff: RenderNodeWrapper = () => {
   };
 };
 
-export function DiffLeaf(props: PlateLeafProps<TText & { diffOperation: DiffOperation }>) {
+export function DiffLeaf(props: PlateLeafProps<TText & { readonly diffOperation: DiffOperation }>) {
   const diffOperation = props.leaf.diffOperation;
 
   const Component = {
     delete: "del",
     insert: "ins",
     update: "span",
-  }[diffOperation.type] as any;
+  }[diffOperation.type] as UnsafeTypes.UnsafeAny;
 
   return (
     <PlateLeaf

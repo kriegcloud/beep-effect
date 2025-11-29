@@ -25,7 +25,7 @@ export const PaginationLink = ({
   isActive,
   ...props
 }: {
-  isActive?: boolean;
+  isActive?: undefined | boolean;
 } & Omit<React.ComponentProps<typeof LinkButton>, "variant">) => (
   <PaginationItem>
     <LinkButton

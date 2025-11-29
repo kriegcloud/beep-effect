@@ -38,20 +38,20 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
 
 interface DocumentItem {
-  id: string;
-  contentRich: {
-    children: { text: string }[];
-    type: string;
+  readonly id: string;
+  readonly contentRich: {
+    readonly children: { readonly text: string }[];
+    readonly type: string;
   }[];
-  coverImage: string;
-  icon: string;
-  title: string;
+  readonly coverImage: string;
+  readonly icon: string;
+  readonly title: string;
 }
 
 interface PeopleComboboxGroupProps {
-  search: string;
-  onUserHover: (name: string) => void;
-  onUserSelect: (user: UserItem) => void;
+  readonly search: string;
+  readonly onUserHover: (name: string) => void;
+  readonly onUserSelect: (user: UserItem) => void;
 }
 
 export const mockMentionDocuments = [
@@ -325,7 +325,7 @@ const openDocument = (id: string) => {
 
 function DocumentMentionElement(
   props: PlateElementProps<MyMentionElement> & {
-    prefix?: string;
+    prefix?: undefined | string;
   }
 ) {
   const { children } = props;
@@ -430,7 +430,6 @@ function MentionHoverCardContent(props: { element: MyMentionElement }) {
         }
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [document]);
 
   const previewEditor = useEditorPreview((document?.contentRich as Value | undefined)?.slice(0, 2) ?? []);
@@ -462,7 +461,7 @@ function MentionHoverCardContent(props: { element: MyMentionElement }) {
 
 function UserMentionElement(
   props: PlateElementProps<MyMentionElement> & {
-    prefix?: string;
+    prefix?: undefined | string;
   }
 ) {
   const { children } = props;
@@ -509,7 +508,7 @@ function UserMentionElement(
 
 export function MentionElement(
   props: PlateElementProps<MyMentionElement> & {
-    prefix?: string;
+    prefix?: undefined | string;
   }
 ) {
   const element = props.element;

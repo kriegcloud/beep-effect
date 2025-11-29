@@ -78,7 +78,9 @@ export const commentPlugin = toTPlatePlugin<CommentConfig>(BaseCommentPlugin, {
       if (!editable) return;
 
       const observer = new ResizeObserver((entries) => {
-        const width = entries[0].contentRect.width;
+        const firstEntry = entries[0];
+        if (!firstEntry) return;
+        const width = firstEntry.contentRect.width;
         const isOverlap = width < 700;
 
         setOption("isOverlapWithEditor", isOverlap);
@@ -124,7 +126,10 @@ export const commentPlugin = toTPlatePlugin<CommentConfig>(BaseCommentPlugin, {
         ) {
           const { newProperties, properties } = operation;
 
-          if (properties?.[getDraftCommentKey()] || newProperties?.[getDraftCommentKey()]) {
+          if (
+            (properties as Record<string, unknown>)?.[getDraftCommentKey()] ||
+            (newProperties as Record<string, unknown>)?.[getDraftCommentKey()]
+          ) {
             return;
           }
 
@@ -138,10 +143,12 @@ export const commentPlugin = toTPlatePlugin<CommentConfig>(BaseCommentPlugin, {
 
         tf.comment.removeMark();
         insertBreak();
-        editor.tf.unsetNodes([type], {
-          at: editor.selection?.focus,
-          mode: "lowest",
-        });
+        if (editor.selection?.focus) {
+          editor.tf.unsetNodes([type], {
+            at: editor.selection.focus,
+            mode: "lowest",
+          });
+        }
       },
     },
   }))

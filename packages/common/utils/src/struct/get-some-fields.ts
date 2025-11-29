@@ -1,3 +1,4 @@
+import type { UnsafeTypes } from "@beep/types";
 import type * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
@@ -5,11 +6,15 @@ import * as Struct from "effect/Struct";
 import type * as Types from "effect/Types";
 
 type OptionFields<A> = {
-  [K in keyof A as A[K] extends O.Option<any> ? K : never]: A[K] extends O.Option<any> ? A[K] : never;
+  [K in keyof A as A[K] extends O.Option<UnsafeTypes.UnsafeAny>
+    ? K
+    : never]: A[K] extends O.Option<UnsafeTypes.UnsafeAny> ? A[K] : never;
 };
 
 type OptionFieldValues<A> = {
-  [K in keyof A as A[K] extends O.Option<any> ? K : never]: A[K] extends O.Option<any> ? O.Option.Value<A[K]> : never;
+  [K in keyof A as A[K] extends O.Option<UnsafeTypes.UnsafeAny>
+    ? K
+    : never]: A[K] extends O.Option<UnsafeTypes.UnsafeAny> ? O.Option.Value<A[K]> : never;
 };
 
 export type GetSomeFields<A, F extends keyof OptionFields<A>> = O.Option<

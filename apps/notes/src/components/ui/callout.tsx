@@ -3,9 +3,9 @@
 import { cn } from "@beep/notes/lib/utils";
 
 interface CalloutProps {
-  children?: React.ReactNode;
-  icon?: string;
-  type?: "danger" | "default" | "warning";
+  readonly children?: undefined | React.ReactNode;
+  readonly icon?: undefined | string;
+  readonly type?: undefined | "danger" | "default" | "warning";
 }
 
 export function Callout({ children, icon, type = "default", ...props }: CalloutProps) {

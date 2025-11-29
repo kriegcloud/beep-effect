@@ -1,4 +1,4 @@
-import type { DeepNonNullable } from "@beep/types";
+import type { DeepNonNullable, UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as P from "effect/Predicate";
@@ -7,7 +7,7 @@ import * as Struct from "effect/Struct";
 
 export function deepRemoveNull<T>(obj: T): DeepNonNullable<T> {
   return F.pipe(
-    obj as any,
+    obj as UnsafeTypes.UnsafeAny,
     Struct.entries,
     A.filter(([_, v]) => P.isNotNullable(v)),
     A.map(([k, v]) => [k, v === Object(v) ? deepRemoveNull(v) : v] as const),

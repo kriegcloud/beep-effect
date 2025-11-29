@@ -9,20 +9,20 @@ import { CornerDownLeftIcon } from "lucide-react";
 import * as React from "react";
 
 export type Action = {
-  filterItems?: boolean;
-  focusEditor?: boolean;
-  group?: string;
-  icon?: React.ReactNode;
-  items?: Action[];
-  keywords?: string[];
-  label?: string;
-  shortcut?: string;
-  value?: string;
+  filterItems?: undefined | boolean;
+  focusEditor?: undefined | boolean;
+  group?: undefined | string;
+  icon?: undefined | React.ReactNode;
+  items?: undefined | Action[];
+  keywords?: undefined | string[];
+  label?: undefined | string;
+  shortcut?: undefined | string;
+  value?: undefined | string;
 };
 
 export type ActionGroup = {
-  group?: string;
-  value?: string;
+  group?: undefined | string;
+  value?: undefined | string;
 };
 
 const SearchableContext = React.createContext(false);
@@ -36,12 +36,12 @@ const MenuContext = React.createContext<{
 });
 
 export type MenuProps = Ariakit.MenuProviderProps & {
-  trigger?: React.ReactNode;
-  value?: string;
-  onOpenChange?: Ariakit.MenuProviderProps["setOpen"];
-  onRootMenuClose?: () => void;
-  onValueChange?: Ariakit.ComboboxProviderProps["setValue"];
-  onValuesChange?: Ariakit.MenuProviderProps["setValues"];
+  trigger?: undefined | React.ReactNode;
+  value?: undefined | string;
+  onOpenChange?: undefined | Ariakit.MenuProviderProps["setOpen"];
+  onRootMenuClose?: undefined | (() => void);
+  onValueChange?: undefined | Ariakit.ComboboxProviderProps["setValue"];
+  onValuesChange?: undefined | Ariakit.MenuProviderProps["setValues"];
 };
 
 export function Menu({
@@ -59,20 +59,25 @@ export function Menu({
 
   const searchable = !!onValuesChange || isRootMenu;
 
-  const content = (
-    <Ariakit.MenuProvider
-      open={open}
-      setOpen={(v) => {
-        if (props.open === undefined) {
-          setOpen(v);
-        }
+  const menuProviderProps: Record<string, unknown> = {
+    open,
+    setOpen: (v: boolean) => {
+      if (props.open === undefined) {
+        setOpen(v);
+      }
 
-        onOpenChange?.(v);
-      }}
-      setValues={onValuesChange}
-      showTimeout={100}
-      {...props}
-    >
+      onOpenChange?.(v);
+    },
+    showTimeout: 100,
+    ...props,
+  };
+
+  if (onValuesChange !== undefined) {
+    menuProviderProps.setValues = onValuesChange;
+  }
+
+  const content = (
+    <Ariakit.MenuProvider {...(menuProviderProps as any)}>
       {trigger}
 
       <MenuContext.Provider value={{ isRootMenu, open: props.open ?? open }}>
@@ -81,10 +86,20 @@ export function Menu({
     </Ariakit.MenuProvider>
   );
 
+  const comboboxProps: Record<string, unknown> = {
+    includesBaseElement: false,
+    resetValueOnHide: true,
+  };
+
+  if (value !== undefined) {
+    comboboxProps.value = value;
+  }
+  if (onValueChange !== undefined) {
+    comboboxProps.setValue = onValueChange;
+  }
+
   return searchable ? (
-    <Ariakit.ComboboxProvider value={value} includesBaseElement={false} setValue={onValueChange} resetValueOnHide>
-      {content}
-    </Ariakit.ComboboxProvider>
+    <Ariakit.ComboboxProvider {...(comboboxProps as any)}>{content}</Ariakit.ComboboxProvider>
   ) : (
     content
   );
@@ -96,8 +111,8 @@ export function MenuTrigger({
   label,
   ...props
 }: React.ComponentProps<typeof Ariakit.MenuButton> & {
-  icon?: React.ReactNode;
-  label?: React.ReactNode;
+  icon?: undefined | React.ReactNode;
+  label?: undefined | React.ReactNode;
 }) {
   return (
     <Ariakit.MenuButton render={(children as any) ?? <MenuItem />} {...props}>
@@ -135,8 +150,8 @@ const menuVariants = cva(
 
 export type MenuContentProps = Ariakit.MenuProps &
   VariantProps<typeof menuVariants> & {
-    animateZoom?: boolean;
-    onClickOutside?: (event: MouseEvent) => void;
+    animateZoom?: undefined | boolean;
+    onClickOutside?: undefined | ((event: MouseEvent) => void);
   };
 
 export function MenuContent({
@@ -179,7 +194,7 @@ export function MenuGroup({
   label,
   ...props
 }: React.ComponentProps<typeof Ariakit.MenuGroup> & {
-  label?: React.ReactNode;
+  label?: undefined | React.ReactNode;
 }) {
   return (
     <>
@@ -234,16 +249,16 @@ const menuItemVariants = cva(
 );
 
 export type MenuItemProps = Omit<Ariakit.ComboboxItemProps, "store"> & {
-  checked?: boolean;
-  group?: string;
-  icon?: React.ReactNode;
-  label?: string;
-  name?: string;
-  parentGroup?: string;
-  preventClose?: boolean;
-  shortcut?: React.ReactNode;
-  shortcutEnter?: boolean;
-  value?: string;
+  checked?: undefined | boolean;
+  group?: undefined | string;
+  icon?: undefined | React.ReactNode;
+  label?: undefined | string;
+  name?: undefined | string;
+  parentGroup?: undefined | string;
+  preventClose?: undefined | boolean;
+  shortcut?: undefined | React.ReactNode;
+  shortcutEnter?: undefined | boolean;
+  value?: undefined | string;
 } & VariantProps<typeof menuItemVariants>;
 
 export function MenuItem({
@@ -261,16 +276,16 @@ export function MenuItem({
   variant,
   ...props
 }: Omit<Ariakit.ComboboxItemProps, "store"> & {
-  checked?: boolean;
-  group?: string;
-  icon?: React.ReactNode;
-  label?: string;
-  name?: string;
-  parentGroup?: string;
-  preventClose?: boolean;
-  shortcut?: React.ReactNode;
-  shortcutEnter?: boolean;
-  value?: string;
+  checked?: undefined | boolean;
+  group?: undefined | string;
+  icon?: undefined | React.ReactNode;
+  label?: undefined | string;
+  name?: undefined | string;
+  parentGroup?: undefined | string;
+  preventClose?: undefined | boolean;
+  shortcut?: undefined | React.ReactNode;
+  shortcutEnter?: undefined | boolean;
+  value?: undefined | string;
 } & VariantProps<typeof menuItemVariants>) {
   const menu = Ariakit.useMenuContext();
 
@@ -317,17 +332,21 @@ export function MenuItem({
 
   if (!searchable) {
     if (name != null && props.value != null) {
-      const radioProps = {
+      const radioProps: Record<string, unknown> = {
         ...baseProps,
         hideOnClick: true,
         name,
         value: props.value as any,
       };
 
-      return <Ariakit.MenuItemRadio {...radioProps} />;
+      if (checked !== undefined) {
+        radioProps.checked = checked;
+      }
+
+      return <Ariakit.MenuItemRadio {...(radioProps as any)} />;
     }
 
-    return <Ariakit.MenuItem {...baseProps} />;
+    return <Ariakit.MenuItem {...(baseProps as any)} />;
   }
 
   const hideOnClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {

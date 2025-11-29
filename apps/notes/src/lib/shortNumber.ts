@@ -2,7 +2,7 @@ const roundDigit = (value: number) => {
   return Math.round(value * 10) / 10;
 };
 
-export const formatNumber = (value?: number) => {
+export const formatNumber = (value?: undefined | number) => {
   return value ? Intl.NumberFormat().format(value) : 0;
 };
 

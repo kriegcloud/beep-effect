@@ -1,9 +1,8 @@
 "use client";
 
+import { BlockList } from "@beep/notes/registry/ui/block-list";
 import { ListPlugin } from "@platejs/list/react";
 import { KEYS } from "platejs";
-
-import { BlockList } from "@/registry/ui/block-list";
 
 import { IndentKit } from "./indent-kit";
 

@@ -4,7 +4,7 @@ export function traverseElementNodes(
   nodes: Descendant[],
   callback: (node: Descendant, path: Path) => boolean | void,
   path: Path = []
-) {
+): boolean | void {
   for (const [index, childNode] of nodes.entries()) {
     const childPath = path.concat(index);
 
@@ -18,4 +18,5 @@ export function traverseElementNodes(
       }
     }
   }
+  return undefined;
 }

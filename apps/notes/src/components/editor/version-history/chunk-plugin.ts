@@ -1,19 +1,13 @@
-import type { PluginConfig } from "platejs";
 import { createTPlatePlugin } from "platejs/react";
-import type { Dispatch, SetStateAction } from "react";
 
 import { BlockChunk } from "./chunk-node";
+import { CHUNK_PLUGIN_KEY, type ChunkPluginConfig } from "./chunk-types";
 import { withGetFragmentExcludeProps } from "./diff-plugin";
 
-export type ChunkPluginConfig = PluginConfig<
-  "chunk",
-  {
-    setExpandedChunks?: Dispatch<SetStateAction<number[]>>;
-  }
->;
+export type { ChunkPluginConfig } from "./chunk-types";
 
 export const ChunkPlugin = createTPlatePlugin<ChunkPluginConfig>({
-  key: "chunk",
+  key: CHUNK_PLUGIN_KEY,
   options: {
     setExpandedChunks: () => {},
   },

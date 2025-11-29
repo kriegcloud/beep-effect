@@ -23,7 +23,13 @@ export const removeExpandedIdFromStorage = (documentId: string) => {
   }
 };
 
-export const DocumentList = ({ level = 0, parentDocumentId }: { level?: number; parentDocumentId?: string }) => {
+export const DocumentList = ({
+  level = 0,
+  parentDocumentId,
+}: {
+  readonly level?: undefined | number;
+  readonly parentDocumentId?: undefined | string;
+}) => {
   const authGuard = useAuthGuard();
   const documentId = useDocumentId();
   const router = useRouter();
@@ -91,7 +97,7 @@ export const DocumentList = ({ level = 0, parentDocumentId }: { level?: number; 
             expanded={expandedIds.includes(document.id)}
             icon={Icons.document}
             level={level}
-            updatedAt={document.updatedAt}
+            updatedAt={"updatedAt" in document ? document.updatedAt : undefined}
           />
           {expandedIds.includes(document.id) && (
             // to display all the child documents under a parent document

@@ -10,7 +10,6 @@
       "!!**/src/generated",
       "!!**/.contentlayer",
       "!!**/.next",
-      "!!**/.next-admin",
       "!!**/prisma/json-schema"
     ]
   }

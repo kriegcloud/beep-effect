@@ -18,17 +18,17 @@ export type Chat = UseChatHelpers<ChatMessage>;
 export type ChatMessage = UIMessage<{}, MessageDataPart>;
 
 export type MessageDataPart = {
-  toolName: ToolName;
-  comment?: TComment;
+  readonly toolName: ToolName;
+  readonly comment?: undefined | TComment;
 };
 
 export type TComment = {
-  comment: {
-    blockId: string;
-    comment: string;
-    content: string;
+  readonly comment: {
+    readonly blockId: string;
+    readonly comment: string;
+    readonly content: string;
   } | null;
-  status: "finished" | "streaming";
+  readonly status: "finished" | "streaming";
 };
 
 export type ToolName = "comment" | "edit" | "generate";
@@ -51,50 +51,53 @@ export const useChat = () => {
     transport: new DefaultChatTransport({
       api: "/api/ai/command",
       // Mock the API response. Remove it when you implement the route /api/ai/command
-      fetch: async (input, init) => {
-        const res = await fetch(input, init);
+      fetch: Object.assign(
+        async (input: any, init: any) => {
+          const res = await fetch(input, init);
 
-        if (!res.ok) {
-          let sample: "comment" | "markdown" | "mdx" | null = null;
+          if (!res.ok) {
+            let sample: "comment" | "markdown" | "mdx" | null = null;
 
-          try {
-            const content = JSON.parse(init?.body as string)
-              .messages.at(-1)
-              .parts.find((p: any) => p.type === "text")?.text;
+            try {
+              const content = JSON.parse(init?.body as string)
+                .messages.at(-1)
+                .parts.find((p: any) => p.type === "text")?.text;
 
-            if (content.includes("Generate a markdown sample")) {
-              sample = "markdown";
-            } else if (content.includes("Generate a mdx sample")) {
-              sample = "mdx";
-            } else if (content.includes("comment")) {
-              sample = "comment";
+              if (content.includes("Generate a markdown sample")) {
+                sample = "markdown";
+              } else if (content.includes("Generate a mdx sample")) {
+                sample = "mdx";
+              } else if (content.includes("comment")) {
+                sample = "comment";
+              }
+            } catch {
+              sample = null;
             }
-          } catch {
-            sample = null;
+
+            abortControllerRef.current = new AbortController();
+
+            await new Promise((resolve) => setTimeout(resolve, 400));
+
+            const stream = fakeStreamText({
+              editor,
+              sample,
+              signal: abortControllerRef.current.signal,
+            });
+
+            const response = new Response(stream, {
+              headers: {
+                Connection: "keep-alive",
+                "Content-Type": "text/plain",
+              },
+            });
+
+            return response;
           }
 
-          abortControllerRef.current = new AbortController();
-
-          await new Promise((resolve) => setTimeout(resolve, 400));
-
-          const stream = fakeStreamText({
-            editor,
-            sample,
-            signal: abortControllerRef.current.signal,
-          });
-
-          const response = new Response(stream, {
-            headers: {
-              Connection: "keep-alive",
-              "Content-Type": "text/plain",
-            },
-          });
-
-          return response;
-        }
-
-        return res;
-      },
+          return res;
+        },
+        { preconnect: () => {} }
+      ),
     }),
     onData(data) {
       if (data.type === "data-toolName") {
@@ -166,7 +169,6 @@ export const useChat = () => {
 
   React.useEffect(() => {
     editor.setOption(AIChatPlugin, "chat", chat as any);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chat.status, chat.messages, chat.error]);
 
   return chat;
@@ -276,7 +278,7 @@ const fakeStreamText = ({
         await new Promise((resolve) => setTimeout(resolve, 10));
 
         for (let i = 0; i < blocks.length; i++) {
-          const block = blocks[i];
+          const block = blocks[i] ?? [];
 
           // Stream the block content
           for (const chunk of block) {
@@ -1475,7 +1477,5 @@ const createCommentChunks = (editor: PlateEditor) => {
     })
     .filter((chunk) => chunk.length > 0);
 
-  const result_chunks = [[{ delay: 50, texts: '{"data":"comment","type":"data-toolName"}' }], ...chunks];
-
-  return result_chunks;
+  return [[{ delay: 50, texts: '{"data":"comment","type":"data-toolName"}' }], ...chunks];
 };

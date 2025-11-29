@@ -1,5 +1,5 @@
 "use client";
-
+import { exact } from "@beep/utils/struct";
 import { useCalloutEmojiPicker } from "@platejs/callout/react";
 import { useEmojiDropdownMenuState } from "@platejs/emoji/react";
 import { PlateElement, type PlateElementProps } from "platejs/react";
@@ -46,7 +46,7 @@ export function CalloutElement(props: PlateElementProps) {
             </Button>
           }
         >
-          <EmojiPicker {...emojiPickerState} {...calloutProps} />
+          <EmojiPicker {...exact(emojiPickerState)} {...calloutProps} />
         </EmojiPopover>
         <div className="w-full">{props.children}</div>
       </div>

@@ -9,7 +9,7 @@ import * as Equal from "effect/Equal";
 import * as Exit from "effect/Exit";
 import * as Option from "effect/Option";
 import * as Predicate from "effect/Predicate";
-
+import type { UnsafeAny } from "./internal/types";
 // ----------------------------
 // Primitives
 // ----------------------------
@@ -80,7 +80,7 @@ export function doesNotThrow(thunk: () => void, _message?: string | undefined, .
  *
  * @since 0.21.0
  */
-export function assertInstanceOf<C extends abstract new (...args: any) => any>(
+export function assertInstanceOf<C extends abstract new (...args: UnsafeAny) => UnsafeAny>(
   value: unknown,
   constructor: C,
   _message?: string | undefined,

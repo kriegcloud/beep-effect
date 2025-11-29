@@ -33,11 +33,14 @@ export async function POST(request: NextRequest) {
     let browser: Browser;
 
     try {
-      browser = await puppeteer.launch({
+      const launchOptions: any = {
         args: ["--no-sandbox", "--disable-gpu", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
         headless: true,
-      });
+      };
+      if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+        launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+      }
+      browser = await puppeteer.launch(launchOptions);
     } catch (error) {
       console.error("Browser launch error:", error);
 

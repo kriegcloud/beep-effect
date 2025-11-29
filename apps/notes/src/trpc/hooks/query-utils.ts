@@ -1,20 +1,19 @@
-/* eslint-disable react-hooks/rules-of-hooks */
+import type { UnsafeTypes } from "@beep/types";
 import { useCallback, useMemo } from "react";
-
 import { api } from "../react";
 
 export const useQueryUtils =
   <
     T extends {
-      cancel: (...args: any) => any;
-      getData: (...args: any) => any;
-      invalidate: (...args: any) => any;
-      setData: (...args: any) => any;
+      cancel: (...args: UnsafeTypes.UnsafeAny) => UnsafeTypes.UnsafeAny;
+      getData: (...args: UnsafeTypes.UnsafeAny) => UnsafeTypes.UnsafeAny;
+      invalidate: (...args: UnsafeTypes.UnsafeAny) => UnsafeTypes.UnsafeAny;
+      setData: (...args: UnsafeTypes.UnsafeAny) => UnsafeTypes.UnsafeAny;
     },
   >(
     useUtils: (utils: ReturnType<typeof api.useUtils>) => T
   ) =>
-  (input?: Parameters<T["getData"]>[0]) => {
+  (input?: undefined | Parameters<T["getData"]>[0]) => {
     const utils = useUtils(api.useUtils());
 
     const methods = useMemo(
@@ -38,8 +37,8 @@ export const useQueryUtils =
     return {
       ...methods,
       rollback: useCallback(
-        // (context?: { prevData: NonNullable<ReturnType<T['getData']>> }) => {
-        (context?: any) => {
+        // (context?: undefined | { prevData: NonNullable<ReturnType<T['getData']>> }) => {
+        (context?: undefined | UnsafeTypes.UnsafeAny) => {
           methods.setData(context?.prevData);
         },
         [methods]
@@ -47,7 +46,7 @@ export const useQueryUtils =
       update: useCallback(
         async (
           updater: (prevData: NonNullable<ReturnType<T["getData"]>>) => NonNullable<ReturnType<T["getData"]>>,
-          { cancel = true }: { cancel?: boolean } = {}
+          { cancel = true }: { cancel?: undefined | boolean } = {}
         ) => {
           if (cancel) {
             await methods.cancel();
@@ -71,15 +70,15 @@ export const useQueryUtils =
 export const useInfiniteQueryUtils =
   <
     T extends {
-      cancel: (...args: any) => any;
-      getInfiniteData: (...args: any) => any;
-      invalidate: (...args: any) => any;
-      setInfiniteData: (...args: any) => any;
+      cancel: (...args: UnsafeTypes.UnsafeAny) => UnsafeTypes.UnsafeAny;
+      getInfiniteData: (...args: UnsafeTypes.UnsafeAny) => UnsafeTypes.UnsafeAny;
+      invalidate: (...args: UnsafeTypes.UnsafeAny) => UnsafeTypes.UnsafeAny;
+      setInfiniteData: (...args: UnsafeTypes.UnsafeAny) => UnsafeTypes.UnsafeAny;
     },
   >(
     useUtils: (utils: ReturnType<typeof api.useUtils>) => T
   ) =>
-  (input?: Parameters<T["getInfiniteData"]>[0]) => {
+  (input?: undefined | Parameters<T["getInfiniteData"]>[0]) => {
     const utils = useUtils(api.useUtils());
 
     const methods = useMemo(
@@ -103,7 +102,7 @@ export const useInfiniteQueryUtils =
     return {
       ...methods,
       rollback: useCallback(
-        (context?: { prevData: NonNullable<ReturnType<T["getInfiniteData"]>> }) => {
+        (context?: undefined | { prevData: NonNullable<ReturnType<T["getInfiniteData"]>> }) => {
           methods.setInfiniteData(context?.prevData);
         },
         [methods]
@@ -113,7 +112,7 @@ export const useInfiniteQueryUtils =
           updater: (
             prevData: NonNullable<ReturnType<T["getInfiniteData"]>>
           ) => NonNullable<ReturnType<T["getInfiniteData"]>>,
-          { cancel = true }: { cancel?: boolean } = {}
+          { cancel = true }: { cancel?: undefined | boolean } = {}
         ) => {
           if (cancel) {
             await methods.cancel();

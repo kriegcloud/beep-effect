@@ -41,6 +41,7 @@
  */
 import { mergeSchemaAnnotations } from "@beep/schema/core/annotations/built-in-annotations";
 import { $KitsId } from "@beep/schema/internal";
+import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
@@ -168,12 +169,12 @@ export function makeMappedLiteralKit<const Pairs extends MappedPairs>(
   const fromLiterals: ExtractFromLiterals<Pairs> & A.NonEmptyReadonlyArray<string> = F.pipe(
     pairs,
     A.map(([from]) => from)
-  ) as any;
+  ) as UnsafeTypes.UnsafeAny;
 
   const toLiterals: ExtractToLiterals<Pairs> & A.NonEmptyReadonlyArray<string> = F.pipe(
     pairs,
     A.map(([, to]) => to)
-  ) as any;
+  ) as UnsafeTypes.UnsafeAny;
 
   // Build lookup maps
   const decodeMap = new Map<Pairs[number][0], Pairs[number][1]>(A.map(pairs, ([from, to]) => [from, to] as const));
@@ -184,7 +185,7 @@ export function makeMappedLiteralKit<const Pairs extends MappedPairs>(
 
   // Create the underlying transform schema
   const baseSchema: ReturnType<typeof S.transformLiterals<AST.Members<readonly [AST.LiteralValue, AST.LiteralValue]>>> =
-    S.transformLiterals(...(pairs as any));
+    S.transformLiterals(...(pairs as UnsafeTypes.UnsafeAny));
 
   // Use provided AST or extract from base schema
   const schemaAST = ast ?? baseSchema.ast;
@@ -204,7 +205,7 @@ export function makeMappedLiteralKit<const Pairs extends MappedPairs>(
     static decodeMap = decodeMap;
     static encodeMap = encodeMap;
     static Map = hashMap;
-  } as any;
+  } as UnsafeTypes.UnsafeAny;
 }
 
 // ============================================================================

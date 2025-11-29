@@ -31,10 +31,10 @@ import { Skeleton } from "../ui/skeleton";
 import { Switch } from "../ui/switch";
 
 export const TEXT_STYLE_ITEMS: {
-  key: TextStyle;
-  fontFamily: string;
-  label: string;
-  tooltip: string;
+  readonly key: TextStyle;
+  readonly fontFamily: string;
+  readonly label: string;
+  readonly tooltip: string;
 }[] = [
   {
     key: TextStyle.DEFAULT,
@@ -215,7 +215,7 @@ function DocumentMenuContent() {
             onClick={(e) => authGuard(() => onCustomDocument(e, item.key, !documentCustom[item.key]))}
           >
             <span>{item.label}</span>
-            <Switch checked={documentCustom[item.key]} />
+            <Switch checked={documentCustom[item.key] ?? false} />
           </DropdownMenuItem>
         ))}
       </DropdownMenuGroup>

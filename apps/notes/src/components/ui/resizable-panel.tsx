@@ -5,34 +5,34 @@ import { RightPanelType } from "@beep/notes/hooks/useResizablePanel";
 import { cn } from "@beep/notes/lib/utils";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 
-export type Layout = { leftSize?: number; rightSize?: number };
+export type Layout = { leftSize?: undefined | number; rightSize?: undefined | number };
 
 interface PanelsContextProps {
-  hiddenLeft: boolean;
-  hiddenRight: boolean;
-  leftSize: number;
-  rightPanelType: RightPanelType;
-  rightSize: number;
-  serverPersistenceId: string;
-  setLeftSize: React.Dispatch<React.SetStateAction<number>>;
-  setRightPanelType: React.Dispatch<React.SetStateAction<RightPanelType>>;
-  setRightSize: React.Dispatch<React.SetStateAction<number>>;
-  onLayout: (layout: Layout) => void;
-  onRightPanelTypeChange?: (type: RightPanelType) => void;
+  readonly hiddenLeft: boolean;
+  readonly hiddenRight: boolean;
+  readonly leftSize: number;
+  readonly rightPanelType: RightPanelType;
+  readonly rightSize: number;
+  readonly serverPersistenceId: string;
+  readonly setLeftSize: React.Dispatch<React.SetStateAction<number>>;
+  readonly setRightPanelType: React.Dispatch<React.SetStateAction<RightPanelType>>;
+  readonly setRightSize: React.Dispatch<React.SetStateAction<number>>;
+  readonly onLayout: (layout: Layout) => void;
+  readonly onRightPanelTypeChange?: undefined | ((type: RightPanelType) => void);
 }
 
 export const PanelsContext = React.createContext<Partial<PanelsContextProps>>({});
 
 interface ResizablePanelGroupProps {
-  initLeftSize: number;
-  initRightSize: number;
-  serverPersistenceId: string;
-  serverPersistenceRightPanelType: string;
-  className?: string;
-  hiddenLeft?: boolean;
-  hiddenRight?: boolean;
-  onLayout?: (layout: Layout) => void;
-  onRightPanelTypeChange?: (type: RightPanelType) => void;
+  readonly initLeftSize: number;
+  readonly initRightSize: number;
+  readonly serverPersistenceId: string;
+  readonly serverPersistenceRightPanelType: string;
+  readonly className?: undefined | string;
+  readonly hiddenLeft?: undefined | boolean;
+  readonly hiddenRight?: undefined | boolean;
+  readonly onLayout?: undefined | ((layout: Layout) => void);
+  readonly onRightPanelTypeChange?: undefined | ((type: RightPanelType) => void);
 }
 
 export const ResizablePanelGroup = React.memo(
@@ -68,8 +68,8 @@ export const ResizablePanelGroup = React.memo(
     return (
       <PanelsContext.Provider
         value={{
-          hiddenLeft,
-          hiddenRight,
+          hiddenLeft: Boolean(hiddenLeft),
+          hiddenRight: Boolean(hiddenRight),
           leftSize,
           rightPanelType: rightPanelTypeState,
           rightSize,
@@ -77,8 +77,8 @@ export const ResizablePanelGroup = React.memo(
           setLeftSize,
           setRightPanelType,
           setRightSize,
-          onLayout,
-          onRightPanelTypeChange,
+          ...(onLayout ? { onLayout } : {}),
+          ...(onRightPanelTypeChange ? { onRightPanelTypeChange } : {}),
         }}
       >
         <div className={cn("flex flex-1", className)}>{children}</div>
@@ -88,8 +88,8 @@ export const ResizablePanelGroup = React.memo(
 );
 
 interface ResizablePanelProps {
-  maxSize?: number;
-  minSize?: number;
+  readonly maxSize?: undefined | number;
+  readonly minSize?: undefined | number;
 }
 
 export const ResizableLeftPanel = React.memo(
@@ -111,8 +111,7 @@ export const ResizableLeftPanel = React.memo(
         setLeftSize?.(0);
         onLayout?.({ leftSize: 0, rightSize: rightSize ?? 0 });
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [hiddenLeft]);
+    }, [hiddenLeft, setLeftSize, onLayout, rightSize]);
 
     return (
       <div
@@ -124,8 +123,8 @@ export const ResizableLeftPanel = React.memo(
 
           <ResizableHandle
             isDragging={isDragging}
-            maxSize={maxSize}
-            minSize={minSize}
+            {...(maxSize !== undefined && { maxSize })}
+            {...(minSize !== undefined && { minSize })}
             setIsDragging={setIsDragging}
             isLeft
           />
@@ -157,10 +156,10 @@ const ResizableHandle = ({ className, isDragging, isLeft, maxSize, minSize, setI
   const [initialPanelSize, setInitialPanelSize] = useState(0);
 
   const onMouseDown = useCallback(
-    (e) => {
+    (e: React.MouseEvent) => {
       setIsDragging?.(true);
       setInitialMouseX(e.clientX);
-      setInitialPanelSize(isLeft ? leftSize! : rightSize!);
+      setInitialPanelSize(isLeft ? (leftSize ?? 0) : (rightSize ?? 0));
 
       document.body.style.userSelect = "none";
       document.body.style.pointerEvents = "none";
@@ -179,7 +178,7 @@ const ResizableHandle = ({ className, isDragging, isLeft, maxSize, minSize, setI
   }, [leftSize, onLayout, rightSize, setIsDragging]);
 
   const onMouseMove = useCallback(
-    (e) => {
+    (e: MouseEvent) => {
       if (isDragging) {
         const deltaX = e.clientX - initialMouseX;
         let newSize: number;
@@ -282,15 +281,19 @@ export const ResizableRightPanel = React.memo(
         setRightSize?.(0);
         onLayout?.({ leftSize: leftSize ?? 0, rightSize: 0 });
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [hiddenRight]);
+    }, [hiddenRight, setRightSize, onLayout, leftSize]);
 
     return (
       <div
         className={cn("relative flex h-full overflow-hidden", !isDragging && "transition-[width]")}
         style={{ width: rightSize }}
       >
-        <ResizableHandle isDragging={isDragging} maxSize={maxSize} minSize={minSize} setIsDragging={setIsDragging} />
+        <ResizableHandle
+          isDragging={isDragging}
+          {...(maxSize !== undefined && { maxSize })}
+          {...(minSize !== undefined && { minSize })}
+          setIsDragging={setIsDragging}
+        />
 
         <div className="flex-1">{children}</div>
       </div>

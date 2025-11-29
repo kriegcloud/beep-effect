@@ -27,10 +27,12 @@ export const useToggleLeftPanel = () => {
   );
 };
 
-export enum RightPanelType {
-  history = 0,
-  comment = 1,
-}
+export const RightPanelType = {
+  history: 0,
+  comment: 1,
+} as const;
+
+export type RightPanelType = (typeof RightPanelType)[keyof typeof RightPanelType];
 
 export const useToggleRightPanel = () => {
   const context = React.useContext(PanelsContext);

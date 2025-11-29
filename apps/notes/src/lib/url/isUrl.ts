@@ -18,7 +18,7 @@ export const isUrl = (url: string) => {
     const lastDotIndex = parsedUrl.hostname.lastIndexOf(".");
 
     if (lastDotIndex !== -1 && lastDotIndex < parsedUrl.hostname.length - 1) {
-      const firstLetter = parsedUrl.hostname[lastDotIndex + 1];
+      const firstLetter = parsedUrl.hostname[lastDotIndex + 1] as keyof typeof tlds;
 
       if (firstLetter && tlds[firstLetter]) {
         return tlds[firstLetter].some((tld: string) => parsedUrl.hostname.endsWith(tld));

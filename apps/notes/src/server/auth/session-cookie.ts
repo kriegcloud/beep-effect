@@ -1,13 +1,15 @@
 import { env } from "@beep/notes/env";
+import { pipe } from "effect";
+import * as A from "effect/Array";
+import * as Str from "effect/String";
 import { cookies } from "next/headers";
-
 export const SESSION_COOKIE_NAME = "session";
 
 const getDomainFromUrl = (url: string) => {
   if (env.NEXT_PUBLIC_ENVIRONMENT === "production") {
-    const parts = url.split(".");
+    const parts = pipe(url, Str.split("."));
 
-    return parts.length > 1 ? `.${parts.slice(-2).join(".")}` : undefined;
+    return A.length(parts) > 1 ? `.${pipe(parts.slice(-2), A.join("."))}` : undefined;
   }
 
   return;

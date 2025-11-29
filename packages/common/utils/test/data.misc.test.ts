@@ -1,7 +1,7 @@
 import { expect } from "bun:test";
 import { InvariantViolation } from "@beep/invariant/error";
 import { effect } from "@beep/testkit";
-import type { StringTypes } from "@beep/types";
+import type { StringTypes, UnsafeTypes } from "@beep/types";
 import { modelFieldKeys } from "@beep/utils/data/model.utils";
 import { merge, recordKeys, recordStringValues, reverseRecord } from "@beep/utils/data/record.utils";
 import { structEntries, structKeys, structStringEntries, structValues } from "@beep/utils/data/struct.utils";
@@ -70,7 +70,7 @@ effect("struct utilities return non-empty collections and throw on empties", () 
     expect(entries).toEqual([
       ["id", S.String],
       ["age", S.Number],
-    ] as any);
+    ] as UnsafeTypes.UnsafeAny);
     expect(stringEntries).toEqual([["en", "English"]]);
 
     // @ts-expect-error

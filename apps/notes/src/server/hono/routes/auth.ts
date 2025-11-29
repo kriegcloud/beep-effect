@@ -115,7 +115,26 @@ export const authRoutes = new Hono()
 
         const sessionCookie = createSessionCookie(sessionToken, session.expires_at);
 
-        setCookie(c, sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+        const cookieOptions: {
+          httpOnly: boolean;
+          path: string;
+          sameSite: "lax" | "none";
+          secure: boolean;
+          expires: Date;
+          domain?: string;
+        } = {
+          httpOnly: sessionCookie.attributes.httpOnly,
+          path: sessionCookie.attributes.path,
+          sameSite: sessionCookie.attributes.sameSite,
+          secure: sessionCookie.attributes.secure,
+          expires: sessionCookie.attributes.expires,
+        };
+
+        if (sessionCookie.attributes.domain) {
+          cookieOptions.domain = sessionCookie.attributes.domain;
+        }
+
+        setCookie(c, sessionCookie.name, sessionCookie.value, cookieOptions);
 
         // Clean up temporary cookies
         deleteCookie(c, "oauth_state");
@@ -138,140 +157,28 @@ export const authRoutes = new Hono()
     if (session) {
       await invalidateSession(session.id);
       const cookie = createBlankSessionCookie();
-      setCookie(c, cookie.name, cookie.value, cookie.attributes);
+
+      const cookieOptions: {
+        httpOnly: boolean;
+        path: string;
+        sameSite: "lax" | "none";
+        secure: boolean;
+        maxAge: number;
+        domain?: string;
+      } = {
+        httpOnly: cookie.attributes.httpOnly,
+        path: cookie.attributes.path,
+        sameSite: cookie.attributes.sameSite,
+        secure: cookie.attributes.secure,
+        maxAge: cookie.attributes.maxAge,
+      };
+
+      if (cookie.attributes.domain) {
+        cookieOptions.domain = cookie.attributes.domain;
+      }
+
+      setCookie(c, cookie.name, cookie.value, cookieOptions);
     }
 
     return c.json({ success: true });
   });
-// .post(
-//   '/signup',
-//   ...publicMiddlewares(),
-//   zValidator(
-//     'json',
-//     z.object({
-//       email: z.string().email(),
-//       name: z.string().optional(),
-//       password: z.string().min(5),
-//     })
-//   ),
-//   async (c) => {
-//     const { email, name, password } = c.req.valid('json');
-
-//     try {
-//       // Check if user already exists
-//       const existingUser = await prisma.user.findUnique({
-//         where: {
-//           email,
-//         },
-//       });
-
-//       if (existingUser) {
-//         return c.json({ error: 'Email already in use' }, 400);
-//       }
-
-//       const passwordHash = await hash(password, {
-//         memoryCost: 19_456,
-//         outputLen: 32,
-//         parallelism: 1,
-//         timeCost: 2,
-//       });
-
-//       const user = await findOrCreateUser({
-//         email,
-//         name,
-//         password: passwordHash,
-//         providerId: 'credentials',
-//         providerUserId: email,
-//       });
-
-//       const sessionToken = generateRandomToken();
-//       const session = await createSession(sessionToken, user.id, {
-//         ipAddress: c.req.header('X-Forwarded-For') ?? '127.0.0.1',
-//         userAgent: c.req.header('User-Agent') || null,
-//       });
-
-//       const sessionCookie = createSessionCookie(
-//         sessionToken,
-//         session.expires_at
-//       );
-
-//       setCookie(
-//         c,
-//         sessionCookie.name,
-//         sessionCookie.value,
-//         sessionCookie.attributes
-//       );
-
-//       return c.json({ success: true });
-//     } catch (error) {
-//       if (error instanceof Error) {
-//         return c.json({ error: error.message }, 400);
-//       }
-
-//       return c.json({ error: 'Internal server error' }, 500);
-//     }
-//   }
-// )
-// .post(
-//   '/login',
-//   ...publicMiddlewares(),
-//   zValidator(
-//     'json',
-//     z.object({
-//       email: z.string().email(),
-//       password: z.string(),
-//     })
-//   ),
-//   async (c) => {
-//     const { email, password } = c.req.valid('json');
-
-//     try {
-//       const user = await prisma.user.findUnique({
-//         where: {
-//           email,
-//         },
-//       });
-
-//       if (!user?.password_hash) {
-//         return c.json({ error: 'Invalid email or password' }, 400);
-//       }
-
-//       const validPassword = await verify(user.password_hash, password, {
-//         memoryCost: 19_456,
-//         outputLen: 32,
-//         parallelism: 1,
-//         timeCost: 2,
-//       });
-
-//       if (!validPassword) {
-//         return c.json({ error: 'Invalid email or password' }, 400);
-//       }
-
-//       const sessionToken = generateRandomToken();
-//       const session = await createSession(sessionToken, user.id, {
-//         ipAddress: c.req.header('X-Forwarded-For') ?? '127.0.0.1',
-//         userAgent: c.req.header('User-Agent') || null,
-//       });
-
-//       const sessionCookie = createSessionCookie(
-//         sessionToken,
-//         session.expires_at
-//       );
-
-//       setCookie(
-//         c,
-//         sessionCookie.name,
-//         sessionCookie.value,
-//         sessionCookie.attributes
-//       );
-
-//       return c.json({ success: true });
-//     } catch (error) {
-//       if (error instanceof Error) {
-//         return c.json({ error: error.message }, 400);
-//       }
-
-//       return c.json({ error: 'Internal server error' }, 500);
-//     }
-//   }
-// );

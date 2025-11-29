@@ -2,14 +2,14 @@ import { useDebouncedCallback } from "@beep/notes/hooks/useDebounceCallback";
 import { useWarnIfUnsavedChanges } from "@beep/notes/hooks/useWarnIfUnsavedChanges";
 import { mergeDefined } from "@beep/notes/lib/mergeDefined";
 import { api, useTRPC } from "@beep/notes/trpc/react";
+import type { UnsafeTypes } from "@beep/types";
 import { produce } from "immer";
 import { useCallback } from "react";
-
-export const useUpdateDocumentMutation = () => {
+export const useUpdateDocumentMutation = (): ReturnType<typeof api.document.update.useMutation> => {
   const trpc = useTRPC();
 
   return api.document.update.useMutation({
-    onError: (_, __, context: any) => {
+    onError: (_, __, context: UnsafeTypes.UnsafeAny) => {
       if (context?.previousDocuments) {
         trpc.document.documents.setData({}, context.previousDocuments);
       }
@@ -26,7 +26,7 @@ export const useUpdateDocumentMutation = () => {
 
       trpc.document.document.setData({ id: input.id }, (old) =>
         produce(old, (draft) => {
-          if (!draft?.document) return draft;
+          if (!draft?.document) return;
 
           draft.document = {
             ...mergeDefined(input, draft.document, {
@@ -38,7 +38,7 @@ export const useUpdateDocumentMutation = () => {
 
       trpc.document.documents.setData({}, (old) =>
         produce(old, (draft) => {
-          if (!draft) return draft;
+          if (!draft) return;
 
           draft.documents = draft.documents.map((document) => {
             if (document.id === input.id) {
@@ -117,11 +117,11 @@ export const useUpdateDocumentTitle = () => {
   );
 };
 
-export const useArchiveDocumentMutation = () => {
+export const useArchiveDocumentMutation = (): ReturnType<typeof api.document.archive.useMutation> => {
   const trpc = useTRPC();
 
   return api.document.archive.useMutation({
-    onError: (_, __, context: any) => {
+    onError: (_, __, context: UnsafeTypes.UnsafeAny) => {
       if (context?.previousDocuments) {
         trpc.document.documents.setData({}, context.previousDocuments);
       }
@@ -145,11 +145,13 @@ export const useArchiveDocumentMutation = () => {
       );
 
       trpc.document.document.setData({ id: input.id }, (old) =>
-        produce(old, (draft) => {
-          if (!draft?.document) return draft;
+        old
+          ? produce(old, (draft) => {
+              if (!draft.document) return;
 
-          draft.document.isArchived = true;
-        })
+              draft.document.isArchived = true;
+            })
+          : old
       );
 
       return { id: input.id, previousDocument, previousDocuments };
@@ -168,7 +170,7 @@ export const useUpdateDocumentValue = () => {
   useWarnIfUnsavedChanges({ enabled: updateDocumentDebounced.isPending() });
 
   return useCallback(
-    (input: { id: string; value: any }) => {
+    (input: { id: string; value: UnsafeTypes.UnsafeAny }) => {
       updateDocumentDebounced({
         id: input.id,
         contentRich: input.value,

@@ -233,9 +233,10 @@ export function useDebouncedCallback<T extends (...args: any) => ReturnType<T>>(
 
       // Restart the timer
       startTimer(timerExpired, remainingWait);
+      return;
     };
 
-    const func: DebouncedState<T> = (...args: Parameters<T>): ReturnType<T> => {
+    const func: DebouncedState<T> = function (this: any, ...args: Parameters<T>): ReturnType<T> {
       if (!isClientSize && !debounceOnServer) {
         return undefined as any;
       }

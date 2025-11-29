@@ -3,8 +3,6 @@
 @import 'tw-animate-css';
 
 @plugin 'tailwind-scrollbar-hide';
-@source '../../node_modules/@premieroctet/next-admin/dist';
-@config '@premieroctet/next-admin/preset';
 
 @custom-variant dark (&:is(.dark *));
 

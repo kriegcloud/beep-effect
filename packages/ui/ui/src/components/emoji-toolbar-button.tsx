@@ -1,7 +1,6 @@
 "use client";
 
-/* eslint-disable react-hooks/refs */
-
+import type { UnsafeTypes } from "@beep/types";
 import { Button } from "@beep/ui/components/button";
 import { ToolbarButton } from "@beep/ui/components/toolbar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@beep/ui/components/tooltip";
@@ -223,7 +222,8 @@ function EmojiPickerContent({
   const getRowWidth = settings.perLine.value * settings.buttonSize.value;
 
   const isCategoryVisible = React.useCallback(
-    (categoryId: any) => (visibleCategories.has(categoryId) ? visibleCategories.get(categoryId) : false),
+    (categoryId: UnsafeTypes.UnsafeAny) =>
+      visibleCategories.has(categoryId) ? visibleCategories.get(categoryId) : false,
     [visibleCategories]
   );
 

@@ -3,6 +3,7 @@
 import { type UseChatHelpers, useChat as useBaseChat } from "@ai-sdk/react";
 import { useDocumentId } from "@beep/notes/lib/navigation/routes";
 import { api, useTRPC } from "@beep/notes/trpc/react";
+import type { UnsafeTypes } from "@beep/types";
 import { faker } from "@faker-js/faker";
 import { AIChatPlugin, aiCommentToRange } from "@platejs/ai/react";
 import { getCommentKey, getTransientCommentKey } from "@platejs/comment";
@@ -20,17 +21,19 @@ export type Chat = UseChatHelpers<ChatMessage>;
 export type ChatMessage = UIMessage<{}, MessageDataPart>;
 
 export type MessageDataPart = {
-  toolName: ToolName;
-  comment?: TComment;
+  readonly toolName: ToolName;
+  readonly comment?: undefined | TComment;
 };
 
 export type TComment = {
   status: "finished" | "streaming";
-  comment?: {
-    blockId: string;
-    comment: string;
-    content: string;
-  };
+  comment?:
+    | undefined
+    | {
+        readonly blockId: string;
+        readonly comment: string;
+        readonly content: string;
+      };
 };
 
 export type ToolName = "comment" | "edit" | "generate";
@@ -41,7 +44,7 @@ export const useChat = () => {
 
   const trpc = useTRPC();
   const createDiscussionWithComment = api.comment.createDiscussionWithComment.useMutation({
-    onError(_, __, context: any) {
+    onError(_, __, context: UnsafeTypes.UnsafeAny) {
       if (context?.previousDiscussions) {
         trpc.comment.discussions.setData({ documentId }, context.previousDiscussions);
       }
@@ -69,57 +72,60 @@ export const useChat = () => {
     }
   };
 
-  let promise: Promise<Response> | undefined;
+  let promise: Promise<UnsafeTypes.UnsafeAny> | undefined;
 
   const baseChat = useBaseChat<ChatMessage>({
     id: "editor",
     transport: new DefaultChatTransport({
       api: "/api/ai/command",
       // Mock the API response. Remove it when you implement the route /api/ai/command
-      fetch: async (input, init) => {
-        const res = await fetch(input, init);
+      fetch: Object.assign(
+        async (input: UnsafeTypes.UnsafeAny, init: UnsafeTypes.UnsafeAny) => {
+          const res = await fetch(input, init);
 
-        if (!res.ok) {
-          let sample: "comment" | "markdown" | "mdx" | null = null;
+          if (!res.ok) {
+            let sample: "comment" | "markdown" | "mdx" | null = null;
 
-          try {
-            const content = JSON.parse(init?.body as string)
-              .messages.at(-1)
-              .parts.find((p: any) => p.type === "text")?.text;
+            try {
+              const content = JSON.parse(init?.body as string)
+                .messages.at(-1)
+                .parts.find((p: UnsafeTypes.UnsafeAny) => p.type === "text")?.text;
 
-            if (content.includes("Generate a markdown sample")) {
-              sample = "markdown";
-            } else if (content.includes("Generate a mdx sample")) {
-              sample = "mdx";
-            } else if (content.includes("comment")) {
-              sample = "comment";
+              if (content.includes("Generate a markdown sample")) {
+                sample = "markdown";
+              } else if (content.includes("Generate a mdx sample")) {
+                sample = "mdx";
+              } else if (content.includes("comment")) {
+                sample = "comment";
+              }
+            } catch {
+              sample = null;
             }
-          } catch {
-            sample = null;
+
+            abortControllerRef.current = new AbortController();
+
+            await new Promise((resolve) => setTimeout(resolve, 400));
+
+            const stream = fakeStreamText({
+              editor,
+              sample,
+              signal: abortControllerRef.current.signal,
+            });
+
+            const response = new Response(stream, {
+              headers: {
+                Connection: "keep-alive",
+                "Content-Type": "text/plain",
+              },
+            });
+
+            return response;
           }
 
-          abortControllerRef.current = new AbortController();
-
-          await new Promise((resolve) => setTimeout(resolve, 400));
-
-          const stream = fakeStreamText({
-            editor,
-            sample,
-            signal: abortControllerRef.current.signal,
-          });
-
-          const response = new Response(stream, {
-            headers: {
-              Connection: "keep-alive",
-              "Content-Type": "text/plain",
-            },
-          });
-
-          return response;
-        }
-
-        return res;
-      },
+          return res;
+        },
+        { preconnect: fetch.preconnect }
+      ),
     }),
     async onData(data) {
       if (data.type === "data-toolName") {
@@ -147,7 +153,7 @@ export const useChat = () => {
         try {
           // Create the discussion with comment via API
           promise = createDiscussionWithComment.mutateAsync({
-            contentRich: [{ children: [{ text: aiComment.comment }], type: "p" }] as any,
+            contentRich: [{ children: [{ text: aiComment.comment }], type: "p" }] as UnsafeTypes.UnsafeAny,
             documentContent: documentContent,
             documentId,
           });
@@ -186,8 +192,7 @@ export const useChat = () => {
   };
 
   React.useEffect(() => {
-    editor.setOption(AIChatPlugin, "chat", chat as any);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    editor.setOption(AIChatPlugin, "chat", chat as UnsafeTypes.UnsafeAny);
   }, [chat.status, chat.messages, chat.error]);
 
   return chat;
@@ -201,9 +206,9 @@ const fakeStreamText = ({
   signal,
 }: {
   editor: PlateEditor;
-  chunkCount?: number;
-  sample?: "comment" | "markdown" | "mdx" | null;
-  signal?: AbortSignal;
+  chunkCount?: undefined | number;
+  sample?: undefined | "comment" | "markdown" | "mdx" | null;
+  signal?: undefined | AbortSignal;
 }) => {
   const encoder = new TextEncoder();
 
@@ -298,6 +303,7 @@ const fakeStreamText = ({
 
         for (let i = 0; i < blocks.length; i++) {
           const block = blocks[i];
+          if (!block) continue;
 
           // Stream the block content
           for (const chunk of block) {

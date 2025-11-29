@@ -4,6 +4,7 @@ import { BlockDiscussion } from "@beep/notes/components/editor/ui/block-discussi
 import { FloatingDiscussion } from "@beep/notes/components/editor/ui/floating-discussion-app";
 import { commentPlugin as CommentPlugin } from "@beep/notes/registry/components/editor/plugins/comment-kit";
 import { CommentLeaf } from "@beep/notes/registry/ui/comment-node";
+import type { UnsafeTypes } from "@beep/types";
 import { debounce } from "lodash";
 import { useEditorContainerRef } from "platejs/react";
 import { useEffect } from "react";
@@ -11,7 +12,7 @@ import { useEffect } from "react";
 export const commentPlugin = CommentPlugin.configure({
   render: {
     // Instead of discussion-kit
-    aboveNodes: BlockDiscussion as any,
+    aboveNodes: BlockDiscussion as UnsafeTypes.UnsafeAny,
     afterEditable: FloatingDiscussion,
     node: CommentLeaf,
   },

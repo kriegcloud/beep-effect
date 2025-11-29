@@ -1,7 +1,9 @@
+"use client";
+
 import { DevProvider } from "@beep/notes/components/dev/dev-provider";
 import { DevTools } from "@beep/notes/components/dev/dev-tools";
 
-export default function TailwindIndicator({ children }: { children: React.ReactNode }) {
+export default function TailwindIndicator({ children }: { readonly children: React.ReactNode }) {
   return (
     <DevProvider>
       {children}

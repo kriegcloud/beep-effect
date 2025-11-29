@@ -1,15 +1,15 @@
 // SOURCE: https://github.com/Gottox/node-urlify/blob/master/lib/urlify.js
 
 type UrlifyOptions = {
-  addEToUmlauts?: boolean;
-  extendString?: boolean;
-  failureOutput?: string;
-  maxLength?: number;
-  nonPrintable?: string;
-  spaces?: string;
-  szToSs?: boolean;
-  toLower?: boolean;
-  trim?: boolean;
+  readonly addEToUmlauts?: undefined | boolean;
+  readonly extendString?: undefined | boolean;
+  readonly failureOutput?: undefined | string;
+  readonly maxLength?: undefined | number;
+  readonly nonPrintable?: undefined | string;
+  readonly spaces?: undefined | string;
+  readonly szToSs?: undefined | boolean;
+  readonly toLower?: undefined | boolean;
+  readonly trim?: undefined | boolean;
 };
 
 const regExpPattern = /[()*+./?[\\\]{|}]/g;
@@ -62,14 +62,18 @@ export const urlify = (string = "", id = "", _options: UrlifyOptions = {}): stri
   string = apply(string, greek);
 
   string = string.replaceAll(nonAlphaNum, (occ) => {
-    return occ.search(whitespace) === -1 ? options.nonPrintable : options.spaces;
+    return occ.search(whitespace) === -1 ? (options.nonPrintable ?? "") : (options.spaces ?? "");
   });
 
   if (options.trim !== false) {
-    string = trim(string, options.nonPrintable);
-    string = trim(string, options.spaces);
+    if (options.nonPrintable) {
+      string = trim(string, options.nonPrintable);
+    }
+    if (options.spaces) {
+      string = trim(string, options.spaces);
+    }
   }
-  if (options.maxLength !== null && string.length > options.maxLength) {
+  if (options.maxLength !== null && options.maxLength !== undefined && string.length > options.maxLength) {
     string = string.slice(0, options.maxLength);
   }
 

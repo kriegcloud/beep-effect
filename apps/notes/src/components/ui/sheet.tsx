@@ -78,9 +78,9 @@ export function SheetContent({
 }: React.ComponentProps<typeof SheetPrimitive.Content> &
   VariantProps<typeof sheetVariants> &
   VariantProps<typeof portalVariants> & {
-    closeClassName?: string;
-    hideClose?: boolean;
-    onClose?: () => void;
+    closeClassName?: undefined | string;
+    hideClose?: undefined | boolean;
+    onClose?: undefined | (() => void);
   }) {
   return (
     <SheetPortal modal={modal} position={position}>

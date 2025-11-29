@@ -1,4 +1,4 @@
-export const encodeURL = (pathname: string, search?: string) => {
+export const encodeURL = (pathname: string, search?: undefined | string) => {
   let callbackUrl = pathname;
 
   if (search) {

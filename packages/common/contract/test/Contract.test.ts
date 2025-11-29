@@ -1,6 +1,7 @@
 import { describe, expect } from "bun:test";
 import { Contract, ContractError } from "@beep/contract";
 import { effect } from "@beep/testkit";
+import type { UnsafeTypes } from "@beep/types";
 import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -197,7 +198,7 @@ describe("Contract runtime", () => {
       });
       expect(raiseDie).toBe(true);
 
-      const noErrorExit = yield* Effect.exit(continuation.raiseResult({ error: null } as any));
+      const noErrorExit = yield* Effect.exit(continuation.raiseResult({ error: null } as UnsafeTypes.UnsafeAny));
       expect(Exit.isSuccess(noErrorExit)).toBe(true);
     })
   );

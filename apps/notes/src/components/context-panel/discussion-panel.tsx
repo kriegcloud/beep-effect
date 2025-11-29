@@ -3,6 +3,7 @@ import { Comment, CommentCreateForm } from "@beep/notes/components/editor/ui/com
 import { Empty } from "@beep/notes/components/ui/empty";
 import { formatDiscussionDate } from "@beep/notes/lib/date/formatDate";
 import { useDiscussionsQueryOptions } from "@beep/notes/trpc/hooks/query-options";
+import type { UnsafeTypes } from "@beep/types";
 import { useQuery } from "@tanstack/react-query";
 import { useEditorPlugin } from "platejs/react";
 import React, { memo, useMemo } from "react";
@@ -15,14 +16,15 @@ export default memo(function DiscussionPanel() {
 
   const [editingId, setEditingId] = React.useState<string | null>(null);
 
-  const discussions = (data as any)?.discussions ?? [];
+  const discussions = (data as UnsafeTypes.UnsafeAny)?.discussions ?? [];
 
   const isEmpty = useMemo(() => {
     if (!discussions) return true;
 
     return (
-      discussions.filter((discussion: any) => !discussion.isResolved && api.comment.has({ id: discussion.id }))
-        .length === 0
+      discussions.filter(
+        (discussion: UnsafeTypes.UnsafeAny) => !discussion.isResolved && api.comment.has({ id: discussion.id })
+      ).length === 0
     );
   }, [api.comment, discussions]);
 
@@ -37,7 +39,7 @@ export default memo(function DiscussionPanel() {
           <Empty title="No open comments or suggestions" />
         ) : (
           discussions.map(
-            (discussion: any) =>
+            (discussion: UnsafeTypes.UnsafeAny) =>
               !discussion.isResolved &&
               api.comment.has({ id: discussion.id }) && (
                 <div key={discussion.id} className="border-b p-4 hover:bg-accent/30">
@@ -45,7 +47,7 @@ export default memo(function DiscussionPanel() {
                     {formatDiscussionDate(discussion.createdAt)}
                   </div>
 
-                  {discussion.comments.map((comment: any, index: number) => (
+                  {discussion.comments.map((comment: UnsafeTypes.UnsafeAny, index: number) => (
                     <Comment
                       key={index}
                       comment={comment}

@@ -8,7 +8,7 @@ export const collapseBlocksWithoutDiff = (
   {
     expandedChunks,
   }: {
-    expandedChunks: number[];
+    readonly expandedChunks: number[];
   }
 ) => {
   const diffChunks = chunkDiffs(value, {
@@ -16,7 +16,7 @@ export const collapseBlocksWithoutDiff = (
     paddingBlocks: 1,
   });
 
-  const collapsedValue = diffChunks.flatMap(({ blocks, hasDiff }, chunkIndex) =>
+  return diffChunks.flatMap(({ blocks, hasDiff }, chunkIndex) =>
     hasDiff || expandedChunks.includes(chunkIndex)
       ? blocks
       : blocks.map((block, blockIndex) => ({
@@ -28,25 +28,23 @@ export const collapseBlocksWithoutDiff = (
           } satisfies TChunkProps,
         }))
   );
-
-  return collapsedValue;
 };
 
 type Chunk<Block> = ChunkWithDiff<Block> | ChunkWithoutDiff<Block>;
 
 interface ChunkDiffOptions<Block> {
-  paddingBlocks: number;
-  hasDiff: (block: Block) => boolean;
+  readonly paddingBlocks: number;
+  readonly hasDiff: (block: Block) => boolean;
 }
 
 type ChunkWithDiff<Block> = {
-  blocks: Block[];
-  hasDiff: true;
+  readonly blocks: Block[];
+  readonly hasDiff: true;
 };
 
 type ChunkWithoutDiff<Block> = {
-  blocks: Block[];
-  hasDiff: false;
+  readonly blocks: Block[];
+  readonly hasDiff: false;
 };
 
 const chunkDiffs = <Block>(blocks: Block[], { hasDiff, paddingBlocks }: ChunkDiffOptions<Block>): Chunk<Block>[] => {

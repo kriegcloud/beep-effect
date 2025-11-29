@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@beep/notes/lib/utils";
+import type { UnsafeTypes } from "@beep/types";
 import { Slot } from "@radix-ui/react-slot";
 import * as React from "react";
 import {
@@ -21,7 +22,7 @@ interface FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > {
-  name: TName;
+  readonly name: TName;
 }
 
 const FormFieldContext = React.createContext<FormFieldContextValue>({} as FormFieldContextValue);
@@ -63,7 +64,7 @@ const useFormField = () => {
 };
 
 interface FormItemContextValue {
-  id: string;
+  readonly id: string;
 }
 
 const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue);
@@ -109,11 +110,11 @@ export function FormMessage({
   messages,
   ...props
 }: {
-  messages?: Partial<Record<keyof typeof ZodIssueCode | string, string>>;
+  readonly messages?: undefined | Partial<Record<keyof typeof ZodIssueCode | string, string>>;
 } & React.HTMLAttributes<HTMLParagraphElement>) {
   const { error, formMessageId } = useFormField();
 
-  const customMessage = error?.type ? messages?.[error.type as any] : undefined;
+  const customMessage = error?.type ? messages?.[error.type as UnsafeTypes.UnsafeAny] : undefined;
 
   const body = error ? String(customMessage ?? error?.message) : children;
 

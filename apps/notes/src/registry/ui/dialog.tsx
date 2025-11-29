@@ -114,11 +114,11 @@ function DialogModalContent({
   onPointerDownOutside,
   ...props
 }: {
-  as?: React.FC<ComponentProps<typeof DialogPrimitive.Content>>;
-  disableAutoFocus?: boolean;
-  dismissible?: boolean;
-  fixed?: boolean;
-  hideClose?: boolean;
+  readonly as?: undefined | React.FC<ComponentProps<typeof DialogPrimitive.Content>>;
+  readonly disableAutoFocus?: undefined | boolean;
+  readonly dismissible?: undefined | boolean;
+  readonly fixed?: undefined | boolean;
+  readonly hideClose?: undefined | boolean;
 } & VariantProps<typeof dialogContentVariants> &
   React.ComponentProps<typeof DialogPrimitive.Content>) {
   let variant = useDialogValue("variant") as any;
@@ -249,12 +249,12 @@ export function DialogContent({
   hideClose,
   size,
   ...props
-}: React.ComponentProps<typeof DialogModalContent> & { fixed?: boolean }) {
+}: React.ComponentProps<typeof DialogModalContent> & { fixed?: undefined | boolean }) {
   const variant = useDialogValue("variant");
   const dismissible = useDialogValue("dismissible");
 
   return (
-    <DialogContentProvider fixed={fixed}>
+    <DialogContentProvider fixed={Boolean(fixed)}>
       {variant === "drawer" ? (
         <DrawerContent dismissible={dismissible} {...(props as any)} />
       ) : (
@@ -319,7 +319,7 @@ export function DrawerContent({
   onPointerDownOutside,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Content> & {
-  dismissible?: boolean;
+  readonly dismissible?: undefined | boolean;
 }) {
   return (
     <DrawerPortal>

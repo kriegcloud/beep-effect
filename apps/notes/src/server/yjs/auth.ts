@@ -16,7 +16,7 @@ const decode = (value: string) => {
   }
 };
 
-export const parseCookies = (header?: string): ParsedCookies => {
+export const parseCookies = (header?: undefined | string): ParsedCookies => {
   if (!header) return {};
 
   return header.split(";").reduce<ParsedCookies>((acc, cookie) => {

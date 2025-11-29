@@ -2,9 +2,10 @@
 
 import { cn } from "@beep/notes/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@beep/notes/registry/ui/tooltip";
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
 import { defaultsDeep } from "lodash";
 import { createContext, type HTMLProps, type ReactNode, useContext } from "react";
-
 import { ClientOnly } from "./client-only";
 
 /*
@@ -54,11 +55,11 @@ const Keys = {
 } as const;
 
 interface KeyData {
-  label: string;
-  symbols: {
-    default: string;
-    mac?: string;
-    windows?: string;
+  readonly label: string;
+  readonly symbols: {
+    readonly default: string;
+    readonly mac?: undefined | string;
+    readonly windows?: undefined | string;
   };
 }
 
@@ -158,8 +159,8 @@ export const DEFAULT_KEY_MAPPINGS = {
 };
 
 interface ShortcutsContextData {
-  keyMappings: Record<string, KeyData>;
-  os: "mac" | "windows";
+  readonly keyMappings: Record<string, KeyData>;
+  readonly os: "mac" | "windows";
 }
 
 const ShortcutsContext = createContext<ShortcutsContextData>({
@@ -172,19 +173,23 @@ const useShortcutsContext = () => {
 };
 
 interface ShortcutsProviderProps {
-  children: ReactNode;
-  keyMappings?: Record<
-    string,
-    {
-      label?: string;
-      symbols?: {
-        default?: string;
-        mac?: string;
-        windows?: string;
-      };
-    }
-  >;
-  os?: ShortcutsContextData["os"];
+  readonly children: ReactNode;
+  readonly keyMappings?:
+    | undefined
+    | Record<
+        string,
+        {
+          readonly label?: undefined | string;
+          readonly symbols?:
+            | undefined
+            | {
+                readonly default?: undefined | string;
+                readonly mac?: undefined | string;
+                readonly windows?: undefined | string;
+              };
+        }
+      >;
+  readonly os?: undefined | ShortcutsContextData["os"];
 }
 
 export const ShortcutsProvider = ({ children, keyMappings = {}, os = "mac" }: ShortcutsProviderProps) => {
@@ -200,8 +205,8 @@ export const ShortcutsProvider = ({ children, keyMappings = {}, os = "mac" }: Sh
 };
 
 interface KeySymbolProps extends HTMLProps<HTMLDivElement> {
-  keyName: string;
-  disableTooltip?: boolean;
+  readonly keyName: string;
+  readonly disableTooltip?: undefined | boolean;
 }
 
 export const KeySymbol = ({ className, disableTooltip = false, keyName, ...otherProps }: KeySymbolProps) => {
@@ -237,15 +242,16 @@ export const KeySymbol = ({ className, disableTooltip = false, keyName, ...other
 
 interface KeyComboProps extends HTMLProps<HTMLDivElement> {
   keyNames: string[];
-  disableTooltips?: boolean;
+  disableTooltips?: undefined | boolean;
 }
 
 export const KeyCombo = ({ className, disableTooltips = false, keyNames, ...otherProps }: KeyComboProps) => {
   return (
     <div className={cn("flex gap-1", className)} {...otherProps}>
-      {keyNames.map((keyName) => (
-        <KeySymbol key={keyName} disableTooltip={disableTooltips} keyName={keyName} />
-      ))}
+      {pipe(
+        keyNames,
+        A.map((keyName) => <KeySymbol key={keyName} disableTooltip={disableTooltips} keyName={keyName} />)
+      )}
     </div>
   );
 };

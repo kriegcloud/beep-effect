@@ -30,23 +30,23 @@ import {
 import { Editor, EditorContainer } from "./editor";
 
 export interface TComment {
-  id: string;
-  contentRich: Value;
-  createdAt: Date;
-  discussionId: string;
-  isEdited: boolean;
-  userId: string;
+  readonly id: string;
+  readonly contentRich: Value;
+  readonly createdAt: Date;
+  readonly discussionId: string;
+  readonly isEdited: boolean;
+  readonly userId: string;
 }
 
 export function Comment(props: {
-  comment: TComment;
-  discussionLength: number;
-  editingId: string | null;
-  index: number;
-  setEditingId: React.Dispatch<React.SetStateAction<string | null>>;
-  documentContent?: string;
-  showDocumentContent?: boolean;
-  onEditorClick?: () => void;
+  readonly comment: TComment;
+  readonly discussionLength: number;
+  readonly editingId: string | null;
+  readonly index: number;
+  readonly setEditingId: React.Dispatch<React.SetStateAction<string | null>>;
+  readonly documentContent?: undefined | string;
+  readonly showDocumentContent?: undefined | boolean;
+  readonly onEditorClick?: undefined | (() => void);
 }) {
   const {
     comment,
@@ -81,7 +81,12 @@ export function Comment(props: {
     editor.setOption(discussionPlugin, "discussions", updatedDiscussions);
   };
 
-  const updateComment = (input: { id: string; contentRich: any; discussionId: string; isEdited: boolean }) => {
+  const updateComment = (input: {
+    readonly id: string;
+    readonly contentRich: any;
+    readonly discussionId: string;
+    readonly isEdited: boolean;
+  }) => {
     const updatedDiscussions = discussions.map((discussion) => {
       if (discussion.id === input.discussionId) {
         const updatedComments = discussion.comments.map((comment) => {
@@ -255,12 +260,12 @@ export function Comment(props: {
 }
 
 function CommentMoreDropdown(props: {
-  comment: TComment;
-  dropdownOpen: boolean;
-  setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setEditingId: React.Dispatch<React.SetStateAction<string | null>>;
-  onCloseAutoFocus?: () => void;
-  onRemoveComment?: () => void;
+  readonly comment: TComment;
+  readonly dropdownOpen: boolean;
+  readonly setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  readonly setEditingId: React.Dispatch<React.SetStateAction<string | null>>;
+  readonly onCloseAutoFocus?: undefined | (() => void);
+  readonly onRemoveComment?: undefined | (() => void);
 }) {
   const { comment, dropdownOpen, setDropdownOpen, setEditingId, onCloseAutoFocus, onRemoveComment } = props;
 
@@ -356,10 +361,10 @@ export function CommentCreateForm({
   discussionId: discussionIdProp,
   focusOnMount = false,
 }: {
-  autoFocus?: boolean;
-  className?: string;
-  discussionId?: string;
-  focusOnMount?: boolean;
+  readonly autoFocus?: undefined | boolean;
+  readonly className?: undefined | string;
+  readonly discussionId?: undefined | string;
+  readonly focusOnMount?: undefined | boolean;
 }) {
   const discussions = usePluginOption(discussionPlugin, "discussions");
 

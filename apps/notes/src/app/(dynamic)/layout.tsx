@@ -5,7 +5,7 @@ import { DynamicModalEffect } from "@beep/notes/components/modals/dynamic-modal-
 import { HydrateClient, trpc } from "@beep/notes/trpc/server";
 import type * as React from "react";
 
-export default async function DynamicLayout({ children }: { children: React.ReactNode }) {
+export default async function DynamicLayout({ children }: { readonly children: React.ReactNode }) {
   if (await isAuth()) {
     void trpc.layout.app.prefetch();
   }

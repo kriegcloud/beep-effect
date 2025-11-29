@@ -58,7 +58,7 @@ export const PlaceholderElement = withHOC(PlaceholderProvider, (props: PlateElem
   const isImage = mediaType === KEYS.img;
 
   const file: File | undefined = updatedFiles?.[0];
-  const progress = file ? progresses?.[file.name] : undefined;
+  const progress = file && progresses ? progresses[file.name] : undefined;
 
   const imageRef = useRef<HTMLImageElement>(null);
   useEffect(() => {
@@ -70,8 +70,7 @@ export const PlaceholderElement = withHOC(PlaceholderProvider, (props: PlateElem
       height,
       width,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageRef.current]);
+  }, [imageRef, setSize]);
 
   return (
     <PlateElement className="my-1" {...props}>
@@ -84,11 +83,11 @@ export const PlaceholderElement = withHOC(PlaceholderProvider, (props: PlateElem
             contentEditable={false}
             role="button"
           >
-            <div className="relative mr-3 flex text-muted-foreground/80 [&_svg]:size-6">{currentContent.icon}</div>
+            <div className="relative mr-3 flex text-muted-foreground/80 [&_svg]:size-6">{currentContent?.icon}</div>
             <div className="text-sm whitespace-nowrap text-muted-foreground">
-              <div>{progressing ? file?.name : currentContent.content}</div>
+              <div>{progressing ? file?.name : currentContent?.content}</div>
 
-              {progressing && !isImage && (
+              {progressing && !isImage && file && (
                 <div className="mt-1 flex items-center gap-1.5">
                   <div>{formatBytes(file.size)}</div>
                   <div>–</div>
@@ -103,7 +102,9 @@ export const PlaceholderElement = withHOC(PlaceholderProvider, (props: PlateElem
         )}
       </MediaPlaceholderPopover>
 
-      {isImage && progressing && file && <ImageProgress file={file} imageRef={imageRef} progress={progress} />}
+      {isImage && progressing && file && progress !== undefined && (
+        <ImageProgress file={file} imageRef={imageRef} progress={progress} />
+      )}
 
       <BlockActionButton />
 
@@ -115,9 +116,9 @@ export const PlaceholderElement = withHOC(PlaceholderProvider, (props: PlateElem
 const MEDIA_CONFIG: Record<
   string,
   {
-    accept: string[];
-    buttonText: string;
-    embedText: string;
+    readonly accept: string[];
+    readonly buttonText: string;
+    readonly embedText: string;
   }
 > = {
   [KEYS.audio]: {
@@ -142,7 +143,7 @@ const MEDIA_CONFIG: Record<
   },
 };
 
-function MediaPlaceholderPopover({ children }: { children: React.ReactNode }) {
+function MediaPlaceholderPopover({ children }: { readonly children: React.ReactNode }) {
   const { api, editor, getOption, tf } = useEditorPlugin(PlaceholderPlugin);
 
   const { id, element, mediaType, readOnly, selected, setIsUploading, setProgresses, setUpdatedFiles, size } =
@@ -177,21 +178,29 @@ function MediaPlaceholderPopover({ children }: { children: React.ReactNode }) {
       void uploadFile(file);
       api.placeholder.addUploadingFile(element.id as string, file);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [element.id]
+    [element.id, api.placeholder, setUpdatedFiles, uploadFile]
   );
 
   /** Open file picker */
   const { openFilePicker } = useFilePicker({
-    accept: currentMedia.accept,
+    accept: currentMedia?.accept ?? [],
     multiple,
-    onFilesSelected: ({ plainFiles: updatedFiles }) => {
+    onFilesSelected: (data: any) => {
+      if (!("plainFiles" in data) || !data.plainFiles) return;
+      const updatedFiles = data.plainFiles as File[];
       const firstFile = updatedFiles[0];
+      if (!firstFile) return;
       const restFiles = updatedFiles.slice(1);
 
       replaceCurrentPlaceholder(firstFile);
 
-      restFiles.length > 0 && tf.insert.media(restFiles);
+      if (restFiles.length > 0) {
+        // Convert to FileList-like object
+        const fileList = Object.assign(restFiles, {
+          item: (index: number) => restFiles[index] ?? null,
+        });
+        tf.insert.media(fileList as any);
+      }
     },
   });
 
@@ -207,31 +216,32 @@ function MediaPlaceholderPopover({ children }: { children: React.ReactNode }) {
     if (!currentFiles) return;
 
     replaceCurrentPlaceholder(currentFiles);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isReplaced]);
+  }, [api.placeholder, element.id, replaceCurrentPlaceholder]);
 
   useEffect(() => {
     if (!uploadedFile) return;
 
     const path = editor.api.findPath(element);
+    if (!path) return;
 
-    setMediaNode(
-      editor,
-      {
-        id: nanoid(),
-        initialHeight: size?.height,
-        initialWidth: size?.width,
-        isUpload: true,
-        name: mediaType === KEYS.file ? uploadedFile.name : "",
-        placeholderId: element.id as string,
-        type: mediaType!,
-        url: uploadedFile.url,
-      },
-      { at: path }
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uploadedFile, element.id, size]);
+    const nodeProps: Record<string, unknown> = {
+      id: nanoid(),
+      isUpload: true,
+      name: mediaType === KEYS.file ? uploadedFile.name : "",
+      placeholderId: element.id as string,
+      type: mediaType!,
+      url: uploadedFile.url,
+    };
+
+    if (size?.height !== undefined) {
+      nodeProps.initialHeight = size.height;
+    }
+    if (size?.width !== undefined) {
+      nodeProps.initialWidth = size.width;
+    }
+
+    setMediaNode(editor, nodeProps as any, { at: path });
+  }, [uploadedFile, element.id, size, editor, mediaType]);
 
   const [embedValue, setEmbedValue] = useState("");
 
@@ -256,10 +266,11 @@ function MediaPlaceholderPopover({ children }: { children: React.ReactNode }) {
   }, [isUploading]);
 
   useEffect(() => {
-    setProgresses({ [uploadingFile?.name ?? ""]: progress });
+    if (uploadingFile) {
+      setProgresses({ [uploadingFile.name]: progress });
+    }
     setIsUploading(isUploading);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, progress, isUploading, uploadingFile]);
+  }, [id, progress, isUploading, uploadingFile, setProgresses, setIsUploading]);
 
   if (readOnly) return <>{children}</>;
 
@@ -275,7 +286,7 @@ function MediaPlaceholderPopover({ children }: { children: React.ReactNode }) {
           </TabsList>
           <TabsContent className="w-[300px] px-3 py-2" value="account">
             <Button variant="brand" className="w-full" onClick={openFilePicker}>
-              {currentMedia.buttonText}
+              {currentMedia?.buttonText}
             </Button>
             <div className="mt-3 text-xs text-muted-foreground">The maximum size per file is 5MB</div>
           </TabsContent>
@@ -284,7 +295,7 @@ function MediaPlaceholderPopover({ children }: { children: React.ReactNode }) {
             <Input value={embedValue} onChange={(e) => setEmbedValue(e.target.value)} placeholder="Paste the link..." />
 
             <Button variant="brand" className="mt-2 w-full max-w-[300px]" onClick={() => onEmbed(embedValue)}>
-              {currentMedia.embedText}
+              {currentMedia?.embedText}
             </Button>
           </TabsContent>
         </Tabs>
@@ -299,10 +310,10 @@ function ImageProgress({
   imageRef,
   progress = 0,
 }: {
-  file: File;
-  className?: string;
-  imageRef?: React.RefObject<HTMLImageElement | null>;
-  progress?: number;
+  readonly file: File;
+  readonly className?: undefined | string;
+  readonly imageRef?: undefined | React.RefObject<HTMLImageElement | null>;
+  readonly progress?: undefined | number;
 }) {
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
 
@@ -348,7 +359,7 @@ function formatBytes(
 
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
 
-  return `${(bytes / 1024 ** i).toFixed(decimals)} ${
-    sizeType === "accurate" ? (accurateSizes[i] ?? "Bytest") : (sizes[i] ?? "Bytes")
-  }`;
+  const sizeLabel = sizeType === "accurate" ? (accurateSizes[i] ?? "Bytes") : (sizes[i] ?? "Bytes");
+
+  return `${(bytes / 1024 ** i).toFixed(decimals)} ${sizeLabel}`;
 }

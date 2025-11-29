@@ -140,6 +140,8 @@ export const aiRoutes = new Hono()
                     model: model || "openai/gpt-4o-mini",
                   };
                 }
+
+                return step;
               },
             });
 
@@ -170,7 +172,8 @@ export const aiRoutes = new Hono()
 
       const user = c.get("user");
 
-      if (!user?.isAdmin && !(await getRatelimit(c, "ai/copilot")).success) {
+      const rateLimitResult = await getRatelimit(c, "ai/copilot");
+      if (!user?.isAdmin && !rateLimitResult.success) {
         return c.json({
           text: faker.lorem.paragraph(1),
         });
@@ -198,6 +201,9 @@ export const aiRoutes = new Hono()
             error: error.message,
           });
         }
+        return c.json({
+          error: "Unknown error occurred",
+        });
       }
     }
   );

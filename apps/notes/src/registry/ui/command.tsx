@@ -34,7 +34,7 @@ function Command({
   return <CommandPrimitive className={cn(commandVariants({ variant }), className)} data-slot="command" {...props} />;
 }
 
-function CommandDialog({ children, className, ...props }: DialogProps & { className?: string }) {
+function CommandDialog({ children, className, ...props }: DialogProps & { readonly className?: undefined | string }) {
   return (
     <Dialog {...props}>
       <DialogContent size="4xl" className="overflow-hidden p-0 shadow-lg" hideClose>
@@ -60,7 +60,7 @@ function CommandInput({
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.Input> &
   VariantProps<typeof inputVariants> & {
-    wrapClassName?: string;
+    readonly wrapClassName?: undefined | string;
   }) {
   return (
     <div

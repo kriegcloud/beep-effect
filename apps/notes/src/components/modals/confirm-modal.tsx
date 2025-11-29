@@ -18,9 +18,9 @@ export function ConfirmModal({
   onConfirm: onConfirmProp,
   ...props
 }: {
-  name: string;
-  onConfirm: () => void;
-  count?: number;
+  readonly name: string;
+  readonly onConfirm: () => void;
+  readonly count?: undefined | number;
 } & React.ComponentProps<typeof AlertDialogContent>) {
   const onConfirm = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation();

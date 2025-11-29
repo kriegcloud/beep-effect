@@ -10,15 +10,15 @@ export const searchRange = (
     match,
     // from,
   }: {
-    from?: Point;
-    match?: EditorNodesOptions["match"];
+    readonly from?: Point;
+    readonly match?: EditorNodesOptions["match"];
   } = {}
 ): TRange | null => {
   if (Array.isArray(search) ? search[0].length === 0 || search[1].length === 0 : search.length === 0) return null;
 
   const [startSearch, endSearch] = Array.isArray(search)
-    ? search.map((s) => s.toLowerCase())
-    : [search.toLowerCase(), ""];
+    ? (search.map((s) => s.toLowerCase()) as [string, string])
+    : ([search.toLowerCase(), ""] as [string, string]);
 
   const entries = Array.from(
     editor.api.nodes<TElement>({
@@ -53,7 +53,7 @@ export const searchRange = (
       traverseTextNodes(
         node.children,
         (childNode, childPath) => {
-          if (editor.api.isVoid(childNode as TElement)) return;
+          if (editor.api.isVoid(childNode as TElement)) return undefined;
 
           const textLength = (TextApi.isText(childNode) ? childNode.text.length : 0) || 0;
           const newGlobalOffset = globalOffset + textLength;
@@ -74,6 +74,7 @@ export const searchRange = (
           }
 
           globalOffset = newGlobalOffset;
+          return undefined;
         },
         path
       );
@@ -98,7 +99,7 @@ export const searchRanges = (
   {
     match,
   }: {
-    match?: EditorNodesOptions["match"];
+    readonly match?: EditorNodesOptions["match"];
   } = {}
 ) => {
   const ranges: TRange[] = [];
@@ -106,8 +107,8 @@ export const searchRanges = (
   if (search.length === 0) return ranges;
 
   const [startSearch, endSearch] = Array.isArray(search)
-    ? search.map((s) => s.toLowerCase())
-    : [search.toLowerCase(), ""];
+    ? (search.map((s) => s.toLowerCase()) as [string, string])
+    : ([search.toLowerCase(), ""] as [string, string]);
 
   const entries = Array.from(
     editor.api.nodes<TElement>({
@@ -135,7 +136,7 @@ export const searchRanges = (
       traverseTextNodes(
         node.children,
         (childNode, childPath) => {
-          if (editor.api.isVoid(childNode as TElement)) return;
+          if (editor.api.isVoid(childNode as TElement)) return undefined;
 
           const textLength = (TextApi.isText(childNode) ? childNode.text.length : 0) || 0;
           const newGlobalOffset = globalOffset + textLength;
@@ -156,6 +157,7 @@ export const searchRanges = (
           }
 
           globalOffset = newGlobalOffset;
+          return undefined;
         },
         path
       );

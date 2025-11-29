@@ -11,7 +11,11 @@ export const DndKit = [
     options: {
       enableScroller: true,
       onDropFiles: ({ dragItem, editor, target }) => {
-        editor.getTransforms(PlaceholderPlugin).insert.media(dragItem.files, { at: target, nextBlock: false });
+        if (target) {
+          editor.getTransforms(PlaceholderPlugin).insert.media(dragItem.files, { at: target, nextBlock: false });
+        } else {
+          editor.getTransforms(PlaceholderPlugin).insert.media(dragItem.files, { nextBlock: false });
+        }
       },
     },
     render: {

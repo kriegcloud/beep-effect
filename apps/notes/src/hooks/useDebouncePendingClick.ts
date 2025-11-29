@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 
-export const useDebouncePendingClick = ({ isPending, onClick }: { isPending?: boolean; onClick?: () => void }) => {
+export const useDebouncePendingClick = ({
+  isPending,
+  onClick,
+}: {
+  isPending?: undefined | boolean;
+  onClick?: undefined | (() => void);
+}) => {
   const [disabled, setDisabled] = useState(false);
 
   useEffect(() => {

@@ -7,7 +7,7 @@ import { GoogleReCaptchaProvider, useGoogleReCaptcha } from "@wojtekmaj/react-re
 import * as Redacted from "effect/Redacted";
 import { type ReactNode, useEffect } from "react";
 
-export function RecaptchaV3({ children }: { children: ReactNode }) {
+export function RecaptchaV3({ children }: { readonly children: ReactNode }) {
   const isHydrated = useIsHydrated();
 
   return (

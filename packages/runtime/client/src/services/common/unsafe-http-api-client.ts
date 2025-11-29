@@ -1,4 +1,4 @@
-/* eslint-disable */
+import type { UnsafeTypes } from "@beep/types";
 import * as HttpApi from "@effect/platform/HttpApi";
 import type * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import type * as HttpApiGroup from "@effect/platform/HttpApiGroup";
@@ -28,7 +28,7 @@ const compilePath = (path: string) => {
   const segments = path.split(paramsRegex);
   const len = segments.length;
   if (len === 1) {
-    return (_: any) => path;
+    return (_: UnsafeTypes.UnsafeAny) => path;
   }
   return (params: Record<string, string>) => {
     let url = segments[0]!;
@@ -45,9 +45,9 @@ const compilePath = (path: string) => {
 
 const HttpBodyFromSelf = S.declare(HttpBody.isHttpBody);
 
-const payloadSchemaBody = (schema: S.Schema.All): S.Schema<any, HttpBody.HttpBody> => {
+const payloadSchemaBody = (schema: S.Schema.All): S.Schema<UnsafeTypes.UnsafeAny, HttpBody.HttpBody> => {
   const members = schema.ast._tag === "Union" ? schema.ast.types : [schema.ast];
-  return S.Union(...members.map(bodyFromPayload)) as any;
+  return S.Union(...members.map(bodyFromPayload)) as UnsafeTypes.UnsafeAny;
 };
 
 const bodyFromPayloadCache = globalValue(
@@ -79,7 +79,7 @@ const bodyFromPayload = (ast: AST.AST) => {
           return ParseResult.succeed(HttpBody.text(toI));
         }
         case "UrlParams": {
-          return ParseResult.succeed(HttpBody.urlParams(UrlParams.fromInput(toI as any)));
+          return ParseResult.succeed(HttpBody.urlParams(UrlParams.fromInput(toI as UnsafeTypes.UnsafeAny)));
         }
         case "Uint8Array": {
           if (!(toI instanceof Uint8Array)) {
@@ -182,14 +182,14 @@ const makeUnsafeClientInternal = <ApiId extends string, Groups extends HttpApiGr
   | HttpClient.HttpClient
 > =>
   Effect.gen(function* () {
-    const context = yield* Effect.context<any>();
+    const context = yield* Effect.context<UnsafeTypes.UnsafeAny>();
     const httpClient = (yield* HttpClient.HttpClient).pipe(
       options.baseUrl === undefined
         ? identity
         : HttpClient.mapRequest(HttpClientRequest.prependUrl(options.baseUrl.toString())),
       options.transformClient ?? identity
     );
-    HttpApi.reflect(api as any, {
+    HttpApi.reflect(api as UnsafeTypes.UnsafeAny, {
       ...(options.predicate && { predicate: options.predicate }),
       onGroup(onGroupOptions) {
         options.onGroup?.(onGroupOptions);
@@ -201,7 +201,7 @@ const makeUnsafeClientInternal = <ApiId extends string, Groups extends HttpApiGr
         const encodePayloadBody = endpoint.payloadSchema.pipe(
           O.map((schema) => {
             if (HttpMethod.hasBody(endpoint.method)) {
-              return S.encodeUnknown(payloadSchemaBody(schema as any));
+              return S.encodeUnknown(payloadSchemaBody(schema as UnsafeTypes.UnsafeAny));
             }
             return S.encodeUnknown(schema);
           })
@@ -209,10 +209,10 @@ const makeUnsafeClientInternal = <ApiId extends string, Groups extends HttpApiGr
         const encodeHeaders = endpoint.headersSchema.pipe(O.map(S.encodeUnknown));
         const encodeUrlParams = endpoint.urlParamsSchema.pipe(O.map(S.encodeUnknown));
         const endpointFn = (request?: {
-          readonly path?: any;
-          readonly urlParams?: any;
-          readonly payload?: any;
-          readonly headers?: any;
+          readonly path?: UnsafeTypes.UnsafeAny;
+          readonly urlParams?: UnsafeTypes.UnsafeAny;
+          readonly payload?: UnsafeTypes.UnsafeAny;
+          readonly headers?: UnsafeTypes.UnsafeAny;
         }) =>
           Effect.gen(function* () {
             let url = endpoint.path;
@@ -236,14 +236,14 @@ const makeUnsafeClientInternal = <ApiId extends string, Groups extends HttpApiGr
             if (encodeHeaders._tag === "Some" && request?.headers) {
               httpRequest = HttpClientRequest.setHeaders(
                 httpRequest,
-                (yield* encodeHeaders.value(request.headers)) as any
+                (yield* encodeHeaders.value(request.headers)) as UnsafeTypes.UnsafeAny
               );
             }
 
             if (encodeUrlParams._tag === "Some" && request?.urlParams) {
               httpRequest = HttpClientRequest.appendUrlParams(
                 httpRequest,
-                (yield* encodeUrlParams.value(request.urlParams)) as any
+                (yield* encodeUrlParams.value(request.urlParams)) as UnsafeTypes.UnsafeAny
               );
             }
 
@@ -272,7 +272,7 @@ export const make = <ApiId extends string, Groups extends HttpApiGroup.HttpApiGr
   | HttpApiMiddleware.HttpApiMiddleware.Without<ApiR | HttpApiGroup.HttpApiGroup.ClientContext<Groups>>
   | HttpClient.HttpClient
 > => {
-  const client: Record<string, Record<string, any>> = {};
+  const client: Record<string, Record<string, UnsafeTypes.UnsafeAny>> = {};
   return makeUnsafeClientInternal(api, {
     ...options,
     onGroup({ group }) {
@@ -280,7 +280,7 @@ export const make = <ApiId extends string, Groups extends HttpApiGroup.HttpApiGr
       client[group.identifier] = {};
     },
     onEndpoint({ endpoint, endpointFn, group }) {
-      (group.topLevel ? client : (client[group.identifier] as any))[endpoint.name] = endpointFn;
+      (group.topLevel ? client : (client[group.identifier] as UnsafeTypes.UnsafeAny))[endpoint.name] = endpointFn;
     },
-  }).pipe(Effect.map(() => client)) as any;
+  }).pipe(Effect.map(() => client)) as UnsafeTypes.UnsafeAny;
 };

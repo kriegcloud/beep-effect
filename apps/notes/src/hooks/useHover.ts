@@ -1,25 +1,26 @@
 import useEventListener from "@beep/notes/hooks/useEventListener";
+import type { UnsafeTypes } from "@beep/types";
 import { useEffect, useRef, useState } from "react";
 
 export interface UseHoverOptions {
   /** The delay value for a certain operation. */
-  delay?: number;
+  readonly delay?: undefined | number;
 
   /** A boolean value that determines whether the hook is enabled. */
-  enabled?: boolean;
+  readonly enabled?: undefined | boolean;
 
   /** The delay duration in milliseconds for a specific action. */
-  inDelay?: number;
+  readonly inDelay?: undefined | number;
 
   /**
    * The `outDelay` variable determines the delay, in milliseconds, for some
    * event or action to occur.
    */
-  outDelay?: number;
+  readonly outDelay?: undefined | number;
 }
 
 /** Represents a hook that tracks the hover state of a specified element. */
-export const useHover = <T extends HTMLElement = any>({
+export const useHover = <T extends HTMLElement = UnsafeTypes.UnsafeAny>({
   delay = 0,
   enabled = true,
   inDelay = delay,
@@ -74,7 +75,7 @@ export const useHover = <T extends HTMLElement = any>({
 
     return () => {
       document.documentElement.removeEventListener("mouseleave", onMouseExit);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+
       elementRef.current?.removeEventListener("blur-sm", onMouseExit, true);
     };
   }, []);

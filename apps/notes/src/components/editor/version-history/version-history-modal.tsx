@@ -8,20 +8,29 @@ import { DialogContent, DialogTitle } from "@beep/notes/registry/ui/dialog";
 import { useUpdateDocumentMutation } from "@beep/notes/trpc/hooks/document-hooks";
 import { useDocumentVersionsQueryOptions } from "@beep/notes/trpc/hooks/query-options";
 import { api, useTRPC } from "@beep/notes/trpc/react";
+import type { UnsafeTypes } from "@beep/types";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import type { Value } from "platejs";
 import React from "react";
 
-export function VersionHistoryModal({ activeVersionId: initialVersionId }: { activeVersionId: number | string }) {
+export function VersionHistoryModal({
+  activeVersionId: initialVersionId,
+}: {
+  readonly activeVersionId: number | string;
+}) {
   const [activeVersionId, setActiveVersionId] = React.useState(initialVersionId);
   const versions = useQuery(useDocumentVersionsQueryOptions());
 
+  const versionsData = versions.data as UnsafeTypes.UnsafeAny;
+
   const activeVersion = React.useMemo(() => {
-    return versions.data?.versions.find(
-      (version, index) => version?.id === activeVersionId || index + 1 === activeVersionId
+    if (!versionsData?.versions) return undefined;
+    return versionsData.versions.find(
+      (version: UnsafeTypes.UnsafeAny, index: number) =>
+        version?.id === activeVersionId || index + 1 === activeVersionId
     );
-  }, [activeVersionId, versions.data?.versions]);
+  }, [activeVersionId, versionsData?.versions]);
 
   const documentId = useDocumentId();
   const updateDocument = useUpdateDocumentMutation();
@@ -40,7 +49,7 @@ export function VersionHistoryModal({ activeVersionId: initialVersionId }: { act
   };
 
   const trpc = useTRPC();
-  const hasVersions = versions.data?.versions && versions.data.versions.length > 0;
+  const hasVersions = versionsData?.versions && versionsData.versions.length > 0;
 
   const createVersion = api.version.createVersion.useMutation({
     onSuccess: () => {
@@ -89,25 +98,25 @@ export function VersionHistoryModal({ activeVersionId: initialVersionId }: { act
         <div className="pr-2 pl-4 text-base font-semibold">Version history</div>
 
         <div className="grow overflow-x-auto px-2 pt-1.5">
-          {versions.data?.versions.map(
-            (version) =>
-              version && (
-                <div
-                  key={version.id}
-                  className={cn(
-                    "mb-1 flex h-14 cursor-pointer flex-col justify-between rounded-sm p-2 hover:bg-accent",
-                    activeVersion?.id === version.id && "bg-accent"
-                  )}
-                  onClick={() => {
-                    setActiveVersionId(version.id);
-                  }}
-                  role="button"
-                >
-                  <div className="text-sm">{format(version.createdAt, "MMM d, yyyy, h:mm a")}</div>
-                  <div className="text-xs text-gray-500">{version.username}</div>
-                </div>
-              )
-          )}
+          {versionsData?.versions?.map((version: UnsafeTypes.UnsafeAny) => {
+            if (!version) return null;
+            return (
+              <div
+                key={version.id}
+                className={cn(
+                  "mb-1 flex h-14 cursor-pointer flex-col justify-between rounded-sm p-2 hover:bg-accent",
+                  activeVersion?.id === version.id && "bg-accent"
+                )}
+                onClick={() => {
+                  setActiveVersionId(version.id);
+                }}
+                role="button"
+              >
+                <div className="text-sm">{format(version.createdAt, "MMM d, yyyy, h:mm a")}</div>
+                <div className="text-xs text-gray-500">{version.username}</div>
+              </div>
+            );
+          })}
         </div>
 
         <div className="flex justify-end border-t p-3">

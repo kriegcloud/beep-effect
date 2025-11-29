@@ -2,7 +2,9 @@
 
 import { commentPlugin } from "@beep/notes/registry/components/editor/plugins/comment-kit";
 import { discussionPlugin, type TDiscussion } from "@beep/notes/registry/components/editor/plugins/discussion-kit";
-
+import { suggestionPlugin } from "@beep/notes/registry/components/editor/plugins/suggestion-kit";
+import { Button } from "@beep/notes/registry/ui/button";
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@beep/notes/registry/ui/popover";
 import { getDraftCommentKey } from "@platejs/comment";
 import { CommentPlugin } from "@platejs/comment/react";
 import { getTransientSuggestionKey } from "@platejs/suggestion";
@@ -21,9 +23,6 @@ import {
 import type { PlateElementProps, RenderNodeWrapper } from "platejs/react";
 import { useEditorPlugin, useEditorRef, usePluginOption } from "platejs/react";
 import * as React from "react";
-import { suggestionPlugin } from "@/registry/components/editor/plugins/suggestion-kit";
-import { Button } from "@/registry/ui/button";
-import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/registry/ui/popover";
 
 import { BlockSuggestionCard, isResolvedSuggestion, useResolveSuggestion } from "./block-suggestion";
 import { Comment, CommentCreateForm } from "./comment";
@@ -132,7 +131,6 @@ const BlockCommentsContent = ({
     if (!activeNode) return null;
 
     return editor.api.toDOMNode(activeNode[0])!;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, activeSuggestion, activeCommentId, editor.api, suggestionNodes, draftCommentNode, commentNodes]);
 
   if (suggestionsCount + resolvedDiscussions.length === 0 && !draftCommentNode)

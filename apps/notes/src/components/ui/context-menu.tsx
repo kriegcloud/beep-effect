@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@beep/notes/lib/utils";
+import type { UnsafeTypes } from "@beep/types";
 
 import * as ContextMenuPrimitive from "@radix-ui/react-context-menu";
 import type * as React from "react";
@@ -25,7 +26,7 @@ export function ContextMenuSubTrigger({
   inset,
   ...props
 }: {
-  inset?: boolean;
+  readonly inset?: undefined | boolean;
 } & React.ComponentProps<typeof ContextMenuPrimitive.SubTrigger>) {
   return (
     <ContextMenuPrimitive.SubTrigger
@@ -76,7 +77,7 @@ export function ContextMenuItem({
   inset,
   ...props
 }: {
-  inset?: boolean;
+  readonly inset?: undefined | boolean;
 } & React.ComponentProps<typeof ContextMenuPrimitive.Item>) {
   return (
     <ContextMenuPrimitive.Item
@@ -96,15 +97,18 @@ export function ContextMenuCheckboxItem({
   className,
   ...props
 }: React.ComponentProps<typeof ContextMenuPrimitive.CheckboxItem>) {
+  const checkboxProps: UnsafeTypes.UnsafeAny = {
+    className: cn(
+      "relative flex cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
+      className
+    ),
+    ...props,
+  };
+  if (checked !== undefined) {
+    checkboxProps.checked = checked;
+  }
   return (
-    <ContextMenuPrimitive.CheckboxItem
-      className={cn(
-        "relative flex cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
-        className
-      )}
-      checked={checked}
-      {...props}
-    >
+    <ContextMenuPrimitive.CheckboxItem {...checkboxProps}>
       <span className="absolute left-2 flex size-3.5 items-center justify-center">
         <ContextMenuPrimitive.ItemIndicator>
           <Icons.check />
@@ -143,7 +147,7 @@ export function ContextMenuLabel({
   inset,
   ...props
 }: {
-  inset?: boolean;
+  readonly inset?: undefined | boolean;
 } & React.ComponentProps<typeof ContextMenuPrimitive.Label>) {
   return (
     <ContextMenuPrimitive.Label

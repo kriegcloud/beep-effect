@@ -1,13 +1,13 @@
 export type ErrorProps = {
-  error: { digest?: string } & Error;
-  reset: () => void;
+  readonly error: { readonly digest?: undefined | string } & Error;
+  readonly reset: () => void;
 };
 
 export interface LayoutProps {
-  children: React.ReactNode;
+  readonly children: React.ReactNode;
 }
 
 export interface PageProps<Params = any, SearchParams = any> {
-  params: Promise<Params>;
-  searchParams: Promise<SearchParams>;
+  readonly params: Promise<Params>;
+  readonly searchParams: Promise<SearchParams>;
 }

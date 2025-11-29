@@ -4,7 +4,7 @@ import { HydrateClient, trpc } from "@beep/notes/trpc/server";
 
 import { DocumentPreviewClient } from "./document-preview-client";
 
-export default async function DocumentPreviewPage(props: PageProps<{ documentId: string }>) {
+export default async function DocumentPreviewPage(props: PageProps<{ readonly documentId: string }>) {
   const { documentId } = await props.params;
   const { user } = await auth();
 

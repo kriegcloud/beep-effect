@@ -7,7 +7,12 @@ import { hash } from "@node-rs/argon2";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-export async function signUp(formData: FormData): Promise<{ code?: number; data?: null; message?: string } | never> {
+export async function signUp(
+  formData: FormData
+): Promise<
+  | { readonly code?: undefined | number; readonly data?: undefined | null; readonly message?: undefined | string }
+  | never
+> {
   "use server";
 
   const username = formData.get("username");

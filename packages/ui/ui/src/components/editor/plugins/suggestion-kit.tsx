@@ -1,5 +1,6 @@
 "use client";
 
+import type { UnsafeTypes } from "@beep/types";
 import { SuggestionLeaf, SuggestionLineBreak } from "@beep/ui/components/suggestion-node";
 
 import { type BaseSuggestionConfig, BaseSuggestionPlugin } from "@platejs/suggestion";
@@ -72,7 +73,7 @@ export const suggestionPlugin = toTPlatePlugin<SuggestionConfig>(BaseSuggestionP
     },
   },
   render: {
-    belowNodes: SuggestionLineBreak as any,
+    belowNodes: SuggestionLineBreak as UnsafeTypes.UnsafeAny,
     node: SuggestionLeaf,
   },
 });

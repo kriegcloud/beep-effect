@@ -1,16 +1,15 @@
 "use client";
 
+import { useAuthValue } from "@beep/notes/components/auth/auth-provider-client";
+import { Cover, CoverSkeleton } from "@beep/notes/components/cover/cover";
+import { DocumentToolbar } from "@beep/notes/components/cover/document-toolbar";
+import { PlateEditor } from "@beep/notes/components/editor/plate-editor";
+import { DocumentPlate } from "@beep/notes/components/editor/plate-provider";
+import { Skeleton } from "@beep/notes/components/ui/skeleton";
+import { Button } from "@beep/notes/registry/ui/button";
+import { useDocumentQueryOptions } from "@beep/notes/trpc/hooks/query-options";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-
-import { useAuthValue } from "@/components/auth/auth-provider-client";
-import { Cover, CoverSkeleton } from "@/components/cover/cover";
-import { DocumentToolbar } from "@/components/cover/document-toolbar";
-import { PlateEditor } from "@/components/editor/plate-editor";
-import { DocumentPlate } from "@/components/editor/plate-provider";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/registry/ui/button";
-import { useDocumentQueryOptions } from "@/trpc/hooks/query-options";
 
 export function DocumentPreviewClient() {
   const user = useAuthValue("user");

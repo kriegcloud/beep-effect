@@ -47,7 +47,7 @@ export function EmojiInputElement(props: PlateElementProps) {
                       '"Apple Color Emoji", "Segoe UI Emoji", NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", EmojiSymbols',
                   }}
                 >
-                  {emoji.skins[0].native}
+                  {emoji.skins[0]?.native}
                 </div>
                 <div className="ml-1.5">{emoji.name}</div>
               </InlineComboboxItem>

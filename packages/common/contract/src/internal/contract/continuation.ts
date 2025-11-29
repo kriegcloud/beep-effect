@@ -3,6 +3,7 @@
  * utilities for running promise-based operations. This module also houses the
  * shared `handleOutcome` helper used when consuming lifted contracts.
  */
+import type { UnsafeTypes } from "@beep/types";
 import * as Bool from "effect/Boolean";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -54,7 +55,7 @@ export const handleOutcome =
       })
     );
 
-const getAnnotationValue = <A extends Context.Tag<any, string>>(
+const getAnnotationValue = <A extends Context.Tag<UnsafeTypes.UnsafeAny, string>>(
   annotations: Context.Context<never>,
   tag: A
 ): string | undefined => O.getOrUndefined(Context.getOption(annotations, tag));

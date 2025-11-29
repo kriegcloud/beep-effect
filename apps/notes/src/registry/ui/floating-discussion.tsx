@@ -355,6 +355,7 @@ function FloatingDiscussionContent() {
           if (ElementApi.isElement(node)) {
             return suggestionApi.suggestion.nodeId(node);
           }
+          return undefined;
         })
         .filter(Boolean)
     );
@@ -417,8 +418,6 @@ function FloatingDiscussionContent() {
 
     topRef.current = resolveOverlappingTop(topRef.current, domRef.current);
     forceUpdate();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [discussions.length, suggestionList.length, editorContainerRef, isOverlapWithEditor]);
 
   const renderFloatingCreateForm = React.useCallback(() => {
@@ -653,16 +652,18 @@ function FloatingCommentsContent({ discussion, ref, top }: React.ComponentProps<
             <div className="absolute top-[-5px] left-[-14px] h-full w-0.5 shrink-0 bg-muted" />
             <div className="ml-2">Show {discussion.comments.length - 2} replies</div>
           </div>
-          <Comment
-            key={discussion.comments.at(-1).id}
-            onEditorClick={() => highlightDiscussion(editor, discussion.id)}
-            comment={discussion.comments.at(-1)}
-            discussionLength={discussion.comments.length}
-            documentContent={discussion?.documentContent}
-            editingId={editingId}
-            index={discussion.comments.length - 1}
-            setEditingId={setEditingId}
-          />
+          {discussion.comments.at(-1) && (
+            <Comment
+              key={discussion.comments.at(-1)!.id}
+              onEditorClick={() => highlightDiscussion(editor, discussion.id)}
+              comment={discussion.comments.at(-1)!}
+              discussionLength={discussion.comments.length}
+              documentContent={discussion?.documentContent}
+              editingId={editingId}
+              index={discussion.comments.length - 1}
+              setEditingId={setEditingId}
+            />
+          )}
         </>
       ) : (
         discussion.comments.map((comment, index) => (
@@ -685,9 +686,9 @@ function FloatingCommentsContent({ discussion, ref, top }: React.ComponentProps<
 }
 
 type FloatingSuggestionContentProps = {
-  id: string;
-  entries: NodeEntry<TElement | TSuggestionText>[];
-  top: number;
+  readonly id: string;
+  readonly entries: NodeEntry<TElement | TSuggestionText>[];
+  readonly top: number;
 };
 
 const FloatingSuggestionContent = ({
@@ -977,15 +978,17 @@ const FloatingSuggestionContent = ({
               <div className="absolute top-[-5px] left-[-14px] h-full w-0.5 shrink-0 bg-muted" />
               <div className="ml-2">Show {suggestion.comments.length - 2} replies</div>
             </div>
-            <Comment
-              key={suggestion.comments.at(-1).id}
-              comment={suggestion.comments.at(-1)}
-              discussionLength={suggestion.comments.length}
-              documentContent="__suggestion__"
-              editingId={editingId}
-              index={suggestion.comments.length - 1}
-              setEditingId={setEditingId}
-            />
+            {suggestion.comments.at(-1) && (
+              <Comment
+                key={suggestion.comments.at(-1)!.id}
+                comment={suggestion.comments.at(-1)!}
+                discussionLength={suggestion.comments.length}
+                documentContent="__suggestion__"
+                editingId={editingId}
+                index={suggestion.comments.length - 1}
+                setEditingId={setEditingId}
+              />
+            )}
           </>
         ) : (
           suggestion.comments.map((comment, index) => (

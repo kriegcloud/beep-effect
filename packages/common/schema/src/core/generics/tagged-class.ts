@@ -1,11 +1,11 @@
-import type { StringTypes } from "@beep/types";
+import type { StringTypes, UnsafeTypes } from "@beep/types";
 import { pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 type TaggedClass = S.Schema.Any & {
   readonly _tag: StringTypes.NonEmptyString;
-  readonly fields: S.Struct.Fields & { _tag: S.tag<any> };
+  readonly fields: S.Struct.Fields & { _tag: S.tag<UnsafeTypes.UnsafeAny> };
 };
 
 type Tag<Tagged extends TaggedClass> = Tagged["_tag"];

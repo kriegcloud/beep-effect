@@ -4,7 +4,7 @@ import { TRPCError } from "@trpc/server";
 
 import { type TRPCContext, t } from "../trpc";
 
-export const ratelimitGuard = async (ctx: TRPCContext, key?: RatelimitKey) => {
+export const ratelimitGuard = async (ctx: TRPCContext, key?: undefined | RatelimitKey) => {
   if (!env.UPSTASH_REDIS_REST_TOKEN) return;
 
   const ip = ctx.headers.get("x-forwarded-for");
@@ -29,7 +29,7 @@ export const ratelimitGuard = async (ctx: TRPCContext, key?: RatelimitKey) => {
   }
 };
 
-export const ratelimitMiddleware = (key?: RatelimitKey) =>
+export const ratelimitMiddleware = (key?: undefined | RatelimitKey) =>
   t.middleware(async ({ ctx, next }) => {
     await ratelimitGuard(ctx, key);
 

@@ -1,4 +1,4 @@
-export function nFormatter(num: number, digits?: number) {
+export function nFormatter(num: number, digits?: undefined | number) {
   if (!num) return "0";
 
   const lookup = [

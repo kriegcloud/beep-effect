@@ -67,11 +67,11 @@ export function TooltipTC({
   return (
     <TooltipProvider>
       <Tooltip
-        defaultOpen={defaultOpen}
-        open={open}
-        onOpenChange={onOpenChange}
-        delayDuration={delayDuration}
-        disableHoverableContent={disableHoverableContent}
+        defaultOpen={Boolean(defaultOpen)}
+        open={Boolean(open)}
+        {...(onOpenChange ? { onOpenChange } : {})}
+        {...(delayDuration ? { delayDuration } : {})}
+        {...(disableHoverableContent ? { disableHoverableContent } : {})}
       >
         <TooltipTrigger asChild>{children}</TooltipTrigger>
 
@@ -86,11 +86,13 @@ export function TooltipTC({
 }
 
 type TooltipProps<T extends React.ElementType> = {
-  shortcut?: React.ReactNode;
-  tooltip?: React.ReactNode;
-  tooltipContentProps?: Omit<React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>, "children">;
-  tooltipProps?: Omit<React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Root>, "children">;
-  tooltipTriggerProps?: React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Trigger>;
+  readonly shortcut?: undefined | React.ReactNode;
+  readonly tooltip?: undefined | React.ReactNode;
+  readonly tooltipContentProps?:
+    | undefined
+    | Omit<React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>, "children">;
+  readonly tooltipProps?: undefined | Omit<React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Root>, "children">;
+  readonly tooltipTriggerProps?: undefined | React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Trigger>;
 } & React.ComponentProps<T>;
 
 export function withTooltip<T extends React.ElementType>(Component: T) {

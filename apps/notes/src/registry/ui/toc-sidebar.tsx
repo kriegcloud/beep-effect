@@ -26,7 +26,7 @@ export function TocSidebar({
   className,
   maxShowCount = 20,
   ...props
-}: TocSideBarProps & { className?: string; maxShowCount?: number }) {
+}: TocSideBarProps & { className?: undefined | string; maxShowCount?: undefined | number }) {
   const state = useTocSideBarState({
     ...props,
   });

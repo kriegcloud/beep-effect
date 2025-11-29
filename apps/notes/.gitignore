@@ -98,3 +98,4 @@ yarn-error.log*
 
 # Prisma generated client
 src/generated/prisma
+certificates

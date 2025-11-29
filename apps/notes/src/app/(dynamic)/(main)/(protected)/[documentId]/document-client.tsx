@@ -1,16 +1,15 @@
 "use client";
 
 import { Cover } from "@beep/notes/components/cover/cover";
-
+import { DocumentToolbar } from "@beep/notes/components/cover/document-toolbar";
+import { DocumentSkeleton } from "@beep/notes/components/document-skeleton";
+import { PlateEditor } from "@beep/notes/components/editor/plate-editor";
+import { isTemplateDocument } from "@beep/notes/components/editor/utils/useTemplateDocument";
+import { routes, useDocumentId } from "@beep/notes/lib/navigation/routes";
+import { LinkButton } from "@beep/notes/registry/ui/button";
+import { useDocumentQueryOptions } from "@beep/notes/trpc/hooks/query-options";
 import { useQuery } from "@tanstack/react-query";
 import { redirect } from "next/navigation";
-import { DocumentToolbar } from "@/components/cover/document-toolbar";
-import { DocumentSkeleton } from "@/components/document-skeleton";
-import { PlateEditor } from "@/components/editor/plate-editor";
-import { isTemplateDocument } from "@/components/editor/utils/useTemplateDocument";
-import { routes, useDocumentId } from "@/lib/navigation/routes";
-import { LinkButton } from "@/registry/ui/button";
-import { useDocumentQueryOptions } from "@/trpc/hooks/query-options";
 
 export function DocumentClient() {
   const documentId = useDocumentId();

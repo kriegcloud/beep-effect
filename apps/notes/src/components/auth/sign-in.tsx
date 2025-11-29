@@ -8,9 +8,15 @@ import { redirect } from "next/navigation";
 
 import { signUp } from "./sign-up";
 
-export async function signIn(
-  formData: FormData
-): Promise<{ error?: string; code?: number; data?: null; message?: string } | never> {
+export async function signIn(formData: FormData): Promise<
+  | {
+      readonly error?: undefined | string;
+      readonly code?: undefined | number;
+      readonly data?: undefined | null;
+      readonly message?: undefined | string;
+    }
+  | never
+> {
   "use server";
 
   const username = formData.get("username");

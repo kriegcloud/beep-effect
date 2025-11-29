@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@beep/notes/registry/ui/ava
 import { Button } from "@beep/notes/registry/ui/button";
 import type { RouterDiscussionItem } from "@beep/notes/server/api/types";
 import { useTRPC } from "@beep/notes/trpc/react";
+import type { UnsafeTypes } from "@beep/types";
 import { getDraftCommentKey } from "@platejs/comment";
 import { BlockSelectionPlugin } from "@platejs/selection/react";
 import {
@@ -360,6 +361,7 @@ const FloatingDiscussionContent = () => {
           if (ElementApi.isElement(node)) {
             return suggestionApi.suggestion.nodeId(node);
           }
+          return undefined;
         })
         .filter(Boolean)
     );
@@ -367,7 +369,7 @@ const FloatingDiscussionContent = () => {
     suggestionIds.forEach((id) => {
       if (!id) return;
 
-      const entries = [
+      suggestionEntriesMap.current[id] = [
         ...editor.api.nodes<TElement | TSuggestionText>({
           at: [],
           mode: "all",
@@ -375,8 +377,6 @@ const FloatingDiscussionContent = () => {
             (n[KEYS.suggestion] && n[getSuggestionKey(id)]) || suggestionApi.suggestion.nodeId(n as TElement) === id,
         }),
       ];
-
-      suggestionEntriesMap.current[id] = entries;
     });
   }, [editor, suggestionApi.suggestion, version]);
 
@@ -402,39 +402,33 @@ const FloatingDiscussionContent = () => {
 
       const commentLeaf = commentLeafEntry[0];
 
-      const topDistance = getCommentTop(editor, {
+      topRef.current[discussion.id] = getCommentTop(editor, {
         node: commentLeaf,
         relativeElement: editorContainerRef.current!,
       });
-
-      topRef.current[discussion.id] = topDistance;
     });
 
     suggestionList.forEach(({ id, entries }) => {
       if (!id || !entries[0]) return;
 
-      const topDistance = getCommentTop(editor, {
+      topRef.current[id] = getCommentTop(editor, {
         node: entries[0][0],
         relativeElement: editorContainerRef.current!,
       });
-      topRef.current[id] = topDistance;
     });
 
     topRef.current = resolveOverlappingTop(topRef.current, domRef.current);
 
     forceUpdate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.discussions.length, suggestionList.length, editorContainerRef, isOverlapWithEditor]);
 
   const renderFloatingCreateForm = React.useCallback(() => {
     if (!commentingNode || activeId !== getDraftCommentKey()) return;
 
-    const topDistance = getCommentTop(editor, {
+    topRef.current[getDraftCommentKey()] = getCommentTop(editor, {
       node: commentingNode,
       relativeElement: editorContainerRef.current!,
     });
-
-    topRef.current[getDraftCommentKey()] = topDistance;
 
     topRef.current = updateTopCommenting(topRef.current, domRef.current);
 
@@ -658,16 +652,18 @@ function FloatingCommentsContent({ discussion, ref, top }: React.ComponentProps<
             <div className="absolute top-[-5px] left-[-14px] h-full w-0.5 shrink-0 bg-muted" />
             <div className="ml-2">Show {discussion.comments.length - 2} replies</div>
           </div>
-          <Comment
-            key={discussion.comments.at(-1).id}
-            onEditorClick={() => highlightDiscussion(editor, discussion.id)}
-            comment={discussion.comments.at(-1)}
-            discussionLength={discussion.comments.length}
-            documentContent={discussion?.documentContent}
-            editingId={editingId}
-            index={discussion.comments.length - 1}
-            setEditingId={setEditingId}
-          />
+          {discussion.comments.at(-1) && (
+            <Comment
+              key={discussion.comments.at(-1)!.id}
+              onEditorClick={() => highlightDiscussion(editor, discussion.id)}
+              comment={discussion.comments.at(-1)!}
+              discussionLength={discussion.comments.length}
+              documentContent={discussion?.documentContent}
+              editingId={editingId}
+              index={discussion.comments.length - 1}
+              setEditingId={setEditingId}
+            />
+          )}
         </>
       ) : (
         discussion.comments.map((comment, index) => (
@@ -731,8 +727,8 @@ const FloatingSuggestionContent = ({
 
   let newText = "";
   let text = "";
-  let properties: any = {};
-  let newProperties: any = {};
+  let properties: UnsafeTypes.UnsafeAny = {};
+  let newProperties: UnsafeTypes.UnsafeAny = {};
 
   // overlapping suggestion
   entries.forEach(([node]) => {
@@ -863,7 +859,8 @@ const FloatingSuggestionContent = ({
 
     const leaf = editor.api.node({
       at: [],
-      match: (n) => n[KEYS.suggestion] && editor.getApi(suggestionPlugin).suggestion.nodeId(n as any) === id,
+      match: (n) =>
+        n[KEYS.suggestion] && editor.getApi(suggestionPlugin).suggestion.nodeId(n as UnsafeTypes.UnsafeAny) === id,
     });
 
     if (!leaf) return;
@@ -986,15 +983,17 @@ const FloatingSuggestionContent = ({
               <div className="absolute top-[-5px] left-[-14px] h-full w-0.5 shrink-0 bg-muted" />
               <div className="ml-2">Show {suggestion.comments.length - 2} replies</div>
             </div>
-            <Comment
-              key={suggestion.comments.at(-1).id}
-              comment={suggestion.comments.at(-1)}
-              discussionLength={suggestion.comments.length}
-              documentContent="__suggestion__"
-              editingId={editingId}
-              index={suggestion.comments.length - 1}
-              setEditingId={setEditingId}
-            />
+            {suggestion.comments.at(-1) && (
+              <Comment
+                key={suggestion.comments.at(-1)!.id}
+                comment={suggestion.comments.at(-1)!}
+                discussionLength={suggestion.comments.length}
+                documentContent="__suggestion__"
+                editingId={editingId}
+                index={suggestion.comments.length - 1}
+                setEditingId={setEditingId}
+              />
+            )}
           </>
         ) : (
           suggestion.comments.map((comment, index) => (

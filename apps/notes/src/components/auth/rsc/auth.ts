@@ -2,13 +2,14 @@ import { CookieNames } from "@beep/notes/lib/storage/cookies";
 import { type AuthUser, getAuthUser } from "@beep/notes/server/auth/getAuthUser";
 import { type AuthSession, validateSessionToken } from "@beep/notes/server/auth/lucia";
 import { SESSION_COOKIE_NAME } from "@beep/notes/server/auth/session-cookie";
+import type { UnsafeTypes } from "@beep/types";
 import { cookies } from "next/headers";
 import { cache } from "react";
 
 export const auth = cache(
   async (): Promise<{
-    session: AuthSession | null;
-    user: AuthUser | null;
+    readonly session: AuthSession | null;
+    readonly user: AuthUser | null;
   }> => {
     const c = await cookies();
 
@@ -40,7 +41,7 @@ export const isNotAuth = async () => {
   return !session;
 };
 
-export const authOnly = async <T extends (...args: any) => any>(callback: T) => {
+export const authOnly = async <T extends (...args: UnsafeTypes.UnsafeAny) => UnsafeTypes.UnsafeAny>(callback: T) => {
   if (await isAuth()) {
     return callback();
   }

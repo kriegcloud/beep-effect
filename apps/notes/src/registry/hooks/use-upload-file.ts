@@ -38,9 +38,12 @@ export function useUploadFile({ onUploadComplete, onUploadError, ...props }: Use
         },
       });
 
-      setUploadedFile(res[0]);
+      const firstFile = res[0];
+      setUploadedFile(firstFile);
 
-      onUploadComplete?.(res[0]);
+      if (firstFile) {
+        onUploadComplete?.(firstFile);
+      }
 
       return uploadedFile;
     } catch (error) {

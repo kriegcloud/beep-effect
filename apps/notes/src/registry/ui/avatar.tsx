@@ -42,7 +42,7 @@ function AvatarImage({
   return (
     <AvatarPrimitive.Image
       asChild
-      onLoadingStatusChange={onLoadingStatusChange}
+      {...(onLoadingStatusChange ? { onLoadingStatusChange } : {})}
       data-slot="avatar-image"
       src={props.src}
     >

@@ -29,13 +29,15 @@ async function trpcHandler(req: NextRequest) {
     endpoint: "/api/trpc",
     req,
     router: appRouter,
-    createContext: () =>
-      createTRPCContext({
-        cookies: process.env.NODE_ENV === "production" ? undefined : req.cookies.getAll(),
+    createContext: () => {
+      const baseContext = {
         headers: req.headers,
         session,
         user,
-      }),
+      };
+      const cookiesValue = process.env.NODE_ENV === "production" ? undefined : req.cookies.getAll();
+      return createTRPCContext(cookiesValue !== undefined ? { ...baseContext, cookies: cookiesValue } : baseContext);
+    },
     onError: ({ error, path }) => {
       if (error.code === "NOT_FOUND") {
         // silently ignore

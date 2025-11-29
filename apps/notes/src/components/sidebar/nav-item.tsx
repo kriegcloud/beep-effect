@@ -26,22 +26,22 @@ import { Icons } from "../ui/icons";
 import { Skeleton } from "../ui/skeleton";
 
 interface ItemProps {
-  id?: string;
-  active?: boolean;
-  children?: React.ReactNode;
-  className?: string;
-  documentIcon?: string | null;
-  expanded?: boolean;
-  href?: string;
-  icon?: IconFC;
-  isSearch?: boolean;
-  label?: string;
-  level?: number;
-  loading?: boolean;
-  tooltip?: string;
-  updatedAt?: Date;
-  onClick?: () => void;
-  onExpand?: () => void;
+  readonly id?: undefined | string;
+  readonly active?: undefined | boolean;
+  readonly children?: undefined | React.ReactNode;
+  readonly className?: undefined | string;
+  readonly documentIcon?: undefined | string | null;
+  readonly expanded?: undefined | boolean;
+  readonly href?: undefined | string;
+  readonly icon?: undefined | IconFC;
+  readonly isSearch?: undefined | boolean;
+  readonly label?: undefined | string;
+  readonly level?: undefined | number;
+  readonly loading?: undefined | boolean;
+  readonly tooltip?: undefined | string;
+  readonly updatedAt?: undefined | Date;
+  readonly onClick?: undefined | (() => void);
+  readonly onExpand?: undefined | (() => void);
 }
 
 export function NavItem({
@@ -245,7 +245,7 @@ export function NavItem({
   return wrappedElement;
 }
 
-export function NavItemSkeleton({ level }: { level?: number }) {
+export function NavItemSkeleton({ level }: { readonly level?: undefined | number }) {
   return (
     <div
       className="flex gap-x-2 py-[3px] pl-2"

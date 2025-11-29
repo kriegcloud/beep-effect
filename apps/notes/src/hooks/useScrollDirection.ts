@@ -1,15 +1,15 @@
-/* eslint-disable @typescript-eslint/prefer-optional-chain */
+import type { UnsafeTypes } from "@beep/types";
 import { useCallback, useEffect, useState } from "react";
 
 export type ScrollDirection = "DOWN" | "LEFT" | "RIGHT" | "UP" | null;
 
-export function getScrollTop(target?: HTMLElement) {
+export function getScrollTop(target?: undefined | HTMLElement) {
   if (target) return target.scrollTop;
 
   return window.scrollY || window.pageYOffset || document.body.scrollTop || document.documentElement?.scrollTop || 0;
 }
 
-export function getScrollLeft(target?: HTMLElement) {
+export function getScrollLeft(target?: undefined | HTMLElement) {
   if (target) return target.scrollLeft;
 
   return window.scrollX || window.pageXOffset || document.body.scrollLeft || document.documentElement?.scrollLeft || 0;
@@ -28,25 +28,25 @@ export function removeScrollListener(listener: ListenerFn, target: Document | HT
 }
 
 export interface ScrollDirectionHookResult {
-  isScrolling: boolean;
-  isScrollingDown: boolean;
-  isScrollingLeft: boolean;
-  isScrollingRight: boolean;
-  isScrollingUp: boolean;
-  isScrollingX: boolean;
-  isScrollingY: boolean;
-  scrollDirection: ScrollDirection;
-  scrollTargetRef: (node: HTMLElement) => void;
+  readonly isScrolling: boolean;
+  readonly isScrollingDown: boolean;
+  readonly isScrollingLeft: boolean;
+  readonly isScrollingRight: boolean;
+  readonly isScrollingUp: boolean;
+  readonly isScrollingX: boolean;
+  readonly isScrollingY: boolean;
+  readonly scrollDirection: ScrollDirection;
+  readonly scrollTargetRef: (node: HTMLElement) => void;
 }
 
-type ListenerFn = () => any;
+type ListenerFn = () => UnsafeTypes.UnsafeAny;
 
 export function useScrollDirection({
   target,
   threshold = 100,
 }: {
-  target: HTMLElement | null;
-  threshold?: number;
+  readonly target: HTMLElement | null;
+  readonly threshold?: undefined | number;
 }): ScrollDirectionHookResult {
   const [targetFromApi, setTargetFromApi] = useState<HTMLElement | undefined>();
   const [targetFromProps, setTargetFromProps] = useState<HTMLElement | undefined>();
@@ -117,6 +117,7 @@ export function useScrollDirection({
 
       return () => removeScrollListener(handleScroll, targetToUse);
     }
+    return;
   }, [targetToUse, threshold]);
 
   return {

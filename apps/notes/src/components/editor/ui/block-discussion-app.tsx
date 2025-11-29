@@ -71,10 +71,10 @@ const BlockCommentsContent = ({
   draftCommentNode,
   suggestionNodes,
 }: PlateElementProps & {
-  blockPath: Path;
-  commentNodes: NodeEntry<TCommentText>[];
-  draftCommentNode: NodeEntry<TCommentText> | undefined;
-  suggestionNodes: NodeEntry<TElement | TSuggestionText>[];
+  readonly blockPath: Path;
+  readonly commentNodes: NodeEntry<TCommentText>[];
+  readonly draftCommentNode: NodeEntry<TCommentText> | undefined;
+  readonly suggestionNodes: NodeEntry<TElement | TSuggestionText>[];
 }) => {
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
   const editor = useEditorRef();
@@ -133,7 +133,6 @@ const BlockCommentsContent = ({
     if (!activeNode) return null;
 
     return editor.api.toDOMNode(activeNode[0])!;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, activeSuggestion, activeCommentId, editor.api, suggestionNodes, draftCommentNode, commentNodes]);
 
   if (suggestionsCount + resolvedDiscussions.length === 0 && !draftCommentNode)
@@ -233,7 +232,13 @@ const BlockCommentsContent = ({
   );
 };
 
-function BlockCommentsCard({ discussion, isLast }: { discussion: RouterDiscussionItem; isLast: boolean }) {
+function BlockCommentsCard({
+  discussion,
+  isLast,
+}: {
+  readonly discussion: RouterDiscussionItem;
+  readonly isLast: boolean;
+}) {
   const [editingId, setEditingId] = React.useState<string | null>(null);
 
   return (

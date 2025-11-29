@@ -22,10 +22,10 @@ export type TRPCContext = ReturnType<typeof createTRPCContext>;
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = (opts: {
-  headers: Headers;
-  session: AuthSession | null;
-  user: AuthUser | null;
-  cookies?: RequestCookie[];
+  readonly headers: Headers;
+  readonly session: AuthSession | null;
+  readonly user: AuthUser | null;
+  readonly cookies?: undefined | RequestCookie[];
 }) => {
   // const source = opts.headers.get('x-trpc-source') ?? 'unknown';
   // console.info('>>> tRPC Request from', source, 'by', session?.user);

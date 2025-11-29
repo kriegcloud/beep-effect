@@ -6,8 +6,8 @@ export const MainLayout = ({
   children,
   // footer = true,
 }: {
-  children: React.ReactNode;
-  footer?: boolean;
+  readonly children: React.ReactNode;
+  readonly footer?: undefined | boolean;
 }) => {
   return (
     <div className="flex h-full min-h-dvh flex-col">

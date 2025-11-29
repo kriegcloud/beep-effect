@@ -12,18 +12,23 @@ import * as React from "react";
 import { Ariakit } from "./menu";
 
 type FilterFn = (
-  item: { value: string; group?: string; keywords?: string[]; label?: string },
+  item: {
+    readonly value: string;
+    readonly group?: undefined | string;
+    readonly keywords?: string[];
+    readonly label?: string;
+  },
   search: string
 ) => boolean;
 
 interface InlineComboboxContextValue {
-  filter: FilterFn | false;
-  inputProps: UseComboboxInputResult["props"];
-  inputRef: RefObject<HTMLInputElement | null>;
-  removeInput: UseComboboxInputResult["removeInput"];
-  showTrigger: boolean;
-  trigger: string;
-  setHasEmpty: (hasEmpty: boolean) => void;
+  readonly filter: FilterFn | false;
+  readonly inputProps: UseComboboxInputResult["props"];
+  readonly inputRef: RefObject<HTMLInputElement | null>;
+  readonly removeInput: UseComboboxInputResult["removeInput"];
+  readonly showTrigger: boolean;
+  readonly trigger: string;
+  readonly setHasEmpty: (hasEmpty: boolean) => void;
 }
 
 const InlineComboboxContext = React.createContext<InlineComboboxContextValue>(null as any);
@@ -35,14 +40,14 @@ const defaultFilter: FilterFn = ({ group, keywords = [], label, value }, search)
 };
 
 interface InlineComboboxProps {
-  children: ReactNode;
-  element: TElement;
-  trigger: string;
-  filter?: FilterFn | false;
-  hideWhenNoValue?: boolean;
-  showTrigger?: boolean;
-  value?: string;
-  setValue?: (value: string) => void;
+  readonly children: ReactNode;
+  readonly element: TElement;
+  readonly trigger: string;
+  readonly filter?: undefined | FilterFn | false;
+  readonly hideWhenNoValue?: undefined | boolean;
+  readonly showTrigger?: undefined | boolean;
+  readonly value?: undefined | string;
+  readonly setValue?: undefined | ((value: string) => void);
 }
 
 function InlineCombobox({
@@ -99,9 +104,11 @@ function InlineCombobox({
     ref: inputRef,
     onCancelInput: (cause) => {
       if (cause !== "backspace") {
-        editor.tf.insertText(trigger + value, {
-          at: insertPoint?.current ?? undefined,
-        });
+        const insertOptions: Record<string, unknown> = {};
+        if (insertPoint?.current !== undefined) {
+          insertOptions.at = insertPoint.current;
+        }
+        editor.tf.insertText(trigger + value, insertOptions as any);
       }
       if (cause === "arrowLeft" || cause === "arrowRight") {
         editor.tf.move({
@@ -174,7 +181,7 @@ function InlineComboboxInput({ className, ref: refProp, ...props }: React.Compon
           value={value}
           autoSelect
           {...inputProps}
-          {...props}
+          {...(props as any)}
         />
       </span>
     </>
@@ -236,10 +243,10 @@ function InlineComboboxItem({
   onClick,
   ...props
 }: {
-  focusEditor?: boolean;
-  group?: string;
-  keywords?: string[];
-  label?: string;
+  readonly focusEditor?: undefined | boolean;
+  readonly group?: undefined | string;
+  readonly keywords?: undefined | string[];
+  readonly label?: undefined | string;
 } & Ariakit.ComboboxItemProps &
   Required<Pick<Ariakit.ComboboxItemProps, "value">>) {
   const { value } = props;
@@ -250,10 +257,16 @@ function InlineComboboxItem({
 
   const search = filter && store.useState("value");
 
-  const visible = React.useMemo(
-    () => !filter || filter({ group, keywords, label, value }, search as string),
-    [filter, group, keywords, value, label, search]
-  );
+  const visible = React.useMemo(() => {
+    if (!filter) return true;
+
+    const filterArgs: Record<string, unknown> = { value };
+    if (group !== undefined) filterArgs.group = group;
+    if (keywords !== undefined) filterArgs.keywords = keywords;
+    if (label !== undefined) filterArgs.label = label;
+
+    return filter(filterArgs as any, search as string);
+  }, [filter, group, keywords, value, label, search]);
 
   if (!visible) return null;
 

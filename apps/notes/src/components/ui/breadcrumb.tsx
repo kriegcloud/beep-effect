@@ -1,6 +1,7 @@
 "use client";
 
 import { LinkButton } from "@beep/notes/registry/ui/button";
+import type { UnsafeTypes } from "@beep/types";
 
 import { cn, createPrimitiveElement, withCn, withProps } from "@udecode/cn";
 import type * as React from "react";
@@ -36,7 +37,7 @@ export function BreadcrumbItem({ className, ...props }: React.ComponentProps<"li
 
 export const BreadcrumbTruncateText = withProps(createPrimitiveElement("span"), {
   "data-truncate": true,
-} as any);
+} as UnsafeTypes.UnsafeAny);
 
 export function BreadcrumbLink({
   children,
@@ -44,7 +45,7 @@ export function BreadcrumbLink({
   truncate = true,
   ...props
 }: React.ComponentProps<typeof LinkButton> & {
-  truncate?: boolean;
+  truncate?: undefined | boolean;
 }) {
   const child = truncate ? <BreadcrumbTruncateText>{children}</BreadcrumbTruncateText> : children;
 

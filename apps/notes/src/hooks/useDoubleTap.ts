@@ -5,13 +5,13 @@ export type CallbackFunction<Target = Element> = EmptyCallback | MouseEventHandl
 export type DoubleTapCallback<Target = Element> = CallbackFunction<Target> | null;
 
 export interface DoubleTapOptions<Target = Element> {
-  onSingleTap?: CallbackFunction<Target>;
+  readonly onSingleTap?: undefined | CallbackFunction<Target>;
 }
 
 export type DoubleTapResult<Target, Callback> =
   Callback extends CallbackFunction<Target>
     ? {
-        onClick: CallbackFunction<Target>;
+        readonly onClick: CallbackFunction<Target>;
       }
     : Callback extends null
       ? Record<string, never>
@@ -42,7 +42,7 @@ export function useDoubleTap<Target = Element, Callback extends DoubleTapCallbac
         }, threshold);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [callback, threshold, options.onSingleTap]
   );
 

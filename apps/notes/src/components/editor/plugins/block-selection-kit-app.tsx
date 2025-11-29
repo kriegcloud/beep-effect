@@ -1,6 +1,7 @@
 "use client";
 
 import { BlockSelection } from "@beep/notes/registry/ui/block-selection";
+import type { UnsafeTypes } from "@beep/types";
 import { BlockSelectionPlugin } from "@platejs/selection/react";
 import { getPluginTypes, KEYS } from "platejs";
 
@@ -21,7 +22,7 @@ export const BlockSelectionKit = [
       belowRootNodes: (props) => {
         if (!props.attributes.className?.includes("slate-selectable")) return null;
 
-        return <BlockSelection {...(props as any)} />;
+        return <BlockSelection {...(props as UnsafeTypes.UnsafeAny)} />;
       },
     },
   })),

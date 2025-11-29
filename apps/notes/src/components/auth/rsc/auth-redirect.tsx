@@ -9,8 +9,8 @@ export const authRedirect = async ({
   pathname,
   searchParams,
 }: {
-  pathname?: string;
-  searchParams?: Record<string, string>;
+  readonly pathname?: undefined | string;
+  readonly searchParams?: undefined | Record<string, string>;
 }) => {
   if (await isNotAuth()) {
     let callbackUrl = "/login";
@@ -33,11 +33,14 @@ export async function AuthRedirect({
   pathname,
   searchParams,
 }: {
-  children: React.ReactNode;
-  pathname?: string;
-  searchParams?: Record<string, string>;
+  readonly children: React.ReactNode;
+  readonly pathname?: undefined | string;
+  readonly searchParams?: Record<string, string>;
 }) {
-  await authRedirect({ pathname, searchParams });
+  const redirectParams: { pathname?: string; searchParams?: Record<string, string> } = {};
+  if (pathname !== undefined) redirectParams.pathname = pathname;
+  if (searchParams !== undefined) redirectParams.searchParams = searchParams;
+  await authRedirect(redirectParams);
 
   return <>{children}</>;
 }
@@ -47,11 +50,14 @@ export async function AdminGuard({
   pathname,
   searchParams,
 }: {
-  children: React.ReactNode;
-  pathname?: string;
-  searchParams?: Record<string, string>;
+  readonly children: React.ReactNode;
+  readonly pathname?: string;
+  readonly searchParams?: Record<string, string>;
 }) {
-  await authRedirect({ pathname, searchParams });
+  const redirectParams: { pathname?: string; searchParams?: Record<string, string> } = {};
+  if (pathname !== undefined) redirectParams.pathname = pathname;
+  if (searchParams !== undefined) redirectParams.searchParams = searchParams;
+  await authRedirect(redirectParams);
 
   const { user } = await auth();
 

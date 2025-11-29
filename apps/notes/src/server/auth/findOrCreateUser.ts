@@ -17,18 +17,18 @@ export const findOrCreateUser = async ({
   username,
   // x,
 }: {
-  email: string;
-  providerId: "github" | "google";
-  providerUserId: string;
-  bio?: string;
-  firstName?: string;
-  github?: string;
-  lastName?: string;
-  location?: string;
-  name?: string;
-  profileImageUrl?: string;
-  username?: string;
-  x?: string;
+  readonly email: string;
+  readonly providerId: "github" | "google";
+  readonly providerUserId: string;
+  readonly bio?: undefined | string;
+  readonly firstName?: undefined | string;
+  readonly github?: undefined | string;
+  readonly lastName?: undefined | string;
+  readonly location?: undefined | string;
+  readonly name?: undefined | string;
+  readonly profileImageUrl?: undefined | string;
+  readonly username?: undefined | string;
+  readonly x?: undefined | string;
 }) => {
   const existingUser = await prisma.user.findFirst({
     select: {
@@ -108,27 +108,26 @@ export const findOrCreateUser = async ({
   //   },
   // });
 
-  const user = await prisma.user.create({
-    data: {
-      id: nid(),
-      // bio,
-      email,
-      firstName,
-      lastName,
-      // location,
-      name,
-      oauthAccounts: {
-        create: {
-          id: nid(),
-          providerId,
-          providerUserId,
-        },
+  const createData: any = {
+    id: nid(),
+    email,
+    oauthAccounts: {
+      create: {
+        id: nid(),
+        providerId,
+        providerUserId,
       },
-      profileImageUrl: profileImageUrl,
-      role: env.SUPERADMIN === email ? UserRole.SUPERADMIN : UserRole.USER,
-      username: username!,
-      // x,
     },
+    role: env.SUPERADMIN === email ? UserRole.SUPERADMIN : UserRole.USER,
+    username: username!,
+  };
+  if (firstName !== undefined) createData.firstName = firstName ?? null;
+  if (lastName !== undefined) createData.lastName = lastName ?? null;
+  if (name !== undefined) createData.name = name ?? null;
+  if (profileImageUrl !== undefined) createData.profileImageUrl = profileImageUrl ?? null;
+
+  const user = await prisma.user.create({
+    data: createData,
     select: {
       id: true,
     },

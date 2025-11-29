@@ -1,3 +1,4 @@
+import type { UnsafeTypes } from "@beep/types";
 import { Data, HashMap, pipe, Struct, Tuple } from "effect";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
@@ -26,7 +27,7 @@ export const toHashMap =
     );
 
 export const toHashMapByKeyWith =
-  <const K extends PropertyKey, A extends { [P in K]?: any }, B>({
+  <const K extends PropertyKey, A extends { [P in K]?: UnsafeTypes.UnsafeAny }, B>({
     key,
     valueInitializer,
     valueReducer,
@@ -44,7 +45,7 @@ export const toHashMapByKeyWith =
 
 export const toHashMapByKey =
   <const K extends PropertyKey>(key: K) =>
-  <A extends { [P in K]?: any }>(
+  <A extends { [P in K]?: UnsafeTypes.UnsafeAny }>(
     a: ReadonlyArray<A>
   ): HashMap.HashMap<Types.MatchRecord<A, A[K] | undefined, A[K]>, A> =>
     toHashMapByKeyWith<K, A, A>({
@@ -55,7 +56,7 @@ export const toHashMapByKey =
 
 export const toArrayHashMapByKey =
   <const K extends PropertyKey>(key: K) =>
-  <A extends { [P in K]?: any }>(
+  <A extends { [P in K]?: UnsafeTypes.UnsafeAny }>(
     a: ReadonlyArray<A>
   ): HashMap.HashMap<Types.MatchRecord<A, A[K] | undefined, A[K]>, A.NonEmptyArray<A>> =>
     toHashMapByKeyWith<K, A, A.NonEmptyArray<A>>({
@@ -64,14 +65,21 @@ export const toArrayHashMapByKey =
       valueReducer: A.append,
     })(a);
 
-type MapStructKeyValues<Keys extends A.NonEmptyReadonlyArray<PropertyKey>, A extends { [P in Keys[number]]?: any }> = {
+type MapStructKeyValues<
+  Keys extends A.NonEmptyReadonlyArray<PropertyKey>,
+  A extends { [P in Keys[number]]?: UnsafeTypes.UnsafeAny },
+> = {
   [K in Keys[number]]: Types.MatchRecord<A, A[K] | undefined, A[K]>;
 } extends infer B
   ? B
   : never;
 
 export const toHashMapByKeysWith =
-  <const Keys extends A.NonEmptyReadonlyArray<PropertyKey>, A extends { [P in Keys[number]]?: any }, B>({
+  <
+    const Keys extends A.NonEmptyReadonlyArray<PropertyKey>,
+    A extends { [P in Keys[number]]?: UnsafeTypes.UnsafeAny },
+    B,
+  >({
     keys,
     valueInitializer,
     valueReducer,
@@ -95,7 +103,9 @@ export const toHashMapByKeysWith =
 
 export const toHashMapByKeys =
   <const Keys extends A.NonEmptyReadonlyArray<PropertyKey>>(keys: Keys) =>
-  <A extends { [P in Keys[number]]?: any }>(a: ReadonlyArray<A>): HashMap.HashMap<MapStructKeyValues<Keys, A>, A> =>
+  <A extends { [P in Keys[number]]?: UnsafeTypes.UnsafeAny }>(
+    a: ReadonlyArray<A>
+  ): HashMap.HashMap<MapStructKeyValues<Keys, A>, A> =>
     toHashMapByKeysWith<Keys, A, A>({
       keys,
       valueInitializer: F.identity,
@@ -104,7 +114,7 @@ export const toHashMapByKeys =
 
 export const toArrayHashMapByKeys =
   <const Keys extends A.NonEmptyReadonlyArray<PropertyKey>>(keys: Keys) =>
-  <A extends { [P in Keys[number]]?: any }>(
+  <A extends { [P in Keys[number]]?: UnsafeTypes.UnsafeAny }>(
     a: ReadonlyArray<A>
   ): HashMap.HashMap<MapStructKeyValues<Keys, A>, A.NonEmptyArray<A>> =>
     toHashMapByKeysWith<Keys, A, A.NonEmptyArray<A>>({

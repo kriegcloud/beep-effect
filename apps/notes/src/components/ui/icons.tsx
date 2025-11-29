@@ -1,4 +1,7 @@
-import type { VariantProps } from "class-variance-authority";
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
+import * as R from "effect/Record";
+import * as Struct from "effect/Struct";
 import {
   Activity,
   Album,
@@ -140,12 +143,11 @@ import {
   ZoomOut,
 } from "lucide-react";
 import type React from "react";
-
 import { GitHubIcon } from "../icons/GitHubIcon";
 import { ImageUploadIcon } from "../icons/ImageUploadIcon";
 import { LogoIcon } from "../icons/LogoIcon";
 import { TwitterXIcon } from "../icons/TwitterXIcon";
-import { createIcon, type iconVariants } from "./icon";
+import { createIcon } from "./icon";
 
 const iconMap = {
   add: Plus,
@@ -300,25 +302,13 @@ const iconMap = {
   zoomOut: ZoomOut,
   logoDiscord: (_props: LucideProps) => null,
 } satisfies Record<string, React.FC<LucideProps>>;
-
-export const Icons = Object.fromEntries(
-  Object.entries(iconMap).map(([key, IconComponent]) => [
-    key,
-    createIcon(IconComponent, key === "spinner" ? { spin: true } : {}),
-  ])
+export const Icons = pipe(
+  iconMap,
+  Struct.entries,
+  A.map(([key, IconComponent]) => [key, createIcon(IconComponent, key === "spinner" ? { spin: true } : {})] as const),
+  R.fromEntries
 ) as Record<IconName, ReturnType<typeof createIcon>>;
-
-export type IconFC = React.FC<IconProps>;
 
 export type IconName = keyof typeof iconMap;
 
-export type IconProps = {
-  /**
-   * All icons must be associated with an label, either next to the icon (using
-   * sr-only) or on an interactive parent element (using aria-label). The latter
-   * case is preferred (e.g. inside a button). If the icon does not add any new
-   * information, it can be safely hidden.
-   */
-  label?: string;
-} & LucideProps &
-  VariantProps<typeof iconVariants>;
+export type { IconFC, IconProps } from "./icon";

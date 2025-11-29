@@ -1,8 +1,8 @@
 import { faker } from "@faker-js/faker";
 
 interface Chunk {
-  delay: number;
-  texts: string;
+  readonly delay: number;
+  readonly texts: string;
 }
 
 function getRandomChunks(count = 20): Chunk[] {
@@ -16,8 +16,8 @@ export const fakeStreamText = ({
   chunkCount = 20,
   streamProtocol = "text",
 }: {
-  chunkCount?: number;
-  streamProtocol?: "data" | "text";
+  chunkCount?: undefined | number;
+  streamProtocol?: undefined | "data" | "text";
 } = {}) => {
   const chunks = getRandomChunks(chunkCount);
 

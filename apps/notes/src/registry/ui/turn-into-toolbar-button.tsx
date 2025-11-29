@@ -126,7 +126,7 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
     <DropdownMenu modal={false} {...openState} {...props}>
       <DropdownMenuTrigger asChild>
         <ToolbarButton pressed={openState.open} tooltip="Turn into" isDropdown>
-          {selectedItem.label}
+          {selectedItem?.label}
         </ToolbarButton>
       </DropdownMenuTrigger>
 
@@ -137,7 +137,7 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
 
             <DropdownMenuRadioGroup
               className="flex flex-col gap-0.5"
-              value={selectedItem.value}
+              {...(selectedItem?.value ? { value: selectedItem.value } : {})}
               onValueChange={(type) => {
                 setBlockType(editor, type);
                 editor.tf.focus();

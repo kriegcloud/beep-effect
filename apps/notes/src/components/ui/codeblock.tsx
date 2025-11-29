@@ -14,8 +14,8 @@ import { Icons } from "./icons";
 type languageMap = Record<string, string | undefined>;
 
 interface Props {
-  language: string;
-  value: string;
+  readonly language: string;
+  readonly value: string;
 }
 
 export const programmingLanguages: languageMap = {

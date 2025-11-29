@@ -10,11 +10,15 @@ export function MarkToolbarButton({
   nodeType,
   ...props
 }: React.ComponentProps<typeof ToolbarButton> & {
-  nodeType: string;
-  clear?: string[] | string;
+  readonly nodeType: string;
+  readonly clear?: undefined | string[] | string;
 }) {
   const editor = useEditorRef();
-  const state = useMarkToolbarButtonState({ clear, nodeType });
+  const stateProps: Record<string, unknown> = { nodeType };
+  if (clear !== undefined) {
+    stateProps.clear = clear;
+  }
+  const state = useMarkToolbarButtonState(stateProps as any);
   const { props: buttonProps } = useMarkToolbarButton(state);
 
   return (

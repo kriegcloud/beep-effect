@@ -1,4 +1,3 @@
-/* eslint-disable security/detect-bidi-characters */
 export const tlds = {
   a: [
     "aaa",

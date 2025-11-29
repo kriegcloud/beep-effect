@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { env } from "@beep/notes/env";
 import { SESSION_COOKIE_NAME } from "@beep/notes/server/auth/session-cookie";
+import type { UnsafeTypes } from "@beep/types";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { getCookie } from "hono/cookie";
@@ -37,11 +38,20 @@ export const exportRoutes = new Hono()
         let browser: Browser;
 
         try {
-          browser = await puppeteer.launch({
+          const launchOptions: {
+            args: string[];
+            headless: true;
+            executablePath?: string;
+          } = {
             args: ["--no-sandbox", "--disable-gpu", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
             headless: true,
-          });
+          };
+
+          if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+            launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+          }
+
+          browser = await puppeteer.launch(launchOptions);
         } catch (error) {
           console.error("Browser launch error:", error);
 
@@ -85,7 +95,7 @@ export const exportRoutes = new Hono()
             <span class="pageNumber"></span> / <span class="totalPages"></span>
           </div>
         `,
-            format: format as any,
+            format: format as UnsafeTypes.UnsafeAny,
             margin: {
               bottom: "30px",
               left: "20px",

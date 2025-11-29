@@ -7,6 +7,7 @@ import { linkPlugin } from "@beep/notes/registry/components/editor/plugins/link-
 import { Button } from "@beep/notes/registry/ui/button";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@beep/notes/registry/ui/hover-card";
 import { useTRPC } from "@beep/notes/trpc/react";
+import type { UnsafeTypes } from "@beep/types";
 import { useLink } from "@platejs/link/react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRightIcon, CopyIcon, FileTextIcon, LinkIcon } from "lucide-react";
@@ -48,7 +49,7 @@ export function LinkElement(props: PlateElementProps) {
             className="cursor-pointer border-b-1 font-medium text-primary/65"
             attributes={{
               ...props.attributes,
-              ...(linkProps as any),
+              ...(linkProps as UnsafeTypes.UnsafeAny),
               onClick: () => {
                 window.open(element.url, isInternal ? "_self" : "_blank");
               },
@@ -110,7 +111,6 @@ const LinkPreview = ({ element }: { element: MyLinkElement }) => {
         }
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [document]);
 
   return (

@@ -1,3 +1,4 @@
+import type { UnsafeTypes } from "@beep/types";
 import { StrUtils } from "@beep/utils";
 import { orderBy } from "@beep/utils/data/array.utils/order-by";
 
@@ -12,7 +13,7 @@ type CreateNavItemProps = {
 
 export type NavItemData = {
   readonly name: string;
-  readonly icon: any;
+  readonly icon: UnsafeTypes.UnsafeAny;
   readonly href: string;
   readonly packageType?: string | undefined;
 };

@@ -1,9 +1,9 @@
 import type { Document } from "@beep/notes/generated/prisma/client";
 
 export type CollabContext = {
-  document?: CollabDocument;
-  readOnly?: boolean;
-  userId?: string;
+  document?: undefined | CollabDocument;
+  readOnly?: undefined | boolean;
+  userId?: undefined | string;
 };
 
 export type CollabDocument = Pick<

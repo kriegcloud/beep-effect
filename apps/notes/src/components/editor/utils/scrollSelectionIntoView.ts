@@ -1,3 +1,4 @@
+import type { UnsafeTypes } from "@beep/types";
 import type { Editor } from "platejs";
 
 import scrollIntoView from "scroll-into-view-if-needed";
@@ -13,6 +14,6 @@ export const scrollSelectionIntoView = (editor: Editor) => {
       scrollMode: "if-needed",
     });
 
-    delete (leafEl as any).getBoundingClientRect;
+    delete (leafEl as UnsafeTypes.UnsafeAny).getBoundingClientRect;
   }
 };

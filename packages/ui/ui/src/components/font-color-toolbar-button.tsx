@@ -1,7 +1,5 @@
 "use client";
 
-/* eslint-disable react-hooks/refs -- Ref usage for color picker component refs */
-
 import { buttonVariants } from "@beep/ui/components/button";
 import {
   DropdownMenu,

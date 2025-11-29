@@ -3,10 +3,10 @@ import { env } from "@beep/notes/env";
 
 export type NavItem = {
   title: string;
-  disabled?: boolean;
-  external?: boolean;
-  href?: string;
-  icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  disabled?: undefined | boolean;
+  external?: undefined | boolean;
+  href?: undefined | string;
+  icon?: undefined | React.ComponentType<React.SVGProps<SVGSVGElement>>;
 };
 
 export type SiteConfig = {

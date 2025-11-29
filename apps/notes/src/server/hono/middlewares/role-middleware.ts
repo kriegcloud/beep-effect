@@ -4,7 +4,7 @@ import { createMiddleware } from "hono/factory";
 
 import type { ProtectedContext } from "./auth-middleware";
 
-export function roleMiddleware(role?: UserRole) {
+export function roleMiddleware(role?: undefined | UserRole) {
   return createMiddleware<ProtectedContext>(async (c, next) => {
     if (role) {
       const user = c.get("user");
@@ -17,6 +17,6 @@ export function roleMiddleware(role?: UserRole) {
       }
     }
 
-    await next();
+    return next();
   });
 }

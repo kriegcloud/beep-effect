@@ -1,3 +1,4 @@
+import type { UnsafeTypes } from "@beep/types";
 import React from "react";
 
 export const REACT_MAJOR_VERSION = Number.parseInt(React.version.split(".")[0] ?? "18", 10);
@@ -6,7 +7,7 @@ export const IS_IOS =
   typeof navigator !== "undefined" &&
   typeof window !== "undefined" &&
   /iPad|iPhone|iPod/.test(navigator.userAgent) &&
-  !(window as any).MSStream;
+  !(window as UnsafeTypes.UnsafeAny).MSStream;
 
 export const IS_APPLE = typeof navigator !== "undefined" && navigator.userAgent.includes("Mac OS X");
 

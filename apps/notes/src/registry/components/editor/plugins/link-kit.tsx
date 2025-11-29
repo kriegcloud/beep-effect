@@ -1,14 +1,13 @@
 "use client";
 
 import type { MyLinkElement } from "@beep/notes/registry/components/editor/plate-types";
+import { getCursorOverlayElement } from "@beep/notes/registry/ui/cursor-overlay";
+import { LinkElement } from "@beep/notes/registry/ui/link-node";
+import { LinkFloatingToolbar } from "@beep/notes/registry/ui/link-toolbar";
 import { type BaseLinkConfig, BaseLinkPlugin } from "@platejs/link";
 import { CursorOverlayPlugin } from "@platejs/selection/react";
 import type { ExtendConfig } from "platejs";
 import { Key, toTPlatePlugin, useEditorSelector, usePluginOption } from "platejs/react";
-
-import { getCursorOverlayElement } from "@/registry/ui/cursor-overlay";
-import { LinkElement } from "@/registry/ui/link-node";
-import { LinkFloatingToolbar } from "@/registry/ui/link-toolbar";
 
 export type FloatingLinkMode = "cursor" | "edit" | "hover" | "insert" | null;
 

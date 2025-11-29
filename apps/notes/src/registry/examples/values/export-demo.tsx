@@ -70,7 +70,7 @@ export default function ExportDemo() {
   );
 }
 
-export function ExportDialog({ className }: { className?: string }) {
+export function ExportDialog({ className }: { readonly className?: undefined | string }) {
   const [type, setType] = useState("pdf");
   const [pageFormat, setPageFormat] = useState<PaperFormat>("a4");
   const [scale, setScale] = useState("100");

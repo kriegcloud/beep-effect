@@ -11,13 +11,13 @@ import { createTRPCReact } from "@trpc/react-query";
 import React from "react";
 import { SuperJSON } from "superjson";
 
-export const api = createTRPCReact<AppRouter>();
+export const api = createTRPCReact<AppRouter>() as ReturnType<typeof createTRPCReact<AppRouter>>;
 
-export const useTRPC = () => {
+export const useTRPC = (): ReturnType<typeof api.useUtils> => {
   return api.useUtils();
 };
 
-export function TRPCReactProvider(props: { children: React.ReactNode }) {
+export function TRPCReactProvider(props: { readonly children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
   const [trpcClient] = React.useState(() =>

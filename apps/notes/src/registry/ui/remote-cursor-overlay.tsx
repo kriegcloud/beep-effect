@@ -53,8 +53,8 @@ function RemoteSelection({ caretPosition, data, selectionRects }: CursorOverlayD
 }
 
 type CursorData = {
-  color: string;
-  name: string;
+  readonly color: string;
+  readonly name: string;
 };
 
 const cursorOpacity = 0.7;

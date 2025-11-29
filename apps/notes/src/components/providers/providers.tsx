@@ -8,7 +8,7 @@ import { ThemeProvider } from "@beep/notes/components/providers/theme-provider";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type * as React from "react";
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({ children }: { readonly children: React.ReactNode }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableColorScheme enableSystem>
       <TailwindProvider>

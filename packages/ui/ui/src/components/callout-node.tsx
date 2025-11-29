@@ -1,5 +1,6 @@
 "use client";
 
+import type { UnsafeTypes } from "@beep/types";
 import { Button } from "@beep/ui/components/button";
 import { cn } from "@beep/ui-core/utils";
 import { useCalloutEmojiPicker } from "@platejs/callout/react";
@@ -28,7 +29,7 @@ export function CalloutElement({
     <PlateElement
       className={cn("my-1 flex rounded-sm bg-muted p-4 pl-3", className)}
       style={{
-        backgroundColor: props.element.backgroundColor as any,
+        backgroundColor: props.element.backgroundColor as UnsafeTypes.UnsafeAny,
       }}
       attributes={{
         ...attributes,
@@ -49,7 +50,7 @@ export function CalloutElement({
               }}
               contentEditable={false}
             >
-              {(props.element.icon as any) || "💡"}
+              {(props.element.icon as UnsafeTypes.UnsafeAny) || "💡"}
             </Button>
           }
         >

@@ -18,9 +18,9 @@ export function DiscardModal({
   onSettled: onSettledProp,
   ...props
 }: {
-  onConfirm: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
-  onCancel?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
-  onSettled?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  readonly onConfirm: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  readonly onCancel?: undefined | ((e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void);
+  readonly onSettled?: undefined | ((e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void);
 } & React.ComponentProps<typeof AlertDialogContent>) {
   const onConfirm = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation();

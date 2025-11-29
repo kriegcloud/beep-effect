@@ -1,25 +1,26 @@
+import type { UnsafeTypes } from "@beep/types";
 import { useCallback, useLayoutEffect, useState } from "react";
 
 interface DimensionObject {
-  bottom: number;
-  height: number;
-  left: number;
-  right: number;
-  top: number;
-  width: number;
-  x: number;
-  y: number;
+  readonly bottom: number;
+  readonly height: number;
+  readonly left: number;
+  readonly right: number;
+  readonly top: number;
+  readonly width: number;
+  readonly x: number;
+  readonly y: number;
 }
 
 type UseDimensionsHook = {
-  dimensions: DimensionObject;
-  isLandscape: boolean;
-  node: HTMLElement;
-  ref: React.RefCallback<HTMLElement>;
+  readonly dimensions: DimensionObject;
+  readonly isLandscape: boolean;
+  readonly node: HTMLElement;
+  readonly ref: React.RefCallback<HTMLElement>;
 };
 
 function getDimensionObject(node: HTMLElement): DimensionObject {
-  const rect: any = node.getBoundingClientRect();
+  const rect: UnsafeTypes.UnsafeAny = node.getBoundingClientRect();
 
   return {
     bottom: rect.bottom,
@@ -38,12 +39,12 @@ export function useDimensions({
   liveMeasure = false,
   onResize = true,
 }: {
-  enabled?: boolean;
-  liveMeasure?: boolean;
-  onResize?: boolean;
+  readonly enabled?: undefined | boolean;
+  readonly liveMeasure?: undefined | boolean;
+  readonly onResize?: undefined | boolean;
 } = {}): UseDimensionsHook {
-  const [dimensions, setDimensions] = useState<DimensionObject>({} as any);
-  const [node, setNode] = useState<any>(null);
+  const [dimensions, setDimensions] = useState<DimensionObject>({} as UnsafeTypes.UnsafeAny);
+  const [node, setNode] = useState<UnsafeTypes.UnsafeAny>(null);
 
   const ref: React.RefCallback<HTMLElement> = useCallback((node) => {
     setNode(node);
@@ -63,6 +64,7 @@ export function useDimensions({
         if (!enabled) return;
 
         setDimensions(getDimensionObject(node));
+        return;
       };
       measure();
 
@@ -76,6 +78,7 @@ export function useDimensions({
         };
       }
     }
+    return;
   }, [enabled, liveMeasure, node, onResize]);
 
   return {

@@ -4,8 +4,8 @@ import type React from "react";
 export type RouteMap = Partial<Record<keyof typeof routes, RouteMapItem>>;
 
 export type RouteMapItem = {
-  component: React.FC | string;
-  path: string;
+  readonly component: React.FC | string;
+  readonly path: string;
 };
 
 const matchDynamicRoute = (routePattern: string, currentPath: string) => {

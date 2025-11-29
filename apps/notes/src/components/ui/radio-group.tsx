@@ -17,7 +17,7 @@ export function RadioGroupItem({
   variant = "radio",
   ...props
 }: React.ComponentProps<typeof RadioGroupPrimitive.Item> & {
-  variant?: "none" | "radio";
+  variant?: undefined | "none" | "radio";
 }) {
   return (
     <RadioGroupPrimitive.Item

@@ -2,6 +2,7 @@
 
 import { type UseChatHelpers, useChat as useBaseChat } from "@ai-sdk/react";
 import { BS } from "@beep/schema";
+import type { UnsafeTypes } from "@beep/types";
 import { aiChatPlugin } from "@beep/ui/components/editor/plugins/ai-kit";
 import { faker } from "@faker-js/faker";
 import { AIChatPlugin, aiCommentToRange } from "@platejs/ai/react";
@@ -82,7 +83,7 @@ export const useChat = () => {
           try {
             const content = JSON.parse(init?.body as string)
               .messages.at(-1)
-              .parts.find((p: any) => p.type === "text")?.text;
+              .parts.find((p: UnsafeTypes.UnsafeAny) => p.type === "text")?.text;
 
             if (content.includes("Generate a markdown sample")) {
               sample = "markdown";
@@ -193,7 +194,7 @@ export const useChat = () => {
   };
 
   React.useEffect(() => {
-    editor.setOption(AIChatPlugin, "chat", chat as any);
+    editor.setOption(AIChatPlugin, "chat", chat as UnsafeTypes.UnsafeAny);
   }, [chat.status, chat.messages, chat.error]);
 
   return chat;

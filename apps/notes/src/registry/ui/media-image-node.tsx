@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@beep/notes/lib/utils";
 import { useDraggable } from "@platejs/dnd";
 import { PlaceholderPlugin, useImage, useMediaState } from "@platejs/media/react";
 import { ResizableProvider, useResizableValue } from "@platejs/resizable";
@@ -7,8 +8,6 @@ import type { TImageElement } from "platejs";
 import { PlateElement, type PlateElementProps, useEditorPlugin, withHOC } from "platejs/react";
 import React, { useEffect, useMemo, useState } from "react";
 import { LazyLoadImage } from "react-lazy-load-image-component";
-
-import { cn } from "@/lib/utils";
 
 import { blockSelectionVariants } from "./block-selection";
 import { Caption, CaptionTextarea } from "./caption";
@@ -26,7 +25,6 @@ export const ImageElement = withHOC(ResizableProvider, function ImageElement(pro
     if (!element.placeholderId) return;
 
     return api.placeholder.getUploadingFile(element.placeholderId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [element.placeholderId]);
 
   const { align = "center", focused, readOnly, selected } = useMediaState();
@@ -107,7 +105,7 @@ export const ImageElement = withHOC(ResizableProvider, function ImageElement(pro
                 />
               )}
 
-              {loading && <ImagePlaceholder file={currentUploadingFile} />}
+              {loading && currentUploadingFile && <ImagePlaceholder file={currentUploadingFile} />}
             </div>
 
             <MediaToolbar />

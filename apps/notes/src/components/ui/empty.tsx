@@ -2,7 +2,7 @@
 
 import { Icons } from "@beep/notes/components/ui/icons";
 
-export const Empty = ({ title }: { title?: string }) => {
+export const Empty = ({ title }: { readonly title?: undefined | string }) => {
   return (
     <div className="flex size-full items-center justify-center">
       <div className="flex flex-col items-center">

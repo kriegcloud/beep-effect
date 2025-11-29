@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@beep/notes/lib/utils";
 import { useDraggable } from "@platejs/dnd";
 import { parseTwitterUrl, parseVideoUrl } from "@platejs/media";
 import { useMediaState } from "@platejs/media/react";
@@ -7,8 +8,6 @@ import { ResizableProvider, useResizableValue } from "@platejs/resizable";
 import { PlateElement, type PlateElementProps, useEditorMounted, withHOC } from "platejs/react";
 import LiteYouTubeEmbed from "react-lite-youtube-embed";
 import ReactPlayer from "react-player";
-
-import { cn } from "@/lib/utils";
 
 import { Caption, CaptionTextarea } from "./caption";
 import { MediaToolbar } from "./media-toolbar";

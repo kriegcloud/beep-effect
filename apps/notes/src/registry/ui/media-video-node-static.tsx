@@ -13,7 +13,7 @@ export function MediaVideoElementStatic(props: SlateElementProps<TVideoElement &
           <video className={cn("w-full max-w-full object-cover px-0", "rounded-sm")} controls src={url}>
             <track kind="captions" />
           </video>
-          {caption && <figcaption>{NodeApi.string(caption[0])}</figcaption>}
+          {caption && caption[0] && <figcaption>{NodeApi.string(caption[0])}</figcaption>}
         </figure>
       </div>
       {props.children}

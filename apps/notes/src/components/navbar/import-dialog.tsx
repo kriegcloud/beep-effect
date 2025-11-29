@@ -15,13 +15,14 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@beep/notes/registry/ui/dropdown-menu";
+import type { UnsafeTypes } from "@beep/types";
 import { MarkdownPlugin } from "@platejs/markdown";
 import { useEditorRef } from "platejs/react";
 import { getEditorDOMFromHtmlString } from "platejs/static";
 import { useState } from "react";
 import { useFilePicker } from "use-file-picker";
 
-import { popModal } from "../modals";
+import { popModal } from "../modals/modal-controller";
 import { Icons } from "../ui/icons";
 import { Label } from "../ui/label";
 
@@ -49,10 +50,13 @@ export function ImportDialog() {
   const { openFilePicker } = useFilePicker({
     accept,
     multiple: false,
-    onFilesSelected: async ({ plainFiles }) => {
+    onFilesSelected: async (data: UnsafeTypes.UnsafeAny) => {
+      if (!("plainFiles" in data) || !data.plainFiles) return;
       try {
         setIsLoading(true);
-        const text = await plainFiles[0].text();
+        const firstFile = data.plainFiles[0];
+        if (!firstFile) return;
+        const text = await firstFile.text();
         const nodes = getFileNodes(text, type);
         editor.tf.insertNodes(nodes);
         popModal("Import");

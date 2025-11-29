@@ -8,8 +8,8 @@ import { type AuthSession, validateSessionToken } from "./lucia";
 export const getRequestAuth = async (
   request: NextRequest
 ): Promise<{
-  session: AuthSession | null;
-  user: AuthUser | null;
+  readonly session: AuthSession | null;
+  readonly user: AuthUser | null;
 }> => {
   const sessionToken = request.cookies.get(SESSION_COOKIE_NAME)?.value ?? null;
   const devUser = request.cookies.get(CookieNames.devUser)?.value;

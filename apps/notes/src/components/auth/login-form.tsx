@@ -5,6 +5,7 @@ import { authRoutes, routes } from "@beep/notes/lib/navigation/routes";
 import { encodeURL } from "@beep/notes/lib/url/encodeURL";
 import { cn } from "@beep/notes/lib/utils";
 import { Button } from "@beep/notes/registry/ui/button";
+import type { UnsafeTypes } from "@beep/types";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useQueryState } from "nuqs";
 
@@ -13,7 +14,7 @@ export function LoginForm() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  if (!callbackUrl && !authRoutes.includes(pathname as any)) {
+  if (!callbackUrl && !authRoutes.includes(pathname as UnsafeTypes.UnsafeAny)) {
     callbackUrl = encodeURL(pathname, searchParams.toString());
   }
 
@@ -27,14 +28,18 @@ export function LoginForm() {
 
       <a
         className="mx-auto"
-        href={routes.loginProvider({
-          provider: "github",
-          search: callbackUrl
+        href={routes.loginProvider(
+          callbackUrl
             ? {
-                callbackUrl,
+                provider: "github",
+                search: {
+                  callbackUrl,
+                },
               }
-            : undefined,
-        })}
+            : {
+                provider: "github",
+              }
+        )}
         target="_self"
       >
         <Button className="h-9 px-4" icon={<Icons.github className="size-6" />}>

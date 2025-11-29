@@ -23,9 +23,9 @@ const serverPersistenceId = "nav";
 const serverPersistenceRightPanelType = "right-panel-type";
 
 interface PanelsProps {
-  children: React.ReactNode;
-  initialLayout: Layout;
-  initialRightPanelType: RightPanelType;
+  readonly children: React.ReactNode;
+  readonly initialLayout: Layout;
+  readonly initialRightPanelType: RightPanelType;
 }
 
 export const Panels = ({ children, initialLayout, initialRightPanelType }: PanelsProps) => {

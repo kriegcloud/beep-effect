@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@beep/notes/registry/ui/ava
 import { Button } from "@beep/notes/registry/ui/button";
 import { useDocumentQueryOptions, useDocumentVersionsQueryOptions } from "@beep/notes/trpc/hooks/query-options";
 import { api, useTRPC } from "@beep/notes/trpc/react";
+import type { UnsafeTypes } from "@beep/types";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistance } from "date-fns";
 import { createAtomStore } from "jotai-x";
@@ -84,67 +85,68 @@ export default memo(function VersionHistoryPanel() {
       </div>
 
       <div className="grow overflow-y-auto text-sm">
-        {documentId && versions.data && versions.data.versions.length > 0 ? (
-          versions.data.versions.map(
-            (version, index) =>
-              version && (
-                <div key={index} className="flex border-b px-4 pt-3">
-                  <Avatar className="mr-2 size-7">
-                    <AvatarImage alt={version.username} src={version.profileImageUrl!} />
-                    <AvatarFallback>{version.username}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <div>
-                        {currentUser?.id === version.userId ? "You" : version.username}
-                        &nbsp;saved <span className="font-semibold">{document.title}</span>
-                      </div>
-
-                      <div className="shrink-0">
-                        <Button
-                          variant="ghost"
-                          className="mr-2 size-6 p-1"
-                          onClick={() => {
-                            pushModal("VersionHistory", {
-                              activeVersionId: version.id,
-                            });
-                          }}
-                          tooltip="View version for this update"
-                        >
-                          <Icons.clock />
-                        </Button>
-
-                        <Button
-                          variant="ghost"
-                          className="group size-6 p-1 hover:bg-destructive"
-                          onClick={() => onDeleteVersionDialog(version.id)}
-                        >
-                          <Icons.trash className="group-hover:text-destructive-foreground" />
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="text-xs text-muted-foreground/80">
-                      {formatDistance(version.createdAt, Date.now(), {
-                        addSuffix: true,
-                      })}
-                    </div>
-
+        {documentId && versions.data && (versions.data as UnsafeTypes.UnsafeAny).versions?.length > 0 ? (
+          (versions.data as UnsafeTypes.UnsafeAny).versions.map((version: UnsafeTypes.UnsafeAny, index: number) => {
+            if (!version) return null;
+            const previousVersion = index > 0 ? (versions.data as UnsafeTypes.UnsafeAny)?.versions[index - 1] : null;
+            return (
+              <div key={index} className="flex border-b px-4 pt-3">
+                <Avatar className="mr-2 size-7">
+                  <AvatarImage alt={version.username} src={version.profileImageUrl ?? undefined} />
+                  <AvatarFallback>{version.username}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <div className="flex justify-between">
                     <div>
-                      {index === 0 ? (
-                        <CurrentDiffPlate previous={version.contentRich as Value} />
-                      ) : (
-                        <DiffPlate
-                          current={versions.data?.versions[index - 1]?.contentRich as Value}
-                          previous={version.contentRich as Value}
-                          showDiff
-                        />
-                      )}
+                      {currentUser?.id === version.userId ? "You" : version.username}
+                      &nbsp;saved <span className="font-semibold">{document.title}</span>
+                    </div>
+
+                    <div className="shrink-0">
+                      <Button
+                        variant="ghost"
+                        className="mr-2 size-6 p-1"
+                        onClick={() => {
+                          pushModal("VersionHistory", {
+                            activeVersionId: version.id,
+                          });
+                        }}
+                        tooltip="View version for this update"
+                      >
+                        <Icons.clock />
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        className="group size-6 p-1 hover:bg-destructive"
+                        onClick={() => onDeleteVersionDialog(version.id)}
+                      >
+                        <Icons.trash className="group-hover:text-destructive-foreground" />
+                      </Button>
                     </div>
                   </div>
+
+                  <div className="text-xs text-muted-foreground/80">
+                    {formatDistance(version.createdAt, Date.now(), {
+                      addSuffix: true,
+                    })}
+                  </div>
+
+                  <div>
+                    {index === 0 ? (
+                      <CurrentDiffPlate previous={version.contentRich as Value} />
+                    ) : (
+                      <DiffPlate
+                        current={previousVersion?.contentRich as Value}
+                        previous={version.contentRich as Value}
+                        showDiff
+                      />
+                    )}
+                  </div>
                 </div>
-              )
-          )
+              </div>
+            );
+          })
         ) : versions.data ? (
           <Empty title="No saved versions." />
         ) : (
@@ -155,7 +157,7 @@ export default memo(function VersionHistoryPanel() {
   );
 });
 
-export function CurrentDiffPlate({ previous }: { previous: Value | null }) {
+export function CurrentDiffPlate({ previous }: { readonly previous: Value | null }) {
   const editor = useEditorRef();
   const [current, setCurrent] = useState(cloneDeep(editor.children));
   const version = useDebouncedValueVersion(1000);
@@ -164,8 +166,7 @@ export function CurrentDiffPlate({ previous }: { previous: Value | null }) {
     if (version) {
       setCurrent(cloneDeep(editor.children));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [version]);
+  }, [version, editor.children]);
 
   return <DiffPlate current={current} previous={previous} showDiff />;
 }

@@ -23,6 +23,7 @@ import { EditorStatic } from "@beep/notes/registry/ui/editor-static";
 import { Input } from "@beep/notes/registry/ui/input";
 import { honoApi } from "@beep/notes/server/hono/hono-client";
 import { useDocumentQueryOptions } from "@beep/notes/trpc/hooks/query-options";
+import type { UnsafeTypes } from "@beep/types";
 import { MarkdownPlugin } from "@platejs/markdown";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { InferRequestType, InferResponseType } from "hono/client";
@@ -63,7 +64,7 @@ export function ExportDialog() {
       if (!res.ok) {
         const error = await res.json();
 
-        throw new Error((error as any).message);
+        throw new Error((error as UnsafeTypes.UnsafeAny).message);
       }
 
       return await res.blob();
@@ -77,7 +78,7 @@ export function ExportDialog() {
     onSettled: () => {
       setIsExporting(false);
     },
-    onSuccess: async (blob: any) => {
+    onSuccess: async (blob: UnsafeTypes.UnsafeAny) => {
       const url = window.URL.createObjectURL(blob);
       await downloadFile(url, `${title}.${type}`);
     },
@@ -114,7 +115,7 @@ export function ExportDialog() {
       if (!res.ok) {
         const error = await res.json();
 
-        throw new Error((error as any).message);
+        throw new Error((error as UnsafeTypes.UnsafeAny).message);
       }
 
       return await res.text();
@@ -128,7 +129,7 @@ export function ExportDialog() {
     onSettled: () => {
       setIsExporting(false);
     },
-    onSuccess: async (css: any) => {
+    onSuccess: async (css: UnsafeTypes.UnsafeAny) => {
       const editorStatic = createSlateEditor({
         plugins: BaseEditorKit,
         value: editor.children,

@@ -83,7 +83,7 @@ export function CodeBlockElement(props: PlateElementProps) {
   );
 }
 
-function CodeBlockCombobox({ className }: { className?: string }) {
+function CodeBlockCombobox({ className }: { className?: undefined | string }) {
   const [open, setOpen] = React.useState(false);
   const readOnly = useReadOnly();
   const editor = useEditorRef();
@@ -158,7 +158,7 @@ export function CodeSyntaxLeaf(props: PlateLeafProps) {
   return <PlateLeaf {...props} className={tokenClassName} />;
 }
 
-const languages: { label: string; value: string }[] = [
+const languages: { readonly label: string; readonly value: string }[] = [
   { label: "Auto", value: "auto" },
   { label: "Plain Text", value: "plaintext" },
   { label: "ABAP", value: "abap" },

@@ -63,7 +63,6 @@ export function LinkFloatingToolbar() {
       setOption("mode", null);
       setOption("anchorElement", null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aboveLink]);
 
   if (!open) return null;
@@ -155,9 +154,9 @@ const EditLinkCommand = ({
   initialUrl,
   setInitialUrl,
 }: {
-  initialUrl: string;
-  setInitialUrl: (url: string) => void;
-  autoFocus?: boolean;
+  readonly initialUrl: string;
+  readonly setInitialUrl: (url: string) => void;
+  readonly autoFocus?: undefined | boolean;
 }) => {
   const [searching, setSearching] = React.useState(false);
   const [query, setQuery] = React.useState<string>("");
@@ -351,7 +350,7 @@ const OutsideLinkCommandItem = ({ query }: { query: string }) => {
   );
 };
 
-const InternalLinkCommandItem = ({ document, onSelect }: { document: any; onSelect?: () => void }) => {
+const InternalLinkCommandItem = ({ document, onSelect }: { document: any; onSelect?: undefined | (() => void) }) => {
   const editor = useEditorRef();
 
   return (

@@ -12,6 +12,7 @@ import { RemoteCursorOverlay } from "@beep/notes/registry/ui/remote-cursor-overl
 import type { AuthUser } from "@beep/notes/server/auth/getAuthUser";
 import { useUpdateDocumentValue } from "@beep/notes/trpc/hooks/document-hooks";
 import { useDocumentQueryOptions } from "@beep/notes/trpc/hooks/query-options";
+import type { UnsafeTypes } from "@beep/types";
 import { YjsPlugin } from "@platejs/yjs/react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
@@ -20,7 +21,7 @@ import { Plate, usePlateEditor } from "platejs/react";
 import React, { useEffect } from "react";
 import { getTemplateDocument, type TemplateDocument, useTemplateDocument } from "./utils/useTemplateDocument";
 
-export function DocumentPlate({ children }: { children: React.ReactNode }) {
+export function DocumentPlate({ children }: { readonly children: React.ReactNode }) {
   const updateDocumentValue = useUpdateDocumentValue();
   const user = useAuthValue("user");
 
@@ -57,76 +58,73 @@ export function DocumentPlate({ children }: { children: React.ReactNode }) {
 
   const isYjsEnabled = Boolean(documentId && isPublished && env.NEXT_PUBLIC_YJS_URL);
 
-  const { cursorColor, roomName, username } = useYjs({
-    documentId,
-    user,
-  });
+  const { cursorColor, roomName, username } = useYjs(documentId !== undefined ? { documentId, user } : { user });
 
-  const editor = usePlateEditor(
-    {
-      id: documentId,
-      plugins: [
-        ...EditorKit,
-        YjsPlugin.configure({
-          enabled: isYjsEnabled,
-          options: {
-            cursors: {
-              data: { color: cursorColor, name: username },
-            },
-            providers: [
-              {
-                options: {
-                  name: documentId!,
-                  url: env.NEXT_PUBLIC_YJS_URL,
-                },
-                type: "hocuspocus" as const,
+  const editorConfig: UnsafeTypes.UnsafeAny = {
+    plugins: [
+      ...EditorKit,
+      YjsPlugin.configure({
+        enabled: isYjsEnabled,
+        options: {
+          cursors: {
+            data: { color: cursorColor, name: username },
+          },
+          providers: [
+            {
+              options: {
+                name: documentId!,
+                url: env.NEXT_PUBLIC_YJS_URL,
               },
-            ],
-          },
-          render: {
-            afterEditable: RemoteCursorOverlay,
-          },
-        }),
-      ],
-      skipInitialization: !!isYjsEnabled,
-      value: isYjsEnabled ? undefined : value,
-    },
-    [documentId, isYjsEnabled]
-  );
+              type: "hocuspocus" as const,
+            },
+          ],
+        },
+        render: {
+          afterEditable: RemoteCursorOverlay,
+        },
+      }),
+    ],
+    skipInitialization: !!isYjsEnabled,
+  };
+  if (documentId !== undefined) editorConfig.id = documentId;
+  if (!isYjsEnabled && value !== undefined) editorConfig.value = value;
+
+  const editor = usePlateEditor(editorConfig, [documentId, isYjsEnabled]);
 
   const mounted = useMounted();
 
   useEffect(() => {
-    if (!mounted || !isYjsEnabled) {
+    if (!mounted || !isYjsEnabled || !roomName) {
       return;
     }
 
-    void editor.getApi(YjsPlugin).yjs?.init({
+    const initConfig: UnsafeTypes.UnsafeAny = {
       id: roomName,
       autoSelect: "end",
       value: null,
       // Do not pass value - let the backend load content via onLoadDocument
       // Passing value here would duplicate content from database
-    });
+    };
+    void editor.getApi(YjsPlugin).yjs?.init(initConfig);
 
     return () => {
       editor.getApi(YjsPlugin).yjs?.destroy();
     };
   }, [editor, isYjsEnabled, mounted, roomName]);
 
-  return (
-    <Plate
-      readOnly={lockPage || isArchived}
-      onValueChange={({ editor, value }) => {
-        if (!isYjsEnabled) {
-          updateDocumentValue({ id: editor.id, value });
-        }
-      }}
-      editor={editor}
-    >
-      {children}
-    </Plate>
-  );
+  const plateProps: UnsafeTypes.UnsafeAny = {
+    onValueChange: ({ editor, value }: { editor: UnsafeTypes.UnsafeAny; value: Value }) => {
+      if (!isYjsEnabled) {
+        updateDocumentValue({ id: editor.id, value });
+      }
+    },
+    editor,
+  };
+  if (lockPage !== undefined || isArchived !== undefined) {
+    plateProps.readOnly = lockPage || isArchived;
+  }
+
+  return <Plate {...plateProps}>{children}</Plate>;
 }
 
 export function PublicPlate({ children }: React.PropsWithChildren) {
@@ -137,22 +135,23 @@ export function PublicPlate({ children }: React.PropsWithChildren) {
   );
   const value = template?.value;
   const id = template?.id;
-  const editor = usePlateEditor({
-    id,
+  const editorConfigPublic: UnsafeTypes.UnsafeAny = {
     override: {
       enabled: {
         [KEYS.copilot]: id === "copilot",
       },
     },
     plugins: EditorKit,
-    value,
-  });
+  };
+  if (id !== undefined) editorConfigPublic.id = id;
+  if (value !== undefined) editorConfigPublic.value = value;
+  const editor = usePlateEditor(editorConfigPublic);
 
   const onDebouncedDocumentChange = useDebouncedCallback((id: string, v: Value) => {
     setTemplate({
       id,
-      icon: null,
-      title: template!.title,
+      icon: template?.icon ?? null,
+      title: template?.title ?? null,
       value: v,
     });
   }, 1000);
@@ -195,22 +194,21 @@ export function PrintPlate({ children }: React.PropsWithChildren) {
 
   const value = templateId && !contentRich ? getTemplateDocument(templateId)?.value : (contentRich as Value);
 
-  const editor = usePlateEditor(
-    {
-      override: {
-        enabled: {
-          [KEYS.audio]: !disableMedia,
-          [KEYS.file]: !disableMedia,
-          [KEYS.img]: !disableMedia,
-          [KEYS.mediaEmbed]: !disableMedia,
-          [KEYS.video]: !disableMedia,
-        },
+  const editorConfigPrint: UnsafeTypes.UnsafeAny = {
+    override: {
+      enabled: {
+        [KEYS.audio]: !disableMedia,
+        [KEYS.file]: !disableMedia,
+        [KEYS.img]: !disableMedia,
+        [KEYS.mediaEmbed]: !disableMedia,
+        [KEYS.video]: !disableMedia,
       },
-      plugins: BaseEditorKit,
-      value,
     },
-    [value]
-  );
+    plugins: BaseEditorKit,
+  };
+  if (value !== undefined) editorConfigPrint.value = value;
+
+  const editor = usePlateEditor(editorConfigPrint, [value]);
   editor.meta.mode = "print";
 
   return (
@@ -220,7 +218,7 @@ export function PrintPlate({ children }: React.PropsWithChildren) {
   );
 }
 
-function useYjs({ documentId, user }: { user: AuthUser | null; documentId?: string }): {
+function useYjs({ documentId, user }: { user: AuthUser | null; documentId?: undefined | string }): {
   cursorColor: string;
   roomName: string | undefined;
   username: string;

@@ -46,6 +46,7 @@ export const useScrollAnchor = () => {
         current.removeEventListener("scroll", handleScroll);
       };
     }
+    return;
   }, []);
 
   useEffect(() => {
@@ -71,6 +72,7 @@ export const useScrollAnchor = () => {
         observer.disconnect();
       };
     }
+    return;
   });
 
   return {

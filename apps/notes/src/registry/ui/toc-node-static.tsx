@@ -70,7 +70,7 @@ const getHeadingList = (editor?: SlateEditor) => {
   Array.from(values, ([node, path]) => {
     const { type } = node as TElement;
     const title = NodeApi.string(node);
-    const depth = headingLevels[type];
+    const depth = headingLevels[type as keyof typeof headingLevels]!;
     const id = node.id as string;
     title && headingList.push({ id, depth, path, title, type });
   });

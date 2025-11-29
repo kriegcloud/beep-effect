@@ -12,23 +12,23 @@ import { ratelimitMiddleware } from "./ratelimit-middleware";
 import { roleMiddleware } from "./role-middleware";
 
 export type BaseRequest = {
-  cookies: Record<string, string>;
+  readonly cookies: Record<string, string>;
   // headers: Headers;
 };
 
 export type ProtectedContext = {
-  Variables: {
-    session: AuthSession;
-    user: AuthUser;
-    userId: string;
+  readonly Variables: {
+    readonly session: AuthSession;
+    readonly user: AuthUser;
+    readonly userId: string;
   } & BaseRequest;
 };
 
 export type PublicContext = {
-  Variables: {
-    session: AuthSession | null;
-    user: AuthUser | null;
-    userId: string | null;
+  readonly Variables: {
+    readonly session: AuthSession | null;
+    readonly user: AuthUser | null;
+    readonly userId: string | null;
   } & BaseRequest;
 };
 
@@ -60,10 +60,16 @@ const authMiddleware = createMiddleware<PublicContext>(async (c, next) => {
   await next();
 });
 
-export const publicMiddlewares = ({ ratelimitKey }: { ratelimitKey?: RatelimitKey } = {}) =>
+export const publicMiddlewares = ({ ratelimitKey }: { ratelimitKey?: undefined | RatelimitKey } = {}) =>
   [authMiddleware, ratelimitMiddleware(ratelimitKey)] as const;
 
-export const protectedMiddlewares = ({ ratelimitKey, role }: { ratelimitKey?: RatelimitKey; role?: UserRole } = {}) =>
+export const protectedMiddlewares = ({
+  ratelimitKey,
+  role,
+}: {
+  ratelimitKey?: undefined | RatelimitKey;
+  role?: UserRole;
+} = {}) =>
   [
     authMiddleware,
     createMiddleware<ProtectedContext>(async (c, next) => {
@@ -96,7 +102,7 @@ export const protectedMiddlewares = ({ ratelimitKey, role }: { ratelimitKey?: Ra
         }
       }
 
-      await next();
+      return next();
     }),
     ratelimitMiddleware(ratelimitKey),
     roleMiddleware(role),

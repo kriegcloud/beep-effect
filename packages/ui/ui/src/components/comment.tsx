@@ -1,5 +1,6 @@
 "use client";
 
+import type { UnsafeTypes } from "@beep/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@beep/ui/components/avatar";
 import { Button } from "@beep/ui/components/button";
 import {
@@ -327,7 +328,10 @@ function CommentMoreDropdown(props: {
   );
 }
 
-const useCommentEditor = (options: Omit<CreatePlateEditorOptions, "plugins"> = {}, deps: any[] = []) => {
+const useCommentEditor = (
+  options: Omit<CreatePlateEditorOptions, "plugins"> = {},
+  deps: UnsafeTypes.UnsafeAny[] = []
+) => {
   return usePlateEditor(
     {
       id: "comment",

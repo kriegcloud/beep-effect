@@ -1,5 +1,7 @@
 "use client";
 
+import { discussionPlugin, type TDiscussion } from "@beep/notes/registry/components/editor/plugins/discussion-kit";
+import { suggestionPlugin } from "@beep/notes/registry/components/editor/plugins/suggestion-kit";
 import type { TResolvedSuggestion } from "@platejs/suggestion";
 import { acceptSuggestion, getSuggestionKey, keyId2SuggestionId, rejectSuggestion } from "@platejs/suggestion";
 import { SuggestionPlugin } from "@platejs/suggestion/react";
@@ -17,15 +19,12 @@ import {
 import { useEditorPlugin, usePluginOption } from "platejs/react";
 import * as React from "react";
 
-import { discussionPlugin, type TDiscussion } from "@/registry/components/editor/plugins/discussion-kit";
-import { suggestionPlugin } from "@/registry/components/editor/plugins/suggestion-kit";
-
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 import { Button } from "./button";
 import { Comment, CommentCreateForm, formatCommentDate, type TComment } from "./comment";
 
 export interface ResolvedSuggestion extends TResolvedSuggestion {
-  comments: TComment[];
+  readonly comments: TComment[];
 }
 
 export const BLOCK_SUGGESTION = "__block__";
@@ -278,6 +277,7 @@ export const useResolveSuggestion = (
           if (ElementApi.isElement(node)) {
             return api.suggestion.nodeId(node);
           }
+          return;
         })
         .filter(Boolean)
     );
@@ -352,16 +352,21 @@ export const useResolveSuggestion = (
 
           if (lineBreakData?.id !== keyId2SuggestionId(id)) return;
           if (lineBreakData.type === "insert") {
-            newText += lineBreakData.isLineBreak ? BLOCK_SUGGESTION : BLOCK_SUGGESTION + TYPE_TEXT_MAP[node.type](node);
+            newText += lineBreakData.isLineBreak
+              ? BLOCK_SUGGESTION
+              : BLOCK_SUGGESTION + TYPE_TEXT_MAP[node.type]?.(node);
           } else if (lineBreakData.type === "remove") {
-            text += lineBreakData.isLineBreak ? BLOCK_SUGGESTION : BLOCK_SUGGESTION + TYPE_TEXT_MAP[node.type](node);
+            text += lineBreakData.isLineBreak ? BLOCK_SUGGESTION : BLOCK_SUGGESTION + TYPE_TEXT_MAP[node.type]?.(node);
           }
         }
       });
 
       if (entries.length === 0) return;
 
-      const nodeData = api.suggestion.suggestionData(entries[0][0]);
+      if (!entries[0]?.[0]) {
+        return;
+      }
+      const nodeData = api.suggestion.suggestionData(entries[0]?.[0]);
 
       if (!nodeData) return;
 
@@ -418,6 +423,7 @@ export const useResolveSuggestion = (
           userId: nodeData.userId,
         });
       }
+      return;
     });
 
     return res;

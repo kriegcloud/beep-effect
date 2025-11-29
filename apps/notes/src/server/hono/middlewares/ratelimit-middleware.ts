@@ -2,7 +2,7 @@ import { getUserRatelimit, type RatelimitKey } from "@beep/notes/server/ratelimi
 import type { Context } from "hono";
 import { createMiddleware } from "hono/factory";
 
-export function getRatelimit(c: Context, key?: RatelimitKey) {
+export function getRatelimit(c: Context, key?: undefined | RatelimitKey) {
   return getUserRatelimit({
     key,
     ip: c.req.header("x-forwarded-for"),
@@ -10,7 +10,7 @@ export function getRatelimit(c: Context, key?: RatelimitKey) {
   });
 }
 
-export async function ratelimitGuard(c: Context, key?: RatelimitKey) {
+export async function ratelimitGuard(c: Context, key?: undefined | RatelimitKey) {
   const { limit, message, remaining, reset, success } = await getRatelimit(c, key);
 
   if (!success) {
@@ -20,9 +20,11 @@ export async function ratelimitGuard(c: Context, key?: RatelimitKey) {
 
     return c.json({ error: message }, 429);
   }
+
+  return undefined;
 }
 
-export function ratelimitMiddleware(key?: RatelimitKey) {
+export function ratelimitMiddleware(key?: undefined | RatelimitKey) {
   return createMiddleware(async (c, next) => {
     // const { pathname } = new URL(c.req.url);
 

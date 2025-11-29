@@ -1,3 +1,4 @@
+import type { UnsafeTypes } from "@beep/types";
 import { cn } from "@beep/ui-core/utils";
 
 import type { TCaptionProps, TImageElement, TResizableProps } from "platejs";
@@ -14,7 +15,7 @@ export function ImageElementStatic(props: SlateElementProps<TImageElement & TCap
         <div className="relative min-w-[92px] max-w-full" style={{ textAlign: align }}>
           <img
             className={cn("w-full max-w-full cursor-default object-cover px-0", "rounded-sm")}
-            alt={(props.attributes as any).alt}
+            alt={(props.attributes as UnsafeTypes.UnsafeAny).alt}
             src={url}
           />
           {caption?.[0] && (

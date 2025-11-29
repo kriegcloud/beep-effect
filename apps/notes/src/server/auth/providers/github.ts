@@ -15,11 +15,15 @@ const config: AuthProviderConfig = {
   name: "github",
 };
 
-const getProviderAuthorizationUrl = (state: string, _codeVerifier?: string) => {
+const getProviderAuthorizationUrl = (state: string, _codeVerifier?: undefined | string) => {
   return githubAuth.createAuthorizationURL(state, ["read:user", "user:email"]);
 };
 
-const handleProviderCallback = async (code: string, _codeVerifier?: string, _userId?: string) => {
+const handleProviderCallback = async (
+  code: string,
+  _codeVerifier?: undefined | string,
+  _userId?: undefined | string
+) => {
   const tokens = await githubAuth.validateAuthorizationCode(code);
   const accessToken = tokens.accessToken();
   const response = await fetch("https://api.github.com/user", {

@@ -16,23 +16,43 @@ const SESSION_MAX_DURATION_MS = SESSION_REFRESH_INTERVAL_MS * 2; // 30 days
 export const createSession = async (
   sessionToken: string,
   userId: string,
-  { ipAddress, userAgent }: { ipAddress?: string | null; userAgent?: string | null } = {}
+  {
+    ipAddress,
+    userAgent,
+  }: { readonly ipAddress?: undefined | string | null; readonly userAgent?: undefined | string | null } = {}
 ) => {
   const sessionId = hashToken(sessionToken);
 
-  const session = {
+  const sessionData: {
+    id: string;
+    expires_at: Date;
+    user_id: string;
+    ip_address?: string | null;
+    user_agent?: string | null;
+  } = {
     id: sessionId,
     expires_at: new Date(Date.now() + SESSION_MAX_DURATION_MS),
+    user_id: userId,
+  };
+
+  if (ipAddress !== undefined) {
+    sessionData.ip_address = ipAddress;
+  }
+  if (userAgent !== undefined) {
+    sessionData.user_agent = userAgent;
+  }
+
+  await prisma.session.create({
+    data: sessionData,
+  });
+
+  return {
+    id: sessionId,
+    expires_at: sessionData.expires_at,
     ip_address: ipAddress,
     user_agent: userAgent,
     user_id: userId,
   };
-
-  await prisma.session.create({
-    data: session,
-  });
-
-  return session;
 };
 
 export type AuthSession = Pick<Session, "expires_at" | "id" | "ip_address" | "user_agent" | "user_id">;
@@ -67,7 +87,7 @@ export async function validateSessionToken(): Promise<SessionValidationResult>;
 
 export async function validateSessionToken(sessionToken: string | null | undefined): Promise<SessionValidationResult>;
 
-export async function validateSessionToken(sessionToken?: string | null): Promise<SessionValidationResult> {
+export async function validateSessionToken(sessionToken?: undefined | string | null): Promise<SessionValidationResult> {
   if (!sessionToken) {
     return { session: null, user: null };
   }
@@ -138,6 +158,6 @@ export const authProviders = {
 } as const;
 
 export type AuthProviderConfig = {
-  name: string;
-  pkce?: boolean;
+  readonly name: string;
+  readonly pkce?: undefined | boolean;
 };

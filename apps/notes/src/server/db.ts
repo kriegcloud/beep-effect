@@ -5,7 +5,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { pgPool } from "./pg";
 
 const globalForPrisma = globalThis as unknown as {
-  prisma?: InstanceType<typeof PrismaClient>;
+  prisma?: undefined | InstanceType<typeof PrismaClient>;
 };
 
 export const prisma =

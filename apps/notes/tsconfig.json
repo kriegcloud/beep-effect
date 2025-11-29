@@ -10,6 +10,7 @@
     "isolatedModules": true,
     "noImplicitReturns": false,
     "noUnusedLocals": true,
+    "tsBuildInfoFile": ".next/.tsbuildinfo",
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "noEmitOnError": false,
@@ -38,7 +39,6 @@
     "esModuleInterop": true,
     "disableSourceOfProjectReferenceRedirect": true,
     "paths": {
-      "@/*": ["./src/*"],
       "@beep/notes/*": ["./src/*"],
       "contentlayer/generated": ["./.contentlayer/generated"],
       "@beep/types": ["../../packages/common/types/src/index"],

@@ -3,7 +3,7 @@
 import { getCookie, setCookie } from "cookies-next/client";
 import { useCallback, useState } from "react";
 
-export function useCookieStorage<T>(key: string, initialValue?: T) {
+export function useCookieStorage<T>(key: string, initialValue?: undefined | T) {
   const [storedValue, setStoredValue] = useState<T>(() => {
     try {
       const cookieValue = getCookie(key);
@@ -19,7 +19,7 @@ export function useCookieStorage<T>(key: string, initialValue?: T) {
   });
 
   const setValue = useCallback(
-    (value: Partial<T>, shouldMerge?: boolean) => {
+    (value: Partial<T>, shouldMerge?: undefined | boolean) => {
       setStoredValue((prev) => {
         const newValue = shouldMerge && typeof value === "object" ? { ...prev, ...value } : (value as T);
 
