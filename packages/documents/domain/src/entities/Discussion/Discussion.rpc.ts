@@ -58,7 +58,7 @@ export class Rpcs extends RpcGroup.make(
       documentContent: S.String.pipe(S.minLength(1), S.maxLength(MAX_DOCUMENT_CONTENT_LENGTH)),
     },
     success: S.Struct({ id: DocumentsEntityIds.DiscussionId }),
-    error: Errors.Errors,
+    error: S.Never,
   }),
 
   /**
@@ -73,7 +73,7 @@ export class Rpcs extends RpcGroup.make(
       discussionId: S.optional(DocumentsEntityIds.DiscussionId),
     },
     success: S.Struct({ id: DocumentsEntityIds.DiscussionId }),
-    error: Errors.Errors,
+    error: S.Never,
   }),
 
   /**
@@ -82,7 +82,7 @@ export class Rpcs extends RpcGroup.make(
   Rpc.make("resolve", {
     payload: { id: DocumentsEntityIds.DiscussionId },
     success: Model.json,
-    error: Errors.Errors,
+    error: Errors.DiscussionNotFoundError,
   }),
 
   /**

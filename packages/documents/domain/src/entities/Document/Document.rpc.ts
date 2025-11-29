@@ -109,7 +109,7 @@ export class Rpcs extends RpcGroup.make(
       contentRich: S.optional(S.Unknown),
     },
     success: Model.json,
-    error: Errors.Errors,
+    error: S.Never,
   }),
 
   /**
@@ -117,26 +117,8 @@ export class Rpcs extends RpcGroup.make(
    */
   Rpc.make("update", {
     payload: Model.update,
-    // payload: {
-    //   id: DocumentsEntityIds.DocumentId,
-    //   // Content fields
-    //   title: S.optional(S.String.pipe(S.maxLength(256))),
-    //   content: S.optional(S.String.pipe(S.maxLength(1_000_000))),
-    //   contentRich: S.optional(S.Unknown),
-    //   yjsSnapshot: S.optional(S.Uint8ArrayFromBase64),
-    //   // Display settings
-    //   coverImage: S.optional(S.NullOr(S.String.pipe(S.maxLength(500)))),
-    //   icon: S.optional(S.NullOr(S.String.pipe(S.maxLength(100)))),
-    //   fullWidth: S.optional(S.Boolean),
-    //   smallText: S.optional(S.Boolean),
-    //   textStyle: S.optional(TextStyle),
-    //   toc: S.optional(S.Boolean),
-    //   // State flags
-    //   lockPage: S.optional(S.Boolean),
-    //   isPublished: S.optional(S.Boolean),
-    // },
     success: Model.json,
-    error: Errors.Errors,
+    error: Errors.DocumentNotFoundError,
   }),
 
   /**
@@ -145,7 +127,7 @@ export class Rpcs extends RpcGroup.make(
   Rpc.make("archive", {
     payload: { id: DocumentsEntityIds.DocumentId },
     success: Model.json,
-    error: Errors.Errors,
+    error: Errors.DocumentNotFoundError,
   }),
 
   /**
@@ -154,7 +136,7 @@ export class Rpcs extends RpcGroup.make(
   Rpc.make("restore", {
     payload: { id: DocumentsEntityIds.DocumentId },
     success: Model.json,
-    error: Errors.Errors,
+    error: Errors.DocumentNotFoundError,
   }),
 
   /**
@@ -163,7 +145,7 @@ export class Rpcs extends RpcGroup.make(
   Rpc.make("publish", {
     payload: { id: DocumentsEntityIds.DocumentId },
     success: Model.json,
-    error: Errors.Errors,
+    error: Errors.DocumentNotFoundError,
   }),
 
   /**
@@ -172,7 +154,7 @@ export class Rpcs extends RpcGroup.make(
   Rpc.make("unpublish", {
     payload: { id: DocumentsEntityIds.DocumentId },
     success: Model.json,
-    error: Errors.Errors,
+    error: Errors.DocumentNotFoundError,
   }),
 
   /**
@@ -181,7 +163,7 @@ export class Rpcs extends RpcGroup.make(
   Rpc.make("lock", {
     payload: { id: DocumentsEntityIds.DocumentId },
     success: Model.json,
-    error: Errors.Errors,
+    error: Errors.DocumentNotFoundError,
   }),
 
   /**
@@ -190,7 +172,7 @@ export class Rpcs extends RpcGroup.make(
   Rpc.make("unlock", {
     payload: { id: DocumentsEntityIds.DocumentId },
     success: Model.json,
-    error: Errors.Errors,
+    error: Errors.DocumentNotFoundError,
   }),
 
   /**

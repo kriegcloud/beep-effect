@@ -61,7 +61,7 @@ export class KnowledgePageRepo extends Effect.Service<KnowledgePageRepo>()(
             client.query.knowledgePage.findFirst({
               where: (table, { eq }) => eq(table.slug, params.slug),
             })
-          ).pipe(Effect.flatMap(S.decodeUnknown(Entities.KnowledgePage.Model)))
+          ).pipe(Effect.flatMap(S.decode(Entities.KnowledgePage.Model)))
       );
 
       const listBySpace = makeQuery(
@@ -75,7 +75,7 @@ export class KnowledgePageRepo extends Effect.Service<KnowledgePageRepo>()(
             client.query.knowledgePage.findMany({
               where: (table, { eq }) => eq(table.spaceId, params.spaceId),
             })
-          ).pipe(Effect.flatMap(S.decodeUnknown(S.Array(Entities.KnowledgePage.Model))))
+          ).pipe(Effect.flatMap(S.decode(S.Array(Entities.KnowledgePage.Model))))
       );
 
       const listChildren = makeQuery(
@@ -89,7 +89,7 @@ export class KnowledgePageRepo extends Effect.Service<KnowledgePageRepo>()(
             client.query.knowledgePage.findMany({
               where: (table, { eq }) => eq(table.parentPageId, params.parentPageId),
             })
-          ).pipe(Effect.flatMap(S.decodeUnknown(S.Array(Entities.KnowledgePage.Model))))
+          ).pipe(Effect.flatMap(S.decode(S.Array(Entities.KnowledgePage.Model))))
       );
 
       const CheckCircularReferenceRequest = S.Struct({

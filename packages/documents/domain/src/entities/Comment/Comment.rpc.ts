@@ -44,7 +44,7 @@ export class Rpcs extends RpcGroup.make(
       contentRich: S.optional(S.Unknown),
     },
     success: Model.json,
-    error: Errors.Errors,
+    error: S.Never,
   }),
 
   /**
@@ -57,7 +57,7 @@ export class Rpcs extends RpcGroup.make(
       contentRich: S.optional(S.Unknown),
     },
     success: Model.json,
-    error: Errors.Errors,
+    error: Errors.CommentNotFoundError,
   }),
 
   /**
