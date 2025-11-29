@@ -24,15 +24,12 @@ export const signInPhoneNumberAtom = signInRuntime.fn(
 );
 export const signInUsernameAtom = signInRuntime.fn(F.flow(SignInService.SignInUsername, withToast(signInToastOptions)));
 
-
 export const useSignIn = () => {
-
   const signInUsername = useAtomSet(signInUsernameAtom);
   const signInPhoneNumber = useAtomSet(signInPhoneNumberAtom);
   const signInEmail = useAtomSet(signInEmailAtom, atomPromise);
   const signInSocial = useAtomSet(signInSocialAtom);
   const signInPasskey = useAtomSet(signInPasskeyAtom);
-
 
   return {
     signInUsername,

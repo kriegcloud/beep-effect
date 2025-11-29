@@ -1,3 +1,4 @@
+import { AuthProviderNameValue } from "@beep/constants";
 import * as IamEntities from "@beep/iam-domain/entities";
 import * as Member from "@beep/iam-domain/entities/Member";
 import { IamConfig } from "@beep/iam-infra/config";
@@ -27,7 +28,6 @@ import { AuthEmailService, SendResetPasswordEmailPayload, SendVerificationEmailP
 import { commonExtraFields } from "./internal";
 import { AllPlugins } from "./plugins";
 import type { AuthOptionsEffect, AuthServiceEffect, Opts } from "./types";
-import { AuthProviderNameValue } from "@beep/constants";
 
 const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
   const { db, drizzle } = yield* IamDb.IamDb;

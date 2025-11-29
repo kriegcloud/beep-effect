@@ -78,10 +78,7 @@ export class EncryptionService extends Context.Tag("@beep/shared-domain/Encrypti
      * Decrypt an encrypted payload using the provided key
      * Returns the original plaintext as string
      */
-    readonly decrypt: (
-      payload: EncryptedPayload,
-      key: CryptoKey
-    ) => Effect.Effect<string, DecryptionError>;
+    readonly decrypt: (payload: EncryptedPayload, key: CryptoKey) => Effect.Effect<string, DecryptionError>;
 
     /**
      * Decrypt an encrypted binary payload
@@ -103,9 +100,7 @@ export class EncryptionService extends Context.Tag("@beep/shared-domain/Encrypti
     /**
      * Import a raw key (e.g., from a Redacted secret) for encryption/decryption
      */
-    readonly importKey: (
-      rawKey: Redacted.Redacted<CryptoUint8Array>
-    ) => Effect.Effect<CryptoKey, KeyDerivationError>;
+    readonly importKey: (rawKey: Redacted.Redacted<CryptoUint8Array>) => Effect.Effect<CryptoKey, KeyDerivationError>;
 
     /**
      * Import a raw key from Base64-encoded string
@@ -130,7 +125,7 @@ export class EncryptionService extends Context.Tag("@beep/shared-domain/Encrypti
     readonly deriveKey: (
       masterKey: CryptoKey,
       info: string,
-      salt?: undefined |  CryptoUint8Array
+      salt?: undefined | CryptoUint8Array
     ) => Effect.Effect<CryptoKey, KeyDerivationError>;
 
     /**
@@ -207,8 +202,7 @@ export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof Encry
           const iv = generateIV();
 
           const ciphertext = yield* Effect.tryPromise({
-            try: () =>
-              crypto.subtle.encrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, data),
+            try: () => crypto.subtle.encrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, data),
             catch: (cause) =>
               new EncryptionError({
                 message: "Failed to encrypt data",
@@ -231,8 +225,7 @@ export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof Encry
           const iv = generateIV();
 
           const ciphertext = yield* Effect.tryPromise({
-            try: () =>
-              crypto.subtle.encrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, data),
+            try: () => crypto.subtle.encrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, data),
             catch: (cause) =>
               new EncryptionError({
                 message: "Failed to encrypt data",
@@ -263,8 +256,7 @@ export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof Encry
           const ciphertext = toCryptoUint8Array(payload.ciphertext);
 
           const plaintext = yield* Effect.tryPromise({
-            try: () =>
-              crypto.subtle.decrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, ciphertext),
+            try: () => crypto.subtle.decrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, ciphertext),
             catch: (cause) =>
               new DecryptionError({
                 message: "Failed to decrypt data - invalid key or corrupted data",
@@ -309,8 +301,7 @@ export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof Encry
           const ciphertext = toCryptoUint8Array(ciphertextResult.right);
 
           const plaintext = yield* Effect.tryPromise({
-            try: () =>
-              crypto.subtle.decrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, ciphertext),
+            try: () => crypto.subtle.decrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, ciphertext),
             catch: (cause) =>
               new DecryptionError({
                 message: "Failed to decrypt data - invalid key or corrupted data",
@@ -355,8 +346,7 @@ export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof Encry
           const ciphertext = toCryptoUint8Array(ciphertextResult.right);
 
           const plaintext = yield* Effect.tryPromise({
-            try: () =>
-              crypto.subtle.decrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, ciphertext),
+            try: () => crypto.subtle.decrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, ciphertext),
             catch: (cause) =>
               new DecryptionError({
                 message: "Failed to decrypt data - invalid key or corrupted data",
@@ -377,8 +367,7 @@ export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof Encry
         Effect.gen(function* () {
           const keyBytes = toCryptoUint8Array(Redacted.value(rawKey));
           return yield* Effect.tryPromise({
-            try: () =>
-              crypto.subtle.importKey("raw", keyBytes, "AES-GCM", true, ["encrypt", "decrypt"]),
+            try: () => crypto.subtle.importKey("raw", keyBytes, "AES-GCM", true, ["encrypt", "decrypt"]),
             catch: (cause) =>
               new KeyDerivationError({
                 message: "Failed to import encryption key",
@@ -405,8 +394,7 @@ export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof Encry
 
           const keyBytes = toCryptoUint8Array(keyBytesResult.right);
           return yield* Effect.tryPromise({
-            try: () =>
-              crypto.subtle.importKey("raw", keyBytes, "AES-GCM", true, ["encrypt", "decrypt"]),
+            try: () => crypto.subtle.importKey("raw", keyBytes, "AES-GCM", true, ["encrypt", "decrypt"]),
             catch: (cause) =>
               new KeyDerivationError({
                 message: "Failed to import encryption key",
@@ -418,11 +406,7 @@ export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof Encry
 
       generateKey: () =>
         Effect.tryPromise({
-          try: () =>
-            crypto.subtle.generateKey({ name: "AES-GCM", length: KEY_SIZE }, true, [
-              "encrypt",
-              "decrypt",
-            ]),
+          try: () => crypto.subtle.generateKey({ name: "AES-GCM", length: KEY_SIZE }, true, ["encrypt", "decrypt"]),
           catch: (cause) =>
             new KeyDerivationError({
               message: "Failed to generate encryption key",
@@ -460,8 +444,7 @@ export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof Encry
 
           // Import as HKDF key
           const hkdfKey = yield* Effect.tryPromise({
-            try: () =>
-              crypto.subtle.importKey("raw", masterKeyRaw, "HKDF", false, ["deriveKey"]),
+            try: () => crypto.subtle.importKey("raw", masterKeyRaw, "HKDF", false, ["deriveKey"]),
             catch: (cause) =>
               new KeyDerivationError({
                 message: "Failed to import key for HKDF derivation",

@@ -1,6 +1,6 @@
 import { customType } from "drizzle-orm/pg-core";
-import * as Encoding from "effect/Encoding";
 import * as Either from "effect/Either";
+import * as Encoding from "effect/Encoding";
 
 /**
  * Custom Drizzle column type for PostgreSQL's `bytea` (binary data).

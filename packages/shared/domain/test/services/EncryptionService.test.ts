@@ -1,6 +1,6 @@
 import { describe } from "bun:test";
 import * as EncryptionService from "@beep/shared-domain/services/EncryptionService";
-import { deepStrictEqual, layer, strictEqual, assertTrue } from "@beep/testkit";
+import { assertTrue, deepStrictEqual, layer, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import * as Schema from "effect/Schema";
@@ -159,9 +159,7 @@ describe("EncryptionService", () => {
         strictEqual(exported2.length, 32);
 
         // Keys should be different
-        assertTrue(
-          Array.from(exported1).some((byte, i) => byte !== exported2[i])
-        );
+        assertTrue(Array.from(exported1).some((byte, i) => byte !== exported2[i]));
       })
     );
 
@@ -221,9 +219,7 @@ describe("EncryptionService", () => {
         const exported2 = yield* service.exportKey(derivedKey2);
 
         // Derived keys should be different
-        assertTrue(
-          Array.from(exported1).some((byte, i) => byte !== exported2[i])
-        );
+        assertTrue(Array.from(exported1).some((byte, i) => byte !== exported2[i]));
 
         // But both should work for encryption
         const plaintext = "Test derived keys";
@@ -397,9 +393,7 @@ describe("EncryptionService", () => {
       Effect.gen(function* () {
         const service = yield* EncryptionService.EncryptionService;
 
-        const result = yield* Effect.either(
-          service.importKeyFromBase64(Redacted.make("not-valid-base64!!!"))
-        );
+        const result = yield* Effect.either(service.importKeyFromBase64(Redacted.make("not-valid-base64!!!")));
 
         strictEqual(result._tag, "Left");
         if (result._tag === "Left") {

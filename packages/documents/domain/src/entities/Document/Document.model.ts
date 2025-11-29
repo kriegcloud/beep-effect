@@ -21,7 +21,7 @@ export class Model extends M.Class<Model>(`DocumentModel`)(
     title: BS.FieldOptionOmittable(S.String.pipe(S.maxLength(500))),
     content: BS.FieldOptionOmittable(S.String),
     contentRich: BS.FieldOptionOmittable(S.Unknown),
-    yjsSnapshot: BS.FieldOptionOmittable(S.Uint8ArrayFromBase64),
+    yjsSnapshot: BS.FieldOptionOmittable(S.Uint8ArrayFromSelf),
     coverImage: BS.FieldOptionOmittable(S.String),
     icon: BS.FieldOptionOmittable(S.String),
     isPublished: BS.toOptionalWithDefault(S.Boolean)(false),

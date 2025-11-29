@@ -103,11 +103,7 @@ import type { EncryptionService as EncryptionServiceTag } from "./EncryptionServ
  */
 export const EncryptedStringFromPlaintext = (
   key: CryptoKey
-): S.Schema<
-  EncryptedPayload,
-  string,
-  EncryptionServiceTag
-> => {
+): S.Schema<EncryptedPayload, string, EncryptionServiceTag> => {
   // Lazy import to avoid circular dependency
   const { EncryptionService } = require("./EncryptionService") as {
     EncryptionService: typeof EncryptionServiceTag;
@@ -121,12 +117,7 @@ export const EncryptedStringFromPlaintext = (
         return yield* service.encrypt(plaintext, key);
       }).pipe(
         Effect.mapError(
-          (e) =>
-            new ParseResult.Type(
-              ast,
-              plaintext,
-              e instanceof EncryptionError ? e.message : "Encryption failed"
-            )
+          (e) => new ParseResult.Type(ast, plaintext, e instanceof EncryptionError ? e.message : "Encryption failed")
         )
       ),
     encode: (payload, _, ast) =>
@@ -135,12 +126,7 @@ export const EncryptedStringFromPlaintext = (
         return yield* service.decrypt(payload, key);
       }).pipe(
         Effect.mapError(
-          (e) =>
-            new ParseResult.Type(
-              ast,
-              payload,
-              e instanceof DecryptionError ? e.message : "Decryption failed"
-            )
+          (e) => new ParseResult.Type(ast, payload, e instanceof DecryptionError ? e.message : "Decryption failed")
         )
       ),
   });
@@ -157,11 +143,7 @@ export const EncryptedStringFromPlaintext = (
  */
 export const EncryptedBinaryFromPlaintext = (
   key: CryptoKey
-): S.Schema<
-  EncryptedPayloadBinary,
-  string,
-  EncryptionServiceTag
-> => {
+): S.Schema<EncryptedPayloadBinary, string, EncryptionServiceTag> => {
   const { EncryptionService } = require("./EncryptionService") as {
     EncryptionService: typeof EncryptionServiceTag;
   };
@@ -174,12 +156,7 @@ export const EncryptedBinaryFromPlaintext = (
         return yield* service.encryptBinary(plaintext, key);
       }).pipe(
         Effect.mapError(
-          (e) =>
-            new ParseResult.Type(
-              ast,
-              plaintext,
-              e instanceof EncryptionError ? e.message : "Encryption failed"
-            )
+          (e) => new ParseResult.Type(ast, plaintext, e instanceof EncryptionError ? e.message : "Encryption failed")
         )
       ),
     encode: (payload, _, ast) =>
@@ -189,12 +166,7 @@ export const EncryptedBinaryFromPlaintext = (
         return new TextDecoder().decode(bytes);
       }).pipe(
         Effect.mapError(
-          (e) =>
-            new ParseResult.Type(
-              ast,
-              payload,
-              e instanceof DecryptionError ? e.message : "Decryption failed"
-            )
+          (e) => new ParseResult.Type(ast, payload, e instanceof DecryptionError ? e.message : "Decryption failed")
         )
       ),
   });
@@ -211,11 +183,7 @@ export const EncryptedBinaryFromPlaintext = (
  */
 export const EncryptedPayloadFromBytes = (
   key: CryptoKey
-): S.Schema<
-  EncryptedPayload,
-  Uint8Array,
-  EncryptionServiceTag
-> => {
+): S.Schema<EncryptedPayload, Uint8Array, EncryptionServiceTag> => {
   const { EncryptionService } = require("./EncryptionService") as {
     EncryptionService: typeof EncryptionServiceTag;
   };
@@ -232,12 +200,7 @@ export const EncryptedPayloadFromBytes = (
         return yield* service.encrypt(cryptoBytes, key);
       }).pipe(
         Effect.mapError(
-          (e) =>
-            new ParseResult.Type(
-              ast,
-              bytes,
-              e instanceof EncryptionError ? e.message : "Encryption failed"
-            )
+          (e) => new ParseResult.Type(ast, bytes, e instanceof EncryptionError ? e.message : "Encryption failed")
         )
       ),
     encode: (payload, _, ast) =>
@@ -246,12 +209,7 @@ export const EncryptedPayloadFromBytes = (
         return yield* service.decryptToBytes(payload, key);
       }).pipe(
         Effect.mapError(
-          (e) =>
-            new ParseResult.Type(
-              ast,
-              payload,
-              e instanceof DecryptionError ? e.message : "Decryption failed"
-            )
+          (e) => new ParseResult.Type(ast, payload, e instanceof DecryptionError ? e.message : "Decryption failed")
         )
       ),
   });
@@ -268,11 +226,7 @@ export const EncryptedPayloadFromBytes = (
  */
 export const EncryptedBinaryFromBytes = (
   key: CryptoKey
-): S.Schema<
-  EncryptedPayloadBinary,
-  Uint8Array,
-  EncryptionServiceTag
-> => {
+): S.Schema<EncryptedPayloadBinary, Uint8Array, EncryptionServiceTag> => {
   const { EncryptionService } = require("./EncryptionService") as {
     EncryptionService: typeof EncryptionServiceTag;
   };
@@ -289,12 +243,7 @@ export const EncryptedBinaryFromBytes = (
         return yield* service.encryptBinary(cryptoBytes, key);
       }).pipe(
         Effect.mapError(
-          (e) =>
-            new ParseResult.Type(
-              ast,
-              bytes,
-              e instanceof EncryptionError ? e.message : "Encryption failed"
-            )
+          (e) => new ParseResult.Type(ast, bytes, e instanceof EncryptionError ? e.message : "Encryption failed")
         )
       ),
     encode: (payload, _, ast) =>
@@ -303,12 +252,7 @@ export const EncryptedBinaryFromBytes = (
         return yield* service.decryptBinary(payload, key);
       }).pipe(
         Effect.mapError(
-          (e) =>
-            new ParseResult.Type(
-              ast,
-              payload,
-              e instanceof DecryptionError ? e.message : "Decryption failed"
-            )
+          (e) => new ParseResult.Type(ast, payload, e instanceof DecryptionError ? e.message : "Decryption failed")
         )
       ),
   });
@@ -331,11 +275,7 @@ export type Sha256Hash = typeof Sha256Hash.Type;
  * @since 1.0.0
  * @category transformations
  */
-export const Sha256HashFromString = (): S.Schema<
-  Sha256Hash,
-  string,
-  EncryptionServiceTag
-> => {
+export const Sha256HashFromString = (): S.Schema<Sha256Hash, string, EncryptionServiceTag> => {
   const { EncryptionService } = require("./EncryptionService") as {
     EncryptionService: typeof EncryptionServiceTag;
   };
@@ -345,13 +285,8 @@ export const Sha256HashFromString = (): S.Schema<
     decode: (input, _, ast) =>
       Effect.gen(function* () {
         const service = yield* EncryptionService;
-        return (yield* service.sha256(input));
-      }).pipe(
-        Effect.mapError(() => new ParseResult.Type(ast, input, "Hash computation failed"))
-      ),
-    encode: (hash, _, ast) =>
-      ParseResult.fail(
-        new ParseResult.Forbidden(ast, hash, "Cannot reverse a SHA-256 hash")
-      ),
+        return yield* service.sha256(input);
+      }).pipe(Effect.mapError(() => new ParseResult.Type(ast, input, "Hash computation failed"))),
+    encode: (hash, _, ast) => ParseResult.fail(new ParseResult.Forbidden(ast, hash, "Cannot reverse a SHA-256 hash")),
   });
 };
