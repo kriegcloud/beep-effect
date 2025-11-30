@@ -1,8 +1,7 @@
 "use client";
 
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { AdapterEffectDateTime } from "@beep/ui-core/adapters";
 import { LocalizationProvider as Provider } from "@mui/x-date-pickers/LocalizationProvider";
-import { arSA, enUS, fr, type Locale, vi, zhCN } from "date-fns/locale";
 
 import { useTranslate } from "./use-locales";
 
@@ -10,24 +9,24 @@ type Props = {
   readonly children: React.ReactNode;
 };
 
-// Map our locale codes to date-fns locales
-const dateLocaleMap: Record<string, Locale> = {
-  en: enUS,
-  fr: fr,
-  vi: vi,
-  "zh-cn": zhCN,
-  "ar-sa": arSA,
+// Map our locale codes to BCP 47 locale strings for Intl.DateTimeFormat
+const localeMap: Record<string, string> = {
+  en: "en-US",
+  fr: "fr-FR",
+  vi: "vi-VN",
+  "zh-cn": "zh-CN",
+  "ar-sa": "ar-SA",
 };
 
 export function LocalizationProvider({ children }: Props) {
   const { currentLang } = useTranslate();
-  const dateLocale =
-    currentLang.adapterLocale && dateLocaleMap[currentLang.adapterLocale]
-      ? dateLocaleMap[currentLang.adapterLocale]
-      : enUS;
+
+  // AdapterEffectDateTime uses BCP 47 locale strings
+  const locale =
+    currentLang.adapterLocale && localeMap[currentLang.adapterLocale] ? localeMap[currentLang.adapterLocale] : "en-US";
 
   return (
-    <Provider dateAdapter={AdapterDateFns} adapterLocale={dateLocale}>
+    <Provider dateAdapter={AdapterEffectDateTime} adapterLocale={locale}>
       {children}
     </Provider>
   );

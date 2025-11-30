@@ -34,7 +34,6 @@
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "lint:circular": "bunx madge -c .",
-    "execute": "bunx tsx --tsconfig ./tsconfig.src.json ./src/execute.ts",
     "docgen": "bunx docgen"
   },
   "peerDependencies": {

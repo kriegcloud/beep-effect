@@ -24,8 +24,8 @@
     "dotenvx": "dotenvx run -f ../../.env --",
     "lint:circular": "bunx madge -c .",
     "coverage": "bun test --coverage",
-    "dev": "dotenvx -e ../../.env tsx watch src/server.ts",
-    "start": "dotenvx -e ../../.env tsx build/esm/server.js",
+    "dev": "dotenvx -e ../../.env bun watch src/server.ts",
+    "start": "dotenvx -e ../../.env bun build/esm/server.js",
     "start:source": "bun run start",
     "circular": "madge --circular src/server.ts"
   },

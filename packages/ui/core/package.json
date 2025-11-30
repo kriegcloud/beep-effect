@@ -58,6 +58,18 @@
       "types": "./build/dts/utils/*",
       "require": "./build/cjs/utils/*",
       "default": "./build/src/utils/*"
+    },
+    "./adapters": {
+      "import": "./build/esm/adapters/index.js",
+      "types": "./build/dts/adapters/index.d.ts",
+      "require": "./build/cjs/adapters/index.js",
+      "default": "./build/esm/adapters/index.js"
+    },
+    "./adapters/*": {
+      "import": "./build/esm/adapters/*",
+      "types": "./build/dts/adapters/*",
+      "require": "./build/cjs/adapters/*",
+      "default": "./build/esm/adapters/*"
     }
   },
   "peerDependencies": {
@@ -73,7 +85,6 @@
     "@effect/platform-browser": "catalog:",
     "@mui/lab": "catalog:",
     "@mui/material": "catalog:",
-    "@mui/system": "catalog:",
     "react": "catalog:",
     "@mui/stylis-plugin-rtl": "catalog:",
     "@mui/x-data-grid": "catalog:",
@@ -112,7 +123,6 @@
     "@effect/platform-browser": "catalog:",
     "@mui/lab": "catalog:",
     "@mui/material": "catalog:",
-    "@mui/system": "catalog:",
     "react": "catalog:",
     "@mui/stylis-plugin-rtl": "catalog:",
     "@mui/x-data-grid": "catalog:",

@@ -9,31 +9,36 @@ import * as F from "effect/Function";
 import * as Option from "effect/Option";
 import { useFieldContext } from "../form";
 
+/**
+ * DateTime picker field that works natively with Effect DateTime.
+ *
+ * With AdapterEffectDateTime, the picker now works directly with DateTime.DateTime values,
+ * eliminating the need for Date <-> DateTime conversions at component boundaries.
+ */
 function DateTimePickerField({ slotProps, ...other }: DefaultOmit<MobileDateTimePickerProps>) {
   const field = useFieldContext<string>();
 
   const { error, isError } = useStore(field.form.store, (state) =>
     F.pipe(
       state.errorMap.onSubmit?.[field.name],
-      (error) =>
+      (error_) =>
         ({
-          error,
-          isError: !!error,
+          error: error_,
+          isError: !!error_,
         }) as const
     )
   );
 
-  // Convert string to Date for MUI
-  const dateValue = F.pipe(DateTime.make(field.state.value), Option.map(DateTime.toDate), Option.getOrNull);
+  // Convert string to DateTime for MUI (native adapter support)
+  const dateTimeValue = F.pipe(DateTime.make(field.state.value), Option.getOrNull);
 
   return (
     <MobileDateTimePicker
       name={field.name}
-      value={dateValue}
+      value={dateTimeValue}
       onChange={(newValue) => {
-        if (newValue) {
-          const dt = DateTime.unsafeFromDate(newValue);
-          field.handleChange(DateTime.formatIso(dt));
+        if (newValue && DateTime.isDateTime(newValue)) {
+          field.handleChange(DateTime.formatIso(newValue));
         }
       }}
       format={formatPatterns.split.dateTime}

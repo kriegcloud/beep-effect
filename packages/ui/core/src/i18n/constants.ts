@@ -1,4 +1,4 @@
-import { BS } from "@beep/schema";
+import { CountryCodeValue, CurrencyCodeValue } from "@beep/schema/primitives";
 import type { Components, Theme } from "@mui/material/styles";
 import {
   arSD as arSDDataGrid,
@@ -9,38 +9,7 @@ import {
 import { enUS as enUSDate, frFR as frFRDate, zhCN as zhCNDate } from "@mui/x-date-pickers/locales";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
-import { CountryCodeValue } from "./CountryCodeValue";
-import { CurrencyCodeValue } from "./CurrencyCodeValue";
 import { SupportedLangValue } from "./SupportedLangValue";
-
-export class AdapterLocale extends BS.StringLiteralKit(
-  "default",
-  "pt-BR",
-  "pt-PT",
-  "es-ES",
-  "fr-FR",
-  "pl-PL",
-  "id-ID",
-  "ja-JP",
-  "ar-SA",
-  "el-GR",
-  "sv-SE",
-  "it-IT",
-  "de-DE",
-  "de-DE-informal",
-  "de-DE-formal",
-  "zh-Hant",
-  "zh-Hans",
-  "ko-KR",
-  "hi-HI",
-  "tr-TR",
-  "nl-NL",
-  "nl-NL-informal",
-  "nl-NL-formal",
-  "fa-IR",
-  "ru-RU",
-  "mr-MR"
-) {}
 
 export class LangValueToAdapterLocale extends S.transformLiterals(
   ["en", "default"],

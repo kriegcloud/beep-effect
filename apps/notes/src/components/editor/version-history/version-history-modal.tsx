@@ -10,7 +10,6 @@ import { useDocumentVersionsQueryOptions } from "@beep/notes/trpc/hooks/query-op
 import { api, useTRPC } from "@beep/notes/trpc/react";
 import type { UnsafeTypes } from "@beep/types";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
 import type { Value } from "platejs";
 import React from "react";
 
@@ -112,7 +111,16 @@ export function VersionHistoryModal({
                 }}
                 role="button"
               >
-                <div className="text-sm">{format(version.createdAt, "MMM d, yyyy, h:mm a")}</div>
+                <div className="text-sm">
+                  {new Intl.DateTimeFormat("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true,
+                  }).format(new Date(version.createdAt))}
+                </div>
                 <div className="text-xs text-gray-500">{version.username}</div>
               </div>
             );

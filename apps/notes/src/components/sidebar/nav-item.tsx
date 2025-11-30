@@ -16,7 +16,6 @@ import {
 import { TooltipTC } from "@beep/notes/registry/ui/tooltip";
 import { useArchiveDocumentMutation } from "@beep/notes/trpc/hooks/document-hooks";
 import { api, useTRPC } from "@beep/notes/trpc/react";
-import { format } from "date-fns";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -199,7 +198,17 @@ export function NavItem({
                     <DropdownMenuSeparator />
                     <div className="space-y-1 p-2 text-xs text-muted-foreground/90">
                       <div>Last edited by {user?.name}</div>
-                      <div>{updatedAt && format(new Date(updatedAt), "MMM d, yyyy, h:mm a")}</div>
+                      <div>
+                        {updatedAt &&
+                          new Intl.DateTimeFormat("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                            hour12: true,
+                          }).format(new Date(updatedAt))}
+                      </div>
                     </div>
                   </div>
                 )}

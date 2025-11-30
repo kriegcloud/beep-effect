@@ -11,7 +11,6 @@ import { useDocumentQueryOptions, useDocumentVersionsQueryOptions } from "@beep/
 import { api, useTRPC } from "@beep/notes/trpc/react";
 import type { UnsafeTypes } from "@beep/types";
 import { useQuery } from "@tanstack/react-query";
-import { formatDistance } from "date-fns";
 import { createAtomStore } from "jotai-x";
 import { cloneDeep } from "lodash";
 import type { Value } from "platejs";
@@ -19,6 +18,36 @@ import { useEditorRef } from "platejs/react";
 import React, { memo, useEffect, useState } from "react";
 
 import { VersionsSkeleton } from "../../context-panel/versions-skeleton";
+
+/**
+ * Format a date as a relative time string (e.g., "2 hours ago", "3 days ago").
+ */
+const formatRelativeTime = (date: Date, baseDate: Date = new Date()): string => {
+  const diffMs = baseDate.getTime() - date.getTime();
+  const diffSeconds = Math.floor(diffMs / 1000);
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  const diffMonths = Math.floor(diffDays / 30);
+  const diffYears = Math.floor(diffDays / 365);
+
+  if (diffSeconds < 60) {
+    return diffSeconds <= 1 ? "just now" : `${diffSeconds} seconds ago`;
+  }
+  if (diffMinutes < 60) {
+    return diffMinutes === 1 ? "1 minute ago" : `${diffMinutes} minutes ago`;
+  }
+  if (diffHours < 24) {
+    return diffHours === 1 ? "1 hour ago" : `${diffHours} hours ago`;
+  }
+  if (diffDays < 30) {
+    return diffDays === 1 ? "1 day ago" : `${diffDays} days ago`;
+  }
+  if (diffMonths < 12) {
+    return diffMonths === 1 ? "1 month ago" : `${diffMonths} months ago`;
+  }
+  return diffYears === 1 ? "1 year ago" : `${diffYears} years ago`;
+};
 
 export const { useVersionSet, useVersionState, useVersionValue, VersionProvider } = createAtomStore(
   {
@@ -127,9 +156,7 @@ export default memo(function VersionHistoryPanel() {
                   </div>
 
                   <div className="text-xs text-muted-foreground/80">
-                    {formatDistance(version.createdAt, Date.now(), {
-                      addSuffix: true,
-                    })}
+                    {formatRelativeTime(new Date(version.createdAt))}
                   </div>
 
                   <div>

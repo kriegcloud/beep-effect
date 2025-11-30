@@ -4,6 +4,8 @@
  * @category Primitives/Geo
  * @since 0.1.0
  */
+
+export * from "./country-code-value";
 export * from "./country-from-code";
 /**
  * Locality schemas (city/town names).

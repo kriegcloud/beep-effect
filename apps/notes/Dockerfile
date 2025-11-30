@@ -8,27 +8,26 @@
 #     --build-arg DATABASE_URL="postgresql://admin:password@host.docker.internal:5432/db" \
 #     -t beep-notes .
 
-FROM oven/bun:1.2-alpine AS base
+FROM oven/bun:1.2-debian AS base
 
-# Install Chromium and dependencies for Puppeteer
-RUN apk add --no-cache \
+# Install Chromium and dependencies for Puppeteer + Node.js 22
+RUN apt-get update && apt-get install -y --no-install-recommends \
     chromium \
-    nss \
-    harfbuzz \
-    ca-certificates \
-    font-inter \
-    font-jetbrains-mono \
-    font-noto-emoji \
-    font-dejavu \
-    ttf-liberation \
-    ttf-opensans \
-    font-noto \
-    msttcorefonts-installer \
+    fonts-inter \
+    fonts-dejavu \
+    fonts-liberation \
+    fonts-noto \
+    fonts-noto-color-emoji \
     fontconfig \
-    nodejs \
-    npm \
-    && update-ms-fonts \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
     && fc-cache -f
+
+# Install Node.js 22 for Prisma and Next.js build compatibility
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set Chrome executable path
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
@@ -36,7 +35,6 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copy entire monorepo for workspace resolution (catalog: dependencies require root package.json)
@@ -76,8 +74,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN groupadd --system --gid 1001 nodejs
+RUN useradd --system --uid 1001 --gid nodejs nextjs
 
 # Set the correct permission for prerender cache
 RUN mkdir .next

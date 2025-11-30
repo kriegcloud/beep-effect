@@ -15,7 +15,6 @@ import { discussionPlugin, type TDiscussion } from "@beep/ui/components/editor/p
 import { cn } from "@beep/ui-core/utils";
 import { getCommentKey, getDraftCommentKey } from "@platejs/comment";
 import { CommentPlugin, useCommentId } from "@platejs/comment/react";
-import { differenceInDays, differenceInHours, differenceInMinutes, format } from "date-fns";
 import { ArrowUpIcon, CheckIcon, MoreHorizontalIcon, PencilIcon, TrashIcon, XIcon } from "lucide-react";
 import { KEYS, NodeApi, nanoid, type Value } from "platejs";
 import type { CreatePlateEditorOptions } from "platejs/react";
@@ -523,6 +522,38 @@ export function CommentCreateForm({
   );
 }
 
+/**
+ * Calculate the difference in minutes between two dates.
+ */
+const differenceInMinutes = (dateA: Date, dateB: Date): number => {
+  return Math.floor((dateA.getTime() - dateB.getTime()) / (1000 * 60));
+};
+
+/**
+ * Calculate the difference in hours between two dates.
+ */
+const differenceInHours = (dateA: Date, dateB: Date): number => {
+  return Math.floor((dateA.getTime() - dateB.getTime()) / (1000 * 60 * 60));
+};
+
+/**
+ * Calculate the difference in days between two dates.
+ */
+const differenceInDays = (dateA: Date, dateB: Date): number => {
+  return Math.floor((dateA.getTime() - dateB.getTime()) / (1000 * 60 * 60 * 24));
+};
+
+/**
+ * Format a date as "MM/dd/yyyy" (e.g., "01/15/2024").
+ */
+const formatShortDate = (date: Date): string => {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+  }).format(date);
+};
+
 export const formatCommentDate = (date: Date) => {
   const now = new Date();
   const diffMinutes = differenceInMinutes(now, date);
@@ -539,5 +570,5 @@ export const formatCommentDate = (date: Date) => {
     return `${diffDays}d`;
   }
 
-  return format(date, "MM/dd/yyyy");
+  return formatShortDate(date);
 };

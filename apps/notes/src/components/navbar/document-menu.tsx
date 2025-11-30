@@ -17,7 +17,6 @@ import {
 import { useArchiveDocumentMutation, useUpdateDocumentMutation } from "@beep/notes/trpc/hooks/document-hooks";
 import { useDocumentQueryOptions } from "@beep/notes/trpc/hooks/query-options";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { ArrowDownToLineIcon, ArrowUpToLineIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEditorRef } from "platejs/react";
@@ -268,7 +267,17 @@ function DocumentMenuContent() {
       <div className="space-y-1 p-3 text-xs text-muted-foreground/90">
         <div>Word count: {wordCount}</div>
         <div>Last edited by {user?.name}</div>
-        <div>{updatedAt && format(new Date(updatedAt), "MMM d, yyyy, h:mm a")}</div>
+        <div>
+          {updatedAt &&
+            new Intl.DateTimeFormat("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            }).format(new Date(updatedAt))}
+        </div>
       </div>
     </>
   );

@@ -155,7 +155,6 @@ const optimizeImports = Array.from(
     "@mui/lab",
     "@mui/icons-material",
     "@mui/material",
-    "@mui/system",
     "@beep/ui",
     "@beep/ui-core",
     "react-phone-number-input",
