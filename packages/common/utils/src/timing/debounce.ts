@@ -16,7 +16,7 @@
  */
 import * as Duration from "effect/Duration";
 
-type AnyFunction = (this: unknown, ...args: readonly unknown[]) => unknown;
+type AnyFunction = (this: unknown, ...args: readonly any[]) => unknown;
 
 /**
  * Runtime type for functions returned by `debounce`.

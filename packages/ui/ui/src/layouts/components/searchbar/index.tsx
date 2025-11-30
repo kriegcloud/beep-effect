@@ -6,8 +6,8 @@ import { SearchNotFound } from "@beep/ui/messages";
 import { Scrollbar } from "@beep/ui/molecules";
 import type { NavSectionProps } from "@beep/ui/routing";
 import { rgbaFromChannel } from "@beep/ui-core/utils";
+import { match, parse } from "@beep/utils/autosuggest-highlight";
 import type { BoxProps } from "@mui/material/Box";
-
 import Box from "@mui/material/Box";
 import Dialog, { dialogClasses } from "@mui/material/Dialog";
 import IconButton from "@mui/material/IconButton";
@@ -18,10 +18,10 @@ import MenuList from "@mui/material/MenuList";
 import type { Breakpoint } from "@mui/material/styles";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import match from "autosuggest-highlight/match";
-import parse from "autosuggest-highlight/parse";
+import { pipe } from "effect";
+import * as A from "effect/Array";
+import * as Str from "effect/String";
 import { useCallback, useEffect, useMemo, useState } from "react";
-
 import { ResultItem } from "./result-item";
 import { applyFilter, flattenNavSections } from "./utils";
 
@@ -45,7 +45,7 @@ export function Searchbar({ data: navItems = [], sx, ...other }: SearchbarProps)
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      if (event.metaKey && event.key.toLowerCase() === "k") {
+      if (event.metaKey && pipe(event.key, Str.toLowerCase) === "k") {
         event.preventDefault();
         onToggle();
         setSearchQuery("");
@@ -100,7 +100,7 @@ export function Searchbar({ data: navItems = [], sx, ...other }: SearchbarProps)
             },
           },
         },
-        ...(Array.isArray(sx) ? sx : [sx]),
+        ...(Array.isArray(sx) ? sx : A.make(sx)),
       ]}
       {...other}
     >
@@ -143,7 +143,7 @@ export function Searchbar({ data: navItems = [], sx, ...other }: SearchbarProps)
         },
       }}
     >
-      {dataFiltered.map((item) => {
+      {A.map(dataFiltered, (item) => {
         const matchesTitle = match(item.title, searchQuery, {
           insideWords: true,
         });
@@ -160,7 +160,7 @@ export function Searchbar({ data: navItems = [], sx, ...other }: SearchbarProps)
               path={partsPath}
               title={partsTitle}
               href={item.path}
-              labels={item.group.split(".")}
+              labels={pipe(item.group, Str.split("."))}
               onClick={handleClose}
             />
           </MenuItem>

@@ -1,8 +1,13 @@
 import type { ChatMessage } from "@beep/notes/registry/components/editor/use-chat";
+import { dedent } from "@beep/utils";
 import { getMarkdown } from "@platejs/ai";
 import { serializeMd } from "@platejs/markdown";
 import type { UIMessage } from "ai";
-import dedent from "dedent";
+import * as A from "effect/Array";
+import { constant, pipe } from "effect/Function";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import { RangeApi, type SlateEditor } from "platejs";
 
 /**
@@ -16,7 +21,7 @@ import { RangeApi, type SlateEditor } from "platejs";
 export const tag = (tag: string, content?: undefined | string | null) => {
   if (!content) return "";
 
-  return [`<${tag}>`, content, `</${tag}>`].join("\n");
+  return pipe(A.make(`<${tag}>`, content, `</${tag}>`), A.join("\n"));
 };
 
 /**
@@ -28,37 +33,38 @@ export const tag = (tag: string, content?: undefined | string | null) => {
 export const inlineTag = (tag: string, content?: undefined | string | null) => {
   if (!content) return "";
 
-  return [`<${tag}>`, content, `</${tag}>`].join("");
+  return pipe(A.make(`<${tag}>`, content, `</${tag}>`), A.join(""));
 };
 
 // Sections split by double newlines
 export const sections = (sections: (boolean | string | null | undefined)[]) => {
-  return sections.filter(Boolean).join("\n\n");
+  return A.filter(sections, Boolean).join("\n\n");
 };
 
 // List items split by newlines
-export const list = (items: string[] | undefined) => {
-  return items
-    ? items
-        .filter(Boolean)
-        .map((item) => `- ${item}`)
-        .join("\n")
-    : "";
-};
+export const list = (items: string[] | undefined) =>
+  pipe(
+    items,
+    O.fromNullable,
+    O.map(A.filter(Boolean)),
+    O.map((item) => `- ${item}`),
+    O.map(A.join("\n")),
+    O.getOrElse(constant(Str.empty))
+  );
 
 export type StructuredPromptSections = {
-  backgroundData?: undefined | string;
-  examples?: undefined | string[] | string;
-  history?: undefined | string;
-  outputFormatting?: undefined | string;
-  prefilledResponse?: undefined | string;
-  question?: undefined | string;
-  rules?: undefined | string;
-  task?: undefined | string;
-  taskContext?: undefined | string;
-  thinking?: undefined | string;
-  tone?: undefined | string;
-  tools?: undefined | string;
+  readonly backgroundData?: undefined | string;
+  readonly examples?: undefined | string[] | string;
+  readonly history?: undefined | string;
+  readonly outputFormatting?: undefined | string;
+  readonly prefilledResponse?: undefined | string;
+  readonly question?: undefined | string;
+  readonly rules?: undefined | string;
+  readonly task?: undefined | string;
+  readonly taskContext?: undefined | string;
+  readonly thinking?: undefined | string;
+  readonly tone?: undefined | string;
+  readonly tools?: undefined | string;
 };
 
 /**
@@ -101,8 +107,12 @@ export const buildStructuredPrompt = ({
   thinking,
   tone,
 }: StructuredPromptSections) => {
-  const formattedExamples = Array.isArray(examples)
-    ? examples.map((example) => tag("example", example)).join("\n")
+  const formattedExamples = A.isArray(examples)
+    ? pipe(
+        examples,
+        A.map((example) => tag("example", example)),
+        A.join("\n")
+      )
     : examples;
 
   const context = sections([
@@ -154,10 +164,12 @@ export const buildStructuredPrompt = ({
 };
 
 export function getTextFromMessage(message: UIMessage): string {
-  return message.parts
-    .filter((part) => part.type === "text")
-    .map((part) => part.text)
-    .join("");
+  return pipe(
+    message.parts,
+    A.filter((part) => part.type === "text"),
+    A.map((part) => part.text),
+    A.join("")
+  );
 }
 
 /**
@@ -166,22 +178,23 @@ export function getTextFromMessage(message: UIMessage): string {
  */
 export function formatTextFromMessages(
   messages: ChatMessage[],
-  options?: undefined | { limit?: undefined | number }
+  options?: undefined | { readonly limit?: undefined | number }
 ): string {
-  const historyMessages = options?.limit ? messages.slice(-options.limit) : messages;
+  const historyMessages = options?.limit ? A.takeRight(messages, options.limit) : messages;
 
-  return historyMessages
-    .map((message) => {
-      const text = getTextFromMessage(message).trim();
+  return pipe(
+    A.map(historyMessages, (message) => {
+      const text = pipe(message, getTextFromMessage, Str.trim);
 
       if (!text) return null;
 
-      const role = message.role.toUpperCase();
+      const role = pipe(message.role, Str.toUpperCase);
 
       return `${role}: ${text}`;
-    })
-    .filter(Boolean)
-    .join("\n");
+    }),
+    A.filter(P.isNotNullable),
+    A.join("\n")
+  );
 }
 
 const SELECTION_START = "<Selection>";
@@ -205,10 +218,14 @@ export const addSelection = (editor: SlateEditor) => {
 };
 
 const removeEscapeSelection = (editor: SlateEditor, text: string) => {
-  let newText = text.replace(`\\${SELECTION_START}`, SELECTION_START).replace(`\\${SELECTION_END}`, SELECTION_END);
+  let newText = pipe(
+    text,
+    Str.replace(`\\${SELECTION_START}`, SELECTION_START),
+    Str.replace(`\\${SELECTION_END}`, SELECTION_END)
+  );
 
   // If the selection is on a void element, inserting the placeholder will fail, and the string must be replaced manually.
-  if (!newText.includes(SELECTION_END)) {
+  if (!pipe(newText, Str.includes(SELECTION_END))) {
     const [, end] = RangeApi.edges(editor.selection!);
 
     const node = editor.api.block({ at: end.path });
@@ -217,10 +234,15 @@ const removeEscapeSelection = (editor: SlateEditor, text: string) => {
     if (editor.api.isVoid(node[0])) {
       const voidString = serializeMd(editor, { value: [node[0]] });
 
-      const idx = newText.lastIndexOf(voidString);
+      const idxOpt = pipe(newText, Str.lastIndexOf(voidString));
 
-      if (idx !== -1) {
-        newText = newText.slice(0, idx) + voidString.trimEnd() + SELECTION_END + newText.slice(idx + voidString.length);
+      if (O.isSome(idxOpt)) {
+        const idx = idxOpt.value;
+        newText =
+          pipe(newText, Str.slice(0, idx)) +
+          Str.trimEnd(voidString) +
+          SELECTION_END +
+          pipe(newText, Str.slice(idx + Str.length(voidString)));
       }
     }
   }

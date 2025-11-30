@@ -9,9 +9,9 @@ import {
 } from "@beep/ui/components/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@beep/ui/components/tooltip";
 import { cn } from "@beep/ui-core/utils";
+import { debounce } from "@beep/utils/timing/debounce";
 import type { DropdownMenuItemProps, DropdownMenuProps } from "@radix-ui/react-dropdown-menu";
 import { useComposedRef } from "@udecode/cn";
-import debounce from "lodash/debounce";
 import { EraserIcon, PlusIcon } from "lucide-react";
 import { useEditorRef, useEditorSelector } from "platejs/react";
 import React from "react";

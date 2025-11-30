@@ -37,7 +37,6 @@
     "@beep/shared-ui": "workspace:^",
     "@emotion/cache": "catalog:",
     "@emotion/react": "catalog:",
-    "autosuggest-highlight": "catalog:",
     "@emoji-mart/react": "catalog:",
     "@emoji-mart/data": "catalog:",
     "@effect-atom/atom-react": "catalog:",
@@ -64,7 +63,6 @@
     "i18next-browser-languagedetector": "catalog:",
     "i18next-resources-to-backend": "catalog:",
     "uuid": "catalog:",
-    "mui-one-time-password-input": "catalog:",
     "next": "catalog:",
     "nprogress": "catalog:",
     "react-dom": "catalog:",
@@ -164,9 +162,7 @@
     "@udecode/cn": "catalog:",
     "@uploadthing/react": "catalog:",
     "ai": "catalog:",
-    "dedent": "catalog:",
     "html2canvas-pro": "catalog:",
-    "lodash": "catalog:",
     "lowlight": "catalog:",
     "pdf-lib": "catalog:",
     "react-dnd": "catalog:",
@@ -252,7 +248,6 @@
     "@beep/types": "workspace:^",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
-    "@types/autosuggest-highlight": "catalog:",
     "@types/react-dom": "catalog:",
     "tailwindcss": "catalog:",
     "@types/nprogress": "catalog:",
@@ -268,7 +263,6 @@
     "babel-plugin-transform-next-use-client": "catalog:",
     "copyfiles": "catalog:",
     "@babel/preset-react": "catalog:",
-    "@next/bundle-analyzer": "catalog:",
-    "@types/lodash": "catalog:"
+    "@next/bundle-analyzer": "catalog:"
   }
 }

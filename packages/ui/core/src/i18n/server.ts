@@ -66,7 +66,7 @@ export const getServerTranslations = cache(async (namespace = defaultNS, options
   return {
     t: i18nextInstance.getFixedT(
       lang,
-      Array.isArray(namespace) && A.isNonEmptyArray(namespace) ? namespace[0] : namespace,
+      Array.isArray(namespace) && A.isNonEmptyArray(namespace) ? A.headNonEmpty(namespace) : namespace,
       options?.keyPrefix ? options.keyPrefix : undefined
     ),
     i18n: i18nextInstance,

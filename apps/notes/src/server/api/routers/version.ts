@@ -3,9 +3,9 @@
 import { getTemplateDocument } from "@beep/notes/components/editor/utils/useTemplateDocument";
 import { nid } from "@beep/notes/lib/nid";
 import { prisma } from "@beep/notes/server/db";
+import { omit } from "@beep/utils/data/object.utils";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
-import { omit } from "lodash";
 import { NodeApi } from "platejs";
 
 import { protectedProcedure } from "../middlewares/procedures";
@@ -131,7 +131,7 @@ export const versionRouter = createRouter({
       });
 
       return {
-        ...omit(version, "User"),
+        ...omit(version, "user"),
         userId: version.user.id,
         username: version.user.username,
       };
@@ -170,7 +170,7 @@ export const versionRouter = createRouter({
 
       return {
         versions: A.map(versions, (version) => ({
-          ...omit(version, "User"),
+          ...omit(version, "user"),
           profileImageUrl: version.user.profileImageUrl,
           userId: version.user.id,
           username: version.user.username,

@@ -15,4 +15,9 @@
  * @category Documentation/Modules
  * @since 0.1.0
  */
+export * from "@beep/utils/data/object.utils/clone-deep";
 export * from "@beep/utils/data/object.utils/deep-merge";
+export * from "@beep/utils/data/object.utils/defaults-deep";
+export * from "@beep/utils/data/object.utils/merge-defined";
+export * from "@beep/utils/data/object.utils/omit";
+export * from "@beep/utils/data/object.utils/omit-by";
