@@ -69,10 +69,10 @@ export type SessionUser = Pick<
 
 export type SessionValidationResult =
   | {
-      session: AuthSession;
-      user: SessionUser;
+      readonly session: AuthSession;
+      readonly user: SessionUser;
     }
-  | { session: null; user: null };
+  | { readonly session: null; readonly user: null };
 
 /**
  * Validate a user-provided session token from cookies.

@@ -58,7 +58,7 @@ export function BlockActionButton({
   className,
   defaultStyles = true,
   ...props
-}: Partial<ButtonProps> & { defaultStyles?: boolean }) {
+}: Partial<ButtonProps> & { readonly defaultStyles?: undefined | boolean }) {
   const editor = useEditorRef();
   const element = useElement();
 

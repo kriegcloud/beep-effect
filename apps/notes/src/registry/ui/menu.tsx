@@ -9,39 +9,39 @@ import { CornerDownLeftIcon } from "lucide-react";
 import * as React from "react";
 
 export type Action = {
-  filterItems?: undefined | boolean;
-  focusEditor?: undefined | boolean;
-  group?: undefined | string;
-  icon?: undefined | React.ReactNode;
-  items?: undefined | Action[];
-  keywords?: undefined | string[];
-  label?: undefined | string;
-  shortcut?: undefined | string;
-  value?: undefined | string;
+  readonly filterItems?: undefined | boolean;
+  readonly focusEditor?: undefined | boolean;
+  readonly group?: undefined | string;
+  readonly icon?: undefined | React.ReactNode;
+  readonly items?: undefined | Action[];
+  readonly keywords?: undefined | string[];
+  readonly label?: undefined | string;
+  readonly shortcut?: undefined | string;
+  readonly value?: undefined | string;
 };
 
 export type ActionGroup = {
-  group?: undefined | string;
-  value?: undefined | string;
+  readonly group?: undefined | string;
+  readonly value?: undefined | string;
 };
 
 const SearchableContext = React.createContext(false);
 
 const MenuContext = React.createContext<{
-  isRootMenu: boolean;
-  open: boolean;
+  readonly isRootMenu: boolean;
+  readonly open: boolean;
 }>({
   isRootMenu: false,
   open: false,
 });
 
 export type MenuProps = Ariakit.MenuProviderProps & {
-  trigger?: undefined | React.ReactNode;
-  value?: undefined | string;
-  onOpenChange?: undefined | Ariakit.MenuProviderProps["setOpen"];
-  onRootMenuClose?: undefined | (() => void);
-  onValueChange?: undefined | Ariakit.ComboboxProviderProps["setValue"];
-  onValuesChange?: undefined | Ariakit.MenuProviderProps["setValues"];
+  readonly trigger?: undefined | React.ReactNode;
+  readonly value?: undefined | string;
+  readonly onOpenChange?: undefined | Ariakit.MenuProviderProps["setOpen"];
+  readonly onRootMenuClose?: undefined | (() => void);
+  readonly onValueChange?: undefined | Ariakit.ComboboxProviderProps["setValue"];
+  readonly onValuesChange?: undefined | Ariakit.MenuProviderProps["setValues"];
 };
 
 export function Menu({
@@ -150,8 +150,8 @@ const menuVariants = cva(
 
 export type MenuContentProps = Ariakit.MenuProps &
   VariantProps<typeof menuVariants> & {
-    animateZoom?: undefined | boolean;
-    onClickOutside?: undefined | ((event: MouseEvent) => void);
+    readonly animateZoom?: undefined | boolean;
+    readonly onClickOutside?: undefined | ((event: MouseEvent) => void);
   };
 
 export function MenuContent({
@@ -249,16 +249,16 @@ const menuItemVariants = cva(
 );
 
 export type MenuItemProps = Omit<Ariakit.ComboboxItemProps, "store"> & {
-  checked?: undefined | boolean;
-  group?: undefined | string;
-  icon?: undefined | React.ReactNode;
-  label?: undefined | string;
-  name?: undefined | string;
-  parentGroup?: undefined | string;
-  preventClose?: undefined | boolean;
-  shortcut?: undefined | React.ReactNode;
-  shortcutEnter?: undefined | boolean;
-  value?: undefined | string;
+  readonly checked?: undefined | boolean;
+  readonly group?: undefined | string;
+  readonly icon?: undefined | React.ReactNode;
+  readonly label?: undefined | string;
+  readonly name?: undefined | string;
+  readonly parentGroup?: undefined | string;
+  readonly preventClose?: undefined | boolean;
+  readonly shortcut?: undefined | React.ReactNode;
+  readonly shortcutEnter?: undefined | boolean;
+  readonly value?: undefined | string;
 } & VariantProps<typeof menuItemVariants>;
 
 export function MenuItem({
@@ -276,16 +276,16 @@ export function MenuItem({
   variant,
   ...props
 }: Omit<Ariakit.ComboboxItemProps, "store"> & {
-  checked?: undefined | boolean;
-  group?: undefined | string;
-  icon?: undefined | React.ReactNode;
-  label?: undefined | string;
-  name?: undefined | string;
-  parentGroup?: undefined | string;
-  preventClose?: undefined | boolean;
-  shortcut?: undefined | React.ReactNode;
-  shortcutEnter?: undefined | boolean;
-  value?: undefined | string;
+  readonly checked?: undefined | boolean;
+  readonly group?: undefined | string;
+  readonly icon?: undefined | React.ReactNode;
+  readonly label?: undefined | string;
+  readonly name?: undefined | string;
+  readonly parentGroup?: undefined | string;
+  readonly preventClose?: undefined | boolean;
+  readonly shortcut?: undefined | React.ReactNode;
+  readonly shortcutEnter?: undefined | boolean;
+  readonly value?: undefined | string;
 } & VariantProps<typeof menuItemVariants>) {
   const menu = Ariakit.useMenuContext();
 
@@ -465,9 +465,7 @@ export function useComboboxValueState() {
 
 export function useMenuSide() {
   const store = Ariakit.useMenuStore();
-  const currentPlacement = store?.useState("currentPlacement").split("-")[0];
-
-  return currentPlacement;
+  return store?.useState("currentPlacement").split("-")[0];
 }
 
 export function useContextMenu(anchorRect: { x: number; y: number }) {

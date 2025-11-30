@@ -78,8 +78,8 @@ export const ToolbarButton = withTooltip(function ToolbarButton({
   variant,
   ...props
 }: Omit<React.ComponentProps<typeof ToolbarToggleItem>, "asChild" | "value"> & {
-  isDropdown?: undefined | boolean;
-  pressed?: undefined | boolean;
+  readonly isDropdown?: undefined | boolean;
+  readonly pressed?: undefined | boolean;
 } & VariantProps<typeof toolbarButtonVariants>) {
   return typeof pressed === "boolean" ? (
     <ToolbarToggleGroup

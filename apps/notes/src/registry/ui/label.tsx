@@ -13,7 +13,7 @@ export function Label({
   disabled,
   ...props
 }: React.ComponentProps<typeof LabelPrimitive.Root> & {
-  disabled?: undefined | boolean;
+  readonly disabled?: undefined | boolean;
 } & VariantProps<typeof labelVariants>) {
   return (
     <LabelPrimitive.Root

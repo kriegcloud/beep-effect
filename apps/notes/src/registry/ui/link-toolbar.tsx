@@ -99,7 +99,7 @@ export function LinkFloatingToolbar() {
   );
 }
 
-const InsertLinkCommand = ({ initialUrl }: { initialUrl: string }) => {
+const InsertLinkCommand = ({ initialUrl }: { readonly initialUrl: string }) => {
   const [query, setQuery] = React.useState(initialUrl);
 
   const [searchDocuments, setSearchDocuments] = React.useState<any[]>([]);
@@ -334,7 +334,7 @@ const EditLinkCommand = ({
   );
 };
 
-const OutsideLinkCommandItem = ({ query }: { query: string }) => {
+const OutsideLinkCommandItem = ({ query }: { readonly query: string }) => {
   const editor = useEditorRef();
 
   return (
@@ -350,7 +350,13 @@ const OutsideLinkCommandItem = ({ query }: { query: string }) => {
   );
 };
 
-const InternalLinkCommandItem = ({ document, onSelect }: { document: any; onSelect?: undefined | (() => void) }) => {
+const InternalLinkCommandItem = ({
+  document,
+  onSelect,
+}: {
+  readonly document: any;
+  readonly onSelect?: undefined | (() => void);
+}) => {
   const editor = useEditorRef();
 
   return (

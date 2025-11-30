@@ -55,7 +55,7 @@ export function TooltipTC({
   onOpenChange,
   ...props
 }: {
-  content: React.ReactNode;
+  readonly content: React.ReactNode;
 } & React.ComponentProps<typeof TooltipPrimitive.Content> &
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Root>) {
   const mounted = useMounted();

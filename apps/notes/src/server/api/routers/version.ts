@@ -7,7 +7,6 @@ import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { omit } from "lodash";
 import { NodeApi } from "platejs";
-import { z } from "zod";
 
 import { protectedProcedure } from "../middlewares/procedures";
 import { ratelimitMiddleware } from "../middlewares/ratelimitMiddleware";
@@ -56,9 +55,11 @@ const versionMutations = {
 
   deleteVersion: protectedProcedure
     .input(
-      z.object({
-        id: z.string(),
-      })
+      S.decodeUnknownSync(
+        S.Struct({
+          id: S.String,
+        })
+      )
     )
     .mutation(async ({ ctx, input }) => {
       await prisma.documentVersion.delete({
@@ -71,9 +72,11 @@ const versionMutations = {
 
   restoreVersion: protectedProcedure
     .input(
-      z.object({
-        id: z.string(),
-      })
+      S.decodeUnknownSync(
+        S.Struct({
+          id: S.String,
+        })
+      )
     )
     .mutation(async ({ ctx, input }) => {
       const version = await prisma.documentVersion.findUniqueOrThrow({
@@ -106,11 +109,7 @@ const versionMutations = {
 export const versionRouter = createRouter({
   ...versionMutations,
   documentVersion: protectedProcedure
-    .input(
-      z.object({
-        documentVersionId: z.string(),
-      })
-    )
+    .input(S.decodeUnknownSync(S.Struct({ documentVersionId: S.String })))
     .query(async ({ input }) => {
       const version = await prisma.documentVersion.findUniqueOrThrow({
         select: {
@@ -140,9 +139,11 @@ export const versionRouter = createRouter({
 
   documentVersions: protectedProcedure
     .input(
-      z.object({
-        documentId: z.string(),
-      })
+      S.decodeUnknownSync(
+        S.Struct({
+          documentId: S.String,
+        })
+      )
     )
     .query(async ({ input }) => {
       const versions = await prisma.documentVersion.findMany({

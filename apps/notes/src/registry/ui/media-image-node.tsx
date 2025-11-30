@@ -128,7 +128,7 @@ export const ImageElement = withHOC(ResizableProvider, function ImageElement(pro
   );
 });
 
-const ImagePlaceholder = ({ file }: { file?: File }) => {
+const ImagePlaceholder = ({ file }: { readonly file?: File }) => {
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
 
   useEffect(() => {

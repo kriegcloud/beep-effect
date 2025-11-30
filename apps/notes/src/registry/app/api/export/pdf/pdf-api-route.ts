@@ -1,25 +1,25 @@
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import puppeteer, { type Browser } from "puppeteer";
-import { z } from "zod";
-
 export async function POST(request: NextRequest) {
   try {
-    // Validate request body
-    const schema = z.object({
-      disableMedia: z.boolean().optional(),
-      documentId: z.string(),
-      format: z.string(),
-      scale: z.number(),
+    const schema = S.Struct({
+      disableMedia: S.optional(S.Boolean),
+      documentId: S.String,
+      format: S.String,
+      scale: S.Number,
     });
+    // Validate request body
 
-    const result = schema.safeParse(await request.json());
+    const result = S.decodeUnknownOption(schema)(await request.json());
 
-    if (!result.success) {
+    if (O.isNone(result)) {
       return NextResponse.json({ message: "Invalid request body" }, { status: 400 });
     }
 
-    const { disableMedia, documentId, format, scale } = result.data;
+    const { disableMedia, documentId, format, scale } = result.value;
 
     // Get session cookie
 

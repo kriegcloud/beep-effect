@@ -1,7 +1,7 @@
 import { prisma } from "@beep/notes/server/db";
+import { BS } from "@beep/schema";
 import type { UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
-import { z } from "zod";
 import { protectedProcedure } from "../middlewares/procedures";
 import { createRouter } from "../trpc";
 
@@ -48,14 +48,13 @@ export const userRouter = createRouter({
 
   updateSettings: protectedProcedure
     .input(
-      z.object({
-        email: z.email().max(MAX_EMAIL_LENGTH, "Email is too long").optional(),
-        name: z.string().min(1, "Name is required").max(MAX_NAME_LENGTH, "Name is too long").trim().optional(),
-        profileImageUrl: z
-          .url("Invalid URL")
-          .max(MAX_PROFILE_IMAGE_URL_LENGTH, "Profile image URL is too long")
-          .optional(),
-      })
+      S.decodeUnknownSync(
+        S.Struct({
+          email: BS.EmailBase.pipe(S.maxLength(MAX_EMAIL_LENGTH)).pipe(S.optional),
+          name: S.optional(S.Trimmed.pipe(S.minLength(1), S.maxLength(MAX_NAME_LENGTH))),
+          profileImageUrl: BS.URLString.pipe(S.maxLength(MAX_PROFILE_IMAGE_URL_LENGTH)),
+        })
+      )
     )
     .mutation(async ({ ctx, input }) => {
       const updateData: UnsafeTypes.UnsafeAny = {};
@@ -71,11 +70,13 @@ export const userRouter = createRouter({
 
   users: protectedProcedure
     .input(
-      z.object({
-        cursor: z.string().optional(),
-        limit: z.number().min(1).max(100).default(10),
-        search: z.string().optional(),
-      })
+      S.decodeUnknownSync(
+        S.Struct({
+          cursor: S.optional(S.String),
+          limit: S.optionalWith(S.Number.pipe(S.greaterThan(1), S.lessThan(100)), { default: () => 10 }),
+          search: S.optional(S.String),
+        })
+      )
     )
     .query(async ({ input }) => {
       const { cursor, limit, search } = input;

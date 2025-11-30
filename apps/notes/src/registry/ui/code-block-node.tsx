@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@beep/notes/lib/utils";
-import { useCopyToClipboard } from "@beep/notes/registry/hooks/use-copy-to-clipboard";
+import { useCopyToClipboard } from "@beep/ui/hooks/use-copy-to-clipboard";
 
 import { CheckIcon, ChevronDownIcon, FilesIcon } from "lucide-react";
 import type { TCodeBlockElement } from "platejs";
@@ -83,7 +83,7 @@ export function CodeBlockElement(props: PlateElementProps) {
   );
 }
 
-function CodeBlockCombobox({ className }: { className?: undefined | string }) {
+function CodeBlockCombobox({ className }: { readonly className?: undefined | string }) {
   const [open, setOpen] = React.useState(false);
   const readOnly = useReadOnly();
   const editor = useEditorRef();

@@ -62,9 +62,9 @@ const getCommentTop = (
     relativeElement,
     topOffset = 30,
   }: {
-    node: TCommentText | TElement | TSuggestionText;
-    relativeElement: HTMLDivElement;
-    topOffset?: number;
+    readonly node: TCommentText | TElement | TSuggestionText;
+    readonly relativeElement: HTMLDivElement;
+    readonly topOffset?: number;
   }
 ) => {
   const commentLeafDomNode = editor.api.toDOMNode(node);

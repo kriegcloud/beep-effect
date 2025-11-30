@@ -27,7 +27,7 @@ export function TableCellElementStatic({
   isHeader,
   ...props
 }: SlateElementProps<TTableCellElement> & {
-  isHeader?: boolean;
+  readonly isHeader?: boolean;
 }) {
   const { editor, element } = props;
   const { api } = editor.getPlugin(BaseTablePlugin);

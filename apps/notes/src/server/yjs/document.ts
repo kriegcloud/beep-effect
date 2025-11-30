@@ -68,9 +68,9 @@ export const loadDocumentSnapshot = async ({
   document,
   documentId,
 }: {
-  context: CollabContext;
-  document: HocusDocument;
-  documentId: string;
+  readonly context: CollabContext;
+  readonly document: HocusDocument;
+  readonly documentId: string;
 }) => {
   const docRecord = await ensureDocument(context, documentId);
 
@@ -117,9 +117,9 @@ export const storeDocumentSnapshot = async ({
   document,
   documentId,
 }: {
-  context: CollabContext;
-  document: HocusDocument;
-  documentId: string;
+  readonly context: CollabContext;
+  readonly document: HocusDocument;
+  readonly documentId: string;
 }) => {
   const docRecord = await ensureDocument(context, documentId);
   const slateValue = extractSlateValueFromYDoc(document);

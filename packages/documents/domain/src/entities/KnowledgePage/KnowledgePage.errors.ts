@@ -32,7 +32,8 @@ export class KnowledgePageNotFoundError extends S.TaggedError<KnowledgePageNotFo
 )(
   "KnowledgePageNotFoundError",
   {
-    id: DocumentsEntityIds.KnowledgePageId,
+    id: S.optional(DocumentsEntityIds.KnowledgePageId),
+    slug: S.optional(S.String),
   },
   HttpApiSchema.annotations({
     status: 404,

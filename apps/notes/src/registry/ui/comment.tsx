@@ -342,7 +342,7 @@ function CommentMoreDropdown(props: {
 }
 
 export const useCommentEditor = (options: Omit<CreatePlateEditorOptions, "plugins"> = {}, deps: any[] = []) => {
-  const commentEditor = usePlateEditor(
+  return usePlateEditor(
     {
       id: "comment",
       plugins: BasicMarksKit,
@@ -351,8 +351,6 @@ export const useCommentEditor = (options: Omit<CreatePlateEditorOptions, "plugin
     },
     deps
   );
-
-  return commentEditor;
 };
 
 export function CommentCreateForm({

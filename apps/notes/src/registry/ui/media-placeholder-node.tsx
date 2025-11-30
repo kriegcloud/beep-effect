@@ -28,8 +28,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
 const CONTENT: Record<
   string,
   {
-    content: ReactNode;
-    icon: ReactNode;
+    readonly content: ReactNode;
+    readonly icon: ReactNode;
   }
 > = {
   [KEYS.audio]: {
@@ -346,8 +346,8 @@ function ImageProgress({
 function formatBytes(
   bytes: number,
   opts: {
-    decimals?: number;
-    sizeType?: "accurate" | "normal";
+    readonly decimals?: number;
+    readonly sizeType?: "accurate" | "normal";
   } = {}
 ) {
   const { decimals = 0, sizeType = "normal" } = opts;

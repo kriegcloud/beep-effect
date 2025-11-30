@@ -61,10 +61,7 @@ export class CommentRepo extends Effect.Service<CommentRepo>()("@beep/documents-
      * Create a new comment.
      * Accepts the insert.Type (decoded) and uses baseRepo.insert which handles encoding.
      */
-    const create = flow(
-      baseRepo.insert,
-      Effect.withSpan("CommentRepo.create")
-    );
+    const create = flow(baseRepo.insert, Effect.withSpan("CommentRepo.create"));
 
     /**
      * Update a comment (marks as edited)

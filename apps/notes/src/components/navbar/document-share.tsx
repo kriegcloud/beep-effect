@@ -2,13 +2,13 @@
 
 import { useOrigin } from "@beep/notes/hooks/useOrigin";
 import { useDocumentId } from "@beep/notes/lib/navigation/routes";
-import { useCopyToClipboard } from "@beep/notes/registry/hooks/use-copy-to-clipboard";
 import { Button, LinkButton } from "@beep/notes/registry/ui/button";
 import { Input } from "@beep/notes/registry/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@beep/notes/registry/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@beep/notes/registry/ui/tabs";
 import { useUpdateDocumentMutation } from "@beep/notes/trpc/hooks/document-hooks";
 import { useDocumentQueryOptions } from "@beep/notes/trpc/hooks/query-options";
+import { useCopyToClipboard } from "@beep/ui/hooks/use-copy-to-clipboard";
 import { useQuery } from "@tanstack/react-query";
 import { Users } from "lucide-react";
 import { toast } from "sonner";

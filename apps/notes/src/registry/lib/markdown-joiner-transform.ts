@@ -88,20 +88,20 @@ export class MarkdownJoiner {
   }
 
   private isCompleteCodeBlockStart(): boolean {
-    const codeLinePattern = /```[^\s]+/;
+    const codeLinePattern = /```\S+/;
 
     return codeLinePattern.test(this.buffer);
   }
 
   private isCompleteLink(): boolean {
-    const linkPattern = /^\[.*?\]\(.*?\)$/;
+    const linkPattern = /^\[.*?]\(.*?\)$/;
 
     return linkPattern.test(this.buffer);
   }
 
   private isCompleteList(): boolean {
     const unorderedListPattern = /^[*-]\s+.+/;
-    const todoListPattern = /^[*-]\s+\[[ xX]\]\s+.+/;
+    const todoListPattern = /^[*-]\s+\[[ xX]]\s+.+/;
     const orderedListPattern = /^\d+\.\s+.+/;
 
     if (unorderedListPattern.test(this.buffer) && this.buffer.includes("[")) return todoListPattern.test(this.buffer);

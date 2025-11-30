@@ -3,7 +3,6 @@ import { prisma } from "@beep/notes/server/db";
 import { TRPCError } from "@trpc/server";
 import * as S from "effect/Schema";
 import { NodeApi } from "platejs";
-import { z } from "zod";
 import { protectedProcedure } from "../middlewares/procedures";
 import { ratelimitMiddleware } from "../middlewares/ratelimitMiddleware";
 import { createRouter } from "../trpc";
@@ -54,13 +53,12 @@ export const commentMutations = {
   createDiscussion: protectedProcedure
     .use(ratelimitMiddleware("discussion/create"))
     .input(
-      z.object({
-        documentContent: z
-          .string()
-          .min(1, "Document content cannot be empty")
-          .max(MAX_DOCUMENT_CONTENT_LENGTH, "Selected text is too long"),
-        documentId: z.string(),
-      })
+      S.decodeUnknownSync(
+        S.Struct({
+          documentContent: S.String.pipe(S.minLength(1), S.maxLength(MAX_DOCUMENT_CONTENT_LENGTH)),
+          documentId: S.String,
+        })
+      )
     )
     .mutation(async ({ ctx, input }) => {
       return await prisma.discussion.create({
@@ -76,15 +74,14 @@ export const commentMutations = {
   createDiscussionWithComment: protectedProcedure
     .use(ratelimitMiddleware("discussion/create"))
     .input(
-      z.object({
-        contentRich: z.array(z.any()).optional(),
-        discussionId: z.string().optional(),
-        documentContent: z
-          .string()
-          .min(1, "Document content cannot be empty")
-          .max(MAX_DOCUMENT_CONTENT_LENGTH, "Selected text is too long"),
-        documentId: z.string(),
-      })
+      S.decodeUnknownSync(
+        S.Struct({
+          contentRich: S.Array(S.Any).pipe(S.optional),
+          discussionId: S.optional(S.String),
+          documentContent: S.String.pipe(S.minLength(1), S.maxLength(MAX_DOCUMENT_CONTENT_LENGTH)),
+          documentId: S.String,
+        })
+      )
     )
     .mutation(async ({ ctx, input }) => {
       const content = input.contentRich
@@ -127,31 +124,56 @@ export const commentMutations = {
       return discussion;
     }),
   deleteComment: protectedProcedure
-    .input(z.object({ id: z.string(), discussionId: z.string() }))
+    .input(
+      S.decodeUnknownSync(
+        S.Struct({
+          id: S.String,
+          discussionId: S.String,
+        })
+      )
+    )
     .mutation(({ input }) => {
       return prisma.comment.delete({
         where: { id: input.id, discussionId: input.discussionId },
       });
     }),
-  removeDiscussion: protectedProcedure.input(z.object({ id: z.string() })).mutation(({ input }) => {
-    return prisma.discussion.delete({
-      where: { id: input.id },
-    });
-  }),
-  resolveDiscussion: protectedProcedure.input(z.object({ id: z.string() })).mutation(({ input }) => {
-    return prisma.discussion.update({
-      data: { isResolved: true },
-      where: { id: input.id },
-    });
-  }),
+  removeDiscussion: protectedProcedure
+    .input(
+      S.decodeUnknownSync(
+        S.Struct({
+          id: S.String,
+        })
+      )
+    )
+    .mutation(({ input }) => {
+      return prisma.discussion.delete({
+        where: { id: input.id },
+      });
+    }),
+  resolveDiscussion: protectedProcedure
+    .input(
+      S.decodeUnknownSync(
+        S.Struct({
+          id: S.String,
+        })
+      )
+    )
+    .mutation(({ input }) => {
+      return prisma.discussion.update({
+        data: { isResolved: true },
+        where: { id: input.id },
+      });
+    }),
   updateComment: protectedProcedure
     .input(
-      z.object({
-        id: z.string(),
-        contentRich: z.array(z.any()).optional(),
-        discussionId: z.string(),
-        isEdited: z.boolean().optional(),
-      })
+      S.decodeUnknownSync(
+        S.Struct({
+          id: S.String,
+          contentRich: S.Array(S.Any).pipe(S.optional),
+          discussionId: S.String,
+          isEdited: S.Boolean.pipe(S.optional),
+        })
+      )
     )
     .mutation(({ input }) => {
       const content = input.contentRich
@@ -182,46 +204,54 @@ export const commentMutations = {
 
 export const commentRouter = createRouter({
   ...commentMutations,
-  discussions: protectedProcedure.input(z.object({ documentId: z.string() })).query(async ({ input }) => {
-    const discussions = await prisma.discussion.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-      select: {
-        id: true,
-        comments: {
-          orderBy: {
-            createdAt: "asc",
-          },
-          select: {
-            id: true,
-            contentRich: true,
-            createdAt: true,
-            discussionId: true,
-            isEdited: true,
-            updatedAt: true,
-            user: {
-              select: {
-                id: true,
-                name: true,
-                profileImageUrl: true,
+  discussions: protectedProcedure
+    .input(
+      S.decodeUnknownSync(
+        S.Struct({
+          documentId: S.String,
+        })
+      )
+    )
+    .query(async ({ input }) => {
+      const discussions = await prisma.discussion.findMany({
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+          comments: {
+            orderBy: {
+              createdAt: "asc",
+            },
+            select: {
+              id: true,
+              contentRich: true,
+              createdAt: true,
+              discussionId: true,
+              isEdited: true,
+              updatedAt: true,
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  profileImageUrl: true,
+                },
               },
             },
           },
+          createdAt: true,
+          documentContent: true,
+          isResolved: true,
+          user: true,
+          userId: true,
         },
-        createdAt: true,
-        documentContent: true,
-        isResolved: true,
-        user: true,
-        userId: true,
-      },
-      where: {
-        documentId: input.documentId,
-      },
-    });
+        where: {
+          documentId: input.documentId,
+        },
+      });
 
-    return {
-      discussions: discussions,
-    };
-  }),
+      return {
+        discussions: discussions,
+      };
+    }),
 });

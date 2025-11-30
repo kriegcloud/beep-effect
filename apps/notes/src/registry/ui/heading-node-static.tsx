@@ -21,7 +21,7 @@ export function HeadingElementStatic({
   variant = "h1",
   ...props
 }: SlateElementProps & {
-  variant?: "h1" | "h2" | "h3";
+  readonly variant?: "h1" | "h2" | "h3";
 }) {
   const isFirstBlock = PathApi.equals(props.api.findPath(props.element)!, [0]);
 

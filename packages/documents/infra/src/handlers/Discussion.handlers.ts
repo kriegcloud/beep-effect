@@ -2,11 +2,12 @@ import { Comment, Discussion } from "@beep/documents-domain/entities";
 import { CommentRepo } from "@beep/documents-infra/adapters/repos/Comment.repo";
 import { DiscussionRepo } from "@beep/documents-infra/adapters/repos/Discussion.repo";
 import { AuthContext } from "@beep/shared-domain/Policy";
+import { pipe } from "effect";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
-import { pipe } from "effect";
-import * as A from "effect/Array";
+
 /**
  * Transform author field to user field to match RPC schema
  */

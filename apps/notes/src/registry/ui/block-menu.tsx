@@ -58,8 +58,8 @@ export function BlockMenu({
   store,
 }: Pick<MenuProps, "open" | "placement" | "store"> &
   Pick<MenuContentProps, "animateZoom" | "getAnchorRect"> & {
-    id?: undefined | string;
-    children?: undefined | React.ReactNode;
+    readonly id?: undefined | string;
+    readonly children?: undefined | React.ReactNode;
   }) {
   const editor = useEditorRef();
   const [open, setOpen] = React.useState(false);
@@ -122,7 +122,7 @@ export function BlockMenu({
   );
 }
 
-function BlockMenuInput({ onHide }: { onHide: () => void }) {
+function BlockMenuInput({ onHide }: { readonly onHide: () => void }) {
   const editor = useEditorRef();
   const blockSelectionTf = editor.getTransforms(BlockSelectionPlugin).blockSelection;
   const [value] = useComboboxValueState();
@@ -198,7 +198,7 @@ export const blockMenuItems = {
     label: "Ask AI",
     shortcut: "⌘+J",
     value: "askAI",
-    onSelect: ({ editor }: { editor: PlateEditor }) => {
+    onSelect: ({ editor }: { readonly editor: PlateEditor }) => {
       editor.getApi(AIChatPlugin).aiChat.show();
     },
   },
@@ -207,7 +207,7 @@ export const blockMenuItems = {
     keywords: ["alt"],
     label: "Caption",
     value: "caption",
-    onSelect: ({ editor }: { editor: PlateEditor }) => {
+    onSelect: ({ editor }: { readonly editor: PlateEditor }) => {
       const firstBlock = editor.getApi(BlockSelectionPlugin).blockSelection.getNodes()[0];
       if (!firstBlock) return;
       showCaption(editor, firstBlock[0] as TElement);
@@ -220,7 +220,7 @@ export const blockMenuItems = {
     label: "Comment",
     shortcut: "⌘+Shift+M",
     value: "comment",
-    onSelect: ({ editor }: { editor: PlateEditor }) => {
+    onSelect: ({ editor }: { readonly editor: PlateEditor }) => {
       setTimeout(() => {
         editor.getTransforms(BlockSelectionPlugin).blockSelection.select();
         editor.getTransforms(commentPlugin).comment.setDraft();
@@ -237,7 +237,7 @@ export const blockMenuItems = {
     label: "Delete",
     shortcut: "Del or Ctrl+D",
     value: "delete",
-    onSelect: ({ editor }: { editor: PlateEditor }) => {
+    onSelect: ({ editor }: { readonly editor: PlateEditor }) => {
       editor.getTransforms(BlockSelectionPlugin).blockSelection.removeNodes();
     },
   },
@@ -248,7 +248,7 @@ export const blockMenuItems = {
     label: "Duplicate",
     shortcut: "⌘+D",
     value: "duplicate",
-    onSelect: ({ editor }: { editor: PlateEditor }) => {
+    onSelect: ({ editor }: { readonly editor: PlateEditor }) => {
       editor.getTransforms(BlockSelectionPlugin).blockSelection.duplicate();
 
       editor.getApi(BlockSelectionPlugin).blockSelection.focus();

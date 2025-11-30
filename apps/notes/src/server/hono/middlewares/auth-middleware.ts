@@ -67,8 +67,8 @@ export const protectedMiddlewares = ({
   ratelimitKey,
   role,
 }: {
-  ratelimitKey?: undefined | RatelimitKey;
-  role?: UserRole;
+  readonly ratelimitKey?: undefined | RatelimitKey;
+  readonly role?: UserRole;
 } = {}) =>
   [
     authMiddleware,

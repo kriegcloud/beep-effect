@@ -7,10 +7,11 @@ import { getCommentKey, getTransientCommentKey } from "@platejs/comment";
 import { deserializeMd } from "@platejs/markdown";
 import { BlockSelectionPlugin } from "@platejs/selection/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
+import { pipe } from "effect";
+import * as A from "effect/Array";
 import { KEYS, NodeApi, nanoid, TextApi, type TNode } from "platejs";
 import { type PlateEditor, useEditorRef } from "platejs/react";
 import * as React from "react";
-
 import { discussionPlugin } from "./plugins/discussion-kit";
 
 export type Chat = UseChatHelpers<ChatMessage>;
@@ -84,19 +85,19 @@ export const useChat = () => {
               signal: abortControllerRef.current.signal,
             });
 
-            const response = new Response(stream, {
+            return new Response(stream, {
               headers: {
                 Connection: "keep-alive",
                 "Content-Type": "text/plain",
               },
             });
-
-            return response;
           }
 
           return res;
         },
-        { preconnect: () => {} }
+        {
+          preconnect: () => {},
+        }
       ),
     }),
     onData(data) {
@@ -181,10 +182,10 @@ const fakeStreamText = ({
   sample = null,
   signal,
 }: {
-  editor: PlateEditor;
-  chunkCount?: number;
-  sample?: "comment" | "markdown" | "mdx" | null;
-  signal?: AbortSignal;
+  readonly editor: PlateEditor;
+  readonly chunkCount?: number;
+  readonly sample?: "comment" | "markdown" | "mdx" | null;
+  readonly signal?: AbortSignal;
 }) => {
   const encoder = new TextEncoder();
 
@@ -1431,17 +1432,18 @@ const mdxChunks = [
 const createCommentChunks = (editor: PlateEditor) => {
   const selectedBlocksApi = editor.getApi(BlockSelectionPlugin).blockSelection;
 
-  const selectedBlocks = selectedBlocksApi
-    .getNodes({
+  const selectedBlocks = pipe(
+    selectedBlocksApi.getNodes({
       selectionFallback: true,
       sort: true,
-    })
-    .map(([block]) => block);
+    }),
+    A.map(([block]) => block)
+  );
 
   const isSelectingSome = editor.getOption(BlockSelectionPlugin, "isSelectingSome");
 
   const blocks =
-    selectedBlocks.length > 0 && (editor.api.isExpanded() || isSelectingSome) ? selectedBlocks : editor.children;
+    A.length(selectedBlocks) > 0 && (editor.api.isExpanded() || isSelectingSome) ? selectedBlocks : editor.children;
 
   const max = blocks.length;
 
@@ -1456,8 +1458,9 @@ const createCommentChunks = (editor: PlateEditor) => {
 
   const indexes = Array.from(result).sort((a, b) => a - b);
 
-  const chunks = indexes
-    .map((index) => {
+  const chunks = pipe(
+    indexes,
+    A.map((index) => {
       const block = blocks[index];
 
       if (!block) {
@@ -1474,8 +1477,9 @@ const createCommentChunks = (editor: PlateEditor) => {
           texts: `{"id":"${nanoid()}","data":{"blockId":"${block.id}","comment":"${faker.lorem.sentence()}","content":"${content}"},"type":"data-comment"}`,
         },
       ];
-    })
-    .filter((chunk) => chunk.length > 0);
+    }),
+    A.filter((chunk) => chunk.length > 0)
+  );
 
   return [[{ delay: 50, texts: '{"data":"comment","type":"data-toolName"}' }], ...chunks];
 };

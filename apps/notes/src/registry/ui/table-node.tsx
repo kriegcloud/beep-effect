@@ -139,7 +139,7 @@ export function TableCellElement({
   isHeader,
   ...props
 }: PlateElementProps<TTableCellElement> & {
-  isHeader?: undefined | boolean;
+  readonly isHeader?: undefined | boolean;
 }) {
   const { api } = useEditorPlugin(TablePlugin);
   const readOnly = useReadOnly();

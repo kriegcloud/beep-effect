@@ -113,7 +113,7 @@ export function LinkElement(props: PlateElementProps) {
   );
 }
 
-const LinkPreview = ({ element }: { element: MyLinkElement }) => {
+const LinkPreview = ({ element }: { readonly element: MyLinkElement }) => {
   const { editor } = useEditorPlugin(linkPlugin);
 
   const isInternal = element.url.startsWith("/");

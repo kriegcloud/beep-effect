@@ -64,9 +64,9 @@ export function BlockSuggestionCard({
   isLast,
   suggestion,
 }: {
-  idx: number;
-  isLast: boolean;
-  suggestion: ResolvedSuggestion;
+  readonly idx: number;
+  readonly isLast: boolean;
+  readonly suggestion: ResolvedSuggestion;
 }) {
   const { api, editor } = useEditorPlugin(SuggestionPlugin);
 

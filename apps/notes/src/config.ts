@@ -2,14 +2,14 @@ import { Icons } from "@beep/notes/components/ui/icons";
 import { env } from "@beep/notes/env";
 
 export type NavItem = {
-  title: string;
-  disabled?: undefined | boolean;
-  external?: undefined | boolean;
-  href?: undefined | string;
-  icon?: undefined | React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  readonly title: string;
+  readonly disabled?: undefined | boolean;
+  readonly external?: undefined | boolean;
+  readonly href?: undefined | string;
+  readonly icon?: undefined | React.ComponentType<React.SVGProps<SVGSVGElement>>;
 };
 
-export type SiteConfig = {
+export type SiteConfig = Readonly<{
   author: {
     name: string;
     url: URL | string;
@@ -30,7 +30,7 @@ export type SiteConfig = {
   socialLinks: NavItem[];
   support: string;
   url: string;
-};
+}>;
 
 const siteLinks = {
   discord: "https://discord.gg/mAZRuBzGM3",

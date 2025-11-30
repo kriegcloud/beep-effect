@@ -69,10 +69,10 @@ const BlockCommentsContent = ({
   draftCommentNode,
   suggestionNodes,
 }: PlateElementProps & {
-  blockPath: Path;
-  commentNodes: NodeEntry<TCommentText>[];
-  draftCommentNode: NodeEntry<TCommentText> | undefined;
-  suggestionNodes: NodeEntry<TElement | TSuggestionText>[];
+  readonly blockPath: Path;
+  readonly commentNodes: NodeEntry<TCommentText>[];
+  readonly draftCommentNode: NodeEntry<TCommentText> | undefined;
+  readonly suggestionNodes: NodeEntry<TElement | TSuggestionText>[];
 }) => {
   const editor = useEditorRef();
 
@@ -224,7 +224,7 @@ const BlockCommentsContent = ({
   );
 };
 
-function BlockComment({ discussion, isLast }: { discussion: TDiscussion; isLast: boolean }) {
+function BlockComment({ discussion, isLast }: { readonly discussion: TDiscussion; readonly isLast: boolean }) {
   const [editingId, setEditingId] = React.useState<string | null>(null);
 
   return (

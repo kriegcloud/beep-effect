@@ -165,9 +165,9 @@ function EquationPopoverContent({
   setOpen,
   ...props
 }: {
-  isInline: boolean;
-  open: boolean;
-  setOpen: (open: boolean) => void;
+  readonly isInline: boolean;
+  readonly open: boolean;
+  readonly setOpen: (open: boolean) => void;
 } & TextareaAutosizeProps) {
   const editor = useEditorRef();
   const readOnly = useReadOnly();

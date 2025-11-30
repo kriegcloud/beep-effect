@@ -233,9 +233,9 @@ export function MentionInputElement(props: PlateElementProps) {
 }
 
 interface DocumentComboboxGroupProps {
-  search: string;
-  onDocumentHover: (title: string) => void;
-  onDocumentSelect: (document: DocumentItem) => void;
+  readonly search: string;
+  readonly onDocumentHover: (title: string) => void;
+  readonly onDocumentSelect: (document: DocumentItem) => void;
 }
 
 function PeopleComboboxGroup({ search: searchRaw, onUserHover, onUserSelect }: PeopleComboboxGroupProps) {
@@ -325,7 +325,7 @@ const openDocument = (id: string) => {
 
 function DocumentMentionElement(
   props: PlateElementProps<MyMentionElement> & {
-    prefix?: undefined | string;
+    readonly prefix?: undefined | string;
   }
 ) {
   const { children } = props;
@@ -397,7 +397,7 @@ function DocumentMentionElement(
   );
 }
 
-function MentionHoverCardContent(props: { element: MyMentionElement }) {
+function MentionHoverCardContent(props: { readonly element: MyMentionElement }) {
   const editor = useEditorRef();
   const { element } = props;
 
@@ -461,7 +461,7 @@ function MentionHoverCardContent(props: { element: MyMentionElement }) {
 
 function UserMentionElement(
   props: PlateElementProps<MyMentionElement> & {
-    prefix?: undefined | string;
+    readonly prefix?: undefined | string;
   }
 ) {
   const { children } = props;
@@ -518,13 +518,11 @@ export function MentionElement(
 }
 
 const useEditorPreview = (value: Value) => {
-  const editorStatic = usePlateEditor(
+  return usePlateEditor(
     {
       plugins: BaseEditorKit,
       value,
     },
     [value]
   );
-
-  return editorStatic;
 };

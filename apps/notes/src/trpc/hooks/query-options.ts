@@ -7,8 +7,8 @@ import { useTRPC } from "@beep/notes/trpc/react";
 type UseTRPCReturnType = ReturnType<typeof useTRPC>;
 
 type QueryOptionsTRPCReturn = ReturnType<UseTRPCReturnType["document"]["document"]["queryOptions"]> & {
-  enabled: boolean;
-  staleTime: number;
+  readonly enabled: boolean;
+  readonly staleTime: number;
 };
 export const useDocumentQueryOptions: () => QueryOptionsTRPCReturn = () => {
   const documentId = useDocumentId();

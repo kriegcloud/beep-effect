@@ -59,7 +59,7 @@ export const ourFileRouter = {
         size: file.size,
         type: file.type,
         uploadedBy: metadata.userId,
-        url: file.url,
+        url: file.ufsUrl,
       };
     }),
 } satisfies FileRouter;

@@ -227,10 +227,10 @@ const DragHandle = React.memo(function DragHandle({
   resetPreview,
   setPreviewTop,
 }: {
-  isDragging: boolean;
-  previewRef: React.RefObject<HTMLDivElement | null>;
-  resetPreview: () => void;
-  setPreviewTop: (top: number) => void;
+  readonly isDragging: boolean;
+  readonly previewRef: React.RefObject<HTMLDivElement | null>;
+  readonly resetPreview: () => void;
+  readonly setPreviewTop: (top: number) => void;
 }) {
   const editor = useEditorRef();
   const element = useElement();
@@ -482,8 +482,8 @@ const calculatePreviewTop = (
     blocks,
     element,
   }: {
-    blocks: TElement[];
-    element: TElement;
+    readonly blocks: TElement[];
+    readonly element: TElement;
   }
 ): number => {
   const child = editor.api.toDOMNode(element)!;
@@ -511,16 +511,12 @@ const calculatePreviewTop = (
   const currentMarginTopString = window.getComputedStyle(child).marginTop;
   const currentMarginTop = Number(currentMarginTopString.replace("px", ""));
 
-  const previewElementsTopDistance = currentToEditorDistance - firstNodeToEditorDistance + marginTop - currentMarginTop;
-
-  return previewElementsTopDistance;
+  return currentToEditorDistance - firstNodeToEditorDistance + marginTop - currentMarginTop;
 };
 
 const calcDragButtonTop = (editor: PlateEditor, element: TElement): number => {
   const child = editor.api.toDOMNode(element)!;
 
   const currentMarginTopString = window.getComputedStyle(child).marginTop;
-  const currentMarginTop = Number(currentMarginTopString.replace("px", ""));
-
-  return currentMarginTop;
+  return Number(currentMarginTopString.replace("px", ""));
 };

@@ -73,17 +73,17 @@ export const buttonVariants = cva(
 );
 
 export type ButtonExtendedProps = {
-  active?: undefined | boolean;
-  asChild?: undefined | boolean;
-  icon?: undefined | React.ReactNode;
-  iconPlacement?: undefined | "left" | "right";
-  isPending?: undefined | boolean;
-  loading?: undefined | boolean;
-  loadingClassName?: undefined | string;
-  onToggleClick?: undefined | (() => void);
+  readonly active?: undefined | boolean;
+  readonly asChild?: undefined | boolean;
+  readonly icon?: undefined | React.ReactNode;
+  readonly iconPlacement?: undefined | "left" | "right";
+  readonly isPending?: undefined | boolean;
+  readonly loading?: undefined | boolean;
+  readonly loadingClassName?: undefined | string;
+  readonly onToggleClick?: undefined | (() => void);
 } & {
-  children?: undefined | React.ReactNode;
-  label?: undefined | string;
+  readonly children?: undefined | React.ReactNode;
+  readonly label?: undefined | string;
 } & VariantProps<typeof buttonVariants>;
 
 export type ButtonProps = ComponentProps<typeof Button>;

@@ -2,9 +2,9 @@
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Markdown/CodeBlock.tsx
 
 "use client";
-
-import { useCopyToClipboard } from "@beep/notes/registry/hooks/use-copy-to-clipboard";
 import { Button } from "@beep/notes/registry/ui/button";
+import { useCopyToClipboard } from "@beep/ui/hooks/use-copy-to-clipboard";
+import * as Duration from "effect/Duration";
 import { type FC, memo } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coldarkDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
@@ -57,7 +57,7 @@ export const generateRandomString = (length: number, lowercase = false) => {
 };
 
 const CodeBlock: FC<Props> = memo(({ language, value }) => {
-  const { copyToClipboard, isCopied } = useCopyToClipboard({ timeout: 2000 });
+  const { copyToClipboard, isCopied } = useCopyToClipboard({ timeout: Duration.millis(2000) });
 
   const downloadAsFile = () => {
     if (typeof window === "undefined") {

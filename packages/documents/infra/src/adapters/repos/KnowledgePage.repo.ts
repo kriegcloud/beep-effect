@@ -61,7 +61,17 @@ export class KnowledgePageRepo extends Effect.Service<KnowledgePageRepo>()(
             client.query.knowledgePage.findFirst({
               where: (table, { eq }) => eq(table.slug, params.slug),
             })
-          ).pipe(Effect.flatMap(S.decode(Entities.KnowledgePage.Model)))
+          ).pipe(
+            Effect.map(O.fromNullable),
+            Effect.flatMap(
+              O.match({
+                onNone: F.constant(Effect.fail(new KnowledgePageNotFoundError({ slug: params.slug }))),
+                onSome: Effect.succeed,
+              })
+            ),
+            Effect.flatMap(S.decode(Entities.KnowledgePage.Model)),
+            Effect.catchTag("ParseError", Effect.die)
+          )
       );
 
       const listBySpace = makeQuery(

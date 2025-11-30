@@ -1,7 +1,6 @@
 import { isKeyHotkey } from "is-hotkey";
+import { IS_APPLE } from "platejs";
 import type { KeyboardEvent } from "react";
-
-import { IS_APPLE } from "./environment";
 
 /** Hotkey mappings for each platform. */
 const HOTKEYS = {
@@ -67,9 +66,7 @@ const create = (key: string) => {
   return (event: KeyboardEvent) => {
     if (isGeneric?.(event)) return true;
     if (IS_APPLE && isApple?.(event)) return true;
-    if (!IS_APPLE && isWindows?.(event)) return true;
-
-    return false;
+    return !!(!IS_APPLE && isWindows?.(event));
   };
 };
 

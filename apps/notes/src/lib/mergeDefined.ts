@@ -1,6 +1,6 @@
-import { isArray, isNil, mergeWith, omitBy } from "lodash";
-import { isDefined, isUndefined } from "platejs";
-
+import * as A from "effect/Array";
+import * as P from "effect/Predicate";
+import { mergeWith, omitBy } from "lodash";
 export const mergeDefined = <TSource1, TSource2>(
   source1: TSource1,
   source2: TSource2,
@@ -10,17 +10,17 @@ export const mergeDefined = <TSource1, TSource2>(
   }: { readonly mergeArrays?: undefined | boolean; readonly omitNull?: undefined | boolean } = {}
 ) => {
   let merged = mergeWith<{}, TSource1, TSource2>({}, source1, source2, (a, b) => {
-    if ((!omitNull && !isDefined(a)) || (omitNull && isUndefined(a))) {
+    if ((!omitNull && !P.isNotUndefined(a)) || (omitNull && P.isUndefined(a))) {
       return b;
     }
-    if (isArray(a) && isArray(b)) {
+    if (A.isArray(a) && A.isArray(b)) {
       return mergeArrays ? a.concat(b) : b;
     }
 
     return a;
   });
 
-  merged = omitBy(merged, omitNull ? isUndefined : isNil) as any;
+  merged = omitBy(merged, omitNull ? P.isUndefined : P.isNullable) as any;
 
   return merged;
 };

@@ -1,3 +1,5 @@
+import { pipe, Struct } from "effect";
+import * as A from "effect/Array";
 import type { WritableAtom } from "jotai/vanilla";
 import { atomWithStorage as _atomWithStorage } from "jotai/vanilla/utils";
 import type { SyncStorage } from "jotai/vanilla/utils/atomWithStorage";
@@ -20,5 +22,5 @@ export function atomWithStorage<Value>(
   if (options?.getOnInit !== undefined) {
     opts.getOnInit = options.getOnInit;
   }
-  return _atomWithStorage(key, initialValue, storage, Object.keys(opts).length > 0 ? opts : undefined) as any;
+  return _atomWithStorage(key, initialValue, storage, pipe(opts, Struct.keys, A.length) > 0 ? opts : undefined) as any;
 }

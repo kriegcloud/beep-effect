@@ -46,7 +46,7 @@ export const useQueryUtils =
       update: useCallback(
         async (
           updater: (prevData: NonNullable<ReturnType<T["getData"]>>) => NonNullable<ReturnType<T["getData"]>>,
-          { cancel = true }: { cancel?: undefined | boolean } = {}
+          { cancel = true }: { readonly cancel?: undefined | boolean } = {}
         ) => {
           if (cancel) {
             await methods.cancel();
@@ -102,7 +102,7 @@ export const useInfiniteQueryUtils =
     return {
       ...methods,
       rollback: useCallback(
-        (context?: undefined | { prevData: NonNullable<ReturnType<T["getInfiniteData"]>> }) => {
+        (context?: undefined | { readonly prevData: NonNullable<ReturnType<T["getInfiniteData"]>> }) => {
           methods.setInfiniteData(context?.prevData);
         },
         [methods]
@@ -112,7 +112,7 @@ export const useInfiniteQueryUtils =
           updater: (
             prevData: NonNullable<ReturnType<T["getInfiniteData"]>>
           ) => NonNullable<ReturnType<T["getInfiniteData"]>>,
-          { cancel = true }: { cancel?: undefined | boolean } = {}
+          { cancel = true }: { readonly cancel?: undefined | boolean } = {}
         ) => {
           if (cancel) {
             await methods.cancel();
