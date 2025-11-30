@@ -1,2 +1,2 @@
-export * from "./KnowledgePage.router.ts";
-export * from "./root.ts";
+export * from "./KnowledgePage.router";
+export * from "./root";

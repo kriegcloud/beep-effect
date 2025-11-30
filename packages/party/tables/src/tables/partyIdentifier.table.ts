@@ -1,8 +1,8 @@
 import { PartyEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
-import { party } from "./party.table.ts";
-import { partyIdentifierType } from "./partyIdentifierType.table.ts";
+import { party } from "./party.table";
+import { partyIdentifierType } from "./partyIdentifierType.table";
 
 export const partyIdentifier = OrgTable.make(PartyEntityIds.PartyIdentifierId)({
   partyId: pg

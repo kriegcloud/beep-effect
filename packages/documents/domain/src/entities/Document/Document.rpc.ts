@@ -2,8 +2,8 @@ import { DocumentsEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcGroup from "@effect/rpc/RpcGroup";
 import * as S from "effect/Schema";
-import * as Errors from "./Document.errors.ts";
-import { Model } from "./Document.model.ts";
+import * as Errors from "./Document.errors";
+import { Model } from "./Document.model";
 
 /**
  * Search result schema for document search operations.

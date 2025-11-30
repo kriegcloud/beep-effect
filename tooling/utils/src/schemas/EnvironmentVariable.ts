@@ -1,6 +1,5 @@
-import { StringLiteralKit } from "@beep/schema/derived";
-
-export class EnvironmentVariableName extends StringLiteralKit(
+import * as S from "effect/Schema";
+export class EnvironmentVariableName extends S.Literal(
   "APP_NAME",
   "APP_ENV",
   "APP_DOMAIN",
@@ -73,7 +72,6 @@ export class EnvironmentVariableName extends StringLiteralKit(
   "NEXT_PUBLIC_GOOGLE_CLIENT_ID",
   "NEXT_PUBLIC_APP_URL",
   "NEXT_PUBLIC_STATIC_URL",
-  "NEXT_PUBLIC_NODE_ENV",
   "NEXT_PUBLIC_ENABLE_GEO_TRACKING",
   "VERCEL_PROJECT_ID",
   "VERCEL_PROJECT_NAME",
@@ -98,7 +96,9 @@ export class EnvironmentVariableName extends StringLiteralKit(
   "BETTER_AUTH_SECRET",
   "FRONTAPP_TOKEN",
   "ALCHEMY_PASSWORD"
-) {}
+) {
+  static readonly Options = this.literals;
+}
 
 export declare namespace EnvironmentVariableName {
   export type Type = typeof EnvironmentVariableName.Type;

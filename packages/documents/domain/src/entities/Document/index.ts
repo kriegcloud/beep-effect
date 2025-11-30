@@ -1,3 +1,3 @@
-export * as DocumentErrors from "./Document.errors.ts";
-export * from "./Document.model.ts";
-export * as DocumentRpcs from "./Document.rpc.ts";
+export * as DocumentErrors from "./Document.errors";
+export * from "./Document.model";
+export * as DocumentRpcs from "./Document.rpc";

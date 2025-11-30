@@ -1,1 +1,1 @@
-export * from "./Party.model.ts";
+export * from "./Party.model";

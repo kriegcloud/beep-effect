@@ -28,6 +28,9 @@
       "path": "../../shared/domain"
     },
     {
+      "path": "../../shared/infra"
+    },
+    {
       "path": "../../shared/tables"
     },
     {

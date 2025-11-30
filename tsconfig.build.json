@@ -9,15 +9,6 @@
       "path": "packages/common/types/tsconfig.build.json"
     },
     {
-      "path": "packages/integrations/google/tsconfig.build.json"
-    },
-    {
-      "path": "packages/integrations/thefront/tsconfig.build.json"
-    },
-    {
-      "path": "packages/integrations/core/tsconfig.build.json"
-    },
-    {
       "path": "packages/common/invariant/tsconfig.build.json"
     },
     {
@@ -46,6 +37,15 @@
     },
     {
       "path": "packages/shared/tables/tsconfig.build.json"
+    },
+    {
+      "path": "packages/shared/infra/tsconfig.build.json"
+    },
+    {
+      "path": "packages/shared/ui/tsconfig.build.json"
+    },
+    {
+      "path": "packages/shared/sdk/tsconfig.build.json"
     },
     {
       "path": "packages/core/env/tsconfig.build.json"

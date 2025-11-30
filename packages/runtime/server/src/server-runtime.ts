@@ -1,2 +1,2 @@
 /* @deprecated */
-export * from "./Runtime.ts";
+export * from "./Runtime";

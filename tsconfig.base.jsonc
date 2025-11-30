@@ -151,33 +151,6 @@
       "@beep/mock/test/*": [
         "./packages/common/mock/test/*"
       ],
-      "@beep/google": [
-        "./packages/integrations/google/src/index"
-      ],
-      "@beep/google/*": [
-        "./packages/integrations/google/src/*"
-      ],
-      "@beep/google/test/*": [
-        "./packages/integrations/google/test/*"
-      ],
-      "@beep/thefront": [
-        "./packages/integrations/thefront/src/index"
-      ],
-      "@beep/thefront/*": [
-        "./packages/integrations/thefront/src/*"
-      ],
-      "@beep/thefront/test/*": [
-        "./packages/integrations/thefront/test/*"
-      ],
-      "@beep/integrations-core": [
-        "./packages/integrations/core/src/index"
-      ],
-      "@beep/integrations-core/*": [
-        "./packages/integrations/core/src/*"
-      ],
-      "@beep/integrations-core/test/*": [
-        "./packages/integrations/core/test/*"
-      ],
       "@beep/contract": [
         "./packages/common/contract/src/index"
       ],
@@ -196,6 +169,15 @@
       "@beep/shared-domain/test/*": [
         "./packages/shared/domain/test/*"
       ],
+      "@beep/shared-infra": [
+        "./packages/shared/infra/src/index"
+      ],
+      "@beep/shared-infra/*": [
+        "./packages/shared/infra/src/*"
+      ],
+      "@beep/shared-infra/test/*": [
+        "./packages/shared/infra/test/*"
+      ],
       "@beep/shared-tables": [
         "./packages/shared/tables/src/index"
       ],
@@ -204,6 +186,24 @@
       ],
       "@beep/shared-tables/test/*": [
         "./packages/shared/tables/test/*"
+      ],
+      "@beep/shared-sdk": [
+        "./packages/shared/sdk/src/index"
+      ],
+      "@beep/shared-sdk/*": [
+        "./packages/shared/sdk/src/*"
+      ],
+      "@beep/shared-sdk/test/*": [
+        "./packages/shared/sdk/test/*"
+      ],
+      "@beep/shared-ui": [
+        "./packages/shared/ui/src/index"
+      ],
+      "@beep/shared-ui/*": [
+        "./packages/shared/ui/src/*"
+      ],
+      "@beep/shared-ui/test/*": [
+        "./packages/shared/ui/test/*"
       ],
       "@beep/core-env/client": [
         "./packages/core/env/src/client"
@@ -379,8 +379,7 @@
       "@beep/tasks-ui/test/*": [
         "./packages/tasks/ui/test/*"
       ],
-      
-       "@beep/party-domain": [
+      "@beep/party-domain": [
         "./packages/party/domain/src/index"
       ],
       "@beep/party-domain/*": [
@@ -425,7 +424,6 @@
       "@beep/party-ui/test/*": [
         "./packages/party/ui/test/*"
       ],
-      
       "@beep/comms-domain": [
         "./packages/comms/domain/src/index"
       ],

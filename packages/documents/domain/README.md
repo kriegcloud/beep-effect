@@ -3,7 +3,7 @@
 Domain primitives for the documents slice. Ships value objects, schema kits, and utilities that stay platform-agnostic so infra, SDK, and app layers can validate and interpret uploads without touching storage concerns.
 
 ## Contents
-- Value objects: `FileAttributes`, `FileInstance`, `FileSize`, EXIF metadata helpers, and file type signature registry/detectors.
+- Value objects: `FileAttributes`, `NativeFileInstance`, `FileSize`, EXIF metadata helpers, and file type signature registry/detectors.
 - Utilities: `formatSize`, `readFileArrayBuffer`, legacy helpers kept for backwards compatibility.
 - Errors: tagged parsing/IO errors consumed by upload pipelines.
 

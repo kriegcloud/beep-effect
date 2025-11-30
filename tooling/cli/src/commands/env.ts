@@ -1,4 +1,4 @@
-import { DotEnv, EnvironmentVariableName, parseEnv } from "@beep/tooling-utils";
+import { DotEnv, type EnvironmentVariableName, parseEnv } from "@beep/tooling-utils";
 import { findRepoRoot } from "@beep/tooling-utils/repo";
 import * as CliCommand from "@effect/cli/Command";
 import * as Prompt from "@effect/cli/Prompt";
@@ -18,12 +18,12 @@ import color from "picocolors";
 
 type EnvMap = HashMap.HashMap<EnvironmentVariableName.Type, string>;
 
-const manualKeys = EnvironmentVariableName.pickOptions(
+const manualKeys = [
   "OAUTH_PROVIDER_GOOGLE_CLIENT_ID",
   "OAUTH_PROVIDER_GOOGLE_CLIENT_SECRET",
   "OAUTH_PROVIDER_MICROSOFT_CLIENT_ID",
-  "OAUTH_PROVIDER_MICROSOFT_CLIENT_SECRET"
-);
+  "OAUTH_PROVIDER_MICROSOFT_CLIENT_SECRET",
+] as const;
 const emptyEnvMap: EnvMap = HashMap.empty<EnvironmentVariableName.Type, string>();
 
 const formatKey = (key: EnvironmentVariableName.Type): string => color.yellow(key);

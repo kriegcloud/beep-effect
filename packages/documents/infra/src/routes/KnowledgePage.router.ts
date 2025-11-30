@@ -1,7 +1,7 @@
 import { KnowledgePageRepo } from "@beep/documents-infra/adapters";
 import * as HttpApiBuilder from "@effect/platform/HttpApiBuilder";
 import * as Effect from "effect/Effect";
-import { Api } from "./root.ts";
+import { Api } from "./root";
 
 export const KnowledgePageRouterLive = HttpApiBuilder.group(
   Api,

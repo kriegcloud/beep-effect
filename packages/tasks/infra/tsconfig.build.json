@@ -2,7 +2,6 @@
   "extends": "./tsconfig.src.json",
   "compilerOptions": {
     "types": ["node", "bun"],
-
     "outDir": "build/esm",
     "declarationDir": "build/dts",
     "stripInternal": true,
@@ -19,6 +18,9 @@
     },
     {
       "path": "../../shared/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../shared/infra/tsconfig.build.json"
     },
     {
       "path": "../../common/identity/tsconfig.build.json"

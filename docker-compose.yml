@@ -8,17 +8,22 @@ services:
       - redis_data:/data
   postgres:
     container_name: beep-db
-    image: postgres
-    restart: unless-stopped
+    image: postgres:alpine
+    restart: always
+    shm_size: 1g
     healthcheck:
       test: ["CMD-SHELL", "sh -c 'pg_isready -U postgres -d postgres'"]
-      interval: 1s
-      timeout: 60s
+      interval: 10s
+      timeout: 5s
       retries: 10
-    command:
-      - postgres
-      - -c
-      - wal_level=logical
+    command: |
+      postgres
+      -c wal_level=logical
+      -c max_wal_senders=10
+      -c max_replication_slots=5
+      -c hot_standby=on
+      -c hot_standby_feedback=on
+      -c max_connections=200
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}

@@ -10,7 +10,7 @@
  * @since 0.1.0
  */
 
-export * as Identifier from "./Identifier.js";
+export * as Identifier from "./Identifier";
 
 /**
  * Canonical identity composers for every `@beep/*` workspace namespace.
@@ -36,4 +36,4 @@ export * as modules from "./packages";
  * @category Identity/Types
  * @since 0.1.0
  */
-export * as types from "./types.js";
+export * as types from "./types";

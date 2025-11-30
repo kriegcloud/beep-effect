@@ -37,6 +37,12 @@
       "path": "../../shared/tables"
     },
     {
+      "path": "../../shared/sdk"
+    },
+    {
+      "path": "../../shared/ui"
+    },
+    {
       "path": "../../core/env"
     },
     {

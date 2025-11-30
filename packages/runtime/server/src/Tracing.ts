@@ -7,7 +7,7 @@ import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
 import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import type * as Layer from "effect/Layer";
-import { otlpLogExporterUrl, otlpMetricExporterUrl, otlpTraceExporterUrl, serviceName } from "./Environment.ts";
+import { otlpLogExporterUrl, otlpMetricExporterUrl, otlpTraceExporterUrl, serviceName } from "./Environment";
 
 export type Tracing = Resource.Resource;
 

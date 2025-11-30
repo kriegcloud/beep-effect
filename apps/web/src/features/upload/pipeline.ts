@@ -1,12 +1,13 @@
-import { formatSize } from "@beep/documents-domain/utils";
+import { BS } from "@beep/schema";
+
 import {
   type DetectedFileInfo,
   ExifMetadata,
   FileAttributes,
   fileTypeChecker,
   getFileChunk,
-} from "@beep/documents-domain/value-objects";
-import { BS } from "@beep/schema";
+} from "@beep/schema/integrations/files";
+import { formatSize } from "@beep/schema/integrations/files/utils/formatSize";
 import * as Effect from "effect/Effect";
 import * as Metric from "effect/Metric";
 import * as S from "effect/Schema";

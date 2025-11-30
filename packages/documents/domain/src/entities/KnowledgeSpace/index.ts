@@ -1,1 +1,1 @@
-export * from "./KnowledgeSpace.model.ts";
+export * from "./KnowledgeSpace.model";

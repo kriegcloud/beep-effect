@@ -1,1 +1,1 @@
-export * from "./AuthenticatorAttachment.ts";
+export * from "./AuthenticatorAttachment";

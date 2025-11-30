@@ -33,7 +33,7 @@ export declare namespace DotEnvDecoded {
 }
 
 const referencePattern = /\$\{([^}]+)\}/g;
-const environmentVariableNames = HashSet.fromIterable(EnvironmentVariableName.Options);
+const environmentVariableNames = HashSet.fromIterable(EnvironmentVariableName.literals);
 const isEnvironmentVariableName = (candidate: string): candidate is EnvironmentVariableName.Type =>
   F.pipe(environmentVariableNames, HashSet.has(candidate));
 

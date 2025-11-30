@@ -40,6 +40,7 @@ export * from "./derived";
  * @since 0.1.0
  */
 export * from "./identity";
+export * from "./identity/entity-id/uuid";
 /**
  * Re-exports third-party integration schemas (HTTP, SQL, config).
  *

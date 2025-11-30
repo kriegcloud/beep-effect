@@ -1,3 +1,3 @@
-import { $PartyDomainId } from "@beep/identity/packages.ts";
+import { $PartyDomainId } from "@beep/identity/packages";
 
 export const $ = $PartyDomainId;

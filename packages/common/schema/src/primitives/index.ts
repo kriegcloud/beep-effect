@@ -42,13 +42,6 @@ export * from "./binary/uint8-array";
  */
 export * from "./bool";
 /**
- * Content type schemas (MIME types, file extensions).
- *
- * @category Surface/Primitives
- * @since 0.1.0
- */
-export * from "./content-types";
-/**
  * Duration schemas and tagged representations.
  *
  * @category Surface/Primitives

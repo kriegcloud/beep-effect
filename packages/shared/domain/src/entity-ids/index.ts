@@ -1,6 +1,6 @@
 export * from "./any-entity-id";
 export * as CommsEntityIds from "./comms";
-export * as DocumentsEntityIds from "./documents.ts";
+export * as DocumentsEntityIds from "./documents";
 export * from "./entity-kind";
 export * as IamEntityIds from "./iam";
 export * as PartyEntityIds from "./party";

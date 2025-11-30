@@ -38,6 +38,7 @@
     "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_ENV=development NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx tsx ./src/scratch.ts"
   },
   "dependencies": {
+    "@beep/shared-infra": "workspace:^",
     "drizzle-zero": "catalog:",
     "@rocicorp/zero": "catalog:",
     "@beep/invariant": "workspace:^",

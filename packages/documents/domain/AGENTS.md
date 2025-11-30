@@ -10,7 +10,7 @@
 - **Errors (`src/errors.ts`)** — Tagged data errors (`ExifParseError`, `FileReadError`) for consistent failure channels across pipelines.
 - **Value Objects**
   - `FileAttributes` — runtime schema for metadata derived from the DOM `File` (`size`, `mime`, derived paths).
-  - `FileInstance` — nominal schema ensuring consumers validate against the ambient `File` constructor.
+  - `NativeFileInstance` — nominal schema ensuring consumers validate against the ambient `File` constructor.
   - `FileSize` — unit kits (SI/IEC byte+bit enums) plus typed aliases used by `formatSize`.
   - `value-objects/exif-metadata` — `ExifMetadata` schema (`ExpandedTags`), cleaning helpers (`cleanExifData`, `omitKnownLargeFields`), low-level heuristics (`isLargeDataField`, `omitLargeDataFromObject`) built atop `readFileArrayBuffer`.
   - `value-objects/file-types` — registries of signatures (`FileInfo`, `FileSignature`), the aggregator `FileTypes`, detection helpers (`detectBySignatures`, `detectTypeByAdditionalCheck`), and the merged façade `fileTypeChecker` that exposes `isXYZ` plus `validateFileType`.
@@ -23,7 +23,7 @@
 - `apps/web/src/features/upload/pipeline.ts:33` — Uses `formatSize` for user-facing limits and later calls `fileTypeChecker.detectFile` + `getFileChunk` for signature validation.
 - `apps/web/src/features/upload/pipeline.ts:141` — Decodes `FileAttributes` to shape typed metadata before persisting.
 - `apps/web/src/features/upload/pipeline.ts:183` — Runs `ExifMetadata.cleanExifData` prior to schema decoding to strip heavy payloads.
-- `apps/web/src/features/upload/form.tsx:14` — Reuses `FileInstance` inside React form schemas to validate file inputs client-side.
+- `apps/web/src/features/upload/form.tsx:14` — Reuses `NativeFileInstance` inside React form schemas to validate file inputs client-side.
 - `packages/documents/domain/test/value-objects/file-types/validation/video.test.ts:11` — Demonstrates `fileTypeChecker.isMP4` and `validateFileType` options (`excludeSimilarTypes`, chunk sizing).
 - `packages/documents/domain/test/value-objects/ExifMetadata.test.ts:24` — Exercises `omitKnownLargeFields` to ensure large blobs are purged before schema decoding.
 
@@ -39,7 +39,7 @@
 - Namespace every Effect import (`import * as Effect from "effect/Effect"`, `import * as A from "effect/Array"`, `import * as F from "effect/Function"`, etc.) and route **all** collection/string/object transforms through those modules. Do not add new native `.map`, `.split`, `for...of`, or `Object.entries` usage—existing legacy helpers are quarantined and should shrink over time.
 - When expanding `FileTypes`, keep signatures immutable (use hex literals), document compatible extensions, and extend relevant test matrices under `test/value-objects/file-types`.
 - For ambiguous signatures (MP4/M4V/HEIC/FLV, MKV/WEBM), adjust the additional check helpers (`isHeicSignatureIncluded`, `findMatroskaDocTypeElements`) and update `FILE_TYPES_REQUIRED_ADDITIONAL_CHECK`.
-- `FileInstance` depends on the global `File` constructor; when introducing new consumers ensure they operate in environments where `File` exists (browser/Bun with polyfill). Provide fallbacks or guards in server contexts.
+- `NativeFileInstance` depends on the global `File` constructor; when introducing new consumers ensure they operate in environments where `File` exists (browser/Bun with polyfill). Provide fallbacks or guards in server contexts.
 - `ExifMetadata` cleaning heuristics drop large payloads; extend `LARGE_DATA_FIELDS` cautiously and always cover with regression tests to avoid trimming required tags.
 - Prefer `formatSize` over legacy `bytes-to-size` and rely on the unit kits exported by `FileSize` when surfacing typed options to callers.
 

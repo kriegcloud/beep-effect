@@ -44,6 +44,8 @@
     "@beep/utils": "workspace:^",
     "@beep/errors": "workspace:^",
     "@beep/constants": "workspace:^",
+    "@beep/shared-sdk": "workspace:^",
+    "@beep/shared-ui": "workspace:^",
     "@beep/invariant": "workspace:^",
     "effect": "catalog:"
   },
@@ -53,6 +55,8 @@
     "babel-plugin-transform-next-use-client": "catalog:",
     "@babel/preset-react": "catalog:",
     "@beep/ui": "workspace:^",
+    "@beep/shared-sdk": "workspace:^",
+    "@beep/shared-ui": "workspace:^",
     "@beep/party-domain": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/party-sdk": "workspace:^",

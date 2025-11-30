@@ -58,6 +58,7 @@
     "effect": "catalog:",
     "@beep/constants": "workspace:^",
     "@beep/shared-domain": "workspace:^",
+    "@beep/shared-infra": "workspace:^",
     "@beep/errors": "workspace:^"
   },
   "devDependencies": {
@@ -70,6 +71,7 @@
     "@beep/comms-domain": "workspace:^",
     "@beep/comms-tables": "workspace:^",
     "@beep/core-db": "workspace:^",
+    "@beep/shared-infra": "workspace:^",
     "@beep/core-env": "workspace:^",
     "@effect/platform-bun": "catalog:",
     "@beep/shared-tables": "workspace:^",

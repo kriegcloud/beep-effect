@@ -24,6 +24,12 @@
       "path": "../../shared/domain"
     },
     {
+      "path": "../../shared/sdk"
+    },
+    {
+      "path": "../../shared/ui"
+    },
+    {
       "path": "../../core/env"
     },
     {

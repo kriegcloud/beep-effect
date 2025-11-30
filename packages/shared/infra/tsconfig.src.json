@@ -1,0 +1,39 @@
+{
+  "extends": "../../../tsconfig.base.jsonc",
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../../common/types"
+    },
+    {
+      "path": "../../common/constants"
+    },
+    {
+      "path": "../../common/errors"
+    },
+    {
+      "path": "../../common/identity"
+    },
+    {
+      "path": "../domain"
+    },
+    {
+      "path": "../tables"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node", "bun"],
+    "outDir": "build/src",
+
+    "rootDir": "src",
+
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "target": "ES2023",
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true
+  }
+}

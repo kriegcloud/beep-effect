@@ -12,7 +12,7 @@ import type * as SqlClient from "@effect/sql/SqlClient";
 import type * as SqlError from "@effect/sql/SqlError";
 import type * as ConfigError from "effect/ConfigError";
 import * as Layer from "effect/Layer";
-import * as CoreServices from "./CoreServices.ts";
+import * as CoreServices from "./CoreServices";
 
 export type SliceDatabaseClients =
   | DocumentsDb.DocumentsDb

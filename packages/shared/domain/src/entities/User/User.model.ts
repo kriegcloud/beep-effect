@@ -5,7 +5,7 @@ import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 import { UserRole } from "./schemas";
-import { USER_UPLOAD_LIMIT } from "./User.constants.ts";
+import { USER_UPLOAD_LIMIT } from "./User.constants";
 
 /**
  * User model representing application users with authentication and profile data.

@@ -7,5 +7,5 @@ export * from "@beep/constants/Pagination";
 export * from "@beep/constants/paths";
 export * from "@beep/constants/SubscriptionPlanValue";
 export * from "./_generated";
-export * from "./AllowedHeaders.ts";
-export * from "./AllowedHttpMethods.ts";
+export * from "./AllowedHeaders";
+export * from "./AllowedHttpMethods";

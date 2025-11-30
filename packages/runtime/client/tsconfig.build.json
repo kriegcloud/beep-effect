@@ -3,7 +3,6 @@
   "include": ["src"],
   "compilerOptions": {
     "types": ["node", "bun"],
-
     "outDir": "build/esm",
     "declarationDir": "build/dts",
     "jsx": "react-jsx",
@@ -51,6 +50,12 @@
       "path": "../../shared/tables/tsconfig.build.json"
     },
     {
+      "path": "../../shared/sdk/tsconfig.build.json"
+    },
+    {
+      "path": "../../shared/ui/tsconfig.build.json"
+    },
+    {
       "path": "../../core/env/tsconfig.build.json"
     },
     {
@@ -59,14 +64,12 @@
     {
       "path": "../../iam/tables/tsconfig.build.json"
     },
-
     {
       "path": "../../tasks/domain/tsconfig.build.json"
     },
     {
       "path": "../../tasks/tables/tsconfig.build.json"
     },
-
     {
       "path": "../../ui/ui/tsconfig.build.json"
     },

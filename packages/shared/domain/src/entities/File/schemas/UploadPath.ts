@@ -20,6 +20,7 @@
 
 import { EnvValue } from "@beep/constants";
 import { BS } from "@beep/schema";
+import { FileExtension } from "@beep/schema/integrations/files/mime-types";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Hash from "effect/Hash";
@@ -27,7 +28,6 @@ import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import { AnyEntityId, EntityKind, SharedEntityIds } from "../../../entity-ids";
 import * as Organization from "../../Organization";
-
 /**
  * Encoded shard prefix as a plain string.
  *
@@ -177,7 +177,7 @@ export declare namespace ShardPrefix {
  */
 const UploadPathParts = [
   "/",
-  EnvValue, // Environment: dev, staging, prod
+  S.String, // Environment: dev, staging, prod
   "/",
   "tenants", // Literal segment for all file paths
   "/",
@@ -195,7 +195,7 @@ const UploadPathParts = [
   "/",
   S.Number, // 4-digit year (auto-generated from current time)
   "/",
-  S.Literal("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"), // 2-digit zero-padded month (auto-generated)
+  S.String, // 2-digit zero-padded month (auto-generated)
   "/",
   S.encodedSchema(SharedEntityIds.FileId), // File UUID
   ".",
@@ -304,7 +304,7 @@ export const UploadPathDecoded = S.Struct({
   entityKind: EntityKind, // Type of entity owning the file
   entityIdentifier: AnyEntityId, // Identifier for the specific entity instance
   entityAttribute: S.String, // File attribute/purpose (avatar, logo, document, etc.)
-  fileItemExtension: BS.FileExtension, // File extension (validated against allowed types)
+  fileItemExtension: FileExtension, // File extension (validated against allowed types)
 }).annotations({
   schemaId: Symbol.for("@beep/shared-domain/File/schemas/FilePath/UploadPathDecoded"),
   identifier: "UploadPathDecoded",
@@ -386,7 +386,7 @@ export class UploadPath extends S.transformOrFail(UploadPathDecoded, UploadPathE
           Effect.all([
             Effect.succeed(now),
             Effect.succeed(ShardPrefix.fromFileId(i.fileId)),
-            S.encode(BS.FileExtension)(i.fileItemExtension),
+            S.encode(FileExtension)(i.fileItemExtension),
             S.decode(BS.MonthNumberFromMonthInt)(DateTime.getPartUtc(now, "month")),
           ]),
           ([now, shardPrefix, fileItemExtension, month]) =>
@@ -432,14 +432,14 @@ export class UploadPath extends S.transformOrFail(UploadPathDecoded, UploadPathE
     const program = Effect.flatMap(S.decode(UploadPathParser)(i), (pathParts) =>
       Effect.flatMap(
         Effect.all([
-          Effect.succeed(pathParts[1]), // env
+          S.decodeUnknown(EnvValue)(pathParts[1]), // env
           Effect.succeed(pathParts[7]), // organizationType
           S.decodeUnknown(SharedEntityIds.OrganizationId)(pathParts[9]), // organizationId
           S.decodeUnknown(EntityKind)(pathParts[11]), // entityKind
           S.decodeUnknown(AnyEntityId)(pathParts[13]), //entityIdentifier
           Effect.succeed(pathParts[15]), // entityAttribute
           S.decodeUnknown(SharedEntityIds.FileId)(pathParts[21]), //fileId
-          S.decodeUnknown(BS.FileExtension)(pathParts[23]), // FileItemExtension
+          S.decodeUnknown(FileExtension)(pathParts[23]), // FileItemExtension
         ]),
         ([
           env,

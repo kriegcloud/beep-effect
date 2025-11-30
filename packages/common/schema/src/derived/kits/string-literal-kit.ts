@@ -17,7 +17,7 @@
 import type { TaggedUnion } from "@beep/schema/core/generics/tagged-union";
 import { TaggedUnion as TaggedUnionFactory } from "@beep/schema/core/generics/tagged-union";
 import { $KitsId } from "@beep/schema/internal";
-import type { StringTypes, UnsafeTypes } from "@beep/types";
+import type { UnsafeTypes } from "@beep/types";
 import { ArrayUtils, enumFromStringArray } from "@beep/utils";
 import type { CreateEnumType, ValidMapping } from "@beep/utils/data/tuple.utils";
 import { makeMappedEnum } from "@beep/utils/data/tuple.utils";
@@ -32,13 +32,11 @@ import type * as Types from "effect/Types";
 // const LiteralToAccessor =
 
 const { $StringLiteralKitId: Id } = $KitsId.compose("string-literal-kit");
-type LiteralsType = A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>;
+type LiteralsType = A.NonEmptyReadonlyArray<string>;
 
 type LiteralsSubset<Literals extends LiteralsType> = A.NonEmptyReadonlyArray<Literals[number]>;
 
-type MappingType<Literals extends LiteralsType> = A.NonEmptyReadonlyArray<
-  [Literals[number], StringTypes.NonEmptyString]
->;
+type MappingType<Literals extends LiteralsType> = A.NonEmptyReadonlyArray<[Literals[number], string]>;
 
 type TaggedMembers<Literals extends LiteralsType, D extends string> = {
   readonly [I in keyof Literals]: TaggedUnion.Schema<D, Literals[I] & string, {}>;
@@ -64,11 +62,9 @@ type TaggedMembersMap<Literals extends LiteralsType, D extends string> = {
  * @since 0.1.0
  * @category Derived/Kits
  */
-type TaggedUnion<Literals extends LiteralsType, D extends StringTypes.NonEmptyString> = S.Union<
-  TaggedMembers<Literals, D>
->;
+type TaggedUnion<Literals extends LiteralsType, D extends string> = S.Union<TaggedMembers<Literals, D>>;
 
-type TaggedMembersResult<Literals extends LiteralsType, D extends StringTypes.NonEmptyString> = {
+type TaggedMembersResult<Literals extends LiteralsType, D extends string> = {
   readonly Union: TaggedUnion<Literals, D>;
   readonly Members: TaggedMembersMap<Literals, D>;
 };
@@ -99,9 +95,7 @@ type DerivedLiteralKit<Literals extends LiteralsType> = {
   readonly Enum: CreateEnumType<Literals, undefined>;
   readonly omitOptions: OmitOptions<Literals>;
   readonly pickOptions: PickOptions<Literals>;
-  readonly toTagged: <D extends StringTypes.NonEmptyString>(
-    discriminator: StringTypes.NonEmptyString<D>
-  ) => TaggedMembersResult<Literals, D>;
+  readonly toTagged: <const D extends string>(discriminator: D) => TaggedMembersResult<Literals, D>;
 };
 
 type DerivedLiteralKitSchema<Literals extends LiteralsType> = DerivedLiteralKit<Literals>;
@@ -132,15 +126,10 @@ export interface ILiteralKit<Literals extends LiteralsType, Mapping extends Mapp
   readonly omitOptions: OmitOptions<Literals>;
   readonly pickOptions: PickOptions<Literals>;
   readonly derive: <Keys extends LiteralsSubset<Literals>>(...keys: Keys) => DerivedLiteralKit<Keys>;
-  readonly toTagged: <D extends StringTypes.NonEmptyString>(
-    discriminator: StringTypes.NonEmptyString<D>
-  ) => TaggedMembersResult<Literals, D>;
+  readonly toTagged: <const D extends string>(discriminator: D) => TaggedMembersResult<Literals, D>;
 }
 
-const buildMembersMap = <
-  Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>,
-  D extends StringTypes.NonEmptyString,
->(
+const buildMembersMap = <Literals extends A.NonEmptyReadonlyArray<string>, D extends string>(
   values: Literals,
   tuple: TaggedMembers<Literals, D>
 ): TaggedMembersMap<Literals, D> => {
@@ -179,23 +168,28 @@ const buildMembersMap = <
  * @since 0.1.0
  * @category Derived/Kits
  */
-const makeTaggedStruct = <D extends string, L extends string>(discriminator: D, lit: L) =>
+const makeTaggedStruct = <const D extends string, L extends string>(discriminator: D, lit: L) =>
   TaggedUnionFactory(discriminator)(lit, {});
+
 /**
  * Checks whether the provided array of literals constitutes multiple members.
  *
  * @category Derived/Kits
  * @since 0.1.0
  */
-export const isMembers = <A>(as: ReadonlyArray<A>): as is AST.Members<A> => as.length > 1;
+export function isMembers<A>(as: ReadonlyArray<A>): as is AST.Members<A> {
+  return as.length > 1;
+}
+
 /**
  * Maps members using the provided function while preserving member metadata.
  *
  * @category Derived/Kits
  * @since 0.1.0
  */
-export const mapMembers = <A, B>(members: AST.Members<A>, f: (a: A) => B): AST.Members<B> =>
-  A.map(members, f) as UnsafeTypes.UnsafeAny;
+export function mapMembers<A, B>(members: AST.Members<A>, f: (a: A) => B): AST.Members<B> {
+  return A.map(members, f) as UnsafeTypes.UnsafeAny;
+}
 
 function getDefaultLiteralAST<Literals extends A.NonEmptyReadonlyArray<AST.LiteralValue>>(literals: Literals): AST.AST {
   return isMembers(literals)
@@ -292,8 +286,8 @@ const buildIsGuards = <Literals extends LiteralsType>(literals: Literals): IsGua
  * @param ast
  */
 export function makeLiteralKit<
-  const Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>,
-  const Mapping extends A.NonEmptyReadonlyArray<[Literals[number], StringTypes.NonEmptyString]>,
+  const Literals extends A.NonEmptyReadonlyArray<string>,
+  const Mapping extends A.NonEmptyReadonlyArray<[Literals[number], string]>,
 >(
   literals: Literals,
   enumMapping: ValidMapping<Literals, Mapping> | undefined,
@@ -305,8 +299,8 @@ export function makeLiteralKit<
  *
  */
 export function makeLiteralKit<
-  const Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>,
-  const Mapping extends A.NonEmptyReadonlyArray<[Literals[number], StringTypes.NonEmptyString]>,
+  const Literals extends A.NonEmptyReadonlyArray<string>,
+  const Mapping extends A.NonEmptyReadonlyArray<[Literals[number], string]>,
 >(
   literals: Literals,
   enumMapping?: ValidMapping<Literals, Mapping> | undefined,
@@ -316,9 +310,7 @@ export function makeLiteralKit<
    * Build a Schema.Union of S.Structs tagged by the given discriminator.
    *
    */
-  const toTagged = <D extends StringTypes.NonEmptyString>(
-    discriminator: StringTypes.NonEmptyString<D>
-  ): TaggedMembersResult<Literals, D> => {
+  const toTagged = <const D extends string>(discriminator: D): TaggedMembersResult<Literals, D> => {
     // Tuple of S.Struct members (preserves literal order at the type level)
     const memberTuple = F.pipe(
       literals,
@@ -386,9 +378,7 @@ export function makeLiteralKit<
         })
       );
 
-      const toTagged = <D extends StringTypes.NonEmptyString>(
-        discriminator: StringTypes.NonEmptyString<D>
-      ): TaggedMembersResult<Keys, D> => {
+      const toTagged = <const D extends string>(discriminator: D): TaggedMembersResult<Keys, D> => {
         const memberTuple = F.pipe(
           keys,
           A.map((lit) => makeTaggedStruct(discriminator, lit))
@@ -444,18 +434,18 @@ export function makeLiteralKit<
  * @category Derived/Kits
  * @since 0.1.0
  */
-export function StringLiteralKit<Literals extends LiteralsType>(
+export function StringLiteralKit<const Literals extends LiteralsType>(
   ...literals: Literals
 ): ILiteralKit<Literals, undefined>;
 export function StringLiteralKit<
-  const Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>,
-  const Mapping extends A.NonEmptyReadonlyArray<[Literals[number], StringTypes.NonEmptyString]>,
+  const Literals extends A.NonEmptyReadonlyArray<string>,
+  const Mapping extends A.NonEmptyReadonlyArray<[Literals[number], string]>,
 >(
   ...args: [...literals: Literals, options: { readonly enumMapping: ValidMapping<Literals, Mapping> }]
 ): ILiteralKit<Literals, Mapping>;
 export function StringLiteralKit<
-  const Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>,
-  const Mapping extends A.NonEmptyReadonlyArray<[Literals[number], StringTypes.NonEmptyString]>,
+  const Literals extends A.NonEmptyReadonlyArray<string>,
+  const Mapping extends A.NonEmptyReadonlyArray<[Literals[number], string]>,
 >(
   ...args: Literals | [...Literals, { readonly enumMapping?: ValidMapping<Literals, Mapping> }]
 ): S.SchemaClass<Literals[number]> | S.Never {

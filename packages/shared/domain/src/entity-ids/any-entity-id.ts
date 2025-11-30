@@ -1,6 +1,6 @@
 import * as S from "effect/Schema";
 import * as CommsEntityIds from "./comms";
-import * as DocumentsEntityIds from "./documents.ts";
+import * as DocumentsEntityIds from "./documents";
 import * as IamEntityIds from "./iam";
 import * as PartyEntityIds from "./party";
 import { OrganizationId, SessionId, TeamId, UserId } from "./shared";

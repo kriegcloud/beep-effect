@@ -52,6 +52,8 @@ const candidateTranspilePackages = [
   "@beep/errors",
   "@beep/shared-domain",
   "@beep/shared-tables",
+  "@beep/shared-sdk",
+  "@beep/shared-ui",
   "@beep/core-env",
   "@beep/core-email",
   "@beep/core-db",

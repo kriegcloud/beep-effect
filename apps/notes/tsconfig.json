@@ -62,6 +62,12 @@
       "@beep/shared-domain/*": ["../../packages/shared/domain/src/*"],
       "@beep/shared-tables": ["../../packages/shared/tables/src/index"],
       "@beep/shared-tables/*": ["../../packages/shared/tables/src/*"],
+      "@beep/shared-infra": ["../../packages/shared/infra/src/index"],
+      "@beep/shared-infra/*": ["../../packages/shared/infra/src/*"],
+      "@beep/shared-sdk": ["../../packages/sdk/infra/src/index"],
+      "@beep/shared-sdk/*": ["../../packages/sdk/infra/src/*"],
+      "@beep/shared-ui": ["../../packages/shared/ui/src/index"],
+      "@beep/shared-ui/*": ["../../packages/ui/infra/src/*"],
       "@beep/core-env/client": ["../../packages/core/env/src/client"],
       "@beep/core-env/server": ["../../packages/core/env/src/server"],
       "@beep/core-email": ["../../packages/core/email/src/index"],
@@ -164,6 +170,15 @@
     },
     {
       "path": "../../packages/shared/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/shared/sdk/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/shared/infra/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/shared/ui/tsconfig.build.json"
     },
     {
       "path": "../../packages/core/env/tsconfig.build.json"

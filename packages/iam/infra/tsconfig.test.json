@@ -30,6 +30,9 @@
       "path": "../../shared/domain"
     },
     {
+      "path": "../../shared/infra"
+    },
+    {
       "path": "../../common/schema"
     },
     {

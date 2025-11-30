@@ -36,6 +36,11 @@ export const make: {
   <const Value>(values: A.NonEmptyReadonlyArray<Value>): A.NonEmptyReadonlyArray<Value>;
   <const Value>(...values: A.NonEmptyReadonlyArray<Value>): A.NonEmptyReadonlyArray<Value>;
 } = <const Value>(...values: A.NonEmptyReadonlyArray<Value>): A.NonEmptyReadonlyArray<Value> => {
+  invariant(A.isNonEmptyReadonlyArray(values), "Must be a non empty readonly array", {
+    file: "@beep/utils/data/array.utils/NonEmptyReadonly/NonEmptyreadonly.ts",
+    line: 40,
+    args: [values],
+  });
   return values;
 };
 

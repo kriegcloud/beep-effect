@@ -43,6 +43,7 @@
     "@beep/identity": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@beep/party-domain": "workspace:^",
+    "@beep/shared-sdk": "workspace:^",
     "@beep/party-infra": "workspace:^",
     "effect": "catalog:"
   },
@@ -53,6 +54,7 @@
     "@babel/preset-react": "catalog:",
     "@beep/shared-domain": "workspace:^",
     "@beep/core-env": "workspace:^",
+    "@beep/shared-sdk": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/errors": "workspace:^",

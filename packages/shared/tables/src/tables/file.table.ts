@@ -4,8 +4,9 @@ import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { OrgTable } from "../OrgTable";
 import { organization } from "./organization.table";
+
 export const file = OrgTable.make(SharedEntityIds.FileId)({
-  url: pg.varchar("url", { length: 512 }).notNull(),
+  url: pg.text("url").notNull(),
   size: pg
     .bigint({
       mode: "number",

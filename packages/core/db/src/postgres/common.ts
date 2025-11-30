@@ -1,6 +1,6 @@
+import type { PostgresErrorEnum } from "@beep/core-db/postgres/postgres-error.enum";
 import type { DrizzleQueryError } from "drizzle-orm/errors";
 import * as Data from "effect/Data";
-import type { PostgresErrorEnum } from "./postgres-error.enum";
 
 export class DatabaseError<BaseError extends { message: string } = { message: string }> extends Data.TaggedError(
   "DatabaseError"

@@ -1,1 +1,1 @@
-export * from "./PartyRelationshipType.model.ts";
+export * from "./PartyRelationshipType.model";

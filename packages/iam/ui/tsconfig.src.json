@@ -53,6 +53,12 @@
     },
     {
       "path": "../../shared/domain"
+    },
+    {
+      "path": "../../shared/sdk"
+    },
+    {
+      "path": "../../shared/ui"
     }
   ],
   "compilerOptions": {

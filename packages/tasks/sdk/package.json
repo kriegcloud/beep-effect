@@ -44,6 +44,7 @@
     "@beep/invariant": "workspace:^",
     "@beep/tasks-domain": "workspace:^",
     "@beep/tasks-infra": "workspace:^",
+    "@beep/shared-sdk": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {
@@ -52,6 +53,7 @@
     "babel-plugin-transform-next-use-client": "catalog:",
     "@babel/preset-react": "catalog:",
     "@beep/shared-domain": "workspace:^",
+    "@beep/shared-sdk": "workspace:^",
     "@beep/core-env": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",

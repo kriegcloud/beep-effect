@@ -1,1 +1,1 @@
-export * from "./PartyRoleType.model.ts";
+export * from "./PartyRoleType.model";

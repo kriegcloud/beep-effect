@@ -4,8 +4,8 @@ import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcGroup from "@effect/rpc/RpcGroup";
 import * as S from "effect/Schema";
 import * as Comment from "../Comment";
-import * as Errors from "./Discussion.errors.ts";
-import { Model } from "./Discussion.model.ts";
+import * as Errors from "./Discussion.errors";
+import { Model } from "./Discussion.model";
 
 // Validation constants (from Todox)
 const MAX_DOCUMENT_CONTENT_LENGTH = 1000;

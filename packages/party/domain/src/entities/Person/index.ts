@@ -1,1 +1,1 @@
-export * from "./Person.model.ts";
+export * from "./Person.model";

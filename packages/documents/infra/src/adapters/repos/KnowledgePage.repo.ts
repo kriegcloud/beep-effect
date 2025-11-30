@@ -4,7 +4,7 @@ import {
   KnowledgePageCircularReferenceError,
   KnowledgePageNotFoundError,
   KnowledgePageSlugConflictError,
-} from "@beep/documents-domain/entities/KnowledgePage/KnowledgePage.errors.ts";
+} from "@beep/documents-domain/entities/KnowledgePage/KnowledgePage.errors";
 import { dependencies } from "@beep/documents-infra/adapters/repos/_common";
 import { DocumentsDb } from "@beep/documents-infra/db";
 import { DocumentsDbSchema } from "@beep/documents-tables";

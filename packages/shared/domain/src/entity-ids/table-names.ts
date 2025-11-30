@@ -2,9 +2,9 @@ import { BS } from "@beep/schema";
 import * as CommsTableNames from "@beep/shared-domain/entity-ids/CommsTableNames";
 import { TaskTableNames } from "@beep/shared-domain/entity-ids/TaskTableNames";
 import type * as S from "effect/Schema";
-import * as DocumentsTableNames from "./DocumentsTableNames.ts";
+import * as DocumentsTableNames from "./DocumentsTableNames";
 import { IamTableNames } from "./IamTableNames";
-import * as PartyTableNames from "./PartyTableNames.ts";
+import * as PartyTableNames from "./PartyTableNames";
 import { SharedTableNames } from "./SharedTableNames";
 
 export class AnyTableName extends BS.StringLiteralKit(

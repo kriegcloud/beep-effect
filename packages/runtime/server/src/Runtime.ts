@@ -1,7 +1,7 @@
 import * as Effect from "effect/Effect";
 import type * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
-import { AppLive } from "./App.ts";
+import { AppLive } from "./App";
 
 export const serverRuntime = ManagedRuntime.make(AppLive);
 

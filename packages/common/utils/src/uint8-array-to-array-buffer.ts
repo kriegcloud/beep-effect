@@ -1,3 +1,5 @@
+import * as Data from "effect/Data";
+import * as Effect from "effect/Effect";
 /**
  * Binary helpers for peeling a backing `ArrayBuffer` from a `Uint8Array`,
  * enabling downstream callers to navigate between streaming and blob
@@ -30,3 +32,27 @@
  */
 export const uint8arrayToArrayBuffer = (data: Uint8Array<ArrayBufferLike>): ArrayBuffer =>
   data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) as ArrayBuffer;
+
+export class FileReadError extends Data.TaggedError("FileReadError")<{
+  readonly message: string;
+  readonly cause: unknown;
+  readonly fileName?: string | undefined;
+  readonly fileType?: string | undefined;
+  readonly fileSize?: number | undefined;
+  readonly phase?: "read" | "parse" | "decode" | undefined;
+}> {}
+
+export const readFileArrayBuffer = Effect.fn("readFileArrayBuffer")(function* (file: File) {
+  return yield* Effect.tryPromise({
+    try: () => file.arrayBuffer(),
+    catch: (e) =>
+      new FileReadError({
+        message: "Array buffer could not be read",
+        cause: e,
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size,
+        phase: "read",
+      }),
+  });
+});

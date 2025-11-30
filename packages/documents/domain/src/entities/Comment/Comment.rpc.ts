@@ -2,8 +2,8 @@ import { DocumentsEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcGroup from "@effect/rpc/RpcGroup";
 import * as S from "effect/Schema";
-import * as Errors from "./Comment.errors.ts";
-import { Model } from "./Comment.model.ts";
+import * as Errors from "./Comment.errors";
+import { Model } from "./Comment.model";
 
 /**
  * RPC contract for Comment entity operations.

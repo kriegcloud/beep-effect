@@ -5,11 +5,10 @@ import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import { FsUtilsLive } from "./FsUtils";
-import { EnvironmentVariableName } from "./schemas/EnvironmentVariable";
 
 const program = Effect.gen(function* () {
   const parsed = yield* DotEnv.readEnvFile;
-  const appName = yield* parsed.getVar(EnvironmentVariableName.Enum.APP_NAME);
+  const appName = yield* parsed.getVar("APP_NAME");
 
   yield* Console.log(parsed.toJson());
   yield* Console.log("appName: ", appName);

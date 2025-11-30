@@ -43,6 +43,8 @@
     "@beep/identity": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/shared-tables": "workspace:^",
+    "@beep/shared-sdk": "workspace:^",
+    "@beep/shared-ui": "workspace:^",
     "@beep/mock": "workspace:^",
     "@beep/core-env": "workspace:^",
     "@beep/ui": "workspace:^",

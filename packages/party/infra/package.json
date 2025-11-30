@@ -49,6 +49,7 @@
     "@beep/invariant": "workspace:^",
     "@beep/utils": "workspace:^",
     "@effect-aws/s3": "catalog:",
+    "@beep/shared-infra": "workspace:^",
     "@effect-aws/client-s3": "catalog:",
     "postgres": "catalog:",
     "@effect/platform": "catalog:",

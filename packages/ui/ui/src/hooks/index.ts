@@ -5,7 +5,7 @@ export { useBoolean } from "./use-boolean";
 export * from "./use-callback-ref";
 export * from "./use-client-rect";
 export { useCookies } from "./use-cookies";
-export * from "./use-copy-to-clipboard.ts";
+export * from "./use-copy-to-clipboard";
 export * from "./use-count-down";
 export * from "./use-debounced-callback";
 export * from "./use-did-mount";

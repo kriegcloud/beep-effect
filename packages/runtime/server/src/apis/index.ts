@@ -1,1 +1,1 @@
-export * from "./DocumentsApi.ts";
+export * from "./DocumentsApi";

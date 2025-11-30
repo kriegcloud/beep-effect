@@ -4,5 +4,5 @@
  * @module
  */
 
-export type { AdapterEffectDateTimeOptions } from "./AdapterEffectDateTime.js";
-export { AdapterEffectDateTime } from "./AdapterEffectDateTime.js";
+export type { AdapterEffectDateTimeOptions } from "./AdapterEffectDateTime";
+export { AdapterEffectDateTime } from "./AdapterEffectDateTime";

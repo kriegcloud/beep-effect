@@ -1,24 +1,10 @@
 /**
- * String primitive schemas (email, slug, hex, passwords, etc.).
- *
- * @category Primitives/String
- * @since 0.1.0
- */
-export * from "./currency-code";
-/**
  * Email address schemas.
  *
  * @category Primitives/String
  * @since 0.1.0
  */
 export * from "./email";
-/**
- * File extension schemas.
- *
- * @category Primitives/String
- * @since 0.1.0
- */
-export * from "./file-extension";
 /**
  * Hexadecimal string schemas.
  *

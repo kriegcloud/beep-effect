@@ -7,6 +7,10 @@
       "path": "../../shared/domain"
     },
     {
+      "path": "../../shared/sdk"
+    },
+
+    {
       "path": "../../core/env"
     },
     {
@@ -40,9 +44,7 @@
   "compilerOptions": {
     "types": ["node", "bun"],
     "outDir": "build/src",
-
     "rootDir": "src",
-
     "jsx": "react-jsx",
     "module": "ESNext",
     "target": "ES2023",

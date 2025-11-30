@@ -360,7 +360,6 @@
     "@types/ws": "catalog:",
     "@types/react-syntax-highlighter": "catalog:",
     "babel-plugin-transform-next-use-client": "catalog:",
-    "baseline-browser-mapping": "catalog:",
     "copyfiles": "catalog:",
     "fs-extra": "catalog:",
     "npm-run-all": "catalog:",

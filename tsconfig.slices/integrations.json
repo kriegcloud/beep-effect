@@ -1,8 +1,0 @@
-{
-  "files": [],
-  "references": [
-    { "path": "../packages/integrations/core/tsconfig.build.json" },
-    { "path": "../packages/integrations/google/tsconfig.build.json" },
-    { "path": "../packages/integrations/thefront/tsconfig.build.json" }
-  ]
-}

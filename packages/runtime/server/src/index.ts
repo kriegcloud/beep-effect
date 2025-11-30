@@ -1,1 +1,1 @@
-export { runServerPromise, runServerPromiseExit, serverRuntime } from "./server-runtime.ts";
+export { runServerPromise, runServerPromiseExit, serverRuntime } from "./server-runtime";
