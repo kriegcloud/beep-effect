@@ -1,6 +1,16 @@
-FROM node:20.15-alpine AS base
+# Build from monorepo root: docker build -f apps/notes/Dockerfile .
+#
+# Required build args:
+#   --build-arg DATABASE_URL=postgresql://user:pass@host:5432/db
+#
+# Example:
+#   docker build -f apps/notes/Dockerfile \
+#     --build-arg DATABASE_URL="postgresql://admin:password@host.docker.internal:5432/db" \
+#     -t beep-notes .
 
-# Install Chromium and dependencies
+FROM oven/bun:1.2-alpine AS base
+
+# Install Chromium and dependencies for Puppeteer
 RUN apk add --no-cache \
     chromium \
     nss \
@@ -15,9 +25,10 @@ RUN apk add --no-cache \
     font-noto \
     msttcorefonts-installer \
     fontconfig \
+    nodejs \
+    npm \
     && update-ms-fonts \
-    && fc-cache -f 
-
+    && fc-cache -f
 
 # Set Chrome executable path
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
@@ -28,27 +39,33 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copy root package.json and lockfile
-COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
-COPY patches ./patches
-COPY prisma ./prisma
+# Copy entire monorepo for workspace resolution (catalog: dependencies require root package.json)
+COPY . .
 
-RUN npm install -g corepack@latest
-RUN corepack enable pnpm && pnpm i
+# Install all workspace dependencies with Bun
+RUN bun install --frozen-lockfile
 
-# Build the app
+# Build the app (use Node.js for Next.js build due to worker_threads compatibility)
 FROM base AS builder
 WORKDIR /app
 
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY --from=deps /app .
+
+# Build-time environment variables
+ARG DATABASE_URL
+ARG NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+ARG NEXT_PUBLIC_YJS_URL="ws://localhost:4444/yjs"
 
 ENV NEXT_TELEMETRY_DISABLED=1
-ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
+ENV NEXT_PUBLIC_YJS_URL=${NEXT_PUBLIC_YJS_URL}
 
-RUN npm install -g corepack@latest
-RUN corepack enable pnpm && pnpm build && pnpm db:deploy
+# Build the notes app using Node.js for better Next.js compatibility
+WORKDIR /app/apps/notes
+RUN node ../../node_modules/.bin/next build
+# Note: db:deploy requires a running database, run separately after container starts
+# RUN bun run db:deploy
 
 # Run the app
 FROM base AS runner
@@ -68,33 +85,33 @@ RUN chown nextjs:nodejs .next
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/apps/notes/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/notes/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/notes/public ./public
 
-# 复制 YJS 服务器代码和依赖
-COPY --from=builder --chown=nextjs:nodejs /app/src ./src
+# Copy YJS server code and dependencies
+COPY --from=builder --chown=nextjs:nodejs /app/apps/notes/src ./src
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
-COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./tsconfig.json
+COPY --from=builder --chown=nextjs:nodejs /app/apps/notes/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/apps/notes/tsconfig.json ./tsconfig.json
 
-# 创建启动脚本
+# Create startup script using Bun
 RUN echo '#!/bin/sh' > /app/start.sh && \
     echo 'set -e' >> /app/start.sh && \
     echo 'echo "Starting YJS collaboration server..."' >> /app/start.sh && \
-    echo 'node --import tsx/esm src/server/yjs/server.ts &' >> /app/start.sh && \
+    echo 'bun run src/server/yjs/server.ts &' >> /app/start.sh && \
     echo 'echo "Starting Next.js application..."' >> /app/start.sh && \
-    echo 'exec node server.js' >> /app/start.sh && \
+    echo 'exec bun run server.js' >> /app/start.sh && \
     chmod +x /app/start.sh && \
     chown nextjs:nodejs /app/start.sh
 
 USER nextjs
 
-# 暴露 Next.js 端口和 YJS WebSocket 端口
+# Expose Next.js port and YJS WebSocket port
 EXPOSE 3000 4444
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# 使用启动脚本同时启动 Next.js 和 YJS 服务器
+# Use startup script to run both Next.js and YJS server
 CMD ["/app/start.sh"]

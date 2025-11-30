@@ -157,7 +157,7 @@ export function PublicPlate({ children }: React.PropsWithChildren) {
     setTemplate({
       id,
       icon: null,
-      title: template!.title,
+      title: template?.title ?? null,
       value: v,
     });
   }, 1000);

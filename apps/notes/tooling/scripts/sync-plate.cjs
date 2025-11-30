@@ -92,7 +92,7 @@ async function main() {
         console.info("\u001B[32m%s\u001B[0m", `${name}: ${currentVersion} -> ${newVersion}`);
       });
 
-      console.info("\nRunning pnpm install...");
+      console.info("\nRunning bun install...");
       const { execSync } = require("node:child_process");
 
       try {
@@ -100,15 +100,15 @@ async function main() {
         const shouldInstall = args.includes("--install");
 
         if (!shouldInstall) {
-          console.info("Skipping pnpm install. Use --install flag to run it.");
+          console.info("Skipping bun install. Use --install flag to run it.");
 
           return;
         }
 
-        execSync("pnpm install", { stdio: "inherit" });
-        console.info("pnpm install completed successfully.");
+        execSync("bun install", { stdio: "inherit" });
+        console.info("bun install completed successfully.");
       } catch (error) {
-        console.error("Error running pnpm install:", error.message);
+        console.error("Error running bun install:", error.message);
         process.exit(1);
       }
     } else {

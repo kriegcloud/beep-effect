@@ -71,6 +71,11 @@
   "resolutions#": {
     "@beep/*": "Needed to force PNPM to install local packages"
   },
+  "overrides": {
+    "slate": "0.117.0",
+    "slate-dom": "0.117.4",
+    "slate-react": "0.117.4"
+  },
   "devDependencies": {
     "@babel/cli": "^7.28.3",
     "@babel/core": "^7.28.5",
@@ -434,9 +439,14 @@
     "@types/react-syntax-highlighter": "^15.5.13",
     "@effect/ai-openrouter": "^0.6.0",
     "@effect/ai-google": "^0.11.0",
-    "@effect/ai-amazon-bedrock": "^0.12.0"
+    "@effect/ai-amazon-bedrock": "^0.12.0",
+    "@types/is-hotkey": "^0.1.10"
   },
   "dependenciesCatalog": [
+    {
+      "name": "@types/is-hotkey",
+      "version": "^0.1.10"
+    },
     {
       "name": "@effect/ai-openrouter",
       "version": "^0.6.0"

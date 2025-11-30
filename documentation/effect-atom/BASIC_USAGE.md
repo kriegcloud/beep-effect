@@ -7,7 +7,7 @@ A reactive state management library for Effect.
 If you are using React:
 
 ```bash
-pnpm add @effect-atom/atom-react
+bun i @effect-atom/atom-react
 ```
 
 ## Creating a Counter with Atom

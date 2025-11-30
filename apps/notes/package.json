@@ -353,6 +353,7 @@
     "@types/node": "catalog:",
     "@types/nprogress": "catalog:",
     "@types/pg": "catalog:",
+    "@types/is-hotkey": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@types/react-lazy-load-image-component": "catalog:",
@@ -370,16 +371,6 @@
     "tailwindcss": "catalog:",
     "tailwindcss-animate": "catalog:",
     "typescript": "catalog:"
-  },
-  "packageManager": "pnpm@9.9.0",
-  "pnpm": {
-    "overrides": {
-      "jotai": "2.10.3",
-      "slate": "0.117.0",
-      "slate-dom": "0.116.0",
-      "slate-react": "0.116.0",
-      "baseline-browser-mapping": "^2.8.32"
-    }
   },
   "prisma": {
     "seed": "bun run dotenvx -- tsx prisma/seed.ts"

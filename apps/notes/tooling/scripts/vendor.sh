@@ -1,4 +1,4 @@
-# Read excluded packages from JSON array and format them for pnpm
+# Read excluded packages from JSON array and format them for bun
 excluded_packages=$(cat << 'EOF' | jq -r '.[] | "!\(.)"'
 [
   "jiti",
@@ -8,5 +8,5 @@ excluded_packages=$(cat << 'EOF' | jq -r '.[] | "!\(.)"'
 EOF
 )
 
-# Run pnpm update with excluded packages
-pnpm up -i -L $excluded_packages
+# Run bun update with excluded packages
+bun run up -i -L $excluded_packages

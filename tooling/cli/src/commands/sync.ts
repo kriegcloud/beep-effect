@@ -33,9 +33,9 @@ const copyEnvFile = (
 const runTypesCommand = (path: Path.Path, repoRoot: string, relativeDir: string) =>
   Effect.gen(function* () {
     const cwd = path.join(repoRoot, relativeDir);
-    yield* Console.log(color.cyan(`Running pnpm run types in ${relativeDir}`));
+    yield* Console.log(color.cyan(`Running bun run types in ${relativeDir}`));
     const command = F.pipe(
-      ProcessCommand.make("pnpm", "run", "types"),
+      ProcessCommand.make("bun", "run", "types"),
       ProcessCommand.workingDirectory(cwd),
       ProcessCommand.stdout("inherit"),
       ProcessCommand.stderr("inherit")

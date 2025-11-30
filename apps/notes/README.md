@@ -88,12 +88,12 @@ NEXT_PUBLIC_YJS_URL=ws://localhost:4444/yjs
 
 ### Development
 
-1. `pnpm install`
-2. `pnpm dev` - This starts:
+1. `bun install`
+2. `bun run dev` - This starts:
    - Next.js app on port 3000
    - YJS WebSocket server on port 4444
    - Docker services (PostgreSQL & Redis)
-3. `pnpm migrate`: db migration in another terminal
+3. `bun run migrate`: db migration in another terminal
 
 ## Deployment
 
@@ -157,8 +157,8 @@ NEXT_PUBLIC_YJS_URL=wss://your-domain.com/yjs
 
 #### Build Settings
 
-- Build Command: `pnpm build && pnpm db:deploy`
-- Start Command: `pnpm start` (starts both Next.js and YJS server)
+- Build Command: `bun run build && bun run db:deploy`
+- Start Command: `bun run start` (starts both Next.js and YJS server)
 
 #### Advanced Settings
 

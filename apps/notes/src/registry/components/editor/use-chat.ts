@@ -14,6 +14,61 @@ import { type PlateEditor, useEditorRef } from "platejs/react";
 import * as React from "react";
 import { discussionPlugin } from "./plugins/discussion-kit";
 
+const createCommentChunks = (editor: PlateEditor) => {
+  const selectedBlocksApi = editor.getApi(BlockSelectionPlugin).blockSelection;
+
+  const selectedBlocks = pipe(
+    selectedBlocksApi.getNodes({
+      selectionFallback: true,
+      sort: true,
+    }),
+    A.map(([block]) => block)
+  );
+
+  const isSelectingSome = editor.getOption(BlockSelectionPlugin, "isSelectingSome");
+
+  const blocks =
+    A.length(selectedBlocks) > 0 && (editor.api.isExpanded() || isSelectingSome) ? selectedBlocks : editor.children;
+
+  const max = blocks.length;
+
+  const commentCount = Math.ceil(max / 2);
+
+  const result = new Set<number>();
+
+  while (result.size < commentCount) {
+    const num = Math.floor(Math.random() * max); // 0 to max-1 (fixed: was 1 to max)
+    result.add(num);
+  }
+
+  const indexes = Array.from(result).sort((a, b) => a - b);
+
+  const chunks = pipe(
+    indexes,
+    A.map((index) => {
+      const block = blocks[index];
+
+      if (!block) {
+        return [];
+      }
+
+      const blockString = NodeApi.string(block);
+      const endIndex = blockString.indexOf(".");
+      const content = endIndex === -1 ? blockString : blockString.slice(0, endIndex);
+
+      return [
+        {
+          delay: faker.number.int({ max: 500, min: 200 }),
+          texts: `{"id":"${nanoid()}","data":{"blockId":"${block.id}","comment":"${faker.lorem.sentence()}","content":"${content}"},"type":"data-comment"}`,
+        },
+      ];
+    }),
+    A.filter((chunk) => chunk.length > 0)
+  );
+
+  return [[{ delay: 50, texts: '{"data":"comment","type":"data-toolName"}' }], ...chunks];
+};
+
 export type Chat = UseChatHelpers<ChatMessage>;
 
 export type ChatMessage = UIMessage<{}, MessageDataPart>;
@@ -1428,58 +1483,3 @@ const mdxChunks = [
     },
   ],
 ];
-
-const createCommentChunks = (editor: PlateEditor) => {
-  const selectedBlocksApi = editor.getApi(BlockSelectionPlugin).blockSelection;
-
-  const selectedBlocks = pipe(
-    selectedBlocksApi.getNodes({
-      selectionFallback: true,
-      sort: true,
-    }),
-    A.map(([block]) => block)
-  );
-
-  const isSelectingSome = editor.getOption(BlockSelectionPlugin, "isSelectingSome");
-
-  const blocks =
-    A.length(selectedBlocks) > 0 && (editor.api.isExpanded() || isSelectingSome) ? selectedBlocks : editor.children;
-
-  const max = blocks.length;
-
-  const commentCount = Math.ceil(max / 2);
-
-  const result = new Set<number>();
-
-  while (result.size < commentCount) {
-    const num = Math.floor(Math.random() * max); // 0 to max-1 (fixed: was 1 to max)
-    result.add(num);
-  }
-
-  const indexes = Array.from(result).sort((a, b) => a - b);
-
-  const chunks = pipe(
-    indexes,
-    A.map((index) => {
-      const block = blocks[index];
-
-      if (!block) {
-        return [];
-      }
-
-      const blockString = NodeApi.string(block);
-      const endIndex = blockString.indexOf(".");
-      const content = endIndex === -1 ? blockString : blockString.slice(0, endIndex);
-
-      return [
-        {
-          delay: faker.number.int({ max: 500, min: 200 }),
-          texts: `{"id":"${nanoid()}","data":{"blockId":"${block.id}","comment":"${faker.lorem.sentence()}","content":"${content}"},"type":"data-comment"}`,
-        },
-      ];
-    }),
-    A.filter((chunk) => chunk.length > 0)
-  );
-
-  return [[{ delay: 50, texts: '{"data":"comment","type":"data-toolName"}' }], ...chunks];
-};
