@@ -45,8 +45,10 @@ effect("relative and comparison helpers evaluate ranges correctly", () =>
     expect(fIsAfter(DateTime.formatIso(future), DateTime.formatIso(past))).toBe(true);
     expect(fIsAfter("bad", DateTime.formatIso(past))).toBe(false);
 
-    const nextMonth = DateTime.add(now, { months: 1 });
-    expect(fIsSame(DateTime.formatIso(now), DateTime.formatIso(nextMonth), "year")).toBe(true);
+    // Use a fixed date (June 15) to avoid year boundary issues when adding months
+    const midYearDate = DateTime.unsafeMake("2024-06-15T12:00:00Z");
+    const nextMonthFromMidYear = DateTime.add(midYearDate, { months: 1 });
+    expect(fIsSame(DateTime.formatIso(midYearDate), DateTime.formatIso(nextMonthFromMidYear), "year")).toBe(true);
     expect(fIsSame(DateTime.formatIso(now), DateTime.formatIso(future), "day")).toBe(false);
   })
 );

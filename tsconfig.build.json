@@ -152,6 +152,9 @@
     {
       "path": "packages/_internal/db-admin/tsconfig.build.json"
     },
+        {
+      "path": "tooling/build-utils/tsconfig.build.json"
+    },
     {
       "path": "tooling/utils/tsconfig.build.json"
     },
