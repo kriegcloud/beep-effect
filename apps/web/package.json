@@ -230,6 +230,7 @@
     "@tanstack/react-form-devtools": "catalog:"
   },
   "devDependencies": {
+    "@beep/build-utils": "workspace:",
     "@beep/types": "workspace:^",
     "@types/node": "catalog:",
     "@types/react": "catalog:",

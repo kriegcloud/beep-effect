@@ -19,6 +19,9 @@
     },
     {
       "path": "../../packages/common/schema"
+    },
+            {
+      "path": "../../packages/common/constants"
     }
   ],
   "exclude": [],
@@ -26,6 +29,7 @@
     "types": ["node", "bun"],
     "outDir": "build/src",
     "target": "ES2023",
+
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "moduleDetection": "force",

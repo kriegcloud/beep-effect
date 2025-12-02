@@ -1,7 +1,7 @@
-import { FsUtils } from "@beep/tooling-utils/FsUtils";
-import { DomainError } from "@beep/tooling-utils/repo/Errors";
-import { findRepoRoot } from "@beep/tooling-utils/repo/Root";
-import { PackageJson, RootPackageJson } from "@beep/tooling-utils/schemas";
+import { FsUtils } from "../FsUtils.js";
+import { DomainError } from "./Errors.js";
+import { findRepoRoot } from "./Root.js";
+import { PackageJson, RootPackageJson } from "../schemas/index.js";
 import type * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as Cause from "effect/Cause";

@@ -1,6 +1,6 @@
-import { NoSuchFileError } from "@beep/tooling-utils/repo/Errors";
-import { findRepoRoot } from "@beep/tooling-utils/repo/Root";
-import { resolveWorkspaceDirs } from "@beep/tooling-utils/repo/Workspaces";
+import { NoSuchFileError } from "./Errors.js";
+import { findRepoRoot } from "./Root.js";
+import { resolveWorkspaceDirs } from "./Workspaces.js";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as A from "effect/Array";

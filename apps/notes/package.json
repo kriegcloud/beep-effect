@@ -309,6 +309,7 @@
     "zustand-x": "catalog:"
   },
   "devDependencies": {
+    "@beep/build-utils": "workspace:",
     "@babel/preset-react": "catalog:",
     "@beep/types": "workspace:^",
     "@biomejs/biome": "catalog:",

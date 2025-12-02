@@ -13,7 +13,7 @@ import * as ParseResult from "effect/ParseResult";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { EnvironmentVariableName } from "./EnvironmentVariable";
+import { EnvironmentVariableName } from "./EnvironmentVariable.js";
 
 export const DotEnvEncoded = S.NonEmptyString;
 

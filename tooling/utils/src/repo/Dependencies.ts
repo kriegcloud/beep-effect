@@ -1,4 +1,4 @@
-import { FsUtils } from "@beep/tooling-utils/FsUtils";
+import { FsUtils } from "../FsUtils.js";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";

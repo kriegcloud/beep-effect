@@ -16,9 +16,27 @@
     "linkDirectory": false
   },
   "exports": {
-    ".": "./src/index.ts",
+    ".": {
+      "bun": "./src/index.ts",
+      "import": "./build/esm/index.js",
+      "types": "./build/dts/index.d.ts"
+    },
     "./package.json": "./package.json",
-    "./*": "./src/*.ts"
+    "./pwa": {
+      "bun": "./src/pwa/index.ts",
+      "import": "./build/esm/pwa/index.js",
+      "types": "./build/dts/pwa/index.d.ts"
+    },
+    "./pwa/*": {
+      "bun": "./src/pwa/*.ts",
+      "import": "./build/esm/pwa/*.js",
+      "types": "./build/dts/pwa/*.d.ts"
+    },
+    "./*": {
+      "bun": "./src/*.ts",
+      "import": "./build/esm/*.js",
+      "types": "./build/dts/*.d.ts"
+    }
   },
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
@@ -41,15 +59,34 @@
     "docs:lint:file": "bunx tsx ./src/run-docs-lint.ts --file"
   },
   "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/constants": "workspace:^",
+    "@next/mdx": "catalog:",
+    "@beep/tooling-utils": "workspace:^",
+    "workbox-core": "catalog:",
+    "workbox-window": "catalog:",
+    "workbox-webpack-plugin": "catalog:",
+    "workbox-build": "catalog:",
+    "clean-webpack-plugin": "catalog:",
+    "globby": "catalog:",
+    "terser-webpack-plugin": "catalog:",
+    "babel-loader": "catalog:",
+    "webpack": "catalog:",
     "typescript": "catalog:",
     "@effect/platform": "catalog:",
-    "@effect/platform-bun": "catalog:",
-    "effect": "catalog:"
+    "@effect/platform-node": "catalog:",
+    "effect": "catalog:",
+    "next": "catalog:",
+    "@next/bundle-analyzer": "catalog:"
   },
   "devDependencies": {
+    "@types/babel__core": "catalog:",
     "typescript": "catalog:",
     "@effect/platform": "catalog:",
-    "@effect/platform-bun": "catalog:",
+    "@effect/platform-node": "catalog:",
     "effect": "catalog:"
   },
   "effect": {

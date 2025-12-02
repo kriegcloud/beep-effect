@@ -1,6 +1,7 @@
-import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
+import { defaultCache, withPWA } from "@beep/build-utils/pwa";
+import { computeTranspilePackagesSync } from "@beep/build-utils/transpile-packages";
 import type { NextConfig } from "next";
 
 type BundleAnalyzerFactory = (
@@ -13,6 +14,8 @@ type BundleAnalyzerFactory = (
 ) => (config: NextConfig) => NextConfig;
 
 type WithBundleAnalyzerConfig = Parameters<BundleAnalyzerFactory>[0];
+
+const transpilePackages = computeTranspilePackagesSync({target: "@beep/web"});
 
 const require = createRequire(import.meta.url);
 
@@ -56,84 +59,16 @@ const securityHeaders = [
   },
 ];
 
-const candidateTranspilePackages = [
-  "@beep/types",
-  "@beep/invariant",
-  "@beep/utils",
-  "@beep/schema",
-  "@beep/constants",
-  "@beep/errors",
-  "@beep/shared-domain",
-  "@beep/shared-tables",
-  "@beep/shared-sdk",
-  "@beep/shared-ui",
-  "@beep/core-env",
-  "@beep/core-email",
-  "@beep/core-db",
-  "@beep/ui",
-  "@beep/ui-core",
-  "@beep/identity",
-  "@beep/iam-domain",
-  "@beep/iam-tables",
-  "@beep/iam-infra",
-  "@beep/iam-sdk",
-  "@beep/iam-ui",
-  "@beep/documents-domain",
-  "@beep/documents-tables",
-  "@beep/documents-infra",
-  "@beep/documents-sdk",
-  "@beep/documents-ui",
-];
-
-const resolvePackageJson = (pkgName: string) => {
-  try {
-    return require.resolve(`${pkgName}/package.json`, { paths: [__dirname] });
-  } catch {
-    return null;
-  }
-};
-
-const shouldTranspile = (pkgName: string) => {
-  const pkgJsonPath = resolvePackageJson(pkgName);
-  if (pkgJsonPath === null) {
-    return true;
-  }
-
-  try {
-    const pkgJsonRaw = fs.readFileSync(pkgJsonPath, "utf8");
-    const pkgJson = JSON.parse(pkgJsonRaw) as Record<string, unknown>;
-
-    const checkExports = (value: unknown): boolean => {
-      if (typeof value === "string") {
-        return value.endsWith(".ts") || value.includes("/src/");
-      }
-      if (value !== null && typeof value === "object") {
-        return Object.values(value).some(checkExports);
-      }
-      return false;
-    };
-
-    if ("exports" in pkgJson && pkgJson.exports !== null) {
-      if (checkExports(pkgJson.exports)) {
-        return true;
-      }
-    }
-
-    if ("module" in pkgJson && typeof pkgJson.module === "string") {
-      return pkgJson.module.endsWith(".ts") || pkgJson.module.includes("/src/");
-    }
-
-    if ("main" in pkgJson && typeof pkgJson.main === "string") {
-      return pkgJson.main.endsWith(".ts") || pkgJson.main.includes("/src/");
-    }
-
-    return false;
-  } catch {
-    return true;
-  }
-};
-
-const transpilePackages = candidateTranspilePackages.filter(shouldTranspile);
+const withPWAConfig = withPWA({
+  dest: "public",
+  disable: process.env.NODE_ENV === "development",
+  register: true,
+  skipWaiting: true,
+  runtimeCaching: [...defaultCache],
+  fallbacks: {
+    document: "/_offline",
+  },
+});
 
 const optimizeImports = Array.from(
   new Set([
@@ -161,13 +96,7 @@ const nextConfig = {
         hostname: `${process.env.NEXT_PUBLIC_STATIC_URL}`.replace("https://", ""),
         port: "",
         pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: process.env.NEXT_PUBLIC_STATIC_URL?.replace("https://", "") ?? "",
-        port: "",
-        pathname: "/**",
-      },
+      }
     ],
     // Cost
     unoptimized: true,
@@ -198,5 +127,5 @@ const nextConfig = {
   },
 } satisfies NextConfig;
 
-const config = withBundleAnalyzer(nextConfig);
+const config = withPWAConfig(withBundleAnalyzer(nextConfig));
 export default config;

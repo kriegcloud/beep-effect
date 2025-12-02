@@ -4,11 +4,11 @@
  * Re-exports workspace resolution, dependency indexing/collection,
  * tsconfig discovery, and typed error helpers.
  */
-export * from "./Dependencies";
-export * from "./DependencyIndex";
-export * from "./Errors";
-export * from "./PackageJsonMap";
-export * from "./Root";
-export * from "./TsConfigIndex";
-export * from "./UniqueDependencies";
-export * from "./Workspaces";
+export * from "./Dependencies.js";
+export * from "./DependencyIndex.js";
+export * from "./Errors.js";
+export * from "./PackageJsonMap.js";
+export * from "./Root.js";
+export * from "./TsConfigIndex.js";
+export * from "./UniqueDependencies.js";
+export * from "./Workspaces.js";

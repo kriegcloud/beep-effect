@@ -82,6 +82,34 @@ const DependencyMap = S.Record({
 });
 
 /**
+ * Package.json exports field condition value.
+ * Can be a string path or nested conditions object.
+ */
+const ExportsConditionValue: S.Schema<ExportsConditionValue> = S.suspend(() =>
+  S.Union(
+    S.String,
+    S.Null,
+    S.Record({ key: S.String, value: ExportsConditionValue })
+  )
+);
+type ExportsConditionValue = string | null | { [key: string]: ExportsConditionValue };
+
+/**
+ * Package.json exports field.
+ *
+ * Supports:
+ * - Simple string: `"./index.js"`
+ * - Conditions object: `{ "import": "./index.mjs", "require": "./index.cjs" }`
+ * - Subpath exports: `{ ".": "./index.js", "./utils": "./utils.js" }`
+ * - Nested conditions with subpaths
+ */
+const Exports = S.Union(
+  S.String,
+  S.Null,
+  S.Record({ key: S.String, value: ExportsConditionValue })
+);
+
+/**
  * Effect Schema representation of a package.json used by repo utilities.
  *
  * This schema focuses on fields commonly needed by tooling, including
@@ -149,6 +177,7 @@ export const PackageJson = S.Struct(
     publishConfig: S.optional(S.Record({ key: S.String, value: S.Any })),
     readme: S.optional(S.String),
     module: S.optional(S.String),
+    exports: S.optional(Exports),
     workspaces: S.optional(Workspaces),
   },
   S.Record({ key: S.String, value: Json })

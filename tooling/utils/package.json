@@ -16,9 +16,37 @@
     "linkDirectory": false
   },
   "exports": {
-    ".": "./src/index.ts",
+    ".": {
+      "bun": "./src/index.ts",
+      "import": "./build/esm/index.js",
+      "types": "./build/dts/index.d.ts"
+    },
     "./package.json": "./package.json",
-    "./*": "./src/*.ts"
+    "./schemas": {
+      "bun": "./src/schemas/index.ts",
+      "import": "./build/esm/schemas/index.js",
+      "types": "./build/dts/schemas/index.d.ts"
+    },
+    "./schemas/*": {
+      "bun": "./src/schemas/*.ts",
+      "import": "./build/esm/schemas/*.js",
+      "types": "./build/dts/schemas/*.d.ts"
+    },
+    "./repo": {
+      "bun": "./src/repo/index.ts",
+      "import": "./build/esm/repo/index.js",
+      "types": "./build/dts/repo/index.d.ts"
+    },
+    "./repo/*": {
+      "bun": "./src/repo/*.ts",
+      "import": "./build/esm/repo/*.js",
+      "types": "./build/dts/repo/*.d.ts"
+    },
+    "./*": {
+      "bun": "./src/*.ts",
+      "import": "./build/esm/*.js",
+      "types": "./build/dts/*.d.ts"
+    }
   },
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
@@ -34,9 +62,6 @@
   "dependencies": {
     "@effect/platform": "catalog:",
     "@effect/platform-bun": "catalog:",
-    "@beep/identity": "workspace:^",
-    "@beep/utils": "workspace:^",
-    "@beep/invariant": "workspace:^",
     "effect": "catalog:",
     "glob": "^11.0.3",
     "@effect/cluster": "catalog:"
