@@ -203,41 +203,160 @@ export declare namespace LiftServiceMode {
 }
 
 /**
+ * Union of all possible defect mapper arguments for a contract kit.
+ * This approach enables proper type inference at call sites.
+ *
+ * @since 2.0.0
+ * @category Utility Types
+ */
+export type DefectMapperArgs<Contracts extends Record<string, Contract.Any>> = {
+  [Name in keyof Contracts]: {
+    readonly name: Name;
+    readonly contract: Contracts[Name];
+    readonly cause: Cause.Cause<unknown>;
+    readonly payload: Contract.Payload<Contracts[Name]>;
+  };
+}[keyof Contracts];
+
+/**
+ * Union of all possible failure types for contracts in a kit.
+ *
+ * @since 2.0.0
+ * @category Utility Types
+ */
+export type AllFailures<Contracts extends Record<string, Contract.Any>> = {
+  [Name in keyof Contracts]: Contract.Failure<Contracts[Name]>;
+}[keyof Contracts];
+
+/**
  * Options for building lifted service handlers from a contract kit.
  *
- * @since 0.1.0
+ * @since 2.0.0
  * @category Models
  */
 export interface LiftServiceOptions<
   Contracts extends Record<string, Contract.Any>,
   Mode extends LiftServiceMode.Type = typeof LiftServiceMode.Enum.success,
 > {
+  /**
+   * The lift mode: "success" returns only successful values, "result" returns
+   * the full HandleOutcome discriminated union.
+   */
   readonly mode?: Mode;
+
+  /**
+   * Hooks for instrumentation (logging, metrics, etc.)
+   */
   readonly hooks?: LiftServiceHooks<Contracts>;
+
+  /**
+   * Global defect mapper applied to all contracts in the kit.
+   *
+   * This mapper is called when any contract raises a defect (die/interrupt).
+   * Return a failure value to use instead of UnknownError, or `undefined`
+   * to fall through to the default behavior.
+   *
+   * Individual contract-level mappers can be provided via `contractMappers`
+   * for more specific handling.
+   *
+   * @since 2.0.0
+   */
+  readonly mapDefect?: (
+    args: DefectMapperArgs<Contracts>
+  ) =>
+    | AllFailures<Contracts>
+    | ContractError.UnknownError
+    | undefined
+    | Effect.Effect<AllFailures<Contracts> | ContractError.UnknownError | undefined, never, never>;
+
+  /**
+   * Per-contract defect mappers for fine-grained error handling.
+   *
+   * Provide a mapper function keyed by contract name. These take precedence
+   * over the global `mapDefect` option for their specific contracts.
+   *
+   * @since 2.0.0
+   */
+  readonly contractMappers?: {
+    readonly [Name in keyof Contracts]?: (args: {
+      readonly contract: Contracts[Name];
+      readonly cause: Cause.Cause<unknown>;
+      readonly payload: Contract.Payload<Contracts[Name]>;
+    }) =>
+      | Contract.Failure<Contracts[Name]>
+      | ContractError.UnknownError
+      | undefined
+      | Effect.Effect<Contract.Failure<Contracts[Name]> | ContractError.UnknownError | undefined, never, never>;
+  };
 }
 
 /**
+ * Union of all possible failure hook arguments for a contract kit.
+ *
+ * @since 2.0.0
+ * @category Utility Types
+ */
+export type FailureHookArgs<Contracts extends Record<string, Contract.Any>> = {
+  [Name in keyof Contracts]: {
+    readonly name: Name;
+    readonly contract: Contracts[Name];
+    readonly failure: Contract.Failure<Contracts[Name]>;
+  };
+}[keyof Contracts];
+
+/**
+ * Union of all possible success hook arguments for a contract kit.
+ *
+ * @since 2.0.0
+ * @category Utility Types
+ */
+export type SuccessHookArgs<Contracts extends Record<string, Contract.Any>> = {
+  [Name in keyof Contracts]: {
+    readonly name: Name;
+    readonly contract: Contracts[Name];
+    readonly success: Contract.Success<Contracts[Name]>;
+  };
+}[keyof Contracts];
+
+/**
+ * Union of all possible defect hook arguments for a contract kit.
+ *
+ * @since 2.0.0
+ * @category Utility Types
+ */
+export type DefectHookArgs<Contracts extends Record<string, Contract.Any>> = {
+  [Name in keyof Contracts]: {
+    readonly name: Name;
+    readonly contract: Contracts[Name];
+    readonly cause: Cause.Cause<unknown>;
+  };
+}[keyof Contracts];
+
+/**
  * Hook definitions invoked while the lifted handlers run.
+ *
+ * These hooks are for instrumentation purposes (logging, metrics, tracing).
+ * For error transformation, use `mapDefect` in {@link LiftServiceOptions}.
  *
  * @since 0.1.0
  * @category Models
  */
 export interface LiftServiceHooks<Contracts extends Record<string, Contract.Any>> {
-  readonly onFailure?: <Name extends keyof Contracts>(args: {
-    readonly name: Name;
-    readonly contract: Contracts[Name];
-    readonly failure: Contract.Failure<Contracts[Name]>;
-  }) => Effect.Effect<void, never, never>;
-  readonly onSuccess?: <Name extends keyof Contracts>(args: {
-    readonly name: Name;
-    readonly contract: Contracts[Name];
-    readonly success: Contract.Success<Contracts[Name]>;
-  }) => Effect.Effect<void, never, never>;
-  readonly onDefect?: <Name extends keyof Contracts>(args: {
-    readonly name: Name;
-    readonly contract: Contracts[Name];
-    readonly cause: Cause.Cause<unknown>;
-  }) => Effect.Effect<void, never, never>;
+  /**
+   * Called when a contract returns a failure (not a defect).
+   */
+  readonly onFailure?: (args: FailureHookArgs<Contracts>) => Effect.Effect<void, never, never>;
+
+  /**
+   * Called when a contract returns a successful result.
+   */
+  readonly onSuccess?: (args: SuccessHookArgs<Contracts>) => Effect.Effect<void, never, never>;
+
+  /**
+   * Called when a contract raises a defect (die/interrupt).
+   * This is for instrumentation only - use `mapDefect` for error transformation.
+   */
+  readonly onDefect?: (args: DefectHookArgs<Contracts>) => Effect.Effect<void, never, never>;
 }
 
 /**
@@ -311,6 +430,10 @@ const liftService = function <
       onDefect: O.fromNullable(hooks.onDefect),
     }))
   );
+  // V2: Extract global and per-contract defect mappers
+  const globalMapDefect = O.fromNullable(options?.mapDefect);
+  const contractMappers = O.fromNullable(options?.contractMappers);
+
   return Effect.gen(this, function* () {
     const { contracts, handle } = yield* this;
     type MutableLifted = {
@@ -323,6 +446,11 @@ const liftService = function <
         const onFailure = O.flatMap(hooksOpt, (hooks) => hooks.onFailure);
         const onSuccess = O.flatMap(hooksOpt, (hooks) => hooks.onSuccess);
         const onDefect = O.flatMap(hooksOpt, (hooks) => hooks.onDefect);
+
+        // V2: Get contract-specific mapper (takes precedence) or fall back to global
+        const contractSpecificMapper = O.flatMap(contractMappers, (mappers) =>
+          O.fromNullable(mappers[name as keyof typeof mappers])
+        );
 
         const liftOptions = create(
           {
@@ -338,6 +466,18 @@ const liftService = function <
             onFailure?: (failure: Contract.Failure<Contracts[typeof name]>) => Effect.Effect<void, never, never>;
             onSuccess?: (success: Contract.Success<Contracts[typeof name]>) => Effect.Effect<void, never, never>;
             onDefect?: (cause: Cause.Cause<unknown>) => Effect.Effect<void, never, never>;
+            mapDefect?: (
+              cause: Cause.Cause<unknown>,
+              ctx: { contract: Contract.Any; payload: Contract.Payload<Contracts[typeof name]> }
+            ) =>
+              | Contract.Failure<Contracts[typeof name]>
+              | ContractError.UnknownError
+              | undefined
+              | Effect.Effect<
+                  Contract.Failure<Contracts[typeof name]> | ContractError.UnknownError | undefined,
+                  never,
+                  never
+                >;
           },
           (draft) => {
             if (O.isSome(onFailure)) {
@@ -348,6 +488,25 @@ const liftService = function <
             }
             if (O.isSome(onDefect)) {
               draft.onDefect = (cause) => onDefect.value({ name, contract, cause });
+            }
+            // V2: Wire up defect mapper
+            if (O.isSome(contractSpecificMapper)) {
+              // Contract-specific mapper takes precedence
+              draft.mapDefect = (cause, ctx) =>
+                contractSpecificMapper.value({
+                  contract: ctx.contract as Contracts[typeof name],
+                  cause,
+                  payload: ctx.payload,
+                });
+            } else if (O.isSome(globalMapDefect)) {
+              // Fall back to global mapper
+              draft.mapDefect = (cause, ctx) =>
+                globalMapDefect.value({
+                  name,
+                  contract: ctx.contract as Contracts[typeof name],
+                  cause,
+                  payload: ctx.payload,
+                });
             }
           }
         );

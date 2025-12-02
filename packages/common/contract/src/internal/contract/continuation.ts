@@ -2,6 +2,29 @@
  * Continuation helpers combine contract metadata with transport-agnostic
  * utilities for running promise-based operations. This module also houses the
  * shared `handleOutcome` helper used when consuming lifted contracts.
+ *
+ * ## V2 Error Mapping
+ *
+ * The continuation now supports composable error mapping via the `mapError` option.
+ * This allows implementations to transform third-party errors into typed failures
+ * that match the contract's `failureSchema`.
+ *
+ * @example
+ * ```ts
+ * const continuation = contract.continuation({
+ *   mapError: (error, ctx) => {
+ *     if (error instanceof DOMException && error.name === "NotAllowedError") {
+ *       return new PasskeyError.NotAllowedError({
+ *         message: error.message,
+ *         domain: ctx.metadata.domain
+ *       });
+ *     }
+ *     return undefined; // Fall through to default normalization
+ *   }
+ * });
+ * ```
+ *
+ * @since 2.0.0
  */
 import type { UnsafeTypes } from "@beep/types";
 import * as Bool from "effect/Boolean";
@@ -16,6 +39,7 @@ import * as _internal from "../utils";
 import { Domain, Method, SupportsAbort, Title } from "./annotations";
 import type {
   Any,
+  ErrorMapper,
   FailureContinuation,
   FailureContinuationContext,
   FailureContinuationHandlers,
@@ -95,13 +119,69 @@ export const metadata = <const C extends Any, Extra extends Record<string, unkno
 };
 
 /**
+ * Checks if a value is an Effect that should be executed (not a TaggedError).
+ * TaggedError extends Effect but represents an error value, not an effect to run.
+ */
+const isRunnableEffect = (value: unknown): value is Effect.Effect<unknown, unknown, unknown> =>
+  Effect.isEffect(value) && !(value instanceof Error);
+
+/**
  * Constructs a `FailureContinuation` for the provided contract. Continuations
  * wrap promise-based transports and provide helpers for raising results into
- * the Effect error channel. Set `supportsAbort` to receive abort signals and
- * `normalizeError` to translate foreign errors into domain-specific failures.
+ * the Effect error channel.
+ *
+ * ## V2 Error Mapping Pipeline
+ *
+ * Errors are processed through this pipeline (first match wins):
+ *
+ * 1. **Schema Decoding** (`decodeFailure`): Attempts to decode the error against
+ *    the contract's `failureSchema`. Useful when the third-party API returns
+ *    errors that already match your schema structure.
+ *
+ * 2. **Custom Mappers** (`mapError`): User-provided mapper function(s) that
+ *    transform third-party errors into typed failures. Mappers return the
+ *    mapped error or `undefined` to fall through to the next mapper.
+ *
+ * 3. **Legacy Normalizer** (`normalizeError`): Fallback function for errors
+ *    not handled by mappers. Deprecated in favor of `mapError`.
+ *
+ * 4. **Default Normalization**: Creates a `ContractError.UnknownError` with
+ *    error message and cause preserved.
+ *
+ * @example
+ * ```ts
+ * // Simple mapper for WebAuthn DOMExceptions
+ * const continuation = contract.continuation({
+ *   mapError: (error, ctx) => {
+ *     if (error instanceof DOMException) {
+ *       switch (error.name) {
+ *         case "NotAllowedError":
+ *           return new PasskeyError.NotAllowedError({
+ *             message: error.message,
+ *             domain: ctx.metadata.domain
+ *           });
+ *         case "InvalidStateError":
+ *           return new PasskeyError.InvalidStateError({ ... });
+ *       }
+ *     }
+ *     return undefined; // Fall through to default
+ *   }
+ * });
+ *
+ * // Composable mappers (tried in order)
+ * const continuation = contract.continuation({
+ *   mapError: [
+ *     domExceptionMapper,    // Handles DOMException
+ *     betterAuthMapper,      // Handles BetterAuthError
+ *     httpClientErrorMapper, // Handles HTTP errors
+ *   ]
+ * });
+ * ```
  *
  * When `run` is invoked with `{ surfaceDefect: true }` it returns an `Either`
  * that preserves defect information instead of rethrowing it.
+ *
+ * @since 2.0.0
  */
 export function failureContinuation<
   const C extends Any,
@@ -114,6 +194,7 @@ export function failureContinuation<
     metadata: computedMetadata,
   };
 
+  // Default normalization: creates UnknownError with preserved cause
   const defaultNormalize = (error: unknown, ctx: FailureContinuationContext<C, Extra>): ContractError.UnknownError =>
     new ContractError.UnknownError({
       module: ctx.metadata.domain ?? ctx.contract.name,
@@ -125,6 +206,7 @@ export function failureContinuation<
       cause: error instanceof Error ? error : undefined,
     });
 
+  // Legacy normalizeError fallback (deprecated, use mapError instead)
   const normalizeError =
     (options?.normalizeError as ((error: unknown, ctx: FailureContinuationContext<C, Extra>) => Failure) | undefined) ??
     (((error: unknown, ctx: FailureContinuationContext<C, Extra>) => defaultNormalize(error, ctx)) as (
@@ -132,20 +214,49 @@ export function failureContinuation<
       ctx: FailureContinuationContext<C, Extra>
     ) => Failure);
 
+  // Schema-based decoding (step 1 in pipeline)
   const decodeFailureConfig = options?.decodeFailure;
   const decodeFailure = decodeFailureConfig
     ? S.decodeUnknownSync(_internal.toSchemaAnyNoContext(contract.failureSchema), decodeFailureConfig.parseOptions)
     : undefined;
 
-  const toFailure = (error: unknown): Failure => {
+  // Normalize mapError option to array form
+  const errorMappers: ReadonlyArray<ErrorMapper<C, Failure, Extra>> = options?.mapError
+    ? Array.isArray(options.mapError)
+      ? options.mapError
+      : [options.mapError]
+    : [];
+
+  /**
+   * Synchronous error transformation (for backward compatibility with V1).
+   * Uses the full pipeline but runs synchronously.
+   */
+  const toFailureSync = (error: unknown): Failure => {
+    // Step 1: Try schema decoding
     if (decodeFailure) {
       try {
         const candidate = decodeFailureConfig?.select ? decodeFailureConfig.select(error, context) : error;
         return decodeFailure(candidate) as Failure;
       } catch {
-        // fall through to normalization when decoding is unavailable or fails
+        // Fall through to mappers
       }
     }
+
+    // Step 2: Try custom mappers (synchronously for backward compat)
+    for (const mapper of errorMappers) {
+      try {
+        const result = mapper(error, context);
+        // Only handle sync results in sync path
+        // Note: TaggedError extends Effect, so we use isRunnableEffect to exclude them
+        if (!isRunnableEffect(result) && result !== undefined) {
+          return result as Failure;
+        }
+      } catch {
+        // Mapper threw, continue to next
+      }
+    }
+
+    // Step 3 & 4: Legacy normalizer or default normalization
     return normalizeError(error, context);
   };
 
@@ -172,7 +283,8 @@ export function failureContinuation<
           },
         });
 
-      const onError: FailureContinuationHandlers["onError"] = ({ error }) => complete(Effect.fail(toFailure(error)));
+      const onError: FailureContinuationHandlers["onError"] = ({ error }) =>
+        complete(Effect.fail(toFailureSync(error)));
 
       const handlers: FailureContinuationHandlers = O.fromNullable(controller).pipe(
         O.match({
@@ -185,10 +297,10 @@ export function failureContinuation<
         const promise = register(handlers);
         promise.then(
           (value) => complete(Effect.succeed(value)),
-          (reason) => complete(Effect.fail(toFailure(reason)))
+          (reason) => complete(Effect.fail(toFailureSync(reason)))
         );
       } catch (cause) {
-        complete(Effect.fail(toFailure(cause)));
+        complete(Effect.fail(toFailureSync(cause)));
       }
 
       return O.fromNullable(controller).pipe(
@@ -212,7 +324,7 @@ export function failureContinuation<
   const raiseResult: FailureContinuation<C, Failure, Extra>["raiseResult"] = (result) =>
     Bool.match(P.isNullable(result.error), {
       onTrue: () => Effect.void,
-      onFalse: () => Effect.die(toFailure(result.error)),
+      onFalse: () => Effect.die(toFailureSync(result.error)),
     });
 
   const runRaise: FailureContinuation<C, Failure, Extra>["runRaise"] = (register) =>

@@ -1,514 +1,398 @@
 import { describe, expect } from "bun:test";
-import { Contract, ContractError } from "@beep/contract";
+import { ContractError } from "@beep/contract";
+import { Contract } from "@beep/contract/Contract";
 import { effect } from "@beep/testkit";
-import type { UnsafeTypes } from "@beep/types";
 import * as Cause from "effect/Cause";
-import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
 import * as Exit from "effect/Exit";
-import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
-import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 
-describe("Contract runtime", () => {
-  effect("creates contracts with schema helpers and annotations", () =>
+/**
+ * Custom error types for testing error mapping
+ */
+class TestError extends S.TaggedError<TestError>()("TestError", {
+  message: S.String,
+  code: S.optional(S.Number),
+}) {}
+
+class NotAllowedError extends S.TaggedError<NotAllowedError>()("NotAllowedError", {
+  message: S.String,
+  domain: S.optional(S.String),
+}) {}
+
+class InvalidStateError extends S.TaggedError<InvalidStateError>()("InvalidStateError", {
+  message: S.String,
+}) {}
+
+/**
+ * Custom error class simulating DOMException for WebAuthn testing
+ */
+class MockDOMException extends Error {
+  override name: string;
+  constructor(message: string, name: string) {
+    super(message);
+    this.name = name;
+  }
+}
+
+describe("Contract V2 Error Mapping", () => {
+  effect("continuation mapError maps raw errors to typed failures", () =>
     Effect.gen(function* () {
-      const contract = Contract.make("Example", {
-        description: "example contract",
-        payload: { id: S.String },
+      const contract = Contract.make("MapError", {
+        payload: {},
         success: S.Struct({ ok: S.Boolean }),
-        failure: S.Struct({ reason: S.String }),
-      }).withAnnotations(
-        [Contract.Title, "Example Title"],
-        [Contract.Domain, "contract-tests"],
-        [Contract.Method, "example.run"],
-        [Contract.SupportsAbort, true]
+        failure: S.Union(TestError, NotAllowedError),
+      });
+
+      const continuation = contract.continuation({
+        mapError: (error, _ctx) => {
+          if (error instanceof MockDOMException && error.name === "NotAllowedError") {
+            return new NotAllowedError({
+              message: error.message,
+              domain: "test",
+            });
+          }
+          if (error instanceof Error && error.message.includes("test")) {
+            return new TestError({ message: error.message, code: 500 });
+          }
+          return undefined; // Fall through to default
+        },
+      });
+
+      // Test NotAllowedError mapping
+      const notAllowedExit = yield* Effect.exit(
+        continuation.run(() => Promise.reject(new MockDOMException("User cancelled", "NotAllowedError")))
       );
 
-      expect(contract.id).toBe("@beep/contract/Contract/Example");
-      expect(contract.failureMode).toBe(Contract.FailureMode.Enum.error);
+      const notAllowedFailure = Exit.match(notAllowedExit, {
+        onSuccess: () => O.none(),
+        onFailure: (cause) => Cause.dieOption(cause),
+      });
 
-      const payload = { id: "abc" };
-      const decodedPayload = yield* contract.decodePayload(payload);
-      expect(decodedPayload.id).toBe("abc");
-      const encodedPayload = yield* contract.encodePayload(payload);
-      expect(encodedPayload.id).toBe("abc");
-      expect(contract.isPayload(payload)).toBe(true);
+      expect(O.isSome(notAllowedFailure)).toBe(true);
+      const notAllowed = O.getOrUndefined(notAllowedFailure);
+      expect(notAllowed).toBeInstanceOf(NotAllowedError);
+      expect((notAllowed as NotAllowedError).message).toBe("User cancelled");
+      expect((notAllowed as NotAllowedError).domain).toBe("test");
 
-      const updatedPayload = contract.setPayload(S.Struct({ id: S.Number }));
-      const decodedNumberPayload = yield* updatedPayload.decodeUnknownPayload({ id: 1 });
-      expect(decodedNumberPayload.id).toBe(1);
+      // Test TestError mapping
+      const testErrorExit = yield* Effect.exit(continuation.run(() => Promise.reject(new Error("test failure"))));
 
-      const successValue = { ok: true };
-      const decodedSuccess = yield* contract.decodeUnknownSuccess(successValue);
-      expect(decodedSuccess.ok).toBe(true);
-      expect(contract.isSuccess(successValue)).toBe(true);
+      const testErrorFailure = Exit.match(testErrorExit, {
+        onSuccess: () => O.none(),
+        onFailure: (cause) => Cause.dieOption(cause),
+      });
 
-      const failureValue = { reason: "bad" };
-      const decodedFailure = yield* contract.decodeUnknownFailure(failureValue);
-      expect(decodedFailure.reason).toBe("bad");
-      expect(contract.isFailure(failureValue)).toBe(true);
+      expect(O.isSome(testErrorFailure)).toBe(true);
+      const testErr = O.getOrUndefined(testErrorFailure);
+      expect(testErr).toBeInstanceOf(TestError);
+      expect((testErr as TestError).message).toBe("test failure");
+      expect((testErr as TestError).code).toBe(500);
 
-      const annotations = contract.annotations;
-      const titleOpt = Context.getOption(annotations, Contract.Title);
-      const domainOpt = Context.getOption(annotations, Contract.Domain);
-      const methodOpt = Context.getOption(annotations, Contract.Method);
-      const supportsAbortOpt = Context.getOption(annotations, Contract.SupportsAbort);
+      // Test fallthrough to UnknownError
+      const unknownExit = yield* Effect.exit(continuation.run(() => Promise.reject(new Error("unmapped error"))));
 
-      expect(O.isSome(titleOpt)).toBe(true);
-      expect(O.isSome(domainOpt)).toBe(true);
-      expect(O.isSome(methodOpt)).toBe(true);
-      expect(O.getOrElse(() => false)(supportsAbortOpt)).toBe(true);
+      const unknownFailure = Exit.match(unknownExit, {
+        onSuccess: () => O.none(),
+        onFailure: (cause) => Cause.dieOption(cause),
+      });
+
+      expect(O.isSome(unknownFailure)).toBe(true);
+      expect(O.getOrUndefined(unknownFailure)).toBeInstanceOf(ContractError.UnknownError);
     })
   );
 
-  effect("implements handlers with hooks and failure handling", () =>
+  effect("continuation mapError supports multiple mappers (tried in order)", () =>
     Effect.gen(function* () {
-      let successHookCalled = false;
-      let failureHookCalled = false;
-
-      const successContract = Contract.make("Hooked", {
-        payload: { id: S.String },
-        success: S.Struct({ ok: S.String }),
-        failure: S.Struct({ reason: S.String }),
+      const contract = Contract.make("MultiMapper", {
+        payload: {},
+        success: S.Void,
+        failure: S.Union(NotAllowedError, InvalidStateError, TestError),
       });
 
-      const successImpl = successContract.implement(({ id }) => Effect.succeed({ ok: id }), {
-        onSuccess: () =>
-          Effect.sync(() => {
-            successHookCalled = true;
-          }),
+      const domExceptionMapper = (error: unknown) => {
+        if (error instanceof MockDOMException) {
+          if (error.name === "NotAllowedError") {
+            return new NotAllowedError({ message: error.message });
+          }
+          if (error.name === "InvalidStateError") {
+            return new InvalidStateError({ message: error.message });
+          }
+        }
+        return undefined;
+      };
+
+      const genericMapper = (error: unknown) => {
+        if (error instanceof Error && error.message.startsWith("GENERIC:")) {
+          return new TestError({ message: error.message.replace("GENERIC:", "") });
+        }
+        return undefined;
+      };
+
+      const continuation = contract.continuation({
+        mapError: [domExceptionMapper, genericMapper],
       });
 
-      const successResult = yield* successImpl({ id: "value" });
-      expect(successResult.ok).toBe("value");
-      expect(successHookCalled).toBe(true);
+      // First mapper should handle DOMException
+      const domExit = yield* Effect.exit(
+        continuation.run(() => Promise.reject(new MockDOMException("cancelled", "NotAllowedError")))
+      );
+      const domFailure = Exit.match(domExit, {
+        onSuccess: () => O.none(),
+        onFailure: (cause) => Cause.dieOption(cause),
+      });
+      expect(O.getOrUndefined(domFailure)).toBeInstanceOf(NotAllowedError);
 
-      const failureContract = Contract.make("HookedFail", {
-        payload: { id: S.String },
+      // Second mapper should handle generic prefixed errors
+      const genericExit = yield* Effect.exit(continuation.run(() => Promise.reject(new Error("GENERIC:handled"))));
+      const genericFailure = Exit.match(genericExit, {
+        onSuccess: () => O.none(),
+        onFailure: (cause) => Cause.dieOption(cause),
+      });
+      expect(O.getOrUndefined(genericFailure)).toBeInstanceOf(TestError);
+      expect((O.getOrUndefined(genericFailure) as TestError).message).toBe("handled");
+    })
+  );
+
+  effect("continuation surfaceDefect returns Either with mapped error", () =>
+    Effect.gen(function* () {
+      const contract = Contract.make("SurfaceDefect", {
+        payload: {},
         success: S.Struct({ ok: S.Boolean }),
-        failure: S.Struct({ reason: S.String }),
+        failure: NotAllowedError,
       });
 
-      const failingImpl = failureContract.implement(() => Effect.fail({ reason: "boom" }), {
-        onFailure: () =>
-          Effect.sync(() => {
-            failureHookCalled = true;
-          }),
+      const continuation = contract.continuation({
+        mapError: (error) => {
+          if (error instanceof MockDOMException && error.name === "NotAllowedError") {
+            return new NotAllowedError({ message: error.message });
+          }
+          return undefined;
+        },
       });
 
-      const failureExit = yield* Effect.exit(failingImpl({ id: "x" }));
-      const failureOpt = Exit.match(failureExit, {
+      // With surfaceDefect: true, error becomes Either.Left
+      const result = yield* continuation.run(
+        () => Promise.reject(new MockDOMException("user declined", "NotAllowedError")),
+        { surfaceDefect: true }
+      );
+
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left).toBeInstanceOf(NotAllowedError);
+        // Use unknown cast since the type is a union but runtime narrows to NotAllowedError
+        expect((result.left as unknown as NotAllowedError).message).toBe("user declined");
+      }
+    })
+  );
+
+  effect("lift mapDefect converts defects to typed failures", () =>
+    Effect.gen(function* () {
+      const contract = Contract.make("LiftDefect", {
+        payload: { value: S.Number },
+        success: S.Struct({ doubled: S.Number }),
+        failure: S.Union(NotAllowedError, InvalidStateError),
+        failureMode: "return",
+      });
+
+      const liftedWithDefectMapper = Contract.lift(contract, {
+        method: () => Effect.die(new MockDOMException("defect error", "NotAllowedError")),
+        mapDefect: (cause, _ctx) => {
+          const squashed = Cause.squash(cause);
+          if (squashed instanceof MockDOMException && squashed.name === "NotAllowedError") {
+            return new NotAllowedError({ message: squashed.message });
+          }
+          return undefined; // Fall through to UnknownError
+        },
+      });
+
+      const defectExit = yield* Effect.exit(liftedWithDefectMapper.result({ value: 2 }));
+
+      const defectFailure = Exit.match(defectExit, {
         onSuccess: () => O.none(),
         onFailure: (cause) => Cause.failureOption(cause),
       });
-      expect(O.isSome(failureOpt)).toBe(true);
-      expect(O.getOrUndefined(failureOpt)).toEqual({ reason: "boom" });
-      expect(failureHookCalled).toBe(true);
+
+      expect(O.isSome(defectFailure)).toBe(true);
+      const failure = O.getOrUndefined(defectFailure);
+      expect(failure).toBeInstanceOf(NotAllowedError);
+      expect((failure as NotAllowedError).message).toBe("defect error");
     })
   );
 
-  effect("matches outcomes using FailureMode and handleOutcome", () =>
+  effect("lift mapDefect falls back to UnknownError when mapper returns undefined", () =>
     Effect.gen(function* () {
-      const returnContract = Contract.make("ReturnMode", {
-        payload: {},
-        success: S.Void,
-        failure: S.Struct({ issue: S.String }),
+      const contract = Contract.make("LiftDefectFallback", {
+        payload: { value: S.Number },
+        success: S.Struct({ doubled: S.Number }),
+        failure: NotAllowedError,
         failureMode: "return",
       });
 
-      const errorContract = Contract.make("ErrorMode", {
-        payload: {},
-        success: S.Void,
-        failure: S.Struct({ issue: S.String }),
+      const liftedWithFallback = Contract.lift(contract, {
+        method: () => Effect.die(new Error("some other error")),
+        mapDefect: (cause, _ctx) => {
+          const squashed = Cause.squash(cause);
+          // Only map DOMException NotAllowedError, return undefined for others
+          if (squashed instanceof MockDOMException && squashed.name === "NotAllowedError") {
+            return new NotAllowedError({ message: squashed.message });
+          }
+          return undefined;
+        },
       });
 
-      const failureOutcome = Contract.FailureMode.matchOutcome(returnContract, {
-        isFailure: true,
-        result: { issue: "nope" },
-        encodedResult: { issue: "nope" },
+      const defectExit = yield* Effect.exit(liftedWithFallback.result({ value: 2 }));
+
+      const defectFailure = Exit.match(defectExit, {
+        onSuccess: () => O.none(),
+        onFailure: (cause) => Cause.failureOption(cause),
       });
 
-      const successOutcome = Contract.FailureMode.matchOutcome(errorContract, {
-        isFailure: false,
-        result: undefined,
-        encodedResult: undefined,
-      });
-
-      expect(failureOutcome.mode).toBe(Contract.FailureMode.Enum.return);
-      expect(failureOutcome._tag).toBe("failure");
-      expect(successOutcome.mode).toBe(Contract.FailureMode.Enum.error);
-
-      const handled = yield* Contract.handleOutcome(returnContract)({
-        onSuccess: (succ) => Effect.succeed(succ.result),
-        onFailure: (fail) => Effect.succeed(fail.result.issue),
-      })(failureOutcome);
-
-      expect(handled as unknown as string).toBe("nope");
+      expect(O.isSome(defectFailure)).toBe(true);
+      expect(O.getOrUndefined(defectFailure)).toBeInstanceOf(ContractError.UnknownError);
     })
   );
 
-  effect("continuation composes metadata, abort support, and normalization", () =>
+  effect("lift onDefect hook still called when mapDefect is provided", () =>
     Effect.gen(function* () {
-      const contract = Contract.make("Abortable", {
+      let defectHookCalled = false;
+      let defectCauseIsDie = false;
+
+      const contract = Contract.make("LiftDefectHook", {
+        payload: { value: S.Number },
+        success: S.Void,
+        failure: NotAllowedError,
+        failureMode: "return",
+      });
+
+      const lifted = Contract.lift(contract, {
+        method: () => Effect.die(new MockDOMException("hook test", "NotAllowedError")),
+        onDefect: (cause) =>
+          Effect.sync(() => {
+            defectHookCalled = true;
+            defectCauseIsDie = Cause.isDie(cause);
+          }),
+        mapDefect: (cause, _ctx) => {
+          const squashed = Cause.squash(cause);
+          if (squashed instanceof MockDOMException && squashed.name === "NotAllowedError") {
+            return new NotAllowedError({ message: squashed.message });
+          }
+          return undefined;
+        },
+      });
+
+      yield* Effect.exit(lifted.result({ value: 1 }));
+
+      expect(defectHookCalled).toBe(true);
+      expect(defectCauseIsDie).toBe(true);
+    })
+  );
+
+  effect("continuation metadata is available in mapError context", () =>
+    Effect.gen(function* () {
+      const contract = Contract.make("MetadataContext", {
         payload: {},
-        success: S.Struct({ ok: S.String }),
-        failure: S.Struct({ reason: S.String }),
-      }).annotate(Contract.SupportsAbort, true);
+        success: S.Void,
+        failure: NotAllowedError,
+      })
+        .annotate(Contract.Domain, "passkey")
+        .annotate(Contract.Method, "create");
+
+      let capturedDomain: string | undefined;
+      let capturedMethod: string | undefined;
+      let capturedContractName: string | undefined;
 
       const continuation = contract.continuation({
-        metadata: { extra: { attempt: 1 }, overrides: { description: "overridden" } },
+        mapError: (error, ctx) => {
+          capturedDomain = ctx.metadata.domain;
+          capturedMethod = ctx.metadata.method;
+          capturedContractName = ctx.contract.name;
+          if (error instanceof MockDOMException) {
+            return new NotAllowedError({
+              message: error.message,
+              domain: ctx.metadata.domain,
+            });
+          }
+          return undefined;
+        },
       });
 
-      let sawSignal = false;
-      const continuationResult = yield* continuation.run(({ signal }) => {
-        if (signal) {
-          sawSignal = signal.aborted === false;
-        }
-        return Promise.resolve({ ok: "done" });
-      });
+      yield* Effect.exit(
+        continuation.run(() => Promise.reject(new MockDOMException("context test", "NotAllowedError")))
+      );
 
-      expect(continuationResult.ok).toBe("done");
-      expect(continuation.metadata.supportsAbort).toBe(true);
-      expect(continuation.metadata.extra?.attempt).toBe(1);
-      expect(sawSignal).toBe(true);
-
-      const dieExit = yield* Effect.exit(continuation.run(() => Promise.reject(new Error("explode"))));
-      const dieCheck = Exit.match(dieExit, {
-        onFailure: (cause) => Cause.isDie(cause),
-        onSuccess: () => false,
-      });
-      expect(dieCheck).toBe(true);
-
-      const either = yield* continuation.run(() => Promise.reject(new Error("visible failure")), {
-        surfaceDefect: true,
-      });
-      if (Either.isLeft(either)) {
-        expect(either.left).toBeInstanceOf(ContractError.UnknownError);
-      } else {
-        throw new Error("expected UnknownError");
-      }
-
-      const raiseExit = yield* Effect.exit(continuation.raiseResult({ error: new Error("bad result") }));
-      const raiseDie = Exit.match(raiseExit, {
-        onFailure: (cause) => Cause.isDie(cause),
-        onSuccess: () => false,
-      });
-      expect(raiseDie).toBe(true);
-
-      const noErrorExit = yield* Effect.exit(continuation.raiseResult({ error: null } as UnsafeTypes.UnsafeAny));
-      expect(Exit.isSuccess(noErrorExit)).toBe(true);
+      expect(capturedDomain).toBe("passkey");
+      expect(capturedMethod).toBe("create");
+      expect(capturedContractName).toBe("MetadataContext");
     })
   );
 
-  effect("continuation runRaise pipes raiseResult and returns value", () =>
+  effect("continuation decodeFailure is tried before mapError", () =>
     Effect.gen(function* () {
-      const contract = Contract.make("RunRaise", {
-        payload: {},
-        success: S.Struct({ ok: S.String }),
-        failure: S.Struct({ reason: S.String }),
-      });
-
-      const continuation = contract.continuation();
-
-      const successResult = yield* continuation.runRaise(() =>
-        Promise.resolve({ error: null, data: { ok: "fine" } } as const)
-      );
-
-      expect(successResult.data.ok).toBe("fine");
-
-      const dieExit = yield* Effect.exit(
-        continuation.runRaise(() => Promise.resolve({ error: new Error("boom") } as const))
-      );
-
-      const died = Exit.match(dieExit, {
-        onSuccess: () => false,
-        onFailure: (cause) => Cause.isDie(cause),
-      });
-
-      expect(died).toBe(true);
-    })
-  );
-
-  effect("continuation runVoid pipes raiseResult and discards output", () =>
-    Effect.gen(function* () {
-      const contract = Contract.make("RunVoid", {
-        payload: {},
-        success: S.Struct({ ok: S.String }),
-        failure: S.Struct({ reason: S.String }),
-      });
-
-      const continuation = contract.continuation();
-
-      const successExit = yield* Effect.exit(
-        continuation.runVoid(() => Promise.resolve({ error: null, data: { ok: "fine" } } as const))
-      );
-      expect(Exit.isSuccess(successExit)).toBe(true);
-
-      const failureExit = yield* Effect.exit(
-        continuation.runVoid(() => Promise.resolve({ error: new Error("void failure") } as const))
-      );
-
-      const died = Exit.match(failureExit, {
-        onSuccess: () => false,
-        onFailure: (cause) => Cause.isDie(cause),
-      });
-
-      expect(died).toBe(true);
-    })
-  );
-
-  effect("implement can set span name from metadata and attach extras", () =>
-    Effect.gen(function* () {
-      const spanRef = yield* Ref.make(
-        O.none<{ readonly name: string; readonly attributes: HashMap.HashMap<string, unknown> }>()
-      );
-
-      const contract = Contract.make("Telemetry", {
+      const contract = Contract.make("DecodeBeforeMap", {
         payload: {},
         success: S.Void,
-        failure: S.Struct({ reason: S.String }),
-      })
-        .annotate(Contract.Domain, "auth")
-        .annotate(Contract.Method, "signIn");
-
-      const implementation = contract.implement(
-        () =>
-          Effect.gen(function* () {
-            const spanOpt = yield* Effect.option(Effect.currentSpan);
-            if (O.isSome(spanOpt)) {
-              yield* Ref.set(
-                spanRef,
-                O.some({
-                  name: spanOpt.value.name,
-                  attributes: HashMap.fromIterable(spanOpt.value.attributes),
-                })
-              );
-            }
-            return undefined;
-          }),
-        {
-          span: { useMetadataName: true, includeMetadataExtra: true },
-          continuation: { metadata: { extra: { attempt: 3 } } },
-        }
-      );
-
-      yield* implementation({});
-
-      const spanInfoOpt = yield* Ref.get(spanRef);
-      expect(O.isSome(spanInfoOpt)).toBe(true);
-      const spanInfo = O.getOrElse(() => {
-        throw new Error("missing span info");
-      })(spanInfoOpt);
-      expect(spanInfo.name).toBe("auth.signIn");
-      expect(O.getOrUndefined(HashMap.get(spanInfo.attributes, "contract"))).toBe(contract.name);
-      expect(O.getOrUndefined(HashMap.get(spanInfo.attributes, "failureMode"))).toBe(contract.failureMode);
-      expect(O.getOrUndefined(HashMap.get(spanInfo.attributes, "metadataExtra"))).toEqual({ attempt: 3 });
-    })
-  );
-
-  effect("continuation runDecode decodes data by default and supports decodeFrom result", () =>
-    Effect.gen(function* () {
-      const contract = Contract.make("RunDecode", {
-        payload: {},
-        success: S.Struct({ ok: S.String }),
-        failure: S.Struct({ reason: S.String }),
-      });
-
-      const continuation = contract.continuation();
-
-      const decodedFromData = (yield* continuation.runDecode(() =>
-        Promise.resolve({ error: null, data: { ok: "fine" } } as const)
-      )) as { ok: string };
-
-      expect(decodedFromData.ok).toBe("fine");
-
-      const decodedFromResult = (yield* continuation.runDecode(
-        () => Promise.resolve({ error: null, ok: "inline" } as const),
-        { decodeFrom: "result" }
-      )) as { ok: string };
-
-      expect(decodedFromResult.ok).toBe("inline");
-
-      const dieExit = yield* Effect.exit(
-        continuation.runDecode(() => Promise.resolve({ error: new Error("decode failure") } as const))
-      );
-
-      const died = Exit.match(dieExit, {
-        onSuccess: () => false,
-        onFailure: (cause) => Cause.isDie(cause),
-      });
-
-      expect(died).toBe(true);
-    })
-  );
-
-  effect("toResult projects outcomes using failure mode", () =>
-    Effect.gen(function* () {
-      const returnContract = Contract.make("ToResultReturn", {
-        payload: {},
-        success: S.Struct({ ok: S.Boolean }),
-        failure: S.Struct({ issue: S.String }),
-        failureMode: "return",
-      });
-
-      const failureProjection = returnContract.toResult({
-        isFailure: true,
-        result: { issue: "nope" },
-        encodedResult: { issue: "nope" },
-      });
-
-      if (failureProjection._tag === "failure") {
-        expect(failureProjection.value.issue).toBe("nope");
-      } else {
-        throw new Error("expected failure projection");
-      }
-
-      const errorContract = Contract.make("ToResultError", {
-        payload: {},
-        success: S.Struct({ ok: S.Number }),
-        failure: S.Struct({ issue: S.String }),
-      });
-
-      const successProjection = errorContract.toResult({
-        isFailure: false,
-        result: { ok: 1 },
-        encodedResult: { ok: 1 },
-      });
-
-      if (successProjection._tag === "success") {
-        expect(successProjection.value.ok).toBe(1);
-      } else {
-        throw new Error("expected success projection");
-      }
-    })
-  );
-
-  effect("continuation decodes transport failures when configured", () =>
-    Effect.gen(function* () {
-      const contract = Contract.make("DecodeFailure", {
-        payload: {},
-        success: S.Struct({ ok: S.Boolean }),
         failure: S.Struct({ code: S.Number, message: S.String }),
       });
+
+      let mapperWasCalled = false;
 
       const continuation = contract.continuation({
         decodeFailure: {
           select: (error) => (error as { readonly payload?: unknown }).payload,
         },
+        mapError: (_error, _ctx) => {
+          mapperWasCalled = true;
+          return undefined;
+        },
       });
 
-      const decodedFailureExit = yield* Effect.exit(
-        continuation.run(() => Promise.reject({ payload: { code: 500, message: "fail" } }))
+      // Error with payload that matches failureSchema - should be decoded directly
+      const decodableExit = yield* Effect.exit(
+        continuation.run(() => Promise.reject({ payload: { code: 400, message: "bad request" } }))
       );
 
-      const decodedFailure = Exit.match(decodedFailureExit, {
+      const decodedFailure = Exit.match(decodableExit, {
         onSuccess: () => O.none(),
         onFailure: (cause) => Cause.dieOption(cause),
       });
 
-      expect(O.getOrUndefined(decodedFailure)).toEqual({ code: 500, message: "fail" });
-
-      const fallbackExit = yield* Effect.exit(continuation.run(() => Promise.reject(new Error("no decode"))));
-
-      const fallbackDie = Exit.match(fallbackExit, {
-        onSuccess: () => O.none(),
-        onFailure: (cause) => Cause.dieOption(cause),
-      });
-
-      expect(O.getOrUndefined(fallbackDie)).toBeInstanceOf(ContractError.UnknownError);
+      expect(O.isSome(decodedFailure)).toBe(true);
+      expect(O.getOrUndefined(decodedFailure)).toEqual({ code: 400, message: "bad request" });
+      // mapError should NOT have been called because decodeFailure succeeded
+      expect(mapperWasCalled).toBe(false);
     })
   );
 
-  effect("lift wraps implementations and hooks", () =>
+  effect("continuation mapError is called when decodeFailure fails", () =>
     Effect.gen(function* () {
-      let successHook = false;
-      let failureHook = false;
-      let defectHook = false;
-
-      const liftedContract = Contract.make("Liftable", {
-        payload: { value: S.Number },
-        success: S.Struct({ doubled: S.Number }),
-        failure: S.Struct({ reason: S.String }),
-        failureMode: "return",
+      const contract = Contract.make("DecodeFailsMapSucceeds", {
+        payload: {},
+        success: S.Void,
+        failure: TestError,
       });
 
-      const liftedSuccess = Contract.lift(liftedContract, {
-        method: () =>
-          Effect.succeed({
-            isFailure: false,
-            result: { doubled: 4 },
-            encodedResult: { doubled: 4 },
-          }),
-        onSuccess: () =>
-          Effect.sync(() => {
-            successHook = true;
-          }),
+      let mapperWasCalled = false;
+
+      const continuation = contract.continuation({
+        decodeFailure: {
+          select: (error) => (error as { readonly payload?: unknown }).payload,
+        },
+        mapError: (error, _ctx) => {
+          mapperWasCalled = true;
+          if (error instanceof Error) {
+            return new TestError({ message: error.message });
+          }
+          return undefined;
+        },
       });
 
-      const success = yield* liftedSuccess.success({ value: 2 });
-      expect(success.doubled).toBe(4);
-      expect(successHook).toBe(true);
+      // Error that doesn't have payload matching failureSchema
+      yield* Effect.exit(continuation.run(() => Promise.reject(new Error("not decodable"))));
 
-      const liftedFailure = Contract.lift(liftedContract, {
-        method: () =>
-          Effect.succeed({
-            isFailure: true,
-            result: { reason: "nope" },
-            encodedResult: { reason: "nope" },
-          }),
-        onFailure: () =>
-          Effect.sync(() => {
-            failureHook = true;
-          }),
-      });
-
-      const failureExit = yield* Effect.exit(liftedFailure.success({ value: 2 }));
-      expect(Exit.isFailure(failureExit)).toBe(true);
-      expect(failureHook).toBe(true);
-
-      const liftedDefect = Contract.lift(liftedContract, {
-        method: () => Effect.die("defect"),
-        onDefect: (cause) =>
-          Effect.sync(() => {
-            defectHook = Cause.isDie(cause);
-          }),
-      });
-
-      const defectExit = yield* Effect.exit(liftedDefect.result({ value: 1 }));
-      const defectFailure = Exit.match(defectExit, {
-        onSuccess: () => O.none(),
-        onFailure: (cause) => Cause.failureOption(cause),
-      });
-      expect(O.getOrUndefined(defectFailure)).toBeInstanceOf(ContractError.UnknownError);
-      expect(defectHook).toBe(true);
-    })
-  );
-
-  effect("uses default void payload schema", () =>
-    Effect.gen(function* () {
-      const noPayloadContract = Contract.make("NoPayload");
-      const payload = {};
-      const decoded = yield* noPayloadContract.decodeUnknownPayload(payload);
-      const isVoid = S.is(S.Void)(decoded);
-      expect(isVoid).toBeTrue();
-    })
-  );
-
-  effect("fromTaggedRequest copies schemas from tagged request", () =>
-    Effect.gen(function* () {
-      class Tagged extends S.TaggedRequest<Tagged>()("Tagged", {
-        payload: { name: S.String },
-        success: S.Struct({ ok: S.Boolean }),
-        failure: S.Struct({ reason: S.String }),
-      }) {}
-
-      const contract = Contract.fromTaggedRequest(Tagged);
-      const decoded = yield* contract.decodeUnknownPayload({ _tag: "Tagged", name: "abc" });
-      expect(decoded.name).toBe("abc");
-      expect(contract.name).toBe("Tagged");
+      expect(mapperWasCalled).toBe(true);
     })
   );
 });

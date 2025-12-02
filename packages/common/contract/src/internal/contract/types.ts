@@ -121,16 +121,13 @@ export declare namespace FailureMode {
 }
 
 export interface AnySchema extends Pipeable {
-  readonly [S.TypeId]: UnsafeTypes.UnsafeAny;
-  readonly Type: UnsafeTypes.UnsafeAny;
-  readonly Encoded: UnsafeTypes.UnsafeAny;
-  readonly Context: UnsafeTypes.UnsafeAny;
-  readonly make?: (
-    params: UnsafeTypes.UnsafeAny,
-    ...rest: ReadonlyArray<UnsafeTypes.UnsafeAny>
-  ) => UnsafeTypes.UnsafeAny;
+  readonly [S.TypeId]: any;
+  readonly Type: any;
+  readonly Encoded: any;
+  readonly Context: any;
+  readonly make?: (params: any, ...rest: ReadonlyArray<any>) => any;
   readonly ast: AST.AST;
-  readonly annotations: UnsafeTypes.UnsafeAny;
+  readonly annotations: any;
 }
 /**
  * Represents an API endpoint. An API endpoint is mapped to a single route on
@@ -1042,24 +1039,128 @@ export interface FailureContinuationContext<
 }
 
 /**
- * Options used when constructing a continuation. Callers can opt into abort
- * signals, customize error normalization, or override metadata.
+ * Result of an error mapper function. Can return one of:
+ * - A mapped failure value (the transformed error)
+ * - `undefined` to indicate the error couldn't be mapped and should fall through
+ * - An Effect for async/effectful error mapping
  *
- * @since 1.0.0
+ * @since 2.0.0
+ */
+export type ErrorMapperResult<Failure> = Failure | undefined | Effect.Effect<Failure | undefined, never, never>;
+
+/**
+ * Function signature for mapping raw errors to typed failures.
+ * Receives the raw error and context, returns a mapped failure or undefined.
+ *
+ * When a mapper returns `undefined`, the continuation falls back to the next
+ * mapper in the chain or the default `normalizeError` behavior.
+ *
+ * @example
+ * ```ts
+ * const domExceptionMapper: ErrorMapper<PasskeyError> = (error, ctx) => {
+ *   if (error instanceof DOMException) {
+ *     switch (error.name) {
+ *       case "NotAllowedError":
+ *         return new PasskeyError.NotAllowedError({
+ *           message: error.message,
+ *           domain: ctx.metadata.domain
+ *         });
+ *       case "InvalidStateError":
+ *         return new PasskeyError.InvalidStateError({ ... });
+ *     }
+ *   }
+ *   return undefined; // Fall through to next mapper
+ * };
+ * ```
+ *
+ * @since 2.0.0
+ */
+export type ErrorMapper<C extends Any, Failure, Extra extends Record<string, unknown> = Record<string, unknown>> = (
+  error: unknown,
+  context: FailureContinuationContext<C, Extra>
+) => ErrorMapperResult<Failure>;
+
+/**
+ * Internal alias for Failure<C> to avoid name shadowing in generic interfaces.
+ * @internal
+ */
+type ContractFailure<C extends Any> = Failure<C>;
+
+/**
+ * Options used when constructing a continuation. Callers can opt into abort
+ * signals, customize error mapping, or override metadata.
+ *
+ * @since 2.0.0
  */
 export interface FailureContinuationOptions<
   C extends Any,
-  Failure = ContractError.UnknownError,
+  F = ContractFailure<C> | ContractError.UnknownError,
   Extra extends Record<string, unknown> = Record<string, unknown>,
 > {
+  /**
+   * Whether the continuation should create an AbortController for cancellation.
+   */
   readonly supportsAbort?: boolean | undefined;
-  readonly normalizeError?: ((error: unknown, context: FailureContinuationContext<C, Extra>) => Failure) | undefined;
+
+  /**
+   * Error mapper(s) that transform raw errors into typed failures.
+   * Can be a single mapper or an array of mappers that are tried in order.
+   *
+   * Each mapper receives the raw error and context. Return:
+   * - A failure value to use that error
+   * - `undefined` to try the next mapper
+   * - An Effect for async mapping
+   *
+   * @example
+   * ```ts
+   * // Single mapper
+   * contract.continuation({
+   *   mapError: (error, ctx) => {
+   *     if (error instanceof DOMException && error.name === "NotAllowedError") {
+   *       return new PasskeyError.NotAllowedError({ message: error.message });
+   *     }
+   *     return undefined;
+   *   }
+   * });
+   *
+   * // Multiple mappers (tried in order)
+   * contract.continuation({
+   *   mapError: [domExceptionMapper, httpErrorMapper, genericErrorMapper]
+   * });
+   * ```
+   *
+   * @since 2.0.0
+   */
+  readonly mapError?:
+    | ErrorMapper<C, ContractFailure<C> | ContractError.UnknownError, Extra>
+    | ReadonlyArray<ErrorMapper<C, ContractFailure<C> | ContractError.UnknownError, Extra>>
+    | undefined;
+
+  /**
+   * Fallback error normalizer used when no mapper handles the error.
+   * If not provided, defaults to creating `ContractError.UnknownError`.
+   *
+   * @deprecated Prefer using `mapError` for error handling. This is kept for
+   * backwards compatibility with V1.
+   */
+  readonly normalizeError?: ((error: unknown, context: FailureContinuationContext<C, Extra>) => F) | undefined;
+
+  /**
+   * Configuration for attempting to decode errors against the contract's failure schema.
+   * This is tried before custom mappers and normalization.
+   */
   readonly decodeFailure?:
     | {
+        /** Optional selector to extract the decodable portion from the raw error */
         readonly select?: ((error: unknown, context: FailureContinuationContext<C, Extra>) => unknown) | undefined;
+        /** Parse options for schema decoding */
         readonly parseOptions?: AST.ParseOptions | undefined;
       }
     | undefined;
+
+  /**
+   * Metadata overrides and extra fields to attach to the continuation.
+   */
   readonly metadata?: MetadataOptions<Extra> | undefined;
 }
 

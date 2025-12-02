@@ -112,7 +112,7 @@
   },
   "catalog": {
     "@ai-sdk/google": "^2.0.44",
-    "@ai-sdk/openai": "^2.0.75",
+    "@ai-sdk/openai": "^2.0.76",
     "@hocuspocus/extension-logger": "^3.4.0",
     "@hocuspocus/extension-redis": "^3.4.0",
     "@hocuspocus/provider": "^3.4.0",
@@ -149,7 +149,6 @@
     "arctic": "^3.7.0",
     "canihazusername": "^2.4.1",
     "emoji-picker-react": "^4.16.1",
-    "fastest-levenshtein": "^1.0.16",
     "fs-extra": "^11.3.2",
     "hono": "^4.10.7",
     "immer": "^11.0.1",
