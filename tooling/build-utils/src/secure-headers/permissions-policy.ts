@@ -50,12 +50,7 @@ type DirectiveName = (typeof permissionsPolicyDirectives)[number];
  * - `"https://example.com"` - Allow specific origin (quoted)
  * - Array of `self` or quoted origins - Multiple origins
  */
-export type PermissionsPolicyDirectiveValue =
-  | "*"
-  | "self"
-  | "none"
-  | `"${string}"`
-  | Array<"self" | `"${string}"`>;
+export type PermissionsPolicyDirectiveValue = "*" | "self" | "none" | `"${string}"` | Array<"self" | `"${string}"`>;
 
 export type PermissionsPolicyDirectives = Partial<{
   readonly [K in DirectiveName]: PermissionsPolicyDirectiveValue;
@@ -89,10 +84,9 @@ export const PermissionsPolicyOptionSchema = S.Union(
   S.Struct({
     directives: S.Record({
       key: S.String.pipe(
-        S.filter(
-          (s) => permissionsPolicyDirectives.includes(s as DirectiveName),
-          { message: () => "Invalid directive name" }
-        )
+        S.filter((s) => permissionsPolicyDirectives.includes(s as DirectiveName), {
+          message: () => "Invalid directive name",
+        })
       ),
       value: DirectiveValueSchema,
     }),

@@ -10,12 +10,7 @@ const headerName = "Cross-Origin-Opener-Policy";
 /**
  * Supported Cross-Origin-Opener-Policy values.
  */
-const coopValues = [
-  "unsafe-none",
-  "same-origin-allow-popups",
-  "same-origin",
-  "same-origin-plus-COEP",
-] as const;
+const coopValues = ["unsafe-none", "same-origin-allow-popups", "same-origin", "same-origin-plus-COEP"] as const;
 
 type CoopValue = (typeof coopValues)[number];
 
@@ -64,9 +59,7 @@ export const CrossOriginOpenerPolicyHeaderSchema = S.transformOrFail(
       if (coopValues.includes(option as CoopValue)) {
         return ParseResult.succeed({ name: headerName as typeof headerName, value: option });
       }
-      return ParseResult.fail(
-        new ParseResult.Type(ast, option, `Invalid value for ${headerName}: ${String(option)}`)
-      );
+      return ParseResult.fail(new ParseResult.Type(ast, option, `Invalid value for ${headerName}: ${String(option)}`));
     },
     encode: (header, _, ast) => {
       if (header.value === undefined) {
@@ -75,9 +68,7 @@ export const CrossOriginOpenerPolicyHeaderSchema = S.transformOrFail(
       if (coopValues.includes(header.value as CoopValue)) {
         return ParseResult.succeed(header.value as CrossOriginOpenerPolicyOption);
       }
-      return ParseResult.fail(
-        new ParseResult.Type(ast, header, `Cannot encode header value: ${header.value}`)
-      );
+      return ParseResult.fail(new ParseResult.Type(ast, header, `Cannot encode header value: ${header.value}`));
     },
   }
 ).annotations({ identifier: "CrossOriginOpenerPolicyHeaderSchema" });

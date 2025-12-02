@@ -1,20 +1,16 @@
-import {Effect} from "effect";
+import { Effect } from "effect";
 import * as O from "effect/Option";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
-import {SecureHeadersError} from "./errors.ts";
-import type {ResponseHeader} from "./types.ts";
+import { SecureHeadersError } from "./errors.ts";
+import type { ResponseHeader } from "./types.ts";
 
 const headerName = "Cross-Origin-Embedder-Policy";
 
 /**
  * Supported Cross-Origin-Embedder-Policy values.
  */
-const coepValues = [
-  "unsafe-none",
-  "require-corp",
-  "credentialless",
-] as const;
+const coepValues = ["unsafe-none", "require-corp", "credentialless"] as const;
 
 type CoepValue = (typeof coepValues)[number];
 
@@ -22,12 +18,7 @@ type CoepValue = (typeof coepValues)[number];
  * Schema for COEP option values.
  * Accepts `false` to disable or one of the valid COEP values.
  */
-export const CrossOriginEmbedderPolicyOptionSchema = S.Literal(
-  false,
-  "unsafe-none",
-  "require-corp",
-  "credentialless",
-);
+export const CrossOriginEmbedderPolicyOptionSchema = S.Literal(false, "unsafe-none", "require-corp", "credentialless");
 
 export type CrossOriginEmbedderPolicyOption = typeof CrossOriginEmbedderPolicyOptionSchema.Type;
 
@@ -54,17 +45,15 @@ export const CrossOriginEmbedderPolicyHeaderSchema = S.transformOrFail(
     strict: true,
     decode: (option, _, ast) => {
       if (option === undefined) {
-        return ParseResult.succeed({name: headerName as typeof headerName, value: undefined});
+        return ParseResult.succeed({ name: headerName as typeof headerName, value: undefined });
       }
       if (option === false) {
-        return ParseResult.succeed({name: headerName as typeof headerName, value: undefined});
+        return ParseResult.succeed({ name: headerName as typeof headerName, value: undefined });
       }
       if (coepValues.includes(option as CoepValue)) {
-        return ParseResult.succeed({name: headerName as typeof headerName, value: option});
+        return ParseResult.succeed({ name: headerName as typeof headerName, value: option });
       }
-      return ParseResult.fail(
-        new ParseResult.Type(ast, option, `Invalid value for ${headerName}: ${String(option)}`)
-      );
+      return ParseResult.fail(new ParseResult.Type(ast, option, `Invalid value for ${headerName}: ${String(option)}`));
     },
     encode: (header, _, ast) => {
       if (header.value === undefined) {
@@ -73,12 +62,10 @@ export const CrossOriginEmbedderPolicyHeaderSchema = S.transformOrFail(
       if (coepValues.includes(header.value as CoepValue)) {
         return ParseResult.succeed(header.value as CrossOriginEmbedderPolicyOption);
       }
-      return ParseResult.fail(
-        new ParseResult.Type(ast, header, `Cannot encode header value: ${header.value}`)
-      );
+      return ParseResult.fail(new ParseResult.Type(ast, header, `Cannot encode header value: ${header.value}`));
     },
   }
-).annotations({identifier: "CrossOriginEmbedderPolicyHeaderSchema"});
+).annotations({ identifier: "CrossOriginEmbedderPolicyHeaderSchema" });
 
 export type CrossOriginEmbedderPolicyHeader = typeof CrossOriginEmbedderPolicyHeaderSchema.Type;
 
@@ -110,5 +97,5 @@ export const createCrossOriginEmbedderPolicyHeader = (
     const value = yield* headerValueCreator(option);
 
     if (value === undefined) return O.none<ResponseHeader>();
-    return O.some({name: headerName, value});
+    return O.some({ name: headerName, value });
   }).pipe(Effect.withSpan("createCrossOriginEmbedderPolicyHeader"));

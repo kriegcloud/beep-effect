@@ -14,7 +14,7 @@ import type { ProviderDefinedTypeId, TypeId } from "./constants";
 
 export declare namespace Contract {
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category Models
    */
   export interface Variance<out Requirements> extends Pipeable {
@@ -22,7 +22,7 @@ export declare namespace Contract {
   }
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category Models
    */
   export interface VarianceStruct<out Requirements> {
@@ -30,7 +30,7 @@ export declare namespace Contract {
   }
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category Models
    */
   export interface ProviderDefinedProto {
@@ -95,7 +95,7 @@ export class FailureMode extends BS.StringLiteralKit("error", "return").annotati
    * Experimental helper that projects an implementation result into a discriminated
    * {@link HandleOutcome} using the configured failure mode.
    *
-   * @since 1.0.0
+   * @since 0.1.0
    */
   static readonly matchOutcome = <C extends Any>(contract: C, input: FailureMode.MatchInput<C>): HandleOutcome<C> =>
     makeHandleOutcome(contract, input);
@@ -133,7 +133,7 @@ export interface AnySchema extends Pipeable {
  * Represents an API endpoint. An API endpoint is mapped to a single route on
  * the underlying `HttpRouter`.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface Contract<
@@ -475,7 +475,7 @@ export interface Contract<
  * })
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Models
  */
 export interface ProviderDefined<
@@ -529,11 +529,11 @@ export interface ProviderDefined<
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 export declare namespace Contract {
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category Models
    */
   export interface Variance<out Requirements> extends Pipeable {
@@ -541,7 +541,7 @@ export declare namespace Contract {
   }
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category Models
    */
   export interface VarianceStruct<out Requirements> {
@@ -549,7 +549,7 @@ export declare namespace Contract {
   }
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category Models
    */
   export interface ProviderDefinedProto {
@@ -575,7 +575,7 @@ export declare namespace Contract {
 // =============================================================================
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export interface AnyStructSchema extends Pipeable {
@@ -590,7 +590,7 @@ export interface AnyStructSchema extends Pipeable {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export interface AnyTaggedRequestSchema extends AnyStructSchema {
@@ -603,7 +603,7 @@ export interface AnyTaggedRequestSchema extends AnyStructSchema {
  * Structural representation of any contract. Primarily used internally when we
  * need to work with heterogeneous collections.
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export interface Any extends Pipeable {
   readonly [TypeId]: {
@@ -622,7 +622,7 @@ export interface Any extends Pipeable {
 /**
  * A utility type to convert a `Schema.TaggedRequest` into an `Contract`.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export interface FromTaggedRequest<S extends AnyTaggedRequestSchema>
@@ -639,7 +639,7 @@ export interface FromTaggedRequest<S extends AnyTaggedRequestSchema>
 /**
  * A utility type to extract the `Name` type from an `Contract`.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type Name<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements> ? _Name : never;
@@ -647,7 +647,7 @@ export type Name<T> = T extends Contract<infer _Name, infer _Config, infer _Requ
 /**
  * A utility type to extract the type of the contract call payload.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 // export type Payload<T> = T extends Contract<infer _Name, infer _Config, infer _Requirements>
@@ -657,7 +657,7 @@ export type Name<T> = T extends Contract<infer _Name, infer _Config, infer _Requ
 /**
  * A utility type to extract the encoded type of the contract call payload.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type PayloadEncoded<T> =
@@ -667,7 +667,7 @@ export type PayloadEncoded<T> =
  * A utility type to extract the schema for the payload which an `Contract`
  * must be called with.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type PayloadSchema<T> =
@@ -676,7 +676,7 @@ export type PayloadSchema<T> =
 /**
  * A utility type to extract the type of the contract call result when it succeeds.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type Success<T> =
@@ -686,7 +686,7 @@ export type Success<T> =
  * A utility type to extract the encoded type of the contract call result when
  * it succeeds.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type SuccessEncoded<T> =
@@ -696,7 +696,7 @@ export type SuccessEncoded<T> =
  * A utility type to extract the schema for the return type of a contract call when
  * the contract call succeeds.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type SuccessSchema<T> =
@@ -705,7 +705,7 @@ export type SuccessSchema<T> =
 /**
  * A utility type to extract the type of the contract call result when it fails.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type Failure<T> =
@@ -717,7 +717,7 @@ export type FailureSchema<T> =
  * A utility type to extract the encoded type of the contract call result when
  * it fails.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type FailureEncoded<T> =
@@ -726,14 +726,14 @@ export type FailureEncoded<T> =
 /**
  * Extracts the parse context required by the payload schema.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type PayloadContext<T> =
   T extends Contract<infer _Name, infer _Config, infer _Requirements> ? S.Schema.Context<_Config["payload"]> : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type PayloadConstructor<R> =
@@ -744,7 +744,7 @@ export type PayloadConstructor<R> =
     : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type Payload<R> =
@@ -753,7 +753,7 @@ export type Payload<R> =
 /**
  * Extracts the parse context required by the success schema.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type SuccessContext<T> =
@@ -762,7 +762,7 @@ export type SuccessContext<T> =
 /**
  * Extracts the parse context required by the failure schema.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type FailureContext<T> =
@@ -772,7 +772,7 @@ export type FailureContext<T> =
  * A utility type to extract the type of the contract call result whether it
  * succeeds or fails.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type Result<T> =
@@ -781,7 +781,7 @@ export type Result<T> =
  * A utility type to extract the encoded type of the contract call result whether
  * it succeeds or fails.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type ResultEncoded<T> =
@@ -791,7 +791,7 @@ export type ResultEncoded<T> =
  * Discriminated runtime view of a contract invocation result that
  * preserves the configured failure mode along with the encoded payload.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type HandleOutcome<T extends Any> =
@@ -821,7 +821,7 @@ export declare namespace HandleOutcome {
 /**
  * A utility type to extract the requirements of an `Contract`.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type Requirements<T> =
@@ -832,7 +832,7 @@ export type Requirements<T> =
 /**
  * Represents an `Contract` that has been implemented within the application.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Models
  */
 export interface Implementation<Name extends string> {
@@ -847,7 +847,7 @@ export interface Implementation<Name extends string> {
 /**
  * Represents the result of calling the implementation for a particular `Contract`.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Models
  */
 export interface ImplementationResult<Contract extends Any> {
@@ -871,7 +871,7 @@ export interface ImplementationResult<Contract extends Any> {
  * A utility type which represents the possible errors that can be raised by
  * a contract call's implementation.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type ImplementationError<T> =
@@ -885,7 +885,7 @@ export type ImplementationError<T> =
  * A utility type to create a union of `Implementation` types for all contracts in a
  * record.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type ImplementationsFor<Contracts extends Record<string, Any>> = {
@@ -898,7 +898,7 @@ export type ImplementationsFor<Contracts extends Record<string, Any>> = {
  * A utility type to determine if the specified contract requires a user-defined
  * implementation to be implemented.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utility Types
  */
 export type RequiresImplementation<Contract extends Any> =
@@ -910,7 +910,7 @@ export type RequiresImplementation<Contract extends Any> =
  * Runtime context passed to contract implementations. Contains the concrete
  * contract reference plus resolved annotations for the current call.
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export interface ImplementationContext<C extends Any> {
   readonly contract: C;
@@ -922,7 +922,7 @@ export interface ImplementationContext<C extends Any> {
  * the decoded payload, metadata context, and a continuation helper that can
  * bridge asynchronous transports.
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export type ImplementationHandler<C extends Any> = (
   payload: Payload<C>,
@@ -937,7 +937,7 @@ export type ImplementationHandler<C extends Any> = (
  * and returns the effect whose success/failure channels align with the contract
  * definition.
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export type ImplementationFunction<C extends Any> = (
   payload: Payload<C>
@@ -948,7 +948,7 @@ export type ImplementationFunction<C extends Any> = (
  * instrumentation, or storing additional metadata whenever an implementation
  * succeeds or fails.
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export interface ImplementOptions<C extends Any> {
   readonly onSuccess?:
@@ -972,7 +972,7 @@ export interface ImplementOptions<C extends Any> {
  * Human-readable metadata extracted from contract annotations. Extra fields can
  * be attached by callers (for example correlation IDs or tenant info).
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export interface Metadata<Extra extends Record<string, unknown> = Record<string, unknown>> {
   readonly id: string;
@@ -989,7 +989,7 @@ export interface Metadata<Extra extends Record<string, unknown> = Record<string,
  * Options for computing metadata. Allows overriding annotation-derived fields
  * and attaching additional structured data.
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export interface MetadataOptions<Extra extends Record<string, unknown> = Record<string, unknown>> {
   readonly overrides?: {
@@ -1005,7 +1005,7 @@ export interface MetadataOptions<Extra extends Record<string, unknown> = Record<
  * Handler set passed to `Contract.handleOutcome`. Consumers provide branching
  * logic for success/failure cases without re-implementing pattern matches.
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export interface HandleOutcomeHandlers<C extends Any, R = void, E = never, Env = never> {
   readonly onSuccess: (success: HandleOutcome.Success<C>) => Effect.Effect<R, E, Env>;
@@ -1017,7 +1017,7 @@ export interface HandleOutcomeHandlers<C extends Any, R = void, E = never, Env =
  * `signal` to wire abort support and `onError` to report transport-level
  * failures back into the Effect pipeline.
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export interface FailureContinuationHandlers {
   readonly signal?: AbortSignal | undefined;
@@ -1028,7 +1028,7 @@ export interface FailureContinuationHandlers {
  * Context passed to error normalizers. Carries the originating contract plus the
  * derived metadata payload.
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export interface FailureContinuationContext<
   C extends Any,
@@ -1169,7 +1169,7 @@ export interface FailureContinuationOptions<
  * running promise-based transports and raising encoded results back into the
  * Effect channel.
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export interface FailureContinuation<
   C extends Any,
@@ -1201,7 +1201,7 @@ export declare namespace FailureContinuation {
    * Options for `FailureContinuation.run`. Setting `surfaceDefect` returns an
    * `Either` so callers can inspect transport errors without throwing defects.
    *
-   * @since 1.0.0
+   * @since 0.1.0
    */
   export interface RunOptions {
     readonly surfaceDefect?: boolean;
@@ -1211,7 +1211,7 @@ export declare namespace FailureContinuation {
    * Runner signature produced by `FailureContinuation`. Accepts a callback that
    * receives continuation handlers and must return a `Promise`.
    *
-   * @since 1.0.0
+   * @since 0.1.0
    */
   export interface Runner<Failure> {
     <A>(register: (handlers: FailureContinuationHandlers) => Promise<A>): Effect.Effect<A, never, never>;

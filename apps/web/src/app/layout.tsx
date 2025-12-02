@@ -5,6 +5,7 @@ import { primary } from "@beep/ui-core/theme";
 import { RegistryProvider } from "@effect-atom/atom-react";
 import * as Effect from "effect/Effect";
 import type { Metadata, Viewport } from "next";
+import { connection } from "next/server";
 import type React from "react";
 import { getAppConfig } from "@/app-config";
 import { GlobalProviders } from "@/GlobalProviders";
@@ -32,6 +33,8 @@ type RootLayoutProps = {
 };
 
 export default async function RootLayout({ children }: RootLayoutProps) {
+  // Signal to Next.js that this is a dynamic route before Effect's tracing calls Date.now()
+  await connection();
   const appConfig = await runServerPromise(getInitialProps, "RootLayout.getInitialProps");
 
   return (

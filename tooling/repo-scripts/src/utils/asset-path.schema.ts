@@ -18,7 +18,7 @@ import * as Str from "effect/String";
  * const id = toJsAccessor("ic-app-5"); // "icApp5"
  *
  * @category String • Identifiers
- * @since 1.0.0
+ * @since 0.1.0
  */
 export function toJsAccessor<S extends string>(str: S): CamelCase<S> {
   return F.pipe(
@@ -108,7 +108,7 @@ export type PathTuplesFrom<Paths extends readonly string[]> = {
  * toNestedTuple("/settings-panel/icon.svg") // ["settingsPanel", "icon"]
  *
  * @category Paths • Tuples
- * @since 1.0.0
+ * @since 0.1.0
  */
 export function toNestedTuple(path: string): NestedTuple {
   const parts = path.split("/").filter(Boolean); // drop leading ""
@@ -134,7 +134,7 @@ export function toNestedTuple(path: string): NestedTuple {
  * Convert an array of paths into nested tuples (literal-preserving).
  *
  * @category Paths • Tuples
- * @since 1.0.0
+ * @since 0.1.0
  */
 export function buildPathTuples<const A extends readonly [string, ...string[]]>(paths: A): PathTuplesFrom<A> {
   return paths.map(toNestedTuple) as PathTuplesFrom<A>;
@@ -208,7 +208,7 @@ export type BuildOptions = {
  * // wide.logo is typed as string (value still "/logo.png" at runtime)
  *
  * @category Paths • Object Accessors
- * @since 1.0.0
+ * @since 0.1.0
  */
 export function pathObjFromPaths<
   const A extends readonly string[],

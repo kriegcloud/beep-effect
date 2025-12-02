@@ -80,9 +80,7 @@ export const ReferrerPolicyHeaderSchema = S.transformOrFail(
           );
         }
         if (!supportedValues.includes(value as ReferrerPolicyValue)) {
-          return ParseResult.fail(
-            new ParseResult.Type(ast, option, `Invalid value for ${headerName}: ${value}`)
-          );
+          return ParseResult.fail(new ParseResult.Type(ast, option, `Invalid value for ${headerName}: ${value}`));
         }
       }
 
@@ -99,9 +97,7 @@ export const ReferrerPolicyHeaderSchema = S.transformOrFail(
       // Validate all values
       for (const value of values) {
         if (!supportedValues.includes(value as ReferrerPolicyValue)) {
-          return ParseResult.fail(
-            new ParseResult.Type(ast, header, `Cannot encode header value: ${header.value}`)
-          );
+          return ParseResult.fail(new ParseResult.Type(ast, header, `Cannot encode header value: ${header.value}`));
         }
       }
 

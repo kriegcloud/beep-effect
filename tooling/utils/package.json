@@ -23,9 +23,9 @@
     },
     "./package.json": "./package.json",
     "./schemas": {
-      "bun": "./src/schemas/index.ts",
-      "import": "./build/esm/schemas/index.js",
-      "types": "./build/dts/schemas/index.d.ts"
+      "bun": "./src/schemas.ts",
+      "import": "./build/esm/schemas.js",
+      "types": "./build/dts/schemas.d.ts"
     },
     "./schemas/*": {
       "bun": "./src/schemas/*.ts",

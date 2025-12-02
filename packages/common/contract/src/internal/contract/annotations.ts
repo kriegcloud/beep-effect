@@ -52,7 +52,7 @@ export declare namespace ContextAnnotationTag {
  *   .annotate(Contract.Title, "Fetch quarterly report");
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Annotations
  */
 export class Title extends Context.Tag(ContextAnnotationTag.Enum.Title)<Title, string>() {}
@@ -68,7 +68,7 @@ export class Title extends Context.Tag(ContextAnnotationTag.Enum.Title)<Title, s
  *   .annotate(Contract.SupportsAbort, true);
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Annotations
  */
 export class SupportsAbort extends Context.Reference<SupportsAbort>()("@beep/contract/Contract/SupportsAbort", {
@@ -85,7 +85,7 @@ export class SupportsAbort extends Context.Reference<SupportsAbort>()("@beep/con
  *   .annotate(Contract.Domain, "collaboration");
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Annotations
  */
 export class Domain extends Context.Tag(ContextAnnotationTag.Enum.Domain)<Domain, string>() {}
@@ -101,7 +101,7 @@ export class Domain extends Context.Tag(ContextAnnotationTag.Enum.Domain)<Domain
  *   .annotate(Contract.Method, "invitations.invite");
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Annotations
  */
 export class Method extends Context.Tag(ContextAnnotationTag.Enum.Method)<Method, string>() {}
@@ -121,7 +121,7 @@ export type ContractAnnotationCtx = Context.Context<ContractAnnotationTag>;
  *   .annotate(Contract.Visibility, "private");
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Annotations
  */
 export class Visibility extends Context.Tag(ContextAnnotationTag.Enum.Visibility)<Visibility, string>() {}
@@ -137,7 +137,7 @@ export class Visibility extends Context.Tag(ContextAnnotationTag.Enum.Visibility
  *   .annotate(Contract.RateLimitKey, "invitations.invite");
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Annotations
  */
 export class RateLimitKey extends Context.Tag(ContextAnnotationTag.Enum.RateLimitKey)<RateLimitKey, string>() {}
@@ -153,7 +153,7 @@ export class RateLimitKey extends Context.Tag(ContextAnnotationTag.Enum.RateLimi
  *   .annotate(Contract.Audience, "internal");
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Annotations
  */
 export class Audience extends Context.Tag(ContextAnnotationTag.Enum.Audience)<Audience, string>() {}

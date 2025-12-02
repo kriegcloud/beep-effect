@@ -1,16 +1,11 @@
-import {
-  createExpectCTHeader,
-  createExpectCTHeaderValue,
-} from "@beep/build-utils/secure-headers/expect-ct";
+import { createExpectCTHeader, createExpectCTHeaderValue } from "@beep/build-utils/secure-headers/expect-ct";
 import { encodeStrictURI } from "@beep/build-utils/secure-headers/helpers";
 import { beforeEach, describe, expect, it, mock } from "@beep/testkit";
 import { Effect, Exit, Option } from "effect";
 
-const runEffect = <A, E>(effect: Effect.Effect<A, E, never>): Promise<A> =>
-  Effect.runPromise(effect);
+const runEffect = <A, E>(effect: Effect.Effect<A, E, never>): Promise<A> => Effect.runPromise(effect);
 
-const runEffectExit = <A, E>(effect: Effect.Effect<A, E, never>) =>
-  Effect.runSyncExit(effect);
+const runEffectExit = <A, E>(effect: Effect.Effect<A, E, never>) => Effect.runSyncExit(effect);
 
 describe("createExpectCTHeader", () => {
   describe("when giving undefined", () => {
@@ -28,14 +23,9 @@ describe("createExpectCTHeader", () => {
   });
 
   describe("when giving an object", () => {
-    const dummyOption: Parameters<typeof createExpectCTHeader>[0] = [
-      true,
-      { maxAge: 123 },
-    ];
+    const dummyOption: Parameters<typeof createExpectCTHeader>[0] = [true, { maxAge: 123 }];
 
-    let headerValueCreatorMock: ReturnType<
-      typeof mock<typeof createExpectCTHeaderValue>
-    >;
+    let headerValueCreatorMock: ReturnType<typeof mock<typeof createExpectCTHeaderValue>>;
     beforeEach(() => {
       headerValueCreatorMock = mock(createExpectCTHeaderValue);
     });
@@ -44,9 +34,7 @@ describe("createExpectCTHeader", () => {
       const dummyValue = "max-age=123";
       headerValueCreatorMock.mockReturnValue(Effect.succeed(dummyValue));
 
-      const result = await runEffect(
-        createExpectCTHeader(dummyOption, headerValueCreatorMock)
-      );
+      const result = await runEffect(createExpectCTHeader(dummyOption, headerValueCreatorMock));
 
       expect(Option.isSome(result)).toBe(true);
       if (Option.isSome(result)) {
@@ -63,9 +51,7 @@ describe("createExpectCTHeaderValue", () => {
   describe("when giving undefined", () => {
     it("should return undefined", async () => {
       expect(await runEffect(createExpectCTHeaderValue())).toBeUndefined();
-      expect(
-        await runEffect(createExpectCTHeaderValue(null as never))
-      ).toBeUndefined();
+      expect(await runEffect(createExpectCTHeaderValue(null as never))).toBeUndefined();
     });
   });
 
@@ -77,27 +63,21 @@ describe("createExpectCTHeaderValue", () => {
 
   describe("when giving true", () => {
     it('should return "max-age" set one day', async () => {
-      expect(await runEffect(createExpectCTHeaderValue(true))).toBe(
-        `max-age=${secondsOfOneDay}`
-      );
+      expect(await runEffect(createExpectCTHeaderValue(true))).toBe(`max-age=${secondsOfOneDay}`);
     });
   });
 
   describe("when giving an array without any options", () => {
     describe("giving false in the first element", () => {
       it("should raise error", () => {
-        const result = runEffectExit(
-          createExpectCTHeaderValue([false as never, {}])
-        );
+        const result = runEffectExit(createExpectCTHeaderValue([false as never, {}]));
         expect(Exit.isFailure(result)).toBe(true);
       });
     });
 
     describe("giving true in the first element", () => {
       it('should return "max-age" set one day', async () => {
-        expect(await runEffect(createExpectCTHeaderValue([true, {}]))).toBe(
-          `max-age=${secondsOfOneDay}`
-        );
+        expect(await runEffect(createExpectCTHeaderValue([true, {}]))).toBe(`max-age=${secondsOfOneDay}`);
       });
     });
   });
@@ -106,28 +86,15 @@ describe("createExpectCTHeaderValue", () => {
     describe("the number is valid", () => {
       it('should return "max-age" set the number', async () => {
         const dummyAge = 123;
-        expect(
-          await runEffect(createExpectCTHeaderValue([true, { maxAge: dummyAge }]))
-        ).toBe(`max-age=${dummyAge}`);
+        expect(await runEffect(createExpectCTHeaderValue([true, { maxAge: dummyAge }]))).toBe(`max-age=${dummyAge}`);
       });
     });
 
     describe("the number is invalid", () => {
       it("should raise error", () => {
+        expect(Exit.isFailure(runEffectExit(createExpectCTHeaderValue([true, { maxAge: Number.NaN }])))).toBe(true);
         expect(
-          Exit.isFailure(
-            runEffectExit(createExpectCTHeaderValue([true, { maxAge: Number.NaN }]))
-          )
-        ).toBe(true);
-        expect(
-          Exit.isFailure(
-            runEffectExit(
-              createExpectCTHeaderValue([
-                true,
-                { maxAge: Number.POSITIVE_INFINITY },
-              ])
-            )
-          )
+          Exit.isFailure(runEffectExit(createExpectCTHeaderValue([true, { maxAge: Number.POSITIVE_INFINITY }])))
         ).toBe(true);
       });
     });
@@ -136,17 +103,17 @@ describe("createExpectCTHeaderValue", () => {
   describe('when specifying "enforce" option', () => {
     describe("the option is false", () => {
       it('should return only "max-age"', async () => {
-        expect(
-          await runEffect(createExpectCTHeaderValue([true, { enforce: false }]))
-        ).toBe(`max-age=${secondsOfOneDay}`);
+        expect(await runEffect(createExpectCTHeaderValue([true, { enforce: false }]))).toBe(
+          `max-age=${secondsOfOneDay}`
+        );
       });
     });
 
     describe("the option is true", () => {
       it('should return "max-age" and "enforce"', async () => {
-        expect(
-          await runEffect(createExpectCTHeaderValue([true, { enforce: true }]))
-        ).toBe(`max-age=${secondsOfOneDay}, enforce`);
+        expect(await runEffect(createExpectCTHeaderValue([true, { enforce: true }]))).toBe(
+          `max-age=${secondsOfOneDay}, enforce`
+        );
       });
     });
   });
@@ -159,27 +126,25 @@ describe("createExpectCTHeaderValue", () => {
 
     it("should call the second argument", async () => {
       const uri = "https://example.com/";
-      await runEffect(
-        createExpectCTHeaderValue([true, { reportURI: uri }], strictURIEncoderMock)
-      );
+      await runEffect(createExpectCTHeaderValue([true, { reportURI: uri }], strictURIEncoderMock));
 
       expect(strictURIEncoderMock).toBeCalledWith(uri);
     });
 
     it('should return "max-age" and the URI"', async () => {
       const uri = "https://example.com/";
-      expect(
-        await runEffect(createExpectCTHeaderValue([true, { reportURI: uri }]))
-      ).toBe(`max-age=${secondsOfOneDay}, report-uri=${uri}`);
+      expect(await runEffect(createExpectCTHeaderValue([true, { reportURI: uri }]))).toBe(
+        `max-age=${secondsOfOneDay}, report-uri=${uri}`
+      );
     });
   });
 
   describe("when specifying all options", () => {
     describe("the options are negative values", () => {
       it('should return only "max-age"', async () => {
-        expect(
-          await runEffect(createExpectCTHeaderValue([true, { enforce: false }]))
-        ).toBe(`max-age=${secondsOfOneDay}`);
+        expect(await runEffect(createExpectCTHeaderValue([true, { enforce: false }]))).toBe(
+          `max-age=${secondsOfOneDay}`
+        );
       });
     });
 
@@ -204,12 +169,8 @@ describe("createExpectCTHeaderValue", () => {
 
   describe("when giving invalid value", () => {
     it("should raise error", () => {
-      expect(
-        Exit.isFailure(runEffectExit(createExpectCTHeaderValue("foo" as never)))
-      ).toBe(true);
-      expect(
-        Exit.isFailure(runEffectExit(createExpectCTHeaderValue([] as never)))
-      ).toBe(true);
+      expect(Exit.isFailure(runEffectExit(createExpectCTHeaderValue("foo" as never)))).toBe(true);
+      expect(Exit.isFailure(runEffectExit(createExpectCTHeaderValue([] as never)))).toBe(true);
     });
   });
 });

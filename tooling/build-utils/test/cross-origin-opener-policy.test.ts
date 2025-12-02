@@ -1,22 +1,18 @@
 import {
+  CrossOriginOpenerPolicyHeaderSchema,
+  CrossOriginOpenerPolicyOptionSchema,
   createCrossOriginOpenerPolicyHeader,
   createCrossOriginOpenerPolicyHeaderValue,
-  CrossOriginOpenerPolicyOptionSchema,
-  CrossOriginOpenerPolicyHeaderSchema,
 } from "@beep/build-utils/secure-headers/cross-origin-opener-policy";
 import { beforeEach, describe, expect, it, mock } from "@beep/testkit";
 import { Effect, Exit, Option, Schema as S } from "effect";
 
-const runEffect = <A, E>(effect: Effect.Effect<A, E, never>): Promise<A> =>
-  Effect.runPromise(effect);
+const runEffect = <A, E>(effect: Effect.Effect<A, E, never>): Promise<A> => Effect.runPromise(effect);
 
-const runEffectExit = <A, E>(effect: Effect.Effect<A, E, never>) =>
-  Effect.runSyncExit(effect);
+const runEffectExit = <A, E>(effect: Effect.Effect<A, E, never>) => Effect.runSyncExit(effect);
 
 describe("createCrossOriginOpenerPolicyHeader", () => {
-  let headerValueCreatorMock: ReturnType<
-    typeof mock<typeof createCrossOriginOpenerPolicyHeaderValue>
-  >;
+  let headerValueCreatorMock: ReturnType<typeof mock<typeof createCrossOriginOpenerPolicyHeaderValue>>;
   beforeEach(() => {
     headerValueCreatorMock = mock(createCrossOriginOpenerPolicyHeaderValue);
   });
@@ -40,9 +36,7 @@ describe("createCrossOriginOpenerPolicyHeader", () => {
       const dummyValue = "same-origin";
       headerValueCreatorMock.mockReturnValue(Effect.succeed(dummyValue));
 
-      const result = await runEffect(
-        createCrossOriginOpenerPolicyHeader("same-origin", headerValueCreatorMock)
-      );
+      const result = await runEffect(createCrossOriginOpenerPolicyHeader("same-origin", headerValueCreatorMock));
 
       expect(Option.isSome(result)).toBe(true);
       if (Option.isSome(result)) {
@@ -56,9 +50,7 @@ describe("createCrossOriginOpenerPolicyHeader", () => {
     it("should return None when value creator returns undefined", async () => {
       headerValueCreatorMock.mockReturnValue(Effect.succeed(undefined));
 
-      const result = await runEffect(
-        createCrossOriginOpenerPolicyHeader(false, headerValueCreatorMock)
-      );
+      const result = await runEffect(createCrossOriginOpenerPolicyHeader(false, headerValueCreatorMock));
 
       expect(Option.isNone(result)).toBe(true);
     });
@@ -74,51 +66,41 @@ describe("createCrossOriginOpenerPolicyHeaderValue", () => {
 
   describe("when giving false", () => {
     it("should return undefined", async () => {
-      expect(
-        await runEffect(createCrossOriginOpenerPolicyHeaderValue(false))
-      ).toBeUndefined();
+      expect(await runEffect(createCrossOriginOpenerPolicyHeaderValue(false))).toBeUndefined();
     });
   });
 
   describe('when giving "unsafe-none"', () => {
     it('should return "unsafe-none"', async () => {
-      expect(
-        await runEffect(createCrossOriginOpenerPolicyHeaderValue("unsafe-none"))
-      ).toBe("unsafe-none");
+      expect(await runEffect(createCrossOriginOpenerPolicyHeaderValue("unsafe-none"))).toBe("unsafe-none");
     });
   });
 
   describe('when giving "same-origin-allow-popups"', () => {
     it('should return "same-origin-allow-popups"', async () => {
-      expect(
-        await runEffect(createCrossOriginOpenerPolicyHeaderValue("same-origin-allow-popups"))
-      ).toBe("same-origin-allow-popups");
+      expect(await runEffect(createCrossOriginOpenerPolicyHeaderValue("same-origin-allow-popups"))).toBe(
+        "same-origin-allow-popups"
+      );
     });
   });
 
   describe('when giving "same-origin"', () => {
     it('should return "same-origin"', async () => {
-      expect(
-        await runEffect(createCrossOriginOpenerPolicyHeaderValue("same-origin"))
-      ).toBe("same-origin");
+      expect(await runEffect(createCrossOriginOpenerPolicyHeaderValue("same-origin"))).toBe("same-origin");
     });
   });
 
   describe('when giving "same-origin-plus-COEP"', () => {
     it('should return "same-origin-plus-COEP"', async () => {
-      expect(
-        await runEffect(createCrossOriginOpenerPolicyHeaderValue("same-origin-plus-COEP"))
-      ).toBe("same-origin-plus-COEP");
+      expect(await runEffect(createCrossOriginOpenerPolicyHeaderValue("same-origin-plus-COEP"))).toBe(
+        "same-origin-plus-COEP"
+      );
     });
   });
 
   describe("when giving invalid value", () => {
     it("should raise error", () => {
-      expect(
-        Exit.isFailure(
-          runEffectExit(createCrossOriginOpenerPolicyHeaderValue("invalid" as never))
-        )
-      ).toBe(true);
+      expect(Exit.isFailure(runEffectExit(createCrossOriginOpenerPolicyHeaderValue("invalid" as never)))).toBe(true);
     });
   });
 });
@@ -126,9 +108,13 @@ describe("createCrossOriginOpenerPolicyHeaderValue", () => {
 describe("CrossOriginOpenerPolicyOptionSchema", () => {
   it("should accept all valid values", () => {
     expect(S.decodeUnknownSync(CrossOriginOpenerPolicyOptionSchema)("unsafe-none")).toBe("unsafe-none");
-    expect(S.decodeUnknownSync(CrossOriginOpenerPolicyOptionSchema)("same-origin-allow-popups")).toBe("same-origin-allow-popups");
+    expect(S.decodeUnknownSync(CrossOriginOpenerPolicyOptionSchema)("same-origin-allow-popups")).toBe(
+      "same-origin-allow-popups"
+    );
     expect(S.decodeUnknownSync(CrossOriginOpenerPolicyOptionSchema)("same-origin")).toBe("same-origin");
-    expect(S.decodeUnknownSync(CrossOriginOpenerPolicyOptionSchema)("same-origin-plus-COEP")).toBe("same-origin-plus-COEP");
+    expect(S.decodeUnknownSync(CrossOriginOpenerPolicyOptionSchema)("same-origin-plus-COEP")).toBe(
+      "same-origin-plus-COEP"
+    );
   });
 
   it("should accept false", () => {

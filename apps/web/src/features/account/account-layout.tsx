@@ -5,11 +5,12 @@ import { Iconify } from "@beep/ui/atoms";
 import { usePathname } from "@beep/ui/hooks";
 import type { DashboardContentProps } from "@beep/ui/layouts/dashboard";
 import { DashboardContent } from "@beep/ui/layouts/dashboard";
-import { CustomBreadcrumbs, RouterLink } from "@beep/ui/routing";
+import { CustomBreadcrumbs } from "@beep/ui/routing";
 import { removeLastSlash } from "@beep/ui-core/utils";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import * as A from "effect/Array";
+import Link from "next/link";
 
 // ----------------------------------------------------------------------
 
@@ -61,11 +62,12 @@ export function AccountLayout({ children, ...other }: DashboardContentProps) {
       <Tabs value={removeLastSlash(pathname)} sx={{ mb: { xs: 3, md: 5 } }}>
         {A.map(NAV_ITEMS, (tab) => (
           <Tab
-            component={RouterLink}
-            key={tab.href}
+            component={Link}
+            key={tab.href as string}
             label={tab.label}
             icon={tab.icon}
-            value={tab.href}
+            value={tab.href as string}
+            /* TODO fix me and deprecate PathBuilder i guess lol */
             href={tab.href}
           />
         ))}

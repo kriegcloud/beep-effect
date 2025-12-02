@@ -54,52 +54,44 @@ const FrameGuardResponseHeaderSchema = S.Struct({
  * - `"sameorigin"` → decodes to `{ name: "X-Frame-Options", value: "sameorigin" }`
  * - `["allow-from", { uri }]` → decodes to `{ name: "X-Frame-Options", value: "allow-from <uri>" }`
  */
-export const FrameGuardHeaderSchema = S.transformOrFail(
-  FrameGuardOptionSchema,
-  FrameGuardResponseHeaderSchema,
-  {
-    strict: true,
-    decode: (option, _, ast) => {
-      if (option === undefined) {
-        return ParseResult.succeed({ name: headerName as typeof headerName, value: "deny" });
-      }
-      if (option === false) {
-        return ParseResult.succeed({ name: headerName as typeof headerName, value: undefined });
-      }
-      if (option === "deny") {
-        return ParseResult.succeed({ name: headerName as typeof headerName, value: "deny" });
-      }
-      if (option === "sameorigin") {
-        return ParseResult.succeed({ name: headerName as typeof headerName, value: "sameorigin" });
-      }
-      if (A.isArray(option) && option[0] === "allow-from") {
-        const encodedUri = encodeStrictURI(option[1].uri);
-        return ParseResult.succeed({ name: headerName as typeof headerName, value: `allow-from ${encodedUri}` });
-      }
-      return ParseResult.fail(
-        new ParseResult.Type(ast, option, `Invalid value for ${headerName}: ${String(option)}`)
-      );
-    },
-    encode: (header, _, ast) => {
-      if (header.value === undefined) {
-        return ParseResult.succeed(false as const);
-      }
-      if (header.value === "deny") {
-        return ParseResult.succeed("deny" as const);
-      }
-      if (header.value === "sameorigin") {
-        return ParseResult.succeed("sameorigin" as const);
-      }
-      if (header.value.startsWith("allow-from ")) {
-        const uri = header.value.slice("allow-from ".length);
-        return ParseResult.succeed(["allow-from", { uri }] as const);
-      }
-      return ParseResult.fail(
-        new ParseResult.Type(ast, header, `Cannot encode header value: ${header.value}`)
-      );
-    },
-  }
-).annotations({ identifier: "FrameGuardHeaderSchema" });
+export const FrameGuardHeaderSchema = S.transformOrFail(FrameGuardOptionSchema, FrameGuardResponseHeaderSchema, {
+  strict: true,
+  decode: (option, _, ast) => {
+    if (option === undefined) {
+      return ParseResult.succeed({ name: headerName as typeof headerName, value: "deny" });
+    }
+    if (option === false) {
+      return ParseResult.succeed({ name: headerName as typeof headerName, value: undefined });
+    }
+    if (option === "deny") {
+      return ParseResult.succeed({ name: headerName as typeof headerName, value: "deny" });
+    }
+    if (option === "sameorigin") {
+      return ParseResult.succeed({ name: headerName as typeof headerName, value: "sameorigin" });
+    }
+    if (A.isArray(option) && option[0] === "allow-from") {
+      const encodedUri = encodeStrictURI(option[1].uri);
+      return ParseResult.succeed({ name: headerName as typeof headerName, value: `allow-from ${encodedUri}` });
+    }
+    return ParseResult.fail(new ParseResult.Type(ast, option, `Invalid value for ${headerName}: ${String(option)}`));
+  },
+  encode: (header, _, ast) => {
+    if (header.value === undefined) {
+      return ParseResult.succeed(false as const);
+    }
+    if (header.value === "deny") {
+      return ParseResult.succeed("deny" as const);
+    }
+    if (header.value === "sameorigin") {
+      return ParseResult.succeed("sameorigin" as const);
+    }
+    if (header.value.startsWith("allow-from ")) {
+      const uri = header.value.slice("allow-from ".length);
+      return ParseResult.succeed(["allow-from", { uri }] as const);
+    }
+    return ParseResult.fail(new ParseResult.Type(ast, header, `Cannot encode header value: ${header.value}`));
+  },
+}).annotations({ identifier: "FrameGuardHeaderSchema" });
 
 export type FrameGuardHeader = typeof FrameGuardHeaderSchema.Type;
 

@@ -1,5 +1,5 @@
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @module EncryptionService
  *
  * Provides AES-256-GCM encryption for client-side content encryption.
@@ -37,7 +37,7 @@ const KEY_SIZE = 256;
  * Uint8Array backed by ArrayBuffer (not SharedArrayBuffer).
  * Required for Web Crypto API compatibility in TypeScript 5.9+.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category types
  * @see https://github.com/microsoft/typescript/issues/62168
  * @see https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-7.html
@@ -51,7 +51,7 @@ export type CryptoUint8Array = Uint8Array<ArrayBuffer>;
 /**
  * EncryptionService provides cryptographic operations using AES-256-GCM
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category encryption
  */
 export class EncryptionService extends Context.Tag("@beep/shared-domain/EncryptionService")<
@@ -161,7 +161,7 @@ const toCryptoUint8Array = (data: Uint8Array): CryptoUint8Array => {
 /**
  * Create the EncryptionService implementation using Web Crypto API
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category encryption
  */
 export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof EncryptionService.Service> =>
@@ -534,7 +534,7 @@ export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof Encry
 /**
  * Layer that provides EncryptionService using the global crypto object
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category encryption
  */
 export const layer: Layer.Layer<EncryptionService> = Layer.suspend(() =>
@@ -544,7 +544,7 @@ export const layer: Layer.Layer<EncryptionService> = Layer.suspend(() =>
 /**
  * Layer that provides EncryptionService using a custom Crypto instance
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category encryption
  */
 export const layerWithCrypto = (crypto: Crypto): Layer.Layer<EncryptionService> =>

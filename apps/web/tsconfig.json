@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.base.jsonc",
   "compilerOptions": {
-    "rootDir": ".",
     "exactOptionalPropertyTypes": false,
     "moduleDetection": "force",
     "downlevelIteration": true,

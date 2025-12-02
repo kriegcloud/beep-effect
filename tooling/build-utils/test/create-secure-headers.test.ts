@@ -1,22 +1,15 @@
-import {
-  createHeadersObject,
-  createSecureHeaders,
-} from "@beep/build-utils/create-secure-headers";
+import { createHeadersObject, createSecureHeaders } from "@beep/build-utils/create-secure-headers";
 import { describe, expect, it } from "@beep/testkit";
 import { Effect } from "effect";
 
-const runEffect = <A, E>(effect: Effect.Effect<A, E, never>): Promise<A> =>
-  Effect.runPromise(effect);
+const runEffect = <A, E>(effect: Effect.Effect<A, E, never>): Promise<A> => Effect.runPromise(effect);
 
 describe("createHeadersObject", () => {
   describe("when called with default options", () => {
     it("should return default security headers", async () => {
       const result = await runEffect(createHeadersObject());
 
-      expect(result).toHaveProperty(
-        "Strict-Transport-Security",
-        "max-age=63072000"
-      );
+      expect(result).toHaveProperty("Strict-Transport-Security", "max-age=63072000");
       expect(result).toHaveProperty("X-Frame-Options", "deny");
       expect(result).toHaveProperty("X-Download-Options", "noopen");
       expect(result).toHaveProperty("X-Content-Type-Options", "nosniff");
@@ -60,10 +53,7 @@ describe("createHeadersObject", () => {
         })
       );
 
-      expect(result).toHaveProperty(
-        "Content-Security-Policy",
-        "script-src 'self'"
-      );
+      expect(result).toHaveProperty("Content-Security-Policy", "script-src 'self'");
     });
   });
 
@@ -106,9 +96,7 @@ describe("createSecureHeaders", () => {
   });
 
   it("should return customized headers when options are provided", async () => {
-    const result = await runEffect(
-      createSecureHeaders({ frameGuard: "sameorigin", referrerPolicy: "same-origin" })
-    );
+    const result = await runEffect(createSecureHeaders({ frameGuard: "sameorigin", referrerPolicy: "same-origin" }));
 
     // Check that all expected headers are present
     expect(result).toContainEqual({ key: "Strict-Transport-Security", value: "max-age=63072000" });

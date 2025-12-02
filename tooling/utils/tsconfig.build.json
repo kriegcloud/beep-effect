@@ -9,9 +9,7 @@
     "declaration": true,
     "sourceMap": true
   },
-  "references": [
-
-  ],
+  "references": [],
   "include": ["src/**/*.ts"],
   "exclude": []
 }

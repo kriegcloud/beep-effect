@@ -16,7 +16,7 @@
  * );
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
@@ -328,7 +328,7 @@ const userDefinedProto = <
  * })
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Constructors
  */
 export const make = <
@@ -444,7 +444,7 @@ export const make = <
  * const getInvitationContract = Contract.fromTaggedRequest(GetInvitation)
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Constructors
  */
 export const fromTaggedRequest = <S extends AnyTaggedRequestSchema>(schema: S): FromTaggedRequest<S> =>

@@ -123,7 +123,7 @@ export const preloadAtoms = (
 /**
  * Render atoms to static values for SSR
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category SSR
  */
 export const renderAtomsStatic = (
@@ -150,7 +150,7 @@ export const renderAtomsStatic = (
 /**
  * Create a server-side registry with initial data
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category SSR
  */
 export const createServerRegistry = (
@@ -176,7 +176,7 @@ export const createServerRegistry = (
 /**
  * Extract critical atoms that should be preloaded for SSR
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category SSR
  */
 export const extractCriticalAtoms = (
@@ -206,7 +206,7 @@ export const extractCriticalAtoms = (
 /**
  * Serialize dehydrated state for client
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category SSR
  */
 export const serializeState = (dehydratedState: Hydration.DehydratedAtom[]): string => {
@@ -220,7 +220,7 @@ export const serializeState = (dehydratedState: Hydration.DehydratedAtom[]): str
 /**
  * Deserialize state on client
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category SSR
  */
 export const deserializeState = (serializedState: string): Hydration.DehydratedAtom[] => {
@@ -234,7 +234,7 @@ export const deserializeState = (serializedState: string): Hydration.DehydratedA
 /**
  * Create a SSR-safe atom that provides fallback values
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category SSR
  */
 export const createSSRAtom = <T>(serverValue: T, clientAtom: Atom.Atom<T>): Atom.Atom<T> => {
@@ -252,7 +252,7 @@ export const createSSRAtom = <T>(serverValue: T, clientAtom: Atom.Atom<T>): Atom
 /**
  * Check if we're in SSR context
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category SSR
  */
 export const isSSR = (): boolean => {
@@ -261,7 +261,7 @@ export const isSSR = (): boolean => {
 /**
  * Check if we're in hydration phase
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category SSR
  */
 export const isHydrating = (): boolean => {
@@ -271,7 +271,7 @@ export const isHydrating = (): boolean => {
 /**
  * Mark hydration as complete
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category SSR
  */
 export const markHydrationComplete = (): void => {
@@ -283,7 +283,7 @@ export const markHydrationComplete = (): void => {
 /**
  * SSR-safe effect that only runs on client
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category SSR
  */
 export const clientOnlyEffect = <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A | null, E, R> => {
@@ -298,7 +298,7 @@ export const clientOnlyEffect = <A, E, R>(effect: Effect.Effect<A, E, R>): Effec
 /**
  * Create an atom that behaves differently on server vs client
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category SSR
  */
 export const createIsomorphicAtom = <TServer, TClient>(

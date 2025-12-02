@@ -1,16 +1,16 @@
-import { FsUtils } from "../FsUtils.js";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashSet from "effect/HashSet";
 import * as S from "effect/Schema";
+import { FsUtils } from "../FsUtils.js";
 import {
   Dependencies as DepsSchema,
   NpmDepTuple,
   PackageJson,
   RepoDepMapValue,
   WorkspaceDepTuple,
-} from "../schemas/index";
+} from "../schemas/index.js";
 
 /**
  * Extract typed sets of workspace and npm dependencies from a package.json.

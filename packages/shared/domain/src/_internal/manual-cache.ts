@@ -14,7 +14,7 @@ import type * as Scope from "effect/Scope";
 
 /**
  * Type ID for the ManualCache interface.
- * @since 1.0.0
+ * @since 0.1.0
  * @category symbols
  */
 export const ManualCacheTypeId = Symbol.for("@beep/shared-domain/ManualCache");
@@ -22,7 +22,7 @@ export type ManualCacheTypeId = typeof ManualCacheTypeId;
 
 /**
  * Type ID for the internal MapKey structure used by ManualCache.
- * @since 1.0.0
+ * @since 0.1.0
  * @category symbols
  */
 export const MapKeyTypeId = Symbol.for("@beep/shared-domain/ManualCache/MapKey");
@@ -34,7 +34,7 @@ export type MapKeyTypeId = typeof MapKeyTypeId;
  * Entries also expire after a specified time-to-live (TTL).
  * Requires manual population via `set`.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type ManualCache<in out Key, in out Value> = {
@@ -68,7 +68,7 @@ export type ManualCache<in out Key, in out Value> = {
 
 /**
  * Statistics for a ManualCache instance.
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type ManualCacheStats = {
@@ -79,7 +79,7 @@ export type ManualCacheStats = {
 
 /**
  * Statistics for a specific entry within the ManualCache.
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type EntryStats = {
@@ -88,7 +88,7 @@ export type EntryStats = {
 
 /**
  * Internal representation of a key in the LRU list.
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface MapKey<out K> extends Equal.Equal {
@@ -100,14 +100,14 @@ export interface MapKey<out K> extends Equal.Equal {
 
 /**
  * Internal representation of a value stored in the ManualCache map.
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type MapValue<Key, Value> = Complete<Key, Value>;
 
 /**
  * Represents a complete (non-pending) entry in the ManualCache.
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type Complete<out Key, out Value> = {
@@ -119,7 +119,7 @@ export type Complete<out Key, out Value> = {
 };
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category constructors
  */
 export const complete = <Key, Value>(
@@ -137,13 +137,13 @@ export const complete = <Key, Value>(
   });
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category constructors
  */
 export const makeMapKey = <K>(current: K): MapKey<K> => new MapKeyImpl(current);
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category refinements
  */
 export const isMapKey = (u: unknown): u is MapKey<unknown> => hasProperty(u, MapKeyTypeId);
@@ -166,7 +166,7 @@ class MapKeyImpl<out K> implements MapKey<K> {
 
 /**
  * Doubly linked list implementation for LRU tracking.
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type KeySet<in out K> = {
@@ -220,14 +220,14 @@ class KeySetImpl<in out K> implements KeySet<K> {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category constructors
  */
 export const makeKeySet = <K>(): KeySet<K> => new KeySetImpl<K>();
 
 /**
  * Mutable state of the ManualCache.
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type ManualCacheState<in out Key, in out Value> = {
@@ -241,7 +241,7 @@ export type ManualCacheState<in out Key, in out Value> = {
 
 /**
  * Constructs the mutable state for a ManualCache.
- * @since 1.0.0
+ * @since 0.1.0
  * @category constructors
  */
 export const makeManualCacheState = <Key, Value>(
@@ -262,7 +262,7 @@ export const makeManualCacheState = <Key, Value>(
 
 /**
  * Creates the initial mutable state for a ManualCache.
- * @since 1.0.0
+ * @since 0.1.0
  * @category constructors
  */
 export const initialManualCacheState = <Key, Value>(): ManualCacheState<Key, Value> =>
@@ -489,7 +489,7 @@ class ManualCacheImpl<in out Key, in out Value> implements ManualCache<Key, Valu
  * @param options Configuration options for the cache.
  * @param options.capacity The maximum number of entries the cache can hold.
  * @param options.timeToLive The duration for which entries are valid after being set.
- * @since 1.0.0
+ * @since 0.1.0
  * @category constructors
  */
 export const make = <Key, Value>(options: {

@@ -1,9 +1,7 @@
 {
   "extends": "../../tsconfig.base.jsonc",
   "include": ["test"],
-  "references": [
-
-  ],
+  "references": [],
   "compilerOptions": {
     "types": ["node", "bun"],
     "rootDir": "test",

@@ -8,6 +8,6 @@
  * - schemas: Effect schemas used by the tooling
  */
 export * as FsUtils from "./FsUtils.js";
-export * as Repo from "./repo.js";
 export { getUniqueDeps } from "./repo/UniqueDependencies.js";
+export * as Repo from "./repo.js";
 export * from "./schemas/index.js";

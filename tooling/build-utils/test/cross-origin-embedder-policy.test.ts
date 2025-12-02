@@ -1,22 +1,18 @@
 import {
+  CrossOriginEmbedderPolicyHeaderSchema,
+  CrossOriginEmbedderPolicyOptionSchema,
   createCrossOriginEmbedderPolicyHeader,
   createCrossOriginEmbedderPolicyHeaderValue,
-  CrossOriginEmbedderPolicyOptionSchema,
-  CrossOriginEmbedderPolicyHeaderSchema,
 } from "@beep/build-utils/secure-headers/cross-origin-embedder-policy";
 import { beforeEach, describe, expect, it, mock } from "@beep/testkit";
 import { Effect, Exit, Option, Schema as S } from "effect";
 
-const runEffect = <A, E>(effect: Effect.Effect<A, E, never>): Promise<A> =>
-  Effect.runPromise(effect);
+const runEffect = <A, E>(effect: Effect.Effect<A, E, never>): Promise<A> => Effect.runPromise(effect);
 
-const runEffectExit = <A, E>(effect: Effect.Effect<A, E, never>) =>
-  Effect.runSyncExit(effect);
+const runEffectExit = <A, E>(effect: Effect.Effect<A, E, never>) => Effect.runSyncExit(effect);
 
 describe("createCrossOriginEmbedderPolicyHeader", () => {
-  let headerValueCreatorMock: ReturnType<
-    typeof mock<typeof createCrossOriginEmbedderPolicyHeaderValue>
-  >;
+  let headerValueCreatorMock: ReturnType<typeof mock<typeof createCrossOriginEmbedderPolicyHeaderValue>>;
   beforeEach(() => {
     headerValueCreatorMock = mock(createCrossOriginEmbedderPolicyHeaderValue);
   });
@@ -40,9 +36,7 @@ describe("createCrossOriginEmbedderPolicyHeader", () => {
       const dummyValue = "require-corp";
       headerValueCreatorMock.mockReturnValue(Effect.succeed(dummyValue));
 
-      const result = await runEffect(
-        createCrossOriginEmbedderPolicyHeader("require-corp", headerValueCreatorMock)
-      );
+      const result = await runEffect(createCrossOriginEmbedderPolicyHeader("require-corp", headerValueCreatorMock));
 
       expect(Option.isSome(result)).toBe(true);
       if (Option.isSome(result)) {
@@ -56,9 +50,7 @@ describe("createCrossOriginEmbedderPolicyHeader", () => {
     it("should return None when value creator returns undefined", async () => {
       headerValueCreatorMock.mockReturnValue(Effect.succeed(undefined));
 
-      const result = await runEffect(
-        createCrossOriginEmbedderPolicyHeader(false, headerValueCreatorMock)
-      );
+      const result = await runEffect(createCrossOriginEmbedderPolicyHeader(false, headerValueCreatorMock));
 
       expect(Option.isNone(result)).toBe(true);
     });
@@ -74,43 +66,31 @@ describe("createCrossOriginEmbedderPolicyHeaderValue", () => {
 
   describe("when giving false", () => {
     it("should return undefined", async () => {
-      expect(
-        await runEffect(createCrossOriginEmbedderPolicyHeaderValue(false))
-      ).toBeUndefined();
+      expect(await runEffect(createCrossOriginEmbedderPolicyHeaderValue(false))).toBeUndefined();
     });
   });
 
   describe('when giving "unsafe-none"', () => {
     it('should return "unsafe-none"', async () => {
-      expect(
-        await runEffect(createCrossOriginEmbedderPolicyHeaderValue("unsafe-none"))
-      ).toBe("unsafe-none");
+      expect(await runEffect(createCrossOriginEmbedderPolicyHeaderValue("unsafe-none"))).toBe("unsafe-none");
     });
   });
 
   describe('when giving "require-corp"', () => {
     it('should return "require-corp"', async () => {
-      expect(
-        await runEffect(createCrossOriginEmbedderPolicyHeaderValue("require-corp"))
-      ).toBe("require-corp");
+      expect(await runEffect(createCrossOriginEmbedderPolicyHeaderValue("require-corp"))).toBe("require-corp");
     });
   });
 
   describe('when giving "credentialless"', () => {
     it('should return "credentialless"', async () => {
-      expect(
-        await runEffect(createCrossOriginEmbedderPolicyHeaderValue("credentialless"))
-      ).toBe("credentialless");
+      expect(await runEffect(createCrossOriginEmbedderPolicyHeaderValue("credentialless"))).toBe("credentialless");
     });
   });
 
   describe("when giving invalid value", () => {
     it("should raise error", () => {
-      expect(
-        Exit.isFailure(
-          runEffectExit(createCrossOriginEmbedderPolicyHeaderValue("invalid" as never))
-        )
-      ).toBe(true);
+      expect(Exit.isFailure(runEffectExit(createCrossOriginEmbedderPolicyHeaderValue("invalid" as never)))).toBe(true);
     });
   });
 });

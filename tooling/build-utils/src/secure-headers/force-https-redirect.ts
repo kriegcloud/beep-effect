@@ -2,8 +2,8 @@ import { pipe } from "effect";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import * as P from "effect/Predicate";
 import * as ParseResult from "effect/ParseResult";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { SecureHeadersError } from "./errors.ts";
 import type { ResponseHeader } from "./types.ts";
@@ -26,10 +26,7 @@ const HSTSConfigSchema = S.Struct({
  * - `boolean` - true enables with defaults, false disables
  * - `[true, { maxAge?, includeSubDomains?, preload? }]` - tuple with configuration
  */
-export const ForceHTTPSRedirectOptionSchema = S.Union(
-  S.Boolean,
-  S.Tuple(S.Literal(true), HSTSConfigSchema)
-);
+export const ForceHTTPSRedirectOptionSchema = S.Union(S.Boolean, S.Tuple(S.Literal(true), HSTSConfigSchema));
 
 export type ForceHTTPSRedirectOption = typeof ForceHTTPSRedirectOptionSchema.Type;
 
@@ -95,9 +92,7 @@ export const ForceHTTPSRedirectHeaderSchema = S.transformOrFail(
         return ParseResult.succeed({ name: headerName as typeof headerName, value: headerValue });
       }
 
-      return ParseResult.fail(
-        new ParseResult.Type(ast, option, `Invalid value for ${headerName}: ${String(option)}`)
-      );
+      return ParseResult.fail(new ParseResult.Type(ast, option, `Invalid value for ${headerName}: ${String(option)}`));
     },
     encode: (header, _, ast) => {
       if (header.value === undefined) {
@@ -119,11 +114,7 @@ export const ForceHTTPSRedirectHeaderSchema = S.transformOrFail(
       }
 
       // If only max-age with default value, return simple true
-      if (
-        config.maxAge === defaultMaxAge &&
-        config.includeSubDomains === undefined &&
-        config.preload === undefined
-      ) {
+      if (config.maxAge === defaultMaxAge && config.includeSubDomains === undefined && config.preload === undefined) {
         return ParseResult.succeed(true as const);
       }
 
@@ -139,9 +130,7 @@ export const ForceHTTPSRedirectHeaderSchema = S.transformOrFail(
         ] as const);
       }
 
-      return ParseResult.fail(
-        new ParseResult.Type(ast, header, `Cannot encode header value: ${header.value}`)
-      );
+      return ParseResult.fail(new ParseResult.Type(ast, header, `Cannot encode header value: ${header.value}`));
     },
   }
 ).annotations({ identifier: "ForceHTTPSRedirectHeaderSchema" });
@@ -173,7 +162,11 @@ export const createHSTSHeaderValue = (
       }
       const { includeSubDomains, preload } = option[1];
       return pipe(
-        A.make(`max-age=${maxAge}`, includeSubDomains ? "includeSubDomains" : undefined, preload ? "preload" : undefined),
+        A.make(
+          `max-age=${maxAge}`,
+          includeSubDomains ? "includeSubDomains" : undefined,
+          preload ? "preload" : undefined
+        ),
         A.filter(P.isNotNullable),
         A.join("; ")
       );

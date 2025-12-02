@@ -1,5 +1,5 @@
-import { Json } from "@beep/tooling-utils/schemas/Json";
 import * as S from "effect/Schema";
+import { Json } from "./Json.js";
 
 const License = S.Union(
   S.String,
@@ -86,11 +86,7 @@ const DependencyMap = S.Record({
  * Can be a string path or nested conditions object.
  */
 const ExportsConditionValue: S.Schema<ExportsConditionValue> = S.suspend(() =>
-  S.Union(
-    S.String,
-    S.Null,
-    S.Record({ key: S.String, value: ExportsConditionValue })
-  )
+  S.Union(S.String, S.Null, S.Record({ key: S.String, value: ExportsConditionValue }))
 );
 type ExportsConditionValue = string | null | { [key: string]: ExportsConditionValue };
 
@@ -103,11 +99,7 @@ type ExportsConditionValue = string | null | { [key: string]: ExportsConditionVa
  * - Subpath exports: `{ ".": "./index.js", "./utils": "./utils.js" }`
  * - Nested conditions with subpaths
  */
-const Exports = S.Union(
-  S.String,
-  S.Null,
-  S.Record({ key: S.String, value: ExportsConditionValue })
-);
+const Exports = S.Union(S.String, S.Null, S.Record({ key: S.String, value: ExportsConditionValue }));
 
 /**
  * Effect Schema representation of a package.json used by repo utilities.

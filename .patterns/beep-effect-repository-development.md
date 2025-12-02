@@ -324,7 +324,7 @@ Structure module exports for clarity and discoverability:
 ```typescript
 // ModuleName.ts
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 // Internal implementations
@@ -344,7 +344,7 @@ const internal = {
  * const instance = ModuleName.create({ value: 42 })
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category constructors
  */
 export const create: <A>(config: Config<A>) => Effect.Effect<Instance<A>, never, never> = 
@@ -364,7 +364,7 @@ export const create: <A>(config: Config<A>) => Effect.Effect<Instance<A>, never,
  * })
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category combinators
  */
 export const map: <A, B>(instance: Instance<A>, f: (a: A) => B) => Effect.Effect<Instance<B>, never, never> =

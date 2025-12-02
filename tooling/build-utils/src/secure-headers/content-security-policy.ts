@@ -388,9 +388,7 @@ export const ContentSecurityPolicyHeaderSchema = S.transformOrFail(
       const value = createContentSecurityPolicyOptionHeaderValue(option as ContentSecurityPolicyOption);
 
       if (!value || !name) {
-        return ParseResult.fail(
-          new ParseResult.Type(ast, option, `Invalid CSP configuration`)
-        );
+        return ParseResult.fail(new ParseResult.Type(ast, option, `Invalid CSP configuration`));
       }
 
       return ParseResult.succeed({ name, value });
@@ -425,9 +423,7 @@ export const ContentSecurityPolicyHeaderSchema = S.transformOrFail(
       }
 
       if (Object.keys(directives).length === 0) {
-        return ParseResult.fail(
-          new ParseResult.Type(ast, header, `Cannot encode empty CSP header`)
-        );
+        return ParseResult.fail(new ParseResult.Type(ast, header, `Cannot encode empty CSP header`));
       }
 
       return ParseResult.succeed({

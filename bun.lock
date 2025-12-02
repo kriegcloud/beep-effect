@@ -3055,7 +3055,7 @@
     "react-phone-number-input": "^3.4.14",
     "react-player": "^3.4.0",
     "react-resizable-panels": "^3.0.6",
-    "react-router-dom": "^7.9.6",
+    "react-router-dom": "^7.10.0",
     "react-syntax-highlighter": "^16.1.0",
     "react-textarea-autosize": "^8.5.9",
     "react-tweet": "^3.2.2",

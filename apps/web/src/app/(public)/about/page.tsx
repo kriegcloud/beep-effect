@@ -2,9 +2,9 @@ import { serverEnv } from "@beep/core-env/server";
 
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
+export const generateMetadata = (): Metadata => ({
   title: `About Us - ${serverEnv.app.name}`,
-};
+});
 
 const AboutUsPage = () => {
   return <>About Us</>;

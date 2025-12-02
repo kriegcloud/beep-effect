@@ -1,22 +1,18 @@
 import {
   createPermittedCrossDomainPoliciesHeader,
   createPermittedCrossDomainPoliciesHeaderValue,
-  PermittedCrossDomainPoliciesOptionSchema,
   PermittedCrossDomainPoliciesHeaderSchema,
+  PermittedCrossDomainPoliciesOptionSchema,
 } from "@beep/build-utils/secure-headers/permitted-cross-domain-policies";
 import { beforeEach, describe, expect, it, mock } from "@beep/testkit";
 import { Effect, Exit, Option, Schema as S } from "effect";
 
-const runEffect = <A, E>(effect: Effect.Effect<A, E, never>): Promise<A> =>
-  Effect.runPromise(effect);
+const runEffect = <A, E>(effect: Effect.Effect<A, E, never>): Promise<A> => Effect.runPromise(effect);
 
-const runEffectExit = <A, E>(effect: Effect.Effect<A, E, never>) =>
-  Effect.runSyncExit(effect);
+const runEffectExit = <A, E>(effect: Effect.Effect<A, E, never>) => Effect.runSyncExit(effect);
 
 describe("createPermittedCrossDomainPoliciesHeader", () => {
-  let headerValueCreatorMock: ReturnType<
-    typeof mock<typeof createPermittedCrossDomainPoliciesHeaderValue>
-  >;
+  let headerValueCreatorMock: ReturnType<typeof mock<typeof createPermittedCrossDomainPoliciesHeaderValue>>;
   beforeEach(() => {
     headerValueCreatorMock = mock(createPermittedCrossDomainPoliciesHeaderValue);
   });
@@ -46,9 +42,7 @@ describe("createPermittedCrossDomainPoliciesHeader", () => {
       const dummyValue = "master-only";
       headerValueCreatorMock.mockReturnValue(Effect.succeed(dummyValue));
 
-      const result = await runEffect(
-        createPermittedCrossDomainPoliciesHeader("master-only", headerValueCreatorMock)
-      );
+      const result = await runEffect(createPermittedCrossDomainPoliciesHeader("master-only", headerValueCreatorMock));
 
       expect(Option.isSome(result)).toBe(true);
       if (Option.isSome(result)) {
@@ -62,9 +56,7 @@ describe("createPermittedCrossDomainPoliciesHeader", () => {
     it("should return None when value creator returns undefined", async () => {
       headerValueCreatorMock.mockReturnValue(Effect.succeed(undefined));
 
-      const result = await runEffect(
-        createPermittedCrossDomainPoliciesHeader(false, headerValueCreatorMock)
-      );
+      const result = await runEffect(createPermittedCrossDomainPoliciesHeader(false, headerValueCreatorMock));
 
       expect(Option.isNone(result)).toBe(true);
     });
@@ -80,59 +72,45 @@ describe("createPermittedCrossDomainPoliciesHeaderValue", () => {
 
   describe("when giving false", () => {
     it("should return undefined", async () => {
-      expect(
-        await runEffect(createPermittedCrossDomainPoliciesHeaderValue(false))
-      ).toBeUndefined();
+      expect(await runEffect(createPermittedCrossDomainPoliciesHeaderValue(false))).toBeUndefined();
     });
   });
 
   describe('when giving "none"', () => {
     it('should return "none"', async () => {
-      expect(
-        await runEffect(createPermittedCrossDomainPoliciesHeaderValue("none"))
-      ).toBe("none");
+      expect(await runEffect(createPermittedCrossDomainPoliciesHeaderValue("none"))).toBe("none");
     });
   });
 
   describe('when giving "master-only"', () => {
     it('should return "master-only"', async () => {
-      expect(
-        await runEffect(createPermittedCrossDomainPoliciesHeaderValue("master-only"))
-      ).toBe("master-only");
+      expect(await runEffect(createPermittedCrossDomainPoliciesHeaderValue("master-only"))).toBe("master-only");
     });
   });
 
   describe('when giving "by-content-type"', () => {
     it('should return "by-content-type"', async () => {
-      expect(
-        await runEffect(createPermittedCrossDomainPoliciesHeaderValue("by-content-type"))
-      ).toBe("by-content-type");
+      expect(await runEffect(createPermittedCrossDomainPoliciesHeaderValue("by-content-type"))).toBe("by-content-type");
     });
   });
 
   describe('when giving "by-ftp-filename"', () => {
     it('should return "by-ftp-filename"', async () => {
-      expect(
-        await runEffect(createPermittedCrossDomainPoliciesHeaderValue("by-ftp-filename"))
-      ).toBe("by-ftp-filename");
+      expect(await runEffect(createPermittedCrossDomainPoliciesHeaderValue("by-ftp-filename"))).toBe("by-ftp-filename");
     });
   });
 
   describe('when giving "all"', () => {
     it('should return "all"', async () => {
-      expect(
-        await runEffect(createPermittedCrossDomainPoliciesHeaderValue("all"))
-      ).toBe("all");
+      expect(await runEffect(createPermittedCrossDomainPoliciesHeaderValue("all"))).toBe("all");
     });
   });
 
   describe("when giving invalid value", () => {
     it("should raise error", () => {
-      expect(
-        Exit.isFailure(
-          runEffectExit(createPermittedCrossDomainPoliciesHeaderValue("invalid" as never))
-        )
-      ).toBe(true);
+      expect(Exit.isFailure(runEffectExit(createPermittedCrossDomainPoliciesHeaderValue("invalid" as never)))).toBe(
+        true
+      );
     });
   });
 });

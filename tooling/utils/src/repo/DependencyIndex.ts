@@ -1,14 +1,14 @@
-import { extractWorkspaceDependencies } from "./Dependencies.js";
-import { mapWorkspaceToPackageJsonPath } from "./PackageJsonMap.js";
-import { findRepoRoot } from "./Root.js";
-import type { RepoDepMapValue } from "../schemas/index.js";
-import { WorkspacePkgKey } from "../schemas/index.js";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as S from "effect/Schema";
+import type { RepoDepMapValue } from "../schemas/index.js";
+import { WorkspacePkgKey } from "../schemas/index.js";
+import { extractWorkspaceDependencies } from "./Dependencies.js";
+import { mapWorkspaceToPackageJsonPath } from "./PackageJsonMap.js";
+import { findRepoRoot } from "./Root.js";
 
 /**
  * Build a repository-wide dependency index for all workspaces plus `@beep/root`.

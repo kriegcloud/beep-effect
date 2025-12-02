@@ -17,7 +17,7 @@ import * as S from "effect/Schema";
 /**
  * Unique identifier for contract errors.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Type Ids
  */
 export const TypeId = Symbol.for("@beep/contract/contract-kit/ContractError");
@@ -25,7 +25,7 @@ export const TypeId = Symbol.for("@beep/contract/contract-kit/ContractError");
 /**
  * Type-level representation of the contract error identifier.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Type Ids
  */
 export type TypeId = typeof TypeId;
@@ -50,7 +50,7 @@ export type TypeId = typeof TypeId;
  * console.log(ContractError.isContractError(contractError))   // true
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Guards
  */
 // export const isContractError = (u: unknown): u is ContractError.Type
@@ -134,7 +134,7 @@ export declare namespace HttpRequestErrorReason {
  * });
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Errors
  */
 export class HttpRequestError extends S.TaggedError<HttpRequestError>("@beep/contract/ContractError/HttpRequestError")(
@@ -155,7 +155,7 @@ export class HttpRequestError extends S.TaggedError<HttpRequestError>("@beep/con
   }
 ) {
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    */
   readonly [TypeId]: TypeId = TypeId;
 
@@ -177,7 +177,7 @@ export class HttpRequestError extends S.TaggedError<HttpRequestError>("@beep/con
    * });
    * ```
    *
-   * @since 1.0.0
+   * @since 0.1.0
    * @category Constructors
    */
   static readonly fromRequestError = ({
@@ -257,7 +257,7 @@ export class HttpRequestError extends S.TaggedError<HttpRequestError>("@beep/con
  * }
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schemas
  */
 export class HttpResponseDetails extends S.Class<HttpResponseDetails>("HttpResponseDetails")(
@@ -324,7 +324,7 @@ export declare namespace HttpResponseErrorReason {
  * // "StatusCode: Rate limit exceeded (429 POST https://api.example.com/reports)"
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Errors
  */
 export class HttpResponseError extends S.TaggedError<HttpResponseError>(
@@ -348,7 +348,7 @@ export class HttpResponseError extends S.TaggedError<HttpResponseError>(
   }
 ) {
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    */
   readonly [TypeId]: TypeId = TypeId;
 
@@ -369,7 +369,7 @@ export class HttpResponseError extends S.TaggedError<HttpResponseError>(
    * });
    * ```
    *
-   * @since 1.0.0
+   * @since 0.1.0
    * @category Constructors
    */
   static fromResponseError = ({
@@ -499,7 +499,7 @@ export class HttpResponseError extends S.TaggedError<HttpResponseError>(
  * )
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Errors
  */
 export class MalformedInput extends S.TaggedError<MalformedInput>("@beep/contract/ContractError/MalformedInput")(
@@ -518,7 +518,7 @@ export class MalformedInput extends S.TaggedError<MalformedInput>("@beep/contrac
   }
 ) {
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    */
   readonly [TypeId]: TypeId = TypeId;
 }
@@ -564,7 +564,7 @@ export class MalformedInput extends S.TaggedError<MalformedInput>("@beep/contrac
  * )
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Errors
  */
 export class MalformedOutput extends S.TaggedError<MalformedOutput>("@beep/contract/ContractError/MalformedOutput")(
@@ -584,7 +584,7 @@ export class MalformedOutput extends S.TaggedError<MalformedOutput>("@beep/contr
   }
 ) {
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    */
   readonly [TypeId]: TypeId = TypeId;
 
@@ -614,7 +614,7 @@ export class MalformedOutput extends S.TaggedError<MalformedOutput>("@beep/contr
    *   )
    * ```
    *
-   * @since 1.0.0
+   * @since 0.1.0
    * @category Constructors
    */
   static fromParseError({
@@ -672,7 +672,7 @@ export class MalformedOutput extends S.TaggedError<MalformedOutput>("@beep/contr
  * )
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Errors
  */
 export class UnknownError extends S.TaggedError<UnknownError>("@beep/contract/UnknownError")(
@@ -691,12 +691,12 @@ export class UnknownError extends S.TaggedError<UnknownError>("@beep/contract/Un
   }
 ) {
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    */
   readonly [TypeId]: TypeId = TypeId;
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    */
   override get message(): string {
     const moduleMethod = `${this.module}.${this.method}`;
@@ -739,7 +739,7 @@ export class UnknownError extends S.TaggedError<UnknownError>("@beep/contract/Un
  *   )
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schemas
  */
 
@@ -787,7 +787,7 @@ export declare namespace ContractError {
    * )
    * ```
    *
-   * @since 1.0.0
+   * @since 0.1.0
    * @category Models
    */
   export type Type = S.Schema.Type<typeof ContractError>;

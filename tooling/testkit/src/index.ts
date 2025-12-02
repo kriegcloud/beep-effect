@@ -1,5 +1,5 @@
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 import type * as Duration from "effect/Duration";
 import type * as Effect from "effect/Effect";
@@ -12,22 +12,22 @@ import * as internal from "./internal/internal";
 import type { UnsafeAny } from "./internal/types";
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 export * from "bun:test";
 export * from "./assert";
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 export declare namespace BunTest {
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    */
   export type TestFunction<A, E, R, TestArgs extends Array<UnsafeAny>> = (...args: TestArgs) => Effect.Effect<A, E, R>;
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    */
   export type Test<R> = <A, E>(
     name: string,
@@ -36,14 +36,14 @@ export declare namespace BunTest {
   ) => void;
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    */
   export type Arbitraries =
     | Array<Schema.Schema.Any | FC.Arbitrary<UnsafeAny>>
     | { [K in string]: Schema.Schema.Any | FC.Arbitrary<UnsafeAny> };
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    */
   export interface Tester<R> extends BunTest.Test<R> {
     skip: BunTest.Test<R>;
@@ -63,7 +63,7 @@ export declare namespace BunTest {
   }
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    */
   export interface Methods {
     readonly effect: BunTest.Tester<TestServices.TestServices>;
@@ -93,27 +93,27 @@ export declare namespace BunTest {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 export const addEqualityTesters: () => void = internal.addEqualityTesters;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 export const effect: BunTest.Tester<TestServices.TestServices> = internal.effect;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 export const scoped: BunTest.Tester<TestServices.TestServices | Scope.Scope> = internal.scoped;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 export const live: BunTest.Tester<never> = internal.live;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 export const scopedLive: BunTest.Tester<Scope.Scope> = internal.scopedLive;
 
@@ -121,7 +121,7 @@ export const scopedLive: BunTest.Tester<Scope.Scope> = internal.scopedLive;
  * Share a `Layer` between multiple tests, optionally wrapping
  * the tests in a `describe` block if a name is provided.
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export const layer: <R, E>(
   layer_: Layer.Layer<R, E>,
@@ -136,7 +136,7 @@ export const layer: <R, E>(
 } = internal.layer;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 export const flakyTest: <A, E, R>(
   self: Effect.Effect<A, E, R>,
@@ -144,16 +144,16 @@ export const flakyTest: <A, E, R>(
 ) => Effect.Effect<A, never, R> = internal.flakyTest;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 export const prop: BunTest.Methods["prop"] = internal.prop;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 export const makeMethods: (it: UnsafeAny) => BunTest.Methods = internal.makeMethods;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 export const describeWrapped: (name: string, f: (it: BunTest.Methods) => void) => void = internal.describeWrapped;

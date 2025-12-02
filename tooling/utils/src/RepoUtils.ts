@@ -1,4 +1,3 @@
-import { DomainError } from "./repo/Errors.js";
 import type * as FileSystem from "@effect/platform/FileSystem";
 import type * as Path from "@effect/platform/Path";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
@@ -8,8 +7,9 @@ import * as Effect from "effect/Effect";
 import type * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import type { FsUtils } from "./FsUtils.js";
-import type { GetWorkSpaceDir } from "./repo.js";
+import { DomainError } from "./repo/Errors.js";
 import { findRepoRoot, getWorkspaceDir, resolveWorkspaceDirs } from "./repo/index.js";
+import type { GetWorkSpaceDir } from "./repo.js";
 
 interface IRepoUtilsEffect {
   readonly REPOSITORY_ROOT: string;

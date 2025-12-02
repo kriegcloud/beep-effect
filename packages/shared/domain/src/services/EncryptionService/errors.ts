@@ -1,12 +1,12 @@
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @module errors
  */
 import * as Data from "effect/Data";
 
 /**
  * Error thrown when encryption fails
- * @since 1.0.0
+ * @since 0.1.0
  * @category errors
  */
 export class EncryptionError extends Data.TaggedError("EncryptionError")<{
@@ -18,7 +18,7 @@ export class EncryptionError extends Data.TaggedError("EncryptionError")<{
 
 /**
  * Error thrown when decryption fails
- * @since 1.0.0
+ * @since 0.1.0
  * @category errors
  */
 export class DecryptionError extends Data.TaggedError("DecryptionError")<{
@@ -30,7 +30,7 @@ export class DecryptionError extends Data.TaggedError("DecryptionError")<{
 
 /**
  * Error thrown when key derivation fails
- * @since 1.0.0
+ * @since 0.1.0
  * @category errors
  */
 export class KeyDerivationError extends Data.TaggedError("KeyDerivationError")<{
@@ -41,7 +41,7 @@ export class KeyDerivationError extends Data.TaggedError("KeyDerivationError")<{
 
 /**
  * Error thrown when hash computation fails
- * @since 1.0.0
+ * @since 0.1.0
  * @category errors
  */
 export class HashError extends Data.TaggedError("HashError")<{

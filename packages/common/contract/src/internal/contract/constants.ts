@@ -1,7 +1,7 @@
 /**
  * Constants shared across the contract runtime.
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 /**
@@ -9,7 +9,7 @@
  * diagnostics or serialization helpers that need to tag values originating from
  * application-authored contracts.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Type Ids
  */
 export const TypeId = "~@beep/contract/Contract";
@@ -17,7 +17,7 @@ export const TypeId = "~@beep/contract/Contract";
 /**
  * Type-level representation of the user-defined contract identifier.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Type Ids
  */
 export type TypeId = typeof TypeId;
@@ -27,7 +27,7 @@ export type TypeId = typeof TypeId;
  * this tag to enforce that certain helpers are only called with contracts that
  * originate from infrastructure code instead of user code.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Type Ids
  */
 export const ProviderDefinedTypeId = "~@beep/contract/Contract/ProviderDefined";
@@ -35,7 +35,7 @@ export const ProviderDefinedTypeId = "~@beep/contract/Contract/ProviderDefined";
 /**
  * Type-level representation of the provider-defined contract identifier.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Type Ids
  */
 export type ProviderDefinedTypeId = typeof ProviderDefinedTypeId;

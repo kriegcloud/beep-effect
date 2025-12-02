@@ -10,11 +10,7 @@ const headerName = "Cross-Origin-Resource-Policy";
 /**
  * Supported Cross-Origin-Resource-Policy values.
  */
-const corpValues = [
-  "same-site",
-  "same-origin",
-  "cross-origin",
-] as const;
+const corpValues = ["same-site", "same-origin", "cross-origin"] as const;
 
 type CorpValue = (typeof corpValues)[number];
 
@@ -62,9 +58,7 @@ export const CrossOriginResourcePolicyHeaderSchema = S.transformOrFail(
       if (corpValues.includes(option as CorpValue)) {
         return ParseResult.succeed({ name: headerName as typeof headerName, value: option });
       }
-      return ParseResult.fail(
-        new ParseResult.Type(ast, option, `Invalid value for ${headerName}: ${String(option)}`)
-      );
+      return ParseResult.fail(new ParseResult.Type(ast, option, `Invalid value for ${headerName}: ${String(option)}`));
     },
     encode: (header, _, ast) => {
       if (header.value === undefined) {
@@ -73,9 +67,7 @@ export const CrossOriginResourcePolicyHeaderSchema = S.transformOrFail(
       if (corpValues.includes(header.value as CorpValue)) {
         return ParseResult.succeed(header.value as CrossOriginResourcePolicyOption);
       }
-      return ParseResult.fail(
-        new ParseResult.Type(ast, header, `Cannot encode header value: ${header.value}`)
-      );
+      return ParseResult.fail(new ParseResult.Type(ast, header, `Cannot encode header value: ${header.value}`));
     },
   }
 ).annotations({ identifier: "CrossOriginResourcePolicyHeaderSchema" });

@@ -1,6 +1,6 @@
+import * as S from "effect/Schema";
 import type { JsonLiteralType } from "./JsonLiteral.js";
 import { JsonLiteral } from "./JsonLiteral.js";
-import * as S from "effect/Schema";
 
 /**
  * General JSON structure (recursive).

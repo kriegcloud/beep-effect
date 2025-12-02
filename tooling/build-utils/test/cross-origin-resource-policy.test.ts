@@ -1,22 +1,18 @@
 import {
+  CrossOriginResourcePolicyHeaderSchema,
+  CrossOriginResourcePolicyOptionSchema,
   createCrossOriginResourcePolicyHeader,
   createCrossOriginResourcePolicyHeaderValue,
-  CrossOriginResourcePolicyOptionSchema,
-  CrossOriginResourcePolicyHeaderSchema,
 } from "@beep/build-utils/secure-headers/cross-origin-resource-policy";
 import { beforeEach, describe, expect, it, mock } from "@beep/testkit";
 import { Effect, Exit, Option, Schema as S } from "effect";
 
-const runEffect = <A, E>(effect: Effect.Effect<A, E, never>): Promise<A> =>
-  Effect.runPromise(effect);
+const runEffect = <A, E>(effect: Effect.Effect<A, E, never>): Promise<A> => Effect.runPromise(effect);
 
-const runEffectExit = <A, E>(effect: Effect.Effect<A, E, never>) =>
-  Effect.runSyncExit(effect);
+const runEffectExit = <A, E>(effect: Effect.Effect<A, E, never>) => Effect.runSyncExit(effect);
 
 describe("createCrossOriginResourcePolicyHeader", () => {
-  let headerValueCreatorMock: ReturnType<
-    typeof mock<typeof createCrossOriginResourcePolicyHeaderValue>
-  >;
+  let headerValueCreatorMock: ReturnType<typeof mock<typeof createCrossOriginResourcePolicyHeaderValue>>;
   beforeEach(() => {
     headerValueCreatorMock = mock(createCrossOriginResourcePolicyHeaderValue);
   });
@@ -40,9 +36,7 @@ describe("createCrossOriginResourcePolicyHeader", () => {
       const dummyValue = "same-origin";
       headerValueCreatorMock.mockReturnValue(Effect.succeed(dummyValue));
 
-      const result = await runEffect(
-        createCrossOriginResourcePolicyHeader("same-origin", headerValueCreatorMock)
-      );
+      const result = await runEffect(createCrossOriginResourcePolicyHeader("same-origin", headerValueCreatorMock));
 
       expect(Option.isSome(result)).toBe(true);
       if (Option.isSome(result)) {
@@ -56,9 +50,7 @@ describe("createCrossOriginResourcePolicyHeader", () => {
     it("should return None when value creator returns undefined", async () => {
       headerValueCreatorMock.mockReturnValue(Effect.succeed(undefined));
 
-      const result = await runEffect(
-        createCrossOriginResourcePolicyHeader(false, headerValueCreatorMock)
-      );
+      const result = await runEffect(createCrossOriginResourcePolicyHeader(false, headerValueCreatorMock));
 
       expect(Option.isNone(result)).toBe(true);
     });
@@ -74,43 +66,31 @@ describe("createCrossOriginResourcePolicyHeaderValue", () => {
 
   describe("when giving false", () => {
     it("should return undefined", async () => {
-      expect(
-        await runEffect(createCrossOriginResourcePolicyHeaderValue(false))
-      ).toBeUndefined();
+      expect(await runEffect(createCrossOriginResourcePolicyHeaderValue(false))).toBeUndefined();
     });
   });
 
   describe('when giving "same-site"', () => {
     it('should return "same-site"', async () => {
-      expect(
-        await runEffect(createCrossOriginResourcePolicyHeaderValue("same-site"))
-      ).toBe("same-site");
+      expect(await runEffect(createCrossOriginResourcePolicyHeaderValue("same-site"))).toBe("same-site");
     });
   });
 
   describe('when giving "same-origin"', () => {
     it('should return "same-origin"', async () => {
-      expect(
-        await runEffect(createCrossOriginResourcePolicyHeaderValue("same-origin"))
-      ).toBe("same-origin");
+      expect(await runEffect(createCrossOriginResourcePolicyHeaderValue("same-origin"))).toBe("same-origin");
     });
   });
 
   describe('when giving "cross-origin"', () => {
     it('should return "cross-origin"', async () => {
-      expect(
-        await runEffect(createCrossOriginResourcePolicyHeaderValue("cross-origin"))
-      ).toBe("cross-origin");
+      expect(await runEffect(createCrossOriginResourcePolicyHeaderValue("cross-origin"))).toBe("cross-origin");
     });
   });
 
   describe("when giving invalid value", () => {
     it("should raise error", () => {
-      expect(
-        Exit.isFailure(
-          runEffectExit(createCrossOriginResourcePolicyHeaderValue("invalid" as never))
-        )
-      ).toBe(true);
+      expect(Exit.isFailure(runEffectExit(createCrossOriginResourcePolicyHeaderValue("invalid" as never)))).toBe(true);
     });
   });
 });

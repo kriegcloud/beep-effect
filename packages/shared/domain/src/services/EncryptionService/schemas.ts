@@ -1,5 +1,5 @@
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @module schemas
  *
  * Provides Effect Schema definitions for encrypted payloads and
@@ -12,7 +12,7 @@ import { DecryptionError, EncryptionError } from "./errors";
 
 /**
  * The encryption algorithm identifier
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export const EncryptionAlgorithm = S.Literal("AES-GCM");
@@ -21,7 +21,7 @@ export type EncryptionAlgorithm = typeof EncryptionAlgorithm.Type;
 /**
  * Schema for encrypted payload stored as binary (internal use)
  * Uses Uint8Array for all binary data
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export const EncryptedPayloadBinary = S.Struct({
@@ -37,7 +37,7 @@ export type EncryptedPayloadBinary = typeof EncryptedPayloadBinary.Type;
 /**
  * Schema for encrypted payload with Base64-encoded strings (for storage/transport)
  * This is the format stored in the database
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export const EncryptedPayload = S.Struct({
@@ -53,7 +53,7 @@ export type EncryptedPayload = typeof EncryptedPayload.Type;
 /**
  * Schema for encoding/decoding EncryptedPayload to/from JSON string
  * Useful for storing in a single text column
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export const EncryptedPayloadFromString = S.transform(S.parseJson(EncryptedPayload), EncryptedPayload, {
@@ -79,7 +79,7 @@ import type { EncryptionService as EncryptionServiceTag } from "./EncryptionServ
  * The schema requires `EncryptionService` in its context, which must be provided
  * via `.pipe(Effect.provide(EncryptionService.layer))` when decoding/encoding.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category transformations
  * @example
  * ```ts
@@ -138,7 +138,7 @@ export const EncryptedStringFromPlaintext = (
  * - **decode**: Encrypts a plaintext string into an EncryptedPayloadBinary
  * - **encode**: Decrypts an EncryptedPayloadBinary back to plaintext string
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category transformations
  */
 export const EncryptedBinaryFromPlaintext = (
@@ -178,7 +178,7 @@ export const EncryptedBinaryFromPlaintext = (
  * - **decode**: Encrypts binary data into an EncryptedPayload (base64)
  * - **encode**: Decrypts an EncryptedPayload back to binary data
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category transformations
  */
 export const EncryptedPayloadFromBytes = (
@@ -221,7 +221,7 @@ export const EncryptedPayloadFromBytes = (
  * - **decode**: Encrypts binary data into an EncryptedPayloadBinary
  * - **encode**: Decrypts an EncryptedPayloadBinary back to binary data
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category transformations
  */
 export const EncryptedBinaryFromBytes = (
@@ -260,7 +260,7 @@ export const EncryptedBinaryFromBytes = (
 
 /**
  * Branded type for SHA-256 hash strings
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export const Sha256Hash = S.String.pipe(S.brand("Sha256Hash"));
@@ -272,7 +272,7 @@ export type Sha256Hash = typeof Sha256Hash.Type;
  * - **decode**: Hashes a string to a hex-encoded SHA-256 digest
  * - **encode**: Forbidden (one-way transformation)
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category transformations
  */
 export const Sha256HashFromString = (): S.Schema<Sha256Hash, string, EncryptionServiceTag> => {

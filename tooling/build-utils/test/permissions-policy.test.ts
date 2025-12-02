@@ -1,22 +1,18 @@
 import {
   createPermissionsPolicyHeader,
   createPermissionsPolicyHeaderValue,
-  PermissionsPolicyOptionSchema,
   PermissionsPolicyHeaderSchema,
+  PermissionsPolicyOptionSchema,
 } from "@beep/build-utils/secure-headers/permissions-policy";
 import { beforeEach, describe, expect, it, mock } from "@beep/testkit";
 import { Effect, Exit, Option, Schema as S } from "effect";
 
-const runEffect = <A, E>(effect: Effect.Effect<A, E, never>): Promise<A> =>
-  Effect.runPromise(effect);
+const runEffect = <A, E>(effect: Effect.Effect<A, E, never>): Promise<A> => Effect.runPromise(effect);
 
-const runEffectExit = <A, E>(effect: Effect.Effect<A, E, never>) =>
-  Effect.runSyncExit(effect);
+const runEffectExit = <A, E>(effect: Effect.Effect<A, E, never>) => Effect.runSyncExit(effect);
 
 describe("createPermissionsPolicyHeader", () => {
-  let headerValueCreatorMock: ReturnType<
-    typeof mock<typeof createPermissionsPolicyHeaderValue>
-  >;
+  let headerValueCreatorMock: ReturnType<typeof mock<typeof createPermissionsPolicyHeaderValue>>;
   beforeEach(() => {
     headerValueCreatorMock = mock(createPermissionsPolicyHeaderValue);
   });
@@ -41,10 +37,7 @@ describe("createPermissionsPolicyHeader", () => {
       headerValueCreatorMock.mockReturnValue(Effect.succeed(dummyValue));
 
       const result = await runEffect(
-        createPermissionsPolicyHeader(
-          { directives: { camera: "none", microphone: "self" } },
-          headerValueCreatorMock
-        )
+        createPermissionsPolicyHeader({ directives: { camera: "none", microphone: "self" } }, headerValueCreatorMock)
       );
 
       expect(Option.isSome(result)).toBe(true);
@@ -59,9 +52,7 @@ describe("createPermissionsPolicyHeader", () => {
     it("should return None when value creator returns undefined", async () => {
       headerValueCreatorMock.mockReturnValue(Effect.succeed(undefined));
 
-      const result = await runEffect(
-        createPermissionsPolicyHeader(false, headerValueCreatorMock)
-      );
+      const result = await runEffect(createPermissionsPolicyHeader(false, headerValueCreatorMock));
 
       expect(Option.isNone(result)).toBe(true);
     });
@@ -77,39 +68,29 @@ describe("createPermissionsPolicyHeaderValue", () => {
 
   describe("when giving false", () => {
     it("should return undefined", async () => {
-      expect(
-        await runEffect(createPermissionsPolicyHeaderValue(false))
-      ).toBeUndefined();
+      expect(await runEffect(createPermissionsPolicyHeaderValue(false))).toBeUndefined();
     });
   });
 
   describe("when giving single directive with none", () => {
     it('should return "camera=()"', async () => {
-      expect(
-        await runEffect(
-          createPermissionsPolicyHeaderValue({ directives: { camera: "none" } })
-        )
-      ).toBe("camera=()");
+      expect(await runEffect(createPermissionsPolicyHeaderValue({ directives: { camera: "none" } }))).toBe("camera=()");
     });
   });
 
   describe("when giving single directive with self", () => {
     it('should return "microphone=(self)"', async () => {
-      expect(
-        await runEffect(
-          createPermissionsPolicyHeaderValue({ directives: { microphone: "self" } })
-        )
-      ).toBe("microphone=(self)");
+      expect(await runEffect(createPermissionsPolicyHeaderValue({ directives: { microphone: "self" } }))).toBe(
+        "microphone=(self)"
+      );
     });
   });
 
   describe("when giving single directive with *", () => {
     it('should return "fullscreen=*"', async () => {
-      expect(
-        await runEffect(
-          createPermissionsPolicyHeaderValue({ directives: { fullscreen: "*" } })
-        )
-      ).toBe("fullscreen=*");
+      expect(await runEffect(createPermissionsPolicyHeaderValue({ directives: { fullscreen: "*" } }))).toBe(
+        "fullscreen=*"
+      );
     });
   });
 

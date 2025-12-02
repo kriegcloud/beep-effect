@@ -15,7 +15,7 @@ import * as internal from "./_internal/manual-cache";
  *
  * The cache is safe for concurrent access.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface ManualCache<in out Key, in out Value> extends ManualCache.Variance<Key, Value> {
@@ -78,12 +78,12 @@ export interface ManualCache<in out Key, in out Value> extends ManualCache.Varia
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 export declare namespace ManualCache {
   /**
    * Variance annotation for ManualCache.
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   export interface Variance<in out Key, in out Value> {
@@ -96,7 +96,7 @@ export declare namespace ManualCache {
 
 /**
  * Statistics for a ManualCache instance.
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface ManualCacheStats {
@@ -107,7 +107,7 @@ export interface ManualCacheStats {
 
 /**
  * Statistics for a specific entry within the ManualCache.
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface EntryStats {
@@ -123,7 +123,7 @@ export interface EntryStats {
  * @param options Configuration options for the cache.
  * @param options.capacity The maximum number of entries the cache can hold. Must be >= 0.
  * @param options.timeToLive The duration for which entries are valid after being set.
- * @since 1.0.0
+ * @since 0.1.0
  * @category constructors
  */
 export const make = <Key, Value = never>(options: {

@@ -71,9 +71,7 @@ export const XSSProtectionHeaderSchema = S.transformOrFail(
         const encodedUri = encodeStrictURI(option[1].uri);
         return ParseResult.succeed({ name: headerName as typeof headerName, value: `1; report=${encodedUri}` });
       }
-      return ParseResult.fail(
-        new ParseResult.Type(ast, option, `Invalid value for ${headerName}: ${String(option)}`)
-      );
+      return ParseResult.fail(new ParseResult.Type(ast, option, `Invalid value for ${headerName}: ${String(option)}`));
     },
     encode: (header, _, ast) => {
       if (header.value === "0") {
@@ -89,9 +87,7 @@ export const XSSProtectionHeaderSchema = S.transformOrFail(
         const uri = header.value.slice("1; report=".length);
         return ParseResult.succeed(["report", { uri }] as const);
       }
-      return ParseResult.fail(
-        new ParseResult.Type(ast, header, `Cannot encode header value: ${header.value}`)
-      );
+      return ParseResult.fail(new ParseResult.Type(ast, header, `Cannot encode header value: ${header.value}`));
     },
   }
 ).annotations({ identifier: "XSSProtectionHeaderSchema" });

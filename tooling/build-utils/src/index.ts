@@ -1,1 +1,1 @@
-export * from "./NextConfig.ts"
+export * from "./NextConfig.ts";

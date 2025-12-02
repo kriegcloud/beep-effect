@@ -19,22 +19,32 @@
     ".": {
       "bun": "./src/index.ts",
       "import": "./build/esm/index.js",
+      "default": "./build/esm/index.js",
       "types": "./build/dts/index.d.ts"
     },
     "./package.json": "./package.json",
+    "./pwa/index": {
+      "bun": "./src/pwa/index.ts",
+      "import": "./build/esm/pwa/index.js",
+      "default": "./build/esm/pwa/index.js",
+      "types": "./build/dts/pwa/index.d.ts"
+    },
     "./pwa": {
       "bun": "./src/pwa/index.ts",
       "import": "./build/esm/pwa/index.js",
+      "default": "./build/esm/pwa/index.js",
       "types": "./build/dts/pwa/index.d.ts"
     },
     "./pwa/*": {
       "bun": "./src/pwa/*.ts",
       "import": "./build/esm/pwa/*.js",
+      "default": "./build/esm/pwa/*.js",
       "types": "./build/dts/pwa/*.d.ts"
     },
     "./*": {
       "bun": "./src/*.ts",
       "import": "./build/esm/*.js",
+      "default": "./build/esm/*.js",
       "types": "./build/dts/*.d.ts"
     }
   },

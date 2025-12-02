@@ -1,22 +1,16 @@
-import {Effect} from "effect";
+import { Effect } from "effect";
 import * as O from "effect/Option";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
-import {SecureHeadersError} from "./errors.ts";
-import type {ResponseHeader} from "./types.ts";
+import { SecureHeadersError } from "./errors.ts";
+import type { ResponseHeader } from "./types.ts";
 
 const headerName = "X-Permitted-Cross-Domain-Policies";
 
 /**
  * Supported X-Permitted-Cross-Domain-Policies values.
  */
-const permittedCrossDomainValues = [
-  "none",
-  "master-only",
-  "by-content-type",
-  "by-ftp-filename",
-  "all",
-] as const;
+const permittedCrossDomainValues = ["none", "master-only", "by-content-type", "by-ftp-filename", "all"] as const;
 
 type PermittedCrossDomainValue = (typeof permittedCrossDomainValues)[number];
 
@@ -30,7 +24,7 @@ export const PermittedCrossDomainPoliciesOptionSchema = S.Literal(
   "master-only",
   "by-content-type",
   "by-ftp-filename",
-  "all",
+  "all"
 );
 
 export type PermittedCrossDomainPoliciesOption = typeof PermittedCrossDomainPoliciesOptionSchema.Type;
@@ -59,17 +53,15 @@ export const PermittedCrossDomainPoliciesHeaderSchema = S.transformOrFail(
     decode: (option, _, ast) => {
       // Default to "none" (secure default) when undefined
       if (option === undefined) {
-        return ParseResult.succeed({name: headerName as typeof headerName, value: "none"});
+        return ParseResult.succeed({ name: headerName as typeof headerName, value: "none" });
       }
       if (option === false) {
-        return ParseResult.succeed({name: headerName as typeof headerName, value: undefined});
+        return ParseResult.succeed({ name: headerName as typeof headerName, value: undefined });
       }
       if (permittedCrossDomainValues.includes(option as PermittedCrossDomainValue)) {
-        return ParseResult.succeed({name: headerName as typeof headerName, value: option});
+        return ParseResult.succeed({ name: headerName as typeof headerName, value: option });
       }
-      return ParseResult.fail(
-        new ParseResult.Type(ast, option, `Invalid value for ${headerName}: ${String(option)}`)
-      );
+      return ParseResult.fail(new ParseResult.Type(ast, option, `Invalid value for ${headerName}: ${String(option)}`));
     },
     encode: (header, _, ast) => {
       if (header.value === undefined) {
@@ -78,12 +70,10 @@ export const PermittedCrossDomainPoliciesHeaderSchema = S.transformOrFail(
       if (permittedCrossDomainValues.includes(header.value as PermittedCrossDomainValue)) {
         return ParseResult.succeed(header.value as PermittedCrossDomainPoliciesOption);
       }
-      return ParseResult.fail(
-        new ParseResult.Type(ast, header, `Cannot encode header value: ${header.value}`)
-      );
+      return ParseResult.fail(new ParseResult.Type(ast, header, `Cannot encode header value: ${header.value}`));
     },
   }
-).annotations({identifier: "PermittedCrossDomainPoliciesHeaderSchema"});
+).annotations({ identifier: "PermittedCrossDomainPoliciesHeaderSchema" });
 
 export type PermittedCrossDomainPoliciesHeader = typeof PermittedCrossDomainPoliciesHeaderSchema.Type;
 
@@ -117,5 +107,5 @@ export const createPermittedCrossDomainPoliciesHeader = (
     const value = yield* headerValueCreator(option);
 
     if (value === undefined) return O.none<ResponseHeader>();
-    return O.some({name: headerName, value});
+    return O.some({ name: headerName, value });
   }).pipe(Effect.withSpan("createPermittedCrossDomainPoliciesHeader"));

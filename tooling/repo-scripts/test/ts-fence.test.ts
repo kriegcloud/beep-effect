@@ -72,7 +72,7 @@ expectTransformation(
  * @example
  * const x = 1
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category collecting & elements
  */
 const v = 1`,
@@ -87,7 +87,7 @@ const v = 1`,
  * const x = 1
  * \`\`\`
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category collecting & elements
  */
 const v = 1`

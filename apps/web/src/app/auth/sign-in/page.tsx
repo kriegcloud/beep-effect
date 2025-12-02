@@ -3,7 +3,7 @@ import { SignInView } from "@beep/iam-ui";
 
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: `Sign in - ${serverEnv.app.name}` };
+export const generateMetadata = (): Metadata => ({ title: `Sign in - ${serverEnv.app.name}` });
 
 export default function SignInPage() {
   return <SignInView />;
