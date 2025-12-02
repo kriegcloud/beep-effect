@@ -2413,7 +2413,7 @@ Either values are easy to test due to their predictable structure:
 
 ```typescript
 import { Either } from "effect"
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "bun:test"
 
 describe('Either validation functions', () => {
   describe('validateEmail', () => {

@@ -752,7 +752,7 @@ const runTest = Effect.provide(testUserSave(), mockUserRepository)
 ### Integration with Vitest
 
 ```typescript
-import { describe, it } from "@effect/vitest"
+import { describe, it } from "@beep/testkit"
 import { Effect, FastCheck, Schema, Arbitrary } from "effect"
 
 describe("User Service", () => {

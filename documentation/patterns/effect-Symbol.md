@@ -1656,7 +1656,7 @@ const createUserRoutes = (app: express.Application) => Effect.gen(function* () {
 
 ```typescript
 import { Context, Effect, Layer, Ref, Symbol } from "effect"
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "bun:test"
 
 // Test symbols for mock identification
 const MockDatabaseSymbol = Symbol.for("Test/MockDatabase")

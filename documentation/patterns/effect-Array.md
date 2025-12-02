@@ -1723,7 +1723,7 @@ Comprehensive testing patterns for array operations:
 
 ```typescript
 import { Array as Arr, Option, Either, pipe } from "effect"
-import { test, expect, describe } from "vitest"
+import { test, expect, describe } from "bun:test"
 
 // Property-based testing helpers
 const generateRandomArray = <T>(generator: () => T, length: number): T[] =>

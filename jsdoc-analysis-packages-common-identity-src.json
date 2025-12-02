@@ -1,0 +1,398 @@
+{
+  "targetPath": "packages/common/identity/src",
+  "totalFiles": 5,
+  "totalExports": 26,
+  "missingExamples": 17,
+  "missingCategories": 18,
+  "fileDetails": [
+    {
+      "filename": "Identifier.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/Identifier.ts",
+      "totalExports": 5,
+      "missingExamples": 4,
+      "missingCategories": 5,
+      "exports": [
+        {
+          "name": "make",
+          "type": "const",
+          "line": 236,
+          "hasExample": true,
+          "hasCategory": false
+        },
+        {
+          "name": "TaggedAccessor",
+          "type": "type",
+          "line": 248,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "TaggedComposer",
+          "type": "type",
+          "line": 250,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "TaggedModuleRecord",
+          "type": "type",
+          "line": 277,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "BaseIdentity",
+          "type": "type",
+          "line": 298,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "packages.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/packages.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/schema.ts",
+      "totalExports": 10,
+      "missingExamples": 10,
+      "missingCategories": 10,
+      "exports": [
+        {
+          "name": "ModuleCharacters",
+          "type": "const",
+          "line": 4,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ModuleLeadingAlpha",
+          "type": "const",
+          "line": 9,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Segment",
+          "type": "const",
+          "line": 16,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "SegmentType",
+          "type": "type",
+          "line": 27,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ModuleSegment",
+          "type": "const",
+          "line": 29,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ModuleSegmentType",
+          "type": "type",
+          "line": 38,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "BaseSegment",
+          "type": "const",
+          "line": 40,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidSegmentError",
+          "type": "class",
+          "line": 52,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidModuleSegmentError",
+          "type": "class",
+          "line": 64,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidBaseError",
+          "type": "class",
+          "line": 76,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "types.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/types.ts",
+      "totalExports": 11,
+      "missingExamples": 3,
+      "missingCategories": 3,
+      "exports": [
+        {
+          "name": "SegmentValue",
+          "type": "type",
+          "line": 34,
+          "hasExample": true,
+          "hasCategory": true
+        },
+        {
+          "name": "Segment",
+          "type": "type",
+          "line": 51,
+          "hasExample": true,
+          "hasCategory": true
+        },
+        {
+          "name": "IdentityString",
+          "type": "type",
+          "line": 64,
+          "hasExample": true,
+          "hasCategory": true
+        },
+        {
+          "name": "IdentitySymbol",
+          "type": "type",
+          "line": 79,
+          "hasExample": true,
+          "hasCategory": true
+        },
+        {
+          "name": "SchemaAnnotationExtras",
+          "type": "type",
+          "line": 94,
+          "hasExample": true,
+          "hasCategory": true
+        },
+        {
+          "name": "IdentityAnnotationResult",
+          "type": "type",
+          "line": 114,
+          "hasExample": true,
+          "hasCategory": true
+        },
+        {
+          "name": "ModuleSegmentValue",
+          "type": "type",
+          "line": 165,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ModuleAccessor",
+          "type": "type",
+          "line": 175,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ModuleRecord",
+          "type": "type",
+          "line": 177,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "IdentityComposer",
+          "type": "interface",
+          "line": 202,
+          "hasExample": true,
+          "hasCategory": true
+        },
+        {
+          "name": "IdentityAnnotation",
+          "type": "interface",
+          "line": 239,
+          "hasExample": true,
+          "hasCategory": true
+        }
+      ]
+    }
+  ],
+  "missingItems": [
+    {
+      "file": "Identifier.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/Identifier.ts",
+      "name": "make",
+      "type": "const",
+      "line": 236,
+      "missingExample": false,
+      "missingCategory": true
+    },
+    {
+      "file": "Identifier.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/Identifier.ts",
+      "name": "TaggedAccessor",
+      "type": "type",
+      "line": 248,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "Identifier.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/Identifier.ts",
+      "name": "TaggedComposer",
+      "type": "type",
+      "line": 250,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "Identifier.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/Identifier.ts",
+      "name": "TaggedModuleRecord",
+      "type": "type",
+      "line": 277,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "Identifier.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/Identifier.ts",
+      "name": "BaseIdentity",
+      "type": "type",
+      "line": 298,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/schema.ts",
+      "name": "ModuleCharacters",
+      "type": "const",
+      "line": 4,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/schema.ts",
+      "name": "ModuleLeadingAlpha",
+      "type": "const",
+      "line": 9,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/schema.ts",
+      "name": "Segment",
+      "type": "const",
+      "line": 16,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/schema.ts",
+      "name": "SegmentType",
+      "type": "type",
+      "line": 27,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/schema.ts",
+      "name": "ModuleSegment",
+      "type": "const",
+      "line": 29,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/schema.ts",
+      "name": "ModuleSegmentType",
+      "type": "type",
+      "line": 38,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/schema.ts",
+      "name": "BaseSegment",
+      "type": "const",
+      "line": 40,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/schema.ts",
+      "name": "InvalidSegmentError",
+      "type": "class",
+      "line": 52,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/schema.ts",
+      "name": "InvalidModuleSegmentError",
+      "type": "class",
+      "line": 64,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/schema.ts",
+      "name": "InvalidBaseError",
+      "type": "class",
+      "line": 76,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "types.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/types.ts",
+      "name": "ModuleSegmentValue",
+      "type": "type",
+      "line": 165,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "types.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/types.ts",
+      "name": "ModuleAccessor",
+      "type": "type",
+      "line": 175,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "types.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/common/identity/src/types.ts",
+      "name": "ModuleRecord",
+      "type": "type",
+      "line": 177,
+      "missingExample": true,
+      "missingCategory": true
+    }
+  ]
+}

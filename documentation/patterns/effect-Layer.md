@@ -1424,7 +1424,7 @@ Effect.runPromise(Effect.provide(program, AppLive))
 ### Testing Strategies
 
 ```typescript
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "bun:test"
 import { Effect, Layer, TestContext } from "effect"
 
 // Test utilities

@@ -1148,7 +1148,7 @@ const getUsersSorted = (sortBy: 'name' | 'email' | 'createdAt') => Effect.gen(fu
 ### Testing Strategies
 
 ```typescript
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "bun:test"
 import { Order, Array as Arr, fc } from "effect"
 
 // Property-based testing for Order laws

@@ -1427,7 +1427,7 @@ const setupExpressApp = () =>
 
 ```typescript
 import { Context, Effect, Layer } from "effect"
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "bun:test"
 
 // Test utilities for context manipulation
 const TestUtils = {

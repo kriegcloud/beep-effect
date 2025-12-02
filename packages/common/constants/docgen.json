@@ -2,7 +2,7 @@
   "$schema": "../../../node_modules/@effect/docgen/schema.json",
   "srcDir": "src",
   "outDir": "docs",
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/identity/src/",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/constants/src/",
   "exclude": [
     "src/internal/**/*.ts",
     "src/experimental/contract/**/*.ts",

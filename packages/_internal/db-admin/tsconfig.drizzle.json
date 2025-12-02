@@ -47,34 +47,6 @@
       "path": "../../iam/tables"
     },
     {
-      "path": "../../tasks/domain"
-    },
-    {
-      "path": "../../tasks/ui"
-    },
-    {
-      "path": "../../tasks/tables"
-    },
-
-    {
-      "path": "../../comms/domain"
-    },
-    {
-      "path": "../../comms/tables"
-    },
-    {
-      "path": "../../comms/infra"
-    },
-    {
-      "path": "../../party/infra/tsconfig.build.json"
-    },
-    {
-      "path": "../../party/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../party/tables/tsconfig.build.json"
-    },
-    {
       "path": "../../ui"
     },
     {

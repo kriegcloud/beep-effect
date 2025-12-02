@@ -2053,7 +2053,7 @@ router.app.listen(PORT, () => {
 
 ```typescript
 import { Trie, Option, Equal, Effect } from "effect"
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "bun:test"
 
 describe("Trie Operations", () => {
   describe("Basic Operations", () => {

@@ -45,15 +45,6 @@
       "path": "../../packages/iam/tables"
     },
     {
-      "path": "../../packages/tasks/infra"
-    },
-    {
-      "path": "../../packages/tasks/domain"
-    },
-    {
-      "path": "../../packages/tasks/tables"
-    },
-    {
       "path": "../../packages/documents/infra"
     },
     {

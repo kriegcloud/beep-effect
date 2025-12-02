@@ -1423,7 +1423,7 @@ Comprehensive testing approaches for branded types:
 
 ```typescript
 import { Brand, Effect, Either, Option } from "effect"
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "bun:test"
 
 // Test subject
 type Email = string & Brand.Brand<"Email">

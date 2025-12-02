@@ -2014,7 +2014,7 @@ Effect.runPromise(program)
 
 ```typescript
 import { Effect, TestClock, TestContext, Layer } from "effect"
-import { describe, it, expect } from "@effect/vitest"
+import { describe, it, expect } from "@beep/testkit"
 
 // Test utilities
 const TestUserRepository = Layer.succeed(

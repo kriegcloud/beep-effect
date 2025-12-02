@@ -692,7 +692,7 @@ const hybridProcessing = <T>(arr: readonly T[]) => {
 
 ```typescript
 import { Iterable, Effect, pipe } from "effect"
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "bun:test"
 
 describe("Iterable Processing", () => {
   it("should process data lazily", () => {

@@ -2495,7 +2495,7 @@ const databaseConnectionExample = Effect.gen(function* () {
 
 ```typescript
 import { Effect, Clock, Duration, TestClock, TestContext, Layer } from "effect"
-import { describe, test, expect, beforeEach } from "@effect/vitest"
+import { describe, test, expect, beforeEach } from "@beep/testkit"
 
 describe("Clock Integration Tests", () => {
   test("time-based cache expiration", () =>

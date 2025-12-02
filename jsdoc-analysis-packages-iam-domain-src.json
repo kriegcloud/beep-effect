@@ -1,0 +1,5896 @@
+{
+  "targetPath": "packages/iam/domain/src",
+  "totalFiles": 74,
+  "totalExports": 328,
+  "missingExamples": 328,
+  "missingCategories": 328,
+  "fileDetails": [
+    {
+      "filename": "DomainApi.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/DomainApi.ts",
+      "totalExports": 1,
+      "missingExamples": 1,
+      "missingCategories": 1,
+      "exports": [
+        {
+          "name": "DomainApi",
+          "type": "class",
+          "line": 4,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "IamError.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/IamError.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "IamError",
+          "type": "class",
+          "line": 4,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "IamUnknownError",
+          "type": "class",
+          "line": 6,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "api/User.contract.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/api/User.contract.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "CurrentUserNotFound",
+          "type": "class",
+          "line": 7,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "CurrentUserGroup",
+          "type": "class",
+          "line": 20,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/Account/Account.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Account/Account.model.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "AccountModelSchemaId",
+          "type": "const",
+          "line": 8,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Model",
+          "type": "class",
+          "line": 15,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/Account/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Account/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/ApiKey/ApiKey.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/ApiKey/ApiKey.model.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "ApikeyModelSchemaId",
+          "type": "const",
+          "line": 8,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Model",
+          "type": "class",
+          "line": 14,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/ApiKey/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/ApiKey/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/DeviceCode/DeviceCode.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/DeviceCode/DeviceCode.model.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "DeviceCodeModelSchemaId",
+          "type": "const",
+          "line": 9,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Model",
+          "type": "class",
+          "line": 16,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/DeviceCode/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/DeviceCode/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/DeviceCode/schemas/DeviceCodeStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/DeviceCode/schemas/DeviceCodeStatus.ts",
+      "totalExports": 5,
+      "missingExamples": 5,
+      "missingCategories": 5,
+      "exports": [
+        {
+          "name": "DeviceCodeStatus",
+          "type": "class",
+          "line": 4,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "makeDeviceCodeStatusPgEnum",
+          "type": "const",
+          "line": 5,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "DeviceCodeStatus",
+          "type": "namespace",
+          "line": 7,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 8,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 9,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/DeviceCode/schemas/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/DeviceCode/schemas/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/Invitation/Invitation.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Invitation/Invitation.model.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "InvitationModelSchemaId",
+          "type": "const",
+          "line": 9,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Model",
+          "type": "class",
+          "line": 15,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/Invitation/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Invitation/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/Invitation/schemas/InvitationStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Invitation/schemas/InvitationStatus.ts",
+      "totalExports": 7,
+      "missingExamples": 7,
+      "missingCategories": 7,
+      "exports": [
+        {
+          "name": "InvitationStatus",
+          "type": "class",
+          "line": 4,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "makeInvitationStatusPgEnum",
+          "type": "const",
+          "line": 10,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvitationStatusEnum",
+          "type": "const",
+          "line": 12,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvitationStatusOptions",
+          "type": "const",
+          "line": 14,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvitationStatus",
+          "type": "namespace",
+          "line": 15,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 16,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 17,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/Invitation/schemas/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Invitation/schemas/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/Jwks/Jwks.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Jwks/Jwks.model.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "JwksModelSchemaId",
+          "type": "const",
+          "line": 8,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Model",
+          "type": "class",
+          "line": 14,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/Jwks/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Jwks/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/Member/Member.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/Member.model.ts",
+      "totalExports": 1,
+      "missingExamples": 1,
+      "missingCategories": 1,
+      "exports": [
+        {
+          "name": "Model",
+          "type": "class",
+          "line": 12,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/Member/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/Member/schemas/MemberRole.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/schemas/MemberRole.ts",
+      "totalExports": 7,
+      "missingExamples": 7,
+      "missingCategories": 7,
+      "exports": [
+        {
+          "name": "MemberRole",
+          "type": "class",
+          "line": 4,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "MemberRoleEnum",
+          "type": "const",
+          "line": 11,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "MemberRoleOptions",
+          "type": "const",
+          "line": 12,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "makeMemberRolePgEnum",
+          "type": "const",
+          "line": 13,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "MemberRole",
+          "type": "namespace",
+          "line": 15,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 16,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 17,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/Member/schemas/MemberStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/schemas/MemberStatus.ts",
+      "totalExports": 7,
+      "missingExamples": 7,
+      "missingCategories": 7,
+      "exports": [
+        {
+          "name": "MemberStatus",
+          "type": "class",
+          "line": 4,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "MemberStatusEnum",
+          "type": "const",
+          "line": 17,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "MemberStatusOptions",
+          "type": "const",
+          "line": 18,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "makeMemberStatusPgEnum",
+          "type": "const",
+          "line": 19,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "MemberStatus",
+          "type": "namespace",
+          "line": 21,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 22,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 23,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/Member/schemas/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/schemas/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/OAuthAccessToken/OAuthAccessToken.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/OAuthAccessToken/OAuthAccessToken.model.ts",
+      "totalExports": 1,
+      "missingExamples": 1,
+      "missingCategories": 1,
+      "exports": [
+        {
+          "name": "Model",
+          "type": "class",
+          "line": 12,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/OAuthAccessToken/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/OAuthAccessToken/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/OAuthApplication/OAuthApplication.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/OAuthApplication/OAuthApplication.model.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "OAuthApplicationModelSchemaId",
+          "type": "const",
+          "line": 8,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Model",
+          "type": "class",
+          "line": 14,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/OAuthApplication/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/OAuthApplication/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/OAuthConsent/OAuthConsent.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/OAuthConsent/OAuthConsent.model.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "OAuthConsentModelSchemaId",
+          "type": "const",
+          "line": 7,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Model",
+          "type": "class",
+          "line": 13,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/OAuthConsent/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/OAuthConsent/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/OrganizationRole/OrganizationRole.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/OrganizationRole/OrganizationRole.model.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "OrganizationRoleModelSchemaId",
+          "type": "const",
+          "line": 8,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Model",
+          "type": "class",
+          "line": 14,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/OrganizationRole/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/OrganizationRole/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/Passkey/Passkey.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Passkey/Passkey.model.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "PasskeyModelSchemaId",
+          "type": "const",
+          "line": 8,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Model",
+          "type": "class",
+          "line": 14,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/Passkey/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Passkey/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/Passkey/schemas/AuthenticatorAttachment.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Passkey/schemas/AuthenticatorAttachment.ts",
+      "totalExports": 1,
+      "missingExamples": 1,
+      "missingCategories": 1,
+      "exports": [
+        {
+          "name": "AuthenticatorAttachment",
+          "type": "class",
+          "line": 4,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/Passkey/schemas/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Passkey/schemas/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/RateLimit/RateLimit.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/RateLimit/RateLimit.model.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "RateLimitModelSchemaId",
+          "type": "const",
+          "line": 8,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Model",
+          "type": "class",
+          "line": 14,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/RateLimit/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/RateLimit/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/ScimProvider/ScimProvider.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/ScimProvider/ScimProvider.model.ts",
+      "totalExports": 1,
+      "missingExamples": 1,
+      "missingCategories": 1,
+      "exports": [
+        {
+          "name": "Model",
+          "type": "class",
+          "line": 11,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/ScimProvider/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/ScimProvider/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/SsoProvider/SsoProvider.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/SsoProvider/SsoProvider.model.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "SsoProviderModelSchemaId",
+          "type": "const",
+          "line": 7,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Model",
+          "type": "class",
+          "line": 13,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/SsoProvider/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/SsoProvider/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/Subscription/Subscription.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Subscription/Subscription.model.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "SubscriptionModelSchemaId",
+          "type": "const",
+          "line": 8,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Model",
+          "type": "class",
+          "line": 14,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/Subscription/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Subscription/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/TeamMember/TeamMember.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/TeamMember/TeamMember.model.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "TeamMemberModelSchemaId",
+          "type": "const",
+          "line": 6,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Model",
+          "type": "class",
+          "line": 12,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/TeamMember/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/TeamMember/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/TwoFactor/TwoFactor.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/TwoFactor/TwoFactor.model.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "TwoFactorModelSchemaId",
+          "type": "const",
+          "line": 7,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Model",
+          "type": "class",
+          "line": 13,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/TwoFactor/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/TwoFactor/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/Verification/Verification.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Verification/Verification.model.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "VerificationModelSchemaId",
+          "type": "const",
+          "line": 8,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Model",
+          "type": "class",
+          "line": 14,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/Verification/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Verification/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/WalletAddress/WalletAddress.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/WalletAddress/WalletAddress.model.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "WalletAddressModelSchemaId",
+          "type": "const",
+          "line": 8,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Model",
+          "type": "class",
+          "line": 14,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "entities/WalletAddress/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/WalletAddress/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "entities.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "errors/_internal.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/_internal.ts",
+      "totalExports": 1,
+      "missingExamples": 1,
+      "missingCategories": 1,
+      "exports": [
+        {
+          "name": "makeErrorProps",
+          "type": "const",
+          "line": 6,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "errors/admin.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/admin.errors.ts",
+      "totalExports": 16,
+      "missingExamples": 16,
+      "missingCategories": 16,
+      "exports": [
+        {
+          "name": "ADMIN_ERROR_CODES",
+          "type": "const",
+          "line": 5,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouCannotBanYourSelf",
+          "type": "class",
+          "line": 21,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToChangeUsersRole",
+          "type": "class",
+          "line": 25,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToCreateUsers",
+          "type": "class",
+          "line": 33,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToListUsers",
+          "type": "class",
+          "line": 37,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToListUsersSessions",
+          "type": "class",
+          "line": 41,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToBanUsers",
+          "type": "class",
+          "line": 49,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToImpersonateUsers",
+          "type": "class",
+          "line": 53,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToRevokeUsersSessions",
+          "type": "class",
+          "line": 61,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToDeleteUsers",
+          "type": "class",
+          "line": 69,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToSetUsersPassword",
+          "type": "class",
+          "line": 73,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "BannedUser",
+          "type": "class",
+          "line": 81,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "AdminErrors",
+          "type": "class",
+          "line": 85,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "AdminErrors",
+          "type": "namespace",
+          "line": 101,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 102,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 103,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "errors/anonymous.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/anonymous.errors.ts",
+      "totalExports": 7,
+      "missingExamples": 7,
+      "missingCategories": 7,
+      "exports": [
+        {
+          "name": "ANONYMOUS_ERROR_CODES",
+          "type": "const",
+          "line": 4,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "CouldNotCreateSession",
+          "type": "class",
+          "line": 9,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "AnonymousUsersCannotSignInAgainAnonymously",
+          "type": "class",
+          "line": 13,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "AnonymousErrors",
+          "type": "class",
+          "line": 21,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "AnonymousErrors",
+          "type": "namespace",
+          "line": 27,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 28,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 29,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "totalExports": 28,
+      "missingExamples": 28,
+      "missingCategories": 28,
+      "exports": [
+        {
+          "name": "API_KEY_ERROR_CODES",
+          "type": "const",
+          "line": 4,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidMetadataType",
+          "type": "class",
+          "line": 30,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "RefillAmountAndIntervalRequired",
+          "type": "class",
+          "line": 34,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "RefillIntervalAndAmountRequired",
+          "type": "class",
+          "line": 38,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UserBanned",
+          "type": "class",
+          "line": 42,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UnauthorizedSession",
+          "type": "class",
+          "line": 46,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "KeyNotFound",
+          "type": "class",
+          "line": 50,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "KeyDisabled",
+          "type": "class",
+          "line": 54,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "KeyExpired",
+          "type": "class",
+          "line": 58,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UsageExceeded",
+          "type": "class",
+          "line": 62,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "KeyNotRecoverable",
+          "type": "class",
+          "line": 66,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ExpiresInIsTooSmall",
+          "type": "class",
+          "line": 70,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ExpiresInIsTooLarge",
+          "type": "class",
+          "line": 74,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidRemaining",
+          "type": "class",
+          "line": 78,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidPrefixLength",
+          "type": "class",
+          "line": 82,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidNameLength",
+          "type": "class",
+          "line": 86,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "MetadataDisabled",
+          "type": "class",
+          "line": 90,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "RateLimitExceeded",
+          "type": "class",
+          "line": 94,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "NoValuesToUpdate",
+          "type": "class",
+          "line": 98,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "KeyDisabledExpiration",
+          "type": "class",
+          "line": 102,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidApiKey",
+          "type": "class",
+          "line": 106,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidUserIdFromApiKey",
+          "type": "class",
+          "line": 110,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidApiKeyGetterReturnType",
+          "type": "class",
+          "line": 114,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ServerOnlyProperty",
+          "type": "class",
+          "line": 118,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ApiKeyErrors",
+          "type": "class",
+          "line": 122,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ApiKeyErrors",
+          "type": "namespace",
+          "line": 148,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 149,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 150,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "errors/captcha.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/captcha.errors.ts",
+      "totalExports": 10,
+      "missingExamples": 10,
+      "missingCategories": 10,
+      "exports": [
+        {
+          "name": "CAPTCHA_ERROR_CODES",
+          "type": "const",
+          "line": 17,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "VerificationFailed",
+          "type": "class",
+          "line": 22,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "MissingResponse",
+          "type": "class",
+          "line": 26,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UnknownError",
+          "type": "class",
+          "line": 30,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "MissingSecretKey",
+          "type": "class",
+          "line": 34,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ServiceUnavailable",
+          "type": "class",
+          "line": 38,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "CaptchaErrors",
+          "type": "class",
+          "line": 42,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "CaptchaErrors",
+          "type": "namespace",
+          "line": 50,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 51,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 52,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "totalExports": 30,
+      "missingExamples": 30,
+      "missingCategories": 30,
+      "exports": [
+        {
+          "name": "BASE_ERROR_CODES",
+          "type": "const",
+          "line": 3,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UserNotFound",
+          "type": "class",
+          "line": 31,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "FailedToCreateUser",
+          "type": "class",
+          "line": 35,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "FailedToCreateSession",
+          "type": "class",
+          "line": 39,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "FailedToUpdateUser",
+          "type": "class",
+          "line": 43,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "FailedToGetSession",
+          "type": "class",
+          "line": 47,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidPassword",
+          "type": "class",
+          "line": 51,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidEmail",
+          "type": "class",
+          "line": 55,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidEmailOrPassword",
+          "type": "class",
+          "line": 59,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "SocialAccountAlreadyLinked",
+          "type": "class",
+          "line": 63,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ProviderNotFound",
+          "type": "class",
+          "line": 67,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidToken",
+          "type": "class",
+          "line": 71,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "IdTokenNotSupported",
+          "type": "class",
+          "line": 75,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "FailedToGetUserInfo",
+          "type": "class",
+          "line": 79,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UserEmailNotFound",
+          "type": "class",
+          "line": 83,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "EmailNotVerified",
+          "type": "class",
+          "line": 87,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "PasswordTooShort",
+          "type": "class",
+          "line": 91,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "PasswordTooLong",
+          "type": "class",
+          "line": 95,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UserAlreadyExists",
+          "type": "class",
+          "line": 99,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UserAlreadyExistsUseAnotherEmail",
+          "type": "class",
+          "line": 103,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "EmailCanNotBeUpdated",
+          "type": "class",
+          "line": 107,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "CredentialAccountNotFound",
+          "type": "class",
+          "line": 111,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "SessionExpired",
+          "type": "class",
+          "line": 115,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "FailedToUnlinkLastAccount",
+          "type": "class",
+          "line": 119,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "AccountNotFound",
+          "type": "class",
+          "line": 123,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UserAlreadyHasPassword",
+          "type": "class",
+          "line": 127,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "CoreError",
+          "type": "class",
+          "line": 131,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "CoreError",
+          "type": "namespace",
+          "line": 159,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 160,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 161,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "errors/device-authorization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/device-authorization.errors.ts",
+      "totalExports": 14,
+      "missingExamples": 14,
+      "missingCategories": 14,
+      "exports": [
+        {
+          "name": "InvalidDeviceCode",
+          "type": "class",
+          "line": 20,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ExpiredDeviceCode",
+          "type": "class",
+          "line": 24,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ExpiredUserCode",
+          "type": "class",
+          "line": 28,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "AuthorizationPending",
+          "type": "class",
+          "line": 32,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "AccessDenied",
+          "type": "class",
+          "line": 36,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidUserCode",
+          "type": "class",
+          "line": 40,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "DeviceCodeAlreadyProcessed",
+          "type": "class",
+          "line": 44,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "PollingTooFrequently",
+          "type": "class",
+          "line": 48,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidDeviceCodeStatus",
+          "type": "class",
+          "line": 52,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "AuthenticationRequired",
+          "type": "class",
+          "line": 56,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "DeviceAuthorizationError",
+          "type": "class",
+          "line": 60,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "DeviceAuthorizationError",
+          "type": "namespace",
+          "line": 75,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 76,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 77,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "errors/email-otp.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/email-otp.errors.ts",
+      "totalExports": 8,
+      "missingExamples": 8,
+      "missingCategories": 8,
+      "exports": [
+        {
+          "name": "EMAIL_OTP_ERROR_CODES",
+          "type": "const",
+          "line": 4,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "OtpExpired",
+          "type": "class",
+          "line": 12,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidOtp",
+          "type": "class",
+          "line": 16,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "TooManyAttempts",
+          "type": "class",
+          "line": 20,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "EmailOtpErrors",
+          "type": "class",
+          "line": 24,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "EmailOtpErrors",
+          "type": "namespace",
+          "line": 32,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 33,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 34,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "errors/generic-oauth.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/generic-oauth.errors.ts",
+      "totalExports": 6,
+      "missingExamples": 6,
+      "missingCategories": 6,
+      "exports": [
+        {
+          "name": "GENERIC_OAUTH_ERROR_CODES",
+          "type": "const",
+          "line": 3,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidOAuthConfiguration",
+          "type": "class",
+          "line": 7,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "GenericOAuthErrors",
+          "type": "class",
+          "line": 11,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "GenericOAuthErrors",
+          "type": "namespace",
+          "line": 13,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 14,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 15,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "errors/haveibeenpwned.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/haveibeenpwned.errors.ts",
+      "totalExports": 6,
+      "missingExamples": 6,
+      "missingCategories": 6,
+      "exports": [
+        {
+          "name": "HAVEIBEENPWNED_ERROR_CODES",
+          "type": "const",
+          "line": 3,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "PasswordCompromised",
+          "type": "class",
+          "line": 7,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "HaveIBeenPwnedErrors",
+          "type": "class",
+          "line": 11,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "HaveIBeenPwnedErrors",
+          "type": "namespace",
+          "line": 13,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 14,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 15,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "errors/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "errors/multi-session.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/multi-session.errors.ts",
+      "totalExports": 6,
+      "missingExamples": 6,
+      "missingCategories": 6,
+      "exports": [
+        {
+          "name": "MULTI_SESSION_ERROR_CODES",
+          "type": "const",
+          "line": 4,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidSessionToken",
+          "type": "class",
+          "line": 8,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "MultiSessionErrors",
+          "type": "class",
+          "line": 12,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "MultiSessionErrors",
+          "type": "namespace",
+          "line": 14,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 15,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 16,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "totalExports": 60,
+      "missingExamples": 60,
+      "missingCategories": 60,
+      "exports": [
+        {
+          "name": "ORGANIZATION_ERROR_CODES",
+          "type": "const",
+          "line": 3,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToCreateANewOrganization",
+          "type": "class",
+          "line": 62,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouHaveReachedTheMaximumNumberOfOrganizations",
+          "type": "class",
+          "line": 70,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "OrganizationAlreadyExists",
+          "type": "class",
+          "line": 78,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "OrganizationNotFound",
+          "type": "class",
+          "line": 82,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UserIsNotAMemberOfTheOrganization",
+          "type": "class",
+          "line": 86,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToUpdateThisOrganization",
+          "type": "class",
+          "line": 94,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToDeleteThisOrganization",
+          "type": "class",
+          "line": 102,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "NoActiveOrganization",
+          "type": "class",
+          "line": 110,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UserIsAlreadyAMemberOfThisOrganization",
+          "type": "class",
+          "line": 114,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "MemberNotFound",
+          "type": "class",
+          "line": 122,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "RoleNotFound",
+          "type": "class",
+          "line": 126,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToCreateANewTeam",
+          "type": "class",
+          "line": 130,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "TeamAlreadyExists",
+          "type": "class",
+          "line": 138,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "TeamNotFound",
+          "type": "class",
+          "line": 142,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouCannotLeaveTheOrganizationAsTheOnlyOwner",
+          "type": "class",
+          "line": 146,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouCannotLeaveTheOrganizationWithoutAnOwner",
+          "type": "class",
+          "line": 154,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToDeleteThisMember",
+          "type": "class",
+          "line": 162,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToInviteUsersToThisOrganization",
+          "type": "class",
+          "line": 170,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UserIsAlreadyInvitedToThisOrganization",
+          "type": "class",
+          "line": 178,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvitationNotFound",
+          "type": "class",
+          "line": 186,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotTheRecipientOfTheInvitation",
+          "type": "class",
+          "line": 190,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "EmailVerificationRequiredBeforeAcceptingOrRejectingInvitation",
+          "type": "class",
+          "line": 198,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToCancelThisInvitation",
+          "type": "class",
+          "line": 206,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InviterIsNoLongerAMemberOfTheOrganization",
+          "type": "class",
+          "line": 214,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToInviteUserWithThisRole",
+          "type": "class",
+          "line": 222,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "FailedToRetrieveInvitation",
+          "type": "class",
+          "line": 230,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouHaveReachedTheMaximumNumberOfTeams",
+          "type": "class",
+          "line": 234,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UnableToRemoveLastTeam",
+          "type": "class",
+          "line": 242,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToUpdateThisMember",
+          "type": "class",
+          "line": 246,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "OrganizationMembershipLimitReached",
+          "type": "class",
+          "line": 254,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToCreateTeamsInThisOrganization",
+          "type": "class",
+          "line": 262,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToDeleteTeamsInThisOrganization",
+          "type": "class",
+          "line": 270,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToUpdateThisTeam",
+          "type": "class",
+          "line": 278,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToDeleteThisTeam",
+          "type": "class",
+          "line": 286,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvitationLimitReached",
+          "type": "class",
+          "line": 294,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "TeamMemberLimitReached",
+          "type": "class",
+          "line": 298,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UserIsNotAMemberOfTheTeam",
+          "type": "class",
+          "line": 302,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouCanNotAccessTheMembersOfThisTeam",
+          "type": "class",
+          "line": 306,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouDoNotHaveAnActiveTeam",
+          "type": "class",
+          "line": 314,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToCreateANewTeamMember",
+          "type": "class",
+          "line": 318,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToRemoveATeamMember",
+          "type": "class",
+          "line": 326,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToAccessThisOrganization",
+          "type": "class",
+          "line": 334,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAMemberOfThisOrganization",
+          "type": "class",
+          "line": 342,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "MissingAcInstance",
+          "type": "class",
+          "line": 350,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouMustBeInAnOrganizationToCreateARole",
+          "type": "class",
+          "line": 354,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToCreateARole",
+          "type": "class",
+          "line": 362,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToUpdateARole",
+          "type": "class",
+          "line": 370,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToDeleteARole",
+          "type": "class",
+          "line": 378,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToReadARole",
+          "type": "class",
+          "line": 386,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToListARole",
+          "type": "class",
+          "line": 392,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToGetARole",
+          "type": "class",
+          "line": 398,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "TooManyRoles",
+          "type": "class",
+          "line": 402,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidResource",
+          "type": "class",
+          "line": 406,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "RoleNameIsAlreadyTaken",
+          "type": "class",
+          "line": 410,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "CannotDeleteAPreDefinedRole",
+          "type": "class",
+          "line": 414,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "OrganizationErrors",
+          "type": "class",
+          "line": 418,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "OrganizationErrors",
+          "type": "namespace",
+          "line": 476,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 477,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 478,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "errors/passkey.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/passkey.errors.ts",
+      "totalExports": 12,
+      "missingExamples": 12,
+      "missingCategories": 12,
+      "exports": [
+        {
+          "name": "PASSKEY_ERROR_CODES",
+          "type": "const",
+          "line": 3,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ChallengeNotFound",
+          "type": "class",
+          "line": 13,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "YouAreNotAllowedToRegisterThisPasskey",
+          "type": "class",
+          "line": 17,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "FailedToVerifyRegistration",
+          "type": "class",
+          "line": 25,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "PasskeyNotFound",
+          "type": "class",
+          "line": 29,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "AuthenticationFailed",
+          "type": "class",
+          "line": 33,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UnableToCreateSession",
+          "type": "class",
+          "line": 37,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "FailedToUpdatePasskey",
+          "type": "class",
+          "line": 41,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "PasskeyErrors",
+          "type": "class",
+          "line": 45,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "PasskeyErrors",
+          "type": "namespace",
+          "line": 55,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 56,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 57,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "errors/phone-number.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/phone-number.errors.ts",
+      "totalExports": 11,
+      "missingExamples": 11,
+      "missingCategories": 11,
+      "exports": [
+        {
+          "name": "PHONE_NUMBER_ERROR_CODES",
+          "type": "const",
+          "line": 4,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidPhoneNumber",
+          "type": "class",
+          "line": 15,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "PhoneNumberExist",
+          "type": "class",
+          "line": 19,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidPhoneNumberOrPassword",
+          "type": "class",
+          "line": 23,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UnexpectedError",
+          "type": "class",
+          "line": 27,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "OtpNotFound",
+          "type": "class",
+          "line": 31,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "PhoneNumberNotVerified",
+          "type": "class",
+          "line": 35,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "PhoneNumberErrors",
+          "type": "class",
+          "line": 39,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "PhoneNumberErrors",
+          "type": "namespace",
+          "line": 50,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 51,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 52,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "errors/subscription.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/subscription.errors.ts",
+      "totalExports": 13,
+      "missingExamples": 13,
+      "missingCategories": 13,
+      "exports": [
+        {
+          "name": "SUBSCRIPTION_ERROR_CODES",
+          "type": "const",
+          "line": 4,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "SubscriptionNotFound",
+          "type": "class",
+          "line": 15,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "SubscriptionPlanNotFound",
+          "type": "class",
+          "line": 19,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "AlreadySubscribedPlan",
+          "type": "class",
+          "line": 23,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UnableToCreateCustomer",
+          "type": "class",
+          "line": 27,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "FailedToFetchPlans",
+          "type": "class",
+          "line": 31,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "EmailVerificationRequired",
+          "type": "class",
+          "line": 35,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "SubscriptionNotActive",
+          "type": "class",
+          "line": 39,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "SubscriptionNotScheduledForCancellation",
+          "type": "class",
+          "line": 43,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "SubscriptionErrors",
+          "type": "class",
+          "line": 51,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "SubscriptionErrors",
+          "type": "namespace",
+          "line": 62,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 63,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 64,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "errors/two-factor.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/two-factor.errors.ts",
+      "totalExports": 14,
+      "missingExamples": 14,
+      "missingCategories": 14,
+      "exports": [
+        {
+          "name": "TWO_FACTOR_ERROR_CODES",
+          "type": "const",
+          "line": 3,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "OtpNotEnabled",
+          "type": "class",
+          "line": 15,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "OtpHasExpired",
+          "type": "class",
+          "line": 19,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "TotpNotEnabled",
+          "type": "class",
+          "line": 23,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "TwoFactorNotEnabled",
+          "type": "class",
+          "line": 27,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "BackupCodesNotEnabled",
+          "type": "class",
+          "line": 31,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidBackupCode",
+          "type": "class",
+          "line": 35,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidCode",
+          "type": "class",
+          "line": 39,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "TooManyAttemptsRequestNewCode",
+          "type": "class",
+          "line": 43,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidTwoFactorCookie",
+          "type": "class",
+          "line": 47,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "TwoFactorErrors",
+          "type": "class",
+          "line": 51,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "TwoFactorErrors",
+          "type": "namespace",
+          "line": 63,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 64,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 65,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "errors/username.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/username.errors.ts",
+      "totalExports": 10,
+      "missingExamples": 10,
+      "missingCategories": 10,
+      "exports": [
+        {
+          "name": "USERNAME_ERROR_CODES",
+          "type": "const",
+          "line": 4,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidUsernameOrPassword",
+          "type": "class",
+          "line": 14,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UsernameIsAlreadyTaken",
+          "type": "class",
+          "line": 26,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UsernameTooShort",
+          "type": "class",
+          "line": 30,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UsernameTooLong",
+          "type": "class",
+          "line": 34,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvalidUsername",
+          "type": "class",
+          "line": 38,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UsernameErrors",
+          "type": "class",
+          "line": 42,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UsernameErrors",
+          "type": "namespace",
+          "line": 52,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 53,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 54,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "value-objects/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/value-objects/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "value-objects/paths.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/value-objects/paths.ts",
+      "totalExports": 9,
+      "missingExamples": 9,
+      "missingCategories": 9,
+      "exports": [
+        {
+          "name": "authViewPaths",
+          "type": "const",
+          "line": 6,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "AccountSettingsTabSearchParamValue",
+          "type": "class",
+          "line": 18,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "AccountSettingsTabSearchParamValue",
+          "type": "namespace",
+          "line": 32,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Type",
+          "type": "type",
+          "line": 33,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Encoded",
+          "type": "type",
+          "line": 34,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "accountViewPaths",
+          "type": "const",
+          "line": 37,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "AccountViewPaths",
+          "type": "type",
+          "line": 44,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "organizationViewPaths",
+          "type": "const",
+          "line": 47,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "OrganizationViewPaths",
+          "type": "type",
+          "line": 56,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    }
+  ],
+  "missingItems": [
+    {
+      "file": "DomainApi.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/DomainApi.ts",
+      "name": "DomainApi",
+      "type": "class",
+      "line": 4,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "IamError.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/IamError.ts",
+      "name": "IamError",
+      "type": "class",
+      "line": 4,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "IamError.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/IamError.ts",
+      "name": "IamUnknownError",
+      "type": "class",
+      "line": 6,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "api/User.contract.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/api/User.contract.ts",
+      "name": "CurrentUserNotFound",
+      "type": "class",
+      "line": 7,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "api/User.contract.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/api/User.contract.ts",
+      "name": "CurrentUserGroup",
+      "type": "class",
+      "line": 20,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Account/Account.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Account/Account.model.ts",
+      "name": "AccountModelSchemaId",
+      "type": "const",
+      "line": 8,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Account/Account.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Account/Account.model.ts",
+      "name": "Model",
+      "type": "class",
+      "line": 15,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/ApiKey/ApiKey.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/ApiKey/ApiKey.model.ts",
+      "name": "ApikeyModelSchemaId",
+      "type": "const",
+      "line": 8,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/ApiKey/ApiKey.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/ApiKey/ApiKey.model.ts",
+      "name": "Model",
+      "type": "class",
+      "line": 14,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/DeviceCode/DeviceCode.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/DeviceCode/DeviceCode.model.ts",
+      "name": "DeviceCodeModelSchemaId",
+      "type": "const",
+      "line": 9,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/DeviceCode/DeviceCode.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/DeviceCode/DeviceCode.model.ts",
+      "name": "Model",
+      "type": "class",
+      "line": 16,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/DeviceCode/schemas/DeviceCodeStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/DeviceCode/schemas/DeviceCodeStatus.ts",
+      "name": "DeviceCodeStatus",
+      "type": "class",
+      "line": 4,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/DeviceCode/schemas/DeviceCodeStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/DeviceCode/schemas/DeviceCodeStatus.ts",
+      "name": "makeDeviceCodeStatusPgEnum",
+      "type": "const",
+      "line": 5,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/DeviceCode/schemas/DeviceCodeStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/DeviceCode/schemas/DeviceCodeStatus.ts",
+      "name": "DeviceCodeStatus",
+      "type": "namespace",
+      "line": 7,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/DeviceCode/schemas/DeviceCodeStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/DeviceCode/schemas/DeviceCodeStatus.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 8,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/DeviceCode/schemas/DeviceCodeStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/DeviceCode/schemas/DeviceCodeStatus.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 9,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Invitation/Invitation.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Invitation/Invitation.model.ts",
+      "name": "InvitationModelSchemaId",
+      "type": "const",
+      "line": 9,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Invitation/Invitation.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Invitation/Invitation.model.ts",
+      "name": "Model",
+      "type": "class",
+      "line": 15,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Invitation/schemas/InvitationStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Invitation/schemas/InvitationStatus.ts",
+      "name": "InvitationStatus",
+      "type": "class",
+      "line": 4,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Invitation/schemas/InvitationStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Invitation/schemas/InvitationStatus.ts",
+      "name": "makeInvitationStatusPgEnum",
+      "type": "const",
+      "line": 10,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Invitation/schemas/InvitationStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Invitation/schemas/InvitationStatus.ts",
+      "name": "InvitationStatusEnum",
+      "type": "const",
+      "line": 12,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Invitation/schemas/InvitationStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Invitation/schemas/InvitationStatus.ts",
+      "name": "InvitationStatusOptions",
+      "type": "const",
+      "line": 14,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Invitation/schemas/InvitationStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Invitation/schemas/InvitationStatus.ts",
+      "name": "InvitationStatus",
+      "type": "namespace",
+      "line": 15,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Invitation/schemas/InvitationStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Invitation/schemas/InvitationStatus.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 16,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Invitation/schemas/InvitationStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Invitation/schemas/InvitationStatus.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 17,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Jwks/Jwks.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Jwks/Jwks.model.ts",
+      "name": "JwksModelSchemaId",
+      "type": "const",
+      "line": 8,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Jwks/Jwks.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Jwks/Jwks.model.ts",
+      "name": "Model",
+      "type": "class",
+      "line": 14,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Member/Member.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/Member.model.ts",
+      "name": "Model",
+      "type": "class",
+      "line": 12,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Member/schemas/MemberRole.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/schemas/MemberRole.ts",
+      "name": "MemberRole",
+      "type": "class",
+      "line": 4,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Member/schemas/MemberRole.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/schemas/MemberRole.ts",
+      "name": "MemberRoleEnum",
+      "type": "const",
+      "line": 11,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Member/schemas/MemberRole.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/schemas/MemberRole.ts",
+      "name": "MemberRoleOptions",
+      "type": "const",
+      "line": 12,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Member/schemas/MemberRole.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/schemas/MemberRole.ts",
+      "name": "makeMemberRolePgEnum",
+      "type": "const",
+      "line": 13,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Member/schemas/MemberRole.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/schemas/MemberRole.ts",
+      "name": "MemberRole",
+      "type": "namespace",
+      "line": 15,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Member/schemas/MemberRole.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/schemas/MemberRole.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 16,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Member/schemas/MemberRole.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/schemas/MemberRole.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 17,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Member/schemas/MemberStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/schemas/MemberStatus.ts",
+      "name": "MemberStatus",
+      "type": "class",
+      "line": 4,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Member/schemas/MemberStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/schemas/MemberStatus.ts",
+      "name": "MemberStatusEnum",
+      "type": "const",
+      "line": 17,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Member/schemas/MemberStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/schemas/MemberStatus.ts",
+      "name": "MemberStatusOptions",
+      "type": "const",
+      "line": 18,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Member/schemas/MemberStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/schemas/MemberStatus.ts",
+      "name": "makeMemberStatusPgEnum",
+      "type": "const",
+      "line": 19,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Member/schemas/MemberStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/schemas/MemberStatus.ts",
+      "name": "MemberStatus",
+      "type": "namespace",
+      "line": 21,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Member/schemas/MemberStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/schemas/MemberStatus.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 22,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Member/schemas/MemberStatus.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Member/schemas/MemberStatus.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 23,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/OAuthAccessToken/OAuthAccessToken.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/OAuthAccessToken/OAuthAccessToken.model.ts",
+      "name": "Model",
+      "type": "class",
+      "line": 12,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/OAuthApplication/OAuthApplication.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/OAuthApplication/OAuthApplication.model.ts",
+      "name": "OAuthApplicationModelSchemaId",
+      "type": "const",
+      "line": 8,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/OAuthApplication/OAuthApplication.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/OAuthApplication/OAuthApplication.model.ts",
+      "name": "Model",
+      "type": "class",
+      "line": 14,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/OAuthConsent/OAuthConsent.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/OAuthConsent/OAuthConsent.model.ts",
+      "name": "OAuthConsentModelSchemaId",
+      "type": "const",
+      "line": 7,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/OAuthConsent/OAuthConsent.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/OAuthConsent/OAuthConsent.model.ts",
+      "name": "Model",
+      "type": "class",
+      "line": 13,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/OrganizationRole/OrganizationRole.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/OrganizationRole/OrganizationRole.model.ts",
+      "name": "OrganizationRoleModelSchemaId",
+      "type": "const",
+      "line": 8,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/OrganizationRole/OrganizationRole.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/OrganizationRole/OrganizationRole.model.ts",
+      "name": "Model",
+      "type": "class",
+      "line": 14,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Passkey/Passkey.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Passkey/Passkey.model.ts",
+      "name": "PasskeyModelSchemaId",
+      "type": "const",
+      "line": 8,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Passkey/Passkey.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Passkey/Passkey.model.ts",
+      "name": "Model",
+      "type": "class",
+      "line": 14,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Passkey/schemas/AuthenticatorAttachment.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Passkey/schemas/AuthenticatorAttachment.ts",
+      "name": "AuthenticatorAttachment",
+      "type": "class",
+      "line": 4,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/RateLimit/RateLimit.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/RateLimit/RateLimit.model.ts",
+      "name": "RateLimitModelSchemaId",
+      "type": "const",
+      "line": 8,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/RateLimit/RateLimit.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/RateLimit/RateLimit.model.ts",
+      "name": "Model",
+      "type": "class",
+      "line": 14,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/ScimProvider/ScimProvider.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/ScimProvider/ScimProvider.model.ts",
+      "name": "Model",
+      "type": "class",
+      "line": 11,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/SsoProvider/SsoProvider.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/SsoProvider/SsoProvider.model.ts",
+      "name": "SsoProviderModelSchemaId",
+      "type": "const",
+      "line": 7,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/SsoProvider/SsoProvider.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/SsoProvider/SsoProvider.model.ts",
+      "name": "Model",
+      "type": "class",
+      "line": 13,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Subscription/Subscription.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Subscription/Subscription.model.ts",
+      "name": "SubscriptionModelSchemaId",
+      "type": "const",
+      "line": 8,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Subscription/Subscription.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Subscription/Subscription.model.ts",
+      "name": "Model",
+      "type": "class",
+      "line": 14,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/TeamMember/TeamMember.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/TeamMember/TeamMember.model.ts",
+      "name": "TeamMemberModelSchemaId",
+      "type": "const",
+      "line": 6,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/TeamMember/TeamMember.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/TeamMember/TeamMember.model.ts",
+      "name": "Model",
+      "type": "class",
+      "line": 12,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/TwoFactor/TwoFactor.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/TwoFactor/TwoFactor.model.ts",
+      "name": "TwoFactorModelSchemaId",
+      "type": "const",
+      "line": 7,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/TwoFactor/TwoFactor.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/TwoFactor/TwoFactor.model.ts",
+      "name": "Model",
+      "type": "class",
+      "line": 13,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Verification/Verification.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Verification/Verification.model.ts",
+      "name": "VerificationModelSchemaId",
+      "type": "const",
+      "line": 8,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/Verification/Verification.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Verification/Verification.model.ts",
+      "name": "Model",
+      "type": "class",
+      "line": 14,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/WalletAddress/WalletAddress.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/WalletAddress/WalletAddress.model.ts",
+      "name": "WalletAddressModelSchemaId",
+      "type": "const",
+      "line": 8,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "entities/WalletAddress/WalletAddress.model.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/WalletAddress/WalletAddress.model.ts",
+      "name": "Model",
+      "type": "class",
+      "line": 14,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/_internal.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/_internal.ts",
+      "name": "makeErrorProps",
+      "type": "const",
+      "line": 6,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/admin.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/admin.errors.ts",
+      "name": "ADMIN_ERROR_CODES",
+      "type": "const",
+      "line": 5,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/admin.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/admin.errors.ts",
+      "name": "YouCannotBanYourSelf",
+      "type": "class",
+      "line": 21,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/admin.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/admin.errors.ts",
+      "name": "YouAreNotAllowedToChangeUsersRole",
+      "type": "class",
+      "line": 25,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/admin.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/admin.errors.ts",
+      "name": "YouAreNotAllowedToCreateUsers",
+      "type": "class",
+      "line": 33,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/admin.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/admin.errors.ts",
+      "name": "YouAreNotAllowedToListUsers",
+      "type": "class",
+      "line": 37,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/admin.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/admin.errors.ts",
+      "name": "YouAreNotAllowedToListUsersSessions",
+      "type": "class",
+      "line": 41,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/admin.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/admin.errors.ts",
+      "name": "YouAreNotAllowedToBanUsers",
+      "type": "class",
+      "line": 49,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/admin.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/admin.errors.ts",
+      "name": "YouAreNotAllowedToImpersonateUsers",
+      "type": "class",
+      "line": 53,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/admin.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/admin.errors.ts",
+      "name": "YouAreNotAllowedToRevokeUsersSessions",
+      "type": "class",
+      "line": 61,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/admin.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/admin.errors.ts",
+      "name": "YouAreNotAllowedToDeleteUsers",
+      "type": "class",
+      "line": 69,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/admin.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/admin.errors.ts",
+      "name": "YouAreNotAllowedToSetUsersPassword",
+      "type": "class",
+      "line": 73,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/admin.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/admin.errors.ts",
+      "name": "BannedUser",
+      "type": "class",
+      "line": 81,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/admin.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/admin.errors.ts",
+      "name": "AdminErrors",
+      "type": "class",
+      "line": 85,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/admin.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/admin.errors.ts",
+      "name": "AdminErrors",
+      "type": "namespace",
+      "line": 101,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/admin.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/admin.errors.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 102,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/admin.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/admin.errors.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 103,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/anonymous.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/anonymous.errors.ts",
+      "name": "ANONYMOUS_ERROR_CODES",
+      "type": "const",
+      "line": 4,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/anonymous.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/anonymous.errors.ts",
+      "name": "CouldNotCreateSession",
+      "type": "class",
+      "line": 9,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/anonymous.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/anonymous.errors.ts",
+      "name": "AnonymousUsersCannotSignInAgainAnonymously",
+      "type": "class",
+      "line": 13,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/anonymous.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/anonymous.errors.ts",
+      "name": "AnonymousErrors",
+      "type": "class",
+      "line": 21,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/anonymous.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/anonymous.errors.ts",
+      "name": "AnonymousErrors",
+      "type": "namespace",
+      "line": 27,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/anonymous.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/anonymous.errors.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 28,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/anonymous.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/anonymous.errors.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 29,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "API_KEY_ERROR_CODES",
+      "type": "const",
+      "line": 4,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "InvalidMetadataType",
+      "type": "class",
+      "line": 30,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "RefillAmountAndIntervalRequired",
+      "type": "class",
+      "line": 34,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "RefillIntervalAndAmountRequired",
+      "type": "class",
+      "line": 38,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "UserBanned",
+      "type": "class",
+      "line": 42,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "UnauthorizedSession",
+      "type": "class",
+      "line": 46,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "KeyNotFound",
+      "type": "class",
+      "line": 50,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "KeyDisabled",
+      "type": "class",
+      "line": 54,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "KeyExpired",
+      "type": "class",
+      "line": 58,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "UsageExceeded",
+      "type": "class",
+      "line": 62,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "KeyNotRecoverable",
+      "type": "class",
+      "line": 66,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "ExpiresInIsTooSmall",
+      "type": "class",
+      "line": 70,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "ExpiresInIsTooLarge",
+      "type": "class",
+      "line": 74,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "InvalidRemaining",
+      "type": "class",
+      "line": 78,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "InvalidPrefixLength",
+      "type": "class",
+      "line": 82,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "InvalidNameLength",
+      "type": "class",
+      "line": 86,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "MetadataDisabled",
+      "type": "class",
+      "line": 90,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "RateLimitExceeded",
+      "type": "class",
+      "line": 94,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "NoValuesToUpdate",
+      "type": "class",
+      "line": 98,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "KeyDisabledExpiration",
+      "type": "class",
+      "line": 102,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "InvalidApiKey",
+      "type": "class",
+      "line": 106,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "InvalidUserIdFromApiKey",
+      "type": "class",
+      "line": 110,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "InvalidApiKeyGetterReturnType",
+      "type": "class",
+      "line": 114,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "ServerOnlyProperty",
+      "type": "class",
+      "line": 118,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "ApiKeyErrors",
+      "type": "class",
+      "line": 122,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "ApiKeyErrors",
+      "type": "namespace",
+      "line": 148,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 149,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/api-key.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/api-key.errors.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 150,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/captcha.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/captcha.errors.ts",
+      "name": "CAPTCHA_ERROR_CODES",
+      "type": "const",
+      "line": 17,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/captcha.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/captcha.errors.ts",
+      "name": "VerificationFailed",
+      "type": "class",
+      "line": 22,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/captcha.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/captcha.errors.ts",
+      "name": "MissingResponse",
+      "type": "class",
+      "line": 26,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/captcha.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/captcha.errors.ts",
+      "name": "UnknownError",
+      "type": "class",
+      "line": 30,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/captcha.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/captcha.errors.ts",
+      "name": "MissingSecretKey",
+      "type": "class",
+      "line": 34,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/captcha.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/captcha.errors.ts",
+      "name": "ServiceUnavailable",
+      "type": "class",
+      "line": 38,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/captcha.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/captcha.errors.ts",
+      "name": "CaptchaErrors",
+      "type": "class",
+      "line": 42,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/captcha.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/captcha.errors.ts",
+      "name": "CaptchaErrors",
+      "type": "namespace",
+      "line": 50,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/captcha.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/captcha.errors.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 51,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/captcha.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/captcha.errors.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 52,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "BASE_ERROR_CODES",
+      "type": "const",
+      "line": 3,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "UserNotFound",
+      "type": "class",
+      "line": 31,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "FailedToCreateUser",
+      "type": "class",
+      "line": 35,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "FailedToCreateSession",
+      "type": "class",
+      "line": 39,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "FailedToUpdateUser",
+      "type": "class",
+      "line": 43,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "FailedToGetSession",
+      "type": "class",
+      "line": 47,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "InvalidPassword",
+      "type": "class",
+      "line": 51,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "InvalidEmail",
+      "type": "class",
+      "line": 55,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "InvalidEmailOrPassword",
+      "type": "class",
+      "line": 59,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "SocialAccountAlreadyLinked",
+      "type": "class",
+      "line": 63,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "ProviderNotFound",
+      "type": "class",
+      "line": 67,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "InvalidToken",
+      "type": "class",
+      "line": 71,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "IdTokenNotSupported",
+      "type": "class",
+      "line": 75,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "FailedToGetUserInfo",
+      "type": "class",
+      "line": 79,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "UserEmailNotFound",
+      "type": "class",
+      "line": 83,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "EmailNotVerified",
+      "type": "class",
+      "line": 87,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "PasswordTooShort",
+      "type": "class",
+      "line": 91,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "PasswordTooLong",
+      "type": "class",
+      "line": 95,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "UserAlreadyExists",
+      "type": "class",
+      "line": 99,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "UserAlreadyExistsUseAnotherEmail",
+      "type": "class",
+      "line": 103,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "EmailCanNotBeUpdated",
+      "type": "class",
+      "line": 107,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "CredentialAccountNotFound",
+      "type": "class",
+      "line": 111,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "SessionExpired",
+      "type": "class",
+      "line": 115,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "FailedToUnlinkLastAccount",
+      "type": "class",
+      "line": 119,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "AccountNotFound",
+      "type": "class",
+      "line": 123,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "UserAlreadyHasPassword",
+      "type": "class",
+      "line": 127,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "CoreError",
+      "type": "class",
+      "line": 131,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "CoreError",
+      "type": "namespace",
+      "line": 159,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 160,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/core.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/core.errors.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 161,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/device-authorization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/device-authorization.errors.ts",
+      "name": "InvalidDeviceCode",
+      "type": "class",
+      "line": 20,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/device-authorization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/device-authorization.errors.ts",
+      "name": "ExpiredDeviceCode",
+      "type": "class",
+      "line": 24,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/device-authorization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/device-authorization.errors.ts",
+      "name": "ExpiredUserCode",
+      "type": "class",
+      "line": 28,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/device-authorization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/device-authorization.errors.ts",
+      "name": "AuthorizationPending",
+      "type": "class",
+      "line": 32,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/device-authorization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/device-authorization.errors.ts",
+      "name": "AccessDenied",
+      "type": "class",
+      "line": 36,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/device-authorization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/device-authorization.errors.ts",
+      "name": "InvalidUserCode",
+      "type": "class",
+      "line": 40,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/device-authorization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/device-authorization.errors.ts",
+      "name": "DeviceCodeAlreadyProcessed",
+      "type": "class",
+      "line": 44,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/device-authorization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/device-authorization.errors.ts",
+      "name": "PollingTooFrequently",
+      "type": "class",
+      "line": 48,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/device-authorization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/device-authorization.errors.ts",
+      "name": "InvalidDeviceCodeStatus",
+      "type": "class",
+      "line": 52,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/device-authorization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/device-authorization.errors.ts",
+      "name": "AuthenticationRequired",
+      "type": "class",
+      "line": 56,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/device-authorization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/device-authorization.errors.ts",
+      "name": "DeviceAuthorizationError",
+      "type": "class",
+      "line": 60,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/device-authorization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/device-authorization.errors.ts",
+      "name": "DeviceAuthorizationError",
+      "type": "namespace",
+      "line": 75,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/device-authorization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/device-authorization.errors.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 76,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/device-authorization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/device-authorization.errors.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 77,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/email-otp.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/email-otp.errors.ts",
+      "name": "EMAIL_OTP_ERROR_CODES",
+      "type": "const",
+      "line": 4,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/email-otp.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/email-otp.errors.ts",
+      "name": "OtpExpired",
+      "type": "class",
+      "line": 12,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/email-otp.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/email-otp.errors.ts",
+      "name": "InvalidOtp",
+      "type": "class",
+      "line": 16,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/email-otp.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/email-otp.errors.ts",
+      "name": "TooManyAttempts",
+      "type": "class",
+      "line": 20,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/email-otp.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/email-otp.errors.ts",
+      "name": "EmailOtpErrors",
+      "type": "class",
+      "line": 24,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/email-otp.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/email-otp.errors.ts",
+      "name": "EmailOtpErrors",
+      "type": "namespace",
+      "line": 32,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/email-otp.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/email-otp.errors.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 33,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/email-otp.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/email-otp.errors.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 34,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/generic-oauth.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/generic-oauth.errors.ts",
+      "name": "GENERIC_OAUTH_ERROR_CODES",
+      "type": "const",
+      "line": 3,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/generic-oauth.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/generic-oauth.errors.ts",
+      "name": "InvalidOAuthConfiguration",
+      "type": "class",
+      "line": 7,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/generic-oauth.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/generic-oauth.errors.ts",
+      "name": "GenericOAuthErrors",
+      "type": "class",
+      "line": 11,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/generic-oauth.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/generic-oauth.errors.ts",
+      "name": "GenericOAuthErrors",
+      "type": "namespace",
+      "line": 13,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/generic-oauth.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/generic-oauth.errors.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 14,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/generic-oauth.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/generic-oauth.errors.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 15,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/haveibeenpwned.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/haveibeenpwned.errors.ts",
+      "name": "HAVEIBEENPWNED_ERROR_CODES",
+      "type": "const",
+      "line": 3,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/haveibeenpwned.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/haveibeenpwned.errors.ts",
+      "name": "PasswordCompromised",
+      "type": "class",
+      "line": 7,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/haveibeenpwned.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/haveibeenpwned.errors.ts",
+      "name": "HaveIBeenPwnedErrors",
+      "type": "class",
+      "line": 11,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/haveibeenpwned.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/haveibeenpwned.errors.ts",
+      "name": "HaveIBeenPwnedErrors",
+      "type": "namespace",
+      "line": 13,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/haveibeenpwned.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/haveibeenpwned.errors.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 14,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/haveibeenpwned.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/haveibeenpwned.errors.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 15,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/multi-session.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/multi-session.errors.ts",
+      "name": "MULTI_SESSION_ERROR_CODES",
+      "type": "const",
+      "line": 4,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/multi-session.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/multi-session.errors.ts",
+      "name": "InvalidSessionToken",
+      "type": "class",
+      "line": 8,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/multi-session.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/multi-session.errors.ts",
+      "name": "MultiSessionErrors",
+      "type": "class",
+      "line": 12,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/multi-session.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/multi-session.errors.ts",
+      "name": "MultiSessionErrors",
+      "type": "namespace",
+      "line": 14,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/multi-session.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/multi-session.errors.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 15,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/multi-session.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/multi-session.errors.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 16,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "ORGANIZATION_ERROR_CODES",
+      "type": "const",
+      "line": 3,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToCreateANewOrganization",
+      "type": "class",
+      "line": 62,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouHaveReachedTheMaximumNumberOfOrganizations",
+      "type": "class",
+      "line": 70,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "OrganizationAlreadyExists",
+      "type": "class",
+      "line": 78,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "OrganizationNotFound",
+      "type": "class",
+      "line": 82,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "UserIsNotAMemberOfTheOrganization",
+      "type": "class",
+      "line": 86,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToUpdateThisOrganization",
+      "type": "class",
+      "line": 94,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToDeleteThisOrganization",
+      "type": "class",
+      "line": 102,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "NoActiveOrganization",
+      "type": "class",
+      "line": 110,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "UserIsAlreadyAMemberOfThisOrganization",
+      "type": "class",
+      "line": 114,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "MemberNotFound",
+      "type": "class",
+      "line": 122,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "RoleNotFound",
+      "type": "class",
+      "line": 126,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToCreateANewTeam",
+      "type": "class",
+      "line": 130,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "TeamAlreadyExists",
+      "type": "class",
+      "line": 138,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "TeamNotFound",
+      "type": "class",
+      "line": 142,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouCannotLeaveTheOrganizationAsTheOnlyOwner",
+      "type": "class",
+      "line": 146,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouCannotLeaveTheOrganizationWithoutAnOwner",
+      "type": "class",
+      "line": 154,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToDeleteThisMember",
+      "type": "class",
+      "line": 162,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToInviteUsersToThisOrganization",
+      "type": "class",
+      "line": 170,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "UserIsAlreadyInvitedToThisOrganization",
+      "type": "class",
+      "line": 178,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "InvitationNotFound",
+      "type": "class",
+      "line": 186,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotTheRecipientOfTheInvitation",
+      "type": "class",
+      "line": 190,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "EmailVerificationRequiredBeforeAcceptingOrRejectingInvitation",
+      "type": "class",
+      "line": 198,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToCancelThisInvitation",
+      "type": "class",
+      "line": 206,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "InviterIsNoLongerAMemberOfTheOrganization",
+      "type": "class",
+      "line": 214,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToInviteUserWithThisRole",
+      "type": "class",
+      "line": 222,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "FailedToRetrieveInvitation",
+      "type": "class",
+      "line": 230,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouHaveReachedTheMaximumNumberOfTeams",
+      "type": "class",
+      "line": 234,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "UnableToRemoveLastTeam",
+      "type": "class",
+      "line": 242,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToUpdateThisMember",
+      "type": "class",
+      "line": 246,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "OrganizationMembershipLimitReached",
+      "type": "class",
+      "line": 254,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToCreateTeamsInThisOrganization",
+      "type": "class",
+      "line": 262,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToDeleteTeamsInThisOrganization",
+      "type": "class",
+      "line": 270,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToUpdateThisTeam",
+      "type": "class",
+      "line": 278,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToDeleteThisTeam",
+      "type": "class",
+      "line": 286,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "InvitationLimitReached",
+      "type": "class",
+      "line": 294,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "TeamMemberLimitReached",
+      "type": "class",
+      "line": 298,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "UserIsNotAMemberOfTheTeam",
+      "type": "class",
+      "line": 302,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouCanNotAccessTheMembersOfThisTeam",
+      "type": "class",
+      "line": 306,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouDoNotHaveAnActiveTeam",
+      "type": "class",
+      "line": 314,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToCreateANewTeamMember",
+      "type": "class",
+      "line": 318,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToRemoveATeamMember",
+      "type": "class",
+      "line": 326,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToAccessThisOrganization",
+      "type": "class",
+      "line": 334,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAMemberOfThisOrganization",
+      "type": "class",
+      "line": 342,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "MissingAcInstance",
+      "type": "class",
+      "line": 350,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouMustBeInAnOrganizationToCreateARole",
+      "type": "class",
+      "line": 354,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToCreateARole",
+      "type": "class",
+      "line": 362,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToUpdateARole",
+      "type": "class",
+      "line": 370,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToDeleteARole",
+      "type": "class",
+      "line": 378,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToReadARole",
+      "type": "class",
+      "line": 386,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToListARole",
+      "type": "class",
+      "line": 392,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "YouAreNotAllowedToGetARole",
+      "type": "class",
+      "line": 398,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "TooManyRoles",
+      "type": "class",
+      "line": 402,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "InvalidResource",
+      "type": "class",
+      "line": 406,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "RoleNameIsAlreadyTaken",
+      "type": "class",
+      "line": 410,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "CannotDeleteAPreDefinedRole",
+      "type": "class",
+      "line": 414,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "OrganizationErrors",
+      "type": "class",
+      "line": 418,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "OrganizationErrors",
+      "type": "namespace",
+      "line": 476,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 477,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/organization.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/organization.errors.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 478,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/passkey.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/passkey.errors.ts",
+      "name": "PASSKEY_ERROR_CODES",
+      "type": "const",
+      "line": 3,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/passkey.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/passkey.errors.ts",
+      "name": "ChallengeNotFound",
+      "type": "class",
+      "line": 13,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/passkey.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/passkey.errors.ts",
+      "name": "YouAreNotAllowedToRegisterThisPasskey",
+      "type": "class",
+      "line": 17,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/passkey.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/passkey.errors.ts",
+      "name": "FailedToVerifyRegistration",
+      "type": "class",
+      "line": 25,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/passkey.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/passkey.errors.ts",
+      "name": "PasskeyNotFound",
+      "type": "class",
+      "line": 29,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/passkey.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/passkey.errors.ts",
+      "name": "AuthenticationFailed",
+      "type": "class",
+      "line": 33,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/passkey.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/passkey.errors.ts",
+      "name": "UnableToCreateSession",
+      "type": "class",
+      "line": 37,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/passkey.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/passkey.errors.ts",
+      "name": "FailedToUpdatePasskey",
+      "type": "class",
+      "line": 41,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/passkey.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/passkey.errors.ts",
+      "name": "PasskeyErrors",
+      "type": "class",
+      "line": 45,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/passkey.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/passkey.errors.ts",
+      "name": "PasskeyErrors",
+      "type": "namespace",
+      "line": 55,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/passkey.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/passkey.errors.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 56,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/passkey.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/passkey.errors.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 57,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/phone-number.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/phone-number.errors.ts",
+      "name": "PHONE_NUMBER_ERROR_CODES",
+      "type": "const",
+      "line": 4,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/phone-number.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/phone-number.errors.ts",
+      "name": "InvalidPhoneNumber",
+      "type": "class",
+      "line": 15,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/phone-number.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/phone-number.errors.ts",
+      "name": "PhoneNumberExist",
+      "type": "class",
+      "line": 19,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/phone-number.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/phone-number.errors.ts",
+      "name": "InvalidPhoneNumberOrPassword",
+      "type": "class",
+      "line": 23,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/phone-number.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/phone-number.errors.ts",
+      "name": "UnexpectedError",
+      "type": "class",
+      "line": 27,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/phone-number.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/phone-number.errors.ts",
+      "name": "OtpNotFound",
+      "type": "class",
+      "line": 31,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/phone-number.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/phone-number.errors.ts",
+      "name": "PhoneNumberNotVerified",
+      "type": "class",
+      "line": 35,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/phone-number.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/phone-number.errors.ts",
+      "name": "PhoneNumberErrors",
+      "type": "class",
+      "line": 39,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/phone-number.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/phone-number.errors.ts",
+      "name": "PhoneNumberErrors",
+      "type": "namespace",
+      "line": 50,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/phone-number.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/phone-number.errors.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 51,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/phone-number.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/phone-number.errors.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 52,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/subscription.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/subscription.errors.ts",
+      "name": "SUBSCRIPTION_ERROR_CODES",
+      "type": "const",
+      "line": 4,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/subscription.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/subscription.errors.ts",
+      "name": "SubscriptionNotFound",
+      "type": "class",
+      "line": 15,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/subscription.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/subscription.errors.ts",
+      "name": "SubscriptionPlanNotFound",
+      "type": "class",
+      "line": 19,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/subscription.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/subscription.errors.ts",
+      "name": "AlreadySubscribedPlan",
+      "type": "class",
+      "line": 23,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/subscription.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/subscription.errors.ts",
+      "name": "UnableToCreateCustomer",
+      "type": "class",
+      "line": 27,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/subscription.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/subscription.errors.ts",
+      "name": "FailedToFetchPlans",
+      "type": "class",
+      "line": 31,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/subscription.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/subscription.errors.ts",
+      "name": "EmailVerificationRequired",
+      "type": "class",
+      "line": 35,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/subscription.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/subscription.errors.ts",
+      "name": "SubscriptionNotActive",
+      "type": "class",
+      "line": 39,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/subscription.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/subscription.errors.ts",
+      "name": "SubscriptionNotScheduledForCancellation",
+      "type": "class",
+      "line": 43,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/subscription.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/subscription.errors.ts",
+      "name": "SubscriptionErrors",
+      "type": "class",
+      "line": 51,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/subscription.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/subscription.errors.ts",
+      "name": "SubscriptionErrors",
+      "type": "namespace",
+      "line": 62,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/subscription.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/subscription.errors.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 63,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/subscription.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/subscription.errors.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 64,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/two-factor.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/two-factor.errors.ts",
+      "name": "TWO_FACTOR_ERROR_CODES",
+      "type": "const",
+      "line": 3,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/two-factor.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/two-factor.errors.ts",
+      "name": "OtpNotEnabled",
+      "type": "class",
+      "line": 15,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/two-factor.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/two-factor.errors.ts",
+      "name": "OtpHasExpired",
+      "type": "class",
+      "line": 19,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/two-factor.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/two-factor.errors.ts",
+      "name": "TotpNotEnabled",
+      "type": "class",
+      "line": 23,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/two-factor.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/two-factor.errors.ts",
+      "name": "TwoFactorNotEnabled",
+      "type": "class",
+      "line": 27,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/two-factor.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/two-factor.errors.ts",
+      "name": "BackupCodesNotEnabled",
+      "type": "class",
+      "line": 31,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/two-factor.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/two-factor.errors.ts",
+      "name": "InvalidBackupCode",
+      "type": "class",
+      "line": 35,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/two-factor.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/two-factor.errors.ts",
+      "name": "InvalidCode",
+      "type": "class",
+      "line": 39,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/two-factor.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/two-factor.errors.ts",
+      "name": "TooManyAttemptsRequestNewCode",
+      "type": "class",
+      "line": 43,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/two-factor.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/two-factor.errors.ts",
+      "name": "InvalidTwoFactorCookie",
+      "type": "class",
+      "line": 47,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/two-factor.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/two-factor.errors.ts",
+      "name": "TwoFactorErrors",
+      "type": "class",
+      "line": 51,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/two-factor.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/two-factor.errors.ts",
+      "name": "TwoFactorErrors",
+      "type": "namespace",
+      "line": 63,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/two-factor.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/two-factor.errors.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 64,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/two-factor.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/two-factor.errors.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 65,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/username.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/username.errors.ts",
+      "name": "USERNAME_ERROR_CODES",
+      "type": "const",
+      "line": 4,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/username.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/username.errors.ts",
+      "name": "InvalidUsernameOrPassword",
+      "type": "class",
+      "line": 14,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/username.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/username.errors.ts",
+      "name": "UsernameIsAlreadyTaken",
+      "type": "class",
+      "line": 26,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/username.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/username.errors.ts",
+      "name": "UsernameTooShort",
+      "type": "class",
+      "line": 30,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/username.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/username.errors.ts",
+      "name": "UsernameTooLong",
+      "type": "class",
+      "line": 34,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/username.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/username.errors.ts",
+      "name": "InvalidUsername",
+      "type": "class",
+      "line": 38,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/username.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/username.errors.ts",
+      "name": "UsernameErrors",
+      "type": "class",
+      "line": 42,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/username.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/username.errors.ts",
+      "name": "UsernameErrors",
+      "type": "namespace",
+      "line": 52,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/username.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/username.errors.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 53,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "errors/username.errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/errors/username.errors.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 54,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "value-objects/paths.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/value-objects/paths.ts",
+      "name": "authViewPaths",
+      "type": "const",
+      "line": 6,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "value-objects/paths.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/value-objects/paths.ts",
+      "name": "AccountSettingsTabSearchParamValue",
+      "type": "class",
+      "line": 18,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "value-objects/paths.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/value-objects/paths.ts",
+      "name": "AccountSettingsTabSearchParamValue",
+      "type": "namespace",
+      "line": 32,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "value-objects/paths.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/value-objects/paths.ts",
+      "name": "Type",
+      "type": "type",
+      "line": 33,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "value-objects/paths.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/value-objects/paths.ts",
+      "name": "Encoded",
+      "type": "type",
+      "line": 34,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "value-objects/paths.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/value-objects/paths.ts",
+      "name": "accountViewPaths",
+      "type": "const",
+      "line": 37,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "value-objects/paths.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/value-objects/paths.ts",
+      "name": "AccountViewPaths",
+      "type": "type",
+      "line": 44,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "value-objects/paths.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/value-objects/paths.ts",
+      "name": "organizationViewPaths",
+      "type": "const",
+      "line": 47,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "value-objects/paths.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/value-objects/paths.ts",
+      "name": "OrganizationViewPaths",
+      "type": "type",
+      "line": 56,
+      "missingExample": true,
+      "missingCategory": true
+    }
+  ]
+}

@@ -1065,7 +1065,7 @@ const adaptiveSchedule = Schedule.recurWith<Duration.Duration, any, Duration.Dur
 
 ```typescript
 import { Effect, Duration, TestClock, TestContext, pipe } from "effect"
-import { describe, test, expect } from "@effect/vitest"
+import { describe, test, expect } from "@beep/testkit"
 
 // Testing time-based operations
 describe("Duration-based operations", () => {

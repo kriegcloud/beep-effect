@@ -2868,7 +2868,7 @@ Comprehensive testing patterns for applications using Equal:
 
 ```typescript
 import { Equal, Data, HashMap, HashSet, pipe, Effect } from "effect"
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "bun:test"
 
 // Test data factories with structural equality
 const createTestUser = (overrides: Partial<{

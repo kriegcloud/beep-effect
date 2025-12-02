@@ -1381,7 +1381,7 @@ Comprehensive testing approaches for Number-based calculations.
 
 ```typescript
 import { Number, Effect, Gen } from "effect"
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "bun:test"
 
 // Property-based testing with generators
 const PositiveNumberGen = Gen.number({ min: 0.01, max: 10000 })

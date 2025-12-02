@@ -54,24 +54,6 @@
       "path": "../../iam/tables/tsconfig.build.json"
     },
     {
-      "path": "../../tasks/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../tasks/ui/tsconfig.build.json"
-    },
-    {
-      "path": "../../tasks/tables/tsconfig.build.json"
-    },
-    {
-      "path": "../../comms/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../comms/ui/tsconfig.build.json"
-    },
-    {
-      "path": "../../comms/tables/tsconfig.build.json"
-    },
-    {
       "path": "../../documents/infra/tsconfig.build.json"
     },
     {
@@ -79,15 +61,6 @@
     },
     {
       "path": "../../documents/tables/tsconfig.build.json"
-    },
-    {
-      "path": "../../party/domain"
-    },
-    {
-      "path": "../../party/tables"
-    },
-    {
-      "path": "../../party/infra"
     },
     {
       "path": "../../../tooling/utils"

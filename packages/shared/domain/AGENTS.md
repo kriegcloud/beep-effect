@@ -36,7 +36,7 @@
   ```json
   {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","searchText":"paths.auth","maxUsageCount":20}
   ```
-- Refresh Effect library docs:
+- Refresh beep-effect codebase docs:
   ```json
   {"context7CompatibleLibraryID":"/effect-ts/effect","topic":"Effect.all firstSuccessOf MutableHashMap ManualCache","tokens":1500}
   ```

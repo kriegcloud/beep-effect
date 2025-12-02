@@ -915,7 +915,7 @@ app.post('/users', effectHandler(req =>
 
 ```typescript
 import { Effect, Layer, TestContext } from "effect"
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "bun:test"
 
 // Mock services for testing
 const mockUserService = {

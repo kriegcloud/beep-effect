@@ -1762,7 +1762,7 @@ Comprehensive testing patterns for Struct operations, focusing on property-based
 
 ```typescript
 import { Struct, Effect, Equal, Array as Arr } from "effect"
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "bun:test"
 
 // Test utilities
 const createTestUser = (overrides: Partial<User> = {}): User => ({

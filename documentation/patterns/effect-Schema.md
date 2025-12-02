@@ -1430,7 +1430,7 @@ function UserForm() {
 ```typescript
 import { Schema } from "@effect/schema"
 import { Effect } from "effect"
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "bun:test"
 import * as fc from "fast-check"
 
 // Property-based testing with fast-check

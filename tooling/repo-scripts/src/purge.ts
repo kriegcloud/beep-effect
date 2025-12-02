@@ -27,7 +27,6 @@ const WORKSPACE_PATTERNS = [
   "packages/iam/*/",
   "packages/runtime/*/",
   "packages/shared/*/",
-  "packages/tasks/*/",
   "packages/ui/*/",
   "tooling/*/",
 ] as const;

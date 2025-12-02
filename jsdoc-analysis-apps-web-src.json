@@ -1,0 +1,1656 @@
+{
+  "targetPath": "apps/web/src",
+  "totalFiles": 33,
+  "totalExports": 85,
+  "missingExamples": 85,
+  "missingCategories": 85,
+  "fileDetails": [
+    {
+      "filename": "app/api/auth/[...all]/route.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/app/api/auth/[...all]/route.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "POST",
+          "type": "const",
+          "line": 13,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "GET",
+          "type": "const",
+          "line": 14,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "app/api/v1/iam/[...iam]/route.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/app/api/v1/iam/[...iam]/route.ts",
+      "totalExports": 5,
+      "missingExamples": 5,
+      "missingCategories": 5,
+      "exports": [
+        {
+          "name": "GET",
+          "type": "const",
+          "line": 6,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "POST",
+          "type": "const",
+          "line": 7,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "PUT",
+          "type": "const",
+          "line": 8,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "DELETE",
+          "type": "const",
+          "line": 9,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "PATCH",
+          "type": "const",
+          "line": 10,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "app/manifest.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/app/manifest.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "app/robots.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/app/robots.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "app-config.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/app-config.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "AppConfig",
+          "type": "type",
+          "line": 10,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "getAppConfig",
+          "type": "const",
+          "line": 33,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "features/account/address/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/address/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "features/account/common/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/common/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "features/account/localization/data.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/localization/data.ts",
+      "totalExports": 6,
+      "missingExamples": 6,
+      "missingCategories": 6,
+      "exports": [
+        {
+          "name": "languages",
+          "type": "const",
+          "line": 3,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "regions",
+          "type": "const",
+          "line": 16,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "weekDays",
+          "type": "const",
+          "line": 27,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "dateFormats",
+          "type": "const",
+          "line": 28,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "numberFormats",
+          "type": "const",
+          "line": 29,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "listSortOrders",
+          "type": "const",
+          "line": 30,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "features/account/localization/types.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/localization/types.ts",
+      "totalExports": 1,
+      "missingExamples": 1,
+      "missingCategories": 1,
+      "exports": [
+        {
+          "name": "Language",
+          "type": "interface",
+          "line": 1,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "features/account/payment/view/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/payment/view/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "features/account/security/data.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/security/data.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "loggedInDevices",
+          "type": "const",
+          "line": 4,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "connectedDevices",
+          "type": "const",
+          "line": 41,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "features/account/security/types.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/security/types.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "ConnectedInDevice",
+          "type": "interface",
+          "line": 3,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "LoggedInDevice",
+          "type": "interface",
+          "line": 14,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "features/account/types.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/types.ts",
+      "totalExports": 5,
+      "missingExamples": 5,
+      "missingCategories": 5,
+      "exports": [
+        {
+          "name": "IDateValue",
+          "type": "type",
+          "line": 1,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "IUserAccountBillingHistory",
+          "type": "type",
+          "line": 3,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "IPaymentCard",
+          "type": "type",
+          "line": 10,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "IAddressItem",
+          "type": "type",
+          "line": 17,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ISocialLink",
+          "type": "type",
+          "line": 27,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "features/account/view/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/view/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "features/upload/UploadFileService.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/UploadFileService.ts",
+      "totalExports": 1,
+      "missingExamples": 1,
+      "missingCategories": 1,
+      "exports": [
+        {
+          "name": "UploadFileService",
+          "type": "class",
+          "line": 11,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "features/upload/UploadModels.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/UploadModels.ts",
+      "totalExports": 8,
+      "missingExamples": 8,
+      "missingCategories": 8,
+      "exports": [
+        {
+          "name": "PipelineConfig",
+          "type": "interface",
+          "line": 10,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ValidateFileOutput",
+          "type": "interface",
+          "line": 18,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "BasicMetadataOutput",
+          "type": "interface",
+          "line": 23,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ExifMetadataOutput",
+          "type": "type",
+          "line": 28,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UploadError",
+          "type": "type",
+          "line": 31,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UploadResult",
+          "type": "interface",
+          "line": 33,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ProcessFilesResult",
+          "type": "type",
+          "line": 40,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "DEFAULT_CHUNK_SIZE",
+          "type": "const",
+          "line": 42,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "features/upload/components/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/components/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "features/upload/errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/errors.ts",
+      "totalExports": 3,
+      "missingExamples": 3,
+      "missingCategories": 3,
+      "exports": [
+        {
+          "name": "ValidationError",
+          "type": "class",
+          "line": 3,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "DetectionError",
+          "type": "class",
+          "line": 13,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ExifParseError",
+          "type": "class",
+          "line": 22,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "features/upload/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "features/upload/layout/classes.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/layout/classes.ts",
+      "totalExports": 1,
+      "missingExamples": 1,
+      "missingCategories": 1,
+      "exports": [
+        {
+          "name": "componentLayoutClasses",
+          "type": "const",
+          "line": 3,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "features/upload/layout/hooks.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/layout/hooks.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "useScroll",
+          "type": "function",
+          "line": 4,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "useHashScroll",
+          "type": "function",
+          "line": 40,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "features/upload/layout/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/layout/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "features/upload/layout/nav-config-components.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/layout/nav-config-components.ts",
+      "totalExports": 2,
+      "missingExamples": 2,
+      "missingCategories": 2,
+      "exports": [
+        {
+          "name": "NavItemData",
+          "type": "type",
+          "line": 12,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "allComponents",
+          "type": "const",
+          "line": 128,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "features/upload/observability.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/observability.ts",
+      "totalExports": 6,
+      "missingExamples": 6,
+      "missingCategories": 6,
+      "exports": [
+        {
+          "name": "UploadMetrics",
+          "type": "const",
+          "line": 12,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UploadAnnotation",
+          "type": "type",
+          "line": 29,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "makeFileAnnotations",
+          "type": "const",
+          "line": 31,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "instrumentProcessFile",
+          "type": "const",
+          "line": 39,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "logInfo",
+          "type": "const",
+          "line": 58,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "logWarning",
+          "type": "const",
+          "line": 60,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "features/upload/pipeline.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/pipeline.ts",
+      "totalExports": 3,
+      "missingExamples": 3,
+      "missingCategories": 3,
+      "exports": [
+        {
+          "name": "validateFile",
+          "type": "const",
+          "line": 27,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "extractBasicMetadata",
+          "type": "const",
+          "line": 120,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "extractExifMetadata",
+          "type": "const",
+          "line": 169,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "global.atoms.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/global.atoms.ts",
+      "totalExports": 3,
+      "missingExamples": 3,
+      "missingCategories": 3,
+      "exports": [
+        {
+          "name": "Action",
+          "type": "type",
+          "line": 7,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "settingsDialogAtom",
+          "type": "const",
+          "line": 22,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "useSettingsDialog",
+          "type": "const",
+          "line": 34,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "libs/next/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/next/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "libs/tanstack-form/index.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/tanstack-form/index.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    },
+    {
+      "filename": "libs/tanstack-form/tanstack-form.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/tanstack-form/tanstack-form.ts",
+      "totalExports": 7,
+      "missingExamples": 7,
+      "missingCategories": 7,
+      "exports": [
+        {
+          "name": "Paths",
+          "type": "type",
+          "line": 41,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "SchemaValidatorFn",
+          "type": "type",
+          "line": 48,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "validateWithSchema",
+          "type": "const",
+          "line": 52,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "HandledValidatorKey",
+          "type": "type",
+          "line": 76,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "MakeFormOptionsReturn",
+          "type": "type",
+          "line": 77,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "makeFormOptions",
+          "type": "const",
+          "line": 91,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "formOptionsWithDefaults",
+          "type": "const",
+          "line": 127,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "libs/xstate/schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/xstate/schema.ts",
+      "totalExports": 17,
+      "missingExamples": 17,
+      "missingCategories": 17,
+      "exports": [
+        {
+          "name": "ICompoundStateNode",
+          "type": "interface",
+          "line": 4,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "IParallelStateNode",
+          "type": "interface",
+          "line": 14,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "IStateNode",
+          "type": "type",
+          "line": 23,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ActionObject",
+          "type": "const",
+          "line": 31,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "BaseStateNode",
+          "type": "const",
+          "line": 36,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvokeObject",
+          "type": "const",
+          "line": 51,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InvokeArray",
+          "type": "const",
+          "line": 57,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "TransitionObject",
+          "type": "const",
+          "line": 60,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "TransitionsObject",
+          "type": "const",
+          "line": 68,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "InitialTransitionObject",
+          "type": "const",
+          "line": 74,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "AtomicStateNode",
+          "type": "const",
+          "line": 82,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "FinalStateNode",
+          "type": "const",
+          "line": 91,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "HistoryStateNode",
+          "type": "const",
+          "line": 97,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "CompoundStateNode",
+          "type": "const",
+          "line": 103,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "ParallelStateNode",
+          "type": "const",
+          "line": 114,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "StateNode",
+          "type": "const",
+          "line": 124,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "XStateSchema",
+          "type": "const",
+          "line": 133,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "proxy.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/proxy.ts",
+      "totalExports": 1,
+      "missingExamples": 1,
+      "missingCategories": 1,
+      "exports": [
+        {
+          "name": "config",
+          "type": "const",
+          "line": 97,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "services/common/unsafe-http-api-client.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/services/common/unsafe-http-api-client.ts",
+      "totalExports": 6,
+      "missingExamples": 6,
+      "missingCategories": 6,
+      "exports": [
+        {
+          "name": "UnsafeClient",
+          "type": "type",
+          "line": 97,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "UnsafeClient",
+          "type": "namespace",
+          "line": 110,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Group",
+          "type": "type",
+          "line": 111,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "Method",
+          "type": "type",
+          "line": 123,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "TopLevelMethods",
+          "type": "type",
+          "line": 147,
+          "hasExample": false,
+          "hasCategory": false
+        },
+        {
+          "name": "make",
+          "type": "const",
+          "line": 271,
+          "hasExample": false,
+          "hasCategory": false
+        }
+      ]
+    },
+    {
+      "filename": "types/extended-theme-types.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/types/extended-theme-types.ts",
+      "totalExports": 0,
+      "missingExamples": 0,
+      "missingCategories": 0,
+      "exports": []
+    }
+  ],
+  "missingItems": [
+    {
+      "file": "app/api/auth/[...all]/route.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/app/api/auth/[...all]/route.ts",
+      "name": "POST",
+      "type": "const",
+      "line": 13,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "app/api/auth/[...all]/route.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/app/api/auth/[...all]/route.ts",
+      "name": "GET",
+      "type": "const",
+      "line": 14,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "app/api/v1/iam/[...iam]/route.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/app/api/v1/iam/[...iam]/route.ts",
+      "name": "GET",
+      "type": "const",
+      "line": 6,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "app/api/v1/iam/[...iam]/route.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/app/api/v1/iam/[...iam]/route.ts",
+      "name": "POST",
+      "type": "const",
+      "line": 7,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "app/api/v1/iam/[...iam]/route.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/app/api/v1/iam/[...iam]/route.ts",
+      "name": "PUT",
+      "type": "const",
+      "line": 8,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "app/api/v1/iam/[...iam]/route.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/app/api/v1/iam/[...iam]/route.ts",
+      "name": "DELETE",
+      "type": "const",
+      "line": 9,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "app/api/v1/iam/[...iam]/route.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/app/api/v1/iam/[...iam]/route.ts",
+      "name": "PATCH",
+      "type": "const",
+      "line": 10,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "app-config.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/app-config.ts",
+      "name": "AppConfig",
+      "type": "type",
+      "line": 10,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "app-config.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/app-config.ts",
+      "name": "getAppConfig",
+      "type": "const",
+      "line": 33,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/account/localization/data.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/localization/data.ts",
+      "name": "languages",
+      "type": "const",
+      "line": 3,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/account/localization/data.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/localization/data.ts",
+      "name": "regions",
+      "type": "const",
+      "line": 16,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/account/localization/data.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/localization/data.ts",
+      "name": "weekDays",
+      "type": "const",
+      "line": 27,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/account/localization/data.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/localization/data.ts",
+      "name": "dateFormats",
+      "type": "const",
+      "line": 28,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/account/localization/data.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/localization/data.ts",
+      "name": "numberFormats",
+      "type": "const",
+      "line": 29,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/account/localization/data.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/localization/data.ts",
+      "name": "listSortOrders",
+      "type": "const",
+      "line": 30,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/account/localization/types.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/localization/types.ts",
+      "name": "Language",
+      "type": "interface",
+      "line": 1,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/account/security/data.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/security/data.ts",
+      "name": "loggedInDevices",
+      "type": "const",
+      "line": 4,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/account/security/data.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/security/data.ts",
+      "name": "connectedDevices",
+      "type": "const",
+      "line": 41,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/account/security/types.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/security/types.ts",
+      "name": "ConnectedInDevice",
+      "type": "interface",
+      "line": 3,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/account/security/types.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/security/types.ts",
+      "name": "LoggedInDevice",
+      "type": "interface",
+      "line": 14,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/account/types.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/types.ts",
+      "name": "IDateValue",
+      "type": "type",
+      "line": 1,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/account/types.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/types.ts",
+      "name": "IUserAccountBillingHistory",
+      "type": "type",
+      "line": 3,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/account/types.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/types.ts",
+      "name": "IPaymentCard",
+      "type": "type",
+      "line": 10,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/account/types.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/types.ts",
+      "name": "IAddressItem",
+      "type": "type",
+      "line": 17,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/account/types.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/account/types.ts",
+      "name": "ISocialLink",
+      "type": "type",
+      "line": 27,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/UploadFileService.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/UploadFileService.ts",
+      "name": "UploadFileService",
+      "type": "class",
+      "line": 11,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/UploadModels.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/UploadModels.ts",
+      "name": "PipelineConfig",
+      "type": "interface",
+      "line": 10,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/UploadModels.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/UploadModels.ts",
+      "name": "ValidateFileOutput",
+      "type": "interface",
+      "line": 18,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/UploadModels.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/UploadModels.ts",
+      "name": "BasicMetadataOutput",
+      "type": "interface",
+      "line": 23,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/UploadModels.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/UploadModels.ts",
+      "name": "ExifMetadataOutput",
+      "type": "type",
+      "line": 28,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/UploadModels.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/UploadModels.ts",
+      "name": "UploadError",
+      "type": "type",
+      "line": 31,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/UploadModels.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/UploadModels.ts",
+      "name": "UploadResult",
+      "type": "interface",
+      "line": 33,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/UploadModels.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/UploadModels.ts",
+      "name": "ProcessFilesResult",
+      "type": "type",
+      "line": 40,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/UploadModels.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/UploadModels.ts",
+      "name": "DEFAULT_CHUNK_SIZE",
+      "type": "const",
+      "line": 42,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/errors.ts",
+      "name": "ValidationError",
+      "type": "class",
+      "line": 3,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/errors.ts",
+      "name": "DetectionError",
+      "type": "class",
+      "line": 13,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/errors.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/errors.ts",
+      "name": "ExifParseError",
+      "type": "class",
+      "line": 22,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/layout/classes.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/layout/classes.ts",
+      "name": "componentLayoutClasses",
+      "type": "const",
+      "line": 3,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/layout/hooks.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/layout/hooks.ts",
+      "name": "useScroll",
+      "type": "function",
+      "line": 4,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/layout/hooks.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/layout/hooks.ts",
+      "name": "useHashScroll",
+      "type": "function",
+      "line": 40,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/layout/nav-config-components.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/layout/nav-config-components.ts",
+      "name": "NavItemData",
+      "type": "type",
+      "line": 12,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/layout/nav-config-components.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/layout/nav-config-components.ts",
+      "name": "allComponents",
+      "type": "const",
+      "line": 128,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/observability.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/observability.ts",
+      "name": "UploadMetrics",
+      "type": "const",
+      "line": 12,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/observability.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/observability.ts",
+      "name": "UploadAnnotation",
+      "type": "type",
+      "line": 29,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/observability.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/observability.ts",
+      "name": "makeFileAnnotations",
+      "type": "const",
+      "line": 31,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/observability.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/observability.ts",
+      "name": "instrumentProcessFile",
+      "type": "const",
+      "line": 39,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/observability.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/observability.ts",
+      "name": "logInfo",
+      "type": "const",
+      "line": 58,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/observability.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/observability.ts",
+      "name": "logWarning",
+      "type": "const",
+      "line": 60,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/pipeline.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/pipeline.ts",
+      "name": "validateFile",
+      "type": "const",
+      "line": 27,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/pipeline.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/pipeline.ts",
+      "name": "extractBasicMetadata",
+      "type": "const",
+      "line": 120,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "features/upload/pipeline.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/features/upload/pipeline.ts",
+      "name": "extractExifMetadata",
+      "type": "const",
+      "line": 169,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "global.atoms.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/global.atoms.ts",
+      "name": "Action",
+      "type": "type",
+      "line": 7,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "global.atoms.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/global.atoms.ts",
+      "name": "settingsDialogAtom",
+      "type": "const",
+      "line": 22,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "global.atoms.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/global.atoms.ts",
+      "name": "useSettingsDialog",
+      "type": "const",
+      "line": 34,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/tanstack-form/tanstack-form.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/tanstack-form/tanstack-form.ts",
+      "name": "Paths",
+      "type": "type",
+      "line": 41,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/tanstack-form/tanstack-form.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/tanstack-form/tanstack-form.ts",
+      "name": "SchemaValidatorFn",
+      "type": "type",
+      "line": 48,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/tanstack-form/tanstack-form.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/tanstack-form/tanstack-form.ts",
+      "name": "validateWithSchema",
+      "type": "const",
+      "line": 52,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/tanstack-form/tanstack-form.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/tanstack-form/tanstack-form.ts",
+      "name": "HandledValidatorKey",
+      "type": "type",
+      "line": 76,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/tanstack-form/tanstack-form.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/tanstack-form/tanstack-form.ts",
+      "name": "MakeFormOptionsReturn",
+      "type": "type",
+      "line": 77,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/tanstack-form/tanstack-form.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/tanstack-form/tanstack-form.ts",
+      "name": "makeFormOptions",
+      "type": "const",
+      "line": 91,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/tanstack-form/tanstack-form.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/tanstack-form/tanstack-form.ts",
+      "name": "formOptionsWithDefaults",
+      "type": "const",
+      "line": 127,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/xstate/schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/xstate/schema.ts",
+      "name": "ICompoundStateNode",
+      "type": "interface",
+      "line": 4,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/xstate/schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/xstate/schema.ts",
+      "name": "IParallelStateNode",
+      "type": "interface",
+      "line": 14,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/xstate/schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/xstate/schema.ts",
+      "name": "IStateNode",
+      "type": "type",
+      "line": 23,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/xstate/schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/xstate/schema.ts",
+      "name": "ActionObject",
+      "type": "const",
+      "line": 31,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/xstate/schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/xstate/schema.ts",
+      "name": "BaseStateNode",
+      "type": "const",
+      "line": 36,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/xstate/schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/xstate/schema.ts",
+      "name": "InvokeObject",
+      "type": "const",
+      "line": 51,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/xstate/schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/xstate/schema.ts",
+      "name": "InvokeArray",
+      "type": "const",
+      "line": 57,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/xstate/schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/xstate/schema.ts",
+      "name": "TransitionObject",
+      "type": "const",
+      "line": 60,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/xstate/schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/xstate/schema.ts",
+      "name": "TransitionsObject",
+      "type": "const",
+      "line": 68,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/xstate/schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/xstate/schema.ts",
+      "name": "InitialTransitionObject",
+      "type": "const",
+      "line": 74,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/xstate/schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/xstate/schema.ts",
+      "name": "AtomicStateNode",
+      "type": "const",
+      "line": 82,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/xstate/schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/xstate/schema.ts",
+      "name": "FinalStateNode",
+      "type": "const",
+      "line": 91,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/xstate/schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/xstate/schema.ts",
+      "name": "HistoryStateNode",
+      "type": "const",
+      "line": 97,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/xstate/schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/xstate/schema.ts",
+      "name": "CompoundStateNode",
+      "type": "const",
+      "line": 103,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/xstate/schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/xstate/schema.ts",
+      "name": "ParallelStateNode",
+      "type": "const",
+      "line": 114,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/xstate/schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/xstate/schema.ts",
+      "name": "StateNode",
+      "type": "const",
+      "line": 124,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "libs/xstate/schema.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/libs/xstate/schema.ts",
+      "name": "XStateSchema",
+      "type": "const",
+      "line": 133,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "proxy.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/proxy.ts",
+      "name": "config",
+      "type": "const",
+      "line": 97,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "services/common/unsafe-http-api-client.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/services/common/unsafe-http-api-client.ts",
+      "name": "UnsafeClient",
+      "type": "type",
+      "line": 97,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "services/common/unsafe-http-api-client.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/services/common/unsafe-http-api-client.ts",
+      "name": "UnsafeClient",
+      "type": "namespace",
+      "line": 110,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "services/common/unsafe-http-api-client.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/services/common/unsafe-http-api-client.ts",
+      "name": "Group",
+      "type": "type",
+      "line": 111,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "services/common/unsafe-http-api-client.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/services/common/unsafe-http-api-client.ts",
+      "name": "Method",
+      "type": "type",
+      "line": 123,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "services/common/unsafe-http-api-client.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/services/common/unsafe-http-api-client.ts",
+      "name": "TopLevelMethods",
+      "type": "type",
+      "line": 147,
+      "missingExample": true,
+      "missingCategory": true
+    },
+    {
+      "file": "services/common/unsafe-http-api-client.ts",
+      "filepath": "/home/elpresidank/YeeBois/projects/beep-effect/apps/web/src/services/common/unsafe-http-api-client.ts",
+      "name": "make",
+      "type": "const",
+      "line": 271,
+      "missingExample": true,
+      "missingCategory": true
+    }
+  ]
+}

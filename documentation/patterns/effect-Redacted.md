@@ -1334,7 +1334,7 @@ Comprehensive testing approaches for applications using Redacted values:
 
 ```typescript
 import { Redacted, Effect, Equal } from "effect"
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "bun:test"
 
 // Test utilities for redacted values
 const createTestRedacted = <T>(value: T): Redacted.Redacted<T> => {

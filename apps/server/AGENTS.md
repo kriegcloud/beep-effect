@@ -12,7 +12,7 @@
 - Runtime dependencies live in `packages/runtime/server/src/server-runtime.ts`:
   - `serverRuntime`, `runServerPromise`, `runServerPromiseExit` for executing effects.
   - `ObservabilityLive` (logger, telemetry, devtools), `LogLevelLive` (env-driven log level).
-  - `CoreServicesLive`, `RepositoriesLive`, `DatabaseInfrastructureLive` for IAM/documents/tasks/comms slices.
+  - `CoreServicesLive`, `RepositoriesLive`, `DatabaseInfrastructureLive` for IAM/documents/ slices.
 
 ## How to Extend
 - **Use the runtime helpers**: wrap all entrypoints with `runServerPromise`/`runServerPromiseExit` so spans and logging remain consistent. Avoid bare `Effect.runPromise`.

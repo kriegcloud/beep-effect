@@ -1609,7 +1609,7 @@ Use Data structures for test data generation and assertion:
 
 ```typescript
 import { Data, Equal, Effect, Array as Arr } from "effect"
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "bun:test"
 
 // Test data models
 interface TestUser {

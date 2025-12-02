@@ -1685,7 +1685,7 @@ class ScheduleCoordinator {
 
 ```typescript
 import { Effect, Schedule, TestClock, TestContext, Duration } from "effect"
-import { describe, it, expect } from "@effect/vitest"
+import { describe, it, expect } from "@beep/testkit"
 
 describe("Schedule Testing", () => {
   it("should test exponential backoff", () =>

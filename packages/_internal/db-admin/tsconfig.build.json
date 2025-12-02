@@ -62,34 +62,6 @@
       "path": "../../iam/tables/tsconfig.build.json"
     },
     {
-      "path": "../../tasks/infra/tsconfig.build.json"
-    },
-    {
-      "path": "../../tasks/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../tasks/tables/tsconfig.build.json"
-    },
-
-    {
-      "path": "../../comms/infra/tsconfig.build.json"
-    },
-    {
-      "path": "../../comms/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../comms/tables/tsconfig.build.json"
-    },
-    {
-      "path": "../../party/infra/tsconfig.build.json"
-    },
-    {
-      "path": "../../party/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../party/tables/tsconfig.build.json"
-    },
-    {
       "path": "../../documents/infra/tsconfig.build.json"
     },
     {

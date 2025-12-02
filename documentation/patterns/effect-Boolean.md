@@ -1206,7 +1206,7 @@ Comprehensive testing approaches for Boolean-based logic.
 
 ```typescript
 import { Boolean, Effect, TestContext, TestServices } from "effect"
-import { describe, it, expect } from "@effect/vitest"
+import { describe, it, expect } from "@beep/testkit"
 
 // Property-based testing for boolean operations
 describe("Boolean Operations", () => {

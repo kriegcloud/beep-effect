@@ -1,13 +1,13 @@
 # Generic Testing Patterns
 
-This document describes general testing patterns used in the project with @effect/vitest and Effect ecosystem testing approaches.
+This document describes general testing patterns used in the project with @beep/testkit and Effect ecosystem testing approaches.
 
 ## Core Testing Framework Pattern
 
-### 1. @effect/vitest Integration
+### 1. @beep/testkit Integration
 
 ```typescript
-import { assert, describe, it } from "@effect/vitest"
+import { assert, describe, it } from "@beep/testkit"
 import { Effect } from "effect"
 
 describe("Feature Name", () => {
@@ -21,7 +21,7 @@ describe("Feature Name", () => {
 ```
 
 **Key Elements:**
-- **Import from @effect/vitest**: `assert`, `describe`, `it` for Effect-aware testing
+- **Import from @beep/testkit**: `assert`, `describe`, `it` for Effect-aware testing
 - **it.effect()**: Special test function for Effect-based tests
 - **Effect.gen()**: Generator-based Effect composition
 - **assert methods**: Use `assert.*` instead of `expect` for Effect tests
@@ -188,7 +188,7 @@ Effect.provide(Logger.add(Logger.defaultLogger))
 ### 1. Effect-Specific Assertions
 
 ```typescript
-import { assert } from "@effect/vitest"
+import { assert } from "@beep/testkit"
 
 // Value assertions
 assert.strictEqual(actual, expected)
@@ -204,7 +204,7 @@ assert.isUndefined(value)
 ```
 
 **Assertion Guidelines:**
-- **Use assert, not expect**: @effect/vitest provides assert methods
+- **Use assert, not expect**: @beep/testkit provides assert methods
 - **Type-safe**: Assertions work with Effect type system
 - **Clear Messages**: Provide descriptive failure messages
 

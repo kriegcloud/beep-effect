@@ -25,7 +25,6 @@ const { $BeepId } = Identifier.make("beep");
  * @since 0.1.0
  */
 export const {
-  $CommsDomainId,
   $SchemaId,
   $ErrorsId,
   $ConstantsId,
@@ -35,14 +34,6 @@ export const {
   $CoreDbId,
   $IamSdkId,
   $IamUiId,
-  $FilesDomainId,
-  $FilesInfraId,
-  $FilesSdkId,
-  $FilesUiId,
-  $TasksDomainId,
-  $TasksInfraId,
-  $TasksSdkId,
-  $TasksUiId,
   $RuntimeServerId,
   $RuntimeClientId,
   $DbAdminId,
@@ -51,7 +42,6 @@ export const {
   $IamDomainId,
   $IntegrationsCoreId,
   $GoogleId,
-  $PartyDomainId,
   $ThefrontId,
   $AiCoreId,
   $ToolingUtilsId,
@@ -67,15 +57,6 @@ export const {
   "iam-sdk",
   "iam-ui",
   "iam-domain",
-  "files-domain",
-  "files-infra",
-  "party-domain",
-  "files-sdk",
-  "files-ui",
-  "tasks-domain",
-  "tasks-infra",
-  "tasks-sdk",
-  "tasks-ui",
   "runtime-server",
   "runtime-client",
   "db-admin",
@@ -86,6 +67,5 @@ export const {
   "thefront",
   "ai-core",
   "tooling-utils",
-  "event",
-  "comms-domain"
+  "event"
 );

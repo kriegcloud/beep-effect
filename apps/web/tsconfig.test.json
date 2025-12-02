@@ -66,51 +66,6 @@
       "path": "../../packages/iam/tables/tsconfig.build.json"
     },
     {
-      "path": "../../packages/tasks/sdk/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/tasks/infra/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/tasks/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/tasks/ui/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/tasks/tables/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/comms/sdk/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/comms/infra/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/comms/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/comms/ui/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/comms/tables/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/party/sdk/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/party/infra/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/party/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/party/ui/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/party/tables/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/ui/ui/tsconfig.build.json"
     },
     {

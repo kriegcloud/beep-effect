@@ -1678,7 +1678,7 @@ Use Pretty for enhanced test assertions and debugging in test suites:
 
 ```typescript
 import { Pretty, Schema, Effect, Equal } from "effect"
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "bun:test"
 
 // Test data schemas
 const TestUserSchema = Schema.Struct({

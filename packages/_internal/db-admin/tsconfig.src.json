@@ -49,33 +49,6 @@
       "path": "../../iam/tables"
     },
     {
-      "path": "../../tasks/domain"
-    },
-    {
-      "path": "../../tasks/ui"
-    },
-    {
-      "path": "../../tasks/tables"
-    },
-    {
-      "path": "../../comms/domain"
-    },
-    {
-      "path": "../../comms/tables"
-    },
-    {
-      "path": "../../comms/infra"
-    },
-    {
-      "path": "../../party/domain"
-    },
-    {
-      "path": "../../party/tables"
-    },
-    {
-      "path": "../../party/infra"
-    },
-    {
       "path": "../../documents/infra"
     },
     {

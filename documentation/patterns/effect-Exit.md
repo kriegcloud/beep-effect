@@ -2253,7 +2253,7 @@ Exit makes testing Effect-based code more predictable by providing explicit acce
 
 ```typescript
 import { Exit, Effect, Cause, Schedule } from "effect"
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "bun:test"
 
 // Service under test
 interface UserService {

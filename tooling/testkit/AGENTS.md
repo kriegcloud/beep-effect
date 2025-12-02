@@ -3,7 +3,7 @@
 ## Purpose & Fit
 - Wraps Bun's `bun:test` runner with Effect-first helpers so suites can compose Layers, Scopes, and retries without leaving the `Effect` algebra.
 - Supplies assertion shims (`assert*`, `strictEqual`, `throwsAsync`, etc.) that align with Effect data types (`Option`, `Either`, `Exit`) used across `@beep/*` packages.
-- Provides a lightweight alternative to `@effect/vitest` while staying compatible with Bun tooling and the repo's strict namespace-import guardrails.
+- Provides a lightweight alternative to `@beep/testkit` while staying compatible with Bun tooling and the repo's strict namespace-import guardrails.
 
 ## Surface Map
 - `tooling/testkit/src/index.ts` re-exports:

@@ -70,21 +70,6 @@ const candidateTranspilePackages = [
   "@beep/documents-infra",
   "@beep/documents-sdk",
   "@beep/documents-ui",
-  "@beep/tasks-domain",
-  "@beep/tasks-tables",
-  "@beep/tasks-infra",
-  "@beep/tasks-sdk",
-  "@beep/tasks-ui",
-  "@beep/comms-domain",
-  "@beep/comms-tables",
-  "@beep/comms-infra",
-  "@beep/comms-sdk",
-  "@beep/comms-ui",
-  "@beep/party-domain",
-  "@beep/party-tables",
-  "@beep/party-infra",
-  "@beep/party-sdk",
-  "@beep/party-ui",
 ];
 const resolvePackageJson = (pkgName: string) => {
   try {

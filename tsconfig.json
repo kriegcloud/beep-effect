@@ -25,7 +25,6 @@
   },
   "references": [
     { "path": "tsconfig.slices/common.json" },
-    { "path": "tsconfig.slices/comms.json" },
     { "path": "tsconfig.slices/shared.json" },
     { "path": "tsconfig.slices/core.json" },
     { "path": "tsconfig.slices/ui.json" },
@@ -34,7 +33,6 @@
     { "path": "tsconfig.slices/runtime.json" },
     { "path": "tsconfig.slices/apps.json" },
     { "path": "tsconfig.slices/internal.json" },
-    { "path": "tsconfig.slices/tooling.json" },
-    { "path": "tsconfig.slices/party.json" }
+    { "path": "tsconfig.slices/tooling.json" }
   ]
 }

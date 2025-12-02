@@ -51,24 +51,6 @@
       "path": "../../iam/tables"
     },
     {
-      "path": "../../tasks/domain"
-    },
-    {
-      "path": "../../tasks/tables"
-    },
-    {
-      "path": "../../tasks/infra"
-    },
-    {
-      "path": "../../party/domain"
-    },
-    {
-      "path": "../../party/tables"
-    },
-    {
-      "path": "../../party/infra"
-    },
-    {
       "path": "../../documents/infra"
     },
     {

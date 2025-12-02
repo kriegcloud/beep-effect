@@ -65,7 +65,6 @@ bun run start                        # Start production build
 
 ```bash
 bun run gen:beep-paths              # Generate typed asset paths from public/ directory
-bun run iconify                      # Process icons
 bun run gen:secrets                  # Generate environment secrets
 ```
 
@@ -143,27 +142,6 @@ export const UserId = EntityId.make("user__");
 // Exports: .Schema, .uuid(), .text(), .make(), etc.
 ```
 
-### PathBuilder (Typed Routes)
-
-Never hardcode route strings. Use `PathBuilder` from `@beep/shared-domain/factories`:
-
-```typescript
-import { PathBuilder } from "@beep/shared-domain/factories";
-
-const dashboard = PathBuilder.createRoot("/dashboard");
-const user = dashboard.child("user");
-const userProfile = user.child("profile");
-
-const paths = PathBuilder.collection({
-  user: {
-    root: user.root,
-    profile: userProfile.root,
-  },
-});
-
-// Usage: paths.user.profile.root
-```
-
 ### Asset Paths (Typed Public Files)
 
 - Run `bun run gen:beep-paths` to generate typed accessors for `apps/web/public/`
@@ -178,14 +156,13 @@ const paths = PathBuilder.collection({
 
 ### String Literal Kits
 
-Instead of scattered enums, use `stringLiteralKit` from `@beep/schema/kits`:
+Instead of scattered enums, use `StringLiteralKit` from `@beep/schema`:
 
 ```typescript
-import { stringLiteralKit } from "@beep/schema/kits";
+import {BS} from "@beep/schema/kits";
 
-const StatusKit = stringLiteralKit({
-  literals: ["active", "pending", "archived"] as const,
-  annotations: { identifier: "Status" },
+const StatusKit = BS.StringLiteralKit("active", "pending", "archived").annotations({
+  identifier: "Status"
 });
 
 // Exports: .Schema, .Enum, .Options, .Guard, etc.
@@ -230,10 +207,7 @@ beep-effect2/
 │   │   ├── core/     # Theme system, MUI setup
 │   │   └── ui/       # shadcn/ui + shared components
 │   ├── iam/          # Identity & Access Management slice
-│   ├── files/        # File management slice
-│   ├── tasks/        # Task management slice
-│   ├── party/        # Party/social features slice
-│   ├── comms/        # Communications slice
+│   ├── documents/    # Document management slice
 │   └── ...
 ├── tooling/
 │   ├── cli/          # Repo CLI tools
@@ -250,7 +224,6 @@ beep-effect2/
 Docker Compose runs:
 - **PostgreSQL** on port 5432 (configurable via `DB_PG_PORT`)
 - **Redis** on port 6379 (configurable via `REDIS_PORT`)
-- **Jaeger** on port 16686 for tracing (OTLP on 4318)
 
 Start services: `bun run services:up`
 Stop and clean: `bun run nuke`

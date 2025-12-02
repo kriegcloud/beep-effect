@@ -2566,7 +2566,7 @@ const schedulingExample = Effect.gen(function* () {
 
 ```typescript
 import { Effect, DateTime, TestClock, TestContext, Layer, pipe } from "effect"
-import { describe, test, expect } from "@effect/vitest"
+import { describe, test, expect } from "@beep/testkit"
 
 // Test utilities for DateTime
 const DateTimeTestUtils = {

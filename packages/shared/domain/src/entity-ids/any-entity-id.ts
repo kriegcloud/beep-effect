@@ -1,10 +1,9 @@
 import * as S from "effect/Schema";
-import * as CommsEntityIds from "./comms";
 import * as DocumentsEntityIds from "./documents";
 import * as IamEntityIds from "./iam";
-import * as PartyEntityIds from "./party";
+
 import { OrganizationId, SessionId, TeamId, UserId } from "./shared";
-import * as TaskEntityIds from "./tasks";
+
 export class AnyEntityId extends S.Union(
   IamEntityIds.AccountId,
   IamEntityIds.ApiKeyId,
@@ -24,19 +23,6 @@ export class AnyEntityId extends S.Union(
   IamEntityIds.OrganizationRoleId,
   IamEntityIds.DeviceCodeId,
   IamEntityIds.ScimProviderId,
-  CommsEntityIds.EmailTemplateId,
-  PartyEntityIds.PartyId,
-  PartyEntityIds.PartyGroupId,
-  PartyEntityIds.PartyOrganizationId,
-  PartyEntityIds.PersonId,
-  PartyEntityIds.PartyRoleTypeId,
-  PartyEntityIds.PartyRoleId,
-  PartyEntityIds.PartyRelationshipTypeId,
-  PartyEntityIds.PartyRelationshipId,
-  PartyEntityIds.ContactPointId,
-  PartyEntityIds.PartyContactPointId,
-  PartyEntityIds.PartyIdentifierTypeId,
-  PartyEntityIds.PartyIdentifierId,
   DocumentsEntityIds.KnowledgeBlockId,
   DocumentsEntityIds.KnowledgePageId,
   DocumentsEntityIds.KnowledgeSpaceId,
@@ -49,8 +35,7 @@ export class AnyEntityId extends S.Union(
   OrganizationId,
   TeamId,
   UserId,
-  SessionId,
-  TaskEntityIds.TodoId
+  SessionId
 ).annotations({
   schemaId: Symbol.for("@beep/shared/domain/EntityIds/AnyEntityId"),
   description: "Any entity id",

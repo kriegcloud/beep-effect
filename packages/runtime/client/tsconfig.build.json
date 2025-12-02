@@ -65,12 +65,6 @@
       "path": "../../iam/tables/tsconfig.build.json"
     },
     {
-      "path": "../../tasks/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../tasks/tables/tsconfig.build.json"
-    },
-    {
       "path": "../../ui/ui/tsconfig.build.json"
     },
     {
