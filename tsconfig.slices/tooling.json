@@ -1,11 +1,11 @@
 {
   "files": [],
   "references": [
-    { "path": "../tooling/utils" },
-    { "path": "../tooling/repo-config" },
-    { "path": "../tooling/repo-scripts" },
+    { "path": "../tooling/utils/tsconfig.build.json" },
+    { "path": "../tooling/repo-scripts/tsconfig.build.json" },
     { "path": "../tooling/testkit/tsconfig.build.json" },
     { "path": "../tooling/scraper/tsconfig.build.json" },
-    { "path": "../tooling/cli" }
+    { "path": "../tooling/build-utils/tsconfig.build.json" },
+    { "path": "../tooling/cli/tsconfig.build.json" }
   ]
 }

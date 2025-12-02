@@ -3,16 +3,14 @@ import { usePathname, useRouter } from "@beep/ui/hooks";
 import { SearchNotFound } from "@beep/ui/messages";
 import { RouterLink } from "@beep/ui/routing";
 import { isEqualPath } from "@beep/ui-core/utils";
+import { match, parse } from "@beep/utils/autosuggest-highlight";
 import Autocomplete, { autocompleteClasses } from "@mui/material/Autocomplete";
-
 import Box from "@mui/material/Box";
 import InputAdornment from "@mui/material/InputAdornment";
 import { inputBaseClasses } from "@mui/material/InputBase";
 import Link, { linkClasses } from "@mui/material/Link";
 import type { SxProps, Theme } from "@mui/material/styles";
 import TextField from "@mui/material/TextField";
-import match from "autosuggest-highlight/match";
-import parse from "autosuggest-highlight/parse";
 import { useCallback, useState } from "react";
 import type { NavItemData } from "./nav-config-components";
 

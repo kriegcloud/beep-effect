@@ -2,9 +2,9 @@
 
 import { cn } from "@beep/notes/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@beep/notes/registry/ui/tooltip";
+import { defaultsDeep } from "@beep/utils/data/object.utils";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
-import { defaultsDeep } from "lodash";
 import { createContext, type HTMLProps, type ReactNode, useContext } from "react";
 import { ClientOnly } from "./client-only";
 

@@ -2,8 +2,9 @@ import { AnimateBorder, transitionTap, varHover, varTap } from "@beep/ui/animate
 import Avatar from "@mui/material/Avatar";
 import type { IconButtonProps } from "@mui/material/IconButton";
 import IconButton from "@mui/material/IconButton";
+import * as A from "effect/Array";
+import * as Str from "effect/String";
 import { m } from "framer-motion";
-
 export type AccountButtonProps = IconButtonProps & {
   readonly photoURL: string;
   readonly displayName: string;
@@ -17,7 +18,7 @@ export function AccountButton({ photoURL, displayName, sx, ...other }: AccountBu
       whileHover={varHover(1.04)}
       transition={transitionTap()}
       aria-label="Account button"
-      sx={[{ p: 0 }, ...(Array.isArray(sx) ? sx : [sx])]}
+      sx={[{ p: 0 }, ...(Array.isArray(sx) ? sx : A.make(sx))]}
       {...other}
     >
       <AnimateBorder
@@ -32,7 +33,7 @@ export function AccountButton({ photoURL, displayName, sx, ...other }: AccountBu
         }}
       >
         <Avatar src={photoURL} alt={displayName} sx={{ width: 1, height: 1 }}>
-          {displayName?.charAt(0).toUpperCase()}
+          {displayName ? Str.toUpperCase(displayName.charAt(0)) : null}
         </Avatar>
       </AnimateBorder>
     </IconButton>

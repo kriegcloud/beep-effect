@@ -1,0 +1,67 @@
+{
+  "name": "@beep/build-utils",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "A cli tool for the repo",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "tooling/build-utils"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "directory": "dist",
+    "linkDirectory": false
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "test": "bun test",
+    "coverage": "bun test --coverage",
+    "lint:circular": "bunx madge -c .",
+    "dotenvx": "dotenvx run -f ../../.env --",
+    "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx tsx ./src/execute.ts",
+    "gen:secrets": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx tsx ./src/generate-env-secrets.ts",
+    "bootstrap": "tsx ./src/bootstrap.ts",
+    "generate-public-paths": "bun run dotenvx -- bunx tsx src/generate-asset-paths.ts",
+    "gen:locales": "bun run dotenvx -- bunx tsx src/generate-locales.ts",
+    "iconify": "bunx dotenvx run -f ../../.env -- bun run ./src/iconify/index.ts",
+    "purge": "bun src/purge.ts",
+    "docs:lint": "bunx tsx ./src/run-docs-lint.ts",
+    "docs:lint:file": "bunx tsx ./src/run-docs-lint.ts --file"
+  },
+  "dependencies": {
+    "typescript": "catalog:",
+    "@effect/platform": "catalog:",
+    "@effect/platform-bun": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "@effect/platform": "catalog:",
+    "@effect/platform-bun": "catalog:",
+    "effect": "catalog:"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}

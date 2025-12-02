@@ -5,7 +5,7 @@ import { FloatingDiscussion } from "@beep/notes/components/editor/ui/floating-di
 import { commentPlugin as CommentPlugin } from "@beep/notes/registry/components/editor/plugins/comment-kit";
 import { CommentLeaf } from "@beep/notes/registry/ui/comment-node";
 import type { UnsafeTypes } from "@beep/types";
-import { debounce } from "lodash";
+import { debounce } from "@beep/utils";
 import { useEditorContainerRef } from "platejs/react";
 import { useEffect } from "react";
 

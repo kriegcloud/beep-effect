@@ -1,7 +1,7 @@
 import { siteConfig } from "@beep/notes/config";
 import { routes } from "@beep/notes/lib/navigation/routes";
 import { images } from "@beep/notes/lib/storage/images";
-import { merge } from "lodash";
+import { merge } from "@beep/utils/data/record.utils";
 import type { Metadata } from "next";
 
 type MetadataGenerator = {

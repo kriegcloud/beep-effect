@@ -325,6 +325,7 @@ export * from "@beep/utils/transformations";
  * @since 0.1.0
  */
 export * from "@beep/utils/uint8-array-to-array-buffer";
+export * as AutosuggestHighlight from "./autosuggest-highlight";
 export * from "./browser-apis";
 export * from "./coerce";
 /**
@@ -340,5 +341,7 @@ export * from "./coerce";
  * @since 0.1.0
  */
 export * from "./const";
+export * from "./dedent";
 export * from "./deep-remove-null";
+export * as RemoveAccents from "./remove-accents/remove-accents.ts";
 export * as TopoSort from "./topo-sort";

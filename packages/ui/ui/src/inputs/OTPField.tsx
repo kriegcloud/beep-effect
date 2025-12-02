@@ -5,11 +5,11 @@ import type { FormHelperTextProps } from "@mui/material/FormHelperText";
 import { inputBaseClasses } from "@mui/material/InputBase";
 import { useStore } from "@tanstack/react-form";
 import * as F from "effect/Function";
-import type { MuiOtpInputProps } from "mui-one-time-password-input";
-import { MuiOtpInput } from "mui-one-time-password-input";
 import type React from "react";
 import { useFieldContext } from "../form";
 import { HelperText } from "./components";
+import type { MuiOtpInputProps } from "./otp-input";
+import { MuiOtpInput } from "./otp-input";
 
 export interface OTPFieldProps extends Omit<DefaultOmit<MuiOtpInputProps>, "sx"> {
   readonly maxSize?: number | undefined;

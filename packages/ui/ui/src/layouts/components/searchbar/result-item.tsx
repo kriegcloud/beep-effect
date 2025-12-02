@@ -9,8 +9,8 @@ import ListItemText from "@mui/material/ListItemText";
 type Props = Omit<ListItemButtonProps, "title"> & {
   readonly href: string;
   readonly labels: string[];
-  readonly title: { readonly text: string; readonly highlight: boolean }[];
-  readonly path: { readonly text: string; readonly highlight: boolean }[];
+  readonly title: ReadonlyArray<{ readonly text: string; readonly highlight: boolean }>;
+  readonly path: ReadonlyArray<{ readonly text: string; readonly highlight: boolean }>;
 };
 
 export function ResultItem({ title, path, labels, href, sx, ...other }: Props) {

@@ -508,6 +508,15 @@
       "@beep/tooling-utils/test/*": [
         "./tooling/utils/test/*"
       ],
+      "@beep/build-utils": [
+        "./tooling/build-utils/src/index"
+      ],
+      "@beep/build-utils/*": [
+        "./tooling/build-utils/src/*"
+      ],
+      "@beep/build-utils/test/*": [
+        "./tooling/build-utils/test/*"
+      ],
       "@beep/repo-cli": [
         "./tooling/cli/src/index"
       ],

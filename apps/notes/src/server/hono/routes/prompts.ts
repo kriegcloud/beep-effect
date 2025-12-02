@@ -1,6 +1,6 @@
 import type { ChatMessage } from "@beep/notes/registry/components/editor/use-chat";
+import { dedent } from "@beep/utils";
 import { getMarkdown } from "@platejs/ai";
-import dedent from "dedent";
 import type { SlateEditor } from "platejs";
 
 import {
