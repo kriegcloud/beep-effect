@@ -5,11 +5,11 @@
  *
  * Removed all the stuff we didn't use
  */
-
+import { invariant } from "@beep/invariant";
 import { StringLiteralKit } from "@beep/schema/derived";
 import { pipe, Struct } from "effect";
 import * as A from "effect/Array";
-import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { application } from "./application";
 import { audio } from "./audio";
@@ -17,6 +17,86 @@ import { image } from "./image";
 import { misc } from "./misc";
 import { text } from "./text";
 import { video } from "./video";
+
+type MimeTypeProperty = {
+  readonly [mimeType: string]: {
+    readonly source: string;
+    readonly extensions: A.NonEmptyReadonlyArray<string>;
+  };
+};
+
+type MimeTypeExtension<T extends MimeTypeProperty> = T[keyof T]["extensions"][number];
+
+export const extractMimeExtensions = <const T extends MimeTypeProperty>(
+  mime: T
+): A.NonEmptyReadonlyArray<MimeTypeExtension<T>> =>
+  pipe(
+    mime,
+    Struct.entries,
+    A.flatMap(([_, { extensions }]) => extensions),
+    (extensions) => {
+      invariant(A.isNonEmptyReadonlyArray(extensions), "must be non empty", {
+        file: "packages/common/schema/src/integrations/files/mime-types/index.ts",
+        line: 36,
+        args: [extensions],
+      });
+
+      return extensions;
+    }
+  );
+
+export const extractMimeTypes = <const T extends MimeTypeProperty>(mime: T): A.NonEmptyReadonlyArray<keyof T> =>
+  pipe(mime, Struct.keys, (a) => {
+    invariant(A.isNonEmptyReadonlyArray(a), "must be non empty", {
+      file: "packages/common/schema/src/integrations/files/mime-types/index.ts",
+      line: 50,
+      args: [a],
+    });
+
+    return a;
+  });
+
+export class ApplicationMimeType extends StringLiteralKit(...extractMimeTypes(application)) {}
+
+export declare namespace ApplicationMimeType {
+  export type Type = typeof ApplicationMimeType.Type;
+  export type Encoded = typeof ApplicationMimeType.Encoded;
+}
+
+export class VideoMimeType extends StringLiteralKit(...extractMimeTypes(video)) {}
+
+export declare namespace VideoMimeType {
+  export type Type = typeof VideoMimeType.Type;
+  export type Encoded = typeof VideoMimeType.Encoded;
+}
+
+export class TextMimeType extends StringLiteralKit(...extractMimeTypes(text)) {}
+
+export declare namespace TextMimeType {
+  export type Type = typeof TextMimeType.Type;
+  export type Encoded = typeof TextMimeType.Encoded;
+}
+
+export class ImageMimeType extends StringLiteralKit(...extractMimeTypes(image)) {}
+
+export declare namespace ImageMimeType {
+  export type Type = typeof ImageMimeType.Type;
+  export type Encoded = typeof ImageMimeType.Encoded;
+}
+
+export class AudioMimeType extends StringLiteralKit(...extractMimeTypes(audio)) {}
+
+export declare namespace AudioMimeType {
+  export type Type = typeof AudioMimeType.Type;
+  export type Encoded = typeof AudioMimeType.Encoded;
+}
+
+export class MiscMimeType extends StringLiteralKit(...extractMimeTypes(misc)) {}
+
+export declare namespace MiscMimeType {
+  export type Type = typeof MiscMimeType.Type;
+  export type Encoded = typeof MiscMimeType.Encoded;
+}
 
 const mimes = {
   ...application,
@@ -27,23 +107,25 @@ const mimes = {
   ...misc,
 } as const;
 
-const m: A.NonEmptyReadonlyArray<keyof typeof mimes> = Struct.keys(mimes) as unknown as A.NonEmptyReadonlyArray<
+const allMimes: A.NonEmptyReadonlyArray<keyof typeof mimes> = Struct.keys(mimes) as unknown as A.NonEmptyReadonlyArray<
   keyof typeof mimes
 >;
 
-export class MimeType extends StringLiteralKit(...m) {}
+export class MimeType extends StringLiteralKit(...allMimes) {
+  static readonly isApplicationType = S.is(ApplicationMimeType);
+  static readonly isAudioType = S.is(AudioMimeType);
+  static readonly isImageType = S.is(ImageMimeType);
+  static readonly isTextMimeType = S.is(TextMimeType);
+  static readonly isVideoMimeType = S.is(VideoMimeType);
+  static readonly isMiscMimeType = S.is(MiscMimeType);
+}
 
 export declare namespace MimeType {
   export type Type = typeof MimeType.Type;
   export type Encoded = typeof MimeType.Encoded;
 }
-const exts = pipe(
-  mimes,
-  R.values,
-  A.flatMap(({ extensions }) => extensions)
-) as unknown as A.NonEmptyReadonlyArray<(typeof mimes)[keyof typeof mimes]["extensions"][number]>;
 
-export class FileExtension extends StringLiteralKit(...exts) {}
+export class FileExtension extends StringLiteralKit(...extractMimeExtensions(mimes)) {}
 
 export declare namespace FileExtension {
   export type Type = typeof FileExtension.Type;

@@ -1,6 +1,7 @@
 import { BS } from "@beep/schema";
 import { StringLiteralKit } from "@beep/schema/derived";
 import {
+  AspectRatio,
   FileExtension,
   fileTypeChecker,
   formatSize,
@@ -12,10 +13,11 @@ import { DateTimeUtcFromAllAcceptable } from "@beep/schema/primitives";
 import { Effect, pipe } from "effect";
 import * as A from "effect/Array";
 import * as Data from "effect/Data";
+import * as O from "effect/Option";
 import * as ParseResult from "effect/ParseResult";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-
 export class FileType extends StringLiteralKit("image", "video", "audio", "pdf", "text", "blob") {}
 
 export declare namespace FileType {
@@ -131,10 +133,12 @@ export declare namespace NativeFileInstance {
 
 export class FileInstance extends S.Class<FileInstance>("@beep/schema/integrations/files/FileInstance")({
   size: S.NonNegativeInt,
-  type: MimeType as S.Schema<string>,
+  type: MimeType,
   lastModified: DateTimeUtcFromAllAcceptable,
   name: S.NonEmptyTrimmedString,
   webkitRelativePath: S.NonEmptyTrimmedString,
+  width: S.optionalWith(S.NonNegativeInt, { as: "Option", nullable: true }),
+  height: S.optionalWith(S.NonNegativeInt, { as: "Option", nullable: true }),
 }) {
   get formattedSize() {
     return formatSize(this.size);
@@ -151,6 +155,19 @@ export class FileInstance extends S.Class<FileInstance>("@beep/schema/integratio
   get mediaType() {
     return pipe(this.mimeType, Str.split("/"), A.lastNonEmpty, S.decodeUnknownSync(FileType));
   }
+
+  get aspectRatio(): O.Option<`${number} / ${number}`> {
+    return pipe(
+      this.type,
+      O.liftPredicate(P.or(MimeType.isImageType, MimeType.isVideoMimeType)),
+      O.flatMap(() =>
+        pipe(
+          O.all({ width: this.width, height: this.height }),
+          O.map(({ width, height }) => S.decodeSync(AspectRatio)({ width, height }))
+        )
+      )
+    );
+  }
 }
 
 export declare namespace FileInstance {
@@ -159,7 +176,7 @@ export declare namespace FileInstance {
 }
 
 export class FileInstanceFromNative extends S.transformOrFail(NativeFileInstance, FileInstance, {
-  strict: true,
+  strict: false,
   decode: (nativeFile, _, ast) =>
     ParseResult.try({
       try: () =>
@@ -172,8 +189,7 @@ export class FileInstanceFromNative extends S.transformOrFail(NativeFileInstance
         }),
       catch: () => new ParseResult.Type(ast, nativeFile, "failed to transform native File to FileInstance"),
     }),
-  encode: (fileInstance, _, ast) =>
-    ParseResult.fail(new ParseResult.Forbidden(ast, fileInstance, "encode only schema")),
+  encode: (_, __, ast) => ParseResult.fail(new ParseResult.Forbidden(ast, _, "encode only schema")),
 }) {}
 
 export declare namespace FileInstanceFromNative {

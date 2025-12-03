@@ -58,12 +58,10 @@ export class Model extends M.Class<Model>(`FileModel`)(
       readonly createdBy: string;
     };
   }) {
-    const {
-      // detected,
-      formattedSize,
-      fileInstance,
-      nativeFile,
-    } = yield* NativeFileInstance.validateFile(params.file, params.config.chunkSize);
+    const { formattedSize, fileInstance, nativeFile } = yield* NativeFileInstance.validateFile(
+      params.file,
+      params.config.chunkSize
+    );
     const env = params.config.env;
     const originalFilename = yield* OriginalFilename.fromFileInstance(fileInstance);
     const extension = fileInstance.fileExtension;

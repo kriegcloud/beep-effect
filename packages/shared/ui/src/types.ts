@@ -1,5 +1,8 @@
 import type { BS } from "@beep/schema";
+import type { ValidACLs, ValidContentDispositions } from "@beep/shared-domain/entities/File";
 import type { DeepPartial } from "@beep/types/common.types";
+import type * as Duration from "effect/Duration";
+
 export type Overwrite<T, U> = Omit<T, keyof U> & U;
 export type ErrorMessage<TError extends string> = TError;
 export type MaybePromise<TType> = TType | Promise<TType>;
@@ -85,12 +88,6 @@ export type Time =
   | `1 ${TimeLong}`
   | `${AutoCompleteableNumber} ${TimeLong}s`;
 
-export const ValidContentDispositions = ["inline", "attachment"] as const;
-export type ContentDisposition = (typeof ValidContentDispositions)[number];
-
-export const ValidACLs = ["public-read", "private"] as const;
-export type ACL = (typeof ValidACLs)[number];
-
 type ImageProperties = {
   /** Specify the width of the image. */
   width?: number;
@@ -130,14 +127,14 @@ export type RouteConfig<TAdditionalProperties extends Record<string, unknown>> =
    * @example "attachment"
    * @default "inline"
    */
-  readonly contentDisposition: ContentDisposition;
+  readonly contentDisposition: ValidContentDispositions.Type;
   /**
    * Specify the [access control list](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin) of the uploaded file
    * @remarks This must be enabled for your app. See https://docs.uploadthing.com/regions-and-acl#access-controls.
    * @example "private"
    * @default "public-read"
    */
-  readonly acl?: undefined | ACL;
+  readonly acl?: ValidACLs.Type;
   /**
    * Additional properties to be passed to the client-side `useRouteConfig` hook
    * @remarks These properties are not validated on the server on upload
@@ -162,12 +159,12 @@ export type RouteOptions = {
    * server to return the `onUploadComplete` data.
    * @default true
    */
-  readonly awaitServerData?: undefined | boolean;
+  readonly awaitServerData?: boolean;
   /**
    * TTL for the presigned URLs generated for the upload
    * @default `1h`
    */
-  readonly presignedURLTTL?: undefined | Time;
+  readonly presignedURLTTL?: Duration.Duration;
   /**
    * Function that pulls out the properties of the uploaded file
    * that you want to be included as part of the presigned URL generation.
@@ -176,7 +173,7 @@ export type RouteOptions = {
    * the same hash for the same file, no matter when it was uploaded.
    * @default (file) => [file.name, file.size, file.type, file.lastModified,  Date.now()]
    */
-  readonly getFileHashParts?: undefined | ExtractHashPartsFn;
+  readonly getFileHashParts?: ExtractHashPartsFn;
 };
 
 export type FileRouterInputKey = BS.FileType.Type | BS.MimeType.Type;
@@ -193,3 +190,35 @@ export type EndpointMetadata = {
 }[];
 
 export type FileRouterInputConfig = FileRouterInputKey[] | DeepPartial<ExpandedRouteConfig>;
+
+export interface GenerateTypedHelpersOptions {
+  /**
+   * URL to the UploadThing API endpoint
+   * @example "/api/uploadthing"
+   * @example "https://www.example.com/api/uploadthing"
+   *
+   * If relative, host will be inferred from either the `VERCEL_URL` environment variable or `window.location.origin`
+   *
+   * @default (VERCEL_URL ?? window.location.origin) + "/api/uploadthing"
+   */
+  url?: string | URL;
+  /**
+   * Provide a custom fetch implementation.
+   * @default `globalThis.fetch`
+   * @example
+   * ```ts
+   * fetch: (input, init) => {
+   *   if (input.toString().startsWith(MY_SERVER_URL)) {
+   *     // Include cookies in the request to your API
+   *     return fetch(input, {
+   *       ...init,
+   *       credentials: "include",
+   *     });
+   *   }
+   *
+   *   return fetch(input, init);
+   * }
+   * ```
+   */
+  fetch?: FetchEsque | undefined;
+}
