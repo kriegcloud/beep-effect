@@ -14,7 +14,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./package.json": "./package.json",
-    "./*": "./src/*.ts"
+    "./*": "./src/*"
   },
   "repository": {
     "type": "git",

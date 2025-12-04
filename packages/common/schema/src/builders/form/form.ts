@@ -14,8 +14,8 @@
  * @since 0.1.0
  */
 
-import { $FormId } from "@beep/schema/internal";
 import * as S from "effect/Schema";
+import { $FormId } from "../../internal";
 import { FormFieldSchema } from "./field";
 
 /**

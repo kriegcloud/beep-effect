@@ -12,9 +12,10 @@
  * @category Derived/Kits
  * @since 0.1.0
  */
-import { $KitsId } from "@beep/schema/internal";
+
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
+import { $KitsId } from "../../internal";
 
 const { $TransformationsId: Id } = $KitsId.compose("transformations");
 /**

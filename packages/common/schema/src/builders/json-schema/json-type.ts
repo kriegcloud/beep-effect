@@ -4,7 +4,7 @@
  * @category Builders/JsonSchema
  * @since 0.1.0
  */
-import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
+import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
 
 import { $JsonSchemaId } from "../../internal";
 

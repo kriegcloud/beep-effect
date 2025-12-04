@@ -12,12 +12,12 @@
  * @since 0.1.0
  */
 
-import { $StringId } from "@beep/schema/internal";
-import * as regexes from "@beep/schema/internal/regex/regexes";
 import { faker } from "@faker-js/faker";
 import * as A from "effect/Array";
 import type * as B from "effect/Brand";
 import * as S from "effect/Schema";
+import { $StringId } from "../../internal";
+import * as regexes from "../../internal/regex/regexes";
 
 const { $SlugId: Id } = $StringId.compose("slug");
 

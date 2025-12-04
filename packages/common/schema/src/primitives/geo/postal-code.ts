@@ -13,12 +13,12 @@
  * @since 0.1.0
  */
 
-import { $GeoId } from "@beep/schema/internal";
 import { faker } from "@faker-js/faker";
 import * as F from "effect/Function";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { $GeoId } from "../../internal";
 import { POSTAL_CODE_REGEX } from "../../internal/regex/regexes";
 
 const { $PostalCodeId: Id } = $GeoId.compose("postal-code");

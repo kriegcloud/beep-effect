@@ -11,8 +11,7 @@
  */
 import * as Identifier from "./Identifier";
 
-export const {$BeepId: $I} = Identifier.make("beep");
-
+export const { $BeepId: $I } = Identifier.make("beep");
 
 /**
  * Identity composer for the `@beep/schema` namespace.
@@ -67,7 +66,7 @@ export const {
   $SharedDomainId,
   $DbAdminId,
   $ServerId,
-  $IamTablesId
+  $IamTablesId,
 } = $I.compose(
   "shared-ui",
   "shared-sdk",

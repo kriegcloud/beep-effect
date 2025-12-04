@@ -21,8 +21,8 @@
  * @since 0.1.0
  */
 
-import { $HttpId } from "@beep/schema/internal";
 import * as S from "effect/Schema";
+import { $HttpId } from "../../internal";
 import { URLString } from "../../primitives/network/url";
 import { HttpHeaders } from "./http-headers";
 import { HttpMethod } from "./http-method";

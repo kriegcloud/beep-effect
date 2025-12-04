@@ -12,11 +12,12 @@
  * @category Primitives/Temporal/Dates
  * @since 0.1.0
  */
-import { MappedLiteralKit } from "@beep/schema/derived/kits/mapped-literal-kit";
-import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
-import { $TemporalId } from "@beep/schema/internal";
+
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
+import { MappedLiteralKit } from "../../../derived/kits/mapped-literal-kit";
+import { StringLiteralKit } from "../../../derived/kits/string-literal-kit";
+import { $TemporalId } from "../../../internal";
 
 const { $MonthId: Id } = $TemporalId.compose("month");
 

@@ -1,8 +1,8 @@
-import { FileExtension } from "@beep/schema/integrations";
-import { SharedEntityIds } from "@beep/shared-domain";
+import { FileExtension } from "@beep/schema/integrations/files/mime-types";
+import { FileId } from "@beep/shared-domain/entity-ids/shared";
 import * as S from "effect/Schema";
 
-export class Filename extends S.TemplateLiteral(SharedEntityIds.FileId, ".", FileExtension as S.Schema<string>) {
+export class Filename extends S.TemplateLiteral(FileId, ".", FileExtension as S.Schema<string>) {
   static readonly decode = S.decode(Filename);
 }
 

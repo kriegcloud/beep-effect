@@ -1,5 +1,5 @@
-import { StringLiteralKit } from "@beep/schema/derived";
 import type * as S from "effect/Schema";
+import { StringLiteralKit } from "../../derived";
 
 /* ────────────────────────────────────────────────────────────────────────── *
  *  BYTE (SI / DECIMAL)

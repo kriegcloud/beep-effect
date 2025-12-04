@@ -14,7 +14,6 @@
  */
 
 import { invariant } from "@beep/invariant";
-import { $JsonId } from "@beep/schema/internal";
 import type { UnsafeTypes } from "@beep/types";
 import { faker } from "@faker-js/faker";
 import * as A from "effect/Array";
@@ -23,6 +22,7 @@ import * as Effect from "effect/Effect";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { $JsonId } from "../../internal";
 import { path_regex, prop_regex } from "../../internal/regex/regexes";
 
 const Id = $JsonId;

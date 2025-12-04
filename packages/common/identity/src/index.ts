@@ -11,7 +11,6 @@
  */
 
 export * as Identifier from "./Identifier";
-export { $I } from "./packages";
 /**
  * Canonical identity composers for every `@beep/*` workspace namespace.
  *
@@ -24,6 +23,7 @@ export { $I } from "./packages";
  * @since 0.1.0
  */
 export * as modules from "./packages";
+export { $I } from "./packages";
 
 /**
  * Type helpers for the `@beep/identity` builders and schema annotations.

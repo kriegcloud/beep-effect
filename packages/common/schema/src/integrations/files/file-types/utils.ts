@@ -1,7 +1,7 @@
-import { ArrayOfNumbers, ArrBuffer, Uint8Arr } from "@beep/schema/primitives";
 import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
+import { ArrayOfNumbers, ArrBuffer, Uint8Arr } from "../../../primitives";
 import type { FileInfo } from "./FileInfo";
 
 /**

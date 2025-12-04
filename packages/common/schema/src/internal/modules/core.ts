@@ -1,3 +1,3 @@
-import { $CoreId } from "@beep/schema/internal/modules/modules";
+import { $CoreId } from "./modules";
 
 export const { $AnnotationsId, $ExtendedId, $GenericsId } = $CoreId.compose("annotations", "extended", "generics");

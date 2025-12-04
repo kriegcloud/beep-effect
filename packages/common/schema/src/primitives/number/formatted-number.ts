@@ -1,5 +1,5 @@
-import { MappedLiteralKit } from "@beep/schema/derived";
 import * as S from "effect/Schema";
+import { MappedLiteralKit } from "../../derived";
 
 // ============================================================================
 // SI Symbol Mapping

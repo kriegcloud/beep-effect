@@ -21,10 +21,6 @@
  * @since 0.1.0
  */
 import { invariant } from "@beep/invariant";
-import type { DefaultAnnotations } from "@beep/schema/core/annotations/default";
-import { variance } from "@beep/schema/core/variance";
-import { $IdentityId } from "@beep/schema/internal/modules/modules";
-import { SnakeTag } from "@beep/schema/primitives/string/string";
 import type { $Type, HasDefault, HasRuntimeDefault, IsPrimaryKey, NotNull } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import * as A from "effect/Array";
@@ -35,6 +31,10 @@ import * as F from "effect/Function";
 import * as S from "effect/Schema";
 import { TypeId } from "effect/Schema";
 import * as Str from "effect/String";
+import type { DefaultAnnotations } from "../../core/annotations/default";
+import { variance } from "../../core/variance";
+import { $IdentityId } from "../../internal/modules/modules";
+import { SnakeTag } from "../../primitives/string/string";
 
 import { UUIDLiteralEncoded } from "./uuid";
 

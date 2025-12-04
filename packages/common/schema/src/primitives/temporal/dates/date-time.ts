@@ -15,7 +15,6 @@
  * @since 0.1.0
  */
 
-import { $TemporalId } from "@beep/schema/internal";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -23,6 +22,7 @@ import * as O from "effect/Option";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { $TemporalId } from "../../../internal";
 
 const { $DateTimeId: Id } = $TemporalId.compose("date-time");
 

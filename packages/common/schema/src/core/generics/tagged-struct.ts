@@ -13,11 +13,11 @@
  * @since 0.1.0
  */
 
-import type { DefaultAnnotations } from "@beep/schema/core/annotations/default";
-import { Struct } from "@beep/schema/core/extended/extended-schemas";
-import { $GenericsId } from "@beep/schema/internal";
 import type { StringTypes, StructTypes } from "@beep/types";
 import * as S from "effect/Schema";
+import { $GenericsId } from "../../internal";
+import type { DefaultAnnotations } from "../annotations/default";
+import { Struct } from "../extended/extended-schemas";
 
 const { $TaggedStructId: Id } = $GenericsId.compose("tagged-struct");
 

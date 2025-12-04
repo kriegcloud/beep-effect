@@ -7,7 +7,7 @@
  */
 import { invariant } from "@beep/invariant";
 import { StringLiteralKit } from "@beep/schema/derived";
-import { pipe, Struct } from "effect";
+import { HashSet, pipe, Struct } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -35,25 +35,29 @@ export const extractMimeExtensions = <const T extends MimeTypeProperty>(
     Struct.entries,
     A.flatMap(([_, { extensions }]) => extensions),
     (extensions) => {
-      invariant(A.isNonEmptyReadonlyArray(extensions), "must be non empty", {
+      const set = HashSet.fromIterable(extensions);
+      const values = HashSet.toValues(set);
+      invariant(A.isNonEmptyReadonlyArray(values), "must be non empty", {
         file: "packages/common/schema/src/integrations/files/mime-types/index.ts",
         line: 36,
-        args: [extensions],
+        args: [values],
       });
 
-      return extensions;
+      return values;
     }
   );
 
 export const extractMimeTypes = <const T extends MimeTypeProperty>(mime: T): A.NonEmptyReadonlyArray<keyof T> =>
   pipe(mime, Struct.keys, (a) => {
-    invariant(A.isNonEmptyReadonlyArray(a), "must be non empty", {
+    const set = HashSet.fromIterable(a);
+    const values = HashSet.toValues(set);
+    invariant(A.isNonEmptyReadonlyArray(values), "must be non empty", {
       file: "packages/common/schema/src/integrations/files/mime-types/index.ts",
       line: 50,
-      args: [a],
+      args: [values],
     });
 
-    return a;
+    return values;
   });
 
 export class ApplicationMimeType extends StringLiteralKit(...extractMimeTypes(application)) {}

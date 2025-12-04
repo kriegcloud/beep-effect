@@ -14,9 +14,6 @@
  * @since 0.1.0
  */
 
-import type { TaggedUnion } from "@beep/schema/core/generics/tagged-union";
-import { TaggedUnion as TaggedUnionFactory } from "@beep/schema/core/generics/tagged-union";
-import { $KitsId } from "@beep/schema/internal";
 import type { UnsafeTypes } from "@beep/types";
 import { ArrayUtils, enumFromStringArray } from "@beep/utils";
 import type { CreateEnumType, ValidMapping } from "@beep/utils/data/tuple.utils";
@@ -28,6 +25,9 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
 import type * as Types from "effect/Types";
+import type { TaggedUnion } from "../../core/generics/tagged-union";
+import { TaggedUnion as TaggedUnionFactory } from "../../core/generics/tagged-union";
+import { $KitsId } from "../../internal";
 
 // const LiteralToAccessor =
 

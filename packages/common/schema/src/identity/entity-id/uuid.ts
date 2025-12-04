@@ -14,10 +14,10 @@
  * @since 0.1.0
  */
 
-import { $IdentityId } from "@beep/schema/internal/modules/modules";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import { v4 as uuid } from "uuid";
+import { $IdentityId } from "../../internal/modules/modules";
 
 const { $UuidId } = $IdentityId.compose("uuid");
 /**

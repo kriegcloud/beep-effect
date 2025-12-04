@@ -12,8 +12,7 @@
  * @category Integrations/Sql
  * @since 0.1.0
  */
-import type { DefaultAnnotations } from "@beep/schema/core/annotations/default";
-import { $SqlId } from "@beep/schema/internal";
+
 import type { UnsafeTypes } from "@beep/types";
 import * as VariantSchema from "@effect/experimental/VariantSchema";
 import * as M from "@effect/sql/Model";
@@ -21,6 +20,8 @@ import * as DateTime from "effect/DateTime";
 import * as O from "effect/Option";
 import type * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+import type { DefaultAnnotations } from "../../core/annotations/default";
+import { $SqlId } from "../../internal";
 
 const { $CommonId: Id } = $SqlId.compose("common");
 const { Field } = VariantSchema.make({

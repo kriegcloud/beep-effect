@@ -7,10 +7,10 @@
  * @since 0.1.0
  */
 
-import { $ArrayId } from "@beep/schema/internal";
 import type * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { $ArrayId } from "../internal";
 
 const Id = $ArrayId;
 /**

@@ -12,9 +12,9 @@
  * @since 0.1.0
  */
 
-import { $PersonId } from "@beep/schema/internal";
 import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
+import { $PersonId } from "../../internal";
 import { NameAttribute } from "../string/name-attribute";
 
 const { $PersonAttributesId: Id } = $PersonId.compose("person-attributes");

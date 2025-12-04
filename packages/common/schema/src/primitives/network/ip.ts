@@ -13,10 +13,10 @@
  * @since 0.1.0
  */
 
-import { $NetworkId } from "@beep/schema/internal";
-import * as regexes from "@beep/schema/internal/regex/regexes";
 import type * as B from "effect/Brand";
 import * as S from "effect/Schema";
+import { $NetworkId } from "../../internal";
+import * as regexes from "../../internal/regex/regexes";
 
 const { $IpId: Id } = $NetworkId.compose("ip");
 

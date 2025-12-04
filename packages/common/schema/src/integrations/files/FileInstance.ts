@@ -1,15 +1,4 @@
 import { BS } from "@beep/schema";
-import { StringLiteralKit } from "@beep/schema/derived";
-import {
-  AspectRatio,
-  FileExtension,
-  fileTypeChecker,
-  formatSize,
-  getFileChunk,
-  getTypes,
-  MimeType,
-} from "@beep/schema/integrations";
-import { DateTimeUtcFromAllAcceptable } from "@beep/schema/primitives";
 import { Effect, pipe } from "effect";
 import * as A from "effect/Array";
 import * as Data from "effect/Data";
@@ -18,6 +7,12 @@ import * as ParseResult from "effect/ParseResult";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { StringLiteralKit } from "../../derived";
+import { DateTimeUtcFromAllAcceptable } from "../../primitives";
+import { AspectRatio } from "./AspectRatio";
+import { fileTypeChecker, getFileChunk } from "./file-types";
+import { FileExtension, getTypes, MimeType } from "./mime-types";
+import { formatSize } from "./utils";
 export class FileType extends StringLiteralKit("image", "video", "audio", "pdf", "text", "blob") {}
 
 export declare namespace FileType {

@@ -13,9 +13,9 @@
  * @since 0.1.0
  */
 
-import { $StringId } from "@beep/schema/internal";
 import type * as B from "effect/Brand";
 import * as S from "effect/Schema";
+import { $StringId } from "../../internal";
 
 const { $SemanticVersionId: Id } = $StringId.compose("semantic-version");
 /**

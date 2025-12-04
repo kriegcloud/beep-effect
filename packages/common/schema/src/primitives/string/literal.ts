@@ -10,12 +10,13 @@
  * @category Primitives/String
  * @since 0.1.0
  */
-import type { DefaultAnnotations } from "@beep/schema/core/annotations/default";
-import { $StringId } from "@beep/schema/internal";
+
 import type { StringTypes } from "@beep/types";
 import type * as A from "effect/Array";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
+import type { DefaultAnnotations } from "../../core/annotations/default";
+import { $StringId } from "../../internal";
 
 const { $LiteralId: Id } = $StringId.compose("literal");
 

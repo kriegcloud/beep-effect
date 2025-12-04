@@ -12,10 +12,10 @@
  * @since 0.1.0
  */
 
-import { $NetworkId } from "@beep/schema/internal";
-import * as regexes from "@beep/schema/internal/regex/regexes";
 import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
+import { $NetworkId } from "../../internal";
+import * as regexes from "../../internal/regex/regexes";
 
 const { $DomainId: Id } = $NetworkId.compose("domain");
 

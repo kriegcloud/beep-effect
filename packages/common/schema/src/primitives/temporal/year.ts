@@ -7,8 +7,8 @@
  * @since 0.1.0
  */
 
-import { $TemporalId } from "@beep/schema/internal";
 import * as S from "effect/Schema";
+import { $TemporalId } from "../../internal";
 
 const { $YearId: Id } = $TemporalId.compose("year");
 /**

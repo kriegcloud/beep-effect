@@ -1,21 +1,15 @@
 import { EnvValue } from "@beep/constants";
 import { BS } from "@beep/schema";
-import { FileType, NativeFileInstance } from "@beep/schema/integrations";
-import { MonthIntToNumber } from "@beep/schema/primitives";
+import { FileType, NativeFileInstance } from "@beep/schema/integrations/files/FileInstance";
+import { MonthIntToNumber } from "@beep/schema/primitives/temporal";
 import { makeFields } from "@beep/shared-domain/common";
-import {
-  Filename,
-  FileStatus,
-  OriginalFilename,
-  ShardPrefix,
-  UploadPath,
-} from "@beep/shared-domain/entities/File/schemas";
-import { OrganizationType } from "@beep/shared-domain/entities/Organization";
-import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import { DateTime, Effect, pipe } from "effect";
 import * as S from "effect/Schema";
 import { AnyEntityId, EntityKind, SharedEntityIds } from "../../entity-ids";
+import { modelKit } from "../../factories";
+import { OrganizationType } from "../Organization";
+import { Filename, FileStatus, OriginalFilename, ShardPrefix, UploadPath } from "./schemas";
 export class Model extends M.Class<Model>(`FileModel`)(
   makeFields(SharedEntityIds.FileId, {
     /** Organization ID Reference */

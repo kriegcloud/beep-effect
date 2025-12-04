@@ -12,8 +12,8 @@
  * @since 0.1.0
  */
 
-import { $HttpId } from "@beep/schema/internal";
 import * as S from "effect/Schema";
+import { $HttpId } from "../../internal";
 
 const { $HttpHeadersId: Id } = $HttpId.compose("http-headers");
 

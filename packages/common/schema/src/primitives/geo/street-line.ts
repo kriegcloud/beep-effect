@@ -13,9 +13,9 @@
  * @since 0.1.0
  */
 
-import { $GeoId } from "@beep/schema/internal";
 import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
+import { $GeoId } from "../../internal";
 
 const { $StreetLineId: Id } = $GeoId.compose("street-line");
 /**

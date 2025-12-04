@@ -10,7 +10,7 @@
  *
  * @category Identity/Builder
  */
-import type {StringTypes} from "@beep/types";
+import type { StringTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as E from "effect/Either";
 import * as F from "effect/Function";
@@ -222,9 +222,9 @@ const createComposer = <const Value extends StringTypes.NonEmptyString>(value: V
     return R.fromEntries(entries) as TaggedModuleRecord<Value, Segments>;
   };
   tag.annotations = createAnnotations(value);
-  tag.create = <
-    const Segment extends ModuleSegmentValue<StringTypes.NonEmptyString>
-  >(segment: Segment): TaggedComposerResult<Value, Segment> => {
+  tag.create = <const Segment extends ModuleSegmentValue<StringTypes.NonEmptyString>>(
+    segment: Segment
+  ): TaggedComposerResult<Value, Segment> => {
     const next = ensureSegment(segment);
     const composed = `${value}/${next}` as `${Value}/${SegmentValue<Segment>}`;
     return createComposer(composed);
@@ -279,9 +279,9 @@ export type TaggedComposer<Value extends StringTypes.NonEmptyString> = {
     identifier: SegmentValue<Next>,
     extras?: SchemaAnnotationExtras<SchemaType>
   ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
-  create<
-   const Segment extends ModuleSegmentValue<StringTypes.NonEmptyString>
-  >(segment: Segment): TaggedComposerResult<Value, Segment>
+  create<const Segment extends ModuleSegmentValue<StringTypes.NonEmptyString>>(
+    segment: Segment
+  ): TaggedComposerResult<Value, Segment>;
 };
 
 export type TaggedModuleRecord<

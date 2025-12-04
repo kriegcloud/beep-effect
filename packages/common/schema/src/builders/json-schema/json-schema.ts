@@ -14,8 +14,6 @@
  * @since 0.1.0
  */
 
-import { $JsonType } from "@beep/schema/builders/json-schema/json-type";
-import { LiteralDefaults } from "@beep/schema/primitives/string/literal";
 import type { Or, UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
@@ -24,7 +22,9 @@ import * as StructRecord from "effect/Struct";
 import { Struct as ExtendedStruct } from "../../core/extended/extended-schemas";
 import { $JsonSchemaId } from "../../internal";
 import { RegexFromString } from "../../internal/regex/regex";
+import { LiteralDefaults } from "../../primitives/string/literal";
 import type { JsonProp } from "./json-prop";
+import { $JsonType } from "./json-type";
 
 /**
  * Recursive helper type representing either a JSON Schema definition or a boolean shorthand.

@@ -12,7 +12,6 @@ export const envValuePgEnum = BS.toPgEnum(EnvValue)("env_value_enum");
 export const fileTypePgEnum = BS.toPgEnum(BS.FileType)("file_type_enum");
 export const fileStatusPgEnum = BS.toPgEnum(File.FileStatus)("file_status_enum");
 export const extensionPgEnum = BS.toPgEnum(BS.FileExtension)("extension_enum");
-export const mimeTypePgEnum = BS.toPgEnum(BS.MimeType)("mime_type_enum");
 export const entityKindPgEnum = BS.toPgEnum(EntityKind)("entity_kind_enum");
 export const file = OrgTable.make(SharedEntityIds.FileId)({
   /** S3 object key (full path) */
@@ -40,7 +39,7 @@ export const file = OrgTable.make(SharedEntityIds.FileId)({
   /** File extension (jpg, png, pdf, etc.) */
   extension: extensionPgEnum("extension").notNull(),
   /** MIME type of the file */
-  mimeType: mimeTypePgEnum("mime_type").notNull(),
+  mimeType: pg.text("mime_type").notNull().$type<BS.MimeType.Type>(),
   /** Month of upload (1-12) */
   uploadMonth: pg.smallint("upload_month").notNull(),
   /** File type category: image, video, audio, pdf, text, blob */

@@ -13,12 +13,12 @@
  * @since 0.1.0
  */
 import { invariant } from "@beep/invariant";
-import { toOptionalWithDefault } from "@beep/schema/core/utils/to-optional-with";
-import { $StringId } from "@beep/schema/internal";
-import * as regexes from "@beep/schema/internal/regex/regexes";
 import type { TagTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
+import { toOptionalWithDefault } from "../../core/utils/to-optional-with";
+import { $StringId } from "../../internal";
+import * as regexes from "../../internal/regex/regexes";
 
 const Id = $StringId;
 

@@ -61,11 +61,11 @@ const setupDocker = Effect.gen(function* () {
   // You may need to modify pg_uuid's dockerfile to install the extension or build a new image from its base
   // https://github.com/fboulnois/pg_uuidv7
 
-  const path = yield* Path.Path;
+  // const path = yield* Path.Path;
+  //
+  // const currentPath = fileURLToPath(import.meta.url);
 
-  const currentPath = fileURLToPath(import.meta.url);
-
-  const migrationPath = path.join(currentPath, "../drizzle");
+  const migrationPath = "/home/elpresidank/YeeBois/projects/beep-effect/packages/_internal/db-admin/drizzle";
 
   const container = yield* Effect.tryPromise({
     try: () =>
@@ -90,15 +90,6 @@ const setupDocker = Effect.gen(function* () {
   const client = postgres(connectionString);
 
   const db = drizzle(client);
-
-  yield* Effect.tryPromise({
-    try: () => db.execute(sql`CREATE EXTENSION IF NOT EXISTS pg_uuidv7`),
-    catch: (error) =>
-      new PgContainerError({
-        message: `Failed to create pg_uuidv7 extension`,
-        cause: error,
-      }),
-  });
 
   yield* Effect.logInfo(`Migration path: ${migrationPath}`);
 

@@ -2451,6 +2451,7 @@
         "@tanstack/react-devtools": "catalog:",
         "@tanstack/react-form": "catalog:",
         "@tanstack/react-form-devtools": "catalog:",
+        "@testcontainers/postgresql": "catalog:",
         "@udecode/cn": "catalog:",
         "@uploadthing/react": "catalog:",
         "@zip.js/zip.js": "catalog:",
@@ -2462,6 +2463,7 @@
         "clsx": "catalog:",
         "cmdk": "catalog:",
         "cookies-next": "catalog:",
+        "drizzle-kit": "catalog:",
         "drizzle-orm": "catalog:",
         "dub": "catalog:",
         "effect": "catalog:",
@@ -2477,6 +2479,7 @@
         "jotai-x": "catalog:",
         "lowlight": "catalog:",
         "lucide-react": "catalog:",
+        "mock-xmlhttprequest": "^8.4.1",
         "motion": "catalog:",
         "mutative": "catalog:",
         "next": "catalog:",
@@ -6578,6 +6581,8 @@
     "mkdirp-classic": ["mkdirp-classic@0.5.3", "", {}, "sha512-gKLcREMhtuZRwRAfqP3RFW+TK4JqApVBtOIftVgjuABpAtpxhPGaDcfvbhNvD0B8iD1oUr/txX35NjcaY6Ns/A=="],
 
     "mnemonist": ["mnemonist@0.40.0", "", { "dependencies": { "obliterator": "^2.0.4" } }, "sha512-kdd8AFNig2AD5Rkih7EPCXhu/iMvwevQFX/uEiGhZyPZi7fHqOoF4V4kHLpCfysxXMgQ4B52kdPMCwARshKvEg=="],
+
+    "mock-xmlhttprequest": ["mock-xmlhttprequest@8.4.1", "", {}, "sha512-2ORxRN+h40+3/Ylw9LKOtYGfQIoX6grGQlmbvMKqaeZ5/l7oeMvqdJxyG/ax3Poy7VbqMTADI6BwTmO7u10Wrw=="],
 
     "module-definition": ["module-definition@6.0.1", "", { "dependencies": { "ast-module-types": "^6.0.1", "node-source-walk": "^7.0.1" }, "bin": { "module-definition": "bin/cli.js" } }, "sha512-FeVc50FTfVVQnolk/WQT8MX+2WVcDnTGiq6Wo+/+lJ2ET1bRVi3HG3YlJUfqagNMc/kUlFSoR96AJkxGpKz13g=="],
 

@@ -12,11 +12,11 @@
  * @since 0.1.0
  */
 
-import { $StringId } from "@beep/schema/internal";
-import * as regexes from "@beep/schema/internal/regex/regexes";
 import type * as B from "effect/Brand";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+import { $StringId } from "../../internal";
+import * as regexes from "../../internal/regex/regexes";
 
 const { $EmailId: Id } = $StringId.compose("email");
 

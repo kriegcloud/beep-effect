@@ -3,6 +3,7 @@ export * from "./FileStatus";
 export * from "./OriginalFilename";
 export * from "./ProgressGranularity";
 export * from "./UploadActionType";
+export * from "./UploadHook";
 export * from "./UploadPath";
 export * from "./ValidACLs";
 export * from "./ValidContentDispositions";

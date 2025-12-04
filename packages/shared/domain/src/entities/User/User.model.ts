@@ -1,3 +1,4 @@
+import { $SharedDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { makeFields } from "@beep/shared-domain/common";
 import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
@@ -6,9 +7,8 @@ import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 import { UserRole } from "./schemas";
 import { USER_UPLOAD_LIMIT } from "./User.constants";
-import { $SharedDomainId } from "@beep/identity/packages";
 
-const $I = $SharedDomainId.create("entities/User/User.model")
+const $I = $SharedDomainId.create("entities/User/User.model");
 /**
  * User model representing application users with authentication and profile data.
  * Maps to the `user` table in the database.

@@ -1,3 +1,4 @@
+export * from "./Columns";
 export * from "./columns";
 export * as Common from "./common";
 export * from "./OrgTable";

@@ -13,8 +13,8 @@
  * @since 0.1.0
  */
 
-import { $GeoId } from "@beep/schema/internal";
 import * as S from "effect/Schema";
+import { $GeoId } from "../../internal";
 
 const { $SubdivisionCodeId: Id } = $GeoId.compose("subdivision-code");
 /**

@@ -14,9 +14,9 @@
  * @since 0.1.0
  */
 
-import { $GeoId } from "@beep/schema/internal";
 import * as S from "effect/Schema";
 import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
+import { $GeoId } from "../../internal";
 
 const { $CountryFromCodeId: Id } = $GeoId.compose("country-from-code");
 

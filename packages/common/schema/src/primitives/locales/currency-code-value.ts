@@ -1,5 +1,5 @@
-import { StringLiteralKit } from "../../derived";
 import { RecordUtils } from "@beep/utils/data";
+import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
 
 /**
  * @standard ISO 4217

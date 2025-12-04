@@ -11,10 +11,10 @@
  * @since 0.1.0
  */
 
-import { prop_regex } from "@beep/schema/internal/regex/regexes";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { $JsonSchemaId } from "../../internal";
+import { prop_regex } from "../../internal/regex/regexes";
 
 const { $JsonPropId } = $JsonSchemaId.compose("json-prop");
 /**
