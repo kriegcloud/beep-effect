@@ -16,7 +16,7 @@ The implementation must follow Effect-first patterns, use existing schemas/servi
 ```
 Client (Browser)                    Server (API Route)                    S3
     │                                     │                               │
-    │  1. User selects file(s)           │                               │
+    │  1. User selects file(s)            │                               │
     │  ┌─────────────────────────┐        │                               │
     │  │ validateFile()          │        │                               │
     │  │ extractBasicMetadata()  │        │                               │
@@ -34,7 +34,7 @@ Client (Browser)                    Server (API Route)                    S3
     │  6. Return presigned URL + fileId   │                               │
     │<──────────────────────────────────  │                               │
     │                                     │                               │
-    │  7. XHR PUT to S3 presigned URL    │                               │
+    │  7. XHR PUT to S3 presigned URL     │                               │
     │─────────────────────────────────────────────────────────────────────>
     │                                     │                               │
     │  8. Upload complete callback        │                               │

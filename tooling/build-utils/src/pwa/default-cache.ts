@@ -1,3 +1,5 @@
+import { pipe } from "effect";
+import * as Str from "effect/String";
 import type { RuntimeCaching, UrlPatternParams } from "./types.ts";
 
 /**
@@ -178,8 +180,7 @@ export const defaultCache: ReadonlyArray<RuntimeCaching> = [
       const isSameOrigin = self.origin === url.origin;
       if (!isSameOrigin) return false;
       const pathname = url.pathname;
-      if (pathname.startsWith("/api/")) return false;
-      return true;
+      return !pipe(pathname, Str.startsWith("/api/"));
     },
     handler: "NetworkFirst",
     options: {
