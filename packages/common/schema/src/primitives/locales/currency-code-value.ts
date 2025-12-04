@@ -1,4 +1,4 @@
-import { StringLiteralKit } from "@beep/schema/derived";
+import { StringLiteralKit } from "../../derived";
 import { RecordUtils } from "@beep/utils/data";
 
 /**

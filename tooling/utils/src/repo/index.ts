@@ -7,6 +7,7 @@
 export * from "./Dependencies.js";
 export * from "./DependencyIndex.js";
 export * from "./Errors.js";
+export * from "./PackageFileMap.js";
 export * from "./PackageJsonMap.js";
 export * from "./Root.js";
 export * from "./TsConfigIndex.js";

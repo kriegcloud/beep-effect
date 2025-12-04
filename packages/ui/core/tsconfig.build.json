@@ -12,7 +12,7 @@
     "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "stripInternal": true
+    "stripInternal": false
   },
   "references": [
     {

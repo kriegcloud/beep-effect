@@ -1,4 +1,4 @@
-import { StringLiteralKit } from "@beep/schema/derived";
+import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
 
 export class CountryCodeValue extends StringLiteralKit(
   "AC",

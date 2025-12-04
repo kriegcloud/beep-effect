@@ -109,7 +109,7 @@ const Exports = S.Union(S.String, S.Null, S.Record({ key: S.String, value: Expor
  * workspaces. Additional unknown properties are allowed and captured via
  * the index signature.
  */
-export const PackageJson = S.Struct(
+export class PackageJson extends S.Struct(
   {
     // Required
     name: S.NonEmptyTrimmedString,
@@ -173,4 +173,8 @@ export const PackageJson = S.Struct(
     workspaces: S.optional(Workspaces),
   },
   S.Record({ key: S.String, value: Json })
-);
+) {
+  static readonly decode = S.decode(PackageJson);
+
+  static readonly decodeUnknown = S.decodeUnknown(PackageJson);
+}

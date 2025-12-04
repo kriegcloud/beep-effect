@@ -2,7 +2,7 @@
   "extends": "./tsconfig.base.jsonc",
   "include": [],
   "compilerOptions": {
-    "stripInternal": true
+    "stripInternal": false
   },
   "references": [
     {

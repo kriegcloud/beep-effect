@@ -4,7 +4,7 @@
     "types": ["node", "bun"],
     "outDir": "build/esm",
     "declarationDir": "build/dts",
-    "stripInternal": true,
+    "stripInternal": false,
     "composite": true,
     "declaration": true,
     "sourceMap": true

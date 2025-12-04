@@ -30,9 +30,7 @@
   "compilerOptions": {
     "types": ["node", "bun"],
     "outDir": "build/src",
-
     "rootDir": "src",
-
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,

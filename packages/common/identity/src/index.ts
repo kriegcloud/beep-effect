@@ -11,7 +11,7 @@
  */
 
 export * as Identifier from "./Identifier";
-
+export { $I } from "./packages";
 /**
  * Canonical identity composers for every `@beep/*` workspace namespace.
  *

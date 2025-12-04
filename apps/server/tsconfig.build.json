@@ -58,7 +58,7 @@
 
     "outDir": "build/esm",
     "declarationDir": "build/dts",
-    "stripInternal": true
+    "stripInternal": false
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts"]
