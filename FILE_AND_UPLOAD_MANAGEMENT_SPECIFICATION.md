@@ -27,18 +27,18 @@ This document provides a comprehensive specification for the file and upload man
 
 The beep-effect file and upload management system implements a secure, resumable, type-safe file upload pipeline with the following characteristics:
 
-| Feature | Implementation |
-|---------|----------------|
-| **Runtime** | Effect 3 with `@effect/platform` |
-| **Security** | HMAC-SHA256 signed presigned URLs, AES-256-GCM encryption |
-| **Resumability** | HTTP Range headers for interrupted uploads |
-| **Tracing** | W3C Trace Context (traceparent) and B3 headers |
-| **Streaming** | JSONL for development callbacks |
-| **Type Safety** | Effect Schema validation end-to-end |
-| **Storage** | AWS S3 with deterministic sharding |
-| **Validation** | Magic byte signature detection, MIME type validation |
-| **Metadata** | EXIF extraction, aspect ratio computation |
-| **Image Conversion** | WebAssembly-based AVIF encoding via @jsquash |
+| Feature              | Implementation                                            |
+|----------------------|-----------------------------------------------------------|
+| **Runtime**          | Effect 3 with `@effect/platform`                          |
+| **Security**         | HMAC-SHA256 signed presigned URLs, AES-256-GCM encryption |
+| **Resumability**     | HTTP Range headers for interrupted uploads                |
+| **Tracing**          | W3C Trace Context (traceparent) and B3 headers            |
+| **Streaming**        | JSONL for development callbacks                           |
+| **Type Safety**      | Effect Schema validation end-to-end                       |
+| **Storage**          | AWS S3 with deterministic sharding                        |
+| **Validation**       | Magic byte signature detection, MIME type validation      |
+| **Metadata**         | EXIF extraction, aspect ratio computation                 |
+| **Image Conversion** | WebAssembly-based AVIF encoding via @jsquash              |
 
 ---
 
@@ -1151,32 +1151,32 @@ class UploadActionPayload extends S.Class("UploadActionPayload")({
 
 ### Domain Layer
 
-| File | Description |
-|------|-------------|
-| `packages/shared/domain/src/entities/File/File.model.ts` | Core file entity model |
+| File                                                             | Description             |
+|------------------------------------------------------------------|-------------------------|
+| `packages/shared/domain/src/entities/File/File.model.ts`         | Core file entity model  |
 | `packages/shared/domain/src/entities/File/schemas/UploadPath.ts` | S3 path transformations |
-| `packages/shared/domain/src/entities/File/schemas/FileStatus.ts` | File status states |
-| `packages/shared/domain/src/entities/File/schemas/Filename.ts` | Filename schema |
-| `packages/shared/domain/src/services/EncryptionService/` | AES-256-GCM encryption |
+| `packages/shared/domain/src/entities/File/schemas/FileStatus.ts` | File status states      |
+| `packages/shared/domain/src/entities/File/schemas/Filename.ts`   | Filename schema         |
+| `packages/shared/domain/src/services/EncryptionService/`         | AES-256-GCM encryption  |
 
 ### Infrastructure Layer
 
-| File | Description |
-|------|-------------|
-| `packages/shared/infra/src/internal/upload/crypto.ts` | HMAC signing, key generation |
-| `packages/shared/infra/src/internal/upload/utils.ts` | Trace headers, utilities |
-| `packages/shared/infra/src/internal/upload/error.ts` | Upload error types |
-| `packages/shared/infra/src/internal/upload/_internal/shared-schemas.ts` | UploadThing schemas |
-| `packages/shared/infra/src/internal/upload/_internal/parser.ts` | Multi-parser support |
+| File                                                                    | Description                  |
+|-------------------------------------------------------------------------|------------------------------|
+| `packages/shared/infra/src/internal/upload/crypto.ts`                   | HMAC signing, key generation |
+| `packages/shared/infra/src/internal/upload/utils.ts`                    | Trace headers, utilities     |
+| `packages/shared/infra/src/internal/upload/error.ts`                    | Upload error types           |
+| `packages/shared/infra/src/internal/upload/_internal/shared-schemas.ts` | UploadThing schemas          |
+| `packages/shared/infra/src/internal/upload/_internal/parser.ts`         | Multi-parser support         |
 
 ### Schema Layer
 
-| File | Description |
-|------|-------------|
+| File                                                            | Description           |
+|-----------------------------------------------------------------|-----------------------|
 | `packages/common/schema/src/integrations/files/FileInstance.ts` | File instance schemas |
-| `packages/common/schema/src/integrations/files/file-types/` | File type detection |
-| `packages/common/schema/src/integrations/files/exif-metadata/` | EXIF extraction |
-| `packages/common/schema/src/integrations/files/mime-types/` | MIME type system |
+| `packages/common/schema/src/integrations/files/file-types/`     | File type detection   |
+| `packages/common/schema/src/integrations/files/exif-metadata/`  | EXIF extraction       |
+| `packages/common/schema/src/integrations/files/mime-types/`     | MIME type system      |
 
 ### Client Features
 
@@ -1189,8 +1189,8 @@ class UploadActionPayload extends S.Class("UploadActionPayload")({
 
 ### Tooling
 
-| File | Description |
-|------|-------------|
+| File                                                   | Description                  |
+|--------------------------------------------------------|------------------------------|
 | `tooling/repo-scripts/src/utils/convert-to-nextgen.ts` | WebAssembly image conversion |
 
 ---
