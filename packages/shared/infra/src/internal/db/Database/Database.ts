@@ -29,12 +29,6 @@ import {format} from "sql-formatter";
 
 const $I = $SharedInfraId.create("Db");
 
-export class StringifySqlParamError extends Data.TaggedError("StringifySqlParamError")<{
-  readonly param: unknown;
-  readonly cause: unknown;
-}> {
-}
-
 export class ConnectionContext extends Context.Tag($I`ConnectionContext`)<
   ConnectionContext,
   ConnectionOptions
@@ -83,13 +77,9 @@ export class Logger extends Effect.Service<Logger>()(
 ) {
 }
 
-export class PoolError extends S.TaggedError<PoolError>($I`PoolError`)("PoolError", {
-  cause: S.Defect,
-}) {
-}
 
-export class ConnectionTimeoutError extends S.TaggedError<ConnectionTimeoutError>($I`ConnectionTimeoutError`)("ConnectionTimeoutError", {}) {
-}
+
+
 export class DatabaseConnectionLostError extends Data.TaggedError("DatabaseConnectionLostError")<{
   cause: unknown;
   message: string;
@@ -244,11 +234,6 @@ export class TransactionContext extends Context.Tag("TransactionContext")<
     self: Effect.Effect<A, E, R>,
   ) => Effect.Effect<A, E, Exclude<R, TransactionContext>>) =>
     Effect.provideService(this, transaction);
-}
-
-export interface AfterEffect {
-  readonly onSuccessOnly: boolean;
-  readonly effect: Effect.Effect<void, never, never>;
 }
 
 export type ExecuteFn<TFullSchema extends DbSchema = DbSchema> = <T>(

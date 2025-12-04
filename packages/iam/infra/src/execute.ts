@@ -1,27 +1,23 @@
 import * as IamDbSchema from "@beep/iam-tables/schema";
-import {Db} from "@beep/shared-infra/Db";
+import {PgClient} from "@beep/shared-infra/internal/db/pg";
 import {Effect, Context, Layer, Console, Redacted} from "effect";
 import {User} from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
 import {BS} from "@beep/schema";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-
-export const iamDb = Db.make({
+import {liveLayer, type PgClientConfig, TransactionContext} from "@beep/shared-infra/internal/db/pg/PgClient";
+import type { DatabaseService } from "@beep/shared-infra/internal/db/pg/types";
+import type * as Reactivity from "@effect/experimental/Reactivity";
+import type * as SqlClient from "@effect/sql/SqlClient";
+export const iamDb = PgClient.make({
   schema: IamDbSchema
 });
-type _Layer = Layer.Layer<IamDb, never, never>
+type _Layer = Layer.Layer<PgClient.ConnectionContext | PgClient.Logger | Reactivity.Reactivity | PgClient.PoolService | IamDb | PgClient.PgClient | SqlClient.SqlClient, never, never>
 
-export class IamDb extends Context.Tag("IamDb")<IamDb, Db.DatabaseService<typeof IamDbSchema>>() {
-  static readonly Live = (connection: Db.ConnectionOptions): _Layer => Layer.scoped(this, iamDb.pipe(Effect.orDie)).pipe(
+export class IamDb extends Context.Tag("IamDb")<IamDb, DatabaseService<typeof IamDbSchema>>() {
+  static readonly Live = (connection: PgClientConfig): _Layer => Layer.scoped(this, iamDb.pipe(Effect.orDie)).pipe(
     Layer.provideMerge(
-      Layer.mergeAll(
-        // Use Default with ConnectionContext instead of Live to avoid the async connection listener
-        // that keeps the process alive (Live is intended for long-running servers)
-        Db.PoolService.Default.pipe(
-          Layer.provide(Db.ConnectionContext.Live(connection))
-        ),
-        Db.Logger.Default,
-      )
+     liveLayer(connection)
     ),
     Layer.orDie,
   );
@@ -46,14 +42,14 @@ const program = Effect.gen(function* () {
 
 
   const inserted = yield* transaction((tx) => insertUser(m).pipe(
-    Db.TransactionContext.provide(tx)
+    TransactionContext.provide(tx)
   ));
 
   yield* Console.log(inserted);
 }).pipe(
   Effect.provide(
     IamDb.Live({
-      connectionString: Redacted.make("postgres://admin:password@localhost:5432/db"),
+      url: Redacted.make("postgres://admin:password@localhost:5432/db"),
       ssl: false,
     })
   )

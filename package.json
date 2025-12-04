@@ -90,7 +90,7 @@
     "@types/node": "^24.10.1",
     "babel-plugin-annotate-pure-calls": "^0.5.0",
     "babel-plugin-transform-next-use-client": "^1.1.1",
-    "baseline-browser-mapping": "^2.9.0",
+    "baseline-browser-mapping": "^2.9.2",
     "husky": "^9.1.7",
     "knip": "^5.71.0",
     "lint-staged": "^16.2.7",
@@ -134,8 +134,8 @@
     "@t3-oss/env-core": "^0.13.8",
     "@t3-oss/env-nextjs": "^0.13.8",
     "@tailwindcss/cli": "^4.1.17",
-    "@tanstack/query-core": "^5.90.11",
-    "@tanstack/react-query": "^5.90.11",
+    "@tanstack/query-core": "^5.90.12",
+    "@tanstack/react-query": "^5.90.12",
     "@tanstack/react-query-devtools": "^5.91.1",
     "@trpc/client": "^11.7.2",
     "@trpc/react-query": "^11.7.2",
@@ -163,7 +163,7 @@
     "openai": "^6.9.1",
     "prisma": "^7.1.0",
     "prisma-json-schema-generator": "^5.1.5",
-    "prisma-type-generator": "^1.13.0",
+    "prisma-type-generator": "^2.0.1",
     "puppeteer": "^24.32.0",
     "react-hook-form": "^7.68.0",
     "react-lazy-load-image-component": "^1.6.3",
@@ -228,9 +228,9 @@
     "@mui/material": "^7.3.6",
     "@mui/material-nextjs": "^7.3.6",
     "@mui/stylis-plugin-rtl": "^7.3.6",
-    "@mui/x-data-grid": "^8.20.0",
-    "@mui/x-date-pickers": "^8.19.0",
-    "@mui/x-tree-view": "^8.19.0",
+    "@mui/x-data-grid": "^8.21.0",
+    "@mui/x-date-pickers": "^8.21.0",
+    "@mui/x-tree-view": "^8.21.0",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/exporter-logs-otlp-http": "^0.208.0",
     "@opentelemetry/exporter-metrics-otlp-proto": "^0.208.0",
@@ -265,8 +265,8 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "copyfiles": "^2.4.1",
-    "drizzle-kit": "^0.31.7",
-    "drizzle-orm": "^0.44.7",
+    "drizzle-kit": "^0.31.8",
+    "drizzle-orm": "^0.45.0",
     "drizzle-zero": "^0.16.2",
     "dub": "^0.69.0",
     "effect": "^3.19.8",
@@ -360,7 +360,7 @@
     "@wojtekmaj/react-recaptcha-v3": "^0.1.4",
     "@effect/platform-node": "^0.103.0",
     "@tailwindcss/typography": "^0.5.19",
-    "react-router-dom": "^7.10.0",
+    "react-router-dom": "^7.10.1",
     "@effect/sql-sqlite-node": "^0.49.1",
     "@effect/sql-sqlite-bun": "^0.49.0",
     "fast-check": "^4.3.0",
@@ -444,9 +444,34 @@
     "babel-loader": "^10.0.0",
     "webpack": "^5.103.0",
     "@next/mdx": "^16.0.7",
-    "sql-formatter": "^15.6.10"
+    "sql-formatter": "^15.6.10",
+    "pg-cursor": "^2.15.3",
+    "pg-connection-string": "^2.9.1",
+    "pg-pool": "^3.10.1",
+    "pg-types": "^4.1.0",
+    "@types/pg-cursor": "^2.7.2"
   },
   "dependenciesCatalog": [
+    {
+      "name": "@types/pg-cursor",
+      "version": "^2.7.2"
+    },
+    {
+      "name": "pg-connection-string",
+      "version": "^2.9.1"
+    },
+    {
+      "name": "pg-pool",
+      "version": "^3.10.1"
+    },
+    {
+      "name": "pg-types",
+      "version": "^4.1.0"
+    },
+    {
+      "name": "pg-cursor",
+      "version": "^2.15.3"
+    },
     {
       "name": "sql-formatter",
       "version": "^15.6.10"
