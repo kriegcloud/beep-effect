@@ -63,9 +63,11 @@
     "clsx": "catalog:",
     "tailwindcss-animate": "catalog:",
     "tw-animate-css": "catalog:",
-    "resend": "catalog:"
+    "resend": "catalog:",
+    "sql-formatter": "catalog:"
   },
   "devDependencies": {
+    "sql-formatter": "catalog:",
     "@effect/docgen": "catalog:",
     "@beep/types": "workspace:^",
     "@effect/sql": "catalog:",
