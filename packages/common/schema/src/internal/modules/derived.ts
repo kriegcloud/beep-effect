@@ -1,3 +1,3 @@
-import { $DerivedId } from "@beep/schema/internal/modules/modules";
+import { $DerivedId } from "./modules";
 
 export const { $KitsId } = $DerivedId.compose("kits");

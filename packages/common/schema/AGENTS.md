@@ -21,10 +21,9 @@
 - `packages/iam/domain/src/entities/Member/schemas/MemberStatus.ts:4` — `BS.StringLiteralKit` with `.Enum` and `BS.toPgEnum` to bridge literal kits into Postgres enums.
 - `packages/shared/domain/src/entity-ids/entity-kind.ts:5` — multi-slice `BS.StringLiteralKit` composition feeding tagged entity-kind guards.
 
-## Tooling & Docs Shortcuts
+## Tooling & Reference
 - `packages/common/schema/README.md` — package overview and scope.
-- `DOCUMENTATION_STRATEGY.md`, `doc-prompt.md`, `MIGRATION_CHECKLIST.md` — doc generation, structure, and release guidance for this package.
-- `docgen.json` and `docs/examples/` — docgen configuration plus sample outputs; regenerate with `bunx turbo run docgen --filter=@beep/schema`.
+- `docgen.json` — docgen configuration; regenerate with `bunx turbo run docgen --filter=@beep/schema`.
 - Quick source inspection: `src/identity/entity-id/entity-id.ts` for branded ID factory, `src/derived/kits/string-literal-kit.ts` for literal kit ergonomics, `src/integrations/config/csp.ts` for CSP DSL.
 
 ## Authoring Guardrails
@@ -38,11 +37,10 @@
 ## Quick Recipes
 ```ts
 import { BS } from "@beep/schema";
-import { SnakeTag } from "@beep/schema/primitives/string/string";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
 
-const ProjectId = BS.make(SnakeTag.make("project"), {
+const ProjectId = BS.EntityId.make("project", {
   brand: "ProjectId",
   annotations: { description: "Primary identifier for projects" },
 });
@@ -76,11 +74,11 @@ const visibilityEnum = BS.toPgEnum(Visibility);
 ```
 
 ```ts
-import * as Csp from "@beep/schema/integrations/config/csp";
+import { Csp } from "@beep/schema/integrations/config";
 import * as F from "effect/Function";
 
-const policy = Csp.Csp.fromString("default-src 'self'; connect-src https://api.example.com;");
-const header = F.pipe(policy, Csp.Csp.toHeader);
+const policy = Csp.fromString("default-src 'self'; connect-src https://api.example.com;");
+const header = F.pipe(policy, Csp.toHeader);
 ```
 
 ## Verifications

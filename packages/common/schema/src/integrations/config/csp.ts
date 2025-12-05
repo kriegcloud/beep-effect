@@ -12,10 +12,6 @@
  * @since 0.1.0
  */
 
-import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
-import { $ConfigId } from "@beep/schema/internal";
-import { RegexFromString } from "@beep/schema/internal/regex/regex";
-import { Url } from "@beep/schema/primitives/network/url";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -26,6 +22,10 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
+import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
+import { $ConfigId } from "../../internal";
+import { RegexFromString } from "../../internal/regex/regex";
+import { Url } from "../../primitives/network/url";
 
 const { $CspId: Id } = $ConfigId.compose("csp");
 

@@ -12,11 +12,11 @@
  * @since 0.1.0
  */
 
-import { Struct } from "@beep/schema/core/extended/extended-schemas";
-import type { OptionalWithDefault } from "@beep/schema/core/types";
-import { $GenericsId } from "@beep/schema/internal";
 import type { StructTypes, UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
+import { $GenericsId } from "../../internal";
+import { Struct } from "../extended/extended-schemas";
+import type { OptionalWithDefault } from "../types";
 
 const { $TaggedUnionId: Id } = $GenericsId.compose("tagged-union");
 /**

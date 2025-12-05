@@ -1,4 +1,4 @@
-import { serverEnv } from "@beep/core-env/server";
+import { serverEnv } from "@beep/shared-infra/ServerEnv";
 import * as Context from "effect/Context";
 import * as Layer from "effect/Layer";
 

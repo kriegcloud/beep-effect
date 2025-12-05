@@ -5,6 +5,7 @@
 - Effect-first contract runtime powering all RPC-style interactions shared across slices (`@beep/iam-sdk` contracts, runtime services, and future documents slices).
 - Publishes three public entry points (`Contract`, `ContractKit`, `ContractError`) that wrap the internal implementation and keep internal layout flexible.
 - Consumed anywhere we need typed payload schemas, runtime-independent error envelopes, continuations with abort awareness, or contract grouping/lifting helpers.
+- **Dependencies**: `effect`, `@beep/schema`, `@beep/invariant`, `@beep/utils`, `@beep/identity` (all peer dependencies).
 
 ## Surface Map
 
@@ -12,11 +13,12 @@
 - **Contract runtime (`src/internal/contract/*`)**
   - `contract.ts` — prototype with schema helpers, annotations, `continuation`, and `implement`.
   - `types.ts` — all shared types (contracts, FailureMode, Implementation* types, metadata helpers).
-  - `continuation.ts` — metadata derivation plus `FailureContinuation` + `handleOutcome`.
+  - `continuation.ts` — metadata derivation plus `FailureContinuation` (with `run`, `runDecode` methods) and `handleOutcome`.
   - `lift.ts` — `Contract.lift` implementation used by kits/service layers.
-  - `annotations.ts`, `constants.ts`, `index.ts` — annotation tags, TypeIds, namespace export.
-- **Contract kits (`src/internal/contract-kit/*`)** — `contract-kit.ts` implements `ContractKit.make`, `.of`, `.toLayer`, `.liftService` plus LiftService hooks/modes.
-- **Error taxonomy (`src/internal/contract-error/*`)** — schema-backed `ContractError` hierarchy (request/response/malformed/unknown) shared by continuations and consumers.
+  - `annotations.ts` — annotation tags (`Title`, `Domain`, `Method`, `SupportsAbort`, `Visibility`, `RateLimitKey`, `Audience`).
+  - `constants.ts`, `index.ts` — TypeIds, namespace export.
+- **Contract kits (`src/internal/contract-kit/*`)** — `contract-kit.ts` implements `ContractKit.make`, `.toLayer`, `.liftService` plus hooks/modes.
+- **Error taxonomy (`src/internal/contract-error/*`)** — schema-backed `ContractError` hierarchy (HttpRequestError, HttpResponseError, MalformedInput, MalformedOutput, UnknownError).
 - **Utilities (`src/internal/utils.ts`)** — schema helpers (e.g., `constEmptyStruct`, `toSchemaAnyNoContext`) reused across runtime files.
 
 ## Usage Snapshots
@@ -24,14 +26,7 @@
 - `packages/iam/sdk/src/clients/passkey/passkey.contracts.ts` defines Better Auth-facing contracts via `Contract.make` and groups them with `ContractKit.make`.
 - `packages/iam/sdk/src/clients/passkey/passkey.implementations.ts` uses `contract.continuation` inside `.implement` calls to normalize Better Auth responses and surface `IamError`.
 - `packages/iam/sdk/src/clients/passkey/passkey.service.ts` lifts a contract kit into an Effect Service via `ContractKit.liftService`, wiring hooks for UI runtimes.
-- `packages/iam/sdk/src/execute.ts` demonstrates `Contract.handleOutcome` plus manual `contract.continuation` usage for demos/tests.
-
-## Tooling & Docs Shortcuts
-
-- `effect_docs__effect_docs_search({"query":"Effect.async continuation abort signal"})` — refresher on crafting async bridges similar to `FailureContinuation.run`.
-- `effect_docs__get_effect_doc({"documentId":6585})` — `effect/Function.pipe` guidelines (critical for chaining `A.*` helpers when composing schema utilities).
-- `context7__resolve-library-id({"libraryName":"effect"})` followed by `context7__get-library-docs({"context7CompatibleLibraryID":"/effect-ts/effect","topic":"Layer","tokens":1200})` — layering references used inside `ContractKit.toLayer` / `.liftService`.
-- Internal docs: keep this AGENT + docstrings in `src/internal/**` as the canonical contract runtime reference before touching implementations.
+- Implementations use `continuation.run` for manual error handling or `continuation.runDecode` for automatic success/failure processing.
 
 ## Authoring Guardrails
 
@@ -45,6 +40,48 @@
 - `ContractKit.liftService`: hooking `onFailure`/`onSuccess`/`onDefect` should stay pure and never modify payloads. Keep `Mode = "success"` vs `"result"` semantics documented.
 - When extending `ContractError`, update schema annotations, docstrings, and any derivations in `failureContinuation` that rely on metadata.
 - Every new helper should ship with JSDoc + code comments describing when to use it; avoid IAM- or Better Auth-specific prose to keep the package slice-agnostic.
+
+## Key Concepts
+
+### Continuation Methods
+
+Continuations provide two main methods for handling promise-based operations:
+
+- **`continuation.runDecode(handler)`** — Automatically decodes success responses and raises failures. Best for simple cases where the external API returns data matching your success schema.
+- **`continuation.run(handler)`** — Returns a raw result object with `{ data, error }` for manual handling. Use when you need custom error mapping or conditional logic.
+
+Both methods accept a handler function that receives `{ onSuccess, onError, signal }` callbacks to integrate with promise-based clients.
+
+### Error Mapping (V2)
+
+Continuations support composable error mapping via the `mapError` option in `contract.continuation()`:
+
+```ts
+const continuation = contract.continuation({
+  mapError: (error, ctx) => {
+    if (error instanceof DOMException && error.name === "NotAllowedError") {
+      return new PasskeyError.NotAllowedError({
+        message: error.message,
+        domain: ctx.metadata.domain,
+      });
+    }
+    return undefined; // Fall through to default normalization
+  },
+});
+```
+
+Error processing pipeline (first match wins):
+1. **Schema Decoding** — Attempts to decode against `failureSchema`
+2. **Custom Mappers** — User-provided `mapError` function(s)
+3. **Legacy Normalizer** — Deprecated `normalizeError` fallback
+4. **Default** — Creates `ContractError.UnknownError`
+
+### FailureMode
+
+Contracts support two failure modes:
+
+- **`"error"`** (default) — Failures are raised into the Effect error channel, requiring consumers to handle them.
+- **`"return"`** — Failures stay in the success channel as discriminated unions. Use with `Contract.handleOutcome` to handle both success and failure cases.
 
 ## Quick Recipes
 
@@ -69,13 +106,23 @@ export const ListWidgets = Contract.make("ListWidgets", {
 ### Implement with a continuation
 
 ```ts
+// Using runDecode for automatic success/failure handling
 export const listWidgets = ListWidgets.implement((payload, { continuation }) =>
-  Effect.gen(function* () {
+  continuation.runDecode((handlers) =>
+    widgetClient.list({ tenantId: payload.tenantId }, handlers)
+  )
+);
+
+// Using run for manual error handling
+export const createWidget = CreateWidget.implement(
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
-      widgetClient.list({ tenantId: payload.tenantId }, handlers)
+      widgetClient.create({ tenantId: payload.tenantId }, handlers)
     );
-    yield* continuation.raiseResult(result);
-    return yield* ListWidgets.decodeUnknownSuccess(result.data);
+    if (result.error) {
+      return yield* WidgetError.match(result.error);
+    }
+    return result.data;
   })
 );
 ```
@@ -87,19 +134,23 @@ import { ContractKit } from "@beep/contract";
 import * as Layer from "effect/Layer";
 import * as Effect from "effect/Effect";
 
-const WidgetsKit = ContractKit.make(ListWidgets);
-const implementations = WidgetsKit.of({ ListWidgets: listWidgets });
-export const WidgetsLayer = WidgetsKit.toLayer(implementations);
+const WidgetsKit = ContractKit.make(ListWidgets, CreateWidget);
+
+export const widgetsLayer = WidgetsKit.toLayer({
+  ListWidgets: listWidgets,
+  CreateWidget: createWidget,
+});
+
 export class WidgetsService extends Effect.Service<WidgetsService>()(
-  "WidgetsService", 
+  "WidgetsService",
   {
-    dependencies: [WidgetsLayer],
-    effect: WidgetsKit.listService(),
+    dependencies: [widgetsLayer],
+    effect: WidgetsKit.liftService(),
     accessors: true,
   }
 ) {
-  static readonly Live = WidgetsService.Default.pipe(Layer.provide(WidgetsLayer))
-};
+  static readonly Live = this.Default.pipe(Layer.provide(widgetsLayer));
+}
 ```
 
 ## Verifications

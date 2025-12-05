@@ -1,8 +1,8 @@
 # AGENTS.md — `apps/server`
 
 ## Purpose & Fit
-- Bun-hosted Effect shell for backend workloads (HTTP/RPC servers, cron, workers) that should reuse the shared runtime from `@beep/runtime-server` for observability, DB access, and IAM/documents/task slice services.
-- Aligns with the monorepo’s Effect-first posture: Layers supply all dependencies, `runServerPromise` wraps handlers with tracing spans, and environment comes from `@beep/core-env/server`.
+- Bun-hosted Effect shell for backend workloads (HTTP/RPC servers, cron, workers) that should reuse the shared runtime from `@beep/runtime-server` for observability, DB access, and IAM/documents slice services.
+- Aligns with the monorepo's Effect-first posture: Layers supply all dependencies, `runServerPromise` wraps handlers with tracing spans, and environment comes from `@beep/shared-infra` (ServerEnv, ClientEnv).
 - Current code is a placeholder (`src/server.ts` exports `beep`). New work should wire actual hosts through the runtime helpers below rather than adding ad-hoc bootstraps.
 
 ## Surface Map
@@ -16,7 +16,7 @@
 
 ## How to Extend
 - **Use the runtime helpers**: wrap all entrypoints with `runServerPromise`/`runServerPromiseExit` so spans and logging remain consistent. Avoid bare `Effect.runPromise`.
-- **Config via env loaders**: read ports, OTLP URLs, and log levels from `serverEnv` (`@beep/core-env/server`). Do not reach into `process.env` or `Bun.env` directly.
+- **Config via env loaders**: read ports, OTLP URLs, and log levels from `serverEnv` (`@beep/shared-infra` exports ServerEnv and ClientEnv). Do not reach into `process.env` or `Bun.env` directly.
 - **Platform bindings**: prefer `@effect/platform-bun` (e.g., `BunHttpServer`, sockets) or `@effect/rpc` for RPC. Provide `ObservabilityLive` and `LogLevelLive` when building servers so telemetry and logging are active.
 - **Contracts over ad-hoc parsing**: surface APIs through contract kits (`@beep/contract`, slice SDKs) and validate payloads with `@beep/schema` instead of manual parsing.
 - **Error + logging**: stick to tagged errors (`@beep/errors`, `@beep/invariant`) and JSON-safe log fields. Avoid throwing raw `Error` or logging request bodies with secrets.
@@ -54,7 +54,7 @@ export const healthcheck = () =>
 
 ## Contributor Checklist
 - [ ] Entry point wraps work in `runServerPromise`/`runServerPromiseExit` with meaningful span names.
-- [ ] Environment reads flow through `serverEnv`; no raw `process.env`/`Bun.env`.
+- [ ] Environment reads flow through `serverEnv` from `@beep/shared-infra`; no raw `process.env`/`Bun.env`.
 - [ ] Effect imports are namespaced; no native array/string helpers.
 - [ ] Logs and errors use structured, tagged forms (`@beep/errors`, `@beep/invariant`); no secrets in logs.
-- [ ] New layers remain memoizable and merge cleanly with `ObservabilityLive` and `CoreServicesLive`.
+- [ ] New layers remain memoizable and merge cleanly with `ObservabilityLive`.

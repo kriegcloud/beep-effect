@@ -30,7 +30,7 @@ import { AllPlugins } from "./plugins";
 import type { AuthOptionsEffect, AuthServiceEffect, Opts } from "./types";
 
 const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
-  const { db, drizzle } = yield* IamDb.IamDb;
+  const { client, execute } = yield* IamDb.IamDb;
   const { sendResetPassword, sendVerification, sendChangeEmailVerification } = yield* AuthEmailService;
   const plugins = yield* AllPlugins;
   const config = yield* IamConfig;
@@ -43,7 +43,7 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
     telemetry: {
       debug: isDebug,
     },
-    database: drizzleAdapter(drizzle, {
+    database: drizzleAdapter(client, {
       debugLogs: isDebug,
       provider: "pg",
       usePlural: false,
@@ -153,26 +153,30 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
                 createdBy: user.id,
                 source: "auto_created",
               };
-              yield* db.insert(IamDbSchema.organization).values({
-                id: personalOrgId,
-                name: `${user.name || "User"}'s Organization`,
-                slug,
-                type: Organization.OrganizationTypeEnum.individual,
-                ownerUserId: SharedEntityIds.UserId.make(user.id),
-                isPersonal: true,
-                subscriptionTier: Organization.SubscriptionTierEnum.free,
-                subscriptionStatus: Organization.SubscriptionStatusEnum.active,
-                ...commonFieldValues,
-              });
-              yield* db.insert(IamDbSchema.member).values({
-                id: personalMemberId,
-                userId: S.decodeUnknownSync(SharedEntityIds.UserId)(user.id),
-                organizationId: personalOrgId,
-                role: Member.MemberRoleEnum.owner,
-                status: IamEntities.Member.MemberStatusEnum.active,
-                joinedAt: now,
-                ...commonFieldValues,
-              });
+              yield* execute((client) =>
+                client.insert(IamDbSchema.organization).values({
+                  id: personalOrgId,
+                  name: `${user.name || "User"}'s Organization`,
+                  slug,
+                  type: Organization.OrganizationTypeEnum.individual,
+                  ownerUserId: SharedEntityIds.UserId.make(user.id),
+                  isPersonal: true,
+                  subscriptionTier: Organization.SubscriptionTierEnum.free,
+                  subscriptionStatus: Organization.SubscriptionStatusEnum.active,
+                  ...commonFieldValues,
+                })
+              );
+              yield* execute((client) =>
+                client.insert(IamDbSchema.member).values({
+                  id: personalMemberId,
+                  userId: S.decodeUnknownSync(SharedEntityIds.UserId)(user.id),
+                  organizationId: personalOrgId,
+                  role: Member.MemberRoleEnum.owner,
+                  status: IamEntities.Member.MemberStatusEnum.active,
+                  joinedAt: now,
+                  ...commonFieldValues,
+                })
+              );
             });
             // Create personal organization with multi-tenant field
 
@@ -185,8 +189,8 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
         create: {
           before: async (session) => {
             // Set active organization context using enhanced fields
-            const program = Effect.gen(function* () {
-              return yield* db
+            const program = execute((client) =>
+              client
                 .select({
                   orgId: IamDbSchema.organization.id,
                   orgName: IamDbSchema.organization.name,
@@ -207,8 +211,8 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
                     d.eq(IamDbSchema.member.status, "active")
                   )
                 )
-                .orderBy(d.desc(IamDbSchema.organization.isPersonal));
-            });
+                .orderBy(d.desc(IamDbSchema.organization.isPersonal))
+            );
 
             const userOrgs = await runPromise(
               program.pipe(Effect.withSpan("AuthService.databaseHooks.session.create.before"))

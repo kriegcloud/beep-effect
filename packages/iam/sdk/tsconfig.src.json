@@ -27,9 +27,6 @@
       "path": "../../common/contract"
     },
     {
-      "path": "../../core/env"
-    },
-    {
       "path": "../../runtime/client"
     },
     {

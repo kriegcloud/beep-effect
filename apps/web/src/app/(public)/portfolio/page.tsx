@@ -1,4 +1,4 @@
-import { serverEnv } from "@beep/core-env/server";
+import { serverEnv } from "@beep/shared-infra/ServerEnv";
 
 import type { Metadata } from "next";
 

@@ -12,10 +12,10 @@
  * @since 0.1.0
  */
 
-import { $StringId } from "@beep/schema/internal";
-import * as regexes from "@beep/schema/internal/regex/regexes";
 import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
+import { $StringId } from "../../internal";
+import * as regexes from "../../internal/regex/regexes";
 
 const { $NameAttributeId: Id } = $StringId.compose("name-attribute");
 

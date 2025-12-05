@@ -34,7 +34,8 @@ type NullOpE = () => Effect.Effect<null, never, never>;
  * @category Core/NoOps
  * @since 0.1.0
  */
-export const noOp: NoOp = () => {};
+export const noOp: NoOp = () => void 0;
+
 /**
  * Returns `null` consistently; useful for placeholder reducers.
  *

@@ -1,15 +1,15 @@
-import { Db } from "@beep/core-db";
-import { ResendService } from "@beep/core-email";
 import { AuthEmailService, IamConfig } from "@beep/iam-infra";
-import type * as SqlClient from "@effect/sql/SqlClient";
+import type { Email } from "@beep/shared-infra/Email";
+import { Live, type SharedServices } from "@beep/shared-infra/Live";
 import * as Layer from "effect/Layer";
-
 export type CoreServicesLive = Layer.Layer<
-  ResendService | AuthEmailService | SqlClient.SqlClient | IamConfig,
+  Email.ResendService | AuthEmailService | IamConfig | SharedServices,
   never,
   never
 >;
 
+const layer = Layer.mergeAll(Live, IamConfig.Live);
+
 export const CoreServicesLive: CoreServicesLive = AuthEmailService.DefaultWithoutDependencies.pipe(
-  Layer.provideMerge(Layer.mergeAll(ResendService.Default, Db.Live, IamConfig.Live).pipe(Layer.orDie))
+  Layer.provideMerge(layer)
 );

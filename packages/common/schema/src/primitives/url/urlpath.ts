@@ -11,13 +11,14 @@
  * @category Primitives/Misc
  * @since 0.1.0
  */
-import { makeBranded } from "@beep/schema/core/utils/brands";
-import { $UrlId } from "@beep/schema/internal";
+
 import type { StringTypes } from "@beep/types";
 import * as A from "effect/Array";
 import type * as B from "effect/Brand";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { makeBranded } from "../../core/utils/brands";
+import { $UrlId } from "../../internal";
 import * as regexes from "../../internal/regex/regexes";
 
 const { $UrlpathId: Id } = $UrlId.compose("urlpath");

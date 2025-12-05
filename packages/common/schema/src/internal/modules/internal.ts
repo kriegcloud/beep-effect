@@ -1,3 +1,3 @@
-import { $InternalId } from "@beep/schema/internal/modules/modules";
+import { $InternalId } from "./modules";
 
 export const { $RegexId } = $InternalId.compose("regex");

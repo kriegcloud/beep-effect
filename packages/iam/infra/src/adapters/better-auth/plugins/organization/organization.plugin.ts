@@ -114,7 +114,7 @@ type OrgOpts = Omit<OrganizationOptions, "teams" | "schema" | "dynamicAccessCont
 };
 
 export const organizationPluginOptions = Effect.gen(function* () {
-  const { db } = yield* IamDb.IamDb;
+  const { execute } = yield* IamDb.IamDb;
   const { sendInvitation } = yield* AuthEmailService;
   const runtime = yield* Effect.runtime();
   const runPromise = Runtime.runPromise(runtime);
@@ -236,14 +236,16 @@ export const organizationPluginOptions = Effect.gen(function* () {
         const program = Effect.gen(function* () {
           const nowUtc = yield* DateTime.now;
           const now = DateTime.toDate(nowUtc);
-          return yield* db
-            .update(IamDbSchema.member)
-            .set({
-              status: Organization.SubscriptionStatusEnum.active,
-              joinedAt: now,
-              lastActiveAt: now,
-            })
-            .where(d.eq(IamDbSchema.member.id, S.decodeUnknownSync(IamEntityIds.MemberId)(member.id)));
+          return yield* execute((client) =>
+            client
+              .update(IamDbSchema.member)
+              .set({
+                status: Organization.SubscriptionStatusEnum.active,
+                joinedAt: now,
+                lastActiveAt: now,
+              })
+              .where(d.eq(IamDbSchema.member.id, S.decodeUnknownSync(IamEntityIds.MemberId)(member.id)))
+          );
         }).pipe(
           Effect.match({
             onSuccess: () => console.log(`Team organization ${organization.name} created for user ${user.id}`),

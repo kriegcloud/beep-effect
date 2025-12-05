@@ -8,7 +8,7 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Glob from "glob";
-import { DomainError } from "./repo/Errors.js";
+import { DomainError, NoSuchFileError } from "./repo/Errors.js";
 import type { UnsafeAny } from "./types.js";
 
 type Glob = (
@@ -34,7 +34,10 @@ type RmAndMkdir = (path: string) => Effect.Effect<void, DomainError, never>;
 type ReadJson = (path: string) => Effect.Effect<UnsafeAny, DomainError, never>;
 type WriteJson = (path: string, json: unknown) => Effect.Effect<void, DomainError, never>;
 type ExistsOrThrow = (path: string) => Effect.Effect<string, DomainError, never>;
-
+type IsDirectory = (path: string) => Effect.Effect<boolean, DomainError, never>;
+type IsFile = (path: string) => Effect.Effect<boolean, DomainError, never>;
+type GetParentDirectory = (path: string) => Effect.Effect<string, DomainError, never>;
+type DirHasFile = (dir: string, filename: string) => Effect.Effect<boolean, DomainError, never>;
 interface IFsUtilsEffect {
   readonly glob: Glob;
   readonly globFiles: GlobFiles;
@@ -48,6 +51,10 @@ interface IFsUtilsEffect {
   readonly readJson: ReadJson;
   readonly writeJson: WriteJson;
   readonly existsOrThrow: ExistsOrThrow;
+  readonly isDirectory: IsDirectory;
+  readonly isFile: IsFile;
+  readonly dirHasFile: DirHasFile;
+  readonly getParentDirectory: GetParentDirectory;
 }
 
 /**
@@ -163,6 +170,41 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
         DomainError.mapError
       );
   });
+
+  const isDirectory: IsDirectory = Effect.fn("FsUtils.isDirectory")(function* (path: string) {
+    return yield* fs.stat(path).pipe(
+      Effect.map((stat) => stat.type === "Directory"),
+      Effect.withSpan("FsUtils.isDirectory", { attributes: { path } }),
+      DomainError.mapError
+    );
+  });
+
+  const isFile: IsFile = Effect.fn("FsUtils.isFile")(function* (path: string) {
+    return yield* fs.stat(path).pipe(
+      Effect.map((stat) => stat.type === "File"),
+      Effect.withSpan("FsUtils.isFile", { attributes: { path } }),
+      DomainError.mapError
+    );
+  });
+
+  const dirHasFile: (dir: string, filename: string) => Effect.Effect<boolean, DomainError, never> = Effect.fn(
+    "FsUtils.dirHasFile"
+  )(function* (dir: string, filename: string) {
+    if (!(yield* fs.exists(dir))) return false;
+    if (!(yield* isDirectory(dir))) return false;
+
+    return yield* fs.exists(path_.join(dir, filename));
+  }, DomainError.mapError);
+
+  const getParentDirectory: (path: string) => Effect.Effect<string, DomainError, never> = Effect.fn(
+    "FsUtils.getParentDirectory"
+  )(function* (path: string) {
+    if (!(yield* fs.exists(path)))
+      return yield* Effect.fail(
+        new DomainError({ message: `Path ${path} does not exist`, cause: new NoSuchFileError({ path }) })
+      );
+    return path_.dirname(path);
+  }, DomainError.mapError);
 
   /**
    * Copy path if it exists, otherwise no-op.
@@ -307,6 +349,10 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
     readJson,
     writeJson,
     existsOrThrow,
+    isDirectory,
+    isFile,
+    dirHasFile,
+    getParentDirectory,
   } as const;
 }).pipe(DomainError.mapError);
 

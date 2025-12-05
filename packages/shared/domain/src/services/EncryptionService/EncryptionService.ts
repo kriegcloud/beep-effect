@@ -8,12 +8,19 @@
  * Note: Uses Uint8Array<ArrayBuffer> explicitly for TypeScript 5.9+ compatibility.
  * See: https://github.com/microsoft/typescript/issues/62168
  */
+import SQIds, { defaultOptions } from "@beep/utils/sqids";
+import { pipe, Struct } from "effect";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Encoding from "effect/Encoding";
+import * as Hash from "effect/Hash";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
-import { DecryptionError, EncryptionError, HashError, KeyDerivationError } from "./errors";
+import * as Str from "effect/String";
+import { DecryptionError, EncryptionError, HashError, KeyDerivationError, SigningError } from "./errors";
 import type { EncryptedPayload, EncryptedPayloadBinary } from "./schemas";
 
 // ============================================================================
@@ -29,6 +36,15 @@ const TAG_LENGTH = 128;
 /** AES key size in bits for AES-256 */
 const KEY_SIZE = 256;
 
+/** HMAC-SHA256 signature prefix */
+const HMAC_SIGNATURE_PREFIX = "hmac-sha256=";
+
+/** HMAC-SHA256 algorithm config */
+const HMAC_ALGORITHM = { name: "HMAC", hash: "SHA-256" };
+
+/** TextEncoder for HMAC operations */
+const hmacEncoder = new TextEncoder();
+
 // ============================================================================
 // Type Definitions for TypeScript 5.9+ Compatibility
 // ============================================================================
@@ -43,6 +59,48 @@ const KEY_SIZE = 256;
  * @see https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-7.html
  */
 export type CryptoUint8Array = Uint8Array<ArrayBuffer>;
+
+/**
+ * Properties of a file used for key generation
+ * @since 0.1.0
+ * @category types
+ */
+export interface FileProperties {
+  readonly name: string;
+  readonly size: number;
+  readonly type: string;
+  readonly lastModified?: number | undefined;
+}
+
+/**
+ * Function type for extracting hash parts from file properties
+ * @since 0.1.0
+ * @category types
+ */
+export type ExtractHashPartsFn = (file: FileProperties) => (string | number | undefined | null | boolean)[];
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Shuffle a string using a seed for deterministic randomization
+ */
+function shuffle(str: string, seed: string) {
+  const chars = Str.split("")(str);
+  const seedNum = Hash.string(seed);
+
+  let temp: string;
+  let j: number;
+  for (let i = 0; i < chars.length; i++) {
+    j = ((seedNum % (i + 1)) + i) % chars.length;
+    temp = chars[i]!;
+    chars[i] = chars[j]!;
+    chars[j] = temp;
+  }
+
+  return pipe(chars, A.join(""));
+}
 
 // ============================================================================
 // Service Definition
@@ -137,6 +195,61 @@ export class EncryptionService extends Context.Tag("@beep/shared-domain/Encrypti
      * Compute SHA-256 hash of data, returning raw bytes
      */
     readonly sha256Bytes: (data: CryptoUint8Array | string) => Effect.Effect<CryptoUint8Array, HashError>;
+
+    // ------------------------------------------------------------------
+    // HMAC Signing & Verification
+    // ------------------------------------------------------------------
+
+    /**
+     * Sign a payload using HMAC-SHA256
+     * Returns signature prefixed with "hmac-sha256="
+     */
+    readonly signPayload: (payload: string, secret: Redacted.Redacted<string>) => Effect.Effect<string, SigningError>;
+
+    /**
+     * Verify an HMAC-SHA256 signature
+     * Returns true if signature is valid, false otherwise
+     */
+    readonly verifySignature: (
+      payload: string,
+      signature: string | null,
+      secret: Redacted.Redacted<string>
+    ) => Effect.Effect<boolean, never>;
+
+    // ------------------------------------------------------------------
+    // File Key Generation & Verification
+    // ------------------------------------------------------------------
+
+    /**
+     * Generate a unique key for a file based on its properties and app ID
+     * Uses SQIds for encoding with shuffled alphabet based on app ID
+     */
+    readonly generateFileKey: (
+      file: FileProperties,
+      appId: string,
+      getHashParts?: ExtractHashPartsFn | undefined
+    ) => Effect.Effect<string, never>;
+
+    /**
+     * Verify that a file key was generated for a specific app ID
+     */
+    readonly verifyFileKey: (key: string, appId: string) => Effect.Effect<boolean, never>;
+
+    // ------------------------------------------------------------------
+    // Signed URL Generation
+    // ------------------------------------------------------------------
+
+    /**
+     * Generate a signed URL with expiration and optional data
+     */
+    readonly generateSignedURL: (
+      url: string | URL,
+      secretKey: Redacted.Redacted<string>,
+      opts: {
+        readonly ttlInSeconds?: Duration.Duration | undefined;
+        readonly data?: Record<string, string | number | boolean | null | undefined> | undefined;
+      }
+    ) => Effect.Effect<string, SigningError>;
   }
 >() {}
 
@@ -523,6 +636,146 @@ export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof Encry
 
           // Convert to hex string using Effect Encoding
           return Encoding.encodeHex(new Uint8Array(hash));
+        }),
+
+      // ------------------------------------------------------------------
+      // HMAC Signing & Verification
+      // ------------------------------------------------------------------
+
+      signPayload: (payload, secret) =>
+        Effect.gen(function* () {
+          const signingKey = yield* Effect.tryPromise({
+            try: () =>
+              crypto.subtle.importKey("raw", hmacEncoder.encode(Redacted.value(secret)), HMAC_ALGORITHM, false, [
+                "sign",
+              ]),
+            catch: (cause) =>
+              new SigningError({
+                message: "Invalid Signing Secret",
+                cause,
+                algorithm: "HMAC-SHA256",
+                phase: "import-key",
+              }),
+          });
+
+          const signature = yield* Effect.map(
+            Effect.tryPromise({
+              try: () => crypto.subtle.sign(HMAC_ALGORITHM, signingKey, hmacEncoder.encode(payload)),
+              catch: (cause) =>
+                new SigningError({
+                  message: "Failed to sign payload",
+                  cause,
+                  algorithm: "HMAC-SHA256",
+                  phase: "sign",
+                }),
+            }),
+            (arrayBuffer) => Encoding.encodeHex(new Uint8Array(arrayBuffer))
+          );
+
+          return `${HMAC_SIGNATURE_PREFIX}${signature}`;
+        }),
+
+      verifySignature: (payload, signature, secret) =>
+        Effect.gen(function* () {
+          const sigOpt = pipe(signature, O.fromNullable, O.map(Str.slice(HMAC_SIGNATURE_PREFIX.length)));
+
+          if (O.isNone(sigOpt)) return false;
+
+          const sig = sigOpt.value;
+          const secretBytes = hmacEncoder.encode(Redacted.value(secret));
+          const signingKey = yield* Effect.promise(() =>
+            crypto.subtle.importKey("raw", secretBytes, HMAC_ALGORITHM, false, ["verify"])
+          );
+
+          const sigBytes = yield* Encoding.decodeHex(sig);
+          const payloadBytes = hmacEncoder.encode(payload);
+          return yield* Effect.promise(() =>
+            crypto.subtle.verify(HMAC_ALGORITHM, signingKey, new Uint8Array(sigBytes), payloadBytes)
+          );
+        }).pipe(Effect.orElseSucceed(() => false)),
+
+      // ------------------------------------------------------------------
+      // File Key Generation & Verification
+      // ------------------------------------------------------------------
+
+      generateFileKey: (file, appId, getHashParts) =>
+        Effect.sync(() => {
+          // Get the parts of which we should hash to construct the key
+          // This allows the user to customize the hashing algorithm
+          // If they for example want to generate the same key for the
+          // same file whenever it was uploaded
+          const hashParts = JSON.stringify(
+            getHashParts?.(file) ?? [file.name, file.size, file.type, file.lastModified, Date.now()]
+          );
+
+          // Hash and Encode the parts and appId as sqids
+          const alphabet = shuffle(defaultOptions.alphabet, appId);
+          const encodedFileSeed = new SQIds({ alphabet, minLength: 36 }).encode([Math.abs(Hash.string(hashParts))]);
+          const encodedAppId = new SQIds({ alphabet, minLength: 12 }).encode([Math.abs(Hash.string(appId))]);
+
+          // Concatenate them
+          return encodedAppId + encodedFileSeed;
+        }),
+
+      verifyFileKey: (key, appId) =>
+        Effect.sync(() => {
+          const alphabet = shuffle(defaultOptions.alphabet, appId);
+          const expectedPrefix = new SQIds({ alphabet, minLength: 12 }).encode([Math.abs(Hash.string(appId))]);
+
+          return Str.startsWith(expectedPrefix)(key);
+        }).pipe(Effect.orElseSucceed(() => false)),
+
+      // ------------------------------------------------------------------
+      // Signed URL Generation
+      // ------------------------------------------------------------------
+
+      generateSignedURL: (url, secretKey, opts) =>
+        Effect.gen(function* () {
+          const parsedURL = new URL(url);
+          const ttl = opts.ttlInSeconds ? Duration.toSeconds(opts.ttlInSeconds) : 60 * 60;
+
+          const expirationTime = Date.now() + ttl * 1000;
+          parsedURL.searchParams.append("expires", expirationTime.toString());
+
+          if (opts.data) {
+            A.forEach(Struct.entries(opts.data), ([key, value]) => {
+              if (value == null) return;
+              const encoded = encodeURIComponent(value);
+              parsedURL.searchParams.append(key, encoded);
+            });
+          }
+
+          const signingKey = yield* Effect.tryPromise({
+            try: () =>
+              crypto.subtle.importKey("raw", hmacEncoder.encode(Redacted.value(secretKey)), HMAC_ALGORITHM, false, [
+                "sign",
+              ]),
+            catch: (cause) =>
+              new SigningError({
+                message: "Invalid Signing Secret",
+                cause,
+                algorithm: "HMAC-SHA256",
+                phase: "import-key",
+              }),
+          });
+
+          const signature = yield* Effect.map(
+            Effect.tryPromise({
+              try: () => crypto.subtle.sign(HMAC_ALGORITHM, signingKey, hmacEncoder.encode(parsedURL.toString())),
+              catch: (cause) =>
+                new SigningError({
+                  message: "Failed to sign URL",
+                  cause,
+                  algorithm: "HMAC-SHA256",
+                  phase: "sign",
+                }),
+            }),
+            (arrayBuffer) => `${HMAC_SIGNATURE_PREFIX}${Encoding.encodeHex(new Uint8Array(arrayBuffer))}`
+          );
+
+          parsedURL.searchParams.append("signature", signature);
+
+          return parsedURL.href;
         }),
     });
   });

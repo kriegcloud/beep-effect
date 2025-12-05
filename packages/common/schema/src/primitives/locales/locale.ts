@@ -13,9 +13,9 @@
  * @since 0.1.0
  */
 
-import { $LocalesId } from "@beep/schema/internal";
 import type * as S from "effect/Schema";
 import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
+import { $LocalesId } from "../../internal";
 import { ALL_LOCALES } from "./all-locales-generated";
 
 const { $LocaleId: Id } = $LocalesId.compose("locale");

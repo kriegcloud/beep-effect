@@ -13,9 +13,10 @@
  * @category Builders/Form
  * @since 0.1.0
  */
-import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
-import { $FormId } from "@beep/schema/internal";
+
 import * as S from "effect/Schema";
+import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
+import { $FormId } from "../../internal";
 
 const { $FieldId } = $FormId.compose("field");
 /**

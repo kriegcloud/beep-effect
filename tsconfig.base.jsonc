@@ -205,33 +205,6 @@
       "@beep/shared-ui/test/*": [
         "./packages/shared/ui/test/*"
       ],
-      "@beep/core-env/client": [
-        "./packages/core/env/src/client"
-      ],
-      "@beep/core-env/server": [
-        "./packages/core/env/src/server"
-      ],
-      "@beep/core-env/test/*": [
-        "./packages/core/env/test/*"
-      ],
-      "@beep/core-email": [
-        "./packages/core/email/src/index"
-      ],
-      "@beep/core-email/*": [
-        "./packages/core/email/src/*"
-      ],
-      "@beep/core-email/test/*": [
-        "./packages/core/email/test/*"
-      ],
-      "@beep/core-db": [
-        "./packages/core/db/src/index"
-      ],
-      "@beep/core-db/*": [
-        "./packages/core/db/src/*"
-      ],
-      "@beep/core-db/test/*": [
-        "./packages/core/db/test/*"
-      ],
       "@beep/ui-core/*": [
         "./packages/ui/core/src/*"
       ],

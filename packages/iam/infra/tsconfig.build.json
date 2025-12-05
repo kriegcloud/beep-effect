@@ -4,7 +4,7 @@
     "types": ["node", "bun"],
     "outDir": "build/esm",
     "declarationDir": "build/dts",
-    "stripInternal": true,
+    "stripInternal": false,
     "composite": true,
     "declaration": true,
     "sourceMap": true
@@ -18,15 +18,6 @@
     },
     {
       "path": "../../common/identity/tsconfig.build.json"
-    },
-    {
-      "path": "../../core/db/tsconfig.build.json"
-    },
-    {
-      "path": "../../core/env/tsconfig.build.json"
-    },
-    {
-      "path": "../../core/email/tsconfig.build.json"
     },
     {
       "path": "../../shared/tables/tsconfig.build.json"

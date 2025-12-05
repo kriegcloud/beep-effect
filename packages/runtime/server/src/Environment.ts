@@ -1,5 +1,5 @@
 import { EnvValue } from "@beep/constants";
-import { serverEnv } from "@beep/core-env/server";
+import { serverEnv } from "@beep/shared-infra/ServerEnv";
 
 export const isDevEnvironment = serverEnv.app.env === EnvValue.Enum.dev;
 export const logLevel = serverEnv.app.logLevel;

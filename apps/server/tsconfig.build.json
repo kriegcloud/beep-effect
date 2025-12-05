@@ -29,12 +29,6 @@
       "path": "../../packages/shared/tables/tsconfig.build.json"
     },
     {
-      "path": "../../packages/core/env/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/core/db/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/iam/infra/tsconfig.build.json"
     },
     {
@@ -58,7 +52,7 @@
 
     "outDir": "build/esm",
     "declarationDir": "build/dts",
-    "stripInternal": true
+    "stripInternal": false
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts"]

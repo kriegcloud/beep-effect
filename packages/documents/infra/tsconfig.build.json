@@ -5,18 +5,12 @@
 
     "outDir": "build/esm",
     "declarationDir": "build/dts",
-    "stripInternal": true,
+    "stripInternal": false,
     "composite": true,
     "declaration": true,
     "sourceMap": true
   },
   "references": [
-    {
-      "path": "../../core/db/tsconfig.build.json"
-    },
-    {
-      "path": "../../core/env/tsconfig.build.json"
-    },
     {
       "path": "../../common/identity/tsconfig.build.json"
     },

@@ -7,8 +7,8 @@
  * @since 0.1.0
  */
 
-import { $ArrayBufferId } from "@beep/schema/internal";
 import * as S from "effect/Schema";
+import { $ArrayBufferId } from "../internal";
 
 const Id = $ArrayBufferId;
 /**

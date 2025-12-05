@@ -1,9 +1,10 @@
-import type { ResendService } from "@beep/core-email";
 import { DocumentsRepos } from "@beep/documents-infra";
 import { DocumentsDb } from "@beep/documents-infra/db";
 import type { AuthEmailService, IamConfig } from "@beep/iam-infra";
 import { AuthService, IamRepos } from "@beep/iam-infra";
 import { IamDb } from "@beep/iam-infra/db";
+import type { Db } from "@beep/shared-infra/Db";
+import type { Email } from "@beep/shared-infra/Email";
 import type * as SqlClient from "@effect/sql/SqlClient";
 import type * as SqlError from "@effect/sql/SqlError";
 import type * as ConfigError from "effect/ConfigError";
@@ -11,11 +12,7 @@ import * as Layer from "effect/Layer";
 import * as CoreServices from "./CoreServices";
 
 export type SliceDatabaseClients = DocumentsDb.DocumentsDb | IamDb.IamDb;
-export type SliceDatabaseClientsLive = Layer.Layer<
-  SliceDatabaseClients,
-  ConfigError.ConfigError | SqlError.SqlError,
-  SqlClient.SqlClient
->;
+export type SliceDatabaseClientsLive = Layer.Layer<SliceDatabaseClients, never, Db.PgClientServices>;
 export const SliceDatabaseClientsLive: SliceDatabaseClientsLive = Layer.mergeAll(
   IamDb.IamDb.Live,
   DocumentsDb.DocumentsDb.Live
@@ -34,7 +31,7 @@ export const SliceReposLive: SliceReposLive = Layer.mergeAll(IamRepos.layer, Doc
 export type CoreSliceServices =
   | SqlClient.SqlClient
   | SliceDatabaseClients
-  | ResendService
+  | Email.ResendService
   | IamConfig
   | AuthEmailService
   | SliceRepositories;

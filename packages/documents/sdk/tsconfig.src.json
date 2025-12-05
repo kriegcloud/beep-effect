@@ -10,9 +10,6 @@
       "path": "../../shared/sdk"
     },
     {
-      "path": "../../core/env"
-    },
-    {
       "path": "../../common/schema"
     },
     {

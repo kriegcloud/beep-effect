@@ -45,9 +45,6 @@
       "path": "../../common/types"
     },
     {
-      "path": "../../core/env"
-    },
-    {
       "path": "../../common/constants"
     },
     {

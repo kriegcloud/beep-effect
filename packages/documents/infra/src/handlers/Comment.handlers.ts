@@ -26,7 +26,7 @@ export const CommentHandlersLive = Comment.CommentRpcs.Rpcs.toLayer(
         repo
           .findByIdOrFail(payload.id)
           .pipe(
-            Effect.catchTag("DbError", Effect.die),
+            Effect.catchTag("DatabaseError", Effect.die),
             Effect.withSpan("CommentHandlers.get", { attributes: { id: payload.id } })
           ),
 
@@ -37,7 +37,7 @@ export const CommentHandlersLive = Comment.CommentRpcs.Rpcs.toLayer(
           })
           .pipe(
             Effect.map(Stream.fromIterable),
-            Effect.catchTag("DbError", Effect.die),
+            Effect.catchTag("DatabaseError", Effect.die),
             Stream.unwrap,
             Stream.withSpan("CommentHandlers.listByDiscussion")
           ),
@@ -55,7 +55,7 @@ export const CommentHandlersLive = Comment.CommentRpcs.Rpcs.toLayer(
           });
           return yield* repo.create(insertData);
         }).pipe(
-          Effect.catchTag("DbError", Effect.die),
+          Effect.catchTag("DatabaseError", Effect.die),
           Effect.catchTag("ParseError", Effect.die),
           Effect.withSpan("CommentHandlers.create")
         ),
@@ -69,14 +69,14 @@ export const CommentHandlersLive = Comment.CommentRpcs.Rpcs.toLayer(
             ...(payload.contentRich !== undefined && { contentRich: O.some(payload.contentRich) }),
           });
         }).pipe(
-          Effect.catchTag("DbError", Effect.die),
+          Effect.catchTag("DatabaseError", Effect.die),
           Effect.withSpan("CommentHandlers.update", { attributes: { id: payload.id } })
         ),
 
       delete: (payload) =>
         repo.findByIdOrFail(payload.id).pipe(
           Effect.flatMap(() => repo.hardDelete(payload.id)),
-          Effect.catchTag("DbError", Effect.die),
+          Effect.catchTag("DatabaseError", Effect.die),
           Effect.withSpan("CommentHandlers.delete", { attributes: { id: payload.id } })
         ),
     };

@@ -13,9 +13,9 @@
  * @since 0.1.0
  */
 
-import { $StringId } from "@beep/schema/internal";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+import { $StringId } from "../../internal";
 
 const { $PasswordId: Id } = $StringId.compose("password");
 /**

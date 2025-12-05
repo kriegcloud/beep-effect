@@ -1,5 +1,5 @@
-import { DateTimeUtcFromAllAcceptable } from "@beep/schema/primitives";
 import * as S from "effect/Schema";
+import { DateTimeUtcFromAllAcceptable } from "../../primitives";
 import { MimeType } from "./mime-types";
 
 export class FileAttributes extends S.Class<FileAttributes>("FileAttributes")(

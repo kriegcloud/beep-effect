@@ -14,7 +14,7 @@
     "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "stripInternal": true
+    "stripInternal": false
   },
   "references": [
     {
@@ -31,9 +31,6 @@
     },
     {
       "path": "../sdk/tsconfig.build.json"
-    },
-    {
-      "path": "../../core/env/tsconfig.build.json"
     },
     {
       "path": "../../common/schema/tsconfig.build.json"

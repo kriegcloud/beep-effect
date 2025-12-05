@@ -1,4 +1,4 @@
-import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
+import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
 
 export const tlds = [
   "aaa",

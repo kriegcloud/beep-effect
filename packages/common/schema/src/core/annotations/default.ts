@@ -13,11 +13,6 @@
  * @since 0.1.0
  */
 
-import {
-  type DefaultFormValuesAnnotation,
-  DefaultFormValuesAnnotationId,
-} from "@beep/schema/core/annotations/default-form-values-annotations";
-import { $AnnotationsId } from "@beep/schema/internal";
 import type { StringTypes, UnsafeTypes } from "@beep/types";
 import type * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
@@ -26,6 +21,8 @@ import * as O from "effect/Option";
 import type * as Pretty from "effect/Pretty";
 import type * as R from "effect/Record";
 import * as AST from "effect/SchemaAST";
+import { $AnnotationsId } from "../../internal";
+import { type DefaultFormValuesAnnotation, DefaultFormValuesAnnotationId } from "./default-form-values-annotations";
 
 const { $DefaultId } = $AnnotationsId.compose("default");
 declare module "effect/Schema" {
@@ -75,7 +72,7 @@ declare module "effect/Schema" {
     }
   }
 }
-export const ScopesAnnotationId = Symbol.for("@beep/core-env/scopes");
+export const ScopesAnnotationId = Symbol.for("@beep/schema/core/annotations/scopes");
 
 export type Scopes = ReadonlyArray<StringTypes.NonEmptyString>;
 

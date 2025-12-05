@@ -1,15 +1,14 @@
-import { DbError } from "@beep/core-db/errors";
-import { Repo } from "@beep/core-db/Repo";
 import { Entities } from "@beep/documents-domain";
 import { CommentNotFoundError } from "@beep/documents-domain/entities/Comment/Comment.errors";
 import { dependencies } from "@beep/documents-infra/adapters/repos/_common";
 import { DocumentsDb } from "@beep/documents-infra/db";
 import { DocumentsEntityIds } from "@beep/shared-domain";
+import { Db } from "@beep/shared-infra/Db";
+import { Repo } from "@beep/shared-infra/Repo";
 import * as Effect from "effect/Effect";
 import { flow } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-
 export class CommentRepo extends Effect.Service<CommentRepo>()("@beep/documents-infra/adapters/repos/CommentRepo", {
   dependencies,
   accessors: true,
@@ -23,7 +22,7 @@ export class CommentRepo extends Effect.Service<CommentRepo>()("@beep/documents-
      */
     const findByIdOrFail = (
       id: DocumentsEntityIds.CommentId.Type
-    ): Effect.Effect<typeof Entities.Comment.Model.Type, CommentNotFoundError | DbError> =>
+    ): Effect.Effect<typeof Entities.Comment.Model.Type, CommentNotFoundError | Db.DatabaseError> =>
       baseRepo.findById(id).pipe(
         Effect.flatMap(
           O.match({
@@ -52,7 +51,7 @@ export class CommentRepo extends Effect.Service<CommentRepo>()("@beep/documents-
           })
         ).pipe(
           Effect.flatMap(S.decode(S.Array(Entities.Comment.Model))),
-          Effect.mapError(DbError.match),
+          Effect.mapError(Db.DatabaseError.$match),
           Effect.withSpan("CommentRepo.listByDiscussion", { attributes: { discussionId: params.discussionId } })
         )
     );

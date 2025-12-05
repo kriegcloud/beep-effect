@@ -63,9 +63,19 @@
     "clsx": "catalog:",
     "tailwindcss-animate": "catalog:",
     "tw-animate-css": "catalog:",
-    "resend": "catalog:"
+    "resend": "catalog:",
+    "sql-formatter": "catalog:",
+    "pg-connection-string": "catalog:",
+    "pg-pool": "catalog:",
+    "pg-types": "catalog:"
   },
   "devDependencies": {
+    "@types/pg-cursor": "catalog:",
+    "pg-connection-string": "catalog:",
+    "pg-pool": "catalog:",
+    "pg-types": "catalog:",
+    "pg-cursor": "catalog:",
+    "sql-formatter": "catalog:",
     "@effect/docgen": "catalog:",
     "@beep/types": "workspace:^",
     "@effect/sql": "catalog:",

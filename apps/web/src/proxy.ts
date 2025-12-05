@@ -1,6 +1,6 @@
-import { serverEnv } from "@beep/core-env/server";
 import { AuthCallback } from "@beep/iam-sdk/constants";
 import { paths } from "@beep/shared-domain";
+import { serverEnv } from "@beep/shared-infra/ServerEnv";
 import { getCookieCache } from "better-auth/cookies";
 import * as A from "effect/Array";
 import * as Str from "effect/String";

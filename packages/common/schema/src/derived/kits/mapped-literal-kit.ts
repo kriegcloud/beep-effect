@@ -39,14 +39,15 @@
  * @category Derived/Kits
  * @since 0.1.0
  */
-import { mergeSchemaAnnotations } from "@beep/schema/core/annotations/built-in-annotations";
-import { $KitsId } from "@beep/schema/internal";
+
 import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
+import { mergeSchemaAnnotations } from "../../core/annotations/built-in-annotations";
+import { $KitsId } from "../../internal";
 import type { IGenericLiteralKit } from "./literal-kit";
 import { makeGenericLiteralKit } from "./literal-kit";
 

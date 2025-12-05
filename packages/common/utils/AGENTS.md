@@ -6,25 +6,45 @@
 - Complements `@beep/types` (compile-time) and `@beep/invariant` (assertions) by providing Effect-friendly building blocks.
 
 ## Module Map (see `src/`)
-- `assertions/` + `assertions.ts` — runtime assertion helpers that pair with `InvariantViolation` without adding new error types.
-- `data/` (`ArrayUtils`, `RecordUtils`, `StrUtils`, `StructUtils`) — immutable data manipulation built atop Effect Array/Record/String APIs.
-- `factories/` (`URN.factory.ts`) — pure factories for identifiers and similar data shapes.
-- `getters/` — safe property accessors (`getAt`, `getNestedValue`) returning Options or throwing invariant-friendly errors.
-- `guards/` — type-narrowing predicates that avoid native `instanceof`.
-- `mut.utils.ts` / `sync.utils.ts` — mutation escape hatches kept pure via `mutative` or sync wrappers.
-- `transformations/` — higher-level transforms (`enumFromStringArray`, `valuesFromEnum`).
+- `array-buffer-to-blob.ts` / `array-buffer-to-uint8-array.ts` / `uint8-array-to-array-buffer.ts` — binary data conversions.
+- `autosuggest-highlight/` — text highlighting utilities for search/autocomplete UIs.
+- `browser-apis.ts` — browser-specific utility wrappers.
+- `coerce.ts` — type coercion utilities.
+- `const.ts` — literal-aware helpers (`constLiteral`).
+- `data/` — immutable data manipulation built atop Effect APIs:
+  - `ArrayUtils` — array operations (`orderBy`, `collect`, etc.)
+  - `ModelUtils` — Effect SQL model helpers
+  - `ObjectUtils` — deep merge, clone, omit operations
+  - `RecordUtils` — record transformations (`reverseRecord`, `recordStringValues`)
+  - `StrUtils` — string normalization, name initials, nested value access
+  - `StructUtils` — struct operations for Effect schemas
+  - `TupleUtils` — tuple and mapped enum utilities
+- `dedent/` — template literal dedentation.
+- `deep-remove-null.ts` — null removal from nested structures.
+- `equality/` — deep equality checks.
+- `factories/` (`enum.factory.ts`) — pure factories for enum derivation.
+- `format-time.ts` — time formatting helpers (e.g., `fToNow`).
+- `getters/` — safe property accessors (`getAt`) returning fallback values.
+- `guards/` — type-narrowing predicates (`isUnsafeProperty`, `isNonEmptyRecord`).
+- `merge-defined.ts` — merge utilities that skip undefined values.
+- `mut.utils.ts` — mutation escape hatches kept pure via `mutative`.
 - `noOps.ts` — canonical `noOp`, `nullOp`, `nullOpE` helpers required across the repo.
-- `execute.ts` — local scratchpad invoked via `bun run execute`; **never** wire this into production builds.
+- `object/path.ts` — nested object path utilities (`getPath`).
+- `random-hex-string.ts` — random hex string generation.
+- `remove-accents/` — diacritic removal utilities.
+- `sqids.ts` — Sqids encoder/decoder utilities.
+- `struct/` — struct merge and field extraction utilities.
+- `sync.utils.ts` — sync status types for adapter patterns.
+- `thunk.ts` — thunk utilities for lazy evaluation.
+- `timing/` — debounce and throttle helpers.
+- `topo-sort/` — topological sort implementation.
+- `transformations/` — higher-level transforms (`enumFromStringArray`, `valuesFromEnum`).
 
 ## Usage Snapshots
-- `packages/common/schema/src/custom/MimeType.schema.ts` uses `RecordUtils.recordStringValues` to derive literal unions from maps.
-- `packages/ui/src/layouts/simple/layout.tsx` normalizes layout config via `RecordUtils` before rendering.
-- `packages/_internal/db-admin/src/execute.ts` imports `reverseRecord` to reshape migration metadata.
-- `packages/common/schema/src/EntityId/EntityId.ts` relies on `StrUtils` helpers for consistent ID normalization.
-
-## Tooling & Docs Shortcuts
-- Effect Schema alignment (string + struct guards): `context7__get-library-docs` with `{ "context7CompatibleLibraryID": "/llmstxt/effect_website_llms-small_txt", "topic": "schema" }`.
-- Pipeline patterns & array safety: `effect_docs__get_effect_doc` with `{ "documentId": 6585 }` for `effect/Function.pipe`, plus `{ "documentId": 4793 }` for `effect/Array.get`.
+- `packages/common/schema/src/primitives/locales/currency-code-value.ts` uses `RecordUtils.recordKeys` to derive literal unions from currency maps.
+- `packages/ui/ui/src/layouts/simple/layout.tsx` merges layout config via `RecordUtils.merge` before rendering.
+- Various schema modules throughout the codebase use `RecordUtils.recordStringValues` to extract literal values from const objects.
+- String utilities like `StrUtils.normalizeString` and `StrUtils.getNameInitials` are used across UI components for consistent text handling.
 
 ## Authoring Guardrails
 - Pure functions only; avoid clocks, randomness, global state, or environment checks.
@@ -32,7 +52,6 @@
 - Keep helpers domain-neutral; if logic references business concepts (IAM, files, etc.) it belongs in the owning slice.
 - Prefer returning `Option`/`Either` (via Effect helpers) to throwing; reserve `@beep/invariant` for true programming errors and mirror existing patterns (e.g., `enumFromStringArray`).
 - Reuse `noOp`/`nullOp`/`nullOpE` instead of ad-hoc placeholders.
-- Do not grow `execute.ts`; treat it as a temporary scratchpad and leave it out of reviews unless explicitly needed.
 
 ## Quick Recipes
 ```ts
@@ -58,10 +77,10 @@ const primaryProduct = StrUtils.getNestedValue(
 ```
 
 ## Verifications
-- `bun run test --filter=@beep/utils` for Vitest suites (pure runtime behavior).
+- `bun run test --filter=@beep/utils` for Vitest/Bun test suites (pure runtime behavior).
 - `bun run lint --filter=@beep/utils` / `bun run lint:fix --filter=@beep/utils` to satisfy Biome + circular checks.
 - `bun run check --filter=@beep/utils` to ensure TypeScript config stays aligned.
-- `bun run execute --filter=@beep/utils` runs the scratchpad; only execute locally when debugging helpers.
+- `bun run coverage --filter=@beep/utils` generates coverage reports.
 
 ## Contributor Checklist
 - [ ] Implementation stays pure (no timers, I/O, platform APIs).

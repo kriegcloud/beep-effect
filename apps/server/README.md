@@ -16,9 +16,9 @@ Effect-first shell for running backend workloads (HTTP, RPC, cron, and queued jo
 
 ## Architecture
 - Runtime & DI: import `runServerPromise` / `serverRuntime` from `@beep/runtime-server` to execute effects with observability and slice repositories pre-wired.
-- Configuration: read environment through `@beep/core-env/server` (`serverEnv`) so OTLP endpoints, log level, and service naming stay consistent with the rest of the stack.
+- Configuration: read environment through `@beep/shared-infra` (`serverEnv`, `clientEnv`) so OTLP endpoints, log level, and service naming stay consistent with the rest of the stack.
 - Observability: telemetry/logging/devtools are provided by `@beep/runtime-server` (OTLP exporters, pretty logger in dev, optional DevTools websocket).
-- Persistence: database connections and repositories come from slice layers (`@beep/iam-infra`, `@beep/documents-infra`) fed into `@beep/core-db`.
+- Persistence: database connections and repositories come from slice layers (`@beep/iam-infra`, `@beep/documents-infra`) fed through `@beep/shared-infra`.
 
 ## When adding a real server
 - Prefer `@effect/platform-bun` for HTTP/socket servers and wrap handlers with `runServerPromise` to keep tracing spans.

@@ -18,22 +18,17 @@
 ## Usage Snapshots
 - `apps/web/src/features/upload/UploadFileService.ts:46` – aggregates file processing via `accumulateEffectsAndReport(...)`.
 - `apps/web/src/features/upload/observability.ts:43` – composes `withLogContext`, `withRootSpan`, and `withSpanAndMetrics` to instrument the upload pipeline.
-- `packages/runtime/server/src/server-runtime.ts:33` – swaps in `makePrettyConsoleLoggerLayer()` for dev-friendly logging.
+- `packages/runtime/server/src/Logging.ts:10` – swaps in `makePrettyConsoleLoggerLayer()` for dev-friendly logging.
 - `packages/iam/domain/src/IamError.ts:1` – aliases `BeepError.UnknownError` for domain-specific error hierarchies.
-- `docs/PRODUCTION_CHECKLIST.md:69` – documents operational expectations for `makeEnvLoggerLayerFromEnv`, `withEnvLogging`, and `accumulateEffectsAndReport`.
+- `documentation/PRODUCTION_CHECKLIST.md:69` – documents operational expectations for `makeEnvLoggerLayerFromEnv`, `withEnvLogging`, and `accumulateEffectsAndReport`.
 
-## Tooling & Docs Shortcuts
+## Tooling Commands
 - Run package-scoped checks from repo root (all wrap `dotenvx` automatically):
   - `bunx turbo run test --filter=@beep/errors`
   - `bunx turbo run lint --filter=@beep/errors`
   - `bunx turbo run check --filter=@beep/errors`
 - Build artifacts locally (needed before publishing bundles): `bun run --filter @beep/errors build`
-- Effect references fetched during authoring:
-  - `effect_docs__effect_docs_search` with payload `{"query":"Logger.withMinimumLogLevel Effect"}`
-  - `effect_docs__get_effect_doc` with payload `{"documentId":7205}`
-  - `context7__resolve-library-id` with payload `{"libraryName":"@effect/platform"}`
-  - `context7__get-library-docs` with payload `{"context7CompatibleLibraryID":"/websites/effect-ts_github_io_effect","tokens":800,"topic":"HttpApiSchema annotations"}`
-- Local tests leverage `bun test`; you can target a file via `bun run --filter @beep/errors test -- --filter=heading` (delegates to Bun’s `--filter` flag).
+- Local tests leverage `bun test`; you can target a file via `bun run --filter @beep/errors test -- --filter=heading` (delegates to Bun's `--filter` flag).
 
 ## Authoring Guardrails
 - **Effect-first imports**: always namespace Effect modules (`import * as Effect from "effect/Effect"`, `import * as A from "effect/Array"`, `import * as Str from "effect/String"`, etc.). Never fall back to native `Array` / `String` helpers in new code paths.

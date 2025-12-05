@@ -1,8 +1,8 @@
 "use client";
 
-import { clientEnv } from "@beep/core-env/client";
 import * as IamApi from "@beep/iam-infra/api/root";
 import { makeAtomRuntime } from "@beep/runtime-client/services/runtime/make-atom-runtime";
+import { clientEnv } from "@beep/shared-infra/ClientEnv";
 import * as FetchHttpClient from "@effect/platform/FetchHttpClient";
 import { Atom, AtomHttpApi, useAtomValue } from "@effect-atom/atom-react";
 import { SessionService } from "./session.service";

@@ -6,11 +6,14 @@
 - Consumers must import these namespaces with `import type` so bundlers can erase them; mixing value imports breaks the zero-runtime guarantee.
 
 ## Surface Map (see `src/`)
-- `common.types.ts` — shared aliases (e.g. `BrandWith`) for other modules to build on.
+
+### Namespaced Exports
 - `fn.types.ts` (`FnTypes`) — conditional type helpers for higher-order functions and composition.
 - `literal.types.ts` (`LiteralTypes`) — literal narrowing helpers (string/number literal enforcement).
+- `model.types.ts` (`ModelTypes`) — Variant Schema field map helpers (non-empty constraints for `@effect/experimental/VariantSchema`).
 - `mut.types.ts` (`MutTypes`) — mutation-oriented escape hatches (use sparingly, mostly for interop tests).
 - `or.types.ts` (`Or`) — union helpers (`Maybe`, `Either` style unions).
+- `promise.types.ts` (`PromiseTypes`) — async type utilities (`Awaitable<T>`).
 - `record.types.ts` (`RecordTypes`) — dictionary utils (NonEmpty, key picking, safe value extraction).
 - `schema.types.ts` (`SchemaTypes`) — Effect Schema-only aliases (`AnySchema`, `AnySchemaNoContext`). Type-only glue into `effect/Schema`.
 - `string.types.ts` (`StringTypes`) — compile-time string manipulations (NonEmpty, Snake/Pascal case).
@@ -19,15 +22,18 @@
 - `unsafe.types.ts` (`UnsafeTypes`) — unavoidable `any`-adjacent helpers wrapped with explicit naming for audits.
 - `util.types.ts` (`UtilTypes`) — grab bag: non-empty maps, tuple helpers, key extraction.
 
-## Usage Snapshots
-- `apps/web/src/features/form-system/dsl/typed.ts` leverages `SchemaTypes.AnySchema` to drive typed workflow builders when making JSON Schema payloads from Effect Schema.
-- `packages/common/schema/src/utils/brands.ts` builds branded schemas with `UnsafeTypes` + `effect/Brand` to guarantee nominal IDs.
-- `packages/core/db/src/sql-pg-bun/PgClient.ts` and other DB helpers depend on `UnsafeTypes` to thread Drizzle client generics without losing type safety.
-- `packages/common/utils/src/data/struct.utils.ts` imports `RecordTypes`/`StructTypes` to keep runtime helpers aligned with the type-level contracts.
+### Direct Exports (non-namespaced)
+- `built-in.types.ts` — `Builtin` union of primitive types, Function, Date, Error, RegExp.
+- `char.types.ts` — `UpperLetter` for template literal helpers.
+- `common.types.ts` — shared aliases (e.g. `BrandWith`) for other modules to build on.
+- `deep-non-nullable.types.ts` — `DeepNonNullable<T>` recursive non-nullable transformer.
+- `primitive.types.ts` — `PrimitiveTypes` union of string, number, boolean, bigint, symbol, undefined, null.
+- `prop.type.ts` — Property key utilities for Effect Schema struct builders (not in index.ts but available via subpath export).
 
-## Tooling & Docs Shortcuts
-- Schema constructors & tagged errors: `context7__get-library-docs` with `{ "context7CompatibleLibraryID": "/llmstxt/effect_website_llms-small_txt", "topic": "schema" }`.
-- Option-based safe indexing (mirrors `NonEmpty` helpers): `effect_docs__get_effect_doc` with `{ "documentId": 4793 }` for `effect/Array.get`.
+## Usage Snapshots
+- `packages/common/schema/src/core/utils/brands.ts` builds branded schemas with `UnsafeTypes` + `effect/Brand` to guarantee nominal IDs.
+- `packages/shared/infra/src/internal/db/pg/PgClient.ts` and other DB helpers depend on `UnsafeTypes` to thread Drizzle client generics without losing type safety.
+- `packages/common/utils/src/data/struct.utils.ts` imports `RecordTypes`/`StructTypes` to keep runtime helpers aligned with the type-level contracts.
 
 ## Authoring Guardrails
 - Types only: exporting a value, class, or runtime helper is a bug. Re-run `bun run build` after edits to confirm nothing emits JS.
@@ -38,21 +44,23 @@
 
 ## Quick Recipes
 ```ts
-import type { SchemaTypes, UtilTypes } from "@beep/types";
+import type { SchemaTypes, UtilTypes, StringTypes, ModelTypes, PromiseTypes } from "@beep/types";
 import type * as S from "effect/Schema";
+import type { Field } from "@effect/experimental/VariantSchema";
 
 // Glue Effect Schema definitions into reusable typing
 type AnyEffectStruct = SchemaTypes.AnySchema;
 
-// Enforce compile-time NonEmpty map constraints
-type Headers = UtilTypes.NonEmptyStringToStringMap<{
-  "content-type": "application/json";
-}>;
+// Enforce compile-time non-empty string constraints
+type DisplayName = StringTypes.NonEmptyString;
 
-// Compose schema field maps while guaranteeing they are non-empty
-type FormFields = UtilTypes.NonEmptyStructFieldMap<{
-  id: S.Struct.Field;
-  name: S.Struct.Field;
+// Async type utilities for effect-style adapters
+type MaybeAsyncConfig = PromiseTypes.Awaitable<{ port: number }>;
+
+// Variant Schema field maps with non-empty guarantees
+type EntityFields = ModelTypes.NonEmptyModelFields<{
+  id: Field.Any;
+  name: Field.Any;
 }>;
 ```
 

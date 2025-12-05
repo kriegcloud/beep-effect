@@ -32,12 +32,6 @@
       "path": "../../shared/infra"
     },
     {
-      "path": "../../core/env"
-    },
-    {
-      "path": "../../core/db"
-    },
-    {
       "path": "../../iam/domain"
     },
     {

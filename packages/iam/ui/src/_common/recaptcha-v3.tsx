@@ -1,5 +1,5 @@
 "use client";
-import { clientEnv } from "@beep/core-env/client";
+import { clientEnv } from "@beep/shared-infra/ClientEnv";
 import { useIsHydrated } from "@beep/ui/hooks";
 import { useTranslate } from "@beep/ui/i18n/use-locales";
 import { useTheme } from "@mui/material/styles";

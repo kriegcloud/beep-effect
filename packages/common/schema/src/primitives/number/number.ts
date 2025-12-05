@@ -13,9 +13,9 @@
  * @since 0.1.0
  */
 
-import { $NumberId } from "@beep/schema/internal";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
+import { $NumberId } from "../../internal";
 
 const { $NumberId: Id } = $NumberId.compose("number");
 /**

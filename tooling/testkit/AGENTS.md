@@ -3,7 +3,7 @@
 ## Purpose & Fit
 - Wraps Bun's `bun:test` runner with Effect-first helpers so suites can compose Layers, Scopes, and retries without leaving the `Effect` algebra.
 - Supplies assertion shims (`assert*`, `strictEqual`, `throwsAsync`, etc.) that align with Effect data types (`Option`, `Either`, `Exit`) used across `@beep/*` packages.
-- Provides a lightweight alternative to `@beep/testkit` while staying compatible with Bun tooling and the repo's strict namespace-import guardrails.
+- Provides Effect-aware test orchestration while staying compatible with Bun tooling and the repo's strict namespace-import guardrails.
 
 ## Surface Map
 - `tooling/testkit/src/index.ts` re-exports:
@@ -18,20 +18,9 @@
   - `makeMethods` is the template for callers constructing bespoke `it` facades.
 
 ## Usage Snapshots
-- `packages/iam/sdk/test/auth-wrapper/call-auth.test.ts:3` — exercises `effect` with metrics assertions, illustrating how to stay entirely inside `Effect.gen`.
-- `packages/_internal/db-admin/test/coreDb.test.ts:6` — wraps Testcontainers setup with `layer(PgContainer.Live)(...)`, showing memo-mapped runtime sharing and DB teardown expectations.
-- `packages/common/errors/test/utils/accumulate.test.ts:3` — uses `scoped` to ensure spies are restored via `Effect.addFinalizer`, demonstrating why scoped tests must run in `Scope.Scope`.
-- `tooling/repo-scripts/test/enforce-js-import-suffix.test.ts:2` — combines `layer(..., { excludeTestServices: true })` with repository tooling Layers, highlighting when to bypass the default test environment to avoid `TestContext` interference.
-
-## Tooling & Docs Shortcuts
-- Search consumers: `jetbrains__search_in_files_by_text` ⇒ `{"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","searchText":"\"@beep/testkit\"","maxUsageCount":200}`.
-- Inspect source: `jetbrains__get_file_text_by_path` ⇒ `{"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"tooling/testkit/src/internal/internal.ts","maxLinesCount":400}`.
-- Effect Layer memoization reference: `effect_docs__get_effect_doc` ⇒ `{"documentId":7105}` (Layer.toRuntimeWithMemoMap).
-- Effect MemoMap creation: `effect_docs__get_effect_doc` ⇒ `{"documentId":7118}` (Layer.makeMemoMap).
-- Retry semantics: `effect_docs__get_effect_doc` ⇒ `{"documentId":5867}` (Effect.retry) and `{"documentId":8600}` (Schedule.recurs).
-- Cached runtimes: `effect_docs__get_effect_doc` ⇒ `{"documentId":5804}` (Effect.cached).
-- Test environment baseline: `effect_docs__get_effect_doc` ⇒ `{"documentId":10356}` (TestContext.TestContext).
-- Contextual Effect testing patterns: `context7__get-library-docs` ⇒ `{"context7CompatibleLibraryID":"/effect-ts/effect","tokens":2000,"topic":"testing"}`.
+- `test/Dummy.test.ts` — Basic smoke test demonstrating the test infrastructure works.
+- Integration with `@beep/db-admin` tests shows `layer` usage for memo-mapped runtime sharing and DB teardown (see db-admin package for commented examples).
+- The testkit is designed to support `effect`, `scoped`, `layer`, and `flakyTest` patterns across the repository, though many advanced usage examples are currently commented out in consumer packages.
 
 ## Authoring Guardrails
 - Maintain namespace imports (`import * as Effect from "effect/Effect"`, `import * as F from "effect/Function"`) in every snippet and new export; do not introduce named imports like `pipe`.
@@ -114,13 +103,12 @@ describeWrapped("custom harness", (it) => {
 ```
 
 ## Verifications
-- `bun run lint` (Biome) — ensures new guides stay formatted and no lint rules regress.
-- `bun run test tooling/testkit` — validate local assertions if you extend runtime helpers.
+- `bun run lint --filter @beep/testkit` — ensures new guides stay formatted and no lint rules regress.
+- `bun run test --filter @beep/testkit` — validate local assertions if you extend runtime helpers.
 - `bun test tooling/testkit/test/Dummy.test.ts` — smoke-check Bun wiring after modifying runners.
-- For cross-package changes, re-run the nearest consumer suite (e.g. `bun test packages/iam/sdk/test`) to confirm updated helpers integrate cleanly.
+- For cross-package changes, re-run the nearest consumer suite to confirm updated helpers integrate cleanly.
 
 ## Contributor Checklist
-- [ ] Update `tooling/testkit/AGENTS_MD_PLAN.md` or archive it once changes land.
 - [ ] Capture at least one fresh usage snapshot when adding new helpers.
 - [ ] Verify Layer-based helpers reset memo maps or document required teardown.
 - [ ] Note limitations of `prop` until FastCheck support is restored.

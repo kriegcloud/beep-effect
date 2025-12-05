@@ -18,9 +18,6 @@
       "path": "../sdk"
     },
     {
-      "path": "../../core/env"
-    },
-    {
       "path": "../../common/identity"
     },
     {

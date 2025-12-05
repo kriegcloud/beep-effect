@@ -22,14 +22,14 @@
  * @since 0.1.0
  */
 
-import { mergeSchemaAnnotations } from "@beep/schema/core/annotations/built-in-annotations";
-import { $KitsId } from "@beep/schema/internal";
 import * as A from "effect/Array";
 import * as Equal from "effect/Equal";
 import * as F from "effect/Function";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
+import { mergeSchemaAnnotations } from "../../core/annotations/built-in-annotations";
+import { $KitsId } from "../../internal";
 
 const { $LiteralKitId: Id } = $KitsId.compose("literal-kit");
 

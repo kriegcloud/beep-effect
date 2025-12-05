@@ -12,9 +12,10 @@
  * @category Primitives/Bool
  * @since 0.1.0
  */
-import { toOptionalWithDefault } from "@beep/schema/core/utils/to-optional-with";
-import { $BoolId } from "@beep/schema/internal";
+
 import * as S from "effect/Schema";
+import { toOptionalWithDefault } from "../../core/utils/to-optional-with";
+import { $BoolId } from "../../internal";
 
 const Id = $BoolId;
 

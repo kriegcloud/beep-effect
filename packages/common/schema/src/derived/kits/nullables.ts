@@ -12,9 +12,9 @@
  * @since 0.1.0
  */
 
-import { $KitsId } from "@beep/schema/internal";
-import { DateTimeUtcFromAllAcceptable } from "@beep/schema/primitives";
 import * as S from "effect/Schema";
+import { $KitsId } from "../../internal";
+import { DateTimeUtcFromAllAcceptable } from "../../primitives/temporal/dates/date-time";
 
 const { $NullablesId: Id } = $KitsId.compose("nullables");
 

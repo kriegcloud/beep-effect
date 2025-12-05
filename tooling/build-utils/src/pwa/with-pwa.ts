@@ -97,9 +97,9 @@ const getModuleDir = (): Effect.Effect<string, never, Path.Path> =>
  * Glob files and create manifest entries.
  */
 const globManifestEntries = (options: {
-  patterns: ReadonlyArray<string>;
-  cwd: string;
-  basePath: string;
+  readonly patterns: ReadonlyArray<string>;
+  readonly cwd: string;
+  readonly basePath: string;
 }): Effect.Effect<ReadonlyArray<ManifestEntry>, FileReadError | GlobError, FileSystem.FileSystem> =>
   Effect.gen(function* () {
     const { patterns, cwd, basePath } = options;
@@ -154,7 +154,7 @@ export const withPWA =
       const distDir = nextJsConfig.distDir ?? ".next";
       const configBasePath = nextJsConfig.basePath;
       const pageExtensions = nextJsConfig.pageExtensions ?? ["tsx", "ts", "jsx", "js", "mdx"];
-      const experimental = (nextJsConfig.experimental ?? {}) as { modern?: boolean };
+      const experimental = (nextJsConfig.experimental ?? {}) as { readonly modern?: boolean };
 
       const basePath = configBasePath ?? "/";
 

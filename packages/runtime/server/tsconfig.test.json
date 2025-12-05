@@ -33,15 +33,6 @@
       "path": "../../shared/tables"
     },
     {
-      "path": "../../core/env"
-    },
-    {
-      "path": "../../core/email"
-    },
-    {
-      "path": "../../core/db"
-    },
-    {
       "path": "../../iam/infra"
     },
     {

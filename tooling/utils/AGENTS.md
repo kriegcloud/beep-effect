@@ -7,38 +7,36 @@
 - Complements `@beep/testkit` (for assertions) and `@beep/types` (UnsafeTypes bridge for glob) without duplicating their responsibilities.
 
 ## Surface Map
-- **`FsUtils` service (`tooling/utils/src/FsUtils.ts`)**
+- **`FsUtils` service (`src/FsUtils.ts`)**
   - Span-instrumented helpers: `glob`, `globFiles`, `modifyFile`, `modifyGlob`, `copyGlobCached`, `rmAndCopy`, `rmAndMkdir`.
   - JSON helpers: `readJson`, `writeJson`, `existsOrThrow`.
   - Uses `Effect.cachedFunction` to memoise `mkdirCached`.
   - Live layer `FsUtilsLive` pre-wires Bun filesystem/path layers; prefer to provide this at the edge.
-- **`RepoUtils` service (`tooling/utils/src/RepoUtils.ts`)**
+- **`RepoUtils` service (`src/RepoUtils.ts`)**
   - Exposes `REPOSITORY_ROOT`, cached workspace map, and `getWorkspaceDir`.
   - Layer `RepoUtilsLive` composes `FsUtils` + Bun layers so downstream scripts only depend on a single provider.
-- **Repo module barrels (`tooling/utils/src/repo/*.ts`)**
-  - `Workspaces` discovers workspace directories via globbing root `workspaces`.
-  - `Root` walks up the directory tree to locate `.git` or `bun.lock`.
-  - `PackageJsonMap` builds `workspace -> package.json` map with `NoSuchFileError` failures.
-  - `Dependencies` and `DependencyIndex` model `HashSet`-backed dependency inventories.
-  - `TsConfigIndex` validates root configs and collects optional variants per workspace.
-  - `UniqueDependencies` exposes `collectUniqueNpmDependencies` and compatibility alias `getUniqueDeps`.
-- **Schemas (`tooling/utils/src/schemas/*.ts`)**
+- **Repo module barrels (`src/repo/*.ts`)**
+  - `Workspaces.ts` — discovers workspace directories via globbing root `workspaces`.
+  - `Root.ts` — walks up the directory tree to locate `.git` or `bun.lock`.
+  - `PackageJsonMap.ts` — builds `workspace -> package.json` map with `NoSuchFileError` failures.
+  - `PackageFileMap.ts` — maps package files for workspace resolution.
+  - `NearestPackageJson.ts` — finds nearest package.json from current file.
+  - `CurrentFile.ts` — utilities for current file resolution.
+  - `Dependencies.ts` and `DependencyIndex.ts` — model `HashSet`-backed dependency inventories.
+  - `TsConfigIndex.ts` — validates root configs and collects optional variants per workspace.
+  - `UniqueDependencies.ts` — exposes `collectUniqueNpmDependencies` and compatibility alias `getUniqueDeps`.
+  - `Errors.ts` — domain error definitions for repo operations.
+- **Schemas (`src/schemas/*.ts`)**
   - JSON primitives (`Json`, `JsonLiteral`).
   - Package manifests (`PackageJson`, `RootPackageJson`), workspace dependency structures, and `TsConfigJson`.
   - All schemas favour `S.Struct` and `S.TemplateLiteral` to stay aligned with Effect schema expectations.
 
 ## Usage Snapshots
-- `tooling/repo-scripts/src/generate-asset-paths.ts:36` pulls `getWorkspaceDir("@beep/web")` and `FsUtilsLive` to regenerate `publicPaths` while checking for missing directories with `DomainError`.
-- `tooling/repo-scripts/src/i18n/cldr.ts:86` uses `RepoUtils` and `FsUtils.mkdirCached` to materialise generated locale files after decoding remote JSON with the provided schemas.
-- `tooling/repo-scripts/src/utils/convert-to-nextgen.ts:98` relies on `FsUtils.existsOrThrow` before running WASM encoders, demonstrating error surfacing for asset pipelines.
-- `tooling/repo-scripts/src/sync-ts-references.ts:45` streams the `collectTsConfigPaths` map to decide which `update-ts-references` passes to run.
-- `tooling/utils/test/repo/TsConfigIndex.test.ts:21` shows the happy-path expectation for workspace config discovery and optional variants under the real repo layout.
-
-## Tooling & Docs Shortcuts
-- `context7__resolve-library-id` — `{"libraryName":"effect"}` to retrieve the Effect documentation ID list.
-- `context7__get-library-docs` — `{"context7CompatibleLibraryID":"/llmstxt/effect_website-llms.txt","topic":"Layer","tokens":1200}` for Layer composition references used by `FsUtilsLive` and `RepoUtilsLive`.
-- `effect_docs__effect_docs_search` — `{"query":"cachedFunction"}` to revisit memoisation semantics before extending `mkdirCached`.
-- `effect_docs__get_effect_doc` — `{"documentId":5805}` for `Effect.cachedFunction` details and `{"documentId":6732}` for `HashMap.toValues` behaviour when working with dependency indexes.
+- `tooling/repo-scripts/src/generate-asset-paths.ts` pulls `getWorkspaceDir` and `FsUtilsLive` to regenerate `publicPaths` while checking for missing directories with `DomainError`.
+- `tooling/repo-scripts/src/i18n/cldr.ts` uses `RepoUtils` and `FsUtils.mkdirCached` to materialise generated locale files after decoding remote JSON with the provided schemas.
+- `tooling/repo-scripts/src/utils/convert-to-nextgen.ts` relies on `FsUtils.existsOrThrow` before running WASM encoders, demonstrating error surfacing for asset pipelines.
+- `tooling/repo-scripts/src/sync-ts-references.ts` streams the `collectTsConfigPaths` map to decide which `update-ts-references` passes to run.
+- `test/Dummy.test.ts` provides basic smoke test coverage for the test infrastructure.
 
 ## Authoring Guardrails
 - Always inject `FsUtils`/`RepoUtils` via their tags; do not instantiate Bun services directly in consumers. Side effects belong at `Layer` boundaries and must keep `DomainError.mapError` in place.
@@ -102,6 +100,6 @@ export const ensureGeneratedFolder = Effect.gen(function* () {
 - [ ] Repo utilities keep `HashMap` / `HashSet` usage immutable and leverage existing schemas for decoding.
 - [ ] Layer plumbing updated when adding new dependencies (e.g. extend `RepoUtilsLive` rather than re-exporting bare services).
 - [ ] Added or updated tests under `tooling/utils/test` to cover new behaviour.
-- [ ] Ran `bun run lint --filter=@beep/tooling-utils` and `bun run test --filter=@beep/tooling-utils` before handing off changes.
-- [ ] Updated generated docs (`AGENTS.md`, related references) and noted any downstream impacts in `AGENTS_MD_PLAN.md` if scope changes.
+- [ ] Ran `bun run lint --filter @beep/tooling-utils` and `bun run test --filter @beep/tooling-utils` before handing off changes.
+- [ ] Updated documentation (`AGENTS.md`) and noted any downstream impacts when scope changes.
 

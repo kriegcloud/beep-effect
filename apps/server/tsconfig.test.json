@@ -30,12 +30,6 @@
       "path": "../../packages/shared/tables"
     },
     {
-      "path": "../../packages/core/env"
-    },
-    {
-      "path": "../../packages/core/db"
-    },
-    {
       "path": "../../packages/iam/infra"
     },
     {

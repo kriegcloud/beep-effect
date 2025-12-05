@@ -1,3 +1,4 @@
+import { $SharedDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { makeFields } from "@beep/shared-domain/common";
 import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
@@ -7,11 +8,12 @@ import * as S from "effect/Schema";
 import { UserRole } from "./schemas";
 import { USER_UPLOAD_LIMIT } from "./User.constants";
 
+const $I = $SharedDomainId.create("entities/User/User.model");
 /**
  * User model representing application users with authentication and profile data.
  * Maps to the `user` table in the database.
  */
-export class Model extends M.Class<Model>(`UserModel`)(
+export class Model extends M.Class<Model>($I`UserModel`)(
   makeFields(SharedEntityIds.UserId, {
     /** User's display name */
     name: S.NonEmptyString.annotations({
@@ -106,11 +108,7 @@ export class Model extends M.Class<Model>(`UserModel`)(
       })
     ),
   }),
-  {
-    title: "User Model",
-    description: "User model representing application users with authentication and profile data.",
-    schemaId: Symbol.for("@beep/iam-domain/UserModel"),
-  }
+  $I.annotations("UserModel")
 ) {
   static readonly utils = modelKit(Model);
 }

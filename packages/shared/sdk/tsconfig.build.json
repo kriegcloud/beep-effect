@@ -13,12 +13,9 @@
     "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "stripInternal": true
+    "stripInternal": false
   },
   "references": [
-    {
-      "path": "../../core/env/tsconfig.build.json"
-    },
     {
       "path": "../../common/identity/tsconfig.build.json"
     },

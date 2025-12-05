@@ -1,3 +1,4 @@
+export * from "./AspectRatio";
 export * from "./exif-metadata";
 export * from "./FileAttributes";
 export * from "./FileInstance";

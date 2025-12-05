@@ -1,23 +1,29 @@
 # @beep/shared-domain — AGENTS Guide
 
 ## Purpose & Fit
-- Defines the shared kernel for IAM and Files slices: branded entity ids, relational models, path/value objects, cache/policy primitives, and cross-slice constants consumed by `apps/*`, `packages/iam/*`, and `packages/documents/*`.
-- Builds on the schema utilities in `@beep/common/schema` (`BS` helpers, `EntityId.make`) and path tooling from `@beep/constants`. Consumers should import from this package instead of duplicating schema logic.
-- Provides a central contract other slices rely on for data access (Drizzle models via `@effect/sql/Model`), routing (`paths` collection), authorization (`Policy`), and infra helpers (`ManualCache`). Keep exports stable and align changes with downstream expectations.
+- Defines the shared kernel for IAM, Documents, and Files slices: branded entity ids, relational models, path/value objects, cache/policy primitives, retry utilities, encryption services, and cross-slice constants consumed by `apps/*`, `packages/iam/*`, and `packages/documents/*`.
+- Builds on the schema utilities in `@beep/schema` (`BS` helpers, `EntityId.make`) and provides reusable domain infrastructure. Consumers should import from this package instead of duplicating schema logic.
+- Provides a central contract other slices rely on for data access (Effect models via `@effect/sql/Model`), routing (`paths` collection), authorization (`Policy`), caching (`ManualCache`), retry strategies (`Retry`), and encryption (`EncryptionService`). Keep exports stable and align changes with downstream expectations.
 
 ## Surface Map
 - **`src/common.ts`** — Audit/user tracking column sets (`auditColumns`, `userTrackingColumns`, `globalColumns`) and `makeFields` helper that merges id, audit metadata, and custom columns when creating `M.Class` entity models.
-- **`src/entity-ids/*`**  
-  - `shared.ts`, `iam.ts`, `wms.ts` house branded id schemas built with `EntityId.make`.  
-  - `table-names.ts` provides literal kits (`SharedTableNames`, `IamTableNames`, `AnyTableName`).  
-  - `entity-kind.ts` emits `EntityKind` union aligned with table names.  
-  - `any-entity-id.ts` aggregates every id (note: `SubscriptionId` currently appears twice; flag for cleanup).  
-  - `index.ts` re-exports kits (`SharedEntityIds`, `IamEntityIds`, `WmsEntityIds`).
-- **`src/entities/*`** — Effect `M.Class` schemas for `AuditLog`, `File`, `Organization`, `Team`, `User` plus nested schema enums (e.g. `OrganizationType`, `SubscriptionStatus`). `File/schemas/UploadPath.ts` encodes S3 path transforms.
-- **`src/value-objects/paths.ts`** — Safe `PathBuilder.collection` of all public routes, combining static strings and dynamic helpers (auth flows, dashboard, API endpoints).
-- **`src/Policy.ts`** — Current user context tag, `UserAuthMiddleware`, permission literals, combinators `policy`, `withPolicy`, `all`, `any`, `permission`.
+- **`src/entity-ids/*`**
+  - `shared.ts`, `iam.ts`, `documents.ts` house branded id schemas built with `EntityId.make`.
+  - `table-names.ts` provides literal kits (`SharedTableNames`, `IamTableNames`, `DocumentsTableNames`, `AnyTableName`).
+  - `entity-kind.ts` emits `EntityKind` union aligned with table names.
+  - `any-entity-id.ts` aggregates every id (note: `SubscriptionId` appears twice on lines 17-18; flag for cleanup).
+  - `index.ts` re-exports kits (`SharedEntityIds`, `IamEntityIds`, `DocumentsEntityIds`).
+- **`src/entities/*`** — Effect `M.Class` schemas for `AuditLog`, `File`, `Organization`, `Session`, `Team`, `User` plus nested schema enums (e.g. `OrganizationType`, `SubscriptionStatus`, `UserRole`). `File/schemas/UploadPath.ts` encodes S3 path transforms. `File.Contract` provides HTTP API contracts.
+- **`src/value-objects/`**
+  - `paths.ts` — Safe `PathBuilder.collection` of all public routes, combining static strings and dynamic helpers (auth flows, dashboard, API endpoints).
+  - `EntitySource.ts` — Source metadata for entity tracking.
+- **`src/Policy.ts`** — Current user context tags (`AuthContext`, `CurrentUser`), `UserAuthMiddleware`, `PolicyRecord` schema, permission literals, combinators `policy`, `withPolicy`, `all`, `any`, `permission`.
 - **`src/ManualCache.ts`** — Public façade over `_internal/manual-cache.ts`, exposing scoped cache creation with TTL+LRU semantics.
-- **`src/_internal/*`** — Implementation details (`manual-cache` data structures, `path-builder` recursion, `policy.makePermissions`). Do not import these directly from downstream slices; they are subject to churn.
+- **`src/Retry.ts`** — Exponential backoff retry policy factory with configurable delay, growth factor, jitter, and max retries.
+- **`src/services/EncryptionService/`** — Encryption service for cryptographic operations with schema-based validation.
+- **`src/DomainApi.ts`** — Top-level HTTP API definition combining domain contracts.
+- **`src/factories/`** — Utilities for error codes, model kits, and path builders.
+- **`src/_internal/*`** — Implementation details (`manual-cache` data structures, `path-builder` recursion, `policy.makePermissions`, `policy-builder`). Do not import these directly from downstream slices; they are subject to churn.
 
 ## Usage Snapshots
 - `apps/web/src/middleware.ts:3` — imports `paths` to drive auth/public route logic and string guards.  
@@ -27,30 +33,6 @@
 - `packages/shared/domain/test/entities/File/schemas/UploadPath.test.ts:11` — exercises `File.UploadPath` encode/decode round-trips and shard prefix guarantees.  
 - `packages/shared/domain/test/policy.test.ts:70` — demonstrates `Policy.permission`, `Policy.all`, and `Policy.any` behavior with layered fallbacks.
 
-## Tooling & Docs Shortcuts
-- Inspect module layout:
-  ```json
-  {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","directoryPath":"packages/shared/domain/src","maxDepth":2}
-  ```
-- Locate downstream references:
-  ```json
-  {"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","searchText":"paths.auth","maxUsageCount":20}
-  ```
-- Refresh beep-effect codebase docs:
-  ```json
-  {"context7CompatibleLibraryID":"/effect-ts/effect","topic":"Effect.all firstSuccessOf MutableHashMap ManualCache","tokens":1500}
-  ```
-- Drill into Effect combinator references:
-  ```json
-  {"documentId":6060}
-  ```
-  ```json
-  {"documentId":5818}
-  ```
-- Mutable collection primitives (for cache internals):
-  ```json
-  {"documentId":7814}
-  ```
 
 ## Authoring Guardrails
 - Preserve Effect namespacing rules (import modules as `import * as Effect from "effect/Effect";`, `import * as A from "effect/Array";`, etc.) and never introduce native array/string helpers in new code. `Effect.all` and `Effect.firstSuccessOf` give structured sequencing/fallback (`effect_docs` above).
@@ -151,7 +133,7 @@ const uploadPath = Effect.gen(function* () {
 - For focused work on upload paths: `bun test packages/shared/domain/test/entities/File/schemas/UploadPath.test.ts`.
 
 ## Contributor Checklist
-- Align new ids with the correct kit (`SharedEntityIds`, `IamEntityIds`, `WmsEntityIds`) and update `EntityKind` / `AnyEntityId` unions in tandem. Document pending anomalies (e.g., duplicate `SubscriptionId`).
+- Align new ids with the correct kit (`SharedEntityIds`, `IamEntityIds`, `DocumentsEntityIds`) and update `EntityKind` / `AnyEntityId` unions in tandem. Document pending anomalies (e.g., duplicate `SubscriptionId`).
 - When adding columns to models, stitch them through `makeFields` and review downstream table definitions (`packages/_internal/db-admin`).
 - Extending permissions? Update `Policy` map, regenerate derived literals, and add coverage in `packages/shared/domain/test/policy.test.ts`.
 - Route additions must go through `value-objects/paths.ts` using `PathBuilder.collection`; update UI/SDK references if structure changes.

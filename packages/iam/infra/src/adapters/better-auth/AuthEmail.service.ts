@@ -1,6 +1,6 @@
-import { ResendService, reactInvitationEmail, reactResetPasswordEmail, renderEmail } from "@beep/core-email";
 import { IamConfig } from "@beep/iam-infra/config";
 import { BS } from "@beep/schema";
+import { Email } from "@beep/shared-infra/Email";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
@@ -66,8 +66,8 @@ export declare namespace InvitationEmailPayload {
 
 export class AuthEmailService extends Effect.Service<AuthEmailService>()("AuthEmailService", {
   accessors: true,
-  dependencies: [ResendService.Default, IamConfig.Live],
-  effect: Effect.flatMap(ResendService, ({ send }) =>
+  dependencies: [Email.ResendService.Default, IamConfig.Live],
+  effect: Effect.flatMap(Email.ResendService, ({ send }) =>
     Effect.gen(function* () {
       const { email: emailEnv } = yield* IamConfig;
 
@@ -101,8 +101,8 @@ export class AuthEmailService extends Effect.Service<AuthEmailService>()("AuthEm
 
       const sendResetPassword = Effect.fn("sendResetPassword")(
         function* (params: SendResetPasswordEmailPayload.Type) {
-          const emailTemplate = yield* renderEmail(
-            reactResetPasswordEmail({
+          const emailTemplate = yield* Email.renderEmail(
+            Email.reactResetPasswordEmail({
               username: params.username,
               resetLink: params.url.toString(),
             })
@@ -125,8 +125,8 @@ export class AuthEmailService extends Effect.Service<AuthEmailService>()("AuthEm
 
       const sendInvitation = Effect.fn("sendInvitation")(
         function* (params: InvitationEmailPayload.Type) {
-          const emailTemplate = yield* renderEmail(
-            reactInvitationEmail({
+          const emailTemplate = yield* Email.renderEmail(
+            Email.reactInvitationEmail({
               email: Redacted.value(params.email),
               invitedByUsername: params.invitedByUsername,
               invitedByEmail: Redacted.value(params.invitedByEmail),

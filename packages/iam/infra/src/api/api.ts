@@ -1,7 +1,4 @@
 import { AllowedHeaders, AllowedHttpMethods } from "@beep/constants";
-import { Db } from "@beep/core-db";
-import { ResendService } from "@beep/core-email";
-import { serverEnv } from "@beep/core-env/server";
 import { BeepError } from "@beep/errors/shared";
 import { AuthEmailService } from "@beep/iam-infra";
 import { AuthService } from "@beep/iam-infra/adapters/better-auth/Auth.service";
@@ -12,6 +9,8 @@ import { IamConfig } from "@beep/iam-infra/config";
 import { IamDb } from "@beep/iam-infra/db";
 import { Session, User } from "@beep/shared-domain/entities";
 import { AuthContext, UserAuthMiddleware } from "@beep/shared-domain/Policy";
+import { Live } from "@beep/shared-infra/Live";
+import { serverEnv } from "@beep/shared-infra/ServerEnv";
 import * as HttpApiBuilder from "@effect/platform/HttpApiBuilder";
 import * as HttpApiScalar from "@effect/platform/HttpApiScalar";
 import * as HttpMiddleware from "@effect/platform/HttpMiddleware";
@@ -23,11 +22,12 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { headers } from "next/headers";
 
-const DbLive = Layer.provideMerge(IamDb.IamDb.Live, Db.Live);
+const DbLive = Layer.provideMerge(IamDb.IamDb.Live, Live);
 const ReposLive = Layer.provideMerge(reposLayer, DbLive);
 
 const AuthEmailLive = AuthEmailService.DefaultWithoutDependencies.pipe(
-  Layer.provideMerge(Layer.provideMerge(ResendService.Default, IamConfig.Live))
+  Layer.provideMerge(Live),
+  Layer.provideMerge(IamConfig.Live)
 );
 
 const CoreServicesLive = Layer.provideMerge(ReposLive, AuthEmailLive);
@@ -88,7 +88,11 @@ const RoutesLive = Layer.provideMerge(CurrentUserLive, ReposLive);
 const ScalarLayer = HttpApiScalar.layer({
   path: "/api/v1/iam/docs",
 });
-const ApiLive = HttpApiBuilder.api(Api).pipe(Layer.provide(RoutesLive), Layer.provide(UserAuthMiddlewareLive));
+const ApiLive = HttpApiBuilder.api(Api).pipe(
+  Layer.provide(RoutesLive),
+  Layer.provide(UserAuthMiddlewareLive),
+  Layer.orDie
+);
 
 const CorsLive = HttpApiBuilder.middlewareCors({
   allowedOrigins: [serverEnv.app.env === "dev" ? "*" : serverEnv.app.apiUrl.toString()],

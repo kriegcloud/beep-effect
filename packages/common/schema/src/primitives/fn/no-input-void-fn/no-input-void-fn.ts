@@ -16,9 +16,9 @@
  * @since 0.1.0
  */
 
-import { $FnId } from "@beep/schema/internal";
-import { Fn } from "@beep/schema/primitives/fn/fn";
 import * as S from "effect/Schema";
+import { $FnId } from "../../../internal";
+import { Fn } from "../fn";
 
 const { $NoInputVoidFnId: Id } = $FnId.compose("no-input-void-fn");
 

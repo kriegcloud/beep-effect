@@ -1,5 +1,5 @@
-import { Json } from "@beep/schema/primitives";
 import * as S from "effect/Schema";
+import { Json } from "../../../primitives";
 
 // Base tag types
 const NumberFileTag = S.Struct({

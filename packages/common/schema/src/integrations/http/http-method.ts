@@ -12,9 +12,10 @@
  * @category Integrations/Http
  * @since 0.1.0
  */
-import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
-import { $HttpId } from "@beep/schema/internal";
+
 import type * as S from "effect/Schema";
+import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
+import { $HttpId } from "../../internal";
 
 const { $HttpMethodId: Id } = $HttpId.compose("http-method");
 /**

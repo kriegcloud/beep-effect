@@ -1,4 +1,4 @@
-import { $PrimitivesId } from "@beep/schema/internal/modules/modules";
+import { $PrimitivesId } from "./modules";
 
 export const {
   $BinaryId,

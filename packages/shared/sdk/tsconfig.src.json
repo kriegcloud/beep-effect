@@ -4,9 +4,6 @@
   "exclude": [],
   "references": [
     {
-      "path": "../../core/env"
-    },
-    {
       "path": "../../common/schema"
     },
     {

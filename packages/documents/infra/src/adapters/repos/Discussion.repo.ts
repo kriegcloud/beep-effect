@@ -1,11 +1,11 @@
-import { DbError } from "@beep/core-db/errors";
-import { Repo } from "@beep/core-db/Repo";
 import { Entities } from "@beep/documents-domain";
 import { DiscussionNotFoundError } from "@beep/documents-domain/entities/Discussion/Discussion.errors";
 import { dependencies } from "@beep/documents-infra/adapters/repos/_common";
 import { DocumentsDb } from "@beep/documents-infra/db";
 import { DocumentsEntityIds } from "@beep/shared-domain";
 import { User } from "@beep/shared-domain/entities";
+import { Db } from "@beep/shared-infra/Db";
+import { Repo } from "@beep/shared-infra/Repo";
 import * as Effect from "effect/Effect";
 import { flow } from "effect/Function";
 import * as O from "effect/Option";
@@ -51,7 +51,7 @@ export class DiscussionRepo extends Effect.Service<DiscussionRepo>()(
        */
       const findByIdOrFail = (
         id: DocumentsEntityIds.DiscussionId.Type
-      ): Effect.Effect<typeof Entities.Discussion.Model.Type, DiscussionNotFoundError | DbError> =>
+      ): Effect.Effect<typeof Entities.Discussion.Model.Type, DiscussionNotFoundError | Db.DatabaseError> =>
         baseRepo.findById(id).pipe(
           Effect.flatMap(
             O.match({
@@ -105,7 +105,7 @@ export class DiscussionRepo extends Effect.Service<DiscussionRepo>()(
               () => new DiscussionNotFoundError({ id: params.id })
             ),
             Effect.flatMap((result) => S.decode(DiscussionWithCommentsSchema)(result)),
-            Effect.mapError((e) => (e instanceof DiscussionNotFoundError ? e : DbError.match(e))),
+            Effect.mapError((e) => (e instanceof DiscussionNotFoundError ? e : Db.DatabaseError.$match(e))),
             Effect.withSpan("DiscussionRepo.getWithComments", { attributes: { id: params.id } })
           )
       );
@@ -151,7 +151,7 @@ export class DiscussionRepo extends Effect.Service<DiscussionRepo>()(
             })
           ).pipe(
             Effect.flatMap(S.decode(S.Array(DiscussionWithCommentsSchema))),
-            Effect.mapError(DbError.match),
+            Effect.mapError(Db.DatabaseError.$match),
             Effect.withSpan("DiscussionRepo.listByDocument", { attributes: { documentId: params.documentId } })
           )
       );

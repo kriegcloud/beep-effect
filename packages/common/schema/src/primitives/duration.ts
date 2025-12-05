@@ -7,10 +7,10 @@
  * @since 0.1.0
  */
 
-import { $DurationId } from "@beep/schema/internal";
 import { Duration } from "effect";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
+import { $DurationId } from "../internal";
 
 const Id = $DurationId;
 

@@ -4,6 +4,7 @@ import { text } from "@beep/schema/integrations/files/mime-types/text";
 import { video } from "@beep/schema/integrations/files/mime-types/video";
 import { pipe, Struct } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 import type { ExpandedRouteConfig } from "./types";
@@ -64,10 +65,47 @@ export function getFilesFromClipboardEvent(event: ClipboardEvent) {
  * Shared helpers for our premade components that's reusable by multiple frameworks
  */
 
-export const generatePermittedFileTypes = (config?: ExpandedRouteConfig) => {
+export const generatePermittedFileTypes = (config?: undefined | ExpandedRouteConfig) => {
   const fileTypes = config ? Struct.keys(config) : [];
 
   const maxFileCount = config ? A.map(Object.values(config), (v) => v.maxFileCount) : [];
 
   return { fileTypes, multiple: maxFileCount.some((v) => v && v > 1) };
+};
+
+export const capitalizeStart = (str: string) => {
+  return pipe(str.charAt(0), Str.toUpperCase) + Str.slice(1)(str);
+};
+
+export const INTERNAL_doFormatting = (config?: ExpandedRouteConfig): string => {
+  if (!config) return Str.empty;
+
+  const allowedTypes = Struct.keys(config);
+
+  const formattedTypes = A.map(allowedTypes, (f) => (f === "blob" ? "file" : f));
+
+  // Format multi-type uploader label as "Supports videos, images and files";
+  if (formattedTypes.length > 1) {
+    const lastType = formattedTypes.pop();
+    return `${A.join("s, ")(formattedTypes)} and ${lastType}s`;
+  }
+
+  // Single type uploader label
+  const key = allowedTypes[0];
+  const formattedKey = formattedTypes[0];
+  if (!key || !formattedKey) return "";
+
+  const { maxFileSize, maxFileCount, minFileCount } = pipe(config[key], O.fromNullable, O.getOrThrow);
+
+  if (maxFileCount && maxFileCount > 1) {
+    if (minFileCount > 1) {
+      return `${minFileCount} - ${maxFileCount} ${formattedKey}s up to ${maxFileSize}`;
+    }
+    return `${formattedKey}s up to ${maxFileSize}, max ${maxFileCount}`;
+  }
+  return `${formattedKey} (${maxFileSize})`;
+};
+
+export const allowedContentTextLabelGenerator = (config?: ExpandedRouteConfig): string => {
+  return capitalizeStart(INTERNAL_doFormatting(config));
 };

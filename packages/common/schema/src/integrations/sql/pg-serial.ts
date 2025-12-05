@@ -13,8 +13,8 @@
  * @since 0.1.0
  */
 
-import { $SqlId } from "@beep/schema/internal";
 import * as S from "effect/Schema";
+import { $SqlId } from "../../internal";
 
 const { $PgSerialId: Id } = $SqlId.compose("pg-serial");
 /**

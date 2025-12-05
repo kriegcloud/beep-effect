@@ -21,9 +21,6 @@
       "path": "../../shared/ui"
     },
     {
-      "path": "../../core/env"
-    },
-    {
       "path": "../../common/identity"
     },
     {

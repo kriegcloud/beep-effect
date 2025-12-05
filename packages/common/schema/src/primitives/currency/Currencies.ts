@@ -1,8 +1,8 @@
-import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
 import * as A from "effect/Array";
 import * as BigDecimal from "effect/BigDecimal";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
+import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
 
 export const currencies = [
   {

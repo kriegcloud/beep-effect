@@ -7,7 +7,7 @@
     "declarationDir": "build/dts",
     "moduleResolution": "NodeNext",
     "module": "NodeNext",
-    "stripInternal": true,
+    "stripInternal": false,
     "composite": true,
     "declaration": true,
     "sourceMap": true

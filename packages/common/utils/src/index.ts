@@ -343,5 +343,6 @@ export * from "./coerce";
 export * from "./const";
 export * from "./dedent";
 export * from "./deep-remove-null";
+export * from "./random-hex-string.ts";
 export * as RemoveAccents from "./remove-accents/remove-accents.ts";
 export * as TopoSort from "./topo-sort";

@@ -40,7 +40,7 @@ export const DiscussionHandlersLive = Discussion.DiscussionRpcs.Rpcs.toLayer(
             ...transformToUser(discussion),
             comments: pipe(discussion.comments, A.map(transformToUser)),
           })),
-          Effect.catchTag("DbError", Effect.die),
+          Effect.catchTag("DatabaseError", Effect.die),
           Effect.withSpan("DiscussionHandlers.get", { attributes: { id: payload.id } })
         ),
 
@@ -58,7 +58,7 @@ export const DiscussionHandlersLive = Discussion.DiscussionRpcs.Rpcs.toLayer(
                 }))
               )
             ),
-            Effect.catchTag("DbError", Effect.die),
+            Effect.catchTag("DatabaseError", Effect.die),
             Stream.unwrap,
             Stream.withSpan("DiscussionHandlers.listByDocument")
           ),
@@ -76,7 +76,7 @@ export const DiscussionHandlersLive = Discussion.DiscussionRpcs.Rpcs.toLayer(
           const result = yield* discussionRepo.create(insertData);
           return { id: result.id };
         }).pipe(
-          Effect.catchTag("DbError", Effect.die),
+          Effect.catchTag("DatabaseError", Effect.die),
           Effect.catchTag("ParseError", Effect.die),
           Effect.withSpan("DiscussionHandlers.create")
         ),
@@ -108,7 +108,7 @@ export const DiscussionHandlersLive = Discussion.DiscussionRpcs.Rpcs.toLayer(
 
           return { id: discussion.id };
         }).pipe(
-          Effect.catchTag("DbError", Effect.die),
+          Effect.catchTag("DatabaseError", Effect.die),
           Effect.catchTag("ParseError", Effect.die),
           Effect.withSpan("DiscussionHandlers.createWithComment")
         ),
@@ -117,14 +117,14 @@ export const DiscussionHandlersLive = Discussion.DiscussionRpcs.Rpcs.toLayer(
         discussionRepo
           .resolve(payload.id)
           .pipe(
-            Effect.catchTag("DbError", Effect.die),
+            Effect.catchTag("DatabaseError", Effect.die),
             Effect.withSpan("DiscussionHandlers.resolve", { attributes: { id: payload.id } })
           ),
 
       delete: (payload) =>
         discussionRepo.findByIdOrFail(payload.id).pipe(
           Effect.flatMap(() => discussionRepo.hardDelete(payload.id)),
-          Effect.catchTag("DbError", Effect.die),
+          Effect.catchTag("DatabaseError", Effect.die),
           Effect.withSpan("DiscussionHandlers.delete", { attributes: { id: payload.id } })
         ),
     };

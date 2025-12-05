@@ -18,11 +18,11 @@
  * @since 0.1.0
  */
 
-import { $TemporalId } from "@beep/schema/internal";
-import { Regex } from "@beep/schema/internal/regex/regex";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { $TemporalId } from "../../../internal";
+import { Regex } from "../../../internal/regex/regex";
 
 const { $TimestampId: Id } = $TemporalId.compose("timestamp");
 
