@@ -1,15 +1,14 @@
-import { DbError } from "@beep/core-db/errors";
-import { Repo } from "@beep/core-db/Repo";
 import { Entities } from "@beep/documents-domain";
 import { dependencies } from "@beep/documents-infra/adapters/repos/_common";
 import { DocumentsDb } from "@beep/documents-infra/db";
 import { DocumentsEntityIds } from "@beep/shared-domain";
 import { User } from "@beep/shared-domain/entities";
+import { Db } from "@beep/shared-infra/Db";
+import { Repo } from "@beep/shared-infra/Repo";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-
 /**
  * Error when a document version is not found
  */
@@ -42,7 +41,7 @@ export class DocumentVersionRepo extends Effect.Service<DocumentVersionRepo>()(
        */
       const findByIdOrFail = (
         id: DocumentsEntityIds.DocumentVersionId.Type
-      ): Effect.Effect<typeof Entities.DocumentVersion.Model.Type, VersionNotFoundError | DbError> =>
+      ): Effect.Effect<typeof Entities.DocumentVersion.Model.Type, VersionNotFoundError | Db.DatabaseError> =>
         baseRepo.findById(id).pipe(
           Effect.flatMap(
             O.match({
@@ -78,7 +77,7 @@ export class DocumentVersionRepo extends Effect.Service<DocumentVersionRepo>()(
               () => new VersionNotFoundError({ id: params.id })
             ),
             Effect.flatMap((result) => S.decode(VersionWithAuthorSchema)(result)),
-            Effect.mapError((e) => (e instanceof VersionNotFoundError ? e : DbError.match(e))),
+            Effect.mapError((e) => (e instanceof VersionNotFoundError ? e : Db.DatabaseError.$match(e))),
             Effect.withSpan("DocumentVersionRepo.getWithAuthor", { attributes: { id: params.id } })
           )
       );
@@ -106,7 +105,7 @@ export class DocumentVersionRepo extends Effect.Service<DocumentVersionRepo>()(
             })
           ).pipe(
             Effect.flatMap(S.decode(S.Array(VersionWithAuthorSchema))),
-            Effect.mapError(DbError.match),
+            Effect.mapError(Db.DatabaseError.$match),
             Effect.withSpan("DocumentVersionRepo.listByDocument", { attributes: { documentId: params.documentId } })
           )
       );

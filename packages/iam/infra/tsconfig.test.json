@@ -12,16 +12,7 @@
       "path": "../domain"
     },
     {
-      "path": "../../core/db"
-    },
-    {
-      "path": "../../core/env"
-    },
-    {
       "path": "../../common/identity"
-    },
-    {
-      "path": "../../core/email"
     },
     {
       "path": "../../shared/tables"

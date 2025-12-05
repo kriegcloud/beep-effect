@@ -68,7 +68,7 @@ const session = await TestIamRuntime.runPromise(fetchSession);
 ```
 
 ```ts
-import { Repo } from "@beep/core-db/Repo";
+import { Repo } from "@beep/shared-infra/Repo";
 import { Entities } from "@beep/iam-domain";
 import { dependencies } from "@beep/iam-infra/adapters/repos/_common";
 import { IamDb } from "@beep/iam-infra/db";

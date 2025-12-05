@@ -1,5 +1,5 @@
-import { clientEnv } from "@beep/core-env/client";
 import { DomainApi } from "@beep/iam-domain/DomainApi";
+import { clientEnv } from "@beep/shared-infra/ClientEnv";
 import * as HttpApiClient from "@effect/platform/HttpApiClient";
 import * as HttpClient from "@effect/platform/HttpClient";
 import * as BrowserHttpClient from "@effect/platform-browser/BrowserHttpClient";

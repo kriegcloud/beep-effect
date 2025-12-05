@@ -1,9 +1,9 @@
-import { DbError } from "@beep/core-db/errors";
-import { Repo } from "@beep/core-db/Repo";
 import { Entities } from "@beep/documents-domain";
 import { dependencies } from "@beep/documents-infra/adapters/repos/_common";
 import { DocumentsDb } from "@beep/documents-infra/db";
 import { DocumentsEntityIds, type SharedEntityIds } from "@beep/shared-domain";
+import { Db } from "@beep/shared-infra/Db";
+import { Repo } from "@beep/shared-infra/Repo";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
@@ -31,7 +31,7 @@ export class DocumentFileRepo extends Effect.Service<DocumentFileRepo>()(
        */
       const findByIdOrFail = (
         id: DocumentsEntityIds.DocumentFileId.Type
-      ): Effect.Effect<typeof Entities.DocumentFile.Model.Type, FileNotFoundError | DbError> =>
+      ): Effect.Effect<typeof Entities.DocumentFile.Model.Type, FileNotFoundError | Db.DatabaseError> =>
         baseRepo.findById(id).pipe(
           Effect.flatMap(
             O.match({
@@ -60,7 +60,7 @@ export class DocumentFileRepo extends Effect.Service<DocumentFileRepo>()(
             })
           ).pipe(
             Effect.flatMap(S.decode(S.Array(Entities.DocumentFile.Model))),
-            Effect.mapError(DbError.match),
+            Effect.mapError(Db.DatabaseError.$match),
             Effect.withSpan("DocumentFileRepo.listByDocument", { attributes: { documentId: params.documentId } })
           )
       );
@@ -88,7 +88,7 @@ export class DocumentFileRepo extends Effect.Service<DocumentFileRepo>()(
             })
           ).pipe(
             Effect.flatMap(S.decode(S.Array(Entities.DocumentFile.Model))),
-            Effect.mapError(DbError.match),
+            Effect.mapError(Db.DatabaseError.$match),
             Effect.withSpan("DocumentFileRepo.listByUser", { attributes: { userId: params.userId } })
           )
       );

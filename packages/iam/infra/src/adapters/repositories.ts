@@ -1,7 +1,6 @@
-import type { SqlClient } from "@effect/sql/SqlClient";
-import type { SqlError } from "@effect/sql/SqlError";
-import type { ConfigError } from "effect/ConfigError";
+import type { Db } from "@beep/shared-infra/Db";
 import * as Layer from "effect/Layer";
+import type { IamDb } from "../db";
 import {
   AccountRepo,
   ApiKeyRepo,
@@ -53,7 +52,7 @@ export type IamRepos =
   | TeamRepo
   | ScimProviderRepo;
 
-export type IamReposLive = Layer.Layer<IamRepos, SqlError | ConfigError, SqlClient>;
+export type IamReposLive = Layer.Layer<IamRepos, never, Db.PgClientServices | IamDb.IamDb>;
 
 export const layer: IamReposLive = Layer.mergeAll(
   AccountRepo.Default,
@@ -79,6 +78,6 @@ export const layer: IamReposLive = Layer.mergeAll(
   OrganizationRepo.Default,
   TeamRepo.Default,
   ScimProviderRepo.Default
-) satisfies Layer.Layer<IamRepos, SqlError | ConfigError, SqlClient>;
+);
 
 export * from "./repos";

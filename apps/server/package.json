@@ -32,9 +32,6 @@
   "dependencies": {
     "@beep/mock": "workspace:^",
     "@beep/constants": "workspace:^",
-    "@beep/core-db": "workspace:^",
-    "@beep/core-email": "workspace:^",
-    "@beep/core-env": "workspace:^",
     "@beep/errors": "workspace:^",
     "@beep/documents-domain": "workspace:^",
     "@beep/documents-infra": "workspace:^",

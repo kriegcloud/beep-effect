@@ -12,12 +12,6 @@
   },
   "references": [
     {
-      "path": "../../core/db/tsconfig.build.json"
-    },
-    {
-      "path": "../../core/env/tsconfig.build.json"
-    },
-    {
       "path": "../../common/identity/tsconfig.build.json"
     },
     {

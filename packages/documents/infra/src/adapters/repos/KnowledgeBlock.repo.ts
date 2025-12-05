@@ -1,7 +1,7 @@
-import { Repo } from "@beep/core-db/Repo";
 import { Entities } from "@beep/documents-domain";
 import { dependencies } from "@beep/documents-infra/adapters/repos/_common";
 import { DocumentsEntityIds } from "@beep/shared-domain";
+import { Repo } from "@beep/shared-infra/Repo";
 import * as Effect from "effect/Effect";
 
 export class KnowledgeBlockRepo extends Effect.Service<KnowledgeBlockRepo>()(

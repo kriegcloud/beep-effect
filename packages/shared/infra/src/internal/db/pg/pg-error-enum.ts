@@ -1,8 +1,8 @@
-import {BS} from "@beep/schema";
-import {pipe, Struct} from "effect";
+import { invariant } from "@beep/invariant";
+import { BS } from "@beep/schema";
+import { reverseRecord } from "@beep/utils/data/record.utils";
+import { pipe, Struct } from "effect";
 import * as A from "effect/Array";
-import {invariant} from "@beep/invariant";
-import {reverseRecord} from "@beep/utils/data/record.utils";
 
 export const PostgresErrorEnum = {
   /** Class 00 - Successful Completion: [S] successful_completion */
@@ -538,26 +538,22 @@ export const PostgresErrorEnum = {
   UNKNOWN: "UNKNOWN",
 } as const;
 
-export type Pair = readonly [key: keyof typeof PostgresErrorEnum, value: typeof PostgresErrorEnum[keyof typeof PostgresErrorEnum]]
-export type PairArray = A.NonEmptyReadonlyArray<Pair>
-export const pgErrorEntries = pipe(
-  PostgresErrorEnum,
-  Struct.entries,
-  (entries): PairArray => {
-    invariant(A.isNonEmptyReadonlyArray(entries), "must be non empty array", {
-      file: "@beep/shared-infra/internal/db/Database/pg-error-enum.ts",
-      line: 544,
-      args: entries,
-    });
+export type Pair = readonly [
+  key: keyof typeof PostgresErrorEnum,
+  value: (typeof PostgresErrorEnum)[keyof typeof PostgresErrorEnum],
+];
+export type PairArray = A.NonEmptyReadonlyArray<Pair>;
+export const pgErrorEntries = pipe(PostgresErrorEnum, Struct.entries, (entries): PairArray => {
+  invariant(A.isNonEmptyReadonlyArray(entries), "must be non empty array", {
+    file: "@beep/shared-infra/internal/db/Database/pg-error-enum.ts",
+    line: 544,
+    args: entries,
+  });
 
-    return entries;
-  }
-);
+  return entries;
+});
 
-export class PgErrorCodeFromKey extends BS.MappedLiteralKit(
-  ...pgErrorEntries
-) {
+export class PgErrorCodeFromKey extends BS.MappedLiteralKit(...pgErrorEntries) {
   static readonly Enum = PostgresErrorEnum;
-  static readonly EnumReverse = reverseRecord(PostgresErrorEnum)
+  static readonly EnumReverse = reverseRecord(PostgresErrorEnum);
 }
-

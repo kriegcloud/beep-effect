@@ -36,7 +36,6 @@
   "peerDependencies": {
     "@beep/ui": "workspace:^",
     "@beep/shared-domain": "workspace:^",
-    "@beep/core-env": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/errors": "workspace:^",
@@ -57,7 +56,6 @@
     "@beep/shared-domain": "workspace:^",
     "@beep/shared-sdk": "workspace:^",
     "@beep/shared-ui": "workspace:^",
-    "@beep/core-env": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/utils": "workspace:^",

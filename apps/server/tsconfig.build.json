@@ -29,12 +29,6 @@
       "path": "../../packages/shared/tables/tsconfig.build.json"
     },
     {
-      "path": "../../packages/core/env/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/core/db/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/iam/infra/tsconfig.build.json"
     },
     {

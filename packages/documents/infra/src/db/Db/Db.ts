@@ -1,19 +1,15 @@
-import { Db } from "@beep/core-db";
 import * as DocumentsDbSchema from "@beep/documents-tables/schema";
-import type { SqlClient } from "@effect/sql/SqlClient";
-import type { SqlError } from "@effect/sql/SqlError";
-import type { ConfigError } from "effect/ConfigError";
+import { Db } from "@beep/shared-infra/Db";
 import * as Context from "effect/Context";
-import * as Effect from "effect/Effect";
-import * as _Layer from "effect/Layer";
+import * as Layer from "effect/Layer";
 
-const { serviceEffect, TransactionContext } = Db.make(DocumentsDbSchema);
-export const DocumentsTxContext = TransactionContext;
-export type Layer = _Layer.Layer<DocumentsDb, SqlError | ConfigError, SqlClient>;
+const serviceEffect = Db.make({
+  schema: DocumentsDbSchema,
+});
 
 export class DocumentsDb extends Context.Tag("@beep/documents-infra/DocumentsDb")<
   DocumentsDb,
-  Db.Db<typeof DocumentsDbSchema>
+  Db.DatabaseService<typeof DocumentsDbSchema>
 >() {
-  static readonly Live = _Layer.scoped(this, serviceEffect.pipe(Effect.orDie));
+  static readonly Live: Layer.Layer<DocumentsDb, never, Db.SliceDbRequirements> = Layer.scoped(this, serviceEffect);
 }

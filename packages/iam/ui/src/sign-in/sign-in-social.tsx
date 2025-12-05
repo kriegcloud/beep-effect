@@ -1,5 +1,5 @@
 import { AuthProviderNameValue } from "@beep/constants";
-import { clientEnv } from "@beep/core-env/client";
+import { clientEnv } from "@beep/shared-infra/ClientEnv";
 import Box, { type BoxProps } from "@mui/material/Box";
 import * as A from "effect/Array";
 import * as F from "effect/Function";

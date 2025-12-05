@@ -67,12 +67,6 @@
       "@beep/shared-sdk/*": ["../../packages/sdk/infra/src/*"],
       "@beep/shared-ui": ["../../packages/shared/ui/src/index"],
       "@beep/shared-ui/*": ["../../packages/ui/infra/src/*"],
-      "@beep/core-env/client": ["../../packages/core/env/src/client"],
-      "@beep/core-env/server": ["../../packages/core/env/src/server"],
-      "@beep/core-email": ["../../packages/core/email/src/index"],
-      "@beep/core-email/*": ["../../packages/core/email/src/*"],
-      "@beep/core-db": ["../../packages/core/db/src/index"],
-      "@beep/core-db/*": ["../../packages/core/db/src/*"],
       "@beep/ui/*": ["../../packages/ui/ui/src/*"],
       "@beep/ui-core/*": ["../../packages/ui/core/src/*"],
       "@beep/iam-domain": ["../../packages/iam/domain/src/index"],
@@ -148,15 +142,6 @@
     },
     {
       "path": "../../packages/shared/ui/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/core/env/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/core/email/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/core/db/tsconfig.build.json"
     },
     {
       "path": "../../packages/iam/sdk/tsconfig.build.json"

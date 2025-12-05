@@ -9,15 +9,6 @@
       "path": "../domain"
     },
     {
-      "path": "../../core/db"
-    },
-    {
-      "path": "../../core/env"
-    },
-    {
-      "path": "../../core/email"
-    },
-    {
       "path": "../../common/identity"
     },
     {

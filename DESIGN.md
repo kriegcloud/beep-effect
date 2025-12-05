@@ -2389,7 +2389,7 @@ Reason: Repositories use @effect/sql/Model for type-safe database operations wit
 
 **Standard Structure:**
 ```typescript
-import { Repo } from "@beep/core-db/Repo";
+import { Repo } from "@beep/shared-infra/Repo";
 import { Entities } from "@beep/documents-domain";
 import { dependencies } from "@beep/documents-infra/adapters/repos/_common";
 import { DocumentsDb } from "@beep/documents-infra/db";

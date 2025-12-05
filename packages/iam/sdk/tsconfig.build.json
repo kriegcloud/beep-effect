@@ -41,9 +41,6 @@
       "path": "../../common/contract/tsconfig.build.json"
     },
     {
-      "path": "../../core/env/tsconfig.build.json"
-    },
-    {
       "path": "../../runtime/client/tsconfig.build.json"
     },
     {

@@ -1,4 +1,3 @@
-import { Repo } from "@beep/core-db/Repo";
 import { Entities } from "@beep/documents-domain";
 import {
   KnowledgePageCircularReferenceError,
@@ -9,6 +8,7 @@ import { dependencies } from "@beep/documents-infra/adapters/repos/_common";
 import { DocumentsDb } from "@beep/documents-infra/db";
 import { DocumentsDbSchema } from "@beep/documents-tables";
 import { DocumentsEntityIds } from "@beep/shared-domain";
+import { Repo } from "@beep/shared-infra/Repo";
 import * as SqlClient from "@effect/sql/SqlClient";
 import type * as SqlError from "@effect/sql/SqlError";
 import * as SqlSchema from "@effect/sql/SqlSchema";
@@ -273,7 +273,7 @@ export class KnowledgePageRepo extends Effect.Service<KnowledgePageRepo>()(
                 onSome: Effect.succeed,
               })
             ),
-            Effect.catchTag("DbError", Effect.die)
+            Effect.catchTag("DatabaseError", Effect.die)
           )
       );
 

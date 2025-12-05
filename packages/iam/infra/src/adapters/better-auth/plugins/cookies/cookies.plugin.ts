@@ -1,4 +1,4 @@
-// import { serverEnv } from "@beep/core-env/server";
+// import { serverEnv } from "@beep/shared-infra/ServerEnv";
 import { nextCookies } from "better-auth/next-js";
 // import { tanstackStartCookies } from "better-auth/tanstack-start";
 import * as Effect from "effect/Effect";

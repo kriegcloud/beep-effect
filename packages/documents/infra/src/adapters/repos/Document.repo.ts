@@ -1,10 +1,10 @@
-import { DbError } from "@beep/core-db/errors";
-import { Repo } from "@beep/core-db/Repo";
 import { Entities } from "@beep/documents-domain";
 import { Document } from "@beep/documents-domain/entities";
 import { dependencies } from "@beep/documents-infra/adapters/repos/_common";
 import { DocumentsDb } from "@beep/documents-infra/db";
 import { DocumentsEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { Db } from "@beep/shared-infra/Db";
+import { Repo } from "@beep/shared-infra/Repo";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as SqlSchema from "@effect/sql/SqlSchema";
 import * as Effect from "effect/Effect";
@@ -42,7 +42,10 @@ export class DocumentRepo extends Effect.Service<DocumentRepo>()("@beep/document
      */
     const findByIdOrFail = (
       id: DocumentsEntityIds.DocumentId.Type
-    ): Effect.Effect<typeof Entities.Document.Model.Type, Document.DocumentErrors.DocumentNotFoundError | DbError> =>
+    ): Effect.Effect<
+      typeof Entities.Document.Model.Type,
+      Document.DocumentErrors.DocumentNotFoundError | Db.DatabaseError
+    > =>
       baseRepo.findById(id).pipe(
         Effect.flatMap(
           O.match({
@@ -92,7 +95,7 @@ export class DocumentRepo extends Effect.Service<DocumentRepo>()("@beep/document
 
     const search = (params: typeof SearchRequest.Type) =>
       searchSchema(params).pipe(
-        Effect.mapError(DbError.match),
+        Effect.mapError(Db.DatabaseError.$match),
         Effect.withSpan("DocumentRepo.search", { attributes: { query: params.query } })
       );
 
@@ -124,7 +127,7 @@ export class DocumentRepo extends Effect.Service<DocumentRepo>()("@beep/document
           })
         ).pipe(
           Effect.flatMap(S.decode(S.Array(Entities.Document.Model))),
-          Effect.mapError(DbError.match),
+          Effect.mapError(Db.DatabaseError.$match),
           Effect.withSpan("DocumentRepo.listByUser", { attributes: { userId: params.userId } })
         )
     );
@@ -163,7 +166,7 @@ export class DocumentRepo extends Effect.Service<DocumentRepo>()("@beep/document
           })
         ).pipe(
           Effect.flatMap(S.decode(S.Array(Entities.Document.Model))),
-          Effect.mapError(DbError.match),
+          Effect.mapError(Db.DatabaseError.$match),
           Effect.withSpan("DocumentRepo.list", { attributes: { organizationId: params.organizationId } })
         )
     );
@@ -194,7 +197,7 @@ export class DocumentRepo extends Effect.Service<DocumentRepo>()("@beep/document
           })
         ).pipe(
           Effect.flatMap(S.decode(S.Array(Entities.Document.Model))),
-          Effect.mapError(DbError.match),
+          Effect.mapError(Db.DatabaseError.$match),
           Effect.withSpan("DocumentRepo.listArchived", { attributes: { organizationId: params.organizationId } })
         )
     );
@@ -221,7 +224,7 @@ export class DocumentRepo extends Effect.Service<DocumentRepo>()("@beep/document
           })
         ).pipe(
           Effect.flatMap(S.decode(S.Array(Entities.Document.Model))),
-          Effect.mapError(DbError.match),
+          Effect.mapError(Db.DatabaseError.$match),
           Effect.withSpan("DocumentRepo.listChildren", { attributes: { parentDocumentId: params.parentDocumentId } })
         )
     );

@@ -26,7 +26,7 @@ export const DocumentHandlersLive = Document.DocumentRpcs.Rpcs.toLayer(
         repo
           .findByIdOrFail(payload.id)
           .pipe(
-            Effect.catchTag("DbError", Effect.die),
+            Effect.catchTag("DatabaseError", Effect.die),
             Effect.withSpan("DocumentHandlers.get", { attributes: { id: payload.id } })
           ),
 
@@ -38,7 +38,7 @@ export const DocumentHandlersLive = Document.DocumentRpcs.Rpcs.toLayer(
           })
           .pipe(
             Effect.map(Stream.fromIterable),
-            Effect.catchTag("DbError", Effect.die),
+            Effect.catchTag("DatabaseError", Effect.die),
             Stream.unwrap,
             Stream.withSpan("DocumentHandlers.listByUser")
           ),
@@ -54,7 +54,7 @@ export const DocumentHandlersLive = Document.DocumentRpcs.Rpcs.toLayer(
           })
           .pipe(
             Effect.map(Stream.fromIterable),
-            Effect.catchTag("DbError", Effect.die),
+            Effect.catchTag("DatabaseError", Effect.die),
             Stream.unwrap,
             Stream.withSpan("DocumentHandlers.list")
           ),
@@ -69,7 +69,7 @@ export const DocumentHandlersLive = Document.DocumentRpcs.Rpcs.toLayer(
           });
         }).pipe(
           Effect.map(Stream.fromIterable),
-          Effect.catchTag("DbError", Effect.die),
+          Effect.catchTag("DatabaseError", Effect.die),
           Stream.unwrap,
           Stream.withSpan("DocumentHandlers.listTrash")
         ),
@@ -81,7 +81,7 @@ export const DocumentHandlersLive = Document.DocumentRpcs.Rpcs.toLayer(
           })
           .pipe(
             Effect.map(Stream.fromIterable),
-            Effect.catchTag("DbError", Effect.die),
+            Effect.catchTag("DatabaseError", Effect.die),
             Stream.unwrap,
             Stream.withSpan("DocumentHandlers.listChildren")
           ),
@@ -106,7 +106,7 @@ export const DocumentHandlersLive = Document.DocumentRpcs.Rpcs.toLayer(
                 }))
               )
             ),
-            Effect.catchTag("DbError", Effect.die),
+            Effect.catchTag("DatabaseError", Effect.die),
             Stream.unwrap,
             Stream.withSpan("DocumentHandlers.search")
           ),
@@ -125,7 +125,7 @@ export const DocumentHandlersLive = Document.DocumentRpcs.Rpcs.toLayer(
           });
           return yield* repo.insert(insertData);
         }).pipe(
-          Effect.catchTag("DbError", Effect.die),
+          Effect.catchTag("DatabaseError", Effect.die),
           Effect.catchTag("ParseError", Effect.die),
           Effect.withSpan("DocumentHandlers.create")
         ),
@@ -134,7 +134,7 @@ export const DocumentHandlersLive = Document.DocumentRpcs.Rpcs.toLayer(
         repo
           .update(payload)
           .pipe(
-            Effect.catchTag("DbError", Effect.die),
+            Effect.catchTag("DatabaseError", Effect.die),
             Effect.withSpan("DocumentHandlers.update", { attributes: { id: payload.id } })
           ),
 
@@ -142,7 +142,7 @@ export const DocumentHandlersLive = Document.DocumentRpcs.Rpcs.toLayer(
         repo
           .archive(payload.id)
           .pipe(
-            Effect.catchTag("DbError", Effect.die),
+            Effect.catchTag("DatabaseError", Effect.die),
             Effect.withSpan("DocumentHandlers.archive", { attributes: { id: payload.id } })
           ),
 
@@ -150,7 +150,7 @@ export const DocumentHandlersLive = Document.DocumentRpcs.Rpcs.toLayer(
         repo
           .restore(payload.id)
           .pipe(
-            Effect.catchTag("DbError", Effect.die),
+            Effect.catchTag("DatabaseError", Effect.die),
             Effect.withSpan("DocumentHandlers.restore", { attributes: { id: payload.id } })
           ),
 
@@ -158,7 +158,7 @@ export const DocumentHandlersLive = Document.DocumentRpcs.Rpcs.toLayer(
         repo
           .publish(payload.id)
           .pipe(
-            Effect.catchTag("DbError", Effect.die),
+            Effect.catchTag("DatabaseError", Effect.die),
             Effect.withSpan("DocumentHandlers.publish", { attributes: { id: payload.id } })
           ),
 
@@ -166,7 +166,7 @@ export const DocumentHandlersLive = Document.DocumentRpcs.Rpcs.toLayer(
         repo
           .unpublish(payload.id)
           .pipe(
-            Effect.catchTag("DbError", Effect.die),
+            Effect.catchTag("DatabaseError", Effect.die),
             Effect.withSpan("DocumentHandlers.unpublish", { attributes: { id: payload.id } })
           ),
 
@@ -174,7 +174,7 @@ export const DocumentHandlersLive = Document.DocumentRpcs.Rpcs.toLayer(
         repo
           .lock(payload.id)
           .pipe(
-            Effect.catchTag("DbError", Effect.die),
+            Effect.catchTag("DatabaseError", Effect.die),
             Effect.withSpan("DocumentHandlers.lock", { attributes: { id: payload.id } })
           ),
 
@@ -182,14 +182,14 @@ export const DocumentHandlersLive = Document.DocumentRpcs.Rpcs.toLayer(
         repo
           .unlock(payload.id)
           .pipe(
-            Effect.catchTag("DbError", Effect.die),
+            Effect.catchTag("DatabaseError", Effect.die),
             Effect.withSpan("DocumentHandlers.unlock", { attributes: { id: payload.id } })
           ),
 
       delete: (payload) =>
         repo.findByIdOrFail(payload.id).pipe(
           Effect.flatMap(() => repo.hardDelete(payload.id)),
-          Effect.catchTag("DbError", Effect.die),
+          Effect.catchTag("DatabaseError", Effect.die),
           Effect.withSpan("DocumentHandlers.delete", { attributes: { id: payload.id } })
         ),
     };

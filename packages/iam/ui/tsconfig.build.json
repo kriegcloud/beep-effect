@@ -57,9 +57,6 @@
       "path": "../../common/errors/tsconfig.build.json"
     },
     {
-      "path": "../../core/env/tsconfig.build.json"
-    },
-    {
       "path": "../sdk/tsconfig.build.json"
     },
     {

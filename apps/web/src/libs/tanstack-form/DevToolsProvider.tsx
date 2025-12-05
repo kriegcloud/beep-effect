@@ -1,5 +1,5 @@
 import { EnvValue } from "@beep/constants";
-import { clientEnv } from "@beep/core-env/client";
+import { clientEnv } from "@beep/shared-infra/ClientEnv";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { formDevtoolsPlugin } from "@tanstack/react-form-devtools";
 import type React from "react";

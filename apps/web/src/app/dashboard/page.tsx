@@ -1,5 +1,5 @@
-import { serverEnv } from "@beep/core-env/server";
 import { PasskeysView } from "@beep/iam-ui";
+import { serverEnv } from "@beep/shared-infra/ServerEnv";
 import { DashboardContent } from "@beep/ui/layouts/dashboard/content";
 import type { Metadata } from "next";
 

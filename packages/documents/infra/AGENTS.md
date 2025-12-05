@@ -79,7 +79,7 @@
   ```
 - **Extend FileRepo inside its service effect**
   ```ts
-  import { Repo } from "@beep/core-db/Repo";
+  import { Repo } from "@beep/shared-infra/Repo";
   import { DocumentsDb } from "@beep/documents-infra/db";
   import { SharedEntityIds } from "@beep/shared-domain";
   import { File } from "@beep/shared-domain/entities";

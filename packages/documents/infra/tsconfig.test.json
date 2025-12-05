@@ -3,12 +3,6 @@
   "include": ["test"],
   "references": [
     {
-      "path": "../../core/db"
-    },
-    {
-      "path": "../../core/env"
-    },
-    {
       "path": "../../shared/tables"
     },
     {

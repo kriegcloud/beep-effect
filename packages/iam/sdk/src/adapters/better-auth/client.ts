@@ -1,5 +1,5 @@
-import { clientEnv } from "@beep/core-env/client";
 import type { Auth } from "@beep/iam-infra";
+import { clientEnv } from "@beep/shared-infra/ClientEnv";
 import { asyncNoOp } from "@beep/utils";
 import type { BetterAuthClientOptions } from "@better-auth/core";
 import { passkeyClient } from "@better-auth/passkey/client";

@@ -20,15 +20,6 @@
       "path": "../../common/identity/tsconfig.build.json"
     },
     {
-      "path": "../../core/db/tsconfig.build.json"
-    },
-    {
-      "path": "../../core/env/tsconfig.build.json"
-    },
-    {
-      "path": "../../core/email/tsconfig.build.json"
-    },
-    {
       "path": "../../shared/tables/tsconfig.build.json"
     },
     {

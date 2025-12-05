@@ -23,9 +23,6 @@
       "path": "../../shared/sdk/tsconfig.build.json"
     },
     {
-      "path": "../../core/env/tsconfig.build.json"
-    },
-    {
       "path": "../../common/identity/tsconfig.build.json"
     },
     {

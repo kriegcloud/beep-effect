@@ -1,16 +1,10 @@
 import { AllowedHeaders, AllowedHttpMethods } from "@beep/constants";
-import { Db } from "@beep/core-db";
-import { ResendService } from "@beep/core-email";
-import { serverEnv } from "@beep/core-env/server";
-import { layer as reposLayer } from "@beep/documents-infra/adapters/repositories";
 import { Api, KnowledgePageRouterLive } from "@beep/documents-infra/routes";
 import { BeepError } from "@beep/errors/shared";
-import { AuthEmailService } from "@beep/iam-infra";
 import { AuthService } from "@beep/iam-infra/adapters/better-auth/Auth.service";
-import { IamConfig } from "@beep/iam-infra/config";
-import { IamDb } from "@beep/iam-infra/db";
 import { Session, User } from "@beep/shared-domain/entities";
 import { AuthContext, UserAuthMiddleware } from "@beep/shared-domain/Policy";
+import { serverEnv } from "@beep/shared-infra/ServerEnv";
 import * as HttpApiBuilder from "@effect/platform/HttpApiBuilder";
 import * as HttpApiScalar from "@effect/platform/HttpApiScalar";
 import * as HttpMiddleware from "@effect/platform/HttpMiddleware";
@@ -22,68 +16,62 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { headers } from "next/headers";
+import { SlicesLive } from "../Slices";
 
-const DbLive = Layer.provideMerge(IamDb.IamDb.Live, Db.Live);
-const ReposLive = Layer.provideMerge(reposLayer, DbLive);
-
-const AuthEmailLive = AuthEmailService.DefaultWithoutDependencies.pipe(
-  Layer.provideMerge(Layer.provideMerge(ResendService.Default, IamConfig.Live))
-);
-
-const CoreServicesLive = Layer.provideMerge(ReposLive, AuthEmailLive);
-
-const AuthLive = AuthService.DefaultWithoutDependencies.pipe(Layer.provide([CoreServicesLive, IamConfig.Live]));
-
+// User auth middleware - requires AuthService (provided by SlicesLive)
 const UserAuthMiddlewareLive = Layer.effect(
   UserAuthMiddleware,
   Effect.gen(function* () {
     const { auth } = yield* AuthService;
-    const currentUserOpt = yield* Effect.tryPromise({
-      try: async () => {
-        const session = await auth.api.getSession({
-          headers: await headers(),
-        });
-        return O.fromNullable(session);
-      },
-      catch: () =>
-        new BeepError.Unauthorized({
-          message: "Unauthorized current User not found",
-        }),
-    });
-    if (O.isNone(currentUserOpt)) {
-      return yield* new BeepError.Unauthorized({
-        message: "Unauthorized current User not found",
+    return Effect.gen(function* () {
+      const currentUserOpt = yield* Effect.tryPromise({
+        try: async () => {
+          const session = await auth.api.getSession({
+            headers: await headers(),
+          });
+          return O.fromNullable(session);
+        },
+        catch: () =>
+          new BeepError.Unauthorized({
+            message: "Unauthorized: failed to get session",
+          }),
       });
-    }
-    const currentUser = yield* S.decodeUnknown(User.Model)(currentUserOpt.value.user).pipe(
-      Effect.mapError(
-        () =>
-          new BeepError.Unauthorized({
-            message: "Unauthorized current User not found",
-          })
-      )
-    );
-    const currentSession = yield* S.decodeUnknown(Session.Model)(currentUserOpt.value.session).pipe(
-      Effect.mapError(
-        () =>
-          new BeepError.Unauthorized({
-            message: "Unauthorized current User not found",
-          })
-      )
-    );
-    return Effect.succeed(
-      AuthContext.of({
+      if (O.isNone(currentUserOpt)) {
+        return yield* new BeepError.Unauthorized({
+          message: "Unauthorized: no session found",
+        });
+      }
+      const currentUser = yield* S.decodeUnknown(User.Model)(currentUserOpt.value.user).pipe(
+        Effect.mapError(
+          () =>
+            new BeepError.Unauthorized({
+              message: "Unauthorized: invalid user data",
+            })
+        )
+      );
+      const currentSession = yield* S.decodeUnknown(Session.Model)(currentUserOpt.value.session).pipe(
+        Effect.mapError(
+          () =>
+            new BeepError.Unauthorized({
+              message: "Unauthorized: invalid session data",
+            })
+        )
+      );
+      return AuthContext.of({
         user: currentUser,
         session: currentSession,
-      } as const)
-    );
+      } as const);
+    });
   })
-).pipe(Layer.provide(AuthLive));
-UserAuthMiddlewareLive;
-const RoutesLive = Layer.provideMerge(KnowledgePageRouterLive, ReposLive);
+).pipe(Layer.provide(SlicesLive));
+
+// Routes layer - requires DocumentsRepos (provided by SlicesLive)
+const RoutesLive = KnowledgePageRouterLive.pipe(Layer.provide(SlicesLive));
+
 const ScalarLayer = HttpApiScalar.layer({
   path: "/api/v1/documents/docs",
 });
+
 const ApiLive = HttpApiBuilder.api(Api).pipe(Layer.provide(RoutesLive), Layer.provide(UserAuthMiddlewareLive));
 
 const CorsLive = HttpApiBuilder.middlewareCors({
@@ -99,6 +87,7 @@ export const { handler } = HttpApiBuilder.toWebHandler(
     middleware: F.pipe(HttpMiddleware.logger),
   }
 );
+
 const toNextHandlers = (
   handler: (request: Request, context?: Context.Context<never> | undefined) => Promise<Response>
 ) => ({

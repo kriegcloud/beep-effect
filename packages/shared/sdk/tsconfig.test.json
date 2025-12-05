@@ -6,9 +6,6 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../../core/env"
-    },
-    {
       "path": "../../common/schema"
     },
     {

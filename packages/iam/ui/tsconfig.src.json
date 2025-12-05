@@ -34,9 +34,6 @@
       "path": "../../common/contract"
     },
     {
-      "path": "../../core/env"
-    },
-    {
       "path": "../../common/constants"
     },
     {

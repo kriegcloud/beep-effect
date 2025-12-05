@@ -1,9 +1,9 @@
-import { serverEnv } from "@beep/core-env/server";
 import { AuthService } from "@beep/iam-infra/adapters/better-auth/Auth.service";
 import { runServerPromise } from "@beep/runtime-server";
 import { FileStatus } from "@beep/shared-domain/entities/File/schemas";
 import { verifySignature } from "@beep/shared-infra/internal/upload/crypto";
 import { UploadError } from "@beep/shared-infra/internal/upload/error";
+import { serverEnv } from "@beep/shared-infra/ServerEnv";
 import { Effect } from "effect";
 import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";

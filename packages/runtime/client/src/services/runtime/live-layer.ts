@@ -1,5 +1,5 @@
-import { clientEnv } from "@beep/core-env/client";
 import { ApiClient } from "@beep/runtime-client/services/common/iam-api-client";
+import { clientEnv } from "@beep/shared-infra/ClientEnv";
 import { ToasterService } from "@beep/ui/services/toaster.service";
 import { WebSdk } from "@effect/opentelemetry";
 import { FetchHttpClient } from "@effect/platform";

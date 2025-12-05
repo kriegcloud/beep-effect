@@ -72,7 +72,7 @@ declare module "effect/Schema" {
     }
   }
 }
-export const ScopesAnnotationId = Symbol.for("@beep/core-env/scopes");
+export const ScopesAnnotationId = Symbol.for("@beep/schema/core/annotations/scopes");
 
 export type Scopes = ReadonlyArray<StringTypes.NonEmptyString>;
 

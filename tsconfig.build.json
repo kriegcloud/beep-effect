@@ -48,15 +48,6 @@
       "path": "packages/shared/sdk/tsconfig.build.json"
     },
     {
-      "path": "packages/core/env/tsconfig.build.json"
-    },
-    {
-      "path": "packages/core/email/tsconfig.build.json"
-    },
-    {
-      "path": "packages/core/db/tsconfig.build.json"
-    },
-    {
       "path": "packages/iam/sdk/tsconfig.build.json"
     },
     {
