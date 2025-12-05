@@ -7,20 +7,23 @@
 - Serves as the entry point for shared Postgres enums (e.g., organization subscription tiers) and table re-exports under `SharedDbSchemas`.
 
 ## Surface Map
-- `Table.make` (`src/Table.ts`) — builds a pg table with default id/audit columns using an `EntityIdSchemaInstance`.
-- `OrgTable.make` (`src/OrgTable.ts`) — extends `Table.make` with `organizationId` foreign key wiring to `organization.id`.
-- `Common`: `globalColumns`, `auditColumns`, `userTrackingColumns`, `utcNow` helper (`src/common.ts`).
+- `Table.make` (`src/Table/Table.ts`) — builds a pg table with default id/audit columns using an `EntityIdSchemaInstance`.
+- `OrgTable.make` (`src/OrgTable/OrgTable.ts`) — extends `Table.make` with `organizationId` foreign key wiring to `organization.id`.
+- `Common` namespace (`src/common.ts`): `globalColumns`, `auditColumns`, `userTrackingColumns`, `utcNow` helper.
 - `Columns` types (`src/Columns.ts`) — structural types describing the default column builders.
-- `SharedDbSchemas` namespace (`src/tables/index.ts`) — re-exports concrete tables: `organization`, `team`, `user`, `file`.
+- Custom columns (`src/columns/index.ts`): `bytea` (Uint8Array), `byteaBase64` (Base64 string interface for binary data).
+- `SharedDbSchemas` namespace (`src/tables/index.ts`) — re-exports concrete tables: `organization`, `team`, `user`, `file`, `session`.
+- `schema.ts` — re-exports all tables for convenience import (`@beep/shared-tables/schema`).
 - `_check.ts` — compile-time assertions that Drizzle `Infer*Model` matches domain codecs.
 - Package scripts (`package.json`) — build, lint, type, and test orchestration wired to Bun/TS.
 
 ## Usage Snapshots
-- `packages/iam/tables/src/tables/session.table.ts:5` uses `Table.make(SharedEntityIds.SessionId)` to define session storage with shared audit columns and org/team references.
-- `packages/iam/tables/src/tables/member.table.ts:8` calls `OrgTable.make(IamEntityIds.MemberId)` so memberships inherit `organizationId` cascade semantics.
-- `packages/iam/tables/src/relations.ts:1` imports `@beep/shared-tables/schema` to compose Drizzle relations against the shared `organization`, `team`, and `user` tables.
-- `packages/shared/tables/src/_check.ts:5` enforces Drizzle `organization` definitions stay in lock-step with `@beep/shared-domain/entities`.
-- `packages/shared/tables/src/tables/file.table.ts:7` demonstrates `OrgTable.make(SharedEntityIds.FileId)` for multi-tenant file metadata with organization relations.
+- `packages/shared/tables/src/tables/session.table.ts:10` uses `Table.make(SharedEntityIds.SessionId)` to define session storage with shared audit columns and org/team references.
+- `packages/iam/tables/src/tables/member.table.ts:9` calls `OrgTable.make(IamEntityIds.MemberId)` so memberships inherit `organizationId` cascade semantics.
+- `packages/iam/tables/src/relations.ts` imports `@beep/shared-tables/schema` to compose Drizzle relations against the shared `organization`, `team`, and `user` tables.
+- `packages/shared/tables/src/_check.ts` enforces Drizzle `organization`, `team`, and `session` definitions stay in lock-step with `@beep/shared-domain/entities`.
+- `packages/shared/tables/src/tables/file.table.ts:16` demonstrates `OrgTable.make(SharedEntityIds.FileId)` for multi-tenant file metadata with organization relations.
+- `packages/documents/tables/src/tables/document.table.ts` imports `bytea` custom column type for storing binary snapshots efficiently.
 
 ## Tooling & Docs Shortcuts
 - Locate downstream adopters of the factory: `jetbrains__search_in_files_by_text` with `{"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","searchText":"Table.make(","maxUsageCount":50,"timeout":120000}`.

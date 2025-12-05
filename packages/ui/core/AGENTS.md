@@ -1,11 +1,53 @@
 # `@beep/ui-core` Agent Guide
 
 ## Mission & Exports
-- Acts as the source of truth for design tokens, palette math, typography, and MUI component overrides consumed by higher-level packages such as `@beep/ui`.
-- Public surface lives under:
-  - `packages/ui-core/src/theme/index.ts` – re-exports `createTheme`, `baseTheme`, `themeConfig`, `components`, `with-settings` helpers, `styles`, and type augmentation hooks.
-  - `packages/ui-core/src/settings/index.ts` – exposes `SettingsProvider` types, defaults, storage keys, and schema utilities.
-- Any exports added here ripple into the entire monorepo. Confirm new tokens or helpers are re-exported through these index barrels.
+
+This package is the source of truth for design tokens, palette math, typography, and MUI component overrides consumed by higher-level packages such as `@beep/ui`.
+
+### Package Exports (via `package.json`)
+
+The package exposes the following entry points:
+
+- `@beep/ui-core/theme/*` - Theme system (palette, typography, components, settings application)
+- `@beep/ui-core/settings/*` - Settings types, defaults, and storage config
+- `@beep/ui-core/utils/*` - Utility functions (color, font, storage, formatting)
+- `@beep/ui-core/i18n/*` - Internationalization config and locale helpers
+- `@beep/ui-core/constants/*` - Iconify registration utilities
+- `@beep/ui-core/adapters` - Effect DateTime adapter for MUI X Date Pickers
+- `@beep/ui-core/globals.css` - Global CSS imports
+- `@beep/ui-core/postcss.config` - PostCSS configuration
+
+### Key Public Exports
+
+**Theme (`@beep/ui-core/theme`):**
+- `createTheme` - Main theme factory accepting settings state, locale components, and overrides
+- `baseTheme` - Base theme configuration with dual color schemes
+- `themeConfig` - Theme configuration defaults
+- `components` - MUI component overrides
+- `palette`, `typography`, `shadows`, `customShadows`, `mixins` - Core theme building blocks
+- `applySettingsToTheme`, `applySettingsToComponents` - Settings application utilities
+- `primaryColorPresets`, `secondaryColorPresets`, `ThemeColorPreset` - Color preset system
+- `Rtl` - RTL wrapper component
+
+**Settings (`@beep/ui-core/settings`):**
+- `defaultSettings` - Default settings state
+- `SETTINGS_STORAGE_KEY` - Storage key constant
+- `SettingsState`, `SettingsContextValue`, `SettingsProviderProps` - TypeScript types
+
+**Utils (`@beep/ui-core/utils`):**
+- Color utilities: `createPaletteChannel`, `hexToRgbChannel`, `cssVarRgba`
+- Typography: `pxToRem`, `remToPx`, `setFont`
+- Storage: `getStorage`, `setStorage`, `removeStorage`, `getCookie`, `setCookie`
+- Formatting: `fDate`, `fTime`, `fDateTime`, `formatNumber`
+- React utilities: `createCtx`, `mergeClasses`, `isActiveLink`
+
+**i18n (`@beep/ui-core/i18n`):**
+- `allLanguages`, `allLangs` - Language configuration with MUI locale bundles
+- `fallbackLang`, `defaultNS` - i18n defaults
+- `SupportedLangValue` - Language enum schema
+
+**Adapters (`@beep/ui-core/adapters`):**
+- `AdapterEffectDateTime` - MUI X Date Picker adapter using Effect DateTime
 
 ## Theme Foundations
 - Starting point is `packages/ui-core/src/theme/create-theme.ts`:

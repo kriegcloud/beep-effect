@@ -6,11 +6,12 @@ import * as BunTerminal from "@effect/platform-bun/BunTerminal";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { envCommand } from "./commands/env.js";
+import { pruneUnusedDepsCommand } from "./commands/prune-unused-deps.js";
 import { syncCommand } from "./commands/sync.js";
 
 const repoCommand = CliCommand.make("beep").pipe(
   CliCommand.withDescription("Beep repository maintenance CLI."),
-  CliCommand.withSubcommands([envCommand, syncCommand])
+  CliCommand.withSubcommands([envCommand, syncCommand, pruneUnusedDepsCommand])
 );
 
 const runBeepCli = CliCommand.run(repoCommand, {

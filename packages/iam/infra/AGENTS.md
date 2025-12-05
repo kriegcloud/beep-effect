@@ -7,14 +7,14 @@
 
 ## Surface Map
 - **Configuration**
-  - `IamConfig` (`src/config.ts`): `Context.Tag` + `Layer` sourcing from `@beep/core-env/server`, with `.layerFrom` for overrides.
+  - `IamConfig` (`src/config.ts`): `Context.Tag` + `Layer` sourcing from `@beep/shared-infra`, with `.layerFrom` for overrides.
 - **Database**
-  - `IamDb.IamDb` (`src/db/Db.ts`): scoped Layer wrapping `@beep/core-db/db.factory` with IAM schema.
+  - `IamDb.IamDb` (`src/db/Db.ts`): scoped Layer wrapping `@beep/shared-infra/Db` factory with IAM schema.
 - **Repositories**
   - Individual repos (`src/adapters/repos/*.repo.ts`): `Effect.Service` wrappers around `Repo.make` for each IAM table, auto-registered in `IamRepos.layer`.
   - `IamRepos.layer` (`src/adapters/repositories.ts`): merges all repo Layers; expected to be provided alongside `IamDb.IamDb.Live`.
 - **Auth Services**
-  - `AuthEmailService` (`src/adapters/better-auth/AuthEmail.service.ts`): email send helpers (verification, reset, invitations, OTP) via `@beep/core-email`.
+  - `AuthEmailService` (`src/adapters/better-auth/AuthEmail.service.ts`): email send helpers (verification, reset, invitations, OTP) via `@beep/shared-infra/Email`.
   - `AuthService` (`src/adapters/better-auth/Auth.service.ts`): Better Auth integration + plugin aggregation, session helpers, database hooks.
   - `AllPlugins` (`src/adapters/better-auth/plugins/plugins.ts`): effect producing every registered Better Auth plugin with IAM-specific schemas.
 - **Exports** (`src/index.ts`): re-export adapters, `IamRepos`, configuration, and DB layer for consumers.
@@ -24,13 +24,6 @@
 - `packages/runtime/server/src/server-runtime.ts:74` — composes `IamRepos.layer` with Files repos, then wires `AuthEmailService` + `AuthService` into the server runtime Layer stack.
 - `packages/_internal/db-admin/test/iam-infra/repos/AccountRepo.test.ts:33` — exercises `IamRepos.AccountRepo` against a Docker Postgres container for regression coverage.
 - `packages/_internal/db-admin/test/pg-container.ts:251` — bootstraps IAM repos + DB Layer inside the testing container alongside Files infra.
-
-## Tooling & Docs Shortcuts
-- `effect_docs__effect_docs_search`: `{"query":"Effect.Service dependencies Layer.scoped"}`
-- `effect_docs__get_effect_doc`: `{"documentId":6115}` (Effect.Service reference)
-- `effect_docs__get_effect_doc`: `{"documentId":7092}` (Layer.scoped reference)
-- `context7__resolve-library-id`: `{"libraryName":"better-auth"}`
-- `context7__get-library-docs`: `{"context7CompatibleLibraryID":"/better-auth/better-auth","tokens":1200,"topic":"plugins"}`
 
 ## Authoring Guardrails
 - **Effect-first services**: always extend `Effect.Service` with `dependencies` defined as Layers. Never bypass `IamRepos.layer` or `IamDb.IamDb.Live`; provide additional dependencies via `Layer.provideMerge`.
@@ -43,7 +36,7 @@
 
 ## Quick Recipes
 ```ts
-import { serverEnv } from "@beep/core-env/server";
+import { serverEnv } from "@beep/shared-infra";
 import { AuthService, IamConfig, IamRepos } from "@beep/iam-infra";
 import { IamDb } from "@beep/iam-infra/db";
 import * as Effect from "effect/Effect";
@@ -107,5 +100,5 @@ export class AuditLogRepo extends Effect.Service<AuditLogRepo>()(
 - [ ] Better Auth plugin changes: update corresponding schema additions plus invitation/email hooks; ensure `AllPlugins` effect stays exhaustive.
 - [ ] Configuration tweaks: expose via `IamConfig` only; document required env keys in `docs/patterns/` if new secrets arise.
 - [ ] Layer graphs: validate wiring by running `bun run check --filter @beep/iam-infra` and inspecting for missing service requirements.
-- [ ] Emails: prefer `renderEmail` templates from `@beep/core-email`; pass redacted values for secrets and recipients.
+- [ ] Emails: prefer `renderEmail` templates from `@beep/shared-infra/Email`; pass redacted values for secrets and recipients.
 - [ ] Tests: add or extend `_internal/db-admin` suites when touching repo behavior; confirm Docker availability before relying on them.

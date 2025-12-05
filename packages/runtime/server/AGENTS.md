@@ -3,7 +3,7 @@
 ## Purpose & Fit
 - Provides the production-grade Effect runtime that powers server-side entry points, bundling observability, persistence, and IAM/files domain services defined in `packages/runtime/server/src/server-runtime.ts`.
 - Acts as the shared runtime for both API routes (`apps/web/src/app/api/*`) and any future Bun/Node hosts, encapsulating logging, tracing, repository hydration, and auth flows so apps do not hand-wire layers.
-- Anchors environment-sensitive behaviour via `@beep/core-env/server` (log level, OTLP endpoints) while deferring domain contracts to `@beep/iam-infra` and `@beep/documents-infra`.
+- Anchors environment-sensitive behaviour via `@beep/shared-infra` (log level, OTLP endpoints) while deferring domain contracts to `@beep/iam-infra` and `@beep/documents-infra`.
 
 ## Surface Map
 - `TelemetryLive` — OTLP trace/log exporters, service name binding (`packages/runtime/server/src/server-runtime.ts:38`).
@@ -24,30 +24,11 @@
 - `apps/web/src/app/api/auth/[...all]/route.ts:12` — Wraps Better Auth handler lookup inside `runServerPromise` to ensure auth dependencies and observability are present.
 - `packages/runtime/client/src/services/runtime/live-layer.ts:39` — Mirrors the server observability pattern on the client; referencing it helps align cross-runtime guidance when extending logging behaviour.
 
-## Tooling & Docs Shortcuts
-- `context7__get-library-docs`  
-  ```json
-  {"context7CompatibleLibraryID":"/llmstxt/effect_website_llms-full_txt","topic":"ManagedRuntime Layer Effect.withSpan"}
-  ```
-- `effect_docs__effect_docs_search`  
-  ```json
-  {"query":"Layer.provideMerge"}
-  ```
-- `effect_docs__get_effect_doc`  
-  ```json
-  {"documentId":7107}
-  ```
-- `effect_docs__get_effect_doc`  
-  ```json
-  {"documentId":7080}
-  ```
-- Package scripts (run from repo root): `bun run check --filter=@beep/runtime-server`, `bun run lint --filter=@beep/runtime-server`, `bun run test --filter=@beep/runtime-server`.
-
 ## Authoring Guardrails
 - Import Effect modules through namespace bindings (`import * as Effect from "effect/Effect";`, `import * as Layer from "effect/Layer";`) and respect the no-native-array/string rule as documented in the root guardrails.
 - Never bypass `serverRuntime` when running server effects; downstream hosts rely on its span wrapping (`Effect.withSpan`) for telemetry cohesion.
 - Keep observability layers memoizable — prefer `Layer.mergeAll` and `Layer.provideMerge` rather than manual `Layer.build` so Turbo builds can reuse cached allocations.
-- Respect environment toggles from `serverEnv.app` (`@beep/core-env/src/server.ts`) before introducing new logging or dev tooling to avoid leaking debug behaviour in production.
+- Respect environment toggles from `serverEnv.app` (`@beep/shared-infra`) before introducing new logging or dev tooling to avoid leaking debug behaviour in production.
 - When extending persistence slices, contribute live layers via `Layer.provideMerge(SliceRepositoriesLive, <NewSlice>.Repos.layer)` or `Layer.mergeAll` so that future slices inline cleanly.
 - Reuse existing error/tag definitions from `@beep/invariant` / `@beep/errors` instead of ad-hoc classes to keep logging JSON-compatible.
 
@@ -114,7 +95,7 @@ export const resolveAuthHandler = async (request: Request) => {
 
 ## Contributor Checklist
 - Update `AGENTS_MD_PLAN.md` if the scope or export set changes before editing this guide.
-- Align any new environment knobs with `packages/core/env/src/server.ts` and document defaults here.
+- Align any new environment knobs with `@beep/shared-infra` exports and document defaults here.
 - Ensure new layers are exposed via `src/server-runtime.ts` exports and recorded in **Surface Map**.
 - Capture at least one live usage reference for every new helper or runtime entry point.
 - Re-run the package scripts listed in **Verifications** and note results in the handoff.

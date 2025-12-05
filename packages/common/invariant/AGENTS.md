@@ -7,7 +7,7 @@
 
 ## Surface Overview (`src/`)
 - `invariant.ts` — core assertion implementation, dev-mode `BUG:` debugger trigger, helper attachments.
-- `error.ts` — `InvariantViolation` tagged error (`effect/Schema` + `Schema.TaggedError`) with message/file/line meta.
+- `error.ts` — `InvariantViolation` error class extending `Error` with message/file/line/args metadata.
 - `meta.ts` — schema definition for call metadata (`CallMetadata`, ensures non-empty `file`, non-negative `line`, array `args`).
 - `index.ts` — barrels the API for consumers.
 
@@ -18,14 +18,12 @@
 - Helpers call back into `invariant`, so stack traces omit the helper frames when `Error.captureStackTrace` is available.
 
 ## Usage Snapshots
-- `packages/common/schema/src/custom/String.schema.ts` validates refined strings and throws `InvariantViolation` when Effect schema checks fail.
-- `packages/common/schema/src/custom/Json.schema.ts` asserts valid JSONPath inputs before building Effect schemas.
+- `packages/common/schema/src/primitives/string/string.ts` validates refined strings and throws `InvariantViolation` when Effect schema checks fail.
+- `packages/common/schema/src/primitives/json/json.ts` asserts valid JSONPath inputs before building Effect schemas.
 - `packages/common/constants/src/AuthProviders.ts` guards dynamic provider lists before exposing them to the rest of the app.
 - `packages/common/utils/src/transformations/enumFromStringArray.ts` keeps enum helpers honest by checking resultant shapes.
-
-## Tooling & Docs Shortcuts
-- Tagged error patterns & Schema layering: run `context7__get-library-docs` with `{ "context7CompatibleLibraryID": "/llmstxt/effect_website_llms-small_txt", "topic": "schema" }`.
-- Pipeline composition & Option helpers referenced in meta formatters: `effect_docs__get_effect_doc` `{ "documentId": 6585 }` (`effect/Function.pipe`) and `{ "documentId": 4793 }` (`effect/Array.get`).
+- `packages/shared/domain/src/entities/User/schemas/UserRole.ts` validates user role schemas with invariant assertions.
+- `packages/common/utils/src/data/struct.utils.ts` uses invariant for runtime struct validation.
 
 ## Authoring Guardrails
 - Namespace all Effect imports (`import * as Str from "effect/String"`, `import * as O from "effect/Option"`, etc.); do not reintroduce native string/array helpers.

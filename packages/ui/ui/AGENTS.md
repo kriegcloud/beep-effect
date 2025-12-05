@@ -1,13 +1,24 @@
 # `@beep/ui` Agent Guide
 
 ## Purpose & Dependencies
-- Opinionated React component library that composes `@beep/ui-core` theme primitives with MUI, shadcn components, Tailwind utilities, and specialty stacks (Framer Motion, Tiptap, TanStack Form, Embla carousel, ApexCharts).
-- Exports under `package.json#exports` mirror the directory structure (`atoms`, `molecules`, `organisms`, `sections`, `providers`, etc.). Always update both build outputs (`build/esm`, `build/cjs`, `build/src`) and type declarations (`build/dts`) when adding new folders.
+- Opinionated React component library that composes `@beep/ui-core` theme primitives with MUI, shadcn components, Tailwind utilities, and specialty stacks (Framer Motion, Plate.js rich text editor, TanStack Form).
+- Exports under `package.json#exports` mirror the directory structure. Key exported paths include:
+  - Component hierarchy: `atoms/*`, `molecules/*`, `organisms/*`, `sections/*`, `components/*`
+  - Functionality: `providers/*`, `hooks/*`, `inputs/*`, `form/*`, `layouts/*`
+  - Theming/styling: `theme/*`, `settings/*`, `animate/*`, `progress/*`
+  - Utilities: `i18n/*`, `lib/*`, `services/*`, `routing/*`, `icons/*`, `messages/*`
+  - Assets: `assets/*`, `branding/*`, `data-display/*`, `surfaces/*`, `common/*`
+  - CSS: `globals.css`, `postcss.config`
+- Always update both build outputs (`build/esm`, `build/cjs`, `build/src`) and type declarations (`build/dts`) when adding new exported directories.
 - Peer and dev dependencies are sourced from workspace catalogs; notable requirements:
-  - Core: `react`, `react-dom`, `@mui/material`, `@emotion/*`, `@beep/ui-core`.
-  - Styling: `tailwindcss`, `@tailwindcss/postcss`, `clsx`, `tailwind-merge`, `tw-animate-css`.
-  - UI stacks: `framer-motion`, `sonner`, `nprogress`.
-  - State/validation: `effect`, `@tanstack/react-form`, `zod`, `ajv`.
+  - Core: `react@19`, `react-dom@19`, `@mui/material`, `@emotion/*`, `@beep/ui-core`
+  - Workspace packages: `@beep/invariant`, `@beep/schema`, `@beep/utils`, `@beep/constants`, `@beep/shared-domain`, `@beep/identity`, `@beep/types`
+  - Styling: `tailwindcss`, `@tailwindcss/postcss`, `clsx`, `tailwind-merge`, `tailwindcss-animate`, `tw-animate-css`
+  - UI libraries: `framer-motion`, `sonner`, `nprogress`, extensive `@radix-ui/*` components, `lucide-react`
+  - Rich text: `platejs` and extensive `@platejs/*` plugins, `turndown`, `react-markdown`, `rehype-*`, `remark-*`
+  - Forms/validation: `@tanstack/react-form`, `zod`, `effect`
+  - MUI ecosystem: `@mui/x-data-grid`, `@mui/x-date-pickers`, `@mui/x-tree-view`, `@mui/lab`
+  - i18n: `i18next`, `react-i18next`, `i18next-browser-languagedetector`, `accept-language`
 - Downstream packages (e.g., `apps/web`) import these modules directly via workspace aliases; breaking surface exports will cascade into app runtimes.
 
 ## Theme & Settings Integration

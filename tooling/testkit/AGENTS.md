@@ -23,16 +23,6 @@
 - `packages/common/errors/test/utils/accumulate.test.ts:3` — uses `scoped` to ensure spies are restored via `Effect.addFinalizer`, demonstrating why scoped tests must run in `Scope.Scope`.
 - `tooling/repo-scripts/test/enforce-js-import-suffix.test.ts:2` — combines `layer(..., { excludeTestServices: true })` with repository tooling Layers, highlighting when to bypass the default test environment to avoid `TestContext` interference.
 
-## Tooling & Docs Shortcuts
-- Search consumers: `jetbrains__search_in_files_by_text` ⇒ `{"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","searchText":"\"@beep/testkit\"","maxUsageCount":200}`.
-- Inspect source: `jetbrains__get_file_text_by_path` ⇒ `{"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","pathInProject":"tooling/testkit/src/internal/internal.ts","maxLinesCount":400}`.
-- Effect Layer memoization reference: `effect_docs__get_effect_doc` ⇒ `{"documentId":7105}` (Layer.toRuntimeWithMemoMap).
-- Effect MemoMap creation: `effect_docs__get_effect_doc` ⇒ `{"documentId":7118}` (Layer.makeMemoMap).
-- Retry semantics: `effect_docs__get_effect_doc` ⇒ `{"documentId":5867}` (Effect.retry) and `{"documentId":8600}` (Schedule.recurs).
-- Cached runtimes: `effect_docs__get_effect_doc` ⇒ `{"documentId":5804}` (Effect.cached).
-- Test environment baseline: `effect_docs__get_effect_doc` ⇒ `{"documentId":10356}` (TestContext.TestContext).
-- Contextual Effect testing patterns: `context7__get-library-docs` ⇒ `{"context7CompatibleLibraryID":"/effect-ts/effect","tokens":2000,"topic":"testing"}`.
-
 ## Authoring Guardrails
 - Maintain namespace imports (`import * as Effect from "effect/Effect"`, `import * as F from "effect/Function"`) in every snippet and new export; do not introduce named imports like `pipe`.
 - Treat `Effect`, `Layer`, `Schedule`, and `Duration` helpers as the primary tools; avoid native `Promise`, `setTimeout`, or Array/String helpers in new code (use `Effect.sleep`, `A.map`, `Str.replace`, etc.).

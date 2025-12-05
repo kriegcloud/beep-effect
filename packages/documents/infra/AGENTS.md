@@ -3,8 +3,8 @@
 ## Purpose & Fit
 - Provides the infrastructure layer for the documents slice, wiring shared domain models from `@beep/shared-domain` to database and object storage services so application code never touches raw clients.
 - Exposes ready-to-merge Layers (`DocumentsDb.DocumentsDb.Live`, `DocumentsRepos.layer`, `FilesConfig.Live`) that slot into app runtimes such as `packages/runtime/server` without bespoke bootstrap logic.
-- Bridges configuration from `@beep/core-env/server` to AWS S3 primitives via Effect AWS clients, keeping all bucket and credential concerns centralized.
-- Establishes repo contracts backed by `@beep/core-db/Repo`, safeguarding tagged error handling and telemetry conventions for persistence operations.
+- Bridges configuration from `@beep/shared-infra` to AWS S3 primitives via Effect AWS clients, keeping all bucket and credential concerns centralized.
+- Establishes repo contracts backed by `@beep/shared-infra/Repo`, safeguarding tagged error handling and telemetry conventions for persistence operations.
 
 ## Surface Map
 - **`DocumentsDb.DocumentsDb.Live`** — Scoped database layer built on `Db.make` with shared tables schema (`packages/documents/infra/src/db/Db.ts`).
@@ -21,32 +21,6 @@
 - `packages/_internal/db-admin/test/pg-container.ts:249` — Supplies `DocumentsDb.DocumentsDb.Live` when spinning Postgres Testcontainers for migration validation.
 - `packages/_internal/db-admin/test/pg-container.ts:251` — Composes `DocumentsRepos.layer` with IAM repos to seed fake data during container bootstrap.
 - (Currently unused) `StorageService` has no downstream references yet; flag new adopters to document the first integration.
-
-## Tooling & Docs Shortcuts
-- `effect_docs__effect_docs_search`
-  ```json
-  {"query":"Effect.Service"}
-  ```
-- `effect_docs__effect_docs_search`
-  ```json
-  {"query":"Layer.provideMerge"}
-  ```
-- `effect_docs__get_effect_doc`
-  ```json
-  {"documentId":6115}
-  ```
-- `effect_docs__get_effect_doc`
-  ```json
-  {"documentId":6116}
-  ```
-- `effect_docs__get_effect_doc`
-  ```json
-  {"documentId":7107}
-  ```
-- `context7__get-library-docs`
-  ```json
-  {"context7CompatibleLibraryID":"/llmstxt/effect_website_llms-full_txt","topic":"Effect.Service Layer.provideMerge"}
-  ```
 
 ## Authoring Guardrails
 - Always import Effect namespaces (`Effect`, `Layer`, `Context`, `A`, `Str`, etc.) and honor the no-native array/string guardrail; match patterns already present in `Repo.make`.
@@ -109,7 +83,7 @@
   ```
 - **Issue a pre-signed upload URL via StorageService**
   ```ts
-  import { serverEnv } from "@beep/core-env/server";
+  import { serverEnv } from "@beep/shared-infra";
   import { FilesConfig } from "@beep/documents-infra/config";
   import { StorageService } from "@beep/documents-infra/SignedUrlService";
   import { S3Service } from "@effect-aws/client-s3";

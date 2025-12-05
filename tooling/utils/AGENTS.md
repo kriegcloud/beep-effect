@@ -34,12 +34,6 @@
 - `tooling/repo-scripts/src/sync-ts-references.ts:45` streams the `collectTsConfigPaths` map to decide which `update-ts-references` passes to run.
 - `tooling/utils/test/repo/TsConfigIndex.test.ts:21` shows the happy-path expectation for workspace config discovery and optional variants under the real repo layout.
 
-## Tooling & Docs Shortcuts
-- `context7__resolve-library-id` — `{"libraryName":"effect"}` to retrieve the Effect documentation ID list.
-- `context7__get-library-docs` — `{"context7CompatibleLibraryID":"/llmstxt/effect_website-llms.txt","topic":"Layer","tokens":1200}` for Layer composition references used by `FsUtilsLive` and `RepoUtilsLive`.
-- `effect_docs__effect_docs_search` — `{"query":"cachedFunction"}` to revisit memoisation semantics before extending `mkdirCached`.
-- `effect_docs__get_effect_doc` — `{"documentId":5805}` for `Effect.cachedFunction` details and `{"documentId":6732}` for `HashMap.toValues` behaviour when working with dependency indexes.
-
 ## Authoring Guardrails
 - Always inject `FsUtils`/`RepoUtils` via their tags; do not instantiate Bun services directly in consumers. Side effects belong at `Layer` boundaries and must keep `DomainError.mapError` in place.
 - Preserve spans and error translations when adding new Fs helpers. Use `Effect.fn` with explicit names so traces stay meaningful.

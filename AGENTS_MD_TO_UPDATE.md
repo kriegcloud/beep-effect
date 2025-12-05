@@ -10,44 +10,44 @@ This file tracks outdated, invalid, or missing references found in AGENTS.md fil
 
 The following `packages/core/*` packages were deleted and migrated to `packages/shared/infra`:
 
-| Reference | Line | Status |
-|-----------|------|--------|
-| `packages/core/db/AGENTS.md` | 51 | **DELETED** - functionality moved to `@beep/shared-infra` |
-| `packages/core/db` | 112, 140, 144 | **DELETED** |
-| `packages/core/env` | 112, 140, 144 | **DELETED** |
-| `packages/core/email` | 112 | **DELETED** |
-| `@beep/core-db` | Multiple | **DELETED** - now `@beep/shared-infra` |
-| `@beep/core-env` | Multiple | **DELETED** - now `@beep/shared-infra` |
-| `@beep/core-email` | Multiple | **DELETED** - now `@beep/shared-infra` |
+| Reference                    | Line          | Status                                                    |
+|------------------------------|---------------|-----------------------------------------------------------|
+| `packages/core/db/AGENTS.md` | 51            | **DELETED** - functionality moved to `@beep/shared-infra` |
+| `packages/core/db`           | 112, 140, 144 | **DELETED**                                               |
+| `packages/core/env`          | 112, 140, 144 | **DELETED**                                               |
+| `packages/core/email`        | 112           | **DELETED**                                               |
+| `@beep/core-db`              | Multiple      | **DELETED** - now `@beep/shared-infra`                    |
+| `@beep/core-env`             | Multiple      | **DELETED** - now `@beep/shared-infra`                    |
+| `@beep/core-email`           | Multiple      | **DELETED** - now `@beep/shared-infra`                    |
 
 ### Invalid Path References
 
-| Reference | Status |
-|-----------|--------|
+| Reference                              | Status                                                           |
+|----------------------------------------|------------------------------------------------------------------|
 | `packages/ui-core/AGENTS.md` (line 40) | **WRONG PATH** - actual location is `packages/ui/core/AGENTS.md` |
-| `packages/ui/AGENTS.md` (line 41) | **WRONG PATH** - actual location is `packages/ui/ui/AGENTS.md` |
+| `packages/ui/AGENTS.md` (line 41)      | **WRONG PATH** - actual location is `packages/ui/ui/AGENTS.md`   |
 
 ### Missing AGENTS.md Files Referenced
 
-| Path | Status |
-|------|--------|
-| `packages/common/schema/AGENTS.md` | EXISTS |
-| `packages/common/invariant/AGENTS.md` | EXISTS |
-| `packages/shared/domain/AGENTS.md` | EXISTS |
-| `packages/shared/tables/AGENTS.md` | EXISTS |
-| `packages/documents/domain/AGENTS.md` | EXISTS |
-| `packages/documents/infra/AGENTS.md` | EXISTS |
-| `packages/iam/tables/AGENTS.md` | EXISTS |
-| `packages/iam/infra/AGENTS.md` | EXISTS |
-| `packages/iam/ui/AGENTS.md` | EXISTS |
-| `packages/iam/domain/AGENTS.md` | EXISTS |
-| `packages/iam/sdk/AGENTS.md` | EXISTS |
-| `packages/runtime/client/AGENTS.md` | EXISTS |
-| `packages/runtime/server/AGENTS.md` | EXISTS |
-| `tooling/testkit/AGENTS.md` | EXISTS |
-| `tooling/repo-scripts/AGENTS.md` | EXISTS |
-| `tooling/utils/AGENTS.md` | EXISTS |
-| `packages/shared/infra/AGENTS.md` | **MISSING** - needs to be created |
+| Path                                  | Status                            |
+|---------------------------------------|-----------------------------------|
+| `packages/common/schema/AGENTS.md`    | EXISTS                            |
+| `packages/common/invariant/AGENTS.md` | EXISTS                            |
+| `packages/shared/domain/AGENTS.md`    | EXISTS                            |
+| `packages/shared/tables/AGENTS.md`    | EXISTS                            |
+| `packages/documents/domain/AGENTS.md` | EXISTS                            |
+| `packages/documents/infra/AGENTS.md`  | EXISTS                            |
+| `packages/iam/tables/AGENTS.md`       | EXISTS                            |
+| `packages/iam/infra/AGENTS.md`        | EXISTS                            |
+| `packages/iam/ui/AGENTS.md`           | EXISTS                            |
+| `packages/iam/domain/AGENTS.md`       | EXISTS                            |
+| `packages/iam/sdk/AGENTS.md`          | EXISTS                            |
+| `packages/runtime/client/AGENTS.md`   | EXISTS                            |
+| `packages/runtime/server/AGENTS.md`   | EXISTS                            |
+| `tooling/testkit/AGENTS.md`           | EXISTS                            |
+| `tooling/repo-scripts/AGENTS.md`      | EXISTS                            |
+| `tooling/utils/AGENTS.md`             | EXISTS                            |
+| `packages/shared/infra/AGENTS.md`     | **MISSING** - needs to be created |
 
 ### MCP Tool Call Definitions to Remove
 
@@ -55,10 +55,10 @@ Lines 163-172 contain MCP-specific tool call definitions (`jetbrains__*`, `conte
 
 ### Non-existent Packages Referenced in Structure
 
-| Package | Status |
-|---------|--------|
-| `packages/ai/` | **DOES NOT EXIST** |
-| `apps/mcp/` | **NEEDS VERIFICATION** |
+| Package        | Status                 |
+|----------------|------------------------|
+| `packages/ai/` | **DOES NOT EXIST**     |
+| `apps/mcp/`    | **NEEDS VERIFICATION** |
 
 ---
 
@@ -66,74 +66,74 @@ Lines 163-172 contain MCP-specific tool call definitions (`jetbrains__*`, `conte
 
 ### packages/_internal/db-admin/AGENTS.md
 
-| Line | Issue |
-|------|-------|
-| 5 | References `@beep/core-db` - should be `@beep/shared-infra` |
-| 8 | References `packages/core/db/AGENTS.md` - deleted |
-| 43 | References `packages/core/db/AGENTS.md` - deleted |
+| Line  | Issue                                                                 |
+|-------|-----------------------------------------------------------------------|
+| 5     | References `@beep/core-db` - should be `@beep/shared-infra`           |
+| 8     | References `packages/core/db/AGENTS.md` - deleted                     |
+| 43    | References `packages/core/db/AGENTS.md` - deleted                     |
 | 27-34 | Contains tool call shortcuts (jetbrains__, effect_docs__, context7__) |
 
 ### packages/documents/infra/AGENTS.md
 
-| Line | Issue |
-|------|-------|
-| 6 | References `@beep/core-env/server` - should be `@beep/shared-infra` |
-| 7 | References `@beep/core-db/Repo` - should be `@beep/shared-infra/Repo` |
-| 25-50 | Contains tool call shortcuts |
-| 112 | References `@beep/core-env/server` |
+| Line  | Issue                                                                 |
+|-------|-----------------------------------------------------------------------|
+| 6     | References `@beep/core-env/server` - should be `@beep/shared-infra`   |
+| 7     | References `@beep/core-db/Repo` - should be `@beep/shared-infra/Repo` |
+| 25-50 | Contains tool call shortcuts                                          |
+| 112   | References `@beep/core-env/server`                                    |
 
 ### packages/iam/infra/AGENTS.md
 
-| Line | Issue |
-|------|-------|
-| 17 | References `@beep/core-email` - should be `@beep/shared-infra` |
-| 28-33 | Contains tool call shortcuts |
-| 110 | References `@beep/core-email` |
+| Line  | Issue                                                          |
+|-------|----------------------------------------------------------------|
+| 17    | References `@beep/core-email` - should be `@beep/shared-infra` |
+| 28-33 | Contains tool call shortcuts                                   |
+| 110   | References `@beep/core-email`                                  |
 
 ### packages/runtime/server/AGENTS.md
 
-| Line | Issue |
-|------|-------|
-| 6 | References `@beep/core-env/server` - should be `@beep/shared-infra` |
-| 27-43 | Contains tool call shortcuts |
-| 50 | References `@beep/core-env/src/server.ts` |
-| 117 | References `packages/core/env/src/server.ts` |
+| Line  | Issue                                                               |
+|-------|---------------------------------------------------------------------|
+| 6     | References `@beep/core-env/server` - should be `@beep/shared-infra` |
+| 27-43 | Contains tool call shortcuts                                        |
+| 50    | References `@beep/core-env/src/server.ts`                           |
+| 117   | References `packages/core/env/src/server.ts`                        |
 
 ### packages/runtime/client/AGENTS.md
 
-| Line | Issue |
-|------|-------|
+| Line  | Issue                                                       |
+|-------|-------------------------------------------------------------|
 | 23-27 | Contains tool call shortcuts (effect_docs__, markdownify__) |
 
 ### packages/shared/domain/AGENTS.md
 
-| Line | Issue |
-|------|-------|
+| Line  | Issue                                                                 |
+|-------|-----------------------------------------------------------------------|
 | 30-53 | Contains tool call shortcuts (jetbrains__, context7__, effect_docs__) |
 
 ### packages/shared/tables/AGENTS.md
 
-| Line | Issue |
-|------|-------|
+| Line  | Issue                                                                 |
+|-------|-----------------------------------------------------------------------|
 | 26-29 | Contains tool call shortcuts (jetbrains__, effect_docs__, context7__) |
 
 ### packages/ui/core/AGENTS.md
 
-| Line | Issue |
-|------|-------|
-| 6-7 | Path references show wrong location (`packages/ui-core/src/...` instead of `packages/ui/core/src/...`) |
-| 66-83 | Contains tool call shortcuts (mui-mcp__, context7__) |
+| Line  | Issue                                                                                                  |
+|-------|--------------------------------------------------------------------------------------------------------|
+| 6-7   | Path references show wrong location (`packages/ui-core/src/...` instead of `packages/ui/core/src/...`) |
+| 66-83 | Contains tool call shortcuts (mui-mcp__, context7__)                                                   |
 
 ### packages/ui/ui/AGENTS.md
 
-| Line | Issue |
-|------|-------|
+| Line  | Issue                                                                |
+|-------|----------------------------------------------------------------------|
 | 74-88 | Contains tool call shortcuts (mui-mcp__, context7__, npm-sentinel__) |
 
 ### tooling/testkit/AGENTS.md
 
-| Line | Issue |
-|------|-------|
+| Line  | Issue                                                                 |
+|-------|-----------------------------------------------------------------------|
 | 27-34 | Contains tool call shortcuts (jetbrains__, effect_docs__, context7__) |
 
 ### tooling/repo-scripts/AGENTS.md

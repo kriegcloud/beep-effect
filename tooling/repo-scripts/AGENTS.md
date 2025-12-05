@@ -22,12 +22,9 @@
 - `tooling/repo-scripts/test/iconify/cli.test.ts:2` – Vitest exercises CLI handlers with layered stubs, asserting log output.
 - `ICONIFY_CLI_PROMPT.md:3` – design doc anchoring CLI expectations and referencing repo-scripts implementations.
 
-**Tooling & Docs Shortcuts**
-- Run generators through root scripts to inherit `dotenvx`: `bun run gen:secrets`, `bun run gen:beep-paths`, `bun run execute` (prints locale payload), `bun run bootstrap`, `bun run -C tooling/repo-scripts test`.
+**Verifications**
+- Run generators through root scripts to inherit `dotenvx`: `bun run gen:secrets`, `bun run gen:beep-paths`, `bun run execute` (prints locale payload), `bun run bootstrap`.
 - Focused lint/type sweeps from package root: `bun run lint`, `bun run check`, `bun run test`, `bun run coverage`.
-- `context7__get-library-docs` payload for CLI patterns: `{"context7CompatibleLibraryID":"/llmstxt/effect_website_llms-small_txt","topic":"cli command layer","tokens":1500}`.
-- `effect_docs__get_effect_doc` payloads for runtime composition: `{"documentId":7107}` (Layer.provideMerge), `{"documentId":1986}` (BunRuntime.runMain).
-- Repo search shortcuts while authoring docs: `jetbrains__search_in_files_by_text` (`"@beep/repo-scripts"`), `jetbrains__list_directory_tree` (`tooling/repo-scripts/src`, maxDepth as needed).
 
 **Authoring Guardrails**
 - Respect global Effect rules: namespace imports (`import * as Effect from "effect/Effect"`), rely on `A.*`, `Str.*`, `HashMap.*`, `HashSet.*`, `R.*`; no native `Array` / `String` helpers or loops in new code.
@@ -35,7 +32,7 @@
 - Keep generator targets in `_generated/` folders idempotent and schema-validated (`AssetPaths`, Iconify schemas); always guard writes with decode + structured errors (`DomainError`).
 - Prefer `FsUtils.modifyFile` / `existsOrThrow` for IO; avoid `node:fs` unless working inside `utils` where necessary (document the escape hatch).
 - When new scripts need prompts or command args, centralize parsing in `@effect/cli` commands, keep handlers effectful, and expose test exports for Vitest (see `__iconifyCliTestExports` usage).
-- `generate-env.ts` is currently stubbed; if revived, ensure alignment with `packages/core/env` schemas and update docs before shipping.
+- `generate-env.ts` is currently stubbed; if revived, ensure alignment with `@beep/shared-infra` schemas and update docs before shipping.
 - For Iconify expansion, align with `ICONIFY_CLI_PROMPT.md` requirements and keep registry merges idempotent—never reorder existing entries or strip comments.
 
 **Quick Recipes**

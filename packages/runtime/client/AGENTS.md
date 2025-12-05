@@ -20,12 +20,6 @@
 - `Atom.runtime(clientRuntimeLayer)` powers IAM flows like the dashboard layout sign-out atom (`apps/web/src/app/dashboard/layout.tsx:18`).
 - `makeRunClientPromise` wraps imperative handlers to preserve spans when bridging to UI callbacks (`apps/web/src/app/dashboard/layout.tsx:329`).
 
-## Tooling & Docs Shortcuts
-- Effect ManagedRuntime refresher: `effect_docs__get_effect_doc({ "documentId": 7293 })`.
-- `@effect-atom/atom-react` registry patterns: run `markdownify__webpage-to-markdown` against https://github.com/tim-smart/effect-atom/blob/main/README.md when you need API specifics.
-- Repo scripts: `bun run check|lint|test|build --filter @beep/runtime-client`.
-- Worker rebuild (touching `src/worker/*`): `bun run build --filter @beep/runtime-client#worker`.
-
 ## Authoring Guardrails
 - Namespace Effect imports (`import * as Effect from "effect/Effect";`, `import * as A from "effect/Array";`, `import * as Str from "effect/String";`); native array/string/object helpers remain forbidden—pipe through the Effect collections utilities.
 - `BeepProvider` and `KaServices` are `"use client"` surfaces; avoid server-only APIs anywhere under `packages/runtime/client`.
