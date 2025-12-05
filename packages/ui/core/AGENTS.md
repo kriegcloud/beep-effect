@@ -50,7 +50,7 @@ The package exposes the following entry points:
 - `AdapterEffectDateTime` - MUI X Date Picker adapter using Effect DateTime
 
 ## Theme Foundations
-- Starting point is `packages/ui-core/src/theme/create-theme.ts`:
+- Starting point is `packages/ui/core/src/theme/create-theme.ts`:
   - `baseTheme` assembles dual color schemes (`light` and `dark`), typography, shape, mixins, `unstable_sxConfig`, and `cssVariables` (CSS theme variables are enabled via `themeConfig.cssVariables`).
   - `createTheme` merges four inputs: `baseTheme`, optional settings-driven updates, locale-specific component bundles, and caller-provided overrides.
 - Key configuration files worth skimming before any change:
@@ -64,10 +64,10 @@ The package exposes the following entry points:
   - To add a new locale, extend `allLanguages` with a `systemValue` containing the relevant MUI locale `components` object.
 
 ## Settings-Driven Customization
-- Settings state is defined in `packages/ui-core/src/settings/types.ts`:
+- Settings state is defined in `packages/ui/core/src/settings/types.ts`:
   - Fields include `mode`, `direction`, `contrast`, `fontSize`, `fontFamily`, `primaryColor`, `navLayout`, `navColor`, `compactLayout`, and a `version` string used for storage invalidation.
   - Default values live in `settings-config.ts`; storage key is `SETTINGS_STORAGE_KEY`.
-  - `SettingsProvider` in `packages/ui/src/settings/context/settings-provider.tsx` uses the version field to wipe stale persisted values.
+  - `SettingsProvider` in `packages/ui/ui/src/settings/context/settings-provider.tsx` uses the version field to wipe stale persisted values.
 - Theme application pipeline (`theme/with-settings`):
   - `applySettingsToTheme` (`update-core.ts`) mutates color schemes, typography, direction, and shadow channels based on `SettingsState`. It pulls palette presets via `createPaletteChannel`.
   - `applySettingsToComponents` (`update-components.ts`) currently affects `MuiCssBaseline` for font sizing and high-contrast card shadows.
@@ -79,7 +79,7 @@ The package exposes the following entry points:
   - `Rtl` component (`with-settings/right-to-left.tsx`) swaps in an Emotion cache with `stylis-plugin-rtl` and ensures `document.dir` is set.
 
 ## Component Override Catalogue
-- Global overrides reside in `packages/ui-core/src/theme/core/components`.
+- Global overrides reside in `packages/ui/core/src/theme/core/components`.
   - Each file mirrors an MUI component key (e.g., `button.tsx` → `MuiButton`, `mui-x-data-grid.tsx` → MUI X Data Grid).
   - Aggregator: `components/index.ts`. Additions must be wired here or overrides will never ship.
   - Prefer Effect utilities when iterating over collections inside overrides—native array/string methods are forbidden (`CRITICAL RULE` in `AGENTS.md` at repo root).
@@ -89,10 +89,10 @@ The package exposes the following entry points:
   - `core/styles/*` – ready-made style objects (e.g., vibrant nav styles) shared with `@beep/ui`.
 
 ## Utilities & Supporting Modules
-- `packages/ui-core/src/utils` includes helpers used throughout the theme:
+- `packages/ui/core/src/utils` includes helpers used throughout the theme:
   - `createPaletteChannel`, `hexToRgbChannel`, `cssVarRgba` for color math.
   - `pxToRem`, `setFont` for typography.
-  - Storage helpers (`getStorage`, `getCookie`, `getItemFromStore`) used by both settings providers (`@beep/ui` and `@beep/ui/settings-v2`).
+  - Storage helpers (`getStorage`, `getCookie`, `getItemFromStore`) used by settings providers in `@beep/ui`.
 - Keep utilities Effect-friendly. Avoid introducing bare Promises or native array/string mutations—follow the namespace import guidelines in the root instructions.
 
 ## Operational Guidance
@@ -105,24 +105,19 @@ The package exposes the following entry points:
   - Coordinate updates with `packages/ui` whenever you adjust token names, preset unions, or settings fields.
 
 ## Reference Library
-- MUI docs worth fetching via `mui-mcp__useMuiDocs`:
-  - `https://llms.mui.com/material-ui/7.2.0/customization/theming.md`
-  - `https://llms.mui.com/material-ui/7.2.0/customization/css-theme-variables/overview.md`
-  - `https://llms.mui.com/material-ui/7.2.0/customization/theme-components.md`
+- MUI documentation resources:
+  - Theming: `https://llms.mui.com/material-ui/7.2.0/customization/theming.md`
+  - CSS Theme Variables: `https://llms.mui.com/material-ui/7.2.0/customization/css-theme-variables/overview.md`
+  - Theme Components: `https://llms.mui.com/material-ui/7.2.0/customization/theme-components.md`
+  - RTL Support: `https://llms.mui.com/material-ui/7.2.0/customization/right-to-left.md`
+  - Palette: `https://llms.mui.com/material-ui/7.2.0/customization/palette.md`
+  - MUI X Data Grid Styling: `https://llms.mui.com/x-data-grid/8.8.0/style.md`
+  - MUI X Data Grid Localization: `https://llms.mui.com/x-data-grid/8.8.0/localization.md`
 - Internal files to skim quickly:
-  - `packages/ui-core/src/theme/create-theme.ts`
-  - `packages/ui-core/src/theme/core/components/index.ts`
-  - `packages/ui-core/src/settings/settings-config.ts`
-  - `packages/ui-core/src/settings/schema/*` for Effect schema definitions powering `settings-v2`.
-
-## Tool Call Shortcuts
-- Pull full theming contract details before touching `createTheme`: `mui-mcp__useMuiDocs(["https://llms.mui.com/material-ui/7.2.0/customization/theming.md"])`
-- Deep dive CSS variable behaviour when updating `themeConfig.cssVariables`: `mui-mcp__useMuiDocs(["https://llms.mui.com/material-ui/7.2.0/customization/css-theme-variables/usage.md"])`
-- Confirm RTL setup while editing `with-settings/right-to-left.tsx`: `mui-mcp__useMuiDocs(["https://llms.mui.com/material-ui/7.2.0/customization/right-to-left.md"])`
-- Reconcile Data Grid override changes with upstream styling guidance: `mui-mcp__useMuiDocs(["https://llms.mui.com/x-data-grid/8.8.0/style.md"])`
-- Validate locale bundle structure against MUI X expectations: `mui-mcp__useMuiDocs(["https://llms.mui.com/x-data-grid/8.8.0/localization.md"])`
-- Cross-check palette math against official token guidance: `mui-mcp__useMuiDocs(["https://llms.mui.com/material-ui/7.2.0/customization/palette.md"])`
-- Refresh Effect schema and layer patterns before editing settings schemas: `context7__get-library-docs({"context7CompatibleLibraryID":"/effect-ts/effect","topic":"schema"})` (run `context7__resolve-library-id` first if the ID drifts)
+  - `packages/ui/core/src/theme/create-theme.ts`
+  - `packages/ui/core/src/theme/core/components/index.ts`
+  - `packages/ui/core/src/settings/settings-config.ts`
+  - `packages/ui/core/src/settings/types.ts`
 
 ## Change Checklist
 - [ ] Updated `components/index.ts` when adding or removing an override file.

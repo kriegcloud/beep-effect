@@ -1,10 +1,10 @@
+import { FsUtils } from "@beep/tooling-utils";
 import {
   buildRepoDependencyIndex,
   collectTsConfigPaths,
   mapWorkspaceToPackageJsonPath,
   resolveWorkspaceDirs,
 } from "@beep/tooling-utils/repo";
-import { FsUtils } from "@beep/tooling-utils";
 import * as CliCommand from "@effect/cli/Command";
 import * as CliOptions from "@effect/cli/Options";
 import * as FileSystem from "@effect/platform/FileSystem";
@@ -284,7 +284,10 @@ const removeUnusedFromPackageJson = (unused: UnusedDeps, dryRun: boolean) =>
     // Apply changes - reconstruct objects immutably
     const json = yield* utils.readJson(unused.packageJsonPath);
 
-    json.dependencies = removeDeps(json.dependencies as Record<string, unknown> | undefined, unused.unusedInDependencies);
+    json.dependencies = removeDeps(
+      json.dependencies as Record<string, unknown> | undefined,
+      unused.unusedInDependencies
+    );
     json.devDependencies = removeDeps(
       json.devDependencies as Record<string, unknown> | undefined,
       unused.unusedInDevDependencies
@@ -437,13 +440,7 @@ const handlePruneCommand = ({
         );
 
         // Scan root-level config files (next.config.ts, drizzle.config.ts, etc.)
-        const configFilePatterns = [
-          "*.config.ts",
-          "*.config.mts",
-          "*.config.cts",
-          "*.config.js",
-          "*.config.mjs",
-        ];
+        const configFilePatterns = ["*.config.ts", "*.config.mts", "*.config.cts", "*.config.js", "*.config.mjs"];
 
         const configFiles = yield* utils.globFiles(configFilePatterns, {
           cwd: wsDir.value,

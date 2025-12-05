@@ -11,7 +11,7 @@
   - `shared.ts`, `iam.ts`, `documents.ts` house branded id schemas built with `EntityId.make`.
   - `table-names.ts` provides literal kits (`SharedTableNames`, `IamTableNames`, `DocumentsTableNames`, `AnyTableName`).
   - `entity-kind.ts` emits `EntityKind` union aligned with table names.
-  - `any-entity-id.ts` aggregates every id (note: `SubscriptionId` appears twice on line 18; flag for cleanup).
+  - `any-entity-id.ts` aggregates every id (note: `SubscriptionId` appears twice on lines 17-18; flag for cleanup).
   - `index.ts` re-exports kits (`SharedEntityIds`, `IamEntityIds`, `DocumentsEntityIds`).
 - **`src/entities/*`** — Effect `M.Class` schemas for `AuditLog`, `File`, `Organization`, `Session`, `Team`, `User` plus nested schema enums (e.g. `OrganizationType`, `SubscriptionStatus`, `UserRole`). `File/schemas/UploadPath.ts` encodes S3 path transforms. `File.Contract` provides HTTP API contracts.
 - **`src/value-objects/`**
@@ -133,7 +133,7 @@ const uploadPath = Effect.gen(function* () {
 - For focused work on upload paths: `bun test packages/shared/domain/test/entities/File/schemas/UploadPath.test.ts`.
 
 ## Contributor Checklist
-- Align new ids with the correct kit (`SharedEntityIds`, `IamEntityIds`, `WmsEntityIds`) and update `EntityKind` / `AnyEntityId` unions in tandem. Document pending anomalies (e.g., duplicate `SubscriptionId`).
+- Align new ids with the correct kit (`SharedEntityIds`, `IamEntityIds`, `DocumentsEntityIds`) and update `EntityKind` / `AnyEntityId` unions in tandem. Document pending anomalies (e.g., duplicate `SubscriptionId`).
 - When adding columns to models, stitch them through `makeFields` and review downstream table definitions (`packages/_internal/db-admin`).
 - Extending permissions? Update `Policy` map, regenerate derived literals, and add coverage in `packages/shared/domain/test/policy.test.ts`.
 - Route additions must go through `value-objects/paths.ts` using `PathBuilder.collection`; update UI/SDK references if structure changes.

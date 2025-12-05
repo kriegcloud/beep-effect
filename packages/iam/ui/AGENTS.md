@@ -17,19 +17,10 @@
 - `test/Dummy.test.ts` — placeholder Bun test (signals need for real coverage).
 
 ## Usage Snapshots
-- `apps/web/src/app/auth/sign-in/page.tsx:2` — Next.js route renders `<SignInView />` directly.
-- `apps/web/src/app/auth/sign-up/page.tsx:2` — imports `SignUpView` for registration flow.
-- `apps/web/src/app/auth/request-reset-password/page.tsx:2` — pulls `RequestResetPasswordView` for forgot-password.
-- `apps/web/src/app/auth/reset-password/page.tsx:2` — consumes `ResetPasswordView` guarded by reset token.
-- `packages/iam/ui/src/recover/reset-password.form.tsx:22` — demonstrates `useSearchParams` token gate with `Effect.Option` utilities.
-- `packages/iam/ui/src/sign-up/sign-up.view.tsx:66` — shows `Effect.gen` orchestration around `iam.signUp.email`.
-
-## Tooling & Docs Shortcuts
-- `effect_docs__get_effect_doc` payload for generator ergonomics: `{"documentId":5844}`
-- `effect_docs__get_effect_doc` payload for sequencing effects: `{"documentId":5994}`
-- `effect_docs__get_effect_doc` payload for `effect/Array.map`: `{"documentId":4847}`
-- `context7__get-library-docs` payload for TanStack Form defaults: `{"context7CompatibleLibraryID":"/tanstack/form","tokens":1200,"topic":"react formOptions"}`
-- `effect_docs__effect_docs_search` payload when tracing combinators: `{"query":"Effect flatMap"}`
+- Next.js auth routes render views like `<SignInView />`, `<SignUpView />`, and `<RequestResetPasswordView />` directly.
+- Password reset routes consume `ResetPasswordView` guarded by reset token.
+- Reset password forms demonstrate `useSearchParams` token gate with `Effect.Option` utilities.
+- Sign-up views show `Effect.gen` orchestration around sign-up contracts.
 
 ## Authoring Guardrails
 - **Effect pipelines only:** Always compose RPC invocations with `F.pipe`, `Effect.flatMap`, or `Effect.gen`. Avoid introducing `async/await` in new logic; existing `async` wrappers remain for compatibility but should not expand.
@@ -38,8 +29,8 @@
 - **Schema-first forms:** Forms must lean on Effect schemas from `@beep/iam-sdk/clients` with `formOptionsWithSubmit`. Do not hand-roll validation or default values—extend schemas upstream when fields change.
 - **ReCAPTCHA hand-off:** Any submission that feeds Better Auth should inject `captchaResponse` prior to calling `handleSubmit`. Maintain the `executeRecaptcha` presence guard and surface telemetry rather than silently continuing.
 - **Path hygiene:** Build navigation using `paths` from `@beep/shared-domain`. Hardcoded strings introduce drift across apps and server redirects.
-- **Reset token redirect review:** `ResetPasswordForm` currently issues `router.push(paths.auth.signIn)` inside the `O.match` `onSome` branch (`packages/iam/ui/src/recover/reset-password.form.tsx:26`). When adjusting this flow, ensure absence moves users to sign-in while presence keeps the form active.
-- **Siblings alignment:** Mirror theming/spacing decisions with `packages/ui/AGENTS.md` and `packages/ui-core/AGENTS.md`. Use `@beep/ui` components (icons, form groups) instead of reintroducing raw MUI primitives unless the higher-level primitive is missing.
+- **Reset token redirect review:** `ResetPasswordForm` uses router navigation inside conditional branches. When adjusting this flow, ensure absence moves users to sign-in while presence keeps the form active.
+- **Siblings alignment:** Mirror theming/spacing decisions with UI package documentation. Use `@beep/ui` components (icons, form groups) instead of reintroducing raw MUI primitives unless the higher-level primitive is missing.
 - **Two-factor stub:** Keep `two-factor/index.ts` empty until requirements land. Document any provisional exports here rather than adding silent placeholders.
 
 ## Quick Recipes
@@ -69,7 +60,7 @@ export const MinimalEmailSignIn = () => {
 ```
 
 ```tsx
-import { clientEnv } from "@beep/core-env/client";
+import { clientEnv } from "@beep/shared-infra/ClientEnv";
 import { SocialIconButton, SocialProviderIcons } from "@beep/iam-ui/_components";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { iam } from "@beep/iam-sdk";

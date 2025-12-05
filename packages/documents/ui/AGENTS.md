@@ -1,20 +1,37 @@
-# AGENTS — `@beep/documents-ui`
+# AGENTS.md — `@beep/documents-ui`
 
 ## Purpose & Fit
-- House reusable React components for the documents slice (uploaders, previews, metadata panels, signed URL triggers) so apps do not reimplement UI flows.
-- Build atop `@beep/ui` / `@beep/ui-core` tokens and primitives while consuming `@beep/documents-domain` value objects and future `@beep/documents-sdk` clients.
+- House reusable React components for the documents slice so apps do not reimplement UI flows.
+- Build atop `@beep/ui/ui` components and `@beep/ui/core` design tokens while consuming `@beep/documents-domain` entities and future `@beep/documents-sdk` clients.
+- Provide document editor, knowledge page, discussion, and comment UI components.
+
+## Current State
+- Package is a stub; only `beep` is exported (`src/index.ts`).
+- This is the staging area for document-related React components once the domain and SDK are more complete.
+
+## Planned Components
+When implemented, this package should include:
+- Document editor components with block-based editing.
+- Knowledge page display and editing components.
+- Discussion thread and comment components.
+- File attachment upload and preview components.
+- Document version history viewers.
+- Knowledge space navigation components.
 
 ## Design & Implementation Guardrails
 - Follow the design system guidance in `packages/ui/ui/AGENTS.md` and `packages/ui/core/AGENTS.md` (theme pipeline, settings, CSS variables, shadcn/MUI usage).
 - Respect repository-wide Effect guardrails: namespace imports (`A`, `F`, `Str`, `Effect`) and no new native array/string/object helpers in utilities or examples.
 - Keep components client-boundary aware (`"use client"` where required) and favor hooks/providers for stateful flows rather than ad-hoc context.
-- Validate file inputs with `@beep/documents-domain` schemas/value objects; do not trust browser `File` metadata blindly.
+- Validate data with `@beep/documents-domain` schemas; do not trust external data blindly.
 - Separate data fetching from presentation: inject `@beep/documents-sdk` clients or handlers via props instead of hardcoding fetch calls.
+- Use Effect-based data fetching integrated with TanStack Query for optimal caching and invalidation.
 
-## Suggested Building Blocks
-- Hooks for drag/drop + file validation, progress, and error tagging.
-- UI primitives: upload dropzone, inline file card, gallery grid, detail drawer with EXIF display, and signed URL action buttons.
-- Providers to share upload queues across routes (Option/Outcome-aware).
+## Suggested Building Blocks (future)
+- **Hooks**: `useDocument`, `useKnowledgePage`, `useDiscussion` for data fetching with Effect + TanStack Query.
+- **Editor Components**: Block editor with support for text, images, links, etc.
+- **Display Components**: Document viewer, knowledge page renderer, comment threads.
+- **Form Components**: Document creation/editing forms, comment submission forms.
+- **Navigation Components**: Knowledge space browser, page tree navigation.
 
 ## Verifications
 - `bun run check --filter=@beep/documents-ui`
@@ -22,8 +39,9 @@
 - `bun run test --filter=@beep/documents-ui` (add component tests as features land).
 
 ## Contributor Checklist
-- [ ] Components rely on `@beep/ui` primitives and respect theme/settings invariants.
+- [ ] Components rely on `@beep/ui/ui` primitives and respect theme/settings invariants.
 - [ ] Validation uses `@beep/documents-domain`; networking is injected (or uses `@beep/documents-sdk` when available).
 - [ ] No new native array/string/object helpers introduced.
 - [ ] Appropriate `"use client"` markers added for React 19 compliance.
-- [ ] Tests and Story-like examples added under `packages/documents/ui/test/` (or in apps) for new surfaces.
+- [ ] Tests and examples added under `packages/documents/ui/test/` (or in apps) for new surfaces.
+- [ ] Data fetching uses Effect integration with TanStack Query.

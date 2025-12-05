@@ -6,7 +6,7 @@ Cross-cutting UI utilities for file uploads, dropzones, and React hooks used acr
 
 `@beep/shared-ui` provides Effect-first utilities and React hooks for file handling, upload workflows, and client-side UI interactions. This package bridges the gap between the Effect runtime and browser-based file operations, offering dropzone state management, file validation utilities, and stable React event handlers.
 
-Unlike `@beep/ui` (component library) or `@beep/ui-core` (design tokens), this package focuses on:
+Unlike `@beep/ui/ui` (component library) or `@beep/ui/core` (design tokens), this package focuses on:
 - File upload route configuration and validation
 - Dropzone state reducers and file acceptance logic
 - React hooks for clipboard paste, stable callbacks, and data fetching
@@ -57,7 +57,7 @@ Unlike `@beep/ui` (component library) or `@beep/ui-core` (design tokens), this p
 | `usePaste` | Listen for clipboard paste events |
 | `useFetch` | Simple data fetcher with caching |
 | **Next.js** | |
-| `NextSSRPlugin` | Hydrate upload route config to client globalThis |
+| `NextSSRPlugin` | Hydrate upload route config to client globalThis (next-ssr-plugin.tsx) |
 | **Types** | |
 | `FileRouterInputConfig` | Route config input (array or object) |
 | `ExpandedRouteConfig` | Normalized route config with defaults |
@@ -95,7 +95,7 @@ Effect.runPromise(program); // "image"
 
 ```typescript
 import { useReducer } from "react";
-import { reducer, initialState, type DropzoneState } from "@beep/shared-ui/dropzone-utils";
+import { reducer, initialState, type DropzoneState } from "@beep/shared-ui";
 
 function MyDropzone() {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -152,7 +152,7 @@ bytesToFileSize(4194304); // "4.00MB"
 ### Stable Callbacks with useEvent
 
 ```typescript
-import { useEvent } from "@beep/shared-ui/hooks/useEvent";
+import { useEvent } from "@beep/shared-ui";
 
 function MyComponent({ onSave }: { onSave: (data: string) => void }) {
   const [count, setCount] = useState(0);
@@ -174,8 +174,8 @@ function MyComponent({ onSave }: { onSave: (data: string) => void }) {
 ### Clipboard Paste Integration
 
 ```typescript
-import { usePaste } from "@beep/shared-ui/hooks/usePaste";
-import { getFilesFromClipboardEvent } from "@beep/shared-ui/component-utils";
+import { usePaste } from "@beep/shared-ui";
+import { getFilesFromClipboardEvent } from "@beep/shared-ui";
 
 function MyUploader() {
   usePaste((event) => {
@@ -194,7 +194,7 @@ function MyUploader() {
 
 ```typescript
 "use client";
-import { NextSSRPlugin } from "@beep/shared-ui/next-ssr-plugin";
+import { NextSSRPlugin } from "@beep/shared-ui";
 import type { EndpointMetadata } from "@beep/shared-ui/types";
 
 const routerConfig: EndpointMetadata = [
@@ -321,7 +321,7 @@ const handleSave = useEvent(() => {
 Always use the provided `reducer` and `initialState`:
 
 ```typescript
-import { reducer, initialState } from "@beep/shared-ui/dropzone-utils";
+import { reducer, initialState } from "@beep/shared-ui";
 
 const [state, dispatch] = useReducer(reducer, initialState);
 

@@ -25,12 +25,6 @@
 - `packages/shared/tables/src/tables/file.table.ts:16` demonstrates `OrgTable.make(SharedEntityIds.FileId)` for multi-tenant file metadata with organization relations.
 - `packages/documents/tables/src/tables/document.table.ts` imports `bytea` custom column type for storing binary snapshots efficiently.
 
-## Tooling & Docs Shortcuts
-- Locate downstream adopters of the factory: `jetbrains__search_in_files_by_text` with `{"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","searchText":"Table.make(","maxUsageCount":50,"timeout":120000}`.
-- Hunt for organization-aware helpers: `jetbrains__search_in_files_by_text` with `{"projectPath":"/home/elpresidank/YeeBois/projects/beep-effect","searchText":"OrgTable.make(","maxUsageCount":50,"timeout":120000}`.
-- Refresh Effect pipeline guidance: `effect_docs__effect_docs_search` `{"query":"Array map pipe"}` followed by `effect_docs__get_effect_doc` `{"documentId":6596}` for `Function.pipe`.
-- Pull Drizzle schema references: `context7__resolve-library-id` `{"libraryName":"drizzle-orm"}` then `context7__get-library-docs` `{"context7CompatibleLibraryID":"/drizzle-team/drizzle-orm-docs","tokens":800,"topic":"schema builder"}`.
-
 ## Authoring Guardrails
 - Always import Effect modules via namespaces (`import * as F from "effect/Function";`) and avoid native array/string/object APIs; rely on `effect/Array`, `effect/String`, `effect/Record`, and friends.
 - `Table.make` expects an `EntityId.EntityIdSchemaInstance`; create or update the matching entity id in `@beep/shared-domain` before adding a table.

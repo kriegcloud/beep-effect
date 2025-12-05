@@ -35,26 +35,15 @@ through runtime helpers, while adapters keep raw Better Auth usage isolated to t
 
 ## Usage Snapshots
 
-- `apps/web/src/app/dashboard/layout.tsx:3` pipes `SignOutImplementations.SignOutContract` through atoms + `withToast`
-  to power dashboard sign-out while refreshing the runtime.
-- `apps/web/src/providers/AuthGuard.tsx:3` imports the Better Auth `client`, triggers `$store.notify("$sessionSignal")`
-  on mount, and redirects when sessions disappear.
-- `apps/web/src/providers/GuestGuard.tsx:3` combines `AuthCallback.getURL` with `client.useSession()` to keep signed-in
-  users away from guest-only pages.
-- `packages/iam/ui/src/sign-in/sign-in.view.tsx:2` and sibling forms consume `SignInImplementations` contracts to build
-  runtime-powered atoms that surface toast + navigation.
-- `packages/iam/ui/src/verify/verify-phone.form.tsx:1` uses `VerifyImplementations` directly, showing how UI forms
-  should bind to contract sets without an `iam` facade.
+- Dashboard layouts pipe sign-out contracts through atoms + `withToast` to power sign-out flows while refreshing the runtime.
+- Auth guards import the Better Auth `client`, trigger `$store.notify("$sessionSignal")` on mount, and redirect when sessions disappear.
+- Guest guards combine `AuthCallback.getURL` with `client.useSession()` to keep signed-in users away from guest-only pages.
+- Sign-in forms and sibling components consume contract implementations to build runtime-powered atoms that surface toast + navigation.
+- Verification forms use contract implementations directly, showing how UI forms should bind to contract sets.
 
-## Tooling & Docs Shortcuts
+## Related Documentation
 
-- `context7__resolve-library-id` — `{"libraryName":"effect"}`
-- `context7__get-library-docs` —
-  `{"context7CompatibleLibraryID":"/effect-ts/effect","topic":"Effect.async","tokens":1500}`
-- `effect_docs__effect_docs_search` — `{"query":"AbortController signal Effect"}`
-- `effect_docs__get_effect_doc` — `{"documentId":10386}` (covers `Effect.annotateLogs`)
-- `effect_docs__effect_docs_search` — `{"query":"Redacted value"}` for sanitising credentials before transport
-- `packages/common/contract/AGENTS.md` — canonical reference for the underlying `Contract`/`ContractKit` runtime (read before altering continuations or lift helpers surfaced here).
+- `/home/elpresidank/YeeBois/projects/beep-effect/packages/common/contract/AGENTS.md` — canonical reference for the underlying `Contract`/`ContractKit` runtime (read before altering continuations or lift helpers surfaced here).
 
 ## Authoring Guardrails
 
@@ -64,12 +53,9 @@ through runtime helpers, while adapters keep raw Better Auth usage isolated to t
 - Treat `contractkit` as the single source of truth for new flows: define schemas with `Contract.make`, group them via
   `ContractKit.make`, and expose implementations with `ContractKit.of`.
 - When calling Better Auth methods, always wire handlers through `ContractName.implement(Effect.fn(function* (payload, { continuation }) { ... }))`, encode payloads via `ContractName.encodePayload`, call Better Auth with `_internal` helpers (`withFetchOptions`, `addFetchOptions`), raise results via `continuation`, and decode with `ContractName.decodeUnknownSuccess`.
-- Fire `client.$store.notify("$sessionSignal")` after any successful operation that mutates session state (sign-in,
-  sign-out, passkey, social). Guards rely on that signal (see `apps/web/src/providers/AuthGuard.tsx:16`).
-- Avoid resurrecting `AuthHandler`/`auth-wrapper` semantics—timeouts, retries, and toasts now live in consuming layers (
-  atoms + `withToast`). Keep SDK implementations narrowly focused on transport and error shaping.
-- Keep `AuthCallback` prefixes aligned with `apps/web/src/middleware.ts`. Update both whenever authenticated route trees
-  move.
+- Fire `client.$store.notify("$sessionSignal")` after any successful operation that mutates session state (sign-in, sign-out, passkey, social). Guards rely on that signal.
+- Avoid resurrecting `AuthHandler`/`auth-wrapper` semantics—timeouts, retries, and toasts now live in consuming layers (atoms + `withToast`). Keep SDK implementations narrowly focused on transport and error shaping.
+- Keep `AuthCallback` prefixes aligned with app middleware. Update both whenever authenticated route trees move.
 
 ## Quick Recipes
 

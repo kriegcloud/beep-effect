@@ -31,7 +31,7 @@
         "prettier": "^3.7.4",
         "syncpack": "^14.0.0-alpha.29",
         "tsx": "^4.21.0",
-        "turbo": "^2.6.2",
+        "turbo": "^2.6.3",
         "typescript": "^5.9.3",
       },
     },

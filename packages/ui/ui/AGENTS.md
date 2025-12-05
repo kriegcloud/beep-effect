@@ -25,11 +25,11 @@
 - `src/theme/theme-provider.tsx` wraps children with:
   - `createTheme` from `@beep/ui-core` (injects settings overrides and locale components from `useTranslate()` → `currentLang.systemValue`).
   - `ThemeProvider` from MUI with `disableTransitionOnChange` for smoother color scheme swaps.
-  - `Rtl` from `@beep/ui-core/theme/with-settings/right-to-left` to manage document direction; prefer this over the empty `src/theme/RTLMode.tsx` stub.
+  - `Rtl` from `@beep/ui-core/theme/with-settings/right-to-left` to manage document direction.
 - Settings layers:
-  - Legacy settings (`src/settings/context`) connect to `@beep/ui-core/settings`. This state drives theme mode, primary color presets, typography, and navigation layout flags used by the theming pipeline.
-  - `src/settings-v2` provides a reducer-based config for navigation UX (drawer widths, menu type, collapsed state) and persists values via `@beep/ui-core/utils` storage helpers. Primary consumers: `src/layouts/main-layout/**/*`.
-  - When extending settings, document the change in both contexts and ensure the persisted `version` (ui-core) or store keys (settings-v2) are updated to avoid stale local storage.
+  - Settings context (`src/settings/context`) connects to `@beep/ui-core/settings`. This state drives theme mode, primary color presets, typography, and navigation layout flags used by the theming pipeline.
+  - Settings drawer (`src/settings/drawer`) provides UI controls for theme customization.
+  - When extending settings, ensure the persisted `version` field is updated to avoid stale local storage.
 - Locale overrides live in `packages/ui-core/src/i18n/constants.ts`; hook new locales there so `ThemeProvider` receives `Components<Theme>` bundles.
 
 ## Component Organization
@@ -58,10 +58,10 @@
   - `break-points.provider`, `bulk-select.provider` – manage responsive breakpoints and selection state across data-heavy surfaces.
 - Hooks:
   - `src/hooks` includes storage hooks (`useCookies`, `useLocalStorage`), breakpoints, and helpers consumed by settings and layout modules.
-  - `src/settings/context/use-settings-context.ts` wraps React’s experimental `use()` to enforce provider presence.
+  - `src/settings/context/use-settings-context.ts` wraps React's experimental `use()` to enforce provider presence.
 - i18n:
-  - `src/i18n` bridges to `@beep/ui-core/i18n/constants.ts`. Language metadata is centralized there; ensure Added locales update both packages.
-- Navigation layouts rely on `settings-v2` provider (`src/layouts/main-layout/**/*`). Changing layout behaviour requires coordinating with the reducer in `SettingsReducer.ts`.
+  - `src/i18n` bridges to `@beep/ui-core/i18n/constants.ts`. Language metadata is centralized there; ensure added locales update both packages.
+- Navigation layouts in `src/layouts/main-layout/**/*` consume settings from the settings context. Changing layout behavior requires coordinating with the settings provider and state.
 
 ## Operational Workflows
 - Build & distribution:
@@ -79,24 +79,19 @@
 
 ## Reference Library
 - Internal docs:
-  - `packages/ui-core/AGENTS.md` – upstream theme & settings contract.
-  - `packages/ui/src/theme/theme-provider.tsx`, `packages/ui/src/settings/context/settings-provider.tsx`, `packages/ui/src/settings-v2/SettingsProvider.tsx`.
-  - `packages/ui/components.json`, `packages/ui/src/styles/globals.css`, `packages/ui/postcss.config.mjs`.
-- External docs to fetch via `mui-mcp__useMuiDocs` or browser:
-  - MUI theming, CSS variables, and component overrides (same URLs listed in `@beep/ui-core` guide).
-  - Shadcn UI guide: `https://ui.shadcn.com/docs`.
-  - Tailwind integration basics: `https://tailwindcss.com/docs/installation`.
-
-## Tool Call Shortcuts
-- Validate Next.js integration patterns before touching `theme-provider`: `mui-mcp__useMuiDocs(["https://llms.mui.com/material-ui/7.2.0/integrations/nextjs.md"])`
-- Keep Tailwind + MUI layering aligned with official guidance: `mui-mcp__useMuiDocs(["https://llms.mui.com/material-ui/7.2.0/integrations/tailwindcss/tailwindcss-v4.md"])`
-- Confirm global resets while editing `globals.css` or CssBaseline overrides: `mui-mcp__useMuiDocs(["https://llms.mui.com/material-ui/7.2.0/components/css-baseline.md"])`
-- Align responsive breakpoints with upstream recommendations: `mui-mcp__useMuiDocs(["https://llms.mui.com/material-ui/7.2.0/guides/responsive-ui.md"])`
-- Cross-check Data Grid toolbar wiring against premium component docs: `mui-mcp__useMuiDocs(["https://llms.mui.com/x-data-grid/8.8.0/components/toolbar.md"])`
-- Borrow styling recipes when adjusting grid overrides or density controls: `mui-mcp__useMuiDocs(["https://llms.mui.com/x-data-grid/8.8.0/style-recipes.md"])`
-- Inspect quick filter UX before altering `settings-v2` search affordances: `mui-mcp__useMuiDocs(["https://llms.mui.com/x-data-grid/8.8.0/filtering/quick-filter.md"])`
-- Refresh form state patterns ahead of TanStack Form changes: `context7__get-library-docs({"context7CompatibleLibraryID":"/tanstack/form","topic":"react"})` (resolve the ID via `context7__resolve-library-id` if needed)
-- Audit dependency graph impacts when adding new UI stacks: `npm-sentinel__npmDeps({"packages":["@beep/ui"]})`
+  - `packages/ui/core/AGENTS.md` – upstream theme & settings contract.
+  - `packages/ui/ui/src/theme/theme-provider.tsx`, `packages/ui/ui/src/settings/context/settings-provider.tsx`.
+  - `packages/ui/ui/components.json`, `packages/ui/ui/src/styles/globals.css`, `packages/ui/ui/postcss.config.mjs`.
+- External documentation resources:
+  - MUI Next.js Integration: `https://llms.mui.com/material-ui/7.2.0/integrations/nextjs.md`
+  - MUI + Tailwind CSS v4: `https://llms.mui.com/material-ui/7.2.0/integrations/tailwindcss/tailwindcss-v4.md`
+  - CSS Baseline: `https://llms.mui.com/material-ui/7.2.0/components/css-baseline.md`
+  - Responsive UI: `https://llms.mui.com/material-ui/7.2.0/guides/responsive-ui.md`
+  - MUI X Data Grid Toolbar: `https://llms.mui.com/x-data-grid/8.8.0/components/toolbar.md`
+  - MUI X Data Grid Style Recipes: `https://llms.mui.com/x-data-grid/8.8.0/style-recipes.md`
+  - MUI X Data Grid Quick Filter: `https://llms.mui.com/x-data-grid/8.8.0/filtering/quick-filter.md`
+  - Shadcn UI Guide: `https://ui.shadcn.com/docs`
+  - Tailwind CSS Installation: `https://tailwindcss.com/docs/installation`
 
 ## Change Checklist
 - [ ] Updated barrel exports (`src/**/index.ts`) and `package.json#exports` for new components.

@@ -4,7 +4,7 @@
 - Supplies IAM-specific Drizzle tables, enums, and relations layered on top of the shared table factories so the authentication slice stays multi-tenant aware.
 - Bridges `@beep/iam-domain` entity codecs to persistent storage; `_check.ts` keeps Drizzle `Infer*Model` outputs aligned with Effect models.
 - Re-exports shared organization/team/user tables to keep infra consumers on a single schema namespace (`IamDbSchema`) when wiring adapters (e.g. Better Auth).
-- Partners with `@beep/core-db`’s `Db.make` by providing the schema object required to spin up `SqlClient` layers inside IAM infrastructure.
+- Partners with `@beep/shared-infra`'s `Db.make` by providing the schema object required to spin up `SqlClient` layers inside IAM infrastructure.
 
 ## Surface Map
 - `src/index.ts` — exposes the schema namespace as `IamDbSchema`; consumers usually `import { IamDbSchema } from "@beep/iam-tables"`.
@@ -20,32 +20,10 @@
 - `build/` — generated CJS/ESM bundles; never edit manually.
 
 ## Usage Snapshots
-- `packages/iam/infra/src/db/Db.ts:2` — passes `IamDbSchema` into `Db.make` so IAM’s Effect Layer exposes typed Drizzle clients with camel/snake transforms.
-- `packages/iam/infra/src/adapters/better-auth/Auth.service.ts:91` — hands `IamDbSchema` to `drizzleAdapter`, then uses `IamDbSchema.organization` / `IamDbSchema.member` in session hooks to seed org context.
-- `packages/iam/infra/src/adapters/better-auth/plugins/organization/organization.plugin.ts:2` — imports `IamDbSchema` to update membership rows inside plugin hooks, ensuring Better Auth and IAM tables stay in sync.
-- `packages/shared/tables/AGENTS.md:20` — documents how `OrgTable.make` is consumed here (e.g. `member.table.ts:8`), reinforcing the shared multi-tenant defaults that IAM tables extend.
-
-## Tooling & Docs Shortcuts
-- Inspect downstream usages of the schema namespace:
-  ```json
-  { "projectPath": "/home/elpresidank/YeeBois/projects/beep-effect", "searchText": "IamDbSchema", "maxUsageCount": 100 }
-  ```
-  (Call `jetbrains__search_in_files_by_text` with this payload.)
-- Refresh Effect schema patterns:
-  ```json
-  { "context7CompatibleLibraryID": "/llmstxt/effect_website_llms-full_txt", "topic": "schema tables" }
-  ```
-  (Pass to `context7__get-library-docs`.)
-- Revisit Effect Array reductions for guardrail reminders:
-  ```json
-  { "documentId": 4867 }
-  ```
-  (Invoke `effect_docs__get_effect_doc` to view `effect/Array.reduce`.)
-- Pull constructor signatures for `Schema.Struct` when aligning `_check.ts`:
-  ```json
-  { "documentId": 8888 }
-  ```
-  (Feed into `effect_docs__get_effect_doc`.)
+- IAM infrastructure passes `IamDbSchema` into `Db.make` so IAM's Effect Layer exposes typed Drizzle clients with camel/snake transforms.
+- Better Auth service hands `IamDbSchema` to `drizzleAdapter`, then uses `IamDbSchema.organization` / `IamDbSchema.member` in session hooks to seed org context.
+- Better Auth plugins import `IamDbSchema` to update membership rows inside plugin hooks, ensuring Better Auth and IAM tables stay in sync.
+- Shared tables documentation shows how `OrgTable.make` is consumed, reinforcing the shared multi-tenant defaults that IAM tables extend.
 
 ## Authoring Guardrails
 - Always import Effect modules by namespace (`import * as A from "effect/Array";`, `import * as F from "effect/Function";`) and use Effect helpers instead of native array/string/object APIs when writing cookbook examples or schema helpers.

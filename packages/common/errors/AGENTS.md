@@ -18,9 +18,9 @@
 ## Usage Snapshots
 - `apps/web/src/features/upload/UploadFileService.ts:46` – aggregates file processing via `accumulateEffectsAndReport(...)`.
 - `apps/web/src/features/upload/observability.ts:43` – composes `withLogContext`, `withRootSpan`, and `withSpanAndMetrics` to instrument the upload pipeline.
-- `packages/runtime/server/src/server-runtime.ts:33` – swaps in `makePrettyConsoleLoggerLayer()` for dev-friendly logging.
+- `packages/runtime/server/src/Logging.ts:10` – swaps in `makePrettyConsoleLoggerLayer()` for dev-friendly logging.
 - `packages/iam/domain/src/IamError.ts:1` – aliases `BeepError.UnknownError` for domain-specific error hierarchies.
-- `docs/PRODUCTION_CHECKLIST.md:69` – documents operational expectations for `makeEnvLoggerLayerFromEnv`, `withEnvLogging`, and `accumulateEffectsAndReport`.
+- `documentation/PRODUCTION_CHECKLIST.md:69` – documents operational expectations for `makeEnvLoggerLayerFromEnv`, `withEnvLogging`, and `accumulateEffectsAndReport`.
 
 ## Tooling Commands
 - Run package-scoped checks from repo root (all wrap `dotenvx` automatically):
