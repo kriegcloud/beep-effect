@@ -4,6 +4,7 @@
   "type": "module",
   "license": "MIT",
   "description": "A package which contains table definitions which cross context boundaries",
+  "homepage": "https://github.com/kriegcloud/beep-effect",
   "publishConfig": {
     "access": "public",
     "provenance": true,

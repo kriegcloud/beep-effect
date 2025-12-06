@@ -1,2 +1,2 @@
 export * from "./ExifMetadata";
-export * from "./ExifTags";
+export * from "./errors";

@@ -41,8 +41,7 @@
     "@beep/constants": "workspace:^",
     "effect": "catalog:",
     "@beep/identity": "workspace:^",
-    "@effect/sql": "catalog:",
-    "exifreader": "catalog:"
+    "@effect/sql": "catalog:"
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",
@@ -54,8 +53,7 @@
     "@beep/identity": "workspace:^",
     "@beep/constants": "workspace:^",
     "effect": "catalog:",
-    "@effect/sql": "catalog:",
-    "exifreader": "catalog:"
+    "@effect/sql": "catalog:"
   },
   "effect": {
     "generateExports": {

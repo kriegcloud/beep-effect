@@ -1,3 +1,4 @@
+import { ExifToolService } from "@beep/documents-infra/files";
 import { accumulateEffectsAndReport } from "@beep/errors/client";
 import * as Effect from "effect/Effect";
 import { instrumentProcessFile, makeFileAnnotations } from "@/features/upload/observability";
@@ -7,11 +8,19 @@ import type { PipelineConfig, ProcessFilesResult, UploadResult } from "@/feature
  * UploadFileService
  * - Effect service exposing high-level operations for processing one or many files
  * - Delegates to composable pipeline steps in `pipeline.ts`
+ * - ExifToolService dependency is satisfied internally via dependencies array
  */
 export class UploadFileService extends Effect.Service<UploadFileService>()("UploadFileService", {
-  dependencies: [],
+  dependencies: [ExifToolService.Default],
   accessors: true,
   effect: Effect.gen(function* () {
+    // Obtain ExifToolService from context to use in wrapped pipeline functions
+    const exifToolService = yield* ExifToolService;
+
+    // Wrap extractExifMetadata to internalize ExifToolService requirement
+    const extractExifMetadataInternal = (args: Parameters<typeof extractExifMetadata>[0]) =>
+      extractExifMetadata(args).pipe(Effect.provideService(ExifToolService, exifToolService));
+
     const processFile = Effect.fn("UploadFileService.processFile")(function* ({
       file,
       config,
@@ -22,7 +31,7 @@ export class UploadFileService extends Effect.Service<UploadFileService>()("Uplo
       const eff = Effect.gen(function* () {
         const validated = yield* validateFile({ file, config });
         const basic = yield* extractBasicMetadata({ file, detected: validated.detected });
-        const exif = yield* extractExifMetadata({ file, detected: basic.detected ?? validated.detected });
+        const exif = yield* extractExifMetadataInternal({ file, detected: basic.detected ?? validated.detected });
 
         const result: UploadResult = {
           file,
@@ -50,6 +59,6 @@ export class UploadFileService extends Effect.Service<UploadFileService>()("Uplo
       return result satisfies ProcessFilesResult;
     });
 
-    return { processFile, processFiles, validateFile, extractBasicMetadata, extractExifMetadata };
+    return { processFile, processFiles };
   }),
 }) {}

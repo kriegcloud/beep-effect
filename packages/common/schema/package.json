@@ -48,8 +48,7 @@
     "@effect/experimental": "catalog:",
     "mutative": "catalog:",
     "uuid": "catalog:",
-    "randexp-ts": "catalog:",
-    "exifreader": "catalog:"
+    "randexp-ts": "catalog:"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",
@@ -64,8 +63,7 @@
     "mutative": "catalog:",
     "uuid": "catalog:",
     "randexp-ts": "catalog:",
-    "@beep/testkit": "workspace:^",
-    "exifreader": "catalog:"
+    "@beep/testkit": "workspace:^"
   },
   "effect": {
     "generateExports": {

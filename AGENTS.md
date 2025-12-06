@@ -543,11 +543,11 @@ Never launch long-running dev or infra commands without user confirmation.
 
 ## Key References
 
-| Document | Purpose |
-|----------|---------|
-| `README.md` | Onboarding & summary |
-| `docs/patterns/` | Implementation recipes |
-| `turbo.json` | Pipeline graph |
-| `package.json#workspaces` | Workspace layout |
-| `tsconfig.base.jsonc` | Path aliases |
-| `docs/PRODUCTION_CHECKLIST.md` | Deployment readiness |
+| Document                       | Purpose                |
+|--------------------------------|------------------------|
+| `README.md`                    | Onboarding & summary   |
+| `docs/patterns/`               | Implementation recipes |
+| `turbo.json`                   | Pipeline graph         |
+| `package.json#workspaces`      | Workspace layout       |
+| `tsconfig.base.jsonc`          | Path aliases           |
+| `docs/PRODUCTION_CHECKLIST.md` | Deployment readiness   |

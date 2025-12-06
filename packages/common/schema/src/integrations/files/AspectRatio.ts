@@ -1,4 +1,9 @@
+import * as F from "effect/Function";
+import * as Match from "effect/Match";
+import * as Num from "effect/Number";
 import * as S from "effect/Schema";
+
+import { destructiveTransform } from "../../core/extended";
 
 /**
  * Computes the greatest common divisor of two numbers using Euclidean algorithm
@@ -26,19 +31,14 @@ export declare namespace AspectRatioDimensions {
 export type AspectRatioString = `${number} / ${number}`;
 
 /**
- * Schema for the decoded aspect ratio string format
- */
-export const AspectRatioStringSchema: S.Schema<AspectRatioString, string> = S.TemplateLiteral(
-  S.Number,
-  S.Literal(" / "),
-  S.Number
-) as S.Schema<AspectRatioString, string>;
-
-/**
- * AspectRatio schema that transforms between dimensions and a simplified ratio string.
+ * AspectRatio schema that destructively transforms dimensions into a simplified ratio string.
+ *
+ * This is a one-way (destructive) transformation because:
+ * - The original dimensions cannot be recovered from the simplified ratio
+ * - `{ width: 1920, height: 1080 }` and `{ width: 16, height: 9 }` both decode to `"16 / 9"`
  *
  * - Decoded: `"16 / 9"` (simplified using GCD)
- * - Encoded: `{ width: 1920, height: 1080 }`
+ * - Encoded: Not supported (throws Forbidden error)
  *
  * @example
  * ```ts
@@ -50,30 +50,30 @@ export const AspectRatioStringSchema: S.Schema<AspectRatioString, string> = S.Te
  * S.decodeSync(AspectRatio)({ width: 800, height: 600 })   // "4 / 3"
  * S.decodeSync(AspectRatio)({ width: 100, height: 100 })   // "1 / 1"
  *
- * // Encode aspect ratio string back to dimensions
- * S.encodeSync(AspectRatio)("16 / 9") // { width: 16, height: 9 }
+ * // Encoding is not supported - this will throw a Forbidden error
+ * // S.encodeSync(AspectRatio)("16 / 9") // throws!
  * ```
  */
-export class AspectRatio extends S.transform(AspectRatioDimensions, AspectRatioStringSchema, {
-  strict: true,
-  decode: ({ width, height }) => {
-    // Handle edge case where either dimension is 0
-    if (width === 0 || height === 0) {
-      return `${width} / ${height}` as const;
-    }
-    const divisor = gcd(width, height);
-    const simplifiedWidth = width / divisor;
-    const simplifiedHeight = height / divisor;
-    return `${simplifiedWidth} / ${simplifiedHeight}` as const;
-  },
-  encode: (aspectRatioString) => {
-    const [widthStr, heightStr] = aspectRatioString.split(" / ");
-    return new AspectRatioDimensions({
-      width: Number.parseInt(widthStr!, 10) as S.Schema.Type<typeof S.NonNegativeInt>,
-      height: Number.parseInt(heightStr!, 10) as S.Schema.Type<typeof S.NonNegativeInt>,
-    });
-  },
-}) {}
+export const AspectRatio: S.Schema<
+  Readonly<AspectRatioString>,
+  AspectRatioDimensions.Encoded,
+  never
+> = AspectRatioDimensions.pipe(
+  destructiveTransform(({ width, height }) =>
+    Match.value({ width, height }).pipe(
+      Match.when(
+        ({ width, height }) => width === 0 || height === 0,
+        ({ width, height }) => `${width} / ${height}` as AspectRatioString
+      ),
+      Match.orElse(({ width, height }) => {
+        const divisor = gcd(width, height);
+        const simplifiedWidth = F.pipe(width, Num.unsafeDivide(divisor));
+        const simplifiedHeight = F.pipe(height, Num.unsafeDivide(divisor));
+        return `${simplifiedWidth} / ${simplifiedHeight}` as AspectRatioString;
+      })
+    )
+  )
+);
 
 export declare namespace AspectRatio {
   export type Type = S.Schema.Type<typeof AspectRatio>;

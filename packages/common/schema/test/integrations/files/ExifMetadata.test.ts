@@ -1,54 +1,86 @@
 import { describe, expect, it } from "bun:test";
-import { ExifMetadata } from "@beep/schema/integrations/files";
+import { ExifMetadata, type ExifMetadataValue } from "@beep/schema/integrations/files";
 import * as S from "effect/Schema";
 
-// Helper to make a simple NumberTag (id/description/value)
-const numberTag = (value: number, description = "tag", id = 1) => ({ id, description, value });
-
 describe("@beep/schema EXIF schemas", () => {
-  it("decodes minimal EXIF structure via ExpandedTags", () => {
+  it("creates ExifMetadata from raw ExifTool output", () => {
+    const raw: ExifMetadataValue = {
+      FileName: "test.jpg",
+      FileType: "JPEG",
+      MIMEType: "image/jpeg",
+      ImageWidth: 1024,
+      ImageHeight: 768,
+      Make: "Canon",
+      Model: "EOS 5D",
+    };
+
+    const metadata = ExifMetadata.fromRaw(raw);
+
+    expect(metadata.fileName).toBe("test.jpg");
+    expect(metadata.fileType).toBe("JPEG");
+    expect(metadata.imageWidth).toBe(1024);
+    expect(metadata.imageHeight).toBe(768);
+    expect(metadata.make).toBe("Canon");
+    expect(metadata.model).toBe("EOS 5D");
+    expect(metadata.raw).toBeDefined();
+  });
+
+  it("decodes ExifMetadata schema", () => {
     const input = {
-      exif: {
-        ImageWidth: numberTag(1024, "ImageWidth", 256),
-        ImageLength: numberTag(768, "ImageLength", 257),
-      },
+      fileName: "test.jpg",
+      fileType: "JPEG",
+      imageWidth: 1024,
+      imageHeight: 768,
+      raw: { FileName: "test.jpg" },
     };
 
     const decoded = S.decodeSync(ExifMetadata)(input);
 
-    expect(decoded.exif).toBeDefined();
-    expect(decoded.exif?.imageWidth?.value).toBe(1024);
-    expect(decoded.exif?.imageLength?.value).toBe(768);
+    expect(decoded.fileName).toBe("test.jpg");
+    expect(decoded.imageWidth).toBe(1024);
   });
 
-  it("omitKnownLargeFields removes known heavy keys in icc/xmp/iptc/thumbnail", () => {
-    const raw = {
-      icc: { base64: "a".repeat(2000), data: "b".repeat(2000), buffer: new ArrayBuffer(2048), profile: "ok" },
-      xmp: { base64: "c".repeat(2000), rawXml: "<xml/>", data: "d".repeat(2000), other: "ok" },
-      iptc: { base64: "e".repeat(2000), data: "f".repeat(2000), buffer: new ArrayBuffer(1024), keep: "ok" },
-      thumbnail: { image: new ArrayBuffer(2048), base64: "g".repeat(2000), blob: "h".repeat(2000), buffer: "i" },
-    } as const;
+  it("handles missing optional fields", () => {
+    const raw: ExifMetadataValue = {
+      FileName: "test.jpg",
+    };
 
-    const cleaned = ExifMetadata.omitKnownLargeFields(raw);
+    const metadata = ExifMetadata.fromRaw(raw);
 
-    expect(cleaned.icc?.base64).toBeUndefined();
-    expect(cleaned.icc?.data).toBeUndefined();
-    expect(cleaned.icc?.buffer).toBeUndefined();
-    expect(cleaned.icc?.profile).toBe("ok");
+    expect(metadata.fileName).toBe("test.jpg");
+    expect(metadata.imageWidth).toBeUndefined();
+    expect(metadata.gpsLatitude).toBeUndefined();
+  });
 
-    expect(cleaned.xmp?.base64).toBeUndefined();
-    expect(cleaned.xmp?.rawXml).toBeUndefined();
-    expect(cleaned.xmp?.data).toBeUndefined();
-    expect(cleaned.xmp?.other).toBe("ok");
+  it("preserves GPS coordinates when present", () => {
+    const raw: ExifMetadataValue = {
+      FileName: "gps-test.jpg",
+      GPSLatitude: 37.7749,
+      GPSLongitude: -122.4194,
+      GPSAltitude: 10,
+    };
 
-    expect(cleaned.iptc?.base64).toBeUndefined();
-    expect(cleaned.iptc?.data).toBeUndefined();
-    expect(cleaned.iptc?.buffer).toBeUndefined();
-    expect(cleaned.iptc?.keep).toBe("ok");
+    const metadata = ExifMetadata.fromRaw(raw);
 
-    expect(cleaned.thumbnail?.image).toBeUndefined();
-    expect(cleaned.thumbnail?.base64).toBeUndefined();
-    expect(cleaned.thumbnail?.blob).toBeUndefined();
-    expect(cleaned.thumbnail?.buffer).toBeUndefined();
+    expect(metadata.gpsLatitude).toBe(37.7749);
+    expect(metadata.gpsLongitude).toBe(-122.4194);
+    expect(metadata.gpsAltitude).toBe(10);
+  });
+
+  it("preserves camera information when present", () => {
+    const raw: ExifMetadataValue = {
+      FileName: "camera-test.jpg",
+      Make: "Nikon",
+      Model: "D850",
+      Software: "Adobe Lightroom",
+      DateTimeOriginal: "2025:01:15 10:30:00",
+    };
+
+    const metadata = ExifMetadata.fromRaw(raw);
+
+    expect(metadata.make).toBe("Nikon");
+    expect(metadata.model).toBe("D850");
+    expect(metadata.software).toBe("Adobe Lightroom");
+    expect(metadata.dateTimeOriginal).toBe("2025:01:15 10:30:00");
   });
 });

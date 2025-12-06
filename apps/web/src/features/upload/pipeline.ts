@@ -1,18 +1,15 @@
+// Direct import to avoid pulling in server-only dependencies (pg, fs, dns, etc.)
+// from the barrel export which includes DocumentsRepos/Db layers
+import { ExifToolService } from "@beep/documents-infra/files";
 import { BS } from "@beep/schema";
-
-import {
-  type DetectedFileInfo,
-  ExifMetadata,
-  FileAttributes,
-  fileTypeChecker,
-  getFileChunk,
-} from "@beep/schema/integrations/files";
+import { type DetectedFileInfo, FileAttributes, fileTypeChecker, getFileChunk } from "@beep/schema/integrations/files";
 import { formatSize } from "@beep/schema/integrations/files/utils/formatSize";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Metric from "effect/Metric";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import ExifReader from "exifreader";
 import * as Errors from "./errors";
 import { logInfo, logWarning, makeFileAnnotations, UploadMetrics } from "./observability";
 import {
@@ -21,6 +18,7 @@ import {
   type PipelineConfig,
   type ValidateFileOutput,
 } from "./UploadModels";
+
 /**
  * Validate a File against size and signature rules.
  */
@@ -93,7 +91,7 @@ export const validateFile = Effect.fn("upload.validateFile")(function* ({
     )
   );
   if (config?.allowedMime) {
-    if (!config.allowedMime.includes(candidate)) {
+    if (!A.contains(candidate)(config.allowedMime)) {
       yield* logWarning("upload.validateFile: disallowed MIME", {
         ...makeFileAnnotations(file),
         candidate,
@@ -126,7 +124,7 @@ export const extractBasicMetadata = Effect.fn("upload.extractBasicMetadata")(fun
 }) {
   // Build attributes and validate at runtime using effect/Schema
   const wrp = file.webkitRelativePath;
-  const hasWrp = Str.isString(wrp) && wrp.length > 0;
+  const hasWrp = Str.isString(wrp) && Str.length(wrp) > 0;
   const candidateType = detected?.mimeType ?? file.type;
 
   const attributesInput = {
@@ -136,7 +134,7 @@ export const extractBasicMetadata = Effect.fn("upload.extractBasicMetadata")(fun
     lastModifiedDate: file.lastModified,
     lastModified: file.lastModified,
     name: file.name,
-    ...(hasWrp ? { webkitRelativePath: wrp, relativePath: wrp } : {}),
+    ...(hasWrp ? { webkitRelativePath: wrp, relativePath: wrp } : R.empty()),
   };
 
   const attributes = yield* S.decodeUnknown(FileAttributes)(attributesInput).pipe(
@@ -163,8 +161,8 @@ export const extractBasicMetadata = Effect.fn("upload.extractBasicMetadata")(fun
 });
 
 /**
- * Extract EXIF metadata for images (when present). Return undefined on non-images or parse failure.
- * NOTE: This is a scaffolding stub. Wire exifreader + BS.cleanExifData + S.decode(BS.ExpandedTags) in implementation.
+ * Extract EXIF metadata for images (when present).
+ * Returns undefined on non-images or parse failure.
  */
 export const extractExifMetadata = Effect.fn("upload.extractExifMetadata")(function* ({
   file,
@@ -179,50 +177,15 @@ export const extractExifMetadata = Effect.fn("upload.extractExifMetadata")(funct
     return undefined;
   }
 
-  // Try EXIF parse, but do not fail the pipeline: log warning and return undefined on failure
+  // Try EXIF parse via service, but do not fail the pipeline
   return yield* Effect.gen(function* () {
-    const buffer = yield* Effect.tryPromise({
-      try: () => file.arrayBuffer(),
-      catch: (e) =>
-        new Errors.ExifParseError({
-          message: "Could not parse EXIF data because array buffer could not be read",
-          cause: e,
-          fileName: file.name,
-          fileType: file.type,
-          fileSize: file.size,
-          phase: "read",
-        }),
-    });
-    const raw = yield* Effect.try({
-      try: () => ExifReader.load(buffer, { expanded: true }),
-      catch: (e) =>
-        new Errors.ExifParseError({
-          message: "Could not parse EXIF data",
-          cause: e,
-          fileName: file.name,
-          fileType: file.type,
-          fileSize: file.size,
-          phase: "parse",
-        }),
-    });
-    const cleaned = ExifMetadata.cleanExifData(raw);
-    const decoded = yield* S.decodeUnknown(ExifMetadata)(cleaned).pipe(
-      Effect.mapError(
-        (e) =>
-          new Errors.ExifParseError({
-            message: "Could not decode EXIF data to schema",
-            cause: e,
-            fileName: file.name,
-            fileType: file.type,
-            fileSize: file.size,
-            phase: "decode",
-          })
-      )
-    );
-    // success: increment metric and log
+    const exif = yield* ExifToolService.extractMetadata(file);
+
+    // Success: increment metric and log
     yield* Metric.increment(UploadMetrics.exifParsedTotal);
     yield* logInfo("upload.extractExifMetadata: parsed EXIF", makeFileAnnotations(file));
-    return decoded;
+
+    return exif;
   }).pipe(
     Effect.catchAll((error) =>
       Effect.gen(function* () {

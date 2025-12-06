@@ -103,7 +103,7 @@
     "madge": "^8.0.0",
     "playwright": "^1.57.0",
     "prettier": "^3.7.4",
-    "syncpack": "^14.0.0-alpha.29",
+    "syncpack": "^14.0.0-alpha.31",
     "tsx": "^4.21.0",
     "turbo": "^2.6.3",
     "typescript": "^5.9.3"
@@ -276,7 +276,7 @@
     "drizzle-zero": "^0.16.2",
     "dub": "^0.69.0",
     "effect": "^3.19.9",
-    "exifreader": "^4.33.1",
+    "@uswriting/exiftool": "^1.0.9",
     "framer-motion": "^12.23.25",
     "husky": "^9.1.7",
     "i18next": "^25.7.1",
@@ -305,7 +305,7 @@
     "stripe": "^20.0.0",
     "stylis": "^4.3.6",
     "stylis-plugin-rtl": "^2.1.1",
-    "syncpack": "^14.0.0-alpha.29",
+    "syncpack": "^14.0.0-alpha.31",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.17",
     "tailwindcss-animate": "^1.0.7",
@@ -1129,10 +1129,6 @@
     {
       "name": "effect",
       "version": "^3.18.4"
-    },
-    {
-      "name": "exifreader",
-      "version": "^4.32.0"
     },
     {
       "name": "framer-motion",

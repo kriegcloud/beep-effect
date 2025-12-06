@@ -13,6 +13,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./package.json": "./package.json",
+    "./files": "./src/files/index.ts",
     "./*": "./src/*.ts"
   },
   "repository": {
@@ -57,7 +58,8 @@
     "effect": "catalog:",
     "@beep/constants": "workspace:^",
     "@beep/shared-domain": "workspace:^",
-    "@beep/errors": "workspace:^"
+    "@beep/errors": "workspace:^",
+    "@uswriting/exiftool": "catalog:"
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",
@@ -85,7 +87,8 @@
     "effect": "catalog:",
     "@beep/constants": "workspace:^",
     "@beep/shared-domain": "workspace:^",
-    "@beep/errors": "workspace:^"
+    "@beep/errors": "workspace:^",
+    "@uswriting/exiftool": "catalog:"
   },
   "effect": {
     "generateExports": {
