@@ -2898,7 +2898,7 @@
     "prettier": "^3.7.4",
     "prisma": "^7.1.0",
     "prisma-json-schema-generator": "^5.1.5",
-    "prisma-type-generator": "^2.0.1",
+    "prisma-type-generator": "^2.0.2",
     "puppeteer": "^24.32.0",
     "randexp-ts": "^1.0.5",
     "react": "^19.2.1",
@@ -6764,7 +6764,7 @@
 
     "prisma-json-schema-generator": ["prisma-json-schema-generator@5.1.5", "", { "dependencies": { "@prisma/generator-helper": "5.8.1", "@prisma/internals": "5.8.1" }, "bin": { "prisma-json-schema-generator": "dist/cli.js" } }, "sha512-OHyPkwgIhMf+z8fToj8D4xMX55RVok5ugDa7J2VdMukcNIaAewWhe3k7Jv2YflJZE+6cB6LMWfkub+OGcFG+wA=="],
 
-    "prisma-type-generator": ["prisma-type-generator@2.0.1", "", { "peerDependencies": { "@prisma/client": ">=5.0.0 || >=6.0.0 || >=7.0.0" }, "bin": { "prisma-type-generator": "dist/bin.js" } }, "sha512-H8dRXAFN4r84c5oco0u/6ZUTYyNALUSOIYiYYv1KD5XTL/OuL9SxUmTJGUr+sbG1yCBSIRVDvIMQcyzv/Bx4Ag=="],
+    "prisma-type-generator": ["prisma-type-generator@2.0.2", "", { "peerDependencies": { "@prisma/client": ">=5.0.0 || >=6.0.0 || >=7.0.0" }, "bin": { "prisma-type-generator": "dist/bin.js" } }, "sha512-TcHnq/s+NYin1qi7DFhmVHStvQvkt49gEIMCPOYIWki9r02XQncyZmtSFhGADyJ4jj8q0xyIDUrxh2fTwbhAYw=="],
 
     "prismjs": ["prismjs@1.30.0", "", {}, "sha512-DEvV2ZF2r2/63V+tK8hQvrR2ZGn10srHbXviTlcv7Kpzw8jWiNTqbVgjO3IY8RxrrOUF8VPMQQFysYYYv0YZxw=="],
 

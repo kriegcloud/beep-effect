@@ -169,7 +169,7 @@
     "openai": "^6.10.0",
     "prisma": "^7.1.0",
     "prisma-json-schema-generator": "^5.1.5",
-    "prisma-type-generator": "^2.0.1",
+    "prisma-type-generator": "^2.0.2",
     "puppeteer": "^24.32.0",
     "react-hook-form": "^7.68.0",
     "react-lazy-load-image-component": "^1.6.3",
