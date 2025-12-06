@@ -11,7 +11,7 @@
  * const mutUtilsFirst = mutUtilsArray[0];
  * void mutUtilsFirst;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import type * as A from "effect/Array";
@@ -26,7 +26,7 @@ import type * as A from "effect/Array";
  * const firstItem = list[0];
  * void firstItem;
  *
- * @category Core/Mutation
+ * @category Core
  * @since 0.1.0
  */
 export const removeReadonly = <T>(
@@ -41,7 +41,7 @@ export const removeReadonly = <T>(
  *
  * const arr = removeReadonlyNonEmpty([1, 2] as const);
  *
- * @category Core/Mutation
+ * @category Core
  * @since 0.1.0
  */
 export const removeReadonlyNonEmpty = <T>(arr: A.NonEmptyArray<T> | A.NonEmptyReadonlyArray<T>): A.NonEmptyArray<T> =>

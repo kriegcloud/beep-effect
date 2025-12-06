@@ -10,7 +10,7 @@
  * const gettersIndexSlug = Utils.getAt(gettersIndexRecord, "tenant.slug");
  * void gettersIndexSlug;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 export * from "@beep/utils/getters/getAt";

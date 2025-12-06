@@ -2,13 +2,16 @@
  * Identifier v2 — tagged template friendly identity composers with `$` accessors.
  *
  * @example
- * import * as Identifier from "@beep/identity/Identifier";
+ * ```typescript
+ * import * as Identifier from "@beep/identity/Identifier"
  *
- * const { $BeepId } = Identifier.make("beep");
- * const { $SchemaId } = $BeepId.compose("schema");
- * const serviceId = $SchemaId`TenantService`;
+ * const { $BeepId } = Identifier.make("beep")
+ * const { $SchemaId } = $BeepId.compose("schema")
+ * const serviceId = $SchemaId`TenantService`
+ * ```
  *
- * @category Identity/Builder
+ * @category constructors
+ * @since 0.1.0
  */
 import type { StringTypes } from "@beep/types";
 import * as A from "effect/Array";
@@ -234,11 +237,17 @@ const createComposer = <const Value extends StringTypes.NonEmptyString>(value: V
 };
 
 /**
- * Build the root `$<Base>Id` composer for the given base segment(s).
+ * Creates a tagged composer factory for building strongly-typed identifiers with a specific base string.
  *
+ * @category constructors
  * @example
- * const { $BeepId } = Identifier.make("beep");
- * const { $SchemaId } = $BeepId.compose("schema");
+ * ```typescript
+ * import { Identifier } from "@beep/identity"
+ *
+ * const { $BeepId } = Identifier.make("beep")
+ * const userId = $BeepId.make("User")
+ * ```
+ * @since 0.1.0
  */
 export const make = <const Base extends StringTypes.NonEmptyString>(base: Base) => {
   const normalizedBase = normalizeBase(base);
@@ -252,8 +261,36 @@ export const make = <const Base extends StringTypes.NonEmptyString>(base: Base) 
   };
 };
 
+/**
+ * A string literal type that creates a tagged accessor by prefixing a module accessor with `$`.
+ * Used for creating tagged identifiers in the beep-effect system.
+ *
+ * @category models
+ * @example
+ * ```typescript
+ * import type { TaggedAccessor } from "@beep/identity/Identifier"
+ *
+ * type MyTaggedAccessor = TaggedAccessor<"user">
+ * // Result: "$UserId"
+ * ```
+ * @since 0.1.0
+ */
 export type TaggedAccessor<S extends StringTypes.NonEmptyString> = `$${ModuleAccessor<S>}`;
 
+/**
+ * A composer interface for creating tagged module identifiers with type-safe segment composition.
+ * Provides multiple ways to construct and compose module paths with compile-time validation.
+ *
+ * @category models
+ * @example
+ * ```typescript
+ * import { Identifier } from "@beep/identity"
+ *
+ * const { $BeepId } = Identifier.make("beep")
+ * const userService = $BeepId`service`
+ * ```
+ * @since 0.1.0
+ */
 export type TaggedComposer<Value extends StringTypes.NonEmptyString> = {
   <const Segment extends ModuleSegmentValue<StringTypes.NonEmptyString>>(
     strings: readonly [Segment]
@@ -284,6 +321,20 @@ export type TaggedComposer<Value extends StringTypes.NonEmptyString> = {
   ): TaggedComposerResult<Value, Segment>;
 };
 
+/**
+ * Represents a record of tagged module accessors for building hierarchical module paths.
+ * Each segment in the module path becomes a property with a corresponding tagged composer.
+ *
+ * @category models
+ * @example
+ * ```typescript
+ * import { Identifier } from "@beep/identity"
+ *
+ * const { $BeepId } = Identifier.make("beep")
+ * const modules = $BeepId.compose("profile", "settings")
+ * ```
+ * @since 0.1.0
+ */
 export type TaggedModuleRecord<
   Value extends StringTypes.NonEmptyString,
   Segments extends ReadonlyArray<StringTypes.NonEmptyString>,
@@ -296,6 +347,19 @@ export type TaggedModuleRecord<
     } & TaggedModuleRecord<Value, Tail>
   : {};
 
+/**
+ * Represents a tagged composer result that combines a base value with a module segment.
+ * This type creates a new TaggedComposer with a path formed by joining the value and segment with a forward slash.
+ *
+ * @category models
+ * @example
+ * ```typescript
+ * import type { TaggedComposerResult } from "@beep/identity/Identifier"
+ *
+ * type UserProfile = TaggedComposerResult<"@beep", "user">
+ * ```
+ * @since 0.1.0
+ */
 export type TaggedComposerResult<
   Value extends StringTypes.NonEmptyString,
   Segment extends ModuleSegmentValue<StringTypes.NonEmptyString>,
@@ -310,9 +374,37 @@ type NormalizedBase<Base extends StringTypes.NonEmptyString> =
         ? Rest
         : Base;
 
+/**
+ * Base identity type that creates a namespace-prefixed identity string.
+ *
+ * When the base is "beep", returns just the BEEP_NAMESPACE. Otherwise, returns
+ * the namespace followed by a slash and the normalized base string.
+ *
+ * @category models
+ * @example
+ * ```typescript
+ * import type { BaseIdentity } from "@beep/identity/Identifier"
+ *
+ * type BeepIdentity = BaseIdentity<"beep"> // "@beep"
+ * type UserIdentity = BaseIdentity<"schema"> // "@beep/schema"
+ * ```
+ * @since 0.1.0
+ */
 export type BaseIdentity<Base extends StringTypes.NonEmptyString> =
   NormalizedBase<Base> extends "beep" ? typeof BEEP_NAMESPACE : `${typeof BEEP_NAMESPACE}/${NormalizedBase<Base>}`;
 
+/**
+ * Internal utilities for namespace and identifier processing.
+ *
+ * @category utilities
+ * @example
+ * ```typescript
+ * import { Identifier } from "@beep/identity"
+ *
+ * const segment = Identifier.__internal.ensureSegment("my-segment")
+ * ```
+ * @since 0.1.0
+ */
 export const __internal = {
   ensureSegment,
   ensureModuleSegment,

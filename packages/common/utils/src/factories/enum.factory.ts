@@ -13,7 +13,7 @@
  * const enumFactoryKeys = Utils.deriveKeyEnum(enumFactoryRecord);
  * void enumFactoryKeys;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import * as A from "effect/Array";
@@ -32,7 +32,7 @@ import { create } from "mutative";
  * const enumFactoryDerive: DeriveKeyEnum = deriveKeyEnum;
  * void enumFactoryDerive;
  *
- * @category Factories/Enum
+ * @category Factories
  * @since 0.1.0
  */
 export type DeriveKeyEnum = <T extends Record<string, unknown>>(
@@ -50,7 +50,7 @@ export type DeriveKeyEnum = <T extends Record<string, unknown>>(
  * const Status = deriveKeyEnum({ pending: {}, active: {} });
  * // { pending: "pending", active: "active" }
  *
- * @category Factories/Enum
+ * @category Factories
  * @since 0.1.0
  */
 export const deriveKeyEnum: DeriveKeyEnum = <T extends Record<string, unknown>>(record: T) =>

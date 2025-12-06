@@ -10,7 +10,7 @@
  * const factoriesIndexRecord: FooTypes.Prettify<typeof factoriesIndexEnum> = factoriesIndexEnum;
  * void factoriesIndexRecord;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 export * from "@beep/utils/factories/enum.factory";

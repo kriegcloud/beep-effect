@@ -1,3 +1,10 @@
+/**
+ * Workspace resolution and directory mapping.
+ *
+ * Resolves workspace package names to their filesystem directories.
+ *
+ * @since 0.1.0
+ */
 import type * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as Cause from "effect/Cause";
@@ -22,6 +29,22 @@ const IGNORE = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.turbo/**
  * - Expands workspace globs to absolute package.json paths, ignoring common
  *   build/artifact directories
  * - Returns a HashMap of package name -> absolute directory
+ *
+ * @example
+ * ```typescript
+ * import { resolveWorkspaceDirs } from "@beep/tooling-utils"
+ * import * as Effect from "effect/Effect"
+ * import * as HashMap from "effect/HashMap"
+ *
+ * const program = Effect.gen(function* () {
+ *   const workspaces = yield* resolveWorkspaceDirs
+ *   const dir = HashMap.get(workspaces, "@beep/common-schema")
+ *   // => Some("/absolute/path/to/packages/common/schema")
+ * })
+ * ```
+ *
+ * @category Utils/Repo
+ * @since 0.1.0
  */
 export const resolveWorkspaceDirs: Effect.Effect<
   HashMap.HashMap<string, string>,
@@ -65,10 +88,44 @@ export const resolveWorkspaceDirs: Effect.Effect<
  *
  * @param workspace Full workspace package name (e.g. "@beep/foo")
  * @throws DomainError when the workspace cannot be found
+ *
+ * @example
+ * ```typescript
+ * import { getWorkspaceDir } from "@beep/tooling-utils"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const dir = yield* getWorkspaceDir("@beep/common-schema")
+ *   console.log(dir)
+ *   // => /absolute/path/to/packages/common/schema
+ * })
+ * ```
+ *
+ * @category Utils/Repo
+ * @since 0.1.0
  */
 export type GetWorkSpaceDir = (
   workspace: string
 ) => Effect.Effect<string, DomainError, Path.Path | FileSystem.FileSystem | FsUtils>;
+
+/**
+ * Resolve a workspace's absolute directory by its package name.
+ *
+ * @example
+ * ```typescript
+ * import { getWorkspaceDir } from "@beep/tooling-utils"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const dir = yield* getWorkspaceDir("@beep/common-schema")
+ *   console.log(dir)
+ *   // => /absolute/path/to/packages/common/schema
+ * })
+ * ```
+ *
+ * @category Utils/Repo
+ * @since 0.1.0
+ */
 export const getWorkspaceDir: GetWorkSpaceDir = Effect.fn("getWorkspaceDir")(function* (workspace: string) {
   const map = yield* resolveWorkspaceDirs;
   return yield* F.pipe(

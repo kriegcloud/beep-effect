@@ -13,7 +13,7 @@
  * const formatTimeRangeLabel = Utils.fDateRangeShortLabel(formatTimeRange.start, formatTimeRange.end);
  * void formatTimeRangeLabel;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import * as A from "effect/Array";
@@ -31,7 +31,7 @@ import * as Str from "effect/String";
  *
  * const value: DatePickerFormat = new Date();
  *
- * @category Formatting/Temporal
+ * @category Formatting
  * @since 0.1.0
  */
 export type DatePickerFormat = DateTime.DateTime | Date | string | number | null | undefined;
@@ -44,7 +44,7 @@ export type DatePickerFormat = DateTime.DateTime | Date | string | number | null
  *
  * formatPatterns.date; // "DD MMM YYYY"
  *
- * @category Formatting/Temporal
+ * @category Formatting
  * @since 0.1.0
  */
 export const formatPatterns = {
@@ -119,7 +119,7 @@ const formatWithTemplate = (dt: DateTime.DateTime, template: string): string => 
  *
  * today("YYYY-MM-DD");
  *
- * @category Formatting/Temporal
+ * @category Formatting
  * @since 0.1.0
  */
 export function today(template?: undefined | string): string {
@@ -136,7 +136,7 @@ export function today(template?: undefined | string): string {
  *
  * fDateTime(new Date(), "YYYY-MM-DD HH:mm");
  *
- * @category Formatting/Temporal
+ * @category Formatting
  * @since 0.1.0
  */
 export function fDateTime(date: DatePickerFormat, template?: undefined | string): string {
@@ -155,7 +155,7 @@ export function fDateTime(date: DatePickerFormat, template?: undefined | string)
  *
  * fDate("2024-01-01");
  *
- * @category Formatting/Temporal
+ * @category Formatting
  * @since 0.1.0
  */
 export function fDate(date: DatePickerFormat, template?: undefined | string): string {
@@ -174,7 +174,7 @@ export function fDate(date: DatePickerFormat, template?: undefined | string): st
  *
  * fTime("2024-01-01T12:00:00Z");
  *
- * @category Formatting/Temporal
+ * @category Formatting
  * @since 0.1.0
  */
 export function fTime(date: DatePickerFormat, template?: undefined | string): string {
@@ -193,7 +193,7 @@ export function fTime(date: DatePickerFormat, template?: undefined | string): st
  *
  * fTimestamp(new Date());
  *
- * @category Formatting/Temporal
+ * @category Formatting
  * @since 0.1.0
  */
 export function fTimestamp(date: DatePickerFormat): number | "Invalid date" {
@@ -212,7 +212,7 @@ export function fTimestamp(date: DatePickerFormat): number | "Invalid date" {
  *
  * fToNow(DateTime.unsafeNow());
  *
- * @category Formatting/Temporal
+ * @category Formatting
  * @since 0.1.0
  */
 export function fToNow(date: DatePickerFormat): string {
@@ -251,7 +251,7 @@ export function fToNow(date: DatePickerFormat): string {
  *
  * fIsBetween("2024-01-02", "2024-01-01", "2024-01-03");
  *
- * @category Formatting/Temporal
+ * @category Formatting
  * @since 0.1.0
  */
 export function fIsBetween(
@@ -278,7 +278,7 @@ export function fIsBetween(
  *
  * fIsAfter("2024-01-02", "2024-01-01");
  *
- * @category Formatting/Temporal
+ * @category Formatting
  * @since 0.1.0
  */
 export function fIsAfter(startDate: DatePickerFormat, endDate: DatePickerFormat): boolean {
@@ -302,7 +302,7 @@ type TimeUnit = "year" | "month" | "day" | "hour" | "minute" | "second";
  *
  * fIsSame("2024-01-01", "2024-01-31", "year");
  *
- * @category Formatting/Temporal
+ * @category Formatting
  * @since 0.1.0
  */
 export function fIsSame(
@@ -367,7 +367,7 @@ export function fIsSame(
  *
  * fDateRangeShortLabel("2024-01-01", "2024-01-10");
  *
- * @category Formatting/Temporal
+ * @category Formatting
  * @since 0.1.0
  */
 export function fDateRangeShortLabel(
@@ -408,7 +408,7 @@ export function fDateRangeShortLabel(
  *
  * const props: DurationProps = { days: 1 };
  *
- * @category Formatting/Temporal
+ * @category Formatting
  * @since 0.1.0
  */
 export type DurationProps = {
@@ -431,7 +431,7 @@ type FAdd = (params: DurationProps) => string;
  *
  * fAdd({ days: 7 });
  *
- * @category Formatting/Temporal
+ * @category Formatting
  * @since 0.1.0
  */
 export const fAdd: FAdd = ({
@@ -466,7 +466,7 @@ type FSub = (params: DurationProps) => string;
  *
  * fSub({ hours: 2 });
  *
- * @category Formatting/Temporal
+ * @category Formatting
  * @since 0.1.0
  */
 export const fSub: FSub = ({

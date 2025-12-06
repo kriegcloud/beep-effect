@@ -1,3 +1,10 @@
+/**
+ * Workspace to package.json path mapping.
+ *
+ * Maps workspace package names to their package.json file paths.
+ *
+ * @since 0.1.0
+ */
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as Effect from "effect/Effect";
@@ -10,6 +17,22 @@ import { resolveWorkspaceDirs } from "./Workspaces.js";
  *
  * Validates that each workspace has a package.json and fails fast with
  * {@link NoSuchFileError} if any is missing.
+ *
+ * @example
+ * ```typescript
+ * import { mapWorkspaceToPackageJsonPath } from "@beep/tooling-utils"
+ * import * as Effect from "effect/Effect"
+ * import * as HashMap from "effect/HashMap"
+ *
+ * const program = Effect.gen(function* () {
+ *   const map = yield* mapWorkspaceToPackageJsonPath
+ *   const path = HashMap.get(map, "@beep/common-schema")
+ *   // => Some("/absolute/path/to/packages/common/schema/package.json")
+ * })
+ * ```
+ *
+ * @category Utils/Repo
+ * @since 0.1.0
  */
 export const mapWorkspaceToPackageJsonPath = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;

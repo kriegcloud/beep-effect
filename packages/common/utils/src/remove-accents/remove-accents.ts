@@ -1,3 +1,7 @@
+/**
+ * @since 0.1.0
+ */
+
 import * as A from "effect/Array";
 import * as Struct from "effect/Struct";
 
@@ -473,24 +477,74 @@ const chars = A.join(Struct.keys(charMap), "|");
 const allAccents = new RegExp(chars, "g");
 const firstAccent = new RegExp(chars);
 
+/**
+ * @since 0.1.0
+ */
+
 const matcher = (match: string): string => charMap[match] ?? match;
 
 /**
- * Remove accents from a string, replacing accented characters with their ASCII equivalents.
+ * Removes accents from a string, replacing accented characters with their ASCII equivalents.
+ *
+ * @example
+ * ```typescript
+ * import { removeAccents } from "@beep/utils"
+ *
+ * const cleaned = removeAccents("café")
+ * console.log(cleaned)
+ * // => "cafe"
+ * ```
+ *
+ * @category transformations
+ * @since 0.1.0
  */
 export const removeAccents = (str: string): string => str.replace(allAccents, matcher);
 
 /**
- * Check if a string contains any accented characters.
+ * Checks if a string contains any accented characters.
+ *
+ * @example
+ * ```typescript
+ * import { hasAccents } from "@beep/utils"
+ *
+ * hasAccents("café")  // true
+ * hasAccents("cafe")  // false
+ * ```
+ *
+ * @category predicates
+ * @since 0.1.0
  */
 export const hasAccents = (str: string): boolean => firstAccent.test(str);
 
 /**
  * Alias for removeAccents - removes accents from a string.
+ *
+ * @example
+ * ```typescript
+ * import { remove } from "@beep/utils"
+ *
+ * const cleaned = remove("café")
+ * console.log(cleaned)
+ * // => "cafe"
+ * ```
+ *
+ * @category transformations
+ * @since 0.1.0
  */
 export const remove = removeAccents;
 
 /**
  * Alias for hasAccents - checks if a string has accents.
+ *
+ * @example
+ * ```typescript
+ * import { has } from "@beep/utils"
+ *
+ * has("café")  // true
+ * has("cafe")  // false
+ * ```
+ *
+ * @category predicates
+ * @since 0.1.0
  */
 export const has = hasAccents;

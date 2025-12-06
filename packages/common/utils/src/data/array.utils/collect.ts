@@ -1,3 +1,7 @@
+/**
+ * @since 0.1.0
+ */
+
 import type { UnsafeTypes } from "@beep/types";
 import { Data, HashMap, pipe, Struct, Tuple } from "effect";
 import * as A from "effect/Array";

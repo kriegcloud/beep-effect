@@ -13,7 +13,7 @@
  * const arrayBufferToUint8ArrayBytes = Utils.arrayBufferToUint8Array(arrayBufferToUint8ArrayExample.buffer);
  * void arrayBufferToUint8ArrayBytes;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 type ArrayBufferToUint8Array = (buffer: ArrayBuffer) => Uint8Array;
@@ -25,7 +25,7 @@ type ArrayBufferToUint8Array = (buffer: ArrayBuffer) => Uint8Array;
  *
  * const bytes = arrayBufferToUint8Array(new ArrayBuffer(4));
  *
- * @category Binary/Conversion
+ * @category Binary
  * @since 0.1.0
  */
 export const arrayBufferToUint8Array: ArrayBufferToUint8Array = (buffer: ArrayBuffer) => new Uint8Array(buffer);

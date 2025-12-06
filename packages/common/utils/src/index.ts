@@ -10,7 +10,7 @@
  * const utilsIndexInitials = Utils.StrUtils.getNameInitials(utilsIndexRecord.name);
  * void utilsIndexInitials;
  *
- * @category Documentation/Modules
+ * @category exports
  * @since 0.1.0
  */
 import * as DataUtils from "@beep/utils/data";
@@ -24,7 +24,7 @@ import * as DataUtils from "@beep/utils/data";
  * const indexArrayBufferBlob = Utils.arrayBufferToBlob(new ArrayBuffer(2));
  * void indexArrayBufferBlob;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export * from "@beep/utils/array-buffer-to-blob";
@@ -38,7 +38,7 @@ export * from "@beep/utils/array-buffer-to-blob";
  * const indexArrayBufferBytes = Utils.arrayBufferToUint8Array(new ArrayBuffer(2));
  * void indexArrayBufferBytes;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export * from "@beep/utils/array-buffer-to-uint8-array";
@@ -59,7 +59,7 @@ export * from "@beep/utils/array-buffer-to-uint8-array";
  * );
  * void indexArrayUtilsResult;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export const ArrayUtils = DataUtils.ArrayUtils;
@@ -74,7 +74,7 @@ export const ArrayUtils = DataUtils.ArrayUtils;
  * const indexModelKeys = Utils.ModelUtils.modelFieldKeys(indexModelTable);
  * void indexModelKeys;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export const ModelUtils = DataUtils.ModelUtils;
@@ -88,7 +88,7 @@ export const ModelUtils = DataUtils.ModelUtils;
  * const indexObjectMerge = Utils.ObjectUtils.deepMerge({ value: 1 }, { value: 2 });
  * void indexObjectMerge;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export const ObjectUtils = DataUtils.ObjectUtils;
@@ -103,7 +103,7 @@ export const ObjectUtils = DataUtils.ObjectUtils;
  * const indexRecordValues = Utils.RecordUtils.recordStringValues(indexRecordLocales);
  * void indexRecordValues;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export const RecordUtils = DataUtils.RecordUtils;
@@ -117,7 +117,7 @@ export const RecordUtils = DataUtils.RecordUtils;
  * const indexStrInitials = Utils.StrUtils.getNameInitials("Ada Lovelace");
  * void indexStrInitials;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export const StrUtils = DataUtils.StrUtils;
@@ -133,7 +133,7 @@ export const StrUtils = DataUtils.StrUtils;
  * const indexStructValues = Utils.StructUtils.structValues(indexStructFields);
  * void indexStructValues;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export const StructUtils = DataUtils.StructUtils;
@@ -151,7 +151,7 @@ export const StructUtils = DataUtils.StructUtils;
  * const indexTupleMapped = indexTupleEnum.Enum.ACTIVE;
  * void indexTupleMapped;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export const TupleUtils = DataUtils.TupleUtils;
@@ -165,7 +165,7 @@ export const TupleUtils = DataUtils.TupleUtils;
  * const indexEquality = Utils.deepEqual({ id: 1 }, { id: 1 });
  * void indexEquality;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export * from "@beep/utils/equality/index";
@@ -179,7 +179,7 @@ export * from "@beep/utils/equality/index";
  * const indexFactoryEnum = Utils.deriveKeyEnum({ pending: {}, active: {} });
  * void indexFactoryEnum;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export * from "@beep/utils/factories";
@@ -194,7 +194,7 @@ export * from "@beep/utils/factories";
  * const indexFormatTime = Utils.fToNow(dayjs().subtract(30, "minute"));
  * void indexFormatTime;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export * from "@beep/utils/format-time";
@@ -208,7 +208,7 @@ export * from "@beep/utils/format-time";
  * const indexGetterValue = Utils.getAt({ item: { id: 1 } }, "item.id");
  * void indexGetterValue;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export * from "@beep/utils/getters";
@@ -222,7 +222,7 @@ export * from "@beep/utils/getters";
  * const indexGuard = Utils.isUnsafeProperty("__proto__");
  * void indexGuard;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export * from "@beep/utils/guards";
@@ -238,7 +238,7 @@ export * from "@beep/utils/guards";
  * const indexMutFirst = indexMutArray[0];
  * void indexMutFirst;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export * from "@beep/utils/mut.utils";
@@ -251,7 +251,7 @@ export * from "@beep/utils/mut.utils";
  *
  * Utils.noOp();
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export * from "@beep/utils/noOps";
@@ -265,7 +265,7 @@ export * from "@beep/utils/noOps";
  * const indexPath = Utils.getPath({ user: { id: "id" } }, "user.id");
  * void indexPath;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export * from "@beep/utils/object/path";
@@ -279,7 +279,7 @@ export * from "@beep/utils/object/path";
  * const indexSyncItem: Utils.AdapterSyncItem = { module: "files", entity: "asset", status: { _tag: "synced" } };
  * void indexSyncItem;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export * from "@beep/utils/sync.utils";
@@ -293,7 +293,7 @@ export * from "@beep/utils/sync.utils";
  * const indexTiming = Utils.debounce(() => {}, 50);
  * void indexTiming;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export * from "@beep/utils/timing/index";
@@ -307,7 +307,7 @@ export * from "@beep/utils/timing/index";
  * const indexTransformations = Utils.enumFromStringArray("draft", "live");
  * void indexTransformations;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export * from "@beep/utils/transformations";
@@ -321,13 +321,58 @@ export * from "@beep/utils/transformations";
  * const indexUint8Buffer = Utils.uint8arrayToArrayBuffer(new Uint8Array([1, 2]));
  * void indexUint8Buffer;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export * from "@beep/utils/uint8-array-to-array-buffer";
+
+/**
+ * Re-exports autosuggest highlight utilities.
+ *
+ * @example
+ * ```typescript
+ * import { AutosuggestHighlight } from "@beep/utils"
+ *
+ * const matches = AutosuggestHighlight.match("hello world", "wor")
+ * ```
+ *
+ * @category exports
+ * @since 0.1.0
+ */
 export * as AutosuggestHighlight from "./autosuggest-highlight";
+
+/**
+ * Re-exports browser API detection utilities.
+ *
+ * @example
+ * ```typescript
+ * import { IS_MOBILE, isWindowDefined } from "@beep/utils"
+ *
+ * if (isWindowDefined) {
+ *   console.log("Running in browser")
+ * }
+ * ```
+ *
+ * @category exports
+ * @since 0.1.0
+ */
 export * from "./browser-apis";
+
+/**
+ * Re-exports boolean coercion utilities.
+ *
+ * @example
+ * ```typescript
+ * import { coerceTrue, coerceFalse } from "@beep/utils"
+ *
+ * const value = coerceTrue(undefined)  // true
+ * ```
+ *
+ * @category exports
+ * @since 0.1.0
+ */
 export * from "./coerce";
+
 /**
  * Re-exports literal-aware helpers from `const.ts`.
  *
@@ -337,12 +382,87 @@ export * from "./coerce";
  * const indexConstLiteral = Utils.constLiteral("tenant");
  * void indexConstLiteral;
  *
- * @category Documentation/Reexports
+ * @category exports
  * @since 0.1.0
  */
 export * from "./const";
+
+/**
+ * Re-exports dedent utilities for template string formatting.
+ *
+ * @example
+ * ```typescript
+ * import { dedent } from "@beep/utils"
+ *
+ * const text = dedent`
+ *   Hello
+ *   World
+ * `
+ * ```
+ *
+ * @category exports
+ * @since 0.1.0
+ */
 export * from "./dedent";
+
+/**
+ * Re-exports deep null removal utilities.
+ *
+ * @example
+ * ```typescript
+ * import { deepRemoveNull } from "@beep/utils"
+ *
+ * const cleaned = deepRemoveNull({ a: 1, b: null })
+ * // => { a: 1 }
+ * ```
+ *
+ * @category exports
+ * @since 0.1.0
+ */
 export * from "./deep-remove-null";
+
+/**
+ * Re-exports random hex string generator.
+ *
+ * @example
+ * ```typescript
+ * import { randomHexString } from "@beep/utils"
+ *
+ * const hex = randomHexString(16)
+ * ```
+ *
+ * @category exports
+ * @since 0.1.0
+ */
 export * from "./random-hex-string.ts";
+
+/**
+ * Re-exports accent removal utilities.
+ *
+ * @example
+ * ```typescript
+ * import { RemoveAccents } from "@beep/utils"
+ *
+ * const cleaned = RemoveAccents.removeAccents("café")
+ * // => "cafe"
+ * ```
+ *
+ * @category exports
+ * @since 0.1.0
+ */
 export * as RemoveAccents from "./remove-accents/remove-accents.ts";
+
+/**
+ * Re-exports topological sort utilities.
+ *
+ * @example
+ * ```typescript
+ * import { TopoSort } from "@beep/utils"
+ *
+ * const sorted = TopoSort.toposort([["a", "b"], ["b", "c"]])
+ * ```
+ *
+ * @category exports
+ * @since 0.1.0
+ */
 export * as TopoSort from "./topo-sort";

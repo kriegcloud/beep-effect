@@ -10,7 +10,7 @@
  * const guardsModuleResult = Utils.isNonEmptyRecordWithNonEmptyStringKeys({ foo: "bar" });
  * void guardsModuleResult;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 /**
@@ -22,7 +22,7 @@
  * const guardsExport = Utils.isUnsafeProperty("__proto__");
  * void guardsExport;
  *
- * @category Documentation/Reexports
+ * @category Documentation
  * @since 0.1.0
  */
 export * from "@beep/utils/guards/index";

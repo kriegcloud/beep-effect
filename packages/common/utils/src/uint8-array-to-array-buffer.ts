@@ -1,38 +1,45 @@
+/**
+ * @since 0.1.0
+ */
+
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 /**
- * Binary helpers for peeling a backing `ArrayBuffer` from a `Uint8Array`,
- * enabling downstream callers to navigate between streaming and blob
- * interfaces with the `@beep/utils` namespace.
+ * Extracts the underlying ArrayBuffer from a Uint8Array, accounting for offset and length.
  *
  * @example
- * import type * as FooTypes from "@beep/types/common.types";
- * import * as Utils from "@beep/utils";
+ * ```typescript
+ * import { uint8arrayToArrayBuffer } from "@beep/utils"
  *
- * const uint8ArrayToArrayBufferExample: FooTypes.Prettify<{ data: Uint8Array }> = {
- *   data: new Uint8Array([1, 2, 3]),
- * };
- * const uint8ArrayToArrayBufferBuffer = Utils.uint8arrayToArrayBuffer(uint8ArrayToArrayBufferExample.data);
- * void uint8ArrayToArrayBufferBuffer;
+ * const buffer = uint8arrayToArrayBuffer(new Uint8Array([1, 2, 3]))
+ * console.log(buffer.byteLength)
+ * // => 3
+ * ```
  *
- * @category Documentation/Modules
- * @since 0.1.0
- */
-/**
- * Extracts the underlying `ArrayBuffer` from a `Uint8Array`, accounting for
- * offset/length.
- *
- * @example
- * import { uint8arrayToArrayBuffer } from "@beep/utils/uint8-array-to-array-buffer";
- *
- * const buffer = uint8arrayToArrayBuffer(new Uint8Array([1, 2]));
- *
- * @category Binary/Conversion
+ * @category transformations
  * @since 0.1.0
  */
 export const uint8arrayToArrayBuffer = (data: Uint8Array<ArrayBufferLike>): ArrayBuffer =>
   data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) as ArrayBuffer;
 
+/**
+ * Error thrown when reading a file's array buffer fails.
+ *
+ * @example
+ * ```typescript
+ * import { FileReadError, readFileArrayBuffer } from "@beep/utils"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = readFileArrayBuffer(file).pipe(
+ *   Effect.catchTag("FileReadError", (error) =>
+ *     Effect.succeed(new ArrayBuffer(0))
+ *   )
+ * )
+ * ```
+ *
+ * @category errors
+ * @since 0.1.0
+ */
 export class FileReadError extends Data.TaggedError("FileReadError")<{
   readonly message: string;
   readonly cause: unknown;
@@ -42,6 +49,23 @@ export class FileReadError extends Data.TaggedError("FileReadError")<{
   readonly phase?: "read" | "parse" | "decode" | undefined;
 }> {}
 
+/**
+ * Reads a File object's contents as an ArrayBuffer using Effect.
+ *
+ * @example
+ * ```typescript
+ * import { readFileArrayBuffer } from "@beep/utils"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const buffer = yield* readFileArrayBuffer(file)
+ *   console.log(buffer.byteLength)
+ * })
+ * ```
+ *
+ * @category utilities
+ * @since 0.1.0
+ */
 export const readFileArrayBuffer = Effect.fn("readFileArrayBuffer")(function* (file: File) {
   return yield* Effect.tryPromise({
     try: () => file.arrayBuffer(),

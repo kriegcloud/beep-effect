@@ -9,9 +9,10 @@
  * Uses @effect/workflow for optional crash-resilient execution.
  *
  * @module docgen/agents/service
+ * @since 1.0.0
  */
 
-import type * as ToolingUtils from "@beep/tooling-utils";
+import type * as FsUtils from "@beep/tooling-utils/FsUtils";
 import { findRepoRoot, type NoSuchFileError } from "@beep/tooling-utils/repo";
 import type {
   AiError,
@@ -36,8 +37,10 @@ import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
+import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
 import type * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
 import * as Str from "effect/String";
@@ -46,9 +49,92 @@ import { analyzePackage } from "../shared/ast.js";
 import { loadDocgenConfig } from "../shared/config.js";
 import type { ExportAnalysis } from "../types.ts";
 import type { AgentError } from "./errors.js";
-import { DOC_FIXER_SYSTEM_PROMPT } from "./prompts.js";
+import { JSDOC_BATCH_GENERATOR_PROMPT } from "./prompts.js";
 import type { PackageFixResult } from "./schemas.js";
 import { DocFixerToolkitLive } from "./tool-handlers.js";
+
+// -----------------------------------------------------------------------------
+// JSDoc Helpers
+// -----------------------------------------------------------------------------
+
+/**
+ * Insert JSDoc at a specific line in file content.
+ *
+ * @category Utils
+ * @since 0.1.0
+ */
+const insertJsDocAtLine = (content: string, jsDocContent: string, exportInfo: ExportAnalysis): string => {
+  const lines = F.pipe(content, Str.split("\n"));
+  const jsDocLines = F.pipe(jsDocContent, Str.split("\n"));
+
+  let resultLines: ReadonlyArray<string>;
+
+  if (exportInfo.existingJsDocStartLine !== undefined && exportInfo.existingJsDocEndLine !== undefined) {
+    // Replace existing JSDoc
+    const beforeLines = F.pipe(lines, A.take(exportInfo.existingJsDocStartLine - 1));
+    const afterLines = F.pipe(lines, A.drop(exportInfo.existingJsDocEndLine));
+    // ✅ FIX: Use Effect Array utilities instead of spread operator
+    resultLines = F.pipe(beforeLines, A.appendAll(jsDocLines), A.appendAll(afterLines));
+  } else {
+    // Insert new JSDoc before the declaration
+    const beforeLines = F.pipe(lines, A.take(exportInfo.insertionLine - 1));
+    const afterLines = F.pipe(lines, A.drop(exportInfo.insertionLine - 1));
+    // ✅ FIX: Use Effect Array utilities instead of spread operator
+    resultLines = F.pipe(beforeLines, A.appendAll(jsDocLines), A.appendAll(afterLines));
+  }
+
+  return F.pipe(resultLines, (arr) => A.join(arr, "\n"));
+};
+
+/**
+ * Number of exports to process per API call.
+ *
+ * Tradeoffs:
+ * - Smaller batches: More API calls, but safer parsing and easier retries
+ * - Larger batches: Fewer API calls, but risk hitting token limits (~100k for Claude)
+ *
+ * With 5 exports averaging ~200 tokens each (declaration + context), plus
+ * ~500 tokens per generated JSDoc, a batch uses ~3,500 tokens - well within limits.
+ *
+ * @internal
+ */
+const BATCH_SIZE = 5;
+
+/**
+ * Parse batch JSDoc response into individual blocks.
+ *
+ * Extracts JSDoc blocks delimited by ---JSDOC:name--- and ---END--- markers.
+ * Returns only successfully parsed blocks; failed exports can be retried individually.
+ *
+ * @category Utils
+ * @since 0.1.0
+ */
+const parseJsDocBatch = (
+  responseText: string,
+  exports: ReadonlyArray<ExportAnalysis>
+): ReadonlyArray<{ readonly exportInfo: ExportAnalysis; readonly jsDoc: string }> =>
+  F.pipe(
+    exports,
+    A.filterMap((exp) => {
+      const startMarker = `---JSDOC:${exp.name}---`;
+      const endMarker = `---END---`;
+
+      const startIdx = F.pipe(responseText, Str.indexOf(startMarker));
+      if (O.isNone(startIdx)) return O.none();
+
+      const contentStart = startIdx.value + Str.length(startMarker);
+      const searchFrom = F.pipe(responseText, Str.slice(contentStart, Str.length(responseText)));
+      const endIdx = F.pipe(searchFrom, Str.indexOf(endMarker));
+      if (O.isNone(endIdx)) return O.none();
+
+      const jsDoc = F.pipe(searchFrom, Str.slice(0, endIdx.value), Str.trim);
+
+      // Validate it's a proper JSDoc block
+      const isValid = F.pipe(jsDoc, Str.startsWith("/**")) && F.pipe(jsDoc, Str.endsWith("*/"));
+
+      return isValid ? O.some({ exportInfo: exp, jsDoc }) : O.none();
+    })
+  );
 
 // -----------------------------------------------------------------------------
 // Token Counter Service
@@ -206,7 +292,7 @@ export const make = (config: {
 }): Effect.Effect<
   DocgenAgentService,
   PlatformError | NoSuchFileError,
-  TokenCounter | LanguageModel.LanguageModel | Path.Path | FileSystem.FileSystem | ToolingUtils.FsUtils.FsUtils
+  TokenCounter | LanguageModel.LanguageModel | Path.Path | FileSystem.FileSystem | FsUtils.FsUtils
 > =>
   Effect.gen(function* () {
     const tokenCounter = yield* TokenCounter;
@@ -237,17 +323,22 @@ export const make = (config: {
         const exclude = docgenConfig.exclude ?? A.empty();
 
         // Analyze package
+        yield* Effect.logInfo(`Analyzing package: ${packagePath}`);
         const exports = yield* analyzePackage(absolutePath, srcDir, exclude).pipe(
           Effect.match({
             onFailure: A.empty<ExportAnalysis>,
-            onSuccess: (exports) => exports,
+            onSuccess: (e) => e,
           })
         );
+
+        yield* Effect.logInfo(`Found ${A.length(exports)} exports`);
 
         const exportsWithMissing = F.pipe(
           exports,
           A.filter((e) => A.isNonEmptyReadonlyArray(e.missingTags))
         );
+
+        yield* Effect.logInfo(`${A.length(exportsWithMissing)} exports need documentation`);
 
         if (A.isEmptyArray(exportsWithMissing)) {
           const endTime = DateTime.unsafeNow();
@@ -291,77 +382,192 @@ export const make = (config: {
           };
         }
 
-        // Group by file
+        // ✅ FIX: Use Ref instead of mutable variables
+        const totalInputTokensRef = yield* Ref.make(0);
+        const totalOutputTokensRef = yield* Ref.make(0);
+        const exportsFixedRef = yield* Ref.make(0);
+        const errorsRef = yield* Ref.make<ReadonlyArray<string>>(A.empty());
+
+        // ✅ FIX: Use HashMap instead of native Map
+        const fileContentCacheRef = yield* Ref.make(HashMap.empty<string, string>());
+
+        // Group exports by file and sort by line number (descending) to insert from bottom up
+        // This way earlier insertions don't affect line numbers of later ones
         const fileGroups = F.pipe(
           exportsWithMissing,
           A.groupBy((e) => e.filePath)
         );
 
-        let totalInputTokens = 0;
-        let totalOutputTokens = 0;
-        let filesFixed = 0;
+        // ✅ FIX: Use Effect.forEach instead of for...of
+        yield* Effect.forEach(
+          F.pipe(fileGroups, Struct.entries, A.fromIterable),
+          ([relativePath, fileExports]) =>
+            Effect.gen(function* () {
+              const filePath = path.resolve(absolutePath, relativePath);
 
-        for (const [relativePath, fileExports] of F.pipe(fileGroups, Struct.entries, A.fromIterable)) {
-          const filePath = path.resolve(absolutePath, relativePath);
+              // Read file content (or use cached version)
+              const cachedContent = yield* F.pipe(Ref.get(fileContentCacheRef), Effect.map(HashMap.get(filePath)));
 
-          // Read file content using captured fs with provided layer
-          const content = yield* fs.readFileString(filePath).pipe(
-            Effect.catchAll(() => Effect.succeed("")),
-            Effect.provide(runtimeLayer)
-          );
+              let content: string;
+              if (O.isSome(cachedContent)) {
+                content = cachedContent.value;
+              } else {
+                content = yield* fs.readFileString(filePath).pipe(
+                  Effect.catchAll(() => Effect.succeed("")),
+                  Effect.provide(runtimeLayer)
+                );
+                if (Str.isEmpty(content)) return;
+                yield* Ref.update(fileContentCacheRef, HashMap.set(filePath, content));
+              }
 
-          if (Str.isEmpty(content)) continue;
+              // Sort exports by line number descending - process from bottom to top
+              // This way earlier insertions don't affect line numbers of later ones
+              const insertionLineOrderDesc = F.pipe(
+                Order.number,
+                Order.mapInput((exp: ExportAnalysis) => exp.insertionLine),
+                Order.reverse
+              );
+              const sortedExports = F.pipe(fileExports, A.sort(insertionLineOrderDesc));
 
-          const allMissingTags = F.pipe(
-            fileExports,
-            A.flatMap((e) => e.missingTags),
-            A.dedupe
-          );
+              // Split into batches for efficient API usage
+              const batches = F.pipe(sortedExports, A.chunksOf(BATCH_SIZE));
+              yield* Effect.logInfo(`Processing ${A.length(sortedExports)} exports in ${A.length(batches)} batches`);
 
-          const prompt = `Fix the JSDoc documentation in this file. Add the following missing tags: ${F.pipe(allMissingTags, A.join(", "))}
+              // Process each batch
+              yield* Effect.forEach(
+                batches,
+                (batch, batchIndex) =>
+                  Effect.gen(function* () {
+                    yield* Effect.logInfo(
+                      `Batch ${batchIndex + 1}/${A.length(batches)}: ${F.pipe(
+                        batch,
+                        A.map((e) => e.name),
+                        A.join(", ")
+                      )}`
+                    );
 
-File: ${relativePath}
+                    // Build batch prompt with all exports
+                    const batchPromptParts = F.pipe(
+                      batch,
+                      A.map(
+                        (exp, idx) => `
+### Export ${idx + 1}: ${exp.name}
+Kind: ${exp.kind}
+Missing tags: ${F.pipe(exp.missingTags, A.join(", "))}
+${exp.hasJsDoc ? `Existing tags: ${F.pipe(exp.presentTags, A.join(", "))}` : "No existing JSDoc"}
 
+Declaration:
 \`\`\`typescript
-${content}
+${exp.declarationSource}
 \`\`\`
+${exp.contextBefore ? `\nContext:\n${exp.contextBefore}` : ""}`
+                      )
+                    );
 
-Return the complete file with all JSDoc tags properly added.`;
+                    const prompt = `Generate JSDoc for these ${A.length(batch)} exports:\n${F.pipe(batchPromptParts, A.join("\n"))}\n\nReturn JSDoc blocks using the ---JSDOC:name--- format.`;
 
-          // Use Chat.fromPrompt with the captured runtime layer
-          const chat = yield* Chat.fromPrompt([{ role: "system", content: DOC_FIXER_SYSTEM_PROMPT }]).pipe(
-            Effect.provide(runtimeLayer)
-          );
+                    // Single API call for entire batch
+                    const chat = yield* Chat.fromPrompt([
+                      { role: "system", content: JSDOC_BATCH_GENERATOR_PROMPT },
+                    ]).pipe(Effect.provide(runtimeLayer));
 
-          const response = yield* chat.generateText({ prompt }).pipe(Effect.provide(runtimeLayer));
+                    const response = yield* chat.generateText({ prompt }).pipe(Effect.provide(runtimeLayer));
 
-          totalInputTokens += response.usage?.inputTokens ?? 0;
-          totalOutputTokens += response.usage?.outputTokens ?? 0;
+                    // Track token usage
+                    yield* Ref.update(totalInputTokensRef, (n) => n + (response.usage?.inputTokens ?? 0));
+                    yield* Ref.update(totalOutputTokensRef, (n) => n + (response.usage?.outputTokens ?? 0));
 
-          yield* tokenCounter.recordUsage({
-            inputTokens: response.usage?.inputTokens ?? 0,
-            outputTokens: response.usage?.outputTokens ?? 0,
-          });
+                    yield* tokenCounter.recordUsage({
+                      inputTokens: response.usage?.inputTokens ?? 0,
+                      outputTokens: response.usage?.outputTokens ?? 0,
+                    });
 
-          // Write updated file using captured fs with provided layer
-          yield* fs.writeFileString(filePath, response.text).pipe(
-            Effect.catchAll(() => Effect.void),
-            Effect.provide(runtimeLayer)
-          );
+                    // Parse response to extract individual JSDoc blocks
+                    const jsDocBlocks = parseJsDocBatch(response.text, batch);
 
-          filesFixed += A.length(fileExports);
-        }
+                    yield* Effect.logInfo(`Parsed ${A.length(jsDocBlocks)}/${A.length(batch)} JSDoc blocks from batch`);
+
+                    // Track which exports failed parsing for potential retry
+                    const parsedNames = F.pipe(
+                      jsDocBlocks,
+                      A.map((b) => b.exportInfo.name)
+                    );
+                    const failedExports = F.pipe(
+                      batch,
+                      A.filter(
+                        (exp) =>
+                          !F.pipe(
+                            parsedNames,
+                            A.some((name) => name === exp.name)
+                          )
+                      )
+                    );
+
+                    // Log failures and record errors
+                    if (A.isNonEmptyReadonlyArray(failedExports)) {
+                      const failedNames = F.pipe(
+                        failedExports,
+                        A.map((e) => e.name),
+                        A.join(", ")
+                      );
+                      yield* Effect.logWarning(`Failed to parse JSDoc for: ${failedNames}`);
+                      yield* Effect.forEach(failedExports, (exp) =>
+                        Ref.update(errorsRef, A.append(`Failed to parse JSDoc for ${exp.name}`))
+                      );
+                    }
+
+                    // Insert each JSDoc (already sorted by line descending, so safe to insert in order)
+                    yield* Effect.forEach(
+                      jsDocBlocks,
+                      ({ exportInfo, jsDoc }) =>
+                        Effect.gen(function* () {
+                          const currentContent = yield* F.pipe(
+                            Ref.get(fileContentCacheRef),
+                            Effect.map(HashMap.get(filePath)),
+                            Effect.map(O.getOrElse(() => ""))
+                          );
+                          const newContent = insertJsDocAtLine(currentContent, jsDoc, exportInfo);
+                          yield* Ref.update(fileContentCacheRef, HashMap.set(filePath, newContent));
+                          yield* Ref.update(exportsFixedRef, (n) => n + 1);
+                          yield* Effect.logInfo(`  ✓ Added JSDoc for ${exportInfo.name}`);
+                        }),
+                      { concurrency: 1 }
+                    );
+                  }),
+                { concurrency: 1 }
+              );
+
+              yield* Effect.logInfo(`Writing ${relativePath}...`);
+
+              // Write the updated file content
+              const finalContent = yield* F.pipe(Ref.get(fileContentCacheRef), Effect.map(HashMap.get(filePath)));
+              if (O.isSome(finalContent)) {
+                yield* fs.writeFileString(filePath, finalContent.value).pipe(
+                  Effect.catchAll(() => Effect.void),
+                  Effect.provide(runtimeLayer)
+                );
+              }
+            }),
+          { concurrency: 1 }
+        );
 
         const endTime = DateTime.unsafeNow();
+
+        // Get final values from Refs
+        const totalInputTokens = yield* Ref.get(totalInputTokensRef);
+        const totalOutputTokens = yield* Ref.get(totalOutputTokensRef);
+        const exportsFixed = yield* Ref.get(exportsFixedRef);
+        const errors = yield* Ref.get(errorsRef);
 
         return {
           packageName: packagePath,
           packagePath: absolutePath,
-          success: true,
-          exportsFixed: filesFixed,
-          exportsRemaining: A.length(exportsWithMissing) - filesFixed,
+          success: A.isEmptyReadonlyArray(errors),
+          exportsFixed,
+          exportsRemaining: A.length(exportsWithMissing) - exportsFixed,
           validationPassed: true,
-          errors: A.empty<string>(),
+          // Convert ReadonlyArray to mutable array for schema compatibility
+          errors: F.pipe(errors, A.fromIterable) as string[],
           durationMs: DateTime.toEpochMillis(endTime) - DateTime.toEpochMillis(startTime),
           tokenUsage: {
             inputTokens: totalInputTokens,

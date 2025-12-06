@@ -12,7 +12,7 @@
  * );
  * void nonEmptyArrayUtilsMapped;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 
@@ -29,7 +29,7 @@ import * as O from "effect/Option";
  *
  * const statuses = ArrayUtils.NonEmptyReadonly.make("pending", "approved");
  *
- * @category Data/Array
+ * @category Data
  * @since 0.1.0
  */
 export const make: {
@@ -66,7 +66,7 @@ type MapWith = ReturnType<
  * const upper = ArrayUtils.NonEmptyReadonly.mapWith((value: string) => value.toUpperCase());
  * const result = upper(["a", "b"]);
  *
- * @category Data/Array
+ * @category Data
  * @since 0.1.0
  */
 export const mapWith: MapWith = F.dual<

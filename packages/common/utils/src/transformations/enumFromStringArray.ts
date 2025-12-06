@@ -10,7 +10,7 @@
  * const transformationsValues: FooTypes.Prettify<readonly string[]> = Utils.enumValues(transformationsEnum);
  * void transformationsValues;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import { invariant } from "@beep/invariant";
@@ -32,7 +32,7 @@ import { create } from "mutative";
  * const enumFromStringsValue = enumFromStrings("draft", "live");
  * void enumFromStringsValue;
  *
- * @category Transformations/Enum
+ * @category Transformations
  * @since 0.1.0
  */
 export type EnumOf = <T extends string>(
@@ -49,7 +49,7 @@ export type EnumOf = <T extends string>(
  *
  * const Status = enumOf("pending", "active");
  *
- * @category Transformations/Enum
+ * @category Transformations
  * @since 0.1.0
  */
 export const enumOf: EnumOf = <T extends string>(
@@ -72,7 +72,7 @@ export const enumOf: EnumOf = <T extends string>(
  *
  * enumValues({ a: "a", b: "b" } as const);
  *
- * @category Transformations/Enum
+ * @category Transformations
  * @since 0.1.0
  */
 export type EnumValues = <K extends string, A extends string>(o: R.ReadonlyRecord<K, A>) => A.NonEmptyReadonlyArray<A>;
@@ -86,7 +86,7 @@ export type EnumValues = <K extends string, A extends string>(o: R.ReadonlyRecor
  *
  * enumValues({ foo: "foo" } as const);
  *
- * @category Transformations/Enum
+ * @category Transformations
  * @since 0.1.0
  */
 export const enumValues: EnumValues = F.flow(
@@ -116,7 +116,7 @@ export const enumValues: EnumValues = F.flow(
  *
  * enumFromStringArray("one", "two");
  *
- * @category Transformations/Enum
+ * @category Transformations
  * @since 0.1.0
  */
 export type EnumFromStringArray = <T extends A.NonEmptyReadonlyArray<string>>(...values: T) => { [K in T[number]]: K };
@@ -129,7 +129,7 @@ export type EnumFromStringArray = <T extends A.NonEmptyReadonlyArray<string>>(..
  *
  * const Status = enumFromStringArray("pending", "active");
  *
- * @category Transformations/Enum
+ * @category Transformations
  * @since 0.1.0
  */
 export const enumFromStringArray: EnumFromStringArray = <T extends A.NonEmptyReadonlyArray<string>>(...values: T) =>

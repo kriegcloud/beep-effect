@@ -1,3 +1,7 @@
+/**
+ * @since 0.1.0
+ */
+
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as Num from "effect/Number";
@@ -234,6 +238,9 @@ const sortMatches = (matches: readonly MatchRange[]): readonly MatchRange[] => A
  * match("some text", "e", { insideWords: true }); // [[3, 4]]
  * match("some sweet text", "s", { findAllOccurrences: true }); // [[0, 1], [5, 6]]
  * ```
+ *
+ * @category utilities
+ * @since 0.1.0
  */
 export const match = (text: string, query: string, options?: undefined | MatchOptions): readonly MatchRange[] => {
   const resolvedOptions = resolveOptions(options);

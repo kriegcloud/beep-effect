@@ -10,7 +10,7 @@
  * const transformationValues: FooTypes.Prettify<readonly string[]> = Utils.enumValues(transformationEnum);
  * void transformationValues;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 /**
@@ -22,7 +22,7 @@
  * const transformationsBarrelEnum = Utils.enumFromStringArray("gold", "silver");
  * void transformationsBarrelEnum;
  *
- * @category Documentation/Reexports
+ * @category Documentation
  * @since 0.1.0
  */
 export * from "@beep/utils/transformations/index";

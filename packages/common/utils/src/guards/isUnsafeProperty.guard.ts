@@ -10,7 +10,7 @@
  * const isUnsafe = Utils.isUnsafeProperty(unsafePropertyKey.key);
  * void isUnsafe;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 
@@ -25,7 +25,7 @@
  * const guardResult = prototypeGuard("__proto__");
  * void guardResult;
  *
- * @category Guards/Core
+ * @category Guards
  * @since 0.1.0
  */
 export type IsUnsafeProperty = (key: PropertyKey) => boolean;
@@ -42,7 +42,7 @@ export type IsUnsafeProperty = (key: PropertyKey) => boolean;
  * void unsafe;
  * void safe;
  *
- * @category Guards/Core
+ * @category Guards
  * @since 0.1.0
  */
 export const isUnsafeProperty: IsUnsafeProperty = (key: PropertyKey) => key === "__proto__";

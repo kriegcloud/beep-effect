@@ -1,3 +1,26 @@
+/**
+ * @fileoverview Workspace environment synchronization command
+ *
+ * Synchronizes the root .env file to all workspace packages that require it
+ * (apps/mail, apps/server) and regenerates TypeScript type definitions for
+ * environment variables. Ensures consistency across the monorepo.
+ *
+ * @module @beep/tooling-cli/commands/sync
+ * @since 1.0.0
+ * @category Commands
+ *
+ * @example
+ * ```typescript
+ * import { syncCommand } from "@beep/tooling-cli/commands/sync"
+ * import * as CliCommand from "@effect/cli/Command"
+ *
+ * // Run synchronization
+ * const cli = CliCommand.make("beep").pipe(
+ *   CliCommand.withSubcommands([syncCommand])
+ * )
+ * ```
+ */
+
 import { findRepoRoot } from "@beep/tooling-utils/repo";
 import * as CliCommand from "@effect/cli/Command";
 import * as ProcessCommand from "@effect/platform/Command";
@@ -69,6 +92,26 @@ const handleSyncCommand = Effect.gen(function* () {
   yield* Console.log(color.green("Environment variables and generated types are synced."));
 });
 
+/**
+ * Synchronizes environment variables and generated types across workspaces.
+ *
+ * Copies the root .env file to all workspace packages and regenerates TypeScript
+ * type definitions for environment variables, ensuring consistency across the monorepo.
+ *
+ * @example
+ * ```ts
+ * import { syncCommand } from "@beep/repo-cli/commands/sync"
+ * import * as CliCommand from "@effect/cli/Command"
+ *
+ * // Add to CLI
+ * const cli = CliCommand.make("beep").pipe(
+ *   CliCommand.withSubcommands([syncCommand])
+ * )
+ * ```
+ *
+ * @since 0.1.0
+ * @category constructors
+ */
 export const syncCommand = CliCommand.make("sync", {}, () => handleSyncCommand).pipe(
   CliCommand.withDescription("Copy .env to workspaces and regenerate type definitions.")
 );

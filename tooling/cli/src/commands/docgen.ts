@@ -22,6 +22,7 @@
  *   beep docgen status --verbose
  *
  * @module docgen
+ * @since 1.0.0
  * @see DOCGEN_CLI_IMPLEMENTATION.md for full specification
  */
 
@@ -42,6 +43,20 @@ import { statusCommand } from "./docgen/status.js";
  * - Generate documentation using @effect/docgen
  * - Aggregate docs to a central location
  * - View status of docgen configuration across packages
+ *
+ * @example
+ * ```ts
+ * import { docgenCommand } from "@beep/repo-cli/commands/docgen"
+ * import * as CliCommand from "@effect/cli/Command"
+ *
+ * // The command is composed of subcommands
+ * const cli = CliCommand.make("beep").pipe(
+ *   CliCommand.withSubcommands([docgenCommand])
+ * )
+ * ```
+ *
+ * @since 0.1.0
+ * @category constructors
  */
 export const docgenCommand = CliCommand.make("docgen").pipe(
   CliCommand.withDescription("Documentation generation utilities for the beep-effect monorepo."),

@@ -14,6 +14,20 @@ import * as Scope from "effect/Scope";
 
 /**
  * Analyze a package for JSDoc coverage.
+ *
+ * @example
+ * ```ts
+ * import { AnalyzePackage } from "@beep/repo-cli/commands/docgen/agents/tools"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const result = yield* AnalyzePackage({
+ *     packagePath: "packages/common/identity"
+ *   })
+ *   console.log(`Found ${result.missingCount} of ${result.exportCount} exports need docs`)
+ * })
+ * ```
+ *
  * @category Tools
  * @since 0.1.0
  */
@@ -44,6 +58,20 @@ export type AnalyzePackageParams = Tool.Parameters<typeof AnalyzePackage>;
 
 /**
  * Read a source file from the package.
+ *
+ * @example
+ * ```ts
+ * import { ReadSourceFile } from "@beep/repo-cli/commands/docgen/agents/tools"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const result = yield* ReadSourceFile({
+ *     filePath: "/home/user/beep-effect/packages/common/identity/src/index.ts"
+ *   })
+ *   console.log(`Read ${result.lineCount} lines`)
+ * })
+ * ```
+ *
  * @category Tools
  * @since 0.1.0
  */
@@ -72,6 +100,21 @@ export type ReadSourceFileParams = Tool.Parameters<typeof ReadSourceFile>;
 
 /**
  * Write updated content to a source file.
+ *
+ * @example
+ * ```ts
+ * import { WriteSourceFile } from "@beep/repo-cli/commands/docgen/agents/tools"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const result = yield* WriteSourceFile({
+ *     filePath: "/home/user/beep-effect/packages/common/identity/src/index.ts",
+ *     content: "export const foo = 'bar'"
+ *   })
+ *   console.log(`Wrote ${result.bytesWritten} bytes`)
+ * })
+ * ```
+ *
  * @category Tools
  * @since 0.1.0
  */
@@ -100,11 +143,98 @@ export const WriteSourceFile = Tool.make("WriteSourceFile", {
 export type WriteSourceFileParams = Tool.Parameters<typeof WriteSourceFile>;
 
 // -----------------------------------------------------------------------------
+// Tool: InsertJsDoc
+// -----------------------------------------------------------------------------
+
+/**
+ * Insert or replace JSDoc comments at specific lines.
+ *
+ * @example
+ * ```ts
+ * import { InsertJsDoc } from "@beep/repo-cli/commands/docgen/agents/tools"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const result = yield* InsertJsDoc({
+ *     filePath: "/path/to/file.ts",
+ *     jsDocContent: "/** Description *" + "/",
+ *     insertAtLine: 10,
+ *   })
+ *   console.log(`Inserted ${result.linesInserted} lines`)
+ * })
+ * ```
+ *
+ * @category Tools
+ * @since 0.1.0
+ */
+export const InsertJsDoc = Tool.make("InsertJsDoc", {
+  description: "Insert a JSDoc comment at a specific line, or replace an existing JSDoc block.",
+  parameters: {
+    filePath: S.String.pipe(
+      S.annotations({
+        description: "Absolute path to the file to modify",
+      })
+    ),
+    jsDocContent: S.String.pipe(
+      S.annotations({
+        description: "The JSDoc comment content to insert (including /** and */)",
+      })
+    ),
+    insertAtLine: S.Number.pipe(
+      S.annotations({
+        description: "Line number where to insert the JSDoc (1-indexed)",
+      })
+    ),
+    replaceStartLine: S.NullishOr(S.Number).pipe(
+      S.annotations({
+        description: "If replacing, start line of existing JSDoc to remove (1-indexed)",
+      })
+    ),
+    replaceEndLine: S.NullishOr(S.Number).pipe(
+      S.annotations({
+        description: "If replacing, end line of existing JSDoc to remove (1-indexed)",
+      })
+    ),
+  },
+  dependencies: [FileSystem.FileSystem],
+  success: S.Struct({
+    success: S.Boolean,
+    linesInserted: S.Number,
+    linesRemoved: S.Number,
+  }),
+  failure: S.String,
+});
+
+export type InsertJsDocParams = Tool.Parameters<typeof InsertJsDoc>;
+
+// -----------------------------------------------------------------------------
 // Tool: ValidateExamples
 // -----------------------------------------------------------------------------
 
 /**
  * Validate that JSDoc examples compile correctly.
+ *
+ * @example
+ * ```ts
+ * import { ValidateExamples } from "@beep/repo-cli/commands/docgen/agents/tools"
+ * import * as Effect from "effect/Effect"
+ * import * as A from "effect/Array"
+ * import * as F from "effect/Function"
+ *
+ * const program = Effect.gen(function* () {
+ *   const result = yield* ValidateExamples({
+ *     packagePath: "packages/common/identity"
+ *   })
+ *
+ *   if (result.valid) {
+ *     console.log(`All examples in ${result.moduleCount} modules are valid`)
+ *   } else {
+ *     const errorList = F.pipe(result.errors, A.join("\n"))
+ *     console.error(`Validation errors:\n${errorList}`)
+ *   }
+ * })
+ * ```
+ *
  * @category Tools
  * @since 0.1.0
  */
@@ -134,6 +264,27 @@ export type ValidateExamplesParams = Tool.Parameters<typeof ValidateExamples>;
 
 /**
  * Search Effect documentation for API patterns and examples.
+ *
+ * @example
+ * ```ts
+ * import { SearchEffectDocs } from "@beep/repo-cli/commands/docgen/agents/tools"
+ * import * as Effect from "effect/Effect"
+ * import * as A from "effect/Array"
+ * import * as F from "effect/Function"
+ *
+ * const program = Effect.gen(function* () {
+ *   const result = yield* SearchEffectDocs({
+ *     query: "Effect.gen"
+ *   })
+ *
+ *   const titles = F.pipe(
+ *     result.results,
+ *     A.map((doc) => doc.title)
+ *   )
+ *   console.log(`Found ${titles.length} results`)
+ * })
+ * ```
+ *
  * @category Tools
  * @since 0.1.0
  */
@@ -166,6 +317,27 @@ export type SearchEffectDocsParams = Tool.Parameters<typeof SearchEffectDocs>;
 
 /**
  * List all exports from a package's index file.
+ *
+ * @example
+ * ```ts
+ * import { ListPackageExports } from "@beep/repo-cli/commands/docgen/agents/tools"
+ * import * as Effect from "effect/Effect"
+ * import * as A from "effect/Array"
+ * import * as F from "effect/Function"
+ *
+ * const program = Effect.gen(function* () {
+ *   const result = yield* ListPackageExports({
+ *     packagePath: "packages/common/identity"
+ *   })
+ *
+ *   const missingDocs = F.pipe(
+ *     result.exports,
+ *     A.filter((exp) => !exp.hasJsDoc)
+ *   )
+ *   console.log(`${missingDocs.length} exports missing JSDoc`)
+ * })
+ * ```
+ *
  * @category Tools
  * @since 0.1.0
  */
@@ -201,6 +373,19 @@ export type ListPackageExportsParams = Tool.Parameters<typeof ListPackageExports
 
 /**
  * Complete toolkit for the DocFixer agent.
+ *
+ * @example
+ * ```ts
+ * import { DocFixerToolkit } from "@beep/repo-cli/commands/docgen/agents/tools"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const toolkit = DocFixerToolkit
+ *   console.log("Toolkit ready with all docgen tools")
+ *   return toolkit
+ * })
+ * ```
+ *
  * @category Toolkits
  * @since 0.1.0
  */
@@ -208,6 +393,7 @@ export const DocFixerToolkit = Toolkit.make(
   AnalyzePackage,
   ReadSourceFile,
   WriteSourceFile,
+  InsertJsDoc,
   ValidateExamples,
   SearchEffectDocs,
   ListPackageExports

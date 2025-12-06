@@ -22,10 +22,11 @@
  * - 4: Partial failure (some packages failed)
  *
  * @module docgen/generate
+ * @since 1.0.0
  * @see DOCGEN_CLI_IMPLEMENTATION.md#3-beep-docgen-generate
  */
 
-import type { FsUtils } from "@beep/tooling-utils";
+import type * as FsUtils from "@beep/tooling-utils/FsUtils";
 import * as CliCommand from "@effect/cli/Command";
 import * as CliOptions from "@effect/cli/Options";
 import * as Command from "@effect/platform/Command";
@@ -40,6 +41,7 @@ import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import { discoverConfiguredPackages, resolvePackagePath } from "./shared/discovery.js";
+import { DocgenLogger, DocgenLoggerLive } from "./shared/logger.js";
 import { blank, error, formatPackageResult, header, info, symbols, warning } from "./shared/output.js";
 import type { GenerationResult, PackageInfo } from "./types.js";
 import { ExitCode } from "./types.js";
@@ -67,6 +69,27 @@ const jsonOption = CliOptions.boolean("json").pipe(
 );
 
 /**
+ * Stream process output to the console.
+ * Collects output while streaming it so we can return it for error messages.
+ */
+const streamProcessOutput = <E>(stream: Stream.Stream<Uint8Array, E, never>): Effect.Effect<string, E, never> =>
+  Effect.gen(function* () {
+    const decoder = new TextDecoder();
+    const chunks: string[] = [];
+
+    yield* Stream.runForEach(stream, (chunk) =>
+      Effect.sync(() => {
+        const text = decoder.decode(chunk);
+        chunks.push(text);
+        // Stream output to stderr so it appears immediately
+        process.stderr.write(text);
+      })
+    );
+
+    return chunks.join("");
+  });
+
+/**
  * Run docgen for a single package.
  */
 const runDocgen = (
@@ -85,22 +108,26 @@ const runDocgen = (
 
     const command = Command.make("bunx", ...args).pipe(Command.workingDirectory(pkg.absolutePath));
 
-    // Run the command and capture exit code
+    // Run the command and stream output to console
     const result = yield* Effect.gen(function* () {
-      const process = yield* Command.start(command);
+      const proc = yield* Command.start(command);
 
-      // Consume stdout and stderr to avoid blocking
-      yield* Effect.all([Stream.runDrain(process.stdout), Stream.runDrain(process.stderr)], { concurrency: 2 });
+      // Stream stdout and stderr to console while collecting for error messages
+      const [stdout, stderr] = yield* Effect.all([streamProcessOutput(proc.stdout), streamProcessOutput(proc.stderr)], {
+        concurrency: 2,
+      });
 
-      return yield* process.exitCode;
+      const exitCode = yield* proc.exitCode;
+
+      return { exitCode, stdout, stderr };
     }).pipe(
       Effect.scoped,
       Effect.catchAll(
-        (_e) => Effect.succeed(1) // Treat any error as failure
+        (e) => Effect.succeed({ exitCode: 1, stdout: "", stderr: String(e) }) // Treat any error as failure
       )
     );
 
-    if (result === 0) {
+    if (result.exitCode === 0) {
       // Count generated modules
       const docsPath = path.join(pkg.absolutePath, "docs", "modules");
       const docsExist = yield* fs.exists(docsPath).pipe(Effect.orElseSucceed(F.constFalse));
@@ -125,7 +152,7 @@ const runDocgen = (
       packageName: pkg.name,
       packagePath: pkg.relativePath,
       success: false,
-      error: `docgen exited with code ${result}`,
+      error: `docgen exited with code ${result.exitCode}`,
     };
   });
 
@@ -137,14 +164,34 @@ const handleGenerate = (args: {
   readonly validateExamples: boolean;
   readonly parallel: number;
   readonly json: boolean;
-}): Effect.Effect<void, never, CommandExecutor.CommandExecutor | FileSystem.FileSystem | Path.Path | FsUtils.FsUtils> =>
+}): Effect.Effect<
+  void,
+  never,
+  CommandExecutor.CommandExecutor | FileSystem.FileSystem | Path.Path | FsUtils.FsUtils | DocgenLogger
+> =>
   Effect.gen(function* () {
+    const logger = yield* DocgenLogger;
+
+    yield* logger.info("Starting generate", {
+      package: args.package ?? "all configured",
+      validateExamples: args.validateExamples,
+      parallel: args.parallel,
+      json: args.json,
+    });
+
     // Resolve target packages
     let packages: ReadonlyArray<PackageInfo>;
 
     if (args.package !== undefined) {
       // Single package mode
       const pkgInfo = yield* resolvePackagePath(args.package).pipe(
+        Effect.tapError((e) =>
+          logger.error("Invalid package path", {
+            path: e.path,
+            error: e._tag,
+            reason: e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found"),
+          })
+        ),
         Effect.catchAll((e) =>
           Effect.gen(function* () {
             yield* error(
@@ -184,6 +231,14 @@ const handleGenerate = (args: {
       yield* blank();
     }
 
+    yield* logger.debug("Found packages", {
+      count: A.length(packages),
+      packages: F.pipe(
+        packages,
+        A.map((p) => p.name)
+      ),
+    });
+
     // Run docgen for each package with concurrency
     const results = yield* Effect.forEach([...packages], (pkg) => runDocgen(pkg, args.validateExamples), {
       concurrency: args.parallel,
@@ -196,6 +251,12 @@ const handleGenerate = (args: {
       A.length
     );
     const failureCount = A.length(results) - successCount;
+
+    yield* logger.info("Generation complete", {
+      total: A.length(results),
+      succeeded: successCount,
+      failed: failureCount,
+    });
 
     // If --json, output JSON and exit
     if (args.json) {
@@ -281,6 +342,27 @@ const handleGenerate = (args: {
     )
   );
 
+/**
+ * CLI command to generate API documentation using @effect/docgen.
+ *
+ * @example
+ * ```ts
+ * import { generateCommand } from "@beep/repo-cli/commands/docgen/generate"
+ * import * as CliCommand from "@effect/cli/Command"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const result = yield* CliCommand.run(generateCommand, {
+ *     name: "docgen",
+ *     version: "1.0.0"
+ *   })
+ *   return result
+ * })
+ * ```
+ *
+ * @category constructors
+ * @since 0.1.0
+ */
 export const generateCommand = CliCommand.make(
   "generate",
   {
@@ -295,5 +377,5 @@ export const generateCommand = CliCommand.make(
       validateExamples: args.validateExamples,
       parallel: args.parallel,
       json: args.json,
-    })
+    }).pipe(Effect.provide(DocgenLoggerLive()))
 ).pipe(CliCommand.withDescription("Run docgen for one or all configured packages"));

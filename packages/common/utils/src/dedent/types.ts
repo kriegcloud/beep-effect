@@ -1,3 +1,7 @@
+/**
+ * @since 0.1.0
+ */
+
 export interface DedentOptions {
   readonly alignValues?: undefined | boolean;
   readonly escapeSpecialCharacters?: undefined | boolean;

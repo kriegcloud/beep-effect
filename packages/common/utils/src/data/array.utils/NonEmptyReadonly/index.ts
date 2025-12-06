@@ -12,7 +12,7 @@
  * );
  * void nonEmptyIndexResult;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 export * as NonEmptyReadonly from "@beep/utils/data/array.utils/NonEmptyReadonly/NonEmptyreadonly";

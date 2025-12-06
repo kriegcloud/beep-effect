@@ -11,7 +11,7 @@
  * const timingDebouncePending: FooTypes.Prettify<boolean> = timingDebounceLogger.pending();
  * void timingDebouncePending;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import * as Duration from "effect/Duration";
@@ -31,7 +31,7 @@ type AnyFunction = (this: unknown, ...args: readonly any[]) => unknown;
  * const fn: DebouncedFunc<typeof timingDebounceHandler> = debounce(timingDebounceHandler, 200);
  * void fn.pending();
  *
- * @category Timing/Debounce
+ * @category Timing
  * @since 0.1.0
  */
 export interface DebouncedFunc<T extends AnyFunction> {
@@ -49,7 +49,7 @@ export interface DebouncedFunc<T extends AnyFunction> {
  *
  * const options: DebounceOptions = { leading: true };
  *
- * @category Timing/Debounce
+ * @category Timing
  * @since 0.1.0
  */
 export interface DebounceOptions {
@@ -77,7 +77,7 @@ const cancelTimer = (id: ReturnType<typeof setTimeout> | undefined) => {
  *
  * const onResize = debounce(() => console.log("resize"), 200);
  *
- * @category Timing/Debounce
+ * @category Timing
  * @since 0.1.0
  */
 export const debounce = <T extends AnyFunction>(

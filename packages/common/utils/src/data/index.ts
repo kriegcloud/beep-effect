@@ -11,7 +11,7 @@
  * const dataIndexInitials = Utils.StrUtils.getNameInitials(dataIndexName.name);
  * void dataIndexInitials;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 /**
@@ -30,7 +30,7 @@
  * );
  * void dataArraySorted;
  *
- * @category Documentation/Reexports
+ * @category Documentation
  * @since 0.1.0
  */
 export * as ArrayUtils from "@beep/utils/data/array.utils/index";
@@ -45,7 +45,7 @@ export * as ArrayUtils from "@beep/utils/data/array.utils/index";
  * const dataModelKeys = Utils.ModelUtils.modelFieldKeys(dataModelTable);
  * void dataModelKeys;
  *
- * @category Documentation/Reexports
+ * @category Documentation
  * @since 0.1.0
  */
 export * as ModelUtils from "@beep/utils/data/model.utils";
@@ -59,7 +59,7 @@ export * as ModelUtils from "@beep/utils/data/model.utils";
  * const dataObjectMerged = Utils.ObjectUtils.deepMerge({ settings: { theme: "light" } }, { settings: { theme: "dark" } });
  * void dataObjectMerged;
  *
- * @category Documentation/Reexports
+ * @category Documentation
  * @since 0.1.0
  */
 export * as ObjectUtils from "@beep/utils/data/object.utils/index";
@@ -74,7 +74,7 @@ export * as ObjectUtils from "@beep/utils/data/object.utils/index";
  * const dataRecordKeys = Utils.RecordUtils.recordKeys(dataRecordLocales);
  * void dataRecordKeys;
  *
- * @category Documentation/Reexports
+ * @category Documentation
  * @since 0.1.0
  */
 export * as RecordUtils from "@beep/utils/data/record.utils";
@@ -88,7 +88,7 @@ export * as RecordUtils from "@beep/utils/data/record.utils";
  * const dataStringNormalized = Utils.StrUtils.normalizeString("Größe");
  * void dataStringNormalized;
  *
- * @category Documentation/Reexports
+ * @category Documentation
  * @since 0.1.0
  */
 export * as StrUtils from "@beep/utils/data/string.utils";
@@ -104,7 +104,7 @@ export * as StrUtils from "@beep/utils/data/string.utils";
  * const dataStructEntries = Utils.StructUtils.structEntries(dataStructFields);
  * void dataStructEntries;
  *
- * @category Documentation/Reexports
+ * @category Documentation
  * @since 0.1.0
  */
 export * as StructUtils from "@beep/utils/data/struct.utils";
@@ -122,7 +122,7 @@ export * as StructUtils from "@beep/utils/data/struct.utils";
  * const dataTupleValue = dataTupleEnum.Enum.ACTIVE;
  * void dataTupleValue;
  *
- * @category Documentation/Reexports
+ * @category Documentation
  * @since 0.1.0
  */
 export * as TupleUtils from "@beep/utils/data/tuple.utils";

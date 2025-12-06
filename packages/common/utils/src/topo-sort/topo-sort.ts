@@ -1,3 +1,7 @@
+/**
+ * @since 0.1.0
+ */
+
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";

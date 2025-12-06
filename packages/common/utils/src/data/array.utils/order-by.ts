@@ -13,7 +13,7 @@
  * const orderByModuleSorted = Utils.ArrayUtils.orderBy(orderByModuleItems, ["priority"], ["asc"]);
  * void orderByModuleSorted;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import { getNestedValue } from "@beep/utils/data/string.utils";
@@ -31,7 +31,7 @@ import * as Str from "effect/String";
  *
  * const dir: OrderDirection = "asc";
  *
- * @category Data/Array
+ * @category Data
  * @since 0.1.0
  */
 export type OrderDirection = "asc" | "desc";
@@ -45,7 +45,7 @@ export type OrderDirection = "asc" | "desc";
  *
  * const iteratee: OrderIteratee<{ id: number }> = "id";
  *
- * @category Data/Array
+ * @category Data
  * @since 0.1.0
  */
 export type OrderIteratee<T> = ((item: T) => unknown) | string;
@@ -63,7 +63,7 @@ export type OrderIteratee<T> = ((item: T) => unknown) | string;
  *   ["asc"]
  * );
  *
- * @category Data/Array
+ * @category Data
  * @since 0.1.0
  */
 export const orderBy = <T>(

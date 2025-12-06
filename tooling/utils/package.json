@@ -4,6 +4,7 @@
   "type": "module",
   "license": "MIT",
   "description": "The tooling-utils package. contains useful utilities for tooling packages",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/tooling/utils",
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",

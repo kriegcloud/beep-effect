@@ -162,6 +162,26 @@ type PascalCaseValue<Value extends string> = Value extends `${infer Head}-${infe
     ? `${PascalCaseWord<Head>}${PascalCaseValue<Tail>}`
     : PascalCaseWord<Value>;
 
+/**
+ * A string type that represents a valid module segment value. Module segments cannot start with digits, hyphens, or underscores, and cannot contain invalid module characters.
+ *
+ * @category Types/Validation
+ * @example
+ * ```typescript
+ * import type { ModuleSegmentValue } from "@beep/effect-schema"
+ * import * as S from "@effect/schema/Schema"
+ *
+ * // Valid module segment values
+ * type Valid1 = ModuleSegmentValue<"user"> // "user"
+ * type Valid2 = ModuleSegmentValue<"userService"> // "userService"
+ *
+ * // Invalid module segment values (resolve to never)
+ * type Invalid1 = ModuleSegmentValue<"1user"> // never
+ * type Invalid2 = ModuleSegmentValue<"-user"> // never
+ * type Invalid3 = ModuleSegmentValue<"_user"> // never
+ * ```
+ * @since 0.1.0
+ */
 export type ModuleSegmentValue<S extends StringTypes.NonEmptyString> = S extends `${Digit}${string}`
   ? never
   : S extends `-${string}`
@@ -172,8 +192,47 @@ export type ModuleSegmentValue<S extends StringTypes.NonEmptyString> = S extends
         ? never
         : SegmentValue<S>;
 
+/**
+ * A string literal type that transforms a module name into a PascalCase identifier with "Id" suffix.
+ *
+ * Takes a non-empty string representing a module name and converts it to a module accessor format.
+ * The resulting type follows the pattern of PascalCase module name with "Id" appended.
+ *
+ * @category Types/Module
+ * @example
+ * ```typescript
+ * import type { ModuleAccessor } from "@beep/core"
+ * import * as Effect from "effect/Effect"
+ * import * as F from "effect/Function"
+ *
+ * type UserModuleId = ModuleAccessor<"user-service">  // "UserServiceId"
+ * type OrderId = ModuleAccessor<"order">              // "OrderId"
+ *
+ * const accessModule = <T extends string>(id: ModuleAccessor<T>) =>
+ *   Effect.gen(function* () {
+ *     return yield* Effect.succeed(`Accessing module: ${id}`)
+ *   })
+ * ```
+ * @since 0.1.0
+ */
 export type ModuleAccessor<S extends StringTypes.NonEmptyString> = `${PascalCaseValue<ModuleSegmentValue<S>>}Id`;
 
+/**
+ * Recursively builds a record type where each segment creates a module accessor property.
+ * Each property follows the pattern `{PascalCaseSegment}Id` and maps to an `IdentityComposer`
+ * for the corresponding module path.
+ *
+ * @category Types/Module
+ * @example
+ * ```typescript
+ * import type { ModuleRecord } from "@beep/effect"
+ * import type { NonEmptyString } from "@beep/string-types"
+ *
+ * // Creates: { UserId: IdentityComposer<"user/user">, PostId: IdentityComposer<"user/post"> }
+ * type UserModules = ModuleRecord<"user", readonly [NonEmptyString<"user">, NonEmptyString<"post">]>
+ * ```
+ * @since 0.1.0
+ */
 export type ModuleRecord<
   Value extends string,
   Segments extends ReadonlyArray<StringTypes.NonEmptyString>,

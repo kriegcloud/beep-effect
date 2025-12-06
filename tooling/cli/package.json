@@ -4,6 +4,7 @@
   "type": "module",
   "license": "MIT",
   "description": "A cli tool for the repo",
+  "homepage": "https://github.com/kriegcloud/beep-effect",
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",

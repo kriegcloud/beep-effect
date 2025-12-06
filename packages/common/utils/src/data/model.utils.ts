@@ -11,7 +11,7 @@
  * const modelUtilsExample: FooTypes.Prettify<typeof modelUtilsFieldKeys> = modelUtilsFieldKeys;
  * void modelUtilsExample;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import { invariant } from "@beep/invariant";
@@ -37,7 +37,7 @@ type ModelFieldKeys = <const Model extends ModelWithFields>(
  * const keys = ModelUtils.modelFieldKeys(modelUtilsInput);
  * // ["id"]
  *
- * @category Data/Model
+ * @category Data
  * @since 0.1.0
  */
 export const modelFieldKeys: ModelFieldKeys = <const Model extends ModelWithFields>(model: Model) => {

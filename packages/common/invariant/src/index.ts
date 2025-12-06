@@ -32,22 +32,22 @@
  * runtime failures thrown by `invariant`.
  *
  * @example
- * ```ts
- * import type * as CommonTypes from "@beep/types/common.types";
- * import { InvariantViolation } from "@beep/invariant";
+ * ```typescript
+ * import { InvariantViolation } from "@beep/invariant"
  *
- * const assertPositive = (count: CommonTypes.Prettify<{ readonly value: number }>) => {
+ * const assertPositive = (count: { readonly value: number }) => {
  *   if (count.value <= 0) {
  *     throw new InvariantViolation({
  *       message: "value must be positive",
  *       file: "packages/common/invariant/src/index.ts",
  *       line: 39,
  *       args: [count],
- *     });
+ *     })
  *   }
- * };
+ * }
  * ```
- * @category Invariant/Exports
+ *
+ * @category exports
  * @since 0.1.0
  */
 export * from "@beep/invariant/error";
@@ -57,20 +57,19 @@ export * from "@beep/invariant/error";
  * yields the full helper surface without deep paths.
  *
  * @example
- * ```ts
- * import type * as CommonTypes from "@beep/types/common.types";
- * import { invariant } from "@beep/invariant";
+ * ```typescript
+ * import { invariant } from "@beep/invariant"
  *
- * type Settings = CommonTypes.DeepPartial<{ readonly token: string | null }>;
- * const settings: Settings = { token: "token_456" };
+ * const settings: { readonly token: string | null } = { token: "token_456" }
  *
  * invariant(settings.token, "token missing", {
  *   file: "packages/common/invariant/src/index.ts",
  *   line: 60,
  *   args: [settings],
- * });
+ * })
  * ```
- * @category Invariant/Exports
+ *
+ * @category exports
  * @since 0.1.0
  */
 export * from "@beep/invariant/invariant";
@@ -80,21 +79,19 @@ export * from "@beep/invariant/invariant";
  * parser and related types without drilling into internal paths.
  *
  * @example
- * ```ts
- * import type * as CommonTypes from "@beep/types/common.types";
- * import * as S from "effect/Schema";
- * import { CallMetadata } from "@beep/invariant";
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { CallMetadata } from "@beep/invariant"
  *
- * const decode = S.decodeUnknownSync(CallMetadata);
+ * const decode = S.decodeUnknownSync(CallMetadata)
  * const meta = decode({
  *   file: "packages/common/invariant/src/index.ts",
  *   line: 78,
  *   args: [],
- * });
- * const snapshot: CommonTypes.Prettify<typeof meta> = meta;
- * void snapshot;
+ * })
  * ```
- * @category Invariant/Exports
+ *
+ * @category exports
  * @since 0.1.0
  */
 export * from "@beep/invariant/meta";

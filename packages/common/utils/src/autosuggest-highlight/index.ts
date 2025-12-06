@@ -23,6 +23,7 @@
  * ```
  *
  * @module
+ * @since 0.1.0
  */
 
 export { match } from "./match";

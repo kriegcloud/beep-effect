@@ -1,3 +1,10 @@
+/**
+ * Repository root discovery.
+ *
+ * Finds the monorepo root directory by searching for package.json with workspaces field.
+ *
+ * @since 0.1.0
+ */
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as Effect from "effect/Effect";
@@ -11,6 +18,21 @@ import { NoSuchFileError } from "./Errors.js";
  *
  * @returns Absolute path to the repo root
  * @throws NoSuchFileError if no matching directory is found
+ *
+ * @example
+ * ```typescript
+ * import { findRepoRoot } from "@beep/tooling-utils"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const root = yield* findRepoRoot
+ *   console.log("Repository root:", root)
+ *   // => Repository root: /home/user/projects/beep-effect
+ * })
+ * ```
+ *
+ * @category Utils/Repo
+ * @since 0.1.0
  */
 export const findRepoRoot = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;

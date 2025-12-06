@@ -10,7 +10,7 @@
  * const gettersModuleValue = Utils.getAt(gettersModuleRecord, "user.id");
  * void gettersModuleValue;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 export * from "@beep/utils/getters/index";

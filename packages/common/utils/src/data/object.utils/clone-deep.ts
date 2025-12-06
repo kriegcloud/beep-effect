@@ -10,7 +10,7 @@
  * cloned.a.b.push(4);
  * // original.a.b is still [1, 2, 3]
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import * as A from "effect/Array";
@@ -32,7 +32,7 @@ const isPlainObject = (value: unknown): value is PlainRecord => !A.isArray(value
  * cloned.users[0].name = "Jane";
  * // original.users[0].name is still "John"
  *
- * @category Data/Object
+ * @category Data
  * @since 0.1.0
  */
 export function cloneDeep<T>(value: T): T {

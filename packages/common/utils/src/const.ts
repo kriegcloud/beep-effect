@@ -11,7 +11,7 @@
  * };
  * void constModuleRecord;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 /**
@@ -23,7 +23,7 @@
  *
  * const keep: ConstLiteral = (value) => value;
  *
- * @category Data/Constants
+ * @category Data
  * @since 0.1.0
  */
 type ConstLiteral = <const Literal extends string | number>(literal: Literal) => Literal;
@@ -35,7 +35,7 @@ type ConstLiteral = <const Literal extends string | number>(literal: Literal) =>
  *
  * const role = constLiteral("admin");
  *
- * @category Data/Constants
+ * @category Data
  * @since 0.1.0
  */
 export const constLiteral: ConstLiteral = <const Literal extends string | number>(literal: Literal) => literal;

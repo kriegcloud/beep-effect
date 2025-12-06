@@ -1,5 +1,10 @@
-import { NoSuchFileError } from "@beep/tooling-utils/repo/Errors";
-import { findRepoRoot } from "@beep/tooling-utils/repo/Root";
+/**
+ * DotEnv schemas and parsing utilities.
+ *
+ * Provides schemas for parsing .env files with variable interpolation support.
+ *
+ * @since 0.1.0
+ */
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as A from "effect/Array";
@@ -13,22 +18,111 @@ import * as ParseResult from "effect/ParseResult";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { NoSuchFileError } from "../repo/Errors.js";
+import { findRepoRoot } from "../repo/Root.js";
 import { EnvironmentVariableName } from "./EnvironmentVariable.js";
 
+/**
+ * Schema representing raw .env file content as a non-empty string.
+ *
+ * @example
+ * ```typescript
+ * import { DotEnvEncoded } from "@beep/tooling-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(DotEnvEncoded)
+ * const content = decode("APP_NAME=my-app\nAPP_ENV=production")
+ * ```
+ *
+ * @category Schemas/Environment
+ * @since 0.1.0
+ */
 export const DotEnvEncoded = S.NonEmptyString;
 
+/**
+ * Namespace containing types for DotEnvEncoded schema.
+ *
+ * @example
+ * ```typescript
+ * import type { DotEnvEncoded } from "@beep/tooling-utils"
+ *
+ * const processEnv = (content: DotEnvEncoded.Type) => {
+ *   // content is a non-empty string
+ *   console.log(content)
+ * }
+ * ```
+ *
+ * @category Schemas/Environment
+ * @since 0.1.0
+ */
 export declare namespace DotEnvEncoded {
+  /**
+   * Runtime type extracted from DotEnvEncoded schema.
+   *
+   * @since 0.1.0
+   */
   export type Type = typeof DotEnvEncoded.Type;
+
+  /**
+   * Encoded type extracted from DotEnvEncoded schema.
+   *
+   * @since 0.1.0
+   */
   export type Encoded = typeof DotEnvEncoded.Encoded;
 }
 
+/**
+ * Schema representing parsed .env file as a HashMap of environment variables.
+ *
+ * @example
+ * ```typescript
+ * import { DotEnvDecoded } from "@beep/tooling-utils"
+ * import * as HashMap from "effect/HashMap"
+ *
+ * const envMap = HashMap.make(
+ *   ["APP_NAME", "my-app"],
+ *   ["APP_ENV", "production"]
+ * )
+ * ```
+ *
+ * @category Schemas/Environment
+ * @since 0.1.0
+ */
 export const DotEnvDecoded = S.HashMap({
   key: EnvironmentVariableName,
   value: S.String,
 });
 
+/**
+ * Namespace containing types for DotEnvDecoded schema.
+ *
+ * @example
+ * ```typescript
+ * import type { DotEnvDecoded } from "@beep/tooling-utils"
+ * import * as HashMap from "effect/HashMap"
+ *
+ * const processEnv = (env: DotEnvDecoded.Type) => {
+ *   // env is a HashMap of environment variables
+ *   const appName = HashMap.get(env, "APP_NAME")
+ * }
+ * ```
+ *
+ * @category Schemas/Environment
+ * @since 0.1.0
+ */
 export declare namespace DotEnvDecoded {
+  /**
+   * Runtime type extracted from DotEnvDecoded schema.
+   *
+   * @since 0.1.0
+   */
   export type Type = typeof DotEnvDecoded.Type;
+
+  /**
+   * Encoded type extracted from DotEnvDecoded schema.
+   *
+   * @since 0.1.0
+   */
   export type Encoded = typeof DotEnvDecoded.Encoded;
 }
 
@@ -37,6 +131,36 @@ const environmentVariableNames = HashSet.fromIterable(EnvironmentVariableName.li
 const isEnvironmentVariableName = (candidate: string): candidate is EnvironmentVariableName.Type =>
   F.pipe(environmentVariableNames, HashSet.has(candidate));
 
+/**
+ * Parse raw .env file content into a typed HashMap.
+ *
+ * Features:
+ * - Strips comments (lines starting with #)
+ * - Handles quoted values (single and double quotes)
+ * - Resolves variable references using ${VAR_NAME} syntax
+ * - Filters out non-recognized environment variables
+ * - Detects circular references
+ *
+ * @example
+ * ```typescript
+ * import { parseEnv } from "@beep/tooling-utils"
+ * import * as HashMap from "effect/HashMap"
+ *
+ * const content = `
+ * APP_NAME=my-app
+ * APP_ENV=production
+ * APP_API_URL=https://api.\${APP_DOMAIN}
+ * APP_DOMAIN=example.com
+ * `
+ *
+ * const parsed = parseEnv(content)
+ * const apiUrl = HashMap.get(parsed, "APP_API_URL")
+ * // => Some("https://api.example.com")
+ * ```
+ *
+ * @category Schemas/Environment
+ * @since 0.1.0
+ */
 export const parseEnv = (env: DotEnvEncoded.Type): DotEnvDecoded.Type => {
   const entries = F.pipe(
     env,
@@ -158,6 +282,29 @@ const serializeEnv = (map: HashMap.HashMap<EnvironmentVariableName.Type, string>
   );
 };
 
+/**
+ * Effect Schema class representing a .env file with parsing and serialization.
+ *
+ * Provides:
+ * - Bidirectional transformation between raw .env content and typed HashMap
+ * - Static method to read .env from repository root
+ * - Methods to access and serialize environment variables
+ *
+ * @example
+ * ```typescript
+ * import { DotEnv } from "@beep/tooling-utils"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const dotEnv = yield* DotEnv.readEnvFile
+ *   const appName = yield* dotEnv.getVar("APP_NAME")
+ *   console.log("App name:", appName)
+ * })
+ * ```
+ *
+ * @category Schemas/Environment
+ * @since 0.1.0
+ */
 export class DotEnv extends S.Class<DotEnv>("DotEnv")({
   env: S.transformOrFail(DotEnvEncoded, DotEnvDecoded, {
     strict: true,
@@ -191,11 +338,21 @@ export class DotEnv extends S.Class<DotEnv>("DotEnv")({
     return yield* S.decode(DotEnv)({ env: envContent });
   });
 
+  /**
+   * Retrieves an environment variable value by key.
+   *
+   * @since 0.1.0
+   */
   getVar(key: EnvironmentVariableName.Type) {
     const env = this.env;
     return Effect.option(HashMap.get(key)(env));
   }
 
+  /**
+   * Serializes the environment HashMap to a JSON string.
+   *
+   * @since 0.1.0
+   */
   toJson() {
     const env = this.env;
     return F.pipe(
@@ -213,7 +370,33 @@ export class DotEnv extends S.Class<DotEnv>("DotEnv")({
   }
 }
 
+/**
+ * Namespace containing types for DotEnv schema.
+ *
+ * @example
+ * ```typescript
+ * import type { DotEnv } from "@beep/tooling-utils"
+ *
+ * const processEnv = (dotEnv: DotEnv.Type) => {
+ *   // Work with typed DotEnv instance
+ * }
+ * ```
+ *
+ * @category Schemas/Environment
+ * @since 0.1.0
+ */
 export declare namespace DotEnv {
+  /**
+   * Runtime type extracted from DotEnv schema.
+   *
+   * @since 0.1.0
+   */
   export type Type = typeof DotEnv.Type;
+
+  /**
+   * Encoded type extracted from DotEnv schema.
+   *
+   * @since 0.1.0
+   */
   export type Encoded = typeof DotEnv.Encoded;
 }

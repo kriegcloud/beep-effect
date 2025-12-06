@@ -11,7 +11,7 @@
  * );
  * // { a: { b: 1, c: 3 } }
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import { isUnsafeProperty } from "@beep/utils/guards";
@@ -36,7 +36,7 @@ const isPlainObject = (value: unknown): value is PlainRecord => !A.isArray(value
  * const result = defaultsDeep({}, userConfig, defaults);
  * // { theme: { mode: "light", accent: "blue" } }
  *
- * @category Data/Object
+ * @category Data
  * @since 0.1.0
  */
 export function defaultsDeep<T extends PlainRecord>(target: T, ...sources: readonly PlainRecord[]): T {

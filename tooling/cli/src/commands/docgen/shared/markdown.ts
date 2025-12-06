@@ -10,6 +10,7 @@
  * - groupByPriority: Group exports by priority level
  *
  * @module docgen/shared/markdown
+ * @since 1.0.0
  */
 
 import * as A from "effect/Array";
@@ -20,8 +21,34 @@ import type { ExportAnalysis, PackageAnalysis } from "../types.js";
 /**
  * Format a single checklist item for the analysis report.
  *
+ * @example
+ * ```ts
+ * import { formatChecklistItem } from "@beep/repo-cli/commands/docgen/shared"
+ * import type { ExportAnalysis } from "@beep/repo-cli/commands/docgen/types"
+ *
+ * const exportAnalysis: ExportAnalysis = {
+ *   name: "myFunction",
+ *   kind: "function",
+ *   filePath: "src/utils.ts",
+ *   line: 42,
+ *   missingTags: ["@since"],
+ *   presentTags: ["@category", "@example"],
+ *   priority: "low",
+ *   context: "Utility function for data transformation"
+ * }
+ *
+ * const checklistItem = formatChecklistItem(exportAnalysis)
+ * console.log(checklistItem)
+ * // => - [ ] `src/utils.ts:42` — **myFunction** (function)
+ * //      - Missing: @since
+ * //      - Has: @category, @example
+ * //      - Context: Utility function for data transformation
+ * ```
+ *
  * @param exp - The export analysis to format
  * @returns Formatted markdown checklist item
+ * @category utilities
+ * @since 0.1.0
  */
 export const formatChecklistItem = (exp: ExportAnalysis): string => {
   const location = `\`${exp.filePath}:${exp.line}\``;
@@ -47,8 +74,26 @@ export const formatChecklistItem = (exp: ExportAnalysis): string => {
 /**
  * Group exports by priority level.
  *
+ * @example
+ * ```ts
+ * import { groupByPriority } from "@beep/repo-cli/commands/docgen/shared"
+ * import type { ExportAnalysis } from "@beep/repo-cli/commands/docgen/types"
+ * import * as A from "effect/Array"
+ *
+ * const exports: ReadonlyArray<ExportAnalysis> = [
+ *   { name: "foo", kind: "function", filePath: "src/foo.ts", line: 1, missingTags: ["@category", "@example", "@since"], presentTags: [], priority: "high" },
+ *   { name: "bar", kind: "function", filePath: "src/bar.ts", line: 10, missingTags: ["@since"], presentTags: ["@category", "@example"], priority: "low" },
+ * ]
+ *
+ * const grouped = groupByPriority(exports)
+ * console.log(A.length(grouped.high))  // => 1
+ * console.log(A.length(grouped.low))   // => 1
+ * ```
+ *
  * @param exports - Array of export analyses
  * @returns Object with high, medium, and low priority arrays
+ * @category utilities
+ * @since 0.1.0
  */
 export const groupByPriority = (
   exports: ReadonlyArray<ExportAnalysis>
@@ -80,8 +125,39 @@ export const groupByPriority = (
  * - Summary statistics
  * - Verification commands
  *
+ * @example
+ * ```ts
+ * import { generateAnalysisReport } from "@beep/repo-cli/commands/docgen/shared"
+ * import type { PackageAnalysis } from "@beep/repo-cli/commands/docgen/types"
+ * import * as Str from "effect/String"
+ * import * as F from "effect/Function"
+ *
+ * const analysis: PackageAnalysis = {
+ *   packageName: "@beep/my-package",
+ *   packagePath: "packages/common/my-package",
+ *   timestamp: "2025-01-15T12:00:00Z",
+ *   exports: [
+ *     { name: "myFunc", kind: "function", filePath: "src/index.ts", line: 10, missingTags: ["@since"], presentTags: ["@category", "@example"], priority: "low" }
+ *   ],
+ *   summary: {
+ *     totalExports: 1,
+ *     fullyDocumented: 0,
+ *     missingDocumentation: 1,
+ *     missingCategory: 0,
+ *     missingExample: 0,
+ *     missingSince: 1
+ *   }
+ * }
+ *
+ * const report = generateAnalysisReport(analysis)
+ * const hasHeader = F.pipe(report, Str.includes("# JSDoc Analysis Report"))
+ * console.log(hasHeader)  // => true
+ * ```
+ *
  * @param analysis - The package analysis results
  * @returns Complete markdown document content
+ * @category utilities
+ * @since 0.1.0
  */
 export const generateAnalysisReport = (analysis: PackageAnalysis): string => {
   // Filter to only exports with missing tags
@@ -219,7 +295,33 @@ export const generateAnalysisReport = (analysis: PackageAnalysis): string => {
 /**
  * Generate JSON output for analysis results.
  *
+ * @example
+ * ```ts
+ * import { generateAnalysisJson } from "@beep/repo-cli/commands/docgen/shared"
+ * import type { PackageAnalysis } from "@beep/repo-cli/commands/docgen/types"
+ *
+ * const analysis: PackageAnalysis = {
+ *   packageName: "@beep/my-package",
+ *   packagePath: "packages/common/my-package",
+ *   timestamp: "2025-01-15T12:00:00Z",
+ *   exports: [],
+ *   summary: {
+ *     totalExports: 0,
+ *     fullyDocumented: 0,
+ *     missingDocumentation: 0,
+ *     missingCategory: 0,
+ *     missingExample: 0,
+ *     missingSince: 0
+ *   }
+ * }
+ *
+ * const json = generateAnalysisJson(analysis)
+ * console.log(JSON.parse(json).packageName)  // => "@beep/my-package"
+ * ```
+ *
  * @param analysis - The package analysis results
  * @returns JSON string representation
+ * @category utilities
+ * @since 0.1.0
  */
 export const generateAnalysisJson = (analysis: PackageAnalysis): string => JSON.stringify(analysis, null, 2);

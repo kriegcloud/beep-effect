@@ -24,6 +24,7 @@
  * ```
  *
  * @module docgen/agents
+ * @since 1.0.0
  */
 
 import * as ToolingUtils from "@beep/tooling-utils";
@@ -40,7 +41,7 @@ import { discoverConfiguredPackages, resolvePackagePath } from "../shared/discov
 import * as Output from "../shared/output.js";
 import { DocgenAgentService, DocgenAgentServiceLive, type TokenStats } from "./service.js";
 
-const { FsUtils } = ToolingUtils;
+const { FsUtilsLive } = ToolingUtils;
 
 /**
  * Anthropic pricing per million tokens (as of Dec 2025).
@@ -101,6 +102,7 @@ const parallelOption = CliOptions.integer("parallel").pipe(
 );
 
 const dryRunOption = CliOptions.boolean("dry-run").pipe(
+  CliOptions.withAlias("n"),
   CliOptions.withDescription("Analysis without changes"),
   CliOptions.withDefault(false)
 );
@@ -208,7 +210,7 @@ export const agentsCommand = CliCommand.make("agents", agentsOptions, (options) 
       const tokenStats = yield* service.getTokenStats;
 
       return { results, tokenStats };
-    }).pipe(Effect.provide(serviceLayer), Effect.provide(NodeContext.layer), Effect.provide(FsUtils.FsUtilsLive));
+    }).pipe(Effect.provide(serviceLayer), Effect.provide(NodeContext.layer), Effect.provide(FsUtilsLive));
 
     // Display results
     yield* Output.header("Results");

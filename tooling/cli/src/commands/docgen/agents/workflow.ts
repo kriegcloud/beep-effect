@@ -1,6 +1,7 @@
 /**
  * @file Durable workflow definition for docgen agents.
  * @module docgen/agents/workflow
+ * @since 1.0.0
  */
 import * as DurableClock from "@effect/workflow/DurableClock";
 import * as Workflow from "@effect/workflow/Workflow";

@@ -24,10 +24,11 @@
  * - 3: Execution error (ts-morph parsing failed)
  *
  * @module docgen/analyze
+ * @since 1.0.0
  * @see DOCGEN_CLI_IMPLEMENTATION.md#2-beep-docgen-analyze
  */
 
-import type { FsUtils } from "@beep/tooling-utils";
+import type * as FsUtils from "@beep/tooling-utils/FsUtils";
 import * as CliCommand from "@effect/cli/Command";
 import * as CliOptions from "@effect/cli/Options";
 import * as FileSystem from "@effect/platform/FileSystem";
@@ -41,9 +42,12 @@ import * as F from "effect/Function";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
+import type { TsMorphError } from "./errors.js";
 import { analyzePackage } from "./shared/ast.js";
 import { loadDocgenConfig } from "./shared/config.js";
 import { discoverConfiguredPackages, resolvePackagePath } from "./shared/discovery.js";
+import { formatBatchResult, makeErrorAccumulator } from "./shared/error-handling.js";
+import { DocgenLogger, DocgenLoggerLive } from "./shared/logger.js";
 import { generateAnalysisJson, generateAnalysisReport } from "./shared/markdown.js";
 import { blank, error, formatPath, header, info, success, warning } from "./shared/output.js";
 import type { ExportAnalysis, PackageAnalysis, PackageAnalysisSummary } from "./types.js";
@@ -117,17 +121,25 @@ const analyzePackageAndReport = (
   pkgName: string,
   relativePath: string,
   customOutput: string | undefined,
-  outputJson: boolean
-): Effect.Effect<void, never, FileSystem.FileSystem | Path.Path> =>
+  outputJson: boolean,
+  errorAccumulator: ReturnType<typeof makeErrorAccumulator<TsMorphError>> extends Effect.Effect<infer A, never, never>
+    ? A
+    : never
+): Effect.Effect<void, never, FileSystem.FileSystem | Path.Path | DocgenLogger> =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
+    const logger = yield* DocgenLogger;
 
     // Load docgen config to get srcDir and exclude patterns
     const config = yield* loadDocgenConfig(pkgPath).pipe(
       Effect.catchAll((_e) =>
         Effect.gen(function* () {
           yield* warning(`No docgen.json in ${relativePath}, using defaults`);
+          yield* logger.debug("No docgen.json found, using defaults", {
+            package: pkgName,
+            path: relativePath,
+          });
           return { srcDir: "src", exclude: A.empty() as readonly string[] };
         })
       )
@@ -138,10 +150,26 @@ const analyzePackageAndReport = (
 
     // Analyze the package
     yield* info(`Analyzing ${pkgName}...`);
+    yield* logger.info("Starting package analysis", {
+      package: pkgName,
+      path: pkgPath,
+      srcDir,
+      excludePatterns: exclude,
+    });
 
     const exports = yield* analyzePackage(pkgPath, srcDir, exclude).pipe(
-      Effect.catchAll((e) =>
+      Effect.tapError((e) =>
+        logger.error("Package analysis failed", {
+          package: pkgName,
+          path: pkgPath,
+          error: e._tag,
+          filePath: e.filePath,
+          cause: e.cause !== undefined ? String(e.cause) : undefined,
+        })
+      ),
+      Effect.catchTag("TsMorphError", (e) =>
         Effect.gen(function* () {
+          yield* errorAccumulator.add(e);
           yield* error(`Failed to analyze ${pkgName}: ${String(e.cause)}`);
           return A.empty() as ReadonlyArray<ExportAnalysis>;
         })
@@ -150,11 +178,19 @@ const analyzePackageAndReport = (
 
     if (F.pipe(exports, A.length, Eq.equals(0))) {
       yield* warning(`No exports found in ${pkgName}`);
+      yield* logger.warn("No exports found in package", { package: pkgName });
       return;
     }
 
     // Compute summary
     const summary = computeSummary(exports);
+
+    yield* logger.debug("Analysis summary computed", {
+      package: pkgName,
+      totalExports: summary.totalExports,
+      fullyDocumented: summary.fullyDocumented,
+      missingDocumentation: summary.missingDocumentation,
+    });
 
     const timestamp = yield* DateTime.now.pipe(
       Effect.map(DateTime.toDateUtc),
@@ -173,6 +209,12 @@ const analyzePackageAndReport = (
     const outputPath = customOutput ?? path.join(pkgPath, "JSDOC_ANALYSIS.md");
     const report = generateAnalysisReport(analysis);
     yield* fs.writeFileString(outputPath, report).pipe(
+      Effect.tapError(() =>
+        logger.error("Failed to write report", {
+          package: pkgName,
+          outputPath,
+        })
+      ),
       Effect.catchAll((_e) =>
         Effect.gen(function* () {
           yield* error(`Failed to write report to ${outputPath}`);
@@ -189,6 +231,12 @@ const analyzePackageAndReport = (
         })
       );
       yield* fs.writeFileString(jsonPath, generateAnalysisJson(analysis)).pipe(
+        Effect.tapError(() =>
+          logger.error("Failed to write JSON report", {
+            package: pkgName,
+            jsonPath,
+          })
+        ),
         Effect.catchAll((_e) =>
           Effect.gen(function* () {
             yield* error(`Failed to write JSON to ${jsonPath}`);
@@ -205,6 +253,13 @@ const analyzePackageAndReport = (
     yield* Console.log(`  Missing documentation: ${summary.missingDocumentation}`);
     yield* blank();
     yield* success(`Report written to ${formatPath(outputPath)}`);
+
+    yield* logger.info("Package analysis complete", {
+      package: pkgName,
+      totalExports: summary.totalExports,
+      fullyDocumented: summary.fullyDocumented,
+      outputPath,
+    });
   });
 
 /**
@@ -215,8 +270,17 @@ const handleAnalyze = (args: {
   readonly output: string | undefined;
   readonly json: boolean;
   readonly fixMode: boolean;
-}): Effect.Effect<void, never, FileSystem.FileSystem | Path.Path | FsUtils.FsUtils> =>
+}): Effect.Effect<void, never, FileSystem.FileSystem | Path.Path | FsUtils.FsUtils | DocgenLogger> =>
   Effect.gen(function* () {
+    const logger = yield* DocgenLogger;
+    const errorAccumulator = yield* makeErrorAccumulator<TsMorphError>();
+
+    yield* logger.info("Starting analysis", {
+      package: args.package ?? "all configured",
+      outputJson: args.json,
+      fixMode: args.fixMode,
+    });
+
     // Resolve target packages
     if (args.package !== undefined) {
       // Single package mode
@@ -226,22 +290,36 @@ const handleAnalyze = (args: {
             yield* error(
               `Invalid package path: ${e.path} - ${e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found")}`
             );
+            yield* logger.error("Invalid package path", {
+              path: e.path,
+              error: e._tag,
+              reason: e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found"),
+            });
             return yield* Effect.fail(ExitCode.InvalidInput);
           })
         )
       );
 
-      yield* analyzePackageAndReport(pkgInfo.absolutePath, pkgInfo.name, pkgInfo.relativePath, args.output, args.json);
+      yield* analyzePackageAndReport(
+        pkgInfo.absolutePath,
+        pkgInfo.name,
+        pkgInfo.relativePath,
+        args.output,
+        args.json,
+        errorAccumulator
+      );
     } else {
       // All configured packages mode
       const packages = yield* discoverConfiguredPackages;
 
       if (F.pipe(packages, A.length, Eq.equals(0))) {
         yield* warning("No packages with docgen.json found");
+        yield* logger.warn("No configured packages found");
         return;
       }
 
       yield* info(`Found ${A.length(packages)} configured packages`);
+      yield* logger.info("Found configured packages", { count: A.length(packages) });
       yield* blank();
 
       // Analyze each package
@@ -253,13 +331,37 @@ const handleAnalyze = (args: {
             pkg.name,
             pkg.relativePath,
             undefined, // Use default output path per package
-            args.json
+            args.json,
+            errorAccumulator
           ),
         { discard: true }
       );
 
+      // Report accumulated errors
+      const errors = yield* errorAccumulator.getErrors;
+      if (A.isNonEmptyReadonlyArray(errors)) {
+        yield* logger.warn("Some packages failed analysis", {
+          failedCount: A.length(errors),
+          packages: F.pipe(
+            errors,
+            A.map((e) => e.filePath)
+          ),
+        });
+
+        const batchResult = {
+          succeeded: A.length(packages) - A.length(errors),
+          failed: A.length(errors),
+          errors,
+        };
+        yield* warning(`Analysis completed with failures: ${formatBatchResult(batchResult)}`);
+      }
+
       yield* blank();
       yield* success(`Analyzed ${A.length(packages)} packages`);
+      yield* logger.info("Analysis complete", {
+        succeeded: A.length(packages) - A.length(errors),
+        failed: A.length(errors),
+      });
     }
   }).pipe(
     Effect.catchAll((exitCode) =>
@@ -273,6 +375,27 @@ const handleAnalyze = (args: {
     )
   );
 
+/**
+ * CLI command to analyze JSDoc coverage in packages and generate actionable reports.
+ *
+ * @example
+ * ```ts
+ * import { analyzeCommand } from "@beep/repo-cli/commands/docgen/analyze"
+ * import * as CliCommand from "@effect/cli/Command"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const result = yield* CliCommand.run(analyzeCommand, {
+ *     name: "docgen",
+ *     version: "1.0.0"
+ *   })
+ *   return result
+ * })
+ * ```
+ *
+ * @category constructors
+ * @since 0.1.0
+ */
 export const analyzeCommand = CliCommand.make(
   "analyze",
   {
@@ -287,5 +410,5 @@ export const analyzeCommand = CliCommand.make(
       output: O.getOrUndefined(args.output),
       json: args.json,
       fixMode: args.fixMode,
-    })
+    }).pipe(Effect.provide(DocgenLoggerLive()))
 ).pipe(CliCommand.withDescription("Analyze JSDoc coverage and generate agent-friendly report"));

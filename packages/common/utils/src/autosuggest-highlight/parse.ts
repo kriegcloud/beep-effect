@@ -1,3 +1,7 @@
+/**
+ * @since 0.1.0
+ */
+
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as Str from "effect/String";
@@ -48,6 +52,9 @@ const extractText = (text: string, startIndex: number, endIndex: number): string
  * //   { text: "rld", highlight: false }
  * // ]
  * ```
+ *
+ * @category utilities
+ * @since 0.1.0
  */
 export const parse = (text: string, matches: readonly MatchRange[]): readonly ParsedSegment[] => {
   // Handle empty matches case

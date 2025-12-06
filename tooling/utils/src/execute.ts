@@ -1,3 +1,10 @@
+/**
+ * Executable script for testing and debugging utilities.
+ *
+ * Not intended for external use.
+ *
+ * @since 0.1.0
+ */
 import { mapWorkspaceToRelativePaths } from "@beep/tooling-utils/repo";
 import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";

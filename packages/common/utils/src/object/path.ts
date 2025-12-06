@@ -12,7 +12,7 @@
  * const objectPathName = Utils.getPath(objectPathRecord, "profile.name");
  * void objectPathName;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import type { UnsafeTypes } from "@beep/types";
@@ -57,7 +57,7 @@ const normalizePath = (path: string | ReadonlyArray<PropertyKey>): ReadonlyArray
  *
  * getPath({ user: { name: "Ada" } }, "user.name");
  *
- * @category Object/Path
+ * @category Object
  * @since 0.1.0
  */
 export const getPath = <T, D = undefined>(
@@ -113,7 +113,7 @@ const ensureContainer = (
  * const obj = {};
  * setPath(obj, "user.profile.name", "Ada");
  *
- * @category Object/Path
+ * @category Object
  * @since 0.1.0
  */
 export const setPath = (

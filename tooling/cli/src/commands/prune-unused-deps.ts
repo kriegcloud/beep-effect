@@ -1,4 +1,32 @@
-import { FsUtils } from "@beep/tooling-utils";
+/**
+ * @fileoverview Unused workspace dependency pruning command
+ *
+ * Scans packages for @beep/* workspace dependencies that are declared in
+ * package.json but never imported in source files. Removes unused dependencies
+ * from both package.json and tsconfig references. Supports dry-run mode,
+ * package filtering, and test directory exclusion.
+ *
+ * @module @beep/tooling-cli/commands/prune-unused-deps
+ * @since 1.0.0
+ * @category Commands
+ *
+ * @example
+ * ```typescript
+ * import { pruneUnusedDepsCommand } from "@beep/tooling-cli/commands/prune-unused-deps"
+ * import * as CliCommand from "@effect/cli/Command"
+ *
+ * // Run dry-run scan (default)
+ * // beep prune-unused-deps --dry-run
+ *
+ * // Remove unused deps from specific package
+ * // beep prune-unused-deps --filter @beep/iam-infra
+ *
+ * // Exclude test directories from scan
+ * // beep prune-unused-deps --exclude-tests
+ * ```
+ */
+
+import * as FsUtils from "@beep/tooling-utils";
 import {
   buildRepoDependencyIndex,
   collectTsConfigPaths,
@@ -529,6 +557,27 @@ const handlePruneCommand = ({
 // Export Command
 // -----------------------------------------------------------------------------
 
+/**
+ * Command to find and remove unused workspace dependencies.
+ *
+ * Scans packages for @beep/* dependencies that are declared in package.json
+ * but never imported in source files. Supports dry-run mode, package filtering,
+ * and test file exclusion.
+ *
+ * @example
+ * ```ts
+ * import { pruneUnusedDepsCommand } from "@beep/repo-cli/commands/prune-unused-deps"
+ * import * as CliCommand from "@effect/cli/Command"
+ *
+ * // Compose into CLI
+ * const cli = CliCommand.make("beep").pipe(
+ *   CliCommand.withSubcommands([pruneUnusedDepsCommand])
+ * )
+ * ```
+ *
+ * @since 0.1.0
+ * @category constructors
+ */
 export const pruneUnusedDepsCommand = CliCommand.make(
   "prune-unused-deps",
   { dryRun: dryRunOption, filter: filterOption, excludeTests: excludeTestsOption },

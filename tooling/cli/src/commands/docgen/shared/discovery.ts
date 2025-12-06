@@ -13,9 +13,10 @@
  * - getPackageName: Get package name from package.json
  *
  * @module docgen/shared/discovery
+ * @since 1.0.0
  */
 
-import type { FsUtils } from "@beep/tooling-utils";
+import type * as FsUtils from "@beep/tooling-utils/FsUtils";
 import { findRepoRoot, resolveWorkspaceDirs } from "@beep/tooling-utils/repo";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
@@ -46,9 +47,23 @@ const computeStatus = (hasConfig: boolean, hasDocs: boolean): PackageDocgenStatu
 /**
  * Get package name from package.json.
  *
+ * @example
+ * ```ts
+ * import { getPackageName } from "@beep/repo-cli/commands/docgen/shared"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const name = yield* getPackageName("/home/user/projects/beep-effect/packages/common/schema")
+ *   console.log(name)
+ *   // => "@beep/schema"
+ * })
+ * ```
+ *
  * @param packagePath - Absolute path to the package directory
  * @returns The package name from package.json
  * @throws PackageNotFoundError if package.json doesn't exist or can't be read
+ * @category getters
+ * @since 0.1.0
  */
 export const getPackageName = (
   packagePath: string
@@ -93,8 +108,22 @@ export const getPackageName = (
 /**
  * Check if a package has generated documentation.
  *
+ * @example
+ * ```ts
+ * import { hasGeneratedDocs } from "@beep/repo-cli/commands/docgen/shared"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const hasDocs = yield* hasGeneratedDocs("/home/user/projects/beep-effect/packages/common/schema")
+ *   console.log(hasDocs)
+ *   // => true
+ * })
+ * ```
+ *
  * @param packagePath - Absolute path to the package directory
  * @returns true if docs/modules/ directory exists
+ * @category predicates
+ * @since 0.1.0
  */
 export const hasGeneratedDocs = (
   packagePath: string
@@ -109,9 +138,25 @@ export const hasGeneratedDocs = (
 /**
  * Get detailed information about a single package.
  *
+ * @example
+ * ```ts
+ * import { getPackageInfo } from "@beep/repo-cli/commands/docgen/shared"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const info = yield* getPackageInfo("/home/user/projects/beep-effect/packages/common/schema")
+ *   console.log(info.name)
+ *   // => "@beep/schema"
+ *   console.log(info.status)
+ *   // => "configured-and-generated"
+ * })
+ * ```
+ *
  * @param absolutePath - Absolute path to the package directory
  * @returns PackageInfo with name, paths, and docgen status
  * @throws PackageNotFoundError if package.json doesn't exist
+ * @category getters
+ * @since 0.1.0
  */
 export const getPackageInfo = (
   absolutePath: string
@@ -141,7 +186,26 @@ export const getPackageInfo = (
  * Uses resolveWorkspaceDirs from tooling-utils to find all packages
  * defined in the root package.json workspaces field.
  *
+ * @example
+ * ```ts
+ * import { discoverAllPackages } from "@beep/repo-cli/commands/docgen/shared"
+ * import * as Effect from "effect/Effect"
+ * import * as A from "effect/Array"
+ * import * as F from "effect/Function"
+ *
+ * const program = Effect.gen(function* () {
+ *   const packages = yield* discoverAllPackages
+ *   const names = F.pipe(
+ *     packages,
+ *     A.map((pkg) => pkg.name)
+ *   )
+ *   console.log(names)
+ * })
+ * ```
+ *
  * @returns Array of PackageInfo for all discovered packages
+ * @category utilities
+ * @since 0.1.0
  */
 export const discoverAllPackages: Effect.Effect<
   ReadonlyArray<PackageInfo>,
@@ -170,7 +234,23 @@ export const discoverAllPackages: Effect.Effect<
 /**
  * Discover packages that have docgen.json configured.
  *
+ * @example
+ * ```ts
+ * import { discoverConfiguredPackages } from "@beep/repo-cli/commands/docgen/shared"
+ * import * as Effect from "effect/Effect"
+ * import * as A from "effect/Array"
+ * import * as F from "effect/Function"
+ *
+ * const program = Effect.gen(function* () {
+ *   const packages = yield* discoverConfiguredPackages
+ *   const count = F.pipe(packages, A.length)
+ *   console.log(`Found ${count} packages with docgen.json`)
+ * })
+ * ```
+ *
  * @returns Array of PackageInfo for packages with docgen.json
+ * @category filtering
+ * @since 0.1.0
  */
 export const discoverConfiguredPackages: Effect.Effect<
   ReadonlyArray<PackageInfo>,
@@ -187,7 +267,26 @@ export const discoverConfiguredPackages: Effect.Effect<
 /**
  * Discover packages that have generated documentation.
  *
+ * @example
+ * ```ts
+ * import { discoverPackagesWithDocs } from "@beep/repo-cli/commands/docgen/shared"
+ * import * as Effect from "effect/Effect"
+ * import * as A from "effect/Array"
+ * import * as F from "effect/Function"
+ *
+ * const program = Effect.gen(function* () {
+ *   const packages = yield* discoverPackagesWithDocs
+ *   const relativePaths = F.pipe(
+ *     packages,
+ *     A.map((pkg) => pkg.relativePath)
+ *   )
+ *   console.log(relativePaths)
+ * })
+ * ```
+ *
  * @returns Array of PackageInfo for packages with docs/modules/
+ * @category filtering
+ * @since 0.1.0
  */
 export const discoverPackagesWithDocs: Effect.Effect<
   ReadonlyArray<PackageInfo>,
@@ -204,10 +303,26 @@ export const discoverPackagesWithDocs: Effect.Effect<
 /**
  * Resolve a package path (relative or absolute) to PackageInfo.
  *
+ * @example
+ * ```ts
+ * import { resolvePackagePath } from "@beep/repo-cli/commands/docgen/shared"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const info = yield* resolvePackagePath("packages/common/schema")
+ *   console.log(info.name)
+ *   // => "@beep/schema"
+ *   console.log(info.absolutePath)
+ *   // => "/home/user/projects/beep-effect/packages/common/schema"
+ * })
+ * ```
+ *
  * @param packagePath - Path to the package (can be relative to repo root or absolute)
  * @returns PackageInfo for the resolved package
  * @throws InvalidPackagePathError if path doesn't exist or isn't a directory
  * @throws PackageNotFoundError if package.json doesn't exist
+ * @category utilities
+ * @since 0.1.0
  */
 export const resolvePackagePath = (
   packagePath: string
@@ -257,9 +372,25 @@ export const resolvePackagePath = (
 /**
  * Resolve a package by name from the workspace.
  *
+ * @example
+ * ```ts
+ * import { resolvePackageByName } from "@beep/repo-cli/commands/docgen/shared"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const info = yield* resolvePackageByName("@beep/schema")
+ *   console.log(info.relativePath)
+ *   // => "packages/common/schema"
+ *   console.log(info.hasDocgenConfig)
+ *   // => true
+ * })
+ * ```
+ *
  * @param packageName - Package name (e.g., "@beep/schema")
  * @returns PackageInfo for the matching package
  * @throws PackageNotFoundError if package is not found in workspace
+ * @category utilities
+ * @since 0.1.0
  */
 export const resolvePackageByName = (
   packageName: string

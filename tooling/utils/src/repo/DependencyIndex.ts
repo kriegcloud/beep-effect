@@ -1,3 +1,10 @@
+/**
+ * Repository-wide dependency index builder.
+ *
+ * Builds a complete dependency map for all workspaces including the repository root.
+ *
+ * @since 0.1.0
+ */
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as A from "effect/Array";
@@ -19,6 +26,23 @@ import { findRepoRoot } from "./Root.js";
  *
  * @returns HashMap of {@link WorkspacePkgKey} -> {@link RepoDepMapValue}
  * @throws Error if the root package.json does not exist
+ *
+ * @example
+ * ```typescript
+ * import { buildRepoDependencyIndex } from "@beep/tooling-utils"
+ * import * as Effect from "effect/Effect"
+ * import * as HashMap from "effect/HashMap"
+ *
+ * const program = Effect.gen(function* () {
+ *   const depIndex = yield* buildRepoDependencyIndex
+ *   const rootDeps = HashMap.get(depIndex, "@beep/root")
+ *   console.log(rootDeps)
+ *   // => Some({ dependencies: { workspace: ..., npm: ... }, devDependencies: ... })
+ * })
+ * ```
+ *
+ * @category Utils/Repo
+ * @since 0.1.0
  */
 export const buildRepoDependencyIndex = Effect.gen(function* () {
   const path_ = yield* Path.Path;

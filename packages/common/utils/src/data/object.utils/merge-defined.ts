@@ -11,7 +11,7 @@
  * );
  * // { a: 1, b: 2 } (with omitNull: true)
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import { isUnsafeProperty } from "@beep/utils/guards";
@@ -41,7 +41,7 @@ interface MergeDefinedOptions {
  * const result = mergeDefined(source1, source2);
  * // { a: 1, b: 2, c: 3 }
  *
- * @category Data/Object
+ * @category Data
  * @since 0.1.0
  */
 export function mergeDefined<TSource1 extends object, TSource2 extends object>(

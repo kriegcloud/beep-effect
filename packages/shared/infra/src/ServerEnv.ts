@@ -1,5 +1,4 @@
 import { AuthProviderNameValue, EnvValue, LogFormat } from "@beep/constants";
-import { Csp } from "@beep/schema/integrations";
 import { DomainName, Email, Url } from "@beep/schema/primitives";
 import { SharedEntityIds } from "@beep/shared-domain";
 import * as Config from "effect/Config";
@@ -261,7 +260,6 @@ export const ServerConfig = Config.all({
   security: Config.nested("SECURITY")(
     Config.all({
       trustedOrigins: ConfigArrayURL("TRUSTED_ORIGINS"),
-      csp: Csp.Config("CSP").pipe(Config.map(Csp.toHeader)),
     })
   ),
   isVite: Config.boolean("IS_VITE").pipe(Config.withDefault(false)),

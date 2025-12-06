@@ -1,3 +1,30 @@
+/**
+ * @fileoverview Interactive environment variable configuration command
+ *
+ * Guides users through creating or updating a .env file by reading existing
+ * .env and .env.example files, prompting for missing required variables,
+ * offering defaults from .env.example, and writing the completed configuration.
+ *
+ * @module @beep/tooling-cli/commands/env
+ * @since 1.0.0
+ * @category Commands
+ *
+ * @example
+ * ```typescript
+ * import { envCommand } from "@beep/tooling-cli/commands/env"
+ * import * as CliCommand from "@effect/cli/Command"
+ *
+ * // Run interactive env configuration
+ * const cli = CliCommand.make("beep").pipe(
+ *   CliCommand.withSubcommands([envCommand])
+ * )
+ *
+ * // User is prompted for:
+ * // - OAuth provider credentials (required)
+ * // - Missing variables from .env.example
+ * ```
+ */
+
 import { DotEnv, type EnvironmentVariableName, parseEnv } from "@beep/tooling-utils";
 import { findRepoRoot } from "@beep/tooling-utils/repo";
 import * as CliCommand from "@effect/cli/Command";
@@ -189,6 +216,29 @@ const handleEnvCommand = Effect.gen(function* () {
   yield* Console.log(color.green(F.pipe("Environment variables saved to ", Str.concat(color.cyan(envPath)))));
 });
 
+/**
+ * Interactive environment variable configuration command.
+ *
+ * Guides the user through creating or updating a .env file by:
+ * - Reading existing .env and .env.example files
+ * - Prompting for missing required variables
+ * - Offering defaults from .env.example
+ * - Writing the completed configuration
+ *
+ * @example
+ * ```ts
+ * import { envCommand } from "@beep/repo-cli/commands/env"
+ * import * as CliCommand from "@effect/cli/Command"
+ *
+ * // Run the env command
+ * const cli = CliCommand.make("beep").pipe(
+ *   CliCommand.withSubcommands([envCommand])
+ * )
+ * ```
+ *
+ * @since 0.1.0
+ * @category constructors
+ */
 export const envCommand = CliCommand.make("env", {}, () => handleEnvCommand).pipe(
   CliCommand.withDescription("Interactively create or update your .env file.")
 );

@@ -12,7 +12,7 @@
  * });
  * void objectUtilsIndexMerged;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 export * from "@beep/utils/data/object.utils/clone-deep";

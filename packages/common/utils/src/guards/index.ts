@@ -11,7 +11,7 @@
  * void guardsIndexProperty;
  * void guardsIndexRecord;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 /**
@@ -24,7 +24,7 @@
  * const guardsIndexNonEmpty = Utils.isNonEmptyRecordWithNonEmptyStringKeys(guardsIndexRecordInput);
  * void guardsIndexNonEmpty;
  *
- * @category Documentation/Reexports
+ * @category Documentation
  * @since 0.1.0
  */
 export * from "@beep/utils/guards/isNonEmptyRecord.guard";
@@ -38,7 +38,7 @@ export * from "@beep/utils/guards/isNonEmptyRecord.guard";
  * const guardsIndexUnsafe = Utils.isUnsafeProperty("__proto__");
  * void guardsIndexUnsafe;
  *
- * @category Documentation/Reexports
+ * @category Documentation
  * @since 0.1.0
  */
 export * from "@beep/utils/guards/isUnsafeProperty.guard";

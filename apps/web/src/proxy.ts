@@ -1,6 +1,6 @@
+import { CSP_HEADER } from "@beep/constants";
 import { AuthCallback } from "@beep/iam-sdk/constants";
 import { paths } from "@beep/shared-domain";
-import { serverEnv } from "@beep/shared-infra/ServerEnv";
 import { getCookieCache } from "better-auth/cookies";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
@@ -33,8 +33,8 @@ const PRIVATE_PREFIXES = [
   paths.admin.root,
 ] as const;
 
-const withCsp = (response: NextResponse, csp: string) => {
-  response.headers.set("Content-Security-Policy", csp);
+const withCsp = (response: NextResponse) => {
+  response.headers.set("Content-Security-Policy", CSP_HEADER);
   return response;
 };
 
@@ -44,10 +44,9 @@ const matchesPrefix = (pathname: string, prefixes: ReadonlyArray<string>) =>
   A.some(prefixes, (prefix) => Str.startsWith(prefix)(pathname));
 
 export async function proxy(request: NextRequest) {
-  const csp = serverEnv.security.csp;
   const { pathname } = request.nextUrl;
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("Content-Security-Policy", csp);
+  requestHeaders.set("Content-Security-Policy", CSP_HEADER);
   requestHeaders.set("x-url", request.url);
 
   const isAuthRoute = matchesExact(pathname, AUTH_ROUTES);
@@ -63,7 +62,7 @@ export async function proxy(request: NextRequest) {
       },
     });
 
-    return withCsp(response, csp);
+    return withCsp(response);
   }
 
   const session = await getCookieCache(request);
@@ -72,7 +71,7 @@ export async function proxy(request: NextRequest) {
     const callbackParams = new URLSearchParams(request.nextUrl.search);
     const target = AuthCallback.getURL(callbackParams);
     const redirectUrl = new URL(target, request.url);
-    return withCsp(NextResponse.redirect(redirectUrl), csp);
+    return withCsp(NextResponse.redirect(redirectUrl));
   }
 
   if (!session && isPrivateRoute) {
@@ -82,7 +81,7 @@ export async function proxy(request: NextRequest) {
     if (sanitized !== AuthCallback.defaultTarget) {
       signInUrl.searchParams.set(AuthCallback.paramName, sanitized);
     }
-    return withCsp(NextResponse.redirect(signInUrl), csp);
+    return withCsp(NextResponse.redirect(signInUrl));
   }
 
   const response = NextResponse.next({
@@ -91,7 +90,7 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  return withCsp(response, csp);
+  return withCsp(response);
 }
 
 export const config = {

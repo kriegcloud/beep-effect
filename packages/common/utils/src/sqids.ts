@@ -1,3 +1,7 @@
+/**
+ * @since 0.1.0
+ */
+
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
@@ -14,6 +18,20 @@ const DEFAULT_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01
 const MIN_ALPHABET_LENGTH = 3;
 const MIN_LENGTH_LIMIT = 255;
 
+/**
+ * Default blocklist of profanity and offensive words for Sqids encoding.
+ *
+ * @example
+ * ```typescript
+ * import { defaultBlocklist } from "@beep/utils"
+ * import * as HashSet from "effect/HashSet"
+ *
+ * const hasWord = HashSet.has(defaultBlocklist, "badword")
+ * ```
+ *
+ * @category utilities
+ * @since 0.1.0
+ */
 export const defaultBlocklist = HashSet.fromIterable([
   "0rgasm",
   "1d10t",
@@ -577,6 +595,20 @@ export const defaultBlocklist = HashSet.fromIterable([
   "zoccola",
 ]);
 
+/**
+ * Default configuration options for Sqids encoder.
+ *
+ * @example
+ * ```typescript
+ * import { defaultOptions } from "@beep/utils"
+ *
+ * console.log(defaultOptions.alphabet)
+ * // => "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+ * ```
+ *
+ * @category utilities
+ * @since 0.1.0
+ */
 export const defaultOptions = {
   alphabet: DEFAULT_ALPHABET,
   minLength: 0,
@@ -823,6 +855,23 @@ const decodeWithState = (state: SqidsState, id: string): ReadonlyArray<number> =
   return result;
 };
 
+/**
+ * Sqids encoder for generating short unique IDs from numbers.
+ *
+ * @example
+ * ```typescript
+ * import Sqids from "@beep/utils"
+ *
+ * const sqids = new Sqids()
+ * const id = sqids.encode([1, 2, 3])
+ * const numbers = sqids.decode(id)
+ * console.log(numbers)
+ * // => [1, 2, 3]
+ * ```
+ *
+ * @category utilities
+ * @since 0.1.0
+ */
 export default class Sqids {
   private readonly state: SqidsState;
 
@@ -830,6 +879,11 @@ export default class Sqids {
     this.state = createState(options);
   }
 
+  /**
+   * Encodes an array of numbers into a Sqid string.
+   *
+   * @since 0.1.0
+   */
   encode(numbers: ReadonlyArray<number>): string {
     if (A.isEmptyReadonlyArray(numbers)) {
       return "";
@@ -847,6 +901,11 @@ export default class Sqids {
     return encodeNumbersWithState(this.state, numbers, 0);
   }
 
+  /**
+   * Decodes a Sqid string back into an array of numbers.
+   *
+   * @since 0.1.0
+   */
   decode(id: string): ReadonlyArray<number> {
     return decodeWithState(this.state, id);
   }

@@ -13,6 +13,7 @@
  * - symbols: Unicode symbols for status indicators
  *
  * @module docgen/shared/output
+ * @since 1.0.0
  */
 
 import * as Console from "effect/Console";
@@ -24,6 +25,9 @@ import type { GenerationResult, PackageInfo } from "../types.js";
 /**
  * Unicode symbols for status indicators.
  * Using picocolors for consistent color output.
+ *
+ * @category models
+ * @since 0.1.0
  */
 export const symbols = {
   success: color.green("\u2713"),
@@ -39,6 +43,8 @@ export const symbols = {
  *
  * @param message - The message to display
  * @returns Effect that logs the message
+ * @category utilities
+ * @since 0.1.0
  */
 export const success = (message: string): Effect.Effect<void> => Console.log(`${symbols.success} ${message}`);
 
@@ -47,6 +53,8 @@ export const success = (message: string): Effect.Effect<void> => Console.log(`${
  *
  * @param message - The message to display
  * @returns Effect that logs the message
+ * @category utilities
+ * @since 0.1.0
  */
 export const error = (message: string): Effect.Effect<void> => Console.log(`${symbols.error} ${color.red(message)}`);
 
@@ -55,6 +63,8 @@ export const error = (message: string): Effect.Effect<void> => Console.log(`${sy
  *
  * @param message - The message to display
  * @returns Effect that logs the message
+ * @category utilities
+ * @since 0.1.0
  */
 export const warning = (message: string): Effect.Effect<void> =>
   Console.log(`${symbols.warning} ${color.yellow(message)}`);
@@ -64,6 +74,8 @@ export const warning = (message: string): Effect.Effect<void> =>
  *
  * @param message - The message to display
  * @returns Effect that logs the message
+ * @category utilities
+ * @since 0.1.0
  */
 export const info = (message: string): Effect.Effect<void> => Console.log(`${symbols.info} ${message}`);
 
@@ -72,6 +84,8 @@ export const info = (message: string): Effect.Effect<void> => Console.log(`${sym
  *
  * @param result - The generation result
  * @returns Formatted string for display
+ * @category utilities
+ * @since 0.1.0
  */
 export const formatPackageResult = (result: GenerationResult): string => {
   if (result.success) {
@@ -86,6 +100,8 @@ export const formatPackageResult = (result: GenerationResult): string => {
  *
  * @param pkg - The package info
  * @returns Formatted string for display
+ * @category utilities
+ * @since 0.1.0
  */
 export const formatPackageStatus = (pkg: PackageInfo): string => {
   const symbol =
@@ -106,6 +122,8 @@ export const formatPackageStatus = (pkg: PackageInfo): string => {
  *
  * @param title - The header title
  * @returns Effect that logs the header
+ * @category utilities
+ * @since 0.1.0
  */
 export const header = (title: string): Effect.Effect<void> =>
   Console.log(`\n${color.bold(title)}\n${"=".repeat(Str.length(title))}`);
@@ -120,6 +138,8 @@ export const header = (title: string): Effect.Effect<void> =>
  * @param configured - Number of configured packages
  * @param total - Total number of packages
  * @returns Colored percentage string
+ * @category utilities
+ * @since 0.1.0
  */
 export const formatCoverage = (configured: number, total: number): string => {
   const percentage = total > 0 ? Math.round((configured / total) * 100) : 0;
@@ -131,6 +151,8 @@ export const formatCoverage = (configured: number, total: number): string => {
  * Print a blank line.
  *
  * @returns Effect that logs empty line
+ * @category utilities
+ * @since 0.1.0
  */
 export const blank = (): Effect.Effect<void> => Console.log(Str.empty);
 
@@ -138,6 +160,8 @@ export const blank = (): Effect.Effect<void> => Console.log(Str.empty);
  * Print a horizontal divider.
  *
  * @returns Effect that logs divider
+ * @category utilities
+ * @since 0.1.0
  */
 export const divider = (): Effect.Effect<void> => Console.log(color.gray("-".repeat(60)));
 
@@ -147,6 +171,8 @@ export const divider = (): Effect.Effect<void> => Console.log(color.gray("-".rep
  * @param key - The label
  * @param value - The value
  * @returns Formatted string
+ * @category utilities
+ * @since 0.1.0
  */
 export const keyValue = (key: string, value: string): string => `${color.gray(key)}: ${value}`;
 
@@ -155,6 +181,8 @@ export const keyValue = (key: string, value: string): string => `${color.gray(ke
  *
  * @param items - Items to display
  * @returns Effect that logs the list
+ * @category utilities
+ * @since 0.1.0
  */
 export const bulletList = (items: ReadonlyArray<string>): Effect.Effect<void> =>
   Effect.forEach(items, (item) => Console.log(`  ${color.gray("\u2022")} ${item}`), {
@@ -165,6 +193,8 @@ export const bulletList = (items: ReadonlyArray<string>): Effect.Effect<void> =>
  * Format dry-run indicator.
  *
  * @returns Colored dry-run tag
+ * @category utilities
+ * @since 0.1.0
  */
 export const dryRunTag = (): string => color.yellow("[DRY RUN]");
 
@@ -173,6 +203,8 @@ export const dryRunTag = (): string => color.yellow("[DRY RUN]");
  *
  * @param path - The path to format
  * @returns Colored path string
+ * @category utilities
+ * @since 0.1.0
  */
 export const formatPath = (path: string): string => color.cyan(path);
 
@@ -182,6 +214,8 @@ export const formatPath = (path: string): string => color.cyan(path);
  * @param count - The count value
  * @param threshold - Value below which to show red
  * @returns Colored count string
+ * @category utilities
+ * @since 0.1.0
  */
 export const formatCount = (count: number, threshold = 0): string => {
   const colorFn = count <= threshold ? color.red : color.green;

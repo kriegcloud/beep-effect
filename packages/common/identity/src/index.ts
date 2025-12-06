@@ -2,38 +2,44 @@
  * Concrete implementation for namespace-safe identity string and symbol creation.
  *
  * @example
- * import * as Identity from "@beep/identity/BeepId";
+ * ```typescript
+ * import { Identifier } from "@beep/identity"
  *
- * const runtimeLayerId = Identity.BeepId.package("runtime-server").compose("layers").make("Managed");
+ * const { $BeepId } = Identifier.make("beep")
+ * const runtimeLayerId = $BeepId.create("runtime-server").make("ManagedRuntime")
+ * ```
  *
- * @category Identity/Builder
+ * @category exports
  * @since 0.1.0
  */
-
 export * as Identifier from "./Identifier";
+
 /**
  * Canonical identity composers for every `@beep/*` workspace namespace.
  *
  * @example
- * import * as Identity from "@beep/identity/BeepId";
+ * ```typescript
+ * import { modules } from "@beep/identity"
  *
- * const schemaTenantId = Identity.SchemaId.compose("entities").make("Tenant");
+ * const schemaTenantId = modules.$SchemaId.create("entities").make("Tenant")
+ * ```
  *
- * @category Identity/Modules
+ * @category exports
  * @since 0.1.0
  */
 export * as modules from "./packages";
-export { $I } from "./packages";
 
 /**
  * Type helpers for the `@beep/identity` builders and schema annotations.
  *
  * @example
- * import type * as Identity from "@beep/identity/types";
+ * ```typescript
+ * import type { types } from "@beep/identity"
  *
- * type SchemaSymbol = Identity.IdentitySymbol<"@beep/schema/entities/Tenant">;
+ * type SchemaSymbol = types.IdentitySymbol<"@beep/schema/entities/Tenant">
+ * ```
  *
- * @category Identity/Types
+ * @category exports
  * @since 0.1.0
  */
 export * as types from "./types";

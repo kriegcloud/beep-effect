@@ -11,7 +11,7 @@
  * const throttleModulePending: FooTypes.Prettify<boolean> = throttleModuleLogger.pending();
  * void throttleModulePending;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import * as Duration from "effect/Duration";
@@ -29,7 +29,7 @@ type AnyFunction = (this: unknown, ...args: readonly unknown[]) => unknown;
  *
  * const options: ThrottleOptions = { trailing: false };
  *
- * @category Timing/Throttle
+ * @category Timing
  * @since 0.1.0
  */
 export interface ThrottleOptions {
@@ -46,7 +46,7 @@ export interface ThrottleOptions {
  *
  * const handler = throttle(() => console.log("scroll"), 250);
  *
- * @category Timing/Throttle
+ * @category Timing
  * @since 0.1.0
  */
 export const throttle = <T extends AnyFunction>(

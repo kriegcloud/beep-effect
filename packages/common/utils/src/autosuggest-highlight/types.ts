@@ -1,4 +1,8 @@
 /**
+ * @since 0.1.0
+ */
+
+/**
  * Options for the match function
  */
 export interface MatchOptions {

@@ -1,3 +1,7 @@
+/**
+ * @since 0.1.0
+ */
+
 import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";

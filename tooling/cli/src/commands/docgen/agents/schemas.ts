@@ -7,6 +7,7 @@
  * - Token usage tracking
  *
  * @module docgen/agents/schemas
+ * @since 1.0.0
  */
 import * as S from "effect/Schema";
 
@@ -19,7 +20,7 @@ import * as S from "effect/Schema";
  *
  * @example
  * ```typescript
- * import { DocgenWorkflowPayload } from "./schemas.js"
+ * import { DocgenWorkflowPayload } from "@beep/repo-cli/commands/docgen/agents"
  * import * as S from "effect/Schema"
  *
  * const payload = S.decodeUnknownSync(DocgenWorkflowPayload)({
@@ -30,7 +31,7 @@ import * as S from "effect/Schema";
  * })
  * ```
  *
- * @category Schemas
+ * @category schemas
  * @since 0.1.0
  */
 export const DocgenWorkflowPayload = S.Struct({
@@ -53,7 +54,21 @@ export type DocgenWorkflowPayload = S.Schema.Type<typeof DocgenWorkflowPayload>;
 /**
  * Token usage statistics from Anthropic API.
  *
- * @category Schemas
+ * @example
+ * ```typescript
+ * import { TokenUsageSchema } from "@beep/repo-cli/commands/docgen/agents"
+ * import * as S from "effect/Schema"
+ *
+ * const usage = S.decodeUnknownSync(TokenUsageSchema)({
+ *   inputTokens: 1000,
+ *   outputTokens: 500,
+ *   totalTokens: 1500,
+ *   reasoningTokens: 200,
+ *   cachedInputTokens: 300,
+ * })
+ * ```
+ *
+ * @category schemas
  * @since 0.1.0
  */
 export const TokenUsageSchema = S.Struct({
@@ -73,7 +88,19 @@ export type TokenUsage = S.Schema.Type<typeof TokenUsageSchema>;
 /**
  * Result of reading package configuration.
  *
- * @category Schemas
+ * @example
+ * ```typescript
+ * import { ConfigResult } from "@beep/repo-cli/commands/docgen/agents"
+ * import * as S from "effect/Schema"
+ *
+ * const config = S.decodeUnknownSync(ConfigResult)({
+ *   packagePath: "packages/common/schema",
+ *   srcDir: "src",
+ *   exclude: ["test-files"],
+ * })
+ * ```
+ *
+ * @category schemas
  * @since 0.1.0
  */
 export const ConfigResult = S.Struct({
@@ -87,7 +114,19 @@ export type ConfigResult = S.Schema.Type<typeof ConfigResult>;
 /**
  * File to fix with missing JSDoc tags.
  *
- * @category Schemas
+ * @example
+ * ```typescript
+ * import { FileToFix } from "@beep/repo-cli/commands/docgen/agents"
+ * import * as S from "effect/Schema"
+ *
+ * const fileToFix = S.decodeUnknownSync(FileToFix)({
+ *   filePath: "src/schema.ts",
+ *   exportName: "EmailEncoded",
+ *   missingTags: ["@example", "@since"],
+ * })
+ * ```
+ *
+ * @category schemas
  * @since 0.1.0
  */
 export const FileToFix = S.Struct({
@@ -101,7 +140,20 @@ export type FileToFix = S.Schema.Type<typeof FileToFix>;
 /**
  * Result of analyzing a package for JSDoc coverage.
  *
- * @category Schemas
+ * @example
+ * ```typescript
+ * import { AnalysisResult } from "@beep/repo-cli/commands/docgen/agents"
+ * import * as S from "effect/Schema"
+ *
+ * const analysis = S.decodeUnknownSync(AnalysisResult)({
+ *   packagePath: "packages/common/schema",
+ *   exportCount: 42,
+ *   missingCount: 5,
+ *   filesToFix: [],
+ * })
+ * ```
+ *
+ * @category schemas
  * @since 0.1.0
  */
 export const AnalysisResult = S.Struct({
@@ -116,7 +168,21 @@ export type AnalysisResult = S.Schema.Type<typeof AnalysisResult>;
 /**
  * Result of an AI call to fix JSDoc.
  *
- * @category Schemas
+ * @example
+ * ```typescript
+ * import { AICallResult } from "@beep/repo-cli/commands/docgen/agents"
+ * import * as S from "effect/Schema"
+ *
+ * const result = S.decodeUnknownSync(AICallResult)({
+ *   filePath: "src/schema.ts",
+ *   content: "export const EmailEncoded = S.String",
+ *   tokensUsed: 1500,
+ *   inputTokens: 1000,
+ *   outputTokens: 500,
+ * })
+ * ```
+ *
+ * @category schemas
  * @since 0.1.0
  */
 export const AICallResult = S.Struct({
@@ -132,7 +198,19 @@ export type AICallResult = S.Schema.Type<typeof AICallResult>;
 /**
  * Result of writing a file.
  *
- * @category Schemas
+ * @example
+ * ```typescript
+ * import { WriteResult } from "@beep/repo-cli/commands/docgen/agents"
+ * import * as S from "effect/Schema"
+ *
+ * const writeResult = S.decodeUnknownSync(WriteResult)({
+ *   filePath: "src/schema.ts",
+ *   bytesWritten: 4096,
+ *   success: true,
+ * })
+ * ```
+ *
+ * @category schemas
  * @since 0.1.0
  */
 export const WriteResult = S.Struct({
@@ -146,7 +224,19 @@ export type WriteResult = S.Schema.Type<typeof WriteResult>;
 /**
  * Result of reading a file.
  *
- * @category Schemas
+ * @example
+ * ```typescript
+ * import { ReadFileResult } from "@beep/repo-cli/commands/docgen/agents"
+ * import * as S from "effect/Schema"
+ *
+ * const readResult = S.decodeUnknownSync(ReadFileResult)({
+ *   filePath: "src/schema.ts",
+ *   content: "export const EmailEncoded = S.String",
+ *   lineCount: 120,
+ * })
+ * ```
+ *
+ * @category schemas
  * @since 0.1.0
  */
 export const ReadFileResult = S.Struct({
@@ -160,7 +250,19 @@ export type ReadFileResult = S.Schema.Type<typeof ReadFileResult>;
 /**
  * Result of validating examples.
  *
- * @category Schemas
+ * @example
+ * ```typescript
+ * import { ValidationResult } from "@beep/repo-cli/commands/docgen/agents"
+ * import * as S from "effect/Schema"
+ *
+ * const validation = S.decodeUnknownSync(ValidationResult)({
+ *   packagePath: "packages/common/schema",
+ *   valid: true,
+ *   errors: [],
+ * })
+ * ```
+ *
+ * @category schemas
  * @since 0.1.0
  */
 export const ValidationResult = S.Struct({
@@ -178,7 +280,31 @@ export type ValidationResult = S.Schema.Type<typeof ValidationResult>;
 /**
  * Result of fixing a single package.
  *
- * @category Schemas
+ * @example
+ * ```typescript
+ * import { PackageFixResultSchema } from "@beep/repo-cli/commands/docgen/agents"
+ * import * as S from "effect/Schema"
+ *
+ * const result = S.decodeUnknownSync(PackageFixResultSchema)({
+ *   packageName: "@beep/schema",
+ *   packagePath: "packages/common/schema",
+ *   success: true,
+ *   exportsFixed: 10,
+ *   exportsRemaining: 0,
+ *   validationPassed: true,
+ *   errors: [],
+ *   durationMs: 45000,
+ *   tokenUsage: {
+ *     inputTokens: 5000,
+ *     outputTokens: 2500,
+ *     totalTokens: 7500,
+ *     reasoningTokens: 1000,
+ *     cachedInputTokens: 1500,
+ *   },
+ * })
+ * ```
+ *
+ * @category schemas
  * @since 0.1.0
  */
 export const PackageFixResultSchema = S.Struct({
@@ -202,7 +328,20 @@ export type PackageFixResult = S.Schema.Type<typeof PackageFixResultSchema>;
 /**
  * Final result of the DocgenAgents workflow.
  *
- * @category Schemas
+ * @example
+ * ```typescript
+ * import { DocgenWorkflowResult } from "@beep/repo-cli/commands/docgen/agents"
+ * import * as S from "effect/Schema"
+ *
+ * const workflowResult = S.decodeUnknownSync(DocgenWorkflowResult)({
+ *   results: [],
+ *   totalExportsFixed: 25,
+ *   totalTokens: 15000,
+ *   durationMs: 120000,
+ * })
+ * ```
+ *
+ * @category schemas
  * @since 0.1.0
  */
 export const DocgenWorkflowResult = S.Struct({

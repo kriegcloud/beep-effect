@@ -14,7 +14,7 @@
  * const dataModuleSorted = Utils.ArrayUtils.orderBy(dataModuleCollection, ["name"], ["asc"]);
  * void dataModuleSorted;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 /**
@@ -27,7 +27,7 @@
  * const dataBarrelValues = Utils.RecordUtils.recordKeys(dataBarrelRecord);
  * void dataBarrelValues;
  *
- * @category Documentation/Reexports
+ * @category Documentation
  * @since 0.1.0
  */
 export * from "@beep/utils/data/index";

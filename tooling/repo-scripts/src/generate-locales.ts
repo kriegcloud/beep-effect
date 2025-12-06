@@ -21,7 +21,7 @@ const GENERATED_RELATIVE_DIR = ["packages", "common", "schema", "src", "custom",
 const GENERATED_FILENAME = "ALL_LOCALES.generated.ts" as const;
 
 const fetchLayer = Layer.sync(FetchHttpClient.Fetch, () => globalThis.fetch.bind(globalThis));
-const repoLayer = Layer.provideMerge(FsUtilsLive)(RepoUtilsLive);
+const repoLayer = Layer.merge(RepoUtilsLive, FsUtilsLive);
 
 const program = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;

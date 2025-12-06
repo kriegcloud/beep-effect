@@ -10,7 +10,7 @@
  * const guardsRecordResult = Utils.isNonEmptyRecordWithNonEmptyStringKeys(guardsRecordValue);
  * void guardsRecordResult;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import type { StringTypes } from "@beep/types";
@@ -41,7 +41,7 @@ const RecordStringKeysSchema = S.Record({
  *
  * isNonEmptyRecordWithNonEmptyStringKeys({ foo: 1 });
  *
- * @category Guards/Record
+ * @category Guards
  * @since 0.1.0
  */
 export const isNonEmptyRecordWithNonEmptyStringKeys = <K extends StringTypes.NonEmptyString, A>(

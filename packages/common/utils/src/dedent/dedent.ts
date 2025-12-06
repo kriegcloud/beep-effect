@@ -1,3 +1,7 @@
+/**
+ * @since 0.1.0
+ */
+
 import * as A from "effect/Array";
 import { constant, pipe } from "effect/Function";
 import * as O from "effect/Option";

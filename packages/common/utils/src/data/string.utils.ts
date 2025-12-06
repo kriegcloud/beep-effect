@@ -10,7 +10,7 @@
  * const strUtilsInitials = Utils.StrUtils.getNameInitials(strUtilsName.fullName);
  * void strUtilsInitials;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import type { StringTypes } from "@beep/types";
@@ -35,7 +35,7 @@ import * as ArrayUtils from "./array.utils";
  * const initials = StrUtils.getNameInitials("Jane Q Doe");
  * // "JQ"
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export const getNameInitials = (name: string | null | undefined): string => {
@@ -77,7 +77,7 @@ export const getNameInitials = (name: string | null | undefined): string => {
  *
  * const normalize: NormalizeString = (value) => value;
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export type NormalizeString = (str: string) => string;
@@ -91,7 +91,7 @@ export type NormalizeString = (str: string) => string;
  * const normalized = StrUtils.normalizeString("Größe");
  * // "grosse"
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export const normalizeString: NormalizeString = F.flow(
@@ -113,7 +113,7 @@ export const normalizeString: NormalizeString = F.flow(
  * StrUtils.kebabCase("PrimaryButton");
  * // "primary-button"
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export const kebabCase = (value: string): string =>
@@ -141,7 +141,7 @@ export const kebabCase = (value: string): string =>
  *
  * const formatter: StripMessageFormatting = (text) => text;
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export type StripMessageFormatting = (message: string) => string;
@@ -155,7 +155,7 @@ export type StripMessageFormatting = (message: string) => string;
  * const cleaned = StrUtils.stripMessageFormatting("*Hello*\n\nWorld");
  * // "Hello World"
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export const stripMessageFormatting: StripMessageFormatting = F.flow(
@@ -179,7 +179,7 @@ export const stripMessageFormatting: StripMessageFormatting = F.flow(
  * );
  * // "Hello Ari, your Widget costs $42"
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export const interpolateTemplate = (template: string, data: Record<string, unknown>): string => {
@@ -204,7 +204,7 @@ export const interpolateTemplate = (template: string, data: Record<string, unkno
  * );
  * // "Grey"
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export const getNestedValue = (obj: Record<string, unknown>, path: string): unknown => {
@@ -240,7 +240,7 @@ export const getNestedValue = (obj: Record<string, unknown>, path: string): unkn
  *
  * const status: LiteralValue = "active";
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export type LiteralValue = StringTypes.NonEmptyString;
@@ -254,7 +254,7 @@ export type LiteralValue = StringTypes.NonEmptyString;
  *
  * const appendId: ApplySuffix = (suffix) => (value) => `${value}${suffix}`;
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export type ApplySuffix = <const Suffix extends LiteralValue, const Prefix extends LiteralValue>(
@@ -272,7 +272,7 @@ export type ApplySuffix = <const Suffix extends LiteralValue, const Prefix exten
  * const result = withId("organization");
  * // "organizationId"
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export const applySuffix: ApplySuffix =
@@ -289,7 +289,7 @@ export const applySuffix: ApplySuffix =
  *
  * const makePrefix: ApplyPrefix = (prefix) => (value) => `${prefix}${value}`;
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export type ApplyPrefix = <const Prefix extends LiteralValue, const Suffix extends LiteralValue>(
@@ -307,7 +307,7 @@ export type ApplyPrefix = <const Prefix extends LiteralValue, const Suffix exten
  * const key = addBeep("tenant");
  * // "beep_tenant"
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export const applyPrefix: ApplyPrefix =
@@ -326,7 +326,7 @@ export const applyPrefix: ApplyPrefix =
  * const result = addScope("users", "tenants");
  * // ["beep.users", "beep.tenants"]
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export function mapApplyPrefix<const Prefix extends LiteralValue>(
@@ -382,7 +382,7 @@ export function mapApplyPrefix<const Prefix extends LiteralValue>(
  * const keys = addId("organization", "team");
  * // ["organizationId", "teamId"]
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export function mapApplySuffix<const Suffix extends StringTypes.NonEmptyString>(
@@ -436,7 +436,7 @@ export function mapApplySuffix<const Suffix extends StringTypes.NonEmptyString>(
  *
  * const toLiteral: StrLiteralFromNum = (value) => `${value}`;
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export type StrLiteralFromNum = <T extends number>(value: T) => `${T}`;
@@ -451,7 +451,7 @@ export type StrLiteralFromNum = <T extends number>(value: T) => `${T}`;
  * const literal = StrUtils.strLiteralFromNum(42);
  * // "42"
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export const strLiteralFromNum: StrLiteralFromNum = <T extends number>(value: T) => `${value}` as const;
@@ -481,7 +481,7 @@ const irregularSingulars = F.pipe(
  * StrUtils.pluralize("address");
  * // "addresses"
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export function pluralize(word: string): string {
@@ -543,7 +543,7 @@ export function pluralize(word: string): string {
  * StrUtils.singularize("companies");
  * // "company"
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export function singularize(word: string): string {
@@ -641,7 +641,7 @@ function preserveCase(original: string, transformed: string): string {
  *
  * const fn: MkEntityName = (table) => table;
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export type MkEntityName = (tableName: string) => string;
@@ -654,7 +654,7 @@ export type MkEntityName = (tableName: string) => string;
  * StrUtils.mkEntityName("phone_numbers");
  * // "PhoneNumber"
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export const mkEntityName: MkEntityName = F.flow(Str.snakeToPascal, singularize);
@@ -668,7 +668,7 @@ export const mkEntityName: MkEntityName = F.flow(Str.snakeToPascal, singularize)
  *
  * const fn: MkTableName = (name) => name;
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export type MkTableName = (entityName: string) => string;
@@ -681,7 +681,7 @@ export type MkTableName = (entityName: string) => string;
  * StrUtils.mkTableName("PhoneNumber");
  * // "phone_numbers"
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export const mkTableName: MkTableName = F.flow(Str.pascalToSnake, pluralize);
@@ -695,7 +695,7 @@ export const mkTableName: MkTableName = F.flow(Str.pascalToSnake, pluralize);
  *
  * const fn: MkZeroTableName = (entity) => entity;
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export type MkZeroTableName = (entityName: string) => string;
@@ -709,7 +709,7 @@ export type MkZeroTableName = (entityName: string) => string;
  * StrUtils.mkZeroTableName("PhoneNumber");
  * // "phoneNumbers"
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export const mkZeroTableName: MkZeroTableName = F.flow(Str.uncapitalize, pluralize);
@@ -723,7 +723,7 @@ export const mkZeroTableName: MkZeroTableName = F.flow(Str.uncapitalize, plurali
  *
  * const fn: MkEntityType = (table) => table;
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export type MkEntityType = (tableName: string) => string;
@@ -737,7 +737,7 @@ export type MkEntityType = (tableName: string) => string;
  * StrUtils.mkEntityType("phone_numbers");
  * // "phonenumber"
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export const mkEntityType: MkEntityType = F.flow(Str.snakeToPascal, Str.toLowerCase, singularize);
@@ -751,7 +751,7 @@ export const mkEntityType: MkEntityType = F.flow(Str.snakeToPascal, Str.toLowerC
  *
  * const fn: MkUrlParamName = (entity) => entity;
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export type MkUrlParamName = (entityName: string) => string;
@@ -764,7 +764,7 @@ export type MkUrlParamName = (entityName: string) => string;
  * StrUtils.mkUrlParamName("Organization");
  * // "organizationId"
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export const mkUrlParamName: MkUrlParamName = F.flow(Str.uncapitalize, Str.concat("Id"));
@@ -779,7 +779,7 @@ export const mkUrlParamName: MkUrlParamName = F.flow(Str.uncapitalize, Str.conca
  * StrUtils.formatLabel("phoneNumber2");
  * // "Phone Number 2"
  *
- * @category Data/String
+ * @category Data
  * @since 0.1.0
  */
 export const formatLabel = (fieldName: string): string =>

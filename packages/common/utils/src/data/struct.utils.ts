@@ -13,7 +13,7 @@
  * const structUtilsExample: FooTypes.Prettify<typeof structUtilsKeys> = structUtilsKeys;
  * void structUtilsExample;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import { invariant } from "@beep/invariant";
@@ -35,7 +35,7 @@ import * as Struct from "effect/Struct";
  *
  * const entries = StructUtils.structStringEntries({ en: "English" } as const);
  *
- * @category Data/Struct
+ * @category Data
  * @since 0.1.0
  */
 export const structStringEntries = <T extends RecordTypes.RecordStringKeyValueString>(
@@ -52,7 +52,7 @@ export const structStringEntries = <T extends RecordTypes.RecordStringKeyValueSt
  *
  * type Fields = RecordValueSchemaAny;
  *
- * @category Data/Struct
+ * @category Data
  * @since 0.1.0
  */
 export type RecordValueSchemaAny = {
@@ -69,7 +69,7 @@ export type RecordValueSchemaAny = {
  *
  * type NonEmpty = NonEmptyStructValueSchemaAny<{ id: S.String }>;
  *
- * @category Data/Struct
+ * @category Data
  * @since 0.1.0
  */
 export type NonEmptyStructValueSchemaAny<T extends RecordValueSchemaAny> = keyof T extends string
@@ -91,7 +91,7 @@ export type NonEmptyStructValueSchemaAny<T extends RecordValueSchemaAny> = keyof
  *
  * const values = StructUtils.structValues({ id: S.String });
  *
- * @category Data/Struct
+ * @category Data
  * @since 0.1.0
  */
 export const structValues = <const Fields extends RecordValueSchemaAny>(
@@ -115,7 +115,7 @@ export const structValues = <const Fields extends RecordValueSchemaAny>(
  *
  * const keys = StructUtils.structKeys({ id: S.String });
  *
- * @category Data/Struct
+ * @category Data
  * @since 0.1.0
  */
 export const structKeys = <T extends StructTypes.StructFieldsWithStringKeys>(
@@ -134,7 +134,7 @@ export const structKeys = <T extends StructTypes.StructFieldsWithStringKeys>(
  *
  * const entries = StructUtils.structEntries({ id: S.String });
  *
- * @category Data/Struct
+ * @category Data
  * @since 0.1.0
  */
 export const structEntries = <T extends StructTypes.StructFieldsWithStringKeys>(

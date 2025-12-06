@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { FsUtils } from "@beep/tooling-utils";
+import { FsUtils, FsUtilsLive } from "@beep/tooling-utils";
 import { findRepoRoot } from "@beep/tooling-utils/repo";
 import * as Command from "@effect/platform/Command";
 import * as Path from "@effect/platform/Path";
@@ -99,7 +99,7 @@ const devBanner = color.green(`
 
 const program = Effect.gen(function* () {
   const repoRoot = yield* findRepoRoot;
-  const fsUtils = yield* FsUtils.FsUtils;
+  const fsUtils = yield* FsUtils;
   const path = yield* Path.Path;
 
   // If .env file does not exist at repo root, copy
@@ -166,7 +166,7 @@ const program = Effect.gen(function* () {
   yield* Console.log(devBanner);
 });
 
-const layer = Layer.mergeAll(BunContext.layer, FsUtils.FsUtilsLive);
+const layer = Layer.mergeAll(BunContext.layer, FsUtilsLive);
 
 BunRuntime.runMain(
   Effect.scoped(

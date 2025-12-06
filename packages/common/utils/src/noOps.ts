@@ -10,7 +10,7 @@
  * Utils.noOp();
  * void noOpsExample;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import * as Effect from "effect/Effect";
@@ -31,7 +31,7 @@ type NullOpE = () => Effect.Effect<null, never, never>;
  * noOpsButton.onclick = noOp;
  * void noOpsButton;
  *
- * @category Core/NoOps
+ * @category Core
  * @since 0.1.0
  */
 export const noOp: NoOp = () => void 0;
@@ -44,7 +44,7 @@ export const noOp: NoOp = () => void 0;
  *
  * const value = nullOp();
  *
- * @category Core/NoOps
+ * @category Core
  * @since 0.1.0
  */
 export const nullOp: NullOp = () => null;
@@ -56,7 +56,7 @@ export const nullOp: NullOp = () => null;
  *
  * await asyncNoOp();
  *
- * @category Core/NoOps
+ * @category Core
  * @since 0.1.0
  */
 export const asyncNoOp: AsyncNoOp = async () => {};
@@ -68,7 +68,7 @@ export const asyncNoOp: AsyncNoOp = async () => {};
  *
  * await asyncNullOp();
  *
- * @category Core/NoOps
+ * @category Core
  * @since 0.1.0
  */
 export const asyncNullOp: AsyncNullOp = async () => null;
@@ -82,7 +82,7 @@ export const asyncNullOp: AsyncNullOp = async () => null;
  *
  * await Effect.runPromise(nullOpE());
  *
- * @category Core/NoOps
+ * @category Core
  * @since 0.1.0
  */
 export const nullOpE: NullOpE = () => Effect.succeed(null);

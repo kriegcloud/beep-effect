@@ -10,7 +10,7 @@
  * const transformationIndexValues: FooTypes.Prettify<readonly string[]> = Utils.enumValues(transformationIndexEnum);
  * void transformationIndexValues;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 /**
@@ -22,7 +22,7 @@
  * const transformationsExportEnum = Utils.enumFromStringArray("one", "two");
  * void transformationsExportEnum;
  *
- * @category Documentation/Reexports
+ * @category Documentation
  * @since 0.1.0
  */
 export * from "@beep/utils/transformations/enumFromStringArray";
@@ -37,7 +37,7 @@ export * from "@beep/utils/transformations/enumFromStringArray";
  * const transformationsExportValues = Utils.valuesFromEnum(transformationsExportMap);
  * void transformationsExportValues;
  *
- * @category Documentation/Reexports
+ * @category Documentation
  * @since 0.1.0
  */
 export * from "@beep/utils/transformations/valuesFromEnum";

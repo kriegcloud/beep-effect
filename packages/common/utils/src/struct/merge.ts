@@ -1,3 +1,7 @@
+/**
+ * @since 0.1.0
+ */
+
 import { pipe } from "effect";
 import * as A from "effect/Array";
 

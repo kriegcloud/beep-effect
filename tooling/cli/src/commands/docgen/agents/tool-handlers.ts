@@ -1,6 +1,7 @@
 /**
  * @file Tool handler implementations for docgen agents.
  * @module docgen/agents/tool-handlers
+ * @since 1.0.0
  */
 
 import { findRepoRoot } from "@beep/tooling-utils/repo";
@@ -104,6 +105,45 @@ export const DocFixerToolkitLive = DocFixerToolkit.toLayer({
       };
     }).pipe(Effect.mapError((e) => `Failed to write file: ${String(e)}`)),
 
+  InsertJsDoc: ({ filePath, jsDocContent, insertAtLine, replaceStartLine, replaceEndLine }) =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const content = yield* fs.readFileString(filePath);
+      const lines = F.pipe(content, Str.split("\n"));
+
+      // Validate line numbers
+      const totalLines = A.length(lines);
+      if (insertAtLine < 1 || insertAtLine > totalLines + 1) {
+        return yield* Effect.fail(`Invalid insertion line: ${insertAtLine}`);
+      }
+
+      const jsDocLines = F.pipe(jsDocContent, Str.split("\n"));
+      let resultLines: ReadonlyArray<string>;
+      let linesRemoved = 0;
+
+      if (replaceStartLine != null && replaceEndLine != null) {
+        // Replace existing JSDoc
+        const beforeLines = F.pipe(lines, A.take(replaceStartLine - 1));
+        const afterLines = F.pipe(lines, A.drop(replaceEndLine));
+        resultLines = [...beforeLines, ...jsDocLines, ...afterLines];
+        linesRemoved = replaceEndLine - replaceStartLine + 1;
+      } else {
+        // Insert new JSDoc
+        const beforeLines = F.pipe(lines, A.take(insertAtLine - 1));
+        const afterLines = F.pipe(lines, A.drop(insertAtLine - 1));
+        resultLines = [...beforeLines, ...jsDocLines, ...afterLines];
+      }
+
+      const newContent = F.pipe(resultLines, (arr) => A.join(arr, "\n"));
+      yield* fs.writeFileString(filePath, newContent);
+
+      return {
+        success: true,
+        linesInserted: A.length(jsDocLines),
+        linesRemoved,
+      };
+    }).pipe(Effect.mapError((e) => `Failed to insert JSDoc: ${String(e)}`)),
+
   ValidateExamples: ({ packagePath }) =>
     Effect.gen(function* () {
       const executor = yield* CommandExecutor.CommandExecutor;
@@ -158,12 +198,17 @@ export const DocFixerToolkitLive = DocFixerToolkit.toLayer({
 
       const exports = yield* analyzePackage(absolutePath, srcDir, exclude);
 
+      // Filter to only include kinds that match the schema
+      const validKinds = ["function", "const", "type", "interface", "class", "namespace", "enum"] as const;
+      type ValidKind = (typeof validKinds)[number];
+
       return {
         exports: F.pipe(
           exports,
+          A.filter((e) => F.pipe(validKinds, A.contains(e.kind as ValidKind))),
           A.map((e) => ({
             name: e.name,
-            kind: e.kind,
+            kind: e.kind as ValidKind,
             filePath: e.filePath,
             line: e.line,
             hasJsDoc: e.hasJsDoc,

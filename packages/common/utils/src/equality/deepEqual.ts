@@ -11,7 +11,7 @@
  * const equalityModuleMatches = Utils.deepEqual(equalityModuleLeft, equalityModuleRight);
  * void equalityModuleMatches;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import * as A from "effect/Array";
@@ -214,7 +214,7 @@ const baseEqual = (value: unknown, other: unknown, stack: Stack): boolean => {
  * deepEqual({ a: [1, 2] }, { a: [1, 2] });
  * // true
  *
- * @category Equality/Core
+ * @category Equality
  * @since 0.1.0
  */
 export const deepEqual = (value: unknown, other: unknown): boolean => baseEqual(value, other, new WeakMap());

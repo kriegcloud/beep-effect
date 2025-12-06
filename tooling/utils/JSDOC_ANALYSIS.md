@@ -1,7 +1,7 @@
-# JSDoc Analysis Report: @beep/invariant
+# JSDoc Analysis Report: @beep/tooling-utils
 
-> **Generated**: 2025-12-06T05:49:31.460Z
-> **Package**: packages/common/invariant
+> **Generated**: 2025-12-06T12:30:49.301Z
+> **Package**: tooling/utils
 > **Status**: 0 exports need documentation
 
 ---
@@ -22,7 +22,7 @@ You are tasked with adding missing JSDoc documentation to this package. Follow t
     *
     * @example
     * ```typescript
-    * import { MyThing } from "@beep/invariant"
+    * import { MyThing } from "@beep/tooling-utils"
     *
     * const result = MyThing.make({ field: "value" })
     * console.log(result)
@@ -51,8 +51,8 @@ All exports are fully documented!
 
 | Metric | Count |
 |--------|-------|
-| Total Exports | 4 |
-| Fully Documented | 4 |
+| Total Exports | 267 |
+| Fully Documented | 267 |
 | Missing Documentation | 0 |
 | Missing @category | 0 |
 | Missing @example | 0 |
@@ -65,7 +65,7 @@ All exports are fully documented!
 After completing all documentation, run:
 
 ```bash
-beep docgen analyze -p packages/common/invariant
+beep docgen analyze -p tooling/utils
 ```
 
 If successful, delete this file. If issues remain, the checklist will be regenerated.

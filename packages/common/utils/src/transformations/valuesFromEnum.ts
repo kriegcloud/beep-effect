@@ -11,7 +11,7 @@
  * const valuesFromEnumRecord: FooTypes.Prettify<typeof valuesFromEnumModule> = valuesFromEnumModule;
  * void valuesFromEnumRecord;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import { invariant } from "@beep/invariant";
@@ -27,7 +27,7 @@ import * as R from "effect/Record";
  *
  * const fn: ValuesFromEnum = (input) => [] as never;
  *
- * @category Transformations/Enum
+ * @category Transformations
  * @since 0.1.0
  */
 export type ValuesFromEnum = <K extends string, A extends string>(
@@ -43,7 +43,7 @@ export type ValuesFromEnum = <K extends string, A extends string>(
  *
  * valuesFromEnum({ pending: "pending" } as const);
  *
- * @category Transformations/Enum
+ * @category Transformations
  * @since 0.1.0
  */
 export const valuesFromEnum: ValuesFromEnum = F.flow(

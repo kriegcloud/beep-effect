@@ -1,3 +1,10 @@
+/**
+ * Package.json schema.
+ *
+ * Effect Schema definition for package.json structure with typed fields.
+ *
+ * @since 0.1.0
+ */
 import * as S from "effect/Schema";
 import { Json } from "./Json.js";
 
@@ -108,6 +115,26 @@ const Exports = S.Union(S.String, S.Null, S.Record({ key: S.String, value: Expor
  * script maps, dependency maps, repository metadata, and optional
  * workspaces. Additional unknown properties are allowed and captured via
  * the index signature.
+ *
+ * @example
+ * ```typescript
+ * import { PackageJson } from "@beep/tooling-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const pkg = S.decodeUnknownSync(PackageJson)({
+ *   name: "@beep/my-package",
+ *   version: "1.0.0",
+ *   dependencies: {
+ *     "effect": "^3.0.0"
+ *   }
+ * })
+ *
+ * console.log(pkg.name)
+ * // => @beep/my-package
+ * ```
+ *
+ * @category Schemas/Package
+ * @since 0.1.0
  */
 export class PackageJson extends S.Struct(
   {

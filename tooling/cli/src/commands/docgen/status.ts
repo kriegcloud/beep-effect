@@ -40,10 +40,11 @@
  * ```
  *
  * @module docgen/status
+ * @since 1.0.0
  * @see DOCGEN_CLI_IMPLEMENTATION.md#5-beep-docgen-status
  */
 
-import type { FsUtils } from "@beep/tooling-utils";
+import type * as FsUtils from "@beep/tooling-utils/FsUtils";
 import * as CliCommand from "@effect/cli/Command";
 import * as CliOptions from "@effect/cli/Options";
 import type * as FileSystem from "@effect/platform/FileSystem";
@@ -54,6 +55,7 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import { loadDocgenConfig } from "./shared/config.js";
 import { discoverAllPackages } from "./shared/discovery.js";
+import { DocgenLogger, DocgenLoggerLive } from "./shared/logger.js";
 import { blank, formatCoverage, formatPackageStatus, header } from "./shared/output.js";
 
 // Options
@@ -74,8 +76,15 @@ const jsonOption = CliOptions.boolean("json").pipe(
 const handleStatus = (args: {
   readonly verbose: boolean;
   readonly json: boolean;
-}): Effect.Effect<void, never, FileSystem.FileSystem | Path.Path | FsUtils.FsUtils> =>
+}): Effect.Effect<void, never, FileSystem.FileSystem | Path.Path | FsUtils.FsUtils | DocgenLogger> =>
   Effect.gen(function* () {
+    const logger = yield* DocgenLogger;
+
+    yield* logger.info("Starting status", {
+      verbose: args.verbose,
+      json: args.json,
+    });
+
     // Discover all packages
     const allPackages = yield* discoverAllPackages;
 
@@ -159,6 +168,13 @@ const handleStatus = (args: {
     const configured = A.length(grouped.configuredAndGenerated) + A.length(grouped.configuredNotGenerated);
     yield* Console.log(`Coverage: ${formatCoverage(configured, A.length(allPackages))}`);
 
+    yield* logger.info("Status complete", {
+      total: A.length(allPackages),
+      configuredAndGenerated: A.length(grouped.configuredAndGenerated),
+      configuredNotGenerated: A.length(grouped.configuredNotGenerated),
+      notConfigured: A.length(grouped.notConfigured),
+    });
+
     // Verbose mode: show config details
     if (args.verbose && A.length(grouped.configuredAndGenerated) > 0) {
       yield* blank();
@@ -188,6 +204,27 @@ const handleStatus = (args: {
     }
   });
 
+/**
+ * CLI command to show docgen configuration status across all packages in the monorepo.
+ *
+ * @example
+ * ```ts
+ * import { statusCommand } from "@beep/repo-cli/commands/docgen/status"
+ * import * as CliCommand from "@effect/cli/Command"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const result = yield* CliCommand.run(statusCommand, {
+ *     name: "docgen",
+ *     version: "1.0.0"
+ *   })
+ *   return result
+ * })
+ * ```
+ *
+ * @category constructors
+ * @since 0.1.0
+ */
 export const statusCommand = CliCommand.make("status", { verbose: verboseOption, json: jsonOption }, (args) =>
-  handleStatus(args)
+  handleStatus(args).pipe(Effect.provide(DocgenLoggerLive()))
 ).pipe(CliCommand.withDescription("Show docgen configuration status across packages"));

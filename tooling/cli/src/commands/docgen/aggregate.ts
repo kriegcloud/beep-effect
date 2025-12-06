@@ -38,10 +38,11 @@
  * ```
  *
  * @module docgen/aggregate
+ * @since 1.0.0
  * @see DOCGEN_CLI_IMPLEMENTATION.md#4-beep-docgen-aggregate
  */
 
-import type { FsUtils } from "@beep/tooling-utils";
+import type * as FsUtils from "@beep/tooling-utils/FsUtils";
 import { findRepoRoot } from "@beep/tooling-utils/repo";
 import * as CliCommand from "@effect/cli/Command";
 import * as CliOptions from "@effect/cli/Options";
@@ -54,6 +55,7 @@ import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 import { discoverPackagesWithDocs, resolvePackagePath } from "./shared/discovery.js";
+import { DocgenLogger, DocgenLoggerLive } from "./shared/logger.js";
 import { blank, error, formatPath, header, info, success, symbols, warning } from "./shared/output.js";
 import type { PackageInfo } from "./types.js";
 import { ExitCode } from "./types.js";
@@ -177,10 +179,16 @@ const aggregatePackage = (
 const handleAggregate = (args: {
   readonly clean: boolean;
   readonly package: string | undefined;
-}): Effect.Effect<void, never, FileSystem.FileSystem | Path.Path | FsUtils.FsUtils> =>
+}): Effect.Effect<void, never, FileSystem.FileSystem | Path.Path | FsUtils.FsUtils | DocgenLogger> =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
+    const logger = yield* DocgenLogger;
+
+    yield* logger.info("Starting aggregate", {
+      clean: args.clean,
+      package: args.package ?? "all with docs",
+    });
 
     // Get repo root
     const repoRoot = yield* findRepoRoot.pipe(Effect.catchAll(() => Effect.succeed(process.cwd())));
@@ -190,6 +198,7 @@ const handleAggregate = (args: {
     if (args.clean) {
       const exists = yield* fs.exists(docsPath).pipe(Effect.orElseSucceed(F.constFalse));
       if (exists) {
+        yield* logger.debug("Cleaning docs directory", { path: docsPath });
         yield* fs.remove(docsPath, { recursive: true }).pipe(Effect.catchAll(() => Effect.void));
         yield* info("Cleaned existing docs/ directory");
       }
@@ -201,6 +210,13 @@ const handleAggregate = (args: {
     if (args.package !== undefined) {
       // Single package mode
       const pkgInfo = yield* resolvePackagePath(args.package).pipe(
+        Effect.tapError((e) =>
+          logger.error("Invalid package path", {
+            path: e.path,
+            error: e._tag,
+            reason: e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found"),
+          })
+        ),
         Effect.catchAll((e) =>
           Effect.gen(function* () {
             yield* error(
@@ -212,6 +228,10 @@ const handleAggregate = (args: {
       );
 
       if (!pkgInfo.hasGeneratedDocs) {
+        yield* logger.warn("Package has no generated docs", {
+          package: pkgInfo.name,
+          path: pkgInfo.relativePath,
+        });
         yield* error(
           `Package ${pkgInfo.name} has no generated docs. Run: beep docgen generate -p ${pkgInfo.relativePath}`
         );
@@ -271,6 +291,10 @@ const handleAggregate = (args: {
 
     yield* blank();
     yield* success(`Aggregated ${A.length(results)} packages to ${formatPath("docs/")}`);
+    yield* logger.info("Aggregation complete", {
+      packageCount: A.length(results),
+      outputPath: docsPath,
+    });
   }).pipe(
     Effect.catchAll((exitCode) =>
       Effect.gen(function* () {
@@ -283,9 +307,30 @@ const handleAggregate = (args: {
     )
   );
 
+/**
+ * CLI command to aggregate generated documentation from all packages into a central ./docs folder.
+ *
+ * @example
+ * ```ts
+ * import { aggregateCommand } from "@beep/repo-cli/commands/docgen/aggregate"
+ * import * as CliCommand from "@effect/cli/Command"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const result = yield* CliCommand.run(aggregateCommand, {
+ *     name: "docgen",
+ *     version: "1.0.0"
+ *   })
+ *   return result
+ * })
+ * ```
+ *
+ * @category constructors
+ * @since 0.1.0
+ */
 export const aggregateCommand = CliCommand.make("aggregate", { clean: cleanOption, package: packageOption }, (args) =>
   handleAggregate({
     clean: args.clean,
     package: O.getOrUndefined(args.package),
-  })
+  }).pipe(Effect.provide(DocgenLoggerLive()))
 ).pipe(CliCommand.withDescription("Aggregate all docs to central ./docs folder"));

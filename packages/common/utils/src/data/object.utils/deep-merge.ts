@@ -12,7 +12,7 @@
  * });
  * void objectUtilsModuleMerged;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import type { UnsafeTypes } from "@beep/types";
@@ -75,7 +75,7 @@ type DeepMergeAll<Target, Sources extends ReadonlyArray<object>> = Sources exten
  *
  * type Output = DeepMergeResult<{ a: number }, [{ b: string }]>;
  *
- * @category Data/Object
+ * @category Data
  * @since 0.1.0
  */
 export type DeepMergeResult<Target extends object, Sources extends ReadonlyArray<object>> = Simplify<
@@ -188,7 +188,7 @@ const cloneTarget = (target: PlainRecord): PlainRecord =>
  * const result = ObjectUtils.deepMerge({ a: { x: 1 } }, { a: { y: 2 } });
  * // { a: { x: 1, y: 2 } }
  *
- * @category Data/Object
+ * @category Data
  * @since 0.1.0
  */
 export function deepMerge<Target extends object, const Sources extends ReadonlyArray<object>>(

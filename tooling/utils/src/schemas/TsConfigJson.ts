@@ -1,3 +1,11 @@
+/**
+ * TypeScript tsconfig.json schema.
+ *
+ * Comprehensive Effect Schema definitions for tsconfig.json structure including
+ * compiler options, build options, and type acquisition settings.
+ *
+ * @since 0.1.0
+ */
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
 
@@ -66,6 +74,23 @@ const FilesDefinitionFields = {
     })
   ),
 };
+
+/**
+ * Schema for tsconfig.json "files" field.
+ *
+ * @example
+ * ```typescript
+ * import { FilesDefinition } from "@beep/tooling-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const config = S.decodeUnknownSync(FilesDefinition)({
+ *   files: ["src/index.ts", "src/types.ts"]
+ * })
+ * ```
+ *
+ * @category Schemas/TsConfig
+ * @since 0.1.0
+ */
 export const FilesDefinition = S.Struct(FilesDefinitionFields).annotations({
   description: "Top-level files list",
 });
@@ -77,6 +102,23 @@ const ExcludeDefinitionFields = {
     })
   ),
 };
+
+/**
+ * Schema for tsconfig.json "exclude" field.
+ *
+ * @example
+ * ```typescript
+ * import { ExcludeDefinition } from "@beep/tooling-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const config = S.decodeUnknownSync(ExcludeDefinition)({
+ *   exclude: ["node_modules", "dist", "build"]
+ * })
+ * ```
+ *
+ * @category Schemas/TsConfig
+ * @since 0.1.0
+ */
 export const ExcludeDefinition = S.Struct(ExcludeDefinitionFields).annotations({
   description: "Exclude globs",
 });
@@ -88,6 +130,23 @@ const IncludeDefinitionFields = {
     })
   ),
 };
+
+/**
+ * Schema for tsconfig.json "include" field.
+ *
+ * @example
+ * ```typescript
+ * import { IncludeDefinition } from "@beep/tooling-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const config = S.decodeUnknownSync(IncludeDefinition)({
+ *   include: ["src"]
+ * })
+ * ```
+ *
+ * @category Schemas/TsConfig
+ * @since 0.1.0
+ */
 export const IncludeDefinition = S.Struct(IncludeDefinitionFields).annotations({
   description: "Include globs",
 });
@@ -99,6 +158,23 @@ const CompileOnSaveDefinitionFields = {
     })
   ),
 };
+
+/**
+ * Schema for tsconfig.json "compileOnSave" field.
+ *
+ * @example
+ * ```typescript
+ * import { CompileOnSaveDefinition } from "@beep/tooling-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const config = S.decodeUnknownSync(CompileOnSaveDefinition)({
+ *   compileOnSave: true
+ * })
+ * ```
+ *
+ * @category Schemas/TsConfig
+ * @since 0.1.0
+ */
 export const CompileOnSaveDefinition = S.Struct(CompileOnSaveDefinitionFields).annotations({
   description: "Compile-on-Save option",
 });
@@ -110,6 +186,23 @@ const ExtendsDefinitionFields = {
     })
   ),
 };
+
+/**
+ * Schema for tsconfig.json "extends" field.
+ *
+ * @example
+ * ```typescript
+ * import { ExtendsDefinition } from "@beep/tooling-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const config = S.decodeUnknownSync(ExtendsDefinition)({
+ *   extends: "./tsconfig.base.json"
+ * })
+ * ```
+ *
+ * @category Schemas/TsConfig
+ * @since 0.1.0
+ */
 export const ExtendsDefinition = S.Struct(ExtendsDefinitionFields).annotations({
   description: "Extends config",
 });
@@ -117,6 +210,23 @@ export const ExtendsDefinition = S.Struct(ExtendsDefinitionFields).annotations({
 // ---------------------
 // References
 // ---------------------
+
+/**
+ * Schema for a single TypeScript project reference.
+ *
+ * @example
+ * ```typescript
+ * import { ProjectReference } from "@beep/tooling-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const ref = S.decodeUnknownSync(ProjectReference)({
+ *   path: "../common/schema"
+ * })
+ * ```
+ *
+ * @category Schemas/TsConfig
+ * @since 0.1.0
+ */
 export const ProjectReference = S.Struct({
   path: S.String,
   circular: S.optional(S.Boolean),
@@ -126,6 +236,26 @@ export const ProjectReference = S.Struct({
 const ReferencesDefinitionFields = {
   references: S.optional(Nullable(arrayUnique(ProjectReference))),
 };
+
+/**
+ * Schema for tsconfig.json "references" field.
+ *
+ * @example
+ * ```typescript
+ * import { ReferencesDefinition } from "@beep/tooling-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const config = S.decodeUnknownSync(ReferencesDefinition)({
+ *   references: [
+ *     { path: "../common/schema" },
+ *     { path: "../common/utils" }
+ *   ]
+ * })
+ * ```
+ *
+ * @category Schemas/TsConfig
+ * @since 0.1.0
+ */
 export const ReferencesDefinition = S.Struct(ReferencesDefinitionFields).annotations({
   description: "Project references for composite builds.",
 });
@@ -145,6 +275,25 @@ const WatchOptions = S.Struct({
 const WatchOptionsDefinitionFields = {
   watchOptions: S.optional(Nullable(WatchOptions)),
 };
+
+/**
+ * Schema for tsconfig.json "watchOptions" field.
+ *
+ * @example
+ * ```typescript
+ * import { WatchOptionsDefinition } from "@beep/tooling-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const config = S.decodeUnknownSync(WatchOptionsDefinition)({
+ *   watchOptions: {
+ *     excludeFiles: ["test"]
+ *   }
+ * })
+ * ```
+ *
+ * @category Schemas/TsConfig
+ * @since 0.1.0
+ */
 export const WatchOptionsDefinition = S.Struct(WatchOptionsDefinitionFields).annotations({
   description: "Container for watch options.",
 });
@@ -168,6 +317,26 @@ const BuildOptions = S.Struct({
 const BuildOptionsDefinitionFields = {
   buildOptions: S.optional(Nullable(BuildOptions)),
 };
+
+/**
+ * Schema for tsconfig.json "buildOptions" field.
+ *
+ * @example
+ * ```typescript
+ * import { BuildOptionsDefinition } from "@beep/tooling-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const config = S.decodeUnknownSync(BuildOptionsDefinition)({
+ *   buildOptions: {
+ *     force: true,
+ *     verbose: true
+ *   }
+ * })
+ * ```
+ *
+ * @category Schemas/TsConfig
+ * @since 0.1.0
+ */
 export const BuildOptionsDefinition = S.Struct(BuildOptionsDefinitionFields).annotations({
   description: "Container for --build options.",
 });
@@ -250,6 +419,27 @@ const CompilerOptions = S.Struct(
 const CompilerOptionsDefinitionFields = {
   compilerOptions: S.optional(Nullable(CompilerOptions)),
 };
+
+/**
+ * Schema for tsconfig.json "compilerOptions" field.
+ *
+ * @example
+ * ```typescript
+ * import { CompilerOptionsDefinition } from "@beep/tooling-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const config = S.decodeUnknownSync(CompilerOptionsDefinition)({
+ *   compilerOptions: {
+ *     target: "ES2020",
+ *     module: "commonjs",
+ *     strict: true
+ *   }
+ * })
+ * ```
+ *
+ * @category Schemas/TsConfig
+ * @since 0.1.0
+ */
 export const CompilerOptionsDefinition = S.Struct(CompilerOptionsDefinitionFields).annotations({
   description: "Container for compilerOptions",
 });
@@ -267,6 +457,26 @@ const TypeAcquisition = S.Struct({
 const TypeAcquisitionDefinitionFields = {
   typeAcquisition: S.optional(Nullable(TypeAcquisition)),
 };
+
+/**
+ * Schema for tsconfig.json "typeAcquisition" field.
+ *
+ * @example
+ * ```typescript
+ * import { TypeAcquisitionDefinition } from "@beep/tooling-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const config = S.decodeUnknownSync(TypeAcquisitionDefinition)({
+ *   typeAcquisition: {
+ *     enable: true,
+ *     include: ["jquery"]
+ *   }
+ * })
+ * ```
+ *
+ * @category Schemas/TsConfig
+ * @since 0.1.0
+ */
 export const TypeAcquisitionDefinition = S.Struct(TypeAcquisitionDefinitionFields).annotations({
   description: "Container for type acquisition settings.",
 });
@@ -291,6 +501,26 @@ const TsNode = S.Struct({
 const TsNodeDefinitionFields = {
   ["ts-node" as const]: S.optional(Nullable(TsNode)),
 };
+
+/**
+ * Schema for tsconfig.json "ts-node" field.
+ *
+ * @example
+ * ```typescript
+ * import { TsNodeDefinition } from "@beep/tooling-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const config = S.decodeUnknownSync(TsNodeDefinition)({
+ *   "ts-node": {
+ *     transpileOnly: true,
+ *     compiler: "typescript"
+ *   }
+ * })
+ * ```
+ *
+ * @category Schemas/TsConfig
+ * @since 0.1.0
+ */
 export const TsNodeDefinition = S.Struct(TsNodeDefinitionFields).annotations({
   description: "Container for ts-node options.",
 });
@@ -303,6 +533,25 @@ export const TsNodeDefinition = S.Struct(TsNodeDefinitionFields).annotations({
  * file includes/excludes, references, and build/watch settings.
  *
  * At least one known top-level property must be present.
+ *
+ * @example
+ * ```typescript
+ * import { TsConfigJson } from "@beep/tooling-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const config = S.decodeUnknownSync(TsConfigJson)({
+ *   compilerOptions: {
+ *     target: "ES2020",
+ *     module: "commonjs",
+ *     strict: true
+ *   },
+ *   include: ["src"],
+ *   exclude: ["node_modules", "dist"]
+ * })
+ * ```
+ *
+ * @category Schemas/TsConfig
+ * @since 0.1.0
  */
 export const TsConfigJson = S.Struct({
   ...CompilerOptionsDefinitionFields,
@@ -325,4 +574,23 @@ export const TsConfigJson = S.Struct({
     description: "Effect Schema representation of tsconfig.json",
   });
 
+/**
+ * Type representing a fully decoded tsconfig.json structure.
+ *
+ * @example
+ * ```typescript
+ * import type { TsConfigJsonType } from "@beep/tooling-utils"
+ *
+ * const config: TsConfigJsonType = {
+ *   compilerOptions: {
+ *     target: "ES2020",
+ *     strict: true
+ *   },
+ *   include: ["src"]
+ * }
+ * ```
+ *
+ * @category Schemas/TsConfig
+ * @since 0.1.0
+ */
 export type TsConfigJsonType = S.Schema.Type<typeof TsConfigJson>;

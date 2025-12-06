@@ -11,7 +11,7 @@
  * const tupleUtilsExample: FooTypes.Prettify<typeof tupleUtilsEnum.Enum> = tupleUtilsEnum.Enum;
  * void tupleUtilsExample;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import type { StringTypes, UnsafeTypes } from "@beep/types";
@@ -44,7 +44,7 @@ type AllLiteralsCovered<
  *
  * type Mapping = ValidMapping<["A", "B"], [["A", "one"], ["B", "two"]]>;
  *
- * @category Data/Tuple
+ * @category Data
  * @since 0.1.0
  */
 export type ValidMapping<
@@ -64,7 +64,7 @@ export type ValidMapping<
  *
  * type Keys = ExtractMappedValues<[["A", "one"]]>;
  *
- * @category Data/Tuple
+ * @category Data
  * @since 0.1.0
  */
 export type ExtractMappedValues<
@@ -79,7 +79,7 @@ export type ExtractMappedValues<
  *
  * type Enum = CreateEnumType<["A"], [["A", "alpha"]]>;
  *
- * @category Data/Tuple
+ * @category Data
  * @since 0.1.0
  */
 export type CreateEnumType<
@@ -104,7 +104,7 @@ export type CreateEnumType<
  * );
  * status.Enum.ACTIVE; // "active"
  *
- * @category Data/Tuple
+ * @category Data
  * @since 0.1.0
  */
 export const makeMappedEnum =
@@ -147,7 +147,7 @@ export const makeMappedEnum =
  *
  * const factory: MakeMappedEnum = TupleUtils.makeMappedEnum;
  *
- * @category Data/Tuple
+ * @category Data
  * @since 0.1.0
  */
 export type MakeMappedEnum = typeof makeMappedEnum;

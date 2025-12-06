@@ -11,7 +11,7 @@
  * const equalityIndexMatch = Utils.deepEqual(equalityIndexLeft, equalityIndexRight);
  * void equalityIndexMatch;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 export * from "./deepEqual";

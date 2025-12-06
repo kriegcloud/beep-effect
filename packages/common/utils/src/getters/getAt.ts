@@ -12,7 +12,7 @@
  * const gettersModuleEmail = Utils.getAt(gettersModuleNested, "profile.email");
  * void gettersModuleEmail;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import type { UnsafeTypes } from "@beep/types";
@@ -34,7 +34,7 @@ type GetAt = (
  *
  * getAt({ items: [{ id: 1 }] }, "items[0].id");
  *
- * @category Getters/Nested
+ * @category Getters
  * @since 0.1.0
  */
 export const getAt: GetAt = (obj: unknown, path: string | Array<string | number>, fallback?: unknown | undefined) => {

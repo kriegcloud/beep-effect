@@ -12,7 +12,7 @@
  * const arrayBufferModuleBlob = Utils.arrayBufferToBlob(arrayBufferModuleExample.buffer);
  * void arrayBufferModuleBlob;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 type ArrayBufferToBlob = (buffer: ArrayBuffer) => Blob;
@@ -25,7 +25,7 @@ type ArrayBufferToBlob = (buffer: ArrayBuffer) => Blob;
  *
  * const blob = arrayBufferToBlob(new ArrayBuffer(8));
  *
- * @category Binary/Conversion
+ * @category Binary
  * @since 0.1.0
  */
 export const arrayBufferToBlob: ArrayBufferToBlob = (buffer: ArrayBuffer) => new Blob([new Uint8Array(buffer)]);

@@ -10,7 +10,7 @@
  * const factoriesModuleActive = factoriesModuleEnum.active;
  * void factoriesModuleActive;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 export * from "@beep/utils/factories/index";

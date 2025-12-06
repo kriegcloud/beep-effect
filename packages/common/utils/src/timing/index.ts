@@ -10,7 +10,7 @@
  * const timingIndexResult: FooTypes.Prettify<boolean> = timingIndexDebounced.pending();
  * void timingIndexResult;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 /**
@@ -22,7 +22,7 @@
  * const timingExportDebounce = Utils.debounce(() => {}, 150);
  * void timingExportDebounce;
  *
- * @category Documentation/Reexports
+ * @category Documentation
  * @since 0.1.0
  */
 export * from "./debounce";
@@ -36,7 +36,7 @@ export * from "./debounce";
  * const timingExportThrottle = Utils.throttle(() => {}, 150);
  * void timingExportThrottle;
  *
- * @category Documentation/Reexports
+ * @category Documentation
  * @since 0.1.0
  */
 export * from "./throttle";

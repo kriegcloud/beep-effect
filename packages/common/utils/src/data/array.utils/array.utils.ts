@@ -12,7 +12,7 @@
  * const arrayUtilsReady = arrayUtilsEnsure(arrayUtilsArray);
  * void arrayUtilsReady;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import type * as A from "effect/Array";
@@ -29,7 +29,7 @@ import * as S from "effect/Schema";
  * const guard = ArrayUtils.isNonEmptyReadonlyArrayOfGuard(S.String);
  * guard(["a"]); // true
  *
- * @category Data/Array
+ * @category Data
  * @since 0.1.0
  */
 export const isNonEmptyReadonlyArrayOfGuard =

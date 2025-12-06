@@ -1,3 +1,12 @@
+/**
+ * Effect-based filesystem utilities with glob support.
+ *
+ * Provides the FsUtils service with convenient wrappers around file system
+ * operations, including glob matching, file modification, JSON I/O, and
+ * directory operations. All operations return Effects with proper error handling.
+ *
+ * @since 0.1.0
+ */
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
@@ -359,6 +368,21 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
 /**
  * Public interface of the FsUtils service. Prefer to depend on this tag in
  * your Effects and provide {@link FsUtilsLive} at the edges.
+ *
+ * @example
+ * ```typescript
+ * import { FsUtils } from "@beep/tooling-utils"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const utils = yield* FsUtils
+ *   const files = yield* utils.globFiles("src/ ** /*.ts".replace(/ /g, ""))
+ *   console.log("Found", files.length, "TypeScript files")
+ * })
+ * ```
+ *
+ * @category Services
+ * @since 0.1.0
  */
 
 export interface FsUtils extends Effect.Effect.Success<typeof make> {}
@@ -366,24 +390,39 @@ export interface FsUtils extends Effect.Effect.Success<typeof make> {}
 /**
  * Service tag for dependency injection via Effect Context.
  *
- * Usage:
- * ```ts
- * import { FsUtils } from "@beep/tooling-utils";
- * const utils = yield* FsUtils; // inside Effect.gen
+ * @example
+ * ```typescript
+ * import { FsUtils } from "@beep/tooling-utils"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const utils = yield* FsUtils
+ *   yield* utils.writeJson("output.json", { foo: "bar" })
+ * })
  * ```
+ *
+ * @category Services
+ * @since 0.1.0
  */
 export const FsUtils = Context.GenericTag<FsUtils>("@beep/tooling-utils/FsUtils");
 /**
- * Live Layer implementation backed by Node's FileSystem/Path.
+ * Live Layer implementation backed by Bun's FileSystem/Path.
+ *
  * Compose into your runtime or test layers as needed.
+ *
  * @example
- * ```ts
- * import { FsUtilsLive } from "@beep/tooling-utils";
- * import * as Effect from "effect/Effect";
- * const stuff = Effect.gen(function* () {
- *  const utils = yield* FsUtilsLive;
- * }).pipe(Effect.provide(FsUtilsLive));
+ * ```typescript
+ * import { FsUtils, FsUtilsLive } from "@beep/tooling-utils"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const utils = yield* FsUtils
+ *   yield* utils.writeJson("output.json", { status: "ok" })
+ * }).pipe(Effect.provide(FsUtilsLive))
  * ```
+ *
+ * @category Services
+ * @since 0.1.0
  */
 
 export const FsUtilsLive = Layer.provideMerge(

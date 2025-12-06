@@ -9,7 +9,7 @@
  * const result = ObjectUtils.omitBy({ a: 1, b: null, c: undefined }, P.isNullable);
  * // { a: 1 }
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import * as A from "effect/Array";
@@ -27,7 +27,7 @@ import { pipe } from "effect/Function";
  * const clean = omitBy(data, P.isNullable);
  * // { a: 1, c: "hello" }
  *
- * @category Data/Object
+ * @category Data
  * @since 0.1.0
  */
 export function omitBy<T extends object>(obj: T, predicate: (value: T[keyof T], key: keyof T) => boolean): Partial<T> {

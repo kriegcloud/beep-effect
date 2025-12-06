@@ -13,7 +13,7 @@
  * };
  * void syncUtilsItem;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import type * as Data from "effect/Data";
@@ -26,7 +26,7 @@ import type * as Data from "effect/Data";
  *
  * const status: SyncStatus = { _tag: "notSynced" };
  *
- * @category Core/Sync
+ * @category Core
  * @since 0.1.0
  */
 export type SyncStatus = Data.TaggedEnum<{
@@ -49,7 +49,7 @@ export type SyncStatus = Data.TaggedEnum<{
  *
  * const item: AdapterSyncItem = { module: "files", entity: "asset", status: { _tag: "synced" } };
  *
- * @category Core/Sync
+ * @category Core
  * @since 0.1.0
  */
 export type AdapterSyncItem = {

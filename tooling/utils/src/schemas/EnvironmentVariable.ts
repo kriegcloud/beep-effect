@@ -1,4 +1,33 @@
+/**
+ * Environment variable name schema.
+ *
+ * Defines all valid environment variable names used across the beep-effect monorepo.
+ *
+ * @since 0.1.0
+ */
 import * as S from "effect/Schema";
+
+/**
+ * Schema defining all valid environment variable names used across the beep-effect monorepo.
+ *
+ * This schema enforces type-safe environment variable access and ensures consistency
+ * across applications and packages. It includes variables for app configuration,
+ * database connections, cloud services, OAuth providers, and security policies.
+ *
+ * @example
+ * ```typescript
+ * import { EnvironmentVariableName } from "@beep/tooling-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(EnvironmentVariableName)
+ *
+ * const varName = decode("APP_NAME")  // => "APP_NAME"
+ * // decode("INVALID_VAR")  // => throws ParseError
+ * ```
+ *
+ * @category Schemas/Environment
+ * @since 0.1.0
+ */
 export class EnvironmentVariableName extends S.Literal(
   "APP_NAME",
   "APP_ENV",
@@ -100,7 +129,31 @@ export class EnvironmentVariableName extends S.Literal(
   static readonly Options = this.literals;
 }
 
+/**
+ * Namespace containing types derived from the EnvironmentVariableName schema.
+ *
+ * @example
+ * ```typescript
+ * import type { EnvironmentVariableName } from "@beep/tooling-utils"
+ *
+ * const varName: EnvironmentVariableName.Type = "APP_NAME"
+ * ```
+ *
+ * @category Schemas/Environment
+ * @since 0.1.0
+ */
 export declare namespace EnvironmentVariableName {
+  /**
+   * Runtime type extracted from the EnvironmentVariableName schema.
+   *
+   * @since 0.1.0
+   */
   export type Type = typeof EnvironmentVariableName.Type;
+
+  /**
+   * Encoded type extracted from the EnvironmentVariableName schema.
+   *
+   * @since 0.1.0
+   */
   export type Encoded = typeof EnvironmentVariableName.Encoded;
 }

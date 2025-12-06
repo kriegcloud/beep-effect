@@ -1,3 +1,10 @@
+/**
+ * TypeScript configuration file discovery.
+ *
+ * Collects tsconfig.json paths for the repository root and all workspaces.
+ *
+ * @since 0.1.0
+ */
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as A from "effect/Array";
@@ -18,6 +25,23 @@ import { resolveWorkspaceDirs } from "./Workspaces.js";
  * @returns HashMap of package name (including "@beep/root") -> non-empty array
  *          of tsconfig paths ordered: base first, then optional variants.
  * @throws NoSuchFileError if any required tsconfig is missing
+ *
+ * @example
+ * ```typescript
+ * import { collectTsConfigPaths } from "@beep/tooling-utils"
+ * import * as Effect from "effect/Effect"
+ * import * as HashMap from "effect/HashMap"
+ *
+ * const program = Effect.gen(function* () {
+ *   const tsconfigMap = yield* collectTsConfigPaths
+ *   const rootConfigs = HashMap.get(tsconfigMap, "@beep/root")
+ *   console.log(rootConfigs)
+ *   // => Some(["/repo/tsconfig.json", "/repo/tsconfig.build.json", ...])
+ * })
+ * ```
+ *
+ * @category Utils/Repo
+ * @since 0.1.0
  */
 export const collectTsConfigPaths = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;

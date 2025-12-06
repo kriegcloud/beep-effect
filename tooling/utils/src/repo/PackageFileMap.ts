@@ -1,3 +1,10 @@
+/**
+ * Workspace to source file mapping utilities.
+ *
+ * Maps workspace packages to their TypeScript source files, import paths, and relative paths.
+ *
+ * @since 0.1.0
+ */
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as Effect from "effect/Effect";
@@ -27,6 +34,9 @@ const IGNORE = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.turbo/**
  *   // files: Option<HashSet<string>>
  * });
  * ```
+ *
+ * @category Utils/Repo
+ * @since 0.1.0
  */
 export const mapWorkspaceToSourceFiles: Effect.Effect<
   HashMap.HashMap<string, HashSet.HashSet<string>>,
@@ -106,6 +116,9 @@ const toImportPath = (packageName: string, absolutePath: string): string => {
  *   // imports: Option<HashSet<string>> containing "@beep/tooling-utils/types", etc.
  * });
  * ```
+ *
+ * @category Utils/Repo
+ * @since 0.1.0
  */
 export const mapWorkspaceToImportPaths: Effect.Effect<
   HashMap.HashMap<string, HashSet.HashSet<string>>,
@@ -165,6 +178,9 @@ const toRelativePath = (absolutePath: string): string => {
  *   // paths: Option<HashSet<string>> containing "types", "repo/Errors", etc.
  * });
  * ```
+ *
+ * @category Utils/Repo
+ * @since 0.1.0
  */
 export const mapWorkspaceToRelativePaths: Effect.Effect<
   HashMap.HashMap<string, HashSet.HashSet<string>>,

@@ -22,7 +22,7 @@
  * // After (clean):
  * const state = useMarkToolbarButtonState(exact({ clear, nodeType }));
  *
- * @category Struct/Exact
+ * @category Struct
  * @since 0.1.0
  */
 
@@ -36,7 +36,7 @@ import { create } from "mutative";
 /**
  * Helper to check if a type is possibly nullish (contains null or undefined).
  *
- * @category Struct/Exact
+ * @category Struct
  * @since 0.1.0
  */
 type IsNullable<T> = null extends T ? true : undefined extends T ? true : false;
@@ -47,7 +47,7 @@ type IsNullable<T> = null extends T ? true : undefined extends T ? true : false;
  * - If the type *contains* `null | undefined`, the key becomes optional with nullish stripped
  * - If the type has no nullish, the key is preserved as-is
  *
- * @category Struct/Exact
+ * @category Struct
  * @since 0.1.0
  */
 export type ExactResult<T extends object> = {
@@ -85,7 +85,7 @@ export type ExactResult<T extends object> = {
  *   const state = useSomeHook(exact({ clear, nodeType }));
  * }
  *
- * @category Struct/Exact
+ * @category Struct
  * @since 0.1.0
  */
 export const exact = <const T extends object>(obj: T): ExactResult<T> => {

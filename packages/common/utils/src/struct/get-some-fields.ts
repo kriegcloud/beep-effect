@@ -1,3 +1,7 @@
+/**
+ * @since 0.1.0
+ */
+
 import type { UnsafeTypes } from "@beep/types";
 import type * as A from "effect/Array";
 import * as F from "effect/Function";

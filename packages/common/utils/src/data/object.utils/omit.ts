@@ -8,7 +8,7 @@
  * const result = ObjectUtils.omit({ a: 1, b: 2, c: 3 }, "b", "c");
  * // { a: 1 }
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import * as A from "effect/Array";
@@ -25,7 +25,7 @@ import { pipe } from "effect/Function";
  * const safeUser = omit(user, "password");
  * // { id: 1, name: "John" }
  *
- * @category Data/Object
+ * @category Data
  * @since 0.1.0
  */
 export function omit<T extends object, K extends keyof T>(obj: T, ...keys: readonly K[]): Omit<T, K> {

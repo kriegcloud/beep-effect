@@ -1,3 +1,11 @@
+/**
+ * Workspace dependency extraction.
+ *
+ * Extracts and categorizes dependencies from package.json files into workspace
+ * and npm dependency sets.
+ *
+ * @since 0.1.0
+ */
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -22,6 +30,21 @@ import {
  * @param pkgJsonPath Absolute path to a package.json file
  * @returns RepoDepMapValue with `dependencies` and `devDependencies` each containing
  *          a HashSet of workspace names and npm package names
+ *
+ * @example
+ * ```typescript
+ * import { extractWorkspaceDependencies } from "@beep/tooling-utils"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const deps = yield* extractWorkspaceDependencies("/path/to/package.json")
+ *   console.log("Workspace deps:", deps.dependencies.workspace)
+ *   console.log("NPM deps:", deps.dependencies.npm)
+ * })
+ * ```
+ *
+ * @category Utils/Repo
+ * @since 0.1.0
  */
 export const extractWorkspaceDependencies = Effect.fn("extractWorkspaceDependencies")(function* (pkgJsonPath: string) {
   const fs = yield* FileSystem.FileSystem;

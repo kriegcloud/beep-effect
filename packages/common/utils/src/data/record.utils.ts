@@ -10,7 +10,7 @@
  * const recordUtilsModuleValues = Utils.RecordUtils.recordStringValues(recordUtilsModuleRecord);
  * void recordUtilsModuleValues;
  *
- * @category Documentation/Modules
+ * @category Documentation
  * @since 0.1.0
  */
 import type { RecordTypes, StringTypes, UnsafeTypes } from "@beep/types";
@@ -31,7 +31,7 @@ import * as Struct from "effect/Struct";
  * const keys = RecordUtils.recordKeys({ a: 1, b: 2 } as const);
  * // ["a", "b"]
  *
- * @category Data/Record
+ * @category Data
  * @since 0.1.0
  */
 export const recordKeys = <T extends UnsafeTypes.UnsafeReadonlyRecord>(
@@ -51,7 +51,7 @@ export const recordKeys = <T extends UnsafeTypes.UnsafeReadonlyRecord>(
  * const values = RecordUtils.recordStringValues({ json: "application/json" } as const);
  * // ["application/json"]
  *
- * @category Data/Record
+ * @category Data
  * @since 0.1.0
  */
 export const recordStringValues = <R extends RecordTypes.RecordStringKeyValueString>(
@@ -72,7 +72,7 @@ export const recordStringValues = <R extends RecordTypes.RecordStringKeyValueStr
  * const locales = RecordUtils.reverseRecord({ en: "English", es: "Español" });
  * // { English: "en", Español: "es" }
  *
- * @category Data/Record
+ * @category Data
  * @since 0.1.0
  */
 export const reverseRecord = <
@@ -95,7 +95,7 @@ export const reverseRecord = <
  * const merged = RecordUtils.merge({ a: { x: 1 } }, { a: { y: 2 } });
  * // { a: { x: 1, y: 2 } }
  *
- * @category Data/Record
+ * @category Data
  * @since 0.1.0
  */
 export function merge<
