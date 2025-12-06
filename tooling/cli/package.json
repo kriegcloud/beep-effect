@@ -57,6 +57,8 @@
     "@effect/platform": "catalog:",
     "@effect/platform-bun": "catalog:",
     "@beep/invariant": "workspace:^",
+    "@effect/ai": "catalog:",
+    "@effect/ai-anthropic": "catalog:",
     "@beep/utils": "workspace:^",
     "@beep/identity": "workspace:^",
     "effect": "catalog:",

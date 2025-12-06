@@ -1,69 +1,510 @@
 # @beep/constants
 
-Effect-first literal kits and path helpers used by env loaders, auth flows, logging, and asset manifests across the `beep-effect` monorepo.
+Effect-first schema-backed constants, literal kits, and path utilities for the `beep-effect` monorepo.
 
-## What you get
-- Env literals: `EnvValue` (`dev|staging|prod`) and `NodeEnvValue` (`test|development|production`) for server/client config.
-- Auth providers: `AuthProviderNameValue` with `filter` enforcing non-empty, validated lists.
-- Logging: `LogLevel` and `LogFormat` string literal kits wired into runtime telemetry.
-- Pagination and plans: `PAGINATION_LIMIT` literal (100) and `SubscriptionPlanValue` (`basic|pro|enterprise`).
-- Public assets: generated `publicPaths` plus `assetPaths`/`pathObjFromPaths` for typed access to `/public` assets.
+## Overview
 
-## Quick start
+`@beep/constants` centralizes system-wide constants as validated Effect schemas, providing:
+- Environment literals (deployment tiers, Node environments)
+- Authentication provider enums with OAuth configuration
+- Logging configuration (levels, formats)
+- HTTP/API constants (allowed methods, headers)
+- Subscription plan tiers
+- Pagination defaults
+- Type-safe public asset path accessors
+
+All constants leverage `BS.StringLiteralKit` from `@beep/schema` to expose `.Enum`, `.Options`, and full schema metadata for downstream validation pipelines.
+
+## Installation
+
+```bash
+bun add @beep/constants
+```
+
+### Peer Dependencies
+
+```json
+{
+  "effect": "catalog:",
+  "@beep/schema": "workspace:^",
+  "@beep/utils": "workspace:^",
+  "@beep/invariant": "workspace:^",
+  "@beep/identity": "workspace:^"
+}
+```
+
+## Core Exports
+
+### Environment Configuration
+
+#### EnvValue
+
+Deployment environment literal: `"dev"`, `"staging"`, `"prod"`.
+
 ```ts
-import { EnvValue, LogLevel, LogFormat } from "@beep/constants";
+import { EnvValue } from "@beep/constants";
 import * as Either from "effect/Either";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
 
+// Decode with graceful fallback
 const env = F.pipe(
   process.env.ENV,
   S.decodeUnknownEither(EnvValue),
   Either.getOrElse(() => EnvValue.Enum.dev)
 );
 
-const logDefaults = {
-  level: LogLevel.Enum.Info,
-  format: LogFormat.Enum.json,
-};
+// Access all options
+const allEnvs = EnvValue.Options; // ["dev", "staging", "prod"]
 ```
+
+#### NodeEnvValue
+
+Node.js runtime environment: `"test"`, `"development"`, `"production"`.
+
+```ts
+import { NodeEnvValue } from "@beep/constants";
+
+const nodeEnv = NodeEnvValue.Enum.production;
+const isDev = nodeEnv === NodeEnvValue.Enum.development;
+```
+
+### Authentication
+
+#### AuthProviderNameValue
+
+Social authentication providers with OAuth configuration and validation.
+
+**Supported Providers**: `"github"`, `"google"`, `"linkedin"`, `"twitter"`, `"discord"`
 
 ```ts
 import { AuthProviderNameValue } from "@beep/constants";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 
+// Filter providers with validation (ensures non-empty array)
 const enabledProviders = AuthProviderNameValue.filter(["google", "github"]);
 
-const providerIds = F.pipe(
-  enabledProviders,
-  A.map((provider) => provider)
-);
+// Access provider configuration
+const googleConfig = AuthProviderNameValue.configMap.google;
+// { prompt: "consent", accessType: "offline", scope: [...] }
+
+// All available providers
+const allProviders = AuthProviderNameValue.Options;
+// ["github", "google", "linkedin", "twitter", "discord"]
 ```
 
-## Asset accessors
-- `_generated/asset-paths.ts` holds `publicPaths` (literal list of `/public` assets). Do not edit by hand.
-- `assetPaths` turns `publicPaths` into a camel-cased object tree; set `widenLeavesToString: true` via `pathObjFromPaths` if you need wider typing.
-- Regenerate after asset changes: `bun run --filter tooling/repo-scripts gen:asset-paths`.
+#### TaggedAuthProviderNameValue
+
+Tagged union variant for pattern matching:
+
+```ts
+import { TaggedAuthProviderNameValue } from "@beep/constants";
+import * as S from "effect/Schema";
+
+// Tagged with "name" discriminator
+type TaggedProvider = S.Schema.Type<typeof TaggedAuthProviderNameValue>;
+// { name: "github" } | { name: "google" } | ...
+```
+
+### Logging
+
+#### LogLevel
+
+Log severity levels: `"All"`, `"Debug"`, `"Error"`, `"Fatal"`, `"Info"`, `"Trace"`, `"None"`, `"Warning"`.
+
+```ts
+import { LogLevel } from "@beep/constants";
+
+const logConfig = {
+  level: LogLevel.Enum.Info,
+  minimumLevel: LogLevel.Enum.Warning,
+};
+
+// All available levels
+const levels = LogLevel.Options;
+```
+
+#### LogFormat
+
+Output format options: `"pretty"`, `"json"`, `"logFmt"`, `"structured"`.
+
+```ts
+import { LogFormat } from "@beep/constants";
+
+const format = LogFormat.Enum.json;
+
+// All available formats
+const formats = LogFormat.Options;
+```
+
+#### LogFormatTagged
+
+Tagged union for log format with `_tag` discriminator:
+
+```ts
+import { LogFormatTagged } from "@beep/constants";
+import * as S from "effect/Schema";
+
+type TaggedFormat = S.Schema.Type<typeof LogFormatTagged>;
+// { _tag: "pretty" } | { _tag: "json" } | { _tag: "logFmt" } | { _tag: "structured" }
+```
+
+### HTTP/API Constants
+
+#### AllowedHeaders
+
+Permitted HTTP headers for API routes.
+
+**Values**: `"Content-Type"`, `"Authorization"`, `"B3"`, `"traceparent"`
+
+```ts
+import { AllowedHeaders } from "@beep/constants";
+
+const headers = AllowedHeaders.Options;
+// ["Content-Type", "Authorization", "B3", "traceparent"]
+
+const authHeader = AllowedHeaders.Enum.Authorization;
+```
+
+#### AllowedHttpMethods
+
+Permitted HTTP methods for API routes.
+
+**Values**: `"GET"`, `"POST"`, `"PUT"`, `"DELETE"`, `"PATCH"`
+
+```ts
+import { AllowedHttpMethods } from "@beep/constants";
+
+const methods = AllowedHttpMethods.Options;
+// ["GET", "POST", "PUT", "DELETE", "PATCH"]
+
+const getMethod = AllowedHttpMethods.Enum.GET;
+```
+
+### Business Constants
+
+#### SubscriptionPlanValue
+
+Subscription tier literals: `"basic"`, `"pro"`, `"enterprise"`.
+
+```ts
+import { SubscriptionPlanValue } from "@beep/constants";
+import * as S from "effect/Schema";
+
+const plan = SubscriptionPlanValue.Enum.pro;
+
+// Validate plan input
+const validatePlan = (input: unknown) =>
+  S.decodeUnknownSync(SubscriptionPlanValue)(input);
+```
+
+#### PAGINATION_LIMIT
+
+Default pagination limit (100) as a typed literal schema.
+
+```ts
+import { PAGINATION_LIMIT } from "@beep/constants";
+
+const limit = PAGINATION_LIMIT.Value; // 100
+
+// Use as schema
+import * as S from "effect/Schema";
+type Limit = S.Schema.Type<typeof PAGINATION_LIMIT>; // 100
+```
+
+## Asset Path Utilities
+
+### Generated Asset Paths
+
+The `_generated/asset-paths.ts` file contains a generated list of all public assets. **Do not edit manually.**
+
+```ts
+// From _generated/asset-paths.ts
+export const publicPaths = [
+  "/logo.avif",
+  "/android-chrome-192x192.png",
+  "/assets/background/overlay.png",
+  // ... (auto-generated)
+] as const;
+```
+
+### Type-Safe Asset Accessor
+
+Access public assets via camelCased object paths:
 
 ```ts
 import { assetPaths } from "@beep/constants/paths";
-import { pathObjFromPaths } from "@beep/constants/paths/utils";
 
-const manifestIcon = assetPaths.androidChrome192x192;
-const overlay = assetPaths.assets.background.overlay;
-
-const marketing = pathObjFromPaths(["/landing/hero.avif", "/landing/icons/star.svg"] as const);
-// marketing.landing.hero === "/landing/hero.avif"
+const logo = assetPaths.logo; // "/logo.avif"
+const androidIcon = assetPaths.androidChrome192x192; // "/android-chrome-192x192.png"
+const overlay = assetPaths.assets.background.overlay; // "/assets/background/overlay.png"
 ```
 
+### Custom Path Objects
+
+Build your own type-safe path accessors:
+
+```ts
+import { pathObjFromPaths } from "@beep/constants/paths/utils";
+
+// Define custom paths
+const customPaths = [
+  "/home.html",
+  "/about/team.html",
+  "/assets/icons/star.svg",
+] as const;
+
+// Generate accessor object
+const paths = pathObjFromPaths(customPaths);
+
+paths.home; // "/home.html"
+paths.about.team; // "/about/team.html"
+paths.assets.icons.star; // "/assets/icons/star.svg"
+
+// Widen leaf types to string (for large path lists)
+const widePaths = pathObjFromPaths(customPaths, {
+  widenLeavesToString: true,
+});
+// Leaf values are still exact strings at runtime, but typed as `string`
+```
+
+### Path Utility Functions
+
+```ts
+import {
+  toJsAccessor,
+  toNestedTuple,
+  buildPathTuples,
+  removeExt,
+} from "@beep/constants/paths/utils";
+
+// Convert dash-separated to camelCase
+toJsAccessor("ic-app-5"); // "icApp5"
+
+// Remove file extension
+removeExt("logo.png"); // "logo"
+
+// Convert path to nested tuple
+toNestedTuple("/assets/background/image.png");
+// ["assets", ["background", ["image", "image"]]]
+
+// Build tuples from multiple paths
+const tuples = buildPathTuples(["/logo.png", "/assets/icon.svg"] as const);
+```
+
+## Effect Patterns
+
+All constants follow Effect-first patterns:
+
+### Using with Effect Config
+
+```ts
+import { EnvValue, LogLevel, LogFormat } from "@beep/constants";
+import * as Config from "effect/Config";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
+
+const envConfig = Config.mapOrFail(
+  Config.string("ENV"),
+  S.decodeUnknown(EnvValue)
+);
+
+const logLevelConfig = Config.withDefault(
+  Config.mapOrFail(Config.string("LOG_LEVEL"), S.decodeUnknown(LogLevel)),
+  LogLevel.Enum.Info
+);
+
+const program = Effect.gen(function* () {
+  const env = yield* envConfig;
+  const level = yield* logLevelConfig;
+
+  console.log({ env, level });
+});
+```
+
+### Schema Validation in Pipelines
+
+```ts
+import { AuthProviderNameValue } from "@beep/constants";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
+import * as F from "effect/Function";
+
+const validateProvider = (input: unknown) =>
+  F.pipe(
+    input,
+    S.decodeUnknown(AuthProviderNameValue),
+    Effect.mapError((error) => ({
+      _tag: "ValidationError" as const,
+      message: `Invalid provider: ${error}`,
+    }))
+  );
+
+const program = Effect.gen(function* () {
+  const provider = yield* validateProvider("google");
+  // provider: "google" (validated)
+});
+```
+
+### Working with Collections
+
+```ts
+import { AllowedHttpMethods } from "@beep/constants";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as HashSet from "effect/HashSet";
+
+// Build a set of allowed methods
+const allowedSet = F.pipe(
+  AllowedHttpMethods.Options,
+  HashSet.fromIterable
+);
+
+// Check if method is allowed
+const isMethodAllowed = (method: string) =>
+  HashSet.has(allowedSet, method);
+
+// Filter incoming methods
+const validateMethods = (methods: readonly string[]) =>
+  F.pipe(
+    methods,
+    A.filter((m) => HashSet.has(allowedSet, m))
+  );
+```
+
+## Regenerating Asset Paths
+
+After adding/removing files in the `/public` directory:
+
+```bash
+bun run --filter tooling/repo-scripts gen:asset-paths
+```
+
+This updates `_generated/asset-paths.ts` and ensures `assetPaths` reflects the current asset structure.
+
 ## Development
-- Build: `bun run build --filter @beep/constants`
-- Type check: `bun run check --filter @beep/constants`
-- Lint: `bun run lint --filter @beep/constants`
-- Tests: `bun run test --filter @beep/constants`
+
+### Build
+
+```bash
+bun run build --filter @beep/constants
+```
+
+### Type Check
+
+```bash
+bun run check --filter @beep/constants
+```
+
+### Lint
+
+```bash
+bun run lint --filter @beep/constants
+bun run lint:fix --filter @beep/constants
+```
+
+### Test
+
+```bash
+bun run test --filter @beep/constants
+bun run coverage --filter @beep/constants
+```
+
+### Circular Dependency Check
+
+```bash
+bun run lint:circular --filter @beep/constants
+```
 
 ## Guardrails
-- Keep `_generated/*` read-only; rerun the repo script when assets change.
-- Use `BS.StringLiteralKit` for new enums to keep `.Enum`/`.Options` aligned with schemas.
-- Stick to Effect namespace imports (`A`, `F`, `Str`, `Struct`, `HashMap`, etc.); avoid native `Array`/`String` helpers in new code.
+
+### Generated Files
+
+- **Never manually edit** `_generated/*` files
+- Regenerate via repo scripts when underlying data changes
+- Commit both source changes and generated output together
+
+### Creating New Constants
+
+1. Use `BS.StringLiteralKit` for string literal enums
+2. Add schema annotations (`schemaId`, `identifier`, `title`, `description`)
+3. Export TypeScript namespace for `.Type` and `.Encoded`
+4. Add to `src/index.ts` exports
+
+Example:
+
+```ts
+import { BS } from "@beep/schema";
+import type * as S from "effect/Schema";
+
+export class MyConstant extends BS.StringLiteralKit("foo", "bar", "baz").annotations({
+  schemaId: Symbol.for("@beep/constants/MyConstant"),
+  identifier: "MyConstant",
+  title: "My Constant",
+  description: "Description of my constant",
+}) {}
+
+export declare namespace MyConstant {
+  export type Type = S.Schema.Type<typeof MyConstant>;
+  export type Encoded = S.Schema.Encoded<typeof MyConstant>;
+}
+```
+
+### Effect Collection Usage
+
+- **Always use Effect utilities**: `A.*`, `F.*`, `Str.*`, `Struct.*`, `HashMap.*`, `HashSet.*`
+- **Never use native methods**: Avoid `Array.prototype.*`, `String.prototype.*`, `Object.*`
+- Import namespaced: `import * as A from "effect/Array"`
+
+### Path Building
+
+- Use `pathObjFromPaths` for asset accessor objects
+- Use `PathBuilder` from `@beep/shared-domain/factories` for route paths (not from this package)
+- Ensure `as const` on path arrays to preserve literal types
+
+## Usage in Monorepo
+
+### Consumed By
+
+- **@beep/shared-infra** — Environment config, logging setup
+- **@beep/iam/infra** — Auth provider validation
+- **@beep/iam/ui** — Social login buttons
+- **apps/web** — Asset manifests, API route validation
+- **apps/server** — Environment detection, logging configuration
+
+### Integration Points
+
+```ts
+// In @beep/shared-infra ServerEnv
+import { EnvValue, AuthProviderNameValue, LogFormat } from "@beep/constants";
+
+// In @beep/iam/ui sign-in flow
+import { AuthProviderNameValue } from "@beep/constants";
+const providers = AuthProviderNameValue.filter(["google", "github"]);
+
+// In apps/web manifest
+import { assetPaths } from "@beep/constants/paths";
+const icons = [{ src: assetPaths.androidChrome192x192, sizes: "192x192" }];
+```
+
+## API Reference
+
+For detailed API documentation, see:
+- [AGENTS.md](/home/elpresidank/YeeBois/projects/beep-effect/packages/common/constants/AGENTS.md) — Package-specific agent guide
+- [Source code](/home/elpresidank/YeeBois/projects/beep-effect/packages/common/constants/src) — Full type definitions and implementations
+
+## Contributing
+
+When adding new constants:
+
+1. Confirm the constant is truly shared across multiple packages
+2. Use `BS.StringLiteralKit` for consistency
+3. Add comprehensive schema annotations
+4. Include usage examples in this README
+5. Add unit tests in `test/`
+6. Update AGENTS.md if patterns change
+
+## License
+
+MIT

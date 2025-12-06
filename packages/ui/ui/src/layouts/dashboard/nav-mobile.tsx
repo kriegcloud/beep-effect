@@ -34,6 +34,8 @@ export function NavMobile({ sx, data, open, slots, onClose, className, checkPerm
     <Drawer
       open={open}
       onClose={onClose}
+      keepMounted={false}
+      disableRestoreFocus
       slotProps={{
         paper: {
           className: mergeClasses([layoutClasses.nav.root, layoutClasses.nav.vertical, className]),

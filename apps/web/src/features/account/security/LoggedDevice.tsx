@@ -22,7 +22,7 @@ const LoggedDevice = ({ loggedInDevice }: LoggedDeviceProps) => {
     <>
       <InfoCard setOpen={setOpen} sx={{ p: 3 }}>
         <Stack spacing={2} flexGrow={1} direction={"row"}>
-          <BaseImage src={icon} alt="" height={40} width={40} sx={{ width: "auto", height: 40 }} />
+          <BaseImage src={icon} alt="" height={40} width={40} sx={{ width: "auto", height: "auto" }} />
 
           <Stack direction="column" spacing={1}>
             <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>

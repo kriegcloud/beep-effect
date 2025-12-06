@@ -102,3 +102,19 @@ export declare namespace BiBitUnit {
   export type Type = S.Schema.Type<typeof BiBitUnit>;
   export type Encoded = S.Schema.Encoded<typeof BiBitUnit>;
 }
+
+/* ────────────────────────────────────────────────────────────────────────── *
+ *  Convenience type aliases for readability
+ * ────────────────────────────────────────────────────────────────────────── */
+
+/** SI decimal byte unit type alias */
+export type SiByteUnit = ByteUnit.Type;
+
+/** IEC binary byte unit type alias */
+export type IecByteUnit = BiByteUnit.Type;
+
+/** SI decimal bit unit type alias */
+export type SiBitUnit = BitUnit.Type;
+
+/** IEC binary bit unit type alias */
+export type IecBitUnit = BiBitUnit.Type;

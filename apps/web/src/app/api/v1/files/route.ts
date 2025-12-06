@@ -4,8 +4,8 @@ import { BS } from "@beep/schema";
 import { type AnyEntityId, type EntityKind, SharedEntityIds } from "@beep/shared-domain";
 import type { File } from "@beep/shared-domain/entities";
 import * as Organization from "@beep/shared-domain/entities/Organization";
+import { EncryptionService } from "@beep/shared-domain/services";
 import { UploadActionPayload } from "@beep/shared-infra/internal/upload/_internal/shared-schemas";
-import { generateKey, signPayload } from "@beep/shared-infra/internal/upload/crypto";
 import { UploadError } from "@beep/shared-infra/internal/upload/error";
 import { UploadService } from "@beep/shared-infra/internal/upload/upload.service";
 import { generateTraceHeaders } from "@beep/shared-infra/internal/upload/utils";
@@ -90,10 +90,13 @@ export async function POST(request: Request) {
     // 4. Get upload service - provide layer locally
     const uploadService = yield* Effect.provide(UploadService, UploadService.Default);
 
-    // 5. Generate trace headers
+    // 5. Get encryption service
+    const encryptionService = yield* EncryptionService.EncryptionService;
+
+    // 6. Generate trace headers
     const traceHeaders = generateTraceHeaders();
 
-    // 6. Generate presigned URLs for each file
+    // 7. Generate presigned URLs for each file
     const urls = yield* Effect.forEach(
       payload.files,
       (fileData) =>
@@ -129,7 +132,7 @@ export async function POST(request: Request) {
           const presignedUrl = yield* uploadService.getPreSignedUrl(uploadPathData);
 
           // Generate SQID key for tracking
-          const key = yield* generateKey(
+          const key = yield* encryptionService.generateFileKey(
             {
               name: fileData.name,
               size: fileData.size,
@@ -150,8 +153,8 @@ export async function POST(request: Request) {
       { concurrency: 5 }
     );
 
-    // 7. Sign the response for callback verification
-    const signature = yield* signPayload(JSON.stringify(urls), signingSecret);
+    // 8. Sign the response for callback verification
+    const signature = yield* encryptionService.signPayload(JSON.stringify(urls), signingSecret);
 
     return {
       urls,
@@ -161,7 +164,7 @@ export async function POST(request: Request) {
   });
 
   try {
-    const result = await runServerPromise(effect, "UploadRoute.POST");
+    const result = await runServerPromise(Effect.provide(effect, EncryptionService.layer), "UploadRoute.POST");
     return Response.json(result);
   } catch (error) {
     // Handle tagged errors

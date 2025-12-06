@@ -29,16 +29,16 @@ Configuration and guardrails for AI collaborators working in the `beep-effect` m
 
 ## Quick Reference
 
-| Category | Command |
-|----------|---------|
-| **Install** | `bun install` |
-| **Dev** | `bun run dev` |
-| **Build** | `bun run build` |
-| **Check** | `bun run check` |
-| **Lint** | `bun run lint` / `bun run lint:fix` |
-| **Test** | `bun run test` |
-| **DB** | `bun run db:generate` / `bun run db:migrate` / `bun run db:push` |
-| **Services** | `bun run services:up` |
+| Category     | Command                                                          |
+|--------------|------------------------------------------------------------------|
+| **Install**  | `bun install`                                                    |
+| **Dev**      | `bun run dev`                                                    |
+| **Build**    | `bun run build`                                                  |
+| **Check**    | `bun run check`                                                  |
+| **Lint**     | `bun run lint` / `bun run lint:fix`                              |
+| **Test**     | `bun run test`                                                   |
+| **DB**       | `bun run db:generate` / `bun run db:migrate` / `bun run db:push` |
+| **Services** | `bun run services:up`                                            |
 
 ---
 
@@ -162,17 +162,17 @@ Each package may have its own `AGENTS.md` with specific guidance:
 
 ## Technology Stack
 
-| Category | Technologies |
-|----------|-------------|
-| **Runtime** | Bun 1.3.x, Node 22 |
-| **Core** | Effect 3, `@effect/platform`, dependency injection via Layers |
-| **Frontend** | Next.js 15 App Router, React 19, TanStack Query |
-| **Backend** | `@effect/platform-bun`, `@effect/rpc`, `@effect/sql-pg` |
-| **Database** | PostgreSQL, Drizzle ORM |
-| **Auth** | better-auth with Redis persistence |
-| **Telemetry** | `@effect/opentelemetry`, Grafana OTLP |
-| **Storage** | AWS S3 |
-| **Linting** | Biome |
+| Category      | Technologies                                                  |
+|---------------|---------------------------------------------------------------|
+| **Runtime**   | Bun 1.3.x, Node 22                                            |
+| **Core**      | Effect 3, `@effect/platform`, dependency injection via Layers |
+| **Frontend**  | Next.js 15 App Router, React 19, TanStack Query               |
+| **Backend**   | `@effect/platform-bun`, `@effect/rpc`, `@effect/sql-pg`       |
+| **Database**  | PostgreSQL, Drizzle ORM                                       |
+| **Auth**      | better-auth with Redis persistence                            |
+| **Telemetry** | `@effect/opentelemetry`, Grafana OTLP                         |
+| **Storage**   | AWS S3                                                        |
+| **Linting**   | Biome                                                         |
 
 ---
 
@@ -211,9 +211,14 @@ Each slice follows `domain → tables → infra → sdk → ui`:
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Context from "effect/Context";
+import * as Struct from "effect/Struct";
+import * as Cause from "effect/Cause";
 
 // Single-letter aliases for frequently used modules
 import * as A from "effect/Array";
+import * as BI from "effect/BigInt";
+import * as Num from "effect/Number";
+import * as P from "effect/Predicate";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -221,7 +226,10 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as M from "@effect/sql/Model";
 import * as B from "effect/Brand";
+import * as Bool from "effect/Boolean";
 import * as AST from "effect/SchemaAST";
+import * as DateTime from "effect/DateTime";
+import * as Match from "effect/Match";
 ```
 
 ### Uppercase Constructors
@@ -269,8 +277,8 @@ F.pipe(str, Str.trim);
 ```typescript
 // ✅ REQUIRED
 F.pipe(obj, Struct.keys);        // not Object.keys(obj)
-F.pipe(obj, Record.values);      // not Object.values(obj)
-F.pipe(obj, Record.map(fn));     // not manual iteration
+F.pipe(obj, R.values);      // not Object.values(obj)
+F.pipe(obj, R.map(fn));     // not manual iteration
 ```
 
 ### Use Effect Collections
@@ -301,6 +309,148 @@ nullOpE     // instead of () => Effect.succeed(null)
 // ❌ NEVER use async no-ops
 // async () => null  → use nullOpE
 ```
+
+### NEVER Use Native Date
+
+The native `Date` object is mutable, error-prone, and lacks timezone safety. Use `effect/DateTime` instead.
+
+```typescript
+import * as DateTime from "effect/DateTime";
+
+// ❌ FORBIDDEN - Native Date
+new Date();
+new Date("2025-01-15");
+date.setDate(date.getDate() + 1);  // Mutation!
+date.getMonth() + 1;               // 0-indexed months
+date.toISOString();
+
+// ✅ REQUIRED - Effect DateTime (immutable, type-safe)
+DateTime.unsafeNow();                              // Current time (Utc)
+yield* DateTime.now;                               // In Effect context
+DateTime.unsafeMake("2025-01-15");                 // From string
+DateTime.make("2025-01-15");                       // Returns Option<Utc>
+DateTime.add(date, { days: 1 });                   // Immutable arithmetic
+DateTime.add(date, { months: 1, days: -5 });       // Combined adjustments
+DateTime.formatIso(date);                          // ISO string
+DateTime.format(date, { dateStyle: "medium" });    // Localized formatting
+```
+
+**Key DateTime operations**:
+- **Creation**: `DateTime.unsafeNow`, `DateTime.now`, `DateTime.unsafeMake`, `DateTime.make`
+- **Arithmetic**: `DateTime.add`, `DateTime.subtract` (immutable, handles edge cases)
+- **Comparison**: `DateTime.lessThan`, `DateTime.greaterThan`, `DateTime.between`, `DateTime.distance`
+- **Formatting**: `DateTime.formatIso`, `DateTime.format`, `DateTime.formatUtc`
+- **Timezones**: `DateTime.makeZoned`, `DateTime.withZone`, `DateTime.toUtc`
+- **Parts**: `DateTime.toParts`, `DateTime.getPartUtc`
+
+```typescript
+// ❌ FORBIDDEN - Manual timezone handling
+new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
+const offset = date.getTimezoneOffset();
+
+// ✅ REQUIRED - Effect DateTime timezones
+const zoned = DateTime.makeZoned(date, { timeZone: "America/New_York" });
+DateTime.withZone(utcDate, "Europe/Rome");
+DateTime.toUtc(zonedDate);
+```
+
+### NEVER Use Switch Statements or Long If-Else Chains
+
+Use `effect/Match` for exhaustive pattern matching and `effect/Predicate` for type guards.
+
+```typescript
+import * as Match from "effect/Match";
+import * as P from "effect/Predicate";
+
+// ❌ FORBIDDEN - switch statements
+switch (response._tag) {
+  case "loading":
+    return "Loading...";
+  case "success":
+    return `Found ${response.data.length} items`;
+  case "error":
+    return `Error: ${response.error}`;
+  default:
+    return "Unknown";  // Not type-safe!
+}
+
+// ✅ REQUIRED - Match.exhaustive for discriminated unions
+const result = Match.value(response).pipe(
+  Match.tag("loading", () => "Loading..."),
+  Match.tag("success", (r) => `Found ${r.data.length} items`),
+  Match.tag("error", (r) => `Error: ${r.error}`),
+  Match.exhaustive  // Compile error if cases missing!
+);
+```
+
+```typescript
+// ❌ FORBIDDEN - long if-else chains
+if (typeof value === "string") {
+  return `String: ${value}`;
+} else if (typeof value === "number") {
+  return `Number: ${value}`;
+} else if (Array.isArray(value)) {
+  return `Array: ${value.length}`;
+} else {
+  return "Unknown";
+}
+
+// ✅ REQUIRED - Match with predicates
+const result = Match.value(value).pipe(
+  Match.when(P.isString, (s) => `String: ${s}`),
+  Match.when(P.isNumber, (n) => `Number: ${n}`),
+  Match.when(P.isArray, (a) => `Array: ${a.length}`),
+  Match.orElse(() => "Unknown")
+);
+```
+
+**Match patterns**:
+- `Match.value(x)` — Start matching on a value
+- `Match.type<T>()` — Start matching on a type (for reusable matchers)
+- `Match.tag("tagName", fn)` — Match discriminated unions by `_tag`
+- `Match.when(predicate, fn)` — Match with custom predicate
+- `Match.exhaustive` — Compile error if not all cases handled
+- `Match.orElse(fn)` — Fallback handler (use sparingly)
+- `Match.option` — Returns `Option<A>` instead of throwing
+
+**Predicate guards** (replace `typeof` and `instanceof`):
+```typescript
+// ❌ FORBIDDEN - bare typeof/instanceof
+typeof x === "string"
+x instanceof Date
+Array.isArray(x)
+x && typeof x === "object" && "name" in x
+
+// ✅ REQUIRED - Effect Predicate
+P.isString(x)
+P.isDate(x)
+P.isArray(x)
+P.hasProperty(x, "name")
+P.isTagged("success")(x)  // For discriminated unions
+```
+
+**Predicate composition**:
+```typescript
+// ❌ FORBIDDEN - manual boolean logic
+if (x > 0 && x < 100 && x % 2 === 0) { ... }
+
+// ✅ REQUIRED - composed predicates
+const isValidRange = P.and(
+  Num.greaterThan(0),
+  Num.lessThan(100)
+);
+const isValidEven = P.and(isValidRange, (n: number) => n % 2 === 0);
+
+if (isValidEven(x)) { ... }
+
+// Or with Match
+Match.value(x).pipe(
+  Match.when(isValidEven, (n) => `Valid: ${n}`),
+  Match.orElse(() => "Invalid")
+);
+```
+
+**Required Predicate methods**: `P.isString`, `P.isNumber`, `P.isBoolean`, `P.isObject`, `P.isArray`, `P.isNull`, `P.isUndefined`, `P.isNullable`, `P.isNotNull`, `P.isNotUndefined`, `P.isNotNullable`, `P.hasProperty`, `P.isTagged`, `P.and`, `P.or`, `P.not`, `P.struct`
 
 ---
 

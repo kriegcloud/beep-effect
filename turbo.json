@@ -189,28 +189,25 @@
       ]
     },
     "docgen": {
-      "cache": false,
-      "dependsOn": [],
+      "cache": true,
+      "dependsOn": ["^build"],
       "inputs": [
         "$TURBO_DEFAULT$",
-        "packages/common/utils/docgen.json",
-        "packages/common/utils/src/**",
-        "packages/common/types/docgen.json",
-        "packages/common/types/src/**",
-        "packages/common/invariant/docgen.json",
-        "packages/common/invariant/src/**",
-        "packages/common/identity/docgen.json",
-        "packages/common/identity/src/**",
-        "packages/common/errors/docgen.json",
-        "packages/common/errors/src/**"
+        "docgen.json",
+        "src/**/*.ts"
       ],
       "outputs": [
-        "packages/common/utils/docs/**",
-        "packages/common/types/docs/**",
-        "packages/common/invariant/docs/**",
-        "packages/common/identity/docs/**",
-        "packages/common/errors/docs/**"
-
+        "docs/**"
+      ]
+    },
+    "docgen:aggregate": {
+      "cache": false,
+      "dependsOn": ["docgen"],
+      "inputs": [
+        "**/docs/modules/**"
+      ],
+      "outputs": [
+        "docs/**"
       ]
     },
     "docs:lint": {

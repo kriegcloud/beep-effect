@@ -10,22 +10,22 @@ node scripts/analyze-jsdoc.mjs [options] [target]
 
 ## Arguments
 
-| Argument | Description |
-|----------|-------------|
+| Argument | Description                             |
+|----------|-----------------------------------------|
 | `target` | Path to analyze (relative to repo root) |
 
 ## Options
 
-| Option | Description |
-|--------|-------------|
-| `--file=<filename>` | Analyze a specific file within the target directory |
-| `--recursive` | Recursively scan all subdirectories (default: true) |
-| `--no-recursive` | Only scan the immediate src directory |
-| `--extensions=<ext>` | Comma-separated file extensions to analyze (default: `.ts,.tsx`) |
+| Option                 | Description                                                                      |
+|------------------------|----------------------------------------------------------------------------------|
+| `--file=<filename>`    | Analyze a specific file within the target directory                              |
+| `--recursive`          | Recursively scan all subdirectories (default: true)                              |
+| `--no-recursive`       | Only scan the immediate src directory                                            |
+| `--extensions=<ext>`   | Comma-separated file extensions to analyze (default: `.ts,.tsx`)                 |
 | `--exclude=<patterns>` | Comma-separated glob patterns to exclude (default: `*.test.ts,*.spec.ts,*.d.ts`) |
-| `--json` | Output results as JSON only (no formatted report) |
-| `--list` | List all available targets for analysis |
-| `--help`, `-h` | Show help message |
+| `--json`               | Output results as JSON only (no formatted report)                                |
+| `--list`               | List all available targets for analysis                                          |
+| `--help`, `-h`         | Show help message                                                                |
 
 ## Examples
 

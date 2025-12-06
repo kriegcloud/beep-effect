@@ -279,6 +279,8 @@ export function SettingsDrawer({ sx, defaultSettings }: SettingsDrawerProps) {
       anchor="right"
       open={settings.openDrawer}
       onClose={settings.onCloseDrawer}
+      keepMounted={false}
+      disableRestoreFocus
       slotProps={{
         backdrop: { invisible: true },
         paper: {

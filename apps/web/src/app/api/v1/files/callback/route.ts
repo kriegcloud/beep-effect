@@ -1,7 +1,7 @@
 import { AuthService } from "@beep/iam-infra/adapters/better-auth/Auth.service";
 import { runServerPromise } from "@beep/runtime-server";
 import { FileStatus } from "@beep/shared-domain/entities/File/schemas";
-import { verifySignature } from "@beep/shared-infra/internal/upload/crypto";
+import { EncryptionService } from "@beep/shared-domain/services";
 import { UploadError } from "@beep/shared-infra/internal/upload/error";
 import { serverEnv } from "@beep/shared-infra/ServerEnv";
 import { Effect } from "effect";
@@ -80,7 +80,8 @@ export async function POST(request: Request) {
         }),
     });
 
-    const isValid = yield* verifySignature(bodyText, signatureHeader, signingSecret);
+    const encryptionService = yield* EncryptionService.EncryptionService;
+    const isValid = yield* encryptionService.verifySignature(bodyText, signatureHeader, signingSecret);
     if (!isValid) {
       return yield* Effect.fail(
         new UploadError({
@@ -129,7 +130,7 @@ export async function POST(request: Request) {
   });
 
   try {
-    const result = await runServerPromise(effect, "UploadCallbackRoute.POST");
+    const result = await runServerPromise(Effect.provide(effect, EncryptionService.layer), "UploadCallbackRoute.POST");
     return Response.json(result);
   } catch (error) {
     // Handle tagged errors

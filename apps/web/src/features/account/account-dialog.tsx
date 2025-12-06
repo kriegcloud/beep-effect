@@ -344,6 +344,7 @@ export const AccountDialog = (props: AccountDialogProps) => {
       maxWidth={"md"}
       fullWidth={true}
       fullScreen={true}
+      disableRestoreFocus
       slots={{
         transition: Transition,
       }}

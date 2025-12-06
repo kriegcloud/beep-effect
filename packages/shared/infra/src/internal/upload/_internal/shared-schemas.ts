@@ -2,11 +2,6 @@ import type { Json } from "@uploadthing/shared";
 import * as S from "effect/Schema";
 
 /**
- * Valid options for the `?actionType` query param
- */
-export const ActionType = S.Literal("upload");
-
-/**
  * Valid options for the `uploadthing-hook` header
  * for requests coming from UT server
  */

@@ -125,8 +125,15 @@ const JfifResolutionUnitTag = S.Struct({
   description: "Resolution unit for JFIF (e.g., inches for DPI, centimeters for DPCM).",
 });
 
+// SharedArrayBuffer is only available in cross-origin isolated contexts
+// We conditionally include it to avoid runtime errors in browsers without isolation headers
+const ThumbnailBufferSchema =
+  typeof SharedArrayBuffer !== "undefined"
+    ? S.Union(S.instanceOf(ArrayBuffer), S.instanceOf(SharedArrayBuffer), S.instanceOf(Buffer))
+    : S.Union(S.instanceOf(ArrayBuffer), S.instanceOf(Buffer));
+
 const JfifThumbnailTag = S.Struct({
-  value: S.Union(S.instanceOf(ArrayBuffer), S.instanceOf(SharedArrayBuffer), S.instanceOf(Buffer)),
+  value: ThumbnailBufferSchema,
   description: S.Literal("<24-bit RGB pixel data>"),
 }).annotations({
   schemaId: Symbol.for("@beep/schema/integrations/files/exif-metadata/ExifTags/JfifThumbnailTag"),
@@ -369,7 +376,7 @@ const MPFImageTags = S.Struct({
   ImageOffset: MPFImageDescriptionTag,
   DependentImage1EntryNumber: MPFImageDescriptionTag,
   DependentImage2EntryNumber: MPFImageDescriptionTag,
-  image: S.Union(S.instanceOf(ArrayBuffer), S.instanceOf(SharedArrayBuffer), S.instanceOf(Buffer)),
+  image: ThumbnailBufferSchema,
   base64: S.String,
 }).annotations({
   schemaId: Symbol.for("@beep/schema/integrations/files/exif-metadata/ExifTags/MPFImageTags"),
@@ -466,7 +473,7 @@ const CompositeTags = S.Struct({
 // Thumbnail tags
 const ThumbnailTags = S.Struct({
   type: S.Literal("image/jpeg"),
-  image: S.Union(S.instanceOf(ArrayBuffer), S.instanceOf(SharedArrayBuffer), S.instanceOf(Buffer)),
+  image: ThumbnailBufferSchema,
   base64: S.optional(S.String),
   Compression: S.optional(NumberTag),
   XResolution: S.optional(RationalTag),

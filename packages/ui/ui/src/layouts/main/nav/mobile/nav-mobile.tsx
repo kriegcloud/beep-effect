@@ -35,6 +35,8 @@ export function NavMobile({ data, open, onClose, slots, sx }: NavMobileProps) {
     <Drawer
       open={open}
       onClose={onClose}
+      keepMounted={false}
+      disableRestoreFocus
       slotProps={{
         paper: {
           sx: [

@@ -1,112 +1,353 @@
-# @beep/errors — Shared logging, telemetry, and error taxonomy
+# @beep/errors
 
-Effect-first observability toolkit used across runtimes. Ships server-only logging layers, client-safe helpers, and a schema-backed error namespace (`BeepError.*`). Respect the client/server split: Node-only code must stay under `@beep/errors/server`; browser-safe code under `@beep/errors/client` or `shared`.
+A library for system-wide errors and error utilities
 
-## Fit and scope
-- Use for platform-agnostic logging wrappers, span/metric helpers, and contract-friendly errors annotated with `HttpApiSchema`.
-- Keep transport adapters and route handlers in their owning slice; this package should remain infrastructure-neutral.
-- Client entry point must stay free of Node/FS/OS/process access so it can ship to browsers.
-- Extend the error taxonomy only with schema-backed, status-aware tagged errors.
+## Purpose
 
-## Module map
-- `@beep/errors/shared` — pure helpers (`withLogContext`, `withRootSpan`, `withSpanAndMetrics`, `accumulateEffects`, `parseLevel`, `formatCausePretty`, `BeepError` re-export). Safe in all environments.
-- `@beep/errors/client` — re-exports shared + client-safe `withEnvLogging` (no-op) and `accumulateEffectsAndReport` that logs via console without Node features.
-- `@beep/errors/server` — env-driven logger layers (`makeEnvLoggerLayerFromEnv`, `withEnvLogging`, `makePrettyConsoleLoggerLayer`), pretty console logger, stack/code-frame rendering (`formatCauseHeading`), and server-flavored `accumulateEffectsAndReport`.
-- `BeepError.*` (from `src/errors.ts`) — tagged errors annotated with HTTP status: `UnknownError`, `NotFoundError`, `UniqueViolationError`, `DatabaseError`, `TransactionError`, `ConnectionError`, `ParseError`, `Unauthorized`, `Forbidden`, `UnrecoverableError`, plus `Es5Error` shim.
+Effect-first observability toolkit providing logging layers, telemetry helpers, and a schema-backed error taxonomy. This package serves as the foundational observability layer for the entire monorepo, offering runtime-specific entry points (server vs client) while maintaining a shared core of pure helpers. All errors are annotated with HTTP status codes for seamless RPC integration.
 
-## Usage patterns
+## Key Exports
 
-Instrument an effect with spans, metrics, and annotations (client-safe)
-```ts
+| Export | Description |
+|--------|-------------|
+| `BeepError.*` | Tagged error classes with HTTP annotations: `UnknownError`, `NotFoundError`, `DatabaseError`, `UniqueViolationError`, `TransactionError`, `ConnectionError`, `ParseError`, `Unauthorized`, `Forbidden`, `UnrecoverableError`, `Es5Error` |
+| `withLogContext` | Annotate an effect with stable log fields for service/component context |
+| `withRootSpan` | Wrap an effect with a root span label for distributed tracing |
+| `withSpanAndMetrics` | Instrument an effect with spans, counters, and histograms |
+| `accumulateEffects` | Partition concurrent effects into successes/errors (pure aggregation) |
+| `accumulateEffectsAndReport` | Accumulate effects and log failures (client/server variants) |
+| `formatCausePretty` | Pretty-print Effect causes with optional colors |
+| `parseLevel` | Convert log level literals to Effect LogLevel values |
+| `makePrettyConsoleLoggerLayer` | Server-only pretty console logger factory |
+| `makeEnvLoggerLayerFromEnv` | Server-only env-driven logger layer (`APP_LOG_FORMAT`, `APP_LOG_LEVEL`) |
+| `withEnvLogging` | Apply env-driven logging to an effect (server variant; client is no-op) |
+| `formatCauseHeading` | Server-only rich error headers with stack parsing and code frames |
+
+## Architecture Fit
+
+- **Client/Server Split**: Strict separation between browser-safe (`client.ts`, `shared.ts`) and Node-dependent (`server.ts`) code
+- **Entry Points**: Three module paths for different runtime contexts:
+  - `@beep/errors` — Default (re-exports client)
+  - `@beep/errors/client` — Browser-safe helpers
+  - `@beep/errors/server` — Node.js-specific logging layers
+  - `@beep/errors/shared` — Pure, environment-agnostic helpers
+- **HTTP Integration**: All `BeepError.*` classes use `HttpApiSchema.annotations` for automatic status code mapping in RPC handlers
+- **Effect-First**: No `async/await` or Promises; uses Effect namespace imports and utilities exclusively
+
+## Module Structure
+
+```
+src/
+├── errors.ts     # BeepError.* tagged error taxonomy
+├── shared.ts     # Pure helpers (withLogContext, withSpanAndMetrics, accumulateEffects)
+├── client.ts     # Client-safe exports + no-op withEnvLogging
+├── server.ts     # Node-specific logger layers, stack parsing, code frames
+└── index.ts      # Default export (re-exports client)
+```
+
+## Usage
+
+### Namespace Import
+
+```typescript
+import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import * as A from "effect/Array";
+import * as Metric from "effect/Metric";
+```
+
+### Instrument Effects with Spans and Metrics
+
+```typescript
 import { withLogContext, withRootSpan, withSpanAndMetrics } from "@beep/errors/client";
 import * as Effect from "effect/Effect";
 import * as Metric from "effect/Metric";
 
+const uploadFile = (file: File) =>
+  Effect.gen(function* () {
+    // File processing logic
+    yield* Effect.logInfo("Processing file", { fileName: file.name });
+  });
+
+export const run = uploadFile(myFile).pipe(
+  withLogContext({ service: "upload", userId: "user-123" }),
+  withRootSpan("upload.processFile"),
+  withSpanAndMetrics(
+    "upload.processFile",
+    {
+      successCounter: Metric.counter("upload_success_total"),
+      errorCounter: Metric.counter("upload_error_total"),
+      durationHistogram: Metric.histogram("upload_duration_ms"),
+    },
+    { fileSize: myFile.size }
+  )
+);
+```
+
+### Server-Side Pretty Logging
+
+```typescript
+import { makePrettyConsoleLoggerLayer, withPrettyLogging } from "@beep/errors/server";
+import * as Effect from "effect/Effect";
+import * as LogLevel from "effect/LogLevel";
+
 const program = Effect.gen(function* () {
-  // work
+  yield* Effect.logInfo("Starting application");
+  // Application logic
 });
 
 export const run = program.pipe(
-  withLogContext({ service: "upload" }),
-  withRootSpan("upload.run"),
-  withSpanAndMetrics("upload.run", {
-    successCounter: Metric.counter("upload_success_total"),
-    errorCounter: Metric.counter("upload_error_total"),
-    durationHistogram: Metric.histogram("upload_duration_ms"),
+  withPrettyLogging({
+    level: LogLevel.Info,
+    colors: true,
+    showDate: true,
+    showSpans: true,
+    includeCausePretty: true,
   })
 );
 ```
 
-Parse env-driven logging on the server and apply it
-```ts
+### Environment-Driven Logging
+
+```typescript
 import { makeEnvLoggerLayerFromEnv, withEnvLogging } from "@beep/errors/server";
 import * as Effect from "effect/Effect";
 
-const main = Effect.logInfo("boot");
+const main = Effect.gen(function* () {
+  yield* Effect.logInfo("Server booting");
+  // Server initialization
+});
 
 export const run = Effect.gen(function* () {
-  const envLayer = yield* makeEnvLoggerLayerFromEnv({ includeCausePretty: true });
-  return yield* main.pipe(withEnvLogging({ includeCausePretty: true }), Effect.provide(envLayer));
+  const envLayer = yield* makeEnvLoggerLayerFromEnv({
+    includeCausePretty: true
+  });
+  return yield* main.pipe(
+    withEnvLogging({ includeCausePretty: true }),
+    Effect.provide(envLayer)
+  );
 });
 ```
 
-Accumulate concurrent effects and report failures
-```ts
+Reads environment variables:
+- `APP_LOG_FORMAT` — `pretty` | `logfmt` | `json` (defaults to `pretty` in dev)
+- `APP_LOG_LEVEL` — `All` | `Trace` | `Debug` | `Info` | `Warning` | `Error` | `Fatal` | `None`
+
+### Accumulate Concurrent Effects
+
+```typescript
 import { accumulateEffectsAndReport } from "@beep/errors/server";
-import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as A from "effect/Array";
 import * as F from "effect/Function";
 
 const tasks = [
-  Effect.succeed("ok"),
-  Effect.fail(new Error("boom")),
-] as const;
+  Effect.succeed("task-1"),
+  Effect.fail(new Error("task-2 failed")),
+  Effect.succeed("task-3"),
+];
 
 export const run = Effect.gen(function* () {
   const { successes, errors } = yield* accumulateEffectsAndReport(tasks, {
     concurrency: "unbounded",
-    annotations: { service: "batch" },
+    annotations: { service: "batch-processor" },
+    spanLabel: "batch.process",
   });
 
-  const okCount = F.pipe(successes, A.size);
-  const errCount = F.pipe(errors, A.size);
-  return { okCount, errCount };
+  const successCount = F.pipe(successes, A.size);
+  const errorCount = F.pipe(errors, A.size);
+
+  yield* Effect.logInfo("Batch complete", { successCount, errorCount });
+  return { successCount, errorCount };
 });
 ```
 
-Define a slice-specific tagged error annotated for HTTP
-```ts
+### Define Custom Tagged Errors
+
+```typescript
 import { BeepError } from "@beep/errors/shared";
 import * as HttpApiSchema from "@effect/platform/HttpApiSchema";
 import * as S from "effect/Schema";
 
-export class BillingDeniedError extends S.TaggedError<BillingDeniedError>()(
-  "BillingDeniedError",
-  { subscriptionId: S.String, reason: S.String },
-  HttpApiSchema.annotations({ status: 402, description: "Billing failed for this subscription" })
+export class PaymentRequiredError extends S.TaggedError<PaymentRequiredError>()(
+  "PaymentRequiredError",
+  {
+    subscriptionId: S.String,
+    reason: S.String,
+    amount: S.Number
+  },
+  HttpApiSchema.annotations({
+    status: 402,
+    description: "Payment required to access this resource"
+  })
 ) {
-  static toUnknown(): BeepError.UnknownError.Type {
-    return new BeepError.UnknownError({ cause: new Error("billing denied") });
+  static toUnknown(cause: unknown): BeepError.UnknownError.Type {
+    return new BeepError.UnknownError({
+      cause,
+      customMessage: "Payment processing failed"
+    });
   }
 }
 ```
 
-## Architecture notes
-- Effect namespace imports only; avoid native array/string helpers in new code. For collections, use `A.*` + `F.pipe`.
-- Client/server split is strict: Node APIs (fs, os, process, path, TTY) stay in `server.ts`. Shared/client must stay side-effect free and browser-safe.
-- Logging defaults: `readEnvLoggerConfig` maps `APP_LOG_FORMAT` (`pretty` | `logFmt` | `json`) and `APP_LOG_LEVEL`; warns in dev on `NEXT_PUBLIC_*` usage.
-- Cause rendering (server) is opt-in via `includeCausePretty`; code-frames are guarded to avoid noisy logs in prod paths.
-- Accumulation helpers separate pure aggregation (`accumulateEffects`) from reporting variants (`accumulateEffectsAndReport`).
+### Use Built-In Error Types
 
-## Verification commands
-- `bunx turbo run lint --filter=@beep/errors`
-- `bunx turbo run check --filter=@beep/errors`
-- `bunx turbo run test --filter=@beep/errors`
-- Optional: `bun run --filter @beep/errors build`, `bun run --filter @beep/errors coverage`, `bunx turbo run lint:circular --filter=@beep/errors`
+```typescript
+import { BeepError } from "@beep/errors/shared";
+import * as Effect from "effect/Effect";
 
-## Contributor checklist
-- Keep client entry points browser-safe; move Node-only logic to `server.ts`.
-- Annotate new TaggedErrors with `HttpApiSchema.annotations({ status })` and add usage notes in this README/AGENT.
-- Preserve Effect namespace imports; no native array/string helpers in examples or implementations.
-- Update tests under `test/utils` for new logging/accumulation behavior; note env knob changes in `docs/PRODUCTION_CHECKLIST.md`.
-- Run lint + check (and tests/build when touching emitted surfaces) before handoff.
+const findUser = (id: string) =>
+  Effect.gen(function* () {
+    const user = yield* lookupUser(id);
+    if (!user) {
+      return yield* Effect.fail(
+        new BeepError.NotFoundError({
+          id,
+          resource: "user"
+        })
+      );
+    }
+    return user;
+  });
+```
+
+Available error types:
+- `BeepError.UnknownError` — Generic wrapper with optional custom message
+- `BeepError.NotFoundError` — 404 resource not found
+- `BeepError.UniqueViolationError` — 409 unique constraint violation
+- `BeepError.DatabaseError` — 500 database operation failure
+- `BeepError.TransactionError` — 500 transaction failure
+- `BeepError.ConnectionError` — 500 connection/channel failure
+- `BeepError.ParseError` — 400 payload/decoding failure
+- `BeepError.Unauthorized` — 401 authentication required
+- `BeepError.Forbidden` — 403 authorization denied
+- `BeepError.UnrecoverableError` — 500 fatal error marker
+- `BeepError.Es5Error` — ES5-compatible error wrapper
+
+## What Belongs Here
+
+- **Pure observability helpers** safe in all environments (shared)
+- **Server-specific logging layers** using Node APIs (fs, os, process)
+- **Tagged error taxonomy** with HTTP annotations for RPC
+- **Effect-first instrumentation** (spans, metrics, annotations)
+- **Cause formatting** and pretty-printing utilities
+- **Environment-driven configuration** for runtime logging
+
+## What Must NOT Go Here
+
+- **Transport adapters**: Keep HTTP/RPC/WebSocket handlers in owning slices
+- **Domain-specific errors**: Slice-specific errors belong in `packages/*/domain`
+- **Business logic**: No validation rules, policies, or workflows
+- **Client-unsafe code in shared/client**: Node APIs must stay in `server.ts`
+
+## Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| `effect` | Core Effect runtime, Schema, logging |
+| `@effect/platform` | HttpApiSchema annotations |
+| `@beep/schema` | Schema utilities |
+| `@beep/utils` | Pure runtime helpers |
+| `@beep/identity` | Package identity |
+| `@beep/constants` | Log level/format schemas |
+| `@beep/invariant` | Assertion contracts |
+| `picocolors` | Terminal colorization |
+| `uuid` | Correlation ID generation |
+
+## Development
+
+```bash
+# Type check
+bun run --filter @beep/errors check
+
+# Lint
+bun run --filter @beep/errors lint
+
+# Lint and auto-fix
+bun run --filter @beep/errors lint:fix
+
+# Build
+bun run --filter @beep/errors build
+
+# Run tests
+bun run --filter @beep/errors test
+
+# Test with coverage
+bun run --filter @beep/errors coverage
+
+# Check for circular dependencies
+bun run --filter @beep/errors lint:circular
+```
+
+## Guidelines for Contributors
+
+### Client/Server Split
+
+- **Shared** (`shared.ts`): Pure helpers, no side effects, browser-safe
+- **Client** (`client.ts`): Re-exports shared + client-safe variants (no-op `withEnvLogging`)
+- **Server** (`server.ts`): Node APIs only (fs, os, process, TTY)
+
+### Effect Patterns
+
+Always use Effect namespace imports and utilities:
+
+```typescript
+// ✅ REQUIRED
+import * as Effect from "effect/Effect";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as Str from "effect/String";
+
+F.pipe(items, A.map(fn));
+F.pipe(str, Str.trim);
+
+// ❌ FORBIDDEN
+items.map(fn);
+str.trim();
+```
+
+### Adding Tagged Errors
+
+1. Define in `src/errors.ts` using `S.TaggedError`
+2. Add `HttpApiSchema.annotations({ status })` for HTTP mapping
+3. Export via `BeepError.*` namespace
+4. Add type namespace declaration for `.Type` and `.Encoded`
+5. Document in this README and `AGENTS.md`
+
+### Testing New Helpers
+
+- Place tests in `test/utils/` directory
+- Test both success and error paths
+- Verify pure functions produce expected outputs
+- For logging helpers, verify annotations/spans are applied
+- For accumulation, test concurrency behavior
+
+### Environment Variables
+
+When adding new env-driven configuration:
+1. Define schema in `@beep/constants`
+2. Parse in `shared.ts` if pure, otherwise `server.ts`
+3. Document in `docs/PRODUCTION_CHECKLIST.md`
+4. Warn on deprecated `NEXT_PUBLIC_*` usage
+
+## Relationship to Other Packages
+
+- `@beep/schema` — Shared schema primitives and EntityId factories
+- `@beep/invariant` — Assertion contracts and tagged error base
+- `@beep/utils` — Pure string/entity helpers (no validation)
+- `@beep/constants` — Schema-backed enums for log levels/formats
+- `packages/*/domain` — Domain-specific error extensions
+- `packages/runtime/*` — ManagedRuntime integration points
+
+## Testing
+
+- Use Bun test framework via `bun test`
+- Tests located in `test/` directory
+- Focus on pure function behavior and Effect composition
+- Mock Node APIs when testing server-only code
+
+## Versioning and Changes
+
+- Foundational package — prefer **additive** changes
+- For breaking changes, coordinate with all consuming slices
+- Document migrations in PR description

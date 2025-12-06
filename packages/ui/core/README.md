@@ -1,0 +1,525 @@
+# @beep/ui-core
+
+Design system foundation for the beep-effect monorepo. Provides MUI theme infrastructure, settings management, internationalization, and Effect-powered utilities.
+
+## Overview
+
+`@beep/ui-core` is the source of truth for design tokens, palette mathematics, typography scales, and MUI component overrides. It combines Material-UI theming with Effect patterns to deliver a type-safe, customizable design system consumed by `@beep/ui` and higher-level application packages.
+
+## Installation
+
+```bash
+bun install @beep/ui-core
+```
+
+## Key Features
+
+- **Effect-First Theme System**: MUI theme factory with Effect utilities and type-safe color management
+- **Settings-Driven Customization**: Runtime theme configuration (mode, colors, typography, layout)
+- **Internationalization**: i18next integration with locale-aware MUI components
+- **Component Overrides**: Comprehensive MUI component styling catalog
+- **Effect DateTime Adapter**: MUI X Date Pickers integration with Effect's DateTime
+- **Utility Collection**: Color math, typography, storage, formatting with Effect patterns
+
+## Package Structure
+
+```
+packages/ui/core/
+├── src/
+│   ├── adapters/          # MUI X adapters (Effect DateTime)
+│   ├── constants/         # Iconify registration
+│   ├── i18n/             # Internationalization config
+│   ├── settings/         # Settings types and defaults
+│   ├── theme/            # Theme system
+│   │   ├── core/        # Base theme (palette, typography, components)
+│   │   ├── styles/      # Reusable style objects
+│   │   └── with-settings/ # Settings application pipeline
+│   └── utils/           # Effect-powered utilities
+└── package.json
+```
+
+## Exports
+
+### Theme System
+
+```typescript
+import { createTheme, baseTheme, themeConfig } from "@beep/ui-core/theme";
+import { Rtl } from "@beep/ui-core/theme/with-settings";
+import type { ThemeOptions, ThemeColorPreset } from "@beep/ui-core/theme";
+```
+
+**Core Exports:**
+- `createTheme(props)` - Main theme factory accepting settings, locale components, and overrides
+- `baseTheme` - Base theme configuration with dual color schemes (light/dark)
+- `themeConfig` - Theme configuration defaults (direction, mode, fonts, CSS variables)
+- `Rtl` - RTL wrapper component with stylis plugin support
+
+**Theme Building Blocks:**
+- `palette`, `typography`, `shadows`, `customShadows`, `mixins`, `opacity`
+- `components` - Complete MUI component override catalog
+- `primaryColorPresets`, `secondaryColorPresets` - Color preset system
+- `applySettingsToTheme`, `applySettingsToComponents` - Settings application utilities
+
+### Settings Management
+
+```typescript
+import { defaultSettings, SETTINGS_STORAGE_KEY } from "@beep/ui-core/settings";
+import type { SettingsState, SettingsContextValue } from "@beep/ui-core/settings";
+```
+
+**Settings Fields:**
+- `mode` - Color scheme (light/dark)
+- `direction` - Text direction (ltr/rtl)
+- `contrast` - Contrast level (default/high)
+- `primaryColor` - Theme color preset
+- `fontSize` - Base font size in pixels
+- `fontFamily` - Primary font family
+- `navLayout` - Navigation layout (vertical/horizontal/mini)
+- `navColor` - Navigation color integration
+- `compactLayout` - Compact spacing mode
+- `version` - Settings schema version for storage invalidation
+
+### Internationalization
+
+```typescript
+import { allLanguages, allLangs, fallbackLang, defaultNS } from "@beep/ui-core/i18n";
+import { getCurrentLang, i18nOptions, i18nResourceLoader } from "@beep/ui-core/i18n/locales-config";
+import { SupportedLangValue } from "@beep/ui-core/i18n/SupportedLangValue";
+```
+
+**Supported Languages:**
+- English (`en`)
+- French (`fr`)
+- Arabic (`ar`)
+- Chinese (`cn`)
+
+Each language includes MUI locale bundles (Data Grid, Date Pickers) and translation namespaces (common, navbar, messages).
+
+### Utilities
+
+```typescript
+import {
+  // Color utilities
+  createPaletteChannel,
+  hexToRgbChannel,
+  cssVarRgba,
+  rgbaFromChannel,
+
+  // Typography
+  pxToRem,
+  remToPx,
+  setFont,
+
+  // Storage
+  getStorage,
+  setStorage,
+  removeStorage,
+  getCookie,
+  setCookie,
+
+  // Formatting
+  fDate,
+  fTime,
+  fDateTime,
+  fTimestamp,
+  formatNumber,
+
+  // React utilities
+  createCtx,
+  mergeClasses,
+  isActiveLink,
+
+  // URL utilities
+  isExternalLink,
+  hasParams,
+  removeParams,
+} from "@beep/ui-core/utils";
+```
+
+### Adapters
+
+```typescript
+import { AdapterEffectDateTime } from "@beep/ui-core/adapters";
+import type { AdapterEffectDateTimeOptions } from "@beep/ui-core/adapters";
+```
+
+MUI X Date Picker adapter using Effect's `DateTime` module for type-safe date operations.
+
+### Assets
+
+```typescript
+// Import global styles
+import "@beep/ui-core/globals.css";
+
+// PostCSS configuration
+import postcssConfig from "@beep/ui-core/postcss.config";
+```
+
+## Usage Examples
+
+### Creating a Theme
+
+```typescript
+import { createTheme } from "@beep/ui-core/theme";
+import { defaultSettings } from "@beep/ui-core/settings";
+import { getCurrentLang } from "@beep/ui-core/i18n/locales-config";
+import { ThemeProvider } from "@mui/material/styles";
+
+// Basic theme
+const theme = createTheme();
+
+// With settings
+const customTheme = createTheme({
+  settingsState: {
+    ...defaultSettings,
+    mode: "dark",
+    primaryColor: "blue",
+  },
+});
+
+// With locale and overrides
+const currentLang = getCurrentLang("en");
+const fullTheme = createTheme({
+  settingsState: defaultSettings,
+  localeComponents: currentLang.systemValue,
+  themeOverrides: {
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          root: { borderRadius: 12 },
+        },
+      },
+    },
+  },
+});
+
+function App() {
+  return (
+    <ThemeProvider theme={fullTheme}>
+      {/* Your app */}
+    </ThemeProvider>
+  );
+}
+```
+
+### Using Settings
+
+```typescript
+import { defaultSettings, SETTINGS_STORAGE_KEY } from "@beep/ui-core/settings";
+import { getStorage, setStorage } from "@beep/ui-core/utils";
+import type { SettingsState } from "@beep/ui-core/settings";
+
+// Load persisted settings
+const loadSettings = (): SettingsState => {
+  const stored = getStorage(SETTINGS_STORAGE_KEY);
+
+  if (stored && stored.version === defaultSettings.version) {
+    return { ...defaultSettings, ...stored };
+  }
+
+  // Version mismatch - use defaults
+  return defaultSettings;
+};
+
+// Save settings
+const saveSettings = (settings: SettingsState) => {
+  setStorage(SETTINGS_STORAGE_KEY, settings);
+};
+```
+
+### Color Utilities with Effect
+
+```typescript
+import * as F from "effect/Function";
+import { createPaletteChannel, cssVarRgba } from "@beep/ui-core/utils";
+
+// Create palette channels for CSS variables
+const bluePalette = F.pipe(
+  "#2065D1",
+  createPaletteChannel
+);
+// Returns: { main: "33 101 209", light: "...", dark: "...", ... }
+
+// Generate rgba CSS var
+const blueAlpha = cssVarRgba("--palette-primary-mainChannel", 0.08);
+// Returns: "rgba(var(--palette-primary-mainChannel) / 0.08)"
+```
+
+### Internationalization
+
+```typescript
+import { getCurrentLang, i18nOptions, i18nResourceLoader } from "@beep/ui-core/i18n/locales-config";
+import { SupportedLangValue } from "@beep/ui-core/i18n/SupportedLangValue";
+import i18next from "i18next";
+
+// Initialize i18next
+await i18next
+  .use(i18nResourceLoader)
+  .init(i18nOptions(SupportedLangValue.Enum.en));
+
+// Get current language with MUI locale
+const currentLang = getCurrentLang(SupportedLangValue.Enum.fr);
+console.log(currentLang.label); // "Français"
+console.log(currentLang.systemValue.components); // MUI locale components
+```
+
+### Using Effect DateTime Adapter
+
+```typescript
+import { AdapterEffectDateTime } from "@beep/ui-core/adapters";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+
+function DatePickerExample() {
+  return (
+    <LocalizationProvider dateAdapter={AdapterEffectDateTime}>
+      <DatePicker label="Select date" />
+    </LocalizationProvider>
+  );
+}
+```
+
+## Theme Architecture
+
+### Base Theme Pipeline
+
+1. **Base Theme** (`create-theme.ts`): Assembles dual color schemes (light/dark), typography, shape, mixins, and CSS variables
+2. **Settings Application** (`with-settings/`): Applies runtime settings to theme core and components
+3. **Locale Integration**: Merges MUI component locale bundles for Data Grid and Date Pickers
+4. **User Overrides**: Final layer for custom component styles
+
+### Color System
+
+The package uses **channel-based color management** for CSS variable support:
+
+```typescript
+// Color tokens stored as RGB channels
+const palette = {
+  primary: {
+    main: "33 101 209",        // RGB channels
+    light: "...",
+    dark: "...",
+    contrastText: "...",
+  },
+};
+
+// Used in CSS variables
+// --palette-primary-main: 33 101 209;
+// --palette-primary-mainChannel: 33 101 209;
+
+// Enables alpha manipulation
+// background-color: rgba(var(--palette-primary-mainChannel) / 0.08);
+```
+
+### Component Override Pattern
+
+All MUI component overrides follow this structure:
+
+```typescript
+// packages/ui/core/src/theme/core/components/button.tsx
+import type { Components, Theme } from "@mui/material/styles";
+
+export const MuiButton: Components<Theme>["MuiButton"] = {
+  styleOverrides: {
+    root: ({ theme }) => ({
+      // Overrides using theme tokens
+    }),
+  },
+};
+```
+
+Overrides are aggregated in `components/index.ts` and merged into the base theme.
+
+## Effect Patterns
+
+### Import Conventions
+
+```typescript
+// Namespace imports for Effect modules
+import * as Effect from "effect/Effect";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
+```
+
+### Collection Operations
+
+```typescript
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+
+// Use Effect Array utilities with pipe
+const names = F.pipe(
+  items,
+  A.map((item) => item.name),
+  A.filter((name) => name.length > 0)
+);
+
+// Find operations return Option
+const first = F.pipe(
+  items,
+  A.findFirst((item) => item.active)
+);
+```
+
+### String Operations
+
+```typescript
+import * as Str from "effect/String";
+import * as F from "effect/Function";
+
+const capitalized = F.pipe(
+  str,
+  Str.trim,
+  Str.capitalize
+);
+```
+
+## Configuration
+
+### Theme Config
+
+Default theme configuration in `theme-config.ts`:
+
+```typescript
+export const themeConfig = {
+  defaultMode: "dark",
+  direction: "ltr",
+  fontFamily: {
+    primary: '"Public Sans Variable", sans-serif',
+    secondary: '"Barlow", sans-serif',
+    code: 'Fira Code',
+  },
+  cssVariables: {
+    colorSchemeSelector: "class",
+  },
+};
+```
+
+### Settings Storage
+
+Settings persist to localStorage with version-based invalidation:
+
+```typescript
+export const SETTINGS_STORAGE_KEY = "app-settings";
+
+export const defaultSettings: SettingsState = {
+  mode: "dark",
+  direction: "ltr",
+  contrast: "default",
+  navLayout: "vertical",
+  primaryColor: "default",
+  navColor: "integrate",
+  compactLayout: true,
+  fontSize: 16,
+  fontFamily: themeConfig.fontFamily.primary,
+  version: "1.0.0", // Increment to invalidate old settings
+};
+```
+
+## Development
+
+### Scripts
+
+```bash
+# Development
+bun run dev              # Watch mode compilation
+
+# Build
+bun run build            # Full build (ESM + CJS + annotations)
+bun run build-esm        # TypeScript compilation
+bun run build-cjs        # CommonJS transformation
+bun run build-annotate   # Pure call annotations
+
+# Quality
+bun run check            # Type check
+bun run lint             # Biome lint
+bun run lint:fix         # Auto-fix lint issues
+
+# Testing
+bun run test             # Run tests
+bun run coverage         # Test coverage
+```
+
+### Adding a Color Preset
+
+1. Update `ThemeColorPreset` union in `theme/with-settings/color-presets.ts`
+2. Add preset to both `primaryColorPresets` and `secondaryColorPresets`
+3. Update UI controls in `@beep/ui` that surface the preset list
+
+### Adding a Component Override
+
+1. Create override file in `theme/core/components/[component-name].tsx`
+2. Export component override following MUI pattern
+3. Add export to `theme/core/components/index.ts`
+4. Run `bun run check` to verify types
+
+### Adding a Locale
+
+1. Create translation files in `i18n/langs/[locale-code]/`
+2. Add locale configuration to `allLanguages` in `i18n/constants.ts`
+3. Include MUI locale bundles in `systemValue.components`
+4. Update `SupportedLangValue` enum if needed
+
+## Integration
+
+### Consumed By
+
+- `@beep/ui` - Main UI component library
+- `apps/web` - Next.js frontend application
+
+### Dependencies
+
+**Core:**
+- `effect` - Effect runtime and utilities
+- `@mui/material` - Material-UI components
+- `@mui/x-data-grid`, `@mui/x-date-pickers`, `@mui/x-tree-view` - MUI X components
+- `@emotion/react`, `@emotion/cache` - Styling engine
+- `i18next` - Internationalization framework
+
+**Beep Packages:**
+- `@beep/invariant` - Assertion contracts
+- `@beep/schema` - Effect Schema utilities
+- `@beep/utils` - Effect utilities and no-ops
+- `@beep/constants` - Schema-backed enums
+- `@beep/shared-domain` - Shared domain entities
+
+## Architecture Notes
+
+### Import Rules
+
+- Use `@beep/ui-core/[module]` path aliases (defined in package.json exports)
+- Never use relative `../../../` paths across packages
+- Prefer namespace imports for Effect modules
+
+### Effect-First Guidelines
+
+- No `async/await` or bare Promises in application code
+- Use Effect utilities for all array/string/record operations
+- Collections via `A.*`, strings via `Str.*`, records via `Record.*`
+- Import Effect modules with namespace imports (`import * as A from "effect/Array"`)
+
+### Critical Rules
+
+- **NEVER** use native array methods (`map`, `filter`, `forEach`, etc.) - use Effect `A.*` utilities
+- **NEVER** use native string methods (`charAt`, `split`, `trim`, etc.) - use Effect `Str.*` utilities
+- **ALWAYS** use `F.pipe` for function composition
+- **ALWAYS** use uppercase constructors (`S.Struct`, `S.Array`, `S.String`)
+
+## Related Packages
+
+- [`@beep/ui`](../ui/README.md) - Main UI component library built on @beep/ui-core
+- [`@beep/constants`](../../common/constants/README.md) - Schema-backed enums and constants
+- [`@beep/schema`](../../common/schema/README.md) - Effect Schema utilities
+
+## References
+
+- [MUI Theming Documentation](https://llms.mui.com/material-ui/7.2.0/customization/theming.md)
+- [MUI CSS Theme Variables](https://llms.mui.com/material-ui/7.2.0/customization/css-theme-variables/overview.md)
+- [MUI Theme Components](https://llms.mui.com/material-ui/7.2.0/customization/theme-components.md)
+- [MUI RTL Support](https://llms.mui.com/material-ui/7.2.0/customization/right-to-left.md)
+- [Effect Documentation](https://effect.website)
+
+## License
+
+MIT

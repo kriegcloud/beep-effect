@@ -1,77 +1,167 @@
-# Todox
+# @beep/notes
 
-## Getting Started
+Collaborative note-taking and document editing application built with Next.js 15, Effect, and Plate editor.
+
+## Overview
+
+`@beep/notes` is a full-featured document editing application within the beep-effect monorepo. It provides real-time collaborative editing capabilities powered by YJS, rich text editing via Plate, and integrates with the beep-effect IAM and documents infrastructure layers.
+
+## Features
+
+- **Rich Text Editing**: Powered by [Plate](https://platejs.org/) with extensive plugin support
+- **Real-time Collaboration**: YJS-based collaborative editing with Hocuspocus WebSocket server
+- **Authentication**: Better Auth integration via `@beep/iam-*` packages
+- **File Management**: Document storage and versioning via `@beep/documents-*` packages
+- **AI Integration**: OpenAI-powered features for content generation
+- **Multi-database**: PostgreSQL (via Prisma) + Redis for caching and collaboration state
+
+## Architecture
+
+### Application Structure
+
+```
+apps/notes/
+├── src/
+│   ├── app/                    # Next.js 15 App Router
+│   │   ├── (dev)/             # Development routes
+│   │   ├── (dynamic)/         # Main app routes
+│   │   │   ├── (main)/        # Main app layout
+│   │   │   │   ├── (auth)/    # Authentication flows
+│   │   │   │   └── (protected)/ # Protected routes
+│   │   ├── api/               # Next.js API routes
+│   │   └── editor/            # Editor page
+│   ├── components/            # React components
+│   │   ├── auth/              # Auth components & hooks
+│   │   ├── editor/            # Editor-specific components
+│   │   ├── context-panel/     # Document context panel
+│   │   ├── navbar/            # Navigation components
+│   │   ├── settings/          # Settings UI
+│   │   └── ui/                # Reusable UI components
+│   ├── registry/              # Plate editor registry
+│   │   ├── app/               # App-specific editor config
+│   │   ├── components/        # Editor components
+│   │   ├── ui/                # Editor UI primitives
+│   │   └── lib/               # Editor utilities
+│   ├── server/                # Backend services
+│   │   ├── api/               # tRPC API layer
+│   │   ├── hono/              # Hono API layer
+│   │   ├── auth/              # Better Auth configuration
+│   │   ├── yjs/               # YJS collaboration server
+│   │   ├── db.ts              # Prisma client
+│   │   ├── redis.ts           # Redis client
+│   │   └── ratelimit.ts       # Rate limiting
+│   ├── trpc/                  # tRPC client configuration
+│   ├── lib/                   # Utilities
+│   └── env.ts                 # Environment variables
+├── prisma/
+│   ├── schema.prisma          # Prisma schema
+│   ├── migrations/            # Database migrations
+│   └── seed.ts                # Database seeding
+├── public/                    # Static assets
+└── tooling/                   # Build scripts
+```
+
+### Technology Stack
+
+| Layer | Technologies |
+|-------|-------------|
+| **Frontend** | Next.js 15, React 19, Plate Editor, TanStack Query |
+| **State Management** | Jotai, Zustand, React Query |
+| **Backend** | tRPC, Hono, Better Auth |
+| **Database** | PostgreSQL (Prisma), Redis (ioredis) |
+| **Collaboration** | YJS, Hocuspocus |
+| **AI** | Vercel AI SDK, OpenAI |
+| **File Upload** | UploadThing |
+| **Styling** | TailwindCSS, Material-UI, Radix UI |
+| **Effect Integration** | `@beep/*` workspace packages |
+
+### Dependencies on beep-effect Packages
+
+This application integrates with the following beep-effect workspace packages:
+
+#### Common Layer
+- `@beep/constants` - Schema-backed enums and constants
+- `@beep/contract` - Effect-first contract system
+- `@beep/errors` - Logging and telemetry
+- `@beep/identity` - Package identity
+- `@beep/invariant` - Assertion contracts
+- `@beep/mock` - Mock data for testing
+- `@beep/schema` - Effect Schema utilities
+- `@beep/utils` - Pure runtime helpers
+
+#### IAM Layer
+- `@beep/iam-domain` - IAM entity models
+- `@beep/iam-infra` - Better Auth integration
+- `@beep/iam-sdk` - Auth contracts
+- `@beep/iam-tables` - IAM Drizzle schemas
+- `@beep/iam-ui` - Auth UI components
+
+#### Documents Layer
+- `@beep/documents-domain` - Files domain logic
+- `@beep/documents-infra` - DocumentsDb, repos, S3 storage
+- `@beep/documents-sdk` - Documents client contracts
+- `@beep/documents-tables` - Documents Drizzle schemas
+- `@beep/documents-ui` - Documents React components
+
+#### Shared Layer
+- `@beep/shared-domain` - Cross-slice entities
+- `@beep/shared-tables` - Table factories
+
+#### Runtime Layer
+- `@beep/runtime-client` - Client ManagedRuntime
+- `@beep/runtime-server` - Server ManagedRuntime
+
+#### UI Layer
+- `@beep/ui-core` - Design tokens, MUI overrides
+- `@beep/ui` - Component library
+
+## Development Setup
+
+### Prerequisites
+
+- Bun 1.3.x or Node.js 22+
+- Docker Desktop (for PostgreSQL and Redis)
+- GitHub OAuth App credentials
+- OpenAI API key (optional, for AI features)
+- UploadThing account (optional, for file uploads)
 
 ### Environment Variables
 
-Copy the example env file:
+Copy the example environment file:
 
 ```bash
 cp .env.example .env.local
 ```
 
-### Database & Redis
+Configure the following variables in `.env.local`:
 
-Todox requires both PostgreSQL and Redis for:
-- **PostgreSQL**: Main database
-- **Redis**: Real-time collaboration and rate limiting
-
-#### Local Docker Compose (Recommended for Development)
-
-1. Launch Docker Desktop
-2. The provided `docker-compose.yml` includes both PostgreSQL and Redis
-3. Set the database environment variables:
+#### Database & Redis
 
 ```dotenv
+# PostgreSQL
 DATABASE_URL=postgresql://admin:password@localhost:5432/db?schema=public
 POSTGRES_USER=admin
 POSTGRES_PASSWORD=password
 POSTGRES_DB=db
 
-# Redis (for collaboration)
+# Redis (required for collaboration)
 REDIS_HOST=localhost
 REDIS_PORT=6379
 ```
 
-#### Remote Services
+#### Authentication
 
-1. Remove `dev:db` script from the `scripts` in `package.json`.
-2. Set the environment variables to your remote services:
+Create a [GitHub OAuth App](https://github.com/settings/developers):
+
+- **Homepage URL**: `http://localhost:3000`
+- **Callback URL**: `http://localhost:3000/api/auth/github/callback`
 
 ```dotenv
-DATABASE_URL=your_postgresql_url
-REDIS_HOST=your_redis_host
-REDIS_PORT=6379
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
 ```
 
-### Authentication
-
-Create a new [GitHub OAuth](https://github.com/settings/developers) app with the following settings:
-
-- Application Name: `Todox Local`
-- Homepage URL: `http://localhost:3000`
-- Authorization callback URL: `http://localhost:3000/api/auth/github/callback`
-
-Then set these environment variables:
-
-- `GITHUB_CLIENT_ID`
-- `GITHUB_CLIENT_SECRET`
-
-### AI
-
-For AI, create a new [OpenAI](https://platform.openai.com/api-keys) account and set:
-
-- `OPENAI_API_KEY`
-
-### File Uploads
-
-For file uploads, create a new [UploadThing](https://uploadthing.com/) account and set:
-
-- `UPLOADTHING_TOKEN`
-
-### Real-time Collaboration (Optional)
-
-For real-time collaborative editing, configure the WebSocket server:
+#### YJS Collaboration Server
 
 ```dotenv
 # YJS WebSocket Server
@@ -86,161 +176,233 @@ YJS_MAX_DEBOUNCE=10000
 NEXT_PUBLIC_YJS_URL=ws://localhost:4444/yjs
 ```
 
-### Development
+#### Optional Services
 
-1. `bun install`
-2. `bun run dev` - This starts:
-   - Next.js app on port 3000
-   - YJS WebSocket server on port 4444
-   - Docker services (PostgreSQL & Redis)
-3. `bun run migrate`: db migration in another terminal
+```dotenv
+# OpenAI (for AI features)
+OPENAI_API_KEY=your_openai_api_key
+
+# UploadThing (for file uploads)
+UPLOADTHING_TOKEN=your_uploadthing_token
+
+# Google Analytics (optional)
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+```
+
+### Installation & Running
+
+From the **monorepo root**:
+
+```bash
+# Install dependencies
+bun install
+
+# Start infrastructure services
+bun run services:up
+
+# Run database migrations
+cd apps/notes
+bun run migrate
+
+# Start development servers
+bun run dev
+```
+
+This starts:
+- Next.js app on `http://localhost:3000`
+- YJS WebSocket server on port `4444`
+- Docker services (PostgreSQL & Redis)
+
+### Available Scripts
+
+Run from `apps/notes/`:
+
+| Command | Description |
+|---------|-------------|
+| `bun run dev` | Start all dev servers (Next.js + YJS + Docker) |
+| `bun run dev:app` | Start Next.js only |
+| `bun run dev:yjs` | Start YJS server only |
+| `bun run dev:db` | Start Docker services only |
+| `bun run build` | Production build |
+| `bun run start` | Start production servers |
+| `bun run check` | Type check |
+| `bun run lint` | Lint code |
+| `bun run lint:fix` | Fix linting issues |
+| `bun run test` | Run tests |
+| `bun run migrate` | Run database migrations |
+| `bun run push` | Push schema changes |
+| `bun run studio` | Open Prisma Studio |
+| `bun run seed` | Seed database |
+
+## Database Management
+
+### Prisma Workflow
+
+```bash
+# Generate Prisma client
+bun run generate
+
+# Create a migration
+bun run migrate
+
+# Push schema changes (development)
+bun run push
+
+# Open Prisma Studio
+bun run studio
+
+# Reset database (destructive)
+bun run reset
+
+# Deploy migrations (production)
+bun run deploy
+```
+
+### Schema Location
+
+The Prisma schema is located at `prisma/schema.prisma` and includes:
+
+- `User` - User accounts
+- `Session` - User sessions
+- `OauthAccount` - OAuth provider accounts
+- `Document` - Documents and notes
+- `File` - File attachments
+- `Version` - Document version history
+- `YjsSnapshot` - YJS collaboration snapshots
+
+## Real-time Collaboration
+
+The YJS collaboration server (`src/server/yjs/`) provides real-time collaborative editing:
+
+- **Hocuspocus Server**: WebSocket server for YJS synchronization
+- **Redis Persistence**: Document state persisted to Redis
+- **Database Sync**: Periodic snapshots saved to PostgreSQL
+- **Authentication**: Session-based access control
+
+## API Layers
+
+### tRPC API
+
+Located in `src/server/api/`:
+
+- `routers/` - API route definitions
+- `middlewares/` - Auth, logging, rate limiting
+- `trpc.ts` - tRPC configuration
+
+Client usage via hooks in `src/trpc/hooks/`.
+
+### Hono API
+
+Located in `src/server/hono/`:
+
+- `routes/` - HTTP route definitions
+- `middlewares/` - Request processing
+- `hono-client.ts` - Type-safe client
+
+## Editor Architecture
+
+The editor is built on [Plate](https://platejs.org/) with extensive customization:
+
+### Plugin Categories
+
+- **Basic Nodes**: Paragraphs, headings, lists
+- **Formatting**: Bold, italic, underline, code
+- **Advanced**: Tables, callouts, code blocks, math equations
+- **Media**: Images, videos, embeds
+- **Collaboration**: Comments, mentions, suggestions
+- **AI**: AI-powered content generation
+- **Layout**: Columns, toggles, tabs
+
+### Registry Structure
+
+The `src/registry/` directory contains:
+
+- **components/**: Plate editor components
+- **ui/**: UI primitives for the editor
+- **lib/**: Editor utilities and configurations
+- **app/**: Application-specific editor setup
 
 ## Deployment
 
-Todox is deployed on [Coolify](https://coolify.io/) using a Dockerfile. You could deploy it anywhere you want (Vercel, Fly.io, etc.) without Docker.
+### Docker Deployment
+
+The included `Dockerfile` provides a production-ready container:
+
+```bash
+# Build image
+docker build -t beep-notes .
+
+# Run container
+docker compose up
+```
 
 ### Required Services
 
-Your deployment needs the following services:
+1. **PostgreSQL** - Primary database
+2. **Redis** - Collaboration state and caching
+3. **Next.js App** - Application server (includes YJS server)
 
-1. **PostgreSQL** - Main database
-2. **Redis** - Real-time collaboration and caching
-3. **Next.js App** - The application (includes WebSocket server)
+### Environment Configuration
 
-### Environment Variables
+Set `NEXT_PUBLIC_ENVIRONMENT=production` and configure:
 
 ```dotenv
-NEXT_PUBLIC_ENVIRONMENT=production
-# Use your own domain
-NEXT_PUBLIC_SITE_URL=https://app.todox.com
-
 # Database
 DATABASE_URL=postgresql://user:password@postgres:5432/db?schema=public
 
-# Redis (important for collaboration)
+# Redis
 REDIS_HOST=redis
 REDIS_PORT=6379
 
-# YJS WebSocket Server
-YJS_PORT=4444
-YJS_HOST=0.0.0.0
-YJS_PATH=/yjs
-YJS_TIMEOUT=10000
-YJS_DEBOUNCE=2000
-YJS_MAX_DEBOUNCE=10000
-
-# Frontend WebSocket URL (adjust based on your domain)
+# YJS WebSocket
 NEXT_PUBLIC_YJS_URL=wss://your-domain.com/yjs
-# Or if exposing port directly: ws://your-domain.com:4444/yjs
+
+# Site URL
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
 ```
 
-### Coolify Setup
+### Build Commands
 
-#### Services Configuration
+```bash
+# Build
+bun run build
 
-1. **PostgreSQL Service**
-   - Type: PostgreSQL
-   - Persistent storage: Enabled
+# Deploy migrations
+bun run deploy
 
-2. **Redis Service** ⚠️ **Required**
-   - Type: Redis 7-alpine
-   - Persistent storage: Enabled
-   - Service name: `redis` (important for networking)
-
-3. **Application**
-   - Build Pack: `Dockerfile`
-   - Exposed Ports: `3000` (HTTP) and `4444` (WebSocket)
-
-#### General Settings
-
-- Direction: `Redirect to non-www.`
-
-#### Build Settings
-
-- Build Command: `bun run build && bun run db:deploy`
-- Start Command: `bun run start` (starts both Next.js and YJS server)
-
-#### Advanced Settings
-
-- `Enable Gzip Compression`: disabled
-
-#### Environment Variables
-
-- Set each environment variable with `Build Variable?` enabled.
-
-#### Network Configuration
-
-Ensure all services (PostgreSQL, Redis, App) are on the same Docker network.
-
-#### WebSocket Proxy (if using Nginx/Traefik)
-
-If you're proxying the WebSocket connection, ensure WebSocket upgrade headers are configured:
-
-```nginx
-location /yjs {
-    proxy_pass http://app:4444;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection "upgrade";
-    proxy_set_header Host $host;
-}
+# Start production servers
+bun run start
 ```
 
-### CloudFlare DNS
+## Testing
 
-- SSL/TLS: Full
-- WebSocket: Enabled (orange cloud proxied)
+```bash
+# Run all tests
+bun run test
 
-## App Architecture
+# Type checking
+bun run check
+bun run typecheck
+```
 
-### Frontend
+## Integration with beep-effect
 
-- Routes
-  - [`app/`](src/app/) - Next.js 15+ App Router
-  - [`app/(dynamic)/(main)/`](<src/app/(dynamic)/(main)/>) - Main app routes
-  - [`app/(dynamic)/(public)/`](<src/app/(dynamic)/(public)/>) - Public routes
-  - [`app/(dynamic)/(admin)/`](<src/app/(dynamic)/(admin)/>) - Admin routes
-- Components
-  - [`components/`](src/components/) - Application-wide components
-  - [`components/hooks/`](src/components/hooks/) - Application-wide hooks
-  - [`components/ui/`](src/components/ui/) - Reusable UI components
-  - [`components/editor/`](src/components/editor/) - Editor components coupled to the application
-  - [`registry/`](src/registry/) - Core editor components from [pro.todox.com](https://pro.todox.com/)
-  - [`components/auth/`](src/components/auth/) - Auth components
-- Configuration
-  - [`env`](src/env.ts) - Environment variables
-  - [`config`](src/config.ts) - App configuration
-  - Client state with Jotai, including persistent storage (localStorage/cookies)
-  - Server state with React Query ([tRPC](src/trpc/react.tsx), [Hono](src/server/hono/hono-client.ts))
+While this application uses Prisma for its primary database layer, it integrates with the beep-effect ecosystem through:
 
-### Backend
+1. **IAM Integration**: Uses `@beep/iam-*` packages for authentication flows
+2. **Document Management**: Leverages `@beep/documents-*` for file handling
+3. **Shared UI**: Consumes `@beep/ui` and `@beep/ui-core` components
+4. **Runtime Layers**: Uses `@beep/runtime-client` and `@beep/runtime-server`
+5. **Utilities**: Effect utilities from `@beep/utils` and `@beep/schema`
 
-- API tRPC
+## Migration Notes
 
-  - [`server/api/`](src/server/api/) - Default API layer using tRPC
-  - [`server/api/middlewares/`](src/server/api/middlewares/) - tRPC middlewares
-  - [`server/api/routers/`](src/server/api/routers/) - tRPC routers
-  - [`trpc/hooks.ts`](src/trpc/hooks.ts) - React query and mutation hooks
+This application is in transition from a standalone Prisma-based architecture to the beep-effect Effect-based architecture. Current hybrid approach:
 
-- API Hono
+- **Database**: Prisma (legacy) + Drizzle schemas from `@beep/*` packages
+- **State**: Jotai/Zustand (legacy) + Effect state management (transitioning)
+- **API**: tRPC/Hono (legacy) + Effect RPC (future)
 
-  - [`server/hono/`](src/server/hono/) - API layer using Hono
-  - [`server/hono/middlewares/`](src/server/hono/middlewares/) - Hono middlewares
-  - [`server/hono/routes/`](src/server/hono/routes/) - Hono routes
+## License
 
-- Auth
-
-  - [`server/auth/`](src/server/auth/) - Authentication system
-  - [`server/auth/findOrCreateUser.ts`](src/server/auth/findOrCreateUser.ts) - User creation
-  - [`server/auth/providers/github.ts`](src/server/auth/providers/github.ts) - GitHub OAuth
-
-- Database
-  - [`prisma/schema.prisma`](prisma/schema.prisma) - Prisma schema
-  - [`server/db.ts`](src/server/db.ts) - Prisma with PostgreSQL
-  - [`server/ratelimit.ts`](src/server/ratelimit.ts) - Rate limiting with Redis
-
-- Real-time Collaboration
-  - [`server/yjs/`](src/server/yjs/) - YJS collaboration server
-  - [`server/yjs/server.ts`](src/server/yjs/server.ts) - Hocuspocus WebSocket server
-  - [`server/yjs/auth.ts`](src/server/yjs/auth.ts) - Collaboration authentication
-  - [`server/yjs/document.ts`](src/server/yjs/document.ts) - Document sync with database
+Private - Part of the beep-effect monorepo.

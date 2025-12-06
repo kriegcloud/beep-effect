@@ -1,136 +1,425 @@
-# @beep/invariant — Consistent runtime assertions for every slice
+# @beep/invariant
 
-A tiny, environment‑agnostic assertion library used across the monorepo. It provides a single `invariant(...)` function plus helpers that throw a schema‑backed `InvariantViolation` when conditions do not hold.
+Runtime assertion contracts for Effect-first applications. Provides a unified `invariant(...)` function with typed helpers that throw schema-backed `InvariantViolation` errors when conditions fail.
 
-This keeps assertion style consistent, makes failures easy to parse/serialize, and avoids leaking platform/framework concerns into core code.
+## Purpose
 
+Consistent, environment-agnostic assertion library for runtime validation across the monorepo. Prevents inconsistent error handling patterns and makes assertion failures easy to parse, serialize, and map to domain/HTTP errors.
 
-## Why this package exists
+## Why This Package Exists
 
-- **Consistency** — one way to assert pre/post‑conditions and impossible branches.
-- **Observability‑friendly** — failures are instances of `InvariantViolation` (an `effect/Schema` tagged error) that can be parsed, logged, or mapped to HTTP errors elsewhere.
-- **Architecture‑safe** — no I/O, no platform/framework dependencies; can be used in any layer (domain, application, api, db, ui).
+- **Consistency** — Single canonical API for preconditions, postconditions, and impossible branches
+- **Observability-friendly** — Failures are `InvariantViolation` instances (Effect Schema tagged errors) suitable for logging/telemetry
+- **Architecture-safe** — Pure runtime code with no I/O, logging, or platform dependencies; safe in all layers
 
+## Key Exports
 
-## What’s included
+| Export                  | Description                                                                                  |
+|-------------------------|----------------------------------------------------------------------------------------------|
+| `invariant`             | Core assertion function that throws `InvariantViolation` when condition is falsy             |
+| `invariant.nonNull`     | Type-narrowing helper that asserts value is `NonNullable<T>`                                 |
+| `invariant.unreachable` | Exhaustiveness guard for impossible code paths (accepts `never`)                             |
+| `InvariantViolation`    | Tagged error class with `message`, `file`, `line`, and `args` metadata                      |
+| `CallMetadata`          | Effect Schema for validation of assertion metadata (`file`, `line`, `args`)                  |
 
-- **`invariant(condition, message, meta)`** — asserts that `condition` is truthy.
-  - `message`: `string | () => string` (lazy messages avoid work on the fast path).
-  - `meta`: `{ file: string; line: number; args: unknown[] }` used to enrich the error. Keep values PII‑free and JSON‑safe.
-- **`invariant.nonNull(value, message, meta)`** — narrows to `NonNullable<T>`.
-- **`invariant.unreachable(value, message, meta)`** — marks impossible code paths (exhaustiveness guard).
-- **`InvariantViolation`** — a tagged, schema‑backed error class for failed invariants (`effect/Schema`).
-- Lightweight path trimming and safe argument formatting utilities.
+## Architecture Fit
 
-Implementation uses small Effect core modules: `effect/Function`, `effect/Option`, `effect/String`, and `effect/Schema`.
+- **Vertical Slice + Hexagonal**: Safe for all layers (domain, application, api, db, ui) because it's pure and infrastructure-free
+- **Effect-first**: `InvariantViolation` is schema-backed, enabling pattern-matching and error mapping in application layers
+- **Production-ready**: Integrates with logging strategies from `docs/PRODUCTION_CHECKLIST.md` without coupling to specific implementations
+- **Path alias**: Import as `@beep/invariant` (configured in `tsconfig.base.jsonc`)
 
+## Module Structure
 
-## What must NOT go here
+```
+src/
+├── invariant.ts   # Core assertion implementation with helpers
+├── error.ts       # InvariantViolation error class
+├── meta.ts        # CallMetadata schema for validation
+└── index.ts       # Public API barrel
+```
 
-- **No I/O or side effects**: no network, DB, file system, timers, logging, or environment mutation.
-- **No platform/framework dependencies**: avoid Node APIs (fs/path/process), DOM/React/Next, `@effect/platform-*`, `@effect/sql-*`, etc.
-  - Note: the implementation detects dev mode with a non‑fatal `typeof process !== 'undefined'` check and never depends on Node.
-- **No domain/business logic**: keep domain rules in your slice’s `domain` or `application` code.
-- **No cross‑slice imports**: do not depend on `@beep/iam-*`, `@beep/documents-*`, etc.
+## Usage
 
+### Basic Assertions
 
-## How it fits the architecture
+```typescript
+import { invariant } from "@beep/invariant";
+import * as Effect from "effect/Effect";
 
-- **Vertical Slice + Hexagonal**: Safe for all layers. Throwing `InvariantViolation` does not couple to infrastructure.
-- **Effects‑first**: `InvariantViolation` is schema‑backed, so application layers can pattern‑match or map it to HTTP errors cleanly.
-- **Production posture**: Pair with your logging strategy from `docs/PRODUCTION_CHECKLIST.md`. This package itself does not log.
-
-
-## API
-
-```ts
-import { invariant, InvariantViolation } from '@beep/invariant';
-
+// Simple truthiness check
 invariant(
   user != null,
-  () => 'BUG: user missing',
-  { file: 'packages/iam/domain/User.ts', line: 42, args: [ctx] }
+  "User must exist",
+  { file: "packages/iam/domain/User.ts", line: 42, args: [] }
 );
 
-invariant.nonNull(
-  maybeId,
-  'id should be present',
-  { file: __FILE__, line: __LINE__, args: [] }
-);
-
-invariant.unreachable(
-  neverCase,
-  'exhaustiveness check failed',
-  { file: __FILE__, line: __LINE__, args: [neverCase] }
+// Lazy message for expensive operations
+invariant(
+  config.isValid(),
+  () => `BUG: invalid config ${JSON.stringify(config)}`,
+  { file: "packages/shared/infra/Config.ts", line: 89, args: [config] }
 );
 ```
 
-- **Message semantics**
-  - Use the `BUG:` prefix in dev‑only programmer errors. In dev builds, this triggers a `debugger` break at the failure site.
-  - Avoid PII/secrets in messages or `meta.args`, especially if errors are surfaced to clients.
-- **Meta**
-  - `file` should be a readable project path (we trim noisy prefixes for clarity).
-  - `line` is best‑effort context and may differ by bundler/transform; treat as a hint.
-  - `args` should be JSON‑serializable; non‑serializable inputs are shown via best‑effort labels.
+### Type-Narrowing Helpers
 
+```typescript
+import { invariant } from "@beep/invariant";
+
+// Non-null assertion with type narrowing
+function processToken(maybeToken: string | null | undefined) {
+  invariant.nonNull(
+    maybeToken,
+    "Token is required",
+    { file: "auth.ts", line: 15, args: [maybeToken] }
+  );
+  // maybeToken is now typed as string
+  return maybeToken.toUpperCase();
+}
+
+// Exhaustiveness check for union types
+type Action = { type: "create" } | { type: "update" } | { type: "delete" };
+
+function handle(action: Action): number {
+  switch (action.type) {
+    case "create": return 1;
+    case "update": return 2;
+    case "delete": return 3;
+    default:
+      return invariant.unreachable(
+        action,
+        "Unhandled action type",
+        { file: "handlers.ts", line: 42, args: [action] }
+      );
+  }
+}
+```
+
+### Effect Integration
+
+```typescript
+import * as Effect from "effect/Effect";
+import { invariant, InvariantViolation } from "@beep/invariant";
+
+// Wrap invariants in Effect.try for error handling
+const validateUser = (user: unknown) =>
+  Effect.try({
+    try: () => {
+      invariant(
+        typeof user === "object" && user !== null,
+        "User must be an object",
+        { file: "validation.ts", line: 12, args: [user] }
+      );
+      return user;
+    },
+    catch: (error) =>
+      error instanceof InvariantViolation
+        ? error
+        : new Error("Unexpected validation error"),
+  });
+
+// Pattern match on InvariantViolation
+const program = Effect.gen(function* () {
+  const result = yield* Effect.try(() => {
+    invariant.nonNull(
+      process.env.API_KEY,
+      "API_KEY environment variable required",
+      { file: "env.ts", line: 8, args: [] }
+    );
+    return process.env.API_KEY;
+  }).pipe(
+    Effect.catchTag("UnknownException", (error) => {
+      if (error.error instanceof InvariantViolation) {
+        return Effect.fail(error.error);
+      }
+      return Effect.fail(new Error("Unknown error"));
+    })
+  );
+  return result;
+});
+```
+
+## Message Semantics
+
+### BUG Prefix Convention
+
+Messages prefixed with `BUG:` trigger debugger breakpoints in development:
+
+```typescript
+import { invariant } from "@beep/invariant";
+
+// Programmer error - triggers debugger in dev mode
+invariant(
+  false,
+  () => "BUG: this code path should be unreachable",
+  { file: "domain/logic.ts", line: 156, args: [] }
+);
+
+// User/input error - no debugger trigger
+invariant(
+  email.includes("@"),
+  "Invalid email format",
+  { file: "validation.ts", line: 23, args: [email] }
+);
+```
+
+### Lazy Messages
+
+Use lazy messages `() => string` to avoid expensive string operations on the happy path:
+
+```typescript
+import { invariant } from "@beep/invariant";
+import * as F from "effect/Function";
+import * as A from "effect/Array";
+
+// Lazy: serialization only happens if assertion fails
+invariant(
+  users.length > 0,
+  () => `Expected users but got: ${JSON.stringify(users)}`,
+  { file: "users.ts", line: 45, args: [users] }
+);
+
+// Not lazy: serialization happens every time
+invariant(
+  users.length > 0,
+  `Expected users but got: ${JSON.stringify(users)}`, // ❌ expensive
+  { file: "users.ts", line: 45, args: [users] }
+);
+```
+
+## Metadata Guidelines
+
+### File Paths
+
+Provide repo-relative paths for clarity. Internal trimming extracts `packages/...` segments:
+
+```typescript
+import { invariant } from "@beep/invariant";
+
+// ✅ Good: repo-relative path
+invariant(condition, "message", {
+  file: "packages/iam/domain/User/Register.ts",
+  line: 78,
+  args: []
+});
+
+// ✅ Also good: short relative path (will be trimmed)
+invariant(condition, "message", {
+  file: "src/domain/User.ts",
+  line: 42,
+  args: []
+});
+```
+
+### Arguments
+
+Keep `args` small, serializable, and PII-free:
+
+```typescript
+import { invariant } from "@beep/invariant";
+
+// ✅ Good: primitive values and small objects
+invariant(isValid, "Validation failed", {
+  file: "validator.ts",
+  line: 34,
+  args: [userId, role, timestamp]
+});
+
+// ❌ Bad: PII, large objects, or circular references
+invariant(isValid, "message", {
+  file: "auth.ts",
+  line: 12,
+  args: [user.password, entireDatabase] // Don't do this!
+});
+```
+
+Non-serializable values are handled defensively:
+
+```typescript
+// Circular references, BigInts, Symbols → best-effort formatting
+invariant(false, "Failed", {
+  file: "test.ts",
+  line: 1,
+  args: [BigInt(123), Symbol("test"), circularRef]
+});
+// Error message includes: "[object BigInt]", "[object Symbol]", etc.
+```
+
+## What Belongs Here
+
+- **Pure assertion helpers** that validate conditions and throw structured errors
+- **Schema-backed error types** for consistent failure representation
+- **Type-narrowing utilities** that enhance TypeScript's control flow analysis
+- **Metadata schemas** for validating assertion context
+
+## What Must NOT Go Here
+
+- **No I/O or side effects**: no network, DB, file system, timers, logging, or environment mutation
+- **No platform dependencies**: avoid Node APIs (fs/path/process), DOM/React/Next, `@effect/platform-*`, `@effect/sql-*`
+  - Note: Dev mode detection uses non-fatal `typeof process !== 'undefined'` check without Node dependency
+- **No domain logic**: keep business rules in slice `domain` or `application` code
+- **No cross-slice imports**: do not depend on `@beep/iam-*`, `@beep/documents-*`, etc.
+
+## Dependencies
+
+| Package    | Purpose                                                          |
+|------------|------------------------------------------------------------------|
+| `effect`   | Core Effect runtime, Schema for tagged errors and validation    |
+
+## Development
+
+```bash
+# Type check
+bun run --filter @beep/invariant check
+
+# Lint
+bun run --filter @beep/invariant lint
+
+# Lint and auto-fix
+bun run --filter @beep/invariant lint:fix
+
+# Build
+bun run --filter @beep/invariant build
+
+# Run tests
+bun run --filter @beep/invariant test
+
+# Test with coverage
+bun run --filter @beep/invariant coverage
+
+# Check for circular dependencies
+bun run --filter @beep/invariant lint:circular
+```
 
 ## Examples
 
-- **Domain precondition**
-  ```ts
-  // packages/iam/domain/User/Register.ts
+### Domain Precondition
+
+```typescript
+import { invariant } from "@beep/invariant";
+import * as Str from "effect/String";
+import * as F from "effect/Function";
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export const validateEmail = (input: { email: string }) => {
   invariant(
-    emailRegex.test(input.email),
-    'invalid email',
-    { file: 'packages/iam/domain/User/Register.ts', line: 19, args: [input.email] }
+    F.pipe(input.email, Str.match(emailRegex), (m) => m !== null),
+    "Invalid email format",
+    { file: "packages/iam/domain/User/Register.ts", line: 19, args: [input.email] }
   );
-  ```
+  return input.email;
+};
+```
 
-- **Exhaustiveness in a reducer**
-  ```ts
-  type Ev = { type: 'A' } | { type: 'B' };
-  function reduce(ev: Ev) {
-    switch (ev.type) {
-      case 'A': return 1;
-      case 'B': return 2;
-      default:  return invariant.unreachable(ev, 'unhandled event', { file: __FILE__, line: __LINE__, args: [ev] });
-    }
+### Exhaustiveness in Reducers
+
+```typescript
+import { invariant } from "@beep/invariant";
+
+type Event = { type: "INCREMENT" } | { type: "DECREMENT" };
+
+const reduce = (state: number, event: Event): number => {
+  switch (event.type) {
+    case "INCREMENT":
+      return state + 1;
+    case "DECREMENT":
+      return state - 1;
+    default:
+      return invariant.unreachable(
+        event,
+        "Unhandled event type",
+        { file: "reducer.ts", line: 15, args: [event] }
+      );
   }
-  ```
+};
+```
 
-- **Effectful mapping**
-  ```ts
-  import * as Effect from 'effect/Effect';
-  import { InvariantViolation } from '@beep/invariant';
+### Effect Error Mapping
 
-  const program = Effect.try({
-    try: () => mightThrow(),
-    catch: (e) => (e instanceof InvariantViolation ? e : new Error('unknown')),
-  });
-  ```
+```typescript
+import * as Effect from "effect/Effect";
+import { InvariantViolation } from "@beep/invariant";
 
+const safeOperation = Effect.try({
+  try: () => riskyFunction(),
+  catch: (e) =>
+    e instanceof InvariantViolation
+      ? e
+      : new Error("Unknown error"),
+});
 
-## Usage guidance
+// Map to domain error
+const domainError = Effect.catchTag(safeOperation, "InvariantViolation", (err) =>
+  Effect.fail(new DomainError({ message: err.message, context: err.args }))
+);
+```
 
-- Prefer **lazy messages**: `() => string` keeps fast paths cheap.
-- Keep `meta.args` **small and serializable**; avoid large objects or cyclic structures.
-- For public/edge errors, map `InvariantViolation` to your HTTP error model in `api` handlers; do not leak internals.
+## Usage Guidance
 
+- **Prefer lazy messages**: Use `() => string` for expensive formatting
+- **Keep args small**: Only include values needed for debugging; avoid large objects
+- **Mind PII**: Never include passwords, tokens, or sensitive data in messages or args
+- **Edge errors**: Map `InvariantViolation` to HTTP/domain errors in API handlers; don't leak internal details to clients
+- **Line numbers**: Treat as hints, not guarantees (toolchains may transform code)
 
 ## Testing
 
-- Unit test with Vitest. Assert thrown instances are `InvariantViolation` and validate message/meta fields.
-- Avoid relying on exact `line` values across toolchains; prefer partial matches.
+- Unit tests use Vitest
+- Assert on `InvariantViolation` instances with `.toThrow(InvariantViolation)`
+- Validate error properties: `message`, `file`, `line`, `args`
+- Avoid testing exact line numbers (they may differ across builds)
 
+```typescript
+import { describe, expect, it } from "vitest";
+import { invariant, InvariantViolation } from "@beep/invariant";
 
-## Versioning and changes
+describe("invariant", () => {
+  it("throws InvariantViolation on false condition", () => {
+    expect(() =>
+      invariant(false, "Failed", { file: "test.ts", line: 1, args: [] })
+    ).toThrow(InvariantViolation);
+  });
 
-- Broadly used package — prefer **additive** changes.
-- For breaking changes to the error shape/API, update consumers in the same PR and provide migration notes.
+  it("includes metadata in error", () => {
+    try {
+      invariant.nonNull(null, "Value required", {
+        file: "test.ts",
+        line: 42,
+        args: ["context"]
+      });
+    } catch (error) {
+      expect(error).toBeInstanceOf(InvariantViolation);
+      expect((error as InvariantViolation).file).toBe("test.ts");
+      expect((error as InvariantViolation).line).toBe(42);
+      expect((error as InvariantViolation).args).toEqual(["context"]);
+    }
+  });
+});
+```
 
+## Versioning and Changes
 
-## Relationship to other packages
+- Broadly used package — prefer **additive** changes
+- For breaking changes to error shape/API, update all consumers in the same PR
+- Document migration path in PR description and update relevant AGENTS.md files
 
-- **`@beep/types`** — compile‑time helpers; no runtime. Use there for types only.
-- **`@beep/utils`** — pure, environment‑agnostic runtime helpers; no assertions or error types.
-- **`@beep/errors/*`** — error facades for server/client/shared concerns in application/adapters. `InvariantViolation` remains generic and infrastructure‑free here.
+## Relationship to Other Packages
+
+| Package          | Relationship                                                                 |
+|------------------|------------------------------------------------------------------------------|
+| `@beep/types`    | Compile-time helpers only; no runtime overlap                               |
+| `@beep/utils`    | Pure runtime helpers; no assertions or error types                           |
+| `@beep/errors/*` | Application/infrastructure error facades; `InvariantViolation` stays generic |
+| `@beep/schema`   | Uses `@beep/invariant` for schema validation assertions                     |
+
+## Guidelines for Adding New Features
+
+- **Stay minimal**: This package should remain focused on assertions
+- **Effect patterns**: Use `F.pipe`, Effect Array/String utilities (`A.*`, `Str.*`); never native methods
+- **No I/O**: Keep all code pure and side-effect-free
+- **Schema-backed**: Use Effect Schema for any new error types
+- **Attach to `invariant`**: New helpers should be properties on the main function (see `nonNull`, `unreachable`)
+- **Document**: Add JSDoc, examples, and tests for new helpers
+- **Update AGENTS.md**: Keep agent guidance synchronized with API changes

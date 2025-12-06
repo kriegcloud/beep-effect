@@ -1,55 +1,24 @@
 import type { UnsafeTypes } from "@beep/types";
-import type * as S from "effect/Schema";
+import * as A from "effect/Array";
+import * as BI from "effect/BigInt";
+import * as F from "effect/Function";
+import * as Num from "effect/Number";
+import * as O from "effect/Option";
+import * as Pred from "effect/Predicate";
+import * as Str from "effect/String";
 import type * as Sizes from "../FileSize";
-
+import { BiBitUnit, BiByteUnit, BitUnit, ByteUnit } from "../FileSize";
 /* ============================================================================
  * Unit types inferred from your Schemas (kept in one place for clarity)
  * ========================================================================== */
-type SiByteUnit = S.Schema.Type<typeof Sizes.ByteUnit>; // 'B' | 'kB' | ... | 'YB'
-type IecByteUnit = S.Schema.Type<typeof Sizes.BiByteUnit>; // 'B' | 'KiB' | ... | 'YiB'
-type SiBitUnit = S.Schema.Type<typeof Sizes.BitUnit>; // 'b' | 'kbit' | ... | 'Ybit'
-type IecBitUnit = S.Schema.Type<typeof Sizes.BiBitUnit>; // 'b' | 'kibit' | ... | 'Yibit'
+// type SiByteUnit = S.Schema.Type<typeof Sizes.ByteUnit>; // 'B' | 'kB' | ... | 'YB'
+// type IecByteUnit = S.Schema.Type<typeof Sizes.BiByteUnit>; // 'B' | 'KiB' | ... | 'YiB'
+// type SiBitUnit = S.Schema.Type<typeof Sizes.BitUnit>; // 'b' | 'kbit' | ... | 'Ybit'
+// type IecBitUnit = S.Schema.Type<typeof Sizes.BiBitUnit>; // 'b' | 'kibit' | ... | 'Yibit'
 
 /* ============================================================================
  * Runtime unit tables (type-checked against the schemas)
  * ========================================================================== */
-const BYTE_UNITS = ["B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"] as const satisfies readonly SiByteUnit[];
-
-const BIBYTE_UNITS = [
-  "B",
-  "KiB",
-  "MiB",
-  "GiB",
-  "TiB",
-  "PiB",
-  "EiB",
-  "ZiB",
-  "YiB",
-] as const satisfies readonly IecByteUnit[];
-
-const BIT_UNITS = [
-  "b",
-  "kbit",
-  "Mbit",
-  "Gbit",
-  "Tbit",
-  "Pbit",
-  "Ebit",
-  "Zbit",
-  "Ybit",
-] as const satisfies readonly SiBitUnit[];
-
-const BIBIT_UNITS = [
-  "b",
-  "kibit",
-  "Mibit",
-  "Gibit",
-  "Tibit",
-  "Pibit",
-  "Eibit",
-  "Zibit",
-  "Yibit",
-] as const satisfies readonly IecBitUnit[];
 
 export interface PrettyBytesOptions {
   /**
@@ -101,22 +70,22 @@ export interface PrettyBytesOptions {
 }
 
 /** Resolve `bits` with default `false`. */
-type ResolveBits<O> = O extends { bits?: infer B | undefined } ? (B extends boolean ? B : false) : false;
+type ResolveBits<O> = O extends { readonly bits?: infer B | undefined } ? (B extends boolean ? B : false) : false;
 
 /** Resolve `binary` with default `false`. */
-type ResolveBinary<O> = O extends { binary?: infer B | undefined } ? (B extends boolean ? B : false) : false;
+type ResolveBinary<O> = O extends { readonly binary?: infer B | undefined } ? (B extends boolean ? B : false) : false;
 
 /** Resolve `space` with default `true`. */
-type ResolveSpace<O> = O extends { space?: infer S | undefined } ? (S extends boolean ? S : true) : true;
+type ResolveSpace<O> = O extends { readonly space?: infer S | undefined } ? (S extends boolean ? S : true) : true;
 
 /** Pick the unit family based on options. */
 type UnitFor<Bits extends boolean, Binary extends boolean> = Bits extends true
   ? Binary extends true
-    ? IecBitUnit
-    : SiBitUnit
+    ? Sizes.BiBitUnit.Type
+    : Sizes.BitUnit.Type
   : Binary extends true
-    ? IecByteUnit
-    : SiByteUnit;
+    ? Sizes.BiByteUnit.Type
+    : Sizes.ByteUnit.Type;
 
 /** Unit family for a concrete options type. */
 type UnitForOptions<O> = UnitFor<ResolveBits<O>, ResolveBinary<O>>;
@@ -135,6 +104,12 @@ export type PrettyBytesString<O extends PrettyBytesOptions | undefined> =
  * Internal helpers (locale/BigInt-safe log/divide)
  * ========================================================================== */
 
+/** Natural logarithm of 10, cached for performance */
+const LN_10 = Math.log(10);
+
+/** Natural logarithm of 1024, cached for IEC calculations */
+const LN_1024 = Math.log(1024);
+
 /**
  * Formats the given number using `Number#toLocaleString`.
  * - If locale is a string (or array), it's a BCP 47 tag (or list of tags).
@@ -146,54 +121,63 @@ const toLocaleStr = (
   locale: PrettyBytesOptions["locale"],
   options?: Intl.NumberFormatOptions | undefined
 ): string => {
-  if (typeof locale === "string" || Array.isArray(locale)) {
+  if (Str.isString(locale) || A.isArray(locale)) {
     return value.toLocaleString(locale as UnsafeTypes.UnsafeAny, options);
   }
   if (locale === true || options !== undefined) {
     return value.toLocaleString(undefined, options);
   }
-  return String(value);
+  // Convert number to string without locale formatting
+  return F.pipe(value, (n) => `${n}`);
 };
 
+/**
+ * Computes log base 10 of a number or BigInt.
+ * For BigInt: approximates using string length + first digits precision.
+ * Note: Math.log10 has no Effect equivalent, so we use native.
+ */
 const log10 = (n: number | bigint): number => {
-  if (typeof n === "number") {
+  if (Pred.isNumber(n)) {
     return Math.log10(n);
   }
-  // BigInt: approximate log10 using length + first digits
+  // BigInt: approximate log10 using string length + first digits
   const s = n.toString(10);
-  return s.length + Math.log10(Number.parseFloat(`0.${s.slice(0, 15)}`));
+  const firstDigits = F.pipe(s, Str.slice(0, 15));
+  // Parse the fractional approximation using Num.parse with Option handling
+  const fractionalValue = F.pipe(
+    Num.parse(`0.${firstDigits}`),
+    O.getOrElse(() => 0)
+  );
+  return F.pipe(Str.length(s), Num.sum(Math.log10(fractionalValue)));
 };
 
-const ln = (n: number | bigint): number => {
-  if (typeof n === "number") {
-    return Math.log(n);
-  }
-  return log10(n) * Math.log(10);
-};
+/**
+ * Computes natural logarithm of a number or BigInt.
+ * Note: Math.log has no Effect equivalent, so we use native.
+ */
+const ln = (n: number | bigint): number => (Pred.isNumber(n) ? Math.log(n) : F.pipe(log10(n), Num.multiply(LN_10)));
 
-const divide = (n: number | bigint, divisor: number): number => {
-  if (typeof n === "number") {
-    return n / divisor;
-  }
-  const i = n / BigInt(divisor);
-  const r = n % BigInt(divisor);
-  return Number(i) + Number(r) / divisor;
-};
+/**
+ * Computes Math.floor for a number.
+ * Note: Effect Number module does not provide floor, only round with precision.
+ * We use native Math.floor as there's no Effect equivalent.
+ */
+const floor = (n: number): number => Math.floor(n);
 
 /* ============================================================================
  * Implementation
  * ========================================================================== */
 
 /**
- * Convert bytes (or bits) to a human‑readable string: `1337` → `'1.34 kB'`.
+ * Convert bytes (or bits) to a human-readable string: `1337` -> `'1.34 kB'`.
  *
- * Returns a template-literal string whose **unit is type‑safe** given the
+ * Returns a template-literal string whose **unit is type-safe** given the
  * provided options:
  *
- * - `{ bits: false, binary: false }` → SI **bytes** (B, kB, MB, …)
- * - `{ bits: false, binary: true }`  → IEC **bytes** (B, KiB, MiB, …)
- * - `{ bits: true,  binary: false }` → SI **bits** (b, kbit, Mbit, …)
- * - `{ bits: true,  binary: true }`  → IEC **bits** (b, kibit, Mibit, …)
+ * - `{ bits: false, binary: false }` -> SI **bytes** (B, kB, MB, ...)
+ * - `{ bits: false, binary: true }`  -> IEC **bytes** (B, KiB, MiB, ...)
+ * - `{ bits: true,  binary: false }` -> SI **bits** (b, kbit, Mbit, ...)
+ * - `{ bits: true,  binary: true }`  -> IEC **bits** (b, kibit, Mibit, ...)
  *
  * Defaults: `bits=false`, `binary=false`, `space=true`.
  *
@@ -210,8 +194,9 @@ export function formatSize<O extends PrettyBytesOptions | undefined = undefined>
   value: number | bigint,
   options?: O | undefined
 ): PrettyBytesString<O> {
-  if (typeof value !== "bigint" && !Number.isFinite(value)) {
-    // Keep the original error semantics
+  // Validate input: must be finite number or BigInt
+  // Note: Number.isFinite has no Effect equivalent
+  if (F.pipe(value, Pred.not(BI.isBigInt)) && !Number.isFinite(value)) {
     throw new TypeError(`Expected a finite number, got ${typeof value}: ${value}`);
   }
 
@@ -223,52 +208,72 @@ export function formatSize<O extends PrettyBytesOptions | undefined = undefined>
     ...options,
   };
 
-  const UNITS = opts.bits ? (opts.binary ? BIBIT_UNITS : BIT_UNITS) : opts.binary ? BIBYTE_UNITS : BYTE_UNITS;
+  const UNITS = opts.bits
+    ? opts.binary
+      ? BiBitUnit.Options
+      : BitUnit.Options
+    : opts.binary
+      ? BiByteUnit.Options
+      : ByteUnit.Options;
 
-  const separator = opts.space ? " " : "";
+  const separator = opts.space ? " " : Str.empty;
+  const unitsLastIndex = F.pipe(A.length(UNITS), Num.subtract(1));
 
   // Special aligned zero when signed is true
-  if (opts.signed && (typeof value === "number" ? value === 0 : value === 0n)) {
+  if (opts.signed && (Pred.isNumber(value) ? value === 0 : value === 0n)) {
     return ` 0${separator}${UNITS[0]}` as PrettyBytesString<O>;
     // ^ leading space matches original library behavior
   }
 
-  const isNegative = value < 0;
-  const prefix = isNegative ? "-" : opts.signed ? "+" : "";
+  const isNegative = Pred.isNumber(value) ? Num.lessThan(value, 0) : BI.lessThan(value, 0n);
+  const prefix = isNegative ? "-" : opts.signed ? "+" : Str.empty;
 
-  if (isNegative) {
-    value = typeof value === "number" ? -value : -value;
-  }
+  const absValue = isNegative ? (Pred.isNumber(value) ? Num.negate(value) : BI.abs(value)) : value;
 
-  let localeOptions: Intl.NumberFormatOptions | undefined;
-  if (opts.minimumFractionDigits !== undefined) {
-    localeOptions = { minimumFractionDigits: opts.minimumFractionDigits };
-  }
-  if (opts.maximumFractionDigits !== undefined) {
-    localeOptions = {
-      maximumFractionDigits: opts.maximumFractionDigits,
-      ...localeOptions,
-    };
-  }
+  const localeOptions: Intl.NumberFormatOptions | undefined =
+    opts.minimumFractionDigits !== undefined || opts.maximumFractionDigits !== undefined
+      ? {
+          ...(opts.minimumFractionDigits !== undefined && { minimumFractionDigits: opts.minimumFractionDigits }),
+          ...(opts.maximumFractionDigits !== undefined && { maximumFractionDigits: opts.maximumFractionDigits }),
+        }
+      : undefined;
 
-  // For magnitudes < 1, don't scale — just attach the base unit.
-  if (typeof value === "number" ? value < 1 : value < 1n) {
-    const numberString = toLocaleStr(typeof value === "number" ? value : Number(value), opts.locale, localeOptions);
+  // For magnitudes < 1, don't scale - just attach the base unit.
+  if (Pred.isNumber(absValue) ? Num.lessThan(absValue, 1) : BI.lessThan(absValue, 1n)) {
+    const numberString = toLocaleStr(Pred.isNumber(absValue) ? absValue : Number(absValue), opts.locale, localeOptions);
     return (prefix + numberString + separator + UNITS[0]) as PrettyBytesString<O>;
   }
 
   // Compute exponent for either base 1000 (SI) or 1024 (IEC)
   const base = opts.binary ? 1024 : 1000;
-  const exp = Math.min(Math.floor(opts.binary ? ln(value) / Math.log(1024) : log10(value) / 3), UNITS.length - 1);
+  const rawExp = opts.binary
+    ? F.pipe(ln(absValue), Num.unsafeDivide(LN_1024))
+    : F.pipe(log10(absValue), Num.unsafeDivide(3));
+  const exp = F.pipe(rawExp, floor, (n) => Num.min(n, unitsLastIndex));
 
-  let scaled = divide(value, base ** exp);
+  const divisor = base ** exp;
+  const scaledRaw = Pred.isNumber(absValue)
+    ? Num.unsafeDivide(absValue, divisor)
+    : (() => {
+        const bigDivisor = BigInt(base) ** BigInt(exp);
+        const intPart = BI.unsafeDivide(absValue, bigDivisor);
+        const remainder = absValue % bigDivisor;
+        return F.pipe(Number(intPart), Num.sum(Num.unsafeDivide(Number(remainder), divisor)));
+      })();
 
   // Default behavior: round to 3 significant digits if no explicit fraction-digit policy
-  if (!localeOptions) {
-    const intLen = Number.parseInt(String(scaled), 10).toString().length;
-    const minPrecision = Math.max(3, intLen);
-    scaled = Number(scaled.toPrecision(minPrecision));
-  }
+  const scaled = localeOptions
+    ? scaledRaw
+    : (() => {
+        const intPartStr = F.pipe(
+          Num.parse(F.pipe(scaledRaw, floor, (n) => `${n}`)),
+          O.getOrElse(() => 0),
+          (n) => `${n}`
+        );
+        const intLen = Str.length(intPartStr);
+        const minPrecision = Num.max(3, intLen);
+        return Number(scaledRaw.toPrecision(minPrecision));
+      })();
 
   const numberString = toLocaleStr(Number(scaled), opts.locale, localeOptions);
 
@@ -279,5 +284,3 @@ export function formatSize<O extends PrettyBytesOptions | undefined = undefined>
 /* ============================================================================
  * Handy re-exports (optional)
  * ========================================================================== */
-
-export type { SiByteUnit, IecByteUnit, SiBitUnit, IecBitUnit };

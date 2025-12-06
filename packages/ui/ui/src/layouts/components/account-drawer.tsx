@@ -116,6 +116,8 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
         open={open}
         onClose={onClose}
         anchor="right"
+        keepMounted={false}
+        disableRestoreFocus
         slotProps={{
           backdrop: { invisible: true },
           paper: { sx: { width: 320 } },

@@ -139,6 +139,8 @@ export function NotificationsDrawer({ data = [], sx, ...other }: NotificationsDr
         open={open}
         onClose={onClose}
         anchor="right"
+        keepMounted={false}
+        disableRestoreFocus
         slotProps={{
           backdrop: { invisible: true },
           paper: { sx: { width: 1, maxWidth: 420 } },

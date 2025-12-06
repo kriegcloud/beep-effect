@@ -1,14 +1,4 @@
-import { isWindowUndefined, randomHexString } from "@beep/utils";
-import { UploadError } from "./error";
-
-export function guardServerOnly() {
-  if (isWindowUndefined) {
-    throw new UploadError({
-      code: "NOT_AVAILABLE_IN_BROWSER",
-      message: "This function is not available in the browser",
-    });
-  }
-}
+import { randomHexString } from "@beep/utils";
 
 export type TraceHeaders = {
   readonly b3: string;

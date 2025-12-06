@@ -22,7 +22,7 @@
         "@types/node": "^24.10.1",
         "babel-plugin-annotate-pure-calls": "^0.5.0",
         "babel-plugin-transform-next-use-client": "^1.1.1",
-        "baseline-browser-mapping": "^2.9.2",
+        "baseline-browser-mapping": "^2.9.3",
         "husky": "^9.1.7",
         "knip": "^5.71.0",
         "lint-staged": "^16.2.7",
