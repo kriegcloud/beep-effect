@@ -2443,6 +2443,8 @@
         "@beep/schema": "workspace:^",
         "@beep/tooling-utils": "workspace:^",
         "@beep/utils": "workspace:^",
+        "@effect/ai": "catalog:",
+        "@effect/ai-anthropic": "catalog:",
         "@effect/cli": "catalog:",
         "@effect/cluster": "catalog:",
         "@effect/platform": "catalog:",

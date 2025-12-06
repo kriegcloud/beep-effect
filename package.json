@@ -50,6 +50,7 @@
     "docgen:generate": "bun run tooling/cli/src/index.ts docgen generate",
     "docgen:aggregate": "bun run tooling/cli/src/index.ts docgen aggregate",
     "docgen:status": "bun run tooling/cli/src/index.ts docgen status",
+    "docgen:agents": "ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY bun run tooling/cli/src/index.ts docgen agents",
     "dev:https": "bun run dotenvx -- bunx turbo run dev:https --concurrency=36",
     "dev": "bun run dotenvx -- bunx turbo run dev --concurrency=36",
     "bootstrap": "bunx tsx ./tooling/repo-scripts/src/bootstrap.ts",

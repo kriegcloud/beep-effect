@@ -26,6 +26,7 @@
  */
 
 import * as CliCommand from "@effect/cli/Command";
+import { agentsCommand } from "./docgen/agents/index.js";
 import { aggregateCommand } from "./docgen/aggregate.js";
 import { analyzeCommand } from "./docgen/analyze.js";
 import { generateCommand } from "./docgen/generate.js";
@@ -44,5 +45,12 @@ import { statusCommand } from "./docgen/status.js";
  */
 export const docgenCommand = CliCommand.make("docgen").pipe(
   CliCommand.withDescription("Documentation generation utilities for the beep-effect monorepo."),
-  CliCommand.withSubcommands([initCommand, analyzeCommand, generateCommand, aggregateCommand, statusCommand])
+  CliCommand.withSubcommands([
+    initCommand,
+    analyzeCommand,
+    generateCommand,
+    aggregateCommand,
+    statusCommand,
+    agentsCommand,
+  ])
 );
