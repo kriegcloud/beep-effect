@@ -50,7 +50,6 @@
     "babel-plugin-transform-next-use-client": "catalog:",
     "@babel/preset-react": "catalog:",
     "@beep/ui": "workspace:^",
-    "@beep/ui-core": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/identity": "workspace:^",

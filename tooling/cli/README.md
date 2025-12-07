@@ -4,7 +4,39 @@ Effect-based CLI toolkit for beep-effect monorepo maintenance and development wo
 
 ## Purpose
 
-A command-line interface built on `@effect/cli` and `@effect/platform-bun` that provides automated maintenance tasks for the beep-effect monorepo. Commands include environment setup, workspace synchronization, dependency management, and documentation generation. All commands are implemented using Effect patterns with proper error handling and structured logging.
+A command-line interface built on `@effect/cli` and `@effect/platform-bun` that provides automated maintenance tasks for the beep-effect monorepo. Commands include environment setup, workspace synchronization, dependency management, and AI-powered documentation generation. All commands are implemented using Effect patterns with proper error handling and structured logging.
+
+## Installation
+
+This package is internal to the monorepo and not published to npm. Commands are executed via package scripts:
+
+```bash
+# From repository root
+bun run beep <command> [options]
+
+# Or directly with filter
+bun run --filter @beep/repo-cli execute
+```
+
+The main entry point is `src/index.ts`, which exports `runRepoCli` for programmatic use and supports direct execution via `import.meta.main`.
+
+## Key Exports
+
+| Export | Description |
+|--------|-------------|
+| `runRepoCli` | Main CLI runner accepting argv array, provides all runtime layers |
+| `envCommand` | Interactive environment configuration command |
+| `syncCommand` | Workspace environment synchronization command |
+| `pruneUnusedDepsCommand` | Unused dependency detection and removal |
+| `docgenCommand` | Documentation generation command group |
+
+**Subcommands** (docgen):
+- `initCommand` - Bootstrap docgen.json configuration
+- `analyzeCommand` - JSDoc coverage analysis
+- `generateCommand` - Run @effect/docgen
+- `aggregateCommand` - Collect docs to central location
+- `statusCommand` - Show docgen configuration status
+- `agentsCommand` - AI-powered JSDoc improvements
 
 ## Key Commands
 
@@ -13,6 +45,7 @@ A command-line interface built on `@effect/cli` and `@effect/platform-bun` that 
 | `beep env`          | Interactively create or update your `.env` file from `.env.example`          |
 | `beep sync`         | Copy `.env` to workspaces and regenerate type definitions                    |
 | `beep prune-unused-deps` | Find and remove unused `@beep/*` workspace dependencies              |
+| `beep docgen`       | Documentation generation suite with JSDoc analysis and AI-powered fixes      |
 
 ## Architecture Fit
 
@@ -20,6 +53,7 @@ A command-line interface built on `@effect/cli` and `@effect/platform-bun` that 
 - **Monorepo-Aware**: Commands understand workspace boundaries and dependency graphs via `@beep/tooling-utils`
 - **Safe by Default**: Dry-run modes, interactive prompts, and validation prevent destructive operations
 - **Structured Output**: Uses picocolors for terminal output with clear success/error indicators
+- **AI-Powered**: Leverages `@effect/ai` and `@effect/workflow` for intelligent documentation improvements
 
 ## Command Structure
 
@@ -30,9 +64,26 @@ src/
     ├── env.ts                        # Interactive .env file management
     ├── sync.ts                       # Environment and type synchronization
     ├── prune-unused-deps.ts          # Workspace dependency pruning
-    ├── module-composer.ts            # Module composition utilities
-    ├── audit-internal-packages.ts    # Package audit tooling
-    └── docgen.ts                     # Documentation generation
+    └── docgen/                       # Documentation generation system
+        ├── docgen.ts                 # Docgen command aggregator
+        ├── init.ts                   # Bootstrap docgen.json configuration
+        ├── analyze.ts                # JSDoc coverage analysis
+        ├── generate.ts               # Run @effect/docgen
+        ├── aggregate.ts              # Collect docs to central location
+        ├── status.ts                 # Show configuration status
+        ├── agents/                   # AI-powered JSDoc improvement
+        │   ├── index.ts              # Agents command with token tracking
+        │   ├── workflow.ts           # Durable workflow orchestration
+        │   ├── activities.ts         # Workflow activities
+        │   ├── service.ts            # Agent service layer
+        │   ├── tools.ts              # AI tool definitions
+        │   └── prompts.ts            # Agent prompts and instructions
+        └── shared/
+            ├── config.ts             # Configuration file operations
+            ├── discovery.ts          # Package discovery
+            ├── ast.ts                # TypeScript AST analysis
+            ├── markdown.ts           # Markdown generation
+            └── output.ts             # Terminal output formatting
 ```
 
 ## Usage
@@ -102,6 +153,167 @@ The prune command:
 - `src/**/*.{ts,tsx}` (always)
 - `test/**/*.{ts,tsx}` (unless `--exclude-tests`)
 - Root-level config files (`*.config.{ts,mts,cts,js,mjs}`)
+
+### Documentation Generation (docgen)
+
+The `docgen` command provides a complete suite for managing TypeScript documentation:
+
+#### Initialize Configuration
+
+Bootstrap a `docgen.json` configuration file for a package:
+
+```bash
+# Create docgen.json from existing tsconfig
+bun run beep docgen init -p packages/common/schema
+
+# Preview without writing (dry-run)
+bun run beep docgen init -p packages/common/schema --dry-run
+
+# Overwrite existing configuration
+bun run beep docgen init -p packages/common/schema --force
+```
+
+The init command:
+- Discovers existing TypeScript configuration (tsconfig.src.json → tsconfig.build.json → tsconfig.json)
+- Extracts compiler options and path mappings for `@beep/*` dependencies
+- Generates Effect-compatible docgen.json with correct srcLink and paths
+- Validates configuration against `@effect/docgen` schema
+
+#### Analyze JSDoc Coverage
+
+Scan packages for JSDoc documentation quality and completeness:
+
+```bash
+# Analyze specific package
+bun run beep docgen analyze -p packages/common/contract
+
+# Output JSON for programmatic use
+bun run beep docgen analyze -p packages/common/contract --json
+
+# Analyze all packages with docgen.json
+bun run beep docgen analyze --all
+```
+
+The analyze command:
+- Uses ts-morph to parse TypeScript AST
+- Checks JSDoc presence on exported functions, classes, interfaces
+- Validates JSDoc tags (@param, @returns, @example, @since, @category)
+- Generates markdown reports with coverage statistics
+- Outputs agent-friendly JSON for AI-powered improvements
+
+**Output includes**:
+- Overall JSDoc coverage percentage
+- Missing documentation by symbol type
+- Tag coverage (params, returns, examples)
+- Detailed symbol-by-symbol breakdown
+
+#### Generate Documentation
+
+Run `@effect/docgen` to generate API documentation:
+
+```bash
+# Generate docs for specific package
+bun run beep docgen generate -p packages/common/schema
+
+# Generate for all packages (parallel)
+bun run beep docgen generate --all --parallel 8
+
+# Dry-run to see what would be generated
+bun run beep docgen generate --all --dry-run
+```
+
+The generate command:
+- Locates packages with valid docgen.json
+- Runs `@effect/docgen` with configured options
+- Outputs documentation to package-local `docs/` directory
+- Supports parallel execution for multiple packages
+
+#### Aggregate Documentation
+
+Collect generated docs to a central repository location:
+
+```bash
+# Aggregate all package docs to docs/api/
+bun run beep docgen aggregate
+
+# Clean existing docs before aggregating
+bun run beep docgen aggregate --clean
+
+# Dry-run to preview structure
+bun run beep docgen aggregate --dry-run
+```
+
+The aggregate command:
+- Discovers all packages with generated documentation
+- Copies docs to centralized directory (default: `docs/api/`)
+- Preserves package structure and navigation
+- Optionally cleans destination before copying
+
+#### View Configuration Status
+
+Display docgen configuration status across all packages:
+
+```bash
+# Show summary of docgen setup
+bun run beep docgen status
+
+# Verbose output with file paths
+bun run beep docgen status --verbose
+
+# JSON output for automation
+bun run beep docgen status --json
+```
+
+The status command shows:
+- Which packages have docgen.json configured
+- Configuration validity and errors
+- Missing configurations in packages that should have them
+- TypeScript config sources (tsconfig.src.json, etc.)
+
+#### AI-Powered JSDoc Improvements
+
+Use AI agents to automatically improve JSDoc documentation:
+
+```bash
+# Fix JSDoc for a specific package
+bun run beep docgen agents --package @beep/contract
+
+# Durable mode with crash recovery (uses @effect/workflow)
+bun run beep docgen agents --durable --package @beep/contract
+
+# Resume interrupted workflow
+bun run beep docgen agents --durable --resume docgen-packages-common-contract
+
+# Dry-run to see proposed changes
+bun run beep docgen agents --package @beep/contract --dry-run
+
+# Process multiple packages in parallel
+bun run beep docgen agents --all --parallel 4
+```
+
+The agents command:
+- Analyzes current JSDoc coverage using AST analysis
+- Invokes Anthropic Claude via `@effect/ai-anthropic`
+- Applies AI-suggested JSDoc improvements to source files
+- Tracks token usage and estimates API costs in real-time
+- Supports durable execution with crash recovery via `@effect/workflow`
+
+**Features**:
+- **Token Tracking**: Real-time monitoring of input/output/cached tokens
+- **Cost Estimation**: Calculates approximate API costs (Claude Sonnet 4/Opus 4)
+- **Durable Workflows**: Crash-resilient execution with state persistence
+- **Resume Capability**: Continue interrupted workflows by ID
+- **Dry-Run Mode**: Preview changes without modifying files
+- **Parallel Processing**: Concurrent package processing with configurable limits
+
+**Token Usage Display**:
+```
+Token Usage:
+  Input: 1,234 tokens
+  Output: 567 tokens
+  Cached: 890 tokens
+  Estimated cost: $0.02 USD
+```
 
 ## Implementation Patterns
 
@@ -230,9 +442,16 @@ From `package.json`:
 | `@effect/cli`              | Command-line interface framework                 |
 | `@effect/platform`         | Effect platform abstractions                     |
 | `@effect/platform-bun`     | Bun-specific platform implementations            |
+| `@effect/ai`               | AI integration framework                         |
+| `@effect/ai-anthropic`     | Anthropic Claude provider for AI                 |
+| `@effect/workflow`         | Durable workflow orchestration                   |
+| `@effect/cluster`          | Distributed execution support                    |
 | `@beep/tooling-utils`      | Shared utilities for tooling tasks               |
 | `@beep/schema`             | Schema validation and transformations            |
 | `@beep/constants`          | Shared constants and enums                       |
+| `@beep/invariant`          | Assertion contracts                              |
+| `@beep/utils`              | Pure runtime helpers                             |
+| `@beep/identity`           | Package identity utilities                       |
 | `picocolors`               | Terminal color output                            |
 | `ts-morph`                 | TypeScript AST manipulation                      |
 | `glob`                     | File pattern matching                            |
@@ -305,16 +524,18 @@ const handleCommand = Effect.gen(function* () {
 
 - **Monorepo maintenance commands** that operate on workspace structure
 - **Development workflow automation** for environment setup and synchronization
-- **Code analysis tools** for dependency management and documentation
+- **Code analysis tools** for dependency management and JSDoc documentation
+- **AI-powered documentation improvements** using effect/ai and Anthropic Claude
 - **Repository scaffolding** for bootstrapping and configuration
 - **Asset generation** for constants, locales, and public paths
+- **Documentation generation** orchestration and aggregation
 
 ## What Must NOT Go Here
 
 - **Application-specific logic** - keep business rules in domain packages
 - **Slice-specific commands** - put those in the owning slice's tooling
 - **Production runtime code** - this is development tooling only
-- **Database migrations** - use `@beep/_internal/db-admin` instead
+- **Database migrations** - use `@beep/db-admin` instead
 - **Testing frameworks** - use `@beep/testkit` for test utilities
 
 ## Development
@@ -341,6 +562,109 @@ bun run --filter @beep/repo-cli coverage
 # Check for circular dependencies
 bun run --filter @beep/repo-cli lint:circular
 ```
+
+## Docgen Workflow Architecture
+
+The documentation generation system follows a multi-stage pipeline:
+
+### Stage 1: Configuration Bootstrap (init)
+
+1. Discovers package location and validates structure
+2. Locates TypeScript configuration files (priority: tsconfig.src.json → tsconfig.build.json → tsconfig.json)
+3. Extracts compiler options and `@beep/*` path mappings
+4. Generates docgen.json with Effect-compatible settings
+5. Validates against `@effect/docgen` schema
+
+### Stage 2: Analysis (analyze)
+
+1. Parses TypeScript AST using ts-morph
+2. Identifies exported symbols (functions, classes, interfaces, types)
+3. Checks JSDoc presence and completeness
+4. Validates JSDoc tags (@param, @returns, @example, @since, @category)
+5. Generates coverage reports (markdown and JSON formats)
+
+**Output Formats**:
+- **Markdown**: Human-readable coverage report with statistics
+- **JSON**: Machine-readable analysis for AI consumption
+
+### Stage 3: AI Improvement (agents)
+
+The agents system uses Effect's AI framework with durable workflow support:
+
+#### Standard Mode (Fast)
+- Direct invocation of Anthropic Claude API
+- Real-time token tracking and cost estimation
+- Immediate feedback and file updates
+- No crash recovery
+
+#### Durable Mode (Resilient)
+- Workflow orchestration via `@effect/workflow`
+- State persistence and crash recovery
+- Resume capability for interrupted executions
+- Activity-based task decomposition
+
+**Agent Workflow**:
+1. Load analysis results from Stage 2
+2. Invoke Claude with specialized JSDoc prompt
+3. Parse AI-suggested improvements
+4. Apply changes to source files (respecting dry-run)
+5. Track token usage (input, output, cached)
+6. Estimate API costs based on Anthropic pricing
+
+**Tools Available to AI**:
+- `read_file`: Read source code
+- `write_file`: Apply JSDoc improvements
+- `analyze_exports`: Get symbol information
+- `validate_jsdoc`: Check documentation quality
+
+### Stage 4: Documentation Generation (generate)
+
+1. Locates packages with valid docgen.json
+2. Invokes `@effect/docgen` for each package
+3. Generates API documentation in markdown format
+4. Outputs to package-local `docs/` directory
+5. Supports parallel execution for multiple packages
+
+### Stage 5: Aggregation (aggregate)
+
+1. Discovers all packages with generated documentation
+2. Creates centralized documentation structure
+3. Copies package docs to repository-wide location (docs/api/)
+4. Preserves navigation and cross-references
+5. Optionally cleans destination before aggregating
+
+### Token Tracking and Cost Estimation
+
+The agents command provides real-time visibility into API usage:
+
+```typescript
+// Token statistics interface
+interface TokenStats {
+  inputTokens: number;      // Tokens sent to API
+  outputTokens: number;     // Tokens generated
+  cachedTokens: number;     // Prompt caching hits
+}
+
+// Cost estimation (December 2025 pricing)
+const ANTHROPIC_PRICING = {
+  "claude-sonnet-4-20250514": {
+    input: 3.0,       // $3 per million tokens
+    output: 15.0,     // $15 per million tokens
+    cachedInput: 0.3, // $0.30 per million tokens
+  },
+  "claude-opus-4-20250514": {
+    input: 15.0,      // $15 per million tokens
+    output: 75.0,     // $75 per million tokens
+    cachedInput: 1.5, // $1.50 per million tokens
+  },
+};
+```
+
+**Real-time Display**:
+- Incremental token counts as API calls complete
+- Running cost estimation
+- Cached token savings (90% cost reduction)
+- Per-package and aggregate statistics
 
 ## Adding New Commands
 
@@ -399,15 +723,84 @@ export const myCommand = CliCommand.make(
 
 ## Relationship to Other Packages
 
-- `@beep/tooling-utils` - Provides FsUtils, RepoUtils, workspace schemas used by commands
-- `@beep/_internal/db-admin` - Database migration tooling (separate concern)
-- `@beep/testkit` - Effect testing utilities (imported in tests)
-- `tooling/repo-scripts` - Legacy scripts being migrated to this CLI
-- Root workspace - Target of environment and configuration commands
+| Package | Relationship |
+|---------|-------------|
+| `@beep/tooling-utils` | Provides FsUtils, RepoUtils, workspace schemas, and dependency resolution |
+| `@beep/db-admin` | Database migration tooling (separate concern, not integrated) |
+| `@beep/testkit` | Effect testing utilities (used in test suites) |
+| `@beep/schema` | Schema validation, EntityId factories, JSDoc schema definitions |
+| `@beep/constants` | Shared constants and enums used across commands |
+| `@beep/invariant` | Assertion contracts for validation |
+| `@beep/utils` | Pure runtime helpers (noOp, nullOp, Effect array/string utilities) |
+| `@beep/identity` | Package identity utilities |
+| `tooling/repo-scripts` | Legacy bash/node scripts (being migrated to Effect-based commands) |
+| Root workspace | Target of environment and configuration synchronization commands |
+
+**Integration Points**:
+- Commands depend on `@beep/tooling-utils` for file system operations and repo structure queries
+- The docgen agents system uses `@beep/schema` for JSDoc validation schemas
+- Environment commands write to root `.env` and sync to app workspaces
+- Prune command reads workspace dependency graphs from `@beep/tooling-utils`
+
+## Notes
+
+### Docgen Configuration
+
+Each package that wants API documentation should have a `docgen.json` file in its root:
+
+```json
+{
+  "$schema": "../../node_modules/@effect/docgen/schema.json",
+  "srcDir": "src",
+  "outDir": "docs",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/path/to/package/src/",
+  "exclude": ["src/internal/**/*.ts"],
+  "examplesCompilerOptions": {
+    "paths": {
+      "@beep/package-name": ["./src/index.ts"],
+      "@beep/dependency": ["../../path/to/dependency/src/index.js"]
+    }
+  }
+}
+```
+
+The `init` command automates this process by reading existing TypeScript configurations.
+
+### AI Agent Prompts
+
+The agents command uses specialized prompts that:
+- Emphasize Effect patterns and conventions
+- Require examples for all exported functions
+- Enforce consistent JSDoc tag usage (@since, @category, @example)
+- Follow the repository's documentation standards from AGENTS.md
+
+Prompts are maintained in `src/commands/docgen/agents/prompts.ts` and can be customized for specific documentation needs.
+
+### Durable Workflows
+
+When using `--durable` mode, workflows are orchestrated by `@effect/workflow`:
+- State is persisted to disk (default: `.workflow-state/`)
+- Workflows can be resumed after crashes or interruptions
+- Each workflow is identified by a unique ID (e.g., `docgen-packages-common-contract`)
+- Use `--resume <workflow-id>` to continue interrupted workflows
+
+**Trade-offs**:
+- Standard mode: Faster, simpler, but no crash recovery
+- Durable mode: Slower startup, but resilient to failures
+
+### Environment Variable Synchronization
+
+The `sync` command copies `.env` to specific workspace locations:
+- `apps/mail/.dev.vars` - Cloudflare Workers development
+- `apps/mail/.env` - Local mail app configuration
+- `apps/server/.dev.vars` - Server runtime configuration
+
+After copying, it runs `bun run types` in each workspace to regenerate TypeScript type definitions for environment variables.
 
 ## Versioning and Changes
 
 - Internal tooling package - breaking changes are acceptable with PR coordination
 - Document new commands and options in README
-- Update `AGENTS.md` when patterns or guardrails change
+- Update JSDOC_ANALYSIS.md when JSDoc analysis patterns change
 - Coordinate with workspace maintainers when modifying cross-cutting commands
+- AI prompts and tools should evolve with repository conventions

@@ -1,0 +1,39 @@
+{
+  "$schema": "../../../node_modules/@effect/docgen/schema.json",
+  "srcDir": "src",
+  "outDir": "docs",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/shared/sdk/src/",
+  "exclude": ["src/internal/**/*.ts"],
+  "examplesCompilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "Bundler",
+    "module": "ES2022",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "paths": {
+      "@beep/shared-sdk": ["./src/index.ts"],
+      "@beep/shared-sdk/*": ["./src/*"],
+      "@beep/types": ["../../common/types/src/index.js"],
+      "@beep/types/*": ["../../common/types/src/*.js"],
+      "@beep/shared-domain": ["../domain/src/index.js"],
+      "@beep/shared-domain/*": ["../domain/src/*.js"],
+      "@beep/schema": ["../../common/schema/src/index.js"],
+      "@beep/schema/*": ["../../common/schema/src/*.js"],
+      "@beep/utils": ["../../common/utils/src/index.js"],
+      "@beep/utils/*": ["../../common/utils/src/*.js"],
+      "@beep/identity": ["../../common/identity/src/index.js"],
+      "@beep/identity/*": ["../../common/identity/src/*.js"],
+      "@beep/errors/client": ["../../common/errors/src/client.js"],
+      "@beep/errors/shared": ["../../common/errors/src/shared.js"],
+      "@beep/errors/server": ["../../common/errors/src/server.js"],
+      "@beep/constants": ["../../common/constants/src/index.js"],
+      "@beep/constants/*": ["../../common/constants/src/*.js"],
+      "@beep/invariant": ["../../common/invariant/src/index.js"],
+      "@beep/invariant/*": ["../../common/invariant/src/*.js"],
+      "@beep/shared-infra": ["../infra/src/index.js"],
+      "@beep/shared-infra/*": ["../infra/src/*.js"]
+    }
+  }
+}

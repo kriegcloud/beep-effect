@@ -60,7 +60,7 @@ The package exposes the following entry points:
   - `sx-config.ts` – complements the design system with reusable `sx` transformations (e.g., `lineClamp`).
 - Locale overrides pattern:
   - `createTheme` accepts `localeComponents?: { components?: Components<Theme> | undefined } | undefined`.
-  - The `ThemeProvider` in `@beep/ui` passes `currentLang.systemValue` (see `packages/ui-core/src/i18n/constants.ts`) which merges MUI X Data Grid and Date Pickers locale bundles.
+  - The `ThemeProvider` in `@beep/ui` passes `currentLang.systemValue` (see `packages/ui/core/src/i18n/constants.ts`) which merges MUI X Data Grid and Date Pickers locale bundles.
   - To add a new locale, extend `allLanguages` with a `systemValue` containing the relevant MUI locale `components` object.
 
 ## Settings-Driven Customization

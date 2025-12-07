@@ -9,8 +9,6 @@
 - Pure data only: no I/O, env access, randomness, or domain/business logic. Keep consumable in browser and server runtimes.
 - Provides indexed pickers via `_mock` object plus scenario-specific bundles for common dashboard patterns.
 
-> **Note**: The package.json description ("A library for system wide errors & error utilities") is outdated and should be updated to: "Deterministic mock data fixtures for UI development and demos".
-
 ## Surface Map (src/)
 
 ### Core Data Assets
@@ -221,12 +219,7 @@ The package is intentionally lean to remain client-safe and side-effect free.
 
 ## Known Issues & Technical Debt
 
-### 1. Package Description Mismatch
-**Issue**: `package.json` description says "A library for system wide errors & error utilities" (copy-pasted from `@beep/errors`).
-
-**Fix needed**: Update to: "Deterministic mock data fixtures for UI development and demos".
-
-### 2. Inconsistent Array Construction Patterns
+### 1. Inconsistent Array Construction Patterns
 **Issue**: Many scenario files use native `Array.from()` and `.map()` instead of Effect patterns:
 - `_user.ts` — Lines 32, 39, 46, etc. use `Array.from({ length: N }, (_, index) => ...)`
 - `_overview.ts` — Uses native `.map()` for data transformation
@@ -251,7 +244,7 @@ export const _userFollowers = A.makeBy(18, (index) => ({
 
 **Status**: This is a codebase-wide inconsistency that should be addressed during refactoring. New code should follow the Effect pattern, but existing code works correctly.
 
-### 3. Over-declared Peer Dependencies
+### 2. Over-declared Peer Dependencies
 **Issue**: The package declares many peer dependencies that are not actively used:
 - `@beep/schema` — Not imported anywhere
 - `@beep/constants` — Not imported anywhere
@@ -271,7 +264,7 @@ export const _userFollowers = A.makeBy(18, (index) => ({
 
 **Fix needed**: Clean up peer dependencies in `package.json` to only include what's actually used.
 
-### 4. Missing Type Safety for Indexes
+### 3. Missing Type Safety for Indexes
 **Issue**: The `_mock` picker functions use `number` type for indexes without validation. Accessing out-of-bounds indexes returns `undefined` (with `!` assertion).
 
 **Example**:

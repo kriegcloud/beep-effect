@@ -9,14 +9,14 @@
 ## Surface Map
 - **Errors (`src/errors.ts`)** — Tagged domain errors for document operations.
 - **Entities (`src/entities/`)**
-  - `Document` — Core document entity with versioning and file attachments.
+  - `Document` — Core document entity with versioning and file attachments. Includes RPC schema for remote operations.
   - `DocumentVersion` — Version history tracking for documents.
   - `DocumentFile` — File attachments associated with documents.
-  - `KnowledgePage` — Knowledge base page entity with contract for HTTP API.
+  - `KnowledgePage` — Knowledge base page entity with HTTP contract (`KnowledgePage.Contract`) for API endpoints.
   - `KnowledgeSpace` — Container for organizing knowledge pages.
   - `KnowledgeBlock` — Content blocks within knowledge pages.
-  - `Discussion` — Discussion threads on documents/pages.
-  - `Comment` — Individual comments in discussions.
+  - `Discussion` — Discussion threads on documents/pages. Includes RPC schema for remote operations.
+  - `Comment` — Individual comments in discussions. Includes RPC schema for remote operations.
   - `PageLink` — Links between knowledge pages.
 - **Value Objects (`src/value-objects/`)**
   - `BlockType` — Enumeration of content block types.
@@ -25,6 +25,7 @@
   - `LinkType` — Types of links (internal/external).
   - `PageStatus` — Publication status for pages.
 - **DomainApi (`src/DomainApi.ts`)** — HTTP API definition using `@effect/platform/HttpApi`, currently exposing `KnowledgePage.Contract` under `/api/v1/documents`.
+- **RPC Schemas** — Effect RPC schemas for entities that support remote procedure calls (`Comment.rpc`, `Discussion.rpc`, `Document.rpc`).
 
 ## Usage Snapshots
 - `packages/runtime/server/src/server-runtime.ts` — Likely consumes `DomainApi` for HTTP routing.

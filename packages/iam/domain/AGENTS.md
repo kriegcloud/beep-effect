@@ -1,7 +1,7 @@
 # @beep/iam-domain — Agent Guide
 
 ## Purpose & Fit
-- Centralizes IAM domain models via `M.Class` definitions that merge shared audit fields through `makeFields`, giving infra and tables a single source of truth for schema variants (`/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/domain/src/entities/Account/Account.model.ts:15`, `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/domain/src/common.ts:39`).
+- Centralizes IAM domain models via `M.Class` definitions that merge shared audit fields through `makeFields`, giving infra and tables a single source of truth for schema variants (see `src/entities/Account/Account.model.ts` and `@beep/shared-domain` common utilities).
 - Re-exports the IAM entity inventory to consumers through the package root so repos, tables, and runtimes can import `Entities.*` without piercing folder structure.
 - Provides IAM-specific tagged errors while delegating unknown fallbacks to the shared Beep error stack, keeping error channels typed across slices.
 - Bridges shared-kernel entities (Organization, Team, User) into the IAM slice so cross-slice consumers can stay on the IAM namespace without re-import juggling.

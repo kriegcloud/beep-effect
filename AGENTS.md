@@ -112,6 +112,7 @@ Each package may have its own `AGENTS.md` with specific guidance:
 ### Applications
 - `apps/web/AGENTS.md` — Next.js frontend application patterns
 - `apps/server/AGENTS.md` — Effect Platform backend server
+- `apps/notes/AGENTS.md` — Collaborative notes application (Prisma + Effect hybrid)
 
 ### Common Layer
 - `packages/common/constants/AGENTS.md` — Schema-backed enums, locale generators, path-builder
@@ -154,8 +155,11 @@ Each package may have its own `AGENTS.md` with specific guidance:
 
 ### Tooling
 - `packages/_internal/db-admin/AGENTS.md` — Migration warehouse, Drizzle CLI, Testcontainers
-- `tooling/testkit/AGENTS.md` — Bun-first Effect testing harness
+- `tooling/cli/AGENTS.md` — Repository CLI for docgen, env config, dependency management
+- `tooling/build-utils/AGENTS.md` — Next.js config utilities, PWA, security headers
 - `tooling/repo-scripts/AGENTS.md` — Bootstrap, env generators, Iconify workflows
+- `tooling/scraper/AGENTS.md` — Effect-based web scraping with Playwright
+- `tooling/testkit/AGENTS.md` — Bun-first Effect testing harness
 - `tooling/utils/AGENTS.md` — FsUtils, RepoUtils, workspace schemas
 
 ---

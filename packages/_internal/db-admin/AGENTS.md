@@ -2,9 +2,9 @@
 
 ## Purpose & Fit
 - Aggregates every Drizzle schema used across slices by re-exporting IAM and shared tables so migrations have a single source of truth (`packages/_internal/db-admin/src/schema.ts:3`).
-- Wraps `@beep/shared-infra/Db` factory into an admin-only Layer that can be merged into tooling runtimes without duplicating configuration logic (`packages/_internal/db-admin/src/Db.ts:12`).
-- Hosts generated SQL migrations and Drizzle metadata consumed by CI, Docker-backed tests, and local seed/reset workflows (`packages/_internal/db-admin/drizzle/0000_melted_killer_shrike.sql`).
-- Provides Pg container harnesses so repository tests can exercise migrations end-to-end with real Postgres + slice layers (`packages/_internal/db-admin/test/pg-container.ts:214`).
+- Wraps `@beep/shared-infra/Db` factory into an admin-only Layer that can be merged into tooling runtimes without duplicating configuration logic (`packages/_internal/db-admin/src/Db/AdminDb.ts:14`).
+- Hosts generated SQL migrations and Drizzle metadata consumed by CI, Docker-backed tests, and local seed/reset workflows (`packages/_internal/db-admin/drizzle/0000_plain_leper_queen.sql`).
+- Provides Pg container harnesses so repository tests can exercise migrations end-to-end with real Postgres + slice layers (`packages/_internal/db-admin/test/container.ts`).
 - Lives under `_internal` because it is not shipped to apps directly; `packages/shared/infra/AGENTS.md` describes how production runtimes depend on these exports.
 
 ## Surface Map
@@ -47,8 +47,8 @@ import * as Layer from "effect/Layer";
 
 const ToolRuntime = Layer.mergeAll(
   AdminDb.Live,
-  DocumentsDb.DocumentsDb.Live,
-  IamDb.IamDb.Live
+  DocumentsDb.Live,
+  IamDb.Live
 );
 
 const confirmMigration = Effect.gen(function* () {

@@ -20,10 +20,10 @@
 - **Exports** (`src/index.ts`): re-export adapters, `IamRepos`, configuration, and DB layer for consumers.
 
 ## Usage Snapshots
-- `apps/web/src/app/api/auth/[...all]/route.ts:1` — pulls `AuthService` to expose Better Auth handlers inside the Next.js route layer.
-- `packages/runtime/server/src/server-runtime.ts:74` — composes `IamRepos.layer` with Files repos, then wires `AuthEmailService` + `AuthService` into the server runtime Layer stack.
-- `packages/_internal/db-admin/test/iam-infra/repos/AccountRepo.test.ts:33` — exercises `IamRepos.AccountRepo` against a Docker Postgres container for regression coverage.
-- `packages/_internal/db-admin/test/pg-container.ts:251` — bootstraps IAM repos + DB Layer inside the testing container alongside Files infra.
+- `apps/web/src/app/api/auth/[...all]/route.ts` — pulls `AuthService` to expose Better Auth handlers inside the Next.js route layer.
+- `packages/runtime/server/src/server-runtime.ts` — composes `IamRepos.layer` with Files repos, then wires `AuthEmailService` + `AuthService` into the server runtime Layer stack.
+- `packages/_internal/db-admin/test/repo.test.ts` — exercises IAM repos against a Docker Postgres container for regression coverage.
+- `packages/_internal/db-admin/test/container.ts` — bootstraps IAM repos + DB Layer inside the testing container alongside Files infra.
 
 ## Authoring Guardrails
 - **Effect-first services**: always extend `Effect.Service` with `dependencies` defined as Layers. Never bypass `IamRepos.layer` or `IamDb.IamDb.Live`; provide additional dependencies via `Layer.provideMerge`.

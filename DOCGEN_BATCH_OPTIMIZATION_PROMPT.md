@@ -518,23 +518,23 @@ Open 2-3 files and verify:
 
 ### Token Usage Estimate
 
-| Component | Per Export | Per Batch (5) |
-|-----------|------------|---------------|
-| Declaration source | ~150 tokens | ~750 tokens |
-| Context before | ~50 tokens | ~250 tokens |
-| System prompt | - | ~400 tokens |
-| Generated JSDoc | ~100 tokens | ~500 tokens |
-| **Total** | ~300 tokens | **~1,900 tokens** |
+| Component          | Per Export  | Per Batch (5)     |
+|--------------------|-------------|-------------------|
+| Declaration source | ~150 tokens | ~750 tokens       |
+| Context before     | ~50 tokens  | ~250 tokens       |
+| System prompt      | -           | ~400 tokens       |
+| Generated JSDoc    | ~100 tokens | ~500 tokens       |
+| **Total**          | ~300 tokens | **~1,900 tokens** |
 
 A batch of 5 exports uses ~2,000 tokens, well within Claude's 100k+ context limit.
 
 ### Time Estimate
 
-| Metric | Per-Export | Batched (5) |
-|--------|------------|-------------|
-| API latency | ~4.5s | ~6s |
-| 197 exports | 197 calls = ~15 min | 40 calls = ~4 min |
-| **Improvement** | - | **~4x faster** |
+| Metric          | Per-Export          | Batched (5)       |
+|-----------------|---------------------|-------------------|
+| API latency     | ~4.5s               | ~6s               |
+| 197 exports     | 197 calls = ~15 min | 40 calls = ~4 min |
+| **Improvement** | -                   | **~4x faster**    |
 
 ### Cost Considerations
 
@@ -581,12 +581,12 @@ bun run tooling/cli/src/index.ts docgen agents -p packages/common/utils --verbos
 
 ## Key Files Quick Reference
 
-| File | Purpose |
-|------|---------|
+| File                                                | Purpose                                    |
+|-----------------------------------------------------|--------------------------------------------|
 | `tooling/cli/src/commands/docgen/agents/service.ts` | Main service - `fixPackageDirect` function |
-| `tooling/cli/src/commands/docgen/agents/prompts.ts` | Add `JSDOC_BATCH_GENERATOR_PROMPT` here |
-| `tooling/cli/src/commands/docgen/types.ts` | `ExportAnalysis` type definition |
-| `tooling/cli/src/commands/docgen/shared/ast.ts` | `analyzePackage` function |
+| `tooling/cli/src/commands/docgen/agents/prompts.ts` | Add `JSDOC_BATCH_GENERATOR_PROMPT` here    |
+| `tooling/cli/src/commands/docgen/types.ts`          | `ExportAnalysis` type definition           |
+| `tooling/cli/src/commands/docgen/shared/ast.ts`     | `analyzePackage` function                  |
 
 ---
 

@@ -10,7 +10,7 @@
 - `apps/web/src/GlobalProviders.tsx` — provider chain: `BeepProvider` → atom `RegistryContext` → `InitColorSchemeScript` → `TanstackDevToolsProvider` → `I18nProvider` → `SettingsProvider` → `LocalizationProvider` → `AppRouterCacheProvider` → `ThemeProvider` → `BreakpointsProvider` → `ConfirmProvider` → `IamProvider` → `MotionLazy` → `Snackbar` + `ProgressBar` + `SettingsDrawer`.
 - `apps/web/src/app/dashboard/_layout-client.tsx` — client shell applying `AuthGuard`, `DashboardLayout`, settings dialog atom via `urlSearchParamSSR`, and runtime-backed handlers via `makeRunClientPromise`/`useRuntime`.
 - Route groups: marketing pages under `apps/web/src/app/(public)`, auth flows in `apps/web/src/app/auth/*` (delegates to `@beep/iam-ui`), file uploads in `apps/web/src/app/upload/page.tsx`, mocks/tests in `apps/web/test`.
-- Config: `apps/web/next.config.ts` enforces security headers, SVGR for SVGs, TS-aware transpilation of `@beep/*` packages whose exports point to source, React Compiler, and output tracing rooted at the monorepo.
+- Config: `apps/web/next.config.mjs` enforces security headers, SVGR for SVGs, TS-aware transpilation of `@beep/*` packages whose exports point to source, React Compiler, and output tracing rooted at the monorepo.
 - Assets: `public/` holds static files; use `assetPaths` for typed references and regenerate via `bun run gen:beep-paths` after adding assets.
 
 ## Usage Snapshots
@@ -50,7 +50,7 @@
 - Respect App Router boundaries: only mark components `"use client"` when necessary; server components should keep data fetching inside Effects executed via `runServerPromise`.
 - Do not read `process.env` directly; rely on `serverEnv`/`clientEnv` from `@beep/shared-infra` (`NEXT_PUBLIC_CAPTCHA_SITE_KEY` powers IAM, `NEXT_PUBLIC_STATIC_URL` feeds Next image patterns).
 - Prefer `@beep/ui` and `@beep/ui-core` components/tokens over hand-rolled MUI styling; update provider ordering in `GlobalProviders` if you add/remove foundations.
-- When adjusting `next.config.ts`, keep security headers, turbopack rules, and `transpilePackages` filtering behavior intact; add new `@beep/*` packages only when their exports point to TS.
+- When adjusting `next.config.mjs`, keep security headers, turbopack rules, and `transpilePackages` filtering behavior intact; add new `@beep/*` packages only when their exports point to TS.
 - Maintain atom registry consistency: new atoms consumed globally should be registered in `GlobalProviders` or mounted under the existing `RegistryProvider`, not in isolated trees.
 
 ## Verifications

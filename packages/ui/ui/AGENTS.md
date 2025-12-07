@@ -30,7 +30,7 @@
   - Settings context (`src/settings/context`) connects to `@beep/ui-core/settings`. This state drives theme mode, primary color presets, typography, and navigation layout flags used by the theming pipeline.
   - Settings drawer (`src/settings/drawer`) provides UI controls for theme customization.
   - When extending settings, ensure the persisted `version` field is updated to avoid stale local storage.
-- Locale overrides live in `packages/ui-core/src/i18n/constants.ts`; hook new locales there so `ThemeProvider` receives `Components<Theme>` bundles.
+- Locale overrides live in `packages/ui/core/src/i18n/constants.ts`; hook new locales there so `ThemeProvider` receives `Components<Theme>` bundles.
 
 ## Component Organization
 - Directory taxonomy inside `src`:

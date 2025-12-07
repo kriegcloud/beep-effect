@@ -22,7 +22,15 @@
   - `PageLinkRepo` — Page link relationship management.
 - **`FilesConfig` tag + helpers** — Projects `serverEnv` into document-specific configuration, with `Live` and `layerFrom` entry points (`packages/documents/infra/src/config.ts`).
 - **`StorageService`** — Effect service for S3-based file storage operations (`packages/documents/infra/src/SignedUrlService.ts`).
-- **Root barrel exports** — `src/index.ts` / `src/db.ts` forward all public pieces for `@beep/documents-infra` consumers.
+- **`ExifToolService`** — Effect service for extracting and processing EXIF metadata from image files, available via `@beep/documents-infra/files` export (`packages/documents/infra/src/files/ExifToolService.ts`).
+- **HTTP Routes (`src/routes/`)** — Effect HTTP router definitions:
+  - `KnowledgePage.router` — Knowledge page HTTP endpoints.
+  - `root` — Root router composition.
+- **HTTP Handlers (`src/handlers/`)** — Effect HTTP request handlers:
+  - `Comment.handlers` — Comment request handlers.
+  - `Discussion.handlers` — Discussion request handlers.
+  - `Document.handlers` — Document request handlers.
+- **Root barrel exports** — `src/index.ts` / `src/db.ts` forward all public pieces for `@beep/documents-infra` consumers. Additional export path `files` provides file processing utilities.
 
 ## Usage Snapshots
 - `packages/runtime/server/src/server-runtime.ts:69` — Merges `DocumentsRepos.layer` with IAM repos to hydrate server-side persistence.

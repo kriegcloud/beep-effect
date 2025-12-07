@@ -43,7 +43,7 @@ through runtime helpers, while adapters keep raw Better Auth usage isolated to t
 
 ## Related Documentation
 
-- `/home/elpresidank/YeeBois/projects/beep-effect/packages/common/contract/AGENTS.md` — canonical reference for the underlying `Contract`/`ContractKit` runtime (read before altering continuations or lift helpers surfaced here).
+- `packages/common/contract/AGENTS.md` — canonical reference for the underlying `Contract`/`ContractKit` runtime (read before altering continuations or lift helpers surfaced here).
 
 ## Authoring Guardrails
 
