@@ -76,6 +76,7 @@
     "strictNullChecks": true,
     "noUnusedParameters": true,
     "paths": {
+      "~/.sst/*": [".sst/*"],
       "*": [
         "./*"
       ],

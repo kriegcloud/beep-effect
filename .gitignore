@@ -24,3 +24,6 @@ stats.html
 .vercel
 docs/
 trace
+
+# SST
+.sst/

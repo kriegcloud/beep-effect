@@ -28,7 +28,8 @@
     "build": "bunx turbo run build",
     "build:turbo": "bun run dotenvx -- bunx turbo run build:turbo",
     "execute": "bun run dotenvx -- bunx turbo run execute",
-    "check": "bunx turbo run check",
+    "check": "bunx turbo run check && bun run check:deploy",
+    "check:deploy": "bunx tsc --project deploy/tsconfig.json",
     "check:all": "bunx turbo run lint check test",
     "db:generate": "bunx turbo run db:generate",
     "db:migrate": "bun run dotenvx -- bunx turbo run db:migrate",
@@ -65,7 +66,12 @@
     "gen:beep-paths": "bun run dotenvx -- bunx tsx ./tooling/repo-scripts/src/generate-asset-paths.ts",
     "iconify": "bun run --cwd tooling/repo-scripts iconify",
     "ui-add": "turbo run ui-add",
-    "prepare": "effect-language-service patch"
+    "prepare": "effect-language-service patch",
+    "sst:dev": "bun run dotenvx -- bunx sst dev",
+    "sst:deploy": "bunx sst deploy",
+    "sst:remove": "bunx sst remove",
+    "sst:secrets": "bunx sst secret",
+    "sst:console": "bunx sst console"
   },
   "resolutions#": {
     "@beep/*": "Needed to force PNPM to install local packages"
