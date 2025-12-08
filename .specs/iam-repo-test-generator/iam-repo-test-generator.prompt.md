@@ -1,8 +1,8 @@
 ---
 name: iam-repo-test-generator
-version: 2
+version: 3
 created: 2025-12-08T00:00:00Z
-iterations: 1
+iterations: 2
 ---
 
 # IAM Repository Test Generator - Refined Prompt
@@ -86,6 +86,7 @@ Generate comprehensive unit test files for **22 IAM repositories**, each followi
    - Error handling (unique constraint violation, update non-existent dies)
    - Complete CRUD workflow (full lifecycle test)
    - Optional fields (test nullable/optional field handling)
+   - Property-based tests (optional, using `effect/Arbitrary` and `effect/FastCheck` for round-trip, idempotence, and schema validation)
 
 3. **All tests pass** when run with `bun run test --filter @beep/db-admin`
 
@@ -250,6 +251,465 @@ You write tests that are:
 
 ---
 
+## Property-Based Testing with Effect Arbitrary & FastCheck
+
+In addition to example-based tests, repository tests can leverage **property-based testing** to discover edge cases automatically. Effect provides two modules that enable this:
+
+- **`effect/Arbitrary`** — Derives test data generators directly from Effect Schemas
+- **`effect/FastCheck`** — Re-exports the complete `fast-check` library for property testing
+
+### Why Property-Based Testing for Repositories
+
+Property-based testing is valuable for repository operations because:
+
+1. **Automatic edge case discovery**: Finds corner cases (empty strings, extreme numbers, special characters) developers might miss
+2. **Schema-constraint alignment**: Generated data always respects all schema rules (patterns, ranges, formats)
+3. **Round-trip verification**: Ensures insert → findById returns equivalent data
+4. **Idempotence checking**: Verifies delete operations are idempotent
+5. **Schema evolution**: When entity schemas change, arbitraries adapt automatically
+
+### Core Concepts
+
+#### Deriving Arbitraries from Schemas
+
+Schemas encode all domain rules. Use `Arbitrary.make()` to automatically generate conforming test data:
+
+```typescript
+import * as Arbitrary from "effect/Arbitrary";
+import * as FastCheck from "effect/FastCheck";
+import * as S from "effect/Schema";
+import { User } from "@beep/shared-domain/entities";
+
+// Derive arbitrary from the entity's Model schema
+const UserArb = Arbitrary.make(User.Model);
+
+// Generate sample values for inspection
+console.log(FastCheck.sample(UserArb, 5));
+// → [{ id: "user__abc123...", email: "x@y.z", name: "qr", ... }, ...]
+```
+
+#### Key Functions
+
+| Function | Purpose |
+|----------|---------|
+| `Arbitrary.make(schema)` | Returns `FastCheck.Arbitrary<A>` that generates values matching schema |
+| `Arbitrary.makeLazy(schema)` | Returns `LazyArbitrary<A>` for deferred generation with context control |
+| `FastCheck.sample(arb, count)` | Generate sample values for debugging |
+| `FastCheck.assert(property)` | Run property assertions with automatic shrinking |
+| `FastCheck.property(arb, predicate)` | Define a property to test |
+| `FastCheck.asyncProperty(arb, predicate)` | Define an async property (for Effect tests) |
+
+#### Constraint Types
+
+Arbitraries automatically respect schema constraints:
+
+| Schema Constraint | Arbitrary Behavior |
+|-------------------|-------------------|
+| `S.between(1, 100)` | Generates integers in range [1, 100] |
+| `S.pattern(/^[a-z]+$/)` | Uses `stringMatching` for efficient generation |
+| `S.nonEmptyString()` | Never generates empty strings |
+| `S.optional(...)` | Sometimes generates `None`, sometimes `Some` |
+| `S.Array(...)` | Generates arrays with configurable length |
+
+### Import Pattern for Property Tests
+
+```typescript
+import { describe, expect } from "bun:test";
+import * as Arbitrary from "effect/Arbitrary";
+import * as FastCheck from "effect/FastCheck";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
+import * as O from "effect/Option";
+import * as F from "effect/Function";
+import { layer, strictEqual, deepStrictEqual } from "@beep/testkit";
+```
+
+### Repository Property Test Patterns
+
+#### Pattern 1: Round-Trip Property (Insert → Find)
+
+```typescript
+layer(PgTest, { timeout: Duration.seconds(120) })("property: insert round-trip", (it) => {
+  it.effect(
+    "should retrieve inserted entity with equivalent data",
+    () =>
+      Effect.gen(function* () {
+        const userRepo = yield* UserRepo;
+        const accountRepo = yield* AccountRepo;
+
+        // Generate arbitrary insert data
+        const AccountInsertArb = Arbitrary.make(Account.Model.insert);
+
+        // Create parent entity first
+        const user = yield* userRepo.insert(makeMockUser({
+          email: makeTestEmail("prop-roundtrip"),
+        }));
+
+        // Run property test
+        yield* Effect.promise(() =>
+          FastCheck.assert(
+            FastCheck.asyncProperty(AccountInsertArb, async (accountData) => {
+              // Override foreign key to use our test user
+              const dataWithUser = { ...accountData, userId: user.id };
+
+              const inserted = await Effect.runPromise(
+                accountRepo.insert(dataWithUser)
+              );
+              const found = await Effect.runPromise(
+                accountRepo.findById(inserted.id)
+              );
+
+              // Property: Found entity should match inserted entity
+              return (
+                O.isSome(found) &&
+                found.value.id === inserted.id &&
+                found.value.userId === user.id
+              );
+            }),
+            { numRuns: 20 } // Limit runs for integration tests
+          )
+        );
+      }),
+    120000
+  );
+});
+```
+
+#### Pattern 2: CRUD Invariants
+
+```typescript
+it.effect(
+  "property: create-read-update-delete maintains consistency",
+  () =>
+    Effect.gen(function* () {
+      const repo = yield* AccountRepo;
+      const userRepo = yield* UserRepo;
+
+      const user = yield* userRepo.insert(makeMockUser({
+        email: makeTestEmail("prop-crud"),
+      }));
+
+      const AccountInsertArb = Arbitrary.make(Account.Model.insert);
+
+      yield* Effect.promise(() =>
+        FastCheck.assert(
+          FastCheck.asyncProperty(AccountInsertArb, async (accountData) => {
+            const dataWithUser = { ...accountData, userId: user.id };
+
+            // Create
+            const created = await Effect.runPromise(repo.insert(dataWithUser));
+
+            // Read - should exist
+            const found1 = await Effect.runPromise(repo.findById(created.id));
+            if (!O.isSome(found1)) return false;
+
+            // Update
+            const updated = await Effect.runPromise(
+              repo.update({ ...created, providerId: "updated-provider" })
+            );
+            if (updated.providerId !== "updated-provider") return false;
+
+            // Delete
+            await Effect.runPromise(repo.delete(created.id));
+
+            // Read again - should not exist
+            const found2 = await Effect.runPromise(repo.findById(created.id));
+            return O.isNone(found2);
+          }),
+          { numRuns: 10 }
+        )
+      );
+    }),
+  180000
+);
+```
+
+#### Pattern 3: Delete Idempotence
+
+```typescript
+it.effect(
+  "property: delete is idempotent",
+  () =>
+    Effect.gen(function* () {
+      const repo = yield* AccountRepo;
+      const userRepo = yield* UserRepo;
+
+      const user = yield* userRepo.insert(makeMockUser({
+        email: makeTestEmail("prop-idempotent"),
+      }));
+
+      const AccountInsertArb = Arbitrary.make(Account.Model.insert);
+
+      yield* Effect.promise(() =>
+        FastCheck.assert(
+          FastCheck.asyncProperty(AccountInsertArb, async (accountData) => {
+            const created = await Effect.runPromise(
+              repo.insert({ ...accountData, userId: user.id })
+            );
+
+            // Delete twice - second should not throw
+            await Effect.runPromise(repo.delete(created.id));
+            await Effect.runPromise(repo.delete(created.id));
+
+            // Verify deleted
+            const found = await Effect.runPromise(repo.findById(created.id));
+            return O.isNone(found);
+          }),
+          { numRuns: 10 }
+        )
+      );
+    }),
+  120000
+);
+```
+
+### Customizing Arbitraries for Realistic Data
+
+Use the `arbitrary` annotation on schemas for realistic test data:
+
+```typescript
+import { faker } from "@faker-js/faker";
+
+// Realistic email generator
+const RealisticEmail = S.String.pipe(
+  S.pattern(/^[^@]+@[^@]+\.[^@]+$/)
+).annotations({
+  arbitrary: () => (fc) =>
+    fc.constant(null).map(() => faker.internet.email())
+});
+
+// Realistic name generator
+const RealisticName = S.NonEmptyString.annotations({
+  arbitrary: () => (fc) =>
+    fc.constant(null).map(() => faker.person.fullName())
+});
+
+// Limited set of provider IDs
+const ProviderId = S.String.annotations({
+  arbitrary: () => (fc) =>
+    fc.constantFrom("google", "github", "microsoft", "apple", "discord")
+});
+```
+
+### Critical Rules for Arbitrary Generation
+
+#### 1. Use `S.pattern()` for String Patterns (NOT `S.filter()`)
+
+```typescript
+// ❌ WRONG - Custom filter is inefficient and can hang
+const BadEmail = S.String.pipe(
+  S.filter((s) => /^[^@]+@[^@]+\.[^@]+$/.test(s))
+);
+
+// ✅ CORRECT - Uses efficient stringMatching internally
+const GoodEmail = S.String.pipe(
+  S.pattern(/^[^@]+@[^@]+\.[^@]+$/)
+);
+```
+
+**Why?** `S.pattern` uses `FastCheck.stringMatching(regexp)` which generates valid strings directly. Custom filters use rejection sampling, which can hang if the filter rejects too many values.
+
+#### 2. Apply Filters AFTER Transformations
+
+```typescript
+// ❌ WRONG - Filter before transformation is ignored during arbitrary generation
+const BadSchema = S.compose(
+  S.NonEmptyString,  // ← Filter ignored!
+  S.Trim
+);
+
+// ✅ CORRECT - Filters after transformations are applied
+const GoodSchema = S.Trim.pipe(
+  S.nonEmptyString()  // ← Filter applied
+);
+```
+
+#### 3. Avoid Conflicting Filters
+
+```typescript
+// ❌ DANGER - Conflicting filters can hang generation
+const ProblematicSchema = S.Int.pipe(
+  S.between(1, 100),       // Must be 1-100
+  S.filter((n) => n > 200) // But also > 200? Impossible!
+);
+
+// ✅ SAFE - Ensure filters are compatible
+const WorkingSchema = S.Int.pipe(
+  S.between(1, 100),
+  S.filter((n) => n % 2 === 0)  // Even numbers in 1-100
+);
+```
+
+#### 4. Handle Recursive Schemas with Depth Control
+
+```typescript
+// Recursive schemas default to maxDepth: 2
+const TreeArb = Arbitrary.make(TreeSchema);
+
+// Override for deeper structures
+const DeepTreeArb = Arbitrary.makeLazy(TreeSchema)({ maxDepth: 5 });
+```
+
+### FastCheck Configuration Options
+
+When running property tests, configure fast-check appropriately:
+
+```typescript
+FastCheck.assert(
+  FastCheck.asyncProperty(arb, predicate),
+  {
+    numRuns: 20,           // Number of test runs (default: 100)
+    seed: 12345,           // Optional: reproducible randomness
+    verbose: 1,            // 0=silent, 1=show failures, 2=show all
+    endOnFailure: true,    // Stop on first failure
+    timeout: 30000,        // Per-property timeout
+  }
+);
+```
+
+For integration tests, use lower `numRuns` (10-20) to balance coverage vs test time.
+
+### Shrinking and Counterexamples
+
+fast-check automatically **shrinks** failing test cases to minimal examples:
+
+```typescript
+// If this fails with [10, 20, 30, 40, 50], fast-check will shrink to [0, 0, 0, 0, 0]
+FastCheck.assert(
+  FastCheck.property(
+    FastCheck.array(FastCheck.integer()),
+    (arr) => arr.length < 5
+  )
+);
+// → Counterexample: [0, 0, 0, 0, 0] (minimal array of length 5)
+```
+
+This makes debugging easier by finding the simplest failing case.
+
+### Sampling for Debugging
+
+Use `FastCheck.sample()` to inspect what values are generated:
+
+```typescript
+const AccountInsertArb = Arbitrary.make(Account.Model.insert);
+
+// Generate 10 samples to see what data looks like
+const samples = FastCheck.sample(AccountInsertArb, 10);
+console.log(JSON.stringify(samples, null, 2));
+
+// Useful for:
+// - Verifying generators produce expected values
+// - Understanding what edge cases are covered
+// - Debugging failing properties
+```
+
+### When to Use Property Tests vs Example Tests
+
+| Use Property Tests When | Use Example Tests When |
+|-------------------------|------------------------|
+| Testing invariants (round-trip, idempotence) | Testing specific edge cases (null ID, duplicate key) |
+| Verifying schema constraints are respected | Testing error messages and specific error types |
+| Exploring the full input space | Testing specific business rules |
+| Regression testing after schema changes | Testing integration with specific external data |
+
+### Property Test Group Template
+
+Add this as an optional 11th test group in repository tests:
+
+```typescript
+// ============================================================================
+// PROPERTY-BASED TESTS (Optional)
+// ============================================================================
+layer(PgTest, { timeout: Duration.seconds(180) })("property-based tests", (it) => {
+  it.effect(
+    "property: insert and findById round-trip",
+    () =>
+      Effect.gen(function* () {
+        const repo = yield* {Entity}Repo;
+        // ... setup parent entities if needed ...
+
+        const InsertArb = Arbitrary.make({Entity}.Model.insert);
+
+        yield* Effect.promise(() =>
+          FastCheck.assert(
+            FastCheck.asyncProperty(InsertArb, async (insertData) => {
+              // Override foreign keys as needed
+              const data = { ...insertData, /* userId: parentUser.id */ };
+
+              const inserted = await Effect.runPromise(repo.insert(data));
+              const found = await Effect.runPromise(repo.findById(inserted.id));
+
+              return O.isSome(found) && found.value.id === inserted.id;
+            }),
+            { numRuns: 15 }
+          )
+        );
+      }),
+    180000
+  );
+
+  it.effect(
+    "property: delete is idempotent",
+    () =>
+      Effect.gen(function* () {
+        const repo = yield* {Entity}Repo;
+        // ... setup parent entities if needed ...
+
+        const InsertArb = Arbitrary.make({Entity}.Model.insert);
+
+        yield* Effect.promise(() =>
+          FastCheck.assert(
+            FastCheck.asyncProperty(InsertArb, async (insertData) => {
+              const data = { ...insertData, /* userId: parentUser.id */ };
+
+              const inserted = await Effect.runPromise(repo.insert(data));
+
+              // Delete twice should not throw
+              await Effect.runPromise(repo.delete(inserted.id));
+              await Effect.runPromise(repo.delete(inserted.id));
+
+              const found = await Effect.runPromise(repo.findById(inserted.id));
+              return O.isNone(found);
+            }),
+            { numRuns: 10 }
+          )
+        );
+      }),
+    120000
+  );
+
+  it.effect(
+    "property: schema encoding round-trips",
+    () =>
+      Effect.gen(function* () {
+        const ModelArb = Arbitrary.make({Entity}.Model);
+
+        yield* Effect.promise(() =>
+          FastCheck.assert(
+            FastCheck.property(ModelArb, (entity) => {
+              const encoded = S.encodeSync({Entity}.Model)(entity);
+              const decoded = S.decodeSync({Entity}.Model)(encoded);
+              return decoded.id === entity.id;
+            }),
+            { numRuns: 50 }
+          )
+        );
+      }),
+    60000
+  );
+});
+```
+
+### Limitations and Considerations
+
+1. **Integration test overhead**: Property tests with database operations are slower; limit `numRuns` to 10-20
+2. **Foreign key setup**: Must create parent entities before running property tests on child entities
+3. **Unique constraints**: May need to override generated unique fields (email, etc.) to avoid collisions
+4. **Test isolation**: Each property run may create database records; consider cleanup strategies
+5. **Testkit support**: The `@beep/testkit` `prop` method is currently a placeholder; use `FastCheck.assert` directly within `it.effect` as shown above
+
+---
+
 ## Resources
 
 ### Files to Read Before Generating Each Test
@@ -300,6 +760,10 @@ import { PgTest } from "./container";
 // For entities with foreign keys, also import parent repos
 import { UserRepo, OrganizationRepo, TeamRepo } from "@beep/iam-infra";
 import { User, Organization, Team } from "@beep/shared-domain/entities";
+
+// For property-based tests (optional)
+import * as Arbitrary from "effect/Arbitrary";
+import * as FastCheck from "effect/FastCheck";
 ```
 
 ---
@@ -757,6 +1221,8 @@ Each subagent should:
 - Effect.either for failure handling
 - Layer composition for tests
 - Model/Repository patterns
+- effect/Arbitrary for schema-derived test generators
+- effect/FastCheck for property-based testing
 
 ### Refinement History
 
@@ -764,3 +1230,4 @@ Each subagent should:
 |-----------|--------------|---------------|
 | 0         | Initial      | N/A           |
 | 1         | 6 issues (1 HIGH, 2 MEDIUM, 3 LOW) | Added describe() wrapper to template; Added EntityId table name reference; Clarified import paths for shared vs IAM entities; Added error type catalog; Added NonEmptyArray type assertion example; Added optional field detection guidance; Added repository method availability guidance |
+| 2         | Property-based testing enhancement | Added comprehensive "Property-Based Testing with Effect Arbitrary & FastCheck" section covering: deriving arbitraries from schemas; repository property test patterns (round-trip, CRUD invariants, idempotence); critical rules for arbitrary generation (pattern vs filter, filter ordering, conflicting filters); FastCheck configuration; shrinking/counterexamples; when to use property vs example tests; property test group template; limitations and considerations |

@@ -7,7 +7,7 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { PgTest } from "./container";
+import { PgTest } from "../container.ts";
 
 /**
  * Timeout in milliseconds for bun test. Duration objects are not supported by bun test.

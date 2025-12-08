@@ -7,13 +7,13 @@ import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
+import * as O from "effect/Option";
 // import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
-// import { SharedEntityIds } from "@beep/shared-domain"
 import * as S from "effect/Schema";
 import { EventStreamHub } from "../../EventStreamHub.ts";
+import { FileRepo } from "../../repos/File.repo.ts";
 import { serverEnv } from "../../ServerEnv.ts";
-// import { FilesRepo } from "./files-repo";
 import * as UploadThingApi from "./uploadthing-api";
 
 const $I = $SharedInfraId.create("upload/uploadthing-callback-route");
@@ -48,6 +48,7 @@ export const UploadThingCallbackRoute = HttpLayerRouter.use(
       "POST",
       "/uploadThingCallback",
       Effect.gen(function* () {
+        const fileRepo = yield* FileRepo;
         const request = yield* HttpServerRequest.HttpServerRequest;
 
         const headers = yield* decodeHeaders(request.headers);
@@ -69,16 +70,22 @@ export const UploadThingCallbackRoute = HttpLayerRouter.use(
 
         yield* Effect.logInfo(payload);
 
-        // const uploadPath = yield* S.decode(File.UploadPath)({
-        //   env: serverEnv.app.env,
-        //   fileId: SharedEntityIds.FileId.create(),
-        //   organizationType:
-        // })
+        const inserted = yield* fileRepo.insert({
+          id: payload.metadata.fileId,
+          key: payload.file.key,
+          url: payload.file.url,
+          organizationId: payload.metadata.organizationId,
+          createdBy: payload.metadata.userId,
+          deletedAt: O.none(),
+          updatedBy: payload.metadata.userId,
+          source: O.some("uploadthing"),
+          deletedBy: O.none(),
+        });
 
-        // yield* eventStreamHub.notifyUser(payload.metadata.userId, {
-        //   _tag: "File.Uploaded",
-        //   // file: payload.file,
-        // });
+        yield* eventStreamHub.notifyUser(payload.metadata.userId, {
+          _tag: "File.Uploaded",
+          file: inserted,
+        });
 
         return yield* HttpServerResponse.text("OK");
       }).pipe(Effect.orDie, Effect.withSpan("UploadThingCallbackRoute"))

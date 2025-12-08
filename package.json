@@ -472,9 +472,14 @@
     "@aws-sdk/credential-providers": "^3.946.0",
     "@aws-sdk/dsql-signer": "^3.946.0",
     "sst": "^3.17.25",
-    "@total-typescript/ts-reset": "^0.6.1"
+    "@total-typescript/ts-reset": "^0.6.1",
+    "browser-image-compression": "^2.0.2"
   },
   "dependenciesCatalog": [
+    {
+      "name": "browser-image-compression",
+      "version": "^2.0.2"
+    },
     {
       "name": "@total-typescript/ts-reset",
       "version": "^0.6.1"

@@ -87,6 +87,7 @@
     "@zip.js/zip.js": "catalog:",
     "@radix-ui/react-dialog": "catalog:",
     "@radix-ui/react-separator": "catalog:",
+    "browser-image-compression": "catalog:",
     "@radix-ui/react-slot": "catalog:",
     "@radix-ui/react-tooltip": "catalog:",
     "lucide-react": "catalog:",
