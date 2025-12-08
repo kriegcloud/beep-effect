@@ -2,7 +2,9 @@
   "extends": "./tsconfig.base.jsonc",
   "include": [
     "./syncpack.config.ts",
-    "./knip.config.ts"
+    "./knip.config.ts",
+    "./sst.config.ts",
+
   ],
   "exclude": [
     "**/dist/**",

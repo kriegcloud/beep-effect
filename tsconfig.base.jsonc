@@ -49,7 +49,10 @@
       }
     ],
     "lib": [
-      "ES2023",
+      "ESNext.Array",
+      "ESNext.Collection",
+      "ESNext.AsyncIterable",
+      "ES2024",
       "DOM",
       "DOM.Iterable"
     ],

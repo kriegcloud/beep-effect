@@ -24,6 +24,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
+import * as Str from "effect/String";
 import { InvalidPackagePathError, PackageNotFoundError } from "../errors.js";
 import type { PackageDocgenStatus, PackageInfo } from "../types.js";
 import { hasDocgenConfig } from "./config.js";
@@ -413,3 +414,30 @@ export const resolvePackageByName = (
 
     return found.value;
   });
+
+/**
+ * Resolve a package by either path or @-prefixed name.
+ *
+ * @example
+ * ```typescript
+ * yield* resolvePackageByPathOrName("packages/common/contract") // path
+ * yield* resolvePackageByPathOrName("@beep/contract")           // name
+ * ```
+ *
+ * @param input - Package path or @-prefixed package name
+ * @returns PackageInfo for the resolved package
+ * @throws InvalidPackagePathError if path doesn't exist or isn't a directory
+ * @throws PackageNotFoundError if package is not found in workspace
+ * @category utilities
+ * @since 0.1.0
+ */
+export const resolvePackageByPathOrName = (
+  input: string
+): Effect.Effect<
+  PackageInfo,
+  InvalidPackagePathError | PackageNotFoundError,
+  FileSystem.FileSystem | Path.Path | FsUtils.FsUtils
+> =>
+  F.pipe(input, Str.startsWith("@"))
+    ? resolvePackageByName(input)
+    : resolvePackagePath(input);

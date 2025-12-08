@@ -1,0 +1,141 @@
+{
+  "$schema": "../../../node_modules/@effect/docgen/schema.json",
+  "srcDir": "src",
+  "outDir": "docs",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/_internal/db-admin/src/",
+  "exclude": [
+    "src/internal/**/*.ts"
+  ],
+  "examplesCompilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "Bundler",
+    "module": "ES2022",
+    "target": "ES2022",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "paths": {
+      "@beep/db-admin": [
+        "./src/index.ts"
+      ],
+      "@beep/db-admin/*": [
+        "./src/*"
+      ],
+      "@beep/shared-infra": [
+        "../../shared/infra/src/index.js"
+      ],
+      "@beep/shared-infra/*": [
+        "../../shared/infra/src/*.js"
+      ],
+      "@beep/invariant": [
+        "../../common/invariant/src/index.js"
+      ],
+      "@beep/invariant/*": [
+        "../../common/invariant/src/*.js"
+      ],
+      "@beep/utils": [
+        "../../common/utils/src/index.js"
+      ],
+      "@beep/utils/*": [
+        "../../common/utils/src/*.js"
+      ],
+      "@beep/schema": [
+        "../../common/schema/src/index.js"
+      ],
+      "@beep/schema/*": [
+        "../../common/schema/src/*.js"
+      ],
+      "@beep/identity": [
+        "../../common/identity/src/index.js"
+      ],
+      "@beep/identity/*": [
+        "../../common/identity/src/*.js"
+      ],
+      "@beep/constants": [
+        "../../common/constants/src/index.js"
+      ],
+      "@beep/constants/*": [
+        "../../common/constants/src/*.js"
+      ],
+      "@beep/errors/client": [
+        "../../common/errors/src/client.js"
+      ],
+      "@beep/errors/shared": [
+        "../../common/errors/src/shared.js"
+      ],
+      "@beep/errors/server": [
+        "../../common/errors/src/server.js"
+      ],
+      "@beep/shared-domain": [
+        "../../shared/domain/src/index.js"
+      ],
+      "@beep/shared-domain/*": [
+        "../../shared/domain/src/*.js"
+      ],
+      "@beep/shared-tables": [
+        "../../shared/tables/src/index.js"
+      ],
+      "@beep/shared-tables/*": [
+        "../../shared/tables/src/*.js"
+      ],
+      "@beep/iam-domain": [
+        "../../iam/domain/src/index.js"
+      ],
+      "@beep/iam-domain/*": [
+        "../../iam/domain/src/*.js"
+      ],
+      "@beep/iam-tables": [
+        "../../iam/tables/src/index.js"
+      ],
+      "@beep/iam-tables/*": [
+        "../../iam/tables/src/*.js"
+      ],
+      "@beep/iam-infra": [
+        "../../iam/infra/src/index.js"
+      ],
+      "@beep/iam-infra/*": [
+        "../../iam/infra/src/*.js"
+      ],
+      "@beep/documents-domain": [
+        "../../documents/domain/src/index.js"
+      ],
+      "@beep/documents-domain/*": [
+        "../../documents/domain/src/*.js"
+      ],
+      "@beep/documents-tables": [
+        "../../documents/tables/src/index.js"
+      ],
+      "@beep/documents-tables/*": [
+        "../../documents/tables/src/*.js"
+      ],
+      "@beep/documents-infra": [
+        "../../documents/infra/src/index.js"
+      ],
+      "@beep/documents-infra/*": [
+        "../../documents/infra/src/*.js"
+      ],
+      "@beep/tooling-utils": [
+        "../../../tooling/utils/src/index.js"
+      ],
+      "@beep/tooling-utils/*": [
+        "../../../tooling/utils/src/*.js"
+      ],
+      "@beep/testkit": [
+        "../../../tooling/testkit/src/index.js"
+      ],
+      "@beep/testkit/*": [
+        "../../../tooling/testkit/src/*.js"
+      ],
+      "@beep/types": [
+        "../../common/types/src/index.js"
+      ],
+      "@beep/types/*": [
+        "../../common/types/src/*.js"
+      ]
+    }
+  }
+}

@@ -54,7 +54,7 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
-import { discoverPackagesWithDocs, resolvePackagePath } from "./shared/discovery.js";
+import { discoverPackagesWithDocs, resolvePackageByPathOrName } from "./shared/discovery.js";
 import { DocgenLogger, DocgenLoggerLive } from "./shared/logger.js";
 import { blank, error, formatPath, header, info, success, symbols, warning } from "./shared/output.js";
 import type { PackageInfo } from "./types.js";
@@ -68,7 +68,7 @@ const cleanOption = CliOptions.boolean("clean").pipe(
 
 const packageOption = CliOptions.optional(CliOptions.text("package")).pipe(
   CliOptions.withAlias("p"),
-  CliOptions.withDescription("Aggregate specific package only")
+  CliOptions.withDescription("Target package (path or @beep/* name; default: all with docs)")
 );
 
 /**
@@ -209,9 +209,9 @@ const handleAggregate = (args: {
 
     if (args.package !== undefined) {
       // Single package mode
-      const pkgInfo = yield* resolvePackagePath(args.package).pipe(
+      const pkgInfo = yield* resolvePackageByPathOrName(args.package).pipe(
         Effect.tapError((e) =>
-          logger.error("Invalid package path", {
+          logger.error("Invalid package", {
             path: e.path,
             error: e._tag,
             reason: e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found"),
@@ -220,7 +220,7 @@ const handleAggregate = (args: {
         Effect.catchAll((e) =>
           Effect.gen(function* () {
             yield* error(
-              `Invalid package path: ${e.path} - ${e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found")}`
+              `Invalid package: ${e.path} - ${e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found")}`
             );
             return yield* Effect.fail(ExitCode.InvalidInput);
           })

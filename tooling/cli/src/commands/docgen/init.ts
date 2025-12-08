@@ -25,6 +25,7 @@
  * @see DOCGEN_CLI_IMPLEMENTATION.md
  */
 
+import type * as FsUtils from "@beep/tooling-utils/FsUtils";
 import { findRepoRoot } from "@beep/tooling-utils/repo";
 import * as CliCommand from "@effect/cli/Command";
 import * as CliOptions from "@effect/cli/Options";
@@ -45,7 +46,7 @@ import {
   loadTsConfig,
   writeDocgenConfig,
 } from "./shared/config.js";
-import { resolvePackagePath } from "./shared/discovery.js";
+import { resolvePackageByPathOrName } from "./shared/discovery.js";
 import { DocgenLogger, DocgenLoggerLive } from "./shared/logger.js";
 import { dryRunTag, error, formatPath, info, success, warning } from "./shared/output.js";
 import type { CompilerOptions, DocgenConfig } from "./types.js";
@@ -54,7 +55,7 @@ import { ExitCode } from "./types.js";
 // Options
 const packageOption = CliOptions.text("package").pipe(
   CliOptions.withAlias("p"),
-  CliOptions.withDescription("Target package path (relative to repo root)")
+  CliOptions.withDescription("Target package (path or @beep/* name)")
 );
 
 const dryRunOption = CliOptions.boolean("dry-run").pipe(
@@ -320,7 +321,7 @@ const handleInit = (args: {
   readonly package: string;
   readonly dryRun: boolean;
   readonly force: boolean;
-}): Effect.Effect<void, never, FileSystem.FileSystem | Path.Path | DocgenLogger> =>
+}): Effect.Effect<void, never, FileSystem.FileSystem | Path.Path | FsUtils.FsUtils | DocgenLogger> =>
   Effect.gen(function* () {
     const path = yield* Path.Path;
     const logger = yield* DocgenLogger;
@@ -332,9 +333,9 @@ const handleInit = (args: {
     });
 
     // Step 1: Resolve and validate package path
-    const pkgInfo = yield* resolvePackagePath(args.package).pipe(
+    const pkgInfo = yield* resolvePackageByPathOrName(args.package).pipe(
       Effect.tapError((e) =>
-        logger.error("Invalid package path", {
+        logger.error("Invalid package", {
           path: e.path,
           error: e._tag,
           reason: e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found"),
@@ -343,7 +344,7 @@ const handleInit = (args: {
       Effect.catchAll((e) =>
         Effect.gen(function* () {
           yield* error(
-            `Invalid package path: ${e.path} - ${e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found")}`
+            `Invalid package: ${e.path} - ${e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found")}`
           );
           return yield* Effect.fail(ExitCode.InvalidInput);
         })

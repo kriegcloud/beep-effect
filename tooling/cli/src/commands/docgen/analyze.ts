@@ -45,7 +45,7 @@ import * as Str from "effect/String";
 import type { TsMorphError } from "./errors.js";
 import { analyzePackage } from "./shared/ast.js";
 import { loadDocgenConfig } from "./shared/config.js";
-import { discoverConfiguredPackages, resolvePackagePath } from "./shared/discovery.js";
+import { discoverConfiguredPackages, resolvePackageByPathOrName } from "./shared/discovery.js";
 import { formatBatchResult, makeErrorAccumulator } from "./shared/error-handling.js";
 import { DocgenLogger, DocgenLoggerLive } from "./shared/logger.js";
 import { generateAnalysisJson, generateAnalysisReport } from "./shared/markdown.js";
@@ -56,7 +56,7 @@ import { ExitCode } from "./types.js";
 // Options
 const packageOption = CliOptions.optional(CliOptions.text("package")).pipe(
   CliOptions.withAlias("p"),
-  CliOptions.withDescription("Target package path (defaults to all configured packages)")
+  CliOptions.withDescription("Target package (path or @beep/* name; default: all configured)")
 );
 
 const outputOption = CliOptions.optional(CliOptions.text("output")).pipe(
@@ -284,13 +284,13 @@ const handleAnalyze = (args: {
     // Resolve target packages
     if (args.package !== undefined) {
       // Single package mode
-      const pkgInfo = yield* resolvePackagePath(args.package).pipe(
+      const pkgInfo = yield* resolvePackageByPathOrName(args.package).pipe(
         Effect.catchAll((e) =>
           Effect.gen(function* () {
             yield* error(
-              `Invalid package path: ${e.path} - ${e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found")}`
+              `Invalid package: ${e.path} - ${e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found")}`
             );
-            yield* logger.error("Invalid package path", {
+            yield* logger.error("Invalid package", {
               path: e.path,
               error: e._tag,
               reason: e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found"),

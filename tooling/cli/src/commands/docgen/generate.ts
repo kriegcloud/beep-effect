@@ -40,7 +40,7 @@ import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
-import { discoverConfiguredPackages, resolvePackagePath } from "./shared/discovery.js";
+import { discoverConfiguredPackages, resolvePackageByPathOrName } from "./shared/discovery.js";
 import { DocgenLogger, DocgenLoggerLive } from "./shared/logger.js";
 import { blank, error, formatPackageResult, header, info, symbols, warning } from "./shared/output.js";
 import type { GenerationResult, PackageInfo } from "./types.js";
@@ -49,7 +49,7 @@ import { ExitCode } from "./types.js";
 // Options
 const packageOption = CliOptions.optional(CliOptions.text("package")).pipe(
   CliOptions.withAlias("p"),
-  CliOptions.withDescription("Target specific package (default: all with docgen.json)")
+  CliOptions.withDescription("Target package (path or @beep/* name; default: all configured)")
 );
 
 const validateExamplesOption = CliOptions.boolean("validate-examples").pipe(
@@ -184,9 +184,9 @@ const handleGenerate = (args: {
 
     if (args.package !== undefined) {
       // Single package mode
-      const pkgInfo = yield* resolvePackagePath(args.package).pipe(
+      const pkgInfo = yield* resolvePackageByPathOrName(args.package).pipe(
         Effect.tapError((e) =>
-          logger.error("Invalid package path", {
+          logger.error("Invalid package", {
             path: e.path,
             error: e._tag,
             reason: e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found"),
@@ -195,7 +195,7 @@ const handleGenerate = (args: {
         Effect.catchAll((e) =>
           Effect.gen(function* () {
             yield* error(
-              `Invalid package path: ${e.path} - ${e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found")}`
+              `Invalid package: ${e.path} - ${e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found")}`
             );
             return yield* Effect.fail(ExitCode.InvalidInput);
           })
