@@ -14,7 +14,10 @@ const Live = ImageCompressionRpc.toLayer(
       compress: Effect.fn("ImageCompressionWorker.compress")(function* (payload) {
         yield* Effect.log(`Compressing "${payload.fileName}" (${(payload.data.length / 1024 / 1024).toFixed(2)} MB)`);
 
-        const file = new File([payload.data], payload.fileName, {
+        // Create a new Uint8Array backed by a regular ArrayBuffer
+        // to satisfy the BlobPart type requirement (excludes SharedArrayBuffer)
+        const buffer = new Uint8Array(payload.data);
+        const file = new File([buffer], payload.fileName, {
           type: payload.mimeType,
         });
 

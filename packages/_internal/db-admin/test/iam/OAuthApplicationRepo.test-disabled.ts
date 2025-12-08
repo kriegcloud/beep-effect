@@ -2,7 +2,7 @@ import { describe, expect } from "bun:test";
 import { Entities } from "@beep/iam-domain";
 import { OAuthApplicationRepo, OrganizationRepo, UserRepo } from "@beep/iam-infra";
 import { BS } from "@beep/schema";
-import { Slug } from "@beep/schema/build/src/primitives.ts";
+
 import { Organization, User } from "@beep/shared-domain/entities";
 import { assertNone, assertTrue, deepStrictEqual, layer, strictEqual } from "@beep/testkit";
 import * as Duration from "effect/Duration";
@@ -25,7 +25,7 @@ const makeTestEmail = (prefix: string): BS.Email.Type => BS.Email.make(`${prefix
 /**
  * Helper to create a unique test slug to avoid conflicts between tests.
  */
-const makeTestSlug = (prefix: string): Slug.Type => Slug.make(`${prefix}-${crypto.randomUUID().slice(0, 8)}`);
+const makeTestSlug = (prefix: string): BS.Slug.Type => BS.Slug.make(`${prefix}-${crypto.randomUUID().slice(0, 8)}`);
 
 /**
  * Helper to create a mock user for FK dependency.
@@ -39,7 +39,7 @@ const makeMockUser = (overrides?: Partial<{ email: BS.Email.Type; name: string }
 /**
  * Helper to create a mock organization for FK dependency.
  */
-const makeMockOrganization = (ownerUserId: string, overrides?: Partial<{ name: string; slug: Slug.Type }>) =>
+const makeMockOrganization = (ownerUserId: string, overrides?: Partial<{ name: string; slug: BS.Slug.Type }>) =>
   Organization.Model.jsonCreate.make({
     name: overrides?.name ?? "Test Organization",
     slug: overrides?.slug ?? makeTestSlug("test-org"),
