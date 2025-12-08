@@ -1,5 +1,5 @@
 import { DocumentsEntityIds } from "@beep/shared-domain";
-import { UserAuthMiddleware } from "@beep/shared-domain/Policy";
+import { AuthContextHttpMiddleware } from "@beep/shared-domain/Policy";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as HttpApiGroup from "@effect/platform/HttpApiGroup";
 import { KnowledgePageNotFoundError } from "./KnowledgePage.errors";
@@ -7,7 +7,7 @@ import { Model } from "./KnowledgePage.model";
 // import * as UrlParams from "@effect/platform/UrlParams";
 
 export class Contract extends HttpApiGroup.make("knowledgePage")
-  .middleware(UserAuthMiddleware)
+  .middleware(AuthContextHttpMiddleware)
   .add(
     HttpApiEndpoint.get("get", "/get/:id")
       .setUrlParams(DocumentsEntityIds.KnowledgePageId)

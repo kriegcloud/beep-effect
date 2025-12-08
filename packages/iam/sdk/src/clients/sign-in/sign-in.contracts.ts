@@ -18,10 +18,10 @@ const defaultFormValuesCommon = {
 // =====================================================================================================================
 export class SignInEmailPayload extends S.Class<SignInEmailPayload>("SignInEmailPayload")(
   {
-    email: BS.Email,
-    password: BS.Password,
+    email: BS.EmailBase,
+    password: BS.PasswordBase,
     rememberMe: BS.BoolWithDefault(false),
-    captchaResponse: S.Redacted(S.String),
+    captchaResponse: S.String,
   },
   [
     Id.annotations("SignInEmailPayload", {

@@ -34,7 +34,11 @@ export class DocumentVersionRepo extends Effect.Service<DocumentVersionRepo>()(
     effect: Effect.gen(function* () {
       const { makeQuery } = yield* DocumentsDb.DocumentsDb;
 
-      const baseRepo = yield* Repo.make(DocumentsEntityIds.DocumentVersionId, Entities.DocumentVersion.Model);
+      const baseRepo = yield* Repo.make(
+        DocumentsEntityIds.DocumentVersionId,
+        Entities.DocumentVersion.Model,
+        Effect.succeed({})
+      );
 
       /**
        * Find version by ID with proper error handling

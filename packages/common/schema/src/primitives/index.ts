@@ -27,13 +27,7 @@ export * from "./array";
  * @since 0.1.0
  */
 export * from "./array-buffer";
-/**
- * Binary helpers for Uint8Array and related schemas.
- *
- * @category Surface/Primitives
- * @since 0.1.0
- */
-export * from "./binary/uint8-array";
+
 /**
  * Boolean schemas with defaults and refinements.
  *

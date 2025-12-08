@@ -77,7 +77,8 @@
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",
-    "@beep/types": "workspace:^"
+    "@beep/types": "workspace:^",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

@@ -60,7 +60,8 @@
     "effect": "catalog:",
     "@effect/sql": "catalog:",
     "@effect/experimental": "catalog:",
-    "mutative": "catalog:"
+    "mutative": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

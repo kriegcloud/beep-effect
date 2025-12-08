@@ -17,7 +17,7 @@
 - **`src/value-objects/`**
   - `paths.ts` — Safe `PathBuilder.collection` of all public routes, combining static strings and dynamic helpers (auth flows, dashboard, API endpoints).
   - `EntitySource.ts` — Source metadata for entity tracking.
-- **`src/Policy.ts`** — Current user context tags (`AuthContext`, `CurrentUser`), `UserAuthMiddleware`, `PolicyRecord` schema, permission literals, combinators `policy`, `withPolicy`, `all`, `any`, `permission`.
+- **`src/Policy.ts`** — Current user context tags (`AuthContext`, `CurrentUser`), `AuthContextHttpMiddleware`, `PolicyRecord` schema, permission literals, combinators `policy`, `withPolicy`, `all`, `any`, `permission`.
 - **`src/ManualCache.ts`** — Public façade over `_internal/manual-cache.ts`, exposing scoped cache creation with TTL+LRU semantics.
 - **`src/Retry.ts`** — Exponential backoff retry policy factory with configurable delay, growth factor, jitter, and max retries.
 - **`src/services/EncryptionService/`** — Encryption service for cryptographic operations with schema-based validation.

@@ -11,10 +11,49 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { DatabaseError } from "./errors";
 
-const tableNameToSpanPrefix = <TableName extends string>(tableName: TableName) => {
+const tableNameToSpanPrefix = <TableName extends string>(tableName: TableName): string => {
   const name = A.join("")(A.map(Str.split("_")(tableName), Str.capitalize));
   return `${name}Repo`;
 };
+
+/**
+ * Return type for the base repository operations.
+ *
+ * @category Repo
+ * @since 0.1.0
+ */
+export interface BaseRepo<
+  Model extends M.Any,
+  Id extends keyof Model["Type"] & keyof Model["update"]["Type"] & keyof Model["fields"],
+> {
+  readonly insert: (
+    insert: Model["insert"]["Type"]
+  ) => Effect.Effect<Model["Type"], DatabaseError, Model["Context"] | Model["insert"]["Context"]>;
+  readonly insertVoid: (
+    insert: Model["insert"]["Type"]
+  ) => Effect.Effect<void, DatabaseError, Model["Context"] | Model["insert"]["Context"]>;
+  readonly update: (
+    update: Model["update"]["Type"]
+  ) => Effect.Effect<Model["Type"], DatabaseError, Model["Context"] | Model["update"]["Context"]>;
+  readonly updateVoid: (
+    update: Model["update"]["Type"]
+  ) => Effect.Effect<void, DatabaseError, Model["Context"] | Model["update"]["Context"]>;
+  readonly findById: (
+    id: S.Schema.Type<Model["fields"][Id]>
+  ) => Effect.Effect<O.Option<Model["Type"]>, DatabaseError, Model["Context"] | S.Schema.Context<Model["fields"][Id]>>;
+  readonly delete: (
+    id: S.Schema.Type<Model["fields"][Id]>
+  ) => Effect.Effect<void, DatabaseError, S.Schema.Context<Model["fields"][Id]>>;
+  readonly insertManyVoid: (
+    insert: A.NonEmptyReadonlyArray<Model["insert"]["Type"]>
+  ) => Effect.Effect<void, DatabaseError, Model["Context"] | Model["insert"]["Context"]>;
+}
+
+type MakeBaseRepoEffect<
+  Model extends M.Any,
+  Id extends keyof Model["Type"] & keyof Model["update"]["Type"] & keyof Model["fields"],
+> = Effect.Effect<BaseRepo<Model, Id>, never, SqlClient.SqlClient>;
+
 const makeBaseRepo = <
   TableName extends string,
   Brand extends string,
@@ -26,37 +65,7 @@ const makeBaseRepo = <
     idSchema: EntityId.EntityIdSchemaInstance<TableName, Brand>;
     idColumn: Id;
   }
-): Effect.Effect<
-  {
-    readonly insert: (
-      insert: Model["insert"]["Type"]
-    ) => Effect.Effect<Model["Type"], DatabaseError, Model["Context"] | Model["insert"]["Context"]>;
-    readonly insertVoid: (
-      insert: Model["insert"]["Type"]
-    ) => Effect.Effect<void, DatabaseError, Model["Context"] | Model["insert"]["Context"]>;
-    readonly update: (
-      update: Model["update"]["Type"]
-    ) => Effect.Effect<Model["Type"], DatabaseError, Model["Context"] | Model["update"]["Context"]>;
-    readonly updateVoid: (
-      update: Model["update"]["Type"]
-    ) => Effect.Effect<void, DatabaseError, Model["Context"] | Model["update"]["Context"]>;
-    readonly findById: (
-      id: S.Schema.Type<Model["fields"][Id]>
-    ) => Effect.Effect<
-      O.Option<Model["Type"]>,
-      DatabaseError,
-      Model["Context"] | S.Schema.Context<Model["fields"][Id]>
-    >;
-    readonly delete: (
-      id: S.Schema.Type<Model["fields"][Id]>
-    ) => Effect.Effect<void, DatabaseError, S.Schema.Context<Model["fields"][Id]>>;
-    readonly insertManyVoid: (
-      insert: A.NonEmptyReadonlyArray<Model["insert"]["Type"]>
-    ) => Effect.Effect<void, DatabaseError, Model["Context"] | Model["insert"]["Context"]>;
-  },
-  never,
-  SqlClient.SqlClient
-> =>
+): MakeBaseRepoEffect<Model, Id> =>
   Effect.gen(function* () {
     const sql = yield* SqlClient.SqlClient;
     const tableName = options.idSchema.tableName;
@@ -234,10 +243,65 @@ const makeBaseRepo = <
     };
   });
 
+/**
+ * Property signature for entity ID fields with a default value.
+ * Matches the shape produced by `EntityId.modelIdSchema`.
+ *
+ * @category Repo
+ * @since 0.1.0
+ */
+export type EntityIdPropertySignature = S.PropertySignature<":", string, never, "?:", string, true, unknown>;
+
+/**
+ * Model constraint requiring an `id` field in type, update, and fields.
+ * Uses a loose constraint that preserves the actual model types.
+ *
+ * @category Repo
+ * @since 0.1.0
+ */
+export type ModelWithId = M.Any & {
+  readonly Type: { readonly id: string };
+  readonly update: { readonly Type: { readonly id: string } };
+  readonly fields: { readonly id: EntityIdPropertySignature };
+};
+
+/**
+ * Combined repository type including base operations and optional extensions.
+ * Uses `M.Any` constraint instead of `ModelWithId` to preserve variance and
+ * avoid type erasure in function parameters.
+ *
+ * @category Repo
+ * @since 0.1.0
+ */
+export type Repo<
+  Model extends M.Any,
+  TExtra extends Record<string, UnsafeTypes.UnsafeAny> = NonNullable<unknown>,
+> = BaseRepo<Model, "id"> & TExtra;
+
+/**
+ * Effect type for creating a repository service with standard CRUD operations and optional extensions.
+ * Uses `M.Any` constraint instead of `ModelWithId` to preserve variance and
+ * avoid type erasure in function parameters.
+ *
+ * @category Repo
+ * @since 0.1.0
+ */
+export type ServiceEffect<
+  Model extends M.Any,
+  SE,
+  SR,
+  TExtra extends Record<string, UnsafeTypes.UnsafeAny> = NonNullable<unknown>,
+> = Effect.Effect<Repo<Model, TExtra>, SE, SqlClient.SqlClient | SR>;
+/**
+ * Creates a repository with standard CRUD operations and optional extensions.
+ *
+ * @category Repo
+ * @since 0.1.0
+ */
 export const make = <
   TableName extends string,
   Brand extends string,
-  Model extends M.Any,
+  Model extends ModelWithId,
   SE,
   SR,
   TExtra extends Record<string, UnsafeTypes.UnsafeAny> = NonNullable<unknown>,
@@ -245,15 +309,15 @@ export const make = <
   idSchema: EntityId.EntityIdSchemaInstance<TableName, Brand>,
   model: Model,
   maker?: Effect.Effect<TExtra, SE, SR> | undefined
-) =>
+): ServiceEffect<Model, SE, SR, TExtra> =>
   Effect.flatMap(
     Effect.all([
-      O.fromNullable(maker).pipe(O.getOrElse(() => Effect.succeed({}))),
+      O.fromNullable(maker).pipe(O.getOrElse(() => Effect.succeed({} as TExtra))),
       makeBaseRepo(model, { idColumn: idSchema.publicIdColumnName, idSchema: idSchema }),
     ]),
     ([extra, baseRepo]) =>
       Effect.succeed({
-        ...extra,
         ...baseRepo,
-      } as const)
+        ...extra,
+      })
   );

@@ -437,7 +437,4 @@ export const resolvePackageByPathOrName = (
   PackageInfo,
   InvalidPackagePathError | PackageNotFoundError,
   FileSystem.FileSystem | Path.Path | FsUtils.FsUtils
-> =>
-  F.pipe(input, Str.startsWith("@"))
-    ? resolvePackageByName(input)
-    : resolvePackagePath(input);
+> => (F.pipe(input, Str.startsWith("@")) ? resolvePackageByName(input) : resolvePackagePath(input));

@@ -2,7 +2,12 @@
 // from the barrel export which includes DocumentsRepos/Db layers
 import { ExifToolService } from "@beep/documents-infra/files";
 import { BS } from "@beep/schema";
-import { type DetectedFileInfo, FileAttributes, fileTypeChecker, getFileChunk } from "@beep/schema/integrations/files";
+import {
+  type DetectedFileInfo,
+  FileAttributes,
+  fileTypeChecker,
+  getFileChunkEither,
+} from "@beep/schema/integrations/files";
 import { formatSize } from "@beep/schema/integrations/files/utils/formatSize";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -55,8 +60,8 @@ export const validateFile = Effect.fn("upload.validateFile")(function* ({
         chunkSize,
       }),
   });
-  const chunk = getFileChunk(buffer, chunkSize);
-  const detected = fileTypeChecker.detectFile(chunk, { chunkSize });
+  const chunk = yield* getFileChunkEither(buffer, chunkSize);
+  const detected = yield* fileTypeChecker.detectFileEither(chunk, { chunkSize });
   if (!detected) {
     // increment metric and warn before failing
     yield* Metric.increment(UploadMetrics.detectionFailedTotal);

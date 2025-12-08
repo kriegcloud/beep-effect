@@ -24,7 +24,11 @@ export class DocumentFileRepo extends Effect.Service<DocumentFileRepo>()(
     effect: Effect.gen(function* () {
       const { makeQuery } = yield* DocumentsDb.DocumentsDb;
 
-      const baseRepo = yield* Repo.make(DocumentsEntityIds.DocumentFileId, Entities.DocumentFile.Model);
+      const baseRepo = yield* Repo.make(
+        DocumentsEntityIds.DocumentFileId,
+        Entities.DocumentFile.Model,
+        Effect.succeed({})
+      );
 
       /**
        * Find file by ID with proper error handling

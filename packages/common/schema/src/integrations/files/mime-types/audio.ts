@@ -3,6 +3,10 @@ export const audio = {
     source: "iana",
     extensions: ["3gpp"],
   },
+  "audio/aac": {
+    source: "iana",
+    extensions: ["aac"],
+  },
   "audio/adpcm": {
     source: "apache",
     extensions: ["adp"],
@@ -86,6 +90,10 @@ export const audio = {
   "audio/vnd.rip": {
     source: "iana",
     extensions: ["rip"],
+  },
+  "audio/wav": {
+    source: "iana",
+    extensions: ["wav"],
   },
   "audio/webm": {
     source: "apache",

@@ -483,6 +483,7 @@
     "babel-plugin-transform-next-use-client": "catalog:",
     "copyfiles": "catalog:",
     "@babel/preset-react": "catalog:",
-    "@beep/types": "workspace:^"
+    "@beep/types": "workspace:^",
+    "@total-typescript/ts-reset": "catalog:"
   }
 }

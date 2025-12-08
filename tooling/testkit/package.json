@@ -52,7 +52,8 @@
     "@effect/sql-drizzle": "catalog:",
     "drizzle-orm": "catalog:",
     "postgres": "catalog:",
-    "pg": "catalog:"
+    "pg": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

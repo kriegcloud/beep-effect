@@ -1,8 +1,8 @@
+import * as A from "effect/Array";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { ApiErrorResponse, PresignedUrlResponse } from "./UploadModels";
-
 /**
  * Error that can occur when requesting presigned URLs
  */
@@ -34,7 +34,7 @@ export interface RequestPresignedUrlsInput {
 export const requestPresignedUrls = Effect.fn("requestPresignedUrls")(function* (input: RequestPresignedUrlsInput) {
   // Build request body matching UploadActionPayload schema
   const requestBody = {
-    files: input.files.map((f) => ({
+    files: A.map(input.files, (f) => ({
       name: f.name,
       size: f.size,
       type: f.type,

@@ -61,7 +61,8 @@
     "@beep/invariant": "workspace:^",
     "@beep/documents-domain": "workspace:^",
     "@beep/documents-infra": "workspace:^",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

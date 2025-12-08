@@ -88,7 +88,8 @@
     "@beep/constants": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/errors": "workspace:^",
-    "@uswriting/exiftool": "catalog:"
+    "@uswriting/exiftool": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

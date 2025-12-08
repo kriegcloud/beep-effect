@@ -35,7 +35,7 @@ export class DocumentRepo extends Effect.Service<DocumentRepo>()("@beep/document
     const sql = yield* SqlClient.SqlClient;
     const { makeQuery } = yield* DocumentsDb.DocumentsDb;
 
-    const baseRepo = yield* Repo.make(DocumentsEntityIds.DocumentId, Document.Model);
+    const baseRepo = yield* Repo.make(DocumentsEntityIds.DocumentId, Document.Model, Effect.succeed({}));
 
     /**
      * Find document by ID with proper error handling

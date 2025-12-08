@@ -1,10 +1,11 @@
 import * as S from "effect/Schema";
+import { FileExtension, MimeType } from "../mime-types";
 import { FileSignature } from "./FileSignature";
 
 export class FileInfo extends S.Class<FileInfo>("FileInfo")(
   {
-    extension: S.String,
-    mimeType: S.String,
+    extension: FileExtension as S.Schema<string>,
+    mimeType: MimeType as S.Schema<string>,
     description: S.NonEmptyString,
     signatures: S.Array(FileSignature),
   },
@@ -23,8 +24,8 @@ export declare namespace FileInfo {
 
 export class DetectedFileInfo extends S.Class<DetectedFileInfo>("DetectedFileInfo")(
   {
-    extension: S.String,
-    mimeType: S.String,
+    extension: FileExtension as S.Schema<string>,
+    mimeType: MimeType as S.Schema<string>,
     description: S.String,
     signature: FileSignature,
   },

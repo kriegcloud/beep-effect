@@ -8,4 +8,4 @@ type App = Slices | Tracing;
 
 export type AppLive = Layer.Layer<App, never, never>;
 
-export const AppLive: AppLive = Layer.mergeAll(SlicesLive, TracingLive, LoggingLive, DevToolsLive);
+export const AppLive = Layer.mergeAll(SlicesLive, TracingLive, LoggingLive, DevToolsLive);

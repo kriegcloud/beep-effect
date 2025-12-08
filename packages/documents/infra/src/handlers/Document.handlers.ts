@@ -1,11 +1,11 @@
 import { Document } from "@beep/documents-domain/entities";
 import { DocumentRepo } from "@beep/documents-infra/adapters/repos/Document.repo";
 import { AuthContext } from "@beep/shared-domain/Policy";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
-
 /**
  * RPC handlers for Document entity operations.
  * Each handler implements the corresponding RPC defined in Document.rpc.ts
@@ -99,7 +99,7 @@ export const DocumentHandlersLive = Document.DocumentRpcs.Rpcs.toLayer(
           .pipe(
             Effect.map((results) =>
               Stream.fromIterable(
-                results.map((r) => ({
+                A.map(results, (r) => ({
                   ...r,
                   title: O.fromNullable(r.title),
                   content: O.fromNullable(r.content),

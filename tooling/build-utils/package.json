@@ -97,7 +97,8 @@
     "typescript": "catalog:",
     "@effect/platform": "catalog:",
     "@effect/platform-node": "catalog:",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

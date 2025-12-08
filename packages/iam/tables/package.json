@@ -63,7 +63,8 @@
     "@beep/iam-domain": "workspace:^",
     "drizzle-orm": "catalog:",
     "uuid": "catalog:",
-    "mutative": "catalog:"
+    "mutative": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

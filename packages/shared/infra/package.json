@@ -111,7 +111,8 @@
     "clsx": "catalog:",
     "tailwindcss-animate": "catalog:",
     "tw-animate-css": "catalog:",
-    "resend": "catalog:"
+    "resend": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

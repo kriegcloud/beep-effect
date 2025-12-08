@@ -34,10 +34,10 @@ const SignInEmailHandler = SignInEmailContract.implement(
   Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       client.signIn.email({
-        email: Redacted.value(payload.email),
-        password: Redacted.value(payload.password),
+        email: payload.email,
+        password: payload.password,
         rememberMe: payload.rememberMe,
-        fetchOptions: withFetchOptions(handlers, withCaptchaHeaders(Redacted.value(payload.captchaResponse))),
+        fetchOptions: withFetchOptions(handlers, withCaptchaHeaders(payload.captchaResponse)),
       })
     );
 

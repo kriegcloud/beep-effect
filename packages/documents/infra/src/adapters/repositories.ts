@@ -1,4 +1,4 @@
-import type { DocumentsDb } from "@beep/documents-infra/db/Db/Db";
+import type { DocumentsDb } from "@beep/documents-infra/db";
 import type { Db } from "@beep/shared-infra/Db";
 import * as Layer from "effect/Layer";
 import {
@@ -24,9 +24,9 @@ export type DocumentsRepos =
   | KnowledgeSpaceRepo
   | PageLinkRepo;
 
-export type DocumentsReposLive = Layer.Layer<DocumentsRepos, never, Db.PgClientServices | DocumentsDb>;
+export type DocumentsReposLive = Layer.Layer<DocumentsRepos, never, Db.PgClientServices | DocumentsDb.DocumentsDb>;
 
-export const layer = Layer.mergeAll(
+export const layer: DocumentsReposLive = Layer.mergeAll(
   CommentRepo.Default,
   DiscussionRepo.Default,
   DocumentFileRepo.Default,

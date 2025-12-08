@@ -45,7 +45,8 @@
   "devDependencies": {
     "@effect/experimental": "catalog:",
     "@effect/build-utils": "catalog:",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

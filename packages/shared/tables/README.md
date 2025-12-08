@@ -7,7 +7,7 @@ Cross-slice Drizzle table factories, audit column defaults, and canonical multi-
 - **Table factories** (`Table.make`, `OrgTable.make`) build Drizzle tables with automatic ID, audit, and metadata columns from `EntityIdSchemaInstance`.
 - **Global column defaults** (`src/common.ts`) provide `auditColumns`, `userTrackingColumns`, and optimistic locking via `globalColumns`.
 - **Custom column types** (`src/columns/`) for binary data: `bytea` (Uint8Array) and `byteaBase64` (Base64 string interface).
-- **Shared database schemas** (`SharedDbSchemas` namespace) re-export canonical tables: `organization`, `team`, `user`, `file`, `session`.
+- **Shared database schemas** (`SharedDbSchema` namespace) re-export canonical tables: `organization`, `team`, `user`, `file`, `session`.
 - **Type safety contracts** (`src/Columns.ts`) define structural types for default column builders.
 - **Compile-time checks** (`src/_check.ts`) enforce Drizzle `Infer*Model` matches domain codecs from `@beep/shared-domain`.
 - **TypeScript builds** (`build/**`) produced by `tsc` + Babel transforms; artifacts consumed by slice packages and apps.
@@ -108,17 +108,17 @@ await db.insert(snapshot).values({
 
 ```ts
 import { relations } from "drizzle-orm";
-import * as SharedDbSchemas from "@beep/shared-tables/schema";
+import * as SharedDbSchema from "@beep/shared-tables/schema";
 import { member } from "./member.table";
 
 export const memberRelations = relations(member, ({ one }) => ({
-  organization: one(SharedDbSchemas.organization, {
+  organization: one(SharedDbSchema.organization, {
     fields: [member.organizationId],
-    references: [SharedDbSchemas.organization.id],
+    references: [SharedDbSchema.organization.id],
   }),
-  user: one(SharedDbSchemas.user, {
+  user: one(SharedDbSchema.user, {
     fields: [member.userId],
-    references: [SharedDbSchemas.user.id],
+    references: [SharedDbSchema.user.id],
   }),
 }));
 ```
@@ -245,17 +245,17 @@ Changes to `globalColumns` require coordinated updates to:
 
 ## Shared database schemas
 
-The `SharedDbSchemas` namespace re-exports canonical tables:
+The `SharedDbSchema` namespace re-exports canonical tables:
 
 ```ts
-import * as SharedDbSchemas from "@beep/shared-tables/schema";
+import * as SharedDbSchema from "@beep/shared-tables/schema";
 
 // Available tables:
-SharedDbSchemas.organization  // Organization table + type/subscription enums
-SharedDbSchemas.user          // User table + role enum
-SharedDbSchemas.team          // Team table
-SharedDbSchemas.file          // File metadata table
-SharedDbSchemas.session       // Session table
+SharedDbSchema.organization  // Organization table + type/subscription enums
+SharedDbSchema.user          // User table + role enum
+SharedDbSchema.team          // Team table
+SharedDbSchema.file          // File metadata table
+SharedDbSchema.session       // Session table
 ```
 
 These are consumed by:

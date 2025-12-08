@@ -17,7 +17,11 @@ export const image = {
   },
   "image/bmp": {
     source: "iana",
-    extensions: ["bmp"],
+    extensions: ["bmp", "dib"],
+  },
+  "image/bpg": {
+    source: "apache",
+    extensions: ["bpg"],
   },
   "image/cgm": {
     source: "iana",
@@ -267,6 +271,10 @@ export const image = {
     source: "apache",
     extensions: ["3ds"],
   },
+  "image/x-canon-cr2": {
+    source: "apache",
+    extensions: ["cr2"],
+  },
   "image/x-cmu-raster": {
     source: "apache",
     extensions: ["ras"],
@@ -274,6 +282,10 @@ export const image = {
   "image/x-cmx": {
     source: "apache",
     extensions: ["cmx"],
+  },
+  "image/x-exr": {
+    source: "apache",
+    extensions: ["exr"],
   },
   "image/x-freehand": {
     source: "apache",

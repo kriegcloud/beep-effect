@@ -75,6 +75,7 @@ const defaultCSPDirectives = {
     "https://vercel.com",
     "ws:",
     "wss:",
+    "https://www.google.com",
     "http://localhost:*",
     "http://127.0.0.1:*",
     "https://localhost:*",

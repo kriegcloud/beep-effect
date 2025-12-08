@@ -1,5 +1,5 @@
 import { User } from "@beep/shared-domain/entities";
-import { UserAuthMiddleware } from "@beep/shared-domain/Policy";
+import { AuthContextHttpMiddleware } from "@beep/shared-domain/Policy";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as HttpApiGroup from "@effect/platform/HttpApiGroup";
 import * as HttpApiSchema from "@effect/platform/HttpApiSchema";
@@ -18,5 +18,5 @@ export class CurrentUserNotFound extends S.TaggedError<CurrentUserNotFound>(
 ) {}
 
 export class CurrentUserGroup extends HttpApiGroup.make("currentUser")
-  .middleware(UserAuthMiddleware)
+  .middleware(AuthContextHttpMiddleware)
   .add(HttpApiEndpoint.get("get", "/current-user").addSuccess(User.Model).addError(CurrentUserNotFound)) {}

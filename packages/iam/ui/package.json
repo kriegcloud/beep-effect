@@ -92,7 +92,8 @@
     "react-dom": "catalog:",
     "@mui/material": "catalog:",
     "better-auth": "catalog:",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

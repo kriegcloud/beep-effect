@@ -1,6 +1,7 @@
 import { BeepError } from "@beep/errors/shared";
-import type { Session, User } from "@beep/shared-domain/entities";
+import type { Organization, Session, User } from "@beep/shared-domain/entities";
 import * as HttpApiMiddleware from "@effect/platform/HttpApiMiddleware";
+import * as RpcMiddleware from "@effect/rpc/RpcMiddleware";
 import type { NonEmptyReadonlyArray } from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -73,6 +74,7 @@ export class AuthContext extends Context.Tag("AuthContext")<
   {
     readonly user: typeof User.Model.select.Type;
     readonly session: typeof Session.Model.select.Type;
+    readonly organization: typeof Organization.Model.select.Type;
   }
 >() {}
 
@@ -84,10 +86,21 @@ export class CurrentUser extends Context.Tag("CurrentUser")<
   }
 >() {}
 
-export class UserAuthMiddleware extends HttpApiMiddleware.Tag<UserAuthMiddleware>()("UserAuthMiddleware", {
-  failure: BeepError.Unauthorized,
-  provides: AuthContext,
-}) {}
+export class AuthContextHttpMiddleware extends HttpApiMiddleware.Tag<AuthContextHttpMiddleware>()(
+  "AuthContextHttpMiddleware",
+  {
+    failure: BeepError.Unauthorized,
+    provides: AuthContext,
+  }
+) {}
+
+export class AuthContextRpcMiddleware extends RpcMiddleware.Tag<AuthContextRpcMiddleware>()(
+  "AuthContextRpcMiddleware",
+  {
+    failure: BeepError.Unauthorized,
+    provides: AuthContext,
+  }
+) {}
 
 // ==========================================
 // Policy

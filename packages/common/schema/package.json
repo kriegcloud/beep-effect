@@ -63,7 +63,8 @@
     "mutative": "catalog:",
     "uuid": "catalog:",
     "randexp-ts": "catalog:",
-    "@beep/testkit": "workspace:^"
+    "@beep/testkit": "workspace:^",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

@@ -56,7 +56,8 @@
     "@beep/invariant": "workspace:^",
     "@beep/identity": "workspace:^",
     "uuid": "catalog:",
-    "@beep/types": "workspace:^"
+    "@beep/types": "workspace:^",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

@@ -62,7 +62,8 @@
     "@beep/errors": "workspace:^",
     "@beep/constants": "workspace:^",
     "@beep/invariant": "workspace:^",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

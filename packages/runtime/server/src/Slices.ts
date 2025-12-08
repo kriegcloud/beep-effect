@@ -4,29 +4,32 @@ import type { AuthEmailService, IamConfig } from "@beep/iam-infra";
 import { AuthService, IamRepos } from "@beep/iam-infra";
 import { IamDb } from "@beep/iam-infra/db";
 import type { Db } from "@beep/shared-infra/Db";
+import { SharedDb } from "@beep/shared-infra/Db";
 import type { Email } from "@beep/shared-infra/Email";
+import { SharedRepos } from "@beep/shared-infra/repos";
 import type * as SqlClient from "@effect/sql/SqlClient";
 import type * as SqlError from "@effect/sql/SqlError";
 import type * as ConfigError from "effect/ConfigError";
 import * as Layer from "effect/Layer";
 import * as CoreServices from "./CoreServices";
 
-export type SliceDatabaseClients = DocumentsDb.DocumentsDb | IamDb.IamDb;
+export type SliceDatabaseClients = DocumentsDb.DocumentsDb | IamDb.IamDb | SharedDb.SharedDb;
 export type SliceDatabaseClientsLive = Layer.Layer<SliceDatabaseClients, never, Db.PgClientServices>;
 export const SliceDatabaseClientsLive: SliceDatabaseClientsLive = Layer.mergeAll(
   IamDb.IamDb.Live,
-  DocumentsDb.DocumentsDb.Live
+  DocumentsDb.DocumentsDb.Live,
+  SharedDb.SharedDb.Live
 );
 
-type SliceRepositories = DocumentsRepos.DocumentsRepos | IamRepos.IamRepos;
-
-export type SliceReposLive = Layer.Layer<
-  SliceRepositories,
-  ConfigError.ConfigError | SqlError.SqlError,
-  SqlClient.SqlClient
->;
-
-export const SliceReposLive: SliceReposLive = Layer.mergeAll(IamRepos.layer, DocumentsRepos.layer);
+type SliceRepositories = DocumentsRepos.DocumentsRepos | IamRepos.IamRepos | SharedRepos.SharedRepos;
+//
+// type L = Layer.Layer.Context<typeof IamRepos.layer>
+type SliceReposLive = Layer.Layer<SliceRepositories, never, Db.PgClientServices | SliceDatabaseClients>;
+export const SliceReposLive: SliceReposLive = Layer.mergeAll(
+  IamRepos.layer,
+  DocumentsRepos.layer,
+  SharedRepos.layer
+).pipe(Layer.orDie);
 
 export type CoreSliceServices =
   | SqlClient.SqlClient

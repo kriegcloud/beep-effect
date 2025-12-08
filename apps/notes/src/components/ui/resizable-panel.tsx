@@ -3,7 +3,17 @@
 import { useCookieStorage } from "@beep/notes/hooks/useCookieStorage";
 import { RightPanelType } from "@beep/notes/hooks/useResizablePanel";
 import { cn } from "@beep/notes/lib/utils";
+import * as S from "effect/Schema";
 import React, { useCallback, useContext, useEffect, useState } from "react";
+
+const layoutSchema = S.parseJson(
+  S.Struct({
+    leftSize: S.optional(S.Number),
+    rightSize: S.optional(S.Number),
+  })
+);
+
+export const parseLayout = S.decodeUnknownOption(layoutSchema);
 
 export type Layout = { leftSize?: undefined | number; rightSize?: undefined | number };
 

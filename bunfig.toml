@@ -13,7 +13,9 @@ onlyBuiltDependencies = [
   "exifreader",
   "msgpackr-extract",
   "protobufjs",
-  "ssh2"
+  "ssh2",
+  "esbuild",
+  "aws-sdk"
 ]
 
 [install.scopes."@buf"]

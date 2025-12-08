@@ -7,7 +7,7 @@ import * as Struct from "effect/Struct";
  * CSP directive configuration for the application.
  * Each directive maps to an array of allowed sources.
  */
-const CSP_DIRECTIVES = {
+export const CSP_DIRECTIVES = {
   "default-src": ["'self'"],
   "base-uri": ["'self'"],
   "form-action": ["'self'"],
@@ -30,6 +30,7 @@ const CSP_DIRECTIVES = {
     "'self'",
     "https://vercel.live/",
     "https://vercel.com",
+    "https://www.google.com",
     "ws:",
     "wss:",
     "http://localhost:*",
@@ -43,7 +44,7 @@ const CSP_DIRECTIVES = {
   ],
   "media-src": ["'self'", "data:"],
   "frame-ancestors": ["'self'", "https://vercel.live", "https://vercel.com"],
-  "img-src": ["'self'", "https://www.google-analytics.com", "data:", "blob:"],
+  "img-src": ["'self'", "https://www.google-analytics.com", "data:", "blob:", "https://purecatamphetamine.github.io"],
   "frame-src": ["'self'", "https://vercel.live", "https://www.google.com", "https://vercel.com"],
 } as const;
 

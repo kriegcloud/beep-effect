@@ -74,7 +74,8 @@
     "@effect/platform-bun": "catalog:",
     "effect": "catalog:",
     "glob": "^11.0.3",
-    "@effect/cluster": "catalog:"
+    "@effect/cluster": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

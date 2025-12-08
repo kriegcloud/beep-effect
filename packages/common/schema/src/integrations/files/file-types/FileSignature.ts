@@ -1,3 +1,4 @@
+import { FileExtension } from "@beep/schema/integrations";
 import * as S from "effect/Schema";
 export class FileSignature extends S.Class<FileSignature>("FileSignature")(
   {
@@ -5,7 +6,7 @@ export class FileSignature extends S.Class<FileSignature>("FileSignature")(
     offset: S.optional(S.Int.pipe(S.greaterThan(0))),
     skippedBytes: S.optional(S.Array(S.Int.pipe(S.greaterThan(0)))),
     description: S.optional(S.NonEmptyString),
-    compatibleExtensions: S.optional(S.NonEmptyArray(S.String)),
+    compatibleExtensions: S.optional(S.NonEmptyArray(FileExtension)),
   },
   {
     schemaId: Symbol.for("@beep/schema/integrations/files/file-types/FileSignature"),

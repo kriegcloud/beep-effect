@@ -67,7 +67,8 @@
   "devDependencies": {
     "@types/jscodeshift": "^17.3.0",
     "typescript": "catalog:",
-    "@beep/types": "workspace:^"
+    "@beep/types": "workspace:^",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

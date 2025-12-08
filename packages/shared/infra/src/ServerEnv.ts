@@ -204,6 +204,11 @@ export const ServerConfig = Config.all({
       ),
     })
   ),
+  upload: Config.nested("UPLOADTHING")(
+    Config.all({
+      secret: Config.redacted(Config.nonEmptyString("SECRET")).pipe(withPlaceholderRedacted),
+    })
+  ),
   oauth: Config.nested("OAUTH")(
     Config.all({
       authProviderNames: Config.array(S.Config("PROVIDER_NAMES", AuthProviderNameValue)),

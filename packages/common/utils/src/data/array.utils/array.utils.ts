@@ -15,7 +15,8 @@
  * @category Documentation
  * @since 0.1.0
  */
-import type * as A from "effect/Array";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
 import * as S from "effect/Schema";
 
 /**
@@ -36,3 +37,17 @@ export const isNonEmptyReadonlyArrayOfGuard =
   <const A, const I, const R>(self: S.Schema<A, I, R>) =>
   (array: unknown): array is A.NonEmptyReadonlyArray<S.Schema.Type<S.Schema<A, I, R>>> =>
     S.is(S.NonEmptyArray(self))(array);
+
+/**
+ * Slice an array from start (inclusive) to end (exclusive).
+ *
+ * Combines Effect Array's drop and take operations.
+ *
+ * @param start - Start index (inclusive)
+ * @param end - End index (exclusive)
+ * @returns Function that slices the array
+ *
+ * @category Helpers
+ * @since 0.1.0
+ */
+export const slice = (start: number, end: number) => F.flow(A.drop(start), A.take(end - start));

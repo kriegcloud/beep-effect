@@ -256,7 +256,7 @@ const uploadPath = Effect.gen(function* () {
 
 ```typescript
 import * as Effect from "effect/Effect";
-import { AuthContext, CurrentUser, UserAuthMiddleware } from "@beep/shared-domain/Policy";
+import { AuthContext, CurrentUser, AuthContextHttpMiddleware } from "@beep/shared-domain/Policy";
 
 // Access current user context
 const getCurrentUser = Effect.gen(function* () {

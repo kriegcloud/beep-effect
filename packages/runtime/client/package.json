@@ -108,7 +108,8 @@
     "@effect/opentelemetry": "catalog:",
     "@effect/experimental": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

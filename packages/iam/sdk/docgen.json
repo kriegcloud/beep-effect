@@ -3,9 +3,7 @@
   "srcDir": "src",
   "outDir": "docs",
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/iam/sdk/src/",
-  "exclude": [
-    "src/internal/**/*.ts"
-  ],
+  "exclude": ["src/internal/**/*.ts"],
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -13,111 +11,41 @@
     "moduleResolution": "Bundler",
     "module": "ES2022",
     "target": "ES2022",
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "paths": {
-      "@beep/iam-sdk": [
-        "./src/index.ts"
-      ],
-      "@beep/iam-sdk/*": [
-        "./src/*"
-      ],
-      "@beep/identity": [
-        "../../common/identity/src/index.js"
-      ],
-      "@beep/identity/*": [
-        "../../common/identity/src/*.js"
-      ],
-      "@beep/shared-sdk": [
-        "../../shared/sdk/src/index.js"
-      ],
-      "@beep/shared-sdk/*": [
-        "../../shared/sdk/src/*.js"
-      ],
-      "@beep/types": [
-        "../../common/types/src/index.js"
-      ],
-      "@beep/types/*": [
-        "../../common/types/src/*.js"
-      ],
-      "@beep/runtime-client": [
-        "../../runtime/client/src/index.js"
-      ],
-      "@beep/runtime-client/*": [
-        "../../runtime/client/src/*.js"
-      ],
-      "@beep/utils": [
-        "../../common/utils/src/index.js"
-      ],
-      "@beep/utils/*": [
-        "../../common/utils/src/*.js"
-      ],
-      "@beep/invariant": [
-        "../../common/invariant/src/index.js"
-      ],
-      "@beep/invariant/*": [
-        "../../common/invariant/src/*.js"
-      ],
-      "@beep/schema": [
-        "../../common/schema/src/index.js"
-      ],
-      "@beep/schema/*": [
-        "../../common/schema/src/*.js"
-      ],
-      "@beep/errors/client": [
-        "../../common/errors/src/client.js"
-      ],
-      "@beep/errors/shared": [
-        "../../common/errors/src/shared.js"
-      ],
-      "@beep/errors/server": [
-        "../../common/errors/src/server.js"
-      ],
-      "@beep/constants": [
-        "../../common/constants/src/index.js"
-      ],
-      "@beep/constants/*": [
-        "../../common/constants/src/*.js"
-      ],
-      "@beep/shared-domain": [
-        "../../shared/domain/src/index.js"
-      ],
-      "@beep/shared-domain/*": [
-        "../../shared/domain/src/*.js"
-      ],
-      "@beep/iam-domain": [
-        "../domain/src/index.js"
-      ],
-      "@beep/iam-domain/*": [
-        "../domain/src/*.js"
-      ],
-      "@beep/iam-infra": [
-        "../infra/src/index.js"
-      ],
-      "@beep/iam-infra/*": [
-        "../infra/src/*.js"
-      ],
-      "@beep/contract": [
-        "../../common/contract/src/index.js"
-      ],
-      "@beep/contract/*": [
-        "../../common/contract/src/*.js"
-      ],
-      "@beep/shared-tables": [
-        "../../shared/tables/src/index.js"
-      ],
-      "@beep/shared-tables/*": [
-        "../../shared/tables/src/*.js"
-      ],
-      "@beep/iam-tables": [
-        "../tables/src/index.js"
-      ],
-      "@beep/iam-tables/*": [
-        "../tables/src/*.js"
-      ]
+      "@beep/iam-sdk": ["./src/index.ts"],
+      "@beep/iam-sdk/*": ["./src/*"],
+      "@beep/identity": ["../../common/identity/src/index.js"],
+      "@beep/identity/*": ["../../common/identity/src/*.js"],
+      "@beep/shared-sdk": ["../../shared/sdk/src/index.js"],
+      "@beep/shared-sdk/*": ["../../shared/sdk/src/*.js"],
+      "@beep/types": ["../../common/types/src/index.js"],
+      "@beep/types/*": ["../../common/types/src/*.js"],
+      "@beep/runtime-client": ["../../runtime/client/src/index.js"],
+      "@beep/runtime-client/*": ["../../runtime/client/src/*.js"],
+      "@beep/utils": ["../../common/utils/src/index.js"],
+      "@beep/utils/*": ["../../common/utils/src/*.js"],
+      "@beep/invariant": ["../../common/invariant/src/index.js"],
+      "@beep/invariant/*": ["../../common/invariant/src/*.js"],
+      "@beep/schema": ["../../common/schema/src/index.js"],
+      "@beep/schema/*": ["../../common/schema/src/*.js"],
+      "@beep/errors/client": ["../../common/errors/src/client.js"],
+      "@beep/errors/shared": ["../../common/errors/src/shared.js"],
+      "@beep/errors/server": ["../../common/errors/src/server.js"],
+      "@beep/constants": ["../../common/constants/src/index.js"],
+      "@beep/constants/*": ["../../common/constants/src/*.js"],
+      "@beep/shared-domain": ["../../shared/domain/src/index.js"],
+      "@beep/shared-domain/*": ["../../shared/domain/src/*.js"],
+      "@beep/iam-domain": ["../domain/src/index.js"],
+      "@beep/iam-domain/*": ["../domain/src/*.js"],
+      "@beep/iam-infra": ["../infra/src/index.js"],
+      "@beep/iam-infra/*": ["../infra/src/*.js"],
+      "@beep/contract": ["../../common/contract/src/index.js"],
+      "@beep/contract/*": ["../../common/contract/src/*.js"],
+      "@beep/shared-tables": ["../../shared/tables/src/index.js"],
+      "@beep/shared-tables/*": ["../../shared/tables/src/*.js"],
+      "@beep/iam-tables": ["../tables/src/index.js"],
+      "@beep/iam-tables/*": ["../tables/src/*.js"]
     }
   }
 }

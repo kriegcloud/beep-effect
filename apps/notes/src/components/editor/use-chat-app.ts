@@ -87,8 +87,8 @@ export const useChat = () => {
             let sample: "comment" | "markdown" | "mdx" | null = null;
 
             try {
-              const content = JSON.parse(init?.body as string)
-                .messages.at(-1)
+              const content = (JSON.parse(init?.body as string) as any).messages
+                .at(-1)
                 .parts.find((p: UnsafeTypes.UnsafeAny) => p.type === "text")?.text;
 
               if (content.includes("Generate a markdown sample")) {

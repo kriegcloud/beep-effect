@@ -135,10 +135,10 @@ Contracts define typed endpoints with Effect Platform:
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as HttpApiGroup from "@effect/platform/HttpApiGroup";
 import { DocumentsEntityIds } from "@beep/shared-domain";
-import { UserAuthMiddleware } from "@beep/shared-domain/Policy";
+import { AuthContextHttpMiddleware } from "@beep/shared-domain/Policy";
 
 export class Contract extends HttpApiGroup.make("knowledgePage")
-  .middleware(UserAuthMiddleware)
+  .middleware(AuthContextHttpMiddleware)
   .add(
     HttpApiEndpoint.get("get", "/get/:id")
       .setUrlParams(DocumentsEntityIds.KnowledgePageId)

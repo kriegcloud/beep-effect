@@ -148,7 +148,8 @@
     "@beep/iam-tables": "workspace:^",
     "better-auth-localization": "catalog:",
     "@better-auth/utils": "catalog:",
-    "@better-auth/scim": "catalog:"
+    "@better-auth/scim": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

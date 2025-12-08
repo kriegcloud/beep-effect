@@ -76,6 +76,7 @@
   },
   "devDependencies": {
     "@beep/types": "workspace:^",
-    "madge": "catalog:"
+    "madge": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   }
 }

@@ -53,7 +53,8 @@
     "@beep/shared-domain": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/documents-domain": "workspace:^",
-    "drizzle-orm": "catalog:"
+    "drizzle-orm": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

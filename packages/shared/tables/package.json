@@ -58,7 +58,8 @@
     "@beep/identity": "workspace:^",
     "drizzle-orm": "catalog:",
     "effect": "catalog:",
-    "mutative": "catalog:"
+    "mutative": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

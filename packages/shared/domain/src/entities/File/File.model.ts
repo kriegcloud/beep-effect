@@ -10,6 +10,7 @@ import { AnyEntityId, EntityKind, SharedEntityIds } from "../../entity-ids";
 import { modelKit } from "../../factories";
 import { OrganizationType } from "../Organization";
 import { Filename, FileStatus, OriginalFilename, ShardPrefix, UploadPath } from "./schemas";
+
 export class Model extends M.Class<Model>(`FileModel`)(
   makeFields(SharedEntityIds.FileId, {
     /** Organization ID Reference */

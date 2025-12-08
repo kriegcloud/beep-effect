@@ -118,14 +118,14 @@ You are tasked with adding missing JSDoc documentation to this package. Follow t
   - Missing: @category, @example, @since
   - Context: Re-export from ./Table needs documentation
 
-- [ ] `src/index.ts:7` — **export * as SharedDbSchemas from "./tables";** (re-export)
+- [ ] `src/index.ts:7` — **export * as SharedDbSchema from "./tables";** (re-export)
   - Missing: @category, @example, @since
   - Context: Re-export from ./tables needs documentation
 
 - [ ] `src/index.ts:1` — **Common** (const)
   - Missing: @category, @example, @since
 
-- [ ] `src/index.ts:1` — **SharedDbSchemas** (const)
+- [ ] `src/index.ts:1` — **SharedDbSchema** (const)
   - Missing: @category, @example, @since
 
 - [ ] `src/index.ts:6` — **DefaultColumns** (type)

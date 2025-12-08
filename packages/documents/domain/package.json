@@ -53,7 +53,8 @@
     "@beep/identity": "workspace:^",
     "@beep/constants": "workspace:^",
     "effect": "catalog:",
-    "@effect/sql": "catalog:"
+    "@effect/sql": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

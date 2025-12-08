@@ -138,7 +138,8 @@
     "@dub/better-auth": "catalog:",
     "better-auth": "catalog:",
     "@better-auth/utils": "catalog:",
-    "@babel/core": "catalog:"
+    "@babel/core": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

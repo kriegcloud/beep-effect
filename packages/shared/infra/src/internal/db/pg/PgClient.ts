@@ -819,14 +819,16 @@ export const make = <const TFullSchema extends DbSchema = DbSchema>({
       outputSchema,
       queryFn,
     }: MakeQueryWithSchemaOptions<TFullSchema, InputSchema, OutputSchema, A, E>) => {
-      return (rawData: unknown): Effect.Effect<S.Schema.Type<OutputSchema>, E | DatabaseError, never> =>
+      return (
+        input: S.Schema.Type<InputSchema>
+      ): Effect.Effect<S.Schema.Type<OutputSchema>, E | DatabaseError, never> =>
         Effect.serviceOption(TransactionContext).pipe(
           Effect.map(Option.getOrNull),
           Effect.flatMap((txOrNull) => {
             const executor = (txOrNull ?? execute) as ExecuteFn<TFullSchema>;
 
             return Effect.gen(function* () {
-              const encodedInput = yield* S.encodeUnknown(inputSchema)(rawData);
+              const encodedInput = yield* S.encodeUnknown(inputSchema)(input);
 
               const result = yield* queryFn(executor, encodedInput);
 

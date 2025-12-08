@@ -61,7 +61,8 @@
     "@effect/workflow": "catalog:",
     "@beep/invariant": "workspace:^",
     "uuid": "catalog:",
-    "picocolors": "catalog:"
+    "picocolors": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

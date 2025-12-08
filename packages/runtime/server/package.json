@@ -139,7 +139,8 @@
     "dub": "catalog:",
     "jose": "catalog:",
     "better-auth": "catalog:",
-    "uuid": "catalog:"
+    "uuid": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

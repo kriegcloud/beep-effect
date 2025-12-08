@@ -15,7 +15,7 @@ export class CommentRepo extends Effect.Service<CommentRepo>()("@beep/documents-
   effect: Effect.gen(function* () {
     const { makeQuery } = yield* DocumentsDb.DocumentsDb;
 
-    const baseRepo = yield* Repo.make(DocumentsEntityIds.CommentId, Entities.Comment.Model);
+    const baseRepo = yield* Repo.make(DocumentsEntityIds.CommentId, Entities.Comment.Model, Effect.succeed({}));
 
     /**
      * Find comment by ID with proper error handling

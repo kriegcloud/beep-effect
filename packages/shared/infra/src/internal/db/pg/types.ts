@@ -59,7 +59,7 @@ export type MakeQueryWithSchema<TFullSchema extends DbSchema = DbSchema> = <
   E,
 >(
   options: MakeQueryWithSchemaOptions<TFullSchema, InputSchema, OutputSchema, A, E>
-) => (rawData: unknown) => Effect.Effect<S.Schema.Type<OutputSchema>, E | DatabaseError, never>;
+) => (input: S.Schema.Type<InputSchema>) => Effect.Effect<S.Schema.Type<OutputSchema>, E | DatabaseError, never>;
 
 export interface DatabaseService<TFullSchema extends DbSchema = DbSchema> {
   readonly client: Client<TFullSchema>;

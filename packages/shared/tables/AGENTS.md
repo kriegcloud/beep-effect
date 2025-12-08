@@ -4,7 +4,7 @@
 - Provides cross-slice Drizzle table factories and canonical organization-aware tables consumed by IAM, Files, and runtime adapters.
 - Guarantees every table includes audit, user tracking, optimistic lock, and source metadata columns through `globalColumns`.
 - Couples with `@beep/shared-domain` entity schemas so Drizzle types align with Effect models (`src/_check.ts` enforces parity).
-- Serves as the entry point for shared Postgres enums (e.g., organization subscription tiers) and table re-exports under `SharedDbSchemas`.
+- Serves as the entry point for shared Postgres enums (e.g., organization subscription tiers) and table re-exports under `SharedDbSchema`.
 
 ## Surface Map
 - `Table.make` (`src/Table/Table.ts`) — builds a pg table with default id/audit columns using an `EntityIdSchemaInstance`.
@@ -12,7 +12,7 @@
 - `Common` namespace (`src/common.ts`): `globalColumns`, `auditColumns`, `userTrackingColumns`, `utcNow` helper.
 - `Columns` types (`src/Columns.ts`) — structural types describing the default column builders.
 - Custom columns (`src/columns/index.ts`): `bytea` (Uint8Array), `byteaBase64` (Base64 string interface for binary data).
-- `SharedDbSchemas` namespace (`src/tables/index.ts`) — re-exports concrete tables: `organization`, `team`, `user`, `file`, `session`.
+- `SharedDbSchema` namespace (`src/tables/index.ts`) — re-exports concrete tables: `organization`, `team`, `user`, `file`, `session`.
 - `schema.ts` — re-exports all tables for convenience import (`@beep/shared-tables/schema`).
 - `_check.ts` — compile-time assertions that Drizzle `Infer*Model` matches domain codecs.
 - Package scripts (`package.json`) — build, lint, type, and test orchestration wired to Bun/TS.

@@ -1,5 +1,6 @@
 import { ExifToolService } from "@beep/documents-infra/files";
 import { accumulateEffectsAndReport } from "@beep/errors/client";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { instrumentProcessFile, makeFileAnnotations } from "@/features/upload/observability";
 import { extractBasicMetadata, extractExifMetadata, validateFile } from "@/features/upload/pipeline";
@@ -51,7 +52,7 @@ export class UploadFileService extends Effect.Service<UploadFileService>()("Uplo
       readonly files: ReadonlyArray<File>;
       readonly config?: PipelineConfig | undefined;
     }) {
-      const effects = files.map((file) => processFile({ file, config }));
+      const effects = A.map(files, (file) => processFile({ file, config }));
       const result = yield* accumulateEffectsAndReport(effects, {
         concurrency: "unbounded",
         annotations: { service: "upload" },

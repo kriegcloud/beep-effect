@@ -44,7 +44,7 @@ export class DiscussionRepo extends Effect.Service<DiscussionRepo>()(
     effect: Effect.gen(function* () {
       const { makeQuery } = yield* DocumentsDb.DocumentsDb;
 
-      const baseRepo = yield* Repo.make(DocumentsEntityIds.DiscussionId, Entities.Discussion.Model);
+      const baseRepo = yield* Repo.make(DocumentsEntityIds.DiscussionId, Entities.Discussion.Model, Effect.succeed({}));
 
       /**
        * Find discussion by ID with proper error handling

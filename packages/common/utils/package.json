@@ -45,7 +45,8 @@
   },
   "devDependencies": {
     "@beep/testkit": "workspace:^",
-    "@beep/types": "workspace:^"
+    "@beep/types": "workspace:^",
+    "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {
     "generateExports": {

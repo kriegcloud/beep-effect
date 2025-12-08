@@ -1,4 +1,5 @@
 import { PanelsContext } from "@beep/notes/components/ui/resizable-panel";
+import * as S from "effect/Schema";
 import React from "react";
 
 export const useToggleLeftPanel = () => {
@@ -31,6 +32,8 @@ export const RightPanelType = {
   history: 0,
   comment: 1,
 } as const;
+
+export const RightPanelTypeSchema = S.Literal(0, 1);
 
 export type RightPanelType = (typeof RightPanelType)[keyof typeof RightPanelType];
 

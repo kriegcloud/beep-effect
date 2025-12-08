@@ -133,6 +133,7 @@
     "next": "catalog:",
     "react-dom": "catalog:",
     "stylis": "catalog:",
-    "stylis-plugin-rtl": "catalog:"
+    "stylis-plugin-rtl": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
   }
 }

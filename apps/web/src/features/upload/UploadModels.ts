@@ -1,7 +1,16 @@
 import type { AccumulateResult } from "@beep/errors/client";
-import type { DetectedFileInfo, ExifMetadata, FileAttributes } from "@beep/schema/integrations/files";
+import type {
+  DetectedFileInfo,
+  ExifMetadata,
+  FileAttributes,
+  IllegalChunkError,
+  InvalidFileTypeError,
+  MimeType,
+} from "@beep/schema/integrations/files";
+import type { InvalidChunkSizeError } from "@beep/schema/integrations/files/file-types/detection";
 import * as S from "effect/Schema";
 import type * as Errors from "./errors";
+
 /**************
  * Upload pipeline shared models (scaffolding)
  * - Keep types colocated with the feature in apps/web/src/features/upload
@@ -10,7 +19,7 @@ import type * as Errors from "./errors";
 
 export interface PipelineConfig {
   readonly maxSizeBytes?: number | undefined; // e.g., 3_145_728
-  readonly allowedMime?: ReadonlyArray<string> | undefined; // e.g., ['image/jpeg', 'image/png']
+  readonly allowedMime?: ReadonlyArray<MimeType.Type> | undefined; // e.g., ['image/jpeg', 'image/png']
   readonly chunkSize?: number | undefined; // default 64
   readonly excludeSimilarTypes?: boolean | undefined; // if helpers support it
 }
@@ -29,7 +38,13 @@ export interface BasicMetadataOutput {
 export type ExifMetadataOutput = typeof ExifMetadata.Type | undefined;
 
 // Union of domain failures (scaffolding)
-export type UploadError = Errors.ValidationError | Errors.DetectionError | Errors.ExifParseError;
+export type UploadError =
+  | Errors.ValidationError
+  | Errors.DetectionError
+  | Errors.ExifParseError
+  | InvalidFileTypeError
+  | IllegalChunkError
+  | InvalidChunkSizeError;
 
 export interface UploadResult {
   readonly file: File;

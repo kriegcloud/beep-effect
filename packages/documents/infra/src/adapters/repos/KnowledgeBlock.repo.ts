@@ -9,6 +9,6 @@ export class KnowledgeBlockRepo extends Effect.Service<KnowledgeBlockRepo>()(
   {
     dependencies,
     accessors: true,
-    effect: Repo.make(DocumentsEntityIds.KnowledgeBlockId, Entities.KnowledgeBlock.Model),
+    effect: Repo.make(DocumentsEntityIds.KnowledgeBlockId, Entities.KnowledgeBlock.Model, Effect.succeed({})),
   }
 ) {}

@@ -2,6 +2,8 @@ import { BS } from "@beep/schema";
 import { Effect, pipe } from "effect";
 import * as A from "effect/Array";
 import * as Data from "effect/Data";
+import * as Either from "effect/Either";
+import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as ParseResult from "effect/ParseResult";
 import * as P from "effect/Predicate";
@@ -10,7 +12,7 @@ import * as Str from "effect/String";
 import { StringLiteralKit } from "../../derived";
 import { DateTimeUtcFromAllAcceptable } from "../../primitives";
 import { AspectRatio } from "./AspectRatio";
-import { fileTypeChecker, getFileChunk } from "./file-types";
+import { fileTypeChecker, getFileChunkEither } from "./file-types";
 import { FileExtension, getTypes, MimeType } from "./mime-types";
 import { formatSize } from "./utils";
 export class FileType extends StringLiteralKit("image", "video", "audio", "pdf", "text", "blob") {}
@@ -81,8 +83,19 @@ export class NativeFileInstance extends S.declare((i: unknown): i is File => i i
           fileSize: file.size,
         }),
     });
-    const chunk = getFileChunk(buffer, chunkSize);
-    const detected = fileTypeChecker.detectFile(chunk, { chunkSize });
+    const chunkResult = getFileChunkEither(buffer, chunkSize);
+    if (Either.isLeft(chunkResult)) {
+      return yield* new DetectionError({
+        message: "Could not extract file chunk",
+        cause: chunkResult.left,
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size,
+        chunkSize,
+      });
+    }
+    const chunk = chunkResult.right;
+    const detected = F.pipe(fileTypeChecker.detectFileOption(chunk, { chunkSize }), O.getOrUndefined);
     if (!detected) {
       // increment metric and warn before failing
 

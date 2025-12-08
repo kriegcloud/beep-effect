@@ -549,6 +549,10 @@ export const application = {
     source: "iana",
     extensions: ["siv", "sieve"],
   },
+  "application/sla": {
+    source: "apache",
+    extensions: ["stl"],
+  },
   "application/smil+xml": {
     source: "iana",
     extensions: ["smi", "smil"],
@@ -645,6 +649,10 @@ export const application = {
     source: "iana",
     extensions: ["imp"],
   },
+  "application/vnd.android.aar": {
+    source: "apache",
+    extensions: ["aar"],
+  },
   "application/vnd.acucobol": {
     source: "iana",
     extensions: ["acu"],
@@ -717,6 +725,10 @@ export const application = {
     source: "iana",
     extensions: ["atx"],
   },
+  "application/vnd.apache.parquet": {
+    source: "apache",
+    extensions: ["parquet"],
+  },
   "application/vnd.apple.installer+xml": {
     source: "iana",
     extensions: ["mpkg"],
@@ -736,6 +748,10 @@ export const application = {
   "application/vnd.apple.pages": {
     source: "iana",
     extensions: ["pages"],
+  },
+  "application/vnd.apple.pkpass": {
+    source: "apache",
+    extensions: ["ipa"],
   },
   "application/vnd.aristanetworks.swi": {
     source: "iana",
@@ -1401,6 +1417,10 @@ export const application = {
     source: "iana",
     extensions: ["mpc"],
   },
+  "application/vnd.mozilla.maff": {
+    source: "apache",
+    extensions: ["maff"],
+  },
   "application/vnd.mozilla.xul+xml": {
     source: "iana",
     extensions: ["xul"],
@@ -1415,7 +1435,7 @@ export const application = {
   },
   "application/vnd.ms-excel": {
     source: "iana",
-    extensions: ["xls", "xlm", "xla", "xlc", "xlt", "xlw"],
+    extensions: ["xls", "xlm", "xla", "xlc", "xlt", "xlw", "wiz"],
   },
   "application/vnd.ms-excel.addin.macroenabled.12": {
     source: "iana",
@@ -1497,6 +1517,10 @@ export const application = {
     source: "iana",
     extensions: ["dotm"],
   },
+  "application/vnd.ms-outlook": {
+    source: "apache",
+    extensions: ["msg"],
+  },
   "application/vnd.ms-works": {
     source: "iana",
     extensions: ["wps", "wks", "wcm", "wdb"],
@@ -1508,6 +1532,10 @@ export const application = {
   "application/vnd.ms-xpsdocument": {
     source: "iana",
     extensions: ["xps"],
+  },
+  "application/vnd.msix": {
+    source: "apache",
+    extensions: ["msix"],
   },
   "application/vnd.mseq": {
     source: "iana",
@@ -2021,6 +2049,10 @@ export const application = {
     source: "iana",
     extensions: ["vsd", "vst", "vss", "vsw"],
   },
+  "application/vnd.visio.drawing": {
+    source: "iana",
+    extensions: ["vsdx"],
+  },
   "application/vnd.visionary": {
     source: "iana",
     extensions: ["vis"],
@@ -2174,6 +2206,10 @@ export const application = {
     source: "apache",
     extensions: ["torrent"],
   },
+  "application/x-blender": {
+    source: "apache",
+    extensions: ["blend"],
+  },
   "application/x-blorb": {
     source: "apache",
     extensions: ["blb", "blorb"],
@@ -2262,6 +2298,10 @@ export const application = {
     source: "apache",
     extensions: ["eva"],
   },
+  "application/x-executable": {
+    source: "apache",
+    extensions: ["elf"],
+  },
   "application/x-font-bdf": {
     source: "apache",
     extensions: ["bdf"],
@@ -2281,6 +2321,14 @@ export const application = {
   "application/x-font-snf": {
     source: "apache",
     extensions: ["snf"],
+  },
+  "application/x-font-ttf": {
+    source: "apache",
+    extensions: ["ttf", "tte"],
+  },
+  "application/x-font-dfont": {
+    source: "apache",
+    extensions: ["dfont"],
   },
   "application/x-font-type1": {
     source: "apache",
@@ -2318,6 +2366,10 @@ export const application = {
     source: "apache",
     extensions: ["hdf"],
   },
+  "application/x-indesign": {
+    source: "apache",
+    extensions: ["indd", "indt"],
+  },
   "application/x-install-instructions": {
     source: "apache",
     extensions: ["install"],
@@ -2341,6 +2393,10 @@ export const application = {
   "application/x-lzh-compressed": {
     source: "apache",
     extensions: ["lzh", "lha"],
+  },
+  "application/x-mach-binary": {
+    source: "apache",
+    extensions: ["macho"],
   },
   "application/x-makeself": {
     source: "nginx",
@@ -2392,7 +2448,33 @@ export const application = {
   },
   "application/x-msdownload": {
     source: "apache",
-    extensions: ["exe", "dll", "com", "bat", "msi"],
+    extensions: [
+      "exe",
+      "dll",
+      "com",
+      "bat",
+      "msi",
+      "acm",
+      "ax",
+      "cpl",
+      "drv",
+      "efi",
+      "fon",
+      "iec",
+      "ime",
+      "mui",
+      "ocx",
+      "olb",
+      "pif",
+      "qts",
+      "qtx",
+      "rs",
+      "scr",
+      "sys",
+      "tsp",
+      "vbx",
+      "vxd",
+    ],
   },
   "application/x-msmediaview": {
     source: "apache",
@@ -2430,6 +2512,10 @@ export const application = {
     source: "apache",
     extensions: ["nzb"],
   },
+  "application/x-orc": {
+    source: "apache",
+    extensions: ["orc"],
+  },
   "application/x-perl": {
     source: "nginx",
     extensions: ["pl", "pm"],
@@ -2437,6 +2523,14 @@ export const application = {
   "application/x-pilot": {
     source: "nginx",
     extensions: ["prc", "pdb"],
+  },
+  "application/x-pk3": {
+    source: "apache",
+    extensions: ["pk3"],
+  },
+  "application/x-pk4": {
+    source: "apache",
+    extensions: ["pk4"],
   },
   "application/x-pkcs12": {
     source: "apache",
@@ -2485,6 +2579,10 @@ export const application = {
   "application/x-sql": {
     source: "apache",
     extensions: ["sql"],
+  },
+  "application/x-sqlite3": {
+    source: "apache",
+    extensions: ["sqlite"],
   },
   "application/x-stuffit": {
     source: "apache",

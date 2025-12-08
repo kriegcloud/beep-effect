@@ -4016,15 +4016,15 @@ You are tasked with adding missing JSDoc documentation to this package. Follow t
   - Has: @category, @since
   - Context: Transforms between comma-delimited strings and literal arrays.
 
-- [ ] `src/primitives.ts:20` — **ArrBuffer** (class)
+- [ ] `src/primitives.ts:20` — **ArrayBufferFromSelf** (class)
   - Missing: @example
   - Has: @category, @since
   - Context: Schema for validating native `ArrayBuffer` instances.
 
-- [ ] `src/primitives.ts:34` — **ArrBuffer** (namespace)
+- [ ] `src/primitives.ts:34` — **ArrayBufferFromSelf** (namespace)
   - Missing: @example
   - Has: @category, @since
-  - Context: Namespace describing the encoded and decoded types for {@link ArrBuffer}.
+  - Context: Namespace describing the encoded and decoded types for {@link ArrayBufferFromSelf}.
 
 - [ ] `src/primitives.ts:64` — **DurationFromSelfInput** (const)
   - Missing: @example
@@ -4166,15 +4166,15 @@ You are tasked with adding missing JSDoc documentation to this package. Follow t
   - Has: @category, @since
   - Context: Transforms between comma-delimited strings and literal arrays.
 
-- [ ] `src/schema.ts:20` — **ArrBuffer** (class)
+- [ ] `src/schema.ts:20` — **ArrayBufferFromSelf** (class)
   - Missing: @example
   - Has: @category, @since
   - Context: Schema for validating native `ArrayBuffer` instances.
 
-- [ ] `src/schema.ts:34` — **ArrBuffer** (namespace)
+- [ ] `src/schema.ts:34` — **ArrayBufferFromSelf** (namespace)
   - Missing: @example
   - Has: @category, @since
-  - Context: Namespace describing the encoded and decoded types for {@link ArrBuffer}.
+  - Context: Namespace describing the encoded and decoded types for {@link ArrayBufferFromSelf}.
 
 - [ ] `src/schema.ts:64` — **DurationFromSelfInput** (const)
   - Missing: @example
@@ -4341,15 +4341,15 @@ You are tasked with adding missing JSDoc documentation to this package. Follow t
   - Has: @example
   - Context: Convert bytes (or bits) to a human-readable string: `1337` -> `'1.34 kB'`.
 
-- [ ] `src/primitives/array-buffer.ts:20` — **ArrBuffer** (class)
+- [ ] `src/primitives/array-buffer.ts:20` — **ArrayBufferFromSelf** (class)
   - Missing: @example
   - Has: @category, @since
   - Context: Schema for validating native `ArrayBuffer` instances.
 
-- [ ] `src/primitives/array-buffer.ts:34` — **ArrBuffer** (namespace)
+- [ ] `src/primitives/array-buffer.ts:34` — **ArrayBufferFromSelf** (namespace)
   - Missing: @example
   - Has: @category, @since
-  - Context: Namespace describing the encoded and decoded types for {@link ArrBuffer}.
+  - Context: Namespace describing the encoded and decoded types for {@link ArrayBufferFromSelf}.
 
 - [ ] `src/primitives/array.ts:22` — **ArrayOfNumbers** (class)
   - Missing: @example
@@ -4406,15 +4406,15 @@ You are tasked with adding missing JSDoc documentation to this package. Follow t
   - Has: @category, @since
   - Context: Transforms between comma-delimited strings and literal arrays.
 
-- [ ] `src/primitives/index.ts:20` — **ArrBuffer** (class)
+- [ ] `src/primitives/index.ts:20` — **ArrayBufferFromSelf** (class)
   - Missing: @example
   - Has: @category, @since
   - Context: Schema for validating native `ArrayBuffer` instances.
 
-- [ ] `src/primitives/index.ts:34` — **ArrBuffer** (namespace)
+- [ ] `src/primitives/index.ts:34` — **ArrayBufferFromSelf** (namespace)
   - Missing: @example
   - Has: @category, @since
-  - Context: Namespace describing the encoded and decoded types for {@link ArrBuffer}.
+  - Context: Namespace describing the encoded and decoded types for {@link ArrayBufferFromSelf}.
 
 - [ ] `src/primitives/index.ts:64` — **DurationFromSelfInput** (const)
   - Missing: @example

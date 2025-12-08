@@ -1,4 +1,4 @@
-import * as HttpApi from "@effect/platform/HttpApi";
+import { EventStreamRpc } from "./EventStreamRpc.ts";
 import { File } from "./entities";
 
-export class DomainApi extends HttpApi.make("domain").add(File.Contract).prefix("/api/v1/upload") {}
+export class DomainRpc extends EventStreamRpc.merge(File.FileRpc).prefix("v1") {}
