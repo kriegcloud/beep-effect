@@ -95,6 +95,9 @@
     {
       "path": "apps/web/tsconfig.json"
     },
+        {
+      "path": "apps/www/tsconfig.json"
+    },
     {
       "path": "packages/_internal/db-admin/tsconfig.build.json"
     },

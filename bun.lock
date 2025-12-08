@@ -627,6 +627,23 @@
         "tailwindcss": "catalog:",
       },
     },
+    "apps/www": {
+      "name": "@beep/www",
+      "version": "0.1.0",
+      "dependencies": {
+        "next": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+      },
+      "devDependencies": {
+        "@tailwindcss/postcss": "catalog:",
+        "@types/node": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "tailwindcss": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "packages/_internal/db-admin": {
       "name": "@beep/db-admin",
       "version": "0.0.0",
@@ -3437,6 +3454,8 @@
     "@beep/utils": ["@beep/utils@workspace:packages/common/utils"],
 
     "@beep/web": ["@beep/web@workspace:apps/web"],
+
+    "@beep/www": ["@beep/www@workspace:apps/www"],
 
     "@better-auth/core": ["@better-auth/core@1.4.5", "", { "dependencies": { "@standard-schema/spec": "^1.0.0", "zod": "^4.1.12" }, "peerDependencies": { "@better-auth/utils": "0.3.0", "@better-fetch/fetch": "1.1.18", "better-call": "1.1.4", "jose": "^6.1.0", "kysely": "^0.28.5", "nanostores": "^1.0.1" } }, "sha512-dQ3hZOkUJzeBXfVEPTm2LVbzmWwka1nqd9KyWmB2OMlMfjr7IdUeBX4T7qJctF67d7QDhlX95jMoxu6JG0Eucw=="],
 

@@ -12,6 +12,9 @@
     },
     {
       "path": "../apps/notes/tsconfig.build.json"
+    },
+    {
+      "path": "../apps/www/tsconfig.build.json"
     }
   ]
 }
