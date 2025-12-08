@@ -1,0 +1,63 @@
+{
+  "extends": "../../tsconfig.base.jsonc",
+  "compilerOptions": {
+    "exactOptionalPropertyTypes": false,
+    "moduleDetection": "force",
+    "downlevelIteration": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "noImplicitReturns": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "noEmitOnError": false,
+    "noErrorTruncation": false,
+    "noEmit": true,
+    "allowJs": false,
+    "checkJs": false,
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "removeComments": false,
+    "types": ["node", "bun"],
+    "outDir": "build/src",
+    "jsx": "preserve",
+    "module": "ESNext",
+    "target": "ES2023",
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "disableSourceOfProjectReferenceRedirect": true,
+    "paths": {
+      "*": ["./*"],
+      "@beep/www/*": ["./src/*"],
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  },
+  "references": [
+
+  ],
+  "include": [
+    "./scripts/*.ts",
+    "execute.ts",
+    "next-env.d.ts",
+    "*.json",
+    "src/**/*.json",
+    ".",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": []
+}
