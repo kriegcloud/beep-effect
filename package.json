@@ -4,7 +4,6 @@
   "name": "@beep/root",
   "packageManager": "bun@1.3.2",
   "workspaces": [
-    "scratchpad",
     "packages/common/*",
     "packages/core/*",
     "packages/documents/*",
