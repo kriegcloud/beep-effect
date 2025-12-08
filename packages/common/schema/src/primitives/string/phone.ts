@@ -15,6 +15,7 @@
 import { faker } from "@faker-js/faker";
 import type * as B from "effect/Brand";
 import * as F from "effect/Function";
+import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import { $StringId } from "../../internal";
@@ -103,6 +104,11 @@ export class Phone extends S.Redacted(UnsafePhone).annotations(
    * Extracts the branded string from a redacted phone value.
    */
   static readonly value = (phone: Redacted.Redacted<B.Branded<string, "Phone">>) => Redacted.value(phone);
+
+  /**
+   * Create a redacted phone value from a plain string as an Option
+   */
+  static readonly makeSome = F.flow(this.make, O.some);
 }
 
 /**

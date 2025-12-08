@@ -3,10 +3,10 @@ import { BS } from "@beep/schema";
 import { EntityKind, SharedEntityIds } from "@beep/shared-domain";
 import { File } from "@beep/shared-domain/entities";
 import type { ShardPrefix } from "@beep/shared-domain/entities/File/schemas";
-import * as d from "drizzle-orm";
+
 import * as pg from "drizzle-orm/pg-core";
 import { OrgTable } from "../OrgTable";
-import { organization, organizationTypePgEnum } from "./organization.table";
+import { organizationTypePgEnum } from "./organization.table";
 
 export const envValuePgEnum = BS.toPgEnum(EnvValue)("env_value_enum");
 export const fileTypePgEnum = BS.toPgEnum(BS.FileType)("file_type_enum");
@@ -54,10 +54,3 @@ export const file = OrgTable.make(SharedEntityIds.FileId)({
   /** Entity attribute/purpose (avatar, logo, document, etc.) */
   entityAttribute: pg.text("entity_attribute").notNull(),
 });
-
-export const fileRelations = d.relations(file, ({ one }) => ({
-  organization: one(organization, {
-    fields: [file.organizationId],
-    references: [organization.id],
-  }),
-}));

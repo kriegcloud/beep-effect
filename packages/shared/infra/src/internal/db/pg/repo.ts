@@ -187,7 +187,7 @@ const makeBaseRepo = <
       );
 
     const findByIdSchema = SqlSchema.findOne({
-      Request: options.idSchema.privateSchema,
+      Request: options.idSchema,
       Result: model,
       execute: (id) => sql`
           select *
@@ -213,7 +213,7 @@ const makeBaseRepo = <
       );
 
     const deleteSchema = SqlSchema.void({
-      Request: options.idSchema.privateSchema,
+      Request: options.idSchema,
       execute: (id) => sql`
           delete
           from ${sql(tableName)}

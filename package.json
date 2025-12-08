@@ -131,7 +131,7 @@
   },
   "catalog": {
     "@ai-sdk/google": "^2.0.44",
-    "@ai-sdk/openai": "^2.0.79",
+    "@ai-sdk/openai": "^2.0.80",
     "@hocuspocus/extension-logger": "^3.4.0",
     "@hocuspocus/extension-redis": "^3.4.0",
     "@hocuspocus/provider": "^3.4.0",
@@ -388,7 +388,7 @@
     "ast-types": "^0.16.1",
     "@better-auth/passkey": "^1.4.5",
     "@better-auth/scim": "^1.4.5",
-    "@tanstack/react-devtools": "^0.8.3",
+    "@tanstack/react-devtools": "^0.8.4",
     "@tanstack/react-form-devtools": "^0.2.4",
     "platejs": "^52.0.8",
     "@platejs/basic-nodes": "^52.0.1",
