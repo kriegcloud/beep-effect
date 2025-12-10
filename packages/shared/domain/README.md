@@ -233,7 +233,7 @@ import { File, SharedEntityIds } from "@beep/shared-domain";
 import type { EnvValue } from "@beep/constants";
 
 const uploadPath = Effect.gen(function* () {
-  const decoded: File.UploadPathDecoded.Type = {
+  const decoded: File.UploadKeyDecoded.Type = {
     env: "dev" as EnvValue.Type,
     fileId: SharedEntityIds.FileId.make("file__12345678-1234-1234-1234-123456789012"),
     organizationType: "individual",
@@ -243,10 +243,10 @@ const uploadPath = Effect.gen(function* () {
     entityKind: "user",
     entityIdentifier: SharedEntityIds.UserId.make("user__87654321-4321-4321-4321-210987654321"),
     entityAttribute: "avatar",
-    fileItemExtension: "jpg",
+    extension: "jpg",
   };
 
-  return yield* S.decode(File.UploadPath)(decoded);
+  return yield* S.decode(File.UploadKey)(decoded);
 });
 ```
 
@@ -343,7 +343,7 @@ bun run --filter @beep/shared-domain lint
 
 - `test/ManualCache.test.ts` - Cache behavior, TTL, LRU eviction
 - `test/internal/policy.test.ts` - Policy combinators (all, any, permission)
-- `test/entities/File/schemas/UploadPath.test.ts` - Upload path encoding
+- `test/entities/File/schemas/UploadKey.test.ts` - Upload path encoding
 - `test/services/EncryptionService.test.ts` - Encryption operations
 
 ## API Documentation

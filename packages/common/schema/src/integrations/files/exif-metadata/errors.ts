@@ -4,7 +4,7 @@ import * as S from "effect/Schema";
  * Error thrown when EXIF parsing fails at any stage.
  * Uses Schema.TaggedError for validation and serialization support.
  */
-export class ExifParseError extends S.TaggedError<ExifParseError>()("ExifParseError", {
+export class MetadataParseError extends S.TaggedError<MetadataParseError>()("MetadataParseError", {
   message: S.String,
   cause: S.optional(S.Unknown),
   fileName: S.optional(S.String),

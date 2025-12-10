@@ -5,9 +5,10 @@ import { primary } from "@beep/ui-core/theme";
 import { RegistryProvider } from "@effect-atom/atom-react";
 import * as Effect from "effect/Effect";
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { connection } from "next/server";
 import type React from "react";
-import { getAppConfig } from "@/app-config";
+import { getAppConfig, isDev } from "@/app-config";
 import { GlobalProviders } from "@/GlobalProviders";
 
 const getInitialProps = getAppConfig.pipe(Effect.withSpan("getInitialProps"));
@@ -39,6 +40,16 @@ export default async function RootLayout({ children }: RootLayoutProps) {
 
   return (
     <html lang={appConfig.lang ?? "en"} dir={appConfig.dir} suppressHydrationWarning>
+      <head>
+        {isDev && (
+          <Script
+            src="//unpkg.com/react-grab/dist/index.global.js"
+            crossOrigin="anonymous"
+            strategy="beforeInteractive"
+          />
+        )}
+        {isDev && <Script src="//unpkg.com/@react-grab/claude-code/dist/client.global.js" strategy="lazyOnload" />}
+      </head>
       <body>
         <GlobalProviders appConfig={appConfig}>
           <RegistryProvider>

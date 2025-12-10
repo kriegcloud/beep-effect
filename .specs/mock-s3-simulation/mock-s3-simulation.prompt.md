@@ -24,7 +24,7 @@ The pipeline must integrate with existing infrastructure: `FileRepo`, `Encryptio
 Create a production-quality file upload simulation that demonstrates:
 
 1. **File Loading & Transformation**: Load `scratchpad/logo.png`, decode via `FileInstanceFromNative`, extract EXIF metadata
-2. **UploadPath Generation**: Create valid S3 paths using the `UploadPath` schema from decoded `FileInstance` properties
+2. **UploadKey Generation**: Create valid S3 paths using the `UploadKey` schema from decoded `FileInstance` properties
 3. **FileRpc Implementation**: Create an `@effect/rpc` RpcGroup with streaming upload progress support
 4. **Pre-signed URL Flow**: Generate and verify mock pre-signed URLs with `EncryptionService.generateSignedURL`
 5. **Layer Composition**: Proper production and test layer separation
@@ -35,7 +35,7 @@ Create a production-quality file upload simulation that demonstrates:
 - [ ] File loads from `scratchpad/logo.png` using Bun's file API
 - [ ] `FileInstanceFromNative` transformation succeeds with all properties populated
 - [ ] EXIF metadata extracted for image files via `ExifToolService`
-- [ ] `UploadPath` schema produces valid S3 key format
+- [ ] `UploadKey` schema produces valid S3 key format
 - [ ] `FileRpc` group exposes `initiateUpload`, `completeUpload`, `getUploadStatus` procedures
 - [ ] Pre-signed URL generated with HMAC signature via `EncryptionService`
 - [ ] Pre-signed URL signature verified via `EncryptionService.verifySignature`
@@ -162,7 +162,7 @@ const TestLayer = Layer.mergeAll(
 |------|---------|
 | `scratchpad/index.ts` | Existing mock S3 layer implementation (`createMockS3Layer`) |
 | `packages/shared/domain/src/entities/File/File.model.ts` | File entity model with `Model.create` factory |
-| `packages/shared/domain/src/entities/File/schemas/UploadPath.ts` | S3 path schema with shard prefix generation |
+| `packages/shared/domain/src/entities/File/schemas/UploadKey.ts` | S3 path schema with shard prefix generation |
 | `packages/common/schema/src/integrations/files/FileInstance.ts` | `FileInstanceFromNative` transformation |
 | `packages/documents/infra/src/adapters/repos/File.repo.ts` | FileRepo service definition |
 | `packages/documents/infra/src/files/ExifToolService.ts` | EXIF metadata extraction |
@@ -193,7 +193,7 @@ const TestLayer = Layer.mergeAll(
 ### 1. `scratchpad/test-file.ts`
 
 ```typescript
-// Load file from disk, return as NativeFileInstance-compatible object
+// Load file from disk, return as FileFromSelf-compatible object
 // Use Bun.file() API wrapped in Effect
 //
 // Export signature:
@@ -282,7 +282,7 @@ const TestLayer = Layer.mergeAll(
 // 1. Loads scratchpad/logo.png
 // 2. Transforms via FileInstanceFromNative
 // 3. Extracts EXIF if image type (MIME starts with "image/")
-// 4. Creates UploadPath
+// 4. Creates UploadKey
 // 5. Initiates upload via RPC (gets presigned URL)
 // 6. Simulates single PUT with progress events (not S3 multipart API)
 //    Progress simulated via mock XHR onprogress events
@@ -461,7 +461,7 @@ const uploadWithRetry = (file: NativeFile, url: string) =>
 - [ ] RPC endpoints: `initiateUpload`, `completeUpload`, `getUploadStatus`
 - [ ] Pre-signed URLs use `EncryptionService.generateSignedURL`
 - [ ] File entity uses `File.Model.create` factory
-- [ ] Upload path uses `UploadPath` schema transformation
+- [ ] Upload path uses `UploadKey` schema transformation
 - [ ] Test layer uses `Layer.mergeAll` composition
 - [ ] Client-side upload uses XHR with `onprogress` for progress tracking
 - [ ] `bun run check` passes with no type errors
@@ -476,7 +476,7 @@ const uploadWithRetry = (file: NativeFile, url: string) =>
 
 **Files Explored:**
 - `scratchpad/index.ts` - Mock S3 layer with `createMockS3Layer`, progress simulation
-- `packages/shared/domain/src/entities/File/` - File.Model, UploadPath, schemas
+- `packages/shared/domain/src/entities/File/` - File.Model, UploadKey, schemas
 - `packages/common/schema/src/integrations/files/` - FileInstance, EXIF, validation
 - `packages/documents/infra/src/` - FileRepo, ExifToolService, StorageService
 - `packages/shared/domain/src/services/EncryptionService/` - Key generation, signing

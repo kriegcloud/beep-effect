@@ -1,5 +1,5 @@
-import { FileExtension } from "@beep/schema/integrations";
 import * as S from "effect/Schema";
+import { FileExtension } from "../mime-types";
 export class FileSignature extends S.Class<FileSignature>("FileSignature")(
   {
     sequence: S.Array(S.Union(S.Number, S.NonEmptyString)),

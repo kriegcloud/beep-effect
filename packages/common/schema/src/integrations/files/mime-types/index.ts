@@ -35,8 +35,7 @@ export const extractMimeExtensions = <const T extends MimeTypeProperty>(
     Struct.entries,
     A.flatMap(([_, { extensions }]) => extensions),
     (extensions) => {
-      const set = HashSet.fromIterable(extensions);
-      const values = HashSet.toValues(set);
+      const values = pipe(extensions, HashSet.fromIterable, HashSet.toValues);
       invariant(A.isNonEmptyReadonlyArray(values), "must be non empty", {
         file: "packages/common/schema/src/integrations/files/mime-types/index.ts",
         line: 36,
@@ -48,9 +47,8 @@ export const extractMimeExtensions = <const T extends MimeTypeProperty>(
   );
 
 export const extractMimeTypes = <const T extends MimeTypeProperty>(mime: T): A.NonEmptyReadonlyArray<keyof T> =>
-  pipe(mime, Struct.keys, (a) => {
-    const set = HashSet.fromIterable(a);
-    const values = HashSet.toValues(set);
+  pipe(mime, Struct.keys, (mimeTypes) => {
+    const values = pipe(mimeTypes, HashSet.fromIterable, HashSet.toValues);
     invariant(A.isNonEmptyReadonlyArray(values), "must be non empty", {
       file: "packages/common/schema/src/integrations/files/mime-types/index.ts",
       line: 50,
@@ -111,14 +109,17 @@ const mimes = {
   ...misc,
 } as const;
 
-const allMimes: A.NonEmptyReadonlyArray<keyof typeof mimes> = Struct.keys(mimes) as unknown as A.NonEmptyReadonlyArray<
-  keyof typeof mimes
->;
-
-export class MimeType extends StringLiteralKit(...allMimes) {
-  static readonly isApplicationType = S.is(ApplicationMimeType);
-  static readonly isAudioType = S.is(AudioMimeType);
-  static readonly isImageType = S.is(ImageMimeType);
+export class MimeType extends StringLiteralKit(
+  ...ApplicationMimeType.Options,
+  ...AudioMimeType.Options,
+  ...ImageMimeType.Options,
+  ...TextMimeType.Options,
+  ...VideoMimeType.Options,
+  ...MiscMimeType.Options
+) {
+  static readonly isApplicationMimeType = S.is(ApplicationMimeType);
+  static readonly isAudioMimeType = S.is(AudioMimeType);
+  static readonly isImageMimeType = S.is(ImageMimeType);
   static readonly isTextMimeType = S.is(TextMimeType);
   static readonly isVideoMimeType = S.is(VideoMimeType);
   static readonly isMiscMimeType = S.is(MiscMimeType);
@@ -129,7 +130,63 @@ export declare namespace MimeType {
   export type Encoded = typeof MimeType.Encoded;
 }
 
-export class FileExtension extends StringLiteralKit(...extractMimeExtensions(mimes)) {}
+export class ApplicationFileExtension extends StringLiteralKit(...extractMimeExtensions(application)) {}
+
+export declare namespace ApplicationFileExtension {
+  export type Type = typeof ApplicationFileExtension.Type;
+  export type Encoded = typeof ApplicationFileExtension.Encoded;
+}
+
+export class AudioFileExtension extends StringLiteralKit(...extractMimeExtensions(audio)) {}
+
+export declare namespace AudioFileExtension {
+  export type Type = typeof AudioFileExtension.Type;
+  export type Encoded = typeof AudioFileExtension.Encoded;
+}
+
+export class ImageFileExtension extends StringLiteralKit(...extractMimeExtensions(image)) {}
+
+export declare namespace ImageFileExtension {
+  export type Type = typeof ImageFileExtension.Type;
+  export type Encoded = typeof ImageFileExtension.Encoded;
+}
+
+export class TextFileExtension extends StringLiteralKit(...extractMimeExtensions(text)) {}
+
+export declare namespace TextFileExtension {
+  export type Type = typeof TextFileExtension.Type;
+  export type Encoded = typeof TextFileExtension.Encoded;
+}
+
+export class VideoFileExtension extends StringLiteralKit(...extractMimeExtensions(video)) {}
+
+export declare namespace VideoFileExtension {
+  export type Type = typeof VideoFileExtension.Type;
+  export type Encoded = typeof VideoFileExtension.Encoded;
+}
+
+export class MiscFileExtension extends StringLiteralKit(...extractMimeExtensions(misc)) {}
+
+export declare namespace MiscFileExtension {
+  export type Type = typeof MiscFileExtension.Type;
+  export type Encoded = typeof MiscFileExtension.Encoded;
+}
+
+export class FileExtension extends StringLiteralKit(
+  ...ApplicationFileExtension.Options,
+  ...AudioFileExtension.Options,
+  ...ImageFileExtension.Options,
+  ...TextFileExtension.Options,
+  ...VideoFileExtension.Options,
+  ...MiscFileExtension.Options
+) {
+  static readonly isApplicationFileExtension = S.is(ApplicationFileExtension);
+  static readonly isAudioFileExtension = S.is(AudioFileExtension);
+  static readonly isImageFileExtension = S.is(ImageFileExtension);
+  static readonly isTextFileExtension = S.is(TextFileExtension);
+  static readonly isVideoFileExtension = S.is(VideoFileExtension);
+  static readonly isMiscFileExtension = S.is(MiscFileExtension);
+}
 
 export declare namespace FileExtension {
   export type Type = typeof FileExtension.Type;
@@ -225,4 +282,11 @@ function populateMaps(
       types[extension] = type;
     }
   });
+}
+
+export class FileType extends StringLiteralKit("application", "audio", "image", "text", "video", "misc") {}
+
+export declare namespace FileType {
+  export type Type = typeof FileType.Type;
+  export type Encoded = typeof FileType.Encoded;
 }

@@ -108,12 +108,12 @@ Result: extend a factory once, both layers inherit it instantly.
 
 ## Problem #5 — “Please don’t put uploads in `misc/`”
 
-[`UploadPath`](https://github.com/kriegcloud/beep-effect/blob/main/packages/shared/domain/src/entities/File/schemas/UploadPath.ts) treats file keys like sacred geometry:
+[`UploadKey`](https://github.com/kriegcloud/beep-effect/blob/main/packages/shared/domain/src/entities/File/schemas/UploadKey.ts) treats file keys like sacred geometry:
 
 - `/env/tenants/{shard}/{orgType}/{orgId}/{entityKind}/{entityId}/{attribute}/{year}/{month}/{fileId}.{ext}`
 - `ShardPrefix` hashes `FileId` into a 2-char hex to avoid S3 hotspotting.
 - Bidirectional transforms: encode structured payloads → keys (injecting shard + timestamps) and decode keys → payloads.
-- Tests live in [`UploadPath.test.ts`](https://github.com/kriegcloud/beep-effect/blob/main/packages/shared/domain/test/entities/File/schemas/UploadPath.test.ts).
+- Tests live in [`UploadKey.test.ts`](https://github.com/kriegcloud/beep-effect/blob/main/packages/shared/domain/test/entities/File/schemas/UploadKey.test.ts).
 
 Quick taste:
 
@@ -123,7 +123,7 @@ import * as S from "effect/Schema";
 import { File } from "@beep/shared-domain/entities";
 import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 
-const payload: File.UploadPathDecoded.Type = {
+const payload: File.UploadKeyDecoded.Type = {
   env: "dev",
   fileId: SharedEntityIds.FileId.make("file__12345678-1234-1234-1234-123456789012"),
   organizationType: "individual",
@@ -131,12 +131,12 @@ const payload: File.UploadPathDecoded.Type = {
   entityKind: "user",
   entityIdentifier: SharedEntityIds.UserId.make("user__..."),
   entityAttribute: "avatar",
-  fileItemExtension: "jpg",
+  extension: "jpg",
 };
 
 const program = Effect.gen(function* () {
-  const encoded = yield* S.decode(File.UploadPath)(payload);
-  const decoded = yield* S.encode(File.UploadPath)(encoded);
+  const encoded = yield* S.decode(File.UploadKey)(payload);
+  const decoded = yield* S.encode(File.UploadKey)(encoded);
   return { encoded, decoded };
 });
 
@@ -189,7 +189,7 @@ If anyone whispers “over-engineered,” I will annotate their existence with `
 ### Roadmap-ish promises
 
 1. **Ship IAM to prod** — finish passkey flows, wire contract kits to live runtimes.
-2. **Documents slice** — run `UploadPath` against real S3/R2 with quotas + lifecycle rules.
+2. **Documents slice** — run `UploadKey` against real S3/R2 with quotas + lifecycle rules.
 3. **Debug surfaces** — land Effect-powered observability (logs/traces/metrics) by default.
 4. **Starter kit mode** — turn this repo into a “press play” template for new ideas.
 5. **More trolling** — every new pattern gets documented with equal parts rigor and sarcasm.

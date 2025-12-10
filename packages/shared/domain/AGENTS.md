@@ -13,7 +13,7 @@
   - `entity-kind.ts` emits `EntityKind` union aligned with table names.
   - `any-entity-id.ts` aggregates every id (note: `SubscriptionId` appears twice on lines 17-18; flag for cleanup).
   - `index.ts` re-exports kits (`SharedEntityIds`, `IamEntityIds`, `DocumentsEntityIds`).
-- **`src/entities/*`** — Effect `M.Class` schemas for `AuditLog`, `File`, `Organization`, `Session`, `Team`, `User` plus nested schema enums (e.g. `OrganizationType`, `SubscriptionStatus`, `UserRole`). `File/schemas/UploadPath.ts` encodes S3 path transforms. `File.Contract` provides HTTP API contracts.
+- **`src/entities/*`** — Effect `M.Class` schemas for `AuditLog`, `File`, `Organization`, `Session`, `Team`, `User` plus nested schema enums (e.g. `OrganizationType`, `SubscriptionStatus`, `UserRole`). `File/schemas/UploadKey.ts` encodes S3 path transforms. `File.Contract` provides HTTP API contracts.
 - **`src/value-objects/`**
   - `paths.ts` — Safe `PathBuilder.collection` of all public routes, combining static strings and dynamic helpers (auth flows, dashboard, API endpoints).
   - `EntitySource.ts` — Source metadata for entity tracking.
@@ -30,7 +30,7 @@
 - `apps/web/src/middleware.ts:10` — leverages `paths.auth.signIn` / `paths.auth.signUp` to normalize protected route redirects.  
 - `apps/web/src/providers/AuthGuard.tsx:37` — redirects anonymous users with `paths.auth.signIn` inside router effects.  
 - `packages/iam/infra/src/adapters/better-auth/Auth.service.ts:7` — consumes `IamEntityIds`, `SharedEntityIds`, and `paths` when configuring Better Auth hooks and email URLs.  
-- `packages/shared/domain/test/entities/File/schemas/UploadPath.test.ts:11` — exercises `File.UploadPath` encode/decode round-trips and shard prefix guarantees.  
+- `packages/shared/domain/test/entities/File/schemas/UploadKey.test.ts:11` — exercises `File.UploadKey` encode/decode round-trips and shard prefix guarantees.  
 - `packages/shared/domain/test/policy.test.ts:70` — demonstrates `Policy.permission`, `Policy.all`, and `Policy.any` behavior with layered fallbacks.
 
 
@@ -110,7 +110,7 @@ import { File, SharedEntityIds } from "@beep/shared-domain";
 import type { EnvValue } from "@beep/constants";
 
 const uploadPath = Effect.gen(function* () {
-  const decoded: File.UploadPathDecoded.Type = {
+  const decoded: File.UploadKeyDecoded.Type = {
     env: "dev" as EnvValue.Type,
     fileId: SharedEntityIds.FileId.make("file__12345678-1234-1234-1234-123456789012"),
     organizationType: "individual",
@@ -120,17 +120,17 @@ const uploadPath = Effect.gen(function* () {
     entityKind: "user",
     entityIdentifier: SharedEntityIds.UserId.make("user__87654321-4321-4321-4321-210987654321"),
     entityAttribute: "avatar",
-    fileItemExtension: "jpg",
+    extension: "jpg",
   };
-  return yield* S.decode(File.UploadPath)(decoded);
+  return yield* S.decode(File.UploadKey)(decoded);
 });
 ```
 
 ## Verifications
-- `bun run --filter @beep/shared-domain test` — executes Bun/Vitest suite (ManualCache, Policy, UploadPath coverage).
+- `bun run --filter @beep/shared-domain test` — executes Bun/Vitest suite (ManualCache, Policy, UploadKey coverage).
 - `bun run --filter @beep/shared-domain lint` — Biome hygiene; ensures no forbidden native helpers slip in.
 - `bun run --filter @beep/shared-domain check` — TypeScript project references for schema/model drift.
-- For focused work on upload paths: `bun test packages/shared/domain/test/entities/File/schemas/UploadPath.test.ts`.
+- For focused work on upload paths: `bun test packages/shared/domain/test/entities/File/schemas/UploadKey.test.ts`.
 
 ## Contributor Checklist
 - Align new ids with the correct kit (`SharedEntityIds`, `IamEntityIds`, `DocumentsEntityIds`) and update `EntityKind` / `AnyEntityId` unions in tandem. Document pending anomalies (e.g., duplicate `SubscriptionId`).

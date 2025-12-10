@@ -59,7 +59,8 @@
     "@beep/constants": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/errors": "workspace:^",
-    "@uswriting/exiftool": "catalog:"
+    "@uswriting/exiftool": "catalog:",
+    "pdf-lib": "catalog:"
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",
@@ -89,6 +90,7 @@
     "@beep/shared-domain": "workspace:^",
     "@beep/errors": "workspace:^",
     "@uswriting/exiftool": "catalog:",
+    "pdf-lib": "catalog:",
     "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {

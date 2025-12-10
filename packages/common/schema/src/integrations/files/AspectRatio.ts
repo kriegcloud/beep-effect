@@ -79,3 +79,19 @@ export declare namespace AspectRatio {
   export type Type = S.Schema.Type<typeof AspectRatio>;
   export type Encoded = S.Schema.Encoded<typeof AspectRatio>;
 }
+
+/**
+ * Schema for an already-computed aspect ratio string.
+ * Use this in class fields that store the transformed value.
+ *
+ * Unlike `AspectRatio` which transforms dimensions to string,
+ * this schema just validates the string format without transformation.
+ */
+export const AspectRatioStringSchema: S.Schema<AspectRatioString, string, never> = S.String.pipe(
+  S.pattern(/^\d+ \/ \d+$/),
+  S.annotations({
+    identifier: "AspectRatioString",
+    title: "Aspect Ratio String",
+    description: "A pre-computed aspect ratio string in format 'N / M'",
+  })
+) as S.Schema<AspectRatioString, string, never>;

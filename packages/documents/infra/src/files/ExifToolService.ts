@@ -3,8 +3,8 @@ import {
   ExifFileTooLargeError,
   ExifMetadata,
   type ExifMetadataValue,
-  ExifParseError,
   ExifTimeoutError,
+  MetadataParseError,
 } from "@beep/schema/integrations/files/exif-metadata";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -70,16 +70,16 @@ const DEFAULT_TIMEOUT_MS = 30_000;
 interface ExifToolServiceShape {
   readonly extractMetadata: (
     file: File | Binaryfile
-  ) => Effect.Effect<ExifMetadata, ExifParseError | ExifFileTooLargeError | ExifTimeoutError>;
+  ) => Effect.Effect<ExifMetadata, MetadataParseError | ExifFileTooLargeError | ExifTimeoutError>;
 
   readonly extractRaw: (
     file: File | Binaryfile
-  ) => Effect.Effect<ExifMetadataValue, ExifParseError | ExifFileTooLargeError | ExifTimeoutError>;
+  ) => Effect.Effect<ExifMetadataValue, MetadataParseError | ExifFileTooLargeError | ExifTimeoutError>;
 
   readonly writeMetadata: (
     file: File | Binaryfile,
     tags: Record<string, unknown>
-  ) => Effect.Effect<ArrayBuffer, ExifParseError>;
+  ) => Effect.Effect<ArrayBuffer, MetadataParseError>;
 }
 
 /**
@@ -96,7 +96,7 @@ export class ExifToolService extends Effect.Service<ExifToolService>()("ExifTool
     const exiftool = yield* Effect.tryPromise({
       try: () => import("@uswriting/exiftool"),
       catch: (e) =>
-        new ExifParseError({
+        new MetadataParseError({
           message: "Failed to load @uswriting/exiftool WASM module",
           cause: e,
           phase: "load",
@@ -112,11 +112,11 @@ export class ExifToolService extends Effect.Service<ExifToolService>()("ExifTool
     const parseExifOutput = (
       result: ExifToolOutput<unknown>,
       file: File | Binaryfile
-    ): Effect.Effect<ExifMetadataValue, ExifParseError> =>
+    ): Effect.Effect<ExifMetadataValue, MetadataParseError> =>
       Effect.gen(function* () {
         if (!result.success) {
           return yield* Effect.fail(
-            new ExifParseError({
+            new MetadataParseError({
               message: result.error || "ExifTool extraction failed",
               cause: result,
               fileName: file.name,
@@ -170,7 +170,7 @@ export class ExifToolService extends Effect.Service<ExifToolService>()("ExifTool
               transform: (data) => JSON.parse(data),
             }),
           catch: (e) =>
-            new ExifParseError({
+            new MetadataParseError({
               message: "ExifTool extraction failed",
               cause: e,
               fileName: file.name,
@@ -204,7 +204,7 @@ export class ExifToolService extends Effect.Service<ExifToolService>()("ExifTool
           try: () =>
             writeMetadata(file, tags as Record<string, string | number | boolean | (string | number | boolean)[]>),
           catch: (e) =>
-            new ExifParseError({
+            new MetadataParseError({
               message: "ExifTool write failed",
               cause: e,
               fileName: file.name,
@@ -214,7 +214,7 @@ export class ExifToolService extends Effect.Service<ExifToolService>()("ExifTool
 
         if (!result.success) {
           return yield* Effect.fail(
-            new ExifParseError({
+            new MetadataParseError({
               message: result.error || "ExifTool write failed",
               cause: result,
               fileName: file.name,

@@ -15,13 +15,13 @@ import * as Encoding from "effect/Encoding";
  * - Native binary operations in PostgreSQL
  *
  * @example
- * ```ts
+ * ````ts
  * import { bytea } from "@beep/shared-tables";
  *
  * export const myTable = pgTable("my_table", {
  *   binaryData: bytea("binary_data"),
  * });
- * ```
+ * ````
  */
 export const bytea = customType<{ data: Uint8Array; driverData: Buffer }>({
   dataType() {
@@ -45,7 +45,7 @@ export const bytea = customType<{ data: Uint8Array; driverData: Buffer }>({
  * Uses Effect's Encoding module for Base64 encoding/decoding.
  *
  * @example
- * ```ts
+ * ````ts
  * import { byteaBase64 } from "@beep/shared-tables";
  *
  * export const myTable = pgTable("my_table", {
@@ -58,7 +58,7 @@ export const bytea = customType<{ data: Uint8Array; driverData: Buffer }>({
  * // Returns Base64 string
  * const row = await db.select().from(myTable);
  * console.log(row.snapshot); // "SGVsbG8gV29ybGQ="
- * ```
+ * ````
  */
 export const byteaBase64 = customType<{ data: string; driverData: Buffer }>({
   dataType() {

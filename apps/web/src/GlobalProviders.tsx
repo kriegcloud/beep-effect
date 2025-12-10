@@ -21,7 +21,7 @@ import * as O from "effect/Option";
 import type React from "react";
 import type { AppConfig } from "@/app-config";
 import { settingsDialogAtom } from "@/global.atoms";
-import { TanstackDevToolsProvider } from "./libs/tanstack-form";
+import { DevToolsProvider } from "@/providers/DevToolsProvider";
 
 type GlobalProviders = {
   readonly children: React.ReactNode;
@@ -41,8 +41,8 @@ export function GlobalProviders({ children, appConfig }: GlobalProviders) {
           attribute={themeConfig.cssVariables.colorSchemeSelector}
           defaultMode={themeConfig.defaultMode}
         />
-        <TanstackDevToolsProvider>
-          <I18nProvider lang={appConfig.i18nLang}>
+        <I18nProvider lang={appConfig.i18nLang}>
+          <DevToolsProvider>
             <SettingsProvider cookieSettings={appConfig.cookieSettings} defaultSettings={defaultSettings}>
               <LocalizationProvider>
                 <AppRouterCacheProvider options={{ key: "css", enableCssLayer: true }}>
@@ -63,8 +63,8 @@ export function GlobalProviders({ children, appConfig }: GlobalProviders) {
                 </AppRouterCacheProvider>
               </LocalizationProvider>
             </SettingsProvider>
-          </I18nProvider>
-        </TanstackDevToolsProvider>
+          </DevToolsProvider>
+        </I18nProvider>
       </RegistryContext.Provider>
     </BeepProvider>
   );

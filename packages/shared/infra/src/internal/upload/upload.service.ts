@@ -11,10 +11,10 @@ import * as S from "effect/Schema";
 // type UploadServiceEffect = Effect.Effect<>
 
 type GetPreSignedUrl = (
-  uploadParams: File.UploadPath.Encoded
+  uploadParams: File.UploadKey.Encoded
 ) => Effect.Effect<Redacted.Redacted<string>, SdkError | S3ServiceError | ParseResult.ParseError, never>;
 type DeleteObject = (
-  uploadParams: File.UploadPath.Encoded
+  uploadParams: File.UploadKey.Encoded
 ) => Effect.Effect<
   DeleteObjectCommandOutput,
   SdkError | ParseResult.ParseError | S3ServiceError | Cause.TimeoutException,
@@ -35,11 +35,11 @@ const serviceEffect: UploadServiceEffect = Effect.gen(function* () {
   const Bucket = yield* Config.nonEmptyString("CLOUD_AWS_S3_BUCKET_NAME");
   const mimeTypeMap = getTypes();
 
-  const decodeUploadPath = S.decode(File.UploadPath);
+  const decodeUploadKey = S.decode(File.UploadKey);
 
-  const getPreSignedUrl = Effect.fn("UploadService.getPresignedUrl")(function* (uploadParams: File.UploadPath.Encoded) {
-    const ContentType = mimeTypeMap[uploadParams.fileItemExtension];
-    const Key = yield* decodeUploadPath(uploadParams);
+  const getPreSignedUrl = Effect.fn("UploadService.getPresignedUrl")(function* (uploadParams: File.UploadKey.Encoded) {
+    const ContentType = mimeTypeMap[uploadParams.extension];
+    const Key = yield* decodeUploadKey(uploadParams);
     const result = yield* s3.putObject(
       {
         Bucket,
@@ -48,12 +48,11 @@ const serviceEffect: UploadServiceEffect = Effect.gen(function* () {
       },
       { presigned: true }
     );
-    yield* Effect.logInfo(`Uploaded file successfully to path: ${result}`);
     return Redacted.make(result);
   });
 
-  const deleteObject = Effect.fn("S3Service.deleteObject")(function* (uploadParams: File.UploadPath.Encoded) {
-    const Key = yield* decodeUploadPath(uploadParams);
+  const deleteObject = Effect.fn("S3Service.deleteObject")(function* (uploadParams: File.UploadKey.Encoded) {
+    const Key = yield* decodeUploadKey(uploadParams);
     const result = yield* s3.deleteObject({
       Bucket,
       Key,

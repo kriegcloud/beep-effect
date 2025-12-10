@@ -41,7 +41,7 @@ export type ExifMetadataOutput = typeof ExifMetadata.Type | undefined;
 export type UploadError =
   | Errors.ValidationError
   | Errors.DetectionError
-  | Errors.ExifParseError
+  | Errors.MetadataParseError
   | InvalidFileTypeError
   | IllegalChunkError
   | InvalidChunkSizeError;

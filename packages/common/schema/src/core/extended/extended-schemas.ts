@@ -589,10 +589,10 @@ export function destructiveTransform<A, B>(
           try: () => transform(input) as Readonly<B>,
           catch: () => new ParseResult.Type(self.ast, input, "Error applying transformation"),
         }),
-      encode: () =>
-        ParseResult.fail(
-          new ParseResult.Forbidden(self.ast, "Encoding is not supported for destructive transformations")
-        ),
+      // Pass through the value on encode - this is safe because the value is already
+      // in the transformed form and we can't reverse the transformation.
+      // This allows destructive transforms to work in union schemas and class fields.
+      encode: (value) => ParseResult.succeed(value as UnsafeTypes.UnsafeAny),
     });
   };
 }

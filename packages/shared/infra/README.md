@@ -266,11 +266,11 @@ import * as Effect from "effect/Effect";
 
 const getUploadUrl = Effect.gen(function* () {
   const upload = yield* UploadService;
-  const uploadPath: File.UploadPath.Encoded = {
+  const uploadPath: File.UploadKey.Encoded = {
     orgId: "org_123",
     userId: "user_456",
     fileItemId: "file_789",
-    fileItemExtension: "png",
+    extension: "png",
   };
   const url = yield* upload.getPreSignedUrl(uploadPath);
   yield* Effect.logInfo("Pre-signed URL generated");

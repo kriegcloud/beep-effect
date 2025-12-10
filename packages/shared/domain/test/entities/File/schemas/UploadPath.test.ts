@@ -8,15 +8,15 @@ import { File } from "../../../../src/entities";
 import type * as Organization from "../../../../src/entities/Organization";
 import { SharedEntityIds } from "../../../../src/entity-ids";
 
-const { UploadPath, ShardPrefix, ShardPrefixDecoded } = File;
+const { UploadKey, ShardPrefix, ShardPrefixDecoded } = File;
 
-describe("File.UploadPath", () => {
+describe("File.UploadKey", () => {
   describe("ShardPrefix", () => {
     it("should generate consistent shard prefix from fileId", () => {
       const fileId = "file__12345678-1234-1234-1234-123456789012" as SharedEntityIds.FileId.Type;
 
-      const shardPrefix1 = ShardPrefix.fromFileId(fileId);
-      const shardPrefix2 = ShardPrefix.fromFileId(fileId);
+      const shardPrefix1 = UploadKey.shardPrefixFromFileId(fileId);
+      const shardPrefix2 = UploadKey.shardPrefixFromFileId(fileId);
 
       expect(shardPrefix1).toEqual(shardPrefix2);
     });
@@ -25,8 +25,8 @@ describe("File.UploadPath", () => {
       const fileId1 = "file__12345678-1234-1234-1234-123456789012" as SharedEntityIds.FileId.Type;
       const fileId2 = "file__87654321-4321-4321-4321-210987654321" as SharedEntityIds.FileId.Type;
 
-      const shardPrefix1 = ShardPrefix.fromFileId(fileId1);
-      const shardPrefix2 = ShardPrefix.fromFileId(fileId2);
+      const shardPrefix1 = UploadKey.shardPrefixFromFileId(fileId1);
+      const shardPrefix2 = UploadKey.shardPrefixFromFileId(fileId2);
 
       expect(shardPrefix1).not.toEqual(shardPrefix2);
     });
@@ -48,8 +48,8 @@ describe("File.UploadPath", () => {
     });
   });
 
-  describe("UploadPath bidirectional transformation", () => {
-    const mockUploadPathDecoded: File.UploadPathDecoded.Type = {
+  describe("UploadKey bidirectional transformation", () => {
+    const mockUploadKeyDecoded: File.UploadKeyDecoded.Type = {
       env: "dev" as EnvValue.Type,
       fileId: "file__12345678-1234-1234-1234-123456789012" as SharedEntityIds.FileId.Type,
       organizationType: "individual" as Organization.OrganizationType.Type,
@@ -57,12 +57,12 @@ describe("File.UploadPath", () => {
       entityKind: "user" as const,
       entityIdentifier: SharedEntityIds.UserId.make(`user__87654321-4321-4321-4321-210987654321`),
       entityAttribute: "avatar",
-      fileItemExtension: "jpg" as BS.FileExtension.Type,
+      extension: "jpg" as BS.FileExtension.Type,
     };
 
-    it("should decode UploadPathDecoded to UploadPathEncoded", () => {
+    it("should decode UploadKeyDecoded to UploadKeyEncoded", () => {
       return Effect.gen(function* () {
-        const encoded = yield* S.decode(UploadPath)(mockUploadPathDecoded);
+        const encoded = yield* S.decode(UploadKey)(mockUploadKeyDecoded);
 
         // Verify the encoded path has the expected structure
         expect(encoded).toMatch(
@@ -77,36 +77,36 @@ describe("File.UploadPath", () => {
       }).pipe(Effect.runPromise);
     });
 
-    it("should encode UploadPathEncoded back to UploadPathDecoded", () => {
+    it("should encode UploadKeyEncoded back to UploadKeyDecoded", () => {
       return Effect.gen(function* () {
         // First encode to get a valid path
-        const encoded = yield* S.decode(UploadPath)(mockUploadPathDecoded);
+        const encoded = yield* S.decode(UploadKey)(mockUploadKeyDecoded);
 
         // Then decode it back
-        const decoded = yield* S.encode(UploadPath)(encoded);
+        const decoded = yield* S.encode(UploadKey)(encoded);
 
         // Verify all fields match the original (except we can't predict year/month)
-        expect(decoded.env).toBe(mockUploadPathDecoded.env);
-        expect(decoded.fileId).toBe(mockUploadPathDecoded.fileId);
-        expect(decoded.organizationType).toBe(mockUploadPathDecoded.organizationType);
-        expect(decoded.organizationId).toBe(mockUploadPathDecoded.organizationId);
-        expect(decoded.entityKind).toBe(mockUploadPathDecoded.entityKind);
-        expect(decoded.entityIdentifier).toBe(mockUploadPathDecoded.entityIdentifier);
-        expect(decoded.entityAttribute).toBe(mockUploadPathDecoded.entityAttribute);
-        expect(decoded.fileItemExtension).toBe(mockUploadPathDecoded.fileItemExtension);
+        expect(decoded.env).toBe(mockUploadKeyDecoded.env);
+        expect(decoded.fileId).toBe(mockUploadKeyDecoded.fileId);
+        expect(decoded.organizationType).toBe(mockUploadKeyDecoded.organizationType);
+        expect(decoded.organizationId).toBe(mockUploadKeyDecoded.organizationId);
+        expect(decoded.entityKind).toBe(mockUploadKeyDecoded.entityKind);
+        expect(decoded.entityIdentifier).toBe(mockUploadKeyDecoded.entityIdentifier);
+        expect(decoded.entityAttribute).toBe(mockUploadKeyDecoded.entityAttribute);
+        expect(decoded.extension).toBe(mockUploadKeyDecoded.extension);
       }).pipe(Effect.runPromise);
     });
 
     it("should handle round-trip transformation correctly", () => {
       return Effect.gen(function* () {
         // Decode to encoded format
-        const encoded = yield* S.decode(UploadPath)(mockUploadPathDecoded);
+        const encoded = yield* S.decode(UploadKey)(mockUploadKeyDecoded);
 
         // Encode back to decoded format
-        const decoded = yield* S.encode(UploadPath)(encoded);
+        const decoded = yield* S.encode(UploadKey)(encoded);
 
         // Decode again to encoded format
-        const encodedAgain = yield* S.decode(UploadPath)(decoded);
+        const encodedAgain = yield* S.decode(UploadKey)(decoded);
 
         // The two encoded versions should be identical
         expect(encodedAgain).toBe(encoded);
@@ -122,7 +122,7 @@ describe("File.UploadPath", () => {
         // Convert month number to zero-padded string (01-12)
         const paddedMonth = currentMonth.toString().padStart(2, "0");
 
-        const encoded = yield* S.decode(UploadPath)(mockUploadPathDecoded);
+        const encoded = yield* S.decode(UploadKey)(mockUploadKeyDecoded);
 
         expect(encoded).toContain(`/${currentYear}/`);
         expect(encoded).toContain(`/${paddedMonth}/`);
@@ -139,8 +139,8 @@ describe("File.UploadPath", () => {
 
     it("should generate consistent shard prefix for same fileId", () => {
       return Effect.gen(function* () {
-        const encoded1 = yield* S.decode(UploadPath)(mockUploadPathDecoded);
-        const encoded2 = yield* S.decode(UploadPath)(mockUploadPathDecoded);
+        const encoded1 = yield* S.decode(UploadKey)(mockUploadKeyDecoded);
+        const encoded2 = yield* S.decode(UploadKey)(mockUploadKeyDecoded);
 
         // Extract shard prefix from both paths
         const shardPrefix1 = encoded1.split("/")[3];
@@ -152,7 +152,7 @@ describe("File.UploadPath", () => {
     });
   });
 
-  describe("UploadPath validation", () => {
+  describe("UploadKey validation", () => {
     it("should reject invalid environment values", () => {
       const invalidDecoded = {
         env: "invalid",
@@ -162,12 +162,12 @@ describe("File.UploadPath", () => {
         entityKind: "user" as const,
         entityIdentifier: "user__87654321-4321-4321-4321-210987654321" as SharedEntityIds.UserId.Type,
         entityAttribute: "avatar",
-        fileItemExtension: "jpg" as BS.FileExtension.Type,
+        extension: "jpg" as BS.FileExtension.Type,
       };
 
       return Effect.gen(function* () {
         // @ts-expect-error
-        const result = yield* Effect.either(S.decode(UploadPath)(invalidDecoded));
+        const result = yield* Effect.either(S.decode(UploadKey)(invalidDecoded));
         expect(result._tag).toBe("Left");
       }).pipe(Effect.runPromise);
     });
@@ -181,27 +181,27 @@ describe("File.UploadPath", () => {
         entityKind: "user" as const,
         entityIdentifier: "user__87654321-4321-4321-4321-210987654321" as SharedEntityIds.UserId.Type,
         entityAttribute: "avatar",
-        fileItemExtension: "invalid",
+        extension: "invalid",
       };
 
       return Effect.gen(function* () {
         // @ts-expect-error
-        const result = yield* Effect.either(S.decode(UploadPath)(invalidDecoded));
+        const result = yield* Effect.either(S.decode(UploadKey)(invalidDecoded));
         expect(result._tag).toBe("Left");
       }).pipe(Effect.runPromise);
     });
 
     it("should reject malformed encoded paths", () => {
-      const invalidEncodedPath = "/invalid/path/structure" as File.UploadPathEncoded.Type;
+      const invalidEncodedPath = "/invalid/path/structure" as File.UploadKeyEncoded.Type;
 
       return Effect.gen(function* () {
-        const result = yield* Effect.either(S.encode(UploadPath)(invalidEncodedPath));
+        const result = yield* Effect.either(S.encode(UploadKey)(invalidEncodedPath));
         expect(result._tag).toBe("Left");
       }).pipe(Effect.runPromise);
     });
   });
 
-  describe("UploadPath edge cases", () => {
+  describe("UploadKey edge cases", () => {
     it("should handle different entity kinds", () => {
       const entityKinds = ["organization", "user", "team"] as const;
 
@@ -217,15 +217,15 @@ describe("File.UploadPath", () => {
               entityKind: "user" as const,
               entityIdentifier: "user__87654321-4321-4321-4321-210987654321" as SharedEntityIds.UserId.Type,
               entityAttribute: "avatar",
-              fileItemExtension: "jpg" as BS.FileExtension.Type,
+              extension: "jpg" as BS.FileExtension.Type,
             },
             entityKind,
           };
 
-          const encoded = yield* S.decode(UploadPath)(decoded);
+          const encoded = yield* S.decode(UploadKey)(decoded);
           expect(encoded).toContain(`/${entityKind}/`);
 
-          const decodedBack = yield* S.encode(UploadPath)(encoded);
+          const decodedBack = yield* S.encode(UploadKey)(encoded);
           expect(decodedBack.entityKind).toBe(entityKind);
         }
       }).pipe(Effect.runPromise);
@@ -244,13 +244,13 @@ describe("File.UploadPath", () => {
             entityKind: "user" as const,
             entityIdentifier: "user__87654321-4321-4321-4321-210987654321" as SharedEntityIds.UserId.Type,
             entityAttribute: "avatar",
-            fileItemExtension: "jpg" as BS.FileExtension.Type,
+            extension: "jpg" as BS.FileExtension.Type,
           };
 
-          const encoded = yield* S.decode(UploadPath)(decoded);
+          const encoded = yield* S.decode(UploadKey)(decoded);
           expect(encoded).toContain(`/${organizationType}/`);
 
-          const decodedBack = yield* S.encode(UploadPath)(encoded);
+          const decodedBack = yield* S.encode(UploadKey)(encoded);
           expect(decodedBack.organizationType).toBe(organizationType);
         }
       }).pipe(Effect.runPromise);
@@ -269,13 +269,13 @@ describe("File.UploadPath", () => {
             entityKind: "user" as const,
             entityIdentifier: "user__87654321-4321-4321-4321-210987654321" as SharedEntityIds.UserId.Type,
             entityAttribute: "avatar",
-            fileItemExtension: "jpg" as BS.FileExtension.Type,
+            extension: "jpg" as BS.FileExtension.Type,
           };
 
-          const encoded = yield* S.decode(UploadPath)(decoded);
+          const encoded = yield* S.decode(UploadKey)(decoded);
           expect(encoded.startsWith(`/${env}/`)).toBe(true);
 
-          const decodedBack = yield* S.encode(UploadPath)(encoded);
+          const decodedBack = yield* S.encode(UploadKey)(encoded);
           expect(decodedBack.env).toBe(env);
         }
       }).pipe(Effect.runPromise);

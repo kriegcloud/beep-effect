@@ -1,3 +1,5 @@
+import { EnvValue } from "@beep/constants";
+import { serverEnv } from "@beep/shared-infra/ServerEnv";
 import type { SupportedLangValue } from "@beep/ui-core/i18n/constants";
 import { fallbackLang } from "@beep/ui-core/i18n/constants";
 import { detectLanguage as detectLanguageHandler } from "@beep/ui-core/i18n/server";
@@ -7,11 +9,13 @@ import type { SettingsState } from "@beep/ui-core/settings/types";
 import type { Direction } from "@mui/material/styles";
 import * as Effect from "effect/Effect";
 
+export const isDev = EnvValue.is.dev(serverEnv.app.env);
+
 export type AppConfig = {
-  lang: SupportedLangValue.Type;
-  i18nLang: SupportedLangValue.Type;
-  cookieSettings: SettingsState;
-  dir: Direction;
+  readonly lang: SupportedLangValue.Type;
+  readonly i18nLang: SupportedLangValue.Type;
+  readonly cookieSettings: SettingsState;
+  readonly dir: Direction;
 };
 
 const detectLanguage = Effect.tryPromise({

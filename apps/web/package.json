@@ -11,7 +11,7 @@
     "directory": "apps/web"
   },
   "scripts": {
-    "dev": "NODE_OPTIONS='--inspect=9231' bun run dotenvx -- next dev --turbopack",
+    "dev": "NODE_OPTIONS='--inspect=9231' bunx @react-grab/claude-code@latest && bun run dotenvx -- next dev --turbopack",
     "dev:https": "bun run dotenvx -- bunx next dev --turbopack --experimental-https",
     "start": "bun run dotenvx -- next start",
     "build": "NODE_ENV=production bun run dotenvx next build --turbopack",

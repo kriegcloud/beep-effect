@@ -1,6 +1,6 @@
 import * as Data from "effect/Data";
 
-export class ExifParseError extends Data.TaggedError("ExifParseError")<{
+export class MetadataParseError extends Data.TaggedError("MetadataParseError")<{
   readonly message: string;
   readonly cause: unknown;
   readonly fileName?: string | undefined;

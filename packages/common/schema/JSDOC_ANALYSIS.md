@@ -208,10 +208,10 @@ You are tasked with adding missing JSDoc documentation to this package. Follow t
 - [ ] `src/integrations.ts:51` — **DetectionError** (class)
   - Missing: @category, @example, @since
 
-- [ ] `src/integrations.ts:60` — **NativeFileInstance** (class)
+- [ ] `src/integrations.ts:60` — **FileFromSelf** (class)
   - Missing: @category, @example, @since
 
-- [ ] `src/integrations.ts:124` — **NativeFileInstance** (namespace)
+- [ ] `src/integrations.ts:124` — **FileFromSelf** (namespace)
   - Missing: @category, @example, @since
 
 - [ ] `src/integrations.ts:129` — **FileInstance** (class)
@@ -972,10 +972,10 @@ You are tasked with adding missing JSDoc documentation to this package. Follow t
 - [ ] `src/schema.ts:51` — **DetectionError** (class)
   - Missing: @category, @example, @since
 
-- [ ] `src/schema.ts:60` — **NativeFileInstance** (class)
+- [ ] `src/schema.ts:60` — **FileFromSelf** (class)
   - Missing: @category, @example, @since
 
-- [ ] `src/schema.ts:124` — **NativeFileInstance** (namespace)
+- [ ] `src/schema.ts:124` — **FileFromSelf** (namespace)
   - Missing: @category, @example, @since
 
 - [ ] `src/schema.ts:129` — **FileInstance** (class)
@@ -1725,10 +1725,10 @@ You are tasked with adding missing JSDoc documentation to this package. Follow t
 - [ ] `src/integrations/index.ts:51` — **DetectionError** (class)
   - Missing: @category, @example, @since
 
-- [ ] `src/integrations/index.ts:60` — **NativeFileInstance** (class)
+- [ ] `src/integrations/index.ts:60` — **FileFromSelf** (class)
   - Missing: @category, @example, @since
 
-- [ ] `src/integrations/index.ts:124` — **NativeFileInstance** (namespace)
+- [ ] `src/integrations/index.ts:124` — **FileFromSelf** (namespace)
   - Missing: @category, @example, @since
 
 - [ ] `src/integrations/index.ts:129` — **FileInstance** (class)
@@ -2338,10 +2338,10 @@ You are tasked with adding missing JSDoc documentation to this package. Follow t
 - [ ] `src/integrations/files/FileInstance.ts:51` — **DetectionError** (class)
   - Missing: @category, @example, @since
 
-- [ ] `src/integrations/files/FileInstance.ts:60` — **NativeFileInstance** (class)
+- [ ] `src/integrations/files/FileInstance.ts:60` — **FileFromSelf** (class)
   - Missing: @category, @example, @since
 
-- [ ] `src/integrations/files/FileInstance.ts:124` — **NativeFileInstance** (namespace)
+- [ ] `src/integrations/files/FileInstance.ts:124` — **FileFromSelf** (namespace)
   - Missing: @category, @example, @since
 
 - [ ] `src/integrations/files/FileInstance.ts:129` — **FileInstance** (class)
@@ -2462,10 +2462,10 @@ You are tasked with adding missing JSDoc documentation to this package. Follow t
 - [ ] `src/integrations/files/index.ts:51` — **DetectionError** (class)
   - Missing: @category, @example, @since
 
-- [ ] `src/integrations/files/index.ts:60` — **NativeFileInstance** (class)
+- [ ] `src/integrations/files/index.ts:60` — **FileFromSelf** (class)
   - Missing: @category, @example, @since
 
-- [ ] `src/integrations/files/index.ts:124` — **NativeFileInstance** (namespace)
+- [ ] `src/integrations/files/index.ts:124` — **FileFromSelf** (namespace)
   - Missing: @category, @example, @since
 
 - [ ] `src/integrations/files/index.ts:129` — **FileInstance** (class)

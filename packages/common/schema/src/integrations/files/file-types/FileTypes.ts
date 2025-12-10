@@ -2087,7 +2087,7 @@ export const isWEBM = (
  */
 export function validateFileType(
   file: ReadonlyArray<number> | Array<number> | ArrayBuffer | Uint8Array<ArrayBufferLike>,
-  types: Array<string>,
+  types: Array<string> | ReadonlyArray<string>,
   options?: ValidateFileTypeOptions | undefined
 ): boolean {
   let typeExtensions: Array<string> = [];

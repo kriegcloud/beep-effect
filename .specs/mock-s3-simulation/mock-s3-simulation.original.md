@@ -8,7 +8,7 @@ I want to create a full simulation pipeline of uploading a file to S3 using the 
 
 - `@packages/shared/domain/src/entities/File/File.model.ts`
 - `@packages/documents/infra/src/adapters/repos/File.repo.ts`
-- `@packages/shared/domain/src/entities/File/schemas/UploadPath.ts`
+- `@packages/shared/domain/src/entities/File/schemas/UploadKey.ts`
 - `@packages/common/schema/src/integrations/files/FileInstance.ts`
 - `@packages/common/schema/src/integrations/files/exif-metadata/ExifMetadata.ts`
 - `@packages/documents/infra/src/files/ExifToolService.ts`
@@ -21,7 +21,7 @@ I want to create a full simulation pipeline of uploading a file to S3 using the 
 
 1. Load the file from `scratchpad/logo.png` using `scratchpad/test-file.ts`
 2. Transform file into `FileInstance` using `FileInstanceFromNative` transformation schema
-3. Create the `UploadPath` using the properties from the decoded `FileInstance`
+3. Create the `UploadKey` using the properties from the decoded `FileInstance`
 4. Create `FileRpc` RpcGroup using `@effect/Rpc` with:
    - `initiateUpload`: Request pre-signed URL from server
    - `completeUpload`: Notify server after successful S3 upload, persist to DB
