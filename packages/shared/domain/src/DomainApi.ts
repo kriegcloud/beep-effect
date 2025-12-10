@@ -1,4 +1,4 @@
-// import { EventStreamRpc } from "./EventStreamRpc.ts";
-// import { File } from "./entities";
-//
-// export class DomainRpc extends EventStreamRpc.merge(File.FileRpc).prefix("v1") {}
+import { EventStreamRpc } from "./api/event-stream-rpc.ts";
+import { FilesRpc } from "./api/files-rpc.ts";
+
+export class DomainRpc extends EventStreamRpc.merge(FilesRpc) {}

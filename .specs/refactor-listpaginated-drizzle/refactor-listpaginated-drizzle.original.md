@@ -1,0 +1,3 @@
+# Original Prompt
+
+I need you to refactor the `moveFiles` query written using `@effect/sql` to use drizzle via the makeQueryWithSchema function from @packages/shared/infra/src/internal/db/pg/PgClient.ts in @packages/shared/infra/src/repos/File.repo.ts. I've got some of the boilerplate done for you. Relevant files are @packages/shared/domain/src/entities/File/File.model.ts, @packages/shared/tables/src/tables/file.table.ts, @packages/shared/tables/src/tables/folder.table.ts, @packages/shared/domain/src/entities/Folder/Folder.model.ts, @packages/shared/domain/src/api/files-rpc.ts, @packages/shared/domain/src/entity-ids/shared.ts, @packages/shared/infra/src/db/.

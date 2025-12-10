@@ -1,4 +1,4 @@
-import type { Organization, Session, Team } from "@beep/shared-domain/entities";
+import type { File, Folder, Organization, Session, Team } from "@beep/shared-domain/entities";
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import type * as tables from "./tables";
 
@@ -14,3 +14,9 @@ export const _checkInsertTeam: typeof Team.Model.insert.Encoded = {} as InferIns
 export const _sessionSelect: typeof Session.Model.select.Encoded = {} as InferSelectModel<typeof tables.session>;
 
 export const _checkInsertSession: typeof Session.Model.insert.Encoded = {} as InferInsertModel<typeof tables.session>;
+
+export const _checkSelectFolder: typeof Folder.Model.select.Encoded = {} as InferSelectModel<typeof tables.folder>;
+export const _checkInsertFolder: typeof Folder.Model.insert.Encoded = {} as InferInsertModel<typeof tables.folder>;
+
+export const _checkSelectFile: typeof File.Model.select.Encoded = {} as InferSelectModel<typeof tables.file>;
+export const _checkInsertFile: typeof File.Model.insert.Encoded = {} as InferInsertModel<typeof tables.file>;

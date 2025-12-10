@@ -18,6 +18,8 @@ export const CSP_DIRECTIVES = {
   "style-src-elem": ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://cdn.jsdelivr.net"],
   "script-src-elem": [
     "'self'",
+    "https://unpkg.com/react-grab@0.0.83/dist/index.global.js",
+    "https://unpkg.com/@react-grab/claude-code@0.0.83/dist/client.global.js",
     "'unsafe-inline'",
     "https://www.googletagmanager.com",
     "blob:",
@@ -31,6 +33,7 @@ export const CSP_DIRECTIVES = {
     "https://vercel.live/",
     "https://vercel.com",
     "https://www.google.com",
+    "https://www.react-grab.com",
     "ws:",
     "wss:",
     "http://localhost:*",

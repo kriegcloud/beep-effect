@@ -22,6 +22,12 @@ export class Model extends M.Class<Model>($I`FileModel`)(
       /** Url */
       url: BS.URLString,
     }),
+    name: S.NonEmptyTrimmedString,
+    size: S.Int,
+    mimeType: BS.MimeType,
+    uploadedByUserId: SharedEntityIds.UserId,
+    userId: SharedEntityIds.UserId,
+    folderId: BS.FieldOptionOmittable(SharedEntityIds.FolderId),
     metadata: M.JsonFromString(
       BS.NormalizedFile.pipe(
         S.pick(
@@ -34,8 +40,10 @@ export class Model extends M.Class<Model>($I`FileModel`)(
           "fileSizeBitsSI",
           "fileSizeBitsIEC",
           "exif",
+          "mimeType",
           "audioMetadata",
           "width",
+          "extension",
           "height",
           "aspectRatio",
           "duration"

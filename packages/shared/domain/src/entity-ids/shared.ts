@@ -79,3 +79,16 @@ export const SessionId = EntityId.make("session", {
     description: "A unique identifier for a session",
   },
 });
+
+export const FolderId = EntityId.make("folder", {
+  brand: "FolderId",
+  annotations: {
+    schemaId: Symbol.for("@beep/shared/domain/EntityIds/documents/FolderId"),
+    description: "A unique identifier for a Folder",
+  },
+});
+
+export declare namespace FolderId {
+  export type Type = typeof FolderId.Type;
+  export type Encoded = typeof FolderId.Encoded;
+}

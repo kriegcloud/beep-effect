@@ -17,4 +17,5 @@
  * @category Types
  * @since 0.1.0
  */
+// @biome-ignore lint/correctness/noExplicitAny: YA.
 export type UnsafeAny = any;
