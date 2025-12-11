@@ -12,7 +12,7 @@ import * as Effect from "effect/Effect";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import { AuthEmailService, InvitationEmailPayload } from "../../AuthEmail.service";
-import { commonExtraFields } from "../../internal";
+import { commonExtraFields } from "../../common";
 
 const organizationSchema = {
   additionalFields: {

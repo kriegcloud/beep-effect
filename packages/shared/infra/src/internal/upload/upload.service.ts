@@ -1,18 +1,21 @@
 import type { DeleteObjectCommandOutput } from "@aws-sdk/client-s3";
-import { getTypes } from "@beep/schema/integrations";
-import { File } from "@beep/shared-domain/entities";
+import { EnvValue } from "@beep/constants";
+import { SharedEntityIds } from "@beep/shared-domain";
+import type { InitiateUploadPayload } from "@beep/shared-domain/api/files-rpc";
+import { File, type Organization } from "@beep/shared-domain/entities";
 import type { S3ServiceError } from "@effect-aws/client-s3/Errors";
 import { S3Service } from "@effect-aws/client-s3/S3Service";
 import type { SdkError } from "@effect-aws/commons/Errors";
 import { type Cause, Effect, Layer, type ParseResult, Redacted } from "effect";
 import * as Config from "effect/Config";
+import type { ConfigError } from "effect/ConfigError";
 import * as S from "effect/Schema";
 
-// type UploadServiceEffect = Effect.Effect<>
-
 type GetPreSignedUrl = (
-  uploadParams: File.UploadKey.Encoded
-) => Effect.Effect<Redacted.Redacted<string>, SdkError | S3ServiceError | ParseResult.ParseError, never>;
+  payload: InitiateUploadPayload & {
+    organization: typeof Organization.Model.Type;
+  }
+) => Effect.Effect<Redacted.Redacted<string>, ParseResult.ParseError | SdkError | S3ServiceError | ConfigError, never>;
 type DeleteObject = (
   uploadParams: File.UploadKey.Encoded
 ) => Effect.Effect<
@@ -23,7 +26,7 @@ type DeleteObject = (
 
 type UploadServiceEffect = Effect.Effect<
   {
-    readonly getPreSignedUrl: GetPreSignedUrl;
+    readonly initiateUpload: GetPreSignedUrl;
     readonly deleteObject: DeleteObject;
   },
   never,
@@ -33,13 +36,30 @@ type UploadServiceEffect = Effect.Effect<
 const serviceEffect: UploadServiceEffect = Effect.gen(function* () {
   const s3 = yield* S3Service;
   const Bucket = yield* Config.nonEmptyString("CLOUD_AWS_S3_BUCKET_NAME");
-  const mimeTypeMap = getTypes();
 
   const decodeUploadKey = S.decode(File.UploadKey);
 
-  const getPreSignedUrl = Effect.fn("UploadService.getPresignedUrl")(function* (uploadParams: File.UploadKey.Encoded) {
-    const ContentType = mimeTypeMap[uploadParams.extension];
-    const Key = yield* decodeUploadKey(uploadParams);
+  const initiateUpload = Effect.fn("UploadService.initiateUpload")(function* ({
+    organization,
+    ...payload
+  }: typeof InitiateUploadPayload.Type & {
+    organization: typeof Organization.Model.Type;
+  }) {
+    const env = yield* S.Config("APP_ENV", EnvValue);
+
+    const p = {
+      env,
+      fileId: SharedEntityIds.FileId.create(),
+      organizationType: organization.type,
+      organizationId: organization.id,
+      entityKind: payload.entityKind,
+      entityIdentifier: payload.entityIdentifier,
+      entityAttribute: payload.entityAttribute,
+      extension: payload.metadata.extension,
+    };
+    const Key = yield* S.decode(File.UploadKey)(p);
+    const ContentType = payload.mimeType;
+
     const result = yield* s3.putObject(
       {
         Bucket,
@@ -62,7 +82,7 @@ const serviceEffect: UploadServiceEffect = Effect.gen(function* () {
   });
 
   return {
-    getPreSignedUrl,
+    initiateUpload,
     deleteObject,
   };
 }).pipe(

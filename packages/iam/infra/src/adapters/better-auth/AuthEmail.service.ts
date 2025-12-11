@@ -1,6 +1,6 @@
-import { IamConfig } from "@beep/iam-infra/config";
 import { BS } from "@beep/schema";
 import { Email } from "@beep/shared-infra/Email";
+import { serverEnv } from "@beep/shared-infra/ServerEnv";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
@@ -66,10 +66,10 @@ export declare namespace InvitationEmailPayload {
 
 export class AuthEmailService extends Effect.Service<AuthEmailService>()("AuthEmailService", {
   accessors: true,
-  dependencies: [Email.ResendService.Default, IamConfig.Live],
+  dependencies: [Email.ResendService.Default],
   effect: Effect.flatMap(Email.ResendService, ({ send }) =>
     Effect.gen(function* () {
-      const { email: emailEnv } = yield* IamConfig;
+      const { email: emailEnv } = serverEnv;
 
       const sendChangeEmailVerification = Effect.fn("sendChangeEmailVerification")(function* (
         params: SendChangeEmailVerificationPayload.Type

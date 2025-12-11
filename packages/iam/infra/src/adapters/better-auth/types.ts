@@ -5,9 +5,8 @@ import type { SqlError } from "@effect/sql/SqlError";
 import type { BetterAuthOptions, betterAuth } from "better-auth";
 import type { ConfigError } from "effect/ConfigError";
 import type * as Effect from "effect/Effect";
-import type { IamConfig } from "../../config";
 import type { AuthEmailService } from "./AuthEmail.service";
-import type { CommonExtraFields } from "./internal";
+import type { CommonExtraFields } from "./common";
 import type { Plugins } from "./plugins/plugins";
 
 export type Opts = Omit<BetterAuthOptions, "account" | "session" | "plugins" | "user"> & {
@@ -97,11 +96,11 @@ export type Organization = $Infer["Organization"];
 export type AuthPromiseApi = Auth["api"];
 export type Account = $Infer["Account"];
 
-export type AuthOptionsEffect = Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService | IamConfig>;
+export type AuthOptionsEffect = Effect.Effect<Opts, never, IamDb.IamDb | AuthEmailService>;
 export type AuthServiceEffect = Effect.Effect<
   {
     readonly auth: Auth;
   },
   SqlError | ConfigError,
-  AuthEmailService | IamDb.IamDb | IamConfig
+  AuthEmailService | IamDb.IamDb
 >;

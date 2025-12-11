@@ -3,25 +3,61 @@
   "include": ["src"],
   "exclude": [],
   "references": [
-    { "path": "../../packages/common/types/tsconfig.build.json" },
-    { "path": "../../packages/common/invariant/tsconfig.build.json" },
-    { "path": "../../packages/common/utils/tsconfig.build.json" },
-    { "path": "../../packages/common/schema/tsconfig.build.json" },
-    { "path": "../../packages/common/constants/tsconfig.build.json" },
-    { "path": "../../packages/common/errors/tsconfig.build.json" },
-    { "path": "../../packages/shared/domain/tsconfig.build.json" },
-    { "path": "../../packages/shared/tables/tsconfig.build.json" },
-    { "path": "../../packages/iam/infra/tsconfig.build.json" },
-    { "path": "../../packages/iam/domain/tsconfig.build.json" },
-    { "path": "../../packages/iam/tables/tsconfig.build.json" },
-    { "path": "../../packages/documents/infra/tsconfig.build.json" },
-    { "path": "../../packages/documents/domain/tsconfig.build.json" },
-    { "path": "../../packages/documents/tables/tsconfig.build.json" }
+    {
+      "path": "../../packages/runtime/server"
+    },
+    {
+      "path": "../../packages/common/types"
+    },
+    {
+      "path": "../../packages/common/invariant"
+    },
+    {
+      "path": "../../packages/common/utils"
+    },
+    {
+      "path": "../../packages/common/schema"
+    },
+    {
+      "path": "../../packages/common/constants"
+    },
+    {
+      "path": "../../packages/common/errors"
+    },
+    {
+      "path": "../../packages/common/identity"
+    },
+    {
+      "path": "../../packages/shared/domain"
+    },
+    {
+      "path": "../../packages/shared/infra"
+    },
+    {
+      "path": "../../packages/shared/tables"
+    },
+    {
+      "path": "../../packages/iam/infra"
+    },
+    {
+      "path": "../../packages/iam/domain"
+    },
+    {
+      "path": "../../packages/iam/tables"
+    },
+    {
+      "path": "../../packages/documents/infra"
+    },
+    {
+      "path": "../../packages/documents/domain"
+    },
+    {
+      "path": "../../packages/documents/tables"
+    }
   ],
   "compilerOptions": {
     "types": ["node", "bun"],
     "outDir": "build/src",
-
     "rootDir": "src"
   }
 }

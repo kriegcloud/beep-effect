@@ -254,7 +254,7 @@ Pre-built React Email templates for common auth flows:
 S3-backed file service for pre-signed URL generation and object management.
 
 **Methods**:
-- `getPreSignedUrl(uploadParams)` — Generate pre-signed PUT URL for client uploads
+- `initiateUpload(uploadParams)` — Generate pre-signed PUT URL for client uploads
 - `deleteObject(uploadParams)` — Delete object from S3
 
 **Example: Generate Upload URL**
@@ -272,7 +272,7 @@ const getUploadUrl = Effect.gen(function* () {
     fileItemId: "file_789",
     extension: "png",
   };
-  const url = yield* upload.getPreSignedUrl(uploadPath);
+  const url = yield* upload.initiateUpload(uploadPath);
   yield* Effect.logInfo("Pre-signed URL generated");
   return url; // Redacted<string>
 });

@@ -4,7 +4,7 @@ import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcGroup from "@effect/rpc/RpcGroup";
 import * as S from "effect/Schema";
 import { File, Folder } from "../entities";
-import { SharedEntityIds } from "../entity-ids";
+import { AnyEntityId, EntityKind, SharedEntityIds } from "../entity-ids";
 
 export const MAX_FILE_SIZE_MB = 8;
 export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
@@ -21,6 +21,10 @@ export class InitiateUploadPayload extends S.Class<InitiateUploadPayload>("Initi
   fileName: S.String,
   fileSize: S.Number.annotations({ description: "The size of the file in bytes." }),
   mimeType: BS.MimeType,
+  entityKind: EntityKind,
+  entityIdentifier: AnyEntityId,
+  entityAttribute: S.NonEmptyTrimmedString,
+
   folderId: S.NullOr(SharedEntityIds.FolderId),
   metadata: File.Model.fields.metadata,
 }) {}

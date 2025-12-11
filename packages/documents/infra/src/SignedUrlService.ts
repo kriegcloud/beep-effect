@@ -9,7 +9,7 @@ export class StorageService extends Effect.Service<StorageService>()("StorageSer
     const s3 = yield* S3Service;
     const config = yield* FilesConfig;
 
-    const getPreSignedUrl = Effect.fn("StorageService.getPreSignedUrl")(function* () {
+    const initiateUpload = Effect.fn("StorageService.initiateUpload")(function* () {
       return yield* s3.putObject(
         {
           Bucket: config.aws.s3.bucketName,
@@ -20,7 +20,7 @@ export class StorageService extends Effect.Service<StorageService>()("StorageSer
     });
 
     return {
-      getPreSignedUrl,
+      initiateUpload,
     };
   }),
 }) {}

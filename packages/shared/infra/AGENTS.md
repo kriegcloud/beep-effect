@@ -31,7 +31,7 @@
 - **`Email.components`** (`src/internal/email/components/`) — Reusable auth email templates (verification, reset, OTP, invitations).
 
 ### Upload
-- **`UploadService`** (`src/internal/upload/upload.service.ts`) — S3-backed file service providing `getPreSignedUrl(uploadParams)` for client uploads and `deleteObject(uploadParams)` for cleanup. Depends on `S3Service` from `@effect-aws/client-s3`.
+- **`UploadService`** (`src/internal/upload/upload.service.ts`) — S3-backed file service providing `initiateUpload(uploadParams)` for client uploads and `deleteObject(uploadParams)` for cleanup. Depends on `S3Service` from `@effect-aws/client-s3`.
 
 ### Shared Infrastructure Layer
 - **`Live`** (`src/Live.ts`) — Top-level Layer merging `Email.ResendService.layer`, `Db.layer`, `EncryptionService.layer`, and `UploadService.layer` for slice consumption.
@@ -158,7 +158,7 @@ const getUploadUrl = Effect.gen(function* () {
     fileItemId: "file_789",
     extension: "png",
   };
-  const url = yield* upload.getPreSignedUrl(uploadPath);
+  const url = yield* upload.initiateUpload(uploadPath);
   yield* Effect.logInfo("Pre-signed URL generated", { url });
   return url;
 });

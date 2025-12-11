@@ -5,7 +5,6 @@ import { AuthService } from "@beep/iam-infra/adapters/better-auth/Auth.service";
 import { layer as reposLayer } from "@beep/iam-infra/adapters/repositories";
 import { CurrentUserLive } from "@beep/iam-infra/api/current-user.live";
 import { Api } from "@beep/iam-infra/api/root";
-import { IamConfig } from "@beep/iam-infra/config";
 import { IamDb } from "@beep/iam-infra/db";
 import { IamDbSchema } from "@beep/iam-tables";
 import { Organization, Session, User } from "@beep/shared-domain/entities";
@@ -28,14 +27,11 @@ import { headers } from "next/headers";
 const DbLive = Layer.provideMerge(IamDb.IamDb.Live, Live);
 const ReposLive = Layer.provideMerge(reposLayer, DbLive);
 
-const AuthEmailLive = AuthEmailService.DefaultWithoutDependencies.pipe(
-  Layer.provideMerge(Live),
-  Layer.provideMerge(IamConfig.Live)
-);
+const AuthEmailLive = AuthEmailService.DefaultWithoutDependencies.pipe(Layer.provideMerge(Live));
 
 const CoreServicesLive = Layer.provideMerge(ReposLive, AuthEmailLive);
 
-const AuthLive = AuthService.DefaultWithoutDependencies.pipe(Layer.provide([CoreServicesLive, IamConfig.Live]));
+const AuthLive = AuthService.DefaultWithoutDependencies.pipe(Layer.provide([CoreServicesLive]));
 
 const AuthContextHttpMiddlewareLive = Layer.effect(
   AuthContextHttpMiddleware,

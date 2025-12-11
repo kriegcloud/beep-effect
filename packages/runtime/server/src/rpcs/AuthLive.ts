@@ -1,11 +1,21 @@
 import { AuthProviderNameValue } from "@beep/constants";
 import * as IamEntities from "@beep/iam-domain/entities";
 import * as Member from "@beep/iam-domain/entities/Member";
+import {
+  AuthEmailService,
+  SendResetPasswordEmailPayload,
+  SendVerificationEmailPayload,
+} from "@beep/iam-infra/adapters/better-auth/AuthEmail.service";
+import { commonExtraFields } from "@beep/iam-infra/adapters/better-auth/common";
+import { AllPlugins } from "@beep/iam-infra/adapters/better-auth/plugins/plugins";
+import type { AuthOptionsEffect, AuthServiceEffect, Opts } from "@beep/iam-infra/adapters/better-auth/types";
 import { IamDb } from "@beep/iam-infra/db/Db";
 import { IamDbSchema } from "@beep/iam-tables";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as Organization from "@beep/shared-domain/entities/Organization";
+import type { Db } from "@beep/shared-infra/Db";
+import type { ResendService } from "@beep/shared-infra/internal/email/adapters";
 import { serverEnv } from "@beep/shared-infra/ServerEnv";
 import type { UnsafeTypes } from "@beep/types";
 import type { BetterAuthOptions } from "better-auth";
@@ -18,16 +28,13 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as F from "effect/Function";
+import * as Layer from "effect/Layer";
 import * as LogLevel from "effect/LogLevel";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
-import { AuthEmailService, SendResetPasswordEmailPayload, SendVerificationEmailPayload } from "./AuthEmail.service";
-import { commonExtraFields } from "./common";
-import { AllPlugins } from "./plugins";
-import type { AuthOptionsEffect, AuthServiceEffect, Opts } from "./types";
 
 const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
   const { client, execute } = yield* IamDb.IamDb;
@@ -324,5 +331,16 @@ const authServiceEffect: AuthServiceEffect = Effect.gen(function* () {
 
 export class AuthService extends Effect.Service<AuthService>()("AuthService", {
   dependencies: [AuthEmailService.DefaultWithoutDependencies, IamDb.IamDb.Live],
-  effect: authServiceEffect,
-}) {}
+  effect: authServiceEffect.pipe(
+    Effect.catchTags({
+      ConfigError: Effect.die,
+      SqlError: Effect.die,
+    })
+  ),
+}) {
+  static readonly layer: Layer.Layer<
+    AuthEmailService | AuthService,
+    never,
+    IamDb.IamDb | Db.SliceDbRequirements | ResendService
+  > = AuthService.Default.pipe(Layer.provideMerge(AuthEmailService.Default));
+}

@@ -1,5 +1,4 @@
 import type { AuthEmailService } from "@beep/iam-infra/adapters/better-auth/AuthEmail.service";
-import type { IamConfig } from "@beep/iam-infra/config";
 import type { IamDb } from "@beep/iam-infra/db";
 import * as Effect from "effect/Effect";
 import * as Admin from "./admin";
@@ -7,7 +6,7 @@ import * as Anonymous from "./anonymous";
 import * as ApiKey from "./api-key";
 import * as Bearer from "./bearer";
 import * as Captcha from "./captcha";
-import * as Cookies from "./cookies";
+// import * as Cookies from "./cookies";
 import * as CustomSession from "./custom-session";
 import * as DeviceAuthorization from "./device-authorization";
 import * as DubAnalytics from "./dub-analytics";
@@ -62,7 +61,7 @@ export type Plugins = Array<
   | TwoFactor.TwoFactorPlugin
   | Username.UsernamePlugin
   | Localization.LocalizationPlugin
-  | Cookies.CookiesPlugin
+  // | Cookies.CookiesPlugin
   | Anonymous.AnonymousPlugin
 >;
 const allPluginsArray = [
@@ -78,7 +77,7 @@ const allPluginsArray = [
   SCIM.scimPlugin,
   HaveIBeenPwned.haveIBeenPwnedPlugin,
   Jwt.jwtPlugin,
-  Cookies.cookiesPlugin,
+  // Cookies.cookiesPlugin,
   LastLoginMethod.lastLoginMethodPlugin,
   Localization.localizationPlugin,
   // Mcp.mcpPlugin,
@@ -98,9 +97,6 @@ const allPluginsArray = [
   Username.usernamePlugin,
 ];
 
-export const AllPlugins: Effect.Effect<Plugins, never, IamDb.IamDb | AuthEmailService | IamConfig> = Effect.all(
-  allPluginsArray,
-  {
-    concurrency: allPluginsArray.length,
-  }
-).pipe(Effect.catchAll((e) => Effect.dieMessage(`Failed to initialize AllPlugins due to: ${e}`)));
+export const AllPlugins: Effect.Effect<Plugins, never, IamDb.IamDb | AuthEmailService> = Effect.all(allPluginsArray, {
+  concurrency: allPluginsArray.length,
+}).pipe(Effect.catchAll((e) => Effect.dieMessage(`Failed to initialize AllPlugins due to: ${e}`)));

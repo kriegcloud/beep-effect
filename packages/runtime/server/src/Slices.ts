@@ -1,13 +1,12 @@
 import { DocumentsRepos } from "@beep/documents-infra";
 import { DocumentsDb } from "@beep/documents-infra/db";
-import type { AuthEmailService, IamConfig } from "@beep/iam-infra";
+import type { AuthEmailService } from "@beep/iam-infra";
 import { AuthService, IamRepos } from "@beep/iam-infra";
 import { IamDb } from "@beep/iam-infra/db";
 import type { Db } from "@beep/shared-infra/Db";
 import { SharedDb } from "@beep/shared-infra/Db";
 import type { Email } from "@beep/shared-infra/Email";
 import { SharedRepos } from "@beep/shared-infra/repos";
-import type * as SqlClient from "@effect/sql/SqlClient";
 import type * as SqlError from "@effect/sql/SqlError";
 import type * as ConfigError from "effect/ConfigError";
 import * as Layer from "effect/Layer";
@@ -32,10 +31,9 @@ export const SliceReposLive: SliceReposLive = Layer.mergeAll(
 ).pipe(Layer.orDie);
 
 export type CoreSliceServices =
-  | SqlClient.SqlClient
+  | Db.PgClientServices
   | SliceDatabaseClients
   | Email.ResendService
-  | IamConfig
   | AuthEmailService
   | SliceRepositories;
 
