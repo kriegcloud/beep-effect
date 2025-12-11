@@ -6,6 +6,9 @@
   },
   "references": [
     {
+      "path": "packages/common/lexical-schemas/tsconfig.build.json"
+    },
+    {
       "path": "packages/common/types/tsconfig.build.json"
     },
     {

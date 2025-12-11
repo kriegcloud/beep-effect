@@ -61,8 +61,7 @@ const defaultCSPDirectives = {
   styleSrcElem: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://cdn.jsdelivr.net"],
   scriptSrcElem: [
     "'self'",
-    "https://unpkg.com/react-grab@0.0.83/dist/index.global.js",
-    "https://unpkg.com/@react-grab/claude-code@0.0.83/dist/client.global.js",
+    "https://unpkg.com",
     "'unsafe-inline'",
     "https://www.googletagmanager.com",
     "blob:",

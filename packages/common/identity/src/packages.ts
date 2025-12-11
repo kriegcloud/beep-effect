@@ -59,7 +59,8 @@ const composers = $I.compose(
   "shared-domain",
   "db-admin",
   "server",
-  "iam-tables"
+  "iam-tables",
+  "lexical-schemas"
 );
 
 /**
@@ -646,3 +647,18 @@ export const $ServerId = composers.$ServerId;
  * @since 0.1.0
  */
 export const $IamTablesId = composers.$IamTablesId;
+
+/**
+ * Identity composer for the `@beep/lexical-schemas` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $LexicalSchemasId } from "@beep/identity"
+ *
+ * const schemaId = $LexicalSchemasId.make("SchemaId")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $LexicalSchemasId = composers.$LexicalSchemasId;

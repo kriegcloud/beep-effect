@@ -50,7 +50,7 @@ const AuthOptions: AuthOptionsEffect = Effect.gen(function* () {
       camelCase: true,
     }),
     baseURL: serverEnv.app.authUrl.toString(),
-    basePath: "/api/auth",
+    basePath: "/api/v1/auth",
     appName: serverEnv.app.name,
     secret: Redacted.value(serverEnv.auth.secret),
     trustedOrigins: [...serverEnv.security.trustedOrigins],

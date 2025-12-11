@@ -1,0 +1,70 @@
+{
+  "name": "@beep/lexical-schemas",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "100% type-safe Effect Schema validation for Lexical editor state",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/lexical-schemas",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "directory": "dist",
+    "linkDirectory": false
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./nodes": "./src/nodes/index.ts",
+    "./state": "./src/state.ts",
+    "./errors": "./src/errors.ts",
+    "./*": "./src/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/common/lexical-schemas"
+  },
+  "scripts": {
+    "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
+    "dev": "tsc -b tsconfig.build.json --watch",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "bun test",
+    "coverage": "bun test --coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write"
+  },
+  "peerDependencies": {
+    "effect": "catalog:",
+    "@beep/invariant": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/constants": "workspace:^"
+  },
+  "devDependencies": {
+    "effect": "catalog:",
+    "@beep/invariant": "workspace:^",
+    "@beep/types": "workspace:^",
+    "@beep/testkit": "workspace:^",
+    "@total-typescript/ts-reset": "catalog:",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/constants": "workspace:^"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}

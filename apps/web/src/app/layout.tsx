@@ -43,13 +43,13 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       <head>
         {isDev && (
           <Script
-            src="https://unpkg.com/react-grab@0.0.83/dist/index.global.js"
+            src="https://unpkg.com/react-grab@0.0.85/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />
         )}
         {isDev && (
-          <Script src="https://unpkg.com/@react-grab/claude-code@0.0.83/dist/client.global.js" strategy="lazyOnload" />
+          <Script src="https://unpkg.com/@react-grab/claude-code@0.0.85/dist/client.global.js" strategy="lazyOnload" />
         )}
       </head>
       <body>
