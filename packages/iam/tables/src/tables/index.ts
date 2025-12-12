@@ -1,3 +1,4 @@
+export * from "@beep/shared-tables/tables/file.table";
 export * from "@beep/shared-tables/tables/organization.table";
 export * from "@beep/shared-tables/tables/session.table";
 export * from "@beep/shared-tables/tables/team.table";

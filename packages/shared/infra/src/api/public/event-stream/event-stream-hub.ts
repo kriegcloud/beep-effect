@@ -1,14 +1,14 @@
 import { Policy } from "@beep/shared-domain";
 import { SharedEntityIds } from "@beep/shared-domain";
 import type { EventStreamEvents } from "@beep/shared-domain/api/event-stream-rpc";
-import * as Arr from "effect/Array";
+import * as A from "effect/Array";
 import * as Clock from "effect/Clock";
 import * as Effect from "effect/Effect";
 import type * as Mailbox from "effect/Mailbox";
 import * as MutableHashMap from "effect/MutableHashMap";
-import * as Option from "effect/Option";
+import * as O from "effect/Option";
 import * as SynchronizedRef from "effect/SynchronizedRef";
-
+import * as F from "effect/Function";
 type ActiveConnection = {
   readonly userId: SharedEntityIds.UserId.Type;
   readonly connectionId: string;
@@ -37,46 +37,46 @@ export class EventStreamHub extends Effect.Service<EventStreamHub>()("EventStrea
             };
 
             const userConnections = MutableHashMap.get(map, userId).pipe(
-              Option.getOrElse(() => Arr.empty<ActiveConnection>()),
+              O.getOrElse(A.empty<ActiveConnection>),
             );
 
-            return MutableHashMap.set(map, userId, Arr.append(userConnections, activeConnection));
+            return MutableHashMap.set(map, userId, A.append(userConnections, activeConnection));
           }),
-          Effect.tap(() => Effect.logDebug("Registered connection")),
+          Effect.tap(F.constant(Effect.logDebug("Registered connection"))),
         ),
       );
 
     const unregisterConnection = (userId: SharedEntityIds.UserId.Type, connectionId: string): Effect.Effect<void> =>
       SynchronizedRef.updateEffect(connections, (map) => {
         const userConnectionsOpt = MutableHashMap.get(map, userId);
-        if (Option.isNone(userConnectionsOpt)) {
+        if (O.isNone(userConnectionsOpt)) {
           return Effect.succeed(map);
         }
 
         const userConnections = userConnectionsOpt.value;
 
-        const connectionToRemoveOpt = Arr.findFirst(
+        const connectionToRemoveOpt = A.findFirst(
           userConnections,
           (conn) => conn.connectionId === connectionId,
         );
 
-        const updatedConnections = Arr.filter(
+        const updatedConnections = A.filter(
           userConnections,
           (conn) => conn.connectionId !== connectionId,
         );
 
-        if (Arr.isEmptyArray(updatedConnections)) {
+        if (A.isEmptyArray(updatedConnections)) {
           MutableHashMap.remove(map, userId);
         } else {
           MutableHashMap.set(map, userId, updatedConnections);
         }
 
-        return Option.match(connectionToRemoveOpt, {
-          onNone: () => Effect.void,
+        return O.match(connectionToRemoveOpt, {
+          onNone: F.constant(Effect.void),
           onSome: (conn) => Effect.asVoid(conn.mailbox.shutdown),
         }).pipe(
           Effect.as(map),
-          Effect.tap(() => Effect.logDebug("Unregistered connection")),
+          Effect.tap(F.constant(Effect.logDebug("Unregistered connection"))),
         );
       });
 
@@ -85,10 +85,10 @@ export class EventStreamHub extends Effect.Service<EventStreamHub>()("EventStrea
         Clock.currentTimeMillis.pipe(
           Effect.flatMap((now) => {
             const userConnections = MutableHashMap.get(map, userId).pipe(
-              Option.getOrElse(() => Arr.empty<ActiveConnection>()),
+              O.getOrElse(A.empty<ActiveConnection>),
             );
 
-            if (Arr.isEmptyArray(userConnections)) {
+            if (A.isEmptyArray(userConnections)) {
               return Effect.succeed(map);
             }
 
@@ -117,7 +117,8 @@ export class EventStreamHub extends Effect.Service<EventStreamHub>()("EventStrea
     const notifyCurrentUser = (
       event: EventStreamEvents,
     ): Effect.Effect<void, never, Policy.AuthContext> =>
-      Policy.AuthContext.pipe(Effect.flatMap((authCtx) => notifyUser(authCtx.user.id, event)));
+      Policy.AuthContext.pipe(
+        Effect.flatMap((authCtx) => notifyUser(authCtx.user.id, event)));
 
     return {
       registerConnection,

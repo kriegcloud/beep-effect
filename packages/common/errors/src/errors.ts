@@ -199,6 +199,7 @@ export class Unauthorized extends S.TaggedError<Unauthorized>("Unauthorized")(
   "Unauthorized",
   {
     message: S.optional(S.String),
+    cause: S.optional(S.Defect),
   },
   HttpApiSchema.annotations({
     status: 401,

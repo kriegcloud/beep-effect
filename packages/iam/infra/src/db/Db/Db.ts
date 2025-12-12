@@ -1,12 +1,14 @@
-import * as IamDbSchema from "@beep/iam-tables/schema";
+import { Schema } from "@beep/iam-tables/schema-object";
 import { Db } from "@beep/shared-infra/Db";
 import * as Context from "effect/Context";
 import * as Layer from "effect/Layer";
 
-const serviceEffect = Db.make({
-  schema: IamDbSchema,
+const serviceEffect: Db.PgClientService<Schema.Type> = Db.make({
+  schema: Schema,
 });
 
-export class IamDb extends Context.Tag("@beep/documents-infra/IamDb")<IamDb, Db.DatabaseService<typeof IamDbSchema>>() {
+export type Shape = Db.DatabaseService<Schema.Type>;
+
+export class IamDb extends Context.Tag("@beep/documents-infra/IamDb")<IamDb, Shape>() {
   static readonly Live: Layer.Layer<IamDb, never, Db.SliceDbRequirements> = Layer.scoped(this, serviceEffect);
 }

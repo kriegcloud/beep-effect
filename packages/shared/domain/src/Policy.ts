@@ -72,9 +72,9 @@ export type Permission = typeof Permission.Type;
 export class AuthContext extends Context.Tag("AuthContext")<
   AuthContext,
   {
-    readonly user: typeof User.Model.select.Type;
-    readonly session: typeof Session.Model.select.Type;
-    readonly organization: typeof Organization.Model.select.Type;
+    readonly user: typeof User.Model.Type;
+    readonly session: typeof Session.Model.Type;
+    readonly organization: typeof Organization.Model.Type;
   }
 >() {}
 

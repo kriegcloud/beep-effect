@@ -36,7 +36,7 @@ export const client = createAuthClient({
     anonymousClient(),
     // jwtClient(),
     apiKeyClient(),
-    customSessionClient(),
+    customSessionClient<Auth>(),
     genericOAuthClient(),
     multiSessionClient(),
     oidcClient(),

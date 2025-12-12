@@ -1,1 +1,0 @@
-export { AllPlugins } from "./plugins";
