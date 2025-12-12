@@ -49,6 +49,7 @@ import {
 import { passkey } from "@better-auth/passkey";
 import { sso } from "@better-auth/sso";
 import { stripe } from "@better-auth/stripe";
+import { nextCookies } from "better-auth/next-js";
 import { apiKey, bearer, captcha, lastLoginMethod, oneTap, openAPI } from "better-auth/plugins";
 import { jwt } from "better-auth/plugins/jwt";
 import { multiSession } from "better-auth/plugins/multi-session";
@@ -64,7 +65,6 @@ import { localization } from "better-auth-localization";
 import { Dub } from "dub";
 import * as Data from "effect/Data";
 import { Stripe } from "stripe";
-
 export class LocalizationError extends Data.TaggedError("NextCookiesError")<{
   readonly type: "failed_to_detect_language" | "unknown";
   readonly message: string;
@@ -522,7 +522,6 @@ export const makeOptions = ({
       },
     },
     plugins: [
-      admin(),
       username(),
       twoFactor(),
       stripe({
@@ -996,6 +995,7 @@ export const makeOptions = ({
       apiKey(),
       anonymous(),
       admin(),
+      nextCookies(),
     ],
   } satisfies BetterAuthOptions;
 };

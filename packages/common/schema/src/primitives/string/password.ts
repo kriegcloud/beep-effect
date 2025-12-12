@@ -30,7 +30,7 @@ const { $PasswordId: Id } = $StringId.compose("password");
  * @category Primitives/String
  * @since 0.1.0
  */
-export class EncodedPassword extends S.NonEmptyString.pipe(
+export class EncodedPassword extends S.String.pipe(
   S.minLength(8, {
     message: () => "Password must be at least 8 characters long!",
   }),
@@ -79,7 +79,7 @@ export class PasswordBase extends EncodedPassword.pipe(S.brand("Password")) {}
  * @category Primitives/String
  * @since 0.1.0
  */
-export class Password extends S.Redacted(PasswordBase).annotations(
+export class Password extends S.Redacted(PasswordBase.pipe(S.minLength(8))).annotations(
   Id.annotations("password/Password", {
     description: "Redacted Password Schema",
   })

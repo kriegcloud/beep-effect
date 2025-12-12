@@ -1,5 +1,16 @@
+import * as Effect from "effect/Effect";
+import * as Match from "effect/Match";
+import * as ParseResult from "effect/ParseResult";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Struct from "effect/Struct";
 
+type AuthErrorContext = {
+  readonly operation: string;
+  readonly payload?: unknown;
+} & Record<string, unknown>;
+
+const getMessage = Struct.get("message");
 /**
  * Authentication error with optional context.
  *
@@ -19,5 +30,50 @@ import * as S from "effect/Schema";
  */
 export class AuthError extends S.TaggedError<AuthError>()("AuthError", {
   message: S.String,
+  cause: S.optional(S.Defect),
   context: S.optional(S.Record({ key: S.String, value: S.Unknown })),
-}) {}
+}) {
+  static readonly $matchUnknownMessage = (e: unknown) =>
+    Match.value(e).pipe(
+      Match.when(
+        (i: unknown): i is Error => i instanceof Error,
+        (i) => i.message
+      ),
+      Match.when((i: unknown): i is ParseResult.ParseError => i instanceof ParseResult.ParseError, getMessage),
+      Match.when(P.compose(P.or(P.isObject, P.isRecord), P.hasProperty("message")), getMessage),
+      Match.orElse((i) => `Unknown error: ${String(i)}`)
+    );
+
+  static readonly selfOrMap =
+    ({ operation, payload, ...rest }: AuthErrorContext) =>
+    (error: unknown) =>
+      S.is(AuthError)(error)
+        ? error
+        : new AuthError({
+            message: this.$matchUnknownMessage(error),
+            cause: error,
+            context: {
+              operation,
+              payload,
+              ...rest,
+            },
+          });
+
+  static readonly mapError = (ctx: AuthErrorContext) => Effect.mapError(this.selfOrMap(ctx));
+
+  static readonly flowMap =
+    (operation: string) =>
+    <I, A, E, R>(effect: Effect.Effect<A, E, R>, n: I) =>
+      effect.pipe(
+        AuthError.mapError({ operation, payload: n }),
+        Effect.annotateLogs({
+          arguments: n,
+        }),
+        Effect.withSpan(operation, {
+          attributes: {
+            payload: n,
+          },
+        }),
+        Effect.tapError(Effect.logError)
+      );
+}

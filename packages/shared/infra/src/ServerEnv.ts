@@ -1,6 +1,7 @@
 import { AuthProviderNameValue, EnvValue, LogFormat } from "@beep/constants";
 import { DomainName, Email, Url } from "@beep/schema/primitives";
 import { SharedEntityIds } from "@beep/shared-domain";
+import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
@@ -12,9 +13,15 @@ import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-export const ConfigArrayURL = F.flow(<TName extends string>(name: TName) =>
-  Config.array(Config.hashSet(Config.url()), name).pipe(Config.map((urls) => urls.map((url) => url.toString())))
-);
+export const ConfigArrayURL = <TName extends string>(name: TName) =>
+  Config.hashSet(Config.url(), name).pipe(
+    Config.map(
+      F.flow(
+        A.fromIterable,
+        A.map((url) => url.toString())
+      )
+    )
+  );
 
 const PLACEHOLDER_VALUE = "PLACE_HOLDER";
 

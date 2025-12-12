@@ -1,7 +1,6 @@
 import { CorsLive } from "@beep/runtime-server/Cors";
 import { HealthRouter } from "@beep/runtime-server/HealthRouter";
 import { httpLogger, LoggingLive, RpcLogger, RpcLoggerLive } from "@beep/runtime-server/Logging";
-import { AuthContextRpcMiddlewareLive } from "@beep/runtime-server/rpcs/AuthContextHttpMiddlewareLive";
 import { TracingLive } from "@beep/runtime-server/Tracing";
 import { DomainRpc } from "@beep/shared-domain";
 import { EventStreamRpcLive } from "@beep/shared-infra/api/public/event-stream/event-stream-rpc-live";
@@ -14,6 +13,7 @@ import * as RpcSerialization from "@effect/rpc/RpcSerialization";
 import * as RpcServer from "@effect/rpc/RpcServer";
 import * as Layer from "effect/Layer";
 import { DevToolsLive } from "../DevTools.ts";
+import { AuthContextRpcMiddlewareLive } from "./AuthContextMiddlewareLive.ts";
 
 const RpcRouter = RpcServer.layerHttpRouter({
   group: DomainRpc.middleware(RpcLogger),

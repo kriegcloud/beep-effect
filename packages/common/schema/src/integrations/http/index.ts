@@ -34,3 +34,17 @@ export * from "./http-method";
  * @since 0.1.0
  */
 export * from "./http-request-details";
+
+/**
+ * HTTP request metadata schema for telemetry surfaces.
+ *
+ * @example
+ * import { HttpStatusCode } from "@beep/schema/integrations/http";
+ *
+ * type HttpStatusCode = HttpStatusCode.Type; // "OK"
+ * type HttpStatusCodeEncoded = HttpStatusCode.Encoded; // 200
+ *
+ * @category Integrations/Http
+ * @since 0.1.0
+ */
+export * from "./http-status-code.ts";

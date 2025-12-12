@@ -1,7 +1,7 @@
 import { CSP_HEADER } from "@beep/constants";
 import { AuthCallback } from "@beep/iam-sdk/constants";
 import { paths } from "@beep/shared-domain";
-import { getCookieCache } from "better-auth/cookies";
+import { getSessionCookie } from "better-auth/cookies";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
 import type { NextRequest } from "next/server";
@@ -65,16 +65,16 @@ export async function proxy(request: NextRequest) {
     return withCsp(response);
   }
 
-  const session = await getCookieCache(request);
+  const sessionCookie = getSessionCookie(request);
 
-  if (session && isAuthRoute) {
+  if (sessionCookie && isAuthRoute) {
     const callbackParams = new URLSearchParams(request.nextUrl.search);
     const target = AuthCallback.getURL(callbackParams);
     const redirectUrl = new URL(target, request.url);
     return withCsp(NextResponse.redirect(redirectUrl));
   }
 
-  if (!session && isPrivateRoute) {
+  if (!sessionCookie && isPrivateRoute) {
     const originalTarget = `${pathname}${request.nextUrl.search}${request.nextUrl.hash}`;
     const sanitized = AuthCallback.sanitizePath(originalTarget);
     const signInUrl = new URL(paths.auth.signIn, request.url);

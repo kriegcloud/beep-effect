@@ -24,7 +24,7 @@
     "dotenvx": "dotenvx run -f ../../.env --",
     "lint:circular": "bunx madge -c .",
     "coverage": "bun test --coverage",
-    "dev": "dotenvx run -f ../../.env -- bun src/server.ts",
+    "dev": "dotenvx run -f ../../.env -- bun --watch src/server.ts",
     "start": "dotenvx -e ../../.env bun build/esm/server.js",
     "start:source": "bun run start",
     "circular": "madge --circular src/server.ts"
@@ -50,6 +50,7 @@
     "@beep/constants": "workspace:^",
     "@beep/errors": "workspace:^",
     "@beep/shared-domain": "workspace:^",
+    "@beep/contract": "workspace:^",
     "@beep/shared-tables": "workspace:^",
     "@beep/iam-domain": "workspace:^",
     "@beep/iam-tables": "workspace:^",

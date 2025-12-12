@@ -20,6 +20,9 @@
       "path": "../../packages/common/schema/tsconfig.build.json"
     },
     {
+      "path": "../../packages/common/contract/tsconfig.build.json"
+    },
+    {
       "path": "../../packages/common/constants/tsconfig.build.json"
     },
     {

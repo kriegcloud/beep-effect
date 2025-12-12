@@ -51,3 +51,8 @@ export const isNonEmptyReadonlyArrayOfGuard =
  * @since 0.1.0
  */
 export const slice = (start: number, end: number) => F.flow(A.drop(start), A.take(end - start));
+
+export const spliceRemove =
+  (start: number, deleteCount: number) =>
+  <A>(arr: ReadonlyArray<A>): Array<A> =>
+    F.pipe(arr, A.take(start), A.appendAll(F.pipe(arr, A.drop(start + deleteCount))));

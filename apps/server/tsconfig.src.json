@@ -22,6 +22,9 @@
       "path": "../../packages/common/constants"
     },
     {
+      "path": "../../packages/common/contract"
+    },
+    {
       "path": "../../packages/common/errors"
     },
     {

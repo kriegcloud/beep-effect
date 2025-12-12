@@ -14,6 +14,10 @@
  *   ["archived", "ARCHIVED"]
  * );
  *
+ * // Direct enum-like access to mapped values
+ * // StatusMapping.DecodedEnum.pending => "PENDING" (encoded key → decoded value)
+ * // StatusMapping.EncodedEnum.PENDING => "pending" (decoded key → encoded value)
+ *
  * // StatusMapping.From.Options => ["pending", "active", "archived"]
  * // StatusMapping.To.Options => ["PENDING", "ACTIVE", "ARCHIVED"]
  * // StatusMapping.From.Enum => { pending: "pending", active: "active", archived: "archived" }
@@ -23,18 +27,21 @@
  * // Encoding: "PENDING" -> "pending"
  *
  * @example
- * // Number to string mapping
- * const HttpStatusMapping = MappedLiteralKit(
- *   [200, "OK"],
- *   [201, "Created"],
- *   [404, "Not Found"],
- *   [500, "Internal Server Error"]
+ * // String to number mapping (HTTP status codes)
+ * const HttpStatusCode = MappedLiteralKit(
+ *   ["OK", 200],
+ *   ["CREATED", 201],
+ *   ["NOT_FOUND", 404],
+ *   ["INTERNAL_SERVER_ERROR", 500]
  * );
  *
- * // HttpStatusMapping.From.Options => [200, 201, 404, 500]
- * // HttpStatusMapping.To.Options => ["OK", "Created", "Not Found", "Internal Server Error"]
- * // HttpStatusMapping.From.Enum.n200 => 200
- * // HttpStatusMapping.To.Enum.OK => "OK"
+ * // DecodedEnum: string keys → number values
+ * const statusCode: 200 = HttpStatusCode.DecodedEnum.OK;
+ * const notFound: 404 = HttpStatusCode.DecodedEnum.NOT_FOUND;
+ *
+ * // EncodedEnum: n-prefixed number keys → string values
+ * const statusName: "OK" = HttpStatusCode.EncodedEnum.n200;
+ * const errorName: "NOT_FOUND" = HttpStatusCode.EncodedEnum.n404;
  *
  * @category Derived/Kits
  * @since 0.1.0
@@ -42,8 +49,10 @@
 
 import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
+import * as Equal from "effect/Equal";
 import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
 import { mergeSchemaAnnotations } from "../../core/annotations/built-in-annotations";
@@ -87,6 +96,66 @@ type ExtractToLiterals<Pairs extends MappedPairs> = {
 type ExtractedLiteralsArray<Pairs extends MappedPairs, Side extends "from" | "to"> = Side extends "from"
   ? ExtractFromLiterals<Pairs> & A.NonEmptyReadonlyArray<AST.LiteralValue>
   : ExtractToLiterals<Pairs> & A.NonEmptyReadonlyArray<AST.LiteralValue>;
+
+/**
+ * Convert a literal value to a valid object key (string representation).
+ * Used for creating the Enum objects with dot-notation access.
+ *
+ * Key format by type:
+ * - null → "null"
+ * - boolean → "true" | "false"
+ * - bigint → `${value}n` (e.g., 1n → "1n")
+ * - number → `n${value}` (e.g., 200 → "n200") - prefixed for dot notation access
+ * - string → as-is (e.g., "pending" → "pending")
+ *
+ * @since 0.1.0
+ * @category Derived/Kits
+ */
+type LiteralToKey<L extends AST.LiteralValue> = L extends null
+  ? "null"
+  : L extends boolean
+    ? L extends true
+      ? "true"
+      : "false"
+    : L extends bigint
+      ? `${L}n`
+      : L extends number
+        ? `n${L}`
+        : L & string;
+
+/**
+ * Decoded enum: Maps from "from" literal keys to "to" literal values.
+ *
+ * For each pair [F, T], creates an entry `{ [LiteralToKey<F>]: T }`
+ * enabling dot-notation access to decoded values via the encoded key.
+ *
+ * @example
+ * // Given pairs: ["OK", 200], ["CREATED", 201]
+ * // DecodedEnum type: { OK: 200, CREATED: 201 }
+ *
+ * @since 0.1.0
+ * @category Derived/Kits
+ */
+type DecodedEnum<Pairs extends MappedPairs> = {
+  readonly [P in Pairs[number] as LiteralToKey<P[0]>]: P[1];
+};
+
+/**
+ * Encoded enum: Maps from "to" literal keys to "from" literal values.
+ *
+ * For each pair [F, T], creates an entry `{ [LiteralToKey<T>]: F }`
+ * enabling reverse lookup from decoded values to encoded keys.
+ *
+ * @example
+ * // Given pairs: ["OK", 200], ["CREATED", 201]
+ * // EncodedEnum type: { n200: "OK", n201: "CREATED" }
+ *
+ * @since 0.1.0
+ * @category Derived/Kits
+ */
+type EncodedEnum<Pairs extends MappedPairs> = {
+  readonly [P in Pairs[number] as LiteralToKey<P[1]>]: P[0];
+};
 
 // ============================================================================
 // Interface
@@ -146,7 +215,77 @@ export interface IMappedLiteralKit<Pairs extends MappedPairs>
    * Provides immutable, efficient lookups with Effect's structural equality.
    */
   readonly Map: HashMap.HashMap<Pairs[number][0], Pairs[number][1]>;
+
+  /**
+   * Enum mapping from "from" literal keys to "to" literal values.
+   *
+   * Enables direct access to decoded values using the encoded literal as a key.
+   * Keys are transformed via `LiteralToKey` for dot-notation compatibility.
+   *
+   * @example
+   * const HttpStatus = MappedLiteralKit(["OK", 200], ["NOT_FOUND", 404]);
+   * HttpStatus.DecodedEnum.OK          // 200
+   * HttpStatus.DecodedEnum.NOT_FOUND   // 404
+   *
+   * @since 0.1.0
+   */
+  readonly DecodedEnum: DecodedEnum<Pairs>;
+
+  /**
+   * Enum mapping from "to" literal keys to "from" literal values.
+   *
+   * Enables reverse lookup from decoded values to their encoded counterparts.
+   * Keys are transformed via `LiteralToKey` for dot-notation compatibility.
+   *
+   * @example
+   * const HttpStatus = MappedLiteralKit(["OK", 200], ["NOT_FOUND", 404]);
+   * HttpStatus.EncodedEnum.n200   // "OK"
+   * HttpStatus.EncodedEnum.n404   // "NOT_FOUND"
+   *
+   * @since 0.1.0
+   */
+  readonly EncodedEnum: EncodedEnum<Pairs>;
 }
+
+// ============================================================================
+// Utility Functions
+// ============================================================================
+
+/**
+ * Convert a literal value to a string key for use in objects.
+ * Mirrors the type-level LiteralToKey transformation at runtime.
+ */
+function literalToKey<const L extends AST.LiteralValue>(literal: L) {
+  if (literal === null) return "null";
+  if (Equal.equals(typeof literal)("boolean")) return literal ? ("true" as const) : ("false" as const);
+  if (Equal.equals(typeof literal)("bigint")) return `${literal}n` as const;
+  if (Equal.equals(typeof literal)("number")) return `n${literal}` as const;
+  return String(literal);
+}
+
+/**
+ * Build the DecodedEnum: { [fromKey]: toValue }
+ * Maps from encoded literal keys to decoded literal values.
+ */
+const buildDecodedEnum = <Pairs extends MappedPairs>(pairs: Pairs): DecodedEnum<Pairs> => {
+  const entries = F.pipe(
+    pairs,
+    A.map(([from, to]) => [literalToKey(from), to] as const)
+  );
+  return R.fromEntries(entries) as unknown as DecodedEnum<Pairs>;
+};
+
+/**
+ * Build the EncodedEnum: { [toKey]: fromValue }
+ * Maps from decoded literal keys to encoded literal values.
+ */
+const buildEncodedEnum = <Pairs extends MappedPairs>(pairs: Pairs): EncodedEnum<Pairs> => {
+  const entries = F.pipe(
+    pairs,
+    A.map(([from, to]) => [literalToKey(to), from] as const)
+  );
+  return R.fromEntries(entries) as unknown as EncodedEnum<Pairs>;
+};
 
 // ============================================================================
 // Factory Implementation
@@ -195,6 +334,10 @@ export function makeMappedLiteralKit<const Pairs extends MappedPairs>(
   const FromKit: FromLiteralKit<Pairs> = makeGenericLiteralKit(fromLiterals) as unknown as FromLiteralKit<Pairs>;
   const ToKit: ToLiteralKit<Pairs> = makeGenericLiteralKit(toLiterals) as unknown as ToLiteralKit<Pairs>;
 
+  // Build enum objects for direct access
+  const DecodedEnumObj = buildDecodedEnum(pairs);
+  const EncodedEnumObj = buildEncodedEnum(pairs);
+
   return class MappedLiteralKitClass extends S.make<Pairs[number][1], Pairs[number][0]>(schemaAST) {
     static override annotations(annotations: S.Annotations.Schema<Pairs[number][1]>): IMappedLiteralKit<Pairs> {
       return makeMappedLiteralKit(pairs, mergeSchemaAnnotations(this.ast, annotations));
@@ -206,6 +349,8 @@ export function makeMappedLiteralKit<const Pairs extends MappedPairs>(
     static decodeMap = decodeMap;
     static encodeMap = encodeMap;
     static Map = hashMap;
+    static DecodedEnum = DecodedEnumObj;
+    static EncodedEnum = EncodedEnumObj;
   } as UnsafeTypes.UnsafeAny;
 }
 
@@ -228,6 +373,12 @@ export function makeMappedLiteralKit<const Pairs extends MappedPairs>(
  *   ["active", "ACTIVE"],
  *   ["archived", "ARCHIVED"]
  * );
+ *
+ * // Direct enum-like access to mapped values
+ * StatusMapping.DecodedEnum.pending    // => "PENDING" (encoded key → decoded value)
+ * StatusMapping.DecodedEnum.active     // => "ACTIVE"
+ * StatusMapping.EncodedEnum.PENDING    // => "pending" (decoded key → encoded value)
+ * StatusMapping.EncodedEnum.ACTIVE     // => "active"
  *
  * // Access the From kit (source/encoded literals)
  * StatusMapping.From.Options  // => ["pending", "active", "archived"]
@@ -252,12 +403,21 @@ export function makeMappedLiteralKit<const Pairs extends MappedPairs>(
  * HashMap.get(StatusMapping.Map, "pending")  // => Option.some("PENDING")
  *
  * @example
- * // Numeric to string mapping (API codes to human-readable)
- * const ErrorCodeMapping = MappedLiteralKit(
- *   ["E001", "Invalid Input"],
- *   ["E002", "Not Found"],
- *   ["E003", "Unauthorized"]
+ * // HTTP status code mapping (string to number)
+ * const HttpStatus = MappedLiteralKit(
+ *   ["OK", 200],
+ *   ["CREATED", 201],
+ *   ["NOT_FOUND", 404],
+ *   ["INTERNAL_SERVER_ERROR", 500]
  * );
+ *
+ * // DecodedEnum: string keys → number values
+ * HttpStatus.DecodedEnum.OK           // => 200
+ * HttpStatus.DecodedEnum.NOT_FOUND    // => 404
+ *
+ * // EncodedEnum: n-prefixed number keys → string values
+ * HttpStatus.EncodedEnum.n200         // => "OK"
+ * HttpStatus.EncodedEnum.n404         // => "NOT_FOUND"
  *
  * @category Derived/Kits
  * @since 0.1.0

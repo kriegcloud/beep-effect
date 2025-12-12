@@ -10,30 +10,65 @@ import * as S from "effect/Schema";
  * - updatedAt: Auto-set on both insert and update operations
  * - deletedAt: Optional field for soft delete functionality defaults to null is Option on select variants
  */
-export const auditColumns = {
-  createdAt: M.Generated(BS.DateTimeUtcFromAllAcceptable),
-  updatedAt: M.Generated(BS.DateTimeUtcFromAllAcceptable),
-  deletedAt: BS.FieldOptionOmittable(BS.DateTimeUtcFromAllAcceptable),
-} as const;
+export const auditColumns = <const TableName extends string, const Brand extends string>(
+  entityId: EntityId.EntityIdSchemaInstance<TableName, Brand>
+) =>
+  ({
+    createdAt: M.Generated(
+      BS.DateTimeUtcFromAllAcceptable.annotations({ description: `When the ${entityId.tableName} was created.` })
+    ),
+    updatedAt: M.Generated(
+      BS.DateTimeUtcFromAllAcceptable.annotations({ description: `When the ${entityId.tableName} was last updated.` })
+    ),
+    deletedAt: BS.FieldOptionOmittable(
+      BS.DateTimeUtcFromAllAcceptable.annotations({ description: `When the ${entityId.tableName} was soft deleted.` })
+    ),
+  }) as const;
 export type AuditColumns = typeof auditColumns;
 
-export const userTrackingColumns = {
-  createdBy: BS.FieldOmittableWithDefault(S.NullOr(S.String))(() => "app"),
-  updatedBy: BS.FieldOmittableWithDefault(S.NullOr(S.String))(() => "app"),
-  deletedBy: BS.FieldOptionOmittable(S.String),
-} as const;
+export const userTrackingColumns = <const TableName extends string, const Brand extends string>(
+  entityId: EntityId.EntityIdSchemaInstance<TableName, Brand>
+) =>
+  ({
+    createdBy: BS.FieldOmittableWithDefault(
+      S.NullOr(S.String).annotations({
+        description: `The Actor which created the ${entityId.tableName}.`,
+      })
+    )(() => "app"),
+    updatedBy: BS.FieldOmittableWithDefault(
+      S.NullOr(S.String).annotations({
+        description: `The Actor who last updated the ${entityId.tableName}`,
+      })
+    )(() => "app"),
+    deletedBy: BS.FieldOptionOmittable(
+      S.String.annotations({
+        description: `The Actor who soft deleted the ${entityId.tableName}`,
+      })
+    ),
+  }) as const;
 export type UserTrackingColumns = typeof userTrackingColumns;
 
 export type Fields = Field.Fields;
 
-export const globalColumns = {
-  ...userTrackingColumns,
-  ...auditColumns,
-  // Optimistic locking
-  version: M.Generated(S.Int.pipe(S.greaterThanOrEqualTo(1))),
-  // Optional: Enhanced traceability
-  source: BS.FieldOptionOmittable(S.String),
-} as const;
+export const globalColumns = <const TableName extends string, const Brand extends string>(
+  entityId: EntityId.EntityIdSchemaInstance<TableName, Brand>
+) =>
+  ({
+    ...userTrackingColumns(entityId),
+    ...auditColumns(entityId),
+    // Optimistic locking
+    version: M.Generated(
+      S.Int.pipe(S.greaterThanOrEqualTo(1)).annotations({
+        description: `The version of the ${entityId.tableName}`,
+      })
+    ),
+    // Optional: Enhanced traceability
+    source: BS.FieldOptionOmittable(
+      S.String.annotations({
+        description: `The source of the ${entityId.tableName}`,
+      })
+    ),
+  }) as const;
 export type GlobalColumns = typeof globalColumns;
 
 export const makeFields = <const TableName extends string, const Brand extends string, const A extends Fields>(
@@ -41,12 +76,18 @@ export const makeFields = <const TableName extends string, const Brand extends s
   a: A
 ) => {
   const idFields = {
-    id: S.optionalWith(entityId, { default: () => entityId.create() }),
-    _rowId: M.Generated(entityId.modelRowIdSchema),
+    id: S.optionalWith(entityId, { default: () => entityId.create() }).annotations({
+      description: `The public unique identifier for the ${entityId.tableName}`,
+    }),
+    _rowId: M.Generated(
+      entityId.modelRowIdSchema.annotations({
+        description: `The internal primary key for the ${entityId.tableName}`,
+      })
+    ),
   } as const;
   const defaultFields = {
     ...idFields,
-    ...globalColumns,
+    ...globalColumns(entityId),
   } as const;
   return {
     ...defaultFields,

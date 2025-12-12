@@ -22,16 +22,18 @@ export class Model extends M.Class<Model>($I`UserModel`)(
 
     /** User's email address (unique) */
     email: BS.Email.annotations({
-      description: "The user's email address",
+      description: "The email address of the user",
     }),
 
     /** Whether the user's email has been verified */
-    emailVerified: BS.BoolWithDefault(false),
+    emailVerified: BS.BoolWithDefault(false).annotations({
+      description: "Whether the users email address has been verified.",
+    }),
 
     /** User's profile image URL */
     image: BS.FieldOptionOmittable(
       S.String.pipe(S.pattern(/^https?:\/\/.+/)).annotations({
-        description: "URL to the user's profile image",
+        description: "The profile image URL of the user",
       })
     ),
 

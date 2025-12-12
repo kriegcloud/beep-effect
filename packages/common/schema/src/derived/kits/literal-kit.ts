@@ -21,7 +21,6 @@
  * @category Derived/Kits
  * @since 0.1.0
  */
-
 import * as A from "effect/Array";
 import * as Equal from "effect/Equal";
 import * as F from "effect/Function";
@@ -190,7 +189,6 @@ function literalToKey<const L extends AST.LiteralValue>(literal: L) {
   if (Equal.equals(typeof literal)("number")) return `n${literal}` as const;
   return String(literal);
 }
-
 /**
  * Build a map of type guards for each literal value.
  */
