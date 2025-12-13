@@ -14,6 +14,9 @@ import { SignInRoutes } from "./auth/routes/v1/iam/sign-in.ts";
 import { SignUpRoutes } from "./auth/routes/v1/iam/sign-up.ts";
 import { DomainApi } from "./DomainApi.ts";
 
+// import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
+// import * as HttpLayerRouter from "@effect/platform/HttpLayerRouter";
+
 // Merge all group handler implementations
 const ApiHandlersLayer = Layer.mergeAll(SignInRoutes, SignUpRoutes);
 

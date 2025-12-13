@@ -1,3 +1,8 @@
+/**
+ * Event stream hub for managing real-time user connections and event broadcasting.
+ *
+ * @since 0.1.0
+ */
 import { Policy } from "@beep/shared-domain";
 import { SharedEntityIds } from "@beep/shared-domain";
 import type { EventStreamEvents } from "@beep/shared-domain/api/event-stream-rpc";
@@ -16,6 +21,29 @@ type ActiveConnection = {
   lastActivityTimestamp: number;
 };
 
+/**
+ * Service for managing real-time event stream connections and broadcasting.
+ *
+ * Maintains active user connections, handles connection lifecycle, and broadcasts
+ * events to connected users through mailbox-based message queues.
+ *
+ * @example
+ * ```typescript
+ * import { EventStreamHub } from "@beep/shared-infra/api/public/event-stream/event-stream-hub"
+ * import { SharedEntityIds } from "@beep/shared-domain"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const hub = yield* EventStreamHub
+ *
+ *   // Notify user of an event
+ *   yield* hub.notifyUser(userId, { _tag: "FileUploaded", fileId })
+ * })
+ * ```
+ *
+ * @category services
+ * @since 0.1.0
+ */
 export class EventStreamHub extends Effect.Service<EventStreamHub>()("EventStreamHub", {
   scoped: Effect.gen(function* () {
     const connections = yield* SynchronizedRef.make(

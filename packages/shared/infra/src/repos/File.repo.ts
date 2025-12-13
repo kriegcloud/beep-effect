@@ -1,3 +1,8 @@
+/**
+ * File repository service for managing file entities with database operations.
+ *
+ * @since 0.1.0
+ */
 import { $SharedInfraId } from "@beep/identity/packages";
 import { SharedEntityIds } from "@beep/shared-domain";
 import { File, Folder } from "@beep/shared-domain/entities";
@@ -15,6 +20,41 @@ import { dependencies } from "./_common";
 
 const $I = $SharedInfraId.create("repos/File");
 
+/**
+ * Repository service for managing File entities with database operations.
+ *
+ * Provides CRUD operations plus specialized methods for file organization:
+ * listing files with pagination, moving files between folders, bulk deletion,
+ * and key-based file retrieval.
+ *
+ * @example
+ * ```typescript
+ * import { FileRepo } from "@beep/shared-infra"
+ * import { SharedEntityIds } from "@beep/shared-domain"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const fileRepo = yield* FileRepo
+ *
+ *   // List files with pagination
+ *   const result = yield* fileRepo.listPaginated({
+ *     userId: SharedEntityIds.UserId.make(),
+ *     offset: 0,
+ *     limit: 20
+ *   })
+ *
+ *   // Move files to a folder
+ *   yield* fileRepo.moveFiles({
+ *     fileIds: [SharedEntityIds.FileId.make()],
+ *     folderId: SharedEntityIds.FolderId.make(),
+ *     userId: SharedEntityIds.UserId.make()
+ *   })
+ * })
+ * ```
+ *
+ * @category services
+ * @since 0.1.0
+ */
 export class FileRepo extends Effect.Service<FileRepo>()($I`FileRepo`, {
   dependencies,
   accessors: true,

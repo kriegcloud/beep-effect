@@ -1,3 +1,8 @@
+/**
+ * Live implementation of EventStreamRpc for real-time event streaming.
+ *
+ * @since 0.1.0
+ */
 import { Policy } from "@beep/shared-domain";
 import { EventStreamEvents, EventStreamRpc, Ka } from "@beep/shared-domain/api/event-stream-rpc";
 import * as Chunk from "effect/Chunk";
@@ -8,6 +13,23 @@ import * as Mailbox from "effect/Mailbox";
 import * as Stream from "effect/Stream";
 import { EventStreamHub } from "./event-stream-hub";
 
+/**
+ * Live layer providing EventStreamRpc service for real-time event streaming.
+ *
+ * Implements server-sent event streaming with keep-alive support and batched event delivery.
+ * Automatically manages connection lifecycle and event broadcasting to authenticated users.
+ *
+ * @example
+ * ```typescript
+ * import { EventStreamRpcLive } from "@beep/shared-infra/api/public/event-stream/event-stream-rpc-live"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = myRpcHandler.pipe(Effect.provide(EventStreamRpcLive))
+ * ```
+ *
+ * @category layers
+ * @since 0.1.0
+ */
 export const EventStreamRpcLive = EventStreamRpc.toLayer(
   Effect.gen(function* () {
     const eventStreamHub = yield* EventStreamHub;

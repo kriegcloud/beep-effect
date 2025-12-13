@@ -7,9 +7,6 @@ const serviceEffect = Db.make({
   schema: DbSchema,
 });
 
-export class AdminDb extends Context.Tag("@beep/documents-infra/AdminDb")<
-  AdminDb,
-  Db.DatabaseService<typeof DbSchema>
->() {
+export class AdminDb extends Context.Tag("@beep/documents-infra/AdminDb")<AdminDb, Db.Shape<typeof DbSchema>>() {
   static readonly Live: _Layer.Layer<AdminDb, never, Db.SliceDbRequirements> = _Layer.scoped(this, serviceEffect);
 }

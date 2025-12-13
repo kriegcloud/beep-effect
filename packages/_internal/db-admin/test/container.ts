@@ -28,6 +28,7 @@ import * as Str from "effect/String";
 import * as PgConnString from "pg-connection-string";
 import postgres from "postgres";
 import { Wait } from "testcontainers";
+
 export type SliceDatabaseClients = DocumentsDb.DocumentsDb | IamDb.IamDb | SharedDb.SharedDb;
 export type SliceDatabaseClientsLive = Layer.Layer<SliceDatabaseClients, never, Db.PgClientServices>;
 export const SliceDatabaseClientsLive: SliceDatabaseClientsLive = Layer.mergeAll(
@@ -259,15 +260,13 @@ const PgClientTest = Layer.unwrapEffect(
 
     // Create ConfigProvider with NESTED structure
     const configProvider = ConfigProvider.fromJson({
-      DB: {
-        PG: {
-          HOST: parsed.host ?? "localhost",
-          PORT: String(parsed.port ?? 5432),
-          USER: parsed.user ?? "postgres",
-          PASSWORD: parsed.password ?? "postgres",
-          DATABASE: parsed.database ?? "postgres",
-          SSL: "false",
-        },
+      DB_PG: {
+        HOST: parsed.host ?? "localhost",
+        PORT: String(parsed.port ?? 5432),
+        USER: parsed.user ?? "postgres",
+        PASSWORD: parsed.password ?? "postgres",
+        DATABASE: parsed.database ?? "postgres",
+        SSL: "false",
       },
     });
 

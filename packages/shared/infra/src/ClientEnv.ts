@@ -1,3 +1,8 @@
+/**
+ * Client-side environment configuration loader and validator.
+ *
+ * @since 0.1.0
+ */
 "use client";
 import { AuthProviderNameValue, EnvValue, LogFormat, LogLevel } from "@beep/constants";
 import { BS } from "@beep/schema";
@@ -35,6 +40,24 @@ declare namespace ClientEnvSchema {
   export type Encoded = S.Schema.Encoded<typeof ClientEnvSchema>;
 }
 
+/**
+ * Loaded client environment configuration from NEXT_PUBLIC_ environment variables.
+ *
+ * Synchronously validates and decodes client-side environment variables at module initialization.
+ * Throws an error with detailed validation messages if any required variables are invalid or missing.
+ *
+ * @example
+ * ```typescript
+ * import { clientEnv } from "@beep/shared-infra"
+ *
+ * console.log(clientEnv.appName)
+ * console.log(clientEnv.appUrl)
+ * console.log(clientEnv.authProviderNames)
+ * ```
+ *
+ * @category utilities
+ * @since 0.1.0
+ */
 export const clientEnv = F.pipe(
   {
     env: process.env.NEXT_PUBLIC_ENV,

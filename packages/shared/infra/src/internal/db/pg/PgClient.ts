@@ -1,29 +1,22 @@
 /**
  * @since 1.0.0
  */
-
-import type { ConnectionOptions } from "node:tls";
-import { $SharedInfraId } from "@beep/identity/packages";
-import { thunk } from "@beep/utils/thunk";
 import * as Reactivity from "@effect/experimental/Reactivity";
 import * as SqlClient from "@effect/sql/SqlClient";
 import type { Connection } from "@effect/sql/SqlConnection";
 import { SqlError } from "@effect/sql/SqlError";
 import type { Custom, Fragment } from "@effect/sql/Statement";
 import * as Statement from "@effect/sql/Statement";
-import type { Logger as DrizzleLogger } from "drizzle-orm";
+import * as PgDrizzle from "@effect/sql-drizzle/Pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as Arr from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Chunk from "effect/Chunk";
-import * as Config from "effect/Config";
 import * as Context from "effect/Context";
-import * as Data from "effect/Data";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
-import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Number from "effect/Number";
 import * as Option from "effect/Option";
@@ -34,16 +27,14 @@ import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
-import * as Str from "effect/String";
-import type * as pg from "pg";
 import * as Pg from "pg";
 import * as PgConnString from "pg-connection-string";
 import Cursor from "pg-cursor";
 import { DatabaseError } from "./errors.ts";
-import { BOX, QueryType, SqlString } from "./formatter.ts";
+import { type ConnectionConfig, ConnectionPool, QueryLogger } from "./services";
+
 import type {
   Client,
-  DatabaseService,
   DbSchema,
   ExecuteFn,
   MakeDbServiceOptions,
@@ -59,7 +50,6 @@ const ATTR_DB_SYSTEM_NAME = "db.system.name";
 const ATTR_DB_NAMESPACE = "db.namespace";
 const ATTR_SERVER_ADDRESS = "server.address";
 const ATTR_SERVER_PORT = "server.port";
-const $I = $SharedInfraId.create("Db");
 /**
  * @category type ids
  * @since 1.0.0
@@ -78,11 +68,11 @@ export type TypeId = "~@beep/shared-infra/Db/sql-pg/PgClient";
  */
 export interface PgClient extends SqlClient.SqlClient {
   readonly [TypeId]: TypeId;
-  readonly config: PgClientConfig;
+  readonly config: ConnectionConfig.PgClientConfig;
   readonly json: (_: unknown) => Fragment;
   readonly listen: (channel: string) => Stream.Stream<string, SqlError>;
   readonly notify: (channel: string, payload: string) => Effect.Effect<void, SqlError>;
-  readonly pool: pg.Pool;
+  readonly pool: Pg.Pool;
 }
 
 /**
@@ -95,205 +85,13 @@ export const PgClient = Context.GenericTag<PgClient>("@effect/sql-pg/PgClient");
  * @category constructors
  * @since 1.0.0
  */
-export interface PgClientConfig {
-  readonly url?: Redacted.Redacted | undefined;
-
-  readonly host?: string | undefined;
-  readonly port?: number | undefined;
-  readonly path?: string | undefined;
-  readonly ssl?: boolean | ConnectionOptions | undefined;
-  readonly database?: string | undefined;
-  readonly username?: string | undefined;
-  readonly password?: Redacted.Redacted | undefined;
-
-  readonly idleTimeout?: Duration.DurationInput | undefined;
-  readonly connectTimeout?: Duration.DurationInput | undefined;
-
-  readonly maxConnections?: number | undefined;
-  readonly minConnections?: number | undefined;
-  readonly connectionTTL?: Duration.DurationInput | undefined;
-
-  readonly applicationName?: string | undefined;
-  readonly spanAttributes?: Record<string, unknown> | undefined;
-
-  readonly transformResultNames?: ((str: string) => string) | undefined;
-  readonly transformQueryNames?: ((str: string) => string) | undefined;
-  readonly transformJson?: boolean | undefined;
-  readonly types?: Pg.CustomTypesConfig | undefined;
-}
-
-const connectionConfig = Config.nested("DB")(
-  Config.all({
-    pg: Config.nested("PG")(
-      Config.all({
-        ssl: Config.boolean("SSL").pipe(Config.withDefault(false)),
-        port: Config.port("PORT").pipe(Config.withDefault(5432)),
-        username: Config.nonEmptyString("USER").pipe(Config.withDefault("postgres")),
-        password: Config.redacted(Config.nonEmptyString("PASSWORD").pipe(Config.withDefault("postgres"))),
-        host: Config.nonEmptyString("HOST").pipe(Config.withDefault("localhost")),
-        database: Config.nonEmptyString("DATABASE").pipe(Config.withDefault("postgres")),
-        transformQueryNames: Config.succeed(Str.camelToSnake),
-        transformResultNames: Config.succeed(Str.snakeToCamel),
-      })
-    ),
-  })
-);
-type ConnectionContextServiceEffect = Effect.Effect<
-  {
-    readonly config: PgClientConfig;
-  },
-  never,
-  never
->;
-const connectionContextServiceEffect: ConnectionContextServiceEffect = Effect.flatMap(connectionConfig, ({ pg }) =>
-  Effect.succeed({ config: pg })
-).pipe(Effect.catchTag("ConfigError", Effect.die));
-
-export class ConnectionContext extends Effect.Service<ConnectionContext>()($I`ConnectionContext`, {
-  accessors: true,
-  dependencies: [],
-  effect: connectionContextServiceEffect,
-}) {
-  static readonly layer: Layer.Layer<ConnectionContext, never, never> = ConnectionContext.Default;
-}
-export class DatabaseConnectionLostError extends Data.TaggedError("DatabaseConnectionLostError")<{
-  cause: unknown;
-  message: string;
-}> {}
-type MakePool = (options: PgClientConfig) => Effect.Effect<
-  {
-    readonly options: PgClientConfig;
-    readonly pool: Pg.Pool;
-    readonly setupConnectionListeners: Effect.Effect<void, DatabaseConnectionLostError, never>;
-  },
-  SqlError | DatabaseConnectionLostError,
-  Scope.Scope
->;
-const makePool: MakePool = (options: PgClientConfig) =>
-  Effect.gen(function* () {
-    const pool = new Pg.Pool({
-      connectionString: options.url ? Redacted.value(options.url) : undefined,
-      user: options.username,
-      host: options.host,
-      database: options.database,
-      password: options.password ? Redacted.value(options.password) : undefined,
-      ssl: options.ssl,
-      port: options.port,
-      connectionTimeoutMillis: options.connectTimeout ? Duration.toMillis(options.connectTimeout) : undefined,
-      idleTimeoutMillis: options.idleTimeout ? Duration.toMillis(options.idleTimeout) : undefined,
-      max: options.maxConnections,
-      min: options.minConnections,
-      maxLifetimeSeconds: options.connectionTTL ? Duration.toSeconds(options.connectionTTL) : undefined,
-      application_name: options.applicationName ?? "@effect/sql-pg",
-      types: options.types,
-    });
-
-    yield* Effect.tryPromise(() => pool.query("SELECT 1")).pipe(
-      Effect.timeoutFail({
-        duration: "10 seconds",
-        onTimeout: () =>
-          new DatabaseConnectionLostError({
-            cause: new Error("[Database] Failed to connect: timeout"),
-            message: "[Database] Failed to connect: timeout",
-          }),
-      }),
-      Effect.catchTag(
-        "UnknownException",
-        (error) =>
-          new DatabaseConnectionLostError({
-            cause: error.cause,
-            message: "[Database] Failed to connect",
-          })
-      ),
-      Effect.tap(() => Effect.logInfo("[Database client]: Connection to the database established."))
-    );
-
-    pool.on("error", (_err) => {});
-
-    yield* Effect.acquireRelease(
-      Effect.tryPromise({
-        try: () => pool.query("SELECT 1"),
-        catch: (cause) => new SqlError({ cause, message: "PgClient: Failed to connect" }),
-      }),
-      () => Effect.promise(() => pool.end()).pipe(Effect.interruptible, Effect.timeoutOption(1000))
-    ).pipe(
-      Effect.timeoutFail({
-        duration: options.connectTimeout ?? Duration.seconds(5),
-        onTimeout: () =>
-          new SqlError({
-            cause: new Error("Connection timed out"),
-            message: "PgClient: Connection timed out",
-          }),
-      })
-    );
-
-    const setupConnectionListeners: Effect.Effect<void, DatabaseConnectionLostError, never> = Effect.zipRight(
-      Effect.async<void, DatabaseConnectionLostError>((resume) => {
-        pool.on("error", (error) => {
-          resume(
-            Effect.fail(
-              new DatabaseConnectionLostError({
-                cause: error,
-                message: error.message,
-              })
-            )
-          );
-        });
-
-        return Effect.sync(() => {
-          pool.removeAllListeners("error");
-        });
-      }),
-      Effect.logInfo("[Database client]: Connection error listeners initialized."),
-      {
-        concurrent: true,
-      }
-    );
-
-    return {
-      setupConnectionListeners,
-      pool,
-      options,
-    };
-  });
-
-type MakePoolServiceEffect = Effect.Effect<
-  {
-    readonly pool: Pg.Pool;
-    readonly options: PgClientConfig;
-  },
-  DatabaseConnectionLostError,
-  Scope.Scope | ConnectionContext
->;
-
-const makePoolServiceEffect: MakePoolServiceEffect = pipe(
-  Effect.Do,
-  Effect.bind("config", thunk(ConnectionContext.pipe(Effect.map(({ config }) => config)))),
-  Effect.flatMap(({ config }) => makePool(config)),
-  Effect.catchTags({
-    SqlError: Effect.die,
-  })
-);
-
-export class PoolService extends Effect.Service<PoolService>()($I`PoolService`, {
-  accessors: true,
-  dependencies: [ConnectionContext.layer],
-  scoped: makePoolServiceEffect,
-}) {
-  static readonly layer: Layer.Layer<PoolService, DatabaseConnectionLostError, ConnectionContext> = PoolService.Default;
-}
-
-/**
- * @category constructors
- * @since 1.0.0
- */
 type MakePgClientEffect = Effect.Effect<
   PgClient,
   SqlError,
-  Scope.Scope | Reactivity.Reactivity | PoolService | ConnectionContext
+  Scope.Scope | Reactivity.Reactivity | ConnectionPool.ConnectionPool
 >;
 export const makePgClient: MakePgClientEffect = Effect.gen(function* () {
-  const { options, pool } = yield* PoolService;
+  const { options, pool } = yield* ConnectionPool.ConnectionPool;
 
   const compiler = makeCompiler(options.transformQueryNames, options.transformJson);
   const transformRows = options.transformResultNames
@@ -501,7 +299,7 @@ export const makePgClient: MakePgClientEffect = Effect.gen(function* () {
         ...config,
         host: config.host ?? parsed.host ?? undefined,
         port: config.port ?? (parsed.port ? Option.getOrUndefined(Number.parse(parsed.port)) : undefined),
-        username: config.username ?? parsed.user ?? undefined,
+        user: config.user ?? parsed.user ?? undefined,
         password: config.password ?? (parsed.password ? Redacted.make(parsed.password) : undefined),
         database: config.database ?? parsed.database ?? undefined,
       };
@@ -518,7 +316,7 @@ export const makePgClient: MakePgClientEffect = Effect.gen(function* () {
       spanAttributes: [
         ...(options.spanAttributes ? Object.entries(options.spanAttributes) : []),
         [ATTR_DB_SYSTEM_NAME, "postgresql"],
-        [ATTR_DB_NAMESPACE, options.database ?? options.username ?? "postgres"],
+        [ATTR_DB_NAMESPACE, options.database ?? options.user ?? "postgres"],
         [ATTR_SERVER_ADDRESS, options.host ?? "localhost"],
         [ATTR_SERVER_PORT, options.port ?? 5432],
       ],
@@ -646,69 +444,6 @@ interface PgJson extends Custom<"PgJson", unknown> {}
  */
 const PgJson = Statement.custom<PgJson>("PgJson");
 
-type LoggerServiceEffect = Effect.Effect<
-  {
-    readonly logQuery: (query: string, params: unknown[]) => void;
-  },
-  never,
-  never
->;
-
-const loggerServiceEffect: LoggerServiceEffect = pipe(
-  Effect.Do,
-  Effect.bind(
-    "logQuery",
-    thunk(
-      Effect.gen(function* () {
-        const logQuery: DrizzleLogger["logQuery"] = (query, params) => {
-          const queryType = QueryType.getQueryType(query);
-          const { badge, color: boxColor } = QueryType.getQueryTypeStyle(queryType);
-
-          // For simple transaction control, keep it minimal
-          if (queryType === "BEGIN" || queryType === "COMMIT" || queryType === "ROLLBACK") {
-            console.log(`${boxColor(BOX.topLeft + BOX.horizontal)} ${badge}`);
-            return;
-          }
-
-          const highlightedSQL = SqlString.highlightSql(query);
-          const hasParams = params.length > 0;
-
-          // Build the log output with proper box drawing
-          const lines: string[] = [];
-
-          // Header with query type badge
-          lines.push(`${boxColor(BOX.topLeft + BOX.horizontal)} ${badge}`);
-
-          // SQL lines with vertical bar
-          const sqlLines = highlightedSQL.split("\n");
-          sqlLines.forEach((line) => {
-            lines.push(`${boxColor(BOX.vertical)} ${line}`);
-          });
-
-          // Params section (if any)
-          if (hasParams) {
-            lines.push(SqlString.formatParamsBlock(params, boxColor));
-          }
-
-          // Footer
-          lines.push(`${boxColor(BOX.bottomLeft + BOX.horizontal)}`);
-
-          console.log(lines.join("\n"));
-        };
-
-        return logQuery;
-      })
-    )
-  )
-);
-
-export class Logger extends Effect.Service<Logger>()($I`Logger`, {
-  dependencies: [],
-  effect: loggerServiceEffect,
-}) {
-  static readonly layer: Layer.Layer<Logger, never, never> = Logger.Default;
-}
-
 export class TransactionContext extends Context.Tag("TransactionContext")<
   TransactionContext,
   TransactionContextShape
@@ -719,22 +454,33 @@ export class TransactionContext extends Context.Tag("TransactionContext")<
     Effect.provideService(this, transaction);
 }
 
-export type PgClientService<TFullSchema extends DbSchema = DbSchema> = Effect.Effect<
-  DatabaseService<TFullSchema>,
+export interface Shape<TFullSchema extends DbSchema = DbSchema> {
+  readonly client: Client<TFullSchema>;
+  readonly execute: ExecuteFn<TFullSchema>;
+  readonly transaction: Transaction;
+  readonly makeQuery: MakeQuery<TFullSchema>;
+  readonly makeQueryWithSchema: MakeQueryWithSchema<TFullSchema>;
+  readonly effectClient: Effect.Effect.Success<ReturnType<typeof PgDrizzle.make<TFullSchema>>>;
+}
+
+export type PgClientServiceEffect<TFullSchema extends DbSchema = DbSchema> = Effect.Effect<
+  Shape<TFullSchema>,
   never,
-  Logger | PoolService | Reactivity.Reactivity | ConnectionContext
+  QueryLogger.QueryLogger | ConnectionPool.ConnectionPool | Reactivity.Reactivity | SqlClient.SqlClient
 >;
 
-export type MakeServiceEffect<TFullSchema extends DbSchema = DbSchema> = PgClientService<TFullSchema>;
+export type MakeServiceEffect = <TFullSchema extends DbSchema = DbSchema>(
+  options: MakeDbServiceOptions<TFullSchema>
+) => PgClientServiceEffect<TFullSchema>;
 
 export const make = <const TFullSchema extends DbSchema = DbSchema>({
   schema,
-}: MakeDbServiceOptions<TFullSchema>): PgClientService<TFullSchema> =>
+}: MakeDbServiceOptions<TFullSchema>): PgClientServiceEffect<TFullSchema> =>
   Effect.gen(function* () {
-    const logger = yield* Logger;
+    const logger = yield* QueryLogger.QueryLogger;
     const pgClient = yield* makePgClient;
 
-    const client = drizzle(pgClient.pool, { logger, casing: "snake_case", schema });
+    const client = drizzle({ client: pgClient.pool, logger, casing: "snake_case", schema });
 
     const execute: ExecuteFn<TFullSchema> = Effect.fn(<T>(fn: (client: Client<TFullSchema>) => Promise<T>) =>
       Effect.tryPromise({
@@ -837,33 +583,33 @@ export const make = <const TFullSchema extends DbSchema = DbSchema>({
           })
         );
     };
-
+    const effectClient: Effect.Effect.Success<ReturnType<typeof PgDrizzle.make<TFullSchema>>> = yield* PgDrizzle.make({
+      schema: schema,
+      casing: "snake_case",
+    });
     return {
       client,
       execute,
       transaction,
       makeQuery,
       makeQueryWithSchema,
+      effectClient,
     };
-  }).pipe(Effect.catchTag("SqlError", Effect.die), Effect.scoped);
+  }).pipe(Effect.scoped, Effect.orDie);
 
-const root: Layer.Layer<PoolService | Reactivity.Reactivity | ConnectionContext | Logger, never, never> =
-  Layer.empty.pipe(
-    Layer.provideMerge(PoolService.layer),
-    Layer.provideMerge(Reactivity.layer),
-    Layer.provideMerge(ConnectionContext.layer),
-    Layer.provideMerge(Logger.layer),
-    Layer.orDie
-  );
-export type SliceDbRequirements = Logger | PoolService | Reactivity.Reactivity | ConnectionContext;
+export type SliceDbRequirements =
+  | QueryLogger.QueryLogger
+  | ConnectionPool.ConnectionPool
+  | Reactivity.Reactivity
+  | SqlClient.SqlClient;
 export type PgClientServices =
   | PgClient
   | SqlClient.SqlClient
-  | PoolService
+  | ConnectionPool.ConnectionPool
   | Reactivity.Reactivity
-  | ConnectionContext
-  | Logger;
+  | QueryLogger.QueryLogger;
 export type PgClientLayer = Layer.Layer<PgClientServices, never, never>;
+
 export const layer: PgClientLayer = Layer.empty.pipe(
   Layer.provideMerge(
     Layer.scopedContext(
@@ -872,12 +618,12 @@ export const layer: PgClientLayer = Layer.empty.pipe(
       )
     )
   ),
-  Layer.provideMerge(root),
+  Layer.provideMerge(Layer.mergeAll(ConnectionPool.layer, Reactivity.layer, QueryLogger.layer)),
   (self) =>
     Layer.retry(
       self,
       Schedule.identity<Layer.Layer.Error<typeof self>>().pipe(
-        Schedule.check((input) => input._tag === "SqlError"),
+        Schedule.check((input) => input._tag === "SqlError" || input._tag === "DatabaseConnectionLostError"),
         Schedule.intersect(Schedule.exponential("1 second")),
         Schedule.intersect(Schedule.recurs(2)),
         Schedule.onDecision(([[_error, duration], attempt], decision) =>

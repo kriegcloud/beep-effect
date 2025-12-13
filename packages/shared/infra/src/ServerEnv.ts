@@ -1,3 +1,8 @@
+/**
+ * Server-side environment configuration schemas and loaders.
+ *
+ * @since 0.1.0
+ */
 import { AuthProviderNameValue, EnvValue, LogFormat } from "@beep/constants";
 import { DomainName, Email, Url } from "@beep/schema/primitives";
 import { SharedEntityIds } from "@beep/shared-domain";
@@ -13,6 +18,21 @@ import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
+/**
+ * Creates a Config for parsing comma-separated URLs from environment variables.
+ *
+ * @example
+ * ```typescript
+ * import { ConfigArrayURL } from "@beep/shared-infra"
+ * import * as Config from "effect/Config"
+ *
+ * const trustedOrigins = ConfigArrayURL("TRUSTED_ORIGINS")
+ * // Parses "https://example.com,https://other.com" into string array
+ * ```
+ *
+ * @category constructors
+ * @since 0.1.0
+ */
 export const ConfigArrayURL = <TName extends string>(name: TName) =>
   Config.hashSet(Config.url(), name).pipe(
     Config.map(
@@ -28,6 +48,21 @@ const PLACEHOLDER_VALUE = "PLACE_HOLDER";
 const withPlaceholderRedacted = <A>(config: Config.Config<A>) =>
   config.pipe(Config.withDefault(Redacted.make(PLACEHOLDER_VALUE)));
 
+/**
+ * Checks if a config value is a placeholder (not yet configured).
+ *
+ * @example
+ * ```typescript
+ * import { isPlaceholder, serverEnv } from "@beep/shared-infra"
+ *
+ * if (isPlaceholder(serverEnv.cloud.aws.accessKeyId)) {
+ *   console.log("AWS credentials not configured")
+ * }
+ * ```
+ *
+ * @category predicates
+ * @since 0.1.0
+ */
 export const isPlaceholder = <A>(configValue: A) =>
   Redacted.isRedacted(configValue)
     ? Redacted.value(configValue) === PLACEHOLDER_VALUE
@@ -101,6 +136,27 @@ const AppConfig = Config.zipWith(
   }
 );
 
+/**
+ * Comprehensive server configuration schema with all environment variables.
+ *
+ * Includes app settings, database, auth, cloud services, email, payments, and observability.
+ *
+ * @example
+ * ```typescript
+ * import { ServerConfig } from "@beep/shared-infra"
+ * import * as Config from "effect/Config"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const config = yield* Config.Config(ServerConfig)
+ *   console.log(config.app.name)
+ *   console.log(config.db.pg.host)
+ * })
+ * ```
+ *
+ * @category schemas
+ * @since 0.1.0
+ */
 export const ServerConfig = Config.all({
   baseUrl: Config.nested("VERCEL")(
     Config.all({
@@ -294,4 +350,19 @@ export const ServerConfig = Config.all({
 const provider = ConfigProvider.fromEnv().pipe(ConfigProvider.constantCase);
 const loadConfig = provider.load(ServerConfig);
 
+/**
+ * Loaded server environment configuration, synchronously initialized from environment variables.
+ *
+ * @example
+ * ```typescript
+ * import { serverEnv } from "@beep/shared-infra"
+ *
+ * console.log(serverEnv.app.name)
+ * console.log(serverEnv.db.pg.host)
+ * console.log(serverEnv.app.logLevel)
+ * ```
+ *
+ * @category utilities
+ * @since 0.1.0
+ */
 export const serverEnv = Effect.runSync(loadConfig);

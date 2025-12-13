@@ -9,7 +9,7 @@ const serviceEffect = Db.make({
 
 export class DocumentsDb extends Context.Tag("@beep/documents-infra/DocumentsDb")<
   DocumentsDb,
-  Db.DatabaseService<typeof DocumentsDbSchema>
+  Db.Shape<typeof DocumentsDbSchema>
 >() {
   static readonly Live: Layer.Layer<DocumentsDb, never, Db.SliceDbRequirements> = Layer.scoped(this, serviceEffect);
 }

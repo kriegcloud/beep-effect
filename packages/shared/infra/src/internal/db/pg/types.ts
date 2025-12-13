@@ -60,11 +60,3 @@ export type MakeQueryWithSchema<TFullSchema extends DbSchema = DbSchema> = <
 >(
   options: MakeQueryWithSchemaOptions<TFullSchema, InputSchema, OutputSchema, A, E>
 ) => (input: S.Schema.Type<InputSchema>) => Effect.Effect<S.Schema.Type<OutputSchema>, E | DatabaseError, never>;
-
-export interface DatabaseService<TFullSchema extends DbSchema = DbSchema> {
-  readonly client: Client<TFullSchema>;
-  readonly execute: ExecuteFn<TFullSchema>;
-  readonly transaction: Transaction;
-  readonly makeQuery: MakeQuery<TFullSchema>;
-  readonly makeQueryWithSchema: MakeQueryWithSchema<TFullSchema>;
-}

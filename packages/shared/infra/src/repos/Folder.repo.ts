@@ -1,3 +1,8 @@
+/**
+ * Folder repository service for managing folder entities with database operations.
+ *
+ * @since 0.1.0
+ */
 import { $SharedInfraId } from "@beep/identity/packages";
 import { SharedEntityIds } from "@beep/shared-domain";
 import { Folder } from "@beep/shared-domain/entities";
@@ -12,6 +17,30 @@ import { dependencies } from "./_common";
 
 const $I = $SharedInfraId.create("repos/Folder");
 
+/**
+ * Repository service for managing Folder entities with database operations.
+ *
+ * Provides CRUD operations plus batch deletion of folders.
+ *
+ * @example
+ * ```typescript
+ * import { FolderRepo } from "@beep/shared-infra"
+ * import { SharedEntityIds } from "@beep/shared-domain"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const folderRepo = yield* FolderRepo
+ *
+ *   // Delete multiple folders
+ *   yield* folderRepo.deleteFolders({
+ *     folderIds: [SharedEntityIds.FolderId.make(), SharedEntityIds.FolderId.make()]
+ *   })
+ * })
+ * ```
+ *
+ * @category services
+ * @since 0.1.0
+ */
 export class FolderRepo extends Effect.Service<FolderRepo>()($I`FolderRepo`, {
   dependencies,
   accessors: true,

@@ -1,3 +1,8 @@
+/**
+ * Live implementation of FilesRpc for file and folder management operations.
+ *
+ * @since 0.1.0
+ */
 import {EntityKind, Policy} from "@beep/shared-domain";
 import {
   FilesRpc,
@@ -23,7 +28,23 @@ import {EnvValue} from "@beep/constants";
 import * as S from "effect/Schema";
 import {SharedEntityIds} from "@beep/shared-domain";
 
-
+/**
+ * Live layer providing FilesRpc service for file and folder management.
+ *
+ * Implements RPC handlers for file uploads, folder creation, batch operations,
+ * and file organization with authorization enforcement.
+ *
+ * @example
+ * ```typescript
+ * import { FilesRpcLive } from "@beep/shared-infra/api/public/files/files-rpc-live"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = myRpcHandler.pipe(Effect.provide(FilesRpcLive))
+ * ```
+ *
+ * @category layers
+ * @since 0.1.0
+ */
 export const FilesRpcLive = FilesRpc.toLayer(Effect.gen(function* () {
   const fileRepo = yield* FileRepo;
   const folderRepo = yield* FolderRepo;

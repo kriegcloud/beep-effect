@@ -1,25 +1,38 @@
 import { $SharedInfraId } from "@beep/identity/packages";
+import * as SqlError from "@effect/sql/SqlError";
+import * as F from "effect/Function";
 import * as Match from "effect/Match";
 import * as S from "effect/Schema";
 import * as pg from "pg";
 import pc from "picocolors";
 import { format } from "sql-formatter";
 import { BOX, QueryType, SqlString } from "./formatter";
+// import { DrizzleQueryError, DrizzleError, TransactionRollbackError } from "drizzle-orm/errors";
 import { PgErrorCodeFromKey } from "./pg-error-enum";
 
-const $I = $SharedInfraId.create("Db/pg/errors");
+const $I = $SharedInfraId.create("internal/pg/errors");
 
 export class RawPgError extends S.declare(
   (error: unknown): error is pg.DatabaseError => error instanceof pg.DatabaseError
+).annotations(
+  $I.annotations("RawPgError", {
+    description: "Raw pg.DatabaseError that occurs when a database operation fails.",
+  })
 ) {
   static readonly is = S.is(RawPgError);
 }
 
-export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError`)("DatabaseError", {
-  type: S.optional(PgErrorCodeFromKey.From),
-  pgError: S.optional(S.NullOr(RawPgError)),
-  cause: S.Defect,
-}) {
+export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError`)(
+  "DatabaseError",
+  {
+    type: S.optional(PgErrorCodeFromKey.From),
+    pgError: S.optional(S.NullOr(RawPgError)),
+    cause: S.Defect,
+  },
+  $I.annotations("DatabaseError", {
+    description: "Error that occurs when a database operation fails.",
+  })
+) {
   /**
    * Extracts the underlying pg.DatabaseError from a potentially wrapped error.
    * Drizzle wraps pg errors in its own Error with the original in the `cause` property.
@@ -29,6 +42,12 @@ export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError
     if (RawPgError.is(error)) {
       return error;
     }
+
+    // SqlError
+    if (error instanceof SqlError.SqlError && error.cause) {
+      return DatabaseError.extractPgError(error.cause);
+    }
+
     // Drizzle wraps errors - check the cause chain
     if (error instanceof Error && error.cause) {
       return DatabaseError.extractPgError(error.cause);
@@ -284,4 +303,20 @@ export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError
 
     return lines.join("\n");
   };
+}
+
+export class DatabaseConnectionLostError extends S.TaggedError<DatabaseConnectionLostError>(
+  $I`DatabaseConnectionLostError`
+)(
+  "DatabaseConnectionLostError",
+  {
+    cause: S.Defect,
+    message: S.String,
+  },
+  $I.annotations("DatabaseConnectionLostError", {
+    description: "Error that occurs when the database connection is lost.",
+  })
+) {
+  static readonly constNew = (params: { cause: unknown; message: string }) =>
+    F.constant(new DatabaseConnectionLostError(params));
 }
