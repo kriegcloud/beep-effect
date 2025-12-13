@@ -17,11 +17,14 @@ Canonical, environment-agnostic schemas and helpers built on top of `effect/Sche
 | `BS.EntityId`         | Factory for nominal `${table}__uuid` branded identifiers with Drizzle column builders         |
 | `BS.StringLiteralKit` | Literal kit builder with `.Options`, `.Enum`, and transformation helpers                      |
 | `BS.DateTimeFromDate` | Postgres-tuned temporal schema for date/time handling                                         |
+| `BS.OptionFromDateTime` | Optional DateTime schema handling null/undefined temporal values                           |
 | `BS.toJsonSchema`     | JSON Schema derivation from Effect schemas                                                    |
 | `BS.toPgEnum`         | Convert literal kits to Postgres enum definitions                                             |
 | `BS.Slug`             | URL-safe slug schema                                                                          |
 | `BS.Password`         | Password validation with strength requirements                                                |
 | `BS.UUID`             | UUID literal schema and validation                                                            |
+| `BS.Duration`         | Duration schemas with tagged representations                                                   |
+| `BS.Csp`              | Content Security Policy parsing and rendering utilities                                        |
 
 ## Architecture Fit
 
@@ -34,13 +37,14 @@ Canonical, environment-agnostic schemas and helpers built on top of `effect/Sche
 
 ```
 src/
-├── primitives/     # String, email, phone, URL, temporal, network, geo, etc.
+├── primitives/     # String, email, phone, URL, temporal, network, geo, duration,
+│                   # array, bool, number, person, regex, currency, locales
 ├── identity/       # EntityId factory for branded ${table}__uuid identifiers
-├── derived/        # Kits (StringLiteralKit, nullables, transformations)
+├── derived/        # Kits (StringLiteralKit, nullables, transformations, tuple/struct helpers)
 ├── builders/       # JSON Schema and form field builders
-├── integrations/   # HTTP headers, SQL helpers, CSP config, file types
-├── core/          # Annotations, extended schemas, generics, variance
-└── schema.ts      # Main barrel re-exporting all modules
+├── integrations/   # HTTP headers/methods, SQL helpers, CSP config, file types/MIME
+├── core/           # Annotations, extended schemas, generics, variance, brands
+└── schema.ts       # Main barrel re-exporting all modules
 ```
 
 ## Usage
@@ -180,6 +184,69 @@ const event = F.pipe(
 );
 ```
 
+### Additional Primitives
+
+The package provides many other primitive schemas for common use cases:
+
+```typescript
+import { BS } from "@beep/schema";
+import * as S from "effect/Schema";
+import * as F from "effect/Function";
+import * as Duration from "effect/Duration";
+
+// Duration schemas with tagged representations
+const Task = S.Struct({
+  name: S.NonEmptyString,
+  durationSeconds: BS.DurationFromSeconds,
+  timeout: S.OptionFromNullOr(BS.DurationFromSeconds)
+});
+
+const task = F.pipe(
+  { name: "Process data", durationSeconds: 300, timeout: null },
+  S.decodeUnknownSync(Task)
+);
+// task.durationSeconds is Duration.Duration (5 minutes)
+
+// Geographic primitives (country codes, postal codes, localities)
+const Address = S.Struct({
+  streetLine: BS.StreetLine,
+  locality: BS.Locality,
+  postalCode: BS.PostalCode,
+  countryCode: BS.CountryCodeValue
+});
+
+// Array transformations
+const CommaDelimitedNumbers = BS.arrayToCommaSeparatedString(S.Number);
+const numbers = F.pipe("1,2,3,4", S.decodeUnknownSync(CommaDelimitedNumbers));
+// Result: [1, 2, 3, 4]
+```
+
+### Integration Helpers
+
+Use integration schemas for HTTP, SQL, and configuration:
+
+```typescript
+import { BS } from "@beep/schema";
+import * as S from "effect/Schema";
+import * as F from "effect/Function";
+
+// Content Security Policy
+const cspString = "default-src 'self'; script-src 'unsafe-inline';";
+const csp = BS.Csp.fromString(cspString);
+const header = F.pipe(csp, BS.Csp.toHeader);
+
+// HTTP method validation
+const RequestMetadata = S.Struct({
+  method: BS.HttpMethod,
+  path: BS.Url,
+  headers: S.Record({ key: S.String, value: S.String })
+});
+
+// Postgres enum from StringLiteralKit
+class Status extends BS.StringLiteralKit("draft", "published", "archived") {}
+const statusEnum = BS.toPgEnum(Status); // For Drizzle schema
+```
+
 ## What Belongs Here
 
 - **Pure schema values and helpers** for validation, parsing/encoding, and safe construction
@@ -208,10 +275,12 @@ Schemas here should be generic, reusable, and environment-agnostic. If a schema 
 | `@beep/utils`     | Pure runtime string/entity transform helpers        |
 | `@effect/sql`     | SQL modeling types (annotations only, no execution) |
 | `drizzle-orm`     | Column builder types for EntityId integration       |
-| `@faker-js/faker` | Schema arbitrary/mock data generation               |
-| `uuid`            | UUID generation for EntityId.create()               |
-| `randexp-ts`      | Regex-based arbitrary generation                    |
-| `exifreader`      | File metadata schema support                        |
+| `@faker-js/faker`   | Schema arbitrary/mock data generation               |
+| `uuid`              | UUID generation for EntityId.create()               |
+| `randexp-ts`        | Regex-based arbitrary generation                    |
+| `music-metadata`    | File metadata schema support                        |
+| `@effect/experimental` | Experimental Effect features                     |
+| `mutative`          | Immutable update utilities                          |
 
 ## Development
 

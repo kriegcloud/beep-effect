@@ -79,20 +79,32 @@ function processToken(maybeToken: string | null | undefined) {
 }
 
 // Exhaustiveness check for union types
+import * as Match from "effect/Match";
+
 type Action = { type: "create" } | { type: "update" } | { type: "delete" };
 
 function handle(action: Action): number {
-  switch (action.type) {
-    case "create": return 1;
-    case "update": return 2;
-    case "delete": return 3;
-    default:
-      return invariant.unreachable(
-        action,
+  return Match.value(action).pipe(
+    Match.when(
+      (a): a is Extract<Action, { type: "create" }> => a.type === "create",
+      () => 1
+    ),
+    Match.when(
+      (a): a is Extract<Action, { type: "update" }> => a.type === "update",
+      () => 2
+    ),
+    Match.when(
+      (a): a is Extract<Action, { type: "delete" }> => a.type === "delete",
+      () => 3
+    ),
+    Match.orElse((a) =>
+      invariant.unreachable(
+        a,
         "Unhandled action type",
-        { file: "handlers.ts", line: 42, args: [action] }
-      );
-  }
+        { file: "handlers.ts", line: 42, args: [a] }
+      )
+    )
+  );
 }
 ```
 
@@ -317,23 +329,28 @@ export const validateEmail = (input: { email: string }) => {
 
 ```typescript
 import { invariant } from "@beep/invariant";
+import * as Match from "effect/Match";
 
 type Event = { type: "INCREMENT" } | { type: "DECREMENT" };
 
-const reduce = (state: number, event: Event): number => {
-  switch (event.type) {
-    case "INCREMENT":
-      return state + 1;
-    case "DECREMENT":
-      return state - 1;
-    default:
-      return invariant.unreachable(
-        event,
+const reduce = (state: number, event: Event): number =>
+  Match.value(event).pipe(
+    Match.when(
+      (e): e is Extract<Event, { type: "INCREMENT" }> => e.type === "INCREMENT",
+      () => state + 1
+    ),
+    Match.when(
+      (e): e is Extract<Event, { type: "DECREMENT" }> => e.type === "DECREMENT",
+      () => state - 1
+    ),
+    Match.orElse((e) =>
+      invariant.unreachable(
+        e,
         "Unhandled event type",
-        { file: "reducer.ts", line: 15, args: [event] }
-      );
-  }
-};
+        { file: "reducer.ts", line: 15, args: [e] }
+      )
+    )
+  );
 ```
 
 ### Effect Error Mapping

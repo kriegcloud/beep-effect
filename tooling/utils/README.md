@@ -11,7 +11,9 @@ This package is designed for build-time tooling and repository automation rather
 ## Installation
 
 ```bash
-bun install @beep/tooling-utils
+# This package is internal to the monorepo
+# Add as a dependency in your package.json:
+"@beep/tooling-utils": "workspace:*"
 ```
 
 ## Core Services
@@ -127,7 +129,7 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
-import { collectUniqueNpmDependencies } from "@beep/tooling-utils/repo/UniqueDependencies";
+import { collectUniqueNpmDependencies } from "@beep/tooling-utils";
 
 // List all unique npm dependencies sorted alphabetically
 const listSortedDeps = Effect.gen(function* () {
@@ -166,8 +168,7 @@ Effect Schema definitions for repository metadata (exported via `@beep/tooling-u
 ```typescript
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { PackageJson } from "@beep/tooling-utils/schemas";
-import { FsUtils, FsUtilsLive } from "@beep/tooling-utils";
+import { FsUtils, FsUtilsLive, PackageJson } from "@beep/tooling-utils";
 
 // Read and validate package.json
 const loadPackageJson = Effect.gen(function* () {
@@ -311,36 +312,40 @@ bun run lint:circular
 
 ### Testing
 
-Tests are colocated in the `test/` directory. Use Vitest via Bun:
+Tests are colocated in the `test/` directory. Use Bun's built-in test runner:
 
 ```bash
 # Run tests from workspace root
-bun run test --filter=@beep/tooling-utils
+bun run --filter @beep/tooling-utils test
 
 # Run tests from package directory
-bun run --cwd tooling/utils test
+bun run test
+
+# Run with coverage
+bun run --filter @beep/tooling-utils coverage
 ```
 
 ## Package Exports
 
 ```typescript
-// Main exports
+// Main exports (from package root)
 import { FsUtils, FsUtilsLive } from "@beep/tooling-utils";
 import { RepoUtils, RepoUtilsLive } from "@beep/tooling-utils";
-import { getUniqueDeps } from "@beep/tooling-utils";
+import { getUniqueDeps, collectUniqueNpmDependencies } from "@beep/tooling-utils";
+import { Repo } from "@beep/tooling-utils";
 
-// Repo utilities
-import * as Repo from "@beep/tooling-utils/repo";
+// Repo utilities (via subpath exports)
 import { findRepoRoot } from "@beep/tooling-utils/repo/Root";
 import { resolveWorkspaceDirs } from "@beep/tooling-utils/repo/Workspaces";
 import { extractWorkspaceDependencies } from "@beep/tooling-utils/repo/Dependencies";
 
-// Schemas
+// Schemas (via subpath exports)
 import { PackageJson, TsConfigJson } from "@beep/tooling-utils/schemas";
 import { Json, JsonLiteral } from "@beep/tooling-utils/schemas";
+import { DotEnv, EnvironmentVariableName } from "@beep/tooling-utils/schemas";
 
-// Errors
-import { DomainError, NoSuchFileError } from "@beep/tooling-utils/repo/Errors";
+// Errors (available from main index and repo subpath)
+import { DomainError, NoSuchFileError } from "@beep/tooling-utils";
 ```
 
 ## Related Packages

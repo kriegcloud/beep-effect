@@ -64,7 +64,7 @@ src/
 ├── molecules/          # Simple composites (built from atoms)
 ├── organisms/          # Complex feature components
 ├── sections/           # Page-level section compositions
-├── components/         # shadcn/ui + cross-tier barrels
+├── components/         # shadcn/ui + Plate.js editor components (200+ components)
 ├── animate/            # Framer Motion variants and utilities
 ├── assets/             # Static data (countries) and illustrations
 ├── branding/           # Logo and brand identity
@@ -78,11 +78,9 @@ src/
 ├── layouts/            # Layout compositions (auth, dashboard, main)
 ├── lib/                # Utility functions
 ├── messages/           # Notifications and messaging
-├── organisms/          # Complex components
 ├── progress/           # Progress indicators
 ├── providers/          # Context providers
 ├── routing/            # Navigation utilities
-├── sections/           # Page sections
 ├── services/           # Client services
 ├── settings/           # Settings context and drawer
 ├── styles/             # Global CSS and Tailwind config
@@ -94,9 +92,10 @@ src/
 ### Conventions
 
 - **Effect Utilities**: Use namespace imports (`import * as A from "effect/Array"`), avoid native array/string/object methods
-- **Client Directives**: Mark client-only components with `"use client"` directive for React 19 server component compliance
-- **Barrel Exports**: Each directory maintains an `index.ts` barrel export for clean imports
+- **Client Directives**: Most components include `"use client"` directive at the file top for React 19 server component compliance with Next.js App Router
+- **Barrel Exports**: Directories with atomic components (atoms, molecules, organisms) maintain `index.ts` barrel exports. The `components/` directory contains individual shadcn/Plate.js components without a top-level barrel due to size (200+ components)
 - **Colocation**: Colocate tests, stories, and utilities near component implementations
+- **Component Imports**: Import individual components from their direct paths (e.g., `@beep/ui/components/button`) rather than from barrels
 
 ## Theme & Settings Integration
 
@@ -223,28 +222,47 @@ The package exports numerous React hooks for common UI patterns:
 
 | Hook                   | Purpose                             |
 |------------------------|-------------------------------------|
+| **Routing**            |                                     |
 | `useRouter`            | Next.js router utilities            |
 | `usePathname`          | Current pathname access             |
 | `useSearchParams`      | URL search params management        |
 | `useParams`            | Route params access                 |
+| **State Management**   |                                     |
 | `useBoolean`           | Boolean state with toggle/set/reset |
 | `useSetState`          | Object state with partial updates   |
 | `useTabs`              | Tab state management                |
 | `usePopover`           | Popover positioning and state       |
+| `usePopoverHover`      | Hover-triggered popover state       |
 | `useCountDown`         | Countdown timer logic               |
+| **Performance**        |                                     |
 | `useDebouncedCallback` | Debounced callback execution        |
-| `useMobile`            | Mobile breakpoint detection         |
-| `useIsClient`          | Client-side rendering detection     |
-| `useClientRect`        | Element bounding rect measurement   |
-| `useScrollOffsetTop`   | Scroll offset tracking              |
-| `useBackToTop`         | Back-to-top button logic            |
-| `useImageDimensions`   | Image dimension calculation         |
 | `useCallbackRef`       | Stable callback references          |
-| **Stable Hooks**       |                                     |
 | `useStableCallback`    | Referentially stable callbacks      |
 | `useStableMemo`        | Referentially stable memoization    |
 | `useStableEffect`      | Effects with stable dependencies    |
 | `useEqMemoize`         | Memoization with custom equality    |
+| **Responsive & Layout**|                                     |
+| `useMobile`            | Mobile breakpoint detection         |
+| `useClientRect`        | Element bounding rect measurement   |
+| `useScrollOffsetTop`   | Scroll offset tracking              |
+| `useBackToTop`         | Back-to-top button logic            |
+| `useImageDimensions`   | Image dimension calculation         |
+| **Client/Server**      |                                     |
+| `useIsClient`          | Client-side rendering detection     |
+| `useHydrated`          | Hydration completion detection      |
+| `useMounted`           | Component mount state tracking      |
+| `useIsPwa`             | PWA detection                       |
+| **Storage & State**    |                                     |
+| `useLocalStorage`      | Local storage state sync            |
+| `useCookies`           | Cookie management                   |
+| `useHash`              | URL hash state management           |
+| `useHashScrollIntoView`| Hash-based scroll behavior          |
+| **Utilities**          |                                     |
+| `useEventListener`     | DOM event listener management       |
+| `useDidMount`          | Component did mount detection       |
+| `useIsomorphicLayoutEffect` | SSR-safe layout effects      |
+| `useCopyToClipboard`   | Clipboard copy utilities            |
+| `useThemeMode`         | Theme mode state access             |
 
 ## Form Integration
 
@@ -320,6 +338,44 @@ function AnimatedComponent() {
 - `MotionLazy`: Lazy-loaded motion components
 - `useScrollProgress`: Scroll-based progress tracking
 - `features`: Framer Motion feature flags for optimization
+
+## Rich Text Editing with Plate.js
+
+The `components/` directory contains 200+ Plate.js editor components for building rich text editing experiences:
+
+```tsx
+import { PlateEditor } from "@beep/ui/components/plate-editor";
+import { BasicNodesPlugin } from "@platejs/basic-nodes";
+
+function EditorPage() {
+  return (
+    <PlateEditor
+      plugins={[BasicNodesPlugin]}
+      initialValue={[
+        {
+          type: "p",
+          children: [{ text: "Start typing..." }],
+        },
+      ]}
+    />
+  );
+}
+```
+
+**Key Plate.js Components Available**:
+- **Editor Core**: `plate-editor`, `editor-toolbar`, `fixed-toolbar`
+- **Nodes**: `paragraph-node`, `heading-node`, `blockquote-node`, `code-block-node`
+- **Formatting**: `bold`, `italic`, `underline`, `strikethrough`, `code`
+- **Lists**: `block-list`, `block-list-static`, bulleted/numbered lists
+- **Media**: `image-node`, `video-node`, `file-node`, `media-toolbar`
+- **Tables**: `table-node`, `table-toolbar`, row/column controls
+- **Comments**: `block-discussion`, `block-suggestion`, comment threads
+- **AI**: `ai-chat-editor`, `ai-menu`, `ai-toolbar-button`, `ai-node`
+- **Advanced**: `callout-node`, `date-node`, `emoji-node`, `mention-node`, `link-node`
+- **Layout**: `column-node`, `layout-node`, alignment controls
+- **Utilities**: `block-context-menu`, `block-draggable`, `block-selection`
+
+Import individual components as needed: `@beep/ui/components/[component-name]`
 
 ## Layouts
 
@@ -658,27 +714,34 @@ Keep this package focused on reusable, generic UI components that can be shared 
 
 The build process generates multiple output formats:
 
-- **ESM**: `build/esm/` - ES modules for modern bundlers
-- **CJS**: `build/cjs/` - CommonJS for Node.js compatibility
-- **Types**: `build/dts/` - TypeScript declarations
-- **Source**: `build/src/` - Annotated source for tree-shaking
+- **ESM**: `build/esm/` - ES modules for modern bundlers (with pure call annotations)
+- **CJS**: `build/cjs/` - CommonJS for Node.js compatibility (Babel-transformed)
+- **Types**: `build/dts/` - TypeScript declarations generated from source
 
-All outputs include the global CSS file for styling.
+Each build output directory includes a copy of `globals.css` for styling.
+
+**Build Pipeline**:
+1. `build-esm` - TypeScript compilation to ESM
+2. `build-cjs` - Babel transform ESM → CJS with `use client` directive support
+3. `build-annotate` - Pure call annotation for tree-shaking optimization
+4. `copy-css` - Copy global styles to all output directories
 
 ## Change Checklist
 
 When making changes to this package:
 
-- [ ] Updated barrel exports (`src/**/index.ts`) for new components
-- [ ] Added new paths to `package.json#exports` if creating new directories
+- [ ] Updated barrel exports (`src/**/index.ts`) for new atomic components (atoms, molecules, organisms)
+- [ ] Added `"use client"` directive to new interactive components for Next.js App Router
+- [ ] Added new paths to `package.json#exports` if creating new top-level directories
 - [ ] Coordinated theme token or settings changes with `@beep/ui-core`
 - [ ] Regenerated build artifacts via `bun run build`
-- [ ] Ran `bun run codegen` after adding shadcn components
+- [ ] Ran `bun run codegen` after adding shadcn components or new export directories
 - [ ] Executed `bun run lint:fix` for code formatting
 - [ ] Ran `bun run check` for type validation
 - [ ] Added tests for new components or utilities
-- [ ] Updated `components.json` if adding new alias directories
-- [ ] Verified locale additions sync with `ThemeProvider`
+- [ ] Updated `components.json` if adding new alias directories for shadcn
+- [ ] Verified locale additions sync with `ThemeProvider` and `@beep/ui-core`
+- [ ] For new components in `components/`, import them by individual path (no barrel)
 
 ## Relationship to Other Packages
 

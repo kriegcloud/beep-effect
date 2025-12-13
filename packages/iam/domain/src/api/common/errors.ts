@@ -4,13 +4,16 @@ import * as ParseResult from "effect/ParseResult";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
+import type * as R from "effect/Record";
 
-type AuthErrorContext = {
+type IamAuthErrorContext = {
   readonly operation: string;
   readonly payload?: unknown;
-} & Record<string, unknown>;
+} & R.ReadonlyRecord<string, unknown>;
 
 const getMessage = Struct.get("message");
+
+
 /**
  * Authentication error with optional context.
  *
@@ -22,13 +25,13 @@ const getMessage = Struct.get("message");
  *
  * @example
  * ```ts
- * new AuthError({
+ * new IamAuthError({
  *   message: "Failed to sign in",
  *   context: { email: "user@example.com" }
  * })
  * ```
  */
-export class AuthError extends S.TaggedError<AuthError>()("AuthError", {
+export class IamAuthError extends S.TaggedError<IamAuthError>()("IamAuthError", {
   message: S.String,
   cause: S.optional(S.Defect),
   context: S.optional(S.Record({ key: S.String, value: S.Unknown })),
@@ -45,11 +48,11 @@ export class AuthError extends S.TaggedError<AuthError>()("AuthError", {
     );
 
   static readonly selfOrMap =
-    ({ operation, payload, ...rest }: AuthErrorContext) =>
+    ({ operation, payload, ...rest }: IamAuthErrorContext) =>
     (error: unknown) =>
-      S.is(AuthError)(error)
+      S.is(this)(error)
         ? error
-        : new AuthError({
+        : new IamAuthError({
             message: this.$matchUnknownMessage(error),
             cause: error,
             context: {
@@ -59,13 +62,13 @@ export class AuthError extends S.TaggedError<AuthError>()("AuthError", {
             },
           });
 
-  static readonly mapError = (ctx: AuthErrorContext) => Effect.mapError(this.selfOrMap(ctx));
+  static readonly mapError = (ctx: IamAuthErrorContext) => Effect.mapError(this.selfOrMap(ctx));
 
   static readonly flowMap =
     (operation: string) =>
     <I, A, E, R>(effect: Effect.Effect<A, E, R>, n: I) =>
       effect.pipe(
-        AuthError.mapError({ operation, payload: n }),
+        this.mapError({ operation, payload: n }),
         Effect.annotateLogs({
           arguments: n,
         }),

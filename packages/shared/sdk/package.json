@@ -4,6 +4,7 @@
   "type": "module",
   "license": "MIT",
   "description": "The sdk (server client glue) layer for cross cutting concerns",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/shared/sdk",
   "publishConfig": {
     "access": "public",
     "provenance": true,

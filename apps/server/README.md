@@ -4,136 +4,162 @@ Effect-first backend runtime host for the beep-effect monorepo.
 
 ## Purpose
 
-This package serves as the entry point for running backend workloads (HTTP servers, RPC endpoints, cron jobs, and background workers) on Bun. The server composes slice runtimes via `@beep/runtime-server`, providing telemetry, logging, database connections, and slice adapters (IAM, documents) through Effect Layers rather than ad-hoc wiring. Currently, the entry point is a placeholder awaiting production host implementation.
-
-## Status
-
-- Entry point is currently a placeholder (`src/server.ts` exports `beep`)
-- Wire new hosts through `@beep/runtime-server` before shipping user-facing endpoints
-- Build artifacts land in `build/esm` and `build/dts` via `tsconfig.build.json`
+This package serves as the entry point for running backend workloads on Bun. The server provides an HTTP API built with `@effect/platform`, serving IAM domain APIs, Better Auth authentication endpoints, OpenAPI documentation, and health checks. All functionality is composed through Effect Layers for dependency injection, observability, and slice integration (IAM, documents).
 
 ## Key Exports
 
-| Export | Type | Description |
-|--------|------|-------------|
-| `beep` | `string` | Placeholder export (to be replaced with actual runtime host) |
+| Export | Description |
+|--------|-------------|
+| `AllRoutes` | Combined HTTP route layer (IAM API + health endpoint) |
+| `ServerLayer` | Complete server configuration with CORS, auth middleware, and platform bindings |
+| `DomainApiLayer` | IAM domain API implementation layer |
+| `HttpApiRouter` | IAM API router with context |
 
-**Note**: Production exports will come from `@beep/runtime-server`:
-- `runServerPromise` — Execute effects with tracing spans
-- `runServerPromiseExit` — Execute effects and capture full Exit value
-- `serverRuntime` — ManagedRuntime instance with all layers pre-wired
+The server launches via `Layer.launch(ServerLayer).pipe(BunRuntime.runMain)` and listens on port 8080.
 
-## Usage Examples
+## Server Architecture
 
-### Running Effects with Server Runtime
+### Current Implementation
 
-```typescript
-import { runServerPromise } from "@beep/runtime-server";
-import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
-import * as Str from "effect/String";
-
-export const healthcheck = () =>
-  runServerPromise(
-    Effect.gen(function* () {
-      const status = F.pipe("ok", Str.toUpperCase);
-      yield* Effect.logInfo("server.health", { status });
-      return { status };
-    }).pipe(Effect.withSpan("server.health")),
-    "server.health"
-  );
-```
-
-### Building an HTTP Server
+The server uses `@effect/platform` HTTP API builder pattern with declarative Layer composition:
 
 ```typescript
-import { runServerPromise } from "@beep/runtime-server";
-import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
-import * as A from "effect/Array";
-import { BunHttpServer } from "@effect/platform-bun";
+import * as HttpApiBuilder from "@effect/platform/HttpApiBuilder";
+import * as HttpLayerRouter from "@effect/platform/HttpLayerRouter";
+import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import { Layer } from "effect";
+import { IamRoutes } from "@beep/iam-infra";
+import { IamDomainApi } from "@beep/iam-domain";
 
-const routes = [
-  { path: "/health", handler: healthcheck },
-  { path: "/api/users", handler: listUsers },
-];
+// Domain API layer with route implementations
+const DomainApiLayer = HttpApiBuilder.api(IamDomainApi).pipe(
+  Layer.provide(IamRoutes.layer)
+);
 
-export const startServer = () =>
-  runServerPromise(
-    Effect.gen(function* () {
-      const server = yield* BunHttpServer.BunHttpServer;
+// HTTP router for IAM endpoints
+const HttpApiRouter = HttpLayerRouter.addHttpApi(IamDomainApi).pipe(
+  Layer.provide(IamRoutes.layer),
+  Layer.provide(HttpServer.layerContext)
+);
 
-      yield* Effect.logInfo("server.starting", {
-        routes: F.pipe(routes, A.map((r) => r.path))
-      });
+// Health check endpoint
+const HealthRoute = HttpLayerRouter.use((router) =>
+  router.add("GET", "/api/health", HttpServerResponse.text("OK"))
+);
 
-      // Wire up routes and start server
-      yield* server.start({ port: 3000 });
-    }).pipe(Effect.withSpan("server.start")),
-    "server.start"
-  );
+// Combined routes
+export const AllRoutes = Layer.mergeAll(HttpApiRouter, HealthRoute);
+
+// Complete server with middleware and platform bindings
+const ServerLayer = ApiConsumersLayer.pipe(
+  Layer.provide(DomainApiLayer),
+  Layer.provide(HttpApiBuilder.middlewareCors({ /* ... */ })),
+  HttpServer.withLogAddress,
+  Layer.provide(AuthContextHttpMiddlewareLive),
+  Layer.provide(BunHttpServer.layer({ port: 8080 })),
+  Layer.provide(HttpServer.layerContext),
+  Layer.provide(FetchHttpClient.layer)
+);
+
+// Launch
+Layer.launch(ServerLayer).pipe(BunRuntime.runMain);
 ```
 
-### Accessing Slice Services
+### Available Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/health` | Health check returning "OK" |
+| `POST /v1/iam/sign-in/email` | Email sign-in endpoint (IAM domain API) |
+| `POST /v1/iam/sign-up/email` | Email sign-up endpoint (IAM domain API) |
+| `* /api/auth/*` | Better Auth handler (all auth flows) |
+| `GET /v1/docs` | Scalar API documentation UI |
+| `GET /v1/docs/openapi.json` | OpenAPI specification |
+
+### Better Auth Integration
+
+The server integrates Better Auth through a custom handler at `/api/auth/*`:
 
 ```typescript
-import { runServerPromise } from "@beep/runtime-server";
-import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
-import * as A from "effect/Array";
-import { UserRepo } from "@beep/iam-infra";
+// From src/auth/BetterAuthHandler/BetterAuthHandler.ts
+export const make: (req: HttpServerRequest) =>
+  Effect.Effect<HttpServerResponse, never, AuthService> =
+  Effect.fn("BetterAuthHandler.make")(function* (req) {
+    const { auth } = yield* AuthService;
 
-export const listActiveUsers = () =>
-  runServerPromise(
-    Effect.gen(function* () {
-      const userRepo = yield* UserRepo;
-      const users = yield* userRepo.findAll();
+    // Convert Effect request to Web API Request
+    const request = new Request(url, {
+      method: req.method,
+      headers: webHeaders,
+      body: bodyInit
+    });
 
-      const activeUsers = F.pipe(
-        users,
-        A.filter((user) => user.isActive)
-      );
+    // Call Better Auth handler
+    const webResponse = yield* Effect.promise(
+      F.constant(auth.handler(request))
+    );
 
-      yield* Effect.logInfo("users.active.listed", {
-        count: activeUsers.length
-      });
-
-      return activeUsers;
-    }).pipe(Effect.withSpan("users.listActive")),
-    "users.listActive"
-  );
+    // Convert back to Effect response
+    return HttpServerResponse.raw(webResponse.body, {
+      status: webResponse.status,
+      headers: responseHeaders
+    });
+  });
 ```
 
-## Architecture
+## Layer Composition
 
-### Runtime & Dependency Injection
+### Middleware Stack
 
-Import `runServerPromise`, `runServerPromiseExit`, and `serverRuntime` from `@beep/runtime-server` to execute effects with observability and slice repositories pre-wired through Layers.
+The server applies middleware in this order:
+
+1. **CORS** - Configured via `HttpApiBuilder.middlewareCors` with trusted origins from `serverEnv.security.trustedOrigins`
+2. **Logger** - Request/response logging via `HttpMiddleware.logger`
+3. **Auth Context** - `AuthContextHttpMiddlewareLive` extracts and validates authentication
+4. **OpenAPI** - Auto-generated docs served at `/v1/docs/openapi.json`
 
 ### Configuration
 
-Read environment through `@beep/shared-infra` (`serverEnv`, `clientEnv`) to keep OTLP endpoints, log levels, and service naming consistent across the stack. Never read `process.env` or `Bun.env` directly.
+Environment configuration is read through `@beep/shared-infra`:
+- `serverEnv.security.trustedOrigins` - CORS allowed origins
+- Port configuration (currently hardcoded to 8080)
 
-### Observability
+The server references `serverEnv` directly rather than reading `process.env` or `Bun.env`.
 
-Telemetry, logging, and DevTools are provided by `@beep/runtime-server` with OTLP exporters, pretty logger in dev mode, and optional DevTools WebSocket.
+### Slice Integration
 
-### Persistence
+IAM functionality is integrated via:
+- `@beep/iam-domain` - Domain API contracts (`IamDomainApi`)
+- `@beep/iam-infra` - Route implementations (`IamRoutes.layer`)
 
-Database connections and repositories come from slice layers (`@beep/iam-infra`, `@beep/documents-infra`) fed through `@beep/shared-infra`.
+Route handlers are provided to the API builder through Layer composition, ensuring dependency injection for repositories, database clients, and other services.
+
+### CORS Configuration
+
+The server configures CORS with:
+- Allowed origins from `serverEnv.security.trustedOrigins`
+- Methods: GET, POST, PUT, DELETE, PATCH
+- Headers from `@beep/constants/AllowedHeaders`
+- Credentials enabled for cookie-based auth
 
 ## Dependencies
 
 | Category | Packages |
 |----------|----------|
 | **Runtime** | `@beep/runtime-server` |
-| **Slices** | `@beep/iam-domain`, `@beep/iam-infra`, `@beep/iam-tables`, `@beep/documents-domain`, `@beep/documents-infra`, `@beep/documents-tables` |
+| **IAM Slice** | `@beep/iam-domain`, `@beep/iam-infra`, `@beep/iam-tables` |
+| **Documents Slice** | `@beep/documents-domain`, `@beep/documents-infra`, `@beep/documents-tables` |
 | **Common** | `@beep/constants`, `@beep/contract`, `@beep/errors`, `@beep/identity`, `@beep/invariant`, `@beep/schema`, `@beep/utils` |
-| **Shared** | `@beep/shared-domain`, `@beep/shared-tables` |
-| **Effect** | `effect`, `@effect/platform`, `@effect/platform-bun`, `@effect/rpc`, `@effect/sql`, `@effect/sql-pg`, `@effect/opentelemetry` |
-| **AI** | `@effect/ai`, `@effect/ai-anthropic`, `@effect/ai-openai` |
+| **Shared** | `@beep/shared-domain`, `@beep/shared-infra`, `@beep/shared-tables` |
+| **Effect Platform** | `effect`, `@effect/platform`, `@effect/platform-bun`, `@effect/rpc` |
+| **Effect SQL** | `@effect/sql`, `@effect/sql-pg`, `@effect/sql-drizzle` |
+| **Observability** | `@effect/opentelemetry`, `@opentelemetry/exporter-trace-otlp-http`, `@opentelemetry/sdk-trace-base`, `@opentelemetry/sdk-logs`, `@opentelemetry/sdk-metrics` |
+| **Auth** | `better-auth`, `@better-auth/core`, `@better-auth/stripe`, `@dub/better-auth`, `@simplewebauthn/server`, `jose` |
+| **External Services** | `stripe`, `resend`, `dub` |
+| **Database** | `drizzle-orm`, `postgres` |
 | **Orchestration** | `@effect/cluster`, `@effect/workflow`, `@effect/experimental` |
-| **Testing** | `@beep/mock`, `@testcontainers/postgresql` |
+| **Utilities** | `@faker-js/faker`, `uuid`, `zod` |
 
 ## Development Commands
 
@@ -152,35 +178,95 @@ Database connections and repositories come from slice layers (`@beep/iam-infra`,
 
 **Note**: Prefer running via root scripts with filter: `bun run dev --filter=@beep/server`
 
-## Guidelines for Adding Real Servers
+## Adding New Endpoints
 
-### Platform Bindings
+### Using HttpApiBuilder
 
-- Prefer `@effect/platform-bun` for HTTP/socket servers
-- Wrap handlers with `runServerPromise` to maintain tracing spans
-- Provide `ObservabilityLive` and `LogLevelLive` when building servers
+When adding new domain APIs, follow the established pattern:
+
+1. **Define the API contract** in the domain package (`@beep/xxx-domain`)
+2. **Implement route handlers** in the infra package (`@beep/xxx-infra`)
+3. **Register the API** in `src/server.ts`:
+
+```typescript
+import { NewDomainApi } from "@beep/new-domain";
+import { NewRoutes } from "@beep/new-infra";
+
+// Create API layer
+const NewApiLayer = HttpApiBuilder.api(NewDomainApi).pipe(
+  Layer.provide(NewRoutes.layer)
+);
+
+// Add to router
+const NewApiRouter = HttpLayerRouter.addHttpApi(NewDomainApi).pipe(
+  Layer.provide(NewRoutes.layer),
+  Layer.provide(HttpServer.layerContext)
+);
+
+// Merge with existing routes
+export const AllRoutes = Layer.mergeAll(
+  HttpApiRouter,
+  NewApiRouter,
+  HealthRoute
+);
+```
+
+### Using HttpLayerRouter for Simple Routes
+
+For standalone endpoints without full API contracts:
+
+```typescript
+const CustomRoute = HttpLayerRouter.use((router) =>
+  router.add("GET", "/api/custom",
+    Effect.gen(function* () {
+      yield* Effect.logInfo("Custom endpoint called");
+      return HttpServerResponse.json({ message: "Custom response" });
+    })
+  )
+);
+```
 
 ### Configuration
 
-- Keep platform concerns (ports, TLS, worker counts) configurable via `serverEnv`
-- Never read `process.env` directly
+- Read configuration from `serverEnv` (`@beep/shared-infra`)
+- Never read `process.env` or `Bun.env` directly
+- Keep port and TLS settings configurable
 
-### Contracts
-
-- Reuse contract kits from `@beep/contract` and slice SDKs
-- Validate inputs with `@beep/schema`
-- Avoid hand-parsing payloads
-
-### Error Handling & Logging
+### Error Handling
 
 - Use tagged errors from `@beep/errors` and `@beep/invariant`
 - Keep logs JSON-safe in production
-- Avoid logging secrets or sensitive request bodies
+- Avoid logging secrets or sensitive data
+- Let `HttpApiBuilder` handle error responses automatically
 
-### Performance
+## Integration Points
 
-- Keep Layers memoizable (`Layer.mergeAll`, `Layer.provideMerge`)
-- Avoid spinning new DB connections per request
+### Better Auth
+
+The server integrates Better Auth for authentication:
+- Handler mounted at `/api/auth/*` via `BetterAuthHandler`
+- Auth context extracted via `AuthContextHttpMiddlewareLive` middleware
+- Session management through `AuthService` from `@beep/runtime-server`
+
+### IAM Domain API
+
+IAM endpoints follow the HttpApi pattern:
+- Contract defined in `@beep/iam-domain` (`IamDomainApi`)
+- Implementations in `@beep/iam-infra` (`IamRoutes.layer`)
+- Endpoints:
+  - `POST /v1/iam/sign-in/email` - Email sign-in
+  - `POST /v1/iam/sign-up/email` - Email sign-up
+
+### OpenAPI Documentation
+
+Auto-generated documentation available via:
+- `GET /v1/docs` - Scalar UI for interactive API exploration
+- `GET /v1/docs/openapi.json` - OpenAPI 3.x specification
+
+### Health Check
+
+Simple health endpoint for monitoring:
+- `GET /api/health` - Returns "OK" text response
 
 ## Critical Rules
 
@@ -196,10 +282,13 @@ Database connections and repositories come from slice layers (`@beep/iam-infra`,
 // Namespace imports for Effect modules
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
 
 // Single-letter aliases
 import * as A from "effect/Array";
 import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 ```
 
@@ -213,10 +302,14 @@ F.pipe(items, A.filter((item) => item.active));   // not items.filter()
 // String operations
 F.pipe(str, Str.toUpperCase);                      // not str.toUpperCase()
 F.pipe(str, Str.split(" "));                       // not str.split()
+
+// Option operations
+F.pipe(headers, Headers.get("host"), O.getOrElse(F.constant("localhost")));
 ```
 
 ## See Also
 
-- `packages/runtime/server/AGENTS.md` — Runtime layer patterns
-- `CLAUDE.md` — Monorepo-wide conventions
-- `docs/patterns/` — Implementation recipes
+- `/home/elpresidank/YeeBois/projects/beep-effect/apps/server/AGENTS.md` — Server-specific patterns and guidelines
+- `/home/elpresidank/YeeBois/projects/beep-effect/packages/runtime/server/AGENTS.md` — Runtime layer patterns
+- `/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/infra/AGENTS.md` — IAM infrastructure implementation
+- `/home/elpresidank/YeeBois/projects/beep-effect/CLAUDE.md` — Monorepo-wide conventions

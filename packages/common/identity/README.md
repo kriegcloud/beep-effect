@@ -15,10 +15,34 @@ This package provides the canonical identity system for all `@beep/*` namespaces
 ## Installation
 
 ```bash
-bun add @beep/identity
+# This package is internal to the monorepo
+# Add as a dependency in your package.json:
+"@beep/identity": "workspace:*"
 ```
 
 ## Usage
+
+### Import Strategies
+
+This package supports multiple import patterns depending on your needs:
+
+```typescript
+// Strategy 1: Import via modules namespace (recommended for most use cases)
+import { modules } from "@beep/identity";
+const id = modules.$SchemaId`Entity`;
+
+// Strategy 2: Import specific composers directly
+import { $SchemaId, $IamInfraId } from "@beep/identity/packages";
+const id = $SchemaId`Entity`;
+
+// Strategy 3: Import types separately
+import type { types } from "@beep/identity";
+type IdString = types.IdentityString<"@beep/schema/Entity">;
+
+// Strategy 4: Create custom composers
+import { Identifier } from "@beep/identity";
+const { $CustomId } = Identifier.make("custom-namespace");
+```
 
 ### Basic Identity Creation
 
@@ -42,19 +66,23 @@ const entityId = $SchemaId.make("TenantEntity");
 ### Using Pre-configured Module Composers
 
 ```typescript
+// Option 1: Import via modules namespace
 import { modules } from "@beep/identity";
 
-// Access pre-configured workspace composers
-const { $SchemaId, $IamInfraId, $DocumentsDomainId } = modules.$I.compose(
-  "schema",
-  "iam-infra",
-  "documents-domain"
-);
+const tenantId = modules.$SchemaId`TenantProfile`;
+const fileMetaId = modules.$DocumentsDomainId`FileMetadata`;
+const userRepoId = modules.$IamInfraId.compose("repos").make("UserRepo");
 
-// Create identities with tagged templates
+// Option 2: Import pre-configured composers directly
+import { $SchemaId, $IamInfraId, $DocumentsDomainId } from "@beep/identity/packages";
+
 const tenantId = $SchemaId`TenantProfile`;
 const userRepoId = $IamInfraId.compose("repos").make("UserRepo");
-const fileMetaId = $DocumentsDomainId`FileMetadata`;
+
+// Option 3: Compose from root $I
+import { $I } from "@beep/identity/packages";
+
+const { $SchemaId, $IamInfraId } = $I.compose("schema", "iam-infra");
 ```
 
 ### Schema Annotations
@@ -64,11 +92,10 @@ import { modules } from "@beep/identity";
 import * as S from "effect/Schema";
 
 // Basic annotations
-const { $SchemaId } = modules.$I.compose("schema");
-const annotations = $SchemaId.annotations("PasskeyAddPayload");
+const annotations = modules.$SchemaId.annotations("PasskeyAddPayload");
 
 // With extras
-const extendedAnnotations = $SchemaId.annotations("UserProfile", {
+const extendedAnnotations = modules.$SchemaId.annotations("UserProfile", {
   description: "User profile schema with authentication metadata",
   examples: [{ email: "user@example.com" }],
 });
@@ -88,11 +115,11 @@ export class PasskeyAddPayload extends S.Class<PasskeyAddPayload>("PasskeyAddPay
 ```typescript
 import { modules } from "@beep/identity";
 import * as Context from "effect/Context";
+import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 
 // Create stable service symbols
-const { $IamInfraId } = modules.$I.compose("iam-infra");
-const UserRepoTypeId = $IamInfraId.compose("repos").symbol();
+const UserRepoTypeId = modules.$IamInfraId.compose("repos").symbol();
 
 // Use in Effect services
 export class UserRepo extends Context.Tag("UserRepo")<
@@ -121,10 +148,8 @@ const stripeClientId = $StripeId`Client`;
 ```typescript
 import { modules } from "@beep/identity";
 
-const { $IamInfraId } = modules.$I.compose("iam-infra");
-
 // Compose multiple segments at once
-const { $ReposId, $ServicesId, $AdaptersId } = $IamInfraId.compose(
+const { $ReposId, $ServicesId, $AdaptersId } = modules.$IamInfraId.compose(
   "repos",
   "services",
   "adapters"
@@ -178,11 +203,16 @@ const id = $SchemaId.make("TenantEntity");
 
 #### `create(segment)`
 
-Creates a new composer from the current namespace.
+Creates a single new composer from the current namespace. Use this when you need to create one composer and continue chaining.
 
 ```typescript
 const $EntitiesId = $SchemaId.create("entities");
+// Same as compose but returns a single composer instead of a record
 ```
+
+**When to use `compose()` vs `create()`:**
+- Use `compose(...segments)` when creating multiple composers at once (returns a record)
+- Use `create(segment)` when creating a single composer for further chaining (returns a composer)
 
 #### `string()`
 
@@ -217,26 +247,70 @@ const annotations = $SchemaId.annotations("UserProfile", {
 All workspace composers are exported from `packages.ts`:
 
 ```typescript
-import { modules, $I } from "@beep/identity";
+import { modules } from "@beep/identity";
+// OR
+import { $I, $SchemaId, $ErrorsId /* ... */ } from "@beep/identity/packages";
 
 // Root beep namespace
-modules.$I;  // or just $I
+modules.$I;  // or $I when imported from /packages
 
 // Common packages
 modules.$SchemaId;
 modules.$ErrorsId;
 modules.$UtilsId;
 modules.$ContractId;
+modules.$InvariantId;
+modules.$ConstantsId;
+modules.$MockId;
+modules.$TypesId;
+modules.$IdentityId;
 
-// Feature slices
+// Feature slices - IAM
 modules.$IamDomainId;
 modules.$IamInfraId;
 modules.$IamSdkId;
 modules.$IamUiId;
+modules.$IamTablesId;
+
+// Feature slices - Documents
 modules.$DocumentsDomainId;
 modules.$DocumentsInfraId;
+modules.$DocumentsSdkId;
+modules.$DocumentsUiId;
+modules.$DocumentsTablesId;
 
-// And many more...
+// Shared packages
+modules.$SharedDomainId;
+modules.$SharedInfraId;
+modules.$SharedSdkId;
+modules.$SharedUiId;
+modules.$SharedTablesId;
+
+// Runtime
+modules.$RuntimeClientId;
+modules.$RuntimeServerId;
+
+// UI
+modules.$UiId;
+modules.$UiCoreId;
+
+// Applications
+modules.$WebId;
+modules.$ServerId;
+modules.$NotesId;
+
+// Tooling
+modules.$RepoScriptsId;
+modules.$RepoCliId;
+modules.$TestkitId;
+modules.$ToolingUtilsId;
+modules.$BuildUtilsId;
+modules.$ScraperId;
+
+// Internal
+modules.$DbAdminId;
+modules.$ScratchpadId;
+modules.$LexicalSchemasId;
 ```
 
 ## Type Safety
@@ -431,10 +505,8 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 
-const { $IamInfraId } = modules.$I.compose("iam-infra");
-
 export class UserRepo extends Context.Tag(
-  $IamInfraId.compose("repos").make("UserRepo")
+  modules.$IamInfraId.compose("repos").make("UserRepo")
 )<UserRepo, UserRepoService>() {}
 
 export const UserRepoLive = Layer.succeed(UserRepo, {
@@ -448,10 +520,8 @@ export const UserRepoLive = Layer.succeed(UserRepo, {
 import { modules } from "@beep/identity";
 import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
-const { $IamTablesId } = modules.$I.compose("iam-tables");
-
 export const users = pgTable(
-  $IamTablesId.make("users"),
+  modules.$IamTablesId.make("users"),
   {
     id: text("id").primaryKey(),
     email: text("email").notNull(),

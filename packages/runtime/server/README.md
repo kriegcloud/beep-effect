@@ -8,21 +8,43 @@ Provides the production-grade Effect runtime that powers all server-side entry p
 
 Acts as the shared runtime for API routes (`apps/web/src/app/api/*`), background jobs, and any future Bun/Node hosts, eliminating the need for applications to manually wire up layers.
 
+## Installation
+
+```bash
+# This package is internal to the monorepo
+# Add as a dependency in your package.json:
+"@beep/runtime-server": "workspace:*"
+```
+
 ## Key Exports
 
-| Export                    | Description                                                                      |
-|---------------------------|----------------------------------------------------------------------------------|
-| `serverRuntime`           | ManagedRuntime instance providing all server-side services and observability    |
-| `runServerPromise`        | Execute an Effect with automatic tracing span wrapping, returns Promise         |
-| `runServerPromiseExit`    | Execute an Effect with span wrapping, returns full Exit value                   |
-| `AppLive`                 | Root application layer merging all slices, tracing, logging, and dev tools      |
-| `TracingLive`             | OTLP exporters for traces, logs, and metrics with service name binding          |
-| `LoggingLive`             | Pretty console logger (dev) or JSON logger (prod) with configurable log level   |
-| `DevToolsLive`            | Optional Effect DevTools websocket layer (dev only)                             |
-| `SlicesLive`              | Combined layer providing all domain services (IAM, Documents, Auth)             |
-| `CoreSliceServicesLive`   | Database clients, repositories, and email service layer                         |
-| `SliceDatabaseClientsLive`| IamDb and DocumentsDb live layers                                               |
-| `SliceReposLive`          | Combined IAM and Documents repository layers                                    |
+### Primary Runtime Exports
+
+| Export                 | Description                                                                   |
+|------------------------|-------------------------------------------------------------------------------|
+| `serverRuntime`        | ManagedRuntime instance providing all server-side services and observability |
+| `runServerPromise`     | Execute an Effect with automatic tracing span wrapping, returns Promise      |
+| `runServerPromiseExit` | Execute an Effect with span wrapping, returns full Exit value                |
+
+### Internal Layer Exports (via wildcard exports)
+
+Access these via `@beep/runtime-server/ModuleName`:
+
+| Export                     | Module           | Description                                                           |
+|----------------------------|------------------|-----------------------------------------------------------------------|
+| `AppLive`                  | `App`            | Root application layer merging all slices, tracing, logging, dev tools|
+| `TracingLive`              | `Tracing`        | OTLP exporters for traces, logs, metrics with service name binding    |
+| `LoggingLive`              | `Logging`        | Pretty console logger (dev) or JSON logger (prod), configurable level |
+| `httpLogger`               | `Logging`        | HTTP middleware for request/response logging                          |
+| `RpcLogger`, `RpcLoggerLive`| `Logging`       | RPC middleware for logging RPC request failures                       |
+| `DevToolsLive`             | `DevTools`       | Optional Effect DevTools websocket layer (dev only)                   |
+| `SlicesLive`               | `Slices`         | Combined layer providing all domain services (IAM, Documents, Auth)   |
+| `CoreSliceServicesLive`    | `Slices`         | Database clients, repositories, and email service layer               |
+| `SliceDatabaseClientsLive` | `Slices`         | IamDb, DocumentsDb, and SharedDb live layers                          |
+| `SliceReposLive`           | `Slices`         | Combined IAM, Documents, and Shared repository layers                 |
+| `CoreServicesLive`         | `CoreServices`   | Core shared services (Email, AuthEmail, SharedServices)               |
+| `HealthRouter`             | `HealthRouter`   | HTTP router with GET /health endpoint                                 |
+| `CorsLive`                 | `Cors`           | CORS middleware configured with trusted origins                       |
 
 ## Architecture Fit
 
@@ -42,12 +64,18 @@ src/
 ├── App.ts                # Root AppLive layer composition
 ├── Slices.ts             # Domain slice layer aggregation
 ├── CoreServices.ts       # Core infrastructure services
-├── Logging.ts            # Logger configuration
+├── Logging.ts            # Logger configuration (console/JSON, HTTP/RPC loggers)
 ├── Tracing.ts            # OpenTelemetry configuration
 ├── DevTools.ts           # Effect DevTools layer
 ├── Environment.ts        # Environment variable access
-└── apis/                 # API-specific utilities
-    └── DocumentsApi.ts   # Documents API helpers
+├── HealthRouter.ts       # Health check HTTP router
+├── Cors.ts               # CORS middleware configuration
+└── rpcs/                 # RPC server infrastructure
+    ├── index.ts          # RPC exports (currently minimal)
+    ├── rpc-server.ts     # RPC server setup
+    ├── DbLive.ts         # Database layer for RPC
+    ├── AuthLive.ts       # Auth layer for RPC
+    └── AuthContextMiddlewareLive.ts # Auth context middleware
 ```
 
 ## Usage
@@ -83,7 +111,7 @@ export async function POST(request: Request) {
 Extend the base runtime with additional layers:
 
 ```typescript
-import { AppLive } from "@beep/runtime-server";
+import { AppLive } from "@beep/runtime-server/App";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
@@ -171,6 +199,45 @@ export async function POST(request: Request) {
 }
 ```
 
+### HTTP Middleware and Routing
+
+Use the provided HTTP infrastructure for consistent logging and CORS:
+
+```typescript
+import { HealthRouter } from "@beep/runtime-server/HealthRouter";
+import { CorsLive } from "@beep/runtime-server/Cors";
+import { httpLogger } from "@beep/runtime-server/Logging";
+import * as HttpLayerRouter from "@effect/platform/HttpLayerRouter";
+import * as Layer from "effect/Layer";
+
+// Compose routers with CORS and logging
+export const apiRouter = HttpLayerRouter.use((router) =>
+  router
+    .add("GET", "/api/users", getUsersHandler)
+    .add("POST", "/api/users", createUserHandler)
+).pipe(
+  Layer.provideMerge(CorsLive),
+  Layer.provide(httpLogger)
+);
+
+// Health check is available out-of-the-box
+const appRouter = Layer.mergeAll(HealthRouter, apiRouter);
+```
+
+### RPC Logging
+
+For RPC-based communication, use the RPC logger middleware:
+
+```typescript
+import { RpcLoggerLive } from "@beep/runtime-server/Logging";
+import * as RpcRouter from "@effect/rpc/RpcRouter";
+import * as Layer from "effect/Layer";
+
+const rpcRouter = RpcRouter.make(/* your handlers */).pipe(
+  Layer.provide(RpcLoggerLive)
+);
+```
+
 ### Environment Configuration
 
 The runtime automatically configures based on environment variables:
@@ -183,12 +250,14 @@ The runtime automatically configures based on environment variables:
 // - OTLP_TRACE_EXPORTER_URL: https://otlp.example.com/v1/traces
 // - OTLP_LOG_EXPORTER_URL: https://otlp.example.com/v1/logs
 // - OTLP_METRIC_EXPORTER_URL: https://otlp.example.com/v1/metrics
+// - TRUSTED_ORIGINS: Comma-separated list of allowed CORS origins
 
 // The runtime will:
 // - Use pretty console logging in dev, JSON in production
 // - Enable Effect DevTools in dev only
 // - Export traces/logs/metrics to configured OTLP endpoints
 // - Set appropriate log levels based on environment
+// - Configure CORS with trusted origins
 ```
 
 ## What Belongs Here
@@ -214,14 +283,17 @@ This package is infrastructure-only, providing the runtime foundation for execut
 | Package                      | Purpose                                          |
 |------------------------------|--------------------------------------------------|
 | `effect`                     | Core Effect runtime system                      |
-| `@effect/platform`           | Platform abstractions                            |
+| `@effect/platform`           | Platform abstractions (HTTP, RPC)                |
 | `@effect/platform-bun`       | Bun-specific platform implementations            |
+| `@effect/rpc`                | RPC router and middleware                        |
 | `@effect/opentelemetry`      | OpenTelemetry integration for Effect            |
 | `@effect/experimental`       | Effect DevTools for development                  |
-| `@beep/shared-infra`         | Shared infrastructure (Db, Email, Config)        |
+| `@beep/shared-infra`         | Shared infrastructure (Db, Email, Config, Repos) |
 | `@beep/iam-infra`            | IAM repositories and Better Auth service         |
 | `@beep/documents-infra`      | Documents repositories and storage service       |
 | `@beep/errors`               | Logging utilities and error schemas              |
+| `@beep/constants`            | Schema-backed constants (AllowedHeaders, etc.)   |
+| `@beep/schema`               | Schema utilities (HttpMethod, etc.)              |
 | `@opentelemetry/*`           | OpenTelemetry exporters and SDK                  |
 
 ## Development
@@ -261,27 +333,40 @@ When adding a new domain slice to the runtime:
    export const NewSliceRepos = Layer.effect(/* ... */);
    ```
 
-2. **Add to SliceDatabaseClientsLive**:
+2. **Add to SliceDatabaseClientsLive** in `src/Slices.ts`:
    ```typescript
-   // src/Slices.ts
-   export const SliceDatabaseClientsLive = Layer.mergeAll(
+   export const SliceDatabaseClientsLive: SliceDatabaseClientsLive = Layer.mergeAll(
      IamDb.IamDb.Live,
      DocumentsDb.DocumentsDb.Live,
+     SharedDb.SharedDb.Live,
      NewSliceDb.NewSliceDb.Live  // Add here
    );
    ```
 
-3. **Add to SliceReposLive**:
+3. **Add to SliceReposLive** in `src/Slices.ts`:
    ```typescript
-   // src/Slices.ts
-   export const SliceReposLive = Layer.mergeAll(
+   export const SliceReposLive: SliceReposLive = Layer.mergeAll(
      IamRepos.layer,
      DocumentsRepos.layer,
+     SharedRepos.layer,
      NewSliceRepos.layer  // Add here
-   );
+   ).pipe(Layer.orDie);
    ```
 
-4. **Update type unions** in `Slices.ts` to include new services
+4. **Update type unions** in `Slices.ts`:
+   ```typescript
+   export type SliceDatabaseClients =
+     | DocumentsDb.DocumentsDb
+     | IamDb.IamDb
+     | SharedDb.SharedDb
+     | NewSliceDb.NewSliceDb;  // Add here
+
+   type SliceRepositories =
+     | DocumentsRepos.DocumentsRepos
+     | IamRepos.IamRepos
+     | SharedRepos.SharedRepos
+     | NewSliceRepos.NewSliceRepos;  // Add here
+   ```
 
 ### Adding Observability Layers
 
@@ -359,10 +444,11 @@ OpenTelemetry metrics are exported to the configured OTLP endpoint automatically
 
 ## Known Issues and Limitations
 
-- **server-runtime.ts is deprecated**: Use imports from `Runtime.ts` instead
-- **Single runtime instance**: The `serverRuntime` is a singleton ManagedRuntime; do not create multiple instances
+- **server-runtime.ts is deprecated**: The `src/server-runtime.ts` file exists only for backwards compatibility. All imports should use `@beep/runtime-server` directly, which re-exports from `Runtime.ts`
+- **Single runtime instance**: The `serverRuntime` is a singleton ManagedRuntime; do not create multiple instances within the same process
 - **No browser support**: This runtime is server-only; use `@beep/runtime-client` for browser contexts
-- **Environment must be configured**: Missing OTLP URLs or invalid log levels will cause runtime failures
+- **Environment must be configured**: Missing OTLP URLs or invalid log levels will cause runtime failures. Ensure environment variables are properly set via `@beep/shared-infra/ServerEnv`
+- **Wildcard exports**: Internal layers are accessible via wildcard exports (e.g., `@beep/runtime-server/App`). These are semi-internal and may change. Prefer using the main runtime exports when possible
 
 ## Relationship to Other Packages
 

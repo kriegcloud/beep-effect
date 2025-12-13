@@ -9,6 +9,7 @@ Effect-first schema-backed constants, literal kits, and path utilities for the `
 - Authentication provider enums with OAuth configuration
 - Logging configuration (levels, formats)
 - HTTP/API constants (allowed methods, headers)
+- Content Security Policy directives and headers
 - Subscription plan tiers
 - Pagination defaults
 - Type-safe public asset path accessors
@@ -34,6 +35,18 @@ bun add @beep/constants
 ```
 
 ## Core Exports
+
+All exports are available from the main entry point (`@beep/constants`) and optionally via subpaths for specific modules.
+
+| Category | Exports | Description |
+|----------|---------|-------------|
+| **Environment** | `EnvValue`, `NodeEnvValue` | Deployment and runtime environment literals |
+| **Authentication** | `AuthProviderNameValue`, `TaggedAuthProviderNameValue` | OAuth provider schemas with configuration |
+| **Logging** | `LogLevel`, `LogFormat`, `LogFormatTagged` | Log severity and format enums |
+| **HTTP/API** | `AllowedHeaders`, `AllowedHttpMethods` | Permitted headers and HTTP methods |
+| **Security** | `CSP_DIRECTIVES`, `CSP_HEADER`, `CspDirective` | Content Security Policy configuration |
+| **Business** | `SubscriptionPlanValue`, `PAGINATION_LIMIT` | Subscription tiers and pagination defaults |
+| **Asset Paths** | `assetPaths`, `pathObjFromPaths`, `toJsAccessor`, `removeExt`, `toNestedTuple`, `buildPathTuples` | Type-safe public asset path accessors and utilities |
 
 ### Environment Configuration
 
@@ -182,6 +195,83 @@ const methods = AllowedHttpMethods.Options;
 const getMethod = AllowedHttpMethods.Enum.GET;
 ```
 
+### Content Security Policy
+
+#### CSP_DIRECTIVES
+
+Configuration object for Content Security Policy directives, mapping each directive to an array of allowed sources.
+
+```ts
+import { CSP_DIRECTIVES } from "@beep/constants";
+
+// Access specific directives
+const scriptSources = CSP_DIRECTIVES["script-src"];
+// ["'self'", "blob:", "https://cdn.jsdelivr.net"]
+
+const connectSources = CSP_DIRECTIVES["connect-src"];
+// ["'self'", "https://vercel.live/", "ws:", "wss:", ...]
+```
+
+#### CSP_HEADER
+
+Pre-built CSP header string for use in Next.js headers configuration or middleware.
+
+```ts
+import { CSP_HEADER } from "@beep/constants";
+
+// Use in Next.js config
+const headers = [
+  {
+    key: "Content-Security-Policy",
+    value: CSP_HEADER,
+  },
+];
+```
+
+#### CspDirective
+
+TypeScript type for CSP directive names, derived from the keys of `CSP_DIRECTIVES`.
+
+```ts
+import type { CspDirective } from "@beep/constants";
+
+// Type-safe directive names
+const directive: CspDirective = "script-src";
+// Valid: "default-src" | "base-uri" | "form-action" | "script-src" | ...
+```
+
+#### Working with CSP in Effect
+
+```ts
+import { CSP_DIRECTIVES } from "@beep/constants";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as R from "effect/Record";
+import * as Str from "effect/String";
+import * as Struct from "effect/Struct";
+
+// Add additional sources to a directive using Effect utilities
+const extendedDirectives = F.pipe(
+  CSP_DIRECTIVES,
+  R.modify("script-src", (sources) =>
+    F.pipe(
+      sources,
+      A.appendAll(["https://example.com", "https://cdn.example.com"])
+    )
+  )
+);
+
+// Get all unique domains from CSP directives
+const allDomains = F.pipe(
+  CSP_DIRECTIVES,
+  Struct.values,
+  A.fromIterable,
+  A.flatten,
+  A.filter((source) => F.pipe(source, Str.startsWith("https://"))),
+  A.dedupe
+);
+```
+
 ### Business Constants
 
 #### SubscriptionPlanValue
@@ -234,7 +324,8 @@ export const publicPaths = [
 Access public assets via camelCased object paths:
 
 ```ts
-import { assetPaths } from "@beep/constants/paths";
+import { assetPaths } from "@beep/constants";
+// or via subpath: import { assetPaths } from "@beep/constants/paths";
 
 const logo = assetPaths.logo; // "/logo.avif"
 const androidIcon = assetPaths.androidChrome192x192; // "/android-chrome-192x192.png"
@@ -246,7 +337,8 @@ const overlay = assetPaths.assets.background.overlay; // "/assets/background/ove
 Build your own type-safe path accessors:
 
 ```ts
-import { pathObjFromPaths } from "@beep/constants/paths/utils";
+import { pathObjFromPaths } from "@beep/constants";
+// or via subpath: import { pathObjFromPaths } from "@beep/constants/paths/utils";
 
 // Define custom paths
 const customPaths = [
@@ -277,7 +369,8 @@ import {
   toNestedTuple,
   buildPathTuples,
   removeExt,
-} from "@beep/constants/paths/utils";
+} from "@beep/constants";
+// or via subpath: import { ... } from "@beep/constants/paths/utils";
 
 // Convert dash-separated to camelCase
 toJsAccessor("ic-app-5"); // "icApp5"
@@ -388,33 +481,33 @@ This updates `_generated/asset-paths.ts` and ensures `assetPaths` reflects the c
 ### Build
 
 ```bash
-bun run build --filter @beep/constants
+bun run --filter @beep/constants build
 ```
 
 ### Type Check
 
 ```bash
-bun run check --filter @beep/constants
+bun run --filter @beep/constants check
 ```
 
 ### Lint
 
 ```bash
-bun run lint --filter @beep/constants
-bun run lint:fix --filter @beep/constants
+bun run --filter @beep/constants lint
+bun run --filter @beep/constants lint:fix
 ```
 
 ### Test
 
 ```bash
-bun run test --filter @beep/constants
-bun run coverage --filter @beep/constants
+bun run --filter @beep/constants test
+bun run --filter @beep/constants coverage
 ```
 
 ### Circular Dependency Check
 
 ```bash
-bun run lint:circular --filter @beep/constants
+bun run --filter @beep/constants lint:circular
 ```
 
 ## Guardrails
@@ -424,6 +517,12 @@ bun run lint:circular --filter @beep/constants
 - **Never manually edit** `_generated/*` files
 - Regenerate via repo scripts when underlying data changes
 - Commit both source changes and generated output together
+
+### CSP Configuration
+
+- **Coordinate changes** with app deployments to avoid breaking external integrations
+- **Test thoroughly** when modifying `CSP_DIRECTIVES` — incorrect CSP can block legitimate resources
+- **Document rationale** for adding new sources in commit messages (security review requirement)
 
 ### Creating New Constants
 
@@ -470,7 +569,7 @@ export declare namespace MyConstant {
 - **@beep/shared-infra** — Environment config, logging setup
 - **@beep/iam/infra** — Auth provider validation
 - **@beep/iam/ui** — Social login buttons
-- **apps/web** — Asset manifests, API route validation
+- **apps/web** — Asset manifests, API route validation, CSP headers
 - **apps/server** — Environment detection, logging configuration
 
 ### Integration Points
@@ -483,8 +582,23 @@ import { EnvValue, AuthProviderNameValue, LogFormat } from "@beep/constants";
 import { AuthProviderNameValue } from "@beep/constants";
 const providers = AuthProviderNameValue.filter(["google", "github"]);
 
+// In apps/web next.config.ts
+import { CSP_HEADER } from "@beep/constants";
+export default {
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "Content-Security-Policy", value: CSP_HEADER },
+        ],
+      },
+    ];
+  },
+};
+
 // In apps/web manifest
-import { assetPaths } from "@beep/constants/paths";
+import { assetPaths } from "@beep/constants";
 const icons = [{ src: assetPaths.androidChrome192x192, sizes: "192x192" }];
 ```
 

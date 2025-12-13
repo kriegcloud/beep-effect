@@ -353,28 +353,28 @@ If a slice-level type proves broadly reusable and still meets the constraints ab
 Unit tests can live in `test/` but should remain type-focused (e.g., compile-time assertions via `// @ts-expect-error`). Avoid introducing runtime-only test utilities.
 
 ```bash
-bun run test --filter=@beep/types
+bunx turbo run test --filter=@beep/types
 ```
 
 ## Development Commands
 
 ```bash
 # Type checking
-bun run check --filter=@beep/types
+bunx turbo run check --filter=@beep/types
 
 # Linting
-bun run lint --filter=@beep/types
-bun run lint:fix --filter=@beep/types
+bunx turbo run lint --filter=@beep/types
+bunx turbo run lint:fix --filter=@beep/types
 
 # Testing
-bun run test --filter=@beep/types
-bun run coverage --filter=@beep/types
+bunx turbo run test --filter=@beep/types
+bunx turbo run coverage --filter=@beep/types
 
 # Build
-bun run build --filter=@beep/types
+bunx turbo run build --filter=@beep/types
 
 # Circular dependency check
-bun run lint:circular --filter=@beep/types
+bunx turbo run lint:circular --filter=@beep/types
 ```
 
 ## Constraints Checklist (PR Reviewer Aid)

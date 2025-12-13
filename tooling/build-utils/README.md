@@ -1,74 +1,90 @@
-# @beep/build-utils — Next.js build utilities
+# @beep/build-utils
 
-Effect-based build configuration utilities for Next.js applications in the beep-effect monorepo. This package provides composable build plugins including PWA support, secure headers, bundle analysis, MDX integration, and smart transpilation detection.
+Next.js configuration utilities with Effect-based security, PWA, and build optimization for the beep-effect monorepo.
 
-## Purpose and fit
+## Purpose
 
-- **Next.js configuration factory**: Opinionated `beepNextConfig` that applies security, optimization, and PWA defaults automatically.
-- **Composable plugins**: Individual higher-order functions (`withPWA`, `withBundleAnalyzer`, `withMDX`) that transform Next.js configurations.
-- **Security-first**: Comprehensive secure header generation with CSP, CORS, frame protection, and XSS mitigation.
-- **Smart transpilation**: Automatically detects workspace packages that need transpilation based on their exports pointing to TypeScript source.
-- **PWA support**: Complete Progressive Web App setup with service worker generation, caching strategies, and offline fallbacks.
+This package provides a zero-config Next.js configuration factory (`beepNextConfig`) that automatically applies production-ready defaults:
 
-## Public surface map
+- **Security headers**: CSP, HSTS, frame guards, XSS protection with secure defaults
+- **PWA support**: Service worker generation, offline caching, and fallback routes
+- **Smart transpilation**: Auto-detects workspace packages requiring TypeScript transpilation
+- **Bundle optimization**: Conditional bundle analysis and package import optimization
+- **MDX integration**: Built-in MDX support for documentation pages
 
-### Core configuration
-- **`beepNextConfig`** — Main factory function that creates a complete Next.js configuration with all defaults applied. Returns a Promise&lt;NextConfig&gt;.
-- **`BeepNextConfig`** — TypeScript type for configuration options (extends NextConfig with custom fields).
+All configuration is Effect-based with proper error handling, observability spans, and immutable transformations. This is a **tooling package** for build-time use in `next.config.js` files.
 
-### PWA module (`@beep/build-utils/pwa`)
-- **`withPWA`** — Higher-order function that adds PWA capabilities to a Next.js config.
-- **`defaultCache`** — Preconfigured Workbox caching strategies for fonts, images, scripts, styles, API routes, and more.
-- **`buildCustomWorker`** — Build a custom service worker from TypeScript source.
-- **`buildFallbackWorker`** — Generate a fallback worker for offline pages.
-- **`registerWorkerSource`** — Client-side service worker registration script source.
-- **`fallbackWorkerSource`** — Fallback worker script template.
-- **Types**: `PWAConfig`, `RuntimeCaching`, `FallbackRoutes`, `WorkboxHandler`, and comprehensive Workbox type re-exports.
+## Installation
 
-### Secure headers
-- **`createSecureHeaders`** — Effect-based function that generates Next.js header configuration from security options.
-- **`createHeadersObject`** — Generates a plain object of security headers (without Next.js wrapper).
-- **Individual header creators** (via `secure-headers/index.ts`):
-  - Content Security Policy (CSP)
-  - Cross-Origin policies (COEP, COOP, CORP)
-  - HTTPS enforcement (HSTS)
-  - Frame protection (X-Frame-Options)
-  - XSS protection
-  - MIME sniffing prevention
-  - Permissions Policy
-  - Referrer Policy
-  - Expect-CT
+```bash
+# This package is internal to the monorepo
+# Add as a dependency in your package.json:
+"@beep/build-utils": "workspace:*"
+```
 
-### Other utilities
-- **`withBundleAnalyzer`** — Conditionally enable webpack bundle analysis (auto-enables in dev environment).
-- **`withMDX`** — Add MDX support to Next.js via `@next/mdx`.
-- **`computeTranspilePackages`** — Effect that analyzes workspace dependencies and returns packages needing transpilation.
+## Key Exports
 
-## Architecture integration
+### Main Entry (`@beep/build-utils`)
 
-- **Tooling layer**: Build-time utilities, not runtime code. Safe to use in `next.config.js` files.
-- **Effect-first**: All major operations return Effects with proper error handling and observability spans.
-- **Composable**: Each plugin is a pure function that transforms Next.js configurations immutably.
-- **Workspace-aware**: Integrates with `@beep/tooling-utils` for repo introspection and dependency analysis.
+| Export | Description |
+|--------|-------------|
+| `beepNextConfig` | Main factory function that returns a complete Next.js configuration with security, PWA, MDX, and transpilation configured |
 
-## Usage examples
+### PWA Module (`@beep/build-utils/pwa`)
 
-### Basic Next.js configuration
+| Export | Description |
+|--------|-------------|
+| `withPWA` | Higher-order function that adds PWA capabilities to Next.js config |
+| `defaultCache` | Preconfigured Workbox caching strategies for common asset types |
+| `buildCustomWorker` | Build a custom service worker from TypeScript source |
+| `buildFallbackWorker` | Generate a fallback worker for offline pages |
+| `registerWorkerSource` | Client-side service worker registration script source |
+| `fallbackWorkerSource` | Fallback worker script template |
+| Types | `PWAConfig`, `RuntimeCaching`, `FallbackRoutes`, `WorkboxHandler`, and Workbox re-exports |
+
+## Integration
+
+`@beep/build-utils` integrates with the beep-effect monorepo tooling layer:
+
+- **Consumed by**: `apps/web`, `apps/notes` (any Next.js application)
+- **Depends on**: `@beep/tooling-utils` for repo introspection and workspace analysis
+- **Layer**: Tooling (build-time only, not included in runtime bundles)
+- **Pattern**: Effect-based configuration with immutable transformations
+
+## Usage
+
+### Basic Configuration
+
+The simplest setup provides all defaults (security headers, PWA, MDX, transpilation):
 
 ```typescript
-// apps/web/next.config.js
+// apps/web/next.config.ts
 import { beepNextConfig } from "@beep/build-utils";
 
 export default beepNextConfig("@beep/web");
 ```
 
-### Custom configuration with overrides
+This automatically:
+- Applies secure CSP headers with safe defaults
+- Configures PWA with offline support (disabled in development)
+- Enables MDX support for `.mdx` and `.md` pages
+- Auto-detects workspace packages requiring transpilation
+- Optimizes imports for common UI libraries
+- Configures image domains for external assets
+
+### Custom Configuration
+
+Override defaults by passing a configuration object:
 
 ```typescript
 import { beepNextConfig } from "@beep/build-utils";
 
 export default beepNextConfig("@beep/web", {
-  // Override secure headers
+  // Standard Next.js options
+  reactCompiler: true,
+  trailingSlash: false,
+
+  // Custom security headers
   headers: {
     contentSecurityPolicy: {
       directives: {
@@ -76,34 +92,38 @@ export default beepNextConfig("@beep/web", {
         scriptSrc: ["'self'", "https://trusted-cdn.com"],
       },
     },
+    forceHTTPSRedirect: [true, { maxAge: 31536000 }],
   },
 
-  // Override PWA config
+  // PWA configuration
   pwaConfig: {
     disable: process.env.NODE_ENV === "development",
     dest: "public",
-    runtimeCaching: defaultCache,
+    register: true,
+    skipWaiting: true,
     fallbacks: {
       document: "/_offline",
     },
   },
 
-  // Override bundle analyzer
+  // Bundle analyzer
   bundleAnalyzerOptions: {
-    enabled: true,
+    enabled: process.env.ANALYZE === "true",
     analyzerMode: "static",
   },
 });
 ```
 
-### Using PWA utilities standalone
+### Advanced PWA Configuration
+
+For advanced PWA use cases, import from `@beep/build-utils/pwa`:
 
 ```typescript
 import { withPWA, defaultCache } from "@beep/build-utils/pwa";
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  // your config
+const baseConfig: NextConfig = {
+  // Standard Next.js config
 };
 
 export default withPWA({
@@ -111,16 +131,16 @@ export default withPWA({
   register: true,
   skipWaiting: true,
   runtimeCaching: [
-    ...defaultCache,
-    // Add custom caching strategy
+    ...defaultCache, // Include default caching strategies
     {
+      // Custom API caching
       urlPattern: /^https:\/\/api\.example\.com\/.*/i,
       handler: "NetworkFirst",
       options: {
         cacheName: "api-cache",
         expiration: {
           maxEntries: 50,
-          maxAgeSeconds: 300, // 5 minutes
+          maxAgeSeconds: 300,
         },
       },
     },
@@ -129,116 +149,98 @@ export default withPWA({
     document: "/_offline",
     image: "/static/fallback.png",
   },
-})(nextConfig);
+})(baseConfig);
 ```
 
-### Creating secure headers manually
+## Automatic Configurations
 
-```typescript
-import { createSecureHeaders } from "@beep/build-utils";
-import * as Effect from "effect/Effect";
+### Security Headers
 
-const program = createSecureHeaders({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: "'self'",
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-    },
-  },
-  forceHTTPSRedirect: [true, { maxAge: 63072000 }],
-  frameGuard: "deny",
-  xssProtection: "sanitize",
-});
+`beepNextConfig` applies these security defaults (all customizable):
 
-const headers = await Effect.runPromise(program);
-// Use in Next.js config or middleware
-```
+| Header | Default Value |
+|--------|---------------|
+| Content-Security-Policy | `default-src 'self'`, restricted script/style sources, blob/data URIs for media |
+| Strict-Transport-Security | `max-age=63072000` (2 years) |
+| X-Frame-Options | `DENY` |
+| X-Content-Type-Options | `nosniff` |
+| X-XSS-Protection | `1; mode=block` (sanitize) |
+| X-Permitted-Cross-Domain-Policies | `none` |
 
-### Computing transpile packages
+CSP directives include safe defaults for:
+- Google Tag Manager, reCAPTCHA, Fonts
+- jsdelivr CDN
+- Vercel Live preview
+- Local development servers (localhost, 127.0.0.1)
 
-```typescript
-import { computeTranspilePackages } from "@beep/build-utils/transpile-packages";
-import * as Effect from "effect/Effect";
+### Image Domains
 
-const program = computeTranspilePackages({ target: "@beep/web" });
-const packages = await Effect.runPromise(program);
-// Returns: ["@beep/ui", "@beep/shared-domain", ...]
-```
+Automatically configured remote image patterns:
 
-## Default configurations
+- Static asset CDN (from `NEXT_PUBLIC_STATIC_URL` env var)
+- `cdn.discordapp.com`
+- `lh3.googleusercontent.com`
+- `avatars.githubusercontent.com`
+- `images.unsplash.com`
+- `image.tmdb.org`
+- `res.cloudinary.com`
 
-### Secure headers defaults
+### Optimized Package Imports
 
-The package applies secure defaults that can be overridden:
+These packages are automatically optimized for faster builds:
 
-- **CSP**: Allows self, blob, and specific trusted CDNs (Google Fonts, jsdelivr)
-- **HSTS**: 2-year max-age with includeSubDomains
-- **Frame-Options**: DENY by default
-- **X-Content-Type-Options**: nosniff
-- **X-XSS-Protection**: sanitize mode
-- **X-Permitted-Cross-Domain-Policies**: none
+- `@iconify/react`
+- `@mui/material`, `@mui/icons-material`, `@mui/lab`, `@mui/x-date-pickers`
+- `@beep/ui`, `@beep/ui-core`
+- `react-phone-number-input`
+- `@effect/platform`, `@effect/opentelemetry`
 
-### Image optimization defaults
+### Experimental Features
 
-Automatically configures Next.js image domains:
-- Static asset CDN (from `NEXT_PUBLIC_STATIC_URL`)
-- Discord CDN
-- Google user content
-- GitHub avatars
-- Unsplash
-- TMDB
-- Cloudinary
+The following Next.js experimental features are enabled by default:
 
-### Experimental features enabled
+- `optimizePackageImports` — Tree-shaking for listed packages
+- `mcpServer: true` — MCP server support
+- `turbopackFileSystemCacheForDev: true` — Faster dev builds
+- `browserDebugInfoInTerminal: true` — Enhanced debugging output
+- `ppr: true` — Partial Prerendering
 
-- `optimizePackageImports` for common UI libraries (@mui/material, @iconify/react, etc.)
-- `mcpServer: true`
-- `turbopackFileSystemCacheForDev: true`
-- `browserDebugInfoInTerminal: true`
-- `ppr: true` (Partial Prerendering)
+### PWA Default Cache Strategies
 
-### Package optimization
+The `defaultCache` export from `@beep/build-utils/pwa` provides Workbox caching strategies:
 
-Default optimized imports:
-- @iconify/react
-- @mui/material, @mui/icons-material, @mui/lab, @mui/x-date-pickers
-- @beep/ui, @beep/ui-core
-- react-phone-number-input
-- @effect/platform, @effect/opentelemetry
-
-## PWA caching strategies
-
-The `defaultCache` export provides production-ready Workbox strategies:
-
-| Asset Type | Handler | Cache Name | Max Age |
-|------------|---------|------------|---------|
-| Google Fonts (webfonts) | CacheFirst | google-fonts-webfonts | 365 days |
-| Google Fonts (stylesheets) | StaleWhileRevalidate | google-fonts-stylesheets | 7 days |
-| Font files (.woff, .woff2, etc.) | StaleWhileRevalidate | static-font-assets | 7 days |
-| Images (.jpg, .png, .svg, etc.) | StaleWhileRevalidate | static-image-assets | 24 hours |
-| Next.js images | StaleWhileRevalidate | next-image | 24 hours |
+| Asset Type | Strategy | Cache Name | Max Age |
+|------------|----------|------------|---------|
+| Google Fonts webfonts | CacheFirst | google-fonts-webfonts | 365 days |
+| Google Fonts stylesheets | StaleWhileRevalidate | google-fonts-stylesheets | 7 days |
+| Font files (.woff, .woff2) | StaleWhileRevalidate | static-font-assets | 7 days |
+| Images (.jpg, .png, .svg) | StaleWhileRevalidate | static-image-assets | 24 hours |
+| Next.js optimized images | StaleWhileRevalidate | next-image | 24 hours |
 | Audio (.mp3, .wav, .ogg) | CacheFirst | static-audio-assets | 24 hours |
 | Video (.mp4) | CacheFirst | static-video-assets | 24 hours |
 | JavaScript (.js) | StaleWhileRevalidate | static-js-assets | 24 hours |
 | CSS (.css, .less) | StaleWhileRevalidate | static-style-assets | 24 hours |
 | Next.js data routes | StaleWhileRevalidate | next-data | 24 hours |
-| Data files (.json, .xml, .csv) | NetworkFirst | static-data-assets | 24 hours |
+| Data files (.json, .xml) | NetworkFirst | static-data-assets | 24 hours |
 | API routes (same-origin) | NetworkFirst | apis | 24 hours |
-| Other same-origin | NetworkFirst | others | 24 hours |
-| Cross-origin | NetworkFirst | cross-origin | 1 hour |
+| Other same-origin resources | NetworkFirst | others | 24 hours |
+| Cross-origin resources | NetworkFirst | cross-origin | 1 hour |
 
-## Type safety and schemas
+## Dependencies
 
-All secure header options are validated using Effect Schema:
-- `ContentSecurityPolicyOptionSchema`
-- `CrossOriginEmbedderPolicyOptionSchema`
-- `CrossOriginOpenerPolicyOptionSchema`
-- `ForceHTTPSRedirectOptionSchema`
-- `FrameGuardOptionSchema`
-- And more (see `secure-headers/index.ts` schemas export)
+| Package | Purpose |
+|---------|---------|
+| `@beep/tooling-utils` | Repo introspection, workspace analysis, file system utilities |
+| `@beep/identity` | Package identity helpers |
+| `@beep/schema` | Effect Schema utilities |
+| `next` | Next.js framework types and utilities |
+| `@next/mdx` | MDX support for Next.js |
+| `@next/bundle-analyzer` | Webpack bundle analysis |
+| `workbox-build` | Service worker generation |
+| `workbox-webpack-plugin` | PWA integration with webpack |
+| `webpack` | Build tooling for custom workers |
 
-## Testing and verification
+## Development
 
 ```bash
 # Type check
@@ -247,81 +249,37 @@ bun run --filter @beep/build-utils check
 # Lint
 bun run --filter @beep/build-utils lint
 
-# Auto-fix linting issues
+# Fix linting issues
 bun run --filter @beep/build-utils lint:fix
 
 # Run tests
 bun run --filter @beep/build-utils test
 
-# Coverage
-bun run --filter @beep/build-utils coverage
-
-# Check for circular dependencies
-bun run --filter @beep/build-utils lint:circular
-
 # Build
 bun run --filter @beep/build-utils build
 ```
 
-## Dependencies and platform
+## Notes
 
-- **Effect Platform**: Uses `@effect/platform-node` and `@effect/platform-bun` for file system operations.
-- **Workspace integration**: Depends on `@beep/tooling-utils` for repo introspection.
-- **Next.js**: Tightly coupled to Next.js build pipeline (Next.js 15+).
-- **Workbox**: Uses `workbox-build` and `workbox-webpack-plugin` for PWA generation.
-- **Webpack**: Direct webpack integration for custom worker compilation.
+### Effect Patterns
 
-## Effect patterns used
+This package follows Effect-first development patterns:
 
-- **Effect.gen**: All major functions use generator-based Effects.
-- **Effect.withSpan**: Observability spans on key operations (`NextConfig.make`, `createSecureHeaders`, `computeTranspilePackages`).
-- **Namespace imports**: `import * as Effect from "effect/Effect"`, `import * as S from "effect/Schema"`.
-- **Collection utilities**: Uses `effect/Array`, `effect/String`, `effect/HashMap`, `effect/HashSet` instead of native methods.
-- **Option handling**: Extensive use of `Option.fromNullable`, `Option.match`, `Option.getOrElse` for safe nullable handling.
-- **Immutable transformations**: All config transformations are pure functions returning new objects.
+- **Effect.gen** — All configuration builders use generator-based Effects
+- **Effect.withSpan** — Observability spans on `NextConfig.make` and internal operations
+- **Namespace imports** — `import * as Effect`, `import * as A from "effect/Array"`
+- **Immutable transformations** — All config modifications return new objects
+- **Option handling** — Safe nullable handling with `Option.fromNullable`, `Option.match`
+- **Collection utilities** — Uses Effect's `Array`, `String`, `HashMap`, `HashSet` instead of native methods
 
-## Contributor checklist
+### Transpilation Detection
 
-- **Effect-first**: Use `Effect.gen`, avoid `async/await` in application logic.
-- **Namespace imports**: Always use full namespace imports (`import * as Effect`).
-- **No native methods**: Use Effect collection utilities (`A.map`, `Str.startsWith`, etc.).
-- **Immutability**: Never mutate inputs; always return new configurations.
-- **Schemas**: Validate external data with Effect Schema.
-- **Spans**: Add `Effect.withSpan` to new public functions for observability.
-- **Pure functions**: Keep utilities pure; side effects only through Effects.
-- **Documentation**: Update this README and add JSDoc to new exports.
-- **Types**: Export all public types; use `readonly` modifiers extensively.
+The internal `computeTranspilePackages` function analyzes workspace dependencies to automatically detect which packages need TypeScript transpilation. It examines `package.json` `exports`, `module`, and `main` fields to identify packages pointing to `.ts` files or `/src/` directories. This eliminates manual `transpilePackages` maintenance.
 
-## Notes on architecture decisions
+### Security Defaults
 
-### Why Effect for build-time utilities?
+Security headers follow defense-in-depth principles with strict defaults that can be selectively relaxed. CSP directives are designed to support common development patterns (Vercel Live, Google services) while blocking untrusted origins. Always audit CSP modifications for security implications.
 
-While this is a build-time package, Effect provides:
-1. **Consistent patterns** across the monorepo
-2. **Better error handling** than try/catch chains
-3. **Observability** through spans and structured logging
-4. **Type-safe transformations** with Schema validation
-5. **Testability** through dependency injection and Layers
+### PWA Configuration
 
-### Why immutable config transformations?
-
-Next.js plugins are higher-order functions that compose together. Immutability ensures:
-- Plugins can be applied in any order without side effects
-- Configuration sources are traceable
-- Testing is deterministic
-- No hidden mutations that break in production
-
-### Transpilation detection strategy
-
-The `computeTranspilePackages` function analyzes package.json `exports`, `module`, and `main` fields to detect TypeScript source references. This avoids:
-- Manual maintenance of transpilePackages arrays
-- Forgetting to transpile new workspace packages
-- Breaking builds when adding dependencies
-
-Any package with exports pointing to `.ts` files or `/src/` directories is automatically included.
-
-## Related packages
-
-- **`@beep/tooling-utils`** — Repo introspection, file system utilities, workspace schemas
-- **`@beep/constants`** — Schema-backed enums and path builders (may use build-utils for config)
-- **Next.js apps** — `apps/web` consumes `beepNextConfig` for production configuration
+PWA is enabled by default in production and disabled in development. The service worker is generated at build time and uses Workbox caching strategies. For offline-first applications, customize `runtimeCaching` and `fallbacks` to match your application's needs.

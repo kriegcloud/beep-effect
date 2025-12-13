@@ -1,38 +1,99 @@
-# @beep/testkit — Bun-first Effect testing harness
+# @beep/testkit
 
-Effect-aware testing utilities wrapping Bun's native test runner with Layer composition, scoped resources, and retry semantics. Provides assertion helpers for Effect data types and orchestration primitives that keep tests within the Effect algebra.
+Bun-first Effect testing harness providing Effect-aware test runners, Layer composition, scoped resource management, and assertion helpers for Effect data types.
 
-## What this package provides
-- **Effect test runners** (`effect`, `scoped`, `live`, `scopedLive`) execute tests with automatic Effect runtime management and error formatting.
-- **Layer-based orchestration** (`layer`) shares memoized runtimes across test suites while optionally injecting TestContext.
-- **Assertion helpers** (`assert.ts`) for Effect primitives (`Option`, `Either`, `Exit`) using `Equal.equals` semantics and Bun's diff output.
-- **Flaky test stabilization** (`flakyTest`) uses `Effect.retry` with configurable schedules to handle intermittent failures.
-- **Property-based testing hook** (`prop`) provides a placeholder for future FastCheck integration.
-- **Bun re-exports** (`describe`, `it`, `expect`) from `bun:test` for seamless interop with the existing Bun ecosystem.
+## Purpose
 
-## When to reach for it
-- Writing Effect-based integration tests that need Layer composition and resource lifecycle management.
-- Testing repository implementations with ephemeral database containers or service mocks.
-- Asserting on Effect data types (`Option.Some`, `Either.Right`, `Exit.Success`) without hand-rolling equality checks.
-- Stabilizing tests with transient external dependencies via retry schedules.
-- Sharing expensive Layer construction (database pools, auth contexts) across multiple test cases.
+This package wraps Bun's native test runner with Effect-first orchestration primitives that keep tests within the Effect algebra. It provides:
 
-## Quickstart
-```ts
+- **Effect test runners** that execute Effects with automatic runtime management and error formatting
+- **Layer-based orchestration** for sharing memoized runtimes across test suites
+- **Assertion helpers** for Effect primitives (`Option`, `Either`, `Exit`) using `Equal.equals` semantics
+- **Flaky test stabilization** via `Effect.retry` with configurable schedules
+- **Complete re-exports** of `bun:test` (`describe`, `it`, `expect`) for seamless interop
+
+This package is the standard testing foundation for all `@beep/*` packages requiring Effect-aware test orchestration.
+
+## Installation
+
+```bash
+# This package is internal to the monorepo
+# Add as a dependency in your package.json:
+"@beep/testkit": "workspace:*"
+```
+
+## Key Exports
+
+### Test Runners
+
+| Export | Description |
+|--------|-------------|
+| `effect` | Runs Effects with `TestContext` injected (TestClock, TestRandom) |
+| `scoped` | Runs scoped Effects with automatic finalizer cleanup |
+| `live` | Runs Effects without test services (real Clock/Random) |
+| `scopedLive` | Combines scoped management with live services |
+| `layer` | Shares memoized Layer runtime across test cases |
+| `flakyTest` | Retries Effects with configurable schedule for stability |
+| `prop` | Property-based testing placeholder (FastCheck integration pending) |
+| `describeWrapped` | Custom test harness with bundled Effect methods |
+| `makeMethods` | Factory for creating Effect test method bundles |
+
+### Assertions
+
+| Export | Description |
+|--------|-------------|
+| `strictEqual` | Reference equality (`===`) |
+| `deepStrictEqual` | Deep structural equality |
+| `notDeepStrictEqual` | Negated deep equality |
+| `assertEquals` | Equality using `Equal.equals` trait |
+| `assertTrue` | Asserts value is `true` |
+| `assertFalse` | Asserts value is `false` |
+| `assertInstanceOf` | Type guard assertion |
+| `assertInclude` | String contains substring |
+| `assertMatch` | String matches regex |
+| `assertNone` | Asserts `Option.None` |
+| `assertSome` | Asserts `Option.Some` with value |
+| `assertLeft` | Asserts `Either.Left` with error |
+| `assertRight` | Asserts `Either.Right` with value |
+| `assertSuccess` | Asserts `Exit.Success` with value |
+| `assertFailure` | Asserts `Exit.Failure` with cause |
+| `doesNotThrow` | Asserts function doesn't throw |
+| `throws` | Asserts function throws |
+| `throwsAsync` | Asserts async function throws |
+| `fail` | Manually fail test with message |
+
+### Re-exports from bun:test
+
+All exports from `bun:test` are re-exported for convenience: `describe`, `it`, `expect`, `test`, `beforeAll`, `beforeEach`, `afterAll`, `afterEach`, and more.
+
+## Usage
+
+### Basic Effect Test
+
+```typescript
 import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import { effect, layer, assertSome, assertSuccess } from "@beep/testkit";
+import { effect, strictEqual } from "@beep/testkit";
 
-// Basic Effect test
 effect("computes result", () =>
   Effect.gen(function* () {
     const result = yield* Effect.succeed(42);
     strictEqual(result, 42);
   })
 );
+```
 
-// Layer-based test with shared runtime
-layer(MyDb.Live, { timeout: Duration.seconds(30) })("db suite", (it) => {
+### Layer-Based Test Suite
+
+```typescript
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as Duration from "effect/Duration";
+import { layer, assertSome } from "@beep/testkit";
+
+// Share database pool and auth context across tests
+const TestRuntime = Layer.mergeAll(MyDb.Live, Auth.Test);
+
+layer(TestRuntime, { timeout: Duration.seconds(30) })("integration suite", (it) => {
   it.effect("fetches entity", () =>
     Effect.gen(function* () {
       const repo = yield* MyDb.repo;
@@ -43,13 +104,15 @@ layer(MyDb.Live, { timeout: Duration.seconds(30) })("db suite", (it) => {
 });
 ```
 
-## Test orchestration helpers
+## Test Runners
 
-### `effect` — TestContext-injected Effect runner
+### `effect` — TestContext-Injected Effect Runner
+
 Runs Effects with `TestContext` automatically provided. Use for tests that need `TestClock`, `TestRandom`, or other test services.
 
-```ts
+```typescript
 import * as Effect from "effect/Effect";
+import * as Duration from "effect/Duration";
 import * as TestClock from "effect/TestClock";
 import { effect } from "@beep/testkit";
 
@@ -57,15 +120,16 @@ effect("advances test clock", () =>
   Effect.gen(function* () {
     yield* TestClock.adjust(Duration.seconds(5));
     const now = yield* Effect.clockWith((clock) => clock.currentTimeMillis);
-    // clock advanced by 5 seconds
+    // Clock advanced by 5 seconds
   })
 );
 ```
 
-### `scoped` — Scoped Effect runner with finalizers
+### `scoped` — Scoped Effect Runner with Finalizers
+
 Runs scoped Effects with automatic resource cleanup. Use for tests that acquire resources via `Effect.acquireRelease`.
 
-```ts
+```typescript
 import * as Effect from "effect/Effect";
 import { scoped } from "@beep/testkit";
 
@@ -80,12 +144,13 @@ scoped("cleans up spy", () =>
 );
 ```
 
-### `live` — Bare Effect runner without test services
+### `live` — Effect Runner Without Test Services
+
 Runs Effects without injecting TestContext. Use for pure logic tests or when you need real Clock/Random implementations.
 
-```ts
+```typescript
 import * as Effect from "effect/Effect";
-import { live } from "@beep/testkit";
+import { live, assertTrue } from "@beep/testkit";
 
 live("generates UUID", () =>
   Effect.gen(function* () {
@@ -95,10 +160,11 @@ live("generates UUID", () =>
 );
 ```
 
-### `scopedLive` — Scoped Effect runner without test services
+### `scopedLive` — Scoped Effect Runner Without Test Services
+
 Combines scoped resource management with live services. Use when you need finalizers but want real Clock/Random.
 
-```ts
+```typescript
 import * as Effect from "effect/Effect";
 import { scopedLive } from "@beep/testkit";
 
@@ -111,14 +177,15 @@ scopedLive("manages temp file", () =>
 );
 ```
 
-### `layer` — Share memoized Layer across tests
+### `layer` — Share Memoized Layer Across Tests
+
 Constructs a runtime from a Layer and shares it across test cases. Automatically injects TestContext unless `excludeTestServices: true` is set.
 
-```ts
+```typescript
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Duration from "effect/Duration";
-import { layer } from "@beep/testkit";
+import { layer, assertTrue } from "@beep/testkit";
 
 // Share database pool and auth context across tests
 const TestRuntime = Layer.mergeAll(MyDb.Live, Auth.Test);
@@ -135,37 +202,40 @@ layer(TestRuntime, { timeout: Duration.seconds(60) })("integration", (it) => {
   it.scoped("rolls back transaction", () =>
     Effect.gen(function* () {
       const db = yield* MyDb.service;
-      yield* db.runTransaction((tx) => tx.insert(...));
-      // transaction rolled back via finalizer
+      yield* db.runTransaction((tx) => tx.insert(/* ... */));
+      // Transaction rolled back via finalizer
     })
   );
 });
 ```
 
-#### Nested layers
-You can nest `layer` calls to compose runtimes:
+**Layer Options**:
+- `timeout`: Maximum duration for test execution (default: no timeout)
+- `memoMap`: Share Layer memoization across nested layers (prevents resource duplication)
+- `excludeTestServices`: Set to `true` to exclude automatic `TestContext` injection (use when Layer provides its own test services or needs live platform implementations)
 
-```ts
+**Nested Layers**:
+
+```typescript
 import * as Layer from "effect/Layer";
 import { layer } from "@beep/testkit";
 
 layer(BaseServices.Live)("base suite", (it) => {
-  layer(AuthLayer.Live)("auth suite", (it) => {
+  it.layer(AuthLayer.Live)("auth suite", (it) => {
     it.effect("accesses both base and auth services", () =>
       Effect.gen(function* () {
         const base = yield* BaseServices.service;
         const auth = yield* AuthLayer.service;
-        // both services available
+        // Both services available
       })
     );
   });
 });
 ```
 
-#### Memo map management
-Pass `memoMap` when nesting layers to prevent resource churn:
+**Memo Map Management**:
 
-```ts
+```typescript
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { layer } from "@beep/testkit";
@@ -173,16 +243,17 @@ import { layer } from "@beep/testkit";
 const memoMap = Effect.runSync(Layer.makeMemoMap);
 
 layer(DbLayer, { memoMap })("outer", (it) => {
-  layer(CacheLayer, { memoMap })("inner", (it) => {
-    // both layers share the same memo map
+  it.layer(CacheLayer, { memoMap })("inner", (it) => {
+    // Both layers share the same memo map - no resource duplication
   });
 });
 ```
 
-### `flakyTest` — Retry with schedule
+### `flakyTest` — Retry with Schedule
+
 Catches defects and retries Effects up to a timeout. Use sparingly; prefer fixing root causes.
 
-```ts
+```typescript
 import * as Effect from "effect/Effect";
 import * as Duration from "effect/Duration";
 import * as Schedule from "effect/Schedule";
@@ -203,10 +274,11 @@ effect("stabilizes API call", () =>
 );
 ```
 
-### `describeWrapped` — Custom test harness
+### `describeWrapped` — Custom Test Harness
+
 Creates a `describe` block with bundled Effect test methods. Use when you need a custom test suite with preconfigured helpers.
 
-```ts
+```typescript
 import * as Effect from "effect/Effect";
 import { describeWrapped } from "@beep/testkit";
 
@@ -225,14 +297,23 @@ describeWrapped("widget service", (it) => {
 });
 ```
 
-## Assertion helpers
+## Assertions
 
 All assertions use `Equal.equals` for structural equality and delegate to Bun's `expect` for diff output.
 
-### Primitives
+### Primitive Assertions
 
-```ts
-import { strictEqual, deepStrictEqual, notDeepStrictEqual, assertEquals, fail, doesNotThrow, throws, throwsAsync } from "@beep/testkit";
+```typescript
+import {
+  strictEqual,
+  deepStrictEqual,
+  notDeepStrictEqual,
+  assertEquals,
+  fail,
+  doesNotThrow,
+  throws,
+  throwsAsync
+} from "@beep/testkit";
 
 // Reference equality
 strictEqual(actual, expected);
@@ -253,10 +334,16 @@ await throwsAsync(async () => fn());
 fail("Expected condition not met");
 ```
 
-### Type assertions
+### Type Assertions
 
-```ts
-import { assertTrue, assertFalse, assertInstanceOf, assertInclude, assertMatch } from "@beep/testkit";
+```typescript
+import {
+  assertTrue,
+  assertFalse,
+  assertInstanceOf,
+  assertInclude,
+  assertMatch
+} from "@beep/testkit";
 
 assertTrue(condition, "should be true");
 assertFalse(condition, "should be false");
@@ -265,9 +352,9 @@ assertInclude(str, "substring");
 assertMatch(str, /pattern/);
 ```
 
-### Option assertions
+### Option Assertions
 
-```ts
+```typescript
 import * as Option from "effect/Option";
 import { assertNone, assertSome } from "@beep/testkit";
 
@@ -278,9 +365,9 @@ const some = Option.some(42);
 assertSome(some, 42);
 ```
 
-### Either assertions
+### Either Assertions
 
-```ts
+```typescript
 import * as Either from "effect/Either";
 import { assertLeft, assertRight } from "@beep/testkit";
 
@@ -291,10 +378,9 @@ const right = Either.right(42);
 assertRight(right, 42);
 ```
 
-### Exit assertions
+### Exit Assertions
 
-```ts
-import * as Effect from "effect/Effect";
+```typescript
 import * as Exit from "effect/Exit";
 import * as Cause from "effect/Cause";
 import { assertFailure, assertSuccess } from "@beep/testkit";
@@ -306,65 +392,79 @@ const failure = Exit.failCause(Cause.fail("error"));
 assertFailure(failure, Cause.fail("error"));
 ```
 
-## Effect pattern compliance
+## Dependencies
 
-This package strictly follows the repository's Effect-first patterns:
+| Package | Purpose |
+|---------|---------|
+| `effect` | Core Effect runtime and data types |
+| `@effect/platform` | Platform abstractions (FileSystem, Path, etc.) |
+| `@effect/sql` | SQL abstraction layer |
+| `@effect/sql-pg` | PostgreSQL driver for Effect SQL |
+| `@effect/sql-drizzle` | Drizzle ORM integration with Effect SQL |
+| `@testcontainers/postgresql` | Ephemeral PostgreSQL containers for testing |
+| `drizzle-orm` | Drizzle ORM for type-safe database operations |
+| `postgres` | PostgreSQL client for Node.js |
 
-### Namespace imports
-```ts
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Duration from "effect/Duration";
-import * as F from "effect/Function";
-import * as A from "effect/Array";
-import * as Str from "effect/String";
+## Integration
+
+This package is designed to be used by all `@beep/*` packages that require Effect-aware testing. It integrates seamlessly with:
+
+- **Database testing**: Use with `@beep/db-admin` for ephemeral PostgreSQL containers via Testcontainers
+- **Repository testing**: Test repository implementations from `packages/*/infra` with real or mock database connections
+- **Domain logic testing**: Test pure domain logic from `packages/*/domain` using `live` runner for real services or `effect` runner for controlled test environments
+- **SDK testing**: Test client contracts from `packages/*/sdk` with mock service layers
+
+## Development
+
+```bash
+# Type check
+bun run --filter @beep/testkit check
+
+# Lint
+bun run --filter @beep/testkit lint
+
+# Auto-fix lint issues
+bun run --filter @beep/testkit lint:fix
+
+# Run tests
+bun run --filter @beep/testkit test
+
+# Generate coverage report
+bun run --filter @beep/testkit coverage
+
+# Detect circular dependencies
+bun run --filter @beep/testkit lint:circular
 ```
 
-### No native array/string methods
-```ts
-// ❌ NEVER
-items.map((item) => item.id);
-str.split(",");
+## Notes
 
-// ✅ ALWAYS
-F.pipe(items, A.map((item) => item.id));
-F.pipe(str, Str.split(","));
-```
+### Layer TestContext Injection
 
-### Uppercase Schema constructors
-```ts
-import * as S from "effect/Schema";
+`layer` defaults to merging `TestContext` into the runtime. Set `excludeTestServices: true` when:
+- Your Layer already provides test services
+- You need live platform implementations (FileSystem, Path)
+- You're testing with real external dependencies
 
-// ✅ REQUIRED
-S.Struct({ name: S.String, age: S.Number });
-S.Array(S.String);
+### Property-Based Testing
 
-// ❌ FORBIDDEN
-S.struct({ name: S.string, age: S.number });
-```
+`prop` is currently a stub without FastCheck integration. Avoid relying on property-based testing until fully implemented.
 
-## Verification and scripts
-Run from `/home/elpresidank/YeeBois/projects/beep-effect/tooling/testkit`:
-- `bun run lint` — Biome format and lint checks
-- `bun run lint:fix` — Auto-fix lint issues
-- `bun run check` — TypeScript type checking
-- `bun run test` — Run test suite
-- `bun run coverage` — Generate coverage report
-- `bun run lint:circular` — Detect circular dependencies
+### Memo Map Management
 
-## Notes and gotchas
-- `layer` defaults to merging `TestContext`; set `excludeTestServices: true` when your Layer already provides test services or needs live platform implementations (FileSystem, Path).
-- `prop` is currently a stub without FastCheck integration; avoid relying on property-based testing until fully wired.
-- Memo maps prevent resource duplication; pass the same `memoMap` to nested `layer` calls or allocate one per suite with `Layer.makeMemoMap`.
-- `flakyTest` catches defects via `Effect.catchAllDefect`; prefer fixing root causes over masking instability.
-- Always close scopes properly: prefer `scoped` when allocating mutable resources (spies, temp files, database connections).
-- When extending assertions, unwrap data via Effect primitives (`Option.some`, `Either.right`) and delegate to `expect` for diff output.
+Memo maps prevent resource duplication when nesting layers. Pass the same `memoMap` to nested `layer` calls or allocate one per suite with `Layer.makeMemoMap`.
 
-## Contributor checklist
-- [ ] Use namespace imports (`import * as Effect from "effect/Effect"`) in all code examples.
-- [ ] Rely on Effect collection utilities (`A.map`, `Str.split`) instead of native methods.
-- [ ] Document Layer memo map requirements when adding orchestration helpers.
-- [ ] Update both `README.md` and `AGENTS.md` when introducing new assertion or runner patterns.
-- [ ] Run `bun run lint` and `bun run check` before committing.
-- [ ] Add usage snapshots to `test/` when extending the public surface.
-- [ ] Cross-link from root `AGENTS.md` Package Agent Guides section.
+### Flaky Test Stabilization
+
+`flakyTest` catches defects via `Effect.catchAllDefect` and retries with a schedule. Prefer fixing root causes over masking instability. Use sparingly for genuinely intermittent failures (network calls, external services).
+
+### Scoped Resources
+
+Always close scopes properly. Prefer `scoped` or `scopedLive` when allocating mutable resources (spies, temp files, database connections) to ensure finalizers run.
+
+### Extending Assertions
+
+When adding custom assertions:
+- Unwrap data via Effect primitives (`Option.getOrThrow`, `Either.getOrThrow`)
+- Use `Equal.equals` for structural equality
+- Delegate to Bun's `expect` for diff output
+- Add type assertions where applicable (`asserts value is Type`)

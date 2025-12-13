@@ -1,15 +1,24 @@
 # @beep/ui-core
 
-Design system foundation for the beep-effect monorepo. Provides MUI theme infrastructure, settings management, internationalization, and Effect-powered utilities.
+Design system foundation for the beep-effect monorepo combining Material-UI theming with Effect patterns.
 
-## Overview
+## Purpose
 
-`@beep/ui-core` is the source of truth for design tokens, palette mathematics, typography scales, and MUI component overrides. It combines Material-UI theming with Effect patterns to deliver a type-safe, customizable design system consumed by `@beep/ui` and higher-level application packages.
+`@beep/ui-core` serves as the source of truth for design tokens, palette mathematics, typography scales, and MUI component overrides in the beep-effect monorepo. It provides:
+- Effect-first theme system with runtime settings customization
+- Channel-based color management for CSS variable support
+- Comprehensive MUI component override catalog
+- Internationalization infrastructure with MUI locale bundles
+- Type-safe utilities for color, typography, storage, and formatting
+
+This package sits at the UI layer foundation, consumed primarily by `@beep/ui` which builds higher-level components on top of these primitives. Applications like `apps/web` use the complete design system through `@beep/ui`.
 
 ## Installation
 
 ```bash
-bun install @beep/ui-core
+# This package is internal to the monorepo
+# Add as a dependency in your package.json:
+"@beep/ui-core": "workspace:*"
 ```
 
 ## Key Features
@@ -38,6 +47,20 @@ packages/ui/core/
 └── package.json
 ```
 
+## Key Exports
+
+| Export | Type | Description |
+|--------|------|-------------|
+| `createTheme` | Function | Main theme factory accepting settings, locale, overrides |
+| `baseTheme` | ThemeOptions | Base theme with dual color schemes |
+| `themeConfig` | Config | Theme defaults (direction, mode, fonts) |
+| `defaultSettings` | SettingsState | Default settings configuration |
+| `AdapterEffectDateTime` | Class | MUI X Date Picker adapter for Effect DateTime |
+| `createPaletteChannel` | Function | Creates RGB channel palette from hex color |
+| `cssVarRgba` | Function | Generates rgba CSS variable references |
+| `SupportedLangValue` | Schema | Language enum schema (en, fr, ar, cn) |
+| `getCurrentLang` | Function | Retrieves language config with MUI locale |
+
 ## Exports
 
 ### Theme System
@@ -55,10 +78,17 @@ import type { ThemeOptions, ThemeColorPreset } from "@beep/ui-core/theme";
 - `Rtl` - RTL wrapper component with stylis plugin support
 
 **Theme Building Blocks:**
-- `palette`, `typography`, `shadows`, `customShadows`, `mixins`, `opacity`
+- `palette`, `basePalette`, `primary` - Color system with channel-based tokens
+- `typography` - Typography scale and variants
+- `shadows`, `customShadows`, `createShadowColor` - Shadow system
+- `opacity` - Opacity tokens for variants (filled, outlined, soft)
+- `mixins` - Reusable style mixins
 - `components` - Complete MUI component override catalog
 - `primaryColorPresets`, `secondaryColorPresets` - Color preset system
 - `applySettingsToTheme`, `applySettingsToComponents` - Settings application utilities
+
+**Theme Styles:**
+- `colorPicker` - Reusable color picker styles (from `theme/styles/colorPicker`)
 
 ### Settings Management
 
@@ -116,23 +146,57 @@ import {
   removeStorage,
   getCookie,
   setCookie,
+  removeCookie,
+  localStorageAvailable,
 
   // Formatting
   fDate,
   fTime,
   fDateTime,
   fTimestamp,
+  fAdd,
+  fSub,
+  fToNow,
+  fIsAfter,
+  fIsBetween,
+  fIsSame,
   formatNumber,
 
   // React utilities
   createCtx,
   mergeClasses,
   isActiveLink,
+  createHandlerSetter,
 
   // URL utilities
   isExternalLink,
   hasParams,
   removeParams,
+  isEqualPath,
+  removeLastSlash,
+
+  // Environment checks
+  isClient,
+  isDevelopment,
+  isApiSupported,
+
+  // CSS variables
+  getCssVariable,
+  setCssVariable,
+
+  // Geolocation
+  geolocationUtils,
+
+  // Swipe utilities
+  swipeUtils,
+
+  // Object utilities
+  hasKeys,
+
+  // Transform utilities
+  transformValue,
+  transformValueOnBlur,
+  transformValueOnChange,
 } from "@beep/ui-core/utils";
 ```
 
@@ -144,6 +208,15 @@ import type { AdapterEffectDateTimeOptions } from "@beep/ui-core/adapters";
 ```
 
 MUI X Date Picker adapter using Effect's `DateTime` module for type-safe date operations.
+
+### Constants
+
+```typescript
+import { registerIcons } from "@beep/ui-core/constants/iconify/register-icons";
+
+// Register Iconify icons for offline use
+registerIcons();
+```
 
 ### Assets
 
@@ -205,24 +278,27 @@ function App() {
 ### Using Settings
 
 ```typescript
+import * as O from "effect/Option";
+import * as F from "effect/Function";
 import { defaultSettings, SETTINGS_STORAGE_KEY } from "@beep/ui-core/settings";
-import { getStorage, setStorage } from "@beep/ui-core/utils";
+import { getStorage, setStorage } from "@beep/ui-core/utils/localStorage";
 import type { SettingsState } from "@beep/ui-core/settings";
 
 // Load persisted settings
 const loadSettings = (): SettingsState => {
   const stored = getStorage(SETTINGS_STORAGE_KEY);
 
-  if (stored && stored.version === defaultSettings.version) {
-    return { ...defaultSettings, ...stored };
-  }
-
-  // Version mismatch - use defaults
-  return defaultSettings;
+  return F.pipe(
+    stored,
+    O.fromNullable,
+    O.filter((s) => s.version === defaultSettings.version),
+    O.map((s) => ({ ...defaultSettings, ...s })),
+    O.getOrElse(() => defaultSettings)
+  );
 };
 
 // Save settings
-const saveSettings = (settings: SettingsState) => {
+const saveSettings = (settings: SettingsState): void => {
   setStorage(SETTINGS_STORAGE_KEY, settings);
 };
 ```
@@ -231,7 +307,7 @@ const saveSettings = (settings: SettingsState) => {
 
 ```typescript
 import * as F from "effect/Function";
-import { createPaletteChannel, cssVarRgba } from "@beep/ui-core/utils";
+import { createPaletteChannel, cssVarRgba } from "@beep/ui-core/utils/color";
 
 // Create palette channels for CSS variables
 const bluePalette = F.pipe(
@@ -422,23 +498,31 @@ export const defaultSettings: SettingsState = {
 ### Scripts
 
 ```bash
-# Development
-bun run dev              # Watch mode compilation
+# Development (from monorepo root)
+bun run --filter @beep/ui-core dev              # Watch mode compilation
 
 # Build
-bun run build            # Full build (ESM + CJS + annotations)
-bun run build-esm        # TypeScript compilation
-bun run build-cjs        # CommonJS transformation
-bun run build-annotate   # Pure call annotations
+bun run --filter @beep/ui-core build            # Full build (ESM + CJS + annotations)
+bun run --filter @beep/ui-core build-esm        # TypeScript compilation
+bun run --filter @beep/ui-core build-cjs        # CommonJS transformation
+bun run --filter @beep/ui-core build-annotate   # Pure call annotations
 
 # Quality
-bun run check            # Type check
-bun run lint             # Biome lint
-bun run lint:fix         # Auto-fix lint issues
+bun run --filter @beep/ui-core check            # Type check
+bun run --filter @beep/ui-core lint             # Biome lint
+bun run --filter @beep/ui-core lint:fix         # Auto-fix lint issues
 
 # Testing
+bun run --filter @beep/ui-core test             # Run tests
+bun run --filter @beep/ui-core coverage         # Test coverage
+
+# Or from package directory
+cd packages/ui/core
+bun run dev              # Watch mode compilation
+bun run build            # Full build
+bun run check            # Type check
+bun run lint             # Biome lint
 bun run test             # Run tests
-bun run coverage         # Test coverage
 ```
 
 ### Adding a Color Preset
@@ -506,11 +590,61 @@ bun run coverage         # Test coverage
 - **ALWAYS** use `F.pipe` for function composition
 - **ALWAYS** use uppercase constructors (`S.Struct`, `S.Array`, `S.String`)
 
+## Notes
+
+### Channel-Based Color System
+
+This package uses RGB channel notation for all colors to enable CSS variable alpha manipulation:
+
+```typescript
+// Colors stored as "R G B" strings
+const primaryMain = "33 101 209";  // Not "#2065D1"
+
+// Enables alpha in CSS
+// background: rgba(var(--palette-primary-mainChannel) / 0.08);
+```
+
+When adding new colors, always use `createPaletteChannel` to generate the full palette with lighter/darker variants and contrast text.
+
+### Settings Version Management
+
+The `version` field in `defaultSettings` acts as a cache-busting mechanism. Increment it when:
+- Adding or removing settings fields
+- Changing the type or valid values of existing fields
+- Making breaking changes to settings structure
+
+The settings provider automatically clears stale localStorage when versions don't match.
+
+### Locale Configuration
+
+Each language in `allLanguages` must provide:
+- `label` - Display name
+- `value` - Language code
+- `systemValue.components` - MUI locale bundles (Data Grid, Date Pickers)
+- Icon component
+
+Missing MUI locale components will cause runtime errors in localized grids and pickers.
+
+### Theme Immutability
+
+While MUI themes are objects, treat them as immutable. The `applySettingsToTheme` functions create new theme configurations rather than mutating existing ones. This ensures proper React re-rendering when settings change.
+
+### Effect Utility Usage
+
+All utility functions should follow Effect patterns:
+- Use `F.pipe` for composition
+- Return `Option` for potentially missing values
+- Use Effect array/string utilities instead of native methods
+- Import Effect modules with namespace imports
+
+See the Effect Patterns section in this README for specific examples.
+
 ## Related Packages
 
 - [`@beep/ui`](../ui/README.md) - Main UI component library built on @beep/ui-core
 - [`@beep/constants`](../../common/constants/README.md) - Schema-backed enums and constants
 - [`@beep/schema`](../../common/schema/README.md) - Effect Schema utilities
+- [`@beep/utils`](../../common/utils/README.md) - Shared Effect utilities
 
 ## References
 

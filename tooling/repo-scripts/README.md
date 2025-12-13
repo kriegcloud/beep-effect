@@ -15,12 +15,32 @@ Repository automation and code generation utilities for the beep-effect monorepo
 - **JSDoc Analysis** - Static analysis tool for enforcing documentation standards
 - **Workspace Purging** - Intelligent cleanup of build artifacts across all workspaces
 - **TypeScript Reference Sync** - Automated workspace reference management
+- **Codemods** - AST-based code transformation utilities for maintenance tasks
 
 ## Installation
 
 ```bash
-bun install
+# This package is internal to the monorepo
+# Add as a dependency in your package.json:
+"@beep/repo-scripts": "workspace:*"
 ```
+
+## Package Exports
+
+This package exports utilities and schemas for use in other tooling packages:
+
+```typescript
+// Asset path utilities and schemas
+import { AssetPath, AssetPaths, pathObjFromPaths } from "@beep/repo-scripts/utils";
+
+// CLDR locale fetching
+import { fetchAvailableCLDRLocales, generateLocalesContent } from "@beep/repo-scripts/i18n";
+
+// Image conversion utilities
+import { convertDirectoryToNextgen } from "@beep/repo-scripts/utils/convert-to-nextgen";
+```
+
+Scripts in `src/` are meant to be executed directly via `package.json` scripts or CLI, not imported.
 
 ## Scripts
 
@@ -32,10 +52,9 @@ bun run bootstrap
 
 # Generate secure secrets for .env
 bun run gen:secrets
-
-# Bring up Docker services
-bun run services:up
 ```
+
+> **Note:** Docker services are managed at the repository root level with `bun run services:up` (not a repo-scripts command)
 
 ### Code Generation
 
@@ -221,19 +240,25 @@ bun run generate-public-paths
 CLDR locale fetcher and code generator.
 
 **Features:**
-- Fetches latest available locales from Unicode CLDR repository
+- Fetches latest available locales from Unicode CLDR repository via Effect HTTP client
 - Sorts locales alphabetically
 - Generates TypeScript constant at `packages/common/schema/src/custom/locales/ALL_LOCALES.generated.ts`
 - Idempotent generation with header attribution
+- Uses Effect layers for filesystem and network access
 
 **Usage:**
 ```bash
 bun run gen:locales
 ```
 
-### analyze-jsdoc.ts
+**Dependencies:**
+- `FsUtils` and `RepoUtils` from `@beep/tooling-utils`
+- `FetchHttpClient` from `@effect/platform`
+- Bun-specific filesystem and path implementations
 
-Static analysis tool for JSDoc documentation completeness.
+### run-docs-lint.ts & analyze-jsdoc.ts
+
+Static analysis tool for JSDoc documentation completeness. The `run-docs-lint.ts` script is the CLI entry point that wraps `analyze-jsdoc.ts` logic.
 
 **Required Tags:**
 - `@category` - Functional categorization
@@ -252,45 +277,16 @@ Static analysis tool for JSDoc documentation completeness.
 # Analyze schema package (default)
 bun run docs:lint
 
-# Analyze specific scope
-bun run docs:lint --scope errors
-
-# Analyze custom path
-bun run docs:lint --root packages/custom/path
-
-# Analyze specific files
-bun run docs:lint --file src/utils/index.ts --file src/types/core.ts
-
-# Custom output location
-bun run docs:lint --output results.json
-
-# Include internal exports
-bun run docs:lint --include-internal
+# Analyze specific file
+bun run docs:lint:file --file packages/common/schema/src/EntityId.ts
 ```
 
 **Output Format:**
-```json
-{
-  "scope": "schema",
-  "filesScanned": 42,
-  "exportsChecked": 156,
-  "missingCount": 8,
-  "missingByTag": {
-    "category": 3,
-    "example": 5,
-    "since": 2
-  },
-  "items": [
-    {
-      "file": "packages/common/schema/src/EntityId.ts",
-      "exportName": "EntityIdKit",
-      "line": 42,
-      "missingTags": ["example", "since"]
-    }
-  ],
-  "generatedAt": "2025-12-05T10:30:00.000Z"
-}
-```
+The tool generates detailed JSON reports with:
+- Scope and file statistics
+- Missing tag counts by type
+- Per-export details with file paths and line numbers
+- ISO timestamp for report generation
 
 ### purge.ts
 
@@ -324,6 +320,49 @@ bun run purge
 
 # Include lock file
 bun run purge --lock
+```
+
+### docs-copy.ts
+
+Documentation file synchronization and copying utility for maintaining consistency across the monorepo.
+
+**Usage:**
+```bash
+# Copy documentation files across packages
+bun run dotenvx -- bunx tsx src/docs-copy.ts
+```
+
+### codemod.ts & codemods/
+
+AST-based code transformation framework using jscodeshift for automated maintenance tasks.
+
+**Available Codemods:**
+- `codemods/jsdoc.ts` - JSDoc comment transformations
+- `codemods/ts-fence.ts` - TypeScript reference fencing
+
+**Usage:**
+```bash
+# Run a codemod transformation
+bun run dotenvx -- bunx tsx src/codemod.ts
+```
+
+### sync-ts-references.ts
+
+Automated TypeScript workspace reference management to keep `tsconfig.json` files in sync.
+
+**Features:**
+- Auto-detects repository tsconfig variants
+- Updates project references based on dependencies
+- Validates reference integrity
+- Supports check mode for CI
+
+**Usage:**
+```bash
+# Sync TypeScript references
+bun run dotenvx -- bunx tsx src/sync-ts-references.ts
+
+# Check mode (verify without modifying)
+bun run dotenvx -- bunx tsx src/sync-ts-references.ts --check
 ```
 
 ## Utilities
@@ -374,15 +413,25 @@ const conversions = yield* convertDirectoryToNextgen({
 
 ### CLDR Utilities
 
+Fetch and process locale data from the Unicode CLDR repository.
+
 ```typescript
-import { fetchAvailableCLDRLocales, generateLocalesContent } from "@beep/repo-scripts/i18n";
+import { fetchAvailableCLDRLocales } from "@beep/repo-scripts/i18n";
+import * as Effect from "effect/Effect";
+import * as FetchHttpClient from "@effect/platform/FetchHttpClient";
 
-// Fetch latest locales from CLDR
-const locales = yield* fetchAvailableCLDRLocales;
-
-// Generate TypeScript content
-const content = yield* generateLocalesContent;
+const program = Effect.gen(function* () {
+  // Fetch latest locales from CLDR
+  const locales = yield* fetchAvailableCLDRLocales;
+  return locales;
+}).pipe(Effect.provide(FetchHttpClient.layer));
 ```
+
+**Features:**
+- Fetches from pinned CLDR JSON commit for stability
+- Returns sorted array of locale codes
+- Uses Effect Schema for validation
+- Requires `FetchHttpClient.Fetch` service
 
 ## Effect Patterns
 
@@ -507,6 +556,8 @@ export const ALL_LOCALES = [
   // ...
 ] as const;
 ```
+
+The script also generates an internal cache at `tooling/repo-scripts/src/i18n/_generated/available-locales.ts` for testing and development.
 
 ## Development Workflow
 

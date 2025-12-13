@@ -7,7 +7,8 @@ Cross-slice Drizzle table factories, audit column defaults, and canonical multi-
 - **Table factories** (`Table.make`, `OrgTable.make`) build Drizzle tables with automatic ID, audit, and metadata columns from `EntityIdSchemaInstance`.
 - **Global column defaults** (`src/common.ts`) provide `auditColumns`, `userTrackingColumns`, and optimistic locking via `globalColumns`.
 - **Custom column types** (`src/columns/`) for binary data: `bytea` (Uint8Array) and `byteaBase64` (Base64 string interface).
-- **Shared database schemas** (`SharedDbSchema` namespace) re-export canonical tables: `organization`, `team`, `user`, `file`, `session`.
+- **Shared database schemas** (`SharedDbSchema` namespace) re-export canonical tables: `organization`, `team`, `user`, `file`, `folder`, `session`.
+- **Drizzle relations** (`src/relations.ts`) export pre-configured relations between shared tables for query composition.
 - **Type safety contracts** (`src/Columns.ts`) define structural types for default column builders.
 - **Compile-time checks** (`src/_check.ts`) enforce Drizzle `Infer*Model` matches domain codecs from `@beep/shared-domain`.
 - **TypeScript builds** (`build/**`) produced by `tsc` + Babel transforms; artifacts consumed by slice packages and apps.
@@ -19,6 +20,31 @@ Cross-slice Drizzle table factories, audit column defaults, and canonical multi-
 - Creating tables that must stay in sync with Effect Schema domain models via compile-time checks.
 - Importing shared table definitions (`organization`, `user`, `team`) for Drizzle relations in vertical slices.
 - Never use this for domain business logic; keep table definitions pure Drizzle schema with no side effects.
+
+## Key Exports
+
+| Export | Description |
+|--------|-------------|
+| `Table.make` | Factory for creating Drizzle tables with standard audit columns |
+| `OrgTable.make` | Factory for creating organization-scoped tables with cascade semantics |
+| `Common.globalColumns` | Audit, user tracking, version, and source columns |
+| `Common.auditColumns` | Created/updated/deleted timestamp columns |
+| `Common.userTrackingColumns` | Created/updated/deleted user tracking columns |
+| `bytea` | Custom column type for Uint8Array binary data |
+| `byteaBase64` | Custom column type for Base64-encoded binary data |
+| `SharedDbSchema.*` | Namespace containing all shared tables and relations |
+| `organization` | Organization table with type/subscription enums |
+| `user` | User table with role enum |
+| `team` | Team table |
+| `file` | File metadata table |
+| `folder` | Folder table |
+| `session` | Session table |
+| `organizationRelations` | Pre-configured Drizzle relations for organization |
+| `userRelations` | Pre-configured Drizzle relations for user |
+| `teamRelations` | Pre-configured Drizzle relations for team |
+| `fileRelations` | Pre-configured Drizzle relations for file |
+| `folderRelations` | Pre-configured Drizzle relations for folder |
+| `sessionRelations` | Pre-configured Drizzle relations for session |
 
 ## Quickstart
 
@@ -104,7 +130,7 @@ await db.insert(snapshot).values({
 });
 ```
 
-### Import shared tables for relations
+### Import shared tables and relations
 
 ```ts
 import { relations } from "drizzle-orm";
@@ -121,6 +147,23 @@ export const memberRelations = relations(member, ({ one }) => ({
     references: [SharedDbSchema.user.id],
   }),
 }));
+```
+
+Or use the pre-configured relations directly:
+
+```ts
+import * as SharedDbSchema from "@beep/shared-tables/schema";
+
+// Import pre-configured relations
+const { organizationRelations, userRelations, teamRelations } = SharedDbSchema;
+
+// Available relations:
+// - organizationRelations (owner, teams, folders, files)
+// - userRelations (ownedOrganizations, sessions, folders, files)
+// - teamRelations (organization)
+// - fileRelations (organization, folder, userId, uploadedByUserId)
+// - folderRelations (organization, files, userId)
+// - sessionRelations (user)
 ```
 
 ### Extend compile-time checks for new shared tables
@@ -161,14 +204,17 @@ packages/shared/tables/
 │   │   ├── user.table.ts          # User schema + enums
 │   │   ├── team.table.ts          # Team schema
 │   │   ├── file.table.ts          # File metadata schema
+│   │   ├── folder.table.ts        # Folder schema
 │   │   ├── session.table.ts       # Session schema
 │   │   └── index.ts
 │   ├── Columns.ts           # Type definitions for default columns
 │   ├── common.ts            # globalColumns, auditColumns, userTrackingColumns
-│   ├── schema.ts            # Re-exports all tables
+│   ├── relations.ts         # Drizzle relations between shared tables
+│   ├── schema.ts            # Re-exports all tables and relations
 │   ├── _check.ts            # Compile-time schema/domain parity checks
 │   └── index.ts             # Package exports
 ├── AGENTS.md                # AI agent collaboration guide
+├── README.md                # This file
 ├── package.json
 ├── tsconfig.json
 └── tsconfig.build.json
@@ -245,17 +291,26 @@ Changes to `globalColumns` require coordinated updates to:
 
 ## Shared database schemas
 
-The `SharedDbSchema` namespace re-exports canonical tables:
+The `SharedDbSchema` namespace re-exports canonical tables and their relations:
 
 ```ts
 import * as SharedDbSchema from "@beep/shared-tables/schema";
 
 // Available tables:
-SharedDbSchema.organization  // Organization table + type/subscription enums
-SharedDbSchema.user          // User table + role enum
-SharedDbSchema.team          // Team table
-SharedDbSchema.file          // File metadata table
-SharedDbSchema.session       // Session table
+SharedDbSchema.organization        // Organization table + type/subscription enums
+SharedDbSchema.user                // User table + role enum
+SharedDbSchema.team                // Team table
+SharedDbSchema.file                // File metadata table
+SharedDbSchema.folder              // Folder table
+SharedDbSchema.session             // Session table
+
+// Available relations:
+SharedDbSchema.organizationRelations  // Organization relations
+SharedDbSchema.userRelations          // User relations
+SharedDbSchema.teamRelations          // Team relations
+SharedDbSchema.fileRelations          // File relations
+SharedDbSchema.folderRelations        // Folder relations
+SharedDbSchema.sessionRelations       // Session relations
 ```
 
 These are consumed by:

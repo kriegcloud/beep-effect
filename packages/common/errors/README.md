@@ -8,20 +8,57 @@ Effect-first observability toolkit providing logging layers, telemetry helpers, 
 
 ## Key Exports
 
+### Shared Exports (client-safe)
+
 | Export | Description |
 |--------|-------------|
-| `BeepError.*` | Tagged error classes with HTTP annotations: `UnknownError`, `NotFoundError`, `DatabaseError`, `UniqueViolationError`, `TransactionError`, `ConnectionError`, `ParseError`, `Unauthorized`, `Forbidden`, `UnrecoverableError`, `Es5Error` |
 | `withLogContext` | Annotate an effect with stable log fields for service/component context |
 | `withRootSpan` | Wrap an effect with a root span label for distributed tracing |
 | `withSpanAndMetrics` | Instrument an effect with spans, counters, and histograms |
 | `accumulateEffects` | Partition concurrent effects into successes/errors (pure aggregation) |
-| `accumulateEffectsAndReport` | Accumulate effects and log failures (client/server variants) |
 | `formatCausePretty` | Pretty-print Effect causes with optional colors |
 | `parseLevel` | Convert log level literals to Effect LogLevel values |
-| `makePrettyConsoleLoggerLayer` | Server-only pretty console logger factory |
-| `makeEnvLoggerLayerFromEnv` | Server-only env-driven logger layer (`APP_LOG_FORMAT`, `APP_LOG_LEVEL`) |
-| `withEnvLogging` | Apply env-driven logging to an effect (server variant; client is no-op) |
-| `formatCauseHeading` | Server-only rich error headers with stack parsing and code frames |
+| `BeepError.*` | Re-exported error classes namespace (see Tagged Errors below) |
+
+### Client-Only Exports
+
+| Export | Description |
+|--------|-------------|
+| `accumulateEffectsAndReport` | Accumulate effects and log failures (client-safe variant) |
+| `withEnvLogging` | No-op placeholder for env-driven logging (tree-shakeable) |
+
+### Server-Only Exports
+
+| Export | Description |
+|--------|-------------|
+| `makePrettyConsoleLoggerLayer` | Pretty console logger Layer factory |
+| `makePrettyConsoleLogger` | Pretty console Logger instance factory |
+| `withPrettyLogging` | Wrap an effect with pretty logging and minimum log level |
+| `runWithPrettyLogsExit` | Run an effect with pretty logging and return Exit |
+| `makeEnvLoggerLayerFromEnv` | Env-driven logger Layer (`APP_LOG_FORMAT`, `APP_LOG_LEVEL`) |
+| `readEnvLoggerConfig` | Parse environment variables for logger configuration |
+| `withEnvLogging` | Apply env-driven logging to an effect (server implementation) |
+| `accumulateEffectsAndReport` | Accumulate effects and log failures (server variant with rich output) |
+| `formatCauseHeading` | Rich error headers with stack parsing and code frames |
+| `withResponseErrorLogging` | HTTP client wrapper with error logging |
+
+### Tagged Errors
+
+All errors are exported as individual classes with HTTP status annotations:
+
+| Error Class | Status | Description |
+|-------------|--------|-------------|
+| `UnknownError` | 500 | Generic wrapper with optional custom message |
+| `NotFoundError` | 404 | Resource not found |
+| `UniqueViolationError` | 409 | Unique constraint violation |
+| `DatabaseError` | 500 | Database operation failure |
+| `TransactionError` | 500 | Transaction failure |
+| `ConnectionError` | 500 | Connection/channel failure |
+| `ParseError` | 400 | Payload/decoding failure |
+| `Unauthorized` | 401 | Authentication required |
+| `Forbidden` | 403 | Authorization denied |
+| `UnrecoverableError` | 500 | Fatal error marker |
+| `Es5Error` | N/A | ES5-compatible error wrapper |
 
 ## Architecture Fit
 
@@ -211,18 +248,7 @@ const findUser = (id: string) =>
   });
 ```
 
-Available error types:
-- `BeepError.UnknownError` — Generic wrapper with optional custom message
-- `BeepError.NotFoundError` — 404 resource not found
-- `BeepError.UniqueViolationError` — 409 unique constraint violation
-- `BeepError.DatabaseError` — 500 database operation failure
-- `BeepError.TransactionError` — 500 transaction failure
-- `BeepError.ConnectionError` — 500 connection/channel failure
-- `BeepError.ParseError` — 400 payload/decoding failure
-- `BeepError.Unauthorized` — 401 authentication required
-- `BeepError.Forbidden` — 403 authorization denied
-- `BeepError.UnrecoverableError` — 500 fatal error marker
-- `BeepError.Es5Error` — ES5-compatible error wrapper
+All built-in error types are accessible via the `BeepError` namespace (see [Tagged Errors](#tagged-errors) above for the complete list with HTTP status codes).
 
 ## What Belongs Here
 

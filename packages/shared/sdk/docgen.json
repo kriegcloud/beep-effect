@@ -3,7 +3,7 @@
   "srcDir": "src",
   "outDir": "docs",
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/shared/sdk/src/",
-  "exclude": ["src/internal/**/*.ts"],
+  "exclude": ["src/internal/**/*.ts", "src/client.ts"],
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,

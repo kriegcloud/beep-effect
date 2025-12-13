@@ -1,36 +1,114 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# @beep/marketing
 
-## Getting Started
+Public-facing marketing website built with Next.js 15 and Tailwind CSS.
 
-First, run the development server:
+## Purpose
+
+This application serves as the marketing landing page and public website for the beep platform. It is a standalone Next.js 15 App Router application that:
+- Provides product information and marketing content
+- Handles public landing pages and promotional materials
+- Operates independently from the main authenticated application
+- Uses Tailwind CSS for styling with dark mode support
+
+This app is currently a minimal Next.js template and does not integrate with Effect or other `@beep/*` packages. It serves as a traditional React application separate from the Effect-based backend.
+
+## Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# This package is internal to the monorepo
+# Dependencies are managed at the workspace root
+bun install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Technology Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Technology | Purpose |
+|------------|---------|
+| Next.js 15 | App Router framework |
+| React 19 | UI library |
+| Tailwind CSS | Utility-first styling |
+| TypeScript | Type safety |
+| Geist Fonts | Typography |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Development
 
-## Learn More
+### Running Locally
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# From workspace root
+bun run dev --filter @beep/marketing
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Or from this directory
+bun run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The development server will start at [http://localhost:3000](http://localhost:3000).
 
-## Deploy on Vercel
+### Building
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+# Type check
+bun run --filter @beep/marketing check
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Production build
+bun run --filter @beep/marketing build
+
+# Start production server
+bun run --filter @beep/marketing start
+```
+
+## Project Structure
+
+```
+apps/marketing/
+├── app/
+│   ├── layout.tsx       # Root layout with fonts and metadata
+│   ├── page.tsx         # Homepage component
+│   └── globals.css      # Global Tailwind styles
+├── public/              # Static assets
+├── next.config.ts       # Next.js configuration
+└── tsconfig.json        # TypeScript configuration
+```
+
+## Configuration
+
+### Next.js Config
+
+The application uses a minimal Next.js configuration in `next.config.ts`. Additional configuration options can be added as needed for:
+- Image optimization
+- Redirects and rewrites
+- Environment variables
+- Custom webpack settings
+
+### Tailwind CSS
+
+Tailwind is configured via PostCSS with `@tailwindcss/postcss`. The app supports dark mode out of the box using the `dark:` variant.
+
+## Dependencies
+
+This application currently has no dependencies on other `@beep/*` packages. It operates as a standalone marketing site.
+
+Future integration points may include:
+- `@beep/ui` for shared component library
+- `@beep/constants` for shared brand assets and constants
+- `@beep/runtime-client` if interactive features require Effect
+
+## Deployment
+
+The marketing site can be deployed as a standard Next.js application. Deployment options include:
+- Vercel (optimized for Next.js)
+- Docker containers
+- Static export (if applicable)
+
+Deployment configuration should be coordinated with the overall beep platform infrastructure.
+
+## Notes
+
+- This app is intentionally separate from the Effect-based architecture to keep the marketing site simple and performant
+- No authentication or backend integration is currently implemented
+- The homepage contains placeholder content from the Next.js template and should be replaced with actual marketing content
+- Consider implementing:
+  - SEO metadata and Open Graph tags
+  - Analytics integration
+  - Contact forms or lead capture
+  - Blog or content management system integration

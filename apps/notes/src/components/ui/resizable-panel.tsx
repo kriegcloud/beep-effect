@@ -2,20 +2,13 @@
 
 import { useCookieStorage } from "@beep/notes/hooks/useCookieStorage";
 import { RightPanelType } from "@beep/notes/hooks/useResizablePanel";
+// Import from shared schema file so it can be used by Server Components
+import { parseLayout, type Layout } from "@beep/notes/lib/layout-schema";
 import { cn } from "@beep/notes/lib/utils";
-import * as S from "effect/Schema";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 
-const layoutSchema = S.parseJson(
-  S.Struct({
-    leftSize: S.optional(S.Number),
-    rightSize: S.optional(S.Number),
-  })
-);
-
-export const parseLayout = S.decodeUnknownOption(layoutSchema);
-
-export type Layout = { leftSize?: undefined | number; rightSize?: undefined | number };
+// Re-export for backwards compatibility with existing imports
+export { parseLayout, type Layout };
 
 interface PanelsContextProps {
   readonly hiddenLeft: boolean;

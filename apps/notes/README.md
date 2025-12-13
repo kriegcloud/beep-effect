@@ -1,19 +1,51 @@
 # @beep/notes
 
-Collaborative note-taking and document editing application built with Next.js 15, Effect, and Plate editor.
+Collaborative note-taking and document editing application built with Next.js 15, Plate editor, and YJS real-time collaboration.
 
-## Overview
+## Purpose
 
-`@beep/notes` is a full-featured document editing application within the beep-effect monorepo. It provides real-time collaborative editing capabilities powered by YJS, rich text editing via Plate, and integrates with the beep-effect IAM and documents infrastructure layers.
+`@beep/notes` is a full-stack document editing application within the beep-effect monorepo that demonstrates the gradual migration from traditional Next.js patterns to Effect-based architecture. It provides real-time collaborative editing capabilities powered by YJS and Hocuspocus, rich text editing via Plate editor, and serves as a reference implementation for hybrid Prisma/Effect integration.
 
-## Features
+This application is currently in **transition mode**, operating with a hybrid architecture that combines legacy Prisma-based database layer with emerging Effect-based utilities and patterns from the beep-effect ecosystem. It showcases how to incrementally adopt Effect patterns while maintaining production stability with traditional approaches.
 
-- **Rich Text Editing**: Powered by [Plate](https://platejs.org/) with extensive plugin support
-- **Real-time Collaboration**: YJS-based collaborative editing with Hocuspocus WebSocket server
-- **Authentication**: Better Auth integration via `@beep/iam-*` packages
-- **File Management**: Document storage and versioning via `@beep/documents-*` packages
-- **AI Integration**: OpenAI-powered features for content generation
-- **Multi-database**: PostgreSQL (via Prisma) + Redis for caching and collaboration state
+## Installation
+
+This application is part of the beep-effect monorepo. It is not published as a standalone package.
+
+```bash
+# From monorepo root
+bun install
+
+# Navigate to notes app
+cd apps/notes
+```
+
+## Key Features
+
+| Feature | Implementation |
+|---------|---------------|
+| **Rich Text Editing** | Plate editor with 50+ plugins for tables, callouts, code blocks, math, media |
+| **Real-time Collaboration** | YJS CRDT + Hocuspocus WebSocket server with Redis persistence |
+| **Authentication** | Better Auth with OAuth providers (GitHub, Google) + Lucia sessions |
+| **Database** | PostgreSQL via Prisma (migrating to Drizzle) |
+| **API Layers** | tRPC for type-safe queries, Hono for streaming/AI endpoints |
+| **File Management** | UploadThing integration for attachments |
+| **AI Integration** | Vercel AI SDK + OpenAI for content generation |
+| **State Management** | Jotai, Zustand, TanStack Query (migrating to Effect) |
+| **Styling** | TailwindCSS + Material-UI + Radix UI components |
+
+## Key Exports
+
+This application does not export packages for consumption by other apps. Instead, it **consumes** packages from the beep-effect monorepo:
+
+| Package | Usage |
+|---------|-------|
+| `@beep/utils` | Effect collection utilities (`debounce`, `omit`, `merge`, `exact`) |
+| `@beep/schema` | Effect Schema utilities (`BS` namespace) |
+| `@beep/ui` | Shared UI hooks (`useCopyToClipboard`) |
+| `@beep/types` | TypeScript utility types (`UnsafeTypes`) |
+| `@beep/*-domain` | Planned integration for IAM and documents domain logic |
+| `@beep/*-infra` | Planned migration target for auth and documents infrastructure |
 
 ## Architecture
 
@@ -63,17 +95,18 @@ apps/notes/
 
 ### Technology Stack
 
-| Layer | Technologies |
-|-------|-------------|
-| **Frontend** | Next.js 15, React 19, Plate Editor, TanStack Query |
-| **State Management** | Jotai, Zustand, React Query |
-| **Backend** | tRPC, Hono, Better Auth |
-| **Database** | PostgreSQL (Prisma), Redis (ioredis) |
-| **Collaboration** | YJS, Hocuspocus |
-| **AI** | Vercel AI SDK, OpenAI |
-| **File Upload** | UploadThing |
-| **Styling** | TailwindCSS, Material-UI, Radix UI |
-| **Effect Integration** | `@beep/*` workspace packages |
+| Category | Current Technology | Future Direction |
+|----------|-------------------|------------------|
+| **Frontend** | Next.js 15, React 19, Plate Editor | Continue |
+| **State Management** | Jotai, Zustand, TanStack Query | Migrate to Effect state management |
+| **Backend** | tRPC, Hono, Better Auth | Migrate to `@effect/rpc`, `@beep/iam-infra` |
+| **Database** | PostgreSQL (Prisma) | Migrate to Drizzle via `@beep/*-tables` |
+| **Caching** | Redis (ioredis) | Continue with Effect wrappers |
+| **Collaboration** | YJS, Hocuspocus, Redis | Continue |
+| **AI** | Vercel AI SDK, OpenAI | Continue |
+| **File Upload** | UploadThing | Migrate to `@beep/documents-infra` |
+| **Styling** | TailwindCSS, MUI, Radix UI | Continue with `@beep/ui-core` theming |
+| **Effect Integration** | Limited (`@beep/utils`, `@beep/schema`) | Full adoption across all layers |
 
 ### Dependencies on beep-effect Packages
 
@@ -115,15 +148,34 @@ This application integrates with the following beep-effect workspace packages:
 - `@beep/ui-core` - Design tokens, MUI overrides
 - `@beep/ui` - Component library
 
-## Development Setup
+## Usage
+
+### Basic Development Workflow
+
+```bash
+# From monorepo root
+bun install
+bun run services:up
+
+# Navigate to notes app
+cd apps/notes
+
+# Run migrations
+bun run migrate
+
+# Start all dev servers (Next.js + YJS + Docker)
+bun run dev
+```
+
+The application will be available at `http://localhost:3000`.
 
 ### Prerequisites
 
-- Bun 1.3.x or Node.js 22+
-- Docker Desktop (for PostgreSQL and Redis)
-- GitHub OAuth App credentials
-- OpenAI API key (optional, for AI features)
-- UploadThing account (optional, for file uploads)
+- **Bun 1.3.x** or Node.js 22+ (Bun recommended)
+- **Docker Desktop** (for PostgreSQL and Redis services)
+- **GitHub OAuth App** credentials ([Create one](https://github.com/settings/developers))
+- **OpenAI API key** (optional, for AI-powered content generation)
+- **UploadThing account** (optional, for file upload functionality)
 
 ### Environment Variables
 
@@ -189,220 +241,392 @@ UPLOADTHING_TOKEN=your_uploadthing_token
 NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
 
-### Installation & Running
+### Working with the Application
 
-From the **monorepo root**:
+#### Internal Path Aliases
 
-```bash
-# Install dependencies
-bun install
+This application uses internal path aliases for imports:
 
-# Start infrastructure services
-bun run services:up
+```typescript
+// Import from within the app using @beep/notes/* alias
+import { api } from "@beep/notes/trpc/react";
+import { useSession } from "@beep/notes/components/auth/useSession";
+import { cn } from "@beep/notes/lib/utils";
+import { Button } from "@beep/notes/registry/ui/button";
 
-# Run database migrations
-cd apps/notes
-bun run migrate
-
-# Start development servers
-bun run dev
+// Import from workspace packages using @beep/* alias
+import { debounce } from "@beep/utils";
+import { BS } from "@beep/schema";
+import type { UnsafeTypes } from "@beep/types";
 ```
 
-This starts:
-- Next.js app on `http://localhost:3000`
-- YJS WebSocket server on port `4444`
-- Docker services (PostgreSQL & Redis)
+#### tRPC API Usage
+
+```typescript
+"use client";
+import { api } from "@beep/notes/trpc/react";
+
+function DocumentList() {
+  // Query documents
+  const { data: documents } = api.document.list.useQuery();
+
+  // Create document mutation
+  const createDoc = api.document.create.useMutation({
+    onSuccess: (doc) => {
+      console.log("Created:", doc.id);
+    },
+  });
+
+  return (
+    <button onClick={() => createDoc.mutate({ title: "New Doc" })}>
+      Create Document
+    </button>
+  );
+}
+```
+
+#### YJS Collaboration Setup
+
+The Plate editor is configured with YJS for real-time collaboration:
+
+```typescript
+import { withYjs } from "@platejs/yjs";
+import { createPlateEditor } from "platejs";
+
+const editor = createPlateEditor({
+  plugins: [
+    // ... other plugins
+    withYjs,
+  ],
+});
+```
+
+Connection to Hocuspocus server is managed automatically via `NEXT_PUBLIC_YJS_URL`.
+
+## Dependencies
+
+### Active Workspace Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| `@beep/utils` | Effect collection utilities for data manipulation (`debounce`, `omit`, `merge`, `exact`, `dedent`) |
+| `@beep/schema` | Effect Schema utilities (`BS` namespace) for type-safe validation |
+| `@beep/ui` | Shared UI hooks (`useCopyToClipboard`) for component functionality |
+| `@beep/types` | TypeScript utility types (`UnsafeTypes`) for type safety |
+| `@beep/ui-core` | Design tokens and MUI theming configuration |
+
+### Planned Integration (Listed but Not Fully Used)
+
+| Layer | Packages | Current Alternative | Migration Priority |
+|-------|----------|---------------------|-------------------|
+| **IAM** | `@beep/iam-domain`, `@beep/iam-infra`, `@beep/iam-sdk`, `@beep/iam-tables`, `@beep/iam-ui` | Custom Better Auth setup | High |
+| **Documents** | `@beep/documents-domain`, `@beep/documents-infra`, `@beep/documents-sdk`, `@beep/documents-tables`, `@beep/documents-ui` | Custom Prisma models | High |
+| **Shared** | `@beep/shared-domain`, `@beep/shared-tables` | N/A | Medium |
+| **Runtime** | `@beep/runtime-client`, `@beep/runtime-server` | N/A | Medium |
+| **Common** | `@beep/constants`, `@beep/contract`, `@beep/errors`, `@beep/identity`, `@beep/invariant`, `@beep/mock` | Various libraries | Low |
+
+## Integration
+
+### With Other Monorepo Apps
+
+- **apps/server**: Future integration via Effect RPC for unified API layer
+- **apps/web**: Potential shared component library for consistent UI
+
+### With Workspace Packages
+
+This application serves as a **reference implementation** for gradually migrating a traditional Next.js app to Effect-based architecture:
+
+1. **Current State**: Uses `@beep/utils` and `@beep/schema` for data utilities
+2. **Next Steps**: Migrate authentication to `@beep/iam-infra`, documents to `@beep/documents-infra`
+3. **Future State**: Full Effect adoption with `@effect/rpc`, Drizzle ORM, and Effect state management
+
+### Database Schema (Prisma)
+
+Located at `prisma/schema.prisma`:
+
+```prisma
+model User {
+  id            String         @id
+  username      String         @unique
+  email         String?        @unique
+  role          UserRole       @default(USER)
+  sessions      Session[]
+  oauthAccounts OauthAccount[]
+  documents     Document[]
+}
+
+model Document {
+  id           String        @id @default(cuid())
+  title        String
+  content      Json?
+  ownerId      String
+  owner        User          @relation(...)
+  files        File[]
+  versions     Version[]
+  yjsSnapshots YjsSnapshot[]
+}
+
+model YjsSnapshot {
+  id         String   @id @default(cuid())
+  documentId String
+  snapshot   Bytes
+  createdAt  DateTime @default(now())
+}
+
+// Also: Session, OauthAccount, File, Version, Comment
+```
+
+## Development
 
 ### Available Scripts
 
-Run from `apps/notes/`:
-
-| Command | Description |
-|---------|-------------|
-| `bun run dev` | Start all dev servers (Next.js + YJS + Docker) |
-| `bun run dev:app` | Start Next.js only |
-| `bun run dev:yjs` | Start YJS server only |
-| `bun run dev:db` | Start Docker services only |
-| `bun run build` | Production build |
-| `bun run start` | Start production servers |
-| `bun run check` | Type check |
-| `bun run lint` | Lint code |
-| `bun run lint:fix` | Fix linting issues |
-| `bun run test` | Run tests |
-| `bun run migrate` | Run database migrations |
-| `bun run push` | Push schema changes |
-| `bun run studio` | Open Prisma Studio |
-| `bun run seed` | Seed database |
-
-## Database Management
-
-### Prisma Workflow
+Run from `apps/notes/` directory:
 
 ```bash
-# Generate Prisma client
-bun run generate
+# Development
+bun run dev              # Start all dev servers (Next.js + YJS + Docker)
+bun run dev:app          # Start Next.js only
+bun run dev:yjs          # Start YJS WebSocket server only
+bun run dev:db           # Start Docker services (Postgres + Redis) only
 
-# Create a migration
-bun run migrate
+# Type checking and linting
+bun run check            # TypeScript type check
+bun run lint             # Biome lint
+bun run lint:fix         # Auto-fix linting issues
 
-# Push schema changes (development)
-bun run push
+# Database
+bun run generate         # Generate Prisma client types
+bun run migrate          # Create and apply migration
+bun run push             # Push schema directly to DB (dev)
+bun run studio           # Open Prisma Studio in browser
+bun run seed             # Seed database with test data
+bun run reset            # Reset database (destructive)
 
-# Open Prisma Studio
-bun run studio
+# Building and testing
+bun run build            # Production build
+bun run start            # Start production servers
+bun run test             # Run tests
 
-# Reset database (destructive)
-bun run reset
-
-# Deploy migrations (production)
-bun run deploy
+# Deployment
+bun run deploy           # Deploy Prisma migrations (production)
 ```
 
-### Schema Location
+### Real-time Collaboration
 
-The Prisma schema is located at `prisma/schema.prisma` and includes:
+The YJS collaboration server (`src/server/yjs/server.ts`) provides:
 
-- `User` - User accounts
-- `Session` - User sessions
-- `OauthAccount` - OAuth provider accounts
-- `Document` - Documents and notes
-- `File` - File attachments
-- `Version` - Document version history
-- `YjsSnapshot` - YJS collaboration snapshots
+- **Hocuspocus Server**: WebSocket server for YJS CRDT synchronization
+- **Redis Persistence**: Document state cached in Redis for fast access
+- **Database Snapshots**: Periodic snapshots saved to PostgreSQL
+- **Session Auth**: Access control via Better Auth sessions
 
-## Real-time Collaboration
+### API Layers
 
-The YJS collaboration server (`src/server/yjs/`) provides real-time collaborative editing:
+#### tRPC API (`src/server/api/`)
 
-- **Hocuspocus Server**: WebSocket server for YJS synchronization
-- **Redis Persistence**: Document state persisted to Redis
-- **Database Sync**: Periodic snapshots saved to PostgreSQL
-- **Authentication**: Session-based access control
+Type-safe API layer for client-server communication:
 
-## API Layers
+**Available Routers**:
+- `document.ts` - Document CRUD, archiving, version history
+- `file.ts` - File attachment management
+- `user.ts` - User profile operations
+- `comment.ts` - Comment system (planned)
+- `version.ts` - Document version control
+- `layout.ts` - UI layout preferences
 
-### tRPC API
+**Usage**:
+```typescript
+import { api } from "@beep/notes/trpc/react";
 
-Located in `src/server/api/`:
+const { data } = api.document.getById.useQuery({ id: "..." });
+const createMutation = api.document.create.useMutation();
+```
 
-- `routers/` - API route definitions
-- `middlewares/` - Auth, logging, rate limiting
-- `trpc.ts` - tRPC configuration
+#### Hono API (`src/server/hono/`)
 
-Client usage via hooks in `src/trpc/hooks/`.
+Streaming and specialized endpoints:
 
-### Hono API
+**Available Routes**:
+- `ai.ts` - AI-powered content generation (streaming)
+- `auth.ts` - Authentication endpoints
+- `export.ts` - Document export (PDF, DOCX)
 
-Located in `src/server/hono/`:
+### Editor Architecture
 
-- `routes/` - HTTP route definitions
-- `middlewares/` - Request processing
-- `hono-client.ts` - Type-safe client
+Built on [Plate](https://platejs.org/) with 50+ plugins:
 
-## Editor Architecture
-
-The editor is built on [Plate](https://platejs.org/) with extensive customization:
-
-### Plugin Categories
-
-- **Basic Nodes**: Paragraphs, headings, lists
-- **Formatting**: Bold, italic, underline, code
+**Plugin Categories** (`src/registry/components/`):
+- **Basic**: Paragraphs, headings, lists, blockquotes
+- **Formatting**: Bold, italic, underline, strikethrough, code
 - **Advanced**: Tables, callouts, code blocks, math equations
-- **Media**: Images, videos, embeds
-- **Collaboration**: Comments, mentions, suggestions
-- **AI**: AI-powered content generation
-- **Layout**: Columns, toggles, tabs
+- **Media**: Images, videos, embeds, file attachments
+- **Collaboration**: Comments, mentions, suggestions (via YJS)
+- **AI**: AI-powered content generation and assistance
+- **Layout**: Columns, toggles, tabs, accordions
 
-### Registry Structure
+**Registry Structure** (`src/registry/`):
+- `components/` - Plate plugin implementations
+- `ui/` - UI primitives (buttons, dropdowns, etc.)
+- `lib/` - Editor utilities and helpers
+- `hooks/` - Custom React hooks for editor
+- `app/` - Application-specific editor configuration
 
-The `src/registry/` directory contains:
+## Notes
 
-- **components/**: Plate editor components
-- **ui/**: UI primitives for the editor
-- **lib/**: Editor utilities and configurations
-- **app/**: Application-specific editor setup
+### Hybrid Architecture Considerations
 
-## Deployment
+This application is **actively migrating** from traditional Next.js patterns to Effect-based architecture:
 
-### Docker Deployment
+#### Current Patterns (Legacy)
+- **Async/await** is prevalent throughout the codebase
+- **Native array methods** (`.map()`, `.filter()`) are common
+- **Promises** are used instead of Effects
+- **useState/useEffect** for React state management
+- **Prisma** for database operations
+- **tRPC** for API layer
 
-The included `Dockerfile` provides a production-ready container:
+#### Effect Adoption Guidelines
+
+When working in this codebase:
+
+1. **New Code**: Write using Effect patterns from the start
+   ```typescript
+   // Prefer Effect.gen
+   const program = Effect.gen(function* () {
+     const result = yield* someEffect;
+     return result;
+   });
+
+   // Use Effect Array utilities
+   import * as A from "effect/Array";
+   F.pipe(items, A.map(fn));
+   ```
+
+2. **Refactoring**: Opportunistically convert to Effect patterns when modifying existing code
+
+3. **Legacy Code**: Leave as-is unless actively updating that module
+
+4. **Dependencies**: Prefer `@beep/*` packages over external alternatives when available
+
+### Internal vs Workspace Imports
+
+Be aware of the distinction:
+
+```typescript
+// Internal app imports (path alias: @beep/notes/*)
+import { api } from "@beep/notes/trpc/react";
+import { useSession } from "@beep/notes/components/auth/useSession";
+
+// Workspace package imports (path alias: @beep/*)
+import { debounce } from "@beep/utils";
+import type { UnsafeTypes } from "@beep/types";
+```
+
+### Testing
+
+Limited test coverage currently. Tests use Bun's built-in test runner:
 
 ```bash
-# Build image
+bun run test
+```
+
+### Common Patterns
+
+#### Creating a tRPC Procedure
+
+```typescript
+// src/server/api/routers/example.ts
+import { z } from "zod";
+import { loggedInProcedure } from "../middlewares/procedures";
+
+export const exampleRouter = {
+  getById: loggedInProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input, ctx }) => {
+      return ctx.prisma.example.findUnique({
+        where: { id: input.id },
+      });
+    }),
+};
+```
+
+#### Using in Components
+
+```typescript
+"use client";
+import { api } from "@beep/notes/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.example.getById.useQuery({ id: "123" });
+  const mutation = api.example.create.useMutation();
+  // ...
+}
+```
+
+### Production Deployment
+
+#### Docker
+
+```bash
+# Build production image
 docker build -t beep-notes .
 
-# Run container
+# Run with docker-compose
 docker compose up
 ```
 
-### Required Services
+#### Environment Requirements
 
-1. **PostgreSQL** - Primary database
-2. **Redis** - Collaboration state and caching
-3. **Next.js App** - Application server (includes YJS server)
-
-### Environment Configuration
-
-Set `NEXT_PUBLIC_ENVIRONMENT=production` and configure:
-
-```dotenv
-# Database
-DATABASE_URL=postgresql://user:password@postgres:5432/db?schema=public
-
-# Redis
+```env
+NODE_ENV=production
+DATABASE_URL=postgresql://user:password@postgres:5432/db
 REDIS_HOST=redis
-REDIS_PORT=6379
-
-# YJS WebSocket
 NEXT_PUBLIC_YJS_URL=wss://your-domain.com/yjs
-
-# Site URL
 NEXT_PUBLIC_SITE_URL=https://your-domain.com
 ```
 
-### Build Commands
+#### Build Process
 
 ```bash
-# Build
-bun run build
-
-# Deploy migrations
-bun run deploy
-
-# Start production servers
-bun run start
+bun run build         # Next.js production build
+bun run deploy        # Deploy Prisma migrations
+bun run start         # Start production servers (Next.js + YJS)
 ```
 
-## Testing
+### Troubleshooting
 
+**YJS Server Not Connecting**
+- Check `NEXT_PUBLIC_YJS_URL` matches the YJS server host
+- Ensure Redis is running
+- Verify WebSocket port is accessible
+
+**Prisma Client Out of Sync**
 ```bash
-# Run all tests
-bun run test
-
-# Type checking
-bun run check
-bun run typecheck
+bun run generate      # Regenerate Prisma client
 ```
 
-## Integration with beep-effect
+**Database Migration Issues**
+```bash
+bun run reset         # Reset entire database (destructive)
+```
 
-While this application uses Prisma for its primary database layer, it integrates with the beep-effect ecosystem through:
+**Module Resolution Issues**
 
-1. **IAM Integration**: Uses `@beep/iam-*` packages for authentication flows
-2. **Document Management**: Leverages `@beep/documents-*` for file handling
-3. **Shared UI**: Consumes `@beep/ui` and `@beep/ui-core` components
-4. **Runtime Layers**: Uses `@beep/runtime-client` and `@beep/runtime-server`
-5. **Utilities**: Effect utilities from `@beep/utils` and `@beep/schema`
+Check `tsconfig.json` for path aliases:
+```json
+{
+  "compilerOptions": {
+    "paths": {
+      "@beep/notes/*": ["./src/*"]
+    }
+  }
+}
+```
 
-## Migration Notes
+## Related Documentation
 
-This application is in transition from a standalone Prisma-based architecture to the beep-effect Effect-based architecture. Current hybrid approach:
-
-- **Database**: Prisma (legacy) + Drizzle schemas from `@beep/*` packages
-- **State**: Jotai/Zustand (legacy) + Effect state management (transitioning)
-- **API**: tRPC/Hono (legacy) + Effect RPC (future)
-
-## License
-
-Private - Part of the beep-effect monorepo.
+- [Monorepo Root README](/home/elpresidank/YeeBois/projects/beep-effect/README.md) - Overview and setup
+- [Root AGENTS.md](/home/elpresidank/YeeBois/projects/beep-effect/AGENTS.md) - Architecture and patterns
+- [Notes AGENTS.md](/home/elpresidank/YeeBois/projects/beep-effect/apps/notes/AGENTS.md) - Detailed implementation guide
+- [IAM Infrastructure](/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/infra/AGENTS.md) - Auth integration target
+- [Documents Infrastructure](/home/elpresidank/YeeBois/projects/beep-effect/packages/documents/infra/AGENTS.md) - Document management target

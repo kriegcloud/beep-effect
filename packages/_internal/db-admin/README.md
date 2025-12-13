@@ -20,7 +20,11 @@ Lives under `_internal` because it is **not shipped to production apps**. Applic
 | `AdminDb.AdminDb.Live` | Layer providing admin database access with the full schema barrel |
 | Schema barrel (`src/schema.ts`) | Re-exports all tables from IAM, documents, and shared slices for drizzle-kit |
 | Unified relations (`src/relations.ts`) | Merged Drizzle relations for shared tables (user, organization, team) |
-| Migration SQL (`drizzle/**`) | Generated migrations and journal maintained by drizzle-kit |
+| Migration SQL (`drizzle/*.sql`) | Generated migrations and journal maintained by drizzle-kit |
+
+**Note**: This package does not export a main index file. Import directly from subpaths:
+- `@beep/db-admin/Db` for AdminDb service
+- Schema and relations are consumed internally by drizzle-kit via `src/schema.ts`
 
 ## Architecture Fit
 
@@ -36,7 +40,7 @@ packages/_internal/db-admin/
 ├── src/
 │   ├── Db/
 │   │   ├── AdminDb.ts       # Admin database Context tag and Layer
-│   │   └── index.ts         # Re-exports AdminDb
+│   │   └── index.ts         # Re-exports AdminDb namespace
 │   ├── schema.ts            # Schema barrel for drizzle-kit
 │   └── relations.ts         # Unified cross-slice relations
 ├── drizzle/
@@ -44,7 +48,11 @@ packages/_internal/db-admin/
 │   └── meta/               # Drizzle migration journal
 ├── drizzle.config.ts       # Drizzle kit configuration
 ├── test/
-│   └── Dummy.test.ts       # Placeholder test
+│   ├── container.ts        # Testcontainers integration Layer
+│   ├── AccountRepo.test.ts # Repository integration test
+│   ├── iam/                # IAM slice test fixtures
+│   ├── documents/          # Documents slice test fixtures
+│   └── shared/             # Shared test fixtures
 └── package.json            # Admin tooling scripts
 ```
 
@@ -62,20 +70,20 @@ import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 
 const ToolRuntime = Layer.mergeAll(
-  AdminDb.Live
+  AdminDb.AdminDb.Live
 );
 
 export const listUserEmails = Effect.gen(function* () {
-  const adminDb = yield* AdminDb;
+  const adminDb = yield* AdminDb.AdminDb;
   const rows = yield* adminDb.db.select().from(adminDb.schema.user);
   return F.pipe(rows, A.map((row) => row.email));
 });
 ```
 
 Access all tables through `adminDb.schema`:
-- IAM tables: `adminDb.schema.user`, `adminDb.schema.account`, `adminDb.schema.session`, etc.
-- Documents tables: `adminDb.schema.document`, `adminDb.schema.documentFile`, etc.
 - Shared tables: `adminDb.schema.user`, `adminDb.schema.organization`, `adminDb.schema.team`
+- IAM tables: `adminDb.schema.account`, `adminDb.schema.session`, `adminDb.schema.member`, etc.
+- Documents tables: `adminDb.schema.document`, `adminDb.schema.documentFile`, `adminDb.schema.knowledgeSpace`, etc.
 
 ### Migration Workflow
 
@@ -119,14 +127,14 @@ This prevents Drizzle warnings about duplicate relation definitions while mainta
 - **Unified relations**: Merge cross-slice relationships for shared tables
 - **Admin database layer**: Single Context tag for tooling access
 - **Migration artifacts**: Generated SQL and journal maintained by drizzle-kit
-- **Admin scripts**: Database reset, seeding utilities, data migrations
+- **Integration test infrastructure**: Testcontainers layers, repository tests, test fixtures
 
 ## What Must NOT Go Here
 
 - **Production app imports**: Apps should never depend on this package
 - **Slice-specific logic**: Business rules belong in slice domain/infra packages
-- **Test utilities**: Currently no active test harness (container code exists but is disabled)
 - **Schema definitions**: Define tables in slice packages, not here (this is a barrel only)
+- **General test utilities**: Use `@beep/testkit` for shared test utilities (this package contains integration test infrastructure only)
 
 ## Dependencies
 
@@ -183,43 +191,58 @@ If a new slice needs to reference shared tables:
 ### Configuration Notes
 
 - `drizzle.config.ts` points to `src/schema.ts` as the schema source
-- `DB_PG_URL` is loaded from root `.env` via `dotenvx`
+- `DB_PG_URL` environment variable is loaded from root `.env` via `dotenvx`
 - `casing: "camelCase"` ensures Drizzle uses camelCase column names
-- Migration output goes to `./drizzle` directory
+- Migration output directory: `./drizzle`
+- Drizzle dialect: `postgresql`
 
-### Known Limitations
+### Known Issues
 
-- **No active test harness**: `test/container.ts` and `test/repo.test.ts` previously provided Testcontainers-based integration testing but are currently commented out
-- **db:reset script**: `package.json` references `src/scripts/ResetDatabase.ts` which does not exist
-- **Effect patterns required**: All tooling scripts must use Effect namespace imports, `F.pipe`, and Effect collections
+- **Missing db:reset script**: `package.json` references `src/scripts/ResetDatabase.ts` which does not exist. Either implement the script or remove the package.json entry.
+- **Incorrect Context tag**: `AdminDb.ts` uses tag `"@beep/documents-infra/AdminDb"` but should be `"@beep/db-admin/AdminDb"`
+- **No main index**: Package lacks `src/index.ts`, requiring direct subpath imports
 
-## Effect Patterns
+### Effect Patterns Required
 
-Always follow Effect-first conventions in admin scripts:
+All tooling scripts and tests must follow Effect-first conventions:
 
 ```typescript
-// ✅ Required
+// ✅ Required Effect patterns
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
+import * as Str from "effect/String";
 
 // Use Effect collections
 F.pipe(users, A.map((u) => u.email));
 F.pipe(users, A.filter((u) => u.active));
+F.pipe(email, Str.toLowerCase);
 
 // ❌ Forbidden - no native methods
 users.map((u) => u.email);
 users.filter((u) => u.active);
+email.toLowerCase();
 ```
 
-## Relationship to Other Packages
+**Key requirements**:
+- Use Effect namespace imports (`Effect`, `Layer`, `F`, `A`, `Str`, etc.)
+- Use `F.pipe` for composition, never method chaining
+- Use Effect collections (`A.map`, `A.filter`) instead of native array methods
+- Use Effect string utilities (`Str.split`, `Str.trim`) instead of native methods
 
-- `@beep/shared-tables` — Shared table factories and audit defaults
-- `@beep/iam-tables` — IAM slice Drizzle schemas
-- `@beep/documents-tables` — Documents slice Drizzle schemas
-- `@beep/shared-infra` — Database factory used by `AdminDb`
-- `@beep/testkit` — Effect testing utilities (if integration tests are restored)
+## Integration Points
+
+| Package | Relationship |
+|---------|--------------|
+| `@beep/shared-tables` | Imports shared table definitions (user, organization, team) |
+| `@beep/iam-tables` | Imports IAM slice Drizzle schemas and relations |
+| `@beep/documents-tables` | Imports Documents slice Drizzle schemas and relations |
+| `@beep/shared-infra` | Uses `Db.make` factory to create AdminDb service |
+| `@beep/iam-infra` | Test layer composes IamDb and IamRepos |
+| `@beep/documents-infra` | Test layer composes DocumentsDb and DocumentsRepos |
+| `@beep/testkit` | Provides Effect testing utilities for integration tests |
+| `@testcontainers/postgresql` | Provisions ephemeral Postgres for integration tests |
 
 ## Further Reading
 

@@ -10,7 +10,7 @@ Provides a typed, schema-validated contract system for client-runtime interactio
 
 | Export | Description |
 |--------|-------------|
-| `Contract` | Build contracts (`make`), annotate metadata (`Domain`, `Method`, `Title`), swap schemas (`setPayload`/`setSuccess`/`setFailure`), derive continuations with abort support, and implement handlers |
+| `Contract` | Build contracts (`make`), annotate metadata (`Domain`, `Method`, `Title`), swap schemas (`setPayload`/`setSuccess`/`setFailure`), derive continuations with abort support, implement handlers, and handle outcomes (`handleOutcome`) |
 | `ContractKit` | Group contracts into bundles, register implementations (`of`), build contexts/Layers (`toContext`, `toLayer`), and expose lifted service handlers (`liftService`) with hooks |
 | `ContractError` | Schema-backed error taxonomy covering HTTP request/response failures, malformed input/output, and unknown errors with transport-independent metadata |
 | `FailureMode` | Type-level discriminator for error handling: `"error"` (fail Effect channel) or `"return"` (return discriminated union) |
@@ -26,20 +26,24 @@ Provides a typed, schema-validated contract system for client-runtime interactio
 
 ```
 src/
+├── index.ts              # Public exports (Contract, ContractKit, ContractError)
 ├── Contract.ts           # Re-export of contract namespace
 ├── ContractKit.ts        # Re-export of kit namespace
 ├── ContractError.ts      # Re-export of error taxonomy
 └── internal/
     ├── contract/
+    │   ├── index.ts          # Namespace aggregation
     │   ├── contract.ts       # Prototype with schema helpers, annotations, implement
     │   ├── types.ts          # Contract types, FailureMode, Implementation* types
-    │   ├── continuation.ts   # FailureContinuation (run, runDecode, raiseResult)
+    │   ├── continuation.ts   # FailureContinuation (run, runDecode, handleOutcome)
     │   ├── lift.ts           # Contract.lift for kit/service layers
     │   ├── annotations.ts    # Annotation tags (Title, Domain, Method, etc.)
     │   └── constants.ts      # TypeIds
     ├── contract-kit/
+    │   ├── index.ts          # Namespace aggregation
     │   └── contract-kit.ts   # ContractKit.make, toLayer, liftService, hooks
     ├── contract-error/
+    │   ├── index.ts          # Namespace aggregation
     │   └── contract-error.ts # Error hierarchy (HttpRequestError, etc.)
     └── utils.ts              # Internal schema helpers
 ```
@@ -141,8 +145,8 @@ export const listWidgets = ListWidgets.implement((payload, { continuation }) =>
 import { CreateWidget } from "./contracts";
 import * as Effect from "effect/Effect";
 
-export const createWidget = CreateWidget.implement(
-  Effect.fn(function* (payload, { continuation }) {
+export const createWidget = CreateWidget.implement((payload, { continuation }) =>
+  Effect.gen(function* () {
     const result = yield* continuation.run((handlers) =>
       widgetClient.create(payload, handlers)
     );

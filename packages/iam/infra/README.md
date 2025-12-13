@@ -1,35 +1,86 @@
 # @beep/iam-infra
 
-Infrastructure layer for the IAM slice. Provides Effect Layers, repositories, and Better Auth integration that bind IAM domain models to Postgres, Redis, and external auth providers without leaking raw clients to application code.
+Infrastructure layer for the IAM slice. Provides Effect Layers, repositories, and Better Auth integration that bind IAM domain models to Postgres and external auth providers without leaking raw clients to application code.
 
-## Contents
+## Purpose
 
-- **Database**: `IamDb.IamDb` tag and `IamDb.IamDb.Live` layer for Drizzle-backed Postgres access with IAM schema.
-- **Repositories**: `IamRepos.layer` merging 21+ repositories (User, Session, Organization, Member, etc.) built on `@beep/shared-infra/Repo` conventions.
-- **Configuration**: `IamConfig` tag plus helpers to project `@beep/shared-infra/ServerEnv` into auth-ready settings.
-- **Auth Services**:
-  - `AuthService`: Better Auth integration with plugin aggregation, database hooks, and session management.
-  - `AuthEmailService`: Email delivery for verification, password reset, invitations, and OTP.
-- **Better Auth Plugins**: 25+ custom plugins for passkeys, SSO, organizations, Stripe billing, JWT, multi-session, SCIM, OIDC, and more.
+`@beep/iam-infra` implements the infrastructure layer for Identity and Access Management, providing:
+- Database repositories for all IAM entities using the `@beep/shared-infra/Repo` factory pattern
+- Better Auth service integration with custom plugins and database hooks
+- Effect-based API route handlers for authentication flows (sign-in, sign-up)
+- Email service for authentication-related communications
+- Type-safe Effect Layers that compose into server runtimes
+
+This package sits between `@beep/iam-domain` (business logic) and consuming applications, ensuring infrastructure concerns remain isolated from domain models.
+
+## Installation
+
+```bash
+# This package is internal to the monorepo
+# Add as a dependency in your package.json:
+"@beep/iam-infra": "workspace:*"
+```
+
+## Key Exports
+
+| Export | Description |
+|--------|-------------|
+| `IamDb.IamDb` | Context tag and Layer for Drizzle-backed Postgres access with IAM schema |
+| `IamRepos.layer` | Merged Layer providing 21+ repository services |
+| `AuthService` | Better Auth integration with plugin aggregation and session management |
+| `AuthEmailService` | Email delivery for verification, password reset, invitations, and OTP |
+| `SignIn.Routes` | Effect HTTP route handlers for sign-in flows |
+| `SignUp.Routes` | Effect HTTP route handlers for sign-up flows |
 
 ## Usage
 
-Compose layers in runtimes:
+### Basic Layer Composition
 
 ```typescript
-import { IamDb, IamRepos, IamConfig, AuthService, AuthEmailService } from "@beep/iam-infra";
+import { IamDb, IamRepos, AuthService, AuthEmailService } from "@beep/iam-infra";
 import * as Layer from "effect/Layer";
 
 const IamInfraLayer = Layer.mergeAll(
   IamDb.IamDb.Live,
   IamRepos.layer,
-  IamConfig.Live,
   AuthEmailService.Default,
   AuthService.Default
 );
 ```
 
-See `packages/iam/infra/AGENTS.md` for detailed surface map, guardrails, and usage snapshots.
+### Using Repository Services
+
+```typescript
+import { UserRepo } from "@beep/iam-infra";
+import { SharedEntityIds } from "@beep/shared-domain";
+import * as Effect from "effect/Effect";
+
+const program = Effect.gen(function* () {
+  const userRepo = yield* UserRepo;
+  const userId = SharedEntityIds.UserId.create();
+
+  const user = yield* userRepo.findById(userId);
+  return user;
+});
+```
+
+### Using Auth Service
+
+```typescript
+import { AuthService } from "@beep/iam-infra";
+import * as Effect from "effect/Effect";
+
+const program = Effect.gen(function* () {
+  const { auth } = yield* AuthService;
+
+  // Better Auth instance is available for use
+  const session = yield* Effect.tryPromise(() =>
+    auth.api.getSession({ headers: request.headers })
+  );
+
+  return session;
+});
+```
 
 ## Key Features
 
@@ -67,6 +118,27 @@ All repositories extend `Effect.Service` and use the `Repo.make` factory pattern
 
 All emails use Resend via `@beep/shared-infra/Email` with React-based templating.
 
+### API Routes
+
+The package provides Effect-based HTTP route handlers that integrate with `@effect/platform/HttpServer`:
+
+```typescript
+import { SignIn, SignUp } from "@beep/iam-infra/api-routes/v1";
+import * as Layer from "effect/Layer";
+
+// Compose authentication routes
+const authRoutes = Layer.mergeAll(
+  SignIn.Routes,
+  SignUp.Routes
+);
+```
+
+Route handlers:
+- **SignIn.Email.Handler**: Email/password sign-in with session creation
+- **SignUp.Email.Handler**: Email/password registration with verification
+
+All route handlers follow Effect patterns with tagged errors from `@beep/iam-domain`.
+
 ### Better Auth Plugins
 
 The package includes custom plugins extending Better Auth functionality:
@@ -78,51 +150,37 @@ The package includes custom plugins extending Better Auth functionality:
 - **Integrations**: Stripe Billing, Dub Analytics, SIWE (Sign-In with Ethereum)
 - **Features**: Multi-Session, Last Login Method, Localization, MCP, Cookies, One-Time Token, OpenAPI
 
-## Configuration
+## Dependencies
 
-`IamConfig` provides type-safe access to environment configuration:
-
-```typescript
-import { IamConfig } from "@beep/iam-infra";
-import * as Effect from "effect/Effect";
-
-const program = Effect.gen(function* () {
-  const config = yield* IamConfig;
-
-  // Access nested configuration
-  const authUrl = config.app.authUrl;
-  const oauthProviders = config.oauth.authProviderNames;
-  const secret = config.auth.secret; // Redacted<string>
-});
-```
-
-For testing, use `IamConfig.layerFrom` to override defaults:
-
-```typescript
-import { serverEnv } from "@beep/shared-infra";
-import { IamConfig } from "@beep/iam-infra";
-
-const TestConfig = IamConfig.layerFrom({
-  ...serverEnv,
-  app: { ...serverEnv.app, env: "test" },
-});
-```
+| Package | Purpose |
+|---------|---------|
+| `@beep/iam-domain` | IAM entity models, schemas, and business logic |
+| `@beep/iam-tables` | Drizzle schema definitions for IAM entities |
+| `@beep/shared-infra` | Database factory, Email service, Repo patterns |
+| `@beep/shared-domain` | Entity ID factories and cross-slice domain models |
+| `@beep/schema` | Effect Schema utilities and branded types |
+| `better-auth` | Authentication framework with plugin system |
+| `effect` | Core Effect runtime and data structures |
+| `@effect/platform` | HTTP server abstractions and platform utilities |
 
 ## Development
 
 ```bash
-# Type checking
-bun run check --filter=@beep/iam-infra
+# Type check
+bun run --filter @beep/iam-infra check
 
-# Linting
-bun run lint --filter=@beep/iam-infra
-bun run lint:fix --filter=@beep/iam-infra
+# Lint
+bun run --filter @beep/iam-infra lint
+bun run --filter @beep/iam-infra lint:fix
 
-# Testing
-bun run test --filter=@beep/iam-infra
+# Build
+bun run --filter @beep/iam-infra build
 
-# Testing with Docker (repositories)
-bun run test --filter=@beep/db-admin -- --grep "@beep/iam-infra"
+# Test
+bun run --filter @beep/iam-infra test
+
+# Test repositories with Docker
+bun run --filter @beep/db-admin test -- --grep "@beep/iam-infra"
 ```
 
 ## Architecture Notes
@@ -144,56 +202,45 @@ The package follows a strict dependency hierarchy:
 ```
 IamDb.IamDb.Live
   ├─> IamRepos.layer (requires IamDb + Db.PgClientServices)
-  ├─> IamConfig.Live (requires ServerEnv)
   └─> AuthService.Default
         ├─> AuthEmailService.DefaultWithoutDependencies
-        ├─> IamDb.IamDb.Live
-        └─> IamConfig.Live
+        └─> IamDb.IamDb.Live
 ```
 
-### Import Rules
+Route handlers depend on:
+- `AuthService` for Better Auth operations
+- `HttpServerRequest.HttpServerRequest` for request context
 
-- Cross-slice imports only through `@beep/shared-*` or `@beep/common-*`
-- Use `@beep/*` path aliases (defined in `tsconfig.base.jsonc`)
-- Never direct cross-slice imports or relative `../../../` paths
-- Namespace imports for Effect modules: `import * as Effect from "effect/Effect"`
-- Single-letter aliases for frequent modules: `import * as A from "effect/Array"`
+### Integration
+
+`@beep/iam-infra` integrates with the following packages:
+
+- **Consumed by**: `apps/server` (runtime composition), `apps/web` (Better Auth routes)
+- **Consumes**: `@beep/iam-domain` (entity models), `@beep/iam-tables` (schema definitions)
+- **Shared infrastructure**: `@beep/shared-infra` (Db, Email, Repo factories)
 
 ## Notes
 
-- Avoid direct `process.env` reads; consume config through `IamConfig`
-- Keep new API surface aligned with tagged errors and Effect namespace import rules
-- Use `Effect.withSpan` and `Effect.annotateLogs` for telemetry
+- All services extend `Effect.Service` with explicit dependencies declared
+- Use `Effect.withSpan` and `Effect.annotateLogs` for observability
 - Database hooks auto-create personal organizations and set session context
 - All secrets use `Redacted<string>` to prevent accidental logging
-- Better Auth plugins are aggregated via `AllPlugins` effect for consistency
+- Better Auth integration is exposed via `AuthService` - never import Better Auth directly
+- Route handlers follow Effect patterns with pipe, namespace imports, and tagged errors
+- Email templates use React components via `@beep/shared-infra/Email`
 
 ## Examples
 
-### Using a Repository
-
-```typescript
-import { UserRepo } from "@beep/iam-infra";
-import { SharedEntityIds } from "@beep/shared-domain";
-import * as Effect from "effect/Effect";
-
-const program = Effect.gen(function* () {
-  const userRepo = yield* UserRepo;
-  const userId = SharedEntityIds.UserId.create();
-
-  const user = yield* userRepo.findById(userId);
-  // ...
-});
-```
-
 ### Adding a New Repository
+
+When adding a new IAM entity, create a repository following this pattern:
 
 ```typescript
 import { Repo } from "@beep/shared-infra/Repo";
 import { Entities } from "@beep/iam-domain";
 import { dependencies } from "@beep/iam-infra/adapters/repos/_common";
 import { IamDb } from "@beep/iam-infra/db";
-import { IamEntityIds } from "@beep/shared-domain";
+import { SharedEntityIds } from "@beep/shared-domain";
 import * as Effect from "effect/Effect";
 
 export class AuditLogRepo extends Effect.Service<AuditLogRepo>()(
@@ -202,42 +249,96 @@ export class AuditLogRepo extends Effect.Service<AuditLogRepo>()(
     dependencies,
     accessors: true,
     effect: Repo.make(
-      IamEntityIds.AuditLogId,
+      SharedEntityIds.AuditLogId,
       Entities.AuditLog.Model,
       Effect.gen(function* () {
-        yield* IamDb.IamDb; // ensure Db injected
+        yield* IamDb.IamDb; // Ensure database is injected
         return {};
       })
     ),
   }
 ) {}
 
-// Then export via src/adapters/repos/index.ts
-// and append AuditLogRepo.Default to IamRepos.layer
+// Export via src/adapters/repos/index.ts
+export * from "./AuditLog.repo";
+
+// Add to IamRepos.layer in src/adapters/repositories.ts
+export const layer: IamReposLive = Layer.mergeAll(
+  // ...existing repos...
+  AuditLogRepo.Default
+);
 ```
 
-### Using Auth Service
+### Creating a Custom Route Handler
 
 ```typescript
-import { AuthService } from "@beep/iam-infra";
+import { AuthService } from "@beep/iam-infra/adapters";
+import { IamAuthError } from "@beep/iam-domain";
+import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
+import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+
+type HandlerEffect = (args: { readonly payload: MyPayload }) =>
+  Effect.Effect<
+    HttpServerResponse.HttpServerResponse,
+    IamAuthError,
+    AuthService | HttpServerRequest.HttpServerRequest
+  >;
+
+export const Handler: HandlerEffect = Effect.fn("MyHandler")(
+  function* ({ payload }) {
+    const { auth } = yield* AuthService;
+    const request = yield* HttpServerRequest.HttpServerRequest;
+
+    const result = yield* Effect.tryPromise(() =>
+      auth.api.someMethod({
+        body: payload,
+        headers: request.headers,
+      })
+    );
+
+    return yield* F.pipe(result, HttpServerResponse.json);
+  },
+  IamAuthError.flowMap("my-operation")
+);
+```
+
+### Sending Authentication Emails
+
+```typescript
+import { AuthEmailService } from "@beep/iam-infra";
+import { BS } from "@beep/schema";
+import * as Effect from "effect/Effect";
+import * as Redacted from "effect/Redacted";
 
 const program = Effect.gen(function* () {
-  const { auth } = yield* AuthService;
+  const emailService = yield* AuthEmailService;
 
-  // Better Auth instance is available
-  const session = await auth.api.getSession({ headers: request.headers });
+  yield* emailService.sendVerification({
+    email: Redacted.make("user@example.com" as BS.Email.Type),
+    url: new URL("https://app.example.com/verify?token=xyz"),
+  });
+
+  yield* emailService.sendResetPassword({
+    username: "johndoe",
+    email: Redacted.make("user@example.com" as BS.Email.Type),
+    url: new URL("https://app.example.com/reset?token=abc"),
+  });
 });
 ```
+
+## Related Documentation
+
+For implementation details and architectural guidance:
+- `/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/infra/AGENTS.md` - Agent-specific patterns and guardrails
+- `/home/elpresidank/YeeBois/projects/beep-effect/AGENTS.md` - Repository-wide conventions
 
 ## Related Packages
 
 - `@beep/iam-domain` - IAM entity models and business logic
 - `@beep/iam-tables` - Drizzle schemas for IAM entities
 - `@beep/iam-sdk` - Client-side contracts for IAM operations
+- `@beep/iam-ui` - React components for IAM flows
 - `@beep/shared-infra` - Shared infrastructure utilities (Db, Email, Repo)
 - `@beep/shared-domain` - Cross-slice entity IDs and domain models
-
-## License
-
-MIT

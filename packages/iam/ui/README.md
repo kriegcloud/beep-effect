@@ -16,33 +16,54 @@ Owns the UX orchestration layer (headings, dividers, CTA links, reCAPTCHA wiring
 - **Better Auth Bridge**: Wraps Better Auth authentication contracts with React components
 - **Path Alias**: Import as `@beep/iam-ui`. Feature exports available via subpaths like `@beep/iam-ui/sign-in`
 
+## Installation
+
+This package is internal to the beep-effect monorepo. Add it as a dependency in your package.json:
+
+```json
+{
+  "dependencies": {
+    "@beep/iam-ui": "workspace:*"
+  }
+}
+```
+
+Then run `bun install` to link the workspace dependency.
+
 ## Key Exports
 
-| Export                      | Description                                                              |
-|-----------------------------|--------------------------------------------------------------------------|
-| `IamProvider`               | Top-level provider wrapping reCAPTCHA v3 context for IAM flows           |
-| `SignInView`                | Complete sign-in UI with email, social, and passkey authentication       |
-| `SignInEmailForm`           | Email/password sign-in form with validation                              |
-| `SignInSocial`              | Social provider buttons grid (Google, GitHub, Discord, LinkedIn, etc.)   |
-| `SignInPasskey`             | WebAuthn passkey authentication button                                   |
-| `SignUpView`                | Sign-up UI with email and social registration options                    |
-| `SignUpEmailForm`           | Email registration form with verification notice                         |
-| `SignUpSocial`              | Social provider registration buttons                                     |
-| `RequestResetPasswordView`  | Password reset request form                                              |
-| `ResetPasswordView`         | Password reset form with token validation                                |
-| `ResetPasswordForm`         | Password reset form component                                            |
-| `VerifyPhoneView`           | Phone verification UI                                                    |
-| `VerifyPhoneForm`           | Phone verification code input form                                       |
-| `EmailVerificationSent`     | Email verification sent confirmation component                           |
-| `AcceptInvitationView`      | Organization invitation acceptance UI                                    |
-| `InvitationError`           | Invalid invitation error card                                            |
-| `PasskeysView`              | Passkey management UI (list, add, remove)                                |
-| `FormHead`                  | Reusable form header with title and description                          |
-| `FormDivider`               | Visual divider for separating form sections                              |
-| `FormReturnLink`            | Navigation link back to previous flow                                    |
-| `SocialIconButton`          | Social provider icon button component                                    |
-| `SocialProviderIcons`       | Map of social provider icons (Google, GitHub, Discord, LinkedIn, etc.)   |
-| `useCaptcha`                | reCAPTCHA v3 execution hook with Effect integration                      |
+Main exports from the package root (`@beep/iam-ui`):
+
+| Export                     | Description                                                    |
+|----------------------------|----------------------------------------------------------------|
+| `IamProvider`              | Top-level provider wrapping reCAPTCHA v3 context for IAM flows |
+| `SignInView`               | Complete sign-in UI with email, social, and passkey options    |
+| `SignUpView`               | Sign-up UI with email and social registration options          |
+| `RequestResetPasswordView` | Password reset request form                                    |
+| `ResetPasswordView`        | Password reset form with token validation                      |
+| `VerifyPhoneView`          | Phone verification UI                                          |
+| `EmailVerificationSent`    | Email verification sent confirmation component                 |
+| `AcceptInvitationView`     | Organization invitation acceptance UI                          |
+| `PasskeysView`             | Passkey management UI (list, add, remove)                      |
+
+Subpath exports (import via `@beep/iam-ui/<subpath>`):
+
+| Subpath                        | Primary Exports                                   |
+|--------------------------------|---------------------------------------------------|
+| `/sign-in`                     | `SignInView`                                      |
+| `/sign-up`                     | `SignUpView`                                      |
+| `/recover`                     | `RequestResetPasswordView`, `ResetPasswordView`   |
+| `/verify`                      | `VerifyPhoneView`, `EmailVerificationSent`        |
+| `/passkey`                     | `PasskeysView`                                    |
+| `/organization/accept-invitation` | `AcceptInvitationView`                         |
+
+Advanced subpath exports (for granular component access):
+
+| Subpath Pattern                | Description                                                      |
+|--------------------------------|------------------------------------------------------------------|
+| `/<feature>/<component-file>`  | Direct file imports (e.g., `/sign-in/sign-in-email.form`)        |
+| `/_components/*`               | Shared IAM UI atoms (`FormHead`, `FormDivider`, `SocialIconButton`, etc.) |
+| `/_common/*`                   | Shared utilities (`useCaptcha`, `RecaptchaV3Provider`, etc.)     |
 
 ## Module Structure
 
@@ -125,6 +146,10 @@ export default function AuthLayout({ children }: React.PropsWithChildren) {
 Complete sign-in view with email, social, and passkey options:
 
 ```typescript
+// Import from package root
+import { SignInView } from "@beep/iam-ui";
+
+// Or from subpath for direct access to all sign-in components
 import { SignInView } from "@beep/iam-ui/sign-in";
 
 export default function SignInPage() {
@@ -211,7 +236,8 @@ export const CustomSocialButtons = () => {
 Complete sign-up view with email and social registration:
 
 ```typescript
-import { SignUpView } from "@beep/iam-ui/sign-up";
+// Import from package root
+import { SignUpView } from "@beep/iam-ui";
 
 export default function SignUpPage() {
   return <SignUpView />;
@@ -223,7 +249,8 @@ export default function SignUpPage() {
 Request password reset:
 
 ```typescript
-import { RequestResetPasswordView } from "@beep/iam-ui/recover";
+// Import from package root
+import { RequestResetPasswordView } from "@beep/iam-ui";
 
 export default function RequestResetPage() {
   return <RequestResetPasswordView />;
@@ -233,7 +260,8 @@ export default function RequestResetPage() {
 Reset password with token validation:
 
 ```typescript
-import { ResetPasswordView } from "@beep/iam-ui/recover";
+// Import from package root
+import { ResetPasswordView } from "@beep/iam-ui";
 
 export default function ResetPasswordPage() {
   return <ResetPasswordView />;
@@ -272,6 +300,10 @@ export const VerifyPhoneCard = () => {
 Accept organization invitation:
 
 ```typescript
+// Import from package root
+import { AcceptInvitationView } from "@beep/iam-ui";
+
+// Or from subpath
 import { AcceptInvitationView } from "@beep/iam-ui/organization/accept-invitation";
 
 export default function AcceptInvitationPage() {
@@ -284,7 +316,8 @@ export default function AcceptInvitationPage() {
 Passkey management view:
 
 ```typescript
-import { PasskeysView } from "@beep/iam-ui/passkey";
+// Import from package root
+import { PasskeysView } from "@beep/iam-ui";
 
 export default function PasskeysPage() {
   return <PasskeysView />;

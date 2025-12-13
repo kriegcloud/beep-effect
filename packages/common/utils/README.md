@@ -39,7 +39,7 @@ The utilities are built on top of Effect's core modules (`effect/Array`, `effect
 
 - **`@beep/types`** — Compile-time only helpers (no runtime). Prefer placing type aliases there.
 - **`@beep/invariant`** — Assertion contracts and tagged error schemas
-- **`@beep/errors/*`** — Error types and helpers (server/client/shared)
+- **`@beep/errors`** — Error types and helpers (shared logging and telemetry)
 
 ## Module Structure
 
@@ -113,6 +113,24 @@ Helpers for `@effect/sql/Model`:
 - `arrayBufferToUint8Array(buffer)` — Convert ArrayBuffer to Uint8Array
 - `uint8arrayToArrayBuffer(uint8)` — Convert Uint8Array to ArrayBuffer
 
+### Cryptography
+
+#### `Md5` — Effect-Based MD5 Hashing
+
+Pure functional MD5 hashing with Effect patterns:
+
+- `hashStr(text)` — Hash a string to MD5 digest
+- `hashAsciiStr(text)` — Hash ASCII string
+- `hashBlob(blob)` — Hash File/Blob objects
+- `hashBlobAsync(blob)` — Async blob hashing
+- `hashBlobSync(blob)` — Synchronous blob hashing
+- `hashBlobParallel(blob)` — Parallel hashing with worker pool
+- `makeState()` — Create new MD5 state
+- `appendStr(state, text)` — Append string to hash state
+- `appendByteArray(state, bytes)` — Append bytes to hash state
+- `finalize(state)` — Finalize hash computation
+- Tagged errors: `Md5ComputationError`, `FileReadError`, `BlobSliceError`, `UnicodeEncodingError`, `WorkerHashError`
+
 ### Guards & Predicates
 
 Type-narrowing predicates:
@@ -145,6 +163,21 @@ Canonical placeholder functions (required across the repo):
 - `asyncNullOp()` — Async null-returning no-op
 - `nullOpE()` — Effect-based null-returning no-op
 
+### Browser & Environment
+
+Browser-specific utilities and detection:
+
+- `IS_MOBILE` — Mobile device detection flag
+- `isWindowDefined` — Check if running in browser context
+- `isNavigatorDefined` — Check if navigator API is available
+
+### Coercion
+
+Type coercion utilities:
+
+- `coerceTrue(value)` — Coerce value to true
+- `coerceFalse(value)` — Coerce value to false
+
 ### Timing
 
 Browser-compatible timing helpers:
@@ -159,6 +192,15 @@ Browser-compatible timing helpers:
 - `RemoveAccents.removeAccents(text)` — Strip diacritical marks
 - `dedent` — Template literal dedentation
 
+### Struct Utilities
+
+Effect Schema struct operations:
+
+- `merge(objects)` — Merge multiple structs with type-safe output
+- `exact(struct)` — Create exact struct type
+- `getSomeFields(struct)` — Extract Some fields from struct
+- `getNoneFields(struct)` — Extract None fields from struct
+
 ### Advanced Utilities
 
 - `TopoSort` — Topological sorting implementation
@@ -170,6 +212,7 @@ Browser-compatible timing helpers:
 - `removeReadonly(value)` — Type-safe readonly escape hatch
 - `randomHexString(length)` — Generate random hex strings
 - `fToNow(date)` — Format time relative to now
+- `thunk()` — Lazy evaluation utilities
 
 ### Sync Utilities
 
@@ -306,6 +349,52 @@ const id = sqids.encode([1, 2, 3]);
 
 const numbers = sqids.decode(id);
 // [1, 2, 3]
+```
+
+### MD5 Hashing
+
+```typescript
+import * as Md5 from "@beep/utils/md5";
+import * as Effect from "effect/Effect";
+
+// Hash a string
+const hashEffect = Md5.hashStr("hello world");
+const hash = Effect.runSync(hashEffect);
+// "5eb63bbbe01eeed093cb22bb8f5acdc3"
+
+// Hash a file/blob
+const fileHashEffect = Md5.hashBlob(blob);
+const fileHash = await Effect.runPromise(fileHashEffect);
+
+// Parallel hashing with worker pool
+const config: Md5.ParallelHasherConfig = {
+  workerUrl: "/md5-worker.js",
+  poolSize: 4,
+};
+const parallelHash = await Effect.runPromise(
+  Md5.hashBlobWithConfig(blob, config)
+);
+
+// Incremental hashing
+const program = Effect.gen(function* () {
+  const state = Md5.makeState();
+  const state2 = Md5.appendStr(state, "hello ");
+  const state3 = Md5.appendStr(state2, "world");
+  return Md5.finalize(state3);
+});
+```
+
+### Struct Utilities
+
+```typescript
+import { merge } from "@beep/utils/struct";
+
+// Type-safe struct merging
+const merged = merge([
+  { name: "Alice", age: 30 },
+  { age: 31, city: "NYC" }
+] as const);
+// { name: "Alice", age: 31, city: "NYC" }
 ```
 
 ## Effect Pattern Adherence

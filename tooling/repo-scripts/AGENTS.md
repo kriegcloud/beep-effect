@@ -1,30 +1,34 @@
 # @beep/repo-scripts Agent Guide
 
 ## Purpose & Fit
-- Orchestrates repo-wide maintenance CLIs (bootstrap, env scaffolding, asset/locales generators, TS reference sync, Iconify registry flows) that hydrate other workspaces without duplicating Effect wiring.
-- Provides the canonical `@effect/cli` + Bun runtime patterns for long-lived utilities; most scripts layer `FsUtils`, `RepoUtils`, or network clients so downstream packages can rely on generated artifacts (`@beep/constants`, `@beep/ui-core`, etc.).
-- Hosts shared schemas and helpers (`utils/asset-path.schema.ts`, `iconify/schema.ts`) that gatekeep file-system outputs before they reach user-facing bundles.
+- Orchestrates repo-wide maintenance CLIs (bootstrap, env scaffolding, asset/locales generators, TS reference sync, codemod utilities) that hydrate other workspaces without duplicating Effect wiring.
+- Provides the canonical `@effect/cli` + Bun runtime patterns for long-lived utilities; most scripts layer `FsUtils`, `RepoUtils`, or network clients so downstream packages can rely on generated artifacts (`@beep/constants`, `@beep/schema`, etc.).
+- Hosts shared schemas and helpers (`utils/asset-path.schema.ts`, `utils/convert-to-nextgen.ts`) that gatekeep file-system outputs before they reach user-facing bundles.
 
 ## Surface Map
 - `src/bootstrap.ts` – interactive infra bootstrapper (Docker, migrations, `.env` copy) showcasing multi-stage terminal UX.
 - `src/generate-env-secrets.ts` – secure secret hydrator; uses Effect `Random`, encoding, and `.env` preservation helpers.
 - `src/generate-asset-paths.ts` & `src/utils/convert-to-nextgen.ts` – public asset crawler + AVIF converter enforcing schema compliance via `AssetPaths`.
-- `src/generate-locales.ts` & `src/i18n/cldr.ts` – CLDR fetch + generator producing `packages/common/constants/src/_generated/ALL_LOCALES.generated.ts`.
+- `src/generate-locales.ts` & `src/i18n/cldr.ts` – CLDR fetch + generator producing `packages/common/schema/src/custom/locales/ALL_LOCALES.generated.ts`.
 - `src/sync-ts-references.ts` – wraps `update-ts-references` with auto-detection of repo tsconfig variants.
+- `src/analyze-jsdoc.ts` & `src/run-docs-lint.ts` – JSDoc documentation completeness checker with configurable scopes.
+- `src/docs-copy.ts` – documentation file synchronization utility.
+- `src/purge.ts` – workspace artifact cleanup with lock file support.
+- `src/codemod.ts` & `src/codemods/` – jscodeshift-based AST transformation framework.
 - `src/utils/asset-path.schema.ts` – schema definitions for asset path validation.
 - `src/utils/convert-to-nextgen.ts` – AVIF/WebP image conversion utilities.
-- `src/templates/package/*.hbs` – Turbo-ready workspace scaffolding templates.
-- `test/ts-fence.test.ts` – Test coverage for TypeScript reference fencing.
+- `src/templates/package/*.hbs` – Turbo-ready workspace scaffolding templates (if present).
 
 ## Usage Snapshots
 - Root `package.json` scripts expose the bootstrap flow and generators to contributors.
-- `gen:secrets` and `gen:beep-paths` invoke `generate-env-secrets.ts` and `generate-asset-paths.ts`.
-- `packages/common/constants/src/_generated/ALL_LOCALES.generated.ts` – generated header documents `generate-locales.ts` as the single source of truth.
-- `test/ts-fence.test.ts` – demonstrates test patterns for TypeScript reference validation.
+- `gen:secrets` and `generate-public-paths` invoke `generate-env-secrets.ts` and `generate-asset-paths.ts`.
+- `packages/common/schema/src/custom/locales/ALL_LOCALES.generated.ts` – generated header documents `generate-locales.ts` as the single source of truth.
+- Generated artifacts in `packages/common/constants/src/_generated/asset-paths.ts` provide type-safe public asset accessors.
 
 ## Verifications
-- Run generators through root scripts to inherit `dotenvx`: `bun run gen:secrets`, `bun run gen:beep-paths`, `bun run execute` (prints locale payload), `bun run bootstrap`.
+- Run generators through root scripts to inherit `dotenvx`: `bun run gen:secrets`, `bun run generate-public-paths`, `bun run gen:locales`, `bun run execute` (prints locale payload), `bun run bootstrap`.
 - Focused lint/type sweeps from package root: `bun run lint`, `bun run check`, `bun run test`, `bun run coverage`.
+- Documentation analysis: `bun run docs:lint` for JSDoc coverage reports.
 
 ## Authoring Guardrails
 - Respect global Effect rules: namespace imports (`import * as Effect from "effect/Effect"`), rely on `A.*`, `Str.*`, `HashMap.*`, `HashSet.*`, `R.*`; no native `Array` / `String` helpers or loops in new code.

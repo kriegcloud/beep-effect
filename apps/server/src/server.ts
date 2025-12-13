@@ -10,19 +10,29 @@ import * as HttpServer from "@effect/platform/HttpServer";
 import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import { Layer } from "effect";
-import { SignInRoutes } from "./auth/routes/v1/iam/sign-in.ts";
-import { SignUpRoutes } from "./auth/routes/v1/iam/sign-up.ts";
-import { DomainApi } from "./DomainApi.ts";
-
-// import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
-// import * as HttpLayerRouter from "@effect/platform/HttpLayerRouter";
+import {IamRoutes } from "@beep/iam-infra";
+import { IamDomainApi} from "@beep/iam-domain";
+import * as HttpLayerRouter from "@effect/platform/HttpLayerRouter";
+import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
 
 // Merge all group handler implementations
-const ApiHandlersLayer = Layer.mergeAll(SignInRoutes, SignUpRoutes);
 
 // Create the top-level HttpApi layer
 // This requires all ApiGroup services (signIn, signUp) to be provided
-const DomainApiLayer = HttpApiBuilder.api(DomainApi).pipe(Layer.provide(ApiHandlersLayer));
+const DomainApiLayer = HttpApiBuilder.api(IamDomainApi).pipe(Layer.provide(IamRoutes.layer));
+
+const HttpApiRouter = HttpLayerRouter.addHttpApi(
+  IamDomainApi
+).pipe(
+  Layer.provide(IamRoutes.layer),
+  Layer.provide(HttpServer.layerContext)
+)
+
+const HealthRoute = HttpLayerRouter.use((router) =>
+  router.add("GET", "/api/health", HttpServerResponse.text("OK")),
+);
+
+export const AllRoutes = Layer.mergeAll(HttpApiRouter, HealthRoute);
 
 // Merge all layers that require the Api service
 // Both HttpApiBuilder.serve() and HttpApiScalar.layer() need Api

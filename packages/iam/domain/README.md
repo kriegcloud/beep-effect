@@ -1,15 +1,18 @@
 # @beep/iam-domain
 
-The domain layer for the IAM (Identity and Access Management) vertical slice, providing pure entity models, value objects, and tagged errors for authentication, authorization, and user management.
+The domain layer for the IAM (Identity and Access Management) vertical slice, providing pure entity models, value objects, domain API contracts, and tagged errors for authentication, authorization, and user management.
 
 ## Purpose
 
-Centralizes IAM domain models via `M.Class` definitions that merge shared audit fields through `makeFields`, giving infrastructure and table layers a single source of truth for schema variants. This package exports Effect-first entity models that integrate seamlessly with Better Auth, Drizzle ORM, and Effect SQL while maintaining type safety and compile-time guarantees.
+Centralizes IAM domain models via `M.Class` definitions that merge shared audit fields through `makeFields`, giving infrastructure and table layers a single source of truth for schema variants. This package exports Effect-first entity models, HTTP API contracts using `@effect/platform/HttpApi`, and type-safe error channels that integrate seamlessly with Better Auth, Drizzle ORM, and Effect SQL while maintaining type safety and compile-time guarantees.
+
+The domain API layer defines versioned HTTP contracts (sign-in, sign-up) that specify request/response schemas and error channels, allowing infrastructure implementations to remain decoupled from domain specifications.
 
 ## Key Exports
 
 | Export | Description |
 |--------|-------------|
+| **Entities** | |
 | `Entities.*` | Namespaced entity models for all IAM domain objects |
 | `Entities.Account` | OAuth account linkage with sensitive token wrappers and expiry metadata |
 | `Entities.ApiKey` | API key issuance, hashed secrets, and rate limit defaults |
@@ -21,9 +24,17 @@ Centralizes IAM domain models via `M.Class` definitions that merge shared audit 
 | `Entities.User` | Re-exported from shared domain for user identity |
 | `Entities.Organization` | Re-exported from shared domain for organization context |
 | `Entities.Team` | Re-exported from shared domain for team grouping |
+| **Domain API Contracts** | |
+| `IamDomainApi` | HttpApi aggregating versioned IAM endpoints with `/v1/iam` prefix |
+| `SignIn.Group` | Sign-in endpoint group with email authentication contract |
+| `SignUp.Group` | Sign-up endpoint group with email registration contract |
+| `CommonFields.*` | Shared request/response field schemas (UserEmail, UserPassword, CallbackURL, etc.) |
+| `IamAuthError` | Tagged error for authentication failures with context and observability |
+| **Errors** | |
 | `IamError` | Base tagged error for IAM-specific failures |
 | `IamUnknownError` | Unknown error fallback blending shared error contract |
 | Error Categories | Specialized errors across admin, auth, captcha, OAuth, passkey, organization, subscription, and more |
+| **Value Objects** | |
 | `authViewPaths` | Type-safe path builders for authentication views |
 | `accountViewPaths` | Type-safe path builders for account settings |
 | `organizationViewPaths` | Constants for organization-scoped views |
@@ -40,49 +51,66 @@ Centralizes IAM domain models via `M.Class` definitions that merge shared audit 
 
 ```
 src/
-├── entities/               # Entity model definitions
-│   ├── Account/           # OAuth provider accounts
-│   ├── ApiKey/            # API key authentication
-│   ├── DeviceCode/        # Device authorization flow
-│   ├── Invitation/        # Organization invitations
-│   ├── Jwks/              # JSON Web Key Sets
-│   ├── Member/            # Organization membership
-│   ├── OAuthAccessToken/  # OAuth access tokens
-│   ├── OAuthApplication/  # OAuth client applications
-│   ├── OAuthConsent/      # OAuth user consent records
-│   ├── OrganizationRole/  # Organization role definitions
-│   ├── Passkey/           # WebAuthn credentials
-│   ├── RateLimit/         # Rate limiting records
-│   ├── ScimProvider/      # SCIM provider configuration
-│   ├── SsoProvider/       # SSO provider metadata
-│   ├── Subscription/      # Billing subscriptions
-│   ├── TeamMember/        # Team membership
-│   ├── TwoFactor/         # TOTP two-factor settings
-│   ├── Verification/      # Email/phone verification tokens
-│   └── WalletAddress/     # Crypto wallet addresses
-├── errors/                # Tagged error definitions
-│   ├── admin.errors.ts         # Admin operation errors
-│   ├── anonymous.errors.ts     # Anonymous authentication errors
-│   ├── api-key.errors.ts       # API key errors
-│   ├── captcha.errors.ts       # CAPTCHA validation errors
-│   ├── core.errors.ts          # Core authentication errors
+├── api/                   # Domain API contracts (HttpApi definitions)
+│   ├── common/           # Shared API fields and errors
+│   │   ├── common-fields.ts  # UserEmail, UserPassword, CallbackURL, etc.
+│   │   ├── errors.ts         # IamAuthError for API failures
+│   │   └── index.ts          # Common API exports
+│   ├── v1/               # Version 1 API contracts
+│   │   ├── sign-in/      # Sign-in endpoints
+│   │   │   ├── _group.ts     # Sign-in HttpApiGroup
+│   │   │   ├── email.ts      # Email/password sign-in contract
+│   │   │   └── index.ts      # Sign-in exports
+│   │   ├── sign-up/      # Sign-up endpoints
+│   │   │   ├── _group.ts     # Sign-up HttpApiGroup
+│   │   │   ├── email.ts      # Email/password registration contract
+│   │   │   └── index.ts      # Sign-up exports
+│   │   ├── domain-api.ts # IamDomainApi aggregating all endpoint groups
+│   │   └── index.ts      # v1 API exports
+│   └── index.ts          # API layer root export
+├── entities/              # Entity model definitions
+│   ├── Account/          # OAuth provider accounts
+│   ├── ApiKey/           # API key authentication
+│   ├── DeviceCode/       # Device authorization flow
+│   ├── Invitation/       # Organization invitations
+│   ├── Jwks/             # JSON Web Key Sets
+│   ├── Member/           # Organization membership
+│   ├── OAuthAccessToken/ # OAuth access tokens
+│   ├── OAuthApplication/ # OAuth client applications
+│   ├── OAuthConsent/     # OAuth user consent records
+│   ├── OrganizationRole/ # Organization role definitions
+│   ├── Passkey/          # WebAuthn credentials
+│   ├── RateLimit/        # Rate limiting records
+│   ├── ScimProvider/     # SCIM provider configuration
+│   ├── SsoProvider/      # SSO provider metadata
+│   ├── Subscription/     # Billing subscriptions
+│   ├── TeamMember/       # Team membership
+│   ├── TwoFactor/        # TOTP two-factor settings
+│   ├── Verification/     # Email/phone verification tokens
+│   └── WalletAddress/    # Crypto wallet addresses
+├── errors/               # Tagged error definitions
+│   ├── admin.errors.ts        # Admin operation errors
+│   ├── anonymous.errors.ts    # Anonymous authentication errors
+│   ├── api-key.errors.ts      # API key errors
+│   ├── captcha.errors.ts      # CAPTCHA validation errors
+│   ├── core.errors.ts         # Core authentication errors
 │   ├── device-authorization.errors.ts  # Device flow errors
-│   ├── email-otp.errors.ts     # Email OTP errors
+│   ├── email-otp.errors.ts    # Email OTP errors
 │   ├── generic-oauth.errors.ts # Generic OAuth errors
 │   ├── haveibeenpwned.errors.ts # Password breach check errors
 │   ├── multi-session.errors.ts # Multi-session errors
-│   ├── organization.errors.ts  # Organization management errors
-│   ├── passkey.errors.ts       # Passkey/WebAuthn errors
-│   ├── phone-number.errors.ts  # Phone number errors
-│   ├── subscription.errors.ts  # Subscription errors
-│   ├── two-factor.errors.ts    # 2FA errors
-│   └── username.errors.ts      # Username errors
-├── value-objects/         # Value objects and utilities
-│   └── paths.ts          # Type-safe path builders for IAM views
-├── IamError.ts           # Base IAM error classes
-├── entities.ts           # Entity barrel export
-├── errors.ts             # Error barrel export
-└── index.ts              # Package root export
+│   ├── organization.errors.ts # Organization management errors
+│   ├── passkey.errors.ts      # Passkey/WebAuthn errors
+│   ├── phone-number.errors.ts # Phone number errors
+│   ├── subscription.errors.ts # Subscription errors
+│   ├── two-factor.errors.ts   # 2FA errors
+│   └── username.errors.ts     # Username errors
+├── value-objects/        # Value objects and utilities
+│   └── paths.ts         # Type-safe path builders for IAM views
+├── IamError.ts          # Base IAM error classes
+├── entities.ts          # Entity barrel export
+├── errors.ts            # Error barrel export
+└── index.ts             # Package root export
 ```
 
 ## Usage
@@ -229,6 +257,78 @@ const program = F.pipe(
 );
 ```
 
+### Domain API Contracts
+
+Use HttpApi contracts to define versioned endpoints with type-safe payloads and error channels:
+
+```typescript
+import { IamDomainApi, SignIn, SignUp } from "@beep/iam-domain";
+import * as Effect from "effect/Effect";
+import * as HttpApiBuilder from "@effect/platform/HttpApiBuilder";
+
+// Access the complete domain API
+const api = IamDomainApi;
+// Prefixed at "/v1/iam" with sign-in and sign-up groups
+
+// Define a handler for the email sign-in endpoint
+const signInHandler = HttpApiBuilder.handle(SignIn.Email.Contract, (payload) =>
+  Effect.gen(function* () {
+    // Implementation using payload.email and payload.password
+    const user = yield* authenticateUser(payload.email, payload.password);
+    const token = yield* createSession(user);
+
+    return new SignIn.Email.Success({
+      user,
+      redirect: true,
+      token,
+      url: null,
+    });
+  })
+);
+```
+
+### Working with Common API Fields
+
+Reuse validated field schemas across API contracts:
+
+```typescript
+import { CommonFields } from "@beep/iam-domain/api/common";
+import * as S from "effect/Schema";
+
+// Use shared field schemas in custom endpoints
+export class CustomPayload extends S.Class<CustomPayload>("CustomPayload")({
+  email: CommonFields.UserEmail,      // Pre-validated email field
+  password: CommonFields.UserPassword, // Pre-validated password field
+  callbackURL: CommonFields.CallbackURL, // Optional URL with default
+  rememberMe: CommonFields.RememberMe,  // Boolean with default false
+}) {}
+```
+
+### Handling API Errors
+
+Use `IamAuthError` for authentication failures with observability:
+
+```typescript
+import { IamAuthError } from "@beep/iam-domain/api/common";
+import * as Effect from "effect/Effect";
+
+export const authenticateWithContext = (email: string, password: string) =>
+  Effect.gen(function* () {
+    // Your authentication logic
+  }).pipe(
+    IamAuthError.mapError({
+      operation: "authenticateUser",
+      payload: { email },
+    })
+  );
+
+// Or use the flow helper for automatic logging and tracing
+const program = IamAuthError.flowMap("signInWithEmail")(
+  authenticateUser(email, password),
+  { email }
+);
+```
+
 ### Type-Safe Path Building
 
 Use path builders for IAM views:
@@ -329,8 +429,10 @@ Error modules for admin, anonymous auth, API keys, CAPTCHA, device authorization
 ## What Belongs Here
 
 - **Pure entity models** built on `@effect/sql/Model` with Effect Schema
+- **Domain API contracts** using `@effect/platform/HttpApi` for endpoint specifications
+- **Request/response schemas** for API payloads with Effect Schema validation
 - **Value objects** like entity IDs, enums, and path builders
-- **Tagged errors** for IAM-specific failures
+- **Tagged errors** for IAM-specific failures and API error channels
 - **Schema kits** for literals with Postgres enum helpers
 - **Domain utilities** that are pure and stateless
 
@@ -338,11 +440,12 @@ Error modules for admin, anonymous auth, API keys, CAPTCHA, device authorization
 
 - **No I/O or side effects**: no database queries, network calls, or file system operations
 - **No infrastructure**: no Drizzle clients, repositories, or Better Auth runtime
+- **No HTTP handlers or routes**: define contracts only; implement handlers in `@beep/iam-infra`
 - **No application logic**: keep orchestration in `@beep/iam-infra` or application layers
 - **No framework dependencies**: avoid Next.js, React, or platform-specific code
 - **No cross-slice domain imports**: only depend on `@beep/shared-domain` and `@beep/common/*`
 
-Domain models should be pure, testable, and reusable across all infrastructure implementations.
+Domain models and API contracts should be pure, testable, and reusable across all infrastructure implementations.
 
 ## Dependencies
 
@@ -350,6 +453,7 @@ Domain models should be pure, testable, and reusable across all infrastructure i
 |---------|---------|
 | `effect` | Core Effect runtime and Schema system |
 | `@effect/sql` | SQL model base classes and annotations |
+| `@effect/platform` | HttpApi, HttpApiEndpoint, HttpApiGroup for domain contracts |
 | `@beep/shared-domain` | Shared entities (User, Organization, Team, Session) |
 | `@beep/schema` | Schema utilities (BS namespace, EntityId, StringLiteralKit) |
 | `@beep/invariant` | Assertion contracts and error schemas |
@@ -396,12 +500,24 @@ bun run --filter @beep/iam-domain lint:circular
 
 ## Relationship to Other Packages
 
+- `@beep/iam-infra` — Infrastructure layer implementing domain API contracts as HTTP routes, repositories, and Better Auth integration
 - `@beep/iam-tables` — Drizzle table definitions that consume these entity models
-- `@beep/iam-infra` — Infrastructure layer with repositories and Better Auth integration
-- `@beep/iam-sdk` — Client-side contracts and Better Auth handlers
+- `@beep/iam-sdk` — Client-side contracts and Better Auth handlers (may consume domain API types)
 - `@beep/iam-ui` — React components for IAM flows
 - `@beep/shared-domain` — Shared kernel entities (User, Organization, Team, Session)
 - `@beep/shared-tables` — Table factories (`Table.make`, `OrgTable.make`) used by IAM tables
+
+### API Contract Flow
+
+```
+@beep/iam-domain (contracts)
+    ↓
+@beep/iam-infra (route implementations)
+    ↓
+apps/server (HTTP server runtime)
+```
+
+Domain defines the "what" (API shape), infrastructure defines the "how" (handlers, side effects).
 
 ## Testing
 

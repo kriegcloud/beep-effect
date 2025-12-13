@@ -8,13 +8,22 @@ A command-line interface built on `@effect/cli` and `@effect/platform-bun` that 
 
 ## Installation
 
-This package is internal to the monorepo and not published to npm. Commands are executed via package scripts:
+This package is internal to the monorepo and not published to npm. Commands are executed via direct execution or root package scripts:
 
 ```bash
-# From repository root
-bun run beep <command> [options]
+# From repository root (direct execution)
+bun run tooling/cli/src/index.ts <command> [options]
 
-# Or directly with filter
+# Via root package.json scripts (recommended)
+bun run init:env           # Interactive environment setup
+bun run docgen:init        # Initialize docgen configuration
+bun run docgen:analyze     # Analyze JSDoc coverage
+bun run docgen:generate    # Generate documentation
+bun run docgen:aggregate   # Aggregate docs to central location
+bun run docgen:status      # Show docgen status
+bun run docgen:agents      # AI-powered JSDoc improvements
+
+# Or with filter for development
 bun run --filter @beep/repo-cli execute
 ```
 
@@ -42,10 +51,10 @@ The main entry point is `src/index.ts`, which exports `runRepoCli` for programma
 
 | Command              | Description                                                                    |
 |---------------------|--------------------------------------------------------------------------------|
-| `beep env`          | Interactively create or update your `.env` file from `.env.example`          |
-| `beep sync`         | Copy `.env` to workspaces and regenerate type definitions                    |
-| `beep prune-unused-deps` | Find and remove unused `@beep/*` workspace dependencies              |
-| `beep docgen`       | Documentation generation suite with JSDoc analysis and AI-powered fixes      |
+| `env`          | Interactively create or update your `.env` file from `.env.example`          |
+| `sync`         | Copy `.env` to workspaces and regenerate type definitions                    |
+| `prune-unused-deps` | Find and remove unused `@beep/*` workspace dependencies              |
+| `docgen`       | Documentation generation suite with JSDoc analysis and AI-powered fixes      |
 
 ## Architecture Fit
 
@@ -93,7 +102,9 @@ src/
 Create or update your root `.env` file by answering prompts:
 
 ```bash
-bun run beep env
+bun run init:env
+# Or directly:
+bun run tooling/cli/src/index.ts env
 ```
 
 This command:
@@ -108,7 +119,7 @@ This command:
 Distribute `.env` to workspaces and regenerate types:
 
 ```bash
-bun run beep sync
+bun run tooling/cli/src/index.ts sync
 ```
 
 This command:
@@ -122,16 +133,16 @@ Detect and remove unused workspace dependencies:
 
 ```bash
 # Dry-run mode (default, safe)
-bun run beep prune-unused-deps --dry-run
+bun run tooling/cli/src/index.ts prune-unused-deps --dry-run
 
 # Remove unused dependencies
-bun run beep prune-unused-deps --dry-run=false
+bun run tooling/cli/src/index.ts prune-unused-deps --dry-run=false
 
 # Filter to specific workspace
-bun run beep prune-unused-deps --filter @beep/iam-infra
+bun run tooling/cli/src/index.ts prune-unused-deps --filter @beep/iam-infra
 
 # Exclude test directories from scanning
-bun run beep prune-unused-deps --exclude-tests
+bun run tooling/cli/src/index.ts prune-unused-deps --exclude-tests
 ```
 
 The prune command:
@@ -164,13 +175,15 @@ Bootstrap a `docgen.json` configuration file for a package:
 
 ```bash
 # Create docgen.json from existing tsconfig
-bun run beep docgen init -p packages/common/schema
+bun run docgen:init -p packages/common/schema
+# Or directly:
+bun run tooling/cli/src/index.ts docgen init -p packages/common/schema
 
 # Preview without writing (dry-run)
-bun run beep docgen init -p packages/common/schema --dry-run
+bun run tooling/cli/src/index.ts docgen init -p packages/common/schema --dry-run
 
 # Overwrite existing configuration
-bun run beep docgen init -p packages/common/schema --force
+bun run tooling/cli/src/index.ts docgen init -p packages/common/schema --force
 ```
 
 The init command:
@@ -185,13 +198,15 @@ Scan packages for JSDoc documentation quality and completeness:
 
 ```bash
 # Analyze specific package
-bun run beep docgen analyze -p packages/common/contract
+bun run docgen:analyze -p packages/common/contract
+# Or directly:
+bun run tooling/cli/src/index.ts docgen analyze -p packages/common/contract
 
 # Output JSON for programmatic use
-bun run beep docgen analyze -p packages/common/contract --json
+bun run tooling/cli/src/index.ts docgen analyze -p packages/common/contract --json
 
 # Analyze all packages with docgen.json
-bun run beep docgen analyze --all
+bun run tooling/cli/src/index.ts docgen analyze --all
 ```
 
 The analyze command:
@@ -213,13 +228,15 @@ Run `@effect/docgen` to generate API documentation:
 
 ```bash
 # Generate docs for specific package
-bun run beep docgen generate -p packages/common/schema
+bun run docgen:generate -p packages/common/schema
+# Or directly:
+bun run tooling/cli/src/index.ts docgen generate -p packages/common/schema
 
 # Generate for all packages (parallel)
-bun run beep docgen generate --all --parallel 8
+bun run tooling/cli/src/index.ts docgen generate --all --parallel 8
 
 # Dry-run to see what would be generated
-bun run beep docgen generate --all --dry-run
+bun run tooling/cli/src/index.ts docgen generate --all --dry-run
 ```
 
 The generate command:
@@ -234,13 +251,15 @@ Collect generated docs to a central repository location:
 
 ```bash
 # Aggregate all package docs to docs/api/
-bun run beep docgen aggregate
+bun run docgen:aggregate
+# Or directly:
+bun run tooling/cli/src/index.ts docgen aggregate
 
 # Clean existing docs before aggregating
-bun run beep docgen aggregate --clean
+bun run tooling/cli/src/index.ts docgen aggregate --clean
 
 # Dry-run to preview structure
-bun run beep docgen aggregate --dry-run
+bun run tooling/cli/src/index.ts docgen aggregate --dry-run
 ```
 
 The aggregate command:
@@ -255,13 +274,15 @@ Display docgen configuration status across all packages:
 
 ```bash
 # Show summary of docgen setup
-bun run beep docgen status
+bun run docgen:status
+# Or directly:
+bun run tooling/cli/src/index.ts docgen status
 
 # Verbose output with file paths
-bun run beep docgen status --verbose
+bun run tooling/cli/src/index.ts docgen status --verbose
 
 # JSON output for automation
-bun run beep docgen status --json
+bun run tooling/cli/src/index.ts docgen status --json
 ```
 
 The status command shows:
@@ -276,19 +297,21 @@ Use AI agents to automatically improve JSDoc documentation:
 
 ```bash
 # Fix JSDoc for a specific package
-bun run beep docgen agents --package @beep/contract
+bun run docgen:agents --package @beep/contract
+# Or directly (requires ANTHROPIC_API_KEY):
+ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY bun run tooling/cli/src/index.ts docgen agents --package @beep/contract
 
 # Durable mode with crash recovery (uses @effect/workflow)
-bun run beep docgen agents --durable --package @beep/contract
+bun run tooling/cli/src/index.ts docgen agents --durable --package @beep/contract
 
 # Resume interrupted workflow
-bun run beep docgen agents --durable --resume docgen-packages-common-contract
+bun run tooling/cli/src/index.ts docgen agents --durable --resume docgen-packages-common-contract
 
 # Dry-run to see proposed changes
-bun run beep docgen agents --package @beep/contract --dry-run
+bun run tooling/cli/src/index.ts docgen agents --package @beep/contract --dry-run
 
 # Process multiple packages in parallel
-bun run beep docgen agents --all --parallel 4
+bun run tooling/cli/src/index.ts docgen agents --all --parallel 4
 ```
 
 The agents command:

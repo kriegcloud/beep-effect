@@ -40,6 +40,8 @@ When implemented, this package will provide:
 | `@beep/utils`            | Pure runtime helpers                              |
 | `@beep/errors`           | Logging and error handling                        |
 | `@beep/constants`        | Schema-backed enums and constants                 |
+| `@beep/identity`         | Package identity utilities                        |
+| `@beep/invariant`        | Assertion contracts                               |
 | `effect`                 | Core Effect runtime                               |
 
 ## Future Usage Patterns
@@ -263,22 +265,22 @@ export function useUpdateDocument() {
 
 ```bash
 # Type check
-bun run check --filter=@beep/documents-ui
+bun run --filter @beep/documents-ui check
 
 # Lint
-bun run lint --filter=@beep/documents-ui
+bun run --filter @beep/documents-ui lint
 
 # Lint and auto-fix
-bun run lint:fix --filter=@beep/documents-ui
+bun run --filter @beep/documents-ui lint:fix
 
 # Run tests
-bun run test --filter=@beep/documents-ui
+bun run --filter @beep/documents-ui test
 
 # Test with coverage
-bun run coverage --filter=@beep/documents-ui
+bun run --filter @beep/documents-ui coverage
 
 # Build
-bun run build --filter=@beep/documents-ui
+bun run --filter @beep/documents-ui build
 ```
 
 ## Testing Strategy
@@ -296,6 +298,8 @@ When adding new components:
 - [ ] Validation uses `@beep/documents-domain` schemas
 - [ ] Data fetching is injected via props or uses `@beep/documents-sdk`
 - [ ] No native array/string/object methods; Effect utilities only
+- [ ] No native Date; use `effect/DateTime` for all date/time operations
+- [ ] Pattern matching uses `effect/Match` instead of switch statements
 - [ ] Appropriate `"use client"` markers for React 19 + Next.js 15
 - [ ] Effect-based data fetching with TanStack Query integration
 - [ ] Tests added under `packages/documents/ui/test/`

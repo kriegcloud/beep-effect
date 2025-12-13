@@ -20,8 +20,8 @@ The runtime is mounted via `BeepProvider` in the App Router shell and shared acr
 ### Runtime Providers
 
 - **`BeepProvider`** — Top-level React provider that instantiates and manages the `LiveManagedRuntime`
-- **`RuntimeProvider`** — Internal context provider exposing the runtime to child components
 - **`KaServices`** — Effect-atom registry mount point that injects `clientRuntimeLayer` into all atoms
+- **`useRuntime`** — React hook to access the runtime from within components
 
 ### Runtime Layers
 
@@ -31,7 +31,8 @@ The runtime is mounted via `BeepProvider` in the App Router shell and shared acr
   - `NetworkMonitor` for connectivity tracking
   - `WorkerClient` for RPC worker access
   - `KeyValueStore` (localStorage by default)
-  - `ApiClient` for Better Auth integration
+  - `ApiClient` for Better Auth HTTP integration
+  - `Geolocation` for browser geolocation tracking (when enabled)
   - OpenTelemetry exporters and logging
 
 - **`ObservabilityLive`** — Merged telemetry stack with trace/log/metric exporters
@@ -49,17 +50,12 @@ The runtime is mounted via `BeepProvider` in the App Router shell and shared acr
 
 - **`NetworkMonitor`** — Exposes browser online/offline state via `SubscriptionRef` and `Latch`
 - **`WorkerClient`** — RPC client for communicating with the web worker (see `worker/worker.ts`)
-- **`layerIndexedDB`** — Optional IndexedDB-backed `KeyValueStore` layer
-
-### Effect-Atom Integration
-
-- **`makeAtomRuntime`** — Creates an atom context with `clientRuntimeLayer` pre-injected
-- **`Atom.runtime`** — Factory for creating atom runtimes with custom layers
+- **`layerIndexedDB`** — Optional IndexedDB-backed `KeyValueStore` layer (from `@beep/runtime-client/services/common/layer-indexed-db`)
+- **`ApiClient`** — Better Auth HTTP client service (from `@beep/runtime-client/services/common/iam-api-client`)
 
 ### SSR Utilities
 
 Re-exported from `./atom`:
-- **`ssr-utils`** — Server-side rendering helpers for Next.js
 - **`urlSearchParamSSR`** — URL search param atoms compatible with SSR
 
 ## Architecture
@@ -166,19 +162,18 @@ function MyComponent() {
 
 ### Creating Effect-Atom State
 
-Use `Atom.runtime` to create atoms that share the client runtime:
+Create atoms that automatically have access to the client runtime through `KaServices`:
 
 ```tsx
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import { Atom, useAtom } from "@effect-atom/atom-react";
-import { clientRuntimeLayer } from "@beep/runtime-client";
 import { withToast } from "@beep/ui/common/with-toast";
 import { SignOutImplementations } from "@beep/iam-sdk";
 
-const runtime = Atom.runtime(clientRuntimeLayer);
-
-const signOutAtom = runtime.fn(
+// Atoms created with Atom.fn automatically have access to clientRuntimeLayer
+// when KaServices is mounted in the app
+const signOutAtom = Atom.fn(
   F.flow(
     SignOutImplementations.SignOutContract,
     withToast({
@@ -197,20 +192,18 @@ export const useSignOut = () => useAtom(signOutAtom);
 
 ### Extending the Runtime with IndexedDB
 
-Add persistent storage capabilities:
+For atoms that need persistent storage, you can provide additional layers:
 
 ```tsx
-import * as Layer from "effect/Layer";
-import { Atom } from "@effect-atom/atom-react";
-import { clientRuntimeLayer } from "@beep/runtime-client";
+import * as Effect from "effect/Effect";
 import { layerIndexedDB } from "@beep/runtime-client/services/common/layer-indexed-db";
+import * as KeyValueStore from "@effect/platform/KeyValueStore";
 
-export const durableRuntime = Atom.runtime(
-  Layer.mergeAll(
-    clientRuntimeLayer,
-    layerIndexedDB({ dbName: "beep-cache", storeName: "kv" })
-  )
-);
+// Use IndexedDB in an Effect
+const storeData = Effect.gen(function* () {
+  const store = yield* KeyValueStore.KeyValueStore;
+  yield* store.set("myKey", "myValue");
+}).pipe(Effect.provide(layerIndexedDB({ dbName: "beep-cache", storeName: "kv" })));
 ```
 
 ### Executing Worker RPC
@@ -330,17 +323,17 @@ const fetchData = Effect.gen(function* () {
 
 ```bash
 # Type check
-bun run check --filter @beep/runtime-client
+bun run --filter @beep/runtime-client check
 
 # Lint
-bun run lint --filter @beep/runtime-client
-bun run lint:fix --filter @beep/runtime-client
+bun run --filter @beep/runtime-client lint
+bun run --filter @beep/runtime-client lint:fix
 
 # Test
-bun run test --filter @beep/runtime-client
+bun run --filter @beep/runtime-client test
 
 # Build
-bun run build --filter @beep/runtime-client
+bun run --filter @beep/runtime-client build
 ```
 
 ## Dependencies

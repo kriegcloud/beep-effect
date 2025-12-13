@@ -12,11 +12,11 @@ Next.js 15 App Router frontend for the beep-effect platform.
 |--------|------|-------------|
 | `getAppConfig` | `Effect<AppConfig>` | Server-side Effect that detects language, settings, and direction from cookies/headers |
 | `GlobalProviders` | Component | Root provider stack (BeepProvider → Registry → Theme → i18n → Settings → IAM) |
+| `KaServices` | Component | Client-side Effect services mount point |
 | `AuthGuard` | Component | Protected route wrapper requiring authentication |
 | `GuestGuard` | Component | Public route wrapper (redirects authenticated users) |
-| `/api/auth/[...all]` | Route Handler | Better Auth integration endpoint |
+| `/api/v1/auth/[...all]` | Route Handler | Better Auth integration endpoint |
 | `/api/v1/iam/[...iam]` | Route Handler | IAM API routes |
-| `/api/v1/files/*` | Route Handler | File upload/callback API routes |
 
 ## Usage Examples
 
@@ -24,25 +24,28 @@ Next.js 15 App Router frontend for the beep-effect platform.
 
 ```typescript
 import * as Effect from "effect/Effect";
+import { KaServices } from "@beep/runtime-client";
 import { runServerPromise } from "@beep/runtime-server";
+import { RegistryProvider } from "@effect-atom/atom-react";
 import { getAppConfig } from "@/app-config";
+import { GlobalProviders } from "@/GlobalProviders";
 
 // Root layout fetches app config (language, direction, settings)
 export default async function RootLayout({ children }: RootLayoutProps) {
   const appConfig = await runServerPromise(
-    Effect.gen(function* () {
-      const config = yield* getAppConfig;
-      return config;
-    }),
+    getAppConfig.pipe(Effect.withSpan("getInitialProps")),
     "RootLayout.getInitialProps"
   );
 
   return (
-    <html lang={appConfig.lang} dir={appConfig.dir}>
+    <html lang={appConfig.lang ?? "en"} dir={appConfig.dir}>
       <body>
-        <GlobalProviders appConfig={appConfig}>
-          {children}
-        </GlobalProviders>
+        <KaServices />
+        <RegistryProvider>
+          <GlobalProviders appConfig={appConfig}>
+            {children}
+          </GlobalProviders>
+        </RegistryProvider>
       </body>
     </html>
   );
@@ -54,6 +57,8 @@ export default async function RootLayout({ children }: RootLayoutProps) {
 ```typescript
 import * as Effect from "effect/Effect";
 import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as Str from "effect/String";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 
 // Custom hook using client runtime
@@ -66,16 +71,13 @@ export const useRefreshSession = () => {
 
 // Processing data with Effect utilities
 const processUserNames = (users: User[]) =>
-  Effect.gen(function* () {
-    const names = yield* Effect.succeed(
-      pipe(
-        users,
-        A.map((user) => user.name),
-        A.filter((name) => pipe(name, Str.isNonEmpty))
-      )
-    );
-    return names;
-  });
+  Effect.succeed(
+    F.pipe(
+      users,
+      A.map((user) => user.name),
+      A.filter((name) => F.pipe(name, Str.isNonEmpty))
+    )
+  );
 ```
 
 ### Effect-First Data Handling
@@ -102,7 +104,7 @@ const formatDisplayName = (name: string) =>
     Str.trim,
     Str.split(" "),
     A.map((word) => F.pipe(word, Str.capitalize)),
-    A.join(" ")
+    A.join(" ")  // Join array elements into string
   );
 ```
 
@@ -112,26 +114,31 @@ const formatDisplayName = (name: string) =>
 
 ```
 apps/web/src/app/
-├── layout.tsx                    # Root layout with GlobalProviders
-├── page.tsx                      # Home page
-├── (public)/                     # Marketing pages (about, pricing, etc.)
+├── layout.tsx                          # Root layout with GlobalProviders
+├── page.tsx                            # Home page
+├── (public)/                           # Marketing pages (about, pricing, etc.)
 │   ├── landing/page.tsx
 │   ├── pricing/page.tsx
-│   └── about/page.tsx
-├── auth/                         # Authentication flows
+│   ├── about/page.tsx
+│   ├── contact-us/page.tsx
+│   ├── faqs/page.tsx
+│   ├── portfolio/page.tsx
+│   ├── privacy/page.tsx
+│   └── terms/page.tsx
+├── auth/                               # Authentication flows
 │   ├── sign-in/page.tsx
 │   ├── sign-up/page.tsx
-│   └── reset-password/page.tsx
-├── dashboard/                    # Protected dashboard
+│   ├── reset-password/page.tsx
+│   └── request-reset-password/page.tsx
+├── dashboard/                          # Protected dashboard
 │   ├── layout.tsx
 │   └── _layout-client.tsx
-├── upload/                       # File upload feature
+├── upload/                             # File upload feature
 │   └── page.tsx
-└── api/                          # API routes
-    ├── auth/[...all]/route.ts    # Better Auth handler
+└── api/                                # API routes
     └── v1/
-        ├── iam/[...iam]/route.ts # IAM endpoints
-        └── files/route.ts        # File endpoints
+        ├── auth/[...all]/route.ts      # Better Auth handler
+        └── iam/[...iam]/route.ts       # IAM endpoints
 ```
 
 ### Provider Stack
@@ -141,8 +148,8 @@ The `GlobalProviders` component establishes the following provider hierarchy:
 1. `BeepProvider` — Client Effect runtime
 2. `RegistryContext` — Atom registry for global state
 3. `InitColorSchemeScript` — MUI color scheme hydration
-4. `TanstackDevToolsProvider` — Development tools
-5. `I18nProvider` — Internationalization
+4. `I18nProvider` — Internationalization
+5. `DevToolsProvider` — TanStack development tools
 6. `SettingsProvider` — User preferences (theme, layout, etc.)
 7. `LocalizationProvider` — Date/number formatting
 8. `AppRouterCacheProvider` — MUI Emotion cache
@@ -153,6 +160,8 @@ The `GlobalProviders` component establishes the following provider hierarchy:
 13. `MotionLazy` — Framer Motion lazy loading
 
 Plus global UI components: `Snackbar`, `ProgressBar`, `SettingsDrawer`
+
+**Note**: The root layout also mounts `<KaServices />` before `GlobalProviders` and wraps everything in `<RegistryProvider />` for atom management.
 
 ## Dependencies
 
@@ -231,15 +240,6 @@ bun run start
 bun run lint:circular
 ```
 
-### Asset Management
-
-After adding files to `public/`:
-
-```bash
-# Regenerate typed asset paths
-bun run gen:beep-paths
-```
-
 ## Environment Configuration
 
 Environment variables are managed via `dotenvx` from the repository root `.env` file.
@@ -310,12 +310,16 @@ F.pipe(str, Str.trim)
 
 ### Next.js Config (`next.config.mjs`)
 
+The configuration delegates to `@beep/build-utils/beepNextConfig`, which provides:
+
 - **Turbopack**: Enabled for faster builds
-- **React Compiler**: Automatic optimization
+- **React Compiler**: Automatic optimization via `babel-plugin-react-compiler`
 - **Transpilation**: TS-aware transpilation of `@beep/*` workspace packages
-- **SVGR**: SVG imports as React components
+- **SVGR**: SVG imports as React components via `@svgr/webpack`
 - **Security Headers**: CSP, HSTS, frame options
 - **Output Tracing**: Monorepo-aware file tracing
+
+See `packages/tooling/build-utils` for the complete configuration implementation.
 
 ### TypeScript Config
 
@@ -331,15 +335,13 @@ F.pipe(str, Str.trim)
 2. **Type Safety**: No `any`, `@ts-ignore`, or unchecked casts
 3. **Import Guardrails**: Follow namespace import conventions
 4. **Provider Consistency**: Update `GlobalProviders` when adding global dependencies
-5. **Asset Types**: Regenerate after modifying `public/` directory
-6. **Environment**: Add new vars to `@beep/shared-infra` config
+5. **Environment**: Add new vars to `@beep/shared-infra` config
 
 ### Before Committing
 
 - [ ] `bun run check --filter @beep/web` passes
 - [ ] `bun run lint --filter @beep/web` passes
 - [ ] No native array/string/object methods introduced
-- [ ] Assets regenerated if `public/` changed
 - [ ] Environment variables documented if added
 
 ### App Router Best Practices

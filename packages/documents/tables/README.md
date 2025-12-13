@@ -28,8 +28,9 @@ Drizzle schema package for the documents slice. Houses PostgreSQL table definiti
 
 ### Key Exports
 - `DocumentsDbSchema` namespace (via `src/index.ts`) — Complete schema for infra layer consumption
-- Individual table exports for selective imports
-- Relation exports for query building
+- **Tables**: `document`, `documentVersion`, `documentFile`, `discussion`, `comment`, `knowledgeSpace`, `knowledgePage`, `knowledgeBlock`, `pageLink`
+- **Relations**: `documentRelations`, `knowledgeSpaceRelations`, `knowledgePageRelations`, `knowledgeBlockRelations`, `pageLinkRelations`, etc.
+- **Enums**: `textStylePgEnum`, `blockTypePgEnum` (generated from `@beep/documents-domain/value-objects`)
 
 ## Architecture
 
@@ -37,33 +38,48 @@ Drizzle schema package for the documents slice. Houses PostgreSQL table definiti
 All tables use shared factories from `@beep/shared-tables`:
 
 ```typescript
-import { OrgTable } from "@beep/shared-tables";
+import { OrgTable, user } from "@beep/shared-tables";
+import type { SharedEntityIds } from "@beep/shared-domain";
 import { DocumentsEntityIds } from "@beep/shared-domain";
+import * as pg from "drizzle-orm/pg-core";
 
-export const document = OrgTable.make(DocumentsEntityIds.DocumentId)({
-  // columns...
-}, (t) => [
-  // indexes...
-]);
+export const document = OrgTable.make(DocumentsEntityIds.DocumentId)(
+  {
+    userId: pg
+      .text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" })
+      .$type<SharedEntityIds.UserId.Type>(),
+    title: pg.text("title"),
+    content: pg.text("content"),
+    // ... additional columns
+  },
+  (t) => [
+    pg.index("document_user_idx").on(t.userId),
+    pg.index("document_is_published_idx").on(t.isPublished),
+    // ... additional indexes
+  ]
+);
 ```
 
 This ensures:
 - Automatic `id`, `organizationId`, `createdAt`, `updatedAt` columns
-- Consistent naming conventions
+- Consistent naming conventions (snake_case for DB, camelCase for TypeScript)
 - Built-in audit trail support
-- Type-safe branded IDs
+- Type-safe branded IDs via `.$type<>()` assertions
 
 ### Domain-Driven Enums
 Enums are generated from domain value objects, not hardcoded:
 
 ```typescript
-import { TextStyle, PageStatus, BlockType } from "@beep/documents-domain/value-objects";
+import { TextStyle, BlockType } from "@beep/documents-domain/value-objects";
 import { BS } from "@beep/schema";
 
 export const textStylePgEnum = BS.toPgEnum(TextStyle)("text_style_enum");
-export const pageStatusPgEnum = BS.toPgEnum(PageStatus)("page_status_enum");
 export const blockTypePgEnum = BS.toPgEnum(BlockType)("block_type_enum");
 ```
+
+This ensures that database enums stay synchronized with domain models and prevents schema drift.
 
 ### Relations Structure
 Comprehensive bidirectional relations defined in `src/relations.ts`:
@@ -77,9 +93,10 @@ Comprehensive bidirectional relations defined in `src/relations.ts`:
 
 ### In Infrastructure Layer
 ```typescript
-import * as DocumentsDbSchema from "@beep/documents-tables";
+// Import the schema namespace
+import { DocumentsDbSchema } from "@beep/documents-tables";
 
-// Access tables
+// Access tables and relations
 const { document, knowledgePage, knowledgeBlock } = DocumentsDbSchema;
 
 // Use in repository implementations
@@ -87,6 +104,15 @@ const repo = makeRepo({
   table: document,
   schema: DocumentsDbSchema
 });
+```
+
+### Alternative Import (Direct Schema Import)
+```typescript
+// Import schema directly for Drizzle client initialization
+import * as DocumentsDbSchema from "@beep/documents-tables/schema";
+
+// Use in db client construction
+const db = drizzle(client, { schema: DocumentsDbSchema });
 ```
 
 ### In Migrations
@@ -99,9 +125,9 @@ import { document, documentRelations } from "@beep/documents-tables";
 
 ### Local Commands
 ```bash
-bun run check --filter=@beep/documents-tables   # Type check
-bun run lint --filter=@beep/documents-tables    # Biome lint
-bun run test --filter=@beep/documents-tables    # Run tests
+bun run check --filter @beep/documents-tables   # Type check
+bun run lint --filter @beep/documents-tables    # Biome lint
+bun run test --filter @beep/documents-tables    # Run tests
 ```
 
 ### Schema Workflow

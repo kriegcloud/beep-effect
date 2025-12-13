@@ -76,18 +76,18 @@ import { DomainApi } from "@beep/documents-domain";
 
 Tagged errors for domain-level failures:
 
-- **ExifParseError** — EXIF metadata parsing failures (file type, size, phase tracking)
+- **MetadataParseError** — Metadata parsing failures (file type, size, phase tracking)
 - **FileReadError** — File reading failures with diagnostic context
 
 ```typescript
 import * as Effect from "effect/Effect";
-import { ExifParseError, FileReadError } from "@beep/documents-domain";
+import { MetadataParseError, FileReadError } from "@beep/documents-domain/errors";
 
 const program = Effect.gen(function* () {
   // Domain operations that may fail with tagged errors
 }).pipe(
   Effect.catchTags({
-    ExifParseError: (error) => Effect.logError(error.message),
+    MetadataParseError: (error) => Effect.logError(error.message),
     FileReadError: (error) => Effect.logError(error.message),
   })
 );
@@ -100,6 +100,7 @@ All entities follow consistent Effect SQL Model patterns:
 ```typescript
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
+import * as F from "effect/Function";
 import { BS } from "@beep/schema";
 import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
@@ -110,7 +111,7 @@ export class Model extends M.Class<Model>(`KnowledgePageModel`)(
     spaceId: DocumentsEntityIds.KnowledgeSpaceId,
     organizationId: SharedEntityIds.OrganizationId,
     parentPageId: BS.FieldOptionOmittable(DocumentsEntityIds.KnowledgePageId),
-    title: S.String.pipe(S.maxLength(500)),
+    title: F.pipe(S.String, S.maxLength(500)),
     slug: S.String,
     status: PageStatus,
     order: BS.toOptionalWithDefault(S.Int)(0),
@@ -129,7 +130,7 @@ export class Model extends M.Class<Model>(`KnowledgePageModel`)(
 
 ## HTTP API Contracts
 
-Contracts define typed endpoints with Effect Platform:
+Some entities define typed HTTP endpoints with Effect Platform. Currently, only `KnowledgePage` has a contract:
 
 ```typescript
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
@@ -146,6 +147,8 @@ export class Contract extends HttpApiGroup.make("knowledgePage")
       .addSuccess(Model)
   ) {}
 ```
+
+Entities with RPC schemas instead of HTTP contracts include: `Comment`, `Discussion`, and `Document`.
 
 ## Usage Examples
 
@@ -177,10 +180,8 @@ import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
 import { PageStatus, BlockType } from "@beep/documents-domain";
 
-const validateStatus = S.decodeUnknown(PageStatus);
-
 const program = Effect.gen(function* () {
-  const status = yield* validateStatus("draft"); // Type: "draft" | "published" | "archived"
+  const status = yield* S.decodeUnknown(PageStatus)("draft"); // Type: "draft" | "published" | "archived"
   const blockType = yield* S.decodeUnknown(BlockType)("paragraph");
 
   return { status, blockType };
@@ -192,8 +193,7 @@ const program = Effect.gen(function* () {
 ```typescript
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { Entities } from "@beep/documents-domain";
-import { TextStyle } from "@beep/documents-domain";
+import { Entities, TextStyle } from "@beep/documents-domain";
 
 const createDocument = (input: {
   title: string;
@@ -202,7 +202,7 @@ const createDocument = (input: {
 }) =>
   Effect.gen(function* () {
     // Decode and validate using the model schema
-    const document = yield* S.decode(Entities.Document.Model)({
+    const document = yield* S.decodeUnknown(Entities.Document.Model)({
       title: input.title,
       organizationId: input.organizationId,
       userId: input.userId,
@@ -220,24 +220,24 @@ const createDocument = (input: {
 
 ### Type Checking
 ```bash
-bun run check --filter=@beep/documents-domain
+bun run --filter @beep/documents-domain check
 ```
 
 ### Linting
 ```bash
-bun run lint --filter=@beep/documents-domain
-bun run lint:fix --filter=@beep/documents-domain
+bun run --filter @beep/documents-domain lint
+bun run --filter @beep/documents-domain lint:fix
 ```
 
 ### Testing
 ```bash
-bun run test --filter=@beep/documents-domain
-bun run coverage --filter=@beep/documents-domain
+bun run --filter @beep/documents-domain test
+bun run --filter @beep/documents-domain coverage
 ```
 
 ### Circular Dependency Check
 ```bash
-bun run lint:circular --filter=@beep/documents-domain
+bun run --filter @beep/documents-domain lint:circular
 ```
 
 ## Import Guidelines
@@ -271,14 +271,12 @@ import { pipe } from "effect/Function";
 ### Peer Dependencies
 - `effect` — Core Effect library
 - `@effect/sql` — SQL modeling utilities
-- `@effect/platform` — HTTP API contracts
 - `@beep/shared-domain` — Cross-slice entities and factories
 - `@beep/schema` — Schema utilities and helpers
 - `@beep/invariant` — Assertion contracts
 - `@beep/utils` — Pure runtime helpers
 - `@beep/constants` — Schema-backed enums
 - `@beep/identity` — Package identity
-- `exifreader` — EXIF metadata parsing
 
 ## Layer Boundaries
 

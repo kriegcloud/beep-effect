@@ -8,7 +8,15 @@ The SDK package bridges client applications (web, CLI, mobile) with the document
 
 ## Current Status
 
-**Placeholder Stage**: The package currently exports a stub (`beep`) while the infra layer and HTTP API stabilize. Once `@beep/documents-infra` finalizes route implementations and the `DomainApi` from `@beep/documents-domain` is wired into the server runtime, this package will host the official client wrappers.
+**Placeholder Stage**: The package currently exports a stub (`beep`) while the infra layer and HTTP/RPC API stabilize.
+
+**Available Contracts in Domain**:
+- `@beep/documents-domain/DomainApi` — HTTP API with `KnowledgePage.Contract` (get endpoint)
+- `@beep/documents-domain/entities/Document` — RPC contracts for full document CRUD (12 operations)
+- `@beep/documents-domain/entities/Discussion` — RPC contracts for discussions
+- `@beep/documents-domain/entities/Comment` — RPC contracts for comments
+
+Once `@beep/documents-infra` finalizes route implementations and these contracts are wired into the server runtime, this package will host the official client wrappers for both HTTP and RPC endpoints.
 
 ## Architecture Fit
 
@@ -21,217 +29,226 @@ The SDK package bridges client applications (web, CLI, mobile) with the document
 
 When implemented, the SDK will provide client wrappers for:
 
-| Feature Area | Description |
-|-------------|-------------|
-| **Documents** | CRUD operations for documents, versioning, metadata management |
-| **Knowledge Pages** | Page creation, updates, block management, status transitions |
-| **Knowledge Spaces** | Space organization, hierarchy, permissions |
-| **Discussions** | Thread creation, replies, resolution workflows |
-| **Comments** | Inline comments, mentions, reactions |
-| **File Operations** | Upload initiation, signed URLs, progress tracking, metadata extraction |
+| Feature Area | Description | Domain Contract Status |
+|-------------|-------------|------------------------|
+| **Documents** | CRUD operations for documents, versioning, metadata management | ✅ RPC contracts defined (12 operations) |
+| **Knowledge Pages** | Page creation, updates, block management, status transitions | ✅ HTTP contract defined (get endpoint) |
+| **Knowledge Spaces** | Space organization, hierarchy, permissions | ⏳ Pending |
+| **Discussions** | Thread creation, replies, resolution workflows | ✅ RPC contracts defined |
+| **Comments** | Inline comments, mentions, reactions | ✅ RPC contracts defined |
+| **File Operations** | Upload initiation, signed URLs, progress tracking, metadata extraction | ⏳ Pending |
 
 ## Expected API Shape
+
+### HTTP Client (for Knowledge Pages)
 
 ```typescript
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Context from "effect/Context";
-import { DomainApi } from "@beep/documents-domain";
+import * as HttpClient from "@effect/platform/HttpClient";
+import { DomainApi, KnowledgePage } from "@beep/documents-domain";
 
-// Configuration service
-export class DocumentsClientConfig extends Context.Tag("@beep/documents-sdk/Config")<
-  DocumentsClientConfig,
+// HTTP client for Knowledge Pages using DomainApi
+export class KnowledgePageClient extends Effect.Service<KnowledgePageClient>()(
+  "@beep/documents-sdk/KnowledgePageClient",
   {
-    readonly baseUrl: string;
-    readonly apiVersion: string;
+    effect: Effect.gen(function* () {
+      const httpClient = yield* HttpClient.HttpClient;
+
+      const getPage = (id: string) =>
+        Effect.gen(function* () {
+          // Use DomainApi.KnowledgePage.Contract.get endpoint
+          // Returns Effect<KnowledgePage, KnowledgePageNotFoundError>
+        });
+
+      return { getPage };
+    }),
+    dependencies: [HttpClient.layer]
   }
->() {}
+) {}
+```
 
-// Main client service
-export class DocumentsClient extends Effect.Service<DocumentsClient>()("@beep/documents-sdk/Client", {
-  effect: Effect.gen(function* () {
-    const config = yield* DocumentsClientConfig;
-    const httpClient = yield* HttpClient.HttpClient;
+### RPC Client (for Documents, Discussions, Comments)
 
-    // Knowledge page operations
-    const getPage = (pageId: string) => Effect.gen(function* () {
-      // Fetch and decode knowledge page
-      // Returns Effect<KnowledgePage, DocumentsError>
-    });
+```typescript
+import * as Rpc from "@effect/rpc/Rpc";
+import * as RpcResolver from "@effect/rpc/RpcResolver";
+import * as Effect from "effect/Effect";
+import { Document } from "@beep/documents-domain";
 
-    const createPage = (data: unknown) => Effect.gen(function* () {
-      // Validate input schema
-      // POST to API endpoint
-      // Return decoded page
-    });
+// RPC client for Document operations using Document.Rpcs
+export class DocumentClient extends Effect.Service<DocumentClient>()(
+  "@beep/documents-sdk/DocumentClient",
+  {
+    effect: Effect.gen(function* () {
+      const resolver = yield* RpcResolver.RpcResolver;
 
-    const updatePage = (pageId: string, updates: unknown) => Effect.gen(function* () {
-      // Validate and send updates
-      // Returns Effect<KnowledgePage, DocumentsError>
-    });
+      // Example: get document
+      const get = (id: string) =>
+        Effect.gen(function* () {
+          // Use Document.Rpcs.get
+          const result = yield* resolver(Document.Rpcs.get({ id }));
+          return result;
+        });
 
-    // Document operations
-    const uploadDocument = (file: File, metadata: unknown) => Effect.gen(function* () {
-      // Request signed upload URL
-      // Upload to storage
-      // Create document record
-      // Returns Effect<Document, UploadError>
-    });
+      // Example: create document
+      const create = (data: Document.CreatePayload) =>
+        Effect.gen(function* () {
+          // Use Document.Rpcs.create
+          const document = yield* resolver(Document.Rpcs.create(data));
+          return document;
+        });
 
-    const getDocument = (documentId: string) => Effect.gen(function* () {
-      // Fetch document with versions
-      // Returns Effect<Document, DocumentsError>
-    });
+      // Example: list documents (streaming)
+      const list = (params: Document.ListPayload) =>
+        Effect.gen(function* () {
+          // Use Document.Rpcs.list (streaming RPC)
+          const stream = yield* resolver(Document.Rpcs.list(params));
+          return stream;
+        });
 
-    // Discussion operations
-    const createDiscussion = (data: unknown) => Effect.gen(function* () {
-      // Create discussion thread
-      // Returns Effect<Discussion, DocumentsError>
-    });
-
-    const addComment = (discussionId: string, content: unknown) => Effect.gen(function* () {
-      // Add comment to discussion
-      // Returns Effect<Comment, DocumentsError>
-    });
-
-    return {
-      // Knowledge Pages
-      getPage,
-      createPage,
-      updatePage,
-      listPages,
-      deletePage,
-
-      // Documents
-      uploadDocument,
-      getDocument,
-      listDocuments,
-      deleteDocument,
-
-      // Discussions & Comments
-      createDiscussion,
-      getDiscussion,
-      addComment,
-      resolveDiscussion
-    };
-  }),
-  dependencies: [
-    DocumentsClientConfig.Default,
-    HttpClient.layer
-  ]
-}) {}
-
-// Convenience layers
-export const DocumentsClientLive = Layer.effect(
-  DocumentsClient,
-  Effect.gen(function* () {
-    // Implementation
-  })
-);
+      return {
+        get,
+        create,
+        list,
+        // ... all 12 Document RPC operations
+      };
+    }),
+    dependencies: [RpcResolver.layer]
+  }
+) {}
 ```
 
 ## Usage Examples
 
-### Basic Client Setup
+### HTTP Client Setup (Knowledge Pages)
 
 ```typescript
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { DocumentsClient, DocumentsClientConfig } from "@beep/documents-sdk";
+import * as HttpClient from "@effect/platform/HttpClient";
+import { KnowledgePageClient } from "@beep/documents-sdk";
 
-// Configure client
-const ConfigLive = Layer.succeed(
-  DocumentsClientConfig,
-  {
-    baseUrl: "https://api.example.com",
-    apiVersion: "v1"
-  }
-);
-
-// Use client
+// Use HTTP client for Knowledge Pages
 const program = Effect.gen(function* () {
-  const client = yield* DocumentsClient;
+  const client = yield* KnowledgePageClient;
   const page = yield* client.getPage("page-id");
   return page;
 });
 
-// Run with dependencies
-const runnable = Effect.provide(program, Layer.merge(ConfigLive, DocumentsClientLive));
+// Provide HTTP client layer
+const runnable = program.pipe(
+  Effect.provide(KnowledgePageClient.Default)
+);
 ```
 
-### Knowledge Page Operations
+### RPC Client Setup (Documents)
+
+```typescript
+import * as Effect from "effect/Effect";
+import * as RpcResolver from "@effect/rpc/RpcResolver";
+import { DocumentClient } from "@beep/documents-sdk";
+
+// Use RPC client for Documents
+const program = Effect.gen(function* () {
+  const client = yield* DocumentClient;
+
+  const document = yield* client.create({
+    organizationId: "org-123",
+    title: "New Document",
+    content: "Document content"
+  });
+
+  return document;
+});
+
+// Provide RPC resolver layer
+const runnable = program.pipe(
+  Effect.provide(DocumentClient.Default)
+);
+```
+
+### Document Operations with RPC
 
 ```typescript
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
-import { DocumentsClient } from "@beep/documents-sdk";
-import { KnowledgePage } from "@beep/documents-domain";
+import * as Stream from "effect/Stream";
+import * as A from "effect/Array";
+import { DocumentClient } from "@beep/documents-sdk";
 
-const createAndPublishPage = (title: string, content: string) =>
+const listAndArchiveOldDocuments = (organizationId: string) =>
   Effect.gen(function* () {
-    const client = yield* DocumentsClient;
+    const client = yield* DocumentClient;
 
-    // Create draft page
-    const draft = yield* client.createPage({
-      title,
-      content,
-      status: "draft"
-    });
+    // List all documents (streaming RPC)
+    const documentsStream = yield* client.list({ organizationId });
 
-    // Update to published
-    const published = yield* client.updatePage(draft.id, {
-      status: "published"
-    });
+    // Collect stream into array
+    const documents = yield* Stream.runCollect(documentsStream);
 
-    return published;
+    // Archive old documents
+    const archived = yield* F.pipe(
+      documents,
+      A.filter((doc) => doc.lastModified < oldThreshold),
+      A.map((doc) => client.archive({ id: doc.id })),
+      Effect.all
+    );
+
+    return archived;
   });
 ```
 
-### File Upload with Progress
+### Document Search with Streaming
 
 ```typescript
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
-import { DocumentsClient } from "@beep/documents-sdk";
+import * as F from "effect/Function";
+import { DocumentClient } from "@beep/documents-sdk";
 
-const uploadWithProgress = (file: File) =>
+const searchDocuments = (query: string, organizationId: string) =>
   Effect.gen(function* () {
-    const client = yield* DocumentsClient;
+    const client = yield* DocumentClient;
 
-    // Initiate upload with progress tracking
-    const upload = yield* client.uploadDocument(file, {
-      tags: ["user-upload"],
-      visibility: "private"
+    // Search documents (streaming RPC)
+    const searchStream = yield* client.search({
+      query,
+      organizationId,
+      limit: 50
     });
 
-    // Handle upload progress (future enhancement)
-    // Returns document metadata after completion
-    return upload;
+    // Process results as they arrive
+    const results = yield* F.pipe(
+      searchStream,
+      Stream.take(10), // Take first 10 results
+      Stream.runCollect
+    );
+
+    return results;
   });
 ```
 
 ## Development
 
-### Type Check
 ```bash
-bun run check --filter=@beep/documents-sdk
-```
+# Type check
+bun run --filter @beep/documents-sdk check
 
-### Lint
-```bash
-bun run lint --filter=@beep/documents-sdk
-bun run lint:fix --filter=@beep/documents-sdk
-```
+# Lint
+bun run --filter @beep/documents-sdk lint
+bun run --filter @beep/documents-sdk lint:fix
 
-### Build
-```bash
-bun run build --filter=@beep/documents-sdk
-```
+# Build
+bun run --filter @beep/documents-sdk build
 
-### Test
-```bash
-bun run test --filter=@beep/documents-sdk
-bun run coverage --filter=@beep/documents-sdk
+# Test
+bun run --filter @beep/documents-sdk test
+bun run --filter @beep/documents-sdk coverage
+
+# Circular dependency check
+bun run --filter @beep/documents-sdk lint:circular
 ```
 
 ## Authoring Guidelines
@@ -259,19 +276,22 @@ Object.keys(obj);
 
 ### Schema Validation
 
-Validate all external data before returning to callers:
+Validate all external data using domain schemas:
 
 ```typescript
 import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
+import * as HttpClient from "@effect/platform/HttpClient";
 import { KnowledgePage } from "@beep/documents-domain";
 
 const fetchPage = (id: string) =>
   Effect.gen(function* () {
-    const response = yield* httpClient.get(`/pages/${id}`);
+    const httpClient = yield* HttpClient.HttpClient;
+    const response = yield* httpClient.get(`/api/v1/documents/knowledgePage/get/${id}`);
+    const json = yield* response.json;
 
     // Always decode with domain schemas
-    const page = yield* S.decodeUnknown(KnowledgePage.Schema)(response.body);
+    const page = yield* S.decodeUnknown(KnowledgePage.Model)(json);
 
     return page;
   });
@@ -279,42 +299,56 @@ const fetchPage = (id: string) =>
 
 ### Error Handling
 
-Use tagged errors aligned with domain error types:
+Use tagged errors from domain layer:
 
 ```typescript
-import * as S from "effect/Schema";
-import { DocumentsError } from "@beep/documents-domain";
+import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import {
+  DocumentNotFoundError,
+  KnowledgePageNotFoundError
+} from "@beep/documents-domain";
 
-class SdkError extends S.TaggedError<SdkError>()("SdkError", {
-  message: S.String,
-  cause: S.optional(S.Unknown)
-}) {}
-
-// Methods return Effect with proper error channel
-type PageResult = Effect.Effect<KnowledgePage, DocumentsError | SdkError>;
+// Error handling with catchTag
+const handleDocumentOperation = (id: string) =>
+  F.pipe(
+    DocumentClient.get(id),
+    Effect.catchTag("DocumentNotFoundError", (error) =>
+      Effect.fail({ _tag: "NotFound", message: error.message } as const)
+    ),
+    Effect.catchAll((error) =>
+      Effect.fail({ _tag: "UnknownError", cause: error } as const)
+    )
+  );
 ```
 
 ### Dependency Injection
 
-Accept configuration via Layers, not global state:
+Use Effect services with proper Layer composition:
 
 ```typescript
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import * as Context from "effect/Context";
+import * as HttpClient from "@effect/platform/HttpClient";
+import * as RpcResolver from "@effect/rpc/RpcResolver";
 
-// ✅ REQUIRED - Service with Layer
-export class ApiConfig extends Context.Tag("ApiConfig")<
-  ApiConfig,
-  { baseUrl: string }
->() {}
+// ✅ REQUIRED - Compose layers
+const AppLayer = Layer.mergeAll(
+  HttpClient.layer,
+  RpcResolver.layer
+);
 
-export const ConfigLive = Layer.succeed(ApiConfig, {
-  baseUrl: process.env.API_URL
+// Use in program
+const program = Effect.gen(function* () {
+  const httpClient = yield* HttpClient.HttpClient;
+  const rpcResolver = yield* RpcResolver.RpcResolver;
+  // ... use clients
 });
 
+const runnable = program.pipe(Effect.provide(AppLayer));
+
 // ❌ FORBIDDEN - Direct global access
-const baseUrl = process.env.API_URL;
+const client = new HttpClient();  // No global clients
 ```
 
 ## Dependencies
@@ -322,22 +356,25 @@ const baseUrl = process.env.API_URL;
 | Package | Purpose |
 |---------|---------|
 | `effect` | Core Effect runtime, Schema, and utilities |
-| `@effect/platform` | HTTP client, URL handling |
-| `@beep/documents-domain` | Entity models, value objects, DomainApi |
-| `@beep/documents-infra` | Infrastructure contracts (type-level only) |
+| `@effect/platform` | HTTP client for HttpApi endpoints |
+| `@effect/rpc` | RPC client and resolver for RPC contracts |
+| `@beep/documents-domain` | Entity models, DomainApi (HTTP), RPC contracts |
+| `@beep/documents-infra` | Infrastructure implementations (peer dependency) |
 | `@beep/schema` | Shared schema primitives and EntityId |
 | `@beep/shared-sdk` | Cross-slice SDK utilities |
+| `@beep/shared-domain` | Shared entities (User, Organization) |
 | `@beep/errors` | Error logging and telemetry |
 | `@beep/utils` | Pure runtime helpers |
 
 ## What Belongs Here
 
-- **Client wrappers** for HTTP/RPC endpoints defined in `@beep/documents-domain/DomainApi`
+- **HTTP client wrappers** for HttpApi endpoints (DomainApi.KnowledgePage.Contract)
+- **RPC client wrappers** for RPC contracts (Document.Rpcs, Discussion.Rpcs, Comment.Rpcs)
 - **Type-safe request builders** with schema validation
 - **Effect-based error handling** aligned with domain error types
-- **Layer-based configuration** for base URLs, auth tokens, retry policies
-- **Client-side utilities** for upload progress, caching, optimistic updates
-- **Contract mirrors** matching server-side route definitions
+- **Layer-based configuration** for HTTP/RPC clients, auth, retry policies
+- **Client-side utilities** for streaming, caching, optimistic updates
+- **React integration** via atoms and hooks (following `@beep/iam-sdk` pattern)
 
 ## What Must NOT Go Here
 
@@ -360,14 +397,15 @@ Tests should use `@beep/testkit` for Effect-based test utilities and live in `te
 
 This section tracks progress as the SDK evolves from placeholder to full implementation:
 
-- [ ] **Phase 1**: Define service interfaces and Layer structure
-- [ ] **Phase 2**: Implement Knowledge Page client operations
-- [ ] **Phase 3**: Add Document and File upload workflows
-- [ ] **Phase 4**: Discussion and Comment operations
-- [ ] **Phase 5**: Error handling and retry policies
-- [ ] **Phase 6**: Optimistic updates and caching layers
-- [ ] **Phase 7**: Progress tracking for uploads/downloads
-- [ ] **Phase 8**: Integration tests with mock server
+- [ ] **Phase 1**: Define HTTP and RPC client service interfaces and Layer structure
+- [ ] **Phase 2**: Implement HTTP client for Knowledge Pages (DomainApi.KnowledgePage.Contract)
+- [ ] **Phase 3**: Implement RPC client for Documents (Document.Rpcs - 12 operations)
+- [ ] **Phase 4**: Implement RPC clients for Discussions and Comments
+- [ ] **Phase 5**: Add streaming support for list/search operations
+- [ ] **Phase 6**: React integration with atoms and hooks (following @beep/iam-sdk pattern)
+- [ ] **Phase 7**: Error handling, retry policies, and logging
+- [ ] **Phase 8**: Optimistic updates and caching layers
+- [ ] **Phase 9**: Integration tests with mock HTTP/RPC resolvers
 
 ## See Also
 
